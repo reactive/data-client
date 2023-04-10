@@ -29,189 +29,106 @@ exports[`denormalize [cached] denormalizes entities 1`] = `
 
 exports[`denormalize [cached] denormalizes ignoring deleted entities in arrays 1`] = `
 [
-  [
-    Tacos {
-      "id": "1",
-      "type": "foo",
-    },
-  ],
-  false,
-  [
-    {
-      "key": "Tacos",
-      "pk": "1",
-    },
-  ],
+  Tacos {
+    "id": "1",
+    "type": "foo",
+  },
 ]
 `;
 
 exports[`denormalize [cached] denormalizes ignoring deleted entities in arrays 2`] = `
-[
-  {
-    "results": [
-      Tacos {
-        "id": "1",
-        "type": "foo",
-      },
-    ],
-  },
-  false,
-  [
-    {
-      "key": "Tacos",
-      "pk": "1",
-    },
-  ],
-]
-`;
-
-exports[`denormalize [cached] denormalizes ignoring unfound entities in arrays 1`] = `
-[
-  [
+{
+  "results": [
     Tacos {
       "id": "1",
       "type": "foo",
     },
   ],
-  false,
-  [
-    {
-      "key": "Tacos",
-      "pk": "1",
-    },
-  ],
+}
+`;
+
+exports[`denormalize [cached] denormalizes ignoring unfound entities in arrays 1`] = `
+[
+  Tacos {
+    "id": "1",
+    "type": "foo",
+  },
 ]
 `;
 
 exports[`denormalize [cached] denormalizes ignoring unfound entities in arrays 2`] = `
-[
-  {
-    "results": [
-      Tacos {
-        "id": "1",
-        "type": "foo",
-      },
-    ],
-  },
-  false,
-  [
-    {
-      "key": "Tacos",
-      "pk": "1",
+{
+  "results": [
+    Tacos {
+      "id": "1",
+      "type": "foo",
     },
   ],
-]
+}
 `;
 
 exports[`denormalize [cached] denormalizes nested entities 1`] = `
-[
-  Article {
-    "author": User {
-      "id": "8472",
-      "name": "Paul",
-    },
-    "body": "This article is great.",
-    "comments": [
-      Comment {
-        "comment": "I like it!",
-        "id": "comment-123-4738",
-        "user": User {
-          "id": "10293",
-          "name": "Jane",
-        },
-      },
-    ],
-    "id": "123",
-    "title": "A Great Article",
+Article {
+  "author": User {
+    "id": "8472",
+    "name": "Paul",
   },
-  false,
-  [
-    {
-      "key": "Article",
-      "pk": "123",
-    },
-    {
-      "key": "User",
-      "pk": "8472",
-    },
-    {
-      "key": "Comment",
-      "pk": "comment-123-4738",
-    },
-    {
-      "key": "User",
-      "pk": "10293",
+  "body": "This article is great.",
+  "comments": [
+    Comment {
+      "comment": "I like it!",
+      "id": "comment-123-4738",
+      "user": User {
+        "id": "10293",
+        "name": "Jane",
+      },
     },
   ],
-]
+  "id": "123",
+  "title": "A Great Article",
+}
 `;
 
 exports[`denormalize [cached] denormalizes schema with extra members 1`] = `
-[
-  {
-    "data": [
-      Tacos {
-        "id": "1",
-        "type": "foo",
-      },
-      Tacos {
-        "id": "2",
-        "type": "bar",
-      },
-    ],
-    "extra": "5",
-    "page": {
-      "complex": {
-        "complex": false,
-        "next": true,
-      },
-      "first": null,
-      "second": {
-        "thing": "two",
-      },
-      "third": 1,
+{
+  "data": [
+    Tacos {
+      "id": "1",
+      "type": "foo",
     },
-  },
-  false,
-  [
-    {
-      "key": "Tacos",
-      "pk": "1",
-    },
-    {
-      "key": "Tacos",
-      "pk": "2",
+    Tacos {
+      "id": "2",
+      "type": "bar",
     },
   ],
-]
+  "extra": "5",
+  "page": {
+    "complex": {
+      "complex": false,
+      "next": true,
+    },
+    "first": null,
+    "second": {
+      "thing": "two",
+    },
+    "third": 1,
+  },
+}
 `;
 
 exports[`denormalize [cached] denormalizes schema with extra members but not set 1`] = `
-[
-  {
-    "data": [
-      Tacos {
-        "id": "1",
-        "type": "foo",
-      },
-      Tacos {
-        "id": "2",
-        "type": "bar",
-      },
-    ],
-  },
-  false,
-  [
-    {
-      "key": "Tacos",
-      "pk": "1",
+{
+  "data": [
+    Tacos {
+      "id": "1",
+      "type": "foo",
     },
-    {
-      "key": "Tacos",
-      "pk": "2",
+    Tacos {
+      "id": "2",
+      "type": "bar",
     },
   ],
-]
+}
 `;
 
 exports[`denormalize [cached] denormalizes where id is only in key 1`] = `
@@ -229,87 +146,49 @@ exports[`denormalize [cached] denormalizes where id is only in key 1`] = `
 
 exports[`denormalize [cached] denormalizes with function as pk() 1`] = `
 [
-  [
-    Patron {
-      "guest": null,
-      "id": "1",
-      "name": "Esther",
+  Patron {
+    "guest": null,
+    "id": "1",
+    "name": "Esther",
+  },
+  Patron {
+    "guest": Guest {
+      "guestId": 1,
     },
-    Patron {
-      "guest": Guest {
-        "guestId": 1,
-      },
-      "id": "2",
-      "name": "Tom",
-    },
-  ],
-  false,
-  [
-    {
-      "key": "Patron",
-      "pk": "1",
-    },
-    {
-      "key": "Patron",
-      "pk": "2",
-    },
-    {
-      "key": "Guest",
-      "pk": "guest-2-1",
-    },
-  ],
+    "id": "2",
+    "name": "Tom",
+  },
 ]
 `;
 
 exports[`denormalize [cached] denormalizes without entities fills undefined 1`] = `
-[
-  {
-    "data": undefined,
-  },
-  false,
-  [],
-]
+{
+  "data": undefined,
+}
 `;
 
 exports[`denormalize [cached] denormalizes without entities fills undefined 2`] = `
-[
-  Immutable.Map {
-    "data": undefined,
-  },
-  false,
-  [],
-]
+Immutable.Map {
+  "data": undefined,
+}
 `;
 
 exports[`denormalize [cached] gracefully handles when nested entities are primitives 1`] = `[Function]`;
 
 exports[`denormalize [cached] set to undefined if schema key is not in entities 1`] = `
-[
-  Article {
-    "author": undefined,
-    "body": "",
-    "comments": [
-      Comment {
-        "comment": "",
-        "id": "1",
-        "user": undefined,
-      },
-    ],
-    "id": "123",
-    "title": "",
-  },
-  false,
-  [
-    {
-      "key": "Article",
-      "pk": "123",
-    },
-    {
-      "key": "Comment",
-      "pk": "1",
+Article {
+  "author": undefined,
+  "body": "",
+  "comments": [
+    Comment {
+      "comment": "",
+      "id": "1",
+      "user": undefined,
     },
   ],
-]
+  "id": "123",
+  "title": "",
+}
 `;
 
 exports[`denormalize [fast] denormalizes arrays with objects inside 1`] = `
@@ -341,127 +220,106 @@ exports[`denormalize [fast] denormalizes entities 1`] = `
 
 exports[`denormalize [fast] denormalizes ignoring deleted entities in arrays 1`] = `
 [
-  [
-    Tacos {
-      "id": "1",
-      "type": "foo",
-    },
-  ],
-  false,
+  Tacos {
+    "id": "1",
+    "type": "foo",
+  },
 ]
 `;
 
 exports[`denormalize [fast] denormalizes ignoring deleted entities in arrays 2`] = `
-[
-  {
-    "results": [
-      Tacos {
-        "id": "1",
-        "type": "foo",
-      },
-    ],
-  },
-  false,
-]
-`;
-
-exports[`denormalize [fast] denormalizes ignoring unfound entities in arrays 1`] = `
-[
-  [
+{
+  "results": [
     Tacos {
       "id": "1",
       "type": "foo",
     },
   ],
-  false,
+}
+`;
+
+exports[`denormalize [fast] denormalizes ignoring unfound entities in arrays 1`] = `
+[
+  Tacos {
+    "id": "1",
+    "type": "foo",
+  },
 ]
 `;
 
 exports[`denormalize [fast] denormalizes ignoring unfound entities in arrays 2`] = `
-[
-  {
-    "results": [
-      Tacos {
-        "id": "1",
-        "type": "foo",
-      },
-    ],
-  },
-  false,
-]
+{
+  "results": [
+    Tacos {
+      "id": "1",
+      "type": "foo",
+    },
+  ],
+}
 `;
 
 exports[`denormalize [fast] denormalizes nested entities 1`] = `
-[
-  Article {
-    "author": User {
-      "id": "8472",
-      "name": "Paul",
-    },
-    "body": "This article is great.",
-    "comments": [
-      Comment {
-        "comment": "I like it!",
-        "id": "comment-123-4738",
-        "user": User {
-          "id": "10293",
-          "name": "Jane",
-        },
-      },
-    ],
-    "id": "123",
-    "title": "A Great Article",
+Article {
+  "author": User {
+    "id": "8472",
+    "name": "Paul",
   },
-  false,
-]
+  "body": "This article is great.",
+  "comments": [
+    Comment {
+      "comment": "I like it!",
+      "id": "comment-123-4738",
+      "user": User {
+        "id": "10293",
+        "name": "Jane",
+      },
+    },
+  ],
+  "id": "123",
+  "title": "A Great Article",
+}
 `;
 
 exports[`denormalize [fast] denormalizes schema with extra members 1`] = `
-[
-  {
-    "data": [
-      Tacos {
-        "id": "1",
-        "type": "foo",
-      },
-      Tacos {
-        "id": "2",
-        "type": "bar",
-      },
-    ],
-    "extra": "5",
-    "page": {
-      "complex": {
-        "complex": false,
-        "next": true,
-      },
-      "first": null,
-      "second": {
-        "thing": "two",
-      },
-      "third": 1,
+{
+  "data": [
+    Tacos {
+      "id": "1",
+      "type": "foo",
     },
+    Tacos {
+      "id": "2",
+      "type": "bar",
+    },
+  ],
+  "extra": "5",
+  "page": {
+    "complex": {
+      "complex": false,
+      "next": true,
+    },
+    "first": null,
+    "second": {
+      "thing": "two",
+    },
+    "third": 1,
   },
-  false,
-]
+}
 `;
 
 exports[`denormalize [fast] denormalizes schema with extra members but not set 1`] = `
-[
-  {
-    "data": [
-      Tacos {
-        "id": "1",
-        "type": "foo",
-      },
-      Tacos {
-        "id": "2",
-        "type": "bar",
-      },
-    ],
-  },
-  false,
-]
+{
+  "data": [
+    Tacos {
+      "id": "1",
+      "type": "foo",
+    },
+    Tacos {
+      "id": "2",
+      "type": "bar",
+    },
+  ],
+}
 `;
 
 exports[`denormalize [fast] denormalizes where id is only in key 1`] = `
@@ -479,61 +337,49 @@ exports[`denormalize [fast] denormalizes where id is only in key 1`] = `
 
 exports[`denormalize [fast] denormalizes with function as pk() 1`] = `
 [
-  [
-    Patron {
-      "guest": null,
-      "id": "1",
-      "name": "Esther",
+  Patron {
+    "guest": null,
+    "id": "1",
+    "name": "Esther",
+  },
+  Patron {
+    "guest": Guest {
+      "guestId": 1,
     },
-    Patron {
-      "guest": Guest {
-        "guestId": 1,
-      },
-      "id": "2",
-      "name": "Tom",
-    },
-  ],
-  false,
+    "id": "2",
+    "name": "Tom",
+  },
 ]
 `;
 
 exports[`denormalize [fast] denormalizes without entities fills undefined 1`] = `
-[
-  {
-    "data": undefined,
-  },
-  false,
-]
+{
+  "data": undefined,
+}
 `;
 
 exports[`denormalize [fast] denormalizes without entities fills undefined 2`] = `
-[
-  Immutable.Map {
-    "data": undefined,
-  },
-  false,
-]
+Immutable.Map {
+  "data": undefined,
+}
 `;
 
 exports[`denormalize [fast] gracefully handles when nested entities are primitives 1`] = `[Function]`;
 
 exports[`denormalize [fast] set to undefined if schema key is not in entities 1`] = `
-[
-  Article {
-    "author": undefined,
-    "body": "",
-    "comments": [
-      Comment {
-        "comment": "",
-        "id": "1",
-        "user": undefined,
-      },
-    ],
-    "id": "123",
-    "title": "",
-  },
-  false,
-]
+Article {
+  "author": undefined,
+  "body": "",
+  "comments": [
+    Comment {
+      "comment": "",
+      "id": "1",
+      "user": undefined,
+    },
+  ],
+  "id": "123",
+  "title": "",
+}
 `;
 
 exports[`normalize can use fully custom entity classes 1`] = `

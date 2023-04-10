@@ -51,11 +51,14 @@ describe.each([
           4: { id: '4', name: 'Alpha' },
         },
       };
-      const users: DenormalizeNullable<typeof sortedUsers.schema> = denormalize(
-        inferResults(sortedUsers.schema, [], {}, entities),
-        sortedUsers.schema,
-        createInput(entities),
-      )[0];
+      const users: DenormalizeNullable<typeof sortedUsers.schema> | symbol =
+        denormalize(
+          inferResults(sortedUsers.schema, [], {}, entities),
+          sortedUsers.schema,
+          createInput(entities),
+        );
+      expect(users).not.toEqual(expect.any(Symbol));
+      if (typeof users === 'symbol') return;
       expect(users && users[0].name).toBe('Zeta');
       expect(users).toMatchSnapshot();
     });
@@ -87,7 +90,7 @@ describe.each([
       };
       const input = inferResults(sortedUsers.schema, [], {}, entities);
 
-      const [value] = denormalize(
+      const value = denormalize(
         createInput(input),
         sortedUsers.schema,
         createInput(entities),
@@ -112,37 +115,41 @@ describe.each([
           4: { id: '4', name: 'Alpha' },
         },
       };
-      const totalCount: DenormalizeNullable<typeof userCountByAdmin.schema> =
-        denormalize(
-          inferResults(userCountByAdmin.schema, [], {}, entities),
-          userCountByAdmin.schema,
-          createInput(entities),
-        )[0];
+      const totalCount:
+        | DenormalizeNullable<typeof userCountByAdmin.schema>
+        | symbol = denormalize(
+        inferResults(userCountByAdmin.schema, [], {}, entities),
+        userCountByAdmin.schema,
+        createInput(entities),
+      );
       expect(totalCount).toBe(4);
-      const nonAdminCount: DenormalizeNullable<typeof userCountByAdmin.schema> =
-        denormalize(
-          inferResults(
-            userCountByAdmin.schema,
-            [{ isAdmin: false }],
-            {},
-            entities,
-          ),
+      const nonAdminCount:
+        | DenormalizeNullable<typeof userCountByAdmin.schema>
+        | symbol = denormalize(
+        inferResults(
           userCountByAdmin.schema,
-          createInput(entities),
-        )[0];
+          [{ isAdmin: false }],
+          {},
+          entities,
+        ),
+        userCountByAdmin.schema,
+        createInput(entities),
+      );
       expect(nonAdminCount).toBe(3);
-      const adminCount: DenormalizeNullable<typeof userCountByAdmin.schema> =
-        denormalize(
-          inferResults(
-            userCountByAdmin.schema,
-            [{ isAdmin: true }],
-            {},
-            entities,
-          ),
+      const adminCount:
+        | DenormalizeNullable<typeof userCountByAdmin.schema>
+        | symbol = denormalize(
+        inferResults(
           userCountByAdmin.schema,
-          createInput(entities),
-        )[0];
+          [{ isAdmin: true }],
+          {},
+          entities,
+        ),
+        userCountByAdmin.schema,
+        createInput(entities),
+      );
       expect(adminCount).toBe(1);
+      if (typeof totalCount === 'symbol') return;
 
       // typecheck
       totalCount !== undefined && totalCount + 5;

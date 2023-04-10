@@ -2,6 +2,7 @@
 import { Entity } from '@rest-hooks/endpoint';
 
 import { denormalize } from '../denormalize/denormalizeCached';
+import { INVALID } from '../denormalize/symbol';
 import WeakEntityMap from '../WeakEntityMap';
 
 class IDEntity extends Entity {
@@ -33,10 +34,7 @@ describe('denormalize with global cache', () => {
         1: Symbol('ENTITY WAS DELETED'),
       },
     };
-    expect(denormalize('1', Tacos, entities).slice(0, 2)).toEqual([
-      undefined,
-      true,
-    ]);
+    expect(denormalize('1', Tacos, entities)[0]).toEqual(INVALID);
   });
   test('maintains referential equality with same results', () => {
     const entityCache = {};
@@ -412,15 +410,8 @@ describe('denormalize with global cache', () => {
       firstThing: { five: 0, seven: 0 },
       secondThing: { cars: '' },
     };
-    const [first, deleted] = denormalize(
-      input,
-      schema,
-      {},
-      entityCache,
-      resultCache,
-    );
+    const [first] = denormalize(input, schema, {}, entityCache, resultCache);
     expect(first).toEqual(input);
-    expect(deleted).toBe(false);
     // should maintain referential equality
     const [second] = denormalize(input, schema, {}, {}, resultCache);
     expect(second).toBe(first);
@@ -434,15 +425,8 @@ describe('denormalize with global cache', () => {
       firstThing: { five: 5, seven: 42 },
       secondThing: { cars: 'never' },
     };
-    const [denorm, deleted] = denormalize(
-      input,
-      null,
-      {},
-      entityCache,
-      resultCache,
-    );
+    const [denorm] = denormalize(input, null, {}, entityCache, resultCache);
     expect(denorm).toBe(input);
-    expect(deleted).toBe(false);
   });
 
   test('passthrough for null schema and an number input', () => {
@@ -450,15 +434,8 @@ describe('denormalize with global cache', () => {
     const resultCache = new WeakEntityMap();
 
     const input = 5;
-    const [denorm, deleted] = denormalize(
-      input,
-      null,
-      {},
-      entityCache,
-      resultCache,
-    );
+    const [denorm] = denormalize(input, null, {}, entityCache, resultCache);
     expect(denorm).toBe(input);
-    expect(deleted).toBe(false);
   });
 
   test('passthrough for undefined schema and an object input', () => {
@@ -469,7 +446,7 @@ describe('denormalize with global cache', () => {
       firstThing: { five: 5, seven: 42 },
       secondThing: { cars: 'never' },
     };
-    const [denorm, deleted] = denormalize(
+    const [denorm] = denormalize(
       input,
       undefined,
       {},
@@ -477,7 +454,6 @@ describe('denormalize with global cache', () => {
       resultCache,
     );
     expect(denorm).toBe(input);
-    expect(deleted).toBe(false);
   });
 
   describe('null inputs when expecting entities', () => {
@@ -503,7 +479,7 @@ describe('denormalize with global cache', () => {
       const entityCache = {};
       const resultCache = new WeakEntityMap();
 
-      const [denorm, deleted] = denormalize(
+      const [denorm] = denormalize(
         null,
         { data: Article },
         {},
@@ -511,14 +487,13 @@ describe('denormalize with global cache', () => {
         resultCache,
       );
       expect(denorm).toEqual(null);
-      expect(deleted).toBe(false);
     });
 
     test('handles undefined at top level', () => {
       const entityCache = {};
       const resultCache = new WeakEntityMap();
 
-      const [denorm, deleted] = denormalize(
+      const [denorm] = denormalize(
         undefined,
         { data: Article },
         {},
@@ -526,7 +501,6 @@ describe('denormalize with global cache', () => {
         resultCache,
       );
       expect(denorm).toEqual(undefined);
-      expect(deleted).toBe(false);
     });
 
     test('handles null in nested place', () => {
@@ -536,7 +510,7 @@ describe('denormalize with global cache', () => {
       const input = {
         data: { id: '5', title: 'hehe', author: null, comments: [] },
       };
-      const [denorm, deleted] = denormalize(
+      const [denorm] = denormalize(
         input,
         { data: Article },
         {},
@@ -554,7 +528,6 @@ describe('denormalize with global cache', () => {
           },
         }
       `);
-      expect(deleted).toBe(false);
     });
   });
 });

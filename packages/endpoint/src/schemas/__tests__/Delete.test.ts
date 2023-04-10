@@ -76,11 +76,12 @@ describe(`${schema.Delete.name} denormalization`, () => {
   };
 
   test('denormalizes an object in the same manner as the Entity', () => {
-    const [user, deleted] = denormalize('1', new schema.Delete(User), entities);
+    const user = denormalize('1', new schema.Delete(User), entities);
+    expect(user).not.toEqual(expect.any(Symbol));
+    if (typeof user === 'symbol') return;
     expect(user).toBeDefined();
     expect(user).toBeInstanceOf(User);
     expect(user?.username).toBe('Janey');
-    expect(deleted).toBe(false);
   });
 
   test.each([
@@ -89,11 +90,10 @@ describe(`${schema.Delete.name} denormalization`, () => {
   ] as const)(
     `denormalizes deleted entities as undefined (%s)`,
     (_, createInput) => {
-      const [user, deleted] = denormalize('1', new schema.Delete(User), {
+      const user = denormalize('1', new schema.Delete(User), {
         User: { '1': DELETED },
       });
-      expect(user).toBe(undefined);
-      expect(deleted).toBe(true);
+      expect(user).toEqual(expect.any(Symbol));
 
       expect(
         denormalize(
@@ -101,7 +101,7 @@ describe(`${schema.Delete.name} denormalization`, () => {
           new schema.Array(
             new schema.Object({ data: new schema.Delete(User) }),
           ),
-          createInput([{ User: { '1': DELETED } }]),
+          createInput([{}]),
         ),
       ).toMatchSnapshot();
 
@@ -109,7 +109,7 @@ describe(`${schema.Delete.name} denormalization`, () => {
         denormalize(
           createInput([{ data: '1' }]),
           [{ data: new schema.Delete(User) }],
-          createInput([{ User: { '1': DELETED } }]),
+          createInput([{}]),
         ),
       ).toMatchSnapshot();
 
@@ -117,7 +117,7 @@ describe(`${schema.Delete.name} denormalization`, () => {
         denormalize(
           createInput([{ data: '1' }]),
           new schema.Array(new schema.Object({ data: User })),
-          createInput([{ User: { '1': DELETED } }]),
+          createInput([{}]),
         ),
       ).toMatchSnapshot();
 
@@ -125,7 +125,7 @@ describe(`${schema.Delete.name} denormalization`, () => {
         denormalize(
           createInput([{ data: '1' }]),
           [{ data: User }],
-          createInput([{ User: { '1': DELETED } }]),
+          createInput([{}]),
         ),
       ).toMatchSnapshot();
 
@@ -133,7 +133,7 @@ describe(`${schema.Delete.name} denormalization`, () => {
         denormalize(
           createInput({ data: '1' }),
           new schema.Object({ data: User }),
-          createInput({ User: { '1': DELETED } }),
+          createInput({}),
         ),
       ).toMatchSnapshot();
 
@@ -141,7 +141,7 @@ describe(`${schema.Delete.name} denormalization`, () => {
         denormalize(
           createInput({ data: '1' }),
           { data: User },
-          createInput({ User: { '1': DELETED } }),
+          createInput({}),
         ),
       ).toMatchSnapshot();
     },

@@ -1,117 +1,87 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Entity denormalization can denormalize already partially denormalized data 1`] = `
-[
-  Menu {
-    "food": Food {
-      "id": "1",
-    },
+Menu {
+  "food": Food {
     "id": "1",
   },
-  false,
-]
+  "id": "1",
+}
 `;
 
 exports[`Entity denormalization can denormalize already partially denormalized data 2`] = `
-[
-  Menu {
-    "food": Food {
-      "id": "1",
-    },
+Menu {
+  "food": Food {
     "id": "1",
   },
-  false,
-]
+  "id": "1",
+}
 `;
 
 exports[`Entity denormalization denormalizes an entity 1`] = `
-[
-  Tacos {
-    "alias": undefined,
-    "id": "1",
-    "name": "foo",
-  },
-  false,
-]
+Tacos {
+  "alias": undefined,
+  "id": "1",
+  "name": "foo",
+}
 `;
 
 exports[`Entity denormalization denormalizes an entity 2`] = `
-[
-  Tacos {
-    "alias": undefined,
-    "id": "1",
-    "name": "foo",
-  },
-  false,
-]
+Tacos {
+  "alias": undefined,
+  "id": "1",
+  "name": "foo",
+}
 `;
 
 exports[`Entity denormalization denormalizes deep entities 1`] = `
-[
-  Menu {
-    "food": Food {
-      "id": "1",
-    },
+Menu {
+  "food": Food {
     "id": "1",
   },
-  false,
-]
+  "id": "1",
+}
 `;
 
 exports[`Entity denormalization denormalizes deep entities 2`] = `
-[
-  Menu {
-    "food": Food {
-      "id": undefined,
-    },
-    "id": "2",
+Menu {
+  "food": Food {
+    "id": undefined,
   },
-  false,
-]
+  "id": "2",
+}
 `;
 
 exports[`Entity denormalization denormalizes deep entities with records 1`] = `
-[
-  Menu {
-    "food": Food {
-      "id": "1",
-    },
+Menu {
+  "food": Food {
     "id": "1",
   },
-  false,
-]
+  "id": "1",
+}
 `;
 
 exports[`Entity denormalization denormalizes deep entities with records 2`] = `
-[
-  Menu {
-    "food": Food {
-      "id": "1",
-    },
+Menu {
+  "food": Food {
     "id": "1",
   },
-  false,
-]
+  "id": "1",
+}
 `;
 
 exports[`Entity denormalization denormalizes deep entities with records 3`] = `
-[
-  Menu {
-    "food": null,
-    "id": "2",
-  },
-  false,
-]
+Menu {
+  "food": null,
+  "id": "2",
+}
 `;
 
 exports[`Entity denormalization denormalizes deep entities with records 4`] = `
-[
-  Menu {
-    "food": null,
-    "id": "2",
-  },
-  false,
-]
+Menu {
+  "food": null,
+  "id": "2",
+}
 `;
 
 exports[`Entity denormalization denormalizes recursive dependencies 1`] = `
@@ -186,73 +156,31 @@ User {
 }
 `;
 
-exports[`Entity denormalization denormalizes to undefined for deleted data 1`] = `
-[
-  Menu {
-    "food": undefined,
-    "id": "1",
-  },
-  true,
-]
-`;
+exports[`Entity denormalization denormalizes to undefined for deleted data 1`] = `Symbol(INVALID)`;
 
-exports[`Entity denormalization denormalizes to undefined for deleted data 2`] = `
-[
-  Menu {
-    "food": undefined,
-    "id": "1",
-  },
-  true,
-]
-`;
+exports[`Entity denormalization denormalizes to undefined for deleted data 2`] = `Symbol(INVALID)`;
 
-exports[`Entity denormalization denormalizes to undefined for deleted data 3`] = `
-[
-  undefined,
-  true,
-]
-`;
+exports[`Entity denormalization denormalizes to undefined for deleted data 3`] = `Symbol(INVALID)`;
 
-exports[`Entity denormalization denormalizes to undefined for deleted data 4`] = `
-[
-  undefined,
-  true,
-]
-`;
+exports[`Entity denormalization denormalizes to undefined for deleted data 4`] = `Symbol(INVALID)`;
 
 exports[`Entity denormalization denormalizes to undefined for missing data 1`] = `
-[
-  Menu {
-    "food": undefined,
-    "id": "1",
-  },
-  false,
-]
+Menu {
+  "food": undefined,
+  "id": "1",
+}
 `;
 
 exports[`Entity denormalization denormalizes to undefined for missing data 2`] = `
-[
-  Menu {
-    "food": undefined,
-    "id": "1",
-  },
-  false,
-]
+Menu {
+  "food": undefined,
+  "id": "1",
+}
 `;
 
-exports[`Entity denormalization denormalizes to undefined for missing data 3`] = `
-[
-  undefined,
-  false,
-]
-`;
+exports[`Entity denormalization denormalizes to undefined for missing data 3`] = `undefined`;
 
-exports[`Entity denormalization denormalizes to undefined for missing data 4`] = `
-[
-  undefined,
-  false,
-]
-`;
+exports[`Entity denormalization denormalizes to undefined for missing data 4`] = `undefined`;
 
 exports[`Entity normalization mergeStrategy can use a custom merging strategy 1`] = `
 {

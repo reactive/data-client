@@ -35,8 +35,8 @@ export default class GlobalCache implements Cache {
     pk: string,
     schema: EntityInterface,
     entity: any,
-    computeValue: (localCacheKey: Record<string, any>) => boolean,
-  ): [denormalized: object | undefined, deleted: boolean] {
+    computeValue: (localCacheKey: Record<string, any>) => void,
+  ): object | undefined | symbol {
     const key = schema.key;
     if (!(key in this.localCache)) {
       this.localCache[key] = Object.create(null);
@@ -47,7 +47,6 @@ export default class GlobalCache implements Cache {
     const localCacheKey = this.localCache[key];
     const cycleCacheKey = this.cycleCache[key];
 
-    let deleted = false;
     if (!localCacheKey[pk]) {
       const globalCache: WeakEntityMap<object, EntityCacheValue> =
         this.getCache(pk, schema);
@@ -55,7 +54,7 @@ export default class GlobalCache implements Cache {
       // TODO: what if this just returned the deps - then we don't need to store them
 
       if (cacheValue) {
-        localCacheKey[pk] = cacheValue.value[0];
+        localCacheKey[pk] = cacheValue.value;
         // TODO: can we store the cache values instead of tracking *all* their sources?
         // this is only used for setting results cache correctly. if we got this far we will def need to set as we would have already tried getting it
         this.dependencies.push(...cacheValue.dependencies);
@@ -68,7 +67,7 @@ export default class GlobalCache implements Cache {
         this.dependencies.push({ entity, path: { key, pk } });
 
         /** NON-GLOBAL_CACHE CODE */
-        deleted = computeValue(localCacheKey);
+        computeValue(localCacheKey);
         /** /END NON-GLOBAL_CACHE CODE */
 
         delete cycleCacheKey[pk];
@@ -79,7 +78,7 @@ export default class GlobalCache implements Cache {
         );
         const cacheValue: EntityCacheValue = {
           dependencies: localKey,
-          value: [localCacheKey[pk], deleted],
+          value: localCacheKey[pk],
         };
         globalCache.set(localKey, cacheValue);
 
@@ -97,33 +96,33 @@ export default class GlobalCache implements Cache {
         this.dependencies.push({ entity, path: { key, pk } });
       }
     }
-    return [localCacheKey[pk], deleted];
+    return localCacheKey[pk];
   }
 
   getResults(
     input: any,
     cachable: boolean,
-    computeValue: () => [denormalized: any, deleted: boolean],
-  ): [denormalized: any, deleted: boolean, entityPaths: Path[]] {
+    computeValue: () => any,
+  ): [denormalized: any, entityPaths: Path[]] {
     if (!cachable) {
-      const ret = computeValue();
+      const value = computeValue();
       // this is faster than spread
       // https://www.measurethat.net/Benchmarks/Show/23636/0/spread-with-tuples
-      return [ret[0], ret[1], this.paths()];
+      return [value, this.paths()];
     }
 
-    let [ret, entityPaths] = this.resultCache.get(input, this._getEntity);
+    let [value, entityPaths] = this.resultCache.get(input, this._getEntity);
 
-    if (ret === undefined) {
-      ret = computeValue();
+    if (value === undefined) {
+      value = computeValue();
       // we want to do this before we add our 'input' entry
       entityPaths = this.paths();
       // for the first entry, `path` is ignored so empty members is fine
       this.dependencies.unshift({ entity: input, path: { key: '', pk: '' } });
-      this.resultCache.set(this.dependencies, ret);
+      this.resultCache.set(this.dependencies, value);
     }
 
-    return [ret[0], ret[1], entityPaths as Path[]];
+    return [value, entityPaths as Path[]];
   }
 
   protected paths() {
@@ -133,7 +132,7 @@ export default class GlobalCache implements Cache {
 
 interface EntityCacheValue {
   dependencies: Dep[];
-  value: [any, boolean];
+  value: object | symbol | undefined;
 }
 
 const getEntityCaches = (entityCache: DenormalizeCache['entities']) => {

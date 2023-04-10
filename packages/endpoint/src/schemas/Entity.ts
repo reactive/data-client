@@ -221,7 +221,7 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
         return [undefined as any, false, true];
       // Need to set this first so that if it is referenced further within the
       // denormalization the reference will already exist.
-      (unvisit as any).setLocal?.(input);
+      unvisit.setLocal?.(input);
       const [denormEntity, found, deleted] = denormalizeImmutable(
         this.schema,
         input,
@@ -241,7 +241,7 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
       entityCopy = this.fromJS(input);
       // Need to set this first so that if it is referenced further within the
       // denormalization the reference will already exist.
-      (unvisit as any).setLocal?.(entityCopy);
+      unvisit.setLocal?.(entityCopy);
     }
 
     let deleted = false;

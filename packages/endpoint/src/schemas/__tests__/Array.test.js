@@ -274,13 +274,13 @@ describe.each([
             2: { id: '2', name: 'Jake' },
           },
         };
-        let [value] = denormalize(
+        let value = denormalize(
           { results: ['1', '2'] },
           catSchema,
           createInput(entities),
         );
         expect(value).toMatchSnapshot();
-        [value] = denormalize(
+        value = denormalize(
           createInput({ results: ['1', '2'] }),
           catSchema,
           createInput(entities),
@@ -297,13 +297,13 @@ describe.each([
             2: { id: '2', name: 'Jake' },
           },
         };
-        let [value] = denormalize(
+        let value = denormalize(
           createInput({ results: ['1', undefined, '2'] }),
           catSchema,
           createInput(entities),
         );
         expect(value).toMatchSnapshot();
-        [value] = denormalize(
+        value = denormalize(
           { results: ['1', '2'] },
           catSchema,
           createInput(entities),
@@ -320,7 +320,7 @@ describe.each([
             2: { id: '2', name: 'Jake' },
           },
         };
-        let [value] = denormalize(
+        let value = denormalize(
           createInput({ results: undefined }),
           catSchema,
           createInput(entities),
@@ -336,7 +336,7 @@ describe.each([
             2: { id: '2', name: 'Jake' },
           },
         };
-        let [value] = denormalize(
+        let value = denormalize(
           createInput([{ data: '1' }, { data: '2' }, { data: '3' }]),
           createSchema({ data: Cat }),
           createInput(entities),
@@ -405,12 +405,11 @@ describe.each([
           { id: '456', schema: 'Cat' },
         ];
 
-        const [value, deleted] = denormalize(
+        const value = denormalize(
           createInput(input),
           listSchema,
           createInput(entities),
         );
-        expect(deleted).toBe(false);
         expect(value).toMatchSnapshot();
       });
 
@@ -426,10 +425,9 @@ describe.each([
         ];
         const output = normalize(input, catList);
         expect(output).toMatchSnapshot();
-        expect(denormalize(output.result, catList, output.entities)).toEqual([
+        expect(denormalize(output.result, catList, output.entities)).toEqual(
           input,
-          false,
-        ]);
+        );
       });
     });
   },

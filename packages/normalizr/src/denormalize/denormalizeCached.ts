@@ -10,13 +10,8 @@ import type {
 import WeakEntityMap, { getEntities } from '../WeakEntityMap.js';
 
 type DenormalizeReturn<S extends Schema> =
-  | [denormalized: Denormalize<S>, deleted: false, entityPaths: Path[]]
-  | [denormalized: DenormalizeNullable<S>, deleted: true, entityPaths: Path[]]
-  | [
-      denormalized: DenormalizeNullable<S>,
-      deleted: boolean,
-      entityPaths: Path[],
-    ];
+  | [denormalized: DenormalizeNullable<S>, entityPaths: Path[]]
+  | [denormalized: symbol, entityPaths: Path[]];
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const denormalize = <S extends Schema>(
@@ -28,10 +23,10 @@ export const denormalize = <S extends Schema>(
 ): DenormalizeReturn<S> => {
   // undefined means don't do anything
   if (schema === undefined) {
-    return [input, false, []] as [any, boolean, any[]];
+    return [input, []] as [any, any[]];
   }
   if (input === undefined) {
-    return [undefined, false, []] as [any, boolean, any[]];
+    return [undefined, []] as [any, any[]];
   }
   const getEntity = getEntities(entities);
 

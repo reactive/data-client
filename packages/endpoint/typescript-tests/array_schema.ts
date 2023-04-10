@@ -29,7 +29,8 @@ const denormalizedData = denormalize(
   myArray,
   normalizedData.entities,
 );
-if (denormalizedData !== undefined) {
+
+if (denormalizedData !== undefined && typeof denormalizedData !== 'symbol') {
   denormalizedData.forEach(value => {
     value.type;
     value.pk();

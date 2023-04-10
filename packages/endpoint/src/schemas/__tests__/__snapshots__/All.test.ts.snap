@@ -337,17 +337,14 @@ exports[`ArraySchema denormalization (direct) denormalize maintains referential 
 
 exports[`ArraySchema denormalization (direct) denormalizes a single entity 1`] = `
 [
-  [
-    Cat {
-      "id": "1",
-      "name": "Milo",
-    },
-    Cat {
-      "id": "2",
-      "name": "Jake",
-    },
-  ],
-  false,
+  Cat {
+    "id": "1",
+    "name": "Milo",
+  },
+  Cat {
+    "id": "2",
+    "name": "Jake",
+  },
 ]
 `;
 
@@ -369,21 +366,18 @@ exports[`ArraySchema denormalization (direct) denormalizes multiple entities 1`]
 `;
 
 exports[`ArraySchema denormalization (direct) denormalizes nested in object 1`] = `
-[
-  {
-    "results": [
-      Cat {
-        "id": "1",
-        "name": "Milo",
-      },
-      Cat {
-        "id": "2",
-        "name": "Jake",
-      },
-    ],
-  },
-  false,
-]
+{
+  "results": [
+    Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+    Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  ],
+}
 `;
 
 exports[`ArraySchema denormalization (direct) denormalizes nested in object with primitive 1`] = `
@@ -445,13 +439,10 @@ exports[`ArraySchema denormalization (direct) denormalizes removes undefined or 
 `;
 
 exports[`ArraySchema denormalization (direct) returns the input value if is null 1`] = `
-[
-  Taco {
-    "fillings": null,
-    "id": "123",
-  },
-  false,
-]
+Taco {
+  "fillings": null,
+  "id": "123",
+}
 `;
 
 exports[`ArraySchema denormalization (immutable) denormalize maintains referential equality until entities are added 1`] = `
@@ -486,17 +477,14 @@ exports[`ArraySchema denormalization (immutable) denormalize maintains referenti
 
 exports[`ArraySchema denormalization (immutable) denormalizes a single entity 1`] = `
 [
-  [
-    Cat {
-      "id": "1",
-      "name": "Milo",
-    },
-    Cat {
-      "id": "2",
-      "name": "Jake",
-    },
-  ],
-  false,
+  Cat {
+    "id": "1",
+    "name": "Milo",
+  },
+  Cat {
+    "id": "2",
+    "name": "Jake",
+  },
 ]
 `;
 
@@ -518,21 +506,18 @@ exports[`ArraySchema denormalization (immutable) denormalizes multiple entities 
 `;
 
 exports[`ArraySchema denormalization (immutable) denormalizes nested in object 1`] = `
-[
-  {
-    "results": [
-      Cat {
-        "id": "1",
-        "name": "Milo",
-      },
-      Cat {
-        "id": "2",
-        "name": "Jake",
-      },
-    ],
-  },
-  false,
-]
+{
+  "results": [
+    Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+    Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  ],
+}
 `;
 
 exports[`ArraySchema denormalization (immutable) denormalizes nested in object with primitive 1`] = `
@@ -594,11 +579,8 @@ exports[`ArraySchema denormalization (immutable) denormalizes removes undefined 
 `;
 
 exports[`ArraySchema denormalization (immutable) returns the input value if is null 1`] = `
-[
-  Taco {
-    "fillings": null,
-    "id": "123",
-  },
-  false,
-]
+Taco {
+  "fillings": null,
+  "id": "123",
+}
 `;

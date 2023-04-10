@@ -27,29 +27,26 @@ exports[`ArraySchema denormalization (direct) denormalize sorts 1`] = `
 
 exports[`ArraySchema denormalization (direct) denormalize sorts with arg 1`] = `
 [
-  [
-    User {
-      "id": "4",
-      "isAdmin": false,
-      "name": "Alpha",
-    },
-    User {
-      "id": "2",
-      "isAdmin": false,
-      "name": "Jake",
-    },
-    User {
-      "id": "1",
-      "isAdmin": false,
-      "name": "Milo",
-    },
-    User {
-      "id": "3",
-      "isAdmin": false,
-      "name": "Zeta",
-    },
-  ],
-  false,
+  User {
+    "id": "4",
+    "isAdmin": false,
+    "name": "Alpha",
+  },
+  User {
+    "id": "2",
+    "isAdmin": false,
+    "name": "Jake",
+  },
+  User {
+    "id": "1",
+    "isAdmin": false,
+    "name": "Milo",
+  },
+  User {
+    "id": "3",
+    "isAdmin": false,
+    "name": "Zeta",
+  },
 ]
 `;
 
@@ -80,28 +77,25 @@ exports[`ArraySchema denormalization (immutable) denormalize sorts 1`] = `
 
 exports[`ArraySchema denormalization (immutable) denormalize sorts with arg 1`] = `
 [
-  [
-    User {
-      "id": "4",
-      "isAdmin": false,
-      "name": "Alpha",
-    },
-    User {
-      "id": "2",
-      "isAdmin": false,
-      "name": "Jake",
-    },
-    User {
-      "id": "1",
-      "isAdmin": false,
-      "name": "Milo",
-    },
-    User {
-      "id": "3",
-      "isAdmin": false,
-      "name": "Zeta",
-    },
-  ],
-  false,
+  User {
+    "id": "4",
+    "isAdmin": false,
+    "name": "Alpha",
+  },
+  User {
+    "id": "2",
+    "isAdmin": false,
+    "name": "Jake",
+  },
+  User {
+    "id": "1",
+    "isAdmin": false,
+    "name": "Milo",
+  },
+  User {
+    "id": "3",
+    "isAdmin": false,
+    "name": "Zeta",
+  },
 ]
 `;

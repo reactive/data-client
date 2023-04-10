@@ -9,29 +9,28 @@ export default class LocalCache implements Cache {
     pk: string,
     schema: EntityInterface,
     entity: any,
-    computeValue: (localCacheKey: Record<string, any>) => boolean,
-  ): [denormalized: object | undefined, deleted: boolean] {
+    computeValue: (localCacheKey: Record<string, any>) => void,
+  ): object | undefined | symbol {
     const key = schema.key;
     if (!(key in this.localCache)) {
       this.localCache[key] = Object.create(null);
     }
     const localCacheKey = this.localCache[key];
 
-    let deleted = false;
     if (!localCacheKey[pk]) {
-      deleted = computeValue(localCacheKey);
+      computeValue(localCacheKey);
     }
-    return [localCacheKey[pk], deleted];
+    return localCacheKey[pk];
   }
 
   getResults(
     input: any,
     cachable: boolean,
-    computeValue: () => [denormalized: any, deleted: boolean],
-  ): [denormalized: any, deleted: boolean, entityPaths: Path[]] {
-    const ret = computeValue();
+    computeValue: () => any,
+  ): [denormalized: any, entityPaths: Path[]] {
+    const value = computeValue();
     // this is faster than spread
     // https://www.measurethat.net/Benchmarks/Show/23636/0/spread-with-tuples
-    return [ret[0], ret[1], []];
+    return [value, []];
   }
 }

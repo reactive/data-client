@@ -1,115 +1,72 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ValuesSchema denormalization denormalizes the values of an object with the given schema 1`] = `
-[
-  {
-    "fido": Dog {
-      "id": "1",
-      "type": "dogs",
-    },
-    "fluffy": Cat {
-      "id": "1",
-      "type": "cats",
-    },
+{
+  "fido": Dog {
+    "id": "1",
+    "type": "dogs",
   },
-  false,
-]
+  "fluffy": Cat {
+    "id": "1",
+    "type": "cats",
+  },
+}
 `;
 
 exports[`ValuesSchema denormalization denormalizes the values of an object with the given schema 2`] = `
-[
-  {
-    "fido": Dog {
-      "id": "1",
-      "type": "dogs",
-    },
-    "fluffy": Cat {
-      "id": "1",
-      "type": "cats",
-    },
+{
+  "fido": Dog {
+    "id": "1",
+    "type": "dogs",
   },
-  false,
-]
+  "fluffy": Cat {
+    "id": "1",
+    "type": "cats",
+  },
+}
 `;
 
-exports[`ValuesSchema denormalization denormalizes with deleted entity should have false third value 1`] = `
-[
-  {
-    "fido": Dog {
-      "id": "1",
-      "type": "dogs",
-    },
-    "fluffy": Cat {
-      "id": "1",
-      "type": "cats",
-    },
-  },
-  true,
-]
-`;
+exports[`ValuesSchema denormalization denormalizes with deleted entity should have false third value 1`] = `Symbol(INVALID)`;
 
-exports[`ValuesSchema denormalization denormalizes with deleted entity should have false third value 2`] = `
-[
-  {
-    "fido": Dog {
-      "id": "1",
-      "type": "dogs",
-    },
-    "fluffy": Cat {
-      "id": "1",
-      "type": "cats",
-    },
-  },
-  true,
-]
-`;
+exports[`ValuesSchema denormalization denormalizes with deleted entity should have false third value 2`] = `Symbol(INVALID)`;
 
 exports[`ValuesSchema denormalization denormalizes with missing entity should have false second value 1`] = `
-[
-  {
-    "fido": Dog {
-      "id": "1",
-      "type": "dogs",
-    },
-    "fluffy": Cat {
-      "id": "1",
-      "type": "cats",
-    },
+{
+  "fido": Dog {
+    "id": "1",
+    "type": "dogs",
   },
-  false,
-]
+  "fluffy": Cat {
+    "id": "1",
+    "type": "cats",
+  },
+}
 `;
 
 exports[`ValuesSchema denormalization denormalizes with missing entity should have false second value 2`] = `
-[
-  {
-    "fido": Dog {
-      "id": "1",
-      "type": "dogs",
-    },
-    "fluffy": Cat {
-      "id": "1",
-      "type": "cats",
-    },
+{
+  "fido": Dog {
+    "id": "1",
+    "type": "dogs",
   },
-  false,
-]
+  "fluffy": Cat {
+    "id": "1",
+    "type": "cats",
+  },
+}
 `;
 
 exports[`ValuesSchema denormalization denormalizes without schemaAttribute 1`] = `
-[
-  {
-    "first": MyEntity {
-      "id": "1",
-      "name": "first thing",
-    },
-    "second": MyEntity {
-      "id": "2",
-      "name": "second thing",
-    },
+{
+  "first": MyEntity {
+    "id": "1",
+    "name": "first thing",
   },
-  false,
-]
+  "second": MyEntity {
+    "id": "2",
+    "name": "second thing",
+  },
+}
 `;
 
 exports[`ValuesSchema denormalization works on complex object 1`] = `

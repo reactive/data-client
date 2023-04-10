@@ -1,4 +1,5 @@
 import type Cache from './cache.js';
+import { INVALID } from './symbol.js';
 import type { EntityInterface, UnvisitFunction } from '../interface.js';
 import { isEntity } from '../isEntity.js';
 import { denormalize as arrayDenormalize } from '../schemas/Array.js';
@@ -13,7 +14,7 @@ const unvisitEntity = (
   unvisit: UnvisitFunction,
   getEntity: GetEntity,
   cache: Cache,
-): [denormalized: object | undefined, deleted: boolean] => {
+): object | undefined | symbol => {
   const entity =
     typeof entityOrId === 'object'
       ? entityOrId
@@ -22,14 +23,14 @@ const unvisitEntity = (
     typeof entity === 'symbol' &&
     (entity as symbol).toString().includes('DELETED')
   ) {
-    return [undefined, true];
+    return INVALID;
     // TODO: Change to this as breaking change once we only support newer entities
     // also remove `(entity as symbol).toString().includes('DELETED')` and do this for all symbols
     // return schema.denormalize(entity, unvisit);
   }
 
   if (typeof entity !== 'object' || entity === null) {
-    return [entity as any, false];
+    return entity as any;
   }
 
   const pk =
@@ -54,12 +55,12 @@ const unvisitEntity = (
 };
 
 function noCacheGetEntity(
-  computeValue: (localCacheKey: Record<string, any>) => boolean,
-): [denormalized: object | undefined, deleted: boolean] {
+  computeValue: (localCacheKey: Record<string, any>) => void,
+): object | undefined | symbol {
   const localCacheKey = {};
-  const deleted = computeValue(localCacheKey);
+  computeValue(localCacheKey);
 
-  return [localCacheKey[''], deleted];
+  return localCacheKey[''];
 }
 
 function unvisitEntityObject(
@@ -68,7 +69,7 @@ function unvisitEntityObject(
   unvisit: UnvisitFunction,
   pk: string,
   localCacheKey: Record<string, any>,
-): boolean {
+): void {
   let entityCopy: any, _, deleted;
   /* istanbul ignore else */
   if (schema.createIfValid) {
@@ -84,11 +85,11 @@ function unvisitEntityObject(
 
   if (entityCopy === undefined) {
     // undefined indicates we should suspense (perhaps failed validation)
-    deleted = true;
+    localCacheKey[pk] = INVALID;
   } else {
     [localCacheKey[pk], _, deleted] = schema.denormalize(entityCopy, unvisit);
+    if (deleted) localCacheKey[pk] = INVALID;
   }
-  return deleted;
 }
 
 // TODO(breaking): remove once unused
@@ -104,31 +105,48 @@ function withTrackedEntities(unvisit: UnvisitFunction): UnvisitFunction {
 }
 
 const getUnvisit = (getEntity: GetEntity, cache: Cache) => {
-  function unvisitShort(input: any, schema: any): [any, boolean, boolean] {
-    const [value, deleted] = unvisit(input, schema);
-    return [value, true, deleted];
+  // TODO(breaking): This handles legacy schemas from 3.7 and below
+  function unvisitAdapter(input: any, schema: any): [any, boolean, boolean] {
+    const isAll = schema?.constructor?.name === 'AllSchema';
+    const value = unvisit(input, schema);
+
+    // TODO(breaking): Drop support for initial All version
+    if (isAll) {
+      // we swap 'found' and 'suspend' because the initial Query version used 'found' to determine whether
+      // it should 'process'
+      return [
+        typeof value === 'symbol' ? undefined : value,
+        typeof value !== 'symbol',
+        false,
+      ];
+    }
+    return [
+      typeof value === 'symbol' ? undefined : value,
+      true,
+      typeof value === 'symbol',
+    ];
   }
-  function unvisit(
-    input: any,
-    schema: any,
-  ): [denormalized: any, deleted: boolean] {
-    if (!schema) return [input, false];
+  function unvisit(input: any, schema: any): any {
+    if (!schema) return input;
 
     if (input === null) {
-      return [input, false];
+      return input;
     }
 
     const hasDenormalize = typeof schema.denormalize === 'function';
 
     // deserialize fields (like Date)
     if (!hasDenormalize && typeof schema === 'function') {
-      if (input instanceof schema) return [input, false];
-      if (input === undefined) return [input, false];
-      return [new schema(input), false];
+      if (input instanceof schema) return input;
+      if (input === undefined) return input;
+      return new schema(input);
     }
 
     if (input === undefined) {
-      return [input, false];
+      // TODO(breaking): Drop support for initial All version
+      const isAll = schema.constructor?.name === 'AllSchema';
+
+      return isAll ? INVALID : input;
     }
 
     if (!hasDenormalize && typeof schema === 'object') {
@@ -139,21 +157,27 @@ const getUnvisit = (getEntity: GetEntity, cache: Cache) => {
     }
 
     if (isEntity(schema)) {
-      return unvisitEntity(input, schema, unvisitShort, getEntity, cache);
+      return unvisitEntity(input, schema, unvisitAdapter, getEntity, cache);
     }
 
     if (hasDenormalize) {
-      const [data, _, suspend] = schema.denormalize(input, unvisitShort);
-      return [data, suspend];
+      const [data, _, suspend] = schema.denormalize(input, unvisitAdapter);
+      // TODO(breaking): Drop support for initial Query version
+      // queryEndpoint schema only overrides 'denormalize' and 'infer'
+      const isQuery =
+        !Object.hasOwn(schema, 'normalize') &&
+        Object.hasOwn(schema, 'denormalize') &&
+        Object.hasOwn(schema, 'infer');
+      return suspend && !isQuery ? INVALID : data;
     }
 
-    return [input, false];
+    return input;
   }
 
   return (
     input: any,
     schema: any,
-  ): [denormalized: any, deleted: boolean, entityPaths: Path[]] => {
+  ): [denormalized: any, entityPaths: Path[]] => {
     // in the case where WeakMap cannot be used
     // this test ensures null is properly excluded from WeakMap
     const cachable = Object(input) === input && Object(schema) === schema;

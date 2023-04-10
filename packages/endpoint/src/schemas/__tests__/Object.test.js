@@ -137,11 +137,11 @@ describe(`${schema.Object.name} denormalization`, () => {
         1: { id: '1', name: 'Nacho' },
       },
     };
-    let [value] = denormalize({ item: null }, object, entities);
+    let value = denormalize({ item: null }, object, entities);
     expect(value).toMatchSnapshot();
-    [value] = denormalize({ item: null }, object, fromJS(entities));
+    value = denormalize({ item: null }, object, fromJS(entities));
     expect(value).toMatchSnapshot();
-    [value] = denormalize(fromJS({ item: null }), object, fromJS(entities));
+    value = denormalize(fromJS({ item: null }), object, fromJS(entities));
     expect(value).toMatchSnapshot();
   });
 

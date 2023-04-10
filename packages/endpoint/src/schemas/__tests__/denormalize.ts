@@ -13,14 +13,8 @@ export const denormalizeSimple = <S extends Schema>(
   entities: any,
   entityCache: DenormalizeCache['entities'] = {},
   resultCache: DenormalizeCache['results'][string] = new WeakEntityMap(),
-):
-  | [denormalized: Denormalize<S>, deleted: false]
-  | [denormalized: DenormalizeNullable<S>, deleted: true]
-  | [denormalized: DenormalizeNullable<S>, deleted: boolean] =>
-  denormalizeCore(input, schema, entities, entityCache, resultCache).slice(
-    0,
-    2,
-  ) as any;
+): Denormalize<S> | DenormalizeNullable<S> | symbol =>
+  denormalizeCore(input, schema, entities, entityCache, resultCache)[0] as any;
 
 export default denormalizeSimple;
 

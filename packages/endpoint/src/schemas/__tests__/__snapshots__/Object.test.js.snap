@@ -1,186 +1,141 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ObjectSchema denormalization denormalizes an object 1`] = `
-[
-  {
-    "user": User {
-      "id": "1",
-      "name": "Nacho",
-    },
+{
+  "user": User {
+    "id": "1",
+    "name": "Nacho",
   },
-  false,
-]
+}
 `;
 
 exports[`ObjectSchema denormalization denormalizes an object 2`] = `
-[
-  {
-    "user": User {
-      "id": "1",
-      "name": "Nacho",
-    },
+{
+  "user": User {
+    "id": "1",
+    "name": "Nacho",
   },
-  false,
-]
+}
 `;
 
 exports[`ObjectSchema denormalization denormalizes an object 3`] = `
-[
-  Immutable.Map {
-    "user": User {
-      "id": "1",
-      "name": "Nacho",
-    },
+Immutable.Map {
+  "user": User {
+    "id": "1",
+    "name": "Nacho",
   },
-  false,
-]
+}
 `;
 
 exports[`ObjectSchema denormalization denormalizes an object that contains a property representing a an object with an id of zero 1`] = `
-[
-  {
-    "user": User {
-      "id": "0",
-      "name": "Chancho",
-    },
+{
+  "user": User {
+    "id": "0",
+    "name": "Chancho",
   },
-  false,
-]
+}
 `;
 
 exports[`ObjectSchema denormalization denormalizes an object that contains a property representing a an object with an id of zero 2`] = `
-[
-  {
-    "user": User {
-      "id": "0",
-      "name": "Chancho",
-    },
+{
+  "user": User {
+    "id": "0",
+    "name": "Chancho",
   },
-  false,
-]
+}
 `;
 
 exports[`ObjectSchema denormalization denormalizes an object that contains a property representing a an object with an id of zero 3`] = `
-[
-  Immutable.Map {
-    "user": User {
-      "id": "0",
-      "name": "Chancho",
-    },
+Immutable.Map {
+  "user": User {
+    "id": "0",
+    "name": "Chancho",
   },
-  false,
-]
+}
 `;
 
 exports[`ObjectSchema denormalization denormalizes an object with plain members 1`] = `
-[
-  {
-    "user": User {
-      "id": "1",
-      "name": "Nacho",
-    },
+{
+  "user": User {
+    "id": "1",
+    "name": "Nacho",
   },
-  false,
-]
+}
 `;
 
 exports[`ObjectSchema denormalization denormalizes an object with plain members 2`] = `
-[
-  {
-    "user": User {
-      "id": "1",
-      "name": "Nacho",
-    },
+{
+  "user": User {
+    "id": "1",
+    "name": "Nacho",
   },
-  false,
-]
+}
 `;
 
 exports[`ObjectSchema denormalization denormalizes an object with plain members 3`] = `
-[
-  Immutable.Map {
-    "user": User {
-      "id": "1",
-      "name": "Nacho",
-    },
+Immutable.Map {
+  "user": User {
+    "id": "1",
+    "name": "Nacho",
   },
-  false,
-]
+}
 `;
 
 exports[`ObjectSchema denormalization denormalizes plain object shorthand 1`] = `
-[
-  {
-    "user": User {
-      "id": "1",
-      "name": "Jane",
-    },
+{
+  "user": User {
+    "id": "1",
+    "name": "Jane",
   },
-  false,
-]
+}
 `;
 
 exports[`ObjectSchema denormalization denormalizes plain object shorthand 2`] = `
-[
-  {
-    "user": User {
-      "id": "1",
-      "name": "Jane",
-    },
+{
+  "user": User {
+    "id": "1",
+    "name": "Jane",
   },
-  false,
-]
+}
 `;
 
 exports[`ObjectSchema denormalization denormalizes plain object shorthand 3`] = `
-[
-  Immutable.Map {
-    "user": User {
-      "id": "1",
-      "name": "Jane",
-    },
+Immutable.Map {
+  "user": User {
+    "id": "1",
+    "name": "Jane",
   },
-  false,
-]
+}
 `;
 
 exports[`ObjectSchema denormalization denormalizes plain object shorthand 4`] = `
-[
-  {
-    "tacos": {},
-    "user": User {
-      "id": "1",
-      "name": "Jane",
-    },
+{
+  "tacos": {},
+  "user": User {
+    "id": "1",
+    "name": "Jane",
   },
-  false,
-]
+}
 `;
 
 exports[`ObjectSchema denormalization denormalizes plain object shorthand 5`] = `
-[
-  {
-    "tacos": {},
-    "user": User {
-      "id": "1",
-      "name": "Jane",
-    },
+{
+  "tacos": {},
+  "user": User {
+    "id": "1",
+    "name": "Jane",
   },
-  false,
-]
+}
 `;
 
 exports[`ObjectSchema denormalization denormalizes plain object shorthand 6`] = `
-[
-  Immutable.Map {
-    "user": User {
-      "id": "1",
-      "name": "Jane",
-    },
-    "tacos": Immutable.Map {},
+Immutable.Map {
+  "user": User {
+    "id": "1",
+    "name": "Jane",
   },
-  false,
-]
+  "tacos": Immutable.Map {},
+}
 `;
 
 exports[`ObjectSchema denormalization should have found = true with null member even when schema has nested entity 1`] = `

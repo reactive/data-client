@@ -674,7 +674,9 @@ describe(`${schema.Entity.name} normalization`, () => {
         { id: '1', name: 'foo' },
         ProcessTaco,
       );
-      const [final] = denormalize(result, ProcessTaco, entities);
+      const final = denormalize(result, ProcessTaco, entities);
+      expect(final).not.toEqual(expect.any(Symbol));
+      if (typeof final === 'symbol') return;
       expect(final?.slug).toEqual('thing-1');
       expect(final).toMatchSnapshot();
     });
@@ -712,7 +714,9 @@ describe(`${schema.Entity.name} normalization`, () => {
         },
         ParentEntity,
       );
-      const [final] = denormalize(result, ParentEntity, entities);
+      const final = denormalize(result, ParentEntity, entities);
+      expect(final).not.toEqual(expect.any(Symbol));
+      if (typeof final === 'symbol') return;
       expect(final?.child?.parentId).toEqual('1');
       expect(final).toMatchSnapshot();
     });
@@ -760,7 +764,9 @@ describe(`${schema.Entity.name} normalization`, () => {
             { message: { id: '123', data: { attachment: { id: '456' } } } },
             EntriesEntity,
           );
-          const [final] = denormalize(result, EntriesEntity, entities);
+          const final = denormalize(result, EntriesEntity, entities);
+          expect(final).not.toEqual(expect.any(Symbol));
+          if (typeof final === 'symbol') return;
           expect(final?.type).toEqual('message');
           expect(final).toMatchSnapshot();
         },
@@ -824,8 +830,12 @@ describe(`${schema.Entity.name} denormalization`, () => {
     const entityCache = {};
     const resultCache = new WeakEntityMap();
 
-    const [first] = denormalize('1', Menu, entities, entityCache, resultCache);
-    const [second] = denormalize('1', Menu, entities, entityCache, resultCache);
+    const first = denormalize('1', Menu, entities, entityCache, resultCache);
+    const second = denormalize('1', Menu, entities, entityCache, resultCache);
+    expect(first).not.toEqual(expect.any(Symbol));
+    if (typeof first === 'symbol') return;
+    expect(second).not.toEqual(expect.any(Symbol));
+    if (typeof second === 'symbol') return;
     expect(first).toBe(second);
     expect(first?.food).toBe(second?.food);
   });
@@ -841,14 +851,10 @@ describe(`${schema.Entity.name} denormalization`, () => {
         '1': { id: '1' },
       },
     };
-    expect(denormalize('1', MyTacos, entities)).toStrictEqual([
-      undefined,
-      true,
-    ]);
-    expect(denormalize('1', MyTacos, fromJS(entities))).toStrictEqual([
-      undefined,
-      true,
-    ]);
+    expect(denormalize('1', MyTacos, entities)).toEqual(expect.any(Symbol));
+    expect(denormalize('1', MyTacos, fromJS(entities))).toEqual(
+      expect.any(Symbol),
+    );
   });
 
   test('denormalizes to undefined for missing data', () => {
@@ -884,14 +890,11 @@ describe(`${schema.Entity.name} denormalization`, () => {
         MyEntity: { bob: { name: 'bob', secondthing: 'hi' } },
       }),
     ).toMatchInlineSnapshot(`
-      [
-        MyEntity {
-          "blarb": undefined,
-          "name": "bob",
-          "secondthing": "hi",
-        },
-        false,
-      ]
+      MyEntity {
+        "blarb": undefined,
+        "name": "bob",
+        "secondthing": "hi",
+      }
     `);
   });
 
@@ -911,14 +914,11 @@ describe(`${schema.Entity.name} denormalization`, () => {
         MyEntity: { bob: { name: 'bob', secondthing: 'hi', blarb: null } },
       }),
     ).toMatchInlineSnapshot(`
-      [
-        MyEntity {
-          "blarb": null,
-          "name": "bob",
-          "secondthing": "hi",
-        },
-        false,
-      ]
+      MyEntity {
+        "blarb": null,
+        "name": "bob",
+        "secondthing": "hi",
+      }
     `);
   });
 
@@ -1030,11 +1030,11 @@ describe(`${schema.Entity.name} denormalization`, () => {
         },
       };
 
-      expect(denormalize('123', Report, entities)[0]).toMatchSnapshot();
-      expect(denormalize('123', Report, fromJS(entities))[0]).toMatchSnapshot();
+      expect(denormalize('123', Report, entities)).toMatchSnapshot();
+      expect(denormalize('123', Report, fromJS(entities))).toMatchSnapshot();
 
-      expect(denormalize('456', User, entities)[0]).toMatchSnapshot();
-      expect(denormalize('456', User, fromJS(entities))[0]).toMatchSnapshot();
+      expect(denormalize('456', User, entities)).toMatchSnapshot();
+      expect(denormalize('456', User, fromJS(entities))).toMatchSnapshot();
     });
 
     test('denormalizes recursive entities with referential equality', () => {
@@ -1070,13 +1070,15 @@ describe(`${schema.Entity.name} denormalization`, () => {
       const entityCache: any = {};
       const resultCache = new WeakEntityMap();
 
-      const [denormalizedReport] = denormalize(
+      const denormalizedReport = denormalize(
         '123',
         Report,
         entities,
         entityCache,
         resultCache,
       );
+      expect(denormalizedReport).not.toEqual(expect.any(Symbol));
+      if (typeof denormalizedReport === 'symbol') return;
 
       expect(denormalizedReport).toBeDefined();
       // This is just for TypeScript, the above line actually determines this
@@ -1087,13 +1089,15 @@ describe(`${schema.Entity.name} denormalization`, () => {
         denormalizedReport.draftedBy,
       );
 
-      const [denormalizedReport2] = denormalize(
+      const denormalizedReport2 = denormalize(
         '123',
         Report,
         entities,
         entityCache,
         resultCache,
       );
+      expect(denormalizedReport2).not.toEqual(expect.any(Symbol));
+      if (typeof denormalizedReport2 === 'symbol') return;
 
       expect(denormalizedReport2).toStrictEqual(denormalizedReport);
       expect(denormalizedReport2).toBe(denormalizedReport);
@@ -1140,13 +1144,15 @@ describe(`${schema.Entity.name} denormalization`, () => {
         comment: Comment,
       };
 
-      const [denormalizedReport] = denormalize(
+      const denormalizedReport = denormalize(
         input,
         schema,
         entities,
         entityCache,
         resultCache,
       );
+      expect(denormalizedReport).not.toEqual(expect.any(Symbol));
+      if (typeof denormalizedReport === 'symbol') return;
 
       expect(denormalizedReport.report).toBeDefined();
       expect(denormalizedReport.comment).toBeDefined();
@@ -1157,13 +1163,15 @@ describe(`${schema.Entity.name} denormalization`, () => {
         denormalizedReport.comment.author,
       );
 
-      const [denormalizedReport2] = denormalize(
+      const denormalizedReport2 = denormalize(
         input,
         schema,
         entities,
         entityCache,
         resultCache,
       );
+      expect(denormalizedReport2).not.toEqual(expect.any(Symbol));
+      if (typeof denormalizedReport2 === 'symbol') return;
 
       expect(denormalizedReport2).toStrictEqual(denormalizedReport);
       expect(denormalizedReport2).toBe(denormalizedReport);
@@ -1180,13 +1188,15 @@ describe(`${schema.Entity.name} denormalization`, () => {
         },
       };
 
-      const [denormalizedReport3] = denormalize(
+      const denormalizedReport3 = denormalize(
         input,
         schema,
         nextEntities,
         entityCache,
         resultCache,
       );
+      expect(denormalizedReport3).not.toEqual(expect.any(Symbol));
+      if (typeof denormalizedReport3 === 'symbol') return;
 
       expect(denormalizedReport3.comment?.author?.role).toBe('supervisor');
       expect(denormalizedReport3.report?.draftedBy?.role).toBe('supervisor');
@@ -1196,7 +1206,7 @@ describe(`${schema.Entity.name} denormalization`, () => {
 
     describe('optional entities', () => {
       it('should be marked as found even when optional is not there', () => {
-        const [denormalized] = denormalize('abc', WithOptional, {
+        const denormalized = denormalize('abc', WithOptional, {
           [WithOptional.key]: {
             abc: {
               id: 'abc',
@@ -1221,7 +1231,7 @@ describe(`${schema.Entity.name} denormalization`, () => {
       });
 
       it('should be marked as found when nested entity is missing', () => {
-        const [denormalized, deleted] = denormalize('abc', WithOptional, {
+        const denormalized = denormalize('abc', WithOptional, {
           [WithOptional.key]: {
             abc: WithOptional.fromJS({
               id: 'abc',
@@ -1234,7 +1244,9 @@ describe(`${schema.Entity.name} denormalization`, () => {
             ['5']: ArticleEntity.fromJS({ id: '5' }),
           },
         });
-        expect(deleted).toBe(false);
+        expect(denormalized).not.toEqual(expect.any(Symbol));
+        if (typeof denormalized === 'symbol') return;
+
         const response = denormalized;
         expect(response).toBeDefined();
         expect(response).toBeInstanceOf(WithOptional);
@@ -1247,7 +1259,7 @@ describe(`${schema.Entity.name} denormalization`, () => {
       });
 
       it('should be marked as deleted when required entity is deleted symbol', () => {
-        const [denormalized, deleted] = denormalize('abc', WithOptional, {
+        const denormalized = denormalize('abc', WithOptional, {
           [WithOptional.key]: {
             abc: {
               id: 'abc',
@@ -1260,20 +1272,11 @@ describe(`${schema.Entity.name} denormalization`, () => {
             ['5']: DELETED,
           },
         });
-        expect(deleted).toBe(true);
-        const response = denormalized;
-        expect(response).toBeDefined();
-        expect(response).toBeInstanceOf(WithOptional);
-        expect(response).toEqual({
-          id: 'abc',
-          article: null,
-          requiredArticle: undefined,
-          nextPage: 'blob',
-        });
+        expect(denormalized).toEqual(expect.any(Symbol));
       });
 
       it('should be non-required deleted members should not result in deleted indicator', () => {
-        const [denormalized, deleted] = denormalize('abc', WithOptional, {
+        const denormalized = denormalize('abc', WithOptional, {
           [WithOptional.key]: {
             abc: WithOptional.fromJS({
               id: 'abc',
@@ -1288,7 +1291,8 @@ describe(`${schema.Entity.name} denormalization`, () => {
             ['6']: ArticleEntity.fromJS({ id: '6' }),
           },
         });
-        expect(deleted).toBe(false);
+        expect(denormalized).not.toEqual(expect.any(Symbol));
+        if (typeof denormalized === 'symbol') return;
         const response = denormalized;
         expect(response).toBeDefined();
         expect(response).toBeInstanceOf(WithOptional);
@@ -1301,7 +1305,7 @@ describe(`${schema.Entity.name} denormalization`, () => {
       });
 
       it('should be both deleted and not found when both are true in different parts of schema', () => {
-        const [denormalized, deleted] = denormalize(
+        const denormalized = denormalize(
           { data: 'abc' },
           { data: WithOptional, other: ArticleEntity },
           {
@@ -1320,17 +1324,7 @@ describe(`${schema.Entity.name} denormalization`, () => {
             },
           },
         );
-        expect(deleted).toBe(true);
-        const response = denormalized;
-        expect(response).toBeDefined();
-        expect(response).toEqual({
-          data: {
-            id: 'abc',
-            article: ArticleEntity.fromJS({ id: '6' }),
-            requiredArticle: undefined,
-            nextPage: 'blob',
-          },
-        });
+        expect(denormalized).toEqual(expect.any(Symbol));
       });
     });
   });

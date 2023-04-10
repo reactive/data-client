@@ -15,8 +15,7 @@ const validateSchema = definition => {
 const getValues = input =>
   Array.isArray(input) ? input : Object.keys(input).map(key => input[key]);
 
-const filterEmpty = ([item, , deletedItem]) =>
-  item !== undefined && !deletedItem;
+const filterEmpty = item => item !== undefined && typeof item !== 'symbol';
 
 export const normalize = (
   schema: any,
@@ -38,21 +37,11 @@ export const normalize = (
   );
 };
 
-export const denormalize = (
-  schema: any,
-  input: any,
-  unvisit: any,
-): [denormalized: any, suspend: boolean] => {
+export const denormalize = (schema: any, input: any, unvisit: any): any => {
   schema = validateSchema(schema);
-  return [
-    input.map
-      ? input
-          .map(entityOrId => unvisit(entityOrId, schema))
-          .filter(filterEmpty)
-          .map(([value]) => value)
-      : input,
-    false,
-  ];
+  return input.map
+    ? input.map(entityOrId => unvisit(entityOrId, schema)).filter(filterEmpty)
+    : input;
 };
 
 export function infer(schema: any, args: any, indexes: any, recurse: any) {

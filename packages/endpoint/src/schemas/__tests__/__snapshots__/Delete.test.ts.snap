@@ -2,126 +2,90 @@
 
 exports[`Delete denormalization denormalizes deleted entities as undefined (direct) 1`] = `
 [
-  [
-    {
-      "data": undefined,
-    },
-  ],
-  false,
+  {
+    "data": undefined,
+  },
 ]
 `;
 
 exports[`Delete denormalization denormalizes deleted entities as undefined (direct) 2`] = `
 [
-  [
-    {
-      "data": undefined,
-    },
-  ],
-  false,
+  {
+    "data": undefined,
+  },
 ]
 `;
 
 exports[`Delete denormalization denormalizes deleted entities as undefined (direct) 3`] = `
 [
-  [
-    {
-      "data": undefined,
-    },
-  ],
-  false,
+  {
+    "data": undefined,
+  },
 ]
 `;
 
 exports[`Delete denormalization denormalizes deleted entities as undefined (direct) 4`] = `
 [
-  [
-    {
-      "data": undefined,
-    },
-  ],
-  false,
+  {
+    "data": undefined,
+  },
 ]
 `;
 
 exports[`Delete denormalization denormalizes deleted entities as undefined (direct) 5`] = `
-[
-  {
-    "data": undefined,
-  },
-  true,
-]
+{
+  "data": undefined,
+}
 `;
 
 exports[`Delete denormalization denormalizes deleted entities as undefined (direct) 6`] = `
-[
-  {
-    "data": undefined,
-  },
-  true,
-]
+{
+  "data": undefined,
+}
 `;
 
 exports[`Delete denormalization denormalizes deleted entities as undefined (immutable) 1`] = `
-[
-  Immutable.List [
-    Immutable.Map {
-      "data": undefined,
-    },
-  ],
-  false,
+Immutable.List [
+  Immutable.Map {
+    "data": undefined,
+  },
 ]
 `;
 
 exports[`Delete denormalization denormalizes deleted entities as undefined (immutable) 2`] = `
-[
-  Immutable.List [
-    Immutable.Map {
-      "data": undefined,
-    },
-  ],
-  false,
+Immutable.List [
+  Immutable.Map {
+    "data": undefined,
+  },
 ]
 `;
 
 exports[`Delete denormalization denormalizes deleted entities as undefined (immutable) 3`] = `
-[
-  Immutable.List [
-    Immutable.Map {
-      "data": undefined,
-    },
-  ],
-  false,
+Immutable.List [
+  Immutable.Map {
+    "data": undefined,
+  },
 ]
 `;
 
 exports[`Delete denormalization denormalizes deleted entities as undefined (immutable) 4`] = `
-[
-  Immutable.List [
-    Immutable.Map {
-      "data": undefined,
-    },
-  ],
-  false,
+Immutable.List [
+  Immutable.Map {
+    "data": undefined,
+  },
 ]
 `;
 
 exports[`Delete denormalization denormalizes deleted entities as undefined (immutable) 5`] = `
-[
-  Immutable.Map {
-    "data": undefined,
-  },
-  true,
-]
+Immutable.Map {
+  "data": undefined,
+}
 `;
 
 exports[`Delete denormalization denormalizes deleted entities as undefined (immutable) 6`] = `
-[
-  Immutable.Map {
-    "data": undefined,
-  },
-  true,
-]
+Immutable.Map {
+  "data": undefined,
+}
 `;
 
 exports[`Delete normalization normalizes already processed entities 1`] = `

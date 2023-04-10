@@ -427,6 +427,6 @@ describe(`${schema.Values.name} denormalization`, () => {
     };
     const shape = { data: { estimates: new schema.Values(Estimate) } };
     const { result, entities } = normalize(response, shape);
-    expect(denormalize(result, shape, entities)[0]).toMatchSnapshot();
+    expect(denormalize(result, shape, entities)).toMatchSnapshot();
   });
 });
