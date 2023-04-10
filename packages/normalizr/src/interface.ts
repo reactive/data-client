@@ -69,7 +69,7 @@ export interface EntityInterface<T = any> extends SchemaSimple {
 }
 
 export interface UnvisitFunction {
-  (input: any, schema: any): [any, boolean, boolean] | [any, boolean];
+  (input: any, schema: any): [any, boolean, boolean] | any;
   og?: UnvisitFunction;
   setLocal?: (entity: any) => void;
 }
