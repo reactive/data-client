@@ -1,0 +1,584 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EntitySchema denormalization can denormalize already partially denormalized data 1`] = `
+Menu {
+  "food": Food {
+    "id": "1",
+  },
+  "id": "1",
+}
+`;
+
+exports[`EntitySchema denormalization can denormalize already partially denormalized data 2`] = `
+Menu {
+  "food": Food {
+    "id": "1",
+  },
+  "id": "1",
+}
+`;
+
+exports[`EntitySchema denormalization denormalizes an entity 1`] = `
+Tacos {
+  "alias": undefined,
+  "id": "1",
+  "name": "foo",
+}
+`;
+
+exports[`EntitySchema denormalization denormalizes an entity 2`] = `
+Tacos {
+  "alias": undefined,
+  "id": "1",
+  "name": "foo",
+}
+`;
+
+exports[`EntitySchema denormalization denormalizes deep entities 1`] = `
+Menu {
+  "food": Food {
+    "id": "1",
+  },
+  "id": "1",
+}
+`;
+
+exports[`EntitySchema denormalization denormalizes deep entities 2`] = `
+Menu {
+  "food": Food {
+    "id": "",
+  },
+  "id": "2",
+}
+`;
+
+exports[`EntitySchema denormalization denormalizes deep entities with records 1`] = `
+Menu {
+  "food": Food {
+    "id": "1",
+  },
+  "id": "1",
+}
+`;
+
+exports[`EntitySchema denormalization denormalizes deep entities with records 2`] = `
+Menu {
+  "food": Food {
+    "id": "1",
+  },
+  "id": "1",
+}
+`;
+
+exports[`EntitySchema denormalization denormalizes deep entities with records 3`] = `
+Menu {
+  "food": null,
+  "id": "2",
+}
+`;
+
+exports[`EntitySchema denormalization denormalizes deep entities with records 4`] = `
+Menu {
+  "food": null,
+  "id": "2",
+}
+`;
+
+exports[`EntitySchema denormalization denormalizes to undefined for deleted data 1`] = `Symbol(INVALID)`;
+
+exports[`EntitySchema denormalization denormalizes to undefined for deleted data 2`] = `Symbol(INVALID)`;
+
+exports[`EntitySchema denormalization denormalizes to undefined for deleted data 3`] = `Symbol(INVALID)`;
+
+exports[`EntitySchema denormalization denormalizes to undefined for deleted data 4`] = `Symbol(INVALID)`;
+
+exports[`EntitySchema denormalization denormalizes to undefined for missing data 1`] = `
+Menu {
+  "food": undefined,
+  "id": "1",
+}
+`;
+
+exports[`EntitySchema denormalization denormalizes to undefined for missing data 2`] = `
+Menu {
+  "food": undefined,
+  "id": "1",
+}
+`;
+
+exports[`EntitySchema denormalization denormalizes to undefined for missing data 3`] = `undefined`;
+
+exports[`EntitySchema denormalization denormalizes to undefined for missing data 4`] = `undefined`;
+
+exports[`EntitySchema denormalization nesting denormalizes recursive dependencies 1`] = `
+Report {
+  "draftedBy": User {
+    "id": "456",
+    "reports": [
+      [Circular],
+    ],
+    "role": "manager",
+  },
+  "id": "123",
+  "publishedBy": User {
+    "id": "456",
+    "reports": [
+      [Circular],
+    ],
+    "role": "manager",
+  },
+  "title": "Weekly report",
+}
+`;
+
+exports[`EntitySchema denormalization nesting denormalizes recursive dependencies 2`] = `
+Report {
+  "draftedBy": User {
+    "id": "456",
+    "reports": Immutable.List [
+      [Circular],
+    ],
+    "role": "manager",
+  },
+  "id": "123",
+  "publishedBy": User {
+    "id": "456",
+    "reports": Immutable.List [
+      [Circular],
+    ],
+    "role": "manager",
+  },
+  "title": "Weekly report",
+}
+`;
+
+exports[`EntitySchema denormalization nesting denormalizes recursive dependencies 3`] = `
+User {
+  "id": "456",
+  "reports": [
+    Report {
+      "draftedBy": [Circular],
+      "id": "123",
+      "publishedBy": [Circular],
+      "title": "Weekly report",
+    },
+  ],
+  "role": "manager",
+}
+`;
+
+exports[`EntitySchema denormalization nesting denormalizes recursive dependencies 4`] = `
+User {
+  "id": "456",
+  "reports": Immutable.List [
+    Report {
+      "draftedBy": [Circular],
+      "id": "123",
+      "publishedBy": [Circular],
+      "title": "Weekly report",
+    },
+  ],
+  "role": "manager",
+}
+`;
+
+exports[`EntitySchema normalization mergeStrategy can use a custom merging strategy 1`] = `
+{
+  "entities": {
+    "MergeTaco": {
+      "1": MergeTaco {
+        "alias": "bar",
+        "id": "1",
+        "name": "foo",
+      },
+    },
+  },
+  "entityMeta": {
+    "MergeTaco": {
+      "1": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": [
+    "1",
+    "1",
+  ],
+}
+`;
+
+exports[`EntitySchema normalization mergeStrategy defaults to plain merging 1`] = `
+{
+  "entities": {
+    "Tacos": {
+      "1": {
+        "alias": "bar",
+        "id": "1",
+        "name": "bar",
+      },
+    },
+  },
+  "entityMeta": {
+    "Tacos": {
+      "1": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": [
+    "1",
+    "1",
+  ],
+}
+`;
+
+exports[`EntitySchema normalization normalizes already processed entities 1`] = `
+{
+  "entities": {},
+  "entityMeta": {},
+  "indexes": {},
+  "result": [
+    "1",
+  ],
+}
+`;
+
+exports[`EntitySchema normalization normalizes already processed entities 2`] = `
+{
+  "entities": {},
+  "entityMeta": {},
+  "indexes": {},
+  "result": {
+    "data": "1",
+  },
+}
+`;
+
+exports[`EntitySchema normalization normalizes already processed entities 3`] = `
+{
+  "entities": {
+    "Nested": {
+      "5": {
+        "id": "5",
+        "nest": "10",
+        "title": "hi",
+      },
+    },
+  },
+  "entityMeta": {
+    "Nested": {
+      "5": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": "5",
+}
+`;
+
+exports[`EntitySchema normalization normalizes an entity 1`] = `
+{
+  "entities": {
+    "MyEntity": {
+      "1": {
+        "id": "1",
+      },
+    },
+  },
+  "entityMeta": {
+    "MyEntity": {
+      "1": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": "1",
+}
+`;
+
+exports[`EntitySchema normalization pk() can build the entity's ID from the parent object 1`] = `
+{
+  "entities": {
+    "User": {
+      "tacos-user-4": {
+        "id": "4",
+        "name": "Jimmy",
+      },
+    },
+  },
+  "entityMeta": {
+    "User": {
+      "tacos-user-4": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": {
+    "name": "tacos",
+    "user": "tacos-user-4",
+  },
+}
+`;
+
+exports[`EntitySchema normalization pk() can normalize entity IDs based on their object key 1`] = `
+{
+  "entities": {
+    "User": {
+      "4": {
+        "name": "taco",
+      },
+      "56": {
+        "name": "burrito",
+      },
+    },
+  },
+  "entityMeta": {
+    "User": {
+      "4": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+      "56": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": {
+    "4": {
+      "id": "4",
+      "schema": "users",
+    },
+    "56": {
+      "id": "56",
+      "schema": "users",
+    },
+  },
+}
+`;
+
+exports[`EntitySchema normalization pk() can use a custom pk() string 1`] = `
+{
+  "entities": {
+    "User": {
+      "134351": {
+        "idStr": "134351",
+        "name": "Kathy",
+      },
+    },
+  },
+  "entityMeta": {
+    "User": {
+      "134351": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": "134351",
+}
+`;
+
+exports[`EntitySchema normalization process can use a custom processing strategy 1`] = `
+ProcessTaco {
+  "alias": undefined,
+  "id": "1",
+  "name": "foo",
+  "slug": "thing-1",
+}
+`;
+
+exports[`EntitySchema normalization process can use information from the parent in the process strategy 1`] = `
+EntityMixin {
+  "child": ChildEntity {
+    "content": "child",
+    "id": "4",
+    "parentId": "1",
+    "parentKey": "child",
+  },
+  "content": "parent",
+  "id": "1",
+}
+`;
+
+exports[`EntitySchema normalization process schema denormalization is run before and passed to the schema denormalization EntriesEntity 1`] = `
+EntriesEntity {
+  "data": {
+    "attachment": AttachmentsEntity {
+      "id": "456",
+    },
+  },
+  "id": "123",
+  "type": "message",
+}
+`;
+
+exports[`EntitySchema normalization process schema denormalization is run before and passed to the schema denormalization EntriesEntity2 1`] = `
+EntriesEntity2 {
+  "data": {
+    "attachment": AttachmentsEntity {
+      "id": "456",
+    },
+  },
+  "id": "123",
+  "type": "message",
+}
+`;
+
+exports[`EntitySchema normalization should allow many unexpected as long as none are missing 1`] = `
+{
+  "entities": {
+    "MyEntity": {
+      "hi": {
+        "a": "a",
+        "b": "b",
+        "c": "c",
+        "d": "e",
+        "e": 0,
+        "f": 0,
+        "g": 0,
+        "h": 0,
+        "i": 0,
+        "j": 0,
+        "k": 0,
+        "l": 0,
+        "m": 0,
+        "n": 0,
+        "name": "hi",
+        "o": 0,
+        "p": 0,
+        "q": 0,
+        "r": 0,
+        "s": 0,
+        "t": 0,
+        "u": 0,
+      },
+    },
+  },
+  "entityMeta": {
+    "MyEntity": {
+      "hi": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": "hi",
+}
+`;
+
+exports[`EntitySchema normalization should error if no matching keys are found 1`] = `
+"Missing usable primary key when normalizing response.
+
+  This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about primary keys: https://resthooks.io/rest/api/Entity#pk
+
+  Entity: MyEntity
+  Value (processed): {
+  "name": 0
+}
+  "
+`;
+
+exports[`EntitySchema normalization should throw a custom error if data does not include pk 1`] = `
+"Missing usable primary key when normalizing response.
+
+  This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about primary keys: https://resthooks.io/rest/api/Entity#pk
+
+  Entity: EntityMixin
+  Value (processed): {
+  "secondthing": "hi"
+}
+  "
+`;
+
+exports[`EntitySchema normalization should throw a custom error if data loads with no matching props 1`] = `
+"Missing usable primary key when normalizing response.
+
+  This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about primary keys: https://resthooks.io/rest/api/Entity#pk
+
+  Entity: EntityMixin
+  Value (processed): {}
+  "
+`;
+
+exports[`EntitySchema normalization should throw a custom error if data loads with string 1`] = `
+"Unexpected input given to normalize. Expected type to be "object", found "string".
+
+          Schema: {
+  "data": {
+    "name": "EntityMixin",
+    "schema": {},
+    "key": "MyData"
+  }
+}
+          Input: "hibho""
+`;
+
+exports[`EntitySchema normalization should throw a custom error if schema key is missing from Entity 1`] = `
+"Schema key is missing in Entity
+
+  Be sure all schema members are also part of the entity
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about nesting schemas: https://resthooks.io/rest/guides/relational-data
+
+  Entity keys: name,secondthing
+  Schema key(missing): blarb
+  "
+`;
+
+exports[`EntitySchema normalization should throw a custom error loads with array 1`] = `
+"Missing usable primary key when normalizing response.
+
+  This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about primary keys: https://resthooks.io/rest/api/Entity#pk
+
+  Entity: EntityMixin
+  Value (processed): {
+  "0": {
+    "name": "hi",
+    "secondthing": "ho"
+  },
+  "1": {
+    "name": "hi",
+    "secondthing": "ho"
+  },
+  "2": {
+    "name": "hi",
+    "secondthing": "ho"
+  }
+}
+  "
+`;

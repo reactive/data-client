@@ -1,0 +1,2023 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ArraySchema denormalization (class, direct) Object denormalizes a single entity 1`] = `
+[
+  Cat {
+    "id": "1",
+    "name": "Milo",
+  },
+  Cat {
+    "id": "2",
+    "name": "Jake",
+  },
+]
+`;
+
+exports[`ArraySchema denormalization (class, direct) Object denormalizes multiple entities 1`] = `
+[
+  Cat {
+    "id": "123",
+    "type": "Cat",
+  },
+  Person {
+    "id": "123",
+    "type": "people",
+  },
+  {
+    "id": "789",
+  },
+  Cat {
+    "id": "456",
+    "type": "Cat",
+  },
+]
+`;
+
+exports[`ArraySchema denormalization (class, direct) Object denormalizes nested in object 1`] = `
+{
+  "results": [
+    Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+    Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization (class, direct) Object denormalizes nested in object with primitive 1`] = `
+{
+  "results": [
+    Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+    Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization (class, direct) Object denormalizes nested in object with primitive 2`] = `
+{
+  "results": [
+    Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+    Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization (class, direct) Object denormalizes non-array as identity 1`] = `
+{
+  "a": "1",
+  "b": "2",
+}
+`;
+
+exports[`ArraySchema denormalization (class, direct) Object denormalizes plain arrays with nothing inside 1`] = `
+{
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+}
+`;
+
+exports[`ArraySchema denormalization (class, direct) Object denormalizes plain arrays with nothing inside 2`] = `
+{
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+}
+`;
+
+exports[`ArraySchema denormalization (class, direct) Object denormalizes plain arrays with nothing inside 3`] = `
+{
+  "tacos": [],
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+}
+`;
+
+exports[`ArraySchema denormalization (class, direct) Object denormalizes plain arrays with nothing inside 4`] = `
+{
+  "tacos": [],
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+}
+`;
+
+exports[`ArraySchema denormalization (class, direct) Object denormalizes plain arrays with plain object inside 1`] = `
+{
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+}
+`;
+
+exports[`ArraySchema denormalization (class, direct) Object denormalizes plain arrays with plain object inside 2`] = `
+{
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+}
+`;
+
+exports[`ArraySchema denormalization (class, direct) Object denormalizes plain arrays with plain object inside 3`] = `
+{
+  "tacos": [],
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+}
+`;
+
+exports[`ArraySchema denormalization (class, direct) Object denormalizes plain arrays with plain object inside 4`] = `
+{
+  "tacos": [],
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+}
+`;
+
+exports[`ArraySchema denormalization (class, direct) Object denormalizes removes undefined 1`] = `
+{
+  "results": [
+    Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+    Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization (class, direct) Object denormalizes removes undefined 2`] = `
+{
+  "results": [
+    Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+    Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization (class, direct) Object denormalizes should not be found when result array is undefined 1`] = `
+{
+  "results": undefined,
+}
+`;
+
+exports[`ArraySchema denormalization (class, direct) Object denormalizes with missing entity should have true second value 1`] = `
+[
+  {
+    "data": Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+  },
+  {
+    "data": Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  },
+  {
+    "data": undefined,
+  },
+]
+`;
+
+exports[`ArraySchema denormalization (class, direct) Object does not assume mapping of schema to attribute values when schemaAttribute is not set 1`] = `
+{
+  "entities": {
+    "Cat": {
+      "1": {
+        "id": "1",
+      },
+      "2": {
+        "id": "2",
+      },
+    },
+  },
+  "entityMeta": {
+    "Cat": {
+      "1": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+      "2": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": [
+    {
+      "cat": "1",
+      "id": "5",
+    },
+    {
+      "cat": "2",
+      "id": "6",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization (class, direct) Object returns the input value if is not an array 1`] = `
+Taco {
+  "fillings": null,
+  "id": "123",
+}
+`;
+
+exports[`ArraySchema denormalization (class, immutable) Object denormalizes a single entity 1`] = `
+[
+  Cat {
+    "id": "1",
+    "name": "Milo",
+  },
+  Cat {
+    "id": "2",
+    "name": "Jake",
+  },
+]
+`;
+
+exports[`ArraySchema denormalization (class, immutable) Object denormalizes multiple entities 1`] = `
+Immutable.List [
+  Cat {
+    "id": "123",
+    "type": "Cat",
+  },
+  Person {
+    "id": "123",
+    "type": "people",
+  },
+  Immutable.Map {
+    "id": "789",
+  },
+  Cat {
+    "id": "456",
+    "type": "Cat",
+  },
+]
+`;
+
+exports[`ArraySchema denormalization (class, immutable) Object denormalizes nested in object 1`] = `
+{
+  "results": [
+    Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+    Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization (class, immutable) Object denormalizes nested in object with primitive 1`] = `
+{
+  "results": [
+    Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+    Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization (class, immutable) Object denormalizes nested in object with primitive 2`] = `
+Immutable.Map {
+  "results": Immutable.List [
+    Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+    Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization (class, immutable) Object denormalizes non-array as identity 1`] = `
+{
+  "a": "1",
+  "b": "2",
+}
+`;
+
+exports[`ArraySchema denormalization (class, immutable) Object denormalizes plain arrays with nothing inside 1`] = `
+{
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+}
+`;
+
+exports[`ArraySchema denormalization (class, immutable) Object denormalizes plain arrays with nothing inside 2`] = `
+Immutable.Map {
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+}
+`;
+
+exports[`ArraySchema denormalization (class, immutable) Object denormalizes plain arrays with nothing inside 3`] = `
+{
+  "tacos": [],
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+}
+`;
+
+exports[`ArraySchema denormalization (class, immutable) Object denormalizes plain arrays with nothing inside 4`] = `
+Immutable.Map {
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+  "tacos": Immutable.List [],
+}
+`;
+
+exports[`ArraySchema denormalization (class, immutable) Object denormalizes plain arrays with plain object inside 1`] = `
+{
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+}
+`;
+
+exports[`ArraySchema denormalization (class, immutable) Object denormalizes plain arrays with plain object inside 2`] = `
+Immutable.Map {
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+}
+`;
+
+exports[`ArraySchema denormalization (class, immutable) Object denormalizes plain arrays with plain object inside 3`] = `
+{
+  "tacos": [],
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+}
+`;
+
+exports[`ArraySchema denormalization (class, immutable) Object denormalizes plain arrays with plain object inside 4`] = `
+Immutable.Map {
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+  "tacos": Immutable.List [],
+}
+`;
+
+exports[`ArraySchema denormalization (class, immutable) Object denormalizes removes undefined 1`] = `
+Immutable.Map {
+  "results": Immutable.List [
+    Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+    Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization (class, immutable) Object denormalizes removes undefined 2`] = `
+{
+  "results": [
+    Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+    Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization (class, immutable) Object denormalizes should not be found when result array is undefined 1`] = `
+Immutable.Map {
+  "results": undefined,
+}
+`;
+
+exports[`ArraySchema denormalization (class, immutable) Object denormalizes with missing entity should have true second value 1`] = `
+Immutable.List [
+  Immutable.Map {
+    "data": Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+  },
+  Immutable.Map {
+    "data": Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  },
+  Immutable.Map {
+    "data": undefined,
+  },
+]
+`;
+
+exports[`ArraySchema denormalization (class, immutable) Object does not assume mapping of schema to attribute values when schemaAttribute is not set 1`] = `
+{
+  "entities": {
+    "Cat": {
+      "1": {
+        "id": "1",
+      },
+      "2": {
+        "id": "2",
+      },
+    },
+  },
+  "entityMeta": {
+    "Cat": {
+      "1": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+      "2": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": [
+    {
+      "cat": "1",
+      "id": "5",
+    },
+    {
+      "cat": "2",
+      "id": "6",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization (class, immutable) Object returns the input value if is not an array 1`] = `
+Taco {
+  "fillings": null,
+  "id": "123",
+}
+`;
+
+exports[`ArraySchema denormalization (object, direct) Object denormalizes a single entity 1`] = `
+[
+  Cat {
+    "id": "1",
+    "name": "Milo",
+  },
+  Cat {
+    "id": "2",
+    "name": "Jake",
+  },
+]
+`;
+
+exports[`ArraySchema denormalization (object, direct) Object denormalizes multiple entities 1`] = `
+[
+  Cat {
+    "id": "123",
+    "type": "Cat",
+  },
+  Person {
+    "id": "123",
+    "type": "people",
+  },
+  {
+    "id": "789",
+  },
+  Cat {
+    "id": "456",
+    "type": "Cat",
+  },
+]
+`;
+
+exports[`ArraySchema denormalization (object, direct) Object denormalizes nested in object 1`] = `
+{
+  "results": [
+    Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+    Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization (object, direct) Object denormalizes nested in object with primitive 1`] = `
+{
+  "results": [
+    Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+    Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization (object, direct) Object denormalizes nested in object with primitive 2`] = `
+{
+  "results": [
+    Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+    Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization (object, direct) Object denormalizes non-array as identity 1`] = `
+{
+  "a": "1",
+  "b": "2",
+}
+`;
+
+exports[`ArraySchema denormalization (object, direct) Object denormalizes plain arrays with nothing inside 1`] = `
+{
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+}
+`;
+
+exports[`ArraySchema denormalization (object, direct) Object denormalizes plain arrays with nothing inside 2`] = `
+{
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+}
+`;
+
+exports[`ArraySchema denormalization (object, direct) Object denormalizes plain arrays with nothing inside 3`] = `
+{
+  "tacos": [],
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+}
+`;
+
+exports[`ArraySchema denormalization (object, direct) Object denormalizes plain arrays with nothing inside 4`] = `
+{
+  "tacos": [],
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+}
+`;
+
+exports[`ArraySchema denormalization (object, direct) Object denormalizes plain arrays with plain object inside 1`] = `
+{
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+}
+`;
+
+exports[`ArraySchema denormalization (object, direct) Object denormalizes plain arrays with plain object inside 2`] = `
+{
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+}
+`;
+
+exports[`ArraySchema denormalization (object, direct) Object denormalizes plain arrays with plain object inside 3`] = `
+{
+  "tacos": [],
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+}
+`;
+
+exports[`ArraySchema denormalization (object, direct) Object denormalizes plain arrays with plain object inside 4`] = `
+{
+  "tacos": [],
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+}
+`;
+
+exports[`ArraySchema denormalization (object, direct) Object denormalizes removes undefined 1`] = `
+{
+  "results": [
+    Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+    Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization (object, direct) Object denormalizes removes undefined 2`] = `
+{
+  "results": [
+    Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+    Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization (object, direct) Object denormalizes should not be found when result array is undefined 1`] = `
+{
+  "results": undefined,
+}
+`;
+
+exports[`ArraySchema denormalization (object, direct) Object denormalizes with missing entity should have true second value 1`] = `
+[
+  {
+    "data": Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+  },
+  {
+    "data": Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  },
+  {
+    "data": undefined,
+  },
+]
+`;
+
+exports[`ArraySchema denormalization (object, direct) Object does not assume mapping of schema to attribute values when schemaAttribute is not set 1`] = `
+{
+  "entities": {
+    "Cat": {
+      "1": {
+        "id": "1",
+      },
+      "2": {
+        "id": "2",
+      },
+    },
+  },
+  "entityMeta": {
+    "Cat": {
+      "1": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+      "2": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": [
+    {
+      "cat": "1",
+      "id": "5",
+    },
+    {
+      "cat": "2",
+      "id": "6",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization (object, direct) Object returns the input value if is not an array 1`] = `
+Taco {
+  "fillings": null,
+  "id": "123",
+}
+`;
+
+exports[`ArraySchema denormalization (object, immutable) Object denormalizes a single entity 1`] = `
+[
+  Cat {
+    "id": "1",
+    "name": "Milo",
+  },
+  Cat {
+    "id": "2",
+    "name": "Jake",
+  },
+]
+`;
+
+exports[`ArraySchema denormalization (object, immutable) Object denormalizes multiple entities 1`] = `
+Immutable.List [
+  Cat {
+    "id": "123",
+    "type": "Cat",
+  },
+  Person {
+    "id": "123",
+    "type": "people",
+  },
+  Immutable.Map {
+    "id": "789",
+  },
+  Cat {
+    "id": "456",
+    "type": "Cat",
+  },
+]
+`;
+
+exports[`ArraySchema denormalization (object, immutable) Object denormalizes nested in object 1`] = `
+{
+  "results": [
+    Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+    Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization (object, immutable) Object denormalizes nested in object with primitive 1`] = `
+{
+  "results": [
+    Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+    Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization (object, immutable) Object denormalizes nested in object with primitive 2`] = `
+Immutable.Map {
+  "results": Immutable.List [
+    Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+    Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization (object, immutable) Object denormalizes non-array as identity 1`] = `
+{
+  "a": "1",
+  "b": "2",
+}
+`;
+
+exports[`ArraySchema denormalization (object, immutable) Object denormalizes plain arrays with nothing inside 1`] = `
+{
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+}
+`;
+
+exports[`ArraySchema denormalization (object, immutable) Object denormalizes plain arrays with nothing inside 2`] = `
+Immutable.Map {
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+}
+`;
+
+exports[`ArraySchema denormalization (object, immutable) Object denormalizes plain arrays with nothing inside 3`] = `
+{
+  "tacos": [],
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+}
+`;
+
+exports[`ArraySchema denormalization (object, immutable) Object denormalizes plain arrays with nothing inside 4`] = `
+Immutable.Map {
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+  "tacos": Immutable.List [],
+}
+`;
+
+exports[`ArraySchema denormalization (object, immutable) Object denormalizes plain arrays with plain object inside 1`] = `
+{
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+}
+`;
+
+exports[`ArraySchema denormalization (object, immutable) Object denormalizes plain arrays with plain object inside 2`] = `
+Immutable.Map {
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+}
+`;
+
+exports[`ArraySchema denormalization (object, immutable) Object denormalizes plain arrays with plain object inside 3`] = `
+{
+  "tacos": [],
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+}
+`;
+
+exports[`ArraySchema denormalization (object, immutable) Object denormalizes plain arrays with plain object inside 4`] = `
+Immutable.Map {
+  "user": User {
+    "id": "1",
+    "name": "Jane",
+  },
+  "tacos": Immutable.List [],
+}
+`;
+
+exports[`ArraySchema denormalization (object, immutable) Object denormalizes removes undefined 1`] = `
+Immutable.Map {
+  "results": Immutable.List [
+    Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+    Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization (object, immutable) Object denormalizes removes undefined 2`] = `
+{
+  "results": [
+    Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+    Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization (object, immutable) Object denormalizes should not be found when result array is undefined 1`] = `
+Immutable.Map {
+  "results": undefined,
+}
+`;
+
+exports[`ArraySchema denormalization (object, immutable) Object denormalizes with missing entity should have true second value 1`] = `
+Immutable.List [
+  Immutable.Map {
+    "data": Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+  },
+  Immutable.Map {
+    "data": Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  },
+  Immutable.Map {
+    "data": undefined,
+  },
+]
+`;
+
+exports[`ArraySchema denormalization (object, immutable) Object does not assume mapping of schema to attribute values when schemaAttribute is not set 1`] = `
+{
+  "entities": {
+    "Cat": {
+      "1": {
+        "id": "1",
+      },
+      "2": {
+        "id": "2",
+      },
+    },
+  },
+  "entityMeta": {
+    "Cat": {
+      "1": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+      "2": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": [
+    {
+      "cat": "1",
+      "id": "5",
+    },
+    {
+      "cat": "2",
+      "id": "6",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization (object, immutable) Object returns the input value if is not an array 1`] = `
+Taco {
+  "fillings": null,
+  "id": "123",
+}
+`;
+
+exports[`ArraySchema normalization (plain) Class filters out undefined and null normalized values 1`] = `
+{
+  "entities": {
+    "User": {
+      "123": {
+        "id": "123",
+      },
+    },
+  },
+  "entityMeta": {
+    "User": {
+      "123": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": [
+    undefined,
+    "123",
+    null,
+  ],
+}
+`;
+
+exports[`ArraySchema normalization (plain) Class normalizes Objects using their values 1`] = `
+{
+  "entities": {
+    "User": {
+      "1": {
+        "id": "1",
+      },
+      "2": {
+        "id": "2",
+      },
+    },
+  },
+  "entityMeta": {
+    "User": {
+      "1": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+      "2": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": [
+    "1",
+    "2",
+  ],
+}
+`;
+
+exports[`ArraySchema normalization (plain) Class normalizes a single entity 1`] = `
+{
+  "entities": {
+    "Cats": {
+      "1": {
+        "id": "1",
+      },
+      "2": {
+        "id": "2",
+      },
+    },
+  },
+  "entityMeta": {
+    "Cats": {
+      "1": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+      "2": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": [
+    "1",
+    "2",
+  ],
+}
+`;
+
+exports[`ArraySchema normalization (plain) Class normalizes multiple entities 1`] = `
+{
+  "entities": {
+    "Cats": {
+      "123": {
+        "id": "123",
+        "type": "Cat",
+      },
+      "456": {
+        "id": "456",
+        "type": "Cat",
+      },
+    },
+    "Person": {
+      "123": {
+        "id": "123",
+        "type": "people",
+      },
+    },
+  },
+  "entityMeta": {
+    "Cats": {
+      "123": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+      "456": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+    "Person": {
+      "123": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": [
+    {
+      "id": "123",
+      "schema": "Cat",
+    },
+    {
+      "id": "123",
+      "schema": "people",
+    },
+    {
+      "id": "789",
+      "name": "fido",
+    },
+    {
+      "id": "456",
+      "schema": "Cat",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema normalization (plain) Class normalizes multiple entities 2`] = `
+[
+  [
+    {
+      "id": "123",
+      "type": "Cat",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "name": "fido",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "123",
+      "type": "Cat",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "name": "fido",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "123",
+      "type": "people",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "name": "fido",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "123",
+      "type": "people",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "name": "fido",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "789",
+      "name": "fido",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "name": "fido",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "789",
+      "name": "fido",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "name": "fido",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "456",
+      "type": "Cat",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "name": "fido",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "456",
+      "type": "Cat",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "name": "fido",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+]
+`;
+
+exports[`ArraySchema normalization (plain) Object normalizes Objects using their values 1`] = `
+{
+  "entities": {
+    "User": {
+      "1": {
+        "id": "1",
+      },
+      "2": {
+        "id": "2",
+      },
+    },
+  },
+  "entityMeta": {
+    "User": {
+      "1": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+      "2": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": [
+    "1",
+    "2",
+  ],
+}
+`;
+
+exports[`ArraySchema normalization (plain) Object passes its parent to its children when normalizing 1`] = `
+{
+  "entities": {
+    "Child": {
+      "4": {
+        "content": "child",
+        "id": 4,
+      },
+    },
+    "Parent": {
+      "1": {
+        "children": [
+          "4",
+        ],
+        "content": "parent",
+        "id": "1",
+      },
+    },
+  },
+  "entityMeta": {
+    "Child": {
+      "4": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+    "Parent": {
+      "1": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": "1",
+}
+`;
+
+exports[`ArraySchema normalization (plain) Object should throw a custom error if data loads with json string unexpected value 1`] = `
+"Normalizing a string, but this does match schema.
+
+Parsing this input string as JSON worked. This likely indicates fetch function did not parse
+the JSON. By default, this only happens if "content-type" header includes "json".
+See https://resthooks.io/rest/api/RestEndpoint#parseResponse for more information
+
+  Schema: [
+  {
+    "name": "User",
+    "schema": {},
+    "key": "User"
+  }
+]
+  Input: "[{"id":5}]""
+`;
+
+exports[`ArraySchema normalization (plain) Object should throw a custom error if data loads with string unexpected value 1`] = `
+"Unexpected input given to normalize. Expected type to be "object", found "string".
+
+          Schema: [
+  {
+    "name": "User",
+    "schema": {},
+    "key": "User"
+  }
+]
+          Input: "abc""
+`;
+
+exports[`ArraySchema normalization (schema) Class filters out undefined and null normalized values 1`] = `
+{
+  "entities": {
+    "User": {
+      "123": {
+        "id": "123",
+      },
+    },
+  },
+  "entityMeta": {
+    "User": {
+      "123": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": [
+    "123",
+  ],
+}
+`;
+
+exports[`ArraySchema normalization (schema) Class normalizes Objects using their values 1`] = `
+{
+  "entities": {
+    "User": {
+      "1": {
+        "id": "1",
+      },
+      "2": {
+        "id": "2",
+      },
+    },
+  },
+  "entityMeta": {
+    "User": {
+      "1": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+      "2": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": [
+    "1",
+    "2",
+  ],
+}
+`;
+
+exports[`ArraySchema normalization (schema) Class normalizes a single entity 1`] = `
+{
+  "entities": {
+    "Cats": {
+      "1": {
+        "id": "1",
+      },
+      "2": {
+        "id": "2",
+      },
+    },
+  },
+  "entityMeta": {
+    "Cats": {
+      "1": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+      "2": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": [
+    "1",
+    "2",
+  ],
+}
+`;
+
+exports[`ArraySchema normalization (schema) Class normalizes multiple entities 1`] = `
+{
+  "entities": {
+    "Cats": {
+      "123": {
+        "id": "123",
+        "type": "Cat",
+      },
+      "456": {
+        "id": "456",
+        "type": "Cat",
+      },
+    },
+    "Person": {
+      "123": {
+        "id": "123",
+        "type": "people",
+      },
+    },
+  },
+  "entityMeta": {
+    "Cats": {
+      "123": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+      "456": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+    "Person": {
+      "123": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": [
+    {
+      "id": "123",
+      "schema": "Cat",
+    },
+    {
+      "id": "123",
+      "schema": "people",
+    },
+    {
+      "id": "789",
+      "name": "fido",
+    },
+    {
+      "id": "456",
+      "schema": "Cat",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema normalization (schema) Class normalizes multiple entities 2`] = `
+[
+  [
+    {
+      "id": "123",
+      "type": "Cat",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "name": "fido",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "123",
+      "type": "Cat",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "name": "fido",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "123",
+      "type": "people",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "name": "fido",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "123",
+      "type": "people",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "name": "fido",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "789",
+      "name": "fido",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "name": "fido",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "789",
+      "name": "fido",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "name": "fido",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "456",
+      "type": "Cat",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "name": "fido",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "456",
+      "type": "Cat",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "name": "fido",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+]
+`;
+
+exports[`ArraySchema normalization (schema) Object normalizes Objects using their values 1`] = `
+{
+  "entities": {
+    "User": {
+      "1": {
+        "id": "1",
+      },
+      "2": {
+        "id": "2",
+      },
+    },
+  },
+  "entityMeta": {
+    "User": {
+      "1": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+      "2": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": [
+    "1",
+    "2",
+  ],
+}
+`;
+
+exports[`ArraySchema normalization (schema) Object passes its parent to its children when normalizing 1`] = `
+{
+  "entities": {
+    "Child": {
+      "4": {
+        "content": "child",
+        "id": 4,
+      },
+    },
+    "Parent": {
+      "1": {
+        "children": [
+          "4",
+        ],
+        "content": "parent",
+        "id": "1",
+      },
+    },
+  },
+  "entityMeta": {
+    "Child": {
+      "4": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+    "Parent": {
+      "1": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": "1",
+}
+`;
+
+exports[`ArraySchema normalization (schema) Object should throw a custom error if data loads with json string unexpected value 1`] = `
+"Normalizing a string, but this does match schema.
+
+Parsing this input string as JSON worked. This likely indicates fetch function did not parse
+the JSON. By default, this only happens if "content-type" header includes "json".
+See https://resthooks.io/rest/api/RestEndpoint#parseResponse for more information
+
+  Schema: [
+  {
+    "name": "User",
+    "schema": {},
+    "key": "User"
+  }
+]
+  Input: "[{"id":5}]""
+`;
+
+exports[`ArraySchema normalization (schema) Object should throw a custom error if data loads with string unexpected value 1`] = `
+"Unexpected input given to normalize. Expected type to be "object", found "string".
+
+          Schema: [
+  {
+    "name": "User",
+    "schema": {},
+    "key": "User"
+  }
+]
+          Input: "abc""
+`;
+
+exports[`normalizes plain arrays as shorthand for ArraySchema 1`] = `
+{
+  "entities": {
+    "User": {
+      "1": {
+        "id": "1",
+      },
+      "2": {
+        "id": "2",
+      },
+    },
+  },
+  "entityMeta": {
+    "User": {
+      "1": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+      "2": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": [
+    "1",
+    "2",
+  ],
+}
+`;

@@ -31,6 +31,7 @@ const baseConfig = {
     'packages/rest-hooks/src/hooks/hasUsableData',
     'packages/core/src/state/legacy-actions/createFetch',
     'packages/react/src/makeCacheProvider',
+    'packages/endpoint/src/schemas-3.7',
   ],
   testEnvironmentOptions: {
     url: 'http://localhost',
