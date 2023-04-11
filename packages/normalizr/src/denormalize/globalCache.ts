@@ -103,26 +103,26 @@ export default class GlobalCache implements Cache {
     input: any,
     cachable: boolean,
     computeValue: () => any,
-  ): [denormalized: any, entityPaths: Path[]] {
+  ): {
+    data: any;
+    paths: Path[];
+  } {
     if (!cachable) {
-      const value = computeValue();
-      // this is faster than spread
-      // https://www.measurethat.net/Benchmarks/Show/23636/0/spread-with-tuples
-      return [value, this.paths()];
+      return { data: computeValue(), paths: this.paths() };
     }
 
-    let [value, entityPaths] = this.resultCache.get(input, this._getEntity);
+    let [data, paths] = this.resultCache.get(input, this._getEntity);
 
-    if (entityPaths === undefined) {
-      value = computeValue();
+    if (paths === undefined) {
+      data = computeValue();
       // we want to do this before we add our 'input' entry
-      entityPaths = this.paths();
+      paths = this.paths();
       // for the first entry, `path` is ignored so empty members is fine
       this.dependencies.unshift({ entity: input, path: { key: '', pk: '' } });
-      this.resultCache.set(this.dependencies, value);
+      this.resultCache.set(this.dependencies, data);
     }
 
-    return [value, entityPaths as Path[]];
+    return { data, paths };
   }
 
   protected paths() {

@@ -162,10 +162,7 @@ const getUnvisit = (getEntity: GetEntity, cache: Cache) => {
     return input;
   }
 
-  return (
-    input: any,
-    schema: any,
-  ): [denormalized: any, entityPaths: Path[]] => {
+  return (input: any, schema: any): { data: any; paths: Path[] } => {
     // in the case where WeakMap cannot be used
     // this test ensures null is properly excluded from WeakMap
     const cachable = Object(input) === input && Object(schema) === schema;

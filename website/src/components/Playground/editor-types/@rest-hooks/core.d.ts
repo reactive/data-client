@@ -13,6 +13,7 @@ type Serializable<T extends {
 interface SchemaSimple<T = any> {
     normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>): any;
     denormalize(input: {}, unvisit: UnvisitFunction): [denormalized: T, found: boolean, suspend: boolean];
+    denormalizeOnly?(input: {}, unvisit: (input: any, schema: any) => any): T;
     infer(args: readonly any[], indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): any;
 }
 interface SchemaClass<T = any, N = T | undefined> extends SchemaSimple<T> {
@@ -32,7 +33,7 @@ interface EntityInterface<T = any> extends SchemaSimple {
     prototype: T;
 }
 interface UnvisitFunction {
-    (input: any, schema: any): [any, boolean, boolean];
+    (input: any, schema: any): [any, boolean, boolean] | any;
     og?: UnvisitFunction;
     setLocal?: (entity: any) => void;
 }
@@ -54,7 +55,7 @@ interface EntityTable {
  * Dependencies store `Path` to enable quick traversal using only `State`
  * If *any* members of the dependency get cleaned up, so does that key/value pair get removed.
  */
-declare class WeakEntityMap<K extends object, V> {
+declare class WeakEntityMap<K extends object = object, V = any> {
     readonly next: WeakMap<K, Link<K, V>>;
     get(entity: K, getEntity: GetEntity<K | symbol>): readonly [undefined, undefined] | [V, Path[]];
     set(dependencies: Dep<K>[], value: V): void;
@@ -128,7 +129,7 @@ type NormalizeNullable$1<S> = S extends EntityInterface ? string | undefined : S
  * Build the result parameter to denormalize from schema alone.
  * Tries to compute the entity ids from params.
  */
-declare function inferResults<S extends Schema>(schema: S, args: any[], indexes: NormalizedIndex, entities?: EntityTable): NormalizeNullable$1<S>;
+declare function inferResults<S extends Schema>(schema: S, args: any[], indexes: NormalizedIndex, entities: EntityTable): NormalizeNullable$1<S>;
 
 declare const DELETED: unique symbol;
 
@@ -810,7 +811,6 @@ declare class Controller$1<D extends GenericDispatch = CompatibleDispatch> {
         expiryStatus: ExpiryStatus;
         expiresAt: number;
     };
-    private getResults;
 }
 
 declare class Controller<D extends GenericDispatch = CompatibleDispatch> extends Controller$1<D> {
@@ -881,7 +881,7 @@ declare class NetworkManager implements Manager {
     init(): void;
     /** Ensures all promises are completed by rejecting remaining. */
     cleanup(): void;
-    allSettled(): Promise<PromiseSettledResult<any>[]>;
+    allSettled(): Promise<PromiseSettledResult<any>[]> | undefined;
     /** Clear all promise state */
     protected clearAll(): void;
     /** Clear promise state for a given key */

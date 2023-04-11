@@ -387,7 +387,7 @@ describe('normalize', () => {
 });
 
 function denormalizeCachedValue(...args) {
-  return denormalizeCached(...args)[0];
+  return denormalizeCached(...args).data;
 }
 describe.each([
   ['fast', denormalizeSimple],

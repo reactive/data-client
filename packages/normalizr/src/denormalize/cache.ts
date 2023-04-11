@@ -12,5 +12,8 @@ export default interface Cache {
     input: any,
     cachable: boolean,
     computeValue: () => any,
-  ): [denormalized: any, entityPaths: Path[]];
+  ): {
+    data: any;
+    paths: Path[];
+  };
 }

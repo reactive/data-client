@@ -2,4 +2,4 @@
 '@rest-hooks/normalizr': major
 ---
 
-denormalizeCached returns { data, entityPaths }
+denormalizeCached returns { data, paths }

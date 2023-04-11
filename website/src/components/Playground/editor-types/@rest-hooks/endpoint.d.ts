@@ -54,6 +54,7 @@ declare class Delete<E extends EntityInterface & {
     normalize(input: any, parent: any, key: string | undefined, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>): string | undefined;
     infer(args: any, indexes: any, recurse: any): any;
     denormalize(id: string, unvisit: UnvisitFunction): [denormalized: AbstractInstanceType<E>, found: boolean, suspend: boolean];
+    denormalizeOnly(id: string, unvisit: (input: any, schema: any) => any): AbstractInstanceType<E>;
     _denormalizeNullable(): [
         AbstractInstanceType<E> | undefined,
         boolean,
@@ -168,6 +169,7 @@ interface IEntityClass<TBase extends Constructor = any> {
         fetchedAt: number;
     }, input: any): number;
     denormalize<T extends (abstract new (...args: any[]) => IEntityInstance & InstanceType<TBase>) & IEntityClass & TBase>(this: T, input: any, unvisit: UnvisitFunction): [denormalized: AbstractInstanceType<T>, found: boolean, suspend: boolean];
+    denormalizeOnly<T extends (abstract new (...args: any[]) => IEntityInstance & InstanceType<TBase>) & IEntityClass & TBase>(this: T, input: any, unvisit: (input: any, schema: any) => any): AbstractInstanceType<T>;
     /** All instance defaults set */
     readonly defaults: any;
 }
@@ -225,6 +227,11 @@ declare class Array$1<S extends Schema = Schema> implements SchemaClass$1 {
     boolean,
   ];
 
+  denormalizeOnly(
+    input: {},
+    unvisit: (input: any, schema: any) => any,
+  ): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
+
   infer(
     args: readonly any[],
     indexes: NormalizedIndex,
@@ -280,6 +287,11 @@ declare class All<
     boolean,
   ];
 
+  denormalizeOnly(
+    input: {},
+    unvisit: (input: any, schema: any) => any,
+  ): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
+
   infer(
     args: readonly any[],
     indexes: NormalizedIndex,
@@ -316,6 +328,11 @@ declare class Object$1<O extends Record<string, any> = Record<string, Schema>>
   ): [denormalized: DenormalizeObject<O>, found: boolean, suspend: boolean];
 
   _denormalizeNullable(): [DenormalizeNullableObject<O>, false, boolean];
+
+  denormalizeOnly(
+    input: {},
+    unvisit: (input: any, schema: any) => any,
+  ): DenormalizeObject<O>;
 
   infer(
     args: readonly any[],
@@ -366,6 +383,11 @@ declare class Union<Choices extends EntityMap = any> implements SchemaClass$1 {
     false,
     boolean,
   ];
+
+  denormalizeOnly(
+    input: {},
+    unvisit: (input: any, schema: any) => any,
+  ): AbstractInstanceType<Choices[keyof Choices]>;
 
   infer(
     args: readonly any[],
@@ -441,6 +463,14 @@ declare class Values<Choices extends Schema = any> implements SchemaClass$1 {
     false,
     boolean,
   ];
+
+  denormalizeOnly(
+    input: {},
+    unvisit: (input: any, schema: any) => any,
+  ): Record<
+    string,
+    Choices extends EntityMap<infer T> ? T : Denormalize<Choices>
+  >;
 
   infer(
     args: readonly any[],
@@ -607,6 +637,7 @@ type Serializable<T extends {
 interface SchemaSimple<T = any> {
     normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>): any;
     denormalize(input: {}, unvisit: UnvisitFunction): [denormalized: T, found: boolean, suspend: boolean];
+    denormalizeOnly?(input: {}, unvisit: (input: any, schema: any) => any): T;
     infer(args: readonly any[], indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): any;
 }
 interface SchemaClass<T = any, N = T | undefined> extends SchemaSimple<T> {
@@ -626,7 +657,7 @@ interface EntityInterface<T = any> extends SchemaSimple {
     prototype: T;
 }
 interface UnvisitFunction {
-    (input: any, schema: any): [any, boolean, boolean];
+    (input: any, schema: any): [any, boolean, boolean] | any;
     og?: UnvisitFunction;
     setLocal?: (entity: any) => void;
 }
@@ -958,6 +989,7 @@ declare class Query<S extends SchemaSimple, P extends any[] = [], R = Denormaliz
 type QuerySchema<Schema, R> = Exclude<Schema, 'denormalize' | '_denormalizeNullable'> & {
     denormalize(input: {}, unvisit: UnvisitFunction): [denormalized: R, found: boolean, suspend: boolean];
     _denormalizeNullable(input: {}, unvisit: UnvisitFunction): [denormalized: R | undefined, found: boolean, suspend: boolean];
+    denormalizeOnly(input: {}, unvisit: (input: any, schema: any) => any): R;
 };
 
 declare class AbortOptimistic extends Error {

@@ -27,10 +27,10 @@ export default class LocalCache implements Cache {
     input: any,
     cachable: boolean,
     computeValue: () => any,
-  ): [denormalized: any, entityPaths: Path[]] {
-    const value = computeValue();
-    // this is faster than spread
-    // https://www.measurethat.net/Benchmarks/Show/23636/0/spread-with-tuples
-    return [value, []];
+  ): {
+    data: any;
+    paths: Path[];
+  } {
+    return { data: computeValue(), paths: [] };
   }
 }

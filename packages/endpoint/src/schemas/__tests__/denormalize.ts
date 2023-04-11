@@ -19,7 +19,8 @@ export const denormalizeSimple = <S extends Schema>(
   entityCache: DenormalizeCache['entities'] = {},
   resultCache: DenormalizeCache['results'][string] = new WeakEntityMap(),
 ): Denormalize<S> | DenormalizeNullable<S> | symbol =>
-  denormalizeCore(input, schema, entities, entityCache, resultCache)[0] as any;
+  denormalizeCore(input, schema, entities, entityCache, resultCache)
+    .data as any;
 
 export default denormalizeSimple;
 

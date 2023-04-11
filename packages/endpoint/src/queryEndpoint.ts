@@ -83,4 +83,5 @@ type QuerySchema<Schema, R> = Exclude<
     input: {},
     unvisit: UnvisitFunction,
   ): [denormalized: R | undefined, found: boolean, suspend: boolean];
+  denormalizeOnly(input: {}, unvisit: (input: any, schema: any) => any): R;
 };

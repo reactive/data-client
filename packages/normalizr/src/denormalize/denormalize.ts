@@ -14,5 +14,6 @@ export const denormalize = <S extends Schema>(
     return input as any;
   }
 
-  return getUnvisit(getEntities(entities), new LocalCache())(input, schema)[0];
+  return getUnvisit(getEntities(entities), new LocalCache())(input, schema)
+    .data;
 };
