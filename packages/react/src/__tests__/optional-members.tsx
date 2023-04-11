@@ -104,7 +104,6 @@ describe(`optional members`, () => {
         b: Nested,
       },
     });
-    console.log(endpoint.path);
     const { result } = renderRestHook(
       () => {
         return useCache(endpoint, { id: '3' });

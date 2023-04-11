@@ -8,11 +8,12 @@ export const denormalize = <S extends Schema>(
   input: any,
   schema: S | undefined,
   entities: any,
-): Denormalize<S> | DenormalizeNullable<S> => {
+): DenormalizeNullable<S> | symbol => {
   // undefined means don't do anything
   if (schema === undefined || input === undefined) {
     return input as any;
   }
 
-  return getUnvisit(getEntities(entities), new LocalCache())(input, schema)[0];
+  return getUnvisit(getEntities(entities), new LocalCache())(input, schema)
+    .data;
 };

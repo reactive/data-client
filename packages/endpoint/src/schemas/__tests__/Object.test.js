@@ -128,28 +128,21 @@ describe(`${schema.Object.name} denormalization`, () => {
   test('should have found = true with null member even when schema has nested entity', () => {
     class User extends IDEntity {}
     const object = new schema.Object({
-      item: {
+      item: new schema.Object({
         user: User,
-      },
+      }),
     });
     const entities = {
       User: {
         1: { id: '1', name: 'Nacho' },
       },
     };
-    let [value, found] = denormalize({ item: null }, object, entities);
+    let value = denormalize({ item: null }, object, entities);
     expect(value).toMatchSnapshot();
-    expect(found).toBe(true);
-    [value, found] = denormalize({ item: null }, object, fromJS(entities));
+    value = denormalize({ item: null }, object, fromJS(entities));
     expect(value).toMatchSnapshot();
-    expect(found).toBe(true);
-    [value, found] = denormalize(
-      fromJS({ item: null }),
-      object,
-      fromJS(entities),
-    );
+    value = denormalize(fromJS({ item: null }), object, fromJS(entities));
     expect(value).toMatchSnapshot();
-    expect(found).toBe(true);
   });
 
   test('denormalizes plain object shorthand', () => {

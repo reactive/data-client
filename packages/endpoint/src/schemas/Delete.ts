@@ -70,6 +70,13 @@ export default class Delete<E extends EntityInterface & { process: any }>
     return unvisit(id, this._entity) as any;
   }
 
+  denormalizeOnly(
+    id: string,
+    unvisit: (input: any, schema: any) => any,
+  ): AbstractInstanceType<E> {
+    return unvisit(id, this._entity) as any;
+  }
+
   /* istanbul ignore next */
   _denormalizeNullable(): [
     AbstractInstanceType<E> | undefined,

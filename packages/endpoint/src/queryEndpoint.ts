@@ -39,10 +39,21 @@ export class Query<
       { args, input }: { args: P; input: any },
       unvisit: any,
     ) => {
-      if (input === undefined) return [undefined, false, true];
+      if (input === undefined) return [undefined, false, false];
       const [value, found, deleted] = schema.denormalize(input, unvisit);
       return [found ? this.process(value, ...args) : undefined, found, deleted];
     };
+    if (schema.denormalizeOnly)
+      query.denormalizeOnly = (
+        { args, input }: { args: P; input: any },
+        unvisit: any,
+      ) => {
+        if (input === undefined) return undefined;
+        const value = (schema as any).denormalizeOnly(input, unvisit);
+        return typeof value === 'symbol'
+          ? undefined
+          : this.process(value, ...args);
+      };
     query.infer = (
       args: any,
       indexes: any,
@@ -72,4 +83,5 @@ type QuerySchema<Schema, R> = Exclude<
     input: {},
     unvisit: UnvisitFunction,
   ): [denormalized: R | undefined, found: boolean, suspend: boolean];
+  denormalizeOnly(input: {}, unvisit: (input: any, schema: any) => any): R;
 };

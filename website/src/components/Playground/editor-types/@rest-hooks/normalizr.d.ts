@@ -11,6 +11,7 @@ type Serializable<T extends {
 interface SchemaSimple<T = any> {
     normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>): any;
     denormalize(input: {}, unvisit: UnvisitFunction): [denormalized: T, found: boolean, suspend: boolean];
+    denormalizeOnly?(input: {}, unvisit: (input: any, schema: any) => any): T;
     infer(args: readonly any[], indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): any;
 }
 interface SchemaClass<T = any, N = T | undefined> extends SchemaSimple<T> {
@@ -30,7 +31,7 @@ interface EntityInterface<T = any> extends SchemaSimple {
     prototype: T;
 }
 interface UnvisitFunction {
-    (input: any, schema: any): [any, boolean, boolean];
+    (input: any, schema: any): [any, boolean, boolean] | any;
     og?: UnvisitFunction;
     setLocal?: (entity: any) => void;
 }
@@ -52,7 +53,7 @@ interface EntityTable {
  * Dependencies store `Path` to enable quick traversal using only `State`
  * If *any* members of the dependency get cleaned up, so does that key/value pair get removed.
  */
-declare class WeakEntityMap<K extends object, V> {
+declare class WeakEntityMap<K extends object = object, V = any> {
     readonly next: WeakMap<K, Link<K, V>>;
     get(entity: K, getEntity: GetEntity<K | symbol>): readonly [undefined, undefined] | [V, Path[]];
     set(dependencies: Dep<K>[], value: V): void;
@@ -136,23 +137,12 @@ type NormalizedSchema<E, R> = {
     };
 };
 
-type DenormalizeReturn<S extends Schema> = [
-    denormalized: Denormalize$1<S>,
-    found: true,
-    deleted: false,
-    entityPaths: Path[]
-] | [
-    denormalized: DenormalizeNullable$1<S>,
-    found: boolean,
-    deleted: true,
-    entityPaths: Path[]
-] | [
-    denormalized: DenormalizeNullable$1<S>,
-    found: false,
-    deleted: boolean,
-    entityPaths: Path[]
-];
-declare const denormalize: <S extends Schema>(input: unknown, schema: S | undefined, entities: any, entityCache?: DenormalizeCache['entities'], resultCache?: DenormalizeCache['results'][string]) => DenormalizeReturn<S>;
+declare const denormalize$1: <S extends Schema>(input: any, schema: S | undefined, entities: any) => symbol | DenormalizeNullable$1<S>;
+
+declare const denormalize: <S extends Schema>(input: unknown, schema: S | undefined, entities: any, entityCache?: DenormalizeCache['entities'], resultCache?: DenormalizeCache['results'][string]) => {
+    data: symbol | DenormalizeNullable$1<S>;
+    paths: Path[];
+};
 
 declare function isEntity(schema: Schema): schema is EntityInterface;
 
@@ -174,7 +164,8 @@ declare const normalize: <S extends Schema = Schema, E extends Record<string, Re
  * Build the result parameter to denormalize from schema alone.
  * Tries to compute the entity ids from params.
  */
-declare function inferResults<S extends Schema>(schema: S, args: any[], indexes: NormalizedIndex, entities?: EntityTable): NormalizeNullable$1<S>;
+declare function inferResults<S extends Schema>(schema: S, args: any[], indexes: NormalizedIndex, entities: EntityTable): NormalizeNullable$1<S>;
+declare function validateInference(results: unknown): any;
 
 declare const DELETED: unique symbol;
 
@@ -272,4 +263,6 @@ type DenormalizeNullable<S> = Extract<S, EntityInterface> extends never ? Extrac
 type Normalize<S> = Extract<S, EntityInterface> extends never ? Extract<S, EntityInterface[]> extends never ? Normalize$1<S> : Normalize$1<Extract<S, EntityInterface[]>> : Normalize$1<Extract<S, EntityInterface>>;
 type NormalizeNullable<S> = Extract<S, EntityInterface> extends never ? Extract<S, EntityInterface[]> extends never ? NormalizeNullable$1<S> : NormalizeNullable$1<Extract<S, EntityInterface[]>> : NormalizeNullable$1<Extract<S, EntityInterface>>;
 
-export { AbstractInstanceType, ArrayElement, DELETED, Denormalize, DenormalizeCache, DenormalizeNullable, DenormalizeReturnType, EndpointExtraOptions, EndpointInterface, EntityInterface, EntityTable, ErrorTypes, ExpiryStatus, ExpiryStatusInterface, FetchFunction, IndexInterface, IndexParams, InferReturn, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, NormalizeReturnType, NormalizedIndex, NormalizedSchema, OptimisticUpdateParams, Path, ReadEndpoint, ResolveType, Schema, SchemaClass, SchemaSimple, Serializable, SnapshotInterface, UnknownError, UnvisitFunction, UpdateFunction, WeakEntityMap, denormalize, inferResults, isEntity, normalize };
+declare const INVALID: unique symbol;
+
+export { AbstractInstanceType, ArrayElement, DELETED, Denormalize, DenormalizeCache, DenormalizeNullable, DenormalizeReturnType, EndpointExtraOptions, EndpointInterface, EntityInterface, EntityTable, ErrorTypes, ExpiryStatus, ExpiryStatusInterface, FetchFunction, INVALID, IndexInterface, IndexParams, InferReturn, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, NormalizeReturnType, NormalizedIndex, NormalizedSchema, OptimisticUpdateParams, Path, ReadEndpoint, ResolveType, Schema, SchemaClass, SchemaSimple, Serializable, SnapshotInterface, UnknownError, UnvisitFunction, UpdateFunction, WeakEntityMap, denormalize$1 as denormalize, denormalize as denormalizeCached, inferResults, isEntity, normalize, validateInference };

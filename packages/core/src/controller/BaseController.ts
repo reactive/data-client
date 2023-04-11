@@ -388,19 +388,20 @@ export default class Controller<
 
     // second argument is false if any entities are missing
     // eslint-disable-next-line prefer-const
-    const [data, _, invalidDenormalize, entityPaths] = denormalizeCached(
+    const { data, paths } = denormalizeCached(
       results,
       schema,
       state.entities,
       this.globalCache.entities,
       isActive ? this.globalCache.results[key] : undefined,
-    ) as [DenormalizeNullable<E['schema']>, boolean, boolean, Path[]];
+    ) as { data: DenormalizeNullable<E['schema']>; paths: Path[] };
+    const invalidDenormalize = typeof data === 'symbol';
 
     // fallback to entity expiry time
     if (!expiresAt) {
       const entityMeta = state.entityMeta;
       // earliest expiry dictates age
-      expiresAt = entityPaths.reduce(
+      expiresAt = paths.reduce(
         (expiresAt: number, { pk, key }) =>
           Math.min(expiresAt, entityMeta[key]?.[pk]?.expiresAt ?? Infinity),
         Infinity,

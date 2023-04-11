@@ -28,6 +28,7 @@ export interface SchemaSimple<T = any> {
     input: {},
     unvisit: UnvisitFunction,
   ): [denormalized: T, found: boolean, suspend: boolean];
+  denormalizeOnly?(input: {}, unvisit: (input: any, schema: any) => any): T;
   infer(
     args: readonly any[],
     indexes: NormalizedIndex,
@@ -69,7 +70,7 @@ export interface EntityInterface<T = any> extends SchemaSimple {
 }
 
 export interface UnvisitFunction {
-  (input: any, schema: any): [any, boolean, boolean];
+  (input: any, schema: any): [any, boolean, boolean] | any;
   og?: UnvisitFunction;
   setLocal?: (entity: any) => void;
 }

@@ -156,16 +156,12 @@ describe.each([
         },
       };
       const input = inferResults(catSchema, [], {}, entities);
-      let [value, found] = denormalize(input, catSchema, createInput(entities));
+      let value = denormalize(input, catSchema, createInput(entities));
+      expect(value).not.toEqual(expect.any(Symbol));
+      if (typeof value === 'symbol') return;
       expect(createOutput(value.results)).toMatchSnapshot();
-      expect(found).toBe(true);
-      [value, found] = denormalize(
-        createInput(input),
-        catSchema,
-        createInput(entities),
-      );
+      value = denormalize(createInput(input), catSchema, createInput(entities));
       expect(createOutput(value)).toMatchSnapshot();
-      expect(found).toBe(true);
     });
 
     test('denormalizes removes undefined or DELETED entities', () => {
@@ -180,17 +176,13 @@ describe.each([
         },
       };
       const input = inferResults(catSchema, [], {}, entities);
-      let [value, found] = denormalize(input, catSchema, createInput(entities));
+      let value = denormalize(input, catSchema, createInput(entities));
+      expect(value).not.toEqual(expect.any(Symbol));
+      if (typeof value === 'symbol') return;
       expect(createOutput(value.results).length).toBe(2);
       expect(createOutput(value.results)).toMatchSnapshot();
-      expect(found).toBe(true);
-      [value, found] = denormalize(
-        createInput(input),
-        catSchema,
-        createInput(entities),
-      );
+      value = denormalize(createInput(input), catSchema, createInput(entities));
       expect(createOutput(value)).toMatchSnapshot();
-      expect(found).toBe(true);
     });
 
     test('denormalize maintains referential equality until entities are added', () => {
@@ -206,7 +198,7 @@ describe.each([
       const input = createInput(inferResults(catSchema, [], {}, entities));
       const entityCache = {};
       const resultCache = new WeakEntityMap();
-      const [value, found] = denormalize(
+      const value = denormalize(
         input,
         catSchema,
         entities,
@@ -216,8 +208,7 @@ describe.each([
 
       expect(createOutput(value).results?.length).toBe(2);
       expect(createOutput(value).results).toMatchSnapshot();
-      expect(found).toBe(true);
-      const [value2, found2] = denormalize(
+      const value2 = denormalize(
         input,
         catSchema,
         entities,
@@ -228,7 +219,6 @@ describe.each([
         createOutput(value2).results[0],
       );
       expect(value).toBe(value2);
-      expect(found).toBe(found2);
 
       entities = {
         ...entities,
@@ -238,7 +228,7 @@ describe.each([
         },
       };
       const input3 = createInput(inferResults(catSchema, [], {}, entities));
-      const [value3, found3] = denormalize(
+      const value3 = denormalize(
         input3,
         catSchema,
         entities,
@@ -256,7 +246,7 @@ describe.each([
       expect(value).not.toBe(value3);
     });
 
-    test('denormalizes should not be found when no entities are present', () => {
+    test('denormalizes should be invalid when no entities are present', () => {
       class Cat extends IDEntity {}
       const catSchema = { results: new schema.All(Cat) };
       const entities = {
@@ -267,14 +257,13 @@ describe.each([
       };
       const input = inferResults(catSchema, [], {}, entities);
 
-      const [value, found] = denormalize(
+      const value = denormalize(
         createInput(input),
         catSchema,
         createInput(entities),
       );
-      expect(found).toBe(false);
 
-      expect(createOutput(value)).toEqual({ results: undefined });
+      expect(createOutput(value)).toEqual(expect.any(Symbol));
     });
 
     test('denormalizes should not be found when no entities are present (polymorphic)', () => {
@@ -303,12 +292,11 @@ describe.each([
         },
       };
       const input = inferResults(listSchema, [], {}, entities);
-      const [value, found] = denormalize(
+      const value = denormalize(
         createInput(input),
         listSchema,
         createInput(entities),
       );
-      expect(found).toBe(false);
 
       expect(createOutput(value)).toEqual(undefined);
     });
@@ -368,13 +356,9 @@ describe.each([
       };
 
       const input = inferResults(listSchema, [], {}, entities);
-      const [value, found, deleted] = denormalize(
-        input,
-        listSchema,
-        createInput(entities),
-      );
-      expect(found).toBe(true);
-      expect(deleted).toBe(false);
+      const value = denormalize(input, listSchema, createInput(entities));
+      expect(value).not.toEqual(expect.any(Symbol));
+      if (typeof value === 'symbol') return;
       expect(value).toMatchSnapshot();
       const first = value && value[0];
       // type check to ensure correct inference

@@ -3,8 +3,8 @@ import { Entity, schema } from '@rest-hooks/endpoint';
 import { fromJS } from 'immutable';
 
 import { normalize } from '../';
+import { denormalize as denormalizeSimple } from '../denormalize/denormalize';
 import { denormalize as denormalizeCached } from '../denormalize/denormalizeCached';
-import { denormalizeSimple } from '../denormalize/denormalizeSimple';
 import { DELETED } from '../special';
 
 class IDEntity extends Entity {
@@ -386,29 +386,24 @@ describe('normalize', () => {
   });
 });
 
+function denormalizeCachedValue(...args) {
+  return denormalizeCached(...args).data;
+}
 describe.each([
   ['fast', denormalizeSimple],
-  ['cached', denormalizeCached],
+  ['cached', denormalizeCachedValue],
 ])(`denormalize [%s]`, (_, denormalize) => {
   test('passthrough with undefined schema', () => {
     const input = {};
-    expect(denormalize(input).slice(0, 3)).toStrictEqual([input, true, false]);
+    expect(denormalize(input)).toEqual(input);
   });
 
   test('returns the input if undefined', () => {
-    expect(denormalize(undefined, {}, {}).slice(0, 3)).toEqual([
-      undefined,
-      expect.any(Boolean),
-      false,
-    ]);
+    expect(denormalize(undefined, {}, {})).toEqual(undefined);
   });
 
   test('returns the input if string', () => {
-    expect(denormalize('bob', '', {}).slice(0, 3)).toEqual([
-      'bob',
-      true,
-      false,
-    ]);
+    expect(denormalize('bob', '', {})).toEqual('bob');
   });
 
   test('denormalizes entities', () => {
@@ -418,7 +413,7 @@ describe.each([
         2: { id: '2', type: 'bar' },
       },
     };
-    expect(denormalize(['1', '2'], [Tacos], entities)[0]).toMatchSnapshot();
+    expect(denormalize(['1', '2'], [Tacos], entities)).toMatchSnapshot();
   });
 
   test('denormalizes without entities fills undefined', () => {
@@ -426,11 +421,7 @@ describe.each([
     expect(
       denormalize(fromJS({ data: '1' }), { data: Tacos }, {}),
     ).toMatchSnapshot();
-    expect(denormalize('1', Tacos, {}).slice(0, 3)).toEqual([
-      undefined,
-      expect.any(Boolean),
-      false,
-    ]);
+    expect(denormalize('1', Tacos, {})).toEqual(undefined);
   });
 
   test('denormalizes ignoring unfound entities in arrays', () => {
@@ -451,11 +442,7 @@ describe.each([
         1: Symbol('ENTITY WAS DELETED'),
       },
     };
-    expect(denormalize('1', Tacos, entities).slice(0, 3)).toEqual([
-      undefined,
-      expect.any(Boolean),
-      expect.any(Boolean),
-    ]);
+    expect(denormalize('1', Tacos, entities)).toEqual(expect.any(Symbol));
   });
 
   test('denormalizes ignoring deleted entities in arrays', () => {
@@ -478,10 +465,10 @@ describe.each([
       },
     };
     /*expect(
-      denormalize([{ data: 1 }, { data: 2 }], [{ data: Tacos }], {})[0],
+      denormalize([{ data: 1 }, { data: 2 }], [{ data: Tacos }], {}),
     ).toEqual([]);*/
     expect(
-      denormalize([{ data: 1 }, { data: 2 }], [{ data: Tacos }], entities)[0],
+      denormalize([{ data: 1 }, { data: 2 }], [{ data: Tacos }], entities),
     ).toMatchSnapshot();
   });
 
@@ -737,7 +724,7 @@ describe.each([
         },
         new schema.Values(Tacos),
         {},
-      )[0],
+      ),
     ).toMatchSnapshot();
   });
 });

@@ -110,7 +110,7 @@ export default function useStatefulResource<
       ),
       adaptedEndpoint.schema,
       {},
-    )[0] as any;
+    ).data as any;
 
   return {
     data,

@@ -65,3 +65,36 @@ export function denormalizeImmutable(
     deleted,
   ];
 }
+
+/**
+ * Denormalize an immutable entity.
+ *
+ * @param  {Schema} schema
+ * @param  {Immutable.Map|Immutable.Record} input
+ * @param  {function} unvisit
+ * @param  {function} getDenormalizedEntity
+ * @return {Immutable.Map|Immutable.Record}
+ */
+export function denormalizeOnlyImmutable(
+  schema: any,
+  input: any,
+  unvisit: (input: any, schema: any) => any,
+): any {
+  let deleted;
+  const value = Object.keys(schema).reduce((object, key) => {
+    // Immutable maps cast keys to strings on write so we need to ensure
+    // we're accessing them using string keys.
+    const stringKey = `${key}`;
+
+    const item = unvisit(object.get(stringKey), schema[stringKey]);
+    if (typeof item === 'symbol') {
+      deleted = item;
+    }
+    if (object.has(stringKey)) {
+      return object.set(stringKey, item);
+    } else {
+      return object;
+    }
+  }, input);
+  return deleted ?? value;
+}

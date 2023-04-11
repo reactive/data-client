@@ -1,4 +1,5 @@
 import { isImmutable, denormalizeImmutable } from './ImmutableUtils.js';
+import { INVALID } from '../denormalize/symbol.js';
 
 export const normalize = (
   schema: any,
@@ -34,27 +35,23 @@ export const denormalize = (
   // eslint-disable-next-line @typescript-eslint/ban-types
   input: {},
   unvisit: any,
-): [denormalized: any, found: boolean, deleted: boolean] => {
+): any => {
   if (isImmutable(input)) {
     return denormalizeImmutable(schema, input, unvisit);
   }
 
   const object = { ...input };
-  let found = true;
   let deleted = false;
   Object.keys(schema).forEach(key => {
-    const [item, foundItem, deletedItem] = unvisit(object[key], schema[key]);
+    const item = unvisit(object[key], schema[key]);
     if (object[key] !== undefined) {
       object[key] = item;
     }
-    if (deletedItem) {
+    if (typeof item === 'symbol') {
       deleted = true;
     }
-    if (!foundItem) {
-      found = false;
-    }
   });
-  return [object, found, deleted];
+  return deleted ? INVALID : object;
 };
 
 export function infer(

@@ -74,7 +74,7 @@ describe(`Serializable denormalization`, () => {
         },
       },
     };
-    const [response, found] = denormalize(
+    const response = denormalize(
       {
         user: '1',
         anotherItem: new Other({ thing: 500 }),
@@ -83,12 +83,13 @@ describe(`Serializable denormalization`, () => {
       objectSchema,
       entities,
     );
+    expect(response).not.toEqual(expect.any(Symbol));
+    if (typeof response === 'symbol') return;
     expect(response.anotherItem).toBeInstanceOf(Other);
     expect(response.time.getTime()).toBe(response.time.getTime());
     expect(response.user?.createdAt.getTime()).toBe(
       response.user?.createdAt.getTime(),
     );
-    expect(found).toBe(true);
     expect(response).toMatchSnapshot();
   });
 
@@ -102,7 +103,7 @@ describe(`Serializable denormalization`, () => {
         },
       },
     };
-    const [response, found] = denormalize(
+    const response = denormalize(
       {
         user: '1',
         anotherItem: { thing: 500 },
@@ -111,12 +112,13 @@ describe(`Serializable denormalization`, () => {
       objectSchema,
       entities,
     );
+    expect(response).not.toEqual(expect.any(Symbol));
+    if (typeof response === 'symbol') return;
     expect(response.anotherItem).toBeInstanceOf(Other);
     expect(response.time.getTime()).toBe(response.time.getTime());
     expect(response.user?.createdAt.getTime()).toBe(
       response.user?.createdAt.getTime(),
     );
-    expect(found).toBe(true);
     expect(response).toMatchSnapshot();
   });
 });

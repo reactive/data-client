@@ -23,5 +23,6 @@ export * from './endpoint/types.js';
 export * from './interface.js';
 export * from './Expiry.js';
 export * from './normal.js';
+export { INVALID } from './denormalize/symbol.js';
 
 export { denormalize, denormalizeCached, normalize, isEntity, WeakEntityMap };

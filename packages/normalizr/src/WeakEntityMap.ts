@@ -6,7 +6,7 @@ import { Path } from './types.js';
  * Dependencies store `Path` to enable quick traversal using only `State`
  * If *any* members of the dependency get cleaned up, so does that key/value pair get removed.
  */
-export default class WeakEntityMap<K extends object, V> {
+export default class WeakEntityMap<K extends object = object, V = any> {
   readonly next = new WeakMap<K, Link<K, V>>();
 
   get(entity: K, getEntity: GetEntity<K | symbol>) {

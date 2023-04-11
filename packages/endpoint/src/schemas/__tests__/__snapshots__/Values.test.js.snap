@@ -1,201 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ValuesSchema denormalization denormalizes the values of an object with the given schema 1`] = `
-[
-  {
-    "fido": Dog {
-      "id": "1",
-      "type": "dogs",
-    },
-    "fluffy": Cat {
-      "id": "1",
-      "type": "cats",
-    },
-  },
-  true,
-  false,
-]
-`;
-
-exports[`ValuesSchema denormalization denormalizes the values of an object with the given schema 2`] = `
-[
-  {
-    "fido": Dog {
-      "id": "1",
-      "type": "dogs",
-    },
-    "fluffy": Cat {
-      "id": "1",
-      "type": "cats",
-    },
-  },
-  true,
-  false,
-]
-`;
-
-exports[`ValuesSchema denormalization denormalizes with deleted entity should have false third value 1`] = `
-[
-  {
-    "fido": Dog {
-      "id": "1",
-      "type": "dogs",
-    },
-    "fluffy": Cat {
-      "id": "1",
-      "type": "cats",
-    },
-  },
-  true,
-  true,
-]
-`;
-
-exports[`ValuesSchema denormalization denormalizes with deleted entity should have false third value 2`] = `
-[
-  {
-    "fido": Dog {
-      "id": "1",
-      "type": "dogs",
-    },
-    "fluffy": Cat {
-      "id": "1",
-      "type": "cats",
-    },
-  },
-  true,
-  true,
-]
-`;
-
-exports[`ValuesSchema denormalization denormalizes with missing entity should have false second value 1`] = `
-[
-  {
-    "fido": Dog {
-      "id": "1",
-      "type": "dogs",
-    },
-    "fluffy": Cat {
-      "id": "1",
-      "type": "cats",
-    },
-  },
-  false,
-  false,
-]
-`;
-
-exports[`ValuesSchema denormalization denormalizes with missing entity should have false second value 2`] = `
-[
-  {
-    "fido": Dog {
-      "id": "1",
-      "type": "dogs",
-    },
-    "fluffy": Cat {
-      "id": "1",
-      "type": "cats",
-    },
-  },
-  false,
-  false,
-]
-`;
-
-exports[`ValuesSchema denormalization denormalizes without schemaAttribute 1`] = `
-[
-  {
-    "first": MyEntity {
-      "id": "1",
-      "name": "first thing",
-    },
-    "second": MyEntity {
-      "id": "2",
-      "name": "second thing",
-    },
-  },
-  true,
-  false,
-]
-`;
-
-exports[`ValuesSchema denormalization works on complex object 1`] = `
-{
-  "data": {
-    "estimates": {
-      "BTC": Estimate {
-        "coinbase_fees": {
-          "amount": "0.00002270",
-          "currency": "BTC",
-        },
-        "confirmation_duration": 900,
-        "exchange": {
-          "crypto": "BTC",
-          "local": "USD",
-          "rate": "6820.07",
-        },
-        "exchange_to_proceeds": {
-          "crypto": "BTC",
-          "local": "EUR",
-          "rate": "6820.07",
-        },
-        "fee": {
-          "amount": "0.00002270",
-          "currency": "BTC",
-        },
-        "fee_per_kb": {
-          "amount": "0.00016566",
-          "currency": "BTC",
-        },
-        "min_order_size": {
-          "amount": "0.001",
-          "currency": "BTC",
-        },
-        "priority": "fast",
-        "recipient_value": {
-          "amount": "0.00054147",
-          "currency": "BTC",
-        },
-      },
-      "ETH": Estimate {
-        "coinbase_fees": {
-          "amount": "0.00002270",
-          "currency": "BTC",
-        },
-        "confirmation_duration": 900,
-        "exchange": {
-          "crypto": "ETH",
-          "local": "USD",
-          "rate": "197.07",
-        },
-        "exchange_to_proceeds": {
-          "crypto": "BTC",
-          "local": "EUR",
-          "rate": "6820.07",
-        },
-        "fee": {
-          "amount": "0.03795",
-          "currency": "ETH",
-        },
-        "fee_per_kb": {
-          "amount": "0.00086",
-          "currency": "ETH",
-        },
-        "min_order_size": {
-          "amount": "0.001",
-          "currency": "BTC",
-        },
-        "priority": "fast",
-        "recipient_value": {
-          "amount": "2.53",
-          "currency": "ETH",
-        },
-      },
-    },
-  },
-}
-`;
-
 exports[`ValuesSchema normalization can use a function to determine the schema when normalizing 1`] = `
 {
   "entities": {
@@ -451,6 +255,522 @@ exports[`ValuesSchema normalization works on complex object 1`] = `
       "estimates": {
         "BTC": "BTC",
         "ETH": "ETH",
+      },
+    },
+  },
+}
+`;
+
+exports[`input (direct) ValuesSchema denormalization (current) denormalizes the values of an object with the given schema 1`] = `
+{
+  "fido": Dog {
+    "id": "1",
+    "type": "dogs",
+  },
+  "fluffy": Cat {
+    "id": "1",
+    "type": "cats",
+  },
+}
+`;
+
+exports[`input (direct) ValuesSchema denormalization (current) denormalizes with deleted entity should just remove them 1`] = `
+{
+  "fido": Dog {
+    "id": "1",
+    "type": "dogs",
+  },
+  "fluffy": Cat {
+    "id": "1",
+    "type": "cats",
+  },
+}
+`;
+
+exports[`input (direct) ValuesSchema denormalization (current) denormalizes with missing entity should have false second value 1`] = `
+{
+  "fido": Dog {
+    "id": "1",
+    "type": "dogs",
+  },
+  "fluffy": Cat {
+    "id": "1",
+    "type": "cats",
+  },
+}
+`;
+
+exports[`input (direct) ValuesSchema denormalization (current) denormalizes without schemaAttribute 1`] = `
+{
+  "first": MyEntity {
+    "id": "1",
+    "name": "first thing",
+  },
+  "second": MyEntity {
+    "id": "2",
+    "name": "second thing",
+  },
+}
+`;
+
+exports[`input (direct) ValuesSchema denormalization (current) works on complex object 1`] = `
+{
+  "data": {
+    "estimates": {
+      "BTC": Estimate {
+        "coinbase_fees": {
+          "amount": "0.00002270",
+          "currency": "BTC",
+        },
+        "confirmation_duration": 900,
+        "exchange": {
+          "crypto": "BTC",
+          "local": "USD",
+          "rate": "6820.07",
+        },
+        "exchange_to_proceeds": {
+          "crypto": "BTC",
+          "local": "EUR",
+          "rate": "6820.07",
+        },
+        "fee": {
+          "amount": "0.00002270",
+          "currency": "BTC",
+        },
+        "fee_per_kb": {
+          "amount": "0.00016566",
+          "currency": "BTC",
+        },
+        "min_order_size": {
+          "amount": "0.001",
+          "currency": "BTC",
+        },
+        "priority": "fast",
+        "recipient_value": {
+          "amount": "0.00054147",
+          "currency": "BTC",
+        },
+      },
+      "ETH": Estimate {
+        "coinbase_fees": {
+          "amount": "0.00002270",
+          "currency": "BTC",
+        },
+        "confirmation_duration": 900,
+        "exchange": {
+          "crypto": "ETH",
+          "local": "USD",
+          "rate": "197.07",
+        },
+        "exchange_to_proceeds": {
+          "crypto": "BTC",
+          "local": "EUR",
+          "rate": "6820.07",
+        },
+        "fee": {
+          "amount": "0.03795",
+          "currency": "ETH",
+        },
+        "fee_per_kb": {
+          "amount": "0.00086",
+          "currency": "ETH",
+        },
+        "min_order_size": {
+          "amount": "0.001",
+          "currency": "BTC",
+        },
+        "priority": "fast",
+        "recipient_value": {
+          "amount": "2.53",
+          "currency": "ETH",
+        },
+      },
+    },
+  },
+}
+`;
+
+exports[`input (direct) ValuesSchema denormalization (legacy) denormalizes the values of an object with the given schema 1`] = `
+{
+  "fido": Dog {
+    "id": "1",
+    "type": "dogs",
+  },
+  "fluffy": Cat {
+    "id": "1",
+    "type": "cats",
+  },
+}
+`;
+
+exports[`input (direct) ValuesSchema denormalization (legacy) denormalizes with deleted entity should just remove them 1`] = `
+{
+  "fido": Dog {
+    "id": "1",
+    "type": "dogs",
+  },
+  "fluffy": Cat {
+    "id": "1",
+    "type": "cats",
+  },
+}
+`;
+
+exports[`input (direct) ValuesSchema denormalization (legacy) denormalizes with missing entity should have false second value 1`] = `
+{
+  "fido": Dog {
+    "id": "1",
+    "type": "dogs",
+  },
+  "fluffy": Cat {
+    "id": "1",
+    "type": "cats",
+  },
+}
+`;
+
+exports[`input (direct) ValuesSchema denormalization (legacy) denormalizes without schemaAttribute 1`] = `
+{
+  "first": MyEntity {
+    "id": "1",
+    "name": "first thing",
+  },
+  "second": MyEntity {
+    "id": "2",
+    "name": "second thing",
+  },
+}
+`;
+
+exports[`input (direct) ValuesSchema denormalization (legacy) works on complex object 1`] = `
+{
+  "data": {
+    "estimates": {
+      "BTC": Estimate {
+        "coinbase_fees": {
+          "amount": "0.00002270",
+          "currency": "BTC",
+        },
+        "confirmation_duration": 900,
+        "exchange": {
+          "crypto": "BTC",
+          "local": "USD",
+          "rate": "6820.07",
+        },
+        "exchange_to_proceeds": {
+          "crypto": "BTC",
+          "local": "EUR",
+          "rate": "6820.07",
+        },
+        "fee": {
+          "amount": "0.00002270",
+          "currency": "BTC",
+        },
+        "fee_per_kb": {
+          "amount": "0.00016566",
+          "currency": "BTC",
+        },
+        "min_order_size": {
+          "amount": "0.001",
+          "currency": "BTC",
+        },
+        "priority": "fast",
+        "recipient_value": {
+          "amount": "0.00054147",
+          "currency": "BTC",
+        },
+      },
+      "ETH": Estimate {
+        "coinbase_fees": {
+          "amount": "0.00002270",
+          "currency": "BTC",
+        },
+        "confirmation_duration": 900,
+        "exchange": {
+          "crypto": "ETH",
+          "local": "USD",
+          "rate": "197.07",
+        },
+        "exchange_to_proceeds": {
+          "crypto": "BTC",
+          "local": "EUR",
+          "rate": "6820.07",
+        },
+        "fee": {
+          "amount": "0.03795",
+          "currency": "ETH",
+        },
+        "fee_per_kb": {
+          "amount": "0.00086",
+          "currency": "ETH",
+        },
+        "min_order_size": {
+          "amount": "0.001",
+          "currency": "BTC",
+        },
+        "priority": "fast",
+        "recipient_value": {
+          "amount": "2.53",
+          "currency": "ETH",
+        },
+      },
+    },
+  },
+}
+`;
+
+exports[`input (immutable) ValuesSchema denormalization (current) denormalizes the values of an object with the given schema 1`] = `
+{
+  "fido": Dog {
+    "id": "1",
+    "type": "dogs",
+  },
+  "fluffy": Cat {
+    "id": "1",
+    "type": "cats",
+  },
+}
+`;
+
+exports[`input (immutable) ValuesSchema denormalization (current) denormalizes with deleted entity should just remove them 1`] = `
+{
+  "fido": Dog {
+    "id": "1",
+    "type": "dogs",
+  },
+  "fluffy": Cat {
+    "id": "1",
+    "type": "cats",
+  },
+}
+`;
+
+exports[`input (immutable) ValuesSchema denormalization (current) denormalizes with missing entity should have false second value 1`] = `
+{
+  "fido": Dog {
+    "id": "1",
+    "type": "dogs",
+  },
+  "fluffy": Cat {
+    "id": "1",
+    "type": "cats",
+  },
+}
+`;
+
+exports[`input (immutable) ValuesSchema denormalization (current) denormalizes without schemaAttribute 1`] = `
+{
+  "first": MyEntity {
+    "id": "1",
+    "name": "first thing",
+  },
+  "second": MyEntity {
+    "id": "2",
+    "name": "second thing",
+  },
+}
+`;
+
+exports[`input (immutable) ValuesSchema denormalization (current) works on complex object 1`] = `
+{
+  "data": {
+    "estimates": {
+      "BTC": Estimate {
+        "coinbase_fees": Immutable.Map {
+          "amount": "0.00002270",
+          "currency": "BTC",
+        },
+        "confirmation_duration": 900,
+        "exchange": Immutable.Map {
+          "rate": "6820.07",
+          "local": "USD",
+          "crypto": "BTC",
+        },
+        "exchange_to_proceeds": Immutable.Map {
+          "rate": "6820.07",
+          "local": "EUR",
+          "crypto": "BTC",
+        },
+        "fee": Immutable.Map {
+          "amount": "0.00002270",
+          "currency": "BTC",
+        },
+        "fee_per_kb": Immutable.Map {
+          "amount": "0.00016566",
+          "currency": "BTC",
+        },
+        "min_order_size": Immutable.Map {
+          "amount": "0.001",
+          "currency": "BTC",
+        },
+        "priority": "fast",
+        "recipient_value": Immutable.Map {
+          "amount": "0.00054147",
+          "currency": "BTC",
+        },
+      },
+      "ETH": Estimate {
+        "coinbase_fees": Immutable.Map {
+          "amount": "0.00002270",
+          "currency": "BTC",
+        },
+        "confirmation_duration": 900,
+        "exchange": Immutable.Map {
+          "rate": "197.07",
+          "local": "USD",
+          "crypto": "ETH",
+        },
+        "exchange_to_proceeds": Immutable.Map {
+          "rate": "6820.07",
+          "local": "EUR",
+          "crypto": "BTC",
+        },
+        "fee": Immutable.Map {
+          "amount": "0.03795",
+          "currency": "ETH",
+        },
+        "fee_per_kb": Immutable.Map {
+          "amount": "0.00086",
+          "currency": "ETH",
+        },
+        "min_order_size": Immutable.Map {
+          "amount": "0.001",
+          "currency": "BTC",
+        },
+        "priority": "fast",
+        "recipient_value": Immutable.Map {
+          "amount": "2.53",
+          "currency": "ETH",
+        },
+      },
+    },
+  },
+}
+`;
+
+exports[`input (immutable) ValuesSchema denormalization (legacy) denormalizes the values of an object with the given schema 1`] = `
+{
+  "fido": Dog {
+    "id": "1",
+    "type": "dogs",
+  },
+  "fluffy": Cat {
+    "id": "1",
+    "type": "cats",
+  },
+}
+`;
+
+exports[`input (immutable) ValuesSchema denormalization (legacy) denormalizes with deleted entity should just remove them 1`] = `
+{
+  "fido": Dog {
+    "id": "1",
+    "type": "dogs",
+  },
+  "fluffy": Cat {
+    "id": "1",
+    "type": "cats",
+  },
+}
+`;
+
+exports[`input (immutable) ValuesSchema denormalization (legacy) denormalizes with missing entity should have false second value 1`] = `
+{
+  "fido": Dog {
+    "id": "1",
+    "type": "dogs",
+  },
+  "fluffy": Cat {
+    "id": "1",
+    "type": "cats",
+  },
+}
+`;
+
+exports[`input (immutable) ValuesSchema denormalization (legacy) denormalizes without schemaAttribute 1`] = `
+{
+  "first": MyEntity {
+    "id": "1",
+    "name": "first thing",
+  },
+  "second": MyEntity {
+    "id": "2",
+    "name": "second thing",
+  },
+}
+`;
+
+exports[`input (immutable) ValuesSchema denormalization (legacy) works on complex object 1`] = `
+{
+  "data": {
+    "estimates": {
+      "BTC": Estimate {
+        "coinbase_fees": Immutable.Map {
+          "amount": "0.00002270",
+          "currency": "BTC",
+        },
+        "confirmation_duration": 900,
+        "exchange": Immutable.Map {
+          "rate": "6820.07",
+          "local": "USD",
+          "crypto": "BTC",
+        },
+        "exchange_to_proceeds": Immutable.Map {
+          "rate": "6820.07",
+          "local": "EUR",
+          "crypto": "BTC",
+        },
+        "fee": Immutable.Map {
+          "amount": "0.00002270",
+          "currency": "BTC",
+        },
+        "fee_per_kb": Immutable.Map {
+          "amount": "0.00016566",
+          "currency": "BTC",
+        },
+        "min_order_size": Immutable.Map {
+          "amount": "0.001",
+          "currency": "BTC",
+        },
+        "priority": "fast",
+        "recipient_value": Immutable.Map {
+          "amount": "0.00054147",
+          "currency": "BTC",
+        },
+      },
+      "ETH": Estimate {
+        "coinbase_fees": Immutable.Map {
+          "amount": "0.00002270",
+          "currency": "BTC",
+        },
+        "confirmation_duration": 900,
+        "exchange": Immutable.Map {
+          "rate": "197.07",
+          "local": "USD",
+          "crypto": "ETH",
+        },
+        "exchange_to_proceeds": Immutable.Map {
+          "rate": "6820.07",
+          "local": "EUR",
+          "crypto": "BTC",
+        },
+        "fee": Immutable.Map {
+          "amount": "0.03795",
+          "currency": "ETH",
+        },
+        "fee_per_kb": Immutable.Map {
+          "amount": "0.00086",
+          "currency": "ETH",
+        },
+        "min_order_size": Immutable.Map {
+          "amount": "0.001",
+          "currency": "BTC",
+        },
+        "priority": "fast",
+        "recipient_value": Immutable.Map {
+          "amount": "2.53",
+          "currency": "ETH",
+        },
       },
     },
   },

@@ -1,9 +1,9 @@
 // eslint-env jest
 import { IDEntity } from '__tests__/new';
 
-import denormalize from './denormalize';
-import Entity from '../Entity';
-import validateRequired from '../validatRequired';
+import denormalize from '../schemas/__tests__/denormalize';
+import Entity from '../schemas/Entity';
+import validateRequired from '../validateRequired';
 
 let dateSpy: jest.SpyInstance;
 beforeAll(() => {
@@ -61,15 +61,11 @@ describe(`validateRequired`, () => {
         MyEntity: { bob: { name: 'bob', secondthing: 'hi' } },
       }),
     ).toMatchInlineSnapshot(`
-      [
-        MyEntity {
-          "blarb": 1970-01-01T00:00:00.000Z,
-          "name": "bob",
-          "secondthing": "hi",
-        },
-        true,
-        false,
-      ]
+      MyEntity {
+        "blarb": 1970-01-01T00:00:00.000Z,
+        "name": "bob",
+        "secondthing": "hi",
+      }
     `);
   });
   it('should handle optional fields found', () => {
@@ -86,21 +82,17 @@ describe(`validateRequired`, () => {
         },
       }),
     ).toMatchInlineSnapshot(`
-      [
-        MyEntity {
-          "blarb": 1970-01-01T00:01:40.000Z,
-          "name": "bob",
-          "secondthing": "hi",
-        },
-        true,
-        false,
-      ]
+      MyEntity {
+        "blarb": 1970-01-01T00:01:40.000Z,
+        "name": "bob",
+        "secondthing": "hi",
+      }
     `);
   });
-  it('should error with required fields missing', () => {
+  it('should be invalid (suspend) with required fields missing', () => {
     const schema = MyEntity;
 
-    const [data, found, suspend] = denormalize('bob', schema, {
+    const data = denormalize('bob', schema, {
       MyEntity: {
         bob: {
           name: 'bob',
@@ -108,7 +100,6 @@ describe(`validateRequired`, () => {
         },
       },
     });
-    expect(suspend).toBe(true);
-    expect(data).toBe(undefined);
+    expect(data).toEqual(expect.any(Symbol));
   });
 });

@@ -35,8 +35,8 @@ export default class GlobalCache implements Cache {
     pk: string,
     schema: EntityInterface,
     entity: any,
-    computeValue: (localCacheKey: Record<string, any>) => [boolean, boolean],
-  ): [denormalized: object | undefined, found: boolean, deleted: boolean] {
+    computeValue: (localCacheKey: Record<string, any>) => void,
+  ): object | undefined | symbol {
     const key = schema.key;
     if (!(key in this.localCache)) {
       this.localCache[key] = Object.create(null);
@@ -47,16 +47,14 @@ export default class GlobalCache implements Cache {
     const localCacheKey = this.localCache[key];
     const cycleCacheKey = this.cycleCache[key];
 
-    let found = true;
-    let deleted = false;
     if (!localCacheKey[pk]) {
       const globalCache: WeakEntityMap<object, EntityCacheValue> =
         this.getCache(pk, schema);
-      const [cacheValue] = globalCache.get(entity, this._getEntity);
+      const [cacheValue, cachePath] = globalCache.get(entity, this._getEntity);
       // TODO: what if this just returned the deps - then we don't need to store them
 
-      if (cacheValue) {
-        localCacheKey[pk] = cacheValue.value[0];
+      if (cachePath) {
+        localCacheKey[pk] = cacheValue.value;
         // TODO: can we store the cache values instead of tracking *all* their sources?
         // this is only used for setting results cache correctly. if we got this far we will def need to set as we would have already tried getting it
         this.dependencies.push(...cacheValue.dependencies);
@@ -69,7 +67,7 @@ export default class GlobalCache implements Cache {
         this.dependencies.push({ entity, path: { key, pk } });
 
         /** NON-GLOBAL_CACHE CODE */
-        [found, deleted] = computeValue(localCacheKey);
+        computeValue(localCacheKey);
         /** /END NON-GLOBAL_CACHE CODE */
 
         delete cycleCacheKey[pk];
@@ -80,7 +78,7 @@ export default class GlobalCache implements Cache {
         );
         const cacheValue: EntityCacheValue = {
           dependencies: localKey,
-          value: [localCacheKey[pk], found, deleted],
+          value: localCacheKey[pk],
         };
         globalCache.set(localKey, cacheValue);
 
@@ -98,38 +96,33 @@ export default class GlobalCache implements Cache {
         this.dependencies.push({ entity, path: { key, pk } });
       }
     }
-    return [localCacheKey[pk], found, deleted];
+    return localCacheKey[pk];
   }
 
   getResults(
     input: any,
     cachable: boolean,
-    computeValue: () => [denormalized: any, found: boolean, deleted: boolean],
-  ): [
-    denormalized: any,
-    found: boolean,
-    deleted: boolean,
-    entityPaths: Path[],
-  ] {
+    computeValue: () => any,
+  ): {
+    data: any;
+    paths: Path[];
+  } {
     if (!cachable) {
-      const ret = computeValue();
-      // this is faster than spread
-      // https://www.measurethat.net/Benchmarks/Show/23636/0/spread-with-tuples
-      return [ret[0], ret[1], ret[2], this.paths()];
+      return { data: computeValue(), paths: this.paths() };
     }
 
-    let [ret, entityPaths] = this.resultCache.get(input, this._getEntity);
+    let [data, paths] = this.resultCache.get(input, this._getEntity);
 
-    if (ret === undefined) {
-      ret = computeValue();
+    if (paths === undefined) {
+      data = computeValue();
       // we want to do this before we add our 'input' entry
-      entityPaths = this.paths();
+      paths = this.paths();
       // for the first entry, `path` is ignored so empty members is fine
       this.dependencies.unshift({ entity: input, path: { key: '', pk: '' } });
-      this.resultCache.set(this.dependencies, ret);
+      this.resultCache.set(this.dependencies, data);
     }
 
-    return [ret[0], ret[1], ret[2], entityPaths as Path[]];
+    return { data, paths };
   }
 
   protected paths() {
@@ -139,7 +132,7 @@ export default class GlobalCache implements Cache {
 
 interface EntityCacheValue {
   dependencies: Dep[];
-  value: [any, boolean, boolean];
+  value: object | symbol | undefined;
 }
 
 const getEntityCaches = (entityCache: DenormalizeCache['entities']) => {

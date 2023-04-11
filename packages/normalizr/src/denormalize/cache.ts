@@ -6,11 +6,14 @@ export default interface Cache {
     pk: string,
     schema: EntityInterface,
     entity: any,
-    computeValue: (localCacheKey: Record<string, any>) => [boolean, boolean],
-  ): [denormalized: object | undefined, found: boolean, deleted: boolean];
+    computeValue: (localCacheKey: Record<string, any>) => void,
+  ): object | undefined | symbol;
   getResults(
     input: any,
     cachable: boolean,
-    computeValue: () => [denormalized: any, found: boolean, deleted: boolean],
-  ): [denormalized: any, found: boolean, deleted: boolean, entityPaths: Path[]];
+    computeValue: () => any,
+  ): {
+    data: any;
+    paths: Path[];
+  };
 }

@@ -1,6 +1,6 @@
 import { denormalize } from './denormalize.js';
-import type { Schema } from '../interface.js';
-import type { Denormalize, DenormalizeNullable } from '../types.js';
+import type { Denormalize, DenormalizeNullable } from './types.js';
+import type { Schema } from '../../../../interface.js';
 
 export const denormalizeSimple = <S extends Schema>(
   input: any,
@@ -12,3 +12,4 @@ export const denormalizeSimple = <S extends Schema>(
   | [denormalized: DenormalizeNullable<S>, found: false, deleted: boolean] => {
   return [denormalize(input, schema, entities), true, false] as any;
 };
+it('[helper file in test folder]', () => {});

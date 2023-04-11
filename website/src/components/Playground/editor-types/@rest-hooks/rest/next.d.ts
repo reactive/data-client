@@ -92,6 +92,7 @@ type Serializable<T extends {
 interface SchemaSimple<T = any> {
     normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>): any;
     denormalize(input: {}, unvisit: UnvisitFunction): [denormalized: T, found: boolean, suspend: boolean];
+    denormalizeOnly?(input: {}, unvisit: (input: any, schema: any) => any): T;
     infer(args: readonly any[], indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): any;
 }
 interface SchemaClass<T = any, N = T | undefined> extends SchemaSimple<T> {
@@ -111,7 +112,7 @@ interface EntityInterface<T = any> extends SchemaSimple {
     prototype: T;
 }
 interface UnvisitFunction {
-    (input: any, schema: any): [any, boolean, boolean];
+    (input: any, schema: any): [any, boolean, boolean] | any;
     og?: UnvisitFunction;
     setLocal?: (entity: any) => void;
 }
