@@ -170,6 +170,15 @@ To refresh while continuing to display stale data - [Controller.fetch](#fetch) i
 
 Use [schema.Delete](/rest/api/Delete) to invalidate every endpoint that contains a given entity.
 
+For REST try using [Resource.delete](https://resthooks.io/rest/api/createResource#delete)
+
+```ts
+// deletes MyResource(5)
+// this will resuspend MyResource.get({id: '5'})
+// and remove it from MyResource.getList
+controller.setResponse(MyResource.delete, { id: '5' }, { id: '5' })
+```
+
 :::
 
 ## invalidateAll({ testKey }) {#invalidateAll}
