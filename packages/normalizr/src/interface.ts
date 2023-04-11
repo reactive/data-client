@@ -28,6 +28,7 @@ export interface SchemaSimple<T = any> {
     input: {},
     unvisit: UnvisitFunction,
   ): [denormalized: T, found: boolean, suspend: boolean];
+  denormalizeOnly?(input: {}, unvisit: (input: any, schema: any) => any): T;
   infer(
     args: readonly any[],
     indexes: NormalizedIndex,

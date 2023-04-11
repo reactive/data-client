@@ -3,7 +3,7 @@ import { normalize } from '@rest-hooks/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
-import denormalize from './denormalize';
+import { denormalizeSimple, denormalizeLegacy } from './denormalize';
 import { schema } from '../../';
 
 let dateSpy;
@@ -30,11 +30,11 @@ test('throws an error if created with more than one schema', () => {
 describe.each([
   ['schema', sch => new schema.Array(sch)],
   ['plain', sch => [sch]],
-])(`${schema.Array.name} normalization (%s)`, (_, createArray) => {
+])(`${schema.Array.name} normalization (%s)`, (_, createSchema) => {
   describe('Object', () => {
     test('should throw a custom error if data loads with string unexpected value', () => {
       class User extends IDEntity {}
-      const sch = createArray(User);
+      const sch = createSchema(User);
       function normalizeBad() {
         normalize('abc', sch);
       }
@@ -43,7 +43,7 @@ describe.each([
 
     test('should throw a custom error if data loads with json string unexpected value', () => {
       class User extends IDEntity {}
-      const sch = createArray(User);
+      const sch = createSchema(User);
       function normalizeBad() {
         normalize('[{"id":5}]', sch);
       }
@@ -67,7 +67,7 @@ describe.each([
         children = [];
 
         static schema = {
-          children: createArray(Child),
+          children: createSchema(Child),
         };
       }
 
@@ -86,7 +86,7 @@ describe.each([
     test('normalizes Objects using their values', () => {
       class User extends IDEntity {}
       expect(
-        normalize({ foo: { id: '1' }, bar: { id: '2' } }, createArray(User)),
+        normalize({ foo: { id: '1' }, bar: { id: '2' } }, createSchema(User)),
       ).toMatchSnapshot();
     });
   });
@@ -94,7 +94,7 @@ describe.each([
   describe('Class', () => {
     class Cats extends IDEntity {}
     test('normalizes a single entity', () => {
-      const listSchema = createArray(Cats);
+      const listSchema = createSchema(Cats);
       expect(
         normalize([{ id: '1' }, { id: '2' }], listSchema),
       ).toMatchSnapshot();
@@ -127,7 +127,7 @@ describe.each([
 
     test('normalizes Objects using their values', () => {
       class User extends IDEntity {}
-      const users = createArray(User);
+      const users = createSchema(User);
       expect(
         normalize({ foo: { id: '1' }, bar: { id: '2' } }, users),
       ).toMatchSnapshot();
@@ -135,7 +135,7 @@ describe.each([
 
     test('filters out undefined and null normalized values', () => {
       class User extends IDEntity {}
-      const users = createArray(User);
+      const users = createSchema(User);
       expect(
         normalize([undefined, { id: '123' }, null], users),
       ).toMatchSnapshot();
@@ -144,14 +144,43 @@ describe.each([
 });
 
 describe.each([
-  ['class, direct', sch => new schema.Array(sch), data => data],
-  ['object, direct', sch => [sch], data => data],
-  ['class, immutable', sch => new schema.Array(sch), fromJS],
-  ['object, immutable', sch => [sch], fromJS],
-])(
-  `${schema.Array.name} denormalization (%s)`,
-  (_, createSchema, createInput) => {
-    describe('Object', () => {
+  ['direct', data => data],
+  ['immutable', fromJS],
+])(`input (%s)`, (_, createInput) => {
+  test('denormalizes plain arrays with nothing inside', () => {
+    class User extends IDEntity {}
+    const entities = {
+      User: {
+        1: { id: '1', name: 'Jane' },
+      },
+    };
+    const sch = new schema.Object({ user: User, tacos: [] });
+    expect(
+      denormalizeSimple({ user: '1' }, sch, createInput(entities)),
+    ).toMatchSnapshot();
+    expect(
+      denormalizeSimple(createInput({ user: '1' }), sch, createInput(entities)),
+    ).toMatchSnapshot();
+
+    expect(
+      denormalizeSimple({ user: '1', tacos: [] }, sch, createInput(entities)),
+    ).toMatchSnapshot();
+    expect(
+      denormalizeSimple(
+        createInput({ user: '1', tacos: [] }),
+        sch,
+        createInput(entities),
+      ),
+    ).toMatchSnapshot();
+  });
+
+  describe.each([
+    ['class', sch => new schema.Array(sch), denormalizeSimple],
+    ['class, legacy', sch => new schema.Array(sch), denormalizeLegacy],
+    ['object, direct', sch => [sch], denormalizeSimple],
+  ])(
+    `${schema.Array.name} denormalization (%s)`,
+    (_, createSchema, denormalize) => {
       test('denormalizes a single entity', () => {
         class Cat extends IDEntity {}
         const entities = {
@@ -182,44 +211,6 @@ describe.each([
         ).toMatchSnapshot();
       });
 
-      test('denormalizes plain arrays with nothing inside', () => {
-        class User extends IDEntity {}
-        const entities = {
-          User: {
-            1: { id: '1', name: 'Jane' },
-          },
-        };
-        expect(
-          denormalize(
-            { user: '1' },
-            { user: User, tacos: [] },
-            createInput(entities),
-          ),
-        ).toMatchSnapshot();
-        expect(
-          denormalize(
-            createInput({ user: '1' }),
-            { user: User, tacos: [] },
-            createInput(entities),
-          ),
-        ).toMatchSnapshot();
-
-        expect(
-          denormalize(
-            { user: '1', tacos: [] },
-            { user: User, tacos: [] },
-            createInput(entities),
-          ),
-        ).toMatchSnapshot();
-        expect(
-          denormalize(
-            createInput({ user: '1', tacos: [] }),
-            { user: User, tacos: [] },
-            createInput(entities),
-          ),
-        ).toMatchSnapshot();
-      });
-
       test('denormalizes plain arrays with plain object inside', () => {
         class User extends IDEntity {}
         const entities = {
@@ -227,7 +218,10 @@ describe.each([
             1: { id: '1', name: 'Jane' },
           },
         };
-        const sch = { user: User, tacos: createSchema({ next: '' }) };
+        const sch = new schema.Object({
+          user: User,
+          tacos: createSchema({ next: '' }),
+        });
         expect(
           denormalize({ user: '1' }, sch, createInput(entities)),
         ).toMatchSnapshot();
@@ -249,7 +243,7 @@ describe.each([
 
       test('denormalizes nested in object', () => {
         class Cat extends IDEntity {}
-        const catSchema = { results: createSchema(Cat) };
+        const catSchema = new schema.Object({ results: createSchema(Cat) });
         const entities = {
           Cat: {
             1: { id: '1', name: 'Milo' },
@@ -267,7 +261,10 @@ describe.each([
 
       test('denormalizes nested in object with primitive', () => {
         class Cat extends IDEntity {}
-        const catSchema = { results: createSchema(Cat), nextPage: '' };
+        const catSchema = new schema.Object({
+          results: createSchema(Cat),
+          nextPage: '',
+        });
         const entities = {
           Cat: {
             1: { id: '1', name: 'Milo' },
@@ -290,7 +287,10 @@ describe.each([
 
       test('denormalizes removes undefined', () => {
         class Cat extends IDEntity {}
-        const catSchema = { results: createSchema(Cat), nextPage: '' };
+        const catSchema = new schema.Object({
+          results: createSchema(Cat),
+          nextPage: '',
+        });
         const entities = {
           Cat: {
             1: { id: '1', name: 'Milo' },
@@ -313,7 +313,7 @@ describe.each([
 
       test('denormalizes should not be found when result array is undefined', () => {
         class Cat extends IDEntity {}
-        const catSchema = { results: createSchema(Cat) };
+        const catSchema = new schema.Object({ results: createSchema(Cat) });
         const entities = {
           Cat: {
             1: { id: '1', name: 'Milo' },
@@ -338,7 +338,7 @@ describe.each([
         };
         let value = denormalize(
           createInput([{ data: '1' }, { data: '2' }, { data: '3' }]),
-          createSchema({ data: Cat }),
+          createSchema(new schema.Object({ data: Cat })),
           createInput(entities),
         );
         expect(value).toMatchSnapshot();
@@ -373,7 +373,7 @@ describe.each([
         const listSchema = new schema.Array(
           {
             Cat: Cat,
-            dogs: {},
+            dogs: new schema.Object({}),
             people: Person,
           },
           input => input.type || 'dogs',
@@ -429,6 +429,6 @@ describe.each([
           input,
         );
       });
-    });
-  },
-);
+    },
+  );
+});

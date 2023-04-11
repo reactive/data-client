@@ -1,4 +1,8 @@
-import { isImmutable, denormalizeImmutable } from './ImmutableUtils.js';
+import {
+  isImmutable,
+  denormalizeImmutable,
+  denormalizeOnlyImmutable,
+} from './ImmutableUtils.js';
 
 export const normalize = (
   schema: any,
@@ -57,6 +61,29 @@ export const denormalize = (
   return [object, found, deleted];
 };
 
+export function denormalizeOnly(
+  schema: any,
+  input: {},
+  unvisit: (input: any, schema: any) => any,
+): any {
+  if (isImmutable(input)) {
+    return denormalizeOnlyImmutable(schema, input, unvisit);
+  }
+
+  const object: Record<string, any> = { ...input };
+
+  for (const key of Object.keys(schema)) {
+    const item = unvisit(object[key], schema[key]);
+    if (object[key] !== undefined) {
+      object[key] = item;
+    }
+    if (typeof item === 'symbol') {
+      return item;
+    }
+  }
+  return object;
+}
+
 export function infer(
   schema: any,
   args: readonly any[],
@@ -105,6 +132,10 @@ export default class ObjectSchema {
   // eslint-disable-next-line @typescript-eslint/ban-types
   denormalize(...args: readonly [input: {}, unvisit: any]) {
     return denormalize(this.schema, ...args);
+  }
+
+  denormalizeOnly(input: {}, unvisit: (input: any, schema: any) => any): any {
+    return denormalizeOnly(this.schema, input, unvisit);
   }
 
   infer(args: any, indexes: any, recurse: any, entities: any) {

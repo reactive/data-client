@@ -5,7 +5,12 @@ import {
   WeakEntityMap,
   Denormalize,
   DenormalizeNullable,
+  INVALID,
 } from '@rest-hooks/normalizr';
+
+import { denormalize as legacyDenormalize } from './legacy-compat/denormalize';
+import { denormalize as legacyDenormalize10 } from './legacy-compat/denormalize-v10.1/denormalizeCached';
+import WeakListMap from './legacy-compat/WeakListMap';
 
 export const denormalizeSimple = <S extends Schema>(
   input: any,
@@ -18,4 +23,40 @@ export const denormalizeSimple = <S extends Schema>(
 
 export default denormalizeSimple;
 
-it('should', () => {});
+export const denormalizeLegacy = <S extends Schema>(
+  input: unknown,
+  schema: S | undefined,
+  entities: any,
+  entityCache: any = {},
+  resultCache: WeakListMap<object, any> = new WeakListMap(),
+) => {
+  const [value, found, deleted] = legacyDenormalize(
+    input,
+    schema,
+    entities,
+    entityCache,
+    resultCache,
+  );
+  if (deleted) return INVALID;
+  return value;
+};
+
+export const denormalize10 = <S extends Schema>(
+  input: unknown,
+  schema: S | undefined,
+  entities: any,
+  entityCache: any = {},
+  resultCache: WeakEntityMap<object, any> = new WeakEntityMap(),
+) => {
+  const [value, found, deleted] = legacyDenormalize10(
+    input,
+    schema,
+    entities,
+    entityCache,
+    resultCache,
+  );
+  if (deleted) return INVALID;
+  return value;
+};
+
+it('[helper file in test folder]', () => {});

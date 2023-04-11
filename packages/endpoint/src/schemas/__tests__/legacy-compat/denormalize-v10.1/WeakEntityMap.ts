@@ -1,5 +1,5 @@
-import { isImmutable } from './schemas/ImmutableUtils.js';
-import { Path } from './types.js';
+import type { Path } from './types.js';
+import { isImmutable } from '../../../ImmutableUtils.js';
 
 /** Maps entity dependencies to a value (usually their denormalized form)
  *
@@ -79,3 +79,4 @@ export interface Dep<K = object> {
 type State<K extends object> =
   | Record<string, Record<string, K>>
   | { getIn(path: [string, string]): K };
+it('[helper file in test folder]', () => {});

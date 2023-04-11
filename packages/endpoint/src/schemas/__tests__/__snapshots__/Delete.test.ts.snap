@@ -1,6 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Delete denormalization denormalizes deleted entities as undefined (direct) 1`] = `
+exports[`Delete denormalization input (direct) schema construction (class) denormalize removes deleted entries in array 1`] = `[]`;
+
+exports[`Delete denormalization input (direct) schema construction (class) denormalize removes deleted entries in array 2`] = `[]`;
+
+exports[`Delete denormalization input (direct) schema construction (class) denormalize sets undefined entities that are not present 1`] = `
 [
   {
     "data": undefined,
@@ -8,7 +12,7 @@ exports[`Delete denormalization denormalizes deleted entities as undefined (dire
 ]
 `;
 
-exports[`Delete denormalization denormalizes deleted entities as undefined (direct) 2`] = `
+exports[`Delete denormalization input (direct) schema construction (class) denormalize sets undefined entities that are not present 2`] = `
 [
   {
     "data": undefined,
@@ -16,35 +20,69 @@ exports[`Delete denormalization denormalizes deleted entities as undefined (dire
 ]
 `;
 
-exports[`Delete denormalization denormalizes deleted entities as undefined (direct) 3`] = `
-[
-  {
-    "data": undefined,
-  },
-]
-`;
-
-exports[`Delete denormalization denormalizes deleted entities as undefined (direct) 4`] = `
-[
-  {
-    "data": undefined,
-  },
-]
-`;
-
-exports[`Delete denormalization denormalizes deleted entities as undefined (direct) 5`] = `
+exports[`Delete denormalization input (direct) schema construction (class) denormalize sets undefined entities that are not present 3`] = `
 {
   "data": undefined,
 }
 `;
 
-exports[`Delete denormalization denormalizes deleted entities as undefined (direct) 6`] = `
+exports[`Delete denormalization input (direct) schema construction (class, legacy) denormalize removes deleted entries in array 1`] = `[]`;
+
+exports[`Delete denormalization input (direct) schema construction (class, legacy) denormalize removes deleted entries in array 2`] = `[]`;
+
+exports[`Delete denormalization input (direct) schema construction (class, legacy) denormalize sets undefined entities that are not present 1`] = `
+[
+  {
+    "data": undefined,
+  },
+]
+`;
+
+exports[`Delete denormalization input (direct) schema construction (class, legacy) denormalize sets undefined entities that are not present 2`] = `
+[
+  {
+    "data": undefined,
+  },
+]
+`;
+
+exports[`Delete denormalization input (direct) schema construction (class, legacy) denormalize sets undefined entities that are not present 3`] = `
 {
   "data": undefined,
 }
 `;
 
-exports[`Delete denormalization denormalizes deleted entities as undefined (immutable) 1`] = `
+exports[`Delete denormalization input (direct) schema construction (object, direct) denormalize removes deleted entries in array 1`] = `[]`;
+
+exports[`Delete denormalization input (direct) schema construction (object, direct) denormalize removes deleted entries in array 2`] = `[]`;
+
+exports[`Delete denormalization input (direct) schema construction (object, direct) denormalize sets undefined entities that are not present 1`] = `
+[
+  {
+    "data": undefined,
+  },
+]
+`;
+
+exports[`Delete denormalization input (direct) schema construction (object, direct) denormalize sets undefined entities that are not present 2`] = `
+[
+  {
+    "data": undefined,
+  },
+]
+`;
+
+exports[`Delete denormalization input (direct) schema construction (object, direct) denormalize sets undefined entities that are not present 3`] = `
+{
+  "data": undefined,
+}
+`;
+
+exports[`Delete denormalization input (immutable) schema construction (class) denormalize removes deleted entries in array 1`] = `Immutable.List []`;
+
+exports[`Delete denormalization input (immutable) schema construction (class) denormalize removes deleted entries in array 2`] = `Immutable.List []`;
+
+exports[`Delete denormalization input (immutable) schema construction (class) denormalize sets undefined entities that are not present 1`] = `
 Immutable.List [
   Immutable.Map {
     "data": undefined,
@@ -52,7 +90,7 @@ Immutable.List [
 ]
 `;
 
-exports[`Delete denormalization denormalizes deleted entities as undefined (immutable) 2`] = `
+exports[`Delete denormalization input (immutable) schema construction (class) denormalize sets undefined entities that are not present 2`] = `
 Immutable.List [
   Immutable.Map {
     "data": undefined,
@@ -60,29 +98,59 @@ Immutable.List [
 ]
 `;
 
-exports[`Delete denormalization denormalizes deleted entities as undefined (immutable) 3`] = `
-Immutable.List [
-  Immutable.Map {
-    "data": undefined,
-  },
-]
-`;
-
-exports[`Delete denormalization denormalizes deleted entities as undefined (immutable) 4`] = `
-Immutable.List [
-  Immutable.Map {
-    "data": undefined,
-  },
-]
-`;
-
-exports[`Delete denormalization denormalizes deleted entities as undefined (immutable) 5`] = `
+exports[`Delete denormalization input (immutable) schema construction (class) denormalize sets undefined entities that are not present 3`] = `
 Immutable.Map {
   "data": undefined,
 }
 `;
 
-exports[`Delete denormalization denormalizes deleted entities as undefined (immutable) 6`] = `
+exports[`Delete denormalization input (immutable) schema construction (class, legacy) denormalize removes deleted entries in array 1`] = `Immutable.List []`;
+
+exports[`Delete denormalization input (immutable) schema construction (class, legacy) denormalize removes deleted entries in array 2`] = `Immutable.List []`;
+
+exports[`Delete denormalization input (immutable) schema construction (class, legacy) denormalize sets undefined entities that are not present 1`] = `
+Immutable.List [
+  Immutable.Map {
+    "data": undefined,
+  },
+]
+`;
+
+exports[`Delete denormalization input (immutable) schema construction (class, legacy) denormalize sets undefined entities that are not present 2`] = `
+Immutable.List [
+  Immutable.Map {
+    "data": undefined,
+  },
+]
+`;
+
+exports[`Delete denormalization input (immutable) schema construction (class, legacy) denormalize sets undefined entities that are not present 3`] = `
+Immutable.Map {
+  "data": undefined,
+}
+`;
+
+exports[`Delete denormalization input (immutable) schema construction (object, direct) denormalize removes deleted entries in array 1`] = `Immutable.List []`;
+
+exports[`Delete denormalization input (immutable) schema construction (object, direct) denormalize removes deleted entries in array 2`] = `Immutable.List []`;
+
+exports[`Delete denormalization input (immutable) schema construction (object, direct) denormalize sets undefined entities that are not present 1`] = `
+Immutable.List [
+  Immutable.Map {
+    "data": undefined,
+  },
+]
+`;
+
+exports[`Delete denormalization input (immutable) schema construction (object, direct) denormalize sets undefined entities that are not present 2`] = `
+Immutable.List [
+  Immutable.Map {
+    "data": undefined,
+  },
+]
+`;
+
+exports[`Delete denormalization input (immutable) schema construction (object, direct) denormalize sets undefined entities that are not present 3`] = `
 Immutable.Map {
   "data": undefined,
 }

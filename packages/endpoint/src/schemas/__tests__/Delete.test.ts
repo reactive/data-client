@@ -1,9 +1,9 @@
 // eslint-env jest
-import { normalize } from '@rest-hooks/normalizr';
+import { Schema, normalize } from '@rest-hooks/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
-import denormalize from './denormalize';
+import { denormalizeSimple, denormalizeLegacy } from './denormalize';
 import { schema } from '../../';
 import { DELETED } from '../../special';
 import Entity from '../Entity';
@@ -76,7 +76,7 @@ describe(`${schema.Delete.name} denormalization`, () => {
   };
 
   test('denormalizes an object in the same manner as the Entity', () => {
-    const user = denormalize('1', new schema.Delete(User), entities);
+    const user = denormalizeSimple('1', new schema.Delete(User), entities);
     expect(user).not.toEqual(expect.any(Symbol));
     if (typeof user === 'symbol') return;
     expect(user).toBeDefined();
@@ -84,66 +84,100 @@ describe(`${schema.Delete.name} denormalization`, () => {
     expect(user?.username).toBe('Janey');
   });
 
-  test.each([
-    ['direct', (data: any) => data],
+  describe.each([
+    ['direct', <T>(data: T) => data],
     ['immutable', fromJS],
-  ] as const)(
-    `denormalizes deleted entities as undefined (%s)`,
-    (_, createInput) => {
-      const user = denormalize('1', new schema.Delete(User), {
-        User: { '1': DELETED },
-      });
-      expect(user).toEqual(expect.any(Symbol));
+  ])(`input (%s)`, (_, createInput) => {
+    describe.each([
+      [
+        'class',
+        <T extends Schema>(sch: T) => new schema.Array(sch),
+        <T extends Record<string, any>>(sch: T) => new schema.Object(sch),
+        denormalizeSimple,
+      ],
+      [
+        'class, legacy',
+        <T extends Schema>(sch: T) => new schema.Array(sch),
+        <T extends Record<string, any>>(sch: T) => new schema.Object(sch),
+        denormalizeLegacy,
+      ],
+      [
+        'object, direct',
+        <T extends Schema>(sch: T) => [sch],
+        <T extends Record<string, any>>(sch: T) => sch,
+        denormalizeSimple,
+      ],
+    ])(
+      `schema construction (%s)`,
+      (_, createArray, createObject, denormalize) => {
+        test('denormalizes deleted entities as symbol', () => {
+          const user = denormalize(
+            '1',
+            new schema.Delete(User),
+            createInput({
+              User: { '1': DELETED },
+            }),
+          );
+          expect(user).toEqual(expect.any(Symbol));
 
-      expect(
-        denormalize(
-          createInput([{ data: '1' }]),
-          new schema.Array(
-            new schema.Object({ data: new schema.Delete(User) }),
-          ),
-          createInput([{}]),
-        ),
-      ).toMatchSnapshot();
+          expect(
+            denormalize(
+              createInput({ data: '1' }),
+              createObject({ data: new schema.Delete(User) }),
+              createInput({
+                User: { '1': DELETED },
+              }),
+            ),
+          ).toEqual(expect.any(Symbol));
+        });
 
-      expect(
-        denormalize(
-          createInput([{ data: '1' }]),
-          [{ data: new schema.Delete(User) }],
-          createInput([{}]),
-        ),
-      ).toMatchSnapshot();
+        test('denormalize removes deleted entries in array', () => {
+          expect(
+            denormalize(
+              createInput([{ data: '1' }]),
+              createArray(createObject({ data: new schema.Delete(User) })),
+              createInput({
+                User: { '1': DELETED },
+              }),
+            ),
+          ).toMatchSnapshot();
+          expect(
+            denormalize(
+              createInput([{ data: '1' }]),
+              createArray(createObject({ data: User })),
+              createInput({
+                User: { '1': DELETED },
+              }),
+            ),
+          ).toMatchSnapshot();
+        });
 
-      expect(
-        denormalize(
-          createInput([{ data: '1' }]),
-          new schema.Array(new schema.Object({ data: User })),
-          createInput([{}]),
-        ),
-      ).toMatchSnapshot();
+        test('denormalize sets undefined entities that are not present', () => {
+          expect(
+            denormalize(
+              createInput([{ data: '1' }]),
+              createArray(createObject({ data: new schema.Delete(User) })),
+              createInput([{}]),
+            ),
+          ).toMatchSnapshot();
 
-      expect(
-        denormalize(
-          createInput([{ data: '1' }]),
-          [{ data: User }],
-          createInput([{}]),
-        ),
-      ).toMatchSnapshot();
+          expect(
+            denormalize(
+              createInput([{ data: '1' }]),
+              createArray(createObject({ data: User })),
+              createInput([{}]),
+            ),
+          ).toMatchSnapshot();
 
-      expect(
-        denormalize(
-          createInput({ data: '1' }),
-          new schema.Object({ data: User }),
-          createInput({}),
-        ),
-      ).toMatchSnapshot();
-
-      expect(
-        denormalize(
-          createInput({ data: '1' }),
-          { data: User },
-          createInput({}),
-        ),
-      ).toMatchSnapshot();
-    },
-  );
+          expect(
+            denormalize(
+              createInput({ data: '1' }),
+              createObject({ data: User }),
+              createInput({}),
+            ),
+          ).toMatchSnapshot();
+        });
+      },
+    );
+  });
 });

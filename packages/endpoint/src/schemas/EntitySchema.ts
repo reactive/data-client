@@ -343,6 +343,32 @@ export default function EntitySchema<TBase extends Constructor>(
       return [input, true, deleted];
     }
 
+    static denormalizeOnly<T extends typeof EntityMixin>(
+      this: T,
+      input: any,
+      unvisit: (input: any, schema: any) => any,
+    ): AbstractInstanceType<T> {
+      if (typeof input === 'symbol') {
+        return input as any;
+      }
+
+      // note: iteration order must be stable
+      for (const key of Object.keys(this.schema)) {
+        const schema = this.schema[key];
+        const value = unvisit(input[key], schema);
+
+        if (typeof value === 'symbol') {
+          if (this.defaults[key]) {
+            return value as any;
+          }
+          input[key] = undefined;
+        } else {
+          input[key] = value;
+        }
+      }
+      return input;
+    }
+
     /** All instance defaults set */
     static get defaults() {
       // we use hasOwn because we don't want to use a parents' defaults
@@ -586,6 +612,16 @@ export interface IEntityClass<TBase extends Constructor = any> {
     input: any,
     unvisit: UnvisitFunction,
   ): [denormalized: AbstractInstanceType<T>, found: boolean, suspend: boolean];
+  denormalizeOnly<
+    T extends (abstract new (...args: any[]) => IEntityInstance &
+      InstanceType<TBase>) &
+      IEntityClass &
+      TBase,
+  >(
+    this: T,
+    input: any,
+    unvisit: (input: any, schema: any) => any,
+  ): AbstractInstanceType<T>;
   /** All instance defaults set */
   readonly defaults: any;
   //set(entity: any, key: string, value: any): void;

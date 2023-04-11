@@ -34,7 +34,7 @@ describe('denormalize with global cache', () => {
         1: Symbol('ENTITY WAS DELETED'),
       },
     };
-    expect(denormalize('1', Tacos, entities)[0]).toEqual(INVALID);
+    expect(denormalize('1', Tacos, entities)[0]).toEqual(expect.any(Symbol));
   });
   test('maintains referential equality with same results', () => {
     const entityCache = {};

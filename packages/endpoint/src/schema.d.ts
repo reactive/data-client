@@ -77,6 +77,11 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
     boolean,
   ];
 
+  denormalizeOnly(
+    input: {},
+    unvisit: (input: any, schema: any) => any,
+  ): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
+
   infer(
     args: readonly any[],
     indexes: NormalizedIndex,
@@ -132,6 +137,11 @@ export class All<
     boolean,
   ];
 
+  denormalizeOnly(
+    input: {},
+    unvisit: (input: any, schema: any) => any,
+  ): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
+
   infer(
     args: readonly any[],
     indexes: NormalizedIndex,
@@ -168,6 +178,11 @@ export class Object<O extends Record<string, any> = Record<string, Schema>>
   ): [denormalized: DenormalizeObject<O>, found: boolean, suspend: boolean];
 
   _denormalizeNullable(): [DenormalizeNullableObject<O>, false, boolean];
+
+  denormalizeOnly(
+    input: {},
+    unvisit: (input: any, schema: any) => any,
+  ): DenormalizeObject<O>;
 
   infer(
     args: readonly any[],
@@ -218,6 +233,11 @@ export class Union<Choices extends EntityMap = any> implements SchemaClass {
     false,
     boolean,
   ];
+
+  denormalizeOnly(
+    input: {},
+    unvisit: (input: any, schema: any) => any,
+  ): AbstractInstanceType<Choices[keyof Choices]>;
 
   infer(
     args: readonly any[],
@@ -293,6 +313,14 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
     false,
     boolean,
   ];
+
+  denormalizeOnly(
+    input: {},
+    unvisit: (input: any, schema: any) => any,
+  ): Record<
+    string,
+    Choices extends EntityMap<infer T> ? T : Denormalize<Choices>
+  >;
 
   infer(
     args: readonly any[],

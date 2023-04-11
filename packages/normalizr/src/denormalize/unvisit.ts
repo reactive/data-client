@@ -19,14 +19,13 @@ const unvisitEntity = (
     typeof entityOrId === 'object'
       ? entityOrId
       : getEntity({ pk: entityOrId, key: schema.key });
-  if (
-    typeof entity === 'symbol' &&
-    (entity as symbol).toString().includes('DELETED')
-  ) {
-    return INVALID;
-    // TODO: Change to this as breaking change once we only support newer entities
-    // also remove `(entity as symbol).toString().includes('DELETED')` and do this for all symbols
-    // return schema.denormalize(entity, unvisit);
+  if (typeof entity === 'symbol') {
+    if (typeof schema.denormalizeOnly === 'function') {
+      return schema.denormalizeOnly(entity, unvisit);
+      // TODO(breaking): Change to this as breaking change once we only support newer entities
+    } else if ((entity as symbol).toString().includes('DELETED')) {
+      return INVALID;
+    }
   }
 
   if (typeof entity !== 'object' || entity === null) {
@@ -87,8 +86,12 @@ function unvisitEntityObject(
     // undefined indicates we should suspense (perhaps failed validation)
     localCacheKey[pk] = INVALID;
   } else {
-    [localCacheKey[pk], _, deleted] = schema.denormalize(entityCopy, unvisit);
-    if (deleted) localCacheKey[pk] = INVALID;
+    if (typeof schema.denormalizeOnly === 'function') {
+      localCacheKey[pk] = schema.denormalizeOnly(entityCopy, unvisit);
+    } else {
+      [localCacheKey[pk], _, deleted] = schema.denormalize(entityCopy, unvisit);
+      if (deleted) localCacheKey[pk] = INVALID;
+    }
   }
 }
 
@@ -106,26 +109,8 @@ function withTrackedEntities(unvisit: UnvisitFunction): UnvisitFunction {
 
 const getUnvisit = (getEntity: GetEntity, cache: Cache) => {
   // TODO(breaking): This handles legacy schemas from 3.7 and below
-  function unvisitAdapter(input: any, schema: any): [any, boolean, boolean] {
-    const isAll = schema?.constructor?.name === 'AllSchema';
-    const value = unvisit(input, schema);
+  const unvisitAdapter = getUnvisitAdapter(unvisit);
 
-    // TODO(breaking): Drop support for initial All version
-    if (isAll) {
-      // we swap 'found' and 'suspend' because the initial Query version used 'found' to determine whether
-      // it should 'process'
-      return [
-        typeof value === 'symbol' ? undefined : value,
-        typeof value !== 'symbol',
-        false,
-      ];
-    }
-    return [
-      typeof value === 'symbol' ? undefined : value,
-      true,
-      typeof value === 'symbol',
-    ];
-  }
   function unvisit(input: any, schema: any): any {
     if (!schema) return input;
 
@@ -146,7 +131,7 @@ const getUnvisit = (getEntity: GetEntity, cache: Cache) => {
       // TODO(breaking): Drop support for initial All version
       const isAll = schema.constructor?.name === 'AllSchema';
 
-      return isAll ? INVALID : input;
+      return isAll ? INVALID : undefined;
     }
 
     if (!hasDenormalize && typeof schema === 'object') {
@@ -157,18 +142,21 @@ const getUnvisit = (getEntity: GetEntity, cache: Cache) => {
     }
 
     if (isEntity(schema)) {
-      return unvisitEntity(input, schema, unvisitAdapter, getEntity, cache);
+      return unvisitEntity(
+        input,
+        schema,
+        schema.denormalizeOnly ? unvisit : unvisitAdapter,
+        getEntity,
+        cache,
+      );
     }
 
     if (hasDenormalize) {
-      const [data, _, suspend] = schema.denormalize(input, unvisitAdapter);
-      // TODO(breaking): Drop support for initial Query version
-      // queryEndpoint schema only overrides 'denormalize' and 'infer'
-      const isQuery =
-        !Object.hasOwn(schema, 'normalize') &&
-        Object.hasOwn(schema, 'denormalize') &&
-        Object.hasOwn(schema, 'infer');
-      return suspend && !isQuery ? INVALID : data;
+      if (schema.denormalizeOnly) {
+        return schema.denormalizeOnly(input, unvisit);
+      } else {
+        return denormalizeLegacySchema(schema, input, unvisitAdapter);
+      }
     }
 
     return input;
@@ -185,3 +173,42 @@ const getUnvisit = (getEntity: GetEntity, cache: Cache) => {
   };
 };
 export default getUnvisit;
+
+function denormalizeLegacySchema(
+  schema: any,
+  input: any,
+  unvisitAdapter: (input: any, schema: any) => [any, boolean, boolean],
+) {
+  const [data, _, suspend] = schema.denormalize(input, unvisitAdapter);
+  // TODO(breaking): Drop support for initial Query version
+  // queryEndpoint schema only overrides 'denormalize' and 'infer'
+  const isQuery =
+    !Object.hasOwn(schema, 'normalize') &&
+    Object.hasOwn(schema, 'denormalize') &&
+    Object.hasOwn(schema, 'infer');
+  return suspend && !isQuery ? INVALID : data;
+}
+
+// TODO(breaking): This handles legacy schemas from 3.7 and below
+function getUnvisitAdapter(unvisit) {
+  return function (input: any, schema: any): [any, boolean, boolean] {
+    const isAll = schema?.constructor?.name === 'AllSchema';
+    const value = unvisit(input, schema);
+
+    // TODO(breaking): Drop support for initial All version
+    if (isAll) {
+      // we swap 'found' and 'suspend' because the initial Query version used 'found' to determine whether
+      // it should 'process'
+      return [
+        typeof value === 'symbol' ? undefined : value,
+        typeof value !== 'symbol',
+        false,
+      ];
+    }
+    return [
+      typeof value === 'symbol' ? undefined : value,
+      true,
+      typeof value === 'symbol',
+    ];
+  };
+}
