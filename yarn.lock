@@ -10171,6 +10171,7 @@ __metadata:
     "@types/benchmark": 2.1.2
     "@types/react": 18.0.33
     benchmark: ^2.1.4
+    normalizr: ^3.6.2
     react: ^18.2.0
     webpack: ^5.76.2
   languageName: unknown
@@ -16024,6 +16025,13 @@ __metadata:
     rollup-plugin-terser: ^7.0.2
   languageName: unknown
   linkType: soft
+
+"normalizr@npm:^3.6.2":
+  version: 3.6.2
+  resolution: "normalizr@npm:3.6.2"
+  checksum: 40cea88ba95bf72f6819d9369e0f877782ed53201651740788849c8049178d7558561b146fc1788f1aefcce9a6b01ed8fdcf3fd406e2054514f6779fe069b5b9
+  languageName: node
+  linkType: hard
 
 "npm-bundled@npm:^1.1.1":
   version: 1.1.2
