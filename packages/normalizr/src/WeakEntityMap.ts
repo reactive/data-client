@@ -54,7 +54,10 @@ export function getEntities<K extends object>(state: State<K>): GetEntity<K> {
 }
 
 export function depToPaths(dependencies: Dep[]) {
-  return dependencies.map(dep => dep.path);
+  const paths = dependencies.map(dep => dep.path);
+  // the first item is the result input not an actual entity
+  if (paths[0]?.pk === '') paths.shift();
+  return paths;
 }
 
 export type GetEntity<K = object | symbol> = (lookup: Path) => K;
