@@ -6,6 +6,7 @@ import {
   inferResults,
   WeakEntityMap,
   denormalizeCached,
+  initialState,
 } from './dist/index.js';
 import { printStatus } from './printStatus.js';
 import {
@@ -17,7 +18,6 @@ import {
   User,
 } from './schemas.js';
 import userData from './user.json' assert { type: 'json' };
-
 
 const { result, entities } = normalize(data, ProjectSchema);
 const queryState = normalize(data, ProjectQuery);
@@ -35,6 +35,12 @@ const queryInfer = inferResults(
 );
 
 let githubState = normalize(userData, User);
+
+const actionMeta = {
+  fetchedAt: Date.now(),
+  date: Date.now(),
+  expiresAt: Date.now() + 10000000,
+}
 
 export default function addNormlizrSuite(suite) {
   let denormCache = {
@@ -64,7 +70,14 @@ export default function addNormlizrSuite(suite) {
 
   return suite
     .add('normalizeLong', () => {
-      return normalize(data, ProjectSchema);
+      return normalize(
+        data,
+        ProjectSchema,
+        initialState.entities,
+        initialState.indexes,
+        initialState.entityMeta,
+        actionMeta,
+      );
     })
     .add('infer All', () => {
       return inferResults(

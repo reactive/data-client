@@ -1,28 +1,53 @@
-import data from '../data.json' assert { type: 'json' };
-import {
-  normalize,
-  denormalize,
-} from 'normalizr';
-import { printStatus } from '../printStatus.js';
+import { normalize, denormalize } from 'normalizr';
+
 import {
   ProjectSchema,
   ProjectWithBuildTypesDescription,
   User,
 } from './schemas.js';
+import data from '../data.json' assert { type: 'json' };
+import { initialState } from '../dist/index.js';
+import { printStatus } from '../printStatus.js';
 import userData from '../user.json' assert { type: 'json' };
-
 
 const { result, entities } = normalize(data, ProjectSchema);
 
 let githubState = normalize(userData, User);
 
-export default function addNormlizrSuite(suite) {
+const state = {
+  ...initialState,
+  entities: githubState.entities,
+  results: { github: githubState.result },
+};
 
+function mergeWithStore({ entities, result }, storeState) {
+  const newEntities = { ...storeState.entities };
+  Object.keys(entities).forEach(key => {
+    if (key in newEntities) {
+      Object.keys(entities[key]).forEach(pk => {
+        // represent default merge
+        newEntities[key][pk] = {
+          ...newEntities[key][pk],
+          ...entities[key][pk],
+        };
+      });
+    } else {
+      newEntities[key] = entities[key];
+    }
+  });
+  return {
+    ...storeState,
+    entities: newEntities,
+    results: { ...storeState.results, ...{ abc: result } },
+  };
+}
+
+export default function addNormlizrSuite(suite) {
   %OptimizeFunctionOnNextCall(normalize);
   %OptimizeFunctionOnNextCall(denormalize);
   return suite
     .add('normalizeLong', () => {
-      return normalize(data, ProjectSchema);
+      return mergeWithStore(normalize(data, ProjectSchema), state);
     })
     .add('denormalizeLong donotcache', () => {
       return denormalize(result, ProjectSchema, entities);
