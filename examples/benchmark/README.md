@@ -17,13 +17,12 @@ yarn start [suite-name]
 
 No argument will run `normalizr` + `core`
 
-
 ### Results
 
 Performance compared to normalizr package (higher is better):
 
-Normalize (long) - 72% (we also handle meta-data)
-Denormalize (long) without cache - 100% (same speed)
-Denormalize (short) without cache - 600% (6x faster)
-Denormalize (long) with cache - 830% (6x faster)
-Denormalize (short) with cache - 1120% (11x faster)
+|                     | no cache | with cache |
+|---------------------|----------|------------|
+| normalize (long)    | 72%      | 72%        |
+| denormalize (long)  | 100%     | 830%       |
+| denormalize (short) | 600%     | 1120%      |
