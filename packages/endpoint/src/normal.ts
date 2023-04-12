@@ -68,6 +68,8 @@ export type Denormalize<S> = S extends EntityInterface<infer U>
   ? U
   : S extends RecordClass
   ? AbstractInstanceType<S>
+  : S extends { denormalizeOnly: (...args: any) => any }
+  ? ReturnType<S['denormalizeOnly']>
   : S extends SchemaClass
   ? DenormalizeReturnType<S['denormalize']>
   : S extends Serializable<infer T>

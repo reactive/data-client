@@ -28,8 +28,9 @@ import {
   Constructor,
   PKClass,
 } from './schemas/EntitySchema.js';
+import { default as Invalidate } from './schemas/Invalidate.js';
 
-export { Delete, EntityMap };
+export { Delete, EntityMap, Invalidate };
 
 export { EntityInterface } from './interface.js';
 
@@ -352,6 +353,24 @@ export interface SchemaClass<T = any, N = T | undefined>
   _normalizeNullable(): any;
   // this is not an actual member, but is needed for the recursive DenormalizeNullable<> type algo
   _denormalizeNullable(): [N, boolean, boolean];
+}
+
+export interface SchemaSimpleNew<T = any> {
+  normalize(
+    input: any,
+    parent: any,
+    key: any,
+    visit: (...args: any) => any,
+    addEntity: (...args: any) => any,
+    visitedEntities: Record<string, any>,
+  ): any;
+  denormalizeOnly(input: {}, unvisit: (input: any, schema: any) => any): T;
+  infer(
+    args: readonly any[],
+    indexes: NormalizedIndex,
+    recurse: (...args: any) => any,
+    entities: EntityTable,
+  ): any;
 }
 
 // id is in Instance, so we default to that as pk

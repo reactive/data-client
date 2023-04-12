@@ -232,8 +232,8 @@ export default function EntitySchema<TBase extends Constructor>(
           (error as any).status = 400;
           throw error;
         } else {
-          // these make the keys get deleted
-          return undefined;
+          // these make the keys get deleted; return undefined
+          return;
         }
       }
       const entityType = this.key;

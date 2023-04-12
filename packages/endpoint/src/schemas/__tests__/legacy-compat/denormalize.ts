@@ -155,7 +155,8 @@ const getUnvisit = (
     if (isEntity(schema)) {
       return unvisitEntity(
         input,
-        schema,
+        // this casting is ok because the interface was never exposed to users
+        schema as any,
         unvisit,
         getEntity,
         localCache,
