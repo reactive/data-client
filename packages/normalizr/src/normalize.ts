@@ -116,42 +116,59 @@ const addEntities =
 
     // update index
     if (schema.indexes) {
-      const entity = entities[schemaKey][id];
       if (!(schemaKey in indexes)) {
         indexes[schemaKey] = {};
         existingIndexes[schemaKey] = { ...existingIndexes[schemaKey] };
       }
-      for (const index of schema.indexes) {
-        if (!(index in indexes[schemaKey])) {
-          existingIndexes[schemaKey][index] = indexes[schemaKey][index] = {};
-        }
-        const indexMap = indexes[schemaKey][index];
-        if (existingEntity) {
-          delete indexMap[existingEntity[index]];
-        }
-        // entity already in cache but the index changed
-        if (
-          existingEntities[schemaKey] &&
-          existingEntities[schemaKey][id] &&
-          existingEntities[schemaKey][id][index] !== entity[index]
-        ) {
-          indexMap[existingEntities[schemaKey][id][index]] = DELETED;
-        }
-        if (index in entity) {
-          indexMap[entity[index]] = id;
-        } /* istanbul ignore next */ else if (
-          // eslint-disable-next-line no-undef
-          process.env.NODE_ENV !== 'production'
-        ) {
-          console.warn(`Index not found in entity. Indexes must be top-level members of your entity.
-Index: ${index}
-Entity: ${JSON.stringify(entity, undefined, 2)}`);
-        }
-      }
+      handleIndexes(
+        id,
+        schema.indexes,
+        indexes[schemaKey],
+        existingIndexes[schemaKey],
+        entities[schemaKey][id],
+        existingEntities[schemaKey],
+      );
     }
     // set this after index updates so we know what indexes to remove from
     existingEntities[schemaKey][id] = entities[schemaKey][id];
   };
+
+function handleIndexes(
+  id: string,
+  schemaIndexes: string[],
+  indexes: Record<string, any>,
+  existingIndexes: Record<string, any>,
+  entity: any,
+  existingEntities: Record<string, any>,
+) {
+  for (const index of schemaIndexes) {
+    if (!(index in indexes)) {
+      existingIndexes[index] = indexes[index] = {};
+    }
+    const indexMap = indexes[index];
+    if (existingEntities[id]) {
+      delete indexMap[existingEntities[id][index]];
+    }
+    // entity already in cache but the index changed
+    if (
+      existingEntities &&
+      existingEntities[id] &&
+      existingEntities[id][index] !== entity[index]
+    ) {
+      indexMap[existingEntities[id][index]] = DELETED;
+    }
+    if (index in entity) {
+      indexMap[entity[index]] = id;
+    } /* istanbul ignore next */ else if (
+      // eslint-disable-next-line no-undef
+      process.env.NODE_ENV !== 'production'
+    ) {
+      console.warn(`Index not found in entity. Indexes must be top-level members of your entity.
+Index: ${index}
+Entity: ${JSON.stringify(entity, undefined, 2)}`);
+    }
+  }
+}
 
 // TODO(breaking): remove this in 2 breaking releases
 /** @deprecated use Entity.mergeStore() instead */
