@@ -47,9 +47,9 @@ const addEntities =
   (
     entities: Record<string, any>,
     indexes: Record<string, any>,
-    existingEntities: Record<string, any>,
-    existingIndexes: Record<string, any>,
-    entityMeta: {
+    storeEntities: Record<string, any>,
+    storeIndexes: Record<string, any>,
+    storeEntityMeta: {
       [entityKey: string]: {
         [pk: string]: {
           date: number;
@@ -64,8 +64,8 @@ const addEntities =
     const schemaKey = schema.key;
     if (!(schemaKey in entities)) {
       entities[schemaKey] = {};
-      existingEntities[schemaKey] = { ...existingEntities[schemaKey] };
-      entityMeta[schemaKey] = { ...entityMeta[schemaKey] };
+      storeEntities[schemaKey] = { ...storeEntities[schemaKey] };
+      storeEntityMeta[schemaKey] = { ...storeEntityMeta[schemaKey] };
     }
 
     const existingEntity = entities[schemaKey][id];
@@ -73,18 +73,19 @@ const addEntities =
       entities[schemaKey][id] = schema.merge(existingEntity, processedEntity);
     } else {
       // TODO(breaking): eventually assume this exists and don't check for conditional. probably early 2022
+      //console.log(schema, schema.expiresAt);
       const entityExpiresAt = schema.expiresAt
         ? schema.expiresAt(meta, processedEntity)
         : meta.expiresAt;
 
-      const inStoreEntity = existingEntities[schemaKey][id];
+      const inStoreEntity = storeEntities[schemaKey][id];
       let inStoreMeta: {
         date: number;
         expiresAt: number;
         fetchedAt: number;
       };
       // this case we already have this entity in store
-      if (inStoreEntity && (inStoreMeta = entityMeta[schemaKey][id])) {
+      if (inStoreEntity && (inStoreMeta = storeEntityMeta[schemaKey][id])) {
         entities[schemaKey][id] = schema.mergeWithStore
           ? schema.mergeWithStore(
               inStoreMeta,
@@ -99,14 +100,14 @@ const addEntities =
               inStoreEntity,
               processedEntity,
             );
-        entityMeta[schemaKey][id] = {
+        storeEntityMeta[schemaKey][id] = {
           expiresAt: Math.max(entityExpiresAt, inStoreMeta.expiresAt),
           date: Math.max(meta.date, inStoreMeta.date),
           fetchedAt: Math.max(meta.fetchedAt ?? 0, inStoreMeta.fetchedAt),
         };
       } else {
         entities[schemaKey][id] = processedEntity;
-        entityMeta[schemaKey][id] = {
+        storeEntityMeta[schemaKey][id] = {
           expiresAt: entityExpiresAt,
           date: meta.date,
           fetchedAt: meta.fetchedAt ?? meta.date,
@@ -118,44 +119,44 @@ const addEntities =
     if (schema.indexes) {
       if (!(schemaKey in indexes)) {
         indexes[schemaKey] = {};
-        existingIndexes[schemaKey] = { ...existingIndexes[schemaKey] };
+        storeIndexes[schemaKey] = { ...storeIndexes[schemaKey] };
       }
       handleIndexes(
         id,
         schema.indexes,
         indexes[schemaKey],
-        existingIndexes[schemaKey],
+        storeIndexes[schemaKey],
         entities[schemaKey][id],
-        existingEntities[schemaKey],
+        storeEntities[schemaKey],
       );
     }
     // set this after index updates so we know what indexes to remove from
-    existingEntities[schemaKey][id] = entities[schemaKey][id];
+    storeEntities[schemaKey][id] = entities[schemaKey][id];
   };
 
 function handleIndexes(
   id: string,
   schemaIndexes: string[],
   indexes: Record<string, any>,
-  existingIndexes: Record<string, any>,
+  storeIndexes: Record<string, any>,
   entity: any,
-  existingEntities: Record<string, any>,
+  storeEntities: Record<string, any>,
 ) {
   for (const index of schemaIndexes) {
     if (!(index in indexes)) {
-      existingIndexes[index] = indexes[index] = {};
+      storeIndexes[index] = indexes[index] = {};
     }
     const indexMap = indexes[index];
-    if (existingEntities[id]) {
-      delete indexMap[existingEntities[id][index]];
+    if (storeEntities[id]) {
+      delete indexMap[storeEntities[id][index]];
     }
     // entity already in cache but the index changed
     if (
-      existingEntities &&
-      existingEntities[id] &&
-      existingEntities[id][index] !== entity[index]
+      storeEntities &&
+      storeEntities[id] &&
+      storeEntities[id][index] !== entity[index]
     ) {
-      indexMap[existingEntities[id][index]] = DELETED;
+      indexMap[storeEntities[id][index]] = DELETED;
     }
     if (index in entity) {
       indexMap[entity[index]] = id;
@@ -170,7 +171,7 @@ Entity: ${JSON.stringify(entity, undefined, 2)}`);
   }
 }
 
-// TODO(breaking): remove this in 2 breaking releases
+// TODO(breaking): remove this in 1 breaking releases
 /** @deprecated use Entity.mergeStore() instead */
 function mergeWithStore(
   schema: EntityInterface<any>,
@@ -220,9 +221,9 @@ export const normalize = <
 >(
   input: any,
   schema?: S,
-  existingEntities: Readonly<E> = {} as any,
-  existingIndexes: Readonly<NormalizedIndex> = {},
-  existingEntityMeta: {
+  storeEntities: Readonly<E> = {} as any,
+  storeIndexes: Readonly<NormalizedIndex> = {},
+  storeEntityMeta: {
     readonly [entityKey: string]: {
       readonly [pk: string]: {
         readonly date: number;
@@ -240,10 +241,10 @@ export const normalize = <
   // no schema means we don't process at all
   if (schema === undefined || schema === null)
     return {
-      entities: existingEntities,
-      indexes: existingIndexes,
+      entities: storeEntities,
+      indexes: storeIndexes,
       result: input,
-      entityMeta: existingEntityMeta,
+      entityMeta: storeEntityMeta,
     };
 
   const schemaType = expectedSchemaType(schema);
@@ -296,9 +297,9 @@ See https://resthooks.io/rest/api/RestEndpoint#parseResponse for more informatio
 
   const newEntities: E = {} as any;
   const newIndexes: NormalizedIndex = {} as any;
-  const entities: E = { ...existingEntities } as any;
-  const indexes: NormalizedIndex = { ...existingIndexes };
-  const entityMeta: any = { ...existingEntityMeta };
+  const entities: E = { ...storeEntities } as any;
+  const indexes: NormalizedIndex = { ...storeIndexes };
+  const entityMeta: any = { ...storeEntityMeta };
   const addEntity = addEntities(
     newEntities,
     newIndexes,
