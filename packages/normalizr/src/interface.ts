@@ -1,5 +1,3 @@
-import { AbstractInstanceType, Denormalize, EntityMap } from './types.js';
-
 export type Schema =
   | null
   | string
@@ -23,7 +21,7 @@ export interface SchemaSimple<T = any> {
     addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
   ): any;
-  denormalize(
+  denormalize?(
     // eslint-disable-next-line @typescript-eslint/ban-types
     input: {},
     unvisit: UnvisitFunction,

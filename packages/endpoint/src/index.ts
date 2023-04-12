@@ -18,7 +18,7 @@ export type {
 export * as schema from './schema.js';
 export { default as Entity } from './schemas/Entity.js';
 export { default as validateRequired } from './validateRequired.js';
-export { DELETED } from './special.js';
+export { DELETED, INVALID } from './special.js';
 export type {
   Schema,
   SnapshotInterface,

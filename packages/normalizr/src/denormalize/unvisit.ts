@@ -89,7 +89,10 @@ function unvisitEntityObject(
     if (typeof schema.denormalizeOnly === 'function') {
       localCacheKey[pk] = schema.denormalizeOnly(entityCopy, unvisit);
     } else {
-      [localCacheKey[pk], _, deleted] = schema.denormalize(entityCopy, unvisit);
+      [localCacheKey[pk], _, deleted] = (schema as any).denormalize(
+        entityCopy,
+        unvisit,
+      );
       if (deleted) localCacheKey[pk] = INVALID;
     }
   }
