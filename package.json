@@ -43,7 +43,7 @@
     "@anansi/babel-preset": "4.2.2",
     "@anansi/browserslist-config": "1.4.2",
     "@anansi/eslint-plugin": "0.16.7",
-    "@anansi/jest-preset": "0.10.7",
+    "@anansi/jest-preset": "0.10.8",
     "@babel/cli": "7.21.0",
     "@babel/core": "7.21.4",
     "@babel/node": "7.20.7",

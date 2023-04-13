@@ -124,9 +124,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/jest-preset@npm:0.10.7":
-  version: 0.10.7
-  resolution: "@anansi/jest-preset@npm:0.10.7"
+"@anansi/jest-preset@npm:0.10.8":
+  version: 0.10.8
+  resolution: "@anansi/jest-preset@npm:0.10.8"
   dependencies:
     "@anansi/ts-utils": ^0.3.5
     "@types/babel__core": ^7.20.0
@@ -137,7 +137,7 @@ __metadata:
     jest-pnp-resolver: ^1.2.3
     mitt: ^3.0.0
     node-fetch: ^3.3.1
-    semver: ^7.3.8
+    semver: ^7.4.0
     ts-jest: ^29.1.0
     whatwg-fetch: ^3.0.0
   peerDependencies:
@@ -151,7 +151,7 @@ __metadata:
       optional: true
     react:
       optional: true
-  checksum: cc44af8b408e88835550ce6e1c146f5570b168eeb5fe8707fe756a14bc4872a60d6427ba0542c7acbe03c144d426f4743e5908f1707251d5d57327eba88531b9
+  checksum: 1fafd2d01d445a0ad673f7d8624d149992200ad6789b9a35d669264fab4e0afa9e1b6bacd35eac9315376c6ac05e95caf701597706ad2ee2dde5aa18cabd657f
   languageName: node
   linkType: hard
 
@@ -19830,7 +19830,7 @@ __metadata:
     "@anansi/babel-preset": 4.2.2
     "@anansi/browserslist-config": 1.4.2
     "@anansi/eslint-plugin": 0.16.7
-    "@anansi/jest-preset": 0.10.7
+    "@anansi/jest-preset": 0.10.8
     "@babel/cli": 7.21.0
     "@babel/core": 7.21.4
     "@babel/node": 7.20.7
