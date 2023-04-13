@@ -1,20 +1,19 @@
 import type {
+  ErrorTypes,
+  SnapshotInterface,
+  DenormalizeCache,
+  Schema,
+} from '@rest-hooks/normalizr';
+import {
+  WeakEntityMap,
+  ExpiryStatus,
   EndpointInterface,
   FetchFunction,
   ResolveType,
   DenormalizeNullable,
-  EntityTable,
   Path,
-} from '@rest-hooks/normalizr';
-import {
-  ExpiryStatus,
-  ErrorTypes,
-  SnapshotInterface,
   denormalizeCached,
-  DenormalizeCache,
   isEntity,
-  Schema,
-  WeakEntityMap,
 } from '@rest-hooks/normalizr';
 import { inferResults, validateInference } from '@rest-hooks/normalizr';
 
@@ -352,6 +351,14 @@ export default class Controller<
       results = cacheResults;
     }
 
+    if (!isActive) {
+      return {
+        data: results as any,
+        expiryStatus: ExpiryStatus.Valid,
+        expiresAt: Infinity,
+      };
+    }
+
     if (!endpoint.schema || !schemaHasEntity(endpoint.schema)) {
       return {
         data: results,
@@ -383,7 +390,7 @@ export default class Controller<
       }
     }
 
-    if (isActive && !this.globalCache.results[key])
+    if (!this.globalCache.results[key])
       this.globalCache.results[key] = new WeakEntityMap();
 
     // second argument is false if any entities are missing
@@ -393,7 +400,7 @@ export default class Controller<
       schema,
       state.entities,
       this.globalCache.entities,
-      isActive ? this.globalCache.results[key] : undefined,
+      this.globalCache.results[key],
     ) as { data: DenormalizeNullable<E['schema']>; paths: Path[] };
     const invalidDenormalize = typeof data === 'symbol';
 
@@ -408,10 +415,7 @@ export default class Controller<
     const expiryStatus =
       meta?.invalidated || (invalidDenormalize && !meta?.error)
         ? ExpiryStatus.Invalid
-        : invalidDenormalize ||
-          endpoint.invalidIfStale ||
-          !isActive ||
-          invalidResults
+        : invalidDenormalize || endpoint.invalidIfStale || invalidResults
         ? ExpiryStatus.InvalidIfStale
         : ExpiryStatus.Valid;
 

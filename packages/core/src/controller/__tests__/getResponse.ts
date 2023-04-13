@@ -91,7 +91,7 @@ describe('Controller.getResponse()', () => {
       },
     };
     const { data, expiryStatus } = controller.getResponse(ep, null, state);
-    expect(expiryStatus).toBe(ExpiryStatus.InvalidIfStale);
+    expect(expiryStatus).toBe(ExpiryStatus.Valid);
     // null args means don't fill anything in
     expect(data.data).toBeUndefined();
     expect(data).toMatchInlineSnapshot(`
