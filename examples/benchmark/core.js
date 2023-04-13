@@ -87,6 +87,13 @@ export default function addReducerSuite(suite) {
       .add('getResponse', () => {
         return controller.getResponse(getProject, cachedState);
       })
+      .add('getResponse (clear cache)', () => {
+        controller.globalCache = {
+          entities: {},
+          results: {},
+        };
+        return controller.getResponse(getProject, cachedState);
+      })
       .add('getSmallResponse', () => {
         // more commonly we'll be dealing with many usages of simple data
         for (let i = 0; i < 500; ++i) {

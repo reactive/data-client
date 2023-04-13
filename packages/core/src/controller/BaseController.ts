@@ -399,17 +399,7 @@ export default class Controller<
 
     // fallback to entity expiry time
     if (!expiresAt) {
-      const entityMeta = state.entityMeta;
-      // earliest expiry dictates age
-      expiresAt = paths.reduce(
-        (expiresAt: number, { pk, key }) =>
-          Math.min(expiresAt, entityMeta[key]?.[pk]?.expiresAt ?? Infinity),
-        Infinity,
-      );
-      /*expiresAt = entityPaths
-          .map(({ pk, key }) => entityMeta[key]?.[pk]?.expiresAt)
-          .filter(a => a)
-          .reduce((a, b) => Math.min(a, b), Infinity); Alternative method - is it faster?*/
+      expiresAt = entityExpiresAt(paths, state.entityMeta);
     }
 
     // https://resthooks.io/docs/concepts/expiry-policy#expiry-status
@@ -427,6 +417,29 @@ export default class Controller<
 
     return { data, expiryStatus, expiresAt };
   };
+}
+
+// benchmark: https://www.measurethat.net/Benchmarks/Show/24691/0/min-reducer-vs-imperative-with-paths
+// earliest expiry dictates age
+function entityExpiresAt(
+  paths: Path[],
+  entityMeta: {
+    readonly [entityKey: string]: {
+      readonly [pk: string]: {
+        readonly date: number;
+        readonly expiresAt: number;
+        readonly fetchedAt: number; // This is only the value until it is set by the CacheProvider
+      };
+    };
+  },
+) {
+  let expiresAt = Infinity;
+  for (const { pk, key } of paths) {
+    const entityExpiry = entityMeta[key]?.[pk]?.expiresAt;
+    // expiresAt will always resolve to false with any comparison
+    if (entityExpiry < expiresAt) expiresAt = entityExpiry;
+  }
+  return expiresAt;
 }
 
 /** Determine whether the schema has any entities.

@@ -75,7 +75,7 @@ export default function NotAuthorized() {
 ```
 
 ```tsx title="AuthorizedUserOnlyControls" collapsed
-import { User } from './api/User';
+import { User, UserResource } from './api/User';
 
 export default function AuthorizedUserOnlyControls({ user }: { user: User }) {
   const ctrl = useController();
