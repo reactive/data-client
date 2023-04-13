@@ -45,6 +45,15 @@
       "skipFiles": ["<node_internals>/**"],
       "program": "start",
       "runtimeArgs": ["--prof"]
+    },
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Launch Chrome",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}/website",
+      "preLaunchTask": "website: start",
+      "sourceMaps": true
     }
   ]
 }

@@ -23,5 +23,11 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   },
-  "npm.packageManager": "yarn"
+  "npm.packageManager": "yarn",
+  "workbench.colorCustomizations": {
+    "titleBar.activeBackground": "#3e96db",
+    "titleBar.activeForeground": "#ffffff",
+    "titleBar.inactiveBackground": "#003a67",
+    "titleBar.inactiveForeground": "#84b8df"
+  },
 }

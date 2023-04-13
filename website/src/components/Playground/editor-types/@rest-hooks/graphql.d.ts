@@ -25,7 +25,9 @@ type DenormalizeNullableNestedSchema<S extends NestedSchemaClass> = keyof S['sch
 };
 type DenormalizeReturnType<T> = T extends (input: any, unvisit: any) => [infer R, any, any] ? R : never;
 type NormalizeReturnType<T> = T extends (...args: any) => infer R ? R : never;
-type Denormalize<S> = S extends EntityInterface<infer U> ? U : S extends RecordClass ? AbstractInstanceType<S> : S extends SchemaClass ? DenormalizeReturnType<S['denormalize']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Denormalize<F>[] : S extends {
+type Denormalize<S> = S extends EntityInterface<infer U> ? U : S extends RecordClass ? AbstractInstanceType<S> : S extends {
+    denormalizeOnly: (...args: any) => any;
+} ? ReturnType<S['denormalizeOnly']> : S extends SchemaClass ? DenormalizeReturnType<S['denormalize']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Denormalize<F>[] : S extends {
     [K: string]: any;
 } ? DenormalizeObject<S> : S;
 type DenormalizeNullable<S> = S extends EntityInterface<any> ? DenormalizeNullableNestedSchema<S> | undefined : S extends RecordClass ? DenormalizeNullableNestedSchema<S> : S extends SchemaClass ? DenormalizeReturnType<S['_denormalizeNullable']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Denormalize<F>[] | undefined : S extends {
@@ -42,18 +44,20 @@ interface EntityMap<T = any> {
 }
 
 /**
- * Marks entity as deleted.
- * @see https://resthooks.io/rest/api/Delete
+ * Marks entity as Invalid.
+ *
+ * This triggers suspense for all endpoints requiring it.
+ * Optional (like variable sized Array and Values) will simply remove the item.
+ * @see https://resthooks.io/rest/api/Invalidate
  */
-declare class Delete<E extends EntityInterface & {
+declare class Invalidate<E extends EntityInterface & {
     process: any;
-}> implements SchemaClass$1 {
-    private _entity;
+}> implements SchemaSimpleNew {
+    protected _entity: E;
     constructor(entity: E);
     get key(): string;
     normalize(input: any, parent: any, key: string | undefined, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>): string | undefined;
     infer(args: any, indexes: any, recurse: any): any;
-    denormalize(id: string, unvisit: UnvisitFunction): [denormalized: AbstractInstanceType<E>, found: boolean, suspend: boolean];
     denormalizeOnly(id: string, unvisit: (input: any, schema: any) => any): AbstractInstanceType<E>;
     _denormalizeNullable(): [
         AbstractInstanceType<E> | undefined,
@@ -69,6 +73,16 @@ declare class Delete<E extends EntityInterface & {
         date: number;
         fetchedAt: number;
     }, existing: any, incoming: any): boolean;
+}
+
+/**
+ * Marks entity as deleted.
+ * @see https://resthooks.io/rest/api/Delete
+ */
+declare class Delete<E extends EntityInterface & {
+    process: any;
+}> extends Invalidate<E> implements SchemaClass$1 {
+    denormalize(id: string, unvisit: UnvisitFunction): [denormalized: AbstractInstanceType<E>, found: boolean, suspend: boolean];
 }
 
 type Constructor = abstract new (...args: any[]) => {};
@@ -504,6 +518,24 @@ interface SchemaClass$1<T = any, N = T | undefined>
   _denormalizeNullable(): [N, boolean, boolean];
 }
 
+interface SchemaSimpleNew<T = any> {
+  normalize(
+    input: any,
+    parent: any,
+    key: any,
+    visit: (...args: any) => any,
+    addEntity: (...args: any) => any,
+    visitedEntities: Record<string, any>,
+  ): any;
+  denormalizeOnly(input: {}, unvisit: (input: any, schema: any) => any): T;
+  infer(
+    args: readonly any[],
+    indexes: NormalizedIndex,
+    recurse: (...args: any) => any,
+    entities: EntityTable,
+  ): any;
+}
+
 // id is in Instance, so we default to that as pk
 /**
  * Represents data that should be deduped by specifying a primary key.
@@ -531,6 +563,10 @@ type schema_d_Delete<E extends EntityInterface & {
 }> = Delete<E>;
 declare const schema_d_Delete: typeof Delete;
 type schema_d_EntityMap<T = any> = EntityMap<T>;
+type schema_d_Invalidate<E extends EntityInterface & {
+    process: any;
+}> = Invalidate<E>;
+declare const schema_d_Invalidate: typeof Invalidate;
 type schema_d_UnvisitFunction = UnvisitFunction;
 type schema_d_All<S extends EntityMap | EntityInterface = EntityMap | EntityInterface> = All<S>;
 declare const schema_d_All: typeof All;
@@ -543,11 +579,13 @@ type schema_d_SchemaFunction<K = string> = SchemaFunction<K>;
 type schema_d_MergeFunction = MergeFunction;
 type schema_d_SchemaAttributeFunction<S extends Schema> = SchemaAttributeFunction<S>;
 type schema_d_UnionResult<Choices extends EntityMap> = UnionResult<Choices>;
+type schema_d_SchemaSimpleNew<T = any> = SchemaSimpleNew<T>;
 type schema_d_EntityInterface<T = any> = EntityInterface<T>;
 declare namespace schema_d {
   export {
     schema_d_Delete as Delete,
     schema_d_EntityMap as EntityMap,
+    schema_d_Invalidate as Invalidate,
     schema_d_UnvisitFunction as UnvisitFunction,
     Array$1 as Array,
     schema_d_All as All,
@@ -560,6 +598,7 @@ declare namespace schema_d {
     schema_d_SchemaAttributeFunction as SchemaAttributeFunction,
     schema_d_UnionResult as UnionResult,
     SchemaClass$1 as SchemaClass,
+    schema_d_SchemaSimpleNew as SchemaSimpleNew,
     Entity$1 as Entity,
     schema_d_EntityInterface as EntityInterface,
   };
@@ -955,6 +994,7 @@ declare abstract class Entity extends Entity_base {
 declare function validateRequired(processedEntity: any, requiredDefaults: Record<string, unknown>): string | undefined;
 
 declare const DELETED: unique symbol;
+declare const INVALID: symbol;
 
 /**
  * Performant lookups by secondary indexes
@@ -1037,4 +1077,4 @@ interface GQLError {
     path: (string | number)[];
 }
 
-export { AbortOptimistic, AbstractInstanceType, ArrayElement, DELETED, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, GQLEndpoint, GQLEntity, GQLError, GQLNetworkError, GQLOptions, Index, IndexParams, KeyofEndpointInstance, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, Query, ReadEndpoint, ResolveType, Schema, SchemaDetail, SchemaList, SnapshotInterface, UnknownError, schema_d as schema, validateRequired };
+export { AbortOptimistic, AbstractInstanceType, ArrayElement, DELETED, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, GQLEndpoint, GQLEntity, GQLError, GQLNetworkError, GQLOptions, INVALID, Index, IndexParams, KeyofEndpointInstance, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, Query, ReadEndpoint, ResolveType, Schema, SchemaDetail, SchemaList, SnapshotInterface, UnknownError, schema_d as schema, validateRequired };

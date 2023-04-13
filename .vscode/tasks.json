@@ -16,6 +16,36 @@
 			"problemMatcher": [],
 			"label": "npm: build - examples/benchmark",
 			"detail": "BROWSERSLIST_ENV=node18 webpack --mode=production --target=node --env readable"
+		},
+		{
+			"type": "npm",
+			"label": "website: start",
+			"script": "start:vscode",
+			"path": "website",
+			"promptOnClose": true,
+			"isBackground": true,
+			"problemMatcher": {
+				"owner": "webpack",
+				"severity": "error",
+				"fileLocation": "absolute",
+				"pattern": [
+					{
+						"regexp": "ERROR in (.*)",
+						"file": 1
+					},
+					{
+						"regexp": "\\((\\d+),(\\d+)\\):(.*)",
+						"line": 1,
+						"column": 2,
+						"message": 3
+					}
+				],
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": "Docusaurus website is running at:",
+					"endsPattern": "compiled successfully"
+				}
+			}
 		}
 	]
 }

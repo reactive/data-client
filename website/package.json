@@ -2,6 +2,7 @@
   "scripts": {
     "examples": "docusaurus-examples",
     "start": "NODE_OPTIONS=--openssl-legacy-provider docusaurus start",
+    "start:vscode": "run start --no-open",
     "start:prod": "serve build",
     "build": "docusaurus build",
     "publish-gh-pages": "docusaurus-publish",
