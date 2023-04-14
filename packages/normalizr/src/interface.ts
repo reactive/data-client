@@ -55,6 +55,12 @@ export interface EntityInterface<T = any> extends SchemaSimple {
     existing: any,
     incoming: any,
   ): any;
+  mergeMeta?(
+    existingMeta: any,
+    incomingMeta: any,
+    existing: any,
+    incoming: any,
+  ): any;
   // TODO(breaking): deprecate this
   useIncoming?(
     existingMeta: any,

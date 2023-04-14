@@ -74,6 +74,26 @@ export default abstract class Entity extends EntitySchema(EmptyBase) {
     }
   }
 
+  static mergeMeta(
+    existingMeta: {
+      expiresAt: number;
+      date: number;
+      fetchedAt: number;
+    },
+    incomingMeta: { expiresAt: number; date: number; fetchedAt: number },
+    existing: any,
+    incoming: any,
+  ) {
+    return {
+      expiresAt: Math.max(
+        (this as any).expiresAt(incomingMeta, incoming),
+        existingMeta.expiresAt,
+      ),
+      date: Math.max(incomingMeta.date, existingMeta.date),
+      fetchedAt: Math.max(incomingMeta.fetchedAt, existingMeta.fetchedAt),
+    };
+  }
+
   /** Factory method to convert from Plain JS Objects.
    *
    * @param [props] Plain Object of properties to assign.
@@ -284,3 +304,11 @@ if (process.env.NODE_ENV !== 'production') {
     return superFrom.call(this, props) as any;
   };
 }
+
+// we're avoiding this on the type
+(Entity as any).expiresAt = function (
+  meta: { expiresAt: number; date: number; fetchedAt: number },
+  input: any,
+): number {
+  return meta.expiresAt;
+};

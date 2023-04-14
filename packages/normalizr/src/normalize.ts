@@ -58,7 +58,7 @@ const addEntities =
         };
       };
     },
-    meta: { expiresAt: number; date: number; fetchedAt?: number },
+    meta: { expiresAt: number; date: number; fetchedAt: number },
   ) =>
   (schema: EntityInterface, processedEntity: any, id: string) => {
     const schemaKey = schema.key;
@@ -72,12 +72,6 @@ const addEntities =
     if (existingEntity) {
       entities[schemaKey][id] = schema.merge(existingEntity, processedEntity);
     } else {
-      // TODO(breaking): eventually assume this exists and don't check for conditional. probably early 2022
-      //console.log(schema, schema.expiresAt);
-      const entityExpiresAt = schema.expiresAt
-        ? schema.expiresAt(meta, processedEntity)
-        : meta.expiresAt;
-
       const inStoreEntity = storeEntities[schemaKey][id];
       let inStoreMeta: {
         date: number;
@@ -100,17 +94,24 @@ const addEntities =
               inStoreEntity,
               processedEntity,
             );
-        storeEntityMeta[schemaKey][id] = {
-          expiresAt: Math.max(entityExpiresAt, inStoreMeta.expiresAt),
-          date: Math.max(meta.date, inStoreMeta.date),
-          fetchedAt: Math.max(meta.fetchedAt ?? 0, inStoreMeta.fetchedAt),
-        };
+        storeEntityMeta[schemaKey][id] = schema.mergeMeta
+          ? schema.mergeMeta(inStoreMeta, meta, inStoreEntity, processedEntity)
+          : mergeMeta(
+              schema,
+              inStoreMeta,
+              meta,
+              inStoreEntity,
+              processedEntity,
+            );
       } else {
         entities[schemaKey][id] = processedEntity;
         storeEntityMeta[schemaKey][id] = {
-          expiresAt: entityExpiresAt,
+          // TODO(breaking): Remove schema.expiresat
+          expiresAt: schema.expiresAt
+            ? schema.expiresAt(meta, processedEntity)
+            : meta.expiresAt,
           date: meta.date,
-          fetchedAt: meta.fetchedAt ?? meta.date,
+          fetchedAt: meta.fetchedAt,
         };
       }
     }
@@ -204,6 +205,35 @@ function mergeWithStore(
   }
 }
 
+// TODO(breaking): remove this in 1 breaking releases
+/** @deprecated use Entity.mergeStore() instead */
+function mergeMeta(
+  schema: any,
+  existingMeta: {
+    date: number;
+    expiresAt: number;
+    fetchedAt: number;
+  },
+  incomingMeta: {
+    expiresAt: number;
+    date: number;
+    fetchedAt: number;
+  },
+  existing: any,
+  incoming: any,
+) {
+  return {
+    expiresAt: Math.max(
+      schema.expiresAt
+        ? schema.expiresAt(incomingMeta, incoming)
+        : incomingMeta.expiresAt,
+      existingMeta.expiresAt,
+    ),
+    date: Math.max(incomingMeta.date, existingMeta.date),
+    fetchedAt: Math.max(incomingMeta.fetchedAt, existingMeta.fetchedAt),
+  };
+}
+
 function expectedSchemaType(schema: Schema) {
   return ['object', 'function'].includes(typeof schema)
     ? 'object'
@@ -232,7 +262,7 @@ export const normalize = <
       };
     };
   } = {},
-  meta: { expiresAt: number; date: number; fetchedAt?: number } = {
+  meta: { expiresAt: number; date: number; fetchedAt: number } = {
     date: Date.now(),
     expiresAt: Infinity,
     fetchedAt: 0,
