@@ -11048,6 +11048,7 @@ __metadata:
     "@rest-hooks/react": ^7.1.3
     "@rest-hooks/rest": ^6.2.7
     "@types/eslint": 8.37.0
+    "@types/lodash": 4.14.192
     "@types/parse-link-header": ^2.0.0
     "@types/prettier": 2.7.2
     "@types/react": 18.0.33
@@ -19846,7 +19847,6 @@ __metadata:
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/react-native": 12.0.1
     "@types/jest": 29.5.0
-    "@types/lodash": 4.14.192
     "@types/node": 18.15.11
     "@types/react": 18.0.33
     "@typescript-eslint/eslint-plugin": 5.58.0
