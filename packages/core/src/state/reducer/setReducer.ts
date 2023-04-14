@@ -43,7 +43,7 @@ export function setReducer(
       state.entities,
       state.indexes,
       state.entityMeta,
-      action.meta,
+      { fetchedAt: action.meta.date, ...action.meta },
     );
     let results = {
       ...state.results,

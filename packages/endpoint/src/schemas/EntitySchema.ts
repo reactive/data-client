@@ -166,6 +166,21 @@ export default function EntitySchema<TBase extends Constructor>(
       }
     }
 
+    static mergeMeta(
+      existingMeta: {
+        expiresAt: number;
+        date: number;
+        fetchedAt: number;
+      },
+      incomingMeta: { expiresAt: number; date: number; fetchedAt: number },
+      existing: any,
+      incoming: any,
+    ) {
+      return this.shouldReorder(existingMeta, incomingMeta, existing, incoming)
+        ? existingMeta
+        : incomingMeta;
+    }
+
     /** Factory method to convert from Plain JS Objects.
      *
      * @param [props] Plain Object of properties to assign.
@@ -303,13 +318,6 @@ export default function EntitySchema<TBase extends Constructor>(
       // no entity arg is back-compatibility
       if (!entities || entities[this.key]?.[id]) return id;
       return undefined;
-    }
-
-    static expiresAt(
-      meta: { expiresAt: number; date: number; fetchedAt: number },
-      input: any,
-    ): number {
-      return meta.expiresAt;
     }
 
     static denormalize<T extends typeof EntityMixin>(
@@ -556,6 +564,20 @@ export interface IEntityClass<TBase extends Constructor = any> {
     existing: any,
     incoming: any,
   ): any;
+  mergeMeta(
+    existingMeta: {
+      expiresAt: number;
+      date: number;
+      fetchedAt: number;
+    },
+    incomingMeta: { expiresAt: number; date: number; fetchedAt: number },
+    existing: any,
+    incoming: any,
+  ): {
+    expiresAt: number;
+    date: number;
+    fetchedAt: number;
+  };
   /** Factory method to convert from Plain JS Objects.
    *
    * @param [props] Plain Object of properties to assign.
@@ -594,14 +616,6 @@ export interface IEntityClass<TBase extends Constructor = any> {
   ): any;
   validate(processedEntity: any): string | undefined;
   infer(args: readonly any[], indexes: NormalizedIndex, recurse: any): any;
-  expiresAt(
-    meta: {
-      expiresAt: number;
-      date: number;
-      fetchedAt: number;
-    },
-    input: any,
-  ): number;
   denormalize<
     T extends (abstract new (...args: any[]) => IEntityInstance &
       InstanceType<TBase>) &
