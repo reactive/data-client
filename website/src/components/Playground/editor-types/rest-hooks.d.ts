@@ -110,6 +110,7 @@ interface EntityInterface<T = any> extends SchemaSimple {
     merge(existing: any, incoming: any): any;
     expiresAt?(meta: any, input: any): number;
     mergeWithStore?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
+    mergeMetaWithStore?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
     useIncoming?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): boolean;
     indexes?: any;
     schema: Record<string, Schema>;

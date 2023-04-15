@@ -27,6 +27,7 @@ interface EntityInterface<T = any> extends SchemaSimple {
     merge(existing: any, incoming: any): any;
     expiresAt?(meta: any, input: any): number;
     mergeWithStore?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
+    mergeMetaWithStore?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
     useIncoming?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): boolean;
     indexes?: any;
     schema: Record<string, Schema>;
@@ -808,7 +809,7 @@ declare class Controller$1<D extends GenericDispatch = CompatibleDispatch> {
      * Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
      * @see https://resthooks.io/docs/api/Controller#getResponse
      */
-    getResponse: <E extends Pick<EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined>, "key" | "schema" | "invalidIfStale">, Args extends readonly [null] | readonly [...Parameters<E["key"]>]>(endpoint: E, ...rest: [...Args, State<unknown>]) => {
+    getResponse: <E extends Pick<EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined>, "schema" | "key" | "invalidIfStale">, Args extends readonly [null] | readonly [...Parameters<E["key"]>]>(endpoint: E, ...rest: [...Args, State<unknown>]) => {
         data: DenormalizeNullable<E["schema"]>;
         expiryStatus: ExpiryStatus;
         expiresAt: number;

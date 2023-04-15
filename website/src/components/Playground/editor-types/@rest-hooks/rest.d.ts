@@ -56,7 +56,24 @@ declare class Invalidate<E extends EntityInterface & {
     protected _entity: E;
     constructor(entity: E);
     get key(): string;
+    /** Normalize lifecycles **/
     normalize(input: any, parent: any, key: string | undefined, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>): string | undefined;
+    merge(existing: any, incoming: any): any;
+    mergeWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
+    mergeMetaWithStore(existingMeta: {
+        expiresAt: number;
+        date: number;
+        fetchedAt: number;
+    }, incomingMeta: {
+        expiresAt: number;
+        date: number;
+        fetchedAt: number;
+    }, existing: any, incoming: any): {
+        expiresAt: number;
+        date: number;
+        fetchedAt: number;
+    };
+    /** /End Normalize lifecycles **/
     infer(args: any, indexes: any, recurse: any): any;
     denormalizeOnly(id: string, unvisit: (input: any, schema: any) => any): AbstractInstanceType<E>;
     _denormalizeNullable(): [
@@ -65,14 +82,6 @@ declare class Invalidate<E extends EntityInterface & {
         false
     ];
     _normalizeNullable(): string | undefined;
-    merge(existing: any, incoming: any): any;
-    useIncoming(existingMeta: {
-        date: number;
-        fetchedAt: number;
-    }, incomingMeta: {
-        date: number;
-        fetchedAt: number;
-    }, existing: any, incoming: any): boolean;
 }
 
 /**
@@ -162,6 +171,19 @@ interface IEntityClass<TBase extends Constructor = any> {
         date: number;
         fetchedAt: number;
     }, existing: any, incoming: any): any;
+    mergeMetaWithStore(existingMeta: {
+        expiresAt: number;
+        date: number;
+        fetchedAt: number;
+    }, incomingMeta: {
+        expiresAt: number;
+        date: number;
+        fetchedAt: number;
+    }, existing: any, incoming: any): {
+        expiresAt: number;
+        date: number;
+        fetchedAt: number;
+    };
     /** Factory method to convert from Plain JS Objects.
      *
      * @param [props] Plain Object of properties to assign.
@@ -177,11 +199,6 @@ interface IEntityClass<TBase extends Constructor = any> {
     normalize(input: any, parent: any, key: string | undefined, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>): any;
     validate(processedEntity: any): string | undefined;
     infer(args: readonly any[], indexes: NormalizedIndex, recurse: any): any;
-    expiresAt(meta: {
-        expiresAt: number;
-        date: number;
-        fetchedAt: number;
-    }, input: any): number;
     denormalize<T extends (abstract new (...args: any[]) => IEntityInstance & InstanceType<TBase>) & IEntityClass & TBase>(this: T, input: any, unvisit: UnvisitFunction): [denormalized: AbstractInstanceType<T>, found: boolean, suspend: boolean];
     denormalizeOnly<T extends (abstract new (...args: any[]) => IEntityInstance & InstanceType<TBase>) & IEntityClass & TBase>(this: T, input: any, unvisit: (input: any, schema: any) => any): AbstractInstanceType<T>;
     /** All instance defaults set */
@@ -688,6 +705,7 @@ interface EntityInterface<T = any> extends SchemaSimple {
     merge(existing: any, incoming: any): any;
     expiresAt?(meta: any, input: any): number;
     mergeWithStore?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
+    mergeMetaWithStore?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
     useIncoming?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): boolean;
     indexes?: any;
     schema: Record<string, Schema>;
@@ -964,6 +982,19 @@ declare abstract class Entity extends Entity_base {
         date: number;
         fetchedAt: number;
     }, existing: any, incoming: any): any;
+    static mergeMetaWithStore(existingMeta: {
+        expiresAt: number;
+        date: number;
+        fetchedAt: number;
+    }, incomingMeta: {
+        expiresAt: number;
+        date: number;
+        fetchedAt: number;
+    }, existing: any, incoming: any): {
+        expiresAt: number;
+        date: number;
+        fetchedAt: number;
+    };
     /** Factory method to convert from Plain JS Objects.
      *
      * @param [props] Plain Object of properties to assign.

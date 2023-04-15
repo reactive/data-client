@@ -82,7 +82,7 @@ export default class Invalidate<
     return this.merge(existing, incoming);
   }
 
-  mergeMeta(
+  mergeMetaWithStore(
     existingMeta: {
       expiresAt: number;
       date: number;

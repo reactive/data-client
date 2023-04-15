@@ -55,7 +55,7 @@ export interface EntityInterface<T = any> extends SchemaSimple {
     existing: any,
     incoming: any,
   ): any;
-  mergeMeta?(
+  mergeMetaWithStore?(
     existingMeta: any,
     incomingMeta: any,
     existing: any,

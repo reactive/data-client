@@ -166,7 +166,7 @@ export default function EntitySchema<TBase extends Constructor>(
       }
     }
 
-    static mergeMeta(
+    static mergeMetaWithStore(
       existingMeta: {
         expiresAt: number;
         date: number;
@@ -564,7 +564,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
     existing: any,
     incoming: any,
   ): any;
-  mergeMeta(
+  mergeMetaWithStore(
     existingMeta: {
       expiresAt: number;
       date: number;

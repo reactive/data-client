@@ -74,7 +74,7 @@ export default abstract class Entity extends EntitySchema(EmptyBase) {
     }
   }
 
-  static mergeMeta(
+  static mergeMetaWithStore(
     existingMeta: {
       expiresAt: number;
       date: number;
