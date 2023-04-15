@@ -94,9 +94,14 @@ const addEntities =
               inStoreEntity,
               processedEntity,
             );
-        storeEntityMeta[schemaKey][id] = schema.mergeMeta
-          ? schema.mergeMeta(inStoreMeta, meta, inStoreEntity, processedEntity)
-          : mergeMeta(
+        storeEntityMeta[schemaKey][id] = schema.mergeMetaWithStore
+          ? schema.mergeMetaWithStore(
+              inStoreMeta,
+              meta,
+              inStoreEntity,
+              processedEntity,
+            )
+          : mergeMetaWithStore(
               schema,
               inStoreMeta,
               meta,
@@ -206,8 +211,8 @@ function mergeWithStore(
 }
 
 // TODO(breaking): remove this in 1 breaking releases
-/** @deprecated use Entity.mergeStore() instead */
-function mergeMeta(
+/** @deprecated use Entity.mergeMetaWithStore() instead */
+function mergeMetaWithStore(
   schema: any,
   existingMeta: {
     date: number;
