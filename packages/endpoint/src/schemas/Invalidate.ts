@@ -11,8 +11,11 @@ import { INVALID } from '../special.js';
  * Optional (like variable sized Array and Values) will simply remove the item.
  * @see https://resthooks.io/rest/api/Invalidate
  */
-export default class Invalidate<E extends EntityInterface & { process: any }>
-  implements SchemaSimpleNew
+export default class Invalidate<
+  E extends EntityInterface & {
+    process: any;
+  },
+> implements SchemaSimpleNew
 {
   protected declare _entity: E;
 
@@ -26,6 +29,8 @@ export default class Invalidate<E extends EntityInterface & { process: any }>
   get key() {
     return this._entity.key;
   }
+
+  /** Normalize lifecycles **/
 
   normalize(
     input: any,
@@ -62,6 +67,36 @@ export default class Invalidate<E extends EntityInterface & { process: any }>
     return id;
   }
 
+  /* istanbul ignore next */
+  merge(existing: any, incoming: any) {
+    return incoming;
+  }
+
+  mergeWithStore(
+    existingMeta: any,
+    incomingMeta: any,
+    existing: any,
+    incoming: any,
+  ) {
+    // any queued updates are meaningless with delete, so we should just set it
+    return this.merge(existing, incoming);
+  }
+
+  mergeMeta(
+    existingMeta: {
+      expiresAt: number;
+      date: number;
+      fetchedAt: number;
+    },
+    incomingMeta: { expiresAt: number; date: number; fetchedAt: number },
+    existing: any,
+    incoming: any,
+  ) {
+    return incomingMeta;
+  }
+
+  /** /End Normalize lifecycles **/
+
   infer(args: any, indexes: any, recurse: any): any {
     return undefined;
   }
@@ -79,25 +114,11 @@ export default class Invalidate<E extends EntityInterface & { process: any }>
     boolean,
     false,
   ] {
-    return [] as any;
+    return {} as any;
   }
 
   /* istanbul ignore next */
   _normalizeNullable(): string | undefined {
-    return [] as any;
-  }
-
-  /* istanbul ignore next */
-  merge(existing: any, incoming: any) {
-    return incoming;
-  }
-
-  useIncoming(
-    existingMeta: { date: number; fetchedAt: number },
-    incomingMeta: { date: number; fetchedAt: number },
-    existing: any,
-    incoming: any,
-  ) {
-    return existingMeta.date <= incomingMeta.date;
+    return {} as any;
   }
 }

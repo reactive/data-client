@@ -9,7 +9,11 @@ import { SchemaClass, UnvisitFunction } from '../schema.js';
  * Marks entity as deleted.
  * @see https://resthooks.io/rest/api/Delete
  */
-export default class Delete<E extends EntityInterface & { process: any }>
+export default class Delete<
+    E extends EntityInterface & {
+      process: any;
+    },
+  >
   extends Invalidate<E>
   implements SchemaClass
 {
