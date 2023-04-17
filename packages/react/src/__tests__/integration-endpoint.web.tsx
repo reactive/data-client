@@ -738,6 +738,36 @@ describe.each([
     ).toEqual([5, 3, 1]);
   });
 
+  it('should update collection on push/unshift', async () => {
+    const getArticles = CoolerArticleResource.getList.extend({
+      schema: new schema.Collection([CoolerArticle], {
+        argsKey: (urlParams, body) => ({
+          ...urlParams,
+        }),
+      }),
+    });
+    const { result, waitForNextUpdate, controller } = renderRestHook(() => {
+      const articles = useSuspense(getArticles);
+      return articles;
+    });
+    await waitForNextUpdate();
+    expect(result.current.map(({ id }: Partial<CoolerArticle>) => id)).toEqual([
+      5, 3,
+    ]);
+    await act(async () => {
+      await controller.fetch(getArticles.push, { id: 1, title: 'hi' });
+    });
+    expect(result.current.map(({ id }: Partial<CoolerArticle>) => id)).toEqual([
+      5, 3, 1,
+    ]);
+    await act(async () => {
+      await controller.fetch(getArticles.unshift, { id: 55, title: 'hi' });
+    });
+    expect(result.current.map(({ id }: Partial<CoolerArticle>) => id)).toEqual([
+      55, 5, 3, 1,
+    ]);
+  });
+
   it('should update on get for a paginated resource', async () => {
     mynock.get(`/article-paginated`).reply(200, paginatedFirstPage);
     mynock.get(`/article-paginated?cursor=2`).reply(200, paginatedSecondPage);

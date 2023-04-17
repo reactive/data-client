@@ -9,6 +9,8 @@ export const normalize = (
   visit: any,
   addEntity: any,
   visitedEntities: any,
+  storeEntities: any,
+  args: any[],
 ) => {
   const object = { ...input };
   Object.keys(schema).forEach(key => {
@@ -20,6 +22,8 @@ export const normalize = (
       localSchema,
       addEntity,
       visitedEntities,
+      storeEntities,
+      args,
     );
     if (value === undefined || value === null) {
       delete object[key];
@@ -34,10 +38,11 @@ export const denormalize = (
   schema: any,
   // eslint-disable-next-line @typescript-eslint/ban-types
   input: {},
+  args: readonly any[],
   unvisit: any,
 ): any => {
   if (isImmutable(input)) {
-    return denormalizeImmutable(schema, input, unvisit);
+    return denormalizeImmutable(schema, input, args, unvisit);
   }
 
   const object = { ...input };

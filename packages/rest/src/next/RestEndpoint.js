@@ -1,7 +1,10 @@
 import { Endpoint } from '@rest-hooks/endpoint';
 import { pathToRegexp } from 'path-to-regexp';
 
+import extractCollection from '../extractCollection.js';
+import mapCollection from '../mapCollection.js';
 import NetworkError from '../NetworkError.js';
+import { paginatedMerge, paginatedFilter } from '../paginatedCollections.js';
 import paginationUpdate from '../paginationUpdate.js';
 import paramsToString from '../paramsToString.js';
 import { getUrlBase, getUrlTokens, isPojo } from '../RestHelpers.js';
@@ -29,7 +32,10 @@ export default class RestEndpoint extends Endpoint {
       options,
     );
     // we want to use the prototype chain here
-    if (!('sideEffect' in this)) {
+    if (
+      !('sideEffect' in this) ||
+      ('method' in options && !('sideEffect' in options))
+    ) {
       this.sideEffect =
         options.method === 'GET' || options.method === undefined
           ? undefined
@@ -203,7 +209,45 @@ Response (first 300 characters): ${text.substring(0, 300)}`;
   }
 
   paginated(removeCursor) {
+    if (typeof removeCursor === 'string') {
+      const fieldName = removeCursor;
+      removeCursor = ({ ...params }) => {
+        delete params[fieldName];
+        return [params];
+      };
+    }
+    let found = false;
+    const createPaginatedSchema = collection => {
+      found = true;
+      return collection.addWith(paginatedMerge, paginatedFilter(removeCursor));
+    };
+    const newSchema = mapCollection(this.schema, createPaginatedSchema);
+    if (found) {
+      return this.extend({ schema: newSchema });
+    }
+
     return this.extend({ update: paginationUpdate(this, removeCursor) });
+  }
+
+  get push() {
+    return this.extend({
+      method: 'POST',
+      schema: extractCollection(this.schema, s => s.push),
+    });
+  }
+
+  get unshift() {
+    return this.extend({
+      method: 'POST',
+      schema: extractCollection(this.schema, s => s.unshift),
+    });
+  }
+
+  get assign() {
+    return this.extend({
+      method: 'POST',
+      schema: extractCollection(this.schema, s => s.assign),
+    });
   }
 }
 

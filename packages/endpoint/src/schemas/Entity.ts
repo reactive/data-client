@@ -6,7 +6,7 @@ import { AbstractInstanceType } from '../normal.js';
 import { Entity as EntitySchema } from '../schema.js';
 
 const EmptyBase = class {} as any as abstract new (...args: any[]) => {
-  pk(parent?: any, key?: string): string | undefined;
+  pk(parent?: any, key?: string, args?: readonly any[]): string | undefined;
 };
 
 /**
@@ -20,7 +20,11 @@ export default abstract class Entity extends EntitySchema(EmptyBase) {
    * @param [parent] When normalizing, the object which included the entity
    * @param [key] When normalizing, the key where this entity was found
    */
-  abstract pk(parent?: any, key?: string): string | undefined;
+  abstract pk(
+    parent?: any,
+    key?: string,
+    args?: readonly any[],
+  ): string | undefined;
 
   /** Control how automatic schema validation is handled
    *
@@ -116,6 +120,7 @@ export default abstract class Entity extends EntitySchema(EmptyBase) {
     value: Partial<AbstractInstanceType<T>>,
     parent?: any,
     key?: string,
+    args?: any[],
   ) => string | undefined;
 
   /** Do any transformations when first receiving input */

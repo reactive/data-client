@@ -4,12 +4,13 @@ import { PathArgs } from './pathTypes.js';
 import {
   PartialRestGenerics,
   RestInstance,
+  RestInstanceBase,
   RestFetch,
 } from './RestEndpoint.js';
 
 export type OptionsToFunction<
   O extends PartialRestGenerics,
-  E extends RestInstance & { body?: any },
+  E extends RestInstanceBase & { body?: any },
   F extends FetchFunction,
 > = 'path' extends keyof O
   ? RestFetch<

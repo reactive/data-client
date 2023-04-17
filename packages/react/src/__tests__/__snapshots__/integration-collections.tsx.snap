@@ -1,0 +1,755 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CacheProvider RestEndpoint/current endpoint.assign should add to schema.Values Collections 1`] = `
+Article {
+  "author": null,
+  "content": "blah",
+  "id": 1,
+  "tags": [],
+  "title": "newly assigned",
+}
+`;
+
+exports[`CacheProvider RestEndpoint/current pagination should work with cursor field parameters 1`] = `
+{
+  "results": [
+    Article {
+      "author": User {
+        "email": "bob@bob.com",
+        "id": 23,
+        "isAdmin": false,
+        "username": "charles",
+      },
+      "content": "whatever",
+      "id": 5,
+      "tags": [
+        "a",
+        "best",
+        "react",
+      ],
+      "title": "hi ho",
+    },
+    Article {
+      "author": User {
+        "email": "bob@bob.com",
+        "id": 23,
+        "isAdmin": false,
+        "username": "charles",
+      },
+      "content": "whatever",
+      "id": 3,
+      "tags": [],
+      "title": "the next time",
+    },
+  ],
+}
+`;
+
+exports[`CacheProvider RestEndpoint/current should update collection on push/unshift 1`] = `
+{
+  "todos": [
+    Todo {
+      "completed": false,
+      "id": 5,
+      "title": "do things",
+      "userId": "1",
+    },
+    Todo {
+      "completed": false,
+      "id": 3,
+      "title": "ssdf",
+      "userId": "2",
+    },
+  ],
+  "user": User {
+    "email": "",
+    "id": "1",
+    "name": "",
+    "todos": [
+      Todo {
+        "completed": false,
+        "id": 5,
+        "title": "do things",
+        "userId": "1",
+      },
+    ],
+    "username": "bob",
+  },
+  "userTodos": [
+    Todo {
+      "completed": false,
+      "id": 5,
+      "title": "do things",
+      "userId": "1",
+    },
+  ],
+}
+`;
+
+exports[`CacheProvider RestEndpoint/current should update on get for a paginated resource 1`] = `
+{
+  "results": [
+    Article {
+      "author": User {
+        "email": "bob@bob.com",
+        "id": 23,
+        "isAdmin": false,
+        "username": "charles",
+      },
+      "content": "whatever",
+      "id": 5,
+      "tags": [
+        "a",
+        "best",
+        "react",
+      ],
+      "title": "hi ho",
+    },
+    Article {
+      "author": User {
+        "email": "bob@bob.com",
+        "id": 23,
+        "isAdmin": false,
+        "username": "charles",
+      },
+      "content": "whatever",
+      "id": 3,
+      "tags": [],
+      "title": "the next time",
+    },
+  ],
+}
+`;
+
+exports[`CacheProvider RestEndpoint/current should update on get for a paginated resource with searchParams 1`] = `
+{
+  "results": [
+    Article {
+      "author": User {
+        "email": "bob@bob.com",
+        "id": 23,
+        "isAdmin": false,
+        "username": "charles",
+      },
+      "content": "whatever",
+      "id": 5,
+      "tags": [
+        "a",
+        "best",
+        "react",
+      ],
+      "title": "hi ho",
+    },
+    Article {
+      "author": User {
+        "email": "bob@bob.com",
+        "id": 23,
+        "isAdmin": false,
+        "username": "charles",
+      },
+      "content": "whatever",
+      "id": 3,
+      "tags": [],
+      "title": "the next time",
+    },
+  ],
+}
+`;
+
+exports[`CacheProvider RestEndpoint/next endpoint.assign should add to schema.Values Collections 1`] = `
+Article {
+  "author": null,
+  "content": "blah",
+  "id": 1,
+  "tags": [],
+  "title": "newly assigned",
+}
+`;
+
+exports[`CacheProvider RestEndpoint/next pagination should work with cursor field parameters 1`] = `
+{
+  "results": [
+    Article {
+      "author": User {
+        "email": "bob@bob.com",
+        "id": 23,
+        "isAdmin": false,
+        "username": "charles",
+      },
+      "content": "whatever",
+      "id": 5,
+      "tags": [
+        "a",
+        "best",
+        "react",
+      ],
+      "title": "hi ho",
+    },
+    Article {
+      "author": User {
+        "email": "bob@bob.com",
+        "id": 23,
+        "isAdmin": false,
+        "username": "charles",
+      },
+      "content": "whatever",
+      "id": 3,
+      "tags": [],
+      "title": "the next time",
+    },
+  ],
+}
+`;
+
+exports[`CacheProvider RestEndpoint/next should update collection on push/unshift 1`] = `
+{
+  "todos": [
+    Todo {
+      "completed": false,
+      "id": 5,
+      "title": "do things",
+      "userId": "1",
+    },
+    Todo {
+      "completed": false,
+      "id": 3,
+      "title": "ssdf",
+      "userId": "2",
+    },
+  ],
+  "user": User {
+    "email": "",
+    "id": "1",
+    "name": "",
+    "todos": [
+      Todo {
+        "completed": false,
+        "id": 5,
+        "title": "do things",
+        "userId": "1",
+      },
+    ],
+    "username": "bob",
+  },
+  "userTodos": [
+    Todo {
+      "completed": false,
+      "id": 5,
+      "title": "do things",
+      "userId": "1",
+    },
+  ],
+}
+`;
+
+exports[`CacheProvider RestEndpoint/next should update on get for a paginated resource 1`] = `
+{
+  "results": [
+    Article {
+      "author": User {
+        "email": "bob@bob.com",
+        "id": 23,
+        "isAdmin": false,
+        "username": "charles",
+      },
+      "content": "whatever",
+      "id": 5,
+      "tags": [
+        "a",
+        "best",
+        "react",
+      ],
+      "title": "hi ho",
+    },
+    Article {
+      "author": User {
+        "email": "bob@bob.com",
+        "id": 23,
+        "isAdmin": false,
+        "username": "charles",
+      },
+      "content": "whatever",
+      "id": 3,
+      "tags": [],
+      "title": "the next time",
+    },
+  ],
+}
+`;
+
+exports[`CacheProvider RestEndpoint/next should update on get for a paginated resource with searchParams 1`] = `
+{
+  "results": [
+    Article {
+      "author": User {
+        "email": "bob@bob.com",
+        "id": 23,
+        "isAdmin": false,
+        "username": "charles",
+      },
+      "content": "whatever",
+      "id": 5,
+      "tags": [
+        "a",
+        "best",
+        "react",
+      ],
+      "title": "hi ho",
+    },
+    Article {
+      "author": User {
+        "email": "bob@bob.com",
+        "id": 23,
+        "isAdmin": false,
+        "username": "charles",
+      },
+      "content": "whatever",
+      "id": 3,
+      "tags": [],
+      "title": "the next time",
+    },
+  ],
+}
+`;
+
+exports[`CacheProvider should work with unions 1`] = `
+[
+  [
+    "Schema attribute "another" is not expected.
+Expected one of: "first", "second"
+
+Value: {
+  "id": "6",
+  "body": "hi",
+  "type": "another"
+}",
+  ],
+  [
+    "Schema attribute undefined is not expected.
+Expected one of: "first", "second"
+
+Value: {
+  "id": "7",
+  "body": "hi"
+}",
+  ],
+  [
+    "TypeError: Unable to infer schema for ArraySchema
+Value: {
+  "id": "6",
+  "body": "hi",
+  "type": "another"
+}.",
+  ],
+  [
+    "TypeError: Unable to infer schema for ArraySchema
+Value: {
+  "id": "7",
+  "body": "hi"
+}.",
+  ],
+]
+`;
+
+exports[`CacheProvider should work with unions 2`] = `
+[
+  FirstUnion {
+    "body": "hi",
+    "firstOnlyField": 5,
+    "id": "5",
+    "type": "first",
+  },
+  {
+    "body": "hi",
+    "id": "6",
+    "type": "another",
+  },
+  {
+    "body": "hi",
+    "id": "7",
+  },
+  SecondUnion {
+    "body": "hi",
+    "id": 100,
+    "secondeOnlyField": 10,
+    "type": "second",
+  },
+]
+`;
+
+exports[`ExternalCacheProvider RestEndpoint/current endpoint.assign should add to schema.Values Collections 1`] = `
+Article {
+  "author": null,
+  "content": "blah",
+  "id": 1,
+  "tags": [],
+  "title": "newly assigned",
+}
+`;
+
+exports[`ExternalCacheProvider RestEndpoint/current pagination should work with cursor field parameters 1`] = `
+{
+  "results": [
+    Article {
+      "author": User {
+        "email": "bob@bob.com",
+        "id": 23,
+        "isAdmin": false,
+        "username": "charles",
+      },
+      "content": "whatever",
+      "id": 5,
+      "tags": [
+        "a",
+        "best",
+        "react",
+      ],
+      "title": "hi ho",
+    },
+    Article {
+      "author": User {
+        "email": "bob@bob.com",
+        "id": 23,
+        "isAdmin": false,
+        "username": "charles",
+      },
+      "content": "whatever",
+      "id": 3,
+      "tags": [],
+      "title": "the next time",
+    },
+  ],
+}
+`;
+
+exports[`ExternalCacheProvider RestEndpoint/current should update collection on push/unshift 1`] = `
+{
+  "todos": [
+    Todo {
+      "completed": false,
+      "id": 5,
+      "title": "do things",
+      "userId": "1",
+    },
+    Todo {
+      "completed": false,
+      "id": 3,
+      "title": "ssdf",
+      "userId": "2",
+    },
+  ],
+  "user": User {
+    "email": "",
+    "id": "1",
+    "name": "",
+    "todos": [
+      Todo {
+        "completed": false,
+        "id": 5,
+        "title": "do things",
+        "userId": "1",
+      },
+    ],
+    "username": "bob",
+  },
+  "userTodos": [
+    Todo {
+      "completed": false,
+      "id": 5,
+      "title": "do things",
+      "userId": "1",
+    },
+  ],
+}
+`;
+
+exports[`ExternalCacheProvider RestEndpoint/current should update on get for a paginated resource 1`] = `
+{
+  "results": [
+    Article {
+      "author": User {
+        "email": "bob@bob.com",
+        "id": 23,
+        "isAdmin": false,
+        "username": "charles",
+      },
+      "content": "whatever",
+      "id": 5,
+      "tags": [
+        "a",
+        "best",
+        "react",
+      ],
+      "title": "hi ho",
+    },
+    Article {
+      "author": User {
+        "email": "bob@bob.com",
+        "id": 23,
+        "isAdmin": false,
+        "username": "charles",
+      },
+      "content": "whatever",
+      "id": 3,
+      "tags": [],
+      "title": "the next time",
+    },
+  ],
+}
+`;
+
+exports[`ExternalCacheProvider RestEndpoint/current should update on get for a paginated resource with searchParams 1`] = `
+{
+  "results": [
+    Article {
+      "author": User {
+        "email": "bob@bob.com",
+        "id": 23,
+        "isAdmin": false,
+        "username": "charles",
+      },
+      "content": "whatever",
+      "id": 5,
+      "tags": [
+        "a",
+        "best",
+        "react",
+      ],
+      "title": "hi ho",
+    },
+    Article {
+      "author": User {
+        "email": "bob@bob.com",
+        "id": 23,
+        "isAdmin": false,
+        "username": "charles",
+      },
+      "content": "whatever",
+      "id": 3,
+      "tags": [],
+      "title": "the next time",
+    },
+  ],
+}
+`;
+
+exports[`ExternalCacheProvider RestEndpoint/next endpoint.assign should add to schema.Values Collections 1`] = `
+Article {
+  "author": null,
+  "content": "blah",
+  "id": 1,
+  "tags": [],
+  "title": "newly assigned",
+}
+`;
+
+exports[`ExternalCacheProvider RestEndpoint/next pagination should work with cursor field parameters 1`] = `
+{
+  "results": [
+    Article {
+      "author": User {
+        "email": "bob@bob.com",
+        "id": 23,
+        "isAdmin": false,
+        "username": "charles",
+      },
+      "content": "whatever",
+      "id": 5,
+      "tags": [
+        "a",
+        "best",
+        "react",
+      ],
+      "title": "hi ho",
+    },
+    Article {
+      "author": User {
+        "email": "bob@bob.com",
+        "id": 23,
+        "isAdmin": false,
+        "username": "charles",
+      },
+      "content": "whatever",
+      "id": 3,
+      "tags": [],
+      "title": "the next time",
+    },
+  ],
+}
+`;
+
+exports[`ExternalCacheProvider RestEndpoint/next should update collection on push/unshift 1`] = `
+{
+  "todos": [
+    Todo {
+      "completed": false,
+      "id": 5,
+      "title": "do things",
+      "userId": "1",
+    },
+    Todo {
+      "completed": false,
+      "id": 3,
+      "title": "ssdf",
+      "userId": "2",
+    },
+  ],
+  "user": User {
+    "email": "",
+    "id": "1",
+    "name": "",
+    "todos": [
+      Todo {
+        "completed": false,
+        "id": 5,
+        "title": "do things",
+        "userId": "1",
+      },
+    ],
+    "username": "bob",
+  },
+  "userTodos": [
+    Todo {
+      "completed": false,
+      "id": 5,
+      "title": "do things",
+      "userId": "1",
+    },
+  ],
+}
+`;
+
+exports[`ExternalCacheProvider RestEndpoint/next should update on get for a paginated resource 1`] = `
+{
+  "results": [
+    Article {
+      "author": User {
+        "email": "bob@bob.com",
+        "id": 23,
+        "isAdmin": false,
+        "username": "charles",
+      },
+      "content": "whatever",
+      "id": 5,
+      "tags": [
+        "a",
+        "best",
+        "react",
+      ],
+      "title": "hi ho",
+    },
+    Article {
+      "author": User {
+        "email": "bob@bob.com",
+        "id": 23,
+        "isAdmin": false,
+        "username": "charles",
+      },
+      "content": "whatever",
+      "id": 3,
+      "tags": [],
+      "title": "the next time",
+    },
+  ],
+}
+`;
+
+exports[`ExternalCacheProvider RestEndpoint/next should update on get for a paginated resource with searchParams 1`] = `
+{
+  "results": [
+    Article {
+      "author": User {
+        "email": "bob@bob.com",
+        "id": 23,
+        "isAdmin": false,
+        "username": "charles",
+      },
+      "content": "whatever",
+      "id": 5,
+      "tags": [
+        "a",
+        "best",
+        "react",
+      ],
+      "title": "hi ho",
+    },
+    Article {
+      "author": User {
+        "email": "bob@bob.com",
+        "id": 23,
+        "isAdmin": false,
+        "username": "charles",
+      },
+      "content": "whatever",
+      "id": 3,
+      "tags": [],
+      "title": "the next time",
+    },
+  ],
+}
+`;
+
+exports[`ExternalCacheProvider should work with unions 1`] = `
+[
+  [
+    "Schema attribute "another" is not expected.
+Expected one of: "first", "second"
+
+Value: {
+  "id": "6",
+  "body": "hi",
+  "type": "another"
+}",
+  ],
+  [
+    "Schema attribute undefined is not expected.
+Expected one of: "first", "second"
+
+Value: {
+  "id": "7",
+  "body": "hi"
+}",
+  ],
+  [
+    "TypeError: Unable to infer schema for ArraySchema
+Value: {
+  "id": "6",
+  "body": "hi",
+  "type": "another"
+}.",
+  ],
+  [
+    "TypeError: Unable to infer schema for ArraySchema
+Value: {
+  "id": "7",
+  "body": "hi"
+}.",
+  ],
+]
+`;
+
+exports[`ExternalCacheProvider should work with unions 2`] = `
+[
+  FirstUnion {
+    "body": "hi",
+    "firstOnlyField": 5,
+    "id": "5",
+    "type": "first",
+  },
+  {
+    "body": "hi",
+    "id": "6",
+    "type": "another",
+  },
+  {
+    "body": "hi",
+    "id": "7",
+  },
+  SecondUnion {
+    "body": "hi",
+    "id": 100,
+    "secondeOnlyField": 10,
+    "type": "second",
+  },
+]
+`;

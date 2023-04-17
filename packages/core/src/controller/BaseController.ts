@@ -401,6 +401,7 @@ export default class Controller<
       state.entities,
       this.globalCache.entities,
       this.globalCache.results[key],
+      args,
     ) as { data: DenormalizeNullable<E['schema']>; paths: Path[] };
     const invalidDenormalize = typeof data === 'symbol';
 

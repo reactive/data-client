@@ -1,79 +1,146 @@
-import PolymorphicSchema from './Polymorphic.js';
-import { filterEmpty, getValues } from './utils.js';
+import {
+  Entity as EntitySchema,
+  Values,
+  Array as ArraySchema,
+} from '../schema.js';
+
+const pushMerge = (existing: any, incoming: any) => {
+  return [...existing, ...incoming];
+};
+const unshiftMerge = (existing: any, incoming: any) => {
+  return [...incoming, ...existing];
+};
+const valuesMerge = (existing: any, incoming: any) => {
+  return { ...existing, ...incoming };
+};
+const createArray = (value: any) => [...value];
+const createValue = (value: any) => ({ ...value });
 
 /**
  * Entities but for Arrays instead of classes
  * @see https://resthooks.io/rest/api/Collection
  */
-export default class CollectionSchema extends PolymorphicSchema {
-  declare instanceKey: (parent: any, key: string) => string;
-  constructor(
-    definition: any,
-    instanceKey: (parent: any, key: string) => string,
-    schemaAttribute?: string | ((...args: any) => any),
-  ) {
-    super(definition, schemaAttribute);
-    this.instanceKey = instanceKey;
+export default class CollectionSchema<
+  S extends ArraySchema<any> | Values<any> = any,
+  Parent extends any[] = [
+    urlParams: Record<string, any>,
+    body?: Record<string, any>,
+  ],
+> {
+  protected declare nestKey: (parent: any, key: string) => Record<string, any>;
+
+  protected declare argsKey: (...args: any) => Record<string, any>;
+
+  protected declare createCollectionFilter: (
+    ...args: Parent
+  ) => (collectionKey: Record<string, any>) => boolean;
+
+  declare readonly schema: S;
+
+  declare push: S extends ArraySchema<any>
+    ? CollectionSchema<S, Parent>
+    : undefined;
+
+  declare unshift: S extends ArraySchema<any>
+    ? CollectionSchema<S, Parent>
+    : undefined;
+
+  declare assign: S extends Values<any>
+    ? CollectionSchema<S, Parent>
+    : undefined;
+
+  addWith<P extends any[] = Parent>(
+    merge: (existing: any, incoming: any) => any,
+    createCollectionFilter?: (
+      ...args: P
+    ) => (collectionKey: Record<string, any>) => boolean,
+  ): CollectionSchema<S, P> {
+    return CreateAdder(this, merge, createCollectionFilter);
   }
+
+  constructor(schema: S, options: CollectionOptions) {
+    this.schema = Array.isArray(schema)
+      ? (new ArraySchema(schema[0]) as any)
+      : schema;
+    if ('nestKey' in options) {
+      this.nestKey = options.nestKey;
+    } else {
+      if (process.env.NODE_ENV !== 'production') {
+        if (!('argsKey' in options))
+          throw new Error('argsKey or nestKey needed');
+      }
+      this.argsKey = options.argsKey;
+    }
+    this.createCollectionFilter =
+      options.createCollectionFilter ?? (defaultFilter as any);
+
+    // >>>>>>>>>>>>>>CREATION<<<<<<<<<<<<<<
+    if (this.schema instanceof ArraySchema) {
+      this.createIfValid = createArray;
+      this.push = CreateAdder(this, pushMerge);
+      this.unshift = CreateAdder(this, unshiftMerge);
+    } else if (schema instanceof Values) {
+      this.createIfValid = createValue;
+      this.assign = CreateAdder(this, valuesMerge);
+    }
+  }
+
+  toJSON() {
+    return {
+      name: `Collection(${this.schema.schema.name})`,
+      schema: this.schema.schema,
+      key: this.key,
+    };
+  }
+
+  get key() {
+    // this assumes the definition of Array/Values is Entity
+    return `COLLECT:${this.schema.constructor.name}(${
+      (this.schema.schema as any).key
+    })`;
+  }
+
+  pk(value: any, parent: any, key: string, args: readonly any[]) {
+    return JSON.stringify(
+      this.argsKey ? this.argsKey(...args) : this.nestKey(parent, key),
+    );
+  }
+
+  // >>>>>>>>>>>>>>NORMALIZE<<<<<<<<<<<<<<
 
   normalize(
     input: any,
     parent: any,
-    key: any,
-    visit: any,
-    addEntity: any,
-    visitedEntities: any,
-  ): any {
-    const values = getValues(input);
+    key: string,
+    visit: (...args: any) => any,
+    addEntity: (...args: any) => any,
+    visitedEntities: Record<string, any>,
+    storeEntities: any,
+    args: any[],
+  ): string {
+    if (process.env.NODE_ENV !== 'production') {
+      if (args === undefined) {
+        throw new Error('Collections only work with @rest-hooks/react>=7.4');
+      }
+    }
+    const pkList = this.schema.normalize(
+      input,
+      parent,
+      key,
+      visit,
+      addEntity,
+      visitedEntities,
+      storeEntities,
+      args,
+    );
+    const id = this.pk(pkList, parent, key, args);
 
-    return values
-      .map((value, index) =>
-        this.normalizeValue(
-          value,
-          parent,
-          key,
-          visit,
-          addEntity,
-          visitedEntities,
-        ),
-      )
-      .filter(value => value !== undefined && value !== null);
+    addEntity(this, pkList, id);
+    return id;
   }
 
-  denormalize(
-    input: any[],
-    unvisit: any,
-  ): [denormalized: any, found: boolean, deleted: boolean] {
-    input.forEach((entityOrId, i) => {
-      const value = this.denormalizeValue(entityOrId, unvisit);
-      if (!value[2]) input[i] = value[0];
-    });
-    return [input, true, false];
-  }
-
-  infer(
-    args: unknown,
-    indexes: unknown,
-    recurse: unknown,
-    entities: unknown,
-  ): any {
-    return undefined;
-  }
-
-  toJSON() {
-    return [this.schema];
-  }
-
-  get key() {
-    return `LIST:${this.schema.key}`;
-  }
-
-  pk(value: any, parent: any, key: string) {
-    return JSON.stringify(this.instanceKey(parent, key));
-  }
-
-  createIfValid(value: any): any | undefined {
-    return value ? [...value] : undefined;
+  merge(existing: any, incoming: any) {
+    return incoming;
   }
 
   shouldReorder(
@@ -99,7 +166,140 @@ export default class CollectionSchema extends PolymorphicSchema {
       : this.merge(existing, incoming);
   }
 
-  merge(existing: any, incoming: any) {
-    return incoming;
+  mergeMetaWithStore(
+    existingMeta: {
+      expiresAt: number;
+      date: number;
+      fetchedAt: number;
+    },
+    incomingMeta: { expiresAt: number; date: number; fetchedAt: number },
+    existing: any,
+    incoming: any,
+  ) {
+    return this.shouldReorder(existingMeta, incomingMeta, existing, incoming)
+      ? existingMeta
+      : incomingMeta;
   }
+
+  // >>>>>>>>>>>>>>DENORMALIZE<<<<<<<<<<<<<<
+
+  infer(
+    args: unknown,
+    indexes: unknown,
+    recurse: unknown,
+    entities: unknown,
+  ): any {
+    return undefined;
+  }
+
+  declare createIfValid: (value: any) => any | undefined;
+
+  denormalizeOnly(
+    input: any,
+    args: readonly any[],
+    unvisit: (input: any, schema: any) => any,
+  ): ReturnType<S['denormalizeOnly']> {
+    return this.schema.denormalizeOnly(input, args, unvisit) as any;
+  }
+}
+
+export type CollectionOptions<
+  Parent extends any[] = [
+    urlParams: Record<string, any>,
+    body?: Record<string, any>,
+  ],
+> =
+  | {
+      nestKey: (parent: any, key: string) => Record<string, any>;
+      createCollectionFilter?: (
+        ...args: Parent
+      ) => (collectionKey: Record<string, any>) => boolean;
+    }
+  | {
+      argsKey: (...args: any) => Record<string, any>;
+      createCollectionFilter?: (
+        ...args: Parent
+      ) => (collectionKey: Record<string, any>) => boolean;
+    };
+
+// this adds to any list *in store* that has same members as the urlParams
+// so fetch(create, { userId: 'bob', completed: true }, data)
+// would possibly add to {}, {userId: 'bob'}, {completed: true}, {userId: 'bob', completed: true } - but only those already in the store
+// it ignores keys that start with sort as those are presumed to not filter results
+const defaultFilter =
+  (urlParams: Record<string, any>, body?: Record<string, any>) =>
+  (collectionKey: Record<string, any>) =>
+    Object.entries(collectionKey).every(
+      ([key, value]) =>
+        key.startsWith('order') ||
+        urlParams[key] === value ||
+        body?.[key] === value,
+    );
+
+function CreateAdder<C extends CollectionSchema<any, any>, P extends any[]>(
+  collection: C,
+  merge: (existing: any, incoming: any) => any[],
+  createCollectionFilter?: (
+    ...args: P
+  ) => (collectionKey: Record<string, any>) => boolean,
+) {
+  const properties: PropertyDescriptorMap = {
+    merge: { value: merge },
+    normalize: { value: normalizeCreate },
+  };
+  if (collection.schema instanceof ArraySchema) {
+    properties.createIfValid = { value: createIfValid };
+    properties.denormalizeOnly = { value: denormalizeOnly };
+  }
+  if (createCollectionFilter) {
+    properties.createCollectionFilter = { value: createCollectionFilter };
+  }
+  return Object.create(collection, properties);
+}
+
+function normalizeCreate(
+  this: CollectionSchema<any, any>,
+  input: any,
+  parent: any,
+  key: string,
+  visit: (...args: any) => any,
+  addEntity: (...args: any) => any,
+  visitedEntities: Record<string, any>,
+  storeEntities: Record<string, any>,
+  args: readonly any[],
+): any {
+  const pkList = this.schema.normalize(
+    !(this.schema instanceof ArraySchema) || Array.isArray(input)
+      ? input
+      : [input],
+    parent,
+    key,
+    visit,
+    addEntity,
+    visitedEntities,
+    storeEntities,
+    args,
+  );
+  // parent is args when not nested
+  const filterCollections = (this.createCollectionFilter as any)(...args);
+  Object.keys(storeEntities[this.key]).forEach(collectionPk => {
+    if (!filterCollections(JSON.parse(collectionPk))) return;
+    addEntity(this, pkList, collectionPk);
+  });
+  return pkList as any;
+}
+
+function createIfValid(value: object): any | undefined {
+  return Array.isArray(value) ? [...value] : { ...value };
+}
+
+function denormalizeOnly(
+  this: CollectionSchema<any, any>,
+  input: any,
+  args: readonly any[],
+  unvisit: (input: any, schema: any) => any,
+): any {
+  return Array.isArray(input)
+    ? (this.schema.denormalizeOnly(input, args, unvisit) as any)
+    : this.schema.schema.denormalizeOnly(input, args, unvisit);
 }

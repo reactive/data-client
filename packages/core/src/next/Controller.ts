@@ -30,7 +30,7 @@ export default class Controller<
 
     if (endpoint.schema) {
       return action.meta.promise.then(input =>
-        denormalize(input, endpoint.schema, {}),
+        denormalize(input, endpoint.schema, {}, args),
       ) as any;
     }
     return action.meta.promise as any;

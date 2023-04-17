@@ -23,7 +23,13 @@ export default class PolymorphicSchema {
   }
 
   define(definition: any) {
-    this.schema = definition;
+    // sending Union into another Polymorphic gets hoisted
+    if ('_schemaAttribute' in definition && !this._schemaAttribute) {
+      this.schema = definition.schema;
+      this._schemaAttribute = definition._schemaAttribute;
+    } else {
+      this.schema = definition;
+    }
   }
 
   getSchemaAttribute(input: any, parent: any, key: any) {
@@ -46,7 +52,10 @@ export default class PolymorphicSchema {
     visit: any,
     addEntity: any,
     visitedEntities: any,
+    storeEntities: any,
+    args?: any[],
   ) {
+    if (!value) return value;
     const schema = this.inferSchema(value, parent, key);
     if (!schema) {
       /* istanbul ignore else */
@@ -74,6 +83,8 @@ Value: ${JSON.stringify(value, undefined, 2)}`,
       schema,
       addEntity,
       visitedEntities,
+      storeEntities,
+      args,
     );
     return this.isSingleSchema ||
       normalizedValue === undefined ||

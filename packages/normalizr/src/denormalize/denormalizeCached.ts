@@ -16,6 +16,7 @@ export const denormalize = <S extends Schema>(
   entities: any,
   entityCache: DenormalizeCache['entities'] = {},
   resultCache: DenormalizeCache['results'][string] = new WeakEntityMap(),
+  args: readonly any[] = [],
 ): {
   data: DenormalizeNullable<S> | symbol;
   paths: Path[];
@@ -32,5 +33,6 @@ export const denormalize = <S extends Schema>(
   return getUnvisit(
     getEntity,
     new GlobalCache(getEntity, entityCache, resultCache),
+    args,
   )(input, schema);
 };

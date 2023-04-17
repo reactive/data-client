@@ -18,6 +18,7 @@ import type {
   NormalizedNullableObject,
   EntityMap,
 } from './normal.js';
+import { CollectionOptions } from './schemas/Collection.js';
 import { default as Delete } from './schemas/Delete.js';
 import {
   EntityOptions,
@@ -56,6 +57,8 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
+    storeEntities: any,
+    args?: any[],
   ): (S extends EntityMap ? UnionResult<S> : Normalize<S>)[];
 
   _normalizeNullable():
@@ -80,6 +83,7 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
 
   denormalizeOnly(
     input: {},
+    args: readonly any[],
     unvisit: (input: any, schema: any) => any,
   ): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
 
@@ -116,6 +120,8 @@ export class All<
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
+    storeEntities: any,
+    args?: any[],
   ): (S extends EntityMap ? UnionResult<S> : Normalize<S>)[];
 
   _normalizeNullable():
@@ -140,6 +146,7 @@ export class All<
 
   denormalizeOnly(
     input: {},
+    args: readonly any[],
     unvisit: (input: any, schema: any) => any,
   ): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
 
@@ -168,6 +175,8 @@ export class Object<O extends Record<string, any> = Record<string, Schema>>
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
+    storeEntities: any,
+    args?: any[],
   ): NormalizeObject<O>;
 
   _normalizeNullable(): NormalizedNullableObject<O>;
@@ -182,6 +191,7 @@ export class Object<O extends Record<string, any> = Record<string, Schema>>
 
   denormalizeOnly(
     input: {},
+    args: readonly any[],
     unvisit: (input: any, schema: any) => any,
   ): DenormalizeObject<O>;
 
@@ -215,6 +225,8 @@ export class Union<Choices extends EntityMap = any> implements SchemaClass {
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
+    storeEntities: any,
+    args?: any[],
   ): UnionResult<Choices>;
 
   _normalizeNullable(): UnionResult<Choices> | undefined;
@@ -237,6 +249,7 @@ export class Union<Choices extends EntityMap = any> implements SchemaClass {
 
   denormalizeOnly(
     input: {},
+    args: readonly any[],
     unvisit: (input: any, schema: any) => any,
   ): AbstractInstanceType<Choices[keyof Choices]>;
 
@@ -277,6 +290,8 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
+    storeEntities: any,
+    args?: any[],
   ): Record<
     string,
     Choices extends EntityMap ? UnionResult<Choices> : Normalize<Choices>
@@ -317,6 +332,7 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
 
   denormalizeOnly(
     input: {},
+    args: readonly any[],
     unvisit: (input: any, schema: any) => any,
   ): Record<
     string,
@@ -329,6 +345,138 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
     recurse: (...args: any) => any,
   ): any;
 }
+
+/**
+ * Entities but for Arrays instead of classes
+ * @see https://resthooks.io/rest/api/Collection
+ */
+export class CollectionSchema<
+  S extends Array<any> | Values<any> = any,
+  Parent extends any[] = any,
+> {
+  addWith<P extends any[] = Parent>(
+    merge: (existing: any, incoming: any) => any,
+    createCollectionFilter?: (
+      ...args: P
+    ) => (collectionKey: Record<string, any>) => boolean,
+  ): CollectionSchema<S, P>;
+
+  readonly schema: S;
+  key: string;
+  pk(value: any, parent: any, key: string, args: any[]): string;
+  normalize(
+    input: any,
+    parent: Parent,
+    key: string,
+    visit: (...args: any) => any,
+    addEntity: (...args: any) => any,
+    visitedEntities: Record<string, any>,
+    storeEntities: any,
+    args: any[],
+  ): string;
+
+  merge(existing: any, incoming: any): any;
+  shouldReorder(
+    existingMeta: {
+      date: number;
+      fetchedAt: number;
+    },
+    incomingMeta: {
+      date: number;
+      fetchedAt: number;
+    },
+    existing: any,
+    incoming: any,
+  ): boolean;
+
+  mergeWithStore(
+    existingMeta: {
+      date: number;
+      fetchedAt: number;
+    },
+    incomingMeta: {
+      date: number;
+      fetchedAt: number;
+    },
+    existing: any,
+    incoming: any,
+  ): any;
+
+  mergeMetaWithStore(
+    existingMeta: {
+      expiresAt: number;
+      date: number;
+      fetchedAt: number;
+    },
+    incomingMeta: {
+      expiresAt: number;
+      date: number;
+      fetchedAt: number;
+    },
+    existing: any,
+    incoming: any,
+  ): {
+    expiresAt: number;
+    date: number;
+    fetchedAt: number;
+  };
+
+  infer(
+    args: unknown,
+    indexes: unknown,
+    recurse: unknown,
+    entities: unknown,
+  ): any;
+
+  createIfValid: (value: any) => any | undefined;
+  denormalizeOnly(
+    input: any,
+    args: readonly any[],
+    unvisit: (input: any, schema: any) => any,
+  ): ReturnType<S['denormalizeOnly']>;
+
+  _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;
+  _normalizeNullable(): ReturnType<S['_normalizeNullable']>;
+}
+export type CollectionType<
+  S extends any[] | Array<any> | Values<any> = any,
+  Parent extends any[] = [
+    urlParams: Record<string, any>,
+    body?: Record<string, any>,
+  ],
+> = CollectionSchema<S extends any[] ? Array<S[number]> : S> &
+  (S extends any[]
+    ? {
+        push: CollectionSchema<Array<S[number]>, Parent>;
+        unshift: CollectionSchema<Array<S[number]>, Parent>;
+      }
+    : S extends Values<any>
+    ? { assign: CollectionSchema<S, Parent> }
+    : S extends Array<any>
+    ? {
+        push: CollectionSchema<S, Parent>;
+        unshift: CollectionSchema<S, Parent>;
+      }
+    : never);
+
+export interface CollectionConstructor {
+  new <
+    S extends SchemaSimple[] | Array<any> | Values<any> = any,
+    Parent extends any[] = [
+      urlParams: Record<string, any>,
+      body?: Record<string, any>,
+    ],
+  >(
+    schema: S,
+    options: CollectionOptions,
+  ): CollectionType<S, Parent>;
+  readonly prototype: CollectionSchema;
+}
+/**
+ * Entities but for Arrays instead of classes
+ * @see https://resthooks.io/rest/api/Collection
+ */
+export declare let Collection: CollectionConstructor;
 
 export type StrategyFunction<T> = (value: any, parent: any, key: string) => T;
 export type SchemaFunction<K = string> = (
@@ -363,8 +511,14 @@ export interface SchemaSimpleNew<T = any> {
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
+    storeEntities: any,
+    args?: any[],
   ): any;
-  denormalizeOnly(input: {}, unvisit: (input: any, schema: any) => any): T;
+  denormalizeOnly(
+    input: {},
+    args: readonly any[],
+    unvisit: (input: any, schema: any) => any,
+  ): T;
   infer(
     args: readonly any[],
     indexes: NormalizedIndex,

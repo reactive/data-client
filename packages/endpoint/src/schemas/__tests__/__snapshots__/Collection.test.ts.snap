@@ -1,0 +1,247 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CollectionSchema denormalization denormalizes nested collections 1`] = `
+User {
+  "email": "",
+  "id": "1",
+  "name": "",
+  "todos": [
+    Todo {
+      "completed": false,
+      "id": "5",
+      "title": "finish collections",
+      "userId": 0,
+    },
+  ],
+  "username": "bob",
+}
+`;
+
+exports[`CollectionSchema denormalization denormalizes top level collections 1`] = `
+[
+  Todo {
+    "completed": false,
+    "id": "5",
+    "title": "finish collections",
+    "userId": 0,
+  },
+]
+`;
+
+exports[`CollectionSchema normalization normalizes already processed entities 1`] = `
+{
+  "entities": {
+    "COLLECT:ArraySchema(Todo)": {
+      "{"userId":"1"}": [
+        "5",
+        "6",
+      ],
+    },
+    "User": {
+      "1": {
+        "id": "1",
+        "todos": "{"userId":"1"}",
+        "username": "bob",
+      },
+    },
+  },
+  "entityMeta": {
+    "COLLECT:ArraySchema(Todo)": {
+      "{"userId":"1"}": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+    "User": {
+      "1": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": "1",
+}
+`;
+
+exports[`CollectionSchema normalization normalizes nested collections 1`] = `
+{
+  "entities": {
+    "COLLECT:ArraySchema(Todo)": {
+      "{"userId":"1"}": [
+        "5",
+      ],
+    },
+    "Todo": {
+      "5": {
+        "id": "5",
+        "title": "finish collections",
+      },
+    },
+    "User": {
+      "1": {
+        "id": "1",
+        "todos": "{"userId":"1"}",
+        "username": "bob",
+      },
+    },
+  },
+  "entityMeta": {
+    "COLLECT:ArraySchema(Todo)": {
+      "{"userId":"1"}": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+    "Todo": {
+      "5": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+    "User": {
+      "1": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": "1",
+}
+`;
+
+exports[`CollectionSchema normalization normalizes push onto the end 1`] = `
+{
+  "entities": {
+    "COLLECT:ArraySchema(Todo)": {
+      "{"userId":"1"}": [
+        "5",
+        "10",
+      ],
+    },
+    "Todo": {
+      "10": {
+        "id": "10",
+        "title": "create new items",
+      },
+      "5": {
+        "id": "5",
+        "title": "finish collections",
+      },
+    },
+    "User": {
+      "1": {
+        "id": "1",
+        "todos": "{"userId":"1"}",
+        "username": "bob",
+      },
+    },
+  },
+  "entityMeta": {
+    "COLLECT:ArraySchema(Todo)": {
+      "{"userId":"1"}": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+    "Todo": {
+      "10": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+      "5": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+    "User": {
+      "1": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": [
+    "10",
+  ],
+}
+`;
+
+exports[`CollectionSchema normalization normalizes top level collections 1`] = `
+{
+  "entities": {
+    "COLLECT:ArraySchema(Todo)": {
+      "{"userId":"1"}": [
+        "5",
+      ],
+    },
+    "Todo": {
+      "5": {
+        "id": "5",
+        "title": "finish collections",
+      },
+    },
+  },
+  "entityMeta": {
+    "COLLECT:ArraySchema(Todo)": {
+      "{"userId":"1"}": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+    "Todo": {
+      "5": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": "{"userId":"1"}",
+}
+`;
+
+exports[`CollectionSchema normalization should throw a custom error if data loads with string unexpected value 1`] = `
+"Unexpected input given to normalize. Expected type to be "object", found "string".
+
+          Schema: {
+  "name": "Collection(Todo)",
+  "schema": {
+    "name": "Todo",
+    "schema": {},
+    "key": "Todo"
+  },
+  "key": "COLLECT:ArraySchema(Todo)"
+}
+          Input: "abc""
+`;
+
+exports[`CollectionSchema normalization should throw a custom error if data loads with string unexpected value 2`] = `
+"Unexpected input given to normalize. Expected type to be "object", found "null".
+
+          Schema: {
+  "name": "Collection(Todo)",
+  "schema": {
+    "name": "Todo",
+    "schema": {},
+    "key": "Todo"
+  },
+  "key": "COLLECT:ArraySchema(Todo)"
+}
+          Input: "null""
+`;
+
+exports[`CollectionSchema normalization should throw a custom error if data loads with string unexpected value 3`] = `"Collections only work with @rest-hooks/react>=7.4"`;

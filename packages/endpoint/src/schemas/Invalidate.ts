@@ -39,10 +39,12 @@ export default class Invalidate<
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
+    storeEntities: Record<string, any>,
+    args?: any[],
   ): string | undefined {
     // TODO: what's store needs to be a differing type from fromJS
     const processedEntity = this._entity.process(input, parent, key);
-    const id = this._entity.pk(processedEntity, parent, key);
+    const id = this._entity.pk(processedEntity, parent, key, args);
 
     if (
       process.env.NODE_ENV !== 'production' &&
@@ -103,6 +105,7 @@ export default class Invalidate<
 
   denormalizeOnly(
     id: string,
+    args: readonly any[],
     unvisit: (input: any, schema: any) => any,
   ): AbstractInstanceType<E> {
     return unvisit(id, this._entity) as any;

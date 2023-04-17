@@ -77,38 +77,38 @@ export default function makeRenderRestHook(
 
     // TODO: controller provided to middleware should be same as useController() - so pull out the mockresolver stuff and don't actually
     // use the component here
-    const ProviderWithResolver: React.ComponentType<any> =
-      options?.resolverFixtures
-        ? memo(function ProviderWithResolver({
-            children,
-          }: React.PropsWithChildren<P>) {
-            return (
-              <Provider
-                initialState={initialState}
-                Controller={ActController}
-                managers={managers}
-              >
-                <MockResolver
-                  fixtures={options.resolverFixtures as FixtureEndpoint[]}
-                >
-                  {children}
-                </MockResolver>
-              </Provider>
-            );
-          })
-        : memo(function ProviderWithResolver({
-            children,
-          }: React.PropsWithChildren<P>) {
-            return (
-              <Provider
-                initialState={initialState}
-                Controller={ActController}
-                managers={managers}
+    const ProviderWithResolver: React.ComponentType<any> = options
+      ?.resolverFixtures?.length
+      ? memo(function ProviderWithResolver({
+          children,
+        }: React.PropsWithChildren<P>) {
+          return (
+            <Provider
+              initialState={initialState}
+              Controller={ActController}
+              managers={managers}
+            >
+              <MockResolver
+                fixtures={options.resolverFixtures as FixtureEndpoint[]}
               >
                 {children}
-              </Provider>
-            );
-          });
+              </MockResolver>
+            </Provider>
+          );
+        })
+      : memo(function ProviderWithResolver({
+          children,
+        }: React.PropsWithChildren<P>) {
+          return (
+            <Provider
+              initialState={initialState}
+              Controller={ActController}
+              managers={managers}
+            >
+              {children}
+            </Provider>
+          );
+        });
 
     const Wrapper = options?.wrapper;
     const ProviderWithWrapper = Wrapper
@@ -142,6 +142,7 @@ export default function makeRenderRestHook(
       fixtureMap,
       interceptors,
       options?.getInitialInterceptorData ?? (() => ({})),
+      !options?.resolverFixtures?.length,
     );
     return ret;
   }) as any;

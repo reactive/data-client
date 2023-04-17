@@ -7,7 +7,7 @@ export type IDClass = abstract new (...args: any[]) => {
   id: string | number | undefined;
 };
 export type PKClass = abstract new (...args: any[]) => {
-  pk(parent?: any, key?: string): string | undefined;
+  pk(parent?: any, key?: string, args?: readonly any[]): string | undefined;
 };
 
 // TODO: Figure out what Schema must be for each key
@@ -70,7 +70,11 @@ export default function EntitySchema<TBase extends Constructor>(
      * @param [parent] When normalizing, the object which included the entity
      * @param [key] When normalizing, the key where this entity was found
      */
-    abstract pk(parent?: any, key?: string): string | undefined;
+    abstract pk(
+      parent?: any,
+      key?: string,
+      args?: readonly any[],
+    ): string | undefined;
 
     /** Returns the globally unique identifier for the static Entity */
     declare static key: string;
@@ -82,6 +86,7 @@ export default function EntitySchema<TBase extends Constructor>(
     /**
      * A unique identifier for each Entity
      *
+     * @see https://resthooks.io/docs/api/schema.Entity#pk
      * @param [value] POJO of the entity or subset used
      * @param [parent] When normalizing, the object which included the entity
      * @param [key] When normalizing, the key where this entity was found
@@ -91,8 +96,9 @@ export default function EntitySchema<TBase extends Constructor>(
       value: Partial<AbstractInstanceType<T>>,
       parent?: any,
       key?: string,
+      args?: readonly any[],
     ): string | undefined {
-      return this.prototype.pk.call(value, parent, key);
+      return this.prototype.pk.call(value, parent, key, args);
     }
 
     /** Return true to merge incoming data; false keeps existing entity
@@ -122,7 +128,10 @@ export default function EntitySchema<TBase extends Constructor>(
       return incomingMeta.fetchedAt < existingMeta.fetchedAt;
     }
 
-    /** Creates new instance copying over defined values of arguments */
+    /** Creates new instance copying over defined values of arguments
+     *
+     * @see https://resthooks.io/docs/api/schema.Entity#merge
+     */
     static merge(existing: any, incoming: any) {
       return {
         ...existing,
@@ -130,7 +139,10 @@ export default function EntitySchema<TBase extends Constructor>(
       };
     }
 
-    /** Run when an existing entity is found in the store */
+    /** Run when an existing entity is found in the store
+     *
+     * @see https://resthooks.io/docs/api/schema.Entity#mergeWithStore
+     */
     static mergeWithStore(
       existingMeta: {
         date: number;
@@ -166,6 +178,10 @@ export default function EntitySchema<TBase extends Constructor>(
       }
     }
 
+    /** Run when an existing entity is found in the store
+     *
+     * @see https://resthooks.io/docs/api/schema.Entity#mergeMetaWithStore
+     */
     static mergeMetaWithStore(
       existingMeta: {
         expiresAt: number;
@@ -198,9 +214,10 @@ export default function EntitySchema<TBase extends Constructor>(
       return instance;
     }
 
-    /** Factory method to convert from Plain JS Objects.
+    /** Called when denormalizing an entity to create an instance when 'valid'
      *
      * @param [props] Plain Object of properties to assign.
+     * @see https://resthooks.io/docs/api/schema.Entity#createIfValid
      */
     static createIfValid<T extends typeof EntityMixin>(
       this: T,
@@ -213,7 +230,10 @@ export default function EntitySchema<TBase extends Constructor>(
       return this.fromJS(props);
     }
 
-    /** Do any transformations when first receiving input */
+    /** Do any transformations when first receiving input
+     *
+     * @see https://resthooks.io/docs/api/schema.Entity#process
+     */
     static process(input: any, parent: any, key: string | undefined): any {
       return { ...input };
     }
@@ -225,9 +245,11 @@ export default function EntitySchema<TBase extends Constructor>(
       visit: (...args: any) => any,
       addEntity: (...args: any) => any,
       visitedEntities: Record<string, any>,
+      storeEntities: any,
+      args?: readonly any[],
     ): any {
       const processedEntity = this.process(input, parent, key);
-      const id = this.pk(processedEntity, parent, key);
+      const id = this.pk(processedEntity, parent, key, args);
       if (id === undefined || id === '') {
         if (process.env.NODE_ENV !== 'production') {
           const error = new Error(
@@ -279,6 +301,8 @@ export default function EntitySchema<TBase extends Constructor>(
             schema,
             addEntity,
             visitedEntities,
+            storeEntities,
+            args,
           );
         }
       });
@@ -354,6 +378,7 @@ export default function EntitySchema<TBase extends Constructor>(
     static denormalizeOnly<T extends typeof EntityMixin>(
       this: T,
       input: any,
+      args: any[],
       unvisit: (input: any, schema: any) => any,
     ): AbstractInstanceType<T> {
       if (typeof input === 'symbol') {
@@ -366,6 +391,7 @@ export default function EntitySchema<TBase extends Constructor>(
         const value = unvisit(input[key], schema);
 
         if (typeof value === 'symbol') {
+          // if default is not 'fasly', then this is required, so propagate INVALID symbol
           if (this.defaults[key]) {
             return value as any;
           }
@@ -496,17 +522,27 @@ export interface IEntityClass<TBase extends Constructor = any> {
     };
     key: string;
   };
-  /** Defines nested entities */
+  /** Defines nested entities
+   *
+   * @see https://resthooks.io/rest/api/Entity#schema
+   */
   schema: {
     [k: string]: Schema;
   };
-  /** Returns the globally unique identifier for the static Entity */
+  /** Returns the globally unique identifier for the static Entity
+   *
+   * @see https://resthooks.io/docs/api/Entity#key
+   */
   key: string;
-  /** Defines indexes to enable lookup by */
+  /** Defines indexes to enable lookup by
+   *
+   * @see https://resthooks.io/rest/api/Entity#indexes
+   */
   indexes?: readonly string[] | undefined;
   /**
    * A unique identifier for each Entity
    *
+   * @see https://resthooks.io/docs/api/Entity#pk
    * @param [value] POJO of the entity or subset used
    * @param [parent] When normalizing, the object which included the entity
    * @param [key] When normalizing, the key where this entity was found
@@ -521,6 +557,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
     value: Partial<AbstractInstanceType<T>>,
     parent?: any,
     key?: string,
+    args?: any[],
   ): string | undefined;
   /** Return true to merge incoming data; false keeps existing entity
    *
@@ -549,9 +586,15 @@ export interface IEntityClass<TBase extends Constructor = any> {
     existing: any,
     incoming: any,
   ): boolean;
-  /** Creates new instance copying over defined values of arguments */
+  /** Creates new instance copying over defined values of arguments
+   *
+   * @see https://resthooks.io/docs/api/schema.Entity#merge
+   */
   merge(existing: any, incoming: any): any;
-  /** Run when an existing entity is found in the store */
+  /** Run when an existing entity is found in the store
+   *
+   * @see https://resthooks.io/docs/api/schema.Entity#mergeWithStore
+   */
   mergeWithStore(
     existingMeta: {
       date: number;
@@ -564,6 +607,10 @@ export interface IEntityClass<TBase extends Constructor = any> {
     existing: any,
     incoming: any,
   ): any;
+  /** Run when an existing entity is found in the store
+   *
+   * @see https://resthooks.io/docs/api/schema.Entity#mergeMetaWithStore
+   */
   mergeMetaWithStore(
     existingMeta: {
       expiresAt: number;
@@ -591,9 +638,10 @@ export interface IEntityClass<TBase extends Constructor = any> {
     this: T,
     props?: Partial<AbstractInstanceType<T>>,
   ): AbstractInstanceType<T>;
-  /** Factory method to convert from Plain JS Objects.
+  /** Called when denormalizing an entity to create an instance when 'valid'
    *
    * @param [props] Plain Object of properties to assign.
+   * @see https://resthooks.io/docs/api/Entity#createIfValid
    */
   createIfValid<
     T extends (abstract new (...args: any[]) => IEntityInstance &
@@ -604,7 +652,10 @@ export interface IEntityClass<TBase extends Constructor = any> {
     this: T,
     props: Partial<AbstractInstanceType<T>>,
   ): AbstractInstanceType<T> | undefined;
-  /** Do any transformations when first receiving input */
+  /** Do any transformations when first receiving input
+   *
+   * @see https://resthooks.io/docs/api/Entity#process
+   */
   process(input: any, parent: any, key: string | undefined): any;
   normalize(
     input: any,
@@ -614,7 +665,16 @@ export interface IEntityClass<TBase extends Constructor = any> {
     addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
   ): any;
+  /** Do any transformations when first receiving input
+   *
+   * @see https://resthooks.io/docs/api/Entity#validate
+   */
   validate(processedEntity: any): string | undefined;
+  /** Attempts to infer results
+   *
+   * @see https://resthooks.io/docs/api/Entity#infer
+   */
+
   infer(args: readonly any[], indexes: NormalizedIndex, recurse: any): any;
   denormalize<
     T extends (abstract new (...args: any[]) => IEntityInstance &
@@ -647,14 +707,14 @@ export interface IEntityInstance {
    * @param [parent] When normalizing, the object which included the entity
    * @param [key] When normalizing, the key where this entity was found
    */
-  pk(parent?: any, key?: string): string | undefined;
+  pk(parent?: any, key?: string, args?: readonly any[]): string | undefined;
 }
 
 function inferId(schema: any, args: readonly any[], indexes: NormalizedIndex) {
   if (['string', 'number'].includes(typeof args[0])) {
     return `${args[0]}`;
   }
-  const id = schema.pk(args[0], undefined, '');
+  const id = schema.pk(args[0], undefined, '', args);
   // Was able to infer the entity's primary key from params
   if (id !== undefined && id !== '') return id;
   // now attempt lookup in indexes

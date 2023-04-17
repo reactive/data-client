@@ -1,5 +1,3 @@
-import React, { createContext, useContext } from 'react';
-
 import { SimpleRecord } from '@rest-hooks/legacy';
 import {
   AbstractInstanceType,
@@ -17,6 +15,7 @@ import {
   RestType,
   MutateEndpoint,
 } from '@rest-hooks/rest';
+import React, { createContext, useContext } from 'react';
 
 /** Represents data with primary key being from 'id' field. */
 export class IDEntity extends Entity {
@@ -604,7 +603,7 @@ export class SecondUnion extends UnionBase {
   readonly secondeOnlyField: number = 10;
 }
 
-const UnionSchema = new schema.Union(
+export const UnionSchema = new schema.Union(
   {
     first: FirstUnion,
     second: SecondUnion,

@@ -138,6 +138,10 @@ interface EntityCacheValue {
 const getEntityCaches = (entityCache: DenormalizeCache['entities']) => {
   return (pk: string, schema: EntityInterface) => {
     const key = schema.key;
+    // collections should use the entities they collect over
+    // TODO: this should be based on a public interface
+    const entityInstance: EntityInterface =
+      (schema.schema?.schema as any) ?? schema;
 
     if (!(key in entityCache)) {
       entityCache[key] = Object.create(null);
@@ -149,10 +153,12 @@ const getEntityCaches = (entityCache: DenormalizeCache['entities']) => {
         WeakEntityMap<object, any>
       >();
 
-    let wem: WeakEntityMap<object, any> = entityCacheKey[pk].get(schema) as any;
+    let wem: WeakEntityMap<object, any> = entityCacheKey[pk].get(
+      entityInstance,
+    ) as any;
     if (!wem) {
       wem = new WeakEntityMap<object, any>();
-      entityCacheKey[pk].set(schema, wem);
+      entityCacheKey[pk].set(entityInstance, wem);
     }
 
     return wem;

@@ -26,9 +26,20 @@ export default class AllSchema<
     visit: any,
     addEntity: any,
     visitedEntities: any,
+    storeEntities: any,
+    args?: any[],
   ): any {
     // we return undefined
-    super.normalize(input, parent, key, visit, addEntity, visitedEntities);
+    super.normalize(
+      input,
+      parent,
+      key,
+      visit,
+      addEntity,
+      visitedEntities,
+      storeEntities,
+      args,
+    );
   }
 
   infer(args: any, indexes: any, recurse: any, entities: EntityTable): any {

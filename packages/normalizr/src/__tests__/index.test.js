@@ -344,7 +344,7 @@ describe('normalize', () => {
     }
 
     expect(
-      normalize({ user: { id: '456' } }, Recommendations),
+      normalize({ user: { id: '456' } }, Recommendations, [{ id: '456' }]),
     ).toMatchSnapshot();
     expect(calls).toMatchSnapshot();
   });

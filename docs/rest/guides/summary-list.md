@@ -45,7 +45,9 @@ delay: 150,
 },
 ]}>
 
-```typescript title="api/Article.ts" {9}
+```typescript title="api/Article.ts" {11,24}
+import { validateRequired } from '@rest-hooks/rest';
+
 class ArticleSummary extends Entity {
   readonly id: string = '';
   readonly title: string = '';
@@ -170,6 +172,7 @@ class Article extends ArticleSummary {
 
   static validate(processedEntity) {
     return (
+      // highlight-next-line
       validateRequired(processedEntity, this.defaults) ||
       super.validate(processedEntity)
     );

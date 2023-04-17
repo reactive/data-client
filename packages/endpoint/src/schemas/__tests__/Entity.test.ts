@@ -101,6 +101,7 @@ describe(`${Entity.name} normalization`, () => {
     const secondEntities = normalize(
       { id: '1', title: 'second' },
       MyEntity,
+      [],
       entities,
       {},
       entityMeta,
