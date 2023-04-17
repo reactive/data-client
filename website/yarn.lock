@@ -189,9 +189,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:15.0.8":
-  version: 15.0.8
-  resolution: "@anansi/webpack-config@npm:15.0.8"
+"@anansi/webpack-config@npm:15.0.9":
+  version: 15.0.9
+  resolution: "@anansi/webpack-config@npm:15.0.9"
   dependencies:
     "@babel/runtime": ^7.17.2
     "@linaria/webpack5-loader": 4.1.15
@@ -218,7 +218,7 @@ __metadata:
     file-loader: ^6.2.0
     find-cache-dir: ^3.3.2
     html-loader: ^4.2.0
-    html-webpack-plugin: ^5.5.0
+    html-webpack-plugin: ^5.5.1
     https-browserify: ^1.0.0
     is-wsl: ^2.2.0
     mini-css-extract-plugin: ^2.7.5
@@ -226,7 +226,7 @@ __metadata:
     os-browserify: ^0.3.0
     path: ^0.12.7
     path-browserify: ^1.0.1
-    postcss: ^8.4.21
+    postcss: ^8.4.22
     postcss-loader: ^7.2.4
     postcss-preset-env: ^8.3.1
     process: ^0.11.10
@@ -296,7 +296,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: 5d065588aa55220ce586ce7765adcbe7b5ed5e48d4f34015aaa4a73439c7d7d8dcc3b25287511740bc10a4f184192e8d3ea5a8aa81b167cb91de8f8e0a3d8ea0
+  checksum: cdcc3f2e57530ef801fbe5f87a219c72347425e73bf0c770e842d806b575356940b9c65f4087655c5c8165c7668698b4d7e3994e5e417c1fb4032ccb0fef1b33
   languageName: node
   linkType: hard
 
@@ -3108,21 +3108,21 @@ __metadata:
 
 "@rest-hooks/core@file:../packages/core::locator=root-workspace-0b6124%40workspace%3A.":
   version: 4.3.2
-  resolution: "@rest-hooks/core@file:../packages/core#../packages/core::hash=727a43&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/core@file:../packages/core#../packages/core::hash=975c61&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@rest-hooks/normalizr": ^10.1.0
     flux-standard-action: ^2.1.1
-  checksum: c24526cc430df322cf53b301d7dff7a287faed132e95e33ab7898abb68fe768c22c667a4d08c6440f6d9e31d2e62b4568c42762879b20ef39399d6dcd4301820
+  checksum: c1219d1e39acabea4220b5eec7010ce28750ed0c6b610f1d210c5279f4448a449726ea124871154e69dcb9ecc3d08d307fe820f25d204584e167860579ef4e6f
   languageName: node
   linkType: hard
 
 "@rest-hooks/endpoint@file:../packages/endpoint::locator=root-workspace-0b6124%40workspace%3A.":
   version: 3.7.4
-  resolution: "@rest-hooks/endpoint@file:../packages/endpoint#../packages/endpoint::hash=4f7326&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/endpoint@file:../packages/endpoint#../packages/endpoint::hash=12b14d&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
-  checksum: 6bee5dc461752a9d27b6219e34da8c42e5518db6f05e07be5905d48252c6cd7a3cc1cba1bf04038254966b63d01787adcce5229444a559513ef27b8c7490adde
+  checksum: 283b9f8a24977c1d7571358373a700528c1d0ae7017e9ab5de0d54e120e3134fdf58265635bac5840976041053c6b3e6500f99fd75b054f1d7f42038f363a7ea
   languageName: node
   linkType: hard
 
@@ -3154,10 +3154,10 @@ __metadata:
 
 "@rest-hooks/normalizr@file:../packages/normalizr::locator=root-workspace-0b6124%40workspace%3A.":
   version: 10.1.0
-  resolution: "@rest-hooks/normalizr@file:../packages/normalizr#../packages/normalizr::hash=68e221&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/normalizr@file:../packages/normalizr#../packages/normalizr::hash=b10ed9&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
-  checksum: ce7ee87b1a4c16463a76057c0892955c49b077c5ccb14ffbc89c75e1ae228820e4ca7af338b56fc7b79372d7bdaefd8da62bad3ed10df6e0df948ac9bf4f2abd
+  checksum: 581122de71fcc3610716de2eee03368a8211965ee7ae7540e45a0c86772fd6c223c9ebb08bf1204b8dd75ad1dcad1054460f42135f25782602e9e521d06a28ae
   languageName: node
   linkType: hard
 
@@ -8498,9 +8498,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"html-webpack-plugin@npm:^5.5.0":
-  version: 5.5.0
-  resolution: "html-webpack-plugin@npm:5.5.0"
+"html-webpack-plugin@npm:^5.5.0, html-webpack-plugin@npm:^5.5.1":
+  version: 5.5.1
+  resolution: "html-webpack-plugin@npm:5.5.1"
   dependencies:
     "@types/html-minifier-terser": ^6.0.0
     html-minifier-terser: ^6.0.2
@@ -8509,7 +8509,7 @@ __metadata:
     tapable: ^2.0.0
   peerDependencies:
     webpack: ^5.20.0
-  checksum: f3d84d0df71fe2f5bac533cc74dce41ab058558cdcc6ff767d166a2abf1cf6fb8491d54d60ddbb34e95c00394e379ba52e0468e0284d1d0cc6a42987056e8219
+  checksum: f4b43271171e6374b10a49b5231bbab94610a344d58f4f7d95cd130520feb474f98006e1ab71ea102c57fe5a107b273ff7c19e7e1bc2314d611dbb791fcc0a98
   languageName: node
   linkType: hard
 
@@ -10250,12 +10250,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nanoid@npm:^3.3.4":
-  version: 3.3.4
-  resolution: "nanoid@npm:3.3.4"
+"nanoid@npm:^3.3.6":
+  version: 3.3.6
+  resolution: "nanoid@npm:3.3.6"
   bin:
     nanoid: bin/nanoid.cjs
-  checksum: 2fddd6dee994b7676f008d3ffa4ab16035a754f4bb586c61df5a22cf8c8c94017aadd360368f47d653829e0569a92b129979152ff97af23a558331e47e37cd9c
+  checksum: 7d0eda657002738aa5206107bd0580aead6c95c460ef1bdd0b1a87a9c7ae6277ac2e9b945306aaa5b32c6dcb7feaf462d0f552e7f8b5718abfc6ead5c94a71b3
   languageName: node
   linkType: hard
 
@@ -12027,14 +12027,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.3.11, postcss@npm:^8.4.14, postcss@npm:^8.4.17, postcss@npm:^8.4.19, postcss@npm:^8.4.21":
-  version: 8.4.21
-  resolution: "postcss@npm:8.4.21"
+"postcss@npm:^8.3.11, postcss@npm:^8.4.14, postcss@npm:^8.4.17, postcss@npm:^8.4.19, postcss@npm:^8.4.21, postcss@npm:^8.4.22":
+  version: 8.4.22
+  resolution: "postcss@npm:8.4.22"
   dependencies:
-    nanoid: ^3.3.4
+    nanoid: ^3.3.6
     picocolors: ^1.0.0
     source-map-js: ^1.0.2
-  checksum: e39ac60ccd1542d4f9d93d894048aac0d686b3bb38e927d8386005718e6793dbbb46930f0a523fe382f1bbd843c6d980aaea791252bf5e176180e5a4336d9679
+  checksum: 7473dfb7ac5b4cb03576c39d687d7fc02c826ab08af97df15b5d3970662532d44a18a0994f392a9c3658ee17c292e7a55990e586b90ca0afcc9f36df13e07029
   languageName: node
   linkType: hard
 
@@ -13147,7 +13147,7 @@ __metadata:
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
     "@anansi/browserslist-config": 1.4.2
-    "@anansi/webpack-config": 15.0.8
+    "@anansi/webpack-config": 15.0.9
     "@docusaurus/core": 2.4.0
     "@docusaurus/module-type-aliases": 2.4.0
     "@docusaurus/plugin-client-redirects": 2.4.0
