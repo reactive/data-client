@@ -157,6 +157,9 @@ so for 16 and 17 this will merely centralize the fallback, eliminating 100s of l
 
 In either case, a signficiant amount of component complexity is removed by centralizing fallback conditionals.
 
+AsyncBoundary's [error fallback](../api/AsyncBoundary.md#errorcomponent) and [loading fallback](../api/AsyncBoundary.md#fallback) can both
+be customized.
+
 ### Stateful
 
 You may find cases where it's still useful to use a stateful approach to fallbacks when using React 16 and 17.

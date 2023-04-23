@@ -250,10 +250,11 @@ rpc({ id: 5 });
 </TypeScriptEditor>
 
 `searchParams` can be used in a similar way to `body` to specify types extra parameters, used
-for the GET/searchParams/queryParams in a [url()](#url).
+for the GET searchParams/queryParams in a [url()](#url).
 
 ```ts
-const getList = getUser.extend({
+const getUsers = new RestEndpoint({
+  path: '/:group/user/:id',
   searchParams: {} as { isAdmin?: boolean; sort: 'asc' | 'desc' },
 });
 getList.url({ group: 'big', id: '5', sort: 'asc' }) === '/big/user/5?sort=asc';
@@ -357,23 +358,16 @@ getSite({ slug: 'first' });
 
 Types are inferred automatically from `path`.
 
-`body` can be used to set a second argument for mutation endpoints. The actual value is not
-used in any way so it does not matter.
+Additional parameters can be specified with [searchParams](#searchparams)
+and [body](#body).
 
-<TypeScriptEditor>
+:::
 
-```ts {3}
-const updateSite = new RestEndpoint({
-  path: 'https\\://site.com/:slug',
-  body: {} as { url: string },
-});
+### searchParams: { [key:string]: string|number|boolean } {#searchParams}
 
-updateSite({ slug: 'cool' }, { url: 'https://resthooks.io/' });
-```
+`searchParams` can be to specify types extra parameters, used for the GET searchParams/queryParams in a [url()](#url).
 
-</TypeScriptEditor>
-
-`searchParams` can be to specify types extra parameters, used for the GET/searchParams/queryParams in a [url()](#url).
+The actual **value is not used** in any way so it does not matter.
 
 <TypeScriptEditor>
 
@@ -390,7 +384,23 @@ getReactSite.url({ slug: 'cool', isReact: true }) ===
 
 </TypeScriptEditor>
 
-:::
+### body {#body}
+
+`body` can be used to set a second argument for mutation endpoints. The actual **value is not
+used** in any way so it does not matter.
+
+<TypeScriptEditor>
+
+```ts {3}
+const updateSite = new RestEndpoint({
+  path: 'https\\://site.com/:slug',
+  body: {} as { url: string },
+});
+
+updateSite({ slug: 'cool' }, { url: 'https://resthooks.io/' });
+```
+
+</TypeScriptEditor>
 
 ### urlPrefix: string = '' {#urlPrefix}
 

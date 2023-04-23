@@ -9,6 +9,7 @@ title: createResource
 </head>
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
+import StackBlitz from '@site/src/components/StackBlitz';
 
 `Resources` are a collection of [RestEndpoints](./RestEndpoint.md) that operate on a common
 data by sharing a [schema](./schema.md)
@@ -79,8 +80,8 @@ Class used to construct the members.
 ## Members
 
 These provide the standard [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
-[endpoints](./Endpoint.md)s common in [REST](https://www.restapitutorial.com/) APIs. Feel free to customize or add
-new endpoints based to match your API.
+[endpoints](./Endpoint.md)s common in [REST](https://www.restapitutorial.com/) APIs. Feel free to [customize or add
+new endpoints](#customizing-resources) based to match your API.
 
 ### get
 
@@ -196,6 +197,33 @@ createResource({ urlPrefix: '//test.com', path: '/api/:group/:id' }).delete({
 ```
 
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
+
+## Customizing Resources
+
+`createResource` builds a great starting point, but often endpoints need to be further customized.
+
+Overriding members with [extends()](./RestEndpoint.md#extend) makes this straightforward.
+
+Because we are changing the endpoint types, we must use the `{...spread}` pattern rather than assignment.
+This is how TypeScript is able to infer the types from our arguments.
+
+```ts
+const TodoResourceBase = createResource({
+  path: '/todos/:id',
+  schema: Todo,
+});
+
+export const TodoResource = {
+  ...TodoResourceBase,
+  getList: TodoResourceBase.getList.extend({
+    searchParams: {} as { userId?: string | number } | undefined,
+  }),
+}
+```
+
+<StackBlitz app="todo-app" file="src/resources/TodoResource.ts" view="editor" />
+
+Explore more [Rest Hooks demos](/demos)
 
 ## Function Inheritance Patterns
 
