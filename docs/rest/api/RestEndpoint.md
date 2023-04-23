@@ -226,7 +226,7 @@ update({ id: 5 }, { title: 'updated', completed: true });
 
 However, this is typed as 'any' so it won't catch typos.
 
-`body` can be used to type the argument after the url parameters. It is only used for typing so the
+[body](#body) can be used to type the argument after the url parameters. It is only used for typing so the
 value sent does not matter. `undefined` value can be used to 'disable' the second argument.
 
 <TypeScriptEditor>
@@ -249,7 +249,7 @@ rpc({ id: 5 });
 
 </TypeScriptEditor>
 
-`searchParams` can be used in a similar way to `body` to specify types extra parameters, used
+[searchParams](#searchParams) can be used in a similar way to `body` to specify types extra parameters, used
 for the GET searchParams/queryParams in a [url()](#url).
 
 ```ts
@@ -358,7 +358,7 @@ getSite({ slug: 'first' });
 
 Types are inferred automatically from `path`.
 
-Additional parameters can be specified with [searchParams](#searchparams)
+Additional parameters can be specified with [searchParams](#searchParams)
 and [body](#body).
 
 :::
@@ -367,7 +367,7 @@ and [body](#body).
 
 `searchParams` can be to specify types extra parameters, used for the GET searchParams/queryParams in a [url()](#url).
 
-The actual **value is not used** in any way so it does not matter.
+The actual **value is not used** in any way - this only determines [typing](#typing).
 
 <TypeScriptEditor>
 
@@ -387,7 +387,7 @@ getReactSite.url({ slug: 'cool', isReact: true }) ===
 ### body {#body}
 
 `body` can be used to set a second argument for mutation endpoints. The actual **value is not
-used** in any way so it does not matter.
+used** in any way - this only determines [typing](#typing).
 
 <TypeScriptEditor>
 

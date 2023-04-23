@@ -200,7 +200,7 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ## Customizing Resources
 
-`createResource` builds a great starting point, but often endpoints need to be further customized.
+`createResource` builds a great starting point, but often endpoints need to be [further customized](./RestEndpoint.md#typing).
 
 Overriding members with [extends()](./RestEndpoint.md#extend) makes this straightforward.
 
