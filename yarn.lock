@@ -124,9 +124,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/jest-preset@npm:0.10.8":
-  version: 0.10.8
-  resolution: "@anansi/jest-preset@npm:0.10.8"
+"@anansi/jest-preset@npm:0.10.9":
+  version: 0.10.9
+  resolution: "@anansi/jest-preset@npm:0.10.9"
   dependencies:
     "@anansi/ts-utils": ^0.3.5
     "@types/babel__core": ^7.20.0
@@ -137,7 +137,7 @@ __metadata:
     jest-pnp-resolver: ^1.2.3
     mitt: ^3.0.0
     node-fetch: ^3.3.1
-    semver: ^7.4.0
+    semver: ^7.5.0
     ts-jest: ^29.1.0
     whatwg-fetch: ^3.0.0
   peerDependencies:
@@ -151,7 +151,7 @@ __metadata:
       optional: true
     react:
       optional: true
-  checksum: 1fafd2d01d445a0ad673f7d8624d149992200ad6789b9a35d669264fab4e0afa9e1b6bacd35eac9315376c6ac05e95caf701597706ad2ee2dde5aa18cabd657f
+  checksum: 5d6b504b2fa30147faa818f87748d391bc3b44c394019a33459bc6141159485256ed2a1afdc356f48147be0ed89df07da6a08038057027ceb2793a3cae4d7b0c
   languageName: node
   linkType: hard
 
@@ -5108,13 +5108,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:29.5.0, @types/jest@npm:^29.5.0":
-  version: 29.5.0
-  resolution: "@types/jest@npm:29.5.0"
+"@types/jest@npm:29.5.1, @types/jest@npm:^29.5.0":
+  version: 29.5.1
+  resolution: "@types/jest@npm:29.5.1"
   dependencies:
     expect: ^29.0.0
     pretty-format: ^29.0.0
-  checksum: cd877e5c56d299cceb8bfdcbb1a77723c706750dd3c3bc47403bc3599b8faff590a3b009c68bb5b11bf7a8c77d1fb01de5e124329b4a08e65f1cdda28b0ecdb8
+  checksum: 0a22491dec86333c0e92b897be2c809c922a7b2b0aa5604ac369810d6b2360908b4a3f2c6892e8a237a54fa1f10ecefe0e823ec5fcb7915195af4dfe88d2197e
   languageName: node
   linkType: hard
 
@@ -19807,7 +19807,7 @@ __metadata:
     "@anansi/babel-preset": 4.2.2
     "@anansi/browserslist-config": 1.4.2
     "@anansi/eslint-plugin": 0.16.9
-    "@anansi/jest-preset": 0.10.8
+    "@anansi/jest-preset": 0.10.9
     "@babel/cli": 7.21.0
     "@babel/core": 7.21.4
     "@babel/node": 7.20.7
@@ -19822,7 +19822,7 @@ __metadata:
     "@testing-library/react": 14.0.0
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/react-native": 12.0.1
-    "@types/jest": 29.5.0
+    "@types/jest": 29.5.1
     "@types/node": 18.15.11
     "@types/react": 18.0.37
     "@typescript-eslint/eslint-plugin": 5.59.1
@@ -20081,7 +20081,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"semver@npm:7.x, semver@npm:^7.1.1, semver@npm:^7.3.2, semver@npm:^7.3.4, semver@npm:^7.3.5, semver@npm:^7.3.7, semver@npm:^7.3.8, semver@npm:^7.4.0, semver@npm:^7.5.0":
+"semver@npm:7.x, semver@npm:^7.1.1, semver@npm:^7.3.2, semver@npm:^7.3.4, semver@npm:^7.3.5, semver@npm:^7.3.7, semver@npm:^7.3.8, semver@npm:^7.5.0":
   version: 7.5.0
   resolution: "semver@npm:7.5.0"
   dependencies:
