@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/img",
-  "version": "0.8.12",
+  "version": "1.0.0-next.0",
   "description": "Suspenseful images",
   "sideEffects": false,
   "main": "dist/index.cjs.js",
@@ -69,10 +69,10 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.17.0",
-    "@rest-hooks/endpoint": "^3.7.4"
+    "@rest-hooks/endpoint": "^3.8.0-next.0"
   },
   "peerDependencies": {
-    "@rest-hooks/react": "^0.1.0 || ^0.2.0 || ^6.0.0 || ^7.0.0",
+    "@rest-hooks/react": "^7.4.0-next.0",
     "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0-0",
     "react": "^16.8.4 || ^17.0.0 || ^18.0.0-0"
   },
@@ -83,7 +83,7 @@
   },
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",
-    "@rest-hooks/react": "^7.2.10",
+    "@rest-hooks/react": "^7.4.0-next.0",
     "@types/node": "^18.15.10",
     "@types/react": "^18.0.30"
   }

@@ -1,5 +1,21 @@
 # Change Log
 
+## 7.0.0-next.0
+
+### Patch Changes
+
+- Updated dependencies [93a08592c6]
+- Updated dependencies [68a5944091]
+- Updated dependencies [93a08592c6]
+- Updated dependencies [0c7ca6310d]
+- Updated dependencies [6bd94947f3]
+- Updated dependencies [93f103e3af]
+- Updated dependencies [62f8b11188]
+- Updated dependencies [0c7ca6310d]
+- Updated dependencies [e00fd0516c]
+  - @rest-hooks/react@7.4.0-next.0
+  - @rest-hooks/core@4.4.0-next.0
+
 ## 6.3.6
 
 ### Patch Changes

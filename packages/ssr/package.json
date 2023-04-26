@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/ssr",
-  "version": "0.7.11",
+  "version": "1.0.0-next.0",
   "description": "Server Side Rendering helpers for Rest Hooks",
   "sideEffects": false,
   "main": "dist/index.js",
@@ -112,8 +112,8 @@
     "@babel/runtime": "^7.17.0"
   },
   "peerDependencies": {
-    "@rest-hooks/react": "^6.0.0 || ^7.0.0",
-    "@rest-hooks/redux": "^6.3.0 || ^7.0.0",
+    "@rest-hooks/react": "^7.4.0-next.0",
+    "@rest-hooks/redux": "^7.0.0-next.0",
     "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0-0",
     "next": ">=12.0.0",
     "react": "^16.8.4 || ^17.0.0 || ^18.0.0-0",

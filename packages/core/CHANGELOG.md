@@ -1,5 +1,37 @@
 # Change Log
 
+## 4.4.0-next.0
+
+### Minor Changes
+
+- 93a08592c6: Support Collections
+- 68a5944091: Add Entity.mergeMeta()
+- 93a08592c6: Support using args[] during normalization/denormalization
+- 0c7ca6310d: Rework Controller to use simplified denoramlize
+- e00fd0516c: Support schemas with denormalizeOnly (3.8+)
+
+### Patch Changes
+
+- 6bd94947f3: Simplified null args path for ctrl.getResponse()
+- 93f103e3af: Fully denormalize even when pk cannot be computed
+- 62f8b11188: Improve entity expiry calc performance in getResponse()
+- Updated dependencies [93a08592c6]
+- Updated dependencies [e00fd0516c]
+- Updated dependencies [0c7ca6310d]
+- Updated dependencies [93a08592c6]
+- Updated dependencies [68a5944091]
+- Updated dependencies [93a08592c6]
+- Updated dependencies [9178a553cb]
+- Updated dependencies [93a08592c6]
+- Updated dependencies [93f103e3af]
+- Updated dependencies [7910c901e7]
+- Updated dependencies [e00fd0516c]
+- Updated dependencies [0c7ca6310d]
+- Updated dependencies [68a5944091]
+- Updated dependencies [a005bd06af]
+- Updated dependencies [e75312c7ee]
+  - @rest-hooks/normalizr@11.0.0-next.0
+
 ## 4.3.2
 
 ### Patch Changes

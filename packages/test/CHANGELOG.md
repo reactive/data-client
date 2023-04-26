@@ -1,5 +1,19 @@
 # Change Log
 
+## 11.0.0-next.0
+
+### Patch Changes
+
+- 93a08592c6: enhance: Updated warning example with modern syntax
+- 93a08592c6: enhance: renderRestHook interceptors must be defined to warn about unmatched fetch
+- Updated dependencies [93a08592c6]
+- Updated dependencies [93a08592c6]
+- Updated dependencies [6bd94947f3]
+- Updated dependencies [93f103e3af]
+- Updated dependencies [0c7ca6310d]
+- Updated dependencies [e00fd0516c]
+  - @rest-hooks/react@7.4.0-next.0
+
 ## 10.3.6
 
 ### Patch Changes

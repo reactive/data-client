@@ -1,5 +1,18 @@
 # Change Log
 
+## 1.0.0-next.0
+
+### Patch Changes
+
+- Updated dependencies [93a08592c6]
+- Updated dependencies [93a08592c6]
+- Updated dependencies [6bd94947f3]
+- Updated dependencies [93f103e3af]
+- Updated dependencies [0c7ca6310d]
+- Updated dependencies [e00fd0516c]
+  - @rest-hooks/react@7.4.0-next.0
+  - @rest-hooks/redux@7.0.0-next.0
+
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
@@ -7,17 +20,17 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### 💅 Enhancement
 
-* Include extension in all imports ([#2482](https://github.com/data-client/rest-hooks/issues/2482)) ([9d57220](https://github.com/data-client/rest-hooks/commit/9d57220d4cb82fa3090f4127b277bcf6b62a34b1))
+- Include extension in all imports ([#2482](https://github.com/data-client/rest-hooks/issues/2482)) ([9d57220](https://github.com/data-client/rest-hooks/commit/9d57220d4cb82fa3090f4127b277bcf6b62a34b1))
 
 ### 📦 Package
 
-* Update babel packages ([#2487](https://github.com/data-client/rest-hooks/issues/2487)) ([3fc9efc](https://github.com/data-client/rest-hooks/commit/3fc9efc0bfc818ae7b4a1113cf6f7daa8bbcba8c))
+- Update babel packages ([#2487](https://github.com/data-client/rest-hooks/issues/2487)) ([3fc9efc](https://github.com/data-client/rest-hooks/commit/3fc9efc0bfc818ae7b4a1113cf6f7daa8bbcba8c))
 
 ### [0.7.10](https://github.com/data-client/rest-hooks/compare/@rest-hooks/ssr@0.7.9...@rest-hooks/ssr@0.7.10) (2023-03-02)
 
 ### 📦 Package
 
-* Update babel packages ([#2457](https://github.com/data-client/rest-hooks/issues/2457)) ([45c4a0a](https://github.com/data-client/rest-hooks/commit/45c4a0ab4ebd6112db75e8c6f09e5ad1add74c8b))
+- Update babel packages ([#2457](https://github.com/data-client/rest-hooks/issues/2457)) ([45c4a0a](https://github.com/data-client/rest-hooks/commit/45c4a0ab4ebd6112db75e8c6f09e5ad1add74c8b))
 
 ### [0.7.9](https://github.com/data-client/rest-hooks/compare/@rest-hooks/ssr@0.7.8...@rest-hooks/ssr@0.7.9) (2023-02-11)
 
@@ -27,74 +40,74 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### 📝 Documentation
 
-* Update github organization to data-client ([#2396](https://github.com/data-client/rest-hooks/issues/2396)) ([45faab1](https://github.com/data-client/rest-hooks/commit/45faab1962cad292d1f77a0a997e8c321a6917db))
+- Update github organization to data-client ([#2396](https://github.com/data-client/rest-hooks/issues/2396)) ([45faab1](https://github.com/data-client/rest-hooks/commit/45faab1962cad292d1f77a0a997e8c321a6917db))
 
 ### [0.7.7](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.7.6...@rest-hooks/ssr@0.7.7) (2023-01-29)
 
 ### 📦 Package
 
-* Fix versions to match actual released range: ([0ebd28b](https://github.com/coinbase/rest-hooks/commit/0ebd28b45838e7151f5edea4d6bde544dbf15105))
+- Fix versions to match actual released range: ([0ebd28b](https://github.com/coinbase/rest-hooks/commit/0ebd28b45838e7151f5edea4d6bde544dbf15105))
 
 ### [0.7.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.7.5...@rest-hooks/ssr@0.7.6) (2023-01-29)
 
 ### 🐛 Bug Fix
 
-* Update peerDeps for proper ssr range ([2462bcd](https://github.com/coinbase/rest-hooks/commit/2462bcdd726ab63a4f30013cedbf975c227a9bce))
+- Update peerDeps for proper ssr range ([2462bcd](https://github.com/coinbase/rest-hooks/commit/2462bcdd726ab63a4f30013cedbf975c227a9bce))
 
 ### [0.7.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.7.4...@rest-hooks/ssr@0.7.5) (2023-01-23)
 
 ### 🚀 Features
 
-* makeRenderRestHook(CacheProvider) and React 18 testing ([#2328](https://github.com/coinbase/rest-hooks/issues/2328)) ([0e9e51e](https://github.com/coinbase/rest-hooks/commit/0e9e51e3bce3c9c978888a734c43be8d1fe3ae55))
+- makeRenderRestHook(CacheProvider) and React 18 testing ([#2328](https://github.com/coinbase/rest-hooks/issues/2328)) ([0e9e51e](https://github.com/coinbase/rest-hooks/commit/0e9e51e3bce3c9c978888a734c43be8d1fe3ae55))
 
 ### [0.7.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.7.3...@rest-hooks/ssr@0.7.4) (2023-01-12)
 
 ### 📦 Package
 
-* Update babel packages ([#2348](https://github.com/coinbase/rest-hooks/issues/2348)) ([5d0a68e](https://github.com/coinbase/rest-hooks/commit/5d0a68ea00b021effeae185fcdea415cf50c0328))
+- Update babel packages ([#2348](https://github.com/coinbase/rest-hooks/issues/2348)) ([5d0a68e](https://github.com/coinbase/rest-hooks/commit/5d0a68ea00b021effeae185fcdea415cf50c0328))
 
 ### [0.7.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.7.2...@rest-hooks/ssr@0.7.3) (2022-12-23)
 
 ### 📦 Package
 
-* Update babel packages ([#2339](https://github.com/coinbase/rest-hooks/issues/2339)) ([2cc99b9](https://github.com/coinbase/rest-hooks/commit/2cc99b99aeece58b0e7674ca80d3372555612c63))
+- Update babel packages ([#2339](https://github.com/coinbase/rest-hooks/issues/2339)) ([2cc99b9](https://github.com/coinbase/rest-hooks/commit/2cc99b99aeece58b0e7674ca80d3372555612c63))
 
 ### [0.7.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.7.1...@rest-hooks/ssr@0.7.2) (2022-12-06)
 
 ### 💅 Enhancement
 
-* Reduce bundlesize via custom Object.hasOwn polyfill ([#2322](https://github.com/coinbase/rest-hooks/issues/2322)) ([1f8009d](https://github.com/coinbase/rest-hooks/commit/1f8009d9849cfb784f072a1078b4d12b37d59a04))
+- Reduce bundlesize via custom Object.hasOwn polyfill ([#2322](https://github.com/coinbase/rest-hooks/issues/2322)) ([1f8009d](https://github.com/coinbase/rest-hooks/commit/1f8009d9849cfb784f072a1078b4d12b37d59a04))
 
 ### [0.7.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.7.0...@rest-hooks/ssr@0.7.1) (2022-12-05)
 
 ### 💅 Enhancement
 
-* Include Object.hasOwn polyfill ([#2309](https://github.com/coinbase/rest-hooks/issues/2309)) ([14b93f6](https://github.com/coinbase/rest-hooks/commit/14b93f67f0589df5813909e0c1acd4cacad0a3ee))
+- Include Object.hasOwn polyfill ([#2309](https://github.com/coinbase/rest-hooks/issues/2309)) ([14b93f6](https://github.com/coinbase/rest-hooks/commit/14b93f67f0589df5813909e0c1acd4cacad0a3ee))
 
 ### 📦 Package
 
-* Update babel packages ([#2308](https://github.com/coinbase/rest-hooks/issues/2308)) ([e3ee5ee](https://github.com/coinbase/rest-hooks/commit/e3ee5ee57431971ba4bdb47b48ed89933412374c))
+- Update babel packages ([#2308](https://github.com/coinbase/rest-hooks/issues/2308)) ([e3ee5ee](https://github.com/coinbase/rest-hooks/commit/e3ee5ee57431971ba4bdb47b48ed89933412374c))
 
 ## [0.7.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.6.0...@rest-hooks/ssr@0.7.0) (2022-11-22)
 
 ### 🚀 Features
 
-* Add LogoutManager ([e9e10a8](https://github.com/coinbase/rest-hooks/commit/e9e10a88df2bbc36bfaf3498c00cc35b657ada8f))
-* Add nextjs helpers and docs ([#2288](https://github.com/coinbase/rest-hooks/issues/2288)) ([59b55aa](https://github.com/coinbase/rest-hooks/commit/59b55aa0b380593dccfed74e3cd9c0b47a9e8699))
+- Add LogoutManager ([e9e10a8](https://github.com/coinbase/rest-hooks/commit/e9e10a88df2bbc36bfaf3498c00cc35b657ada8f))
+- Add nextjs helpers and docs ([#2288](https://github.com/coinbase/rest-hooks/issues/2288)) ([59b55aa](https://github.com/coinbase/rest-hooks/commit/59b55aa0b380593dccfed74e3cd9c0b47a9e8699))
 
 ### 💅 Enhancement
 
-* AppCacheProvider passes props to CacheProvider ([22f2ed0](https://github.com/coinbase/rest-hooks/commit/22f2ed0758e0be7e0c5ae8b2e1244560c3608e9e))
+- AppCacheProvider passes props to CacheProvider ([22f2ed0](https://github.com/coinbase/rest-hooks/commit/22f2ed0758e0be7e0c5ae8b2e1244560c3608e9e))
 
 ### 📝 Documentation
 
-* Add nextjs demo ([b650618](https://github.com/coinbase/rest-hooks/commit/b6506180ef41a73eb4c926eef3786e0394c3a2c3))
+- Add nextjs demo ([b650618](https://github.com/coinbase/rest-hooks/commit/b6506180ef41a73eb4c926eef3786e0394c3a2c3))
 
 ## [0.6.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.5.0...@rest-hooks/ssr@0.6.0) (2022-11-16)
 
 ### 🚀 Features
 
-* @rest-hooks/react latest version matching ([3f7b2c4](https://github.com/coinbase/rest-hooks/commit/3f7b2c4ef5d7ff9c29749a1ad8764d80388f058a))
+- @rest-hooks/react latest version matching ([3f7b2c4](https://github.com/coinbase/rest-hooks/commit/3f7b2c4ef5d7ff9c29749a1ad8764d80388f058a))
 
 ### [0.4.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.4.0...@rest-hooks/ssr@0.4.1) (2022-11-13)
 
@@ -104,106 +117,106 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### ⚠ 💥 BREAKING CHANGES
 
-* Require @rest-hooks/react as peerdep
+- Require @rest-hooks/react as peerdep
 
 ### 🚀 Features
 
-* Add packages react and redux ([#2270](https://github.com/coinbase/rest-hooks/issues/2270)) ([6e28f5f](https://github.com/coinbase/rest-hooks/commit/6e28f5f465b6f4f5d444b56234f212863aeade31))
-* Use @rest-hooks/react instead of rest-hooks ([cd4722f](https://github.com/coinbase/rest-hooks/commit/cd4722f9e88701969f2dd0ec881632e4d3179f7d))
+- Add packages react and redux ([#2270](https://github.com/coinbase/rest-hooks/issues/2270)) ([6e28f5f](https://github.com/coinbase/rest-hooks/commit/6e28f5f465b6f4f5d444b56234f212863aeade31))
+- Use @rest-hooks/react instead of rest-hooks ([cd4722f](https://github.com/coinbase/rest-hooks/commit/cd4722f9e88701969f2dd0ec881632e4d3179f7d))
 
 ## [0.3.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.2.9...@rest-hooks/ssr@0.3.0) (2022-11-06)
 
 ### 🚀 Features
 
-* Support React 18 preload-free-SSR like in NextJS ([#2253](https://github.com/coinbase/rest-hooks/issues/2253)) ([589030c](https://github.com/coinbase/rest-hooks/commit/589030c60481a7a502700773b67beeb684d527fe))
+- Support React 18 preload-free-SSR like in NextJS ([#2253](https://github.com/coinbase/rest-hooks/issues/2253)) ([589030c](https://github.com/coinbase/rest-hooks/commit/589030c60481a7a502700773b67beeb684d527fe))
 
 ### 📦 Package
 
-* Update babel packages ([#2255](https://github.com/coinbase/rest-hooks/issues/2255)) ([4d739a9](https://github.com/coinbase/rest-hooks/commit/4d739a9dbe2d9796f21e24ebb2022e10575bd0c4))
+- Update babel packages ([#2255](https://github.com/coinbase/rest-hooks/issues/2255)) ([4d739a9](https://github.com/coinbase/rest-hooks/commit/4d739a9dbe2d9796f21e24ebb2022e10575bd0c4))
 
 ### [0.2.9](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.2.8...@rest-hooks/ssr@0.2.9) (2022-10-28)
 
 ### 📦 Package
 
-* Update babel packages ([#2227](https://github.com/coinbase/rest-hooks/issues/2227)) ([4e652a1](https://github.com/coinbase/rest-hooks/commit/4e652a13552cbf467ca140738f9603aba06cffee))
+- Update babel packages ([#2227](https://github.com/coinbase/rest-hooks/issues/2227)) ([4e652a1](https://github.com/coinbase/rest-hooks/commit/4e652a13552cbf467ca140738f9603aba06cffee))
 
 ### [0.2.8](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.2.7...@rest-hooks/ssr@0.2.8) (2022-10-01)
 
 ### 📦 Package
 
-* Update all non-major dependencies ([#2190](https://github.com/coinbase/rest-hooks/issues/2190)) ([c2c7403](https://github.com/coinbase/rest-hooks/commit/c2c74033ecf2004ddebaf064af64f37894f20dec))
-* Update babel packages ([#2192](https://github.com/coinbase/rest-hooks/issues/2192)) ([7c9d3bc](https://github.com/coinbase/rest-hooks/commit/7c9d3bc8ea3019490a1f9e1978c3709b346d582d))
+- Update all non-major dependencies ([#2190](https://github.com/coinbase/rest-hooks/issues/2190)) ([c2c7403](https://github.com/coinbase/rest-hooks/commit/c2c74033ecf2004ddebaf064af64f37894f20dec))
+- Update babel packages ([#2192](https://github.com/coinbase/rest-hooks/issues/2192)) ([7c9d3bc](https://github.com/coinbase/rest-hooks/commit/7c9d3bc8ea3019490a1f9e1978c3709b346d582d))
 
 ### [0.2.7](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.2.6...@rest-hooks/ssr@0.2.7) (2022-09-19)
 
 ### 🐛 Bug Fix
 
-* React native to use es6 modules ([#2180](https://github.com/coinbase/rest-hooks/issues/2180)) ([31524ea](https://github.com/coinbase/rest-hooks/commit/31524ea2cbe6ab4bf4cfe77659ac5e69b0319763))
+- React native to use es6 modules ([#2180](https://github.com/coinbase/rest-hooks/issues/2180)) ([31524ea](https://github.com/coinbase/rest-hooks/commit/31524ea2cbe6ab4bf4cfe77659ac5e69b0319763))
 
 ### 📦 Package
 
-* Update babel packages ([#2174](https://github.com/coinbase/rest-hooks/issues/2174)) ([dab7ac7](https://github.com/coinbase/rest-hooks/commit/dab7ac798850fc0519ffe5793601757b10d949b2))
+- Update babel packages ([#2174](https://github.com/coinbase/rest-hooks/issues/2174)) ([dab7ac7](https://github.com/coinbase/rest-hooks/commit/dab7ac798850fc0519ffe5793601757b10d949b2))
 
 ### [0.2.7-beta.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.2.6...@rest-hooks/ssr@0.2.7-beta.1) (2022-09-17)
 
 ### 📦 Package
 
-* Update babel packages ([#2174](https://github.com/coinbase/rest-hooks/issues/2174)) ([dab7ac7](https://github.com/coinbase/rest-hooks/commit/dab7ac798850fc0519ffe5793601757b10d949b2))
+- Update babel packages ([#2174](https://github.com/coinbase/rest-hooks/issues/2174)) ([dab7ac7](https://github.com/coinbase/rest-hooks/commit/dab7ac798850fc0519ffe5793601757b10d949b2))
 
 ### [0.2.7-beta.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.2.6...@rest-hooks/ssr@0.2.7-beta.0) (2022-09-16)
 
 ### 📦 Package
 
-* Update babel packages ([#2174](https://github.com/coinbase/rest-hooks/issues/2174)) ([dab7ac7](https://github.com/coinbase/rest-hooks/commit/dab7ac798850fc0519ffe5793601757b10d949b2))
+- Update babel packages ([#2174](https://github.com/coinbase/rest-hooks/issues/2174)) ([dab7ac7](https://github.com/coinbase/rest-hooks/commit/dab7ac798850fc0519ffe5793601757b10d949b2))
 
 ### [0.2.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.2.4...@rest-hooks/ssr@0.2.6) (2022-09-10)
 
 ### 📦 Package
 
-* Update all non-major dependencies ([#2119](https://github.com/coinbase/rest-hooks/issues/2119)) ([3003348](https://github.com/coinbase/rest-hooks/commit/3003348ba96781085a6f8a6a86a882438ba2b5ea))
-* Update all non-major dependencies ([#2136](https://github.com/coinbase/rest-hooks/issues/2136)) ([f7c8649](https://github.com/coinbase/rest-hooks/commit/f7c864998abc68cae1a4130f2de50e055c7a5269))
-* Update all non-major dependencies ([#2150](https://github.com/coinbase/rest-hooks/issues/2150)) ([eb480f1](https://github.com/coinbase/rest-hooks/commit/eb480f1f567944208483c9239256e7bcf81351e7))
-* Update babel packages ([#2124](https://github.com/coinbase/rest-hooks/issues/2124)) ([bab76ae](https://github.com/coinbase/rest-hooks/commit/bab76ae4ac54474634d3cb323b69ef9be5773a03))
-* Update babel packages ([#2140](https://github.com/coinbase/rest-hooks/issues/2140)) ([bc4d12d](https://github.com/coinbase/rest-hooks/commit/bc4d12d5369f4eee17f32d9379793cfc9b679d61))
-* Update babel packages ([#2161](https://github.com/coinbase/rest-hooks/issues/2161)) ([31b2c8f](https://github.com/coinbase/rest-hooks/commit/31b2c8ff3d9f9001c31f3f5c15bec1321a15361d))
+- Update all non-major dependencies ([#2119](https://github.com/coinbase/rest-hooks/issues/2119)) ([3003348](https://github.com/coinbase/rest-hooks/commit/3003348ba96781085a6f8a6a86a882438ba2b5ea))
+- Update all non-major dependencies ([#2136](https://github.com/coinbase/rest-hooks/issues/2136)) ([f7c8649](https://github.com/coinbase/rest-hooks/commit/f7c864998abc68cae1a4130f2de50e055c7a5269))
+- Update all non-major dependencies ([#2150](https://github.com/coinbase/rest-hooks/issues/2150)) ([eb480f1](https://github.com/coinbase/rest-hooks/commit/eb480f1f567944208483c9239256e7bcf81351e7))
+- Update babel packages ([#2124](https://github.com/coinbase/rest-hooks/issues/2124)) ([bab76ae](https://github.com/coinbase/rest-hooks/commit/bab76ae4ac54474634d3cb323b69ef9be5773a03))
+- Update babel packages ([#2140](https://github.com/coinbase/rest-hooks/issues/2140)) ([bc4d12d](https://github.com/coinbase/rest-hooks/commit/bc4d12d5369f4eee17f32d9379793cfc9b679d61))
+- Update babel packages ([#2161](https://github.com/coinbase/rest-hooks/issues/2161)) ([31b2c8f](https://github.com/coinbase/rest-hooks/commit/31b2c8ff3d9f9001c31f3f5c15bec1321a15361d))
 
 ### [0.2.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.2.4...@rest-hooks/ssr@0.2.5) (2022-09-04)
 
 ### 📦 Package
 
-* Update all non-major dependencies ([#2119](https://github.com/coinbase/rest-hooks/issues/2119)) ([3003348](https://github.com/coinbase/rest-hooks/commit/3003348ba96781085a6f8a6a86a882438ba2b5ea))
-* Update all non-major dependencies ([#2136](https://github.com/coinbase/rest-hooks/issues/2136)) ([f7c8649](https://github.com/coinbase/rest-hooks/commit/f7c864998abc68cae1a4130f2de50e055c7a5269))
-* Update all non-major dependencies ([#2150](https://github.com/coinbase/rest-hooks/issues/2150)) ([eb480f1](https://github.com/coinbase/rest-hooks/commit/eb480f1f567944208483c9239256e7bcf81351e7))
-* Update babel packages ([#2124](https://github.com/coinbase/rest-hooks/issues/2124)) ([bab76ae](https://github.com/coinbase/rest-hooks/commit/bab76ae4ac54474634d3cb323b69ef9be5773a03))
-* Update babel packages ([#2140](https://github.com/coinbase/rest-hooks/issues/2140)) ([bc4d12d](https://github.com/coinbase/rest-hooks/commit/bc4d12d5369f4eee17f32d9379793cfc9b679d61))
+- Update all non-major dependencies ([#2119](https://github.com/coinbase/rest-hooks/issues/2119)) ([3003348](https://github.com/coinbase/rest-hooks/commit/3003348ba96781085a6f8a6a86a882438ba2b5ea))
+- Update all non-major dependencies ([#2136](https://github.com/coinbase/rest-hooks/issues/2136)) ([f7c8649](https://github.com/coinbase/rest-hooks/commit/f7c864998abc68cae1a4130f2de50e055c7a5269))
+- Update all non-major dependencies ([#2150](https://github.com/coinbase/rest-hooks/issues/2150)) ([eb480f1](https://github.com/coinbase/rest-hooks/commit/eb480f1f567944208483c9239256e7bcf81351e7))
+- Update babel packages ([#2124](https://github.com/coinbase/rest-hooks/issues/2124)) ([bab76ae](https://github.com/coinbase/rest-hooks/commit/bab76ae4ac54474634d3cb323b69ef9be5773a03))
+- Update babel packages ([#2140](https://github.com/coinbase/rest-hooks/issues/2140)) ([bc4d12d](https://github.com/coinbase/rest-hooks/commit/bc4d12d5369f4eee17f32d9379793cfc9b679d61))
 
 ### [0.2.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.2.3...@rest-hooks/ssr@0.2.4) (2022-07-26)
 
 ### 📦 Package
 
-* Update all non-major dependencies ([#2113](https://github.com/coinbase/rest-hooks/issues/2113)) ([f9b7a6e](https://github.com/coinbase/rest-hooks/commit/f9b7a6e5b19a0d6f26208af517451affa161b070))
+- Update all non-major dependencies ([#2113](https://github.com/coinbase/rest-hooks/issues/2113)) ([f9b7a6e](https://github.com/coinbase/rest-hooks/commit/f9b7a6e5b19a0d6f26208af517451affa161b070))
 
 ### [0.2.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.2.2...@rest-hooks/ssr@0.2.3) (2022-07-23)
 
 ### 🐛 Bug Fix
 
-* Ensure dual package hazard solved for non-node ([#2099](https://github.com/coinbase/rest-hooks/issues/2099)) ([6206e64](https://github.com/coinbase/rest-hooks/commit/6206e6463a7c3699d5c1d1b248e4d5418b1327f1))
+- Ensure dual package hazard solved for non-node ([#2099](https://github.com/coinbase/rest-hooks/issues/2099)) ([6206e64](https://github.com/coinbase/rest-hooks/commit/6206e6463a7c3699d5c1d1b248e4d5418b1327f1))
 
 ### [0.2.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.2.0...@rest-hooks/ssr@0.2.2) (2022-07-20)
 
 ### 🐛 Bug Fix
 
-* Fix package exports support for latest resolve pkg ([#2062](https://github.com/coinbase/rest-hooks/issues/2062)) ([0088494](https://github.com/coinbase/rest-hooks/commit/0088494e5cab91da7becebe7d9b62796fb9f4f2e))
+- Fix package exports support for latest resolve pkg ([#2062](https://github.com/coinbase/rest-hooks/issues/2062)) ([0088494](https://github.com/coinbase/rest-hooks/commit/0088494e5cab91da7becebe7d9b62796fb9f4f2e))
 
 ## [0.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.1.4...@rest-hooks/ssr@0.2.0) (2022-05-30)
 
 ### 🚀 Features
 
-* Add nonce property for security in SSR ([#2029](https://github.com/coinbase/rest-hooks/issues/2029)) ([6016126](https://github.com/coinbase/rest-hooks/commit/601612623b569d0f104b34ae05ebea9770e3cf62))
+- Add nonce property for security in SSR ([#2029](https://github.com/coinbase/rest-hooks/issues/2029)) ([6016126](https://github.com/coinbase/rest-hooks/commit/601612623b569d0f104b34ae05ebea9770e3cf62))
 
 ### 📦 Package
 
-* Use @babel/runtime@^7.13.0 to use CJS/ESM exports support ([#2019](https://github.com/coinbase/rest-hooks/issues/2019)) ([78a22f2](https://github.com/coinbase/rest-hooks/commit/78a22f29f86527ac10eb2c9b031984e044226dce))
+- Use @babel/runtime@^7.13.0 to use CJS/ESM exports support ([#2019](https://github.com/coinbase/rest-hooks/issues/2019)) ([78a22f2](https://github.com/coinbase/rest-hooks/commit/78a22f29f86527ac10eb2c9b031984e044226dce))
 
 ### [0.1.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.1.3...@rest-hooks/ssr@0.1.4) (2022-04-30)
 
@@ -213,7 +226,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### 🐛 Bug Fix
 
-* createPersistedStore import ([#1921](https://github.com/coinbase/rest-hooks/issues/1921)) ([17ce1dc](https://github.com/coinbase/rest-hooks/commit/17ce1dce132a9705937de173a8ad44e0532ffa96))
+- createPersistedStore import ([#1921](https://github.com/coinbase/rest-hooks/issues/1921)) ([17ce1dc](https://github.com/coinbase/rest-hooks/commit/17ce1dce132a9705937de173a8ad44e0532ffa96))
 
 ### [0.1.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.1.1-beta.0...@rest-hooks/ssr@0.1.2) (2022-04-01)
 
@@ -223,4 +236,4 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### 🚀 Features
 
-* Add @rest-hooks/ssr ([#1767](https://github.com/coinbase/rest-hooks/issues/1767)) ([10a77f0](https://github.com/coinbase/rest-hooks/commit/10a77f05687f42cca7e8bd675c95f69b8c915410))
+- Add @rest-hooks/ssr ([#1767](https://github.com/coinbase/rest-hooks/issues/1767)) ([10a77f0](https://github.com/coinbase/rest-hooks/commit/10a77f05687f42cca7e8bd675c95f69b8c915410))
