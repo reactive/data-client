@@ -8,11 +8,12 @@ import type {
 } from '@rest-hooks/endpoint';
 
 import { OptionsToFunction } from './OptionsToFunction.js';
+import type { ExtractCollection } from '../extractCollection.js';
 import { PathArgs } from '../pathTypes.js';
 import { EndpointUpdateFunction } from '../RestEndpointTypeHelp.js';
 import { RequiredKeys } from '../utiltypes.js';
 
-export interface RestInstance<
+export interface RestInstanceBase<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = any,
   M extends true | undefined = true | undefined,
@@ -63,22 +64,53 @@ export interface RestInstance<
   testKey(key: string): boolean;
 
   /* extenders */
+  extend<E extends RestInstanceBase, O extends PartialRestGenerics | {}>(
+    this: E,
+    options: Readonly<RestEndpointExtendOptions<O, E, F> & O>,
+  ): RestExtendedEndpoint<O, E>;
   paginated<
-    E extends RestInstance<FetchFunction, Schema | undefined, undefined>,
+    E extends RestInstanceBase<FetchFunction, any, undefined>,
     A extends any[],
   >(
     this: E,
     removeCursor: (...args: A) => readonly [...Parameters<E>],
   ): PaginationEndpoint<E, A>;
-  extend<E extends RestInstance, O extends PartialRestGenerics | {}>(
+  paginated<
+    E extends RestInstanceBase<FetchFunction, any, undefined>,
+    C extends string,
+  >(
     this: E,
-    options: Readonly<RestEndpointExtendOptions<O, E, F> & O>,
-  ): RestExtendedEndpoint<O, E>;
+    cursorField: C,
+  ): PaginationFieldEndpoint<E, C>;
 }
+
+export interface RestInstance<
+  F extends FetchFunction = FetchFunction,
+  S extends Schema | undefined = any,
+  M extends true | undefined = true | undefined,
+  O extends {
+    path: string;
+    body?: any;
+    searchParams?: any;
+  } = { path: string },
+> extends RestInstanceBase<F, S, M, O> {
+  push: AddEndpoint<F, S, O>;
+  unshift: AddEndpoint<F, S, O>;
+  assign: AddEndpoint<F, S, O>;
+}
+
+export type ContainsCollectionArray =
+  | { push: any; unshift: any }
+  | { [K: string]: ContainsCollectionArray }
+  | { schema: { [K: string]: ContainsCollectionArray } };
+export type ContainsCollectionValues =
+  | { assign: any }
+  | { [K: string]: ContainsCollectionValues }
+  | { schema: { [K: string]: ContainsCollectionValues } };
 
 export type RestEndpointExtendOptions<
   O extends PartialRestGenerics | {},
-  E extends RestInstance,
+  E extends RestInstanceBase,
   F extends FetchFunction,
 > = RestEndpointOptions<
   OptionsToFunction<O, E, F>,
@@ -86,11 +118,11 @@ export type RestEndpointExtendOptions<
     ? Extract<O['schema'], Schema | undefined>
     : E['schema']
 > &
-  Partial<Omit<E, KeyofRestEndpoint | 'body' | 'searchParams'>>;
+  Partial<Omit<E, KeyofRestEndpoint | keyof PartialRestGenerics>>;
 
 type OptionsToRestEndpoint<
   O extends PartialRestGenerics,
-  E extends RestInstance & { body?: any },
+  E extends RestInstanceBase & { body?: any },
   F extends FetchFunction,
 > = 'path' extends keyof O
   ? RestType<
@@ -156,7 +188,7 @@ type OptionsToRestEndpoint<
 
 export type RestExtendedEndpoint<
   O extends PartialRestGenerics,
-  E extends RestInstance,
+  E extends RestInstanceBase,
 > = OptionsToRestEndpoint<
   O,
   E,
@@ -188,8 +220,17 @@ export interface RestGenerics extends PartialRestGenerics {
   readonly path: string;
 }
 
+export interface ResourceGenerics {
+  readonly path: string;
+  readonly schema: Schema;
+  /** Only used for types */
+  readonly body?: any;
+  /** Only used for types */
+  readonly searchParams?: any;
+}
+
 export type PaginationEndpoint<
-  E extends RestInstance,
+  E extends RestInstanceBase,
   A extends any[],
 > = RestInstance<
   ParamFetchNoBody<A[0], ResolveType<E>>,
@@ -199,6 +240,41 @@ export type PaginationEndpoint<
     searchParams: Omit<A[0], keyof PathArgs<E['path']>>;
   }
 >;
+export type PaginationFieldEndpoint<
+  E extends RestInstanceBase,
+  C extends string,
+> = RestInstance<
+  ParamFetchNoBody<
+    { [K in C]: string | number | boolean } & E['searchParams'] &
+      PathArgs<Exclude<E['path'], undefined>>,
+    ResolveType<E>
+  >,
+  E['schema'],
+  E['sideEffect'],
+  Pick<E, 'path' | 'searchParams' | 'body'> & {
+    searchParams: { [K in C]: string | number | boolean } & E['searchParams'];
+  }
+>;
+export type AddEndpoint<
+  F extends FetchFunction = FetchFunction,
+  S extends Schema | undefined = any,
+  O extends {
+    path: string;
+    body?: any;
+    searchParams?: any;
+  } = { path: string },
+> = RestInstanceBase<
+  RestFetch<
+    'searchParams' extends keyof O
+      ? O['searchParams'] & PathArgs<Exclude<O['path'], undefined>>
+      : PathArgs<Exclude<O['path'], undefined>>,
+    any,
+    ReturnType<F>
+  >,
+  ExtractCollection<S>,
+  true,
+  Omit<O, 'body'>
+> & { method: 'POST' };
 
 export type BodyDefault<O extends RestGenerics> = 'body' extends keyof O
   ? O['body']
@@ -212,22 +288,26 @@ type OptionsBodyDefault<O extends RestGenerics> = 'body' extends keyof O
   ? O & { body: any }
   : O & { body: undefined };
 
-export interface RestEndpointOptions<
-  F extends FetchFunction = FetchFunction,
-  S extends Schema | undefined = undefined,
-> extends EndpointExtraOptions<F> {
-  fetch?: F;
+export interface ResourceOptions<F extends FetchFunction = FetchFunction>
+  extends EndpointExtraOptions<F> {
   urlPrefix?: string;
   requestInit?: RequestInit;
-  key?(...args: Parameters<F>): string;
-  sideEffect?: true | undefined;
-  name?: string;
-  signal?: AbortSignal;
-  url?(...args: Parameters<F>): string;
   getHeaders?(headers: HeadersInit): Promise<HeadersInit> | HeadersInit;
   getRequestInit?(body: any): Promise<RequestInit> | RequestInit;
   fetchResponse?(input: RequestInfo, init: RequestInit): Promise<any>;
   parseResponse?(response: Response): Promise<any>;
+}
+
+export interface RestEndpointOptions<
+  F extends FetchFunction = FetchFunction,
+  S extends Schema | undefined = undefined,
+> extends ResourceOptions<F> {
+  sideEffect?: true | undefined;
+  name?: string;
+  signal?: AbortSignal;
+  fetch?: F;
+  key?(...args: Parameters<F>): string;
+  url?(...args: Parameters<F>): string;
   update?: EndpointUpdateFunction<F, S>;
 }
 
@@ -265,7 +345,7 @@ export interface RestEndpointConstructor {
     MethodToSide<O['method']>,
     OptionsBodyDefault<O>
   >;
-  readonly prototype: RestInstance;
+  readonly prototype: RestInstanceBase;
 }
 
 /** Simplifies endpoint definitions that follow REST patterns
@@ -414,51 +494,38 @@ export type FetchGet<A extends readonly any[] = [any], R = any> = (
   ...args: A
 ) => Promise<R>;
 
-export type GetEndpoint<
-  UrlParams = any,
-  S extends Schema | undefined = Schema | undefined,
-> = RestTypeNoBody<UrlParams, S, undefined>;
-
-export type MutateEndpoint<
-  UrlParams = any,
-  Body extends BodyInit | Record<string, any> = any,
-  S extends Schema | undefined = Schema | undefined,
-> = RestTypeWithBody<UrlParams, S, true, Body>;
-
 export type Defaults<O, D> = {
   [K in keyof O | keyof D]: K extends keyof O
     ? Exclude<O[K], undefined>
     : D[Extract<K, keyof D>];
 };
 
-export type NewGetEndpoint<
-  O extends {
+export type GetEndpoint<
+  O extends Omit<ResourceGenerics, 'body'> = {
     path: string;
-    searchParams?: any;
-  } = { path: string },
-  S extends Schema | undefined = Schema | undefined,
+    schema: Schema;
+  },
 > = RestTypeNoBody<
   'searchParams' extends keyof O
     ? O['searchParams'] & PathArgs<O['path']>
     : PathArgs<O['path']>,
-  S,
+  O['schema'],
   undefined,
   any,
   O & { body: undefined }
 >;
 
-export type NewMutateEndpoint<
-  O extends {
+export type MutateEndpoint<
+  O extends ResourceGenerics = {
     path: string;
-    body?: any;
-    searchParams?: any;
-  } = { path: string; body: any },
-  S extends Schema | undefined = Schema | undefined,
+    body: any;
+    schema: Schema;
+  },
 > = RestTypeWithBody<
   'searchParams' extends keyof O
     ? O['searchParams'] & PathArgs<O['path']>
     : PathArgs<O['path']>,
-  S,
+  O['schema'],
   true,
   O['body'],
   any,

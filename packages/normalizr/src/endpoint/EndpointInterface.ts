@@ -11,7 +11,7 @@ export interface EndpointInterface<
   S extends Schema | undefined = Schema | undefined,
   M extends boolean | undefined = boolean | undefined,
 > extends EndpointExtraOptions<F> {
-  (...args: Parameters<F>): InferReturn<F, S>;
+  (...args: Parameters<F>): ReturnType<F>;
   key(...args: Parameters<F>): string;
   readonly sideEffect?: M;
   readonly schema?: S;

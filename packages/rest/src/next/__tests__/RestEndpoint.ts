@@ -1291,6 +1291,10 @@ describe('RestEndpoint.fetch()', () => {
     });
     expect(res).toEqual({ id, title: 'hi' });
   });
+
+  it('without Collection in schema - endpoint.push schema should be null', () => {
+    expect(getArticleList2.push.schema).toBeFalsy();
+  });
 });
 const proto = Object.prototype;
 const gpo = Object.getPrototypeOf;

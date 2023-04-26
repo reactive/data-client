@@ -15,6 +15,8 @@ const visit = (
     id: string,
   ) => void,
   visitedEntities: any,
+  storeEntities: any,
+  args: any[],
 ) => {
   if (!value || !schema) {
     return value;
@@ -29,6 +31,8 @@ const visit = (
       visit,
       addEntity,
       visitedEntities,
+      storeEntities,
+      args,
     );
   }
 
@@ -40,7 +44,17 @@ const visit = (
   if (typeof value !== 'object' || typeof schema !== 'object') return value;
 
   const method = Array.isArray(schema) ? arrayNormalize : objectNormalize;
-  return method(schema, value, parent, key, visit, addEntity, visitedEntities);
+  return method(
+    schema,
+    value,
+    parent,
+    key,
+    visit,
+    addEntity,
+    visitedEntities,
+    storeEntities,
+    args,
+  );
 };
 
 const addEntities =
@@ -256,6 +270,7 @@ export const normalize = <
 >(
   input: any,
   schema?: S,
+  args: any[] = [],
   storeEntities: Readonly<E> = {} as any,
   storeIndexes: Readonly<NormalizedIndex> = {},
   storeEntityMeta: {
@@ -352,6 +367,8 @@ See https://resthooks.io/rest/api/RestEndpoint#parseResponse for more informatio
     schema,
     addEntity,
     visitedEntities,
+    storeEntities,
+    args,
   );
   return { entities, indexes, result, entityMeta };
 };

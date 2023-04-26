@@ -70,7 +70,7 @@ export type Denormalize<S> = S extends EntityInterface<infer U>
   ? AbstractInstanceType<S>
   : S extends { denormalizeOnly: (...args: any) => any }
   ? ReturnType<S['denormalizeOnly']>
-  : S extends SchemaClass
+  : S extends { denormalize: (...args: any) => any }
   ? DenormalizeReturnType<S['denormalize']>
   : S extends Serializable<infer T>
   ? T
@@ -84,7 +84,7 @@ export type DenormalizeNullable<S> = S extends EntityInterface<any>
   ? DenormalizeNullableNestedSchema<S> | undefined
   : S extends RecordClass
   ? DenormalizeNullableNestedSchema<S>
-  : S extends SchemaClass
+  : S extends { _denormalizeNullable: (...args: any) => any }
   ? DenormalizeReturnType<S['_denormalizeNullable']>
   : S extends Serializable<infer T>
   ? T
@@ -98,7 +98,7 @@ export type Normalize<S> = S extends EntityInterface
   ? string
   : S extends RecordClass
   ? NormalizeObject<S['schema']>
-  : S extends SchemaClass
+  : S extends { normalize: (...args: any) => any }
   ? NormalizeReturnType<S['normalize']>
   : S extends Serializable<infer T>
   ? T
@@ -112,7 +112,7 @@ export type NormalizeNullable<S> = S extends EntityInterface
   ? string | undefined
   : S extends RecordClass
   ? NormalizedNullableObject<S['schema']>
-  : S extends SchemaClass
+  : S extends { _normalizeNullable: (...args: any) => any }
   ? NormalizeReturnType<S['_normalizeNullable']>
   : S extends Serializable<infer T>
   ? T

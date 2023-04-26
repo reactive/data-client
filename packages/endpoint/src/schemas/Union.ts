@@ -21,6 +21,8 @@ export default class UnionSchema extends PolymorphicSchema {
     visit: any,
     addEntity: any,
     visitedEntities: any,
+    storeEntities: any,
+    args: any[],
   ) {
     return this.normalizeValue(
       input,
@@ -29,6 +31,8 @@ export default class UnionSchema extends PolymorphicSchema {
       visit,
       addEntity,
       visitedEntities,
+      storeEntities,
+      args,
     );
   }
 
@@ -38,7 +42,11 @@ export default class UnionSchema extends PolymorphicSchema {
     return [value, value !== undefined, typeof value === 'symbol'];
   }
 
-  denormalizeOnly(input: {}, unvisit: (input: any, schema: any) => any) {
+  denormalizeOnly(
+    input: {},
+    args: readonly any[],
+    unvisit: (input: any, schema: any) => any,
+  ) {
     return this.denormalizeValue(input, unvisit);
   }
 

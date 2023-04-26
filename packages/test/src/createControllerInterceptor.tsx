@@ -103,12 +103,12 @@ export function createControllerInterceptor<T>(
   If you were expecting to see results, it is likely due to data not being found in fixtures.
   Double check your params and Endpoint match. For example:
 
-  useResource(ArticleResource.list(), { maxResults: 10 });
+  useSuspense(ArticleResource.getList, { maxResults: 10 });
 
   and
 
   {
-    endpoint: ArticleResource.list(),
+    endpoint: ArticleResource.getList,
     args: [{ maxResults: 10 }],
     response: [],
   }`,

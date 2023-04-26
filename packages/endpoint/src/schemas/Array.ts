@@ -13,6 +13,8 @@ export default class ArraySchema extends PolymorphicSchema {
     visit: any,
     addEntity: any,
     visitedEntities: any,
+    storeEntities: any,
+    args?: any[],
   ): any {
     const values = getValues(input);
 
@@ -25,6 +27,8 @@ export default class ArraySchema extends PolymorphicSchema {
           visit,
           addEntity,
           visitedEntities,
+          storeEntities,
+          args,
         ),
       )
       .filter(value => value !== undefined && value !== null);
@@ -34,10 +38,14 @@ export default class ArraySchema extends PolymorphicSchema {
     input: any,
     unvisit: any,
   ): [denormalized: any, found: boolean, deleted: boolean] {
-    return [this.denormalizeOnly(input, unvisit), true, false];
+    return [this.denormalizeOnly(input, [], unvisit), true, false];
   }
 
-  denormalizeOnly(input: any, unvisit: (input: any, schema: any) => any) {
+  denormalizeOnly(
+    input: any,
+    args: any[],
+    unvisit: (input: any, schema: any) => any,
+  ) {
     return input.map
       ? input
           .map((entityOrId: any) => this.denormalizeValue(entityOrId, unvisit))

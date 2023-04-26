@@ -46,6 +46,14 @@
 					"endsPattern": "compiled successfully"
 				}
 			}
+		},
+		{
+			"type": "npm",
+			"script": "build",
+			"group": "build",
+			"problemMatcher": [],
+			"label": "npm: build",
+			"detail": "yarn build:types && yarn workspaces foreach -ptiv --no-private run build"
 		}
 	]
 }

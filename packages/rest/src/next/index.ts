@@ -1,8 +1,6 @@
 export type {
   GetEndpoint,
   MutateEndpoint,
-  NewGetEndpoint,
-  NewMutateEndpoint,
   Defaults,
   RestGenerics,
   FetchGet,
@@ -11,5 +9,8 @@ export type {
   RestType,
   KeyofRestEndpoint,
   RestEndpointConstructorOptions,
+  ResourceOptions,
+  ResourceGenerics,
 } from './RestEndpoint.js';
 export { default as RestEndpoint } from './RestEndpoint.js';
+export { default as createResource } from './createResource.js';

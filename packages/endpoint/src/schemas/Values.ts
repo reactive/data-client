@@ -12,6 +12,8 @@ export default class ValuesSchema extends PolymorphicSchema {
     visit: any,
     addEntity: any,
     visitedEntities: any,
+    storeEntities: any,
+    args: any[],
   ) {
     return Object.keys(input).reduce((output, key, index) => {
       const value = input[key];
@@ -25,6 +27,8 @@ export default class ValuesSchema extends PolymorphicSchema {
               visit,
               addEntity,
               visitedEntities,
+              storeEntities,
+              args,
             ),
           }
         : output;
@@ -48,7 +52,11 @@ export default class ValuesSchema extends PolymorphicSchema {
     ];
   }
 
-  denormalizeOnly(input: {}, unvisit: (input: any, schema: any) => any): any {
+  denormalizeOnly(
+    input: {},
+    args: readonly any[],
+    unvisit: (input: any, schema: any) => any,
+  ): any {
     return Object.keys(input).reduce((output, key) => {
       const entityOrId = (input as any)[key];
       const value = this.denormalizeValue(entityOrId, unvisit);

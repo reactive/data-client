@@ -12,6 +12,8 @@ export const normalize = (
   visit: any,
   addEntity: any,
   visitedEntities: any,
+  storeEntities: any,
+  args: any[],
 ) => {
   const object = { ...input };
   Object.keys(schema).forEach(key => {
@@ -23,6 +25,8 @@ export const normalize = (
       localSchema,
       addEntity,
       visitedEntities,
+      storeEntities,
+      args,
     );
     if (value === undefined || value === null) {
       delete object[key];
@@ -64,6 +68,7 @@ export const denormalize = (
 export function denormalizeOnly(
   schema: any,
   input: {},
+  args: readonly any[],
   unvisit: (input: any, schema: any) => any,
 ): any {
   if (isImmutable(input)) {
@@ -97,7 +102,6 @@ export function infer(
   });
   return resultObject;
 }
-
 /**
  * Represents objects with statically known members
  * @see https://resthooks.io/rest/api/Object
@@ -124,6 +128,8 @@ export default class ObjectSchema {
       visit: any,
       addEntity: any,
       visitedEntities: any,
+      storeEntities: any,
+      args: any[],
     ]
   ) {
     return normalize(this.schema, ...args);
@@ -134,8 +140,12 @@ export default class ObjectSchema {
     return denormalize(this.schema, ...args);
   }
 
-  denormalizeOnly(input: {}, unvisit: (input: any, schema: any) => any): any {
-    return denormalizeOnly(this.schema, input, unvisit);
+  denormalizeOnly(
+    input: {},
+    args: readonly any[],
+    unvisit: (input: any, schema: any) => any,
+  ): any {
+    return denormalizeOnly(this.schema, input, args, unvisit);
   }
 
   infer(args: any, indexes: any, recurse: any, entities: any) {

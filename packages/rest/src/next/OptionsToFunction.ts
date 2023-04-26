@@ -2,14 +2,14 @@ import type { FetchFunction, ResolveType } from '@rest-hooks/endpoint';
 
 import {
   PartialRestGenerics,
-  RestInstance,
+  RestInstanceBase,
   RestFetch,
 } from './RestEndpoint.js';
 import { PathArgs } from '../pathTypes.js';
 
 export type OptionsToFunction<
   O extends PartialRestGenerics,
-  E extends RestInstance & { body?: any },
+  E extends RestInstanceBase & { body?: any },
   F extends FetchFunction,
 > = 'path' extends keyof O
   ? RestFetch<

@@ -40,6 +40,7 @@ export function setReducer(
     const { result, entities, indexes, entityMeta } = normalize(
       payload,
       action.meta.schema,
+      action.meta.args as any,
       state.entities,
       state.indexes,
       state.entityMeta,

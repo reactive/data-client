@@ -11,6 +11,7 @@ import { type GetEntity } from '../WeakEntityMap.js';
 const unvisitEntity = (
   entityOrId: Record<string, any> | string,
   schema: EntityInterface,
+  args: readonly any[],
   unvisit: UnvisitFunction,
   getEntity: GetEntity,
   cache: Cache,
@@ -21,7 +22,7 @@ const unvisitEntity = (
       : getEntity({ pk: entityOrId, key: schema.key });
   if (typeof entity === 'symbol') {
     if (typeof schema.denormalizeOnly === 'function') {
-      return schema.denormalizeOnly(entity, unvisit);
+      return schema.denormalizeOnly(entity, args, unvisit);
       // TODO(breaking): Change to this as breaking change once we only support newer entities
     } else if ((entity as symbol).toString().includes('DELETED')) {
       return INVALID;
@@ -37,19 +38,24 @@ const unvisitEntity = (
     // therefore no need to check for numbers
     typeof entityOrId === 'string'
       ? entityOrId
-      : schema.pk(isImmutable(entity) ? (entity as any).toJS() : entity);
+      : schema.pk(
+          isImmutable(entity) ? (entity as any).toJS() : entity,
+          undefined,
+          undefined,
+          args,
+        );
 
   // if we can't generate a working pk we cannot do cache lookups properly,
   // so simply denormalize without caching
   if (pk === undefined || pk === '' || pk === 'undefined') {
     return noCacheGetEntity(localCacheKey =>
-      unvisitEntityObject(entity, schema, unvisit, '', localCacheKey),
+      unvisitEntityObject(entity, schema, unvisit, '', localCacheKey, args),
     );
   }
 
   // last function computes if it is not in any caches
   return cache.getEntity(pk, schema, entity, localCacheKey =>
-    unvisitEntityObject(entity, schema, unvisit, pk, localCacheKey),
+    unvisitEntityObject(entity, schema, unvisit, pk, localCacheKey, args),
   );
 };
 
@@ -68,6 +74,7 @@ function unvisitEntityObject(
   unvisit: UnvisitFunction,
   pk: string,
   localCacheKey: Record<string, any>,
+  args: readonly any[],
 ): void {
   let entityCopy: any, _, deleted;
   /* istanbul ignore else */
@@ -87,7 +94,7 @@ function unvisitEntityObject(
     localCacheKey[pk] = INVALID;
   } else {
     if (typeof schema.denormalizeOnly === 'function') {
-      localCacheKey[pk] = schema.denormalizeOnly(entityCopy, unvisit);
+      localCacheKey[pk] = schema.denormalizeOnly(entityCopy, args, unvisit);
     } else {
       [localCacheKey[pk], _, deleted] = (schema as any).denormalize(
         entityCopy,
@@ -110,7 +117,11 @@ function withTrackedEntities(unvisit: UnvisitFunction): UnvisitFunction {
   return wrappedUnvisit;
 }
 
-const getUnvisit = (getEntity: GetEntity, cache: Cache) => {
+const getUnvisit = (
+  getEntity: GetEntity,
+  cache: Cache,
+  args: readonly any[],
+) => {
   // TODO(breaking): This handles legacy schemas from 3.7 and below
   const unvisitAdapter = getUnvisitAdapter(unvisit);
 
@@ -121,7 +132,9 @@ const getUnvisit = (getEntity: GetEntity, cache: Cache) => {
       return input;
     }
 
-    const hasDenormalize = typeof schema.denormalize === 'function';
+    const hasDenormalize =
+      typeof schema.denormalize === 'function' ||
+      typeof schema.denormalizeOnly === 'function';
 
     // deserialize fields (like Date)
     if (!hasDenormalize && typeof schema === 'function') {
@@ -141,13 +154,14 @@ const getUnvisit = (getEntity: GetEntity, cache: Cache) => {
       const method = Array.isArray(schema)
         ? arrayDenormalize
         : objectDenormalize;
-      return method(schema, input, unvisit);
+      return method(schema, input, args, unvisit);
     }
 
     if (isEntity(schema)) {
       return unvisitEntity(
         input,
         schema,
+        args,
         schema.denormalizeOnly ? unvisit : unvisitAdapter,
         getEntity,
         cache,
@@ -156,7 +170,7 @@ const getUnvisit = (getEntity: GetEntity, cache: Cache) => {
 
     if (hasDenormalize) {
       if (schema.denormalizeOnly) {
-        return schema.denormalizeOnly(input, unvisit);
+        return schema.denormalizeOnly(input, args, unvisit);
       } else {
         return denormalizeLegacySchema(schema, input, unvisitAdapter);
       }

@@ -57,6 +57,7 @@ export default function addNormlizrSuite(suite) {
     entities,
     denormCache.entities,
     denormCache.results['/fake'],
+    [],
   );
   denormalizeCached(
     queryState.result,
@@ -64,6 +65,7 @@ export default function addNormlizrSuite(suite) {
     queryState.entities,
     denormCache.entities,
     denormCache.results['/fakeQuery'],
+    [],
   );
   %OptimizeFunctionOnNextCall(denormalizeCached);
   %OptimizeFunctionOnNextCall(normalize);
@@ -73,6 +75,7 @@ export default function addNormlizrSuite(suite) {
       return normalize(
         data,
         ProjectSchema,
+        [],
         initialState.entities,
         initialState.indexes,
         initialState.entityMeta,
@@ -113,6 +116,7 @@ export default function addNormlizrSuite(suite) {
         entities,
         denormCache.entities,
         denormCache.results['/fake'],
+        [],
       );
     })
     .add('denormalizeLong All withCache', () => {
@@ -122,6 +126,7 @@ export default function addNormlizrSuite(suite) {
         queryState.entities,
         denormCache.entities,
         denormCache.results['/fakeQuery'],
+        [],
       );
     })
     .add('denormalizeLong Query-sorted withCache', () => {
@@ -131,6 +136,7 @@ export default function addNormlizrSuite(suite) {
         queryState.entities,
         denormCache.entities,
         denormCache.results['/fakeQuery'],
+        [],
       );
     })
     .on('complete', function () {

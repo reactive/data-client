@@ -20,13 +20,19 @@ export interface SchemaSimple<T = any> {
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
+    storeEntities?: any,
+    args?: any[],
   ): any;
   denormalize?(
     // eslint-disable-next-line @typescript-eslint/ban-types
     input: {},
     unvisit: UnvisitFunction,
   ): [denormalized: T, found: boolean, suspend: boolean];
-  denormalizeOnly?(input: {}, unvisit: (input: any, schema: any) => any): T;
+  denormalizeOnly?(
+    input: {},
+    args: any,
+    unvisit: (input: any, schema: any) => any,
+  ): T;
   infer(
     args: readonly any[],
     indexes: NormalizedIndex,
@@ -45,7 +51,12 @@ export interface SchemaClass<T = any, N = T | undefined>
 
 export interface EntityInterface<T = any> extends SchemaSimple {
   createIfValid?(props: any): any;
-  pk(params: any, parent?: any, key?: string): string | undefined;
+  pk(
+    params: any,
+    parent?: any,
+    key?: string,
+    args?: readonly any[],
+  ): string | undefined;
   readonly key: string;
   merge(existing: any, incoming: any): any;
   expiresAt?(meta: any, input: any): number;

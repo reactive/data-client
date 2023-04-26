@@ -114,6 +114,8 @@ export default abstract class SimpleRecord {
       visit: (...args: any) => any,
       addEntity: (...args: any) => any,
       visitedEntities: Record<string, any>,
+      storeEntities: Record<string, any>,
+      args?: any[],
     ]
   ): NormalizedEntity<T> {
     return schema.Object.prototype.normalize.call(this, ...args) as any;

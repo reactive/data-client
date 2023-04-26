@@ -25,6 +25,8 @@ export const normalize = (
   visit: any,
   addEntity: any,
   visitedEntities: any,
+  storeEntities: any,
+  args: any[],
 ) => {
   schema = validateSchema(schema);
 
@@ -33,11 +35,25 @@ export const normalize = (
   // Special case: Arrays pass *their* parent on to their children, since there
   // is not any special information that can be gathered from themselves directly
   return values.map((value, index) =>
-    visit(value, parent, key, schema, addEntity, visitedEntities),
+    visit(
+      value,
+      parent,
+      key,
+      schema,
+      addEntity,
+      visitedEntities,
+      storeEntities,
+      args,
+    ),
   );
 };
 
-export const denormalize = (schema: any, input: any, unvisit: any): any => {
+export const denormalize = (
+  schema: any,
+  input: any,
+  args: readonly any[],
+  unvisit: any,
+): any => {
   schema = validateSchema(schema);
   return input.map
     ? input.map(entityOrId => unvisit(entityOrId, schema)).filter(filterEmpty)

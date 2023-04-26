@@ -20,6 +20,7 @@ describe('normalizer() merging', () => {
       const { result, entities } = normalize(
         { id, title: 'hello' },
         Article,
+        [],
         first,
         {},
         firstEM,
@@ -56,6 +57,7 @@ describe('normalizer() merging', () => {
       const { entities } = normalize(
         { id, title: 'hi', content: 'this is the content' },
         Article,
+        [],
         entitiesA,
       );
 
@@ -78,6 +80,7 @@ describe('normalizer() merging', () => {
       const { result, entities } = normalize(
         { id, title: null },
         Article,
+        [],
         first,
         {},
         firstEM,
@@ -105,7 +108,7 @@ describe('normalizer() merging', () => {
         Article,
       );
 
-      normalize({ id, title: 'hello' }, Article, first);
+      normalize({ id, title: 'hello' }, Article, [], first);
 
       const merged = denormalize(id, Article, first);
       expect(merged).toBeInstanceOf(Article);
@@ -123,7 +126,7 @@ describe('normalizer() merging', () => {
       const { entities: first } = normalize({ id }, new schema.Delete(Article));
 
       const nested = { id, title: 'hello' };
-      const { entities } = normalize(nested, Article, first);
+      const { entities } = normalize(nested, Article, [], first);
 
       expect(entities).toMatchInlineSnapshot(`
         {
@@ -166,6 +169,7 @@ describe('normalizer() merging', () => {
       const { entities } = normalize(
         { id, title: 'hi', content: 'this is the content' },
         User,
+        [],
         entitiesA,
       );
 
@@ -222,6 +226,7 @@ describe('normalizer() merging', () => {
       const { entities } = normalize(
         { id, title: 'hi', content: 'this is the content' },
         User,
+        [],
         entitiesA,
         {},
         meta,

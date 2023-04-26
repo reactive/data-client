@@ -37,6 +37,7 @@ export function isImmutable(object: {}): object is {
 export function denormalizeImmutable(
   schema: any,
   input: any,
+  args: readonly any[],
   unvisit: any,
 ): any {
   let deleted = false;
