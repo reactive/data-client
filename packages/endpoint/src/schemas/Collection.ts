@@ -101,9 +101,13 @@ export default class CollectionSchema<
   }
 
   pk(value: any, parent: any, key: string, args: readonly any[]) {
-    return JSON.stringify(
-      this.argsKey ? this.argsKey(...args) : this.nestKey(parent, key),
-    );
+    const obj = this.argsKey
+      ? this.argsKey(...args)
+      : this.nestKey(parent, key);
+    for (const key in obj) {
+      if (typeof obj[key] !== 'string') obj[key] = `${obj[key]}`;
+    }
+    return JSON.stringify(obj);
   }
 
   // >>>>>>>>>>>>>>NORMALIZE<<<<<<<<<<<<<<
@@ -232,8 +236,9 @@ const defaultFilter =
     Object.entries(collectionKey).every(
       ([key, value]) =>
         key.startsWith('order') ||
-        urlParams[key] === value ||
-        body?.[key] === value,
+        // double equals lets us compare non-strings and strings
+        urlParams[key] == value ||
+        body?.[key] == value,
     );
 
 function CreateAdder<C extends CollectionSchema<any, any>, P extends any[]>(

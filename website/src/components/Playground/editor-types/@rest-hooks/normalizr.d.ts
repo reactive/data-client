@@ -9,9 +9,9 @@ type Serializable<T extends {
     prototype: T;
 };
 interface SchemaSimple<T = any> {
-    normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>): any;
+    normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities?: any, args?: any[]): any;
     denormalize?(input: {}, unvisit: UnvisitFunction): [denormalized: T, found: boolean, suspend: boolean];
-    denormalizeOnly?(input: {}, unvisit: (input: any, schema: any) => any): T;
+    denormalizeOnly?(input: {}, args: any, unvisit: (input: any, schema: any) => any): T;
     infer(args: readonly any[], indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): any;
 }
 interface SchemaClass<T = any, N = T | undefined> extends SchemaSimple<T> {
@@ -20,7 +20,7 @@ interface SchemaClass<T = any, N = T | undefined> extends SchemaSimple<T> {
 }
 interface EntityInterface<T = any> extends SchemaSimple {
     createIfValid?(props: any): any;
-    pk(params: any, parent?: any, key?: string): string | undefined;
+    pk(params: any, parent?: any, key?: string, args?: readonly any[]): string | undefined;
     readonly key: string;
     merge(existing: any, incoming: any): any;
     expiresAt?(meta: any, input: any): number;
@@ -113,16 +113,24 @@ type DenormalizeReturnType<T> = T extends (input: any, unvisit: any) => [infer R
 type NormalizeReturnType<T> = T extends (...args: any) => infer R ? R : never;
 type Denormalize$1<S> = S extends EntityInterface<infer U> ? U : S extends RecordClass ? AbstractInstanceType<S> : S extends {
     denormalizeOnly: (...args: any) => any;
-} ? ReturnType<S['denormalizeOnly']> : S extends SchemaClass ? DenormalizeReturnType<S['denormalize']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Denormalize$1<F>[] : S extends {
+} ? ReturnType<S['denormalizeOnly']> : S extends {
+    denormalize: (...args: any) => any;
+} ? DenormalizeReturnType<S['denormalize']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Denormalize$1<F>[] : S extends {
     [K: string]: any;
 } ? DenormalizeObject<S> : S;
-type DenormalizeNullable$1<S> = S extends EntityInterface<any> ? DenormalizeNullableNestedSchema<S> | undefined : S extends RecordClass ? DenormalizeNullableNestedSchema<S> : S extends SchemaClass ? DenormalizeReturnType<S['_denormalizeNullable']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Denormalize$1<F>[] | undefined : S extends {
+type DenormalizeNullable$1<S> = S extends EntityInterface<any> ? DenormalizeNullableNestedSchema<S> | undefined : S extends RecordClass ? DenormalizeNullableNestedSchema<S> : S extends {
+    _denormalizeNullable: (...args: any) => any;
+} ? DenormalizeReturnType<S['_denormalizeNullable']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Denormalize$1<F>[] | undefined : S extends {
     [K: string]: any;
 } ? DenormalizeNullableObject<S> : S;
-type Normalize$1<S> = S extends EntityInterface ? string : S extends RecordClass ? NormalizeObject<S['schema']> : S extends SchemaClass ? NormalizeReturnType<S['normalize']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Normalize$1<F>[] : S extends {
+type Normalize$1<S> = S extends EntityInterface ? string : S extends RecordClass ? NormalizeObject<S['schema']> : S extends {
+    normalize: (...args: any) => any;
+} ? NormalizeReturnType<S['normalize']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Normalize$1<F>[] : S extends {
     [K: string]: any;
 } ? NormalizeObject<S> : S;
-type NormalizeNullable$1<S> = S extends EntityInterface ? string | undefined : S extends RecordClass ? NormalizedNullableObject<S['schema']> : S extends SchemaClass ? NormalizeReturnType<S['_normalizeNullable']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Normalize$1<F>[] | undefined : S extends {
+type NormalizeNullable$1<S> = S extends EntityInterface ? string | undefined : S extends RecordClass ? NormalizedNullableObject<S['schema']> : S extends {
+    _normalizeNullable: (...args: any) => any;
+} ? NormalizeReturnType<S['_normalizeNullable']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Normalize$1<F>[] | undefined : S extends {
     [K: string]: any;
 } ? NormalizedNullableObject<S> : S;
 type NormalizedSchema<E, R> = {
@@ -140,16 +148,16 @@ type NormalizedSchema<E, R> = {
     };
 };
 
-declare const denormalize$1: <S extends Schema>(input: any, schema: S | undefined, entities: any) => symbol | DenormalizeNullable$1<S>;
+declare const denormalize$1: <S extends Schema>(input: any, schema: S | undefined, entities: any, args?: readonly any[]) => symbol | DenormalizeNullable$1<S>;
 
-declare const denormalize: <S extends Schema>(input: unknown, schema: S | undefined, entities: any, entityCache?: DenormalizeCache['entities'], resultCache?: DenormalizeCache['results'][string]) => {
+declare const denormalize: <S extends Schema>(input: unknown, schema: S | undefined, entities: any, entityCache?: DenormalizeCache['entities'], resultCache?: DenormalizeCache['results'][string], args?: readonly any[]) => {
     data: symbol | DenormalizeNullable$1<S>;
     paths: Path[];
 };
 
 declare function isEntity(schema: Schema): schema is EntityInterface;
 
-declare const normalize: <S extends Schema = Schema, E extends Record<string, Record<string, any> | undefined> = Record<string, Record<string, any>>, R = NormalizeNullable$1<S>>(input: any, schema?: S | undefined, storeEntities?: Readonly<E>, storeIndexes?: Readonly<NormalizedIndex>, storeEntityMeta?: {
+declare const normalize: <S extends Schema = Schema, E extends Record<string, Record<string, any> | undefined> = Record<string, Record<string, any>>, R = NormalizeNullable$1<S>>(input: any, schema?: S | undefined, args?: any[], storeEntities?: Readonly<E>, storeIndexes?: Readonly<NormalizedIndex>, storeEntityMeta?: {
     readonly [entityKey: string]: {
         readonly [pk: string]: {
             readonly date: number;
@@ -217,7 +225,7 @@ interface SnapshotInterface {
 
 /** Defines a networking endpoint */
 interface EndpointInterface<F extends FetchFunction = FetchFunction, S extends Schema | undefined = Schema | undefined, M extends boolean | undefined = boolean | undefined> extends EndpointExtraOptions<F> {
-    (...args: Parameters<F>): InferReturn<F, S>;
+    (...args: Parameters<F>): ReturnType<F>;
     key(...args: Parameters<F>): string;
     readonly sideEffect?: M;
     readonly schema?: S;

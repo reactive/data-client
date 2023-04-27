@@ -25,10 +25,14 @@ type DenormalizeNullableNestedSchema<S extends NestedSchemaClass> = keyof S['sch
 type DenormalizeReturnType<T> = T extends (input: any, unvisit: any) => [infer R, any, any] ? R : never;
 type Denormalize<S> = S extends EntityInterface<infer U> ? U : S extends RecordClass ? AbstractInstanceType<S> : S extends {
     denormalizeOnly: (...args: any) => any;
-} ? ReturnType<S['denormalizeOnly']> : S extends SchemaClass ? DenormalizeReturnType<S['denormalize']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Denormalize<F>[] : S extends {
+} ? ReturnType<S['denormalizeOnly']> : S extends {
+    denormalize: (...args: any) => any;
+} ? DenormalizeReturnType<S['denormalize']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Denormalize<F>[] : S extends {
     [K: string]: any;
 } ? DenormalizeObject<S> : S;
-type DenormalizeNullable<S> = S extends EntityInterface<any> ? DenormalizeNullableNestedSchema<S> | undefined : S extends RecordClass ? DenormalizeNullableNestedSchema<S> : S extends SchemaClass ? DenormalizeReturnType<S['_denormalizeNullable']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Denormalize<F>[] | undefined : S extends {
+type DenormalizeNullable<S> = S extends EntityInterface<any> ? DenormalizeNullableNestedSchema<S> | undefined : S extends RecordClass ? DenormalizeNullableNestedSchema<S> : S extends {
+    _denormalizeNullable: (...args: any) => any;
+} ? DenormalizeReturnType<S['_denormalizeNullable']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Denormalize<F>[] | undefined : S extends {
     [K: string]: any;
 } ? DenormalizeNullableObject<S> : S;
 
@@ -94,18 +98,14 @@ type Serializable<T extends {
     prototype: T;
 };
 interface SchemaSimple<T = any> {
-    normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>): any;
+    normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args: any[]): any;
     denormalize(input: {}, unvisit: UnvisitFunction): [denormalized: T, found: boolean, suspend: boolean];
-    denormalizeOnly?(input: {}, unvisit: (input: any, schema: any) => any): T;
+    denormalizeOnly?(input: {}, args: any, unvisit: (input: any, schema: any) => any): T;
     infer(args: readonly any[], indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): any;
-}
-interface SchemaClass<T = any, N = T | undefined> extends SchemaSimple<T> {
-    _normalizeNullable(): any;
-    _denormalizeNullable(): [N, boolean, boolean];
 }
 interface EntityInterface<T = any> extends SchemaSimple {
     createIfValid?(props: any): any;
-    pk(params: any, parent?: any, key?: string): string | undefined;
+    pk(params: any, parent?: any, key?: string, args?: any[]): string | undefined;
     readonly key: string;
     merge(existing: any, incoming: any): any;
     expiresAt?(meta: any, input: any): number;
