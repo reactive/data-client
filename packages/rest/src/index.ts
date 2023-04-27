@@ -15,8 +15,11 @@ export type {
   FetchMutate,
   RestFetch,
   RestType,
+  RestInstance,
   KeyofRestEndpoint,
   RestEndpointConstructorOptions,
+  AddEndpoint,
+  PaginationFieldEndpoint,
 } from './RestEndpoint.js';
 export { default as createResource } from './createResource.js';
 export type { Resource } from './createResource.js';
@@ -28,6 +31,12 @@ export type {
 export { default as NetworkError } from './NetworkError.js';
 export { default as paginationUpdate } from './paginationUpdate.js';
 
-export type { ShortenPath, PathArgs, PathKeys } from './pathTypes.js';
+export type {
+  ShortenPath,
+  PathArgs,
+  PathKeys,
+  KeysToArgs,
+  PathArgsAndSearch,
+} from './pathTypes.js';
 
 export * from '@rest-hooks/endpoint';
