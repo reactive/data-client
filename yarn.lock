@@ -4776,11 +4776,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react-native@npm:12.0.1, @testing-library/react-native@npm:^12.0.1":
-  version: 12.0.1
-  resolution: "@testing-library/react-native@npm:12.0.1"
+"@testing-library/react-native@npm:12.1.0, @testing-library/react-native@npm:^12.0.1":
+  version: 12.1.0
+  resolution: "@testing-library/react-native@npm:12.1.0"
   dependencies:
+    "@react-navigation/native": ^6.1.6
     pretty-format: ^29.0.0
+    react-native-safe-area-context: ^4.5.1
+    react-native-screens: ^3.20.0
   peerDependencies:
     jest: ">=28.0.0"
     react: ">=16.8.0"
@@ -4789,7 +4792,7 @@ __metadata:
   peerDependenciesMeta:
     jest:
       optional: true
-  checksum: 0a8ff194875fa921eab62eaad68b0eef31d3540543d60fb72d1d1ecf044769567fc3c809ad20f842c9305d6c32c05610e2b0d51483af034da734b26e646a5255
+  checksum: 45f5fec1ec665ffcf112e9a06482dcecaf054a1d252edaa32bc786afc259ffe5357e63ebf582c12ec1f1a00b3b7ee0a3708e24667e50f5b686f846656465fa0b
   languageName: node
   linkType: hard
 
@@ -15725,15 +15728,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nock@npm:13.3.0":
-  version: 13.3.0
-  resolution: "nock@npm:13.3.0"
+"nock@npm:13.3.1":
+  version: 13.3.1
+  resolution: "nock@npm:13.3.1"
   dependencies:
     debug: ^4.1.0
     json-stringify-safe: ^5.0.1
     lodash: ^4.17.21
     propagate: ^2.0.0
-  checksum: 118d04e95a17f493898a82b5dfecc03762776e1980d9c3b2077479747e60b77109c5f7c0df969d1a8f6039260abe5961733553a5841f0f627bb35238576a0009
+  checksum: 0f2a73e8432f6b5650656c53eef99f9e5bbde3df538dc2f07057edc4438cfc61a394c9d06dd82e60f6e86d42433f20f3c04364a1f088beee7bf03a24e3f0fdd0
   languageName: node
   linkType: hard
 
@@ -18844,7 +18847,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-safe-area-context@npm:^4.4.1":
+"react-native-safe-area-context@npm:^4.4.1, react-native-safe-area-context@npm:^4.5.1":
   version: 4.5.1
   resolution: "react-native-safe-area-context@npm:4.5.1"
   peerDependencies:
@@ -18854,7 +18857,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-screens@npm:^3.18.2":
+"react-native-screens@npm:^3.18.2, react-native-screens@npm:^3.20.0":
   version: 3.20.0
   resolution: "react-native-screens@npm:3.20.0"
   dependencies:
@@ -19821,7 +19824,7 @@ __metadata:
     "@rest-hooks/test": "workspace:^"
     "@testing-library/react": 14.0.0
     "@testing-library/react-hooks": 8.0.1
-    "@testing-library/react-native": 12.0.1
+    "@testing-library/react-native": 12.1.0
     "@types/jest": 29.5.1
     "@types/node": 18.16.0
     "@types/react": 18.2.0
@@ -19846,7 +19849,7 @@ __metadata:
     jest: 29.5.0
     jest-environment-jsdom: 29.5.0
     mkdirp: ^3.0.0
-    nock: 13.3.0
+    nock: 13.3.1
     node-fetch: ^3.3.0
     npm-run-all: ^4.1.5
     prettier: 2.8.8
