@@ -4777,14 +4777,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react-native@npm:12.1.0, @testing-library/react-native@npm:^12.0.1":
-  version: 12.1.0
-  resolution: "@testing-library/react-native@npm:12.1.0"
+"@testing-library/react-native@npm:12.1.1, @testing-library/react-native@npm:^12.0.1":
+  version: 12.1.1
+  resolution: "@testing-library/react-native@npm:12.1.1"
   dependencies:
-    "@react-navigation/native": ^6.1.6
     pretty-format: ^29.0.0
-    react-native-safe-area-context: ^4.5.1
-    react-native-screens: ^3.20.0
   peerDependencies:
     jest: ">=28.0.0"
     react: ">=16.8.0"
@@ -4793,7 +4790,7 @@ __metadata:
   peerDependenciesMeta:
     jest:
       optional: true
-  checksum: 45f5fec1ec665ffcf112e9a06482dcecaf054a1d252edaa32bc786afc259ffe5357e63ebf582c12ec1f1a00b3b7ee0a3708e24667e50f5b686f846656465fa0b
+  checksum: 6c8dafc922c03ee8a855551b9df5f9ec5886c23386a05502e2a8cbd9b0fd1cc1668c53a6bdd8c64843807dc178d0b982dfa0802f132bfb1c5658426739fcf061
   languageName: node
   linkType: hard
 
@@ -18848,7 +18845,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-safe-area-context@npm:^4.4.1, react-native-safe-area-context@npm:^4.5.1":
+"react-native-safe-area-context@npm:^4.4.1":
   version: 4.5.2
   resolution: "react-native-safe-area-context@npm:4.5.2"
   peerDependencies:
@@ -18858,7 +18855,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-screens@npm:^3.18.2, react-native-screens@npm:^3.20.0":
+"react-native-screens@npm:^3.18.2":
   version: 3.20.0
   resolution: "react-native-screens@npm:3.20.0"
   dependencies:
@@ -19825,7 +19822,7 @@ __metadata:
     "@rest-hooks/test": "workspace:^"
     "@testing-library/react": 14.0.0
     "@testing-library/react-hooks": 8.0.1
-    "@testing-library/react-native": 12.1.0
+    "@testing-library/react-native": 12.1.1
     "@types/jest": 29.5.1
     "@types/node": 18.16.3
     "@types/react": 18.2.0
