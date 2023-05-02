@@ -78,6 +78,40 @@ if (
         },
       });
       //monaco.languages.typescript.getTypeScriptWorker().then(worker => worker)
+      // go to definition
+      monaco.editor.registerEditorOpener({
+        openCodeEditor(sourceEditor, resource, selectionOrPosition) {
+          if (resource.path.startsWith('/')) {
+            // alternatively set model directly in the editor if you have your own tab/navigation implementation\
+            const model = monaco.editor.getModel(resource);
+            const destinationEditor = monaco.editor
+              .getEditors()
+              .find(editor => editor.getModel() === model);
+            if (!destinationEditor) return false;
+            // focus event is handled by editor to show that tab
+            destinationEditor.focus();
+            requestIdleCallback(() => {
+              if (monaco.Range.isIRange(selectionOrPosition)) {
+                destinationEditor.revealRangeInCenterIfOutsideViewport(
+                  selectionOrPosition,
+                );
+                destinationEditor.setSelection(selectionOrPosition);
+              } else {
+                if (selectionOrPosition) {
+                  destinationEditor.revealPositionInCenterIfOutsideViewport(
+                    selectionOrPosition,
+                  );
+                  destinationEditor.setPosition(selectionOrPosition);
+                }
+              }
+              destinationEditor.focus();
+            });
+
+            return true;
+          }
+          return false;
+        },
+      });
       // autocomplete imports
       monaco.languages.registerCompletionItemProvider('typescript', {
         // These characters should trigger our `provideCompletionItems` function
@@ -235,7 +269,7 @@ if (
         const dep = rhDeps[i];
         monaco.languages.typescript.typescriptDefaults.addExtraLib(
           `declare module "@rest-hooks/${dep}" { ${lib} }`,
-          `file:///node_modules/@rest-hooks/${lib}/index.d.ts`,
+          `file:///node_modules/@rest-hooks/${dep}/index.d.ts`,
         );
         if (['rest', 'react'].includes(dep)) {
           monaco.languages.typescript.typescriptDefaults.addExtraLib(

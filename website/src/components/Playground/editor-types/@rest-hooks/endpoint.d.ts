@@ -885,14 +885,14 @@ interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
     readonly pollFrequency?: number;
     /** Marks cached resources as invalid if they are stale */
     readonly invalidIfStale?: boolean;
+    /** Determines whether to throw or fallback to */
+    errorPolicy?(error: any): 'hard' | 'soft' | undefined;
     /** Enables optimistic updates for this request - uses return value as assumed network response
      * @deprecated use https://resthooks.io/docs/api/Endpoint#getoptimisticresponse instead
      */
     optimisticUpdate?(...args: Parameters<F>): ResolveType<F>;
     /** Enables optimistic updates for this request - uses return value as assumed network response */
     getOptimisticResponse?(snap: SnapshotInterface, ...args: Parameters<F>): ResolveType<F>;
-    /** Determines whether to throw or fallback to */
-    errorPolicy?(error: any): 'hard' | 'soft' | undefined;
     /** User-land extra data to send */
     readonly extra?: any;
 }
