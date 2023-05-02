@@ -51,6 +51,17 @@ interface EntityMap<T = any> {
     readonly [k: string]: EntityInterface<T>;
 }
 
+type CollectionOptions<Parent extends any[] = [
+    urlParams: Record<string, any>,
+    body?: Record<string, any>
+]> = {
+    nestKey: (parent: any, key: string) => Record<string, any>;
+    createCollectionFilter?: (...args: Parent) => (collectionKey: Record<string, any>) => boolean;
+} | {
+    argsKey: (...args: any) => Record<string, any>;
+    createCollectionFilter?: (...args: Parent) => (collectionKey: Record<string, any>) => boolean;
+};
+
 /**
  * Marks entity as Invalid.
  *
@@ -382,6 +393,10 @@ declare class CollectionSchema<
 
   _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;
   _normalizeNullable(): ReturnType<S['_normalizeNullable']>;
+
+  push: S extends Array$1<any> ? CollectionSchema<S, Parent> : never;
+  unshift: S extends Array$1<any> ? CollectionSchema<S, Parent> : never;
+  assign: S extends Values$1<any> ? CollectionSchema<S, Parent> : never;
 }
 type CollectionType<
   S extends any[] | Array$1<any> | Values$1<any> = any,
@@ -389,20 +404,33 @@ type CollectionType<
     urlParams: Record<string, any>,
     body?: Record<string, any>,
   ],
-> = CollectionSchema<S extends any[] ? Array$1<S[number]> : S> &
-  (S extends any[]
-    ? {
-        push: CollectionSchema<Array$1<S[number]>, Parent>;
-        unshift: CollectionSchema<Array$1<S[number]>, Parent>;
-      }
-    : S extends Values$1<any>
-    ? { assign: CollectionSchema<S, Parent> }
-    : S extends Array$1<any>
-    ? {
-        push: CollectionSchema<S, Parent>;
-        unshift: CollectionSchema<S, Parent>;
-      }
-    : never);
+> = CollectionSchema<S extends any[] ? Array$1<S[number]> : S, Parent>;
+
+interface CollectionConstructor {
+  new <
+    S extends SchemaSimple[] | Array$1<any> | Values$1<any> = any,
+    Parent extends any[] = [
+      urlParams: Record<string, any>,
+      body?: Record<string, any>,
+    ],
+  >(
+    schema: S,
+    options: CollectionOptions,
+  ): CollectionType<S, Parent>;
+  readonly prototype: CollectionSchema;
+}
+declare let CollectionRoot: CollectionConstructor;
+/**
+ * Entities but for Arrays instead of classes
+ * @see https://resthooks.io/rest/api/Collection
+ */
+declare class Collection<
+  S extends any[] | Array$1<any> | Values$1<any> = any,
+  Parent extends any[] = [
+    urlParams: Record<string, any>,
+    body?: Record<string, any>,
+  ],
+> extends CollectionRoot<S, Parent> {}
 type SchemaFunction<K = string> = (
   value: any,
   parent: any,
@@ -1352,11 +1380,11 @@ interface Resource<O extends ResourceGenerics = {
      */
     getList: 'searchParams' extends keyof O ? GetEndpoint<{
         path: ShortenPath<O['path']>;
-        schema: CollectionType<O['schema'][]>;
+        schema: Collection<O['schema'][]>;
         searchParams: O['searchParams'];
     }> : GetEndpoint<{
         path: ShortenPath<O['path']>;
-        schema: CollectionType<O['schema'][]>;
+        schema: Collection<O['schema'][]>;
         searchParams: Record<string, number | string | boolean> | undefined;
     }>;
     /** Create a new item (POST)
@@ -1365,12 +1393,12 @@ interface Resource<O extends ResourceGenerics = {
      */
     create: 'searchParams' extends keyof O ? MutateEndpoint<{
         path: ShortenPath<O['path']>;
-        schema: CollectionType<Array$1<O['schema']>>['push'];
+        schema: Collection<Array$1<O['schema']>>['push'];
         body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>>;
         searchParams: O['searchParams'];
     }> : MutateEndpoint<{
         path: ShortenPath<O['path']>;
-        schema: CollectionType<Array$1<O['schema']>>['push'];
+        schema: Collection<Array$1<O['schema']>>['push'];
         body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>>;
     }>;
     /** Update an item (PUT)

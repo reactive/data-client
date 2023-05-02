@@ -1,4 +1,5 @@
 import { Query, schema } from '@rest-hooks/rest';
+import { createResource } from '@rest-hooks/rest/next';
 
 import {
   createPlaceholderResource,
@@ -35,11 +36,6 @@ export const TodoResource = {
     getOptimisticResponse(snap, body) {
       return body;
     },
-    update: (newResourceId, ...args) => ({
-      [TodoResourceBase.getList.key(
-        args[0]?.userId ? { userId: args[0]?.userId } : undefined,
-      )]: (resourceIds: string[] = []) => [...resourceIds, newResourceId],
-    }),
   }),
   delete: TodoResourceBase.delete.extend({
     getOptimisticResponse(snap, params) {

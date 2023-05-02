@@ -2,15 +2,20 @@ import { GQLEndpoint } from '@rest-hooks/graphql';
 import {
   Entity,
   Schema,
-  PathArgs,
-  RestEndpoint,
   ShortenPath,
+  schema,
+  Denormalize,
+} from '@rest-hooks/rest';
+import {
+  GetEndpoint,
+  RestGenerics,
+  RestEndpoint,
   Resource,
   createResource,
-  NewGetEndpoint,
-  RestGenerics,
-  EndpointExtraOptions,
-} from '@rest-hooks/rest';
+  ResourceGenerics,
+  ResourceOptions,
+  PaginationFieldEndpoint,
+} from '@rest-hooks/rest/next';
 import { camelCase, snakeCase } from 'lodash';
 
 import { getAuth } from './Auth';
@@ -46,12 +51,14 @@ export class GithubEndpoint<
 > extends RestEndpoint<O> {
   urlPrefix = HOST;
 
-  getRequestInit(body: any): RequestInit {
+  async getRequestInit(body: any) {
     let init: RequestInit;
     if (body) {
-      init = super.getRequestInit(deeplyApplyKeyTransform(body, snakeCase));
+      init = await super.getRequestInit(
+        deeplyApplyKeyTransform(body, snakeCase),
+      );
     }
-    init = super.getRequestInit(body);
+    init = await super.getRequestInit(body);
     if (getAuth()) {
       init.mode = 'cors';
       init.headers = {
@@ -81,46 +88,54 @@ export class GithubEndpoint<
   }
 }
 
-export function createGithubResource<U extends string, S extends Schema>({
-  path,
-  schema,
-  Endpoint = GithubEndpoint,
-  ...options
-}: {
-  readonly path: U;
-  readonly schema: S;
-  readonly Endpoint?: typeof GithubEndpoint;
-  urlPrefix?: string;
-} & EndpointExtraOptions): GithubResource<U, S> {
-  const baseResource = createResource({ path, schema, Endpoint, ...options });
+export function createGithubResource<O extends ResourceGenerics>(
+  options: Readonly<O> & ResourceOptions,
+): GithubResource<O> {
+  const baseResource = createResource({ Endpoint: GithubEndpoint, ...options });
 
-  const getList: NewGetEndpoint<
-    { path: ShortenPath<U> },
-    { results: S[]; link: string }
+  const getList: GetEndpoint<
+    Omit<O, 'schema' | 'body' | 'path'> & {
+      readonly path: ShortenPath<O['path']>;
+      readonly schema: {
+        results: schema.CollectionType<O['schema'][]>;
+        link: string;
+      };
+    }
   > = baseResource.getList.extend({
-    schema: { results: [schema], link: '' },
+    schema: { results: baseResource.getList.schema, link: '' },
   }) as any;
-  const getNextPage = getList.paginated(
-    ({ page, ...rest }: { page: string | number }) =>
-      (Object.keys(rest).length ? [rest] : []) as any,
-  ) as any;
+  const getNextPage = getList.paginated('page');
 
   return {
     ...baseResource,
     getList,
     getNextPage,
-  };
+  } as any;
 }
 
-export interface GithubResource<U extends string, S extends Schema>
-  extends Omit<Resource<U, S>, 'getList'> {
-  getList: NewGetEndpoint<
-    { path: ShortenPath<U> },
-    { results: S[]; link: string }
+export interface GithubResource<
+  O extends ResourceGenerics = { path: string; schema: Schema },
+> extends Omit<Resource<O>, 'getList'> {
+  getList: GetEndpoint<
+    Omit<O, 'schema' | 'body' | 'path'> & {
+      readonly path: ShortenPath<O['path']>;
+      readonly schema: {
+        results: schema.CollectionType<O['schema'][]>;
+        link: string;
+      };
+    }
   >;
-  getNextPage: NewGetEndpoint<
-    { path: ShortenPath<U>; searchParams: { page: string | number } },
-    { results: S[]; link: string }
+  getNextPage: PaginationFieldEndpoint<
+    GetEndpoint<
+      Omit<O, 'body' | 'schema' | 'path'> & {
+        readonly path: ShortenPath<O['path']>;
+        readonly schema: {
+          results: schema.CollectionType<O['schema'][]>;
+          link: string;
+        };
+      }
+    >,
+    'page'
   >;
 }
 

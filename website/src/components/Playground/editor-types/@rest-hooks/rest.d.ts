@@ -667,6 +667,10 @@ declare class CollectionSchema<
 
   _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;
   _normalizeNullable(): ReturnType<S['_normalizeNullable']>;
+
+  push: S extends Array$1<any> ? CollectionSchema<S, Parent> : never;
+  unshift: S extends Array$1<any> ? CollectionSchema<S, Parent> : never;
+  assign: S extends Values$1<any> ? CollectionSchema<S, Parent> : never;
 }
 type CollectionType<
   S extends any[] | Array$1<any> | Values$1<any> = any,
@@ -674,20 +678,7 @@ type CollectionType<
     urlParams: Record<string, any>,
     body?: Record<string, any>,
   ],
-> = CollectionSchema<S extends any[] ? Array$1<S[number]> : S> &
-  (S extends any[]
-    ? {
-        push: CollectionSchema<Array$1<S[number]>, Parent>;
-        unshift: CollectionSchema<Array$1<S[number]>, Parent>;
-      }
-    : S extends Values$1<any>
-    ? { assign: CollectionSchema<S, Parent> }
-    : S extends Array$1<any>
-    ? {
-        push: CollectionSchema<S, Parent>;
-        unshift: CollectionSchema<S, Parent>;
-      }
-    : never);
+> = CollectionSchema<S extends any[] ? Array$1<S[number]> : S, Parent>;
 
 interface CollectionConstructor {
   new <
@@ -702,11 +693,18 @@ interface CollectionConstructor {
   ): CollectionType<S, Parent>;
   readonly prototype: CollectionSchema;
 }
+declare let CollectionRoot: CollectionConstructor;
 /**
  * Entities but for Arrays instead of classes
  * @see https://resthooks.io/rest/api/Collection
  */
-declare let Collection: CollectionConstructor;
+declare class Collection<
+  S extends any[] | Array$1<any> | Values$1<any> = any,
+  Parent extends any[] = [
+    urlParams: Record<string, any>,
+    body?: Record<string, any>,
+  ],
+> extends CollectionRoot<S, Parent> {}
 
 type StrategyFunction<T> = (value: any, parent: any, key: string) => T;
 type SchemaFunction<K = string> = (
@@ -800,6 +798,11 @@ type schema_d_CollectionType<S extends any[] | Array$1<any> | Values$1<any> = an
     body?: Record<string, any>,
   ]> = CollectionType<S, Parent>;
 type schema_d_CollectionConstructor = CollectionConstructor;
+declare const schema_d_CollectionRoot: typeof CollectionRoot;
+type schema_d_Collection<S extends any[] | Array$1<any> | Values$1<any> = any, Parent extends any[] = [
+    urlParams: Record<string, any>,
+    body?: Record<string, any>,
+  ]> = Collection<S, Parent>;
 declare const schema_d_Collection: typeof Collection;
 type schema_d_StrategyFunction<T> = StrategyFunction<T>;
 type schema_d_SchemaFunction<K = string> = SchemaFunction<K>;
@@ -823,6 +826,7 @@ declare namespace schema_d {
     schema_d_CollectionSchema as CollectionSchema,
     schema_d_CollectionType as CollectionType,
     schema_d_CollectionConstructor as CollectionConstructor,
+    schema_d_CollectionRoot as CollectionRoot,
     schema_d_Collection as Collection,
     schema_d_StrategyFunction as StrategyFunction,
     schema_d_SchemaFunction as SchemaFunction,

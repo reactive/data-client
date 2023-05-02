@@ -34,12 +34,6 @@ export const ReactionResource = {
     path: 'repos/:owner/:repo/issues/comments/:comment/reactions',
   }),
   create: base.create.extend({
-    update: (newId, params) => ({
-      [base.getList.key(params)]: ({ results = [], ...rest } = {}) => ({
-        results: [...new Set([newId, ...results])],
-        ...rest,
-      }),
-    }),
     getOptimisticResponse: (snap, params, body) => body as any,
   }),
   delete: base.delete.extend({
