@@ -1,5 +1,40 @@
 # Change Log
 
+## 6.6.0
+
+### Minor Changes
+
+- 93a08592c6: Added RestEndpoint.paginated('cursor').
+  Place the name of the pagination field instead of writing a function
+- e00fd0516c: Values() removes deleted members like Array
+- 93a08592c6: Add RestEndpoint collections extenders: push/unshift/assign/insert
+- 93a08592c6: Support using args[] during normalization/denormalization
+- 93a08592c6: Entity.pk() has a fourth argument: args[]
+- 93a08592c6: Add next/createResource: Uses Collections and has more options from RestEndpoint
+  [Migration PR](https://github.com/data-client/rest-hooks/pull/2606) of examples is a good example of how to migrate
+- 7910c901e7: Add INVALID symbol
+- 93a08592c6: Add Collections - entities but for Arrays or Values
+- e00fd0516c: Add schema.denormalizeOnly optimized path for normalizr 11+
+- 7910c901e7: Add schema.Invalidate (new name for Delete)
+
+### Patch Changes
+
+- 67e9eae3ac: Use type widening in RestEndpoint and createResource constructors for non-generics
+- 93f103e3af: Values members are skipped if they are falsy
+- Updated dependencies [e00fd0516c]
+- Updated dependencies [a005bd06af]
+- Updated dependencies [93f103e3af]
+- Updated dependencies [68a5944091]
+- Updated dependencies [93a08592c6]
+- Updated dependencies [93a08592c6]
+- Updated dependencies [0c7ca6310d]
+- Updated dependencies [a005bd06af]
+- Updated dependencies [7910c901e7]
+- Updated dependencies [93a08592c6]
+- Updated dependencies [e00fd0516c]
+- Updated dependencies [7910c901e7]
+  - @rest-hooks/endpoint@3.8.0
+
 ## 6.5.0
 
 ### Minor Changes

@@ -1,5 +1,28 @@
 # Change Log
 
+## 7.4.0
+
+### Minor Changes
+
+- 93a08592c6: Support Collections
+- 93a08592c6: Support using args[] during normalization/denormalization
+- e00fd0516c: Support schemas with denormalizeOnly (3.8+)
+
+### Patch Changes
+
+- 6bd94947f3: Simplified null args path for ctrl.getResponse()
+- 93f103e3af: Fully denormalize even when pk cannot be computed
+- 0c7ca6310d: Improved small response cpu performance
+- Updated dependencies [93a08592c6]
+- Updated dependencies [68a5944091]
+- Updated dependencies [93a08592c6]
+- Updated dependencies [0c7ca6310d]
+- Updated dependencies [6bd94947f3]
+- Updated dependencies [93f103e3af]
+- Updated dependencies [62f8b11188]
+- Updated dependencies [e00fd0516c]
+  - @rest-hooks/core@4.4.0
+
 ## 7.3.1
 
 ### Patch Changes
