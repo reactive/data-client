@@ -1,5 +1,35 @@
 # Change Log
 
+## 0.1.4
+
+### Patch Changes
+
+- Updated dependencies [93a08592c6]
+- Updated dependencies [e00fd0516c]
+- Updated dependencies [e00fd0516c]
+- Updated dependencies [a005bd06af]
+- Updated dependencies [93f103e3af]
+- Updated dependencies [0c7ca6310d]
+- Updated dependencies [93a08592c6]
+- Updated dependencies [68a5944091]
+- Updated dependencies [93a08592c6]
+- Updated dependencies [9178a553cb]
+- Updated dependencies [93a08592c6]
+- Updated dependencies [93f103e3af]
+- Updated dependencies [7910c901e7]
+- Updated dependencies [e00fd0516c]
+- Updated dependencies [0c7ca6310d]
+- Updated dependencies [0c7ca6310d]
+- Updated dependencies [68a5944091]
+- Updated dependencies [a005bd06af]
+- Updated dependencies [e75312c7ee]
+- Updated dependencies [7910c901e7]
+- Updated dependencies [93a08592c6]
+- Updated dependencies [e00fd0516c]
+- Updated dependencies [7910c901e7]
+  - @rest-hooks/normalizr@11.0.0
+  - @rest-hooks/endpoint@3.8.0
+
 ## 0.1.3
 
 ### Patch Changes

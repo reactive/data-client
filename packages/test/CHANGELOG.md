@@ -1,5 +1,12 @@
 # Change Log
 
+## 10.3.7
+
+### Patch Changes
+
+- 93a08592c6: enhance: Updated warning example with modern syntax
+- 93a08592c6: enhance: renderRestHook interceptors must be defined to warn about unmatched fetch
+
 ## 10.3.6
 
 ### Patch Changes

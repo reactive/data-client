@@ -1,5 +1,32 @@
 # Change Log
 
+## 11.0.0
+
+### Major Changes
+
+- 93a08592c6: normalize/denormalize both take args array
+- e00fd0516c: denormalize() returns a symbol if invalid, otherwise the value
+- e00fd0516c: denormalizeCached returns { data, paths }
+- 0c7ca6310d: denormalize is now non-cached version.
+  Use denormalizeCached for previous functionality.
+- 68a5944091: Require fetchedAt in meta
+
+### Minor Changes
+
+- 0c7ca6310d: Add validateInference()
+- 93a08592c6: Support Collections
+- 68a5944091: Add Entity.mergeMeta()
+- 93a08592c6: Support using args[] during normalization/denormalization
+- 93a08592c6: Entity.pk() has a fourth argument: args[]
+- 7910c901e7: Support schemas without denormalizeOnly and no denormalize method
+
+### Patch Changes
+
+- 9178a553cb: Improve normalize performance
+- 93f103e3af: Fully denormalize even when pk cannot be computed
+- a005bd06af: mergeMeta -> mergeMetaWithStore() for consistent naming
+- e75312c7ee: fix: Remove empty entity path from denormalize
+
 ## 10.1.0
 
 ### Minor Changes
