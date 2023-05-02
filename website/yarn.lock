@@ -3119,10 +3119,10 @@ __metadata:
 
 "@rest-hooks/endpoint@file:../packages/endpoint::locator=root-workspace-0b6124%40workspace%3A.":
   version: 3.7.4
-  resolution: "@rest-hooks/endpoint@file:../packages/endpoint#../packages/endpoint::hash=9476ed&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/endpoint@file:../packages/endpoint#../packages/endpoint::hash=46cbc4&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
-  checksum: dc0905f15495d24e7c4311b426f78e8b7350ec6417ebfb9b73850a82d42bb4075ec49f7ab6f0e18ccb1fb1c2d5ac2f40f7728ba54886f72de04dc1f50b1fc80f
+  checksum: d82de0b0b93e7ae9e0d042e99846efdd77e232f3cee88f3f741dd14e0e2d745161f9b1d56c21788aacd5c51a1a01196c4fa6cc6ca0ca5b8e475a13a601dd3a30
   languageName: node
   linkType: hard
 
@@ -3183,12 +3183,12 @@ __metadata:
 
 "@rest-hooks/rest@file:../packages/rest::locator=root-workspace-0b6124%40workspace%3A.":
   version: 6.5.0
-  resolution: "@rest-hooks/rest@file:../packages/rest#../packages/rest::hash=15989b&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/rest@file:../packages/rest#../packages/rest::hash=ab0841&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@rest-hooks/endpoint": ^3.7.4
     path-to-regexp: ^6.2.1
-  checksum: 7619b385bfe649f374d992652c49f7ddc5c7706987cb33a65e246ac436b693d687d64c377d0e0605e2e2ce8586075f3ced765bfcf0537da3441ec502de51099d
+  checksum: ade9754dc9f082f999234f34acb33554188ab9ad8358a3217c0aa03333c168e90a9a609032d88afeedc5c82017058a58f7fbada1b41bb54151ab4ab89267c3fb
   languageName: node
   linkType: hard
 
