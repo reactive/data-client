@@ -437,6 +437,10 @@ export class CollectionSchema<
 
   _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;
   _normalizeNullable(): ReturnType<S['_normalizeNullable']>;
+
+  push: S extends Array<any> ? CollectionSchema<S, Parent> : never;
+  unshift: S extends Array<any> ? CollectionSchema<S, Parent> : never;
+  assign: S extends Values<any> ? CollectionSchema<S, Parent> : never;
 }
 export type CollectionType<
   S extends any[] | Array<any> | Values<any> = any,
@@ -444,20 +448,7 @@ export type CollectionType<
     urlParams: Record<string, any>,
     body?: Record<string, any>,
   ],
-> = CollectionSchema<S extends any[] ? Array<S[number]> : S> &
-  (S extends any[]
-    ? {
-        push: CollectionSchema<Array<S[number]>, Parent>;
-        unshift: CollectionSchema<Array<S[number]>, Parent>;
-      }
-    : S extends Values<any>
-    ? { assign: CollectionSchema<S, Parent> }
-    : S extends Array<any>
-    ? {
-        push: CollectionSchema<S, Parent>;
-        unshift: CollectionSchema<S, Parent>;
-      }
-    : never);
+> = CollectionSchema<S extends any[] ? Array<S[number]> : S, Parent>;
 
 export interface CollectionConstructor {
   new <
@@ -472,11 +463,18 @@ export interface CollectionConstructor {
   ): CollectionType<S, Parent>;
   readonly prototype: CollectionSchema;
 }
+export declare let CollectionRoot: CollectionConstructor;
 /**
  * Entities but for Arrays instead of classes
  * @see https://resthooks.io/rest/api/Collection
  */
-export declare let Collection: CollectionConstructor;
+export declare class Collection<
+  S extends any[] | Array<any> | Values<any> = any,
+  Parent extends any[] = [
+    urlParams: Record<string, any>,
+    body?: Record<string, any>,
+  ],
+> extends CollectionRoot<S, Parent> {}
 
 export type StrategyFunction<T> = (value: any, parent: any, key: string) => T;
 export type SchemaFunction<K = string> = (
