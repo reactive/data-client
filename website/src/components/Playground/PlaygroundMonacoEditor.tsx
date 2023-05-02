@@ -1,4 +1,4 @@
-import Editor, { useMonaco, type OnMount } from '@monaco-editor/react';
+import Editor, { type OnMount } from '@monaco-editor/react';
 import type { ISelection, languages } from 'monaco-editor';
 import rangeParser from 'parse-numeric-range';
 import React, {
@@ -12,6 +12,7 @@ import React, {
 } from 'react';
 import { LiveEditor } from 'react-live';
 import './monaco-init';
+import type * as Monaco from 'monaco-editor';
 
 const MemoEditor = memo(Editor);
 
@@ -19,6 +20,9 @@ export default function PlaygroundMonacoEditor({
   onChange,
   code,
   path,
+  onFocus,
+  isOpen,
+  tabIndex,
   autoFocus = false,
   large = false,
   ...rest
@@ -40,76 +44,86 @@ export default function PlaygroundMonacoEditor({
     [onChange, path],
   );*/
   const [height, setHeight] = useState<string | number>('100%');
-  const handleMount: OnMount = useCallback(editor => {
-    // autofocus
-    if (autoFocus) editor.focus();
-    // autohighlight
-    const highlights = Object.keys(rest)
-      .map(key => /\{([\d\-,.]+)\}/.exec(key)?.[1])
-      .filter(Boolean)
-      .map(rangeParser);
+  const handleMount = useCallback(
+    (editor: Monaco.editor.ICodeEditor, monaco: typeof Monaco) => {
+      // autofocus
+      if (autoFocus) editor.focus();
+      // autohighlight
+      const highlights = Object.keys(rest)
+        .map(key => /\{([\d\-,.]+)\}/.exec(key)?.[1])
+        .filter(Boolean)
+        .map(rangeParser);
 
-    if (highlights.length) {
-      let selectionStartLineNumber = highlights[0][0];
-      let positionLineNumber = selectionStartLineNumber;
-      const selections: ISelection[] = [];
-      highlights[0].forEach(lineNumber => {
-        // more of same selection
-        if (lineNumber === positionLineNumber) {
-          positionLineNumber++;
-        } else {
-          selections.push({
-            selectionStartLineNumber,
-            selectionStartColumn: 0,
-            positionLineNumber,
-            positionColumn: 0,
-          });
-          selectionStartLineNumber = lineNumber;
-          positionLineNumber = lineNumber + 1;
+      if (highlights.length) {
+        let selectionStartLineNumber = highlights[0][0];
+        let positionLineNumber = selectionStartLineNumber;
+        const selections: ISelection[] = [];
+        highlights[0].forEach(lineNumber => {
+          // more of same selection
+          if (lineNumber === positionLineNumber) {
+            positionLineNumber++;
+          } else {
+            selections.push({
+              selectionStartLineNumber,
+              selectionStartColumn: 0,
+              positionLineNumber,
+              positionColumn: 0,
+            });
+            selectionStartLineNumber = lineNumber;
+            positionLineNumber = lineNumber + 1;
+          }
+        });
+        selections.push({
+          selectionStartLineNumber,
+          selectionStartColumn: 0,
+          positionLineNumber,
+          positionColumn: 0,
+        });
+        editor.setSelections(selections);
+      }
+
+      // go to definition
+      editor.onDidFocusEditorText(() => {
+        if (!isOpen) {
+          onFocus(tabIndex);
         }
       });
-      selections.push({
-        selectionStartLineNumber,
-        selectionStartColumn: 0,
-        positionLineNumber,
-        positionColumn: 0,
+
+      // autoheight
+      const LINE_HEIGHT = editorOptions.lineHeight;
+      const CONTAINER_GUTTER = 10;
+
+      const el = editor.getDomNode();
+      const codeContainer = el.getElementsByClassName('view-lines')[0];
+
+      let prevLineCount = 0;
+
+      const contentHeight =
+        editor.getModel().getLineCount() * LINE_HEIGHT + CONTAINER_GUTTER;
+      el.style.height = contentHeight + 'px';
+      setHeight(contentHeight);
+
+      editor.layout();
+
+      editor.onDidChangeModelDecorations(() => {
+        // wait until dom rendered
+        setTimeout(() => {
+          const lineCount =
+            editor.getModel()?.getLineCount?.() ??
+            codeContainer.childElementCount;
+          const height = lineCount * LINE_HEIGHT + CONTAINER_GUTTER; // fold
+          prevLineCount = codeContainer.childElementCount;
+
+          el.style.height = height + 'px';
+          setHeight(height);
+
+          editor.layout();
+        }, 0);
       });
-      editor.setSelections(selections);
-    }
-
-    // autoheight
-    const LINE_HEIGHT = editorOptions.lineHeight;
-    const CONTAINER_GUTTER = 10;
-
-    const el = editor.getDomNode();
-    const codeContainer = el.getElementsByClassName('view-lines')[0];
-
-    let prevLineCount = 0;
-
-    const contentHeight =
-      editor.getModel().getLineCount() * LINE_HEIGHT + CONTAINER_GUTTER;
-    el.style.height = contentHeight + 'px';
-    setHeight(contentHeight);
-
-    editor.layout();
-
-    editor.onDidChangeModelDecorations(() => {
-      // wait until dom rendered
-      setTimeout(() => {
-        const lineCount =
-          editor.getModel()?.getLineCount?.() ??
-          codeContainer.childElementCount;
-        const height = lineCount * LINE_HEIGHT + CONTAINER_GUTTER; // fold
-        prevLineCount = codeContainer.childElementCount;
-
-        el.style.height = height + 'px';
-        setHeight(height);
-
-        editor.layout();
-      }, 0);
-    });
-    return () => editor?.dispose();
-  }, []);
+      return () => editor?.dispose();
+    },
+    [],
+  );
 
   return (
     <MemoEditor

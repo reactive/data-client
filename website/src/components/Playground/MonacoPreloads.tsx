@@ -1,3 +1,4 @@
+import { loader } from '@monaco-editor/react';
 import React, { memo } from 'react';
 
 function MonacoPreloads() {
@@ -12,16 +13,24 @@ function MonacoPreloads() {
 }
 export default memo(MonacoPreloads);
 
+const MONACO_VERSION = '0.38.0';
+
+loader.config({
+  paths: {
+    vs: `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs`,
+  },
+});
+
 const monacoPreloads = [
-  'https://cdn.jsdelivr.net/npm/monaco-editor@0.33.0/min/vs/editor/editor.main.js',
-  //'https://cdn.jsdelivr.net/npm/monaco-editor@0.33.0/min/vs/editor/editor.main.css',
-  'https://cdn.jsdelivr.net/npm/monaco-editor@0.33.0/min/vs/editor/editor.main.nls.js',
-  'https://cdn.jsdelivr.net/npm/monaco-editor@0.33.0/min/vs/basic-languages/typescript/typescript.js',
-  'https://cdn.jsdelivr.net/npm/monaco-editor@0.33.0/min/vs/language/typescript/tsMode.js',
+  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/editor/editor.main.js`,
+  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/editor/editor.main.css`,
+  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/editor/editor.main.nls.js`,
+  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/basic-languages/typescript/typescript.js`,
+  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/language/typescript/tsMode.js`,
 ];
 const workerPreloads = [
-  'https://cdn.jsdelivr.net/npm/monaco-editor@0.33.0/min/vs/base/worker/workerMain.js',
-  'https://cdn.jsdelivr.net/npm/monaco-editor@0.33.0/min/vs/language/typescript/tsWorker.js',
+  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/base/worker/workerMain.js`,
+  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/language/typescript/tsWorker.js`,
 ];
 
 const preloadScript = `

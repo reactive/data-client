@@ -485,14 +485,14 @@ interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
     readonly pollFrequency?: number;
     /** Marks cached resources as invalid if they are stale */
     readonly invalidIfStale?: boolean;
+    /** Determines whether to throw or fallback to */
+    errorPolicy?(error: any): 'hard' | 'soft' | undefined;
     /** Enables optimistic updates for this request - uses return value as assumed network response
      * @deprecated use https://resthooks.io/docs/api/Endpoint#getoptimisticresponse instead
      */
     optimisticUpdate?(...args: Parameters<F>): ResolveType<F>;
     /** Enables optimistic updates for this request - uses return value as assumed network response */
     getOptimisticResponse?(snap: SnapshotInterface, ...args: Parameters<F>): ResolveType<F>;
-    /** Determines whether to throw or fallback to */
-    errorPolicy?(error: any): 'hard' | 'soft' | undefined;
     /** User-land extra data to send */
     readonly extra?: any;
 }
@@ -786,7 +786,7 @@ type RequiredKeys<T> = Values<OnlyRequired<T>>;
 type OnlyRequired<T> = {
     [K in keyof T as string extends K ? never : K]-?: {} extends Pick<T, K> ? never : K;
 };
-type Values<T> = T[keyof T];
+type Values<T> = T[Exclude<keyof T, number>];
 
 /* eslint-disable @typescript-eslint/ban-types */
 
@@ -842,6 +842,10 @@ interface RestInstanceBase<
   testKey(key: string): boolean;
 
   /* extenders */
+  // TODO: figure out better way than wrapping whole options in Readonly<> + making O extend from {}
+  //       this is just a hack to handle when no members of PartialRestGenerics are present
+  //       Note: Using overloading (like paginated did) struggles because typescript does not have a clear way of distinguishing one
+  //       should be used from the other (due to same problem with every member being partial)
   extend<E extends RestInstanceBase, O extends PartialRestGenerics | {}>(
     this: E,
     options: Readonly<RestEndpointExtendOptions<O, E, F> & O>,
@@ -878,7 +882,7 @@ interface RestInstance<
 }
 
 type RestEndpointExtendOptions<
-  O extends PartialRestGenerics | {},
+  O extends PartialRestGenerics,
   E extends RestInstanceBase,
   F extends FetchFunction,
 > = RestEndpointOptions<
@@ -989,15 +993,6 @@ interface RestGenerics extends PartialRestGenerics {
   readonly path: string;
 }
 
-interface ResourceGenerics {
-  readonly path: string;
-  readonly schema: Schema;
-  /** Only used for types */
-  readonly body?: any;
-  /** Only used for types */
-  readonly searchParams?: any;
-}
-
 type PaginationEndpoint<
   E extends RestInstanceBase,
   A extends any[],
@@ -1057,20 +1052,17 @@ type OptionsBodyDefault<O extends RestGenerics> = 'body' extends keyof O
   ? O & { body: any }
   : O & { body: undefined };
 
-interface ResourceOptions<F extends FetchFunction = FetchFunction>
-  extends EndpointExtraOptions<F> {
+interface RestEndpointOptions<
+  F extends FetchFunction = FetchFunction,
+  S extends Schema | undefined = undefined,
+> extends EndpointExtraOptions<F> {
   urlPrefix?: string;
   requestInit?: RequestInit;
   getHeaders?(headers: HeadersInit): Promise<HeadersInit> | HeadersInit;
   getRequestInit?(body: any): Promise<RequestInit> | RequestInit;
   fetchResponse?(input: RequestInfo, init: RequestInit): Promise<any>;
   parseResponse?(response: Response): Promise<any>;
-}
 
-interface RestEndpointOptions<
-  F extends FetchFunction = FetchFunction,
-  S extends Schema | undefined = undefined,
-> extends ResourceOptions<F> {
   sideEffect?: true | undefined;
   name?: string;
   signal?: AbortSignal;
@@ -1100,7 +1092,7 @@ interface RestEndpointConstructor {
     sideEffect,
     name,
     ...options
-  }: Readonly<RestEndpointConstructorOptions<O> & O>): RestInstance<
+  }: RestEndpointConstructorOptions<O> & Readonly<O>): RestInstance<
     RestFetch<
       'searchParams' extends keyof O
         ? O['searchParams'] & PathArgs<O['path']>
@@ -1266,7 +1258,12 @@ type Defaults<O, D> = {
 };
 
 type GetEndpoint<
-  O extends Omit<ResourceGenerics, 'body'> = {
+  O extends {
+    readonly path: string;
+    readonly schema: Schema;
+    /** Only used for types */
+    readonly searchParams?: any;
+  } = {
     path: string;
     schema: Schema;
   },
@@ -1281,7 +1278,14 @@ type GetEndpoint<
 >;
 
 type MutateEndpoint<
-  O extends ResourceGenerics = {
+  O extends {
+    readonly path: string;
+    readonly schema: Schema;
+    /** Only used for types */
+    readonly searchParams?: any;
+    /** Only used for types */
+    readonly body?: any;
+  } = {
     path: string;
     body: any;
     schema: Schema;
@@ -1297,53 +1301,104 @@ type MutateEndpoint<
   O
 >;
 
+interface ResourceGenerics {
+    readonly path: string;
+    readonly schema: Schema;
+    /** Only used for types */
+    readonly body?: any;
+    /** Only used for types */
+    readonly searchParams?: any;
+}
+interface ResourceOptions {
+    Endpoint?: typeof RestEndpoint;
+    urlPrefix?: string;
+    requestInit?: RequestInit;
+    getHeaders?(headers: HeadersInit): Promise<HeadersInit> | HeadersInit;
+    getRequestInit?(body: any): Promise<RequestInit> | RequestInit;
+    fetchResponse?(input: RequestInfo, init: RequestInit): Promise<any>;
+    parseResponse?(response: Response): Promise<any>;
+    /** Default data expiry length, will fall back to NetworkManager default if not defined */
+    readonly dataExpiryLength?: number;
+    /** Default error expiry length, will fall back to NetworkManager default if not defined */
+    readonly errorExpiryLength?: number;
+    /** Poll with at least this frequency in miliseconds */
+    readonly pollFrequency?: number;
+    /** Marks cached resources as invalid if they are stale */
+    readonly invalidIfStale?: boolean;
+    /** Determines whether to throw or fallback to */
+    errorPolicy?(error: any): 'hard' | 'soft' | undefined;
+}
+
 /** Creates collection of Endpoints for common operations on a given data/schema.
  *
  * @see https://resthooks.io/rest/api/createResource
  */
-declare function createResource<O extends ResourceGenerics>({ path, schema, Endpoint, ...extraOptions }: Readonly<ResourceOptions & {
-    readonly Endpoint?: typeof RestEndpoint;
-} & O>): Resource<O>;
+declare function createResource<O extends ResourceGenerics>({ path, schema, Endpoint, ...extraOptions }: Readonly<O> & ResourceOptions): Resource<O>;
 interface Resource<O extends ResourceGenerics = {
     path: string;
-    schema: Schema;
+    schema: any;
 }> {
     /** Get a singular item
      *
      * @see https://resthooks.io/rest/api/createResource#get
      */
-    get: GetEndpoint<Omit<O, 'searchParams' | 'body'>>;
+    get: GetEndpoint<{
+        path: O['path'];
+        schema: O['schema'];
+    }>;
     /** Get a list of item
      *
      * @see https://resthooks.io/rest/api/createResource#getlist
      */
-    getList: GetEndpoint<Omit<O, 'schema' | 'body' | 'path'> & {
-        readonly path: ShortenPath<O['path']>;
-        readonly schema: CollectionType<O['schema'][]>;
+    getList: 'searchParams' extends keyof O ? GetEndpoint<{
+        path: ShortenPath<O['path']>;
+        schema: CollectionType<O['schema'][]>;
+        searchParams: O['searchParams'];
+    }> : GetEndpoint<{
+        path: ShortenPath<O['path']>;
+        schema: CollectionType<O['schema'][]>;
+        searchParams: Record<string, number | string | boolean> | undefined;
     }>;
     /** Create a new item (POST)
      *
      * @see https://resthooks.io/rest/api/createResource#create
      */
-    create: MutateEndpoint<{
-        readonly path: ShortenPath<O['path']>;
-        readonly body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>>;
-        readonly schema: CollectionType<Array$1<O['schema']>>['push'];
-    } & Omit<O, 'path' | 'body' | 'schema'>>;
+    create: 'searchParams' extends keyof O ? MutateEndpoint<{
+        path: ShortenPath<O['path']>;
+        schema: CollectionType<Array$1<O['schema']>>['push'];
+        body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>>;
+        searchParams: O['searchParams'];
+    }> : MutateEndpoint<{
+        path: ShortenPath<O['path']>;
+        schema: CollectionType<Array$1<O['schema']>>['push'];
+        body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>>;
+    }>;
     /** Update an item (PUT)
      *
      * @see https://resthooks.io/rest/api/createResource#update
      */
-    update: MutateEndpoint<{
-        readonly body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>>;
-    } & O>;
+    update: 'body' extends keyof O ? MutateEndpoint<{
+        path: O['path'];
+        body: O['body'];
+        schema: O['schema'];
+    }> : MutateEndpoint<{
+        path: O['path'];
+        body: Partial<Denormalize<O['schema']>>;
+        schema: O['schema'];
+    }>;
     /** Update an item (PATCH)
      *
      * @see https://resthooks.io/rest/api/createResource#partialupdate
      */
-    partialUpdate: MutateEndpoint<{
-        readonly body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>>;
-    } & O>;
+    partialUpdate: 'body' extends keyof O ? MutateEndpoint<{
+        path: O['path'];
+        body: O['body'];
+        schema: O['schema'];
+    }> : MutateEndpoint<{
+        path: O['path'];
+        body: Partial<Denormalize<O['schema']>>;
+        schema: O['schema'];
+    }>;
     /** Delete an item (DELETE)
      *
      * @see https://resthooks.io/rest/api/createResource#delete

@@ -1,7 +1,7 @@
 import Translate from '@docusaurus/Translate';
 import type { Fixture, FixtureEndpoint, Interceptor } from '@rest-hooks/test';
 import clsx from 'clsx';
-import { useContext, useMemo, useReducer, useState } from 'react';
+import { useCallback, useContext, useMemo, useReducer, useState } from 'react';
 import React from 'react';
 
 import FixturePreview from './FixturePreview';
@@ -25,6 +25,25 @@ export function PlaygroundTextEdit({
     codeTabs.map(({ collapsed }) => collapsed),
   );
 
+  const handleTabSwitch = useCallback(i => {
+    setClosed(cl => cl.map((_, j) => j !== i));
+  }, []);
+  const handleTabOpen = useCallback(i => {
+    setClosed(cl => {
+      if (!cl[i]) return cl;
+      const n = [...cl];
+      n[i] = false;
+      return n;
+    });
+  }, []);
+  const handleTabToggle = useCallback(i => {
+    setClosed(cl => {
+      const n = [...cl];
+      n[i] = !n[i];
+      return n;
+    });
+  }, []);
+
   return (
     <div>
       <EditorHeader
@@ -35,7 +54,7 @@ export function PlaygroundTextEdit({
         <EditorTabs
           titles={codeTabs.map(({ title }) => title)}
           closedList={closedList}
-          onClick={i => setClosed(cl => cl.map((_, j) => j !== i))}
+          onClick={handleTabSwitch}
           isPlayground={isPlayground}
         />
       ) : null}
@@ -43,13 +62,7 @@ export function PlaygroundTextEdit({
         <React.Fragment key={i}>
           {!row && title ? (
             <CodeTabHeader
-              onClick={() =>
-                setClosed(cl => {
-                  const n = [...cl];
-                  n[i] = !n[i];
-                  return n;
-                })
-              }
+              onClick={() => handleTabToggle(i)}
               closed={closedList[i]}
               title={title}
               collapsible={codeTabs.length > 1 || fixtures?.length}
@@ -65,6 +78,11 @@ export function PlaygroundTextEdit({
             {
               /*closedList[i] ? null : */ <PlaygroundEditor
                 key={i}
+                tabIndex={i}
+                isOpen={!closedList[i]}
+                onFocus={
+                  row && codeTabs.length > 1 ? handleTabSwitch : handleTabOpen
+                }
                 onChange={handleCodeChange[i]}
                 code={codes[i]}
                 path={'/' + id + '/' + (path || title || 'default.tsx')}
