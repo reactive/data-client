@@ -64,6 +64,10 @@ export interface RestInstanceBase<
   testKey(key: string): boolean;
 
   /* extenders */
+  // TODO: figure out better way than wrapping whole options in Readonly<> + making O extend from {}
+  //       this is just a hack to handle when no members of PartialRestGenerics are present
+  //       Note: Using overloading (like paginated did) struggles because typescript does not have a clear way of distinguishing one
+  //       should be used from the other (due to same problem with every member being partial)
   extend<E extends RestInstanceBase, O extends PartialRestGenerics | {}>(
     this: E,
     options: Readonly<RestEndpointExtendOptions<O, E, F> & O>,
@@ -109,7 +113,7 @@ export type ContainsCollectionValues =
   | { schema: { [K: string]: ContainsCollectionValues } };
 
 export type RestEndpointExtendOptions<
-  O extends PartialRestGenerics | {},
+  O extends PartialRestGenerics,
   E extends RestInstanceBase,
   F extends FetchFunction,
 > = RestEndpointOptions<
@@ -220,15 +224,6 @@ export interface RestGenerics extends PartialRestGenerics {
   readonly path: string;
 }
 
-export interface ResourceGenerics {
-  readonly path: string;
-  readonly schema: Schema;
-  /** Only used for types */
-  readonly body?: any;
-  /** Only used for types */
-  readonly searchParams?: any;
-}
-
 export type PaginationEndpoint<
   E extends RestInstanceBase,
   A extends any[],
@@ -288,20 +283,17 @@ type OptionsBodyDefault<O extends RestGenerics> = 'body' extends keyof O
   ? O & { body: any }
   : O & { body: undefined };
 
-export interface ResourceOptions<F extends FetchFunction = FetchFunction>
-  extends EndpointExtraOptions<F> {
+export interface RestEndpointOptions<
+  F extends FetchFunction = FetchFunction,
+  S extends Schema | undefined = undefined,
+> extends EndpointExtraOptions<F> {
   urlPrefix?: string;
   requestInit?: RequestInit;
   getHeaders?(headers: HeadersInit): Promise<HeadersInit> | HeadersInit;
   getRequestInit?(body: any): Promise<RequestInit> | RequestInit;
   fetchResponse?(input: RequestInfo, init: RequestInit): Promise<any>;
   parseResponse?(response: Response): Promise<any>;
-}
 
-export interface RestEndpointOptions<
-  F extends FetchFunction = FetchFunction,
-  S extends Schema | undefined = undefined,
-> extends ResourceOptions<F> {
   sideEffect?: true | undefined;
   name?: string;
   signal?: AbortSignal;
@@ -331,7 +323,7 @@ export interface RestEndpointConstructor {
     sideEffect,
     name,
     ...options
-  }: Readonly<RestEndpointConstructorOptions<O> & O>): RestInstance<
+  }: RestEndpointConstructorOptions<O> & Readonly<O>): RestInstance<
     RestFetch<
       'searchParams' extends keyof O
         ? O['searchParams'] & PathArgs<O['path']>
@@ -501,7 +493,12 @@ export type Defaults<O, D> = {
 };
 
 export type GetEndpoint<
-  O extends Omit<ResourceGenerics, 'body'> = {
+  O extends {
+    readonly path: string;
+    readonly schema: Schema;
+    /** Only used for types */
+    readonly searchParams?: any;
+  } = {
     path: string;
     schema: Schema;
   },
@@ -516,7 +513,14 @@ export type GetEndpoint<
 >;
 
 export type MutateEndpoint<
-  O extends ResourceGenerics = {
+  O extends {
+    readonly path: string;
+    readonly schema: Schema;
+    /** Only used for types */
+    readonly searchParams?: any;
+    /** Only used for types */
+    readonly body?: any;
+  } = {
     path: string;
     body: any;
     schema: Schema;

@@ -7,7 +7,7 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 import {RestEndpoint} from '@rest-hooks/rest';
 
 <head>
-  <title>useDLE() - [D]ata [L]oading [E]rror: Stateful Data Fetching for React</title>
+  <title>useDLE() - [D]ata [L]oading [E]rror React State</title>
 </head>
 
 import PkgTabs from '@site/src/components/PkgTabs';
