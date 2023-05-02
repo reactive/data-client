@@ -1,4 +1,11 @@
-import { Entity, createResource, RestEndpoint, Schema } from '@rest-hooks/rest';
+import { Denormalize, Entity, Schema } from '@rest-hooks/rest';
+import {
+  RestEndpoint,
+  createResource,
+  ResourceGenerics,
+  ResourceOptions,
+  Resource,
+} from '@rest-hooks/rest/next';
 
 export abstract class PlaceholderEntity extends Entity {
   readonly id: number = 0;
@@ -10,15 +17,11 @@ export abstract class PlaceholderEntity extends Entity {
 }
 
 /** Common patterns in the https://jsonplaceholder.typicode.com API */
-export function createPlaceholderResource<U extends string, S extends Schema>({
+export function createPlaceholderResource<O extends ResourceGenerics = any>({
   path,
   schema,
   Endpoint = RestEndpoint,
-}: {
-  readonly path: U;
-  readonly schema: S;
-  readonly Endpoint?: typeof RestEndpoint;
-}) {
+}: Readonly<O> & ResourceOptions): Resource<O> {
   const base = createResource({
     path,
     schema,
@@ -32,7 +35,7 @@ export function createPlaceholderResource<U extends string, S extends Schema>({
       // body only contains what we're changing, but we can find the id in params
       return {
         ...(await base.partialUpdate.call(this, ...args)),
-        id: args[0].id,
+        id: args?.[0]?.id,
       } as any;
     },
   });
@@ -49,9 +52,10 @@ export function createPlaceholderResource<U extends string, S extends Schema>({
         // body only contains what we're changing, but we can find the id in params
         return {
           ...(await base.create.call(this, ...args)),
-          id: args[args.length - 1].id,
+          id: args?.[args.length - 1]?.id,
         } as any;
       },
     }),
-  };
+    // generics don't match up well
+  } as any;
 }

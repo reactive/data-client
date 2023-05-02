@@ -37,13 +37,6 @@ const create = baseResource.create.extend({
   path: '/repos/:owner/:repo/issues/:number/comments',
   // body is 'comment body' aka the text content
   body: { body: '' },
-  // we use spread because under loose null types the number of args are variable
-  update: (newId, ...args) => ({
-    [getList.key(args[0])]: ({ results = [], ...rest } = {}) => ({
-      results: [...new Set([...results, newId])],
-      ...rest,
-    }),
-  }),
 });
 export const CommentResource = {
   ...baseResource,
