@@ -1,12 +1,12 @@
 // we just removed instances of 'abstract new'
-import { Schema, NormalizedIndex, UnvisitFunction } from '../interface.js';
+import type { Schema, NormalizedIndex, UnvisitFunction } from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
 export type Constructor = new (...args: any[]) => {};
 export type IDClass = new (...args: any[]) => {
   id: string | number | undefined;
 };
 export type PKClass = new (...args: any[]) => {
-  pk(parent?: any, key?: string): string | undefined;
+  pk(parent?: any, key?: string, args?: readonly any[]): string | undefined;
 };
 type ValidSchemas<TInstance> = {
   [k in keyof TInstance]?: Schema;
@@ -48,17 +48,27 @@ export interface IEntityClass<TBase extends Constructor = any> {
     };
     key: string;
   };
-  /** Defines nested entities */
+  /** Defines nested entities
+   *
+   * @see https://resthooks.io/rest/api/Entity#schema
+   */
   schema: {
     [k: string]: Schema;
   };
-  /** Returns the globally unique identifier for the static Entity */
+  /** Returns the globally unique identifier for the static Entity
+   *
+   * @see https://resthooks.io/docs/api/Entity#key
+   */
   key: string;
-  /** Defines indexes to enable lookup by */
+  /** Defines indexes to enable lookup by
+   *
+   * @see https://resthooks.io/rest/api/Entity#indexes
+   */
   indexes?: readonly string[] | undefined;
   /**
    * A unique identifier for each Entity
    *
+   * @see https://resthooks.io/docs/api/Entity#pk
    * @param [value] POJO of the entity or subset used
    * @param [parent] When normalizing, the object which included the entity
    * @param [key] When normalizing, the key where this entity was found
@@ -72,6 +82,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
     value: Partial<AbstractInstanceType<T>>,
     parent?: any,
     key?: string,
+    args?: any[],
   ): string | undefined;
   /** Return true to merge incoming data; false keeps existing entity
    *
@@ -106,9 +117,15 @@ export interface IEntityClass<TBase extends Constructor = any> {
     existing: any,
     incoming: any,
   ): boolean;
-  /** Creates new instance copying over defined values of arguments */
+  /** Creates new instance copying over defined values of arguments
+   *
+   * @see https://resthooks.io/docs/api/schema.Entity#merge
+   */
   merge(existing: any, incoming: any): any;
-  /** Run when an existing entity is found in the store */
+  /** Run when an existing entity is found in the store
+   *
+   * @see https://resthooks.io/docs/api/schema.Entity#mergeWithStore
+   */
   mergeWithStore(
     existingMeta: {
       date: number;
@@ -121,6 +138,28 @@ export interface IEntityClass<TBase extends Constructor = any> {
     existing: any,
     incoming: any,
   ): any;
+  /** Run when an existing entity is found in the store
+   *
+   * @see https://resthooks.io/docs/api/schema.Entity#mergeMetaWithStore
+   */
+  mergeMetaWithStore(
+    existingMeta: {
+      expiresAt: number;
+      date: number;
+      fetchedAt: number;
+    },
+    incomingMeta: {
+      expiresAt: number;
+      date: number;
+      fetchedAt: number;
+    },
+    existing: any,
+    incoming: any,
+  ): {
+    expiresAt: number;
+    date: number;
+    fetchedAt: number;
+  };
   /** Factory method to convert from Plain JS Objects.
    *
    * @param [props] Plain Object of properties to assign.
@@ -133,9 +172,10 @@ export interface IEntityClass<TBase extends Constructor = any> {
     this: T,
     props?: Partial<AbstractInstanceType<T>>,
   ): AbstractInstanceType<T>;
-  /** Factory method to convert from Plain JS Objects.
+  /** Called when denormalizing an entity to create an instance when 'valid'
    *
    * @param [props] Plain Object of properties to assign.
+   * @see https://resthooks.io/docs/api/Entity#createIfValid
    */
   createIfValid<
     T extends (new (...args: any[]) => IEntityInstance & InstanceType<TBase>) &
@@ -145,7 +185,10 @@ export interface IEntityClass<TBase extends Constructor = any> {
     this: T,
     props: Partial<AbstractInstanceType<T>>,
   ): AbstractInstanceType<T> | undefined;
-  /** Do any transformations when first receiving input */
+  /** Do any transformations when first receiving input
+   *
+   * @see https://resthooks.io/docs/api/Entity#process
+   */
   process(input: any, parent: any, key: string | undefined): any;
   normalize(
     input: any,
@@ -155,16 +198,16 @@ export interface IEntityClass<TBase extends Constructor = any> {
     addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
   ): any;
+  /** Do any transformations when first receiving input
+   *
+   * @see https://resthooks.io/docs/api/Entity#validate
+   */
   validate(processedEntity: any): string | undefined;
+  /** Attempts to infer results
+   *
+   * @see https://resthooks.io/docs/api/Entity#infer
+   */
   infer(args: readonly any[], indexes: NormalizedIndex, recurse: any): any;
-  expiresAt(
-    meta: {
-      expiresAt: number;
-      date: number;
-      fetchedAt: number;
-    },
-    input: any,
-  ): number;
   denormalize<
     T extends (new (...args: any[]) => IEntityInstance & InstanceType<TBase>) &
       IEntityClass &
@@ -173,11 +216,16 @@ export interface IEntityClass<TBase extends Constructor = any> {
     this: T,
     input: any,
     unvisit: UnvisitFunction,
-  ): [
-    /*denormalized*/ AbstractInstanceType<T>,
-    /*found*/ boolean,
-    /*suspend*/ boolean,
-  ];
+  ): [denormalized: AbstractInstanceType<T>, found: boolean, suspend: boolean];
+  denormalizeOnly<
+    T extends (new (...args: any[]) => IEntityInstance & InstanceType<TBase>) &
+      IEntityClass &
+      TBase,
+  >(
+    this: T,
+    input: any,
+    unvisit: (input: any, schema: any) => any,
+  ): AbstractInstanceType<T>;
   /** All instance defaults set */
   readonly defaults: any;
 }
@@ -188,7 +236,6 @@ export interface IEntityInstance {
    * @param [parent] When normalizing, the object which included the entity
    * @param [key] When normalizing, the key where this entity was found
    */
-  pk(parent?: any, key?: string): string | undefined;
+  pk(parent?: any, key?: string, args?: readonly any[]): string | undefined;
 }
 export {};
-//# sourceMappingURL=EntitySchema.d.ts.map

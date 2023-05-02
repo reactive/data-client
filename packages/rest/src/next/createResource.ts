@@ -1,16 +1,11 @@
 import { schema } from '@rest-hooks/endpoint';
-import type {
-  Schema,
-  Denormalize,
-  EndpointExtraOptions,
-} from '@rest-hooks/endpoint';
+import type { Schema, Denormalize } from '@rest-hooks/endpoint';
 
+import { ResourceGenerics, ResourceOptions } from './resourceTypes.js';
 import RestEndpoint, {
   GetEndpoint,
   MutateEndpoint,
-  ResourceGenerics,
   RestTypeNoBody,
-  ResourceOptions,
 } from './RestEndpoint.js';
 import { PathArgs, ShortenPath } from '../pathTypes.js';
 import { shortenPath } from '../RestHelpers.js';
@@ -26,11 +21,7 @@ export default function createResource<O extends ResourceGenerics>({
   schema,
   Endpoint = RestEndpoint,
   ...extraOptions
-}: Readonly<
-  ResourceOptions & {
-    readonly Endpoint?: typeof RestEndpoint;
-  } & O
->): Resource<O> {
+}: Readonly<O> & ResourceOptions): Resource<O> {
   const shortenedPath = shortenPath(path);
   const getName = (name: string) => `${(schema as any)?.name}.${name}`;
   const getList = new Endpoint({
@@ -75,58 +66,78 @@ export default function createResource<O extends ResourceGenerics>({
 }
 
 export interface Resource<
-  O extends ResourceGenerics = { path: string; schema: Schema },
+  O extends ResourceGenerics = { path: string; schema: any },
 > {
   /** Get a singular item
    *
    * @see https://resthooks.io/rest/api/createResource#get
    */
-  get: GetEndpoint<Omit<O, 'searchParams' | 'body'>>;
+  get: GetEndpoint<{ path: O['path']; schema: O['schema'] }>;
   /** Get a list of item
    *
    * @see https://resthooks.io/rest/api/createResource#getlist
    */
-  getList: GetEndpoint<
-    Omit<O, 'schema' | 'body' | 'path'> & {
-      readonly path: ShortenPath<O['path']>;
-      readonly schema: schema.CollectionType<O['schema'][]>;
-    }
-  >;
+  getList: 'searchParams' extends keyof O
+    ? GetEndpoint<{
+        path: ShortenPath<O['path']>;
+        schema: schema.CollectionType<O['schema'][]>;
+        searchParams: O['searchParams'];
+      }>
+    : GetEndpoint<{
+        path: ShortenPath<O['path']>;
+        schema: schema.CollectionType<O['schema'][]>;
+        searchParams: Record<string, number | string | boolean> | undefined;
+      }>;
   /** Create a new item (POST)
    *
    * @see https://resthooks.io/rest/api/createResource#create
    */
-  create: MutateEndpoint<
-    {
-      readonly path: ShortenPath<O['path']>;
-      readonly body: 'body' extends keyof O
-        ? O['body']
-        : Partial<Denormalize<O['schema']>>;
-      readonly schema: schema.CollectionType<schema.Array<O['schema']>>['push'];
-    } & Omit<O, 'path' | 'body' | 'schema'>
-  >;
+  create: 'searchParams' extends keyof O
+    ? MutateEndpoint<{
+        path: ShortenPath<O['path']>;
+        schema: schema.CollectionType<schema.Array<O['schema']>>['push'];
+        body: 'body' extends keyof O
+          ? O['body']
+          : Partial<Denormalize<O['schema']>>;
+        searchParams: O['searchParams'];
+      }>
+    : MutateEndpoint<{
+        path: ShortenPath<O['path']>;
+        schema: schema.CollectionType<schema.Array<O['schema']>>['push'];
+        body: 'body' extends keyof O
+          ? O['body']
+          : Partial<Denormalize<O['schema']>>;
+      }>;
   /** Update an item (PUT)
    *
    * @see https://resthooks.io/rest/api/createResource#update
    */
-  update: MutateEndpoint<
-    {
-      readonly body: 'body' extends keyof O
-        ? O['body']
-        : Partial<Denormalize<O['schema']>>;
-    } & O
-  >;
+  update: 'body' extends keyof O
+    ? MutateEndpoint<{
+        path: O['path'];
+        body: O['body'];
+        schema: O['schema'];
+      }>
+    : MutateEndpoint<{
+        path: O['path'];
+        body: Partial<Denormalize<O['schema']>>;
+        schema: O['schema'];
+      }>;
   /** Update an item (PATCH)
    *
    * @see https://resthooks.io/rest/api/createResource#partialupdate
    */
-  partialUpdate: MutateEndpoint<
-    {
-      readonly body: 'body' extends keyof O
-        ? O['body']
-        : Partial<Denormalize<O['schema']>>;
-    } & O
-  >;
+  partialUpdate: 'body' extends keyof O
+    ? MutateEndpoint<{
+        path: O['path'];
+        body: O['body'];
+        schema: O['schema'];
+      }>
+    : MutateEndpoint<{
+        path: O['path'];
+        body: Partial<Denormalize<O['schema']>>;
+        schema: O['schema'];
+      }>;
   /** Delete an item (DELETE)
    *
    * @see https://resthooks.io/rest/api/createResource#delete

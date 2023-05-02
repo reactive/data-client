@@ -1,3 +1,7 @@
+import { Entity, schema } from '@rest-hooks/endpoint';
+import { User } from '__tests__/new';
+
+import createResource from '../createResource';
 import {
   KeysToArgs,
   PathArgs,
@@ -5,7 +9,7 @@ import {
   PathKeys,
   ShortenPath,
 } from '../pathTypes';
-import { GetEndpoint, NewGetEndpoint } from '../RestEndpoint';
+import RestEndpoint, { GetEndpoint, NewGetEndpoint } from '../RestEndpoint';
 import { RequiredKeys } from '../utiltypes';
 
 describe('PathArgs', () => {
@@ -178,4 +182,111 @@ describe('RequiredKeys', () => {
   () => a.opt;
   // @ts-expect-error
   () => a.sdfsdf;
+});
+
+it('RestEndpoint construct and extend with typed options', () => {
+  new RestEndpoint({
+    path: '/todos/',
+    getOptimisticResponse(snap, body) {
+      return body;
+    },
+    schema: User,
+    method: 'POST',
+  });
+  // variable/unknown number of args
+  new RestEndpoint({
+    path: '/todos/',
+    searchParams: {} as { userId?: string | number } | undefined,
+    getOptimisticResponse(snap, ...args) {
+      return args[args.length - 1];
+    },
+    schema: User,
+    method: 'POST',
+  });
+  new RestEndpoint({
+    path: '/todos/:id',
+    searchParams: {} as { userId?: string | number } | undefined,
+    getOptimisticResponse(snap, args, body) {
+      return body;
+    },
+    schema: User,
+    method: 'POST',
+  });
+  /*new RestEndpoint({
+    path: '/todos/:id',
+    searchParams: {} as { userId?: string | number } | undefined,
+    getOptimisticResponse(snap, args) {
+      return args as any;
+    },
+    schema: User,
+    method: 'POST',
+  });*/
+
+  const nopath = new RestEndpoint({
+    path: '/todos/',
+    schema: User,
+    method: 'POST',
+  });
+  const somepath = new RestEndpoint({
+    path: '/todos/:id',
+    schema: User,
+    method: 'POST',
+  });
+
+  nopath.extend({
+    getOptimisticResponse(snap, body) {
+      return body;
+    },
+  });
+  nopath.extend({
+    searchParams: {} as { userId?: string | number } | undefined,
+    getOptimisticResponse(snap, ...args) {
+      return args[args.length - 1];
+    },
+  });
+  somepath.extend({
+    searchParams: {} as { userId?: string | number } | undefined,
+    getOptimisticResponse(snap, args, body) {
+      return body;
+    },
+  });
+});
+
+it('should customize resources', () => {
+  class Todo extends Entity {
+    id = '';
+    userId = 0;
+    title = '';
+    completed = false;
+
+    static key = 'Todo';
+    pk() {
+      return this.id;
+    }
+  }
+
+  const TodoResourceBase = createResource({
+    path: '/todos/:id',
+    schema: Todo,
+  });
+  TodoResourceBase.create.extend({
+    searchParams: {} as { userId?: string | number } | undefined,
+    getOptimisticResponse(snap, body) {
+      return body;
+    },
+  });
+  TodoResourceBase.create
+    .extend({
+      schema: new schema.Collection([Todo], {
+        argsKey(...args) {
+          return { a: 5 };
+        },
+      }),
+    })
+    .extend({
+      searchParams: {} as { userId?: string | number } | undefined,
+      getOptimisticResponse(snap, body) {
+        return body;
+      },
+    });
 });

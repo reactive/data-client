@@ -1,13 +1,21 @@
 // we just removed instances of 'abstract new'
-import { UnvisitFunction } from '../interface.js';
+import type { UnvisitFunction } from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
 declare const Entity_base: import('./EntitySchema.js').IEntityClass<
   new (...args: any[]) => {
-    pk(parent?: any, key?: string | undefined): string | undefined;
+    pk(
+      parent?: any,
+      key?: string | undefined,
+      args?: readonly any[] | undefined,
+    ): string | undefined;
   }
 > &
   (new (...args: any[]) => {
-    pk(parent?: any, key?: string | undefined): string | undefined;
+    pk(
+      parent?: any,
+      key?: string | undefined,
+      args?: readonly any[] | undefined,
+    ): string | undefined;
   });
 /**
  * Represents data that should be deduped by specifying a primary key.
@@ -20,7 +28,12 @@ export default abstract class Entity extends Entity_base {
    * @param [parent] When normalizing, the object which included the entity
    * @param [key] When normalizing, the key where this entity was found
    */
-  abstract pk(parent?: any, key?: string): string | undefined;
+  abstract pk(
+    parent?: any,
+    key?: string,
+    args?: readonly any[],
+  ): string | undefined;
+
   /** Control how automatic schema validation is handled
    *
    * `undefined`: Defaults - throw error in worst offense
@@ -63,6 +76,25 @@ export default abstract class Entity extends Entity_base {
     incoming: any,
   ): any;
 
+  static mergeMetaWithStore(
+    existingMeta: {
+      expiresAt: number;
+      date: number;
+      fetchedAt: number;
+    },
+    incomingMeta: {
+      expiresAt: number;
+      date: number;
+      fetchedAt: number;
+    },
+    existing: any,
+    incoming: any,
+  ): {
+    expiresAt: number;
+    date: number;
+    fetchedAt: number;
+  };
+
   /** Factory method to convert from Plain JS Objects.
    *
    * @param [props] Plain Object of properties to assign.
@@ -84,6 +116,7 @@ export default abstract class Entity extends Entity_base {
     value: Partial<AbstractInstanceType<T>>,
     parent?: any,
     key?: string,
+    args?: any[],
   ) => string | undefined;
 
   /** Do any transformations when first receiving input */
@@ -93,14 +126,9 @@ export default abstract class Entity extends Entity_base {
     this: T,
     input: any,
     unvisit: UnvisitFunction,
-  ): [
-    /*denormalized*/ AbstractInstanceType<T>,
-    /*found*/ boolean,
-    /*suspend*/ boolean,
-  ];
+  ): [denormalized: AbstractInstanceType<T>, found: boolean, suspend: boolean];
 
   /** Used by denormalize to set nested members */
   protected static set?(entity: any, key: string, value: any): void;
 }
 export {};
-//# sourceMappingURL=Entity.d.ts.map

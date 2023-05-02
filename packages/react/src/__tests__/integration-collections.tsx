@@ -109,6 +109,24 @@ const ArticleResourceLegacy = {
   }),
 };
 
+const ResourceCombos: [
+  string,
+  {
+    UserResource: typeof UserResource;
+    TodoResource: typeof TodoResource;
+    ArticleResource: typeof ArticleResource;
+  },
+][] = [
+  ['/next', { UserResource, TodoResource, ArticleResource }],
+  [
+    '/current',
+    {
+      UserResource: UserResourceLegacy,
+      TodoResource: TodoResourceLegacy,
+      ArticleResource: ArticleResourceLegacy as any,
+    },
+  ],
+];
 describe.each([
   ['CacheProvider', CacheProvider],
   ['ExternalCacheProvider', ExternalCacheProvider],
@@ -170,17 +188,7 @@ describe.each([
     global.console.warn = prevWarn;
   });
 
-  describe.each([
-    ['/next', { UserResource, TodoResource, ArticleResource }],
-    [
-      '/current',
-      {
-        UserResource: UserResourceLegacy,
-        TodoResource: TodoResourceLegacy,
-        ArticleResource: ArticleResourceLegacy,
-      },
-    ],
-  ] as const)(
+  describe.each(ResourceCombos)(
     `RestEndpoint%s`,
     (_, { UserResource, TodoResource, ArticleResource }) => {
       let mynock: nock.Scope;

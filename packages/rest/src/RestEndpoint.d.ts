@@ -64,6 +64,10 @@ export interface RestInstanceBase<
   testKey(key: string): boolean;
 
   /* extenders */
+  // TODO: figure out better way than wrapping whole options in Readonly<> + making O extend from {}
+  //       this is just a hack to handle when no members of PartialRestGenerics are present
+  //       Note: Using overloading (like paginated did) struggles because typescript does not have a clear way of distinguishing one
+  //       should be used from the other (due to same problem with every member being partial)
   extend<E extends RestInstanceBase, O extends PartialRestGenerics | {}>(
     this: E,
     options: Readonly<RestEndpointExtendOptions<O, E, F> & O>,
@@ -109,7 +113,7 @@ export type ContainsCollectionValues =
   | { schema: { [K: string]: ContainsCollectionValues } };
 
 export type RestEndpointExtendOptions<
-  O extends PartialRestGenerics | {},
+  O extends PartialRestGenerics,
   E extends RestInstanceBase,
   F extends FetchFunction,
 > = RestEndpointOptions<
@@ -283,18 +287,19 @@ export interface RestEndpointOptions<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = undefined,
 > extends EndpointExtraOptions<F> {
-  fetch?: F;
   urlPrefix?: string;
   requestInit?: RequestInit;
-  key?(...args: Parameters<F>): string;
-  readonly sideEffect?: true | undefined;
-  name?: string;
-  signal?: AbortSignal;
-  url?(...args: Parameters<F>): string;
-  getHeaders?(headers: HeadersInit): HeadersInit;
-  getRequestInit?(body: any): RequestInit;
+  getHeaders?(headers: HeadersInit): Promise<HeadersInit> | HeadersInit;
+  getRequestInit?(body: any): Promise<RequestInit> | RequestInit;
   fetchResponse?(input: RequestInfo, init: RequestInit): Promise<any>;
   parseResponse?(response: Response): Promise<any>;
+
+  sideEffect?: true | undefined;
+  name?: string;
+  signal?: AbortSignal;
+  fetch?: F;
+  key?(...args: Parameters<F>): string;
+  url?(...args: Parameters<F>): string;
   update?: EndpointUpdateFunction<F, S>;
 }
 
@@ -318,7 +323,7 @@ export interface RestEndpointConstructor {
     sideEffect,
     name,
     ...options
-  }: Readonly<RestEndpointConstructorOptions<O> & O>): RestInstance<
+  }: RestEndpointConstructorOptions<O> & Readonly<O>): RestInstance<
     RestFetch<
       'searchParams' extends keyof O
         ? O['searchParams'] & PathArgs<O['path']>
