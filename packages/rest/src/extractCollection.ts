@@ -1,7 +1,7 @@
 import { Schema, schema } from '@rest-hooks/endpoint';
 
 export default function extractCollection<
-  M extends <C extends schema.CollectionType>(collection: C) => any,
+  M extends <C extends schema.Collection>(collection: C) => any,
   S extends Schema | undefined,
 >(s: S, mapper: M): ExtractCollection<S> | undefined {
   if (typeof s !== 'object' || s === undefined || Array.isArray(s)) return;

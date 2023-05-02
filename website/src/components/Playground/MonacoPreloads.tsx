@@ -31,7 +31,6 @@ const monacoPreloads = [
 const workerPreloads = [
   `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/base/worker/workerMain.js`,
   `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/language/typescript/tsWorker.js`,
-  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/editor/editor.main.css`,
 ];
 
 const preloadScript = `

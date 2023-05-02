@@ -80,12 +80,12 @@ export interface Resource<
   getList: 'searchParams' extends keyof O
     ? GetEndpoint<{
         path: ShortenPath<O['path']>;
-        schema: schema.CollectionType<O['schema'][]>;
+        schema: schema.Collection<O['schema'][]>;
         searchParams: O['searchParams'];
       }>
     : GetEndpoint<{
         path: ShortenPath<O['path']>;
-        schema: schema.CollectionType<O['schema'][]>;
+        schema: schema.Collection<O['schema'][]>;
         searchParams: Record<string, number | string | boolean> | undefined;
       }>;
   /** Create a new item (POST)
@@ -95,7 +95,7 @@ export interface Resource<
   create: 'searchParams' extends keyof O
     ? MutateEndpoint<{
         path: ShortenPath<O['path']>;
-        schema: schema.CollectionType<schema.Array<O['schema']>>['push'];
+        schema: schema.Collection<schema.Array<O['schema']>>['push'];
         body: 'body' extends keyof O
           ? O['body']
           : Partial<Denormalize<O['schema']>>;
@@ -103,7 +103,7 @@ export interface Resource<
       }>
     : MutateEndpoint<{
         path: ShortenPath<O['path']>;
-        schema: schema.CollectionType<schema.Array<O['schema']>>['push'];
+        schema: schema.Collection<schema.Array<O['schema']>>['push'];
         body: 'body' extends keyof O
           ? O['body']
           : Partial<Denormalize<O['schema']>>;

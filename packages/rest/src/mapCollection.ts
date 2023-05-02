@@ -1,12 +1,12 @@
 import { Schema, schema } from '@rest-hooks/endpoint';
 
 export default function mapCollection<
-  M extends <C extends schema.CollectionType>(collection: C) => any,
+  M extends <C extends schema.Collection>(collection: C) => any,
   S extends Schema | undefined,
 >(
   s: S,
   mapper: M,
-): S extends schema.CollectionType
+): S extends schema.Collection
   ? ReturnType<typeof mapper<S>>
   : S extends schema.Object<infer T>
   ? {
@@ -36,9 +36,9 @@ export default function mapCollection<
 }
 
 type MapCollection<
-  M extends <C extends schema.CollectionType>(collection: C) => any,
+  M extends <C extends schema.Collection>(collection: C) => any,
   S extends Schema | undefined,
-> = S extends schema.CollectionType
+> = S extends schema.Collection
   ? ReturnType<M>
   : S extends schema.Object<infer T>
   ? MapCollection<M, T>
@@ -47,7 +47,7 @@ type MapCollection<
   : never;
 
 export type MapObject<
-  M extends (collection: schema.CollectionType) => any,
+  M extends (collection: schema.Collection) => any,
   S extends Record<string, any>,
 > = {
   [K in keyof S]: S[K] extends Schema ? MapCollection<M, S[K]> : S[K];
