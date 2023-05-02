@@ -3119,10 +3119,10 @@ __metadata:
 
 "@rest-hooks/endpoint@file:../packages/endpoint::locator=root-workspace-0b6124%40workspace%3A.":
   version: 3.7.4
-  resolution: "@rest-hooks/endpoint@file:../packages/endpoint#../packages/endpoint::hash=46cbc4&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/endpoint@file:../packages/endpoint#../packages/endpoint::hash=6b3891&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
-  checksum: d82de0b0b93e7ae9e0d042e99846efdd77e232f3cee88f3f741dd14e0e2d745161f9b1d56c21788aacd5c51a1a01196c4fa6cc6ca0ca5b8e475a13a601dd3a30
+  checksum: 082460ff60ba2b0cf33c8908d79b684182d40a351d6ad4828a48e7aaeaf20df118c1a3377332f37ce1b01a77f2762103abbdae212d3e82dea356336c642988a0
   languageName: node
   linkType: hard
 
@@ -3163,7 +3163,7 @@ __metadata:
 
 "@rest-hooks/react@file:../packages/react::locator=root-workspace-0b6124%40workspace%3A.":
   version: 7.3.1
-  resolution: "@rest-hooks/react@file:../packages/react#../packages/react::hash=b87ea6&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/react@file:../packages/react#../packages/react::hash=c51b8c&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@rest-hooks/core": ^4.3.1
@@ -3177,18 +3177,18 @@ __metadata:
       optional: true
     "@types/react":
       optional: true
-  checksum: ecbbf2c3da66f251577e2d322d4f40fa637d40107f734236c617c6b050610f4cbbedd56d65c9a0b380c23c77e952280cb12133009cf28d5f9b0188a8ccc873db
+  checksum: b47fea2490cfc21ffaca811797d9735479d71764a850e94ae02e7b46b1462625f2403606ea15b4d55b912baf297d5cb86bac80e2639acfc9d3a6719f89352148
   languageName: node
   linkType: hard
 
 "@rest-hooks/rest@file:../packages/rest::locator=root-workspace-0b6124%40workspace%3A.":
   version: 6.5.0
-  resolution: "@rest-hooks/rest@file:../packages/rest#../packages/rest::hash=ab0841&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/rest@file:../packages/rest#../packages/rest::hash=835461&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@rest-hooks/endpoint": ^3.7.4
     path-to-regexp: ^6.2.1
-  checksum: ade9754dc9f082f999234f34acb33554188ab9ad8358a3217c0aa03333c168e90a9a609032d88afeedc5c82017058a58f7fbada1b41bb54151ab4ab89267c3fb
+  checksum: 08bbc61a41a39f45c05d9d605abd15113e49ada6e447f97bb71297f7282f349ccfd31dcb90458e41b7246857f8c9736d2f306d2793497cbb372b0afcdc4808b7
   languageName: node
   linkType: hard
 
@@ -3936,20 +3936,20 @@ __metadata:
   linkType: hard
 
 "@types/react-dom@npm:^17.0.0":
-  version: 17.0.19
-  resolution: "@types/react-dom@npm:17.0.19"
+  version: 17.0.20
+  resolution: "@types/react-dom@npm:17.0.20"
   dependencies:
     "@types/react": ^17
-  checksum: 875a472d868b235435c905ded16cf92297bd2afb20a5a78f5dccd54312f6f038ccf452ea92bb41c0b39150c2f16f3ddff0265a2de756c6f63b0971dd5719578b
+  checksum: 525439fb14a033fc5dbe74711ecc50ec82273a528df9656594066a6219401e975101dafffd15d9a1a57a9442d52ea0c92eaacae09554dde27cd792e773f67467
   languageName: node
   linkType: hard
 
 "@types/react-dom@npm:^18.0.0":
-  version: 18.0.10
-  resolution: "@types/react-dom@npm:18.0.10"
+  version: 18.2.1
+  resolution: "@types/react-dom@npm:18.2.1"
   dependencies:
     "@types/react": "*"
-  checksum: ff8282d5005a0b1cd95fb65bf79d3d8485e4cfe2aaf052129033a178684b940014a3f4536bc20d573f8a01cf4c6f4770c74988cef7c2b5cac3041d9f172647e3
+  checksum: 4e607a9d08f707ae2bd6b377f1da32989dcbe4e38ac39110423a1f6bc95dd53a5484f7f952b34e9d12b5f29a265d52a8c74c1a7d1d1e25be0fa69ccf9d64209f
   languageName: node
   linkType: hard
 
@@ -10199,10 +10199,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"monaco-editor@npm:^0.37.0":
-  version: 0.37.1
-  resolution: "monaco-editor@npm:0.37.1"
-  checksum: f2ac123d3044a1386d36ba52bb617ad18fb1c745d515a63258858b41c91bb68b71b57c7e5aff3fc2b3226b22c12ca3ad5b14c117babc85eebcf80317cb10691b
+"monaco-editor@npm:^0.38.0":
+  version: 0.38.0
+  resolution: "monaco-editor@npm:0.38.0"
+  checksum: c5dcd6f9d178f9b87eb06021dc6f50a199bdc0e3ceecc608e2959867c48c3bf0c8723ac4e94270b20c89da188058afe928d2af141b5d87e8e1388e6a4d974eea
   languageName: node
   linkType: hard
 
@@ -12562,13 +12562,13 @@ __metadata:
   linkType: hard
 
 "react-live@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "react-live@npm:4.0.0"
+  version: 4.0.1
+  resolution: "react-live@npm:4.0.1"
   dependencies:
     prism-react-renderer: ^1.3.1
     sucrase: ^3.31.0
     use-editable: ^2.3.3
-  checksum: bea27e620a1c13a3e7f49fe4bd8f5184a2a5437a36826a3b1a91ed93d189899e7e0b8a5bb63c8492b905a2c4bc4283be57f4fdb486046024b72859d46f8f7518
+  checksum: 8e5357f2d17103b31c4079579d757107180c4fc2765ceea22da38c040cf92bb0d8d10f006a270738856fc0cedec4756b5e19e7ea5f23f1abe72969eb2adf4be1
   languageName: node
   linkType: hard
 
@@ -13169,7 +13169,7 @@ __metadata:
     "@types/react-router-dom": ^5.3.3
     bignumber.js: 9.1.1
     clsx: 1.2.1
-    monaco-editor: ^0.37.0
+    monaco-editor: ^0.38.0
     parse-numeric-range: ^1.3.0
     raw-loader: ^4.0.2
     react: ^17.0.2
