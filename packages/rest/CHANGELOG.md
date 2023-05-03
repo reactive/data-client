@@ -1,5 +1,13 @@
 # Change Log
 
+## 6.6.2
+
+### Patch Changes
+
+- d4aa8bdbdb: fix: Another type exports fix
+- Updated dependencies [d4aa8bdbdb]
+  - @rest-hooks/endpoint@3.8.2
+
 ## 6.6.1
 
 ### Patch Changes

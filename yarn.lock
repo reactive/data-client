@@ -4284,7 +4284,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/endpoint@^3.7.4, @rest-hooks/endpoint@^3.8.0, @rest-hooks/endpoint@^3.8.1, @rest-hooks/endpoint@workspace:*, @rest-hooks/endpoint@workspace:^, @rest-hooks/endpoint@workspace:packages/endpoint":
+"@rest-hooks/endpoint@^3.7.4, @rest-hooks/endpoint@^3.8.0, @rest-hooks/endpoint@^3.8.1, @rest-hooks/endpoint@^3.8.2, @rest-hooks/endpoint@workspace:*, @rest-hooks/endpoint@workspace:^, @rest-hooks/endpoint@workspace:packages/endpoint":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/endpoint@workspace:packages/endpoint"
   dependencies:
@@ -4428,7 +4428,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@rest-hooks/endpoint": ^3.8.1
+    "@rest-hooks/endpoint": ^3.8.2
     "@types/node": ^18.15.10
     "@types/path-to-regexp": ^1.7.0
     path-to-regexp: ^6.2.1
