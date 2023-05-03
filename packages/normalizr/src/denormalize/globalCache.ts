@@ -140,8 +140,7 @@ const getEntityCaches = (entityCache: DenormalizeCache['entities']) => {
     const key = schema.key;
     // collections should use the entities they collect over
     // TODO: this should be based on a public interface
-    const entityInstance: EntityInterface =
-      (schema.schema?.schema as any) ?? schema;
+    const entityInstance: EntityInterface = (schema.cacheWith as any) ?? schema;
 
     if (!(key in entityCache)) {
       entityCache[key] = Object.create(null);
