@@ -1,5 +1,11 @@
 # Change Log
 
+## 3.8.2
+
+### Patch Changes
+
+- d4aa8bdbdb: fix: Another type exports fix
+
 ## 3.8.1
 
 ### Patch Changes
