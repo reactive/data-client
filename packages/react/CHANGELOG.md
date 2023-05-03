@@ -1,5 +1,13 @@
 # Change Log
 
+## 7.4.1
+
+### Patch Changes
+
+- 498c5c197f: Update normalizr version
+- Updated dependencies [498c5c197f]
+  - @rest-hooks/core@4.4.1
+
 ## 7.4.0
 
 ### Minor Changes
