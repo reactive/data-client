@@ -11,12 +11,7 @@ export type {
   EndpointExtendOptions,
 } from './endpoint.js';
 export * as schema from './schema.js';
-export type {
-  CollectionInterface,
-  CollectionFromSchema,
-  //Array,
-  //Invalidate,
-} from './schema.js';
+export type { Array, Invalidate, Collection } from './schema.js';
 export { default as Entity } from './schemas/Entity.js';
 export { default as validateRequired } from './validateRequired.js';
 export { DELETED, INVALID } from './special.js';

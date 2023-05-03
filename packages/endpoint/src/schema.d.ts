@@ -362,7 +362,7 @@ export class CollectionInterface<
     createCollectionFilter?: (
       ...args: P
     ) => (collectionKey: Record<string, any>) => boolean,
-  ): Collection<S, P>;
+  ): schema.Collection<S, P>;
 
   readonly cacheWith: object;
 
@@ -444,15 +444,15 @@ export class CollectionInterface<
   _normalizeNullable(): ReturnType<S['_normalizeNullable']>;
 
   push: S extends { denormalizeOnly(...args: any): any[] }
-    ? Collection<S, Parent>
+    ? schema.Collection<S, Parent>
     : never;
 
   unshift: S extends { denormalizeOnly(...args: any): any }
-    ? Collection<S, Parent>
+    ? schema.Collection<S, Parent>
     : never;
 
   assign: S extends { denormalizeOnly(...args: any): Record<string, unknown> }
-    ? Collection<S, Parent>
+    ? schema.Collection<S, Parent>
     : never;
 }
 export type CollectionFromSchema<
