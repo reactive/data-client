@@ -81,6 +81,7 @@ export interface EntityInterface<T = any> extends SchemaSimple {
   ): boolean;
   indexes?: any;
   schema: Record<string, Schema>;
+  cacheWith?: object;
   prototype: T;
 }
 

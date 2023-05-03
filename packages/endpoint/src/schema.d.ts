@@ -364,6 +364,8 @@ export class CollectionInterface<
     ) => (collectionKey: Record<string, any>) => boolean,
   ): Collection<S, P>;
 
+  readonly cacheWith: object;
+
   readonly schema: S;
   key: string;
   pk(value: any, parent: any, key: string, args: any[]): string;

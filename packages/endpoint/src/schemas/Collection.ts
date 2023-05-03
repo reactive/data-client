@@ -86,6 +86,10 @@ export default class CollectionSchema<
     }
   }
 
+  get cacheWith(): object {
+    return this.schema.schema;
+  }
+
   toJSON() {
     return {
       name: `Collection(${this.schema.schema.name})`,
