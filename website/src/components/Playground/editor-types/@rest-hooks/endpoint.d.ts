@@ -591,6 +591,8 @@ declare class CollectionInterface<
     ) => (collectionKey: Record<string, any>) => boolean,
   ): Collection<S, P>;
 
+  readonly cacheWith: object;
+
   readonly schema: S;
   key: string;
   pk(value: any, parent: any, key: string, args: any[]): string;
@@ -668,12 +670,15 @@ declare class CollectionInterface<
   _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;
   _normalizeNullable(): ReturnType<S['_normalizeNullable']>;
 
-  push: S extends { denormalizeOnly(): any[] } ? Collection<S, Parent> : never;
-  unshift: S extends { denormalizeOnly(): any[] }
+  push: S extends { denormalizeOnly(...args: any): any[] }
     ? Collection<S, Parent>
     : never;
 
-  assign: S extends { denormalizeOnly(): Record<string, unknown> }
+  unshift: S extends { denormalizeOnly(...args: any): any }
+    ? Collection<S, Parent>
+    : never;
+
+  assign: S extends { denormalizeOnly(...args: any): Record<string, unknown> }
     ? Collection<S, Parent>
     : never;
 }
@@ -1276,4 +1281,4 @@ type QuerySchema<Schema, R> = Exclude<Schema, 'denormalize' | '_denormalizeNulla
 declare class AbortOptimistic extends Error {
 }
 
-export { AbortOptimistic, AbstractInstanceType, ArrayElement, CollectionFromSchema, CollectionInterface, DELETED, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, INVALID, Index, IndexParams, KeyofEndpointInstance, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, PolymorphicInterface, Query, ReadEndpoint, ResolveType, Schema, SchemaClass, SchemaDetail, SchemaList, SchemaSimple, SchemaSimpleNew, SnapshotInterface, UnknownError, schema_d as schema, validateRequired };
+export { AbortOptimistic, AbstractInstanceType, Array$1 as Array, ArrayElement, Collection, DELETED, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, INVALID, Index, IndexParams, Invalidate, KeyofEndpointInstance, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, PolymorphicInterface, Query, ReadEndpoint, ResolveType, Schema, SchemaClass, SchemaDetail, SchemaList, SchemaSimple, SchemaSimpleNew, SnapshotInterface, UnknownError, schema_d as schema, validateRequired };

@@ -591,6 +591,8 @@ declare class CollectionInterface<
     ) => (collectionKey: Record<string, any>) => boolean,
   ): Collection<S, P>;
 
+  readonly cacheWith: object;
+
   readonly schema: S;
   key: string;
   pk(value: any, parent: any, key: string, args: any[]): string;
@@ -668,12 +670,15 @@ declare class CollectionInterface<
   _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;
   _normalizeNullable(): ReturnType<S['_normalizeNullable']>;
 
-  push: S extends { denormalizeOnly(): any[] } ? Collection<S, Parent> : never;
-  unshift: S extends { denormalizeOnly(): any[] }
+  push: S extends { denormalizeOnly(...args: any): any[] }
     ? Collection<S, Parent>
     : never;
 
-  assign: S extends { denormalizeOnly(): Record<string, unknown> }
+  unshift: S extends { denormalizeOnly(...args: any): any }
+    ? Collection<S, Parent>
+    : never;
+
+  assign: S extends { denormalizeOnly(...args: any): Record<string, unknown> }
     ? Collection<S, Parent>
     : never;
 }
@@ -1937,4 +1942,4 @@ declare function paginationUpdate<E extends {
     [x: number]: (existing: any) => any;
 };
 
-export { AbortOptimistic, AbstractInstanceType, AddEndpoint, ArrayElement, CollectionFromSchema, CollectionInterface, DELETED, Defaults, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, FetchGet, FetchMutate, GetEndpoint, HookResource, HookableEndpointInterface, INVALID, Index, IndexParams, KeyofEndpointInstance, KeyofRestEndpoint, KeysToArgs, MutateEndpoint, NetworkError, NewGetEndpoint, NewMutateEndpoint, Normalize, NormalizeNullable, OptionsToFunction, PaginationFieldEndpoint, PathArgs, PathArgsAndSearch, PathKeys, PolymorphicInterface, Query, ReadEndpoint, ResolveType, Resource, RestEndpoint, RestEndpointConstructorOptions, RestFetch, RestGenerics, RestInstance, RestType, Schema, SchemaClass, SchemaDetail, SchemaList, SchemaSimple, SchemaSimpleNew, ShortenPath, SnapshotInterface, UnknownError, createResource, hookifyResource, paginationUpdate, schema_d as schema, validateRequired };
+export { AbortOptimistic, AbstractInstanceType, AddEndpoint, Array$1 as Array, ArrayElement, Collection, DELETED, Defaults, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, FetchGet, FetchMutate, GetEndpoint, HookResource, HookableEndpointInterface, INVALID, Index, IndexParams, Invalidate, KeyofEndpointInstance, KeyofRestEndpoint, KeysToArgs, MutateEndpoint, NetworkError, NewGetEndpoint, NewMutateEndpoint, Normalize, NormalizeNullable, OptionsToFunction, PaginationFieldEndpoint, PathArgs, PathArgsAndSearch, PathKeys, PolymorphicInterface, Query, ReadEndpoint, ResolveType, Resource, RestEndpoint, RestEndpointConstructorOptions, RestFetch, RestGenerics, RestInstance, RestType, Schema, SchemaClass, SchemaDetail, SchemaList, SchemaSimple, SchemaSimpleNew, ShortenPath, SnapshotInterface, UnknownError, createResource, hookifyResource, paginationUpdate, schema_d as schema, validateRequired };

@@ -29,6 +29,7 @@ interface EntityInterface<T = any> extends SchemaSimple {
     useIncoming?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): boolean;
     indexes?: any;
     schema: Record<string, Schema>;
+    cacheWith?: object;
     prototype: T;
 }
 interface UnvisitFunction {

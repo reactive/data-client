@@ -221,6 +221,8 @@ declare class CollectionInterface<
     ) => (collectionKey: Record<string, any>) => boolean,
   ): Collection<S, P>;
 
+  readonly cacheWith: object;
+
   readonly schema: S;
   key: string;
   pk(value: any, parent: any, key: string, args: any[]): string;
@@ -298,12 +300,15 @@ declare class CollectionInterface<
   _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;
   _normalizeNullable(): ReturnType<S['_normalizeNullable']>;
 
-  push: S extends { denormalizeOnly(): any[] } ? Collection<S, Parent> : never;
-  unshift: S extends { denormalizeOnly(): any[] }
+  push: S extends { denormalizeOnly(...args: any): any[] }
     ? Collection<S, Parent>
     : never;
 
-  assign: S extends { denormalizeOnly(): Record<string, unknown> }
+  unshift: S extends { denormalizeOnly(...args: any): any }
+    ? Collection<S, Parent>
+    : never;
+
+  assign: S extends { denormalizeOnly(...args: any): Record<string, unknown> }
     ? Collection<S, Parent>
     : never;
 }
@@ -799,15 +804,6 @@ interface RestInstance<
   assign: AddEndpoint<F, S, O>;
 }
 
-type ContainsCollectionArray =
-  | { push: any; unshift: any }
-  | { [K: string]: ContainsCollectionArray }
-  | { schema: { [K: string]: ContainsCollectionArray } };
-type ContainsCollectionValues =
-  | { assign: any }
-  | { [K: string]: ContainsCollectionValues }
-  | { schema: { [K: string]: ContainsCollectionValues } };
-
 type RestEndpointExtendOptions<
   O extends PartialRestGenerics,
   E extends RestInstanceBase,
@@ -1232,118 +1228,6 @@ type MutateEndpoint<
   O
 >;
 
-type RestEndpoint_d_RestInstanceBase<F extends FetchFunction = FetchFunction, S extends Schema | undefined = any, M extends true | undefined = true | undefined, O extends {
-    path: string;
-    body?: any;
-    searchParams?: any;
-  } = { path: string }> = RestInstanceBase<F, S, M, O>;
-type RestEndpoint_d_RestInstance<F extends FetchFunction = FetchFunction, S extends Schema | undefined = any, M extends true | undefined = true | undefined, O extends {
-    path: string;
-    body?: any;
-    searchParams?: any;
-  } = { path: string }> = RestInstance<F, S, M, O>;
-type RestEndpoint_d_ContainsCollectionArray = ContainsCollectionArray;
-type RestEndpoint_d_ContainsCollectionValues = ContainsCollectionValues;
-type RestEndpoint_d_RestEndpointExtendOptions<O extends PartialRestGenerics, E extends RestInstanceBase, F extends FetchFunction> = RestEndpointExtendOptions<O, E, F>;
-type RestEndpoint_d_RestExtendedEndpoint<O extends PartialRestGenerics, E extends RestInstanceBase> = RestExtendedEndpoint<O, E>;
-type RestEndpoint_d_PartialRestGenerics = PartialRestGenerics;
-type RestEndpoint_d_RestGenerics = RestGenerics;
-type RestEndpoint_d_PaginationEndpoint<E extends RestInstanceBase, A extends any[]> = PaginationEndpoint<E, A>;
-type RestEndpoint_d_PaginationFieldEndpoint<E extends RestInstanceBase, C extends string> = PaginationFieldEndpoint<E, C>;
-type RestEndpoint_d_AddEndpoint<F extends FetchFunction = FetchFunction, S extends Schema | undefined = any, O extends {
-    path: string;
-    body?: any;
-    searchParams?: any;
-  } = { path: string }> = AddEndpoint<F, S, O>;
-type RestEndpoint_d_BodyDefault<O extends RestGenerics> = BodyDefault<O>;
-type RestEndpoint_d_RestEndpointOptions<F extends FetchFunction = FetchFunction, S extends Schema | undefined = undefined> = RestEndpointOptions<F, S>;
-type RestEndpoint_d_RestEndpointConstructorOptions<O extends RestGenerics = any> = RestEndpointConstructorOptions<O>;
-type RestEndpoint_d_RestEndpointConstructor = RestEndpointConstructor;
-declare const RestEndpoint_d_RestEndpoint: typeof RestEndpoint;
-type RestEndpoint_d_MethodToSide<M> = MethodToSide<M>;
-type RestEndpoint_d_RestType<UrlParams = any, Body = any, S extends Schema | undefined = Schema | undefined, M extends true | undefined = true | undefined, R = any, O extends {
-    path: string;
-    body?: any;
-    searchParams?: any;
-  } = { path: string }> = RestType<UrlParams, Body, S, M, R, O>;
-type RestEndpoint_d_RestTypeWithBody<UrlParams = any, S extends Schema | undefined = Schema | undefined, M extends true | undefined = true | undefined, Body = any, R = any, O extends {
-    path: string;
-    body?: any;
-    searchParams?: any;
-  } = { path: string; body: any }> = RestTypeWithBody<UrlParams, S, M, Body, R, O>;
-type RestEndpoint_d_RestTypeNoBody<UrlParams = any, S extends Schema | undefined = Schema | undefined, M extends true | undefined = true | undefined, R = any, O extends {
-    path: string;
-    body?: undefined;
-    searchParams?: any;
-  } = { path: string; body: undefined }> = RestTypeNoBody<UrlParams, S, M, R, O>;
-type RestEndpoint_d_RestFetch<UrlParams, Body = {}, Resolve = any> = RestFetch<UrlParams, Body, Resolve>;
-type RestEndpoint_d_ParamFetchWithBody<P, B = {}, R = any> = ParamFetchWithBody<P, B, R>;
-type RestEndpoint_d_ParamFetchNoBody<P, R = any> = ParamFetchNoBody<P, R>;
-type RestEndpoint_d_KeyofRestEndpoint = KeyofRestEndpoint;
-type RestEndpoint_d_FromFallBack<K extends keyof E, O, E> = FromFallBack<K, O, E>;
-type RestEndpoint_d_FetchMutate<A extends readonly any[] =  // eslint-disable-next-line @typescript-eslint/ban-types
-    | [any, {}]
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    | [{}], R = any> = FetchMutate<A, R>;
-type RestEndpoint_d_FetchGet<A extends readonly any[] = [any], R = any> = FetchGet<A, R>;
-type RestEndpoint_d_Defaults<O, D> = Defaults<O, D>;
-type RestEndpoint_d_GetEndpoint<O extends {
-    readonly path: string;
-    readonly schema: Schema;
-    /** Only used for types */
-    readonly searchParams?: any;
-  } = {
-    path: string;
-    schema: Schema;
-  }> = GetEndpoint<O>;
-type RestEndpoint_d_MutateEndpoint<O extends {
-    readonly path: string;
-    readonly schema: Schema;
-    /** Only used for types */
-    readonly searchParams?: any;
-    /** Only used for types */
-    readonly body?: any;
-  } = {
-    path: string;
-    body: any;
-    schema: Schema;
-  }> = MutateEndpoint<O>;
-declare namespace RestEndpoint_d {
-  export {
-    RestEndpoint as default,
-    RestEndpoint_d_RestInstanceBase as RestInstanceBase,
-    RestEndpoint_d_RestInstance as RestInstance,
-    RestEndpoint_d_ContainsCollectionArray as ContainsCollectionArray,
-    RestEndpoint_d_ContainsCollectionValues as ContainsCollectionValues,
-    RestEndpoint_d_RestEndpointExtendOptions as RestEndpointExtendOptions,
-    RestEndpoint_d_RestExtendedEndpoint as RestExtendedEndpoint,
-    RestEndpoint_d_PartialRestGenerics as PartialRestGenerics,
-    RestEndpoint_d_RestGenerics as RestGenerics,
-    RestEndpoint_d_PaginationEndpoint as PaginationEndpoint,
-    RestEndpoint_d_PaginationFieldEndpoint as PaginationFieldEndpoint,
-    RestEndpoint_d_AddEndpoint as AddEndpoint,
-    RestEndpoint_d_BodyDefault as BodyDefault,
-    RestEndpoint_d_RestEndpointOptions as RestEndpointOptions,
-    RestEndpoint_d_RestEndpointConstructorOptions as RestEndpointConstructorOptions,
-    RestEndpoint_d_RestEndpointConstructor as RestEndpointConstructor,
-    RestEndpoint_d_RestEndpoint as RestEndpoint,
-    RestEndpoint_d_MethodToSide as MethodToSide,
-    RestEndpoint_d_RestType as RestType,
-    RestEndpoint_d_RestTypeWithBody as RestTypeWithBody,
-    RestEndpoint_d_RestTypeNoBody as RestTypeNoBody,
-    RestEndpoint_d_RestFetch as RestFetch,
-    RestEndpoint_d_ParamFetchWithBody as ParamFetchWithBody,
-    RestEndpoint_d_ParamFetchNoBody as ParamFetchNoBody,
-    RestEndpoint_d_KeyofRestEndpoint as KeyofRestEndpoint,
-    RestEndpoint_d_FromFallBack as FromFallBack,
-    RestEndpoint_d_FetchMutate as FetchMutate,
-    RestEndpoint_d_FetchGet as FetchGet,
-    RestEndpoint_d_Defaults as Defaults,
-    RestEndpoint_d_GetEndpoint as GetEndpoint,
-    RestEndpoint_d_MutateEndpoint as MutateEndpoint,
-  };
-}
-
 interface ResourceGenerics {
     readonly path: string;
     readonly schema: Schema;
@@ -1395,11 +1279,11 @@ interface Resource<O extends ResourceGenerics = {
      */
     getList: 'searchParams' extends keyof O ? GetEndpoint<{
         path: ShortenPath<O['path']>;
-        schema: Collection<O['schema'][]>;
+        schema: Collection<[O['schema']]>;
         searchParams: O['searchParams'];
     }> : GetEndpoint<{
         path: ShortenPath<O['path']>;
-        schema: Collection<O['schema'][]>;
+        schema: Collection<[O['schema']]>;
         searchParams: Record<string, number | string | boolean> | undefined;
     }>;
     /** Create a new item (POST)
@@ -1408,12 +1292,12 @@ interface Resource<O extends ResourceGenerics = {
      */
     create: 'searchParams' extends keyof O ? MutateEndpoint<{
         path: ShortenPath<O['path']>;
-        schema: Collection<Array$1<O['schema']>>['push'];
+        schema: Collection<[O['schema']]>['push'];
         body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>>;
         searchParams: O['searchParams'];
     }> : MutateEndpoint<{
         path: ShortenPath<O['path']>;
-        schema: Collection<Array$1<O['schema']>>['push'];
+        schema: Collection<[O['schema']]>['push'];
         body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>>;
     }>;
     /** Update an item (PUT)
@@ -1453,4 +1337,4 @@ interface Resource<O extends ResourceGenerics = {
     }>;
 }
 
-export { AddEndpoint, BodyDefault, ContainsCollectionArray, ContainsCollectionValues, Defaults, FetchGet, FetchMutate, FromFallBack, GetEndpoint, KeyofRestEndpoint, MethodToSide, MutateEndpoint, OptionsToFunction, PaginationEndpoint, PaginationFieldEndpoint, ParamFetchNoBody, ParamFetchWithBody, PartialRestGenerics, RestEndpoint_d as RHType, Resource, ResourceGenerics, ResourceOptions, RestEndpoint, RestEndpointConstructor, RestEndpointConstructorOptions, RestEndpointExtendOptions, RestEndpointOptions, RestExtendedEndpoint, RestFetch, RestGenerics, RestInstance, RestInstanceBase, RestType, RestTypeNoBody, RestTypeWithBody, createResource };
+export { AddEndpoint, BodyDefault, Defaults, FetchGet, FetchMutate, FromFallBack, GetEndpoint, KeyofRestEndpoint, MethodToSide, MutateEndpoint, PaginationEndpoint, PaginationFieldEndpoint, ParamFetchNoBody, ParamFetchWithBody, PartialRestGenerics, Resource, ResourceGenerics, ResourceOptions, RestEndpoint, RestEndpointConstructor, RestEndpointConstructorOptions, RestEndpointExtendOptions, RestEndpointOptions, RestExtendedEndpoint, RestFetch, RestGenerics, RestInstance, RestInstanceBase, RestType, RestTypeNoBody, RestTypeWithBody, createResource };
