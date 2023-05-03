@@ -1,4 +1,6 @@
-import loader from '@monaco-editor/loader';
+import { loader } from '@monaco-editor/react';
+
+import { MONACO_VERSION } from './MonacoPreloads';
 
 export let monacoMaster;
 
@@ -30,6 +32,11 @@ if (
   ];
 
   if (!monacoMaster) {
+    loader.config({
+      paths: {
+        vs: `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs`,
+      },
+    });
     const monacoPromise = loader.init();
     monacoPromise.then(monaco => {
       // or make sure that it exists by other ways
@@ -38,7 +45,7 @@ if (
       monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
         allowNonTsExtensions: true,
         target: monaco.languages.typescript.ScriptTarget.ES2017,
-        jsx: monaco.languages.typescript.JsxEmit.React,
+        jsx: monaco.languages.typescript.JsxEmit.ReactJSX,
         strict: true,
         strictNullChecks: true,
         exactOptionalPropertyTypes: true,

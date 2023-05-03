@@ -1,4 +1,3 @@
-import { loader } from '@monaco-editor/react';
 import React, { memo } from 'react';
 
 function MonacoPreloads() {
@@ -13,13 +12,7 @@ function MonacoPreloads() {
 }
 export default memo(MonacoPreloads);
 
-const MONACO_VERSION = '0.38.0';
-
-loader.config({
-  paths: {
-    vs: `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs`,
-  },
-});
+export const MONACO_VERSION = '0.38.0';
 
 const monacoPreloads = [
   `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/editor/editor.main.js`,
