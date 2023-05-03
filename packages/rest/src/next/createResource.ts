@@ -10,7 +10,7 @@ import RestEndpoint, {
 import { PathArgs, ShortenPath } from '../pathTypes.js';
 import { shortenPath } from '../RestHelpers.js';
 
-const { Delete, Collection } = schema;
+const { Invalidate, Collection } = schema;
 
 /** Creates collection of Endpoints for common operations on a given data/schema.
  *
@@ -55,7 +55,7 @@ export default function createResource<O extends ResourceGenerics>({
     delete: new Endpoint({
       ...extraOptions,
       path,
-      schema: (schema as any).process ? new Delete(schema as any) : schema,
+      schema: (schema as any).process ? new Invalidate(schema as any) : schema,
       method: 'DELETE',
       name: getName('delete'),
       process(res: any, params: any) {
@@ -145,7 +145,7 @@ export interface Resource<
   delete: RestTypeNoBody<
     PathArgs<O['path']>,
     O['schema'] extends schema.EntityInterface & { process: any }
-      ? schema.Delete<O['schema']>
+      ? schema.Invalidate<O['schema']>
       : O['schema'],
     undefined,
     Partial<PathArgs<O['path']>>,

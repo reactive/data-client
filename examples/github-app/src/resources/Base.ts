@@ -97,7 +97,7 @@ export function createGithubResource<O extends ResourceGenerics>(
     Omit<O, 'schema' | 'body' | 'path'> & {
       readonly path: ShortenPath<O['path']>;
       readonly schema: {
-        results: schema.CollectionType<O['schema'][]>;
+        results: schema.Collection<O['schema'][]>;
         link: string;
       };
     }
@@ -120,7 +120,7 @@ export interface GithubResource<
     Omit<O, 'schema' | 'body' | 'path'> & {
       readonly path: ShortenPath<O['path']>;
       readonly schema: {
-        results: schema.CollectionType<O['schema'][]>;
+        results: schema.Collection<O['schema'][]>;
         link: string;
       };
     }
@@ -130,7 +130,7 @@ export interface GithubResource<
       Omit<O, 'body' | 'schema' | 'path'> & {
         readonly path: ShortenPath<O['path']>;
         readonly schema: {
-          results: schema.CollectionType<O['schema'][]>;
+          results: schema.Collection<O['schema'][]>;
           link: string;
         };
       }

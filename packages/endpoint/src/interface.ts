@@ -46,6 +46,30 @@ export interface SchemaSimple<T = any> {
   ): any;
 }
 
+export interface SchemaSimpleNew<T = any> {
+  normalize(
+    input: any,
+    parent: any,
+    key: any,
+    visit: (...args: any) => any,
+    addEntity: (...args: any) => any,
+    visitedEntities: Record<string, any>,
+    storeEntities: any,
+    args?: any[],
+  ): any;
+  denormalizeOnly(
+    input: {},
+    args: readonly any[],
+    unvisit: (input: any, schema: any) => any,
+  ): T;
+  infer(
+    args: readonly any[],
+    indexes: NormalizedIndex,
+    recurse: (...args: any) => any,
+    entities: EntityTable,
+  ): any;
+}
+
 export interface SchemaClass<T = any, N = T | undefined>
   extends SchemaSimple<T> {
   // this is not an actual member, but is needed for the recursive NormalizeNullable<> type algo
@@ -82,6 +106,15 @@ export interface EntityInterface<T = any> extends SchemaSimple {
   indexes?: any;
   schema: Record<string, Schema>;
   prototype: T;
+}
+
+/** Represents Array or Values */
+export interface PolymorphicInterface<T = any> extends SchemaSimpleNew<T> {
+  readonly schema: any;
+  // this is not an actual member, but is needed for the recursive NormalizeNullable<> type algo
+  _normalizeNullable(): any;
+  // this is not an actual member, but is needed for the recursive DenormalizeNullable<> type algo
+  _denormalizeNullable(): [any, boolean, boolean];
 }
 
 export interface UnvisitFunction {
