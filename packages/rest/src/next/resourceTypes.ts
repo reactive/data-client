@@ -1,10 +1,4 @@
-import type {
-  EndpointExtraOptions,
-  EndpointInstanceInterface,
-  Schema,
-  FetchFunction,
-  ResolveType,
-} from '@rest-hooks/endpoint';
+import type { Schema } from '@rest-hooks/endpoint';
 
 import RestEndpoint from './RestEndpoint.js';
 

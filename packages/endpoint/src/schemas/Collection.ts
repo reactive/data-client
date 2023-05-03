@@ -1,3 +1,4 @@
+import { PolymorphicInterface } from '../interface.js';
 import {
   Entity as EntitySchema,
   Values,
@@ -21,7 +22,7 @@ const createValue = (value: any) => ({ ...value });
  * @see https://resthooks.io/rest/api/Collection
  */
 export default class CollectionSchema<
-  S extends ArraySchema<any> | Values<any> = any,
+  S extends PolymorphicInterface = any,
   Parent extends any[] = [
     urlParams: Record<string, any>,
     body?: Record<string, any>,

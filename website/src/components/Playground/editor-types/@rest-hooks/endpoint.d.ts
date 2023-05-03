@@ -109,7 +109,7 @@ declare class Invalidate<E extends EntityInterface & {
  */
 declare class Delete<E extends EntityInterface & {
     process: any;
-}> extends Invalidate<E> implements SchemaClass {
+}> extends Invalidate<E> implements SchemaClass$1 {
     denormalize(id: string, unvisit: UnvisitFunction): [denormalized: AbstractInstanceType<E>, found: boolean, suspend: boolean];
 }
 
@@ -269,7 +269,7 @@ interface IEntityInstance {
  * Represents arrays
  * @see https://resthooks.io/rest/api/Array
  */
-declare class Array$1<S extends Schema = Schema> implements SchemaClass {
+declare class Array$1<S extends Schema = Schema> implements SchemaClass$1 {
   constructor(
     definition: S,
     schemaAttribute?: S extends EntityMap<infer T>
@@ -331,7 +331,7 @@ declare class Array$1<S extends Schema = Schema> implements SchemaClass {
  */
 declare class All<
   S extends EntityMap | EntityInterface = EntityMap | EntityInterface,
-> implements SchemaClass
+> implements SchemaClass$1
 {
   constructor(
     definition: S,
@@ -393,7 +393,7 @@ declare class All<
  * @see https://resthooks.io/rest/api/Object
  */
 declare class Object$1<O extends Record<string, any> = Record<string, Schema>>
-  implements SchemaClass
+  implements SchemaClass$1
 {
   constructor(definition: O);
   define(definition: Schema): void;
@@ -436,7 +436,7 @@ declare class Object$1<O extends Record<string, any> = Record<string, Schema>>
  * Represents polymorphic values.
  * @see https://resthooks.io/rest/api/Union
  */
-declare class Union<Choices extends EntityMap = any> implements SchemaClass {
+declare class Union<Choices extends EntityMap = any> implements SchemaClass$1 {
   constructor(
     definition: Choices,
     schemaAttribute:
@@ -494,7 +494,7 @@ declare class Union<Choices extends EntityMap = any> implements SchemaClass {
  * Represents variably sized objects
  * @see https://resthooks.io/rest/api/Values
  */
-declare class Values<Choices extends Schema = any> implements SchemaClass {
+declare class Values<Choices extends Schema = any> implements SchemaClass$1 {
   constructor(
     definition: Choices,
     schemaAttribute?: Choices extends EntityMap<infer T>
@@ -580,8 +580,8 @@ declare class Values<Choices extends Schema = any> implements SchemaClass {
  * Entities but for Arrays instead of classes
  * @see https://resthooks.io/rest/api/Collection
  */
-declare class CollectionSchema<
-  S extends Array$1<any> | Values<any> = any,
+declare class CollectionInterface<
+  S extends PolymorphicInterface = any,
   Parent extends any[] = any,
 > {
   addWith<P extends any[] = Parent>(
@@ -589,7 +589,7 @@ declare class CollectionSchema<
     createCollectionFilter?: (
       ...args: P
     ) => (collectionKey: Record<string, any>) => boolean,
-  ): CollectionSchema<S, P>;
+  ): Collection<S, P>;
 
   readonly schema: S;
   key: string;
@@ -668,21 +668,26 @@ declare class CollectionSchema<
   _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;
   _normalizeNullable(): ReturnType<S['_normalizeNullable']>;
 
-  push: S extends Array$1<any> ? CollectionSchema<S, Parent> : never;
-  unshift: S extends Array$1<any> ? CollectionSchema<S, Parent> : never;
-  assign: S extends Values<any> ? CollectionSchema<S, Parent> : never;
+  push: S extends { denormalizeOnly(): any[] } ? Collection<S, Parent> : never;
+  unshift: S extends { denormalizeOnly(): any[] }
+    ? Collection<S, Parent>
+    : never;
+
+  assign: S extends { denormalizeOnly(): Record<string, unknown> }
+    ? Collection<S, Parent>
+    : never;
 }
-type CollectionType<
-  S extends any[] | Array$1<any> | Values<any> = any,
+type CollectionFromSchema<
+  S extends any[] | PolymorphicInterface = any,
   Parent extends any[] = [
     urlParams: Record<string, any>,
     body?: Record<string, any>,
   ],
-> = CollectionSchema<S extends any[] ? Array$1<S[number]> : S, Parent>;
+> = CollectionInterface<S extends any[] ? Array$1<S[number]> : S, Parent>;
 
 interface CollectionConstructor {
   new <
-    S extends SchemaSimple[] | Array$1<any> | Values<any> = any,
+    S extends SchemaSimpleNew[] | PolymorphicInterface = any,
     Parent extends any[] = [
       urlParams: Record<string, any>,
       body?: Record<string, any>,
@@ -690,8 +695,8 @@ interface CollectionConstructor {
   >(
     schema: S,
     options: CollectionOptions,
-  ): CollectionType<S, Parent>;
-  readonly prototype: CollectionSchema;
+  ): CollectionFromSchema<S, Parent>;
+  readonly prototype: CollectionInterface;
 }
 declare let CollectionRoot: CollectionConstructor;
 /**
@@ -699,7 +704,7 @@ declare let CollectionRoot: CollectionConstructor;
  * @see https://resthooks.io/rest/api/Collection
  */
 declare class Collection<
-  S extends any[] | Array$1<any> | Values<any> = any,
+  S extends any[] | PolymorphicInterface = any,
   Parent extends any[] = [
     urlParams: Record<string, any>,
     body?: Record<string, any>,
@@ -723,36 +728,12 @@ type UnionResult<Choices extends EntityMap> = {
   id: string;
   schema: keyof Choices;
 };
-interface SchemaClass<T = any, N = T | undefined>
+interface SchemaClass$1<T = any, N = T | undefined>
   extends SchemaSimple<T> {
   // this is not an actual member, but is needed for the recursive NormalizeNullable<> type algo
   _normalizeNullable(): any;
   // this is not an actual member, but is needed for the recursive DenormalizeNullable<> type algo
   _denormalizeNullable(): [N, boolean, boolean];
-}
-
-interface SchemaSimpleNew<T = any> {
-  normalize(
-    input: any,
-    parent: any,
-    key: any,
-    visit: (...args: any) => any,
-    addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: any,
-    args?: any[],
-  ): any;
-  denormalizeOnly(
-    input: {},
-    args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
-  ): T;
-  infer(
-    args: readonly any[],
-    indexes: NormalizedIndex,
-    recurse: (...args: any) => any,
-    entities: EntityTable,
-  ): any;
 }
 
 // id is in Instance, so we default to that as pk
@@ -793,15 +774,15 @@ type schema_d_Union<Choices extends EntityMap = any> = Union<Choices>;
 declare const schema_d_Union: typeof Union;
 type schema_d_Values<Choices extends Schema = any> = Values<Choices>;
 declare const schema_d_Values: typeof Values;
-type schema_d_CollectionSchema<S extends Array$1<any> | Values<any> = any, Parent extends any[] = any> = CollectionSchema<S, Parent>;
-declare const schema_d_CollectionSchema: typeof CollectionSchema;
-type schema_d_CollectionType<S extends any[] | Array$1<any> | Values<any> = any, Parent extends any[] = [
+type schema_d_CollectionInterface<S extends PolymorphicInterface = any, Parent extends any[] = any> = CollectionInterface<S, Parent>;
+declare const schema_d_CollectionInterface: typeof CollectionInterface;
+type schema_d_CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Parent extends any[] = [
     urlParams: Record<string, any>,
     body?: Record<string, any>,
-  ]> = CollectionType<S, Parent>;
+  ]> = CollectionFromSchema<S, Parent>;
 type schema_d_CollectionConstructor = CollectionConstructor;
 declare const schema_d_CollectionRoot: typeof CollectionRoot;
-type schema_d_Collection<S extends any[] | Array$1<any> | Values<any> = any, Parent extends any[] = [
+type schema_d_Collection<S extends any[] | PolymorphicInterface = any, Parent extends any[] = [
     urlParams: Record<string, any>,
     body?: Record<string, any>,
   ]> = Collection<S, Parent>;
@@ -811,8 +792,6 @@ type schema_d_SchemaFunction<K = string> = SchemaFunction<K>;
 type schema_d_MergeFunction = MergeFunction;
 type schema_d_SchemaAttributeFunction<S extends Schema> = SchemaAttributeFunction<S>;
 type schema_d_UnionResult<Choices extends EntityMap> = UnionResult<Choices>;
-type schema_d_SchemaClass<T = any, N = T | undefined> = SchemaClass<T, N>;
-type schema_d_SchemaSimpleNew<T = any> = SchemaSimpleNew<T>;
 type schema_d_EntityInterface<T = any> = EntityInterface<T>;
 declare namespace schema_d {
   export {
@@ -825,8 +804,8 @@ declare namespace schema_d {
     Object$1 as Object,
     schema_d_Union as Union,
     schema_d_Values as Values,
-    schema_d_CollectionSchema as CollectionSchema,
-    schema_d_CollectionType as CollectionType,
+    schema_d_CollectionInterface as CollectionInterface,
+    schema_d_CollectionFromSchema as CollectionFromSchema,
     schema_d_CollectionConstructor as CollectionConstructor,
     schema_d_CollectionRoot as CollectionRoot,
     schema_d_Collection as Collection,
@@ -835,8 +814,7 @@ declare namespace schema_d {
     schema_d_MergeFunction as MergeFunction,
     schema_d_SchemaAttributeFunction as SchemaAttributeFunction,
     schema_d_UnionResult as UnionResult,
-    schema_d_SchemaClass as SchemaClass,
-    schema_d_SchemaSimpleNew as SchemaSimpleNew,
+    SchemaClass$1 as SchemaClass,
     Entity$1 as Entity,
     schema_d_EntityInterface as EntityInterface,
   };
@@ -875,11 +853,11 @@ type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Pr
 /** @deprecated */
 type SchemaDetail<T> = EntityInterface<T> | {
     [K: string]: any;
-} | SchemaClass;
+} | SchemaClass$1;
 /** @deprecated */
 type SchemaList<T> = EntityInterface<T>[] | {
     [K: string]: any;
-} | Schema[] | SchemaClass;
+} | Schema[] | SchemaClass$1;
 interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
     /** Default data expiry length, will fall back to NetworkManager default if not defined */
     readonly dataExpiryLength?: number;
@@ -917,6 +895,15 @@ interface SchemaSimple<T = any> {
     denormalizeOnly?(input: {}, args: any, unvisit: (input: any, schema: any) => any): T;
     infer(args: readonly any[], indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): any;
 }
+interface SchemaSimpleNew<T = any> {
+    normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args?: any[]): any;
+    denormalizeOnly(input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any): T;
+    infer(args: readonly any[], indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): any;
+}
+interface SchemaClass<T = any, N = T | undefined> extends SchemaSimple<T> {
+    _normalizeNullable(): any;
+    _denormalizeNullable(): [N, boolean, boolean];
+}
 interface EntityInterface<T = any> extends SchemaSimple {
     createIfValid?(props: any): any;
     pk(params: any, parent?: any, key?: string, args?: any[]): string | undefined;
@@ -929,6 +916,12 @@ interface EntityInterface<T = any> extends SchemaSimple {
     indexes?: any;
     schema: Record<string, Schema>;
     prototype: T;
+}
+/** Represents Array or Values */
+interface PolymorphicInterface<T = any> extends SchemaSimpleNew<T> {
+    readonly schema: any;
+    _normalizeNullable(): any;
+    _denormalizeNullable(): [any, boolean, boolean];
 }
 interface UnvisitFunction {
     (input: any, schema: any): [any, boolean, boolean] | any;
@@ -1283,4 +1276,4 @@ type QuerySchema<Schema, R> = Exclude<Schema, 'denormalize' | '_denormalizeNulla
 declare class AbortOptimistic extends Error {
 }
 
-export { AbortOptimistic, AbstractInstanceType, ArrayElement, DELETED, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, INVALID, Index, IndexParams, KeyofEndpointInstance, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, Query, ReadEndpoint, ResolveType, Schema, SchemaDetail, SchemaList, SnapshotInterface, UnknownError, schema_d as schema, validateRequired };
+export { AbortOptimistic, AbstractInstanceType, ArrayElement, CollectionFromSchema, CollectionInterface, DELETED, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, INVALID, Index, IndexParams, KeyofEndpointInstance, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, PolymorphicInterface, Query, ReadEndpoint, ResolveType, Schema, SchemaClass, SchemaDetail, SchemaList, SchemaSimple, SchemaSimpleNew, SnapshotInterface, UnknownError, schema_d as schema, validateRequired };

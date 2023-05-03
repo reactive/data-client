@@ -19,7 +19,7 @@ export default function extractCollection<
 }
 
 export type ExtractCollection<S extends Schema | undefined> =
-  S extends schema.CollectionSchema
+  S extends schema.CollectionInterface
     ? S
     : S extends schema.Object<infer T>
     ? ExtractObject<T>

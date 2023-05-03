@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import type { EntityInterface } from '../interface.js';
+import type { EntityInterface, SchemaSimpleNew } from '../interface.js';
 import type { AbstractInstanceType } from '../normal.js';
-import { SchemaSimpleNew, UnvisitFunction } from '../schema.js';
 import { INVALID } from '../special.js';
 
 /**

@@ -103,15 +103,6 @@ export interface RestInstance<
   assign: AddEndpoint<F, S, O>;
 }
 
-export type ContainsCollectionArray =
-  | { push: any; unshift: any }
-  | { [K: string]: ContainsCollectionArray }
-  | { schema: { [K: string]: ContainsCollectionArray } };
-export type ContainsCollectionValues =
-  | { assign: any }
-  | { [K: string]: ContainsCollectionValues }
-  | { schema: { [K: string]: ContainsCollectionValues } };
-
 export type RestEndpointExtendOptions<
   O extends PartialRestGenerics,
   E extends RestInstanceBase,

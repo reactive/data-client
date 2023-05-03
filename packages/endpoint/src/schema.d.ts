@@ -1,10 +1,13 @@
+import type { schema } from './index.js';
 import type {
   SchemaSimple,
+  SchemaSimpleNew,
   Schema,
   UnvisitFunction,
   NormalizedIndex,
   EntityTable,
   EntityInterface,
+  PolymorphicInterface,
 } from './interface.js';
 import type {
   AbstractInstanceType,
@@ -350,8 +353,8 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
  * Entities but for Arrays instead of classes
  * @see https://resthooks.io/rest/api/Collection
  */
-export class CollectionSchema<
-  S extends Array<any> | Values<any> = any,
+export class CollectionInterface<
+  S extends PolymorphicInterface = any,
   Parent extends any[] = any,
 > {
   addWith<P extends any[] = Parent>(
@@ -359,7 +362,7 @@ export class CollectionSchema<
     createCollectionFilter?: (
       ...args: P
     ) => (collectionKey: Record<string, any>) => boolean,
-  ): CollectionSchema<S, P>;
+  ): Collection<S, P>;
 
   readonly schema: S;
   key: string;
@@ -438,21 +441,29 @@ export class CollectionSchema<
   _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;
   _normalizeNullable(): ReturnType<S['_normalizeNullable']>;
 
-  push: S extends Array<any> ? CollectionSchema<S, Parent> : never;
-  unshift: S extends Array<any> ? CollectionSchema<S, Parent> : never;
-  assign: S extends Values<any> ? CollectionSchema<S, Parent> : never;
+  push: S extends { denormalizeOnly(...args: any): any[] }
+    ? Collection<S, Parent>
+    : never;
+
+  unshift: S extends { denormalizeOnly(...args: any): any }
+    ? Collection<S, Parent>
+    : never;
+
+  assign: S extends { denormalizeOnly(...args: any): Record<string, unknown> }
+    ? Collection<S, Parent>
+    : never;
 }
-export type CollectionType<
-  S extends any[] | Array<any> | Values<any> = any,
+export type CollectionFromSchema<
+  S extends any[] | PolymorphicInterface = any,
   Parent extends any[] = [
     urlParams: Record<string, any>,
     body?: Record<string, any>,
   ],
-> = CollectionSchema<S extends any[] ? Array<S[number]> : S, Parent>;
+> = CollectionInterface<S extends any[] ? schema.Array<S[number]> : S, Parent>;
 
 export interface CollectionConstructor {
   new <
-    S extends SchemaSimple[] | Array<any> | Values<any> = any,
+    S extends SchemaSimpleNew[] | PolymorphicInterface = any,
     Parent extends any[] = [
       urlParams: Record<string, any>,
       body?: Record<string, any>,
@@ -460,8 +471,8 @@ export interface CollectionConstructor {
   >(
     schema: S,
     options: CollectionOptions,
-  ): CollectionType<S, Parent>;
-  readonly prototype: CollectionSchema;
+  ): CollectionFromSchema<S, Parent>;
+  readonly prototype: CollectionInterface;
 }
 export declare let CollectionRoot: CollectionConstructor;
 /**
@@ -469,7 +480,7 @@ export declare let CollectionRoot: CollectionConstructor;
  * @see https://resthooks.io/rest/api/Collection
  */
 export declare class Collection<
-  S extends any[] | Array<any> | Values<any> = any,
+  S extends any[] | PolymorphicInterface = any,
   Parent extends any[] = [
     urlParams: Record<string, any>,
     body?: Record<string, any>,
@@ -499,30 +510,6 @@ export interface SchemaClass<T = any, N = T | undefined>
   _normalizeNullable(): any;
   // this is not an actual member, but is needed for the recursive DenormalizeNullable<> type algo
   _denormalizeNullable(): [N, boolean, boolean];
-}
-
-export interface SchemaSimpleNew<T = any> {
-  normalize(
-    input: any,
-    parent: any,
-    key: any,
-    visit: (...args: any) => any,
-    addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: any,
-    args?: any[],
-  ): any;
-  denormalizeOnly(
-    input: {},
-    args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
-  ): T;
-  infer(
-    args: readonly any[],
-    indexes: NormalizedIndex,
-    recurse: (...args: any) => any,
-    entities: EntityTable,
-  ): any;
 }
 
 // id is in Instance, so we default to that as pk
