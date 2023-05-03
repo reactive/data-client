@@ -28,7 +28,7 @@
     "@babel/node": "7.20.7",
     "@types/babel__core": "^7",
     "@types/benchmark": "2.1.2",
-    "@types/react": "18.2.0",
+    "@types/react": "18.2.1",
     "webpack": "^5.76.2"
   }
 }
