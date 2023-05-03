@@ -57,9 +57,9 @@
     "webpack-dev-server": "4.13.3"
   },
   "dependencies": {
-    "@rest-hooks/endpoint": "^3.8.0",
+    "@rest-hooks/endpoint": "^3.8.1",
     "@rest-hooks/react": "^7.4.0",
-    "@rest-hooks/rest": "^6.6.0",
+    "@rest-hooks/rest": "^6.6.1",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   }

@@ -66,7 +66,7 @@
     "@rest-hooks/graphql": "^0.5.0",
     "@rest-hooks/hooks": "^3.1.14",
     "@rest-hooks/react": "^7.4.0",
-    "@rest-hooks/rest": "^6.6.0",
+    "@rest-hooks/rest": "^6.6.1",
     "antd": "5.4.6",
     "parse-link-header": "^2.0.0",
     "react": "18.2.0",

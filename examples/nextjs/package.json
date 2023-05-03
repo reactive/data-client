@@ -9,11 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@rest-hooks/react": "^7.2.6",
-    "@rest-hooks/redux": "^6.3.3",
-    "@rest-hooks/rest": "^6.2.7",
-    "@rest-hooks/ssr": "^0.7.3",
-    "@rest-hooks/test": "^10.0.0",
+    "@rest-hooks/react": "^7.4.0",
+    "@rest-hooks/redux": "^6.3.6",
+    "@rest-hooks/rest": "^6.6.1",
+    "@rest-hooks/ssr": "^0.7.11",
+    "@rest-hooks/test": "^10.3.7",
     "@types/node": "18.16.3",
     "@types/react": "18.2.0",
     "@types/react-dom": "18.2.1",
