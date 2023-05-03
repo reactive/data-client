@@ -1,5 +1,17 @@
 # Change Log
 
+## 6.6.1
+
+### Patch Changes
+
+- e7aab4063e: fix: TypeScript 'cannot be named without reference' by adding type exports
+- e7aab4063e: Collections match schemas on interfaces, rather than realized types
+- e7aab4063e: Use Invalidate instead of Delete in /new/createResource (same thing, diff name)
+- Updated dependencies [e7aab4063e]
+- Updated dependencies [e7aab4063e]
+- Updated dependencies [c01a884942]
+  - @rest-hooks/endpoint@3.8.1
+
 ## 6.6.0
 
 ### Minor Changes

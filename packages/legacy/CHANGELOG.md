@@ -1,5 +1,12 @@
 # Change Log
 
+## 8.1.1
+
+### Patch Changes
+
+- Updated dependencies [c01a884942]
+  - @rest-hooks/normalizr@11.0.1
+
 ## 8.1.0
 
 ### Minor Changes

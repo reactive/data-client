@@ -1,5 +1,16 @@
 # Change Log
 
+## 0.4.10
+
+### Patch Changes
+
+- Updated dependencies [e7aab4063e]
+- Updated dependencies [c01a884942]
+- Updated dependencies [e7aab4063e]
+- Updated dependencies [c01a884942]
+  - @rest-hooks/endpoint@3.8.1
+  - @rest-hooks/normalizr@11.0.1
+
 ## 0.4.9
 
 ### Patch Changes

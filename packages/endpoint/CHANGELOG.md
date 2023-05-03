@@ -1,5 +1,13 @@
 # Change Log
 
+## 3.8.1
+
+### Patch Changes
+
+- e7aab4063e: fix: TypeScript 'cannot be named without reference' by adding type exports
+- e7aab4063e: Collections match schemas on interfaces, rather than realized types
+- c01a884942: fix: Collection should expose .cacehWith to vary cache on its Entity
+
 ## 3.8.0
 
 ### Minor Changes

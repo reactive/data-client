@@ -1,5 +1,11 @@
 # Change Log
 
+## 11.0.1
+
+### Patch Changes
+
+- c01a884942: fix: Use schema.cacheWith for special case cache variance
+
 ## 11.0.0
 
 ### Major Changes
