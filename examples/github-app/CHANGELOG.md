@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.4.8
+
+### Patch Changes
+
+- 498c5c197f: Update normalizr version
+- Updated dependencies [498c5c197f]
+  - @rest-hooks/react@7.4.1
+
 ## 0.4.7
 
 ### Patch Changes

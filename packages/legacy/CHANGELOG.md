@@ -1,5 +1,12 @@
 # Change Log
 
+## 8.1.2
+
+### Patch Changes
+
+- Updated dependencies [498c5c197f]
+  - @rest-hooks/core@4.4.1
+
 ## 8.1.1
 
 ### Patch Changes

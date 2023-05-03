@@ -1,6 +1,6 @@
 {
   "name": "next-app",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@rest-hooks/react": "^7.4.0",
+    "@rest-hooks/react": "^7.4.1",
     "@rest-hooks/redux": "^6.3.6",
     "@rest-hooks/rest": "^6.6.1",
     "@rest-hooks/ssr": "^0.7.11",
