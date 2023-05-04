@@ -1,22 +1,19 @@
 ---
-title: schema.Delete
+title: schema.Invalidate
 ---
 <head>
-  <title>schema.Delete - Invalidating Entities | Rest Hooks</title>
+  <title>schema.Invalidate - Invalidating Entities | Rest Hooks</title>
 </head>
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import { RestEndpoint } from '@rest-hooks/rest';
 
-:::tip deprecated
+Describes entities to be marked as [INVALID](/docs/concepts/expiry-policy#invalid). This removes items from a
+collection, or [forces suspense](/docs/concepts/expiry-policy#any-endpoint-with-an-entity) for endpoints where the entity is required. 
 
-Use [schema.Invalidate](./Invalidate.md) instead. `Delete` is simply the legacy name.
+Constructor:
 
-:::
-
-Describes entities to be marked as `INVALID`.
-
-- `entity` which entity to delete. The input is used to compute the pk() for lookup.
+- `entity` which entity to invalidate. The input is used to compute the pk() for lookup.
 
 ## Usage
 
@@ -48,7 +45,7 @@ const userList = new RestEndpoint({
   schema: [User],
 });
 const userDelete = new Endpoint(sampleDelete, {
-  schema: new schema.Delete(User),
+  schema: new schema.Invalidate(User),
 });
 ```
 
@@ -77,13 +74,13 @@ render(<UsersPage />);
 
 </HooksPlayground>
 
-### Batch Deletes
+### Batch Invalidation
 
 Here we add another endpoint for deleting many entities at a time. Here we
 pass in a list of ids, and the response is an empty string.
 
 Constructing an article response using the `params` argument in fetch empowers
-the normalized cache to know which entities to delete when the request is success,
+the normalized cache to know which entities to invalidate when the request is success,
 or if optimistic updates are used.
 
 ```typescript
@@ -97,7 +94,7 @@ class MyResource extends Resource {
         this.fetch(this.url(params).then(() => params.map(id => ({ id })))),
       {
         ...this.getEndpointExtra(),
-        schema: [new schemas.Delete(this)],
+        schema: [new schemas.Invalidate(this)],
       },
     );
   }
@@ -126,7 +123,7 @@ function MyTable() {
 
 ### Impact on useSuspense()
 
-When entities are deleted in a result currently being presented in React, useSuspense()
+When entities are invalidated in a result currently being presented in React, useSuspense()
 will consider them invalid
 
 - For optional Entities, they are simply removed

@@ -261,7 +261,7 @@ Called when denormalizing an entity. This will create an instance of this class
 if it is deemed 'valid'.
 
 `undefined` return will result in [Invalid expiry status](/docs/concepts/expiry-policy#expiry-status),
-like [Delete](./Delete.md).
+like [Invalidate](./Invalidate.md).
 
 [`Invalid`](/docs/concepts/expiry-policy#expiry-status) expiry generally means hooks will enter a loading state and attempt a new fetch.
 

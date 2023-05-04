@@ -37,6 +37,10 @@
   },
   {
     "type": "doc",
+    "id": "api/Invalidate"
+  },
+  {
+    "type": "doc",
     "id": "api/Delete"
   },
   {

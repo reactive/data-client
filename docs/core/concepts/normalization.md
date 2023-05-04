@@ -270,7 +270,7 @@ have shorthands of using object and array literals.
 - [Array](/rest/api/Array): variably sized arrays
 - [Union](/rest/api/Union): select from many different types
 - [Values](/rest/api/Values): maps with any keys - variably sized
-- [Delete](/rest/api/Delete): remove an entity
+- [Invalidate](/rest/api/Invalidate): remove an entity
 
 [Learn more](/rest/api/schema)
 

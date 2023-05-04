@@ -177,7 +177,7 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 - method: 'DELETE'
 - path: `path`
-- schema: [new schema.Delete(schema)](./Delete.md)
+- schema: [new schema.Invalidate(schema)](./Invalidate.md)
 - process:
   ```ts
   (value, params) {

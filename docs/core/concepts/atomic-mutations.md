@@ -30,7 +30,7 @@ update endpoints](/rest/guides/rpc)
 
 ## Delete
 
-Rest Hooks automatically deletes entity entries [schema.Delete](/rest/api/Delete) is used.
+Rest Hooks automatically deletes entity entries [schema.Invalidate](/rest/api/Invalidate) is used.
 [Resource.delete](/rest/api/createResource#delete)
 provides such an endpoint.
 

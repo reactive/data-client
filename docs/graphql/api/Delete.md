@@ -7,6 +7,12 @@ title: schema.Delete
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
+:::tip deprecated
+
+Use [schema.Invalidate](./Invalidate.md) instead. `Delete` is simply the legacy name.
+
+:::
+
 Describes entities to be marked as `DELETED`. This is a special symbol.
 
 - `entity` which entity to delete. The input is used to compute the pk() for lookup.

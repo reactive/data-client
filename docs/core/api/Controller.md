@@ -168,7 +168,7 @@ To refresh while continuing to display stale data - [Controller.fetch](#fetch) i
 
 :::tip Invalidate many endpoints at once
 
-Use [schema.Delete](/rest/api/Delete) to invalidate every endpoint that contains a given entity.
+Use [schema.Invalidate](/rest/api/Invalidate) to invalidate every endpoint that contains a given entity.
 
 For REST try using [Resource.delete](https://resthooks.io/rest/api/createResource#delete)
 

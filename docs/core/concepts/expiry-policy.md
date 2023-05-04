@@ -433,7 +433,7 @@ render(<Demo />);
 
 ### Any endpoint with an entity
 
-Using [Delete](/rest/api/Delete) allows us to invalidate _any_ endpoint that includes that relies on that entity in their
+Using [Invalidate](/rest/api/Invalidate) allows us to invalidate _any_ endpoint that includes that relies on that entity in their
 response. If the endpoint uses the entity in an Array, it will simply be removed from that Array.
 
 <HooksPlayground fixtures={[
@@ -488,7 +488,7 @@ import { lastUpdated, TimedEntity } from './api/lastUpdated';
 export const deleteLastUpdated = new RestEndpoint({
   path: '/api/currentTime/:id',
   method: 'DELETE',
-  schema: new schema.Delete(TimedEntity),
+  schema: new schema.Invalidate(TimedEntity),
 });
 
 function ShowTime() {
