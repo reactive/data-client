@@ -182,9 +182,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:15.0.11":
-  version: 15.0.11
-  resolution: "@anansi/webpack-config@npm:15.0.11"
+"@anansi/webpack-config@npm:15.0.12":
+  version: 15.0.12
+  resolution: "@anansi/webpack-config@npm:15.0.12"
   dependencies:
     "@babel/runtime": ^7.17.2
     "@linaria/webpack5-loader": 4.1.16
@@ -220,7 +220,7 @@ __metadata:
     path: ^0.12.7
     path-browserify: ^1.0.1
     postcss: ^8.4.23
-    postcss-loader: ^7.2.4
+    postcss-loader: ^7.3.0
     postcss-preset-env: ^8.3.2
     process: ^0.11.10
     punycode: ^2.3.0
@@ -289,7 +289,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: 3dce46df3d7f69bf013095cd3476450009cbf0b7192c067816dd82b342a1f25e3b63251cea4740eeecd050cc9adac54636b95a9f30f559c94a01b712dda6001e
+  checksum: 26e461e57b9e4c2abc146755ac3c5cf1205353b69ced44b63d3ce601618da55dcd0dd60098e3dcea43864156d71979dd8e7f31e6ee942c635e8728a11c4f2c66
   languageName: node
   linkType: hard
 
@@ -8252,7 +8252,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cosmiconfig-typescript-loader@npm:^4.0.0, cosmiconfig-typescript-loader@npm:^4.3.0":
+"cosmiconfig-typescript-loader@npm:^4.0.0":
   version: 4.3.0
   resolution: "cosmiconfig-typescript-loader@npm:4.3.0"
   peerDependencies:
@@ -11024,7 +11024,7 @@ __metadata:
     "@anansi/browserslist-config": 1.4.2
     "@anansi/eslint-plugin": 0.16.9
     "@anansi/router": 0.7.34
-    "@anansi/webpack-config": 15.0.11
+    "@anansi/webpack-config": 15.0.12
     "@ant-design/icons": ^5.0.0
     "@babel/core": 7.21.5
     "@linaria/babel-preset": 4.4.4
@@ -11071,7 +11071,7 @@ __metadata:
     rollup-plugin-terser: ^7.0.2
     serve: 14.2.0
     uuid: ^9.0.0
-    webpack: 5.81.0
+    webpack: 5.82.0
     webpack-cli: 5.0.2
     webpack-dev-server: 4.13.3
   languageName: unknown
@@ -13335,6 +13335,15 @@ __metadata:
   bin:
     jest: bin/jest.js
   checksum: a8ff2eb0f421623412236e23cbe67c638127fffde466cba9606bc0c0553b4c1e5cb116d7e0ef990b5d1712851652c8ee461373b578df50857fe635b94ff455d5
+  languageName: node
+  linkType: hard
+
+"jiti@npm:^1.18.2":
+  version: 1.18.2
+  resolution: "jiti@npm:1.18.2"
+  bin:
+    jiti: bin/jiti.js
+  checksum: 46c41cd82d01c6efdee3fc0ae9b3e86ed37457192d6366f19157d863d64961b07982ab04e9d5879576a1af99cc4d132b0b73b336094f86a5ce9fb1029ec2d29f
   languageName: node
   linkType: hard
 
@@ -17233,25 +17242,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-loader@npm:^7.2.4":
-  version: 7.2.4
-  resolution: "postcss-loader@npm:7.2.4"
+"postcss-loader@npm:^7.3.0":
+  version: 7.3.0
+  resolution: "postcss-loader@npm:7.3.0"
   dependencies:
     cosmiconfig: ^8.1.3
-    cosmiconfig-typescript-loader: ^4.3.0
+    jiti: ^1.18.2
     klona: ^2.0.6
     semver: ^7.3.8
   peerDependencies:
     postcss: ^7.0.0 || ^8.0.1
-    ts-node: ">=10"
-    typescript: ">=4"
     webpack: ^5.0.0
-  peerDependenciesMeta:
-    ts-node:
-      optional: true
-    typescript:
-      optional: true
-  checksum: d75de64f6629a2d76b1c1e9ad5022cae9b589472d8d091e21105d93a0f09a4c80f08fe10323d41ddf2fbda157910a03df3c538ce8fccf974b179d0762b408fa3
+  checksum: f09fe68bde5f686c264cc96c51bcdc0be00c55e856d73161ce86b302fdd503098fe5c9172231eb3b316a1969080101a4c46463bda784b408d4a4cb15e7b01fc5
   languageName: node
   linkType: hard
 
@@ -21440,7 +21442,7 @@ __metadata:
     "@anansi/babel-preset": 4.2.3
     "@anansi/browserslist-config": 1.4.2
     "@anansi/eslint-plugin": 0.16.9
-    "@anansi/webpack-config": 15.0.11
+    "@anansi/webpack-config": 15.0.12
     "@babel/core": 7.21.5
     "@linaria/babel-preset": 4.4.4
     "@linaria/core": 4.2.9
@@ -21473,7 +21475,7 @@ __metadata:
     rollup-plugin-replace: ^2.2.0
     rollup-plugin-terser: ^7.0.2
     serve: 14.2.0
-    webpack: 5.81.0
+    webpack: 5.82.0
     webpack-cli: 5.0.2
     webpack-dev-server: 4.13.3
   languageName: unknown
@@ -22645,9 +22647,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack@npm:5.81.0, webpack@npm:^5, webpack@npm:^5.76.2":
-  version: 5.81.0
-  resolution: "webpack@npm:5.81.0"
+"webpack@npm:5.82.0, webpack@npm:^5, webpack@npm:^5.76.2":
+  version: 5.82.0
+  resolution: "webpack@npm:5.82.0"
   dependencies:
     "@types/eslint-scope": ^3.7.3
     "@types/estree": ^1.0.0
@@ -22678,7 +22680,7 @@ __metadata:
       optional: true
   bin:
     webpack: bin/webpack.js
-  checksum: 1a6eecaffac3226d80f4e8f330b32e0ff117d9dafd8700166d230afbc171d68ea1ff55a9939fa789307f7b9d11881889ccb8e6cd79d4ccbaeef916788ce73fdb
+  checksum: 499e7f5f24fccaa76f64f2a01f91f371073416f568ef6171dc73187a89078f0c33410d4c9f40d411f0827bab8455f8476eabd803ef4d2920d9a2e5f17efa2703
   languageName: node
   linkType: hard
 
