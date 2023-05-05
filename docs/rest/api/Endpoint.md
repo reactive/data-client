@@ -114,7 +114,7 @@ export interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
 
 <HooksPlayground defaultOpen="n">
 
-```ts title="Interface" collapsed
+```ts title="interface" collapsed
 export interface Todo {
   id: number;
   userId: number;
@@ -123,7 +123,7 @@ export interface Todo {
 }
 ```
 
-```ts title="API" {6}
+```ts title="api" {6}
 import { Todo } from './interface';
 
 const getTodoOriginal = (id: number): Promise<Todo> =>

@@ -29,11 +29,15 @@
   },
   {
     "type": "doc",
-    "id": "api/Union"
+    "id": "api/Values"
   },
   {
     "type": "doc",
-    "id": "api/Values"
+    "id": "api/Collection"
+  },
+  {
+    "type": "doc",
+    "id": "api/Union"
   },
   {
     "type": "doc",

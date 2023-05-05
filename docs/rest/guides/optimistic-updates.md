@@ -90,7 +90,7 @@ add to the list of articles the newly created article - without waiting on a net
 
 ```typescript title="api/Article.ts"
 import { Entity, createResource } from '@rest-hooks/rest';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 
 export class Article extends Entity {
   id: string | undefined = undefined;

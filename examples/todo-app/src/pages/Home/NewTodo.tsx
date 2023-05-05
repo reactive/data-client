@@ -40,7 +40,7 @@ export default function NewTodo({
         type="text"
         value={title}
         onChange={handleChange}
-        onKeyPress={handlePress}
+        onKeyDown={handlePress}
       />
     </TodoBox>
   );
