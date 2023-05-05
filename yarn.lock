@@ -5195,10 +5195,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:18.16.3, @types/node@npm:^18.15.10":
-  version: 18.16.3
-  resolution: "@types/node@npm:18.16.3"
-  checksum: 816b39d45b05ebdc6f362b630970df3f6d82f71d418a2555353522f4eeeb078fa201de5299f02c09a09faa975e43b2745fe19c263d44069f87ddf37d6c37b717
+"@types/node@npm:*":
+  version: 20.0.0
+  resolution: "@types/node@npm:20.0.0"
+  checksum: 7dadc41081eee634fd0b19e46dfb0a74f8296ee562533118f7c2f2b54dcaba7124961d506db425fff74d8e8288610b93939cd06fa723f053c72b1a7e87aa4ddc
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:18.16.4, @types/node@npm:^18.15.10":
+  version: 18.16.4
+  resolution: "@types/node@npm:18.16.4"
+  checksum: 21d575391c88be9f3568675de59d571597cfc122efa32939ae2697c2218c6ccfb6ba0d4b5d9301905e6c4964f43add42569249b15d2e12d68b0aedaf891ec9a5
   languageName: node
   linkType: hard
 
@@ -5285,14 +5292,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:18.2.1, @types/react@npm:^18.0.30":
-  version: 18.2.1
-  resolution: "@types/react@npm:18.2.1"
+"@types/react@npm:*, @types/react@npm:18.2.5, @types/react@npm:^18.0.30":
+  version: 18.2.5
+  resolution: "@types/react@npm:18.2.5"
   dependencies:
     "@types/prop-types": "*"
     "@types/scheduler": "*"
     csstype: ^3.0.2
-  checksum: a957e767fa087c7b63274d286d3a6ee2b9ec070159170346995abc5fddcd351a015770eb8452ba7974ded932b379f869b093dbadcbfa786a0a851fb5be581296
+  checksum: 97c4534e849edf991be0820b0911d036e794b8e2599a1544f500c769acbcb4f443ccde1a3f22298f22ce368ee7757f746e4a529e889567fc142a627698e2de39
   languageName: node
   linkType: hard
 
@@ -10143,7 +10150,7 @@ __metadata:
     "@rest-hooks/normalizr": "workspace:^"
     "@types/babel__core": ^7
     "@types/benchmark": 2.1.2
-    "@types/react": 18.2.1
+    "@types/react": 18.2.5
     benchmark: ^2.1.4
     normalizr: ^3.6.2
     react: ^18.2.0
@@ -11039,7 +11046,7 @@ __metadata:
     "@types/lodash": 4.14.192
     "@types/parse-link-header": ^2.0.0
     "@types/prettier": 2.7.2
-    "@types/react": 18.2.1
+    "@types/react": 18.2.5
     "@types/react-dom": 18.2.3
     "@types/uuid": ^9.0.0
     "@typescript-eslint/eslint-plugin": 5.59.1
@@ -15638,8 +15645,8 @@ __metadata:
     "@rest-hooks/rest": ^6.6.1
     "@rest-hooks/ssr": ^0.7.11
     "@rest-hooks/test": ^10.3.7
-    "@types/node": 18.16.3
-    "@types/react": 18.2.1
+    "@types/node": 18.16.4
+    "@types/react": 18.2.5
     "@types/react-dom": 18.2.3
     eslint: 8.39.0
     eslint-config-next: 13.3.1
@@ -19826,8 +19833,8 @@ __metadata:
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/react-native": 12.1.1
     "@types/jest": 29.5.1
-    "@types/node": 18.16.3
-    "@types/react": 18.2.1
+    "@types/node": 18.16.4
+    "@types/react": 18.2.5
     "@typescript-eslint/eslint-plugin": 5.59.1
     "@typescript-eslint/parser": 5.59.1
     babel-plugin-module-resolver: 5.0.0
