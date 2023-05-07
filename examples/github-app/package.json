@@ -21,11 +21,11 @@
   "private": true,
   "license": "Apache-2.0",
   "devDependencies": {
-    "@anansi/babel-preset": "4.2.3",
+    "@anansi/babel-preset": "4.2.4",
     "@anansi/browserslist-config": "1.4.2",
     "@anansi/eslint-plugin": "0.16.9",
     "@anansi/webpack-config": "15.0.13",
-    "@babel/core": "7.21.5",
+    "@babel/core": "7.21.8",
     "@linaria/babel-preset": "4.4.5",
     "@linaria/core": "4.2.10",
     "@linaria/react": "4.3.8",
