@@ -124,11 +124,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/jest-preset@npm:0.10.9":
-  version: 0.10.9
-  resolution: "@anansi/jest-preset@npm:0.10.9"
+"@anansi/jest-preset@npm:0.10.10":
+  version: 0.10.10
+  resolution: "@anansi/jest-preset@npm:0.10.10"
   dependencies:
-    "@anansi/ts-utils": ^0.3.5
+    "@anansi/ts-utils": ^0.3.6
     "@types/babel__core": ^7.20.0
     babel-jest: ^29.5.0
     core-js: ^3.21.0
@@ -151,7 +151,7 @@ __metadata:
       optional: true
     react:
       optional: true
-  checksum: 5d6b504b2fa30147faa818f87748d391bc3b44c394019a33459bc6141159485256ed2a1afdc356f48147be0ed89df07da6a08038057027ceb2793a3cae4d7b0c
+  checksum: 2bc6a5231b7625d63dd650b8f332a753b165a4237a621a602a0769968bed500c42596f53d0d71cf35f464ce93b857ef944d6a4294a94796c22844b58cd9f1b91
   languageName: node
   linkType: hard
 
@@ -173,7 +173,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/ts-utils@npm:^0.3.5, @anansi/ts-utils@npm:^0.3.6":
+"@anansi/ts-utils@npm:^0.3.6":
   version: 0.3.6
   resolution: "@anansi/ts-utils@npm:0.3.6"
   peerDependencies:
@@ -4777,9 +4777,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react-native@npm:12.1.1, @testing-library/react-native@npm:^12.0.1":
-  version: 12.1.1
-  resolution: "@testing-library/react-native@npm:12.1.1"
+"@testing-library/react-native@npm:12.1.2, @testing-library/react-native@npm:^12.0.1":
+  version: 12.1.2
+  resolution: "@testing-library/react-native@npm:12.1.2"
   dependencies:
     pretty-format: ^29.0.0
   peerDependencies:
@@ -4790,7 +4790,7 @@ __metadata:
   peerDependenciesMeta:
     jest:
       optional: true
-  checksum: 6c8dafc922c03ee8a855551b9df5f9ec5886c23386a05502e2a8cbd9b0fd1cc1668c53a6bdd8c64843807dc178d0b982dfa0802f132bfb1c5658426739fcf061
+  checksum: 912fc961f213a8fa171b9b980d6f4edd8f11a012498fcf1b8e0d3ac1d20e85b61469a80914fda893aa48cb0d4b3f6075ec2723c58dae96eeac0ee1cd6e6daa3e
   languageName: node
   linkType: hard
 
@@ -19811,7 +19811,7 @@ __metadata:
     "@anansi/babel-preset": 4.2.4
     "@anansi/browserslist-config": 1.4.2
     "@anansi/eslint-plugin": 0.16.10
-    "@anansi/jest-preset": 0.10.9
+    "@anansi/jest-preset": 0.10.10
     "@babel/cli": 7.21.5
     "@babel/core": 7.21.8
     "@babel/node": 7.20.7
@@ -19825,7 +19825,7 @@ __metadata:
     "@rest-hooks/test": "workspace:^"
     "@testing-library/react": 14.0.0
     "@testing-library/react-hooks": 8.0.1
-    "@testing-library/react-native": 12.1.1
+    "@testing-library/react-native": 12.1.2
     "@types/jest": 29.5.1
     "@types/node": 20.1.0
     "@types/react": 18.2.5
