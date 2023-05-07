@@ -4279,7 +4279,7 @@ __metadata:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
     "@rest-hooks/normalizr": ^11.0.1
-    "@types/node": ^18.15.10
+    "@types/node": ^20.0.0
     flux-standard-action: ^2.1.1
   languageName: unknown
   linkType: soft
@@ -4290,7 +4290,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@types/node": ^18.15.10
+    "@types/node": ^20.0.0
   languageName: unknown
   linkType: soft
 
@@ -4301,7 +4301,7 @@ __metadata:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
     "@rest-hooks/endpoint": ^3.8.0
-    "@types/node": ^18.15.10
+    "@types/node": ^20.0.0
   languageName: unknown
   linkType: soft
 
@@ -4312,7 +4312,7 @@ __metadata:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
     "@rest-hooks/normalizr": ^11.0.0
-    "@types/node": ^18.15.10
+    "@types/node": ^20.0.0
     "@types/react": ^18.0.30
   peerDependencies:
     "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
@@ -4331,7 +4331,7 @@ __metadata:
     "@babel/runtime": ^7.17.0
     "@rest-hooks/endpoint": ^3.7.4
     "@rest-hooks/react": ^7.2.10
-    "@types/node": ^18.15.10
+    "@types/node": ^20.0.0
     "@types/react": ^18.0.30
   peerDependencies:
     "@rest-hooks/react": ^0.1.0 || ^0.2.0 || ^6.0.0 || ^7.0.0
@@ -4352,7 +4352,7 @@ __metadata:
     "@rest-hooks/endpoint": "workspace:*"
     "@rest-hooks/normalizr": "workspace:^"
     "@rest-hooks/react": "workspace:*"
-    "@types/node": ^18.15.10
+    "@types/node": ^20.0.0
     "@types/react": ^18.0.30
   peerDependencies:
     "@rest-hooks/endpoint": "*"
@@ -4371,7 +4371,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@types/node": ^18.15.10
+    "@types/node": ^20.0.0
     immutable: 4.2.2
   languageName: unknown
   linkType: soft
@@ -4385,7 +4385,7 @@ __metadata:
     "@react-navigation/native": ^6.1.6
     "@rest-hooks/core": ^4.4.1
     "@rest-hooks/use-enhanced-reducer": ^1.2.8
-    "@types/node": ^18.15.10
+    "@types/node": ^20.0.0
     "@types/react": ^18.0.30
     react-native: ^0.71.5
   peerDependencies:
@@ -4408,7 +4408,7 @@ __metadata:
     "@babel/runtime": ^7.17.0
     "@rest-hooks/core": ^4.4.1
     "@rest-hooks/react": "workspace:*"
-    "@types/node": ^18.15.10
+    "@types/node": ^20.0.0
     "@types/react": ^18.0.30
     redux: ^4.2.1
   peerDependencies:
@@ -4429,7 +4429,7 @@ __metadata:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
     "@rest-hooks/endpoint": ^3.8.2
-    "@types/node": ^18.15.10
+    "@types/node": ^20.0.0
     "@types/path-to-regexp": ^1.7.0
     path-to-regexp: ^6.2.1
   languageName: unknown
@@ -4443,7 +4443,7 @@ __metadata:
     "@babel/runtime": ^7.17.0
     "@rest-hooks/react": "workspace:*"
     "@rest-hooks/redux": "workspace:*"
-    "@types/node": ^18.15.10
+    "@types/node": ^20.0.0
     "@types/react": ^18.0.30
     "@types/react-dom": ^18.0.11
     next: ^13.0.4
@@ -4475,7 +4475,7 @@ __metadata:
     "@testing-library/react-hooks": ~8.0.0
     "@testing-library/react-native": ^12.0.1
     "@types/jest": ^29.5.0
-    "@types/node": ^18.15.10
+    "@types/node": ^20.0.0
     "@types/react": ^18.0.30
     "@types/react-dom": ^18.0.11
     "@types/react-test-renderer": ^18
@@ -4511,7 +4511,7 @@ __metadata:
   resolution: "@rest-hooks/use-enhanced-reducer@workspace:packages/use-enhanced-reducer"
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
-    "@types/node": ^18.15.10
+    "@types/node": ^20.0.0
     "@types/react": ^18.0.30
   peerDependencies:
     "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
@@ -5195,17 +5195,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*":
-  version: 20.0.0
-  resolution: "@types/node@npm:20.0.0"
-  checksum: 7dadc41081eee634fd0b19e46dfb0a74f8296ee562533118f7c2f2b54dcaba7124961d506db425fff74d8e8288610b93939cd06fa723f053c72b1a7e87aa4ddc
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:18.16.4, @types/node@npm:^18.15.10":
-  version: 18.16.4
-  resolution: "@types/node@npm:18.16.4"
-  checksum: 21d575391c88be9f3568675de59d571597cfc122efa32939ae2697c2218c6ccfb6ba0d4b5d9301905e6c4964f43add42569249b15d2e12d68b0aedaf891ec9a5
+"@types/node@npm:*, @types/node@npm:20.1.0, @types/node@npm:^20.0.0":
+  version: 20.1.0
+  resolution: "@types/node@npm:20.1.0"
+  checksum: c6d9afa9aa78b4b4348c69ece94975be70346b144c278f1395694a10ef919d7db300018101b6f9245e6bdd76674a5327d2d14829092f3d5295e858cff5f22a66
   languageName: node
   linkType: hard
 
@@ -15645,7 +15638,7 @@ __metadata:
     "@rest-hooks/rest": ^6.6.1
     "@rest-hooks/ssr": ^0.7.11
     "@rest-hooks/test": ^10.3.7
-    "@types/node": 18.16.4
+    "@types/node": 20.1.0
     "@types/react": 18.2.5
     "@types/react-dom": 18.2.3
     eslint: 8.40.0
@@ -19566,7 +19559,7 @@ __metadata:
     "@babel/runtime": ^7.17.0
     "@rest-hooks/endpoint": ^3.8.0
     "@rest-hooks/react": "workspace:*"
-    "@types/node": ^18.15.10
+    "@types/node": ^20.0.0
     "@types/react": ^18.0.30
     redux: ^4.0.0
   peerDependencies:
@@ -19834,7 +19827,7 @@ __metadata:
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/react-native": 12.1.1
     "@types/jest": 29.5.1
-    "@types/node": 18.16.4
+    "@types/node": 20.1.0
     "@types/react": 18.2.5
     "@typescript-eslint/eslint-plugin": 5.59.2
     "@typescript-eslint/parser": 5.59.2

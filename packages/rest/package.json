@@ -115,7 +115,7 @@
   },
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",
-    "@types/node": "^18.15.10",
+    "@types/node": "^20.0.0",
     "@types/path-to-regexp": "^1.7.0"
   }
 }
