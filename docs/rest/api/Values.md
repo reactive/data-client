@@ -22,6 +22,12 @@ Describes a map whose values follow the given schema.
   - `parent`: The parent object of the input array.
   - `key`: The key at which the input array appears on the parent object.
 
+:::tip
+
+Make it mutable with [Collections](./Collection.md)
+
+:::
+
 ## Instance Methods
 
 - `define(definition)`: When used, the `definition` passed in will be merged with the original definition passed to the `Values` constructor. This method tends to be useful for creating circular references in schema.

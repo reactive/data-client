@@ -349,10 +349,6 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
   ): any;
 }
 
-/**
- * Entities but for Arrays instead of classes
- * @see https://resthooks.io/rest/api/Collection
- */
 export class CollectionInterface<
   S extends PolymorphicInterface = any,
   Parent extends any[] = any,
@@ -477,6 +473,7 @@ export interface CollectionConstructor {
   readonly prototype: CollectionInterface;
 }
 export declare let CollectionRoot: CollectionConstructor;
+
 /**
  * Entities but for Arrays instead of classes
  * @see https://resthooks.io/rest/api/Collection

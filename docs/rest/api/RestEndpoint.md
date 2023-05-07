@@ -781,7 +781,9 @@ const UserDetailNormalized = getUser.extend({
 });
 ```
 
-## paginated(cursorField): Endpoint {#paginated}
+## Specialized extenders
+
+### paginated(cursorField): Endpoint {#paginated}
 
 Creates a new endpoint with an extra `cursorField` string that will be used to find the specific
 page, to append to this endpoint. See [Infinite Scrolling Pagination](guides/pagination.md#infinite-scrolling) for more info.
@@ -790,7 +792,7 @@ page, to append to this endpoint. See [Infinite Scrolling Pagination](guides/pag
 const getNextPage = getList.paginated('cursor');
 ```
 
-## paginated(removeCursor): Endpoint {#paginated-function}
+### paginated(removeCursor): Endpoint {#paginated-function}
 
 ```typescript
 function paginated<E, A extends any[]>(
@@ -810,6 +812,27 @@ const getNextPage = getList.paginated(
 
 `removeCusor` is a function that takes the arguments sent in fetch of `getNextPage` and returns
 the arguments to update `getList`.
+
+### push
+
+This is a convenience to place newly created Entities at the *end* of a [Collection](./Collection.md).
+
+When this `RestEndpoint`'s schema contains a [Collection](./Collection.md), this returned a new
+RestEndpoint with its parents properties, but with [method](#method): 'POST' and schema: [Collection.push](./Collection.md#push)
+
+### unshift
+
+This is a convenience to place newly created Entities at the *start* of a [Collection](./Collection.md).
+
+When this `RestEndpoint`'s schema contains a [Collection](./Collection.md), this returned a new
+RestEndpoint with its parents properties, but with [method](#method): 'POST' and schema: [Collection.push](./Collection.md#unshift)
+
+### assign
+
+This is a convenience to add newly created Entities to a [Values](./Values.md) [Collection](./Collection.md).
+
+When this `RestEndpoint`'s schema contains a [Collection](./Collection.md), this returned a new
+RestEndpoint with its parents properties, but with [method](#method): 'POST' and schema: [Collection.push](./Collection.md#assign)
 
 ## Inheritance
 
