@@ -80,7 +80,7 @@ import Lifecycle from '../diagrams/\_entity_lifecycle.mdx';
 
 ## Methods
 
-### abstract pk: (parent?, key?): pk? {#pk}
+### abstract pk: (parent?, key?, args?): pk? {#pk}
 
 PK stands for _primary key_ and is intended to provide a standard means of retrieving
 a key identifier for any `Entity`. In many cases there will simply be an 'id' field

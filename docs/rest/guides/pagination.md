@@ -33,10 +33,7 @@ const getList = BaseNewsResource.getList.extend({
   schema: { results: [News], cursor: '' },
 });
 // this creates a pagination endpoint that will extend the getList endpoint
-const getNextPage = getList.paginated(
-  ({ cursor, ...rest }: { cursor: string | number }) =>
-    (Object.keys(rest).length ? [rest] : []) as any,
-);
+const getNextPage = getList.paginated('cursor');
 export const NewsResource = {
   ...BaseNewsResource,
   getList,

@@ -781,7 +781,16 @@ const UserDetailNormalized = getUser.extend({
 });
 ```
 
-## paginated(removeCursor): args {#paginated}
+## paginated(cursorField): Endpoint {#paginated}
+
+Creates a new endpoint with an extra `cursorField` string that will be used to find the specific
+page, to append to this endpoint. See [Infinite Scrolling Pagination](guides/pagination.md#infinite-scrolling) for more info.
+
+```ts
+const getNextPage = getList.paginated('cursor');
+```
+
+## paginated(removeCursor): Endpoint {#paginated-function}
 
 ```typescript
 function paginated<E, A extends any[]>(
@@ -790,8 +799,7 @@ function paginated<E, A extends any[]>(
 ): PaginationEndpoint<E, A>;
 ```
 
-Extends an endpoint whose schema contains an Array and creates a new endpoint that
-will append the items it finds into the list from the first endpoint. See [Infinite Scrolling Pagination](guides/pagination.md#infinite-scrolling) for more info.
+The function form allows any argument processing. This is the equivalent of sending `cursor` string like above.
 
 ```ts
 const getNextPage = getList.paginated(
