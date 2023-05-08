@@ -423,41 +423,37 @@ export type RestFetch<
     : ParamFetchNoBody<UrlParams, Resolve>
 >;
 
-export type ParamFetchWithBody<P, B = {}, R = any> = IfTypeScriptLooseNull<
-  keyof P extends never
+export type ParamFetchWithBody<P, B = {}, R = any> =
+  // we must always allow undefined in a union and give it a type without params
+  P extends undefined
     ? (this: EndpointInstanceInterface, body: B) => Promise<R>
     : // even with loose null, this will only be true when all members are optional
     {} extends P
-    ?
-        | ((this: EndpointInstanceInterface, body: B) => Promise<R>)
-        | ((this: EndpointInstanceInterface, params: P, body: B) => Promise<R>)
-    : (this: EndpointInstanceInterface, params: P, body: B) => Promise<R>,
-  P extends undefined
-    ? (this: EndpointInstanceInterface, body: B) => Promise<R>
-    : undefined extends P
-    ? (this: EndpointInstanceInterface, body: B) => Promise<R>
-    : RequiredKeys<P> extends never
-    ?
-        | ((this: EndpointInstanceInterface, body: B) => Promise<R>)
-        | ((this: EndpointInstanceInterface, params: P, body: B) => Promise<R>)
-    : (this: EndpointInstanceInterface, params: P, body: B) => Promise<R>
->;
+    ? // this safely handles PathArgs with no members that results in a simple `unknown` type
+      keyof P extends never
+      ? (this: EndpointInstanceInterface, body: B) => Promise<R>
+      :
+          | ((
+              this: EndpointInstanceInterface,
+              params: P,
+              body: B,
+            ) => Promise<R>)
+          | ((this: EndpointInstanceInterface, body: B) => Promise<R>)
+    : (this: EndpointInstanceInterface, params: P, body: B) => Promise<R>;
 
-export type ParamFetchNoBody<P, R = any> = IfTypeScriptLooseNull<
-  keyof P extends never
+export type ParamFetchNoBody<P, R = any> =
+  // we must always allow undefined in a union and give it a type without params
+  P extends undefined
     ? (this: EndpointInstanceInterface) => Promise<R>
     : // even with loose null, this will only be true when all members are optional
     {} extends P
-    ? (this: EndpointInstanceInterface, params?: P) => Promise<R>
-    : (this: EndpointInstanceInterface, params: P) => Promise<R>,
-  P extends undefined
-    ? (this: EndpointInstanceInterface) => Promise<R>
-    : undefined extends P
-    ? (this: EndpointInstanceInterface) => Promise<R>
-    : RequiredKeys<P> extends never
-    ? (this: EndpointInstanceInterface, params?: P) => Promise<R>
-    : (this: EndpointInstanceInterface, params: P) => Promise<R>
->;
+    ? // this safely handles PathArgs with no members that results in a simple `unknown` type
+      keyof P extends never
+      ? (this: EndpointInstanceInterface) => Promise<R>
+      :
+          | ((this: EndpointInstanceInterface, params: P) => Promise<R>)
+          | ((this: EndpointInstanceInterface) => Promise<R>)
+    : (this: EndpointInstanceInterface, params: P) => Promise<R>;
 
 type IfTypeScriptLooseNull<Y, N> = 1 | undefined extends 1 ? Y : N;
 

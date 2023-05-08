@@ -273,8 +273,8 @@ it('should customize resources', () => {
   });
   TodoResourceBase.create.extend({
     searchParams: {} as { userId?: string | number } | undefined,
-    getOptimisticResponse(snap, body) {
-      return body;
+    getOptimisticResponse(snap, ...args) {
+      return args[args.length - 1];
     },
   });
   TodoResourceBase.create
@@ -287,8 +287,8 @@ it('should customize resources', () => {
     })
     .extend({
       searchParams: {} as { userId?: string | number } | undefined,
-      getOptimisticResponse(snap, body) {
-        return body;
+      getOptimisticResponse(snap, ...args) {
+        return args[args.length - 1];
       },
     });
 });

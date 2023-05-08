@@ -33,8 +33,8 @@ export const TodoResource = {
   }),
   create: TodoResourceBase.create.extend({
     searchParams: {} as { userId?: string | number } | undefined,
-    getOptimisticResponse(snap, body) {
-      return body;
+    getOptimisticResponse(snap, ...args) {
+      return args[args.length - 1];
     },
   }),
   delete: TodoResourceBase.delete.extend({
