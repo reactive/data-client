@@ -134,6 +134,9 @@ jobs:
             fi
             yarn run tsc --project examples/todo-app/tsconfig.typetest.json
             yarn run tsc --project examples/github-app/tsconfig.typetest.json
+            if [ "<< parameters.typescript-version >>" != "~4.0" ]; then
+            yarn run tsc --project examples/todo-app/tsconfig.typetest41.json
+            fi
 
   esmodule-loosenulltypes:
     docker: *docker
@@ -145,7 +148,9 @@ jobs:
           command: |
             yarn run tsc --project examples/todo-app/tsconfig.json --strictNullChecks false
             yarn run tsc --project examples/github-app/tsconfig.json --strictNullChecks false
-
+            yarn run tsc --project examples/todo-app/tsconfig.typetest.json --strictNullChecks false
+            yarn run tsc --project examples/github-app/tsconfig.typetest.json --strictNullChecks false
+            yarn run tsc --project examples/todo-app/tsconfig.typetest41.json --strictNullChecks false
 
   esmodule-exactOptionalPropertyTypes:
     docker: *docker
@@ -157,6 +162,7 @@ jobs:
           command: |
             yarn run tsc --project examples/todo-app/tsconfig.typetest.json --exactOptionalPropertyTypes true
             yarn run tsc --project examples/github-app/tsconfig.typetest.json --exactOptionalPropertyTypes true
+            yarn run tsc --project examples/todo-app/tsconfig.typetest41.json --exactOptionalPropertyTypes true
 
   validate-esmodule-browser-build:
     docker: *docker
