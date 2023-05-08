@@ -206,10 +206,6 @@ declare class Object$1<O extends Record<string, any> = Record<string, Schema>>
   ): any;
 }
 
-/**
- * Entities but for Arrays instead of classes
- * @see https://resthooks.io/rest/api/Collection
- */
 declare class CollectionInterface<
   S extends PolymorphicInterface = any,
   Parent extends any[] = any,
@@ -334,6 +330,7 @@ interface CollectionConstructor {
   readonly prototype: CollectionInterface;
 }
 declare let CollectionRoot: CollectionConstructor;
+
 /**
  * Entities but for Arrays instead of classes
  * @see https://resthooks.io/rest/api/Collection
@@ -654,7 +651,7 @@ type RemoveArray<Orig extends any[], Rem extends any[]> = Rem extends [
   : Orig;
 
 type OnlyOptional<S extends string> = S extends `${infer K}?` ? K : never;
-type OnlyRequired$1<S extends string> = S extends `${string}?` ? never : S;
+type OnlyRequired<S extends string> = S extends `${string}?` ? never : S;
 /** Computes the union of keys for a path string */
 type PathKeys<S extends string> = string extends S ? string : S extends `${infer A}\\:${infer B}` ? PathKeys<A> | PathKeys<B> : S extends `${infer A}\\?${infer B}` ? PathKeys<A> | PathKeys<B> : PathSplits<S>;
 type PathSplits<S extends string> = S extends `${string}:${infer K}/${infer R}` ? PathSplits<`:${K}`> | PathSplits<R> : S extends `${string}:${infer K}:${infer R}` ? PathSplits<`:${K}`> | PathSplits<`:${R}`> : S extends `${string}:${infer K}` ? K : never;
@@ -662,9 +659,9 @@ type PathSplits<S extends string> = S extends `${string}:${infer K}/${infer R}` 
 type PathArgs<S extends string> = PathKeys<S> extends never ? unknown : KeysToArgs<PathKeys<S>>;
 type KeysToArgs<Key extends string> = {
     [K in Key as OnlyOptional<K>]?: string | number;
-} & {
-    [K in Key as OnlyRequired$1<K>]: string | number;
-};
+} & (OnlyRequired<Key> extends never ? unknown : {
+    [K in Key as OnlyRequired<K>]: string | number;
+});
 /** Removes the last :token */
 type ShortenPath<S extends string> = string extends S ? string : S extends `${infer B}:${infer R}` ? TrimColon<`${B}:${ShortenPath<R>}`> : '';
 type TrimColon<S extends string> = string extends S ? string : S extends `${infer R}:` ? R : S;
@@ -690,26 +687,6 @@ type EndpointUpdateFunction<Source extends FetchFunction, Schema, Updaters exten
 type ResultEntry<E extends FetchFunction & {
     schema: any;
 }> = E['schema'] extends undefined | null ? ResolveType<E> : Normalize<E['schema']>;
-
-/** Extracts only the keys that will be required
- *
- * Removes optional, as well as unbounded (aka 'string')
- *
- * @example
- ```
-RequiredKeys<{
-  opt?: string;
-  bob: string;
-  alice: number;
-  [k: string]: string | number | undefined;
-}> // = 'bob' | 'alice'
- ```
- */
-type RequiredKeys<T> = Values<OnlyRequired<T>>;
-type OnlyRequired<T> = {
-    [K in keyof T as string extends K ? never : K]-?: {} extends Pick<T, K> ? never : K;
-};
-type Values<T> = T[Exclude<keyof T, number>];
 
 /* eslint-disable @typescript-eslint/ban-types */
 
@@ -1062,7 +1039,8 @@ type RestType<
   RestInstance<
     keyof UrlParams extends never
       ? (this: EndpointInstanceInterface, body?: Body) => Promise<R>
-      : string extends keyof UrlParams
+      : // even with loose null, this will only be true when all members are optional
+      {} extends UrlParams
       ?
           | ((this: EndpointInstanceInterface, body?: Body) => Promise<R>)
           | ((
@@ -1123,39 +1101,37 @@ type RestFetch<
     : ParamFetchNoBody<UrlParams, Resolve>
 >;
 
-type ParamFetchWithBody<P, B = {}, R = any> = IfTypeScriptLooseNull<
-  keyof P extends never
-    ? (this: EndpointInstanceInterface, body: B) => Promise<R>
-    : string extends keyof P
-    ?
-        | ((this: EndpointInstanceInterface, body: B) => Promise<R>)
-        | ((this: EndpointInstanceInterface, params: P, body: B) => Promise<R>)
-    : (this: EndpointInstanceInterface, params: P, body: B) => Promise<R>,
+type ParamFetchWithBody<P, B = {}, R = any> =
+  // we must always allow undefined in a union and give it a type without params
   P extends undefined
     ? (this: EndpointInstanceInterface, body: B) => Promise<R>
-    : undefined extends P
-    ? (this: EndpointInstanceInterface, body: B) => Promise<R>
-    : RequiredKeys<P> extends never
-    ?
-        | ((this: EndpointInstanceInterface, body: B) => Promise<R>)
-        | ((this: EndpointInstanceInterface, params: P, body: B) => Promise<R>)
-    : (this: EndpointInstanceInterface, params: P, body: B) => Promise<R>
->;
+    : // even with loose null, this will only be true when all members are optional
+    {} extends P
+    ? // this safely handles PathArgs with no members that results in a simple `unknown` type
+      keyof P extends never
+      ? (this: EndpointInstanceInterface, body: B) => Promise<R>
+      :
+          | ((
+              this: EndpointInstanceInterface,
+              params: P,
+              body: B,
+            ) => Promise<R>)
+          | ((this: EndpointInstanceInterface, body: B) => Promise<R>)
+    : (this: EndpointInstanceInterface, params: P, body: B) => Promise<R>;
 
-type ParamFetchNoBody<P, R = any> = IfTypeScriptLooseNull<
-  keyof P extends never
-    ? (this: EndpointInstanceInterface) => Promise<R>
-    : string extends keyof P
-    ? (this: EndpointInstanceInterface, params?: P) => Promise<R>
-    : (this: EndpointInstanceInterface, params: P) => Promise<R>,
+type ParamFetchNoBody<P, R = any> =
+  // we must always allow undefined in a union and give it a type without params
   P extends undefined
     ? (this: EndpointInstanceInterface) => Promise<R>
-    : undefined extends P
-    ? (this: EndpointInstanceInterface) => Promise<R>
-    : RequiredKeys<P> extends never
-    ? (this: EndpointInstanceInterface, params?: P) => Promise<R>
-    : (this: EndpointInstanceInterface, params: P) => Promise<R>
->;
+    : // even with loose null, this will only be true when all members are optional
+    {} extends P
+    ? // this safely handles PathArgs with no members that results in a simple `unknown` type
+      keyof P extends never
+      ? (this: EndpointInstanceInterface) => Promise<R>
+      :
+          | ((this: EndpointInstanceInterface, params: P) => Promise<R>)
+          | ((this: EndpointInstanceInterface) => Promise<R>)
+    : (this: EndpointInstanceInterface, params: P) => Promise<R>;
 
 type IfTypeScriptLooseNull<Y, N> = 1 | undefined extends 1 ? Y : N;
 
