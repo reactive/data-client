@@ -361,7 +361,8 @@ export type RestType<
   RestInstance<
     keyof UrlParams extends never
       ? (this: EndpointInstanceInterface, body?: Body) => Promise<R>
-      : string extends keyof UrlParams
+      : // even with loose null, this will only be true when all members are optional
+      {} extends UrlParams
       ?
           | ((this: EndpointInstanceInterface, body?: Body) => Promise<R>)
           | ((
@@ -425,7 +426,8 @@ export type RestFetch<
 export type ParamFetchWithBody<P, B = {}, R = any> = IfTypeScriptLooseNull<
   keyof P extends never
     ? (this: EndpointInstanceInterface, body: B) => Promise<R>
-    : string extends keyof P
+    : // even with loose null, this will only be true when all members are optional
+    {} extends P
     ?
         | ((this: EndpointInstanceInterface, body: B) => Promise<R>)
         | ((this: EndpointInstanceInterface, params: P, body: B) => Promise<R>)
@@ -444,7 +446,8 @@ export type ParamFetchWithBody<P, B = {}, R = any> = IfTypeScriptLooseNull<
 export type ParamFetchNoBody<P, R = any> = IfTypeScriptLooseNull<
   keyof P extends never
     ? (this: EndpointInstanceInterface) => Promise<R>
-    : string extends keyof P
+    : // even with loose null, this will only be true when all members are optional
+    {} extends P
     ? (this: EndpointInstanceInterface, params?: P) => Promise<R>
     : (this: EndpointInstanceInterface, params: P) => Promise<R>,
   P extends undefined

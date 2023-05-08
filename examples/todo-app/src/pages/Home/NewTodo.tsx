@@ -22,7 +22,7 @@ export default function NewTodo({
         ctrl.fetch(TodoResource.create, {
           ...payload.current,
           title: e.currentTarget.value,
-        } as any);
+        });
         e.currentTarget.value = '';
       }
     },
