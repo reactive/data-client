@@ -1,5 +1,4 @@
 import { Query, schema } from '@rest-hooks/rest';
-import { createResource } from '@rest-hooks/rest/next';
 
 import {
   createPlaceholderResource,

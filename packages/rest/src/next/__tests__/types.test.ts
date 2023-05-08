@@ -28,21 +28,21 @@ it('RestEndpoint construct and extend with typed options', () => {
   new RestEndpoint({
     path: '/todos/:id',
     searchParams: {} as { userId?: string | number } | undefined,
-    getOptimisticResponse(snap, args, body) {
+    getOptimisticResponse(snap, params, body) {
       return body;
     },
     schema: User,
     method: 'POST',
   });
-  /*new RestEndpoint({
+  new RestEndpoint({
     path: '/todos/:id',
     searchParams: {} as { userId?: string | number } | undefined,
-    getOptimisticResponse(snap, args) {
-      return args as any;
+    getOptimisticResponse(snap, params, body) {
+      return body;
     },
     schema: User,
     method: 'POST',
-  });*/
+  });
 
   const nopath = new RestEndpoint({
     path: '/todos/',
