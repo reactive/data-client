@@ -79,7 +79,6 @@ export function PlaygroundTextEdit({
               /*closedList[i] ? null : */ <PlaygroundEditor
                 key={i}
                 tabIndex={i}
-                isOpen={!closedList[i]}
                 onFocus={
                   row && codeTabs.length > 1 ? handleTabSwitch : handleTabOpen
                 }

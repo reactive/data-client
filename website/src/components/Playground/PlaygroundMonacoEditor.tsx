@@ -21,7 +21,6 @@ export default function PlaygroundMonacoEditor({
   code,
   path,
   onFocus,
-  isOpen,
   tabIndex,
   autoFocus = false,
   large = false,
@@ -84,9 +83,7 @@ export default function PlaygroundMonacoEditor({
 
       // go to definition
       editor.onDidFocusEditorText(() => {
-        if (!isOpen) {
-          onFocus(tabIndex);
-        }
+        onFocus(tabIndex);
       });
 
       // autoheight
