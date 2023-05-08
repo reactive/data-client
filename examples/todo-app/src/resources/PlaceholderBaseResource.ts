@@ -1,4 +1,4 @@
-import { Denormalize, Entity, Schema } from '@rest-hooks/rest';
+import { Entity } from '@rest-hooks/rest';
 import {
   RestEndpoint,
   createResource,

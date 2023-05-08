@@ -39,6 +39,8 @@ describe('PathArgs', () => {
     () => A({ idasd: 'ho' });
     // @ts-expect-error
     () => A({ next: 'hi', title: 'ho', id: 'hi' });
+    // @ts-expect-error
+    () => A(5);
   });
 
   it('should be flexible for string type', () => {
@@ -206,21 +208,21 @@ it('RestEndpoint construct and extend with typed options', () => {
   new RestEndpoint({
     path: '/todos/:id',
     searchParams: {} as { userId?: string | number } | undefined,
-    getOptimisticResponse(snap, args, body) {
+    getOptimisticResponse(snap, params, body) {
       return body;
     },
     schema: User,
     method: 'POST',
   });
-  /*new RestEndpoint({
+  new RestEndpoint({
     path: '/todos/:id',
     searchParams: {} as { userId?: string | number } | undefined,
-    getOptimisticResponse(snap, args) {
-      return args as any;
+    getOptimisticResponse(snap, params, body) {
+      return body;
     },
     schema: User,
     method: 'POST',
-  });*/
+  });
 
   const nopath = new RestEndpoint({
     path: '/todos/',
@@ -271,8 +273,8 @@ it('should customize resources', () => {
   });
   TodoResourceBase.create.extend({
     searchParams: {} as { userId?: string | number } | undefined,
-    getOptimisticResponse(snap, body) {
-      return body;
+    getOptimisticResponse(snap, ...args) {
+      return args[args.length - 1];
     },
   });
   TodoResourceBase.create
@@ -285,8 +287,8 @@ it('should customize resources', () => {
     })
     .extend({
       searchParams: {} as { userId?: string | number } | undefined,
-      getOptimisticResponse(snap, body) {
-        return body;
+      getOptimisticResponse(snap, ...args) {
+        return args[args.length - 1];
       },
     });
 });

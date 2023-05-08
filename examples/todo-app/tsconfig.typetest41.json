@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig",
+  "compilerOptions": {
+    "skipDefaultLibCheck": true,
+  },
+  "include": ["typetest41.ts"],
+}

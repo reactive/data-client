@@ -26,9 +26,11 @@ export type PathArgs<S extends string> = PathKeys<S> extends never
 
 export type KeysToArgs<Key extends string> = {
   [K in Key as OnlyOptional<K>]?: string | number;
-} & {
-  [K in Key as OnlyRequired<K>]: string | number;
-};
+} & (OnlyRequired<Key> extends never
+  ? unknown
+  : {
+      [K in Key as OnlyRequired<K>]: string | number;
+    });
 
 export type PathArgsAndSearch<S extends string> = OnlyRequired<
   PathKeys<S>

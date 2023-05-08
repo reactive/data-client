@@ -34,7 +34,7 @@ export const ReactionResource = {
     path: 'repos/:owner/:repo/issues/comments/:comment/reactions',
   }),
   create: base.create.extend({
-    getOptimisticResponse: (snap, params, body) => body as any,
+    getOptimisticResponse: (snap, params, body) => body,
   }),
   delete: base.delete.extend({
     getOptimisticResponse: (snap, params) => params,
