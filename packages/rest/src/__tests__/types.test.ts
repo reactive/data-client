@@ -39,6 +39,8 @@ describe('PathArgs', () => {
     () => A({ idasd: 'ho' });
     // @ts-expect-error
     () => A({ next: 'hi', title: 'ho', id: 'hi' });
+    // @ts-expect-error
+    () => A(5);
   });
 
   it('should be flexible for string type', () => {
