@@ -65,11 +65,6 @@ describe(`${schema.Collection.name} normalization`, () => {
   });
   beforeEach(() => (warnSpy = jest.spyOn(console, 'warn')));
 
-  test('throws without a key option', () => {
-    // @ts-expect-error
-    expect(() => new schema.Collection(new schema.Array(Todo), {})).toThrow();
-  });
-
   test('should throw a custom error if data loads with string unexpected value', () => {
     function normalizeBad() {
       normalize('abc', userTodos);
@@ -118,6 +113,18 @@ describe(`${schema.Collection.name} normalization`, () => {
     const state = normalize(
       [{ id: '5', title: 'finish collections' }],
       userTodos,
+      [{ userId: '1' }],
+    );
+    expect(state).toMatchSnapshot();
+    //const a: string[] | undefined = state.result;
+    // @ts-expect-error
+    const b: Record<any, any> | undefined = state.result;
+  });
+
+  test('normalizes top level collections (no args)', () => {
+    const state = normalize(
+      [{ id: '5', title: 'finish collections' }],
+      new schema.Collection(new schema.Array(Todo)),
       [{ userId: '1' }],
     );
     expect(state).toMatchSnapshot();
