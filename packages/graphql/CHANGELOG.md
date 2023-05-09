@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.5.1
+
+### Patch Changes
+
+- 3f3413060a: Collections now have a default argsKey
+- Updated dependencies [3f3413060a]
+  - @rest-hooks/endpoint@3.8.3
+
 ## 0.5.0
 
 ### Minor Changes

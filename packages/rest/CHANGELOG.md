@@ -1,5 +1,16 @@
 # Change Log
 
+## 6.6.3
+
+### Patch Changes
+
+- b356a8df7e: Improve loose null typing
+- 3f3413060a: Collections now have a default argsKey
+- 880fce3411: Disallow non-object when all path members are optional
+- 880fce3411: Simplify ParamFetch<> type algorithm
+- Updated dependencies [3f3413060a]
+  - @rest-hooks/endpoint@3.8.3
+
 ## 6.6.2
 
 ### Patch Changes

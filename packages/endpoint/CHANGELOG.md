@@ -1,5 +1,11 @@
 # Change Log
 
+## 3.8.3
+
+### Patch Changes
+
+- 3f3413060a: Collections now have a default argsKey
+
 ## 3.8.2
 
 ### Patch Changes
