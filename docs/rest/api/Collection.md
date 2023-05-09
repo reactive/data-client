@@ -25,11 +25,27 @@ and [.paginate](./RestEndpoint.md#paginate) extenders
 
 <HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
 {
-endpoint: new RestEndpoint({path: '/todos'}),
+endpoint: new RestEndpoint({path: '/users'}),
 args: [],
 response: [
+{
+id: '1',
+username: 'bob',
+name: 'Bob',
+todos: [
 { id: '123', title: 'Build Collections' },
 { id: '456', title: 'Add atomic creation' },
+]
+},
+{
+id: '2',
+username: 'alice',
+name: 'Alice',
+todos: [
+{ id: '34', title: 'Use Collections' },
+{ id: '453', title: 'Make a fast web app' },
+]
+}
 ],
 delay: 150,
 },
@@ -62,46 +78,109 @@ export const getTodos = new RestEndpoint({
 });
 ```
 
-```tsx title="NewTodo" {9}
+```ts title="api/User" {15-19}
+import { Todo } from './Todo';
+
+export class User extends Entity {
+  id = '';
+  name = '';
+  username = '';
+  email = '';
+  todos: Todo[] = [];
+
+  pk() {
+    return this.id;
+  }
+  static key = 'User';
+  static schema = {
+    todos: new schema.Collection([Todo], {
+      nestKey: (parent, key) => ({
+        userId: parent.id,
+      }),
+    }),
+  };
+}
+
+export const getUsers = new RestEndpoint({
+  path: '/users',
+  schema: new schema.Collection([User]),
+});
+```
+
+```tsx title="NewTodo" {10-11}
 import { getTodos } from './api/Todo';
 
-export default function NewTodo({ userId }: { userId?: number }) {
+export default function NewTodo({ userId }: { userId?: string }) {
   const ctrl = useController();
+  const [unshift, setUnshift] = React.useState(false);
 
   const handlePress = React.useCallback(
     async (e: React.KeyboardEvent) => {
       if (e.key === 'Enter') {
-        ctrl.fetch(getTodos.push, { title: e.currentTarget.value, userId });
+        const createTodo = unshift ? getTodos.unshift : getTodos.push;
+        ctrl.fetch(createTodo, { title: e.currentTarget.value, userId });
         e.currentTarget.value = '';
       }
     },
-    [ctrl],
+    [ctrl, unshift],
   );
 
   return (
     <div>
       <input type="text" onKeyDown={handlePress} />
+      <label>
+        <input
+          type="checkbox"
+          checked={unshift}
+          onChange={e => setUnshift(e.currentTarget.checked)}
+        />{' '}
+        unshift
+      </label>
     </div>
   );
 }
 ```
 
 ```tsx title="TodoList" collapsed
-import { getTodos } from './api/Todo';
+import { type Todo } from './api/Todo';
 import NewTodo from './NewTodo';
 
-function TodoList() {
-  const todos = useSuspense(getTodos);
+export default function TodoList({
+  todos,
+  userId,
+}: {
+  todos: Todo[];
+  userId: string;
+}) {
   return (
     <div>
       {todos.map(todo => (
         <div key={todo.pk()}>{todo.title}</div>
       ))}
-      <NewTodo />
+      <NewTodo userId={userId} />
     </div>
   );
 }
-render(<TodoList />);
+```
+
+```tsx title="UserList" collapsed
+import { getUsers } from './api/User';
+import TodoList from './TodoList';
+
+function UserList() {
+  const users = useSuspense(getUsers);
+  return (
+    <div>
+      {users.map(user => (
+        <section key={user.pk()}>
+          <h3>{user.name}</h3>
+          <TodoList todos={user.todos} userId={user.id} />
+        </section>
+      ))}
+    </div>
+  );
+}
+render(<UserList />);
 ```
 
 </HooksPlayground>
@@ -180,7 +259,7 @@ Default:
 ```ts
 const defaultFilter =
   (urlParams: Record<string, any>, body?: Record<string, any>) =>
-  (collectionKey: Record<string, any>) =>
+  (collectionKey: Record<string, string>) =>
     Object.entries(collectionKey).every(
       ([key, value]) =>
         key.startsWith('order') ||
@@ -222,6 +301,10 @@ determine if that collection should get the newly created values from this schem
 
 Because arguments may be serializable types like `number`, we recommend using `==` comparisons,
 e.g., `'10' == 10`
+
+```typescript
+(...args) => collectionKey => boolean
+```
 
 ## Lifecycle Methods
 

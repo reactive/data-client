@@ -357,7 +357,7 @@ export class CollectionInterface<
     merge: (existing: any, incoming: any) => any,
     createCollectionFilter?: (
       ...args: P
-    ) => (collectionKey: Record<string, any>) => boolean,
+    ) => (collectionKey: Record<string, string>) => boolean,
   ): schema.Collection<S, P>;
 
   readonly cacheWith: object;
