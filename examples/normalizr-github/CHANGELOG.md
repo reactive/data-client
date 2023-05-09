@@ -1,5 +1,12 @@
 # Change Log
 
+## 0.1.7
+
+### Patch Changes
+
+- Updated dependencies [3f3413060a]
+  - @rest-hooks/endpoint@3.8.3
+
 ## 0.1.6
 
 ### Patch Changes

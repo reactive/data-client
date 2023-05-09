@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/endpoint",
-  "version": "3.8.2",
+  "version": "3.8.3",
   "description": "Declarative Network Interface Definitions",
   "sideEffects": false,
   "main": "dist/index.js",
