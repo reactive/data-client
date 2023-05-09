@@ -12,3 +12,4 @@ mkdir -p ./website/src/components/Playground/editor-types/@rest-hooks/react
 cp ./packages/rest/next.d.ts ./website/src/components/Playground/editor-types/@rest-hooks/rest/next.d.ts
 cp ./packages/core/next.d.ts ./website/src/components/Playground/editor-types/@rest-hooks/core/next.d.ts
 cp ./packages/react/next.d.ts ./website/src/components/Playground/editor-types/@rest-hooks/react/next.d.ts
+cp ./node_modules/@types/react/index.d.ts ./website/src/components/Playground/editor-types/react.d.ts

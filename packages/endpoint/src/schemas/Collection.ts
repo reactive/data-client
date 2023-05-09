@@ -38,6 +38,8 @@ export default class CollectionSchema<
 
   declare readonly schema: S;
 
+  declare readonly key: string;
+
   declare push: S extends ArraySchema<any>
     ? CollectionSchema<S, Parent>
     : undefined;
@@ -72,6 +74,10 @@ export default class CollectionSchema<
         this.argsKey = options.argsKey;
       }
     }
+    // this assumes the definition of Array/Values is Entity
+    this.key = `COLLECT:${this.schema.constructor.name}(${
+      (this.schema.schema as any).key
+    })`;
     this.createCollectionFilter =
       options?.createCollectionFilter ?? (defaultFilter as any);
 
@@ -96,13 +102,6 @@ export default class CollectionSchema<
       schema: this.schema.schema,
       key: this.key,
     };
-  }
-
-  get key() {
-    // this assumes the definition of Array/Values is Entity
-    return `COLLECT:${this.schema.constructor.name}(${
-      (this.schema.schema as any).key
-    })`;
   }
 
   pk(value: any, parent: any, key: string, args: readonly any[]) {
@@ -253,6 +252,7 @@ function CreateAdder<C extends CollectionSchema<any, any>, P extends any[]>(
   const properties: PropertyDescriptorMap = {
     merge: { value: merge },
     normalize: { value: normalizeCreate },
+    infer: { value: inferCreate },
   };
   if (collection.schema instanceof ArraySchema) {
     properties.createIfValid = { value: createIfValid };
@@ -263,6 +263,8 @@ function CreateAdder<C extends CollectionSchema<any, any>, P extends any[]>(
   }
   return Object.create(collection, properties);
 }
+
+function inferCreate() {}
 
 function normalizeCreate(
   this: CollectionSchema<any, any>,

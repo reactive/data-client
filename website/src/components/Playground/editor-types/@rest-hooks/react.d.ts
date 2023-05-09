@@ -2,6 +2,7 @@ import * as _rest_hooks_core from '@rest-hooks/core';
 import { Manager, State as State$1, Controller, NetworkError, EndpointInterface, FetchFunction, Schema, DenormalizeNullable, ResolveType, Denormalize, UnknownError, ErrorTypes as ErrorTypes$1, ActionTypes, DenormalizeCache, legacyActions, __INTERNAL__, createReducer, applyManager } from '@rest-hooks/core';
 export { AbstractInstanceType, ActionTypes, CompatibleDispatch, Controller, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, ReceiveAction, ReceiveTypes, ResetAction, ResolveType, Schema, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@rest-hooks/core';
 import React$1, { Context } from 'react';
+import * as react_jsx_runtime from 'react/jsx-runtime';
 
 declare const _default$1: React$1.NamedExoticComponent<{
     children: React$1.ReactNode;
@@ -18,7 +19,7 @@ interface ProviderProps {
  * Manages state, providing all context needed to use the hooks.
  * @see https://resthooks.io/docs/api/CacheProvider
  */
-declare function CacheProvider({ children, managers, initialState, Controller, }: ProviderProps): JSX.Element;
+declare function CacheProvider({ children, managers, initialState, Controller, }: ProviderProps): react_jsx_runtime.JSX.Element;
 declare namespace CacheProvider {
     var defaultProps: {
         managers: Manager<_rest_hooks_core.CombinedActionTypes>[];
@@ -38,7 +39,7 @@ declare function AsyncBoundary({ children, errorComponent, fallback, }: {
     errorComponent?: React$1.ComponentType<{
         error: NetworkError;
     }>;
-}): JSX.Element;
+}): react_jsx_runtime.JSX.Element;
 declare const _default: React$1.MemoExoticComponent<typeof AsyncBoundary>;
 //# sourceMappingURL=AsyncBoundary.d.ts.map
 
@@ -59,7 +60,7 @@ declare class NetworkErrorBoundary<E extends NetworkError> extends React$1.Compo
     static defaultProps: {
         fallbackComponent: ({ error }: {
             error: NetworkError;
-        }) => JSX.Element;
+        }) => react_jsx_runtime.JSX.Element;
     };
     static getDerivedStateFromError(error: NetworkError | any): {
         error: NetworkError;
