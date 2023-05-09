@@ -253,10 +253,16 @@ div > .playgroundHeader.subtabs {
   background-color: var(--ifm-color-emphasis-400);
 }
 
+:root .playgroundPreview {
+  --ifm-heading-margin-bottom: .5ex;
+}
 .playgroundPreview button {
   margin-bottom: 8px;
   margin-right: 8px;
   padding: 2px 6px;
+}
+.playgroundPreview section {
+  margin-bottom: 2ex;
 }
 
 .fixtureBlock {

@@ -30,11 +30,11 @@ export default class CollectionSchema<
 > {
   protected declare nestKey: (parent: any, key: string) => Record<string, any>;
 
-  protected declare argsKey: (...args: any) => Record<string, any>;
+  protected declare argsKey?: (...args: any) => Record<string, any>;
 
   protected declare createCollectionFilter: (
     ...args: Parent
-  ) => (collectionKey: Record<string, any>) => boolean;
+  ) => (collectionKey: Record<string, string>) => boolean;
 
   declare readonly schema: S;
 
@@ -54,7 +54,7 @@ export default class CollectionSchema<
     merge: (existing: any, incoming: any) => any,
     createCollectionFilter?: (
       ...args: P
-    ) => (collectionKey: Record<string, any>) => boolean,
+    ) => (collectionKey: Record<string, string>) => boolean,
   ): CollectionSchema<S, P> {
     return CreateAdder(this, merge, createCollectionFilter);
   }
@@ -192,13 +192,10 @@ export default class CollectionSchema<
 
   // >>>>>>>>>>>>>>DENORMALIZE<<<<<<<<<<<<<<
 
-  infer(
-    args: unknown,
-    indexes: unknown,
-    recurse: unknown,
-    entities: unknown,
-  ): any {
-    return undefined;
+  infer(args: any, indexes: unknown, recurse: unknown, entities: unknown): any {
+    if (this.argsKey) {
+      return this.pk(undefined, undefined, '', args);
+    }
   }
 
   declare createIfValid: (value: any) => any | undefined;
@@ -222,13 +219,13 @@ export type CollectionOptions<
       nestKey: (parent: any, key: string) => Record<string, any>;
       createCollectionFilter?: (
         ...args: Parent
-      ) => (collectionKey: Record<string, any>) => boolean;
+      ) => (collectionKey: Record<string, string>) => boolean;
     }
   | {
       argsKey: (...args: any) => Record<string, any>;
       createCollectionFilter?: (
         ...args: Parent
-      ) => (collectionKey: Record<string, any>) => boolean;
+      ) => (collectionKey: Record<string, string>) => boolean;
     };
 
 // this adds to any list *in store* that has same members as the urlParams
@@ -237,7 +234,7 @@ export type CollectionOptions<
 // it ignores keys that start with sort as those are presumed to not filter results
 const defaultFilter =
   (urlParams: Record<string, any>, body?: Record<string, any>) =>
-  (collectionKey: Record<string, any>) =>
+  (collectionKey: Record<string, string>) =>
     Object.entries(collectionKey).every(
       ([key, value]) =>
         key.startsWith('order') ||
@@ -251,7 +248,7 @@ function CreateAdder<C extends CollectionSchema<any, any>, P extends any[]>(
   merge: (existing: any, incoming: any) => any[],
   createCollectionFilter?: (
     ...args: P
-  ) => (collectionKey: Record<string, any>) => boolean,
+  ) => (collectionKey: Record<string, string>) => boolean,
 ) {
   const properties: PropertyDescriptorMap = {
     merge: { value: merge },

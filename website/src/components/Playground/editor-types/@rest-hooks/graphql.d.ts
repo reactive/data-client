@@ -56,10 +56,10 @@ type CollectionOptions<Parent extends any[] = [
     body?: Record<string, any>
 ]> = {
     nestKey: (parent: any, key: string) => Record<string, any>;
-    createCollectionFilter?: (...args: Parent) => (collectionKey: Record<string, any>) => boolean;
+    createCollectionFilter?: (...args: Parent) => (collectionKey: Record<string, string>) => boolean;
 } | {
     argsKey: (...args: any) => Record<string, any>;
-    createCollectionFilter?: (...args: Parent) => (collectionKey: Record<string, any>) => boolean;
+    createCollectionFilter?: (...args: Parent) => (collectionKey: Record<string, string>) => boolean;
 };
 
 /**
@@ -584,7 +584,7 @@ declare class CollectionInterface<
     merge: (existing: any, incoming: any) => any,
     createCollectionFilter?: (
       ...args: P
-    ) => (collectionKey: Record<string, any>) => boolean,
+    ) => (collectionKey: Record<string, string>) => boolean,
   ): Collection<S, P>;
 
   readonly cacheWith: object;

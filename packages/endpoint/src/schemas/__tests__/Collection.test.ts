@@ -398,4 +398,47 @@ describe(`${schema.Collection.name} denormalization`, () => {
       `);
     });
   });
+
+  it('should infer with matching args', () => {
+    const inferred = inferResults(
+      userTodos,
+      [{ userId: '1' }],
+      {},
+      normalizeNested.entities,
+    );
+    expect(inferred).toBeDefined();
+    // now ensure our inferred result is usable
+    const results = denormalize(inferred, userTodos, normalizeNested.entities);
+    expect(results).toBeDefined();
+    expect(results).toMatchInlineSnapshot(`
+      [
+        Todo {
+          "completed": false,
+          "id": "5",
+          "title": "finish collections",
+          "userId": 0,
+        },
+      ]
+    `);
+  });
+
+  it('should infer undefined when not in cache', () => {
+    const inferred = inferResults(
+      userTodos,
+      [{ userId: '100' }],
+      {},
+      normalizeNested.entities,
+    );
+    expect(inferred).toBeUndefined();
+  });
+
+  it('should infer undefined with nested Collection', () => {
+    const inferred = inferResults(
+      User.schema.todos,
+      [{ userId: '1' }],
+      {},
+      normalizeNested.entities,
+    );
+    expect(inferred).toBeUndefined();
+  });
 });

@@ -10,7 +10,7 @@ export const paginatedFilter =
   <C extends (...args: readonly any[]) => readonly any[]>(removeCursor: C) =>
   (...args: Parameters<C>) => {
     const noCursorArgs = removeCursor(...args);
-    return (collectionKey: Record<string, any>) =>
+    return (collectionKey: Record<string, string>) =>
       shallowEqual(collectionKey, noCursorArgs[0] ?? {});
   };
 
