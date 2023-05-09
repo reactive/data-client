@@ -468,7 +468,7 @@ export interface CollectionConstructor {
     ],
   >(
     schema: S,
-    options: CollectionOptions,
+    options?: CollectionOptions,
   ): CollectionFromSchema<S, Parent>;
   readonly prototype: CollectionInterface;
 }

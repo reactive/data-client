@@ -178,6 +178,42 @@ exports[`CollectionSchema normalization normalizes push onto the end 1`] = `
 }
 `;
 
+exports[`CollectionSchema normalization normalizes top level collections (no args) 1`] = `
+{
+  "entities": {
+    "COLLECT:ArraySchema(Todo)": {
+      "{"userId":"1"}": [
+        "5",
+      ],
+    },
+    "Todo": {
+      "5": {
+        "id": "5",
+        "title": "finish collections",
+      },
+    },
+  },
+  "entityMeta": {
+    "COLLECT:ArraySchema(Todo)": {
+      "{"userId":"1"}": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+    "Todo": {
+      "5": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": "{"userId":"1"}",
+}
+`;
+
 exports[`CollectionSchema normalization normalizes top level collections 1`] = `
 {
   "entities": {

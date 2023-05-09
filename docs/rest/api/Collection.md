@@ -43,7 +43,7 @@ delay: 150,
 },
 ]}>
 
-```ts title="api/Todo" {15-17}
+```ts title="api/Todo" {15}
 export class Todo extends Entity {
   id = '';
   userId = 0;
@@ -58,9 +58,7 @@ export class Todo extends Entity {
 
 export const getTodos = new RestEndpoint({
   path: '/todos',
-  schema: new schema.Collection([Todo], {
-    argsKey: urlParams => ({ ...urlParams }),
-  }),
+  schema: new schema.Collection([Todo]),
 });
 ```
 

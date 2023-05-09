@@ -27,11 +27,7 @@ export default function createResource<O extends ResourceGenerics>({
   const getList = new Endpoint({
     ...extraOptions,
     path: shortenedPath,
-    schema: new Collection([schema as any], {
-      argsKey: (urlParams, body) => ({
-        ...urlParams,
-      }),
-    }),
+    schema: new Collection([schema as any]),
     name: getName('getList'),
   });
   return {

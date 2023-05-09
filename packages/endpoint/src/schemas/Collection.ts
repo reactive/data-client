@@ -59,21 +59,21 @@ export default class CollectionSchema<
     return CreateAdder(this, merge, createCollectionFilter);
   }
 
-  constructor(schema: S, options: CollectionOptions) {
+  constructor(schema: S, options?: CollectionOptions) {
     this.schema = Array.isArray(schema)
       ? (new ArraySchema(schema[0]) as any)
       : schema;
-    if ('nestKey' in options) {
-      this.nestKey = options.nestKey;
+    if (!options) {
+      this.argsKey = params => ({ ...params });
     } else {
-      if (process.env.NODE_ENV !== 'production') {
-        if (!('argsKey' in options))
-          throw new Error('argsKey or nestKey needed');
+      if ('nestKey' in options) {
+        this.nestKey = options.nestKey;
+      } else {
+        this.argsKey = options.argsKey;
       }
-      this.argsKey = options.argsKey;
     }
     this.createCollectionFilter =
-      options.createCollectionFilter ?? (defaultFilter as any);
+      options?.createCollectionFilter ?? (defaultFilter as any);
 
     // >>>>>>>>>>>>>>CREATION<<<<<<<<<<<<<<
     if (this.schema instanceof ArraySchema) {
