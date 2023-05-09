@@ -590,7 +590,7 @@ declare class CollectionInterface<
   readonly cacheWith: object;
 
   readonly schema: S;
-  key: string;
+  readonly key: string;
   pk(value: any, parent: any, key: string, args: any[]): string;
   normalize(
     input: any,
