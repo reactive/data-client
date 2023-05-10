@@ -208,6 +208,10 @@ export default class CollectionSchema<
   }
 }
 
+type ComparatorOption<Parent extends any[]> =
+  | string
+  | ((...args: Parent) => ((first: any, second: any) => number) | undefined);
+
 export type CollectionOptions<
   Parent extends any[] = [
     urlParams: Record<string, any>,
@@ -219,12 +223,14 @@ export type CollectionOptions<
       createCollectionFilter?: (
         ...args: Parent
       ) => (collectionKey: Record<string, string>) => boolean;
+      readonly comparator?: ComparatorOption<Parent>;
     }
   | {
       argsKey: (...args: any) => Record<string, any>;
       createCollectionFilter?: (
         ...args: Parent
       ) => (collectionKey: Record<string, string>) => boolean;
+      readonly comparator?: ComparatorOption<Parent>;
     };
 
 // this adds to any list *in store* that has same members as the urlParams
