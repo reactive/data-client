@@ -23,7 +23,7 @@ and [.paginate](./RestEndpoint.md#paginate) extenders
 
 ## Usage
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+<HooksPlayground fixtures={[
 {
 endpoint: new RestEndpoint({path: '/users'}),
 args: [],
@@ -33,8 +33,8 @@ id: '1',
 username: 'bob',
 name: 'Bob',
 todos: [
-{ id: '123', title: 'Build Collections' },
-{ id: '456', title: 'Add atomic creation' },
+{ id: '123', title: 'Build Collections', userId: '1' },
+{ id: '456', title: 'Add atomic creation', userId: '1' },
 ]
 },
 {
@@ -42,8 +42,8 @@ id: '2',
 username: 'alice',
 name: 'Alice',
 todos: [
-{ id: '34', title: 'Use Collections' },
-{ id: '453', title: 'Make a fast web app' },
+{ id: '34', title: 'Use Collections', userId: '2' },
+{ id: '453', title: 'Make a fast web app', userId: '2' },
 ]
 }
 ],
@@ -59,7 +59,7 @@ delay: 150,
 },
 ]}>
 
-```ts title="api/Todo" {15}
+```ts title="api/Todo" {15} collapsed
 export class Todo extends Entity {
   id = '';
   userId = 0;
@@ -78,7 +78,7 @@ export const getTodos = new RestEndpoint({
 });
 ```
 
-```ts title="api/User" {15-19}
+```ts title="api/User" {15-19} collapsed
 import { Todo } from './Todo';
 
 export class User extends Entity {
