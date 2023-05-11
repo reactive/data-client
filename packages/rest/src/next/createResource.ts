@@ -126,7 +126,7 @@ export interface Resource<
   partialUpdate: 'body' extends keyof O
     ? MutateEndpoint<{
         path: O['path'];
-        body: O['body'];
+        body: Partial<O['body']>;
         schema: O['schema'];
       }>
     : MutateEndpoint<{
