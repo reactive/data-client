@@ -5198,10 +5198,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:20.1.1, @types/node@npm:^20.0.0":
-  version: 20.1.1
-  resolution: "@types/node@npm:20.1.1"
-  checksum: 47961ee23f873c14c3f6045422ff3059f3bfb10231ef3080a7a72d7215cc8c2623fa8cedb7b246305962fa9c1e0c9e381e04b12eb3e9ec5d076025c6231ac8da
+"@types/node@npm:*, @types/node@npm:20.1.4, @types/node@npm:^20.0.0":
+  version: 20.1.4
+  resolution: "@types/node@npm:20.1.4"
+  checksum: bffa6a6e92831cc805b13658c55be8e04abe3202d5e57ddd7fee4cfbe269656a1f475909a9f9514e1aff50310d0d90c516ac2c649cb6f1c77d4b1079c2fd1e88
   languageName: node
   linkType: hard
 
@@ -15641,7 +15641,7 @@ __metadata:
     "@rest-hooks/rest": ^6.6.1
     "@rest-hooks/ssr": ^0.7.11
     "@rest-hooks/test": ^10.3.7
-    "@types/node": 20.1.1
+    "@types/node": 20.1.4
     "@types/react": 18.2.6
     "@types/react-dom": 18.2.4
     eslint: 8.40.0
@@ -18844,10 +18844,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-gradle-plugin@npm:^0.71.17":
-  version: 0.71.17
-  resolution: "react-native-gradle-plugin@npm:0.71.17"
-  checksum: 5ff996bafc3959a36551dc34d481cefb070ede4025b5eb2ce659f51adf74ba0e6845cc019ea1d547e0b4007f1c3c68146fa719688f09bde308f25320c6c6f834
+"react-native-gradle-plugin@npm:^0.71.18":
+  version: 0.71.18
+  resolution: "react-native-gradle-plugin@npm:0.71.18"
+  checksum: 19f0a41e29c9210ff495010aaa612f2c2f4f5f937b6c20266c8dc62f4ccedc65bb7576de59b2f3fd2bb8044ce9785e56673879f2eb452f948e6659a5e1fa5894
   languageName: node
   linkType: hard
 
@@ -18874,9 +18874,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native@npm:0.71.7, react-native@npm:^0.71.5":
-  version: 0.71.7
-  resolution: "react-native@npm:0.71.7"
+"react-native@npm:0.71.8, react-native@npm:^0.71.5":
+  version: 0.71.8
+  resolution: "react-native@npm:0.71.8"
   dependencies:
     "@jest/create-cache-key-function": ^29.2.1
     "@react-native-community/cli": 10.2.2
@@ -18903,7 +18903,7 @@ __metadata:
     promise: ^8.3.0
     react-devtools-core: ^4.26.1
     react-native-codegen: ^0.71.5
-    react-native-gradle-plugin: ^0.71.17
+    react-native-gradle-plugin: ^0.71.18
     react-refresh: ^0.4.0
     react-shallow-renderer: ^16.15.0
     regenerator-runtime: ^0.13.2
@@ -18916,7 +18916,7 @@ __metadata:
     react: 18.2.0
   bin:
     react-native: cli.js
-  checksum: efd91d5560290b883e0d3d3482cc4657268c2e480171b63a0c6b7dc8f6b1331298feac7d9966e1831d95d9fee893dfa831252052561232843e4982880238f09e
+  checksum: fe887c1b8bded23f9efea9dc10a8a8b2f32147e06418fc9a78294944874797abb0185ebcb0fdc5ce88046280bca72264ae8d119f4ca681a3e0bc502d0f75bfbe
   languageName: node
   linkType: hard
 
@@ -19830,7 +19830,7 @@ __metadata:
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/react-native": 12.1.2
     "@types/jest": 29.5.1
-    "@types/node": 20.1.1
+    "@types/node": 20.1.4
     "@types/react": 18.2.6
     "@typescript-eslint/eslint-plugin": 5.59.5
     "@typescript-eslint/parser": 5.59.5
@@ -19859,7 +19859,7 @@ __metadata:
     prettier: 2.8.8
     react: 18.2.0
     react-dom: 18.2.0
-    react-native: 0.71.7
+    react-native: 0.71.8
     react-native-safe-area-context: ^4.4.1
     react-native-screens: ^3.18.2
     react-test-renderer: 18.2.0
