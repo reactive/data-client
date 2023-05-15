@@ -233,6 +233,9 @@ Response (first 300 characters): ${text.substring(0, 300)}`;
     return this.extend({
       method: 'POST',
       schema: extractCollection(this.schema, s => s.push),
+      process(value) {
+        return value;
+      },
     });
   }
 
@@ -240,6 +243,9 @@ Response (first 300 characters): ${text.substring(0, 300)}`;
     return this.extend({
       method: 'POST',
       schema: extractCollection(this.schema, s => s.unshift),
+      process(value) {
+        return value;
+      },
     });
   }
 
@@ -247,6 +253,9 @@ Response (first 300 characters): ${text.substring(0, 300)}`;
     return this.extend({
       method: 'POST',
       schema: extractCollection(this.schema, s => s.assign),
+      process(value) {
+        return value;
+      },
     });
   }
 }

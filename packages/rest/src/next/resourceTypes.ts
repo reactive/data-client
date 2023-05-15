@@ -1,6 +1,21 @@
-import type { Schema } from '@rest-hooks/endpoint';
+import type {
+  Schema,
+  schema,
+  Denormalize,
+  FetchFunction,
+} from '@rest-hooks/endpoint';
 
-import RestEndpoint from './RestEndpoint.js';
+import { OptionsToFunction } from './OptionsToFunction.js';
+import RestEndpoint, {
+  GetEndpoint,
+  MutateEndpoint,
+  RestTypeNoBody,
+  RestEndpointOptions,
+  PartialRestGenerics,
+  RestExtendedEndpoint,
+  Defaults,
+} from './RestEndpoint.js';
+import type { PathArgs, ShortenPath } from '../pathTypes.js';
 
 export interface ResourceGenerics {
   readonly path: string;
@@ -29,4 +44,202 @@ export interface ResourceOptions {
   /** Determines whether to throw or fallback to */
   errorPolicy?(error: any): 'hard' | 'soft' | undefined;
   optimistic?: boolean;
+}
+
+export interface ResourceEndpointExtensions<
+  R extends Resource<any>,
+  Get extends PartialRestGenerics = any,
+  GetList extends PartialRestGenerics = any,
+  Update extends PartialRestGenerics = any,
+  PartialUpdate extends PartialRestGenerics = any,
+  Create extends PartialRestGenerics = any,
+  Delete extends PartialRestGenerics = any,
+> {
+  readonly get?: RestEndpointOptions<
+    unknown extends Get
+      ? R['get']
+      : OptionsToFunction<Get, R['get'], Extract<R['get'], FetchFunction>>,
+    R['get']['schema']
+  > &
+    Readonly<Get>;
+  readonly getList?: RestEndpointOptions<
+    unknown extends GetList
+      ? R['getList']
+      : OptionsToFunction<
+          GetList,
+          R['getList'],
+          Extract<R['getList'], FetchFunction>
+        >,
+    R['getList']['schema']
+  > &
+    Readonly<GetList>;
+  readonly update?: RestEndpointOptions<
+    unknown extends Update
+      ? R['update']
+      : OptionsToFunction<
+          Update,
+          R['update'],
+          Extract<R['update'], FetchFunction>
+        >,
+    R['update']['schema']
+  > &
+    Readonly<Update>;
+  readonly partialUpdate?: RestEndpointOptions<
+    unknown extends PartialUpdate
+      ? R['partialUpdate']
+      : OptionsToFunction<
+          PartialUpdate,
+          R['partialUpdate'],
+          Extract<R['partialUpdate'], FetchFunction>
+        >,
+    R['partialUpdate']['schema']
+  > &
+    Readonly<PartialUpdate>;
+  readonly create?: RestEndpointOptions<
+    unknown extends Create
+      ? R['create']
+      : OptionsToFunction<
+          Create,
+          R['create'],
+          Extract<R['create'], FetchFunction>
+        >,
+    R['create']['schema']
+  > &
+    Readonly<Create>;
+  readonly delete?: RestEndpointOptions<
+    unknown extends Delete
+      ? R['delete']
+      : OptionsToFunction<
+          Delete,
+          R['delete'],
+          Extract<R['delete'], FetchFunction>
+        >,
+    R['delete']['schema']
+  > &
+    Readonly<Delete>;
+}
+
+export type ExtendedResource<
+  R extends Resource<any>,
+  Get extends PartialRestGenerics | {} = any,
+  GetList extends PartialRestGenerics | {} = any,
+  Update extends PartialRestGenerics | {} = any,
+  PartialUpdate extends PartialRestGenerics | {} = any,
+  Create extends PartialRestGenerics | {} = any,
+  Delete extends PartialRestGenerics | {} = any,
+  E extends Record<string, PartialRestGenerics> = {},
+> = {
+  // unknown only extends any
+  get: unknown extends Get ? R['get'] : RestExtendedEndpoint<Get, R['get']>;
+  getList: unknown extends GetList
+    ? R['getList']
+    : RestExtendedEndpoint<GetList, R['getList']>;
+  update: unknown extends Update
+    ? R['update']
+    : RestExtendedEndpoint<Update, R['update']>;
+  partialUpdate: unknown extends PartialUpdate
+    ? R['partialUpdate']
+    : RestExtendedEndpoint<PartialUpdate, R['partialUpdate']>;
+  create: unknown extends Create
+    ? unknown extends GetList
+      ? R['create']
+      : RestExtendedEndpoint<GetList, R['create']>
+    : unknown extends GetList
+    ? RestExtendedEndpoint<Create, R['create']>
+    : RestExtendedEndpoint<Defaults<Create, GetList>, R['create']>;
+  delete: unknown extends Delete
+    ? R['delete']
+    : RestExtendedEndpoint<Delete, R['delete']>;
+} & {
+  [K in Exclude<keyof E, keyof Resource>]: RestExtendedEndpoint<E[K], R['get']>;
+};
+
+export interface Resource<
+  O extends ResourceGenerics = { path: string; schema: any },
+> {
+  /** Get a singular item
+   *
+   * @see https://resthooks.io/rest/api/createResource#get
+   */
+  get: GetEndpoint<{ path: O['path']; schema: O['schema'] }>;
+  /** Get a list of item
+   *
+   * @see https://resthooks.io/rest/api/createResource#getlist
+   */
+  getList: 'searchParams' extends keyof O
+    ? GetEndpoint<{
+        path: ShortenPath<O['path']>;
+        schema: schema.Collection<[O['schema']]>;
+        searchParams: O['searchParams'];
+      }>
+    : GetEndpoint<{
+        path: ShortenPath<O['path']>;
+        schema: schema.Collection<[O['schema']]>;
+        searchParams: Record<string, number | string | boolean> | undefined;
+      }>;
+  /** Create a new item (POST)
+   *
+   * @see https://resthooks.io/rest/api/createResource#create
+   */
+  create: 'searchParams' extends keyof O
+    ? MutateEndpoint<{
+        path: ShortenPath<O['path']>;
+        schema: schema.Collection<[O['schema']]>['push'];
+        body: 'body' extends keyof O
+          ? O['body']
+          : Partial<Denormalize<O['schema']>>;
+        searchParams: O['searchParams'];
+      }>
+    : MutateEndpoint<{
+        path: ShortenPath<O['path']>;
+        schema: schema.Collection<[O['schema']]>['push'];
+        body: 'body' extends keyof O
+          ? O['body']
+          : Partial<Denormalize<O['schema']>>;
+      }>;
+  /** Update an item (PUT)
+   *
+   * @see https://resthooks.io/rest/api/createResource#update
+   */
+  update: 'body' extends keyof O
+    ? MutateEndpoint<{
+        path: O['path'];
+        body: O['body'];
+        schema: O['schema'];
+      }>
+    : MutateEndpoint<{
+        path: O['path'];
+        body: Partial<Denormalize<O['schema']>>;
+        schema: O['schema'];
+      }>;
+  /** Update an item (PATCH)
+   *
+   * @see https://resthooks.io/rest/api/createResource#partialupdate
+   */
+  partialUpdate: 'body' extends keyof O
+    ? MutateEndpoint<{
+        path: O['path'];
+        body: Partial<O['body']>;
+        schema: O['schema'];
+      }>
+    : MutateEndpoint<{
+        path: O['path'];
+        body: Partial<Denormalize<O['schema']>>;
+        schema: O['schema'];
+      }>;
+  /** Delete an item (DELETE)
+   *
+   * @see https://resthooks.io/rest/api/createResource#delete
+   */
+  delete: RestTypeNoBody<
+    PathArgs<O['path']>,
+    O['schema'] extends schema.EntityInterface & { process: any }
+      ? schema.Invalidate<O['schema']>
+      : O['schema'],
+    undefined,
+    Partial<PathArgs<O['path']>>,
+    {
+      path: O['path'];
+    }
+  >;
 }
