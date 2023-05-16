@@ -13,7 +13,9 @@
   "scripts": {
     "build": "BROWSERSLIST_ENV=node18 webpack --mode=production --target=node --env readable",
     "start": "NODE_ENV=production node --allow-natives-syntax ./index.js",
-    "start:trace": "yarn run start --trace_opt --trace_deopt"
+    "start:trace": "yarn run start --trace_opt --trace_deopt",
+    "start:deopt:broken": "NODE_ENV=production npx dexnode --out v8.log --allow-natives-syntax ./index.js",
+    "start:deopt": "NODE_ENV=production node --log-deopt --redirect-code-traces --redirect-code-traces-to=/tmp/codetrace --log-ic --log-maps --log-maps-details --log-code --log-source-code --prof --log-internal-timer-events --detailed-line-info --logfile=v8.log --no-logfile-per-isolate --allow-natives-syntax ./index.js"
   },
   "dependencies": {
     "@rest-hooks/core": "workspace:^",
