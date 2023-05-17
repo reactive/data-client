@@ -1,4 +1,6 @@
 const { makeConfig } = require('@anansi/webpack-config');
+const fs = require('fs');
+const { isAbsolute } = require('path');
 
 const generateConfig = makeConfig({
   basePath: 'src',
@@ -25,5 +27,29 @@ module.exports = (env, argv) => {
       },
     },
   };
+  config.output.devtoolModuleFilenameTemplate = context => {
+    let path = context.absoluteResourcePath;
+    context.resourcePath;
+
+    // For regular files, this statement is true.
+    if (isAbsolute(path)) {
+      if (path.includes('/examples')) return path;
+      for (const f of [
+        path.replace('rest-hooks/src', 'rest-hooks/packages/normalizr/src'),
+        path.replace('rest-hooks/src', 'rest-hooks/packages/endpoint/src'),
+        path.replace('rest-hooks/src', 'rest-hooks/packages/core/src'),
+        path.replace('src/state', 'rest-hooks/packages/core/src/state'),
+      ]) {
+        if (fs.existsSync(f)) return f;
+      }
+      console.log('could not find file to map: ', path);
+
+      return path;
+    } else {
+      // Mimic Webpack's default behavior:
+      return `webpack://${context.namespace}/${context.resourcePath}`;
+    }
+  };
+
   return config;
 };
