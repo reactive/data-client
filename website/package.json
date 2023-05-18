@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@anansi/browserslist-config": "1.4.3",
-    "@anansi/webpack-config": "15.0.14",
+    "@anansi/webpack-config": "15.0.15",
     "@docusaurus/core": "2.4.1",
     "@docusaurus/plugin-client-redirects": "2.4.1",
     "@docusaurus/plugin-content-docs": "2.4.1",

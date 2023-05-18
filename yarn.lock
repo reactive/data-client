@@ -182,9 +182,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:15.0.14":
-  version: 15.0.14
-  resolution: "@anansi/webpack-config@npm:15.0.14"
+"@anansi/webpack-config@npm:15.0.15":
+  version: 15.0.15
+  resolution: "@anansi/webpack-config@npm:15.0.15"
   dependencies:
     "@babel/runtime": ^7.17.2
     "@linaria/webpack5-loader": 4.1.17
@@ -231,7 +231,7 @@ __metadata:
     readable-stream: ^4.4.0
     sass-loader: ^13.2.2
     sass-resources-loader: ^2.2.5
-    semver: ^7.5.0
+    semver: ^7.5.1
     stream-browserify: ^3.0.0
     stream-http: ^3.2.0
     string_decoder: ^1.3.0
@@ -289,7 +289,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: 1171abf52e820c8e14bef3f42662c48530e640b35d05e903b5fa2032ef55425b0691978b45729514bd37e5e1c0c198713b34321913579bbe29f8f332c6208dc4
+  checksum: 53a4e9be4ec99ed46779c6ec211cedf4a5a571229d235804f5daedb08093478db85993108672611866c79a457a733c850647a787fdd6f2a4b1300296aa92788c
   languageName: node
   linkType: hard
 
@@ -9501,13 +9501,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"enhanced-resolve@npm:^5.12.0, enhanced-resolve@npm:^5.13.0, enhanced-resolve@npm:^5.3.1, enhanced-resolve@npm:^5.7.0":
-  version: 5.13.0
-  resolution: "enhanced-resolve@npm:5.13.0"
+"enhanced-resolve@npm:^5.12.0, enhanced-resolve@npm:^5.14.0, enhanced-resolve@npm:^5.3.1, enhanced-resolve@npm:^5.7.0":
+  version: 5.14.0
+  resolution: "enhanced-resolve@npm:5.14.0"
   dependencies:
     graceful-fs: ^4.2.4
     tapable: ^2.2.0
-  checksum: 76d6844c4393d76beed5b3ce6cf5a98dee3ad5c84a9887f49ccde1224e3b7af201dfbd5a57ebf2b49f623b74883df262d50ff480d3cc02fc2881fc58b84e1bbe
+  checksum: fff1aaebbf376371e5df4502e111967f6247c37611ad3550e4e7fca657f6dcb29ef7ffe88bf14e5010b78997f1ddd984a8db97af87ee0a5477771398fd326f5b
   languageName: node
   linkType: hard
 
@@ -11027,7 +11027,7 @@ __metadata:
     "@anansi/browserslist-config": 1.4.3
     "@anansi/eslint-plugin": 0.16.11
     "@anansi/router": 0.7.35
-    "@anansi/webpack-config": 15.0.14
+    "@anansi/webpack-config": 15.0.15
     "@ant-design/icons": ^5.0.0
     "@babel/core": 7.21.8
     "@linaria/babel-preset": 4.4.5
@@ -11074,7 +11074,7 @@ __metadata:
     rollup-plugin-terser: ^7.0.2
     serve: 14.2.0
     uuid: ^9.0.0
-    webpack: 5.82.0
+    webpack: 5.83.1
     webpack-cli: 5.1.1
     webpack-dev-server: 4.15.0
   languageName: unknown
@@ -20088,14 +20088,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"semver@npm:7.x, semver@npm:^7.1.1, semver@npm:^7.3.2, semver@npm:^7.3.4, semver@npm:^7.3.5, semver@npm:^7.3.7, semver@npm:^7.3.8, semver@npm:^7.5.0":
-  version: 7.5.0
-  resolution: "semver@npm:7.5.0"
+"semver@npm:7.x, semver@npm:^7.1.1, semver@npm:^7.3.2, semver@npm:^7.3.4, semver@npm:^7.3.5, semver@npm:^7.3.7, semver@npm:^7.3.8, semver@npm:^7.5.0, semver@npm:^7.5.1":
+  version: 7.5.1
+  resolution: "semver@npm:7.5.1"
   dependencies:
     lru-cache: ^6.0.0
   bin:
     semver: bin/semver.js
-  checksum: 2d266937756689a76f124ffb4c1ea3e1bbb2b263219f90ada8a11aebebe1280b13bb76cca2ca96bdee3dbc554cbc0b24752eb895b2a51577aa644427e9229f2b
+  checksum: d16dbedad53c65b086f79524b9ef766bf38670b2395bdad5c957f824dcc566b624988013564f4812bcace3f9d405355c3635e2007396a39d1bffc71cfec4a2fc
   languageName: node
   linkType: hard
 
@@ -21456,7 +21456,7 @@ __metadata:
     "@anansi/babel-preset": 4.2.4
     "@anansi/browserslist-config": 1.4.3
     "@anansi/eslint-plugin": 0.16.11
-    "@anansi/webpack-config": 15.0.14
+    "@anansi/webpack-config": 15.0.15
     "@babel/core": 7.21.8
     "@linaria/babel-preset": 4.4.5
     "@linaria/core": 4.2.10
@@ -21489,7 +21489,7 @@ __metadata:
     rollup-plugin-replace: ^2.2.0
     rollup-plugin-terser: ^7.0.2
     serve: 14.2.0
-    webpack: 5.82.0
+    webpack: 5.83.1
     webpack-cli: 5.1.1
     webpack-dev-server: 4.15.0
   languageName: unknown
@@ -22661,9 +22661,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack@npm:5.82.0, webpack@npm:^5, webpack@npm:^5.76.2":
-  version: 5.82.0
-  resolution: "webpack@npm:5.82.0"
+"webpack@npm:5.83.1, webpack@npm:^5, webpack@npm:^5.76.2":
+  version: 5.83.1
+  resolution: "webpack@npm:5.83.1"
   dependencies:
     "@types/eslint-scope": ^3.7.3
     "@types/estree": ^1.0.0
@@ -22674,7 +22674,7 @@ __metadata:
     acorn-import-assertions: ^1.7.6
     browserslist: ^4.14.5
     chrome-trace-event: ^1.0.2
-    enhanced-resolve: ^5.13.0
+    enhanced-resolve: ^5.14.0
     es-module-lexer: ^1.2.1
     eslint-scope: 5.1.1
     events: ^3.2.0
@@ -22694,7 +22694,7 @@ __metadata:
       optional: true
   bin:
     webpack: bin/webpack.js
-  checksum: 499e7f5f24fccaa76f64f2a01f91f371073416f568ef6171dc73187a89078f0c33410d4c9f40d411f0827bab8455f8476eabd803ef4d2920d9a2e5f17efa2703
+  checksum: 219d5ef50380bc0fd3702ed17feddf13819d8173b78f7a5b857dc74ac177e63d1f79c050792754411cc088bbc02e0971b989efddadbb8e393cf27d64c0ad9ff8
   languageName: node
   linkType: hard
 
