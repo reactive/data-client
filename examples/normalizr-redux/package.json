@@ -12,7 +12,7 @@
   "devDependencies": {
     "@babel/core": "7.21.8",
     "@babel/node": "7.20.7",
-    "@octokit/rest": "19.0.7",
+    "@octokit/rest": "19.0.8",
     "@rest-hooks/normalizr": "workspace:*",
     "@types/babel__core": "^7",
     "inquirer": "^8.1.1",
