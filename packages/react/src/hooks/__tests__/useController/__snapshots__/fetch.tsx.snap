@@ -8,11 +8,23 @@ exports[`CacheProvider should log error message when user update method throws 1
   [
     [Error: usererror],
   ],
+  [
+    "The following error occured during Endpoint.update() for POST http://test.com/article-cooler",
+  ],
+  [
+    [Error: usererror],
+  ],
 ]
 `;
 
 exports[`ExternalCacheProvider should log error message when user update method throws 1`] = `
 [
+  [
+    "The following error occured during Endpoint.update() for POST http://test.com/article-cooler",
+  ],
+  [
+    [Error: usererror],
+  ],
   [
     "The following error occured during Endpoint.update() for POST http://test.com/article-cooler",
   ],

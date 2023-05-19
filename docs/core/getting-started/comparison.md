@@ -105,18 +105,18 @@ but having bluetooth and internet streaming isn't necessarily worse than a car w
 
 How quickly one can get started
 
-|                                         |     Rest Hooks      | SWR | RTK-Query |       Apollo        | Relay |
-| --------------------------------------- | :-----------------: | :-: | :-------: | :-----------------: | :---: |
-| Can use with redux                      |         ✅          | 🛑  |    ✅     |         🛑          |  🛑   |
-| Infinite scrolling                      |         ✅          | ✅  |    🛑     |         ✅          |
-| [401 handling](../api/LogoutManager.md) |         ✅          | 🛑  |    🟡     |                     |  🛑   |
-| Aborts                                  |         ✅          | 🛑  |    🛑     |         🛑          |
-| Arbitrary store queries                 |         ✅          | 🛑  |    ✅     |                     |  🛑   |
-| Debugging inspector                     |         ✅          | 🛑  |    ✅     |         ✅          |  ✅   |
-| Data mocking                            |         ✅          | 🛑  |    🛑     |         🛑          |  ✅   |
-| Storybook                               |         ✅          | 🛑  |    🛑     |         🛑          |
-| Retries                                 | 🟡 user-defined[^1] | 🛑  |    ✅     | 🟡 user-defined[^1] |  🛑   |
-| Declarative data transforms             |         ✅          | 🛑  |    🛑     |         🛑          |  🛑   |
+|                                                                  |     Rest Hooks      | SWR | RTK-Query |       Apollo        | Relay |
+| ---------------------------------------------------------------- | :-----------------: | :-: | :-------: | :-----------------: | :---: |
+| Can use with redux                                               |         ✅          | 🛑  |    ✅     |         🛑          |  🛑   |
+| [Infinite scrolling](/rest/guides/pagination#infinite-scrolling) |         ✅          | ✅  |    🛑     |         ✅          |
+| [401 handling](../api/LogoutManager.md)                          |         ✅          | 🛑  |    🟡     |                     |  🛑   |
+| Aborts                                                           |         ✅          | 🛑  |    🛑     |         🛑          |
+| Arbitrary store queries                                          |         ✅          | 🛑  |    ✅     |                     |  🛑   |
+| Debugging inspector                                              |         ✅          | 🛑  |    ✅     |         ✅          |  ✅   |
+| Data mocking                                                     |         ✅          | 🛑  |    🛑     |         🛑          |  ✅   |
+| [Storybook](../guides/storybook.md)                              |         ✅          | 🛑  |    🛑     |         🛑          |
+| Retries                                                          | 🟡 user-defined[^1] | 🛑  |    ✅     | 🟡 user-defined[^1] |  🛑   |
+| Declarative data transforms                                      |         ✅          | 🛑  |    🛑     |         🛑          |  🛑   |
 
 ### Extensibility
 

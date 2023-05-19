@@ -17,15 +17,11 @@ export abstract class PlaceholderEntity extends Entity {
 }
 
 /** Common patterns in the https://jsonplaceholder.typicode.com API */
-export function createPlaceholderResource<O extends ResourceGenerics = any>({
-  path,
-  schema,
-  Endpoint = RestEndpoint,
-}: Readonly<O> & ResourceOptions): Resource<O> {
+export function createPlaceholderResource<O extends ResourceGenerics = any>(
+  options: Readonly<O> & ResourceOptions,
+): Resource<O> {
   const base = createResource({
-    path,
-    schema,
-    Endpoint,
+    ...options,
     urlPrefix: 'https://jsonplaceholder.typicode.com',
     // hour expiry time since we want to keep our example mutations and the api itself never actually changes
     dataExpiryLength: 1000 * 60 * 60,
