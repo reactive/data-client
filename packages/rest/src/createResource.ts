@@ -1,4 +1,8 @@
-import { schema } from '@rest-hooks/endpoint';
+import {
+  AbortOptimistic,
+  schema,
+  SnapshotInterface,
+} from '@rest-hooks/endpoint';
 import type {
   Schema,
   Denormalize,
@@ -9,6 +13,7 @@ import { PathArgs, ShortenPath } from './pathTypes.js';
 import RestEndpoint, {
   NewGetEndpoint,
   NewMutateEndpoint,
+  RestInstance,
   RestTypeNoBody,
 } from './RestEndpoint.js';
 import { shortenPath } from './RestHelpers.js';
@@ -23,15 +28,29 @@ export default function createResource<U extends string, S extends Schema>({
   path,
   schema,
   Endpoint = RestEndpoint,
+  optimistic,
   ...extraOptions
 }: {
   readonly path: U;
   readonly schema: S;
   readonly Endpoint?: typeof RestEndpoint;
   urlPrefix?: string;
+  optimistic?: boolean;
 } & EndpointExtraOptions): Resource<U, S> {
   const shortenedPath = shortenPath(path);
   const getName = (name: string) => `${(schema as any)?.name}.${name}`;
+  const extraMutateOptions = { ...extraOptions };
+  const extraPartialOptions = { ...extraOptions };
+  const get: NewGetEndpoint<{ path: U }, S> = new Endpoint({
+    ...extraOptions,
+    path,
+    schema,
+    name: getName('get'),
+  });
+  if (optimistic) {
+    (extraMutateOptions as any).getOptimisticResponse = optimisticUpdate;
+    (extraPartialOptions as any).getOptimisticResponse = optimisticPartial(get);
+  }
   const getList = new Endpoint({
     ...extraOptions,
     path: shortenedPath,
@@ -39,31 +58,31 @@ export default function createResource<U extends string, S extends Schema>({
     name: getName('getList'),
   });
   return {
-    get: new Endpoint({ ...extraOptions, path, schema, name: getName('get') }),
+    get,
     getList,
     create: new Endpoint({
-      ...extraOptions,
+      ...extraMutateOptions,
       path: shortenedPath,
       schema,
       method: 'POST',
       name: getName('create'),
     }),
     update: new Endpoint({
-      ...extraOptions,
+      ...extraMutateOptions,
       path,
       schema,
       method: 'PUT',
       name: getName('update'),
     }),
     partialUpdate: new Endpoint({
-      ...extraOptions,
+      ...extraPartialOptions,
       path,
       schema,
       method: 'PATCH',
       name: getName('partialUpdate'),
     }),
     delete: new Endpoint({
-      ...extraOptions,
+      ...extraMutateOptions,
       path,
       schema: (schema as any).process ? new Delete(schema as any) : schema,
       method: 'DELETE',
@@ -71,8 +90,32 @@ export default function createResource<U extends string, S extends Schema>({
       process(res, params) {
         return res && Object.keys(res).length ? res : params;
       },
+      getOptimisticResponse: optimistic ? (optimisticDelete as any) : undefined,
     }),
   } as any;
+}
+
+function optimisticUpdate(snap: SnapshotInterface, params: any, body: any) {
+  return {
+    ...params,
+    // even tho we don't always have two arguments, the extra one will simply be undefined which spreads fine
+    ...body,
+  };
+}
+function optimisticPartial(getEndpoint: NewGetEndpoint<any, any>) {
+  return function (snap: SnapshotInterface, params: any, body: any) {
+    const { data } = snap.getResponse(getEndpoint, params);
+    if (!data) throw new AbortOptimistic();
+    return {
+      ...params,
+      ...data,
+      // even tho we don't always have two arguments, the extra one will simply be undefined which spreads fine
+      ...body,
+    };
+  };
+}
+function optimisticDelete(snap: SnapshotInterface, params: any) {
+  return params;
 }
 
 export interface Resource<U extends string, S extends Schema> {

@@ -12,7 +12,7 @@ export function fetchReducer(state: State<unknown>, action: FetchAction) {
   const getOptimisticResponse = action.endpoint?.getOptimisticResponse;
   let receiveAction: ReceiveAction | OptimisticAction;
 
-  if (getOptimisticResponse && action.endpoint) {
+  if (getOptimisticResponse && action.endpoint && action.endpoint.sideEffect) {
     receiveAction = createOptimistic(action.endpoint, {
       args: action.meta.args as readonly any[],
       fetchedAt:

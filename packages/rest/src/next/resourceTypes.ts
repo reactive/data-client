@@ -28,4 +28,5 @@ export interface ResourceOptions {
   readonly invalidIfStale?: boolean;
   /** Determines whether to throw or fallback to */
   errorPolicy?(error: any): 'hard' | 'soft' | undefined;
+  optimistic?: boolean;
 }

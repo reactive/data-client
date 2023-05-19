@@ -203,8 +203,15 @@ class ArticleEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {}
 
 function createArticleResource<S extends Schema>(
   schema: S,
-  urlRoot = 'article',
-  EndpointArg: typeof ArticleEndpoint = ArticleEndpoint,
+  {
+    urlRoot = 'article',
+    EndpointArg = ArticleEndpoint,
+    optimistic,
+  }: {
+    urlRoot?: string;
+    EndpointArg?: typeof ArticleEndpoint;
+    optimistic?: boolean;
+  } = {},
 ) {
   class EndpointUrlRootOverride<
     O extends RestGenerics = any,
@@ -215,8 +222,9 @@ function createArticleResource<S extends Schema>(
     path: '/:id',
     schema,
     Endpoint: EndpointUrlRootOverride,
+    optimistic,
   });
-  return {
+  let resource = {
     ...base,
     longLiving: base.get.extend({
       dataExpiryLength: 1000 * 60 * 60,
@@ -231,16 +239,22 @@ function createArticleResource<S extends Schema>(
     listWithUser: base.getList.extend({
       url: () => (base.getList.url as any)({ includeUser: true }),
     }),
-    partialUpdate: base.partialUpdate.extend({
-      getOptimisticResponse: (snap, params, body) => ({
-        id: params.id,
-        ...body,
-      }),
-    }) as any as typeof base.partialUpdate,
-    delete: base.delete.extend({
-      getOptimisticResponse: (snap, params) => params,
-    }),
   };
+  if (!optimistic) {
+    resource = {
+      ...resource,
+      partialUpdate: base.partialUpdate.extend({
+        getOptimisticResponse: (snap, params, body) => ({
+          id: params.id,
+          ...body,
+        }),
+      }) as any as typeof base.partialUpdate,
+      delete: base.delete.extend({
+        getOptimisticResponse: (snap, params) => params,
+      }),
+    } as any;
+  }
+  return resource;
 }
 export const ArticleResource = createArticleResource(Article);
 
@@ -279,10 +293,9 @@ export class ArticleTimed extends Article {
     createdAt: Date,
   };
 }
-export const ArticleTimedResource = createArticleResource(
-  ArticleTimed,
-  'article-time',
-);
+export const ArticleTimedResource = createArticleResource(ArticleTimed, {
+  urlRoot: 'article-time',
+});
 
 export class UrlArticle extends Article {
   readonly url: string = 'happy.com';
@@ -334,10 +347,10 @@ export class CoolerArticle extends Article {
     return `${this.title} five`;
   }
 }
-const CoolerArticleResourceBase = createArticleResource(
-  CoolerArticle,
-  'article-cooler',
-);
+const CoolerArticleResourceBase = createArticleResource(CoolerArticle, {
+  urlRoot: 'article-cooler',
+  optimistic: true,
+});
 export const CoolerArticleResource = {
   ...CoolerArticleResourceBase,
   get: CoolerArticleResourceBase.get.extend({
@@ -349,7 +362,9 @@ export const CoolerArticleResource = {
 };
 const CoolerArticleResourceFromMixinBase = createArticleResource(
   ArticleFromMixin,
-  'article-cooler',
+  {
+    urlRoot: 'article-cooler',
+  },
 );
 export const CoolerArticleResourceFromMixin = {
   ...CoolerArticleResourceFromMixinBase,
@@ -371,20 +386,18 @@ export class EditorArticle extends CoolerArticle {
 
   static key = 'CoolerArticle';
 }
-export const EditorArticleResource = createArticleResource(
-  EditorArticle,
-  'article-cooler',
-);
+export const EditorArticleResource = createArticleResource(EditorArticle, {
+  urlRoot: 'article-cooler',
+});
 
 export class TypedArticle extends CoolerArticle {
   get tagString() {
     return this.tags.join(', ');
   }
 }
-export const TypedArticleResourceBase = createArticleResource(
-  TypedArticle,
-  'article-cooler',
-);
+export const TypedArticleResourceBase = createArticleResource(TypedArticle, {
+  urlRoot: 'article-cooler',
+});
 export const TypedArticleResource = {
   ...TypedArticleResourceBase,
   anyparam: TypedArticleResourceBase.get.extend({
@@ -467,7 +480,9 @@ export class CoauthoredArticle extends CoolerArticle {
 }
 export const CoauthoredArticleResource = createArticleResource(
   CoauthoredArticle,
-  'article-cooler',
+  {
+    urlRoot: 'article-cooler',
+  },
 );
 
 export const CoolerArticleDetail = new Endpoint(
@@ -505,19 +520,20 @@ class InvalidIfStaleEndpoint<
 }
 export const InvalidIfStaleArticleResource = createArticleResource(
   CoolerArticle,
-  'article-cooler',
-  InvalidIfStaleEndpoint,
+  {
+    urlRoot: 'article-cooler',
+    EndpointArg: InvalidIfStaleEndpoint,
+  },
 );
 
 class PollingEndpoint<O extends RestGenerics = any> extends ArticleEndpoint<O> {
   pollFrequency = 5000;
   dataExpiryLength = 5000;
 }
-export const PollingArticleResourceBase = createArticleResource(
-  Article,
-  'article',
-  PollingEndpoint,
-);
+export const PollingArticleResourceBase = createArticleResource(Article, {
+  urlRoot: 'article',
+  EndpointArg: PollingEndpoint,
+});
 export const PollingArticleResource = {
   ...PollingArticleResourceBase,
   pusher: PollingArticleResourceBase.get.extend({
@@ -532,11 +548,10 @@ export const PollingArticleResource = {
 class StaticEndpoint<O extends RestGenerics = any> extends ArticleEndpoint<O> {
   dataExpiryLength = Infinity;
 }
-export const StaticArticleResource = createArticleResource(
-  Article,
-  'article-static',
-  StaticEndpoint,
-);
+export const StaticArticleResource = createArticleResource(Article, {
+  urlRoot: 'article-static',
+  EndpointArg: StaticEndpoint,
+});
 
 abstract class OtherArticle extends CoolerArticle {}
 
@@ -551,10 +566,10 @@ function makePaginatedRecord<T>(entity: T) {
   };
 }
 
-const PaginatedArticleResourceBase = createArticleResource(
-  PaginatedArticle,
-  'article-paginated',
-);
+const PaginatedArticleResourceBase = createArticleResource(PaginatedArticle, {
+  urlRoot: 'article-paginated',
+  EndpointArg: StaticEndpoint,
+});
 const paginatedSchema = {
   results: [PaginatedArticle],
   prevPage: '',
