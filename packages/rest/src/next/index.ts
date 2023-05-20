@@ -5,4 +5,5 @@ export type {
   Resource,
   ResourceOptions,
   ResourceGenerics,
+  ExtendedResource,
 } from './resourceTypes.js';

@@ -3,6 +3,7 @@ import type {
   schema,
   Denormalize,
   FetchFunction,
+  EndpointToFunction,
 } from '@rest-hooks/endpoint';
 
 import { OptionsToFunction } from './OptionsToFunction.js';
@@ -57,63 +58,51 @@ export interface ResourceEndpointExtensions<
 > {
   readonly get?: RestEndpointOptions<
     unknown extends Get
-      ? R['get']
-      : OptionsToFunction<Get, R['get'], Extract<R['get'], FetchFunction>>,
+      ? EndpointToFunction<R['get']>
+      : OptionsToFunction<Get, R['get'], EndpointToFunction<R['get']>>,
     R['get']['schema']
   > &
     Readonly<Get>;
   readonly getList?: RestEndpointOptions<
     unknown extends GetList
-      ? R['getList']
+      ? EndpointToFunction<R['getList']>
       : OptionsToFunction<
           GetList,
           R['getList'],
-          Extract<R['getList'], FetchFunction>
+          EndpointToFunction<R['getList']>
         >,
     R['getList']['schema']
   > &
     Readonly<GetList>;
   readonly update?: RestEndpointOptions<
     unknown extends Update
-      ? R['update']
-      : OptionsToFunction<
-          Update,
-          R['update'],
-          Extract<R['update'], FetchFunction>
-        >,
+      ? EndpointToFunction<R['update']>
+      : OptionsToFunction<Update, R['update'], EndpointToFunction<R['update']>>,
     R['update']['schema']
   > &
     Readonly<Update>;
   readonly partialUpdate?: RestEndpointOptions<
     unknown extends PartialUpdate
-      ? R['partialUpdate']
+      ? EndpointToFunction<R['partialUpdate']>
       : OptionsToFunction<
           PartialUpdate,
           R['partialUpdate'],
-          Extract<R['partialUpdate'], FetchFunction>
+          EndpointToFunction<R['partialUpdate']>
         >,
     R['partialUpdate']['schema']
   > &
     Readonly<PartialUpdate>;
   readonly create?: RestEndpointOptions<
     unknown extends Create
-      ? R['create']
-      : OptionsToFunction<
-          Create,
-          R['create'],
-          Extract<R['create'], FetchFunction>
-        >,
+      ? EndpointToFunction<R['create']>
+      : OptionsToFunction<Create, R['create'], EndpointToFunction<R['create']>>,
     R['create']['schema']
   > &
     Readonly<Create>;
   readonly delete?: RestEndpointOptions<
     unknown extends Delete
-      ? R['delete']
-      : OptionsToFunction<
-          Delete,
-          R['delete'],
-          Extract<R['delete'], FetchFunction>
-        >,
+      ? EndpointToFunction<R['delete']>
+      : OptionsToFunction<Delete, R['delete'], EndpointToFunction<R['delete']>>,
     R['delete']['schema']
   > &
     Readonly<Delete>;

@@ -46,6 +46,7 @@ export type {
   NetworkError,
   UnknownError,
   ErrorTypes,
+  EndpointToFunction,
 } from './types.js';
 
 export { default as Endpoint, ExtendableEndpoint } from './endpoint.js';
