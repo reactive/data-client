@@ -15,9 +15,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/babel-preset@npm:4.2.4":
-  version: 4.2.4
-  resolution: "@anansi/babel-preset@npm:4.2.4"
+"@anansi/babel-preset@npm:4.2.5":
+  version: 4.2.5
+  resolution: "@anansi/babel-preset@npm:4.2.5"
   dependencies:
     "@anansi/ts-utils": ^0.3.6
     "@babel/plugin-proposal-class-properties": ^7.18.6
@@ -40,7 +40,7 @@ __metadata:
     "@babel/preset-react": ^7.18.6
     babel-plugin-macros: ^3.1.0
     babel-plugin-module-resolver: ^5.0.0
-    babel-plugin-react-require: ^3.1.3
+    babel-plugin-react-require: ^4.0.0
     babel-plugin-root-import: ^6.6.0
     babel-plugin-transform-import-meta: ^2.2.0
     babel-plugin-transform-react-remove-prop-types: ^0.4.24
@@ -80,7 +80,7 @@ __metadata:
       optional: true
     typescript:
       optional: true
-  checksum: d7176daf8c55be3e9081e783a3e910cb48b53935e4470368ca54274adb8f23d8c08fc2fba49c08c7dbb6831e448771e5fc10415002fd461c33dca832904e0385
+  checksum: 6614d40bd1033f616372a4c9f4e0254187d1189d124cc61e3fc31af55a288916243443029dcb94725b4fb5660fba31b8e71f1dac4156d0b83e94f09f42f572e8
   languageName: node
   linkType: hard
 
@@ -6788,10 +6788,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-plugin-react-require@npm:^3.1.3":
-  version: 3.1.3
-  resolution: "babel-plugin-react-require@npm:3.1.3"
-  checksum: fcc36fa88b3f78e7fc90e3a49536a95f2af12528c997ef994e006ccc2b8311c2a96155cb9e946191d3a1d48ccdde47442bf9956dd00c1db571f8a97301c4450f
+"babel-plugin-react-require@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "babel-plugin-react-require@npm:4.0.0"
+  checksum: c010d7890ead82d5bc8aabb98371535129a2ae209e6293f65f75a26693c0c45e79b290e4a47c3a81a5adac5f9ef6e4a1112485600af92819842c7d062ee09161
   languageName: node
   linkType: hard
 
@@ -11084,7 +11084,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "github-app@workspace:examples/github-app"
   dependencies:
-    "@anansi/babel-preset": 4.2.4
+    "@anansi/babel-preset": 4.2.5
     "@anansi/browserslist-config": 1.4.3
     "@anansi/eslint-plugin": 0.16.12
     "@anansi/router": 0.7.35
@@ -19889,7 +19889,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    "@anansi/babel-preset": 4.2.4
+    "@anansi/babel-preset": 4.2.5
     "@anansi/browserslist-config": 1.4.3
     "@anansi/eslint-plugin": 0.16.12
     "@anansi/jest-preset": 0.10.10
@@ -21538,7 +21538,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "todo-app@workspace:examples/todo-app"
   dependencies:
-    "@anansi/babel-preset": 4.2.4
+    "@anansi/babel-preset": 4.2.5
     "@anansi/browserslist-config": 1.4.3
     "@anansi/eslint-plugin": 0.16.12
     "@anansi/webpack-config": 15.0.17

@@ -21,7 +21,7 @@
   "private": true,
   "license": "Apache-2.0",
   "devDependencies": {
-    "@anansi/babel-preset": "4.2.4",
+    "@anansi/babel-preset": "4.2.5",
     "@anansi/browserslist-config": "1.4.3",
     "@anansi/eslint-plugin": "0.16.12",
     "@anansi/webpack-config": "15.0.17",
