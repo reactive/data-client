@@ -33,7 +33,17 @@ module.exports = (env, argv) => {
 
     // For regular files, this statement is true.
     if (isAbsolute(path)) {
-      if (path.includes('/examples')) return path;
+      if (path.includes('/examples')) {
+        if (fs.existsSync(path)) return path;
+        for (const f of [
+          path.replace('examples/src', 'packages/normalizr/src'),
+          path.replace('examples/src', 'packages/endpoint/src'),
+          path.replace('examples/src', 'packages/core/src'),
+        ]) {
+          if (fs.existsSync(f)) return f;
+        }
+        console.log('could not find file to map: ', path);
+      }
       for (const f of [
         path.replace('rest-hooks/src', 'rest-hooks/packages/normalizr/src'),
         path.replace('rest-hooks/src', 'rest-hooks/packages/endpoint/src'),
