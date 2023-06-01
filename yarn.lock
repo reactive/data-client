@@ -182,9 +182,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:15.0.17":
-  version: 15.0.17
-  resolution: "@anansi/webpack-config@npm:15.0.17"
+"@anansi/webpack-config@npm:15.0.19":
+  version: 15.0.19
+  resolution: "@anansi/webpack-config@npm:15.0.19"
   dependencies:
     "@babel/runtime": ^7.17.2
     "@linaria/webpack5-loader": 4.1.17
@@ -203,7 +203,7 @@ __metadata:
     constants-browserify: ^1.0.0
     core-js: ^3.21.0
     crypto-browserify: ^3.12.0
-    css-loader: ^6.7.4
+    css-loader: ^6.8.1
     css-minimizer-webpack-plugin: ^5.0.0
     domain-browser: ^4.22.0
     duplicate-package-checker-webpack-plugin: ^3.0.0
@@ -219,8 +219,8 @@ __metadata:
     os-browserify: ^0.3.0
     path: ^0.12.7
     path-browserify: ^1.0.1
-    postcss: ^8.4.23
-    postcss-loader: ^7.3.0
+    postcss: ^8.4.24
+    postcss-loader: ^7.3.2
     postcss-preset-env: ^8.4.1
     process: ^0.11.10
     punycode: ^2.3.0
@@ -229,7 +229,7 @@ __metadata:
     react-dev-utils: ^12.0.1
     react-error-overlay: 6.0.9
     readable-stream: ^4.4.0
-    sass-loader: ^13.3.0
+    sass-loader: ^13.3.1
     sass-resources-loader: ^2.2.5
     semver: ^7.5.1
     stream-browserify: ^3.0.0
@@ -289,7 +289,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: fd6c74c68d8f530f93ddbcbc262b86b0df44481113111b63b33852ff965d618feaa91b8a97be3ee6dff562d081fbdf58770dfdc3edcbd42ca5cfbf7990896ed7
+  checksum: bcf61b80b7a33f3cd02685b4e0536c43c5ef5dcd86f3ad1f4db458a5f98cb35035666a0e9e6be7f7f345b538951f012e636c4f68e5b4038dbe4a9dfd0f619e34
   languageName: node
   linkType: hard
 
@@ -8737,21 +8737,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"css-loader@npm:^6.7.4":
-  version: 6.7.4
-  resolution: "css-loader@npm:6.7.4"
+"css-loader@npm:^6.8.1":
+  version: 6.8.1
+  resolution: "css-loader@npm:6.8.1"
   dependencies:
     icss-utils: ^5.1.0
     postcss: ^8.4.21
     postcss-modules-extract-imports: ^3.0.0
-    postcss-modules-local-by-default: ^4.0.1
+    postcss-modules-local-by-default: ^4.0.3
     postcss-modules-scope: ^3.0.0
     postcss-modules-values: ^4.0.0
     postcss-value-parser: ^4.2.0
     semver: ^7.3.8
   peerDependencies:
     webpack: ^5.0.0
-  checksum: 6021fa9e375d767b9675e295c1513f2ee4ae04f76d9de69a75b8446e05f6e02b2170407ea72939925b788dcd5aa308527f6b41be3870dc1f4b0bfff8d2532c6e
+  checksum: 7c1784247bdbe76dc5c55fb1ac84f1d4177a74c47259942c9cfdb7a8e6baef11967a0bc85ac285f26bd26d5059decb848af8154a03fdb4f4894f41212f45eef3
   languageName: node
   linkType: hard
 
@@ -11261,7 +11261,7 @@ __metadata:
     "@anansi/browserslist-config": 1.4.3
     "@anansi/eslint-plugin": 0.16.13
     "@anansi/router": 0.7.35
-    "@anansi/webpack-config": 15.0.17
+    "@anansi/webpack-config": 15.0.19
     "@ant-design/icons": ^5.0.0
     "@babel/core": 7.22.1
     "@linaria/babel-preset": 4.4.5
@@ -11308,7 +11308,7 @@ __metadata:
     rollup-plugin-terser: ^7.0.2
     serve: 14.2.0
     uuid: ^9.0.0
-    webpack: 5.84.1
+    webpack: 5.85.0
     webpack-cli: 5.1.1
     webpack-dev-server: 4.15.0
   languageName: unknown
@@ -17493,9 +17493,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-loader@npm:^7.3.0":
-  version: 7.3.0
-  resolution: "postcss-loader@npm:7.3.0"
+"postcss-loader@npm:^7.3.2":
+  version: 7.3.2
+  resolution: "postcss-loader@npm:7.3.2"
   dependencies:
     cosmiconfig: ^8.1.3
     jiti: ^1.18.2
@@ -17504,7 +17504,7 @@ __metadata:
   peerDependencies:
     postcss: ^7.0.0 || ^8.0.1
     webpack: ^5.0.0
-  checksum: f09fe68bde5f686c264cc96c51bcdc0be00c55e856d73161ce86b302fdd503098fe5c9172231eb3b316a1969080101a4c46463bda784b408d4a4cb15e7b01fc5
+  checksum: 7010f9aea756b801031a9f65c4c880b62c7c42d366312d47a7782c2cb05d0b8bedb149695a895d0104bc6639bc117350aed15da84029f58fc49828fee1fe244c
   languageName: node
   linkType: hard
 
@@ -17602,7 +17602,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-modules-local-by-default@npm:^4.0.1":
+"postcss-modules-local-by-default@npm:^4.0.3":
   version: 4.0.3
   resolution: "postcss-modules-local-by-default@npm:4.0.3"
   dependencies:
@@ -17970,14 +17970,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.4.21, postcss@npm:^8.4.23":
-  version: 8.4.23
-  resolution: "postcss@npm:8.4.23"
+"postcss@npm:^8.4.21, postcss@npm:^8.4.24":
+  version: 8.4.24
+  resolution: "postcss@npm:8.4.24"
   dependencies:
     nanoid: ^3.3.6
     picocolors: ^1.0.0
     source-map-js: ^1.0.2
-  checksum: 8bb9d1b2ea6e694f8987d4f18c94617971b2b8d141602725fedcc2222fdc413b776a6e1b969a25d627d7b2681ca5aabb56f59e727ef94072e1b6ac8412105a2f
+  checksum: 814e2126dacfea313588eda09cc99a9b4c26ec55c059188aa7a916d20d26d483483106dc5ff9e560731b59f45c5bb91b945dfadc670aed875cc90ddbbf4e787d
   languageName: node
   linkType: hard
 
@@ -20202,9 +20202,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sass-loader@npm:^13.3.0":
-  version: 13.3.0
-  resolution: "sass-loader@npm:13.3.0"
+"sass-loader@npm:^13.3.1":
+  version: 13.3.1
+  resolution: "sass-loader@npm:13.3.1"
   dependencies:
     klona: ^2.0.6
     neo-async: ^2.6.2
@@ -20223,7 +20223,7 @@ __metadata:
       optional: true
     sass-embedded:
       optional: true
-  checksum: a3b57eaf09ae853fa95298bd7a42d64409f3f3b97f46ec4c61178763ffb61edddd5f89cc03940ef963aa328b4f6dcd4f1153e810e5eb29fb07ac02ddc121749c
+  checksum: 0cd4fcb6a6d7154412b27d19c65c3d84003c8e13dbf8196a905055043a4f70888cbb6c6d70d8b9e7ce55a6835644d8bdafe44eb6fd4a779188d528d558d492fb
   languageName: node
   linkType: hard
 
@@ -21711,7 +21711,7 @@ __metadata:
     "@anansi/babel-preset": 4.2.6
     "@anansi/browserslist-config": 1.4.3
     "@anansi/eslint-plugin": 0.16.13
-    "@anansi/webpack-config": 15.0.17
+    "@anansi/webpack-config": 15.0.19
     "@babel/core": 7.22.1
     "@linaria/babel-preset": 4.4.5
     "@linaria/core": 4.2.10
@@ -21744,7 +21744,7 @@ __metadata:
     rollup-plugin-replace: ^2.2.0
     rollup-plugin-terser: ^7.0.2
     serve: 14.2.0
-    webpack: 5.84.1
+    webpack: 5.85.0
     webpack-cli: 5.1.1
     webpack-dev-server: 4.15.0
   languageName: unknown
@@ -22916,9 +22916,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack@npm:5.84.1, webpack@npm:^5, webpack@npm:^5.76.2":
-  version: 5.84.1
-  resolution: "webpack@npm:5.84.1"
+"webpack@npm:5.85.0, webpack@npm:^5, webpack@npm:^5.76.2":
+  version: 5.85.0
+  resolution: "webpack@npm:5.85.0"
   dependencies:
     "@types/eslint-scope": ^3.7.3
     "@types/estree": ^1.0.0
@@ -22949,7 +22949,7 @@ __metadata:
       optional: true
   bin:
     webpack: bin/webpack.js
-  checksum: 646b645df5badf2dac2ddd0193c9e9a177d51283d18f918eead36a0cdf7b750c4111d9ac11d9825c1334cbd0a6fb8f82628fbfb90d0066f927265dd11b47b192
+  checksum: b013be9fbc7f6810d1f229f570c70710ddbc7290f817411acffe4214b2b6c783a041ab1f2005d9e1109f4ab21c136f0f8d8c067a5fb64f20a82dcbc1ee0d3f42
   languageName: node
   linkType: hard
 
