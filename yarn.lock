@@ -328,8 +328,8 @@ __metadata:
   linkType: hard
 
 "@ant-design/icons@npm:^5.0.0, @ant-design/icons@npm:^5.1.0":
-  version: 5.1.3
-  resolution: "@ant-design/icons@npm:5.1.3"
+  version: 5.1.4
+  resolution: "@ant-design/icons@npm:5.1.4"
   dependencies:
     "@ant-design/colors": ^7.0.0
     "@ant-design/icons-svg": ^4.2.1
@@ -339,7 +339,7 @@ __metadata:
   peerDependencies:
     react: ">=16.0.0"
     react-dom: ">=16.0.0"
-  checksum: ea6a74f25327479de42ea4e1408ecfb89522ad61edc3d3aea3ebe1573999ea9435f18dbcac7863fea81d778e1bf52784fdbacbdaa7b177e4ff74fab0b3231460
+  checksum: f74f27b526459e69354adbc9d222a99afcf5fd0074a97575df239fbe5d077de0de903afa612546f24c378c2e163e02e4e31cde575da4e84e597025f12c90984f
   languageName: node
   linkType: hard
 
@@ -5512,7 +5512,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:18.2.7, @types/react@npm:^18.0.30":
+"@types/react@npm:*, @types/react@npm:^18.0.30":
+  version: 18.2.8
+  resolution: "@types/react@npm:18.2.8"
+  dependencies:
+    "@types/prop-types": "*"
+    "@types/scheduler": "*"
+    csstype: ^3.0.2
+  checksum: 351fe2450d30bff2ceb6aa84788e948317555e5ea22cb44f6778e08c977aab1878a0119bd94bc3d1bec5f5af4a75ffaa2ce111df5cd9d4ce26bfd719e4d971c2
+  languageName: node
+  linkType: hard
+
+"@types/react@npm:18.2.7":
   version: 18.2.7
   resolution: "@types/react@npm:18.2.7"
   dependencies:
@@ -18991,13 +19002,13 @@ __metadata:
   linkType: hard
 
 "react-error-boundary@npm:^4.0.0":
-  version: 4.0.7
-  resolution: "react-error-boundary@npm:4.0.7"
+  version: 4.0.9
+  resolution: "react-error-boundary@npm:4.0.9"
   dependencies:
     "@babel/runtime": ^7.12.5
   peerDependencies:
     react: ">=16.13.1"
-  checksum: 0a091c25d895bf201a3d8e56e224cca7ba228e520ab69358c086682f908a0ac522bc1863ee5838607bda3ab8bafd4de728a63df65c374291393434e164888794
+  checksum: c673c5f13b8647820cde0a219b0e415fd05896513adf176600f231b59d8075993dbbc8b93a9ad3824121fbbe2934d011cbcbbeefc1af300b22c204c73862e0f7
   languageName: node
   linkType: hard
 
