@@ -24,7 +24,7 @@
     "@anansi/babel-preset": "4.2.7",
     "@anansi/browserslist-config": "1.4.3",
     "@anansi/eslint-plugin": "0.16.14",
-    "@anansi/webpack-config": "15.0.19",
+    "@anansi/webpack-config": "15.0.21",
     "@babel/core": "7.22.1",
     "@linaria/babel-preset": "4.4.5",
     "@linaria/core": "4.2.10",
@@ -52,8 +52,8 @@
     "rollup-plugin-replace": "^2.2.0",
     "rollup-plugin-terser": "^7.0.2",
     "serve": "14.2.0",
-    "webpack": "5.85.0",
-    "webpack-cli": "5.1.1",
+    "webpack": "5.86.0",
+    "webpack-cli": "5.1.4",
     "webpack-dev-server": "4.15.0"
   },
   "dependencies": {
