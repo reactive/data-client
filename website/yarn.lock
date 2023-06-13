@@ -4011,14 +4011,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:17.0.60, @types/react@npm:^17":
-  version: 17.0.60
-  resolution: "@types/react@npm:17.0.60"
+"@types/react@npm:*, @types/react@npm:17.0.62, @types/react@npm:^17":
+  version: 17.0.62
+  resolution: "@types/react@npm:17.0.62"
   dependencies:
     "@types/prop-types": "*"
     "@types/scheduler": "*"
     csstype: ^3.0.2
-  checksum: 8565e53d6ad83cd5f606fa66f5f9d8d0e5323a0103114a0292ae8f97c17ce4a7dfa15b847c54eb0a2c41c03df7fd64ba1d5bcef91ee0c177e55315e52e334463
+  checksum: 428a5aff44824ef504e9a9259b5894fe44a5db1c344b536990f07e132900ff5b34cbef0be77a84f30f37be1f88fc8b56dce328f568de8d65de3bfe414c05b2e1
   languageName: node
   linkType: hard
 
@@ -10213,10 +10213,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"monaco-editor@npm:^0.38.0":
-  version: 0.38.0
-  resolution: "monaco-editor@npm:0.38.0"
-  checksum: c5dcd6f9d178f9b87eb06021dc6f50a199bdc0e3ceecc608e2959867c48c3bf0c8723ac4e94270b20c89da188058afe928d2af141b5d87e8e1388e6a4d974eea
+"monaco-editor@npm:^0.39.0":
+  version: 0.39.0
+  resolution: "monaco-editor@npm:0.39.0"
+  checksum: 6d906c5f07fc6761b93bebee70bc1c461d6bbea493252751f4e2e60f26678faced9261ed9cca21613511695e6d7b75c2f2214b6d53aaa479a7e0b6f2d912f90b
   languageName: node
   linkType: hard
 
@@ -13172,13 +13172,13 @@ __metadata:
     "@rest-hooks/rest": "file:../packages/rest"
     "@rest-hooks/test": "file:../packages/test"
     "@tsconfig/docusaurus": ^1.0.6
-    "@types/react": 17.0.60
+    "@types/react": 17.0.62
     "@types/react-dom": ^17.0.0
     "@types/react-helmet": ^6.1.5
     "@types/react-router-dom": ^5.3.3
     bignumber.js: 9.1.1
     clsx: 1.2.1
-    monaco-editor: ^0.38.0
+    monaco-editor: ^0.39.0
     parse-numeric-range: ^1.3.0
     raw-loader: ^4.0.2
     react: ^17.0.2
