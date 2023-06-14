@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/graphql",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Endpoints for GraphQL APIs",
   "sideEffects": false,
   "main": "dist/index.js",
@@ -102,7 +102,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.17.0",
-    "@rest-hooks/endpoint": "^3.8.3"
+    "@rest-hooks/endpoint": "^3.8.4"
   },
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",

@@ -1,5 +1,13 @@
 # Change Log
 
+## 6.3.7
+
+### Patch Changes
+
+- 001e27adad: Export initialState and createReducer even with newer rest-hooks/react
+- Updated dependencies [c8398fb1ca]
+  - @rest-hooks/core@4.4.2
+
 ## 6.3.6
 
 ### Patch Changes

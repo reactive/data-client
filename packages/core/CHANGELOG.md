@@ -1,5 +1,11 @@
 # Change Log
 
+## 4.4.2
+
+### Patch Changes
+
+- c8398fb1ca: Only use optimistic responses for endpoints with sideEffects
+
 ## 4.4.1
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # Change Log
 
+## 3.8.4
+
+### Patch Changes
+
+- 82de0b66dd: Set Collection key in constructor
+- 03dda411e7: Non-nested Collections will infer
+- 03dda411e7: Update createCollectionFilter's collectionKey type to reflect values are always strings
+
 ## 3.8.3
 
 ### Patch Changes

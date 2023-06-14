@@ -1,5 +1,22 @@
 # Change Log
 
+## 6.7.0
+
+### Minor Changes
+
+- c8398fb1ca: Add 'optimistic' option to createResource()
+
+### Patch Changes
+
+- 03dda411e7: Non-nested Collections will infer
+- ad8cfea1b5: Resource.partialUpdate's body members should always be optional
+- acc1fdde9d: Improve type compatibility with TS 5.1 and `undefined` searchParams
+- 03dda411e7: Update createCollectionFilter's collectionKey type to reflect values are always strings
+- Updated dependencies [82de0b66dd]
+- Updated dependencies [03dda411e7]
+- Updated dependencies [03dda411e7]
+  - @rest-hooks/endpoint@3.8.4
+
 ## 6.6.3
 
 ### Patch Changes
