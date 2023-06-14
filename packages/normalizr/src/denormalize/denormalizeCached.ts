@@ -1,16 +1,11 @@
 import GlobalCache from './globalCache.js';
 import getUnvisit from './unvisit.js';
 import type { Schema } from '../interface.js';
-import type {
-  Denormalize,
-  DenormalizeNullable,
-  DenormalizeCache,
-  Path,
-} from '../types.js';
+import type { DenormalizeNullable, DenormalizeCache, Path } from '../types.js';
 import WeakEntityMap, { getEntities } from '../WeakEntityMap.js';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const denormalize = <S extends Schema>(
+export function denormalize<S extends Schema>(
   input: unknown,
   schema: S | undefined,
   entities: any,
@@ -20,7 +15,7 @@ export const denormalize = <S extends Schema>(
 ): {
   data: DenormalizeNullable<S> | symbol;
   paths: Path[];
-} => {
+} {
   // undefined means don't do anything
   if (schema === undefined) {
     return { data: input as any, paths: [] };
@@ -35,4 +30,4 @@ export const denormalize = <S extends Schema>(
     new GlobalCache(getEntity, entityCache, resultCache),
     args,
   )(input, schema);
-};
+}

@@ -8,18 +8,18 @@ import { denormalize as objectDenormalize } from '../schemas/Object.js';
 import type { Path } from '../types.js';
 import { type GetEntity } from '../WeakEntityMap.js';
 
-const unvisitEntity = (
+function unvisitEntity(
   entityOrId: Record<string, any> | string,
   schema: EntityInterface,
   args: readonly any[],
   unvisit: UnvisitFunction,
   getEntity: GetEntity,
   cache: Cache,
-): object | undefined | symbol => {
+): object | undefined | symbol {
   const entity =
     typeof entityOrId === 'object'
       ? entityOrId
-      : getEntity({ pk: entityOrId, key: schema.key });
+      : getEntity({ key: schema.key, pk: entityOrId });
   if (typeof entity === 'symbol') {
     if (typeof schema.denormalizeOnly === 'function') {
       return schema.denormalizeOnly(entity, args, unvisit);
@@ -57,7 +57,7 @@ const unvisitEntity = (
   return cache.getEntity(pk, schema, entity, localCacheKey =>
     unvisitEntityObject(entity, schema, unvisit, pk, localCacheKey, args),
   );
-};
+}
 
 function noCacheGetEntity(
   computeValue: (localCacheKey: Record<string, any>) => void,

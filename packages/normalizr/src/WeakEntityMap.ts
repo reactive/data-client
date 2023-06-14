@@ -8,6 +8,7 @@ import { Path } from './types.js';
  */
 export default class WeakEntityMap<K extends object = object, V = any> {
   readonly next = new WeakMap<K, Link<K, V>>();
+  nextPath: Path | undefined = undefined;
 
   get(entity: K, getEntity: GetEntity<K | symbol>) {
     let curLink = this.next.get(entity);
@@ -23,7 +24,7 @@ export default class WeakEntityMap<K extends object = object, V = any> {
 
   set(dependencies: Dep<K>[], value: V) {
     if (dependencies.length < 1) throw new KeySize();
-    let curLink: Link<K, V> = this as { next: WeakMap<K, Link<K, V>> };
+    let curLink: Link<K, V> = this as any;
     for (const { entity, path } of dependencies) {
       let nextLink = curLink.next.get(entity);
       if (!nextLink) {
@@ -34,7 +35,7 @@ export default class WeakEntityMap<K extends object = object, V = any> {
       curLink = nextLink;
     }
     // in case there used to be more
-    delete curLink.nextPath;
+    curLink.nextPath = undefined;
     curLink.value = value;
     // we could recompute this on get, but it would have a cost and we optimize for `get`
     curLink.journey = depToPaths(dependencies);
@@ -65,9 +66,9 @@ export type GetEntity<K = object | symbol> = (lookup: Path) => K;
 /** Link in a chain */
 class Link<K extends object, V> {
   next = new WeakMap<K, Link<K, V>>();
-  declare value?: V;
-  declare journey?: Path[];
-  declare nextPath?: Path;
+  value: V | undefined = undefined;
+  journey: Path[] = [];
+  nextPath: Path | undefined = undefined;
 }
 
 class KeySize extends Error {
