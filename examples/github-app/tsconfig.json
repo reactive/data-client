@@ -14,12 +14,8 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "typeRoots": [
-      "node_modules/@types",
-      "../../node_modules/@types",
-      "./src/types"
-    ],
-    "types": ["@anansi/webpack-config/types"],
+
+    "types": ["@anansi/webpack-config/types","./src/types/remark-remove-comments"],
     "paths": {
       "resources/*": ["resources/*"]
     },

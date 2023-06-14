@@ -332,6 +332,7 @@ it('should precisely type function arguments', () => {
     // @ts-expect-error
     () => requiredSearch({ id: '5', userId: 'hi' }, { id: '5', userId: 'hi' });
 
+    // @ts-expect-error
     () => undef();
     // @ts-expect-error
     () => undef({});
