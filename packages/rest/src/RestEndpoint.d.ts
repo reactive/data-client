@@ -11,7 +11,6 @@ import type { ExtractCollection } from './extractCollection.js';
 import { OptionsToFunction } from './OptionsToFunction.js';
 import { PathArgs } from './pathTypes.js';
 import { EndpointUpdateFunction } from './RestEndpointTypeHelp.js';
-import { RequiredKeys } from './utiltypes.js';
 
 export interface RestInstanceBase<
   F extends FetchFunction = FetchFunction,
@@ -131,7 +130,9 @@ type OptionsToRestEndpoint<
 > = 'path' extends keyof O
   ? RestType<
       'searchParams' extends keyof O
-        ? O['searchParams'] & PathArgs<Exclude<O['path'], undefined>>
+        ? O['searchParams'] extends undefined
+          ? PathArgs<Exclude<O['path'], undefined>>
+          : O['searchParams'] & PathArgs<Exclude<O['path'], undefined>>
         : PathArgs<Exclude<O['path'], undefined>>,
       'body' extends keyof O ? O['body'] : E['body'],
       'schema' extends keyof O ? O['schema'] : E['schema'],
@@ -148,7 +149,9 @@ type OptionsToRestEndpoint<
   : 'body' extends keyof O
   ? RestType<
       'searchParams' extends keyof O
-        ? O['searchParams'] & PathArgs<Exclude<E['path'], undefined>>
+        ? O['searchParams'] extends undefined
+          ? PathArgs<Exclude<O['path'], undefined>>
+          : O['searchParams'] & PathArgs<Exclude<E['path'], undefined>>
         : PathArgs<Exclude<E['path'], undefined>>,
       O['body'],
       'schema' extends keyof O ? O['schema'] : E['schema'],
@@ -164,7 +167,9 @@ type OptionsToRestEndpoint<
     >
   : 'searchParams' extends keyof O
   ? RestType<
-      O['searchParams'] & PathArgs<Exclude<E['path'], undefined>>,
+      O['searchParams'] extends undefined
+        ? PathArgs<Exclude<O['path'], undefined>>
+        : O['searchParams'] & PathArgs<Exclude<E['path'], undefined>>,
       E['body'],
       'schema' extends keyof O ? O['schema'] : E['schema'],
       'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'],
@@ -261,7 +266,9 @@ export type AddEndpoint<
 > = RestInstanceBase<
   RestFetch<
     'searchParams' extends keyof O
-      ? O['searchParams'] & PathArgs<Exclude<O['path'], undefined>>
+      ? O['searchParams'] extends undefined
+        ? PathArgs<Exclude<O['path'], undefined>>
+        : O['searchParams'] & PathArgs<Exclude<O['path'], undefined>>
       : PathArgs<Exclude<O['path'], undefined>>,
     any,
     ReturnType<F>
@@ -307,7 +314,9 @@ export type RestEndpointConstructorOptions<O extends RestGenerics = any> =
   RestEndpointOptions<
     RestFetch<
       'searchParams' extends keyof O
-        ? O['searchParams'] & PathArgs<O['path']>
+        ? O['searchParams'] extends undefined
+          ? PathArgs<O['path']>
+          : O['searchParams'] & PathArgs<O['path']>
         : PathArgs<O['path']>,
       BodyDefault<O>,
       O['process'] extends {}
@@ -326,7 +335,9 @@ export interface RestEndpointConstructor {
   }: RestEndpointConstructorOptions<O> & Readonly<O>): RestInstance<
     RestFetch<
       'searchParams' extends keyof O
-        ? O['searchParams'] & PathArgs<O['path']>
+        ? O['searchParams'] extends undefined
+          ? PathArgs<O['path']>
+          : O['searchParams'] & PathArgs<O['path']>
         : PathArgs<O['path']>,
       BodyDefault<O>,
       O['process'] extends {}

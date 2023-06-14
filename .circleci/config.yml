@@ -13,9 +13,9 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v7-dependencies-{{ checksum "yarn.lock" }}
+            - v8-dependencies-{{ checksum "yarn.lock" }}
             # fallback to using the latest cache if no exact match is found
-            - v7-dependencies-
+            - v8-dependencies-
       - run:
           name: yarn install
           command: |
@@ -26,7 +26,7 @@ jobs:
           paths:
             - .yarn/cache
             - .yarn/install-state.gz
-          key: v7-dependencies-{{ checksum "yarn.lock" }}
+          key: v8-dependencies-{{ checksum "yarn.lock" }}
       - run: yarn run ci:build:types
       - run: yarn run ci:build
       - persist_to_workspace:

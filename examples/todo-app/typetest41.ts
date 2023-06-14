@@ -206,6 +206,7 @@ import { RestEndpoint } from '@rest-hooks/rest/next';
   // @ts-expect-error
   () => requiredSearch({ id: '5', userId: 'hi' }, { id: '5', userId: 'hi' });
 
+  // @ts-expect-error
   () => undef();
   // @ts-expect-error
   () => undef({});
