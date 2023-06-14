@@ -1,5 +1,13 @@
 # Change Log
 
+## 7.4.2
+
+### Patch Changes
+
+- c8398fb1ca: Only use optimistic responses for endpoints with sideEffects
+- Updated dependencies [c8398fb1ca]
+  - @rest-hooks/core@4.4.2
+
 ## 7.4.1
 
 ### Patch Changes

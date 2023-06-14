@@ -1,5 +1,16 @@
 # Change Log
 
+## 0.5.2
+
+### Patch Changes
+
+- 03dda411e7: Non-nested Collections will infer
+- 03dda411e7: Update createCollectionFilter's collectionKey type to reflect values are always strings
+- Updated dependencies [82de0b66dd]
+- Updated dependencies [03dda411e7]
+- Updated dependencies [03dda411e7]
+  - @rest-hooks/endpoint@3.8.4
+
 ## 0.5.1
 
 ### Patch Changes

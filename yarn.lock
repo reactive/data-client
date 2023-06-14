@@ -4481,7 +4481,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rest-hooks/core@^4.4.1, @rest-hooks/core@workspace:^, @rest-hooks/core@workspace:packages/core":
+"@rest-hooks/core@^4.4.2, @rest-hooks/core@workspace:^, @rest-hooks/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/core@workspace:packages/core"
   dependencies:
@@ -4493,7 +4493,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/endpoint@^3.7.4, @rest-hooks/endpoint@^3.8.0, @rest-hooks/endpoint@^3.8.1, @rest-hooks/endpoint@^3.8.3, @rest-hooks/endpoint@workspace:*, @rest-hooks/endpoint@workspace:^, @rest-hooks/endpoint@workspace:packages/endpoint":
+"@rest-hooks/endpoint@^3.7.4, @rest-hooks/endpoint@^3.8.1, @rest-hooks/endpoint@^3.8.4, @rest-hooks/endpoint@workspace:*, @rest-hooks/endpoint@workspace:^, @rest-hooks/endpoint@workspace:packages/endpoint":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/endpoint@workspace:packages/endpoint"
   dependencies:
@@ -4509,7 +4509,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@rest-hooks/endpoint": ^3.8.3
+    "@rest-hooks/endpoint": ^3.8.4
     "@types/node": ^20.0.0
   languageName: unknown
   linkType: soft
@@ -4592,7 +4592,7 @@ __metadata:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
     "@react-navigation/native": ^6.1.6
-    "@rest-hooks/core": ^4.4.1
+    "@rest-hooks/core": ^4.4.2
     "@rest-hooks/use-enhanced-reducer": ^1.2.8
     "@types/node": ^20.0.0
     "@types/react": ^18.0.30
@@ -4615,7 +4615,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@rest-hooks/core": ^4.4.1
+    "@rest-hooks/core": ^4.4.2
     "@rest-hooks/react": "workspace:*"
     "@types/node": ^20.0.0
     "@types/react": ^18.0.30
@@ -4637,7 +4637,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@rest-hooks/endpoint": ^3.8.3
+    "@rest-hooks/endpoint": ^3.8.4
     "@types/node": ^20.0.0
     "@types/path-to-regexp": ^1.7.0
     path-to-regexp: ^6.2.1
@@ -19779,7 +19779,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@rest-hooks/endpoint": ^3.8.0
+    "@rest-hooks/endpoint": ^3.8.4
     "@rest-hooks/react": "workspace:*"
     "@types/node": ^20.0.0
     "@types/react": ^18.0.30

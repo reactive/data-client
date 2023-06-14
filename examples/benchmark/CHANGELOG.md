@@ -1,5 +1,16 @@
 # Change Log
 
+## 0.4.14
+
+### Patch Changes
+
+- Updated dependencies [c8398fb1ca]
+- Updated dependencies [82de0b66dd]
+- Updated dependencies [03dda411e7]
+- Updated dependencies [03dda411e7]
+  - @rest-hooks/core@4.4.2
+  - @rest-hooks/endpoint@3.8.4
+
 ## 0.4.13
 
 ### Patch Changes
