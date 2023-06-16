@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`createResource() UserResource.delete should work with  1`] = `"not found"`;
+
+exports[`createResource() UserResource.delete should work with {"id": 5} 1`] = `"not found"`;

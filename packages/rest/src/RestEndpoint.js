@@ -133,9 +133,11 @@ export default class RestEndpoint extends Endpoint {
     if (!response.headers.get('content-type')?.includes('json')) {
       return response.text().then(text => {
         // string or 'not set' schema, are valid
+        // when overriding process they might handle other cases, so we don't want to block on our logic
         if (
           ['string', 'undefined'].includes(typeof this.schema) ||
-          this.schema === null
+          this.schema === null ||
+          this.process !== RestEndpoint.prototype.process
         )
           return text;
 
