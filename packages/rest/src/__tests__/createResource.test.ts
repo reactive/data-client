@@ -8,7 +8,7 @@ import {
 } from '@rest-hooks/react';
 import { makeRenderRestHook } from '@rest-hooks/test';
 import { act } from '@testing-library/react-hooks';
-import nock from 'nock';
+import nock, { ReplyHeaders } from 'nock';
 
 import createResource from '../createResource';
 import RestEndpoint, { RestGenerics } from '../RestEndpoint';
@@ -239,66 +239,83 @@ describe('createResource()', () => {
       );
   });
 
-  it('UserResource.delete should work', async () => {
-    mynock
-      .delete(`/groups/five/users/${userPayload.id}`)
-      .reply(200, (uri, body: any) => ({
+  it.each([
+    {
+      response: {
         id: userPayload.id,
-      }));
-
-    const { result, waitForNextUpdate } = renderRestHook(
-      () => {
-        return [
-          useSuspense(UserResource.get, { group: 'five', id: '5' }),
-          useController(),
-        ] as const;
       },
-      {
-        initialFixtures: [
-          {
-            endpoint: UserResource.get,
-            args: [{ group: 'five', id: '5' }],
-            response: userPayload,
-          },
-        ],
-        resolverFixtures: [
-          {
-            endpoint: UserResource.get,
-            args: [{ group: 'five', id: '5' }],
-            response: 'not found',
-            error: true,
-          },
-        ],
-      },
-    );
-    // eslint-disable-next-line prefer-const
-    let [user, controller] = result.current;
-    expect(user.username).toBe(userPayload.username);
-    await act(() => {
-      controller.fetch(UserResource.delete, { group: 'five', id: '5' });
-    });
-    await waitForNextUpdate();
-    // this means we suspended; so it hit the resolver fixture
-    expect(result.error).toMatchInlineSnapshot(`"not found"`);
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      } as ReplyHeaders,
+    },
+    {
+      response: '',
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'text',
+      } as ReplyHeaders,
+    },
+  ])(
+    'UserResource.delete should work with $response',
+    async ({ response, headers }) => {
+      mynock
+        .delete(`/groups/five/users/${userPayload.id}`)
+        .reply(200, (uri, body: any) => response, headers);
+      const { result, waitForNextUpdate } = renderRestHook(
+        () => {
+          return [
+            useSuspense(UserResource.get, { group: 'five', id: '5' }),
+            useController(),
+          ] as const;
+        },
+        {
+          initialFixtures: [
+            {
+              endpoint: UserResource.get,
+              args: [{ group: 'five', id: '5' }],
+              response: userPayload,
+            },
+          ],
+          resolverFixtures: [
+            {
+              endpoint: UserResource.get,
+              args: [{ group: 'five', id: '5' }],
+              response: 'not found',
+              error: true,
+            },
+          ],
+        },
+      );
+      // eslint-disable-next-line prefer-const
+      let [user, controller] = result.current;
+      expect(user.username).toBe(userPayload.username);
+      await act(() => {
+        controller.fetch(UserResource.delete, { group: 'five', id: '5' });
+      });
+      await waitForNextUpdate();
+      // this means we suspended; so it hit the resolver fixture
+      expect(result.error).toMatchSnapshot();
 
-    () =>
-      controller.fetch(
-        UserResource.delete,
-        { group: 'five', id: '5' },
-        // @ts-expect-error
-        { username: 'never' },
-      );
-    // @ts-expect-error
-    () => controller.fetch(UserResource.delete);
-    // @ts-expect-error
-    () => controller.fetch(UserResource.delete, 1);
-    () =>
-      controller.fetch(
-        UserResource.delete,
-        // @ts-expect-error
-        { sdf: 'never' },
-      );
-  });
+      () =>
+        controller.fetch(
+          UserResource.delete,
+          { group: 'five', id: '5' },
+          // @ts-expect-error
+          { username: 'never' },
+        );
+      // @ts-expect-error
+      () => controller.fetch(UserResource.delete);
+      // @ts-expect-error
+      () => controller.fetch(UserResource.delete, 1);
+      () =>
+        controller.fetch(
+          UserResource.delete,
+          // @ts-expect-error
+          { sdf: 'never' },
+        );
+    },
+  );
 
   it('should allow complete overrides', async () => {
     mynock
