@@ -23,22 +23,12 @@ const mutationDemo = [
   completed = false;
   pk() { return \`\${this.id}\` }
 }
-const BaseTodoResource = createResource({
+export const TodoResource = createResource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   schema: Todo,
-});
-export const TodoResource = {
-  ...BaseTodoResource,
-  partialUpdate: BaseTodoResource.partialUpdate.extend({
-    getOptimisticResponse(snap, { id }, body) {
-      return {
-        id,
-        ...body,
-      };
-    },
-  }),
-};`,
+  optimistic: true,
+});`,
       },
       {
         path: 'react',

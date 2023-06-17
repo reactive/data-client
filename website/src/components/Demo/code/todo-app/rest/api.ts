@@ -11,6 +11,7 @@ const BaseTodoResource = createResource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   schema: Todo,
+  optimistic: true,
 });
 export const TodoResource = {
   ...BaseTodoResource,
@@ -18,19 +19,6 @@ export const TodoResource = {
     process(todos) {
       // for demo purposes we'll only use the first seven
       return todos.slice(0, 7);
-    },
-  }),
-  partialUpdate: BaseTodoResource.partialUpdate.extend({
-    getOptimisticResponse(snap, { id }, body) {
-      return {
-        id,
-        ...body,
-      };
-    },
-  }),
-  delete: BaseTodoResource.delete.extend({
-    getOptimisticResponse(snap, params) {
-      return params;
     },
   }),
   queryRemaining: new Query(
