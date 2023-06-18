@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/rest",
-  "version": "6.7.0",
+  "version": "6.7.1",
   "description": "Endpoints for REST APIs",
   "sideEffects": false,
   "main": "dist/index.js",

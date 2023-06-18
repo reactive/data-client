@@ -1,5 +1,11 @@
 # Change Log
 
+## 6.7.1
+
+### Patch Changes
+
+- 33d55f9bf5: Remove false positive Resource.delete with 200 response type but empty text
+
 ## 6.7.0
 
 ### Minor Changes
