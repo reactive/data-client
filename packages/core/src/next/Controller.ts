@@ -1,5 +1,5 @@
-import type { EndpointInterface, Denormalize } from '@rest-hooks/normalizr';
-import { denormalize } from '@rest-hooks/normalizr';
+import type { EndpointInterface, Denormalize } from '@data-client/normalizr';
+import { denormalize } from '@data-client/normalizr';
 
 import BaseController, {
   CompatibleDispatch,

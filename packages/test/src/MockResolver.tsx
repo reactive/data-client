@@ -1,4 +1,4 @@
-import { ControllerContext, useController } from '@rest-hooks/react';
+import { ControllerContext, useController } from '@data-client/react';
 import { useCallback, useMemo } from 'react';
 import React from 'react';
 

@@ -128,7 +128,7 @@ This should resemble what you have added in [initial setup](../getting-started/i
 
 ```tsx title=".storybook/preview.tsx"
 import { Suspense } from 'react';
-import { CacheProvider, AsyncBoundary } from '@rest-hooks/react';
+import { CacheProvider, AsyncBoundary } from '@data-client/react';
 
 export const decorators = [
   Story => (
@@ -149,8 +149,8 @@ control how Reactive Data Client' fetches are resolved.
 Here we select which fixtures should be used by [storybook controls](https://storybook.js.org/docs/react/essentials/controls).
 
 ```tsx title="ArticleList.stories.tsx"
-import { MockResolver } from '@rest-hooks/test';
-import type { Fixture } from '@rest-hooks/test';
+import { MockResolver } from '@data-client/test';
+import type { Fixture } from '@data-client/test';
 import { Story } from '@storybook/react/types-6-0';
 
 import ArticleList from 'ArticleList';

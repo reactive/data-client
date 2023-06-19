@@ -3,7 +3,7 @@ import {
   EndpointExtraOptions,
   EndpointInterface,
   Schema,
-} from '@rest-hooks/normalizr';
+} from '@data-client/normalizr';
 
 import {
   FetchAction,

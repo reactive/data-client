@@ -128,7 +128,7 @@ export default class CollectionSchema<
   ): string {
     if (process.env.NODE_ENV !== 'production') {
       if (args === undefined) {
-        throw new Error('Collections only work with @rest-hooks/react>=7.4');
+        throw new Error('Collections only work with @data-client/react>=7.4');
       }
     }
     const pkList = this.schema.normalize(

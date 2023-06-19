@@ -1,5 +1,5 @@
-import { Denormalize, Endpoint, EndpointOptions } from '@rest-hooks/endpoint';
-import type { Schema } from '@rest-hooks/endpoint';
+import { Denormalize, Endpoint, EndpointOptions } from '@data-client/endpoint';
+import type { Schema } from '@data-client/endpoint';
 
 import GQLNetworkError from './GQLNetworkError.js';
 

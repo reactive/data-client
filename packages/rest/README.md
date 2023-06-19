@@ -1,10 +1,10 @@
-# Rest Hooks for REST
+# Data Client for REST
 
-[![CircleCI](https://circleci.com/gh/data-client/rest-hooks/tree/master.svg?style=shield)](https://circleci.com/gh/data-client/rest-hooks)
-[![Coverage Status](https://img.shields.io/codecov/c/gh/data-client/rest-hooks/master.svg?style=flat-square)](https://app.codecov.io/gh/data-client/rest-hooks?branch=master)
-[![npm downloads](https://img.shields.io/npm/dm/@rest-hooks/rest.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/rest)
-[![bundle size](https://img.shields.io/bundlephobia/minzip/@rest-hooks/rest?style=flat-square)](https://bundlephobia.com/result?p=@rest-hooks/rest)
-[![npm version](https://img.shields.io/npm/v/@rest-hooks/rest.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/rest)
+[![CircleCI](https://circleci.com/gh/data-client/data-client/tree/master.svg?style=shield)](https://circleci.com/gh/data-client/data-client)
+[![Coverage Status](https://img.shields.io/codecov/c/gh/data-client/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/data-client/data-client?branch=master)
+[![npm downloads](https://img.shields.io/npm/dm/@data-client/rest.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/rest)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/@data-client/rest?style=flat-square)](https://bundlephobia.com/result?p=@data-client/rest)
+[![npm version](https://img.shields.io/npm/v/@data-client/rest.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/rest)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![Chat](https://img.shields.io/discord/768254430381735967.svg?style=flat-square&colorB=758ED3)](https://discord.gg/35nb8Mz)
 
@@ -12,14 +12,14 @@ Extensible CRUD patterns for REST APIs.
 
 <div align="center">
 
-**[📖Read The Docs](https://resthooks.io/rest)** &nbsp;|&nbsp; [🎮Github Demo](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app?file=src%2Fresources%2FIssue.tsx)
+**[📖Read The Docs](https://dataclient.io/rest)** &nbsp;|&nbsp; [🎮Github Demo](https://stackblitz.com/github/data-client/data-client/tree/master/examples/github-app?file=src%2Fresources%2FIssue.tsx)
 
 </div>
 
 ### Simple TypeScript definition
 
 ```typescript
-import { Entity, createResource } from '@rest-hooks/rest';
+import { Entity, createResource } from '@data-client/rest';
 
 class Article extends Entity {
   id: number | undefined = undefined;
@@ -36,17 +36,17 @@ const ArticleResource = createResource({
 });
 ```
 
-[Entity](https://resthooks.io/rest/api/Entity) defines a data model.
-[createResource](https://resthooks.io/rest/api/createResource) creates a [collection](https://resthooks.io/rest/api/createResource#members)
-of six [RestEndpoints](https://resthooks.io/rest/api/RestEndpoint)
+[Entity](https://dataclient.io/rest/api/Entity) defines a data model.
+[createResource](https://dataclient.io/rest/api/createResource) creates a [collection](https://dataclient.io/rest/api/createResource#members)
+of six [RestEndpoints](https://dataclient.io/rest/api/RestEndpoint)
 
-[RestEndpoints](https://resthooks.io/rest/api/RestEndpoint) are functions (and more) that return a Promise.
-Both call parameters and return value are [automatically inferred](https://resthooks.io/rest/api/RestEndpoint#typing) from
+[RestEndpoints](https://dataclient.io/rest/api/RestEndpoint) are functions (and more) that return a Promise.
+Both call parameters and return value are [automatically inferred](https://dataclient.io/rest/api/RestEndpoint#typing) from
 the options used to construct them.
 
 `path` is a templating language using [path-to-regex compile](https://github.com/pillarjs/path-to-regexp#compile-reverse-path-to-regexp).
 
-### [Standard CRUD Endpoints](https://resthooks.io/rest/api/createResource#members)
+### [Standard CRUD Endpoints](https://dataclient.io/rest/api/createResource#members)
 
 #### Reads
 
@@ -80,7 +80,7 @@ const article = await ArticleResource.get({ id: 5 });
 const articles = await ArticleResource.getList();
 ```
 
-### [Programmatic queries](https://resthooks.io/rest/api/Query)
+### [Programmatic queries](https://dataclient.io/rest/api/Query)
 
 ```tsx
 const sortedArticles = new Query(

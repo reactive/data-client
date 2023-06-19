@@ -1,7 +1,32 @@
 {
-  "name": "@rest-hooks/use-enhanced-reducer",
-  "version": "1.2.8",
+  "name": "@data-client/use-enhanced-reducer",
+  "version": "0.1.0",
   "description": "Add powerful orchestration to hooks-based Flux stores",
+  "homepage": "https://github.com/data-client/data-client/tree/master/packages/use-enhanced-reducer#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:data-client/data-client.git",
+    "directory": "packages/use-enhanced-reducer"
+  },
+  "bugs": {
+    "url": "https://github.com/data-client/data-client/issues"
+  },
+  "keywords": [
+    "react",
+    "reducer",
+    "flux",
+    "middleware",
+    "orchestration",
+    "typescript",
+    "redux",
+    "hook",
+    "state",
+    "dispatch",
+    "thunk",
+    "state management",
+    "concurrent mode",
+    "async"
+  ],
   "sideEffects": false,
   "main": "dist/index.cjs.js",
   "react-native": "lib/index.js",
@@ -45,33 +70,8 @@
     "prepare": "run build:lib",
     "prepack": "run prepare && run build:bundle"
   },
-  "keywords": [
-    "react",
-    "reducer",
-    "flux",
-    "middleware",
-    "orchestration",
-    "typescript",
-    "redux",
-    "hook",
-    "state",
-    "dispatch",
-    "thunk",
-    "state management",
-    "concurrent mode",
-    "async"
-  ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",
-  "homepage": "https://github.com/data-client/rest-hooks/tree/master/packages/use-enhanced-reducer#readme",
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com:data-client/rest-hooks.git",
-    "directory": "packages/use-enhanced-reducer"
-  },
-  "bugs": {
-    "url": "https://github.com/data-client/rest-hooks/issues"
-  },
   "peerDependencies": {
     "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0-0",
     "react": "^16.8.4 || ^17.0.0 || ^18.0.0-0"

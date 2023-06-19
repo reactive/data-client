@@ -1,7 +1,7 @@
-import { CacheProvider } from '@rest-hooks/react';
-import { CacheProvider as ExternalCacheProvider } from '@rest-hooks/redux';
-import { schema, RestEndpoint } from '@rest-hooks/rest';
-import { createResource } from '@rest-hooks/rest/next';
+import { CacheProvider } from '@data-client/react';
+import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
+import { schema, RestEndpoint } from '@data-client/rest';
+import { createResource } from '@data-client/rest/next';
 import {
   IDEntity,
   Article,

@@ -1,4 +1,4 @@
-import { Entity, schema } from '@rest-hooks/endpoint';
+import { Entity, schema } from '@data-client/endpoint';
 import { User } from '__tests__/new';
 
 import createResource from '../createResource';

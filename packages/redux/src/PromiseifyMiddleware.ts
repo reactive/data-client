@@ -1,4 +1,4 @@
-import type { Dispatch } from '@rest-hooks/react';
+import type { Dispatch } from '@data-client/react';
 import React from 'react';
 
 const PromiseifyMiddleware =

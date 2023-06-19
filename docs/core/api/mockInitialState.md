@@ -28,8 +28,8 @@ This can be used as the initialState prop for [&lt;CacheProvider /\>](./CachePro
 ## Example
 
 ```typescript
-import { CacheProvider } from '@rest-hooks/react';
-import { mockInitialState } from '@rest-hooks/test';
+import { CacheProvider } from '@data-client/react';
+import { mockInitialState } from '@data-client/test';
 
 import ArticleResource from 'resources/ArticleResource';
 import MyComponentToTest from 'components/MyComponentToTest';

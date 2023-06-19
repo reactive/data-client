@@ -1,5 +1,5 @@
 import { RouteProvider, RouteController } from '@anansi/router';
-import { useController } from '@rest-hooks/react';
+import { useController } from '@data-client/react';
 import { createBrowserHistory } from 'history';
 
 import { routes, namedPaths } from './routes';

@@ -1,5 +1,5 @@
+import { useController } from '@data-client/react';
 import { styled } from '@linaria/react';
-import { useController } from '@rest-hooks/react';
 import { memo, useCallback } from 'react';
 import { TodoResource, Todo } from 'resources/TodoResource';
 

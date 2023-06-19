@@ -3,7 +3,7 @@ title: Transforming data on fetch
 ---
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
-import { RestEndpoint } from '@rest-hooks/rest';
+import { RestEndpoint } from '@data-client/rest';
 
 All network requests flow through the `fetch()` method, so any transforms needed can simply
 be done by overriding it with a call to super.
@@ -26,7 +26,7 @@ prefer `camelCase`. This snippet lets us make the transform needed.
 
 ```typescript title="CamelResource.ts"
 import { camelCase, snakeCase } from 'lodash';
-import { RestEndpoint, RestGenerics  } from '@rest-hooks/rest';
+import { RestEndpoint, RestGenerics  } from '@data-client/rest';
 
 function deeplyApplyKeyTransform(obj: any, transform: (key: string) => string) {
   const ret: Record<string, any> = Array.isArray(obj) ? [] : {};
@@ -176,7 +176,7 @@ can be used to construct [RestEndpoint](../api/RestEndpoint.md).
 Sometimes this is used for cursor based [pagination](./pagination.md#tokens-in-http-headers).
 
 ```typescript
-import { RestEndpoint, RestGenerics } from '@rest-hooks/rest';
+import { RestEndpoint, RestGenerics } from '@data-client/rest';
 
 class GithubEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
   async parseResponse(response: Response) {

@@ -22,7 +22,7 @@ import {
   PollingSubscription,
   CacheProvider,
   NetworkManager,
-} from '@rest-hooks/react';
+} from '@data-client/react';
 import ReactDOM from 'react-dom';
 
 const managers = [

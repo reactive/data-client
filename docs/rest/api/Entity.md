@@ -9,12 +9,12 @@ title: Entity
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import LanguageTabs from '@site/src/components/LanguageTabs';
-import { RestEndpoint } from '@rest-hooks/rest';
+import { RestEndpoint } from '@data-client/rest';
 
 <LanguageTabs>
 
 ```typescript
-import { Entity } from '@rest-hooks/rest';
+import { Entity } from '@data-client/rest';
 
 export default class Article extends Entity {
   id: number | undefined = undefined;
@@ -32,7 +32,7 @@ export default class Article extends Entity {
 ```
 
 ```js
-import { Entity } from '@rest-hooks/rest';
+import { Entity } from '@data-client/rest';
 
 export default class Article extends Entity {
   id = undefined;

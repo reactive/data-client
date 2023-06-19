@@ -12,7 +12,7 @@ In case you want to append results to your existing list, rather than move to an
 [RestEndpoint.paginated()](api/RestEndpoint.md#paginated) can be used.
 
 ```typescript title="api/News.ts"
-import { Entity, createResource } from '@rest-hooks/rest';
+import { Entity, createResource } from '@data-client/rest';
 
 export class News extends Entity {
   readonly id: string | undefined = undefined;
@@ -46,7 +46,7 @@ we'll just assume a `Pagination` component is built, that uses a callback to tri
 page fetching. On web, it is recommended to use something based on [Intersection Observers](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API)
 
 ```tsx
-import { useSuspense, useController } from '@rest-hooks/react';
+import { useSuspense, useController } from '@data-client/react';
 import { NewsResource } from 'api/News';
 
 function NewsList() {
@@ -94,7 +94,7 @@ understand how to normalize the results (via schema). Be sure to provide default
 that aren't entities.
 
 ```typescript title="api/Article.ts"
-import { Entity } from '@rest-hooks/rest';
+import { Entity } from '@data-client/rest';
 import { User } from 'api';
 
 export class Article extends Entity {
@@ -125,7 +125,7 @@ Now we can use `getList` to get not only the articles, but also our `nextPage`
 and `prevPage` values. We can use those tokens to define our pagination buttons.
 
 ```tsx title="ArticleList.tsx"
-import { useSuspense } from '@rest-hooks/react';
+import { useSuspense } from '@data-client/react';
 import ArticleResource from 'resources/ArticleResource';
 
 export default function ArticleList() {
@@ -159,7 +159,7 @@ We show the custom `getList` below. All other parts of the above example remain 
 Pagination token is stored in the header `link` for this example.
 
 ```typescript
-import { Resource } from '@rest-hooks/rest';
+import { Resource } from '@data-client/rest';
 
 export const ArticleResource = {
   ...BaseArticleResource,
@@ -188,7 +188,7 @@ If much of your API share a similar pagination, you might
 try a custom Endpoint class that shares this logic.
 
 ```ts title="api/PagingEndpoint.ts"
-import { RestEndpoint, type RestGenerics } from '@rest-hooks/rest';
+import { RestEndpoint, type RestGenerics } from '@data-client/rest';
 
 export class PagingEndpoint<
   O extends RestGenerics = any,
@@ -210,7 +210,7 @@ export class PagingEndpoint<
 ```
 
 ```ts title="api/My.ts"
-import { createResource, Entity } from '@rest-hooks/rest';
+import { createResource, Entity } from '@data-client/rest';
 
 import { PagingEndpoint } from './PagingEndpoint';
 

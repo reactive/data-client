@@ -10,7 +10,7 @@ title: useLive()
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import HooksPlayground from '@site/src/components/HooksPlayground';
-import {RestEndpoint} from '@rest-hooks/rest';
+import {RestEndpoint} from '@data-client/rest';
 
 Async rendering of frequently changing remote data.
 
@@ -21,7 +21,7 @@ Async rendering of frequently changing remote data.
 <HooksPlayground>
 
 ```typescript title="api/ExchangeRates.ts" collapsed
-import { Entity, RestEndpoint } from '@rest-hooks/rest';
+import { Entity, RestEndpoint } from '@data-client/rest';
 
 export class ExchangeRates extends Entity {
   currency = 'USD';
@@ -46,7 +46,7 @@ export const getExchangeRates = new RestEndpoint({
 ```
 
 ```tsx title="AssetPrice.tsx"
-import { useLive } from '@rest-hooks/react';
+import { useLive } from '@data-client/react';
 import { getExchangeRates } from './api/ExchangeRates';
 
 function AssetPrice({ symbol }: Props) {

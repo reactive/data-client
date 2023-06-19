@@ -1,4 +1,4 @@
-import { CacheProvider } from '@rest-hooks/react';
+import { CacheProvider } from '@data-client/react';
 import { getByTestId, render, waitFor } from '@testing-library/react';
 import React, { Suspense } from 'react';
 

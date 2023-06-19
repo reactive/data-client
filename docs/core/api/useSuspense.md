@@ -12,7 +12,7 @@ import TabItem from '@theme/TabItem';
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import HooksPlayground from '@site/src/components/HooksPlayground';
-import {RestEndpoint} from '@rest-hooks/rest';
+import {RestEndpoint} from '@data-client/rest';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import StackBlitz from '@site/src/components/StackBlitz';
 
@@ -48,7 +48,7 @@ delay: 150,
 ]}>
 
 ```typescript title="api/Profile" collapsed
-import { Entity, createResource } from '@rest-hooks/rest';
+import { Entity, createResource } from '@data-client/rest';
 
 export class Profile extends Entity {
   id: number | undefined = undefined;
@@ -68,7 +68,7 @@ export const ProfileResource = createResource({
 ```
 
 ```tsx title="ProfileList"
-import { useSuspense } from '@rest-hooks/react';
+import { useSuspense } from '@data-client/react';
 import { ProfileResource } from './api/Profile';
 
 function ProfileDetail(): JSX.Element {
@@ -91,7 +91,7 @@ render(<ProfileDetail />);
 <HooksPlayground>
 
 ```typescript title="api/Profile" collapsed
-import { Endpoint } from '@rest-hooks/endpoint';
+import { Endpoint } from '@data-client/endpoint';
 
 export const getProfile = new Endpoint((id: number) =>
   Promise.resolve({ id, fullName: 'Einstein', bio: 'Smart physicist' }),
@@ -99,7 +99,7 @@ export const getProfile = new Endpoint((id: number) =>
 ```
 
 ```tsx title="ProfileList"
-import { useSuspense } from '@rest-hooks/react';
+import { useSuspense } from '@data-client/react';
 import { getProfile } from './api/Profile';
 
 function ProfileDetail(): JSX.Element {
@@ -185,7 +185,7 @@ delay: 150,
 ]}>
 
 ```typescript title="api/Profile" collapsed
-import { Entity, createResource } from '@rest-hooks/rest';
+import { Entity, createResource } from '@data-client/rest';
 
 export class Profile extends Entity {
   id: number | undefined = undefined;
@@ -205,7 +205,7 @@ export const ProfileResource = createResource({
 ```
 
 ```tsx title="ProfileList"
-import { useSuspense } from '@rest-hooks/react';
+import { useSuspense } from '@data-client/react';
 import { ProfileResource } from './api/Profile';
 
 function ProfileList(): JSX.Element {

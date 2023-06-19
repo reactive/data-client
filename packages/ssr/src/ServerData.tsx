@@ -1,4 +1,4 @@
-import type { State } from '@rest-hooks/redux';
+import type { State } from '@data-client/redux';
 
 export const ServerData = ({
   data,
@@ -28,7 +28,7 @@ export const ServerData = ({
   }
 };
 ServerData.defaultProps = {
-  id: 'rest-hooks-data',
+  id: 'data-client-data',
 };
 
 export default ServerData;

@@ -90,7 +90,7 @@ Declarative definition of how to [process responses](./schema)
 Not providing this option means no entities will be extracted.
 
 ```tsx
-import { GQLEntity, GQLEndpoint } from '@rest-hooks/graphql';
+import { GQLEntity, GQLEndpoint } from '@data-client/graphql';
 const gql = new GQLEndpoint('https://nosy-baritone.glitch.me');
 
 class User extends GQLEntity {

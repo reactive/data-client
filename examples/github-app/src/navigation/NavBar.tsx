@@ -1,5 +1,5 @@
 import { Link, useShowLoading } from '@anansi/router';
-import { AsyncBoundary, useCache, useSuspense } from '@rest-hooks/react';
+import { AsyncBoundary, useCache, useSuspense } from '@data-client/react';
 import { Layout, Menu, Spin, Affix, MenuProps } from 'antd';
 import { Avatar } from 'antd';
 import { memo, useContext, useMemo, useState } from 'react';

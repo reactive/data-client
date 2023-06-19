@@ -1,11 +1,11 @@
-import type { State } from '@rest-hooks/redux';
+import type { State } from '@data-client/redux';
 import { Suspense } from 'react';
 
 import ServerData from './ServerData.js';
 
 export default function createServerDataComponent(
   useReadyCacheState: () => State<unknown>,
-  id = 'rest-hooks-data',
+  id = 'data-client-data',
 ) {
   const ServerDataAsync = ({ nonce }: { nonce?: string | undefined }) => {
     const data = useReadyCacheState();

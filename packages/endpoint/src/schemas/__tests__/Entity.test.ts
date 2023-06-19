@@ -1,6 +1,6 @@
 // eslint-env jest
-import { inferResults, normalize, WeakEntityMap } from '@rest-hooks/normalizr';
-import { DELETED } from '@rest-hooks/normalizr';
+import { inferResults, normalize, WeakEntityMap } from '@data-client/normalizr';
+import { DELETED } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS, Record } from 'immutable';
 

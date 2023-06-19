@@ -1,8 +1,8 @@
+import { Endpoint, Entity } from '@data-client/endpoint';
+import { AbortOptimistic } from '@data-client/endpoint';
+import { CacheProvider } from '@data-client/react';
+import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
 import { jest } from '@jest/globals';
-import { Endpoint, Entity } from '@rest-hooks/endpoint';
-import { AbortOptimistic } from '@rest-hooks/endpoint';
-import { CacheProvider } from '@rest-hooks/react';
-import { CacheProvider as ExternalCacheProvider } from '@rest-hooks/redux';
 import {
   CoolerArticleResource,
   ArticleResourceWithOtherListUrl,

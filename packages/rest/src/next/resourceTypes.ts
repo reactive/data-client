@@ -1,4 +1,4 @@
-import type { Schema } from '@rest-hooks/endpoint';
+import type { Schema } from '@data-client/endpoint';
 
 import RestEndpoint from './RestEndpoint.js';
 

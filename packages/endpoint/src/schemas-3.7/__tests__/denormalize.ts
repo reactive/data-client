@@ -5,7 +5,7 @@ import {
   WeakEntityMap,
   Denormalize,
   DenormalizeNullable,
-} from '@rest-hooks/normalizr';
+} from '@data-client/normalizr';
 
 export const denormalizeSimple = <S extends Schema>(
   input: any,

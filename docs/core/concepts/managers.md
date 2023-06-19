@@ -38,7 +38,7 @@ It also means Reactive Data Client behavior can be arbitrarily customized by wri
 ### Middleware logging
 
 ```typescript
-import type { Manager, Middleware } from '@rest-hooks/core';
+import type { Manager, Middleware } from '@data-client/core';
 
 export default class LoggingManager implements Manager {
   getMiddleware = (): Middleware => controller => next => async action => {
@@ -59,8 +59,8 @@ we can maintain fresh data when the data updates are independent of user action.
 price, or a real-time collaborative editor.
 
 ```typescript
-import type { Manager, Middleware } from '@rest-hooks/core';
-import type { EndpointInterface } from '@rest-hooks/endpoint';
+import type { Manager, Middleware } from '@data-client/core';
+import type { EndpointInterface } from '@data-client/endpoint';
 
 export default class StreamManager implements Manager {
   protected declare middleware: Middleware;

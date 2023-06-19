@@ -1,5 +1,5 @@
+import { AsyncBoundary } from '@data-client/react';
 import { styled } from '@linaria/react';
-import { AsyncBoundary } from '@rest-hooks/react';
 import { Spin } from 'antd';
 import { memo } from 'react';
 import type { ReactNode } from 'react';

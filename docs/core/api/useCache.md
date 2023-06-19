@@ -10,7 +10,7 @@ import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import StackBlitz from '@site/src/components/StackBlitz';
-import { RestEndpoint } from '@rest-hooks/rest';
+import { RestEndpoint } from '@data-client/rest';
 
 Data rendering without the fetch.
 
@@ -50,7 +50,7 @@ export const UserResource = {
 ```
 
 ```tsx title="NotAuthorized" collapsed
-import { useLoading } from '@rest-hooks/hooks';
+import { useLoading } from '@data-client/hooks';
 import { UserResource } from './api/User';
 
 export default function NotAuthorized() {
@@ -185,7 +185,7 @@ export const UserResource = createResource({
 ```
 
 ```tsx title="UsersPage.tsx" {15}
-import { Query, schema } from '@rest-hooks/rest';
+import { Query, schema } from '@data-client/rest';
 import { UserResource, User } from './api/User';
 
 const sortedUsers = new Query(

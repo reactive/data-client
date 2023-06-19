@@ -13,7 +13,7 @@ export {
   Controller,
   ExpiryStatus,
   actionTypes,
-} from '@rest-hooks/core';
+} from '@data-client/core';
 export type {
   EndpointExtraOptions,
   FetchFunction,
@@ -46,7 +46,7 @@ export type {
   // used in Controller generic
   CompatibleDispatch,
   GenericDispatch,
-} from '@rest-hooks/core';
+} from '@data-client/core';
 export * from './components/index.js';
 export * from './hooks/index.js';
 export {
@@ -58,4 +58,4 @@ export {
 } from './context.js';
 export type { Store } from './context.js';
 export * as __INTERNAL__ from './internal.js';
-export { usePromisifiedDispatch } from '@rest-hooks/use-enhanced-reducer';
+export { usePromisifiedDispatch } from '@data-client/use-enhanced-reducer';

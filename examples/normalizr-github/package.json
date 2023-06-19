@@ -10,8 +10,8 @@
     "start": "babel-node ./ --root-mode upward --extensions '.ts,.tsx,.js'"
   },
   "dependencies": {
-    "@rest-hooks/endpoint": "workspace:^",
-    "@rest-hooks/normalizr": "workspace:^"
+    "@data-client/endpoint": "workspace:^",
+    "@data-client/normalizr": "workspace:^"
   },
   "devDependencies": {
     "@babel/core": "7.22.5",

@@ -1,4 +1,4 @@
-import { GQLEndpoint } from '@rest-hooks/graphql';
+import { GQLEndpoint } from '@data-client/graphql';
 
 import fetchDemo from './fetch';
 import graphqlDemo from './graphql';

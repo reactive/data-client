@@ -130,8 +130,8 @@ Declarative definition of how to [process responses](./schema.md)
 Not providing this option means no entities will be extracted.
 
 ```tsx
-import { Entity } from '@rest-hooks/normalizr';
-import { Endpoint } from '@rest-hooks/endpoint';
+import { Entity } from '@data-client/normalizr';
+import { Endpoint } from '@data-client/endpoint';
 
 class User extends Entity {
   readonly id: string = '';
@@ -261,7 +261,7 @@ values={[
 <TabItem value="Basic">
 
 ```typescript
-import { Endpoint } from '@rest-hooks/endpoint';
+import { Endpoint } from '@data-client/endpoint';
 
 const UserDetail = new Endpoint(
   ({ id }) ⇒ fetch(`/users/${id}`).then(res => res.json())
@@ -272,8 +272,8 @@ const UserDetail = new Endpoint(
 <TabItem value="With Schema">
 
 ```typescript
-import { Endpoint } from '@rest-hooks/endpoint';
-import { Entity } from '@rest-hooks/react';
+import { Endpoint } from '@data-client/endpoint';
+import { Entity } from '@data-client/react';
 
 class User extends Entity {
   readonly id: string = '';
@@ -292,8 +292,8 @@ const UserDetail = new Endpoint(
 <TabItem value="List">
 
 ```typescript
-import { Endpoint } from '@rest-hooks/endpoint';
-import { Entity } from '@rest-hooks/react';
+import { Endpoint } from '@data-client/endpoint';
+import { Entity } from '@data-client/react';
 
 class User extends Entity {
   readonly id: string = '';

@@ -1,18 +1,18 @@
-# ![🛌🎣 Rest Hooks Testing](../../packages/rest-hooks/rest_hooks_logo_and_text.svg?sanitize=true)
+# ![🛌🎣 Data Client Testing](../../packages/data-client/rest_hooks_logo_and_text.svg?sanitize=true)
 
-[![Coverage Status](https://img.shields.io/codecov/c/gh/data-client/rest-hooks/master.svg?style=flat-square)](https://app.codecov.io/gh/data-client/rest-hooks?branch=master)
+[![Coverage Status](https://img.shields.io/codecov/c/gh/data-client/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/data-client/data-client?branch=master)
 
 <div align="center">
 
-**[🏁Guides](https://resthooks.io/docs/guides/storybook)** &nbsp;|&nbsp; [🏁API Reference](https://resthooks.io/docs/api/makeRenderRestHook)
+**[🏁Guides](https://dataclient.io/docs/guides/storybook)** &nbsp;|&nbsp; [🏁API Reference](https://dataclient.io/docs/api/makeRenderRestHook)
 
 </div>
 
 ## Features
 
-- [x] [Mocking for Storybook](https://resthooks.io/docs/guides/storybook)
-- [x] [Fixtures for component tests](https://resthooks.io/docs/guides/unit-testing-components)
-- [x] [Hook unit testing utility](https://resthooks.io/docs/guides/unit-testing-hooks)
+- [x] [Mocking for Storybook](https://dataclient.io/docs/guides/storybook)
+- [x] [Fixtures for component tests](https://dataclient.io/docs/guides/unit-testing-components)
+- [x] [Hook unit testing utility](https://dataclient.io/docs/guides/unit-testing-hooks)
 
 ## Usage
 
@@ -20,7 +20,7 @@
 <summary><b>Resource</b></summary>
 
 ```typescript
-import { Resource } from '@rest-hooks/rest';
+import { Resource } from '@data-client/rest';
 
 export default class ArticleResource extends Resource {
   readonly id: number | undefined = undefined;
@@ -86,8 +86,8 @@ export default {
 <details open><summary><b>Storybook</b></summary>
 
 ```typescript
-import { MockResolver } from '@rest-hooks/test';
-import type { Fixture } from '@rest-hooks/test';
+import { MockResolver } from '@data-client/test';
+import type { Fixture } from '@data-client/test';
 import { Story } from '@storybook/react/types-6-0';
 
 import ArticleList from 'ArticleList';
@@ -110,8 +110,8 @@ export const FullArticleList = ({ result }) => (
 <details open><summary><b>Hook Unit Test</b></summary>
 
 ```typescript
-import { CacheProvider } from '@rest-hooks/react';
-import { makeRenderRestHook } from '@rest-hooks/test';
+import { CacheProvider } from '@data-client/react';
+import { makeRenderRestHook } from '@data-client/test';
 import options from './fixtures';
 
 const renderRestHook = makeRenderRestHook(CacheProvider);

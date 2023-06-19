@@ -68,7 +68,7 @@ to get started quickly, extend, and share common patterns.
 <ProtocolTabs>
 
 ```ts
-import { RestEndpoint } from '@rest-hooks/rest';
+import { RestEndpoint } from '@data-client/rest';
 
 const getTodo = new RestEndpoint({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
@@ -77,7 +77,7 @@ const getTodo = new RestEndpoint({
 ```
 
 ```ts
-import { GQLEndpoint } from '@rest-hooks/graphql';
+import { GQLEndpoint } from '@data-client/graphql';
 
 const gql = new GQLEndpoint('/');
 export const getTodo = gql.query(`
@@ -99,7 +99,7 @@ Make your components reusable by binding the data [where you need it](./getting-
 [useSuspense()](./api/useSuspense.md) guarantees its data once it returns.
 
 ```tsx {4}
-import { useSuspense } from '@rest-hooks/react';
+import { useSuspense } from '@data-client/react';
 
 export default function TodoDetail({ id }: { id: number }) {
   const todo = useSuspense(getTodo, { id });
@@ -123,7 +123,7 @@ Avoid 100s of loading spinners by placing [AsyncBoundary](./api/AsyncBoundary.md
 Typically these are placed at or above navigational boundaries like pages, routes or modals.
 
 ```tsx {5,8}
-import { AsyncBoundary } from '@rest-hooks/react';
+import { AsyncBoundary } from '@data-client/react';
 
 function App() {
   return (
@@ -157,7 +157,7 @@ prevents 'data tearing' jank and improves performance.
 <ProtocolTabs>
 
 ```ts
-import { Entity } from '@rest-hooks/rest';
+import { Entity } from '@data-client/rest';
 
 export class Todo extends Entity {
   userId = 0;
@@ -172,7 +172,7 @@ export class Todo extends Entity {
 ```
 
 ```ts
-import { GQLEntity } from '@rest-hooks/graphql';
+import { GQLEntity } from '@data-client/graphql';
 
 export class Todo extends GQLEntity {
   userId = 0;
@@ -194,7 +194,7 @@ data integrity as well as TypeScript definitions.
 <ProtocolTabs>
 
 ```ts {6,13}
-import { RestEndpoint } from '@rest-hooks/rest';
+import { RestEndpoint } from '@data-client/rest';
 
 export const getTodo = new RestEndpoint({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
@@ -211,7 +211,7 @@ export const updateTodo = new RestEndpoint({
 ```
 
 ```ts {14,25}
-import { GQLEndpoint } from '@rest-hooks/graphql';
+import { GQLEndpoint } from '@data-client/graphql';
 
 const gql = new GQLEndpoint('/');
 
@@ -251,7 +251,7 @@ Just like `setState()`, we must make React aware of the any mutations so it can 
 We can [useController](./api/useController.md) to access it in React components.
 
 ```tsx
-import { useController } from '@rest-hooks/react';
+import { useController } from '@data-client/react';
 
 function ArticleEdit() {
   const ctrl = useController();
@@ -267,8 +267,8 @@ function ArticleEdit() {
 [useLoading()](./api/useLoading.md) enhances async functions by tracking their loading and error states.
 
 ```tsx
-import { useController } from '@rest-hooks/react';
-import { useLoading } from '@rest-hooks/hooks';
+import { useController } from '@data-client/react';
+import { useLoading } from '@data-client/hooks';
 
 function ArticleEdit() {
   const ctrl = useController();
@@ -285,8 +285,8 @@ React 18 version with [useTransition](https://react.dev/reference/react/useTrans
 
 ```tsx
 import { useTransition } from 'react';
-import { useController } from '@rest-hooks/react';
-import { useLoading } from '@rest-hooks/hooks';
+import { useController } from '@data-client/react';
+import { useLoading } from '@data-client/hooks';
 
 function ArticleEdit() {
   const ctrl = useController();
@@ -307,7 +307,7 @@ the Entities. By placing inside a list, Reactive Data Client knows to expect a r
 where each item of the list is the entity specified.
 
 ```typescript {6}
-import { RestEndpoint } from '@rest-hooks/rest';
+import { RestEndpoint } from '@data-client/rest';
 
 export const getTodoList = new RestEndpoint({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
@@ -320,7 +320,7 @@ export const getTodoList = new RestEndpoint({
 the variable `todos` will be typed precisely.
 
 ```tsx {4}
-import { useSuspense } from '@rest-hooks/react';
+import { useSuspense } from '@data-client/react';
 
 export default function TodoList() {
   const todos = useSuspense(getTodoList);
@@ -347,7 +347,7 @@ encourages extracting shared logic among endpoints.
 [Resources](/rest/api/createResource) are collections of endpoints that operate on the same data.
 
 ```typescript
-import { Entity, createResource } from '@rest-hooks/rest';
+import { Entity, createResource } from '@data-client/rest';
 
 class Todo extends Entity {
   id = 0;
@@ -449,8 +449,8 @@ which can be used to [initiate data updates](./api/Manager.md#data-stream) when 
 <summary><b>StreamManager</b></summary>
 
 ```typescript
-import type { Manager, Middleware } from '@rest-hooks/core';
-import type { EndpointInterface } from '@rest-hooks/endpoint';
+import type { Manager, Middleware } from '@data-client/core';
+import type { EndpointInterface } from '@data-client/endpoint';
 
 export default class StreamManager implements Manager {
   protected declare middleware: Middleware;
@@ -529,7 +529,7 @@ values={[
 <TabItem value="detail">
 
 ```typescript
-import type { Fixture } from '@rest-hooks/test';
+import type { Fixture } from '@data-client/test';
 import { getTodo } from './todo';
 
 const todoDetailFixture: Fixture = {
@@ -548,7 +548,7 @@ const todoDetailFixture: Fixture = {
 <TabItem value="update">
 
 ```typescript
-import type { Fixture } from '@rest-hooks/test';
+import type { Fixture } from '@data-client/test';
 import { updateTodo } from './todo';
 
 const todoUpdateFixture: Fixture = {
@@ -567,7 +567,7 @@ const todoUpdateFixture: Fixture = {
 <TabItem value="detail404">
 
 ```typescript
-import type { Fixture } from '@rest-hooks/test';
+import type { Fixture } from '@data-client/test';
 import { getTodo } from './todo';
 
 const todoDetail404Fixture: Fixture = {
@@ -582,7 +582,7 @@ const todoDetail404Fixture: Fixture = {
 <TabItem value="interceptor">
 
 ```typescript
-import type { Interceptor } from '@rest-hooks/test';
+import type { Interceptor } from '@data-client/test';
 
 const currentTimeInterceptor: Interceptor = {
   endpoint: new RestEndpoint({
@@ -602,7 +602,7 @@ const currentTimeInterceptor: Interceptor = {
 <TabItem value="interceptor-stateful">
 
 ```typescript
-import type { Interceptor } from '@rest-hooks/test';
+import type { Interceptor } from '@data-client/test';
 
 const incrementInterceptor: Interceptor = {
   endpoint: new RestEndpoint({

@@ -117,7 +117,7 @@ When using schemas, the denormalized value can be retrieved using the future-com
 
 ```ts
 // highlight-next-line
-import { useController } from '@rest-hooks/react/next';
+import { useController } from '@data-client/react/next';
 
 const post = await controller.fetch(PostResource.create, createPayload);
 post.title;
@@ -365,7 +365,7 @@ import {
   useController,
   StateContext,
   EndpointInterface,
-} from '@rest-hooks/core';
+} from '@data-client/core';
 
 /** Oversimplified useCache */
 function useCache<E extends EntityInterface>(
@@ -379,8 +379,8 @@ function useCache<E extends EntityInterface>(
 ```
 
 ```tsx title="MyManager.ts"
-import type { Manager, Middleware, actionTypes } from '@rest-hooks/core';
-import type { EndpointInterface } from '@rest-hooks/endpoint';
+import type { Manager, Middleware, actionTypes } from '@data-client/core';
+import type { EndpointInterface } from '@data-client/endpoint';
 
 export default class MyManager implements Manager {
   protected declare middleware: Middleware;

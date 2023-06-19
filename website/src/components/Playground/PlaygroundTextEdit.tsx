@@ -1,5 +1,5 @@
+import type { Fixture, FixtureEndpoint, Interceptor } from '@data-client/test';
 import Translate from '@docusaurus/Translate';
-import type { Fixture, FixtureEndpoint, Interceptor } from '@rest-hooks/test';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo, useReducer, useState } from 'react';
 import React from 'react';

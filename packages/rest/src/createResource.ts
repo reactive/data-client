@@ -2,12 +2,12 @@ import {
   AbortOptimistic,
   schema,
   SnapshotInterface,
-} from '@rest-hooks/endpoint';
+} from '@data-client/endpoint';
 import type {
   Schema,
   Denormalize,
   EndpointExtraOptions,
-} from '@rest-hooks/endpoint';
+} from '@data-client/endpoint';
 
 import { PathArgs, ShortenPath } from './pathTypes.js';
 import RestEndpoint, {

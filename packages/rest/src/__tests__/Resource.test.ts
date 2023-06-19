@@ -1,7 +1,7 @@
-import { Entity, Schema } from '@rest-hooks/endpoint';
-import { useController } from '@rest-hooks/react';
-import { useSuspense } from '@rest-hooks/react';
-import { CacheProvider } from '@rest-hooks/react';
+import { Entity, Schema } from '@data-client/endpoint';
+import { useController } from '@data-client/react';
+import { useSuspense } from '@data-client/react';
+import { CacheProvider } from '@data-client/react';
 import { act } from '@testing-library/react-hooks';
 import nock from 'nock';
 

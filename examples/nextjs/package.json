@@ -9,11 +9,11 @@
     "lint": "yarn g:lint"
   },
   "dependencies": {
-    "@rest-hooks/react": "^7.4.1",
-    "@rest-hooks/redux": "^6.3.6",
-    "@rest-hooks/rest": "^6.6.1",
-    "@rest-hooks/ssr": "^0.7.11",
-    "@rest-hooks/test": "^10.3.7",
+    "@data-client/react": "^0.1.0",
+    "@data-client/redux": "^0.1.0",
+    "@data-client/rest": "^0.1.0",
+    "@data-client/ssr": "^0.1.0",
+    "@data-client/test": "^0.1.0",
     "@types/node": "20.3.3",
     "@types/react": "18.2.14",
     "@types/react-dom": "18.2.6",

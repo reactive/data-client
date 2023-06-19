@@ -1,4 +1,4 @@
-import type { FixtureEndpoint } from '@rest-hooks/test';
+import type { FixtureEndpoint } from '@data-client/test';
 import { createContext } from 'react';
 
 const CodeTabContext = createContext({

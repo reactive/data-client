@@ -68,7 +68,7 @@ typings/
 **/lib
 **/dist
 **/ts3.4
-**/ts4.0
+**/ts4.*
 
 # build info
 **/tsconfig*.tsbuildinfo

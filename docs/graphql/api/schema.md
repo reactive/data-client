@@ -33,7 +33,7 @@ We have two nested entity types within our `article`: `users` and `comments`. Us
 <LanguageTabs>
 
 ```typescript
-import { normalize, schema, Entity } from '@rest-hooks/normalizr';
+import { normalize, schema, Entity } from '@data-client/normalizr';
 
 // Define a users schema
 class User extends Entity {
@@ -76,7 +76,7 @@ const normalizedData = normalize(originalData, article);
 ```
 
 ```javascript
-import { normalize, schema, Entity } from '@rest-hooks/normalizr';
+import { normalize, schema, Entity } from '@data-client/normalizr';
 
 // Define a users schema
 class User extends Entity {

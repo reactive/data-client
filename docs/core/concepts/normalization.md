@@ -19,7 +19,7 @@ endpoint it was used in.
 <LanguageTabs>
 
 ```ts
-import { Entity } from '@rest-hooks/endpoint';
+import { Entity } from '@data-client/endpoint';
 
 class Todo extends Entity {
   readonly id: number = 0;
@@ -34,7 +34,7 @@ class Todo extends Entity {
 ```
 
 ```js
-import { Entity } from '@rest-hooks/endpoint';
+import { Entity } from '@data-client/endpoint';
 
 class Todo extends Entity {
   pk() {
@@ -137,7 +137,7 @@ values={[
 <TabItem value="Create">
 
 ```typescript
-import { RestEndpoint } from '@rest-hooks/rest';
+import { RestEndpoint } from '@data-client/rest';
 
 const todoCreate = new RestEndpoint({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
@@ -151,7 +151,7 @@ const todoCreate = new RestEndpoint({
 <summary><b>Example Usage</b></summary>
 
 ```tsx
-import { useController } from '@rest-hooks/react';
+import { useController } from '@data-client/react';
 
 export default function NewTodoForm() {
   const ctrl = useController();
@@ -169,7 +169,7 @@ export default function NewTodoForm() {
 <TabItem value="Update">
 
 ```typescript
-import { RestEndpoint } from '@rest-hooks/rest';
+import { RestEndpoint } from '@data-client/rest';
 
 const todoUpdate = new RestEndpoint({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
@@ -183,7 +183,7 @@ const todoUpdate = new RestEndpoint({
 <summary><b>Example Usage</b></summary>
 
 ```tsx
-import { useController } from '@rest-hooks/react';
+import { useController } from '@data-client/react';
 
 export default function UpdateTodoForm({ id }: { id: number }) {
   const todo = useSuspense(todoDetail, { id });
@@ -205,7 +205,7 @@ export default function UpdateTodoForm({ id }: { id: number }) {
 <TabItem value="Delete">
 
 ```typescript
-import { schema, RestEndpoint } from '@rest-hooks/rest';
+import { schema, RestEndpoint } from '@data-client/rest';
 
 const todoDelete = new RestEndpoint({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
@@ -219,7 +219,7 @@ const todoDelete = new RestEndpoint({
 <summary><b>Example Usage</b></summary>
 
 ```tsx
-import { useController } from '@rest-hooks/react';
+import { useController } from '@data-client/react';
 
 export default function TodoWithDelete({ todo }: { todo: Todo }) {
   const ctrl = useController();
@@ -253,7 +253,7 @@ Schemas are a declarative definition of how to [process responses](/rest/api/sch
 - Classes to [deserialize fields](/rest/guides/network-transform#deserializing-fields)
 
 ```typescript
-import { RestEndpoint } from '@rest-hooks/rest';
+import { RestEndpoint } from '@data-client/rest';
 
 const getTodoList = new RestEndpoint({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
@@ -291,7 +291,7 @@ values={[
 <TabItem value="Entity">
 
 ```typescript
-import { Entity } from '@rest-hooks/endpoint';
+import { Entity } from '@data-client/endpoint';
 
 class Todo extends Entity {
   readonly id: number = 0;
@@ -346,7 +346,7 @@ Additionally, any `newable` class that has a toJSON() method, can be [used as a 
 This might be useful with representations like [bignumber](https://mikemcl.github.io/bignumber.js/)
 
 ```ts
-import { Entity } from '@rest-hooks/endpoint';
+import { Entity } from '@data-client/endpoint';
 
 class Todo extends Entity {
   readonly id: number = 0;

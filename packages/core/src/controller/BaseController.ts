@@ -3,7 +3,7 @@ import type {
   SnapshotInterface,
   DenormalizeCache,
   Schema,
-} from '@rest-hooks/normalizr';
+} from '@data-client/normalizr';
 import {
   WeakEntityMap,
   ExpiryStatus,
@@ -14,8 +14,8 @@ import {
   Path,
   denormalizeCached,
   isEntity,
-} from '@rest-hooks/normalizr';
-import { inferResults, validateInference } from '@rest-hooks/normalizr';
+} from '@data-client/normalizr';
+import { inferResults, validateInference } from '@data-client/normalizr';
 
 import createInvalidate from './createInvalidate.js';
 import createInvalidateAll from './createInvalidateAll.js';

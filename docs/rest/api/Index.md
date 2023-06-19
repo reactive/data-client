@@ -11,8 +11,8 @@ export interface IndexInterface<S extends Schema = Schema, P = object> {
 ```
 
 ```typescript
-import { Entity } from '@rest-hooks/normalizr';
-import { Index } from '@rest-hooks/endpoint';
+import { Entity } from '@data-client/normalizr';
+import { Index } from '@data-client/endpoint';
 
 class User extends Entity {
   readonly id: string = '';

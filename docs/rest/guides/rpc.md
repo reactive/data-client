@@ -42,7 +42,7 @@ To handle this, we just need to update the `schema` to include the custom
 endpoint.
 
 ```typescript title="api/TradeResource.ts"
-import { Resource } from '@rest-hooks/rest';
+import { Resource } from '@data-client/rest';
 
 const BaseTradeResource = createResource({
   path: '/trade/:id',

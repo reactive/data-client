@@ -41,7 +41,7 @@ export const TodoResource = createResource({
 ```
 
 ```tsx title="Todo" {8}
-import { useSuspense } from '@rest-hooks/react';
+import { useSuspense } from '@data-client/react';
 import { TodoResource } from './api/Todo';
 
 function TodoDetail({ id }: { id: number }) {
@@ -71,8 +71,8 @@ performance, but dramatically reduces server load that comes up sequential fetch
 [useLoading()](../api/useLoading.md) enhances async functions by tracking their loading and error states.
 
 ```tsx
-import { useController } from '@rest-hooks/react';
-import { useLoading } from '@rest-hooks/hooks';
+import { useController } from '@data-client/react';
+import { useLoading } from '@data-client/hooks';
 
 function ArticleEdit() {
   const ctrl = useController();
@@ -89,8 +89,8 @@ React 18 version with [useTransition](https://react.dev/reference/react/useTrans
 
 ```tsx
 import { useTransition } from 'react';
-import { useController } from '@rest-hooks/react';
-import { useLoading } from '@rest-hooks/hooks';
+import { useController } from '@data-client/react';
+import { useLoading } from '@data-client/hooks';
 
 function ArticleEdit() {
   const ctrl = useController();
@@ -158,7 +158,7 @@ export const TodoResource = createResource({
 ```
 
 ```tsx title="TodoItem" {12-16} collapsed
-import { useController } from '@rest-hooks/react';
+import { useController } from '@data-client/react';
 import { TodoResource, Todo } from './api/Todo';
 
 export function TodoItem({ todo }: { todo: Todo }) {
@@ -183,7 +183,7 @@ export function TodoItem({ todo }: { todo: Todo }) {
 ```
 
 ```tsx title="TodoList" collapsed
-import { useSuspense } from '@rest-hooks/react';
+import { useSuspense } from '@data-client/react';
 import { TodoItem } from './TodoItem';
 import { TodoResource, Todo } from './api/Todo';
 

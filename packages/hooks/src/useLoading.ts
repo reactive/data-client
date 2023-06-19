@@ -3,7 +3,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 /**
  * Takes an async function and tracks resolution as a boolean.
  *
- * @see https://resthooks.io/docs/api/useLoading
+ * @see https://dataclient.io/docs/api/useLoading
  * @param func A function returning a promise
  * @param deps Deps list sent to useCallback()
  * @example

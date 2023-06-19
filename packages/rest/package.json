@@ -1,7 +1,40 @@
 {
-  "name": "@rest-hooks/rest",
-  "version": "6.7.1",
+  "name": "@data-client/rest",
+  "version": "0.1.0",
   "description": "Endpoints for REST APIs",
+  "homepage": "https://dataclient.io/rest",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:data-client/data-client.git",
+    "directory": "packages/rest"
+  },
+  "bugs": {
+    "url": "https://github.com/data-client/data-client/issues"
+  },
+  "keywords": [
+    "REST",
+    "CRUD",
+    "networking",
+    "fetch",
+    "data",
+    "cache",
+    "model",
+    "resource",
+    "typescript",
+    "path-to-regex",
+    "path template",
+    "data fetching",
+    "data cache",
+    "api",
+    "normalized cache",
+    "subject pattern",
+    "endpoint",
+    "react-native",
+    "ios",
+    "android",
+    "web",
+    "json"
+  ],
   "sideEffects": false,
   "main": "dist/index.js",
   "react-native": "legacy/index.js",
@@ -73,44 +106,11 @@
     "prepare": "run build:lib",
     "prepack": "run prepare && run build:bundle && run build:legacy:lib"
   },
-  "keywords": [
-    "REST",
-    "CRUD",
-    "networking",
-    "fetch",
-    "data",
-    "cache",
-    "model",
-    "resource",
-    "typescript",
-    "path-to-regex",
-    "path template",
-    "data fetching",
-    "data cache",
-    "api",
-    "normalized cache",
-    "subject pattern",
-    "endpoint",
-    "react-native",
-    "ios",
-    "android",
-    "web",
-    "json"
-  ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",
-  "homepage": "https://resthooks.io/rest",
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com:data-client/rest-hooks.git",
-    "directory": "packages/rest"
-  },
-  "bugs": {
-    "url": "https://github.com/data-client/rest-hooks/issues"
-  },
   "dependencies": {
     "@babel/runtime": "^7.17.0",
-    "@rest-hooks/endpoint": "^3.8.4",
+    "@data-client/endpoint": "^0.1.0",
     "path-to-regexp": "^6.2.1"
   },
   "devDependencies": {

@@ -1,4 +1,4 @@
-import { RestHooksDocument } from '@rest-hooks/ssr/nextjs';
+import { RestHooksDocument } from '@data-client/ssr/nextjs';
 import type { DocumentContext } from 'next/document.js';
 
 export default class MyDocument extends RestHooksDocument {

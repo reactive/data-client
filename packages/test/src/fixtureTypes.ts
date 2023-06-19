@@ -1,4 +1,4 @@
-import type { EndpointInterface, ResolveType } from '@rest-hooks/react';
+import type { EndpointInterface, ResolveType } from '@data-client/react';
 
 type Updater = (
   result: any,
@@ -56,7 +56,7 @@ export interface FetchInterceptor<
 }
 /** Interceptors match and compute dynamic responses based on args
  *
- * @see https://resthooks.io/docs/api/Fixtures#interceptor
+ * @see https://dataclient.io/docs/api/Fixtures#interceptor
  */
 export type Interceptor<
   T = any,
@@ -98,21 +98,21 @@ export type FixtureEndpoint<
 
 /** Represents a successful response
  *
- * @see https://resthooks.io/docs/api/Fixtures#successfixture
+ * @see https://dataclient.io/docs/api/Fixtures#successfixture
  */
 export type SuccessFixture<
   E extends EndpointInterface & { update?: Updater } = EndpointInterface,
 > = SuccessFixtureEndpoint<E>;
 /** Represents a failed/errored response
  *
- * @see https://resthooks.io/docs/api/Fixtures#errorfixtures
+ * @see https://dataclient.io/docs/api/Fixtures#errorfixtures
  */
 export type ErrorFixture<
   E extends EndpointInterface & { update?: Updater } = EndpointInterface,
 > = ErrorFixtureEndpoint<E>;
 /** Represents a static response
  *
- * @see https://resthooks.io/docs/api/Fixtures
+ * @see https://dataclient.io/docs/api/Fixtures
  */
 export type Fixture<
   E extends EndpointInterface & { update?: Updater } = EndpointInterface,

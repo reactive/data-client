@@ -19,13 +19,13 @@ and NextJS specific wrapper for [App](https://nextjs.org/docs/advanced-features/
 <PkgTabs pkgs="@rest-hooks/ssr @rest-hooks/redux redux" />
 
 ```tsx title="pages/_document.tsx"
-import { RestHooksDocument } from '@rest-hooks/ssr/nextjs';
+import { RestHooksDocument } from '@data-client/ssr/nextjs';
 
 export default RestHooksDocument;
 ```
 
 ```tsx title="pages/_app.tsx"
-import { AppCacheProvider } from '@rest-hooks/ssr/nextjs';
+import { AppCacheProvider } from '@data-client/ssr/nextjs';
 import type { AppProps } from 'next/app';
 
 export default function App({ Component, pageProps }: AppProps) {
@@ -72,7 +72,7 @@ or the Reactive Data Client code won't run!
 
 ```tsx title="pages/_document.tsx"
 import { Html, Head, Main, NextScript } from 'next/document';
-import { RestHooksDocument } from '@rest-hooks/ssr/nextjs';
+import { RestHooksDocument } from '@data-client/ssr/nextjs';
 
 export default class MyDocument extends RestHooksDocument {
   static async getInitialProps(ctx) {
@@ -118,7 +118,7 @@ in NextJS, this allows you
 to retrieve any nonce you created in the DocumentContext to use with Reactive Data Client.
 
 ```tsx title="pages/_document.tsx"
-import { RestHooksDocument } from '@rest-hooks/ssr/nextjs';
+import { RestHooksDocument } from '@data-client/ssr/nextjs';
 import type { DocumentContext } from 'next/document.js';
 
 export default class MyDocument extends RestHooksDocument {
@@ -161,7 +161,7 @@ import { renderToPipeableStream } from 'react-dom/server';
 import {
   createPersistedStore,
   createServerDataComponent,
-} from '@rest-hooks/ssr';
+} from '@data-client/ssr';
 
 const rootId = 'react-root';
 
@@ -211,7 +211,7 @@ app.listen(3000, () => {
 
 ```tsx
 import { hydrateRoot } from 'react-dom';
-import { awaitInitialData } from '@rest-hooks/ssr';
+import { awaitInitialData } from '@data-client/ssr';
 
 const rootId = 'react-root';
 

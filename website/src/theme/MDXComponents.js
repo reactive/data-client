@@ -1,6 +1,6 @@
 // Import the original mapper
+import { RestEndpoint } from '@data-client/rest';
 import MDXComponents from '@theme-original/MDXComponents';
-import { RestEndpoint } from '@rest-hooks/rest';
 
 export default {
   ...MDXComponents,

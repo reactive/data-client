@@ -1,5 +1,5 @@
+import type { Fixture, FixtureEndpoint, Interceptor } from '@data-client/test';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import type { Fixture, FixtureEndpoint, Interceptor } from '@rest-hooks/test';
 import clsx from 'clsx';
 import type { Language, PrismTheme } from 'prism-react-renderer';
 import React, { lazy } from 'react';

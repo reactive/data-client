@@ -1,4 +1,4 @@
-import { EndpointInterface, Schema, FetchFunction } from '@rest-hooks/core';
+import { EndpointInterface, Schema, FetchFunction } from '@data-client/core';
 import { useEffect } from 'react';
 
 import useController from './useController.js';

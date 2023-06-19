@@ -2,8 +2,8 @@ import {
   AbortOptimistic,
   SnapshotInterface,
   schema,
-} from '@rest-hooks/endpoint';
-import type { Schema, Denormalize } from '@rest-hooks/endpoint';
+} from '@data-client/endpoint';
+import type { Schema, Denormalize } from '@data-client/endpoint';
 
 import { ResourceGenerics, ResourceOptions } from './resourceTypes.js';
 import RestEndpoint, {

@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { ExpiryStatus } from '@rest-hooks/core';
+import { ExpiryStatus } from '@data-client/core';
 import {
   EndpointInterface,
   Denormalize,
   Schema,
   FetchFunction,
-} from '@rest-hooks/core';
+} from '@data-client/core';
 import { useMemo } from 'react';
 import { InteractionManager } from 'react-native';
 

@@ -1,21 +1,21 @@
-# Rest Hooks Server Side Rendering helpers
+# Data Client Server Side Rendering helpers
 
-[![CircleCI](https://circleci.com/gh/data-client/rest-hooks/tree/master.svg?style=shield)](https://circleci.com/gh/data-client/rest-hooks)
-[![Coverage Status](https://img.shields.io/codecov/c/gh/data-client/rest-hooks/master.svg?style=flat-square)](https://app.codecov.io/gh/data-client/rest-hooks?branch=master)
-[![npm downloads](https://img.shields.io/npm/dm/@rest-hooks/ssr.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/ssr)
-[![bundle size](https://img.shields.io/bundlephobia/minzip/@rest-hooks/ssr?style=flat-square)](https://bundlephobia.com/result?p=@rest-hooks/ssr)
-[![npm version](https://img.shields.io/npm/v/@rest-hooks/ssr.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/ssr)
+[![CircleCI](https://circleci.com/gh/data-client/data-client/tree/master.svg?style=shield)](https://circleci.com/gh/data-client/data-client)
+[![Coverage Status](https://img.shields.io/codecov/c/gh/data-client/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/data-client/data-client?branch=master)
+[![npm downloads](https://img.shields.io/npm/dm/@data-client/ssr.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/ssr)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/@data-client/ssr?style=flat-square)](https://bundlephobia.com/result?p=@data-client/ssr)
+[![npm version](https://img.shields.io/npm/v/@data-client/ssr.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/ssr)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![Chat](https://img.shields.io/discord/768254430381735967.svg?style=flat-square&colorB=758ED3)](https://discord.gg/35nb8Mz)
 
 <div align="center">
 
-**[📖Read The Docs](https://resthooks.io/docs/guides/ssr)** &nbsp;|&nbsp;
-[🎮NextJS SSR Demo](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx)
+**[📖Read The Docs](https://dataclient.io/docs/guides/ssr)** &nbsp;|&nbsp;
+[🎮NextJS SSR Demo](https://stackblitz.com/github/data-client/data-client/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx)
 
 </div>
 
-Hydrate/dehydration utilities for [Rest Hooks](https://resthooks.io)
+Hydrate/dehydration utilities for [Data Client](https://dataclient.io)
 
 ## Server side
 
@@ -25,7 +25,7 @@ import { renderToPipeableStream } from 'react-dom/server';
 import {
   createPersistedStore,
   createServerDataComponent,
-} from '@rest-hooks/ssr';
+} from '@data-client/ssr';
 
 const rootId = 'react-root';
 
@@ -75,7 +75,7 @@ app.listen(3000, () => {
 
 ```tsx
 import { hydrateRoot } from 'react-dom';
-import { awaitInitialData } from '@rest-hooks/ssr';
+import { awaitInitialData } from '@data-client/ssr';
 
 const rootId = 'react-root';
 
@@ -95,9 +95,9 @@ and NextJS specific wrapper for [App](https://nextjs.org/docs/advanced-features/
 <details open><summary><b>pages/_document.tsx</b></summary>
 
 ```tsx
-import { RestHooksDocument } from '@rest-hooks/ssr/nextjs';
+import { DataClientDocument } from '@data-client/ssr/nextjs';
 
-export default RestHooksDocument;
+export default DataClientDocument;
 ```
 
 </details>
@@ -105,7 +105,7 @@ export default RestHooksDocument;
 <details open><summary><b>pages/_app.tsx</b></summary>
 
 ```tsx
-import { AppCacheProvider } from '@rest-hooks/ssr/nextjs';
+import { AppCacheProvider } from '@data-client/ssr/nextjs';
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
@@ -123,15 +123,15 @@ export default function App({ Component, pageProps }: AppProps) {
 To further customize Document, simply extend from the provided document.
 
 Make sure you use `super.getInitialProps()` instead of `Document.getInitialProps()`
-or the Rest Hooks code won't run!
+or the Data Client code won't run!
 
 <details open><summary><b>pages/_document.tsx</b></summary>
 
 ```tsx
 import { Html, Head, Main, NextScript } from 'next/document'
-import { RestHooksDocument } from '@rest-hooks/ssr/nextjs';
+import { DataClientDocument } from '@data-client/ssr/nextjs';
 
-export default class MyDocument extends RestHooksDocument {
+export default class MyDocument extends DataClientDocument {
   static async getInitialProps(ctx) {
     const originalRenderPage = ctx.renderPage
 
@@ -168,20 +168,20 @@ export default class MyDocument extends RestHooksDocument {
 
 ### CSP Nonce
 
-Rest Hooks Document serializes the store state in a script tag. In case you have
+Data Client Document serializes the store state in a script tag. In case you have
 Content Security Policy restrictions that require use of a nonce, you can override
-`RestHooksDocument.getNonce`.
+`DataClientDocument.getNonce`.
 
 Since there is no standard way of handling [nonce](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce)
 in NextJS, this allows you
-to retrieve any nonce you created in the DocumentContext to use with Rest Hooks.
+to retrieve any nonce you created in the DocumentContext to use with Data Client.
 
 <details open><summary><b>pages/_document.tsx</b></summary>
 
 ```tsx
-import { RestHooksDocument } from '@rest-hooks/ssr/nextjs';
+import { DataClientDocument } from '@data-client/ssr/nextjs';
 
-export default class MyDocument extends RestHooksDocument {
+export default class MyDocument extends DataClientDocument {
   static getNonce(ctx: DocumentContext) {
     // this assumes nonce has been added here - customize as you need
     return ctx.res.nonce;
@@ -197,11 +197,11 @@ export default class MyDocument extends RestHooksDocument {
 
 Used to server side render cache. Renders &lt;ServerDataComponent/> inside to serialize cache so client can hydrate.
 
-### createServerDataComponent(useReadyCacheState, id = 'rest-hooks-data')
+### createServerDataComponent(useReadyCacheState, id = 'data-client-data')
 
 Contents are a script with JSON encoding of cache state sent from server. Be sure to place outside hydration
 element so React will not need to hydrate it.
 
-### getInitialData(id = 'rest-hooks-data') => Promise(State)
+### getInitialData(id = 'data-client-data') => Promise(State)
 
 Resolves promise with serialized initialState to pass to &lt;CacheProvider />

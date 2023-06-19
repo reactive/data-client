@@ -1,20 +1,20 @@
 # Networking Hooks
-[![CircleCI](https://circleci.com/gh/data-client/rest-hooks/tree/master.svg?style=shield)](https://circleci.com/gh/data-client/rest-hooks)
-[![Coverage Status](https://img.shields.io/codecov/c/gh/data-client/rest-hooks/master.svg?style=flat-square)](https://app.codecov.io/gh/data-client/rest-hooks?branch=master)
-[![npm downloads](https://img.shields.io/npm/dm/@rest-hooks/hooks.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/hooks)
-[![bundle size](https://img.shields.io/bundlephobia/minzip/@rest-hooks/hooks?style=flat-square)](https://bundlephobia.com/result?p=@rest-hooks/hooks)
-[![npm version](https://img.shields.io/npm/v/@rest-hooks/hooks.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/hooks)
+[![CircleCI](https://circleci.com/gh/data-client/data-client/tree/master.svg?style=shield)](https://circleci.com/gh/data-client/data-client)
+[![Coverage Status](https://img.shields.io/codecov/c/gh/data-client/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/data-client/data-client?branch=master)
+[![npm downloads](https://img.shields.io/npm/dm/@data-client/hooks.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/hooks)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/@data-client/hooks?style=flat-square)](https://bundlephobia.com/result?p=@data-client/hooks)
+[![npm version](https://img.shields.io/npm/v/@data-client/hooks.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/hooks)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 Composable hooks for networking data
 
 <div align="center">
 
-**[📖Read The Docs](https://resthooks.io/docs/api/useDebounce)**
+**[📖Read The Docs](https://dataclient.io/docs/api/useDebounce)**
 
 </div>
 
-### [useCancelling()](https://resthooks.io/docs/api/useCancelling)
+### [useCancelling()](https://dataclient.io/docs/api/useCancelling)
 
 [Aborts](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) inflight request if the parameters change.
 
@@ -22,7 +22,7 @@ Composable hooks for networking data
 const data = useSuspense(useCancelling(MyEndpoint, { filter }), { filter });
 ```
 
-### [useDebounce()](https://resthooks.io/docs/api/useDebounce)
+### [useDebounce()](https://dataclient.io/docs/api/useDebounce)
 
 Delays updating the parameters by [debouncing](https://css-tricks.com/debouncing-throttling-explained-examples/).
 Useful to avoid spamming network requests when parameters might change quickly (like a typeahead field).
@@ -32,7 +32,7 @@ const debouncedFilter = useDebounce(filter, 200);
 const data = useSuspense(SearchList, { filter: debouncedFilter });
 ```
 
-### [useLoading()](https://resthooks.io/docs/api/useDebounce)
+### [useLoading()](https://dataclient.io/docs/api/useDebounce)
 
 Helps track loading state of imperative async functions.
 

@@ -1,4 +1,4 @@
-import { useSuspense, useController, useCache } from '@rest-hooks/react';
+import { useSuspense, useController, useCache } from '@data-client/react';
 import { Tag } from 'antd';
 import React, { useCallback } from 'react';
 import { Issue } from 'resources/Issue';

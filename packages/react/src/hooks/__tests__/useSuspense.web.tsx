@@ -1,14 +1,14 @@
-import { jest } from '@jest/globals';
 import {
   State,
   initialState,
   Controller,
   ActionTypes,
   actionTypes,
-} from '@rest-hooks/core';
-import { FetchAction } from '@rest-hooks/core';
-import { Endpoint, FetchFunction, ReadEndpoint } from '@rest-hooks/endpoint';
-import { normalize } from '@rest-hooks/normalizr';
+} from '@data-client/core';
+import { FetchAction } from '@data-client/core';
+import { Endpoint, FetchFunction, ReadEndpoint } from '@data-client/endpoint';
+import { normalize } from '@data-client/normalizr';
+import { jest } from '@jest/globals';
 import { render, act } from '@testing-library/react';
 import {
   CoolerArticleResource,

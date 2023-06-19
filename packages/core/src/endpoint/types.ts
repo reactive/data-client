@@ -1,5 +1,5 @@
-import { Schema } from '@rest-hooks/normalizr';
-import type { Denormalize } from '@rest-hooks/normalizr';
+import { Schema } from '@data-client/normalizr';
+import type { Denormalize } from '@data-client/normalizr';
 
 import { FetchShape } from './shapes.js';
 import { UpdateFunction } from '../types.js';

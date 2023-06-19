@@ -1,4 +1,4 @@
-import type { FetchFunction, ResolveType } from '@rest-hooks/endpoint';
+import type { FetchFunction, ResolveType } from '@data-client/endpoint';
 
 import {
   PartialRestGenerics,

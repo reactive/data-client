@@ -32,7 +32,7 @@ values={[
 <TabItem value="web">
 
 ```tsx title="/index.tsx"
-import { CacheProvider, LogoutManager } from '@rest-hooks/react';
+import { CacheProvider, LogoutManager } from '@data-client/react';
 import ReactDOM from 'react-dom';
 
 // highlight-next-line
@@ -51,7 +51,7 @@ ReactDOM.render(
 <TabItem value="18-web">
 
 ```tsx title="/index.tsx"
-import { CacheProvider, LogoutManager } from '@rest-hooks/react';
+import { CacheProvider, LogoutManager } from '@data-client/react';
 import ReactDOM from 'react-dom';
 
 // highlight-next-line
@@ -69,7 +69,7 @@ ReactDOM.createRoot(document.body).render(
 <TabItem value="native">
 
 ```tsx title="/index.tsx"
-import { CacheProvider, LogoutManager } from '@rest-hooks/react';
+import { CacheProvider, LogoutManager } from '@data-client/react';
 import { AppRegistry } from 'react-native';
 
 // highlight-next-line
@@ -88,8 +88,8 @@ AppRegistry.registerComponent('MyApp', () => Root);
 <TabItem value="nextjs">
 
 ```tsx title="pages/_app.tsx"
-import { CacheProvider, LogoutManager } from '@rest-hooks/react';
-import { AppCacheProvider } from '@rest-hooks/ssr/nextjs';
+import { CacheProvider, LogoutManager } from '@data-client/react';
+import { AppCacheProvider } from '@data-client/ssr/nextjs';
 import type { AppProps } from 'next/app';
 
 // highlight-next-line

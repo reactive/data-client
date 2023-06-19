@@ -1,6 +1,6 @@
 import { Link } from '@anansi/router';
 import { BranchesOutlined, PullRequestOutlined } from '@ant-design/icons';
-import { useSuspense } from '@rest-hooks/react';
+import { useSuspense } from '@data-client/react';
 import { Timeline, Typography, Divider } from 'antd';
 import { groupBy } from 'lodash';
 import { useMemo } from 'react';

@@ -127,7 +127,7 @@ Returns a promise that resolves once all inflight requests are completed.
 ## Example
 
 ```typescript
-import { makeRenderRestHook, makeCacheProvider } from '@rest-hooks/test';
+import { makeRenderRestHook, makeCacheProvider } from '@data-client/test';
 
 const payload = {
   id: 5,

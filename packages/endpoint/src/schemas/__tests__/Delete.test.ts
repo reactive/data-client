@@ -1,5 +1,5 @@
 // eslint-env jest
-import { Schema, normalize } from '@rest-hooks/normalizr';
+import { Schema, normalize } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 

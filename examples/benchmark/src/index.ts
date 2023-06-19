@@ -4,6 +4,6 @@ export {
   WeakEntityMap,
   inferResults,
   denormalizeCached,
-} from '@rest-hooks/normalizr';
-export * from '@rest-hooks/core';
-export { Endpoint, Entity, schema, Query } from '@rest-hooks/endpoint';
+} from '@data-client/normalizr';
+export * from '@data-client/core';
+export { Endpoint, Entity, schema, Query } from '@data-client/endpoint';

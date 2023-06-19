@@ -1,4 +1,4 @@
-import type { EndpointInterface, ResolveType } from '@rest-hooks/normalizr';
+import type { EndpointInterface, ResolveType } from '@data-client/normalizr';
 
 import { EndpointUpdateFunction } from './types.js';
 import { SET_TYPE } from '../actionTypes.js';

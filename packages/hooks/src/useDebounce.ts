@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 /**
  * Keeps value updated after delay time
  *
- * @see https://resthooks.io/docs/api/useDebounce
+ * @see https://dataclient.io/docs/api/useDebounce
  * @param value Any immutable value
  * @param delay Time in miliseconds to wait til updating the value
  * @param updatable Whether to update at all

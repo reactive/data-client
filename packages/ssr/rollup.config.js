@@ -1,16 +1,16 @@
-import commonjs from 'rollup-plugin-commonjs';
-import resolve from 'rollup-plugin-node-resolve';
 import babel from 'rollup-plugin-babel';
-import json from 'rollup-plugin-json';
-import { terser } from 'rollup-plugin-terser';
+import commonjs from 'rollup-plugin-commonjs';
 import filesize from 'rollup-plugin-filesize';
+import json from 'rollup-plugin-json';
+import resolve from 'rollup-plugin-node-resolve';
 import replace from 'rollup-plugin-replace';
+import { terser } from 'rollup-plugin-terser';
 
 import pkg from './package.json';
 
 const dependencies = Object.keys(pkg.dependencies)
   .concat(Object.keys(pkg.peerDependencies))
-  .concat(['@rest-hooks/core', 'rest-hooks'])
+  .concat(['@data-client/core', 'data-client'])
   .filter(dep => !['@babel/runtime'].includes(dep));
 
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node'];

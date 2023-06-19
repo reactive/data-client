@@ -1,6 +1,6 @@
-import { actionTypes, Controller } from '@rest-hooks/core';
-import { CacheProvider } from '@rest-hooks/react';
-import { CacheProvider as ExternalCacheProvider } from '@rest-hooks/redux';
+import { actionTypes, Controller } from '@data-client/core';
+import { CacheProvider } from '@data-client/react';
+import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
 import { renderHook } from '@testing-library/react-hooks';
 import {
   PollingArticleResource,
@@ -184,7 +184,7 @@ describe.each([
     await renderRestHook.allSettled();
   });
 
-  it('useSubscription() should dispatch rest-hooks/subscribe only once even with rerender', async () => {
+  it('useSubscription() should dispatch data-client/subscribe only once even with rerender', async () => {
     const fakeDispatch = jest.fn();
     const controller = new Controller({ dispatch: fakeDispatch });
 

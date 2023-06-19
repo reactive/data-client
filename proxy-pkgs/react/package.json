@@ -1,0 +1,111 @@
+{
+  "name": "@rest-hooks/react",
+  "version": "7.4.2",
+  "description": "Normalized state management for async data. Safe. Fast. Reusable.",
+  "homepage": "https://resthooks.io",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:data-client/rest-hooks.git",
+    "directory": "packages/react"
+  },
+  "bugs": {
+    "url": "https://github.com/data-client/rest-hooks/issues"
+  },
+  "keywords": [
+    "react",
+    "data",
+    "cache",
+    "flux",
+    "suspense",
+    "fetch",
+    "hook",
+    "networking",
+    "async",
+    "concurrent mode",
+    "typescript",
+    "async",
+    "data fetching",
+    "data cache",
+    "api client",
+    "api",
+    "normalized cache",
+    "swr",
+    "GraphQL",
+    "query",
+    "react-native",
+    "ios",
+    "android",
+    "web",
+    "expo",
+    "middleware",
+    "websocket",
+    "sse",
+    "declarative",
+    "scalable"
+  ],
+  "sideEffects": false,
+  "main": "index.cjs",
+  "module": "index.js",
+  "types": "index.d.ts",
+  "type": "module",
+  "typesVersions": {
+    "*": {
+      "": [
+        "index.d.ts"
+      ],
+      "makeCacheProvider": [
+        "makeCacheProvider.d.ts"
+      ],
+      "next": [
+        "next.d.ts"
+      ],
+      "*": [
+        "index.d.ts"
+      ]
+    }
+  },
+  "exports": {
+    ".": {
+      "module": "./index.js",
+      "import": "./index.js",
+      "require": "./index.cjs",
+      "default": "./index.js"
+    },
+    "./makeCacheProvider": {
+      "types": "./makeCacheProvider.d.ts",
+      "module": "./makeCacheProvider.js",
+      "import": "./makeCacheProvider.js",
+      "require": "./makeCacheProvider.cjs",
+      "default": "./makeCacheProvider.js"
+    },
+    "./next": {
+      "types": "./next.d.ts",
+      "module": "./next.js",
+      "import": "./next.js",
+      "require": "./next.cjs",
+      "default": "./next.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "engines": {
+    "node": "^12.17 || ^13.7 || >=14"
+  },
+  "files": [
+    "next.cjs",
+    "next.js",
+    "next.d.ts",
+    "makeCacheProvider.cjs",
+    "makeCacheProvider.js",
+    "makeCacheProvider.d.ts",
+    "index.cjs",
+    "index.js",
+    "index.d.ts",
+    "LICENSE",
+    "README.md"
+  ],
+  "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@data-client/react": "^0.1.0"
+  }
+}

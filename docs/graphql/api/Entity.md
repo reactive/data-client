@@ -12,7 +12,7 @@ import LanguageTabs from '@site/src/components/LanguageTabs';
 <LanguageTabs>
 
 ```typescript
-import { Entity } from '@rest-hooks/endpoint';
+import { Entity } from '@data-client/endpoint';
 
 export default class Article extends Entity {
   readonly id: number | undefined = undefined;
@@ -30,7 +30,7 @@ export default class Article extends Entity {
 ```
 
 ```js
-import { Entity } from '@rest-hooks/endpoint';
+import { Entity } from '@data-client/endpoint';
 
 export default class Article extends Entity {
   id = undefined;

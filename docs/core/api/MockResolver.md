@@ -56,7 +56,7 @@ Function that initializes the `this` attribute for all interceptors.
 ## Example
 
 ```tsx
-import { MockResolver } from '@rest-hooks/test';
+import { MockResolver } from '@data-client/test';
 
 import ArticleResource from 'resources/ArticleResource';
 import MyComponentToTest from 'components/MyComponentToTest';

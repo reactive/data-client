@@ -1,5 +1,5 @@
-import { CacheProvider } from '@rest-hooks/react';
-import { GetEndpoint } from '@rest-hooks/rest';
+import { CacheProvider } from '@data-client/react';
+import { GetEndpoint } from '@data-client/rest';
 import {
   CoolerArticleResource,
   PaginatedArticleResource,

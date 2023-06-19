@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import type { NetworkError, UnknownError } from '@rest-hooks/core';
-import { EndpointInterface } from '@rest-hooks/core';
+import type { NetworkError, UnknownError } from '@data-client/core';
+import { EndpointInterface } from '@data-client/core';
 
 import useCacheState from './useCacheState.js';
 import useController from '../hooks/useController.js';

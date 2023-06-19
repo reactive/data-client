@@ -476,7 +476,7 @@ Import from `@rest-hooks/rest/next` to get the next version, which is `async`
 <TypeScriptEditor>
 
 ```ts
-import { RestEndpoint, RestGenerics } from '@rest-hooks/rest/next';
+import { RestEndpoint, RestGenerics } from '@data-client/rest/next';
 
 export default class AuthdEndpoint<
   O extends RestGenerics = any,
@@ -517,7 +517,7 @@ Import from `@rest-hooks/rest/next` to get the next version, which is `async`
 <TypeScriptEditor>
 
 ```ts
-import { RestEndpoint, RestGenerics } from '@rest-hooks/rest/next';
+import { RestEndpoint, RestGenerics } from '@data-client/rest/next';
 
 export default class AuthdEndpoint<
   O extends RestGenerics = any,
@@ -600,7 +600,7 @@ async (id: string) => {
 - [Expiry](./Entity.md#expiresat)
 
 ```tsx
-import { Entity, RestEndpoint } from '@rest-hooks/rest';
+import { Entity, RestEndpoint } from '@data-client/rest';
 
 class User extends Entity {
   readonly id: string = '';
@@ -716,7 +716,7 @@ const createUser = new RestEndpoint({
 This is usage with a [createResource](./createResource.md)
 
 ```typescript title="TodoResource.ts"
-import { Entity, createResource } from '@rest-hooks/rest';
+import { Entity, createResource } from '@data-client/rest';
 
 export class Todo extends Entity {
   readonly id: number = 0;
@@ -841,7 +841,7 @@ RestEndpoint with its parents properties, but with [method](#method): 'POST' and
 Make sure you use `RestGenerics` to keep types working.
 
 ```ts
-import { RestEndpoint, RestGenerics } from '@rest-hooks/rest';
+import { RestEndpoint, RestGenerics } from '@data-client/rest';
 
 class GithubEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
   urlPrefix = 'https://api.github.com';

@@ -15,7 +15,7 @@ For instance [fetch](./Controller.md#fetch), [invalidate](./Controller.md#invali
 and [setResponse](./Controller.md#setResponse)
 
 ```tsx
-import { useController } from '@rest-hooks/react';
+import { useController } from '@data-client/react';
 
 function MyComponent({ id }) {
   const ctrl = useController();
@@ -51,7 +51,7 @@ function MyComponent({ id }) {
 This provides a return value that matches [useSuspense()](./useSuspense.md) - utilizing the [Endpoint.schema](/rest/api/RestEndpoint#schema)
 
 ```ts
-import { useController } from '@rest-hooks/react/next';
+import { useController } from '@data-client/react/next';
 
 const post = await controller.fetch(PostResource.create, createPayload);
 post.title;

@@ -26,7 +26,7 @@ export default gql;
 <LanguageTabs>
 
 ```typescript title="schema/User.ts"
-import { GQLEntity } from '@rest-hooks/graphql';
+import { GQLEntity } from '@data-client/graphql';
 
 export default class User extends GQLEntity {
   readonly name: string | null = null;
@@ -36,7 +36,7 @@ export default class User extends GQLEntity {
 ```
 
 ```js title="schema/User.ts"
-import { GQLEntity } from '@rest-hooks/graphql';
+import { GQLEntity } from '@data-client/graphql';
 
 export default class User extends GQLEntity {}
 ```
@@ -62,7 +62,7 @@ values={[
 <TabItem value="Single">
 
 ```tsx title="pages/UserDetail.tsx"
-import { useSuspense } from '@rest-hooks/react';
+import { useSuspense } from '@data-client/react';
 import User from 'schema/User';
 import gql from 'schema/endpoint';
 
@@ -92,7 +92,7 @@ export default function UserDetail({ name }: { name: string }) {
 <TabItem value="List">
 
 ```tsx title="pages/UserList.tsx"
-import { useSuspense } from '@rest-hooks/react';
+import { useSuspense } from '@data-client/react';
 import User from 'schema/User';
 import gql from 'schema/endpoint';
 
@@ -192,8 +192,8 @@ render(<StarPeople/>);
 We're using [SWAPI](https://graphql.org/swapi-graphql) as our example, since it offers mutations.
 
 ```tsx title="pages/CreateReview.tsx"
-import { useController } from '@rest-hooks/react';
-import { GQLEndpoint, GQLEntity } from '@rest-hooks/graphql';
+import { useController } from '@data-client/react';
+import { GQLEndpoint, GQLEntity } from '@data-client/graphql';
 
 const gql = new GQLEndpoint(
   'https://swapi-graphql.netlify.app/.netlify/functions/index',

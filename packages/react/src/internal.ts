@@ -1,6 +1,6 @@
-import { __INTERNAL__, legacyActions } from '@rest-hooks/core';
+import { __INTERNAL__, legacyActions } from '@data-client/core';
 
-export { createReducer, applyManager } from '@rest-hooks/core';
+export { createReducer, applyManager } from '@data-client/core';
 
 export { default as useCacheState } from './hooks/useCacheState.js';
 

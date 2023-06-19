@@ -2,7 +2,7 @@
 // context does not work in server components
 // https://beta.nextjs.org/docs/rendering/server-and-client-components#third-party-packages
 'use client';
-import type { Controller } from '@rest-hooks/core';
+import type { Controller } from '@data-client/core';
 import { useContext } from 'react';
 
 import { ControllerContext } from '../context.js';

@@ -22,7 +22,7 @@ Learn more about boundary placement by learning how to [co-locate data dependenc
 
 ```tsx
 import React from 'react';
-import { AsyncBoundary } from '@rest-hooks/react';
+import { AsyncBoundary } from '@data-client/react';
 
 export default function MyPage() {
   return (
@@ -63,7 +63,7 @@ Component to handle caught errors
 
 ```tsx
 import React from 'react';
-import { CacheProvider, AsyncBoundary, NetworkError } from '@rest-hooks/react';
+import { CacheProvider, AsyncBoundary, NetworkError } from '@data-client/react';
 
 function ErrorPage({ error }: { error: NetworkError }) {
   return (

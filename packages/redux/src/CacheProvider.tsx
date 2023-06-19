@@ -1,4 +1,4 @@
-import { Controller, Manager, State } from '@rest-hooks/react';
+import { Controller, Manager, State } from '@data-client/react';
 import { useEffect, useMemo } from 'react';
 
 import ExternalCacheProvider from './ExternalCacheProvider.js';

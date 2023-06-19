@@ -19,7 +19,7 @@ to easily replace any existing HOC with ease.
 
 ```tsx
 import withHook from 'hook-hoc';
-import { useSuspense } from '@rest-hooks/react';
+import { useSuspense } from '@data-client/react';
 
 import UserResource from 'resources/user';
 
@@ -51,7 +51,7 @@ and also potentially reusable, let's move it out to a named function:
 
 ```tsx
 import withHook from 'hook-hoc';
-import { useSuspense } from '@rest-hooks/react';
+import { useSuspense } from '@data-client/react';
 
 import UserResource from 'resources/user';
 
@@ -83,7 +83,7 @@ client-side filtering as well as [debouncing](https://usehooks.com/useDebounce/)
 You can combine any hooks here - the sky's the limit.
 
 ```tsx
-import { useSuspense } from '@rest-hooks/react';
+import { useSuspense } from '@data-client/react';
 
 import UserResource from 'resources/user';
 

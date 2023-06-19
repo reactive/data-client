@@ -3,7 +3,7 @@ import type {
   Schema,
   EndpointExtraOptions,
   EndpointInterface,
-} from '@rest-hooks/normalizr';
+} from '@data-client/normalizr';
 import { FSAWithPayloadAndMeta, FSAWithMeta } from 'flux-standard-action';
 
 import {

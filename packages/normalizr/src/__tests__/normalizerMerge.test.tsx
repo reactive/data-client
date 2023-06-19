@@ -1,4 +1,4 @@
-import { schema } from '@rest-hooks/endpoint';
+import { schema } from '@data-client/endpoint';
 import { Article, IDEntity } from '__tests__/new';
 
 import { denormalize } from '../denormalize/denormalize';

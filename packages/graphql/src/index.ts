@@ -4,4 +4,4 @@ export type { GQLOptions } from './GQLEndpoint.js';
 export { default as GQLNetworkError } from './GQLNetworkError.js';
 export * from './GQLNetworkError.js';
 
-export * from '@rest-hooks/endpoint';
+export * from '@data-client/endpoint';

@@ -1,4 +1,4 @@
-import { Endpoint, EndpointInstance } from '@rest-hooks/endpoint';
+import { Endpoint, EndpointInstance } from '@data-client/endpoint';
 
 const getImage: EndpointInstance<
   (this: EndpointInstance, { src }: { src: string }) => Promise<string>,

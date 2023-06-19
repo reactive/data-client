@@ -1,4 +1,4 @@
-import { schema } from '@rest-hooks/endpoint';
+import { schema } from '@data-client/endpoint';
 import nock from 'nock';
 
 import GQLEndpoint from '../GQLEndpoint';

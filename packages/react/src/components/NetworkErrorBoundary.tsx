@@ -1,4 +1,4 @@
-import type { NetworkError } from '@rest-hooks/core';
+import type { NetworkError } from '@data-client/core';
 import React from 'react';
 
 function isNetworkError(error: NetworkError | unknown): error is NetworkError {

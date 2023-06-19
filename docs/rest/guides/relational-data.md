@@ -8,7 +8,7 @@ sidebar_label: Relational data
 </head>
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
-import { RestEndpoint } from '@rest-hooks/rest';
+import { RestEndpoint } from '@data-client/rest';
 
 Reactive Data Client handles one-to-one, many-to-one and many-to-many relationships on [entities][1]
 using [Entity.schema][3]
@@ -96,7 +96,7 @@ delay: 150,
 ]}>
 
 ```typescript title="api/Post"
-import { Entity } from '@rest-hooks/rest';
+import { Entity } from '@data-client/rest';
 
 export class User extends Entity {
   id = '';
@@ -181,7 +181,7 @@ render(<PostPage />);
 ## Client side joins
 
 Even if the network responses don't nest data, we can perform client-side joins by specifying
-the relationship in [Entity.schema](./Entity.md#schema)
+the relationship in [Entity.schema](../api/Entity.md#schema)
 
 <HooksPlayground>
 
@@ -319,7 +319,7 @@ delay: 150,
 ]}>
 
 ```typescript title="api/Post"
-import { Entity } from '@rest-hooks/rest';
+import { Entity } from '@data-client/rest';
 
 export class User extends Entity {
   id = '';
@@ -504,7 +504,7 @@ Because circular imports and circular class definitions are not allowed, sometim
 will be necessary to define the [schema][3] after the [Entities][1] definition.
 
 ```typescript title="api/Post.ts"
-import { Entity } from '@rest-hooks/rest';
+import { Entity } from '@data-client/rest';
 import { User } from './User';
 
 export class Post extends Entity {
@@ -532,7 +532,7 @@ User.schema = {
 ```
 
 ```typescript title="api/User.ts"
-import { Entity } from '@rest-hooks/rest';
+import { Entity } from '@data-client/rest';
 import type { Post } from './Post';
 // we can only import the type else we break javascript imports
 // thus we change the schema of UserResource above

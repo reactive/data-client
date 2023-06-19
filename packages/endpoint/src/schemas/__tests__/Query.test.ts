@@ -1,5 +1,5 @@
 // eslint-env jest
-import { WeakEntityMap, inferResults } from '@rest-hooks/normalizr';
+import { WeakEntityMap, inferResults } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 

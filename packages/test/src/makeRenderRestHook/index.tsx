@@ -5,7 +5,7 @@ import {
   NetworkManager,
   PollingSubscription,
   Controller,
-} from '@rest-hooks/react';
+} from '@data-client/react';
 import React, { memo, Suspense } from 'react';
 
 import { renderHook, act, RenderHookResult } from './renderHook.cjs';

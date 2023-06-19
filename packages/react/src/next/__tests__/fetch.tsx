@@ -1,6 +1,6 @@
-import { ResolveType } from '@rest-hooks/core';
-import { CacheProvider } from '@rest-hooks/react';
-import { CacheProvider as ExternalCacheProvider } from '@rest-hooks/redux';
+import { ResolveType } from '@data-client/core';
+import { CacheProvider } from '@data-client/react';
+import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
 import { act } from '@testing-library/react-hooks';
 import { CoolerArticle, FutureArticleResource } from '__tests__/new';
 import nock from 'nock';

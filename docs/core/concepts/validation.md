@@ -8,7 +8,7 @@ sidebar_label: Validation
 </head>
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
-import {RestEndpoint} from '@rest-hooks/rest';
+import {RestEndpoint} from '@data-client/rest';
 
 [Entity.validate()](/rest/api/Entity#validate) is called during normalization and denormalization.
 `undefined` indicates no error, and a string error message if there is an error.

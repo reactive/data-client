@@ -1,7 +1,7 @@
 import {
   normalize,
   denormalizeCached as denormalize,
-} from '@rest-hooks/normalizr';
+} from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 
 import { schema, DenormalizeNullable, Normalize, Denormalize } from '../src';

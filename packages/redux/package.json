@@ -1,7 +1,46 @@
 {
-  "name": "@rest-hooks/redux",
-  "version": "6.3.7",
+  "name": "@data-client/redux",
+  "version": "0.1.0",
   "description": "Asynchronous data framework for React",
+  "homepage": "https://dataclient.io",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:data-client/data-client.git",
+    "directory": "packages/redux"
+  },
+  "bugs": {
+    "url": "https://github.com/data-client/data-client/issues"
+  },
+  "keywords": [
+    "react",
+    "redux",
+    "data",
+    "cache",
+    "flux",
+    "suspense",
+    "fetch",
+    "hook",
+    "networking",
+    "async",
+    "concurrent mode",
+    "typescript",
+    "async",
+    "data fetching",
+    "data cache",
+    "api client",
+    "api",
+    "normalized cache",
+    "swr",
+    "GraphQL",
+    "query",
+    "react-native",
+    "ios",
+    "android",
+    "web",
+    "middleware",
+    "declarative",
+    "scalable"
+  ],
   "sideEffects": false,
   "main": "dist/index.js",
   "react-native": "legacy/index.js",
@@ -78,53 +117,14 @@
     "prepare": "run build:lib",
     "prepack": "run prepare && run build:bundle && run build:legacy:lib"
   },
-  "keywords": [
-    "react",
-    "redux",
-    "data",
-    "cache",
-    "flux",
-    "suspense",
-    "fetch",
-    "hook",
-    "networking",
-    "async",
-    "concurrent mode",
-    "typescript",
-    "async",
-    "data fetching",
-    "data cache",
-    "api client",
-    "api",
-    "normalized cache",
-    "swr",
-    "GraphQL",
-    "query",
-    "react-native",
-    "ios",
-    "android",
-    "web",
-    "middleware",
-    "declarative",
-    "scalable"
-  ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",
-  "homepage": "https://resthooks.io",
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com:data-client/rest-hooks.git",
-    "directory": "packages/redux"
-  },
-  "bugs": {
-    "url": "https://github.com/data-client/rest-hooks/issues"
-  },
   "dependencies": {
     "@babel/runtime": "^7.17.0",
-    "@rest-hooks/core": "^4.4.2"
+    "@data-client/core": "^0.1.0"
   },
   "peerDependencies": {
-    "@rest-hooks/react": "^0.1.0 || ^0.2.0 || ^6.0.0 || ^7.0.0",
+    "@data-client/react": "^0.1.0",
     "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0",
     "react": "^16.8.4 || ^17.0.0 || ^18.0.0",
     "redux": "^4.0.0"
@@ -136,7 +136,7 @@
   },
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",
-    "@rest-hooks/react": "workspace:*",
+    "@data-client/react": "workspace:*",
     "@types/node": "^20.0.0",
     "@types/react": "^18.0.30",
     "redux": "^4.2.1"

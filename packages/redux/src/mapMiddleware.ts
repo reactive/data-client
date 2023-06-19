@@ -1,4 +1,4 @@
-import type { State } from '@rest-hooks/react';
+import type { State } from '@data-client/react';
 import type { MiddlewareAPI, Middleware } from 'redux';
 
 const mapMiddleware =

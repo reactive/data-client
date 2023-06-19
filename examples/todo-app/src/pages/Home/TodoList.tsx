@@ -1,4 +1,4 @@
-import { useSuspense } from '@rest-hooks/react';
+import { useSuspense } from '@data-client/react';
 import { TodoResource } from 'resources/TodoResource';
 
 import NewTodo from './NewTodo';

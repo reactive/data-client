@@ -1,4 +1,4 @@
-import type { EndpointInterface } from '@rest-hooks/normalizr';
+import type { EndpointInterface } from '@data-client/normalizr';
 
 import BaseController, {
   CompatibleDispatch,

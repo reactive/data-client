@@ -5,7 +5,7 @@ import {
   EyeOutlined,
   PullRequestOutlined,
 } from '@ant-design/icons';
-import { schema } from '@rest-hooks/rest';
+import { schema } from '@data-client/rest';
 
 import { createGithubResource, GithubEntity } from './Base';
 import { Issue } from './Issue';

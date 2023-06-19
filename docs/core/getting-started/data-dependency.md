@@ -46,7 +46,7 @@ export const TodoResource = createResource({
 ```
 
 ```tsx title="Todo" {5}
-import { useSuspense } from '@rest-hooks/react';
+import { useSuspense } from '@data-client/react';
 import { TodoResource } from './api/Todo';
 
 function TodoDetail({ id }: { id: number }) {
@@ -81,7 +81,7 @@ export const TodoResource = createResource({
 ```
 
 ```tsx title="TodoList" {5}
-import { useSuspense } from '@rest-hooks/react';
+import { useSuspense } from '@data-client/react';
 import { TodoResource } from './api/Todo';
 
 function TodoList() {
@@ -136,7 +136,7 @@ routes or modals.
 
 ```tsx {6,12,23-25}
 import React, { Suspense } from 'react';
-import { AsyncBoundary } from '@rest-hooks/react';
+import { AsyncBoundary } from '@data-client/react';
 
 export default function TodoPage({ id }: { id: number }) {
   return (
@@ -185,7 +185,7 @@ export const TodoResource = createResource({
 ```
 
 ```tsx title="Todo" {5}
-import { useDLE } from '@rest-hooks/react';
+import { useDLE } from '@data-client/react';
 import { TodoResource } from './api/Todo';
 
 function TodoDetail({ id }: { id: number }) {
@@ -239,7 +239,7 @@ export const TodoResource = createResource({
 ```
 
 ```tsx title="Todo" {5}
-import { useLive } from '@rest-hooks/react';
+import { useLive } from '@data-client/react';
 import { TodoResource } from './api/Todo';
 
 function TodoDetail({ id }: { id: number }) {
@@ -275,7 +275,7 @@ export const TodoResource = createResource({
 ```
 
 ```tsx title="TodoList" {5}
-import { useLive } from '@rest-hooks/react';
+import { useLive } from '@data-client/react';
 import { TodoResource } from './api/Todo';
 
 function TodoList() {
@@ -337,7 +337,7 @@ export const getExchangeRates = new RestEndpoint({
 ```
 
 ```tsx title="AssetPrice" {5}
-import { useLive } from '@rest-hooks/react';
+import { useLive } from '@data-client/react';
 import { getExchangeRates } from './api/ExchangeRates';
 
 function AssetPrice({ symbol }: { symbol: string }) {

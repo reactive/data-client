@@ -1,5 +1,5 @@
-import { Entity } from '@rest-hooks/rest';
-import { createResource } from '@rest-hooks/rest/next';
+import { Entity } from '@data-client/rest';
+import { createResource } from '@data-client/rest/next';
 
 export class Post extends Entity {
   id = 0;

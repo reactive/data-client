@@ -37,7 +37,7 @@ const TodoResource = createResource({
 const todo = useSuspense(TodoResource.get, { id: '5' });
 const todos = useSuspense(TodoResource.getList);
 controller.fetch(TodoResource.create, {
-  title: 'finish installing rest hooks',
+  title: 'finish installing reactive data client',
 });
 controller.fetch(
   TodoResource.update,
@@ -254,7 +254,7 @@ import {
   RestEndpoint,
   type EndpointExtraOptions,
   type RestGenerics,
-} from '@rest-hooks/rest';
+} from '@data-client/rest';
 
 export class AuthdEndpoint<
   O extends RestGenerics = any,

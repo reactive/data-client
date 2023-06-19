@@ -1,4 +1,4 @@
-import { DELETED, schema } from '@rest-hooks/endpoint';
+import { DELETED, schema } from '@data-client/endpoint';
 import {
   ArticleResource,
   ArticleResourceWithOtherListUrl,

@@ -14,7 +14,7 @@ defined in your [RestEndpoint](../api/RestEndpoint.md).
 Here's an example using simple cookie auth:
 
 ```ts title="api/AuthdEndpoint.ts"
-import { RestEndpoint } from '@rest-hooks/rest';
+import { RestEndpoint } from '@data-client/rest';
 
 export default class AuthdEndpoint<
   O extends RestGenerics = any,
@@ -30,7 +30,7 @@ export default class AuthdEndpoint<
 ```
 
 ```ts title="api/MyResource.ts"
-import { createResource, Entity } from '@rest-hooks/rest';
+import { createResource, Entity } from '@data-client/rest';
 import AuthdEndpoint from 'api/AuthdEndpoint';
 
 class MyEntity extends Entity {
@@ -56,7 +56,7 @@ values={[
 <TabItem value="static">
 
 ```ts title="api/AuthdEndpoint.ts"
-import { RestEndpoint } from '@rest-hooks/rest';
+import { RestEndpoint } from '@data-client/rest';
 
 export default class AuthdEndpoint<
   O extends RestGenerics = any,
@@ -103,7 +103,7 @@ async `getHeaders`. `@rest-hooks/rest@8` will have these changes.
 ```ts title="api/AuthdEndpoint.ts"
 import { getAuthToken } from 'authorization-singleton';
 // highlight-next-line
-import { RestEndpoint } from '@rest-hooks/rest/next';
+import { RestEndpoint } from '@data-client/rest/next';
 
 export default class AuthdEndpoint<
   O extends RestGenerics = any,
@@ -144,7 +144,7 @@ function Auth() {
 
 ```ts title="api/AuthdEndpoint.ts"
 import { getAuthToken } from 'authorization-singleton';
-import { RestEndpoint } from '@rest-hooks/rest';
+import { RestEndpoint } from '@data-client/rest';
 
 export default class AuthdEndpoint<
   O extends RestGenerics = any,
@@ -184,7 +184,7 @@ function Auth() {
 </Tabs>
 
 ```ts title="api/MyResource.ts"
-import { createResource, Entity } from '@rest-hooks/rest';
+import { createResource, Entity } from '@data-client/rest';
 import AuthdEndpoint from 'api/AuthdEndpoint';
 
 class MyEntity extends Entity {
@@ -219,7 +219,7 @@ We can transform any [Resource](../api/createResource.md) into one that uses hoo
 by using [hookifyResource](../api/hookifyResource.md)
 
 ```ts title="api/Post.ts"
-import { createResource, hookifyResource } from '@rest-hooks/rest';
+import { createResource, hookifyResource } from '@data-client/rest';
 
 // Post defined here
 
@@ -239,7 +239,7 @@ export const PostResource = hookifyResource(
 Then we can get the endpoints as hooks in our React Components
 
 ```tsx
-import { useSuspense } from '@rest-hooks/react';
+import { useSuspense } from '@data-client/react';
 import { PostResource } from 'api/Post';
 
 function PostDetail({ id }) {
@@ -274,7 +274,7 @@ function CreatePost() {
 We will first provide an easy way of using the context to alter the fetch headers.
 
 ```ts title="api/AuthdEndpoint.ts"
-import { RestEndpoint } from '@rest-hooks/rest';
+import { RestEndpoint } from '@data-client/rest';
 
 export default class AuthdEndpoint<
   O extends RestGenerics = any,

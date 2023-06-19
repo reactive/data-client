@@ -1,5 +1,5 @@
+import { CacheProvider } from '@data-client/react';
 import { shapeToEndpoint } from '@rest-hooks/legacy';
-import { CacheProvider } from '@rest-hooks/react';
 import {
   CoolerArticleResource,
   PaginatedArticleResource,

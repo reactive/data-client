@@ -60,7 +60,7 @@ Using `@rest-hooks/hooks` package with [useCancelling()](../api/useCancelling) w
 change before the request is resolved.
 
 ```tsx
-import { useCancelling } from '@rest-hooks/hooks';
+import { useCancelling } from '@data-client/hooks';
 
 const CancelingUserList = useCancelling(UserList, { query });
 const users = useSuspense(CancelingUserList, { query });

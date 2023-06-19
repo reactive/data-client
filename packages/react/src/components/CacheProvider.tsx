@@ -6,8 +6,8 @@ import {
   SubscriptionManager,
   PollingSubscription,
   DevToolsManager,
-} from '@rest-hooks/core';
-import type { State, Manager } from '@rest-hooks/core';
+} from '@data-client/core';
+import type { State, Manager } from '@data-client/core';
 import React, { useMemo, useRef } from 'react';
 
 import CacheStore from './CacheStore.js';

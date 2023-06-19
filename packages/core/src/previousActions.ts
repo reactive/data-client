@@ -2,8 +2,8 @@ import {
   EndpointExtraOptions,
   EndpointInterface,
   Schema,
-} from '@rest-hooks/normalizr';
-import type { UpdateFunction } from '@rest-hooks/normalizr';
+} from '@data-client/normalizr';
+import type { UpdateFunction } from '@data-client/normalizr';
 import { FSAWithMeta, FSAWithPayloadAndMeta } from 'flux-standard-action';
 
 import {

@@ -12,8 +12,8 @@
   "devDependencies": {
     "@babel/core": "7.22.5",
     "@babel/node": "7.22.5",
+    "@data-client/normalizr": "workspace:*",
     "@octokit/rest": "19.0.11",
-    "@rest-hooks/normalizr": "workspace:*",
     "@types/babel__core": "^7",
     "inquirer": "^8.1.1",
     "redux": "4.2.1",
@@ -28,6 +28,6 @@
     "rollup-plugin-terser": "^7.0.2"
   },
   "dependencies": {
-    "@rest-hooks/endpoint": "workspace:^"
+    "@data-client/endpoint": "workspace:^"
   }
 }

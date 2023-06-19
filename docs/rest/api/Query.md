@@ -8,7 +8,7 @@ slug: Query
   <meta name="docsearch:pagerank" content="30"/>
 </head>
 
-import { RestEndpoint } from '@rest-hooks/rest';
+import { RestEndpoint } from '@data-client/rest';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
 `Query` provides programmatic access to the Reactive Data Client cache while maintaining
@@ -80,7 +80,7 @@ export const UserResource = createResource({
 ```
 
 ```tsx title="UsersPage.tsx" {4}
-import { Query, schema } from '@rest-hooks/rest';
+import { Query, schema } from '@data-client/rest';
 import { UserResource, User } from './api/User';
 
 const allUsers = new Query(new schema.All(User));
@@ -133,7 +133,7 @@ export const UserResource = createResource({
 ```
 
 ```tsx title="UsersPage.tsx"
-import { Query, schema } from '@rest-hooks/rest';
+import { Query, schema } from '@data-client/rest';
 import { UserResource, User } from './api/User';
 
 interface Args {
@@ -199,7 +199,7 @@ export const UserResource = createResource({
 ```
 
 ```tsx title="UsersPage"
-import { Query, schema } from '@rest-hooks/rest';
+import { Query, schema } from '@data-client/rest';
 import { UserResource, User } from './api/User';
 
 const getUserCount = new Query(
@@ -279,7 +279,7 @@ export const TodoResource = createResource({
 ```
 
 ```tsx title="TodoJoined.tsx"
-import { Query, schema } from '@rest-hooks/rest';
+import { Query, schema } from '@data-client/rest';
 import { TodoResource, Todo } from './api/Todo';
 import { UserResource, User } from './api/User';
 

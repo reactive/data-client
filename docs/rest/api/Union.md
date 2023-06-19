@@ -7,7 +7,7 @@ title: schema.Union
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
-import { RestEndpoint } from '@rest-hooks/rest';
+import { RestEndpoint } from '@data-client/rest';
 import StackBlitz from '@site/src/components/StackBlitz';
 
 Describe a schema which is a union of multiple schemas. This is useful if you need the polymorphic behavior provided by [schema.Array](./Array.md) or [schema.Values](./Values.md) but for non-collection fields.

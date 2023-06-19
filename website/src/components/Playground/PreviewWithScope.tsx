@@ -1,9 +1,9 @@
-import * as graphql from '@rest-hooks/graphql';
-import * as hooks from '@rest-hooks/hooks';
-import * as rhReact from '@rest-hooks/react';
-import * as rest from '@rest-hooks/rest';
-import * as restNext from '@rest-hooks/rest/next';
-import type { Fixture, Interceptor } from '@rest-hooks/test';
+import * as graphql from '@data-client/graphql';
+import * as hooks from '@data-client/hooks';
+import * as rhReact from '@data-client/react';
+import * as rest from '@data-client/rest';
+import * as restNext from '@data-client/rest/next';
+import type { Fixture, Interceptor } from '@data-client/test';
 import BigNumber from 'bignumber.js';
 import React from 'react';
 import { LiveProvider } from 'react-live';

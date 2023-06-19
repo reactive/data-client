@@ -38,11 +38,12 @@ const baseConfig = {
   },
   /** TODO: Remove once we move to 'publishConfig' */
   moduleNameMapper: {
-    '@rest-hooks/redux/makeCacheProvider$': [
+    '@data-client/redux/makeCacheProvider$': [
       '<rootDir>/packages/redux/src/makeExternalCacheProvider',
     ],
-    '@rest-hooks/([^/]+)(/.*|[^/]*)$': ['<rootDir>/packages/$1/src$2'],
-    'rest-hooks': ['<rootDir>/packages/rest-hooks/src'],
+    '@data-client/([^/]+)(/.*|[^/]*)$': ['<rootDir>/packages/$1/src$2'],
+    '@rest-hooks/legacy$': ['<rootDir>/packages/legacy/src'],
+    'rest-hooks$': ['<rootDir>/packages/rest-hooks/src'],
   },
 };
 

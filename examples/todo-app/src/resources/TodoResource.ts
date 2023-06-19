@@ -1,4 +1,4 @@
-import { Query, schema } from '@rest-hooks/rest';
+import { Query, schema } from '@data-client/rest';
 
 import {
   createPlaceholderResource,

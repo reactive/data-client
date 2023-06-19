@@ -1,4 +1,4 @@
-import type { Fixture, Interceptor } from '@rest-hooks/test';
+import type { Fixture, Interceptor } from '@data-client/test';
 import CodeBlock from '@theme/CodeBlock';
 import React, { memo, type ReactElement } from 'react';
 

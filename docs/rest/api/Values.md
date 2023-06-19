@@ -8,7 +8,7 @@ title: schema.Values
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
-import { RestEndpoint } from '@rest-hooks/rest';
+import { RestEndpoint } from '@data-client/rest';
 
 Like [Array](./Array), `Values` are unbounded in size. The definition here describes the types of values to expect,
 with keys being any string.

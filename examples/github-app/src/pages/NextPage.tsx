@@ -1,4 +1,4 @@
-import { useController } from '@rest-hooks/react';
+import { useController } from '@data-client/react';
 import { useState } from 'react';
 import { IssueResource } from 'resources/Issue';
 
