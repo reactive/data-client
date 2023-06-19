@@ -21693,6 +21693,7 @@ __metadata:
     "@types/eslint": 8.40.2
     "@types/prettier": 2.7.3
     "@types/react-dom": 18.2.5
+    "@types/uuid": ^9.0.0
     "@typescript-eslint/eslint-plugin": 5.59.11
     "@typescript-eslint/parser": 5.59.11
     eslint: 8.43.0
@@ -21714,6 +21715,7 @@ __metadata:
     rollup-plugin-replace: ^2.2.0
     rollup-plugin-terser: ^7.0.2
     serve: 14.2.0
+    uuid: ^9.0.0
     webpack: 5.87.0
     webpack-cli: 5.1.4
     webpack-dev-server: 4.15.1

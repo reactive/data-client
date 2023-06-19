@@ -2,19 +2,14 @@ import { styled } from '@linaria/react';
 import { useController } from '@rest-hooks/react';
 import { useCallback, useRef } from 'react';
 import { TodoResource } from 'resources/TodoResource';
+import { v4 as uuid } from 'uuid';
 
-export default function NewTodo({
-  lastId,
-  userId,
-}: {
-  lastId: number;
-  userId?: number;
-}) {
+export default function NewTodo({ userId }: { userId?: number }) {
   const ctrl = useController();
 
   // this allows handlePress to never change referential equality
-  const payload = useRef({ id: lastId + 1, userId });
-  payload.current = { id: lastId + 1, userId };
+  const payload = useRef({ id: 1, userId });
+  payload.current = { id: randomId(), userId };
 
   const handlePress = useCallback(
     async (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -50,3 +45,7 @@ const TitleInput = styled.input`
     opacity: 1;
   }
 `;
+
+function randomId() {
+  return Number.parseInt(uuid().slice(0, 8), 16);
+}

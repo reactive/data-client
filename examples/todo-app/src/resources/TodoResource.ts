@@ -16,30 +16,15 @@ export class Todo extends PlaceholderEntity {
 const TodoResourceBase = createPlaceholderResource({
   path: '/todos/:id',
   schema: Todo,
+  optimistic: true,
 });
 export const TodoResource = {
   ...TodoResourceBase,
   getList: TodoResourceBase.getList.extend({
     searchParams: {} as { userId?: string | number } | undefined,
   }),
-  partialUpdate: TodoResourceBase.partialUpdate.extend({
-    getOptimisticResponse(snap, { id }, body) {
-      return {
-        id,
-        ...body,
-      };
-    },
-  }),
   create: TodoResourceBase.create.extend({
     searchParams: {} as { userId?: string | number } | undefined,
-    getOptimisticResponse(snap, ...args) {
-      return args[args.length - 1];
-    },
-  }),
-  delete: TodoResourceBase.delete.extend({
-    getOptimisticResponse(snap, params) {
-      return params;
-    },
   }),
 };
 export const queryRemaining = new Query(
