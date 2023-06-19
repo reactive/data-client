@@ -27,17 +27,12 @@ const base = createGithubResource({
   path: '/repos/:owner/:repo/issues/:number/reactions/:id',
   schema: Reaction,
   Endpoint: PreviewEndpoint,
+  optimistic: true,
 });
 export const ReactionResource = {
   ...base,
   getByComment: base.getList.extend({
     path: 'repos/:owner/:repo/issues/comments/:comment/reactions',
-  }),
-  create: base.create.extend({
-    getOptimisticResponse: (snap, params, body) => body,
-  }),
-  delete: base.delete.extend({
-    getOptimisticResponse: (snap, params) => params,
   }),
 };
 

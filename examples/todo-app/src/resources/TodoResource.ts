@@ -13,20 +13,13 @@ export class Todo extends PlaceholderEntity {
   static key = 'Todo';
 }
 
-const TodoResourceBase = createPlaceholderResource({
+export const TodoResource = createPlaceholderResource({
   path: '/todos/:id',
   schema: Todo,
   optimistic: true,
+  searchParams: {} as { userId?: string | number } | undefined,
 });
-export const TodoResource = {
-  ...TodoResourceBase,
-  getList: TodoResourceBase.getList.extend({
-    searchParams: {} as { userId?: string | number } | undefined,
-  }),
-  create: TodoResourceBase.create.extend({
-    searchParams: {} as { userId?: string | number } | undefined,
-  }),
-};
+
 export const queryRemaining = new Query(
   new schema.All(Todo),
   (entries, { userId } = {}) => {
