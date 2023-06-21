@@ -38,14 +38,7 @@ export default class GlobalCache implements Cache {
     computeValue: (localCacheKey: Record<string, any>) => void,
   ): object | undefined | symbol {
     const key = schema.key;
-    if (!(key in this.localCache)) {
-      this.localCache[key] = Object.create(null);
-    }
-    if (!(key in this.cycleCache)) {
-      this.cycleCache[key] = Object.create(null);
-    }
-    const localCacheKey = this.localCache[key];
-    const cycleCacheKey = this.cycleCache[key];
+    const { localCacheKey, cycleCacheKey } = this.getCacheKey(key);
 
     if (!localCacheKey[pk]) {
       const globalCache: WeakEntityMap<object, EntityCacheValue> =
@@ -97,6 +90,18 @@ export default class GlobalCache implements Cache {
       }
     }
     return localCacheKey[pk];
+  }
+
+  private getCacheKey(key: string) {
+    if (!(key in this.localCache)) {
+      this.localCache[key] = Object.create(null);
+    }
+    if (!(key in this.cycleCache)) {
+      this.cycleCache[key] = Object.create(null);
+    }
+    const localCacheKey = this.localCache[key];
+    const cycleCacheKey = this.cycleCache[key];
+    return { localCacheKey, cycleCacheKey };
   }
 
   getResults(
