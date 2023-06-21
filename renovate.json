@@ -5,7 +5,7 @@
   "commitMessageTopic": "`{{depName}}`",
   "dependencyDashboardApproval": true,
   "rangeStrategy": "auto",
-  "ignoreDeps": ["whatwg-fetch", "react-error-overlay", "downlevel-dts", "immutable", "@types/lodash", "react-live"],
+  "ignoreDeps": ["whatwg-fetch", "react-error-overlay", "downlevel-dts", "immutable", "@types/lodash", "react-live", "cimg/node"],
   "timezone": "America/Chicago",
   "postUpdateOptions": ["yarnDedupeHighest"],
   "packageRules": [
