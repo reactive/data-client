@@ -119,6 +119,20 @@ export default function addNormlizrSuite(suite) {
         [],
       );
     })
+    .add('denormalizeLongAndShort withEntityCacheOnly', () => {
+      denormalizeCached(
+        result,
+        ProjectSchema,
+        entities,
+        denormCache.entities,
+      );
+      denormalizeCached(
+        'gnoff',
+        User,
+        githubState.entities,
+        denormCache.entities,
+      );
+    })
     .add('denormalizeLong All withCache', () => {
       return denormalizeCached(
         queryState.result,
