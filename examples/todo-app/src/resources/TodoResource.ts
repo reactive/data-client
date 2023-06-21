@@ -20,7 +20,7 @@ export const TodoResource = createPlaceholderResource({
   searchParams: {} as { userId?: string | number } | undefined,
 });
 
-export const queryRemaining = new Query(
+export const queryRemainingTodos = new Query(
   new schema.All(Todo),
   (entries, { userId } = {}) => {
     if (userId !== undefined)

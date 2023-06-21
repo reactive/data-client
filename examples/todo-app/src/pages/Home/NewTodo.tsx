@@ -1,10 +1,10 @@
 import { styled } from '@linaria/react';
 import { useController } from '@rest-hooks/react';
-import { useCallback, useRef } from 'react';
+import { memo, useCallback, useRef } from 'react';
 import { TodoResource } from 'resources/TodoResource';
 import { v4 as uuid } from 'uuid';
 
-export default function NewTodo({ userId }: { userId?: number }) {
+function NewTodo({ userId }: { userId?: number }) {
   const ctrl = useController();
 
   // this allows handlePress to never change referential equality
@@ -31,6 +31,8 @@ export default function NewTodo({ userId }: { userId?: number }) {
     </TodoBox>
   );
 }
+export default memo(NewTodo);
+
 const TodoBox = styled.div`
   text-align: left;
   display: flex;

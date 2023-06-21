@@ -1,6 +1,9 @@
 import { useCache, useController, useSuspense } from '@rest-hooks/react';
 
-import { queryRemaining, TodoResource } from './src/resources/TodoResource';
+import {
+  queryRemainingTodos,
+  TodoResource,
+} from './src/resources/TodoResource';
 import { UserResource } from './src/resources/UserResource';
 
 function useTest() {
@@ -20,7 +23,7 @@ function useTest() {
     );
   });
 
-  const remaining = useCache(queryRemaining, { userId: 1 });
+  const remaining = useCache(queryRemainingTodos, { userId: 1 });
 
   const users = useSuspense(UserResource.getList);
   users.map((user) => {

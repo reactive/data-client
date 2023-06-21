@@ -10,8 +10,10 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
-Endpoint defines a standard interface that describes the nature of an networking endpoint.
-It is both strongly typed, and encapsulates runtime-relevant information.
+`Endpoint` are for any asynchronous function (one that returns a Promise).
+
+`Endpoints` define a standard interface to extend the function with relevant metadata and lifecycles
+useful for Rest Hooks and other stores.
 
 Package: [@rest-hooks/endpoint](https://www.npmjs.com/package/@rest-hooks/endpoint)
 
@@ -127,9 +129,7 @@ export interface Todo {
 import { Todo } from './interface';
 
 const getTodoOriginal = (id: number): Promise<Todo> =>
-  fetch(`https://jsonplaceholder.typicode.com/todos/${id}`).then(res =>
-    res.json(),
-  );
+  Promise.resolve({ id, title: 'delectus aut autem ' + id, completed: false });
 
 export const getTodo = new Endpoint(getTodoOriginal);
 ```
