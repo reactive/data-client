@@ -7,6 +7,8 @@ title: useSuspense()
   <meta name="docsearch:pagerank" content="10"/>
 </head>
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import HooksPlayground from '@site/src/components/HooksPlayground';
@@ -20,6 +22,15 @@ High performance async data rendering without overfetching.
 centralizing them with a singular [AsyncBoundary](../getting-started/data-dependency.md#async-fallbacks).
 
 ## Usage
+
+<Tabs
+defaultValue="rest"
+groupId="protocol"
+values={[
+{ label: 'Rest', value: 'rest' },
+{ label: 'Promise', value: 'other' },
+]}>
+<TabItem value="rest">
 
 <HooksPlayground fixtures={[
 {
@@ -73,6 +84,40 @@ render(<ProfileDetail />);
 ```
 
 </HooksPlayground>
+
+</TabItem>
+<TabItem value="other">
+
+<HooksPlayground>
+
+```typescript title="api/Profile" collapsed
+import { Endpoint } from '@rest-hooks/endpoint';
+
+export const getProfile = new Endpoint((id: number) =>
+  Promise.resolve({ id, fullName: 'Einstein', bio: 'Smart physicist' }),
+);
+```
+
+```tsx title="ProfileList"
+import { useSuspense } from '@rest-hooks/react';
+import { getProfile } from './api/Profile';
+
+function ProfileDetail(): JSX.Element {
+  const profile = useSuspense(getProfile, 1);
+  return (
+    <div>
+      <h4>{profile.fullName}</h4>
+      <p>{profile.bio}</p>
+    </div>
+  );
+}
+render(<ProfileDetail />);
+```
+
+</HooksPlayground>
+
+</TabItem>
+</Tabs>
 
 ## Behavior
 
