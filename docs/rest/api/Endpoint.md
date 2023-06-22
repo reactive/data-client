@@ -112,7 +112,7 @@ export interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
 
 ## Usage
 
-`Endpoint` makes existing async functions usable in any Rest Hooks context. Types are fully maintained
+`Endpoint` makes existing async functions usable in any Rest Hooks context with full TypeScript enforcement.
 
 <HooksPlayground defaultOpen="n">
 
@@ -125,11 +125,16 @@ export interface Todo {
 }
 ```
 
-```ts title="api" {6}
+```ts title="api" {11}
 import { Todo } from './interface';
 
 const getTodoOriginal = (id: number): Promise<Todo> =>
-  Promise.resolve({ id, title: 'delectus aut autem ' + id, completed: false });
+  Promise.resolve({
+    id,
+    title: 'delectus aut autem ' + id,
+    completed: false,
+    userId: 1,
+  });
 
 export const getTodo = new Endpoint(getTodoOriginal);
 ```
@@ -137,11 +142,11 @@ export const getTodo = new Endpoint(getTodoOriginal);
 ```ts title="React"
 import { getTodo } from './api';
 
-function TodoDetail({ id }: { id: number }) {
-  const todo = useSuspense(getTodo, id);
+function TodoDetail() {
+  const todo = useSuspense(getTodo, 1);
   return <div>{todo.title}</div>;
 }
-render(<TodoDetail id={1} />);
+render(<TodoDetail />);
 ```
 
 </HooksPlayground>

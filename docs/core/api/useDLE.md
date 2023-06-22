@@ -55,7 +55,7 @@ import { ProfileResource } from './api/Profile';
 
 function ProfileList(): JSX.Element {
   const { data, loading, error } = useDLE(ProfileResource.getList);
-  if (error) return <div>Error {error.status}</div>;
+  if (error) return <div>Error {`${error.status}`}</div>;
   if (loading || !data) return <>loading...</>;
   return (
     <div>

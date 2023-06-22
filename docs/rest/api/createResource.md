@@ -71,6 +71,24 @@ Passed to [RestEndpoint.schema](./RestEndpoint.md#schema)
 
 Passed to [RestEndpoint.urlPrefix](./RestEndpoint.md#urlPrefix)
 
+### searchParams
+
+Passed to [RestEndpoint.searchParams](./RestEndpoint.md#searchParams) for [getList](#getlist) and [create](#create)
+
+### body
+
+Passed to [RestEndpoint.body](./RestEndpoint.md#body) for [create](#create) [update](#update) and [partialUpdate](#partialUpdate)
+
+### optimistic
+
+`true` makes all mutation endpoints [optimistic](../guides/optimistic-updates.md)
+
+:::info
+
+Added in 6.7
+
+:::
+
 ### Endpoint
 
 Class used to construct the members.
