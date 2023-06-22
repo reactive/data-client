@@ -156,6 +156,6 @@
     "@react-navigation/native": "^6.1.6",
     "@types/node": "^20.0.0",
     "@types/react": "^18.0.30",
-    "react-native": "^0.71.5"
+    "react-native": "^0.72.0"
   }
 }
