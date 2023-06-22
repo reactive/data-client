@@ -83,7 +83,7 @@ Passed to [RestEndpoint.body](./RestEndpoint.md#body) for [create](#create) [upd
 
 `true` makes all mutation endpoints [optimistic](../guides/optimistic-updates.md)
 
-:::info
+:::note 6.7
 
 Added in 6.7
 
