@@ -12,13 +12,13 @@ html[data-theme='light'] {
 
 }
 :root {
-  --ifm-color-primary-lightest: hsl(252, 72%, 81%);
-  --ifm-color-primary-lighter: hsl(252, 72%, 72%);
-  --ifm-color-primary-light: hsl(252, 72%, 68%);
-  --ifm-color-primary: rgb(127, 101, 230);
-  --ifm-color-primary-dark: hsl(252, 72%, 56%);
-  --ifm-color-primary-darker: hsl(252, 72%, 53%);
-  --ifm-color-primary-darkest: hsl(252, 72%, 44%);
+  --ifm-color-primary-lightest: hsl(206, 69%, 81%);
+  --ifm-color-primary-lighter: hsl(206, 69%, 72%);
+  --ifm-color-primary-light: hsl(206, 69%, 68%);
+  --ifm-color-primary: hsl(206, 69%, 55%);
+  --ifm-color-primary-dark: hsl(206, 69%, 56%);
+  --ifm-color-primary-darker: hsl(206, 69%, 53%);
+  --ifm-color-primary-darkest: hsl(206, 69%, 44%);
   --ifm-color-info: hsl(206, 58%, 51%);
   --ifm-color-info-dark: hsl(206, 58%,  35%);
   --ifm-color-info-darker: hsl(206, 58%, 33%);
