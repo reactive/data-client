@@ -46,9 +46,7 @@ function HomepageHeader() {
           >
             Get Started
           </Link>
-          <Link className="button button--info" to="/docs">
-            Introduction
-          </Link>
+
           <span className={styles.GitHubButtonWrapper}>
             <iframe
               className={styles.GitHubButton}

@@ -16,16 +16,16 @@ html[data-theme='light'] {
   --ifm-color-primary-lighter: hsl(206, 69%, 72%);
   --ifm-color-primary-light: hsl(206, 69%, 68%);
   --ifm-color-primary: hsl(206, 69%, 55%);
-  --ifm-color-primary-dark: hsl(206, 69%, 56%);
-  --ifm-color-primary-darker: hsl(206, 69%, 53%);
-  --ifm-color-primary-darkest: hsl(206, 69%, 44%);
-  --ifm-color-info: hsl(206, 58%, 51%);
-  --ifm-color-info-dark: hsl(206, 58%,  35%);
-  --ifm-color-info-darker: hsl(206, 58%, 33%);
-  --ifm-color-info-darkest: hsl(206, 58%, 27%);
-  --ifm-color-info-light: hsl(206, 58%, 43%);
-  --ifm-color-info-lighter: hsl(206, 58%, 45%);
-  --ifm-color-info-lightest: hsl(206, 58%, 51%);
+  --ifm-color-primary-dark: hsl(206, 69%, 50%);
+  --ifm-color-primary-darker: hsl(206, 69%, 44%);
+  --ifm-color-primary-darkest: hsl(206, 69%, 35%);
+  --ifm-color-info: hsl(206, 77%, 69%);
+  --ifm-color-info-dark: hsl(206, 77%,  45%);
+  --ifm-color-info-darker: hsl(206, 77%, 43%);
+  --ifm-color-info-darkest: hsl(206, 77%, 37%);
+  --ifm-color-info-light: hsl(206, 77%, 53%);
+  --ifm-color-info-lighter: hsl(206, 77%, 55%);
+  --ifm-color-info-lightest: hsl(206, 77%, 61%);
   --ifm-font-family-base: 'Rubik', 'Avenir Next', 'Segoe UI', Tahoma, Geneva,
     Verdana, sans-serif;
   --ifm-font-family-monospace: 'Roboto Mono', SFMono-Regular, Menlo, Monaco,

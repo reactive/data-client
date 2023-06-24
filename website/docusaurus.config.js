@@ -392,7 +392,7 @@ module.exports = {
             label: 'GraphQL',
             position: 'left',
           },
-          { to: '/blog', label: 'News', position: 'left' },
+          //{ to: '/blog', label: 'News', position: 'left' }, uncomment once we publish
           {
             type: 'docsVersionDropdown',
             docsPluginId: 'default',
