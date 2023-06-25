@@ -132,8 +132,7 @@ module.exports = {
           lastVersion: 'current',
           includeCurrentVersion: true,
           versions: {
-            current: { label: '7.x', path: '', badge: false },
-            6.6: { label: '6.6', path: '6.6', banner: 'none' },
+            current: { label: '0.1', path: '', badge: false },
           },
           onlyIncludeVersions: isDev
             ? ['current', ...versions.slice(0, 4)]
@@ -176,8 +175,7 @@ module.exports = {
         lastVersion: 'current',
         includeCurrentVersion: true,
         versions: {
-          current: { label: '6.x', path: '', badge: false, banner: 'none' },
-          5.2: { label: '5.2', path: '5.2', banner: 'none' },
+          current: { label: '0.1', path: '', badge: false, banner: 'none' },
         },
         /*onlyIncludeVersions: isDev
           ? ['current', ...versionsRest.slice(0, 4)]
@@ -205,7 +203,7 @@ module.exports = {
         lastVersion: 'current',
         includeCurrentVersion: true,
         versions: {
-          current: { label: '0.3', path: '', badge: false },
+          current: { label: '0.1', path: '', badge: false },
         },
         /*onlyIncludeVersions: isDev
           ? ['current', ...versionsRest.slice(0, 4)]
@@ -215,121 +213,7 @@ module.exports = {
     [
       '@docusaurus/plugin-client-redirects',
       {
-        createRedirects(existingPath) {
-          if (existingPath.includes('5.0')) return undefined;
-          if (
-            existingPath.includes('/rest/') &&
-            existingPath !== '/rest/guides/abort' // this path exists for both, so do not redirect
-          ) {
-            return [
-              existingPath.replace('/rest', '/docs/rest'),
-              existingPath.replace('/rest', '/docs'),
-            ];
-          } else if (existingPath.includes('/graphql/')) {
-            return [existingPath.replace('/graphql', '/docs/graphql')];
-          }
-          return undefined;
-        },
-        redirects: [
-          {
-            to: '/docs/concepts/normalization',
-            from: [
-              '/docs/getting-started/entity',
-              '/docs/getting-started/schema',
-            ],
-          },
-          {
-            to: '/docs/concepts/expiry-policy',
-            from: [
-              '/docs/getting-started/expiry-policy',
-              '/docs/guides/resource-lifetime',
-            ],
-          },
-          {
-            to: '/docs/concepts/atomic-mutations',
-            from: [
-              '/docs/getting-started/immediate-updates',
-              '/docs/guides/immediate-updates',
-            ],
-          },
-          {
-            to: '/docs/concepts/validation',
-            from: ['/docs/getting-started/validation'],
-          },
-          {
-            to: '/docs',
-            from: [
-              '/docs/getting-started/introduction',
-              '/docs/getting-started/usage',
-            ],
-          },
-          {
-            to: '/docs/getting-started/data-dependency',
-            from: [
-              '/docs/guides/loading-state',
-              '/docs/guides/network-errors',
-              '/docs/concepts/loading-state',
-              '/docs/concepts/network-errors',
-            ],
-          },
-          {
-            to: '/docs/api/types',
-            from: ['/docs/api/README'],
-          },
-          {
-            to: '/docs/guides/img-media',
-            from: ['/docs/guides/binary-fetches'],
-          },
-          {
-            to: '/rest/api/createResource',
-            from: [
-              '/rest/api/resource',
-              '/rest/api/BaseResource',
-              '/rest/guides/rest-types',
-              '/docs/api/resource',
-              '/docs/api/BaseResource',
-              '/docs/guides/rest-types',
-              '/docs/guides/resource-types',
-            ],
-          },
-          {
-            to: '/rest/api/RestEndpoint',
-            from: [
-              '/rest/guides/extending-endpoints',
-              '/docs/guides/extending-endpoints',
-              '/docs/guides/url',
-              '/docs/guides/endpoints',
-            ],
-          },
-          {
-            to: '/rest/api/hookifyResource',
-            from: ['/rest/api/HookableResource', '/docs/api/HookableResource'],
-          },
-          {
-            to: '/docs/api/useSuspense',
-            from: ['/docs/next/api/useSuspense'],
-          },
-          {
-            to: '/docs/api/useDLE',
-            from: ['/docs/guides/no-suspense'],
-          },
-          {
-            to: '/rest/guides/pagination',
-            from: ['/docs/guides/infinite-scrolling-pagination'],
-          },
-          {
-            to: '/rest/guides/relational-data',
-            from: ['/rest/guides/nested-response'],
-          },
-          {
-            to: '/rest',
-            from: ['/rest/usage', '/docs/rest'],
-          },
-          {
-            to: '/graphql',
-            from: ['/graphql/usage', '/docs/graphql'],
-          },
-        ],
+        redirects: [],
       },
     ],
     path.resolve(__dirname, './node-plugin'),
@@ -393,7 +277,7 @@ module.exports = {
             position: 'left',
           },
           //{ to: '/blog', label: 'News', position: 'left' }, uncomment once we publish
-          {
+          /*{
             type: 'docsVersionDropdown',
             docsPluginId: 'default',
             position: 'right',
@@ -402,7 +286,7 @@ module.exports = {
                 label: 'Upgrade Guide',
                 to: 'docs/upgrade/upgrading-to-7',
               },
-            ],
+            ],/
           },
           {
             type: 'docsVersionDropdown',
@@ -413,7 +297,7 @@ module.exports = {
             type: 'docsVersionDropdown',
             docsPluginId: 'graphql',
             position: 'right',
-          },
+          }, TODO: Add back when we have versions to upgrade*/
           {
             to: 'demos',
             //label: '🎮 Demos',
