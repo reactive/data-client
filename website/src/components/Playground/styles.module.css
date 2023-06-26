@@ -254,7 +254,9 @@ div > .playgroundHeader.subtabs {
 }
 
 :root .playgroundPreview {
-  --ifm-heading-margin-bottom: .5ex;
+  --ifm-heading-margin-bottom: .1ex;
+  --ifm-heading-font-weight: 500;
+  --ifm-heading-line-height: 1.2;
 }
 .playgroundPreview button {
   margin-bottom: 8px;

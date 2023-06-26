@@ -1,6 +1,5 @@
 import { useCache } from '@rest-hooks/react';
-
-import { TodoResource } from './resources';
+import { TodoResource } from './api';
 
 export default function TodoStats({ userId }: { userId?: number }) {
   const remaining = useCache(TodoResource.queryRemaining, { userId });

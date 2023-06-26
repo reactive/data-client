@@ -1,5 +1,4 @@
-import todoAppRestApi from '!!raw-loader!./api.ts';
-
+import resources from '!!raw-loader!./resources.ts';
 import TodoItem from '!!raw-loader!./TodoItem.tsx';
 import TodoList from '!!raw-loader!./TodoList.tsx';
 import TodoStats from '!!raw-loader!./TodoStats.tsx';
@@ -9,8 +8,8 @@ export default {
   value: 'rest',
   code: [
     {
-      path: 'api',
-      code: todoAppRestApi,
+      path: 'resources',
+      code: resources,
     },
     {
       path: 'TodoItem',

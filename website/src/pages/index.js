@@ -38,7 +38,7 @@ function HomepageHeader() {
   return (
     <header className={clsx('hero', styles.heroBanner)}>
       <div className="container">
-        <ProjectTitle />
+        {/*<ProjectTitle />*/}
         <div className={styles.buttons}>
           <Link
             className="button button--primary"
@@ -66,8 +66,8 @@ export default function Home() {
   const { siteConfig } = useDocusaurusContext();
   return (
     <Layout
-      title={`Async State Management for React`}
-      description="Normalized state management for async data. Safe. Fast. Reusable."
+      title={`Async State Management without the Management`}
+      description="Async State Management without the Management."
     >
       <HomepageHeader />
       <main>

@@ -1,3 +1,4 @@
+import { createResource } from '@rest-hooks/rest/next';
 export class Todo extends Entity {
   id = 0;
   userId = 0;
@@ -10,6 +11,7 @@ export class Todo extends Entity {
 const BaseTodoResource = createResource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
+  searchParams: {} as { userId?: string | number } | undefined,
   schema: Todo,
   optimistic: true,
 });

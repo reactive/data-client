@@ -88,6 +88,22 @@ module.exports = {
       crossOrigin: true,
       media: 'all',
     },
+    {
+      rel: 'icon',
+      href: 'img/favicon/favicon.ico',
+    },
+    {
+      rel: 'icon',
+      type: 'image/png',
+      href: 'img/favicon/favicon-16x16.png',
+      sizes: '16x16',
+    },
+    {
+      rel: 'icon',
+      type: 'image/png',
+      href: 'img/favicon/favicon-32x32.png',
+      sizes: '32x32',
+    },
     /*{
       rel: 'preload',
       href: '/assets/css/root.css',
@@ -101,7 +117,7 @@ module.exports = {
       media: 'all',
     }, TODO: figure out how to load this*/
   ],
-  favicon: 'img/favicon/favicon.ico',
+  //favicon: 'img/favicon/favicon.ico',
   themes: ['@docusaurus/theme-live-codeblock', '@docusaurus/theme-mermaid'],
   customFields: {
     repoUrl: 'https://github.com/data-client/data-client',
@@ -250,7 +266,7 @@ module.exports = {
       navbar: {
         title: 'Reactive Data Client',
         logo: {
-          src: 'img/rest_hooks_logo.svg',
+          src: 'img/client-logo.png',
           alt: 'Reactive Data Client Logo',
         },
         hideOnScroll: true,
@@ -407,7 +423,7 @@ module.exports = {
         ],
         copyright: `Copyright © ${new Date().getFullYear()} Nathaniel Tucker. Some icons by <a href="https://www.freepik.com" title="Freepik">Freepik</a>`,
         logo: {
-          src: 'img/rest_hooks_logo.svg',
+          src: 'img/client-logo.png',
           alt: 'Reactive Data Client Logo',
           width: 94,
           height: 90,

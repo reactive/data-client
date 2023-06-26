@@ -57,6 +57,7 @@ interface EntityTable {
  */
 declare class WeakEntityMap<K extends object = object, V = any> {
     readonly next: WeakMap<K, Link<K, V>>;
+    nextPath: Path | undefined;
     get(entity: K, getEntity: GetEntity<K | symbol>): readonly [undefined, undefined] | [V, Path[]];
     set(dependencies: Dep<K>[], value: V): void;
 }
@@ -64,9 +65,9 @@ type GetEntity<K = object | symbol> = (lookup: Path) => K;
 /** Link in a chain */
 declare class Link<K extends object, V> {
     next: WeakMap<K, Link<K, V>>;
-    value?: V;
-    journey?: Path[];
-    nextPath?: Path;
+    value: V | undefined;
+    journey: Path[];
+    nextPath: Path | undefined;
 }
 interface Dep<K = object> {
     path: Path;
@@ -149,10 +150,10 @@ type NormalizedSchema<E, R> = {
     };
 };
 
-declare const denormalize$1: <S extends Schema>(input: any, schema: S | undefined, entities: any, args?: readonly any[]) => symbol | DenormalizeNullable$1<S>;
+declare function denormalize$1<S extends Schema>(input: any, schema: S | undefined, entities: any, args?: readonly any[]): DenormalizeNullable$1<S> | symbol;
 
-declare const denormalize: <S extends Schema>(input: unknown, schema: S | undefined, entities: any, entityCache?: DenormalizeCache['entities'], resultCache?: DenormalizeCache['results'][string], args?: readonly any[]) => {
-    data: symbol | DenormalizeNullable$1<S>;
+declare function denormalize<S extends Schema>(input: unknown, schema: S | undefined, entities: any, entityCache?: DenormalizeCache['entities'], resultCache?: DenormalizeCache['results'][string], args?: readonly any[]): {
+    data: DenormalizeNullable$1<S> | symbol;
     paths: Path[];
 };
 

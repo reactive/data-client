@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import simpleFetchDemo from './code/simple';
+import profileDemo from './code/profile-app';
 import appDemo from './code/todo-app';
 import CodeEditor from './CodeEditor';
 import styles from './styles.module.css';
@@ -11,38 +11,12 @@ const Demo = props => (
   <div className="container">
     <div className={clsx('row', styles.demoList)}>
       <div className="col col--3">
-        <h2>A simple data fetch</h2>
+        <h2>Reactive Mutations</h2>
         <div>
           <p>
-            Add a single <Link to="/docs/api/useSuspense">useSuspense()</Link>{' '}
-            call{' '}
-            <Link to="/docs/getting-started/data-dependency">
-              where you need its data
-            </Link>
-            .
-          </p>
-          <p>
-            Rest Hooks automatically optimizes performance by caching the
-            results, deduplicating fetches, efficient component render bindings
-            and more.
-          </p>
-          {/*<p>
-            Decoupling <em>how</em> to get data from <em>where</em> you use it
-            enables reusable components.
-          </p>*/}
-        </div>
-      </div>
-      <div className="col col--9">
-        <CodeEditor codes={simpleFetchDemo} defaultValue="rest" />
-      </div>
-    </div>
-    <div className={clsx('row', styles.demoList)}>
-      <div className="col col--3">
-        <h2>An application</h2>
-        <div>
-          <p>
-            Use <Link to="/docs/api/Controller#fetch">Controller.fetch()</Link>{' '}
-            to update the store.
+            Render data with{' '}
+            <Link to="/docs/api/useSuspense">useSuspense()</Link>. Then mutate
+            with <Link to="/docs/api/Controller#fetch">Controller.fetch()</Link>
           </p>
           <p>
             This updates <strong>all</strong> usages{' '}
@@ -55,7 +29,29 @@ const Demo = props => (
             </Link>
             .
           </p>
-
+          {/*<p>
+            Decoupling <em>how</em> to get data from <em>where</em> you use it
+            enables reusable components.
+          </p>*/}
+        </div>
+      </div>
+      <div className="col col--9">
+        <CodeEditor codes={profileDemo} defaultValue="rest" />
+      </div>
+    </div>
+    <div className={clsx('row', styles.demoList)}>
+      <div className="col col--3">
+        <h2>An application</h2>
+        <div>
+          <p>
+            Data can be consumed and controlled in many contexts, speeding up
+            development.
+          </p>
+          <p>
+            Every piece of data maintains referential stability unless it
+            changes. This ensures the most optimized render performance, as well
+            as predictable equality checks.
+          </p>
           <p>
             Rest easy with the help of{' '}
             <Link to="/docs/guides/debugging">debugging</Link>,{' '}

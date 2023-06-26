@@ -1,4 +1,4 @@
-import { TodoResource, type Todo } from './api';
+import { TodoResource, type Todo } from './resources';
 
 export default function TodoItem({ todo }: { todo: Todo }) {
   const controller = useController();
