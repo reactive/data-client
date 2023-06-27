@@ -8,7 +8,7 @@ const isDev = process.env.NODE_ENV === 'development';
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
   title: 'Reactive Data Client',
-  tagline: 'Fluid Interfaces at Scale',
+  tagline: 'Async State Management without the Management',
   url: 'https://dataclient.io',
   baseUrl: '/',
   organizationName: 'data-client',

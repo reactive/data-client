@@ -15,20 +15,25 @@ const ProjectTitle = () => {
     light: useBaseUrl('img/rest_hooks_logo_and_text_subtitle--light.svg'),
     dark: useBaseUrl('img/rest_hooks_logo_and_text_subtitle--dark.svg'),
   };
+  const { siteConfig } = useDocusaurusContext();
+
   return (
     <React.Fragment>
-      <div className={styles.logoWrapper}>
+      {/* <div className={styles.logoWrapper}>
         <ThemedImage
           sources={sources}
           alt="Rest Hooks - The Relational Data Client for React"
           height={90}
           width={416}
         />
-      </div>
+      </div> */}
 
-      {/*<h2 style={{ marginTop: '0.0', fontWeight: '500' }}>
-        {siteConfig.tagline}
-      </h2>*/}
+      <h1 style={{ marginBottom: '0.0', fontWeight: '600' }}>
+        {siteConfig.title}
+      </h1>
+      <p style={{ marginTop: '0.0', fontWeight: '500', fontSize: '18px' }}>
+        Async State <strike>Management</strike> without the Management
+      </p>
     </React.Fragment>
   );
 };
@@ -37,7 +42,7 @@ function HomepageHeader() {
   return (
     <header className={clsx('hero', styles.heroBanner)}>
       <div className="container">
-        {/*<ProjectTitle />*/}
+        <ProjectTitle />
         <div className={styles.buttons}>
           <Link
             className="button button--primary"
@@ -65,13 +70,26 @@ function HomepageEnder() {
   return (
     <section className={'hero'}>
       <div className="container">
-        {/*<ProjectTitle />*/}
         <div className={styles.buttons}>
           <Link
             className="button button--primary"
             to="/docs/getting-started/installation"
           >
-            Get Started
+            Get Started{' '}
+            <svg
+              stroke="currentColor"
+              fill="none"
+              strokeWidth="3"
+              viewBox="0 0 24 24"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              height="20"
+              width="20"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
           </Link>
         </div>
       </div>
@@ -91,7 +109,7 @@ export default function Home() {
           <h2 style={{ textAlign: 'center' }}>
             Share server data and
             <br />
-            update instantly
+            update it instantly
           </h2>
         </div>
         <Demo />

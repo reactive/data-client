@@ -8,6 +8,7 @@ sidebar_label: Atomic Mutations
   <meta name="docsearch:pagerank" content="10"/>
 </head>
 
+# Safety beyond types
 
 When a user causes mutations like creating, updating, or deleting resources, it's important
 to have those changed be reflected in the application. A simple publish cache

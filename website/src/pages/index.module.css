@@ -53,6 +53,10 @@
   border-radius: 10px;
   letter-spacing: 1px;
 }
+.buttons :global(.button) svg {
+  margin-bottom: -3px;
+  display: inline-block;
+}
 .buttons :global(.button:last-of-type) {
   margin: 0 36px;
 }
