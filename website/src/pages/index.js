@@ -80,7 +80,6 @@ function HomepageEnder() {
 }
 
 export default function Home() {
-  const { siteConfig } = useDocusaurusContext();
   return (
     <Layout
       title={`Async State Management without the Management`}
@@ -88,9 +87,16 @@ export default function Home() {
     >
       <HomepageHeader />
       <main>
+        <div className="container">
+          <h2 style={{ textAlign: 'center' }}>
+            Share server data and
+            <br />
+            update instantly
+          </h2>
+        </div>
         <Demo />
         <HomepageFeatures />
-        <div className="container text-center">
+        <div className="container">
           <div className="row">
             <div className="col">
               <iframe
@@ -99,10 +105,11 @@ export default function Home() {
                 width="100%"
                 height="600"
               ></iframe>
-
-              <Link className="button button--secondary" to="/demos">
-                More Demos
-              </Link>
+              <div style={{ textAlign: 'center' }}>
+                <Link className="button button--secondary" to="/demos">
+                  More Demos
+                </Link>
+              </div>
             </div>
           </div>
         </div>

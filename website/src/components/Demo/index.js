@@ -17,6 +17,7 @@ const Demo = props => (
             Render data with{' '}
             <Link to="/docs/api/useSuspense">useSuspense()</Link>. Then mutate
             with <Link to="/docs/api/Controller#fetch">Controller.fetch()</Link>
+            .
           </p>
           <p>
             This updates <strong>all</strong> usages{' '}
