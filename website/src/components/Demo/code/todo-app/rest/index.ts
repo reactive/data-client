@@ -2,9 +2,9 @@ import NewTodo from '!!raw-loader!./NewTodo.tsx';
 import resources from '!!raw-loader!./resources.ts';
 import TodoItem from '!!raw-loader!./TodoItem.tsx';
 import TodoList from '!!raw-loader!./TodoList.tsx';
-import TodoStats from '!!raw-loader!./TodoStats.tsx';
+import UserList from '!!raw-loader!./UserList.tsx';
 
-import { TodoResource } from './resources';
+import { TodoResource, UserResource } from './resources';
 
 export default {
   label: 'REST',
@@ -16,23 +16,38 @@ export default {
     },
     {
       path: 'TodoItem',
-      open: true,
       code: TodoItem,
     },
     {
-      path: 'TodoStats',
-      code: TodoStats,
-    },
-    {
       path: 'NewTodo',
+      open: true,
       code: NewTodo,
     },
     {
       path: 'TodoList',
       code: TodoList,
     },
+    {
+      path: 'UserList',
+      code: UserList,
+    },
   ],
   fixtures: [
+    {
+      endpoint: UserResource.getList,
+      async response(...args: any) {
+        const users = (await UserResource.getList(...args)).slice(0, 2);
+        const todos = await Promise.allSettled(
+          users.map(user => TodoResource.getList({ userId: user.id })),
+        );
+        users.forEach((user, i) => {
+          delete user.address;
+          delete user.company;
+          user.todos = todos[i].value.slice(0, 3);
+        });
+        return users;
+      },
+    },
     {
       endpoint: TodoResource.getList,
       async response(...args: any) {

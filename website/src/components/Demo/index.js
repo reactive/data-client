@@ -2,8 +2,8 @@ import clsx from 'clsx';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import appDemo from './code/posts-app';
 import mutationDemo from './code/profile-edit';
+import appDemo from './code/todo-app';
 import CodeEditor from './CodeEditor';
 import styles from './styles.module.css';
 
@@ -41,16 +41,17 @@ const Demo = props => (
     </div>
     <div className={clsx('row', styles.demoList)}>
       <div className="col col--3">
-        <h2>Nested data</h2>
+        <h2>Structured data</h2>
         <div>
           <p>
-            Data can be consumed and controlled in many contexts, speeding up
-            development.
+            Data consistency, performance, and typesafety scale even as your
+            data becomes more complex.
           </p>
           <p>
-            Every piece of data maintains referential stability unless it
-            changes. This ensures the most optimized render performance, as well
-            as predictable equality checks.
+            <Link to="/docs/concepts/atomic-mutations#create">Creates</Link> and{' '}
+            <Link to="/docs/concepts/atomic-mutations#delete">deletes</Link>{' '}
+            reactively update the correct lists, even when those lists are{' '}
+            <Link to="/rest/api/Collection">nested inside other objects</Link>.
           </p>
           <p>
             Rest easy with the help of{' '}
