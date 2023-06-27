@@ -31,7 +31,8 @@
     "g:downtypes": "cd $INIT_CWD && downlevel-dts",
     "g:tsc": "cd $INIT_CWD && tsc",
     "g:runs": "cd $INIT_CWD && run-s",
-    "g:copy": "cd $INIT_CWD && copyfiles"
+    "g:copy": "cd $INIT_CWD && copyfiles",
+    "g:lint": "cd $INIT_CWD && eslint"
   },
   "engines": {
     "node": "^12.17 || ^13.7 || >=14"
