@@ -2,10 +2,12 @@ import * as graphql from '@rest-hooks/graphql';
 import * as hooks from '@rest-hooks/hooks';
 import * as rhReact from '@rest-hooks/react';
 import * as rest from '@rest-hooks/rest';
+import * as restNext from '@rest-hooks/rest/next';
 import type { Fixture, Interceptor } from '@rest-hooks/test';
 import BigNumber from 'bignumber.js';
 import React from 'react';
 import { LiveProvider } from 'react-live';
+import { v4 as uuid } from 'uuid';
 
 import * as designSystem from './DesignSystem';
 import PreviewWithHeader from './PreviewWithHeader';
@@ -72,8 +74,10 @@ const TodoResource = {
 const scope = {
   ...rhReact,
   ...rest,
+  ...restNext,
   ...graphql,
   ...hooks,
+  uuid,
   randomFloatInRange,
   mockFetch,
   BigNumber,

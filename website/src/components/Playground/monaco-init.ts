@@ -212,6 +212,9 @@ if (
         /* webpackChunkName: 'bignumberDTS', webpackPreload: true */ '!!raw-loader?esModule=false!./editor-types/bignumber.d.ts'
       ),
       import(
+        /* webpackChunkName: 'uuidDTS', webpackPreload: true */ '!!raw-loader?esModule=false!./editor-types/uuid.d.ts'
+      ),
+      import(
         /* webpackChunkName: 'resthooksDTS', webpackPreload: true */ '!!raw-loader?esModule=false!./editor-types/rest-hooks.d.ts'
       ),
       ...rhDeps.map(
@@ -223,9 +226,10 @@ if (
     ]).then(([mPromise, ...settles]) => {
       if (mPromise.status !== 'fulfilled' || !mPromise.value) return;
       const monaco = mPromise.value;
-      const [es2022, react, bignumber, restHooks, ...rhLibs] = settles.map(
-        result => (result.status === 'fulfilled' ? result.value.default : ''),
-      );
+      const [es2022, react, bignumber, uuid, restHooks, ...rhLibs] =
+        settles.map(result =>
+          result.status === 'fulfilled' ? result.value.default : '',
+        );
 
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
         `declare module "react/jsx-runtime" {
@@ -249,6 +253,7 @@ if (
         `declare function render(component:JSX.Element):void;
         declare function CurrentTime(props: {}):JSX.Element;
         declare function CancelButton(props: { onClick: () => void }):JSX.Element;
+        declare function Avatar(props: { src: string }):JSX.Element;
         declare function ResetableErrorBoundary(props: { children: JSX.ReactChild }):JSX.Element;
         declare function randomFloatInRange(min: number, max: number, decimals?: number): number;`,
       );
@@ -263,6 +268,10 @@ if (
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
         `declare module "bignumber.js" { ${bignumber} }`,
         'file:///node_modules/bignumber.js/index.d.ts',
+      );
+      monaco.languages.typescript.typescriptDefaults.addExtraLib(
+        `declare module "uuid" { ${uuid} }`,
+        'file:///node_modules/@types/uuid/index.d.ts',
       );
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
         `declare module "rest-hooks" { ${restHooks} }`,

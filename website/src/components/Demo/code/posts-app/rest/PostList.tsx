@@ -1,5 +1,5 @@
+import NewPost from './NewPost';
 import PostItem from './PostItem';
-import ProfileEdit from './ProfileEdit';
 import { PostResource } from './resources';
 
 function PostList() {
@@ -7,11 +7,10 @@ function PostList() {
   const posts = useSuspense(PostResource.getList, { userId });
   return (
     <div>
-      {posts.slice(0, 4).map(post => (
+      {posts.map(post => (
         <PostItem key={post.pk()} post={post} />
       ))}
-      <br />
-      <ProfileEdit userId={userId} />
+      <NewPost userId={userId} />
     </div>
   );
 }

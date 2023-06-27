@@ -34,7 +34,6 @@ const ProjectTitle = () => {
 };
 
 function HomepageHeader() {
-  const { siteConfig } = useDocusaurusContext();
   return (
     <header className={clsx('hero', styles.heroBanner)}>
       <div className="container">
@@ -62,6 +61,24 @@ function HomepageHeader() {
   );
 }
 
+function HomepageEnder() {
+  return (
+    <section className={'hero'}>
+      <div className="container">
+        {/*<ProjectTitle />*/}
+        <div className={styles.buttons}>
+          <Link
+            className="button button--primary"
+            to="/docs/getting-started/installation"
+          >
+            Get Started
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   const { siteConfig } = useDocusaurusContext();
   return (
@@ -73,6 +90,15 @@ export default function Home() {
       <main>
         <Demo />
         <HomepageFeatures />
+        <div className="container">
+          <iframe
+            loading="lazy"
+            src="https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app?embed=1&file=src%2Fpages%2FIssueList.tsx&hidedevtools=1&view=both&terminalHeight=0&hideNavigation=1"
+            width="100%"
+            height="600"
+          ></iframe>
+        </div>
+        <HomepageEnder />
       </main>
     </Layout>
   );

@@ -2,8 +2,8 @@ import clsx from 'clsx';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import profileDemo from './code/profile-app';
-import appDemo from './code/todo-app';
+import appDemo from './code/posts-app';
+import mutationDemo from './code/profile-edit';
 import CodeEditor from './CodeEditor';
 import styles from './styles.module.css';
 
@@ -26,22 +26,22 @@ const Demo = props => (
             with zero additional fetches. Rest Hooks automatically ensures{' '}
             <Link to="/docs/concepts/normalization">
               data consistency and integrity globally
+            </Link>{' '}
+            including even the most challenging{' '}
+            <Link to="/rest/guides/optimistic-updates#example-race-condition">
+              race conditions
             </Link>
             .
           </p>
-          {/*<p>
-            Decoupling <em>how</em> to get data from <em>where</em> you use it
-            enables reusable components.
-          </p>*/}
         </div>
       </div>
       <div className="col col--9">
-        <CodeEditor codes={profileDemo} defaultValue="rest" />
+        <CodeEditor codes={mutationDemo} defaultValue="rest" />
       </div>
     </div>
     <div className={clsx('row', styles.demoList)}>
       <div className="col col--3">
-        <h2>An application</h2>
+        <h2>Nested data</h2>
         <div>
           <p>
             Data can be consumed and controlled in many contexts, speeding up

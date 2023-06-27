@@ -1,4 +1,6 @@
+import { Entity, Query, schema } from '@rest-hooks/rest';
 import { createResource } from '@rest-hooks/rest/next';
+
 export class Todo extends Entity {
   id = 0;
   userId = 0;
@@ -17,12 +19,6 @@ const BaseTodoResource = createResource({
 });
 export const TodoResource = {
   ...BaseTodoResource,
-  getList: BaseTodoResource.getList.extend({
-    process(todos) {
-      // for demo purposes we'll only use the first seven
-      return todos.slice(0, 7);
-    },
-  }),
   queryRemaining: new Query(
     new schema.All(Todo),
     (entries, { userId } = {}) => {

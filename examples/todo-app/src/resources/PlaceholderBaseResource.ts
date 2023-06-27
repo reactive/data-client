@@ -27,12 +27,12 @@ export function createPlaceholderResource<O extends ResourceGenerics = any>(
     dataExpiryLength: 1000 * 60 * 60,
   });
   const partialUpdate = base.partialUpdate.extend({
-    fetch: async function (...args: any) {
+    process(response: any, ...args: any[]) {
       // body only contains what we're changing, but we can find the id in params
       return {
-        ...(await base.partialUpdate.call(this, ...args)),
+        ...response,
         id: args?.[0]?.id,
-      } as any;
+      };
     },
   });
   return {
@@ -44,12 +44,12 @@ export function createPlaceholderResource<O extends ResourceGenerics = any>(
     // More here: https://resthooks.io/docs/guides/network-transform#case-of-the-missing-id
     partialUpdate,
     create: base.create.extend({
-      fetch: async function (...args: any) {
-        // body only contains what we're changing, but we can find the id in params
+      process(response: any, ...args: any[]) {
+        // placeholder's are stateless, so we need to replace with our fake id
         return {
-          ...(await base.create.call(this, ...args)),
+          ...response,
           id: args?.[args.length - 1]?.id,
-        } as any;
+        };
       },
     }),
     // generics don't match up well

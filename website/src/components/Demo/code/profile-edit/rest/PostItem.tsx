@@ -5,10 +5,14 @@ export default function PostItem({ post }: { post: Post }) {
     id: post.userId,
   });
   return (
-    <div style={{ display: 'flex', gap: '1em', marginBottom: '10px' }}>
-      <div style={{ flex: '0 0 auto' }}>
-        <img src={author.profileImage} height="32" width="32" />
-      </div>
+    <div
+      style={{
+        display: 'flex',
+        gap: '1em',
+        marginBottom: '10px',
+      }}
+    >
+      <Avatar src={author.profileImage} />
       <div>
         <h4>{post.title}</h4>
         <small>by {author.name}</small>

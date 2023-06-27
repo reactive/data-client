@@ -1,18 +1,15 @@
-import NewTodo from './NewTodo';
-import { TodoResource } from './resources';
+import { TodoResource } from './api';
 import TodoItem from './TodoItem';
 import TodoStats from './TodoStats';
 
 function TodoList() {
-  const userId = 1;
-  const todos = useSuspense(TodoResource.getList, { userId });
+  const { todos } = useSuspense(TodoResource.getList, {});
   return (
     <div>
-      <TodoStats userId={userId} />
+      <TodoStats />
       {todos.map(todo => (
         <TodoItem key={todo.pk()} todo={todo} />
       ))}
-      <NewTodo userId={userId} />
     </div>
   );
 }
