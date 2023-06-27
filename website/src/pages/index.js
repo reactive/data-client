@@ -90,13 +90,21 @@ export default function Home() {
       <main>
         <Demo />
         <HomepageFeatures />
-        <div className="container">
-          <iframe
-            loading="lazy"
-            src="https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app?embed=1&file=src%2Fpages%2FIssueList.tsx&hidedevtools=1&view=both&terminalHeight=0&hideNavigation=1"
-            width="100%"
-            height="600"
-          ></iframe>
+        <div className="container text-center">
+          <div className="row">
+            <div className="col">
+              <iframe
+                loading="lazy"
+                src="https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app?embed=1&file=src%2Fpages%2FIssueList.tsx&hidedevtools=1&view=both&terminalHeight=0&hideNavigation=1"
+                width="100%"
+                height="600"
+              ></iframe>
+
+              <Link className="button button--secondary" to="/demos">
+                More Demos
+              </Link>
+            </div>
+          </div>
         </div>
         <HomepageEnder />
       </main>

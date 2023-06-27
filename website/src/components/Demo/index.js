@@ -53,12 +53,6 @@ const Demo = props => (
             reactively update the correct lists, even when those lists are{' '}
             <Link to="/rest/api/Collection">nested inside other objects</Link>.
           </p>
-          <p>
-            Rest easy with the help of{' '}
-            <Link to="/docs/guides/debugging">debugging</Link>,{' '}
-            <Link to="/docs/guides/unit-testing-hooks">unit testing</Link>, and{' '}
-            <Link to="/docs/guides/storybook">storybook integration</Link>.
-          </p>
         </div>
       </div>
       <div className="col col--9">
