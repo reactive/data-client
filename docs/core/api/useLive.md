@@ -41,7 +41,7 @@ export const getExchangeRates = new RestEndpoint({
 });
 ```
 
-```tsx title="ProfileList.tsx"
+```tsx title="AssetPrice.tsx"
 import { useLive } from '@rest-hooks/react';
 import { getExchangeRates } from './api/ExchangeRates';
 

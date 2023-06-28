@@ -23,6 +23,11 @@
   margin-bottom: -12rem;
 }
 
+.heroBanner h1 {
+  font-family: 'Alternox','Avenir Next', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 2.5rem;
+}
+
 .logoWrapper {
   display: flex;
   justify-content: center;

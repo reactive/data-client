@@ -56,7 +56,13 @@ module.exports = {
     },
     {
       rel: 'preload',
-      href: 'https://fonts.gstatic.com/s/rubik/v21/iJWKBXyIfDnIV7nBrXw.woff2',
+      href: '/css/font.css',
+      as: 'style',
+      crossOrigin: 'anonymous',
+    },
+    {
+      rel: 'preload',
+      href: 'https://fonts.gstatic.com/s/rubik/v26/iJWKBXyIfDnIV7nBrXw.woff2',
       as: 'font',
       type: 'font/woff2',
       crossOrigin: true,
@@ -70,7 +76,7 @@ module.exports = {
     },
     {
       rel: 'preload',
-      href: 'https://fonts.gstatic.com/s/rubik/v21/iJWEBXyIfDnIV7nEnX661A.woff2',
+      href: 'https://fonts.gstatic.com/s/rubik/v26/iJWEBXyIfDnIV7nEnX661A.woff2',
       as: 'font',
       type: 'font/woff2',
       crossOrigin: true,
@@ -83,25 +89,38 @@ module.exports = {
       crossOrigin: true,
     },
     {
+      rel: 'preload',
+      href: '/font/Alternox-Semi-Bold.otf',
+      as: 'font',
+      type: 'font/otf',
+      crossOrigin: 'anonymous',
+    },
+    {
       rel: 'stylesheet',
       href: 'https://fonts.googleapis.com/css2?family=Rubik:wght@300..900&family=Rubik:ital,wght@1,300..900&family=Roboto+Mono:wght@100..700&family=Roboto+Mono:ital,wght@1,100..700&display=swap',
       crossOrigin: true,
       media: 'all',
     },
     {
+      rel: 'stylesheet',
+      href: '/css/font.css',
+      crossOrigin: 'anonymous',
+      media: 'all',
+    },
+    {
       rel: 'icon',
-      href: 'img/favicon/favicon.ico',
+      href: '/img/favicon/favicon.ico',
     },
     {
       rel: 'icon',
       type: 'image/png',
-      href: 'img/favicon/favicon-16x16.png',
+      href: '/img/favicon/favicon-16x16.png',
       sizes: '16x16',
     },
     {
       rel: 'icon',
       type: 'image/png',
-      href: 'img/favicon/favicon-32x32.png',
+      href: '/img/favicon/favicon-32x32.png',
       sizes: '32x32',
     },
     /*{
@@ -400,7 +419,7 @@ module.exports = {
               },
               {
                 label: 'Demo (Github)',
-                to: 'https://stackblitz.com/github/data-client/data-client/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx',
+                to: 'https://stackblitz.com/github/data-client/data-client/tree/master/examples/github-app?file=src%2Fpages%2FIssueList/index.tsx',
               },
               {
                 label: 'Demo (Todo)',
