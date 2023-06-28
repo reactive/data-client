@@ -10,7 +10,7 @@ in the React tree.
 
 :::caution
 
-**Is a replacement for [<CacheProvider /\>](./CacheProvider.md) - do _NOT_ use both at once**
+**Is a replacement for [&lt;CacheProvider /\>](./CacheProvider.md) - do _NOT_ use both at once**
 
 :::
 

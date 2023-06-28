@@ -299,40 +299,7 @@
           ]
         }
       ]
-    },
-    {
-      "type": "category",
-      "label": "Upgrade Guide",
-      "items": [
-        {
-          "type": "doc",
-          "id": "upgrade/upgrading-to-7"
-        },
-        {
-          "type": "doc",
-          "id": "upgrade/upgrading-to-6"
-        },
-        {
-          "type": "doc",
-          "id": "upgrade/upgrading-to-5"
-        },
-        {
-          "type": "doc",
-          "id": "upgrade/upgrading-test-to-seven"
-        },
-        {
-          "type": "doc",
-          "id": "upgrade/upgrading-test-to-six"
-        },
-        {
-          "type": "doc",
-          "id": "upgrade/upgrading-test-to-four"
-        },
-        {
-          "type": "doc",
-          "id": "upgrade/upgrading-test-to-three"
-        }
-      ]
     }
+
   ]
 }

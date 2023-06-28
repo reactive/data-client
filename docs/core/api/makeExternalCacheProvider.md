@@ -11,9 +11,9 @@ declare const makeExternalCacheProvider: (
 
 :::caution Deprecated
 
-In @rest-hooks/test>=10, [<CacheProvider /\>](./CacheProvider.md) from `@rest-hooks/redux` should be used directly
+In @rest-hooks/test>=10, [&lt;CacheProvider /\>](./CacheProvider.md) from `@rest-hooks/redux` should be used directly
 
-For previous versions, this is used to build a [<ExternalCacheProvider /\>](./ExternalCacheProvider.md) for [makeRenderRestHook()](./makeRenderRestHook.md)
+For previous versions, this is used to build a [&lt;ExternalCacheProvider /\>](./ExternalCacheProvider.md) for [makeRenderRestHook()](./makeRenderRestHook.md)
 
 :::
 

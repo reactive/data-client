@@ -132,7 +132,8 @@ suspends.
   - (For example: navigating to a detail page with a single entry from a list view will instantly show the same data as the list without
     requiring a refetch.)
 
-<details><summary><b>SWAPI Demo</b></summary>
+<details>
+<summary><b>SWAPI Demo</b></summary>
 
 <HooksPlayground>
 

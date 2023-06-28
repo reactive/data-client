@@ -25,7 +25,7 @@ interface ProviderProps {
 }
 ```
 
-The Rest Hooks [<CacheProvider /&gt;](./CacheProvider.md)
+The Rest Hooks [&lt;CacheProvider /&gt;](./CacheProvider.md)
 
 - `import { CacheProvider } from @rest-hooks/react;`
 - `import { CacheProvider } from @rest-hooks/redux;`
@@ -79,7 +79,7 @@ Hooks to run inside React. Return value will become available in `result`
 Can be used to prime the cache if test expects cache values to already be filled. Takes an
 [array of fixtures](./Fixtures.md)
 
-This has the same effect as initializing [<CacheProvider /\>](../api/CacheProvider) with [mockInitialState()](../api/mockInitialState)
+This has the same effect as initializing [&lt;CacheProvider /\>](../api/CacheProvider) with [mockInitialState()](../api/mockInitialState)
 
 #### options.resolverFixtures
 

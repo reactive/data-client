@@ -25,7 +25,8 @@ or [getImage](/docs/guides/img-media#just-images) instead.
 
 :::
 
-<details><summary><b>Interface</b></summary>
+<details>
+<summary><b>Interface</b></summary>
 
 <Tabs
 defaultValue="Interface"
@@ -191,7 +192,7 @@ you intend on using that method.
 
 Returns `true` if the provided (fetch) [key](#key) matches this endpoint.
 
-This is used for mock interceptors with with [<MockResolver /&gt;](/docs/api/MockResolver)
+This is used for mock interceptors with with [&lt;MockResolver /&gt;](/docs/api/MockResolver)
 
 ### name: string {#name}
 
@@ -298,7 +299,7 @@ Use [endpoint.getOptimisticResponse](#getOptimisticResponse) instead.
 
 :::
 
-#### update(normalizedResponseOfThis, ...args) => ({ [endpointKey]: (normalizedResponseOfEndpointToUpdate) => updatedNormalizedResponse) }) {#update}
+#### update(normalizedResponseOfThis, ...args) => (\{ [endpointKey]: (normalizedResponseOfEndpointToUpdate) => updatedNormalizedResponse) }) {#update}
 
 ```ts title="UpdateType.ts"
 type UpdateFunction<

@@ -51,7 +51,8 @@ const todoDetail = new Endpoint(fetchTodoDetail);
 </LanguageTabs>
 
 
-<details><summary><b>Example Usage</b></summary>
+<details>
+<summary><b>Example Usage</b></summary>
 
 ```js
 console.log(await todoDetail({ id: '1' }));

@@ -1,4 +1,4 @@
-# \<Img /> - Suspenseful Image
+# &lt;Img /> - Suspenseful Image
 [![CircleCI](https://circleci.com/gh/data-client/rest-hooks/tree/master.svg?style=shield)](https://circleci.com/gh/data-client/rest-hooks)
 [![Coverage Status](https://img.shields.io/codecov/c/gh/data-client/rest-hooks/master.svg?style=flat-square)](https://app.codecov.io/gh/data-client/rest-hooks?branch=master)
 [![npm downloads](https://img.shields.io/npm/dm/@rest-hooks/img.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/img)

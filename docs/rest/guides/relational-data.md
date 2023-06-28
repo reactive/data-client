@@ -18,7 +18,8 @@ using [Entity.schema][3]
 Nested members are hoisted during normalization when [Entity.schema][3] is defined.
 They are then rejoined during denormalization
 
-<details><summary><b>Diagram</b></summary>
+<details>
+<summary><b>Diagram</b></summary>
 
 <div style={{float:'left'}}>
 

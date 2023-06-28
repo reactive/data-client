@@ -26,7 +26,7 @@ interface ProviderProps {
 }
 ```
 
-### initialState: State<unknown\> {#initialState}
+### initialState: State&lt;unknown\> {#initialState}
 
 ```typescript
 type State<T> = Readonly<{

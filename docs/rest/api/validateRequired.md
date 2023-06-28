@@ -58,7 +58,8 @@ class FullAnalysis extends SummaryAnalysis {
 }
 ```
 
-<details collapsed><summary><b>exclude()</b></summary>
+<details collapsed>
+<summary><b>exclude()</b></summary>
 
 ```ts title="exclude"
 function exclude<O extends Record<string, unknown>>(

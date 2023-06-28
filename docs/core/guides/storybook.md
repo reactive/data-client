@@ -8,7 +8,7 @@ import TabItem from '@theme/TabItem';
 [Storybook](https://storybook.js.org/) is a great utility to do isolated development and
 testing, potentially speeding up development time greatly.
 
-[<MockResolver /\>](../api/MockResolver.md) enables easy loading of [fixtures or interceptors](../api/Fixtures.md) to see what
+[&lt;MockResolver /\>](../api/MockResolver.md) enables easy loading of [fixtures or interceptors](../api/Fixtures.md) to see what
 different network responses might look like. It can be layered, composed, and even used
 for [imperative fetches](../api/Controller.md#fetch) usually used with side-effect endpoints like [create](/rest/api/createResource#create) and [update](/rest/api/createResource#update).
 
@@ -143,7 +143,7 @@ export const decorators = [
 
 ## Story
 
-Wrapping our component with [<MockResolver /\>](../api/MockResolver.md) enables us to declaratively
+Wrapping our component with [&lt;MockResolver /\>](../api/MockResolver.md) enables us to declaratively
 control how Rest Hooks' fetches are resolved.
 
 Here we select which fixtures should be used by [storybook controls](https://storybook.js.org/docs/react/essentials/controls).

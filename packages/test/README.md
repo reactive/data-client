@@ -16,7 +16,8 @@
 
 ## Usage
 
-<details><summary><b>Resource</b></summary>
+<details>
+<summary><b>Resource</b></summary>
 
 ```typescript
 import { Resource } from '@rest-hooks/rest';
@@ -36,7 +37,8 @@ export default class ArticleResource extends Resource {
 
 </details>
 
-<details><summary><b>Fixtures</b></summary>
+<details>
+<summary><b>Fixtures</b></summary>
 
 ```typescript
 export default {

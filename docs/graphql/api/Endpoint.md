@@ -202,7 +202,7 @@ Use [endpoint.getOptimisticResponse](#getOptimisticResponse) instead.
 
 :::
 
-#### update(normalizedResponseOfThis, ...args) => ({ [endpointKey]: (normalizedResponseOfEndpointToUpdate) => updatedNormalizedResponse) }) {#update}
+#### update(normalizedResponseOfThis, ...args) => (\{ [endpointKey]: (normalizedResponseOfEndpointToUpdate) => updatedNormalizedResponse) }) {#update}
 
 ```ts title="UpdateType.ts"
 type UpdateFunction<

@@ -140,7 +140,8 @@ render(<Navigator />);
 
 </HooksPlayground>
 
-<details><summary><b>@rest-hooks/rest</b></summary>
+<details>
+<summary><b>@rest-hooks/rest</b></summary>
 
 ## Examples
 

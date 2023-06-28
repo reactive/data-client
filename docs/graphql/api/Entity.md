@@ -262,7 +262,7 @@ When inferring a response, this entity's expiresAt is used to compute the expiry
 
 By **default** uses the first argument to lookup in [pk()](#pk) and [indexes](#indexes)
 
-### static expiresAt(meta: { expiresAt: number; date: number }, input: any): expiresAt {#expiresat}
+### static expiresAt(meta: \{ expiresAt: number; date: number }, input: any): expiresAt {#expiresat}
 
 This determines expiry time when entity is part of a result that is inferred.
 
@@ -342,7 +342,7 @@ Nested below:
 const price = useCache(LatestPrice, { symbol: 'BTC' });
 ```
 
-### static schema: { [k: keyof this]: Schema } {#schema}
+### static schema: \{ [k: keyof this]: Schema } {#schema}
 
 Set this to [define entities nested](/rest/guides/relational-data) inside this one.
 

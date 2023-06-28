@@ -23,7 +23,8 @@ TypeScript is optional, but requires at least version [3.7](https://www.typescri
 
 Alternatively [integrate state with redux](../guides/redux.md)
 
-<details><summary><b>Older browser support</b></summary>
+<details>
+<summary><b>Older browser support</b></summary>
 
 If your application targets older browsers (a few years or more), be sure to load polyfills.
 Typically this is done with [@babel/preset-env useBuiltIns: 'entry'](https://babeljs.io/docs/en/babel-preset-env#usebuiltins),
@@ -34,7 +35,8 @@ This ensures only the needed polyfills for your browser support targets are incl
 For instance `TypeError: Object.hasOwn is not a function`
 
 </details>
-<details><summary><b>Internet Explorer support</b></summary>
+<details>
+<summary><b>Internet Explorer support</b></summary>
 
 If you see `Uncaught TypeError: Class constructor Resource cannot be invoked without 'new'`,
 follow the instructions to [add legacy browser support to packages](../guides/legacy-browser)

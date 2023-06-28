@@ -20,7 +20,8 @@ import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
 :::
 
-<details><summary><b>Interface</b></summary>
+<details>
+<summary><b>Interface</b></summary>
 
 <Tabs
 defaultValue="RestEndpoint"
@@ -294,7 +295,8 @@ as [searchParams](https://developer.mozilla.org/en-US/docs/Web/API/URL/searchPar
 
 [searchParams](https://developer.mozilla.org/en-US/docs/Web/API/URL/searchParams) (aka queryParams) are sorted to maintain determinism.
 
-<details collapsed><summary><b>Implementation</b></summary>
+<details collapsed>
+<summary><b>Implementation</b></summary>
 
 ```typescript
 url(urlParams = {}) {
@@ -363,7 +365,7 @@ and [body](#body).
 
 :::
 
-### searchParams: { [key:string]: string|number|boolean } {#searchParams}
+### searchParams: \{ [key:string]: string|number|boolean } {#searchParams}
 
 `searchParams` can be to specify types extra parameters, used for the GET searchParams/queryParams in a [url()](#url).
 
@@ -660,7 +662,7 @@ of failure or success), the optimistic update will be replaced with the actual n
 
 [Optimistic update guide](guides/optimistic-updates.md)
 
-### update(normalizedResponseOfThis, ...args) => ({ [endpointKey]: (normalizedResponseOfEndpointToUpdate) => updatedNormalizedResponse) }) {#update}
+### update(normalizedResponseOfThis, ...args) => (\{ [endpointKey]: (normalizedResponseOfEndpointToUpdate) => updatedNormalizedResponse) }) {#update}
 
 ```ts title="UpdateType.ts"
 type UpdateFunction<
@@ -761,7 +763,7 @@ Default:
 
 Returns `true` if the provided (fetch) [key](#key) matches this endpoint.
 
-This is used for mock interceptors with with [<MockResolver /&gt;](/docs/api/MockResolver)
+This is used for mock interceptors with with [&lt;MockResolver /&gt;](/docs/api/MockResolver)
 
 ## extend(options): Endpoint {#extend}
 

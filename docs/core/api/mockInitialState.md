@@ -7,7 +7,7 @@ function mockInitialState(results: Fixture[]): State;
 ```
 
 `mockInitialState()` makes it easy to construct prefill the cache with [fixtures](./Fixtures.md). It's
-used in [<MockResolver /\>](./MockResolver) to process the results prop. However, this
+used in [&lt;MockResolver /\>](./MockResolver) to process the results prop. However, this
 can also be useful to send into a normal provider when testing more complete flows
 that need to handle `dispatches` (and thus fetch).
 
@@ -23,7 +23,7 @@ This prop specifies the [fixtures](./Fixtures.md) to use data from. Each item re
 [Endpoint](/rest/api/Endpoint) and params. `Result` contains the JSON response expected from said fetch.
 
 
-This can be used as the initialState prop for [<CacheProvider /\>](./CacheProvider)
+This can be used as the initialState prop for [&lt;CacheProvider /\>](./CacheProvider)
 
 ## Example
 

@@ -147,7 +147,8 @@ const todoCreate = new RestEndpoint({
 });
 ```
 
-<details><summary><b>Example Usage</b></summary>
+<details>
+<summary><b>Example Usage</b></summary>
 
 ```tsx
 import { useController } from '@rest-hooks/react';
@@ -178,7 +179,8 @@ const todoUpdate = new RestEndpoint({
 });
 ```
 
-<details><summary><b>Example Usage</b></summary>
+<details>
+<summary><b>Example Usage</b></summary>
 
 ```tsx
 import { useController } from '@rest-hooks/react';
@@ -213,7 +215,8 @@ const todoDelete = new RestEndpoint({
 });
 ```
 
-<details><summary><b>Example Usage</b></summary>
+<details>
+<summary><b>Example Usage</b></summary>
 
 ```tsx
 import { useController } from '@rest-hooks/react';

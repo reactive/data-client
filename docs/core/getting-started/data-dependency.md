@@ -131,7 +131,7 @@ us to make error/loading disjoint from data usage.
 
 ### Async Boundaries {#boundaries}
 
-Instead we place [<AsyncBoundary /\>](../api/AsyncBoundary.md) at or above navigational boundaries like pages,
+Instead we place [&lt;AsyncBoundary /\>](../api/AsyncBoundary.md) at or above navigational boundaries like pages,
 routes or modals.
 
 ```tsx {6,12,23-25}

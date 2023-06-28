@@ -261,7 +261,8 @@ function ArticleEdit() {
 }
 ```
 
-<details><summary><b>Tracking imperative loading/error state</b></summary>
+<details>
+<summary><b>Tracking imperative loading/error state</b></summary>
 
 [useLoading()](./api/useLoading.md) enhances async functions by tracking their loading and error states.
 
@@ -368,7 +369,8 @@ const TodoResource = createResource({
 
 [Introduction to Resource](/rest)
 
-<details><summary><b>Resource Endpoints</b></summary>
+<details>
+<summary><b>Resource Endpoints</b></summary>
 
 ```typescript
 // read
@@ -443,7 +445,8 @@ However, for data that changes frequently (like exchange price tickers, or live 
 protocols are used like Websockets or Server Sent Events. Rest Hooks has a [powerful middleware layer called Managers](./api/Manager.md),
 which can be used to [initiate data updates](./api/Manager.md#data-stream) when receiving new data pushed from the server.
 
-<details><summary><b>StreamManager</b></summary>
+<details>
+<summary><b>StreamManager</b></summary>
 
 ```typescript
 import type { Manager, Middleware } from '@rest-hooks/core';

@@ -20,8 +20,8 @@ First make sure you have redux installed:
 
 Note: react-redux is _not_ needed for this integration (though you will need it if you want to use redux directly as well).
 
-Then you'll want to use the [<ExternalCacheProvider /\>](../api/ExternalCacheProvider.md) instead of
-[<CacheProvider /\>](../api/CacheProvider.md) and pass in the store and a selector function to grab
+Then you'll want to use the [&lt;ExternalCacheProvider /\>](../api/ExternalCacheProvider.md) instead of
+[&lt;CacheProvider /\>](../api/CacheProvider.md) and pass in the store and a selector function to grab
 the rest-hooks specific part of the state.
 
 :::info Note

@@ -64,7 +64,8 @@ render(<TodoDetail id={1} />);
 Rest Hooks uses the fetch response to safely update all components. This not only more than doubles
 performance, but dramatically reduces server load that comes up sequential fetches.
 
-<details><summary><b>Tracking imperative loading/error state</b></summary>
+<details>
+<summary><b>Tracking imperative loading/error state</b></summary>
 
 [useLoading()](../api/useLoading.md) enhances async functions by tracking their loading and error states.
 
