@@ -5,6 +5,12 @@ export default function ProfileEdit({ userId }: { userId: number }) {
     id: userId,
   });
   const controller = useController();
+  const handleChange = e =>
+    controller.fetch(
+      UserResource.partialUpdate,
+      { id: userId },
+      { name: e.currentTarget.value },
+    );
   return (
     <div>
       <label>
@@ -12,13 +18,7 @@ export default function ProfileEdit({ userId }: { userId: number }) {
         <input
           type="text"
           value={user.name}
-          onChange={e =>
-            controller.fetch(
-              UserResource.partialUpdate,
-              { id: userId },
-              { name: e.currentTarget.value },
-            )
-          }
+          onChange={handleChange}
         />
       </label>
     </div>
