@@ -1,4 +1,3 @@
-import { usePrismTheme } from '@docusaurus/theme-common';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import type { Fixture, FixtureEndpoint, Interceptor } from '@rest-hooks/test';
 import clsx from 'clsx';
@@ -11,6 +10,7 @@ import MonacoPreloads from './MonacoPreloads';
 import { PlaygroundTextEdit, useCode } from './PlaygroundTextEdit';
 import PreviewWithHeader from './PreviewWithHeader';
 import styles from './styles.module.css';
+import { useReactLiveTheme } from './useReactLiveTheme';
 
 // previously exported by react-live
 type LiveProviderProps = {
@@ -47,7 +47,7 @@ export default function Playground<T>({
   const {
     liveCodeBlock: { playgroundPosition },
   } = useDocusaurusContext().siteConfig.themeConfig as any;
-  const prismTheme = usePrismTheme();
+  const realTheme = useReactLiveTheme();
 
   return (
     <>
@@ -57,7 +57,7 @@ export default function Playground<T>({
           [styles.hidden]: hidden,
         })}
       >
-        <LiveProvider theme={prismTheme} enableTypeScript={true} {...props}>
+        <LiveProvider theme={realTheme} enableTypeScript={true} {...props}>
           <PlaygroundContent
             reverse={playgroundPosition === 'top'}
             row={row}
