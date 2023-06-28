@@ -36,9 +36,14 @@ export default {
     {
       endpoint: UserResource.getList,
       async response(...args: any) {
-        const users = (await UserResource.getList(...args)).slice(0, 2);
+        const users = (await UserResource.getList(...args)).slice(
+          0,
+          2,
+        );
         const todos = await Promise.allSettled(
-          users.map(user => TodoResource.getList({ userId: user.id })),
+          users.map(user =>
+            TodoResource.getList({ userId: user.id }),
+          ),
         );
         users.forEach((user, i) => {
           delete user.address;
