@@ -43,7 +43,7 @@
     "webpack-dev-server": "4.15.1"
   },
   "dependencies": {
-    "@anansi/router": "0.7.36",
+    "@anansi/router": "0.7.37",
     "@ant-design/icons": "^5.0.0",
     "@rest-hooks/graphql": "^0.5.0",
     "@rest-hooks/hooks": "^3.1.14",
