@@ -2,18 +2,23 @@ import { useLive } from '@rest-hooks/react';
 
 import { getExchangeRates } from './resources';
 
-function AssetPrice({ symbol }: { symbol: string }) {
+function AssetPrice() {
   const { data: price } = useLive(getExchangeRates, {
     currency: 'USD',
   });
-  const displayPrice = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(1 / Number.parseFloat(price.rates[symbol]));
   return (
     <center>
-      {symbol} {displayPrice}
+      {assets.map(symbol => (
+        <div key={symbol}>
+          {symbol}{' '}
+          <Formatted
+            value={1 / price.rates[symbol]}
+            formatter="currency"
+          />
+        </div>
+      ))}
     </center>
   );
 }
-render(<AssetPrice symbol="BTC" />);
+const assets = ['BTC', 'ETH', 'DOGE'];
+render(<AssetPrice />);

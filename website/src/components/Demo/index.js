@@ -35,12 +35,6 @@ const Demo = props => (
             </Link>
             .
           </p>
-          <p>
-            Create reusable components and scalable apps by{' '}
-            <Link to="/docs/getting-started/data-dependency">
-              co-locating data dependencies
-            </Link>
-          </p>
         </div>
       </div>
       <div className="col col--9">

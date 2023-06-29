@@ -35,7 +35,8 @@ values={[
 <TypeScriptEditor row={false}>
 
 ```typescript title="api/Todo"
-import { createResource, Entity } from '@rest-hooks/rest';
+import { Entity } from '@rest-hooks/rest';
+import { createResource } from '@rest-hooks/rest/next';
 
 export class Todo extends Entity {
   id = 0;
@@ -53,6 +54,7 @@ export const TodoResource = createResource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   schema: Todo,
+  searchParams: {} as { userId?: string | number } | undefined,
 });
 ```
 
@@ -63,6 +65,8 @@ import { TodoResource } from './api/Todo';
 TodoResource.get({ id: 5 });
 // GET https://jsonplaceholder.typicode.com/todos
 TodoResource.getList();
+// GET https://jsonplaceholder.typicode.com/todos?userId=1
+TodoResource.getList({ userId: 1 });
 // POST https://jsonplaceholder.typicode.com/todos
 TodoResource.create({ title: 'my todo' });
 // PUT https://jsonplaceholder.typicode.com/todos/5

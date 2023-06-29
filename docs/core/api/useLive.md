@@ -24,12 +24,16 @@ Async rendering of frequently changing remote data.
 import { Entity, RestEndpoint } from '@rest-hooks/rest';
 
 export class ExchangeRates extends Entity {
-  readonly currency: string = 'USD';
-  readonly rates: Record<string, string> = {};
+  currency = 'USD';
+  rates: Record<string, number> = {};
 
   pk(): string {
     return this.currency;
   }
+
+  static schema = {
+    rates: new schema.Values(FloatSerializer),
+  };
 }
 
 export const getExchangeRates = new RestEndpoint({
@@ -49,13 +53,10 @@ function AssetPrice({ symbol }: Props) {
   const { data: price } = useLive(getExchangeRates, {
     currency: 'USD',
   });
-  const displayPrice = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(1 / Number.parseFloat(price.rates[symbol]));
   return (
     <span>
-      {symbol} {displayPrice}
+      {symbol}{' '}
+      <Formatted value={1 / price.rates[symbol]} formatter="currency" />
     </span>
   );
 }

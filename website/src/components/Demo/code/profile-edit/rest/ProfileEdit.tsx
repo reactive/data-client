@@ -1,9 +1,7 @@
 import { UserResource } from './resources';
 
 export default function ProfileEdit({ userId }: { userId: number }) {
-  const user = useSuspense(UserResource.get, {
-    id: userId,
-  });
+  const user = useSuspense(UserResource.get, { id: userId });
   const controller = useController();
   const handleChange = e =>
     controller.fetch(

@@ -1,10 +1,16 @@
-import { Entity, RestEndpoint } from '@rest-hooks/rest';
+import { Entity, RestEndpoint, schema } from '@rest-hooks/rest';
 import type { FixtureEndpoint } from '@rest-hooks/test';
+
+class FloatSeralizer extends Number {
+  constructor(v:any) {
+    super(Number.parseFloat(v))
+  }
+}
 
 // Visit https://resthooks.io/docs/guides/resource-types to read more about these definitions
 export class ExchangeRates extends Entity {
   readonly currency: string = 'USD';
-  readonly rates: Record<string, string> = {};
+  readonly rates: Record<string, number> = {};
 
   pk(): string {
     return this.currency;
@@ -12,7 +18,13 @@ export class ExchangeRates extends Entity {
 
   // implementing `key` makes us robust against class name mangling
   static key = 'ExchangeRates';
+
+  static schema = {
+    rates: new schema.Values(FloatSeralizer)
+  }
 }
+
+
 
 export const getExchangeRates = new RestEndpoint({
   urlPrefix: 'https://www.coinbase.com/api/v2',

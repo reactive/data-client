@@ -1,9 +1,7 @@
 import { UserResource, type Post } from './resources';
 
 export default function PostItem({ post }: { post: Post }) {
-  const author = useSuspense(UserResource.get, {
-    id: post.userId,
-  });
+  const author = useSuspense(UserResource.get, { id: post.userId });
   return (
     <div
       style={{

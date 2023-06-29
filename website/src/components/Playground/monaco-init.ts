@@ -254,8 +254,48 @@ if (
         declare function CurrentTime(props: {}):JSX.Element;
         declare function CancelButton(props: { onClick: () => void }):JSX.Element;
         declare function Avatar(props: { src: string }):JSX.Element;
+        declare function Formatted({ downColor, formatter, formatterFn, timeout, transition, transitionLength, upColor, value, stylePrefix, }: NumberProps):JSX.Element
         declare function ResetableErrorBoundary(props: { children: JSX.ReactChild }):JSX.Element;
-        declare function randomFloatInRange(min: number, max: number, decimals?: number): number;`,
+        declare function randomFloatInRange(min: number, max: number, decimals?: number): number;
+        declare class FloatSerializer extends Number {}
+        declare interface NumberProps {
+          /**
+           * Color value when the component flashes 'down'.
+           */
+          downColor?: string;
+          /**
+           * One of the built in formatters.
+           */
+          formatter?: 'currency' | 'percentage' | 'number';
+          /**
+           * Pass your own formatter function.
+           */
+          formatterFn?: Formatter;
+          /**
+           * Prefix for the CSS selectors in the DOM.
+           */
+          stylePrefix?: string;
+          /**
+           * Amount of time the flashed state is visible for, in milliseconds.
+           */
+          timeout?: number;
+          /**
+           * Custom CSS transition property.
+           */
+          transition?: string;
+          /**
+           * Transition length, in milliseconds.
+           */
+          transitionLength?: number;
+          /**
+           * Color value when the component flashes 'up'.
+           */
+          upColor?: string;
+          /**
+           * Value to display. The only required prop.
+           */
+          value: number;
+        }`,
       );
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
         es2022,

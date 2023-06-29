@@ -4,9 +4,7 @@ import PostContainer from './PostContainer';
 import { UserResource, PostResource } from './resources';
 
 export default function NewPost({ userId }: { userId: number }) {
-  const author = useSuspense(UserResource.get, {
-    id: userId,
-  });
+  const author = useSuspense(UserResource.get, { id: userId });
   const controller = useController();
 
   return (

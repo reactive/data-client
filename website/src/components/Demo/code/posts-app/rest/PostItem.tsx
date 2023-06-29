@@ -2,9 +2,7 @@ import PostContainer from './PostContainer';
 import { UserResource, type Post, PostResource } from './resources';
 
 export default function PostItem({ post }: { post: Post }) {
-  const author = useSuspense(UserResource.get, {
-    id: post.userId,
-  });
+  const author = useSuspense(UserResource.get, { id: post.userId });
   const controller = useController();
   return (
     <PostContainer
