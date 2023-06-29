@@ -178,6 +178,76 @@ render(<PostPage />);
 
 </HooksPlayground>
 
+## Client side joins
+
+Even if the network responses don't nest data, we can perform client-side joins by specifying
+the relationship in [Entity.schema](./Entity.md#schema)
+
+<HooksPlayground>
+
+```ts title="api/User.ts" collapsed
+export class User extends Entity {
+  id = 0;
+  name = '';
+  email = '';
+  website = '';
+  pk() {
+    return `${this.id}`;
+  }
+}
+export const UserResource = createResource({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/users/:id',
+  schema: User,
+});
+```
+
+```ts title="api/Todo.ts" collapsed
+import { User } from './User';
+
+export class Todo extends Entity {
+  id = 0;
+  userId = User.fromJS({});
+  title = '';
+  completed = false;
+  pk() {
+    return `${this.id}`;
+  }
+  static schema = {
+    userId: User,
+  };
+}
+export const TodoResource = createResource({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos/:id',
+  schema: Todo,
+});
+```
+
+```tsx title="TodoJoined.tsx"
+import { TodoResource } from './api/Todo';
+import { UserResource } from './api/User';
+
+
+function TodosPage() {
+  useFetch(UserResource.getList);
+  const todos = useSuspense(TodoResource.getList);
+  return (
+    <div>
+      {todos.slice(17,24).map(todo => (
+        <div key={todo.pk()}>
+          {todo.title} by <small>{todo.userId?.name}</small>
+        </div>
+      ))}
+    </div>
+  );
+}
+render(<TodosPage />);
+```
+
+</HooksPlayground>
+
+
 ## Reverse lookups
 
 Even though a response may only nest in one direction, Rest Hooks can handle reverse relationships
