@@ -10,7 +10,7 @@ import { schema } from '@rest-hooks/rest';
 import { createGithubResource, GithubEntity } from './Base';
 import { Issue } from './Issue';
 import PreviewEndpoint from './PreviewEndpoint';
-import { PullRequest } from './PullRequest';
+import { Pull } from './Pull';
 import { Push } from './Push';
 import { Review } from './Review';
 
@@ -36,19 +36,19 @@ export class PullRequestEvent extends Event {
   declare readonly payload: {
     action: 'closed' | 'opened';
     number: number;
-    pullRequest: PullRequest;
+    pullRequest: Pull;
   };
 
   static schema = {
     ...super.schema,
-    payload: { action: 'opened', number: 0, pullRequest: PullRequest },
+    payload: { action: 'opened', number: 0, pullRequest: Pull },
   };
 }
 export class PullRequestReviewEvent extends Event {
   readonly type = 'PullRequestReviewEvent';
   declare readonly payload: {
     action: 'created';
-    pullRequest: PullRequest;
+    pullRequest: Pull;
     review: Review;
   };
 
@@ -57,7 +57,7 @@ export class PullRequestReviewEvent extends Event {
     payload: {
       action: 'opened',
       number: 0,
-      pullRequest: PullRequest,
+      pullRequest: Pull,
       review: Review,
     },
   };

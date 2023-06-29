@@ -76,10 +76,8 @@ const Demo = props => (
           </p>
           <p>
             <Link to="/docs/api/PollingSubscription">Polling</Link>,{' '}
-            <Link to="/docs/api/Manager#middleware-data-stream">
-              SSE and Websocket
-            </Link>{' '}
-            or support a custom protocol with{' '}
+            <Link to="/docs/api/Manager#data-stream">SSE and Websocket</Link> or
+            support a custom protocol with{' '}
             <Link to="/docs/api/Manager">middlewares</Link>
           </p>
         </div>

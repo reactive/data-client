@@ -17,6 +17,8 @@ function AssetPrice() {
           />
         </div>
       ))}
+      <br />
+      <small>Updates every 15 seconds</small>
     </center>
   );
 }
