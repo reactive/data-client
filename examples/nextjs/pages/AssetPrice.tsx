@@ -1,5 +1,5 @@
 import { useLive } from '@rest-hooks/react';
-import { Formatted } from './Formatted';
+import { Formatted } from '../components/Formatted';
 import { getExchangeRates } from '../resources/ExchangeRates';
 
 export default function AssetPrice({ symbol }: Props) {
