@@ -23,7 +23,7 @@
   "devDependencies": {
     "@anansi/babel-preset": "4.2.8",
     "@anansi/browserslist-config": "1.4.3",
-    "@anansi/webpack-config": "15.0.23",
+    "@anansi/webpack-config": "15.0.24",
     "@babel/core": "7.22.5",
     "@linaria/babel-preset": "4.4.5",
     "@linaria/core": "4.2.10",
@@ -32,7 +32,7 @@
     "@types/react-dom": "18.2.6",
     "@types/uuid": "^9.0.0",
     "react-refresh": "0.14.0",
-    "webpack": "5.87.0",
+    "webpack": "5.88.1",
     "webpack-cli": "5.1.4",
     "webpack-dev-server": "4.15.1"
   },
