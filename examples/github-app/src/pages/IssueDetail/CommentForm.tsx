@@ -9,12 +9,7 @@ function CommentForm({
   label = 'Comment',
   initialValues,
   onCancel,
-}: {
-  onFinish: (data: { body: string }) => Promise<unknown>;
-  onCancel?: () => void;
-  label: string;
-  initialValues?: any;
-}) {
+}: Props) {
   const [handleSubmit, loading] = useLoading(onFinish, [onFinish]);
   return (
     <Form
@@ -42,5 +37,11 @@ function CommentForm({
     </Form>
   );
 }
-
 export default memo(CommentForm);
+
+interface Props {
+  onFinish: (data: { body: string }) => Promise<unknown>;
+  onCancel?: () => void;
+  label: string;
+  initialValues?: any;
+}

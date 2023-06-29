@@ -16,12 +16,6 @@ import CommentForm from './CommentForm';
 
 const { Meta } = Card;
 
-const commentList = css`
-  .ant-card-meta-detail {
-    width: 100%;
-  }
-`;
-
 function CommentInline({ comment }: { comment: Comment }) {
   const [editing, setEditing] = useState(false);
   return (
@@ -63,6 +57,12 @@ function CommentInline({ comment }: { comment: Comment }) {
   );
 }
 export default memo(CommentInline);
+
+const commentList = css`
+  .ant-card-meta-detail {
+    width: 100%;
+  }
+`;
 
 function CommentControls({
   comment,

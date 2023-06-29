@@ -7,18 +7,10 @@ import { v4 as uuid } from 'uuid';
 
 const { CheckableTag } = Tag;
 
-export function CreateReaction({
-  content,
-  reactions = [],
-  issue,
-}: {
-  reactions: Reaction[];
-  content: keyof typeof contentToIcon;
-  issue: Issue;
-}) {
+export function CreateReaction({ content, reactions = [], issue }: Props) {
   const ctrl = useController();
   const currentUser = useCache(UserResource.current);
-  const userReaction: Reaction | undefined =
+  const userReaction =
     currentUser &&
     reactions.find((reaction) => reaction.user.login === currentUser.login);
 
@@ -39,4 +31,9 @@ export function CreateReaction({
       {contentToIcon[content]}
     </CheckableTag>
   );
+}
+interface Props {
+  reactions: Reaction[];
+  content: keyof typeof contentToIcon;
+  issue: Issue;
 }

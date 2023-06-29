@@ -11,12 +11,6 @@ import CommentForm from './CommentForm';
 
 const { Meta } = Card;
 
-const comment = css`
-  .ant-card-meta-detail {
-    width: 100%;
-  }
-`;
-
 function CreateComment({ issue }: { issue: Issue }) {
   const currentUser = useCache(UserResource.current);
 
@@ -37,6 +31,12 @@ function CreateComment({ issue }: { issue: Issue }) {
   );
 }
 export default memo(CreateComment);
+
+const comment = css`
+  .ant-card-meta-detail {
+    width: 100%;
+  }
+`;
 
 function CreateForm({ issue }: { issue: Issue }) {
   const ctrl = useController();

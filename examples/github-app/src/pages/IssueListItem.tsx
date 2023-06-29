@@ -1,13 +1,8 @@
 import { Link } from '@anansi/router';
 import { List, Avatar } from 'antd';
+import { humanTime } from 'components/human';
 import Labels from 'components/Labels';
 import { Issue } from 'resources/Issue';
-
-const REL = new Intl.RelativeTimeFormat(navigator.language || 'en-US', {
-  localeMatcher: 'best fit',
-  numeric: 'auto',
-  style: 'long',
-});
 
 export default function IssueListItem({ issue }: { issue: Issue }) {
   const actions = [];
@@ -49,12 +44,7 @@ export default function IssueListItem({ issue }: { issue: Issue }) {
             <a href={issue.htmlUrl} target="_blank" rel="noreferrer noopener">
               #{issue.number}
             </a>{' '}
-            opened{' '}
-            {REL.format(
-              Math.floor((issue.createdAt.getTime() - Date.now()) / 1000 / 60),
-              'minute',
-            )}{' '}
-            by{' '}
+            opened {humanTime(issue.createdAt)} by{' '}
             <Link name="ProfileDetail" props={{ login: issue.user.login }}>
               {issue.user.login}
             </Link>

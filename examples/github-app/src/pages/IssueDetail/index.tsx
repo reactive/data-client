@@ -23,22 +23,8 @@ import { ReactionSpan } from './ReactionSpan';
 
 const { Meta } = Card;
 
-function IssueDetail({
-  number: s,
-  owner,
-  repo,
-}: {
-  number: string;
-  repo: string;
-  owner: string;
-}) {
-  const number = Number.parseInt(s, 10);
-  const params = {
-    owner,
-    repo,
-    number,
-  };
-
+function IssueDetail({ number, repo, owner }: Props) {
+  const params = { number, repo, owner };
   useFetch(ReactionResource.getList, params);
   const issue = useSuspense(IssueResource.get, params);
   const { results: reactions } = useCache(ReactionResource.getList, params);
@@ -111,6 +97,12 @@ function IssueDetail({
   );
 }
 export default memo(IssueDetail);
+
+interface Props {
+  number: string;
+  repo: string;
+  owner: string;
+}
 
 function capFirst(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1).toLocaleLowerCase();
