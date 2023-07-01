@@ -2,7 +2,7 @@
 title: schema.Delete
 ---
 <head>
-  <title>schema.Delete - Invalidating Entities | Rest Hooks</title>
+  <title>schema.Delete - Invalidating Entities | Reactive Data Client</title>
 </head>
 
 import HooksPlayground from '@site/src/components/HooksPlayground';

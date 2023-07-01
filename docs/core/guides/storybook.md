@@ -144,7 +144,7 @@ export const decorators = [
 ## Story
 
 Wrapping our component with [&lt;MockResolver /\>](../api/MockResolver.md) enables us to declaratively
-control how Rest Hooks' fetches are resolved.
+control how Reactive Data Client' fetches are resolved.
 
 Here we select which fixtures should be used by [storybook controls](https://storybook.js.org/docs/react/essentials/controls).
 

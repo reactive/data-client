@@ -1,5 +1,5 @@
 ---
-title: The Relational Data Client
+title: The Reactive Data Client
 sidebar_label: Introduction
 slug: /
 ---
@@ -13,22 +13,22 @@ import ProtocolTabs from '@site/src/components/ProtocolTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
 <head>
-  <title>The Relational Data Client for React: Rest Hooks ✨</title>
+  <title>The Reactive Data Client ✨</title>
   <meta name="docsearch:pagerank" content="10"/>
 </head>
 
 
-Rest Hooks provides safe and performant [client access](./api/useSuspense.md) and [mutation](./api/Controller.md#fetch) over [remote data protocols](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/).
+Reactive Data Client provides safe and performant [client access](./api/useSuspense.md) and [mutation](./api/Controller.md#fetch) over [remote data protocols](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/).
 Both pull/fetch ([REST](/rest) and [GraphQL](/graphql)) and push/stream ([WebSockets or Server Sent Events](./api/Manager.md#middleware-data-stream)) can be used simultaneously.
 
-We call Rest Hooks a Relational Data Client because it has similar goals
+It has similar goals
 to [Relational Databases](https://en.wikipedia.org/wiki/Relational_database)
 but for interactive application clients. Because of this, **if your backend uses a [RDBMS](https://en.wikipedia.org/wiki/Relational_database) like [Postgres](https://www.postgresql.org/)
-or [MySQL](https://www.mysql.com/) this is a good indication Rest Hooks might be for you**. Respectively,
+or [MySQL](https://www.mysql.com/) this is a good indication Reactive Data Client might be for you**. Respectively,
 just like one might choose [flat files](https://www.techopedia.com/definition/25956/flat-file) over database storage,
 sometimes a less powerful client library is sufficient.
 
-This is no small task. To achieve this, Rest Hooks' design is aimed at **treating remote data like it is
+This is no small task. To achieve this, Reactive Data Client' design is aimed at **treating remote data like it is
 local**. This means component logic should be no more complex than useState and setState.
 
 :::info Outcome
@@ -109,11 +109,11 @@ export default function TodoDetail({ id }: { id: number }) {
 render(<TodoDetail id={1} />);
 ```
 
-No more prop drilling, or cumbersome external state management. Rest Hooks guarantees global referential equality,
+No more prop drilling, or cumbersome external state management. Reactive Data Client guarantees global referential equality,
 data safety and performance.
 
 Co-location also allows [Server Side Rendering](./guides/ssr.md) to incrementally stream HTML, greatly reducing [TTFB](https://web.dev/ttfb/).
-[Rest Hooks SSR](./guides/ssr.md) automatically hydrates its store, allowing immediate interactive mutations with **zero** client-side
+[Reactive Data Client SSR](./guides/ssr.md) automatically hydrates its store, allowing immediate interactive mutations with **zero** client-side
 fetches on first load.
 
 ## Handle loading/error
@@ -302,8 +302,8 @@ function ArticleEdit() {
 ### More data modeling
 
 What if our entity is not the top level item? Here we define the `todoList`
-endpoint with `[Todo]` as its schema. [Schemas](./concepts/normalization.md#schema) tell Rest Hooks _where_ to find
-the Entities. By placing inside a list, Rest Hooks knows to expect a response
+endpoint with `[Todo]` as its schema. [Schemas](./concepts/normalization.md#schema) tell Reactive Data Client _where_ to find
+the Entities. By placing inside a list, Reactive Data Client knows to expect a response
 where each item of the list is the entity specified.
 
 ```typescript {6}
@@ -341,7 +341,7 @@ Now we've used our data model in three cases - `getTodo`, `getTodoList` and `upd
 ### Organizing Endpoints
 
 At this point we've defined `todoDetail`, `todoList` and `todoUpdate`. You might have noticed
-that these endpoint definitions share some logic and information. For this reason Rest Hooks
+that these endpoint definitions share some logic and information. For this reason Reactive Data Client
 encourages extracting shared logic among endpoints.
 
 [Resources](/rest/api/createResource) are collections of endpoints that operate on the same data.
@@ -409,7 +409,7 @@ the UI still ultimately waits on the fetch completion to update.
 For many cases like toggling todo.completed, incrementing an upvote, or dragging and drop
 a frame this can be too slow!
 
-We can optionally tell Rest Hooks to perform the React renders immediately. To do this
+We can optionally tell Reactive Data Client to perform the React renders immediately. To do this
 we'll need to specify _how_.
 
 [getOptimisticResponse](/rest/guides/optimistic-updates) is just like [setState with an updater function](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state). Using [snap](./api/Snapshot.md) for access to the store to get the previous
@@ -432,7 +432,7 @@ export const updateTodo = new RestEndpoint({
 });
 ```
 
-Rest Hooks ensures [data integrity against any possible networking failure or race condition](/rest/guides/optimistic-updates#optimistic-transforms), so don't
+Reactive Data Client ensures [data integrity against any possible networking failure or race condition](/rest/guides/optimistic-updates#optimistic-transforms), so don't
 worry about network failures, multiple mutation calls editing the same data, or other common
 problems in asynchronous programming.
 
@@ -442,7 +442,7 @@ Sometimes data change is initiated remotely - either due to other users on the s
 [expiry policy](./concepts/expiry-policy.md) controls allow tight control over updates due to fetching.
 
 However, for data that changes frequently (like exchange price tickers, or live conversations) sometimes push-based
-protocols are used like Websockets or Server Sent Events. Rest Hooks has a [powerful middleware layer called Managers](./api/Manager.md),
+protocols are used like Websockets or Server Sent Events. Reactive Data Client has a [powerful middleware layer called Managers](./api/Manager.md),
 which can be used to [initiate data updates](./api/Manager.md#data-stream) when receiving new data pushed from the server.
 
 <details>
@@ -497,7 +497,7 @@ to ensure we only listen to the data we care about.
 Endpoints with [pollFrequency](/rest/api/RestEndpoint#pollfrequency) allow reusing the existing HTTP endpoints, eliminating
 the need for additional websocket or SSE backends.
 Polling is globally orchestrated by the [SubscriptionManager](./api/SubscriptionManager.md), so even with many
-components subscribed Rest Hooks will never overfetch.
+components subscribed Reactive Data Client will never overfetch.
 
 [//]: # 'TODO: ## Relational joins and nesting'
 
@@ -537,7 +537,7 @@ const todoDetailFixture: Fixture = {
   args: [{ id: 5 }] as const,
   response: {
     id: 5,
-    title: 'Star Rest Hooks on Github',
+    title: 'Star Reactive Data Client on Github',
     userId: 11,
     completed: false,
   },
@@ -556,7 +556,7 @@ const todoUpdateFixture: Fixture = {
   args: [{ id: 5 }, { completed: true }] as const,
   response: {
     id: 5,
-    title: 'Star Rest Hooks on Github',
+    title: 'Star Reactive Data Client on Github',
     userId: 11,
     completed: true,
   },
@@ -672,4 +672,4 @@ const incrementInterceptor: Interceptor = {
 </TabItem>
 </Tabs>
 
-Explore more [Rest Hooks demos](/demos)
+Explore more [Reactive Data Client demos](/demos)

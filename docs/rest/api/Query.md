@@ -11,8 +11,8 @@ slug: Query
 import { RestEndpoint } from '@rest-hooks/rest';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
-`Query` provides programmatic access to the Rest Hooks cache while maintaining
-the same high performance and referential equality guarantees expected of Rest Hooks.
+`Query` provides programmatic access to the Reactive Data Client cache while maintaining
+the same high performance and referential equality guarantees expected of Reactive Data Client.
 
 ```typescript
 class Query<S extends SchemaSimple, P extends any[] = []> {
@@ -35,7 +35,7 @@ means it can only be passed to the [data binding hook useCache()](/docs/api/useC
 
 ### schema
 
-[Schema](./schema.md) used to retrieve/denormalize data from the Rest Hooks cache.
+[Schema](./schema.md) used to retrieve/denormalize data from the Reactive Data Client cache.
 Most cases will use [schema.All](./All.md), which retrieves all entities of a given type found
 in the cache.
 

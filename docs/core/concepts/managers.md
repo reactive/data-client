@@ -7,21 +7,21 @@ sidebar_label: Managers and Middleware
   <meta name="docsearch:pagerank" content="40"/>
 </head>
 
-Rest Hooks uses the [flux store](https://facebook.github.io/flux/docs/in-depth-overview/) pattern, which is
+Reactive Data Client uses the [flux store](https://facebook.github.io/flux/docs/in-depth-overview/) pattern, which is
 characterized by an easy to understand and debug [undirectional data flow](https://en.wikipedia.org/wiki/Unidirectional_Data_Flow_(computer_science)). State updates are performed by a reducer function.
 
 ![Manager flux flow](/img/managers.png)
 
-Rest Hooks improves type-safety and ergonomics by performing dispatches and store access with
+Reactive Data Client improves type-safety and ergonomics by performing dispatches and store access with
 its [Controller](../api/Controller.md)
 
 Finally, everything is orchestrated by [Managers](../api/Manager.md). Managers integrate with the flux
 lifecycle by intercepting and dispatching actions, as well as reading the internal state.
 
-This central orchestration is how Rest Hooks is able to coordinate with all components, doing things
+This central orchestration is how Reactive Data Client is able to coordinate with all components, doing things
 like automatic fetch deduplication, polling fetch coordinating eliminating many cases of overfetching.
 
-It also means Rest Hooks behavior can be arbitrarily customized by writing your own Managers.
+It also means Reactive Data Client behavior can be arbitrarily customized by writing your own Managers.
 
 ## Default managers
 
@@ -101,5 +101,5 @@ export default class StreamManager implements Manager {
 }
 ```
 
-[Controller.setResponse()](../api/Controller.md#setResponse) updates the Rest Hooks store
+[Controller.setResponse()](../api/Controller.md#setResponse) updates the Reactive Data Client store
 with `event.data`.

@@ -3,7 +3,7 @@ title: Controller
 ---
 
 <head>
-  <title>Controller - Imperative Controls for Rest Hooks</title>
+  <title>Controller - Imperative Controls for Reactive Data Client</title>
   <meta name="docsearch:pagerank" content="30"/>
 </head>
 
@@ -31,14 +31,14 @@ class Controller {
 }
 ```
 
-`Controller` is a singleton providing safe access to the Rest Hooks [flux store and lifecycle](./Manager.md#control-flow).
+`Controller` is a singleton providing safe access to the Reactive Data Client [flux store and lifecycle](./Manager.md#control-flow).
 
 [useController()](./useController.md) provides access in React components, and for [Managers](./Manager.md)
 it is passed as the first argument in [Manager.getMiddleware()](./Manager.md#middleware)
 
 ## fetch(endpoint, ...args) {#fetch}
 
-Fetches the endpoint with given args, updating the Rest Hooks cache with
+Fetches the endpoint with given args, updating the Reactive Data Client cache with
 the response or error upon completion.
 
 <Tabs
@@ -132,12 +132,12 @@ post.pk();
 
 #### true
 
-- Resolves _before_ committing Rest Hooks cache updates.
+- Resolves _before_ committing Reactive Data Client cache updates.
 - Each call will always cause a new fetch.
 
 #### undefined
 
-- Resolves _after_ committing Rest Hooks cache updates.
+- Resolves _after_ committing Reactive Data Client cache updates.
 - Identical requests are deduplicated globally; allowing only one inflight request at a time.
   - To ensure a _new_ request is started, make sure to abort any existing inflight requests.
 
@@ -213,7 +213,7 @@ function useLogout() {
 
 ## resetEntireStore() {#resetEntireStore}
 
-Resets/clears the entire Rest Hooks cache. All inflight requests will not resolve.
+Resets/clears the entire Reactive Data Client cache. All inflight requests will not resolve.
 
 This is typically used when logging out or changing authenticated users.
 
@@ -422,7 +422,7 @@ Returns a [Snapshot](./Snapshot.md).
 
 ## getState() {#getState}
 
-Gets the internal state of Rest Hooks that has _already been committed_.
+Gets the internal state of Reactive Data Client that has _already been committed_.
 
 :::warning
 

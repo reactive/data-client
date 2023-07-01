@@ -3,7 +3,7 @@ title: Legacy browser support
 ---
 import PkgTabs from '@site/src/components/PkgTabs';
 
-Rest Hooks is designed to work out of the box with most tooling.
+Reactive Data Client is designed to work out of the box with most tooling.
 
 If you see, `Uncaught TypeError: Class constructor Resource cannot be invoked without 'new'`
 this is most likely due to targeting Internet Explorer support with a custom webpack configuration.

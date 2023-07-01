@@ -21,17 +21,17 @@ any refetches.
 
 ## Update
 
-Rest Hooks uses your schema definitions to understand how to normalize response data into
+Reactive Data Client uses your schema definitions to understand how to normalize response data into
 an `entity table` and `result table`. Of course, this means that there is only ever one copy
 of a given `entity`. Aside from providing consistency when using different response endpoints,
-this means that by providing an accurate schema definition, Rest Hooks can automatically keep
+this means that by providing an accurate schema definition, Reactive Data Client can automatically keep
 all data uses consistent and fresh. The default update endpoints [Resource.update](/rest/api/createResource#update) and
 [Resource.partialUpdate](/rest/api/createResource#partialupdate) both do this automatically. [Read more about defining other
 update endpoints](/rest/guides/rpc)
 
 ## Delete
 
-Rest Hooks automatically deletes entity entries [schema.Invalidate](/rest/api/Invalidate) is used.
+Reactive Data Client automatically deletes entity entries [schema.Invalidate](/rest/api/Invalidate) is used.
 [Resource.delete](/rest/api/createResource#delete)
 provides such an endpoint.
 

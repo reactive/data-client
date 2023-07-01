@@ -25,7 +25,7 @@ interface ProviderProps {
 }
 ```
 
-The Rest Hooks [&lt;CacheProvider /&gt;](./CacheProvider.md)
+The Reactive Data Client [&lt;CacheProvider /&gt;](./CacheProvider.md)
 
 - `import { CacheProvider } from @rest-hooks/react;`
 - `import { CacheProvider } from @rest-hooks/redux;`
@@ -106,7 +106,7 @@ Pass a React Component as the wrapper option to have it rendered around the inne
 ### cleanup()
 
 Cleans up all managers used in tests. Should be run in `afterEach()` to ensure each test starts fresh.
-This is especially important when mocking timers, as Rest Hooks' internals relies on real timers to
+This is especially important when mocking timers, as Reactive Data Client' internals relies on real timers to
 avoid race conditions.
 
 ### allSettled()

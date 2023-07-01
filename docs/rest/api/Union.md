@@ -2,7 +2,7 @@
 title: schema.Union
 ---
 <head>
-  <title>schema.Union - Representing a Union of possible types | Rest Hooks</title>
+  <title>schema.Union - Representing a Union of possible types | Reactive Data Client</title>
 </head>
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
@@ -114,4 +114,4 @@ own distinct schema, which is why we use `schema.Union`
 
 <StackBlitz app="github-app" file="src/pages/ProfileDetail/UserEvents.tsx,src/resources/Event.tsx" view="preview" initialpath="/users/ntucker" height="700" ctl="1" />
 
-Explore more [Rest Hooks demos](/demos)
+Explore more [Reactive Data Client demos](/demos)

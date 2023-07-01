@@ -68,7 +68,7 @@ export const getServerSideProps = () => ({ props: {} });
 To further customize Document, simply extend from the provided document.
 
 Make sure you use `super.getInitialProps()` instead of `Document.getInitialProps()`
-or the Rest Hooks code won't run!
+or the Reactive Data Client code won't run!
 
 ```tsx title="pages/_document.tsx"
 import { Html, Head, Main, NextScript } from 'next/document';
@@ -109,13 +109,13 @@ export default class MyDocument extends RestHooksDocument {
 
 ### CSP Nonce
 
-Rest Hooks Document serializes the store state in a script tag. In case you have
+Reactive Data Client Document serializes the store state in a script tag. In case you have
 Content Security Policy restrictions that require use of a nonce, you can override
 `RestHooksDocument.getNonce`.
 
 Since there is no standard way of handling [nonce](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce)
 in NextJS, this allows you
-to retrieve any nonce you created in the DocumentContext to use with Rest Hooks.
+to retrieve any nonce you created in the DocumentContext to use with Reactive Data Client.
 
 ```tsx title="pages/_document.tsx"
 import { RestHooksDocument } from '@rest-hooks/ssr/nextjs';

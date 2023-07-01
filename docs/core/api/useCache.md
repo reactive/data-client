@@ -154,7 +154,7 @@ function useCache<
 
 ### Query arbitrary Entities
 
-[Query](/rest/api/Query) provides programmatic access to the Rest Hooks store.
+[Query](/rest/api/Query) provides programmatic access to the Reactive Data Client store.
 
 <HooksPlayground fixtures={[
 {
@@ -218,4 +218,4 @@ render(<UsersPage />);
 
 <StackBlitz app="todo-app" file="src/resources/TodoResource.ts,src/pages/Home/TodoStats.tsx" />
 
-Explore more [Rest Hooks demos](/demos)
+Explore more [Reactive Data Client demos](/demos)

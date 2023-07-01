@@ -4,7 +4,7 @@ title: Installation
 ---
 
 <head>
-  <title>Getting Started with Rest Hooks</title>
+  <title>Getting Started with Reactive Data Client</title>
 </head>
 
 import Tabs from '@theme/Tabs';
@@ -52,4 +52,4 @@ follow the instructions to [add legacy browser support to packages](../guides/le
   height="500"
 ></iframe>
 
-Explore more [Rest Hooks demos](/demos)
+Explore more [Reactive Data Client demos](/demos)

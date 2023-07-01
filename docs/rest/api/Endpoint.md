@@ -13,7 +13,7 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 `Endpoint` are for any asynchronous function (one that returns a Promise).
 
 `Endpoints` define a standard interface to extend the function with relevant metadata and lifecycles
-useful for Rest Hooks and other stores.
+useful for Reactive Data Client and other stores.
 
 Package: [@rest-hooks/endpoint](https://www.npmjs.com/package/@rest-hooks/endpoint)
 
@@ -113,7 +113,7 @@ export interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
 
 ## Usage
 
-`Endpoint` makes existing async functions usable in any Rest Hooks context with full TypeScript enforcement.
+`Endpoint` makes existing async functions usable in any Reactive Data Client context with full TypeScript enforcement.
 
 <HooksPlayground defaultOpen="n">
 

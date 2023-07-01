@@ -3,7 +3,7 @@ title: Snapshot
 ---
 
 <head>
-  <title>Snapshot - Safe data access for Rest Hooks</title>
+  <title>Snapshot - Safe data access for Reactive Data Client</title>
 </head>
 
 import LanguageTabs from '@site/src/components/LanguageTabs';

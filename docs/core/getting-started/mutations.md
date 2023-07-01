@@ -5,9 +5,10 @@ sidebar_label: Mutate Data
 
 import ProtocolTabs from '@site/src/components/ProtocolTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
+import { TodoResource } from '@site/src/components/Demo/code/todo-app/rest/resources';
 
 <head>
-  <title>Mutating Asynchronous Data with Rest Hooks</title>
+  <title>Mutating Asynchronous Data with Reactive Data Client</title>
   <meta name="docsearch:pagerank" content="40"/>
 </head>
 
@@ -61,7 +62,7 @@ render(<TodoDetail id={1} />);
 
 </HooksPlayground>
 
-Rest Hooks uses the fetch response to safely update all components. This not only more than doubles
+Reactive Data Client uses the fetch response to safely update all components. This not only more than doubles
 performance, but dramatically reduces server load that comes up sequential fetches.
 
 <details>
@@ -111,9 +112,34 @@ the UI still ultimately waits on the fetch completion to update.
 For many cases like toggling todo.completed, incrementing an upvote, or dragging and drop
 a frame this can be too slow!
 
-<HooksPlayground defaultOpen="n" row>
+<HooksPlayground defaultOpen="n" row fixtures={[
+{
+  endpoint: TodoResource.getList,
+  async response(...args) {
+    return (await TodoResource.getList(...args)).slice(0, 7);
+  },
+},
+{
+  endpoint: TodoResource.partialUpdate,
+  async response(...args) {
+    return {
+      ...(await TodoResource.partialUpdate(...args)),
+      id: args?.[0]?.id,
+    };
+  },
+},
+{
+  endpoint: TodoResource.create,
+  async response(...args) {
+    return {
+      ...(await TodoResource.create(...args)),
+      id: args?.[args.length - 1]?.id,
+    };
+  },
+},
+]}>
 
-```ts title="api/Todo" collapsed
+```ts title="api/Todo" {14}
 export class Todo extends Entity {
   id = 0;
   userId = 0;
@@ -123,31 +149,15 @@ export class Todo extends Entity {
     return `${this.id}`;
   }
 }
-const BaseTodoResource = createResource({
+export const TodoResource = createResource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   schema: Todo,
+  optimistic: true,
 });
-export const TodoResource = {
-  ...BaseTodoResource,
-  getList: BaseTodoResource.getList.extend({
-    process(todos) {
-      // for demo purposes we'll only use the first seven
-      return todos.slice(0, 7);
-    },
-  }),
-  partialUpdate: BaseTodoResource.partialUpdate.extend({
-    getOptimisticResponse(snap, { id }, body) {
-      return {
-        id,
-        ...body,
-      };
-    },
-  }),
-};
 ```
 
-```tsx title="TodoItem" {12-16}
+```tsx title="TodoItem" {12-16} collapsed
 import { useController } from '@rest-hooks/react';
 import { TodoResource, Todo } from './api/Todo';
 
@@ -196,22 +206,22 @@ render(<TodoList />);
 value, as well as the fetch arguments, we return the _expected_ fetch response.
 
 ```typescript
-export const updateTodo = new RestEndpoint({
-  urlPrefix: 'https://jsonplaceholder.typicode.com',
-  path: '/todos/:id',
-  method: 'PUT',
-  schema: Todo,
+export const increment = new RestEndpoint({
+  path: '/api/count/increment',
+  method: 'POST',
+  name: 'increment',
   // highlight-start
-  getOptimisticResponse(snap, { id }, body) {
+  getOptimisticResponse(snap) {
+    const { data } = snap.getResponse(getCount);
+    if (!data) throw new AbortOptimistic();
     return {
-      id,
-      ...body,
+      count: data.count + 1,
     };
   },
   // highlight-end
 });
 ```
 
-Rest Hooks ensures [data integrity against any possible networking failure or race condition](/rest/guides/optimistic-updates#optimistic-transforms), so don't
+Reactive Data Client ensures [data integrity against any possible networking failure or race condition](/rest/guides/optimistic-updates#optimistic-transforms), so don't
 worry about network failures, multiple mutation calls editing the same data, or other common
 problems in asynchronous programming.

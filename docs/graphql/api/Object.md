@@ -2,7 +2,7 @@
 title: schema.Object
 ---
 <head>
-  <title>schema.Values - Representing Objects with known keys | Rest Hooks</title>
+  <title>schema.Values - Representing Objects with known keys | Reactive Data Client</title>
 </head>
 
 import LanguageTabs from '@site/src/components/LanguageTabs';

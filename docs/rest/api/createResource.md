@@ -241,7 +241,7 @@ export const TodoResource = {
 
 <StackBlitz app="todo-app" file="src/resources/TodoResource.ts" view="editor" />
 
-Explore more [Rest Hooks demos](/demos)
+Explore more [Reactive Data Client demos](/demos)
 
 ## Function Inheritance Patterns
 

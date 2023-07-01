@@ -290,4 +290,4 @@ export default function ArticleList({ page }: { page: string }) {
 
 <StackBlitz app="todo-app" file="src/resources/TodoResource.ts,src/pages/Home/TodoList.tsx" />
 
-Explore more [Rest Hooks demos](/demos)
+Explore more [Reactive Data Client demos](/demos)

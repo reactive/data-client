@@ -5,7 +5,7 @@ sidebar_label: Usage
 ---
 
 <head>
-  <title>Using REST APIs with Rest Hooks</title>
+  <title>Using REST APIs with Reactive Data Client</title>
 </head>
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
@@ -19,7 +19,7 @@ import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 :::tip
 
 This version requires TypeScript 4.0. For older versions, try [@rest-hooks/rest@5](/rest/5.2), which is fully compatible with
-the latest Rest Hooks clients.
+the latest Reactive Data Client clients.
 
 :::
 

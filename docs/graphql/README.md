@@ -4,7 +4,7 @@ title: GraphQL Usage
 sidebar_label: Usage
 ---
 <head>
-  <title>GraphQL Usage with Rest Hooks</title>
+  <title>GraphQL Usage with Reactive Data Client</title>
 </head>
 
 

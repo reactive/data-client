@@ -10,10 +10,10 @@ sidebar_label: Comparison
 While there are numerous tools for async state we could compare to, the libraries were chosen as
 the strongest representation of their general approach.
 
-[Rest Hooks' design](../README.md) is aimed at **treating remote data like it is local**. This means component logic should be no more complex than useState and setState. This design requires Rest Hooks to [automatically ensures safety and performance](../README.md#entities), rather than requiring
+[Reactive Data Client' design](../README.md) is aimed at **treating remote data like it is local**. This means component logic should be no more complex than useState and setState. This design requires Reactive Data Client to [automatically ensures safety and performance](../README.md#entities), rather than requiring
 users to layer their own state manipulation logic.
 
-From those adopting Rest Hooks we've seen
+From those adopting Reactive Data Client we've seen
 
 - Dramatic increase in developer velocity
 - Elimination of networking related jank
@@ -24,7 +24,7 @@ From those adopting Rest Hooks we've seen
 
 ### Platforms
 
-|                     |                                  [Rest Hooks](https://resthooks.io)                                   | [SWR](https://swr.vercel.app/) | [RTK-Query](https://redux-toolkit.js.org/rtk-query/overview) | [Apollo](https://www.apollographql.com/docs/react/) | [Relay](https://relay.dev/) |
+|                     |                                  [Reactive Data Client](https://resthooks.io)                                   | [SWR](https://swr.vercel.app/) | [RTK-Query](https://redux-toolkit.js.org/rtk-query/overview) | [Apollo](https://www.apollographql.com/docs/react/) | [Relay](https://relay.dev/) |
 | ------------------- | :---------------------------------------------------------------------------------------------------: | :----------------------------: | :----------------------------------------------------------: | :-------------------------------------------------: | :-------------------------: |
 | Fetch Protocols     |      [REST](/rest), [GraphQL](/graphql), [img+binary](../guides/img-media.md), user-defined[^1]       |        user-defined[^1]        |                    REST, user-defined[^1]                    |                       GraphQL                       |           GraphQL           |
 | Push Protocols      | [Websockets](../api//Manager.md#data-stream), [SSE](../api//Manager.md#data-stream), user-defined[^1] |               🛑               |                 Websockets, user-defined[^1]                 |                GraphQL subscriptions                |    GraphQL subscriptions    |
@@ -44,7 +44,7 @@ but having bluetooth and internet streaming isn't necessarily worse than a car w
 
 ### Safety
 
-|                                                     | Rest Hooks | SWR | RTK-Query | Apollo | Relay |
+|                                                     | Reactive Data Client | SWR | RTK-Query | Apollo | Relay |
 | --------------------------------------------------- | :--------: | :-: | :-------: | :----: | :---: |
 | **Data Integrity**                                  |            |     |           |        |
 | Typed returns                                       |     ✅     | 🛑  |    🛑     |        |
@@ -69,7 +69,7 @@ but having bluetooth and internet streaming isn't necessarily worse than a car w
 
 ### Performance
 
-|                                                        | Rest Hooks |                         SWR                         |                               RTK-Query                               | Apollo |                             Relay                             |
+|                                                        | Reactive Data Client |                         SWR                         |                               RTK-Query                               | Apollo |                             Relay                             |
 | ------------------------------------------------------ | :--------: | :-------------------------------------------------: | :-------------------------------------------------------------------: | :----: | :-----------------------------------------------------------: |
 | Global cache                                           |     ✅     |                         ✅                          |                                  ✅                                   |   ✅   |                              ✅                               |
 | Parallel fetches                                       |     ✅     |                         ✅                          |                                  ✅                                   |   ✅   |                              ✅                               |
@@ -105,7 +105,7 @@ but having bluetooth and internet streaming isn't necessarily worse than a car w
 
 How quickly one can get started
 
-|                                                                  |     Rest Hooks      | SWR | RTK-Query |       Apollo        | Relay |
+|                                                                  |     Reactive Data Client      | SWR | RTK-Query |       Apollo        | Relay |
 | ---------------------------------------------------------------- | :-----------------: | :-: | :-------: | :-----------------: | :---: |
 | Can use with redux                                               |         ✅          | 🛑  |    ✅     |         🛑          |  🛑   |
 | [Infinite scrolling](/rest/guides/pagination#infinite-scrolling) |         ✅          | ✅  |    🛑     |         ✅          |
@@ -122,7 +122,7 @@ How quickly one can get started
 
 How well it scales as code size and usage increases
 
-|                                  | Rest Hooks | SWR | RTK-Query | Apollo | Relay |
+|                                  | Reactive Data Client | SWR | RTK-Query | Apollo | Relay |
 | -------------------------------- | :--------: | :-: | :-------: | :----: | :---: |
 | [Middlewares](../api/Manager.md) |     ✅     | 🛑  |    ✅     |   🛑   |  🛑   |
 | Abstracted/Agnostic Core         |     ✅     | 🛑  |    ✅     |   🛑   |  🛑   |

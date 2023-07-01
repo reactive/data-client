@@ -32,16 +32,16 @@ You should only use ONE provider; nested another provider will override the prev
 
 :::info Note
 
-Rest Hooks manager middlewares return promises, which is different from how redux middlewares work.
+Reactive Data Client manager middlewares return promises, which is different from how redux middlewares work.
 Because of this, if you want to integrate both, you'll need to place all redux middlewares
-after the `PromiseifyMiddleware` adapter, and place all Rest Hooks manager middlewares before.
+after the `PromiseifyMiddleware` adapter, and place all Reactive Data Client manager middlewares before.
 
 :::
 
 <Tabs
 defaultValue="rest-hooks"
 values={[
-{ label: 'just Rest Hooks', value: 'rest-hooks' },
+{ label: 'just Reactive Data Client', value: 'rest-hooks' },
 { label: 'with React-Redux', value: 'react-redux' },
 ]}>
 <TabItem value="rest-hooks">
@@ -72,7 +72,7 @@ const store = createStore(
   initialState,
   applyMiddleware(
     ...applyManager([networkManager, subscriptionManager], controller),
-    // place Rest Hooks built middlewares before PromiseifyMiddleware
+    // place Reactive Data Client built middlewares before PromiseifyMiddleware
     PromiseifyMiddleware,
     // place redux middlewares after PromiseifyMiddleware
   ),
@@ -126,7 +126,7 @@ const store = createStore(
   initialState,
   applyMiddleware(
     ...applyManager([networkManager, subscriptionManager], controller),
-    // place Rest Hooks built middlewares before PromiseifyMiddleware
+    // place Reactive Data Client built middlewares before PromiseifyMiddleware
     PromiseifyMiddleware,
     // place redux middlewares after PromiseifyMiddleware
   ),
@@ -188,7 +188,7 @@ Here we store rest-hooks state information in the 'restHooks' part of the tree.
 ## Redux devtools
 
 [Redux DevTools](https://github.com/reduxjs/redux-devtools) allows easy inspection of current
-state and transitions in the Rest Hooks store.
+state and transitions in the Reactive Data Client store.
 
 Simply wrap the return value of `applyMiddleware()` with `composeWithDevTools()`
 
@@ -205,7 +205,7 @@ const store = createStore(
     // highlight-end
     applyMiddleware(
       ...applyManager([networkManager, subscriptionManager], controller),
-      // place Rest Hooks built middlewares before PromiseifyMiddleware
+      // place Reactive Data Client built middlewares before PromiseifyMiddleware
       PromiseifyMiddleware,
       // place redux middlewares after PromiseifyMiddleware
     ),

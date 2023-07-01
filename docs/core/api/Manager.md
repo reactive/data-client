@@ -44,7 +44,7 @@ The only differences is that the `next()` function returns a `Promise`. This pro
 when using &lt;CacheProvider /\>. This is necessary since the commit phase is asynchronously scheduled. This enables building
 managers that perform work after the DOM is updated and also with the newly computed state.
 
-Since redux is fully synchronous, an adapter must be placed in front of Rest Hooks style middleware to
+Since redux is fully synchronous, an adapter must be placed in front of Reactive Data Client style middleware to
 ensure they can consume a promise. Conversely, redux middleware must be changed to pass through promises.
 
 Middlewares will intercept actions that are dispatched and then potentially dispatch their own actions as well.
@@ -66,7 +66,7 @@ relies on state actually existing.
 - [DevToolsManager](../api/DevToolsManager.md)
 - [LogoutManager](../api/LogoutManager.md)
 
-## Adding managers to Rest Hooks
+## Adding managers to Reactive Data Client
 
 Use the [managers](../api/CacheProvider.md#managers) prop of [CacheProvider](../api/CacheProvider.md). Be
 sure to hoist to module level or wrap in a useMemo() to ensure they are not recreated. Managers
@@ -228,5 +228,5 @@ export default class StreamManager implements Manager {
 }
 ```
 
-[Controller.setResponse()](../api/Controller.md#setResponse) updates the Rest Hooks store
+[Controller.setResponse()](../api/Controller.md#setResponse) updates the Reactive Data Client store
 with `event.data`.

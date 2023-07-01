@@ -3,7 +3,7 @@ title: GraphQL Authentication
 sidebar_label: Authentication
 ---
 <head>
-  <title>GraphQL Authentication patterns for Rest Hooks</title>
+  <title>GraphQL Authentication patterns for Reactive Data Client</title>
 </head>
 
 import Tabs from '@theme/Tabs';

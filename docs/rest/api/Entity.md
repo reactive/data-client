@@ -3,7 +3,7 @@ title: Entity
 ---
 
 <head>
-  <title>Entity - Declarative Data Normalization | Rest Hooks</title>
+  <title>Entity - Declarative Data Normalization | Reactive Data Client</title>
   <meta name="docsearch:pagerank" content="10"/>
 </head>
 
@@ -55,7 +55,7 @@ export default class Article extends Entity {
 When representing data from a relational database, this makes an Entity roughly map 1:1 with a table, where
 each row represents an instance of the Entity.
 
-By defining a `pk()` member, Rest Hooks will normalize entities, ensuring consistency and improve performance
+By defining a `pk()` member, Reactive Data Client will normalize entities, ensuring consistency and improve performance
 by increasing cache hit rates.
 
 :::tip
@@ -176,7 +176,7 @@ static merge(existing: any, incoming: any) {
 
 Merge is used to handle cases when an incoming entity is already found. This is called directly
 when the same entity is found in one response. By default it is also called when [mergeWithStore()](#mergeWithStore)
-determines the incoming entity should be merged with an entity already persisted in the Rest Hooks store.
+determines the incoming entity should be merged with an entity already persisted in the Reactive Data Client store.
 
 How to override to [build reverse-lookups for relational data](../guides/relational-data.md#reverse-lookups)
 
@@ -290,7 +290,7 @@ disable or customize.
 
 ### static infer(args, indexes, recurse): pk? {#infer}
 
-Allows Rest Hooks to build a response without having to fetch if its entities can be found.
+Allows Reactive Data Client to build a response without having to fetch if its entities can be found.
 
 Returning `undefined` will not infer this entity
 

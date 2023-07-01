@@ -113,7 +113,7 @@ the process via `denormalization`.
 
 :::info Global Referential Equality
 
-Using entities expands Rest Hooks' global referential equality guarantee beyond the granularity of
+Using entities expands Reactive Data Client' global referential equality guarantee beyond the granularity of
 an entire endpoint response.
 
 :::
@@ -121,10 +121,10 @@ an entire endpoint response.
 ## Mutations and Dynamic Data
 
 When an endpoint changes data, this is known as a [side effect](/rest/guides/rpc). Marking an endpoint with [sideEffect: true](/rest/api/Endpoint#sideeffect)
-tells Rest Hooks that this endpoint is not idempotent, and thus should not be allowed in hooks
+tells Reactive Data Client that this endpoint is not idempotent, and thus should not be allowed in hooks
 that may call the endpoint an arbitrary number of times like [useSuspense()](../api/useSuspense.md) or [useFetch()](../api/useFetch.md)
 
-By including the changed data in the endpoint's response, Rest Hooks is able to able to update
+By including the changed data in the endpoint's response, Reactive Data Client is able to able to update
 any entities it extracts by specifying the schema.
 
 <Tabs
@@ -263,7 +263,7 @@ const getTodoList = new RestEndpoint({
 });
 ```
 
-Placing our [Entity](/rest/api/Entity) `Todo` in an array, tells Rest Hooks to expect
+Placing our [Entity](/rest/api/Entity) `Todo` in an array, tells Reactive Data Client to expect
 an array of `Todos`.
 
 Aside from array, there are a few more 'schemas' provided for various patterns. The first two (Object and Array)

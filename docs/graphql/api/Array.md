@@ -2,7 +2,7 @@
 title: schema.Array
 ---
 <head>
-  <title>schema.Array - Representing Arrays | Rest Hooks</title>
+  <title>schema.Array - Representing Arrays | Reactive Data Client</title>
 </head>
 
 import Tabs from '@theme/Tabs';

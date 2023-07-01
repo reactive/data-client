@@ -114,11 +114,11 @@ width="415" height="184"
 />
 </a>
 
-No more prop drilling, or cumbersome external state management. Rest Hooks guarantees global referential equality,
+No more prop drilling, or cumbersome external state management. Reactive Data Client guarantees global referential equality,
 data safety and performance.
 
 Co-location also allows [Server Side Rendering](../guides/ssr.md) to incrementally stream HTML, greatly reducing [TTFB](https://web.dev/ttfb/).
-[Rest Hooks SSR](../guides/ssr.md) automatically hydrates its store, allowing immediate interactive mutations with **zero** client-side
+[Reactive Data Client SSR](../guides/ssr.md) automatically hydrates its store, allowing immediate interactive mutations with **zero** client-side
 fetches on first load.
 
 <ConditionalDependencies />
@@ -314,14 +314,18 @@ export const TodoResource = createResource({
 
 <HooksPlayground defaultOpen="n">
 
-```typescript title="api/ExchangeRates" {14}
+```typescript title="api/ExchangeRates" {18}
 export class ExchangeRates extends Entity {
-  readonly currency: string = 'USD';
-  readonly rates: Record<string, string> = {};
+  currency = 'USD';
+  rates: Record<string, number> = {};
 
-  pk(): string {
+  pk() {
     return this.currency;
   }
+
+  static schema = {
+    rates: new schema.Values(FloatSerializer),
+  };
 }
 export const getExchangeRates = new RestEndpoint({
   urlPrefix: 'https://www.coinbase.com/api/v2',
@@ -338,13 +342,10 @@ import { getExchangeRates } from './api/ExchangeRates';
 
 function AssetPrice({ symbol }: { symbol: string }) {
   const { data: price } = useLive(getExchangeRates, { currency: 'USD' });
-  const displayPrice = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(1 / Number.parseFloat(price.rates[symbol]));
   return (
     <span>
-      {symbol} {displayPrice}
+      {symbol}{' '}
+      <Formatted value={1 / price.rates[symbol]} formatter="currency" />
     </span>
   );
 }

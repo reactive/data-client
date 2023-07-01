@@ -3,7 +3,7 @@ title: schema.All
 ---
 
 <head>
-  <title>schema.All - Access every entity in the Rest Hooks store</title>
+  <title>schema.All - Access every entity in the Reactive Data Client store</title>
 </head>
 
 import Tabs from '@theme/Tabs';

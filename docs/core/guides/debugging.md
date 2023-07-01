@@ -34,10 +34,10 @@ their effect on the cache state as well as current cache state.
 
 ![redux-devtools](/img/redux-devtool-diff.png)
 
-## Understanding Rest Hooks Cache
+## Understanding Reactive Data Client Cache
 
-Rest Hooks uses the flux architecture to make it easy to understand and debug. This also
-has the benefit of making Rest Hooks concurrent mode compatible.
+Reactive Data Client uses the flux architecture to make it easy to understand and debug. This also
+has the benefit of making Reactive Data Client concurrent mode compatible.
 
 The same [core principals of redux](https://redux.js.org/introduction/core-concepts) apply
 to this store's design.

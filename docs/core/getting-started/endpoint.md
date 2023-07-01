@@ -4,7 +4,7 @@ sidebar_label: Define Methods
 ---
 
 <head>
-  <title>Defining Asynchronous Methods (Endpoints) for Rest Hooks</title>
+  <title>Defining Asynchronous Methods (Endpoints) for Reactive Data Client</title>
   <meta name="docsearch:pagerank" content="40"/>
 </head>
 
@@ -131,6 +131,9 @@ export const TodoResource = {
 
   <PkgInstall pkgs="@rest-hooks/endpoint" />
 
+In case you have existing class and/or api definitions, you can use
+[Endpoint](/rest/api/Endpoint) and [schema.Entity](/rest/api/schema.Entity) to make them useable in RDC.
+
 <TypeScriptEditor row={false}>
 
 ```typescript title="existing/Todo"
@@ -142,7 +145,9 @@ export class Todo {
 }
 
 export const getTodo = (id: string) =>
-  fetch(`https://jsonplaceholder.typicode.com/todos/${id}`).then(res => res.json());
+  fetch(`https://jsonplaceholder.typicode.com/todos/${id}`).then(res =>
+    res.json(),
+  );
 
 export const getTodoList = () =>
   fetch('https://jsonplaceholder.typicode.com/todos').then(res => res.json());
@@ -161,16 +166,9 @@ import { Todo, getTodo, getTodoList, updateTodo } from '../existing/Todo';
 export const TodoEntity = schema.Entity(Todo, { key: 'Todo' });
 
 export const TodoResource = {
-  get: new Endpoint(getTodo, {
-    schema: TodoEntity,
-  }),
-  getList: new Endpoint(getTodoList, {
-    schema: [TodoEntity],
-  }),
-  update: new Endpoint(updateTodo, {
-    schema: TodoEntity,
-    sideEffect: true,
-  }),
+  get: new Endpoint(getTodo, { schema: TodoEntity }),
+  getList: new Endpoint(getTodoList, { schema: [TodoEntity] }),
+  update: new Endpoint(updateTodo, { schema: TodoEntity, sideEffect: true }),
 };
 ```
 

@@ -10,7 +10,7 @@ sidebar_label: Relational data
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import { RestEndpoint } from '@rest-hooks/rest';
 
-Rest Hooks handles one-to-one, many-to-one and many-to-many relationships on [entities][1]
+Reactive Data Client handles one-to-one, many-to-one and many-to-many relationships on [entities][1]
 using [Entity.schema][3]
 
 ## Nesting
@@ -250,7 +250,7 @@ render(<TodosPage />);
 
 ## Reverse lookups
 
-Even though a response may only nest in one direction, Rest Hooks can handle reverse relationships
+Even though a response may only nest in one direction, Reactive Data Client can handle reverse relationships
 by overriding [Entity.process](../api/Entity.md#process). Additionally, [Entity.merge](../api/Entity.md#merge)
 may need overriding to ensure deep merging of those expected fields.
 

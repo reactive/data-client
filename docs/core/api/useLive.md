@@ -115,4 +115,4 @@ function useLive<
   height="500"
 ></iframe>
 
-Explore more [Rest Hooks demos](/demos)
+Explore more [Reactive Data Client demos](/demos)

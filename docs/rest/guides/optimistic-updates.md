@@ -277,7 +277,7 @@ function CounterPage() {
         Click the button multiple times quickly to trigger the race condition
       </p>
       <div>
-        Rest Hooks: {count}
+        Reactive Data Client: {count}
         <br />
         Other Libraries: {responseCount}; with optimistic: {stateCount}
         <br />
@@ -292,7 +292,7 @@ render(<CounterPage />);
 
 </HooksPlayground>
 
-Rest Hooks automatically handles all race conditions due to network timings. Rest Hooks both tracks
+Reactive Data Client automatically handles all race conditions due to network timings. Reactive Data Client both tracks
 fetch timings, pairs responses with their respective optimistic update and rollsback in case of resolution or
 rejection/failure.
 
@@ -339,7 +339,7 @@ There are three timings which can vary in an async mutation.
 1. Server timing
 1. Response timing
 
-Rest Hooks is able to automatically handling the network timings, aka request and response timing. Typically this
+Reactive Data Client is able to automatically handling the network timings, aka request and response timing. Typically this
 is sufficient, as servers tend to process requests received first before others. However, in case persist order
 varies from request order in the server this could cause another race condition.
 

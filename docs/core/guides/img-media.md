@@ -3,14 +3,14 @@ title: Images and other Media
 ---
 
 <head>
-  <title>Using React Suspense with Images and other Media | Rest Hooks</title>
+  <title>Using React Suspense with Images and other Media | Reactive Data Client</title>
 </head>
 
 import PkgTabs from '@site/src/components/PkgTabs';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-After setting up Rest Hooks for structured data fetching, you might want to incorporate
+After setting up Reactive Data Client for structured data fetching, you might want to incorporate
 some media fetches as well to take advantage of suspense and [concurrent mode support](https://resthooks.io/docs/guides/render-as-you-fetch).
 
 ## Storing ArrayBuffer

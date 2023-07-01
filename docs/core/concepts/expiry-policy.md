@@ -10,7 +10,7 @@ sidebar_label: Expiry Policy
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import {RestEndpoint} from '@rest-hooks/rest';
 
-By default, Rest Hooks cache policy can be described as [stale-while-revalidate](https://web.dev/stale-while-revalidate/).
+By default, Reactive Data Client cache policy can be described as [stale-while-revalidate](https://web.dev/stale-while-revalidate/).
 This means that when data is available it can avoid blocking the application by using the stale data. However, in the background
 it will still refresh the data if old enough.
 
@@ -42,7 +42,7 @@ Data in this state is considered new enough that it doesn't need to fetch.
 
 ### Stale
 
-Data is still allowed to be shown, however Rest Hooks might attempt to revalidate by fetching again.
+Data is still allowed to be shown, however Reactive Data Client might attempt to revalidate by fetching again.
 
 [useSuspense()](../api/useSuspense.md) considers fetching on mount as well as when its parameters change.
 In these cases it will fetch if the data is considered stale.

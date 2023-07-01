@@ -235,7 +235,7 @@ static merge(existing: any, incoming: any) {
 
 Merge is used to handle cases when an incoming entity is already found. This is called directly
 when the same entity is found in one response. By default it is also called when [mergeWithStore()](#mergeWithStore)
-determines the incoming entity should be merged with an entity already persisted in the Rest Hooks store.
+determines the incoming entity should be merged with an entity already persisted in the Reactive Data Client store.
 
 ## const vs class
 

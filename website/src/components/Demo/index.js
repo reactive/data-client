@@ -31,7 +31,7 @@ const Demo = props => (
             </Link>{' '}
             including even the most challenging{' '}
             <Link to="/rest/guides/optimistic-updates#example-race-condition">
-              race conditions
+              <strike>race conditions</strike>
             </Link>
             .
           </p>
