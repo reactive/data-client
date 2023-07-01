@@ -109,7 +109,7 @@ export const TodoResource = {
     }
   }
 `,
-    { todos: [Todo] },
+    { todos: new schema.Collection([Todo]) },
   ),
   update: gql.mutation(
     `mutation UpdateTodo($todo: Todo!) {
@@ -144,6 +144,7 @@ export class Todo {
   completed = false;
 }
 
+/* These are just examples but it could be any promise API */
 export const getTodo = (id: string) =>
   fetch(`https://jsonplaceholder.typicode.com/todos/${id}`).then(res =>
     res.json(),
@@ -157,18 +158,33 @@ export const updateTodo = (id: string, body: Partial<Todo>) =>
     method: 'PUT',
     body: JSON.stringify(body),
   }).then(res => res.json());
+
+export const createTodo = (body: Partial<Todo>) =>
+  fetch(`https://jsonplaceholder.typicode.com/todos`, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  }).then(res => res.json());
 ```
 
 ```typescript title="api/Todo"
 import { schema, Endpoint } from '@rest-hooks/endpoint';
-import { Todo, getTodo, getTodoList, updateTodo } from '../existing/Todo';
+import {
+  Todo,
+  getTodo,
+  getTodoList,
+  updateTodo,
+  createTodo,
+} from '../existing/Todo';
 
 export const TodoEntity = schema.Entity(Todo, { key: 'Todo' });
 
 export const TodoResource = {
   get: new Endpoint(getTodo, { schema: TodoEntity }),
-  getList: new Endpoint(getTodoList, { schema: [TodoEntity] }),
+  getList: new Endpoint(getTodoList, {
+    schema: new schema.Collection([TodoEntity]),
+  }),
   update: new Endpoint(updateTodo, { schema: TodoEntity, sideEffect: true }),
+  create: new Endpoint(createTodo, { schema: TodoEntity, sideEffect: true }),
 };
 ```
 

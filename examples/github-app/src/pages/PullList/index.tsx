@@ -1,30 +1,27 @@
 import { useLocationSearch } from '@anansi/router';
 import { useLive } from '@rest-hooks/react';
 import { List } from 'antd';
-import { Issue, IssueResource } from 'resources/Issue';
+import { Pull, PullResource } from 'resources/Pull';
 
-import IssueListItem from './IssueListItem';
-import LinkPagination from '../navigation/LinkPagination';
+import PullListItem from './PullListItem';
+import LinkPagination from '../../navigation/LinkPagination';
 
-export default function IssueList({ owner, repo }: Props) {
+export default function PullList({ owner, repo }: Props) {
   const page = useLocationSearch('page') || '1';
 
-  const {
-    results: { items: issues },
-    link,
-  } = useLive(IssueResource.search, {
+  const { results: pulls, link } = useLive(PullResource.getList, {
     owner,
     repo,
     page,
-    q: 'is:issue is:open',
+    state: 'open',
   });
 
   return (
     <>
       <List
         itemLayout="horizontal"
-        dataSource={issues}
-        renderItem={(issue) => <IssueListItem key={issue.pk()} issue={issue} />}
+        dataSource={pulls}
+        renderItem={(pull) => <PullListItem key={pull.pk()} pull={pull} />}
       />
       <div className="center">
         <LinkPagination link={link} />
@@ -38,6 +35,6 @@ type Props = { owner: string; repo: string } & (
       page: number;
     }
   | {
-      state?: Issue['state'];
+      state?: Pull['state'];
     }
 );

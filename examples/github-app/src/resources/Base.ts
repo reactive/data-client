@@ -73,7 +73,8 @@ export class GithubEndpoint<
     const results = await super.parseResponse(response);
     if (
       (response.headers && response.headers.has('link')) ||
-      Array.isArray(results)
+      (this.schema as any)?.link ||
+      (this.schema as any)?.results
     ) {
       return {
         link: response.headers.get('link'),

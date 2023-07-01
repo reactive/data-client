@@ -4,6 +4,7 @@ import { Controller } from '@rest-hooks/react';
 import CommentResource from 'resources/Comment';
 import { EventResource } from 'resources/Event';
 import IssueResource from 'resources/Issue';
+import PullResource from 'resources/Pull';
 import ReactionResource from 'resources/Reaction';
 import RepositoryResource from 'resources/Repository';
 import UserResource from 'resources/User';
@@ -18,6 +19,7 @@ const lazyPage = (pageName: string) =>
 
 export const namedPaths = {
   Home: '/',
+  PullList: '/:owner/:repo/pulls',
   IssueList: '/:owner/:repo/issues',
   IssueDetail: '/:owner/:repo/issue/:number',
   ProfileDetail: '/users/:login',
@@ -34,6 +36,20 @@ export const routes = [
       { owner, repo }: { owner: string; repo: string },
     ) => {
       controller.fetch(IssueResource.getList, { owner, repo });
+    },
+  },
+  {
+    name: 'PullList',
+    component: lazyPage('PullList'),
+    resolveData: async (
+      controller: Controller,
+      { owner, repo }: { owner: string; repo: string },
+    ) => {
+      controller.fetch(PullResource.getList, {
+        owner,
+        repo,
+        state: 'open',
+      });
     },
   },
   {

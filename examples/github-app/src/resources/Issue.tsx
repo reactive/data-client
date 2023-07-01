@@ -1,9 +1,8 @@
-import { InfoCircleOutlined, IssuesCloseOutlined } from '@ant-design/icons';
 import { RestGenerics } from '@rest-hooks/rest';
-import React from 'react';
 
 import { GithubEndpoint, GithubEntity, createGithubResource } from './Base';
 import { Label } from './Label';
+import { stateToIcon } from './stateToIcon';
 import { User } from './User';
 
 export class Issue extends GithubEntity {
@@ -52,18 +51,27 @@ export class Issue extends GithubEntity {
   }
 }
 
-export const IssueResource = createGithubResource({
+export const BaseIssueResource = createGithubResource({
   path: '/repos/:owner/:repo/issues/:number',
   schema: Issue,
   pollFrequency: 60000,
   searchParams: {} as IssueFilters | undefined,
 });
-export default IssueResource;
-
-const stateToIcon: Record<string, React.ReactNode> = {
-  closed: <IssuesCloseOutlined />,
-  open: <InfoCircleOutlined />,
+export const IssueResource = {
+  ...BaseIssueResource,
+  search: BaseIssueResource.getList.extend({
+    path: '/search/issues\\?q=:q?%20repo\\::owner/:repo&page=:page?',
+    schema: {
+      results: {
+        incompleteResults: false,
+        items: BaseIssueResource.getList.schema.results,
+        totalCount: 0,
+      },
+      link: '',
+    },
+  }),
 };
+export default IssueResource;
 
 export interface IssueFilters {
   milestone?: string;
