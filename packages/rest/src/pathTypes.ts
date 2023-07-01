@@ -10,7 +10,11 @@ export type PathKeys<S extends string> = string extends S
   ? PathKeys<A> | PathKeys<B>
   : PathSplits<S>;
 
-type PathSplits<S extends string> = S extends `${string}:${infer K}/${infer R}`
+type PathSplits<S extends string> = S extends `${string}:${infer K}${
+  | '/'
+  | ','
+  | '%'
+  | '&'}${infer R}`
   ? PathSplits<`:${K}`> | PathSplits<R>
   : S extends `${string}:${infer K}:${infer R}`
   ? PathSplits<`:${K}`> | PathSplits<`:${R}`>

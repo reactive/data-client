@@ -43,6 +43,21 @@ describe('PathArgs', () => {
     () => A(5);
   });
 
+  it('should infer types with other characters to stop', () => {
+    type C = 'http\\://test.com/search/issues?q=:q?%20repo\\::owner/:repo';
+    function A(args: PathArgs<C>) {}
+    () => A({ owner: 'data-client', repo: 'data-client' });
+    () => A({ owner: 'data-client', repo: 'data-client', q: 'is:issue' });
+    // @ts-expect-error
+    () => A({ idasd: 'ho' });
+    // @ts-expect-error
+    () => A({ owner: 'data-client', repo: 'data-client', extra: 'is:issue' });
+    // @ts-expect-error
+    () => A({ owner: 'data-client' });
+    // @ts-expect-error
+    () => A(5);
+  });
+
   it('should be flexible for string type', () => {
     class Parent {
       constructor() {}
