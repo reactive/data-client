@@ -1,0 +1,65 @@
+{
+  "name": "@rest-hooks/normalizr",
+  "version": "11.0.1",
+  "description": "Normalizes and denormalizes JSON according to schema for Redux and Flux applications",
+  "homepage": "https://resthooks.io/docs/concepts/normalization",
+  "bugs": {
+    "url": "https://github.com/data-client/rest-hooks/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:data-client/rest-hooks.git",
+    "directory": "packages/normalizr"
+  },
+  "keywords": [
+    "flux",
+    "redux",
+    "normalize",
+    "denormalize",
+    "data",
+    "cache",
+    "api",
+    "react-native",
+    "ios",
+    "android",
+    "web",
+    "schema",
+    "typescript",
+    "validation",
+    "relational",
+    "json"
+  ],
+  "files": [
+    "index.cjs",
+    "index.js",
+    "index.d.ts",
+    "LICENSE",
+    "README.md"
+  ],
+  "main": "index.cjs",
+  "module": "index.js",
+  "types": "index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "module": "./index.js",
+      "import": "./index.js",
+      "require": "./index.cjs",
+      "default": "./index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "engines": {
+    "node": "^12.17 || ^13.7 || >=14"
+  },
+  "sideEffects": false,
+  "author": "Nathaniel Tucker",
+  "contributors": [
+    "Paul Armstrong",
+    "Dan Abramov"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@data-client/normalizr": "^0.1.0"
+  }
+}

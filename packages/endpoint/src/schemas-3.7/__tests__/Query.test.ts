@@ -1,5 +1,5 @@
 // eslint-env jest
-import { inferResults } from '@rest-hooks/normalizr';
+import { inferResults } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 

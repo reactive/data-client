@@ -2,7 +2,7 @@ import type {
   EndpointInterface,
   ResolveType,
   UnknownError,
-} from '@rest-hooks/normalizr';
+} from '@data-client/normalizr';
 
 import type {
   SET_TYPE,

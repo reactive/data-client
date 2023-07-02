@@ -1,6 +1,6 @@
 # Dealing with Relationships
 
-Occasionally, it is useful to have all one-to-one, one-to-many, and many-to-many relationship data on entities. [@rest-hooks/normalizr](/packages/normalizr) does not handle this automatically, but this example shows a simple way of adding relationship handling on a special-case basis.
+Occasionally, it is useful to have all one-to-one, one-to-many, and many-to-many relationship data on entities. [@data-client/normalizr](/packages/normalizr) does not handle this automatically, but this example shows a simple way of adding relationship handling on a special-case basis.
 
 ## Running
 

@@ -10,7 +10,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
-import { RestEndpoint } from '@rest-hooks/rest';
+import { RestEndpoint } from '@data-client/rest';
 import { v4 as uuid } from 'uuid';
 
 `Collections` are entities but for [Arrays](./Array.md) or [Values](./Values.md).
@@ -193,7 +193,7 @@ Returns a serializable Object whose members uniquely define this collection base
 on Endpoint arguments.
 
 ```ts {7-9}
-import { schema, RestEndpoint } from '@rest-hooks/rest';
+import { schema, RestEndpoint } from '@data-client/rest';
 
 const getTodos = new RestEndpoint({
   path: '/todos',
@@ -212,7 +212,7 @@ Returns a serializable Object whose members uniquely define this collection base
 on the parent it is nested inside.
 
 ```ts {28-30}
-import { schema, Entity } from '@rest-hooks/rest';
+import { schema, Entity } from '@data-client/rest';
 
 class Todo extends Entity {
   id = '';

@@ -2,12 +2,12 @@ import {
   EndpointInterface,
   NormalizedIndex,
   Schema,
-} from '@rest-hooks/normalizr';
+} from '@data-client/normalizr';
 import type {
   UpdateFunction,
   AbstractInstanceType,
-} from '@rest-hooks/normalizr';
-import type { ErrorTypes } from '@rest-hooks/normalizr';
+} from '@data-client/normalizr';
+import type { ErrorTypes } from '@data-client/normalizr';
 
 import { RECEIVE_TYPE } from './actionTypes.js';
 import {

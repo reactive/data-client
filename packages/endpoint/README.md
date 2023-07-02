@@ -1,16 +1,16 @@
 # TypeScript Standard Endpoints
-[![CircleCI](https://circleci.com/gh/data-client/rest-hooks/tree/master.svg?style=shield)](https://circleci.com/gh/data-client/rest-hooks)
-[![Coverage Status](https://img.shields.io/codecov/c/gh/data-client/rest-hooks/master.svg?style=flat-square)](https://app.codecov.io/gh/data-client/rest-hooks?branch=master)
-[![npm downloads](https://img.shields.io/npm/dm/@rest-hooks/endpoint.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/endpoint)
-[![bundle size](https://img.shields.io/bundlephobia/minzip/@rest-hooks/endpoint?style=flat-square)](https://bundlephobia.com/result?p=@rest-hooks/endpoint)
-[![npm version](https://img.shields.io/npm/v/@rest-hooks/endpoint.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/endpoint)
+[![CircleCI](https://circleci.com/gh/data-client/data-client/tree/master.svg?style=shield)](https://circleci.com/gh/data-client/data-client)
+[![Coverage Status](https://img.shields.io/codecov/c/gh/data-client/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/data-client/data-client?branch=master)
+[![npm downloads](https://img.shields.io/npm/dm/@data-client/endpoint.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/endpoint)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/@data-client/endpoint?style=flat-square)](https://bundlephobia.com/result?p=@data-client/endpoint)
+[![npm version](https://img.shields.io/npm/v/@data-client/endpoint.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/endpoint)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 Declarative, strongly typed, reusable network definitions for networking libraries.
 
 <div align="center">
 
-**[📖Read The Docs](https://resthooks.io/docs/guides/custom-protocol)**
+**[📖Read The Docs](https://dataclient.io/docs/guides/custom-protocol)**
 
 </div>
 
@@ -42,7 +42,7 @@ export const updateTodo = (id: string, body: Partial<Todo>) =>
 ### 2) Turn them into Resources
 
 ```typescript
-import { schema, Endpoint } from '@rest-hooks/endpoint';
+import { schema, Endpoint } from '@data-client/endpoint';
 import { Todo, getTodoList, updateTodo } from './existing';
 
 export const TodoEntity = schema.Entity(Todo, { key: 'Todo' });
@@ -64,7 +64,7 @@ export const TodoResource = {
 ### 3) Reuse with different hooks
 
 ```tsx
-import { useSuspense, useController } from '@rest-hooks/react';
+import { useSuspense, useController } from '@data-client/react';
 
 function TodoEdit() {
   const todo = useSuspense(TodoResource.get, '5');
@@ -112,7 +112,7 @@ TypeScript the definition of a networking API.
 
 ## API
 
-`@rest-hooks/endpoint` defines a standard `interface`
+`@data-client/endpoint` defines a standard `interface`
 
 ```typescript
 interface EndpointInterface {
@@ -148,7 +148,7 @@ export interface EndpointOptions extends EndpointExtraOptions {
 }
 ```
 
-### [EndpointOptions](https://resthooks.io/rest/api/Endpoint#endpointextraoptions)
+### [EndpointOptions](https://dataclient.io/rest/api/Endpoint#endpointextraoptions)
 
 #### key: (params) => string
 
@@ -174,8 +174,8 @@ Declarative definition of where `Entities` appear in the fetch response.
 Not providing this option means no entities will be extracted.
 
 ```tsx
-import { Entity } from '@rest-hooks/normalizr';
-import { Endpoint } from '@rest-hooks/endpoint';
+import { Entity } from '@data-client/normalizr';
+import { Endpoint } from '@data-client/endpoint';
 
 class User extends Entity {
   readonly id: string = '';
@@ -190,7 +190,7 @@ const UserDetail = new Endpoint(
 );
 ```
 
-### [Endpoint](https://resthooks.io/rest/api/Endpoint)
+### [Endpoint](https://dataclient.io/rest/api/Endpoint)
 
 #### extend(EndpointOptions): Endpoint
 
@@ -213,8 +213,8 @@ export interface IndexInterface<S extends typeof Entity> {
 ```
 
 ```typescript
-import { Entity } from '@rest-hooks/normalizr';
-import { Index } from '@rest-hooks/endpoint';
+import { Entity } from '@data-client/normalizr';
+import { Index } from '@data-client/endpoint';
 
 class User extends Entity {
   readonly id: string = '';

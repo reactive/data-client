@@ -8,7 +8,7 @@ sidebar_label: Expiry Policy
 </head>
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
-import {RestEndpoint} from '@rest-hooks/rest';
+import {RestEndpoint} from '@data-client/rest';
 
 By default, Reactive Data Client cache policy can be described as [stale-while-revalidate](https://web.dev/stale-while-revalidate/).
 This means that when data is available it can avoid blocking the application by using the stale data. However, in the background
@@ -150,7 +150,7 @@ To apply to all of a [Resource's endpoints](/rest/api/createResource), use [getE
 ### Long cache lifetime
 
 ```typescript title="LongLivingResource.ts"
-import { RestEndpoint, RestGenerics, createResource } from '@rest-hooks/rest';
+import { RestEndpoint, RestGenerics, createResource } from '@data-client/rest';
 
 // We can now use LongLivingEndpoint to create endpoints that will be cached for one hour
 class LongLivingEndpoint<O extends RestGenerics> extends RestEndpoint<O> {
@@ -166,7 +166,7 @@ const LongLivingResource = createResource({
 ### Never retry on error
 
 ```typescript title="NoRetryResource.ts"
-import { RestEndpoint, RestGenerics, createResource } from '@rest-hooks/rest';
+import { RestEndpoint, RestGenerics, createResource } from '@data-client/rest';
 
 // We can now use NoRetryEndpoint to create endpoints that will be cached for one hour
 class NoRetryEndpoint<O extends RestGenerics> extends RestEndpoint<O> {
@@ -398,7 +398,7 @@ export default function Loading({ id }: { id: string }) {
 ```
 
 ```tsx title="Demo"
-import { AsyncBoundary } from '@rest-hooks/react';
+import { AsyncBoundary } from '@data-client/react';
 
 import { lastUpdated } from './api/lastUpdated';
 import ShowTime from './ShowTime';

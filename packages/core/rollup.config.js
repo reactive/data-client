@@ -27,7 +27,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
   configs.push({
     input: 'lib/index.js',
     external: isExternal,
-    output: [{ file: pkg.unpkg, format: 'umd', name: 'restHookCore' }],
+    output: [{ file: pkg.unpkg, format: 'umd', name: 'dataClientCore' }],
     plugins: [
       babel({
         exclude: ['node_modules/**', '/**__tests__/**'],

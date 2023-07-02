@@ -1,9 +1,14 @@
+import {
+  initialState,
+  State,
+  ActionTypes,
+  Controller,
+} from '@data-client/core';
+import { normalize } from '@data-client/normalizr';
+import { CacheProvider } from '@data-client/react';
+import { makeRenderRestHook } from '@data-client/test';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { initialState, State, ActionTypes, Controller } from '@rest-hooks/core';
-import { normalize } from '@rest-hooks/normalizr';
-import { CacheProvider } from '@rest-hooks/react';
-import { makeRenderRestHook } from '@rest-hooks/test';
 import { renderHook } from '@testing-library/react-hooks';
 import { act, render } from '@testing-library/react-native';
 import {

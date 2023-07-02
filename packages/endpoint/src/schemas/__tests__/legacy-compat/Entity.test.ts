@@ -1,11 +1,11 @@
 /**
- * All entities tests, but for @rest-hooks/normalizr@9.4.1 and before versions of normalizr
+ * All entities tests, but for @data-client/normalizr@9.4.1 and before versions of normalizr
  */
 
 // eslint-env jest
-import { normalize } from '@rest-hooks/normalizr';
-import { DELETED } from '@rest-hooks/normalizr';
-import { AbstractInstanceType } from '@rest-hooks/normalizr';
+import { normalize } from '@data-client/normalizr';
+import { DELETED } from '@data-client/normalizr';
+import { AbstractInstanceType } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS, Record } from 'immutable';
 

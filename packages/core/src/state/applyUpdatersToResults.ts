@@ -1,4 +1,4 @@
-import type { Schema, Normalize, UpdateFunction } from '@rest-hooks/normalizr';
+import type { Schema, Normalize, UpdateFunction } from '@data-client/normalizr';
 
 type ResultStateFromUpdateFunctions<
   SourceSchema extends Schema,

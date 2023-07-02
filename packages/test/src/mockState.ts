@@ -4,7 +4,7 @@ import {
   ActionTypes,
   Controller,
   __INTERNAL__,
-} from '@rest-hooks/react';
+} from '@data-client/react';
 
 import type { Fixture } from './fixtureTypes.js';
 

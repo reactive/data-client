@@ -1,4 +1,4 @@
-import { normalize } from '@rest-hooks/normalizr';
+import { normalize } from '@data-client/normalizr';
 import fs from 'fs';
 import https from 'https';
 import path from 'path';

@@ -6,7 +6,7 @@ import {
   NetworkManager,
   State,
   __INTERNAL__,
-} from '@rest-hooks/redux';
+} from '@data-client/redux';
 import { useSyncExternalStore } from 'react';
 import { createStore, applyMiddleware } from 'redux';
 

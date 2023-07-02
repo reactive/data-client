@@ -1,4 +1,4 @@
-import { State, Manager, Controller, __INTERNAL__ } from '@rest-hooks/react';
+import { State, Manager, Controller, __INTERNAL__ } from '@data-client/react';
 import { createStore, applyMiddleware, combineReducers, Reducer } from 'redux';
 
 import type { DeepPartialWithUnknown } from './makeExternalCacheProvider.js';
@@ -13,12 +13,12 @@ export function prepareStore<R extends Record<string, Reducer> = {}>(
   Ctrl: typeof Controller,
   reducers: R = {} as any,
 ) {
-  const selector = (s: { restHooks: State<unknown> }) => s.restHooks;
+  const selector = (s: { dataclient: State<unknown> }) => s.dataclient;
   const controller = new Ctrl();
   const reducer = createReducer(controller);
   const store = createStore(
-    combineReducers({ ...reducers, restHooks: reducer }),
-    { restHooks: initialState } as any,
+    combineReducers({ ...reducers, dataclient: reducer }),
+    { dataclient: initialState } as any,
     applyMiddleware(
       ...mapMiddleware(selector)(...applyManager(managers, controller)),
       PromiseifyMiddleware,

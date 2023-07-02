@@ -1,4 +1,4 @@
-import { AsyncBoundary } from '@rest-hooks/react';
+import { AsyncBoundary } from '@data-client/react';
 import Head from 'next/head';
 import Image from 'next/image';
 

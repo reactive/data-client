@@ -1,4 +1,4 @@
-import { useCache } from '@rest-hooks/react';
+import { useCache } from '@data-client/react';
 import { queryRemainingTodos } from 'resources/TodoResource';
 
 export default function TodoStats({ userId }: { userId?: number }) {

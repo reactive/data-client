@@ -1,0 +1,100 @@
+{
+  "name": "@rest-hooks/core",
+  "version": "4.4.2",
+  "description": "High performance reactive framework for async data.",
+  "sideEffects": false,
+  "main": "index.cjs",
+  "module": "index.js",
+  "types": "index.d.ts",
+  "type": "module",
+  "typesVersions": {
+    "*": {
+      "": [
+        "index.d.ts"
+      ],
+      "next": [
+        "next.d.ts"
+      ],
+      "*": [
+        "index.d.ts"
+      ]
+    }
+  },
+  "exports": {
+    ".": {
+      "module": "./index.js",
+      "import": "./index.js",
+      "require": "./index.cjs",
+      "default": "./index.js"
+    },
+    "./next": {
+      "module": "./next.js",
+      "import": "./next.js",
+      "require": "./next.cjs",
+      "default": "./next.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "engines": {
+    "node": "^12.17 || ^13.7 || >=14"
+  },
+  "files": [
+    "next.cjs",
+    "next.js",
+    "next.d.ts",
+    "index.cjs",
+    "index.js",
+    "index.d.ts",
+    "LICENSE",
+    "README.md",
+    "./typescript.svg",
+    "./rest_hooks_logo_and_text.svg"
+  ],
+  "keywords": [
+    "data",
+    "cache",
+    "normalizr",
+    "normalization",
+    "flux",
+    "fetch",
+    "hook",
+    "networking",
+    "async",
+    "typescript",
+    "async",
+    "data fetching",
+    "data cache",
+    "api client",
+    "api",
+    "normalized cache",
+    "swr",
+    "GraphQL",
+    "query",
+    "ios",
+    "android",
+    "web",
+    "middleware",
+    "websocket",
+    "sse",
+    "declarative",
+    "scalable"
+  ],
+  "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
+  "license": "Apache-2.0",
+  "homepage": "https://resthooks.io",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:data-client/rest-hooks.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/data-client/rest-hooks/issues"
+  },
+  "dependencies": {
+    "@data-client/core": "^0.1.0"
+  },
+  "devDependencies": {
+    "@anansi/browserslist-config": "^1.4.2",
+    "@types/node": "^20.0.0"
+  }
+}

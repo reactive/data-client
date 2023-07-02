@@ -1,10 +1,10 @@
 // Server Side Component compatibility (specifying this cannot be used as such)
 // https://beta.nextjs.org/docs/rendering/server-and-client-components#third-party-packages
 'use client';
-import type { State, Manager } from '@rest-hooks/core';
-import { createReducer, Controller } from '@rest-hooks/core';
-import useEnhancedReducer from '@rest-hooks/use-enhanced-reducer';
-import type { Middleware } from '@rest-hooks/use-enhanced-reducer';
+import type { State, Manager } from '@data-client/core';
+import { createReducer, Controller } from '@data-client/core';
+import useEnhancedReducer from '@data-client/use-enhanced-reducer';
+import type { Middleware } from '@data-client/use-enhanced-reducer';
 import React, { useEffect, useMemo, memo } from 'react';
 
 import BackupBoundary from './BackupBoundary.js';

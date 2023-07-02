@@ -24,7 +24,7 @@ When using the default [polling subscriptions](./PollingSubscription), frequency
 ## Usage
 
 ```typescript title="api/Price.ts"
-import { Resource, Entity } from '@rest-hooks/rest';
+import { Resource, Entity } from '@data-client/rest';
 
 export class Price extends Entity {
   readonly symbol: string | undefined = undefined;
@@ -45,7 +45,7 @@ export const getPrice = new RestEndpont({
 ```
 
 ```tsx title="MasterPrice.tsx"
-import { useSuspense, useSubscription } from '@rest-hooks/react';
+import { useSuspense, useSubscription } from '@data-client/react';
 import { getPrice } from 'api/Price';
 
 function MasterPrice({ symbol }: { symbol: string }) {
@@ -72,7 +72,7 @@ When using React Navigation, useSubscription() will sub/unsub with focus/unfocus
 
 ```tsx title="MasterPrice.tsx"
 import { useRef } from 'react';
-import { useSuspense, useSubscription } from '@rest-hooks/react';
+import { useSuspense, useSubscription } from '@data-client/react';
 import { getPrice } from 'api/Price';
 
 function MasterPrice({ symbol }: { symbol: string }) {

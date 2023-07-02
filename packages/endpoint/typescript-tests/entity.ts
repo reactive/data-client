@@ -1,4 +1,4 @@
-import { normalize, denormalize } from '@rest-hooks/normalizr';
+import { normalize, denormalize } from '@data-client/normalizr';
 
 import { schema, Entity, AbstractInstanceType } from '../src';
 

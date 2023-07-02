@@ -1,4 +1,4 @@
-import { CacheProvider } from '@rest-hooks/react';
+import { CacheProvider } from '@data-client/react';
 import React from 'react';
 
 // Default implementation, that you can customize

@@ -1,7 +1,7 @@
 import {
   Schema,
   EndpointExtraOptions as FetchOptions,
-} from '@rest-hooks/normalizr';
+} from '@data-client/normalizr';
 
 import { RECEIVE_TYPE } from '../../actionTypes.js';
 import { FetchAction, ReceiveAction } from '../../legacyActions.js';

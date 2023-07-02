@@ -1,4 +1,4 @@
-import { createResource, Entity } from '@rest-hooks/rest';
+import { createResource, Entity } from '@data-client/rest';
 
 import { useSuspense, useCache, CacheProvider } from '../';
 import { Fixture, FixtureEndpoint, makeRenderRestHook } from '../../../test';

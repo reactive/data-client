@@ -1,4 +1,4 @@
-import { Schema, schema } from '@rest-hooks/endpoint';
+import { Schema, schema } from '@data-client/endpoint';
 
 export default function getArrayPath(s: Schema | undefined): string[] | false {
   if (typeof s !== 'object') return false;

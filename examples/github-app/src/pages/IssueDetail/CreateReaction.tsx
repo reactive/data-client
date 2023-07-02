@@ -1,4 +1,4 @@
-import { useController, useCache } from '@rest-hooks/react';
+import { useController, useCache } from '@data-client/react';
 import { Tag } from 'antd';
 import { Issue } from 'resources/Issue';
 import { Reaction, ReactionResource, contentToIcon } from 'resources/Reaction';

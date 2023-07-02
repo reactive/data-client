@@ -1,14 +1,14 @@
 {
-  "name": "@rest-hooks/normalizr",
-  "version": "11.0.1",
+  "name": "@data-client/normalizr",
+  "version": "0.1.0",
   "description": "Normalizes and denormalizes JSON according to schema for Redux and Flux applications",
   "homepage": "https://resthooks.io/docs/concepts/normalization",
   "bugs": {
-    "url": "https://github.com/data-client/rest-hooks/issues"
+    "url": "https://github.com/data-client/data-client/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com:data-client/rest-hooks.git",
+    "url": "git+ssh://git@github.com:data-client/data-client.git",
     "directory": "packages/normalizr"
   },
   "keywords": [

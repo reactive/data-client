@@ -1,4 +1,4 @@
-import { Endpoint } from '@rest-hooks/endpoint';
+import { Endpoint } from '@data-client/endpoint';
 import { pathToRegexp } from 'path-to-regexp';
 
 import extractCollection from './extractCollection.js';

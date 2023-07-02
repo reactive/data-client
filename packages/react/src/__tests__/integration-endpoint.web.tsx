@@ -1,8 +1,8 @@
-import { schema, Entity, Query } from '@rest-hooks/endpoint';
-import { Endpoint } from '@rest-hooks/endpoint';
+import { schema, Entity, Query } from '@data-client/endpoint';
+import { Endpoint } from '@data-client/endpoint';
+import { CacheProvider } from '@data-client/react';
+import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
 import { SimpleRecord } from '@rest-hooks/legacy';
-import { CacheProvider } from '@rest-hooks/react';
-import { CacheProvider as ExternalCacheProvider } from '@rest-hooks/redux';
 import {
   CoolerArticleResource,
   EditorArticleResource,

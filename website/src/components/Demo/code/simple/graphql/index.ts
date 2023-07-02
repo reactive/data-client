@@ -1,4 +1,4 @@
-import { GQLEndpoint } from '@rest-hooks/graphql';
+import { GQLEndpoint } from '@data-client/graphql';
 
 import api from '!!raw-loader!./api.ts';
 import Demo from '!!raw-loader!./Demo.tsx';
@@ -28,7 +28,10 @@ query GetTodo($id: ID!) {
   ],
   getInitialInterceptorData: () =>
     Object.fromEntries(
-      TODOS.map(todo => [todo.id, { ...todo, updatedAt: Date.now() }]),
+      TODOS.map(todo => [
+        todo.id,
+        { ...todo, updatedAt: Date.now() },
+      ]),
     ),
   code: [
     {

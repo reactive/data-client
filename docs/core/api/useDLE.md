@@ -4,7 +4,7 @@ sidebar_label: useDLE()
 ---
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
-import {RestEndpoint} from '@rest-hooks/rest';
+import {RestEndpoint} from '@data-client/rest';
 
 <head>
   <title>useDLE() - [D]ata [L]oading [E]rror React State</title>
@@ -30,7 +30,7 @@ delay: 150,
 ]}>
 
 ```typescript title="api/Profile.ts" collapsed
-import { Entity, createResource } from '@rest-hooks/rest';
+import { Entity, createResource } from '@data-client/rest';
 
 export class Profile extends Entity {
   readonly id: number | undefined = undefined;
@@ -50,7 +50,7 @@ export const ProfileResource = createResource({
 ```
 
 ```tsx title="ProfileList.tsx"
-import { useDLE } from '@rest-hooks/react';
+import { useDLE } from '@data-client/react';
 import { ProfileResource } from './api/Profile';
 
 function ProfileList(): JSX.Element {

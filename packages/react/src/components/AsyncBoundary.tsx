@@ -1,4 +1,4 @@
-import type { NetworkError } from '@rest-hooks/core';
+import type { NetworkError } from '@data-client/core';
 import React, { memo, Suspense } from 'react';
 
 import NetworkErrorBoundary from './NetworkErrorBoundary.js';

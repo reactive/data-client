@@ -6,7 +6,7 @@ title: schema.Delete
 </head>
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
-import { RestEndpoint } from '@rest-hooks/rest';
+import { RestEndpoint } from '@data-client/rest';
 
 :::tip deprecated
 
@@ -87,7 +87,7 @@ the normalized cache to know which entities to delete when the request is succes
 or if optimistic updates are used.
 
 ```typescript
-import { Resource, schema } from '@rest-hooks/rest';
+import { Resource, schema } from '@data-client/rest';
 
 class MyResource extends Resource {
   static deleteList<T extends typeof MyResource>(this: T) {

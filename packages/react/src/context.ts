@@ -1,5 +1,5 @@
-import { Controller, initialState } from '@rest-hooks/core';
-import type { ActionTypes, State, DenormalizeCache } from '@rest-hooks/core';
+import { Controller, initialState } from '@data-client/core';
+import type { ActionTypes, State, DenormalizeCache } from '@data-client/core';
 import { createContext } from 'react';
 import type { Context } from 'react';
 

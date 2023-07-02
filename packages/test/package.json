@@ -1,7 +1,37 @@
 {
-  "name": "@rest-hooks/test",
-  "version": "10.3.7",
-  "description": "Testing utilities for Rest Hooks",
+  "name": "@data-client/test",
+  "version": "0.1.0",
+  "description": "Testing utilities for Data Client",
+  "homepage": "https://dataclient.io/docs/guides/storybook",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:data-client/data-client.git",
+    "directory": "packages/test"
+  },
+  "bugs": {
+    "url": "https://github.com/data-client/data-client/issues"
+  },
+  "keywords": [
+    "test",
+    "storybook",
+    "hook",
+    "react",
+    "data",
+    "cache",
+    "flux",
+    "suspense",
+    "fetch",
+    "hook",
+    "networking",
+    "concurrent mode",
+    "typescript",
+    "redux",
+    "data fetching",
+    "data cache",
+    "normalized cache",
+    "async",
+    "swr"
+  ],
   "sideEffects": false,
   "main": "dist/index.js",
   "react-native": "legacy/browser.js",
@@ -77,38 +107,8 @@
     "prepare": "run build:lib",
     "prepack": "echo 'run prepack' && run prepare && run build:bundle && run build:legacy:lib"
   },
-  "keywords": [
-    "test",
-    "storybook",
-    "hook",
-    "react",
-    "data",
-    "cache",
-    "flux",
-    "suspense",
-    "fetch",
-    "hook",
-    "networking",
-    "concurrent mode",
-    "typescript",
-    "redux",
-    "data fetching",
-    "data cache",
-    "normalized cache",
-    "async",
-    "swr"
-  ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",
-  "homepage": "https://resthooks.io/docs/guides/storybook",
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com:data-client/rest-hooks.git",
-    "directory": "packages/test"
-  },
-  "bugs": {
-    "url": "https://github.com/data-client/rest-hooks/issues"
-  },
   "dependencies": {
     "@babel/runtime": "^7.17.0",
     "@testing-library/react": "^14.0.0",
@@ -117,7 +117,7 @@
     "react-error-boundary": "^4.0.0"
   },
   "peerDependencies": {
-    "@rest-hooks/react": "^0.2.0 || ^0.3.0 || ^1.0.0 || ^6.0.0 || ^7.0.0",
+    "@data-client/react": "^0.2.0 || ^0.3.0 || ^1.0.0 || ^6.0.0 || ^7.0.0",
     "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0",
     "@types/react-dom": "*",
     "jest": "*",
@@ -148,7 +148,7 @@
   },
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",
-    "@rest-hooks/react": "workspace:*",
+    "@data-client/react": "workspace:*",
     "@types/jest": "^29.5.0",
     "@types/node": "^20.0.0",
     "@types/react": "^18.0.30",

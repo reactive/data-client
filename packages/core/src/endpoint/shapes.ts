@@ -1,7 +1,7 @@
 import {
   Schema,
   EndpointExtraOptions as FetchOptions,
-} from '@rest-hooks/normalizr';
+} from '@data-client/normalizr';
 
 /** Defines the shape of a network request */
 export interface FetchShape<

@@ -1,4 +1,4 @@
-import { RestEndpoint, RestGenerics } from '@rest-hooks/rest';
+import { RestEndpoint, RestGenerics } from '@data-client/rest';
 
 import {
   createPlaceholderResource,

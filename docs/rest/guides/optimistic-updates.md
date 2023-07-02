@@ -8,7 +8,7 @@ title: Optimistic Updates
 </head>
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
-import {RestEndpoint} from '@rest-hooks/rest';
+import {RestEndpoint} from '@data-client/rest';
 
 Optimistic updates enable highly responsive and fast interfaces by avoiding network wait times.
 An update is optimistic by assuming the network is successful. In the case of any errors, Rest
@@ -21,7 +21,7 @@ article. Note that we need to include the primary key (`id` in this case) in the
 body to ensure the normalized cache gets updated correctly.
 
 ```typescript title="api/Article.ts"
-import { Entity, createResource } from '@rest-hooks/rest';
+import { Entity, createResource } from '@data-client/rest';
 
 export class Article extends Entity {
   readonly id: string | undefined = undefined;
@@ -56,7 +56,7 @@ export const ArticleResource = {
 ```
 
 ```typescript title="PublishButton.tsx"
-import { useController } from '@rest-hooks/react';
+import { useController } from '@data-client/react';
 import { ArticleResource } from 'api/Article';
 
 export default function PublishButton({ id }: { id: string }) {
@@ -89,7 +89,7 @@ to create a new article. On submission of the form it would instantly
 add to the list of articles the newly created article - without waiting on a network response.
 
 ```typescript title="api/Article.ts"
-import { Entity, createResource } from '@rest-hooks/rest';
+import { Entity, createResource } from '@data-client/rest';
 import { v4 as uuid } from 'uuid';
 
 export class Article extends Entity {
@@ -145,7 +145,7 @@ renders - like to issue subsequent requests. We recommend disabling `edit` type 
 that rely on the `primary key` until the network fetch completes.
 
 ```typescript title="CreateArticle.tsx"
-import { useController } from '@rest-hooks/react';
+import { useController } from '@data-client/react';
 import { ArticleResource } from 'api/Article';
 
 export default function CreateArticle() {
@@ -169,7 +169,7 @@ We return an empty string because that's the response we expect from the server.
 default, the server response is ignored.
 
 ```typescript title="api/Article.ts"
-import { Entity, createResource } from '@rest-hooks/rest';
+import { Entity, createResource } from '@data-client/rest';
 
 export class Article extends Entity {
   readonly id: string | undefined = undefined;
@@ -257,7 +257,7 @@ export const increment = new RestEndpoint({
 ```
 
 ```tsx title="CounterPage.tsx" collapsed
-import { useLoading } from '@rest-hooks/hooks';
+import { useLoading } from '@data-client/hooks';
 import { getCount, increment } from './api/Count';
 
 function CounterPage() {
@@ -420,7 +420,7 @@ export const increment = new RestEndpoint({
 ```
 
 ```tsx title="CounterPage.tsx" collapsed
-import { useLoading } from '@rest-hooks/hooks';
+import { useLoading } from '@data-client/hooks';
 import { getCount, increment } from './api/Count';
 
 function CounterPage() {

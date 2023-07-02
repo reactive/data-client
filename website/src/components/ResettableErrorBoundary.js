@@ -1,5 +1,5 @@
+import { NetworkErrorBoundary, useController } from '@data-client/react';
 import React from 'react';
-import { NetworkErrorBoundary, useController } from 'rest-hooks';
 
 import styles from './Playground/styles.module.css';
 

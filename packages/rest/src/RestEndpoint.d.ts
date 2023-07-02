@@ -5,7 +5,7 @@ import type {
   Schema,
   FetchFunction,
   ResolveType,
-} from '@rest-hooks/endpoint';
+} from '@data-client/endpoint';
 
 import type { ExtractCollection } from './extractCollection.js';
 import { OptionsToFunction } from './OptionsToFunction.js';

@@ -6,7 +6,7 @@ title: schema.Invalidate
 </head>
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
-import { RestEndpoint } from '@rest-hooks/rest';
+import { RestEndpoint } from '@data-client/rest';
 
 Describes entities to be marked as [INVALID](/docs/concepts/expiry-policy#invalid). This removes items from a
 collection, or [forces suspense](/docs/concepts/expiry-policy#any-endpoint-with-an-entity) for endpoints where the entity is required. 
@@ -84,7 +84,7 @@ the normalized cache to know which entities to invalidate when the request is su
 or if optimistic updates are used.
 
 ```typescript
-import { Resource, schema } from '@rest-hooks/rest';
+import { Resource, schema } from '@data-client/rest';
 
 class MyResource extends Resource {
   static deleteList<T extends typeof MyResource>(this: T) {

@@ -35,8 +35,8 @@ values={[
 <TypeScriptEditor row={false}>
 
 ```typescript title="api/Todo"
-import { Entity } from '@rest-hooks/rest';
-import { createResource } from '@rest-hooks/rest/next';
+import { Entity } from '@data-client/rest';
+import { createResource } from '@data-client/rest/next';
 
 export class Todo extends Entity {
   id = 0;
@@ -87,7 +87,7 @@ TodoResource.delete({ id: 5 });
 <TypeScriptEditor row={false}>
 
 ```typescript title="api/Todo"
-import { GQLEndpoint, GQLEntity } from '@rest-hooks/graphql';
+import { GQLEndpoint, GQLEntity } from '@data-client/graphql';
 
 const gql = new GQLEndpoint('/');
 
@@ -167,7 +167,7 @@ export const createTodo = (body: Partial<Todo>) =>
 ```
 
 ```typescript title="api/Todo"
-import { schema, Endpoint } from '@rest-hooks/endpoint';
+import { schema, Endpoint } from '@data-client/endpoint';
 import {
   Todo,
   getTodo,
@@ -197,8 +197,8 @@ export const TodoResource = {
   <TabItem value="sse">
 
 ```ts
-import type { Manager, Middleware } from '@rest-hooks/core';
-import type { EndpointInterface } from '@rest-hooks/endpoint';
+import type { Manager, Middleware } from '@data-client/core';
+import type { EndpointInterface } from '@data-client/endpoint';
 
 export default class StreamManager implements Manager {
   protected declare middleware: Middleware;

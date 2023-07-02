@@ -24,7 +24,7 @@ TypeScript >=4.3 is required for generative types to work correctly.
 
 ```ts title="api/ArticleResource.ts"
 import React from 'react';
-import { createResource, hookifyResource, Entity } from '@rest-hooks/rest';
+import { createResource, hookifyResource, Entity } from '@data-client/rest';
 
 class Article extends Entity {
   id = '';

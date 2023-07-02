@@ -1,4 +1,4 @@
-import { normalize } from '@rest-hooks/normalizr';
+import { normalize } from '@data-client/normalizr';
 
 import { OPTIMISTIC_TYPE } from '../../actionTypes.js';
 import type Controller from '../../controller/Controller.js';

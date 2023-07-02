@@ -34,7 +34,7 @@ Can be used to prime the cache if test expects cache values to already be filled
 Simple wrapper component that only has child as prop.
 
 ```tsx
-import makeCacheProvider from '@rest-hooks/redux/makeCacheProvider';
+import makeCacheProvider from '@data-client/redux/makeCacheProvider';
 
 const manager = new MockNetworkManager();
 const subscriptionManager = new SubscriptionManager(PollingSubscription);

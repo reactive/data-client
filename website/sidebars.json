@@ -279,24 +279,6 @@
               "id": "api/makeExternalCacheProvider"
             }
           ]
-        },
-        {
-          "type": "category",
-          "label": "Legacy Hooks",
-          "items": [
-            {
-              "type": "doc",
-              "id": "api/useMeta"
-            },
-            {
-              "type": "doc",
-              "id": "api/useresource"
-            },
-            {
-              "type": "doc",
-              "id": "api/useRetrieve"
-            }
-          ]
         }
       ]
     }

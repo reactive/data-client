@@ -1,5 +1,5 @@
 // this lets us validate the published/built types
-import { RestEndpoint } from '@rest-hooks/rest/next';
+import { RestEndpoint } from '@data-client/rest/next';
 
 // path: '/todos'
 () => {

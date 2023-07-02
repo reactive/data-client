@@ -1,17 +1,17 @@
-import { useScrollPositionBlocker } from '@docusaurus/theme-common/internal';
-import {
-  type Fixture,
-  type Interceptor,
-  MockResolver,
-} from '@rest-hooks/test/browser';
-import clsx from 'clsx';
-import React, { memo, useCallback, useState, useMemo, lazy } from 'react';
 import {
   CacheProvider,
   PollingSubscription,
   SubscriptionManager,
   NetworkManager,
-} from 'rest-hooks';
+} from '@data-client/react';
+import {
+  type Fixture,
+  type Interceptor,
+  MockResolver,
+} from '@data-client/test/browser';
+import { useScrollPositionBlocker } from '@docusaurus/theme-common/internal';
+import clsx from 'clsx';
+import React, { memo, useCallback, useState, useMemo, lazy } from 'react';
 
 import Boundary from './Boundary';
 import StoreInspector from './StoreInspector';

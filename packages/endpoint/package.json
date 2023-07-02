@@ -1,7 +1,30 @@
 {
-  "name": "@rest-hooks/endpoint",
-  "version": "3.8.4",
+  "name": "@data-client/endpoint",
+  "version": "0.1.0",
   "description": "Declarative Network Interface Definitions",
+  "homepage": "https://dataclient.io/docs/guides/custom-protocol",
+  "keywords": [
+    "data",
+    "cache",
+    "networking",
+    "fetch",
+    "typescript",
+    "data fetching",
+    "data cache",
+    "api",
+    "normalized cache",
+    "subject pattern",
+    "declarative",
+    "definition",
+    "schema",
+    "async",
+    "ajax",
+    "react",
+    "react-native",
+    "ios",
+    "android",
+    "web"
+  ],
   "sideEffects": false,
   "main": "dist/index.js",
   "react-native": "legacy/index.js",
@@ -82,38 +105,15 @@
     "tsc:ci": "yarn g:tsc --project tsconfig.test.json",
     "typecheck": "run tsc:ci"
   },
-  "keywords": [
-    "data",
-    "cache",
-    "networking",
-    "fetch",
-    "typescript",
-    "data fetching",
-    "data cache",
-    "api",
-    "normalized cache",
-    "subject pattern",
-    "declarative",
-    "definition",
-    "schema",
-    "async",
-    "ajax",
-    "react",
-    "react-native",
-    "ios",
-    "android",
-    "web"
-  ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",
-  "homepage": "https://resthooks.io/docs/guides/custom-protocol",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com:data-client/rest-hooks.git",
+    "url": "git+ssh://git@github.com:data-client/data-client.git",
     "directory": "packages/endpoint"
   },
   "bugs": {
-    "url": "https://github.com/data-client/rest-hooks/issues"
+    "url": "https://github.com/data-client/data-client/issues"
   },
   "dependencies": {
     "@babel/runtime": "^7.17.0"

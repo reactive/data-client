@@ -1,5 +1,5 @@
-import { Entity, RestEndpoint, schema } from '@rest-hooks/rest';
-import type { FixtureEndpoint } from '@rest-hooks/test';
+import { Entity, RestEndpoint, schema } from '@data-client/rest';
+import type { FixtureEndpoint } from '@data-client/test';
 
 class FloatSeralizer extends Number {
   constructor(v:any) {

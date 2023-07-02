@@ -9,7 +9,7 @@ title: schema.Entity
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import LanguageTabs from '@site/src/components/LanguageTabs';
-import { RestEndpoint } from '@rest-hooks/rest';
+import { RestEndpoint } from '@data-client/rest';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
 If you already have classes for your data-types, `schema.Entity` mixin may be for you.
@@ -17,7 +17,7 @@ If you already have classes for your data-types, `schema.Entity` mixin may be fo
 <TypeScriptEditor>
 
 ```typescript {10}
-import { schema } from '@rest-hooks/rest';
+import { schema } from '@data-client/rest';
 
 export class Article {
   id = '';
@@ -251,7 +251,7 @@ on top.
 <TypeScriptEditor>
 
 ```typescript
-import { schema } from '@rest-hooks/rest';
+import { schema } from '@data-client/rest';
 
 export class Article {
   id = '';

@@ -15,7 +15,7 @@ values={[
 <TabItem value="web">
 
 ```tsx title="index.tsx"
-import { CacheProvider } from '@rest-hooks/react';
+import { CacheProvider } from '@data-client/react';
 import ReactDOM from 'react-dom';
 
 ReactDOM.render(
@@ -31,7 +31,7 @@ ReactDOM.render(
 <TabItem value="18-web">
 
 ```tsx title="index.tsx"
-import { CacheProvider } from '@rest-hooks/react';
+import { CacheProvider } from '@data-client/react';
 import ReactDOM from 'react-dom';
 
 ReactDOM.createRoot(document.body).render(
@@ -46,7 +46,7 @@ ReactDOM.createRoot(document.body).render(
 <TabItem value="native">
 
 ```tsx title="index.tsx"
-import { CacheProvider } from '@rest-hooks/react';
+import { CacheProvider } from '@data-client/react';
 import { AppRegistry } from 'react-native';
 
 const Root = () => (
@@ -64,13 +64,13 @@ AppRegistry.registerComponent('MyApp', () => Root);
 <PkgInstall pkgs="@rest-hooks/ssr @rest-hooks/redux redux" />
 
 ```tsx title="pages/_document.tsx"
-import { RestHooksDocument } from '@rest-hooks/ssr/nextjs';
+import { RestHooksDocument } from '@data-client/ssr/nextjs';
 
 export default RestHooksDocument;
 ```
 
 ```tsx title="pages/_app.tsx"
-import { AppCacheProvider } from '@rest-hooks/ssr/nextjs';
+import { AppCacheProvider } from '@data-client/ssr/nextjs';
 import type { AppProps } from 'next/app';
 
 export default function App({ Component, pageProps }: AppProps) {

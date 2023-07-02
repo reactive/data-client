@@ -1,5 +1,5 @@
-import { CacheProvider } from '@rest-hooks/react';
-import { FixtureEndpoint } from '@rest-hooks/test/mockState';
+import { CacheProvider } from '@data-client/react';
+import { FixtureEndpoint } from '@data-client/test/mockState';
 import { act } from '@testing-library/react-hooks';
 import { FutureArticleResource } from '__tests__/new';
 import nock from 'nock';

@@ -1,4 +1,4 @@
-import { Schema, schema } from '@rest-hooks/endpoint';
+import { Schema, schema } from '@data-client/endpoint';
 
 export default function mapCollection<
   M extends <C extends schema.Collection>(collection: C) => any,

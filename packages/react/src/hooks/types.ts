@@ -5,7 +5,7 @@ import {
   Denormalize,
   Schema,
   FetchFunction,
-} from '@rest-hooks/core';
+} from '@data-client/core';
 
 /* Inlining this on unions does not work for some reason, so make it a generic type to call */
 export type CondNull<P, A, B> = P extends null ? A : B;

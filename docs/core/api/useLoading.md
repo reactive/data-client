@@ -20,7 +20,7 @@ Part of [@rest-hooks/hooks](https://www.npmjs.com/package/@rest-hooks/hooks)
 ## Usage
 
 ```tsx
-import { useLoading } from '@rest-hooks/hooks';
+import { useLoading } from '@data-client/hooks';
 
 function Button({ onClick, children, ...props }) {
   const [clickHandler, loading, error] = useLoading(onClick);
@@ -37,8 +37,8 @@ function Button({ onClick, children, ...props }) {
 
 ```tsx
 import { useCallback } from 'react';
-import { useController } from '@rest-hooks/react';
-import { useLoading } from '@rest-hooks/hooks';
+import { useController } from '@data-client/react';
+import { useLoading } from '@data-client/hooks';
 
 import { TodoResource, Todo } from 'api/Todo';
 

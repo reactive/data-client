@@ -1,7 +1,7 @@
 import { Link, useRoutes } from '@anansi/router';
 import { EllipsisOutlined } from '@ant-design/icons';
+import { useCache, useController } from '@data-client/react';
 import { css } from '@linaria/core';
-import { useCache, useController } from '@rest-hooks/react';
 import { Card, Avatar, Button, Tag, Popover } from 'antd';
 import FlexRow from 'components/FlexRow';
 import React, { memo, useCallback, useState } from 'react';

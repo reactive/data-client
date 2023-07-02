@@ -20,8 +20,7 @@ module.exports = function (context, options) {
             /*{
               test: /\.m?js$/,
               include: [
-                /node_modules[\\/]rest-hooks/,
-                /node_modules[\\/]@rest-hooks/,
+                /node_modules[\\/]@data-client/,
               ],
               exclude: [
                 // \\ for Windows, / for Mac OS and Linux

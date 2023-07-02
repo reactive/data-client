@@ -1,7 +1,7 @@
-import { __INTERNAL__ } from '@rest-hooks/react';
+import { __INTERNAL__ } from '@data-client/react';
 const { initialState } = __INTERNAL__;
 
-export const awaitInitialData = (id = 'rest-hooks-data') => {
+export const awaitInitialData = (id = 'data-client-data') => {
   return new Promise<any>((resolve, reject) => {
     let el: HTMLScriptElement | null;
     if ((el = document.getElementById(id) as any)) {
@@ -16,7 +16,7 @@ export const awaitInitialData = (id = 'rest-hooks-data') => {
   });
 };
 
-export const getInitialData = (id = 'rest-hooks-data') => {
+export const getInitialData = (id = 'data-client-data') => {
   const el: HTMLScriptElement | null = document.getElementById(id) as any;
   if (!el) return initialState;
   return getDataFromEl(el, id);

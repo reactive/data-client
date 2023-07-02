@@ -1,7 +1,41 @@
 {
-  "name": "@rest-hooks/ssr",
-  "version": "0.7.11",
-  "description": "Server Side Rendering helpers for Rest Hooks",
+  "name": "@data-client/ssr",
+  "version": "0.1.0",
+  "description": "Server Side Rendering helpers for Data Client",
+  "homepage": "https://dataclient.io/docs/guides/ssr",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:data-client/data-client.git",
+    "directory": "packages/ssr"
+  },
+  "bugs": {
+    "url": "https://github.com/data-client/data-client/issues"
+  },
+  "keywords": [
+    "ssr",
+    "server side rendering",
+    "universal",
+    "suspense",
+    "nextjs",
+    "query",
+    "mutation",
+    "fetch",
+    "data",
+    "cache",
+    "subscription",
+    "model",
+    "typescript",
+    "data fetching",
+    "data cache",
+    "api",
+    "normalized cache",
+    "subject pattern",
+    "graph",
+    "swr",
+    "endpoint",
+    "networking",
+    "react"
+  ],
   "sideEffects": false,
   "main": "dist/index.js",
   "react-native": "legacy/index.js",
@@ -72,48 +106,14 @@
     "prepare": "run build:lib",
     "prepack": "run prepare && run build:bundle && run build:legacy:lib"
   },
-  "keywords": [
-    "ssr",
-    "server side rendering",
-    "universal",
-    "suspense",
-    "nextjs",
-    "query",
-    "mutation",
-    "fetch",
-    "data",
-    "cache",
-    "subscription",
-    "model",
-    "typescript",
-    "data fetching",
-    "data cache",
-    "api",
-    "normalized cache",
-    "subject pattern",
-    "graph",
-    "swr",
-    "endpoint",
-    "networking",
-    "react"
-  ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",
-  "homepage": "https://resthooks.io/docs/guides/ssr",
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com:data-client/rest-hooks.git",
-    "directory": "packages/ssr"
-  },
-  "bugs": {
-    "url": "https://github.com/data-client/rest-hooks/issues"
-  },
   "dependencies": {
     "@babel/runtime": "^7.17.0"
   },
   "peerDependencies": {
-    "@rest-hooks/react": "^6.0.0 || ^7.0.0",
-    "@rest-hooks/redux": "^6.3.0 || ^7.0.0",
+    "@data-client/react": "^0.1.0",
+    "@data-client/redux": "^0.1.0",
     "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0-0",
     "next": ">=12.0.0",
     "react": "^16.8.4 || ^17.0.0 || ^18.0.0-0",
@@ -129,8 +129,8 @@
   },
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",
-    "@rest-hooks/react": "workspace:*",
-    "@rest-hooks/redux": "workspace:*",
+    "@data-client/react": "workspace:*",
+    "@data-client/redux": "workspace:*",
     "@types/node": "^20.0.0",
     "@types/react": "^18.0.30",
     "@types/react-dom": "^18.0.11",

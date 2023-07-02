@@ -1,4 +1,4 @@
-import { denormalize } from '@rest-hooks/normalizr';
+import { denormalize } from '@data-client/normalizr';
 
 import { User } from '../../api/schema';
 import { ADD_ENTITIES } from '../actions';

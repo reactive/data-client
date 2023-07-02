@@ -2,7 +2,7 @@ import type {
   Normalize,
   EndpointInterface,
   ResolveType,
-} from '@rest-hooks/normalizr';
+} from '@data-client/normalizr';
 
 export type ResultEntry<E extends EndpointInterface> = E['schema'] extends
   | undefined

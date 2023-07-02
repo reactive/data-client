@@ -1,23 +1,23 @@
-# [![🛌🎣 Rest hooks](./rest_hooks_logo_and_text.svg?sanitize=true)](https://resthooks.io)
+# [![🛌🎣 Data Client](./rest_hooks_logo_and_text.svg?sanitize=true)](https://dataclient.io)
 
-[![CircleCI](https://circleci.com/gh/data-client/rest-hooks/tree/master.svg?style=shield)](https://circleci.com/gh/data-client/rest-hooks)
-[![Coverage Status](https://img.shields.io/codecov/c/gh/data-client/rest-hooks/master.svg?style=flat-square)](https://app.codecov.io/gh/data-client/rest-hooks?branch=master)
-[![npm downloads](https://img.shields.io/npm/dm/@rest-hooks/redux.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/redux)
-[![bundle size](https://img.shields.io/bundlephobia/minzip/@rest-hooks/redux?style=flat-square)](https://bundlephobia.com/result?p=@rest-hooks/redux)
-[![npm version](https://img.shields.io/npm/v/@rest-hooks/redux.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/redux)
+[![CircleCI](https://circleci.com/gh/data-client/data-client/tree/master.svg?style=shield)](https://circleci.com/gh/data-client/data-client)
+[![Coverage Status](https://img.shields.io/codecov/c/gh/data-client/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/data-client/data-client?branch=master)
+[![npm downloads](https://img.shields.io/npm/dm/@data-client/redux.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/redux)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/@data-client/redux?style=flat-square)](https://bundlephobia.com/result?p=@data-client/redux)
+[![npm version](https://img.shields.io/npm/v/@data-client/redux.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/redux)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-Asynchronous dynamic data at scale. Performance, data integrity, and typing for [REST](https://resthooks.io/rest), proto, [GraphQL](https://resthooks.io/graphql), [websockets](https://resthooks.io/docs/api/Manager#middleware-data-stream) and [more](https://resthooks.io/docs/guides/img-media)..
+Asynchronous dynamic data at scale. Performance, data integrity, and typing for [REST](https://dataclient.io/rest), proto, [GraphQL](https://dataclient.io/graphql), [websockets](https://dataclient.io/docs/api/Manager#middleware-data-stream) and [more](https://dataclient.io/docs/guides/img-media)..
 
 <div align="center">
 
-**[📖Read The Docs](https://resthooks.io/docs/api/ExternalCacheProvider)** &nbsp;|&nbsp; [🏁Getting Started](https://resthooks.io/docs/guides/redux) &nbsp;|&nbsp;
-[🎮Todo Demo](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx) &nbsp;|&nbsp;
-[🎮Github Demo](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx)
+**[📖Read The Docs](https://dataclient.io/docs/api/ExternalCacheProvider)** &nbsp;|&nbsp; [🏁Getting Started](https://dataclient.io/docs/guides/redux) &nbsp;|&nbsp;
+[🎮Todo Demo](https://stackblitz.com/github/data-client/data-client/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx) &nbsp;|&nbsp;
+[🎮Github Demo](https://stackblitz.com/github/data-client/data-client/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx)
 
 </div>
 
-### Simple [TypeScript definition](https://resthooks.io/rest/api/Entity)
+### Simple [TypeScript definition](https://dataclient.io/rest/api/Entity)
 
 ```typescript
 class Article extends Entity {
@@ -31,7 +31,7 @@ class Article extends Entity {
 }
 ```
 
-### Create [collection of API Endpoints](https://resthooks.io/rest/api/createResource)
+### Create [collection of API Endpoints](https://dataclient.io/rest/api/createResource)
 
 ```typescript
 const ArticleResource = createResource({
@@ -40,7 +40,7 @@ const ArticleResource = createResource({
 })
 ```
 
-### One line [data binding](https://resthooks.io/docs/api/useSuspense)
+### One line [data binding](https://dataclient.io/docs/api/useSuspense)
 
 ```tsx
 const article = useSuspense(ArticleResource.get, { id });
@@ -52,7 +52,7 @@ return (
 );
 ```
 
-### [Mutation](https://resthooks.io/docs/getting-started/mutations)
+### [Mutation](https://dataclient.io/docs/getting-started/mutations)
 
 ```tsx
 const ctrl = useController();
@@ -63,7 +63,7 @@ return (
 );
 ```
 
-### And [subscriptions](https://resthooks.io/docs/api/useSubscription)
+### And [subscriptions](https://dataclient.io/docs/api/useSubscription)
 
 ```tsx
 const price = useSuspense(PriceResource.get, { symbol });
@@ -71,7 +71,7 @@ useSubscription(PriceResource.get, { symbol });
 return price.value;
 ```
 
-### [Programmatic queries](https://resthooks.io/rest/api/Query)
+### [Programmatic queries](https://dataclient.io/rest/api/Query)
 
 ```tsx
 const sortedArticles = new Query(
@@ -90,31 +90,31 @@ const articlesDescending = useCache(sortedArticles, { asc: false });
 
 ### ...all typed ...fast ...and consistent
 
-[🏁Get started now](https://resthooks.io/docs/getting-started/installation)
+[🏁Get started now](https://dataclient.io/docs/getting-started/installation)
 
 ## Features
 
-- [x] ![TS](./packages/rest-hooks/typescript.svg?sanitize=true) Strong [Typescript](https://www.typescriptlang.org/) types
-- [x] 🛌 React [Suspense](https://resthooks.io/docs/getting-started/data-dependency#boundaries) support
-- [x] 🧵 React 18 [Concurrent mode](https://resthooks.io/docs/guides/render-as-you-fetch) compatible
-- [x] 🎣 [Declarative API](https://resthooks.io/docs/getting-started/data-dependency)
+- [x] ![TS](./packages/data-client/typescript.svg?sanitize=true) Strong [Typescript](https://www.typescriptlang.org/) types
+- [x] 🛌 React [Suspense](https://dataclient.io/docs/getting-started/data-dependency#boundaries) support
+- [x] 🧵 React 18 [Concurrent mode](https://dataclient.io/docs/guides/render-as-you-fetch) compatible
+- [x] 🎣 [Declarative API](https://dataclient.io/docs/getting-started/data-dependency)
 - [x] 📝 Composition over configuration
-- [x] 💰 [Normalized](https://resthooks.io/docs/concepts/normalization) caching
+- [x] 💰 [Normalized](https://dataclient.io/docs/concepts/normalization) caching
 - [x] 💥 Tiny bundle footprint
 - [x] 🛑 Automatic overfetching elimination
-- [x] ✨ [Optimistic updates](https://resthooks.io/rest/guides/optimistic-updates)
-- [x] 🧘 [Flexible](https://resthooks.io/docs/getting-started/endpoint) to fit any API design (one size fits all)
-- [x] 🔧 [Debugging and inspection](https://resthooks.io/docs/guides/debugging) via browser extension
+- [x] ✨ [Optimistic updates](https://dataclient.io/rest/guides/optimistic-updates)
+- [x] 🧘 [Flexible](https://dataclient.io/docs/getting-started/endpoint) to fit any API design (one size fits all)
+- [x] 🔧 [Debugging and inspection](https://dataclient.io/docs/guides/debugging) via browser extension
 - [x] 🌳 Tree-shakable (only use what you need)
-- [x] 🔁 [Subscriptions](https://resthooks.io/docs/api/useSubscription)
-- [x] ♻️ Optional [redux integration](https://resthooks.io/docs/guides/redux)
-- [x] 📙 [Storybook mocking](https://resthooks.io/docs/guides/storybook)
+- [x] 🔁 [Subscriptions](https://dataclient.io/docs/api/useSubscription)
+- [x] ♻️ Optional [redux integration](https://dataclient.io/docs/guides/redux)
+- [x] 📙 [Storybook mocking](https://dataclient.io/docs/guides/storybook)
 - [x] 📱 [React Native](https://facebook.github.io/react-native/) support
-- [x] 🚯 [Declarative cache lifetime policy](https://resthooks.io/docs/concepts/expiry-policy)
+- [x] 🚯 [Declarative cache lifetime policy](https://dataclient.io/docs/concepts/expiry-policy)
 
-## Principals of Rest Hooks
+## Principals of Data Client
 
-### ![TS](./packages/rest-hooks/typescript.svg?sanitize=true) Integrity
+### ![TS](./packages/data-client/typescript.svg?sanitize=true) Integrity
 
 - Strong inferred types
 - Global referential equality guarantees

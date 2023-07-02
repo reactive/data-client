@@ -21,7 +21,7 @@ in the React tree.
 ## Usage
 
 ```tsx title="index.tsx"
-import { ExternalCacheProvider } from '@rest-hooks/redux';
+import { ExternalCacheProvider } from '@data-client/redux';
 import ReactDOM from 'react-dom';
 
 import { store, selector } from './store';

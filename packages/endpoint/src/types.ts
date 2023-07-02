@@ -10,7 +10,7 @@ export type FetchFunction<A extends readonly any[] = any, R = any> = (
   ...args: A
 ) => Promise<R>;
 
-// This hack is only needed for @rest-hooks/rest@5 or below
+// This hack is only needed for @data-client/rest@5 or below
 /** @deprecated */
 export type SchemaDetail<T> =
   | EntityInterface<T>

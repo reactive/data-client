@@ -1,4 +1,4 @@
-import { useLive } from '@rest-hooks/react';
+import { useLive } from '@data-client/react';
 
 import { getExchangeRates } from './resources';
 

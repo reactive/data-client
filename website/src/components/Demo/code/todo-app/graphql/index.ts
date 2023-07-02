@@ -3,7 +3,7 @@ import TodoItem from './TodoItem.rawts?raw';
 import TodoList from './TodoList.rawts?raw';
 import TodoStats from './TodoStats.rawts?raw';*/
 
-import { GQLEndpoint } from '@rest-hooks/graphql';
+import { GQLEndpoint } from '@data-client/graphql';
 
 import apiCode from '!!raw-loader!./api.ts';
 import TodoItem from '!!raw-loader!./TodoItem.tsx';
@@ -36,7 +36,10 @@ export default {
   ],
   getInitialInterceptorData: () =>
     Object.fromEntries(
-      TODOS.map(todo => [todo.id, { ...todo, updatedAt: Date.now() }]),
+      TODOS.map(todo => [
+        todo.id,
+        { ...todo, updatedAt: Date.now() },
+      ]),
     ),
   code: [
     {

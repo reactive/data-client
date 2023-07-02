@@ -1,11 +1,11 @@
-import { Entity } from '@rest-hooks/rest';
+import { Entity } from '@data-client/rest';
 import {
   RestEndpoint,
   createResource,
   ResourceGenerics,
   ResourceOptions,
   Resource,
-} from '@rest-hooks/rest/next';
+} from '@data-client/rest/next';
 
 export abstract class PlaceholderEntity extends Entity {
   readonly id: number = 0;

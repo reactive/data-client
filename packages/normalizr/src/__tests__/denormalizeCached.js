@@ -1,5 +1,5 @@
 // eslint-env jest
-import { Entity } from '@rest-hooks/endpoint';
+import { Entity } from '@data-client/endpoint';
 
 import { denormalize } from '../denormalize/denormalizeCached';
 import { INVALID } from '../denormalize/symbol';

@@ -1,4 +1,4 @@
-import { State, Manager, Controller, __INTERNAL__ } from '@rest-hooks/react';
+import { State, Manager, Controller, __INTERNAL__ } from '@data-client/react';
 import React, { useEffect } from 'react';
 
 import { default as CacheProvider } from './ExternalCacheProvider.js';

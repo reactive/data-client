@@ -61,15 +61,15 @@ require('whatwg-fetch');
 <Tabs
 defaultValue="CacheProvider"
 values={[
-{ label: '@rest-hooks/react', value: 'CacheProvider' },
-{ label: '@rest-hooks/redux', value: 'ExternalCacheProvider' },
+{ label: '@data-client/react', value: 'CacheProvider' },
+{ label: '@data-client/redux', value: 'ExternalCacheProvider' },
 ]}>
 <TabItem value="CacheProvider">
 
 ```typescript
 import nock from 'nock';
-import { makeRenderRestHook } from '@rest-hooks/test';
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import { makeRenderRestHook } from '@data-client/test';
+import makeCacheProvider from '@data-client/react/makeCacheProvider';
 
 describe('useSuspense()', () => {
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;
@@ -111,8 +111,8 @@ describe('useSuspense()', () => {
 
 ```typescript
 import nock from 'nock';
-import { makeRenderRestHook } from '@rest-hooks/test';
-import makeCacheProvider from '@rest-hooks/redux/makeCacheProvider';
+import { makeRenderRestHook } from '@data-client/test';
+import makeCacheProvider from '@data-client/redux/makeCacheProvider';
 
 describe('useSuspense()', () => {
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;

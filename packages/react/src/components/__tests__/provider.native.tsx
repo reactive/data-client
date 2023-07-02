@@ -4,7 +4,7 @@ import {
   actionTypes,
   SubscriptionManager,
   Controller,
-} from '@rest-hooks/core';
+} from '@data-client/core';
 import { act, render, screen } from '@testing-library/react-native';
 import { CoolerArticle, CoolerArticleResource } from '__tests__/new';
 import nock from 'nock';

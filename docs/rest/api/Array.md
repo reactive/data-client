@@ -10,7 +10,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
-import { RestEndpoint } from '@rest-hooks/rest';
+import { RestEndpoint } from '@data-client/rest';
 
 Creates a schema to normalize an array of schemas. If the input value is an [Object](./Object.md) instead of an `Array`,
 the normalized result will be an `Array` of the [Object](./Object.md)'s values.

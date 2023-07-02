@@ -1,4 +1,4 @@
-import { schema as schemas } from '@rest-hooks/endpoint';
+import { schema as schemas } from '@data-client/endpoint';
 import { SimpleRecord } from '@rest-hooks/legacy';
 import {
   UnionResource,

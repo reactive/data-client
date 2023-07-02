@@ -1,4 +1,4 @@
-import { CacheProvider } from '@rest-hooks/react';
+import { CacheProvider } from '@data-client/react';
 import { CoolerArticleResource } from '__tests__/new';
 
 // relative imports to avoid circular dependency in tsconfig references

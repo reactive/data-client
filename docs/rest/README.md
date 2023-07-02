@@ -18,7 +18,7 @@ import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
 :::tip
 
-This version requires TypeScript 4.0. For older versions, try [@rest-hooks/rest@5](/rest/5.2), which is fully compatible with
+This version requires TypeScript 4.0. For older versions, try [@rest-hooks/rest@5](https://resthooks.io/rest/5.2), which is fully compatible with
 the latest Reactive Data Client clients.
 
 :::
@@ -39,7 +39,7 @@ values={[
 <TypeScriptEditor>
 
 ```typescript title="api/User" collapsed
-import { Entity } from '@rest-hooks/rest';
+import { Entity } from '@data-client/rest';
 
 export class User extends Entity {
   id: number | undefined = undefined;
@@ -52,7 +52,7 @@ export class User extends Entity {
 ```
 
 ```typescript title="api/Article"
-import { Entity, createResource } from '@rest-hooks/rest';
+import { Entity, createResource } from '@data-client/rest';
 import { User } from './User';
 
 export class Article extends Entity {
@@ -90,7 +90,7 @@ export const ArticleResource = createResource({
 <TypeScriptEditor>
 
 ```typescript title="api/User" collapsed
-import { schema } from '@rest-hooks/rest';
+import { schema } from '@data-client/rest';
 
 export class User {
   id: number | undefined = undefined;
@@ -100,7 +100,7 @@ export class UserEntity extends schema.Entity(User) {}
 ```
 
 ```typescript title="api/Article"
-import { schema, createResource } from '@rest-hooks/rest';
+import { schema, createResource } from '@data-client/rest';
 import { UserEntity } from './User';
 
 export class Article {
@@ -158,7 +158,7 @@ values={[
 <TabItem value="Single">
 
 ```tsx
-import { useSuspense } from '@rest-hooks/react';
+import { useSuspense } from '@data-client/react';
 import { ArticleResource } from 'api/article';
 
 export default function ArticleDetail({ id }: { id: number }) {
@@ -176,7 +176,7 @@ export default function ArticleDetail({ id }: { id: number }) {
 <TabItem value="List">
 
 ```tsx
-import { useSuspense } from '@rest-hooks/react';
+import { useSuspense } from '@data-client/react';
 import { ArticleResource } from 'api/article';
 import ArticleSummary from './ArticleSummary';
 
@@ -209,7 +209,7 @@ values={[
 <TabItem value="Create">
 
 ```tsx title="article.tsx"
-import { useController } from '@rest-hooks/react';
+import { useController } from '@data-client/react';
 import { ArticleResource } from 'api/article';
 
 export default function NewArticleForm() {
@@ -233,7 +233,7 @@ resolves to the new Resource created by the API. It will automatically be added 
 <TabItem value="Update">
 
 ```tsx title="article.tsx"
-import { useController } from '@rest-hooks/react';
+import { useController } from '@data-client/react';
 import { ArticleResource } from 'api/article';
 
 export default function UpdateArticleForm({ id }: { id: number }) {
@@ -262,7 +262,7 @@ resolves to the new Resource created by the API. It will automatically be added 
 <TabItem value="Delete">
 
 ```tsx title="article.tsx"
-import { useController } from '@rest-hooks/react';
+import { useController } from '@data-client/react';
 import { Article, ArticleResource } from 'api/article';
 
 export default function ArticleWithDelete({ article }: { article: Article }) {

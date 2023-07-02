@@ -1,5 +1,5 @@
-import { Entity, schema } from '@rest-hooks/rest';
-import { createResource } from '@rest-hooks/rest/next';
+import { Entity, schema } from '@data-client/rest';
+import { createResource } from '@data-client/rest/next';
 
 export class Todo extends Entity {
   id = 0;

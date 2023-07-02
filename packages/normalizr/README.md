@@ -1,19 +1,19 @@
 # normalizr
 
-[![CircleCI](https://circleci.com/gh/data-client/rest-hooks/tree/master.svg?style=shield)](https://circleci.com/gh/data-client/rest-hooks)
-[![Coverage Status](https://img.shields.io/codecov/c/gh/data-client/rest-hooks/master.svg?style=flat-square)](https://app.codecov.io/gh/data-client/rest-hooks?branch=master)
-[![npm version](https://img.shields.io/npm/v/@rest-hooks/normalizr.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/normalizr) [![npm downloads](https://img.shields.io/npm/dm/@rest-hooks/normalizr.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/normalizr)
+[![CircleCI](https://circleci.com/gh/data-client/data-client/tree/master.svg?style=shield)](https://circleci.com/gh/data-clientdata-clients)
+[![Coverage Status](https://img.shields.io/codecov/c/gh/data-client/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/data-clientdata-clients?branch=master)
+[![npm version](https://img.shields.io/npm/v/@data-client/normalizr.svg?style=flat-square)](https://www.npmjs.com/package/data-clients/normalizr) [![npm downloads](https://img.shields.io/npm/dmdata-clientks/normalizr.svg?style=flat-square)](https://www.npmjs.com/packagdata-clientoks/normalizr)
 
 ## Install
 
 Install from the NPM repository using yarn or npm:
 
 ```shell
-yarn add @rest-hooks/normalizr
+yarn add @data-client/normalizr
 ```
 
 ```shell
-npm install @rest-hooks/normalizr
+npm install @data-client/normalizr
 ```
 
 ## Motivation
@@ -66,7 +66,7 @@ Consider a typical blog post. The API response for a single post might look some
 We have two nested entity types within our `article`: `users` and `comments`. Using various `schema`, we can normalize all three entity types down:
 
 ```js
-import { normalize, schema, Entity } from '@rest-hooks/normalizr';
+import { normalize, schema, Entity } from '@data-client/normalizr';
 
 // Define a users schema
 class User extends Entity {

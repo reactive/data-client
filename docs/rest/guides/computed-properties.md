@@ -6,7 +6,7 @@ title: Computed Properties
 getters to the class itself.
 
 ```typescript
-import { Entity } from '@rest-hooks/rest';
+import { Entity } from '@data-client/rest';
 
 class User extends Entity {
   id = '';
@@ -29,7 +29,7 @@ If the computations are expensive feel free to add some
 memoization.
 
 ```typescript
-import { Entity } from '@rest-hooks/rest';
+import { Entity } from '@data-client/rest';
 import { memoize } from 'lodash';
 
 class User extends Entity {
@@ -46,7 +46,7 @@ the declarative [static schema](./network-transform.md#deserializing-fields).
 
 
 ```typescript
-import { Entity } from '@rest-hooks/rest';
+import { Entity } from '@data-client/rest';
 
 class User extends Entity {
   id = '';

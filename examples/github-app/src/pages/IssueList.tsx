@@ -1,4 +1,4 @@
-import { useLive } from '@rest-hooks/react';
+import { useLive } from '@data-client/react';
 import { List } from 'antd';
 import { Issue, IssueResource } from 'resources/Issue';
 

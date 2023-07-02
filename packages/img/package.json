@@ -1,7 +1,27 @@
 {
-  "name": "@rest-hooks/img",
-  "version": "0.8.12",
+  "name": "@data-client/img",
+  "version": "0.1.0",
   "description": "Suspenseful images",
+  "homepage": "https://dataclient.io/docs/guides/img-media#just-images",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:data-client/data-client.git",
+    "directory": "packages/img"
+  },
+  "bugs": {
+    "url": "https://github.com/data-client/data-client/issues"
+  },
+  "keywords": [
+    "react",
+    "suspense",
+    "prefetch",
+    "cache",
+    "image",
+    "img",
+    "hook",
+    "async",
+    "typescript"
+  ],
   "sideEffects": false,
   "main": "dist/index.cjs.js",
   "react-native": "lib/index.js",
@@ -45,34 +65,14 @@
     "prepare": "run build:lib",
     "prepack": "run prepare && run build:bundle"
   },
-  "keywords": [
-    "react",
-    "suspense",
-    "prefetch",
-    "cache",
-    "image",
-    "img",
-    "hook",
-    "async",
-    "typescript"
-  ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",
-  "homepage": "https://resthooks.io/docs/guides/img-media#just-images",
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com:data-client/rest-hooks.git",
-    "directory": "packages/img"
-  },
-  "bugs": {
-    "url": "https://github.com/data-client/rest-hooks/issues"
-  },
   "dependencies": {
     "@babel/runtime": "^7.17.0",
-    "@rest-hooks/endpoint": "^3.7.4"
+    "@data-client/endpoint": "^0.1.0"
   },
   "peerDependencies": {
-    "@rest-hooks/react": "^0.1.0 || ^0.2.0 || ^6.0.0 || ^7.0.0",
+    "@data-client/react": "^0.1.0",
     "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0-0",
     "react": "^16.8.4 || ^17.0.0 || ^18.0.0-0"
   },
@@ -83,7 +83,7 @@
   },
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",
-    "@rest-hooks/react": "^7.2.10",
+    "@data-client/react": "^0.1.0",
     "@types/node": "^20.0.0",
     "@types/react": "^18.0.30"
   }

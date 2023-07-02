@@ -1,5 +1,5 @@
-import { CacheProvider } from '@rest-hooks/react';
-import { CacheProvider as ExternalCacheProvider } from '@rest-hooks/redux';
+import { CacheProvider } from '@data-client/react';
+import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
 import { act } from '@testing-library/react-hooks';
 import {
   CoauthoredArticle,

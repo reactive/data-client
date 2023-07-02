@@ -1,5 +1,5 @@
-import { CacheProvider } from '@rest-hooks/react';
-import { makeRenderRestHook } from '@rest-hooks/test';
+import { CacheProvider } from '@data-client/react';
+import { makeRenderRestHook } from '@data-client/test';
 import {
   CoolerArticle,
   CoolerArticleResource,

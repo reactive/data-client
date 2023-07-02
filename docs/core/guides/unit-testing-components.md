@@ -74,9 +74,9 @@ export default {
 ```
 
 ```tsx title="__tests__/ArticleList.tsx"
-import { CacheProvider, AsyncBoundary } from '@rest-hooks/react';
+import { CacheProvider, AsyncBoundary } from '@data-client/react';
 import { render, waitFor } from '@testing-library/react';
-import { MockResolver } from '@rest-hooks/test';
+import { MockResolver } from '@data-client/test';
 
 import ArticleList from 'components/ArticleList';
 import results from './fixtures';

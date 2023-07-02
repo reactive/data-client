@@ -1,6 +1,6 @@
 import { lazy, Route } from '@anansi/router';
-import { getImage } from '@rest-hooks/img';
-import { Controller } from '@rest-hooks/react';
+import { getImage } from '@data-client/img';
+import { Controller } from '@data-client/react';
 import CommentResource from 'resources/Comment';
 import { EventResource } from 'resources/Event';
 import IssueResource from 'resources/Issue';

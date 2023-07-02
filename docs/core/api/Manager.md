@@ -84,7 +84,7 @@ values={[
 <TabItem value="web">
 
 ```tsx title="/index.tsx"
-import { CacheProvider } from '@rest-hooks/react';
+import { CacheProvider } from '@data-client/react';
 import ReactDOM from 'react-dom';
 
 const managers = [...CacheProvider.defaultProps.managers, new MyManager()];
@@ -102,7 +102,7 @@ ReactDOM.render(
 <TabItem value="18-web">
 
 ```tsx title="/index.tsx"
-import { CacheProvider } from '@rest-hooks/react';
+import { CacheProvider } from '@data-client/react';
 import ReactDOM from 'react-dom';
 
 const managers = [...CacheProvider.defaultProps.managers, new MyManager()];
@@ -119,7 +119,7 @@ ReactDOM.createRoot(document.body).render(
 <TabItem value="native">
 
 ```tsx title="/index.tsx"
-import { CacheProvider } from '@rest-hooks/react';
+import { CacheProvider } from '@data-client/react';
 import { AppRegistry } from 'react-native';
 
 const managers = [...CacheProvider.defaultProps.managers, new MyManager()];
@@ -137,8 +137,8 @@ AppRegistry.registerComponent('MyApp', () => Root);
 <TabItem value="nextjs">
 
 ```tsx title="pages/_app.tsx"
-import { CacheProvider } from '@rest-hooks/react';
-import { AppCacheProvider } from '@rest-hooks/ssr/nextjs';
+import { CacheProvider } from '@data-client/react';
+import { AppCacheProvider } from '@data-client/ssr/nextjs';
 import type { AppProps } from 'next/app';
 
 const managers = [...CacheProvider.defaultProps.managers, new MyManager()];
@@ -165,7 +165,7 @@ via intercepting and dispatching actions, as well as reading the internal state.
 ### Middleware logging
 
 ```typescript
-import type { Manager, Middleware } from '@rest-hooks/core';
+import type { Manager, Middleware } from '@data-client/core';
 
 export default class LoggingManager implements Manager {
   getMiddleware = (): Middleware => controller => next => async action => {
@@ -186,8 +186,8 @@ we can maintain fresh data when the data updates are independent of user action.
 price, or a real-time collaborative editor.
 
 ```typescript
-import type { Manager, Middleware } from '@rest-hooks/core';
-import type { EndpointInterface } from '@rest-hooks/endpoint';
+import type { Manager, Middleware } from '@data-client/core';
+import type { EndpointInterface } from '@data-client/endpoint';
 
 export default class StreamManager implements Manager {
   protected declare middleware: Middleware;

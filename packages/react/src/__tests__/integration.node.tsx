@@ -1,4 +1,4 @@
-import { CacheProvider as ExternalCacheProvider } from '@rest-hooks/redux';
+import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
 import { act } from '@testing-library/react-hooks';
 import { CoolerArticleResource, CoolerArticleDetail } from '__tests__/new';
 import nock from 'nock';

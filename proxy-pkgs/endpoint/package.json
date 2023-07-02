@@ -1,0 +1,65 @@
+{
+  "name": "@rest-hooks/endpoint",
+  "version": "3.8.4",
+  "description": "Declarative Network Interface Definitions",
+  "homepage": "https://resthooks.io/docs/graphql",
+  "bugs": {
+    "url": "https://github.com/data-client/rest-hooks/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:data-client/rest-hooks.git",
+    "directory": "packages/endpoint"
+  },
+  "keywords": [
+    "data",
+    "cache",
+    "networking",
+    "fetch",
+    "typescript",
+    "data fetching",
+    "data cache",
+    "api",
+    "normalized cache",
+    "subject pattern",
+    "declarative",
+    "definition",
+    "schema",
+    "async",
+    "ajax",
+    "react",
+    "react-native",
+    "ios",
+    "android",
+    "web"
+  ],
+  "files": [
+    "index.cjs",
+    "index.js",
+    "index.d.ts",
+    "LICENSE",
+    "README.md"
+  ],
+  "main": "index.cjs",
+  "module": "index.js",
+  "types": "index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "module": "./index.js",
+      "import": "./index.js",
+      "require": "./index.cjs",
+      "default": "./index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "engines": {
+    "node": "^12.17 || ^13.7 || >=14"
+  },
+  "sideEffects": false,
+  "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@data-client/endpoint": "^0.1.0"
+  }
+}

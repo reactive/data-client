@@ -1,4 +1,4 @@
-import { useLoading } from '@rest-hooks/hooks';
+import { useLoading } from '@data-client/hooks';
 import { Form, Button, Input, Space } from 'antd';
 import { memo } from 'react';
 

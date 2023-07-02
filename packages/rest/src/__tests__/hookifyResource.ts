@@ -1,5 +1,5 @@
-import { useController, useSuspense } from '@rest-hooks/react';
-import { CacheProvider } from '@rest-hooks/react';
+import { useController, useSuspense } from '@data-client/react';
+import { CacheProvider } from '@data-client/react';
 import { CoolerArticleResource, CoolerArticle, User } from '__tests__/new';
 import nock from 'nock';
 

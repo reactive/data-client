@@ -1,4 +1,4 @@
-import { Endpoint } from '@rest-hooks/endpoint';
+import { Endpoint } from '@data-client/endpoint';
 
 interface Todo {
   id: number;
@@ -8,8 +8,8 @@ interface Todo {
 }
 
 const fetchTodo = (id: string | number): Promise<Todo> =>
-  fetch(`https://jsonplaceholder.typicode.com/todos/${id}`).then(res =>
-    res.json(),
+  fetch(`https://jsonplaceholder.typicode.com/todos/${id}`).then(
+    res => res.json(),
   );
 
 export const getTodo = new Endpoint(fetchTodo);

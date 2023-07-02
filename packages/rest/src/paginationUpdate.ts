@@ -1,4 +1,4 @@
-import { Schema } from '@rest-hooks/endpoint';
+import { Schema } from '@data-client/endpoint';
 
 import getArrayPath from './getArrayPath.js';
 

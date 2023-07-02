@@ -12,7 +12,7 @@ try {
   // TODO: figure out how to supress the error log instead of tell people it's okay
   if (isBrowser) {
     console.error(
-      'Content Security Policy: The previous CSP log can be safely ignored - @rest-hooks/endpoint will use setPrototypeOf instead',
+      'Content Security Policy: The previous CSP log can be safely ignored - @data-client/endpoint will use setPrototypeOf instead',
     );
   }
 }

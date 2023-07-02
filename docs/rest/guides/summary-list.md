@@ -3,7 +3,7 @@ title: Summary List Endpoints
 ---
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
-import {RestEndpoint} from '@rest-hooks/rest';
+import {RestEndpoint} from '@data-client/rest';
 
 Sometimes you have a [list endpoint](../api/createResource.md#getlist) that includes
 only a subset of fields.
@@ -46,7 +46,7 @@ delay: 150,
 ]}>
 
 ```typescript title="api/Article.ts" {11,24}
-import { validateRequired } from '@rest-hooks/rest';
+import { validateRequired } from '@data-client/rest';
 
 class ArticleSummary extends Entity {
   readonly id: string = '';

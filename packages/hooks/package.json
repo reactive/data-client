@@ -1,7 +1,31 @@
 {
-  "name": "@rest-hooks/hooks",
-  "version": "3.1.14",
+  "name": "@data-client/hooks",
+  "version": "0.1.0",
   "description": "Collection of composable data hooks",
+  "homepage": "https://dataclient.io/docs/api/useDebounce",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:data-client/data-client.git",
+    "directory": "packages/hooks"
+  },
+  "bugs": {
+    "url": "https://github.com/data-client/data-client/issues"
+  },
+  "keywords": [
+    "hooks",
+    "data",
+    "data layer",
+    "networking",
+    "fetch",
+    "typescript",
+    "data fetching",
+    "data cache",
+    "react-native",
+    "ios",
+    "android",
+    "web",
+    "declarative"
+  ],
   "sideEffects": false,
   "main": "dist/index.cjs.js",
   "react-native": "legacy/index.js",
@@ -36,7 +60,7 @@
     "README.md"
   ],
   "scripts": {
-    "build:lib": "NODE_ENV=production BROWSERSLIST_ENV=2019 ROOT_PATH_PREFIX='@rest-hooks/hooks' yarn g:babel --out-dir lib",
+    "build:lib": "NODE_ENV=production BROWSERSLIST_ENV=2019 ROOT_PATH_PREFIX='@data-client/hooks' yarn g:babel --out-dir lib",
     "build:bundle": "yarn g:rollup && echo '{\"type\":\"commonjs\"}' > dist/package.json",
     "build:clean": "yarn g:clean",
     "build": "run build:lib && run build:bundle",
@@ -45,35 +69,11 @@
     "prepare": "run build:lib",
     "prepack": "run prepare && run build:bundle"
   },
-  "keywords": [
-    "hooks",
-    "data",
-    "data layer",
-    "networking",
-    "fetch",
-    "typescript",
-    "data fetching",
-    "data cache",
-    "react-native",
-    "ios",
-    "android",
-    "web",
-    "declarative"
-  ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",
-  "homepage": "https://resthooks.io/docs/api/useDebounce",
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com:data-client/rest-hooks.git",
-    "directory": "packages/hooks"
-  },
-  "bugs": {
-    "url": "https://github.com/data-client/rest-hooks/issues"
-  },
   "dependencies": {
     "@babel/runtime": "^7.17.0",
-    "@rest-hooks/normalizr": "^11.0.0"
+    "@data-client/normalizr": "^0.1.0"
   },
   "peerDependencies": {
     "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0-0",

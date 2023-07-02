@@ -21,8 +21,7 @@ function useError(
 
 [NetworkError](./types#networkerror)
 
-Provides error information about a request. This builds on [useMeta()](./useMeta),
-but adds some additional logic.
+Provides error information about a request.
 
 Used in
 

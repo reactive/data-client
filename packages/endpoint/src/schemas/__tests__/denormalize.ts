@@ -6,7 +6,7 @@ import {
   Denormalize,
   DenormalizeNullable,
   INVALID,
-} from '@rest-hooks/normalizr';
+} from '@data-client/normalizr';
 
 import { denormalize as legacyDenormalize } from './legacy-compat/denormalize';
 import { denormalize as legacyDenormalize10 } from './legacy-compat/denormalize-v10.1/denormalizeCached';

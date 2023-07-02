@@ -1,6 +1,6 @@
 import { Link } from '@anansi/router';
+import { useCache, useController } from '@data-client/react';
 import { css } from '@linaria/core';
-import { useCache, useController } from '@rest-hooks/react';
 import { Card, Avatar } from 'antd';
 import { memo, useCallback } from 'react';
 import { CommentResource } from 'resources/Comment';

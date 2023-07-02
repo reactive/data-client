@@ -1,4 +1,4 @@
-import { Endpoint, Entity } from '@rest-hooks/endpoint';
+import { Endpoint, Entity } from '@data-client/endpoint';
 import { CoolerArticleResource } from '__tests__/new';
 
 import { ExpiryStatus } from '../..';

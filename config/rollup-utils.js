@@ -1,8 +1,9 @@
 import dts from 'rollup-plugin-dts';
 
 function isExternalTypes(id) {
-  if (id.startsWith('@rest-hooks/core')) return true;
-  if (id.startsWith('@rest-hooks') || id.startsWith('rest-hooks')) return false;
+  if (id.startsWith('@data-client/core')) return true;
+  if (id.startsWith('@data-client') || id.startsWith('data-client'))
+    return false;
   if (id.startsWith('.')) return false;
   if (id.includes('rest-hooks/packages')) return false;
   return true;

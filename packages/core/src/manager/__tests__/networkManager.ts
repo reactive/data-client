@@ -1,4 +1,4 @@
-import { Endpoint } from '@rest-hooks/endpoint';
+import { Endpoint } from '@data-client/endpoint';
 import { Article, ArticleResource } from '__tests__/new';
 
 import { RECEIVE_TYPE } from '../../actionTypes';

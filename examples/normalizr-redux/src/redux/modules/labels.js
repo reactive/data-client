@@ -1,4 +1,4 @@
-import { denormalize, normalize } from '@rest-hooks/normalizr';
+import { denormalize, normalize } from '@data-client/normalizr';
 
 import * as Repo from './repos';
 import { Label } from '../../api/schema';

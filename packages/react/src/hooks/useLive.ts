@@ -4,7 +4,7 @@ import {
   Denormalize,
   Schema,
   FetchFunction,
-} from '@rest-hooks/core';
+} from '@data-client/core';
 
 import { SuspenseReturn } from './types.js';
 import useSubscription from './useSubscription.js';

@@ -1,4 +1,3 @@
-import { SimpleRecord } from '@rest-hooks/legacy';
 import {
   AbstractInstanceType,
   schema,
@@ -14,7 +13,8 @@ import {
   hookifyResource,
   RestType,
   MutateEndpoint,
-} from '@rest-hooks/rest';
+} from '@data-client/rest';
+import { SimpleRecord } from '@rest-hooks/legacy';
 import React, { createContext, useContext } from 'react';
 
 /** Represents data with primary key being from 'id' field. */

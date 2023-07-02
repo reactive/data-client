@@ -4,14 +4,14 @@ import {
   usePromisifiedDispatch,
   Controller,
   __INTERNAL__,
-} from '@rest-hooks/react';
+} from '@data-client/react';
 import {
   StateContext,
   DispatchContext,
   ControllerContext,
   StoreContext,
   BackupBoundary,
-} from '@rest-hooks/react';
+} from '@data-client/react';
 import React, {
   useEffect,
   useState,
@@ -36,7 +36,7 @@ interface Props<S> {
 
 /**
  * Like CacheProvider, but for an external store
- * @see https://resthooks.io/docs/api/ExternalCacheProvider
+ * @see https://dataclient.io/docs/api/ExternalCacheProvider
  */
 export default function ExternalCacheProvider<S>({
   children,

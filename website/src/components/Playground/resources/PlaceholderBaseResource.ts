@@ -1,4 +1,9 @@
-import { Entity, createResource, RestEndpoint, Schema } from '@rest-hooks/rest';
+import {
+  Entity,
+  createResource,
+  RestEndpoint,
+  Schema,
+} from '@data-client/rest';
 
 export abstract class PlaceholderEntity extends Entity {
   readonly id: number = 0;

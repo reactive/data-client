@@ -1,4 +1,4 @@
-import { useSuspense } from '@rest-hooks/react';
+import { useSuspense } from '@data-client/react';
 import { Card } from 'antd';
 import { CommentResource } from 'resources/Comment';
 

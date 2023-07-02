@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { Entity, schema } from '@rest-hooks/endpoint';
-import { useSuspense } from '@rest-hooks/react';
+import { Entity, schema } from '@data-client/endpoint';
+import { useSuspense } from '@data-client/react';
 import { User } from '__tests__/new';
 
 import createResource from '../createResource';

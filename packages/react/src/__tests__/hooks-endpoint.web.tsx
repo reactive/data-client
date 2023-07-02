@@ -1,6 +1,6 @@
-import { State, ActionTypes, Controller, actionTypes } from '@rest-hooks/core';
-import { CacheProvider } from '@rest-hooks/react';
-import { CacheProvider as ExternalCacheProvider } from '@rest-hooks/redux';
+import { State, ActionTypes, Controller, actionTypes } from '@data-client/core';
+import { CacheProvider } from '@data-client/react';
+import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
 import { render, act } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
 import { CoolerArticleResource, PaginatedArticleResource } from '__tests__/new';

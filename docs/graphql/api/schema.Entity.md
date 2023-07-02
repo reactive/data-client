@@ -16,7 +16,7 @@ If you already have classes for your data-types, `schema.Entity` mixin may be fo
 <TypeScriptEditor>
 
 ```typescript {10}
-import { schema } from '@rest-hooks/graphql';
+import { schema } from '@data-client/graphql';
 
 export class Article {
   id = '';
@@ -250,7 +250,7 @@ on top.
 <TypeScriptEditor>
 
 ```typescript
-import { schema } from '@rest-hooks/graphql';
+import { schema } from '@data-client/graphql';
 
 export class Article {
   id = '';

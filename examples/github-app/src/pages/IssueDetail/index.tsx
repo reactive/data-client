@@ -1,5 +1,5 @@
 import { Link } from '@anansi/router';
-import { useSuspense, useFetch, useCache } from '@rest-hooks/react';
+import { useSuspense, useFetch, useCache } from '@data-client/react';
 import { Card, Avatar, Popover } from 'antd';
 import { Tag } from 'antd';
 import Boundary from 'Boundary';

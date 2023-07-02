@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import * as endpoint from '@data-client/endpoint';
 import React from 'react';
-import * as endpoint from '@rest-hooks/endpoint';
 
 // Add react-live imports you need here
 const ReactLiveScope = {

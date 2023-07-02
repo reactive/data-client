@@ -1,4 +1,4 @@
-import type { EndpointInterface, Schema } from '@rest-hooks/normalizr';
+import type { EndpointInterface, Schema } from '@data-client/normalizr';
 
 import ConnectionListener from './ConnectionListener.js';
 import DefaultConnectionListener from './DefaultConnectionListener.js';

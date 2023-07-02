@@ -1,4 +1,4 @@
-import type { EndpointInterface } from '@rest-hooks/normalizr';
+import type { EndpointInterface } from '@data-client/normalizr';
 
 import { EndpointUpdateFunction } from './types.js';
 import { FETCH_TYPE } from '../actionTypes.js';

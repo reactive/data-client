@@ -1,5 +1,5 @@
+import { Fixture, Interceptor } from '@data-client/test';
 import Translate from '@docusaurus/Translate';
-import { Fixture, Interceptor } from '@rest-hooks/test';
 import React, { memo } from 'react';
 
 import Header from './Header';

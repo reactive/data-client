@@ -10,7 +10,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
-import { RestEndpoint } from '@rest-hooks/rest';
+import { RestEndpoint } from '@data-client/rest';
 
 Retrieves all entities in cache as an Array.
 
@@ -63,7 +63,7 @@ export const createUser = new RestEndpoint({
 ```
 
 ```tsx title="NewUser.tsx" collapsed
-import { useController } from '@rest-hooks/react';
+import { useController } from '@data-client/react';
 import { createUser } from './api/User';
 
 export default function NewUser() {
@@ -82,7 +82,7 @@ export default function NewUser() {
 ```
 
 ```tsx title="UsersPage.tsx"
-import { schema, RestEndpoint } from '@rest-hooks/rest';
+import { schema, RestEndpoint } from '@data-client/rest';
 import { User } from './api/User';
 import NewUser from './NewUser';
 

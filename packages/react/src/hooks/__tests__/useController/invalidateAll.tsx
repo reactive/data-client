@@ -1,6 +1,6 @@
-import { CacheProvider } from '@rest-hooks/react';
-import { makeRenderRestHook } from '@rest-hooks/test';
-import { FixtureEndpoint } from '@rest-hooks/test/mockState';
+import { CacheProvider } from '@data-client/react';
+import { makeRenderRestHook } from '@data-client/test';
+import { FixtureEndpoint } from '@data-client/test/mockState';
 import { renderHook } from '@testing-library/react-hooks';
 import { act } from '@testing-library/react-hooks';
 import { CoolerArticleResource, GetPhoto } from '__tests__/new';

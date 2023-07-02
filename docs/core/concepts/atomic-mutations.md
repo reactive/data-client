@@ -83,7 +83,7 @@ const createUser = new Endpoint(postToUserFunction, {
 This is usage with a [Resource](/rest/api/createResource)
 
 ```typescript title="TodoResource.ts"
-import { Entity, createResource } from '@rest-hooks/rest';
+import { Entity, createResource } from '@data-client/rest';
 
 export class Todo extends Entity {
   readonly id: number = 0;

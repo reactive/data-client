@@ -39,4 +39,4 @@ export type {
   PathArgsAndSearch,
 } from './pathTypes.js';
 
-export * from '@rest-hooks/endpoint';
+export * from '@data-client/endpoint';

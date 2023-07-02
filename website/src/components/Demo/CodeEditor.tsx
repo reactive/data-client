@@ -1,4 +1,4 @@
-import { FixtureEndpoint } from '@rest-hooks/test';
+import { FixtureEndpoint } from '@data-client/test';
 import React, { useContext, memo, useRef, forwardRef } from 'react';
 
 import CodeProvider from './CodeProvider';

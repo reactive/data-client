@@ -1,4 +1,4 @@
-import { RestGenerics } from '@rest-hooks/rest';
+import { RestGenerics } from '@data-client/rest';
 
 import { GithubEndpoint } from './Base';
 

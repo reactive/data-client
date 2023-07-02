@@ -1,7 +1,7 @@
 /**
- * Snapshot of denormalize from @rest-hooks/normalizr@9.4.1
+ * Snapshot of denormalize from @data-client/normalizr@9.4.1
  */
-import { isEntity } from '@rest-hooks/normalizr';
+import { isEntity } from '@data-client/normalizr';
 
 import WeakListMap from './WeakListMap.js';
 import type {

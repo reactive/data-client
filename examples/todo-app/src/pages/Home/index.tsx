@@ -1,6 +1,6 @@
+import { AsyncBoundary } from '@data-client/react';
 import { css } from '@linaria/core';
 import { styled } from '@linaria/react';
-import { AsyncBoundary } from '@rest-hooks/react';
 import LoadingBar from 'components/LoadingBar';
 import useNavigationState from 'useNavigationState';
 

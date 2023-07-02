@@ -1,11 +1,11 @@
-import { GQLEndpoint } from '@rest-hooks/graphql';
+import { GQLEndpoint } from '@data-client/graphql';
 import {
   Entity,
   Schema,
   ShortenPath,
   schema,
   Denormalize,
-} from '@rest-hooks/rest';
+} from '@data-client/rest';
 import {
   GetEndpoint,
   RestGenerics,
@@ -15,7 +15,7 @@ import {
   ResourceGenerics,
   ResourceOptions,
   PaginationFieldEndpoint,
-} from '@rest-hooks/rest/next';
+} from '@data-client/rest/next';
 import { camelCase, snakeCase } from 'lodash';
 
 import { getAuth } from './Auth';

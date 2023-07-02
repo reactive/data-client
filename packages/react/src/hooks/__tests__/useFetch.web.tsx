@@ -1,5 +1,10 @@
-import { initialState, State, ActionTypes, Controller } from '@rest-hooks/core';
-import { CacheProvider } from '@rest-hooks/react';
+import {
+  initialState,
+  State,
+  ActionTypes,
+  Controller,
+} from '@data-client/core';
+import { CacheProvider } from '@data-client/react';
 import { render } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
 import { CoolerArticleResource, StaticArticleResource } from '__tests__/new';

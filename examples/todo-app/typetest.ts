@@ -1,4 +1,4 @@
-import { useCache, useController, useSuspense } from '@rest-hooks/react';
+import { useCache, useController, useSuspense } from '@data-client/react';
 
 import {
   queryRemainingTodos,

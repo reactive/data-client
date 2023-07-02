@@ -1,4 +1,4 @@
-import { Entity } from '@rest-hooks/endpoint';
+import { Entity } from '@data-client/endpoint';
 
 class BaseEntity extends Entity {
   id = 0;

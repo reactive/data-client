@@ -1,4 +1,9 @@
-import { GQLEndpoint, GQLEntity, Query, schema } from '@rest-hooks/graphql';
+import {
+  GQLEndpoint,
+  GQLEntity,
+  Query,
+  schema,
+} from '@data-client/graphql';
 
 const gql = new GQLEndpoint('/');
 
@@ -47,8 +52,9 @@ export const TodoResource = {
     new schema.All(Todo),
     (entries, { userId } = {}) => {
       if (userId !== undefined)
-        return entries.filter(todo => todo.userId === userId && !todo.completed)
-          .length;
+        return entries.filter(
+          todo => todo.userId === userId && !todo.completed,
+        ).length;
       return entries.filter(todo => !todo.completed).length;
     },
   ),

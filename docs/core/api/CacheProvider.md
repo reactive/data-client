@@ -98,7 +98,7 @@ import {
   NetworkManager,
   SubscriptionManager,
   PollingSubscription,
-} from '@rest-hooks/core';
+} from '@data-client/core';
 
 CacheProvider.defaultProps = {
   managers: [
@@ -120,7 +120,7 @@ import {
   NetworkManager,
   SubscriptionManager,
   PollingSubscription,
-} from '@rest-hooks/core';
+} from '@data-client/core';
 
 CacheProvider.defaultProps = {
   managers: [

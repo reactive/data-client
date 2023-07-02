@@ -1,12 +1,12 @@
-import { Entity, schema } from '@rest-hooks/endpoint';
+import { Entity, schema } from '@data-client/endpoint';
 import {
   CacheProvider,
   useCache,
   useController,
   Controller,
   useSuspense,
-} from '@rest-hooks/react';
-import { makeRenderRestHook } from '@rest-hooks/test';
+} from '@data-client/react';
+import { makeRenderRestHook } from '@data-client/test';
 import { act } from '@testing-library/react-hooks';
 import nock, { ReplyHeaders } from 'nock';
 

@@ -1,4 +1,4 @@
-import { actionTypes, ActionTypes, Controller } from '@rest-hooks/react';
+import { actionTypes, ActionTypes, Controller } from '@data-client/react';
 
 import { collapseFixture } from './collapseFixture.js';
 import type { Fixture, Interceptor } from './fixtureTypes.js';

@@ -59,7 +59,7 @@ import {
   createReducer,
   NetworkManager,
   Controller,
-} from '@rest-hooks/redux';
+} from '@data-client/redux';
 import { createStore, applyMiddleware } from 'redux';
 import ReactDOM from 'react-dom';
 
@@ -112,7 +112,7 @@ import {
   createReducer,
   NetworkManager,
   Controller,
-} from '@rest-hooks/redux';
+} from '@data-client/redux';
 import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import ReactDOM from 'react-dom';

@@ -1,4 +1,4 @@
-import { CacheProvider, Controller, LogoutManager } from '@rest-hooks/react';
+import { CacheProvider, Controller, LogoutManager } from '@data-client/react';
 import { AuthdProvider } from 'navigation/authdContext';
 import type { ReactNode } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';

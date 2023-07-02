@@ -1,5 +1,5 @@
 /** This file exists to keep compatibility with SchemaDetail, and SchemaList type hacks
- * Support can be dropped once @rest-hooks/rest@5 support is dropped
+ * Support can be dropped once @data-client/rest@5 support is dropped
  */
 import type { EntityInterface } from './interface.js';
 import type {

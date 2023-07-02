@@ -2,7 +2,7 @@
   "extends": "./tsconfig",
   "compilerOptions": {
     "paths": {
-      "@rest-hooks/img/*": ["packages/img/src/*"]
+      "@data-client/img/*": ["packages/img/src/*"]
     }
   },
   "exclude": ["node_modules", "dist", "lib", "ts3.4", "**/__tests__"]

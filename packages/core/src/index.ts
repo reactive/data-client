@@ -20,8 +20,8 @@ export type {
   NormalizeNullable,
   FetchFunction,
   EndpointExtraOptions,
-} from '@rest-hooks/normalizr';
-export { ExpiryStatus } from '@rest-hooks/normalizr';
+} from '@data-client/normalizr';
+export { ExpiryStatus } from '@data-client/normalizr';
 export {
   default as NetworkManager,
   ResetError,

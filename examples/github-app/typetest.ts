@@ -4,7 +4,7 @@ import {
   useController,
   useLive,
   useSuspense,
-} from '@rest-hooks/react';
+} from '@data-client/react';
 
 import { CommentResource } from './src/resources/Comment';
 import { IssueResource } from './src/resources/Issue';

@@ -12,7 +12,7 @@ you won't need to make major changes to your code.
 <HooksPlayground>
 
 ```typescript title="api/Rating.ts"
-import { Entity, createResource } from '@rest-hooks/rest';
+import { Entity, createResource } from '@data-client/rest';
 
 export class Rating extends Entity {
   readonly id: string = '';

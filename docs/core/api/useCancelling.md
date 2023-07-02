@@ -40,8 +40,8 @@ export const TodoResource = createResource({
 ```
 
 ```tsx title="TodoDetail.tsx" {6}
-import { useSuspense } from '@rest-hooks/react';
-import { useCancelling } from '@rest-hooks/hooks';
+import { useSuspense } from '@data-client/react';
+import { useCancelling } from '@data-client/hooks';
 import { TodoResource } from './api/Todo';
 
 export default function TodoDetail({ id }: { id: number }) {

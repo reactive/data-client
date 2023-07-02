@@ -23,11 +23,10 @@ if (
 
   const suggestionDependencies = [
     'react',
-    'rest-hooks',
-    '@rest-hooks/rest',
-    '@rest-hooks/react',
-    '@rest-hooks/graphql',
-    '@rest-hooks/hooks',
+    '@data-client/rest',
+    '@data-client/react',
+    '@data-client/graphql',
+    '@data-client/hooks',
     'bignumber.js',
   ];
 
@@ -214,22 +213,18 @@ if (
       import(
         /* webpackChunkName: 'uuidDTS', webpackPreload: true */ '!!raw-loader?esModule=false!./editor-types/uuid.d.ts'
       ),
-      import(
-        /* webpackChunkName: 'resthooksDTS', webpackPreload: true */ '!!raw-loader?esModule=false!./editor-types/rest-hooks.d.ts'
-      ),
       ...rhDeps.map(
         dep =>
           import(
-            /* webpackChunkName: '[request]', webpackPreload: true */ `!!raw-loader?esModule=false!./editor-types/@rest-hooks/${dep}.d.ts`
+            /* webpackChunkName: '[request]', webpackPreload: true */ `!!raw-loader?esModule=false!./editor-types/@data-client/${dep}.d.ts`
           ),
       ),
     ]).then(([mPromise, ...settles]) => {
       if (mPromise.status !== 'fulfilled' || !mPromise.value) return;
       const monaco = mPromise.value;
-      const [es2022, react, bignumber, uuid, restHooks, ...rhLibs] =
-        settles.map(result =>
-          result.status === 'fulfilled' ? result.value.default : '',
-        );
+      const [es2022, react, bignumber, uuid, ...rhLibs] = settles.map(result =>
+        result.status === 'fulfilled' ? result.value.default : '',
+      );
 
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
         `declare module "react/jsx-runtime" {
@@ -314,18 +309,14 @@ if (
         'file:///node_modules/@types/uuid/index.d.ts',
       );
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
-        `declare module "rest-hooks" { ${restHooks} }`,
-        'file:///node_modules/rest-hooks/index.d.ts',
-      );
-      monaco.languages.typescript.typescriptDefaults.addExtraLib(
         `declare globals { ${react} }`,
       );
 
       rhLibs.forEach((lib, i) => {
         const dep = rhDeps[i];
         monaco.languages.typescript.typescriptDefaults.addExtraLib(
-          `declare module "@rest-hooks/${dep}" { ${lib} }`,
-          `file:///node_modules/@rest-hooks/${dep}/index.d.ts`,
+          `declare module "@data-client/${dep}" { ${lib} }`,
+          `file:///node_modules/@data-client/${dep}/index.d.ts`,
         );
         if (['rest', 'react'].includes(dep)) {
           monaco.languages.typescript.typescriptDefaults.addExtraLib(

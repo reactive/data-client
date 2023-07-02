@@ -1,6 +1,6 @@
+import { StateContext } from '@data-client/react';
 import clsx from 'clsx';
 import React, { useContext, memo, useMemo } from 'react';
-import { StateContext } from 'rest-hooks';
 
 import styles from './styles.module.css';
 import Tree from './Tree';

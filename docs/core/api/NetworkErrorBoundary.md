@@ -24,7 +24,7 @@ Custom fallback usage example:
 
 ```tsx
 import React from 'react';
-import { CacheProvider, NetworkErrorBoundary, NetworkError } from '@rest-hooks/react';
+import { CacheProvider, NetworkErrorBoundary, NetworkError } from '@data-client/react';
 
 function ErrorPage({ error }: { error: NetworkError }) {
   return (

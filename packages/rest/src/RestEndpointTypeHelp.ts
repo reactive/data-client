@@ -2,7 +2,7 @@ import type {
   FetchFunction,
   ResolveType,
   Normalize,
-} from '@rest-hooks/endpoint';
+} from '@data-client/endpoint';
 
 export type EndpointUpdateFunction<
   Source extends FetchFunction,
