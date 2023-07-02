@@ -155,12 +155,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/router@npm:0.8.0":
-  version: 0.8.0
-  resolution: "@anansi/router@npm:0.8.0"
+"@anansi/router@npm:0.8.1":
+  version: 0.8.1
+  resolution: "@anansi/router@npm:0.8.1"
   dependencies:
     "@babel/runtime": ^7.17.0
-    "@pojo-router/core": ^0.6.0
+    "@pojo-router/core": ^0.6.1
     history: ^5.3.0
     nano-memoize: ^3.0.13
   peerDependencies:
@@ -169,7 +169,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 859897bb3d0e52ae41e4e881d13b46950423c1b54b20962ee2e9aaddabc030710a4f30f3c1129f263fda8f38d9b88bf4e12438f6605087e1acc20065c631fc72
+  checksum: 896a87a7bb36803670b58c2d63507974f4306e9a0889de9cbbd5a2419ff5660041b927ec14d630c6213dd57d0080f85032fe300254327b9e12d28771c0f32a50
   languageName: node
   linkType: hard
 
@@ -4084,9 +4084,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pojo-router/core@npm:^0.6.0":
-  version: 0.6.0
-  resolution: "@pojo-router/core@npm:0.6.0"
+"@pojo-router/core@npm:^0.6.1":
+  version: 0.6.1
+  resolution: "@pojo-router/core@npm:0.6.1"
   dependencies:
     "@babel/runtime": ^7.17.0
     history: 5.3.0
@@ -4097,7 +4097,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: d265928da572cae35043854ef2e54cac4cb96dbaed043ce893171459258af85bc89ac9fd0241b321d0564d687468df72d830eb75a42e7defaa9968b19e3c61d4
+  checksum: 2d2f54195fbcbf147555ff2b7619c037f3357d47c465722bf4aad73ce8e63eb496b2bdb281677737ef7df639daae63edfd9a46c1325b9e8502c7475bbdf0903f
   languageName: node
   linkType: hard
 
@@ -11011,7 +11011,7 @@ __metadata:
   dependencies:
     "@anansi/babel-preset": 4.2.8
     "@anansi/browserslist-config": 1.4.3
-    "@anansi/router": 0.8.0
+    "@anansi/router": 0.8.1
     "@anansi/webpack-config": 15.0.24
     "@ant-design/icons": ^5.0.0
     "@babel/core": 7.22.5

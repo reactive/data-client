@@ -40,26 +40,39 @@ export const routes = [
   },
   {
     name: 'PullList',
-    component: lazyPage('PullList'),
+    component: lazyPage('PullsPage'),
     resolveData: async (
       controller: Controller,
       { owner, repo }: { owner: string; repo: string },
+      searchParams: URLSearchParams,
     ) => {
-      controller.fetch(PullResource.getList, {
+      const page = searchParams?.get('page') || '1';
+      const q = searchParams?.get('q') || 'is:pr is:open';
+      await controller.fetch(IssueResource.search, {
         owner,
         repo,
-        state: 'open',
+        page,
+        q,
       });
     },
   },
   {
     name: 'IssueList',
-    component: lazyPage('IssueList'),
+    component: lazyPage('IssuesPage'),
+    title: 'issue list',
     resolveData: async (
       controller: Controller,
       { owner, repo }: { owner: string; repo: string },
+      searchParams: URLSearchParams,
     ) => {
-      controller.fetch(IssueResource.getList, { owner, repo });
+      const page = searchParams?.get('page') || '1';
+      const q = searchParams?.get('q') || 'is:issue is:open';
+      await controller.fetch(IssueResource.search, {
+        owner,
+        repo,
+        page,
+        q,
+      });
     },
   },
   {

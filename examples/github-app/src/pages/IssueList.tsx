@@ -1,4 +1,3 @@
-import { useLocationSearch } from '@anansi/router';
 import { useLive } from '@rest-hooks/react';
 import { List } from 'antd';
 import { Issue, IssueResource } from 'resources/Issue';
@@ -6,9 +5,7 @@ import { Issue, IssueResource } from 'resources/Issue';
 import IssueListItem from './IssueListItem';
 import LinkPagination from '../navigation/LinkPagination';
 
-export default function IssueList({ owner, repo }: Props) {
-  const page = useLocationSearch('page') || '1';
-
+export default function IssueList({ owner, repo, page, q }: Props) {
   const {
     results: { items: issues },
     link,
@@ -16,7 +13,7 @@ export default function IssueList({ owner, repo }: Props) {
     owner,
     repo,
     page,
-    q: 'is:issue is:open',
+    q,
   });
 
   return (
@@ -33,11 +30,6 @@ export default function IssueList({ owner, repo }: Props) {
   );
 }
 
-type Props = { owner: string; repo: string } & (
-  | {
-      page: number;
-    }
-  | {
-      state?: Issue['state'];
-    }
-);
+type Props = { owner: string; repo: string; page: string; q: string } & {
+  state?: Issue['state'];
+};

@@ -28,6 +28,7 @@ function LinkPagination({ link }: PageProps) {
   } else {
     total = curPage;
   }
+  if (total === 1) return null;
   return (
     <Pagination
       defaultCurrent={curPage}
