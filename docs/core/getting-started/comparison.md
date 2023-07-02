@@ -24,7 +24,7 @@ From those adopting Reactive Data Client we've seen
 
 ### Platforms
 
-|                     |                                  [Reactive Data Client](https://resthooks.io)                                   | [SWR](https://swr.vercel.app/) | [RTK-Query](https://redux-toolkit.js.org/rtk-query/overview) | [Apollo](https://www.apollographql.com/docs/react/) | [Relay](https://relay.dev/) |
+|                     |                                  [Reactive Data Client](https://dataclient.io)                                   | [SWR](https://swr.vercel.app/) | [RTK-Query](https://redux-toolkit.js.org/rtk-query/overview) | [Apollo](https://www.apollographql.com/docs/react/) | [Relay](https://relay.dev/) |
 | ------------------- | :---------------------------------------------------------------------------------------------------: | :----------------------------: | :----------------------------------------------------------: | :-------------------------------------------------: | :-------------------------: |
 | Fetch Protocols     |      [REST](/rest), [GraphQL](/graphql), [img+binary](../guides/img-media.md), user-defined[^1]       |        user-defined[^1]        |                    REST, user-defined[^1]                    |                       GraphQL                       |           GraphQL           |
 | Push Protocols      | [Websockets](../api//Manager.md#data-stream), [SSE](../api//Manager.md#data-stream), user-defined[^1] |               🛑               |                 Websockets, user-defined[^1]                 |                GraphQL subscriptions                |    GraphQL subscriptions    |

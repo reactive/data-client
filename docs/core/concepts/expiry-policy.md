@@ -141,7 +141,7 @@ render(<Navigator />);
 </HooksPlayground>
 
 <details>
-<summary><b>@rest-hooks/rest</b></summary>
+<summary><b>@data-client/rest</b></summary>
 
 ## Examples
 
@@ -655,7 +655,7 @@ if it exists. On the other hand, something like a `400` indicates 'user error', 
 means the error indicates something about application flow - like if a record is deleted, resulting
 in `400`. Keeping the record around would be inaccurate.
 
-Since this is the typical behavior for REST APIs, this is the default policy in [@rest-hooks/rest](https://www.npmjs.com/package/@rest-hooks/rest)
+Since this is the typical behavior for REST APIs, this is the default policy in [@data-client/rest](https://www.npmjs.com/package/@data-client/rest)
 
 ```ts
 errorPolicy(error) {

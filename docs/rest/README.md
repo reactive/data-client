@@ -14,11 +14,11 @@ import TabItem from '@theme/TabItem';
 import PkgTabs from '@site/src/components/PkgTabs';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
-<PkgTabs pkgs="@rest-hooks/rest" />
+<PkgTabs pkgs="@data-client/rest" />
 
 :::tip
 
-This version requires TypeScript 4.0. For older versions, try [@rest-hooks/rest@5](https://resthooks.io/rest/5.2), which is fully compatible with
+This version requires TypeScript 4.0. For older versions, try [@data-client/rest@5](/rest/5.2), which is fully compatible with
 the latest Reactive Data Client clients.
 
 :::

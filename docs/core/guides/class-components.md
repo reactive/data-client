@@ -5,7 +5,7 @@ import PkgTabs from '@site/src/components/PkgTabs';
 
 Hooks are great, but many of us are working with existing codebases or libraries
 with class based components. Some might be easy to migrate but others might be
-more diffcult. Should this block you from adopting rest-hooks? Of course not!
+more diffcult. Should this block you from adopting Reactive Data Client? Of course not!
 
 Using the simple [hook-hoc](https://github.com/ntucker/hook-hoc) interop library
 we can create Higher Order Components from hooks quite easily. This enables us

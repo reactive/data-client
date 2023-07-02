@@ -195,7 +195,7 @@ Function running is called 'collapsing' after the mechanism in [Quantum Mechanic
 ### fetchResponse(input, init) {#fetchResponse}
 
 When provided, will construct a response() method to be used based on overriding
-(by calling [.extend](https://resthooks.io/rest/api/RestEndpoint#extend)) [fetchResponse](/rest/api/RestEndpoint#fetchResponse).
+(by calling [.extend](/rest/api/RestEndpoint#extend)) [fetchResponse](/rest/api/RestEndpoint#fetchResponse).
 
 Simply return the value expected, rather than an actual HTTP [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response).
 

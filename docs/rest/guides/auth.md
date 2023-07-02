@@ -97,8 +97,8 @@ function Auth() {
 </TabItem>
 <TabItem value="async">
 
-We'll grab RestEndpoint from `@rest-hooks/rest/next` as this version supports
-async `getHeaders`. `@rest-hooks/rest@8` will have these changes.
+We'll grab RestEndpoint from `@data-client/rest/next` as this version supports
+async `getHeaders`. `@data-client/rest@8` will have these changes.
 
 ```ts title="api/AuthdEndpoint.ts"
 import { getAuthToken } from 'authorization-singleton';

@@ -30,7 +30,7 @@ values={[
 ]}>
 <TabItem value="rest">
 
-  <PkgInstall pkgs="@rest-hooks/rest" />
+  <PkgInstall pkgs="@data-client/rest" />
 
 <TypeScriptEditor row={false}>
 
@@ -82,7 +82,7 @@ TodoResource.delete({ id: 5 });
   </TabItem>
   <TabItem value="gql">
 
-  <PkgInstall pkgs="@rest-hooks/graphql" />
+  <PkgInstall pkgs="@data-client/graphql" />
 
 <TypeScriptEditor row={false}>
 
@@ -129,7 +129,7 @@ export const TodoResource = {
   </TabItem>
   <TabItem value="other">
 
-  <PkgInstall pkgs="@rest-hooks/endpoint" />
+  <PkgInstall pkgs="@data-client/endpoint" />
 
 In case you have existing class and/or api definitions, you can use
 [Endpoint](/rest/api/Endpoint) and [schema.Entity](/rest/api/schema.Entity) to make them useable in RDC.
@@ -244,7 +244,7 @@ export default class StreamManager implements Manager {
   </TabItem>
 <TabItem value="img">
 
-<PkgInstall pkgs="@rest-hooks/img" />
+<PkgInstall pkgs="@data-client/img" />
 
 </TabItem>
 -->
@@ -255,5 +255,5 @@ read up on the full docs for reach protocol [REST](/rest), [GraphQL](/graphql),
 [Image/binary](../guides/img-media.md), [Websockets+SSE](../api/Manager.md#middleware-data-stream)
 
 To use your own protocol or existing helpers, use the lower-level primitives from
-[@rest-hooks/endpoint](https://www.npmjs.com/package/@rest-hooks/endpoint) like [Endpoint](/rest/api/Endpoint) and [schema.Entity](/rest/api/schema.Entity).
+[@data-client/endpoint](https://www.npmjs.com/package/@data-client/endpoint) like [Endpoint](/rest/api/Endpoint) and [schema.Entity](/rest/api/schema.Entity).
 [See `Promise` tab above]

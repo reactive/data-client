@@ -8,7 +8,7 @@ function makeRenderRestHook(
 ): RenderRestHookFunction;
 ```
 
-`makeRenderRestHook()` is useful to test hooks that rely on the `rest-hooks`. It creates a renderRestHook()
+`makeRenderRestHook()` is useful to test hooks that rely on the `Reactive Data Client`. It creates a renderRestHook()
 function that mirrors [@testing-library/react-hooks](https://github.com/testing-library/react-hooks-testing-library)'s [renderHook()](https://react-hooks-testing-library.com/reference/api#renderhook-options) but does so with a `<Suspense/>` boundary
 as well as in a `<Provider />` context.
 
@@ -27,8 +27,8 @@ interface ProviderProps {
 
 The Reactive Data Client [&lt;CacheProvider /&gt;](./CacheProvider.md)
 
-- `import { CacheProvider } from @rest-hooks/react;`
-- `import { CacheProvider } from @rest-hooks/redux;`
+- `import { CacheProvider } from @data-client/react;`
+- `import { CacheProvider } from @data-client/redux;`
 
 ## renderRestHook()
 

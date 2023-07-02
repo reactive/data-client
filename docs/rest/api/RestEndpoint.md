@@ -399,7 +399,7 @@ const updateSite = new RestEndpoint({
   body: {} as { url: string },
 });
 
-updateSite({ slug: 'cool' }, { url: 'https://resthooks.io/' });
+updateSite({ slug: 'cool' }, { url: '/' });
 ```
 
 </TypeScriptEditor>
@@ -471,7 +471,7 @@ This is sent to [fetchResponse](#fetchResponse)
 
 :::tip async
 
-Import from `@rest-hooks/rest/next` to get the next version, which is `async`
+Import from `@data-client/rest/next` to get the next version, which is `async`
 
 <TypeScriptEditor>
 
@@ -512,7 +512,7 @@ Don't use hooks here.
 
 :::tip async
 
-Import from `@rest-hooks/rest/next` to get the next version, which is `async`
+Import from `@data-client/rest/next` to get the next version, which is `async`
 
 <TypeScriptEditor>
 

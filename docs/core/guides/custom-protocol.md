@@ -14,7 +14,7 @@ import PkgTabs from '@site/src/components/PkgTabs';
 
 [Endpoints](/rest/api/Endpoint) describe an asynchronous [API](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/). This includes both runtime behavior as well as (optionally) typing.
 
-<PkgTabs pkgs="@rest-hooks/endpoint" />
+<PkgTabs pkgs="@data-client/endpoint" />
 
 <LanguageTabs>
 

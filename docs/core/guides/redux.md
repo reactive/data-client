@@ -10,19 +10,19 @@ import TabItem from '@theme/TabItem';
 Using [redux](https://redux.js.org/) is completely optional. However, for many it means easy integration or migration
 with existing projects, or just a nice centralized state management abstraction.
 
-Integration is fairly straightforward as rest-hooks already uses the same paradigms as redux under
+Integration is fairly straightforward as Reactive Data Client already uses the same paradigms as redux under
 the hood. However, care should be taken to integrate the reducer and [middlewares](../api/Manager.md) properly
 or it won't work as expected.
 
 First make sure you have redux installed:
 
-<PkgTabs pkgs="@rest-hooks/redux redux" />
+<PkgTabs pkgs="@data-client/redux redux" />
 
 Note: react-redux is _not_ needed for this integration (though you will need it if you want to use redux directly as well).
 
 Then you'll want to use the [&lt;ExternalCacheProvider /\>](../api/ExternalCacheProvider.md) instead of
 [&lt;CacheProvider /\>](../api/CacheProvider.md) and pass in the store and a selector function to grab
-the rest-hooks specific part of the state.
+the Reactive Data Client specific part of the state.
 
 :::info Note
 
@@ -39,12 +39,12 @@ after the `PromiseifyMiddleware` adapter, and place all Reactive Data Client man
 :::
 
 <Tabs
-defaultValue="rest-hooks"
+defaultValue="data-client"
 values={[
-{ label: 'just Reactive Data Client', value: 'rest-hooks' },
+{ label: 'just Reactive Data Client', value: 'data-client' },
 { label: 'with React-Redux', value: 'react-redux' },
 ]}>
-<TabItem value="rest-hooks">
+<TabItem value="data-client">
 
 #### `index.tsx`
 
@@ -155,21 +155,21 @@ ReactDOM.render(
 </TabItem>
 </Tabs>
 
-Above we have the simplest case where the entire redux store is used for rest-hooks.
+Above we have the simplest case where the entire redux store is used for Reactive Data Client.
 However, more commonly you will be integrating with other state. In this case, you
 will need to use the `selector` prop of `<ExternalCacheProvider/>` to specify
-where in the state tree the rest-hooks information is.
+where in the state tree the Reactive Data Client information is.
 
 ```typescript
 // ...
 // highlight-next-line
-const selector = state => state.restHooks;
+const selector = state => state.dataClient;
 
 const store = createStore(
   // Now we have other reducers
   // highlight-start
   combineReducers({
-    restHooks: restReducer,
+    dataClient: dataClientReducer,
     myOtherState: otherReducer,
   }),
   // highlight-end
@@ -183,7 +183,7 @@ const store = createStore(
 // ...
 ```
 
-Here we store rest-hooks state information in the 'restHooks' part of the tree.
+Here we store Reactive Data Client state information in the 'dataClient' part of the tree.
 
 ## Redux devtools
 

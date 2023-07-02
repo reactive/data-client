@@ -10,8 +10,8 @@ import TabItem from '@theme/TabItem';
   <meta name="docsearch:pagerank" content="20"/>
 </head>
 
-Managers are singletons that orchestrate the complex asynchronous behavior of `rest-hooks`.
-Several managers are provided by `rest-hooks` and used by default; however there is nothing
+Managers are singletons that orchestrate the complex asynchronous behavior of `Reactive Data Client`.
+Several managers are provided by `Reactive Data Client` and used by default; however there is nothing
 stopping other compatible managers to be built that expand the functionality. We encourage
 PRs or complimentary libraries!
 

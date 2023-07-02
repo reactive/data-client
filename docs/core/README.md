@@ -515,7 +515,7 @@ their effect on the cache state as well as current cache state.
 
 ## Mock data
 
-Writing [Fixtures](./api/Fixtures.md) is a standard format that can be used across all `@rest-hooks/test` helpers as well as your own uses.
+Writing [Fixtures](./api/Fixtures.md) is a standard format that can be used across all `@data-client/test` helpers as well as your own uses.
 
 <Tabs
 defaultValue="detail"

@@ -80,7 +80,7 @@ export interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
   /** User-land extra data to send */
   readonly extra?: any;
   /** Enables optimistic updates for this request - uses return value as assumed network response
-   * @deprecated use https://resthooks.io/docs/api/Endpoint#getoptimisticresponse instead
+   * @deprecated use /docs/api/Endpoint#getoptimisticresponse instead
    */
   readonly optimisticUpdate?: (...args: Parameters<F>) => ResolveType<F>;
 }
@@ -89,7 +89,7 @@ export interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
 </TabItem>
 </Tabs>
 
-Package: [@rest-hooks/endpoint](https://www.npmjs.com/package/@rest-hooks/endpoint)
+Package: [@data-client/endpoint](https://www.npmjs.com/package/@data-client/endpoint)
 
 :::tip
 

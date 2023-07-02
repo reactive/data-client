@@ -14,7 +14,7 @@ import TabItem from '@theme/TabItem';
 import PkgTabs from '@site/src/components/PkgTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
-<PkgTabs pkgs="@rest-hooks/graphql" />
+<PkgTabs pkgs="@data-client/graphql" />
 
 ## Define Endpoint and Schema
 

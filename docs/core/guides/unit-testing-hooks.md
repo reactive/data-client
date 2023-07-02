@@ -5,7 +5,7 @@ import PkgTabs from '@site/src/components/PkgTabs';
 
 :::danger
 
-Be careful when using [jest.mock](https://jestjs.io/docs/jest-object#jestmockmodulename-factory-options) on modules like rest-hooks. Eliminating expected
+Be careful when using [jest.mock](https://jestjs.io/docs/jest-object#jestmockmodulename-factory-options) on modules like Reactive Data Client. Eliminating expected
 exports can lead to hard-to trace
 errors like `TypeError: Class extends value undefined is not a function or null`.
 
@@ -17,7 +17,7 @@ endpoints.
 
 Hooks allow you to pull complex behaviors out of your components into succinct,
 composable functions. This makes testing component behavior potentially much
-easier. But how does this work if you want to use hooks from `rest-hooks`?
+easier. But how does this work if you want to use hooks from `Reactive Data Client`?
 
 We have provided some simple utilities to reduce boilerplate for unit tests
 that are wrappers around [@testing-library/react-hooks](https://github.com/testing-library/react-hooks-testing-library)'s [renderHook()](https://react-hooks-testing-library.com/reference/api#renderhook-options).

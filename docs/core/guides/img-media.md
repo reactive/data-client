@@ -11,7 +11,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
 After setting up Reactive Data Client for structured data fetching, you might want to incorporate
-some media fetches as well to take advantage of suspense and [concurrent mode support](https://resthooks.io/docs/guides/render-as-you-fetch).
+some media fetches as well to take advantage of suspense and [concurrent mode support](/docs/guides/render-as-you-fetch).
 
 ## Storing ArrayBuffer
 
@@ -66,13 +66,13 @@ const photo = await getPhoto({ userId });
 ## Just Images
 
 In many cases, it would be useful to suspend loading of expensive items like
-images using suspense. This becomes especially powerful [with the fetch as you render](https://resthooks.io/docs/guides/render-as-you-fetch) pattern in concurrent mode.
+images using suspense. This becomes especially powerful [with the fetch as you render](/docs/guides/render-as-you-fetch) pattern in concurrent mode.
 
-[@rest-hooks/img](https://www.npmjs.com/package/@rest-hooks/img) provides use with `<Img />` component that suspends, as well as `getImage` endpoint to prefetch.
+[@data-client/img](https://www.npmjs.com/package/@data-client/img) provides use with `<Img />` component that suspends, as well as `getImage` endpoint to prefetch.
 
 ## Installation
 
-<PkgTabs pkgs="@rest-hooks/img" />
+<PkgTabs pkgs="@data-client/img" />
 
 ## Usage
 

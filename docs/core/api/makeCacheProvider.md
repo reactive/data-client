@@ -11,7 +11,7 @@ declare const makeCacheProvider: (
 
 :::caution Deprecated
 
-In @rest-hooks/test>=10, [&lt;CacheProvider /\>](./CacheProvider.md) should be used directly
+In @data-client/test>=10, [&lt;CacheProvider /\>](./CacheProvider.md) should be used directly
 
 For previous versions, this is used to build a [&lt;CacheProvider /\>](./CacheProvider.md) for [makeRenderRestHook()](./makeRenderRestHook.md)
 

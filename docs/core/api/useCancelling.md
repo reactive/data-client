@@ -84,4 +84,4 @@ which means you might end up canceling a fetch that another component still care
 
 :::
 
-Part of [@rest-hooks/hooks](https://www.npmjs.com/package/@rest-hooks/hooks)
+Part of [@data-client/hooks](https://www.npmjs.com/package/@data-client/hooks)

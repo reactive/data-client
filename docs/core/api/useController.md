@@ -47,7 +47,7 @@ function MyComponent({ id }) {
 
 ### /next
 
-`@rest-hooks/react/next` contains the version of `useController()` that will ship with the next version.
+`@data-client/react/next` contains the version of `useController()` that will ship with the next version.
 This provides a return value that matches [useSuspense()](./useSuspense.md) - utilizing the [Endpoint.schema](/rest/api/RestEndpoint#schema)
 
 ```ts

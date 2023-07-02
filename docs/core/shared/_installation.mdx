@@ -61,12 +61,12 @@ AppRegistry.registerComponent('MyApp', () => Root);
 
 <TabItem value="nextjs">
 
-<PkgInstall pkgs="@rest-hooks/ssr @rest-hooks/redux redux" />
+<PkgInstall pkgs="@data-client/ssr @data-client/redux redux" />
 
 ```tsx title="pages/_document.tsx"
-import { RestHooksDocument } from '@data-client/ssr/nextjs';
+import { DataClientDocument } from '@data-client/ssr/nextjs';
 
-export default RestHooksDocument;
+export default DataClientDocument;
 ```
 
 ```tsx title="pages/_app.tsx"

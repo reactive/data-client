@@ -4,7 +4,7 @@ title: "<ExternalCacheProvider />"
 
 import PkgTabs from '@site/src/components/PkgTabs';
 
-Integrates external stores with `rest-hooks`. Should be placed as high as possible
+Integrates external stores with `Reactive Data Client`. Should be placed as high as possible
 in application tree as any usage of the hooks is only possible for components below the provider
 in the React tree.
 
@@ -16,7 +16,7 @@ in the React tree.
 
 ## Installation
 
-<PkgTabs pkgs="@rest-hooks/redux redux" />
+<PkgTabs pkgs="@data-client/redux redux" />
 
 ## Usage
 
@@ -57,4 +57,4 @@ but theoretically any external store could be used.
 (state: S) => State<unknown>
 ```
 
-This function is used to retrieve the `rest-hooks` specific part of the store's state tree.
+This function is used to retrieve the `Reactive Data Client` specific part of the store's state tree.

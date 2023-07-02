@@ -10,7 +10,7 @@ to your client in one request.
 
 By defining a custom [RestEndpoint](../api/RestEndpoint.md) method on your resource,
 you'll be able to use custom response endpoints that still
-updated `rest-hooks`' normalized cache.
+updated `Reactive Data Client`' normalized cache.
 
 ### Example:
 
@@ -74,7 +74,7 @@ export default function CreateTrade() {
 :::note
 
 Feel free to create completely new [RestEndpoint](../api/RestEndpoint.md) methods for any custom
-endpoints you have. This endpoint tells `rest-hooks` how to process any
+endpoints you have. This endpoint tells `Reactive Data Client` how to process any
 request.
 
 :::

@@ -15,7 +15,7 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 `Endpoints` define a standard interface to extend the function with relevant metadata and lifecycles
 useful for Reactive Data Client and other stores.
 
-Package: [@rest-hooks/endpoint](https://www.npmjs.com/package/@rest-hooks/endpoint)
+Package: [@data-client/endpoint](https://www.npmjs.com/package/@data-client/endpoint)
 
 :::tip
 
@@ -100,7 +100,7 @@ export interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
   /** User-land extra data to send */
   readonly extra?: any;
   /** Enables optimistic updates for this request - uses return value as assumed network response
-   * @deprecated use https://resthooks.io./Endpoint.md#getoptimisticresponse instead
+   * @deprecated use https://dataclient.io./Endpoint.md#getoptimisticresponse instead
    */
   readonly optimisticUpdate?: (...args: Parameters<F>) => ResolveType<F>;
 }

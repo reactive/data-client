@@ -15,7 +15,7 @@ Helps track loading state of imperative async functions.
 
 :::
 
-Part of [@rest-hooks/hooks](https://www.npmjs.com/package/@rest-hooks/hooks)
+Part of [@data-client/hooks](https://www.npmjs.com/package/@data-client/hooks)
 
 ## Usage
 

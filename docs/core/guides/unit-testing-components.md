@@ -4,7 +4,7 @@ title: Unit testing components
 
 :::danger
 
-Be careful when using [jest.mock](https://jestjs.io/docs/jest-object#jestmockmodulename-factory-options) on modules like rest-hooks. Eliminating expected
+Be careful when using [jest.mock](https://jestjs.io/docs/jest-object#jestmockmodulename-factory-options) on modules like Reactive Data Client. Eliminating expected
 exports can lead to hard-to trace
 errors like `TypeError: Class extends value undefined is not a function or null`.
 

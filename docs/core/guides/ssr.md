@@ -16,12 +16,12 @@ import PkgTabs from '@site/src/components/PkgTabs';
 We've optimized integration into NextJS with a custom [Document](https://nextjs.org/docs/advanced-features/custom-document)
 and NextJS specific wrapper for [App](https://nextjs.org/docs/advanced-features/custom-app)
 
-<PkgTabs pkgs="@rest-hooks/ssr @rest-hooks/redux redux" />
+<PkgTabs pkgs="@data-client/ssr @data-client/redux redux" />
 
 ```tsx title="pages/_document.tsx"
-import { RestHooksDocument } from '@data-client/ssr/nextjs';
+import { DataClientDocument } from '@data-client/ssr/nextjs';
 
-export default RestHooksDocument;
+export default DataClientDocument;
 ```
 
 ```tsx title="pages/_app.tsx"
@@ -72,9 +72,9 @@ or the Reactive Data Client code won't run!
 
 ```tsx title="pages/_document.tsx"
 import { Html, Head, Main, NextScript } from 'next/document';
-import { RestHooksDocument } from '@data-client/ssr/nextjs';
+import { DataClientDocument } from '@data-client/ssr/nextjs';
 
-export default class MyDocument extends RestHooksDocument {
+export default class MyDocument extends DataClientDocument {
   static async getInitialProps(ctx) {
     const originalRenderPage = ctx.renderPage;
 
@@ -111,17 +111,17 @@ export default class MyDocument extends RestHooksDocument {
 
 Reactive Data Client Document serializes the store state in a script tag. In case you have
 Content Security Policy restrictions that require use of a nonce, you can override
-`RestHooksDocument.getNonce`.
+`DataClientDocument.getNonce`.
 
 Since there is no standard way of handling [nonce](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce)
 in NextJS, this allows you
 to retrieve any nonce you created in the DocumentContext to use with Reactive Data Client.
 
 ```tsx title="pages/_document.tsx"
-import { RestHooksDocument } from '@data-client/ssr/nextjs';
+import { DataClientDocument } from '@data-client/ssr/nextjs';
 import type { DocumentContext } from 'next/document.js';
 
-export default class MyDocument extends RestHooksDocument {
+export default class MyDocument extends DataClientDocument {
   static getNonce(ctx: DocumentContext & { res: { nonce?: string } }) {
     // this assumes nonce has been added here - customize as you need
     return ctx?.res?.nonce;
@@ -151,7 +151,7 @@ class User extends Entity {
 
 When implementing your own server using express.
 
-<PkgTabs pkgs="@rest-hooks/ssr @rest-hooks/redux redux" />
+<PkgTabs pkgs="@data-client/ssr @data-client/redux redux" />
 
 ### Server side
 
