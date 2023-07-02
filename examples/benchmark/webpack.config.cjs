@@ -45,10 +45,10 @@ module.exports = (env, argv) => {
         console.log('could not find file to map: ', path);
       }
       for (const f of [
-        path.replace('rest-hooks/src', 'rest-hooks/packages/normalizr/src'),
-        path.replace('rest-hooks/src', 'rest-hooks/packages/endpoint/src'),
-        path.replace('rest-hooks/src', 'rest-hooks/packages/core/src'),
-        path.replace('src/state', 'rest-hooks/packages/core/src/state'),
+        path.replace('data-client/src', 'data-client/packages/normalizr/src'),
+        path.replace('data-client/src', 'data-client/packages/endpoint/src'),
+        path.replace('data-client/src', 'data-client/packages/core/src'),
+        path.replace('src/state', 'data-client/packages/core/src/state'),
       ]) {
         if (fs.existsSync(f)) return f;
       }

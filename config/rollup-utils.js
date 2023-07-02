@@ -5,7 +5,7 @@ function isExternalTypes(id) {
   if (id.startsWith('@data-client') || id.startsWith('data-client'))
     return false;
   if (id.startsWith('.')) return false;
-  if (id.includes('rest-hooks/packages')) return false;
+  if (id.includes('data-client/packages')) return false;
   return true;
 }
 export const typeConfig = {
