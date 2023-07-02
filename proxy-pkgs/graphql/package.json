@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/graphql",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "Endpoints for GraphQL APIs",
   "homepage": "https://resthooks.io/docs/guides/custom-protocol",
   "bugs": {

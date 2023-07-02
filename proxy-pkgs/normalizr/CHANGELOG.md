@@ -1,5 +1,12 @@
 # Change Log
 
+## 11.0.2
+
+### Patch Changes
+
+- c8555807de: Minor performance improvements to normalization
+- 73a2be1484: Proxy to @data-client
+
 ## 11.0.1
 
 ### Patch Changes

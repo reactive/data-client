@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/normalizr",
-  "version": "11.0.1",
+  "version": "11.0.2",
   "description": "Normalizes and denormalizes JSON according to schema for Redux and Flux applications",
   "homepage": "https://resthooks.io/docs/concepts/normalization",
   "bugs": {

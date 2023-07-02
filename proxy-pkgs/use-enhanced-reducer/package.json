@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/use-enhanced-reducer",
-  "version": "1.2.8",
+  "version": "1.2.9",
   "description": "Add powerful orchestration to hooks-based Flux stores",
   "homepage": "https://github.com/data-client/rest-hooks/tree/master/packages/use-enhanced-reducer#readme",
   "repository": {

@@ -1,5 +1,12 @@
 # Change Log
 
+## 6.7.2
+
+### Patch Changes
+
+- 1517a5d2c8: Support more symbols in path args by ending name when encountered
+- 73a2be1484: Proxy to @data-client
+
 ## 6.7.1
 
 ### Patch Changes
