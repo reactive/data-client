@@ -1,5 +1,14 @@
 # Change Log
 
+## 8.1.4
+
+### Patch Changes
+
+- Updated dependencies [c8555807de]
+- Updated dependencies [73a2be1484]
+  - @rest-hooks/core@4.4.3
+  - @rest-hooks/normalizr@11.0.2
+
 ## 8.1.3
 
 ### Patch Changes

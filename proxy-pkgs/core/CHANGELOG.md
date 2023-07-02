@@ -1,5 +1,12 @@
 # Change Log
 
+## 4.4.3
+
+### Patch Changes
+
+- c8555807de: Minor performance improvements to normalization
+- 73a2be1484: Proxy to @data-client
+
 ## 4.4.2
 
 ### Patch Changes

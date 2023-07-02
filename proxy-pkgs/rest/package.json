@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/rest",
-  "version": "6.7.1",
+  "version": "6.7.2",
   "description": "Endpoints for REST APIs",
   "homepage": "https://resthooks.io/rest",
   "repository": {

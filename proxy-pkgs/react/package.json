@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/react",
-  "version": "7.4.2",
+  "version": "7.4.3",
   "description": "Normalized state management for async data. Safe. Fast. Reusable.",
   "homepage": "https://resthooks.io",
   "repository": {

@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/core",
-  "version": "4.4.2",
+  "version": "4.4.3",
   "description": "High performance reactive framework for async data.",
   "sideEffects": false,
   "main": "index.cjs",

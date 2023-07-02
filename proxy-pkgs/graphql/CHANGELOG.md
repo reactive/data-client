@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.5.3
+
+### Patch Changes
+
+- 73a2be1484: Proxy to @data-client
+
 ## 0.5.2
 
 ### Patch Changes

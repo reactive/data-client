@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/hooks",
-  "version": "3.1.14",
+  "version": "3.1.15",
   "description": "Collection of composable data hooks",
   "homepage": "https://resthooks.io/docs/api/useDebounce",
   "repository": {
