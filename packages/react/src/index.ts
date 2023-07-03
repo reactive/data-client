@@ -49,13 +49,7 @@ export type {
 } from '@data-client/core';
 export * from './components/index.js';
 export * from './hooks/index.js';
-export {
-  StateContext,
-  DispatchContext,
-  ControllerContext,
-  StoreContext,
-  DenormalizeCacheContext,
-} from './context.js';
+export { StateContext, ControllerContext, StoreContext } from './context.js';
 export type { Store } from './context.js';
 export * as __INTERNAL__ from './internal.js';
 export { usePromisifiedDispatch } from '@data-client/use-enhanced-reducer';

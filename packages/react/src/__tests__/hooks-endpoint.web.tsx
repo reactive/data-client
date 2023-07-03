@@ -10,7 +10,7 @@ import React, { Suspense, useContext, useEffect } from 'react';
 // relative imports to avoid circular dependency in tsconfig references
 
 import { makeRenderRestHook, mockInitialState } from '../../../test';
-import { ControllerContext, DispatchContext, StateContext } from '../context';
+import { ControllerContext, StateContext } from '../context';
 import { useController, useSuspense } from '../hooks';
 import { articlesPages, createPayload, payload } from '../test-fixtures';
 
@@ -24,11 +24,9 @@ async function testDispatchFetch(
   const controller = new Controller({ dispatch });
   const tree = (
     <ControllerContext.Provider value={controller}>
-      <DispatchContext.Provider value={dispatch}>
-        <Suspense fallback={null}>
-          <Component />
-        </Suspense>
-      </DispatchContext.Provider>
+      <Suspense fallback={null}>
+        <Component />
+      </Suspense>
     </ControllerContext.Provider>
   );
   render(tree);
@@ -55,11 +53,9 @@ function testRestHook(
     wrapper: function Wrapper({ children }: { children: React.ReactNode }) {
       return (
         <ControllerContext.Provider value={controller}>
-          <DispatchContext.Provider value={dispatch}>
-            <StateContext.Provider value={state}>
-              {children}
-            </StateContext.Provider>
-          </DispatchContext.Provider>
+          <StateContext.Provider value={state}>
+            {children}
+          </StateContext.Provider>
         </ControllerContext.Provider>
       );
     },

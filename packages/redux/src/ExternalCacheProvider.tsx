@@ -7,7 +7,6 @@ import {
 } from '@data-client/react';
 import {
   StateContext,
-  DispatchContext,
   ControllerContext,
   StoreContext,
   BackupBoundary,
@@ -74,14 +73,12 @@ export default function ExternalCacheProvider<S>({
   }, [selector, store]);
 
   return (
-    <DispatchContext.Provider value={dispatch}>
-      <StateContext.Provider value={state}>
-        <StoreContext.Provider value={adaptedStore}>
-          <ControllerContext.Provider value={controller}>
-            <BackupBoundary>{children}</BackupBoundary>
-          </ControllerContext.Provider>
-        </StoreContext.Provider>
-      </StateContext.Provider>
-    </DispatchContext.Provider>
+    <StateContext.Provider value={state}>
+      <StoreContext.Provider value={adaptedStore}>
+        <ControllerContext.Provider value={controller}>
+          <BackupBoundary>{children}</BackupBoundary>
+        </ControllerContext.Provider>
+      </StoreContext.Provider>
+    </StateContext.Provider>
   );
 }

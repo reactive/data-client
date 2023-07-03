@@ -1,5 +1,5 @@
 import * as _data_client_core from '@data-client/core';
-import { Manager, State as State$1, Controller, NetworkError, EndpointInterface, FetchFunction, Schema, DenormalizeNullable, ResolveType, Denormalize, UnknownError, ErrorTypes as ErrorTypes$1, ActionTypes, DenormalizeCache, __INTERNAL__, createReducer, applyManager } from '@data-client/core';
+import { Manager, State as State$1, Controller, NetworkError, EndpointInterface, FetchFunction, Schema, DenormalizeNullable, ResolveType, Denormalize, UnknownError, ErrorTypes as ErrorTypes$1, ActionTypes, __INTERNAL__, createReducer, applyManager } from '@data-client/core';
 export { AbstractInstanceType, ActionTypes, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, ReceiveAction, ReceiveTypes, ResetAction, ResolveType, Schema, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@data-client/core';
 import React$1, { Context } from 'react';
 import * as react_jsx_runtime from 'react/jsx-runtime';
@@ -156,10 +156,6 @@ declare function useController(): Controller;
 declare function useLive<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>, Args extends readonly [...Parameters<E>] | readonly [null]>(endpoint: E, ...args: Args): SuspenseReturn<E, Args>;
 
 declare const StateContext: Context<State$1<unknown>>;
-/** @deprecated use Controller.dispatch */
-declare const DispatchContext: Context<(value: ActionTypes) => Promise<void>>;
-/** @deprecated */
-declare const DenormalizeCacheContext: Context<DenormalizeCache>;
 declare const ControllerContext: Context<Controller<_data_client_core.DataClientDispatch>>;
 interface Store<S> {
     subscribe(listener: () => void): () => void;
@@ -196,4 +192,4 @@ declare namespace internal_d {
 /** Turns a dispatch function into one that resolves once its been commited */
 declare function usePromisifiedDispatch<R extends React$1.Reducer<any, any>>(dispatch: React$1.Dispatch<React$1.ReducerAction<R>>, state: React$1.ReducerState<R>): (action: React$1.ReducerAction<R>) => Promise<void>;
 
-export { _default as AsyncBoundary, _default$1 as BackupBoundary, CacheProvider, ControllerContext, DenormalizeCacheContext, DispatchContext, NetworkErrorBoundary, StateContext, Store, StoreContext, internal_d as __INTERNAL__, useCache, useController, useDLE, useError, useFetch, useLive, usePromisifiedDispatch, useSubscription, useSuspense };
+export { _default as AsyncBoundary, _default$1 as BackupBoundary, CacheProvider, ControllerContext, NetworkErrorBoundary, StateContext, Store, StoreContext, internal_d as __INTERNAL__, useCache, useController, useDLE, useError, useFetch, useLive, usePromisifiedDispatch, useSubscription, useSuspense };
