@@ -1,4 +1,10 @@
-import { EndpointInstance, FetchFunction, Schema } from '@rest-hooks/endpoint';
+import {
+  EndpointInstance,
+  FetchFunction,
+  Schema,
+  SchemaClass,
+} from '@rest-hooks/endpoint';
+import { EntityInterface } from '@rest-hooks/normalizr';
 
 export type RestFetch<
   P = any,
@@ -37,3 +43,15 @@ export interface RestEndpoint<
   method: string;
   signal: AbortSignal | undefined;
 }
+
+export type SchemaDetail<T> =
+  | EntityInterface<T>
+  | { [K: string]: any }
+  | SchemaClass;
+
+/** @deprecated */
+export type SchemaList<T> =
+  | EntityInterface<T>[]
+  | { [K: string]: any }
+  | Schema[]
+  | SchemaClass;

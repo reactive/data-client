@@ -9,6 +9,8 @@ export type {
   RestFetch,
   FetchMutate,
   FetchGet,
+  SchemaDetail,
+  SchemaList,
 } from './types.js';
 
 export * from '@rest-hooks/endpoint';

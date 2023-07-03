@@ -1,20 +1,5 @@
 import { CSP } from './CSP.js';
 
-function runCompat(endpoint, options) {
-  endpoint.type = endpoint.sideEffect ? 'mutate' : 'read';
-  endpoint.options = { ...options };
-  delete endpoint.options.key;
-  delete endpoint.options.schema;
-  delete endpoint.options.sideEffect;
-  delete endpoint.options.fetch;
-  delete endpoint.options.getFetchKey;
-  delete endpoint.options.options;
-  if (Object.keys(endpoint.options).length === 0) {
-    delete endpoint.options;
-  }
-  if (endpoint.schema === undefined) endpoint.schema = null;
-}
-
 /**
  * Defines an async data source.
  * @see https://resthooks.io/docs/api/Endpoint
@@ -29,8 +14,6 @@ export default class Endpoint extends Function {
       super('return arguments.callee.fetch.apply(arguments.callee, arguments)');
       self = this;
     }
-    /** The following is for compatibility with FetchShape */
-    self.getFetchKey = params => self.key(params);
 
     if (fetchFunction) self.fetch = fetchFunction;
 
@@ -74,9 +57,6 @@ export default class Endpoint extends Function {
     /** End name property block */
 
     Object.assign(self, options);
-
-    /** The following is for compatibility with FetchShape */
-    runCompat(self, options);
     return self;
   }
 
@@ -107,18 +87,14 @@ export default class Endpoint extends Function {
     class E extends this.constructor {}
 
     Object.assign(E.prototype, this);
-    const instance = new E(options.fetch, options);
 
-    /** The following is for compatibility with FetchShape */
-    runCompat(instance, { ...this.options, ...options });
-
-    return instance;
+    return new E(options.fetch, options);
   }
 
   /* istanbul ignore next */
   static {
     /* istanbul ignore if */
-    if (runCompat.name !== 'runCompat') {
+    if (test.name !== 'test') {
       this.prototype.key = function (...args) {
         console.error('Rest Hooks Error: https://resthooks.io/errors/osid');
         return `${this.name} ${JSON.stringify(args)}`;
@@ -127,3 +103,5 @@ export default class Endpoint extends Function {
   }
 }
 export const ExtendableEndpoint = Endpoint;
+
+function test() {}

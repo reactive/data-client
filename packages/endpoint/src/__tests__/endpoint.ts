@@ -99,7 +99,7 @@ describe.each([true, false])(`Endpoint (CSP %s)`, mockCSP => {
 
       // check additional properties defaults
       expect(UserDetail.sideEffect).toBe(undefined);
-      //expect(UserDetail.schema).toBeUndefined(); TODO: re-enable once we don't care about FetchShape compatibility
+      expect(UserDetail.schema).toBeUndefined();
       expect(UserDetail.key({ id: payload.id })).toMatchInlineSnapshot(
         `"fetchUsers [{"id":"5"}]"`,
       );
@@ -156,7 +156,7 @@ describe.each([true, false])(`Endpoint (CSP %s)`, mockCSP => {
 
       // check additional properties defaults
       expect(UserDetail.sideEffect).toBe(undefined);
-      //expect(UserDetail.schema).toBeUndefined(); TODO: re-enable once we don't care about FetchShape compatibility
+      expect(UserDetail.schema).toBeUndefined();
       expect(UserDetail.key(payload.id)).toMatchInlineSnapshot(
         `"fetchUsersIdParam ["5"]"`,
       );
@@ -190,7 +190,7 @@ describe.each([true, false])(`Endpoint (CSP %s)`, mockCSP => {
 
       // check additional properties defaults
       expect(UserList.sideEffect).toBe(undefined);
-      //expect(UserList.schema).toBeUndefined(); TODO: re-enable once we don't care about FetchShape compatibility
+      expect(UserList.schema).toBeUndefined();
       expect(UserList.key()).toMatchInlineSnapshot(`"fetchUserList []"`);
       // @ts-expect-error
       expect(UserList.notexist).toBeUndefined();
@@ -234,48 +234,6 @@ describe.each([true, false])(`Endpoint (CSP %s)`, mockCSP => {
       // @ts-expect-error
       expect(boundDetail.notexist).toBeUndefined();
     });
-  });
-
-  it('should infer mutate types', () => {
-    type T = undefined | 1;
-    type B = NonNullable<T>;
-    type A = undefined | 1 extends undefined ? true : false;
-    const e = new Endpoint(() => Promise.resolve() as any, {
-      sideEffect: undefined as any,
-    });
-    // should infer any
-    const a: 'mutate' = e.type;
-    const b: 'read' = e.type;
-
-    const e2: EndpointInstance<any, any, undefined | true> = new Endpoint(
-      () => Promise.resolve() as any,
-      {
-        sideEffect: undefined as undefined | true,
-      },
-    );
-    const a2 = (a: 'mutate') => {};
-    const b2 = (a: 'read') => {};
-    const type2 = e2.type;
-    // type descrimination to validate that this is union
-    if (type2 !== ('mutate' as const)) {
-      b2(type2);
-    } else {
-      a2(type2);
-    }
-
-    const e3 = new Endpoint(() => Promise.resolve() as any, {
-      sideEffect: undefined,
-    });
-    // @ts-expect-error
-    const a3: 'mutate' = e3.type;
-    const b3: 'read' = e3.type;
-
-    const e4 = new Endpoint(() => Promise.resolve() as any, {
-      sideEffect: true,
-    });
-    const a4: 'mutate' = e4.type;
-    // @ts-expect-error
-    const b4: 'read' = e4.type;
   });
 
   it('should work when extended', async () => {

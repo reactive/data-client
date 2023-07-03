@@ -4754,7 +4754,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rest-hooks/core@^4.4.2, @rest-hooks/core@workspace:^, @rest-hooks/core@workspace:proxy-pkgs/core":
+"@rest-hooks/core@workspace:^, @rest-hooks/core@workspace:proxy-pkgs/core":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/core@workspace:proxy-pkgs/core"
   dependencies:
@@ -4829,24 +4829,6 @@ __metadata:
     "@data-client/react": ^0.1.0
   languageName: unknown
   linkType: soft
-
-"@rest-hooks/redux@npm:^6.3.7":
-  version: 6.3.7
-  resolution: "@rest-hooks/redux@npm:6.3.7"
-  dependencies:
-    "@babel/runtime": ^7.17.0
-    "@rest-hooks/core": ^4.4.2
-  peerDependencies:
-    "@rest-hooks/react": ^0.1.0 || ^0.2.0 || ^6.0.0 || ^7.0.0
-    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0
-    react: ^16.8.4 || ^17.0.0 || ^18.0.0
-    redux: ^4.0.0
-  peerDependenciesMeta:
-    "@types/react":
-      optional: true
-  checksum: 1f3377dba68a47d102a4a7d4c22aae745dbecd0defc15899611a99c45c15c97271a4c9aae5e20629d54535c7a32432feed3d10dc33197c9522049744980ca4bc
-  languageName: node
-  linkType: hard
 
 "@rest-hooks/rest@workspace:proxy-pkgs/rest":
   version: 0.0.0-use.local
@@ -18974,7 +18956,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"redux@npm:4.2.1, redux@npm:^4.0.0, redux@npm:^4.2.0, redux@npm:^4.2.1":
+"redux@npm:4.2.1, redux@npm:^4.2.0, redux@npm:^4.2.1":
   version: 4.2.1
   resolution: "redux@npm:4.2.1"
   dependencies:
@@ -19316,32 +19298,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rest-hooks@workspace:^, rest-hooks@workspace:packages/rest-hooks":
-  version: 0.0.0-use.local
-  resolution: "rest-hooks@workspace:packages/rest-hooks"
-  dependencies:
-    "@anansi/browserslist-config": ^1.4.2
-    "@babel/runtime": ^7.17.0
-    "@data-client/endpoint": ^0.1.0
-    "@rest-hooks/react": "workspace:*"
-    "@rest-hooks/redux": ^6.3.7
-    "@rest-hooks/test": ^10.3.7
-    "@types/node": ^20.0.0
-    "@types/react": 18.2.14
-    "@types/react-dom": ^18.0.11
-    react: ^18.2.0
-    react-dom: ^18.2.0
-    redux: ^4.0.0
-  peerDependencies:
-    "@rest-hooks/react": ^6.0.0 || ^7.0.0
-    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
-    react: ^16.8.4 || ^17.0.0 || ^18.0.0-0
-  peerDependenciesMeta:
-    "@types/react":
-      optional: true
-  languageName: unknown
-  linkType: soft
-
 "restore-cursor@npm:^3.1.0":
   version: 3.1.0
   resolution: "restore-cursor@npm:3.1.0"
@@ -19615,7 +19571,6 @@ __metadata:
     react-native-screens: ^3.18.2
     react-test-renderer: 18.2.0
     redux: 4.2.1
-    rest-hooks: "workspace:^"
     rimraf: ^5.0.0
     rollup: 2.79.1
     rollup-plugin-babel: ^4.4.0

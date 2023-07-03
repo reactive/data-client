@@ -151,17 +151,6 @@ export interface EndpointInstanceInterface<
   /* utilities */
   /** @see https://resthooks.io/rest/api/Endpoint#testKey */
   testKey(key: string): boolean;
-
-  /** The following is for compatibility with FetchShape */
-  /** @deprecated */
-  readonly type: M extends undefined
-    ? 'read'
-    : IfAny<M, any, IfTypeScriptLooseNull<'read', 'mutate'>>;
-
-  /** @deprecated */
-  getFetchKey(...args: OnlyFirst<Parameters<F>>): string;
-  /** @deprecated */
-  options?: EndpointExtraOptions<F>;
 }
 
 interface EndpointConstructor {

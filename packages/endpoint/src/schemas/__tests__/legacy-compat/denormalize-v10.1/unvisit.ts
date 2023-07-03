@@ -76,7 +76,6 @@ function unvisitEntityObject(
     entityCopy = localCacheKey[pk] = isImmutable(entity)
       ? schema.createIfValid(entity.toObject())
       : schema.createIfValid(entity);
-    // TODO(breaking): remove once old verions no longer supported
   } /* istanbul ignore next */ else {
     entityCopy = entity;
     unvisit = withTrackedEntities(unvisit);
@@ -96,7 +95,6 @@ function unvisitEntityObject(
   return [found, deleted];
 }
 
-// TODO(breaking): remove once unused
 /* istanbul ignore next */
 function withTrackedEntities(unvisit: UnvisitFunction): UnvisitFunction {
   // every time we nest, we want to unwrap back to the top.

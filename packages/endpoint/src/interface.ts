@@ -1,4 +1,3 @@
-import { AbstractInstanceType, Denormalize, EntityMap } from './normal.js';
 import type { EndpointExtraOptions, FetchFunction } from './types.js';
 
 export * from './SnapshotInterface.js';

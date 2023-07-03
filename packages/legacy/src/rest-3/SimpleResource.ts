@@ -1,17 +1,11 @@
 import { Endpoint, schema } from '@rest-hooks/endpoint';
-import type {
-  Schema,
-  EndpointExtraOptions,
-  SchemaDetail,
-  SchemaList,
-} from '@rest-hooks/endpoint';
+import type { Schema, EndpointExtraOptions } from '@rest-hooks/endpoint';
 import type { AbstractInstanceType } from '@rest-hooks/endpoint';
 
 import EntityRecord from './EntityRecord.js';
 import { NotImplementedError } from './errors.js';
-import { ReadShape, MutateShape, DeleteShape } from './legacy.js';
 import paramsToString from './paramsToString.js';
-import { RestEndpoint } from './types.js';
+import { RestEndpoint, SchemaDetail, SchemaList } from './types.js';
 
 /**
  * Represents an entity to be retrieved from a server.
@@ -308,72 +302,6 @@ export default abstract class SimpleResource extends EntityRecord {
   static getFetchOptions() {
     /* istanbul ignore next */
     return this.getEndpointExtra();
-  }
-
-  /** @deprecated */
-  static detailShape<T extends typeof SimpleResource>(
-    this: T,
-  ): ReadShape<SchemaDetail<Readonly<AbstractInstanceType<T>>>> {
-    const endpoint = this.detail();
-    const fetch = endpoint.fetch.bind(endpoint as any);
-    return { ...endpoint, fetch };
-  }
-
-  /** @deprecated */
-  static listShape<T extends typeof SimpleResource>(
-    this: T,
-  ): ReadShape<SchemaList<Readonly<AbstractInstanceType<T>>>> {
-    const endpoint = this.list();
-    const fetch = endpoint.fetch.bind(endpoint as any);
-    return { ...endpoint, fetch };
-  }
-
-  /** @deprecated */
-  static createShape<T extends typeof SimpleResource>(
-    this: T,
-  ): MutateShape<
-    SchemaDetail<Readonly<AbstractInstanceType<T>>>,
-    Readonly<object>,
-    Partial<AbstractInstanceType<T>>
-  > {
-    const endpoint = this.create();
-    const fetch = endpoint.fetch.bind(endpoint as any);
-    return { ...endpoint, fetch };
-  }
-
-  /** @deprecated */
-  static updateShape<T extends typeof SimpleResource>(
-    this: T,
-  ): MutateShape<
-    SchemaDetail<Readonly<AbstractInstanceType<T>>>,
-    Readonly<object>,
-    Partial<AbstractInstanceType<T>>
-  > {
-    const endpoint = this.update();
-    const fetch = endpoint.fetch.bind(endpoint as any);
-    return { ...endpoint, fetch };
-  }
-
-  /** @deprecated */
-  static partialUpdateShape<T extends typeof SimpleResource>(
-    this: T,
-  ): MutateShape<
-    SchemaDetail<Readonly<AbstractInstanceType<T>>>,
-    Readonly<object>,
-    Partial<AbstractInstanceType<T>>
-  > {
-    const endpoint = this.partialUpdate();
-    const fetch = endpoint.fetch.bind(endpoint as any);
-    return { ...endpoint, fetch };
-  }
-
-  /** @deprecated */
-  static deleteShape<T extends typeof SimpleResource>(
-    this: T,
-  ): DeleteShape<schema.Delete<T>, Readonly<object>> {
-    const endpoint = this.delete();
-    const fetch = endpoint.fetch.bind(endpoint as any);
-    return { ...endpoint, fetch };
   }
 
   static {
