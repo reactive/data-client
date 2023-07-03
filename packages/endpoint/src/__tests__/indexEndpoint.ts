@@ -36,17 +36,4 @@ describe('Index', () => {
     //@ts-expect-error
     UserIndex.key({ blah: 5 });
   });
-
-  it('legacy compat', () => {
-    const UserIndex = new Index(User);
-
-    expect(UserIndex.getFetchKey({ username: 'hi' })).toMatchInlineSnapshot(
-      `"{"username":"hi"}"`,
-    );
-
-    //@ts-expect-error
-    UserIndex.getFetchKey({ username: 5 });
-    //@ts-expect-error
-    UserIndex.getFetchKey({ blah: 5 });
-  });
 });

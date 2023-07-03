@@ -17,7 +17,6 @@ import {
   OPTIMISTIC_TYPE,
 } from './actionTypes.js';
 import type { EndpointUpdateFunction } from './controller/types.js';
-import { FetchShape } from './endpoint/index.js';
 import { ErrorableFSAWithPayloadAndMeta } from './fsa.js';
 
 export interface ReceiveMeta<S extends Schema | undefined> {
@@ -83,7 +82,7 @@ interface FetchMeta<
     | null,
   S extends Schema | undefined = any,
 > {
-  type: FetchShape<any, any>['type'];
+  type?: 'read' | 'mutate' | 'delete';
   schema?: S;
   key: string;
   args?: readonly any[];

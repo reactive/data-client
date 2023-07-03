@@ -26,9 +26,7 @@ const baseConfig = {
     'packages/rest/src/next',
     'packages/core/src/next',
     'packages/react/src/next',
-    'packages/legacy/src/SimpleRecord',
-    'packages/legacy/src/rest-3',
-    'packages/rest-hooks/src/hooks/hasUsableData',
+    'packages/legacy/src/',
     'packages/core/src/state/legacy-actions/createFetch',
     'packages/react/src/makeCacheProvider',
     'packages/endpoint/src/schemas-3.7',
@@ -43,7 +41,6 @@ const baseConfig = {
     ],
     '@data-client/([^/]+)(/.*|[^/]*)$': ['<rootDir>/packages/$1/src$2'],
     '@rest-hooks/legacy$': ['<rootDir>/packages/legacy/src'],
-    'rest-hooks$': ['<rootDir>/packages/rest-hooks/src'],
   },
 };
 
@@ -55,7 +52,6 @@ const packages = [
   'core',
   'react',
   'redux',
-  'rest-hooks',
   'normalizr',
   'use-enhanced-reducer',
   'hooks',

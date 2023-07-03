@@ -95,7 +95,6 @@
     "react-native-screens": "^3.18.2",
     "react-test-renderer": "18.2.0",
     "redux": "4.2.1",
-    "rest-hooks": "workspace:^",
     "rimraf": "^5.0.0",
     "rollup": "2.79.1",
     "rollup-plugin-babel": "^4.4.0",

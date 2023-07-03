@@ -39,8 +39,6 @@ export type {
 export type {
   EndpointExtraOptions,
   FetchFunction,
-  SchemaDetail,
-  SchemaList,
   ResolveType,
   EndpointParam,
   NetworkError,

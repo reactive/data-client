@@ -215,7 +215,6 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     if (typeof input === 'symbol') {
       return [undefined, true, true] as any;
     }
-    // TODO(breaking): Remove fromJS and setLocal call once old versions are no longer supported
     if (isImmutable(input)) {
       if (this.validate((input as any).toJS()))
         return [undefined as any, false, true];
@@ -233,7 +232,6 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     // new path
     if (input instanceof this) {
       entityCopy = input;
-      // TODO(breaking): Remove fromJS and setLocal call once old versions are no longer supported
     } else {
       if (this.validate(input)) {
         return [undefined as any, false, true];

@@ -1,6 +1,5 @@
 import { AbstractInstanceType, schema } from '@rest-hooks/endpoint';
-import { SchemaDetail, SchemaList } from '@rest-hooks/endpoint';
-import { rest3 } from '@rest-hooks/legacy';
+import { rest3, SchemaDetail, SchemaList } from '@rest-hooks/legacy';
 
 export class UserResource extends rest3.Resource {
   readonly id: number | undefined = undefined;
