@@ -1,5 +1,5 @@
 export const FETCH_TYPE = 'rest-hooks/fetch' as const;
-// TODO(breaking): deprecate this
+/** @deprecated use SET_TYPE instead */
 export const RECEIVE_TYPE = 'rest-hooks/receive' as const;
 export const SET_TYPE = RECEIVE_TYPE;
 export const OPTIMISTIC_TYPE = 'rest-hooks/optimistic' as const;

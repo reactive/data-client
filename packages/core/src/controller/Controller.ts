@@ -1,14 +1,14 @@
 import type { EndpointInterface } from '@data-client/normalizr';
 
 import BaseController, {
-  CompatibleDispatch,
+  DataClientDispatch,
   GenericDispatch,
 } from './BaseController.js';
 import createFetch from './createFetch.js';
 import type { EndpointUpdateFunction } from './types.js';
 
 export default class Controller<
-  D extends GenericDispatch = CompatibleDispatch,
+  D extends GenericDispatch = DataClientDispatch,
 > extends BaseController<D> {
   /**
    * Fetches the endpoint with given args, updating the Rest Hooks cache with the response or error upon completion.

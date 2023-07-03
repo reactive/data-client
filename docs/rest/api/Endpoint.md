@@ -99,10 +99,6 @@ export interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
   readonly errorPolicy?: (error: any) => 'soft' | undefined;
   /** User-land extra data to send */
   readonly extra?: any;
-  /** Enables optimistic updates for this request - uses return value as assumed network response
-   * @deprecated use https://dataclient.io./Endpoint.md#getoptimisticresponse instead
-   */
-  readonly optimisticUpdate?: (...args: Parameters<F>) => ResolveType<F>;
 }
 ```
 
@@ -290,14 +286,6 @@ from this function was a succesful network response. When the actual fetch compl
 of failure or success), the optimistic update will be replaced with the actual network response.
 
 [Optimistic update guide](../guides/optimistic-updates.md)
-
-#### optimisticUpdate: (...args) => fakePayload {#optimisticupdate}
-
-:::caution Deprecated
-
-Use [endpoint.getOptimisticResponse](#getOptimisticResponse) instead.
-
-:::
 
 #### update(normalizedResponseOfThis, ...args) => (\{ [endpointKey]: (normalizedResponseOfEndpointToUpdate) => updatedNormalizedResponse) }) {#update}
 

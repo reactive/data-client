@@ -1,14 +1,13 @@
 import { SET_TYPE } from '../actionTypes.js';
 import Controller from '../controller/Controller.js';
 import { UnknownError } from '../index.js';
-import type { CombinedActionTypes } from '../types.js';
-import { Manager } from '../types.js';
+import { ActionTypes, Manager } from '../types.js';
 
 /** Handling network unauthorized indicators like HTTP 401
  *
- * @see https://resthooks.io/docs/api/LogoutManager
+ * @see https://dataclient.io/docs/api/LogoutManager
  */
-export default class LogoutManager implements Manager<CombinedActionTypes> {
+export default class LogoutManager implements Manager {
   protected declare middleware: Middleware;
 
   constructor({ handleLogout, shouldLogout }: Props = {}) {
@@ -42,7 +41,7 @@ export default class LogoutManager implements Manager<CombinedActionTypes> {
   }
 }
 
-type Dispatch = (value: CombinedActionTypes) => Promise<void>;
+type Dispatch = (value: ActionTypes) => Promise<void>;
 
 // this further restricts the types to be future compatible
 export type Middleware = <C extends Controller<Dispatch>>(

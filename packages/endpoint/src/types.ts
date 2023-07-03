@@ -20,10 +20,6 @@ export interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
   /** Determines whether to throw or fallback to */
   errorPolicy?(error: any): 'hard' | 'soft' | undefined;
 
-  /** Enables optimistic updates for this request - uses return value as assumed network response
-   * @deprecated use https://resthooks.io/docs/api/Endpoint#getoptimisticresponse instead
-   */
-  optimisticUpdate?(...args: Parameters<F>): ResolveType<F>;
   /** Enables optimistic updates for this request - uses return value as assumed network response */
   getOptimisticResponse?(
     snap: SnapshotInterface,

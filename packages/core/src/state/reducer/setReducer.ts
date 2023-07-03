@@ -2,9 +2,7 @@ import { normalize } from '@data-client/normalizr';
 
 import { OPTIMISTIC_TYPE } from '../../actionTypes.js';
 import type Controller from '../../controller/Controller.js';
-import type { ReceiveAction, OptimisticAction } from '../../previousActions.js';
-import type { State } from '../../types.js';
-import applyUpdatersToResults from '../applyUpdatersToResults.js';
+import type { State, ReceiveAction, OptimisticAction } from '../../types.js';
 
 export function setReducer(
   state: State<unknown>,
@@ -18,14 +16,14 @@ export function setReducer(
     let payload: any;
     // for true receives payload is contained in action
     if (action.type === OPTIMISTIC_TYPE) {
+      // this should never happen
       if (!action.endpoint.getOptimisticResponse) return state;
       try {
         // compute optimistic response based on current state
         payload = action.endpoint.getOptimisticResponse.call(
           action.endpoint,
           controller.snapshot(state, action.meta.fetchedAt),
-          // if endpoint exists, so must args; TODO: fix typing
-          ...(action.meta.args as any[]),
+          ...action.meta.args,
         );
       } catch (e: any) {
         // AbortOptimistic means 'do nothing', otherwise we count the exception as endpoint failure
@@ -39,30 +37,20 @@ export function setReducer(
     }
     const { result, entities, indexes, entityMeta } = normalize(
       payload,
-      action.meta.schema,
+      action.endpoint.schema,
       action.meta.args as any,
       state.entities,
       state.indexes,
       state.entityMeta,
-      { fetchedAt: action.meta.date, ...action.meta },
+      action.meta,
     );
-    let results = {
+    const results = {
       ...state.results,
       [action.meta.key]: result,
     };
     try {
-      if ('updaters' in action.meta && action.meta.updaters) {
-        results = applyUpdatersToResults(
-          results,
-          result,
-          action.meta.updaters as any,
-        );
-      }
-      if (action.meta.update) {
-        const updaters = action.meta.update(
-          result,
-          ...(action.meta.args || []),
-        );
+      if (action.endpoint.update) {
+        const updaters = action.endpoint.update(result, ...action.meta.args);
         Object.keys(updaters).forEach(key => {
           results[key] = updaters[key](results[key]);
         });
@@ -97,7 +85,7 @@ export function setReducer(
       error.message = `Error processing ${
         action.meta.key
       }\n\nFull Schema: ${JSON.stringify(
-        action.meta.schema,
+        action.endpoint.schema,
         undefined,
         2,
       )}\n\nError:\n${error.message}`;
@@ -136,7 +124,7 @@ function reduceError(
         date: action.meta.date,
         error,
         expiresAt: action.meta.expiresAt,
-        errorPolicy: action.meta.errorPolicy?.(error),
+        errorPolicy: action.endpoint.errorPolicy?.(error),
       },
     },
     optimistic: filterOptimistic(state, action),

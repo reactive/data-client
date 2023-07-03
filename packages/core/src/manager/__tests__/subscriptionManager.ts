@@ -1,14 +1,10 @@
 import { Article, PollingArticleResource } from '__tests__/new';
 
 import { actionTypes, Controller, initialState } from '../..';
-import { legacyActions } from '../../types';
+import { SubscribeAction, UnsubscribeAction } from '../../types';
 import SubscriptionManager, { Subscription } from '../SubscriptionManager.js';
 
-type SubscribeAction = legacyActions.SubscribeAction;
-
-type UnsubscribeAction = legacyActions.UnsubscribeAction;
-
-const { UNSUBSCRIBE_TYPE, SUBSCRIBE_TYPE, RECEIVE_TYPE } = actionTypes;
+const { UNSUBSCRIBE_TYPE, SUBSCRIBE_TYPE, SET_TYPE } = actionTypes;
 
 function onError(e: any) {
   e.preventDefault();
@@ -60,11 +56,10 @@ describe('SubscriptionManager', () => {
         : () => Promise.resolve(payload);
       return {
         type: SUBSCRIBE_TYPE,
+        endpoint: PollingArticleResource.get,
         meta: {
-          schema: Article,
           key: PollingArticleResource.get.key({ id: payload.id }),
-          fetch,
-          options: { pollFrequency: 1000 },
+          args: [{ id: payload.id }],
         },
       };
     }
@@ -73,9 +68,10 @@ describe('SubscriptionManager', () => {
     ): UnsubscribeAction {
       return {
         type: UNSUBSCRIBE_TYPE,
+        endpoint: PollingArticleResource.get,
         meta: {
           key: PollingArticleResource.get.key({ id: payload.id }),
-          options: { pollFrequency: 1000 },
+          args: [{ id: payload.id }],
         },
       };
     }
@@ -100,7 +96,6 @@ describe('SubscriptionManager', () => {
     });
     it('subscribe should add a subscription (no frequency)', () => {
       const action = createSubscribeAction({ id: 597 });
-      delete action.meta.options;
       middleware(API)(next)(action);
 
       expect(next).not.toHaveBeenCalled();
@@ -153,7 +148,6 @@ describe('SubscriptionManager', () => {
       );
 
       const action = createUnsubscribeAction({ id: 50, title: 'four cakes' });
-      delete action.meta.options;
       (manager as any).subscriptions[action.meta.key].remove.mockImplementation(
         () => true,
       );
@@ -197,7 +191,7 @@ describe('SubscriptionManager', () => {
     });
 
     it('should let other actions pass through', () => {
-      const action = { type: RECEIVE_TYPE };
+      const action = { type: SET_TYPE };
       next.mockReset();
 
       middleware(API)(next)(action as any);

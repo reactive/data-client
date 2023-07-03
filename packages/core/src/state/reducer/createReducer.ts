@@ -11,12 +11,12 @@ import {
   INVALIDATEALL_TYPE,
 } from '../../actionTypes.js';
 import type Controller from '../../controller/Controller.js';
-import type { OldActionTypes, ActionTypes, State } from '../../types.js';
+import type { ActionTypes, State } from '../../types.js';
 
 export default function createReducer(controller: Controller): ReducerType {
   return function reducer(
     state: State<unknown> | undefined,
-    action: OldActionTypes,
+    action: ActionTypes,
   ): State<unknown> {
     if (!state) state = initialState;
     switch (action.type) {
@@ -44,15 +44,7 @@ export default function createReducer(controller: Controller): ReducerType {
         return invalidateReducer(state, action);
 
       case RESET_TYPE:
-        if (
-          process.env.NODE_ENV !== 'production' &&
-          action.date === undefined
-        ) {
-          console.warn(
-            `${RESET_TYPE} sent without 'date' member. This is deprecated. Please use createReset() action creator to ensure correct action shape.`,
-          );
-        }
-        return { ...initialState, lastReset: action.date ?? Date.now() };
+        return { ...initialState, lastReset: action.date };
 
       default:
         // A reducer must always return a valid state.

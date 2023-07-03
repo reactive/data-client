@@ -6,6 +6,7 @@ import {
   Manager,
   Middleware,
   Controller,
+  SetAction,
 } from '@data-client/core';
 import { act, render } from '@testing-library/react';
 import { CoolerArticle, CoolerArticleResource } from '__tests__/new';
@@ -17,7 +18,7 @@ import { useController, useSuspense } from '../../hooks';
 import { payload } from '../../test-fixtures';
 import CacheProvider from '../CacheProvider';
 
-const { RECEIVE_TYPE } = actionTypes;
+const { SET_TYPE } = actionTypes;
 
 describe('<CacheProvider />', () => {
   let warnspy: jest.SpyInstance;
@@ -136,13 +137,14 @@ describe('<CacheProvider />', () => {
     render(tree);
     expect(dispatch).toBeDefined();
     expect(state).toBeDefined();
-    const action = {
-      type: RECEIVE_TYPE,
+    const action: SetAction = {
+      type: SET_TYPE,
       payload: { id: 5, title: 'hi', content: 'more things here' },
+      endpoint: CoolerArticleResource.get,
       meta: {
-        schema: CoolerArticle,
+        args: [{ id: 5 }],
         key: CoolerArticleResource.get.key({ id: 5 }),
-        mutate: false,
+        fetchedAt: 50,
         date: 50,
         expiresAt: 55,
       },

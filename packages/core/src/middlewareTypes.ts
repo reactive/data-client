@@ -1,19 +1,14 @@
 import type Controller from './controller/Controller.js';
-//import type { ActionTypes as LegacyActionTypes } from './legacyActions.js';
-import type { ActionTypes } from './newActions.js';
-import {
-  ActionTypes as LegacyActionTypes,
-  CombinedActionTypes,
-  State,
-} from './types.js';
+import { ActionTypes, State } from './types.js';
 
 type RHDispatch<Actions = any> = (value: Actions) => Promise<void>;
 
 export interface MiddlewareAPI<R extends RestHooksReducer = RestHooksReducer>
-  extends Controller<RHDispatch<CombinedActionTypes>> {
-  controller: Controller<RHDispatch<CombinedActionTypes>>;
+  extends Controller<RHDispatch<ActionTypes>> {
+  /** @deprecated use members directly instead */
+  controller: Controller<RHDispatch<ActionTypes>>;
 }
-export interface MiddlewareController<Actions = LegacyActionTypes>
+export interface MiddlewareController<Actions = ActionTypes>
   extends Controller<RHDispatch<Actions>> {
   controller: Controller<RHDispatch<Actions>>;
 }

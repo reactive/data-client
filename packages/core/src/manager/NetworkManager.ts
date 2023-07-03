@@ -1,19 +1,14 @@
 import { SET_TYPE, FETCH_TYPE, RESET_TYPE } from '../actionTypes.js';
 import Controller from '../controller/Controller.js';
-import { initialState } from '../internal.js';
-import {
-  createReceive,
-  createReceiveError,
-} from '../state/legacy-actions/index.js';
+import createSet from '../controller/createSet.js';
 import RIC from '../state/RIC.js';
 import type {
   FetchAction,
-  ReceiveAction,
   Manager,
   ActionTypes,
   MiddlewareAPI,
   Middleware,
-  State,
+  SetAction,
 } from '../types.js';
 
 export class ResetError extends Error {
@@ -31,7 +26,7 @@ export class ResetError extends Error {
  *
  * Interfaces with store via a redux-compatible middleware.
  *
- * @see https://resthooks.io/docs/api/NetworkManager
+ * @see https://dataclient.io/docs/api/NetworkManager
  */
 export default class NetworkManager implements Manager {
   protected fetched: { [k: string]: Promise<any> } = Object.create(null);
@@ -41,7 +36,6 @@ export default class NetworkManager implements Manager {
   declare readonly dataExpiryLength: number;
   declare readonly errorExpiryLength: number;
   protected declare middleware: Middleware;
-  protected getState: () => State<unknown> = () => initialState;
   protected controller: Controller = new Controller();
   declare cleanupDate?: number;
 
@@ -49,25 +43,19 @@ export default class NetworkManager implements Manager {
     this.dataExpiryLength = dataExpiryLength;
     this.errorExpiryLength = errorExpiryLength;
 
-    this.middleware = <C extends MiddlewareAPI>({
-      dispatch,
-      getState,
-      controller,
-    }: C) => {
-      this.getState = getState;
+    this.middleware = <C extends MiddlewareAPI>(controller: C) => {
       this.controller = controller;
       return (next: C['dispatch']): C['dispatch'] =>
         (action): Promise<void> => {
           switch (action.type) {
             case FETCH_TYPE:
-              this.handleFetch(action, dispatch, controller);
+              this.handleFetch(action);
               // This is the only case that causes any state change
               // It's important to intercept other fetches as we don't want to trigger reducers during
               // render - so we need to stop 'readonly' fetches which can be triggered in render
               if (
-                action.meta.optimisticResponse !== undefined ||
-                (action.endpoint?.getOptimisticResponse !== undefined &&
-                  action.endpoint.sideEffect)
+                action.endpoint.getOptimisticResponse !== undefined &&
+                action.endpoint.sideEffect
               ) {
                 return next(action);
               }
@@ -81,8 +69,14 @@ export default class NetworkManager implements Manager {
                     controller.getState().meta[action.meta.key]?.error;
                   // processing errors result in state meta having error, so we should reject the promise
                   if (error) {
-                    // TODO: use only new action types
-                    this.handleReceive(createReceiveError(error, action.meta));
+                    this.handleReceive(
+                      createSet(action.endpoint, {
+                        args: action.meta.args as any,
+                        response: error,
+                        fetchedAt: action.meta.fetchedAt,
+                        error: true,
+                      }),
+                    );
                   } else {
                     this.handleReceive(action);
                   }
@@ -148,10 +142,7 @@ export default class NetworkManager implements Manager {
 
   protected getLastReset() {
     if (this.cleanupDate) return this.cleanupDate;
-    const lastReset = this.controller.getState().lastReset;
-    if (lastReset instanceof Date) return lastReset.valueOf();
-    if (typeof lastReset !== 'number') return -Infinity;
-    return lastReset;
+    return this.controller.getState().lastReset;
   }
 
   /** Called when middleware intercepts 'rest-hooks/fetch' action.
@@ -162,18 +153,9 @@ export default class NetworkManager implements Manager {
    * Uses throttle only when instructed by action meta. This is valuable
    * for ensures mutation requests always go through.
    */
-  protected handleFetch(
-    action: FetchAction,
-    dispatch: (action: any) => Promise<void>,
-    controller: Controller,
-  ) {
+  protected handleFetch(action: FetchAction) {
     const fetch = action.payload;
-    const { key, throttle, resolve, reject } = action.meta;
-    // TODO(breaking): remove support for Date type in 'Receive' action
-    const createdAt =
-      typeof action.meta.createdAt !== 'number'
-        ? action.meta.createdAt.getTime()
-        : action.meta.createdAt;
+    const { key, throttle, resolve, reject, createdAt } = action.meta;
 
     const deferedFetch = () => {
       let promise = fetch();
@@ -192,7 +174,7 @@ export default class NetworkManager implements Manager {
       // schedule non-throttled resolutions in a microtask before receive
       // this enables users awaiting their fetch to trigger any react updates needed to deal
       // with upcoming changes because of the fetch (for instance avoiding suspense if something is deleted)
-      if (!throttle && action.endpoint) {
+      if (!throttle) {
         promise = resolvePromise(promise);
       }
       promise = promise
@@ -209,26 +191,11 @@ export default class NetworkManager implements Manager {
 
           // don't update state with promises started before last clear
           if (createdAt >= lastReset) {
-            // we still check for controller in case someone didn't have type protection since this didn't always exist
-            if (action.endpoint && this.controller) {
-              this.controller.resolve(action.endpoint, {
-                args: action.meta.args as any,
-                response: data,
-                fetchedAt: createdAt,
-              });
-            } else {
-              // TODO(breaking): is this branch still possible? remove in next major update
-              // does this throw if the reducer fails? - no because reducer is wrapped in try/catch
-              this.controller.dispatch(
-                createReceive(data, {
-                  ...action.meta,
-                  fetchedAt: createdAt,
-                  dataExpiryLength:
-                    action.meta.options?.dataExpiryLength ??
-                    this.dataExpiryLength,
-                }),
-              );
-            }
+            this.controller.resolve(action.endpoint, {
+              args: action.meta.args as any,
+              response: data,
+              fetchedAt: createdAt,
+            });
           }
           return data;
         })
@@ -236,31 +203,15 @@ export default class NetworkManager implements Manager {
           const lastReset = this.getLastReset();
           // don't update state with promises started before last clear
           if (createdAt >= lastReset) {
-            if (action.endpoint && this.controller) {
-              this.controller.resolve(action.endpoint, {
-                args: action.meta.args as any,
-                response: error,
-                fetchedAt: createdAt,
-                error: true,
-              });
-            } else {
-              this.controller.dispatch(
-                createReceiveError(error, {
-                  ...action.meta,
-                  errorExpiryLength:
-                    action.meta.options?.errorExpiryLength ??
-                    this.errorExpiryLength,
-                  fetchedAt: createdAt,
-                }),
-              );
-            }
+            this.controller.resolve(action.endpoint, {
+              args: action.meta.args as any,
+              response: error,
+              fetchedAt: createdAt,
+              error: true,
+            });
           }
           throw error;
         });
-      // legacy behavior schedules resolution after dispatch
-      if (!throttle && !action.endpoint) {
-        promise = resolvePromise(promise);
-      }
       return promise;
     };
 
@@ -277,7 +228,7 @@ export default class NetworkManager implements Manager {
    *
    * Will resolve the promise associated with receive key.
    */
-  protected handleReceive(action: ReceiveAction) {
+  protected handleReceive(action: SetAction) {
     // this can still turn out to be untrue since this is async
     if (action.meta.key in this.fetched) {
       let promiseHandler: (value?: any) => void;

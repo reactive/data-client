@@ -37,7 +37,7 @@ const DEFAULT_CONFIG = {
  *
  * Options: https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md
  *
- * @see https://resthooks.io/docs/api/DevToolsManager
+ * @see https://dataclient.io/docs/api/DevToolsManager
  */
 export default class DevToolsManager implements Manager {
   protected declare middleware: Middleware;

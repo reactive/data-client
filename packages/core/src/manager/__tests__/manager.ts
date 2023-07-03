@@ -1,6 +1,6 @@
 import Controller from '../../controller/Controller';
 import { Middleware } from '../../middlewareTypes';
-import { CombinedActionTypes } from '../../types';
+import { ActionTypes } from '../../types';
 import NetworkManager from '../NetworkManager';
 
 const middleware: Middleware = new NetworkManager().getMiddleware();
@@ -9,9 +9,7 @@ it('middlewares should compose with non-rest-hooks middlewares', () => {
     type: 'BOB';
     payload: any;
   };
-  const dispatch = jest.fn(
-    async (action: CombinedActionTypes | AnotherAction) => {},
-  );
+  const dispatch = jest.fn(async (action: ActionTypes | AnotherAction) => {});
   const ctrl = new Controller({ dispatch });
   const API: typeof ctrl & { controller: typeof ctrl } = Object.create(ctrl, {
     controller: { value: ctrl },

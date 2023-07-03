@@ -1,9 +1,9 @@
 import { INVALIDATE_TYPE } from '../../actionTypes.js';
 import type {
+  State,
   InvalidateAllAction,
   InvalidateAction,
-} from '../../previousActions.js';
-import type { State } from '../../types.js';
+} from '../../types.js';
 
 export function invalidateReducer(
   state: State<unknown>,

@@ -2,12 +2,9 @@ import type { EndpointInterface, ResolveType } from '@data-client/normalizr';
 
 import { EndpointUpdateFunction } from './types.js';
 import { SET_TYPE } from '../actionTypes.js';
-import type {
-  CompatibleReceiveAction,
-  CompatibleReceiveMeta,
-} from '../compatibleActions.js';
+import type { SetAction, SetMeta } from '../types.js';
 
-export default function createReceive<
+export default function createSet<
   E extends EndpointInterface & {
     update?: EndpointUpdateFunction<E>;
   },
@@ -19,9 +16,9 @@ export default function createReceive<
     fetchedAt?: number;
     error: true;
   },
-): CompatibleReceiveAction<E>;
+): SetAction<E>;
 
-export default function createReceive<
+export default function createSet<
   E extends EndpointInterface & {
     update?: EndpointUpdateFunction<E>;
   },
@@ -33,9 +30,9 @@ export default function createReceive<
     fetchedAt?: number;
     error?: false;
   },
-): CompatibleReceiveAction<E>;
+): SetAction<E>;
 
-export default function createReceive<
+export default function createSet<
   E extends EndpointInterface & {
     update?: EndpointUpdateFunction<E>;
   },
@@ -52,7 +49,7 @@ export default function createReceive<
     fetchedAt?: number;
     error?: boolean;
   },
-): CompatibleReceiveAction<E> {
+): SetAction<E> {
   const expiryLength: number = error
     ? endpoint.errorExpiryLength ?? 1000
     : endpoint.dataExpiryLength ?? 60000;
@@ -61,20 +58,15 @@ export default function createReceive<
     throw new Error('Negative expiry length are not allowed.');
   }
   const now = Date.now();
-  const meta: CompatibleReceiveMeta = {
+  const meta: SetMeta = {
     args,
     fetchedAt: fetchedAt ?? now,
     date: now,
     expiresAt: now + expiryLength,
-    // For legacy support; TODO: remove
-    schema: endpoint.schema,
     key: endpoint.key(...args),
   };
-  // For legacy support; TODO: remove
-  if (endpoint.update) meta.update = endpoint.update;
-  if (endpoint.errorPolicy) meta.errorPolicy = endpoint.errorPolicy;
 
-  const action: CompatibleReceiveAction<E> = {
+  const action: SetAction<E> = {
     type: SET_TYPE,
     payload: response,
     endpoint: endpoint,

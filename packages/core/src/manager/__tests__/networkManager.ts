@@ -1,7 +1,7 @@
 import { Endpoint } from '@data-client/endpoint';
 import { Article, ArticleResource } from '__tests__/new';
 
-import { RECEIVE_TYPE } from '../../actionTypes';
+import { SET_TYPE } from '../../actionTypes';
 import Controller from '../../controller/Controller';
 import createFetch from '../../controller/createFetch';
 import NetworkManager from '../../manager/NetworkManager';
@@ -26,7 +26,7 @@ describe('NetworkManager', () => {
   it('getState() should have initialState before middleware run', () => {
     class Hacked extends NetworkManager {
       getHacked() {
-        return this.getState();
+        return this.controller.getState();
       }
     }
     const hacked = new Hacked();
@@ -162,13 +162,11 @@ describe('NetworkManager', () => {
       await new Promise(resolve => setTimeout(resolve, 0));
 
       const action = {
-        type: RECEIVE_TYPE,
+        type: SET_TYPE,
         endpoint: fetchResolveAction.endpoint,
         payload: data,
         meta: {
-          schema: fetchResolveAction.meta.schema,
           args: fetchResolveAction.meta.args,
-          update: fetchResolveAction.meta.update,
           key: fetchResolveAction.meta.key,
           date: expect.any(Number),
           expiresAt: expect.any(Number),
@@ -197,13 +195,11 @@ describe('NetworkManager', () => {
       await new Promise(resolve => setTimeout(resolve, 0));
 
       const action = {
-        type: RECEIVE_TYPE,
+        type: SET_TYPE,
         endpoint: fetchReceiveWithUpdatersAction.endpoint,
         payload: data,
         meta: {
-          update: expect.any(Function),
           args: fetchReceiveWithUpdatersAction.meta.args,
-          schema: fetchReceiveWithUpdatersAction.meta.schema,
           key: fetchReceiveWithUpdatersAction.meta.key,
           date: expect.any(Number),
           expiresAt: expect.any(Number),
@@ -232,13 +228,11 @@ describe('NetworkManager', () => {
       await new Promise(resolve => setTimeout(resolve, 0));
 
       const action = {
-        type: RECEIVE_TYPE,
+        type: SET_TYPE,
         endpoint: fetchRpcWithUpdatersAction.endpoint,
         payload: data,
         meta: {
           args: fetchRpcWithUpdatersAction.meta.args,
-          update: expect.any(Function),
-          schema: fetchRpcWithUpdatersAction.meta.schema,
           key: fetchRpcWithUpdatersAction.meta.key,
           date: expect.any(Number),
           expiresAt: expect.any(Number),
@@ -267,13 +261,11 @@ describe('NetworkManager', () => {
       // mutations resolve before dispatch, so we must wait for next tick to see receive
       await new Promise(resolve => setTimeout(resolve, 0));
       expect(dispatch).toHaveBeenCalledWith({
-        type: RECEIVE_TYPE,
+        type: SET_TYPE,
         endpoint: fetchRpcWithUpdatersAndOptimisticAction.endpoint,
         payload: data,
         meta: {
           args: fetchRpcWithUpdatersAndOptimisticAction.meta.args,
-          update: expect.any(Function),
-          schema: fetchRpcWithUpdatersAndOptimisticAction.meta.schema,
           key: fetchRpcWithUpdatersAndOptimisticAction.meta.key,
           date: expect.any(Number),
           expiresAt: expect.any(Number),
@@ -339,10 +331,9 @@ describe('NetworkManager', () => {
       } catch (error) {
         expect(next).not.toHaveBeenCalled();
         expect(dispatch).toHaveBeenCalledWith({
-          type: RECEIVE_TYPE,
+          type: SET_TYPE,
           payload: error,
           meta: {
-            schema: fetchRejectAction.meta.schema,
             key: fetchRejectAction.meta.key,
             date: expect.any(Number),
             expiresAt: expect.any(Number),
@@ -366,7 +357,6 @@ describe('NetworkManager', () => {
           ...fetchRejectAction,
           meta: {
             ...fetchRejectAction.meta,
-            options: { errorExpiryLength: 1234 },
           },
         });
       } catch (error) {
@@ -390,10 +380,6 @@ describe('NetworkManager', () => {
           ...fetchRejectAction,
           meta: {
             ...fetchRejectAction.meta,
-            options: {
-              ...fetchRejectAction.meta.options,
-              errorExpiryLength: undefined,
-            },
           },
         });
       } catch (error) {
@@ -401,26 +387,6 @@ describe('NetworkManager', () => {
         const { meta } = dispatch.mock.calls[0][0];
         expect(meta.expiresAt - meta.date).toBe(7);
       }
-    });
-
-    it('getLastReset() should handle Date object', async () => {
-      const mgr = new NetworkManager();
-      jest.spyOn(mgr, 'getState' as any).mockImplementation((): any => ({
-        ...initialState,
-        lastReset: new Date(0),
-      }));
-
-      expect((mgr as any).getLastReset()).toBeLessThan(Date.now());
-    });
-
-    it('getLastReset() should handle null', async () => {
-      const mgr = new NetworkManager();
-      jest.spyOn(mgr, 'getState' as any).mockImplementation((): any => ({
-        ...initialState,
-        lastReset: null,
-      }));
-
-      expect((mgr as any).getLastReset()).toBeLessThan(Date.now());
     });
   });
 });
