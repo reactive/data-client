@@ -1,5 +1,5 @@
 import { Controller, initialState } from '@data-client/core';
-import type { ActionTypes, State, DenormalizeCache } from '@data-client/core';
+import type { ActionTypes, State } from '@data-client/core';
 import { createContext } from 'react';
 import type { Context } from 'react';
 
@@ -21,15 +21,6 @@ const dispatch = (value: ActionTypes) => {
   }
   return Promise.resolve();
 };
-
-// this is not needed anymore, but keeping around for backcompatibility
-/** @deprecated use Controller.dispatch */
-export const DispatchContext = createContext(dispatch);
-/** @deprecated */
-export const DenormalizeCacheContext = createContext<DenormalizeCache>({
-  entities: {},
-  results: {},
-});
 
 export const ControllerContext = createContext<Controller>(
   new Controller({

@@ -8,7 +8,7 @@ import type { Middleware } from '@data-client/use-enhanced-reducer';
 import React, { useEffect, useMemo, memo } from 'react';
 
 import BackupBoundary from './BackupBoundary.js';
-import { StateContext, DispatchContext } from '../context.js';
+import { StateContext } from '../context.js';
 
 interface StoreProps {
   children: React.ReactNode;
@@ -56,11 +56,9 @@ function CacheStore({
   }, [managers]);
 
   return (
-    <DispatchContext.Provider value={dispatch}>
-      <StateContext.Provider value={optimisticState}>
-        <BackupBoundary>{children}</BackupBoundary>
-      </StateContext.Provider>
-    </DispatchContext.Provider>
+    <StateContext.Provider value={optimisticState}>
+      <BackupBoundary>{children}</BackupBoundary>
+    </StateContext.Provider>
   );
 }
 export default memo(CacheStore);

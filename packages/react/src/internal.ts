@@ -6,4 +6,5 @@ export { default as useCacheState } from './hooks/useCacheState.js';
 
 export const initialState = __INTERNAL__.initialState;
 export const DELETED = __INTERNAL__.DELETED;
+export const INVALID = __INTERNAL__.INVALID;
 export const inferResults = __INTERNAL__.inferResults;
