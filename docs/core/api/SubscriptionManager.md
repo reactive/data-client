@@ -31,14 +31,6 @@ Each instance represents one subscription to a specific unique endpoint.
 handle the actual subscriptions.
 
 ```typescript
-/** Properties sent to Subscription constructor */
-export interface SubscriptionInit {
-  schema: Schema;
-  fetch: () => Promise<any>;
-  url: string;
-  frequency?: number;
-}
-
 /** Interface handling a single resource subscription */
 interface Subscription {
   add(frequency?: number): void;
@@ -47,8 +39,11 @@ interface Subscription {
 }
 
 /** The static class that constructs Subscription */
-interface SubscriptionConstructable {
-  new (init: SubscriptionInit, dispatch: React.Dispatch<any>): Subscription;
+export interface SubscriptionConstructable {
+  new (
+    action: Omit<SubscribeAction, 'type'>,
+    controller: Controller,
+  ): Subscription;
 }
 ```
 

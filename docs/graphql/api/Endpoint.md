@@ -79,10 +79,6 @@ export interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
   readonly errorPolicy?: (error: any) => 'soft' | undefined;
   /** User-land extra data to send */
   readonly extra?: any;
-  /** Enables optimistic updates for this request - uses return value as assumed network response
-   * @deprecated use /docs/api/Endpoint#getoptimisticresponse instead
-   */
-  readonly optimisticUpdate?: (...args: Parameters<F>) => ResolveType<F>;
 }
 ```
 
@@ -193,14 +189,6 @@ Frequency in millisecond to poll at. Requires using [useSubscription()](/docs/ap
 When provided, any fetches with this endpoint will behave as though the `fakePayload` return value
 from this function was a succesful network response. When the actual fetch completes (regardless
 of failure or success), the optimistic update will be replaced with the actual network response.
-
-#### optimisticUpdate: (...args) => fakePayload {#optimisticupdate}
-
-:::caution Deprecated
-
-Use [endpoint.getOptimisticResponse](#getOptimisticResponse) instead.
-
-:::
 
 #### update(normalizedResponseOfThis, ...args) => (\{ [endpointKey]: (normalizedResponseOfEndpointToUpdate) => updatedNormalizedResponse) }) {#update}
 

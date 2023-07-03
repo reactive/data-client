@@ -1,6 +1,6 @@
 import * as _data_client_core from '@data-client/core';
-import { Manager, State as State$1, Controller, NetworkError, EndpointInterface, FetchFunction, Schema, DenormalizeNullable, ResolveType, Denormalize, UnknownError, ErrorTypes as ErrorTypes$1, ActionTypes, DenormalizeCache, legacyActions, __INTERNAL__, createReducer, applyManager } from '@data-client/core';
-export { AbstractInstanceType, ActionTypes, CompatibleDispatch, Controller, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, ReceiveAction, ReceiveTypes, ResetAction, ResolveType, Schema, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@data-client/core';
+import { Manager, State as State$1, Controller, NetworkError, EndpointInterface, FetchFunction, Schema, DenormalizeNullable, ResolveType, Denormalize, UnknownError, ErrorTypes as ErrorTypes$1, ActionTypes, DenormalizeCache, __INTERNAL__, createReducer, applyManager } from '@data-client/core';
+export { AbstractInstanceType, ActionTypes, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, ReceiveAction, ReceiveTypes, ResetAction, ResolveType, Schema, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@data-client/core';
 import React$1, { Context } from 'react';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 
@@ -22,7 +22,7 @@ interface ProviderProps {
 declare function CacheProvider({ children, managers, initialState, Controller, }: ProviderProps): react_jsx_runtime.JSX.Element;
 declare namespace CacheProvider {
     var defaultProps: {
-        managers: Manager<_data_client_core.CombinedActionTypes>[];
+        managers: Manager<_data_client_core.ActionTypes>[];
         initialState: State$1<unknown>;
         Controller: typeof Controller;
     };
@@ -160,7 +160,7 @@ declare const StateContext: Context<State$1<unknown>>;
 declare const DispatchContext: Context<(value: ActionTypes) => Promise<void>>;
 /** @deprecated */
 declare const DenormalizeCacheContext: Context<DenormalizeCache>;
-declare const ControllerContext: Context<Controller<_data_client_core.CompatibleDispatch>>;
+declare const ControllerContext: Context<Controller<_data_client_core.DataClientDispatch>>;
 interface Store<S> {
     subscribe(listener: () => void): () => void;
     dispatch: React.Dispatch<ActionTypes>;
@@ -172,19 +172,10 @@ declare const StoreContext: Context<Store<State$1<unknown>>>;
 declare const useCacheState: () => State$1<unknown>;
 //# sourceMappingURL=useCacheState.d.ts.map
 
-/** @deprecated use Controller.dispatch */
-declare const createFetch: typeof legacyActions.createFetch;
-/** @deprecated use Controller.dispatch */
-declare const createReceive: typeof legacyActions.createReceive;
-/** @deprecated use Controller.dispatch */
-declare const createReceiveError: typeof legacyActions.createReceiveError;
 declare const initialState: _data_client_core.State<unknown>;
 declare const DELETED: symbol;
 declare const inferResults: typeof __INTERNAL__.inferResults;
 
-declare const internal_d_createFetch: typeof createFetch;
-declare const internal_d_createReceive: typeof createReceive;
-declare const internal_d_createReceiveError: typeof createReceiveError;
 declare const internal_d_initialState: typeof initialState;
 declare const internal_d_DELETED: typeof DELETED;
 declare const internal_d_inferResults: typeof inferResults;
@@ -193,9 +184,6 @@ declare const internal_d_applyManager: typeof applyManager;
 declare const internal_d_useCacheState: typeof useCacheState;
 declare namespace internal_d {
   export {
-    internal_d_createFetch as createFetch,
-    internal_d_createReceive as createReceive,
-    internal_d_createReceiveError as createReceiveError,
     internal_d_initialState as initialState,
     internal_d_DELETED as DELETED,
     internal_d_inferResults as inferResults,

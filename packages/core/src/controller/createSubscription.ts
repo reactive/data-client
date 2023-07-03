@@ -1,24 +1,18 @@
 import type { EndpointInterface } from '@data-client/normalizr';
 
 import { SUBSCRIBE_TYPE, UNSUBSCRIBE_TYPE } from '../actionTypes.js';
-import type {
-  CompatibleSubscribeAction,
-  CompatibleUnsubscribeAction,
-} from '../compatibleActions.js';
+import type { SubscribeAction, UnsubscribeAction } from '../types.js';
 
 export function createSubscription<E extends EndpointInterface>(
   endpoint: E,
   { args }: { args: readonly [...Parameters<E>] },
-): CompatibleSubscribeAction<E> {
+): SubscribeAction<E> {
   return {
     type: SUBSCRIBE_TYPE,
     endpoint,
     meta: {
       args,
       key: endpoint.key(...args),
-      fetch: () => endpoint(...args),
-      schema: endpoint.schema,
-      options: endpoint,
     },
   };
 }
@@ -26,14 +20,13 @@ export function createSubscription<E extends EndpointInterface>(
 export function createUnsubscription<E extends EndpointInterface>(
   endpoint: E,
   { args }: { args: readonly [...Parameters<E>] },
-): CompatibleUnsubscribeAction<E> {
+): UnsubscribeAction<E> {
   return {
     type: UNSUBSCRIBE_TYPE,
     endpoint,
     meta: {
       args,
       key: endpoint.key(...args),
-      options: endpoint,
     },
   };
 }

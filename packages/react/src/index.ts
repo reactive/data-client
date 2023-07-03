@@ -44,7 +44,7 @@ export type {
   MiddlewareAPI,
   Manager,
   // used in Controller generic
-  CompatibleDispatch,
+  DataClientDispatch,
   GenericDispatch,
 } from '@data-client/core';
 export * from './components/index.js';

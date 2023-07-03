@@ -1,31 +1,31 @@
-import { DELETED, schema } from '@data-client/endpoint';
+import { INVALID } from '@data-client/endpoint';
 import {
   ArticleResource,
-  ArticleResourceWithOtherListUrl,
   PaginatedArticleResource,
   Article,
   PaginatedArticle,
-  UrlArticle,
 } from '__tests__/new';
 
 import { Controller } from '../..';
 import {
-  RECEIVE_TYPE,
+  SET_TYPE,
   INVALIDATE_TYPE,
   FETCH_TYPE,
   RESET_TYPE,
   GC_TYPE,
 } from '../../actionTypes';
-import { UpdateFunction, State, ActionTypes, legacyActions } from '../../types';
-import { createReceive } from '../legacy-actions';
+import createSet from '../../controller/createSet';
+import {
+  UpdateFunction,
+  State,
+  ActionTypes,
+  FetchAction,
+  SetAction,
+  ResetAction,
+  InvalidateAction,
+  GCAction,
+} from '../../types';
 import createReducer, { initialState } from '../reducer/createReducer';
-
-type FetchAction = legacyActions.FetchAction;
-type ReceiveAction<T extends string | number | object | null = any> =
-  legacyActions.ReceiveAction<T>;
-type ResetAction = legacyActions.ResetAction;
-type InvalidateAction = legacyActions.InvalidateAction;
-type GCAction = legacyActions.GCAction;
 
 describe('reducer', () => {
   let reducer: (
@@ -40,11 +40,12 @@ describe('reducer', () => {
   describe('singles', () => {
     const id = 20;
     const payload = { id, title: 'hi', content: 'this is the content' };
-    const action: ReceiveAction<typeof payload> = {
-      type: RECEIVE_TYPE,
+    const action: SetAction = {
+      type: SET_TYPE,
       payload,
+      endpoint: ArticleResource.get,
       meta: {
-        schema: Article,
+        args: [{ id }],
         key: ArticleResource.get.url({ id }),
         date: 5000000000,
         expiresAt: 5000500000,
@@ -158,9 +159,11 @@ describe('reducer', () => {
       const spy = jest.spyOn(ExpiresSoon, 'expiresAt');
       const localAction = {
         ...partialResultAction,
+        endpoint: (partialResultAction.endpoint as any).extend({
+          schema: ExpiresSoon,
+        }),
         meta: {
           ...partialResultAction.meta,
-          schema: ExpiresSoon,
           date: partialResultAction.meta.date * 2,
           expiresAt: partialResultAction.meta.expiresAt * 2,
           fetchedAt: partialResultAction.meta.date * 2,
@@ -191,31 +194,35 @@ describe('reducer', () => {
   it('mutate should never change results', () => {
     const id = 20;
     const payload = { id, title: 'hi', content: 'this is the content' };
-    const action: ReceiveAction = {
-      type: RECEIVE_TYPE,
+    const action: SetAction = {
+      type: SET_TYPE,
       payload,
+      endpoint: ArticleResource.get,
       meta: {
-        schema: Article,
-        key: ArticleResource.getList.key(payload),
+        args: [{ id }],
+        key: ArticleResource.get.key(payload),
         date: 0,
+        fetchedAt: 0,
         expiresAt: 1000000000000,
       },
     };
     const iniState = {
       ...initialState,
-      results: { abc: '5', [ArticleResource.getList.key(payload)]: `${id}` },
+      results: { abc: '5', [ArticleResource.get.key(payload)]: `${id}` },
     };
     const newState = reducer(iniState, action);
     expect(newState.results).toStrictEqual(iniState.results);
   });
   it('purge should delete entities', () => {
     const id = 20;
-    const action: ReceiveAction = {
-      type: RECEIVE_TYPE,
+    const action: SetAction = {
+      type: SET_TYPE,
       payload: { id },
+      endpoint: ArticleResource.delete,
       meta: {
-        schema: new schema.Delete(Article),
+        args: [{ id }],
         key: ArticleResource.delete.key({ id }),
+        fetchedAt: 0,
         date: 0,
         expiresAt: 0,
       },
@@ -238,203 +245,11 @@ describe('reducer', () => {
     const newState = reducer(iniState, action);
     expect(newState.results.abc).toBe(iniState.results.abc);
     const expectedEntities = { ...iniState.entities[Article.key] };
-    expectedEntities['20'] = DELETED;
+    expectedEntities['20'] = INVALID;
     expect(newState.entities[Article.key]).toEqual(expectedEntities);
   });
 
-  describe('updaters', () => {
-    describe('Update on get (pagination use case)', () => {
-      const shape = PaginatedArticleResource.getList;
-      function makeOptimisticAction(
-        payload: {
-          results: Partial<PaginatedArticle>[];
-        },
-        updaters: {
-          [key: string]: UpdateFunction<
-            (typeof shape)['schema'],
-            (typeof shape)['schema']
-          >;
-        },
-      ) {
-        return {
-          type: RECEIVE_TYPE,
-          payload,
-          meta: {
-            schema: PaginatedArticleResource.getList.schema,
-            key: PaginatedArticleResource.getList.key({
-              cursor: 2,
-            }),
-            updaters,
-            date: 5000000000,
-            expiresAt: 5000500000,
-          },
-        };
-      }
-
-      const insertAfterUpdater = <T extends { results?: string[] } | undefined>(
-        newPage: { results: string[] },
-        oldResults: T,
-      ) => ({
-        ...oldResults,
-        results: [...(oldResults?.results || []), ...newPage.results],
-      });
-
-      const insertBeforeUpdater = <
-        T extends { results?: string[] } | undefined,
-      >(
-        newPage: { results: string[] },
-        oldResults: T,
-      ) => ({
-        ...oldResults,
-        results: [...newPage.results, ...(oldResults?.results || [])],
-      });
-
-      const iniState: any = {
-        ...initialState,
-        entities: {
-          [PaginatedArticle.key]: {
-            '10': PaginatedArticle.fromJS({ id: 10 }),
-          },
-        },
-        results: {
-          [PaginatedArticleResource.getList.key()]: { results: ['10'] },
-        },
-      };
-
-      it('should insert a new page of resources into a list request', () => {
-        const newState = reducer(
-          iniState,
-          makeOptimisticAction(
-            { results: [{ id: 11 }, { id: 12 }] },
-            {
-              [PaginatedArticleResource.getList.key()]: insertAfterUpdater,
-            },
-          ),
-        );
-        expect(
-          newState.results[PaginatedArticleResource.getList.key()],
-        ).toStrictEqual({ results: ['10', '11', '12'] });
-      });
-
-      it('should insert correctly into the beginning of the list request', () => {
-        const newState = reducer(
-          iniState,
-          makeOptimisticAction(
-            { results: [{ id: 11 }, { id: 12 }] },
-            {
-              [PaginatedArticleResource.getList.key()]: insertBeforeUpdater,
-            },
-          ),
-        );
-        expect(
-          newState.results[PaginatedArticleResource.getList.key()],
-        ).toStrictEqual({ results: ['11', '12', '10'] });
-      });
-    });
-
-    describe('rpc update on create', () => {
-      const createEndpoint = ArticleResource.create;
-      function makeOptimisticAction(
-        payload: Partial<Article>,
-        updaters: {
-          [key: string]: UpdateFunction<
-            (typeof createEndpoint)['schema'],
-            (typeof Article)[]
-          >;
-        },
-      ) {
-        return {
-          type: RECEIVE_TYPE,
-          payload,
-          meta: {
-            schema: Article,
-            key: ArticleResource.create.key({}),
-            updaters,
-            date: 0,
-            expiresAt: 100000000000,
-          },
-        };
-      }
-
-      const insertAfterUpdater = (
-        result: string,
-        oldResults: string[] | undefined,
-      ) => [...(oldResults || []), result];
-
-      const insertBeforeUpdater = (
-        result: string,
-        oldResults: string[] | undefined,
-      ) => [result, ...(oldResults || [])];
-
-      const iniState: any = {
-        ...initialState,
-        entities: {
-          [UrlArticle.key]: {
-            '10': UrlArticle.fromJS({ id: 10 }),
-            '21': UrlArticle.fromJS({ id: 21 }),
-          },
-        },
-        results: {
-          [ArticleResourceWithOtherListUrl.getList.key()]: ['10'],
-          [ArticleResourceWithOtherListUrl.otherList.key()]: ['21'],
-        },
-      };
-
-      it('it should run inserts for a simple resource after the existing list entities', () => {
-        const newState = reducer(
-          iniState,
-          makeOptimisticAction(
-            { id: 11 },
-            {
-              [ArticleResource.getList.key()]: insertAfterUpdater,
-            },
-          ),
-        );
-        expect(newState.results[ArticleResource.getList.key()]).toStrictEqual([
-          '10',
-          '11',
-        ]);
-      });
-
-      it('it should run inserts for a simple resource before the existing list entities', () => {
-        const newState = reducer(
-          iniState,
-          makeOptimisticAction(
-            { id: 11 },
-            {
-              [ArticleResource.getList.key()]: insertBeforeUpdater,
-            },
-          ),
-        );
-        expect(newState.results[ArticleResource.getList.key()]).toStrictEqual([
-          '11',
-          '10',
-        ]);
-      });
-
-      it('it runs inserts for multiple updaters', () => {
-        const newState = reducer(
-          iniState,
-          makeOptimisticAction(
-            { id: 11 },
-            {
-              [ArticleResourceWithOtherListUrl.getList.key()]:
-                insertAfterUpdater,
-              [ArticleResourceWithOtherListUrl.otherList.key()]:
-                insertAfterUpdater,
-            },
-          ),
-        );
-        expect(
-          newState.results[ArticleResourceWithOtherListUrl.getList.key()],
-        ).toStrictEqual(['10', '11']);
-        expect(
-          newState.results[ArticleResourceWithOtherListUrl.otherList.key()],
-        ).toStrictEqual(['21', '11']);
-      });
-    });
-  });
-
+  /* this is probably not needed and will eventually be deprecated
   describe('endpoint.update', () => {
     describe('Update on get (pagination use case)', () => {
       const endpoint = PaginatedArticleResource.getList;
@@ -452,7 +267,7 @@ describe('reducer', () => {
       };
 
       it('should insert a new page of resources into a list request', () => {
-        const action = createReceive(
+        const action = createSet(
           { results: [{ id: 11 }, { id: 12 }] },
           {
             ...endpoint,
@@ -479,7 +294,7 @@ describe('reducer', () => {
       it('should insert correctly into the beginning of the list request', () => {
         const newState = reducer(
           iniState,
-          createReceive(
+          createSet(
             { results: [{ id: 11 }, { id: 12 }] },
             {
               ...endpoint,
@@ -519,7 +334,7 @@ describe('reducer', () => {
         };
         const newState = reducer(
           iniState,
-          createReceive(
+          createSet(
             { results: [{ id: 11 }, { id: 12 }] },
             {
               ...endpoint,
@@ -546,7 +361,7 @@ describe('reducer', () => {
         });
       });
     });
-  });
+  });*/
 
   it('invalidates resources correctly', () => {
     const id = 20;
@@ -589,12 +404,14 @@ describe('reducer', () => {
   it('should set error in meta for "receive"', () => {
     const id = 20;
     const error = new Error('hi');
-    const action: ReceiveAction = {
-      type: RECEIVE_TYPE,
+    const action: SetAction = {
+      type: SET_TYPE,
       payload: error,
+      endpoint: ArticleResource.get,
       meta: {
-        schema: Article,
+        args: [{ id }],
         key: ArticleResource.get.key({ id }),
+        fetchedAt: 5000000000,
         date: 5000000000,
         expiresAt: 5000500000,
       },
@@ -607,12 +424,14 @@ describe('reducer', () => {
   it('should not modify state on error for "rpc"', () => {
     const id = 20;
     const error = new Error('hi');
-    const action: ReceiveAction = {
-      type: RECEIVE_TYPE,
+    const action: SetAction = {
+      type: SET_TYPE,
       payload: error,
+      endpoint: ArticleResource.get,
       meta: {
-        schema: Article,
+        args: [{ id }],
         key: ArticleResource.get.key({ id }),
+        fetchedAt: 0,
         date: 0,
         expiresAt: 10000000000000000000,
       },
@@ -626,12 +445,14 @@ describe('reducer', () => {
   it('should not delete on error for "purge"', () => {
     const id = 20;
     const error = new Error('hi');
-    const action: ReceiveAction = {
-      type: RECEIVE_TYPE,
+    const action: SetAction = {
+      type: SET_TYPE,
       payload: error,
+      endpoint: ArticleResource.delete,
       meta: {
-        schema: new schema.Delete(Article),
+        args: [{ id }],
         key: ArticleResource.delete.key({ id }),
+        fetchedAt: 0,
         date: 0,
         expiresAt: 0,
       },
@@ -657,10 +478,10 @@ describe('reducer', () => {
       const action: FetchAction = {
         type: FETCH_TYPE,
         payload: () => new Promise<any>(() => null),
+        endpoint: ArticleResource.get,
         meta: {
-          schema: Article,
+          args: [{ id: 5 }],
           key: ArticleResource.get.url({ id: 5 }),
-          type: 'read' as const,
           throttle: true,
           reject: (v: any) => null,
           resolve: (v: any) => null,
@@ -723,67 +544,6 @@ describe('reducer', () => {
       expect(newState.results).toEqual({});
       expect(newState.meta).toEqual({});
       expect(newState.entities).toEqual({});
-    });
-
-    // TODO(breaking): Remove once Date support is removed from action
-    it('reset should delete all entries (legacy format)', () => {
-      const action: ResetAction = {
-        type: RESET_TYPE,
-        date: new Date(),
-      };
-      const iniState: any = {
-        ...initialState,
-        entities: {
-          [Article.key]: {
-            '10': Article.fromJS({ id: 10 }),
-            '20': Article.fromJS({ id: 20 }),
-            '25': Article.fromJS({ id: 25 }),
-          },
-          [PaginatedArticle.key]: {
-            hi: PaginatedArticle.fromJS({ id: 5 }),
-          },
-          '5': undefined,
-        },
-        results: { abc: '20' },
-      };
-      const newState = reducer(iniState, action);
-      expect(newState.results).toEqual({});
-      expect(newState.meta).toEqual({});
-      expect(newState.entities).toEqual({});
-    });
-
-    it('reset without date should warn about deprecation', () => {
-      const action: any = {
-        type: RESET_TYPE,
-      };
-      const iniState: any = {
-        ...initialState,
-        entities: {
-          [Article.key]: {
-            '10': Article.fromJS({ id: 10 }),
-            '20': Article.fromJS({ id: 20 }),
-            '25': Article.fromJS({ id: 25 }),
-          },
-          [PaginatedArticle.key]: {
-            hi: PaginatedArticle.fromJS({ id: 5 }),
-          },
-          '5': undefined,
-        },
-        results: { abc: '20' },
-      };
-      const newState = reducer(iniState, action);
-      expect(newState.results).toEqual({});
-      expect(newState.meta).toEqual({});
-      expect(newState.entities).toEqual({});
-      expect(newState.lastReset).toBeDefined();
-      expect(newState.lastReset).toBeGreaterThan(0);
-      expect(warnspy.mock.calls).toMatchInlineSnapshot(`
-        [
-          [
-            "rest-hooks/reset sent without 'date' member. This is deprecated. Please use createReset() action creator to ensure correct action shape.",
-          ],
-        ]
-      `);
     });
   });
 

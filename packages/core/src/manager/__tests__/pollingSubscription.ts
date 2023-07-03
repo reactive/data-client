@@ -1,5 +1,8 @@
+import { Endpoint } from '@data-client/endpoint';
 import { Article, PollingArticleResource } from '__tests__/new';
 
+import Controller from '../../controller/Controller';
+import { createSubscription } from '../../controller/createSubscription';
 import { initialState } from '../../state/reducer/createReducer';
 import ConnectionListener from '../ConnectionListener';
 import DefaultConnectionListener from '../DefaultConnectionListener';
@@ -75,20 +78,22 @@ afterEach(() => {
 describe('PollingSubscription', () => {
   const a = () => Promise.resolve({ id: 5, title: 'hi' });
   const fetch = jest.fn(a);
+  const endpoint = new Endpoint(fetch, {
+    schema: Article,
+    key: () => 'test.com',
+    pollFrequency: 5000,
+  });
 
   describe('existing data', () => {
     it('should wait to call for fresh data', () => {
       const dispatch = jest.fn();
+      const controller = new Controller({ dispatch });
+      (controller as any).getState = makeState('test.com', Date.now());
+
       jest.useFakeTimers();
       const sub2 = new PollingSubscription(
-        {
-          key: 'test.com',
-          schema: Article,
-          fetch,
-          frequency: 5000,
-          getState: makeState('test.com', Date.now()),
-        },
-        dispatch,
+        createSubscription(endpoint, { args: [] }),
+        controller,
       );
       expect(dispatch.mock.calls.length).toBe(0);
       jest.advanceTimersByTime(4990);
@@ -105,16 +110,13 @@ describe('PollingSubscription', () => {
 
     it('should only run once with multiple simultaneous starts', () => {
       const dispatch = jest.fn();
+      const controller = new Controller({ dispatch });
+      (controller as any).getState = () => initialState;
+
       jest.useFakeTimers();
       const sub2 = new PollingSubscription(
-        {
-          key: 'test.com',
-          schema: Article,
-          fetch,
-          frequency: 5000,
-          getState: () => initialState,
-        },
-        dispatch,
+        createSubscription(endpoint, { args: [] }),
+        controller,
       );
       sub2.add(1000);
       sub2.add(1000);
@@ -134,19 +136,15 @@ describe('PollingSubscription', () => {
 
   describe('fresh data', () => {
     const dispatch = jest.fn();
+    const controller = new Controller({ dispatch });
+    (controller as any).getState = makeState('test.com', 0);
     let sub: PollingSubscription;
 
     beforeAll(() => {
       jest.useFakeTimers();
       sub = new PollingSubscription(
-        {
-          key: 'test.com',
-          schema: Article,
-          fetch,
-          frequency: 5000,
-          getState: makeState('test.com', 0),
-        },
-        dispatch,
+        createSubscription(endpoint, { args: [] }),
+        controller,
       );
     });
     afterAll(() => {
@@ -158,13 +156,14 @@ describe('PollingSubscription', () => {
       expect(
         () =>
           new PollingSubscription(
-            {
-              key: 'test.com',
-              schema: Article,
-              fetch,
-              getState: makeState('test.com', 0),
-            },
-            dispatch,
+            createSubscription(
+              new Endpoint(fetch, {
+                schema: Article,
+                key: () => 'test.com',
+              }),
+              { args: [] },
+            ),
+            controller,
           ),
       ).toThrow();
     });
@@ -269,15 +268,12 @@ describe('PollingSubscription', () => {
       });
 
       it('should return false until completely empty, then return true', () => {
+        const controller = new Controller({ dispatch });
+        (controller as any).getState = makeState('test.com', 0);
+
         const sub = new PollingSubscription(
-          {
-            key: 'test.com',
-            schema: Article,
-            fetch,
-            frequency: 5000,
-            getState: makeState('test.com', 0),
-          },
-          dispatch,
+          createSubscription(endpoint, { args: [] }),
+          controller,
         );
         sub.add(5000);
         sub.add(7000);
@@ -304,16 +300,15 @@ describe('PollingSubscription', () => {
         sub.cleanup();
       });
       it('should not run even if interval not cancelled', () => {
+        const controller = new Controller({ dispatch });
+        (controller as any).getState = makeState('test.com', 0);
+
         sub.cleanup();
         sub = new PollingSubscription(
-          {
-            key: 'test.com2',
-            schema: Article,
-            fetch,
-            frequency: 5000,
-            getState: makeState('test.com', 0),
-          },
-          dispatch,
+          createSubscription(endpoint.extend({ key: () => 'test.com2' }), {
+            args: [],
+          }),
+          controller,
         );
         sub.add(5000);
         jest.runOnlyPendingTimers();
@@ -339,16 +334,19 @@ describe('PollingSubscription', () => {
       const dispatch = jest.fn();
       const a = () => Promise.resolve({ id: 5, title: 'hi' });
       const fetch = jest.fn(a);
+      const endpoint = new Endpoint(fetch, {
+        schema: Article,
+        key: () => 'test.com',
+        pollFrequency: 5000,
+      });
+      const controller = new Controller({ dispatch });
+      (controller as any).getState = makeState('test.com', 0);
 
       const pollingSubscription = new PollingSubscription(
-        {
-          key: 'test.com',
-          schema: Article,
-          fetch,
-          frequency: 5000,
-          getState: makeState('test.com', 0),
-        },
-        dispatch,
+        createSubscription(endpoint, {
+          args: [],
+        }),
+        controller,
         listener,
       );
       jest.advanceTimersByTime(1);

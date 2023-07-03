@@ -19,8 +19,8 @@ import { inferResults, validateInference } from '@data-client/normalizr';
 
 import createInvalidate from './createInvalidate.js';
 import createInvalidateAll from './createInvalidateAll.js';
-import createReceive from './createReceive.js';
 import createReset from './createReset.js';
+import createSet from './createSet.js';
 import {
   createUnsubscription,
   createSubscription,
@@ -28,17 +28,12 @@ import {
 import type { EndpointUpdateFunction } from './types.js';
 import { initialState } from '../state/reducer/createReducer.js';
 import selectMeta from '../state/selectMeta.js';
-import type {
-  ActionTypes as BroadActionTypes,
-  CombinedActionTypes,
-  State,
-} from '../types.js';
+import type { ActionTypes, State } from '../types.js';
 
 export type GenericDispatch = (value: any) => Promise<void>;
-export type CompatibleDispatch = (value: CombinedActionTypes) => Promise<void>;
-type PreviousDispatch = (value: BroadActionTypes) => Promise<void>;
+export type DataClientDispatch = (value: ActionTypes) => Promise<void>;
 
-interface ConstructorProps<D extends GenericDispatch = CompatibleDispatch> {
+interface ConstructorProps<D extends GenericDispatch = DataClientDispatch> {
   dispatch?: D;
   getState?: () => State<unknown>;
   globalCache?: DenormalizeCache;
@@ -61,7 +56,7 @@ const unsetState = (): State<unknown> => {
  * @see https://resthooks.io/docs/api/Controller
  */
 export default class Controller<
-  D extends GenericDispatch = CompatibleDispatch,
+  D extends GenericDispatch = DataClientDispatch,
 > {
   /**
    * Dispatches an action to Rest Hooks reducer.
@@ -136,17 +131,15 @@ export default class Controller<
     ...rest: readonly [...Parameters<E>, any]
   ): Promise<void> => {
     const response: ResolveType<E> = rest[rest.length - 1];
-    const action = createReceive(endpoint, {
+    const action = createSet(endpoint, {
       args: rest.slice(0, rest.length - 1) as Parameters<E>,
       response,
     });
     return this.dispatch(action);
   };
 
-  // TODO: deprecate
   /**
-   * Another name for setResponse
-   * @see https://resthooks.io/docs/api/Controller#setResponse
+   * @deprecated use https://resthooks.io/docs/api/Controller#setResponse instead
    */
   /* istanbul ignore next */ receive = <
     E extends EndpointInterface & {
@@ -173,7 +166,7 @@ export default class Controller<
     ...rest: readonly [...Parameters<E>, Error]
   ): Promise<void> => {
     const response: Error = rest[rest.length - 1];
-    const action = createReceive(endpoint, {
+    const action = createSet(endpoint, {
       args: rest.slice(0, rest.length - 1) as Parameters<E>,
       response,
       error: true,
@@ -181,10 +174,9 @@ export default class Controller<
     return this.dispatch(action);
   };
 
-  // TODO: deprecate
   /**
    * Another name for setError
-   * @see https://resthooks.io/docs/api/Controller#setError
+   * @deprecated use https://resthooks.io/docs/api/Controller#setError instead
    */
   /* istanbul ignore next */ receiveError = <
     E extends EndpointInterface & {
@@ -222,7 +214,7 @@ export default class Controller<
           error?: false;
         },
   ): Promise<void> => {
-    return this.dispatch(createReceive(endpoint, meta as any));
+    return this.dispatch(createSet(endpoint, meta as any));
   };
 
   /**

@@ -1,5 +1,3 @@
-import { ErrorFluxStandardActionWithPayloadAndMeta, FSA, FSAWithPayloadAndMeta, FSAWithMeta } from 'flux-standard-action';
-
 type Schema = null | string | {
     [K: string]: any;
 } | Schema[] | SchemaSimple | Serializable;
@@ -172,10 +170,6 @@ interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
     readonly pollFrequency?: number;
     /** Marks cached resources as invalid if they are stale */
     readonly invalidIfStale?: boolean;
-    /** Enables optimistic updates for this request - uses return value as assumed network response
-     * @deprecated use https://resthooks.io/docs/api/Endpoint#getoptimisticresponse instead
-     */
-    optimisticUpdate?(...args: Parameters<F>): ResolveType<F>;
     /** Enables optimistic updates for this request - uses return value as assumed network response */
     getOptimisticResponse?(snap: SnapshotInterface, ...args: Parameters<F>): ResolveType<F>;
     /** Determines whether to throw or fallback to */
@@ -183,7 +177,6 @@ interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
     /** User-land extra data to send */
     readonly extra?: any;
 }
-type UpdateFunction<SourceSchema extends Schema | undefined, DestSchema extends Schema> = (sourceResults: Normalize$1<SourceSchema>, destResults: Normalize$1<DestSchema> | undefined) => Normalize$1<DestSchema>;
 
 type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Promise<R>;
 
@@ -201,37 +194,46 @@ type EndpointUpdateFunction<Source extends EndpointInterface, Updaters extends R
 };
 
 declare const FETCH_TYPE: "rest-hooks/fetch";
-declare const RECEIVE_TYPE: "rest-hooks/receive";
 declare const SET_TYPE: "rest-hooks/receive";
 declare const OPTIMISTIC_TYPE: "rest-hooks/optimistic";
 declare const RESET_TYPE: "rest-hooks/reset";
 declare const SUBSCRIBE_TYPE: "rest-hooks/subscribe";
 declare const UNSUBSCRIBE_TYPE: "rest-hook/unsubscribe";
 declare const INVALIDATE_TYPE: "rest-hooks/invalidate";
+declare const INVALIDATEALL_TYPE: "rest-hooks/invalidateall";
 declare const GC_TYPE: "rest-hooks/gc";
 
-interface ReceiveMeta$2 {
+type EndpointAndUpdate<E extends EndpointInterface> = EndpointInterface & {
+    update?: EndpointUpdateFunction<E>;
+};
+type EndpointDefault = EndpointInterface & {
+    update?: EndpointUpdateFunction<EndpointInterface>;
+};
+interface SetMeta {
     args: readonly any[];
+    key: string;
     fetchedAt: number;
     date: number;
     expiresAt: number;
 }
-interface ReceiveActionSuccess<E extends EndpointInterface = EndpointInterface> {
+interface SetActionSuccess<E extends EndpointAndUpdate<E> = EndpointDefault> {
     type: typeof SET_TYPE;
     endpoint: E;
-    meta: ReceiveMeta$2;
+    meta: SetMeta;
     payload: ResolveType<E>;
     error?: false;
 }
-interface ReceiveActionError<E extends EndpointInterface = EndpointInterface> {
+interface SetActionError<E extends EndpointAndUpdate<E> = EndpointDefault> {
     type: typeof SET_TYPE;
     endpoint: E;
-    meta: ReceiveMeta$2;
+    meta: SetMeta;
     payload: UnknownError;
     error: true;
 }
-interface FetchMeta$1 {
+type SetAction<E extends EndpointAndUpdate<E> = EndpointDefault> = SetActionSuccess<E> | SetActionError<E>;
+interface FetchMeta {
     args: readonly any[];
+    key: string;
     throttle: boolean;
     resolve: (value?: any | PromiseLike<any>) => void;
     reject: (reason?: any) => void;
@@ -239,224 +241,54 @@ interface FetchMeta$1 {
     createdAt: number;
     nm?: boolean;
 }
-interface FetchAction$2<E extends EndpointInterface = EndpointInterface> {
+interface FetchAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
     type: typeof FETCH_TYPE;
     endpoint: E;
-    meta: FetchMeta$1;
+    meta: FetchMeta;
     payload: () => ReturnType<E>;
 }
-interface OptimisticAction$2<E extends EndpointInterface & {
-    update?: EndpointUpdateFunction<E>;
-} = EndpointInterface & {
-    update?: EndpointUpdateFunction<EndpointInterface>;
-}> {
+interface OptimisticAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
     type: typeof OPTIMISTIC_TYPE;
     endpoint: E;
-    meta: ReceiveMeta$2;
-    error?: boolean;
+    meta: SetMeta;
+    error?: false;
 }
-interface SubscribeAction$2<E extends EndpointInterface = EndpointInterface> {
+interface SubscribeAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
     type: typeof SUBSCRIBE_TYPE;
     endpoint: E;
     meta: {
         args: readonly any[];
+        key: string;
     };
 }
-interface UnsubscribeAction$2<E extends EndpointInterface = EndpointInterface> {
+interface UnsubscribeAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
     type: typeof UNSUBSCRIBE_TYPE;
     endpoint: E;
     meta: {
         args: readonly any[];
+        key: string;
     };
 }
-interface InvalidateAction$1 {
+interface InvalidateAllAction {
+    type: typeof INVALIDATEALL_TYPE;
+    testKey: (key: string) => boolean;
+}
+interface InvalidateAction {
     type: typeof INVALIDATE_TYPE;
     meta: {
         key: string;
     };
 }
-interface ResetAction$2 {
+interface ResetAction {
     type: typeof RESET_TYPE;
     date: number;
 }
-interface GCAction$1 {
+interface GCAction {
     type: typeof GC_TYPE;
     entities: [string, string][];
     results: string[];
 }
-
-interface CompatibleFetchMeta extends FetchMeta$1 {
-    key: string;
-    schema?: Schema;
-    type: 'mutate' | 'read';
-    update?: (result: any, ...args: any) => Record<string, (...args: any) => any>;
-    options?: EndpointExtraOptions;
-    optimisticResponse?: {};
-}
-interface CompatibleFetchAction<E extends EndpointInterface = EndpointInterface> extends FetchAction$2<E> {
-    meta: CompatibleFetchMeta;
-}
-interface CompatibleReceiveMeta extends ReceiveMeta$2 {
-    key: string;
-    schema?: any;
-    update?: (result: any, ...args: any) => Record<string, (...args: any) => any>;
-    errorPolicy?: (error: any) => 'hard' | 'soft' | undefined;
-}
-interface CompatibleReceiveActionSuccess<E extends EndpointInterface = EndpointInterface> extends ReceiveActionSuccess<E> {
-    meta: CompatibleReceiveMeta;
-    payload: any;
-}
-interface CompatibleReceiveActionError<E extends EndpointInterface = EndpointInterface> extends ReceiveActionError<E> {
-    meta: CompatibleReceiveMeta;
-    payload: any;
-}
-type CompatibleReceiveAction<E extends EndpointInterface = EndpointInterface> = CompatibleReceiveActionSuccess<E> | CompatibleReceiveActionError<E>;
-interface CompatibleSubscribeAction<E extends EndpointInterface = EndpointInterface> extends SubscribeAction$2<E> {
-    meta: {
-        args: readonly any[];
-        schema: Schema | undefined;
-        fetch: () => Promise<any>;
-        key: string;
-        options: EndpointExtraOptions | undefined;
-    };
-}
-interface CompatibleUnsubscribeAction<E extends EndpointInterface = EndpointInterface> extends UnsubscribeAction$2<E> {
-    meta: {
-        args: readonly any[];
-        key: string;
-        options: EndpointExtraOptions | undefined;
-    };
-}
-
-/** Defines the shape of a network request */
-interface FetchShape<S extends Schema | undefined, Params extends Readonly<object> = Readonly<object>, Body extends Readonly<object | string> | void | unknown = Readonly<object | string> | undefined, Response = any> {
-    readonly type: 'read' | 'mutate' | 'delete';
-    fetch(params: Params, body?: Body): Promise<Response>;
-    getFetchKey(params: Params): string;
-    readonly schema: S;
-    readonly options?: EndpointExtraOptions;
-}
-
-type ErrorableFSAWithPayloadAndMeta<Type extends string = string, Payload = undefined, Meta = undefined, CustomError extends Error = Error> = ErrorFluxStandardActionWithPayloadAndMeta<Type, CustomError, Meta> | NoErrorFluxStandardActionWithPayloadAndMeta<Type, Payload, Meta>;
-interface NoErrorFluxStandardAction<Type extends string = string, Payload = undefined, Meta = undefined> extends FSA<Type, Payload, Meta> {
-    error?: false;
-}
-/**
- * A Flux Standard action with a required payload property.
- */
-interface NoErrorFluxStandardActionWithPayload<Type extends string = string, Payload = undefined, Meta = undefined> extends NoErrorFluxStandardAction<Type, Payload, Meta> {
-    /**
-     * The required `payload` property MAY be any type of value.
-     * It represents the payload of the action.
-     * Any information about the action that is not the type or status of the action should be part of the `payload` field.
-     * By convention, if `error` is `true`, the `payload` SHOULD be an error object.
-     * This is akin to rejecting a promise with an error object.
-     */
-    payload: Payload;
-}
-/**
- * A Flux Standard action with a required metadata property.
- */
-interface NoErrorFluxStandardActionWithMeta<Type extends string = string, Payload = undefined, Meta = undefined> extends NoErrorFluxStandardAction<Type, Payload, Meta> {
-    /**
-     * The required `meta` property MAY be any type of value.
-     * It is intended for any extra information that is not part of the payload.
-     */
-    meta: Meta;
-}
-/**
- * A Flux Standard action with required payload and metadata properties.
- */
-type NoErrorFluxStandardActionWithPayloadAndMeta<Type extends string = string, Payload = undefined, Meta = undefined> = NoErrorFluxStandardActionWithPayload<Type, Payload, Meta> & NoErrorFluxStandardActionWithMeta<Type, Payload, Meta>;
-
-interface ReceiveMeta$1<S extends Schema | undefined> {
-    schema?: S;
-    key: string;
-    args?: readonly any[];
-    updaters?: Record<string, UpdateFunction<S, any>>;
-    update?: (result: any, ...args: any) => Record<string, (...args: any) => any>;
-    fetchedAt?: number;
-    date: number;
-    expiresAt: number;
-    errorPolicy?: (error: any) => 'hard' | 'soft' | undefined;
-}
-type ReceiveAction$2<Payload extends object | string | number | null = object | string | number | null, S extends Schema | undefined = any> = ErrorableFSAWithPayloadAndMeta<typeof RECEIVE_TYPE, Payload, ReceiveMeta$1<S>>;
-interface ResetAction$1 {
-    type: typeof RESET_TYPE;
-    date: number | Date;
-}
-interface FetchMeta<Payload extends object | string | number | null = object | string | number | null, S extends Schema | undefined = any> {
-    type: FetchShape<any, any>['type'];
-    schema?: S;
-    key: string;
-    args?: readonly any[];
-    updaters?: Record<string, UpdateFunction<S, any>>;
-    update?: (result: any, ...args: any) => Record<string, (...args: any) => any>;
-    options?: EndpointExtraOptions;
-    throttle: boolean;
-    resolve: (value?: any | PromiseLike<any>) => void;
-    reject: (reason?: any) => void;
-    promise: PromiseLike<any>;
-    createdAt: number | Date;
-    optimisticResponse?: Payload;
-    nm?: boolean;
-}
-interface FetchAction$1<Payload extends object | string | number | null = object | string | number | null, S extends Schema | undefined = any> extends FSAWithPayloadAndMeta<typeof FETCH_TYPE, () => Promise<Payload>, FetchMeta<any, any>> {
-    meta: FetchMeta<Payload, S>;
-    endpoint?: undefined;
-}
-interface SubscribeAction$1 extends FSAWithMeta<typeof SUBSCRIBE_TYPE, undefined, any> {
-    meta: {
-        args?: readonly any[];
-        schema: Schema | undefined;
-        fetch: () => Promise<any>;
-        key: string;
-        options: EndpointExtraOptions | undefined;
-    };
-    endpoint?: undefined;
-}
-interface UnsubscribeAction$1 extends FSAWithMeta<typeof UNSUBSCRIBE_TYPE, undefined, any> {
-    meta: {
-        args?: readonly any[];
-        key: string;
-        options: EndpointExtraOptions | undefined;
-    };
-    endpoint?: undefined;
-}
-
-interface ReceiveMeta<S extends Schema | undefined> {
-    schema?: S;
-    key: string;
-    args?: readonly any[];
-    updaters?: Record<string, UpdateFunction<S, any>>;
-    update?: (result: any, ...args: any) => Record<string, (...args: any) => any>;
-    fetchedAt?: number;
-    date: number;
-    expiresAt: number;
-    errorPolicy?: (error: any) => 'hard' | 'soft' | undefined;
-}
-type ReceiveAction$1<Payload extends object | string | number | null = object | string | number | null, S extends Schema | undefined = any> = ErrorableFSAWithPayloadAndMeta<typeof RECEIVE_TYPE, Payload, ReceiveMeta<S>> & {
-    endpoint?: EndpointInterface;
-};
-type OptimisticAction$1<E extends EndpointInterface & {
-    update?: EndpointUpdateFunction<E>;
-} = EndpointInterface & {
-    update?: EndpointUpdateFunction<EndpointInterface>;
-}> = {
-    type: typeof OPTIMISTIC_TYPE;
-    meta: {
-        schema: E['schema'];
-        key: string;
-        args: readonly any[];
-        update?: (result: any, ...args: any) => Record<string, (...args: any) => any>;
-        fetchedAt: number;
-        date: number;
-        expiresAt: number;
-        errorPolicy?: (error: any) => 'hard' | 'soft' | undefined;
-    };
-    endpoint: E;
-    error?: undefined;
-};
+type ActionTypes = FetchAction | OptimisticAction | SetAction | SubscribeAction | UnsubscribeAction | InvalidateAction | InvalidateAllAction | ResetAction | GCAction;
 
 type PK = string;
 interface State<T> {
@@ -488,27 +320,13 @@ interface State<T> {
             };
         };
     };
-    readonly optimistic: (ReceiveAction$1 | OptimisticAction$1)[];
-    readonly lastReset: Date | number;
+    readonly optimistic: (SetAction | OptimisticAction)[];
+    readonly lastReset: number;
 }
 
-type OptimisticAction<E extends EndpointInterface & {
-    update?: EndpointUpdateFunction<E>;
-} = EndpointInterface & {
-    update?: EndpointUpdateFunction<EndpointInterface>;
-}> = OptimisticAction$2<E>;
-type InvalidateAction = InvalidateAction$1;
-type ResetAction = ResetAction$2 | ResetAction$1;
-type GCAction = GCAction$1;
-type FetchAction<Payload extends object | string | number | null = object | string | number | null, S extends Schema | undefined = any> = CompatibleFetchAction | FetchAction$1<Payload, S>;
-type ReceiveAction<Payload extends object | string | number | null = object | string | number | null, S extends Schema | undefined = any> = CompatibleReceiveAction | ReceiveAction$2<Payload, S>;
-type SubscribeAction = CompatibleSubscribeAction | SubscribeAction$1;
-type UnsubscribeAction = CompatibleUnsubscribeAction | UnsubscribeAction$1;
-type CombinedActionTypes = OptimisticAction | InvalidateAction | ResetAction | GCAction | FetchAction | ReceiveAction | SubscribeAction | UnsubscribeAction;
-
 type GenericDispatch = (value: any) => Promise<void>;
-type CompatibleDispatch = (value: CombinedActionTypes) => Promise<void>;
-interface ConstructorProps<D extends GenericDispatch = CompatibleDispatch> {
+type DataClientDispatch = (value: ActionTypes) => Promise<void>;
+interface ConstructorProps<D extends GenericDispatch = DataClientDispatch> {
     dispatch?: D;
     getState?: () => State<unknown>;
     globalCache?: DenormalizeCache;
@@ -517,7 +335,7 @@ interface ConstructorProps<D extends GenericDispatch = CompatibleDispatch> {
  * Imperative control of Rest Hooks store
  * @see https://resthooks.io/docs/api/Controller
  */
-declare class Controller$1<D extends GenericDispatch = CompatibleDispatch> {
+declare class Controller$1<D extends GenericDispatch = DataClientDispatch> {
     /**
      * Dispatches an action to Rest Hooks reducer.
      *
@@ -560,8 +378,7 @@ declare class Controller$1<D extends GenericDispatch = CompatibleDispatch> {
         update?: EndpointUpdateFunction<E> | undefined;
     }>(endpoint: E, ...rest: readonly [...Parameters<E>, any]) => Promise<void>;
     /**
-     * Another name for setResponse
-     * @see https://resthooks.io/docs/api/Controller#setResponse
+     * @deprecated use https://resthooks.io/docs/api/Controller#setResponse instead
      */
     receive: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
         update?: EndpointUpdateFunction<E> | undefined;
@@ -575,7 +392,7 @@ declare class Controller$1<D extends GenericDispatch = CompatibleDispatch> {
     }>(endpoint: E, ...rest: readonly [...Parameters<E>, Error]) => Promise<void>;
     /**
      * Another name for setError
-     * @see https://resthooks.io/docs/api/Controller#setError
+     * @deprecated use https://resthooks.io/docs/api/Controller#setError instead
      */
     receiveError: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
         update?: EndpointUpdateFunction<E> | undefined;
@@ -629,7 +446,7 @@ declare class Controller$1<D extends GenericDispatch = CompatibleDispatch> {
     };
 }
 
-declare class Controller<D extends GenericDispatch = CompatibleDispatch> extends Controller$1<D> {
+declare class Controller<D extends GenericDispatch = DataClientDispatch> extends Controller$1<D> {
     /**
      * Fetches the endpoint with given args, updating the Rest Hooks cache with the response or error upon completion.
      * @see https://resthooks.io/docs/api/Controller#fetch
@@ -639,4 +456,4 @@ declare class Controller<D extends GenericDispatch = CompatibleDispatch> extends
     }>(endpoint: E, ...args_0: Parameters<E>) => E["schema"] extends null | undefined ? ReturnType<E> : Promise<Denormalize<E["schema"]>>;
 }
 
-export { CompatibleDispatch, Controller, ErrorTypes, GenericDispatch };
+export { Controller, DataClientDispatch, ErrorTypes, GenericDispatch };

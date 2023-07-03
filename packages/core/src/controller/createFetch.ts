@@ -2,10 +2,7 @@ import type { EndpointInterface } from '@data-client/normalizr';
 
 import { EndpointUpdateFunction } from './types.js';
 import { FETCH_TYPE } from '../actionTypes.js';
-import type {
-  CompatibleFetchAction,
-  CompatibleFetchMeta,
-} from '../compatibleActions.js';
+import type { FetchAction, FetchMeta } from '../types.js';
 
 /**
  * Requesting a fetch to begin
@@ -15,35 +12,23 @@ export default function createFetch<
 >(
   endpoint: E,
   { args }: { args: readonly [...Parameters<E>] },
-): CompatibleFetchAction<E> {
+): FetchAction<E> {
   const key = endpoint.key(...args);
   let resolve: (value?: any | PromiseLike<any>) => void = 0 as any;
   let reject: (reason?: any) => void = 0 as any;
   const promise = new Promise<any>((a, b) => {
     [resolve, reject] = [a, b];
   });
-  const meta: CompatibleFetchMeta = {
-    schema: endpoint.schema,
-    type: endpoint.sideEffect ? ('mutate' as const) : ('read' as const),
+  const meta: FetchMeta = {
     args,
     key,
     throttle: !endpoint.sideEffect,
-    options: endpoint,
     resolve,
     reject,
     promise,
     createdAt: Date.now(),
+    nm: false,
   };
-
-  if (endpoint.update) {
-    meta.update = endpoint.update;
-  }
-
-  // TODO: Remove once EOL on this deprecated piece
-  /* istanbul ignore if */
-  if (endpoint.optimisticUpdate) {
-    meta.optimisticResponse = endpoint.optimisticUpdate(...args);
-  }
 
   return {
     type: FETCH_TYPE,

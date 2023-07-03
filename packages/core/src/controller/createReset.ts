@@ -1,5 +1,5 @@
 import { RESET_TYPE } from '../actionTypes.js';
-import type { ResetAction } from '../newActions.js';
+import type { ResetAction } from '../types.js';
 
 export default function createReset(): ResetAction {
   return {

@@ -2,7 +2,7 @@ import { CoolerArticleResource } from '__tests__/new';
 
 import { Controller, initialState } from '../..';
 import { FETCH_TYPE, RESET_TYPE } from '../../actionTypes';
-import createReceive from '../../controller/createReceive';
+import createSet from '../../controller/createSet';
 import LogoutManager from '../LogoutManager.js';
 
 function onError(e: any) {
@@ -44,7 +44,7 @@ describe('LogoutManager', () => {
       },
     );
     it('should ignore non-error receive', async () => {
-      const action = createReceive(CoolerArticleResource.get, {
+      const action = createSet(CoolerArticleResource.get, {
         args: [{ id: 5 }],
         response: { id: 5, title: 'hi' },
       });
@@ -55,7 +55,7 @@ describe('LogoutManager', () => {
     it('should ignore non-401 receive', async () => {
       const error: any = new Error('network failed');
       error.status = 404;
-      const action = createReceive(CoolerArticleResource.get, {
+      const action = createSet(CoolerArticleResource.get, {
         args: [{ id: 5 }],
         response: error,
         error: true,
@@ -68,7 +68,7 @@ describe('LogoutManager', () => {
       jest.setSystemTime(0);
       const error: any = new Error('network failed');
       error.status = 401;
-      const action = createReceive(CoolerArticleResource.get, {
+      const action = createSet(CoolerArticleResource.get, {
         args: [{ id: 5 }],
         response: error,
         error: true,
@@ -90,7 +90,7 @@ describe('LogoutManager', () => {
       jest.setSystemTime(0);
       const error: any = new Error('network failed');
       error.status = 403;
-      const action = createReceive(CoolerArticleResource.get, {
+      const action = createSet(CoolerArticleResource.get, {
         args: [{ id: 5 }],
         response: error,
         error: true,

@@ -211,28 +211,3 @@ describe.each([
     await renderRestHook.allSettled();
   });
 });
-
-it('useSubscription() should include extra options in dispatched meta', () => {
-  const fakeDispatch = jest.fn();
-  const controller = new Controller({ dispatch: fakeDispatch });
-
-  renderHook(
-    () => {
-      useSubscription(PollingArticleResource.pusher, { id: 5 });
-    },
-    {
-      wrapper: function Wrapper({ children }: any) {
-        return (
-          <ControllerContext.Provider value={controller}>
-            {children}
-          </ControllerContext.Provider>
-        );
-      },
-    },
-  );
-
-  const spy = fakeDispatch.mock.calls[0][0];
-  expect(spy.meta.options.extra.eventType).toEqual(
-    'PollingArticleResource:fetch',
-  );
-});

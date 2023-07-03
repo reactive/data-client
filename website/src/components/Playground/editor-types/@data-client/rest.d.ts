@@ -1,3 +1,13 @@
+interface NetworkError$1 extends Error {
+    status: number;
+    response?: Response;
+}
+interface UnknownError extends Error {
+    status?: unknown;
+    response?: unknown;
+}
+type ErrorTypes = NetworkError$1 | UnknownError;
+
 type AbstractInstanceType<T> = T extends new (...args: any) => infer U ? U : T extends {
     prototype: infer U;
 } ? U : never;
@@ -50,6 +60,297 @@ type NormalizeNullable<S> = S extends EntityInterface ? string | undefined : S e
 interface EntityMap<T = any> {
     readonly [k: string]: EntityInterface<T>;
 }
+
+interface SnapshotInterface {
+    getResponse: <E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>, Args extends readonly [...Parameters<E['key']>]>(endpoint: E, ...args: Args) => {
+        data: DenormalizeNullable<E['schema']>;
+        expiryStatus: ExpiryStatusInterface;
+        expiresAt: number;
+    };
+    getError: <E extends Pick<EndpointInterface, 'key'>, Args extends readonly [...Parameters<E['key']>]>(endpoint: E, ...args: Args) => ErrorTypes | undefined;
+    readonly fetchedAt: number;
+}
+type ExpiryStatusInterface = 1 | 2 | 3;
+
+/** Get the Params type for a given Shape */
+type EndpointParam<E> = E extends (first: infer A, ...rest: any) => any ? A : E extends {
+    key: (first: infer A, ...rest: any) => any;
+} ? A : never;
+/** What the function's promise resolves to */
+type ResolveType<E extends (...args: any) => any> = ReturnType<E> extends Promise<infer R> ? R : never;
+type PartialParameters<T extends (...args: any[]) => any> = T extends (...args: infer P) => any ? Partial<P> : never;
+
+type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Promise<R>;
+interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
+    /** Default data expiry length, will fall back to NetworkManager default if not defined */
+    readonly dataExpiryLength?: number;
+    /** Default error expiry length, will fall back to NetworkManager default if not defined */
+    readonly errorExpiryLength?: number;
+    /** Poll with at least this frequency in miliseconds */
+    readonly pollFrequency?: number;
+    /** Marks cached resources as invalid if they are stale */
+    readonly invalidIfStale?: boolean;
+    /** Determines whether to throw or fallback to */
+    errorPolicy?(error: any): 'hard' | 'soft' | undefined;
+    /** Enables optimistic updates for this request - uses return value as assumed network response */
+    getOptimisticResponse?(snap: SnapshotInterface, ...args: Parameters<F>): ResolveType<F>;
+    /** User-land extra data to send */
+    readonly extra?: any;
+}
+
+type Schema = null | string | {
+    [K: string]: any;
+} | Schema[] | SchemaSimple | Serializable;
+type Serializable<T extends {
+    toJSON(): string;
+} = {
+    toJSON(): string;
+}> = {
+    prototype: T;
+};
+interface SchemaSimple<T = any> {
+    normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args: any[]): any;
+    denormalize(input: {}, unvisit: UnvisitFunction): [denormalized: T, found: boolean, suspend: boolean];
+    denormalizeOnly?(input: {}, args: any, unvisit: (input: any, schema: any) => any): T;
+    infer(args: readonly any[], indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): any;
+}
+interface SchemaSimpleNew<T = any> {
+    normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args?: any[]): any;
+    denormalizeOnly(input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any): T;
+    infer(args: readonly any[], indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): any;
+}
+interface SchemaClass$1<T = any, N = T | undefined> extends SchemaSimple<T> {
+    _normalizeNullable(): any;
+    _denormalizeNullable(): [N, boolean, boolean];
+}
+interface EntityInterface<T = any> extends SchemaSimple {
+    createIfValid?(props: any): any;
+    pk(params: any, parent?: any, key?: string, args?: any[]): string | undefined;
+    readonly key: string;
+    merge(existing: any, incoming: any): any;
+    expiresAt?(meta: any, input: any): number;
+    mergeWithStore?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
+    mergeMetaWithStore?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
+    useIncoming?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): boolean;
+    indexes?: any;
+    schema: Record<string, Schema>;
+    prototype: T;
+}
+/** Represents Array or Values */
+interface PolymorphicInterface<T = any> extends SchemaSimpleNew<T> {
+    readonly schema: any;
+    _normalizeNullable(): any;
+    _denormalizeNullable(): [any, boolean, boolean];
+}
+interface UnvisitFunction {
+    (input: any, schema: any): [any, boolean, boolean] | any;
+    og?: UnvisitFunction;
+    setLocal?: (entity: any) => void;
+}
+interface NormalizedIndex {
+    readonly [entityKey: string]: {
+        readonly [indexName: string]: {
+            readonly [lookup: string]: string;
+        };
+    };
+}
+interface EntityTable {
+    [entityKey: string]: {
+        [pk: string]: unknown;
+    } | undefined;
+}
+/** Defines a networking endpoint */
+interface EndpointInterface<F extends FetchFunction = FetchFunction, S extends Schema | undefined = Schema | undefined, M extends true | undefined = true | undefined> extends EndpointExtraOptions<F> {
+    (...args: Parameters<F>): ReturnType<F>;
+    key(...args: Parameters<F>): string;
+    readonly sideEffect?: M;
+    readonly schema?: S;
+}
+/** For retrieval requests */
+type ReadEndpoint<F extends FetchFunction = FetchFunction, S extends Schema | undefined = Schema | undefined> = EndpointInterface<F, S, undefined>;
+
+/* eslint-disable @typescript-eslint/ban-types */
+
+
+interface EndpointOptions<
+  F extends FetchFunction = FetchFunction,
+  S extends Schema | undefined = undefined,
+  M extends true | undefined = undefined,
+> extends EndpointExtraOptions<F> {
+  key?: (...args: Parameters<F>) => string;
+  sideEffect?: M;
+  schema?: S;
+  [k: string]: any;
+}
+
+interface EndpointExtendOptions<
+  F extends FetchFunction = FetchFunction,
+  S extends Schema | undefined = Schema | undefined,
+  M extends true | undefined = true | undefined,
+> extends EndpointOptions<F, S, M> {
+  fetch?: FetchFunction;
+}
+
+type KeyofEndpointInstance = keyof EndpointInstance<FetchFunction>;
+
+type ExtendedEndpoint<
+  O extends EndpointExtendOptions<F>,
+  E extends EndpointInstance<
+    FetchFunction,
+    Schema | undefined,
+    true | undefined
+  >,
+  F extends FetchFunction,
+> = EndpointInstance<
+  'fetch' extends keyof O ? Exclude<O['fetch'], undefined> : E['fetch'],
+  'schema' extends keyof O ? O['schema'] : E['schema'],
+  'sideEffect' extends keyof O ? O['sideEffect'] : E['sideEffect']
+> &
+  Omit<O, KeyofEndpointInstance> &
+  Omit<E, KeyofEndpointInstance>;
+
+/**
+ * Defines an async data source.
+ * @see https://resthooks.io/docs/api/Endpoint
+ */
+interface EndpointInstance<
+  F extends (...args: any) => Promise<any> = FetchFunction,
+  S extends Schema | undefined = Schema | undefined,
+  M extends true | undefined = true | undefined,
+> extends EndpointInstanceInterface<F, S, M> {
+  extend<
+    E extends EndpointInstance<
+      (...args: any) => Promise<any>,
+      Schema | undefined,
+      true | undefined
+    >,
+    O extends EndpointExtendOptions<F> &
+      Partial<Omit<E, keyof EndpointInstance<FetchFunction>>> &
+      Record<string, unknown>,
+  >(
+    this: E,
+    options: Readonly<O>,
+  ): ExtendedEndpoint<typeof options, E, F>;
+}
+
+/**
+ * Defines an async data source.
+ * @see https://resthooks.io/docs/api/Endpoint
+ */
+interface EndpointInstanceInterface<
+  F extends FetchFunction = FetchFunction,
+  S extends Schema | undefined = Schema | undefined,
+  M extends true | undefined = true | undefined,
+> extends EndpointInterface<F, S, M> {
+  constructor: EndpointConstructor;
+
+  /**
+   * Calls the function, substituting the specified object for the this value of the function, and the specified array for the arguments of the function.
+   * @param thisArg The object to be used as the this object.
+   * @param argArray A set of arguments to be passed to the function.
+   */
+  apply<E extends FetchFunction>(
+    this: E,
+    thisArg: ThisParameterType<E>,
+    argArray?: Parameters<E>,
+  ): ReturnType<E>;
+
+  /**
+   * Calls a method of an object, substituting another object for the current object.
+   * @param thisArg The object to be used as the current object.
+   * @param argArray A list of arguments to be passed to the method.
+   */
+  call<E extends FetchFunction>(
+    this: E,
+    thisArg: ThisParameterType<E>,
+    ...argArray: Parameters<E>
+  ): ReturnType<E>;
+
+  /**
+   * For a given function, creates a bound function that has the same body as the original function.
+   * The this object of the bound function is associated with the specified object, and has the specified initial parameters.
+   * @param thisArg An object to which the this keyword can refer inside the new function.
+   * @param argArray A list of arguments to be passed to the new function.
+   */
+  bind<E extends FetchFunction, P extends PartialParameters<E>>(
+    this: E,
+    thisArg: ThisParameterType<E>,
+    ...args: readonly [...P]
+  ): EndpointInstance<
+    (...args: readonly [...RemoveArray<Parameters<E>, P>]) => ReturnType<E>,
+    S,
+    M
+  > &
+    Omit<E, keyof EndpointInstance<FetchFunction>>;
+
+  /** Returns a string representation of a function. */
+  toString(): string;
+
+  prototype: any;
+  readonly length: number;
+
+  // Non-standard extensions
+  arguments: any;
+  caller: F;
+
+  key(...args: Parameters<F>): string;
+
+  readonly sideEffect: M;
+
+  readonly schema: S;
+
+  fetch: F;
+
+  /* utilities */
+  /** @see https://resthooks.io/rest/api/Endpoint#testKey */
+  testKey(key: string): boolean;
+}
+
+interface EndpointConstructor {
+  new <
+    F extends (
+      this: EndpointInstance<FetchFunction> & E,
+      params?: any,
+      body?: any,
+    ) => Promise<any>,
+    S extends Schema | undefined = undefined,
+    M extends true | undefined = undefined,
+    E extends Record<string, any> = {},
+  >(
+    fetchFunction: F,
+    options?: EndpointOptions<F, S, M> & E,
+  ): EndpointInstance<F, S, M> & E;
+  readonly prototype: Function;
+}
+declare let Endpoint: EndpointConstructor;
+
+
+interface ExtendableEndpointConstructor {
+  new <
+    F extends (
+      this: EndpointInstanceInterface<FetchFunction> & E,
+      params?: any,
+      body?: any,
+    ) => Promise<any>,
+    S extends Schema | undefined = undefined,
+    M extends true | undefined = undefined,
+    E extends Record<string, any> = {},
+  >(
+    RestFetch: F,
+    options?: Readonly<EndpointOptions<F, S, M>> & E,
+  ): EndpointInstanceInterface<F, S, M> & E;
+  readonly prototype: Function;
+}
+declare let ExtendableEndpoint: ExtendableEndpointConstructor;
+
+type RemoveArray<Orig extends any[], Rem extends any[]> = Rem extends [
+  any,
+  ...infer RestRem,
+]
+  ? Orig extends [any, ...infer RestOrig]
+    ? RemoveArray<RestOrig, RestRem>
+    : never
+  : Orig;
 
 type CollectionOptions<Parent extends any[] = [
     urlParams: Record<string, any>,
@@ -109,7 +410,7 @@ declare class Invalidate<E extends EntityInterface & {
  */
 declare class Delete<E extends EntityInterface & {
     process: any;
-}> extends Invalidate<E> implements SchemaClass$1 {
+}> extends Invalidate<E> implements SchemaClass {
     denormalize(id: string, unvisit: UnvisitFunction): [denormalized: AbstractInstanceType<E>, found: boolean, suspend: boolean];
 }
 
@@ -269,7 +570,7 @@ interface IEntityInstance {
  * Represents arrays
  * @see https://resthooks.io/rest/api/Array
  */
-declare class Array$1<S extends Schema = Schema> implements SchemaClass$1 {
+declare class Array$1<S extends Schema = Schema> implements SchemaClass {
   constructor(
     definition: S,
     schemaAttribute?: S extends EntityMap<infer T>
@@ -331,7 +632,7 @@ declare class Array$1<S extends Schema = Schema> implements SchemaClass$1 {
  */
 declare class All<
   S extends EntityMap | EntityInterface = EntityMap | EntityInterface,
-> implements SchemaClass$1
+> implements SchemaClass
 {
   constructor(
     definition: S,
@@ -393,7 +694,7 @@ declare class All<
  * @see https://resthooks.io/rest/api/Object
  */
 declare class Object$1<O extends Record<string, any> = Record<string, Schema>>
-  implements SchemaClass$1
+  implements SchemaClass
 {
   constructor(definition: O);
   define(definition: Schema): void;
@@ -436,7 +737,7 @@ declare class Object$1<O extends Record<string, any> = Record<string, Schema>>
  * Represents polymorphic values.
  * @see https://resthooks.io/rest/api/Union
  */
-declare class Union<Choices extends EntityMap = any> implements SchemaClass$1 {
+declare class Union<Choices extends EntityMap = any> implements SchemaClass {
   constructor(
     definition: Choices,
     schemaAttribute:
@@ -494,7 +795,7 @@ declare class Union<Choices extends EntityMap = any> implements SchemaClass$1 {
  * Represents variably sized objects
  * @see https://resthooks.io/rest/api/Values
  */
-declare class Values<Choices extends Schema = any> implements SchemaClass$1 {
+declare class Values<Choices extends Schema = any> implements SchemaClass {
   constructor(
     definition: Choices,
     schemaAttribute?: Choices extends EntityMap<infer T>
@@ -730,7 +1031,7 @@ type UnionResult<Choices extends EntityMap> = {
   id: string;
   schema: keyof Choices;
 };
-interface SchemaClass$1<T = any, N = T | undefined>
+interface SchemaClass<T = any, N = T | undefined>
   extends SchemaSimple<T> {
   // this is not an actual member, but is needed for the recursive NormalizeNullable<> type algo
   _normalizeNullable(): any;
@@ -794,6 +1095,7 @@ type schema_d_SchemaFunction<K = string> = SchemaFunction<K>;
 type schema_d_MergeFunction = MergeFunction;
 type schema_d_SchemaAttributeFunction<S extends Schema> = SchemaAttributeFunction<S>;
 type schema_d_UnionResult<Choices extends EntityMap> = UnionResult<Choices>;
+type schema_d_SchemaClass<T = any, N = T | undefined> = SchemaClass<T, N>;
 type schema_d_EntityInterface<T = any> = EntityInterface<T>;
 declare namespace schema_d {
   export {
@@ -816,340 +1118,11 @@ declare namespace schema_d {
     schema_d_MergeFunction as MergeFunction,
     schema_d_SchemaAttributeFunction as SchemaAttributeFunction,
     schema_d_UnionResult as UnionResult,
-    SchemaClass$1 as SchemaClass,
+    schema_d_SchemaClass as SchemaClass,
     Entity$1 as Entity,
     schema_d_EntityInterface as EntityInterface,
   };
 }
-
-interface NetworkError$1 extends Error {
-    status: number;
-    response?: Response;
-}
-interface UnknownError extends Error {
-    status?: unknown;
-    response?: unknown;
-}
-type ErrorTypes = NetworkError$1 | UnknownError;
-
-interface SnapshotInterface {
-    getResponse: <E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>, Args extends readonly [...Parameters<E['key']>]>(endpoint: E, ...args: Args) => {
-        data: DenormalizeNullable<E['schema']>;
-        expiryStatus: ExpiryStatusInterface;
-        expiresAt: number;
-    };
-    getError: <E extends Pick<EndpointInterface, 'key'>, Args extends readonly [...Parameters<E['key']>]>(endpoint: E, ...args: Args) => ErrorTypes | undefined;
-    readonly fetchedAt: number;
-}
-type ExpiryStatusInterface = 1 | 2 | 3;
-
-/** Get the Params type for a given Shape */
-type EndpointParam<E> = E extends (first: infer A, ...rest: any) => any ? A : E extends {
-    key: (first: infer A, ...rest: any) => any;
-} ? A : never;
-/** What the function's promise resolves to */
-type ResolveType<E extends (...args: any) => any> = ReturnType<E> extends Promise<infer R> ? R : never;
-type PartialParameters<T extends (...args: any[]) => any> = T extends (...args: infer P) => any ? Partial<P> : never;
-
-type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Promise<R>;
-/** @deprecated */
-type SchemaDetail<T> = EntityInterface<T> | {
-    [K: string]: any;
-} | SchemaClass$1;
-/** @deprecated */
-type SchemaList<T> = EntityInterface<T>[] | {
-    [K: string]: any;
-} | Schema[] | SchemaClass$1;
-interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
-    /** Default data expiry length, will fall back to NetworkManager default if not defined */
-    readonly dataExpiryLength?: number;
-    /** Default error expiry length, will fall back to NetworkManager default if not defined */
-    readonly errorExpiryLength?: number;
-    /** Poll with at least this frequency in miliseconds */
-    readonly pollFrequency?: number;
-    /** Marks cached resources as invalid if they are stale */
-    readonly invalidIfStale?: boolean;
-    /** Determines whether to throw or fallback to */
-    errorPolicy?(error: any): 'hard' | 'soft' | undefined;
-    /** Enables optimistic updates for this request - uses return value as assumed network response
-     * @deprecated use https://resthooks.io/docs/api/Endpoint#getoptimisticresponse instead
-     */
-    optimisticUpdate?(...args: Parameters<F>): ResolveType<F>;
-    /** Enables optimistic updates for this request - uses return value as assumed network response */
-    getOptimisticResponse?(snap: SnapshotInterface, ...args: Parameters<F>): ResolveType<F>;
-    /** User-land extra data to send */
-    readonly extra?: any;
-}
-
-type Schema = null | string | {
-    [K: string]: any;
-} | Schema[] | SchemaSimple | Serializable;
-type Serializable<T extends {
-    toJSON(): string;
-} = {
-    toJSON(): string;
-}> = {
-    prototype: T;
-};
-interface SchemaSimple<T = any> {
-    normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args: any[]): any;
-    denormalize(input: {}, unvisit: UnvisitFunction): [denormalized: T, found: boolean, suspend: boolean];
-    denormalizeOnly?(input: {}, args: any, unvisit: (input: any, schema: any) => any): T;
-    infer(args: readonly any[], indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): any;
-}
-interface SchemaSimpleNew<T = any> {
-    normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args?: any[]): any;
-    denormalizeOnly(input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any): T;
-    infer(args: readonly any[], indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): any;
-}
-interface SchemaClass<T = any, N = T | undefined> extends SchemaSimple<T> {
-    _normalizeNullable(): any;
-    _denormalizeNullable(): [N, boolean, boolean];
-}
-interface EntityInterface<T = any> extends SchemaSimple {
-    createIfValid?(props: any): any;
-    pk(params: any, parent?: any, key?: string, args?: any[]): string | undefined;
-    readonly key: string;
-    merge(existing: any, incoming: any): any;
-    expiresAt?(meta: any, input: any): number;
-    mergeWithStore?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
-    mergeMetaWithStore?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
-    useIncoming?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): boolean;
-    indexes?: any;
-    schema: Record<string, Schema>;
-    prototype: T;
-}
-/** Represents Array or Values */
-interface PolymorphicInterface<T = any> extends SchemaSimpleNew<T> {
-    readonly schema: any;
-    _normalizeNullable(): any;
-    _denormalizeNullable(): [any, boolean, boolean];
-}
-interface UnvisitFunction {
-    (input: any, schema: any): [any, boolean, boolean] | any;
-    og?: UnvisitFunction;
-    setLocal?: (entity: any) => void;
-}
-interface NormalizedIndex {
-    readonly [entityKey: string]: {
-        readonly [indexName: string]: {
-            readonly [lookup: string]: string;
-        };
-    };
-}
-interface EntityTable {
-    [entityKey: string]: {
-        [pk: string]: unknown;
-    } | undefined;
-}
-/** Defines a networking endpoint */
-interface EndpointInterface<F extends FetchFunction = FetchFunction, S extends Schema | undefined = Schema | undefined, M extends true | undefined = true | undefined> extends EndpointExtraOptions<F> {
-    (...args: Parameters<F>): ReturnType<F>;
-    key(...args: Parameters<F>): string;
-    readonly sideEffect?: M;
-    readonly schema?: S;
-}
-/** For retrieval requests */
-type ReadEndpoint<F extends FetchFunction = FetchFunction, S extends Schema | undefined = Schema | undefined> = EndpointInterface<F, S, undefined>;
-
-/* eslint-disable @typescript-eslint/ban-types */
-
-
-interface EndpointOptions<
-  F extends FetchFunction = FetchFunction,
-  S extends Schema | undefined = undefined,
-  M extends true | undefined = undefined,
-> extends EndpointExtraOptions<F> {
-  key?: (...args: Parameters<F>) => string;
-  sideEffect?: M;
-  schema?: S;
-  [k: string]: any;
-}
-
-interface EndpointExtendOptions<
-  F extends FetchFunction = FetchFunction,
-  S extends Schema | undefined = Schema | undefined,
-  M extends true | undefined = true | undefined,
-> extends EndpointOptions<F, S, M> {
-  fetch?: FetchFunction;
-}
-
-type KeyofEndpointInstance = keyof EndpointInstance<FetchFunction>;
-
-type ExtendedEndpoint<
-  O extends EndpointExtendOptions<F>,
-  E extends EndpointInstance<
-    FetchFunction,
-    Schema | undefined,
-    true | undefined
-  >,
-  F extends FetchFunction,
-> = EndpointInstance<
-  'fetch' extends keyof O ? Exclude<O['fetch'], undefined> : E['fetch'],
-  'schema' extends keyof O ? O['schema'] : E['schema'],
-  'sideEffect' extends keyof O ? O['sideEffect'] : E['sideEffect']
-> &
-  Omit<O, KeyofEndpointInstance> &
-  Omit<E, KeyofEndpointInstance>;
-
-/**
- * Defines an async data source.
- * @see https://resthooks.io/docs/api/Endpoint
- */
-interface EndpointInstance<
-  F extends (...args: any) => Promise<any> = FetchFunction,
-  S extends Schema | undefined = Schema | undefined,
-  M extends true | undefined = true | undefined,
-> extends EndpointInstanceInterface<F, S, M> {
-  extend<
-    E extends EndpointInstance<
-      (...args: any) => Promise<any>,
-      Schema | undefined,
-      true | undefined
-    >,
-    O extends EndpointExtendOptions<F> &
-      Partial<Omit<E, keyof EndpointInstance<FetchFunction>>> &
-      Record<string, unknown>,
-  >(
-    this: E,
-    options: Readonly<O>,
-  ): ExtendedEndpoint<typeof options, E, F>;
-}
-
-/**
- * Defines an async data source.
- * @see https://resthooks.io/docs/api/Endpoint
- */
-interface EndpointInstanceInterface<
-  F extends FetchFunction = FetchFunction,
-  S extends Schema | undefined = Schema | undefined,
-  M extends true | undefined = true | undefined,
-> extends EndpointInterface<F, S, M> {
-  constructor: EndpointConstructor;
-
-  /**
-   * Calls the function, substituting the specified object for the this value of the function, and the specified array for the arguments of the function.
-   * @param thisArg The object to be used as the this object.
-   * @param argArray A set of arguments to be passed to the function.
-   */
-  apply<E extends FetchFunction>(
-    this: E,
-    thisArg: ThisParameterType<E>,
-    argArray?: Parameters<E>,
-  ): ReturnType<E>;
-
-  /**
-   * Calls a method of an object, substituting another object for the current object.
-   * @param thisArg The object to be used as the current object.
-   * @param argArray A list of arguments to be passed to the method.
-   */
-  call<E extends FetchFunction>(
-    this: E,
-    thisArg: ThisParameterType<E>,
-    ...argArray: Parameters<E>
-  ): ReturnType<E>;
-
-  /**
-   * For a given function, creates a bound function that has the same body as the original function.
-   * The this object of the bound function is associated with the specified object, and has the specified initial parameters.
-   * @param thisArg An object to which the this keyword can refer inside the new function.
-   * @param argArray A list of arguments to be passed to the new function.
-   */
-  bind<E extends FetchFunction, P extends PartialParameters<E>>(
-    this: E,
-    thisArg: ThisParameterType<E>,
-    ...args: readonly [...P]
-  ): EndpointInstance<
-    (...args: readonly [...RemoveArray<Parameters<E>, P>]) => ReturnType<E>,
-    S,
-    M
-  > &
-    Omit<E, keyof EndpointInstance<FetchFunction>>;
-
-  /** Returns a string representation of a function. */
-  toString(): string;
-
-  prototype: any;
-  readonly length: number;
-
-  // Non-standard extensions
-  arguments: any;
-  caller: F;
-
-  key(...args: Parameters<F>): string;
-
-  readonly sideEffect: M;
-
-  readonly schema: S;
-
-  fetch: F;
-
-  /* utilities */
-  /** @see https://resthooks.io/rest/api/Endpoint#testKey */
-  testKey(key: string): boolean;
-
-  /** The following is for compatibility with FetchShape */
-  /** @deprecated */
-  readonly type: M extends undefined
-    ? 'read'
-    : IfAny<M, any, IfTypeScriptLooseNull$1<'read', 'mutate'>>;
-
-  /** @deprecated */
-  getFetchKey(...args: OnlyFirst<Parameters<F>>): string;
-  /** @deprecated */
-  options?: EndpointExtraOptions<F>;
-}
-
-interface EndpointConstructor {
-  new <
-    F extends (
-      this: EndpointInstance<FetchFunction> & E,
-      params?: any,
-      body?: any,
-    ) => Promise<any>,
-    S extends Schema | undefined = undefined,
-    M extends true | undefined = undefined,
-    E extends Record<string, any> = {},
-  >(
-    fetchFunction: F,
-    options?: EndpointOptions<F, S, M> & E,
-  ): EndpointInstance<F, S, M> & E;
-  readonly prototype: Function;
-}
-declare let Endpoint: EndpointConstructor;
-
-
-interface ExtendableEndpointConstructor {
-  new <
-    F extends (
-      this: EndpointInstanceInterface<FetchFunction> & E,
-      params?: any,
-      body?: any,
-    ) => Promise<any>,
-    S extends Schema | undefined = undefined,
-    M extends true | undefined = undefined,
-    E extends Record<string, any> = {},
-  >(
-    RestFetch: F,
-    options?: Readonly<EndpointOptions<F, S, M>> & E,
-  ): EndpointInstanceInterface<F, S, M> & E;
-  readonly prototype: Function;
-}
-declare let ExtendableEndpoint: ExtendableEndpointConstructor;
-
-type IfAny<T, Y, N> = 0 extends 1 & T ? Y : N;
-type IfTypeScriptLooseNull$1<Y, N> = 1 | undefined extends 1 ? Y : N;
-
-type OnlyFirst<A extends unknown[]> = A extends [] ? [] : [A[0]];
-
-type RemoveArray<Orig extends any[], Rem extends any[]> = Rem extends [
-  any,
-  ...infer RestRem,
-]
-  ? Orig extends [any, ...infer RestOrig]
-    ? RemoveArray<RestOrig, RestRem>
-    : never
-  : Orig;
 
 declare const Entity_base: IEntityClass<abstract new (...args: any[]) => {
     pk(parent?: any, key?: string | undefined, args?: readonly any[] | undefined): string | undefined;
@@ -1243,8 +1216,6 @@ declare class Index<S extends Schema, P = Readonly<IndexParams<S>>> {
     schema: S;
     constructor(schema: S, key?: (params: P) => string);
     key(params?: P): string;
-    /** The following is for compatibility with FetchShape */
-    getFetchKey: (params: P) => string;
 }
 type ArrayElement<ArrayType extends unknown[] | readonly unknown[]> = ArrayType[number];
 type IndexParams<S extends Schema> = S extends {
@@ -1933,4 +1904,4 @@ declare function paginationUpdate<E extends {
     [x: number]: (existing: any) => any;
 };
 
-export { AbortOptimistic, AbstractInstanceType, AddEndpoint, Array$1 as Array, ArrayElement, Collection, DELETED, Defaults, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, FetchGet, FetchMutate, GetEndpoint, HookResource, HookableEndpointInterface, INVALID, Index, IndexParams, Invalidate, KeyofEndpointInstance, KeyofRestEndpoint, KeysToArgs, MutateEndpoint, NetworkError, NewGetEndpoint, NewMutateEndpoint, Normalize, NormalizeNullable, OptionsToFunction, PaginationFieldEndpoint, PathArgs, PathArgsAndSearch, PathKeys, PolymorphicInterface, Query, ReadEndpoint, ResolveType, Resource, RestEndpoint, RestEndpointConstructorOptions, RestFetch, RestGenerics, RestInstance, RestType, Schema, SchemaClass, SchemaDetail, SchemaList, SchemaSimple, SchemaSimpleNew, ShortenPath, SnapshotInterface, UnknownError, createResource, hookifyResource, paginationUpdate, schema_d as schema, validateRequired };
+export { AbortOptimistic, AbstractInstanceType, AddEndpoint, Array$1 as Array, ArrayElement, Collection, DELETED, Defaults, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, FetchGet, FetchMutate, GetEndpoint, HookResource, HookableEndpointInterface, INVALID, Index, IndexParams, Invalidate, KeyofEndpointInstance, KeyofRestEndpoint, KeysToArgs, MutateEndpoint, NetworkError, NewGetEndpoint, NewMutateEndpoint, Normalize, NormalizeNullable, OptionsToFunction, PaginationFieldEndpoint, PathArgs, PathArgsAndSearch, PathKeys, PolymorphicInterface, Query, ReadEndpoint, ResolveType, Resource, RestEndpoint, RestEndpointConstructorOptions, RestFetch, RestGenerics, RestInstance, RestType, Schema, SchemaClass$1 as SchemaClass, SchemaSimple, SchemaSimpleNew, ShortenPath, SnapshotInterface, UnknownError, createResource, hookifyResource, paginationUpdate, schema_d as schema, validateRequired };

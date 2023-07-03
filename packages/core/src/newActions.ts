@@ -17,41 +17,52 @@ import type {
 } from './actionTypes.js';
 import type { EndpointUpdateFunction } from './controller/types.js';
 
+type EndpointAndUpdate<E extends EndpointInterface> = EndpointInterface & {
+  update?: EndpointUpdateFunction<E>;
+};
+type EndpointDefault = EndpointInterface & {
+  update?: EndpointUpdateFunction<EndpointInterface>;
+};
+
 /* RECEIVE */
-export interface ReceiveMeta {
+export interface SetMeta {
   args: readonly any[];
+  key: string;
   fetchedAt: number;
   date: number;
   expiresAt: number;
 }
-export interface ReceiveActionSuccess<
-  E extends EndpointInterface = EndpointInterface,
+export interface SetActionSuccess<
+  E extends EndpointAndUpdate<E> = EndpointDefault,
 > {
   type: typeof SET_TYPE;
   endpoint: E;
-  meta: ReceiveMeta;
+  meta: SetMeta;
   payload: ResolveType<E>;
   error?: false;
 }
-export interface ReceiveActionError<
-  E extends EndpointInterface = EndpointInterface,
+export interface SetActionError<
+  E extends EndpointAndUpdate<E> = EndpointDefault,
 > {
   type: typeof SET_TYPE;
   endpoint: E;
-  meta: ReceiveMeta;
+  meta: SetMeta;
   payload: UnknownError;
   error: true;
 }
-export type ReceiveAction<E extends EndpointInterface = EndpointInterface> =
-  | ReceiveActionSuccess<E>
-  | ReceiveActionError<E>;
+export type SetAction<E extends EndpointAndUpdate<E> = EndpointDefault> =
+  | SetActionSuccess<E>
+  | SetActionError<E>;
 
-export type SetAction<E extends EndpointInterface = EndpointInterface> =
-  ReceiveAction<E>;
+// TODO(breaking): Remove - legacy name compatibility
+/** @deprecated use SetAction instead */
+export type ReceiveAction<E extends EndpointAndUpdate<E> = EndpointDefault> =
+  SetAction<E>;
 
 /* FETCH */
 export interface FetchMeta {
   args: readonly any[];
+  key: string;
   throttle: boolean;
   resolve: (value?: any | PromiseLike<any>) => void;
   reject: (reason?: any) => void;
@@ -61,7 +72,7 @@ export interface FetchMeta {
   nm?: boolean;
 }
 
-export interface FetchAction<E extends EndpointInterface = EndpointInterface> {
+export interface FetchAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
   type: typeof FETCH_TYPE;
   endpoint: E;
   meta: FetchMeta;
@@ -70,36 +81,34 @@ export interface FetchAction<E extends EndpointInterface = EndpointInterface> {
 
 /* OPTIMISTIC */
 export interface OptimisticAction<
-  E extends EndpointInterface & {
-    update?: EndpointUpdateFunction<E>;
-  } = EndpointInterface & {
-    update?: EndpointUpdateFunction<EndpointInterface>;
-  },
+  E extends EndpointAndUpdate<E> = EndpointDefault,
 > {
   type: typeof OPTIMISTIC_TYPE;
   endpoint: E;
-  meta: ReceiveMeta;
-  error?: boolean;
+  meta: SetMeta;
+  error?: false;
 }
 
 /* SUBSCRIBE */
 export interface SubscribeAction<
-  E extends EndpointInterface = EndpointInterface,
+  E extends EndpointAndUpdate<E> = EndpointDefault,
 > {
   type: typeof SUBSCRIBE_TYPE;
   endpoint: E;
   meta: {
     args: readonly any[];
+    key: string;
   };
 }
 
 export interface UnsubscribeAction<
-  E extends EndpointInterface = EndpointInterface,
+  E extends EndpointAndUpdate<E> = EndpointDefault,
 > {
   type: typeof UNSUBSCRIBE_TYPE;
   endpoint: E;
   meta: {
     args: readonly any[];
+    key: string;
   };
 }
 
@@ -132,9 +141,10 @@ export interface GCAction {
 export type ActionTypes =
   | FetchAction
   | OptimisticAction
-  | ReceiveAction
+  | SetAction
   | SubscribeAction
   | UnsubscribeAction
   | InvalidateAction
+  | InvalidateAllAction
   | ResetAction
   | GCAction;

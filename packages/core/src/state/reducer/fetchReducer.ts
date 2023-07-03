@@ -1,31 +1,18 @@
 import createOptimistic from '../../controller/createOptimistic.js';
 import type {
+  State,
   ReceiveAction,
   OptimisticAction,
   FetchAction,
-} from '../../previousActions.js';
-import type { State } from '../../types.js';
-import { createReceive as legacyCreateReceive } from '../legacy-actions/index.js';
+} from '../../types.js';
 
 export function fetchReducer(state: State<unknown>, action: FetchAction) {
-  const optimisticResponse = action.meta.optimisticResponse;
-  const getOptimisticResponse = action.endpoint?.getOptimisticResponse;
   let receiveAction: ReceiveAction | OptimisticAction;
 
-  if (getOptimisticResponse && action.endpoint && action.endpoint.sideEffect) {
+  if (action.endpoint.getOptimisticResponse && action.endpoint.sideEffect) {
     receiveAction = createOptimistic(action.endpoint, {
-      args: action.meta.args as readonly any[],
-      fetchedAt:
-        typeof action.meta.createdAt !== 'number'
-          ? action.meta.createdAt.getTime()
-          : action.meta.createdAt,
-    }) as any;
-  } /* istanbul ignore if */ else if (optimisticResponse) {
-    // TODO(breaking): this is no longer used, remove this branch
-    /* istanbul ignore next */
-    receiveAction = legacyCreateReceive(optimisticResponse, {
-      ...action.meta,
-      dataExpiryLength: Infinity,
+      args: action.meta.args,
+      fetchedAt: action.meta.createdAt,
     });
   } else {
     // If 'fetch' action reaches the reducer there are no middlewares installed to handle it
