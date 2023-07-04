@@ -391,9 +391,11 @@ describe(`${schema.Collection.name} denormalization`, () => {
       if (typeof todos === 'symbol' || !todos) return;
       //expect(todos.title).toBe('from the start');
       expect(todos).toMatchInlineSnapshot(`
-        {
+        Todo {
+          "completed": false,
           "id": "2",
           "title": "from the start",
+          "userId": 0,
         }
       `);
     });

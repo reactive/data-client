@@ -567,12 +567,12 @@ declare class CollectionInterface<
   _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;
   _normalizeNullable(): ReturnType<S['_normalizeNullable']>;
 
-  push: S extends { denormalizeOnly(...args: any): any[] }
-    ? Collection<S, Parent>
+  push: S extends { denormalizeOnly(...args: any): (infer Return)[] }
+    ? Collection<PolymorphicInterface<Return>, Parent>
     : never;
 
-  unshift: S extends { denormalizeOnly(...args: any): any }
-    ? Collection<S, Parent>
+  unshift: S extends { denormalizeOnly(...args: any): (infer Return)[] }
+    ? Collection<PolymorphicInterface<Return>, Parent>
     : never;
 
   assign: S extends { denormalizeOnly(...args: any): Record<string, unknown> }
@@ -630,6 +630,15 @@ interface SchemaClass<T = any, N = T | undefined>
   _denormalizeNullable(): [N, boolean, boolean];
 }
 
+type ExtractCollection<S extends Schema | undefined> = S extends CollectionInterface ? S : S extends Object$1<infer T> ? ExtractObject<T> : S extends Exclude<Schema, {
+    [K: string]: any;
+}> ? never : S extends {
+    [K: string]: Schema;
+} ? ExtractObject<S> : never;
+type ExtractObject<S extends Record<string, any>> = {
+    [K in keyof S]: S[K] extends Schema ? ExtractCollection<S[K]> : never;
+}[keyof S];
+
 type OnlyOptional<S extends string> = S extends `${infer K}?` ? K : never;
 type OnlyRequired<S extends string> = S extends `${string}?` ? never : S;
 /** Computes the union of keys for a path string */
@@ -649,15 +658,6 @@ type TrimColon<S extends string> = string extends S ? string : S extends `${infe
 type OptionsToFunction<O extends PartialRestGenerics, E extends RestInstanceBase & {
     body?: any;
 }, F extends FetchFunction> = 'path' extends keyof O ? RestFetch<'searchParams' extends keyof O ? O['searchParams'] & PathArgs<Exclude<O['path'], undefined>> : PathArgs<Exclude<O['path'], undefined>>, 'body' extends keyof O ? O['body'] : E['body'], O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>> : 'body' extends keyof O ? RestFetch<'searchParams' extends keyof O ? O['searchParams'] & PathArgs<Exclude<E['path'], undefined>> : PathArgs<Exclude<E['path'], undefined>>, O['body'], O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>> : 'searchParams' extends keyof O ? RestFetch<O['searchParams'] & PathArgs<Exclude<E['path'], undefined>>, E['body'], O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>> : (this: ThisParameterType<F>, ...args: Parameters<F>) => Promise<O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>>;
-
-type ExtractCollection<S extends Schema | undefined> = S extends CollectionInterface ? S : S extends Object$1<infer T> ? ExtractObject<T> : S extends Exclude<Schema, {
-    [K: string]: any;
-}> ? never : S extends {
-    [K: string]: Schema;
-} ? ExtractObject<S> : never;
-type ExtractObject<S extends Record<string, any>> = {
-    [K in keyof S]: S[K] extends Schema ? ExtractCollection<S[K]> : never;
-}[keyof S];
 
 type EndpointUpdateFunction<Source extends FetchFunction, Schema, Updaters extends Record<string, any> = Record<string, any>> = (source: ResultEntry<Source & {
     schema: Schema;

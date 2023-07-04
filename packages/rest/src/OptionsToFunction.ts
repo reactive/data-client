@@ -3,7 +3,6 @@ import type { FetchFunction, ResolveType } from '@data-client/endpoint';
 import { PathArgs } from './pathTypes.js';
 import {
   PartialRestGenerics,
-  RestInstance,
   RestInstanceBase,
   RestFetch,
 } from './RestEndpoint.js';

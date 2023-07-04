@@ -1,5 +1,5 @@
 import { CacheProvider } from '@data-client/react';
-import { GetEndpoint } from '@data-client/rest';
+import { GetEndpoint, RestInstance } from '@data-client/rest';
 import {
   CoolerArticleResource,
   PaginatedArticleResource,
@@ -105,7 +105,11 @@ describe('useCache()', () => {
       url(id: any) {
         return CoolerArticleResource.get.url({ id });
       },
-    }) as GetEndpoint<number, typeof CoolerArticle>;
+    }) as RestInstance<
+      (id: number) => Promise<any>,
+      typeof CoolerArticle,
+      undefined
+    >;
     const { result } = renderRestHook(
       () => {
         return useCache(Detail, 5);

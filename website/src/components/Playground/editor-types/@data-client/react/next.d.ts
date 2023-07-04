@@ -1,4 +1,4 @@
-import { Controller } from '@data-client/core/next';
+import { Controller } from '@data-client/core';
 
 /**
  * Imperative control of Rest Hooks store

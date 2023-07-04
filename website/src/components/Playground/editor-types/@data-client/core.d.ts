@@ -561,7 +561,7 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> extends
      */
     fetch: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
         update?: EndpointUpdateFunction<E> | undefined;
-    }>(endpoint: E, ...args_0: Parameters<E>) => ReturnType<E>;
+    }>(endpoint: E, ...args_0: Parameters<E>) => E["schema"] extends null | undefined ? ReturnType<E> : Promise<Denormalize<E["schema"]>>;
 }
 
 declare function createReducer(controller: Controller): ReducerType;

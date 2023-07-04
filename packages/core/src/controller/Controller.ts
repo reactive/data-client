@@ -1,4 +1,5 @@
-import type { EndpointInterface } from '@data-client/normalizr';
+import type { EndpointInterface, Denormalize } from '@data-client/normalizr';
+import { denormalize } from '@data-client/normalizr';
 
 import BaseController, {
   DataClientDispatch,
@@ -19,13 +20,20 @@ export default class Controller<
   >(
     endpoint: E,
     ...args: readonly [...Parameters<E>]
-  ): ReturnType<E> => {
+  ): E['schema'] extends undefined | null
+    ? ReturnType<E>
+    : Promise<Denormalize<E['schema']>> => {
     const action = createFetch(endpoint, {
       args,
     });
     this.dispatch(action);
 
-    return action.meta.promise as ReturnType<E>;
+    if (endpoint.schema) {
+      return action.meta.promise.then(input =>
+        denormalize(input, endpoint.schema, {}, args),
+      ) as any;
+    }
+    return action.meta.promise as any;
   };
 }
 

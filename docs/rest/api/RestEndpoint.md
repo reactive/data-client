@@ -471,12 +471,10 @@ This is sent to [fetchResponse](#fetchResponse)
 
 :::tip async
 
-Import from `@data-client/rest/next` to get the next version, which is `async`
-
 <TypeScriptEditor>
 
 ```ts
-import { RestEndpoint, RestGenerics } from '@data-client/rest/next';
+import { RestEndpoint, RestGenerics } from '@data-client/rest';
 
 export default class AuthdEndpoint<
   O extends RestGenerics = any,
@@ -512,12 +510,10 @@ Don't use hooks here.
 
 :::tip async
 
-Import from `@data-client/rest/next` to get the next version, which is `async`
-
 <TypeScriptEditor>
 
 ```ts
-import { RestEndpoint, RestGenerics } from '@data-client/rest/next';
+import { RestEndpoint, RestGenerics } from '@data-client/rest';
 
 export default class AuthdEndpoint<
   O extends RestGenerics = any,

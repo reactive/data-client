@@ -93,9 +93,8 @@ describe('useController.fetch', () => {
       const { fetch } = useController();
       fetch(CoolerArticleResource.create, { content: 'hi' }).then(v => {
         v.author;
-        /*
         // @ts-expect-error
-        v.doesnotexist;*/
+        v.doesnotexist;
       });
       return null;
     }
@@ -113,9 +112,8 @@ describe('useController.fetch', () => {
       const { fetch } = useController();
       fetch(endpoint).then(v => {
         v[0].author;
-        /*
         // @ts-expect-error
-        v.doesnotexist;*/
+        v.doesnotexist;
       });
       return null;
     }
@@ -129,9 +127,8 @@ describe('useController.fetch', () => {
       const params = { content: 'hi' };
       fetch(CoolerArticleResource.create, params).then(v => {
         v.title;
-        /*
         // @ts-expect-error
-        v.doesnotexist;*/
+        v.doesnotexist;
       });
       return null;
     }
@@ -147,9 +144,8 @@ describe('useController.fetch', () => {
       () => fetch(CoolerArticleResource.detail(), {}, { content: 'hi' });
       fetch(CoolerArticleResource.get, { id: payload.id }).then(v => {
         v.title;
-        /*
         // @ts-expect-error
-        v.doesnotexist;*/
+        v.doesnotexist;
       });
       return null;
     }
@@ -373,9 +369,12 @@ describe('useController().getState', () => {
           result.current[1].getState(),
         ).data,
       ).toBe(result.current[0]);
-      await act(() =>
-        result.current[1].fetch(CoolerArticleResource.create, createPayload),
-      );
+      await act(async () => {
+        await result.current[1].fetch(
+          CoolerArticleResource.create,
+          createPayload,
+        );
+      });
       expect(
         result.current[1].getResponse(
           CoolerArticleResource.create,

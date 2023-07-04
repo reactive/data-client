@@ -13,6 +13,7 @@ import {
   hookifyResource,
   RestType,
   MutateEndpoint,
+  RestInstance,
 } from '@data-client/rest';
 import { SimpleRecord } from '@rest-hooks/legacy';
 import React, { createContext, useContext } from 'react';
@@ -304,21 +305,29 @@ export const UrlArticleResource = createArticleResource(UrlArticle);
 
 export const ArticleResourceWithOtherListUrl = {
   ...ArticleResource,
+  getList: ArticleResource.getList.extend({
+    schema: [Article],
+  }),
   otherList: ArticleResource.getList.extend({
     url: () => ArticleResource.getList.url() + 'some-list-url',
+    schema: [Article],
   }),
-  create: ArticleResource.create.extend({
-    getOptimisticResponse: (snap, body) => body,
-    update: newArticleID => ({
-      [ArticleResource.getList.key()]: (articleIDs: string[] | undefined) => [
-        ...(articleIDs || []),
-        newArticleID,
-      ],
-      [ArticleResource.getList.key() + 'some-list-url']: (
-        articleIDs: string[] | undefined,
-      ) => [...(articleIDs || []), newArticleID],
+  create: ArticleResource.create
+    .extend({
+      schema: Article,
+    })
+    .extend({
+      getOptimisticResponse: (snap, body) => body,
+      update: newArticleID => ({
+        [ArticleResource.getList.key()]: (articleIDs: string[] | undefined) => [
+          ...(articleIDs || []),
+          newArticleID,
+        ],
+        [ArticleResource.getList.key() + 'some-list-url']: (
+          articleIDs: string[] | undefined,
+        ) => [...(articleIDs || []), newArticleID],
+      }),
     }),
-  }),
 };
 
 /*
@@ -355,10 +364,7 @@ export const CoolerArticleResource = {
   ...CoolerArticleResourceBase,
   get: CoolerArticleResourceBase.get.extend({
     path: '/:id?/:title?',
-  }) as any as GetEndpoint<
-    { id: string | number } | { title: string | number },
-    typeof CoolerArticle
-  >,
+  }),
 };
 const CoolerArticleResourceFromMixinBase = createArticleResource(
   ArticleFromMixin,
@@ -370,10 +376,7 @@ export const CoolerArticleResourceFromMixin = {
   ...CoolerArticleResourceFromMixinBase,
   get: CoolerArticleResourceFromMixinBase.get.extend({
     path: '/:id?/:title?',
-  }) as any as GetEndpoint<
-    { id: string | number } | { title: string | number },
-    typeof ArticleFromMixin
-  >,
+  }),
 };
 
 export class EditorArticle extends CoolerArticle {
@@ -414,9 +417,10 @@ export const TypedArticleResource = {
 export const FutureArticleResource = {
   ...CoolerArticleResource,
   get: (
-    CoolerArticleResource.get as any as GetEndpoint<
-      string | number,
-      typeof CoolerArticle
+    CoolerArticleResource.get as any as RestInstance<
+      (id: string | number) => any,
+      typeof CoolerArticle,
+      undefined
     >
   ).extend({
     url(id: string) {
@@ -424,10 +428,10 @@ export const FutureArticleResource = {
     },
   }),
   update: (
-    CoolerArticleResource.update as any as MutateEndpoint<
-      string | number,
-      Partial<CoolerArticle>,
-      CoolerArticle
+    CoolerArticleResource.update as any as RestInstance<
+      (id: string | number, body: Partial<CoolerArticle>) => any,
+      typeof CoolerArticle,
+      true
     >
   ).extend({
     url(id: string, body) {
@@ -462,12 +466,6 @@ export const FutureArticleResource = {
     } {
       return value;
     },
-    update: newid => ({
-      [CoolerArticleResource.getList.key()]: (existing: string[] = []) => [
-        newid,
-        ...existing,
-      ],
-    }),
   }),
 };
 
@@ -579,10 +577,10 @@ export const PaginatedArticleResource = {
   ...PaginatedArticleResourceBase,
   getList: PaginatedArticleResourceBase.getList.extend({
     schema: paginatedSchema,
-  }) as GetEndpoint<
-    undefined | { cursor?: string | number; admin?: boolean },
-    typeof paginatedSchema
-  >,
+    searchParams: {} as
+      | undefined
+      | { cursor?: string | number; admin?: boolean },
+  }),
   getListDefaults: PaginatedArticleResourceBase.getList.extend({
     schema: makePaginatedRecord(PaginatedArticle),
   }),

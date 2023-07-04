@@ -97,13 +97,9 @@ function Auth() {
 </TabItem>
 <TabItem value="async">
 
-We'll grab RestEndpoint from `@data-client/rest/next` as this version supports
-async `getHeaders`. `@data-client/rest@8` will have these changes.
-
 ```ts title="api/AuthdEndpoint.ts"
 import { getAuthToken } from 'authorization-singleton';
-// highlight-next-line
-import { RestEndpoint } from '@data-client/rest/next';
+import { RestEndpoint } from '@data-client/rest';
 
 export default class AuthdEndpoint<
   O extends RestGenerics = any,

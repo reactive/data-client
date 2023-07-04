@@ -184,7 +184,7 @@ describe.each([
       expect(result.current.articles).toEqual([]);
     });
 
-    it('works with eager creates', async () => {
+    it('works with eager creates (legacy)', async () => {
       const body = { id: -1111111111, content: 'hi' };
       const existingItem = Article.fromJS({
         id: 100,
@@ -249,6 +249,40 @@ describe.each([
       ]);
     });
 
+    it('should update on create (legacy)', async () => {
+      const { result, waitForNextUpdate } = renderRestHook(() => {
+        const articles = useSuspense(
+          FutureArticleResource.getList.extend({ schema: [CoolerArticle] }),
+        );
+        const { fetch } = useController();
+        return { articles, fetch };
+      });
+
+      await waitForNextUpdate();
+      expect(result.current.articles.map(({ id }) => id)).toEqual([5, 3]);
+
+      const createOptimistic = FutureArticleResource.create
+        .extend({ schema: CoolerArticle })
+        .extend({
+          update: newid => ({
+            [CoolerArticleResource.getList.key()]: (
+              existing: string[] = [],
+            ) => [newid, ...existing],
+          }),
+          getOptimisticResponse: (snap, body) => ({
+            id: Math.random(),
+            ...(body as any),
+          }),
+        });
+      act(() => {
+        result.current.fetch(createOptimistic, {
+          id: 1,
+          title: 'whatever',
+        });
+      });
+      expect(result.current.articles.map(({ id }) => id)).toEqual([1, 5, 3]);
+    });
+
     it('should update on create', async () => {
       const { result, waitForNextUpdate } = renderRestHook(() => {
         const articles = useSuspense(FutureArticleResource.getList);
@@ -271,7 +305,7 @@ describe.each([
           title: 'whatever',
         });
       });
-      expect(result.current.articles.map(({ id }) => id)).toEqual([1, 5, 3]);
+      expect(result.current.articles.map(({ id }) => id)).toEqual([5, 3, 1]);
     });
 
     it('should clear only earlier optimistic updates when a promise resolves', async () => {

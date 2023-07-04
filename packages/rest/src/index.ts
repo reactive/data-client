@@ -7,8 +7,6 @@ export { default as RestEndpoint } from './RestEndpoint.js';
 export type {
   GetEndpoint,
   MutateEndpoint,
-  NewGetEndpoint,
-  NewMutateEndpoint,
   Defaults,
   RestGenerics,
   FetchGet,
@@ -23,6 +21,7 @@ export type {
 } from './RestEndpoint.js';
 export { default as createResource } from './createResource.js';
 export type { Resource } from './createResource.js';
+export type { ResourceOptions, ResourceGenerics } from './resourceTypes.js';
 export { default as hookifyResource } from './hookifyResource.js';
 export type {
   HookResource,
@@ -40,3 +39,4 @@ export type {
 } from './pathTypes.js';
 
 export * from '@data-client/endpoint';
+export * from './RestEndpoint.js';

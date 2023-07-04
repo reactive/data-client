@@ -67,9 +67,9 @@ interface State<T> {
     };
   };
   readonly optimistic: (
-    | previousActions.ReceiveAction
-    | previousActions.OptimisticAction
+    | SetAction
+    | OptimisticAction
   )[];
-  readonly lastReset: Date | number;
+  readonly lastReset: number;
 }
 ```

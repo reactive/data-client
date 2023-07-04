@@ -1,4 +1,4 @@
-# [![🛌🎣 Rest hooks](./packages/rest-hooks/rest_hooks_logo_and_text.svg?sanitize=true)](https://resthooks.io)
+# [![🛌🎣 Rest hooks](./proxy-pkgs/react/rest_hooks_logo_and_text.svg?sanitize=true)](https://resthooks.io)
 
 [![CircleCI](https://circleci.com/gh/data-client/rest-hooks/tree/master.svg?style=shield)](https://circleci.com/gh/data-client/rest-hooks)
 [![Coverage Status](https://img.shields.io/codecov/c/gh/data-client/rest-hooks/master.svg?style=flat-square)](https://app.codecov.io/gh/data-client/rest-hooks?branch=master)

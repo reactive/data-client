@@ -967,12 +967,12 @@ declare class CollectionInterface<
   _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;
   _normalizeNullable(): ReturnType<S['_normalizeNullable']>;
 
-  push: S extends { denormalizeOnly(...args: any): any[] }
-    ? Collection<S, Parent>
+  push: S extends { denormalizeOnly(...args: any): (infer Return)[] }
+    ? Collection<PolymorphicInterface<Return>, Parent>
     : never;
 
-  unshift: S extends { denormalizeOnly(...args: any): any }
-    ? Collection<S, Parent>
+  unshift: S extends { denormalizeOnly(...args: any): (infer Return)[] }
+    ? Collection<PolymorphicInterface<Return>, Parent>
     : never;
 
   assign: S extends { denormalizeOnly(...args: any): Record<string, unknown> }
@@ -1324,9 +1324,9 @@ interface RestInstanceBase<
   getRequestInit(
     this: any,
     body?: RequestInit['body'] | Record<string, unknown>,
-  ): RequestInit;
+  ): Promise<RequestInit> | RequestInit;
   /** @see https://resthooks.io/rest/api/RestEndpoint#getHeaders */
-  getHeaders(headers: HeadersInit): HeadersInit;
+  getHeaders(headers: HeadersInit): Promise<HeadersInit> | HeadersInit;
   /* after-fetch */
   /** @see https://resthooks.io/rest/api/RestEndpoint#fetchResponse */
   fetchResponse(input: RequestInfo, init: RequestInit): Promise<Response>;
@@ -1747,6 +1747,10 @@ type IfTypeScriptLooseNull<Y, N> = 1 | undefined extends 1 ? Y : N;
 
 type KeyofRestEndpoint = keyof RestInstance;
 
+type FromFallBack<K extends keyof E, O, E> = K extends keyof O
+  ? O[K]
+  : E[K];
+
 type FetchMutate<
   A extends readonly any[] =  // eslint-disable-next-line @typescript-eslint/ban-types
     | [any, {}]
@@ -1760,116 +1764,167 @@ type FetchGet<A extends readonly any[] = [any], R = any> = (
   ...args: A
 ) => Promise<R>;
 
-type GetEndpoint<
-  UrlParams = any,
-  S extends Schema | undefined = Schema | undefined,
-> = RestTypeNoBody<UrlParams, S, undefined>;
-
-type MutateEndpoint<
-  UrlParams = any,
-  Body extends BodyInit | Record<string, any> = any,
-  S extends Schema | undefined = Schema | undefined,
-> = RestTypeWithBody<UrlParams, S, true, Body>;
-
 type Defaults<O, D> = {
   [K in keyof O | keyof D]: K extends keyof O
     ? Exclude<O[K], undefined>
     : D[Extract<K, keyof D>];
 };
 
-type NewGetEndpoint<
+type GetEndpoint<
   O extends {
+    readonly path: string;
+    readonly schema: Schema;
+    /** Only used for types */
+    readonly searchParams?: any;
+  } = {
     path: string;
-    searchParams?: any;
-  } = { path: string },
-  S extends Schema | undefined = Schema | undefined,
+    schema: Schema;
+  },
 > = RestTypeNoBody<
   'searchParams' extends keyof O
-    ? O['searchParams'] & PathArgs<O['path']>
+    ? O['searchParams'] extends undefined
+      ? PathArgs<O['path']>
+      : O['searchParams'] & PathArgs<O['path']>
     : PathArgs<O['path']>,
-  S,
+  O['schema'],
   undefined,
   any,
   O & { body: undefined }
 >;
 
-type NewMutateEndpoint<
+type MutateEndpoint<
   O extends {
+    readonly path: string;
+    readonly schema: Schema;
+    /** Only used for types */
+    readonly searchParams?: any;
+    /** Only used for types */
+    readonly body?: any;
+  } = {
     path: string;
-    body?: any;
-    searchParams?: any;
-  } = { path: string; body: any },
-  S extends Schema | undefined = Schema | undefined,
+    body: any;
+    schema: Schema;
+  },
 > = RestTypeWithBody<
   'searchParams' extends keyof O
-    ? O['searchParams'] & PathArgs<O['path']>
+    ? O['searchParams'] extends undefined
+      ? PathArgs<O['path']>
+      : O['searchParams'] & PathArgs<O['path']>
     : PathArgs<O['path']>,
-  S,
+  O['schema'],
   true,
   O['body'],
   any,
   O
 >;
 
+interface ResourceGenerics {
+    readonly path: string;
+    readonly schema: Schema;
+    /** Only used for types */
+    readonly body?: any;
+    /** Only used for types */
+    readonly searchParams?: any;
+}
+interface ResourceOptions {
+    Endpoint?: typeof RestEndpoint;
+    urlPrefix?: string;
+    requestInit?: RequestInit;
+    getHeaders?(headers: HeadersInit): Promise<HeadersInit> | HeadersInit;
+    getRequestInit?(body: any): Promise<RequestInit> | RequestInit;
+    fetchResponse?(input: RequestInfo, init: RequestInit): Promise<any>;
+    parseResponse?(response: Response): Promise<any>;
+    /** Default data expiry length, will fall back to NetworkManager default if not defined */
+    readonly dataExpiryLength?: number;
+    /** Default error expiry length, will fall back to NetworkManager default if not defined */
+    readonly errorExpiryLength?: number;
+    /** Poll with at least this frequency in miliseconds */
+    readonly pollFrequency?: number;
+    /** Marks cached resources as invalid if they are stale */
+    readonly invalidIfStale?: boolean;
+    /** Determines whether to throw or fallback to */
+    errorPolicy?(error: any): 'hard' | 'soft' | undefined;
+    optimistic?: boolean;
+}
+
 /** Creates collection of Endpoints for common operations on a given data/schema.
  *
  * @see https://resthooks.io/rest/api/createResource
  */
-declare function createResource<U extends string, S extends Schema>({ path, schema, Endpoint, optimistic, ...extraOptions }: {
-    readonly path: U;
-    readonly schema: S;
-    readonly Endpoint?: typeof RestEndpoint;
-    urlPrefix?: string;
-    optimistic?: boolean;
-} & EndpointExtraOptions): Resource<U, S>;
-interface Resource<U extends string, S extends Schema> {
+declare function createResource<O extends ResourceGenerics>({ path, schema, Endpoint, optimistic, ...extraOptions }: Readonly<O> & ResourceOptions): Resource<O>;
+interface Resource<O extends ResourceGenerics = {
+    path: string;
+    schema: any;
+}> {
     /** Get a singular item
      *
      * @see https://resthooks.io/rest/api/createResource#get
      */
-    get: NewGetEndpoint<{
-        path: U;
-    }, S>;
+    get: GetEndpoint<{
+        path: O['path'];
+        schema: O['schema'];
+    }>;
     /** Get a list of item
      *
      * @see https://resthooks.io/rest/api/createResource#getlist
      */
-    getList: NewGetEndpoint<{
-        path: ShortenPath<U>;
+    getList: 'searchParams' extends keyof O ? GetEndpoint<{
+        path: ShortenPath<O['path']>;
+        schema: Collection<[O['schema']]>;
+        searchParams: O['searchParams'];
+    }> : GetEndpoint<{
+        path: ShortenPath<O['path']>;
+        schema: Collection<[O['schema']]>;
         searchParams: Record<string, number | string | boolean> | undefined;
-    }, S[]>;
+    }>;
     /** Create a new item (POST)
      *
      * @see https://resthooks.io/rest/api/createResource#create
      */
-    create: NewMutateEndpoint<{
-        path: ShortenPath<U>;
-        body: Partial<Denormalize<S>>;
-    }, S>;
+    create: 'searchParams' extends keyof O ? MutateEndpoint<{
+        path: ShortenPath<O['path']>;
+        schema: Collection<[O['schema']]>['push'];
+        body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>>;
+        searchParams: O['searchParams'];
+    }> : MutateEndpoint<{
+        path: ShortenPath<O['path']>;
+        schema: Collection<[O['schema']]>['push'];
+        body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>>;
+    }>;
     /** Update an item (PUT)
      *
      * @see https://resthooks.io/rest/api/createResource#update
      */
-    update: NewMutateEndpoint<{
-        path: U;
-        body: Partial<Denormalize<S>>;
-    }, S>;
+    update: 'body' extends keyof O ? MutateEndpoint<{
+        path: O['path'];
+        body: O['body'];
+        schema: O['schema'];
+    }> : MutateEndpoint<{
+        path: O['path'];
+        body: Partial<Denormalize<O['schema']>>;
+        schema: O['schema'];
+    }>;
     /** Update an item (PATCH)
      *
      * @see https://resthooks.io/rest/api/createResource#partialupdate
      */
-    partialUpdate: NewMutateEndpoint<{
-        path: U;
-        body: Partial<Denormalize<S>>;
-    }, S>;
+    partialUpdate: 'body' extends keyof O ? MutateEndpoint<{
+        path: O['path'];
+        body: Partial<O['body']>;
+        schema: O['schema'];
+    }> : MutateEndpoint<{
+        path: O['path'];
+        body: Partial<Denormalize<O['schema']>>;
+        schema: O['schema'];
+    }>;
     /** Delete an item (DELETE)
      *
      * @see https://resthooks.io/rest/api/createResource#delete
      */
-    delete: RestTypeNoBody<PathArgs<U>, S extends EntityInterface & {
+    delete: RestTypeNoBody<PathArgs<O['path']>, O['schema'] extends EntityInterface & {
         process: any;
-    } ? Delete<S> : S, undefined, Partial<PathArgs<U>>, {
-        path: U;
+    } ? Invalidate<O['schema']> : O['schema'], undefined, Partial<PathArgs<O['path']>>, {
+        path: O['path'];
     }>;
 }
 
@@ -1904,4 +1959,4 @@ declare function paginationUpdate<E extends {
     [x: number]: (existing: any) => any;
 };
 
-export { AbortOptimistic, AbstractInstanceType, AddEndpoint, Array$1 as Array, ArrayElement, Collection, DELETED, Defaults, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, FetchGet, FetchMutate, GetEndpoint, HookResource, HookableEndpointInterface, INVALID, Index, IndexParams, Invalidate, KeyofEndpointInstance, KeyofRestEndpoint, KeysToArgs, MutateEndpoint, NetworkError, NewGetEndpoint, NewMutateEndpoint, Normalize, NormalizeNullable, OptionsToFunction, PaginationFieldEndpoint, PathArgs, PathArgsAndSearch, PathKeys, PolymorphicInterface, Query, ReadEndpoint, ResolveType, Resource, RestEndpoint, RestEndpointConstructorOptions, RestFetch, RestGenerics, RestInstance, RestType, Schema, SchemaClass$1 as SchemaClass, SchemaSimple, SchemaSimpleNew, ShortenPath, SnapshotInterface, UnknownError, createResource, hookifyResource, paginationUpdate, schema_d as schema, validateRequired };
+export { AbortOptimistic, AbstractInstanceType, AddEndpoint, Array$1 as Array, ArrayElement, BodyDefault, Collection, DELETED, Defaults, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, FetchGet, FetchMutate, FromFallBack, GetEndpoint, HookResource, HookableEndpointInterface, INVALID, Index, IndexParams, Invalidate, KeyofEndpointInstance, KeyofRestEndpoint, KeysToArgs, MethodToSide, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, OptionsToFunction, PaginationEndpoint, PaginationFieldEndpoint, ParamFetchNoBody, ParamFetchWithBody, PartialRestGenerics, PathArgs, PathArgsAndSearch, PathKeys, PolymorphicInterface, Query, ReadEndpoint, ResolveType, Resource, ResourceGenerics, ResourceOptions, RestEndpoint, RestEndpointConstructor, RestEndpointConstructorOptions, RestEndpointExtendOptions, RestEndpointOptions, RestExtendedEndpoint, RestFetch, RestGenerics, RestInstance, RestInstanceBase, RestType, RestTypeNoBody, RestTypeWithBody, Schema, SchemaClass$1 as SchemaClass, SchemaSimple, SchemaSimpleNew, ShortenPath, SnapshotInterface, UnknownError, createResource, hookifyResource, paginationUpdate, schema_d as schema, validateRequired };

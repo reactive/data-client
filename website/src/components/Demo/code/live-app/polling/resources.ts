@@ -1,5 +1,5 @@
 import { Entity, schema } from '@data-client/rest';
-import { RestEndpoint } from '@data-client/rest/next';
+import { RestEndpoint } from '@data-client/rest';
 
 export class ExchangeRates extends Entity {
   currency = 'USD';

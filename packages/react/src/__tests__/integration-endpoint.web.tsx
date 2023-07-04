@@ -716,20 +716,24 @@ describe.each([
     },
   );
 
-  it('should update on create', async () => {
+  it('should update on create (legacy)', async () => {
     const { result, waitForNextUpdate, controller } = renderRestHook(() => {
-      const articles = useSuspense(CoolerArticleResource.getList);
+      const articles = useSuspense(
+        CoolerArticleResource.getList.extend({ schema: [CoolerArticle] }),
+      );
       return { articles };
     });
     await waitForNextUpdate();
-    const createEndpoint = CoolerArticleResource.create.extend({
-      update: newid => ({
-        [CoolerArticleResource.getList.key()]: (existing: string[] = []) => [
-          ...existing,
-          newid,
-        ],
-      }),
-    });
+    const createEndpoint = CoolerArticleResource.create
+      .extend({ schema: CoolerArticle })
+      .extend({
+        update: newid => ({
+          [CoolerArticleResource.getList.key()]: (existing: string[] = []) => [
+            ...existing,
+            newid,
+          ],
+        }),
+      });
     await act(async () => {
       await controller.fetch(createEndpoint, { id: 1 });
     });
@@ -738,14 +742,30 @@ describe.each([
     ).toEqual([5, 3, 1]);
   });
 
-  it('should update collection on push/unshift', async () => {
-    const getArticles = CoolerArticleResource.getList.extend({
-      schema: new schema.Collection([CoolerArticle], {
-        argsKey: (urlParams, body) => ({
-          ...urlParams,
-        }),
-      }),
+  it('should update on create', async () => {
+    const { result, waitForNextUpdate, controller } = renderRestHook(() => {
+      const articles = useSuspense(CoolerArticleResource.getList);
+      return { articles };
     });
+    await waitForNextUpdate();
+    await act(async () => {
+      await controller.fetch(CoolerArticleResource.create, { id: 1 });
+    });
+    expect(
+      result.current.articles.map(({ id }: Partial<CoolerArticle>) => id),
+    ).toEqual([5, 3, 1]);
+  });
+
+  it('should update collection on push/unshift', async () => {
+    const getArticles = CoolerArticleResource.getList
+      .extend({ schema: [CoolerArticle] })
+      .extend({
+        schema: new schema.Collection([CoolerArticle], {
+          argsKey: (urlParams, body) => ({
+            ...urlParams,
+          }),
+        }),
+      });
     const { result, waitForNextUpdate, controller } = renderRestHook(() => {
       const articles = useSuspense(getArticles);
       return articles;

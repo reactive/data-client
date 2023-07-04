@@ -1,7 +1,7 @@
 import { CacheProvider } from '@data-client/react';
 import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
 import { schema, RestEndpoint } from '@data-client/rest';
-import { createResource } from '@data-client/rest/next';
+import { createResource } from '@data-client/rest';
 import {
   IDEntity,
   Article,

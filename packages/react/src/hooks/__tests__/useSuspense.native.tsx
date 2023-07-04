@@ -1,6 +1,3 @@
-import { jest } from '@jest/globals';
-import { NavigationContainer, NavigationProp } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {
   State,
   initialState,
@@ -12,6 +9,9 @@ import { FetchAction } from '@data-client/core';
 import { Endpoint, FetchFunction, ReadEndpoint } from '@data-client/endpoint';
 import { normalize } from '@data-client/normalizr';
 import { makeRenderRestHook, mockInitialState } from '@data-client/test';
+import { jest } from '@jest/globals';
+import { NavigationContainer, NavigationProp } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { render, act, screen, waitFor } from '@testing-library/react-native';
 import {
   CoolerArticleResource,
@@ -668,7 +668,7 @@ describe('useSuspense()', () => {
         result.current.endpoint,
         { id: payload.id },
       );
-      expect(data).toEqual(payload);
+      expect(data).toEqual(result.current.endpoint.schema.fromJS(payload));
       expect(result.current.data.title).toEqual(payload.title);
       // ensure we don't violate call-order changes
       expect(consoleSpy.mock.calls.length).toBeLessThan(1);
