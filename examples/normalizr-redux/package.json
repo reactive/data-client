@@ -13,7 +13,7 @@
     "@babel/core": "7.22.6",
     "@babel/node": "7.22.6",
     "@data-client/normalizr": "workspace:*",
-    "@octokit/rest": "19.0.11",
+    "@octokit/rest": "19.0.13",
     "@types/babel__core": "^7",
     "inquirer": "^8.1.1",
     "redux": "4.2.1",
