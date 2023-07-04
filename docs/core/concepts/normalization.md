@@ -211,7 +211,7 @@ const todoDelete = new RestEndpoint({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   method: 'DELETE',
-  schema: new schema.Delete(Todo),
+  schema: new schema.Invalidate(Todo),
 });
 ```
 

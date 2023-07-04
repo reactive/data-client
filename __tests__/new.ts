@@ -442,7 +442,7 @@ export const FutureArticleResource = {
     CoolerArticleResource.delete as any as RestType<
       string | number,
       undefined,
-      schema.Delete<typeof CoolerArticle>,
+      schema.Invalidate<typeof CoolerArticle>,
       true
     >
   ).extend({
