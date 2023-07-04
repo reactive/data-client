@@ -507,7 +507,7 @@ This is often useful for [authentication](../guides/auth)
 
 :::caution
 
-Don't use hooks here.
+Don't use hooks here. If you need to use hooks, try using [hookifyResource](./hookifyResource.md)
 
 :::
 

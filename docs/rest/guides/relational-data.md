@@ -180,6 +180,8 @@ render(<PostPage />);
 
 ## Client side joins
 
+Nesting data when your endpoint doesn't.
+
 Even if the network responses don't nest data, we can perform client-side joins by specifying
 the relationship in [Entity.schema](../api/Entity.md#schema)
 
@@ -249,6 +251,8 @@ render(<TodosPage />);
 
 
 ## Reverse lookups
+
+Nesting data when your endpoint doesn't (part 2).
 
 Even though a response may only nest in one direction, Reactive Data Client can handle reverse relationships
 by overriding [Entity.process](../api/Entity.md#process). Additionally, [Entity.merge](../api/Entity.md#merge)
