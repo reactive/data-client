@@ -15,6 +15,18 @@
       "rangeStrategy": "replace"
     },
     {
+      "extends": ["monorepo:nextjs"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-minor-patch"
+    },
+    {
+      "matchPackageNames": ["@octokit/rest"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-minor-patch"
+    },
+    {
       "extends": ["monorepo:react"],
       "matchUpdateTypes": ["major", "minor", "patch"],
       "groupName": "react"
@@ -25,20 +37,20 @@
         "https://github.com/callstack/linaria"
       ],
       "matchUpdateTypes": ["major", "minor", "patch"],
-      "groupSlug": "webpack",
-      "groupName": "webpack packages"
+      "groupSlug": "build",
+      "groupName": "build packages"
     },
     {
       "matchPackageNames": ["@anansi/webpack-config"],
       "matchUpdateTypes": ["major", "minor", "patch"],
-      "groupSlug": "webpack",
-      "groupName": "webpack packages"
+      "groupSlug": "build",
+      "groupName": "build packages"
     },
     {
       "extends": ["monorepo:babel"],
       "matchUpdateTypes": ["major", "minor", "patch"],
-      "groupSlug": "babel",
-      "groupName": "babel packages"
+      "groupSlug": "build",
+      "groupName": "build packages"
     },
     {
       "matchUpdateTypes": ["major", "minor", "patch"],
@@ -47,28 +59,30 @@
         "core-js",
         "core-js-compat"
       ],
-      "groupSlug": "babel",
-      "groupName": "babel packages"
+      "groupSlug": "build",
+      "groupName": "build packages"
     },
     {
       "extends": ["packages:jsTest"],
       "matchUpdateTypes": ["major", "minor", "patch"],
-      "groupName": "JS test packages"
+      "groupSlug": "validation",
+      "groupName": "validation packages"
     },
     {
       "matchPackageNames": ["@anansi/jest-preset", "@types/jsdom", "jest-environment-jsdom"],
       "matchUpdateTypes": ["major", "minor", "patch"],
-      "groupName": "JS test packages"
+      "groupSlug": "validation",
+      "groupName": "validation packages"
     },
     {
       "extends": ["packages:linters"],
       "matchUpdateTypes": ["major", "minor", "patch"],
-      "groupSlug": "linters",
-      "groupName": "linting packages"
+      "groupSlug": "validation",
+      "groupName": "validation packages"
     },
     {
-      "groupSlug": "linters",
-      "groupName": "linting packages",
+      "groupSlug": "validation",
+      "groupName": "validation packages",
       "matchUpdateTypes": ["major", "minor", "patch"],
       "matchPackageNames": [
         "@anansi/eslint-plugin",
@@ -76,6 +90,12 @@
         "eslint-plugin-prettier",
         "@typescript-eslint/eslint-plugin"
       ]
+    },
+    {
+      "extends": ["monorepo:commitlint"],
+      "matchUpdateTypes": ["major", "minor", "patch"],
+      "groupSlug": "validation",
+      "groupName": "validation packages"
     }
   ]
 }
