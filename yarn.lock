@@ -3017,19 +3017,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@data-client/core@^0.1.0, @data-client/core@workspace:^, @data-client/core@workspace:packages/core":
+"@data-client/core@^0.2.0, @data-client/core@workspace:^, @data-client/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@data-client/core@workspace:packages/core"
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@data-client/normalizr": ^0.1.0
+    "@data-client/normalizr": ^0.2.0
     "@types/node": ^20.0.0
     flux-standard-action: ^2.1.1
   languageName: unknown
   linkType: soft
 
-"@data-client/endpoint@^0.1.0, @data-client/endpoint@workspace:^, @data-client/endpoint@workspace:packages/endpoint":
+"@data-client/endpoint@^0.2.0, @data-client/endpoint@workspace:^, @data-client/endpoint@workspace:packages/endpoint":
   version: 0.0.0-use.local
   resolution: "@data-client/endpoint@workspace:packages/endpoint"
   dependencies:
@@ -3039,24 +3039,24 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/graphql@^0.1.0, @data-client/graphql@workspace:packages/graphql":
+"@data-client/graphql@^0.2.0, @data-client/graphql@workspace:packages/graphql":
   version: 0.0.0-use.local
   resolution: "@data-client/graphql@workspace:packages/graphql"
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@data-client/endpoint": ^0.1.0
+    "@data-client/endpoint": ^0.2.0
     "@types/node": ^20.0.0
   languageName: unknown
   linkType: soft
 
-"@data-client/hooks@^0.1.0, @data-client/hooks@workspace:packages/hooks":
+"@data-client/hooks@^0.1.0, @data-client/hooks@^0.1.1, @data-client/hooks@workspace:packages/hooks":
   version: 0.0.0-use.local
   resolution: "@data-client/hooks@workspace:packages/hooks"
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@data-client/normalizr": ^0.1.0
+    "@data-client/normalizr": ^0.2.0
     "@types/node": ^20.0.0
     "@types/react": ^18.0.30
   peerDependencies:
@@ -3074,8 +3074,8 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@data-client/endpoint": ^0.1.0
-    "@data-client/react": ^0.1.0
+    "@data-client/endpoint": ^0.2.0
+    "@data-client/react": ^0.2.0
     "@types/node": ^20.0.0
     "@types/react": ^18.0.30
   peerDependencies:
@@ -3088,7 +3088,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/normalizr@^0.1.0, @data-client/normalizr@workspace:*, @data-client/normalizr@workspace:^, @data-client/normalizr@workspace:packages/normalizr":
+"@data-client/normalizr@^0.2.0, @data-client/normalizr@workspace:*, @data-client/normalizr@workspace:^, @data-client/normalizr@workspace:packages/normalizr":
   version: 0.0.0-use.local
   resolution: "@data-client/normalizr@workspace:packages/normalizr"
   dependencies:
@@ -3099,13 +3099,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/react@^0.1.0, @data-client/react@workspace:*, @data-client/react@workspace:^, @data-client/react@workspace:packages/react":
+"@data-client/react@^0.2.0, @data-client/react@workspace:*, @data-client/react@workspace:^, @data-client/react@workspace:packages/react":
   version: 0.0.0-use.local
   resolution: "@data-client/react@workspace:packages/react"
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@data-client/core": ^0.1.0
+    "@data-client/core": ^0.2.0
     "@data-client/use-enhanced-reducer": ^0.1.0
     "@react-navigation/native": ^6.1.6
     "@types/node": ^20.0.0
@@ -3123,13 +3123,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/redux@^0.1.0, @data-client/redux@workspace:*, @data-client/redux@workspace:packages/redux":
+"@data-client/redux@^0.1.1, @data-client/redux@workspace:*, @data-client/redux@workspace:packages/redux":
   version: 0.0.0-use.local
   resolution: "@data-client/redux@workspace:packages/redux"
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@data-client/core": ^0.1.0
+    "@data-client/core": ^0.2.0
     "@data-client/react": "workspace:*"
     "@types/node": ^20.0.0
     "@types/react": ^18.0.30
@@ -3145,13 +3145,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/rest@^0.1.0, @data-client/rest@workspace:packages/rest":
+"@data-client/rest@^0.2.0, @data-client/rest@workspace:packages/rest":
   version: 0.0.0-use.local
   resolution: "@data-client/rest@workspace:packages/rest"
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@data-client/endpoint": ^0.1.0
+    "@data-client/endpoint": ^0.2.0
     "@types/node": ^20.0.0
     "@types/path-to-regexp": ^1.7.0
     path-to-regexp: ^6.2.1
@@ -4775,7 +4775,7 @@ __metadata:
   resolution: "@rest-hooks/core@workspace:proxy-pkgs/core"
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
-    "@data-client/core": ^0.1.0
+    "@data-client/core": ^0.2.0
     "@types/node": ^20.0.0
   languageName: unknown
   linkType: soft
@@ -4784,7 +4784,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rest-hooks/endpoint@workspace:proxy-pkgs/endpoint"
   dependencies:
-    "@data-client/endpoint": ^0.1.0
+    "@data-client/endpoint": ^0.2.0
   languageName: unknown
   linkType: soft
 
@@ -4792,7 +4792,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rest-hooks/graphql@workspace:proxy-pkgs/graphql"
   dependencies:
-    "@data-client/graphql": ^0.1.0
+    "@data-client/graphql": ^0.2.0
   languageName: unknown
   linkType: soft
 
@@ -4821,7 +4821,7 @@ __metadata:
     react-dom: ^18.2.0
   peerDependencies:
     "@rest-hooks/endpoint": "*"
-    "@rest-hooks/react": ^0.1.0 || ^0.2.0 || ^6.0.0 || ^7.0.0
+    "@rest-hooks/react": ^8.0.0
     "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
     react: ^16.8.4 || ^17.0.0 || ^18.0.0-0
   peerDependenciesMeta:
@@ -4834,7 +4834,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rest-hooks/normalizr@workspace:proxy-pkgs/normalizr"
   dependencies:
-    "@data-client/normalizr": ^0.1.0
+    "@data-client/normalizr": ^0.2.0
   languageName: unknown
   linkType: soft
 
@@ -4842,7 +4842,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rest-hooks/react@workspace:proxy-pkgs/react"
   dependencies:
-    "@data-client/react": ^0.1.0
+    "@data-client/react": ^0.2.0
   languageName: unknown
   linkType: soft
 
@@ -4850,7 +4850,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rest-hooks/rest@workspace:proxy-pkgs/rest"
   dependencies:
-    "@data-client/rest": ^0.1.0
+    "@data-client/rest": ^0.2.0
   languageName: unknown
   linkType: soft
 
@@ -11145,10 +11145,10 @@ __metadata:
     "@anansi/webpack-config": 15.0.24
     "@ant-design/icons": ^5.0.0
     "@babel/core": 7.22.6
-    "@data-client/graphql": ^0.1.0
-    "@data-client/hooks": ^0.1.0
-    "@data-client/react": ^0.1.0
-    "@data-client/rest": ^0.1.0
+    "@data-client/graphql": ^0.2.0
+    "@data-client/hooks": ^0.1.1
+    "@data-client/react": ^0.2.0
+    "@data-client/rest": ^0.2.0
     "@linaria/babel-preset": 4.4.5
     "@linaria/core": 4.2.10
     "@linaria/react": 4.3.8
@@ -15487,9 +15487,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "next-app@workspace:examples/nextjs"
   dependencies:
-    "@data-client/react": ^0.1.0
-    "@data-client/redux": ^0.1.0
-    "@data-client/rest": ^0.1.0
+    "@data-client/react": ^0.2.0
+    "@data-client/redux": ^0.1.1
+    "@data-client/rest": ^0.2.0
     "@data-client/ssr": ^0.1.0
     "@data-client/test": ^0.1.0
     "@types/node": 20.3.3
@@ -21059,9 +21059,9 @@ __metadata:
     "@anansi/browserslist-config": 1.4.3
     "@anansi/webpack-config": 15.0.24
     "@babel/core": 7.22.6
-    "@data-client/endpoint": ^0.1.0
-    "@data-client/react": ^0.1.0
-    "@data-client/rest": ^0.1.0
+    "@data-client/endpoint": ^0.2.0
+    "@data-client/react": ^0.2.0
+    "@data-client/rest": ^0.2.0
     "@linaria/babel-preset": 4.4.5
     "@linaria/core": 4.2.10
     "@linaria/react": 4.3.8

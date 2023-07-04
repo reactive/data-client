@@ -1,5 +1,25 @@
 # Change Log
 
+## 0.4.15
+
+### Patch Changes
+
+- Updated dependencies [bf141cb5a5]
+- Updated dependencies [bf141cb5a5]
+- Updated dependencies [bf141cb5a5]
+- Updated dependencies [9788090c55]
+- Updated dependencies [bf141cb5a5]
+- Updated dependencies [bf141cb5a5]
+- Updated dependencies [9788090c55]
+- Updated dependencies [87475a0cae]
+- Updated dependencies [9788090c55]
+- Updated dependencies [011cc20732]
+- Updated dependencies [bf141cb5a5]
+- Updated dependencies [bf141cb5a5]
+  - @data-client/endpoint@0.2.0
+  - @data-client/core@0.2.0
+  - @data-client/normalizr@0.2.0
+
 ## 0.4.14
 
 ### Patch Changes

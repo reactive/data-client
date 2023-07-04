@@ -1,6 +1,6 @@
 {
   "name": "@data-client/react",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Normalized state management for async data. Safe. Fast. Reusable.",
   "homepage": "https://dataclient.io",
   "repository": {
@@ -135,7 +135,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime": "^7.17.0",
-    "@data-client/core": "^0.1.0",
+    "@data-client/core": "^0.2.0",
     "@data-client/use-enhanced-reducer": "^0.1.0"
   },
   "peerDependencies": {
