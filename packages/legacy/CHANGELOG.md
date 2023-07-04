@@ -1,5 +1,29 @@
 # Change Log
 
+## 9.0.0
+
+### Major Changes
+
+- 011cc20732: Remove FetchShape compatibility.
+  This removes support for the legacy hooks in 'rest-hooks' like useResource()
+
+### Patch Changes
+
+- Updated dependencies [bf141cb5a5]
+- Updated dependencies [bf141cb5a5]
+- Updated dependencies [bf141cb5a5]
+- Updated dependencies [54019cbd57]
+- Updated dependencies [54019cbd57]
+- Updated dependencies [bf141cb5a5]
+- Updated dependencies [bf141cb5a5]
+- Updated dependencies [bf141cb5a5]
+- Updated dependencies [9788090c55]
+- Updated dependencies [bf141cb5a5]
+- Updated dependencies [bf141cb5a5]
+  - @rest-hooks/core@5.0.0
+  - @rest-hooks/react@8.0.0
+  - @rest-hooks/normalizr@11.1.0
+
 ## 8.1.4
 
 ### Patch Changes

@@ -1,5 +1,27 @@
 # Change Log
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [bf141cb5a5]
+- Updated dependencies [bf141cb5a5]
+- Updated dependencies [54019cbd57]
+- Updated dependencies [54019cbd57]
+- Updated dependencies [bf141cb5a5]
+- Updated dependencies [9788090c55]
+- Updated dependencies [9788090c55]
+- Updated dependencies [9788090c55]
+- Updated dependencies [9788090c55]
+- Updated dependencies [bf141cb5a5]
+- Updated dependencies [9788090c55]
+- Updated dependencies [9788090c55]
+- Updated dependencies [9788090c55]
+- Updated dependencies [011cc20732]
+  - @data-client/react@0.2.0
+  - @data-client/rest@0.2.0
+  - @data-client/redux@0.1.1
+
 ## 0.1.2
 
 ### Patch Changes

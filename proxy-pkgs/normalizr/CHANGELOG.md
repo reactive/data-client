@@ -1,5 +1,17 @@
 # Change Log
 
+## 11.1.0
+
+### Minor Changes
+
+- bf141cb5a5: Removed deprecated Endpoint.optimisticUpdate -> use Endpoint.getOptimisticResponse
+
+### Patch Changes
+
+- Updated dependencies [bf141cb5a5]
+- Updated dependencies [87475a0cae]
+  - @data-client/normalizr@0.2.0
+
 ## 11.0.2
 
 ### Patch Changes

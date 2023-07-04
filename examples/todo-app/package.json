@@ -1,6 +1,6 @@
 {
   "name": "todo-app",
-  "version": "0.2.17",
+  "version": "0.2.18",
   "description": "todo-app - A rest hooks example",
   "scripts": {
     "lint": "yarn g:lint src --ext .ts,.tsx",
@@ -37,9 +37,9 @@
     "webpack-dev-server": "4.15.1"
   },
   "dependencies": {
-    "@data-client/endpoint": "^0.1.0",
-    "@data-client/react": "^0.1.0",
-    "@data-client/rest": "^0.1.0",
+    "@data-client/endpoint": "^0.2.0",
+    "@data-client/react": "^0.2.0",
+    "@data-client/rest": "^0.2.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "uuid": "^9.0.0"
