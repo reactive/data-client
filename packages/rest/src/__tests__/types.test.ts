@@ -1,205 +1,10 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Entity, schema } from '@data-client/endpoint';
+import { useSuspense } from '@data-client/react';
 import { User } from '__tests__/new';
 
 import createResource from '../createResource';
-import {
-  KeysToArgs,
-  PathArgs,
-  PathArgsAndSearch,
-  PathKeys,
-  ShortenPath,
-} from '../pathTypes';
-import RestEndpoint, { GetEndpoint, NewGetEndpoint } from '../RestEndpoint';
-import { RequiredKeys } from '../utiltypes';
-
-describe('PathArgs', () => {
-  it('should infer types', () => {
-    type C =
-      'http\\://test.com/groups/:group?/\\:blah/users/:id?:extra?/:next\\?bob/:last';
-    function A(args: PathArgs<C>) {}
-    // @ts-expect-error
-    () => A({});
-    () => A({ next: 'hi', last: 'ho' });
-    // @ts-expect-error
-    () => A({ next: 'hi', last: 'ho', doesnotexist: 'hi' });
-    // @ts-expect-error
-    () => A({ next: 'hi', last: 'ho', blah: 'hi' });
-    () => A({ next: 'hi', last: 'ho', id: '5', group: 'whatever' });
-    () => A({ next: 'hi', last: 'ho', extra: '5', group: 'whatever' });
-  });
-
-  it('should infer types2', () => {
-    type C = 'http\\://test.com/article-cooler/:id?:title?';
-    function A(args: PathArgs<C>) {}
-    () => A({});
-    () => A({ id: 'ho' });
-    () => A({ title: 'ho' });
-    () => A({ id: 'ho', title: 'ho' });
-    // @ts-expect-error
-    () => A({ idasd: 'ho' });
-    // @ts-expect-error
-    () => A({ next: 'hi', title: 'ho', id: 'hi' });
-    // @ts-expect-error
-    () => A(5);
-  });
-
-  it('should infer types with other characters to stop', () => {
-    type C = 'http\\://test.com/search/issues?q=:q?%20repo\\::owner/:repo';
-    function A(args: PathArgs<C>) {}
-    () => A({ owner: 'data-client', repo: 'data-client' });
-    () => A({ owner: 'data-client', repo: 'data-client', q: 'is:issue' });
-    // @ts-expect-error
-    () => A({ idasd: 'ho' });
-    // @ts-expect-error
-    () => A({ owner: 'data-client', repo: 'data-client', extra: 'is:issue' });
-    // @ts-expect-error
-    () => A({ owner: 'data-client' });
-    // @ts-expect-error
-    () => A(5);
-  });
-
-  it('should be flexible for string type', () => {
-    class Parent {
-      constructor() {}
-      A(args: PathArgs<string>) {
-        const b = args['hi'];
-      }
-    }
-    class Child extends Parent {
-      A(args: { item: string }) {}
-    }
-    const thing = new Parent();
-    () => thing.A({});
-    () => thing.A({ next: 'hi', last: 'ho' });
-    const thing2 = new Child();
-    //@ts-expect-error
-    () => thing2.A({});
-    () => thing2.A({ item: 'win' });
-  });
-
-  it('works with no arguments', () => {
-    const a: GetEndpoint<PathArgs<'http\\://test.com/article-cooler/'>> =
-      0 as any;
-    () => a();
-    //@ts-expect-error
-    () => a({ page: '5' });
-    //@ts-expect-error
-    () => a({ sdf: '5' });
-    //@ts-expect-error
-    () => a(5);
-  });
-
-  it('works when combining with known types', () => {
-    const a: GetEndpoint<
-      PathArgs<ShortenPath<'/hi'>> & { page: string | number }
-    > = 0 as any;
-    () => a({ page: '5' });
-    //@ts-expect-error
-    () => a({ sdf: '5' });
-    //@ts-expect-error
-    () => a({ page: '5' }, { hi: '5' });
-    //@ts-expect-error
-    () => a();
-  });
-
-  it('works with unions of non-intersecting types', () => {
-    const a: GetEndpoint<{ id: string | number } | { title: string | number }> =
-      0 as any;
-    () => a({ id: '5' });
-    () => a({ title: '5' });
-    // @ts-expect-error
-    () => a({ id: '5', title: '5' });
-    // @ts-expect-error
-    () => a({ id: '5', sdfds: '5' });
-    //@ts-expect-error
-    () => a({ sdf: '5' });
-    //@ts-expect-error
-    () => a({ page: '5' }, { hi: '5' });
-    //@ts-expect-error
-    () => a();
-  });
-
-  it('works with optional positional args', () => {
-    const a: GetEndpoint<undefined | { cursor?: string | number }> = 0 as any;
-    () => a();
-    () => a({});
-    () => a({ cursor: 5 });
-    // @ts-expect-error
-    () => a({ id: '5' });
-    //@ts-expect-error
-    () => a({ cursor: '5' }, { cursor: '5' });
-  });
-
-  it('searchParams', () => {
-    const a: GetEndpoint<undefined | { cursor?: string | number }> = 0 as any;
-    () => a();
-    () => a({});
-    () => a({ cursor: 5 });
-    // @ts-expect-error
-    () => a({ id: '5' });
-    //@ts-expect-error
-    () => a({ cursor: '5' }, { cursor: '5' });
-  });
-
-  describe('PathArgsAndSearch', () => {
-    it('works with required path member', () => {
-      const a: GetEndpoint<
-        PathArgsAndSearch<'http\\://test.com/groups/:group/users/'>
-      > = 0 as any;
-      () => a({ group: '5' });
-      () => a({ group: '5', sdf: '5' });
-      //@ts-expect-error
-      () => a({ asdf: '5' });
-      //@ts-expect-error
-      () => a({});
-      //@ts-expect-error
-      () => a({ page: '5' }, { hi: '5' });
-      //@ts-expect-error
-      () => a();
-    });
-    it('works with no path members', () => {
-      const a: NewGetEndpoint<{
-        path: 'http\\://test.com/groups';
-        searchParams: Record<string, number | string | boolean> | undefined;
-      }> = 0 as any;
-      /*const a: GetEndpoint<PathArgsAndSearch<'http\\://test.com/groups/'>> =
-        0 as any;*/
-      () => a({ group: '5' });
-      () => a({ group: '5', sdf: '5' });
-      () => a();
-      () => a({ asdf: '5' });
-      () => a({});
-      //@ts-expect-error
-      () => a({ page: '5' }, { hi: '5' });
-
-      () => {
-        const b = a.extend({
-          searchParams: {} as { userId?: number | string } | undefined,
-        });
-        b({ userId: '5' });
-        b();
-        // @ts-expect-error
-        b({ sdf: '5' });
-      };
-    });
-  });
-});
-
-describe('RequiredKeys', () => {
-  type Y = {
-    opt?: string;
-    bob: string;
-    charles: number;
-    [k: string]: string | number | undefined;
-  };
-  const a: Record<RequiredKeys<Y>, any> = 5 as any;
-  () => a.bob;
-  () => a.charles;
-  // @ts-expect-error
-  () => a.opt;
-  // @ts-expect-error
-  () => a.sdfsdf;
-});
+import RestEndpoint, { MutateEndpoint } from '../RestEndpoint';
 
 it('RestEndpoint construct and extend with typed options', () => {
   new RestEndpoint({
@@ -282,28 +87,343 @@ it('should customize resources', () => {
     }
   }
 
-  const TodoResourceBase = createResource({
+  const TodoResource = createResource({
     path: '/todos/:id',
     schema: Todo,
   });
-  TodoResourceBase.create.extend({
+  TodoResource.create.extend({
     searchParams: {} as { userId?: string | number } | undefined,
     getOptimisticResponse(snap, ...args) {
       return args[args.length - 1];
     },
   });
-  TodoResourceBase.create
-    .extend({
-      schema: new schema.Collection([Todo], {
-        argsKey(...args) {
-          return { a: 5 };
-        },
-      }),
-    })
-    .extend({
-      searchParams: {} as { userId?: string | number } | undefined,
-      getOptimisticResponse(snap, ...args) {
-        return args[args.length - 1];
+  const partial = TodoResource.partialUpdate.extend({
+    getOptimisticResponse(snap, { id }, body) {
+      return {
+        id,
+        ...body,
+      };
+    },
+  });
+  () => partial({ id: 5 }, { title: 'hi' });
+  const a: MutateEndpoint<{
+    path: '/todos/';
+    body: Partial<Todo>;
+    schema: typeof Todo;
+  }> = TodoResource.create.extend({ schema: Todo }) as any;
+  a.extend({
+    searchParams: {} as { userId?: string | number } | undefined,
+    getOptimisticResponse(snap, ...args) {
+      return args[args.length - 1];
+    },
+  });
+
+  () => useSuspense(TodoResource.getList);
+});
+
+// path: ['/todos', '/todos/:id', '/todos/:id?', string]
+it('should precisely type function arguments', () => {
+  // path: '/todos'
+  () => {
+    const optionalUndefSearch = new RestEndpoint({
+      path: '/todos',
+      searchParams: {} as
+        | {
+            userId?: string | number;
+          }
+        | undefined,
+    });
+    const optionalSearch = new RestEndpoint({
+      path: '/todos',
+      searchParams: {} as {
+        userId?: string | number;
       },
     });
+    const undef = new RestEndpoint({
+      path: '/todos',
+      searchParams: undefined,
+    });
+    const requiredSearch = new RestEndpoint({
+      path: '/todos',
+      searchParams: {} as {
+        userId: string | number;
+      },
+    });
+    const noSearch = new RestEndpoint({
+      path: '/todos',
+    });
+    () => optionalUndefSearch();
+    () => optionalUndefSearch({});
+    () => optionalUndefSearch({ userId: 'hi' });
+    // @ts-expect-error
+    () => optionalUndefSearch(5);
+    // @ts-expect-error
+    () => optionalUndefSearch({ userId: 'hi' }, { userId: 'hi' });
+
+    () => optionalSearch();
+    () => optionalSearch({});
+    () => optionalSearch({ userId: 'hi' });
+    // @ts-expect-error
+    () => optionalSearch(5);
+    // @ts-expect-error
+    () => optionalSearch({ userId: 'hi' }, { userId: 'hi' });
+
+    // @ts-expect-error
+    () => requiredSearch();
+    // @ts-expect-error
+    () => requiredSearch({});
+    () => requiredSearch({ userId: 'hi' });
+    // @ts-expect-error
+    () => requiredSearch(5);
+    // @ts-expect-error
+    () => requiredSearch({ userId: 'hi' }, { userId: 'hi' });
+
+    () => undef();
+    // @ts-expect-error
+    () => undef({});
+    // @ts-expect-error
+    () => undef({ userId: 'hi' });
+    // @ts-expect-error
+    () => undef(5);
+
+    () => noSearch();
+    // @ts-expect-error
+    () => noSearch({});
+    // @ts-expect-error
+    () => noSearch({ userId: 'hi' });
+    // @ts-expect-error
+    () => noSearch(5);
+  };
+  // path: '/todos/:id?'
+  () => {
+    const optionalUndefSearch = new RestEndpoint({
+      path: '/todos/:id?',
+      searchParams: {} as
+        | {
+            userId?: string | number;
+          }
+        | undefined,
+    });
+    const optionalSearch = new RestEndpoint({
+      path: '/todos/:id?',
+      searchParams: {} as {
+        userId?: string | number;
+      },
+    });
+    const undef = new RestEndpoint({
+      path: '/todos/:id?',
+      searchParams: undefined,
+    });
+    const requiredSearch = new RestEndpoint({
+      path: '/todos/:id?',
+      searchParams: {} as {
+        userId: string | number;
+      },
+    });
+    const noSearch = new RestEndpoint({
+      path: '/todos/:id?',
+    });
+    () => optionalUndefSearch();
+    () => optionalUndefSearch({});
+    () => optionalUndefSearch({ id: '5' });
+    () => optionalUndefSearch({ userId: 'hi' });
+    () => optionalUndefSearch({ userId: 'hi', id: '5' });
+    // @ts-expect-error
+    () => optionalUndefSearch(5);
+    // @ts-expect-error
+    () => optionalUndefSearch({ userId: 'hi' }, { userId: 'hi' });
+
+    () => optionalSearch();
+    () => optionalSearch({});
+    () => optionalSearch({ id: '5' });
+    () => optionalSearch({ userId: 'hi' });
+    () => optionalSearch({ userId: 'hi', id: '5' });
+    // @ts-expect-error
+    () => optionalSearch(5);
+    // @ts-expect-error
+    () => optionalSearch({ userId: 'hi' }, { userId: 'hi' });
+
+    // @ts-expect-error
+    () => requiredSearch();
+    // @ts-expect-error
+    () => requiredSearch({});
+    // @ts-expect-error
+    () => requiredSearch({ id: '5' });
+    () => requiredSearch({ userId: 'hi' });
+    () => requiredSearch({ userId: 'hi', id: '5' });
+    // @ts-expect-error
+    () => requiredSearch(5);
+    // @ts-expect-error
+    () => requiredSearch({ userId: 'hi' }, { userId: 'hi' });
+
+    () => undef();
+    // @ts-ignore TODO
+    () => undef({});
+    // @ts-ignore TODO
+    () => undef({ id: '5' });
+    // @ts-expect-error
+    () => undef({ userId: 'hi' });
+    // @ts-expect-error
+    () => undef(5);
+
+    () => noSearch();
+    () => noSearch({});
+    () => noSearch({ id: '5' });
+    // @ts-expect-error
+    () => noSearch({ userId: 'hi' });
+    // @ts-expect-error
+    () => noSearch(5);
+  };
+  // path: '/todos/:id'
+  () => {
+    const optionalUndefSearch = new RestEndpoint({
+      path: '/todos/:id',
+      searchParams: {} as
+        | {
+            userId?: string | number;
+          }
+        | undefined,
+    });
+    const optionalSearch = new RestEndpoint({
+      path: '/todos/:id',
+      searchParams: {} as {
+        userId?: string | number;
+      },
+    });
+    const undef = new RestEndpoint({
+      path: '/todos/:id',
+      searchParams: undefined,
+    });
+    const requiredSearch = new RestEndpoint({
+      path: '/todos/:id',
+      searchParams: {} as {
+        userId: string | number;
+      },
+    });
+    const noSearch = new RestEndpoint({
+      path: '/todos/:id',
+    });
+    // @ts-expect-error
+    () => optionalUndefSearch();
+    () => optionalUndefSearch({ id: '5' });
+    () => optionalUndefSearch({ id: '5', userId: 'hi' });
+    // @ts-expect-error
+    () => optionalUndefSearch(5);
+    () =>
+      // @ts-expect-error
+      optionalUndefSearch({ id: '5', userId: 'hi' }, { id: '5', userId: 'hi' });
+
+    // @ts-expect-error
+    () => optionalSearch();
+    () => optionalSearch({ id: '5' });
+    () => optionalSearch({ id: '5', userId: 'hi' });
+    // @ts-expect-error
+    () => optionalSearch(5);
+    // @ts-expect-error
+    () => optionalSearch({ id: '5', userId: 'hi' }, { id: '5', userId: 'hi' });
+
+    // @ts-expect-error
+    () => requiredSearch();
+    // @ts-expect-error
+    () => requiredSearch({ id: '5' });
+    () => requiredSearch({ id: '5', userId: 'hi' });
+    // @ts-expect-error
+    () => requiredSearch(5);
+    // @ts-expect-error
+    () => requiredSearch({ id: '5', userId: 'hi' }, { id: '5', userId: 'hi' });
+
+    // @ts-expect-error
+    () => undef();
+    // @ts-expect-error
+    () => undef({});
+    // @ts-expect-error
+    () => undef({ id: '5', userId: 'hi' });
+    // @ts-expect-error
+    () => undef(5);
+
+    // @ts-expect-error
+    () => noSearch();
+    () => noSearch({ id: '5' });
+    // @ts-expect-error
+    () => noSearch({ id: '5', userId: 'hi' });
+    // @ts-expect-error
+    () => noSearch(5);
+  };
+  // path: string
+  () => {
+    const optionalUndefSearch = new RestEndpoint({
+      path: '' as string,
+      searchParams: {} as
+        | {
+            userId?: string | number;
+          }
+        | undefined,
+    });
+    const optionalSearch = new RestEndpoint({
+      path: '' as string,
+      searchParams: {} as {
+        userId?: string | number;
+      },
+    });
+    const undef = new RestEndpoint({
+      path: '' as string,
+      searchParams: undefined,
+    });
+    const requiredSearch = new RestEndpoint({
+      path: '' as string,
+      searchParams: {} as {
+        userId: string | number;
+      },
+    });
+    const noSearch = new RestEndpoint({
+      path: '' as string,
+    });
+    () => optionalUndefSearch();
+    () => optionalUndefSearch({});
+    () => optionalUndefSearch({ id: '5' });
+    () => optionalUndefSearch({ userId: 'hi' });
+    () => optionalUndefSearch({ userId: 'hi', id: '5' });
+    // @ts-expect-error
+    () => optionalUndefSearch(5);
+    // @ts-expect-error
+    () => optionalUndefSearch({ userId: 'hi' }, { userId: 'hi' });
+
+    () => optionalSearch();
+    () => optionalSearch({});
+    () => optionalSearch({ id: '5' });
+    () => optionalSearch({ userId: 'hi' });
+    () => optionalSearch({ userId: 'hi', id: '5' });
+    // @ts-expect-error
+    () => optionalSearch(5);
+    // @ts-expect-error
+    () => optionalSearch({ userId: 'hi' }, { userId: 'hi' });
+
+    // @ts-expect-error
+    () => requiredSearch();
+    // @ts-expect-error
+    () => requiredSearch({});
+    // @ts-expect-error
+    () => requiredSearch({ id: '5' });
+    () => requiredSearch({ userId: 'hi' });
+    () => requiredSearch({ userId: 'hi', id: '5' });
+    // @ts-expect-error
+    () => requiredSearch(5);
+    // @ts-expect-error
+    () => requiredSearch({ userId: 'hi' }, { userId: 'hi' });
+
+    () => undef();
+    // @ts-ignore TODO
+    () => undef({});
+    // @ts-ignore TODO
+    () => undef({ id: '5' });
+    // @ts-expect-error
+    () => undef(5);
+
+    () => noSearch();
+    () => noSearch({});
+    () => noSearch({ id: '5' });
+    () => noSearch({ userId: 'hi' });
+    // @ts-expect-error
+    () => noSearch(5);
+  };
 });

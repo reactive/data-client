@@ -5,7 +5,7 @@ import {
   ResourceGenerics,
   ResourceOptions,
   Resource,
-} from '@data-client/rest/next';
+} from '@data-client/rest';
 
 export abstract class PlaceholderEntity extends Entity {
   readonly id: number = 0;

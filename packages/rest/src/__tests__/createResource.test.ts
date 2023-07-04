@@ -187,7 +187,7 @@ describe('createResource()', () => {
       ...body,
     }));
 
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result } = renderRestHook(() => {
       return [
         useCache(UserResource.get, { group: 'five', id: '5' }),
         useController(),
@@ -195,8 +195,8 @@ describe('createResource()', () => {
     });
     // eslint-disable-next-line prefer-const
     let [_, controller] = result.current;
-    await act(() => {
-      controller.fetch(
+    await act(async () => {
+      await controller.fetch(
         UserResource.create,
         { group: 'five' },
         {
@@ -205,7 +205,6 @@ describe('createResource()', () => {
         },
       );
     });
-    await waitForNextUpdate();
     const user = result.current[0];
     expect(user).toBeDefined();
     expect(user?.username).toBe('createduser');

@@ -1,31 +1,35 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`useController().getState CacheProvider should eventually update 1`] = `
-CoolerArticle {
-  "author": null,
-  "content": "whatever",
-  "id": 1,
-  "tags": [
-    "a",
-    "best",
-    "react",
-  ],
-  "title": "hi ho",
-}
+[
+  CoolerArticle {
+    "author": null,
+    "content": "whatever",
+    "id": 1,
+    "tags": [
+      "a",
+      "best",
+      "react",
+    ],
+    "title": "hi ho",
+  },
+]
 `;
 
 exports[`useController().getState ExternalCacheProvider should eventually update 1`] = `
-CoolerArticle {
-  "author": null,
-  "content": "whatever",
-  "id": 1,
-  "tags": [
-    "a",
-    "best",
-    "react",
-  ],
-  "title": "hi ho",
-}
+[
+  CoolerArticle {
+    "author": null,
+    "content": "whatever",
+    "id": 1,
+    "tags": [
+      "a",
+      "best",
+      "react",
+    ],
+    "title": "hi ho",
+  },
+]
 `;
 
 exports[`useController.fetch should dispatch an action that fetches a create 1`] = `

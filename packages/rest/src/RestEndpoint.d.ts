@@ -47,9 +47,9 @@ export interface RestInstanceBase<
   getRequestInit(
     this: any,
     body?: RequestInit['body'] | Record<string, unknown>,
-  ): RequestInit;
+  ): Promise<RequestInit> | RequestInit;
   /** @see https://resthooks.io/rest/api/RestEndpoint#getHeaders */
-  getHeaders(headers: HeadersInit): HeadersInit;
+  getHeaders(headers: HeadersInit): Promise<HeadersInit> | HeadersInit;
   /* after-fetch */
   /** @see https://resthooks.io/rest/api/RestEndpoint#fetchResponse */
   fetchResponse(input: RequestInfo, init: RequestInit): Promise<Response>;
@@ -101,15 +101,6 @@ export interface RestInstance<
   unshift: AddEndpoint<F, S, O>;
   assign: AddEndpoint<F, S, O>;
 }
-
-export type ContainsCollectionArray =
-  | { push: any; unshift: any }
-  | { [K: string]: ContainsCollectionArray }
-  | { schema: { [K: string]: ContainsCollectionArray } };
-export type ContainsCollectionValues =
-  | { assign: any }
-  | { [K: string]: ContainsCollectionValues }
-  | { schema: { [K: string]: ContainsCollectionValues } };
 
 export type RestEndpointExtendOptions<
   O extends PartialRestGenerics,
@@ -496,51 +487,54 @@ export type FetchGet<A extends readonly any[] = [any], R = any> = (
   ...args: A
 ) => Promise<R>;
 
-export type GetEndpoint<
-  UrlParams = any,
-  S extends Schema | undefined = Schema | undefined,
-> = RestTypeNoBody<UrlParams, S, undefined>;
-
-export type MutateEndpoint<
-  UrlParams = any,
-  Body extends BodyInit | Record<string, any> = any,
-  S extends Schema | undefined = Schema | undefined,
-> = RestTypeWithBody<UrlParams, S, true, Body>;
-
 export type Defaults<O, D> = {
   [K in keyof O | keyof D]: K extends keyof O
     ? Exclude<O[K], undefined>
     : D[Extract<K, keyof D>];
 };
 
-export type NewGetEndpoint<
+export type GetEndpoint<
   O extends {
+    readonly path: string;
+    readonly schema: Schema;
+    /** Only used for types */
+    readonly searchParams?: any;
+  } = {
     path: string;
-    searchParams?: any;
-  } = { path: string },
-  S extends Schema | undefined = Schema | undefined,
+    schema: Schema;
+  },
 > = RestTypeNoBody<
   'searchParams' extends keyof O
-    ? O['searchParams'] & PathArgs<O['path']>
+    ? O['searchParams'] extends undefined
+      ? PathArgs<O['path']>
+      : O['searchParams'] & PathArgs<O['path']>
     : PathArgs<O['path']>,
-  S,
+  O['schema'],
   undefined,
   any,
   O & { body: undefined }
 >;
 
-export type NewMutateEndpoint<
+export type MutateEndpoint<
   O extends {
+    readonly path: string;
+    readonly schema: Schema;
+    /** Only used for types */
+    readonly searchParams?: any;
+    /** Only used for types */
+    readonly body?: any;
+  } = {
     path: string;
-    body?: any;
-    searchParams?: any;
-  } = { path: string; body: any },
-  S extends Schema | undefined = Schema | undefined,
+    body: any;
+    schema: Schema;
+  },
 > = RestTypeWithBody<
   'searchParams' extends keyof O
-    ? O['searchParams'] & PathArgs<O['path']>
+    ? O['searchParams'] extends undefined
+      ? PathArgs<O['path']>
+      : O['searchParams'] & PathArgs<O['path']>
     : PathArgs<O['path']>,
-  S,
+  O['schema'],
   true,
   O['body'],
   any,

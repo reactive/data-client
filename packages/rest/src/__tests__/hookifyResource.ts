@@ -150,7 +150,7 @@ describe('hookifyResource()', () => {
       const res = await result.current.fetch(result.current.endpoint, {
         id: payload.id,
       });
-      expect(res).toEqual({ id: 5 });
+      expect(res).toEqual(CoolerArticle.fromJS({ id: 5 }));
     });
 
     it('useUpdate', async () => {
@@ -166,7 +166,9 @@ describe('hookifyResource()', () => {
           ...CoolerArticle.fromJS(payload),
         },
       );
-      expect(res).toEqual(putResponseBody);
+      expect(res).toEqual(
+        result.current.endpoint.schema.fromJS(putResponseBody),
+      );
     });
 
     it('usePartialUpdate', async () => {
@@ -180,7 +182,9 @@ describe('hookifyResource()', () => {
         { id },
         patchPayload,
       );
-      expect(res).toEqual(patchResponseBody);
+      expect(res).toEqual(
+        result.current.endpoint.schema.fromJS(patchResponseBody),
+      );
     });
 
     it('should use useFetchInit if defined (in endpoint method)', async () => {

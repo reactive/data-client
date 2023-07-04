@@ -15,7 +15,7 @@ import {
   ResourceGenerics,
   ResourceOptions,
   PaginationFieldEndpoint,
-} from '@data-client/rest/next';
+} from '@data-client/rest';
 import { camelCase, snakeCase } from 'lodash';
 
 import { getAuth } from './Auth';

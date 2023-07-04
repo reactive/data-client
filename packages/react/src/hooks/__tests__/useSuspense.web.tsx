@@ -646,7 +646,7 @@ describe('useSuspense()', () => {
         result.current.endpoint,
         { id: payload.id },
       );
-      expect(data).toEqual(payload);
+      expect(data).toEqual(result.current.endpoint.schema.fromJS(payload));
       expect(result.current.data.title).toEqual(payload.title);
       // ensure we don't violate call-order changes
       expect(consoleSpy.mock.calls.length).toBeLessThan(1);

@@ -103,7 +103,7 @@ declare function useError<E extends Pick<EndpointInterface, 'key'>, Args extends
  * Request a resource if it is not in cache.
  * @see https://resthooks.io/docs/api/useFetch
  */
-declare function useFetch<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>, Args extends readonly [...Parameters<E>] | readonly [null]>(endpoint: E, ...args: Args): ReturnType<E> | undefined;
+declare function useFetch<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>, Args extends readonly [...Parameters<E>] | readonly [null]>(endpoint: E, ...args: Args): (E["schema"] extends null | undefined ? ReturnType<E> : Promise<Denormalize<E["schema"]>>) | undefined;
 
 /**
  * Keeps a resource fresh by subscribing to updates.
@@ -170,10 +170,12 @@ declare const useCacheState: () => State$1<unknown>;
 
 declare const initialState: _data_client_core.State<unknown>;
 declare const DELETED: symbol;
+declare const INVALID: symbol;
 declare const inferResults: typeof __INTERNAL__.inferResults;
 
 declare const internal_d_initialState: typeof initialState;
 declare const internal_d_DELETED: typeof DELETED;
+declare const internal_d_INVALID: typeof INVALID;
 declare const internal_d_inferResults: typeof inferResults;
 declare const internal_d_createReducer: typeof createReducer;
 declare const internal_d_applyManager: typeof applyManager;
@@ -182,6 +184,7 @@ declare namespace internal_d {
   export {
     internal_d_initialState as initialState,
     internal_d_DELETED as DELETED,
+    internal_d_INVALID as INVALID,
     internal_d_inferResults as inferResults,
     internal_d_createReducer as createReducer,
     internal_d_applyManager as applyManager,

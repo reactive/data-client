@@ -291,10 +291,12 @@ function normalizeCreate(
   );
   // parent is args when not nested
   const filterCollections = (this.createCollectionFilter as any)(...args);
-  Object.keys(storeEntities[this.key]).forEach(collectionPk => {
-    if (!filterCollections(JSON.parse(collectionPk))) return;
-    addEntity(this, pkList, collectionPk);
-  });
+  // add to any collections that match this
+  if (storeEntities[this.key])
+    Object.keys(storeEntities[this.key]).forEach(collectionPk => {
+      if (!filterCollections(JSON.parse(collectionPk))) return;
+      addEntity(this, pkList, collectionPk);
+    });
   return pkList as any;
 }
 
@@ -310,5 +312,5 @@ function denormalizeOnly(
 ): any {
   return Array.isArray(input)
     ? (this.schema.denormalizeOnly(input, args, unvisit) as any)
-    : this.schema.schema.denormalizeOnly(input, args, unvisit);
+    : (this.schema.denormalizeOnly([input], args, unvisit)[0] as any);
 }

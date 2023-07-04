@@ -367,21 +367,6 @@ export default class Controller<
       };
     }
 
-    // Warn users with bad configurations
-    /* istanbul ignore next */
-    if (process.env.NODE_ENV !== 'production' && schema && isEntity(schema)) {
-      if (Array.isArray(results)) {
-        throw new Error(
-          `fetch key ${key} has list results when single result is expected`,
-        );
-      }
-      if (typeof results === 'object') {
-        throw new Error(
-          `fetch key ${key} has object results when entity's primary key (string) result is expected`,
-        );
-      }
-    }
-
     if (!this.globalCache.results[key])
       this.globalCache.results[key] = new WeakEntityMap();
 

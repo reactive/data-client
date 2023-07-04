@@ -36,7 +36,7 @@ values={[
 
 ```typescript title="api/Todo"
 import { Entity } from '@data-client/rest';
-import { createResource } from '@data-client/rest/next';
+import { createResource } from '@data-client/rest';
 
 export class Todo extends Entity {
   id = 0;

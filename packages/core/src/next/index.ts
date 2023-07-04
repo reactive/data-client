@@ -1,2 +1,2 @@
-export { default as Controller } from './Controller.js';
-export * from './Controller.js';
+export { default as Controller } from '../controller/Controller.js';
+export * from '../controller/Controller.js';

@@ -2,7 +2,6 @@ import { Entity } from '@data-client/endpoint';
 import { useController } from '@data-client/react';
 import { useSuspense } from '@data-client/react';
 import { CacheProvider } from '@data-client/react';
-import { act } from '@testing-library/react-hooks';
 import { Article, CoolerArticle, CoolerArticleResource } from '__tests__/new';
 import nock from 'nock';
 
@@ -733,9 +732,12 @@ describe('RestEndpoint', () => {
         }
       `);
 
-      const newBody = getUser.extend({
-        body: {} as { title: string },
-      });
+      const newBody = getUser
+        .extend({
+          body: {} as { title: string },
+          dataExpiryLength: 0,
+        })
+        .extend({ dataExpiryLength: 5 });
       () => newBody({ group: 'hi', id: 'what' }, { title: 'cool' });
       // @ts-expect-error
       () => newBody({ id: 'what' }, { title: 'cool' });
@@ -746,11 +748,12 @@ describe('RestEndpoint', () => {
       // @ts-expect-error
       () => newBody({ group: 'hi', id: 'what' }, { sdfsd: 'cool' });
 
-      const bodyNoParams = newBody
-        .extend({
-          path: '/',
-        })
-        .extend({ body: {} as { happy: string } });
+      const bodyNoPath = newBody.extend({
+        path: '/',
+      });
+      const bodyNoParams = bodyNoPath.extend({
+        body: {} as { happy: string },
+      });
       () => bodyNoParams({ happy: 'cool' });
       // @ts-expect-error
       () => bodyNoParams({ group: 'hi', id: 'what' }, { happy: 'cool' });
@@ -1013,6 +1016,28 @@ describe('RestEndpoint', () => {
         params.group;
         // @ts-expect-error
         params.id;
+      },
+    });
+
+    const endpoint2 = new RestEndpoint({
+      sideEffect: true,
+      path: 'http\\://test.com/article-cooler/:id',
+      body: 0 as any,
+      schema: CoolerArticle,
+      getOptimisticResponse(snap, params, body) {
+        params.id;
+        // @ts-expect-error
+        params.two;
+
+        body.hi;
+      },
+    }).extend({
+      getOptimisticResponse(snap, params, body) {
+        params.id;
+        // @ts-expect-error
+        params.two;
+
+        body.hi;
       },
     });
   });
@@ -1291,6 +1316,10 @@ describe('RestEndpoint.fetch()', () => {
       id,
     });
     expect(res).toEqual({ id, title: 'hi' });
+  });
+
+  it('without Collection in schema - endpoint.push schema should be null', () => {
+    expect(getArticleList2.push.schema).toBeFalsy();
   });
 });
 const proto = Object.prototype;

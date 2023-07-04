@@ -971,12 +971,12 @@ declare class CollectionInterface<
   _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;
   _normalizeNullable(): ReturnType<S['_normalizeNullable']>;
 
-  push: S extends { denormalizeOnly(...args: any): any[] }
-    ? Collection<S, Parent>
+  push: S extends { denormalizeOnly(...args: any): (infer Return)[] }
+    ? Collection<PolymorphicInterface<Return>, Parent>
     : never;
 
-  unshift: S extends { denormalizeOnly(...args: any): any }
-    ? Collection<S, Parent>
+  unshift: S extends { denormalizeOnly(...args: any): (infer Return)[] }
+    ? Collection<PolymorphicInterface<Return>, Parent>
     : never;
 
   assign: S extends { denormalizeOnly(...args: any): Record<string, unknown> }

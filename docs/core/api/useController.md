@@ -45,16 +45,17 @@ function MyComponent({ id }) {
 
 ## Examples
 
-### /next
+### Using the resolution
 
-`@data-client/react/next` contains the version of `useController()` that will ship with the next version.
-This provides a return value that matches [useSuspense()](./useSuspense.md) - utilizing the [Endpoint.schema](/rest/api/RestEndpoint#schema)
+`controller.fetch()` matches the return type [useSuspense()](./useSuspense.md) - utilizing the [Endpoint.schema](/rest/api/RestEndpoint#schema)
+when possible. This allows us to use any class members.
 
 ```ts
-import { useController } from '@data-client/react/next';
+import { useController } from '@data-client/react';
 
 const post = await controller.fetch(PostResource.create, createPayload);
 post.title;
+post.computedField
 post.pk();
 ```
 

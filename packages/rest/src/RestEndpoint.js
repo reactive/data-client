@@ -18,13 +18,13 @@ export default class RestEndpoint extends Endpoint {
   constructor(options) {
     super(
       options.fetch ??
-        function (...args) {
+        async function (...args) {
           const urlParams =
             this.#hasBody && args.length < 2 ? {} : args[0] || {};
           const body = this.#hasBody ? args[args.length - 1] : undefined;
           return this.fetchResponse(
             this.url(urlParams),
-            this.getRequestInit(body),
+            await this.getRequestInit(body),
           )
             .then(response => this.parseResponse(response))
             .then(res => this.process(res, ...args));
@@ -87,7 +87,7 @@ export default class RestEndpoint extends Endpoint {
   }
 
   /** Init options for fetch - run at fetch */
-  getRequestInit(body) {
+  async getRequestInit(body) {
     const bodyIsPojo = isPojo(body);
     if (bodyIsPojo) {
       body = JSON.stringify(body);
@@ -105,7 +105,7 @@ export default class RestEndpoint extends Endpoint {
         ...init.headers,
       };
     }
-    init.headers = this.getHeaders(init.headers);
+    init.headers = await this.getHeaders(init.headers);
     return init;
   }
 
