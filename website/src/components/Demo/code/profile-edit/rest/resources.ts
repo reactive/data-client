@@ -1,5 +1,4 @@
-import { Entity } from '@data-client/rest';
-import { createResource } from '@data-client/rest';
+import { Entity, createResource } from '@data-client/rest';
 
 export class Post extends Entity {
   id = 0;
