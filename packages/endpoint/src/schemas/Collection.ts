@@ -304,6 +304,7 @@ function createIfValid(value: object): any | undefined {
   return Array.isArray(value) ? [...value] : { ...value };
 }
 
+// only for arrays
 function denormalizeOnly(
   this: CollectionSchema<any, any>,
   input: any,

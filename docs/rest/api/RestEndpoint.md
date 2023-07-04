@@ -275,8 +275,11 @@ import Lifecycle from '../diagrams/\_restendpoint_lifecycle.mdx';
 function fetch(...args) {
   const urlParams = this.#hasBody && args.length < 2 ? {} : args[0] || {};
   const body = this.#hasBody ? args[args.length - 1] : undefined;
-  return this.fetchResponse(this.url(urlParams), this.getRequestInit(body))
-    .then(this.parseResponse)
+  return this.fetchResponse(
+    this.url(urlParams),
+    await this.getRequestInit(body),
+  )
+    .then(response => this.parseResponse(response))
     .then(res => this.process(res, ...args));
 }
 ```
@@ -813,14 +816,14 @@ the arguments to update `getList`.
 
 ### push
 
-This is a convenience to place newly created Entities at the *end* of a [Collection](./Collection.md).
+This is a convenience to place newly created Entities at the _end_ of a [Collection](./Collection.md).
 
 When this `RestEndpoint`'s schema contains a [Collection](./Collection.md), this returned a new
 RestEndpoint with its parents properties, but with [method](#method): 'POST' and schema: [Collection.push](./Collection.md#push)
 
 ### unshift
 
-This is a convenience to place newly created Entities at the *start* of a [Collection](./Collection.md).
+This is a convenience to place newly created Entities at the _start_ of a [Collection](./Collection.md).
 
 When this `RestEndpoint`'s schema contains a [Collection](./Collection.md), this returned a new
 RestEndpoint with its parents properties, but with [method](#method): 'POST' and schema: [Collection.push](./Collection.md#unshift)

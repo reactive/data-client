@@ -64,9 +64,11 @@ Provides any cleanup of dangling resources after Subscription is no longer in us
 
 * [PollingSubscription](./PollingSubscription)
 
-> #### Note
->
-> Implementing your own `Subscription` to handle websockets can be done by
-> dispatching `rest-hooks/receive` actions with the data it gets to update.
-> Be sure to handle connection opening in the constructor and close the connection
-> in `cleanup()`
+:::note
+
+Implementing your own `Subscription` to handle websockets can be done by
+dispatching `rest-hooks/receive` actions with the data it gets to update.
+Be sure to handle connection opening in the constructor and close the connection
+in `cleanup()`
+
+:::

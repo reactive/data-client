@@ -59,6 +59,7 @@ export interface EntityInterface<T = any> extends SchemaSimple {
   ): string | undefined;
   readonly key: string;
   merge(existing: any, incoming: any): any;
+  /** @deprecated use mergeWithStore instead (which can call this) */
   expiresAt?(meta: any, input: any): number;
   mergeWithStore?(
     existingMeta: any,
@@ -72,7 +73,7 @@ export interface EntityInterface<T = any> extends SchemaSimple {
     existing: any,
     incoming: any,
   ): any;
-  // TODO(breaking): deprecate this
+  /** @deprecated use mergeWithStore instead (which can call this) */
   useIncoming?(
     existingMeta: any,
     incomingMeta: any,

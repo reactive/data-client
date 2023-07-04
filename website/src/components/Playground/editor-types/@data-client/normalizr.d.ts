@@ -23,9 +23,11 @@ interface EntityInterface<T = any> extends SchemaSimple {
     pk(params: any, parent?: any, key?: string, args?: readonly any[]): string | undefined;
     readonly key: string;
     merge(existing: any, incoming: any): any;
+    /** @deprecated use mergeWithStore instead (which can call this) */
     expiresAt?(meta: any, input: any): number;
     mergeWithStore?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
     mergeMetaWithStore?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
+    /** @deprecated use mergeWithStore instead (which can call this) */
     useIncoming?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): boolean;
     indexes?: any;
     schema: Record<string, Schema>;
