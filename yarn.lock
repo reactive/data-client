@@ -3072,7 +3072,7 @@ __metadata:
     "@types/node": ^20.0.0
     "@types/react": ^18.0.30
   peerDependencies:
-    "@data-client/react": ^0.1.0
+    "@data-client/react": ^0.1.0 || ^0.2.0
     "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
     react: ^16.8.4 || ^17.0.0 || ^18.0.0-0
   peerDependenciesMeta:
@@ -3128,7 +3128,7 @@ __metadata:
     "@types/react": ^18.0.30
     redux: ^4.2.1
   peerDependencies:
-    "@data-client/react": ^0.1.0
+    "@data-client/react": ^0.1.0 || ^0.2.0
     "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0
     react: ^16.8.4 || ^17.0.0 || ^18.0.0
     redux: ^4.0.0
@@ -3166,8 +3166,8 @@ __metadata:
     react-dom: ^18.2.0
     redux: ^4.2.1
   peerDependencies:
-    "@data-client/react": ^0.1.0
-    "@data-client/redux": ^0.1.0
+    "@data-client/react": ^0.1.0 || ^0.2.0
+    "@data-client/redux": ^0.1.0 || ^0.2.0
     "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
     next: ">=12.0.0"
     react: ^16.8.4 || ^17.0.0 || ^18.0.0-0
@@ -3198,7 +3198,7 @@ __metadata:
     jest: ^29.5.0
     react-error-boundary: ^4.0.0
   peerDependencies:
-    "@data-client/react": ^0.1.0
+    "@data-client/react": ^0.1.0 || ^0.2.0
     "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0
     "@types/react-dom": "*"
     jest: "*"
