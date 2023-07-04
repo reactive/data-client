@@ -445,7 +445,7 @@ interface ConstructorProps<D extends GenericDispatch = DataClientDispatch> {
  * Imperative control of Rest Hooks store
  * @see https://resthooks.io/docs/api/Controller
  */
-declare class Controller$1<D extends GenericDispatch = DataClientDispatch> {
+declare class Controller<D extends GenericDispatch = DataClientDispatch> {
     /**
      * Dispatches an action to Rest Hooks reducer.
      *
@@ -463,6 +463,13 @@ declare class Controller$1<D extends GenericDispatch = DataClientDispatch> {
     readonly globalCache: DenormalizeCache;
     constructor({ dispatch, getState, globalCache, }?: ConstructorProps<D>);
     /*************** Action Dispatchers ***************/
+    /**
+     * Fetches the endpoint with given args, updating the Rest Hooks cache with the response or error upon completion.
+     * @see https://resthooks.io/docs/api/Controller#fetch
+     */
+    fetch: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
+        update?: EndpointUpdateFunction<E> | undefined;
+    }>(endpoint: E, ...args_0: Parameters<E>) => E["schema"] extends null | undefined ? ReturnType<E> : Promise<Denormalize<E["schema"]>>;
     /**
      * Forces refetching and suspense on useSuspense with the same Endpoint and parameters.
      * @see https://resthooks.io/docs/api/Controller#invalidate
@@ -554,16 +561,6 @@ declare class Controller$1<D extends GenericDispatch = DataClientDispatch> {
         expiryStatus: ExpiryStatus;
         expiresAt: number;
     };
-}
-
-declare class Controller<D extends GenericDispatch = DataClientDispatch> extends Controller$1<D> {
-    /**
-     * Fetches the endpoint with given args, updating the Rest Hooks cache with the response or error upon completion.
-     * @see https://resthooks.io/docs/api/Controller#fetch
-     */
-    fetch: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
-        update?: EndpointUpdateFunction<E> | undefined;
-    }>(endpoint: E, ...args_0: Parameters<E>) => E["schema"] extends null | undefined ? ReturnType<E> : Promise<Denormalize<E["schema"]>>;
 }
 
 declare function createReducer(controller: Controller): ReducerType;
