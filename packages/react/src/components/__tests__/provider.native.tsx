@@ -22,7 +22,7 @@ const { SET_TYPE } = actionTypes;
 describe('<CacheProvider />', () => {
   let warnspy: jest.SpyInstance;
   beforeEach(() => {
-    warnspy = jest.spyOn(global.console, 'warn');
+    warnspy = jest.spyOn(global.console, 'warn').mockImplementation(() => {});
   });
   afterEach(() => {
     warnspy.mockRestore();

@@ -96,7 +96,8 @@ describe.each([
 
   let errorspy: jest.SpyInstance;
   beforeEach(() => {
-    errorspy = jest.spyOn(global.console, 'error');
+    errorspy = jest.spyOn(global.console, 'error').mockImplementation(() => {});
+    jest.spyOn(global.console, 'warn').mockImplementation(() => {});
   });
   afterEach(() => {
     errorspy.mockRestore();

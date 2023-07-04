@@ -7,7 +7,7 @@ import CacheProvider from '../CacheProvider';
 describe('<BackupBoundary />', () => {
   let warnspy: jest.SpyInstance;
   beforeEach(() => {
-    warnspy = jest.spyOn(global.console, 'warn');
+    warnspy = jest.spyOn(global.console, 'warn').mockImplementation(() => {});
   });
   afterEach(() => {
     warnspy.mockRestore();

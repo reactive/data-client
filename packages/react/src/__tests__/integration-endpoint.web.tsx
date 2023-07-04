@@ -33,16 +33,13 @@ import {
   editorPayload,
 } from '../test-fixtures';
 
-function onError(e: any) {
-  e.preventDefault();
-}
+let errorspy: jest.SpyInstance;
 beforeEach(() => {
-  if (typeof addEventListener === 'function')
-    addEventListener('error', onError);
+  errorspy = jest.spyOn(global.console, 'error').mockImplementation(() => {});
+  jest.spyOn(global.console, 'warn').mockImplementation(() => {});
 });
 afterEach(() => {
-  if (typeof removeEventListener === 'function')
-    removeEventListener('error', onError);
+  errorspy.mockRestore();
 });
 
 describe.each([
@@ -215,7 +212,7 @@ describe.each([
   describe('renderRestHook()', () => {
     let warnspy: jest.SpyInstance;
     beforeEach(() => {
-      warnspy = jest.spyOn(global.console, 'warn');
+      warnspy = jest.spyOn(global.console, 'warn').mockImplementation(() => {});
     });
     afterEach(() => {
       warnspy.mockRestore();
