@@ -358,10 +358,19 @@ export class CoolerArticle extends Article {
 }
 const CoolerArticleResourceBase = createArticleResource(CoolerArticle, {
   urlRoot: 'article-cooler',
-  optimistic: true,
 });
 export const CoolerArticleResource = {
   ...CoolerArticleResourceBase,
+  get: CoolerArticleResourceBase.get.extend({
+    path: '/:id?/:title?',
+  }),
+};
+const OptimisticArticleResourceBase = createArticleResource(CoolerArticle, {
+  urlRoot: 'article-cooler',
+  optimistic: true,
+});
+export const OptimisticArticleResource = {
+  ...OptimisticArticleResourceBase,
   get: CoolerArticleResourceBase.get.extend({
     path: '/:id?/:title?',
   }),
@@ -449,6 +458,10 @@ export const FutureArticleResource = {
     url(id: string) {
       return `http://test.com/article-cooler/${id}`;
     },
+    process(res: any, id: string) {
+      return res && Object.keys(res).length ? res : { id };
+    },
+    getOptimisticResponse: undefined,
   }),
   create: CoolerArticleResource.create.extend({
     path: '',

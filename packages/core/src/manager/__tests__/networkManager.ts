@@ -17,7 +17,7 @@ describe('NetworkManager', () => {
   });
   let errorspy: jest.SpyInstance;
   beforeEach(() => {
-    errorspy = jest.spyOn(global.console, 'error');
+    errorspy = jest.spyOn(global.console, 'error').mockImplementation(() => {});
   });
   afterEach(() => {
     errorspy.mockRestore();

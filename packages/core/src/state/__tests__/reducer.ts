@@ -473,7 +473,9 @@ describe('reducer', () => {
     expect(newState.entities).toBe(iniState.entities);
   });
   it('rest-hooks/fetch should console.warn()', () => {
-    const warnspy = jest.spyOn(global.console, 'warn');
+    const warnspy = jest
+      .spyOn(global.console, 'warn')
+      .mockImplementation(() => {});
     try {
       const action: FetchAction = {
         type: FETCH_TYPE,
@@ -514,7 +516,7 @@ describe('reducer', () => {
   describe('RESET', () => {
     let warnspy: jest.SpyInstance;
     beforeEach(() => {
-      warnspy = jest.spyOn(global.console, 'warn');
+      warnspy = jest.spyOn(global.console, 'warn').mockImplementation(() => {});
     });
     afterEach(() => {
       warnspy.mockRestore();

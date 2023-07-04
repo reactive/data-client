@@ -1,10 +1,9 @@
-import { Endpoint, Entity } from '@data-client/endpoint';
-import { AbortOptimistic } from '@data-client/endpoint';
+import { Endpoint, Entity, AbortOptimistic } from '@data-client/endpoint';
 import { CacheProvider } from '@data-client/react';
 import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
 import { jest } from '@jest/globals';
 import {
-  CoolerArticleResource,
+  OptimisticArticleResource,
   ArticleResourceWithOtherListUrl,
   FutureArticleResource,
   VisSettings,
@@ -107,10 +106,98 @@ describe.each([
         content: 'real response',
       });
 
+      const { result, controller } = renderRestHook(
+        () => {
+          const article = useCache(OptimisticArticleResource.get, params);
+          // @ts-expect-error
+          article.doesnotexist;
+          return article;
+        },
+        {
+          initialFixtures: [
+            {
+              endpoint: OptimisticArticleResource.get,
+              args: [params],
+              response: payload,
+            },
+          ],
+        },
+      );
+      expect(result.current).toEqual(CoolerArticle.fromJS(payload));
+      let promise: any;
+      act(() => {
+        promise = controller.fetch(
+          OptimisticArticleResource.partialUpdate,
+          params,
+          {
+            content: 'changed',
+          },
+        );
+      });
+
+      expect(result.current).toBeInstanceOf(CoolerArticle);
+      expect(result.current).toEqual(
+        CoolerArticle.fromJS({
+          ...payload,
+          content: 'changed',
+        }),
+      );
+      await act(() => promise);
+      expect(result.current).toEqual(
+        CoolerArticle.fromJS({
+          ...payload,
+          title: 'some other title',
+          content: 'real response',
+        }),
+      );
+    });
+
+    it('partial update does nothing but doesnt crash with no existing data', async () => {
+      const params = { id: payload.id };
+      mynock.patch('/article-cooler/5').reply(200, {
+        ...payload,
+        title: 'some other title',
+        content: 'real response',
+      });
+
+      const { result, controller } = renderRestHook(() => {
+        return useCache(OptimisticArticleResource.get, params);
+      });
+      expect(result.current).toBeUndefined();
+      let promise: any;
+      act(() => {
+        promise = controller.fetch(
+          OptimisticArticleResource.partialUpdate,
+          params,
+          {
+            content: 'changed',
+          },
+        );
+      });
+      expect(result.current).toBeUndefined();
+
+      await act(() => promise);
+      expect(result.current).toEqual(
+        CoolerArticle.fromJS({
+          ...payload,
+          title: 'some other title',
+          content: 'real response',
+        }),
+      );
+    });
+
+    it('works with update', async () => {
+      const params = { id: payload.id };
+      mynock.put('/article-cooler/5').reply(200, {
+        ...payload,
+        title: 'some other title',
+        content: 'real response',
+      });
+
       const { result, waitForNextUpdate } = renderRestHook(
         () => {
           const { fetch } = useController();
-          const article = useCache(CoolerArticleResource.get, params);
+          const article = useCache(OptimisticArticleResource.get, params);
           // @ts-expect-error
           article.doesnotexist;
           return { fetch, article };
@@ -118,7 +205,7 @@ describe.each([
         {
           initialFixtures: [
             {
-              endpoint: CoolerArticleResource.get,
+              endpoint: OptimisticArticleResource.get,
               args: [params],
               response: payload,
             },
@@ -129,9 +216,10 @@ describe.each([
       let promise: any;
       act(() => {
         promise = result.current.fetch(
-          CoolerArticleResource.partialUpdate,
+          OptimisticArticleResource.update,
           params,
           {
+            ...result.current.article,
             content: 'changed',
           },
         );
@@ -161,13 +249,13 @@ describe.each([
       const { result, waitForNextUpdate } = renderRestHook(
         () => {
           const { fetch } = useController();
-          const articles = useCache(CoolerArticleResource.getList);
+          const articles = useCache(OptimisticArticleResource.getList);
           return { fetch, articles };
         },
         {
           initialFixtures: [
             {
-              endpoint: CoolerArticleResource.getList,
+              endpoint: OptimisticArticleResource.getList,
               args: [{}],
               response: [payload],
             },
@@ -177,7 +265,10 @@ describe.each([
       expect(result.current.articles).toEqual([CoolerArticle.fromJS(payload)]);
       let promise: any;
       act(() => {
-        promise = result.current.fetch(CoolerArticleResource.delete, params);
+        promise = result.current.fetch(
+          OptimisticArticleResource.delete,
+          params,
+        );
       });
       expect(result.current.articles).toEqual([]);
       await act(() => promise);
@@ -265,7 +356,7 @@ describe.each([
         .extend({ schema: CoolerArticle })
         .extend({
           update: newid => ({
-            [CoolerArticleResource.getList.key()]: (
+            [OptimisticArticleResource.getList.key()]: (
               existing: string[] = [],
             ) => [newid, ...existing],
           }),
@@ -313,13 +404,13 @@ describe.each([
       const { result, waitForNextUpdate } = renderRestHook(
         () => {
           const { fetch } = useController();
-          const article = useCache(CoolerArticleResource.get, params);
+          const article = useCache(OptimisticArticleResource.get, params);
           return { fetch, article };
         },
         {
           initialFixtures: [
             {
-              endpoint: CoolerArticleResource.get,
+              endpoint: OptimisticArticleResource.get,
               args: [params],
               response: payload,
             },
@@ -334,7 +425,7 @@ describe.each([
       act(() => {
         fetches.push(
           result.current.fetch(
-            CoolerArticleResource.partialUpdate.extend({
+            OptimisticArticleResource.partialUpdate.extend({
               fetch(...args: any[]) {
                 return new Promise(resolve => {
                   resolves.push(resolve);
@@ -362,7 +453,7 @@ describe.each([
       act(() => {
         fetches.push(
           result.current.fetch(
-            CoolerArticleResource.partialUpdate.extend({
+            OptimisticArticleResource.partialUpdate.extend({
               fetch(...args: any[]) {
                 return new Promise(resolve => {
                   resolves.push(resolve);
@@ -389,7 +480,7 @@ describe.each([
       act(() => {
         fetches.push(
           result.current.fetch(
-            CoolerArticleResource.partialUpdate.extend({
+            OptimisticArticleResource.partialUpdate.extend({
               fetch(...args: any[]) {
                 return new Promise(resolve => {
                   resolves.push(resolve);
@@ -451,13 +542,13 @@ describe.each([
       const params = { id: payload.id };
       const { result, controller } = renderRestHook(
         () => {
-          const article = useCache(CoolerArticleResource.get, params);
+          const article = useCache(OptimisticArticleResource.get, params);
           return article;
         },
         {
           initialFixtures: [
             {
-              endpoint: CoolerArticleResource.get,
+              endpoint: OptimisticArticleResource.get,
               args: [params],
               response: payload,
             },
@@ -472,7 +563,7 @@ describe.each([
       act(() => {
         fetches.push(
           controller.fetch(
-            CoolerArticleResource.partialUpdate.extend({
+            OptimisticArticleResource.partialUpdate.extend({
               fetch(...args: any[]) {
                 return new Promise(resolve => {
                   resolves.push(resolve);
@@ -500,7 +591,7 @@ describe.each([
       act(() => {
         fetches.push(
           controller.fetch(
-            CoolerArticleResource.partialUpdate.extend({
+            OptimisticArticleResource.partialUpdate.extend({
               fetch(...args: any[]) {
                 return new Promise(resolve => {
                   resolves.push(resolve);
@@ -527,7 +618,7 @@ describe.each([
       act(() => {
         fetches.push(
           controller.fetch(
-            CoolerArticleResource.partialUpdate.extend({
+            OptimisticArticleResource.partialUpdate.extend({
               fetch(...args: any[]) {
                 return new Promise(resolve => {
                   resolves.push(resolve);
