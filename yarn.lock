@@ -8661,15 +8661,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cross-fetch@npm:^3.0.6":
-  version: 3.1.8
-  resolution: "cross-fetch@npm:3.1.8"
-  dependencies:
-    node-fetch: ^2.6.12
-  checksum: 78f993fa099eaaa041122ab037fe9503ecbbcb9daef234d1d2e0b9230a983f64d645d088c464e21a247b825a08dc444a6e7064adfa93536d3a9454b4745b3632
-  languageName: node
-  linkType: hard
-
 "cross-fetch@npm:^4.0.0":
   version: 4.0.0
   resolution: "cross-fetch@npm:4.0.0"
@@ -19573,7 +19564,7 @@ __metadata:
     core-js: 3.31.0
     coveralls: ^3.1.0
     cpy-cli: 5.0.0
-    cross-fetch: ^3.0.6
+    cross-fetch: ^4.0.0
     downlevel-dts: ^0.10.0
     eslint: 8.44.0
     eslint-plugin-babel: ^5.3.1
