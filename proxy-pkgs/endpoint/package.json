@@ -2,7 +2,7 @@
   "name": "@rest-hooks/endpoint",
   "version": "4.0.0",
   "description": "Declarative Network Interface Definitions",
-  "homepage": "https://resthooks.io/docs/graphql",
+  "homepage": "https://resthooks.io/docs/guides/custom-protocol",
   "bugs": {
     "url": "https://github.com/data-client/rest-hooks/issues"
   },

@@ -1,4 +1,4 @@
-# ![🛌🎣 Data Client Testing](../../packages/data-client/rest_hooks_logo_and_text.svg?sanitize=true)
+# ![Data Client Testing](../../packages/data-client/rest_hooks_logo_and_text.svg?sanitize=true)
 
 [![Coverage Status](https://img.shields.io/codecov/c/gh/data-client/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/data-client/data-client?branch=master)
 
