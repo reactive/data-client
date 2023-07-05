@@ -8,6 +8,7 @@ export default function applyManager(
 ): Middleware[] {
   return managers.map(manager => {
     const middleware = manager.getMiddleware();
+    // TODO(breaking): remove this once controller prop is no longer supported
     return ({ dispatch, getState }) => {
       (controller as any).dispatch = dispatch;
       (controller as any).getState = getState;
