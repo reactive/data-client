@@ -1,5 +1,11 @@
 # @data-client/redux
 
+## 0.1.3
+
+### Patch Changes
+
+- e916b88e45: Readme/package meta typo fixes
+
 ## 0.1.2
 
 ### Patch Changes

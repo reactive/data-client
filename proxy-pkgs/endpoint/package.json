@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/endpoint",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Declarative Network Interface Definitions",
   "homepage": "https://resthooks.io/docs/guides/custom-protocol",
   "bugs": {

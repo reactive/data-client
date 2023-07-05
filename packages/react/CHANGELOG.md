@@ -1,5 +1,11 @@
 # @data-client/react
 
+## 0.2.1
+
+### Patch Changes
+
+- e916b88e45: Readme/package meta typo fixes
+
 ## 0.2.0
 
 ### Minor Changes
