@@ -1,5 +1,11 @@
 # Change Log
 
+## 4.0.1
+
+### Patch Changes
+
+- e916b88e45: Readme/package meta typo fixes
+
 ## 4.0.0
 
 ### Major Changes
