@@ -239,10 +239,6 @@ function UserName() {
 }
 ```
 
-## receive() {#receive}
-
-Another name for setResponse()
-
 ## setResponse(endpoint, ...args, response) {#setResponse}
 
 Stores `response` in cache for given [Endpoint](/rest/api/Endpoint) and args.
@@ -266,10 +262,6 @@ useEffect(() => {
 
 This shows a proof of concept in React; however a [Manager websockets implementation](./Manager.md#data-stream)
 would be much more robust.
-
-## receiveError() {#receiveError}
-
-Another name for setError()
 
 ## setError(endpoint, ...args, error) {#setError}
 

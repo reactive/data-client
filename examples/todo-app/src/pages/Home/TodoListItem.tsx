@@ -1,21 +1,22 @@
 import { useController } from '@data-client/react';
 import { styled } from '@linaria/react';
-import { memo, useCallback } from 'react';
+import { memo } from 'react';
 import { TodoResource, Todo } from 'resources/TodoResource';
 
 function TodoListItem({ todo }: { todo: Todo }) {
   const ctrl = useController();
 
-  const toggleHandler = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      await ctrl.fetch(
-        TodoResource.partialUpdate,
-        { id: todo.id },
-        { completed: e.currentTarget.checked },
-      );
-    },
-    [ctrl, todo.id],
-  );
+  const toggleHandler = (e: React.ChangeEvent<HTMLInputElement>) =>
+    ctrl.fetch(
+      TodoResource.partialUpdate,
+      { id: todo.id },
+      { completed: e.currentTarget.checked },
+    );
+  const handleDelete = () =>
+    ctrl.fetch(TodoResource.delete, {
+      id: todo.id,
+    });
+
   return (
     <TodoBox>
       <label>
@@ -28,11 +29,7 @@ function TodoListItem({ todo }: { todo: Todo }) {
       </label>
       <span
         style={{ cursor: 'pointer', marginLeft: '.5em' }}
-        onClick={() =>
-          ctrl.fetch(TodoResource.delete, {
-            id: todo.id,
-          })
-        }
+        onClick={handleDelete}
       >
         <img
           src="https://resthooks.io/img/cancel.png"
