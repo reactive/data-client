@@ -10,6 +10,7 @@ import { ResourceGenerics, ResourceOptions } from './resourceTypes.js';
 import RestEndpoint, {
   GetEndpoint,
   MutateEndpoint,
+  PaginationFieldEndpoint,
   RestTypeNoBody,
 } from './RestEndpoint.js';
 import { shortenPath } from './RestHelpers.js';
@@ -25,6 +26,7 @@ export default function createResource<O extends ResourceGenerics>({
   schema,
   Endpoint = RestEndpoint,
   optimistic,
+  paginationField,
   ...extraOptions
 }: Readonly<O> & ResourceOptions): Resource<O> {
   const shortenedPath = shortenPath(path);
@@ -48,7 +50,7 @@ export default function createResource<O extends ResourceGenerics>({
     schema: new Collection([schema as any]),
     name: getName('getList'),
   });
-  return {
+  const ret = {
     get,
     getList,
     create: getList.push.extend({ name: getName('create') }),
@@ -78,6 +80,8 @@ export default function createResource<O extends ResourceGenerics>({
       getOptimisticResponse: optimistic ? (optimisticDelete as any) : undefined,
     }),
   } as any;
+  if (paginationField) ret.getNextPage = getList.paginated(paginationField);
+  return ret;
 }
 
 function optimisticUpdate(snap: SnapshotInterface, params: any, body: any) {
@@ -127,6 +131,28 @@ export interface Resource<
         schema: schema.Collection<[O['schema']]>;
         searchParams: Record<string, number | string | boolean> | undefined;
       }>;
+  /** Get a list of item
+   *
+   * @see https://dataclient.io/rest/api/createResource#getNextPage
+   */
+  getNextPage: 'paginationField' extends keyof O
+    ? PaginationFieldEndpoint<
+        'searchParams' extends keyof O
+          ? GetEndpoint<{
+              path: ShortenPath<O['path']>;
+              schema: schema.Collection<[O['schema']]>;
+              searchParams: O['searchParams'];
+            }>
+          : GetEndpoint<{
+              path: ShortenPath<O['path']>;
+              schema: schema.Collection<[O['schema']]>;
+              searchParams:
+                | Record<string, number | string | boolean>
+                | undefined;
+            }>,
+        Exclude<O['paginationField'], undefined>
+      >
+    : undefined;
   /** Create a new item (POST)
    *
    * @see https://resthooks.io/rest/api/createResource#create

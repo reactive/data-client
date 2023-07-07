@@ -72,6 +72,15 @@ const ArticleResource = {
     },
   }),
 };
+// for pagination test
+const ArticlePaginatedResource = createResource({
+  urlPrefix: 'http://test.com',
+  path: '/article/:id',
+  searchParams: {} as { userId?: number } | undefined,
+  schema: Article,
+  paginationField: 'cursor',
+});
+
 const UnionResource = createResource({
   path: '/union/:id',
   schema: UnionSchema,
@@ -186,6 +195,69 @@ describe.each([
     expect(result.current[3]).toBeInstanceOf(SecondUnion);
     expect(result.current).toMatchSnapshot();
     global.console.warn = prevWarn;
+  });
+
+  it('pagination should work with cursor field in createResource', async () => {
+    const mynock = nock(/.*/).defaultReplyHeaders({
+      'Access-Control-Allow-Origin': '*',
+      'Content-Type': 'application/json',
+    });
+
+    mynock.get(`/article`).reply(200, paginatedFirstPage.results);
+    mynock.get(`/article?userId=2`).reply(200, paginatedFirstPage.results);
+    mynock.get(`/article?userId=1`).reply(200, paginatedFirstPage.results);
+    mynock
+      .get(`/article?userId=1&cursor=2`)
+      .reply(200, paginatedSecondPage.results);
+
+    const { result, waitForNextUpdate, controller } = renderRestHook(() => {
+      const userArticles = useSuspense(ArticlePaginatedResource.getList, {
+        userId: 1,
+      });
+      const anotherUserArticles = useSuspense(
+        ArticlePaginatedResource.getList,
+        { userId: 2 },
+      );
+      const allArticles = useSuspense(ArticlePaginatedResource.getList);
+      return { userArticles, allArticles, anotherUserArticles };
+    });
+    await waitForNextUpdate();
+    expect(result.current.userArticles).toMatchSnapshot();
+
+    await controller.fetch(ArticlePaginatedResource.getNextPage, {
+      cursor: 2,
+      userId: 1,
+    });
+
+    expect(result.current.userArticles.map(({ id }) => id)).toEqual([
+      5, 3, 7, 8,
+    ]);
+    // pagination we only explicitly extend one
+    expect(result.current.allArticles.map(({ id }) => id)).toEqual([5, 3]);
+    expect(result.current.anotherUserArticles.map(({ id }) => id)).toEqual([
+      5, 3,
+    ]);
+
+    () =>
+      controller.fetch(ArticlePaginatedResource.getNextPage, {
+        cursor: 2,
+        userId: 1,
+        // @ts-expect-error
+        sdlkjfsd: 5,
+      });
+    () =>
+      controller.fetch(ArticlePaginatedResource.getNextPage, {
+        // @ts-expect-error
+        sdf: 2,
+        userId: 1,
+      });
+    () =>
+      // @ts-expect-error
+      controller.fetch(ArticlePaginatedResource.getNextPage, {
+        userId: 1,
+      });
+
+    nock.cleanAll();
   });
 
   describe.each(ResourceCombos)(
