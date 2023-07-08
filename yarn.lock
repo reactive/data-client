@@ -3903,72 +3903,72 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/env@npm:13.4.8":
-  version: 13.4.8
-  resolution: "@next/env@npm:13.4.8"
-  checksum: 24e8966c9963879e7f9bab09248bebb89d8615b740dad286e0eb5f92909dddfc30e80ef9df29da757dbf50dcdf483037e65521fc9ea68582fb78d752273d4ba6
+"@next/env@npm:13.4.9":
+  version: 13.4.9
+  resolution: "@next/env@npm:13.4.9"
+  checksum: 625f01571ac5dabbb90567a987fdc16eca86cd9cfd592edabf7d3e3024972cd83564d53202293163851b85fa643f846a5757c8696a3c44315c98dae5b634f122
   languageName: node
   linkType: hard
 
-"@next/swc-darwin-arm64@npm:13.4.8":
-  version: 13.4.8
-  resolution: "@next/swc-darwin-arm64@npm:13.4.8"
+"@next/swc-darwin-arm64@npm:13.4.9":
+  version: 13.4.9
+  resolution: "@next/swc-darwin-arm64@npm:13.4.9"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@next/swc-darwin-x64@npm:13.4.8":
-  version: 13.4.8
-  resolution: "@next/swc-darwin-x64@npm:13.4.8"
+"@next/swc-darwin-x64@npm:13.4.9":
+  version: 13.4.9
+  resolution: "@next/swc-darwin-x64@npm:13.4.9"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@next/swc-linux-arm64-gnu@npm:13.4.8":
-  version: 13.4.8
-  resolution: "@next/swc-linux-arm64-gnu@npm:13.4.8"
+"@next/swc-linux-arm64-gnu@npm:13.4.9":
+  version: 13.4.9
+  resolution: "@next/swc-linux-arm64-gnu@npm:13.4.9"
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@next/swc-linux-arm64-musl@npm:13.4.8":
-  version: 13.4.8
-  resolution: "@next/swc-linux-arm64-musl@npm:13.4.8"
+"@next/swc-linux-arm64-musl@npm:13.4.9":
+  version: 13.4.9
+  resolution: "@next/swc-linux-arm64-musl@npm:13.4.9"
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
 
-"@next/swc-linux-x64-gnu@npm:13.4.8":
-  version: 13.4.8
-  resolution: "@next/swc-linux-x64-gnu@npm:13.4.8"
+"@next/swc-linux-x64-gnu@npm:13.4.9":
+  version: 13.4.9
+  resolution: "@next/swc-linux-x64-gnu@npm:13.4.9"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@next/swc-linux-x64-musl@npm:13.4.8":
-  version: 13.4.8
-  resolution: "@next/swc-linux-x64-musl@npm:13.4.8"
+"@next/swc-linux-x64-musl@npm:13.4.9":
+  version: 13.4.9
+  resolution: "@next/swc-linux-x64-musl@npm:13.4.9"
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
 
-"@next/swc-win32-arm64-msvc@npm:13.4.8":
-  version: 13.4.8
-  resolution: "@next/swc-win32-arm64-msvc@npm:13.4.8"
+"@next/swc-win32-arm64-msvc@npm:13.4.9":
+  version: 13.4.9
+  resolution: "@next/swc-win32-arm64-msvc@npm:13.4.9"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@next/swc-win32-ia32-msvc@npm:13.4.8":
-  version: 13.4.8
-  resolution: "@next/swc-win32-ia32-msvc@npm:13.4.8"
+"@next/swc-win32-ia32-msvc@npm:13.4.9":
+  version: 13.4.9
+  resolution: "@next/swc-win32-ia32-msvc@npm:13.4.9"
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"@next/swc-win32-x64-msvc@npm:13.4.8":
-  version: 13.4.8
-  resolution: "@next/swc-win32-x64-msvc@npm:13.4.8"
+"@next/swc-win32-x64-msvc@npm:13.4.9":
+  version: 13.4.9
+  resolution: "@next/swc-win32-x64-msvc@npm:13.4.9"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
@@ -5575,10 +5575,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:20.3.3, @types/node@npm:^20.0.0":
-  version: 20.3.3
-  resolution: "@types/node@npm:20.3.3"
-  checksum: 7a0d00800451ca8cd8df63a8cc218c697edadb3143bf46cd6afeb974542a6a1665c3679459be0016c29216ccfed6616b7e55851747527dfa71c5608d9157528c
+"@types/node@npm:*, @types/node@npm:20.4.1, @types/node@npm:^20.0.0":
+  version: 20.4.1
+  resolution: "@types/node@npm:20.4.1"
+  checksum: 22cbcc792f2eb636fe4188778ed0f32658ab872aa7fcb9847b3fa289a42b14b9f5e30c6faec50ef3c7adbc6c2a246926e5858136bb8b10c035a3fcaa6afbeed2
   languageName: node
   linkType: hard
 
@@ -15492,31 +15492,31 @@ __metadata:
     "@data-client/rest": ^0.2.0
     "@data-client/ssr": ^0.1.0
     "@data-client/test": ^0.1.0
-    "@types/node": 20.3.3
+    "@types/node": 20.4.1
     "@types/react": 18.2.14
     "@types/react-dom": 18.2.6
     classnames: ^2.3.2
-    next: 13.4.8
+    next: 13.4.9
     react: 18.2.0
     react-dom: 18.2.0
     redux: ^4.2.0
   languageName: unknown
   linkType: soft
 
-"next@npm:13.4.8, next@npm:^13.0.4":
-  version: 13.4.8
-  resolution: "next@npm:13.4.8"
+"next@npm:13.4.9, next@npm:^13.0.4":
+  version: 13.4.9
+  resolution: "next@npm:13.4.9"
   dependencies:
-    "@next/env": 13.4.8
-    "@next/swc-darwin-arm64": 13.4.8
-    "@next/swc-darwin-x64": 13.4.8
-    "@next/swc-linux-arm64-gnu": 13.4.8
-    "@next/swc-linux-arm64-musl": 13.4.8
-    "@next/swc-linux-x64-gnu": 13.4.8
-    "@next/swc-linux-x64-musl": 13.4.8
-    "@next/swc-win32-arm64-msvc": 13.4.8
-    "@next/swc-win32-ia32-msvc": 13.4.8
-    "@next/swc-win32-x64-msvc": 13.4.8
+    "@next/env": 13.4.9
+    "@next/swc-darwin-arm64": 13.4.9
+    "@next/swc-darwin-x64": 13.4.9
+    "@next/swc-linux-arm64-gnu": 13.4.9
+    "@next/swc-linux-arm64-musl": 13.4.9
+    "@next/swc-linux-x64-gnu": 13.4.9
+    "@next/swc-linux-x64-musl": 13.4.9
+    "@next/swc-win32-arm64-msvc": 13.4.9
+    "@next/swc-win32-ia32-msvc": 13.4.9
+    "@next/swc-win32-x64-msvc": 13.4.9
     "@swc/helpers": 0.5.1
     busboy: 1.6.0
     caniuse-lite: ^1.0.30001406
@@ -15558,7 +15558,7 @@ __metadata:
       optional: true
   bin:
     next: dist/bin/next
-  checksum: 9af39db490707b93f7354457400997423655c59af3888f4a2db15a562711adadd83c17fba562f56341e4e020b43569d86b0a5630c0811c1a97c68f01b647dfc6
+  checksum: 7adb9919dc50598e53bf32da2d0f90da325b66a23cb16c291c276d0683f81bade0bb21aeaeede10154ef53eabcb4953bf883f4d752852a62a6bd7be42021aef9
   languageName: node
   linkType: hard
 
@@ -18660,15 +18660,15 @@ __metadata:
   linkType: hard
 
 "react-native-screens@npm:^3.18.2":
-  version: 3.22.0
-  resolution: "react-native-screens@npm:3.22.0"
+  version: 3.22.1
+  resolution: "react-native-screens@npm:3.22.1"
   dependencies:
     react-freeze: ^1.0.0
     warn-once: ^0.1.0
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 18014990785abade1223aeb6468c7f5917f9ef5bc7144fac4ba25b1778cb9faac413cbecd565fed6b7c40474a9387ba29d672af1539a175ca87a235900128b7f
+  checksum: 3b592ff31d9dfde5e2ce967f85f3ad17a94f4f3bee2248a3dad9ec791e7cda72a431f86b468b3b2a70ebeffb49b462f8162668a58fb9ddabb10b5a369816850d
   languageName: node
   linkType: hard
 
@@ -19563,7 +19563,7 @@ __metadata:
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/react-native": 12.1.2
     "@types/jest": 29.5.2
-    "@types/node": 20.3.3
+    "@types/node": 20.4.1
     "@types/react": 18.2.14
     "@typescript-eslint/eslint-plugin": 5.61.0
     "@typescript-eslint/parser": 5.61.0

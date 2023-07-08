@@ -10235,10 +10235,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"monaco-editor@npm:^0.39.0":
-  version: 0.39.0
-  resolution: "monaco-editor@npm:0.39.0"
-  checksum: 6d906c5f07fc6761b93bebee70bc1c461d6bbea493252751f4e2e60f26678faced9261ed9cca21613511695e6d7b75c2f2214b6d53aaa479a7e0b6f2d912f90b
+"monaco-editor@npm:^0.40.0":
+  version: 0.40.0
+  resolution: "monaco-editor@npm:0.40.0"
+  checksum: 9f879c254bfb9907cc0b23d26bd4bcaaabf9a2cfbd9926574e06ea94f4b9e5807299db9cae1f35820da6242d5d13d9382cb9db48b1340c54ba06620c242c25c7
   languageName: node
   linkType: hard
 
@@ -13181,7 +13181,7 @@ __metadata:
     "@types/uuid": ^9
     bignumber.js: 9.1.1
     clsx: 1.2.1
-    monaco-editor: ^0.39.0
+    monaco-editor: ^0.40.0
     parse-numeric-range: ^1.3.0
     raw-loader: ^4.0.2
     react: ^17.0.2
