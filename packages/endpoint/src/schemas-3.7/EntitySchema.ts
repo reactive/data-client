@@ -478,8 +478,9 @@ export interface IEntityClass<TBase extends Constructor = any> {
    * @param [key] When normalizing, the key where this entity was found
    */
   pk<
-    T extends (abstract new (...args: any[]) => IEntityInstance &
-      InstanceType<TBase>) &
+    T extends (abstract new (
+      ...args: any[]
+    ) => IEntityInstance & InstanceType<TBase>) &
       IEntityClass &
       TBase,
   >(
@@ -535,8 +536,9 @@ export interface IEntityClass<TBase extends Constructor = any> {
    * @param [props] Plain Object of properties to assign.
    */
   fromJS<
-    T extends (abstract new (...args: any[]) => IEntityInstance &
-      InstanceType<TBase>) &
+    T extends (abstract new (
+      ...args: any[]
+    ) => IEntityInstance & InstanceType<TBase>) &
       IEntityClass &
       TBase,
   >(
@@ -548,8 +550,9 @@ export interface IEntityClass<TBase extends Constructor = any> {
    * @param [props] Plain Object of properties to assign.
    */
   createIfValid<
-    T extends (abstract new (...args: any[]) => IEntityInstance &
-      InstanceType<TBase>) &
+    T extends (abstract new (
+      ...args: any[]
+    ) => IEntityInstance & InstanceType<TBase>) &
       IEntityClass &
       TBase,
   >(
@@ -577,8 +580,9 @@ export interface IEntityClass<TBase extends Constructor = any> {
     input: any,
   ): number;
   denormalize<
-    T extends (abstract new (...args: any[]) => IEntityInstance &
-      InstanceType<TBase>) &
+    T extends (abstract new (
+      ...args: any[]
+    ) => IEntityInstance & InstanceType<TBase>) &
       IEntityClass &
       TBase,
   >(

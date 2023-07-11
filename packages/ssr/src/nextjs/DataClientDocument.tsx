@@ -27,12 +27,11 @@ export default class DataClientDocument extends Doc {
     ctx.renderPage = () => {
       return originalRenderPage({
         // Useful for wrapping the whole react tree
-        enhanceApp: (App: AppType) => (props: any) =>
-          (
-            <ServerCacheProvider>
-              <App {...props} />
-            </ServerCacheProvider>
-          ),
+        enhanceApp: (App: AppType) => (props: any) => (
+          <ServerCacheProvider>
+            <App {...props} />
+          </ServerCacheProvider>
+        ),
       });
     };
     // Run the parent `getInitialProps`, it now includes the custom `renderPage`
