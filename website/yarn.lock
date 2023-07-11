@@ -2127,37 +2127,37 @@ __metadata:
 
 "@data-client/core@file:../packages/core::locator=root-workspace-0b6124%40workspace%3A.":
   version: 0.2.0
-  resolution: "@data-client/core@file:../packages/core#../packages/core::hash=70cf63&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@data-client/core@file:../packages/core#../packages/core::hash=7a614c&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@data-client/normalizr": ^0.2.0
     flux-standard-action: ^2.1.1
-  checksum: 6f3392e400fe572de6d46ff98a2d251f23b2986ccdf212ead38e096ce9a930afbc5054a910fc0bdce9030d268ddeb330f4e09a59ed0fa2572a3033a0324c91fe
+  checksum: 61a1a3328d79f1ffb60eeadfc85f5bcec3f67d488a3cda218ac1e7a1c166e2699606f4c6b713428c24282b96fc6fd49dfb8f758cd0d4a9e92339981a4371d267
   languageName: node
   linkType: hard
 
 "@data-client/endpoint@file:../packages/endpoint::locator=root-workspace-0b6124%40workspace%3A.":
   version: 0.2.0
-  resolution: "@data-client/endpoint@file:../packages/endpoint#../packages/endpoint::hash=15dd4f&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@data-client/endpoint@file:../packages/endpoint#../packages/endpoint::hash=6e203d&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
-  checksum: 9fb0822ded44d7547ad3236b2026611d44f2c419193b24669e0c27e28d6ad742e32957fdeb3e0b55d4472d459180862ff85c191bc37c0b9ec059691947098b68
+  checksum: f4b17eaad9200ea2ad44190ceaed9e27932b06e1ade9ea9cfdccb8c223a6eb4de4afe50e6d143a4fa765018bc9d9f5dff28c48586b01d58f4ea6f64d77873f8c
   languageName: node
   linkType: hard
 
 "@data-client/graphql@file:../packages/graphql::locator=root-workspace-0b6124%40workspace%3A.":
   version: 0.2.0
-  resolution: "@data-client/graphql@file:../packages/graphql#../packages/graphql::hash=f926d4&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@data-client/graphql@file:../packages/graphql#../packages/graphql::hash=3429e1&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@data-client/endpoint": ^0.2.0
-  checksum: 3523cdede2fede9e2bf0a153a88d20c842b3488e044d3460b1d6154a9658751ee1753c1359512c343d796ed6e6abe47117a291ac7dae5bc43be1bc4ed2f8d8d3
+  checksum: 17443a86b5bbdb5d1d94be057bb0e19a74d7978eb5c0c54a3a4ebf2d89ab12039bd3a39c0b637ec67fb44a6520e7259dd7d8e5ba6c606e04cd38b4f8bd5f7b84
   languageName: node
   linkType: hard
 
 "@data-client/hooks@file:../packages/hooks::locator=root-workspace-0b6124%40workspace%3A.":
   version: 0.1.1
-  resolution: "@data-client/hooks@file:../packages/hooks#../packages/hooks::hash=8bf720&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@data-client/hooks@file:../packages/hooks#../packages/hooks::hash=252c05&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@data-client/normalizr": ^0.2.0
@@ -2167,22 +2167,22 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 2468ed37daedb90ade9ca5f0d3935116037d35446f0a479771e0ecb8e1e6779951d984c261a73fd83f67e4d663e6c9f036c0351eb918d218a81b448d017886fa
+  checksum: 522069311f7b04b7eeed46ef669944cc94d245627d2cf4c235533e85b28a94d7ebf6513c29c92e46465f4b9994919713c85d38db4c34748c75e766c58e880400
   languageName: node
   linkType: hard
 
 "@data-client/normalizr@file:../packages/normalizr::locator=root-workspace-0b6124%40workspace%3A.":
   version: 0.2.0
-  resolution: "@data-client/normalizr@file:../packages/normalizr#../packages/normalizr::hash=9e5967&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@data-client/normalizr@file:../packages/normalizr#../packages/normalizr::hash=415bab&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
-  checksum: cc5c3277145b65a34e82ec873e2e6bd5188f6a18e5545077f957461eeaa4c4a135e65ce1b65592b18eaf43c9bf5d9b4f7f6a1f514606fe027278fe739a26f9cb
+  checksum: f534b58f4da87d80428405c022ac3b4ded8c5beff24fc0d07c88fea6f585ae8667d732cc2fddcdb8a644025988b31012ea1c97bb408c3a6c2098a8cbca65fca8
   languageName: node
   linkType: hard
 
 "@data-client/react@file:../packages/react::locator=root-workspace-0b6124%40workspace%3A.":
   version: 0.2.1
-  resolution: "@data-client/react@file:../packages/react#../packages/react::hash=2646ad&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@data-client/react@file:../packages/react#../packages/react::hash=7a291b&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@data-client/core": ^0.2.0
@@ -2196,24 +2196,24 @@ __metadata:
       optional: true
     "@types/react":
       optional: true
-  checksum: f66d853a850730d52f35c6e50ebd69b186bcea370327be91c70dc85072e915cdfa67d6402cb991a8ccbd2561be1bb4fd1bfe62ead4100b8b76f2aa2e345bd049
+  checksum: fb689e113aac9e89893002eec0659a92c4e1b1ef86b5cb9e660fb3058bb8457c238d4cb054753c484b6aa7df146af6f36da15e01bbbd801c1e975a0419266fd7
   languageName: node
   linkType: hard
 
 "@data-client/rest@file:../packages/rest::locator=root-workspace-0b6124%40workspace%3A.":
   version: 0.2.0
-  resolution: "@data-client/rest@file:../packages/rest#../packages/rest::hash=2e501c&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@data-client/rest@file:../packages/rest#../packages/rest::hash=883c10&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@data-client/endpoint": ^0.2.0
     path-to-regexp: ^6.2.1
-  checksum: c516343a7d947da94f024fc9de5c4f7ef1840ea527a9a4d92ee8c482a2c237c033752005ea5bae2fe98b262429722158b3b05787d12895dcfddd65832069a178
+  checksum: 60bfa3f48301b23a68f614679661a3300699a18a2089266923cfebd196105d0c85112a47ce57b5b066f2e083667ffbc16f4af1b0176a039a860d03ec31829058
   languageName: node
   linkType: hard
 
 "@data-client/test@file:../packages/test::locator=root-workspace-0b6124%40workspace%3A.":
   version: 0.1.3
-  resolution: "@data-client/test@file:../packages/test#../packages/test::hash=94c62c&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@data-client/test@file:../packages/test#../packages/test::hash=b24745&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@testing-library/react": ^14.0.0
@@ -2242,20 +2242,20 @@ __metadata:
       optional: true
     react-test-renderer:
       optional: true
-  checksum: 8eb3374ef28f2734a64521db57cee5458d075e3d30058218410685cdce4ca1321c533a7609b4342e9867c0c5d0a0b9ce58ce07c87517947ccff809dffaea9824
+  checksum: 2230fbe2698d542aa4d4c2739bda9d9def4b0eea11c5ab635abd68956e2e8ed7c09f135a80a696ada48cdf8f9a9352577458d6d0707660ff5694dcb750a7bfab
   languageName: node
   linkType: hard
 
 "@data-client/use-enhanced-reducer@file:../packages/use-enhanced-reducer::locator=root-workspace-0b6124%40workspace%3A.":
   version: 0.1.0
-  resolution: "@data-client/use-enhanced-reducer@file:../packages/use-enhanced-reducer#../packages/use-enhanced-reducer::hash=0f516f&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@data-client/use-enhanced-reducer@file:../packages/use-enhanced-reducer#../packages/use-enhanced-reducer::hash=56f56c&locator=root-workspace-0b6124%40workspace%3A."
   peerDependencies:
     "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
     react: ^16.8.4 || ^17.0.0 || ^18.0.0-0
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: cea52940df20e98ce5e32757f5451906b5abebe7eba54602f263d82c3292e7c7fcfa73d657390d801e8325a6a558d50b03759f04741bd0b038b4c5ff269ff270
+  checksum: fd42bb338657abd5d2b98c92b11865fd992baa3c3f787ea8268ced45500f35d1eefb42909f1df91f3227d34122ba20d6f3f2d8c787951ab173e4e29fb62fe0c8
   languageName: node
   linkType: hard
 
@@ -13396,11 +13396,11 @@ __metadata:
   linkType: hard
 
 "semver@npm:^5.4.1":
-  version: 5.7.1
-  resolution: "semver@npm:5.7.1"
+  version: 5.7.2
+  resolution: "semver@npm:5.7.2"
   bin:
-    semver: ./bin/semver
-  checksum: 57fd0acfd0bac382ee87cd52cd0aaa5af086a7dc8d60379dfe65fea491fb2489b6016400813930ecd61fd0952dae75c115287a1b16c234b1550887117744dfaf
+    semver: bin/semver
+  checksum: fb4ab5e0dd1c22ce0c937ea390b4a822147a9c53dbd2a9a0132f12fe382902beef4fbf12cf51bb955248d8d15874ce8cd89532569756384f994309825f10b686
   languageName: node
   linkType: hard
 
