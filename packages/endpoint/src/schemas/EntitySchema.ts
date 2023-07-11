@@ -548,8 +548,9 @@ export interface IEntityClass<TBase extends Constructor = any> {
    * @param [key] When normalizing, the key where this entity was found
    */
   pk<
-    T extends (abstract new (...args: any[]) => IEntityInstance &
-      InstanceType<TBase>) &
+    T extends (abstract new (
+      ...args: any[]
+    ) => IEntityInstance & InstanceType<TBase>) &
       IEntityClass &
       TBase,
   >(
@@ -630,8 +631,9 @@ export interface IEntityClass<TBase extends Constructor = any> {
    * @param [props] Plain Object of properties to assign.
    */
   fromJS<
-    T extends (abstract new (...args: any[]) => IEntityInstance &
-      InstanceType<TBase>) &
+    T extends (abstract new (
+      ...args: any[]
+    ) => IEntityInstance & InstanceType<TBase>) &
       IEntityClass &
       TBase,
   >(
@@ -644,8 +646,9 @@ export interface IEntityClass<TBase extends Constructor = any> {
    * @see https://resthooks.io/docs/api/Entity#createIfValid
    */
   createIfValid<
-    T extends (abstract new (...args: any[]) => IEntityInstance &
-      InstanceType<TBase>) &
+    T extends (abstract new (
+      ...args: any[]
+    ) => IEntityInstance & InstanceType<TBase>) &
       IEntityClass &
       TBase,
   >(
@@ -677,8 +680,9 @@ export interface IEntityClass<TBase extends Constructor = any> {
 
   infer(args: readonly any[], indexes: NormalizedIndex, recurse: any): any;
   denormalize<
-    T extends (abstract new (...args: any[]) => IEntityInstance &
-      InstanceType<TBase>) &
+    T extends (abstract new (
+      ...args: any[]
+    ) => IEntityInstance & InstanceType<TBase>) &
       IEntityClass &
       TBase,
   >(
@@ -687,8 +691,9 @@ export interface IEntityClass<TBase extends Constructor = any> {
     unvisit: UnvisitFunction,
   ): [denormalized: AbstractInstanceType<T>, found: boolean, suspend: boolean];
   denormalizeOnly<
-    T extends (abstract new (...args: any[]) => IEntityInstance &
-      InstanceType<TBase>) &
+    T extends (abstract new (
+      ...args: any[]
+    ) => IEntityInstance & InstanceType<TBase>) &
       IEntityClass &
       TBase,
   >(

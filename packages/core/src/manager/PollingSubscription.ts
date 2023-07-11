@@ -145,17 +145,20 @@ export default class PollingSubscription implements Subscription {
   protected onlineListener = () => {
     this.connectionListener.removeOnlineListener(this.onlineListener);
     const now = Date.now();
-    this.startId = setTimeout(() => {
-      if (this.startId) {
-        delete this.startId;
-        this.update();
-        this.run();
-      } else if (process.env.NODE_ENV !== 'production') {
-        console.warn(
-          `Poll setTimeout for ${this.key} still running, but timeoutId deleted`,
-        );
-      }
-    }, Math.max(0, this.lastFetchTime() - now + this.frequency));
+    this.startId = setTimeout(
+      () => {
+        if (this.startId) {
+          delete this.startId;
+          this.update();
+          this.run();
+        } else if (process.env.NODE_ENV !== 'production') {
+          console.warn(
+            `Poll setTimeout for ${this.key} still running, but timeoutId deleted`,
+          );
+        }
+      },
+      Math.max(0, this.lastFetchTime() - now + this.frequency),
+    );
     this.connectionListener.addOfflineListener(this.offlineListener);
   };
 
