@@ -4,7 +4,8 @@ import { useSuspense } from '@data-client/react';
 import { User } from '__tests__/new';
 
 import createResource from '../createResource';
-import RestEndpoint, { MutateEndpoint } from '../RestEndpoint';
+import { PathArgs, PathKeys } from '../pathTypes';
+import RestEndpoint, { GetEndpoint, MutateEndpoint } from '../RestEndpoint';
 
 it('RestEndpoint construct and extend with typed options', () => {
   new RestEndpoint({
@@ -425,5 +426,25 @@ it('should precisely type function arguments', () => {
     () => noSearch({ userId: 'hi' });
     // @ts-expect-error
     () => noSearch(5);
+  };
+});
+
+it('should handle more open ended type definitions', () => {
+  () => {
+    const unknownParams = new RestEndpoint({
+      path: '' as `${string}:${string}`,
+    });
+
+    unknownParams({ hi: 5 });
+
+    const explicit: GetEndpoint<{
+      path: `${string}:${string}`;
+      schema: typeof User;
+    }> = new RestEndpoint({
+      path: '' as `${string}:${string}`,
+      schema: User,
+    });
+    explicit({ hi: 5 });
+    explicit.push.process({} as any, { hi: 5 });
   };
 });

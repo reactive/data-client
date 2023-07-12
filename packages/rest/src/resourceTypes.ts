@@ -1,9 +1,10 @@
 import type { Schema } from '@data-client/endpoint';
 
+import type { ResourcePath } from './pathTypes.js';
 import RestEndpoint from './RestEndpoint.js';
 
 export interface ResourceGenerics {
-  readonly path: string;
+  readonly path: ResourcePath;
   readonly schema: Schema;
   /** Only used for types */
   readonly body?: any;

@@ -2,11 +2,11 @@ import { Entity, Schema } from '@data-client/endpoint';
 import { useController } from '@data-client/react';
 import { useSuspense } from '@data-client/react';
 import { CacheProvider } from '@data-client/react';
-import { act } from '@testing-library/react-hooks';
 import nock from 'nock';
 
 import { makeRenderRestHook } from '../../../test';
 import createResource from '../createResource';
+import { ResourcePath } from '../pathTypes';
 import RestEndpoint from '../RestEndpoint';
 import {
   payload,
@@ -47,7 +47,7 @@ export class PaginatedArticle extends Entity {
     author: User,
   };
 }
-function createPaginatableResource<U extends string, S extends Schema>({
+function createPaginatableResource<U extends ResourcePath, S extends Schema>({
   path,
   schema,
   Endpoint = RestEndpoint,
