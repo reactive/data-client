@@ -4,15 +4,25 @@ import type { ResourcePath } from './pathTypes.js';
 import RestEndpoint from './RestEndpoint.js';
 
 export interface ResourceGenerics {
+  /** @see https://resthooks.io/rest/api/createResource#path */
   readonly path: ResourcePath;
+  /** @see https://resthooks.io/rest/api/createResource#schema */
   readonly schema: Schema;
+  /** @see https://resthooks.io/rest/api/createResource#paginationfield */
+  readonly paginationField?: string;
   /** Only used for types */
+  /** @see https://dataclient.io/rest/api/createResource#body */
   readonly body?: any;
   /** Only used for types */
+  /** @see https://resthooks.io/rest/api/createResource#searchParams */
   readonly searchParams?: any;
 }
 export interface ResourceOptions {
+  /** @see https://resthooks.io/rest/api/createResource#endpoint */
   Endpoint?: typeof RestEndpoint;
+  /** @see https://resthooks.io/rest/api/createResource#optimistic */
+  optimistic?: boolean;
+  /** @see https://resthooks.io/rest/api/createResource#urlprefix */
   urlPrefix?: string;
   requestInit?: RequestInit;
   getHeaders?(headers: HeadersInit): Promise<HeadersInit> | HeadersInit;
@@ -29,5 +39,4 @@ export interface ResourceOptions {
   readonly invalidIfStale?: boolean;
   /** Determines whether to throw or fallback to */
   errorPolicy?(error: any): 'hard' | 'soft' | undefined;
-  optimistic?: boolean;
 }

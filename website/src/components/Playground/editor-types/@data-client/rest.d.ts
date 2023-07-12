@@ -1272,6 +1272,7 @@ type PathArgsAndSearch<S extends string> = OnlyRequired<PathKeys<S>> extends nev
 /** Removes the last :token */
 type ShortenPath<S extends string> = string extends S ? string : S extends `${infer B}:${infer R}` ? TrimColon<`${B}:${ShortenPath<R>}`> : '';
 type TrimColon<S extends string> = string extends S ? string : S extends `${infer R}:` ? R : S;
+type ResourcePath = string;
 
 type OptionsToFunction<O extends PartialRestGenerics, E extends RestInstanceBase & {
     body?: any;
@@ -1539,7 +1540,7 @@ type AddEndpoint<
         : O['searchParams'] & PathArgs<Exclude<O['path'], undefined>>
       : PathArgs<Exclude<O['path'], undefined>>,
     any,
-    ReturnType<F>
+    ResolveType<F>
   >,
   ExtractCollection<S>,
   true,
@@ -1819,15 +1820,25 @@ type MutateEndpoint<
 >;
 
 interface ResourceGenerics {
-    readonly path: string;
+    /** @see https://resthooks.io/rest/api/createResource#path */
+    readonly path: ResourcePath;
+    /** @see https://resthooks.io/rest/api/createResource#schema */
     readonly schema: Schema;
+    /** @see https://resthooks.io/rest/api/createResource#paginationfield */
+    readonly paginationField?: string;
     /** Only used for types */
+    /** @see https://dataclient.io/rest/api/createResource#body */
     readonly body?: any;
     /** Only used for types */
+    /** @see https://resthooks.io/rest/api/createResource#searchParams */
     readonly searchParams?: any;
 }
 interface ResourceOptions {
+    /** @see https://resthooks.io/rest/api/createResource#endpoint */
     Endpoint?: typeof RestEndpoint;
+    /** @see https://resthooks.io/rest/api/createResource#optimistic */
+    optimistic?: boolean;
+    /** @see https://resthooks.io/rest/api/createResource#urlprefix */
     urlPrefix?: string;
     requestInit?: RequestInit;
     getHeaders?(headers: HeadersInit): Promise<HeadersInit> | HeadersInit;
@@ -1844,16 +1855,15 @@ interface ResourceOptions {
     readonly invalidIfStale?: boolean;
     /** Determines whether to throw or fallback to */
     errorPolicy?(error: any): 'hard' | 'soft' | undefined;
-    optimistic?: boolean;
 }
 
 /** Creates collection of Endpoints for common operations on a given data/schema.
  *
  * @see https://resthooks.io/rest/api/createResource
  */
-declare function createResource<O extends ResourceGenerics>({ path, schema, Endpoint, optimistic, ...extraOptions }: Readonly<O> & ResourceOptions): Resource<O>;
+declare function createResource<O extends ResourceGenerics>({ path, schema, Endpoint, optimistic, paginationField, ...extraOptions }: Readonly<O> & ResourceOptions): Resource<O>;
 interface Resource<O extends ResourceGenerics = {
-    path: string;
+    path: ResourcePath;
     schema: any;
 }> {
     /** Get a singular item
@@ -1877,6 +1887,19 @@ interface Resource<O extends ResourceGenerics = {
         schema: Collection<[O['schema']]>;
         searchParams: Record<string, number | string | boolean> | undefined;
     }>;
+    /** Get a list of item
+     *
+     * @see https://dataclient.io/rest/api/createResource#getNextPage
+     */
+    getNextPage: 'paginationField' extends keyof O ? PaginationFieldEndpoint<'searchParams' extends keyof O ? GetEndpoint<{
+        path: ShortenPath<O['path']>;
+        schema: Collection<[O['schema']]>;
+        searchParams: O['searchParams'];
+    }> : GetEndpoint<{
+        path: ShortenPath<O['path']>;
+        schema: Collection<[O['schema']]>;
+        searchParams: Record<string, number | string | boolean> | undefined;
+    }>, Exclude<O['paginationField'], undefined>> : undefined;
     /** Create a new item (POST)
      *
      * @see https://resthooks.io/rest/api/createResource#create

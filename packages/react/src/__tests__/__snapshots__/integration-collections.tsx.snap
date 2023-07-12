@@ -312,6 +312,39 @@ exports[`CacheProvider RestEndpoint/next should update on get for a paginated re
 }
 `;
 
+exports[`CacheProvider pagination should work with cursor field in createResource 1`] = `
+[
+  Article {
+    "author": User {
+      "email": "bob@bob.com",
+      "id": 23,
+      "isAdmin": false,
+      "username": "charles",
+    },
+    "content": "whatever",
+    "id": 5,
+    "tags": [
+      "a",
+      "best",
+      "react",
+    ],
+    "title": "hi ho",
+  },
+  Article {
+    "author": User {
+      "email": "bob@bob.com",
+      "id": 23,
+      "isAdmin": false,
+      "username": "charles",
+    },
+    "content": "whatever",
+    "id": 3,
+    "tags": [],
+    "title": "the next time",
+  },
+]
+`;
+
 exports[`CacheProvider should work with unions 1`] = `
 [
   [
@@ -687,6 +720,39 @@ exports[`ExternalCacheProvider RestEndpoint/next should update on get for a pagi
     },
   ],
 }
+`;
+
+exports[`ExternalCacheProvider pagination should work with cursor field in createResource 1`] = `
+[
+  Article {
+    "author": User {
+      "email": "bob@bob.com",
+      "id": 23,
+      "isAdmin": false,
+      "username": "charles",
+    },
+    "content": "whatever",
+    "id": 5,
+    "tags": [
+      "a",
+      "best",
+      "react",
+    ],
+    "title": "hi ho",
+  },
+  Article {
+    "author": User {
+      "email": "bob@bob.com",
+      "id": 23,
+      "isAdmin": false,
+      "username": "charles",
+    },
+    "content": "whatever",
+    "id": 3,
+    "tags": [],
+    "title": "the next time",
+  },
+]
 `;
 
 exports[`ExternalCacheProvider should work with unions 1`] = `

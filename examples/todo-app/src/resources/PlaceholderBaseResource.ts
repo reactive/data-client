@@ -25,7 +25,7 @@ export function createPlaceholderResource<O extends ResourceGenerics = any>(
     urlPrefix: 'https://jsonplaceholder.typicode.com',
     // hour expiry time since we want to keep our example mutations and the api itself never actually changes
     dataExpiryLength: 1000 * 60 * 60,
-  });
+  } as ResourceGenerics);
   const partialUpdate = base.partialUpdate.extend({
     process(response: any, ...args: any[]) {
       // body only contains what we're changing, but we can find the id in params

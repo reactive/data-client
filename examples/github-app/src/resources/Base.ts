@@ -92,7 +92,11 @@ export class GithubEndpoint<
 export function createGithubResource<O extends ResourceGenerics>(
   options: Readonly<O> & ResourceOptions,
 ): GithubResource<O> {
-  const baseResource = createResource({ Endpoint: GithubEndpoint, ...options });
+  const baseResource = createResource({
+    Endpoint: GithubEndpoint,
+    ...options,
+    // this type compensates for a TypeScript bug with exactPropertyTypes
+  } as ResourceGenerics);
 
   const getList: GetEndpoint<
     Omit<O, 'schema' | 'body' | 'path'> & {
@@ -115,8 +119,12 @@ export function createGithubResource<O extends ResourceGenerics>(
 }
 
 export interface GithubResource<
-  O extends ResourceGenerics = { path: string; schema: Schema },
-> extends Omit<Resource<O>, 'getList'> {
+  O extends ResourceGenerics = {
+    path: string;
+    schema: Schema;
+    paginationField: 'page';
+  },
+> extends Omit<Resource<O>, 'getList' | 'getNextPage'> {
   getList: GetEndpoint<
     Omit<O, 'schema' | 'body' | 'path'> & {
       readonly path: ShortenPath<O['path']>;

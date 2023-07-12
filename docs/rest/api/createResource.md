@@ -54,8 +54,12 @@ controller.fetch(TodoResource.delete, { id: '5' });
 {
   path: string;
   schema: Schema;
-  Endpoint?: typeof RestEndpoint;
   urlPrefix?: string;
+  body?: any;
+  searchParams?: any;
+  paginationField?: string;
+  optimistic?: boolean;
+  Endpoint?: typeof RestEndpoint;
 } & EndpointExtraOptions
 ```
 
@@ -79,15 +83,13 @@ Passed to [RestEndpoint.searchParams](./RestEndpoint.md#searchParams) for [getLi
 
 Passed to [RestEndpoint.body](./RestEndpoint.md#body) for [create](#create) [update](#update) and [partialUpdate](#partialUpdate)
 
+### paginationField
+
+If specified, will add [Resource.getNextPage](#getnextpage) method on the `Resource`.
+
 ### optimistic
 
 `true` makes all mutation endpoints [optimistic](../guides/optimistic-updates.md)
-
-:::note 6.7
-
-Added in 6.7
-
-:::
 
 ### Endpoint
 
@@ -105,7 +107,7 @@ new endpoints](#customizing-resources) based to match your API.
 
 - method: 'GET'
 - path: `path`
-- schema: [schema](./Entity.md)
+- schema: [schema](#schema)
 
 ```typescript
 // GET //test.com/api/abc/xyz
@@ -126,7 +128,7 @@ Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidat
     createResource({ path: '/:first/:second' }).getList.path === '/:first';
     createResource({ path: '/:first' }).getList.path === '/';
     ```
-- schema: [\[schema\]](./Array.md)
+- schema: [new schema.Collection(\[schema\])](./Collection.md)
 
 ```typescript
 // GET //test.com/api/abc?isExtra=xyz
@@ -138,16 +140,31 @@ createResource({ urlPrefix: '//test.com', path: '/api/:group/:id' }).getList({
 
 Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidate](/docs/api/Controller#invalidate)
 
+### getNextPage
+
+- ```getList.paginated(paginationField)```
+- schema: [new schema.Collection(\[schema\]).push](./Collection.md#push)
+
+```typescript
+// GET //test.com/api/abc?isExtra=xyz&page=2
+createResource({
+  urlPrefix: '//test.com',
+  path: '/api/:group/:id',
+  paginationField: 'page',
+}).getNextPage({
+  group: 'abc',
+  isExtra: 'xyz',
+  page: '2',
+});
+```
+
+Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidate](/docs/api/Controller#invalidate)
+
 ### create
 
+- ```getList.push```
 - method: 'POST'
-- path: `shortenPath(path)`
-  - Removes the last argument:
-    ```ts
-    createResource({ path: '/:first/:second' }).create.path === '/:first';
-    createResource({ path: '/:first' }).create.path === '/';
-    ```
-- schema: `schema`
+- schema: `getList.schema.push`
 
 ```typescript
 // POST //test.com/api/abc
@@ -186,10 +203,10 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 ```typescript
 // PATCH //test.com/api/abc/xyz
 // BODY { "title": "winning" }
-createResource({ urlPrefix: '//test.com', path: '/api/:group/:id' }).partialUpdate(
-  { group: 'abc', id: 'xyz' },
-  { title: 'winning' },
-);
+createResource({
+  urlPrefix: '//test.com',
+  path: '/api/:group/:id',
+}).partialUpdate({ group: 'abc', id: 'xyz' }, { title: 'winning' });
 ```
 
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
@@ -236,7 +253,7 @@ export const TodoResource = {
   getList: TodoResourceBase.getList.extend({
     searchParams: {} as { userId?: string | number } | undefined,
   }),
-}
+};
 ```
 
 <StackBlitz app="todo-app" file="src/resources/TodoResource.ts" view="editor" />
