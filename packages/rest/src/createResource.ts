@@ -5,7 +5,7 @@ import {
 } from '@data-client/endpoint';
 import type { Denormalize } from '@data-client/endpoint';
 
-import { PathArgs, ShortenPath } from './pathTypes.js';
+import { PathArgs, ResourcePath, ShortenPath } from './pathTypes.js';
 import { ResourceGenerics, ResourceOptions } from './resourceTypes.js';
 import RestEndpoint, {
   GetEndpoint,
@@ -86,7 +86,9 @@ function optimisticUpdate(snap: SnapshotInterface, params: any, body: any) {
     ...body,
   };
 }
-function optimisticPartial(getEndpoint: GetEndpoint) {
+function optimisticPartial(
+  getEndpoint: GetEndpoint<{ path: ResourcePath; schema: any }>,
+) {
   return function (snap: SnapshotInterface, params: any, body: any) {
     const { data } = snap.getResponse(getEndpoint, params) as { data: any };
     if (!data) throw new AbortOptimistic();
@@ -103,7 +105,7 @@ function optimisticDelete(snap: SnapshotInterface, params: any) {
 }
 
 export interface Resource<
-  O extends ResourceGenerics = { path: string; schema: any },
+  O extends ResourceGenerics = { path: ResourcePath; schema: any },
 > {
   /** Get a singular item
    *

@@ -18,3 +18,5 @@ export declare type PathArgsAndSearch<S extends string> =
 
 /** Removes the last :token */
 export declare type ShortenPath<S extends string> = S;
+
+export declare type ResourcePath = string;

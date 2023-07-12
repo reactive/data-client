@@ -34,11 +34,11 @@ export function isPojo(obj: unknown): obj is Record<string, any> {
 }
 
 export function shortenPath<S extends string>(path: S): ShortenPath<S> {
+  const lastColonIndex = path.lastIndexOf(':');
+  if (lastColonIndex === -1)
+    throw new Error('Resource path requires at least one :parameter');
   // this is for when not specifying a specific item like create/list
-  let shortUrlRoot: ShortenPath<S> = path.substring(
-    0,
-    path.lastIndexOf(':'),
-  ) as any;
+  let shortUrlRoot: ShortenPath<S> = path.substring(0, lastColonIndex) as any;
   if (shortUrlRoot[shortUrlRoot.length - 1] === '/')
     shortUrlRoot = shortUrlRoot.substring(
       0,

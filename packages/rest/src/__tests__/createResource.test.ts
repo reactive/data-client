@@ -79,6 +79,28 @@ describe('createResource()', () => {
     nock.cleanAll();
   });
 
+  it('should not allow paths without at least one argument', () => {
+    class Todo extends Entity {
+      id = '';
+      userId = 0;
+      title = '';
+      completed = false;
+
+      static key = 'Todo';
+      pk() {
+        return this.id;
+      }
+    }
+
+    expect(() =>
+      createResource({
+        // TODO(see path types): @ts-expect-error
+        path: '/todos/',
+        schema: Todo,
+      }),
+    ).toThrowErrorMatchingSnapshot();
+  });
+
   it('UserResource.get should work', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
       return useSuspense(UserResource.get, { group: 'five', id: '5' });

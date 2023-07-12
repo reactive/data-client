@@ -56,3 +56,5 @@ type TrimColon<S extends string> = string extends S
   : S extends `${infer R}:`
   ? R
   : S;
+
+export type ResourcePath = string; // `${string}:${string}`; TODO: Maybe do this in the future? Seems to hard to understand for now

@@ -262,7 +262,7 @@ export type AddEndpoint<
         : O['searchParams'] & PathArgs<Exclude<O['path'], undefined>>
       : PathArgs<Exclude<O['path'], undefined>>,
     any,
-    ReturnType<F>
+    ResolveType<F>
   >,
   ExtractCollection<S>,
   true,
