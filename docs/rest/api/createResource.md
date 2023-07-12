@@ -158,7 +158,7 @@ createResource({
 });
 ```
 
-Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidate](/docs/api/Controller#invalidate)
+Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ### create
 

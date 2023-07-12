@@ -18,8 +18,8 @@ import StackBlitz from '@site/src/components/StackBlitz';
 
 High performance async data rendering without overfetching.
 
-`useSuspense()` [suspends](../getting-started/data-dependency#async-fallbacks) rendering until the data is available. This is much like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await)ing an [async](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function) function. This avoids the complexity of handling loading and error conditions in your components by
-centralizing them with a singular [AsyncBoundary](../getting-started/data-dependency.md#async-fallbacks).
+`useSuspense()` [suspends](../getting-started/data-dependency.md#async-fallbacks) rendering until the data is available. This is much like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await)ing an [async](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function) function. This avoids the complexity of handling loading and error conditions in your components by
+[centralizing](../getting-started/data-dependency.md#boundaries) them with a singular [AsyncBoundary](../getting-started/data-dependency.md#async-fallbacks).
 
 ## Usage
 
@@ -36,14 +36,14 @@ values={[
 {
 endpoint: new RestEndpoint({path: '/profiles/:id'}),
 args: [{id:1}],
-response: { id: '1', fullName: 'Einstein', bio: 'Smart physicist' },
-delay: 150,
+response: { id: '1', fullName: 'Jing Chen', bio: 'Creator of Flux Architecture' },
+delay: 250,
 },
 {
 endpoint: new RestEndpoint({path: '/profiles/:id'}),
 args: [{id:2}],
-response: { id: '2', fullName: 'Elon Musk', bio: 'CEO of Tesla, SpaceX and owner of Twitter' },
-delay: 150,
+response: { id: '2', fullName: 'Dan Abramov', bio: 'Creator of redux, normalizr, and react hot reloading' },
+delay: 250,
 },
 ]}>
 
@@ -94,7 +94,11 @@ render(<ProfileDetail />);
 import { Endpoint } from '@data-client/endpoint';
 
 export const getProfile = new Endpoint((id: number) =>
-  Promise.resolve({ id, fullName: 'Einstein', bio: 'Smart physicist' }),
+  Promise.resolve({
+    id,
+    fullName: 'Jing Chen',
+    bio: 'Creator of Flux Architecture',
+  }),
 );
 ```
 
@@ -179,8 +183,8 @@ function useSuspense<
 {
 endpoint: new RestEndpoint({path: '/profiles'}),
 args: [],
-response: [{ id: '1', fullName: 'Einstein', bio: 'Smart physicist' },{ id: '2', fullName: 'Elon Musk', bio: 'CEO of Tesla, SpaceX and owner of Twitter' }],
-delay: 150,
+response: [{ id: '1', fullName: 'Jing Chen', bio: 'Creator of Flux Architecture' },{ id: '2', fullName: 'Dan Abramov', bio: 'Creator of redux, normalizr, and react hot reloading' }],
+delay: 250,
 },
 ]}>
 
@@ -261,7 +265,11 @@ export class PaginatedPost extends Entity {
 export const getPosts = new RestEndpoint({
   path: '/post',
   searchParams: { page: '' },
-  schema: { results: [PaginatedPost], nextPage: '', lastPage: '' },
+  schema: {
+    results: new schema.Collection([PaginatedPost]),
+    nextPage: '',
+    lastPage: '',
+  },
 });
 ```
 
