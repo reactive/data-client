@@ -1,3 +1,4 @@
+import AssetList from '!!raw-loader!./AssetList.tsx';
 import AssetPrice from '!!raw-loader!./AssetPrice.tsx';
 import resources from '!!raw-loader!./resources.ts';
 
@@ -11,8 +12,12 @@ export default {
     },
     {
       path: 'AssetPrice',
-      open: true,
       code: AssetPrice,
+    },
+    {
+      path: 'AssetList',
+      open: true,
+      code: AssetList,
     },
   ],
 };

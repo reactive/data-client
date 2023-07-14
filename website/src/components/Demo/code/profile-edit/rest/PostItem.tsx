@@ -3,13 +3,7 @@ import { UserResource, type Post } from './resources';
 export default function PostItem({ post }: { post: Post }) {
   const author = useSuspense(UserResource.get, { id: post.userId });
   return (
-    <div
-      style={{
-        display: 'flex',
-        gap: '1em',
-        marginBottom: '10px',
-      }}
-    >
+    <div className="listItem spaced">
       <Avatar src={author.profileImage} />
       <div>
         <h4>{post.title}</h4>

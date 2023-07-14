@@ -1,26 +1,15 @@
-import { useLive } from '@data-client/react';
-
-import { getExchangeRates } from './resources';
-
-function AssetPrice() {
-  const { data: price } = useLive(getExchangeRates, {
-    currency: 'USD',
-  });
+export default function AssetPrice({ symbol, value }: Props) {
   return (
-    <center>
-      {assets.map(symbol => (
-        <div key={symbol}>
-          {symbol}{' '}
-          <Formatted
-            value={1 / price.rates[symbol]}
-            formatter="currency"
-          />
-        </div>
-      ))}
-      <br />
-      <small>Updates every 15 seconds</small>
-    </center>
+    <tr key={symbol}>
+      <th>{symbol}</th>
+      <td>
+        <Formatted value={value} formatter="currency" />
+      </td>
+    </tr>
   );
 }
-const assets = ['BTC', 'ETH', 'DOGE'];
-render(<AssetPrice />);
+
+interface Props {
+  symbol: string;
+  value: number;
+}

@@ -1,0 +1,58 @@
+import { Entity, createResource, RestEndpoint } from '@data-client/rest';
+
+export class Profile extends Entity {
+  id: number | undefined = undefined;
+  img = '';
+  fullName = '';
+  bio = '';
+
+  pk() {
+    return this.id?.toString();
+  }
+}
+
+export const ProfileResource = createResource({
+  path: '/profiles/:id',
+  schema: Profile,
+});
+
+const entities = {
+  '1': {
+    id: '1',
+    fullName: 'Jing Chen',
+    bio: 'Creator of Flux Architecture',
+    avatar: 'https://avatars.githubusercontent.com/u/5050204?v=4',
+  },
+  '2': {
+    id: '2',
+    fullName: 'Dan Abramov',
+    bio: 'Creator of redux, normalizr, and react hot reloading',
+    avatar: 'https://avatars.githubusercontent.com/u/810438?v=4',
+  },
+};
+
+const delay = 250;
+
+export const detailFixtures = [
+  {
+    endpoint: ProfileResource.get,
+    args: [{ id: 1 }],
+    response: entities['1'],
+    delay,
+  },
+  {
+    endpoint: ProfileResource.get,
+    args: [{ id: 2 }],
+    response: entities['2'],
+    delay,
+  },
+];
+
+export const listFixtures = [
+  {
+    endpoint: ProfileResource.getList,
+    args: [],
+    response: Object.values(entities),
+    delay,
+  },
+];

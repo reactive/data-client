@@ -15,6 +15,7 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 import {RestEndpoint} from '@data-client/rest';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import StackBlitz from '@site/src/components/StackBlitz';
+import { detailFixtures, listFixtures } from '@site/src/fixtures/profiles';
 
 High performance async data rendering without overfetching.
 
@@ -32,27 +33,14 @@ values={[
 ]}>
 <TabItem value="rest">
 
-<HooksPlayground fixtures={[
-{
-endpoint: new RestEndpoint({path: '/profiles/:id'}),
-args: [{id:1}],
-response: { id: '1', fullName: 'Jing Chen', bio: 'Creator of Flux Architecture' },
-delay: 250,
-},
-{
-endpoint: new RestEndpoint({path: '/profiles/:id'}),
-args: [{id:2}],
-response: { id: '2', fullName: 'Dan Abramov', bio: 'Creator of redux, normalizr, and react hot reloading' },
-delay: 250,
-},
-]}>
+<HooksPlayground fixtures={detailFixtures}>
 
 ```typescript title="api/Profile" collapsed
 import { Entity, createResource } from '@data-client/rest';
 
 export class Profile extends Entity {
   id: number | undefined = undefined;
-  img = '';
+  avatar = '';
   fullName = '';
   bio = '';
 
@@ -74,9 +62,12 @@ import { ProfileResource } from './api/Profile';
 function ProfileDetail(): JSX.Element {
   const profile = useSuspense(ProfileResource.get, { id: 1 });
   return (
-    <div>
-      <h4>{profile.fullName}</h4>
-      <p>{profile.bio}</p>
+    <div className="listItem">
+      <Avatar src={profile.avatar} />
+      <div>
+        <h4>{profile.fullName}</h4>
+        <p>{profile.bio}</p>
+      </div>
     </div>
   );
 }
@@ -98,6 +89,7 @@ export const getProfile = new Endpoint((id: number) =>
     id,
     fullName: 'Jing Chen',
     bio: 'Creator of Flux Architecture',
+    avatar: 'https://avatars.githubusercontent.com/u/5050204?v=4',
   }),
 );
 ```
@@ -109,9 +101,12 @@ import { getProfile } from './api/Profile';
 function ProfileDetail(): JSX.Element {
   const profile = useSuspense(getProfile, 1);
   return (
-    <div>
-      <h4>{profile.fullName}</h4>
-      <p>{profile.bio}</p>
+    <div className="listItem">
+      <Avatar src={profile.avatar} />
+      <div>
+        <h4>{profile.fullName}</h4>
+        <p>{profile.bio}</p>
+      </div>
     </div>
   );
 }
@@ -179,21 +174,14 @@ function useSuspense<
 
 ### List
 
-<HooksPlayground fixtures={[
-{
-endpoint: new RestEndpoint({path: '/profiles'}),
-args: [],
-response: [{ id: '1', fullName: 'Jing Chen', bio: 'Creator of Flux Architecture' },{ id: '2', fullName: 'Dan Abramov', bio: 'Creator of redux, normalizr, and react hot reloading' }],
-delay: 250,
-},
-]}>
+<HooksPlayground fixtures={listFixtures}>
 
 ```typescript title="api/Profile" collapsed
 import { Entity, createResource } from '@data-client/rest';
 
 export class Profile extends Entity {
   id: number | undefined = undefined;
-  img = '';
+  avatar = '';
   fullName = '';
   bio = '';
 
@@ -217,9 +205,12 @@ function ProfileList(): JSX.Element {
   return (
     <div>
       {profiles.map(profile => (
-        <div key={profile.pk()}>
-          <h4>{profile.fullName}</h4>
-          <p>{profile.bio}</p>
+        <div className="listItem" key={profile.pk()}>
+          <Avatar src={profile.avatar} />
+          <div>
+            <h4>{profile.fullName}</h4>
+            <p>{profile.bio}</p>
+          </div>
         </div>
       ))}
     </div>
