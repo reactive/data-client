@@ -24,9 +24,9 @@ a collection of `endpoints` around one `schema`.
 defaultValue="rest"
 groupId="protocol"
 values={[
-{ label: 'Rest', value: 'rest' },
+{ label: 'REST', value: 'rest' },
 { label: 'GraphQL', value: 'gql' },
-{ label: 'Promise', value: 'other' },
+{ label: 'Async/Promise', value: 'other' },
 ]}>
 <TabItem value="rest">
 
@@ -34,7 +34,7 @@ values={[
 
 <TypeScriptEditor row={false}>
 
-```typescript title="api/Todo"
+```typescript title="Todo"
 import { Entity } from '@data-client/rest';
 import { createResource } from '@data-client/rest';
 
@@ -58,8 +58,8 @@ export const TodoResource = createResource({
 });
 ```
 
-```typescript title="Methods"
-import { TodoResource } from './api/Todo';
+```typescript title="Method"
+import { TodoResource } from './Todo';
 
 // GET https://jsonplaceholder.typicode.com/todos/5
 TodoResource.get({ id: 5 });
@@ -86,7 +86,7 @@ TodoResource.delete({ id: 5 });
 
 <TypeScriptEditor row={false}>
 
-```typescript title="api/Todo"
+```typescript title="Todo"
 import { GQLEndpoint, GQLEntity } from '@data-client/graphql';
 
 const gql = new GQLEndpoint('/');
@@ -136,7 +136,7 @@ In case you have existing class and/or api definitions, you can use
 
 <TypeScriptEditor row={false}>
 
-```typescript title="existing/Todo"
+```typescript title="existing/Todo" collapsed
 export class Todo {
   id = 0;
   userId = 0;
@@ -159,22 +159,35 @@ export const updateTodo = (id: string, body: Partial<Todo>) =>
     body: JSON.stringify(body),
   }).then(res => res.json());
 
+export const partialUpdateTodo = (id: string, body: Partial<Todo>) =>
+  fetch(`https://jsonplaceholder.typicode.com/todos/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  }).then(res => res.json());
+
 export const createTodo = (body: Partial<Todo>) =>
   fetch(`https://jsonplaceholder.typicode.com/todos`, {
     method: 'POST',
     body: JSON.stringify(body),
   }).then(res => res.json());
+
+export const deleteTodo = (body: Partial<Todo>) =>
+  fetch(`https://jsonplaceholder.typicode.com/todos/${id}`, {
+    method: 'DELETE',
+  }).then(res => res.json());
 ```
 
-```typescript title="api/Todo"
+```typescript title="Todo"
 import { schema, Endpoint } from '@data-client/endpoint';
 import {
   Todo,
   getTodo,
   getTodoList,
   updateTodo,
+  partialUpdateTodo,
   createTodo,
-} from '../existing/Todo';
+  deleteTodo,
+} from './existing/Todo';
 
 export const TodoEntity = schema.Entity(Todo, { key: 'Todo' });
 
@@ -184,7 +197,18 @@ export const TodoResource = {
     schema: new schema.Collection([TodoEntity]),
   }),
   update: new Endpoint(updateTodo, { schema: TodoEntity, sideEffect: true }),
-  create: new Endpoint(createTodo, { schema: TodoEntity, sideEffect: true }),
+  partialUpdate: new Endpoint(partialUpdateTodo, {
+    schema: TodoEntity,
+    sideEffect: true,
+  }),
+  create: new Endpoint(createTodo, {
+    schema: new schema.Collection([TodoEntity]).push,
+    sideEffect: true,
+  }),
+  delete: new Endpoint(deleteTodo, {
+    schema: new schema.Invalidate(TodoEntity),
+    sideEffect: true,
+  }),
 };
 ```
 

@@ -15,13 +15,37 @@ import Installation from '../shared/\_installation.mdx';
 
 <PkgTabs pkgs="@data-client/react @data-client/test @data-client/hooks @data-client/rest" />
 
-TypeScript is optional, but requires at least version [3.7](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html#more-recursive-type-aliases) and [strictNullChecks](https://www.typescriptlang.org/tsconfig#strictNullChecks) for full type enforcement.
-
 ## Add provider at top-level component
 
 <Installation />
 
 Alternatively [integrate state with redux](../guides/redux.md)
+
+<center>
+
+[Next: Define Methods »](./endpoint.md)
+
+</center>
+
+## Example
+
+<iframe
+  loading="lazy"
+  src="https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/todo-app?file=src%2FRootProvider.tsx&embed=1&hidedevtools=1&view=both&terminalHeight=0&hideNavigation=1&ctl=1"
+  width="100%"
+  height="500"
+></iframe>
+
+Explore more [Reactive Data Client demos](/demos)
+
+## Supported Tools
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+TypeScript is optional, but requires at least version [3.7](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html#more-recursive-type-aliases) and [strictNullChecks](https://www.typescriptlang.org/tsconfig#strictNullChecks) for full type enforcement.
+
+</details>
 
 <details>
 <summary><b>Older browser support</b></summary>
@@ -43,13 +67,20 @@ follow the instructions to [add legacy browser support to packages](../guides/le
 
 </details>
 
-## Example
+<details>
+<summary><b>ReactJS and React Native</b></summary>
 
-<iframe
-  loading="lazy"
-  src="https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/todo-app?file=src%2FRootProvider.tsx&embed=1&hidedevtools=1&view=both&terminalHeight=0&hideNavigation=1&ctl=1"
-  width="100%"
-  height="500"
-></iframe>
+ReactJS 16.2 and above is supported (the one with hooks!). React 18 provides improved [Suspense](../api/useSuspense.md)
+support and features. Both React Native and React Navigation are supported.
 
-Explore more [Reactive Data Client demos](/demos)
+Other native frameworks like Expo should work, but have not been verified. If you have a working project using other
+React libraries, [feel free to share with others](https://github.com/data-client/rest-hooks/discussions/2422) in our
+discussions.
+
+</details>
+
+<center>
+
+[Define Methods »](./endpoint.md)
+
+</center> 
