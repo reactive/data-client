@@ -19,7 +19,7 @@ import StackBlitz from '@site/src/components/StackBlitz';
 High performance async data rendering without overfetching.
 
 `useSuspense()` [suspends](../getting-started/data-dependency.md#async-fallbacks) rendering until the data is available. This is much like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await)ing an [async](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function) function. This avoids the complexity of handling loading and error conditions in your components by
-[centralizing](../getting-started/data-dependency.md#boundaries) them with a singular [AsyncBoundary](../getting-started/data-dependency.md#async-fallbacks).
+[centralizing](../getting-started/data-dependency.md#boundaries) them with a singular [AsyncBoundary](../api/AsyncBoundary.md).
 
 ## Usage
 
@@ -245,9 +245,30 @@ function PostWithAuthor() {
 }
 ```
 
+### Conditional
+
+`null` will avoid binding and fetching data
+
+```tsx
+function PostWithAuthor() {
+  const post = useSuspense(PostResource.get, { id });
+  // post as Post
+  const author = useSuspense(
+    UserResource.get,
+    post.userId
+      ? {
+          id: post.userId,
+        }
+      : null,
+  );
+  // author as User | undefined
+  if (!author) return;
+}
+```
+
 ### Embedded data
 
-When entities are stored in nested structures, that structure will remain.
+When entities are stored in [nested structures](/rest/guides/relational-data#nesting), that structure will remain.
 
 <TypeScriptEditor row={false}>
 

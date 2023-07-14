@@ -142,7 +142,7 @@ Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidat
 
 ### getNextPage
 
-- ```getList.paginated(paginationField)```
+- `getList.paginated(paginationField)`
 - schema: [new schema.Collection(\[schema\]).push](./Collection.md#push)
 
 ```typescript
@@ -162,7 +162,7 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ### create
 
-- ```getList.push```
+- `getList.push`
 - method: 'POST'
 - schema: `getList.schema.push`
 
@@ -271,6 +271,8 @@ import {
   RestEndpoint,
   type EndpointExtraOptions,
   type RestGenerics,
+  type ResourceGenerics,
+  type ResourceOptions,
 } from '@data-client/rest';
 
 export class AuthdEndpoint<
@@ -284,20 +286,12 @@ export class AuthdEndpoint<
   }
 }
 
-export function createMyResource<U extends string, S extends Schema>({
-  path,
+export function createMyResource<O extends ResourceGenerics = any>({
   schema,
   Endpoint = AuthdEndpoint,
   ...extraOptions
-}: {
-  // `readonly` is critical for the argument types to be inferred correctly
-  readonly path: U;
-  readonly schema: S;
-  readonly Endpoint?: typeof RestEndpoint;
-  urlPrefix?: string;
-} & EndpointExtraOptions) {
+}: Readonly<O> & ResourceOptions) {
   const BaseResource = createResource({
-    path,
     Endpoint,
     schema,
     ...extraOptions,
@@ -306,11 +300,17 @@ export function createMyResource<U extends string, S extends Schema>({
   return {
     ...BaseResource,
     getList: BaseResource.getList.extend({
-      schema: { results: [schema], total: 0, limit: 0, skip: 0 },
+      schema: {
+        results: new schema.Collection([schema]),
+        total: 0,
+        limit: 0,
+        skip: 0,
+      },
     }),
   };
 }
 ```
 
-The [Github Example App](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app?file=src%2Fresources%2FBase.ts)
-uses this pattern as well.
+<StackBlitz app="github-app" file="src/resources/Base.ts" view="editor" />
+
+Explore more [Reactive Data Client demos](/demos)

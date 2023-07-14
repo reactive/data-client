@@ -34,7 +34,9 @@ export default function DemoList() {
             src={`https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/todo-app?${searchParams(
               {
                 embed: '1',
-                file: ['src/pages/Home/TodoList.tsx'],
+                file: [
+                  'src/resources/TodoResource.ts,src/pages/Home/TodoList.tsx',
+                ],
                 hideDevTools: '1',
                 hideNavigation: '1',
                 terminalHeight: '1',
@@ -58,7 +60,7 @@ export default function DemoList() {
             src={`https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app?${searchParams(
               {
                 embed: '1',
-                file: ['src/pages/IssueList.tsx'],
+                file: ['src/resources/Issue.tsx,src/pages/IssueList.tsx'],
                 hideDevTools: '1',
                 hideNavigation: '1',
                 terminalHeight: '1',
@@ -82,7 +84,7 @@ export default function DemoList() {
             src={`https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/nextjs?${searchParams(
               {
                 embed: '1',
-                file: ['pages/AssetPrice.tsx'],
+                file: ['resources/ExchangeRates.ts,pages/AssetPrice.tsx'],
                 hideDevTools: '1',
                 hideNavigation: '1',
                 terminalHeight: '1',
