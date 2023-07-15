@@ -6,6 +6,9 @@ sidebar_label: Mutate Data
 import ProtocolTabs from '@site/src/components/ProtocolTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import { TodoResource } from '@site/src/components/Demo/code/todo-app/rest/resources';
+import { todoFixtures } from '@site/src/fixtures/todos';
+import { postFixtures } from '@site/src/fixtures/posts';
+import { RestEndpoint } from '@data-client/rest';
 
 <head>
   <title>Mutating Asynchronous Data with Reactive Data Client</title>
@@ -17,13 +20,15 @@ import { TodoResource } from '@site/src/components/Demo/code/todo-app/rest/resou
 Just like [setState()](https://react.dev/reference/react/useState#setstate), we must make React aware of the any mutations so it can rerender.
 
 [Controller](../api/Controller.md) from [useController](../api/useController.md) provides this functionality in a type-safe manner.
-[Controller.fetch()](../api/Controller.md#fetch) lets us trigger async mutations.
+[Controller.fetch()](../api/Controller.md#fetch) dispatches mutations like [Create, Update, and Delete](/docs/concepts/atomic-mutations).
 
 [//]: # 'TODO: Add create, and delete examples as well (in tabs)'
 
-<HooksPlayground defaultOpen="n" row>
+<HooksPlayground defaultOpen="n" row fixtures={todoFixtures}>
 
-```ts title="api/Todo" collapsed
+```ts title="TodoResource" collapsed
+import { Entity, createResource } from '@data-client/rest';
+
 export class Todo extends Entity {
   id = 0;
   userId = 0;
@@ -36,34 +41,99 @@ export class Todo extends Entity {
 export const TodoResource = createResource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
+  searchParams: {} as { userId?: string | number } | undefined,
   schema: Todo,
+  optimistic: true,
 });
 ```
 
-```tsx title="Todo" {8}
-import { useSuspense } from '@data-client/react';
-import { TodoResource } from './api/Todo';
+```tsx title="TodoItem" {7-11,13-15}
+import { useController } from '@data-client/react';
+import { TodoResource, type Todo } from './TodoResource';
 
-function TodoDetail({ id }: { id: number }) {
-  const todo = useSuspense(TodoResource.get, { id });
+export default function TodoItem({ todo }: { todo: Todo }) {
   const ctrl = useController();
-  const updateWith = title => () =>
-    ctrl.fetch(TodoResource.partialUpdate, { id }, { title });
+  const handleChange = e =>
+    ctrl.fetch(
+      TodoResource.partialUpdate,
+      { id: todo.id },
+      { completed: e.currentTarget.checked },
+    );
+  const handleDelete = () =>
+    ctrl.fetch(TodoResource.delete, {
+      id: todo.id,
+    });
   return (
     <div>
-      <div>{todo.title}</div>
-      <button onClick={updateWith('🥑')}>🥑</button>
-      <button onClick={updateWith('💖')}>💖</button>
+      <label>
+        <input
+          type="checkbox"
+          checked={todo.completed}
+          onChange={handleChange}
+        />
+        {todo.completed ? <strike>{todo.title}</strike> : todo.title}
+      </label>
+      <CancelButton onClick={handleDelete} />
     </div>
   );
 }
-render(<TodoDetail id={1} />);
+```
+
+```tsx title="CreateTodo" {9-13} collapsed
+import { v4 as uuid } from 'uuid';
+
+import { TodoResource } from './TodoResource';
+
+export default function CreateTodo({ userId }: { userId: number }) {
+  const ctrl = useController();
+  const handleKeyDown = async e => {
+    if (e.key === 'Enter') {
+      ctrl.fetch(TodoResource.create, {
+        id: randomId(),
+        userId,
+        title: e.currentTarget.value,
+      });
+      e.currentTarget.value = '';
+    }
+  };
+  return (
+    <div>
+      <input type="checkbox" name="new" checked={false} disabled />{' '}
+      <input type="text" onKeyDown={handleKeyDown} />
+    </div>
+  );
+}
+
+function randomId() {
+  return Number.parseInt(uuid().slice(0, 8), 16);
+}
+```
+
+```tsx title="TodoList" collapsed
+import { useSuspense } from '@data-client/react';
+import { TodoResource } from './TodoResource';
+import TodoItem from './TodoItem';
+import CreateTodo from './CreateTodo';
+
+function TodoList() {
+  const userId = 1;
+  const todos = useSuspense(TodoResource.getList, { userId });
+  return (
+    <div>
+      {todos.map(todo => (
+        <TodoItem key={todo.pk()} todo={todo} />
+      ))}
+      <CreateTodo userId={userId} />
+    </div>
+  );
+}
+render(<TodoList />);
 ```
 
 </HooksPlayground>
 
-Reactive Data Client uses the fetch response to safely update all components. This not only more than doubles
-performance, but dramatically reduces server load that comes up sequential fetches.
+Reactive Data Client uses the fetch response to reactively update all components atomically (at
+the same time), rather than refetching.
 
 <details>
 <summary><b>Tracking imperative loading/error state</b></summary>
@@ -103,124 +173,109 @@ function ArticleEdit() {
 
 </details>
 
-## Zero delay mutations {#optimistic-updates}
+## Optimistic mutations based on previous state {#optimistic-updates}
 
-[Controller.fetch](../api/Controller.md#fetch) call the mutation endpoint, and update React based on the response.
-While [useTransition](https://react.dev/reference/react/useTransition) improves the experience,
-the UI still ultimately waits on the fetch completion to update.
+<HooksPlayground fixtures={postFixtures} getInitialInterceptorData={() => ({votes: {}})} row>
 
-For many cases like toggling todo.completed, incrementing an upvote, or dragging and drop
-a frame this can be too slow!
+```ts title="Post" collapsed
+import { Entity, createResource } from '@data-client/rest';
 
-<HooksPlayground defaultOpen="n" row fixtures={[
-{
-  endpoint: TodoResource.getList,
-  async response(...args) {
-    return (await TodoResource.getList(...args)).slice(0, 7);
-  },
-},
-{
-  endpoint: TodoResource.partialUpdate,
-  async response(...args) {
-    return {
-      ...(await TodoResource.partialUpdate(...args)),
-      id: args?.[0]?.id,
-    };
-  },
-},
-{
-  endpoint: TodoResource.create,
-  async response(...args) {
-    return {
-      ...(await TodoResource.create(...args)),
-      id: args?.[args.length - 1]?.id,
-    };
-  },
-},
-]}>
-
-```ts title="api/Todo" {14}
-export class Todo extends Entity {
+export class Post extends Entity {
   id = 0;
-  userId = 0;
   title = '';
-  completed = false;
+  body = '';
+  votes = 0;
+
   pk() {
-    return `${this.id}`;
+    return this.id?.toString();
+  }
+
+  get img() {
+    return `http://placekitten.com/96/72?image=${this.id}`;
   }
 }
-export const TodoResource = createResource({
-  urlPrefix: 'https://jsonplaceholder.typicode.com',
-  path: '/todos/:id',
-  schema: Todo,
-  optimistic: true,
+export const Base = createResource({
+  path: '/posts/:id',
+  schema: Post,
 });
 ```
 
-```tsx title="TodoItem" {12-16} collapsed
-import { useController } from '@data-client/react';
-import { TodoResource, Todo } from './api/Todo';
+```ts title="PostResource" {13-20}
+import { AbortOptimistic, RestEndpoint } from '@data-client/rest';
+import { Base, Post } from './Post';
 
-export function TodoItem({ todo }: { todo: Todo }) {
+export { Post };
+
+export const PostResource = {
+  ...Base,
+  vote: new RestEndpoint({
+    path: '/posts/:id/vote',
+    method: 'POST',
+    body: undefined,
+    schema: Post,
+    getOptimisticResponse(snapshot, { id }) {
+      const { data } = snapshot.getResponse(Base.get, { id });
+      if (!data) throw new AbortOptimistic();
+      return {
+        id,
+        votes: data.votes + 1,
+      };
+    },
+  }),
+};
+```
+
+```tsx title="PostItem" {7} collapsed
+import { useController } from '@data-client/react';
+import { PostResource, type Post } from './PostResource';
+
+export default function PostItem({ post }: { post: Post }) {
   const ctrl = useController();
+  const handleVote = () => {
+    ctrl.fetch(PostResource.vote, { id: post.id });
+  };
   return (
-    <label style={{ display: 'block' }}>
-      <input
-        type="checkbox"
-        checked={todo.completed}
-        onChange={e =>
-          ctrl.fetch(
-            TodoResource.partialUpdate,
-            { id: todo.id },
-            { completed: e.currentTarget.checked },
-          )
-        }
-      />
-      {todo.completed ? <strike>{todo.title}</strike> : todo.title}
-    </label>
+    <div>
+      <div className="voteBlock">
+        <small className="vote">
+          <button className="up" onClick={handleVote}>
+            &nbsp;
+          </button>
+          {post.votes}
+        </small>
+        <img src={post.img} width="70" height="52" />
+      </div>
+      <div>
+        <h4>{post.title}</h4>
+        <p>{post.body}</p>
+      </div>
+    </div>
   );
 }
 ```
 
-```tsx title="TodoList" collapsed
-import { useSuspense } from '@data-client/react';
-import { TodoItem } from './TodoItem';
-import { TodoResource, Todo } from './api/Todo';
+```tsx title="PostList" collapsed
+import { PostResource } from './PostResource';
+import PostItem from './PostItem';
 
-function TodoList() {
-  const todos = useSuspense(TodoResource.getList);
+function PostList() {
+  const userId = 1;
+  const posts = useSuspense(PostResource.getList, { userId });
   return (
     <div>
-      {todos.map(todo => (
-        <TodoItem key={todo.pk()} todo={todo} />
+      {posts.map(post => (
+        <PostItem key={post.pk()} post={post} />
       ))}
     </div>
   );
 }
-render(<TodoList />);
+render(<PostList />);
 ```
 
 </HooksPlayground>
 
-[getOptimisticResponse](/rest/guides/optimistic-updates) is just like [setState with an updater function](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state). Using [snap](../api/Snapshot.md) for access to the store to get the previous
+[getOptimisticResponse](/rest/guides/optimistic-updates) is just like [setState with an updater function](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state). Using [snapshot](../api/Snapshot.md) for access to the store to get the previous
 value, as well as the fetch arguments, we return the _expected_ fetch response.
-
-```typescript
-export const increment = new RestEndpoint({
-  path: '/api/count/increment',
-  method: 'POST',
-  name: 'increment',
-  // highlight-start
-  getOptimisticResponse(snap) {
-    const { data } = snap.getResponse(getCount);
-    if (!data) throw new AbortOptimistic();
-    return {
-      count: data.count + 1,
-    };
-  },
-  // highlight-end
-});
-```
 
 Reactive Data Client ensures [data integrity against any possible networking failure or race condition](/rest/guides/optimistic-updates#optimistic-transforms), so don't
 worry about network failures, multiple mutation calls editing the same data, or other common

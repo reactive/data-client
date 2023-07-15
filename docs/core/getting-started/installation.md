@@ -23,7 +23,7 @@ Alternatively [integrate state with redux](../guides/redux.md)
 
 <center>
 
-[Next: Define Methods »](./endpoint.md)
+[Next: Define Data »](./resource.md)
 
 </center>
 
@@ -81,6 +81,6 @@ discussions.
 
 <center>
 
-[Define Methods »](./endpoint.md)
+[Define Data »](./resource.md)
 
 </center> 

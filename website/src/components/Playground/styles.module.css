@@ -254,7 +254,7 @@ div > .playgroundHeader.subtabs {
 }
 
 :root .playgroundPreview {
-  --ifm-heading-margin-bottom: .1ex;
+  --ifm-heading-margin-bottom: 0.1ex;
   --ifm-heading-font-weight: 500;
   --ifm-heading-line-height: 1.2;
 }
@@ -277,6 +277,33 @@ div > .playgroundHeader.subtabs {
   display: flex;
   gap: 1em;
   margin-bottom: 10px;
+}
+.playgroundPreview :global(.voteBlock) {
+  display: flex;
+  float: left;
+  gap: .5em;
+  margin-right: .5em;
+}
+.playgroundPreview :global(.vote) {
+  flex: 0 0 32px;
+  text-align: center;
+}
+.playgroundPreview :global(.vote .up):hover {
+  color: var(--ifm-color-primary);
+  background: url('../../../static/img/up-arrow-outline-hover.svg') no-repeat center;
+}
+.playgroundPreview :global(.vote .up) {
+  border:none;
+  cursor: pointer;
+  width:20px;
+  height:20px;
+  margin-bottom: -8px;
+  margin-right: 0;
+  background: url('../../../static/img/up-arrow-outline.svg') no-repeat center;
+  display: inline-block;
+}
+.playgroundPreview p {
+  line-height: var(--ifm-heading-line-height);
 }
 
 .fixtureBlock {

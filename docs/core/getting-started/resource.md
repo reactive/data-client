@@ -1,6 +1,6 @@
 ---
-title: Define Async Methods (Endpoints)
-sidebar_label: Define Methods
+title: Define Resources
+sidebar_label: Define Data
 ---
 
 <head>
@@ -17,8 +17,11 @@ import ProtocolTabs from '@site/src/components/ProtocolTabs';
 import PkgInstall from '@site/src/components/PkgInstall';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
-[Endpoints](/rest/api/RestEndpoint) are the [_methods_](<https://en.wikipedia.org/wiki/Method_(computer_programming)>) of your data. [Entities](/rest/api/Entity) are a type of [Schema](../concepts/normalization.md), which define the data model. [Resources](/rest/api/createResource) are
-a collection of `endpoints` around one `schema`.
+[Resources](/rest/api/createResource) are a collection of `methods` for a given `data model`.
+
+[Entities](/rest/api/Entity) and [Schemas](../concepts/normalization.md) are the declarative _data model_.
+[Endpoints](/rest/api/RestEndpoint) are the [_methods_](<https://en.wikipedia.org/wiki/Method_(computer_programming)>) on
+that data. 
 
 <Tabs
 defaultValue="rest"
@@ -273,11 +276,9 @@ export default class StreamManager implements Manager {
 </TabItem>
 -->
 
-It's highly encouraged to design APIs with consistent patterns. Because of this,
-you can extend our protocol specific helpers. After choosing your protocol, you can
-read up on the full docs for reach protocol [REST](/rest), [GraphQL](/graphql),
-[Image/binary](../guides/img-media.md), [Websockets+SSE](../api/Manager.md#middleware-data-stream)
+To aid in defining `Resources`, composable and extensible protocol specific helpers are provided for [REST](/rest), [GraphQL](/graphql),
+[Image/binary](../guides/img-media.md), [Websockets+SSE](../api/Manager.md#middleware-data-stream).
 
-To use your own protocol or existing helpers, use the lower-level primitives from
-[@data-client/endpoint](https://www.npmjs.com/package/@data-client/endpoint) like [Endpoint](/rest/api/Endpoint) and [schema.Entity](/rest/api/schema.Entity).
-[See `Promise` tab above]
+To use existing API definitions, or define your own protocol specific helpers, use
+[Endpoint](/rest/api/Endpoint) and [schema.Entity](/rest/api/schema.Entity) from [@data-client/endpoint](https://www.npmjs.com/package/@data-client/endpoint).
+[See `Async/Promise` tab above]
