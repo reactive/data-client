@@ -1,7 +1,10 @@
 ---
 title: Unit testing hooks
 ---
+
 import PkgTabs from '@site/src/components/PkgTabs';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 :::danger
 
@@ -69,7 +72,7 @@ values={[
 ```typescript
 import nock from 'nock';
 import { makeRenderRestHook } from '@data-client/test';
-import makeCacheProvider from '@data-client/react/makeCacheProvider';
+import { CacheProvider } from '@data-client/react';
 
 describe('useSuspense()', () => {
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;
@@ -112,7 +115,7 @@ describe('useSuspense()', () => {
 ```typescript
 import nock from 'nock';
 import { makeRenderRestHook } from '@data-client/test';
-import makeCacheProvider from '@data-client/redux/makeCacheProvider';
+import { ExternalCacheProvider } from '@data-client/redux';
 
 describe('useSuspense()', () => {
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;
@@ -128,7 +131,7 @@ describe('useSuspense()', () => {
       .reply(200)
       .get(`/article/0`)
       .reply(403, {});
-    renderRestHook = makeRenderRestHook(makeCacheProvider);
+    renderRestHook = makeRenderRestHook(ExternalCacheProvider);
   });
 
   afterEach(() => {

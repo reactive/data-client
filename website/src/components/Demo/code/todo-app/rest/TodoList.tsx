@@ -2,13 +2,7 @@ import NewTodo from './NewTodo';
 import { type Todo } from './resources';
 import TodoItem from './TodoItem';
 
-export default function TodoList({
-  todos,
-  userId,
-}: {
-  todos: Todo[];
-  userId: number;
-}) {
+export default function TodoList({ todos, userId }: Props) {
   return (
     <div>
       {todos.map(todo => (
@@ -17,4 +11,8 @@ export default function TodoList({
       <NewTodo userId={userId} />
     </div>
   );
+}
+interface Props {
+  todos: Todo[];
+  userId: number;
 }

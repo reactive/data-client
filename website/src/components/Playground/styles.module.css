@@ -257,7 +257,7 @@ div > .playgroundHeader.subtabs {
   --ifm-heading-margin-bottom: 0.3ex;
   --ifm-heading-font-weight: 500;
   --ifm-heading-line-height: 1.2;
-  overflow: scroll;
+  overflow: auto;
 }
 /** DEMO STYLES
 * Place any styles needed for demos here

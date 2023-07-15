@@ -265,14 +265,6 @@
             {
               "type": "doc",
               "id": "api/mockInitialState"
-            },
-            {
-              "type": "doc",
-              "id": "api/makeCacheProvider"
-            },
-            {
-              "type": "doc",
-              "id": "api/makeExternalCacheProvider"
             }
           ]
         }
