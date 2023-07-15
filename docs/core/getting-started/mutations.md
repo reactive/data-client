@@ -191,7 +191,7 @@ export class Post extends Entity {
   }
 
   get img() {
-    return `http://placekitten.com/96/72?image=${this.id}`;
+    return `//placekitten.com/96/72?image=${this.id}`;
   }
 }
 export const Base = createResource({
@@ -259,7 +259,7 @@ import { PostResource } from './PostResource';
 import PostItem from './PostItem';
 
 function PostList() {
-  const userId = 1;
+  const userId = 2;
   const posts = useSuspense(PostResource.getList, { userId });
   return (
     <div>

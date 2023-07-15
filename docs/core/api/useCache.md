@@ -26,9 +26,9 @@ args: [],
 response: { id: '777', name: 'Albatras', isAdmin: true },
 delay: 500,
 },
-]}>
+]} row>
 
-```ts title="api/User" collapsed
+```ts title="UserResource" collapsed
 export class User extends Entity {
   id = '';
   name = '';
@@ -49,11 +49,11 @@ export const UserResource = {
 };
 ```
 
-```tsx title="NotAuthorized" collapsed
+```tsx title="Unauthed" collapsed
 import { useLoading } from '@data-client/hooks';
-import { UserResource } from './api/User';
+import { UserResource } from './UserResource';
 
-export default function NotAuthorized() {
+export default function Unauthed() {
   const ctrl = useController();
   const [handleLogin, loading] = useLoading((e: any) => {
     e.preventDefault();
@@ -74,10 +74,10 @@ export default function NotAuthorized() {
 }
 ```
 
-```tsx title="AuthorizedUserOnlyControls" collapsed
-import { User, UserResource } from './api/User';
+```tsx title="Authorized" collapsed
+import { User, UserResource } from './UserResource';
 
-export default function AuthorizedUserOnlyControls({ user }: { user: User }) {
+export default function Authorized({ user }: { user: User }) {
   const ctrl = useController();
   const handleLogout = (e: any) => {
     e.preventDefault();
@@ -95,18 +95,18 @@ export default function AuthorizedUserOnlyControls({ user }: { user: User }) {
 }
 ```
 
-```tsx title="AuthorizedPage"
-import { UserResource } from './api/User';
-import NotAuthorized from './NotAuthorized';
-import AuthorizedUserOnlyControls from './AuthorizedUserOnlyControls';
+```tsx title="Entry"
+import { UserResource } from './UserResource';
+import Unauthed from './Unauthed';
+import Authorized from './Authorized';
 
 function AuthorizedPage() {
   // currentUser as User | undefined
   const currentUser = useCache(UserResource.current);
   // user is not logged in
-  if (!currentUser) return <NotAuthorized />;
+  if (!currentUser) return <Unauthed />;
   // currentUser as User (typeguarded)
-  return <AuthorizedUserOnlyControls user={currentUser} />;
+  return <Authorized user={currentUser} />;
 }
 render(<AuthorizedPage />);
 ```
@@ -167,9 +167,9 @@ response: [
 ],
 delay: 150,
 },
-]}>
+]} row>
 
-```ts title="api/User.ts" collapsed
+```ts title="UserResource" collapsed
 export class User extends Entity {
   id = '';
   name = '';
@@ -184,9 +184,9 @@ export const UserResource = createResource({
 });
 ```
 
-```tsx title="UsersPage.tsx" {15}
+```tsx title="UsersPage" {15}
 import { Query, schema } from '@data-client/rest';
-import { UserResource, User } from './api/User';
+import { UserResource, User } from './UserResource';
 
 const sortedUsers = new Query(
   new schema.All(User),

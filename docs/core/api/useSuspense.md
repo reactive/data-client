@@ -33,9 +33,9 @@ values={[
 ]}>
 <TabItem value="rest">
 
-<HooksPlayground fixtures={detailFixtures}>
+<HooksPlayground fixtures={detailFixtures} row>
 
-```typescript title="api/Profile" collapsed
+```typescript title="ProfileResource" collapsed
 import { Entity, createResource } from '@data-client/rest';
 
 export class Profile extends Entity {
@@ -55,9 +55,9 @@ export const ProfileResource = createResource({
 });
 ```
 
-```tsx title="ProfileList"
+```tsx title="ProfileDetail"
 import { useSuspense } from '@data-client/react';
-import { ProfileResource } from './api/Profile';
+import { ProfileResource } from './ProfileResource';
 
 function ProfileDetail(): JSX.Element {
   const profile = useSuspense(ProfileResource.get, { id: 1 });
@@ -79,9 +79,9 @@ render(<ProfileDetail />);
 </TabItem>
 <TabItem value="other">
 
-<HooksPlayground>
+<HooksPlayground row>
 
-```typescript title="api/Profile" collapsed
+```typescript title="Profile" collapsed
 import { Endpoint } from '@data-client/endpoint';
 
 export const getProfile = new Endpoint((id: number) =>
@@ -94,9 +94,9 @@ export const getProfile = new Endpoint((id: number) =>
 );
 ```
 
-```tsx title="ProfileList"
+```tsx title="ProfileDetail"
 import { useSuspense } from '@data-client/react';
-import { getProfile } from './api/Profile';
+import { getProfile } from './Profile';
 
 function ProfileDetail(): JSX.Element {
   const profile = useSuspense(getProfile, 1);
@@ -174,9 +174,9 @@ function useSuspense<
 
 ### List
 
-<HooksPlayground fixtures={listFixtures}>
+<HooksPlayground fixtures={listFixtures} row>
 
-```typescript title="api/Profile" collapsed
+```typescript title="ProfileResource" collapsed
 import { Entity, createResource } from '@data-client/rest';
 
 export class Profile extends Entity {
@@ -198,7 +198,7 @@ export const ProfileResource = createResource({
 
 ```tsx title="ProfileList"
 import { useSuspense } from '@data-client/react';
-import { ProfileResource } from './api/Profile';
+import { ProfileResource } from './ProfileResource';
 
 function ProfileList(): JSX.Element {
   const profiles = useSuspense(ProfileResource.getList);

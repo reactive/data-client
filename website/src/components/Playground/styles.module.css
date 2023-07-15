@@ -254,9 +254,10 @@ div > .playgroundHeader.subtabs {
 }
 
 :root .playgroundPreview {
-  --ifm-heading-margin-bottom: 0.1ex;
+  --ifm-heading-margin-bottom: 0.3ex;
   --ifm-heading-font-weight: 500;
   --ifm-heading-line-height: 1.2;
+  overflow: scroll;
 }
 /** DEMO STYLES
 * Place any styles needed for demos here
@@ -269,6 +270,9 @@ div > .playgroundHeader.subtabs {
 .playgroundPreview section {
   margin-bottom: 2ex;
 }
+.playgroundPreview h4 + small {
+  display: block;
+}
 .playgroundPreview :global(.listItem) {
   display: flex;
   gap: 1em;
@@ -278,11 +282,18 @@ div > .playgroundHeader.subtabs {
   gap: 1em;
   margin-bottom: 10px;
 }
+.playgroundPreview :global(.author) {
+  text-align: center;
+}
+.playgroundPreview :global(.author) small {
+  display: block;
+  line-height: 1;
+}
 .playgroundPreview :global(.voteBlock) {
   display: flex;
   float: left;
-  gap: .5em;
-  margin-right: .5em;
+  gap: 0.5em;
+  margin-right: 0.5em;
 }
 .playgroundPreview :global(.vote) {
   flex: 0 0 32px;
@@ -290,13 +301,14 @@ div > .playgroundHeader.subtabs {
 }
 .playgroundPreview :global(.vote .up):hover {
   color: var(--ifm-color-primary);
-  background: url('../../../static/img/up-arrow-outline-hover.svg') no-repeat center;
+  background: url('../../../static/img/up-arrow-outline-hover.svg') no-repeat
+    center;
 }
 .playgroundPreview :global(.vote .up) {
-  border:none;
+  border: none;
   cursor: pointer;
-  width:20px;
-  height:20px;
+  width: 20px;
+  height: 20px;
   margin-bottom: -8px;
   margin-right: 0;
   background: url('../../../static/img/up-arrow-outline.svg') no-repeat center;

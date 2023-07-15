@@ -5,6 +5,7 @@ sidebar_label: useDLE()
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import {RestEndpoint} from '@data-client/rest';
+import { detailFixtures, listFixtures } from '@site/src/fixtures/profiles';
 
 <head>
   <title>useDLE() - [D]ata [L]oading [E]rror React State</title>
@@ -20,23 +21,16 @@ In case you cannot use [suspense](../getting-started/data-dependency.md#async-fa
 
 ## Usage
 
-<HooksPlayground fixtures={[
-{
-endpoint: new RestEndpoint({path: '/profiles'}),
-args: [],
-response: [{ id: '1', fullName: 'Einstein', bio: 'Smart physicist' },{ id: '2', fullName: 'Elon Musk', bio: 'CEO of Tesla, SpaceX and owner of Twitter' }],
-delay: 150,
-},
-]}>
+<HooksPlayground fixtures={listFixtures} row>
 
-```typescript title="api/Profile.ts" collapsed
+```typescript title="ProfileResource" collapsed
 import { Entity, createResource } from '@data-client/rest';
 
 export class Profile extends Entity {
-  readonly id: number | undefined = undefined;
-  readonly img: string = '';
-  readonly fullName: string = '';
-  readonly bio: string = '';
+  id: number | undefined = undefined;
+  avatar = '';
+  fullName = '';
+  bio = '';
 
   pk() {
     return this.id?.toString();
@@ -49,9 +43,9 @@ export const ProfileResource = createResource({
 });
 ```
 
-```tsx title="ProfileList.tsx"
+```tsx title="ProfileList"
 import { useDLE } from '@data-client/react';
-import { ProfileResource } from './api/Profile';
+import { ProfileResource } from './ProfileResource';
 
 function ProfileList(): JSX.Element {
   const { data, loading, error } = useDLE(ProfileResource.getList);
@@ -60,9 +54,12 @@ function ProfileList(): JSX.Element {
   return (
     <div>
       {data.map(profile => (
-        <div key={profile.pk()}>
-          <h4>{profile.fullName}</h4>
-          <p>{profile.bio}</p>
+        <div className="listItem" key={profile.pk()}>
+          <Avatar src={profile.avatar} />
+          <div>
+            <h4>{profile.fullName}</h4>
+            <p>{profile.bio}</p>
+          </div>
         </div>
       ))}
     </div>

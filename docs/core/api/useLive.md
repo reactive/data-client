@@ -18,9 +18,9 @@ Async rendering of frequently changing remote data.
 
 ## Usage
 
-<HooksPlayground>
+<HooksPlayground row>
 
-```typescript title="api/ExchangeRates.ts" collapsed
+```typescript title="ExchangeRates" collapsed
 import { Entity, RestEndpoint } from '@data-client/rest';
 
 export class ExchangeRates extends Entity {
@@ -45,9 +45,9 @@ export const getExchangeRates = new RestEndpoint({
 });
 ```
 
-```tsx title="AssetPrice.tsx"
+```tsx title="AssetPrice"
 import { useLive } from '@data-client/react';
-import { getExchangeRates } from './api/ExchangeRates';
+import { getExchangeRates } from './ExchangeRates';
 
 function AssetPrice({ symbol }: Props) {
   const { data: price } = useLive(getExchangeRates, {

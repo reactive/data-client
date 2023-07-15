@@ -14,93 +14,150 @@ import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
+import { postFixtures } from '@site/src/fixtures/posts';
+import { detailFixtures, listFixtures } from '@site/src/fixtures/profiles';
 
 Make your components reusable by binding the data where you need it with the one-line [useSuspense()](../api/useSuspense.md),
 which guarantees data like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await).
 
-<Tabs
-defaultValue="Single"
-values={[
-{ label: 'Single', value: 'Single' },
-{ label: 'List', value: 'List' },
-]}>
-<TabItem value="Single">
+<HooksPlayground defaultOpen="n" row fixtures={postFixtures}>
 
-<HooksPlayground defaultOpen="n" row>
+```ts title="Resources" collapsed
+import { Entity, createResource } from '@data-client/rest';
 
-```ts title="api/Todo" collapsed
-export class Todo extends Entity {
+export class Post extends Entity {
   id = 0;
   userId = 0;
   title = '';
-  completed = false;
+  body = '';
+
+  pk() {
+    return this.id?.toString();
+  }
+}
+export const PostResource = createResource({
+  path: '/posts/:id',
+  schema: Post,
+});
+
+export class User extends Entity {
+  id = 0;
+  name = '';
+  username = '';
+  email = '';
+  phone = '';
+  website = '';
+
+  get profileImage() {
+    return `https://i.pravatar.cc/256?img=${this.id + 4}`;
+  }
+
   pk() {
     return `${this.id}`;
   }
 }
-export const TodoResource = createResource({
+export const UserResource = createResource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
-  path: '/todos/:id',
-  schema: Todo,
+  path: '/users/:id',
+  schema: User,
 });
 ```
 
-```tsx title="Todo" {5}
-import { useSuspense } from '@data-client/react';
-import { TodoResource } from './api/Todo';
+```tsx title="PostDetail" {4-5} collapsed
+import { UserResource, PostResource } from './Resources';
 
-function TodoDetail({ id }: { id: number }) {
-  const todo = useSuspense(TodoResource.get, { id });
-  return <div>{todo.title}</div>;
-}
-render(<TodoDetail id={1} />);
-```
-
-</HooksPlayground>
-
-</TabItem>
-<TabItem value="List">
-
-<HooksPlayground defaultOpen="n" row>
-
-```ts title="api/Todo" collapsed
-export class Todo extends Entity {
-  id = 0;
-  userId = 0;
-  title = '';
-  completed = false;
-  pk() {
-    return `${this.id}`;
-  }
-}
-export const TodoResource = createResource({
-  urlPrefix: 'https://jsonplaceholder.typicode.com',
-  path: '/todos/:id',
-  schema: Todo,
-});
-```
-
-```tsx title="TodoList" {5}
-import { useSuspense } from '@data-client/react';
-import { TodoResource } from './api/Todo';
-
-function TodoList() {
-  const todos = useSuspense(TodoResource.getList);
+export default function PostDetail({ setRoute, id }) {
+  const post = useSuspense(PostResource.get, { id });
+  const author = useSuspense(UserResource.get, { id: post.userId });
   return (
-    <section style={{ maxHeight: '300px', overflow: 'scroll' }}>
-      {todos.map(todo => (
-        <div key={todo.id}>{todo.title}</div>
-      ))}
-    </section>
+    <div>
+      <header>
+        <div className="listItem spaced">
+          <div className="author">
+            <Avatar src={author.profileImage} />
+            <small>{author.name}</small>
+          </div>
+          <h4>{post.title}</h4>
+        </div>
+      </header>
+      <p>{post.body}</p>
+      <a
+        href="#"
+        onClick={e => {
+          e.preventDefault();
+          setRoute('list');
+        }}
+      >
+        « Back
+      </a>
+    </div>
   );
 }
-render(<TodoList />);
+```
+
+```tsx title="PostItem" {4} collapsed
+import { UserResource, type Post } from './Resources';
+
+export default function PostItem({ post, setRoute }: Props) {
+  const author = useSuspense(UserResource.get, { id: post.userId });
+  return (
+    <div className="listItem spaced">
+      <Avatar src={author.profileImage} />
+      <div>
+        <h4>
+          <a
+            href="#"
+            onClick={e => {
+              e.preventDefault();
+              setRoute(`detail/${post.id}`);
+            }}
+          >
+            {post.title}
+          </a>
+        </h4>
+        <small>by {author.name}</small>
+      </div>
+    </div>
+  );
+}
+
+interface Props {
+  post: Post;
+  setRoute: Function;
+}
+```
+
+```tsx title="PostList" {5}
+import PostItem from './PostItem';
+import { PostResource } from './Resources';
+
+export default function PostList({ setRoute }) {
+  const posts = useSuspense(PostResource.getList);
+  return (
+    <div>
+      {posts.map(post => (
+        <PostItem key={post.pk()} post={post} setRoute={setRoute} />
+      ))}
+    </div>
+  );
+}
+```
+
+```tsx title="Navigation" collapsed
+import PostList from './PostList';
+import PostDetail from './PostDetail';
+
+function Navigation() {
+  const [route, setRoute] = React.useState('list');
+  if (route.startsWith('detail'))
+    return <PostDetail setRoute={setRoute} id={route.split('/')[1]} />;
+
+  return <PostList setRoute={setRoute} />;
+}
+render(<Navigation />);
 ```
 
 </HooksPlayground>
-
-</TabItem>
-</Tabs>
 
 <a href="https://react.dev/learn/passing-data-deeply-with-context" target="_blank">
 <ThemedImage
@@ -165,37 +222,51 @@ be customized.
 You may find cases where it's still useful to use a stateful approach to fallbacks when using React 16 and 17.
 For these cases, or compatibility with some component libraries, [useDLE()](../api/useDLE.md) - [D]ata [L]oading [E]rror - is provided.
 
-<HooksPlayground defaultOpen="n" row>
+<HooksPlayground fixtures={listFixtures} row>
 
-```ts title="api/Todo" collapsed
-export class Todo extends Entity {
-  id = 0;
-  userId = 0;
-  title = '';
-  completed = false;
+```typescript title="ProfileResource" collapsed
+import { Entity, createResource } from '@data-client/rest';
+
+export class Profile extends Entity {
+  id: number | undefined = undefined;
+  avatar = '';
+  fullName = '';
+  bio = '';
+
   pk() {
-    return `${this.id}`;
+    return this.id?.toString();
   }
 }
-export const TodoResource = createResource({
-  urlPrefix: 'https://jsonplaceholder.typicode.com',
-  path: '/todos/:id',
-  schema: Todo,
+
+export const ProfileResource = createResource({
+  path: '/profiles/:id',
+  schema: Profile,
 });
 ```
 
-```tsx title="Todo" {5}
+```tsx title="ProfileList"
 import { useDLE } from '@data-client/react';
-import { TodoResource } from './api/Todo';
+import { ProfileResource } from './ProfileResource';
 
-function TodoDetail({ id }: { id: number }) {
-  const { loading, error, data: todo } = useDLE(TodoResource.get, { id });
-  if (loading || !todo) return <div>loading</div>;
-  if (error) return <div>{error.message}</div>;
-
-  return <div>{todo.title}</div>;
+function ProfileList(): JSX.Element {
+  const { data, loading, error } = useDLE(ProfileResource.getList);
+  if (error) return <div>Error {`${error.status}`}</div>;
+  if (loading || !data) return <>loading...</>;
+  return (
+    <div>
+      {data.map(profile => (
+        <div className="listItem" key={profile.pk()}>
+          <Avatar src={profile.avatar} />
+          <div>
+            <h4>{profile.fullName}</h4>
+            <p>{profile.bio}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 }
-render(<TodoDetail id={1} />);
+render(<ProfileList />);
 ```
 
 </HooksPlayground>
@@ -210,111 +281,9 @@ ensures continual updates while a component is mounted. [useLive()](../api/useLi
 [useSubscription()](../api/useSubscription.md) and [useSuspense()](../api/useSuspense.md), making it quite
 easy to use fresh data.
 
-<Tabs
-defaultValue="Single"
-values={[
-{ label: 'Single', value: 'Single' },
-{ label: 'List', value: 'List' },
-]}>
-<TabItem value="Single">
-
 <HooksPlayground defaultOpen="n" row>
 
-```ts title="api/Todo" collapsed
-export class Todo extends Entity {
-  id = 0;
-  userId = 0;
-  title = '';
-  completed = false;
-  pk() {
-    return `${this.id}`;
-  }
-}
-export const TodoResource = createResource({
-  urlPrefix: 'https://jsonplaceholder.typicode.com',
-  path: '/todos/:id',
-  schema: Todo,
-  pollFrequency: 10000,
-});
-```
-
-```tsx title="Todo" {5}
-import { useLive } from '@data-client/react';
-import { TodoResource } from './api/Todo';
-
-function TodoDetail({ id }: { id: number }) {
-  const todo = useLive(TodoResource.get, { id });
-  return <div>{todo.title}</div>;
-}
-render(<TodoDetail id={1} />);
-```
-
-</HooksPlayground>
-
-</TabItem>
-<TabItem value="List">
-
-<HooksPlayground defaultOpen="n" row>
-
-```ts title="api/Todo" collapsed
-export class Todo extends Entity {
-  id = 0;
-  userId = 0;
-  title = '';
-  completed = false;
-  pk() {
-    return `${this.id}`;
-  }
-}
-export const TodoResource = createResource({
-  urlPrefix: 'https://jsonplaceholder.typicode.com',
-  path: '/todos/:id',
-  schema: Todo,
-  pollFrequency: 10000,
-});
-```
-
-```tsx title="TodoList" {5}
-import { useLive } from '@data-client/react';
-import { TodoResource } from './api/Todo';
-
-function TodoList() {
-  const todos = useLive(TodoResource.getList);
-  return (
-    <section style={{ maxHeight: '300px', overflowY: 'scroll' }}>
-      {todos.map(todo => (
-        <div key={todo.id}>{todo.title}</div>
-      ))}
-    </section>
-  );
-}
-render(<TodoList />);
-```
-
-</HooksPlayground>
-
-</TabItem>
-</Tabs>
-
-Subscriptions are orchestrated by [Managers](../api/Manager.md). Out of the box,
-polling based subscriptions can be used by adding [pollFrequency](/rest/api/Endpoint#pollfrequency-number) to an endpoint.
-For pushed based networking protocols like websockets, see the [example websocket stream manager](../api/Manager.md#middleware-data-stream).
-
-```typescript
-export const TodoResource = createResource({
-  urlPrefix: 'https://jsonplaceholder.typicode.com',
-  path: '/todos/:id',
-  schema: Todo,
-  // highlight-next-line
-  pollFrequency: 10000,
-});
-```
-
-### Live Crypto Price Example
-
-<HooksPlayground defaultOpen="n">
-
-```typescript title="api/ExchangeRates" {18}
+```typescript title="ExchangeRates" {18} collapsed
 export class ExchangeRates extends Entity {
   currency = 'USD';
   rates: Record<string, number> = {};
@@ -336,16 +305,18 @@ export const getExchangeRates = new RestEndpoint({
 });
 ```
 
-```tsx title="AssetPrice" {5}
+```tsx title="AssetPrice" {6}
 import { useLive } from '@data-client/react';
-import { getExchangeRates } from './api/ExchangeRates';
+import { getExchangeRates } from './ExchangeRates';
 
 function AssetPrice({ symbol }: { symbol: string }) {
-  const { data: price } = useLive(getExchangeRates, { currency: 'USD' });
+  const currency = 'USD';
+  const { data: price } = useLive(getExchangeRates, { currency });
+  const value = 1 / price.rates[symbol];
   return (
     <span>
       {symbol}{' '}
-      <Formatted value={1 / price.rates[symbol]} formatter="currency" />
+      <Formatted value={value} formatter="currency" />
     </span>
   );
 }
@@ -353,3 +324,18 @@ render(<AssetPrice symbol="BTC" />);
 ```
 
 </HooksPlayground>
+
+Subscriptions are orchestrated by [Managers](../api/Manager.md). Out of the box,
+polling based subscriptions can be used by adding [pollFrequency](/rest/api/Endpoint#pollfrequency-number) to an endpoint.
+For pushed based networking protocols like websockets, see the [example websocket stream manager](../api/Manager.md#middleware-data-stream).
+
+```typescript
+export const getExchangeRates = new RestEndpoint({
+  urlPrefix: 'https://www.coinbase.com/api/v2',
+  path: '/exchange-rates',
+  searchParams: {} as { currency: string },
+  schema: { data: ExchangeRates },
+  // highlight-next-line
+  pollFrequency: 15000,
+});
+```

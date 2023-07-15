@@ -37,7 +37,7 @@ values={[
 
 <TypeScriptEditor row={false}>
 
-```typescript title="Todo"
+```typescript title="TodoResource"
 import { Entity } from '@data-client/rest';
 import { createResource } from '@data-client/rest';
 
@@ -62,7 +62,7 @@ export const TodoResource = createResource({
 ```
 
 ```typescript title="Method"
-import { TodoResource } from './Todo';
+import { TodoResource } from './TodoResource';
 
 // GET https://jsonplaceholder.typicode.com/todos/5
 TodoResource.get({ id: 5 });
@@ -89,7 +89,7 @@ TodoResource.delete({ id: 5 });
 
 <TypeScriptEditor row={false}>
 
-```typescript title="Todo"
+```typescript title="TodoResource"
 import { GQLEndpoint, GQLEntity } from '@data-client/graphql';
 
 const gql = new GQLEndpoint('/');
@@ -180,7 +180,7 @@ export const deleteTodo = (body: Partial<Todo>) =>
   }).then(res => res.json());
 ```
 
-```typescript title="Todo"
+```typescript title="TodoResource"
 import { schema, Endpoint } from '@data-client/endpoint';
 import {
   Todo,
