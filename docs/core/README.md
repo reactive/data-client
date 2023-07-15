@@ -41,7 +41,7 @@ local**. This means component logic should be no more complex than useState and 
 
 ## Define API {#endpoint}
 
-[Endpoints](./getting-started/endpoint.md) are the _methods_ of your data. At their core they
+[Endpoints](./getting-started/resource.md) are the _methods_ of your data. At their core they
 are simply asynchronous functions. However, they also define anything else relevant to the [API](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/)
 like [expiry policy](./concepts/expiry-policy.md), [data model](./concepts/normalization.md), [validation](./concepts/validation.md), and [types](/rest/api/RestEndpoint#typing).
 
