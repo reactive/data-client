@@ -246,6 +246,7 @@ if (
       );
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
         `declare function render(component:JSX.Element):void;
+        declare function uuid(): string;
         declare function CurrentTime(props: {}):JSX.Element;
         declare function CancelButton(props: { onClick: () => void }):JSX.Element;
         declare function Avatar(props: { src: string }):JSX.Element;

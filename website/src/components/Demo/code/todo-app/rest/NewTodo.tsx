@@ -1,5 +1,3 @@
-import { v4 as uuid } from 'uuid';
-
 import { TodoResource } from './resources';
 
 export default function NewTodo({ userId }: { userId: number }) {

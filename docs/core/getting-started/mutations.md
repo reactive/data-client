@@ -81,7 +81,7 @@ export default function TodoItem({ todo }: { todo: Todo }) {
 
 ```tsx title="CreateTodo" {9-13} collapsed
 import { v4 as uuid } from 'uuid';
-
+import { useController } from '@data-client/react';
 import { TodoResource } from './TodoResource';
 
 export default function CreateTodo({ userId }: { userId: number }) {
@@ -255,6 +255,7 @@ export default function PostItem({ post }: { post: Post }) {
 ```
 
 ```tsx title="PostList" collapsed
+import { useSuspense } from '@data-client/react';
 import { PostResource } from './PostResource';
 import PostItem from './PostItem';
 

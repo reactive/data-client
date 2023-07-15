@@ -63,7 +63,8 @@ export const UserResource = createResource({
 });
 ```
 
-```tsx title="PostDetail" {4-5} collapsed
+```tsx title="PostDetail" {5-6} collapsed
+import { useSuspense } from '@data-client/react';
 import { UserResource, PostResource } from './Resources';
 
 export default function PostDetail({ setRoute, id }) {
@@ -95,7 +96,8 @@ export default function PostDetail({ setRoute, id }) {
 }
 ```
 
-```tsx title="PostItem" {4} collapsed
+```tsx title="PostItem" {5} collapsed
+import { useSuspense } from '@data-client/react';
 import { UserResource, type Post } from './Resources';
 
 export default function PostItem({ post, setRoute }: Props) {
@@ -127,7 +129,8 @@ interface Props {
 }
 ```
 
-```tsx title="PostList" {5}
+```tsx title="PostList" {6}
+import { useSuspense } from '@data-client/react';
 import PostItem from './PostItem';
 import { PostResource } from './Resources';
 

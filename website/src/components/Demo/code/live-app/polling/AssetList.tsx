@@ -1,5 +1,3 @@
-import { useLive } from '@data-client/react';
-
 import AssetPrice from './AssetPrice';
 import { getExchangeRates } from './resources';
 
