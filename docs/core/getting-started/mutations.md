@@ -418,7 +418,7 @@ export default function PostCreate({ setId }) {
   const [loading, startTransition] = useTransition();
   const handleSubmit = data =>
     // highlight-next-line
-    startTransition(async data => {
+    startTransition(async () => {
       const post = await ctrl.fetch(PostResource.create, data);
       setId(post.id);
     });

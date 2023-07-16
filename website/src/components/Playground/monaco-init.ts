@@ -52,7 +52,6 @@ if (
         module: monaco.languages.typescript.ModuleKind.ESNext,
         moduleResolution:
           monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-        typeRoots: ['node_modules/@types'],
         allowSyntheticDefaultImports: true,
         skipLibCheck: true,
         noImplicitAny: false,
@@ -202,9 +201,6 @@ if (
     Promise.allSettled([
       monacoPromise,
       import(
-        /* webpackChunkName: 'es2022DTS', webpackPreload: true */ '!!raw-loader?esModule=false!./editor-types/lib.es2022.object.d.ts'
-      ),
-      import(
         /* webpackChunkName: 'reactDTS', webpackPreload: true */ '!!raw-loader?esModule=false!./editor-types/react.d.ts'
       ),
       import(
@@ -222,7 +218,7 @@ if (
     ]).then(([mPromise, ...settles]) => {
       if (mPromise.status !== 'fulfilled' || !mPromise.value) return;
       const monaco = mPromise.value;
-      const [es2022, react, bignumber, uuid, ...rhLibs] = settles.map(result =>
+      const [react, bignumber, uuid, ...rhLibs] = settles.map(result =>
         result.status === 'fulfilled' ? result.value.default : '',
       );
 
@@ -292,10 +288,6 @@ if (
            */
           value: number;
         }`,
-      );
-      monaco.languages.typescript.typescriptDefaults.addExtraLib(
-        es2022,
-        'es2022',
       );
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
         `declare module "react" { ${react} }`,

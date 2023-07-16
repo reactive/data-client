@@ -42,7 +42,7 @@ class Article extends Entity {
 }
 ```
 
-### Create [collection of API Endpoints](https://dataclient.io/rest/api/createResource)
+### Create [collection of API Endpoints](https://dataclient.io/docs/getting-started/resource)
 
 ```typescript
 const ArticleResource = createResource({
