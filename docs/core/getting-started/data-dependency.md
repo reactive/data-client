@@ -177,10 +177,10 @@ width="415" height="184"
 </a>
 
 Do not prop drill. Instead, [useSuspense()](../api/useSuspense.md) in the components that render the data from it. This is
-known as *data co-location*.
+known as _data co-location_.
 
 Instead of writing complex update functions or invalidations cascades, Reactive Data Client automatically updates
-bound components immediately upon [data change](./mutations.md). This is known as *reactive programming*.
+bound components immediately upon [data change](./mutations.md). This is known as _reactive programming_.
 
 ## Loading and Error {#async-fallbacks}
 
@@ -193,19 +193,19 @@ us to make error/loading disjoint from data usage.
 Instead we place [&lt;AsyncBoundary /\>](../api/AsyncBoundary.md) to handling loading and error conditions at or above navigational boundaries like **pages,
 routes, or modals**.
 
-```tsx {6,12,23-25}
-import React, { Suspense } from 'react';
+```tsx {7,11}
 import { AsyncBoundary } from '@data-client/react';
 
-export default function TodoPage({ id }: { id: number }) {
+export default function Dashboard() {
   return (
-    <AsyncBoundary>
-      <section>
-        <TodoDetail id={1} />
-        <TodoDetail id={5} />
-        <TodoDetail id={10} />
-      </section>
-    </AsyncBoundary>
+    <div>
+      <h1>Dashboard</h1>
+      <AsyncBoundary>
+        <section>
+          <Outlet />
+        </section>
+      </AsyncBoundary>
+    </div>
   );
 }
 ```

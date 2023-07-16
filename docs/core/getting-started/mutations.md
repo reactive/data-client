@@ -158,7 +158,7 @@ export class Post extends Entity {
   static key = 'Post';
 
   get img() {
-    return `//placekitten.com/96/72?image=${this.id}`;
+    return `//placekitten.com/96/72?image=${this.id % 16}`;
   }
 }
 export const Base = createResource({
@@ -223,7 +223,7 @@ export default function PostItem({ post }: { post: Post }) {
 
 ```tsx title="TotalVotes" collapsed
 import { Query, schema } from '@data-client/rest';
-import { Post } from './Post';
+import { Post } from './PostResource';
 
 const queryTotalVotes = new Query(
   new schema.All(Post),
@@ -274,38 +274,154 @@ Reactive Data Client ensures [data integrity against any possible networking fai
 worry about network failures, multiple mutation calls editing the same data, or other common
 problems in asynchronous programming.
 
-
 ## Tracking mutation loading
 
 [useLoading()](../api/useLoading.md) enhances async functions by tracking their loading and error states.
 
-```tsx
-import { useController } from '@data-client/react';
-import { useLoading } from '@data-client/hooks';
+<HooksPlayground fixtures={postFixtures} getInitialInterceptorData={() => ({entities:{}})} row>
 
-function ArticleEdit() {
-  const ctrl = useController();
-  // highlight-next-line
-  const [handleSubmit, loading, error] = useLoading(
-    data => ctrl.fetch(todoUpdate, { id }, data),
-    [ctrl],
+```ts title="PostResource" collapsed
+import { Entity, createResource } from '@data-client/rest';
+
+export class Post extends Entity {
+  id = 0;
+  userId = 0;
+  title = '';
+  body = '';
+  votes = 0;
+
+  pk() {
+    return this.id?.toString();
+  }
+  static key = 'Post';
+
+  get img() {
+    return `//placekitten.com/96/72?image=${this.id % 16}`;
+  }
+}
+export const PostResource = createResource({
+  path: '/posts/:id',
+  schema: Post,
+});
+```
+
+```tsx title="PostDetail" collapsed
+import { useSuspense } from '@data-client/react';
+import { PostResource } from './PostResource';
+
+export default function PostDetail({ id }) {
+  const post = useSuspense(PostResource.get, { id });
+  return (
+    <div>
+      <div className="voteBlock">
+        <img src={post.img} width="70" height="52" />
+      </div>
+      <div>
+        <h4>{post.title}</h4>
+        <p>{post.body}</p>
+      </div>
+    </div>
   );
-  return <ArticleForm onSubmit={handleSubmit} loading={loading} />;
 }
 ```
+
+```tsx title="PostForm" collapsed
+export default function PostForm({ onSubmit, loading, error }) {
+  const handleSubmit = e => {
+    e.preventDefault();
+    const data = new FormData(e.target);
+    onSubmit(data);
+  };
+  return (
+    <form onSubmit={handleSubmit}>
+      <label>
+        Title:
+        <br />
+        <input type="text" name="title" required />
+      </label>
+      <br />
+      <label>
+        Body:
+        <br />
+        <textarea name="body" rows={12} required></textarea>
+      </label>
+      {error ? (
+        <div className="alert alert--danger">{error.message}</div>
+      ) : null}
+      <div>
+        <button type="submit" disabled={loading}>
+          {loading ? 'saving...' : 'Save'}
+        </button>
+      </div>
+    </form>
+  );
+}
+```
+
+```tsx title="PostCreate" {8}
+import { useController } from '@data-client/react';
+import { useLoading } from '@data-client/hooks';
+import { PostResource } from './PostResource';
+import PostForm from './PostForm';
+
+export default function PostCreate({ navigateToPost }) {
+  const ctrl = useController();
+  const [handleSubmit, loading, error] = useLoading(
+    async data => {
+      const post = await ctrl.fetch(PostResource.create, data);
+      // React 17 does not batch updates
+      // so we wait for the new post to be commited to the React
+      // store to avoid additional fetches
+      requestIdleCallback(() => navigateToPost(post.id));
+    },
+    [ctrl],
+  );
+  return (
+    <PostForm onSubmit={handleSubmit} loading={loading} error={error} />
+  );
+}
+```
+
+```tsx title="Navigation" collapsed
+import PostCreate from './PostCreate';
+import PostDetail from './PostDetail';
+
+function Navigation() {
+  const [id, setId] = React.useState<undefined | number>(undefined);
+  if (id) {
+    return (
+      <div>
+        <PostDetail id={id} />
+        <center>
+          <button onClick={() => setId(undefined)}>New Post</button>
+        </center>
+      </div>
+    );
+  }
+  return <PostCreate navigateToPost={setId} />;
+}
+render(<Navigation />);
+```
+
+</HooksPlayground>
 
 React 18 version with [useTransition](https://react.dev/reference/react/useTransition)
 
 ```tsx
 import { useTransition } from 'react';
 import { useController } from '@data-client/react';
-import { useLoading } from '@data-client/hooks';
+import { PostResource } from './PostResource';
+import PostForm from './PostForm';
 
-function ArticleEdit() {
+export default function PostCreate({ setId }) {
   const ctrl = useController();
   const [loading, startTransition] = useTransition();
   const handleSubmit = data =>
-    startTransition(() => ctrl.fetch(todoUpdate, { id }, data));
-  return <ArticleForm onSubmit={handleSubmit} loading={loading} />;
+    // highlight-next-line
+    startTransition(async data => {
+      const post = await ctrl.fetch(PostResource.create, data);
+      setId(post.id);
+    });
+  return <PostForm onSubmit={handleSubmit} loading={loading} error={error} />;
 }
 ```

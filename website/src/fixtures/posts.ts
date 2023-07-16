@@ -4,6 +4,7 @@ import {
   RestEndpoint,
   AbortOptimistic,
 } from '@data-client/rest';
+import { v4 as uuid } from 'uuid';
 
 export class Post extends Entity {
   id: number | undefined = undefined;
@@ -16,7 +17,7 @@ export class Post extends Entity {
   }
 
   get img() {
-    return `http://placekitten.com/400/200?image=${this.id}`;
+    return `http://placekitten.com/400/200?image=${this.id % 16}`;
   }
 }
 
@@ -66,7 +67,7 @@ const entities = {
   },
 };
 
-const delay = 250;
+const delay = 350;
 
 export const postFixtures = [
   {
@@ -102,4 +103,37 @@ export const postFixtures = [
     },
     delay: () => 500 + Math.random() * 4500,
   },
+  {
+    endpoint: PostResource.update,
+    response({ id }, body) {
+      this.entities[id] = {
+        id,
+        votes: 0,
+        ...entities[id],
+        ...body,
+      };
+      for (const [key, value] of body.entries()) {
+        this.entities[id][key] = value;
+      }
+      return this.entities[id];
+    },
+    delay: 500,
+  },
+  {
+    endpoint: PostResource.create,
+    response(body) {
+      const id = randomId();
+      this.entities[id] = { id, userId: 1 };
+      for (const [key, value] of body.entries()) {
+        this.entities[id][key] = value;
+      }
+      console.log('create', id, this.entities[id]);
+      return this.entities[id];
+    },
+    delay: 500,
+  },
 ];
+
+function randomId() {
+  return Number.parseInt(uuid().slice(0, 8), 16);
+}
