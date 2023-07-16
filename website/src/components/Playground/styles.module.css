@@ -219,6 +219,7 @@ div > .playgroundHeader.subtabs {
 
 .tabs {
   display: flex;
+  overflow: auto;
 }
 
 .tab {
@@ -284,7 +285,7 @@ div > .playgroundHeader.subtabs {
   flex: 1 1 100%;
 }
 .playgroundPreview :global(.listItem) > label input[type="text"] {
-  width: calc(100% - 20px);
+  width: calc(100% - 21px);
 }
 .playgroundPreview :global(.listItem.spaced) {
   display: flex;

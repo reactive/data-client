@@ -15,7 +15,7 @@ function AsyncBoundary({
   children: React.ReactNode;
   fallback?: React.ReactNode;
   errorComponent?: React.ComponentType<{ error: NetworkError }>;
-}) {
+}): JSX.Element {
   return (
     <Suspense fallback={fallback}>
       <NetworkErrorBoundary fallbackComponent={errorComponent}>
@@ -24,4 +24,4 @@ function AsyncBoundary({
     </Suspense>
   );
 }
-export default memo(AsyncBoundary);
+export default memo(AsyncBoundary) as typeof AsyncBoundary;

@@ -39,8 +39,8 @@ declare function AsyncBoundary({ children, errorComponent, fallback, }: {
     errorComponent?: React$1.ComponentType<{
         error: NetworkError;
     }>;
-}): react_jsx_runtime.JSX.Element;
-declare const _default: React$1.MemoExoticComponent<typeof AsyncBoundary>;
+}): JSX.Element;
+declare const _default: typeof AsyncBoundary;
 //# sourceMappingURL=AsyncBoundary.d.ts.map
 
 interface Props<E extends NetworkError> {
