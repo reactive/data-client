@@ -306,6 +306,16 @@ export default function ArticleList({ page }: { page: string }) {
 
 </TypeScriptEditor>
 
+### Server Side Rendering
+
+[Server Side Rendering](../guides/ssr.md) to incrementally stream HTML,
+greatly reducing [TTFB](https://web.dev/ttfb/). [Reactive Data Client SSR's](../guides/ssr.md) automatic store hydration
+means immediate user interactivity with **zero** client-side fetches on first load.
+
+<StackBlitz app="nextjs" file="resources/ExchangeRates.ts,pages/AssetPrice.tsx" />
+
+Explore more [Reactive Data Client demos](/demos)
+
 ### Todo App
 
 <StackBlitz app="todo-app" file="src/resources/TodoResource.ts,src/pages/Home/TodoList.tsx" />

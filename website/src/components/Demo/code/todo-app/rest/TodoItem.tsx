@@ -13,7 +13,7 @@ export default function TodoItem({ todo }: { todo: Todo }) {
       id: todo.id,
     });
   return (
-    <div>
+    <div className="listItem nogap">
       <label>
         <input
           type="checkbox"

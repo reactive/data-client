@@ -17,7 +17,7 @@ import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import { postFixtures } from '@site/src/fixtures/posts';
 import { detailFixtures, listFixtures } from '@site/src/fixtures/profiles';
 
-Make your components reusable by binding the data where you need it with the one-line [useSuspense()](../api/useSuspense.md),
+Make your components reusable by binding the data where you **use** it with the one-line [useSuspense()](../api/useSuspense.md),
 which guarantees data like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await).
 
 <HooksPlayground defaultOpen="n" row fixtures={postFixtures}>
@@ -34,6 +34,7 @@ export class Post extends Entity {
   pk() {
     return this.id?.toString();
   }
+  static key = 'Post';
 }
 export const PostResource = createResource({
   path: '/posts/:id',
@@ -55,6 +56,7 @@ export class User extends Entity {
   pk() {
     return `${this.id}`;
   }
+  static key = 'User';
 }
 export const UserResource = createResource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
@@ -174,14 +176,11 @@ width="415" height="184"
 />
 </a>
 
-No more prop drilling, or cumbersome external state management. Reactive Data Client guarantees global referential equality,
-data safety and performance.
+Do not prop drill. Instead, [useSuspense()](../api/useSuspense.md) in the components that render the data from it. This is
+known as *data co-location*.
 
-Co-location also allows [Server Side Rendering](../guides/ssr.md) to incrementally stream HTML, greatly reducing [TTFB](https://web.dev/ttfb/).
-[Reactive Data Client SSR](../guides/ssr.md) automatically hydrates its store, allowing immediate interactive mutations with **zero** client-side
-fetches on first load.
-
-<ConditionalDependencies />
+Instead of writing complex update functions or invalidations cascades, Reactive Data Client automatically updates
+bound components immediately upon [data change](./mutations.md). This is known as *reactive programming*.
 
 ## Loading and Error {#async-fallbacks}
 
@@ -191,8 +190,8 @@ us to make error/loading disjoint from data usage.
 
 ### Async Boundaries {#boundaries}
 
-Instead we place [&lt;AsyncBoundary /\>](../api/AsyncBoundary.md) at or above navigational boundaries like pages,
-routes or modals.
+Instead we place [&lt;AsyncBoundary /\>](../api/AsyncBoundary.md) to handling loading and error conditions at or above navigational boundaries like **pages,
+routes, or modals**.
 
 ```tsx {6,12,23-25}
 import React, { Suspense } from 'react';
@@ -211,11 +210,13 @@ export default function TodoPage({ id }: { id: number }) {
 }
 ```
 
-[useTransition](https://react.dev/reference/react/useTransition) powered routers or navigation
-means React never has to show a loading fallback. Of course, these are only possible in React 18 or above,
-so for 16 and 17 this will merely centralize the fallback, eliminating 100s of loading spinners.
+React 18's [useTransition](https://react.dev/reference/react/useTransition) and [Server Side Rendering](../guides/ssr.md)
+powered routers or navigation means never seeing a loading fallback again. In React 16 and 17 fallbacks can be centralized
+to eliminate redundant loading indicators while keeping components reusable.
 
-In either case, a signficiant amount of component complexity is removed by centralizing fallback conditionals.
+[&lt;AsyncBoundary /\>](../api/AsyncBoundary.md) also allows [Server Side Rendering](../guides/ssr.md) to incrementally stream HTML,
+greatly reducing [TTFB](https://web.dev/ttfb/). [Reactive Data Client SSR's](../guides/ssr.md) automatic store hydration
+means immediate user interactivity with **zero** client-side fetches on first load.
 
 AsyncBoundary's [error fallback](../api/AsyncBoundary.md#errorcomponent) and [loading fallback](../api/AsyncBoundary.md#fallback) can both
 be customized.
@@ -239,6 +240,7 @@ export class Profile extends Entity {
   pk() {
     return this.id?.toString();
   }
+  static key = 'Profile';
 }
 
 export const ProfileResource = createResource({
@@ -277,6 +279,10 @@ render(<ProfileList />);
 This downside of [useDLE](../api/useDLE.md) vs [useSuspense](../api/useSuspense.md) is more loading and error handling code and potentially
 a much worse user experience.
 
+## Conditional
+
+<ConditionalDependencies />
+
 ## Subscriptions
 
 When data is likely to change due to external factor; [useSubscription()](../api/useSubscription.md)
@@ -294,7 +300,7 @@ export class ExchangeRates extends Entity {
   pk() {
     return this.currency;
   }
-
+  static key = 'ExchangeRates';
   static schema = {
     rates: new schema.Values(FloatSerializer),
   };
@@ -317,10 +323,9 @@ function AssetPrice({ symbol }: { symbol: string }) {
   const { data: price } = useLive(getExchangeRates, { currency });
   const value = 1 / price.rates[symbol];
   return (
-    <span>
-      {symbol}{' '}
-      <Formatted value={value} formatter="currency" />
-    </span>
+    <center>
+      {symbol} <Formatted value={value} formatter="currency" />
+    </center>
   );
 }
 render(<AssetPrice symbol="BTC" />);
@@ -329,8 +334,8 @@ render(<AssetPrice symbol="BTC" />);
 </HooksPlayground>
 
 Subscriptions are orchestrated by [Managers](../api/Manager.md). Out of the box,
-polling based subscriptions can be used by adding [pollFrequency](/rest/api/Endpoint#pollfrequency-number) to an endpoint.
-For pushed based networking protocols like websockets, see the [example websocket stream manager](../api/Manager.md#middleware-data-stream).
+polling based subscriptions can be used by adding [pollFrequency](/rest/api/Endpoint#pollfrequency-number) to an Endpoint or Resource.
+For pushed based networking protocols like SSE and websockets, see the [example stream manager](../api/Manager.md#middleware-data-stream).
 
 ```typescript
 export const getExchangeRates = new RestEndpoint({

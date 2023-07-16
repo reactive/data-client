@@ -94,6 +94,10 @@
           "items": [
             {
               "type": "doc",
+              "id": "guides/ssr"
+            },
+            {
+              "type": "doc",
               "id": "guides/render-as-you-fetch"
             },
             {
@@ -110,10 +114,6 @@
             {
               "type": "doc",
               "id": "guides/redux"
-            },
-            {
-              "type": "doc",
-              "id": "guides/ssr"
             },
             {
               "type": "doc",

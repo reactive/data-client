@@ -31,14 +31,6 @@ sometimes a less powerful client library is sufficient.
 This is no small task. To achieve this, Reactive Data Client' design is aimed at **treating remote data like it is
 local**. This means component logic should be no more complex than useState and setState.
 
-:::info Outcome
-
-- Write code faster: focus on your application, not complex state management
-- Stop worrying about data bugs or application jank
-- Deliver best application performance without extra work
-
-:::
-
 ## Define API {#endpoint}
 
 [Endpoints](./getting-started/resource.md) are the _methods_ of your data. At their core they

@@ -15,12 +15,11 @@ import { RestEndpoint } from '@data-client/rest';
   <meta name="docsearch:pagerank" content="40"/>
 </head>
 
-## Tell react to update
+Using our [Create, Update, and Delete](/docs/concepts/atomic-mutations) endpoints with
+[Controller.fetch()](../api/Controller.md#fetch) reactively updates _all_ appropriate components atomically (at the same time).
 
-Just like [setState()](https://react.dev/reference/react/useState#setstate), we must make React aware of the any mutations so it can rerender.
-
-[Controller](../api/Controller.md) from [useController](../api/useController.md) provides this functionality in a type-safe manner.
-[Controller.fetch()](../api/Controller.md#fetch) dispatches mutations like [Create, Update, and Delete](/docs/concepts/atomic-mutations).
+[useController()](../api/useController.md) gives components access to this global [setState()](https://react.dev/reference/react/useState#setstate)
+on steriods.
 
 [//]: # 'TODO: Add create, and delete examples as well (in tabs)'
 
@@ -37,6 +36,7 @@ export class Todo extends Entity {
   pk() {
     return `${this.id}`;
   }
+  static key = 'Todo';
 }
 export const TodoResource = createResource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
@@ -64,7 +64,7 @@ export default function TodoItem({ todo }: { todo: Todo }) {
       id: todo.id,
     });
   return (
-    <div>
+    <div className="listItem nogap">
       <label>
         <input
           type="checkbox"
@@ -97,9 +97,12 @@ export default function CreateTodo({ userId }: { userId: number }) {
     }
   };
   return (
-    <div>
-      <input type="checkbox" name="new" checked={false} disabled />{' '}
-      <input type="text" onKeyDown={handleKeyDown} />
+    <div className="listItem nogap">
+      <label>
+        <input type="checkbox" name="new" checked={false} disabled />
+        <input type="text" onKeyDown={handleKeyDown} />
+      </label>
+      <CancelButton />
     </div>
   );
 }
@@ -132,46 +135,8 @@ render(<TodoList />);
 
 </HooksPlayground>
 
-Reactive Data Client uses the fetch response to reactively update all components atomically (at
-the same time), rather than refetching.
-
-<details>
-<summary><b>Tracking imperative loading/error state</b></summary>
-
-[useLoading()](../api/useLoading.md) enhances async functions by tracking their loading and error states.
-
-```tsx
-import { useController } from '@data-client/react';
-import { useLoading } from '@data-client/hooks';
-
-function ArticleEdit() {
-  const ctrl = useController();
-  // highlight-next-line
-  const [handleSubmit, loading, error] = useLoading(
-    data => ctrl.fetch(todoUpdate, { id }, data),
-    [ctrl],
-  );
-  return <ArticleForm onSubmit={handleSubmit} loading={loading} />;
-}
-```
-
-React 18 version with [useTransition](https://react.dev/reference/react/useTransition)
-
-```tsx
-import { useTransition } from 'react';
-import { useController } from '@data-client/react';
-import { useLoading } from '@data-client/hooks';
-
-function ArticleEdit() {
-  const ctrl = useController();
-  const [loading, startTransition] = useTransition();
-  const handleSubmit = data =>
-    startTransition(() => ctrl.fetch(todoUpdate, { id }, data));
-  return <ArticleForm onSubmit={handleSubmit} loading={loading} />;
-}
-```
-
-</details>
+Rather than triggering invalidation cascades or using manually written update functions,
+RDC reactively updates appropriate components using the fetch response.
 
 ## Optimistic mutations based on previous state {#optimistic-updates}
 
@@ -182,6 +147,7 @@ import { Entity, createResource } from '@data-client/rest';
 
 export class Post extends Entity {
   id = 0;
+  userId = 0;
   title = '';
   body = '';
   votes = 0;
@@ -189,6 +155,7 @@ export class Post extends Entity {
   pk() {
     return this.id?.toString();
   }
+  static key = 'Post';
 
   get img() {
     return `//placekitten.com/96/72?image=${this.id}`;
@@ -254,10 +221,34 @@ export default function PostItem({ post }: { post: Post }) {
 }
 ```
 
+```tsx title="TotalVotes" collapsed
+import { Query, schema } from '@data-client/rest';
+import { Post } from './Post';
+
+const queryTotalVotes = new Query(
+  new schema.All(Post),
+  (posts, { userId } = {}) => {
+    if (userId !== undefined)
+      posts = posts.filter(post => post.userId === userId);
+    return posts.reduce((total, post) => total + post.votes, 0);
+  },
+);
+
+export default function TotalVotes({ userId }: { userId: number }) {
+  const totalVotes = useCache(queryTotalVotes, { userId });
+  return (
+    <center>
+      <small>{totalVotes} votes total</small>
+    </center>
+  );
+}
+```
+
 ```tsx title="PostList" collapsed
 import { useSuspense } from '@data-client/react';
 import { PostResource } from './PostResource';
 import PostItem from './PostItem';
+import TotalVotes from './TotalVotes';
 
 function PostList() {
   const userId = 2;
@@ -267,6 +258,7 @@ function PostList() {
       {posts.map(post => (
         <PostItem key={post.pk()} post={post} />
       ))}
+      <TotalVotes userId={userId} />
     </div>
   );
 }
@@ -275,9 +267,45 @@ render(<PostList />);
 
 </HooksPlayground>
 
-[getOptimisticResponse](/rest/guides/optimistic-updates) is just like [setState with an updater function](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state). Using [snapshot](../api/Snapshot.md) for access to the store to get the previous
-value, as well as the fetch arguments, we return the _expected_ fetch response.
+[getOptimisticResponse](/rest/guides/optimistic-updates) is just like [setState with an updater function](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state). [Snapshot](../api/Snapshot.md) provides typesafe access to the previous store value,
+which we use to return the _expected_ fetch response.
 
 Reactive Data Client ensures [data integrity against any possible networking failure or race condition](/rest/guides/optimistic-updates#optimistic-transforms), so don't
 worry about network failures, multiple mutation calls editing the same data, or other common
 problems in asynchronous programming.
+
+
+## Tracking mutation loading
+
+[useLoading()](../api/useLoading.md) enhances async functions by tracking their loading and error states.
+
+```tsx
+import { useController } from '@data-client/react';
+import { useLoading } from '@data-client/hooks';
+
+function ArticleEdit() {
+  const ctrl = useController();
+  // highlight-next-line
+  const [handleSubmit, loading, error] = useLoading(
+    data => ctrl.fetch(todoUpdate, { id }, data),
+    [ctrl],
+  );
+  return <ArticleForm onSubmit={handleSubmit} loading={loading} />;
+}
+```
+
+React 18 version with [useTransition](https://react.dev/reference/react/useTransition)
+
+```tsx
+import { useTransition } from 'react';
+import { useController } from '@data-client/react';
+import { useLoading } from '@data-client/hooks';
+
+function ArticleEdit() {
+  const ctrl = useController();
+  const [loading, startTransition] = useTransition();
+  const handleSubmit = data =>
+    startTransition(() => ctrl.fetch(todoUpdate, { id }, data));
+  return <ArticleForm onSubmit={handleSubmit} loading={loading} />;
+}
+```

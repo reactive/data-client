@@ -13,9 +13,12 @@ export default function NewTodo({ userId }: { userId: number }) {
     }
   };
   return (
-    <div>
-      <input type="checkbox" name="new" checked={false} disabled />{' '}
-      <input type="text" onKeyDown={handleKeyDown} />
+    <div className="listItem nogap">
+      <label>
+        <input type="checkbox" name="new" checked={false} disabled />
+        <input type="text" onKeyDown={handleKeyDown} />
+      </label>
+      <CancelButton />
     </div>
   );
 }

@@ -9,7 +9,7 @@ title: useController()
 
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
-[Controller](./Controller.md) provides type-safe methods to manipulate the store.
+[Controller](./Controller.md) provides type-safe methods to access and dispatch actions to the store.
 
 For instance [fetch](./Controller.md#fetch), [invalidate](./Controller.md#invalidate),
 and [setResponse](./Controller.md#setResponse)

@@ -17,7 +17,8 @@ export default function PkgInstall({ pkgs, dev = false, global }) {
   }
   return (
     <CodeBlock className="language-bash">
-      npm install{global ? ' -g' : ''} --save{dev ? 'Dev ' : ''} {pkgs}
+      npm install{global ? ' -g' : ' --save'}
+      {dev ? 'Dev ' : ''} {pkgs}
     </CodeBlock>
   );
 }

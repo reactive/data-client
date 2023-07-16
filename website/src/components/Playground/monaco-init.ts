@@ -248,7 +248,7 @@ if (
         `declare function render(component:JSX.Element):void;
         declare function uuid(): string;
         declare function CurrentTime(props: {}):JSX.Element;
-        declare function CancelButton(props: { onClick: () => void }):JSX.Element;
+        declare function CancelButton(props: { onClick?: () => void }):JSX.Element;
         declare function Avatar(props: { src: string }):JSX.Element;
         declare function Formatted({ downColor, formatter, formatterFn, timeout, transition, transitionLength, upColor, value, stylePrefix, }: NumberProps):JSX.Element
         declare function ResetableErrorBoundary(props: { children: JSX.ReactChild }):JSX.Element;

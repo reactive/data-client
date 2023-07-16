@@ -50,14 +50,13 @@ import { useLive } from '@data-client/react';
 import { getExchangeRates } from './ExchangeRates';
 
 function AssetPrice({ symbol }: Props) {
-  const { data: price } = useLive(getExchangeRates, {
-    currency: 'USD',
-  });
+  const currency = 'USD';
+  const { data: price } = useLive(getExchangeRates, { currency });
   return (
-    <span>
+    <center>
       {symbol}{' '}
       <Formatted value={1 / price.rates[symbol]} formatter="currency" />
-    </span>
+    </center>
   );
 }
 interface Props {

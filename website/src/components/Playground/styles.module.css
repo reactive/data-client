@@ -277,6 +277,15 @@ div > .playgroundHeader.subtabs {
   display: flex;
   gap: 1em;
 }
+.playgroundPreview :global(.listItem.nogap) {
+  gap: 0;
+}
+.playgroundPreview :global(.listItem) > label {
+  flex: 1 1 100%;
+}
+.playgroundPreview :global(.listItem) > label input[type="text"] {
+  width: calc(100% - 20px);
+}
 .playgroundPreview :global(.listItem.spaced) {
   display: flex;
   gap: 1em;
