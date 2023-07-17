@@ -203,13 +203,43 @@ Here we clear only GET endpoints using the test.com domain. This means other dom
 
 ```tsx
 const myDomain = 'http://test.com';
+const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
 
 function useLogout() {
   const ctrl = useController();
-  const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
   return () => ctrl.invalidateAll({ testKey });
 }
 ```
+
+It's usually a good idea to also clear cache on 401 (unauthorized) with [LogoutManager](./LogoutManager.md)
+as well.
+
+```ts
+import { CacheProvider, LogoutManager } from '@data-client/react';
+import ReactDOM from 'react-dom';
+import { unAuth } from '../authentication';
+
+const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
+
+const managers = [
+  new LogoutManager({
+    handleLogout(controller) {
+      // call custom unAuth function we defined
+      unAuth();
+      // still reset the store
+      controller.invalidateAll({ testKey })
+    },
+  }),
+  ...CacheProvider.defaultProps.managers,
+];
+
+ReactDOM.createRoot(document.body).render(
+  <CacheProvider managers={managers}>
+    <App />
+  </CacheProvider>,
+);
+```
+
 
 ## resetEntireStore() {#resetEntireStore}
 

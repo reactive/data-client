@@ -131,10 +131,7 @@
       "type": "category",
       "label": "API",
       "items": [
-        {
-          "type": "doc",
-          "id": "api/types"
-        },
+
         {
           "type": "doc",
           "id": "api/Controller"
@@ -267,6 +264,10 @@
               "id": "api/mockInitialState"
             }
           ]
+        },
+        {
+          "type": "doc",
+          "id": "api/types"
         }
       ]
     }

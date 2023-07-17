@@ -8,7 +8,7 @@ sidebar_label: Managers and Middleware
 </head>
 
 Reactive Data Client uses the [flux store](https://facebook.github.io/flux/docs/in-depth-overview/) pattern, which is
-characterized by an easy to understand and debug [undirectional data flow](https://en.wikipedia.org/wiki/Unidirectional_Data_Flow_(computer_science)). State updates are performed by a reducer function.
+characterized by an easy to understand and debug [undirectional data flow](<https://en.wikipedia.org/wiki/Unidirectional_Data_Flow_(computer_science)>). State updates are performed by a reducer function.
 
 ![Manager flux flow](/img/managers.png)
 
@@ -23,15 +23,13 @@ like automatic fetch deduplication, polling fetch coordinating eliminating many 
 
 It also means Reactive Data Client behavior can be arbitrarily customized by writing your own Managers.
 
-## Default managers
-
-- [NetworkManager](../api/NetworkManager.md)
-- [SubscriptionManager](../api/SubscriptionManager.md)
-- [DevToolsManager](../api/DevToolsManager.md)
-
-## Extra managers
-
-- [LogoutManager](../api/LogoutManager.md)
+| Default managers                                     |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| [NetworkManager](../api/NetworkManager.md)           | Turns fetch dispatches into network calls                                            |
+| [SubscriptionManager](../api/SubscriptionManager.md) | Handles polling [subscriptions](../getting-started/data-dependency.md#subscriptions) |
+| [DevToolsManager](../api/DevToolsManager.md)         | Enables [debugging](../guides/debugging.md)                                          |
+| Extra managers                                       |
+| [LogoutManager](../api/LogoutManager.md)             | Handles HTTP `401` (or other logout conditions)                                      |
 
 ## Examples
 
@@ -80,7 +78,11 @@ export default class StreamManager implements Manager {
         try {
           const msg = JSON.parse(event.data);
           if (msg.type in this.endpoints)
-            controller.setResponse(this.endpoints[msg.type], ...msg.args, msg.data);
+            controller.setResponse(
+              this.endpoints[msg.type],
+              ...msg.args,
+              msg.data,
+            );
         } catch (e) {
           console.error('Failed to handle message');
           console.error(e);

@@ -73,9 +73,9 @@ values={[
 <TabItem value="Endpoint">
 
 ```typescript
-const PresentationList = new Endpoint(
+const getPresentations = new Endpoint(
   () => fetch(`/presentations`).then(res => res.json()),
-  { schema: [PresentationEntity] },
+  { schema: new schema.Collection([Presentation]) },
 );
 ```
 
@@ -83,13 +83,14 @@ const PresentationList = new Endpoint(
 <TabItem value="Entity">
 
 ```typescript
-class PresentationEntity extends Entity {
-  readonly id: string = '';
-  readonly title: string = '';
+class Presentation extends Entity {
+  id = '';
+  title = '';
 
   pk() {
     return this.id;
   }
+  static key = 'presentation';
 }
 ```
 
@@ -98,7 +99,7 @@ class PresentationEntity extends Entity {
 
 ```tsx
 export function PresentationsPage() {
-  const presentation = useSuspense(PresentationList, {});
+  const presentation = useSuspense(getPresentations);
   return presentation.map(presentation => (
     <div key={presentation.pk()}>{presentation.title}</div>
   ));
@@ -137,13 +138,13 @@ values={[
 <TabItem value="Create">
 
 ```typescript
-import { RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, schema } from '@data-client/rest';
 
 const todoCreate = new RestEndpoint({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos',
   method: 'POST',
-  schema: Todo,
+  schema: new schema.Collection([Todo]).push,
 });
 ```
 
@@ -269,12 +270,15 @@ Placing our [Entity](/rest/api/Entity) `Todo` in an array [Collection](/rest/api
 Aside from array, there are a few more 'schemas' provided for various patterns. The first two (Object and Array)
 have shorthands of using object and array literals.
 
-- [Object](/rest/api/Object): maps with known keys
-- [Array](/rest/api/Array): variably sized arrays
-- [Values](/rest/api/Values): maps with any keys of unknown sized
-- [Collection](/rest/api/Collection): expandable Arrays or Objects
-- [Union](/rest/api/Union): select from many different types
-- [Invalidate](/rest/api/Invalidate): remove an entity
+| Schema                             | Description                                                        | Data Type          | Nesting         | Mutable |
+| ---------------------------------- | ------------------------------------------------------------------ | ------------------ | --------------- | ------- |
+| [Entity](/rest/api/Entity)         | has a primary key                                                  | Object             | Schema          | ✅      |
+| [Object](/rest/api/Object)         | maps with known keys                                               | Object             | Schema          | 🛑      |
+| [Array](/rest/api/Array)           | variably sized arrays                                              | Array              | Schema          | 🛑      |
+| [Values](/rest/api/Values)         | maps with any keys of unknown sized                                | Object             | Schema          | 🛑      |
+| [Collection](/rest/api/Collection) | expandable Arrays or Objects                                       | Object or Array    | Array or Values | ✅      |
+| [Union](/rest/api/Union)           | select from many different types                                   | Polymorphic Object | Entity          | 🛑      |
+| [Invalidate](/rest/api/Invalidate) | [remove an entity](./expiry-policy.md#any-endpoint-with-an-entity) | Object             | Entity          | ✅      |
 
 [Learn more](/rest/api/schema)
 
@@ -295,14 +299,15 @@ values={[
 import { Entity } from '@data-client/endpoint';
 
 class Todo extends Entity {
-  readonly id: number = 0;
-  readonly user: User = User.fromJS({});
-  readonly title: string = '';
-  readonly completed: boolean = false;
+  id = 0;
+  user = User.fromJS();
+  title = '';
+  completed = false;
 
   pk() {
     return `${this.id}`;
   }
+  static key = 'Todo';
 
   // highlight-start
   static schema = {
@@ -312,12 +317,13 @@ class Todo extends Entity {
 }
 
 class User extends Entity {
-  readonly id: number = 0;
-  readonly username: string = '';
+  id = 0;
+  username = '';
 
   pk() {
     return `${this.id}`;
   }
+  static key = 'User';
 }
 ```
 
@@ -350,16 +356,17 @@ This might be useful with representations like [bignumber](https://mikemcl.githu
 import { Entity } from '@data-client/endpoint';
 
 class Todo extends Entity {
-  readonly id: number = 0;
-  readonly user: User = User.fromJS({});
-  readonly title: string = '';
-  readonly completed: boolean = false;
+  id = 0;
+  user = User.fromJS();
+  title = '';
+  completed = false;
   // highlight-next-line
-  readonly dueDate: Date = new Date(0);
+  dueDate = new Date(0);
 
   pk() {
     return `${this.id}`;
   }
+  static key = 'Todo';
 
   static schema = {
     user: User,

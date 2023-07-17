@@ -25,8 +25,8 @@ the latest Reactive Data Client clients.
 
 ## Define the API
 
-[Resources](/rest/api/createResource) are a collection of `methods` for a given `data model`. [Entities](/rest/api/Entity) and [Schemas](../concepts/normalization.md) are the declarative _data model_.
-[RestEndpoint](/rest/api/RestEndpoint) are the [_methods_](<https://en.wikipedia.org/wiki/Method_(computer_programming)>) on
+[Resources](./api/createResource.md) are a collection of `methods` for a given `data model`. [Entities](./api/Entity.md) and [Schemas](./api/schema.md) are the declarative _data model_.
+[RestEndpoint](./api/RestEndpoint.md) are the [_methods_](<https://en.wikipedia.org/wiki/Method_(computer_programming)>) on
 that data. 
 
 <Tabs
