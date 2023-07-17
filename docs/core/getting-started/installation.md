@@ -41,7 +41,7 @@ Explore more [Reactive Data Client demos](/demos)
 ## Supported Tools
 
 <details>
-<summary><b>TypeScript 3.7</b></summary>
+<summary><b>TypeScript 3.7+</b></summary>
 
 TypeScript is optional, but requires at least version [3.7](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html#more-recursive-type-aliases) and [strictNullChecks](https://www.typescriptlang.org/tsconfig#strictNullChecks) for full type enforcement.
 

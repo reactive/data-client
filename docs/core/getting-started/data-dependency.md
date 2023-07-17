@@ -276,8 +276,9 @@ render(<ProfileList />);
 
 </HooksPlayground>
 
-This downside of [useDLE](../api/useDLE.md) vs [useSuspense](../api/useSuspense.md) is more loading and error handling code and potentially
-a much worse user experience.
+Since [useDLE](../api/useDLE.md) does not [useSuspense](../api/useSuspense.md), you won't be able to easily centrally
+orchestrate loading and error code. Additionally, React 18 features like [useTransition](https://react.dev/reference/react/useTransition),
+and [incrementally streaming SSR](../guides/ssr.md) won't work with components that use it.
 
 ## Conditional
 

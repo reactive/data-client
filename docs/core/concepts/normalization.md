@@ -253,26 +253,27 @@ Schemas are a declarative definition of how to [process responses](/rest/api/sch
 - Classes to [deserialize fields](/rest/guides/network-transform#deserializing-fields)
 
 ```typescript
-import { RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, schema } from '@data-client/rest';
 
 const getTodoList = new RestEndpoint({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos',
   // highlight-next-line
-  schema: [Todo],
+  schema: new schema.Collection([Todo]),
 });
 ```
 
-Placing our [Entity](/rest/api/Entity) `Todo` in an array, tells Reactive Data Client to expect
-an array of `Todos`.
+Placing our [Entity](/rest/api/Entity) `Todo` in an array [Collection](/rest/api/Collection), allows us to easly
+[push](/rest/api/RestEndpoint#push) or [unshift](/rest/api/RestEndpoint#unshift) new `Todos` on it.
 
 Aside from array, there are a few more 'schemas' provided for various patterns. The first two (Object and Array)
 have shorthands of using object and array literals.
 
 - [Object](/rest/api/Object): maps with known keys
 - [Array](/rest/api/Array): variably sized arrays
+- [Values](/rest/api/Values): maps with any keys of unknown sized
+- [Collection](/rest/api/Collection): expandable Arrays or Objects
 - [Union](/rest/api/Union): select from many different types
-- [Values](/rest/api/Values): maps with any keys - variably sized
 - [Invalidate](/rest/api/Invalidate): remove an entity
 
 [Learn more](/rest/api/schema)

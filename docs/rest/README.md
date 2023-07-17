@@ -79,6 +79,7 @@ export class Article extends Entity {
 export const ArticleResource = createResource({
   urlPrefix: 'http://test.com',
   path: '/article/:id',
+  searchParams: {} as { userId?: string } | undefined,
   schema: Article,
 });
 ```
@@ -124,6 +125,7 @@ export class ArticleEntity extends schema.Entity(Article, {
 export const ArticleResource = createResource({
   urlPrefix: 'http://test.com',
   path: '/article/:id',
+  searchParams: {} as { userId?: string } | undefined,
   schema: ArticleEntity,
 });
 ```
