@@ -23,7 +23,7 @@ For [REST](https://dataclient.io/rest), [GraphQL](https://dataclient.io/graphql)
 ## Installation
 
 ```bash
-npm install @data-client/react @data-client/rest @data-client/test
+npm install --save @data-client/react @data-client/rest @data-client/test
 ```
 
 For more details, see [the Installation docs page](https://dataclient.io/docs/getting-started/installation).

@@ -16,7 +16,7 @@ import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
 <PkgTabs pkgs="@data-client/rest" />
 
-:::tip
+:::tip TypeScript 4
 
 This version requires TypeScript 4.0. For older versions, try [@rest-hooks/rest@5](https://resthooks.io/rest/5.2), which is fully compatible with
 the latest Reactive Data Client clients.
@@ -25,8 +25,9 @@ the latest Reactive Data Client clients.
 
 ## Define the API
 
-[RestEndpoint](/rest/api/RestEndpoint) are the _methods_ of your data. [Schemas](api/schema.md) define the data model. [Resources](./api/createResource.md) are
-a collection of `endpoints` around one `schema`.
+[Resources](/rest/api/createResource) are a collection of `methods` for a given `data model`. [Entities](/rest/api/Entity) and [Schemas](../concepts/normalization.md) are the declarative _data model_.
+[RestEndpoint](/rest/api/RestEndpoint) are the [_methods_](<https://en.wikipedia.org/wiki/Method_(computer_programming)>) on
+that data. 
 
 <Tabs
 defaultValue="Class"
@@ -38,33 +39,33 @@ values={[
 
 <TypeScriptEditor>
 
-```typescript title="api/User" collapsed
+```typescript title="User" collapsed
 import { Entity } from '@data-client/rest';
 
 export class User extends Entity {
-  id: number | undefined = undefined;
+  id = '';
   username = '';
 
   pk() {
-    return this.id?.toString();
+    return this.id;
   }
 }
 ```
 
-```typescript title="api/Article"
+```typescript title="Article"
 import { Entity, createResource } from '@data-client/rest';
 import { User } from './User';
 
 export class Article extends Entity {
-  id: number | undefined = undefined;
+  id = '';
   title = '';
   content = '';
-  author = User.fromJS({});
+  author = User.fromJS();
   tags: string[] = [];
   createdAt = new Date(0);
 
   pk() {
-    return this.id?.toString();
+    return this.id;
   }
 
   static schema = {
@@ -89,25 +90,25 @@ export const ArticleResource = createResource({
 
 <TypeScriptEditor>
 
-```typescript title="api/User" collapsed
+```typescript title="User" collapsed
 import { schema } from '@data-client/rest';
 
 export class User {
-  id: number | undefined = undefined;
+  id = '';
   username = '';
 }
 export class UserEntity extends schema.Entity(User) {}
 ```
 
-```typescript title="api/Article"
+```typescript title="Article"
 import { schema, createResource } from '@data-client/rest';
 import { UserEntity } from './User';
 
 export class Article {
-  id: number | undefined = undefined;
+  id = '';
   title = '';
   content = '';
-  author = UserEntity.fromJS({});
+  author = UserEntity.fromJS();
   tags: string[] = [];
   createdAt = new Date(0);
 }

@@ -337,13 +337,13 @@ export default function PostForm({ onSubmit, loading, error }) {
       <label>
         Title:
         <br />
-        <input type="text" name="title" required />
+        <input type="text" name="title" defaultValue="My New Post" required />
       </label>
       <br />
       <label>
         Body:
         <br />
-        <textarea name="body" rows={12} required></textarea>
+        <textarea name="body" rows={12} required>After clicking 'save', the button will be disabled until the POST is completed. Upon completion the newly created post is displayed immediately as Reactive Data Client is able to use the fetch response to populate the store.</textarea>
       </label>
       {error ? (
         <div className="alert alert--danger">{error.message}</div>

@@ -18,7 +18,7 @@ import { v4 as uuid } from 'uuid';
 This makes them well suited at handling mutations. You can add to [Array](./Array.md) `Collections` with [.push](#push) or [.unshift](#unshift) and
 [Values](./Values.md) `Collections` with [.assign](#assign).
 
-[RestEndpoint](./RestEndpoint.md) provides [.push](./RestEndpoint.md#push), [.unshift](./RestEndpoint.md#unshift), [.push](./RestEndpoint.md#assign)
+[RestEndpoint](./RestEndpoint.md) provides [.push](./RestEndpoint.md#push), [.unshift](./RestEndpoint.md#unshift), [.assign](./RestEndpoint.md#assign)
 and [.paginate](./RestEndpoint.md#paginate) extenders
 
 ## Usage

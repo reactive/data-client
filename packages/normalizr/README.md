@@ -13,7 +13,7 @@ yarn add @data-client/normalizr
 ```
 
 ```shell
-npm install @data-client/normalizr
+npm install --save @data-client/normalizr
 ```
 
 ## Motivation

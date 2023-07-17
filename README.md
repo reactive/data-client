@@ -30,7 +30,7 @@ For [REST](https://resthooks.io/rest), [GraphQL](https://resthooks.io/graphql), 
 ## Installation
 
 ```bash
-npm install @rest-hooks/react @rest-hooks/rest @rest-hooks/test
+npm install --save @rest-hooks/react @rest-hooks/rest @rest-hooks/test
 ```
 
 For more details, see [the Installation docs page](https://resthooks.io/docs/getting-started/installation).

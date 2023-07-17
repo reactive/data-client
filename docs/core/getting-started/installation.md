@@ -41,7 +41,7 @@ Explore more [Reactive Data Client demos](/demos)
 ## Supported Tools
 
 <details>
-<summary><b>TypeScript</b></summary>
+<summary><b>TypeScript 3.7</b></summary>
 
 TypeScript is optional, but requires at least version [3.7](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html#more-recursive-type-aliases) and [strictNullChecks](https://www.typescriptlang.org/tsconfig#strictNullChecks) for full type enforcement.
 
@@ -68,7 +68,7 @@ follow the instructions to [add legacy browser support to packages](../guides/le
 </details>
 
 <details>
-<summary><b>ReactJS and React Native</b></summary>
+<summary><b>ReactJS 16+ and React Native</b></summary>
 
 ReactJS 16.2 and above is supported (the one with hooks!). React 18 provides improved [Suspense](../api/useSuspense.md)
 support and features. Both React Native and React Navigation are supported.
