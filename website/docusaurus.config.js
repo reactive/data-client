@@ -287,6 +287,8 @@ module.exports = {
         logo: {
           src: 'img/client-logo.png',
           alt: 'Reactive Data Client Logo',
+          width: '32',
+          height: '32',
         },
         hideOnScroll: true,
         items: [

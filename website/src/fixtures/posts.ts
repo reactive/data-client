@@ -16,6 +16,8 @@ export class Post extends Entity {
     return this.id?.toString();
   }
 
+  static key = 'Post';
+
   get img() {
     return `http://placekitten.com/400/200?image=${this.id % 16}`;
   }

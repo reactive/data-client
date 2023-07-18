@@ -9,6 +9,8 @@ export class Profile extends Entity {
   pk() {
     return this.id?.toString();
   }
+
+  static key = 'Profile';
 }
 
 export const ProfileResource = createResource({
@@ -21,13 +23,13 @@ const entities = {
     id: '1',
     fullName: 'Jing Chen',
     bio: 'Creator of Flux Architecture',
-    avatar: 'https://avatars.githubusercontent.com/u/5050204?v=4',
+    avatar: 'https://avatars.githubusercontent.com/u/5050204?v=4&size=64',
   },
   '2': {
     id: '2',
     fullName: 'Dan Abramov',
     bio: 'Creator of redux, normalizr, and react hot reloading',
-    avatar: 'https://avatars.githubusercontent.com/u/810438?v=4',
+    avatar: 'https://avatars.githubusercontent.com/u/810438?v=4&size=64',
   },
 };
 

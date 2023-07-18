@@ -29,7 +29,7 @@ export class User extends PlaceholderEntity {
   }
 
   get profileImage() {
-    return `https://i.pravatar.cc/256?img=${this.id + 4}`;
+    return `https://i.pravatar.cc/64?img=${this.id + 4}`;
   }
 
   static key = 'User';

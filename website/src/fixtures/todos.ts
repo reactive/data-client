@@ -8,6 +8,8 @@ export class Todo extends Entity {
   pk() {
     return `${this.id}`;
   }
+
+  static key = 'Todo';
 }
 export const TodoResource = createResource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
@@ -26,12 +28,14 @@ export class User extends Entity {
   todos: Todo[] = [];
 
   get profileImage() {
-    return `https://i.pravatar.cc/256?img=${this.id + 4}`;
+    return `https://i.pravatar.cc/64?img=${this.id + 4}`;
   }
 
   pk() {
     return `${this.id}`;
   }
+
+  static key = 'User';
 
   static schema = {
     todos: new schema.Collection([Todo], {
