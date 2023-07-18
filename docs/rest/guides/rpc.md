@@ -2,8 +2,6 @@
 title: Capturing Mutation Side-Effects
 ---
 
-## How to deal with side-effects
-
 If you have an endpoint that updates many resources on your server,
 there is a straightforward mechanism to get all those updates
 to your client in one request.
@@ -12,7 +10,7 @@ By defining a custom [RestEndpoint](../api/RestEndpoint.md) method on your resou
 you'll be able to use custom response endpoints that still
 updated `Reactive Data Client`' normalized cache.
 
-### Example:
+## Example
 
 You're running a crypto trading platform called `dogebase`. Every time
 a user creates a trade, you need to update some balance information

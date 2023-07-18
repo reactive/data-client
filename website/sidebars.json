@@ -107,14 +107,14 @@
           ]
         },
         {
+          "type": "doc",
+          "id": "guides/redux"
+        },
+        {
           "type": "category",
           "collapsible": false,
-          "label": "Integrations",
+          "label": "Legacy",
           "items": [
-            {
-              "type": "doc",
-              "id": "guides/redux"
-            },
             {
               "type": "doc",
               "id": "guides/class-components"

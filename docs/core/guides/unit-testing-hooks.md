@@ -6,7 +6,7 @@ import PkgTabs from '@site/src/components/PkgTabs';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-:::danger
+:::caution
 
 Be careful when using [jest.mock](https://jestjs.io/docs/jest-object#jestmockmodulename-factory-options) on modules like Reactive Data Client. Eliminating expected
 exports can lead to hard-to trace
@@ -31,7 +31,7 @@ a `Provider` and `Suspense` boundary.
 These will generally be done during test setup. It's important to call cleanup
 upon test completion.
 
-:::caution
+:::note
 
 `renderRestHook()` creates a Provider context with new manager instances. This means each call
 to `renderRestHook()` will result in a completely fresh cache state as well as manager state.

@@ -22,9 +22,7 @@ packages with legacy browsers.
 
 Then install the plugin by adding to webpack config.
 
-`webpack.config.js`
-
-```js
+```js title="webpack.config.js"
 const ModernNpmPlugin = require('webpack-plugin-modern-npm');
 
 module.exports = {
@@ -41,9 +39,8 @@ or follow instructions below.
 
 <PkgTabs pkgs="core-js whatwg-fetch" />
 
-#### `index.tsx`
 
-```tsx
+```tsx title="index.tsx"
 import 'core-js/stable';
 import 'whatwg-fetch';
 // place the above line at top

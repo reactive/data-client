@@ -45,12 +45,12 @@ delay: 150,
 },
 ]}>
 
-```typescript title="api/Article.ts" {11,24}
+```typescript title="api/Article" {11,24}
 import { validateRequired } from '@data-client/rest';
 
-class ArticleSummary extends Entity {
-  readonly id: string = '';
-  readonly title: string = '';
+export class ArticleSummary extends Entity {
+  id = '';
+  title = '';
 
   pk() {
     return this.id;
@@ -59,9 +59,9 @@ class ArticleSummary extends Entity {
   static key = 'Article';
 }
 
-class Article extends ArticleSummary {
-  readonly content: string = '';
-  readonly createdAt: Date = new Date(0);
+export class Article extends ArticleSummary {
+  content = '';
+  createdAt = new Date(0);
 
   static schema = {
     createdAt: Date,
@@ -79,13 +79,15 @@ const BaseArticleResource = createResource({
   path: '/article/:id',
   schema: Article,
 });
-const ArticleResource = {
+export const ArticleResource = {
   ...BaseArticleResource,
   getList: BaseArticleResource.getList.extend({ schema: [ArticleSummary] }),
 };
 ```
 
-```tsx title="ArticleDetail.tsx" collapsed
+```tsx title="ArticleDetail" collapsed
+import { ArticleResource } from './api/Article';
+
 function ArticleDetail({ id, onHome }: { id: string; onHome: () => void }) {
   const article = useSuspense(ArticleResource.get, { id });
   return (
@@ -143,10 +145,10 @@ logic.
 
 ```typescript title="api/Article.ts"
 class ArticleSummary extends Entity {
-  readonly id: string = '';
-  readonly title: string = '';
-  readonly content: string = '';
-  readonly createdAt: Date = new Date(0);
+  id = '';
+  title = '';
+  content = '';
+  createdAt = new Date(0);
 
   static schema = {
     createdAt: Date,
@@ -162,7 +164,7 @@ class ArticleSummary extends Entity {
 
 class Article extends ArticleSummary {
   // highlight-start
-  readonly meta: ArticleMeta = ArticleMeta.fromJS({});
+  meta = ArticleMeta.fromJS();
 
   static schema = {
     ...super.schema,
@@ -180,9 +182,9 @@ class Article extends ArticleSummary {
 }
 
 class ArticleMeta extends Entity {
-  readonly viewCount: number = 0;
-  readonly likeCount: number = 0;
-  readonly relatedArticles: ArticleSummary[] = [];
+  viewCount = 0;
+  likeCount = 0;
+  relatedArticles: ArticleSummary[] = [];
 
   static schema = {
     relatedArticles: [ArticleSummary],
