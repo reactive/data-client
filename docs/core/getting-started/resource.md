@@ -276,7 +276,7 @@ export default class StreamManager implements Manager {
 -->
 
 To aid in defining `Resources`, composable and extensible protocol specific helpers are provided for [REST](/rest), [GraphQL](/graphql),
-[Image/binary](../guides/img-media.md), [Websockets+SSE](../api/Manager.md#middleware-data-stream).
+[Image/binary](../guides/img-media.md), [Websockets+SSE](../api/Manager.md#data-stream).
 
 To use existing API definitions, or define your own protocol specific helpers, use
 [Endpoint](/rest/api/Endpoint) and [schema.Entity](/rest/api/schema.Entity) from [@data-client/endpoint](https://www.npmjs.com/package/@data-client/endpoint).

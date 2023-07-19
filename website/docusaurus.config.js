@@ -379,7 +379,7 @@ module.exports = {
               },
               {
                 label: 'Websockets+SSE',
-                to: '/docs/api/Manager#middleware-data-stream',
+                to: '/docs/api/Manager#data-stream',
               },
               {
                 label: 'Hooks',

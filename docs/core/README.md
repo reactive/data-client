@@ -19,7 +19,7 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 
 
 Reactive Data Client provides safe and performant [client access](./api/useSuspense.md) and [mutation](./api/Controller.md#fetch) over [remote data protocols](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/).
-Both pull/fetch ([REST](/rest) and [GraphQL](/graphql)) and push/stream ([WebSockets or Server Sent Events](./api/Manager.md#middleware-data-stream)) can be used simultaneously.
+Both pull/fetch ([REST](/rest) and [GraphQL](/graphql)) and push/stream ([WebSockets or Server Sent Events](./api/Manager.md#data-stream)) can be used simultaneously.
 
 It has similar goals
 to [Relational Databases](https://en.wikipedia.org/wiki/Relational_database)
@@ -54,7 +54,7 @@ By _decoupling_ endpoint definitions from their usage, we are able to reuse them
 - Reuse across different **[platforms](./getting-started/installation.md)** like React Native, React web, or even beyond React in Angular, Svelte, Vue, or Node
 - Published as **packages** independent of their consumption
 
-Endpoints are extensible and composable, with protocol implementations ([REST](/rest), [GraphQL](/graphql), [Websockets+SSE](./api/Manager.md#middleware-data-stream), [Img/binary](./guides/img-media.md))
+Endpoints are extensible and composable, with protocol implementations ([REST](/rest), [GraphQL](/graphql), [Websockets+SSE](./api/Manager.md#data-stream), [Img/binary](./guides/img-media.md))
 to get started quickly, extend, and share common patterns.
 
 <ProtocolTabs>

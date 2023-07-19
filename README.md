@@ -10,7 +10,7 @@
 
 Define your [async methods](https://resthooks.io/docs/getting-started/endpoint). Use them [synchronously in React](https://resthooks.io/docs/getting-started/data-dependency). [Instantly mutate](https://resthooks.io/docs/getting-started/mutations) the data and automatically update all usages.
 
-For [REST](https://resthooks.io/rest), [GraphQL](https://resthooks.io/graphql), [Websockets+SSE](https://resthooks.io/docs/api/Manager#middleware-data-stream) and [more](https://resthooks.io/docs/guides/img-media)
+For [REST](https://resthooks.io/rest), [GraphQL](https://resthooks.io/graphql), [Websockets+SSE](https://resthooks.io/docs/api/Manager#data-stream) and [more](https://resthooks.io/docs/guides/img-media)
 
 <div align="center">
 

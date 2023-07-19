@@ -34,7 +34,7 @@ class Controller {
 `Controller` is a singleton providing safe access to the Reactive Data Client [flux store and lifecycle](./Manager.md#control-flow).
 
 [useController()](./useController.md) provides access in React components, and for [Managers](./Manager.md)
-it is passed as the first argument in [Manager.getMiddleware()](./Manager.md#middleware)
+it is passed as the first argument in [Manager.getMiddleware()](./Manager.md#getmiddleware)
 
 ## fetch(endpoint, ...args) {#fetch}
 
