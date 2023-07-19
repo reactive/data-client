@@ -7,7 +7,7 @@
 [![npm version](https://img.shields.io/npm/v/@data-client/react.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/react)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-Define your [async methods](https://dataclient.io/docs/getting-started/endpoint ). Use them [synchronously in React](https://dataclient.io/docs/getting-started/data-dependency). [Instantly mutate](https://dataclient.io/docs/getting-started/mutations) the data and automatically update all usages.
+Define your [async methods](https://dataclient.io/docs/getting-started/resource). Use them [synchronously in React](https://dataclient.io/docs/getting-started/data-dependency). [Instantly mutate](https://dataclient.io/docs/getting-started/mutations) the data and automatically update all usages.
 
 For [REST](https://dataclient.io/rest), [GraphQL](https://dataclient.io/graphql), [Websockets+SSE](https://dataclient.io/docs/api/Manager#middleware-data-stream) and [more](https://dataclient.io/docs/guides/img-media)
 
@@ -100,7 +100,7 @@ const articlesDescending = useCache(sortedArticles, { asc: false });
 
 ### ...all typed ...fast ...and consistent
 
-For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://dataclient.io/docs/getting-started/installation) | [🥊Comparison](https://dataclient.io/docs/getting-started/comparison)
+For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://dataclient.io/docs/getting-started/installation)
 
 ## Features
 
@@ -114,7 +114,7 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://da
 - [x] 💥 Tiny bundle footprint
 - [x] 🛑 Automatic overfetching elimination
 - [x] ✨ [Optimistic updates](https://dataclient.io/rest/guides/optimistic-updates)
-- [x] 🧘 [Flexible](https://dataclient.io/docs/getting-started/endpoint) to fit any API design (one size fits all)
+- [x] 🧘 [Flexible](https://dataclient.io/docs/getting-started/resource) to fit any API design (one size fits all)
 - [x] 🔧 [Debugging and inspection](https://dataclient.io/docs/guides/debugging) via browser extension
 - [x] 🌳 Tree-shakable (only use what you need)
 - [x] 🔁 [Subscriptions](https://dataclient.io/docs/api/useSubscription)

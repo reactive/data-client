@@ -103,7 +103,7 @@ const articlesDescending = useCache(sortedArticles, { asc: false });
 - [x] 💥 Tiny bundle footprint
 - [x] 🛑 Automatic overfetching elimination
 - [x] ✨ [Optimistic updates](https://dataclient.io/rest/guides/optimistic-updates)
-- [x] 🧘 [Flexible](https://dataclient.io/docs/getting-started/endpoint) to fit any API design (one size fits all)
+- [x] 🧘 [Flexible](https://dataclient.io/docs/getting-started/resource) to fit any API design (one size fits all)
 - [x] 🔧 [Debugging and inspection](https://dataclient.io/docs/guides/debugging) via browser extension
 - [x] 🌳 Tree-shakable (only use what you need)
 - [x] 🔁 [Subscriptions](https://dataclient.io/docs/api/useSubscription)
