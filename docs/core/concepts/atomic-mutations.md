@@ -38,4 +38,4 @@ provides such an endpoint.
 ## Create
 
 Created entities are immediately available. They can also be added to existing [Collections](/rest/api/Collection)
-with [.push](./RestEndpoint.md#push), [.unshift](./RestEndpoint.md#unshift), or [.assign](./RestEndpoint.md#assign).
+with [.push](/rest/api/RestEndpoint#push), [.unshift](/rest/api/RestEndpoint#unshift), or [.assign](/rest/api/RestEndpoint#assign).
