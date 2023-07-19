@@ -19,6 +19,8 @@ export default abstract class Entity extends EntitySchema(EmptyBase) {
    *
    * @param [parent] When normalizing, the object which included the entity
    * @param [key] When normalizing, the key where this entity was found
+   * @param [args] ...args sent to Endpoint
+   * @see https://resthooks.io/rest/api/Entity#pk
    */
   abstract pk(
     parent?: any,
@@ -49,7 +51,9 @@ export default abstract class Entity extends EntitySchema(EmptyBase) {
     return existingMeta.fetchedAt <= incomingMeta.fetchedAt;
   }
 
-  /** Run when an existing entity is found in the store */
+  /** Run when an existing entity is found in the store
+   * @see https://resthooks.io/rest/api/Entity#mergeWithStore
+   */
   static mergeWithStore(
     existingMeta:
       | {
@@ -101,6 +105,7 @@ export default abstract class Entity extends EntitySchema(EmptyBase) {
   /** Factory method to convert from Plain JS Objects.
    *
    * @param [props] Plain Object of properties to assign.
+   * @see https://resthooks.io/rest/api/Entity#fromJS
    */
   declare static fromJS: <T extends typeof Entity>(
     this: T,
@@ -114,6 +119,7 @@ export default abstract class Entity extends EntitySchema(EmptyBase) {
    * @param [value] POJO of the entity or subset used
    * @param [parent] When normalizing, the object which included the entity
    * @param [key] When normalizing, the key where this entity was found
+   * @param [args] ...args sent to Endpoint
    */
   declare static pk: <T extends typeof Entity>(
     this: T,
@@ -123,7 +129,10 @@ export default abstract class Entity extends EntitySchema(EmptyBase) {
     args?: any[],
   ) => string | undefined;
 
-  /** Do any transformations when first receiving input */
+  /** Do any transformations when first receiving input
+   *
+   * @see https://resthooks.io/docs/api/Entity#process
+   */
   static process(input: any, parent: any, key: string | undefined): any {
     /* istanbul ignore else */
     if (
@@ -154,6 +163,9 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     return super.process(input, parent, key);
   }
 
+  /** Returning a string indicates an error (the string is the message)
+   * @see https://resthooks.io/rest/api/Entity#validate
+   */
   static validate(processedEntity: any): string | undefined {
     /* istanbul ignore else */
     if (

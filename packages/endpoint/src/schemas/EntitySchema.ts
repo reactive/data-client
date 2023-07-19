@@ -69,6 +69,8 @@ export default function EntitySchema<TBase extends Constructor>(
      *
      * @param [parent] When normalizing, the object which included the entity
      * @param [key] When normalizing, the key where this entity was found
+     * @param [args] ...args sent to Endpoint
+     * @see https://resthooks.io/docs/api/schema.Entity#pk
      */
     abstract pk(
       parent?: any,
@@ -90,6 +92,7 @@ export default function EntitySchema<TBase extends Constructor>(
      * @param [value] POJO of the entity or subset used
      * @param [parent] When normalizing, the object which included the entity
      * @param [key] When normalizing, the key where this entity was found
+     * @param [args] ...args sent to Endpoint
      */
     static pk<T extends typeof EntityMixin>(
       this: T,
@@ -546,6 +549,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
    * @param [value] POJO of the entity or subset used
    * @param [parent] When normalizing, the object which included the entity
    * @param [key] When normalizing, the key where this entity was found
+   * @param [args] ...args sent to Endpoint
    */
   pk<
     T extends (abstract new (
@@ -711,6 +715,7 @@ export interface IEntityInstance {
    *
    * @param [parent] When normalizing, the object which included the entity
    * @param [key] When normalizing, the key where this entity was found
+   * @param [args] ...args sent to Endpoint
    */
   pk(parent?: any, key?: string, args?: readonly any[]): string | undefined;
 }
