@@ -55,20 +55,14 @@ import { UserResource } from './UserResource';
 
 export default function Unauthed() {
   const ctrl = useController();
-  const [handleLogin, loading] = useLoading((e: any) => {
-    e.preventDefault();
-    return ctrl.fetch(UserResource.current);
-  }, []);
+  const [handleLogin, loading] = useLoading(
+    (e: any) => ctrl.fetch(UserResource.current),
+    [],
+  );
   return (
     <div>
       <p>Not authorized</p>
-      {loading ? (
-        'logging in...'
-      ) : (
-        <a href="#" onClick={handleLogin}>
-          Login
-        </a>
-      )}
+      {loading ? 'logging in...' : <button onClick={handleLogin}>Login</button>}
     </div>
   );
 }
@@ -79,17 +73,14 @@ import { User, UserResource } from './UserResource';
 
 export default function Authorized({ user }: { user: User }) {
   const ctrl = useController();
-  const handleLogout = (e: any) => {
-    e.preventDefault();
-    return ctrl.invalidate(UserResource.current);
-  };
+  const handleLogout = (e: any) => ctrl.invalidate(UserResource.current);
 
   return (
     <div>
       <p>Welcome, {user.name}!</p>
-      <a href="#" onClick={handleLogout}>
+      <button onClick={handleLogout}>
         Logout
-      </a>
+      </button>
     </div>
   );
 }

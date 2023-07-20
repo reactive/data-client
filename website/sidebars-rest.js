@@ -54,7 +54,7 @@ module.exports = {
         },
         {
           type: 'doc',
-          id: 'guides/summary-list',
+          id: 'guides/partial-entities',
         },
       ],
     },

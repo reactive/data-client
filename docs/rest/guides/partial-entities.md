@@ -1,15 +1,35 @@
 ---
-title: Summary List Endpoints
+title: Partial Entities
 ---
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import {RestEndpoint} from '@data-client/rest';
 
-Sometimes you have a [list endpoint](../api/createResource.md#getlist) that includes
-only a subset of fields.
+Sometimes you have a [list endpoint](../api/createResource.md#getlist) whose entities only include
+a subset of fields needed to summarize.
+
+<div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '15px'}}>
+
+```json title="ArticleSummary"
+{
+  "id": "1",
+  "title": "first"
+}
+```
+
+```json title="Article"
+{
+  "id": "1",
+  "title": "first",
+  "content": "Imagine there was much more here.",
+  "createdAt": "2011-10-05T14:48:00.000Z"
+}
+```
+
+</div>
 
 In this case we can use [Entity.validate()](../api/Entity.md#validate) to ensure
-we have the full response when needed (detail views), while keeping our state [DRY](https://deviq.com/principles/dont-repeat-yourself) and normalized to ensure data integrity.
+we have the full and complete response when needed (detail views), while keeping our state [DRY](https://deviq.com/principles/dont-repeat-yourself) and normalized to ensure data integrity.
 
 <HooksPlayground fixtures={[
 {
@@ -45,8 +65,9 @@ delay: 150,
 },
 ]}>
 
-```typescript title="api/Article" {11,24}
+```typescript title="api/Article" {12,25}
 import { validateRequired } from '@data-client/rest';
+import { Entity, createResource, schema } from '@data-client/rest';
 
 export class ArticleSummary extends Entity {
   id = '';
@@ -81,7 +102,9 @@ const BaseArticleResource = createResource({
 });
 export const ArticleResource = {
   ...BaseArticleResource,
-  getList: BaseArticleResource.getList.extend({ schema: [ArticleSummary] }),
+  getList: BaseArticleResource.getList.extend({
+    schema: new schema.Collection([ArticleSummary]),
+  }),
 };
 ```
 
@@ -169,7 +192,7 @@ class Article extends ArticleSummary {
   static schema = {
     ...super.schema,
     meta: ArticleMeta,
-  }
+  };
   // highlight-end
 
   static validate(processedEntity) {
@@ -188,7 +211,7 @@ class ArticleMeta extends Entity {
 
   static schema = {
     relatedArticles: [ArticleSummary],
-  }
+  };
 }
 
 const BaseArticleResource = createResource({

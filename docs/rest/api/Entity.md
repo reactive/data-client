@@ -286,7 +286,7 @@ will block on fetching a result.
 By **default** does some basic field existance checks in development mode only. Override to
 disable or customize.
 
-[Using validation for summary endpoints](../guides/summary-list.md)
+[Using validation for endpoints with incomplete fields](../guides/partial-entities.md)
 
 ### static infer(args, indexes, recurse): pk? {#infer}
 
