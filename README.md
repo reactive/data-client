@@ -54,6 +54,7 @@ class Article extends Entity {
   title = '';
   body = '';
   author = User.fromJS();
+  createdAt = new Date(0);
 
   pk() {
     return this.id;
@@ -61,7 +62,8 @@ class Article extends Entity {
 
   static schema = {
     author: User,
-  }
+    createdAt: Date,
+  };
 }
 ```
 
@@ -85,7 +87,9 @@ const ArticleResource = createResource({
 const article = useSuspense(ArticleResource.get, { id });
 return (
   <>
-    <h2>{article.title} by {article.author.username}</h2>
+    <h2>
+      {article.title} by {article.author.username}
+    </h2>
     <p>{article.body}</p>
   </>
 );
@@ -99,6 +103,7 @@ return (
   <ProfileForm
     onSubmit={data => ctrl.fetch(UserResource.update, { id }, data)}
   />
+  <button onClick={() => ctrl.fetch(UserResource.delete, { id })}>Delete</button>
 );
 ```
 
@@ -118,14 +123,13 @@ const sortedArticles = new Query(
     const sorted = [...entries].sort((a, b) => a.title.localeCompare(b.title));
     if (asc) return sorted;
     return sorted.reverse();
-  }
+  },
 );
 
 const articlesUnsorted = useCache(sortedArticles);
 const articlesAscending = useCache(sortedArticles, { asc: true });
 const articlesDescending = useCache(sortedArticles, { asc: false });
 ```
-
 
 ### ...all typed ...fast ...and consistent
 

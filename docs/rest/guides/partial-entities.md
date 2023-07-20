@@ -63,7 +63,7 @@ createdAt: '2011-10-05T14:48:00.000Z',
 },
 delay: 150,
 },
-]}>
+]} row>
 
 ```typescript title="api/Article" {12,25}
 import { validateRequired } from '@data-client/rest';
@@ -111,7 +111,7 @@ export const ArticleResource = {
 ```tsx title="ArticleDetail" collapsed
 import { ArticleResource } from './api/Article';
 
-function ArticleDetail({ id, onHome }: { id: string; onHome: () => void }) {
+function ArticleDetail({ id, onHome }: Props) {
   const article = useSuspense(ArticleResource.get, { id });
   return (
     <div>
@@ -134,6 +134,10 @@ function ArticleDetail({ id, onHome }: { id: string; onHome: () => void }) {
       </div>
     </div>
   );
+}
+interface Props {
+  id: string;
+  onHome: () => void;
 }
 function ArticleList() {
   const [route, setRoute] = React.useState('');

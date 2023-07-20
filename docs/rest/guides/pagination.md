@@ -15,14 +15,15 @@ In case you want to append results to your existing list, rather than move to an
 import { Entity, createResource } from '@data-client/rest';
 
 export class News extends Entity {
-  readonly id: string | undefined = undefined;
-  readonly title = '';
-  readonly url = '';
-  readonly previewImage = '';
+  id = '';
+  title = '';
+  url = '';
+  previewImage = '';
 
   pk() {
     return this.id;
   }
+  static key = 'News';
 }
 const BaseNewsResource = createResource({
   path: '/news/:id',
@@ -30,7 +31,7 @@ const BaseNewsResource = createResource({
 });
 // custom schema
 const getList = BaseNewsResource.getList.extend({
-  schema: { results: [News], cursor: '' },
+  schema: { results: new schema.Collection([News]), cursor: '' },
 });
 // this creates a pagination endpoint that will extend the getList endpoint
 const getNextPage = getList.paginated('cursor');
@@ -98,14 +99,15 @@ import { Entity } from '@data-client/rest';
 import { User } from 'api';
 
 export class Article extends Entity {
-  readonly id: number | undefined = undefined;
-  readonly content: string = '';
-  readonly author: number | null = null;
-  readonly contributors: number[] = [];
+  id: number = 0;
+  content = '';
+  author: number | null = null;
+  contributors: number[] = [];
 
   pk() {
     return this.id?.toString();
   }
+  static key = 'Article';
 }
 
 const BaseArticleResource = createResource({
@@ -116,7 +118,7 @@ const BaseArticleResource = createResource({
 export const ArticleResource = {
   ...BaseArticleResource,
   getList: BaseArticleResource.getList.extend({
-    schema: { results: [Article], nextPage: '', prevPage: '' },
+    schema: { results: new schema.Collection([Article]), nextPage: '', prevPage: '' },
   }),
 };
 ```

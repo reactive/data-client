@@ -47,6 +47,7 @@ export class Profile extends Entity {
   pk() {
     return this.id?.toString();
   }
+  static key = 'Profile';
 }
 
 export const ProfileResource = createResource({
@@ -188,6 +189,7 @@ export class Profile extends Entity {
   pk() {
     return this.id?.toString();
   }
+  static key = 'Profile';
 }
 
 export const ProfileResource = createResource({
@@ -272,6 +274,7 @@ export class PaginatedPost extends Entity {
   pk() {
     return this.id;
   }
+  static key = 'PaginatedPost';
 }
 
 export const getPosts = new RestEndpoint({

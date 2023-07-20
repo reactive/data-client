@@ -15,13 +15,14 @@ class User extends Entity {
   username = '';
   email = '';
 
-  pk() {
-    return this.id;
-  }
-
   get fullName() {
     return `${this.firstName} ${this.lastName}`;
   }
+
+  pk() {
+    return this.id;
+  }
+  static key = 'User';
 }
 ```
 
@@ -44,7 +45,6 @@ class User extends Entity {
 If you simply want to [deserialize a field](./network-transform.md#deserializing-fields) to a more useful form like [Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date) or [BigNumber](https://github.com/MikeMcl/bignumber.js), you can use
 the declarative [static schema](./network-transform.md#deserializing-fields).
 
-
 ```typescript
 import { Entity } from '@data-client/rest';
 
@@ -57,6 +57,7 @@ class User extends Entity {
   pk() {
     return this.id;
   }
+  static key = 'User';
 
   // highlight-start
   static schema = {

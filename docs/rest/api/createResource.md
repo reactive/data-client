@@ -24,6 +24,7 @@ export class Todo extends Entity {
   pk() {
     return this.id;
   }
+  static key = 'Todo';
 }
 
 const TodoResource = createResource({

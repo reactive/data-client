@@ -31,13 +31,29 @@ For more details, see [the Installation docs page](https://dataclient.io/docs/ge
 ### Simple [TypeScript definition](https://dataclient.io/rest/api/Entity)
 
 ```typescript
+class User extends Entity {
+  id = '';
+  username = '';
+
+  pk() {
+    return this.id;
+  }
+}
+
 class Article extends Entity {
   id = '';
   title = '';
   body = '';
+  author = User.fromJS();
+  createdAt = new Date(0);
 
   pk() {
     return this.id;
+  }
+
+  static schema = {
+    author: User,
+    createdAt: Date,
   }
 }
 ```
@@ -45,10 +61,15 @@ class Article extends Entity {
 ### Create [collection of API Endpoints](https://dataclient.io/docs/getting-started/resource)
 
 ```typescript
+const UserResource = createResource({
+  path: '/users/:id',
+  schema: User,
+});
+
 const ArticleResource = createResource({
   path: '/articles/:id',
   schema: Article,
-})
+});
 ```
 
 ### One line [data binding](https://dataclient.io/docs/getting-started/data-dependency)
@@ -57,7 +78,7 @@ const ArticleResource = createResource({
 const article = useSuspense(ArticleResource.get, { id });
 return (
   <>
-    <h2>{article.title}</h2>
+    <h2>{article.title} by {article.author.username}</h2>
     <p>{article.body}</p>
   </>
 );
@@ -68,9 +89,10 @@ return (
 ```tsx
 const ctrl = useController();
 return (
-  <ArticleForm
-    onSubmit={data => ctrl.fetch(ArticleResource.update, { id }, data)}
+  <ProfileForm
+    onSubmit={data => ctrl.fetch(UserResource.update, { id }, data)}
   />
+  <button onClick={() => ctrl.fetch(UserResource.delete, { id })}>Delete</button>
 );
 ```
 

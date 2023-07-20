@@ -15,14 +15,15 @@ you won't need to make major changes to your code.
 import { Entity, createResource } from '@data-client/rest';
 
 export class Rating extends Entity {
-  readonly id: string = '';
-  readonly rating: number = 4.6;
-  readonly author: string = '';
-  readonly date: Date = new Date(0);
+  id = '';
+  rating = 4.6;
+  author = '';
+  date = new Date(0);
 
   pk() {
     return this.id;
   }
+  static key = 'Rating';
 
   static schema = {
     date: Date,

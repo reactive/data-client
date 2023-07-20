@@ -30,6 +30,7 @@ export class ExchangeRates extends Entity {
   pk(): string {
     return this.currency;
   }
+  static key = 'ExchangeRates';
 
   static schema = {
     rates: new schema.Values(FloatSerializer),

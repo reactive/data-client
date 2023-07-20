@@ -36,6 +36,7 @@ export class User extends Entity {
   pk() {
     return this.id;
   }
+  static key = 'User';
 }
 export const UserResource = {
   ...createResource({
@@ -168,6 +169,7 @@ export class User extends Entity {
   pk() {
     return this.id;
   }
+  static key = 'User';
 }
 export const UserResource = createResource({
   path: '/users/:id',

@@ -35,6 +35,7 @@ export class Profile extends Entity {
   pk() {
     return this.id?.toString();
   }
+  static key = 'Profile';
 }
 
 export const ProfileResource = createResource({

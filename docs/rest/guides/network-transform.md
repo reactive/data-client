@@ -88,6 +88,7 @@ export class ExchangePrice extends Entity {
   pk() {
     return this.exchangePair;
   }
+  static key = 'ExchangePrice';
 
   static schema = {
     updatedAt: Date,
@@ -145,15 +146,16 @@ response.
 const USERNAME_MATCHER = /.*\/([^\/]+)\/?/;
 
 class Stream extends Entity {
-  readonly username: string = '';
-  readonly title: string = '';
-  readonly game: string = '';
-  readonly currentViewers: number = 0;
-  readonly live: boolean = false;
+  username = '';
+  title = '';
+  game = '';
+  currentViewers = 0;
+  live = false;
 
   pk() {
     return this.username;
   }
+  static key = 'Stream';
 }
 
 const getStream = new RestEndpoint({

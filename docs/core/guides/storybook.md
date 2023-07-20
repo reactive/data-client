@@ -24,14 +24,15 @@ values={[
 
 ```typescript title="ArticleResource.ts"
 export class Article extends Entity {
-  readonly id: number | undefined = undefined;
-  readonly content: string = '';
-  readonly author: number | null = null;
-  readonly contributors: number[] = [];
+  id: number | undefined = undefined;
+  content = '';
+  author: number | null = null;
+  contributors: number[] = [];
 
   pk() {
     return this.id?.toString();
   }
+  static key = 'Article';
 }
 export const ArticleResource = createResource({
   urlPrefix: 'http://test.com',
