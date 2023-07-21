@@ -2,10 +2,12 @@
 title: useLoading()
 ---
 
+import UseLoading from '../shared/\_useLoading.mdx';
+import PkgInstall from '@site/src/components/PkgInstall';
+
 <head>
   <title>useLoading() - Turn any promise into React State</title>
 </head>
-
 
 Helps track loading state of imperative async functions.
 
@@ -15,64 +17,11 @@ Helps track loading state of imperative async functions.
 
 :::
 
-Part of [@data-client/hooks](https://www.npmjs.com/package/@data-client/hooks)
-
 ## Usage
 
-```tsx
-import { useLoading } from '@data-client/hooks';
+<PkgInstall pkgs="@data-client/hooks" />
 
-function Button({ onClick, children, ...props }) {
-  const [clickHandler, loading, error] = useLoading(onClick);
-  return (
-    <button onClick={clickHandler} {...props}>
-      {loading ? 'Loading...' : children}
-    </button>
-  );
-}
-```
-
-
-### Todo toggle example
-
-```tsx
-import { useCallback } from 'react';
-import { useController } from '@data-client/react';
-import { useLoading } from '@data-client/hooks';
-
-import { TodoResource, Todo } from 'api/Todo';
-
-function TodoListItem({ todo }) {
-  const ctrl = useController();
-
-  const [toggleHandler, loading, error] = useLoading(
-    (e: ChangeEvent<HTMLInputElement>) =>
-      ctrl.fetch(
-        TodoResource.partialUpdate,
-        { id },
-        { completed: e.currentTarget.checked },
-      ),
-    [ctrl],
-  );
-
-  return (
-    <div>
-      <input
-        type="checkbox"
-        checked={todo.completed}
-        onChange={toggleHandler}
-      />
-      {loading ? <Spinner /> : null}
-      {error ? <Error>{error}</Error> : null}
-      {todo.title}
-    </div>
-  );
-}
-
-interface Props {
-  todo: Todo;
-}
-```
+<UseLoading />
 
 ## Eslint
 
@@ -96,10 +45,11 @@ of [react-hooks/exhaustive-deps](https://www.npmjs.com/package/eslint-plugin-rea
 
 ## Types
 
-
 ```typescript
 export default function useLoading<F extends (...args: any) => Promise<any>>(
   func: F,
   deps: readonly any[] = [],
 ): [F, boolean];
 ```
+
+Part of [@data-client/hooks](https://www.npmjs.com/package/@data-client/hooks)
