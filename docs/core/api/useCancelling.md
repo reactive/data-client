@@ -8,19 +8,15 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
   <title>useCancelling() - Declarative fetch aborting for React</title>
 </head>
 
-```typescript
-function useCancelling<
-  E extends EndpointInterface & {
-    extend: (o: { signal?: AbortSignal }) => any;
-  },
->(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): E {
-```
-
-Builds an Endpoint that cancels fetch everytime params change
+Builds an Endpoint that cancels fetch everytime parameters change
 
 [Aborts](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) inflight request if the parameters change.
 
-<HooksPlayground>
+## Usage
+
+<PkgInstall pkgs="@data-client/hooks" />
+
+<HooksPlayground row>
 
 ```tsx title="api/Todo.ts" collapsed
 export class Todo extends Entity {
@@ -73,7 +69,7 @@ render(<AbortDemo />);
 
 </HooksPlayground>
 
-Try clicking the `+` very quickly. If you increment before it resolves the request will be cancelled and you should
+Try clicking the `⬆️` very quickly. If you increment before it resolves the request will be cancelled and you should
 not see results in the store.
 
 :::caution Warning
@@ -83,5 +79,15 @@ arguments (Endpoint/params pair) to useSuspense(). This solution aborts fetches 
 which means you might end up canceling a fetch that another component still cares about.
 
 :::
+
+## Types
+
+```typescript
+function useCancelling<
+  E extends EndpointInterface & {
+    extend: (o: { signal?: AbortSignal }) => any;
+  },
+>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): E {
+```
 
 Part of [@data-client/hooks](https://www.npmjs.com/package/@data-client/hooks)
