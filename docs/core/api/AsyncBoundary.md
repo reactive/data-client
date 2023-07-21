@@ -20,6 +20,8 @@ Learn more about boundary placement by learning how to [co-locate data dependenc
 
 ## Usage
 
+Place `AsyncBoundary` [at or above navigational boundaries](../getting-started/data-dependency.md#boundaries) like **pages, routes, or modals**.
+
 ```tsx
 import React from 'react';
 import { AsyncBoundary } from '@data-client/react';
@@ -35,7 +37,7 @@ export default function MyPage() {
 function SuspendingComponent() {
   const data = useSuspense(MyEndpoint);
 
-  return <div>{data.text}</div>
+  return <div>{data.text}</div>;
 }
 ```
 
@@ -88,4 +90,3 @@ Note: Once `<AsyncBoundary />` catches an error it will only render the fallback
 until it is remounted. To get around this you'll likely want to place the boundary at
 locations that will cause remounts when the error should be cleared. This is usually
 below the route itself.
-

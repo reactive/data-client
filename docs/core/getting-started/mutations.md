@@ -7,9 +7,9 @@ import ProtocolTabs from '@site/src/components/ProtocolTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import { TodoResource } from '@site/src/components/Demo/code/todo-app/rest/resources';
 import { todoFixtures } from '@site/src/fixtures/todos';
-import { postFixtures } from '@site/src/fixtures/posts';
 import { RestEndpoint } from '@data-client/rest';
 import UseLoading from '../shared/\_useLoading.mdx';
+import VoteDemo from '../shared/\_VoteDemo.mdx';
 
 <head>
   <title>Mutating Asynchronous Data with Reactive Data Client</title>
@@ -141,132 +141,7 @@ RDC reactively updates appropriate components using the fetch response.
 
 ## Optimistic mutations based on previous state {#optimistic-updates}
 
-<HooksPlayground fixtures={postFixtures} getInitialInterceptorData={() => ({votes: {}})} row>
-
-```ts title="Post" collapsed
-import { Entity, createResource } from '@data-client/rest';
-
-export class Post extends Entity {
-  id = 0;
-  userId = 0;
-  title = '';
-  body = '';
-  votes = 0;
-
-  pk() {
-    return this.id?.toString();
-  }
-  static key = 'Post';
-
-  get img() {
-    return `//placekitten.com/96/72?image=${this.id % 16}`;
-  }
-}
-export const Base = createResource({
-  path: '/posts/:id',
-  schema: Post,
-});
-```
-
-```ts title="PostResource" {13-20}
-import { AbortOptimistic, RestEndpoint } from '@data-client/rest';
-import { Base, Post } from './Post';
-
-export { Post };
-
-export const PostResource = {
-  ...Base,
-  vote: new RestEndpoint({
-    path: '/posts/:id/vote',
-    method: 'POST',
-    body: undefined,
-    schema: Post,
-    getOptimisticResponse(snapshot, { id }) {
-      const { data } = snapshot.getResponse(Base.get, { id });
-      if (!data) throw new AbortOptimistic();
-      return {
-        id,
-        votes: data.votes + 1,
-      };
-    },
-  }),
-};
-```
-
-```tsx title="PostItem" {7} collapsed
-import { useController } from '@data-client/react';
-import { PostResource, type Post } from './PostResource';
-
-export default function PostItem({ post }: { post: Post }) {
-  const ctrl = useController();
-  const handleVote = () => {
-    ctrl.fetch(PostResource.vote, { id: post.id });
-  };
-  return (
-    <div>
-      <div className="voteBlock">
-        <small className="vote">
-          <button className="up" onClick={handleVote}>
-            &nbsp;
-          </button>
-          {post.votes}
-        </small>
-        <img src={post.img} width="70" height="52" />
-      </div>
-      <div>
-        <h4>{post.title}</h4>
-        <p>{post.body}</p>
-      </div>
-    </div>
-  );
-}
-```
-
-```tsx title="TotalVotes" collapsed
-import { Query, schema } from '@data-client/rest';
-import { Post } from './PostResource';
-
-const queryTotalVotes = new Query(
-  new schema.All(Post),
-  (posts, { userId } = {}) => {
-    if (userId !== undefined)
-      posts = posts.filter(post => post.userId === userId);
-    return posts.reduce((total, post) => total + post.votes, 0);
-  },
-);
-
-export default function TotalVotes({ userId }: { userId: number }) {
-  const totalVotes = useCache(queryTotalVotes, { userId });
-  return (
-    <center>
-      <small>{totalVotes} votes total</small>
-    </center>
-  );
-}
-```
-
-```tsx title="PostList" collapsed
-import { useSuspense } from '@data-client/react';
-import { PostResource } from './PostResource';
-import PostItem from './PostItem';
-import TotalVotes from './TotalVotes';
-
-function PostList() {
-  const userId = 2;
-  const posts = useSuspense(PostResource.getList, { userId });
-  return (
-    <div>
-      {posts.map(post => (
-        <PostItem key={post.pk()} post={post} />
-      ))}
-      <TotalVotes userId={userId} />
-    </div>
-  );
-}
-render(<PostList />);
-```
-
-</HooksPlayground>
+<VoteDemo />
 
 [getOptimisticResponse](/rest/guides/optimistic-updates) is just like [setState with an updater function](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state). [Snapshot](../api/Snapshot.md) provides typesafe access to the previous store value,
 which we use to return the _expected_ fetch response.

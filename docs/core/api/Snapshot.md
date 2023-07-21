@@ -6,14 +6,15 @@ title: Snapshot
   <title>Snapshot - Safe data access for Reactive Data Client</title>
 </head>
 
-import LanguageTabs from '@site/src/components/LanguageTabs';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import EndpointInterfaceSource from '!!raw-loader!../../../packages/endpoint/src/SnapshotInterface.ts';
 import CodeBlock from '@theme/CodeBlock';
 import GenericsTabs from '@site/src/components/GenericsTabs';
+import VoteDemo from '../shared/\_VoteDemo.mdx';
 
-<GenericsTabs>
+Snapshots passed to user-defined function that are used to compute state updates. These
+allow safe and performant access to the denormalized data based on the current state.
 
 ```ts
 interface Snapshot {
@@ -22,9 +23,6 @@ interface Snapshot {
   fetchedAt: number;
 }
 ```
-<CodeBlock className="language-typescript">{EndpointInterfaceSource}</CodeBlock>
-
-</GenericsTabs>
 
 :::tip
 
@@ -32,10 +30,13 @@ Use [Controller.snapshot()](./Controller.md#snapshot) to construct a snapshot
 
 :::
 
-Snapshots passed to user-defined function that are used to compute state updates. These
-allow safe and performant access to the denormalized data based on the current state.
+## Usage
 
-## getResponse(endpoint, ...args) {#getResponse}
+<VoteDemo />
+
+## Members
+
+### getResponse(endpoint, ...args) {#getResponse}
 
 ```ts title="returns"
 {
@@ -47,11 +48,11 @@ allow safe and performant access to the denormalized data based on the current s
 
 Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
 
-### data
+#### data
 
 The denormalize response data. Guarantees global referential stability for all members.
 
-### expiryStatus
+#### expiryStatus
 
 ```ts
 export enum ExpiryStatus {
@@ -61,31 +62,31 @@ export enum ExpiryStatus {
 }
 ```
 
-#### Valid
+##### Valid
 
 - Will never suspend.
 - Might fetch if data is stale
 
-#### InvalidIfStale
+##### InvalidIfStale
 
 - Will suspend if data is stale.
 - Might fetch if data is stale
 
-#### Invalid
+##### Invalid
 
 - Will always suspend
 - Will always fetch
 
-### expiresAt
+#### expiresAt
 
 A number representing time when it expires. Compare to Date.now().
 
 
-## getError(endpoint, ...args) {#getError}
+### getError(endpoint, ...args) {#getError}
 
 Gets the error, if any, for a given endpoint. Returns undefined for no errors.
 
 
-## fetchedAt
+### fetchedAt
 
 When the fetch was called that resulted in this snapshot.
