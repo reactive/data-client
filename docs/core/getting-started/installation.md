@@ -78,9 +78,3 @@ React libraries, [feel free to share with others](https://github.com/data-client
 discussions.
 
 </details>
-
-<center>
-
-[Define Data »](./resource.md)
-
-</center> 

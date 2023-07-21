@@ -76,6 +76,7 @@ values={[
 { label: 'Response', value: 'Response' },
 { label: 'Endpoint', value: 'Endpoint' },
 { label: 'Entity', value: 'Entity' },
+{ label: 'React', value: 'React' },
 ]}>
 <TabItem value="State">
 
@@ -86,8 +87,8 @@ values={[
 
 ```json
 [
-  {"id": 1, "title": "this is an entity"},
-  {"id": 2, "title": "this is the second entity"}
+  { "id": 1, "title": "this is an entity" },
+  { "id": 2, "title": "this is the second entity" }
 ]
 ```
 
@@ -95,9 +96,9 @@ values={[
 <TabItem value="Endpoint">
 
 ```typescript
-const PresentationList = new Endpoint(
+const getPresentations = new Endpoint(
   () => fetch(`/presentations`).then(res => res.json()),
-  { schema: [PresentationEntity] },
+  { schema: new schema.Collection([Presentation]) },
 );
 ```
 
@@ -105,13 +106,14 @@ const PresentationList = new Endpoint(
 <TabItem value="Entity">
 
 ```typescript
-class PresentationEntity extends Entity {
-  readonly id: string = '';
-  readonly title: string = '';
+class Presentation extends Entity {
+  id = '';
+  title = '';
 
   pk() {
     return this.id;
   }
+  static key = 'presentation';
 }
 ```
 
@@ -120,7 +122,7 @@ class PresentationEntity extends Entity {
 
 ```tsx
 export function PresentationsPage() {
-  const presentation = useSuspense(PresentationList, {});
+  const presentation = useSuspense(getPresentations);
   return presentation.map(presentation => (
     <div key={presentation.pk()}>{presentation.title}</div>
   ));

@@ -58,10 +58,9 @@ export const TodoResource = createResource({
   schema: Todo,
   searchParams: {} as { userId?: string | number } | undefined,
 });
-```
 
-```typescript title="Method"
-import { TodoResource } from './TodoResource';
+
+/** Methods provided */
 
 // GET https://jsonplaceholder.typicode.com/todos/5
 TodoResource.get({ id: 5 });
@@ -78,6 +77,7 @@ TodoResource.partialUpdate({ id: 5 }, { title: 'my todo' });
 // DELETE https://jsonplaceholder.typicode.com/todos/5
 TodoResource.delete({ id: 5 });
 ```
+
 
 </TypeScriptEditor>
 

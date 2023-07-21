@@ -42,7 +42,7 @@ class User extends Entity {
 }
 const userList = new RestEndpoint({
   path: '/users',
-  schema: [User],
+  schema: new schema.Collection([User]),
 });
 const userDelete = new Endpoint(sampleDelete, {
   schema: new schema.Invalidate(User),

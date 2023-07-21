@@ -107,23 +107,20 @@ export const getUsers = new RestEndpoint({
 });
 ```
 
-```tsx title="NewTodo" {10-11}
+```tsx title="NewTodo" {9-10}
 import { getTodos } from './api/Todo';
 
 export default function NewTodo({ userId }: { userId?: string }) {
   const ctrl = useController();
   const [unshift, setUnshift] = React.useState(false);
 
-  const handlePress = React.useCallback(
-    async (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter') {
-        const createTodo = unshift ? getTodos.unshift : getTodos.push;
-        ctrl.fetch(createTodo, { title: e.currentTarget.value, userId });
-        e.currentTarget.value = '';
-      }
-    },
-    [ctrl, unshift],
-  );
+  const handlePress = async e => {
+    if (e.key === 'Enter') {
+      const createTodo = unshift ? getTodos.unshift : getTodos.push;
+      ctrl.fetch(createTodo, { title: e.currentTarget.value, userId });
+      e.currentTarget.value = '';
+    }
+  };
 
   return (
     <div>
@@ -303,7 +300,9 @@ Because arguments may be serializable types like `number`, we recommend using `=
 e.g., `'10' == 10`
 
 ```typescript
-(...args) => collectionKey => boolean
+(...args) =>
+  collectionKey =>
+    boolean;
 ```
 
 ## Lifecycle Methods

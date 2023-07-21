@@ -15,9 +15,11 @@ class User extends Entity {
   username = '';
   email = '';
 
+  // highlight-start
   get fullName() {
     return `${this.firstName} ${this.lastName}`;
   }
+  // highlight-end
 
   pk() {
     return this.id;
