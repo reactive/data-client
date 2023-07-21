@@ -11,6 +11,7 @@ import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import {RestEndpoint} from '@data-client/rest';
+import StackBlitz from '@site/src/components/StackBlitz';
 
 Async rendering of frequently changing remote data.
 
@@ -108,11 +109,6 @@ function useLive<
 
 ### Bitcoin Price
 
-<iframe
-  loading="lazy"
-  src="https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/nextjs?embed=1&file=pages%2Fapi%2FExchangeRates.ts,pages%2FAssetPrice.tsx&hidedevtools=1&view=both&terminalHeight=0&hideNavigation=1"
-  width="100%"
-  height="500"
-></iframe>
+<StackBlitz app="nextjs" file="pages/api/ExchangeRates.ts,pages/AssetPrice.tsx" view="both" />
 
 Explore more [Reactive Data Client demos](/demos)

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { useRef } from 'react';
+
+import { useHasIntersected } from './useHasIntersected';
 
 export default function StackBlitz({
   app,
@@ -26,15 +27,24 @@ export default function StackBlitz({
     initialpath,
   }).toString();
   const src = `https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/${app}?${params}`;
-  const frameRef = useRef<HTMLIFrameElement>(null);
+  const [frameRef, hasIntersected] = useHasIntersected<HTMLIFrameElement>();
+
   useEffect(() => {
-    frameRef.current?.addEventListener('load', () => {
+    if (!hasIntersected) return;
+    const loadListener = () => {
       frameRef.current?.contentWindow?.addEventListener('focus', event => {
         // Stop the propagation of the focus event
         event.stopPropagation();
       });
-    });
-  });
+    };
+    frameRef.current?.addEventListener('load', loadListener);
+    return () => frameRef.current?.removeEventListener('load', loadListener);
+  }, [hasIntersected, frameRef]);
+
+  if (!hasIntersected) {
+    return <iframe width={width} height={height} ref={frameRef}></iframe>;
+  }
+
   return (
     <iframe
       src={src}

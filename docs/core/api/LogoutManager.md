@@ -5,6 +5,7 @@ sidebar_label: LogoutManager
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import StackBlitz from '@site/src/components/StackBlitz';
 
 <head>
   <title>LogoutManager - Handling 401s and other deauthorization triggers</title>
@@ -171,11 +172,6 @@ protected shouldLogout(error: UnknownError) {
 
 ## Github Example
 
-<iframe
-  loading="lazy"
-  src="https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app?file=src%2FRootProvider.tsx&embed=1&hidedevtools=1&view=editor&terminalHeight=0&hideNavigation=1&ctl=1"
-  width="100%"
-  height="500"
-></iframe>
+<StackBlitz app="github-app" file="src/RootProvider.tsx" view="editor" />
 
 Explore more [Reactive Data Client demos](/demos)

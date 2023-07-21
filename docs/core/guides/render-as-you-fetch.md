@@ -2,6 +2,8 @@
 title: Render as you Fetch
 ---
 
+import StackBlitz from '@site/src/components/StackBlitz';
+
 A core design feature of Reactive Data Client is decoupling actual data retrieval from data
 usage. This means hooks that want to ensure data availability like [useFetch()](../api/useFetch)
 or [useSuspense()](../api/useSuspense) actually only dispatch the request to fetch. [NetworkManager](../api/NetworkManager)

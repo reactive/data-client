@@ -8,6 +8,7 @@ title: useController()
 </head>
 
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
+import StackBlitz from '@site/src/components/StackBlitz';
 
 [Controller](./Controller.md) provides type-safe methods to access and dispatch actions to the store.
 
@@ -61,12 +62,7 @@ post.pk();
 
 ### Todo App
 
-<iframe
-  loading="lazy"
-  src="https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/todo-app?embed=1&file=src%2Fresources%2FTodoResource.ts,src%2Fpages%2FHome%2FTodoListItem.tsx&hidedevtools=1&view=both&terminalHeight=0&hideNavigation=1"
-  width="100%"
-  height="500"
-></iframe>
+<StackBlitz app="todo-app" file="src/resources/TodoResource.ts,src/pages/Home/TodoListItem.tsx" view="both" />
 
 Explore more [Reactive Data Client demos](/demos)
 

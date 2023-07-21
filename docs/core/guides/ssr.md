@@ -5,6 +5,7 @@ title: Server Side Rendering
 
 import PkgInstall from '@site/src/components/PkgInstall';
 import PkgTabs from '@site/src/components/PkgTabs';
+import StackBlitz from '@site/src/components/StackBlitz';
 
 <head>
   <title>Server Side Rendering Integrations - NextJS, Express</title>
@@ -56,12 +57,7 @@ export const getServerSideProps = () => ({ props: {} });
 
 ### Demo
 
-<iframe
-  loading="lazy"
-  src="https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/nextjs?embed=1&file=pages%2FAssetPrice.tsx&hidedevtools=1&view=both&terminalHeight=1&showSidebar=0&hideNavigation=1"
-  width="100%"
-  height="500"
-></iframe>
+<StackBlitz app="nextjs" file="pages/AssetPrice.tsx" view="both" />
 
 ### Further customizing Document
 

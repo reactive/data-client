@@ -12,6 +12,7 @@ import TabItem from '@theme/TabItem';
 import PkgTabs from '@site/src/components/PkgTabs';
 import PkgInstall from '@site/src/components/PkgInstall';
 import Installation from '../shared/\_installation.mdx';
+import StackBlitz from '@site/src/components/StackBlitz';
 
 <PkgTabs pkgs="@data-client/react @data-client/test @data-client/hooks @data-client/rest" />
 
@@ -29,12 +30,7 @@ Alternatively [integrate state with redux](../guides/redux.md)
 
 ## Example
 
-<iframe
-  loading="lazy"
-  src="https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/todo-app?file=src%2FRootProvider.tsx&embed=1&hidedevtools=1&view=both&terminalHeight=0&hideNavigation=1&ctl=1"
-  width="100%"
-  height="500"
-></iframe>
+<StackBlitz app="todo-app" file="src/RootProvider.tsx" view="both" ctl="1" />
 
 Explore more [Reactive Data Client demos](/demos)
 
