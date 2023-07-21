@@ -96,7 +96,10 @@ export default class Endpoint extends Function {
     /* istanbul ignore if */
     if (test.name !== 'test') {
       this.prototype.key = function (...args) {
-        console.error('Rest Hooks Error: https://resthooks.io/errors/osid');
+        console.error(
+          'Rest Hooks Error: https://resthooks.io/errors/osid',
+          this,
+        );
         return `${this.name} ${JSON.stringify(args)}`;
       };
     }
