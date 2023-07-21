@@ -4,6 +4,8 @@ sidebar_label: Debugging
 ---
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import ThemedImage from '@theme/ThemedImage';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
 By [default](../api/CacheProvider.md#defaultprops) (in dev mode) [CacheProvider](../api/CacheProvider.md) includes the [DevToolsManager](../api/DevToolsManager.md),
 which sends state and actions
@@ -42,7 +44,13 @@ has the benefit of making Reactive Data Client concurrent mode compatible.
 The same [core principals of redux](https://redux.js.org/introduction/core-concepts) apply
 to this store's design.
 
-![flux](/img/flux.png)
+<ThemedImage
+  alt="FLUX"
+  sources={{
+    light: useBaseUrl('/img/flux.png'),
+    dark: useBaseUrl('/img/flux-dark.png'),
+  }}
+/>
 
 Here we see the data flow.
 

@@ -3,6 +3,9 @@ title: Managers, Middleware, and Flux
 sidebar_label: Managers and Middleware
 ---
 
+import ThemedImage from '@theme/ThemedImage';
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
 <head>
   <meta name="docsearch:pagerank" content="40"/>
 </head>
@@ -10,7 +13,13 @@ sidebar_label: Managers and Middleware
 Reactive Data Client uses the [flux store](https://facebook.github.io/flux/docs/in-depth-overview/) pattern, which is
 characterized by an easy to understand and debug [undirectional data flow](<https://en.wikipedia.org/wiki/Unidirectional_Data_Flow_(computer_science)>). State updates are performed by a reducer function.
 
-![Manager flux flow](/img/managers.png)
+<ThemedImage
+  alt="Manager flux flow"
+  sources={{
+    light: useBaseUrl('/img/managers.png'),
+    dark: useBaseUrl('/img/managers-dark.png'),
+  }}
+/>
 
 Reactive Data Client improves type-safety and ergonomics by performing dispatches and store access with
 its [Controller](../api/Controller.md)

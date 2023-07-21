@@ -37,6 +37,8 @@ interface RestGenerics {
   readonly schema?: Schema | undefined;
   readonly method?: string;
   readonly body?: any;
+  readonly searchParams?: any;
+  process?(value: any, ...args: any): any;
 }
 
 export class RestEndpoint<O extends RestGenerics = any> extends Endpoint {
@@ -141,6 +143,40 @@ Using a [Schema](./schema.md) enables automatic data consistency without the nee
 
 ### Typing
 
+<TypeScriptEditor>
+
+```ts title=Comment collapsed
+export class Comment extends Entity {
+  id = '';
+  title = '';
+  body = '';
+  postId = '';
+  pk() {
+    return this.id;
+  }
+  static key = 'Comment';
+}
+```
+
+```ts title=Usage
+import { Comment } from './Comment';
+
+const getComments = new RestEndpoint({
+  path: '/posts/:postId/comments',
+  schema: new schema.Collection([Comment]),
+  searchParams: {} as { sortBy?: 'votes' | 'recent' } | undefined,
+});
+
+// Hover your mouse over 'comments' to see its type
+const comments = useSuspense(getComments, { postId: '5', sortBy: 'votes' });
+
+const ctrl = useController();
+const createComment = async data =>
+  ctrl.fetch(getComments.push, { postId: '5' }, data);
+```
+
+</TypeScriptEditor>
+
 #### Resolution/Return
 
 [schema](#schema) determines the return value when used with data-binding hooks like [useSuspense](/docs/api/useSuspense), [useDLE](/docs/api/useDLE) or [useCache](/docs/api/useCache)
@@ -155,6 +191,7 @@ export class Todo extends Entity {
   pk() {
     return this.id;
   }
+  static key = 'Todo';
 }
 ```
 
@@ -662,6 +699,14 @@ of failure or success), the optimistic update will be replaced with the actual n
 [Optimistic update guide](guides/optimistic-updates.md)
 
 ### update(normalizedResponseOfThis, ...args) => (\{ [endpointKey]: (normalizedResponseOfEndpointToUpdate) => updatedNormalizedResponse) }) {#update}
+
+:::tip
+
+Try using [Collections](./Collection.md) instead.
+
+They are much easier to use and more robust!
+
+:::
 
 ```ts title="UpdateType.ts"
 type UpdateFunction<

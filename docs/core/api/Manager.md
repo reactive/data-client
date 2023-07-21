@@ -4,6 +4,8 @@ title: Manager
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import ThemedImage from '@theme/ThemedImage';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
 <head>
   <title>Manager - Powerful middlewares with global store knowledge</title>
@@ -160,7 +162,13 @@ export default function App({ Component, pageProps }: AppProps) {
 Managers live in the CacheProvider centralized store. They orchestrate complex control flows by interfacing
 via intercepting and dispatching actions, as well as reading the internal state.
 
-![Manager flux flow](/img/managers.png)
+<ThemedImage
+  alt="Manager flux flow"
+  sources={{
+    light: useBaseUrl('/img/managers.png'),
+    dark: useBaseUrl('/img/managers-dark.png'),
+  }}
+/>
 
 ### Middleware logging
 
