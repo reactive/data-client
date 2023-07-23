@@ -14,11 +14,11 @@
     "@data-client/rest": "^0.2.0",
     "@data-client/ssr": "^0.1.0",
     "@data-client/test": "^0.1.0",
-    "@types/node": "20.4.2",
+    "@types/node": "20.4.4",
     "@types/react": "18.2.15",
     "@types/react-dom": "18.2.7",
     "classnames": "^2.3.2",
-    "next": "13.4.9",
+    "next": "13.4.12",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "redux": "^4.2.0"

@@ -2138,10 +2138,10 @@ __metadata:
 
 "@data-client/endpoint@file:../packages/endpoint::locator=root-workspace-0b6124%40workspace%3A.":
   version: 0.2.0
-  resolution: "@data-client/endpoint@file:../packages/endpoint#../packages/endpoint::hash=56cc76&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@data-client/endpoint@file:../packages/endpoint#../packages/endpoint::hash=533e3b&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
-  checksum: d0e6db72139b31abcc181af3ac351f1ceab45e34e2b0569c625bcd8432626d5ca10f2e40053de1dcc3f5d9d6d6ebdad2cd6e2b4c26bbafdd61a78dd41b6a5ef3
+  checksum: 5d204771c57325b12a6274f97fe4f284397ce3605b5f9b0cab047c989567f1cd12b4903e36f529a13765ab7095ad28772c62b59887bcba4ce63a4c123cc5a302
   languageName: node
   linkType: hard
 
@@ -2173,16 +2173,16 @@ __metadata:
 
 "@data-client/normalizr@file:../packages/normalizr::locator=root-workspace-0b6124%40workspace%3A.":
   version: 0.2.0
-  resolution: "@data-client/normalizr@file:../packages/normalizr#../packages/normalizr::hash=9e5967&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@data-client/normalizr@file:../packages/normalizr#../packages/normalizr::hash=0d86e6&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
-  checksum: cc5c3277145b65a34e82ec873e2e6bd5188f6a18e5545077f957461eeaa4c4a135e65ce1b65592b18eaf43c9bf5d9b4f7f6a1f514606fe027278fe739a26f9cb
+  checksum: 6c6734a04b6143652781f955233bd32174ea37db8a54d2a883f16a23f116357b89b2bb4491e8567d468e0757bbc183b13625f16ad569d751b07916c5454662d3
   languageName: node
   linkType: hard
 
 "@data-client/react@file:../packages/react::locator=root-workspace-0b6124%40workspace%3A.":
   version: 0.2.1
-  resolution: "@data-client/react@file:../packages/react#../packages/react::hash=60a1e5&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@data-client/react@file:../packages/react#../packages/react::hash=dfed71&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@data-client/core": ^0.2.0
@@ -2196,7 +2196,7 @@ __metadata:
       optional: true
     "@types/react":
       optional: true
-  checksum: b2307d49820eb71b6a31fc93dad4eb206caf76e2111bfb02ab101f828565be2fe2ad2647173c34725c1c351b8ec432afdf145eaea3557540c334b6f99346d236
+  checksum: 11572f55fbbf5d19077fa69a86e4b317154906789d8d3ffc53fa596a3b927e5ebb39bcb00d0bd482b83cd12d12253d453d3178cf98c15f7cb6d695415a7d72ba
   languageName: node
   linkType: hard
 
@@ -3938,6 +3938,13 @@ __metadata:
   version: 5.0.3
   resolution: "@types/parse5@npm:5.0.3"
   checksum: d6b7495cb1850f9f2e9c5e103ede9f2d30a5320669707b105c403868adc9e4bf8d3a7ff314cc23f67826bbbbbc0e6147346ce9062ab429f099dba7a01f463919
+  languageName: node
+  linkType: hard
+
+"@types/prismjs@npm:^1.26.0":
+  version: 1.26.0
+  resolution: "@types/prismjs@npm:1.26.0"
+  checksum: cd5e7a6214c1f4213ec512a5fcf6d8fe37a56b813fc57ac95b5ff5ee074742bfdbd2f2730d9fd985205bf4586728e09baa97023f739e5aa1c9735a7c1ecbd11a
   languageName: node
   linkType: hard
 
@@ -12189,7 +12196,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prism-react-renderer@npm:^1.0.1, prism-react-renderer@npm:^1.3.1, prism-react-renderer@npm:^1.3.5":
+"prism-react-renderer@npm:2.0.5":
+  version: 2.0.5
+  resolution: "prism-react-renderer@npm:2.0.5"
+  dependencies:
+    "@types/prismjs": ^1.26.0
+    clsx: ^1.2.1
+  peerDependencies:
+    react: ">=16.0.0"
+  checksum: 9cd7e1fcf1e758e230f46af2f069a47bbfe55d0209312b329aba40e7e9b18f6763352bf08fc9d89ab7622f1d7a4663e01d2ff964f721ea734e8f901e4f0cd87e
+  languageName: node
+  linkType: hard
+
+"prism-react-renderer@npm:^1.0.1, prism-react-renderer@npm:^1.3.5":
   version: 1.3.5
   resolution: "prism-react-renderer@npm:1.3.5"
   peerDependencies:
@@ -12662,13 +12681,16 @@ __metadata:
   linkType: hard
 
 "react-live@npm:^4.0.0":
-  version: 4.0.1
-  resolution: "react-live@npm:4.0.1"
+  version: 4.1.3
+  resolution: "react-live@npm:4.1.3"
   dependencies:
-    prism-react-renderer: ^1.3.1
+    prism-react-renderer: 2.0.5
     sucrase: ^3.31.0
     use-editable: ^2.3.3
-  checksum: 8e5357f2d17103b31c4079579d757107180c4fc2765ceea22da38c040cf92bb0d8d10f006a270738856fc0cedec4756b5e19e7ea5f23f1abe72969eb2adf4be1
+  peerDependencies:
+    react: ">=18.0.0"
+    react-dom: ">=18.0.0"
+  checksum: 60faeda713be91e008a08d7eb14bbdc9eaa649bed2fa67cac4b2249d2e5ddc0d2e2333b57b8be5a20e59174c4c0507ab38a1075bfa2422c584d2d867d147ced7
   languageName: node
   linkType: hard
 
