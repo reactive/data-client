@@ -1,5 +1,22 @@
 # @data-client/rest
 
+## 0.3.0
+
+### Minor Changes
+
+- ab9c805a6c: Add createResource() paginationField argument
+  When supplied, will enable Resource.getNextPage
+
+### Patch Changes
+
+- 1efd401bef: fix(types): RestEndpoint.push/unshift/assign return type is no longer nested Promises
+- 12c2596453: fix: Ensure Entit.key can be set in v8 browsers
+- 1efd401bef: enhance: createResource() throws with path not containing any :path
+- Updated dependencies [69ce1f8b6b]
+- Updated dependencies [12c2596453]
+- Updated dependencies [6c8f0be900]
+  - @data-client/endpoint@0.2.1
+
 ## 0.2.0
 
 ### Minor Changes

@@ -1,5 +1,12 @@
 # @data-client/redux
 
+## 0.1.4
+
+### Patch Changes
+
+- 960b120f56: docs: Update hash links for Managers
+- 8eb1d2a651: docs: Update README links for docs site changes
+
 ## 0.1.3
 
 ### Patch Changes

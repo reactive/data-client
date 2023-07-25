@@ -1,5 +1,14 @@
 # @data-client/react
 
+## 0.2.2
+
+### Patch Changes
+
+- f1550bfef1: docs: Update readme examples based on project root readme
+- 960b120f56: docs: Update hash links for Managers
+- 954e06e839: docs: Update README
+- 8eb1d2a651: docs: Update README links for docs site changes
+
 ## 0.2.1
 
 ### Patch Changes

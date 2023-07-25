@@ -1,5 +1,15 @@
 # Change Log
 
+## 4.0.2
+
+### Patch Changes
+
+- 12c2596453: fix: Ensure Entit.key can be set in v8 browsers
+- Updated dependencies [69ce1f8b6b]
+- Updated dependencies [12c2596453]
+- Updated dependencies [6c8f0be900]
+  - @data-client/endpoint@0.2.1
+
 ## 4.0.1
 
 ### Patch Changes
