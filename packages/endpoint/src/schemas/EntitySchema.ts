@@ -458,6 +458,7 @@ export default function EntitySchema<TBase extends Constructor>(
         value,
         writable: true,
         enumerable: true,
+        configurable: true,
       });
     }
     const CLASSNAMEMANGLING = EntityMixin.name !== 'EntityMixin';
@@ -478,6 +479,8 @@ export default function EntitySchema<TBase extends Constructor>(
                 return name;
               },
               set,
+              enumerable: true,
+              configurable: true,
             });
             return this.key;
           }
@@ -497,6 +500,8 @@ export default function EntitySchema<TBase extends Constructor>(
     Object.defineProperty(EntityMixin, 'key', {
       get,
       set,
+      enumerable: true,
+      configurable: true,
     });
   }
 
