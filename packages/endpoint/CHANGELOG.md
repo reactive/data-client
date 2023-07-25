@@ -1,5 +1,13 @@
 # @data-client/endpoint
 
+## 0.2.1
+
+### Patch Changes
+
+- 69ce1f8b6b: docs: Add some more JSDoc links
+- 12c2596453: fix: Ensure Entit.key can be set in v8 browsers
+- 6c8f0be900: enhance: Include class/function in error message regarding name mangling
+
 ## 0.2.0
 
 ### Minor Changes

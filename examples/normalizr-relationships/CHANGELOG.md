@@ -1,5 +1,16 @@
 # Change Log
 
+## 0.1.10
+
+### Patch Changes
+
+- Updated dependencies [69ce1f8b6b]
+- Updated dependencies [12c2596453]
+- Updated dependencies [954e06e839]
+- Updated dependencies [6c8f0be900]
+  - @data-client/endpoint@0.2.1
+  - @data-client/normalizr@0.2.1
+
 ## 0.1.9
 
 ### Patch Changes

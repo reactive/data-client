@@ -1,5 +1,21 @@
 # Change Log
 
+## 0.1.4
+
+### Patch Changes
+
+- Updated dependencies [1efd401bef]
+- Updated dependencies [f1550bfef1]
+- Updated dependencies [960b120f56]
+- Updated dependencies [12c2596453]
+- Updated dependencies [ab9c805a6c]
+- Updated dependencies [954e06e839]
+- Updated dependencies [1efd401bef]
+- Updated dependencies [8eb1d2a651]
+  - @data-client/rest@0.3.0
+  - @data-client/react@0.2.2
+  - @data-client/redux@0.1.4
+
 ## 0.1.3
 
 ### Patch Changes
