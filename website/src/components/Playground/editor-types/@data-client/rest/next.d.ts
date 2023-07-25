@@ -567,14 +567,23 @@ declare class CollectionInterface<
   _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;
   _normalizeNullable(): ReturnType<S['_normalizeNullable']>;
 
+  /** Schema to place at the *end* of this Collection
+   * @see https://resthooks.io/rest/api/Collection#push
+   */
   push: S extends { denormalizeOnly(...args: any): (infer Return)[] }
     ? Collection<PolymorphicInterface<Return>, Parent>
     : never;
 
+  /** Schema to place at the *beginning* of this Collection
+   * @see https://resthooks.io/rest/api/Collection#unshift
+   */
   unshift: S extends { denormalizeOnly(...args: any): (infer Return)[] }
     ? Collection<PolymorphicInterface<Return>, Parent>
     : never;
 
+  /** Schema to merge with a Values Collection
+   * @see https://resthooks.io/rest/api/Collection#assign
+   */
   assign: S extends { denormalizeOnly(...args: any): Record<string, unknown> }
     ? Collection<S, Parent>
     : never;

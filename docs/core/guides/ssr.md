@@ -3,7 +3,6 @@ id: ssr
 title: Server Side Rendering
 ---
 
-import PkgInstall from '@site/src/components/PkgInstall';
 import PkgTabs from '@site/src/components/PkgTabs';
 import StackBlitz from '@site/src/components/StackBlitz';
 

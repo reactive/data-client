@@ -466,6 +466,7 @@ interface IEntityClass<TBase extends Constructor = any> {
      * @param [value] POJO of the entity or subset used
      * @param [parent] When normalizing, the object which included the entity
      * @param [key] When normalizing, the key where this entity was found
+     * @param [args] ...args sent to Endpoint
      */
     pk<T extends (abstract new (...args: any[]) => IEntityInstance & InstanceType<TBase>) & IEntityClass & TBase>(this: T, value: Partial<AbstractInstanceType<T>>, parent?: any, key?: string, args?: any[]): string | undefined;
     /** Return true to merge incoming data; false keeps existing entity
@@ -562,6 +563,7 @@ interface IEntityInstance {
      *
      * @param [parent] When normalizing, the object which included the entity
      * @param [key] When normalizing, the key where this entity was found
+     * @param [args] ...args sent to Endpoint
      */
     pk(parent?: any, key?: string, args?: readonly any[]): string | undefined;
 }
@@ -967,14 +969,23 @@ declare class CollectionInterface<
   _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;
   _normalizeNullable(): ReturnType<S['_normalizeNullable']>;
 
+  /** Schema to place at the *end* of this Collection
+   * @see https://resthooks.io/rest/api/Collection#push
+   */
   push: S extends { denormalizeOnly(...args: any): (infer Return)[] }
     ? Collection<PolymorphicInterface<Return>, Parent>
     : never;
 
+  /** Schema to place at the *beginning* of this Collection
+   * @see https://resthooks.io/rest/api/Collection#unshift
+   */
   unshift: S extends { denormalizeOnly(...args: any): (infer Return)[] }
     ? Collection<PolymorphicInterface<Return>, Parent>
     : never;
 
+  /** Schema to merge with a Values Collection
+   * @see https://resthooks.io/rest/api/Collection#assign
+   */
   assign: S extends { denormalizeOnly(...args: any): Record<string, unknown> }
     ? Collection<S, Parent>
     : never;
@@ -1139,6 +1150,8 @@ declare abstract class Entity extends Entity_base {
      *
      * @param [parent] When normalizing, the object which included the entity
      * @param [key] When normalizing, the key where this entity was found
+     * @param [args] ...args sent to Endpoint
+     * @see https://resthooks.io/rest/api/Entity#pk
      */
     abstract pk(parent?: any, key?: string, args?: readonly any[]): string | undefined;
     /** Control how automatic schema validation is handled
@@ -1161,7 +1174,9 @@ declare abstract class Entity extends Entity_base {
         date: number;
         fetchedAt: number;
     }, existing: any, incoming: any): boolean;
-    /** Run when an existing entity is found in the store */
+    /** Run when an existing entity is found in the store
+     * @see https://resthooks.io/rest/api/Entity#mergeWithStore
+     */
     static mergeWithStore(existingMeta: {
         date: number;
         fetchedAt: number;
@@ -1185,6 +1200,7 @@ declare abstract class Entity extends Entity_base {
     /** Factory method to convert from Plain JS Objects.
      *
      * @param [props] Plain Object of properties to assign.
+     * @see https://resthooks.io/rest/api/Entity#fromJS
      */
     static fromJS: <T extends typeof Entity>(this: T, props?: Partial<AbstractInstanceType<T>>) => AbstractInstanceType<T>;
     /**
@@ -1193,10 +1209,17 @@ declare abstract class Entity extends Entity_base {
      * @param [value] POJO of the entity or subset used
      * @param [parent] When normalizing, the object which included the entity
      * @param [key] When normalizing, the key where this entity was found
+     * @param [args] ...args sent to Endpoint
      */
     static pk: <T extends typeof Entity>(this: T, value: Partial<AbstractInstanceType<T>>, parent?: any, key?: string, args?: any[]) => string | undefined;
-    /** Do any transformations when first receiving input */
+    /** Do any transformations when first receiving input
+     *
+     * @see https://resthooks.io/docs/api/Entity#process
+     */
     static process(input: any, parent: any, key: string | undefined): any;
+    /** Returning a string indicates an error (the string is the message)
+     * @see https://resthooks.io/rest/api/Entity#validate
+     */
     static validate(processedEntity: any): string | undefined;
     static denormalize<T extends typeof Entity>(this: T, input: any, unvisit: UnvisitFunction): [denormalized: AbstractInstanceType<T>, found: boolean, suspend: boolean];
     /** Used by denormalize to set nested members */

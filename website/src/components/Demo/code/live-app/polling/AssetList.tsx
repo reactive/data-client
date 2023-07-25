@@ -8,13 +8,15 @@ function AssetList() {
   return (
     <center>
       <table>
-        {assets.map(symbol => (
-          <AssetPrice
-            key={symbol}
-            symbol={symbol}
-            value={1 / price.rates[symbol]}
-          />
-        ))}
+        <tbody>
+          {assets.map(symbol => (
+            <AssetPrice
+              key={symbol}
+              symbol={symbol}
+              value={1 / price.rates[symbol]}
+            />
+          ))}
+        </tbody>
       </table>
       <small>Updates every 15 seconds</small>
     </center>

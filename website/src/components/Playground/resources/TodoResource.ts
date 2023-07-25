@@ -11,6 +11,8 @@ export class Todo extends PlaceholderEntity {
   readonly completed: boolean = false;
   readonly updatedAt: number = 0;
 
+  static key = 'Todo';
+
   static useIncoming(
     existingMeta: { date: number; fetchedAt: number },
     incomingMeta: { date: number; fetchedAt: number },

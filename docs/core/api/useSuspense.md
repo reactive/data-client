@@ -12,7 +12,7 @@ import TabItem from '@theme/TabItem';
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import HooksPlayground from '@site/src/components/HooksPlayground';
-import {RestEndpoint} from '@data-client/rest';
+import { RestEndpoint } from '@data-client/rest';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import StackBlitz from '@site/src/components/StackBlitz';
 import { detailFixtures, listFixtures } from '@site/src/fixtures/profiles';
@@ -85,13 +85,19 @@ render(<ProfileDetail />);
 ```typescript title="Profile" collapsed
 import { Endpoint } from '@data-client/endpoint';
 
-export const getProfile = new Endpoint((id: number) =>
-  Promise.resolve({
-    id,
-    fullName: 'Jing Chen',
-    bio: 'Creator of Flux Architecture',
-    avatar: 'https://avatars.githubusercontent.com/u/5050204?v=4',
-  }),
+export const getProfile = new Endpoint(
+  (id: number) =>
+    Promise.resolve({
+      id,
+      fullName: 'Jing Chen',
+      bio: 'Creator of Flux Architecture',
+      avatar: 'https://avatars.githubusercontent.com/u/5050204?v=4',
+    }),
+  {
+    key(id) {
+      return `getProfile${id}`;
+    },
+  },
 );
 ```
 

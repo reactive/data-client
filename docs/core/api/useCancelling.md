@@ -3,6 +3,7 @@ title: useCancelling()
 ---
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
+import PkgInstall from '@site/src/components/PkgInstall';
 
 <head>
   <title>useCancelling() - Declarative fetch aborting for React</title>
