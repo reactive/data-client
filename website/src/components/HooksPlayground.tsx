@@ -13,7 +13,6 @@ const HooksPlayground = ({
   getInitialInterceptorData,
 }: PlaygroundProps) => (
   <Playground
-    includeEndpoints={!Array.isArray(children)}
     noInline
     groupId={groupId}
     defaultOpen={defaultOpen}
@@ -47,5 +46,4 @@ interface PlaygroundProps<T = any> {
   getInitialInterceptorData?: () => T;
   children: React.ReactNode;
   reverse?: boolean;
-  includeEndpoints: boolean;
 }

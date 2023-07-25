@@ -32,7 +32,6 @@ export default function Playground<T>({
   row,
   hidden,
   fixtures,
-  includeEndpoints,
   getInitialInterceptorData,
   ...props
 }: Omit<LiveProviderProps, 'ref'> & {
@@ -42,7 +41,6 @@ export default function Playground<T>({
   children: string | any[];
   fixtures: (Fixture | Interceptor<T>)[];
   getInitialInterceptorData?: () => T;
-  includeEndpoints: boolean;
 }) {
   const {
     liveCodeBlock: { playgroundPosition },
@@ -62,7 +60,6 @@ export default function Playground<T>({
             reverse={playgroundPosition === 'top'}
             row={row}
             fixtures={fixtures}
-            includeEndpoints={includeEndpoints}
             groupId={groupId}
             defaultOpen={defaultOpen}
             getInitialInterceptorData={getInitialInterceptorData}
@@ -85,7 +82,6 @@ function PlaygroundContent<T>({
   children,
   row,
   fixtures,
-  includeEndpoints,
   groupId,
   defaultOpen,
   getInitialInterceptorData,
@@ -115,7 +111,6 @@ function PlaygroundContent<T>({
             <PreviewWithHeader
               key="preview"
               {...{
-                includeEndpoints,
                 groupId,
                 defaultOpen,
                 row,
@@ -129,7 +124,6 @@ function PlaygroundContent<T>({
         <PreviewWithScopeLazy
           code={code}
           {...{
-            includeEndpoints,
             groupId,
             defaultOpen,
             row,
@@ -148,7 +142,6 @@ interface ContentProps<T = any> {
   fixtures: (Fixture | Interceptor<T>)[];
   children: React.ReactNode;
   reverse?: boolean;
-  includeEndpoints: boolean;
   getInitialInterceptorData?: () => T;
 }
 
