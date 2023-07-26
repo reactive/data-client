@@ -12,7 +12,7 @@
 
 <div align="center">
 
-**[📖Read The Docs](https://resthooks.io/graphql)** &nbsp;|&nbsp; [🎮Github Demo](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app?file=src%2Fresources%2FRepository.tsx)
+**[📖Read The Docs](https://resthooks.io/graphql)** &nbsp;|&nbsp; [🎮Github Demo](https://stackblitz.com/github/data-client/rest-hooks/tree/rest-hooks-site/examples/github-app?file=src%2Fresources%2FRepository.tsx)
 
 </div>
 
