@@ -12,6 +12,7 @@ import TabItem from '@theme/TabItem';
 import PkgTabs from '@site/src/components/PkgTabs';
 import Installation from '../shared/\_installation.mdx';
 import StackBlitz from '@site/src/components/StackBlitz';
+import Link from '@docusaurus/Link';
 
 <PkgTabs pkgs="@data-client/react @data-client/test @data-client/hooks @data-client/rest" />
 
@@ -23,7 +24,9 @@ Alternatively [integrate state with redux](../guides/redux.md)
 
 <center>
 
-[Next: Define Data »](./resource.md)
+<Link className="button button--secondary" to="./resource">
+  Next: Define Data »
+</Link>
 
 </center>
 
