@@ -295,5 +295,5 @@ export function createMyResource<U extends string, S extends Schema>({
 }
 ```
 
-The [Github Example App](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app?file=src%2Fresources%2FBase.ts)
+The [Github Example App](https://stackblitz.com/github/data-client/rest-hooks/tree/rest-hooks-site/examples/github-app?file=src%2Fresources%2FBase.ts)
 uses this pattern as well.

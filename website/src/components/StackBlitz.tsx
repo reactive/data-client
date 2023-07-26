@@ -25,7 +25,7 @@ export default function StackBlitz({
     ctl,
     initialpath,
   }).toString();
-  const src = `https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/${app}?${params}`;
+  const src = `https://stackblitz.com/github/data-client/rest-hooks/tree/rest-hooks-site/examples/${app}?${params}`;
   const frameRef = useRef<HTMLIFrameElement>(null);
   useEffect(() => {
     frameRef.current?.addEventListener('load', () => {

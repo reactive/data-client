@@ -638,34 +638,34 @@ const incrementInterceptor: Interceptor = {
 
 <iframe
   loading="lazy"
-  src="https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/todo-app?embed=1&file=src%2Fpages%2FHome%2FTodoList.tsx&hidedevtools=1&view=both&terminalHeight=0&hideNavigation=1"
+  src="https://stackblitz.com/github/data-client/rest-hooks/tree/rest-hooks-site/examples/todo-app?embed=1&file=src%2Fpages%2FHome%2FTodoList.tsx&hidedevtools=1&view=both&terminalHeight=0&hideNavigation=1"
   width="100%"
   height="500"
 ></iframe>
 
-[Explore on github](https://github.com/data-client/rest-hooks/tree/master/examples/todo-app)
+[Explore on github](https://github.com/data-client/rest-hooks/tree/rest-hooks-site/examples/todo-app)
 </TabItem>
 
   <TabItem value="github">
 <iframe
   loading="lazy"
-  src="https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app?embed=1&file=src%2Fpages%2FIssueList.tsx&hidedevtools=1&view=preview&terminalHeight=0&hideNavigation=1"
+  src="https://stackblitz.com/github/data-client/rest-hooks/tree/rest-hooks-site/examples/github-app?embed=1&file=src%2Fpages%2FIssueList.tsx&hidedevtools=1&view=preview&terminalHeight=0&hideNavigation=1"
   width="100%"
   height="500"
 ></iframe>
 
-[Explore on github](https://github.com/data-client/rest-hooks/tree/master/examples/github-app)
+[Explore on github](https://github.com/data-client/rest-hooks/tree/rest-hooks-site/examples/github-app)
 </TabItem>
   <TabItem value="nextjs">
 
 <iframe
   loading="lazy"
-  src="https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/nextjs?embed=1&file=pages%2FAssetPrice.tsx&hidedevtools=1&view=both&terminalHeight=0&showSidebar=0&hideNavigation=1"
+  src="https://stackblitz.com/github/data-client/rest-hooks/tree/rest-hooks-site/examples/nextjs?embed=1&file=pages%2FAssetPrice.tsx&hidedevtools=1&view=both&terminalHeight=0&showSidebar=0&hideNavigation=1"
   width="100%"
   height="500"
 ></iframe>
 
-[Explore on github](https://github.com/data-client/rest-hooks/tree/master/examples/nextjs)
+[Explore on github](https://github.com/data-client/rest-hooks/tree/rest-hooks-site/examples/nextjs)
 </TabItem>
 </Tabs>
 

@@ -62,7 +62,7 @@ post.pk();
 
 <iframe
   loading="lazy"
-  src="https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/todo-app?embed=1&file=src%2Fresources%2FTodoResource.ts,src%2Fpages%2FHome%2FTodoListItem.tsx&hidedevtools=1&view=both&terminalHeight=0&hideNavigation=1"
+  src="https://stackblitz.com/github/data-client/rest-hooks/tree/rest-hooks-site/examples/todo-app?embed=1&file=src%2Fresources%2FTodoResource.ts,src%2Fpages%2FHome%2FTodoListItem.tsx&hidedevtools=1&view=both&terminalHeight=0&hideNavigation=1"
   width="100%"
   height="500"
 ></iframe>

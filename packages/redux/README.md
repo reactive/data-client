@@ -12,8 +12,8 @@ Asynchronous dynamic data at scale. Performance, data integrity, and typing for 
 <div align="center">
 
 **[📖Read The Docs](https://resthooks.io/docs/api/ExternalCacheProvider)** &nbsp;|&nbsp; [🏁Getting Started](https://resthooks.io/docs/guides/redux) &nbsp;|&nbsp;
-[🎮Todo Demo](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx) &nbsp;|&nbsp;
-[🎮Github Demo](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx)
+[🎮Todo Demo](https://stackblitz.com/github/data-client/rest-hooks/tree/rest-hooks-site/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx) &nbsp;|&nbsp;
+[🎮Github Demo](https://stackblitz.com/github/data-client/rest-hooks/tree/rest-hooks-site/examples/github-app?file=src%2Fpages%2FIssueList.tsx)
 
 </div>
 

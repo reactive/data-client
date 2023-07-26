@@ -51,7 +51,7 @@ instructions on usage with vanilla React 18.
 
 #### What's next
 
-Currently there is no documentation on SSR on this docs site, even though we have one [working demo](https://stackblitz.com/github/ntucker/anansi/tree/master/examples/concurrent) and [@rest-hooks/ssr readme](https://www.npmjs.com/package/@rest-hooks/ssr) for vanilla React 18. We will soon be adding guides to this site for React 18, as well as frameworks like NextJS.
+Currently there is no documentation on SSR on this docs site, even though we have one [working demo](https://stackblitz.com/github/ntucker/anansi/tree/rest-hooks-site/examples/concurrent) and [@rest-hooks/ssr readme](https://www.npmjs.com/package/@rest-hooks/ssr) for vanilla React 18. We will soon be adding guides to this site for React 18, as well as frameworks like NextJS.
 
 ### Controller.getState()
 

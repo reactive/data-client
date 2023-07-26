@@ -45,7 +45,7 @@ follow the instructions to [add legacy browser support to packages](../guides/le
 
 <iframe
   loading="lazy"
-  src="https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/todo-app?file=src%2FRootProvider.tsx&embed=1&hidedevtools=1&view=both&terminalHeight=0&hideNavigation=1&ctl=1"
+  src="https://stackblitz.com/github/data-client/rest-hooks/tree/rest-hooks-site/examples/todo-app?file=src%2FRootProvider.tsx&embed=1&hidedevtools=1&view=both&terminalHeight=0&hideNavigation=1&ctl=1"
   width="100%"
   height="500"
 ></iframe>

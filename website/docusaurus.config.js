@@ -500,15 +500,15 @@ module.exports = {
               },
               {
                 label: 'Demo (Github)',
-                to: 'https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx',
+                to: 'https://stackblitz.com/github/data-client/rest-hooks/tree/rest-hooks-site/examples/github-app?file=src%2Fpages%2FIssueList.tsx',
               },
               {
                 label: 'Demo (Todo)',
-                to: 'https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx',
+                to: 'https://stackblitz.com/github/data-client/rest-hooks/tree/rest-hooks-site/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx',
               },
               {
                 label: 'Demo (NextJS)',
-                to: 'https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx',
+                to: 'https://stackblitz.com/github/data-client/rest-hooks/tree/rest-hooks-site/examples/nextjs?file=pages%2FAssetPrice.tsx',
               },
               /*{
               html: `<iframe

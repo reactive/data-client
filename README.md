@@ -21,9 +21,9 @@ For [REST](https://resthooks.io/rest), [GraphQL](https://resthooks.io/graphql), 
 <div align="center">
 
 **[📖Read The Docs](https://resthooks.io/docs)** &nbsp;|&nbsp; [🏁Getting Started](https://resthooks.io/docs/getting-started/installation) &nbsp;|&nbsp;
-[🎮Todo Demo](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx) &nbsp;|&nbsp;
-[🎮Github Demo](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx) &nbsp;|&nbsp;
-[🎮NextJS SSR Demo](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx)
+[🎮Todo Demo](https://stackblitz.com/github/data-client/rest-hooks/tree/rest-hooks-site/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx) &nbsp;|&nbsp;
+[🎮Github Demo](https://stackblitz.com/github/data-client/rest-hooks/tree/rest-hooks-site/examples/github-app?file=src%2Fpages%2FIssueList.tsx) &nbsp;|&nbsp;
+[🎮NextJS SSR Demo](https://stackblitz.com/github/data-client/rest-hooks/tree/rest-hooks-site/examples/nextjs?file=pages%2FAssetPrice.tsx)
 
 </div>
 
@@ -160,6 +160,6 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://re
 
 ## Examples
 
-- Todo: [Source](https://github.com/data-client/rest-hooks/tree/master/examples/todo-app) | [Sandbox](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx)
-- Github: [Source](https://github.com/data-client/rest-hooks/tree/master/examples/github-app) | [Sandbox](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx)
-- NextJS: [Source](https://github.com/data-client/rest-hooks/tree/master/examples/nextjs) | [Sandbox](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx)
+- Todo: [Source](https://github.com/data-client/rest-hooks/tree/rest-hooks-site/examples/todo-app) | [Sandbox](https://stackblitz.com/github/data-client/rest-hooks/tree/rest-hooks-site/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx)
+- Github: [Source](https://github.com/data-client/rest-hooks/tree/rest-hooks-site/examples/github-app) | [Sandbox](https://stackblitz.com/github/data-client/rest-hooks/tree/rest-hooks-site/examples/github-app?file=src%2Fpages%2FIssueList.tsx)
+- NextJS: [Source](https://github.com/data-client/rest-hooks/tree/rest-hooks-site/examples/nextjs) | [Sandbox](https://stackblitz.com/github/data-client/rest-hooks/tree/rest-hooks-site/examples/nextjs?file=pages%2FAssetPrice.tsx)

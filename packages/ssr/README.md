@@ -11,7 +11,7 @@
 <div align="center">
 
 **[📖Read The Docs](https://resthooks.io/docs/guides/ssr)** &nbsp;|&nbsp;
-[🎮NextJS SSR Demo](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx)
+[🎮NextJS SSR Demo](https://stackblitz.com/github/data-client/rest-hooks/tree/rest-hooks-site/examples/nextjs?file=pages%2FAssetPrice.tsx)
 
 </div>
 

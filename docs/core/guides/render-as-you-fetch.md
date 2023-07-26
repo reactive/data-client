@@ -24,7 +24,7 @@ and be assured they will get their data when it's ready. And when render-as-you-
 are added later - _those components don't need to change_. This makes data usage _tightly coupled_,
 and fetch optimization _loosely coupled_.
 
-<iframe loading="lazy" src="https://stackblitz.com/github/ntucker/anansi/tree/master/examples/concurrent?embed=1&file=src/routing/routes.tsx&hidedevtools=1&view=preview&initialpath=%2Fuser%2F1&terminalHeight=1" width="100%" height="600"></iframe>
+<iframe loading="lazy" src="https://stackblitz.com/github/ntucker/anansi/tree/rest-hooks-site/examples/concurrent?embed=1&file=src/routing/routes.tsx&hidedevtools=1&view=preview&initialpath=%2Fuser%2F1&terminalHeight=1" width="100%" height="600"></iframe>
 
 ## Routes that preload
 
@@ -33,7 +33,7 @@ makes incorporating all of the above capabilities quite easy.
 
 Use [Controller.fetch](../api/Controller#fetch) in the route event handler (before startTransition)
 
-<!--<iframe loading="lazy" src="https://stackblitz.com/github/ntucker/anansi/tree/master/examples/concurrent?embed=1&file=src/routing/routes.tsx&hideExplorer=1&hidedevtools=1&view=editor" width="100%" height="600"></iframe>-->
+<!--<iframe loading="lazy" src="https://stackblitz.com/github/ntucker/anansi/tree/rest-hooks-site/examples/concurrent?embed=1&file=src/routing/routes.tsx&hideExplorer=1&hidedevtools=1&view=editor" width="100%" height="600"></iframe>-->
 
 ```ts
 import { Controller } from '@rest-hooks/core';
@@ -71,7 +71,7 @@ export const routes: Route<Controller>[] = [
 
 ### Components using data
 
-[UserDetail page](https://stackblitz.com/github/ntucker/anansi/tree/master/examples/concurrent?file=src%2Fpages%2FUserDetail%2Findex.tsx)
+[UserDetail page](https://stackblitz.com/github/ntucker/anansi/tree/rest-hooks-site/examples/concurrent?file=src%2Fpages%2FUserDetail%2Findex.tsx)
 
 ```tsx
 import { useSuspense } from '@rest-hooks/react';
