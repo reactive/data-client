@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@anansi/browserslist-config": "1.4.3",
-    "@anansi/webpack-config": "15.0.29",
+    "@anansi/webpack-config": "15.0.30",
     "@data-client/endpoint": "file:../packages/endpoint",
     "@data-client/graphql": "file:../packages/graphql",
     "@data-client/hooks": "file:../packages/hooks",
