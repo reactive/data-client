@@ -108,7 +108,7 @@ function PricePage() {
   const currentPrice = useSuspense(getPrice, { exchangePair: 'btc-usd' });
   return (
     <div>
-      {currentPrice.price.toPrecision(2)} as of{' '}
+      ${currentPrice.price.toFormat(2)} as of{' '}
       <time>
         {Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
           currentPrice.updatedAt,
