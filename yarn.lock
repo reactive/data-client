@@ -189,12 +189,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:15.0.30":
-  version: 15.0.30
-  resolution: "@anansi/webpack-config@npm:15.0.30"
+"@anansi/webpack-config@npm:15.0.31":
+  version: 15.0.31
+  resolution: "@anansi/webpack-config@npm:15.0.31"
   dependencies:
     "@babel/runtime": ^7.17.2
-    "@linaria/webpack5-loader": 4.5.4
+    "@linaria/webpack5-loader": 4.1.17
     "@pmmmwh/react-refresh-webpack-plugin": ^0.5.10
     "@svgr/webpack": ^8.0.1
     "@types/webpack-bundle-analyzer": ^4.6.0
@@ -296,7 +296,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: f625d320c169111755c89127d86e5c8d95f35534c70a03092408020882ed2d9b8cc91a34a498a2c28330e6564408a15d39206cc1e6da2cd96b1798f85d63e42b
+  checksum: bfd40e7fea218be52341e782413e3ce0732712024cb8958815c65403dcff1ddc2352935c73f5558d06c2b5e3d8b0c05e7582a9673f9c1ce7884015ef748f84f7
   languageName: node
   linkType: hard
 
@@ -3758,7 +3758,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@linaria/babel-preset@npm:4.5.4, @linaria/babel-preset@npm:^4.5.4":
+"@linaria/babel-preset@npm:4.5.4, @linaria/babel-preset@npm:^4.4.5":
   version: 4.5.4
   resolution: "@linaria/babel-preset@npm:4.5.4"
   dependencies:
@@ -3791,7 +3791,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@linaria/logger@npm:^4.5.0":
+"@linaria/logger@npm:^4.0.0, @linaria/logger@npm:^4.5.0":
   version: 4.5.0
   resolution: "@linaria/logger@npm:4.5.0"
   dependencies:
@@ -3867,18 +3867,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@linaria/webpack5-loader@npm:4.5.4":
-  version: 4.5.4
-  resolution: "@linaria/webpack5-loader@npm:4.5.4"
+"@linaria/webpack5-loader@npm:4.1.17":
+  version: 4.1.17
+  resolution: "@linaria/webpack5-loader@npm:4.1.17"
   dependencies:
-    "@linaria/babel-preset": ^4.5.4
-    "@linaria/logger": ^4.5.0
-    "@linaria/utils": ^4.5.3
+    "@linaria/babel-preset": ^4.4.5
+    "@linaria/logger": ^4.0.0
     enhanced-resolve: ^5.3.1
     mkdirp: ^0.5.1
   peerDependencies:
     webpack: ^5.0.0
-  checksum: 814c4b46a3d24cc8a850311d12a9cd5e561243d691ac4613237c19f2bb4e3b4c35f6b15a4b9b4e9674cc65e3e216341c78875e41dac7de09694c2eaabb11a75a
+  checksum: 61752bda1b457a23357013dd3fbc4fe4c21cb15540a7003c5598338c4aca9194396d5117d35e57c69c78317e2c6349fd123022afed09fb5c23957e4c2c75bd53
   languageName: node
   linkType: hard
 
@@ -8533,10 +8532,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:3.31.1, core-js@npm:^3.21.0, core-js@npm:^3.30.2":
-  version: 3.31.1
-  resolution: "core-js@npm:3.31.1"
-  checksum: 14519213a63c55cf188bdd2f4dece54583feaf6b90e75d6c65e07f509cd487055bf64898aeda7c97c36029ac1ea2f2ed8e4b02281553f6a257e7143a32a14015
+"core-js@npm:3.32.0, core-js@npm:^3.21.0, core-js@npm:^3.30.2":
+  version: 3.32.0
+  resolution: "core-js@npm:3.32.0"
+  checksum: 52921395028550e4c9d21d47b9836439bb5b6b9eefc34d45a3948a68d81fdd093acc0fadf69f9cf632b82f01f95f22f484408a93dd9e940b19119ac204cd2925
   languageName: node
   linkType: hard
 
@@ -11227,7 +11226,7 @@ __metadata:
     "@anansi/babel-preset": 4.2.12
     "@anansi/browserslist-config": 1.4.3
     "@anansi/router": 0.8.1
-    "@anansi/webpack-config": 15.0.30
+    "@anansi/webpack-config": 15.0.31
     "@ant-design/icons": ^5.0.0
     "@babel/core": 7.22.9
     "@data-client/graphql": ^0.2.0
@@ -19695,7 +19694,7 @@ __metadata:
     benchmark: ^2.1.4
     conventional-changelog-anansi: ^0.2.0
     copyfiles: ^2.4.1
-    core-js: 3.31.1
+    core-js: 3.32.0
     coveralls: ^3.1.0
     cpy-cli: 5.0.0
     cross-fetch: ^4.0.0
@@ -21205,7 +21204,7 @@ __metadata:
   dependencies:
     "@anansi/babel-preset": 4.2.12
     "@anansi/browserslist-config": 1.4.3
-    "@anansi/webpack-config": 15.0.30
+    "@anansi/webpack-config": 15.0.31
     "@babel/core": 7.22.9
     "@data-client/endpoint": ^0.2.1
     "@data-client/react": ^0.2.2
