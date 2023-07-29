@@ -13,6 +13,9 @@
     "build:profile": "webpack --mode=production --env profile",
     "test:pkg": "webpack --env check=nobuild"
   },
+  "stackblitz": {
+    "startCommand": "yarn start"
+  },
   "keywords": [
     "anansi"
   ],
@@ -43,5 +46,6 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "uuid": "^9.0.0"
-  }
+  },
+  "packageManager": "yarn@3.6.1"
 }

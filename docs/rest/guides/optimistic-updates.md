@@ -112,13 +112,13 @@ export const ArticleResource = {
   create: BaseArticleResource.create.extend({
     getRequestInit(body) {
       if (body) {
-        return this.constructor.prototype.getRequestInit.call(this, {
+        return BaseArticleResource.create.getRequestInit.call(this, {
           // highlight-next-line
           id: uuid(),
           ...body,
         });
       }
-      return this.constructor.prototype.getRequestInit.call(this, body);
+      return BaseArticleResource.create.getRequestInit.call(this, body);
     },
     getOptimisticResponse(snap, params, body) {
       return body;
