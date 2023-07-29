@@ -64,7 +64,7 @@
     "remark-remove-comments": "^1.0.1",
     "uuid": "^9.0.0"
   },
-  "resolutions": {
+  "overrides": {
     "@linaria/babel-preset": "4.4.5",
     "@linaria/core": "4.2.10",
     "@linaria/webpack5-loader": "4.1.17",
