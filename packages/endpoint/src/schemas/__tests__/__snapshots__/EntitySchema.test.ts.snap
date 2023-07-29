@@ -694,7 +694,7 @@ exports[`EntitySchema normalization should throw a custom error if data does not
   Or use debugging tools: https://resthooks.io/docs/guides/debugging
   Learn more about primary keys: https://resthooks.io/rest/api/Entity#pk
 
-  Entity: EntityMixin
+  Entity: MyData
   Value (processed): {
   "secondthing": "hi"
 }
@@ -709,7 +709,7 @@ exports[`EntitySchema normalization should throw a custom error if data loads wi
   Or use debugging tools: https://resthooks.io/docs/guides/debugging
   Learn more about primary keys: https://resthooks.io/rest/api/Entity#pk
 
-  Entity: EntityMixin
+  Entity: MyData
   Value (processed): {}
   "
 `;
@@ -747,7 +747,7 @@ exports[`EntitySchema normalization should throw a custom error loads with array
   Or use debugging tools: https://resthooks.io/docs/guides/debugging
   Learn more about primary keys: https://resthooks.io/rest/api/Entity#pk
 
-  Entity: EntityMixin
+  Entity: MyData
   Value (processed): {
   "0": {
     "name": "hi",

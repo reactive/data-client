@@ -62,6 +62,20 @@ describe(`${schema.Delete.name} normalization`, () => {
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
+
+  it('should throw a custom error if data does not include pk (serializes pk)', () => {
+    class MyEntity extends Entity {
+      readonly name: string = '';
+      readonly secondthing: string = '';
+      pk() {
+        return `${this.name}`;
+      }
+    }
+    function normalizeBad() {
+      normalize({ secondthing: 'hi' }, new schema.Delete(MyEntity));
+    }
+    expect(normalizeBad).toThrowErrorMatchingSnapshot();
+  });
 });
 
 describe(`${schema.Delete.name} denormalization`, () => {
