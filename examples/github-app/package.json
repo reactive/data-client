@@ -16,6 +16,7 @@
   "stackblitz": {
     "startCommand": "yarn start"
   },
+  "browserslist": "extends @anansi/browserslist-config",
   "keywords": [
     "anansi"
   ],
@@ -28,10 +29,10 @@
     "@anansi/browserslist-config": "1.4.3",
     "@anansi/webpack-config": "15.0.31",
     "@babel/core": "7.22.9",
-    "@linaria/babel-preset": "4.5.4",
-    "@linaria/core": "4.5.4",
-    "@linaria/react": "4.5.4",
-    "@linaria/shaker": "4.5.3",
+    "@linaria/babel-preset": "4.4.5",
+    "@linaria/core": "4.2.10",
+    "@linaria/react": "4.3.8",
+    "@linaria/shaker": "4.2.11",
     "@types/lodash": "4.14.192",
     "@types/parse-link-header": "^2.0.0",
     "@types/react": "18.2.16",
@@ -62,6 +63,15 @@
     "remark-gfm": "^3.0.1",
     "remark-remove-comments": "^1.0.1",
     "uuid": "^9.0.0"
+  },
+  "resolutions": {
+    "@linaria/babel-preset": "4.4.5",
+    "@linaria/core": "4.2.10",
+    "@linaria/webpack5-loader": "4.1.17",
+    "@linaria/react": "4.3.8",
+    "@linaria/shaker": "4.2.11",
+    "@linaria/utils": "4.3.4",
+    "@linaria/tags": "4.3.5"
   },
   "packageManager": "yarn@3.6.1"
 }

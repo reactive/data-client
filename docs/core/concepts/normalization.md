@@ -270,15 +270,16 @@ Placing our [Entity](/rest/api/Entity) `Todo` in an array [Collection](/rest/api
 Aside from array, there are a few more 'schemas' provided for various patterns. The first two (Object and Array)
 have shorthands of using object and array literals.
 
-| Schema                             | Description                                                        | Data Type          | Nesting         | Mutable |
-| ---------------------------------- | ------------------------------------------------------------------ | ------------------ | --------------- | ------- |
-| [Entity](/rest/api/Entity)         | has a primary key                                                  | Object             | Schema          | ✅      |
-| [Object](/rest/api/Object)         | maps with known keys                                               | Object             | Schema          | 🛑      |
-| [Array](/rest/api/Array)           | variably sized arrays                                              | Array              | Schema          | 🛑      |
-| [Values](/rest/api/Values)         | maps with any keys of unknown sized                                | Object             | Schema          | 🛑      |
-| [Collection](/rest/api/Collection) | expandable Arrays or Objects                                       | Object or Array    | Array or Values | ✅      |
-| [Union](/rest/api/Union)           | select from many different types                                   | Polymorphic Object | Entity          | 🛑      |
-| [Invalidate](/rest/api/Invalidate) | [remove an entity](./expiry-policy.md#any-endpoint-with-an-entity) | Object             | Entity          | ✅      |
+| Schema                             | Description                                                        | Data Type          | Mutable | Has A           |
+| ---------------------------------- | ------------------------------------------------------------------ | ------------------ | ------- | --------------- |
+| [Entity](/rest/api/Entity)         | has a primary key                                                  | Object             | ✅      |                 |
+| [Object](/rest/api/Object)         | maps with known keys                                               | Object             | 🛑      |                 |
+| [Array](/rest/api/Array)           | variably sized lists                                               | Array              | 🛑      |                 |
+| [Values](/rest/api/Values)         | variably sized maps (aribtrary keys)                               | Object             | 🛑      |                 |
+| [All](/rest/api/All)               | list of all entities of a kind                                     | Array              | 🛑      | Entity          |
+| [Collection](/rest/api/Collection) | expandable Arrays or Objects                                       | Object or Array    | ✅      | Array or Values |
+| [Union](/rest/api/Union)           | select from many different types                                   | Polymorphic Object | ✅      | Entity          |
+| [Invalidate](/rest/api/Invalidate) | [remove an entity](./expiry-policy.md#any-endpoint-with-an-entity) | Object             | ✅      | Entity          |
 
 [Learn more](/rest/api/schema)
 

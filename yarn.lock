@@ -408,7 +408,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/core@npm:7.22.9, @babel/core@npm:^7.11.6, @babel/core@npm:^7.12.3, @babel/core@npm:^7.13.16, @babel/core@npm:^7.20.0, @babel/core@npm:^7.21.3, @babel/core@npm:^7.22.9":
+"@babel/core@npm:7.22.9, @babel/core@npm:^7.11.6, @babel/core@npm:^7.12.3, @babel/core@npm:^7.13.16, @babel/core@npm:^7.20.0, @babel/core@npm:^7.20.2, @babel/core@npm:^7.21.3":
   version: 7.22.9
   resolution: "@babel/core@npm:7.22.9"
   dependencies:
@@ -445,7 +445,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/generator@npm:^7.20.0, @babel/generator@npm:^7.22.7, @babel/generator@npm:^7.22.9, @babel/generator@npm:^7.7.2":
+"@babel/generator@npm:^7.20.0, @babel/generator@npm:^7.20.4, @babel/generator@npm:^7.22.7, @babel/generator@npm:^7.22.9, @babel/generator@npm:^7.7.2":
   version: 7.22.9
   resolution: "@babel/generator@npm:7.22.9"
   dependencies:
@@ -582,7 +582,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/helper-module-imports@npm:^7.0.0, @babel/helper-module-imports@npm:^7.22.5":
+"@babel/helper-module-imports@npm:^7.0.0, @babel/helper-module-imports@npm:^7.18.6, @babel/helper-module-imports@npm:^7.22.5":
   version: 7.22.5
   resolution: "@babel/helper-module-imports@npm:7.22.5"
   dependencies:
@@ -1538,7 +1538,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-transform-modules-commonjs@npm:^7.0.0, @babel/plugin-transform-modules-commonjs@npm:^7.13.8, @babel/plugin-transform-modules-commonjs@npm:^7.22.5":
+"@babel/plugin-transform-modules-commonjs@npm:^7.0.0, @babel/plugin-transform-modules-commonjs@npm:^7.13.8, @babel/plugin-transform-modules-commonjs@npm:^7.19.6, @babel/plugin-transform-modules-commonjs@npm:^7.22.5":
   version: 7.22.5
   resolution: "@babel/plugin-transform-modules-commonjs@npm:7.22.5"
   dependencies:
@@ -1852,7 +1852,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-transform-runtime@npm:^7.0.0, @babel/plugin-transform-runtime@npm:^7.22.9":
+"@babel/plugin-transform-runtime@npm:^7.0.0, @babel/plugin-transform-runtime@npm:^7.19.6, @babel/plugin-transform-runtime@npm:^7.22.9":
   version: 7.22.9
   resolution: "@babel/plugin-transform-runtime@npm:7.22.9"
   dependencies:
@@ -1902,7 +1902,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-transform-template-literals@npm:^7.0.0, @babel/plugin-transform-template-literals@npm:^7.22.5":
+"@babel/plugin-transform-template-literals@npm:^7.0.0, @babel/plugin-transform-template-literals@npm:^7.18.9, @babel/plugin-transform-template-literals@npm:^7.22.5":
   version: 7.22.5
   resolution: "@babel/plugin-transform-template-literals@npm:7.22.5"
   dependencies:
@@ -2163,7 +2163,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/template@npm:^7.0.0, @babel/template@npm:^7.22.5, @babel/template@npm:^7.3.3, @babel/template@npm:^7.4.4":
+"@babel/template@npm:^7.0.0, @babel/template@npm:^7.18.10, @babel/template@npm:^7.22.5, @babel/template@npm:^7.3.3, @babel/template@npm:^7.4.4":
   version: 7.22.5
   resolution: "@babel/template@npm:7.22.5"
   dependencies:
@@ -2174,7 +2174,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/traverse@npm:^7.20.0, @babel/traverse@npm:^7.22.5, @babel/traverse@npm:^7.22.6, @babel/traverse@npm:^7.22.8":
+"@babel/traverse@npm:^7.20.0, @babel/traverse@npm:^7.20.1, @babel/traverse@npm:^7.22.5, @babel/traverse@npm:^7.22.6, @babel/traverse@npm:^7.22.8":
   version: 7.22.8
   resolution: "@babel/traverse@npm:7.22.8"
   dependencies:
@@ -2192,7 +2192,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/types@npm:^7.0.0, @babel/types@npm:^7.20.0, @babel/types@npm:^7.20.7, @babel/types@npm:^7.21.3, @babel/types@npm:^7.22.5, @babel/types@npm:^7.3.0, @babel/types@npm:^7.3.3, @babel/types@npm:^7.4.4, @babel/types@npm:^7.8.3":
+"@babel/types@npm:^7.0.0, @babel/types@npm:^7.20.0, @babel/types@npm:^7.20.2, @babel/types@npm:^7.20.7, @babel/types@npm:^7.21.3, @babel/types@npm:^7.22.5, @babel/types@npm:^7.3.0, @babel/types@npm:^7.3.3, @babel/types@npm:^7.4.4, @babel/types@npm:^7.8.3":
   version: 7.22.5
   resolution: "@babel/types@npm:7.22.5"
   dependencies:
@@ -3758,40 +3758,41 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@linaria/babel-preset@npm:4.5.4, @linaria/babel-preset@npm:^4.4.5":
-  version: 4.5.4
-  resolution: "@linaria/babel-preset@npm:4.5.4"
+"@linaria/babel-preset@npm:4.4.5":
+  version: 4.4.5
+  resolution: "@linaria/babel-preset@npm:4.4.5"
   dependencies:
-    "@babel/core": ^7.22.9
-    "@babel/generator": ^7.22.9
-    "@babel/helper-module-imports": ^7.22.5
-    "@babel/template": ^7.22.5
-    "@babel/traverse": ^7.22.8
-    "@babel/types": ^7.22.5
-    "@linaria/core": ^4.5.4
-    "@linaria/logger": ^4.5.0
-    "@linaria/shaker": ^4.5.3
-    "@linaria/tags": ^4.5.4
-    "@linaria/utils": ^4.5.3
+    "@babel/core": ^7.20.2
+    "@babel/generator": ^7.20.4
+    "@babel/helper-module-imports": ^7.18.6
+    "@babel/template": ^7.18.10
+    "@babel/traverse": ^7.20.1
+    "@babel/types": ^7.20.2
+    "@linaria/core": ^4.2.10
+    "@linaria/logger": ^4.0.0
+    "@linaria/shaker": ^4.2.11
+    "@linaria/tags": ^4.3.5
+    "@linaria/utils": ^4.3.4
     cosmiconfig: ^8.0.0
+    find-up: ^5.0.0
     source-map: ^0.7.3
     stylis: ^3.5.4
-  checksum: 2b894afde749cbcde5c4e1249b5e3c2585049ec59c1c6fc716b68f3b82ddad3008b437f6c5d321d53055869c78d66e66922d4c593cbd4d9858cd56511e40d9e5
+  checksum: 8dce78ec962a045872971f3f4a1ba091aa6dd00d8638fd0d4a98ab09733b05e9f4bdeca51ec1937d2e9cc325c9be3b73a78f801ffded48bafc0c7adf372c830a
   languageName: node
   linkType: hard
 
-"@linaria/core@npm:4.5.4, @linaria/core@npm:^4.5.4":
-  version: 4.5.4
-  resolution: "@linaria/core@npm:4.5.4"
+"@linaria/core@npm:4.2.10":
+  version: 4.2.10
+  resolution: "@linaria/core@npm:4.2.10"
   dependencies:
-    "@linaria/logger": ^4.5.0
-    "@linaria/tags": ^4.5.4
-    "@linaria/utils": ^4.5.3
-  checksum: 3eff66a8d7ce272fbf3cd680a916d133e5194b8d65410c0512b768948fd81306b6d435b09834793428b005d43f65b20ad5d1569a0a77b81d7dbf11679cd69c55
+    "@linaria/logger": ^4.0.0
+    "@linaria/tags": ^4.3.5
+    "@linaria/utils": ^4.3.4
+  checksum: a30378a43f09daa16cb16bc374cce7c830e279dfdb7ebd6430c176db40ab11f8dd4fdb7245cf98ef7cc82160a58006d426d77d193efb6dec3ac889fe6943cf80
   languageName: node
   linkType: hard
 
-"@linaria/logger@npm:^4.0.0, @linaria/logger@npm:^4.5.0":
+"@linaria/logger@npm:^4.0.0":
   version: 4.5.0
   resolution: "@linaria/logger@npm:4.5.0"
   dependencies:
@@ -3801,69 +3802,64 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@linaria/react@npm:4.5.4":
-  version: 4.5.4
-  resolution: "@linaria/react@npm:4.5.4"
+"@linaria/react@npm:4.3.8":
+  version: 4.3.8
+  resolution: "@linaria/react@npm:4.3.8"
   dependencies:
     "@emotion/is-prop-valid": ^1.2.0
-    "@linaria/core": ^4.5.4
-    "@linaria/tags": ^4.5.4
-    "@linaria/utils": ^4.5.3
-    minimatch: ^9.0.3
+    "@linaria/core": ^4.2.10
+    "@linaria/tags": ^4.3.5
+    "@linaria/utils": ^4.3.4
     react-html-attributes: ^1.4.6
     ts-invariant: ^0.10.3
   peerDependencies:
     react: ">=16"
-  checksum: 2e5147720b60c4976307f2ba4212285fdbed4d5eadc75829776829abcd4cad2005c68072a6a857edc2fffdf95ec290ce610828e7ddaac0af534a379304f42431
+  checksum: 91f185d26a15f82e80f10743030c05b75d75b82f58eebb6ad619944e4d7df2e57af0c35a751169bfcb725ebca8afd41206e5bb6262676e6158c34845d1947c91
   languageName: node
   linkType: hard
 
-"@linaria/shaker@npm:4.5.3, @linaria/shaker@npm:^4.5.3":
-  version: 4.5.3
-  resolution: "@linaria/shaker@npm:4.5.3"
+"@linaria/shaker@npm:4.2.11":
+  version: 4.2.11
+  resolution: "@linaria/shaker@npm:4.2.11"
   dependencies:
-    "@babel/core": ^7.22.9
-    "@babel/generator": ^7.22.9
-    "@babel/plugin-transform-modules-commonjs": ^7.22.5
-    "@babel/plugin-transform-runtime": ^7.22.9
-    "@babel/plugin-transform-template-literals": ^7.22.5
-    "@babel/preset-env": ^7.22.9
-    "@linaria/logger": ^4.5.0
-    "@linaria/utils": ^4.5.3
+    "@babel/core": ^7.20.2
+    "@babel/generator": ^7.20.4
+    "@babel/plugin-transform-modules-commonjs": ^7.19.6
+    "@babel/plugin-transform-runtime": ^7.19.6
+    "@babel/plugin-transform-template-literals": ^7.18.9
+    "@babel/preset-env": ^7.20.2
+    "@linaria/logger": ^4.0.0
+    "@linaria/utils": ^4.3.4
     babel-plugin-transform-react-remove-prop-types: ^0.4.24
     ts-invariant: ^0.10.3
-  checksum: 9ec1f9ce014ac5e94d1ddc78d011585c84415edd5b9854f511e9498bf88bc4266073a282030e584d2f829d47cbc66577e6f1d209150c74d5188dfb56f3dc7f43
+  checksum: 2cada6b3d31804110775dfeddb3afef4d586ee5bc4266a5ab784022bcb62a429e1b290678e030e7661ccc59524c27bfcb737ffd7fe0a6e86f3af061a097bca81
   languageName: node
   linkType: hard
 
-"@linaria/tags@npm:^4.5.4":
-  version: 4.5.4
-  resolution: "@linaria/tags@npm:4.5.4"
+"@linaria/tags@npm:4.3.5":
+  version: 4.3.5
+  resolution: "@linaria/tags@npm:4.3.5"
   dependencies:
-    "@babel/generator": ^7.22.9
-    "@linaria/logger": ^4.5.0
-    "@linaria/utils": ^4.5.3
-  checksum: ea4b07414d09220f3a99da72325ca9b6395494037468a15783a422fcb1364272760ae65f003b690284583ce9ea5e266ee506fab694fb95aeca37fc3ee87f40e8
+    "@babel/generator": ^7.20.4
+    "@linaria/logger": ^4.0.0
+    "@linaria/utils": ^4.3.4
+  checksum: 0ae79c1fb3aaeb49b18234ea94d9ba2f497824d34c91f47f3e6b024409c744fff5e53ddd464d93a092348728483175e1d19dbc3e018640c738d956201c580366
   languageName: node
   linkType: hard
 
-"@linaria/utils@npm:^4.5.3":
-  version: 4.5.3
-  resolution: "@linaria/utils@npm:4.5.3"
+"@linaria/utils@npm:4.3.4":
+  version: 4.3.4
+  resolution: "@linaria/utils@npm:4.3.4"
   dependencies:
-    "@babel/core": ^7.22.9
-    "@babel/generator": ^7.22.9
+    "@babel/core": ^7.20.2
     "@babel/plugin-proposal-export-namespace-from": ^7.18.9
     "@babel/plugin-syntax-dynamic-import": ^7.8.3
-    "@babel/plugin-transform-modules-commonjs": ^7.22.5
-    "@babel/template": ^7.22.5
-    "@babel/traverse": ^7.22.8
-    "@babel/types": ^7.22.5
-    "@linaria/logger": ^4.5.0
+    "@babel/plugin-transform-modules-commonjs": ^7.19.6
+    "@babel/traverse": ^7.20.1
+    "@babel/types": ^7.20.2
+    "@linaria/logger": ^4.0.0
     babel-merge: ^3.0.0
-    find-up: ^5.0.0
-    minimatch: ^9.0.3
-  checksum: 5285283ed2b7b46a442d870ff39b781c154bd7840c48c889042c2b88a464400bf95f19f07b26d85219215e2347fa8e172ebfa500e88b85e177a5fcc3a524b7ac
+  checksum: a1f95942929712ef3ed89fb296e6fe4a20288db86a7d54b7b4ab659a5cae30b092275c0e6e560f32ce02e45908471e0b8fabbf4a2c69f0a10b2313d13b1baa4e
   languageName: node
   linkType: hard
 
@@ -11233,10 +11229,10 @@ __metadata:
     "@data-client/hooks": ^0.1.1
     "@data-client/react": ^0.2.2
     "@data-client/rest": ^0.3.0
-    "@linaria/babel-preset": 4.5.4
-    "@linaria/core": 4.5.4
-    "@linaria/react": 4.5.4
-    "@linaria/shaker": 4.5.3
+    "@linaria/babel-preset": 4.4.5
+    "@linaria/core": 4.2.10
+    "@linaria/react": 4.3.8
+    "@linaria/shaker": 4.2.11
     "@types/lodash": 4.14.192
     "@types/parse-link-header": ^2.0.0
     "@types/react": 18.2.16
@@ -15290,7 +15286,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimatch@npm:^9.0.0, minimatch@npm:^9.0.3":
+"minimatch@npm:^9.0.0":
   version: 9.0.3
   resolution: "minimatch@npm:9.0.3"
   dependencies:
@@ -21209,10 +21205,10 @@ __metadata:
     "@data-client/endpoint": ^0.2.1
     "@data-client/react": ^0.2.2
     "@data-client/rest": ^0.3.0
-    "@linaria/babel-preset": 4.5.4
-    "@linaria/core": 4.5.4
-    "@linaria/react": 4.5.4
-    "@linaria/shaker": 4.5.3
+    "@linaria/babel-preset": 4.4.5
+    "@linaria/core": 4.2.10
+    "@linaria/react": 4.3.8
+    "@linaria/shaker": 4.2.11
     "@types/react-dom": 18.2.7
     "@types/uuid": ^9.0.0
     react: 18.2.0

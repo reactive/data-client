@@ -1,5 +1,5 @@
 ---
-title: Managers, Middleware, and Flux
+title: Managers and Middleware
 sidebar_label: Managers and Middleware
 ---
 
