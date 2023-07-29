@@ -774,6 +774,21 @@ exports[`Entity normalization should only warn if at least four members are foun
 ]
 `;
 
+exports[`Entity normalization should throw a custom error if data does not include pk (serializes pk) 1`] = `
+"Missing usable primary key when normalizing response.
+
+  This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about primary keys: https://resthooks.io/rest/api/Entity#pk
+
+  Entity: MyEntity
+  Value (processed): {
+  "secondthing": "hi"
+}
+  "
+`;
+
 exports[`Entity normalization should throw a custom error if data does not include pk 1`] = `
 "Missing usable primary key when normalizing response.
 

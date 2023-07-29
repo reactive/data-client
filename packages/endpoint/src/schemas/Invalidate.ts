@@ -47,7 +47,7 @@ export default class Invalidate<
 
     if (
       process.env.NODE_ENV !== 'production' &&
-      (id === undefined || id === '')
+      (id === undefined || id === '' || id === 'undefined')
     ) {
       const error = new Error(
         `Missing usable primary key when normalizing response.
@@ -57,8 +57,8 @@ export default class Invalidate<
   Or use debugging tools: https://resthooks.io/docs/guides/debugging
   Learn more about schemas: https://resthooks.io/docs/api/schema
 
-  Delete(Entity): Delete(${(this._entity as any).name ?? this._entity})
-  Value: ${input && JSON.stringify(input, null, 2)}
+  Invalidate(Entity): Invalidate(${this._entity.key})
+  Value (processed): ${input && JSON.stringify(input, null, 2)}
   `,
       );
       (error as any).status = 400;

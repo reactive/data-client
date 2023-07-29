@@ -53,7 +53,7 @@ class UserEntity extends schema.Entity(User, {
 
 </TypeScriptEditor>
 
-### pk: string | (value, parent?, key?, args?) => string | undefined = 'id'
+### pk: string | (value, parent?, key?, args?) => string | undefined = 'id' {#pk}
 
 Specifies the [Entity.pk](./Entity.md#pk)
 
@@ -80,11 +80,11 @@ class ThreadEntity extends schema.Entity(Thread, {
 
 </TypeScriptEditor>
 
-### key: string
+### key: string  {#key}
 
 Specifies the [Entity.key](./Entity.md#key)
 
-### schema: \{[k:string]: Schema}
+### schema: \{[k:string]: Schema}  {#schema}
 
 Specifies the [Entity.schema](./Entity.md#schema)
 

@@ -125,6 +125,21 @@ describe(`${Entity.name} normalization`, () => {
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
 
+  it('should throw a custom error if data does not include pk (serializes pk)', () => {
+    class MyEntity extends Entity {
+      readonly name: string = '';
+      readonly secondthing: string = '';
+      pk() {
+        return `${this.name}`;
+      }
+    }
+    const schema = MyEntity;
+    function normalizeBad() {
+      normalize({ secondthing: 'hi' }, schema);
+    }
+    expect(normalizeBad).toThrowErrorMatchingSnapshot();
+  });
+
   it('should throw a custom error if schema key is missing from Entity', () => {
     class MyEntity extends Entity {
       readonly name: string = '';

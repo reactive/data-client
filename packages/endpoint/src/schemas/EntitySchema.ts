@@ -253,7 +253,7 @@ export default function EntitySchema<TBase extends Constructor>(
     ): any {
       const processedEntity = this.process(input, parent, key);
       const id = this.pk(processedEntity, parent, key, args);
-      if (id === undefined || id === '') {
+      if (id === undefined || id === '' || id === 'undefined') {
         if (process.env.NODE_ENV !== 'production') {
           const error = new Error(
             `Missing usable primary key when normalizing response.
@@ -263,7 +263,7 @@ export default function EntitySchema<TBase extends Constructor>(
   Or use debugging tools: https://resthooks.io/docs/guides/debugging
   Learn more about primary keys: https://resthooks.io/rest/api/Entity#pk
 
-  Entity: ${this.name}
+  Entity: ${this.key}
   Value (processed): ${
     processedEntity && JSON.stringify(processedEntity, null, 2)
   }
