@@ -462,41 +462,35 @@ export default function EntitySchema<TBase extends Constructor>(
         configurable: true,
       });
     }
-    const CLASSNAMEMANGLING = EntityMixin.name !== 'EntityMixin';
+    const baseGet = function (this: { name: string }): string {
+      const name = this.name === 'EntityMixin' ? Base.name : this.name;
+      /* istanbul ignore next */
+      if (
+        process.env.NODE_ENV !== 'production' &&
+        (name === '' || name === 'EntityMixin' || name === '_temp')
+      )
+        throw new Error(
+          'Entity classes without a name must define `static key`\nSee: https://resthooks.io/rest/api/Entity#key',
+        );
+      return name;
+    };
     const get =
       /* istanbul ignore if */
-      CLASSNAMEMANGLING
+      typeof document !== 'undefined' && (document as any).CLS_MANGLE
         ? /* istanbul ignore next */ function (this: {
             name: string;
             key: string;
           }): string {
-            const name = this.name === 'EntityMixin' ? Base.name : this.name;
-            console.error(
-              'Rest Hooks Error: https://resthooks.io/errors/dklj',
-              this,
-            );
-            Object.defineProperty(this, 'key', {
-              get() {
-                return name;
-              },
+            (document as any).CLS_MANGLE?.(this);
+            Object.defineProperty(EntityMixin, 'key', {
+              get: baseGet,
               set,
               enumerable: true,
               configurable: true,
             });
-            return this.key;
+            return baseGet.call(this);
           }
-        : function (this: { name: string }): string {
-            const name = this.name === 'EntityMixin' ? Base.name : this.name;
-            /* istanbul ignore next */
-            if (
-              process.env.NODE_ENV !== 'production' &&
-              (name === '' || name === 'EntityMixin' || name === '_temp')
-            )
-              throw new Error(
-                'Entity classes without a name must define `static key`\nSee: https://resthooks.io/rest/api/Entity#key',
-              );
-            return name;
-          };
+        : baseGet;
 
     Object.defineProperty(EntityMixin, 'key', {
       get,
