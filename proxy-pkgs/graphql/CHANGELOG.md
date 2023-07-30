@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.6.1
+
+### Patch Changes
+
+- 8af1b5a8ef: Detect unusable pk when pk is serialized
+- Updated dependencies [8af1b5a8ef]
+  - @data-client/graphql@0.2.1
+
 ## 0.6.0
 
 ### Minor Changes

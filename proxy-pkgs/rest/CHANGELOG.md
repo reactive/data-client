@@ -1,5 +1,14 @@
 # Change Log
 
+## 7.1.1
+
+### Patch Changes
+
+- 8af1b5a8ef: Detect unusable pk when pk is serialized
+- Updated dependencies [7b835f113a]
+- Updated dependencies [8af1b5a8ef]
+  - @data-client/rest@0.3.1
+
 ## 7.1.0
 
 ### Minor Changes

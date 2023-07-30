@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/graphql",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Endpoints for GraphQL APIs",
   "homepage": "https://resthooks.io/docs/guides/custom-protocol",
   "bugs": {
@@ -65,6 +65,6 @@
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",
   "dependencies": {
-    "@data-client/graphql": "^0.2.0"
+    "@data-client/graphql": "^0.2.1"
   }
 }

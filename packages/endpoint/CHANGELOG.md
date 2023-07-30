@@ -1,5 +1,13 @@
 # @data-client/endpoint
 
+## 0.2.2
+
+### Patch Changes
+
+- f4b625df5a: schema.Entity.key should always be enumerable
+- 8af1b5a8ef: Detect unusable pk when pk is serialized
+- 6f3b39b585: Only warn about name mangling when using SSR and only once per type
+
 ## 0.2.1
 
 ### Patch Changes

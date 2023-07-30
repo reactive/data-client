@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.2.2
+
+### Patch Changes
+
+- 7b835f113a: Improve package tags
+
 ## 0.2.1
 
 ### Patch Changes
