@@ -20,8 +20,6 @@ import Link from '@docusaurus/Link';
 
 <Installation />
 
-Alternatively [integrate state with redux](../guides/redux.md)
-
 <center>
 
 <Link className="button button--secondary" to="./resource">
