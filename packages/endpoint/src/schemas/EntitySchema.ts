@@ -449,6 +449,7 @@ export default function EntitySchema<TBase extends Constructor>(
       value: options.key,
       configurable: true,
       writable: true,
+      enumerable: true,
     });
   } else if (!('key' in Base)) {
     // this allows assignment in strict-mode
