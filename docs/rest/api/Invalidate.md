@@ -28,10 +28,17 @@ response: [
   ],
 delay: 150,
 },
+{
+  endpoint: new RestEndpoint({path: '/users/:id', method: 'DELETE' }),
+  response({id}) {
+    return {id}
+  },
+  delay: 150,
+}
 ]}>
 
-```typescript title="api/User.ts"
-const sampleDelete = ({ id }) => Promise.resolve({ id });
+```typescript title="api/User"
+import { Entity, RestEndpoint } from '@data-client/rest';
 
 class User extends Entity {
   id = '';
@@ -40,18 +47,22 @@ class User extends Entity {
     return this.id;
   }
 }
-const userList = new RestEndpoint({
+export const getUsers = new RestEndpoint({
   path: '/users',
   schema: new schema.Collection([User]),
 });
-const userDelete = new Endpoint(sampleDelete, {
+export const deleteUser = new RestEndpoint({
+  path: '/users/:id',
+  method: 'DELETE',
   schema: new schema.Invalidate(User),
 });
 ```
 
-```tsx title="UserPage.tsx"
+```tsx title="UserPage"
+import { getUsers, deleteUser } from './api/User';
+
 function UsersPage() {
-  const users = useSuspense(userList);
+  const users = useSuspense(getUsers);
   const ctrl = useController();
   return (
     <div>
@@ -60,7 +71,7 @@ function UsersPage() {
           {user.name}{' '}
           <span
             style={{ cursor: 'pointer' }}
-            onClick={() => ctrl.fetch(userDelete, { id: user.id })}
+            onClick={() => ctrl.fetch(deleteUser, { id: user.id })}
           >
             ❌
           </span>
