@@ -14,7 +14,8 @@
     "test:pkg": "webpack --env check=nobuild"
   },
   "stackblitz": {
-    "startCommand": "yarn start"
+    "startCommand": "yarn install && yarn start",
+    "installDependencies": false
   },
   "browserslist": "extends @anansi/browserslist-config",
   "keywords": [
@@ -64,7 +65,7 @@
     "remark-remove-comments": "^1.0.1",
     "uuid": "^9.0.0"
   },
-  "overrides": {
+  "resolutions": {
     "@linaria/babel-preset": "4.4.5",
     "@linaria/core": "4.2.10",
     "@linaria/webpack5-loader": "4.1.17",
