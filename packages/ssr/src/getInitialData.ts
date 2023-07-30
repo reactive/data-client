@@ -28,5 +28,19 @@ function getDataFromEl(el: HTMLScriptElement, key: string) {
       `#${key} is completely empty. This could be due to CSP issues.`,
     );
   }
+  if (getInitialData.name !== 'getInitialData') {
+    (document as any).FUNC_MANGLE = function () {
+      console.error('Rest Hooks Error: https://resthooks.io/errors/osid', this);
+      delete (document as any).FUNC_MANGLE;
+    };
+  }
+  if (Test.name !== 'Test') {
+    (document as any).CLS_MANGLE = function () {
+      console.error('Rest Hooks Error: https://resthooks.io/errors/dklj', this);
+      delete (document as any).CLS_MANGLE;
+    };
+  }
   return el?.text ? JSON.parse(el?.text) : undefined;
 }
+
+class Test {}

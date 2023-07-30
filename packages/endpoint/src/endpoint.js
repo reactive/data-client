@@ -94,17 +94,14 @@ export default class Endpoint extends Function {
   /* istanbul ignore next */
   static {
     /* istanbul ignore if */
-    if (test.name !== 'test') {
+    if (typeof document !== 'undefined' && document.FUNC_MANGLE) {
+      const baseKey = this.prototype.key;
       this.prototype.key = function (...args) {
-        console.error(
-          'Rest Hooks Error: https://resthooks.io/errors/osid',
-          this,
-        );
-        return `${this.name} ${JSON.stringify(args)}`;
+        document.FUNC_MANGLE?.(this);
+        this.prototype.key = baseKey;
+        return baseKey.call(this, ...args);
       };
     }
   }
 }
 export const ExtendableEndpoint = Endpoint;
-
-function test() {}
