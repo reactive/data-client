@@ -26,11 +26,12 @@
     "async",
     "data fetching",
     "data cache",
+    "reactive",
+    "state management",
     "api client",
     "api",
     "normalized cache",
     "swr",
-    "GraphQL",
     "query",
     "react-native",
     "ios",
@@ -39,9 +40,11 @@
     "expo",
     "middleware",
     "websocket",
+    "REST",
+    "GraphQL",
+    "RPC",
     "sse",
-    "declarative",
-    "scalable"
+    "declarative"
   ],
   "sideEffects": [
     "./lib/hooks/useFocusEffect.native.js"

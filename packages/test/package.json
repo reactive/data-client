@@ -12,9 +12,9 @@
     "url": "https://github.com/data-client/data-client/issues"
   },
   "keywords": [
-    "test",
+    "testing",
     "storybook",
-    "hook",
+    "hooks",
     "react",
     "data",
     "cache",

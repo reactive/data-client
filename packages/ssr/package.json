@@ -14,6 +14,8 @@
   "keywords": [
     "ssr",
     "server side rendering",
+    "incremental hydration",
+    "react",
     "universal",
     "suspense",
     "nextjs",
@@ -29,12 +31,10 @@
     "data cache",
     "api",
     "normalized cache",
-    "subject pattern",
     "graph",
     "swr",
     "endpoint",
-    "networking",
-    "react"
+    "networking"
   ],
   "sideEffects": false,
   "main": "dist/index.js",

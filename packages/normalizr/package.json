@@ -12,11 +12,12 @@
     "directory": "packages/normalizr"
   },
   "keywords": [
-    "flux",
-    "redux",
     "normalize",
     "denormalize",
+    "flux",
+    "redux",
     "data",
+    "model",
     "cache",
     "api",
     "react-native",
@@ -27,6 +28,7 @@
     "typescript",
     "validation",
     "relational",
+    "reactive",
     "json"
   ],
   "files": [
