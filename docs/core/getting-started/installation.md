@@ -32,7 +32,11 @@ import Link from '@docusaurus/Link';
 
 <StackBlitz app="todo-app" file="src/RootProvider.tsx" view="both" ctl="1" />
 
-Explore more [Reactive Data Client demos](/demos)
+<p style={{textAlign: 'center'}}>
+<Link className="button button--secondary" to="/demos">
+More Demos
+</Link>
+</p>
 
 ## Supported Tools
 

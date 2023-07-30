@@ -2,6 +2,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import PkgTabs from '@site/src/components/PkgTabs';
 import PkgInstall from '@site/src/components/PkgInstall';
+import Link from '@docusaurus/Link';
 
 <Tabs
 defaultValue="18-web"
@@ -60,11 +61,19 @@ const Root = () => (
 AppRegistry.registerComponent('MyApp', () => Root);
 ```
 
+Alternatively [integrate state with redux](../guides/redux.md)
+
 </TabItem>
 
 <TabItem value="nextjs">
 
 <PkgInstall pkgs="@data-client/ssr @data-client/redux redux" />
+
+<p style={{textAlign: 'center'}}>
+<Link className="button button--primary" to="../guides/ssr#nextjs">
+Full NextJS Guide
+</Link>
+</p>
 
 ```tsx title="pages/_document.tsx"
 import { DataClientDocument } from '@data-client/ssr/nextjs';
@@ -84,8 +93,6 @@ export default function App({ Component, pageProps }: AppProps) {
   );
 }
 ```
-
-[Full NextJS Guide](../guides/ssr.md#nextjs)
 
 </TabItem>
 <TabItem value="anansi">
