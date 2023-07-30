@@ -191,7 +191,7 @@ us to make error/loading disjoint from data usage.
 ### Async Boundaries {#boundaries}
 
 Instead we place [&lt;AsyncBoundary /\>](../api/AsyncBoundary.md) to handling loading and error conditions at or above navigational boundaries like **pages,
-routes, or modals**.
+routes, or [modals](https://www.appcues.com/blog/modal-dialog-windows)**.
 
 ```tsx {7,11}
 import { AsyncBoundary } from '@data-client/react';
