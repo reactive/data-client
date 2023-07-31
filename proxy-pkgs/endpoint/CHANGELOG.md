@@ -1,5 +1,15 @@
 # Change Log
 
+## 4.0.3
+
+### Patch Changes
+
+- 8af1b5a8ef: Detect unusable pk when pk is serialized
+- Updated dependencies [f4b625df5a]
+- Updated dependencies [8af1b5a8ef]
+- Updated dependencies [6f3b39b585]
+  - @data-client/endpoint@0.2.2
+
 ## 4.0.2
 
 ### Patch Changes

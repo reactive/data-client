@@ -1,5 +1,11 @@
 # @data-client/test
 
+## 0.1.4
+
+### Patch Changes
+
+- 7b835f113a: Improve package tags
+
 ## 0.1.3
 
 ### Patch Changes

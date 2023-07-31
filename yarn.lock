@@ -3026,19 +3026,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@data-client/core@^0.2.0, @data-client/core@workspace:^, @data-client/core@workspace:packages/core":
+"@data-client/core@^0.2.0, @data-client/core@^0.2.1, @data-client/core@workspace:^, @data-client/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@data-client/core@workspace:packages/core"
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@data-client/normalizr": ^0.2.0
+    "@data-client/normalizr": ^0.2.2
     "@types/node": ^20.0.0
     flux-standard-action: ^2.1.1
   languageName: unknown
   linkType: soft
 
-"@data-client/endpoint@^0.2.0, @data-client/endpoint@^0.2.1, @data-client/endpoint@workspace:^, @data-client/endpoint@workspace:packages/endpoint":
+"@data-client/endpoint@^0.2.0, @data-client/endpoint@^0.2.1, @data-client/endpoint@^0.2.2, @data-client/endpoint@workspace:^, @data-client/endpoint@workspace:packages/endpoint":
   version: 0.0.0-use.local
   resolution: "@data-client/endpoint@workspace:packages/endpoint"
   dependencies:
@@ -3048,13 +3048,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/graphql@^0.2.0, @data-client/graphql@workspace:packages/graphql":
+"@data-client/graphql@^0.2.0, @data-client/graphql@^0.2.1, @data-client/graphql@workspace:packages/graphql":
   version: 0.0.0-use.local
   resolution: "@data-client/graphql@workspace:packages/graphql"
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@data-client/endpoint": ^0.2.0
+    "@data-client/endpoint": ^0.2.2
     "@types/node": ^20.0.0
   languageName: unknown
   linkType: soft
@@ -3097,7 +3097,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/normalizr@^0.2.0, @data-client/normalizr@workspace:*, @data-client/normalizr@workspace:^, @data-client/normalizr@workspace:packages/normalizr":
+"@data-client/normalizr@^0.2.0, @data-client/normalizr@^0.2.2, @data-client/normalizr@workspace:*, @data-client/normalizr@workspace:^, @data-client/normalizr@workspace:packages/normalizr":
   version: 0.0.0-use.local
   resolution: "@data-client/normalizr@workspace:packages/normalizr"
   dependencies:
@@ -3114,7 +3114,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@data-client/core": ^0.2.0
+    "@data-client/core": ^0.2.1
     "@data-client/use-enhanced-reducer": ^0.1.0
     "@react-navigation/native": ^6.1.6
     "@types/node": ^20.0.0
@@ -3138,7 +3138,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@data-client/core": ^0.2.0
+    "@data-client/core": ^0.2.1
     "@data-client/react": "workspace:*"
     "@types/node": ^20.0.0
     "@types/react": ^18.0.30
@@ -3154,13 +3154,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/rest@^0.3.0, @data-client/rest@workspace:packages/rest":
+"@data-client/rest@^0.3.0, @data-client/rest@^0.3.1, @data-client/rest@workspace:packages/rest":
   version: 0.0.0-use.local
   resolution: "@data-client/rest@workspace:packages/rest"
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@data-client/endpoint": ^0.2.1
+    "@data-client/endpoint": ^0.2.2
     "@types/node": ^20.0.0
     "@types/path-to-regexp": ^1.7.0
     path-to-regexp: ^6.2.1
@@ -4793,7 +4793,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rest-hooks/endpoint@workspace:proxy-pkgs/endpoint"
   dependencies:
-    "@data-client/endpoint": ^0.2.1
+    "@data-client/endpoint": ^0.2.2
   languageName: unknown
   linkType: soft
 
@@ -4801,7 +4801,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rest-hooks/graphql@workspace:proxy-pkgs/graphql"
   dependencies:
-    "@data-client/graphql": ^0.2.0
+    "@data-client/graphql": ^0.2.1
   languageName: unknown
   linkType: soft
 
@@ -4859,7 +4859,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rest-hooks/rest@workspace:proxy-pkgs/rest"
   dependencies:
-    "@data-client/rest": ^0.3.0
+    "@data-client/rest": ^0.3.1
   languageName: unknown
   linkType: soft
 

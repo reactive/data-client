@@ -1,5 +1,13 @@
 # @data-client/react
 
+## 0.2.3
+
+### Patch Changes
+
+- 7b835f113a: Improve package tags
+- Updated dependencies [7b835f113a]
+  - @data-client/core@0.2.1
+
 ## 0.2.2
 
 ### Patch Changes
