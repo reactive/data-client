@@ -1,63 +1,70 @@
-/*import todoAppRestApi from './api.rawts?raw';
-import TodoItem from './TodoItem.rawts?raw';
-import TodoList from './TodoList.rawts?raw';
-import TodoStats from './TodoStats.rawts?raw';*/
+import PostItem from '!!raw-loader!./PostItem.tsx';
+import PostList from '!!raw-loader!./PostList.tsx';
+import ProfileEdit from '!!raw-loader!./ProfileEdit.tsx';
+import resources from '!!raw-loader!./resources.ts';
 
-import { GQLEndpoint } from '@data-client/graphql';
+import { PostResource, UserResource } from './resources';
+import { POSTS, USERS } from '../../../../../mocks/handlers';
 
-import apiCode from '!!raw-loader!./api.ts';
-import TodoItem from '!!raw-loader!./TodoItem.tsx';
-import TodoList from '!!raw-loader!./TodoList.tsx';
-import TodoStats from '!!raw-loader!./TodoStats.tsx';
-
-import { TodoResource } from './api';
-import { TODOS } from '../../../../../mocks/handlers';
+import NewPost from '!!raw-loader!./NewPost.tsx';
+import PostContainer from '!!raw-loader!./PostContainer.tsx';
 
 export default {
   label: 'GraphQL',
   value: 'graphql',
-  fixtures: [
-    {
-      endpoint: TodoResource.getList,
-      response() {
-        return { todos: Object.values(this) };
-      },
-      delay: 150,
-    },
-    {
-      endpoint: TodoResource.update,
-      response({ todo }) {
-        const pk = todo.id;
-        this[pk] = { ...this[pk], ...todo };
-        return { updateTodo: this[pk] };
-      },
-      delay: 150,
-    },
-  ],
-  getInitialInterceptorData: () =>
-    Object.fromEntries(
-      TODOS.map(todo => [
-        todo.id,
-        { ...todo, updatedAt: Date.now() },
-      ]),
-    ),
   code: [
     {
-      path: 'api',
-      code: apiCode,
+      path: 'resources',
+      code: resources,
     },
     {
-      path: 'TodoItem',
+      path: 'PostItem',
+      code: PostItem,
+    },
+    {
+      path: 'ProfileEdit',
       open: true,
-      code: TodoItem,
+      code: ProfileEdit,
     },
     {
-      path: 'TodoStats',
-      code: TodoStats,
-    },
-    {
-      path: 'TodoList',
-      code: TodoList,
+      path: 'PostList',
+      code: PostList,
     },
   ],
+  fixtures: [
+    {
+      endpoint: PostResource.getList,
+      response() {
+        return {
+          posts: Object.values(this.posts).map((post: any) => ({
+            ...post,
+            author: this.users[post.userId],
+          })),
+        };
+      },
+      delay: 150,
+    },
+    {
+      endpoint: UserResource.get,
+      response({ id }) {
+        return { user: this.users[id] };
+      },
+      delay: 150,
+    },
+    {
+      endpoint: UserResource.update,
+      response(user) {
+        const pk = user.id;
+        this.users[pk] = { ...this.users[pk], ...user };
+        console.log(this.users[pk]);
+        return { updateUser: this.users[pk] };
+      },
+      // TODO: make this higher number when optimistic is enabled
+      delay: 0,
+    },
+  ],
+  getInitialInterceptorData: () => ({
+    posts: Object.fromEntries(POSTS.map(post => [post.id, post])),
+    users: Object.fromEntries(USERS.map(user => [user.id, user])),
+  }),
 };
