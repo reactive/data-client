@@ -121,8 +121,9 @@ div > .playgroundHeader.subtabs {
   padding-left: 2.8px;
 }
 .playgroundEditor :global(.prism-code) {
-  border-radius: 0;
+  --ifm-pre-background: var(--monoco-code-background);
   background: transparent;
+  border-radius: 0;
   padding-top: 0 !important;
 }
 .playgroundEditor,
