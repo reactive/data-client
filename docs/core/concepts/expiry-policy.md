@@ -1,5 +1,5 @@
 ---
-title: Expiry Policy
+title: Endpoint Expiry Policy
 sidebar_label: Expiry Policy
 ---
 
@@ -143,11 +143,7 @@ render(<Navigator />);
 <details>
 <summary><b>@data-client/rest</b></summary>
 
-## Examples
-
-To apply to all of a [Resource's endpoints](/rest/api/createResource), use [getEndpointExtra](/rest/api/RestEndpoint#getEndpointExtra)
-
-### Long cache lifetime
+Long cache lifetime
 
 ```typescript title="LongLivingResource.ts"
 import { RestEndpoint, RestGenerics, createResource } from '@data-client/rest';
@@ -163,7 +159,7 @@ const LongLivingResource = createResource({
 });
 ```
 
-### Never retry on error
+Never retry on error
 
 ```typescript title="NoRetryResource.ts"
 import { RestEndpoint, RestGenerics, createResource } from '@data-client/rest';
@@ -268,6 +264,8 @@ render(<Navigator />);
 ```
 
 </HooksPlayground>
+
+## 
 
 ## Force refresh
 
@@ -518,147 +516,3 @@ render(<ShowTime />);
 We can use [Controller.setResponse()](../api/Controller.md#setResponse) for cases where we
 simply want to change the local store without updating the server.
 
-## Error policy
-
-[Endpoint.errorPolicy](/rest/api/Endpoint#errorpolicy) controls cache behavior upon a fetch rejection.
-It uses the rejection error to determine whether it should be treated as 'soft' or 'hard' error.
-
-### Soft
-
-Soft errors will not invalidate a response if it is already available. However, if there is currently
-no data available, it will mark that endpoint as rejected, causing [useSuspense()](../api/useSuspense.md) to throw an
-error. This can be caught with [NetworkErrorBoundary](../api/NetworkErrorBoundary.md)
-
-### Hard
-
-Hard errors always invalidate a response with the rejection - even when data has previously made available.
-
-<HooksPlayground fixtures={[
-{
-  endpoint: new RestEndpoint({
-    path: '/api/currentTime/:id',
-  }),
-  response({ id }) {
-    return ({
-      id,
-      updatedAt: new Date().toISOString(),
-    });
-  },
-  delay: () => 150,
-}
-]}
->
-
-```ts title="api/lastUpdated" collapsed
-export class TimedEntity extends Entity {
-  id = '';
-  updatedAt = new Date(0);
-  pk() {
-    return this.id;
-  }
-
-  static schema = {
-    updatedAt: Date,
-  };
-}
-
-export const lastUpdated = new RestEndpoint({
-  path: '/api/currentTime/:id',
-  schema: TimedEntity,
-});
-```
-
-```tsx title="ShowTime"
-import { lastUpdated } from './api/lastUpdated';
-
-let FAKE_ERROR: Error | undefined = undefined;
-const superFetch = lastUpdated;
-const mockErrorFetch = arg =>
-  FAKE_ERROR !== undefined ? Promise.reject(FAKE_ERROR) : superFetch(arg);
-
-const getUpdated = lastUpdated.extend({
-  fetch: mockErrorFetch,
-  errorPolicy: error =>
-    error.status >= 500 ? ('soft' as const) : ('hard' as const),
-});
-function createError(status) {
-  const error: Error & { status: any } = new Error('fake error') as any;
-  error.status = status;
-  return error;
-}
-
-function ShowTime() {
-  const { updatedAt } = useSuspense(getUpdated, { id: '1' });
-  const ctrl = useController();
-  React.useEffect(
-    () => () => {
-      FAKE_ERROR = undefined;
-    },
-    [updatedAt],
-  );
-  return (
-    <div>
-      <time>
-        {Intl.DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
-      </time>{' '}
-      <div>
-        <button
-          onClick={() => {
-            FAKE_ERROR = createError(500);
-            ctrl.fetch(getUpdated, { id: '1' });
-          }}
-        >
-          Fetch Soft
-        </button>
-        <button
-          onClick={() => {
-            FAKE_ERROR = createError(400);
-            ctrl.fetch(getUpdated, { id: '1' });
-          }}
-        >
-          Fetch Hard
-        </button>
-        <button
-          onClick={() => {
-            FAKE_ERROR = createError(500);
-            ctrl.invalidate(getUpdated, { id: '1' });
-          }}
-        >
-          Invalidate Soft
-        </button>
-        <button
-          onClick={() => {
-            FAKE_ERROR = createError(400);
-            ctrl.invalidate(getUpdated, { id: '1' });
-          }}
-        >
-          Invalidate Hard
-        </button>
-      </div>
-    </div>
-  );
-}
-
-render(
-  <ResetableErrorBoundary>
-    <ShowTime />
-  </ResetableErrorBoundary>,
-);
-```
-
-</HooksPlayground>
-
-### Policy for RestEndpoint
-
-Since `500`s indicate a failure of the server, we want to use stale data
-if it exists. On the other hand, something like a `4xx` indicates 'user error', which
-means the error indicates something about application flow - like if a record is deleted, resulting
-in `404`. Keeping the record around would be inaccurate.
-
-Since this is the typical behavior for REST APIs, this is the default policy in [@data-client/rest](https://www.npmjs.com/package/@data-client/rest)
-
-```ts
-errorPolicy(error) {
-  return error.status >= 500 ? 'soft' : undefined;
-}
-```

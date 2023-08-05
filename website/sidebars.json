@@ -41,6 +41,10 @@
         },
         {
           "type": "doc",
+          "id": "concepts/error-policy"
+        },
+        {
+          "type": "doc",
           "id": "concepts/validation"
         },
         {

@@ -83,7 +83,7 @@ render(<ProfileList />);
 :::note
 
 1. Identical fetches are automatically deduplicated
-2. [Hard errors](../concepts/expiry-policy.md#error-policy) to be [caught](../getting-started/data-dependency#async-fallbacks) by [Error Boundaries](./AsyncBoundary.md)
+2. [Hard errors](../concepts/error-policy.md#hard) to be [caught](../getting-started/data-dependency#async-fallbacks) by [Error Boundaries](./AsyncBoundary.md)
 
 :::
 

@@ -172,7 +172,7 @@ Custom data error lifetime for the fetched resource. Will override the value set
 'soft' will use stale data (if exists) in case of error; undefined or not providing option will result
 in error.
 
-[Learn more about errorPolicy](/docs/concepts/expiry-policy#error-policy)
+[Learn more about errorPolicy](/docs/concepts/error-policy)
 
 #### invalidIfStale: boolean {#invalidifstale}
 
