@@ -17,7 +17,7 @@ export function CreateReaction({ content, reactions = [], issue }: Props) {
   const handleClick = () => {
     if (userReaction || !currentUser) return;
     ctrl.fetch(
-      ReactionResource.create,
+      ReactionResource.getList.push,
       {
         owner: issue.owner,
         number: issue.number,

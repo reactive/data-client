@@ -89,7 +89,7 @@ export default function CreateTodo({ userId }: { userId: number }) {
   const ctrl = useController();
   const handleKeyDown = async e => {
     if (e.key === 'Enter') {
-      ctrl.fetch(TodoResource.create, {
+      ctrl.fetch(TodoResource.getList.push, {
         id: randomId(),
         userId,
         title: e.currentTarget.value,
@@ -170,7 +170,7 @@ export default function PostCreate({ setId }) {
   const handleSubmit = data =>
     // highlight-next-line
     startTransition(async () => {
-      const post = await ctrl.fetch(PostResource.create, data);
+      const post = await ctrl.fetch(PostResource.getList.push, data);
       setId(post.id);
     });
   return <PostForm onSubmit={handleSubmit} loading={loading} error={error} />;

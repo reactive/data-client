@@ -79,6 +79,7 @@ type EndpointParam<E> = E extends (first: infer A, ...rest: any) => any ? A : E 
 /** What the function's promise resolves to */
 type ResolveType<E extends (...args: any) => any> = ReturnType<E> extends Promise<infer R> ? R : never;
 type PartialParameters<T extends (...args: any[]) => any> = T extends (...args: infer P) => any ? Partial<P> : never;
+type EndpointToFunction<E extends (...args: any) => Promise<any>> = (this: E, ...args: Parameters<E>) => ReturnType<E>;
 
 type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Promise<R>;
 interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
@@ -883,6 +884,16 @@ declare class Values<Choices extends Schema = any> implements SchemaClass {
   ): any;
 }
 
+type CollectionArrayAdder<S extends PolymorphicInterface> = S extends {
+  // ensure we are an array type
+  denormalizeOnly(...args: any): any[];
+  // get what we are an array of
+  schema: infer T;
+}
+  ? // TODO: eventually we want to allow singular or list and infer the return based on arguments
+    T
+  : never;
+
 declare class CollectionInterface<
   S extends PolymorphicInterface = any,
   Parent extends any[] = any,
@@ -976,16 +987,12 @@ declare class CollectionInterface<
   /** Schema to place at the *end* of this Collection
    * @see https://resthooks.io/rest/api/Collection#push
    */
-  push: S extends { denormalizeOnly(...args: any): (infer Return)[] }
-    ? Collection<PolymorphicInterface<Return>, Parent>
-    : never;
+  push: CollectionArrayAdder<S>;
 
   /** Schema to place at the *beginning* of this Collection
    * @see https://resthooks.io/rest/api/Collection#unshift
    */
-  unshift: S extends { denormalizeOnly(...args: any): (infer Return)[] }
-    ? Collection<PolymorphicInterface<Return>, Parent>
-    : never;
+  unshift: CollectionArrayAdder<S>;
 
   /** Schema to merge with a Values Collection
    * @see https://resthooks.io/rest/api/Collection#assign
@@ -1092,6 +1099,7 @@ type schema_d_Union<Choices extends EntityMap = any> = Union<Choices>;
 declare const schema_d_Union: typeof Union;
 type schema_d_Values<Choices extends Schema = any> = Values<Choices>;
 declare const schema_d_Values: typeof Values;
+type schema_d_CollectionArrayAdder<S extends PolymorphicInterface> = CollectionArrayAdder<S>;
 type schema_d_CollectionInterface<S extends PolymorphicInterface = any, Parent extends any[] = any> = CollectionInterface<S, Parent>;
 declare const schema_d_CollectionInterface: typeof CollectionInterface;
 type schema_d_CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Parent extends any[] = [
@@ -1123,6 +1131,7 @@ declare namespace schema_d {
     Object$1 as Object,
     schema_d_Union as Union,
     schema_d_Values as Values,
+    schema_d_CollectionArrayAdder as CollectionArrayAdder,
     schema_d_CollectionInterface as CollectionInterface,
     schema_d_CollectionFromSchema as CollectionFromSchema,
     schema_d_CollectionConstructor as CollectionConstructor,
@@ -1314,4 +1323,4 @@ interface GQLError {
     path: (string | number)[];
 }
 
-export { AbortOptimistic, AbstractInstanceType, Array$1 as Array, ArrayElement, Collection, DELETED, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, GQLEndpoint, GQLEntity, GQLError, GQLNetworkError, GQLOptions, INVALID, Index, IndexParams, Invalidate, KeyofEndpointInstance, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, PolymorphicInterface, Query, ReadEndpoint, ResolveType, Schema, SchemaClass$1 as SchemaClass, SchemaSimple, SchemaSimpleNew, SnapshotInterface, UnknownError, schema_d as schema, validateRequired };
+export { AbortOptimistic, AbstractInstanceType, Array$1 as Array, ArrayElement, Collection, DELETED, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, EndpointToFunction, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, GQLEndpoint, GQLEntity, GQLError, GQLNetworkError, GQLOptions, INVALID, Index, IndexParams, Invalidate, KeyofEndpointInstance, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, PolymorphicInterface, Query, ReadEndpoint, ResolveType, Schema, SchemaClass$1 as SchemaClass, SchemaSimple, SchemaSimpleNew, SnapshotInterface, UnknownError, schema_d as schema, validateRequired };

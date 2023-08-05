@@ -14,7 +14,7 @@ export default function NextPage({
   const ctrl = useController();
   const [count, setCount] = useState(0);
   const loadMore = () => {
-    ctrl.fetch(IssueResource.getNextPage, {
+    ctrl.fetch(IssueResource.getList.paginated('page'), {
       page: page + count + 1,
       repo,
       owner,

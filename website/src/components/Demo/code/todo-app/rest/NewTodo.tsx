@@ -4,7 +4,7 @@ export default function NewTodo({ userId }: { userId: number }) {
   const controller = useController();
   const handleKeyDown = async e => {
     if (e.key === 'Enter') {
-      controller.fetch(TodoResource.create, {
+      controller.fetch(TodoResource.getList.push, {
         id: randomId(),
         userId,
         title: e.currentTarget.value,

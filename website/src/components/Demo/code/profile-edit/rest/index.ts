@@ -1,12 +1,9 @@
-import PostContainer from '!!raw-loader!./PostContainer.tsx';
 import PostItem from '!!raw-loader!./PostItem.tsx';
 import PostList from '!!raw-loader!./PostList.tsx';
 import ProfileEdit from '!!raw-loader!./ProfileEdit.tsx';
 import resources from '!!raw-loader!./resources.ts';
 
 import { PostResource } from './resources';
-
-import NewPost from '!!raw-loader!./NewPost.tsx';
 
 export default {
   label: 'REST',
@@ -47,10 +44,10 @@ export default {
       },
     },
     {
-      endpoint: PostResource.create,
+      endpoint: PostResource.getList.push,
       async response(...args: any) {
         return {
-          ...(await PostResource.create(...args)),
+          ...(await PostResource.getList.push(...args)),
           id: args?.[args.length - 1]?.id,
         };
       },

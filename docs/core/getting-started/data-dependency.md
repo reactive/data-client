@@ -176,7 +176,7 @@ width="415" height="184"
 />
 </a>
 
-Do not prop drill. Instead, [useSuspense()](../api/useSuspense.md) in the components that render the data from it. This is
+Do not [prop drill](https://react.dev/learn/passing-data-deeply-with-context#the-problem-with-passing-props). Instead, [useSuspense()](../api/useSuspense.md) in the components that render the data from it. This is
 known as _data co-location_.
 
 Instead of writing complex update functions or invalidations cascades, Reactive Data Client automatically updates

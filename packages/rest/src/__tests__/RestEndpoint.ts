@@ -164,6 +164,7 @@ describe('RestEndpoint', () => {
     const epbody = new RestEndpoint({
       path: '/users/:id?/:group?',
       body: { title: '' },
+      method: 'POST',
     });
     () => ep();
     () => ep({ id: 5 });
@@ -483,6 +484,11 @@ describe('RestEndpoint', () => {
         body: 5,
         path: 'http\\://test.com/charmer/:charm',
       });
+      () => {
+        // test type widening
+        const second = updateUser.extend({ body: { body: '' } });
+        second({ charm: 5 }, { body: 'hi' });
+      };
       const response = await updateUser(
         { charm: 5 },
         // @ts-expect-error
@@ -736,6 +742,7 @@ describe('RestEndpoint', () => {
         .extend({
           body: {} as { title: string },
           dataExpiryLength: 0,
+          method: 'POST',
         })
         .extend({ dataExpiryLength: 5 });
       () => newBody({ group: 'hi', id: 'what' }, { title: 'cool' });
@@ -864,10 +871,12 @@ describe('RestEndpoint', () => {
     const endpoint = new RestEndpoint({
       sideEffect: true,
       path: 'http\\://test.com/article-cooler',
-      body: 0 as any,
       schema: CoolerArticle,
     }).extend({ name: 'createarticle' });
+    const a: true = endpoint.sideEffect;
+    const b: 'POST' = endpoint.method;
     expect(endpoint.method).toBe('POST');
+    expect(endpoint.sideEffect).toBe(true);
     const article = await endpoint(payload);
     expect(article).toMatchInlineSnapshot(`
       {

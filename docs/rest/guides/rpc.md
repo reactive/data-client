@@ -64,7 +64,7 @@ be updated in the cache after the `POST` request is complete.
 ```typescript title="CreateTrade.tsx"
 export default function CreateTrade() {
   const ctrl = useController();
-  const create = payload => ctrl.fetch(TradeResource.create, payload);
+  const create = payload => ctrl.fetch(TradeResource.getList.push, payload);
   //...
 }
 ```

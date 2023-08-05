@@ -9,7 +9,7 @@ import { UserResource } from './src/resources/UserResource';
 function useTest() {
   const ctrl = useController();
   const payload = { id: 1, title: '', userId: 1 };
-  ctrl.fetch(TodoResource.create, payload);
+  ctrl.fetch(TodoResource.getList.push, payload);
 
   const todos = useSuspense(TodoResource.getList, { userId: 1 });
   useSuspense(TodoResource.getList);

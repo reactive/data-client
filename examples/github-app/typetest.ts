@@ -40,7 +40,7 @@ function useTest() {
     );
 
     ctrl.fetch(
-      CommentResource.create,
+      CommentResource.getList.push,
       { owner: issue.owner, repo: issue.repo, number: issue.number },
       { body: 'hi' },
     );
@@ -58,7 +58,7 @@ function useTest() {
     if (!currentUser) return;
     if (!userReaction) {
       ctrl.fetch(
-        ReactionResource.create,
+        ReactionResource.getList.push,
         {
           owner: issue.owner,
           number: issue.number,

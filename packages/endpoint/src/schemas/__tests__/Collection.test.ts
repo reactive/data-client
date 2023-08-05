@@ -364,7 +364,7 @@ describe(`${schema.Collection.name} denormalization`, () => {
       expect(todos).toBeDefined();
       expect(todos).not.toEqual(expect.any(Symbol));
       if (typeof todos === 'symbol' || !todos) return;
-      expect(todos[0].title).toBe('from the start');
+      //expect(todos[0].title).toBe('from the start'); TODO: once we get types based on parameters sent
       expect(todos).toMatchInlineSnapshot(`
         [
           Todo {
@@ -389,7 +389,7 @@ describe(`${schema.Collection.name} denormalization`, () => {
       expect(todos).toBeDefined();
       expect(todos).not.toEqual(expect.any(Symbol));
       if (typeof todos === 'symbol' || !todos) return;
-      //expect(todos.title).toBe('from the start');
+      expect(todos.title).toBe('from the start');
       expect(todos).toMatchInlineSnapshot(`
         Todo {
           "completed": false,

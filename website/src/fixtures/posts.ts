@@ -122,14 +122,13 @@ export const postFixtures = [
     delay: 500,
   },
   {
-    endpoint: PostResource.create,
+    endpoint: PostResource.getList.push,
     response(body) {
       const id = randomId();
       this.entities[id] = { id, userId: 1 };
       for (const [key, value] of body.entries()) {
         this.entities[id][key] = value;
       }
-      console.log('create', id, this.entities[id]);
       return this.entities[id];
     },
     delay: 500,

@@ -69,10 +69,10 @@ export default {
       },
     },
     {
-      endpoint: TodoResource.create,
+      endpoint: TodoResource.getList.push,
       async response(...args: any) {
         return {
-          ...(await TodoResource.create(...args)),
+          ...(await TodoResource.getList.push(...args)),
           id: args?.[args.length - 1]?.id,
         };
       },

@@ -14,7 +14,7 @@ function NewTodo({ userId }: { userId?: number }) {
   const handlePress = useCallback(
     async (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter') {
-        ctrl.fetch(TodoResource.create, {
+        ctrl.fetch(TodoResource.getList.push, {
           ...payload.current,
           title: e.currentTarget.value,
         });

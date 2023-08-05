@@ -96,7 +96,7 @@ export default function PostCreate({ navigateToPost }) {
   const ctrl = useController();
   const [handleSubmit, loading, error] = useLoading(
     async data => {
-      const post = await ctrl.fetch(PostResource.create, data);
+      const post = await ctrl.fetch(PostResource.getList.push, data);
       // React 17 does not batch updates
       // so we wait for the new post to be commited to the React
       // store to avoid additional fetches

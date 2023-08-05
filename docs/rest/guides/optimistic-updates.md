@@ -151,7 +151,7 @@ import { ArticleResource } from 'api/Article';
 export default function CreateArticle() {
   const ctrl = useController();
   const submitHandler = useCallback(
-    data => ctrl.fetch(ArticleResource.create, data),
+    data => ctrl.fetch(ArticleResource.getList.push, data),
     [create],
   );
 

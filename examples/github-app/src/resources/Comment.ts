@@ -5,7 +5,7 @@ export class Comment extends GithubEntity {
   readonly issueUrl: string = '';
   readonly htmlUrl: string = '';
   readonly body: string = '';
-  readonly user: User = User.fromJS({});
+  readonly user: User = User.fromJS();
   readonly createdAt: Date = new Date(0);
   readonly updatedAt: Date = new Date(0);
   readonly authorAssociation: string = 'NONE';
@@ -32,16 +32,12 @@ const baseResource = createGithubResource({
 });
 const getList = baseResource.getList.extend({
   path: '/repos/:owner/:repo/issues/:number/comments',
-});
-const create = baseResource.create.extend({
-  path: '/repos/:owner/:repo/issues/:number/comments',
   // body is 'comment body' aka the text content
   body: { body: '' },
 });
 export const CommentResource = {
   ...baseResource,
   getList,
-  create,
   delete: baseResource.delete.extend({
     getOptimisticResponse(snap, params) {
       return params;

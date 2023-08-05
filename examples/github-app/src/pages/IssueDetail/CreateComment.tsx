@@ -43,7 +43,7 @@ function CreateForm({ issue }: { issue: Issue }) {
   const onFinish = useCallback(
     (data: { body: string }) => {
       return ctrl.fetch(
-        CommentResource.create,
+        CommentResource.getList.push,
         { owner: issue.owner, repo: issue.repo, number: issue.number },
         data,
       );

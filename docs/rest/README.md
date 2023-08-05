@@ -219,7 +219,7 @@ export default function NewArticleForm() {
   const ctrl = useController();
   return (
     <Form
-      onSubmit={e => ctrl.fetch(ArticleResource.create, new FormData(e.target))}
+      onSubmit={e => ctrl.fetch(ArticleResource.getList.push, new FormData(e.target))}
     >
       <FormField name="title" />
       <FormField name="content" type="textarea" />

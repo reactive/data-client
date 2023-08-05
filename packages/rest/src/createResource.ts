@@ -124,11 +124,17 @@ export interface Resource<
     ? GetEndpoint<{
         path: ShortenPath<O['path']>;
         schema: schema.Collection<[O['schema']]>;
+        body: 'body' extends keyof O
+          ? O['body']
+          : Partial<Denormalize<O['schema']>>;
         searchParams: O['searchParams'];
       }>
     : GetEndpoint<{
         path: ShortenPath<O['path']>;
         schema: schema.Collection<[O['schema']]>;
+        body: 'body' extends keyof O
+          ? O['body']
+          : Partial<Denormalize<O['schema']>>;
         searchParams: Record<string, number | string | boolean> | undefined;
       }>;
   /** Get a list of item

@@ -50,13 +50,13 @@ exports[`CacheProvider RestEndpoint/current should update collection on push/uns
   "todos": [
     Todo {
       "completed": false,
-      "id": 5,
+      "id": "5",
       "title": "do things",
       "userId": "1",
     },
     Todo {
       "completed": false,
-      "id": 3,
+      "id": "3",
       "title": "ssdf",
       "userId": "2",
     },
@@ -68,7 +68,7 @@ exports[`CacheProvider RestEndpoint/current should update collection on push/uns
     "todos": [
       Todo {
         "completed": false,
-        "id": 5,
+        "id": "5",
         "title": "do things",
         "userId": "1",
       },
@@ -78,7 +78,7 @@ exports[`CacheProvider RestEndpoint/current should update collection on push/uns
   "userTodos": [
     Todo {
       "completed": false,
-      "id": 5,
+      "id": "5",
       "title": "do things",
       "userId": "1",
     },
@@ -206,13 +206,13 @@ exports[`CacheProvider RestEndpoint/next should update collection on push/unshif
   "todos": [
     Todo {
       "completed": false,
-      "id": 5,
+      "id": "5",
       "title": "do things",
       "userId": "1",
     },
     Todo {
       "completed": false,
-      "id": 3,
+      "id": "3",
       "title": "ssdf",
       "userId": "2",
     },
@@ -224,7 +224,7 @@ exports[`CacheProvider RestEndpoint/next should update collection on push/unshif
     "todos": [
       Todo {
         "completed": false,
-        "id": 5,
+        "id": "5",
         "title": "do things",
         "userId": "1",
       },
@@ -234,7 +234,7 @@ exports[`CacheProvider RestEndpoint/next should update collection on push/unshif
   "userTodos": [
     Todo {
       "completed": false,
-      "id": 5,
+      "id": "5",
       "title": "do things",
       "userId": "1",
     },
@@ -403,7 +403,7 @@ exports[`CacheProvider should work with unions 2`] = `
   },
   SecondUnion {
     "body": "hi",
-    "id": 100,
+    "id": "100",
     "secondeOnlyField": 10,
     "type": "second",
   },
@@ -460,13 +460,13 @@ exports[`ExternalCacheProvider RestEndpoint/current should update collection on 
   "todos": [
     Todo {
       "completed": false,
-      "id": 5,
+      "id": "5",
       "title": "do things",
       "userId": "1",
     },
     Todo {
       "completed": false,
-      "id": 3,
+      "id": "3",
       "title": "ssdf",
       "userId": "2",
     },
@@ -478,7 +478,7 @@ exports[`ExternalCacheProvider RestEndpoint/current should update collection on 
     "todos": [
       Todo {
         "completed": false,
-        "id": 5,
+        "id": "5",
         "title": "do things",
         "userId": "1",
       },
@@ -488,7 +488,7 @@ exports[`ExternalCacheProvider RestEndpoint/current should update collection on 
   "userTodos": [
     Todo {
       "completed": false,
-      "id": 5,
+      "id": "5",
       "title": "do things",
       "userId": "1",
     },
@@ -616,13 +616,13 @@ exports[`ExternalCacheProvider RestEndpoint/next should update collection on pus
   "todos": [
     Todo {
       "completed": false,
-      "id": 5,
+      "id": "5",
       "title": "do things",
       "userId": "1",
     },
     Todo {
       "completed": false,
-      "id": 3,
+      "id": "3",
       "title": "ssdf",
       "userId": "2",
     },
@@ -634,7 +634,7 @@ exports[`ExternalCacheProvider RestEndpoint/next should update collection on pus
     "todos": [
       Todo {
         "completed": false,
-        "id": 5,
+        "id": "5",
         "title": "do things",
         "userId": "1",
       },
@@ -644,7 +644,7 @@ exports[`ExternalCacheProvider RestEndpoint/next should update collection on pus
   "userTodos": [
     Todo {
       "completed": false,
-      "id": 5,
+      "id": "5",
       "title": "do things",
       "userId": "1",
     },
@@ -813,7 +813,7 @@ exports[`ExternalCacheProvider should work with unions 2`] = `
   },
   SecondUnion {
     "body": "hi",
-    "id": 100,
+    "id": "100",
     "secondeOnlyField": 10,
     "type": "second",
   },

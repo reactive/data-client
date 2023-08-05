@@ -54,7 +54,7 @@ when possible. This allows us to use any class members.
 ```ts
 import { useController } from '@data-client/react';
 
-const post = await controller.fetch(PostResource.create, createPayload);
+const post = await controller.fetch(PostResource.getList.push, createPayload);
 post.title;
 post.computedField
 post.pk();

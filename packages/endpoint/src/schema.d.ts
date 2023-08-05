@@ -349,6 +349,16 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
   ): any;
 }
 
+export type CollectionArrayAdder<S extends PolymorphicInterface> = S extends {
+  // ensure we are an array type
+  denormalizeOnly(...args: any): any[];
+  // get what we are an array of
+  schema: infer T;
+}
+  ? // TODO: eventually we want to allow singular or list and infer the return based on arguments
+    T
+  : never;
+
 export class CollectionInterface<
   S extends PolymorphicInterface = any,
   Parent extends any[] = any,
@@ -442,16 +452,12 @@ export class CollectionInterface<
   /** Schema to place at the *end* of this Collection
    * @see https://resthooks.io/rest/api/Collection#push
    */
-  push: S extends { denormalizeOnly(...args: any): (infer Return)[] }
-    ? schema.Collection<PolymorphicInterface<Return>, Parent>
-    : never;
+  push: CollectionArrayAdder<S>;
 
   /** Schema to place at the *beginning* of this Collection
    * @see https://resthooks.io/rest/api/Collection#unshift
    */
-  unshift: S extends { denormalizeOnly(...args: any): (infer Return)[] }
-    ? schema.Collection<PolymorphicInterface<Return>, Parent>
-    : never;
+  unshift: CollectionArrayAdder<S>;
 
   /** Schema to merge with a Values Collection
    * @see https://resthooks.io/rest/api/Collection#assign
