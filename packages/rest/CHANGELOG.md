@@ -1,5 +1,12 @@
 # @data-client/rest
 
+## 0.4.1
+
+### Patch Changes
+
+- 6e790725ae: Add more docstrings to RestEndpoint members
+- 27274bcf21: Allow DELETE to have body if specified
+
 ## 0.4.0
 
 ### Minor Changes
