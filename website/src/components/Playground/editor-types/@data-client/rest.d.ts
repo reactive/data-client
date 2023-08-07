@@ -1344,7 +1344,9 @@ interface RestInstanceBase<
     method?: string;
   } = { path: string },
 > extends EndpointInstanceInterface<F, S, M> {
+  /** @see https://resthooks.io/rest/api/RestEndpoint#body */
   readonly body?: 'body' extends keyof O ? O['body'] : any;
+  /** @see https://resthooks.io/rest/api/RestEndpoint#searchParams */
   readonly searchParams?: 'searchParams' extends keyof O
     ? O['searchParams']
     : // unknown is identity with '&' type operator
@@ -1359,6 +1361,7 @@ interface RestInstanceBase<
    */
   readonly urlPrefix: string;
   readonly requestInit: RequestInit;
+  /** @see https://resthooks.io/rest/api/RestEndpoint#method */
   readonly method: (O & { method: string })['method'];
   readonly signal: AbortSignal | undefined;
 
@@ -1389,10 +1392,29 @@ interface RestInstanceBase<
   //       this is just a hack to handle when no members of PartialRestGenerics are present
   //       Note: Using overloading (like paginated did) struggles because typescript does not have a clear way of distinguishing one
   //       should be used from the other (due to same problem with every member being partial)
+  /** Creates a child endpoint that inherits from this while overriding provided `options`.
+   * @see https://dataclient.io/rest/api/RestEndpoint#extend
+   */
   extend<E extends RestInstanceBase, O extends PartialRestGenerics | {}>(
     this: E,
     options: Readonly<RestEndpointExtendOptions<O, E, F> & O>,
   ): RestExtendedEndpoint<O, E>;
+}
+
+interface RestInstance<
+  F extends FetchFunction = FetchFunction,
+  S extends Schema | undefined = any,
+  M extends true | undefined = true | undefined,
+  O extends {
+    path: string;
+    body?: any;
+    searchParams?: any;
+    method?: string;
+  } = { path: string },
+> extends RestInstanceBase<F, S, M, O> {
+  /** Endpoint to append the next page extending a list for pagination
+   * @see https://dataclient.io/rest/api/RestEndpoint#paginated
+   */
   paginated<
     E extends RestInstanceBase<FetchFunction, any, undefined>,
     A extends any[],
@@ -1407,19 +1429,9 @@ interface RestInstanceBase<
     this: E,
     cursorField: C,
   ): PaginationFieldEndpoint<E, C>;
-}
-
-interface RestInstance<
-  F extends FetchFunction = FetchFunction,
-  S extends Schema | undefined = any,
-  M extends true | undefined = true | undefined,
-  O extends {
-    path: string;
-    body?: any;
-    searchParams?: any;
-    method?: string;
-  } = { path: string },
-> extends RestInstanceBase<F, S, M, O> {
+  /** Endpoint that pushes (place at end) a newly created entity to this Collection
+   * @see https://dataclient.io/rest/api/RestEndpoint#push
+   */
   push: AddEndpoint<
     F,
     ExtractCollection<S>['push'],
@@ -1430,6 +1442,9 @@ interface RestInstance<
         | FormData;
     }
   >;
+  /** Endpoint that unshifts (place at start) a newly created entity to this Collection
+   * @see https://dataclient.io/rest/api/RestEndpoint#unshift
+   */
   unshift: AddEndpoint<
     F,
     ExtractCollection<S>['unshift'],
@@ -1440,6 +1455,9 @@ interface RestInstance<
         | FormData;
     }
   >;
+  /** Endpoint that assigns newly created entities to their respective keys in this Collection
+   * @see https://dataclient.io/rest/api/RestEndpoint#assign
+   */
   assign: AddEndpoint<
     F,
     ExtractCollection<S>,

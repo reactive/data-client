@@ -69,7 +69,7 @@ const ctrl = useController();
 const updateArticle = data => ctrl.fetch(ArticleResource.update, { id }, data);
 const partialUpdateArticle = data =>
   ctrl.fetch(ArticleResource.partialUpdate, { id }, data);
-const createArticle = data => ctrl.fetch(ArticleResource.create, data);
+const createArticle = data => ctrl.fetch(ArticleResource.getList.push, data);
 const deleteArticle = data => ctrl.fetch(ArticleResource.delete, { id });
 ```
 

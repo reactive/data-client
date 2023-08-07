@@ -18,6 +18,7 @@ export type {
   RestEndpointConstructorOptions,
   AddEndpoint,
   PaginationFieldEndpoint,
+  PaginationEndpoint,
 } from './RestEndpoint.js';
 export { default as createResource } from './createResource.js';
 export type { Resource } from './createResource.js';

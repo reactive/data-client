@@ -69,7 +69,9 @@ TodoResource.getList();
 // GET https://jsonplaceholder.typicode.com/todos?userId=1
 TodoResource.getList({ userId: 1 });
 // POST https://jsonplaceholder.typicode.com/todos
-TodoResource.create({ title: 'my todo' });
+TodoResource.getList.push({ title: 'my todo' });
+// POST https://jsonplaceholder.typicode.com/todos?userId=1
+TodoResource.getList.push({ userId: 1 }, { title: 'my todo' });
 // PUT https://jsonplaceholder.typicode.com/todos/5
 TodoResource.update({ id: 5 }, { title: 'my todo' });
 // PATCH https://jsonplaceholder.typicode.com/todos/5
