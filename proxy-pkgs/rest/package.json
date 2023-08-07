@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/rest",
-  "version": "7.1.1",
+  "version": "7.1.2",
   "description": "Endpoints for REST APIs",
   "homepage": "https://resthooks.io/rest",
   "repository": {
@@ -85,6 +85,6 @@
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",
   "dependencies": {
-    "@data-client/rest": "^0.3.1"
+    "@data-client/rest": "^0.4.0"
   }
 }

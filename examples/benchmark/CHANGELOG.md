@@ -1,5 +1,14 @@
 # Change Log
 
+## 0.4.18
+
+### Patch Changes
+
+- Updated dependencies [8a71700644]
+- Updated dependencies [8a71700644]
+- Updated dependencies [8a71700644]
+  - @data-client/endpoint@0.2.3
+
 ## 0.4.17
 
 ### Patch Changes

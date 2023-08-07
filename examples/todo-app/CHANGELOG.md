@@ -1,5 +1,16 @@
 # Change Log
 
+## 0.2.20
+
+### Patch Changes
+
+- Updated dependencies [8a71700644]
+- Updated dependencies [8a71700644]
+- Updated dependencies [8a71700644]
+- Updated dependencies [8a71700644]
+  - @data-client/endpoint@0.2.3
+  - @data-client/rest@0.4.0
+
 ## 0.2.19
 
 ### Patch Changes
