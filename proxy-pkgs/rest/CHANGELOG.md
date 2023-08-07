@@ -1,5 +1,15 @@
 # Change Log
 
+## 7.1.2
+
+### Patch Changes
+
+- 8a71700644: fix: Support Collections with boolean parameters
+- Updated dependencies [8a71700644]
+- Updated dependencies [8a71700644]
+- Updated dependencies [8a71700644]
+  - @data-client/rest@0.4.0
+
 ## 7.1.1
 
 ### Patch Changes

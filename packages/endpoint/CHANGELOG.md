@@ -1,5 +1,13 @@
 # @data-client/endpoint
 
+## 0.2.3
+
+### Patch Changes
+
+- 8a71700644: Add EndpointToFunction type
+- 8a71700644: scheam.push/unshift type denormalize to singular item (for now)
+- 8a71700644: fix: Support Collections with boolean parameters
+
 ## 0.2.2
 
 ### Patch Changes

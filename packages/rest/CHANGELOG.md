@@ -1,5 +1,20 @@
 # @data-client/rest
 
+## 0.4.0
+
+### Minor Changes
+
+- 8a71700644: push/unshift/assign inherit body type
+
+### Patch Changes
+
+- 8a71700644: scheam.push/unshift type denormalize to singular item (for now)
+- 8a71700644: fix: Support Collections with boolean parameters
+- Updated dependencies [8a71700644]
+- Updated dependencies [8a71700644]
+- Updated dependencies [8a71700644]
+  - @data-client/endpoint@0.2.3
+
 ## 0.3.1
 
 ### Patch Changes

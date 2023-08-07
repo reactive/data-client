@@ -1,5 +1,15 @@
 # Change Log
 
+## 4.0.4
+
+### Patch Changes
+
+- 8a71700644: fix: Support Collections with boolean parameters
+- Updated dependencies [8a71700644]
+- Updated dependencies [8a71700644]
+- Updated dependencies [8a71700644]
+  - @data-client/endpoint@0.2.3
+
 ## 4.0.3
 
 ### Patch Changes
