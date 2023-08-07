@@ -48,7 +48,7 @@ export type OptionsToFunction<
 export type OptionsToBodyArgument<
   O extends { body?: any },
   Method extends string | undefined,
-> = Method extends 'POST' | 'PUT' | 'PATCH'
+> = Method extends 'POST' | 'PUT' | 'PATCH' | 'DELETE'
   ? 'body' extends keyof O
     ? O['body']
     : any

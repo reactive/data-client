@@ -615,5 +615,5 @@ export type MutateEndpoint<
   true,
   O['body'],
   any,
-  O & { body: any; method: 'POST' | 'PUT' | 'PATCH' }
+  O & { body: any; method: 'POST' | 'PUT' | 'PATCH' | 'DELETE' }
 >;
