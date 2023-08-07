@@ -189,7 +189,7 @@ describe.each([
       await controller.fetch(UnionResource.getList.push, {
         body: 'hi',
         type: 'second',
-        id: 100,
+        id: '100',
       });
     });
     expect(result.current[3]).toBeInstanceOf(SecondUnion);
@@ -278,15 +278,15 @@ describe.each([
           .reply(200, {
             id: '1',
             username: 'bob',
-            todos: [{ id: 5, title: 'do things', userId: '1' }],
+            todos: [{ id: '5', title: 'do things', userId: '1' }],
           })
           .get(`/todos`)
           .reply(200, [
-            { id: 5, title: 'do things', userId: '1' },
-            { id: 3, title: 'ssdf', userId: '2' },
+            { id: '5', title: 'do things', userId: '1' },
+            { id: '3', title: 'ssdf', userId: '2' },
           ])
           .get(`/todos?userId=1`)
-          .reply(200, [{ id: 5, title: 'do things', userId: '1' }])
+          .reply(200, [{ id: '5', title: 'do things', userId: '1' }])
           .post(`/todos`)
           .reply(200, (uri, body: any) => ({ ...body }))
           .post(`/todos?userId=5`)
@@ -322,14 +322,18 @@ describe.each([
             TodoResource.getList.push,
             { userId: '5' },
             {
-              id: 1,
+              id: '1',
               title: 'push',
-              userId: '5',
+              userId: 5,
             },
           );
         });
-        expect(result.current.userTodos.map(({ id }) => id)).toEqual([5]);
-        expect(result.current.todos.map(({ id }) => id)).toEqual([5, 3, 1]);
+        expect(result.current.userTodos.map(({ id }) => id)).toEqual(['5']);
+        expect(result.current.todos.map(({ id }) => id)).toEqual([
+          '5',
+          '3',
+          '1',
+        ]);
         expect(result.current.user.todos).toBe(result.current.userTodos);
         // userTodos didn't change so should maintain referential equality
         expect(result.current.userTodos).toBe(firstUserTodos);
@@ -340,14 +344,22 @@ describe.each([
             TodoResource.getList.unshift,
             { userId: '1' },
             {
-              id: 55,
+              id: '55',
               title: 'unshift',
             },
           );
         });
         // this adds to both the base todo list, the one with userId filter, and the nested todo list inside user object
-        expect(result.current.todos.map(({ id }) => id)).toEqual([55, 5, 3, 1]);
-        expect(result.current.userTodos.map(({ id }) => id)).toEqual([55, 5]);
+        expect(result.current.todos.map(({ id }) => id)).toEqual([
+          '55',
+          '5',
+          '3',
+          '1',
+        ]);
+        expect(result.current.userTodos.map(({ id }) => id)).toEqual([
+          '55',
+          '5',
+        ]);
         expect(result.current.user.todos).toBe(result.current.userTodos);
 
         // type checks
@@ -358,7 +370,7 @@ describe.each([
             // @ts-expect-error
             { sdf: '1' },
             {
-              id: 55,
+              id: '55',
               title: 'unshift',
             },
           );
@@ -369,7 +381,7 @@ describe.each([
             // @ts-expect-error
             5,
             {
-              id: 55,
+              id: '55',
               title: 'unshift',
             },
           );

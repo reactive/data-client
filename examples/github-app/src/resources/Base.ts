@@ -99,7 +99,7 @@ export function createGithubResource<O extends ResourceGenerics>(
   } as ResourceGenerics);
 
   const getList: GetEndpoint<
-    Omit<O, 'schema' | 'body' | 'path'> & {
+    Omit<O, 'schema' | 'path'> & {
       readonly path: ShortenPath<O['path']>;
       readonly schema: {
         results: schema.Collection<O['schema'][]>;
@@ -109,12 +109,10 @@ export function createGithubResource<O extends ResourceGenerics>(
   > = baseResource.getList.extend({
     schema: { results: baseResource.getList.schema, link: '' },
   }) as any;
-  const getNextPage = getList.paginated('page');
 
   return {
     ...baseResource,
     getList,
-    getNextPage,
   } as any;
 }
 
@@ -126,25 +124,13 @@ export interface GithubResource<
   },
 > extends Omit<Resource<O>, 'getList' | 'getNextPage'> {
   getList: GetEndpoint<
-    Omit<O, 'schema' | 'body' | 'path'> & {
+    Omit<O, 'schema' | 'path'> & {
       readonly path: ShortenPath<O['path']>;
       readonly schema: {
         results: schema.Collection<O['schema'][]>;
         link: string;
       };
     }
-  >;
-  getNextPage: PaginationFieldEndpoint<
-    GetEndpoint<
-      Omit<O, 'body' | 'schema' | 'path'> & {
-        readonly path: ShortenPath<O['path']>;
-        readonly schema: {
-          results: schema.Collection<O['schema'][]>;
-          link: string;
-        };
-      }
-    >,
-    'page'
   >;
 }
 

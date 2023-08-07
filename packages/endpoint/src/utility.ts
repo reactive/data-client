@@ -25,3 +25,8 @@ export type PartialParameters<T extends (...args: any[]) => any> = T extends (
 ) => any
   ? Partial<P>
   : never;
+
+export type EndpointToFunction<E extends (...args: any) => Promise<any>> = (
+  this: E,
+  ...args: Parameters<E>
+) => ReturnType<E>;

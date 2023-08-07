@@ -237,9 +237,9 @@ const defaultFilter =
     Object.entries(collectionKey).every(
       ([key, value]) =>
         key.startsWith('order') ||
-        // double equals lets us compare non-strings and strings
-        urlParams[key] == value ||
-        body?.[key] == value,
+        // strings are canonical form. See pk() above for value transformation
+        `${urlParams[key]}` === value ||
+        `${body?.[key]}` === value,
     );
 
 function CreateAdder<C extends CollectionSchema<any, any>, P extends any[]>(

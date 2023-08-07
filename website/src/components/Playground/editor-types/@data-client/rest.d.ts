@@ -79,6 +79,7 @@ type EndpointParam<E> = E extends (first: infer A, ...rest: any) => any ? A : E 
 /** What the function's promise resolves to */
 type ResolveType<E extends (...args: any) => any> = ReturnType<E> extends Promise<infer R> ? R : never;
 type PartialParameters<T extends (...args: any[]) => any> = T extends (...args: infer P) => any ? Partial<P> : never;
+type EndpointToFunction<E extends (...args: any) => Promise<any>> = (this: E, ...args: Parameters<E>) => ReturnType<E>;
 
 type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Promise<R>;
 interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
@@ -879,6 +880,16 @@ declare class Values<Choices extends Schema = any> implements SchemaClass {
   ): any;
 }
 
+type CollectionArrayAdder<S extends PolymorphicInterface> = S extends {
+  // ensure we are an array type
+  denormalizeOnly(...args: any): any[];
+  // get what we are an array of
+  schema: infer T;
+}
+  ? // TODO: eventually we want to allow singular or list and infer the return based on arguments
+    T
+  : never;
+
 declare class CollectionInterface<
   S extends PolymorphicInterface = any,
   Parent extends any[] = any,
@@ -972,16 +983,12 @@ declare class CollectionInterface<
   /** Schema to place at the *end* of this Collection
    * @see https://resthooks.io/rest/api/Collection#push
    */
-  push: S extends { denormalizeOnly(...args: any): (infer Return)[] }
-    ? Collection<PolymorphicInterface<Return>, Parent>
-    : never;
+  push: CollectionArrayAdder<S>;
 
   /** Schema to place at the *beginning* of this Collection
    * @see https://resthooks.io/rest/api/Collection#unshift
    */
-  unshift: S extends { denormalizeOnly(...args: any): (infer Return)[] }
-    ? Collection<PolymorphicInterface<Return>, Parent>
-    : never;
+  unshift: CollectionArrayAdder<S>;
 
   /** Schema to merge with a Values Collection
    * @see https://resthooks.io/rest/api/Collection#assign
@@ -1088,6 +1095,7 @@ type schema_d_Union<Choices extends EntityMap = any> = Union<Choices>;
 declare const schema_d_Union: typeof Union;
 type schema_d_Values<Choices extends Schema = any> = Values<Choices>;
 declare const schema_d_Values: typeof Values;
+type schema_d_CollectionArrayAdder<S extends PolymorphicInterface> = CollectionArrayAdder<S>;
 type schema_d_CollectionInterface<S extends PolymorphicInterface = any, Parent extends any[] = any> = CollectionInterface<S, Parent>;
 declare const schema_d_CollectionInterface: typeof CollectionInterface;
 type schema_d_CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Parent extends any[] = [
@@ -1119,6 +1127,7 @@ declare namespace schema_d {
     Object$1 as Object,
     schema_d_Union as Union,
     schema_d_Values as Values,
+    schema_d_CollectionArrayAdder as CollectionArrayAdder,
     schema_d_CollectionInterface as CollectionInterface,
     schema_d_CollectionFromSchema as CollectionFromSchema,
     schema_d_CollectionConstructor as CollectionConstructor,
@@ -1268,14 +1277,20 @@ type QuerySchema<Schema, R> = Exclude<Schema, 'denormalize' | '_denormalizeNulla
 declare class AbortOptimistic extends Error {
 }
 
-type ExtractCollection<S extends Schema | undefined> = S extends CollectionInterface ? S : S extends Object$1<infer T> ? ExtractObject<T> : S extends Exclude<Schema, {
+type ExtractObject<S extends Record<string, any>> = {
+    [K in keyof S]: S[K] extends Schema ? ExtractCollection<S[K]> : never;
+}[keyof S];
+
+type ExtractCollection<S extends Schema | undefined> = S extends {
+    push: any;
+    unshift: any;
+    assign: any;
+    schema: Schema;
+} ? S : S extends Object$1<infer T> ? ExtractObject<T> : S extends Exclude<Schema, {
     [K: string]: any;
 }> ? never : S extends {
     [K: string]: Schema;
 } ? ExtractObject<S> : never;
-type ExtractObject<S extends Record<string, any>> = {
-    [K in keyof S]: S[K] extends Schema ? ExtractCollection<S[K]> : never;
-}[keyof S];
 
 type OnlyOptional<S extends string> = S extends `${infer K}?` ? K : never;
 type OnlyRequired<S extends string> = S extends `${string}?` ? never : S;
@@ -1297,9 +1312,14 @@ type ShortenPath<S extends string> = string extends S ? string : S extends `${in
 type TrimColon<S extends string> = string extends S ? string : S extends `${infer R}:` ? R : S;
 type ResourcePath = string;
 
-type OptionsToFunction<O extends PartialRestGenerics, E extends RestInstanceBase & {
+type OptionsToFunction<O extends PartialRestGenerics, E extends {
     body?: any;
-}, F extends FetchFunction> = 'path' extends keyof O ? RestFetch<'searchParams' extends keyof O ? O['searchParams'] & PathArgs<Exclude<O['path'], undefined>> : PathArgs<Exclude<O['path'], undefined>>, 'body' extends keyof O ? O['body'] : E['body'], O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>> : 'body' extends keyof O ? RestFetch<'searchParams' extends keyof O ? O['searchParams'] & PathArgs<Exclude<E['path'], undefined>> : PathArgs<Exclude<E['path'], undefined>>, O['body'], O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>> : 'searchParams' extends keyof O ? RestFetch<O['searchParams'] & PathArgs<Exclude<E['path'], undefined>>, E['body'], O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>> : (this: ThisParameterType<F>, ...args: Parameters<F>) => Promise<O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>>;
+    path?: string;
+    method?: string;
+}, F extends FetchFunction> = 'path' extends keyof O ? RestFetch<'searchParams' extends keyof O ? O['searchParams'] & PathArgs<Exclude<O['path'], undefined>> : PathArgs<Exclude<O['path'], undefined>>, OptionsToBodyArgument<'body' extends keyof O ? O : E, 'method' extends keyof O ? O['method'] : E['method']>, O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>> : 'body' extends keyof O ? RestFetch<'searchParams' extends keyof O ? O['searchParams'] & PathArgs<Exclude<E['path'], undefined>> : PathArgs<Exclude<E['path'], undefined>>, OptionsToBodyArgument<O, 'method' extends keyof O ? O['method'] : E['method']>, O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>> : 'searchParams' extends keyof O ? RestFetch<O['searchParams'] & PathArgs<Exclude<E['path'], undefined>>, OptionsToBodyArgument<E, 'method' extends keyof O ? O['method'] : E['method']>, O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>> : (this: ThisParameterType<F>, ...args: Parameters<F>) => Promise<O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>>;
+type OptionsToBodyArgument<O extends {
+    body?: any;
+}, Method extends string | undefined> = Method extends 'POST' | 'PUT' | 'PATCH' ? 'body' extends keyof O ? O['body'] : any : undefined;
 
 type EndpointUpdateFunction<Source extends FetchFunction, Schema, Updaters extends Record<string, any> = Record<string, any>> = (source: ResultEntry<Source & {
     schema: Schema;
@@ -1321,6 +1341,7 @@ interface RestInstanceBase<
     path: string;
     body?: any;
     searchParams?: any;
+    method?: string;
   } = { path: string },
 > extends EndpointInstanceInterface<F, S, M> {
   readonly body?: 'body' extends keyof O ? O['body'] : any;
@@ -1338,7 +1359,7 @@ interface RestInstanceBase<
    */
   readonly urlPrefix: string;
   readonly requestInit: RequestInit;
-  readonly method: string;
+  readonly method: (O & { method: string })['method'];
   readonly signal: AbortSignal | undefined;
 
   /* fetch lifecycles */
@@ -1396,16 +1417,41 @@ interface RestInstance<
     path: string;
     body?: any;
     searchParams?: any;
+    method?: string;
   } = { path: string },
 > extends RestInstanceBase<F, S, M, O> {
-  push: AddEndpoint<F, S, O>;
-  unshift: AddEndpoint<F, S, O>;
-  assign: AddEndpoint<F, S, O>;
+  push: AddEndpoint<
+    F,
+    ExtractCollection<S>['push'],
+    Exclude<O, 'body' | 'method'> & {
+      body:
+        | OptionsToAdderBodyArgument<O>
+        | OptionsToAdderBodyArgument<O>[]
+        | FormData;
+    }
+  >;
+  unshift: AddEndpoint<
+    F,
+    ExtractCollection<S>['unshift'],
+    Exclude<O, 'body' | 'method'> & {
+      body:
+        | OptionsToAdderBodyArgument<O>
+        | OptionsToAdderBodyArgument<O>[]
+        | FormData;
+    }
+  >;
+  assign: AddEndpoint<
+    F,
+    ExtractCollection<S>,
+    Exclude<O, 'body' | 'method'> & {
+      body: Record<string, OptionsToAdderBodyArgument<O>> | FormData;
+    }
+  >;
 }
 
 type RestEndpointExtendOptions<
   O extends PartialRestGenerics,
-  E extends RestInstanceBase,
+  E extends { body?: any; path?: string; schema?: Schema; method?: string },
   F extends FetchFunction,
 > = RestEndpointOptions<
   OptionsToFunction<O, E, F>,
@@ -1426,7 +1472,10 @@ type OptionsToRestEndpoint<
           ? PathArgs<Exclude<O['path'], undefined>>
           : O['searchParams'] & PathArgs<Exclude<O['path'], undefined>>
         : PathArgs<Exclude<O['path'], undefined>>,
-      'body' extends keyof O ? O['body'] : E['body'],
+      OptionsToBodyArgument<
+        'body' extends keyof O ? O : E,
+        'method' extends keyof O ? O['method'] : E['method']
+      >,
       'schema' extends keyof O ? O['schema'] : E['schema'],
       'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'],
       O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>,
@@ -1436,6 +1485,7 @@ type OptionsToRestEndpoint<
         searchParams: 'searchParams' extends keyof O
           ? O['searchParams']
           : E['searchParams'];
+        method: 'method' extends keyof O ? O['method'] : E['method'];
       }
     >
   : 'body' extends keyof O
@@ -1445,7 +1495,10 @@ type OptionsToRestEndpoint<
           ? PathArgs<Exclude<O['path'], undefined>>
           : O['searchParams'] & PathArgs<Exclude<E['path'], undefined>>
         : PathArgs<Exclude<E['path'], undefined>>,
-      O['body'],
+      OptionsToBodyArgument<
+        O,
+        'method' extends keyof O ? O['method'] : E['method']
+      >,
       'schema' extends keyof O ? O['schema'] : E['schema'],
       'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'],
       O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>,
@@ -1455,6 +1508,7 @@ type OptionsToRestEndpoint<
         searchParams: 'searchParams' extends keyof O
           ? O['searchParams']
           : E['searchParams'];
+        method: 'method' extends keyof O ? O['method'] : E['method'];
       }
     >
   : 'searchParams' extends keyof O
@@ -1462,7 +1516,10 @@ type OptionsToRestEndpoint<
       O['searchParams'] extends undefined
         ? PathArgs<Exclude<O['path'], undefined>>
         : O['searchParams'] & PathArgs<Exclude<E['path'], undefined>>,
-      E['body'],
+      OptionsToBodyArgument<
+        E,
+        'method' extends keyof O ? O['method'] : E['method']
+      >,
       'schema' extends keyof O ? O['schema'] : E['schema'],
       'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'],
       O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>,
@@ -1470,6 +1527,7 @@ type OptionsToRestEndpoint<
         path: E['path'];
         body: E['body'];
         searchParams: O['searchParams'];
+        method: 'method' extends keyof O ? O['method'] : E['method'];
       }
     >
   : RestInstance<
@@ -1484,6 +1542,7 @@ type OptionsToRestEndpoint<
         searchParams: 'searchParams' extends keyof O
           ? O['searchParams']
           : E['searchParams'];
+        method: 'method' extends keyof O ? O['method'] : E['method'];
       }
     >;
 
@@ -1511,9 +1570,9 @@ interface PartialRestGenerics {
   readonly schema?: Schema | undefined;
   readonly method?: string;
   /** Only used for types */
-  readonly body?: any;
+  body?: any;
   /** Only used for types */
-  readonly searchParams?: any;
+  searchParams?: any;
   /** @see https://resthooks.io/rest/api/RestEndpoint#process */
   process?(value: any, ...args: any): any;
 }
@@ -1522,7 +1581,7 @@ interface RestGenerics extends PartialRestGenerics {
 }
 
 type PaginationEndpoint<
-  E extends RestInstanceBase,
+  E extends FetchFunction & RestGenerics & { sideEffect?: true | undefined },
   A extends any[],
 > = RestInstance<
   ParamFetchNoBody<A[0], ResolveType<E>>,
@@ -1533,7 +1592,7 @@ type PaginationEndpoint<
   }
 >;
 type PaginationFieldEndpoint<
-  E extends RestInstanceBase,
+  E extends FetchFunction & RestGenerics & { sideEffect?: true | undefined },
   C extends string,
 > = RestInstance<
   ParamFetchNoBody<
@@ -1552,9 +1611,9 @@ type AddEndpoint<
   S extends Schema | undefined = any,
   O extends {
     path: string;
-    body?: any;
+    body: any;
     searchParams?: any;
-  } = { path: string },
+  } = { path: string; body: any },
 > = RestInstanceBase<
   RestFetch<
     'searchParams' extends keyof O
@@ -1562,25 +1621,16 @@ type AddEndpoint<
         ? PathArgs<Exclude<O['path'], undefined>>
         : O['searchParams'] & PathArgs<Exclude<O['path'], undefined>>
       : PathArgs<Exclude<O['path'], undefined>>,
-    any,
+    O['body'],
     ResolveType<F>
   >,
-  ExtractCollection<S>,
+  S,
   true,
-  Omit<O, 'body'>
-> & { method: 'POST' };
+  O & { method: 'POST' }
+>;
 
-type BodyDefault<O extends RestGenerics> = 'body' extends keyof O
-  ? O['body']
-  : O['method'] extends 'POST' | 'PUT' | 'PATCH'
-  ? Record<string, unknown> | FormData
-  : undefined;
-
-type OptionsBodyDefault<O extends RestGenerics> = 'body' extends keyof O
-  ? O
-  : O['method'] extends 'POST' | 'PUT' | 'PATCH'
-  ? O & { body: any }
-  : O & { body: undefined };
+type OptionsToAdderBodyArgument<O extends { body?: any }> =
+  'body' extends keyof O ? O['body'] : any;
 
 interface RestEndpointOptions<
   F extends FetchFunction = FetchFunction,
@@ -1610,7 +1660,14 @@ type RestEndpointConstructorOptions<O extends RestGenerics = any> =
           ? PathArgs<O['path']>
           : O['searchParams'] & PathArgs<O['path']>
         : PathArgs<O['path']>,
-      BodyDefault<O>,
+      OptionsToBodyArgument<
+        O,
+        'method' extends keyof O
+          ? O['method']
+          : O extends { sideEffect: true }
+          ? 'POST'
+          : 'GET'
+      >,
       O['process'] extends {}
         ? ReturnType<O['process']>
         : any /*Denormalize<O['schema']>*/
@@ -1631,14 +1688,27 @@ interface RestEndpointConstructor {
           ? PathArgs<O['path']>
           : O['searchParams'] & PathArgs<O['path']>
         : PathArgs<O['path']>,
-      BodyDefault<O>,
+      OptionsToBodyArgument<
+        O,
+        'method' extends keyof O
+          ? O['method']
+          : O extends { sideEffect: true }
+          ? 'POST'
+          : 'GET'
+      >,
       O['process'] extends {}
         ? ReturnType<O['process']>
         : any /*Denormalize<O['schema']>*/
     >,
     'schema' extends keyof O ? O['schema'] : undefined,
-    MethodToSide<O['method']>,
-    OptionsBodyDefault<O>
+    'sideEffect' extends keyof O
+      ? Extract<O['sideEffect'], undefined | true>
+      : MethodToSide<O['method']>,
+    'method' extends keyof O
+      ? O
+      : O & {
+          method: O extends { sideEffect: true } ? 'POST' : 'GET';
+        }
   >;
   readonly prototype: RestInstanceBase;
 }
@@ -1813,7 +1883,7 @@ type GetEndpoint<
   O['schema'],
   undefined,
   any,
-  O & { body: undefined }
+  O & { method: 'GET' }
 >;
 
 type MutateEndpoint<
@@ -1839,7 +1909,7 @@ type MutateEndpoint<
   true,
   O['body'],
   any,
-  O
+  O & { body: any; method: 'POST' | 'PUT' | 'PATCH' }
 >;
 
 interface ResourceGenerics {
@@ -1904,10 +1974,12 @@ interface Resource<O extends ResourceGenerics = {
     getList: 'searchParams' extends keyof O ? GetEndpoint<{
         path: ShortenPath<O['path']>;
         schema: Collection<[O['schema']]>;
+        body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>>;
         searchParams: O['searchParams'];
     }> : GetEndpoint<{
         path: ShortenPath<O['path']>;
         schema: Collection<[O['schema']]>;
+        body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>>;
         searchParams: Record<string, number | string | boolean> | undefined;
     }>;
     /** Get a list of item
@@ -2005,4 +2077,4 @@ declare function paginationUpdate<E extends {
     [x: number]: (existing: any) => any;
 };
 
-export { AbortOptimistic, AbstractInstanceType, AddEndpoint, Array$1 as Array, ArrayElement, BodyDefault, Collection, DELETED, Defaults, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, FetchGet, FetchMutate, FromFallBack, GetEndpoint, HookResource, HookableEndpointInterface, INVALID, Index, IndexParams, Invalidate, KeyofEndpointInstance, KeyofRestEndpoint, KeysToArgs, MethodToSide, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, OptionsToFunction, PaginationEndpoint, PaginationFieldEndpoint, ParamFetchNoBody, ParamFetchWithBody, PartialRestGenerics, PathArgs, PathArgsAndSearch, PathKeys, PolymorphicInterface, Query, ReadEndpoint, ResolveType, Resource, ResourceGenerics, ResourceOptions, RestEndpoint, RestEndpointConstructor, RestEndpointConstructorOptions, RestEndpointExtendOptions, RestEndpointOptions, RestExtendedEndpoint, RestFetch, RestGenerics, RestInstance, RestInstanceBase, RestType, RestTypeNoBody, RestTypeWithBody, Schema, SchemaClass$1 as SchemaClass, SchemaSimple, SchemaSimpleNew, ShortenPath, SnapshotInterface, UnknownError, createResource, hookifyResource, paginationUpdate, schema_d as schema, validateRequired };
+export { AbortOptimistic, AbstractInstanceType, AddEndpoint, Array$1 as Array, ArrayElement, Collection, DELETED, Defaults, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, EndpointToFunction, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, FetchGet, FetchMutate, FromFallBack, GetEndpoint, HookResource, HookableEndpointInterface, INVALID, Index, IndexParams, Invalidate, KeyofEndpointInstance, KeyofRestEndpoint, KeysToArgs, MethodToSide, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, OptionsToFunction, PaginationEndpoint, PaginationFieldEndpoint, ParamFetchNoBody, ParamFetchWithBody, PartialRestGenerics, PathArgs, PathArgsAndSearch, PathKeys, PolymorphicInterface, Query, ReadEndpoint, ResolveType, Resource, ResourceGenerics, ResourceOptions, RestEndpoint, RestEndpointConstructor, RestEndpointConstructorOptions, RestEndpointExtendOptions, RestEndpointOptions, RestExtendedEndpoint, RestFetch, RestGenerics, RestInstance, RestInstanceBase, RestType, RestTypeNoBody, RestTypeWithBody, Schema, SchemaClass$1 as SchemaClass, SchemaSimple, SchemaSimpleNew, ShortenPath, SnapshotInterface, UnknownError, createResource, hookifyResource, paginationUpdate, schema_d as schema, validateRequired };

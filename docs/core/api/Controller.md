@@ -56,7 +56,7 @@ function CreatePost() {
 
   return (
     <form
-      onSubmit={e => ctrl.fetch(PostResource.create, new FormData(e.target))}
+      onSubmit={e => ctrl.fetch(PostResource.getList.push, new FormData(e.target))}
     >
       {/* ... */}
     </form>
@@ -119,7 +119,7 @@ When using schemas, the denormalized value is returned
 // highlight-next-line
 import { useController } from '@data-client/react';
 
-const post = await controller.fetch(PostResource.create, createPayload);
+const post = await controller.fetch(PostResource.getList.push, createPayload);
 post.title;
 post.pk();
 ```

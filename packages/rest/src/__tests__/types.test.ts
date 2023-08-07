@@ -436,15 +436,19 @@ it('should handle more open ended type definitions', () => {
     });
 
     unknownParams({ hi: 5 });
+    unknownParams();
+    // @ts-expect-error
+    unknownParams(5);
 
     const explicit: GetEndpoint<{
       path: `${string}:${string}`;
-      schema: typeof User;
+      schema: schema.Collection<[typeof User]>;
     }> = new RestEndpoint({
       path: '' as `${string}:${string}`,
-      schema: User,
+      schema: new schema.Collection([User]),
     });
     explicit({ hi: 5 });
     explicit.push.process({} as any, { hi: 5 });
+    explicit.push();
   };
 });

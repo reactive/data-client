@@ -13,7 +13,7 @@ export default function NewPost({ userId }: { userId: number }) {
         type="text"
         onKeyDown={async e => {
           if (e.key === 'Enter') {
-            controller.fetch(PostResource.create, {
+            controller.fetch(PostResource.getList.push, {
               id: randomId(),
               userId,
               title: e.currentTarget.value,

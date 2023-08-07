@@ -375,7 +375,7 @@ const todos = useSuspense(TodoResource.getList);
 // mutate
 // POST https://jsonplaceholder.typicode.com/todos
 const ctrl = useController();
-ctrl.fetch(TodoResource.create, { title: 'my todo' });
+ctrl.fetch(TodoResource.getList.push, { title: 'my todo' });
 
 // PUT https://jsonplaceholder.typicode.com/todos/5
 const ctrl = useController();

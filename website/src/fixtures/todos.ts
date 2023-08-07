@@ -75,11 +75,11 @@ export const todoFixtures = [
     },
   },
   {
-    endpoint: TodoResource.create,
+    endpoint: TodoResource.getList.push,
     async response(...args: any) {
       //await new Promise(resolve => setTimeout(resolve, 500));
       return {
-        ...(await TodoResource.create(...args)),
+        ...(await TodoResource.getList.push(...args)),
         id: args?.[args.length - 1]?.id,
       };
     },

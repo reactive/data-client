@@ -1,12 +1,10 @@
 import type { FetchFunction, ResolveType } from '@data-client/endpoint';
 
-import { PartialRestGenerics, RestInstance } from './RestEndpoint.js';
+import { PartialRestGenerics } from './RestEndpoint.js';
 
 export type OptionsToFunction<
   O extends PartialRestGenerics,
-  E extends RestInstance & {
-    body?: any;
-  },
+  E extends { body?: any; path?: string; method?: string },
   F extends FetchFunction,
 > = (
   this: ThisParameterType<F>,
@@ -14,3 +12,8 @@ export type OptionsToFunction<
 ) => Promise<
   O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>
 >;
+
+export type OptionsToBodyArgument<
+  O extends { body?: any },
+  Method extends string | undefined,
+> = any;

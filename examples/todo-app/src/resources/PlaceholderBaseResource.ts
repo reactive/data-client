@@ -43,8 +43,9 @@ export function createPlaceholderResource<O extends ResourceGenerics = any>(
     // This is sometimes needed when you don't control the server API itself
     // More here: https://resthooks.io/docs/guides/network-transform#case-of-the-missing-id
     partialUpdate,
-    create: base.create.extend({
+    getList: base.getList.extend({
       process(response: any, ...args: any[]) {
+        if (Array.isArray(response)) return response;
         // placeholder's are stateless, so we need to replace with our fake id
         return {
           ...response,

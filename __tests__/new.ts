@@ -417,6 +417,7 @@ export const TypedArticleResource = {
   }),
   anybody: TypedArticleResourceBase.get.extend({
     path: '/:id',
+    method: 'POST',
     body: 0 as any,
   }),
   noparams: TypedArticleResourceBase.getList,

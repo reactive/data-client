@@ -51,10 +51,10 @@ export default {
       },
     },
     {
-      endpoint: PostResource.create,
+      endpoint: PostResource.getList.push,
       async response(...args: any) {
         return {
-          ...(await PostResource.create(...args)),
+          ...(await PostResource.getList.push(...args)),
           id: args?.[args.length - 1]?.id,
         };
       },

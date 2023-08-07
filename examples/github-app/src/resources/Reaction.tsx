@@ -5,7 +5,7 @@ import PreviewEndpoint from './PreviewEndpoint';
 import { User } from './User';
 
 export class Reaction extends GithubEntity {
-  readonly user: User = User.fromJS({});
+  readonly user: User = User.fromJS();
   readonly content: ReactionType = '+1';
   readonly createdAt: Date = new Date(0);
 
