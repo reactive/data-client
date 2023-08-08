@@ -3,15 +3,19 @@ import {
   SnapshotInterface,
   schema,
 } from '@data-client/endpoint';
-import type { Denormalize } from '@data-client/endpoint';
 
-import { PathArgs, ResourcePath, ShortenPath } from './pathTypes.js';
-import { ResourceGenerics, ResourceOptions } from './resourceTypes.js';
+import { ResourcePath } from './pathTypes.js';
+import {
+  ResourceGenerics,
+  ResourceOptions,
+  Resource,
+  ResourceInterface,
+} from './resourceTypes.js';
 import RestEndpoint, {
   GetEndpoint,
-  MutateEndpoint,
-  PaginationFieldEndpoint,
-  RestTypeNoBody,
+  PartialRestGenerics,
+  RestEndpointOptions,
+  RestInstanceBase,
 } from './RestEndpoint.js';
 import { shortenPath } from './RestHelpers.js';
 
@@ -26,11 +30,15 @@ export default function createResource<O extends ResourceGenerics>({
   schema,
   Endpoint = RestEndpoint,
   optimistic,
-  paginationField,
   ...extraOptions
 }: Readonly<O> & ResourceOptions): Resource<O> {
   const shortenedPath = shortenPath(path);
   const getName = (name: string) => `${(schema as any)?.name}.${name}`;
+  // this accounts for derivative endpoints
+  function extendMember(extended: any, key: string, options: any) {
+    extended[key] = extended[key].extend(options);
+  }
+
   const extraMutateOptions = { ...extraOptions };
   const extraPartialOptions = { ...extraOptions };
   const get: GetEndpoint<{ path: O['path']; schema: O['schema'] }> =
@@ -53,6 +61,7 @@ export default function createResource<O extends ResourceGenerics>({
   const ret = {
     get,
     getList,
+    // TODO(deprecated): remove this once we remove creates
     create: getList.push.extend({ name: getName('create') }),
     update: new Endpoint({
       ...extraMutateOptions,
@@ -79,8 +88,45 @@ export default function createResource<O extends ResourceGenerics>({
       },
       getOptimisticResponse: optimistic ? (optimisticDelete as any) : undefined,
     }),
+    extend(
+      ...args:
+        | [string, RestEndpointOptions & PartialRestGenerics]
+        | [RestEndpointOptions & PartialRestGenerics]
+        | [
+            (
+              baseResource: ResourceInterface,
+            ) => Record<string, RestInstanceBase>,
+          ]
+    ) {
+      if (typeof args[0] === 'string') {
+        const [key, options] = args;
+        if (key in this) {
+          const extended = { ...this };
+          extendMember(extended, key, options);
+          return extended;
+        } else {
+          return {
+            ...this,
+            [key]: this.get.extend(options),
+          };
+        }
+      } else if (typeof args[0] === 'function') {
+        const extended = args[0](this);
+        return {
+          ...this,
+          ...extended,
+        };
+      }
+      const overrides = args[0];
+      const extended = { ...this };
+      for (const key in overrides) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        extendMember(extended, key, overrides[key]);
+      }
+      return extended;
+    },
   } as any;
-  if (paginationField) ret.getNextPage = getList.paginated(paginationField);
   return ret;
 }
 
@@ -106,122 +152,4 @@ function optimisticPartial(
 }
 function optimisticDelete(snap: SnapshotInterface, params: any) {
   return params;
-}
-
-export interface Resource<
-  O extends ResourceGenerics = { path: ResourcePath; schema: any },
-> {
-  /** Get a singular item
-   *
-   * @see https://resthooks.io/rest/api/createResource#get
-   */
-  get: GetEndpoint<{ path: O['path']; schema: O['schema'] }>;
-  /** Get a list of item
-   *
-   * @see https://resthooks.io/rest/api/createResource#getlist
-   */
-  getList: 'searchParams' extends keyof O
-    ? GetEndpoint<{
-        path: ShortenPath<O['path']>;
-        schema: schema.Collection<[O['schema']]>;
-        body: 'body' extends keyof O
-          ? O['body']
-          : Partial<Denormalize<O['schema']>>;
-        searchParams: O['searchParams'];
-      }>
-    : GetEndpoint<{
-        path: ShortenPath<O['path']>;
-        schema: schema.Collection<[O['schema']]>;
-        body: 'body' extends keyof O
-          ? O['body']
-          : Partial<Denormalize<O['schema']>>;
-        searchParams: Record<string, number | string | boolean> | undefined;
-      }>;
-  /** Get a list of item
-   *
-   * @see https://dataclient.io/rest/api/createResource#getNextPage
-   */
-  getNextPage: 'paginationField' extends keyof O
-    ? PaginationFieldEndpoint<
-        'searchParams' extends keyof O
-          ? GetEndpoint<{
-              path: ShortenPath<O['path']>;
-              schema: schema.Collection<[O['schema']]>;
-              searchParams: O['searchParams'];
-            }>
-          : GetEndpoint<{
-              path: ShortenPath<O['path']>;
-              schema: schema.Collection<[O['schema']]>;
-              searchParams:
-                | Record<string, number | string | boolean>
-                | undefined;
-            }>,
-        Exclude<O['paginationField'], undefined>
-      >
-    : undefined;
-  /** Create a new item (POST)
-   *
-   * @see https://resthooks.io/rest/api/createResource#create
-   */
-  create: 'searchParams' extends keyof O
-    ? MutateEndpoint<{
-        path: ShortenPath<O['path']>;
-        schema: schema.Collection<[O['schema']]>['push'];
-        body: 'body' extends keyof O
-          ? O['body']
-          : Partial<Denormalize<O['schema']>>;
-        searchParams: O['searchParams'];
-      }>
-    : MutateEndpoint<{
-        path: ShortenPath<O['path']>;
-        schema: schema.Collection<[O['schema']]>['push'];
-        body: 'body' extends keyof O
-          ? O['body']
-          : Partial<Denormalize<O['schema']>>;
-      }>;
-  /** Update an item (PUT)
-   *
-   * @see https://resthooks.io/rest/api/createResource#update
-   */
-  update: 'body' extends keyof O
-    ? MutateEndpoint<{
-        path: O['path'];
-        body: O['body'];
-        schema: O['schema'];
-      }>
-    : MutateEndpoint<{
-        path: O['path'];
-        body: Partial<Denormalize<O['schema']>>;
-        schema: O['schema'];
-      }>;
-  /** Update an item (PATCH)
-   *
-   * @see https://resthooks.io/rest/api/createResource#partialupdate
-   */
-  partialUpdate: 'body' extends keyof O
-    ? MutateEndpoint<{
-        path: O['path'];
-        body: Partial<O['body']>;
-        schema: O['schema'];
-      }>
-    : MutateEndpoint<{
-        path: O['path'];
-        body: Partial<Denormalize<O['schema']>>;
-        schema: O['schema'];
-      }>;
-  /** Delete an item (DELETE)
-   *
-   * @see https://resthooks.io/rest/api/createResource#delete
-   */
-  delete: RestTypeNoBody<
-    PathArgs<O['path']>,
-    O['schema'] extends schema.EntityInterface & { process: any }
-      ? schema.Invalidate<O['schema']>
-      : O['schema'],
-    undefined,
-    Partial<PathArgs<O['path']>>,
-    {
-      path: O['path'];
-    }
-  >;
 }

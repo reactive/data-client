@@ -79,7 +79,7 @@ export class IssuesEvent extends Event {
   };
 }
 
-const base = createGithubResource({
+export const EventResource = createGithubResource({
   path: '/users/:login/events/public/:id',
   schema: new schema.Union(
     {
@@ -97,13 +97,9 @@ const base = createGithubResource({
     'type',
   ),
   Endpoint: PreviewEndpoint,
+}).extend({
+  getList: { path: '/users/:login/events/public\\?per_page=50' },
 });
-export const EventResource = {
-  ...base,
-  getList: base.getList.extend({
-    path: '/users/:login/events/public\\?per_page=50',
-  }),
-};
 
 export const typeToIcon: Record<Event['type'], JSX.Element> = {
   PullRequestEvent: <PullRequestOutlined />,

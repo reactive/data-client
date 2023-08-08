@@ -34,13 +34,11 @@ export class Article extends Entity {
   }
 }
 
-const BaseArticleResource = createResource({
+export const ArticleResource = createResource({
   path: '/articles/:id',
   schema: Article,
-});
-export const ArticleResource = {
-  ...BaseArticleResource,
-  partialUpdate: BaseArticleResource.partialUpdate.extend({
+}).extend({
+  partialUpdate: {
     // highlight-start
     getOptimisticResponse(snap, { id }, body) {
       return {
@@ -51,8 +49,8 @@ export const ArticleResource = {
       };
     },
     // highlight-end
-  }),
-};
+  },
+});
 ```
 
 ```typescript title="PublishButton.tsx"
@@ -103,41 +101,25 @@ export class Article extends Entity {
   }
 }
 
-const BaseArticleResource = createResource({
+export const ArticleResource = createResource({
   path: '/articles/:id',
   schema: Article,
-});
-export const ArticleResource = {
-  ...BaseArticleResource,
-  create: BaseArticleResource.create.extend({
-    getRequestInit(body) {
-      if (body) {
-        return BaseArticleResource.create.getRequestInit.call(this, {
-          // highlight-next-line
-          id: uuid(),
-          ...body,
-        });
-      }
-      return BaseArticleResource.create.getRequestInit.call(this, body);
-    },
-    getOptimisticResponse(snap, params, body) {
+}).extend({
+  getList: {
+    // used in mutable derivatives like getList.push, getList.unshift or getList.assign
+    getOptimisticResponse(snap, body) {
       return body;
     },
-    update(newResourcePk: string) {
-      return {
-        [list.key({})]: (resourcePks: string[] = []) => [
-          ...resourcePks,
-          newResourcePk,
-        ],
-      };
-    },
-  }),
-};
+  },
+});
 ```
 
 Since the actual `id` of the article is created on the server, we will need to fill
 in a temporary fake `id` here, so the `primary key` can be generated. This is needed
 to properly normalize the article to be looked up in the cache.
+
+Since [getOptimisticResponse()](../api/RestEndpoint.md#getoptimisticresponse) uses its arguments, we
+must modify the arguments when we push.
 
 Once the network responds, it will have a different `id`, which will replace the existing
 data. This is often seamless, but care should be taken if the fake `id` is used in any
@@ -151,7 +133,7 @@ import { ArticleResource } from 'api/Article';
 export default function CreateArticle() {
   const ctrl = useController();
   const submitHandler = useCallback(
-    data => ctrl.fetch(ArticleResource.getList.push, data),
+    data => ctrl.fetch(ArticleResource.getList.push, { id: uuid(), ...data }),
     [create],
   );
 
@@ -182,20 +164,18 @@ export class Article extends Entity {
   }
 }
 
-const BaseArticleResource = createResource({
+export const ArticleResource = createResource({
   path: '/articles/:id',
   schema: Article,
-});
-export const ArticleResource = {
-  ...BaseArticleResource,
-  delete: BaseArticleResource.delete.extend({
+}).extend({
+  delete: {
     // highlight-start
     getOptimisticResponse(snap, params, body) {
       return params;
     },
     // highlight-end
-  }),
-};
+  },
+});
 ```
 
 ## Optimistic Transforms
@@ -211,17 +191,17 @@ args: [],
 response: { count: 0 }
 },
 {
-  endpoint: new RestEndpoint({
-    path: '/api/count/increment',
-    method: 'POST',
-    body: undefined,
-  }),
-  response() {
-    return ({
-      "count": (this.count = this.count + 1),
-    });
-  },
-  delay: () => 500 + Math.random() * 4500,
+endpoint: new RestEndpoint({
+path: '/api/count/increment',
+method: 'POST',
+body: undefined,
+}),
+response() {
+return ({
+"count": (this.count = this.count + 1),
+});
+},
+delay: () => 500 + Math.random() * 4500,
 }
 ]}
 getInitialInterceptorData={() => ({count: 0})}
@@ -266,7 +246,7 @@ function CounterPage() {
   const [stateCount, setStateCount] = React.useState(0);
   const [responseCount, setResponseCount] = React.useState(0);
   const [clickHandler, loading, error] = useLoading(async () => {
-    setStateCount(stateCount+1);
+    setStateCount(stateCount + 1);
     const val = await ctrl.fetch(increment);
     setResponseCount(val.count);
     setStateCount(val.count);
@@ -361,18 +341,18 @@ args: [],
 response: { count: 0, updatedAt: Date.now() }
 },
 {
-  endpoint: new RestEndpoint({
-    path: '/api/count/increment',
-    method: 'POST',
-    body: undefined,
-  }),
-  fetchResponse(input, init) {
-    return ({
-      "count": (this.count = this.count + 1),
-      "updatedAt": JSON.parse(init.body).updatedAt,
-    });
-  },
-  delay: () => 500 + Math.random() * 4500,
+endpoint: new RestEndpoint({
+path: '/api/count/increment',
+method: 'POST',
+body: undefined,
+}),
+fetchResponse(input, init) {
+return ({
+"count": (this.count = this.count + 1),
+"updatedAt": JSON.parse(init.body).updatedAt,
+});
+},
+delay: () => 500 + Math.random() * 4500,
 }
 ]}
 getInitialInterceptorData={() => ({ count: 0 })}

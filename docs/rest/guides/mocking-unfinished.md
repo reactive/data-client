@@ -30,14 +30,11 @@ export class Rating extends Entity {
   };
 }
 
-const BaseRatingResource = createResource({
+export const RatingResource = createResource({
   path: '/ratings/:id',
   schema: Rating,
-});
-
-export const RatingResource = {
-  ...BaseRatingResource,
-  getList: BaseRatingResource.getList.extend({
+}).extend({
+  getList: {
     dataExpiryLength: 10 * 60 * 1000, // 10 minutes
     fetch() {
       return Promise.resolve(
@@ -49,8 +46,8 @@ export const RatingResource = {
         })),
       );
     },
-  }),
-};
+  },
+});
 ```
 
 ```tsx title="Demo.tsx" collapsed
@@ -62,8 +59,7 @@ function Demo() {
     <div>
       {ratings.map(rating => (
         <div key={rating.pk()}>
-          {rating.author}:{' '}
-          {rating.rating}{' '}
+          {rating.author}: {rating.rating}{' '}
           <time>
             {Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
               rating.date,

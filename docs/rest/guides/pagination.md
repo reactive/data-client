@@ -25,21 +25,18 @@ export class News extends Entity {
   }
   static key = 'News';
 }
-const BaseNewsResource = createResource({
+export const NewsResource = createResource({
   path: '/news/:id',
   schema: News,
-});
-// custom schema
-const getList = BaseNewsResource.getList.extend({
-  schema: { results: new schema.Collection([News]), cursor: '' },
-});
-// this creates a pagination endpoint that will extend the getList endpoint
-const getNextPage = getList.paginated('cursor');
-export const NewsResource = {
-  ...BaseNewsResource,
-  getList,
-  getNextPage,
-};
+})
+  .extend('getList', {
+    // custom schema
+    schema: { results: new schema.Collection([News]), cursor: '' },
+  })
+  .extend(Base => ({
+    // this creates a pagination endpoint that will extend the getList endpoint
+    getNextPage: getList.paginated('cursor'),
+  }));
 ```
 
 Since UI behaviors vary widely, and implementations vary from platform (react-native or web),
@@ -110,17 +107,19 @@ export class Article extends Entity {
   static key = 'Article';
 }
 
-const BaseArticleResource = createResource({
+export const ArticleResource = createResource({
   urlPrefix: 'http://test.com',
   path: '/article/:id',
   schema: Article,
+}).extend({
+  getList: {
+    schema: {
+      results: new schema.Collection([Article]),
+      nextPage: '',
+      prevPage: '',
+    },
+  },
 });
-export const ArticleResource = {
-  ...BaseArticleResource,
-  getList: BaseArticleResource.getList.extend({
-    schema: { results: new schema.Collection([Article]), nextPage: '', prevPage: '' },
-  }),
-};
 ```
 
 Now we can use `getList` to get not only the articles, but also our `nextPage`
@@ -163,12 +162,14 @@ Pagination token is stored in the header `link` for this example.
 ```typescript
 import { Resource } from '@data-client/rest';
 
-export const ArticleResource = {
-  ...BaseArticleResource,
-  getList: BaseArticleResource.getList.extend({
+export const ArticleResource = createResource({
+  path: '/articles/:id',
+  schema: Article,
+}).extend(Base => ({
+  getList: Base.getList.extend({
     schema: { results: [Article], link: '' },
     async parseResponse(response: Response) {
-      const results = await BaseArticleResource.getList.parseResponse(response);
+      const results = await Base.getList.parseResponse(response);
       if (
         (response.headers && response.headers.has('link')) ||
         Array.isArray(results)
@@ -181,7 +182,7 @@ export const ArticleResource = {
       return results;
     },
   }),
-};
+}));
 ```
 
 ## Code organization

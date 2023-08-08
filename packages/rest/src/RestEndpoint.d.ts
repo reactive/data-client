@@ -326,7 +326,7 @@ export type AddEndpoint<
   >,
   S,
   true,
-  O & { method: 'POST' }
+  Omit<O, 'method'> & { method: 'POST' }
 >;
 
 type OptionsBodyDefault<O extends RestGenerics> = 'body' extends keyof O

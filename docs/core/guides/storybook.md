@@ -10,7 +10,7 @@ testing, potentially speeding up development time greatly.
 
 [&lt;MockResolver /\>](../api/MockResolver.md) enables easy loading of [fixtures or interceptors](../api/Fixtures.md) to see what
 different network responses might look like. It can be layered, composed, and even used
-for [imperative fetches](../api/Controller.md#fetch) usually used with side-effect endpoints like [create](/rest/api/createResource#create) and [update](/rest/api/createResource#update).
+for [imperative fetches](../api/Controller.md#fetch) usually used with side-effect endpoints like [getList.push](/rest/api/createResource#push) and [update](/rest/api/createResource#update).
 
 ## Setup
 

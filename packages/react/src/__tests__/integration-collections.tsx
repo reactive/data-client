@@ -78,7 +78,6 @@ const ArticlePaginatedResource = createResource({
   path: '/article/:id',
   searchParams: {} as { userId?: number } | undefined,
   schema: Article,
-  paginationField: 'cursor',
 });
 
 const UnionResource = createResource({
@@ -197,7 +196,7 @@ describe.each([
     global.console.warn = prevWarn;
   });
 
-  it('pagination should work with cursor field in createResource', async () => {
+  it('pagination should work with cursor field from getList.paginated', async () => {
     const mynock = nock(/.*/).defaultReplyHeaders({
       'Access-Control-Allow-Origin': '*',
       'Content-Type': 'application/json',
@@ -224,10 +223,13 @@ describe.each([
     await waitForNextUpdate();
     expect(result.current.userArticles).toMatchSnapshot();
 
-    await controller.fetch(ArticlePaginatedResource.getNextPage, {
-      cursor: 2,
-      userId: 1,
-    });
+    await controller.fetch(
+      ArticlePaginatedResource.getList.paginated('cursor'),
+      {
+        cursor: 2,
+        userId: 1,
+      },
+    );
 
     expect(result.current.userArticles.map(({ id }) => id)).toEqual([
       5, 3, 7, 8,
@@ -239,21 +241,21 @@ describe.each([
     ]);
 
     () =>
-      controller.fetch(ArticlePaginatedResource.getNextPage, {
+      controller.fetch(ArticlePaginatedResource.getList.paginated('cursor'), {
         cursor: 2,
         userId: 1,
         // @ts-expect-error
         sdlkjfsd: 5,
       });
     () =>
-      controller.fetch(ArticlePaginatedResource.getNextPage, {
+      controller.fetch(ArticlePaginatedResource.getList.paginated('cursor'), {
         // @ts-expect-error
         sdf: 2,
         userId: 1,
       });
     () =>
       // @ts-expect-error
-      controller.fetch(ArticlePaginatedResource.getNextPage, {
+      controller.fetch(ArticlePaginatedResource.getList.paginated('cursor'), {
         userId: 1,
       });
 

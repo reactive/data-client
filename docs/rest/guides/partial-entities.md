@@ -96,16 +96,14 @@ export class Article extends ArticleSummary {
   }
 }
 
-const BaseArticleResource = createResource({
+export const ArticleResource = createResource({
   path: '/article/:id',
   schema: Article,
-});
-export const ArticleResource = {
-  ...BaseArticleResource,
-  getList: BaseArticleResource.getList.extend({
+}).extend({
+  getList: {
     schema: new schema.Collection([ArticleSummary]),
-  }),
-};
+  },
+});
 ```
 
 ```tsx title="ArticleDetail" collapsed
@@ -218,12 +216,10 @@ class ArticleMeta extends Entity {
   };
 }
 
-const BaseArticleResource = createResource({
+const ArticleResource = createResource({
   path: '/article/:id',
   schema: Article,
+}).extend({
+  getList: { schema: new schema.Collection([ArticleSummary]) },
 });
-const ArticleResource = {
-  ...BaseArticleResource,
-  getList: BaseArticleResource.getList.extend({ schema: [ArticleSummary] }),
-};
 ```

@@ -1,11 +1,10 @@
 import { postFixtures } from '@site/src/fixtures/posts';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
-
 <HooksPlayground fixtures={postFixtures} getInitialInterceptorData={() => ({votes: {}})} row>
 
 ```ts title="Post" collapsed
-import { Entity, createResource } from '@data-client/rest';
+import { Entity } from '@data-client/rest';
 
 export class Post extends Entity {
   id = 0;
@@ -23,20 +22,19 @@ export class Post extends Entity {
     return `//placekitten.com/96/72?image=${this.id % 16}`;
   }
 }
-export const Base = createResource({
-  path: '/posts/:id',
-  schema: Post,
-});
 ```
 
-```ts title="PostResource" {13-20}
-import { AbortOptimistic, RestEndpoint } from '@data-client/rest';
-import { Base, Post } from './Post';
+```ts title="PostResource" {16-23}
+import { RestEndpoint, createResource } from '@data-client/rest';
+import { AbortOptimistic } from '@data-client/rest';
+import { Post } from './Post';
 
 export { Post };
 
-export const PostResource = {
-  ...Base,
+export const PostResource = createResource({
+  path: '/posts/:id',
+  schema: Post,
+}).extend(Base => ({
   vote: new RestEndpoint({
     path: '/posts/:id/vote',
     method: 'POST',
@@ -51,7 +49,7 @@ export const PostResource = {
       };
     },
   }),
-};
+}));
 ```
 
 ```tsx title="PostItem" {7} collapsed

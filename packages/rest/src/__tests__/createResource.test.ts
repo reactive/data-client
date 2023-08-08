@@ -79,6 +79,425 @@ describe('createResource()', () => {
     nock.cleanAll();
   });
 
+  it('can override endpoint options', async () => {
+    const UserResourceBase = createResource({
+      path: 'http\\://test.com/groups/:group/users/:id',
+      schema: User,
+    });
+    const UserResource = UserResourceBase.extend('getList', {
+      path: ':blob',
+      searchParams: {} as { isAdmin?: boolean },
+      getOptimisticResponse(snap, params) {
+        params.isAdmin;
+        params.blob;
+        // @ts-expect-error
+        params.nothere;
+        return [] as User[];
+      },
+      /*process(users: User[]) {
+            return users.slice(0, 7);
+          }, TODO: why doesn't this work?*/
+    })
+      .extend('partialUpdate', {
+        getOptimisticResponse(snap, params, body) {
+          params.id;
+          params.group;
+          // @ts-expect-error
+          params.nothere;
+          return {
+            id: params.id,
+            ...body,
+          };
+        },
+      })
+      .extend('delete', {
+        getOptimisticResponse(snap, params) {
+          return params;
+        },
+      })
+      .extend('justget', {})
+      .extend('current', {
+        path: '/current',
+        searchParams: {} as { isAdmin?: boolean },
+      })
+      .extend('toggleAdmin', {
+        path: '/toggle/:id',
+        method: 'POST',
+        body: undefined,
+      });
+
+    () => UserResource.getList({ blob: '5', isAdmin: true });
+    () =>
+      UserResource.getList.paginated('cursor')({
+        blob: '5',
+        isAdmin: true,
+        cursor: 'next',
+      });
+    () =>
+      UserResource.getList.paginated('cursor')({ blob: '5', cursor: 'next' });
+    () =>
+      // @ts-expect-error
+      UserResource.getList.paginated('cursor')({ blob: '5', isAdmin: true });
+    () =>
+      // @ts-expect-error
+      UserResource.getList.paginated('cursor')({
+        cursor: 'next',
+        isAdmin: true,
+      });
+    () => UserResource.get({ group: '1', id: '5' });
+    () => UserResource.getList.push({ blob: '5' }, { username: 'bob' });
+    () =>
+      UserResource.getList.push(
+        { blob: '5', isAdmin: true },
+        { username: 'bob' },
+      );
+    () =>
+      UserResource.getList.push(
+        { blob: '5', isAdmin: false },
+        { username: 'bob' },
+      );
+    // @ts-expect-error
+    () => UserResource.getList.push({ group: 'bob' }, { username: 'bob' });
+    () => UserResource.get({ id: 'hi', group: 'group' });
+    () => UserResource.justget({ group: 'blob', id: '5' });
+    // @ts-expect-error
+    () => UserResource.justget({ id: '5' });
+    () => UserResource.current();
+    () => UserResource.current({ isAdmin: true });
+    () => UserResource.toggleAdmin({ id: '5' });
+    () => {
+      // @ts-expect-error - POST should make this have sideEffect true
+      const DONOTUSE: false = UserResource.toggleAdmin.sideEffect;
+    };
+    // @ts-expect-error
+    () => UserResource.justget({ id: '5' });
+
+    mynock.get(`/current`).reply(200, {
+      id: 5,
+      username: 'bob',
+      email: 'bob@bob.com',
+      isAdmin: false,
+    });
+
+    const { result, waitForNextUpdate, controller } = renderRestHook(() => {
+      return useSuspense(UserResource.current);
+    });
+    await waitForNextUpdate();
+    expect(result.current.email).toBe('bob@bob.com');
+    // @ts-expect-error
+    expect(result.current.notexist).toBeUndefined();
+
+    mynock.post(`/5`).reply(200, (uri, body) => ({
+      id: 10,
+      username: 'bob',
+      email: 'bob@bob.com',
+      ...(body as any),
+    }));
+
+    const user = await controller.fetch(
+      UserResource.getList.push,
+      { blob: '5' },
+      { username: 'newbob' },
+    );
+    expect(user.username).toBe('newbob');
+    expect(user).toBeInstanceOf(User);
+    expect(user.isAdmin).toBe(false);
+  });
+
+  it('can override endpoint options', async () => {
+    const UserResourceBase = createResource({
+      path: 'http\\://test.com/groups/:group/users/:id',
+      schema: User,
+    });
+    const UserResource = UserResourceBase.extend({
+      getList: {
+        path: ':blob',
+        searchParams: {} as { isAdmin?: boolean },
+        getOptimisticResponse(snap, params) {
+          params.isAdmin;
+          params.blob;
+          // @ts-expect-error
+          params.nothere;
+          return [] as User[];
+        },
+        /*process(users: User[]) {
+            return users.slice(0, 7);
+          }, TODO: why doesn't this work?*/
+      },
+      partialUpdate: {
+        getOptimisticResponse(snap, params, body) {
+          params.id;
+          params.group;
+          // @ts-expect-error
+          params.nothere;
+          return {
+            id: params.id,
+            ...body,
+          };
+        },
+      },
+      delete: {
+        getOptimisticResponse(snap, params) {
+          return params;
+        },
+      },
+    })
+      .extend('justget', {})
+      .extend('current', {
+        path: '/current',
+        searchParams: {} as { isAdmin?: boolean },
+      })
+      .extend('toggleAdmin', {
+        path: '/toggle/:id',
+        method: 'POST',
+        body: undefined,
+        getOptimisticResponse(snap, params) {
+          params.id;
+          // @ts-expect-error
+          params.group;
+          return {
+            id: params.id,
+          };
+        },
+      });
+
+    () => UserResource.getList({ blob: '5', isAdmin: true });
+    () =>
+      UserResource.getList.paginated('cursor')({
+        blob: '5',
+        isAdmin: true,
+        cursor: 'next',
+      });
+    () =>
+      UserResource.getList.paginated('cursor')({ blob: '5', cursor: 'next' });
+    // @ts-expect-error
+    () => UserResource.getNextPage({ blob: '5', isAdmin: true });
+    // @ts-expect-error
+    () => UserResource.getNextPage({ cursor: 'next', isAdmin: true });
+    () => UserResource.get({ group: '1', id: '5' });
+    () => UserResource.getList.push({ blob: '5' }, { username: 'bob' });
+    () =>
+      UserResource.getList.push(
+        { blob: '5', isAdmin: true },
+        { username: 'bob' },
+      );
+    () =>
+      UserResource.getList.push(
+        { blob: '5', isAdmin: false },
+        { username: 'bob' },
+      );
+    // @ts-expect-error
+    () => UserResource.getList.push({ group: 'bob' }, { username: 'bob' });
+    () => UserResource.get({ id: 'hi', group: 'group' });
+    () => UserResource.justget({ group: 'blob', id: '5' });
+    // @ts-expect-error
+    () => UserResource.justget({ id: '5' });
+    () => UserResource.current();
+    () => UserResource.current({ isAdmin: true });
+    () => UserResource.toggleAdmin({ id: '5' });
+    () => {
+      // @ts-expect-error - POST should make this have sideEffect true
+      const DONOTUSE: false = UserResource.toggleAdmin.sideEffect;
+    };
+    // @ts-expect-error
+    () => UserResource.justget({ id: '5' });
+
+    mynock.get(`/current`).reply(200, {
+      id: 5,
+      username: 'bob',
+      email: 'bob@bob.com',
+      isAdmin: false,
+    });
+
+    mynock.get(`/5?isAdmin=false`).reply(200, [
+      {
+        id: 5,
+        username: 'bob',
+        email: 'bob@bob.com',
+        isAdmin: false,
+      },
+    ]);
+
+    const { result, waitForNextUpdate, controller } = renderRestHook(() => {
+      return [
+        useSuspense(UserResource.current),
+        useSuspense(UserResource.getList, { blob: '5', isAdmin: false }),
+      ] as const;
+    });
+    await waitForNextUpdate();
+    expect(result.current[1].length).toBe(1);
+
+    expect(result.current[0].email).toBe('bob@bob.com');
+    // @ts-expect-error
+    expect(result.current[0].notexist).toBeUndefined();
+
+    mynock.post(`/5?isAdmin=false`).reply(201, (uri, body) => ({
+      id: 10,
+      username: 'bob',
+      email: 'newbob@bob.com',
+      ...(body as any),
+    }));
+
+    await act(async () => {
+      const user = await controller.fetch(
+        UserResource.getList.push,
+        { blob: '5', isAdmin: false },
+        { username: 'newbob' },
+      );
+      expect(user.username).toBe('newbob');
+      expect(user).toBeInstanceOf(User);
+      expect(user.isAdmin).toBe(false);
+    });
+    expect(result.current[1].length).toBe(2);
+    expect(result.current[1][1].username).toBe('newbob');
+  });
+
+  it('can override resource endpoints (function form)', async () => {
+    const UserResource = createResource({
+      path: 'http\\://test.com/groups/:group/users/:id',
+      schema: User,
+      paginationField: 'cursor',
+    })
+      .extend(resourceBase => ({
+        getList: resourceBase.getList.extend({
+          path: ':blob',
+          searchParams: {} as { isAdmin?: boolean },
+          getOptimisticResponse(snap, params) {
+            params.isAdmin;
+            params.blob;
+            // @ts-expect-error
+            params.nothere;
+            return [] as User[];
+          },
+          /*process(users: User[]) {
+              return users.slice(0, 7);
+            }, TODO: why doesn't this work?*/
+        }),
+        partialUpdate: resourceBase.partialUpdate.extend({
+          getOptimisticResponse(snap, params, body) {
+            params.id;
+            params.group;
+            // @ts-expect-error
+            params.nothere;
+            return {
+              id: params.id,
+              ...body,
+            };
+          },
+        }),
+        delete: resourceBase.delete.extend({
+          getOptimisticResponse(snap, params) {
+            return params;
+          },
+        }),
+        justget: resourceBase.get,
+        current: resourceBase.get.extend({
+          path: '/current',
+          searchParams: {} as { isAdmin?: boolean },
+        }),
+        toggleAdmin: resourceBase.get.extend({
+          path: '/toggle/:id',
+          method: 'POST',
+          body: undefined,
+          getOptimisticResponse(snap, params) {
+            params.id;
+            // @ts-expect-error
+            params.group;
+            return {
+              id: params.id,
+            };
+          },
+        }),
+      }))
+      .extend(resourceBase => ({
+        getNextPage: resourceBase.getList.paginated('cursor'),
+      }));
+    () => UserResource.getList({ blob: '5', isAdmin: true });
+    () =>
+      UserResource.getNextPage({ blob: '5', isAdmin: true, cursor: 'next' });
+    () => UserResource.getNextPage({ blob: '5', cursor: 'next' });
+    // @ts-expect-error
+    () => UserResource.getNextPage({ blob: '5', isAdmin: true });
+    // @ts-expect-error
+    () => UserResource.getNextPage({ cursor: 'next', isAdmin: true });
+    () => UserResource.get({ group: '1', id: '5' });
+    () => UserResource.getList.unshift({ blob: '5' }, { username: 'bob' });
+    () =>
+      UserResource.getList.push(
+        { blob: '5', isAdmin: true },
+        { username: 'bob' },
+      );
+    () =>
+      UserResource.getList.push(
+        { blob: '5', isAdmin: false },
+        { username: 'bob' },
+      );
+    // @ts-expect-error
+    () => UserResource.getList.push({ group: 'bob' }, { username: 'bob' });
+    () => UserResource.get({ id: 'hi', group: 'group' });
+    () => UserResource.justget({ group: 'blob', id: '5' });
+    // @ts-expect-error
+    () => UserResource.justget({ id: '5' });
+    () => UserResource.current();
+    () => UserResource.current({ isAdmin: true });
+    () => UserResource.toggleAdmin({ id: '5' });
+    () => {
+      // @ts-expect-error - POST should make this have sideEffect true
+      const DONOTUSE: false = UserResource.toggleAdmin.sideEffect;
+    };
+    // @ts-expect-error
+    () => UserResource.justget({ id: '5' });
+
+    mynock.get(`/current`).reply(200, {
+      id: 5,
+      username: 'bob',
+      email: 'bob@bob.com',
+      isAdmin: false,
+    });
+
+    mynock.get(`/5?isAdmin=false`).reply(200, [
+      {
+        id: 5,
+        username: 'bob',
+        email: 'bob@bob.com',
+        isAdmin: false,
+      },
+    ]);
+
+    const { result, waitForNextUpdate, controller } = renderRestHook(() => {
+      return [
+        useSuspense(UserResource.current),
+        useSuspense(UserResource.getList, { blob: '5', isAdmin: false }),
+      ] as const;
+    });
+    await waitForNextUpdate();
+    expect(result.current[1].length).toBe(1);
+
+    expect(result.current[0].email).toBe('bob@bob.com');
+    // @ts-expect-error
+    expect(result.current[0].notexist).toBeUndefined();
+
+    mynock.post(`/5?isAdmin=false`).reply(201, (uri, body) => ({
+      id: 10,
+      username: 'bob',
+      email: 'newbob@bob.com',
+      ...(body as any),
+    }));
+
+    await act(async () => {
+      const user = await controller.fetch(
+        UserResource.getList.push,
+        { blob: '5', isAdmin: false },
+        { username: 'newbob' },
+      );
+      expect(user.username).toBe('newbob');
+      expect(user).toBeInstanceOf(User);
+      expect(user.isAdmin).toBe(false);
+    });
+    expect(result.current[1].length).toBe(2);
+    expect(result.current[1][1].username).toBe('newbob');
+  });
+
   it('should not allow paths without at least one argument', () => {
     class Todo extends Entity {
       id = '';
@@ -203,7 +622,7 @@ describe('createResource()', () => {
       );
   });
 
-  it('UserResource.create should work', async () => {
+  it('UserResource.getList.push should work', async () => {
     mynock.post(`/groups/five/users`).reply(200, (uri, body: any) => ({
       id: 5,
       ...body,
@@ -219,7 +638,7 @@ describe('createResource()', () => {
     let [_, controller] = result.current;
     await act(async () => {
       await controller.fetch(
-        UserResource.create,
+        UserResource.getList.push,
         { group: 'five' },
         {
           username: 'createduser',
@@ -235,25 +654,25 @@ describe('createResource()', () => {
 
     () =>
       controller.fetch(
-        UserResource.create,
+        UserResource.getList.push,
         // @ts-expect-error
         { id: 'five' },
         { username: 'never' },
       );
     // @ts-expect-error
-    () => controller.fetch(UserResource.create, { username: 'never' });
+    () => controller.fetch(UserResource.getList.push, { username: 'never' });
     // @ts-expect-error
-    () => controller.fetch(UserResource.create, 1, 'hi');
+    () => controller.fetch(UserResource.getList.push, 1, 'hi');
     () =>
       controller.fetch(
-        UserResource.create,
+        UserResource.getList.push,
         { group: 'five' },
         // @ts-expect-error
         { sdf: 'never' },
       );
     () =>
       controller.fetch(
-        UserResource.create,
+        UserResource.getList.push,
         // @ts-expect-error
         { sdf: 'five' },
         { username: 'never' },
@@ -458,7 +877,7 @@ describe('createResource()', () => {
       () => FeedResource.getList({ id: '5' }, 5);
     });
 
-    it('should work with create [no args]', async () => {
+    it('should work with getList.push [no args]', async () => {
       mynock.post(`/feed`).reply(200, (uri, body: any) => ({
         id: 5,
         ...body,
@@ -473,7 +892,7 @@ describe('createResource()', () => {
       // eslint-disable-next-line prefer-const
       let [_, controller] = result.current;
       await act(() => {
-        controller.fetch(FeedResource.create, feedPayload);
+        controller.fetch(FeedResource.getList.push, feedPayload);
       });
       await waitForNextUpdate();
       const feed = result.current[0];
@@ -493,19 +912,19 @@ describe('createResource()', () => {
           { username: 'never' },
         );
       // @ts-expect-error
-      () => controller.fetch(UserResource.create, { username: 'never' });
+      () => controller.fetch(UserResource.getList.push, { username: 'never' });
       // @ts-expect-error
-      () => controller.fetch(UserResource.create, 1, 'hi');
+      () => controller.fetch(UserResource.getList.push, 1, 'hi');
       () =>
         controller.fetch(
-          UserResource.create,
+          UserResource.getList.push,
           { group: 'five' },
           // @ts-expect-error
           { sdf: 'never' },
         );
       () =>
         controller.fetch(
-          UserResource.create,
+          UserResource.getList.push,
           // @ts-expect-error
           { sdf: 'five' },
           { username: 'never' },
@@ -513,7 +932,7 @@ describe('createResource()', () => {
     });
   });
 
-  it('UserResource.create.extends() should work', async () => {
+  it('UserResource.getList.push.extends() should work', async () => {
     interface CreateDeviceBody {
       username: string;
     }
@@ -524,7 +943,7 @@ describe('createResource()', () => {
       readonly isAdmin: boolean;
     }
 
-    const createUser = UserResource.create.extend({
+    const createUser = UserResource.getList.push.extend({
       update: (newId, params) => {
         return {
           [UserResource.getList.key({ group: params.group })]: (
@@ -539,7 +958,10 @@ describe('createResource()', () => {
       schema: User,
       sideEffect: true,
       process(...args: any) {
-        return UserResource.create.process.apply(this, args) as UserInterface;
+        return UserResource.getList.push.process.apply(
+          this,
+          args,
+        ) as UserInterface;
       },
     });
     const ctrl = new Controller();
@@ -556,7 +978,7 @@ describe('createResource()', () => {
     );
   });
 
-  it('UserResource.create.extends() should work with zero urlParams', async () => {
+  it('UserResource.getList.push.extends() should work with zero urlParams', async () => {
     const UserResource = createResource({
       path: 'http\\://test.com/users/:id',
       schema: User,
@@ -572,7 +994,7 @@ describe('createResource()', () => {
       readonly isAdmin: boolean;
     }
 
-    const createUser = UserResource.create.extend({
+    const createUser = UserResource.getList.push.extend({
       update: newId => {
         return {
           [UserResource.getList.key()]: (prevResponse = { items: [] }) => ({
@@ -585,7 +1007,10 @@ describe('createResource()', () => {
       schema: User,
       sideEffect: true,
       process(...args: any) {
-        return UserResource.create.process.apply(this, args) as UserInterface;
+        return UserResource.getList.push.process.apply(
+          this,
+          args,
+        ) as UserInterface;
       },
     });
     const ctrl = new Controller();
@@ -600,5 +1025,51 @@ describe('createResource()', () => {
     expect(createUser.url({} as any)).toMatchInlineSnapshot(
       `"http://test.com/users"`,
     );
+  });
+
+  it('getList.push should use custom lifecycle methods of getList', async () => {
+    mynock.post(`/users`).reply(201, (uri, body: any) => ({
+      ...body,
+      id: 5,
+    }));
+    const UserResource = createResource({
+      path: '/users/:id',
+      schema: User,
+      optimistic: true,
+    }).extend(Base => ({
+      getList: Base.getList.extend({
+        getRequestInit(body) {
+          if (body) {
+            return Base.getList.getRequestInit.call(this, {
+              id: Math.random(),
+              isAdmin: true,
+              ...body,
+            });
+          }
+          return Base.getList.getRequestInit.call(this, body);
+        },
+      }),
+    }));
+
+    const { controller, result } = renderRestHook(
+      () => {
+        return useSuspense(UserResource.getList);
+      },
+      {
+        initialFixtures: [
+          {
+            endpoint: UserResource.getList,
+            args: [],
+            response: [],
+          },
+        ],
+      },
+    );
+    await act(async () => {
+      await controller.fetch(UserResource.getList.push, { username: 'bob' });
+    });
+    expect(result.current.length).toBe(1);
+    // this is set in our override
+    expect(result.current[0].isAdmin).toBe(true);
   });
 });

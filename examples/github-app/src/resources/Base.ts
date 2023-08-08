@@ -95,25 +95,18 @@ export function createGithubResource<O extends ResourceGenerics>(
   const baseResource = createResource({
     Endpoint: GithubEndpoint,
     ...options,
-    // this type compensates for a TypeScript bug with exactPropertyTypes
-  } as ResourceGenerics);
+  });
 
-  const getList: GetEndpoint<
-    Omit<O, 'schema' | 'path'> & {
-      readonly path: ShortenPath<O['path']>;
-      readonly schema: {
-        results: schema.Collection<O['schema'][]>;
-        link: string;
-      };
-    }
-  > = baseResource.getList.extend({
-    schema: { results: baseResource.getList.schema, link: '' },
+  return baseResource.extend({
+    getList: {
+      schema: {
+        results: baseResource.getList.schema as schema.Collection<
+          O['schema'][]
+        >,
+        link: '',
+      },
+    },
   }) as any;
-
-  return {
-    ...baseResource,
-    getList,
-  } as any;
 }
 
 export interface GithubResource<
@@ -122,7 +115,7 @@ export interface GithubResource<
     schema: Schema;
     paginationField: 'page';
   },
-> extends Omit<Resource<O>, 'getList' | 'getNextPage'> {
+> extends Omit<Resource<O>, 'getList'> {
   getList: GetEndpoint<
     Omit<O, 'schema' | 'path'> & {
       readonly path: ShortenPath<O['path']>;

@@ -21,7 +21,7 @@ export type {
   PaginationEndpoint,
 } from './RestEndpoint.js';
 export { default as createResource } from './createResource.js';
-export type { Resource } from './createResource.js';
+export type { Resource } from './resourceTypes.js';
 export type { ResourceOptions, ResourceGenerics } from './resourceTypes.js';
 export { default as hookifyResource } from './hookifyResource.js';
 export type {

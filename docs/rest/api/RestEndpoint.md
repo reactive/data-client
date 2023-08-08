@@ -757,42 +757,6 @@ const createUser = new RestEndpoint({
 });
 ```
 
-This is usage with a [createResource](./createResource.md)
-
-```typescript title="TodoResource.ts"
-import { Entity, createResource } from '@data-client/rest';
-
-export class Todo extends Entity {
-  readonly id: number = 0;
-  readonly userId: number = 0;
-  readonly title: string = '';
-  readonly completed: boolean = false;
-
-  pk() {
-    return `${this.id}`;
-  }
-}
-
-// We declare BaseTodoResource before TodoResource to prevent recursive type definitions
-const BaseTodoResource = createResource({
-  path: 'https://jsonplaceholder.typicode.com/todos/:id',
-  schema: Todo,
-});
-export const TodoResource = {
-  ...BaseTodoResource,
-  create: BaseTodoResource.create.extend({
-    // highlight-start
-    update: (newResourceId: string) => ({
-      [todoList.key({})]: (resourceIds: string[] = []) => [
-        ...resourceIds,
-        newResourceId,
-      ],
-    }),
-    // highlight-end
-  }),
-};
-```
-
 ## key(urlParams): string {#key}
 
 Serializes the parameters. This is used to build a lookup key in global stores.
