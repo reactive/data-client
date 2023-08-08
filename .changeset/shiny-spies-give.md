@@ -26,3 +26,5 @@ Resource.extend((base) => ({
     path: 'repos/:owner/:repo/issues/comments/:comment/reactions',
   }),
 }));
+
+Idea credits: @Dav3rs
