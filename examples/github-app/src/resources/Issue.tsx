@@ -1,6 +1,4 @@
-import { RestGenerics } from '@data-client/rest';
-
-import { GithubEndpoint, GithubEntity, createGithubResource } from './Base';
+import { GithubEntity, createGithubResource } from './Base';
 import { Label } from './Label';
 import { stateToIcon } from './stateToIcon';
 import { User } from './User';
@@ -51,26 +49,25 @@ export class Issue extends GithubEntity {
   }
 }
 
-export const BaseIssueResource = createGithubResource({
+export const IssueResource = createGithubResource({
   path: '/repos/:owner/:repo/issues/:number',
   schema: Issue,
   pollFrequency: 60000,
   searchParams: {} as IssueFilters | undefined,
-});
-export const IssueResource = {
-  ...BaseIssueResource,
-  search: BaseIssueResource.getList.extend({
+}).extend((Base) => ({
+  search: Base.getList.extend({
     path: '/search/issues\\?q=:q?%20repo\\::owner/:repo&page=:page?',
     schema: {
       results: {
         incompleteResults: false,
-        items: BaseIssueResource.getList.schema.results,
+        items: Base.getList.schema.results,
         totalCount: 0,
       },
       link: '',
     },
   }),
-};
+}));
+
 export default IssueResource;
 
 export interface IssueFilters {

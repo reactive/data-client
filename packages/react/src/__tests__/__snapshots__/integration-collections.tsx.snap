@@ -312,7 +312,7 @@ exports[`CacheProvider RestEndpoint/next should update on get for a paginated re
 }
 `;
 
-exports[`CacheProvider pagination should work with cursor field in createResource 1`] = `
+exports[`CacheProvider pagination should work with cursor field from getList.paginated 1`] = `
 [
   Article {
     "author": User {
@@ -722,7 +722,7 @@ exports[`ExternalCacheProvider RestEndpoint/next should update on get for a pagi
 }
 `;
 
-exports[`ExternalCacheProvider pagination should work with cursor field in createResource 1`] = `
+exports[`ExternalCacheProvider pagination should work with cursor field from getList.paginated 1`] = `
 [
   Article {
     "author": User {

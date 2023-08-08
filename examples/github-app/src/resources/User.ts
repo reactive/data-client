@@ -45,12 +45,12 @@ export class User extends GithubEntity {
     return this.login;
   }
 }
-export const UserResource = {
-  ...createGithubResource({ path: '/users/:login', schema: User }),
-  current: new GithubEndpoint({
-    path: '/user',
-    schema: User,
-  }),
-};
+export const UserResource = createGithubResource({
+  path: '/users/:login',
+  schema: User,
+}).extend('current', {
+  path: '/user',
+  schema: User,
+});
 
 export default UserResource;

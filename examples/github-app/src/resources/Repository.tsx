@@ -61,12 +61,10 @@ export class GqlRepository extends Repository {
   }
 }
 
-const base = createGithubResource({
+export const RepositoryResource = createGithubResource({
   path: '/repos/:owner/:repo',
   schema: Repository,
-});
-export const RepositoryResource = {
-  ...base,
+}).extend((base) => ({
   getByUser: base.getList.extend({
     path: '/users/:login/repos',
   }),
@@ -92,5 +90,6 @@ export const RepositoryResource = {
   }`,
     { user: { pinnedItems: { nodes: [GqlRepository] } } },
   ),
-};
+}));
+
 export default RepositoryResource;

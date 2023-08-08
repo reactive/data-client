@@ -75,6 +75,7 @@ type ExpiryStatusInterface = 1 | 2 | 3;
 /** What the function's promise resolves to */
 type ResolveType<E extends (...args: any) => any> = ReturnType<E> extends Promise<infer R> ? R : never;
 type PartialParameters<T extends (...args: any[]) => any> = T extends (...args: infer P) => any ? Partial<P> : never;
+type EndpointToFunction<E extends (...args: any) => Promise<any>> = (this: E, ...args: Parameters<E>) => ReturnType<E>;
 
 type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Promise<R>;
 interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
@@ -1009,7 +1010,7 @@ type AddEndpoint<
   >,
   S,
   true,
-  O & { method: 'POST' }
+  Omit<O, 'method'> & { method: 'POST' }
 >;
 
 type OptionsToAdderBodyArgument<O extends { body?: any }> =
@@ -1295,13 +1296,59 @@ type MutateEndpoint<
   O & { body: any; method: 'POST' | 'PUT' | 'PATCH' | 'DELETE' }
 >;
 
+type ResourceExtension<R extends {
+    [K in ExtendKey]: RestInstanceBase;
+}, ExtendKey extends Exclude<Extract<keyof R, string>, 'extend'>, O extends PartialRestGenerics | {}> = {
+    [K in keyof R]: K extends ExtendKey ? RestExtendedEndpoint<O, R[K]> : R[K];
+};
+/** Resource with individual endpoints customized
+ *
+ */
+interface CustomResource<R extends ResourceInterface, O extends ResourceGenerics = {
+    path: ResourcePath;
+    schema: any;
+}, Get extends PartialRestGenerics | {} = any, GetList extends PartialRestGenerics | {} = any, Update extends PartialRestGenerics | {} = any, PartialUpdate extends PartialRestGenerics | {} = any, Delete extends PartialRestGenerics | {} = any> extends Extendable<O> {
+    get: unknown extends Get ? R['get'] : RestExtendedEndpoint<Get, R['get']>;
+    getList: unknown extends GetList ? R['getList'] : RestExtendedEndpoint<GetList, R['getList']>;
+    update: unknown extends Update ? R['update'] : RestExtendedEndpoint<Update, R['update']>;
+    partialUpdate: unknown extends PartialUpdate ? R['partialUpdate'] : RestExtendedEndpoint<PartialUpdate, R['partialUpdate']>;
+    delete: unknown extends Delete ? R['delete'] : RestExtendedEndpoint<Delete, R['delete']>;
+}
+type ExtendedResource<R extends ResourceInterface, T extends Record<string, EndpointInterface>> = Omit<R, keyof T> & T;
+interface ResourceEndpointExtensions<R extends ResourceInterface, Get extends PartialRestGenerics = any, GetList extends PartialRestGenerics = any, Update extends PartialRestGenerics = any, PartialUpdate extends PartialRestGenerics = any, Delete extends PartialRestGenerics = any> {
+    readonly get?: RestEndpointOptions<unknown extends Get ? EndpointToFunction<R['get']> : OptionsToFunction<Get, R['get'], EndpointToFunction<R['get']>>, R['get']['schema']> & Readonly<Get>;
+    readonly getList?: RestEndpointOptions<unknown extends GetList ? EndpointToFunction<R['getList']> : OptionsToFunction<GetList, R['getList'], EndpointToFunction<R['getList']>>, R['getList']['schema']> & Readonly<GetList>;
+    readonly update?: RestEndpointOptions<unknown extends Update ? EndpointToFunction<R['update']> : OptionsToFunction<Update, R['update'], EndpointToFunction<R['update']>>, R['update']['schema']> & Readonly<Update>;
+    readonly partialUpdate?: RestEndpointOptions<unknown extends PartialUpdate ? EndpointToFunction<R['partialUpdate']> : OptionsToFunction<PartialUpdate, R['partialUpdate'], EndpointToFunction<R['partialUpdate']>>, R['partialUpdate']['schema']> & Readonly<PartialUpdate>;
+    readonly delete?: RestEndpointOptions<unknown extends Delete ? EndpointToFunction<R['delete']> : OptionsToFunction<Delete, R['delete'], EndpointToFunction<R['delete']>>, R['delete']['schema']> & Readonly<Delete>;
+}
+
+interface Extendable<O extends ResourceGenerics = {
+    path: ResourcePath;
+    schema: any;
+}> {
+    /** Allows customizing individual endpoints
+     *
+     * @see https://dataclient.io/rest/api/createResource#extend
+     */
+    extend<R extends {
+        [K in ExtendKey]: RestInstanceBase;
+    }, const ExtendKey extends Exclude<Extract<keyof R, string>, 'extend'>, ExtendOptions extends PartialRestGenerics | {}>(this: R, key: ExtendKey, options: Readonly<RestEndpointExtendOptions<ExtendOptions, R[ExtendKey], EndpointToFunction<R[ExtendKey]>> & ExtendOptions>): ResourceExtension<R, ExtendKey, ExtendOptions>;
+    extend<R extends {
+        get: RestInstanceBase;
+    }, const ExtendKey extends string, ExtendOptions extends PartialRestGenerics | {}>(this: R, key: ExtendKey, options: Readonly<RestEndpointExtendOptions<ExtendOptions, R['get'], EndpointToFunction<R['get']>> & ExtendOptions>): R & {
+        [key in ExtendKey]: RestExtendedEndpoint<ExtendOptions, R['get']>;
+    };
+    extend<R extends ResourceInterface, Get extends PartialRestGenerics = any, GetList extends PartialRestGenerics = any, Update extends PartialRestGenerics = any, PartialUpdate extends PartialRestGenerics = any, Delete extends PartialRestGenerics = any>(this: R, options: ResourceEndpointExtensions<R, Get, GetList, Update, PartialUpdate, Delete>): CustomResource<R, O, Get, GetList, Update, PartialUpdate, Delete>;
+    extend<R extends ResourceInterface, T extends Record<string, EndpointInterface>>(this: R, extender: (baseResource: R) => T): ExtendedResource<R, T>;
+}
+
+/** The typed (generic) options for a Resource */
 interface ResourceGenerics {
     /** @see https://resthooks.io/rest/api/createResource#path */
     readonly path: ResourcePath;
     /** @see https://resthooks.io/rest/api/createResource#schema */
     readonly schema: Schema;
-    /** @see https://resthooks.io/rest/api/createResource#paginationfield */
-    readonly paginationField?: string;
     /** Only used for types */
     /** @see https://dataclient.io/rest/api/createResource#body */
     readonly body?: any;
@@ -1309,6 +1356,7 @@ interface ResourceGenerics {
     /** @see https://resthooks.io/rest/api/createResource#searchParams */
     readonly searchParams?: any;
 }
+/** The untyped options for createResource() */
 interface ResourceOptions {
     /** @see https://resthooks.io/rest/api/createResource#endpoint */
     Endpoint?: typeof RestEndpoint;
@@ -1332,16 +1380,13 @@ interface ResourceOptions {
     /** Determines whether to throw or fallback to */
     errorPolicy?(error: any): 'hard' | 'soft' | undefined;
 }
-
-/** Creates collection of Endpoints for common operations on a given data/schema.
- *
+/** Resources are a collection of methods for a given data model.
  * @see https://resthooks.io/rest/api/createResource
  */
-declare function createResource<O extends ResourceGenerics>({ path, schema, Endpoint, optimistic, paginationField, ...extraOptions }: Readonly<O> & ResourceOptions): Resource<O>;
 interface Resource<O extends ResourceGenerics = {
     path: ResourcePath;
     schema: any;
-}> {
+}> extends Extendable<O> {
     /** Get a singular item
      *
      * @see https://resthooks.io/rest/api/createResource#get
@@ -1365,22 +1410,9 @@ interface Resource<O extends ResourceGenerics = {
         body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>>;
         searchParams: Record<string, number | string | boolean> | undefined;
     }>;
-    /** Get a list of item
-     *
-     * @see https://dataclient.io/rest/api/createResource#getNextPage
-     */
-    getNextPage: 'paginationField' extends keyof O ? PaginationFieldEndpoint<'searchParams' extends keyof O ? GetEndpoint<{
-        path: ShortenPath<O['path']>;
-        schema: Collection<[O['schema']]>;
-        searchParams: O['searchParams'];
-    }> : GetEndpoint<{
-        path: ShortenPath<O['path']>;
-        schema: Collection<[O['schema']]>;
-        searchParams: Record<string, number | string | boolean> | undefined;
-    }>, Exclude<O['paginationField'], undefined>> : undefined;
     /** Create a new item (POST)
      *
-     * @see https://resthooks.io/rest/api/createResource#create
+     * @deprecated use Resource.getList.push instead
      */
     create: 'searchParams' extends keyof O ? MutateEndpoint<{
         path: ShortenPath<O['path']>;
@@ -1428,5 +1460,18 @@ interface Resource<O extends ResourceGenerics = {
         path: O['path'];
     }>;
 }
+interface ResourceInterface {
+    get: RestInstanceBase;
+    getList: RestInstanceBase;
+    update: RestInstanceBase;
+    partialUpdate: RestInstanceBase;
+    delete: RestInstanceBase;
+}
+
+/** Creates collection of Endpoints for common operations on a given data/schema.
+ *
+ * @see https://resthooks.io/rest/api/createResource
+ */
+declare function createResource<O extends ResourceGenerics>({ path, schema, Endpoint, optimistic, ...extraOptions }: Readonly<O> & ResourceOptions): Resource<O>;
 
 export { AddEndpoint, Defaults, FetchGet, FetchMutate, FromFallBack, GetEndpoint, KeyofRestEndpoint, MethodToSide, MutateEndpoint, PaginationEndpoint, PaginationFieldEndpoint, ParamFetchNoBody, ParamFetchWithBody, PartialRestGenerics, Resource, ResourceGenerics, ResourceOptions, RestEndpoint, RestEndpointConstructor, RestEndpointConstructorOptions, RestEndpointExtendOptions, RestEndpointOptions, RestExtendedEndpoint, RestFetch, RestGenerics, RestInstance, RestInstanceBase, RestType, RestTypeNoBody, RestTypeWithBody, createResource };

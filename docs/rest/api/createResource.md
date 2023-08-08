@@ -78,15 +78,11 @@ Passed to [RestEndpoint.urlPrefix](./RestEndpoint.md#urlPrefix)
 
 ### searchParams
 
-Passed to [RestEndpoint.searchParams](./RestEndpoint.md#searchParams) for [getList](#getlist) and [create](#create)
+Passed to [RestEndpoint.searchParams](./RestEndpoint.md#searchParams) for [getList](#getlist) and [getList.push](#push)
 
 ### body
 
-Passed to [RestEndpoint.body](./RestEndpoint.md#body) for [create](#create) [update](#update) and [partialUpdate](#partialUpdate)
-
-### paginationField
-
-If specified, will add [Resource.getNextPage](#getnextpage) method on the `Resource`.
+Passed to [RestEndpoint.body](./RestEndpoint.md#body) for [getList.push](#push) [update](#update) and [partialUpdate](#partialUpdate)
 
 ### optimistic
 
@@ -141,27 +137,7 @@ createResource({ urlPrefix: '//test.com', path: '/api/:group/:id' }).getList({
 
 Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidate](/docs/api/Controller#invalidate)
 
-### getNextPage
-
-- `getList.paginated(paginationField)`
-- schema: [new schema.Collection(\[schema\]).push](./Collection.md#push)
-
-```typescript
-// GET //test.com/api/abc?isExtra=xyz&page=2
-createResource({
-  urlPrefix: '//test.com',
-  path: '/api/:group/:id',
-  paginationField: 'page',
-}).getNextPage({
-  group: 'abc',
-  isExtra: 'xyz',
-  page: '2',
-});
-```
-
-Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
-
-### create
+### getList.push {#push}
 
 - `getList.push`
 - method: 'POST'
@@ -170,10 +146,10 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 ```typescript
 // POST //test.com/api/abc
 // BODY { "title": "winning" }
-createResource({ urlPrefix: '//test.com', path: '/api/:group/:id' }).create(
-  { group: 'abc' },
-  { title: 'winning' },
-);
+createResource({
+  urlPrefix: '//test.com',
+  path: '/api/:group/:id',
+}).getList.push({ group: 'abc' }, { title: 'winning' });
 ```
 
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
@@ -234,30 +210,60 @@ createResource({ urlPrefix: '//test.com', path: '/api/:group/:id' }).delete({
 
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
-## Customizing Resources
+### extend() {#extend}
 
 `createResource` builds a great starting point, but often endpoints need to be [further customized](./RestEndpoint.md#typing).
 
-Overriding members with [extends()](./RestEndpoint.md#extend) makes this straightforward.
+`extend()` is polymorphic with three forms: 
 
-Because we are changing the endpoint types, we must use the `{...spread}` pattern rather than assignment.
-This is how TypeScript is able to infer the types from our arguments.
+#### Batch extension of known members
 
 ```ts
-const TodoResourceBase = createResource({
-  path: '/todos/:id',
-  schema: Todo,
+export const CommentResource = createResource({
+  path: '/repos/:owner/:repo/issues/comments/:id',
+  schema: Comment,
+}).extend({
+  getList: { path: '/repos/:owner/:repo/issues/:number/comments' },
+  update: { body: { body: '' } },
 });
-
-export const TodoResource = {
-  ...TodoResourceBase,
-  getList: TodoResourceBase.getList.extend({
-    searchParams: {} as { userId?: string | number } | undefined,
-  }),
-};
 ```
 
-<StackBlitz app="todo-app" file="src/resources/TodoResource.ts" view="editor" />
+#### Adding new members
+
+```ts
+export const UserResource = createGithubResource({
+  path: '/users/:login',
+  schema: User,
+}).extend('current', {
+  path: '/user',
+  schema: User,
+});
+```
+
+#### Function form (to get BaseResource/super)
+
+```ts
+export const IssueResource= createResource({
+  path: '/repos/:owner/:repo/issues/:number',
+  schema: Issue,
+  pollFrequency: 60000,
+  searchParams: {} as IssueFilters | undefined,
+}).extend(BaseResource => ({
+  search: BaseResource.getList.extend({
+    path: '/search/issues\\?q=:q?%20repo\\::owner/:repo&page=:page?',
+    schema: {
+      results: {
+        incompleteResults: false,
+        items: BaseIssueResource.getList.schema.results,
+        totalCount: 0,
+      },
+      link: '',
+    },
+  })
+)});
+```
+
+<StackBlitz app="github-app" file="src/resources/Comment.ts" view="editor" height={600} />
 
 Explore more [Reactive Data Client demos](/demos)
 
@@ -292,26 +298,23 @@ export function createMyResource<O extends ResourceGenerics = any>({
   Endpoint = AuthdEndpoint,
   ...extraOptions
 }: Readonly<O> & ResourceOptions) {
-  const BaseResource = createResource({
+  return createResource({
     Endpoint,
     schema,
     ...extraOptions,
-  });
-
-  return {
-    ...BaseResource,
-    getList: BaseResource.getList.extend({
+  }).extend({
+    getList: {
       schema: {
         results: new schema.Collection([schema]),
         total: 0,
         limit: 0,
         skip: 0,
       },
-    }),
-  };
+    },
+  });
 }
 ```
 
-<StackBlitz app="github-app" file="src/resources/Base.ts" view="editor" />
+<StackBlitz app="github-app" file="src/resources/Base.ts" view="editor" height={750} />
 
 Explore more [Reactive Data Client demos](/demos)

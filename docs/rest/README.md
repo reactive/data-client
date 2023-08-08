@@ -229,7 +229,7 @@ export default function NewArticleForm() {
 }
 ```
 
-[create](api/createResource.md#create) then takes any `keyable` body to send as the payload and then returns a promise that
+[getList.push](api/createResource.md#push) then takes any `keyable` body to send as the payload and then returns a promise that
 resolves to the new Resource created by the API. It will automatically be added in the cache for any consumers to display.
 
 </TabItem>
