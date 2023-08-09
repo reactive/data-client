@@ -3154,7 +3154,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/rest@^0.4.0, @data-client/rest@workspace:packages/rest":
+"@data-client/rest@^0.5.0, @data-client/rest@workspace:packages/rest":
   version: 0.0.0-use.local
   resolution: "@data-client/rest@workspace:packages/rest"
   dependencies:
@@ -3196,7 +3196,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/test@^0.2.0, @data-client/test@workspace:^, @data-client/test@workspace:packages/test":
+"@data-client/test@^0.2.1, @data-client/test@workspace:^, @data-client/test@workspace:packages/test":
   version: 0.0.0-use.local
   resolution: "@data-client/test@workspace:packages/test"
   dependencies:
@@ -4861,7 +4861,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rest-hooks/rest@workspace:proxy-pkgs/rest"
   dependencies:
-    "@data-client/rest": ^0.4.0
+    "@data-client/rest": ^0.5.0
   languageName: unknown
   linkType: soft
 
@@ -11230,7 +11230,7 @@ __metadata:
     "@data-client/graphql": ^0.2.0
     "@data-client/hooks": ^0.1.1
     "@data-client/react": ^0.2.2
-    "@data-client/rest": ^0.4.0
+    "@data-client/rest": ^0.5.0
     "@linaria/babel-preset": 4.4.5
     "@linaria/core": 4.2.10
     "@linaria/react": 4.3.8
@@ -15578,9 +15578,9 @@ __metadata:
   dependencies:
     "@data-client/react": ^0.2.2
     "@data-client/redux": ^0.1.4
-    "@data-client/rest": ^0.4.0
+    "@data-client/rest": ^0.5.0
     "@data-client/ssr": ^0.1.0
-    "@data-client/test": ^0.2.0
+    "@data-client/test": ^0.2.1
     "@types/node": 20.4.5
     "@types/react": 18.2.16
     "@types/react-dom": 18.2.7
@@ -21206,7 +21206,7 @@ __metadata:
     "@babel/core": 7.22.9
     "@data-client/endpoint": ^0.2.3
     "@data-client/react": ^0.2.2
-    "@data-client/rest": ^0.4.0
+    "@data-client/rest": ^0.5.0
     "@linaria/babel-preset": 4.4.5
     "@linaria/core": 4.2.10
     "@linaria/react": 4.3.8
