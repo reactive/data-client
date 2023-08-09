@@ -43,7 +43,10 @@ export default [
         runtimeHelpers: true,
       }),
       resolve({ extensions }),
-      commonjs({ extensions }),
+      commonjs({
+        extensions,
+        ignore: ['@testing-library/react-hooks', './render18HookWrapped.js'],
+      }),
     ],
   },
   {
