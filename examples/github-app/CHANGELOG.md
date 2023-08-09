@@ -1,5 +1,15 @@
 # Change Log
 
+## 0.4.12
+
+### Patch Changes
+
+- Updated dependencies [51b4b0d188]
+- Updated dependencies [51b4b0d188]
+- Updated dependencies [51b4b0d188]
+- Updated dependencies [51b4b0d188]
+  - @data-client/rest@0.5.0
+
 ## 0.4.11
 
 ### Patch Changes

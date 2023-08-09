@@ -1,5 +1,56 @@
 # Change Log
 
+## 7.2.0
+
+### Minor Changes
+
+- 51b4b0d188: Deprecate Resource.create
+- 51b4b0d188: Add Resource.extend()
+
+  This is polymorphic, and has three forms
+
+  Set any field based on arguments:
+
+  ```ts
+  Resource.extend('fieldName', { path: 'mypath/:id' });
+  ```
+
+  Override any of the provided endpoints with options:
+
+  ```ts
+  Resource.extend({
+    getList: {
+      path: 'mypath/:id',
+    },
+    update: {
+      body: {} as Other,
+    },
+  });
+  ```
+
+  Function to compute derived endpoints:
+
+  ```ts
+  Resource.extend(base => ({
+    getByComment: base.getList.extend({
+      path: 'repos/:owner/:repo/issues/comments/:comment/reactions',
+    }),
+  }));
+  ```
+
+  Idea credits: @Dav3rs
+
+- 51b4b0d188: Remove createResource pagination field in favor of getList.paginated
+
+### Patch Changes
+
+- 51b4b0d188: Fix endpoint.push/unshift/assign method type
+- Updated dependencies [51b4b0d188]
+- Updated dependencies [51b4b0d188]
+- Updated dependencies [51b4b0d188]
+- Updated dependencies [51b4b0d188]
+  - @data-client/rest@0.5.0
+
 ## 7.1.2
 
 ### Patch Changes

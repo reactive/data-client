@@ -1,5 +1,17 @@
 # Change Log
 
+## 0.1.6
+
+### Patch Changes
+
+- Updated dependencies [51b4b0d188]
+- Updated dependencies [51b4b0d188]
+- Updated dependencies [51b4b0d188]
+- Updated dependencies [51b4b0d188]
+- Updated dependencies [384e7b7030]
+  - @data-client/rest@0.5.0
+  - @data-client/test@0.2.1
+
 ## 0.1.5
 
 ### Patch Changes
