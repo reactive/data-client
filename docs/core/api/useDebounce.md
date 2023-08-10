@@ -46,7 +46,7 @@ export class Issue extends Entity {
   };
 
   pk() {
-    return [this.repositoryUrl, this.number].join(',');
+    return [this.repository_url, this.number].join(',');
   }
 }
 
@@ -95,7 +95,8 @@ export default function SearchIssues() {
   return (
     <div>
       <label>
-        Query: <input type="text" value={query} onChange={handleChange} />
+        Query:{' '}
+        <input type="text" value={query} onChange={handleChange} />
       </label>
       <AsyncBoundary fallback={<div>searching...</div>}>
         <IssueList q={debouncedQuery} owner="facebook" repo="react" />
