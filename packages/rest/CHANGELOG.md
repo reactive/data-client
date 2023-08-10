@@ -1,5 +1,11 @@
 # @data-client/rest
 
+## 0.6.0
+
+### Minor Changes
+
+- af8b76079f: Support FormData in Resource updates and creates
+
 ## 0.5.0
 
 ### Minor Changes
