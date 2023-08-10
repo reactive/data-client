@@ -113,7 +113,7 @@ export interface Resource<
       }>
     : MutateEndpoint<{
         path: O['path'];
-        body: Partial<Denormalize<O['schema']>>;
+        body: Partial<Denormalize<O['schema']>> | FormData;
         schema: O['schema'];
       }>;
   /** Update an item (PATCH)
@@ -128,7 +128,7 @@ export interface Resource<
       }>
     : MutateEndpoint<{
         path: O['path'];
-        body: Partial<Denormalize<O['schema']>>;
+        body: Partial<Denormalize<O['schema']>> | FormData;
         schema: O['schema'];
       }>;
   /** Delete an item (DELETE)

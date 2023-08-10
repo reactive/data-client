@@ -242,6 +242,66 @@ describe.each([
       );
     });
 
+    it('works with update using FormData', async () => {
+      const params = { id: payload.id };
+      mynock.put('/article-cooler/5').reply(200, {
+        ...payload,
+        title: 'some other title',
+        content: 'real response',
+      });
+
+      const { result, controller } = renderRestHook(
+        () => {
+          const article = useCache(OptimisticArticleResource.get, params);
+          // @ts-expect-error
+          article.doesnotexist;
+          return article;
+        },
+        {
+          initialFixtures: [
+            {
+              endpoint: OptimisticArticleResource.get,
+              args: [params],
+              response: payload,
+            },
+          ],
+        },
+      );
+      expect(result.current).toEqual(CoolerArticle.fromJS(payload));
+      if (!result.current) throw new Error('no result');
+      let promise: any;
+      const formPayload = new FormData();
+      Object.keys(result.current).forEach(k => {
+        if (!result.current || k === 'author' || k === 'tags' || k === 'id')
+          return;
+        formPayload.set(k, (result.current as any)[k]);
+      });
+      formPayload.set('content', 'changed');
+      act(() => {
+        promise = controller.fetch(
+          OptimisticArticleResource.update,
+          params,
+          formPayload,
+        );
+      });
+
+      expect(result.current).toBeInstanceOf(CoolerArticle);
+      expect(result.current).toEqual(
+        CoolerArticle.fromJS({
+          ...payload,
+          content: 'changed',
+        }),
+      );
+      await act(() => promise);
+      expect(result.current).toEqual(
+        CoolerArticle.fromJS({
+          ...payload,
+          title: 'some other title',
+          content: 'real response',
+        }),
+      );
+    });
+
     it('works with deletes', async () => {
       const params = { id: payload.id };
       mynock.delete('/article-cooler/5').reply(200, '');
