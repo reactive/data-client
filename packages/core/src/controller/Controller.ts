@@ -19,6 +19,7 @@ import {
 } from '@data-client/normalizr';
 import { inferResults, validateInference } from '@data-client/normalizr';
 
+import createExpireAll from './createExpireAll.js';
 import createFetch from './createFetch.js';
 import createInvalidate from './createInvalidate.js';
 import createInvalidateAll from './createInvalidateAll.js';
@@ -136,9 +137,18 @@ export default class Controller<
   /**
    * Forces refetching and suspense on useSuspense on all matching endpoint result keys.
    * @see https://resthooks.io/docs/api/Controller#invalidateAll
+   * @returns Promise that resolves when invalidation is commited.
    */
   invalidateAll = (options: { testKey: (key: string) => boolean }) =>
     this.dispatch(createInvalidateAll((key: string) => options.testKey(key)));
+
+  /**
+   * Sets all matching endpoint result keys to be STALE.
+   * @see https://dataclient.io/docs/api/Controller#expireAll
+   * @returns Promise that resolves when expiry is commited. *NOT* fetch promise
+   */
+  expireAll = (options: { testKey: (key: string) => boolean }) =>
+    this.dispatch(createExpireAll((key: string) => options.testKey(key)));
 
   /**
    * Resets the entire Rest Hooks cache. All inflight requests will not resolve.

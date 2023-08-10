@@ -265,9 +265,11 @@ render(<Navigator />);
 
 </HooksPlayground>
 
-## 
-
 ## Force refresh
+
+We sometimes want to fetch new data; while continuing to show the old (stale) data.
+
+### A specific endpoint
 
 [Controller.fetch](../api/Controller#fetch) can be used to trigger a fetch while still showing
 the previous data. This can be done even with 'fresh' data.
@@ -325,6 +327,103 @@ function ShowTime() {
   );
 }
 render(<ShowTime />);
+```
+
+</HooksPlayground>
+
+### Refresh visible endpoints
+
+[Controller.expireAll()](../api/Controller.md#expireAll) sets all responses' [expiry status](#expiry-status) matching `testKey` to [Stale](#stale).
+
+<HooksPlayground fixtures={[
+{
+  endpoint: new RestEndpoint({
+    path: '/api/currentTime/:id',
+  }),
+  response({ id }) {
+    return ({
+      id,
+      updatedAt: new Date().toISOString(),
+    });
+  },
+  delay: () => 150,
+}
+]}
+>
+
+```ts title="api/lastUpdated" collapsed
+export class TimedEntity extends Entity {
+  id = '';
+  updatedAt = new Date(0);
+  pk() {
+    return this.id;
+  }
+
+  static schema = {
+    updatedAt: Date,
+  };
+}
+
+export const lastUpdated = new RestEndpoint({
+  path: '/api/currentTime/:id',
+  schema: TimedEntity,
+});
+```
+
+```tsx title="ShowTime" collapsed
+import { lastUpdated } from './api/lastUpdated';
+
+export default function ShowTime({ id }: { id: string }) {
+  const { updatedAt } = useSuspense(lastUpdated, { id });
+  const ctrl = useController();
+  return (
+    <div>
+      <b>{id}</b>{' '}
+      <time>
+        {Intl.DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
+      </time>
+    </div>
+  );
+}
+```
+
+```tsx title="Loading" collapsed
+export default function Loading({ id }: { id: string }) {
+  return <div>{id} Loading...</div>;
+}
+```
+
+```tsx title="Demo"
+import { AsyncBoundary } from '@data-client/react';
+
+import { lastUpdated } from './api/lastUpdated';
+import ShowTime from './ShowTime';
+import Loading from './Loading';
+
+function Demo() {
+  const ctrl = useController();
+  return (
+    <div>
+      <AsyncBoundary fallback={<Loading id="1" />}>
+        <ShowTime id="1" />
+      </AsyncBoundary>
+      <AsyncBoundary fallback={<Loading id="2" />}>
+        <ShowTime id="2" />
+      </AsyncBoundary>
+      <AsyncBoundary fallback={<Loading id="3" />}>
+        <ShowTime id="3" />
+      </AsyncBoundary>
+
+      <button onClick={() => ctrl.expireAll(lastUpdated)}>
+        Expire All
+      </button>
+      <button onClick={() => ctrl.fetch(lastUpdated, { id: '1' })}>
+        Force Refresh First
+      </button>
+    </div>
+  );
+}
+render(<Demo />);
 ```
 
 </HooksPlayground>

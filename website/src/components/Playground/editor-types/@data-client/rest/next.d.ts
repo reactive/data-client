@@ -1434,7 +1434,7 @@ interface Resource<O extends ResourceGenerics = {
         schema: O['schema'];
     }> : MutateEndpoint<{
         path: O['path'];
-        body: Partial<Denormalize<O['schema']>>;
+        body: Partial<Denormalize<O['schema']>> | FormData;
         schema: O['schema'];
     }>;
     /** Update an item (PATCH)
@@ -1447,7 +1447,7 @@ interface Resource<O extends ResourceGenerics = {
         schema: O['schema'];
     }> : MutateEndpoint<{
         path: O['path'];
-        body: Partial<Denormalize<O['schema']>>;
+        body: Partial<Denormalize<O['schema']>> | FormData;
         schema: O['schema'];
     }>;
     /** Delete an item (DELETE)

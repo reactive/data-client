@@ -1,3 +1,4 @@
+import { expireReducer } from './expireReducer.js';
 import { fetchReducer } from './fetchReducer.js';
 import { invalidateReducer } from './invalidateReducer.js';
 import { setReducer } from './setReducer.js';
@@ -9,6 +10,7 @@ import {
   GC_TYPE,
   OPTIMISTIC_TYPE,
   INVALIDATEALL_TYPE,
+  EXPIREALL_TYPE,
 } from '../../actionTypes.js';
 import type Controller from '../../controller/Controller.js';
 import type { ActionTypes, State } from '../../types.js';
@@ -42,6 +44,9 @@ export default function createReducer(controller: Controller): ReducerType {
       case INVALIDATEALL_TYPE:
       case INVALIDATE_TYPE:
         return invalidateReducer(state, action);
+
+      case EXPIREALL_TYPE:
+        return expireReducer(state, action);
 
       case RESET_TYPE:
         return { ...initialState, lastReset: action.date };
