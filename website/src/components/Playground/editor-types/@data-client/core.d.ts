@@ -227,6 +227,7 @@ declare const SUBSCRIBE_TYPE: "rest-hooks/subscribe";
 declare const UNSUBSCRIBE_TYPE: "rest-hook/unsubscribe";
 declare const INVALIDATE_TYPE: "rest-hooks/invalidate";
 declare const INVALIDATEALL_TYPE: "rest-hooks/invalidateall";
+declare const EXPIREALL_TYPE: "rest-hooks/expireall";
 declare const GC_TYPE: "rest-hooks/gc";
 
 declare const actionTypes_d_FETCH_TYPE: typeof FETCH_TYPE;
@@ -238,6 +239,7 @@ declare const actionTypes_d_SUBSCRIBE_TYPE: typeof SUBSCRIBE_TYPE;
 declare const actionTypes_d_UNSUBSCRIBE_TYPE: typeof UNSUBSCRIBE_TYPE;
 declare const actionTypes_d_INVALIDATE_TYPE: typeof INVALIDATE_TYPE;
 declare const actionTypes_d_INVALIDATEALL_TYPE: typeof INVALIDATEALL_TYPE;
+declare const actionTypes_d_EXPIREALL_TYPE: typeof EXPIREALL_TYPE;
 declare const actionTypes_d_GC_TYPE: typeof GC_TYPE;
 declare namespace actionTypes_d {
   export {
@@ -250,6 +252,7 @@ declare namespace actionTypes_d {
     actionTypes_d_UNSUBSCRIBE_TYPE as UNSUBSCRIBE_TYPE,
     actionTypes_d_INVALIDATE_TYPE as INVALIDATE_TYPE,
     actionTypes_d_INVALIDATEALL_TYPE as INVALIDATEALL_TYPE,
+    actionTypes_d_EXPIREALL_TYPE as EXPIREALL_TYPE,
     actionTypes_d_GC_TYPE as GC_TYPE,
   };
 }
@@ -337,6 +340,10 @@ interface UnsubscribeAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
         key: string;
     };
 }
+interface ExpireAllAction {
+    type: typeof EXPIREALL_TYPE;
+    testKey: (key: string) => boolean;
+}
 interface InvalidateAllAction {
     type: typeof INVALIDATEALL_TYPE;
     testKey: (key: string) => boolean;
@@ -356,7 +363,7 @@ interface GCAction {
     entities: [string, string][];
     results: string[];
 }
-type ActionTypes = FetchAction | OptimisticAction | SetAction | SubscribeAction | UnsubscribeAction | InvalidateAction | InvalidateAllAction | ResetAction | GCAction;
+type ActionTypes = FetchAction | OptimisticAction | SetAction | SubscribeAction | UnsubscribeAction | InvalidateAction | InvalidateAllAction | ExpireAllAction | ResetAction | GCAction;
 
 type newActions_d_SetMeta = SetMeta;
 type newActions_d_SetActionSuccess<E extends EndpointAndUpdate<E> = EndpointDefault> = SetActionSuccess<E>;
@@ -368,6 +375,7 @@ type newActions_d_FetchAction<E extends EndpointAndUpdate<E> = EndpointDefault> 
 type newActions_d_OptimisticAction<E extends EndpointAndUpdate<E> = EndpointDefault> = OptimisticAction<E>;
 type newActions_d_SubscribeAction<E extends EndpointAndUpdate<E> = EndpointDefault> = SubscribeAction<E>;
 type newActions_d_UnsubscribeAction<E extends EndpointAndUpdate<E> = EndpointDefault> = UnsubscribeAction<E>;
+type newActions_d_ExpireAllAction = ExpireAllAction;
 type newActions_d_InvalidateAllAction = InvalidateAllAction;
 type newActions_d_InvalidateAction = InvalidateAction;
 type newActions_d_ResetAction = ResetAction;
@@ -385,6 +393,7 @@ declare namespace newActions_d {
     newActions_d_OptimisticAction as OptimisticAction,
     newActions_d_SubscribeAction as SubscribeAction,
     newActions_d_UnsubscribeAction as UnsubscribeAction,
+    newActions_d_ExpireAllAction as ExpireAllAction,
     newActions_d_InvalidateAllAction as InvalidateAllAction,
     newActions_d_InvalidateAction as InvalidateAction,
     newActions_d_ResetAction as ResetAction,
@@ -478,8 +487,17 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
     /**
      * Forces refetching and suspense on useSuspense on all matching endpoint result keys.
      * @see https://resthooks.io/docs/api/Controller#invalidateAll
+     * @returns Promise that resolves when invalidation is commited.
      */
     invalidateAll: (options: {
+        testKey: (key: string) => boolean;
+    }) => Promise<void>;
+    /**
+     * Sets all matching endpoint result keys to be STALE.
+     * @see https://dataclient.io/docs/api/Controller#expireAll
+     * @returns Promise that resolves when expiry is commited. *NOT* fetch promise
+     */
+    expireAll: (options: {
         testKey: (key: string) => boolean;
     }) => Promise<void>;
     /**
@@ -1039,4 +1057,4 @@ declare class DevToolsManager implements Manager {
     getMiddleware(): Middleware;
 }
 
-export { AbstractInstanceType, ActionTypes, ConnectionListener, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeCache, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch$1 as Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, FetchMeta, GCAction, GenericDispatch, InvalidateAction, InvalidateAllAction, LogoutManager, Manager, Middleware$2 as Middleware, MiddlewareAPI$1 as MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, OptimisticAction, PK, PollingSubscription, ReceiveAction, ReceiveTypes, ResetAction, ResetError, ResolveType, ResultEntry, Schema, SetAction, SetActionError, SetActionSuccess, SetMeta, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, applyManager, createFetch, createSet as createReceive, createReducer, initialState, newActions_d as newActions };
+export { AbstractInstanceType, ActionTypes, ConnectionListener, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeCache, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch$1 as Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityInterface, ErrorTypes, ExpireAllAction, ExpiryStatus, FetchAction, FetchFunction, FetchMeta, GCAction, GenericDispatch, InvalidateAction, InvalidateAllAction, LogoutManager, Manager, Middleware$2 as Middleware, MiddlewareAPI$1 as MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, OptimisticAction, PK, PollingSubscription, ReceiveAction, ReceiveTypes, ResetAction, ResetError, ResolveType, ResultEntry, Schema, SetAction, SetActionError, SetActionSuccess, SetMeta, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, applyManager, createFetch, createSet as createReceive, createReducer, initialState, newActions_d as newActions };

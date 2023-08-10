@@ -73,11 +73,16 @@ class Article extends Entity {
 const UserResource = createResource({
   path: '/users/:id',
   schema: User,
+  optimistic: true,
 });
 
 const ArticleResource = createResource({
   path: '/articles/:id',
   schema: Article,
+  searchParams: {} as
+    | { beginAt?: string; endAt?: string; author?: string }
+    | undefined,
+  optimistic: true,
 });
 ```
 
@@ -86,12 +91,12 @@ const ArticleResource = createResource({
 ```tsx
 const article = useSuspense(ArticleResource.get, { id });
 return (
-  <>
+  <article>
     <h2>
       {article.title} by {article.author.username}
     </h2>
     <p>{article.body}</p>
-  </>
+  </article>
 );
 ```
 

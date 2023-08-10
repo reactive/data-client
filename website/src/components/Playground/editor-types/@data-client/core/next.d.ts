@@ -203,6 +203,7 @@ declare const SUBSCRIBE_TYPE: "rest-hooks/subscribe";
 declare const UNSUBSCRIBE_TYPE: "rest-hook/unsubscribe";
 declare const INVALIDATE_TYPE: "rest-hooks/invalidate";
 declare const INVALIDATEALL_TYPE: "rest-hooks/invalidateall";
+declare const EXPIREALL_TYPE: "rest-hooks/expireall";
 declare const GC_TYPE: "rest-hooks/gc";
 
 type EndpointAndUpdate<E extends EndpointInterface> = EndpointInterface & {
@@ -271,6 +272,10 @@ interface UnsubscribeAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
         key: string;
     };
 }
+interface ExpireAllAction {
+    type: typeof EXPIREALL_TYPE;
+    testKey: (key: string) => boolean;
+}
 interface InvalidateAllAction {
     type: typeof INVALIDATEALL_TYPE;
     testKey: (key: string) => boolean;
@@ -290,7 +295,7 @@ interface GCAction {
     entities: [string, string][];
     results: string[];
 }
-type ActionTypes = FetchAction | OptimisticAction | SetAction | SubscribeAction | UnsubscribeAction | InvalidateAction | InvalidateAllAction | ResetAction | GCAction;
+type ActionTypes = FetchAction | OptimisticAction | SetAction | SubscribeAction | UnsubscribeAction | InvalidateAction | InvalidateAllAction | ExpireAllAction | ResetAction | GCAction;
 
 type PK = string;
 interface State<T> {
@@ -370,8 +375,17 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
     /**
      * Forces refetching and suspense on useSuspense on all matching endpoint result keys.
      * @see https://resthooks.io/docs/api/Controller#invalidateAll
+     * @returns Promise that resolves when invalidation is commited.
      */
     invalidateAll: (options: {
+        testKey: (key: string) => boolean;
+    }) => Promise<void>;
+    /**
+     * Sets all matching endpoint result keys to be STALE.
+     * @see https://dataclient.io/docs/api/Controller#expireAll
+     * @returns Promise that resolves when expiry is commited. *NOT* fetch promise
+     */
+    expireAll: (options: {
         testKey: (key: string) => boolean;
     }) => Promise<void>;
     /**

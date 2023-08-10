@@ -14,6 +14,7 @@ import type {
   GC_TYPE,
   OPTIMISTIC_TYPE,
   INVALIDATEALL_TYPE,
+  EXPIREALL_TYPE,
 } from './actionTypes.js';
 import type { EndpointUpdateFunction } from './controller/types.js';
 
@@ -112,6 +113,12 @@ export interface UnsubscribeAction<
   };
 }
 
+/* EXPIRY */
+export interface ExpireAllAction {
+  type: typeof EXPIREALL_TYPE;
+  testKey: (key: string) => boolean;
+}
+
 /* INVALIDATE */
 export interface InvalidateAllAction {
   type: typeof INVALIDATEALL_TYPE;
@@ -146,5 +153,6 @@ export type ActionTypes =
   | UnsubscribeAction
   | InvalidateAction
   | InvalidateAllAction
+  | ExpireAllAction
   | ResetAction
   | GCAction;

@@ -15,6 +15,7 @@ import TabItem from '@theme/TabItem';
 class Controller {
   /*************** Action Dispatchers ***************/
   fetch(endpoint, ...args): ReturnType<E>;
+  expireAll({ testKey }): Promise<void>;
   invalidate(endpoint, ...args): Promise<void>;
   invalidateAll({ testKey }): Promise<void>;
   resetEntireStore(): Promise<void>;
@@ -24,7 +25,7 @@ class Controller {
   subscribe(endpoint, ...args): Promise<void>;
   unsubscribe(endpoint, ...args): Promise<void>;
   /*************** Data Access ***************/
-  getResponse(endpoint, ...args, state): { data, expiryStatus, expiresAt };
+  getResponse(endpoint, ...args, state): { data; expiryStatus; expiresAt };
   getError(endpoint, ...args, state): ErrorTypes | undefined;
   snapshot(state: State<unknown>, fetchedAt?: number): SnapshotInterface;
   getState(): State<unknown>;
@@ -56,7 +57,9 @@ function CreatePost() {
 
   return (
     <form
-      onSubmit={e => ctrl.fetch(PostResource.getList.push, new FormData(e.target))}
+      onSubmit={e =>
+        ctrl.fetch(PostResource.getList.push, new FormData(e.target))
+      }
     >
       {/* ... */}
     </form>
@@ -141,6 +144,44 @@ post.pk();
 - Identical requests are deduplicated globally; allowing only one inflight request at a time.
   - To ensure a _new_ request is started, make sure to abort any existing inflight requests.
 
+## expireAll({ testKey }) {#expireAll}
+
+Sets all responses' [expiry status](../concepts/expiry-policy.md) matching `testKey` to [Stale](../concepts/expiry-policy.md#stale).
+
+This is sometimes useful to trigger refresh of only data presently shown
+when there are many parameterizations in cache.
+
+```tsx
+import { type Controller, useController } from '@data-client/react';
+
+const createTradeHandler = (ctrl: Controller) => async trade => {
+  await ctrl.fetch(TradeResource.getList.push({ user: user.id }, trade));
+  // highlight-start
+  ctrl.expireAll(AccountResource.get);
+  ctrl.expireAll(AccountResource.getList);
+  // highlight-end
+};
+
+function CreateTrade({ id }: { id: string }) {
+  const handleTrade = createTradeHandler(useController());
+
+  return (
+    <Form onSubmit={handleTrade}>
+      <FormField name="ticker" />
+      <FormField name="amount" type="number" />
+      <FormField name="price" type="number" />
+    </Form>
+  );
+}
+```
+
+:::tip
+
+To reduce load, improve performance, and improve state consistency; it can often be
+better to [include mutation sideeffects in the mutation response](/rest/guides/rpc).
+
+:::
+
 ## invalidate(endpoint, ...args) {#invalidate}
 
 Forces refetching and suspense on [useSuspense](./useSuspense.md) with the same Endpoint
@@ -162,7 +203,7 @@ function ArticleName({ id }: { id: string }) {
 
 :::tip
 
-To refresh while continuing to display stale data - [Controller.fetch](#fetch) instead.
+To refresh while continuing to display stale data - [Controller.fetch](#fetch).
 
 :::
 
@@ -176,7 +217,7 @@ For REST try using [Resource.delete](/rest/api/createResource#delete)
 // deletes MyResource(5)
 // this will resuspend MyResource.get({id: '5'})
 // and remove it from MyResource.getList
-controller.setResponse(MyResource.delete, { id: '5' }, { id: '5' })
+controller.setResponse(MyResource.delete, { id: '5' }, { id: '5' });
 ```
 
 :::
@@ -198,6 +239,12 @@ function ArticleName({ id }: { id: string }) {
   );
 }
 ```
+
+:::tip
+
+To refresh while continuing to display stale data - [Controller.expireAll](#expireAll) instead.
+
+:::
 
 Here we clear only GET endpoints using the test.com domain. This means other domains remain in cache.
 
@@ -227,7 +274,7 @@ const managers = [
       // call custom unAuth function we defined
       unAuth();
       // still reset the store
-      controller.invalidateAll({ testKey })
+      controller.invalidateAll({ testKey });
     },
   }),
   ...CacheProvider.defaultProps.managers,
@@ -239,7 +286,6 @@ ReactDOM.createRoot(document.body).render(
   </CacheProvider>,
 );
 ```
-
 
 ## resetEntireStore() {#resetEntireStore}
 

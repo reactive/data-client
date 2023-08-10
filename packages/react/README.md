@@ -54,7 +54,7 @@ class Article extends Entity {
   static schema = {
     author: User,
     createdAt: Date,
-  }
+  };
 }
 ```
 
@@ -64,11 +64,16 @@ class Article extends Entity {
 const UserResource = createResource({
   path: '/users/:id',
   schema: User,
+  optimistic: true,
 });
 
 const ArticleResource = createResource({
   path: '/articles/:id',
   schema: Article,
+  searchParams: {} as
+    | { beginAt?: string; endAt?: string; author?: string }
+    | undefined,
+  optimistic: true,
 });
 ```
 
@@ -77,10 +82,12 @@ const ArticleResource = createResource({
 ```tsx
 const article = useSuspense(ArticleResource.get, { id });
 return (
-  <>
-    <h2>{article.title} by {article.author.username}</h2>
+  <article>
+    <h2>
+      {article.title} by {article.author.username}
+    </h2>
     <p>{article.body}</p>
-  </>
+  </article>
 );
 ```
 
@@ -112,7 +119,7 @@ const sortedArticles = new Query(
     const sorted = [...entries].sort((a, b) => a.title.localeCompare(b.title));
     if (asc) return sorted;
     return sorted.reverse();
-  }
+  },
 );
 
 const articlesUnsorted = useCache(sortedArticles);
