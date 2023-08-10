@@ -70,9 +70,7 @@ const UserResource = createResource({
 const ArticleResource = createResource({
   path: '/articles/:id',
   schema: Article,
-  searchParams: {} as
-    | { beginAt?: string; endAt?: string; author?: string }
-    | undefined,
+  searchParams: {} as { author?: string },
   optimistic: true,
 });
 ```
@@ -91,11 +89,14 @@ return (
 );
 ```
 
-### [Mutation](https://dataclient.io/docs/getting-started/mutations)
+### [Reactive Mutations](https://dataclient.io/docs/getting-started/mutations)
 
 ```tsx
 const ctrl = useController();
 return (
+  <CreateProfileForm
+    onSubmit={data => ctrl.fetch(UserResource.getList.push, { id }, data)}
+  />
   <ProfileForm
     onSubmit={data => ctrl.fetch(UserResource.update, { id }, data)}
   />
@@ -110,21 +111,83 @@ const price = useLive(PriceResource.get, { symbol });
 return price.value;
 ```
 
+### [Type-safe Imperative Actions](https://dataclient.io/docs/api/Controller)
+
+```tsx
+const ctrl = useController();
+ctrl.expireAll(ArticleResource.getList);
+ctrl.invalidate(ArticleResource.get, { id });
+ctrl.invalidateAll(ArticleResource.getList);
+ctrl.setResponse(ArticleResource.get, { id }, articleData);
+ctrl.fetch(ArticleResource.get, { id });
+```
+
 ### [Programmatic queries](https://dataclient.io/rest/api/Query)
 
 ```tsx
-const sortedArticles = new Query(
-  new schema.All(Article),
-  (entries, { asc } = { asc: false }) => {
-    const sorted = [...entries].sort((a, b) => a.title.localeCompare(b.title));
-    if (asc) return sorted;
-    return sorted.reverse();
+const queryTotalVotes = new Query(
+  new schema.All(Post),
+  (posts, { userId } = {}) => {
+    if (userId !== undefined)
+      posts = posts.filter(post => post.userId === userId);
+    return posts.reduce((total, post) => total + post.votes, 0);
   },
 );
 
-const articlesUnsorted = useCache(sortedArticles);
-const articlesAscending = useCache(sortedArticles, { asc: true });
-const articlesDescending = useCache(sortedArticles, { asc: false });
+const totalVotes = useCache(queryTotalVotes);
+const totalVotesForUser = useCache(queryTotalVotes, { userId });
+```
+
+### [Powerful Middlewares](https://dataclient.io/docs/concepts/managers)
+
+```ts
+class LoggingManager implements Manager {
+  getMiddleware = (): Middleware => controller => next => async action => {
+    console.log('before', action, controller.getState());
+    await next(action);
+    console.log('after', action, controller.getState());
+  };
+
+  cleanup() {}
+}
+```
+
+### [Integrated data mocking](https://dataclient.io/docs/api/Fixtures)
+
+```tsx
+const fixtures = [
+  {
+    endpoint: ArticleResource.getList,
+    args: [{ maxResults: 10 }] as const,
+    response: [
+      {
+        id: 5,
+        content: 'have a merry christmas',
+        author: 2,
+        contributors: [],
+      },
+      {
+        id: 532,
+        content: 'never again',
+        author: 23,
+        contributors: [5],
+      },
+    ],
+  },
+  {
+    endpoint: ArticleResource.update,
+    response: ({ id }, body) => ({
+      ...body,
+      id,
+    }),
+  },
+];
+
+const Story = () => (
+  <MockResolver fixtures={options[result]}>
+    <ArticleList maxResults={10} />
+  </MockResolver>
+);
 ```
 
 ### ...all typed ...fast ...and consistent
