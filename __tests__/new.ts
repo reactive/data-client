@@ -14,6 +14,10 @@ import {
   RestType,
   MutateEndpoint,
   RestInstance,
+  Resource,
+  ResourceOptions,
+  ResourceGenerics,
+  PartialRestGenerics,
 } from '@data-client/rest';
 import { SimpleRecord } from '@rest-hooks/legacy';
 import React, { createContext, useContext } from 'react';
@@ -202,62 +206,71 @@ export class ArticleFromMixin extends schema.Entity(ArticleData, {
 }) {}
 class ArticleEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {}
 
-function createArticleResource<S extends Schema>(
-  schema: S,
-  {
-    urlRoot = 'article',
-    EndpointArg = ArticleEndpoint,
-    optimistic,
-  }: {
-    urlRoot?: string;
-    EndpointArg?: typeof ArticleEndpoint;
-    optimistic?: boolean;
-  } = {},
-) {
+interface ArticleGenerics {
+  /** @see https://resthooks.io/rest/api/createResource#path */
+  readonly path?: string;
+  /** @see https://resthooks.io/rest/api/createResource#schema */
+  readonly schema: Schema;
+  /** Only used for types */
+  /** @see https://dataclient.io/rest/api/createResource#body */
+  readonly body?: any;
+  /** Only used for types */
+  /** @see https://resthooks.io/rest/api/createResource#searchParams */
+  readonly searchParams?: any;
+}
+function createArticleResource<O extends ArticleGenerics>({
+  schema,
+  urlRoot = 'article',
+  Endpoint = ArticleEndpoint,
+  optimistic,
+  ...options
+}: Readonly<O> & ResourceOptions & { urlRoot?: string }): Resource<
+  O & { path: '/:id' }
+> & {
+  longLiving: Resource<O & { path: '/:id' }>['get'];
+  neverRetryOnError: Resource<O & { path: '/:id' }>['get'];
+  singleWithUser: Resource<O & { path: '/:id' }>['get'];
+  listWithUser: Resource<O & { path: '/:id' }>['getList'];
+} {
   class EndpointUrlRootOverride<
     O extends RestGenerics = any,
-  > extends EndpointArg<O> {
+  > extends Endpoint<O> {
     urlPrefix = `http://test.com/${urlRoot}`;
   }
-  const base = createResource({
+  const resource = createResource({
     path: '/:id',
     schema,
     Endpoint: EndpointUrlRootOverride,
     optimistic,
-  });
-  let resource = {
-    ...base,
-    longLiving: base.get.extend({
-      dataExpiryLength: 1000 * 60 * 60,
-    }),
-    neverRetryOnError: base.get.extend({
-      errorExpiryLength: Infinity,
-    }),
-    singleWithUser: base.get.extend({
-      url: (params: any) =>
-        (base.get.url as any)({ ...params, includeUser: true }),
-    }),
-    listWithUser: base.getList.extend({
-      url: () => (base.getList.url as any)({ includeUser: true }),
-    }),
-  };
+    ...options,
+  })
+    .extend('longLiving', { dataExpiryLength: 1000 * 60 * 60 })
+    .extend('neverRetryOnError', { errorExpiryLength: Infinity })
+    .extend(Base => ({
+      singleWithUser: Base.get.extend({
+        url: (...args: any) =>
+          (Base.get.url as any)({ ...args[0], includeUser: true }),
+      }),
+      listWithUser: Base.getList.extend({
+        url: () => (Base.getList.url as any)({ includeUser: true }),
+      }),
+    }));
   if (!optimistic) {
-    resource = {
-      ...resource,
-      partialUpdate: base.partialUpdate.extend({
+    return (resource as any).extend({
+      partialUpdate: {
         getOptimisticResponse: (snap, params, body) => ({
           id: params.id,
           ...body,
         }),
-      }) as any as typeof base.partialUpdate,
-      delete: base.delete.extend({
+      },
+      delete: {
         getOptimisticResponse: (snap, params) => params,
-      }),
-    } as any;
+      },
+    });
   }
-  return resource;
+  return resource as any;
 }
-export const ArticleResource = createArticleResource(Article);
+export const ArticleResource = createArticleResource({ schema: Article });
 
 export const AuthContext = createContext('');
 
@@ -294,14 +307,15 @@ export class ArticleTimed extends Article {
     createdAt: Date,
   };
 }
-export const ArticleTimedResource = createArticleResource(ArticleTimed, {
+export const ArticleTimedResource = createArticleResource({
+  schema: ArticleTimed,
   urlRoot: 'article-time',
 });
 
 export class UrlArticle extends Article {
   readonly url: string = 'happy.com';
 }
-export const UrlArticleResource = createArticleResource(UrlArticle);
+export const UrlArticleResource = createArticleResource({ schema: UrlArticle });
 
 export const ArticleResourceWithOtherListUrl = {
   ...ArticleResource,
@@ -356,7 +370,8 @@ export class CoolerArticle extends Article {
     return `${this.title} five`;
   }
 }
-const CoolerArticleResourceBase = createArticleResource(CoolerArticle, {
+const CoolerArticleResourceBase = createArticleResource({
+  schema: CoolerArticle,
   urlRoot: 'article-cooler',
 });
 export const CoolerArticleResource = {
@@ -365,22 +380,16 @@ export const CoolerArticleResource = {
     path: '/:id?/:title?',
   }),
 };
-const OptimisticArticleResourceBase = createArticleResource(CoolerArticle, {
+export const OptimisticArticleResource = createArticleResource({
+  schema: CoolerArticle,
   urlRoot: 'article-cooler',
   optimistic: true,
+}).extend('get', { path: '/:id?/:title?' });
+
+const CoolerArticleResourceFromMixinBase = createArticleResource({
+  schema: ArticleFromMixin,
+  urlRoot: 'article-cooler',
 });
-export const OptimisticArticleResource = {
-  ...OptimisticArticleResourceBase,
-  get: CoolerArticleResourceBase.get.extend({
-    path: '/:id?/:title?',
-  }),
-};
-const CoolerArticleResourceFromMixinBase = createArticleResource(
-  ArticleFromMixin,
-  {
-    urlRoot: 'article-cooler',
-  },
-);
 export const CoolerArticleResourceFromMixin = {
   ...CoolerArticleResourceFromMixinBase,
   get: CoolerArticleResourceFromMixinBase.get.extend({
@@ -398,7 +407,8 @@ export class EditorArticle extends CoolerArticle {
 
   static key = 'CoolerArticle';
 }
-export const EditorArticleResource = createArticleResource(EditorArticle, {
+export const EditorArticleResource = createArticleResource({
+  schema: EditorArticle,
   urlRoot: 'article-cooler',
 });
 
@@ -407,7 +417,8 @@ export class TypedArticle extends CoolerArticle {
     return this.tags.join(', ');
   }
 }
-export const TypedArticleResourceBase = createArticleResource(TypedArticle, {
+export const TypedArticleResourceBase = createArticleResource({
+  schema: TypedArticle,
   urlRoot: 'article-cooler',
 });
 export const TypedArticleResource = {
@@ -490,12 +501,10 @@ export class CoauthoredArticle extends CoolerArticle {
     coAuthors: [User],
   };
 }
-export const CoauthoredArticleResource = createArticleResource(
-  CoauthoredArticle,
-  {
-    urlRoot: 'article-cooler',
-  },
-);
+export const CoauthoredArticleResource = createArticleResource({
+  schema: CoauthoredArticle,
+  urlRoot: 'article-cooler',
+});
 
 export const CoolerArticleDetail = new Endpoint(
   ({ id }: { id: number }) => {
@@ -530,21 +539,20 @@ class InvalidIfStaleEndpoint<
   errorExpiryLength = 5000;
   invalidIfStale = true;
 }
-export const InvalidIfStaleArticleResource = createArticleResource(
-  CoolerArticle,
-  {
-    urlRoot: 'article-cooler',
-    EndpointArg: InvalidIfStaleEndpoint,
-  },
-);
+export const InvalidIfStaleArticleResource = createArticleResource({
+  schema: CoolerArticle,
+  urlRoot: 'article-cooler',
+  Endpoint: InvalidIfStaleEndpoint,
+});
 
 class PollingEndpoint<O extends RestGenerics = any> extends ArticleEndpoint<O> {
   pollFrequency = 5000;
   dataExpiryLength = 5000;
 }
-export const PollingArticleResourceBase = createArticleResource(Article, {
+export const PollingArticleResourceBase = createArticleResource({
+  schema: Article,
   urlRoot: 'article',
-  EndpointArg: PollingEndpoint,
+  Endpoint: PollingEndpoint,
 });
 export const PollingArticleResource = {
   ...PollingArticleResourceBase,
@@ -560,9 +568,10 @@ export const PollingArticleResource = {
 class StaticEndpoint<O extends RestGenerics = any> extends ArticleEndpoint<O> {
   dataExpiryLength = Infinity;
 }
-export const StaticArticleResource = createArticleResource(Article, {
+export const StaticArticleResource = createArticleResource({
+  schema: Article,
   urlRoot: 'article-static',
-  EndpointArg: StaticEndpoint,
+  Endpoint: StaticEndpoint,
 });
 
 abstract class OtherArticle extends CoolerArticle {}
@@ -578,9 +587,10 @@ function makePaginatedRecord<T>(entity: T) {
   };
 }
 
-const PaginatedArticleResourceBase = createArticleResource(PaginatedArticle, {
+const PaginatedArticleResourceBase = createArticleResource({
+  schema: PaginatedArticle,
   urlRoot: 'article-paginated',
-  EndpointArg: StaticEndpoint,
+  Endpoint: StaticEndpoint,
 });
 const paginatedSchema = {
   results: [PaginatedArticle],
