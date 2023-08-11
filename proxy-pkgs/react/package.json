@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/react",
-  "version": "8.0.0",
+  "version": "8.1.0",
   "description": "Normalized state management for async data. Safe. Fast. Reusable.",
   "homepage": "https://resthooks.io",
   "repository": {
@@ -106,6 +106,6 @@
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",
   "dependencies": {
-    "@data-client/react": "^0.2.0"
+    "@data-client/react": "^0.3.0"
   }
 }

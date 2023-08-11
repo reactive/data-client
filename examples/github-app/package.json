@@ -1,6 +1,6 @@
 {
   "name": "github-app",
-  "version": "0.4.12",
+  "version": "0.4.13",
   "description": "github-app - A rest hooks example",
   "scripts": {
     "lint": "yarn g:lint src --ext .ts,.tsx",
@@ -51,8 +51,8 @@
     "@ant-design/icons": "^5.0.0",
     "@data-client/graphql": "^0.2.0",
     "@data-client/hooks": "^0.1.1",
-    "@data-client/react": "^0.2.2",
-    "@data-client/rest": "^0.5.0",
+    "@data-client/react": "^0.3.0",
+    "@data-client/rest": "^0.6.0",
     "antd": "5.7.3",
     "parse-link-header": "^2.0.0",
     "react": "18.2.0",

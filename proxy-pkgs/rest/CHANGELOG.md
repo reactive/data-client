@@ -1,5 +1,16 @@
 # Change Log
 
+## 7.3.0
+
+### Minor Changes
+
+- af8b76079f: Support FormData in Resource updates and creates
+
+### Patch Changes
+
+- Updated dependencies [af8b76079f]
+  - @data-client/rest@0.6.0
+
 ## 7.2.0
 
 ### Minor Changes

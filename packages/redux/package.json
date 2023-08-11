@@ -1,6 +1,6 @@
 {
   "name": "@data-client/redux",
-  "version": "0.1.4",
+  "version": "1.0.0",
   "description": "Asynchronous data framework for React",
   "homepage": "https://dataclient.io",
   "repository": {
@@ -121,10 +121,10 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime": "^7.17.0",
-    "@data-client/core": "^0.2.1"
+    "@data-client/core": "^0.3.0"
   },
   "peerDependencies": {
-    "@data-client/react": "^0.1.0 || ^0.2.0",
+    "@data-client/react": "^0.3.0",
     "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0",
     "react": "^16.8.4 || ^17.0.0 || ^18.0.0",
     "redux": "^4.0.0"

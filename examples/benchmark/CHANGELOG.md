@@ -1,5 +1,12 @@
 # Change Log
 
+## 0.4.19
+
+### Patch Changes
+
+- Updated dependencies [6fd842e464]
+  - @data-client/core@0.3.0
+
 ## 0.4.18
 
 ### Patch Changes

@@ -1,5 +1,21 @@
 # @data-client/core
 
+## 0.3.0
+
+### Minor Changes
+
+- 6fd842e464: Add controller.expireAll() that sets all responses to _STALE_
+
+  ```ts
+  controller.expireAll(ArticleResource.getList);
+  ```
+
+  This is like controller.invalidateAll(); but will continue showing
+  stale data while it is refetched.
+
+  This is sometimes useful to trigger refresh of only data presently shown
+  when there are many parameterizations in cache.
+
 ## 0.2.1
 
 ### Patch Changes

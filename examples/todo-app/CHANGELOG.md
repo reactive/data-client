@@ -1,5 +1,15 @@
 # Change Log
 
+## 0.2.22
+
+### Patch Changes
+
+- Updated dependencies [6fd842e464]
+- Updated dependencies [6fd842e464]
+- Updated dependencies [af8b76079f]
+  - @data-client/react@0.3.0
+  - @data-client/rest@0.6.0
+
 ## 0.2.21
 
 ### Patch Changes

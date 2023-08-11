@@ -1,5 +1,18 @@
 # Change Log
 
+## 0.1.7
+
+### Patch Changes
+
+- Updated dependencies [6fd842e464]
+- Updated dependencies [6fd842e464]
+- Updated dependencies [af8b76079f]
+  - @data-client/react@0.3.0
+  - @data-client/rest@0.6.0
+  - @data-client/redux@1.0.0
+  - @data-client/ssr@1.0.0
+  - @data-client/test@1.0.0
+
 ## 0.1.6
 
 ### Patch Changes

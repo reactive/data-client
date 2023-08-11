@@ -1,5 +1,27 @@
 # Change Log
 
+## 8.1.0
+
+### Minor Changes
+
+- 6fd842e464: Add controller.expireAll() that sets all responses to _STALE_
+
+  ```ts
+  controller.expireAll(ArticleResource.getList);
+  ```
+
+  This is like controller.invalidateAll(); but will continue showing
+  stale data while it is refetched.
+
+  This is sometimes useful to trigger refresh of only data presently shown
+  when there are many parameterizations in cache.
+
+### Patch Changes
+
+- Updated dependencies [6fd842e464]
+- Updated dependencies [6fd842e464]
+  - @data-client/react@0.3.0
+
 ## 8.0.0
 
 ### Major Changes

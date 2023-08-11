@@ -1,6 +1,6 @@
 {
   "name": "@data-client/ssr",
-  "version": "0.1.2",
+  "version": "1.0.0",
   "description": "Server Side Rendering helpers for Data Client",
   "homepage": "https://dataclient.io/docs/guides/ssr",
   "repository": {
@@ -112,8 +112,8 @@
     "@babel/runtime": "^7.17.0"
   },
   "peerDependencies": {
-    "@data-client/react": "^0.1.0 || ^0.2.0",
-    "@data-client/redux": "^0.1.0 || ^0.2.0",
+    "@data-client/react": "^0.3.0",
+    "@data-client/redux": "^1.0.0",
     "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0-0",
     "next": ">=12.0.0",
     "react": "^16.8.4 || ^17.0.0 || ^18.0.0-0",

@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/core",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "description": "High performance reactive framework for async data.",
   "sideEffects": false,
   "main": "index.cjs",
@@ -91,7 +91,7 @@
     "url": "https://github.com/data-client/rest-hooks/issues"
   },
   "dependencies": {
-    "@data-client/core": "^0.2.0"
+    "@data-client/core": "^0.3.0"
   },
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",
