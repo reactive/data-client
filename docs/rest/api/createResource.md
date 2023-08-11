@@ -84,6 +84,10 @@ Passed to [RestEndpoint.searchParams](./RestEndpoint.md#searchParams) for [getLi
 
 Passed to [RestEndpoint.body](./RestEndpoint.md#body) for [getList.push](#push) [update](#update) and [partialUpdate](#partialUpdate)
 
+### paginationField
+
+If specified, will add [Resource.getList.getPage](#getpage) method on the `Resource`.
+
 ### optimistic
 
 `true` makes all mutation endpoints [optimistic](../guides/optimistic-updates.md)
@@ -102,6 +106,8 @@ new endpoints](#customizing-resources) based to match your API.
 
 ### get
 
+Retrieve a singular item.
+
 - method: 'GET'
 - path: `path`
 - schema: [schema](#schema)
@@ -117,6 +123,8 @@ createResource({ urlPrefix: '//test.com', path: '/api/:group/:id' }).get({
 Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidate](/docs/api/Controller#invalidate)
 
 ### getList
+
+Retrieve a list of items.
 
 - method: 'GET'
 - path: `shortenPath(path)`
@@ -139,8 +147,10 @@ Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidat
 
 ### getList.push {#push}
 
-- `getList.push`
+Creates a new entity and pushes it to the end of getList.
+
 - method: 'POST'
+- path: `shortenPath(path)`
 - schema: `getList.schema.push`
 
 ```typescript
@@ -154,7 +164,51 @@ createResource({
 
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
+### getList.unshift {#unshift}
+
+Creates a new entity and pushes it to the beginning of getList.
+
+- method: 'POST'
+- path: `shortenPath(path)`
+- schema: `getList.schema.unshift`
+
+```typescript
+// POST //test.com/api/abc
+// BODY { "title": "winning" }
+createResource({
+  urlPrefix: '//test.com',
+  path: '/api/:group/:id',
+}).getList.push({ group: 'abc' }, { title: 'winning' });
+```
+
+Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
+
+### getList.getPage {#getpage}
+
+Retrieves another [page](../guides/pagination.md#infinite-scrolling) appending to getList ensuring there are no duplicates.
+
+- method: 'GET'
+- args: `shortenPath(path) & { [paginationField]: string | number } & searchParams`
+- schema: [new schema.Collection(\[schema\]).addWith(paginatedMerge, paginatedFilter(removeCursor))](./Collection.md)
+
+```typescript
+// GET //test.com/api/abc?isExtra=xyz&page=2
+createResource({
+  urlPrefix: '//test.com',
+  path: '/api/:group/:id',
+  paginationField: 'page',
+}).getList.getPage({
+  group: 'abc',
+  isExtra: 'xyz',
+  page: '2',
+});
+```
+
+Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
+
 ### update
+
+Update an item.
 
 - method: 'PUT'
 - path: `path`
@@ -173,6 +227,8 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ### partialUpdate
 
+Update some subset of fields of an item.
+
 - method: 'PATCH'
 - path: `path`
 - schema: `schema`
@@ -189,6 +245,8 @@ createResource({
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ### delete
+
+Deletes an item.
 
 - method: 'DELETE'
 - path: `path`

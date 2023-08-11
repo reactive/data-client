@@ -72,6 +72,7 @@ const ArticleResource = createResource({
   schema: Article,
   searchParams: {} as { author?: string },
   optimistic: true,
+  paginationField: 'cursor',
 });
 ```
 

@@ -110,7 +110,8 @@ export default class CollectionSchema<
       ? this.argsKey(...args)
       : this.nestKey(parent, key);
     for (const key in obj) {
-      if (typeof obj[key] !== 'string') obj[key] = `${obj[key]}`;
+      if (typeof obj[key] !== 'string' && obj[key] !== undefined)
+        obj[key] = `${obj[key]}`;
     }
     return JSON.stringify(obj);
   }

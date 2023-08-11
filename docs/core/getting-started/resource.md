@@ -57,6 +57,7 @@ export const TodoResource = createResource({
   path: '/todos/:id',
   schema: Todo,
   searchParams: {} as { userId?: string | number } | undefined,
+  paginationField: 'page',
 });
 
 
@@ -72,6 +73,8 @@ TodoResource.getList({ userId: 1 });
 TodoResource.getList.push({ title: 'my todo' });
 // POST https://jsonplaceholder.typicode.com/todos?userId=1
 TodoResource.getList.push({ userId: 1 }, { title: 'my todo' });
+// GET https://jsonplaceholder.typicode.com/todos?userId=1&page=2
+TodoResource.getList.getPage({ userId: 1, page: 2 });
 // PUT https://jsonplaceholder.typicode.com/todos/5
 TodoResource.update({ id: 5 }, { title: 'my todo' });
 // PATCH https://jsonplaceholder.typicode.com/todos/5

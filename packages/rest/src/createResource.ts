@@ -30,6 +30,7 @@ export default function createResource<O extends ResourceGenerics>({
   schema,
   Endpoint = RestEndpoint,
   optimistic,
+  paginationField,
   ...extraOptions
 }: Readonly<O> & ResourceOptions): Resource<O> {
   const shortenedPath = shortenPath(path);
@@ -50,10 +51,13 @@ export default function createResource<O extends ResourceGenerics>({
     }) as any;
   if (optimistic) {
     (extraMutateOptions as any).getOptimisticResponse = optimisticUpdate;
-    (extraPartialOptions as any).getOptimisticResponse = optimisticPartial(get);
+    (extraPartialOptions as any).getOptimisticResponse = optimisticPartial(
+      get as any,
+    );
   }
   const getList = new Endpoint({
     ...extraMutateOptions,
+    paginationField: paginationField as string,
     path: shortenedPath,
     schema: new Collection([schema as any]),
     name: getName('getList'),

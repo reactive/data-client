@@ -1,4 +1,4 @@
-import { Entity } from '@data-client/endpoint';
+import { Entity, schema } from '@data-client/endpoint';
 import { useController } from '@data-client/react';
 import { useSuspense } from '@data-client/react';
 import { CacheProvider } from '@data-client/react';
@@ -85,6 +85,62 @@ const getNextPage2 = getArticleList2.paginated(
     group: string | number;
   }) => [rest],
 );
+
+const getArticleList3 = new RestEndpoint({
+  urlPrefix: 'http://test.com',
+  path: '/article-paginated',
+  schema: {
+    nextPage: '',
+    data: { results: new schema.Collection([PaginatedArticle]) },
+  },
+  method: 'GET',
+  searchParams: {} as { group: string | number },
+  paginationField: 'cursor',
+}).extend({
+  dataExpiryLength: 10000,
+});
+const getNextPage3 = getArticleList3.getPage;
+
+// type tests
+() => {
+  const base = new RestEndpoint({
+    urlPrefix: 'http://test.com',
+    path: '/article-paginated',
+    schema: {
+      nextPage: '',
+      data: { results: new schema.Collection([PaginatedArticle]) },
+    },
+    method: 'GET',
+  });
+  // @ts-expect-error
+  () => base.getPage();
+  () =>
+    // @ts-expect-error
+    base
+      .extend({
+        path: '',
+        dataExpiryLength: 10000,
+      })
+      .getPage();
+  const a = new RestEndpoint({
+    urlPrefix: 'http://test.com',
+    path: '/article-paginated',
+    schema: {
+      nextPage: '',
+      data: { results: new schema.Collection([PaginatedArticle]) },
+    },
+    method: 'GET',
+    searchParams: {} as { group: string | number },
+  }).extend({
+    path: ':blob',
+    searchParams: {} as { isAdmin?: boolean },
+    method: 'GET',
+    paginationField: 'cursor',
+  });
+  a.getPage({ cursor: 'hi', blob: 'ho' });
+  // @ts-expect-error
+  a.getPage({ blob: 'ho' });
+};
 
 describe('RestEndpoint', () => {
   const renderRestHook: ReturnType<typeof makeRenderRestHook> =
@@ -277,26 +333,56 @@ describe('RestEndpoint', () => {
       .get(`/article-paginated/happy?cursor=2`)
       .reply(200, paginatedSecondPage);
 
-    const { result, waitForNextUpdate } = renderRestHook(() => {
-      const { fetch } = useController();
+    const { result, waitForNextUpdate, controller } = renderRestHook(() => {
       const {
         data: { results: articles },
         nextPage,
       } = useSuspense(getArticleList2, {
         group: 'happy',
       });
-      return { articles, nextPage, fetch };
+      return { articles, nextPage };
     });
     await waitForNextUpdate();
     // @ts-expect-error
-    () => result.current.fetch(getNextPage2);
+    () => controller.fetch(getNextPage2);
     // @ts-expect-error
-    () => result.current.fetch(getNextPage2, { fake: 5 });
+    () => controller.fetch(getNextPage2, { fake: 5 });
     // @ts-expect-error
-    () => result.current.fetch(getNextPage2, { group: 'happy' });
+    () => controller.fetch(getNextPage2, { group: 'happy' });
     // @ts-expect-error
-    () => result.current.fetch(getNextPage2, { cursor: 2 });
-    await result.current.fetch(getNextPage2, {
+    () => controller.fetch(getNextPage2, { cursor: 2 });
+    await controller.fetch(getNextPage2, {
+      group: 'happy',
+      cursor: 2,
+    });
+    expect(result.current.articles.map(({ id }) => id)).toEqual([5, 3, 7, 8]);
+  });
+
+  it('getPage: should update on get for a paginated resource with parameter in path', async () => {
+    mynock.get(`/article-paginated?group=happy`).reply(200, paginatedFirstPage);
+    mynock
+      .get(`/article-paginated?cursor=2&group=happy`)
+      .reply(200, paginatedSecondPage);
+
+    const { result, waitForNextUpdate, controller } = renderRestHook(() => {
+      const {
+        data: { results: articles },
+        nextPage,
+      } = useSuspense(getArticleList3, {
+        group: 'happy',
+      });
+      return { articles, nextPage };
+    });
+    await waitForNextUpdate();
+    // @ts-expect-error
+    () => controller.fetch(getNextPage3);
+    // @ts-expect-error
+    () => controller.fetch(getNextPage3, { fake: 5 });
+    // @ts-expect-error
+    () => controller.fetch(getNextPage3, { group: 'happy' });
+    // @ts-expect-error
+    () => controller.fetch(getNextPage3, { cursor: 2 });
+    await controller.fetch(getNextPage3, {
       group: 'happy',
       cursor: 2,
     });

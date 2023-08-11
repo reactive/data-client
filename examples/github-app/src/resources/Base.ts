@@ -94,6 +94,7 @@ export function createGithubResource<O extends ResourceGenerics>(
 ): GithubResource<O> {
   const baseResource = createResource({
     Endpoint: GithubEndpoint,
+    paginationField: 'page',
     ...options,
   });
 
@@ -123,6 +124,7 @@ export interface GithubResource<
         results: schema.Collection<O['schema'][]>;
         link: string;
       };
+      readonly paginationField: 'page';
     }
   >;
 }

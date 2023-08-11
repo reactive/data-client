@@ -76,8 +76,9 @@ const ArticleResource = {
 const ArticlePaginatedResource = createResource({
   urlPrefix: 'http://test.com',
   path: '/article/:id',
-  searchParams: {} as { userId?: number } | undefined,
+  searchParams: {} as { userId?: number; extra?: undefined } | undefined,
   schema: Article,
+  paginationField: 'cursor',
 });
 
 const UnionResource = createResource({
@@ -223,13 +224,10 @@ describe.each([
     await waitForNextUpdate();
     expect(result.current.userArticles).toMatchSnapshot();
 
-    await controller.fetch(
-      ArticlePaginatedResource.getList.paginated('cursor'),
-      {
-        cursor: 2,
-        userId: 1,
-      },
-    );
+    await controller.fetch(ArticlePaginatedResource.getList.getPage, {
+      cursor: 2,
+      userId: 1,
+    });
 
     expect(result.current.userArticles.map(({ id }) => id)).toEqual([
       5, 3, 7, 8,
@@ -241,23 +239,94 @@ describe.each([
     ]);
 
     () =>
-      controller.fetch(ArticlePaginatedResource.getList.paginated('cursor'), {
+      controller.fetch(ArticlePaginatedResource.getList.getPage, {
         cursor: 2,
         userId: 1,
         // @ts-expect-error
         sdlkjfsd: 5,
       });
     () =>
-      controller.fetch(ArticlePaginatedResource.getList.paginated('cursor'), {
+      controller.fetch(ArticlePaginatedResource.getList.getPage, {
         // @ts-expect-error
         sdf: 2,
         userId: 1,
       });
     () =>
       // @ts-expect-error
-      controller.fetch(ArticlePaginatedResource.getList.paginated('cursor'), {
+      controller.fetch(ArticlePaginatedResource.getList.getPage, {
         userId: 1,
       });
+
+    nock.cleanAll();
+  });
+
+  it('pagination should ignore undefined values', async () => {
+    const mynock = nock(/.*/).defaultReplyHeaders({
+      'Access-Control-Allow-Origin': '*',
+      'Content-Type': 'application/json',
+    });
+
+    mynock.get(`/article`).reply(200, paginatedFirstPage.results);
+    mynock.get(`/article?userId=2`).reply(200, paginatedFirstPage.results);
+    mynock.get(`/article?userId=1`).reply(200, paginatedFirstPage.results);
+    mynock
+      .get(`/article?userId=1&cursor=2&extra=undefined`)
+      .reply(200, paginatedSecondPage.results);
+    mynock.get(`/article?cursor=2`).reply(200, paginatedSecondPage.results);
+
+    const { result, waitForNextUpdate, controller } = renderRestHook(() => {
+      const userArticles = useSuspense(ArticlePaginatedResource.getList, {
+        userId: 1,
+      });
+      const userArticlesUndefined = useSuspense(
+        ArticlePaginatedResource.getList,
+        {
+          userId: 1,
+          // ignored
+          extra: undefined,
+        },
+      );
+      const anotherUserArticles = useSuspense(
+        ArticlePaginatedResource.getList,
+        { userId: 2 },
+      );
+      const allArticles = useSuspense(ArticlePaginatedResource.getList);
+      return {
+        userArticles,
+        allArticles,
+        anotherUserArticles,
+        userArticlesUndefined,
+      };
+    });
+    await waitForNextUpdate();
+    expect(result.current.userArticles).toMatchSnapshot();
+
+    await controller.fetch(ArticlePaginatedResource.getList.getPage, {
+      cursor: 2,
+      userId: 1,
+      // ignored
+      extra: undefined,
+    });
+
+    expect(result.current.userArticles.map(({ id }) => id)).toEqual([
+      5, 3, 7, 8,
+    ]);
+    // pagination we only explicitly extend one
+    expect(result.current.allArticles.map(({ id }) => id)).toEqual([5, 3]);
+    expect(result.current.anotherUserArticles.map(({ id }) => id)).toEqual([
+      5, 3,
+    ]);
+    expect(result.current.userArticlesUndefined).toEqual(
+      result.current.userArticles,
+    );
+
+    await controller.fetch(ArticlePaginatedResource.getList.getPage, {
+      cursor: 2,
+    });
+    // now we got the next page
+    expect(result.current.allArticles.map(({ id }) => id)).toEqual([
+      5, 3, 7, 8,
+    ]);
 
     nock.cleanAll();
   });

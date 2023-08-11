@@ -1,9 +1,10 @@
 import { useLive } from '@data-client/react';
 import { List } from 'antd';
+import parseLink from 'parse-link-header';
 import { Issue, IssueResource } from 'resources/Issue';
 
 import IssueListItem from './IssueListItem';
-import LinkPagination from '../navigation/LinkPagination';
+import NextPage from './NextPage';
 
 export default function IssueList({ owner, repo, page, q }: Props) {
   const {
@@ -12,9 +13,9 @@ export default function IssueList({ owner, repo, page, q }: Props) {
   } = useLive(IssueResource.search, {
     owner,
     repo,
-    page,
     q,
   });
+  const nextPage = parseLink(link)?.next?.page;
 
   return (
     <>
@@ -23,9 +24,11 @@ export default function IssueList({ owner, repo, page, q }: Props) {
         dataSource={issues}
         renderItem={(issue) => <IssueListItem key={issue.pk()} issue={issue} />}
       />
-      <div className="center">
-        <LinkPagination link={link} />
-      </div>
+      {nextPage ? (
+        <div className="center">
+          <NextPage owner={owner} repo={repo} q={q} />
+        </div>
+      ) : null}
     </>
   );
 }
