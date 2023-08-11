@@ -1,5 +1,11 @@
 # @data-client/redux
 
+## 0.2.0
+
+### Minor Changes
+
+- a78831dc61: Support latest version in peerDeps
+
 ## 0.1.4
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # Change Log
 
+## 0.1.8
+
+### Patch Changes
+
+- Updated dependencies [a78831dc61]
+  - @data-client/redux@0.2.0
+  - @data-client/test@0.3.0
+  - @data-client/ssr@0.2.0
+
 ## 0.1.7
 
 ### Patch Changes

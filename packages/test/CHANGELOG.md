@@ -1,5 +1,11 @@
 # @data-client/test
 
+## 0.3.0
+
+### Minor Changes
+
+- a78831dc61: Support latest version in peerDeps
+
 ## 0.2.1
 
 ### Patch Changes
