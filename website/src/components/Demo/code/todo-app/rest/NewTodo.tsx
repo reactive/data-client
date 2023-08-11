@@ -5,7 +5,6 @@ export default function NewTodo({ userId }: { userId: number }) {
   const handleKeyDown = async e => {
     if (e.key === 'Enter') {
       controller.fetch(TodoResource.getList.push, {
-        id: randomId(),
         userId,
         title: e.currentTarget.value,
       });
@@ -21,8 +20,4 @@ export default function NewTodo({ userId }: { userId: number }) {
       <CancelButton />
     </div>
   );
-}
-
-function randomId() {
-  return Number.parseInt(uuid().slice(0, 8), 16);
 }

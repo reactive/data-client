@@ -1,3 +1,4 @@
+import { CREATE } from './special.js';
 import { PolymorphicInterface } from '../interface.js';
 import {
   Entity as EntitySchema,
@@ -273,10 +274,13 @@ function normalizeCreate(
   key: string,
   visit: (...args: any) => any,
   addEntity: (...args: any) => any,
-  visitedEntities: Record<string, any>,
+  visitedEntities: Record<string | symbol, any>,
   storeEntities: Record<string, any>,
   args: readonly any[],
 ): any {
+  // means 'this is a creation endpoint' - so real PKs are not required
+  visitedEntities[CREATE] = {};
+  // we could call visit, but i'll just call this anyways
   const pkList = this.schema.normalize(
     !(this.schema instanceof ArraySchema) || Array.isArray(input)
       ? input

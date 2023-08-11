@@ -683,7 +683,7 @@ exports[`EntitySchema normalization should error if no matching keys are found 1
   Value (processed): {
   "name": 0
 }
-  "
+"
 `;
 
 exports[`EntitySchema normalization should throw a custom error if data does not include pk 1`] = `
@@ -698,7 +698,7 @@ exports[`EntitySchema normalization should throw a custom error if data does not
   Value (processed): {
   "secondthing": "hi"
 }
-  "
+"
 `;
 
 exports[`EntitySchema normalization should throw a custom error if data loads with no matching props 1`] = `
@@ -711,7 +711,7 @@ exports[`EntitySchema normalization should throw a custom error if data loads wi
 
   Entity: MyData
   Value (processed): {}
-  "
+"
 `;
 
 exports[`EntitySchema normalization should throw a custom error if data loads with string 1`] = `
@@ -762,5 +762,5 @@ exports[`EntitySchema normalization should throw a custom error loads with array
     "secondthing": "ho"
   }
 }
-  "
+"
 `;

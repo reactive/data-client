@@ -1,3 +1,5 @@
+import { v4 as uuid } from 'uuid';
+
 import NewTodo from '!!raw-loader!./NewTodo.tsx';
 import resources from '!!raw-loader!./resources.ts';
 import TodoItem from '!!raw-loader!./TodoItem.tsx';
@@ -73,9 +75,12 @@ export default {
       async response(...args: any) {
         return {
           ...(await TodoResource.getList.push(...args)),
-          id: args?.[args.length - 1]?.id,
+          id: randomId(),
         };
       },
     },
   ],
 };
+function randomId() {
+  return Number.parseInt(uuid().slice(0, 8), 16);
+}

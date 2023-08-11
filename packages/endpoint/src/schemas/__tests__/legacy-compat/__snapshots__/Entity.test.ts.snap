@@ -694,7 +694,7 @@ exports[`Entity normalization should throw a custom error if data does not inclu
   Value (processed): {
   "secondthing": "hi"
 }
-  "
+"
 `;
 
 exports[`Entity normalization should throw a custom error if data loads with half unexpected props 1`] = `
@@ -725,7 +725,7 @@ exports[`Entity normalization should throw a custom error if data loads with no 
 
   Entity: MyEntity
   Value (processed): {}
-  "
+"
 `;
 
 exports[`Entity normalization should throw a custom error if data loads with string 1`] = `
