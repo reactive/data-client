@@ -5,6 +5,7 @@ import {
   ResourceOptions,
   Resource,
 } from '@data-client/rest';
+import { v4 as uuid } from 'uuid';
 
 export abstract class PlaceholderEntity extends Entity {
   readonly id: number = 0;
@@ -45,9 +46,12 @@ export function createPlaceholderResource<O extends ResourceGenerics = any>(
         // for POST (push/unshift)
         return {
           ...response,
-          id: args?.[args.length - 1]?.id,
+          id: randomId(),
         };
       },
     },
   }) as any;
+}
+function randomId() {
+  return Number.parseInt(uuid().slice(0, 8), 16);
 }

@@ -324,17 +324,16 @@ describe.each([
             TodoResource.getList.push,
             { userId: '5' },
             {
-              id: '1',
               title: 'push',
               userId: 5,
             },
           );
         });
         expect(result.current.userTodos.map(({ id }) => id)).toEqual(['5']);
-        expect(result.current.todos.map(({ id }) => id)).toEqual([
-          '5',
-          '3',
-          '1',
+        expect(result.current.todos.map(({ title }) => title)).toEqual([
+          'do things',
+          'ssdf',
+          'push',
         ]);
         expect(result.current.user.todos).toBe(result.current.userTodos);
         // userTodos didn't change so should maintain referential equality
@@ -346,21 +345,20 @@ describe.each([
             TodoResource.getList.unshift,
             { userId: '1' },
             {
-              id: '55',
               title: 'unshift',
             },
           );
         });
         // this adds to both the base todo list, the one with userId filter, and the nested todo list inside user object
-        expect(result.current.todos.map(({ id }) => id)).toEqual([
-          '55',
-          '5',
-          '3',
-          '1',
+        expect(result.current.todos.map(({ title }) => title)).toEqual([
+          'unshift',
+          'do things',
+          'ssdf',
+          'push',
         ]);
-        expect(result.current.userTodos.map(({ id }) => id)).toEqual([
-          '55',
-          '5',
+        expect(result.current.userTodos.map(({ title }) => title)).toEqual([
+          'unshift',
+          'do things',
         ]);
         expect(result.current.user.todos).toBe(result.current.userTodos);
 

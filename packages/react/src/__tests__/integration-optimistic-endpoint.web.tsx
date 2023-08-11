@@ -336,6 +336,7 @@ describe.each([
     });
 
     it('works with eager creates (legacy)', async () => {
+      // legacy creates (non-collection) do not support id inference
       const body = { id: -1111111111, content: 'hi' };
       const existingItem = Article.fromJS({
         id: 100,

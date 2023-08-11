@@ -41,7 +41,9 @@ describe(`${schema.Object.name} normalization`, () => {
     const users = new schema.Object({ foo: User, bar: User, baz: User });
     const oldenv = process.env.NODE_ENV;
     process.env.NODE_ENV = 'production';
-    expect(normalize({ foo: {}, bar: { id: '1' } }, users)).toMatchSnapshot();
+    expect(
+      normalize({ foo: undefined, bar: { id: '1' } }, users),
+    ).toMatchSnapshot();
     process.env.NODE_ENV = oldenv;
   });
 

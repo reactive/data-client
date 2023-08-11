@@ -1,4 +1,5 @@
 import { Entity, schema, createResource } from '@data-client/rest';
+import { v4 as uuid } from 'uuid';
 
 export class Todo extends Entity {
   id = 0;
@@ -80,8 +81,11 @@ export const todoFixtures = [
       //await new Promise(resolve => setTimeout(resolve, 500));
       return {
         ...(await TodoResource.getList.push(...args)),
-        id: args?.[args.length - 1]?.id,
+        id: randomId(),
       };
     },
   },
 ];
+function randomId() {
+  return Number.parseInt(uuid().slice(0, 8), 16);
+}

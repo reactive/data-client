@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+import { CREATE } from './special.js';
 import type { Schema, NormalizedIndex, UnvisitFunction } from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
 
@@ -247,14 +248,18 @@ export default function EntitySchema<TBase extends Constructor>(
       key: string | undefined,
       visit: (...args: any) => any,
       addEntity: (...args: any) => any,
-      visitedEntities: Record<string, any>,
+      visitedEntities: Record<string | symbol, any>,
       storeEntities: any,
       args?: readonly any[],
     ): any {
       const processedEntity = this.process(input, parent, key);
-      const id = this.pk(processedEntity, parent, key, args);
+      let id = this.pk(processedEntity, parent, key, args);
       if (id === undefined || id === '' || id === 'undefined') {
-        if (process.env.NODE_ENV !== 'production') {
+        // create a random id if a valid one cannot be computed
+        // this is useful for optimistic creates that don't need real ids - just something to hold their place
+        id = `MISS-${Math.random()}`;
+        // 'creates' conceptually should allow missing PK to make optimistic creates easy
+        if (process.env.NODE_ENV !== 'production' && !visitedEntities[CREATE]) {
           const error = new Error(
             `Missing usable primary key when normalizing response.
 
@@ -267,13 +272,10 @@ export default function EntitySchema<TBase extends Constructor>(
   Value (processed): ${
     processedEntity && JSON.stringify(processedEntity, null, 2)
   }
-  `,
+`,
           );
           (error as any).status = 400;
           throw error;
-        } else {
-          // these make the keys get deleted; return undefined
-          return;
         }
       }
       const entityType = this.key;
