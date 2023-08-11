@@ -1,13 +1,5 @@
 # @data-client/img
 
-## 1.0.0
-
-### Patch Changes
-
-- Updated dependencies [6fd842e464]
-- Updated dependencies [6fd842e464]
-  - @data-client/react@0.3.0
-
 ## 0.1.2
 
 ### Patch Changes

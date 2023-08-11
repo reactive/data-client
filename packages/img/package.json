@@ -1,6 +1,6 @@
 {
   "name": "@data-client/img",
-  "version": "1.0.0",
+  "version": "0.1.2",
   "description": "Suspenseful images",
   "homepage": "https://dataclient.io/docs/guides/img-media#just-images",
   "repository": {
@@ -72,7 +72,7 @@
     "@data-client/endpoint": "^0.2.0"
   },
   "peerDependencies": {
-    "@data-client/react": "^0.3.0",
+    "@data-client/react": "^0.1.0 || ^0.2.0 || ^0.3.0",
     "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0-0",
     "react": "^16.8.4 || ^17.0.0 || ^18.0.0-0"
   },
