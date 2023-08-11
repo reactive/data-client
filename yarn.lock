@@ -3132,25 +3132,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/redux@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "@data-client/redux@npm:1.0.0"
-  dependencies:
-    "@babel/runtime": ^7.17.0
-    "@data-client/core": ^0.3.0
-  peerDependencies:
-    "@data-client/react": ^0.3.0
-    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0
-    react: ^16.8.4 || ^17.0.0 || ^18.0.0
-    redux: ^4.0.0
-  peerDependenciesMeta:
-    "@types/react":
-      optional: true
-  checksum: 0f4b218f73bd3691dda1c8b60eea1d1dca6b28bf735a8bd9eee8c06e585a174d9d88cabce93f75b5ec208bfbe743cad2d4025a3fb10e7ad55eeb1b4a50c1097d
-  languageName: node
-  linkType: hard
-
-"@data-client/redux@workspace:*, @data-client/redux@workspace:packages/redux":
+"@data-client/redux@^0.1.4, @data-client/redux@workspace:*, @data-client/redux@workspace:packages/redux":
   version: 0.0.0-use.local
   resolution: "@data-client/redux@workspace:packages/redux"
   dependencies:
@@ -3185,28 +3167,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/ssr@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "@data-client/ssr@npm:1.0.0"
-  dependencies:
-    "@babel/runtime": ^7.17.0
-  peerDependencies:
-    "@data-client/react": ^0.3.0
-    "@data-client/redux": ^1.0.0
-    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
-    next: ">=12.0.0"
-    react: ^16.8.4 || ^17.0.0 || ^18.0.0-0
-    redux: ^4.0.0
-  peerDependenciesMeta:
-    "@types/react":
-      optional: true
-    next:
-      optional: true
-  checksum: 1bbf661fa58ebe8c71b7296e60649710fa7da46bfaba8cd63bb6bb549e8264b62349e9ef2278be7435876d19eb3416c34a217c73697c0464eb5eb18d899c06cd
-  languageName: node
-  linkType: hard
-
-"@data-client/ssr@workspace:packages/ssr":
+"@data-client/ssr@^0.1.2, @data-client/ssr@workspace:packages/ssr":
   version: 0.0.0-use.local
   resolution: "@data-client/ssr@workspace:packages/ssr"
   dependencies:
@@ -3235,44 +3196,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/test@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "@data-client/test@npm:1.0.0"
-  dependencies:
-    "@babel/runtime": ^7.17.0
-    "@testing-library/react": ^14.0.0
-    "@testing-library/react-native": ^12.0.1
-    react-error-boundary: ^4.0.0
-  peerDependencies:
-    "@data-client/react": ^0.3.0
-    "@testing-library/react-hooks": ^8.0.0
-    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0
-    "@types/react-dom": "*"
-    jest: "*"
-    react: ^16.8.4 || ^17.0.0 || ^18.0.0
-    react-dom: "*"
-    react-native: "*"
-    react-test-renderer: "*"
-  peerDependenciesMeta:
-    "@testing-library/react-hooks":
-      optional: true
-    "@types/react":
-      optional: true
-    "@types/react-dom":
-      optional: true
-    jest:
-      optional: true
-    react-dom:
-      optional: true
-    react-native:
-      optional: true
-    react-test-renderer:
-      optional: true
-  checksum: 140370b908508d92cbec0adee9ad4bb15ceac1a155fcf2573c3fcd2ec521d0dafa06d69e7bbd72b3fb09335862f5f84b2f3451a28db93597be3e0d8d59f19c0e
-  languageName: node
-  linkType: hard
-
-"@data-client/test@workspace:^, @data-client/test@workspace:packages/test":
+"@data-client/test@^0.2.1, @data-client/test@workspace:^, @data-client/test@workspace:packages/test":
   version: 0.0.0-use.local
   resolution: "@data-client/test@workspace:packages/test"
   dependencies:
@@ -15653,10 +15577,10 @@ __metadata:
   resolution: "next-app@workspace:examples/nextjs"
   dependencies:
     "@data-client/react": ^0.3.0
-    "@data-client/redux": ^1.0.0
+    "@data-client/redux": ^0.1.4
     "@data-client/rest": ^0.6.0
-    "@data-client/ssr": ^1.0.0
-    "@data-client/test": ^1.0.0
+    "@data-client/ssr": ^0.1.2
+    "@data-client/test": ^0.2.1
     "@types/node": 20.4.5
     "@types/react": 18.2.16
     "@types/react-dom": 18.2.7
