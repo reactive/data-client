@@ -23,6 +23,8 @@ export interface ResourceGenerics {
   /** Only used for types */
   /** @see https://resthooks.io/rest/api/createResource#searchParams */
   readonly searchParams?: any;
+  /** @see https://resthooks.io/rest/api/createResource#paginationfield */
+  readonly paginationField?: string;
 }
 /** The untyped options for createResource() */
 export interface ResourceOptions {
@@ -65,22 +67,26 @@ export interface Resource<
    * @see https://resthooks.io/rest/api/createResource#getlist
    */
   getList: 'searchParams' extends keyof O
-    ? GetEndpoint<{
-        path: ShortenPath<O['path']>;
-        schema: schema.Collection<[O['schema']]>;
-        body: 'body' extends keyof O
-          ? O['body']
-          : Partial<Denormalize<O['schema']>>;
-        searchParams: O['searchParams'];
-      }>
-    : GetEndpoint<{
-        path: ShortenPath<O['path']>;
-        schema: schema.Collection<[O['schema']]>;
-        body: 'body' extends keyof O
-          ? O['body']
-          : Partial<Denormalize<O['schema']>>;
-        searchParams: Record<string, number | string | boolean> | undefined;
-      }>;
+    ? GetEndpoint<
+        {
+          path: ShortenPath<O['path']>;
+          schema: schema.Collection<[O['schema']]>;
+          body: 'body' extends keyof O
+            ? O['body']
+            : Partial<Denormalize<O['schema']>>;
+          searchParams: O['searchParams'];
+        } & Pick<O, 'paginationField'>
+      >
+    : GetEndpoint<
+        {
+          path: ShortenPath<O['path']>;
+          schema: schema.Collection<[O['schema']]>;
+          body: 'body' extends keyof O
+            ? O['body']
+            : Partial<Denormalize<O['schema']>>;
+          searchParams: Record<string, number | string | boolean> | undefined;
+        } & Pick<O, 'paginationField'>
+      >;
   /** Create a new item (POST)
    *
    * @deprecated use Resource.getList.push instead

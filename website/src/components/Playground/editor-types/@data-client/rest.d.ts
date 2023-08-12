@@ -1364,6 +1364,7 @@ interface RestInstanceBase<
   /** @see https://resthooks.io/rest/api/RestEndpoint#method */
   readonly method: (O & { method: string })['method'];
   readonly signal: AbortSignal | undefined;
+  readonly paginationField?: string;
 
   /* fetch lifecycles */
   /* before-fetch */
@@ -1395,10 +1396,15 @@ interface RestInstanceBase<
   /** Creates a child endpoint that inherits from this while overriding provided `options`.
    * @see https://dataclient.io/rest/api/RestEndpoint#extend
    */
-  extend<E extends RestInstanceBase, O extends PartialRestGenerics | {}>(
+  extend<
+    E extends RestInstanceBase,
+    ExtendOptions extends PartialRestGenerics | {},
+  >(
     this: E,
-    options: Readonly<RestEndpointExtendOptions<O, E, F> & O>,
-  ): RestExtendedEndpoint<O, E>;
+    options: Readonly<
+      RestEndpointExtendOptions<ExtendOptions, E, F> & ExtendOptions
+    >,
+  ): RestExtendedEndpoint<ExtendOptions, E>;
 }
 
 interface RestInstance<
@@ -1410,9 +1416,10 @@ interface RestInstance<
     body?: any;
     searchParams?: any;
     method?: string;
+    paginationField?: string;
   } = { path: string },
 > extends RestInstanceBase<F, S, M, O> {
-  /** Endpoint to append the next page extending a list for pagination
+  /** Creates an Endpoint to append the next page extending a list for pagination
    * @see https://dataclient.io/rest/api/RestEndpoint#paginated
    */
   paginated<
@@ -1429,6 +1436,17 @@ interface RestInstance<
     this: E,
     cursorField: C,
   ): PaginationFieldEndpoint<E, C>;
+  /** Endpoint to append the next page extending a list for pagination
+   * @see https://dataclient.io/rest/api/RestEndpoint#getPage
+   */
+  getPage: 'paginationField' extends keyof O
+    ? O['paginationField'] extends string
+      ? PaginationFieldEndpoint<
+          F & { schema: S; sideEffect: M } & O,
+          O['paginationField']
+        >
+      : undefined
+    : undefined;
   /** Endpoint that pushes (place at end) a newly created entity to this Collection
    * @see https://dataclient.io/rest/api/RestEndpoint#push
    */
@@ -1477,11 +1495,16 @@ type RestEndpointExtendOptions<
     ? Extract<O['schema'], Schema | undefined>
     : E['schema']
 > &
-  Partial<Omit<E, KeyofRestEndpoint | keyof PartialRestGenerics>>;
+  Partial<
+    Omit<
+      E,
+      KeyofRestEndpoint | keyof PartialRestGenerics | keyof RestEndpointOptions
+    >
+  >;
 
 type OptionsToRestEndpoint<
   O extends PartialRestGenerics,
-  E extends RestInstanceBase & { body?: any },
+  E extends RestInstanceBase & { body?: any; paginationField?: string },
   F extends FetchFunction,
 > = 'path' extends keyof O
   ? RestType<
@@ -1504,6 +1527,9 @@ type OptionsToRestEndpoint<
           ? O['searchParams']
           : E['searchParams'];
         method: 'method' extends keyof O ? O['method'] : E['method'];
+        paginationField: 'paginationField' extends keyof O
+          ? O['paginationField']
+          : E['paginationField'];
       }
     >
   : 'body' extends keyof O
@@ -1527,6 +1553,9 @@ type OptionsToRestEndpoint<
           ? O['searchParams']
           : E['searchParams'];
         method: 'method' extends keyof O ? O['method'] : E['method'];
+        paginationField: 'paginationField' extends keyof O
+          ? O['paginationField']
+          : Extract<E['paginationField'], string>;
       }
     >
   : 'searchParams' extends keyof O
@@ -1546,6 +1575,9 @@ type OptionsToRestEndpoint<
         body: E['body'];
         searchParams: O['searchParams'];
         method: 'method' extends keyof O ? O['method'] : E['method'];
+        paginationField: 'paginationField' extends keyof O
+          ? O['paginationField']
+          : Extract<E['paginationField'], string>;
       }
     >
   : RestInstance<
@@ -1561,15 +1593,21 @@ type OptionsToRestEndpoint<
           ? O['searchParams']
           : E['searchParams'];
         method: 'method' extends keyof O ? O['method'] : E['method'];
+        paginationField: 'paginationField' extends keyof O
+          ? O['paginationField']
+          : E['paginationField'];
       }
     >;
 
 type RestExtendedEndpoint<
   O extends PartialRestGenerics,
-  E extends RestInstanceBase,
+  E extends RestInstanceBase & { getPage?: unknown },
 > = OptionsToRestEndpoint<
   O,
-  E,
+  E &
+    (E extends { getPage: { paginationField: string } }
+      ? { paginationField: E['getPage']['paginationField'] }
+      : unknown),
   RestInstance<
     (
       ...args: Parameters<E>
@@ -1584,13 +1622,20 @@ type RestExtendedEndpoint<
   Omit<E, KeyofRestEndpoint | keyof O>;
 
 interface PartialRestGenerics {
+  /** @see https://resthooks.io/rest/api/RestEndpoint#path */
   readonly path?: string;
+  /** @see https://resthooks.io/rest/api/RestEndpoint#schema */
   readonly schema?: Schema | undefined;
+  /** @see https://resthooks.io/rest/api/RestEndpoint#method */
   readonly method?: string;
   /** Only used for types */
+  /** @see https://dataclient.io/rest/api/RestEndpoint#body */
   body?: any;
   /** Only used for types */
+  /** @see https://dataclient.io/rest/api/RestEndpoint#searchParams */
   searchParams?: any;
+  /** @see https://dataclient.io/rest/api/RestEndpoint#paginationfield */
+  readonly paginationField?: string;
   /** @see https://resthooks.io/rest/api/RestEndpoint#process */
   process?(value: any, ...args: any): any;
 }
@@ -1601,7 +1646,7 @@ interface RestGenerics extends PartialRestGenerics {
 type PaginationEndpoint<
   E extends FetchFunction & RestGenerics & { sideEffect?: true | undefined },
   A extends any[],
-> = RestInstance<
+> = RestInstanceBase<
   ParamFetchNoBody<A[0], ResolveType<E>>,
   E['schema'],
   E['sideEffect'],
@@ -1612,7 +1657,7 @@ type PaginationEndpoint<
 type PaginationFieldEndpoint<
   E extends FetchFunction & RestGenerics & { sideEffect?: true | undefined },
   C extends string,
-> = RestInstance<
+> = RestInstanceBase<
   ParamFetchNoBody<
     { [K in C]: string | number | boolean } & E['searchParams'] &
       PathArgs<Exclude<E['path'], undefined>>,
@@ -1623,7 +1668,7 @@ type PaginationFieldEndpoint<
   Pick<E, 'path' | 'searchParams' | 'body'> & {
     searchParams: { [K in C]: string | number | boolean } & E['searchParams'];
   }
->;
+> & { paginationField: C };
 type AddEndpoint<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = any,
@@ -1755,7 +1800,8 @@ type RestType<
     path: string;
     body?: any;
     searchParams?: any;
-  } = { path: string },
+    paginationField?: string;
+  } = { path: string; paginationField: string },
   // eslint-disable-next-line @typescript-eslint/ban-types
 > = IfTypeScriptLooseNull<
   RestInstance<
@@ -1888,6 +1934,7 @@ type GetEndpoint<
     readonly schema: Schema;
     /** Only used for types */
     readonly searchParams?: any;
+    readonly paginationField?: string;
   } = {
     path: string;
     schema: Schema;
@@ -1989,6 +2036,8 @@ interface ResourceGenerics {
     /** Only used for types */
     /** @see https://resthooks.io/rest/api/createResource#searchParams */
     readonly searchParams?: any;
+    /** @see https://resthooks.io/rest/api/createResource#paginationfield */
+    readonly paginationField?: string;
 }
 /** The untyped options for createResource() */
 interface ResourceOptions {
@@ -2038,12 +2087,12 @@ interface Resource<O extends ResourceGenerics = {
         schema: Collection<[O['schema']]>;
         body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>>;
         searchParams: O['searchParams'];
-    }> : GetEndpoint<{
+    } & Pick<O, 'paginationField'>> : GetEndpoint<{
         path: ShortenPath<O['path']>;
         schema: Collection<[O['schema']]>;
         body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>>;
         searchParams: Record<string, number | string | boolean> | undefined;
-    }>;
+    } & Pick<O, 'paginationField'>>;
     /** Create a new item (POST)
      *
      * @deprecated use Resource.getList.push instead
@@ -2106,7 +2155,7 @@ interface ResourceInterface {
  *
  * @see https://resthooks.io/rest/api/createResource
  */
-declare function createResource<O extends ResourceGenerics>({ path, schema, Endpoint, optimistic, ...extraOptions }: Readonly<O> & ResourceOptions): Resource<O>;
+declare function createResource<O extends ResourceGenerics>({ path, schema, Endpoint, optimistic, paginationField, ...extraOptions }: Readonly<O> & ResourceOptions): Resource<O>;
 
 interface HookableEndpointInterface extends EndpointInterface {
     extend(...args: any): HookableEndpointInterface;

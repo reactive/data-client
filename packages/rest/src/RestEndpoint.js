@@ -231,6 +231,10 @@ Response (first 300 characters): ${text.substring(0, 300)}`;
     return this.extend({ update: paginationUpdate(this, removeCursor) });
   }
 
+  get getPage() {
+    return this.paginated(this.paginationField);
+  }
+
   get push() {
     return this.extend({
       method: 'POST',

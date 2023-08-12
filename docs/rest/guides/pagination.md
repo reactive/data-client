@@ -2,6 +2,8 @@
 title: Pagination
 ---
 
+import StackBlitz from '@site/src/components/StackBlitz';
+
 <head>
   <title>Paginating REST data</title>
 </head>
@@ -9,7 +11,7 @@ title: Pagination
 ## Infinite Scrolling
 
 In case you want to append results to your existing list, rather than move to another page
-[RestEndpoint.paginated()](api/RestEndpoint.md#paginated) can be used.
+[RestEndpoint.getPage](api/RestEndpoint.md#getPage) can be used.
 
 ```typescript title="api/News.ts"
 import { Entity, createResource } from '@data-client/rest';
@@ -28,15 +30,12 @@ export class News extends Entity {
 export const NewsResource = createResource({
   path: '/news/:id',
   schema: News,
+  paginationField: 'cursor',
 })
   .extend('getList', {
     // custom schema
     schema: { results: new schema.Collection([News]), cursor: '' },
-  })
-  .extend(Base => ({
-    // this creates a pagination endpoint that will extend the getList endpoint
-    getNextPage: getList.paginated('cursor'),
-  }));
+  });
 ```
 
 Since UI behaviors vary widely, and implementations vary from platform (react-native or web),
@@ -53,13 +52,17 @@ function NewsList() {
 
   return (
     <Pagination
-      onPaginate={() => ctrl.fetch(NewsResource.getNextPage, { cursor })}
+      onPaginate={() => ctrl.fetch(NewsResource.getPage, { cursor })}
     >
       <NewsList data={results} />
     </Pagination>
   );
 }
 ```
+
+### Demo
+
+<StackBlitz app="github-app" file="src/resources/Issue.tsx,src/pages/NextPage.tsx" />
 
 ## Tokens in Body
 

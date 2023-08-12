@@ -444,6 +444,10 @@ updateSite({ slug: 'cool' }, { url: '/' });
 
 </TypeScriptEditor>
 
+### paginationField
+
+If specified, will add [getPage](#getpage) method on the `RestEndpoint`.
+
 ### urlPrefix: string = '' {#urlPrefix}
 
 Prepends this to the compiled [path](#path)
@@ -793,9 +797,56 @@ const UserDetailNormalized = getUser.extend({
 
 ## Specialized extenders
 
-### paginated(cursorField): Endpoint {#paginated}
+### push
 
-Creates a new endpoint with an extra `cursorField` string that will be used to find the specific
+This is a convenience to place newly created Entities at the _end_ of a [Collection](./Collection.md).
+
+When this `RestEndpoint`'s schema contains a [Collection](./Collection.md), this returned a new
+RestEndpoint with its parents properties, but with [method](#method): 'POST' and schema: [Collection.push](./Collection.md#push)
+
+### unshift
+
+This is a convenience to place newly created Entities at the _start_ of a [Collection](./Collection.md).
+
+When this `RestEndpoint`'s schema contains a [Collection](./Collection.md), this returned a new
+RestEndpoint with its parents properties, but with [method](#method): 'POST' and schema: [Collection.push](./Collection.md#unshift)
+
+### assign
+
+This is a convenience to add newly created Entities to a [Values](./Values.md) [Collection](./Collection.md).
+
+When this `RestEndpoint`'s schema contains a [Collection](./Collection.md), this returned a new
+RestEndpoint with its parents properties, but with [method](#method): 'POST' and schema: [Collection.push](./Collection.md#assign)
+
+### getPage
+
+An endpoint to retrieve the next page using [paginationField](#paginationfield) as the searchParameter key. Schema
+must also contain a [Collection](./Collection.md)
+
+```tsx
+const getTodos = new RestEndpoint({
+  path: '/todos',
+  schema: Todo,
+  paginationField: 'page',
+})
+
+const todos = useSuspense(getTodos);
+return (
+  <PaginatedList
+    items={todos}
+    fetchNextPage={() =>
+      // fetches url `/todos?page=${nextPage}`
+      ctrl.fetch(TodoResource.getList.getPage, { page: nextPage })
+    }
+  />
+);
+```
+
+See [Infinite Scrolling Pagination](guides/pagination.md#infinite-scrolling) for more info.
+
+### paginated(paginationfield): Endpoint {#paginated}
+
+Creates a new endpoint with an extra `paginationfield` string that will be used to find the specific
 page, to append to this endpoint. See [Infinite Scrolling Pagination](guides/pagination.md#infinite-scrolling) for more info.
 
 ```ts
@@ -822,27 +873,6 @@ const getNextPage = getList.paginated(
 
 `removeCusor` is a function that takes the arguments sent in fetch of `getNextPage` and returns
 the arguments to update `getList`.
-
-### push
-
-This is a convenience to place newly created Entities at the _end_ of a [Collection](./Collection.md).
-
-When this `RestEndpoint`'s schema contains a [Collection](./Collection.md), this returned a new
-RestEndpoint with its parents properties, but with [method](#method): 'POST' and schema: [Collection.push](./Collection.md#push)
-
-### unshift
-
-This is a convenience to place newly created Entities at the _start_ of a [Collection](./Collection.md).
-
-When this `RestEndpoint`'s schema contains a [Collection](./Collection.md), this returned a new
-RestEndpoint with its parents properties, but with [method](#method): 'POST' and schema: [Collection.push](./Collection.md#unshift)
-
-### assign
-
-This is a convenience to add newly created Entities to a [Values](./Values.md) [Collection](./Collection.md).
-
-When this `RestEndpoint`'s schema contains a [Collection](./Collection.md), this returned a new
-RestEndpoint with its parents properties, but with [method](#method): 'POST' and schema: [Collection.push](./Collection.md#assign)
 
 ## Inheritance
 

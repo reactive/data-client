@@ -84,9 +84,12 @@ describe('createResource()', () => {
       path: 'http\\://test.com/groups/:group/users/:id',
       schema: User,
     });
+    // @ts-expect-error
+    UserResourceBase.getList.getPage.paginationField;
     const UserResource = UserResourceBase.extend('getList', {
       path: ':blob',
       searchParams: {} as { isAdmin?: boolean },
+      paginationField: 'cursor',
       getOptimisticResponse(snap, params) {
         params.isAdmin;
         params.blob;
@@ -94,9 +97,10 @@ describe('createResource()', () => {
         params.nothere;
         return [] as User[];
       },
-      /*process(users: User[]) {
-            return users.slice(0, 7);
-          }, TODO: why doesn't this work?*/
+      process(users: User[]) {
+        if (!Array.isArray(users)) return users;
+        return users.slice(0, 7);
+      },
     })
       .extend('partialUpdate', {
         getOptimisticResponse(snap, params, body) {
@@ -128,19 +132,18 @@ describe('createResource()', () => {
 
     () => UserResource.getList({ blob: '5', isAdmin: true });
     () =>
-      UserResource.getList.paginated('cursor')({
+      UserResource.getList.getPage({
         blob: '5',
         isAdmin: true,
         cursor: 'next',
       });
-    () =>
-      UserResource.getList.paginated('cursor')({ blob: '5', cursor: 'next' });
-    () =>
-      // @ts-expect-error
-      UserResource.getList.paginated('cursor')({ blob: '5', isAdmin: true });
+    () => UserResource.getList.getPage({ blob: '5', cursor: 'next' });
     () =>
       // @ts-expect-error
-      UserResource.getList.paginated('cursor')({
+      UserResource.getList.getPage({ blob: '5', isAdmin: true });
+    () =>
+      // @ts-expect-error
+      UserResource.getList.getPage({
         cursor: 'next',
         isAdmin: true,
       });
@@ -208,6 +211,7 @@ describe('createResource()', () => {
     const UserResourceBase = createResource({
       path: 'http\\://test.com/groups/:group/users/:id',
       schema: User,
+      paginationField: 'cursor',
     });
     const UserResource = UserResourceBase.extend({
       getList: {
@@ -263,17 +267,16 @@ describe('createResource()', () => {
 
     () => UserResource.getList({ blob: '5', isAdmin: true });
     () =>
-      UserResource.getList.paginated('cursor')({
+      UserResource.getList.getPage({
         blob: '5',
         isAdmin: true,
         cursor: 'next',
       });
-    () =>
-      UserResource.getList.paginated('cursor')({ blob: '5', cursor: 'next' });
+    () => UserResource.getList.getPage({ blob: '5', cursor: 'next' });
     // @ts-expect-error
-    () => UserResource.getNextPage({ blob: '5', isAdmin: true });
+    () => UserResource.getList.getPage({ blob: '5', isAdmin: true });
     // @ts-expect-error
-    () => UserResource.getNextPage({ cursor: 'next', isAdmin: true });
+    () => UserResource.getList.getPage({ cursor: 'next', isAdmin: true });
     () => UserResource.get({ group: '1', id: '5' });
     () => UserResource.getList.push({ blob: '5' }, { username: 'bob' });
     () =>
@@ -357,69 +360,71 @@ describe('createResource()', () => {
       path: 'http\\://test.com/groups/:group/users/:id',
       schema: User,
       paginationField: 'cursor',
-    })
-      .extend(resourceBase => ({
-        getList: resourceBase.getList.extend({
-          path: ':blob',
-          searchParams: {} as { isAdmin?: boolean },
-          getOptimisticResponse(snap, params) {
-            params.isAdmin;
-            params.blob;
-            // @ts-expect-error
-            params.nothere;
-            return [] as User[];
-          },
-          /*process(users: User[]) {
-              return users.slice(0, 7);
-            }, TODO: why doesn't this work?*/
-        }),
-        partialUpdate: resourceBase.partialUpdate.extend({
-          getOptimisticResponse(snap, params, body) {
-            params.id;
-            params.group;
-            // @ts-expect-error
-            params.nothere;
-            return {
-              id: params.id,
-              ...body,
-            };
-          },
-        }),
-        delete: resourceBase.delete.extend({
-          getOptimisticResponse(snap, params) {
-            return params;
-          },
-        }),
-        justget: resourceBase.get,
-        current: resourceBase.get.extend({
-          path: '/current',
-          searchParams: {} as { isAdmin?: boolean },
-        }),
-        toggleAdmin: resourceBase.get.extend({
-          path: '/toggle/:id',
-          method: 'POST',
-          body: undefined,
-          getOptimisticResponse(snap, params) {
-            params.id;
-            // @ts-expect-error
-            params.group;
-            return {
-              id: params.id,
-            };
-          },
-        }),
-      }))
-      .extend(resourceBase => ({
-        getNextPage: resourceBase.getList.paginated('cursor'),
-      }));
+    }).extend(resourceBase => ({
+      getList: resourceBase.getList.extend({
+        path: ':blob',
+        searchParams: {} as { isAdmin?: boolean },
+        getOptimisticResponse(snap, params) {
+          params.isAdmin;
+          params.blob;
+          // @ts-expect-error
+          params.nothere;
+          return [] as User[];
+        },
+        process(users: User[]) {
+          if (!Array.isArray(users)) return users;
+          return users.slice(0, 7);
+        },
+      }),
+      partialUpdate: resourceBase.partialUpdate.extend({
+        getOptimisticResponse(snap, params, body) {
+          params.id;
+          params.group;
+          // @ts-expect-error
+          params.nothere;
+          return {
+            id: params.id,
+            ...body,
+          };
+        },
+      }),
+      delete: resourceBase.delete.extend({
+        getOptimisticResponse(snap, params) {
+          return params;
+        },
+      }),
+      justget: resourceBase.get,
+      current: resourceBase.get.extend({
+        path: '/current',
+        searchParams: {} as { isAdmin?: boolean },
+      }),
+      toggleAdmin: resourceBase.get.extend({
+        path: '/toggle/:id',
+        method: 'POST',
+        body: undefined,
+        getOptimisticResponse(snap, params) {
+          params.id;
+          // @ts-expect-error
+          params.group;
+          return {
+            id: params.id,
+          };
+        },
+      }),
+    }));
+
     () => UserResource.getList({ blob: '5', isAdmin: true });
     () =>
-      UserResource.getNextPage({ blob: '5', isAdmin: true, cursor: 'next' });
-    () => UserResource.getNextPage({ blob: '5', cursor: 'next' });
+      UserResource.getList.getPage({
+        blob: '5',
+        isAdmin: true,
+        cursor: 'next',
+      });
+    () => UserResource.getList.getPage({ blob: '5', cursor: 'next' });
     // @ts-expect-error
-    () => UserResource.getNextPage({ blob: '5', isAdmin: true });
+    () => UserResource.getList.getPage({ blob: '5', isAdmin: true });
     // @ts-expect-error
-    () => UserResource.getNextPage({ cursor: 'next', isAdmin: true });
+    () => UserResource.getList.getPage({ cursor: 'next', isAdmin: true });
     () => UserResource.get({ group: '1', id: '5' });
     () => UserResource.getList.unshift({ blob: '5' }, { username: 'bob' });
     () =>

@@ -2219,20 +2219,20 @@ __metadata:
 
 "@data-client/endpoint@file:../packages/endpoint::locator=root-workspace-0b6124%40workspace%3A.":
   version: 0.2.3
-  resolution: "@data-client/endpoint@file:../packages/endpoint#../packages/endpoint::hash=4a5d1f&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@data-client/endpoint@file:../packages/endpoint#../packages/endpoint::hash=be559e&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
-  checksum: 671b7029d27178461161fd1bb66ebd40ea9e82794a009abcce7c4507160ff8c7b5e23a3b74830eabfe16a839c5538471be57935a255c58eab22efbd7ba0d1132
+  checksum: 31b4d13f68328b4ace8630d5ba24a4a104a312a07ee2bea8cf6fc64d9860d5074394bfbc45543c81eaec13d1a11760ba34e377ed3682b8e24b17bac100db5f6b
   languageName: node
   linkType: hard
 
 "@data-client/graphql@file:../packages/graphql::locator=root-workspace-0b6124%40workspace%3A.":
   version: 0.2.1
-  resolution: "@data-client/graphql@file:../packages/graphql#../packages/graphql::hash=a63c27&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@data-client/graphql@file:../packages/graphql#../packages/graphql::hash=5df4b4&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@data-client/endpoint": ^0.2.2
-  checksum: 69a3035faaea886879bd9d52dd76a8971f72c9b81a52cf206ae57840f764e2722e5273a7466a34a4a1fdd81768771a7f762a7ec06bbb90a6ce54651450f2384c
+  checksum: c2b46b71581428e5a5a49ba54fc3b769ccda4bfbc91b7a91dc5921dcefd924c934bb03acfd115d44dda87c0c3ef0358bf21139ee2c3ab17d39f37f9bfe6ecae1
   languageName: node
   linkType: hard
 
@@ -2263,7 +2263,7 @@ __metadata:
 
 "@data-client/react@file:../packages/react::locator=root-workspace-0b6124%40workspace%3A.":
   version: 0.3.0
-  resolution: "@data-client/react@file:../packages/react#../packages/react::hash=72902e&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@data-client/react@file:../packages/react#../packages/react::hash=07eae3&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@data-client/core": ^0.3.0
@@ -2277,18 +2277,18 @@ __metadata:
       optional: true
     "@types/react":
       optional: true
-  checksum: 8a12bdccffe1bb88dd7c872b2729d89ae1650c5fb4df92ce1c05d7f194c4d09e12022fed0a3ee042c74bab6531692e82073a44e86af09b071f7a21845e0ee407
+  checksum: e91f7fb8a40a2adc7b122b3fa04e12d10e6e77338f5d56e6164d5c8e7657c30a8070cf271f647389da7cc5318518353052870300b637e9e63848308f8a9872b7
   languageName: node
   linkType: hard
 
 "@data-client/rest@file:../packages/rest::locator=root-workspace-0b6124%40workspace%3A.":
   version: 0.6.0
-  resolution: "@data-client/rest@file:../packages/rest#../packages/rest::hash=87f092&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@data-client/rest@file:../packages/rest#../packages/rest::hash=e79c9d&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@data-client/endpoint": ^0.2.3
     path-to-regexp: ^6.2.1
-  checksum: 38706b67282564ce9a058669ad16406276b8d9aeef4b2402de325b88881d8d94ca186244a4ce6e27e69d71637ad1dd9fa8bb9a929f6f1109947e735418495ce5
+  checksum: 3113626a4655df0f1f6875b54250e5b9b717b8e818f679cc29ab4a1341b19310a5d35e5bb98ff2bc031c89ef9433038454ea6a260ce0f1f01723e0b07bdbc7a8
   languageName: node
   linkType: hard
 
