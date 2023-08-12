@@ -1,5 +1,14 @@
 # Change Log
 
+## 4.0.5
+
+### Patch Changes
+
+- c8c5575e5a: Ignore 'undefined' parameters in collection matching
+- Updated dependencies [c8c5575e5a]
+- Updated dependencies [4e9d34ebc1]
+  - @data-client/endpoint@0.2.4
+
 ## 4.0.4
 
 ### Patch Changes

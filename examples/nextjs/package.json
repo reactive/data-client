@@ -1,6 +1,6 @@
 {
   "name": "next-app",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -11,7 +11,7 @@
   "dependencies": {
     "@data-client/react": "^0.3.0",
     "@data-client/redux": "^0.2.0",
-    "@data-client/rest": "^0.6.0",
+    "@data-client/rest": "^0.7.0",
     "@data-client/ssr": "^0.2.0",
     "@data-client/test": "^0.3.0",
     "@types/node": "20.4.5",

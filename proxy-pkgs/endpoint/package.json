@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/endpoint",
-  "version": "4.0.4",
+  "version": "4.0.5",
   "description": "Declarative Network Interface Definitions",
   "homepage": "https://resthooks.io/docs/guides/custom-protocol",
   "bugs": {
@@ -60,6 +60,6 @@
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",
   "dependencies": {
-    "@data-client/endpoint": "^0.2.3"
+    "@data-client/endpoint": "^0.2.4"
   }
 }
