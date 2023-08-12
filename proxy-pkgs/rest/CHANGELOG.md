@@ -1,5 +1,33 @@
 # Change Log
 
+## 7.4.0
+
+### Minor Changes
+
+- c8c5575e5a: Add 'paginationField' parameter to [RestEndpoint](https://dataclient.io/rest/api/RestEndpoint#paginationfield) and [createResource](https://dataclient.io/rest/api/createResource#paginationfield)
+
+  This adds a '[getPage](https://dataclient.io/rest/api/RestEndpoint#getPage)' member; similar to getList.push/unshift but for [pagination](https://dataclient.io/rest/guides/pagination).
+
+  ```ts
+  const TodoResource = createResource({
+    path: '/todos/:id',
+    schema: Todo,
+    paginationField: 'page',
+  }).getList.getPage({ page: '2' });
+  ```
+
+### Patch Changes
+
+- c8c5575e5a: Fix case where sometimes paginating would not update a collection
+
+  This was due to the comparison not using string serialization (canonical form for collection comparisons)
+
+- c8c5575e5a: Ignore 'undefined' parameters in collection matching
+- Updated dependencies [c8c5575e5a]
+- Updated dependencies [c8c5575e5a]
+- Updated dependencies [c8c5575e5a]
+  - @data-client/rest@0.7.0
+
 ## 7.3.0
 
 ### Minor Changes

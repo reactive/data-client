@@ -1,5 +1,14 @@
 # Change Log
 
+## 0.1.9
+
+### Patch Changes
+
+- Updated dependencies [c8c5575e5a]
+- Updated dependencies [c8c5575e5a]
+- Updated dependencies [c8c5575e5a]
+  - @data-client/rest@0.7.0
+
 ## 0.1.8
 
 ### Patch Changes
