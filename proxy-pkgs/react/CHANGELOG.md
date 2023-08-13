@@ -1,5 +1,13 @@
 # Change Log
 
+## 8.2.1
+
+### Patch Changes
+
+- a097d25e7a: controller.fetchIfStale() resolves to data from store if it does not fetch
+- Updated dependencies [a097d25e7a]
+  - @data-client/react@0.4.1
+
 ## 8.2.0
 
 ### Minor Changes

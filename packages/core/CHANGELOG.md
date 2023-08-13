@@ -1,5 +1,11 @@
 # @data-client/core
 
+## 0.4.1
+
+### Patch Changes
+
+- a097d25e7a: controller.fetchIfStale() resolves to data from store if it does not fetch
+
 ## 0.4.0
 
 ### Minor Changes

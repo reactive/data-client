@@ -1,5 +1,18 @@
 # @data-client/rest
 
+## 0.7.1
+
+### Patch Changes
+
+- 4317adb94c: Collection based pagination now replaces the non-list members on page
+
+  This allows members like nextPage or 'cursor' to be updated when
+  each page is fetched making it easier to know which page to fetch next.
+
+- Updated dependencies [5a16f86668]
+- Updated dependencies [4317adb94c]
+  - @data-client/endpoint@0.2.5
+
 ## 0.7.0
 
 ### Minor Changes
