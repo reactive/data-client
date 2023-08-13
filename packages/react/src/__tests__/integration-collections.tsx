@@ -79,6 +79,11 @@ const ArticlePaginatedResource = createResource({
   searchParams: {} as { userId?: number; extra?: undefined } | undefined,
   schema: Article,
   paginationField: 'cursor',
+}).extend('getList', {
+  schema: {
+    results: new schema.Collection([Article]),
+    nextPage: 0,
+  },
 });
 
 const UnionResource = createResource({
@@ -203,26 +208,28 @@ describe.each([
       'Content-Type': 'application/json',
     });
 
-    mynock.get(`/article`).reply(200, paginatedFirstPage.results);
-    mynock.get(`/article?userId=2`).reply(200, paginatedFirstPage.results);
-    mynock.get(`/article?userId=1`).reply(200, paginatedFirstPage.results);
-    mynock
-      .get(`/article?userId=1&cursor=2`)
-      .reply(200, paginatedSecondPage.results);
+    mynock.get(`/article`).reply(200, paginatedFirstPage);
+    mynock.get(`/article?userId=2`).reply(200, paginatedFirstPage);
+    mynock.get(`/article?userId=1`).reply(200, paginatedFirstPage);
+    mynock.get(`/article?userId=1&cursor=2`).reply(200, paginatedSecondPage);
 
     const { result, waitForNextUpdate, controller } = renderRestHook(() => {
-      const userArticles = useSuspense(ArticlePaginatedResource.getList, {
-        userId: 1,
-      });
+      const { results: userArticles, nextPage } = useSuspense(
+        ArticlePaginatedResource.getList,
+        {
+          userId: 1,
+        },
+      );
       const anotherUserArticles = useSuspense(
         ArticlePaginatedResource.getList,
         { userId: 2 },
-      );
-      const allArticles = useSuspense(ArticlePaginatedResource.getList);
-      return { userArticles, allArticles, anotherUserArticles };
+      ).results;
+      const allArticles = useSuspense(ArticlePaginatedResource.getList).results;
+      return { userArticles, allArticles, anotherUserArticles, nextPage };
     });
     await waitForNextUpdate();
     expect(result.current.userArticles).toMatchSnapshot();
+    expect(result.current.nextPage).toBe(2);
 
     await controller.fetch(ArticlePaginatedResource.getList.getPage, {
       cursor: 2,
@@ -232,6 +239,8 @@ describe.each([
     expect(result.current.userArticles.map(({ id }) => id)).toEqual([
       5, 3, 7, 8,
     ]);
+    // should update the entire response - not just collection
+    expect(result.current.nextPage).toBe(3);
     // pagination we only explicitly extend one
     expect(result.current.allArticles.map(({ id }) => id)).toEqual([5, 3]);
     expect(result.current.anotherUserArticles.map(({ id }) => id)).toEqual([
@@ -266,18 +275,18 @@ describe.each([
       'Content-Type': 'application/json',
     });
 
-    mynock.get(`/article`).reply(200, paginatedFirstPage.results);
-    mynock.get(`/article?userId=2`).reply(200, paginatedFirstPage.results);
-    mynock.get(`/article?userId=1`).reply(200, paginatedFirstPage.results);
+    mynock.get(`/article`).reply(200, paginatedFirstPage);
+    mynock.get(`/article?userId=2`).reply(200, paginatedFirstPage);
+    mynock.get(`/article?userId=1`).reply(200, paginatedFirstPage);
     mynock
       .get(`/article?userId=1&cursor=2&extra=undefined`)
-      .reply(200, paginatedSecondPage.results);
-    mynock.get(`/article?cursor=2`).reply(200, paginatedSecondPage.results);
+      .reply(200, paginatedSecondPage);
+    mynock.get(`/article?cursor=2`).reply(200, paginatedSecondPage);
 
     const { result, waitForNextUpdate, controller } = renderRestHook(() => {
       const userArticles = useSuspense(ArticlePaginatedResource.getList, {
         userId: 1,
-      });
+      }).results;
       const userArticlesUndefined = useSuspense(
         ArticlePaginatedResource.getList,
         {
@@ -285,12 +294,12 @@ describe.each([
           // ignored
           extra: undefined,
         },
-      );
+      ).results;
       const anotherUserArticles = useSuspense(
         ArticlePaginatedResource.getList,
         { userId: 2 },
-      );
-      const allArticles = useSuspense(ArticlePaginatedResource.getList);
+      ).results;
+      const allArticles = useSuspense(ArticlePaginatedResource.getList).results;
       return {
         userArticles,
         allArticles,

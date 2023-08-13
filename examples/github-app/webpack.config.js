@@ -4,7 +4,7 @@ const options = {
   basePath: 'src',
   buildDir: 'dist/',
   htmlOptions: {
-    title: 'todo-app',
+    title: 'Github App',
     scriptLoading: 'defer',
     template: 'index.ejs',
   },

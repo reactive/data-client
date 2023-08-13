@@ -1,28 +1,27 @@
 import { useLoading } from '@data-client/hooks';
 import { useController } from '@data-client/react';
 import { Button } from 'antd';
-import { useState } from 'react';
 import { IssueResource } from 'resources/Issue';
 
 export default function NextPage({
   repo,
   owner,
   q,
+  page,
 }: {
   repo: string;
   owner: string;
   q: string;
+  page: string;
 }) {
   const ctrl = useController();
-  const [count, setCount] = useState(1);
   const [loadMore, loading] = useLoading(async () => {
     await ctrl.fetch(IssueResource.search.getPage, {
-      page: (count + 1).toString(),
+      page,
       repo,
       owner,
       q,
     });
-    setCount((count) => count + 1);
   });
   return (
     <div style={{ textAlign: 'center' }}>

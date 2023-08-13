@@ -45,6 +45,30 @@ export const PostResource = {
   }),
 };
 
+export class User extends Entity {
+  id = 0;
+  name = '';
+  username = '';
+  email = '';
+  phone = '';
+  website = '';
+
+  get profileImage() {
+    return `https://i.pravatar.cc/64?img=${this.id + 4}`;
+  }
+
+  pk() {
+    return `${this.id}`;
+  }
+
+  static key = 'User';
+}
+export const UserResource = createResource({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/users/:id',
+  schema: User,
+});
+
 const entities = {
   '1': {
     id: '1',
@@ -132,6 +156,71 @@ export const postFixtures = [
       return this.entities[id];
     },
     delay: 500,
+  },
+];
+
+const extendedEntities = {
+  ...entities,
+  '4': {
+    id: '4',
+    title: 'The second page of posts starts here',
+    body: 'Next thing',
+    votes: 23,
+    userId: 2,
+  },
+  '5': {
+    id: '5',
+    title: 'More posts for this page',
+    body: 'More stuff',
+    votes: 7,
+    userId: 1,
+  },
+  '6': {
+    id: '6',
+    title: 'This is the last item',
+    body: 'Oh my',
+    votes: 10,
+    userId: 3,
+  },
+};
+
+export const postPaginatedFixtures = [
+  {
+    endpoint: PostResource.getList,
+    async response(...args) {
+      const cursor = args?.[0]?.cursor ?? 1;
+      const userId = args?.[0]?.userId;
+      let results = Object.values(extendedEntities);
+      if (userId) {
+        results = Object.values(extendedEntities).filter(
+          post => post.userId === args[0].userId,
+        );
+      }
+      const PAGE_SIZE = 3;
+      results = results.slice((cursor - 1) * PAGE_SIZE, PAGE_SIZE * cursor);
+      // we are modifying the post later so we need to shallow copy it
+      results = results.map(post => ({ ...post }));
+      // get users to merge
+      await Promise.all(
+        results.map(post =>
+          post.userId
+            ? UserResource.get({ id: post.userId })
+                .then(user => {
+                  (post as any).author = user;
+                  delete (post as any).userId;
+                  return user;
+                })
+                .catch(e => {})
+            : Promise.resolve({}),
+        ),
+      );
+      if (PAGE_SIZE * cursor >= Object.keys(extendedEntities).length)
+        return { results, cursor: null };
+      return {
+        results,
+        cursor: cursor + 1,
+      };
+    },
   },
 ];
 

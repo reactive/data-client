@@ -147,8 +147,10 @@ export const valuesFixture = {
 
 export const paginatedFirstPage = {
   results: nested,
+  nextPage: 2,
 };
 
 export const paginatedSecondPage = {
   results: moreNested,
+  nextPage: 3,
 };

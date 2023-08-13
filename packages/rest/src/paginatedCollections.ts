@@ -1,3 +1,5 @@
+import type { schema } from '@data-client/endpoint';
+
 export function paginatedMerge(existing: any[], incoming: any[]) {
   const existingSet: Set<string> = new Set(existing);
   const mergedList = [...existing];
@@ -6,31 +8,28 @@ export function paginatedMerge(existing: any[], incoming: any[]) {
   }
   return mergedList;
 }
-export const paginatedFilter =
-  <C extends (...args: readonly any[]) => readonly any[]>(removeCursor: C) =>
-  (...args: Parameters<C>) => {
-    const noCursorArgs = removeCursor(...args)[0] ?? {};
-    return (collectionKey: Record<string, string>) =>
-      shallowEqual(collectionKey, noCursorArgs);
-  };
 
-function shallowEqual(
-  object1: Record<string, any>,
-  object2: Record<string, any>,
+export function createPaginationSchema(
+  removeCursor: (...args: readonly any[]) => any[],
+  collection: schema.Collection,
 ) {
-  const keys1 = Object.keys(object1);
-  const keys2 = Object.keys(object2);
-  let length2 = 0;
-  for (const key of keys2) {
-    // we should ignore any members with value undefined
-    if (object2[key] === undefined) continue;
-    if (object1[key] !== `${object2[key]}`) {
-      return false;
-    }
-    length2++;
-  }
-  if (keys1.length !== length2) {
-    return false;
-  }
-  return true;
+  return Object.create(collection, {
+    name: {
+      value: `Pagination(${collection.schema})`,
+    },
+    merge: {
+      value: paginatedMerge,
+    },
+    pk: {
+      value: function (value: any, parent: any, key: any, args: any[]) {
+        return collection.pk.call(
+          this,
+          value,
+          parent,
+          key,
+          removeCursor(...args),
+        );
+      },
+    },
+  });
 }

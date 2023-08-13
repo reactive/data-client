@@ -26,7 +26,7 @@ export default function IssueList({ owner, repo, page, q }: Props) {
       />
       {nextPage ? (
         <div className="center">
-          <NextPage owner={owner} repo={repo} q={q} />
+          <NextPage owner={owner} repo={repo} q={q} page={nextPage} />
         </div>
       ) : null}
     </>
