@@ -1,5 +1,12 @@
 # Change Log
 
+## 0.4.15
+
+### Patch Changes
+
+- Updated dependencies [5cedd4485e]
+  - @data-client/react@0.4.0
+
 ## 0.4.14
 
 ### Patch Changes

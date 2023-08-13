@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.1.10
+
+### Patch Changes
+
+- Updated dependencies [5cedd4485e]
+  - @data-client/react@0.4.0
+  - @data-client/redux@0.2.1
+
 ## 0.1.9
 
 ### Patch Changes

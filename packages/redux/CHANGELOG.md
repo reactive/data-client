@@ -1,5 +1,12 @@
 # @data-client/redux
 
+## 0.2.1
+
+### Patch Changes
+
+- Updated dependencies [5cedd4485e]
+  - @data-client/core@0.4.0
+
 ## 0.2.0
 
 ### Minor Changes
