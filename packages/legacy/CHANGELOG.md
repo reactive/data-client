@@ -1,5 +1,12 @@
 # Change Log
 
+## 9.0.2
+
+### Patch Changes
+
+- Updated dependencies [5cedd4485e]
+  - @rest-hooks/core@5.2.0
+
 ## 9.0.1
 
 ### Patch Changes

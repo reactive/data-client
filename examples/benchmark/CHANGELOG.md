@@ -1,5 +1,12 @@
 # Change Log
 
+## 0.4.21
+
+### Patch Changes
+
+- Updated dependencies [5cedd4485e]
+  - @data-client/core@0.4.0
+
 ## 0.4.20
 
 ### Patch Changes

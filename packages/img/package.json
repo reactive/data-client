@@ -83,7 +83,7 @@
   },
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",
-    "@data-client/react": "^0.3.0",
+    "@data-client/react": "^0.4.0",
     "@types/node": "^20.0.0",
     "@types/react": "^18.0.30"
   }
