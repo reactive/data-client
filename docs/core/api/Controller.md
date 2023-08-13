@@ -15,6 +15,7 @@ import TabItem from '@theme/TabItem';
 class Controller {
   /*************** Action Dispatchers ***************/
   fetch(endpoint, ...args): ReturnType<E>;
+  fetchIfStale(endpoint, ...args): ReturnType<E> | undefined;
   expireAll({ testKey }): Promise<void>;
   invalidate(endpoint, ...args): Promise<void>;
   invalidateAll({ testKey }): Promise<void>;
@@ -143,6 +144,36 @@ post.pk();
 - Resolves _after_ committing Reactive Data Client cache updates.
 - Identical requests are deduplicated globally; allowing only one inflight request at a time.
   - To ensure a _new_ request is started, make sure to abort any existing inflight requests.
+
+## fetchIfStale(endpoint, ...args) {#fetchIfStale}
+
+Fetches only if endpoint is considered '[stale](../concepts/expiry-policy.md#stale)'; otherwise returns undefined.
+
+This can be useful when prefetching data, as it avoids overfetching fresh data.
+
+An [example](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app?file=src%2Frouting%2Froutes.tsx) with a fetch-as-you-render router:
+
+```ts
+{
+  name: 'IssueList',
+  component: lazyPage('IssuesPage'),
+  title: 'issue list',
+  resolveData: async (
+    controller: Controller,
+    { owner, repo }: { owner: string; repo: string },
+    searchParams: URLSearchParams,
+  ) => {
+    const q = searchParams?.get('q') || 'is:issue is:open';
+    // highlight-start
+    await controller.fetchIfStale(IssueResource.search, {
+      owner,
+      repo,
+      q,
+    });
+    // highlight-end
+  },
+},
+```
 
 ## expireAll({ testKey }) {#expireAll}
 

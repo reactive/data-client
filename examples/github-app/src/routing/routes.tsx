@@ -35,7 +35,7 @@ export const routes = [
       controller: Controller,
       { owner, repo }: { owner: string; repo: string },
     ) => {
-      controller.fetch(IssueResource.search, { owner, repo });
+      controller.fetchIfStale(IssueResource.search, { owner, repo });
     },
   },
   {
@@ -47,7 +47,7 @@ export const routes = [
       searchParams: URLSearchParams,
     ) => {
       const q = searchParams?.get('q') || 'is:pr is:open';
-      await controller.fetch(IssueResource.search, {
+      await controller.fetchIfStale(IssueResource.search, {
         owner,
         repo,
         q,
@@ -64,7 +64,7 @@ export const routes = [
       searchParams: URLSearchParams,
     ) => {
       const q = searchParams?.get('q') || 'is:issue is:open';
-      await controller.fetch(IssueResource.search, {
+      await controller.fetchIfStale(IssueResource.search, {
         owner,
         repo,
         q,
@@ -78,9 +78,13 @@ export const routes = [
       controller: Controller,
       { owner, repo, number }: { owner: string; repo: string; number: string },
     ) => {
-      controller.fetch(ReactionResource.getList, { owner, repo, number });
-      controller.fetch(CommentResource.getList, { owner, repo, number });
-      await controller.fetch(IssueResource.get, { owner, repo, number });
+      controller.fetchIfStale(ReactionResource.getList, {
+        owner,
+        repo,
+        number,
+      });
+      controller.fetchIfStale(CommentResource.getList, { owner, repo, number });
+      await controller.fetchIfStale(IssueResource.get, { owner, repo, number });
     },
   },
   {
@@ -90,15 +94,15 @@ export const routes = [
       controller: Controller,
       { login }: { login: string },
     ) => {
-      controller.fetch(UserResource.get, { login });
-      controller.fetch(RepositoryResource.getByUser, { login });
+      controller.fetchIfStale(UserResource.get, { login });
+      controller.fetchIfStale(RepositoryResource.getByUser, { login });
       const { data: currentUser } = controller.getResponse(
         UserResource.current,
         controller.getState(),
       );
       if (currentUser)
-        controller.fetch(RepositoryResource.getByPinned, { login });
-      controller.fetch(EventResource.getList, { login });
+        controller.fetchIfStale(RepositoryResource.getByPinned, { login });
+      controller.fetchIfStale(EventResource.getList, { login });
     },
   },
 ];

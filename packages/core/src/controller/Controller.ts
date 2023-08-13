@@ -119,6 +119,30 @@ export default class Controller<
   };
 
   /**
+   * Fetches only if endpoint is considered 'stale'; otherwise returns undefined
+   * @see https://dataclient.io/docs/api/Controller#fetchIfStale
+   */
+  fetchIfStale = <
+    E extends EndpointInterface & { update?: EndpointUpdateFunction<E> },
+  >(
+    endpoint: E,
+    ...args: readonly [...Parameters<E>]
+  ):
+    | (E['schema'] extends undefined | null
+        ? ReturnType<E>
+        : Promise<Denormalize<E['schema']>>)
+    | undefined => {
+    const { expiresAt, expiryStatus } = this.getResponse(
+      endpoint,
+      ...args,
+      this.getState(),
+    );
+    if (expiryStatus !== ExpiryStatus.Invalid && Date.now() <= expiresAt)
+      return;
+    return this.fetch(endpoint, ...args);
+  };
+
+  /**
    * Forces refetching and suspense on useSuspense with the same Endpoint and parameters.
    * @see https://resthooks.io/docs/api/Controller#invalidate
    */

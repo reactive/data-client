@@ -1,4 +1,4 @@
-import { useLive } from '@data-client/react';
+import { useSuspense } from '@data-client/react';
 import { List } from 'antd';
 import parseLink from 'parse-link-header';
 import { Issue, IssueResource } from 'resources/Issue';
@@ -10,7 +10,7 @@ export default function IssueList({ owner, repo, page, q }: Props) {
   const {
     results: { items: issues },
     link,
-  } = useLive(IssueResource.search, {
+  } = useSuspense(IssueResource.search, {
     owner,
     repo,
     q,
