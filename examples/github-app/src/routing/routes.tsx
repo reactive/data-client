@@ -35,7 +35,7 @@ export const routes = [
       controller: Controller,
       { owner, repo }: { owner: string; repo: string },
     ) => {
-      controller.fetch(IssueResource.getList, { owner, repo });
+      controller.fetch(IssueResource.search, { owner, repo });
     },
   },
   {
@@ -46,12 +46,10 @@ export const routes = [
       { owner, repo }: { owner: string; repo: string },
       searchParams: URLSearchParams,
     ) => {
-      const page = searchParams?.get('page') || '1';
       const q = searchParams?.get('q') || 'is:pr is:open';
       await controller.fetch(IssueResource.search, {
         owner,
         repo,
-        page,
         q,
       });
     },
@@ -65,12 +63,10 @@ export const routes = [
       { owner, repo }: { owner: string; repo: string },
       searchParams: URLSearchParams,
     ) => {
-      const page = searchParams?.get('page') || '1';
       const q = searchParams?.get('q') || 'is:issue is:open';
       await controller.fetch(IssueResource.search, {
         owner,
         repo,
-        page,
         q,
       });
     },
