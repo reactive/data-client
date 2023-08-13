@@ -33,9 +33,10 @@ export default class CollectionSchema<
 
   protected declare argsKey?: (...args: any) => Record<string, any>;
 
-  protected declare createCollectionFilter: (
+  protected createCollectionFilter: (
     ...args: Parent
-  ) => (collectionKey: Record<string, string>) => boolean;
+  ) => (collectionKey: Record<string, string>) => boolean =
+    defaultFilter as any;
 
   declare readonly schema: S;
 
@@ -79,8 +80,9 @@ export default class CollectionSchema<
     this.key = `COLLECT:${this.schema.constructor.name}(${
       (this.schema.schema as any).key
     })`;
-    this.createCollectionFilter =
-      options?.createCollectionFilter ?? (defaultFilter as any);
+    // override class defaults
+    if (options?.createCollectionFilter)
+      this.createCollectionFilter = options?.createCollectionFilter as any;
 
     // >>>>>>>>>>>>>>CREATION<<<<<<<<<<<<<<
     if (this.schema instanceof ArraySchema) {
