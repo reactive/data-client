@@ -1,5 +1,17 @@
 # Change Log
 
+## 4.0.6
+
+### Patch Changes
+
+- 4317adb94c: Collections with arguments in different orders now correctly mean the same Collection
+
+  This could sometimes result in different instances of a Collection having different values.
+
+- Updated dependencies [5a16f86668]
+- Updated dependencies [4317adb94c]
+  - @data-client/endpoint@0.2.5
+
 ## 4.0.5
 
 ### Patch Changes

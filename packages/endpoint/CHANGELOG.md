@@ -1,5 +1,14 @@
 # @data-client/endpoint
 
+## 0.2.5
+
+### Patch Changes
+
+- 5a16f86668: Allowing Collection class override for createCollectionFilter default
+- 4317adb94c: Collections with arguments in different orders now correctly mean the same Collection
+
+  This could sometimes result in different instances of a Collection having different values.
+
 ## 0.2.4
 
 ### Patch Changes

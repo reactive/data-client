@@ -1,5 +1,18 @@
 # Change Log
 
+## 7.4.1
+
+### Patch Changes
+
+- 4317adb94c: Collection based pagination now replaces the non-list members on page
+
+  This allows members like nextPage or 'cursor' to be updated when
+  each page is fetched making it easier to know which page to fetch next.
+
+- a097d25e7a: controller.fetchIfStale() resolves to data from store if it does not fetch
+- Updated dependencies [4317adb94c]
+  - @data-client/rest@0.7.1
+
 ## 7.4.0
 
 ### Minor Changes
