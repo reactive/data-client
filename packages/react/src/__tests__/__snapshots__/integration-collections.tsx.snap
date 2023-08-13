@@ -12,6 +12,7 @@ Article {
 
 exports[`CacheProvider RestEndpoint/current pagination should work with cursor field parameters 1`] = `
 {
+  "nextPage": 2,
   "results": [
     Article {
       "author": User {
@@ -88,6 +89,7 @@ exports[`CacheProvider RestEndpoint/current should update collection on push/uns
 
 exports[`CacheProvider RestEndpoint/current should update on get for a paginated resource 1`] = `
 {
+  "nextPage": 2,
   "results": [
     Article {
       "author": User {
@@ -123,6 +125,7 @@ exports[`CacheProvider RestEndpoint/current should update on get for a paginated
 
 exports[`CacheProvider RestEndpoint/current should update on get for a paginated resource with searchParams 1`] = `
 {
+  "nextPage": 2,
   "results": [
     Article {
       "author": User {
@@ -168,6 +171,7 @@ Article {
 
 exports[`CacheProvider RestEndpoint/next pagination should work with cursor field parameters 1`] = `
 {
+  "nextPage": 2,
   "results": [
     Article {
       "author": User {
@@ -244,6 +248,7 @@ exports[`CacheProvider RestEndpoint/next should update collection on push/unshif
 
 exports[`CacheProvider RestEndpoint/next should update on get for a paginated resource 1`] = `
 {
+  "nextPage": 2,
   "results": [
     Article {
       "author": User {
@@ -279,6 +284,7 @@ exports[`CacheProvider RestEndpoint/next should update on get for a paginated re
 
 exports[`CacheProvider RestEndpoint/next should update on get for a paginated resource with searchParams 1`] = `
 {
+  "nextPage": 2,
   "results": [
     Article {
       "author": User {
@@ -455,6 +461,7 @@ Article {
 
 exports[`ExternalCacheProvider RestEndpoint/current pagination should work with cursor field parameters 1`] = `
 {
+  "nextPage": 2,
   "results": [
     Article {
       "author": User {
@@ -531,6 +538,7 @@ exports[`ExternalCacheProvider RestEndpoint/current should update collection on 
 
 exports[`ExternalCacheProvider RestEndpoint/current should update on get for a paginated resource 1`] = `
 {
+  "nextPage": 2,
   "results": [
     Article {
       "author": User {
@@ -566,6 +574,7 @@ exports[`ExternalCacheProvider RestEndpoint/current should update on get for a p
 
 exports[`ExternalCacheProvider RestEndpoint/current should update on get for a paginated resource with searchParams 1`] = `
 {
+  "nextPage": 2,
   "results": [
     Article {
       "author": User {
@@ -611,6 +620,7 @@ Article {
 
 exports[`ExternalCacheProvider RestEndpoint/next pagination should work with cursor field parameters 1`] = `
 {
+  "nextPage": 2,
   "results": [
     Article {
       "author": User {
@@ -687,6 +697,7 @@ exports[`ExternalCacheProvider RestEndpoint/next should update collection on pus
 
 exports[`ExternalCacheProvider RestEndpoint/next should update on get for a paginated resource 1`] = `
 {
+  "nextPage": 2,
   "results": [
     Article {
       "author": User {
@@ -722,6 +733,7 @@ exports[`ExternalCacheProvider RestEndpoint/next should update on get for a pagi
 
 exports[`ExternalCacheProvider RestEndpoint/next should update on get for a paginated resource with searchParams 1`] = `
 {
+  "nextPage": 2,
   "results": [
     Article {
       "author": User {

@@ -113,7 +113,7 @@ export default class CollectionSchema<
       if (typeof obj[key] !== 'string' && obj[key] !== undefined)
         obj[key] = `${obj[key]}`;
     }
-    return JSON.stringify(obj);
+    return consistentSerialize(obj);
   }
 
   // >>>>>>>>>>>>>>NORMALIZE<<<<<<<<<<<<<<
@@ -319,4 +319,16 @@ function denormalizeOnly(
   return Array.isArray(input)
     ? (this.schema.denormalizeOnly(input, args, unvisit) as any)
     : (this.schema.denormalizeOnly([input], args, unvisit)[0] as any);
+}
+
+/** This serializes in consistent way even if members are added in differnet orders */
+function consistentSerialize(obj: Record<string, unknown>) {
+  const keys = Object.keys(obj).sort();
+  const sortedObj: Record<string, unknown> = {};
+
+  for (const key of keys) {
+    sortedObj[key] = obj[key];
+  }
+
+  return JSON.stringify(sortedObj);
 }

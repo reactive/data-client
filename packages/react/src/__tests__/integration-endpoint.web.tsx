@@ -201,7 +201,7 @@ describe.each([
       expect(result.current).toBeUndefined();
       await waitForNextUpdate();
       expect(result.current).toBeInstanceOf(SimpleRecord);
-      expect(result.current.nextPage).toBe('');
+      expect(result.current.nextPage).toBe(2);
       expect(result.current.prevPage).toBe('');
       expect(result.current.results).toMatchSnapshot();
       // @ts-expect-error
@@ -428,7 +428,7 @@ describe.each([
     expect(result.current).toBeUndefined();
     await waitForNextUpdate();
     expect(result.current).toBeInstanceOf(SimpleRecord);
-    expect(result.current.nextPage).toBe('');
+    expect(result.current.nextPage).toBe(2);
     expect(result.current.prevPage).toBe('');
     expect(result.current.results).toMatchSnapshot();
   });

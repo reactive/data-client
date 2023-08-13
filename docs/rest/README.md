@@ -81,6 +81,7 @@ export const ArticleResource = createResource({
   path: '/article/:id',
   searchParams: {} as { userId?: string } | undefined,
   schema: Article,
+  paginationField: 'page',
 });
 ```
 

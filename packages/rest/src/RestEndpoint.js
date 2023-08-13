@@ -4,7 +4,7 @@ import { pathToRegexp } from 'path-to-regexp';
 import extractCollection from './extractCollection.js';
 import mapCollection from './mapCollection.js';
 import NetworkError from './NetworkError.js';
-import { paginatedMerge, paginatedFilter } from './paginatedCollections.js';
+import { createPaginationSchema } from './paginatedCollections.js';
 import paginationUpdate from './paginationUpdate.js';
 import paramsToString from './paramsToString.js';
 import { getUrlBase, getUrlTokens, isPojo } from './RestHelpers.js';
@@ -202,12 +202,11 @@ Response (first 300 characters): ${text.substring(0, 300)}`;
     class E extends this.constructor {}
 
     Object.assign(E.prototype, this);
-    const instance = new E(
+
+    return new E(
       //  fetch get overridden by function prototype, so we must set it explicitly every time
       { fetch: this.fetch, ...options },
     );
-
-    return instance;
   }
 
   paginated(removeCursor) {
@@ -221,11 +220,18 @@ Response (first 300 characters): ${text.substring(0, 300)}`;
     let found = false;
     const createPaginatedSchema = collection => {
       found = true;
-      return collection.addWith(paginatedMerge, paginatedFilter(removeCursor));
+      return createPaginationSchema(removeCursor, collection);
     };
     const newSchema = mapCollection(this.schema, createPaginatedSchema);
     if (found) {
-      return this.extend({ schema: newSchema });
+      const sup = this;
+
+      return this.extend({
+        schema: newSchema,
+        key(...args) {
+          return sup.key.call(this, ...removeCursor(...args));
+        },
+      });
     }
 
     return this.extend({ update: paginationUpdate(this, removeCursor) });

@@ -3,40 +3,141 @@ title: Pagination
 ---
 
 import StackBlitz from '@site/src/components/StackBlitz';
+import { postPaginatedFixtures } from '@site/src/fixtures/posts';
+import HooksPlayground from '@site/src/components/HooksPlayground';
 
 <head>
   <title>Paginating REST data</title>
 </head>
 
-## Infinite Scrolling
+## Expanding Lists
 
 In case you want to append results to your existing list, rather than move to another page
-[RestEndpoint.getPage](api/RestEndpoint.md#getPage) can be used.
+[RestEndpoint.getPage](../api/RestEndpoint.md#getpage) can be used as long as [paginationField](../api/RestEndpoint.md#paginationfield) was provided.
 
-```typescript title="api/News.ts"
-import { Entity, createResource } from '@data-client/rest';
+<HooksPlayground defaultOpen="n" row fixtures={postPaginatedFixtures}>
 
-export class News extends Entity {
-  id = '';
-  title = '';
-  url = '';
-  previewImage = '';
+```ts title="User" collapsed
+import { Entity } from '@data-client/rest';
+
+export class User extends Entity {
+  id = 0;
+  name = '';
+  username = '';
+  email = '';
+  phone = '';
+  website = '';
+
+  get profileImage() {
+    return `https://i.pravatar.cc/64?img=${this.id + 4}`;
+  }
 
   pk() {
-    return this.id;
+    return `${this.id}`;
   }
-  static key = 'News';
+  static key = 'User';
 }
-export const NewsResource = createResource({
-  path: '/news/:id',
-  schema: News,
-  paginationField: 'cursor',
-})
-  .extend('getList', {
-    // custom schema
-    schema: { results: new schema.Collection([News]), cursor: '' },
-  });
 ```
+
+```ts title="Post" {22,24} collapsed
+import { Entity, createResource } from '@data-client/rest';
+import { User } from './User';
+
+export class Post extends Entity {
+  id = 0;
+  author = User.fromJS();
+  title = '';
+  body = '';
+
+  pk() {
+    return this.id?.toString();
+  }
+  static key = 'Post';
+
+  static schema = {
+    author: User,
+  };
+}
+export const PostResource = createResource({
+  path: '/posts/:id',
+  schema: Post,
+  paginationField: 'cursor',
+}).extend('getList', {
+  schema: { results: new schema.Collection([Post]), cursor: '' },
+});
+```
+
+```tsx title="PostItem" collapsed
+import { useSuspense } from '@data-client/react';
+import { type Post } from './Post';
+
+export default function PostItem({ post }: Props) {
+  return (
+    <div className="listItem spaced">
+      <Avatar src={post.author.profileImage} />
+      <div>
+        <h4>{post.title}</h4>
+        <small>by {post.author.name}</small>
+      </div>
+    </div>
+  );
+}
+
+interface Props {
+  post: Post;
+}
+```
+
+```tsx title="PostList" {9}
+import { useSuspense } from '@data-client/react';
+import PostItem from './PostItem';
+import { PostResource } from './Post';
+
+export default function PostList() {
+  const { results: posts, cursor } = useSuspense(PostResource.getList);
+  const ctrl = useController();
+  const handlePageLoad = () =>
+    ctrl.fetch(PostResource.getList.getPage, { cursor });
+  return (
+    <div>
+      {posts.map(post => (
+        <PostItem key={post.pk()} post={post} />
+      ))}
+      {cursor ? (
+        <center>
+          <button onClick={handlePageLoad}>Load more</button>
+        </center>
+      ) : null}
+    </div>
+  );
+}
+render(<PostList />);
+```
+
+</HooksPlayground>
+
+Don't forget to define our [Resource's](../api/createResource.md) [paginationField](../api/createResource.md#paginationfield) and
+correct [schema](../api/createResource.md#schema)! 
+
+```ts title="Post"
+export const PostResource = createResource({
+  path: '/posts/:id',
+  schema: Post,
+  // highlight-next-line
+  paginationField: 'cursor',
+}).extend('getList', {
+  // highlight-next-line
+  schema: { results: new schema.Collection([Post]), cursor: '' },
+});
+```
+
+### Demo
+
+<StackBlitz app="github-app" file="src/resources/Issue.tsx,src/pages/NextPage.tsx" />
+
+Explore more [Reactive Data Client demos](/demos)
+
+### Infinite Scrolling
 
 Since UI behaviors vary widely, and implementations vary from platform (react-native or web),
 we'll just assume a `Pagination` component is built, that uses a callback to trigger next
@@ -44,110 +145,16 @@ page fetching. On web, it is recommended to use something based on [Intersection
 
 ```tsx
 import { useSuspense, useController } from '@data-client/react';
-import { NewsResource } from 'api/News';
+import { PostResource } from 'resources/Post';
 
 function NewsList() {
-  const { results, cursor } = useSuspense(NewsResource.getList);
+  const { results, cursor } = useSuspense(PostResource.getList);
   const ctrl = useController();
 
   return (
-    <Pagination
-      onPaginate={() => ctrl.fetch(NewsResource.getPage, { cursor })}
-    >
+    <Pagination onPaginate={() => ctrl.fetch(PostResource.getList.getPage, { cursor })}>
       <NewsList data={results} />
     </Pagination>
-  );
-}
-```
-
-### Demo
-
-<StackBlitz app="github-app" file="src/resources/Issue.tsx,src/pages/NextPage.tsx" />
-
-## Tokens in Body
-
-A common way APIs deal with pagination is the list view will return an object with both pagination information
-and the Array of results as another member.
-
-```json title="GET http://test.com/article/?page=abcd"
-{
-  "nextPage": null,
-  "prevPage": "http://test.com/article/?page=aedcba",
-  "results": [
-    {
-      "id": 5,
-      "content": "have a merry christmas",
-      "author": 2,
-      "contributors": []
-    },
-    {
-      "id": 532,
-      "content": "never again",
-      "author": 23,
-      "contributors": [5]
-    }
-  ]
-}
-```
-
-To deal with our specific endpoint, we'll need to customize the [RestEndpoint](api/RestEndpoint.md) of lists to
-understand how to normalize the results (via schema). Be sure to provide defaults in your schema for any members
-that aren't entities.
-
-```typescript title="api/Article.ts"
-import { Entity } from '@data-client/rest';
-import { User } from 'api';
-
-export class Article extends Entity {
-  id: number = 0;
-  content = '';
-  author: number | null = null;
-  contributors: number[] = [];
-
-  pk() {
-    return this.id?.toString();
-  }
-  static key = 'Article';
-}
-
-export const ArticleResource = createResource({
-  urlPrefix: 'http://test.com',
-  path: '/article/:id',
-  schema: Article,
-}).extend({
-  getList: {
-    schema: {
-      results: new schema.Collection([Article]),
-      nextPage: '',
-      prevPage: '',
-    },
-  },
-});
-```
-
-Now we can use `getList` to get not only the articles, but also our `nextPage`
-and `prevPage` values. We can use those tokens to define our pagination buttons.
-
-```tsx title="ArticleList.tsx"
-import { useSuspense } from '@data-client/react';
-import ArticleResource from 'resources/ArticleResource';
-
-export default function ArticleList() {
-  const {
-    results: articles,
-    nextPage,
-    prevPage,
-  } = useSuspense(ArticleResource.getList);
-  return (
-    <>
-      <div>
-        {articles.map(article => (
-          <Article key={article.pk()} article={article} />
-        ))}
-      </div>
-      {prevPage && <Link to={prevPage}>‹ Prev</Link>}
-      {nextPage && <Link to={nextPage}>Next ›</Link>}
-    </>
   );
 }
 ```
@@ -188,7 +195,7 @@ export const ArticleResource = createResource({
 }));
 ```
 
-## Code organization
+### Code organization
 
 If much of your API share a similar pagination, you might
 try a custom Endpoint class that shares this logic.
