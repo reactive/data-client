@@ -30,7 +30,7 @@ describe('Controller', () => {
   });
 
   describe('fetchIfStale', () => {
-    it('should NOT fetch if result is NOT stale', () => {
+    it('should NOT fetch if result is NOT stale', async () => {
       const payload = {
         id: 5,
         title: 'hi ho',
@@ -61,8 +61,11 @@ describe('Controller', () => {
         dispatch: jest.fn(() => Promise.resolve()),
         getState,
       });
-      controller.fetchIfStale(CoolerArticleResource.get, { id: payload.id });
+      const article = await controller.fetchIfStale(CoolerArticleResource.get, {
+        id: payload.id,
+      });
       expect(controller.dispatch.mock.calls.length).toBe(0);
+      expect(article.title).toBe(payload.title);
     });
     it('should fetch if result stale', () => {
       const payload = {
@@ -95,7 +98,9 @@ describe('Controller', () => {
         dispatch: jest.fn(() => Promise.resolve()),
         getState,
       });
-      controller.fetchIfStale(CoolerArticleResource.get, { id: payload.id });
+      controller.fetchIfStale(CoolerArticleResource.get, {
+        id: payload.id,
+      });
 
       expect(controller.dispatch.mock.calls.length).toBe(1);
     });

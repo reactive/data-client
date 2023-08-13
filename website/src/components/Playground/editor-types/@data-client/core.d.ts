@@ -480,12 +480,12 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
         update?: EndpointUpdateFunction<E> | undefined;
     }>(endpoint: E, ...args_0: Parameters<E>) => E["schema"] extends null | undefined ? ReturnType<E> : Promise<Denormalize<E["schema"]>>;
     /**
-     * Fetches the endpoint with given args, updating the Rest Hooks cache with the response or error upon completion.
+     * Fetches only if endpoint is considered 'stale'; otherwise returns undefined
      * @see https://dataclient.io/docs/api/Controller#fetchIfStale
      */
     fetchIfStale: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
         update?: EndpointUpdateFunction<E> | undefined;
-    }>(endpoint: E, ...args_0: Parameters<E>) => (E["schema"] extends null | undefined ? ReturnType<E> : Promise<Denormalize<E["schema"]>>) | undefined;
+    }>(endpoint: E, ...args_0: Parameters<E>) => E["schema"] extends null | undefined ? ReturnType<E> | ResolveType<E> : Denormalize<E["schema"]> | Promise<Denormalize<E["schema"]>>;
     /**
      * Forces refetching and suspense on useSuspense with the same Endpoint and parameters.
      * @see https://resthooks.io/docs/api/Controller#invalidate

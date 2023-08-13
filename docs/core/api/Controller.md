@@ -147,7 +147,7 @@ post.pk();
 
 ## fetchIfStale(endpoint, ...args) {#fetchIfStale}
 
-Fetches only if endpoint is considered '[stale](../concepts/expiry-policy.md#stale)'; otherwise returns undefined.
+Fetches only if endpoint is considered '[stale](../concepts/expiry-policy.md#stale)'.
 
 This can be useful when prefetching data, as it avoids overfetching fresh data.
 

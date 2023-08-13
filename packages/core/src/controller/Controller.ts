@@ -127,18 +127,16 @@ export default class Controller<
   >(
     endpoint: E,
     ...args: readonly [...Parameters<E>]
-  ):
-    | (E['schema'] extends undefined | null
-        ? ReturnType<E>
-        : Promise<Denormalize<E['schema']>>)
-    | undefined => {
-    const { expiresAt, expiryStatus } = this.getResponse(
+  ): E['schema'] extends undefined | null
+    ? ReturnType<E> | ResolveType<E>
+    : Promise<Denormalize<E['schema']>> | Denormalize<E['schema']> => {
+    const { data, expiresAt, expiryStatus } = this.getResponse(
       endpoint,
       ...args,
       this.getState(),
     );
     if (expiryStatus !== ExpiryStatus.Invalid && Date.now() <= expiresAt)
-      return;
+      return data as any;
     return this.fetch(endpoint, ...args);
   };
 

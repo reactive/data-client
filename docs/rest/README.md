@@ -27,7 +27,7 @@ the latest Reactive Data Client clients.
 
 [Resources](./api/createResource.md) are a collection of `methods` for a given `data model`. [Entities](./api/Entity.md) and [Schemas](./api/schema.md) are the declarative _data model_.
 [RestEndpoint](./api/RestEndpoint.md) are the [_methods_](<https://en.wikipedia.org/wiki/Method_(computer_programming)>) on
-that data. 
+that data.
 
 <Tabs
 defaultValue="Class"
@@ -219,7 +219,9 @@ export default function NewArticleForm() {
   const ctrl = useController();
   return (
     <Form
-      onSubmit={e => ctrl.fetch(ArticleResource.getList.push, new FormData(e.target))}
+      onSubmit={e =>
+        ctrl.fetch(ArticleResource.getList.push, new FormData(e.target))
+      }
     >
       <FormField name="title" />
       <FormField name="content" type="textarea" />
