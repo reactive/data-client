@@ -94,13 +94,13 @@ import PostItem from './PostItem';
 import { PostResource } from './Post';
 
 export default function PostList() {
-  const { results: posts, cursor } = useSuspense(PostResource.getList);
+  const { results, cursor } = useSuspense(PostResource.getList);
   const ctrl = useController();
   const handlePageLoad = () =>
     ctrl.fetch(PostResource.getList.getPage, { cursor });
   return (
     <div>
-      {posts.map(post => (
+      {results.map(post => (
         <PostItem key={post.pk()} post={post} />
       ))}
       {cursor ? (
