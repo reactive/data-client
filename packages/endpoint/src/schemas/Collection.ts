@@ -1,3 +1,4 @@
+import { consistentSerialize } from './consistentSerialize.js';
 import { CREATE } from './special.js';
 import { PolymorphicInterface } from '../interface.js';
 import {
@@ -321,16 +322,4 @@ function denormalizeOnly(
   return Array.isArray(input)
     ? (this.schema.denormalizeOnly(input, args, unvisit) as any)
     : (this.schema.denormalizeOnly([input], args, unvisit)[0] as any);
-}
-
-/** This serializes in consistent way even if members are added in differnet orders */
-function consistentSerialize(obj: Record<string, unknown>) {
-  const keys = Object.keys(obj).sort();
-  const sortedObj: Record<string, unknown> = {};
-
-  for (const key of keys) {
-    sortedObj[key] = obj[key];
-  }
-
-  return JSON.stringify(sortedObj);
 }
