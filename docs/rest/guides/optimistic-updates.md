@@ -3,7 +3,7 @@ title: Optimistic Updates
 ---
 
 <head>
-  <title>Making React apps 100x faster with Optimistic Updates</title>
+  <title>Making React 100x faster with Optimistic Updates</title>
   <meta name="docsearch:pagerank" content="40"/>
 </head>
 

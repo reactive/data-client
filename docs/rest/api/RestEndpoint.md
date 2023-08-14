@@ -431,11 +431,14 @@ getReactSite.url({ slug: 'cool', isReact: true }) ===
 `body` can be used to set a second argument for mutation endpoints. The actual **value is not
 used** in any way - this only determines [typing](#typing).
 
+This is only used by endpoings with a method that uses body: 'POST', 'PUT', 'PATCH'.
+
 <TypeScriptEditor>
 
 ```ts {3}
 const updateSite = new RestEndpoint({
   path: 'https\\://site.com/:slug',
+  method: 'POST',
   body: {} as { url: string },
 });
 
