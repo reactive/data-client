@@ -1,10 +1,12 @@
 ---
-title: Capturing Mutation Side-Effects
+title: Mutation Side-Effects
 ---
 
 If you have an endpoint that updates many resources on your server,
 there is a straightforward mechanism to get all those updates
 to your client in one request.
+
+While it may be temping to simply [expire all](/docs/api/Controller#expireAll) 
 
 By defining a custom [RestEndpoint](../api/RestEndpoint.md) method on your resource,
 you'll be able to use custom response endpoints that still

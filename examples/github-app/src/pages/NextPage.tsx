@@ -3,17 +3,7 @@ import { useController } from '@data-client/react';
 import { Button } from 'antd';
 import { IssueResource } from 'resources/Issue';
 
-export default function NextPage({
-  repo,
-  owner,
-  q,
-  page,
-}: {
-  repo: string;
-  owner: string;
-  q: string;
-  page: string;
-}) {
+export default function NextPage({ repo, owner, q, page }: Props) {
   const ctrl = useController();
   const [loadMore, loading] = useLoading(async () => {
     await ctrl.fetch(IssueResource.search.getPage, {
@@ -28,4 +18,11 @@ export default function NextPage({
       {loading ? 'loading...' : <Button onClick={loadMore}>Load more</Button>}
     </div>
   );
+}
+
+export interface Props {
+  repo: string;
+  owner: string;
+  q: string;
+  page: string;
 }

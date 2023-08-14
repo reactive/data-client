@@ -183,7 +183,7 @@ module.exports = {
           ],
         },
         gtag: {
-          trackingID: 'G-ZCSW2H8FQR',
+          trackingID: 'G-1E9TCGX1ZE',
         },
       },
     ],
