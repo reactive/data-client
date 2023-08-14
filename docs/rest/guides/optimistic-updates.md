@@ -147,6 +147,14 @@ function ensureBodyPojo(body: any) {
 }
 ```
 
+For creates (push/unshift) this typically results in no `id` in the response to compute a pk.
+RDC will create a random `pk` to make this work.
+
+Until the object is actually created, doing mutations on that object generally does not work.
+Therefore, it may be prudent in these cases to disable further mutations until the actual
+`POST` is completed. One way to determine this is to simply look for the existance of
+a real `id` in the entity.
+
 ### partialUpdate
 
 ```ts
@@ -165,6 +173,11 @@ function optimisticPartial(
   };
 }
 ```
+
+Partial updates do not send the entire body, so we can use the entity from
+the store to compute the expected response. [Snapshots](/docs/api/Snapshot)
+give us safe access to the existing store value that is robust against any
+race conditions.
 
 ### delete
 
