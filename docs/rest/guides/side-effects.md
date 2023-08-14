@@ -2,15 +2,47 @@
 title: Mutation Side-Effects
 ---
 
-If you have an endpoint that updates many resources on your server,
-there is a straightforward mechanism to get all those updates
-to your client in one request.
+When mutations update more than one resource, it may be tempting to simply
+[expire all](/docs/api/Controller#expireAll) the other resources.
 
-While it may be temping to simply [expire all](/docs/api/Controller#expireAll) 
+However, we can still achieve the high performance atomic mutations if we
+simply bundle *all* updated resources in the mutation response, we can
+avoid this slow networking cascade.
 
-By defining a custom [RestEndpoint](../api/RestEndpoint.md) method on your resource,
-you'll be able to use custom response endpoints that still
-updated `Reactive Data Client`' normalized cache.
+<div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '15px'}}>
+
+<div>
+<h4 style={{textAlign: 'center'}}>Network Cascade</h4>
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client
+    participant Server
+    Client->>Server: POST Trade
+    Note over Client,Server: Backend performs trade
+    Server->>Client: New Trade Object
+    Note over Client,Server: Client Expires Account
+    Client->>Server: GET Account
+    Note over Client,Server: Lookup Account
+    Server->>Client: Account
+```
+</div>
+<div>
+<h4 style={{textAlign: 'center'}}>Response Bundling</h4>
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client
+    participant Server
+    Client->>Server: POST Trade
+    Note over Client,Server: Backend performs trade
+    Server->>Client: Trade + Account
+```
+</div>
+
+</div>
 
 ## Example
 

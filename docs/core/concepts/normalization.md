@@ -121,7 +121,7 @@ an entire endpoint response.
 
 ## Mutations and Dynamic Data
 
-When an endpoint changes data, this is known as a [side effect](/rest/guides/rpc). Marking an endpoint with [sideEffect: true](/rest/api/Endpoint#sideeffect)
+When an endpoint changes data, this is known as a [side effect](/rest/guides/side-effects). Marking an endpoint with [sideEffect: true](/rest/api/Endpoint#sideeffect)
 tells Reactive Data Client that this endpoint is not idempotent, and thus should not be allowed in hooks
 that may call the endpoint an arbitrary number of times like [useSuspense()](../api/useSuspense.md) or [useFetch()](../api/useFetch.md)
 

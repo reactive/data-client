@@ -27,7 +27,7 @@ of a given `entity`. Aside from providing consistency when using different respo
 this means that by providing an accurate schema definition, Reactive Data Client can automatically keep
 all data uses consistent and fresh. The default update endpoints [Resource.update](/rest/api/createResource#update) and
 [Resource.partialUpdate](/rest/api/createResource#partialupdate) both do this automatically. [Read more about defining other
-update endpoints](/rest/guides/rpc)
+update endpoints](/rest/guides/side-effects)
 
 ## Delete
 

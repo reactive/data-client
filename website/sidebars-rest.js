@@ -46,7 +46,7 @@ module.exports = {
         },
         {
           type: 'doc',
-          id: 'guides/rpc',
+          id: 'guides/side-effects',
         },
         {
           type: 'doc',

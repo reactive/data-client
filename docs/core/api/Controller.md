@@ -209,7 +209,7 @@ function CreateTrade({ id }: { id: string }) {
 :::tip
 
 To reduce load, improve performance, and improve state consistency; it can often be
-better to [include mutation sideeffects in the mutation response](/rest/guides/rpc).
+better to [include mutation sideeffects in the mutation response](/rest/guides/side-effects).
 
 :::
 
