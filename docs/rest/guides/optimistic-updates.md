@@ -9,174 +9,174 @@ title: Optimistic Updates
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import {RestEndpoint} from '@data-client/rest';
+import { todoFixtures } from '@site/src/fixtures/todos';
 
 Optimistic updates enable highly responsive and fast interfaces by avoiding network wait times.
-An update is optimistic by assuming the network is successful. In the case of any errors, Rest
-Hooks will then roll back any changes in a way that deals with all possible race conditions.
+An update is optimistic by assuming the network is successful.
 
-## Partial updates
+Doing this amplifies and creates new race conditions; thankfully Reactive Data Client automatically
+handles these for you.
 
-One common use case is for quick toggles. Here we demonstrate a publish button for an
-article. Note that we need to include the primary key (`id` in this case) in the response
-body to ensure the normalized cache gets updated correctly.
+## Resources
 
-```typescript title="api/Article.ts"
+[createResource()](../api/createResource.md) can be configured by setting [optimistic: true](../api/createResource.md#optimistic).
+
+<HooksPlayground defaultOpen="n" row fixtures={todoFixtures}>
+
+```ts title="TodoResource" {18}
 import { Entity, createResource } from '@data-client/rest';
 
-export class Article extends Entity {
-  readonly id: string | undefined = undefined;
-  readonly title: string = '';
-  readonly content: string = '';
-  readonly published: boolean = false;
-
-  pk() {
-    return this.id;
-  }
-}
-
-export const ArticleResource = createResource({
-  path: '/articles/:id',
-  schema: Article,
-}).extend({
-  partialUpdate: {
-    // highlight-start
-    getOptimisticResponse(snap, { id }, body) {
-      return {
-        // we absolutely need the id for primary key here,
-        // but won't be a member of body
-        id,
-        ...body,
-      };
-    },
-    // highlight-end
-  },
-});
-```
-
-```typescript title="PublishButton.tsx"
-import { useController } from '@data-client/react';
-import { ArticleResource } from 'api/Article';
-
-export default function PublishButton({ id }: { id: string }) {
-  const controller = useController();
-
-  return (
-    <button
-      onClick={() =>
-        controller.fetch(
-          ArticleResource.partialUpdate,
-          { id },
-          { published: true },
-        )
-      }
-    >
-      Publish
-    </button>
-  );
-}
-```
-
-## Optimistic create with instant updates
-
-Optimistic updates can also be combined with [atomic mutations](/docs/concepts/atomic-mutations), enabling updates to
-other endpoints instantly. This is most commonly seen when creating new items
-while viewing a list of them.
-
-Here we demonstrate what could be used in a list of articles with a modal
-to create a new article. On submission of the form it would instantly
-add to the list of articles the newly created article - without waiting on a network response.
-
-```typescript title="api/Article.ts"
-import { Entity, createResource } from '@data-client/rest';
-import { v4 as uuid } from 'uuid';
-
-export class Article extends Entity {
-  id: string | undefined = undefined;
+export class Todo extends Entity {
+  id = 0;
+  userId = 0;
   title = '';
-  content = '';
-  published = false;
-
+  completed = false;
   pk() {
-    return this.id;
+    return `${this.id}`;
   }
+  static key = 'Todo';
 }
-
-export const ArticleResource = createResource({
-  path: '/articles/:id',
-  schema: Article,
-}).extend({
-  getList: {
-    // used in mutable derivatives like getList.push, getList.unshift or getList.assign
-    getOptimisticResponse(snap, body) {
-      return body;
-    },
-  },
+export const TodoResource = createResource({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos/:id',
+  searchParams: {} as { userId?: string | number } | undefined,
+  schema: Todo,
+  optimistic: true,
 });
 ```
 
-Since the actual `id` of the article is created on the server, we will need to fill
-in a temporary fake `id` here, so the `primary key` can be generated. This is needed
-to properly normalize the article to be looked up in the cache.
-
-Since [getOptimisticResponse()](../api/RestEndpoint.md#getoptimisticresponse) uses its arguments, we
-must modify the arguments when we push.
-
-Once the network responds, it will have a different `id`, which will replace the existing
-data. This is often seamless, but care should be taken if the fake `id` is used in any
-renders - like to issue subsequent requests. We recommend disabling `edit` type features
-that rely on the `primary key` until the network fetch completes.
-
-```typescript title="CreateArticle.tsx"
+```tsx title="TodoItem" collapsed
 import { useController } from '@data-client/react';
-import { ArticleResource } from 'api/Article';
+import { TodoResource, type Todo } from './TodoResource';
 
-export default function CreateArticle() {
+export default function TodoItem({ todo }: { todo: Todo }) {
   const ctrl = useController();
-  const submitHandler = useCallback(
-    data => ctrl.fetch(ArticleResource.getList.push, { id: uuid(), ...data }),
-    [create],
+  const handleChange = e =>
+    ctrl.fetch(
+      TodoResource.partialUpdate,
+      { id: todo.id },
+      { completed: e.currentTarget.checked },
+    );
+  const handleDelete = () =>
+    ctrl.fetch(TodoResource.delete, {
+      id: todo.id,
+    });
+  return (
+    <div className="listItem nogap">
+      <label>
+        <input
+          type="checkbox"
+          checked={todo.completed}
+          onChange={handleChange}
+        />
+        {todo.completed ? <strike>{todo.title}</strike> : todo.title}
+      </label>
+      <CancelButton onClick={handleDelete} />
+    </div>
   );
-
-  return <Form onSubmit={submitHandler}>{/* rest of form */}</Form>;
 }
 ```
 
-## Optimistic Deletes
+```tsx title="CreateTodo" collapsed
+import { v4 as uuid } from 'uuid';
+import { useController } from '@data-client/react';
+import { TodoResource } from './TodoResource';
 
-Since deletes [automatically update the cache correctly](/docs/concepts/atomic-mutations#delete) upon fetch success,
-making your delete endpoint do this optimistically is as easy as adding the [getOptimisticResponse](api/RestEndpoint.md#getoptimisticresponse)
-function to your options.
+export default function CreateTodo({ userId }: { userId: number }) {
+  const ctrl = useController();
+  const handleKeyDown = async e => {
+    if (e.key === 'Enter') {
+      ctrl.fetch(TodoResource.getList.push, {
+        userId,
+        title: e.currentTarget.value,
+      });
+      e.currentTarget.value = '';
+    }
+  };
+  return (
+    <div className="listItem nogap">
+      <label>
+        <input type="checkbox" name="new" checked={false} disabled />
+        <input type="text" onKeyDown={handleKeyDown} />
+      </label>
+      <CancelButton />
+    </div>
+  );
+}
+```
 
-We return an empty string because that's the response we expect from the server. Although by
-default, the server response is ignored.
+```tsx title="TodoList" collapsed
+import { useSuspense } from '@data-client/react';
+import { TodoResource } from './TodoResource';
+import TodoItem from './TodoItem';
+import CreateTodo from './CreateTodo';
 
-```typescript title="api/Article.ts"
-import { Entity, createResource } from '@data-client/rest';
+function TodoList() {
+  const userId = 1;
+  const todos = useSuspense(TodoResource.getList, { userId });
+  return (
+    <div>
+      {todos.map(todo => (
+        <TodoItem key={todo.pk()} todo={todo} />
+      ))}
+      <CreateTodo userId={userId} />
+    </div>
+  );
+}
+render(<TodoList />);
+```
 
-export class Article extends Entity {
-  readonly id: string | undefined = undefined;
-  readonly title: string = '';
-  readonly content: string = '';
-  readonly published: boolean = false;
+</HooksPlayground>
 
-  pk() {
-    return this.id;
-  }
+This makes all mutations optimistic using some sensible default implementations that handle most cases.
+
+### update/getList.push/getList.unshift
+
+```ts
+function optimisticUpdate(snap: SnapshotInterface, params: any, body: any) {
+  return {
+    ...params,
+    ...ensureBodyPojo(body),
+  };
 }
 
-export const ArticleResource = createResource({
-  path: '/articles/:id',
-  schema: Article,
-}).extend({
-  delete: {
-    // highlight-start
-    getOptimisticResponse(snap, params, body) {
-      return params;
-    },
-    // highlight-end
-  },
-});
+function ensureBodyPojo(body: any) {
+  return body instanceof FormData
+    ? Object.fromEntries((body as any).entries())
+    : body;
+}
 ```
+
+### partialUpdate
+
+```ts
+function optimisticPartial(
+  getEndpoint: GetEndpoint<{ path: ResourcePath; schema: any }>,
+) {
+  return function (snap: SnapshotInterface, params: any, body: any) {
+    const { data } = snap.getResponse(getEndpoint, params) as { data: any };
+    if (!data) throw new AbortOptimistic();
+    return {
+      ...params,
+      ...data,
+      // even tho we don't always have two arguments, the extra one will simply be undefined which spreads fine
+      ...ensureBodyPojo(body),
+    };
+  };
+}
+```
+
+### delete
+
+```ts
+function optimisticDelete(snap: SnapshotInterface, params: any) {
+  return params;
+}
+```
+
+In case you do not want all endpoints to be optimistic, or if you have unusual API designs,
+you can set [getOptimisticResponse()](../api/RestEndpoint.md#getoptimisticresponse) using
+[Resource.extend()](../api/createResource.md#extend)
 
 ## Optimistic Transforms
 
@@ -205,9 +205,10 @@ delay: () => 500 + Math.random() * 4500,
 }
 ]}
 getInitialInterceptorData={() => ({count: 0})}
+row
 >
 
-```ts title="api/Count.ts" {19-25}
+```ts title="count" collapsed
 export class CountEntity extends Entity {
   count = 0;
 
@@ -220,6 +221,11 @@ export const getCount = new RestEndpoint({
   schema: CountEntity,
   name: 'get',
 });
+```
+
+```ts title="increment" {9-15}
+import { CountEntity, getCount } from './count';
+
 export const increment = new RestEndpoint({
   path: '/api/count/increment',
   method: 'POST',
@@ -236,9 +242,10 @@ export const increment = new RestEndpoint({
 });
 ```
 
-```tsx title="CounterPage.tsx" collapsed
+```tsx title="CounterPage" collapsed
 import { useLoading } from '@data-client/hooks';
-import { getCount, increment } from './api/Count';
+import { getCount } from './count';
+import { increment } from './increment';
 
 function CounterPage() {
   const ctrl = useController();
@@ -257,7 +264,7 @@ function CounterPage() {
         Click the button multiple times quickly to trigger the race condition
       </p>
       <div>
-        Reactive Data Client: {count}
+        RDC: {count}
         <br />
         Other Libraries: {responseCount}; with optimistic: {stateCount}
         <br />
@@ -352,13 +359,15 @@ return ({
 "updatedAt": JSON.parse(init.body).updatedAt,
 });
 },
-delay: () => 500 + Math.random() * 4500,
+delay: () => 200 + Math.random() * 4500,
+delayCollapse:true,
 }
 ]}
 getInitialInterceptorData={() => ({ count: 0 })}
+row
 >
 
-```ts title="api/Count.ts" {24-29,35}
+```ts title="count" {9-11} collapsed
 export class CountEntity extends Entity {
   count = 0;
   updatedAt = 0;
@@ -376,6 +385,11 @@ export const getCount = new RestEndpoint({
   schema: CountEntity,
   name: 'get',
 });
+```
+
+```ts title="increment" {9-15,21}
+import { getCount, CountEntity } from './count';
+
 export const increment = new RestEndpoint({
   path: '/api/count/increment',
   method: 'POST',
@@ -383,7 +397,8 @@ export const increment = new RestEndpoint({
   name: 'increment',
   schema: CountEntity,
   getRequestInit() {
-    // this is a substitute for super.getRequestInit() since we aren't in a class context
+    // this is a substitute for super.getRequestInit()
+    // since we aren't in a class context
     return RestEndpoint.prototype.getRequestInit.call(this, {
       updatedAt: Date.now(),
     });
@@ -399,9 +414,10 @@ export const increment = new RestEndpoint({
 });
 ```
 
-```tsx title="CounterPage.tsx" collapsed
+```tsx title="CounterPage" collapsed
 import { useLoading } from '@data-client/hooks';
-import { getCount, increment } from './api/Count';
+import { getCount } from './count';
+import { increment } from './increment';
 
 function CounterPage() {
   const ctrl = useController();
@@ -414,11 +430,12 @@ function CounterPage() {
   return (
     <div>
       <p>
-        Click the button multiple times quickly to trigger the potential race
-        condition. This time our vector clock protects us.
+        Click the button multiple times quickly to trigger
+        the potential race condition. This time our vector
+        clock protects us.
       </p>
       <div>
-        Network: {count} Should be: {n}
+        RDC: {count} Should be: {n}
         <br />
         <button onClick={clickHandler}>+</button>
         {loading ? ' ...loading' : ''}
