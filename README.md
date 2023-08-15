@@ -235,6 +235,7 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://re
 
 ## Examples
 
-- Todo: [Source](https://github.com/data-client/rest-hooks/tree/master/examples/todo-app) | [Sandbox](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx)
-- Github: [Source](https://github.com/data-client/rest-hooks/tree/master/examples/github-app) | [Sandbox](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx)
-- NextJS: [Source](https://github.com/data-client/rest-hooks/tree/master/examples/nextjs) | [Sandbox](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx)
+- Todo: [Source](https://github.com/data-client/rest-hooks/tree/master/examples/todo-app) | [![Sandbox](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx)
+- Github: [Source](https://github.com/data-client/rest-hooks/tree/master/examples/github-app) | [![Sandbox](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx)
+- NextJS: [Source](https://github.com/data-client/rest-hooks/tree/master/examples/nextjs) | [![Sandbox](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx)
+
