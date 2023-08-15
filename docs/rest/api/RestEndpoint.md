@@ -139,7 +139,7 @@ const updateTodo = new RestEndpoint({
 
 </TypeScriptEditor>
 
-Using a [Schema](./schema.md) enables automatic data consistency without the need to hurt performance with refetching.
+Using a [Schema](./schema.md) enables automatic data consistency without the need to hurt performance with [refetching](/docs/api/Controller#expireAll).
 
 ### Typing
 
@@ -179,7 +179,8 @@ const createComment = async data =>
 
 #### Resolution/Return
 
-[schema](#schema) determines the return value when used with data-binding hooks like [useSuspense](/docs/api/useSuspense), [useDLE](/docs/api/useDLE) or [useCache](/docs/api/useCache)
+[schema](#schema) determines the return value when used with data-binding hooks like [useSuspense](/docs/api/useSuspense), [useDLE](/docs/api/useDLE), [useCache](/docs/api/useCache)
+or when used with [Controller.fetch](/docs/api/Controller#fetch)
 
 <TypeScriptEditor>
 
@@ -205,8 +206,7 @@ const todo = useSuspense(getTodo);
 
 </TypeScriptEditor>
 
-[process](#process) determines the resolution value when the endpoint is called directly or
-when use with [Controller.fetch](/docs/api/Controller#fetch). Otherwise this will be 'any' to
+[process](#process) determines the resolution value when the endpoint is called directly. Otherwise this will be `any` to
 ensure compatibility.
 
 <TypeScriptEditor>
@@ -352,6 +352,12 @@ url(urlParams = {}) {
     return `${this.urlPrefix}${urlBase}?${paramsToString(searchParams)}`;
   }
   return `${this.urlPrefix}${urlBase}`;
+}
+
+function paramsToString(searchParams) {
+  const params = new URLSearchParams(searchParams);
+  params.sort();
+  return params.toString();
 }
 ```
 
@@ -831,7 +837,7 @@ const getTodos = new RestEndpoint({
   path: '/todos',
   schema: Todo,
   paginationField: 'page',
-})
+});
 
 const todos = useSuspense(getTodos);
 return (

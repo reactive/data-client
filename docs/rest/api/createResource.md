@@ -321,7 +321,7 @@ export const IssueResource= createResource({
 )});
 ```
 
-<StackBlitz app="github-app" file="src/resources/Comment.ts" view="editor" height={600} />
+<StackBlitz app="github-app" file="src/pages/IssueDetail/CommentsList.tsx,src/resources/Comment.ts" initialpath="/reactjs/rfcs/issue/68" view="editor" height={600} />
 
 Explore more [Reactive Data Client demos](/demos)
 

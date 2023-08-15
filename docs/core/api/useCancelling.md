@@ -19,7 +19,7 @@ Builds an Endpoint that cancels fetch everytime parameters change
 
 <HooksPlayground row>
 
-```tsx title="api/Todo.ts" collapsed
+```tsx title="api/Todo" collapsed
 export class Todo extends Entity {
   id = 0;
   userId = 0;
@@ -28,6 +28,7 @@ export class Todo extends Entity {
   pk() {
     return `${this.id}`;
   }
+  static key = 'Todo';
 }
 export const TodoResource = createResource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
@@ -36,7 +37,7 @@ export const TodoResource = createResource({
 });
 ```
 
-```tsx title="TodoDetail.tsx" {6}
+```tsx title="TodoDetail" {6}
 import { useSuspense } from '@data-client/react';
 import { useCancelling } from '@data-client/hooks';
 import { TodoResource } from './api/Todo';
@@ -59,8 +60,9 @@ function AbortDemo() {
         <TodoDetail id={id} />
       </React.Suspense>
       <div>
-        <button onClick={() => setId(id => id - 1)}>⬇️</button>{' '}
-        <button onClick={() => setId(id => id + 1)}>⬆️</button> &nbsp;{id}
+        <button  onClick={() => setId(id => Math.max(id - 1, 1))}>«</button>
+        {id}{' '}&nbsp;
+        <button onClick={() => setId(id => id + 1)}>»</button>
       </div>
     </div>
   );
@@ -70,7 +72,7 @@ render(<AbortDemo />);
 
 </HooksPlayground>
 
-Try clicking the `⬆️` very quickly. If you increment before it resolves the request will be cancelled and you should
+Try clicking the `»` very quickly. If you increment before it resolves the request will be cancelled and you should
 not see results in the store.
 
 :::caution Warning

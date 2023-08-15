@@ -15,9 +15,9 @@ If this is a text input, they could potentially type quite quickly, thus creatin
 Using [@data-client/hooks](https://www.npmjs.com/package/@data-client/hooks) package with [useCancelling()](/docs/api/useCancelling) will automatically cancel in-flight requests if the parameters
 change before the request is resolved.
 
-<HooksPlayground>
+<HooksPlayground row>
 
-```tsx title="api/Todo.ts" collapsed
+```tsx title="api/Todo" collapsed
 export class Todo extends Entity {
   id = 0;
   userId = 0;
@@ -35,7 +35,7 @@ export const TodoResource = createResource({
 });
 ```
 
-```tsx title="TodoDetail.tsx" {6}
+```tsx title="TodoDetail" {6}
 import { useSuspense } from '@data-client/react';
 import { useCancelling } from '@data-client/hooks';
 import { TodoResource } from './api/Todo';
@@ -70,7 +70,7 @@ render(<AbortDemo />);
 
 </HooksPlayground>
 
-Try clicking the `+` very quickly. If you increment before it resolves the request will be cancelled and you should
+Try clicking the `»` very quickly. If you increment before it resolves the request will be cancelled and you should
 not see results in the store.
 
 :::caution Warning
