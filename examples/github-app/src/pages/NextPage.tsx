@@ -14,7 +14,7 @@ export default function NextPage({ repo, owner, q, page }: Props) {
     });
   });
   return (
-    <div style={{ textAlign: 'center' }}>
+    <div style={{ textAlign: 'center', marginTop: 12 }}>
       {loading ? 'loading...' : <Button onClick={loadMore}>Load more</Button>}
     </div>
   );

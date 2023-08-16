@@ -23,12 +23,14 @@ export default function IssueList({ owner, repo, page, q }: Props) {
         itemLayout="horizontal"
         dataSource={issues}
         renderItem={(issue) => <IssueListItem key={issue.pk()} issue={issue} />}
+        loadMore={
+          nextPage ? (
+            <div className="center">
+              <NextPage owner={owner} repo={repo} q={q} page={nextPage} />
+            </div>
+          ) : null
+        }
       />
-      {nextPage ? (
-        <div className="center">
-          <NextPage owner={owner} repo={repo} q={q} page={nextPage} />
-        </div>
-      ) : null}
     </>
   );
 }
