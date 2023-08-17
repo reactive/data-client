@@ -1,5 +1,23 @@
 # @data-client/rest
 
+## 0.7.2
+
+### Patch Changes
+
+- 318df89bf7: Add nonFilterArgumentKeys argument to Collection
+
+  `nonFilterArgumentKeys` defines a test to determine which argument keys
+  are not used for filtering the results. For instance, if your API uses
+  'orderBy' to choose a sort - this argument would not influence which
+  entities are included in the response.
+
+  This allows customizing `createCollectionFilter` for the
+  most common case
+
+- Updated dependencies [318df89bf7]
+- Updated dependencies [1fcaeb1a7b]
+  - @data-client/endpoint@0.2.6
+
 ## 0.7.1
 
 ### Patch Changes
