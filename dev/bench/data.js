@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1692297805470,
+  "lastUpdate": 1692298730502,
   "repoUrl": "https://github.com/data-client/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -35152,6 +35152,170 @@ window.BENCHMARK_DATA = {
             "range": "±0.46%",
             "unit": "ops/sec",
             "extra": "79 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "41898282+github-actions[bot]@users.noreply.github.com",
+            "name": "github-actions[bot]",
+            "username": "github-actions[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "89874fb8327ede7bc96597bb18860a9c09687a1e",
+          "message": "internal: Publish new version (#2749)\n\nCo-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>",
+          "timestamp": "2023-08-17T18:49:03Z",
+          "tree_id": "2369ccec13d38d1d696243d7b43188d0a25551b6",
+          "url": "https://github.com/data-client/rest-hooks/commit/89874fb8327ede7bc96597bb18860a9c09687a1e"
+        },
+        "date": 1692298728474,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 202,
+            "range": "±2.82%",
+            "unit": "ops/sec",
+            "extra": "77 samples"
+          },
+          {
+            "name": "infer All",
+            "value": 4610,
+            "range": "±0.72%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 135,
+            "range": "±2.42%",
+            "unit": "ops/sec",
+            "extra": "76 samples"
+          },
+          {
+            "name": "denormalizeLong donotcache",
+            "value": 367,
+            "range": "±0.55%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          },
+          {
+            "name": "denormalizeShort donotcache 500x",
+            "value": 734,
+            "range": "±0.54%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "denormalizeShort 500x",
+            "value": 527,
+            "range": "±1.49%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 136,
+            "range": "±1.16%",
+            "unit": "ops/sec",
+            "extra": "76 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 3237,
+            "range": "±0.92%",
+            "unit": "ops/sec",
+            "extra": "89 samples"
+          },
+          {
+            "name": "denormalizeLongAndShort withEntityCacheOnly",
+            "value": 664,
+            "range": "±1.09%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 3421,
+            "range": "±0.55%",
+            "unit": "ops/sec",
+            "extra": "89 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 3342,
+            "range": "±1.00%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 2843,
+            "range": "±1.92%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
+          },
+          {
+            "name": "getResponse (null)",
+            "value": 2228240,
+            "range": "±0.93%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "getResponse (clear cache)",
+            "value": 129,
+            "range": "±1.27%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 1350,
+            "range": "±3.60%",
+            "unit": "ops/sec",
+            "extra": "89 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 1216,
+            "range": "±0.93%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "getResponse Query-sorted",
+            "value": 340,
+            "range": "±1.90%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 205,
+            "range": "±2.47%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 97.04,
+            "range": "±1.28%",
+            "unit": "ops/sec",
+            "extra": "70 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 97.84,
+            "range": "±1.01%",
+            "unit": "ops/sec",
+            "extra": "70 samples"
           }
         ]
       }
