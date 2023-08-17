@@ -1,6 +1,6 @@
 import { CacheProvider } from '@data-client/react';
 import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
-import { schema, RestEndpoint } from '@data-client/rest';
+import { schema, RestEndpoint, PolymorphicInterface } from '@data-client/rest';
 import { createResource } from '@data-client/rest';
 import {
   IDEntity,
@@ -338,6 +338,90 @@ describe.each([
     ]);
 
     nock.cleanAll();
+  });
+
+  it('should use custom Collection class', async () => {
+    const mynock = nock(/.*/).defaultReplyHeaders({
+      'Access-Control-Allow-Origin': '*',
+      'Content-Type': 'application/json',
+    });
+    mynock
+      .get(`/todos?sorted=true`)
+      .reply(200, [
+        { id: '5', title: 'do things', userId: '1' },
+        { id: '3', title: 'ssdf', userId: '2' },
+      ])
+      .get(`/todos?userId=1`)
+      .reply(200, [{ id: '5', title: 'do things', userId: '1' }])
+      .post(`/todos`)
+      .reply(200, (uri, body: any) => ({ ...body }))
+      .post(`/todos?userId=7`)
+      .reply(200, (uri, body: any) => ({ userId: '7', ...body }))
+      .post(`/todos?userId=1`)
+      .reply(200, (uri, body: any) => ({ userId: '1', ...body }));
+
+    class MyCollection<
+      S extends any[] | PolymorphicInterface = any,
+      Parent extends any[] = [urlParams: any, body?: any],
+    > extends schema.Collection<S, Parent> {
+      nonFilterArgumentKeys(key: string) {
+        return key === 'sorted';
+      }
+    }
+    const TodoResource = createResource({
+      path: '/todos/:id',
+      searchParams: {} as { userId?: string; sorted?: boolean } | undefined,
+      schema: Todo,
+      Collection: MyCollection,
+    });
+    const { result, waitForNextUpdate, controller } = renderRestHook(() => {
+      const todos = useSuspense(TodoResource.getList, { sorted: true });
+      const userTodos = useSuspense(TodoResource.getList, { userId: '1' });
+      return { todos, userTodos };
+    });
+    await waitForNextUpdate();
+    expect(result.current).toMatchSnapshot();
+    const firstUserTodos = result.current.userTodos;
+    await act(async () => {
+      await controller.fetch(
+        TodoResource.getList.push,
+        { userId: '7' },
+        {
+          title: 'push',
+          userId: 7,
+        },
+      );
+    });
+    // added to main list (ignoring sorted argument), but not userTodos
+    expect(result.current.userTodos.map(({ id }) => id)).toEqual(['5']);
+    expect(result.current.todos.map(({ title }) => title)).toEqual([
+      'do things',
+      'ssdf',
+      'push',
+    ]);
+    // userTodos didn't change so should maintain referential equality
+    expect(result.current.userTodos).toBe(firstUserTodos);
+
+    await act(async () => {
+      await controller.fetch(
+        TodoResource.getList.unshift,
+        { userId: '1' },
+        {
+          title: 'unshift',
+        },
+      );
+    });
+    // this adds to both the base todo list, the one with userId filter, and the nested todo list inside user object
+    expect(result.current.todos.map(({ title }) => title)).toEqual([
+      'unshift',
+      'do things',
+      'ssdf',
+      'push',
+    ]);
+    expect(result.current.userTodos.map(({ title }) => title)).toEqual([
+      'unshift',
+      'do things',
+    ]);
   });
 
   describe.each(ResourceCombos)(

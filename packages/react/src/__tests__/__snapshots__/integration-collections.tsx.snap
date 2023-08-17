@@ -384,6 +384,33 @@ exports[`CacheProvider pagination should work with cursor field from getList.pag
 ]
 `;
 
+exports[`CacheProvider should use custom Collection class 1`] = `
+{
+  "todos": [
+    Todo {
+      "completed": false,
+      "id": "5",
+      "title": "do things",
+      "userId": "1",
+    },
+    Todo {
+      "completed": false,
+      "id": "3",
+      "title": "ssdf",
+      "userId": "2",
+    },
+  ],
+  "userTodos": [
+    Todo {
+      "completed": false,
+      "id": "5",
+      "title": "do things",
+      "userId": "1",
+    },
+  ],
+}
+`;
+
 exports[`CacheProvider should work with unions 1`] = `
 [
   [
@@ -831,6 +858,33 @@ exports[`ExternalCacheProvider pagination should work with cursor field from get
     "title": "the next time",
   },
 ]
+`;
+
+exports[`ExternalCacheProvider should use custom Collection class 1`] = `
+{
+  "todos": [
+    Todo {
+      "completed": false,
+      "id": "5",
+      "title": "do things",
+      "userId": "1",
+    },
+    Todo {
+      "completed": false,
+      "id": "3",
+      "title": "ssdf",
+      "userId": "2",
+    },
+  ],
+  "userTodos": [
+    Todo {
+      "completed": false,
+      "id": "5",
+      "title": "do things",
+      "userId": "1",
+    },
+  ],
+}
 `;
 
 exports[`ExternalCacheProvider should work with unions 1`] = `

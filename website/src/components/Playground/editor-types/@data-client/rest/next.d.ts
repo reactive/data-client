@@ -1411,6 +1411,8 @@ interface ResourceGenerics {
 interface ResourceOptions {
     /** @see https://resthooks.io/rest/api/createResource#endpoint */
     Endpoint?: typeof RestEndpoint;
+    /** @see https://dataclient.io/rest/api/createResource#collection */
+    Collection?: typeof Collection;
     /** @see https://resthooks.io/rest/api/createResource#optimistic */
     optimistic?: boolean;
     /** @see https://resthooks.io/rest/api/createResource#urlprefix */
@@ -1523,6 +1525,6 @@ interface ResourceInterface {
  *
  * @see https://resthooks.io/rest/api/createResource
  */
-declare function createResource<O extends ResourceGenerics>({ path, schema, Endpoint, optimistic, paginationField, ...extraOptions }: Readonly<O> & ResourceOptions): Resource<O>;
+declare function createResource<O extends ResourceGenerics>({ path, schema, Endpoint, Collection, optimistic, paginationField, ...extraOptions }: Readonly<O> & ResourceOptions): Resource<O>;
 
 export { AddEndpoint, Defaults, FetchGet, FetchMutate, FromFallBack, GetEndpoint, KeyofRestEndpoint, MethodToSide, MutateEndpoint, PaginationEndpoint, PaginationFieldEndpoint, ParamFetchNoBody, ParamFetchWithBody, PartialRestGenerics, Resource, ResourceGenerics, ResourceOptions, RestEndpoint, RestEndpointConstructor, RestEndpointConstructorOptions, RestEndpointExtendOptions, RestEndpointOptions, RestExtendedEndpoint, RestFetch, RestGenerics, RestInstance, RestInstanceBase, RestType, RestTypeNoBody, RestTypeWithBody, createResource };

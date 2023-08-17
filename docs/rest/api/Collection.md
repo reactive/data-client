@@ -24,7 +24,7 @@ and [.getPage](./RestEndpoint.md#getpage)/[.paginated()](./RestEndpoint.md#pagin
 
 ## Usage
 
-<HooksPlayground fixtures={[
+<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/users'}),
 args: [],

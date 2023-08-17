@@ -1,4 +1,4 @@
-import type { schema } from '@data-client/endpoint';
+import type { Collection, schema } from '@data-client/endpoint';
 import type { Schema } from '@data-client/endpoint';
 import type { Denormalize } from '@data-client/endpoint';
 
@@ -30,6 +30,8 @@ export interface ResourceGenerics {
 export interface ResourceOptions {
   /** @see https://resthooks.io/rest/api/createResource#endpoint */
   Endpoint?: typeof RestEndpoint;
+  /** @see https://dataclient.io/rest/api/createResource#collection */
+  Collection?: typeof Collection;
   /** @see https://resthooks.io/rest/api/createResource#optimistic */
   optimistic?: boolean;
   /** @see https://resthooks.io/rest/api/createResource#urlprefix */
