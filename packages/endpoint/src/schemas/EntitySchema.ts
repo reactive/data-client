@@ -317,6 +317,7 @@ export default function EntitySchema<TBase extends Constructor>(
     }
 
     static validate(processedEntity: any): string | undefined {
+      /* istanbul ignore else */
       if (process.env.NODE_ENV !== 'production') {
         for (const key of Object.keys(this.schema)) {
           if (!Object.hasOwn(processedEntity, key)) {

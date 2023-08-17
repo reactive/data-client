@@ -1,7 +1,7 @@
 import HooksPlayground from '@site/src/components/HooksPlayground';
-import { postFixtures } from '@site/src/fixtures/posts';
+import { postFixtures,getInitialInterceptorData } from '@site/src/fixtures/posts';
 
-<HooksPlayground fixtures={postFixtures} getInitialInterceptorData={() => ({entities:{}})} row>
+<HooksPlayground fixtures={postFixtures} getInitialInterceptorData={getInitialInterceptorData} row>
 
 ```ts title="PostResource" collapsed
 import { Entity, createResource } from '@data-client/rest';

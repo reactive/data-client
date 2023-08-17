@@ -12,6 +12,7 @@ import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import { RestEndpoint } from '@data-client/rest';
 import { v4 as uuid } from 'uuid';
+import { postFixtures,getInitialInterceptorData } from '@site/src/fixtures/posts-collection';
 
 `Collections` are entities but for [Arrays](./Array.md) or [Values](./Values.md).
 
@@ -243,6 +244,163 @@ class User extends Entity {
   };
 }
 ```
+
+### nonFilterArgumentKeys?
+
+`nonFilterArgumentKeys` defines a test to determine which argument keys
+are _not_ used for filtering the results. For instance, if your API uses
+'orderBy' to choose a sort - this argument would not influence which
+entities are included in the response.
+
+```ts
+const getPosts = new RestEndpoint({
+  path: '/:group/posts',
+  searchParams: {} as { orderBy?: string; author?: string },
+  schema: new schema.Collection([Post], {
+    nonFilterArgumentKeys(key) {
+      return key === 'orderBy';
+    },
+  }),
+});
+```
+
+For convenience you can also use a RegExp or list of strings:
+
+```ts
+const getPosts = new RestEndpoint({
+  path: '/:group/posts',
+  searchParams: {} as { orderBy?: string; author?: string },
+  schema: new schema.Collection([Post], {
+    nonFilterArgumentKeys: /orderBy/,
+  }),
+});
+```
+
+```ts
+const getPosts = new RestEndpoint({
+  path: '/:group/posts',
+  searchParams: {} as { orderBy?: string; author?: string },
+  schema: new schema.Collection([Post], {
+    nonFilterArgumentKeys: ['orderBy'],
+  }),
+});
+```
+
+In this case, `author` and `group` are considered 'filter' argument keys,
+which means they will influence whether a newly created should be added
+to those lists. On the other hand, `orderBy` does not need to match
+when `push` is called.
+
+<HooksPlayground fixtures={postFixtures} getInitialInterceptorData={getInitialInterceptorData} row>
+
+```ts title="getPosts" {17} collapsed
+import { Entity, RestEndpoint } from '@data-client/rest';
+
+class Post extends Entity {
+  id = '';
+  title = '';
+  group = '';
+  author = '';
+
+  pk() {
+    return this.id;
+  }
+}
+export const getPosts = new RestEndpoint({
+  path: '/:group/posts',
+  searchParams: {} as { orderBy?: string; author?: string },
+  schema: new schema.Collection([Post], {
+    nonFilterArgumentKeys: /orderBy/,
+  }),
+});
+```
+
+```ts title="PostListLayout" collapsed
+import { useLoading } from '@data-client/hooks';
+
+export default function PostListLayout({
+  postsByBob,
+  postsSorted,
+  handleAddBob,
+  handleAddClara,
+}) {
+  const [bobClick, loadingBob] = useLoading(handleAddBob);
+  const [claraClick, loadingClara] = useLoading(handleAddClara);
+  return (
+    <div>
+      <h4>Bob group posts</h4>
+      <ul>
+        {postsByBob.map(post => (
+          <li key={post.pk()}>
+            {post.title} by {post.author}
+          </li>
+        ))}
+      </ul>
+      <h4>All group posts</h4>
+      <ul>
+        {postsSorted.map(post => (
+          <li key={post.pk()}>
+            {post.title} by {post.author}
+          </li>
+        ))}
+      </ul>
+      <button onClick={bobClick} disabled={loadingBob}>
+        {loadingBob ? 'Add Bob po...' : 'Add Bob post'}
+      </button>
+      <button onClick={claraClick} disabled={loadingClara}>
+        {loadingClara ? 'Add Clara po...' : 'Add Clara post'}
+      </button>
+    </div>
+  );
+}
+```
+
+```ts title="PostList"
+import { useSuspense, useController } from '@data-client/react';
+import { getPosts } from './getPosts';
+import PostListLayout from './PostListLayout';
+
+function PostList() {
+  const postsByBob = useSuspense(getPosts, { group: 'react', author: 'bob' });
+  const postsSorted = useSuspense(getPosts, {
+    group: 'react',
+    orderBy: 'title',
+  });
+
+  const ctrl = useController();
+  // Will be appended to postByBob and postsSorted
+  const handleAddBob = () =>
+    ctrl.fetch(
+      getPosts.push,
+      { group: 'react' },
+      {
+        author: 'bob',
+        title: 'new bob post',
+      },
+    );
+  // Will be appended to postsSorted
+  const handleAddClara = () =>
+    ctrl.fetch(
+      getPosts.push,
+      { group: 'react' },
+      {
+        author: 'clara',
+        title: 'new clara post',
+      },
+    );
+  return (
+    <PostListLayout
+      postsByBob={postsByBob}
+      postsSorted={postsSorted}
+      handleAddBob={handleAddBob}
+      handleAddClara={handleAddClara}
+    />
+  );
+}
+render(<PostList />);
+```
+
+</HooksPlayground>
 
 ### createCollectionFilter?
 
