@@ -326,13 +326,15 @@ type RemoveArray<Orig extends any[], Rem extends any[]> = Rem extends [
 type CollectionOptions<Parent extends any[] = [
     urlParams: Record<string, any>,
     body?: Record<string, any>
-]> = {
-    nestKey: (parent: any, key: string) => Record<string, any>;
+]> = ({
+    nestKey?: (parent: any, key: string) => Record<string, any>;
+} | {
+    argsKey?: (...args: any) => Record<string, any>;
+}) & ({
     createCollectionFilter?: (...args: Parent) => (collectionKey: Record<string, string>) => boolean;
 } | {
-    argsKey: (...args: any) => Record<string, any>;
-    createCollectionFilter?: (...args: Parent) => (collectionKey: Record<string, string>) => boolean;
-};
+    nonFilterArgumentKeys?: ((key: string) => boolean) | string[] | RegExp;
+});
 
 /**
  * Marks entity as Invalid.

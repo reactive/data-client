@@ -34,11 +34,6 @@ export default class CollectionSchema<
 
   protected declare argsKey?: (...args: any) => Record<string, any>;
 
-  protected createCollectionFilter: (
-    ...args: Parent
-  ) => (collectionKey: Record<string, string>) => boolean =
-    defaultFilter as any;
-
   declare readonly schema: S;
 
   declare readonly key: string;
@@ -64,6 +59,25 @@ export default class CollectionSchema<
     return CreateAdder(this, merge, createCollectionFilter);
   }
 
+  // this adds to any list *in store* that has same members as the urlParams
+  // so fetch(create, { userId: 'bob', completed: true }, data)
+  // would possibly add to {}, {userId: 'bob'}, {completed: true}, {userId: 'bob', completed: true } - but only those already in the store
+  // it ignores keys that start with sort as those are presumed to not filter results
+  protected createCollectionFilter(...args: Parent) {
+    return (collectionKey: Record<string, string>) =>
+      Object.entries(collectionKey).every(
+        ([key, value]) =>
+          this.nonFilterArgumentKeys(key) ||
+          // strings are canonical form. See pk() above for value transformation
+          `${args[0][key]}` === value ||
+          `${args[1]?.[key]}` === value,
+      );
+  }
+
+  protected nonFilterArgumentKeys(key: string) {
+    return key.startsWith('order');
+  }
+
   constructor(schema: S, options?: CollectionOptions) {
     this.schema = Array.isArray(schema)
       ? (new ArraySchema(schema[0]) as any)
@@ -72,18 +86,37 @@ export default class CollectionSchema<
       this.argsKey = params => ({ ...params });
     } else {
       if ('nestKey' in options) {
-        this.nestKey = options.nestKey;
-      } else {
+        (this as any).nestKey = options.nestKey;
+      } else if ('argsKey' in options) {
         this.argsKey = options.argsKey;
+      } else {
+        this.argsKey = params => ({ ...params });
       }
     }
     // this assumes the definition of Array/Values is Entity
     this.key = `COLLECT:${this.schema.constructor.name}(${
       (this.schema.schema as any).key
     })`;
-    // override class defaults
-    if (options?.createCollectionFilter)
-      this.createCollectionFilter = options?.createCollectionFilter as any;
+    if ((options as any)?.nonFilterArgumentKeys) {
+      const { nonFilterArgumentKeys } = options as {
+        nonFilterArgumentKeys: ((key: string) => boolean) | string[] | RegExp;
+      };
+      if (typeof nonFilterArgumentKeys === 'function') {
+        this.nonFilterArgumentKeys = nonFilterArgumentKeys;
+      } else if (nonFilterArgumentKeys instanceof RegExp) {
+        this.nonFilterArgumentKeys = key => nonFilterArgumentKeys.test(key);
+      } else {
+        this.nonFilterArgumentKeys = key => nonFilterArgumentKeys.includes(key);
+      }
+    } else if ((options as any)?.createCollectionFilter)
+      // TODO(breaking): rename to filterCollections
+      this.createCollectionFilter = (
+        options as any as {
+          createCollectionFilter: (
+            ...args: Parent
+          ) => (collectionKey: Record<string, string>) => boolean;
+        }
+      ).createCollectionFilter.bind(this) as any;
 
     // >>>>>>>>>>>>>>CREATION<<<<<<<<<<<<<<
     if (this.schema instanceof ArraySchema) {
@@ -218,34 +251,24 @@ export type CollectionOptions<
     urlParams: Record<string, any>,
     body?: Record<string, any>,
   ],
-> =
+> = (
   | {
-      nestKey: (parent: any, key: string) => Record<string, any>;
-      createCollectionFilter?: (
-        ...args: Parent
-      ) => (collectionKey: Record<string, string>) => boolean;
+      nestKey?: (parent: any, key: string) => Record<string, any>;
     }
   | {
-      argsKey: (...args: any) => Record<string, any>;
-      createCollectionFilter?: (
-        ...args: Parent
-      ) => (collectionKey: Record<string, string>) => boolean;
-    };
-
-// this adds to any list *in store* that has same members as the urlParams
-// so fetch(create, { userId: 'bob', completed: true }, data)
-// would possibly add to {}, {userId: 'bob'}, {completed: true}, {userId: 'bob', completed: true } - but only those already in the store
-// it ignores keys that start with sort as those are presumed to not filter results
-const defaultFilter =
-  (urlParams: Record<string, any>, body?: Record<string, any>) =>
-  (collectionKey: Record<string, string>) =>
-    Object.entries(collectionKey).every(
-      ([key, value]) =>
-        key.startsWith('order') ||
-        // strings are canonical form. See pk() above for value transformation
-        `${urlParams[key]}` === value ||
-        `${body?.[key]}` === value,
-    );
+      argsKey?: (...args: any) => Record<string, any>;
+    }
+) &
+  (
+    | {
+        createCollectionFilter?: (
+          ...args: Parent
+        ) => (collectionKey: Record<string, string>) => boolean;
+      }
+    | {
+        nonFilterArgumentKeys?: ((key: string) => boolean) | string[] | RegExp;
+      }
+  );
 
 function CreateAdder<C extends CollectionSchema<any, any>, P extends any[]>(
   collection: C,

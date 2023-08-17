@@ -1,11 +1,12 @@
 // eslint-env jest
+import { initialState } from '@data-client/core';
 import { inferResults, normalize, WeakEntityMap } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS, Record } from 'immutable';
 
 import { denormalizeSimple as denormalize } from './denormalize';
 import WeakListMap from './legacy-compat/WeakListMap';
-import { AbstractInstanceType } from '../..';
+import { AbstractInstanceType, PolymorphicInterface } from '../..';
 import { schema } from '../..';
 import Entity from '../Entity';
 
@@ -200,6 +201,170 @@ describe(`${schema.Collection.name} normalization`, () => {
       init.entityMeta,
     );
     expect(state).toMatchSnapshot();
+  });
+
+  describe('push should add only to collections matching filterArgumentKeys', () => {
+    const initializingSchema = new schema.Collection([Todo]);
+    let state = {
+      ...initialState,
+      ...normalize(
+        [{ id: '10', title: 'create new items' }],
+        initializingSchema,
+        [{ userId: '1' }],
+        initialState.entities,
+        initialState.indexes,
+        initialState.entityMeta,
+      ),
+    };
+    state = {
+      ...state,
+      ...normalize(
+        [{ id: '10', title: 'create new items' }],
+        initializingSchema,
+        [{ userId: '1', ignoredMe: '5' }],
+        state.entities,
+        state.indexes,
+        state.entityMeta,
+      ),
+    };
+    state = {
+      ...state,
+      ...normalize(
+        [{ id: '20', title: 'second user' }],
+        initializingSchema,
+        [{ userId: '2' }],
+        state.entities,
+        state.indexes,
+        state.entityMeta,
+      ),
+    };
+    state = {
+      ...state,
+      ...normalize(
+        [
+          { id: '10', title: 'create new items' },
+          { id: '20', title: 'the ignored one' },
+        ],
+        initializingSchema,
+        [{}],
+        state.entities,
+        state.indexes,
+        state.entityMeta,
+      ),
+    };
+    function validate(
+      sch: schema.Collection<
+        (typeof Todo)[],
+        [
+          urlParams: globalThis.Record<string, any>,
+          body?: globalThis.Record<string, any> | undefined,
+        ]
+      >,
+    ) {
+      expect(
+        (
+          denormalize(
+            JSON.stringify({ userId: '1' }),
+            sch,
+            state.entities,
+          ) as any
+        )?.length,
+      ).toBe(1);
+      const testState = {
+        ...state,
+        ...normalize(
+          [{ id: '30', title: 'pushed to the end' }],
+          sch.push,
+          [{ userId: '1' }],
+          state.entities,
+          state.indexes,
+          state.entityMeta,
+        ),
+      };
+      function getResponse(...args: any) {
+        return denormalize(
+          sch.pk(undefined, undefined, '', args),
+          sch,
+          testState.entities,
+        ) as any;
+      }
+      const userOne = getResponse({ userId: '1' });
+      if (!userOne || typeof userOne === 'symbol')
+        throw new Error('should have a value');
+      expect(userOne.length).toBe(2);
+      expect(userOne[1].title).toBe('pushed to the end');
+
+      expect(getResponse({}).length).toBe(3);
+      expect(getResponse({ ignoredMe: '5', userId: '1' })?.length).toBe(2);
+      expect(getResponse({ userId: '2' })?.length).toBe(1);
+    }
+
+    it('should work with function form', () => {
+      const sch = new schema.Collection([Todo], {
+        nonFilterArgumentKeys(key) {
+          return key.startsWith('ignored');
+        },
+      });
+      validate(sch);
+    });
+    it('should work with RegExp form', () => {
+      const sch = new schema.Collection([Todo], {
+        nonFilterArgumentKeys: /ignored/,
+      });
+      validate(sch);
+    });
+    it('should work with RegExp form', () => {
+      const sch = new schema.Collection([Todo], {
+        nonFilterArgumentKeys: ['ignoredMe'],
+      });
+      validate(sch);
+    });
+    it('should work with full createCollectionFilter form', () => {
+      const sch = new schema.Collection([Todo], {
+        createCollectionFilter:
+          (...args) =>
+          collectionKey =>
+            Object.entries(collectionKey).every(
+              ([key, value]) =>
+                key.startsWith('ignored') ||
+                // strings are canonical form. See pk() above for value transformation
+                `${args[0][key]}` === value ||
+                `${args[1]?.[key]}` === value,
+            ),
+      });
+      validate(sch);
+    });
+    it('should work with function override of nonFilterArgumentKeys', () => {
+      class MyCollection<
+        S extends any[] | PolymorphicInterface = any,
+        Parent extends any[] = [urlParams: any, body?: any],
+      > extends schema.Collection<S, Parent> {
+        nonFilterArgumentKeys(key: string) {
+          return key.startsWith('ignored');
+        }
+      }
+      const sch = new MyCollection([Todo]);
+      validate(sch);
+    });
+    it('should work with function override of createCollectionFilter', () => {
+      class MyCollection<
+        S extends any[] | PolymorphicInterface = any,
+        Parent extends any[] = [urlParams: any, body?: any],
+      > extends schema.Collection<S, Parent> {
+        createCollectionFilter(...args: Parent) {
+          return (collectionKey: { [k: string]: string }) =>
+            Object.entries(collectionKey).every(
+              ([key, value]) =>
+                key.startsWith('ignored') ||
+                // strings are canonical form. See pk() above for value transformation
+                `${args[0][key]}` === value ||
+                `${args[1]?.[key]}` === value,
+            );
+        }
+      }
+      const sch = new MyCollection([Todo]);
+      validate(sch);
+    });
   });
 });
 
