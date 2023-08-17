@@ -1,5 +1,11 @@
 # @data-client/rest
 
+## 0.7.3
+
+### Patch Changes
+
+- e934b53551: Add [Collection](https://dataclient.io/rest/api/createResource#collection) option to [createResource](https://dataclient.io/rest/api/createResource)
+
 ## 0.7.2
 
 ### Patch Changes
