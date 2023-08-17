@@ -61,6 +61,7 @@ controller.fetch(TodoResource.delete, { id: '5' });
   paginationField?: string;
   optimistic?: boolean;
   Endpoint?: typeof RestEndpoint;
+  Collection?: typeof Collection;
 } & EndpointExtraOptions
 ```
 
@@ -96,6 +97,52 @@ If specified, will add [Resource.getList.getPage](#getpage) method on the `Resou
 
 Class used to construct the members.
 
+```ts
+import { RestEndpoint } from '@data-client/rest';
+
+export default class AuthdEndpoint<
+  O extends RestGenerics = any,
+> extends RestEndpoint<O> {
+  getRequestInit(body: any): RequestInit {
+    return {
+      ...super.getRequestInit(body),
+      credentials: 'same-origin',
+    };
+  }
+}
+const TodoResource = createResource({
+  path: '/todos/:id',
+  schema: Todo,
+  // highlight-next-line
+  Endpoint: AuthdEndpoint,
+});
+```
+
+### Collection
+
+Class used to construct [getList](#getlist) schema.
+
+```ts
+import { schema, createResource } from '@data-client/rest';
+
+class MyCollection<
+  S extends any[] | PolymorphicInterface = any,
+  Parent extends any[] = [urlParams: any, body?: any],
+> extends schema.Collection<S, Parent> {
+  // getList.push should add to Collections regardless of its 'sorted' argument
+  nonFilterArgumentKeys(key: string) {
+    return key === 'sorted';
+  }
+}
+const TodoResource = createResource({
+  path: '/todos/:id',
+  searchParams: {} as { userId?: string; sorted?: boolean } | undefined,
+  schema: Todo,
+  // highlight-next-line
+  Collection: MyCollection,
+});
+```
+
 ### [EndpointExtraOptions](./RestEndpoint.md#endpoint-life-cycles)
 
 ## Members
@@ -118,7 +165,7 @@ createResource({ urlPrefix: '//test.com', path: '/api/:group/:id' }).get({
   group: 'abc',
   id: 'xyz',
 });
-```
+````
 
 Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidate](/docs/api/Controller#invalidate)
 
@@ -272,7 +319,7 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 `createResource` builds a great starting point, but often endpoints need to be [further customized](./RestEndpoint.md#typing).
 
-`extend()` is polymorphic with three forms: 
+`extend()` is polymorphic with three forms:
 
 #### Batch extension of known members
 

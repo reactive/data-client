@@ -19,7 +19,7 @@ import RestEndpoint, {
 } from './RestEndpoint.js';
 import { shortenPath } from './RestHelpers.js';
 
-const { Invalidate, Collection } = schema;
+const { Invalidate, Collection: BaseCollection } = schema;
 
 /** Creates collection of Endpoints for common operations on a given data/schema.
  *
@@ -29,6 +29,7 @@ export default function createResource<O extends ResourceGenerics>({
   path,
   schema,
   Endpoint = RestEndpoint,
+  Collection = BaseCollection,
   optimistic,
   paginationField,
   ...extraOptions

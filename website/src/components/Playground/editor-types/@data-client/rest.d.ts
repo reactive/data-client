@@ -2045,6 +2045,8 @@ interface ResourceGenerics {
 interface ResourceOptions {
     /** @see https://resthooks.io/rest/api/createResource#endpoint */
     Endpoint?: typeof RestEndpoint;
+    /** @see https://dataclient.io/rest/api/createResource#collection */
+    Collection?: typeof Collection;
     /** @see https://resthooks.io/rest/api/createResource#optimistic */
     optimistic?: boolean;
     /** @see https://resthooks.io/rest/api/createResource#urlprefix */
@@ -2157,7 +2159,7 @@ interface ResourceInterface {
  *
  * @see https://resthooks.io/rest/api/createResource
  */
-declare function createResource<O extends ResourceGenerics>({ path, schema, Endpoint, optimistic, paginationField, ...extraOptions }: Readonly<O> & ResourceOptions): Resource<O>;
+declare function createResource<O extends ResourceGenerics>({ path, schema, Endpoint, Collection, optimistic, paginationField, ...extraOptions }: Readonly<O> & ResourceOptions): Resource<O>;
 
 interface HookableEndpointInterface extends EndpointInterface {
     extend(...args: any): HookableEndpointInterface;
