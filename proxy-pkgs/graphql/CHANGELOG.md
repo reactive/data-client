@@ -1,5 +1,22 @@
 # Change Log
 
+## 0.6.2
+
+### Patch Changes
+
+- 318df89bf7: Add nonFilterArgumentKeys argument to Collection
+
+  `nonFilterArgumentKeys` defines a test to determine which argument keys
+  are not used for filtering the results. For instance, if your API uses
+  'orderBy' to choose a sort - this argument would not influence which
+  entities are included in the response.
+
+  This allows customizing `createCollectionFilter` for the
+  most common case
+
+- Updated dependencies [318df89bf7]
+  - @data-client/graphql@0.2.2
+
 ## 0.6.1
 
 ### Patch Changes
