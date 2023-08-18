@@ -145,7 +145,7 @@ Using a [Schema](./schema.md) enables automatic data consistency without the nee
 
 <TypeScriptEditor>
 
-```ts title=Comment collapsed
+```ts title="Comment" collapsed
 export class Comment extends Entity {
   id = '';
   title = '';
@@ -158,7 +158,7 @@ export class Comment extends Entity {
 }
 ```
 
-```ts title=Usage
+```ts title="Usage"
 import { Comment } from './Comment';
 
 const getComments = new RestEndpoint({
@@ -184,7 +184,7 @@ or when used with [Controller.fetch](/docs/api/Controller#fetch)
 
 <TypeScriptEditor>
 
-```ts title=Todo.ts collapsed
+```ts title="Todo.ts" collapsed
 export class Todo extends Entity {
   id = '';
   title = '';
@@ -196,7 +196,7 @@ export class Todo extends Entity {
 }
 ```
 
-```ts title=getTodo.ts
+```ts title="getTodo.ts"
 import { Todo } from './Todo';
 
 const getTodo = new RestEndpoint({ path: '/', schema: Todo });

@@ -136,6 +136,7 @@ module.exports = {
       media: 'all',
     }, TODO: figure out how to load this*/
   ],
+  clientModules: [require.resolve('./src/gtagfix.ts')],
   //favicon: 'img/favicon/favicon.ico',
   themes: ['@docusaurus/theme-live-codeblock', '@docusaurus/theme-mermaid'],
   customFields: {

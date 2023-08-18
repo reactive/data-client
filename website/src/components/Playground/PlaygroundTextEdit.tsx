@@ -1,4 +1,5 @@
 import type { Fixture, FixtureEndpoint, Interceptor } from '@data-client/test';
+import { parseCodeBlockTitle } from '@docusaurus/theme-common/internal';
 import Translate from '@docusaurus/Translate';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo, useReducer, useState } from 'react';
@@ -105,6 +106,18 @@ interface PlaygroundProps {
   isPlayground?: boolean;
 }
 
+const codeBlockCollapsedRegex = /collapsed(?=)(?<collapsed>.*?)\1/;
+const codeBlockPathRegex = /path=(?<quote>["'])(?<path>.*?)\1/;
+function parseCodeBlockCollapsed(metastring?: string): boolean {
+  return metastring?.match(codeBlockCollapsedRegex)?.groups!.collapsed !==
+    undefined
+    ? true
+    : false;
+}
+function parseCodeBlockPath(metastring?: string): string {
+  return metastring?.match(codeBlockPathRegex)?.groups!.title ?? '';
+}
+
 export function useCode(children) {
   const codeTabs: {
     code: string;
@@ -122,13 +135,20 @@ export function useCode(children) {
           ? child.props
           : child.props.children.props,
       )
-      .map(({ children, title = '', collapsed = false, path, ...rest }) => ({
-        code: children.replace(/\n$/, ''),
-        title: title.replaceAll('"', ''),
-        collapsed,
-        path,
-        ...rest,
-      }));
+      .map(({ children, metastring = '', ...rest }) => {
+        const title = parseCodeBlockTitle(metastring) ?? '';
+        const collapsed = parseCodeBlockCollapsed(metastring) ?? false;
+        const path = parseCodeBlockPath(metastring);
+        const highlights = /\{([\d\-,.]+)\}/.exec(metastring)?.[1];
+        return {
+          code: children.replace(/\n$/, ''),
+          title,
+          collapsed,
+          path,
+          highlights,
+          ...rest,
+        };
+      });
   }, [children]);
 
   const [codes, dispatch] = useReducer(reduceCodes, undefined, () =>

@@ -151,13 +151,13 @@ function PostPage() {
   return (
     <div>
       {posts.map(post => (
-        <div>
+        <div key={post.pk()}>
           <h4>
             {post.title} - <cite>{post.author.name}</cite>
           </h4>
           <ul>
             {post.comments.map(comment => (
-              <li>
+              <li key={comment.pk()}>
                 {comment.content}{' '}
                 <small>
                   <cite>
@@ -453,7 +453,7 @@ export default function PostPage({ setRoute }) {
   return (
     <div>
       {posts.map(post => (
-        <div>
+        <div key={post.pk()}>
           <h4>
             {post.title} -{' '}
             <cite
@@ -465,7 +465,7 @@ export default function PostPage({ setRoute }) {
           </h4>
           <ul>
             {post.comments.map(comment => (
-              <li>
+              <li key={comment.pk()}>
                 {comment.content}{' '}
                 <small>
                   <cite

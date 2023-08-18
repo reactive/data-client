@@ -29,6 +29,8 @@ export default function StackBlitz({
   const src = `https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/${app}?${params}`;
   const [frameRef, hasIntersected] = useHasIntersected<HTMLIFrameElement>();
 
+  /* This was causing CORS issues....we probably don't need anymore since we have the\
+  intersection code anyway
   useEffect(() => {
     if (!hasIntersected) return;
     const loadListener = () => {
@@ -39,7 +41,7 @@ export default function StackBlitz({
     };
     frameRef.current?.addEventListener('load', loadListener);
     return () => frameRef.current?.removeEventListener('load', loadListener);
-  }, [hasIntersected, frameRef]);
+  }, [hasIntersected, frameRef]);*/
 
   if (!hasIntersected) {
     return <iframe width={width} height={height} ref={frameRef}></iframe>;

@@ -22,9 +22,7 @@ import Link from '@docusaurus/Link';
 
 <center>
 
-<Link className="button button--secondary" to="./resource">
-  Next: Define Data »
-</Link>
+<Link className="button button--secondary" to="./resource">Next: Define Data »</Link>
 
 </center>
 
@@ -33,9 +31,7 @@ import Link from '@docusaurus/Link';
 <StackBlitz app="todo-app" file="src/RootProvider.tsx" view="both" ctl="1" />
 
 <p style={{textAlign: 'center'}}>
-<Link className="button button--secondary" to="/demos">
-More Demos
-</Link>
+<Link className="button button--secondary" to="/demos">More Demos</Link>
 </p>
 
 ## Supported Tools
