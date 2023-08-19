@@ -411,7 +411,7 @@ and [body](#body).
 
 :::
 
-### searchParams: \{ [key:string]: string|number|boolean } {#searchParams}
+### searchParams: \{ [key\:string]: string|number|boolean } {#searchParams}
 
 `searchParams` can be to specify types extra parameters, used for the GET searchParams/queryParams in a [url()](#url).
 
@@ -711,7 +711,12 @@ of failure or success), the optimistic update will be replaced with the actual n
 
 [Optimistic update guide](guides/optimistic-updates.md)
 
-### update(normalizedResponseOfThis, ...args) => (\{ [endpointKey]: (normalizedResponseOfEndpointToUpdate) => updatedNormalizedResponse) }) {#update}
+### update() {#update}
+
+```ts
+(normalizedResponseOfThis, ...args) =>
+  ({ [endpointKey]: (normalizedResponseOfEndpointToUpdate) => updatedNormalizedResponse) })
+```
 
 :::tip
 

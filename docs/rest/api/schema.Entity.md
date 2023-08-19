@@ -84,7 +84,7 @@ class ThreadEntity extends schema.Entity(Thread, {
 
 Specifies the [Entity.key](./Entity.md#key)
 
-### schema: \{[k:string]: Schema}  {#schema}
+### schema: \{[k\:string]: Schema}  {#schema}
 
 Specifies the [Entity.schema](./Entity.md#schema)
 
