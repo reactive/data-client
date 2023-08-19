@@ -1991,11 +1991,11 @@ interface CustomResource<R extends ResourceInterface, O extends ResourceGenerics
     path: ResourcePath;
     schema: any;
 }, Get extends PartialRestGenerics | {} = any, GetList extends PartialRestGenerics | {} = any, Update extends PartialRestGenerics | {} = any, PartialUpdate extends PartialRestGenerics | {} = any, Delete extends PartialRestGenerics | {} = any> extends Extendable<O> {
-    get: unknown extends Get ? R['get'] : RestExtendedEndpoint<Get, R['get']>;
-    getList: unknown extends GetList ? R['getList'] : RestExtendedEndpoint<GetList, R['getList']>;
-    update: unknown extends Update ? R['update'] : RestExtendedEndpoint<Update, R['update']>;
-    partialUpdate: unknown extends PartialUpdate ? R['partialUpdate'] : RestExtendedEndpoint<PartialUpdate, R['partialUpdate']>;
-    delete: unknown extends Delete ? R['delete'] : RestExtendedEndpoint<Delete, R['delete']>;
+    get: unknown extends Get ? R['get'] : PartialRestGenerics extends Get ? R['get'] : RestExtendedEndpoint<Get, R['get']>;
+    getList: unknown extends GetList ? R['getList'] : PartialRestGenerics extends GetList ? R['getList'] : RestExtendedEndpoint<GetList, R['getList']>;
+    update: unknown extends Update ? R['update'] : PartialRestGenerics extends Update ? R['update'] : RestExtendedEndpoint<Update, R['update']>;
+    partialUpdate: unknown extends PartialUpdate ? R['partialUpdate'] : PartialRestGenerics extends PartialUpdate ? R['partialUpdate'] : RestExtendedEndpoint<PartialUpdate, R['partialUpdate']>;
+    delete: unknown extends Delete ? R['delete'] : PartialRestGenerics extends Delete ? R['delete'] : RestExtendedEndpoint<Delete, R['delete']>;
 }
 type ExtendedResource<R extends ResourceInterface, T extends Record<string, EndpointInterface>> = Omit<R, keyof T> & T;
 interface ResourceEndpointExtensions<R extends ResourceInterface, Get extends PartialRestGenerics = any, GetList extends PartialRestGenerics = any, Update extends PartialRestGenerics = any, PartialUpdate extends PartialRestGenerics = any, Delete extends PartialRestGenerics = any> {
