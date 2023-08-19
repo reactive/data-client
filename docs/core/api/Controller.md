@@ -175,7 +175,7 @@ An [example](https://stackblitz.com/github/data-client/rest-hooks/tree/master/ex
 },
 ```
 
-## expireAll({ testKey }) {#expireAll}
+## expireAll(\{ testKey }) {#expireAll}
 
 Sets all responses' [expiry status](../concepts/expiry-policy.md) matching `testKey` to [Stale](../concepts/expiry-policy.md#stale).
 
@@ -253,7 +253,7 @@ controller.setResponse(MyResource.delete, { id: '5' }, { id: '5' });
 
 :::
 
-## invalidateAll({ testKey }) {#invalidateAll}
+## invalidateAll(\{ testKey }) {#invalidateAll}
 
 [Invalidates](../concepts/expiry-policy#invalid) all [endpoint keys](/rest/api/RestEndpoint#key) matching `testKey`.
 
@@ -374,7 +374,7 @@ would be much more robust.
 
 Stores the result of [Endpoint](/rest/api/Endpoint) and args as the error provided.
 
-## resolve(endpoint, { args, response, fetchedAt, error }) {#resolve}
+## resolve(endpoint, \{ args, response, fetchedAt, error }) {#resolve}
 
 Resolves a specific fetch, storing the `response` in cache.
 

@@ -20,7 +20,7 @@ This makes them well suited at handling mutations. You can add to [Array](./Arra
 [Values](./Values.md) `Collections` with [.assign](#assign).
 
 [RestEndpoint](./RestEndpoint.md) provides [.push](./RestEndpoint.md#push), [.unshift](./RestEndpoint.md#unshift), [.assign](./RestEndpoint.md#assign)
-and [.getPage](./RestEndpoint.md#getpage)/[.paginated()](./RestEndpoint.md#paginated) extenders when using `Collections`
+and [.getPage](./RestEndpoint.md#getpage)/ [.paginated()](./RestEndpoint.md#paginated) extenders when using `Collections`
 
 ## Usage
 

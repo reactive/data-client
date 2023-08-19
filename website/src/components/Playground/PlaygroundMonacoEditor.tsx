@@ -1,15 +1,7 @@
 import Editor, { type OnMount } from '@monaco-editor/react';
-import type { ISelection, languages } from 'monaco-editor';
+import type { ISelection } from 'monaco-editor';
 import rangeParser from 'parse-numeric-range';
-import React, {
-  memo,
-  useMemo,
-  useCallback,
-  useState,
-  useEffect,
-  useRef,
-  MutableRefObject,
-} from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import { LiveEditor } from 'react-live';
 import './monaco-init';
 import type * as Monaco from 'monaco-editor';
@@ -22,6 +14,7 @@ export default function PlaygroundMonacoEditor({
   path,
   onFocus,
   tabIndex,
+  highlights,
   autoFocus = false,
   large = false,
   ...rest
@@ -42,22 +35,19 @@ export default function PlaygroundMonacoEditor({
     },
     [onChange, path],
   );*/
-  const [height, setHeight] = useState<string | number>('100%');
+  const [height, setHeight] = useState<string | number>('500');
   const handleMount = useCallback(
     (editor: Monaco.editor.ICodeEditor, monaco: typeof Monaco) => {
       // autofocus
       if (autoFocus) editor.focus();
       // autohighlight
-      const highlights = Object.keys(rest)
-        .map(key => /\{([\d\-,.]+)\}/.exec(key)?.[1])
-        .filter(Boolean)
-        .map(rangeParser);
+      const myhighlights = highlights && rangeParser(highlights);
 
-      if (highlights.length) {
-        let selectionStartLineNumber = highlights[0][0];
+      if (highlights) {
+        let selectionStartLineNumber = myhighlights[0];
         let positionLineNumber = selectionStartLineNumber;
         const selections: ISelection[] = [];
-        highlights[0].forEach(lineNumber => {
+        myhighlights.forEach(lineNumber => {
           // more of same selection
           if (lineNumber === positionLineNumber) {
             positionLineNumber++;

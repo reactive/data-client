@@ -150,24 +150,3 @@ problems in asynchronous programming.
 [useLoading()](../api/useLoading.md) enhances async functions by tracking their loading and error states.
 
 <UseLoading />
-
-React 18 version with [useTransition](https://react.dev/reference/react/useTransition)
-
-```tsx
-import { useTransition } from 'react';
-import { useController } from '@data-client/react';
-import { PostResource } from './PostResource';
-import PostForm from './PostForm';
-
-export default function PostCreate({ setId }) {
-  const ctrl = useController();
-  const [loading, startTransition] = useTransition();
-  const handleSubmit = data =>
-    // highlight-next-line
-    startTransition(async () => {
-      const post = await ctrl.fetch(PostResource.getList.push, data);
-      setId(post.id);
-    });
-  return <PostForm onSubmit={handleSubmit} loading={loading} error={error} />;
-}
-```

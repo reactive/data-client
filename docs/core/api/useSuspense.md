@@ -271,7 +271,7 @@ When entities are stored in [nested structures](/rest/guides/relational-data#nes
 
 <TypeScriptEditor row={false}>
 
-```typescript title="api/Post
+```typescript title="api/Post"
 export class PaginatedPost extends Entity {
   id = '';
   title = '';

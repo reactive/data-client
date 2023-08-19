@@ -1,5 +1,8 @@
 import HooksPlayground from '@site/src/components/HooksPlayground';
-import { postFixtures,getInitialInterceptorData } from '@site/src/fixtures/posts';
+import {
+  postFixtures,
+  getInitialInterceptorData,
+} from '@site/src/fixtures/posts';
 
 <HooksPlayground fixtures={postFixtures} getInitialInterceptorData={getInitialInterceptorData} row>
 
@@ -49,7 +52,7 @@ export default function PostDetail({ id }) {
 ```
 
 ```tsx title="PostForm" collapsed
-export default function PostForm({ onSubmit, loading, error }) {
+export default function PostForm({ onSubmit, loading, error }: Props) {
   const handleSubmit = e => {
     e.preventDefault();
     const data = new FormData(e.target);
@@ -60,18 +63,17 @@ export default function PostForm({ onSubmit, loading, error }) {
       <label>
         Title:
         <br />
-        <input type="text" name="title" defaultValue="My New Post"
-          required />
+        <input type="text" name="title" defaultValue="My New Post" required />
       </label>
       <br />
       <label>
         Body:
         <br />
         <textarea name="body" rows={12} required>
-          After clicking 'save', the button will be disabled until
-          the POST is completed. Upon completion the newly created
-          post is displayed immediately as Reactive Data Client is
-          able to use the fetch response to populate the store.
+          After clicking 'save', the button will be disabled until the POST is
+          completed. Upon completion the newly created post is displayed
+          immediately as Reactive Data Client is able to use the fetch response
+          to populate the store.
         </textarea>
       </label>
       {error ? (
@@ -85,25 +87,28 @@ export default function PostForm({ onSubmit, loading, error }) {
     </form>
   );
 }
+interface Props {
+  onSubmit: (data: any) => any;
+  loading: boolean;
+  error?: any;
+}
 ```
 
 ```tsx title="PostCreate" {8}
 import { useController } from '@data-client/react';
-import { useLoading } from '@data-client/hooks';
 import { PostResource } from './PostResource';
 import PostForm from './PostForm';
 
 export default function PostCreate({ navigateToPost }) {
   const ctrl = useController();
-  const [handleSubmit, loading, error] = useLoading(
-    async data => {
-      const post = await ctrl.fetch(PostResource.getList.push, data);
+  const [loading, startTransition] = React.useTransition();
+  const handleSubmit = async data => {
+    const post = await ctrl.fetch(PostResource.getList.push, data);
+    startTransition(() => {
       navigateToPost(post.id);
-    },
-    [ctrl],
-  );
-  return <PostForm onSubmit={handleSubmit} loading={loading}
-    error={error} />;
+    });
+  };
+  return <PostForm onSubmit={handleSubmit} loading={loading} />;
 }
 ```
 
