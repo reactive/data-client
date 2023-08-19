@@ -1,5 +1,28 @@
 # Change Log
 
+## 7.4.3
+
+### Patch Changes
+
+- 7436b43f78: Fix Resource.extend() for builtin endpoints with zero typing options
+
+  ```ts
+  const RatingResource = createResource({
+    path: '/ratings/:id',
+    schema: Rating,
+  }).extend({
+    getList: {
+      dataExpiryLength: 10 * 60 * 1000, // 10 minutes
+    },
+  });
+  ```
+
+  This would previously break the types of RatingResource.getList.
+  This would only occur because dataExpiryLength is not a type-influencing option.
+
+- Updated dependencies [7436b43f78]
+  - @data-client/rest@0.7.4
+
 ## 7.4.2
 
 ### Patch Changes
