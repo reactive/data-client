@@ -120,7 +120,7 @@ const TodoResource = createResource({
 
 ### Collection
 
-Class used to construct [getList](#getlist) schema.
+[Collection Class](./Collection.md) used to construct [getList](#getlist) schema.
 
 ```ts
 import { schema, createResource } from '@data-client/rest';
@@ -129,14 +129,15 @@ class MyCollection<
   S extends any[] | PolymorphicInterface = any,
   Parent extends any[] = [urlParams: any, body?: any],
 > extends schema.Collection<S, Parent> {
-  // getList.push should add to Collections regardless of its 'sorted' argument
+  // getList.push should add to Collections regardless of its 'orderBy' argument
+  // in other words: `orderBy` is a non-filtering argument - it does not influence which results are returned
   nonFilterArgumentKeys(key: string) {
-    return key === 'sorted';
+    return key === 'orderBy';
   }
 }
 const TodoResource = createResource({
   path: '/todos/:id',
-  searchParams: {} as { userId?: string; sorted?: boolean } | undefined,
+  searchParams: {} as { userId?: string; orderBy?: string } | undefined,
   schema: Todo,
   // highlight-next-line
   Collection: MyCollection,
@@ -194,7 +195,7 @@ Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidat
 
 ### getList.push {#push}
 
-Creates a new entity and pushes it to the end of getList.
+[push](./RestEndpoint.md#push) creates a new entity and pushes it to the end of getList.
 
 - method: 'POST'
 - path: `shortenPath(path)`
@@ -213,7 +214,7 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ### getList.unshift {#unshift}
 
-Creates a new entity and pushes it to the beginning of getList.
+[unshift](./RestEndpoint.md#unshift) creates a new entity and pushes it to the beginning of getList.
 
 - method: 'POST'
 - path: `shortenPath(path)`
@@ -232,7 +233,7 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ### getList.getPage {#getpage}
 
-Retrieves another [page](../guides/pagination.md#infinite-scrolling) appending to getList ensuring there are no duplicates.
+[getPage](./RestEndpoint.md#getpage) retrieves another [page](../guides/pagination.md#infinite-scrolling) appending to getList ensuring there are no duplicates.
 
 - method: 'GET'
 - args: `shortenPath(path) & { [paginationField]: string | number } & searchParams`
