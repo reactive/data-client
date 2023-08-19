@@ -355,6 +355,23 @@ describe('createResource()', () => {
     expect(result.current[1][1].username).toBe('newbob');
   });
 
+  it('can override with no generics', async () => {
+    const UserResource = createResource({
+      path: 'http\\://test.com/groups/:group/users/:id',
+      schema: User,
+      paginationField: 'cursor',
+    }).extend({
+      getList: {
+        dataExpiryLength: 10 * 60 * 1000,
+      },
+    });
+
+    const a: undefined = UserResource.getList.sideEffect;
+    // @ts-expect-error
+    const b: true = UserResource.getList.sideEffect;
+    () => useSuspense(UserResource.getList, { group: 'hi' });
+  });
+
   it('can override resource endpoints (function form)', async () => {
     const UserResource = createResource({
       path: 'http\\://test.com/groups/:group/users/:id',
