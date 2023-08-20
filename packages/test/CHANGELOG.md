@@ -1,5 +1,11 @@
 # @data-client/test
 
+## 0.3.1
+
+### Patch Changes
+
+- ccaf9411c2: Support 0.4 @data-client/react
+
 ## 0.3.0
 
 ### Minor Changes

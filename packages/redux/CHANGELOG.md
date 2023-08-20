@@ -1,5 +1,11 @@
 # @data-client/redux
 
+## 0.2.2
+
+### Patch Changes
+
+- ccaf9411c2: Support 0.4 @data-client/react
+
 ## 0.2.1
 
 ### Patch Changes
