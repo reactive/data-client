@@ -1,5 +1,11 @@
 # @data-client/ssr
 
+## 0.2.1
+
+### Patch Changes
+
+- 15d5cc02ec: Support @data-client/react@0.4.0
+
 ## 0.2.0
 
 ### Minor Changes
