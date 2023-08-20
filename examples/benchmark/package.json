@@ -8,7 +8,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "18"
+    "node": ">=18"
   },
   "scripts": {
     "build": "BROWSERSLIST_ENV=node18 webpack --mode=production --target=node --env readable",

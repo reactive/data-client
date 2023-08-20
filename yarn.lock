@@ -3038,7 +3038,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/endpoint@^0.2.0, @data-client/endpoint@^0.2.4, @data-client/endpoint@^0.2.6, @data-client/endpoint@workspace:^, @data-client/endpoint@workspace:packages/endpoint":
+"@data-client/endpoint@^0.2.0, @data-client/endpoint@^0.2.6, @data-client/endpoint@workspace:^, @data-client/endpoint@workspace:packages/endpoint":
   version: 0.0.0-use.local
   resolution: "@data-client/endpoint@workspace:packages/endpoint"
   dependencies:
@@ -3048,7 +3048,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/graphql@^0.2.0, @data-client/graphql@^0.2.2, @data-client/graphql@workspace:packages/graphql":
+"@data-client/graphql@^0.2.2, @data-client/graphql@workspace:packages/graphql":
   version: 0.0.0-use.local
   resolution: "@data-client/graphql@workspace:packages/graphql"
   dependencies:
@@ -3154,7 +3154,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/rest@^0.7.0, @data-client/rest@^0.7.4, @data-client/rest@workspace:packages/rest":
+"@data-client/rest@^0.7.4, @data-client/rest@workspace:packages/rest":
   version: 0.0.0-use.local
   resolution: "@data-client/rest@workspace:packages/rest"
   dependencies:
@@ -11227,10 +11227,10 @@ __metadata:
     "@anansi/webpack-config": 15.0.31
     "@ant-design/icons": ^5.0.0
     "@babel/core": 7.22.9
-    "@data-client/graphql": ^0.2.0
+    "@data-client/graphql": ^0.2.2
     "@data-client/hooks": ^0.1.1
-    "@data-client/react": ^0.4.0
-    "@data-client/rest": ^0.7.0
+    "@data-client/react": ^0.4.1
+    "@data-client/rest": ^0.7.4
     "@linaria/babel-preset": 4.4.5
     "@linaria/core": 4.2.10
     "@linaria/react": 4.3.8
@@ -15576,9 +15576,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "next-app@workspace:examples/nextjs"
   dependencies:
-    "@data-client/react": ^0.4.0
+    "@data-client/react": ^0.4.1
     "@data-client/redux": ^0.2.1
-    "@data-client/rest": ^0.7.0
+    "@data-client/rest": ^0.7.4
     "@data-client/ssr": ^0.2.0
     "@data-client/test": ^0.3.0
     "@types/node": 20.4.5
@@ -21204,9 +21204,9 @@ __metadata:
     "@anansi/browserslist-config": 1.4.3
     "@anansi/webpack-config": 15.0.31
     "@babel/core": 7.22.9
-    "@data-client/endpoint": ^0.2.4
-    "@data-client/react": ^0.4.0
-    "@data-client/rest": ^0.7.0
+    "@data-client/endpoint": ^0.2.6
+    "@data-client/react": ^0.4.1
+    "@data-client/rest": ^0.7.4
     "@linaria/babel-preset": 4.4.5
     "@linaria/core": 4.2.10
     "@linaria/react": 4.3.8
