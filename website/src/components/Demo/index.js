@@ -58,7 +58,7 @@ const Demo = props => (
           <p>
             Model even the most complex data with{' '}
             <Link to="/rest/api/Union">polymorphic</Link> and{' '}
-            <Link to="/rest/api/Union">unbounded object/maps</Link> support.
+            <Link to="/rest/api/Values">unbounded object/maps</Link> support.
           </p>
         </div>
       </div>
@@ -76,9 +76,11 @@ const Demo = props => (
           </p>
           <p>
             <Link to="/docs/api/PollingSubscription">Polling</Link>,{' '}
-            <Link to="/docs/api/Manager#data-stream">SSE and Websocket</Link> or
-            support a custom protocol with{' '}
-            <Link to="/docs/api/Manager">middlewares</Link>
+            <Link to="/docs/concepts/managers#data-stream">
+              SSE and Websocket
+            </Link>{' '}
+            or support a custom protocol with{' '}
+            <Link to="/docs/concepts/managers">middlewares</Link>
           </p>
         </div>
       </div>
