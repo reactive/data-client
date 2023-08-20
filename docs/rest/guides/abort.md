@@ -41,7 +41,9 @@ import { useCancelling } from '@data-client/hooks';
 import { TodoResource } from './api/Todo';
 
 export default function TodoDetail({ id }: { id: number }) {
-  const todo = useSuspense(useCancelling(TodoResource.get, { id }), { id });
+  const todo = useSuspense(useCancelling(TodoResource.get, { id }), {
+    id,
+  });
   return <div>{todo.title}</div>;
 }
 ```
@@ -58,8 +60,10 @@ function AbortDemo() {
         <TodoDetail id={id} />
       </React.Suspense>
       <div>
-        <button  onClick={() => setId(id => Math.max(id - 1, 1))}>«</button>
-        {id}{' '}&nbsp;
+        <button onClick={() => setId(id => Math.max(id - 1, 1))}>
+          «
+        </button>
+        {id} &nbsp;
         <button onClick={() => setId(id => id + 1)}>»</button>
       </div>
     </div>

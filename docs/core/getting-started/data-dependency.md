@@ -155,7 +155,9 @@ import PostDetail from './PostDetail';
 function Navigation() {
   const [route, setRoute] = React.useState('list');
   if (route.startsWith('detail'))
-    return <PostDetail setRoute={setRoute} id={route.split('/')[1]} />;
+    return (
+      <PostDetail setRoute={setRoute} id={route.split('/')[1]} />
+    );
 
   return <PostList setRoute={setRoute} />;
 }

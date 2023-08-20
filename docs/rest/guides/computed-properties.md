@@ -74,7 +74,6 @@ class User extends Entity {
 
 :::
 
-
 ## Global computations
 
 [Query](../api/Query.md) can be used for computations of derived data from more than
@@ -114,7 +113,7 @@ import { UserResource, User } from './api/User';
 
 const getUserCount = new Query(
   new schema.All(User),
-  (entries, { isAdmin } = { }) => {
+  (entries, { isAdmin } = {}) => {
     if (isAdmin !== undefined)
       return entries.filter(user => user.isAdmin === isAdmin).length;
     return entries.length;
@@ -125,15 +124,12 @@ function UsersPage() {
   useFetch(UserResource.getList);
   const userCount = useCache(getUserCount);
   const adminCount = useCache(getUserCount, { isAdmin: true });
-  if (userCount === undefined) return <div>No users in cache yet</div>;
+  if (userCount === undefined)
+    return <div>No users in cache yet</div>;
   return (
     <div>
-    <div>
-      Total users: {userCount}
-    </div>
-    <div>
-      Total admins: {adminCount}
-    </div>
+      <div>Total users: {userCount}</div>
+      <div>Total admins: {adminCount}</div>
     </div>
   );
 }

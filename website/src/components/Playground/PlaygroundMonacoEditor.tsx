@@ -35,7 +35,7 @@ export default function PlaygroundMonacoEditor({
     },
     [onChange, path],
   );*/
-  const [height, setHeight] = useState<string | number>('500');
+  const [height, setHeight] = useState<string | number>('1000');
   const handleMount = useCallback(
     (editor: Monaco.editor.ICodeEditor, monaco: typeof Monaco) => {
       // autofocus

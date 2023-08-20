@@ -57,7 +57,10 @@ function AssetPrice({ symbol }: Props) {
   return (
     <center>
       {symbol}{' '}
-      <Formatted value={1 / price.rates[symbol]} formatter="currency" />
+      <Formatted
+        value={1 / price.rates[symbol]}
+        formatter="currency"
+      />
     </center>
   );
 }
@@ -93,7 +96,11 @@ function useLive(
 
 ```typescript
 function useLive<
-  E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
+  E extends EndpointInterface<
+    FetchFunction,
+    Schema | undefined,
+    undefined
+  >,
   Args extends readonly [...Parameters<E>] | readonly [null],
 >(
   endpoint: E,

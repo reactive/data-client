@@ -21,7 +21,7 @@ import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
 [Entities](/rest/api/Entity) and [Schemas](../concepts/normalization.md) declaratively define the _data model_.
 [Endpoints](/rest/api/RestEndpoint) are the [_methods_](<https://en.wikipedia.org/wiki/Method_(computer_programming)>) on
-that data. 
+that data.
 
 <Tabs
 defaultValue="rest"
@@ -60,7 +60,6 @@ export const TodoResource = createResource({
   paginationField: 'page',
 });
 
-
 /** Methods provided */
 
 // GET https://jsonplaceholder.typicode.com/todos/5
@@ -82,7 +81,6 @@ TodoResource.partialUpdate({ id: 5 }, { title: 'my todo' });
 // DELETE https://jsonplaceholder.typicode.com/todos/5
 TodoResource.delete({ id: 5 });
 ```
-
 
 </TypeScriptEditor>
 
@@ -153,12 +151,14 @@ export class Todo {
 
 /* These are just examples but it could be any promise API */
 export const getTodo = (id: string) =>
-  fetch(`https://jsonplaceholder.typicode.com/todos/${id}`).then(res =>
-    res.json(),
+  fetch(`https://jsonplaceholder.typicode.com/todos/${id}`).then(
+    res => res.json(),
   );
 
 export const getTodoList = () =>
-  fetch('https://jsonplaceholder.typicode.com/todos').then(res => res.json());
+  fetch('https://jsonplaceholder.typicode.com/todos').then(res =>
+    res.json(),
+  );
 
 export const updateTodo = (id: string, body: Partial<Todo>) =>
   fetch(`https://jsonplaceholder.typicode.com/todos/${id}`, {
@@ -203,7 +203,10 @@ export const TodoResource = {
   getList: new Endpoint(getTodoList, {
     schema: new schema.Collection([TodoEntity]),
   }),
-  update: new Endpoint(updateTodo, { schema: TodoEntity, sideEffect: true }),
+  update: new Endpoint(updateTodo, {
+    schema: TodoEntity,
+    sideEffect: true,
+  }),
   partialUpdate: new Endpoint(partialUpdateTodo, {
     schema: TodoEntity,
     sideEffect: true,
