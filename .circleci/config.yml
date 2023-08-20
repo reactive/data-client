@@ -114,6 +114,26 @@ jobs:
             cd examples/normalizr-relationships
             yarn run start
 
+  setup-examples:
+    docker: *docker
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: npm install
+          command: |
+            cd examples/todo-app
+            npm install
+            cd ../github-app
+            npm install
+            cd ../nextjs
+            npm install
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project
+
   esmodule-types:
     parameters:
       typescript-version:
@@ -174,7 +194,7 @@ jobs:
       - run:
           command: |
             cd examples/todo-app
-            yarn run build:browser --env readable
+            npm run build:browser -- --env readable
 
 workflows:
   version: 2
@@ -202,9 +222,12 @@ workflows:
       - examples:
           requires:
             - setup
-      - validate-esmodule-browser-build:
+      - setup-examples:
           requires:
             - setup
+      - validate-esmodule-browser-build:
+          requires:
+            - setup-examples
       - esmodule-types:
           matrix:
             parameters:
@@ -215,10 +238,10 @@ workflows:
               # 4.7 (but its broken so we do 4.8) lets you apply a generic type to a function type to see its return value
               typescript-version: ["~4.0", "~4.1", "~4.3", "~4.8", "latest"]
           requires:
-            - setup
+            - setup-examples
       - esmodule-loosenulltypes:
           requires:
-            - setup
+            - setup-examples
       - esmodule-exactOptionalPropertyTypes:
           requires:
-            - setup
+            - setup-examples

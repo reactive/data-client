@@ -15,6 +15,7 @@ const generateConfig = makeConfig(options);
 
 module.exports = (env, argv) => {
   const config = generateConfig(env, argv);
+  config.entry = config.entry.App;
   return config;
 };
 

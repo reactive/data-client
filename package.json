@@ -3,7 +3,8 @@
   "workspaces": [
     "packages/*",
     "proxy-pkgs/*",
-    "examples/*"
+    "examples/benchmark",
+    "examples/normalizr-*"
   ],
   "scripts": {
     "changeset:version": "run changeset version && YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install",

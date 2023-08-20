@@ -2503,19 +2503,19 @@ __metadata:
   linkType: hard
 
 "@data-client/rest@file:../packages/rest::locator=root-workspace-0b6124%40workspace%3A.":
-  version: 0.7.3
-  resolution: "@data-client/rest@file:../packages/rest#../packages/rest::hash=6d0c7b&locator=root-workspace-0b6124%40workspace%3A."
+  version: 0.7.4
+  resolution: "@data-client/rest@file:../packages/rest#../packages/rest::hash=6e9db4&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@data-client/endpoint": ^0.2.6
     path-to-regexp: ^6.2.1
-  checksum: 475a8596c9d249770a614d92f250ede6acbc715b914e8eedc47ab9115fcb27d1b2d64971a6cb1133a6ca0fa7582107f037e1f93ffa5ea00fcca82be39fc1ab9f
+  checksum: cd2ad9e54a2121e89a780410c049ad51bde45e1aef0cc29e1f9b17676baa1dbcf542bcf5993eb980f21c98c361a255cd60ad41a6c7b5e6735f190364137b19b1
   languageName: node
   linkType: hard
 
 "@data-client/test@file:../packages/test::locator=root-workspace-0b6124%40workspace%3A.":
-  version: 0.3.0
-  resolution: "@data-client/test@file:../packages/test#../packages/test::hash=7466a8&locator=root-workspace-0b6124%40workspace%3A."
+  version: 0.3.1
+  resolution: "@data-client/test@file:../packages/test#../packages/test::hash=d51c3b&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@testing-library/react": ^14.0.0
@@ -2546,7 +2546,7 @@ __metadata:
       optional: true
     react-test-renderer:
       optional: true
-  checksum: 919edac2134c1371f795e3180d87e31511348df0af59bffbe59fdf00bedfb1078e76a230e6c90c83223b608264482a7b0c40b10c5133b763a0ce5983f6e09f12
+  checksum: 520153f3301d099624bb1155452db209874b03894ef990325976a9e6c2d60bce7f5ca6142fed1e076846fd076c8b55d31ecbf2b008d602ac242f8ff434a0fced
   languageName: node
   linkType: hard
 
@@ -6028,6 +6028,13 @@ __metadata:
   peerDependencies:
     webpack: ">=4.0.1"
   checksum: d1a51e7f86e72d9e7a08c47234511cc7a5c3050781c2d6dcc77c0b22214f94f272702488c952e59b2af589c67944160ad1c9c0b7b3e0d4f89222f2a27ebf085e
+  languageName: node
+  linkType: hard
+
+"classnames@npm:^2.3.2":
+  version: 2.3.2
+  resolution: "classnames@npm:2.3.2"
+  checksum: 2c62199789618d95545c872787137262e741f9db13328e216b093eea91c85ef2bfb152c1f9e63027204e2559a006a92eb74147d46c800a9f96297ae1d9f96f4e
   languageName: node
   linkType: hard
 
@@ -14878,6 +14885,7 @@ __metadata:
     "@types/react-router-dom": ^5.3.3
     "@types/uuid": ^9
     bignumber.js: 9.1.1
+    classnames: ^2.3.2
     clsx: 1.2.1
     monaco-editor: ^0.40.0
     parse-numeric-range: ^1.3.0
