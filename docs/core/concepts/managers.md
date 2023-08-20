@@ -32,7 +32,7 @@ like automatic fetch deduplication, polling fetch coordinating eliminating many 
 
 It also means Reactive Data Client behavior can be arbitrarily customized by writing your own Managers.
 
-| Default managers                                     |
+| Default managers                                     | |
 | ---------------------------------------------------- | ------------------------------------------------------------------------------------ |
 | [NetworkManager](../api/NetworkManager.md)           | Turns fetch dispatches into network calls                                            |
 | [SubscriptionManager](../api/SubscriptionManager.md) | Handles polling [subscriptions](../getting-started/data-dependency.md#subscriptions) |
