@@ -4,7 +4,8 @@
     "packages/*",
     "proxy-pkgs/*",
     "examples/benchmark",
-    "examples/normalizr-*"
+    "examples/normalizr-*",
+    "website"
   ],
   "scripts": {
     "changeset:version": "run changeset version && YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install",

@@ -1,4 +1,7 @@
 {
+  "private": true,
+  "name": "website",
+  "version": "0.1.0",
   "scripts": {
     "examples": "docusaurus-examples",
     "start": "NODE_OPTIONS=--openssl-legacy-provider docusaurus start",
@@ -28,12 +31,12 @@
   "dependencies": {
     "@anansi/browserslist-config": "1.4.3",
     "@anansi/webpack-config": "15.0.31",
-    "@data-client/endpoint": "file:../packages/endpoint",
-    "@data-client/graphql": "file:../packages/graphql",
-    "@data-client/hooks": "file:../packages/hooks",
-    "@data-client/react": "file:../packages/react",
-    "@data-client/rest": "file:../packages/rest",
-    "@data-client/test": "file:../packages/test",
+    "@data-client/endpoint": "workspace:^",
+    "@data-client/graphql": "workspace:*",
+    "@data-client/hooks": "workspace:*",
+    "@data-client/react": "workspace:*",
+    "@data-client/rest": "workspace:*",
+    "@data-client/test": "workspace:*",
     "@docusaurus/core": "canary",
     "@docusaurus/plugin-client-redirects": "canary",
     "@docusaurus/plugin-content-docs": "canary",
@@ -50,27 +53,11 @@
     "react-dom": "^18.2.0",
     "react-json-tree": "0.18.0",
     "react-live": "^4.0.0",
-    "typescript": "next",
+    "typescript": "^5.1.6",
     "uuid": "^9.0.0"
-  },
-  "resolutions": {
-    "@data-client/core": "file:../packages/core",
-    "@data-client/normalizr": "file:../packages/normalizr",
-    "@data-client/use-enhanced-reducer": "file:../packages/use-enhanced-reducer",
-    "@data-client/endpoint": "file:../packages/endpoint",
-    "@data-client/hooks": "file:../packages/hooks",
-    "@data-client/graphql": "file:../packages/graphql",
-    "@data-client/rest": "file:../packages/rest",
-    "@data-client/react": "file:../packages/react",
-    "@data-client/redux": "file:../packages/redux",
-    "@data-client/test": "file:../packages/test"
-  },
-  "msw": {
-    "workerDirectory": "static"
   },
   "browserslist": [
     "extends @anansi/browserslist-config",
     "last 1 years"
-  ],
-  "packageManager": "yarn@3.6.2"
+  ]
 }
