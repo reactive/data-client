@@ -639,7 +639,7 @@ const incrementInterceptor: Interceptor = {
   height="500"
 ></iframe>
 
-[Explore on github](https://github.com/data-client/rest-hooks/tree/master/examples/todo-app)
+[![Explore on GitHub](https://badgen.net/badge/icon/github?icon=github&label)](https://github.com/data-client/rest-hooks/tree/master/examples/todo-app)
 </TabItem>
 
   <TabItem value="github">
@@ -650,7 +650,7 @@ const incrementInterceptor: Interceptor = {
   height="500"
 ></iframe>
 
-[Explore on github](https://github.com/data-client/rest-hooks/tree/master/examples/github-app)
+[![Explore on GitHub](https://badgen.net/badge/icon/github?icon=github&label)](https://github.com/data-client/rest-hooks/tree/master/examples/github-app)
 </TabItem>
   <TabItem value="nextjs">
 
@@ -661,7 +661,7 @@ const incrementInterceptor: Interceptor = {
   height="500"
 ></iframe>
 
-[Explore on github](https://github.com/data-client/rest-hooks/tree/master/examples/nextjs)
+[![Explore on GitHub](https://badgen.net/badge/icon/github?icon=github&label)](https://github.com/data-client/rest-hooks/tree/master/examples/nextjs)
 </TabItem>
 </Tabs>
 

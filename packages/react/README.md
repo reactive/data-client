@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/data-client/data-client/tree/master.svg?style=shield)](https://circleci.com/gh/data-client/data-client)
 [![Coverage Status](https://img.shields.io/codecov/c/gh/data-client/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/data-client/data-client?branch=master)
-[![npm downloads](https://img.shields.io/npm/dm/@data-client/react.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/react)
+[![Percentage of issues still open](https://isitmaintained.com/badge/open/data-client/rest-hooks.svg)](https://github.com/data-client/rest-hooks/issues "Percentage of issues still open")
 [![bundle size](https://img.shields.io/bundlephobia/minzip/@data-client/react?style=flat-square)](https://bundlephobia.com/result?p=@data-client/react)
 [![npm version](https://img.shields.io/npm/v/@data-client/react.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/react)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
@@ -199,7 +199,7 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://da
 
 ## Features
 
-- [x] ![TS](./packages/data-client/typescript.svg?sanitize=true) Strong [Typescript](https://www.typescriptlang.org/) inference
+- [x] ![TS](./typescript.svg?sanitize=true) Strong [Typescript](https://www.typescriptlang.org/) inference
 - [x] 🛌 React [Suspense](https://dataclient.io/docs/getting-started/data-dependency#boundaries) support
 - [x] 🧵 React 18 [Concurrent mode](https://dataclient.io/docs/guides/render-as-you-fetch) compatible
 - [x] 💦 [Partial Hydration Server Side Rendering](https://dataclient.io/docs/guides/ssr)
@@ -225,6 +225,6 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://da
 
 ## Examples
 
-- Todo: [Source](https://github.com/data-client/data-client/tree/master/examples/todo-app) | [Sandbox](https://stackblitz.com/github/data-client/data-client/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx)
-- Github: [Source](https://github.com/data-client/data-client/tree/master/examples/github-app) | [Sandbox](https://stackblitz.com/github/data-client/data-client/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx)
-- NextJS: [Source](https://github.com/data-client/data-client/tree/master/examples/nextjs) | [Sandbox](https://stackblitz.com/github/data-client/data-client/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx)
+- Todo: [![GitHub](https://badgen.net/badge/icon/github?icon=github&label)](https://github.com/data-client/rest-hooks/tree/master/examples/todo-app) | [![Sandbox](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx)
+- Github: [![GitHub](https://badgen.net/badge/icon/github?icon=github&label)](https://github.com/data-client/rest-hooks/tree/master/examples/github-app) | [![Sandbox](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx)
+- NextJS: [![GitHub](https://badgen.net/badge/icon/github?icon=github&label)](https://github.com/data-client/rest-hooks/tree/master/examples/nextjs) | [![Sandbox](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx)
