@@ -82,5 +82,5 @@
     "@linaria/utils": "4.3.4",
     "@linaria/tags": "4.3.5"
   },
-  "packageManager": "yarn@3.6.1"
+  "packageManager": "yarn@3.6.2"
 }
