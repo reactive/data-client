@@ -6,15 +6,11 @@ import { Issue, IssueResource } from 'resources/Issue';
 import IssueListItem from './IssueListItem';
 import NextPage from './NextPage';
 
-export default function IssueList({ owner, repo, page, q }: Props) {
+export default function IssueList({ owner, repo, q }: Props) {
   const {
     results: { items: issues },
     link,
-  } = useSuspense(IssueResource.search, {
-    owner,
-    repo,
-    q,
-  });
+  } = useSuspense(IssueResource.search, { owner, repo, q });
   const nextPage = parseLink(link)?.next?.page;
 
   return (
@@ -35,6 +31,6 @@ export default function IssueList({ owner, repo, page, q }: Props) {
   );
 }
 
-type Props = { owner: string; repo: string; page: string; q: string } & {
+type Props = { owner: string; repo: string; q: string } & {
   state?: Issue['state'];
 };

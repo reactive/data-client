@@ -7,7 +7,6 @@ import IssueList from './IssueList';
 
 export default function IssuePage({ owner, repo }: Props) {
   const search = useLocationSearch();
-  const page = search?.get('page') || '1';
   const q = search?.get('q') || 'is:issue is:open';
 
   return (
@@ -41,7 +40,7 @@ export default function IssuePage({ owner, repo }: Props) {
           },
         ]}
       />
-      <IssueList owner={owner} repo={repo} page={page} q={q} />
+      <IssueList owner={owner} repo={repo} q={q} />
     </>
   );
 }
