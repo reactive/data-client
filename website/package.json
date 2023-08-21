@@ -1,7 +1,6 @@
 {
   "private": true,
-  "name": "website",
-  "version": "0.1.0",
+  "name": "rdc-website",
   "scripts": {
     "examples": "docusaurus-examples",
     "start": "NODE_OPTIONS=--openssl-legacy-provider docusaurus start",

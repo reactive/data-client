@@ -21427,6 +21427,49 @@ __metadata:
   languageName: node
   linkType: hard
 
+"rdc-website@workspace:website":
+  version: 0.0.0-use.local
+  resolution: "rdc-website@workspace:website"
+  dependencies:
+    "@anansi/browserslist-config": 1.4.3
+    "@anansi/webpack-config": 15.0.31
+    "@data-client/endpoint": "workspace:^"
+    "@data-client/graphql": "workspace:*"
+    "@data-client/hooks": "workspace:*"
+    "@data-client/react": "workspace:*"
+    "@data-client/rest": "workspace:*"
+    "@data-client/test": "workspace:*"
+    "@docusaurus/core": canary
+    "@docusaurus/module-type-aliases": canary
+    "@docusaurus/plugin-client-redirects": canary
+    "@docusaurus/plugin-content-docs": canary
+    "@docusaurus/preset-classic": canary
+    "@docusaurus/theme-live-codeblock": canary
+    "@docusaurus/theme-mermaid": canary
+    "@monaco-editor/react": ^4.4.6
+    "@tsconfig/docusaurus": ^2.0.0
+    "@types/react": 18.2.20
+    "@types/react-dom": ^18.2.7
+    "@types/react-helmet": ^6.1.5
+    "@types/react-router-dom": ^5.3.3
+    "@types/uuid": ^9
+    bignumber.js: 9.1.1
+    classnames: ^2.3.2
+    clsx: 1.2.1
+    monaco-editor: ^0.41.0
+    parse-numeric-range: ^1.3.0
+    raw-loader: ^4.0.2
+    react: ^18.2.0
+    react-dom: ^18.2.0
+    react-json-tree: 0.18.0
+    react-live: ^4.0.0
+    serve: 14.2.0
+    typescript: ^5.1.6
+    uuid: ^9.0.0
+    webpack: ^5.76.0
+  languageName: unknown
+  linkType: soft
+
 "react-base16-styling@npm:^0.9.1":
   version: 0.9.1
   resolution: "react-base16-styling@npm:0.9.1"
@@ -25950,49 +25993,6 @@ __metadata:
   checksum: 214a734b1d4d391eb8271ed1b11085f0efe6831e93f641229b292abfd6fea871422dce121612511c17ae8047522be6d65c1a2666cabb396c79549816a3612338
   languageName: node
   linkType: hard
-
-"website@workspace:website":
-  version: 0.0.0-use.local
-  resolution: "website@workspace:website"
-  dependencies:
-    "@anansi/browserslist-config": 1.4.3
-    "@anansi/webpack-config": 15.0.31
-    "@data-client/endpoint": "workspace:^"
-    "@data-client/graphql": "workspace:*"
-    "@data-client/hooks": "workspace:*"
-    "@data-client/react": "workspace:*"
-    "@data-client/rest": "workspace:*"
-    "@data-client/test": "workspace:*"
-    "@docusaurus/core": canary
-    "@docusaurus/module-type-aliases": canary
-    "@docusaurus/plugin-client-redirects": canary
-    "@docusaurus/plugin-content-docs": canary
-    "@docusaurus/preset-classic": canary
-    "@docusaurus/theme-live-codeblock": canary
-    "@docusaurus/theme-mermaid": canary
-    "@monaco-editor/react": ^4.4.6
-    "@tsconfig/docusaurus": ^2.0.0
-    "@types/react": 18.2.20
-    "@types/react-dom": ^18.2.7
-    "@types/react-helmet": ^6.1.5
-    "@types/react-router-dom": ^5.3.3
-    "@types/uuid": ^9
-    bignumber.js: 9.1.1
-    classnames: ^2.3.2
-    clsx: 1.2.1
-    monaco-editor: ^0.41.0
-    parse-numeric-range: ^1.3.0
-    raw-loader: ^4.0.2
-    react: ^18.2.0
-    react-dom: ^18.2.0
-    react-json-tree: 0.18.0
-    react-live: ^4.0.0
-    serve: 14.2.0
-    typescript: ^5.1.6
-    uuid: ^9.0.0
-    webpack: ^5.76.0
-  languageName: unknown
-  linkType: soft
 
 "websocket-driver@npm:>=0.5.1, websocket-driver@npm:^0.7.4":
   version: 0.7.4
