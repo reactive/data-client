@@ -121,7 +121,7 @@ export default function Home() {
                 loading="lazy"
                 src="https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app?embed=1&file=src%2Fpages%2FIssueList.tsx&hidedevtools=1&view=both&terminalHeight=0&hideNavigation=1"
                 width="100%"
-                height="600"
+                height="700"
               ></iframe>
               <div style={{ textAlign: 'center' }}>
                 <Link className="button button--secondary" to="/demos">
