@@ -2,22 +2,18 @@
 
 ### Getting started (remote)
 
-See this demo live in your browser at [Stackblitz](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app)
+See this demo live in your browser at [![Stackblitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app)
 
 ### Getting started (local)
 
-From rest-hooks root (`../..` from here) first build packages:
-
 ```bash
-yarn install
-yarn build
+npm install
 ```
 
 ### Dev server
 
 ```bash
-cd ./examples/github-app
-yarn start
+npm run start
 ```
 
 ### Production build
@@ -25,7 +21,6 @@ yarn start
 Next, prepare production build and start serving the built files
 
 ```bash
-cd ./examples/github-app
-yarn build:browser
-yarn prod
+npm run build:browser
+npm run prod
 ```
