@@ -335,6 +335,6 @@ loading indicators - improving the user experience.
 Click one of the names to navigate to their todos. Here long loading states are indicated by the
 less intrusive *loading bar*, like YouTube and Robinhood use.
 
-<StackBlitz app="todo-app" file="src/pages/Home/index.tsx,src/useNavigationState.ts" height={600} />
+<StackBlitz app="todo-app" file="src/pages/TodoList.tsx,src/pages/Home/index.tsx,src/useNavigationState.ts" height={600} />
 
 Explore more [Reactive Data Client demos](/demos)
