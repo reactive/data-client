@@ -325,8 +325,16 @@ means immediate user interactivity with **zero** client-side fetches on first lo
 
 Explore more [Reactive Data Client demos](/demos)
 
-### Todo App
+### Concurrent Mode
 
-<StackBlitz app="todo-app" file="src/resources/TodoResource.ts,src/pages/Home/TodoList.tsx" />
+In React 18 navigating with `startTransition` allows [AsyncBoundaries](./AsyncBoundary.md) to
+continue showing the previous screen while the new data loads. Combined with
+[streaming server side rendering](../guides/ssr.md), this eliminates the need to flash annoying
+loading indicators - improving the user experience.
+
+Click one of the names to navigate to their todos. Here long loading states are indicated by the
+less intrusive *loading bar*, like YouTube and Robinhood use.
+
+<StackBlitz app="todo-app" file="src/pages/Home/index.tsx,src/useNavigationState.ts" height={600} />
 
 Explore more [Reactive Data Client demos](/demos)
