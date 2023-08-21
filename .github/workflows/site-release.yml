@@ -25,4 +25,5 @@ jobs:
       - name: Build Project Artifacts
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
       - name: Deploy Project Artifacts to Vercel
+        continue-on-error: true
         run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
