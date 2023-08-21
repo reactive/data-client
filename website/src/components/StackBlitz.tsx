@@ -1,3 +1,4 @@
+import Link from '@docusaurus/Link';
 import React, { useEffect } from 'react';
 
 import { useHasIntersected } from './useHasIntersected';
@@ -48,14 +49,21 @@ export default function StackBlitz({
   }
 
   return (
-    <iframe
-      src={src}
-      width={width}
-      height={height}
-      ref={frameRef}
-      loading="lazy"
-      sandbox="allow-scripts allow-same-origin"
-    ></iframe>
+    <>
+      <iframe
+        src={src}
+        width={width}
+        height={height}
+        ref={frameRef}
+        loading="lazy"
+        sandbox="allow-scripts allow-same-origin"
+      ></iframe>
+      <p style={{ textAlign: 'center' }}>
+        <Link className="button button--secondary" to="/demos">
+          More Demos
+        </Link>
+      </p>
+    </>
   );
 }
 StackBlitz.defaultProps = {

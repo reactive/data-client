@@ -135,8 +135,6 @@ export const PostResource = createResource({
 
 <StackBlitz app="github-app" file="src/resources/Issue.tsx,src/pages/NextPage.tsx" />
 
-Explore more [Reactive Data Client demos](/demos)
-
 ### Infinite Scrolling
 
 Since UI behaviors vary widely, and implementations vary from platform (react-native or web),

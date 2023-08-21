@@ -11,6 +11,7 @@ import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import ProtocolTabs from '@site/src/components/ProtocolTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
+import Link from '@docusaurus/Link';
 
 <head>
   <title>The Reactive Data Client ✨</title>
@@ -664,4 +665,6 @@ const incrementInterceptor: Interceptor = {
 </TabItem>
 </Tabs>
 
-Explore more [Reactive Data Client demos](/demos)
+<p style={{textAlign: 'center'}}>
+<Link className="button button--secondary" to="/demos">More Demos</Link>
+</p>

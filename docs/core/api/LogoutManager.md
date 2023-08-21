@@ -173,5 +173,3 @@ protected shouldLogout(error: UnknownError) {
 ## Github Example
 
 <StackBlitz app="github-app" file="src/RootProvider.tsx" view="editor" />
-
-Explore more [Reactive Data Client demos](/demos)

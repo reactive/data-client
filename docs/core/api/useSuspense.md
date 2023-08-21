@@ -323,8 +323,6 @@ means immediate user interactivity with **zero** client-side fetches on first lo
 
 <StackBlitz app="nextjs" file="resources/ExchangeRates.ts,pages/AssetPrice.tsx" />
 
-Explore more [Reactive Data Client demos](/demos)
-
 ### Concurrent Mode
 
 In React 18 navigating with `startTransition` allows [AsyncBoundaries](./AsyncBoundary.md) to
@@ -335,6 +333,4 @@ loading indicators - improving the user experience.
 Click one of the names to navigate to their todos. Here long loading states are indicated by the
 less intrusive *loading bar*, like YouTube and Robinhood use.
 
-<StackBlitz app="todo-app" file="src/pages/TodoList.tsx,src/pages/Home/index.tsx,src/useNavigationState.ts" height={600} />
-
-Explore more [Reactive Data Client demos](/demos)
+<StackBlitz app="todo-app" file="src/pages/Home/TodoList.tsx,src/pages/Home/index.tsx,src/useNavigationState.ts" height={600} />

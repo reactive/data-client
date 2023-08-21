@@ -371,8 +371,6 @@ export const IssueResource= createResource({
 
 <StackBlitz app="github-app" file="src/pages/IssueDetail/CommentsList.tsx,src/resources/Comment.ts" initialpath="/reactjs/rfcs/issue/68" view="editor" height={600} />
 
-Explore more [Reactive Data Client demos](/demos)
-
 ## Function Inheritance Patterns
 
 To reuse code around `Resource` design, you can create your own function that calls createResource().
@@ -422,5 +420,3 @@ export function createMyResource<O extends ResourceGenerics = any>({
 ```
 
 <StackBlitz app="github-app" file="src/resources/Base.ts" view="editor" height={750} />
-
-Explore more [Reactive Data Client demos](/demos)

@@ -210,5 +210,3 @@ render(<UsersPage />);
 ### Todo App
 
 <StackBlitz app="todo-app" file="src/resources/TodoResource.ts,src/pages/Home/TodoStats.tsx" />
-
-Explore more [Reactive Data Client demos](/demos)

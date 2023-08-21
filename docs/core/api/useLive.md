@@ -117,5 +117,3 @@ function useLive<
 ### Bitcoin Price
 
 <StackBlitz app="nextjs" file="pages/api/ExchangeRates.ts,pages/AssetPrice.tsx" view="both" />
-
-Explore more [Reactive Data Client demos](/demos)

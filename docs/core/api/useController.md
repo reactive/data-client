@@ -63,6 +63,3 @@ post.pk();
 ### Todo App
 
 <StackBlitz app="todo-app" file="src/resources/TodoResource.ts,src/pages/Home/TodoListItem.tsx" view="both" />
-
-Explore more [Reactive Data Client demos](/demos)
-

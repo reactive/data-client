@@ -113,5 +113,3 @@ Contribution activity comes from grouping github events by their type. Each type
 own distinct schema, which is why we use `schema.Union`
 
 <StackBlitz app="github-app" file="src/pages/ProfileDetail/UserEvents.tsx,src/resources/Event.tsx" view="preview" initialpath="/users/ntucker" height="700" ctl="1" />
-
-Explore more [Reactive Data Client demos](/demos)
