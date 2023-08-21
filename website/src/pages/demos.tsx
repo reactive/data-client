@@ -39,7 +39,7 @@ export default function DemoList() {
                 ],
                 hideDevTools: '1',
                 hideNavigation: '1',
-                terminalHeight: '1',
+                terminalHeight: '0',
               },
             )}`}
             width="900"
@@ -63,7 +63,7 @@ export default function DemoList() {
                 file: ['src/resources/Issue.tsx,src/pages/IssueList.tsx'],
                 hideDevTools: '1',
                 hideNavigation: '1',
-                terminalHeight: '1',
+                terminalHeight: '0',
               },
             )}`}
             width="900"
@@ -87,7 +87,7 @@ export default function DemoList() {
                 file: ['resources/ExchangeRates.ts,pages/AssetPrice.tsx'],
                 hideDevTools: '1',
                 hideNavigation: '1',
-                terminalHeight: '1',
+                terminalHeight: '0',
               },
             )}`}
             width="900"
