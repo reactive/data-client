@@ -21,9 +21,7 @@ export default function IssueList({ owner, repo, q }: Props) {
         renderItem={(issue) => <IssueListItem key={issue.pk()} issue={issue} />}
         loadMore={
           nextPage ? (
-            <div className="center">
-              <NextPage owner={owner} repo={repo} q={q} page={nextPage} />
-            </div>
+            <NextPage owner={owner} repo={repo} q={q} page={nextPage} />
           ) : null
         }
       />

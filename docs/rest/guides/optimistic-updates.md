@@ -277,7 +277,8 @@ function CounterPage() {
         Click the button multiple times quickly to trigger the race condition
       </p>
       <div>
-        RDC: {count}
+        <h4>RDC:</h4>
+        {count}
         <br />
         Other Libraries: {responseCount}; with optimistic: {stateCount}
         <br />

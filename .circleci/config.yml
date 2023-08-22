@@ -11,9 +11,10 @@ jobs:
     resource_class: large
     steps:
       - checkout
+      - run: npm pkg set 'workspaces[]'='examples/*'
       - restore_cache:
           keys:
-            - v8-dependencies-{{ checksum "yarn.lock" }}
+            - v8-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package-lock.json" }}
             # fallback to using the latest cache if no exact match is found
             - v8-dependencies-
       - run:
@@ -21,12 +22,12 @@ jobs:
           command: |
             sudo npm install -g corepack
             sudo corepack enable
-            yarn install --immutable
+            YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install
       - save_cache:
           paths:
             - .yarn/cache
             - .yarn/install-state.gz
-          key: v8-dependencies-{{ checksum "yarn.lock" }}
+          key: v8-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package-lock.json" }}
       - run: yarn run ci:build:types
       - run: yarn run ci:build
       - persist_to_workspace:
@@ -103,7 +104,7 @@ jobs:
           command: |
             yarn test:ci --maxWorkers=3 --selectProjects Node
 
-  examples:
+  non-app-examples:
     docker: *docker
     resource_class: small
     steps:
@@ -113,26 +114,6 @@ jobs:
           command: |
             cd examples/normalizr-relationships
             yarn run start
-
-  setup-examples:
-    docker: *docker
-    resource_class: small
-    steps:
-      - attach_workspace:
-          at: ~/
-      - run:
-          name: npm install
-          command: |
-            cd examples/todo-app
-            npm install
-            cd ../github-app
-            npm install
-            cd ../nextjs
-            npm install
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - project
 
   esmodule-types:
     parameters:
@@ -219,15 +200,12 @@ workflows:
       - typecheck:
           requires:
             - setup
-      - examples:
-          requires:
-            - setup
-      - setup-examples:
+      - non-app-examples:
           requires:
             - setup
       - validate-esmodule-browser-build:
           requires:
-            - setup-examples
+            - setup
       - esmodule-types:
           matrix:
             parameters:
@@ -238,10 +216,10 @@ workflows:
               # 4.7 (but its broken so we do 4.8) lets you apply a generic type to a function type to see its return value
               typescript-version: ["~4.0", "~4.1", "~4.3", "~4.8", "latest"]
           requires:
-            - setup-examples
+            - setup
       - esmodule-loosenulltypes:
           requires:
-            - setup-examples
+            - setup
       - esmodule-exactOptionalPropertyTypes:
           requires:
-            - setup-examples
+            - setup
