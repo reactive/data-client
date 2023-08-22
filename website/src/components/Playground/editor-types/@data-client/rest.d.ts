@@ -120,7 +120,7 @@ interface SchemaSimpleNew<T = any> {
     denormalizeOnly(input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any): T;
     infer(args: readonly any[], indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): any;
 }
-interface SchemaClass$1<T = any, N = T | undefined> extends SchemaSimple<T> {
+interface SchemaClass<T = any, N = T | undefined> extends SchemaSimple<T> {
     _normalizeNullable(): any;
     _denormalizeNullable(): [N, boolean, boolean];
 }
@@ -246,19 +246,6 @@ declare let Endpoint: EndpointConstructor;
 
 
 declare let ExtendableEndpoint: ExtendableEndpointConstructor;
-
-type CollectionOptions<Parent extends any[] = [
-    urlParams: Record<string, any>,
-    body?: Record<string, any>
-]> = ({
-    nestKey?: (parent: any, key: string) => Record<string, any>;
-} | {
-    argsKey?: (...args: any) => Record<string, any>;
-}) & ({
-    createCollectionFilter?: (...args: Parent) => (collectionKey: Record<string, string>) => boolean;
-} | {
-    nonFilterArgumentKeys?: ((key: string) => boolean) | string[] | RegExp;
-});
 
 /**
  * Marks entity as Invalid.
@@ -464,6 +451,99 @@ interface IEntityInstance {
      */
     pk(parent?: any, key?: string, args?: readonly any[]): string | undefined;
 }
+
+type CollectionOptions<Parent extends any[] = [
+    urlParams: Record<string, any>,
+    body?: Record<string, any>
+]> = ({
+    nestKey?: (parent: any, key: string) => Record<string, any>;
+} | {
+    argsKey?: (...args: any) => Record<string, any>;
+}) & ({
+    createCollectionFilter?: (...args: Parent) => (collectionKey: Record<string, string>) => boolean;
+} | {
+    nonFilterArgumentKeys?: ((key: string) => boolean) | string[] | RegExp;
+});
+
+type CollectionArrayAdder$1<S extends PolymorphicInterface> = S extends {
+    denormalizeOnly(...args: any): any[];
+    schema: infer T;
+} ? T : never;
+interface CollectionInterface<S extends PolymorphicInterface = any, Parent extends any[] = any> {
+    addWith<P extends any[] = Parent>(merge: (existing: any, incoming: any) => any, createCollectionFilter?: (...args: P) => (collectionKey: Record<string, string>) => boolean): Collection<S, P>;
+    readonly cacheWith: object;
+    readonly schema: S;
+    readonly key: string;
+    pk(value: any, parent: any, key: string, args: any[]): string;
+    normalize(input: any, parent: Parent, key: string, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args: any[]): string;
+    merge(existing: any, incoming: any): any;
+    shouldReorder(existingMeta: {
+        date: number;
+        fetchedAt: number;
+    }, incomingMeta: {
+        date: number;
+        fetchedAt: number;
+    }, existing: any, incoming: any): boolean;
+    mergeWithStore(existingMeta: {
+        date: number;
+        fetchedAt: number;
+    }, incomingMeta: {
+        date: number;
+        fetchedAt: number;
+    }, existing: any, incoming: any): any;
+    mergeMetaWithStore(existingMeta: {
+        expiresAt: number;
+        date: number;
+        fetchedAt: number;
+    }, incomingMeta: {
+        expiresAt: number;
+        date: number;
+        fetchedAt: number;
+    }, existing: any, incoming: any): {
+        expiresAt: number;
+        date: number;
+        fetchedAt: number;
+    };
+    infer(args: unknown, indexes: unknown, recurse: unknown, entities: unknown): any;
+    createIfValid: (value: any) => any | undefined;
+    denormalizeOnly(input: any, args: readonly any[], unvisit: (input: any, schema: any) => any): ReturnType<S['denormalizeOnly']>;
+    _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;
+    _normalizeNullable(): ReturnType<S['_normalizeNullable']>;
+    /** Schema to place at the *end* of this Collection
+     * @see https://resthooks.io/rest/api/Collection#push
+     */
+    push: CollectionArrayAdder$1<S>;
+    /** Schema to place at the *beginning* of this Collection
+     * @see https://resthooks.io/rest/api/Collection#unshift
+     */
+    unshift: CollectionArrayAdder$1<S>;
+    /** Schema to merge with a Values Collection
+     * @see https://resthooks.io/rest/api/Collection#assign
+     */
+    assign: S extends {
+        denormalizeOnly(...args: any): Record<string, unknown>;
+    } ? Collection<S, Parent> : never;
+}
+type CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Parent extends any[] = [
+    urlParams: Record<string, any>,
+    body?: Record<string, any>
+]> = CollectionInterface<S extends any[] ? Array$1<S[number]> : S, Parent>;
+interface CollectionConstructor {
+    new <S extends SchemaSimpleNew[] | PolymorphicInterface = any, Parent extends any[] = [
+        urlParams: Record<string, any>,
+        body?: Record<string, any>
+    ]>(schema: S, options?: CollectionOptions): CollectionFromSchema<S, Parent>;
+    readonly prototype: CollectionInterface;
+}
+type StrategyFunction<T> = (value: any, parent: any, key: string) => T;
+type SchemaFunction<K = string> = (value: any, parent: any, key: string) => K;
+type MergeFunction = (entityA: any, entityB: any) => any;
+type SchemaAttributeFunction<S extends Schema> = (value: any, parent: any, key: string) => S;
+
+type UnionResult<Choices extends EntityMap> = {
+    id: string;
+    schema: keyof Choices;
+};
 
 /**
  * Represents arrays
@@ -786,134 +866,6 @@ type CollectionArrayAdder<S extends PolymorphicInterface> = S extends {
     T
   : never;
 
-declare class CollectionInterface<
-  S extends PolymorphicInterface = any,
-  Parent extends any[] = any,
-> {
-  addWith<P extends any[] = Parent>(
-    merge: (existing: any, incoming: any) => any,
-    createCollectionFilter?: (
-      ...args: P
-    ) => (collectionKey: Record<string, string>) => boolean,
-  ): Collection<S, P>;
-
-  readonly cacheWith: object;
-
-  readonly schema: S;
-  readonly key: string;
-  pk(value: any, parent: any, key: string, args: any[]): string;
-  normalize(
-    input: any,
-    parent: Parent,
-    key: string,
-    visit: (...args: any) => any,
-    addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: any,
-    args: any[],
-  ): string;
-
-  merge(existing: any, incoming: any): any;
-  shouldReorder(
-    existingMeta: {
-      date: number;
-      fetchedAt: number;
-    },
-    incomingMeta: {
-      date: number;
-      fetchedAt: number;
-    },
-    existing: any,
-    incoming: any,
-  ): boolean;
-
-  mergeWithStore(
-    existingMeta: {
-      date: number;
-      fetchedAt: number;
-    },
-    incomingMeta: {
-      date: number;
-      fetchedAt: number;
-    },
-    existing: any,
-    incoming: any,
-  ): any;
-
-  mergeMetaWithStore(
-    existingMeta: {
-      expiresAt: number;
-      date: number;
-      fetchedAt: number;
-    },
-    incomingMeta: {
-      expiresAt: number;
-      date: number;
-      fetchedAt: number;
-    },
-    existing: any,
-    incoming: any,
-  ): {
-    expiresAt: number;
-    date: number;
-    fetchedAt: number;
-  };
-
-  infer(
-    args: unknown,
-    indexes: unknown,
-    recurse: unknown,
-    entities: unknown,
-  ): any;
-
-  createIfValid: (value: any) => any | undefined;
-  denormalizeOnly(
-    input: any,
-    args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
-  ): ReturnType<S['denormalizeOnly']>;
-
-  _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;
-  _normalizeNullable(): ReturnType<S['_normalizeNullable']>;
-
-  /** Schema to place at the *end* of this Collection
-   * @see https://resthooks.io/rest/api/Collection#push
-   */
-  push: CollectionArrayAdder<S>;
-
-  /** Schema to place at the *beginning* of this Collection
-   * @see https://resthooks.io/rest/api/Collection#unshift
-   */
-  unshift: CollectionArrayAdder<S>;
-
-  /** Schema to merge with a Values Collection
-   * @see https://resthooks.io/rest/api/Collection#assign
-   */
-  assign: S extends { denormalizeOnly(...args: any): Record<string, unknown> }
-    ? Collection<S, Parent>
-    : never;
-}
-type CollectionFromSchema<
-  S extends any[] | PolymorphicInterface = any,
-  Parent extends any[] = [
-    urlParams: Record<string, any>,
-    body?: Record<string, any>,
-  ],
-> = CollectionInterface<S extends any[] ? Array$1<S[number]> : S, Parent>;
-
-interface CollectionConstructor {
-  new <
-    S extends SchemaSimpleNew[] | PolymorphicInterface = any,
-    Parent extends any[] = [
-      urlParams: Record<string, any>,
-      body?: Record<string, any>,
-    ],
-  >(
-    schema: S,
-    options?: CollectionOptions,
-  ): CollectionFromSchema<S, Parent>;
-  readonly prototype: CollectionInterface;
-}
 declare let CollectionRoot: CollectionConstructor;
 
 /**
@@ -927,31 +879,6 @@ declare class Collection<
     body?: Record<string, any>,
   ],
 > extends CollectionRoot<S, Parent> {}
-
-type StrategyFunction<T> = (value: any, parent: any, key: string) => T;
-type SchemaFunction<K = string> = (
-  value: any,
-  parent: any,
-  key: string,
-) => K;
-type MergeFunction = (entityA: any, entityB: any) => any;
-type SchemaAttributeFunction<S extends Schema> = (
-  value: any,
-  parent: any,
-  key: string,
-) => S;
-
-type UnionResult<Choices extends EntityMap> = {
-  id: string;
-  schema: keyof Choices;
-};
-interface SchemaClass<T = any, N = T | undefined>
-  extends SchemaSimple<T> {
-  // this is not an actual member, but is needed for the recursive NormalizeNullable<> type algo
-  _normalizeNullable(): any;
-  // this is not an actual member, but is needed for the recursive DenormalizeNullable<> type algo
-  _denormalizeNullable(): [N, boolean, boolean];
-}
 
 // id is in Instance, so we default to that as pk
 /**
@@ -984,7 +911,7 @@ type schema_d_Invalidate<E extends EntityInterface & {
     process: any;
 }> = Invalidate<E>;
 declare const schema_d_Invalidate: typeof Invalidate;
-type schema_d_UnvisitFunction = UnvisitFunction;
+type schema_d_SchemaClass<T = any, N = T | undefined> = SchemaClass<T, N>;
 type schema_d_All<S extends EntityMap | EntityInterface = EntityMap | EntityInterface> = All<S>;
 declare const schema_d_All: typeof All;
 type schema_d_Union<Choices extends EntityMap = any> = Union<Choices>;
@@ -992,51 +919,50 @@ declare const schema_d_Union: typeof Union;
 type schema_d_Values<Choices extends Schema = any> = Values<Choices>;
 declare const schema_d_Values: typeof Values;
 type schema_d_CollectionArrayAdder<S extends PolymorphicInterface> = CollectionArrayAdder<S>;
-type schema_d_CollectionInterface<S extends PolymorphicInterface = any, Parent extends any[] = any> = CollectionInterface<S, Parent>;
-declare const schema_d_CollectionInterface: typeof CollectionInterface;
-type schema_d_CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Parent extends any[] = [
-    urlParams: Record<string, any>,
-    body?: Record<string, any>,
-  ]> = CollectionFromSchema<S, Parent>;
-type schema_d_CollectionConstructor = CollectionConstructor;
 declare const schema_d_CollectionRoot: typeof CollectionRoot;
 type schema_d_Collection<S extends any[] | PolymorphicInterface = any, Parent extends any[] = [
     urlParams: Record<string, any>,
     body?: Record<string, any>,
   ]> = Collection<S, Parent>;
 declare const schema_d_Collection: typeof Collection;
+type schema_d_EntityInterface<T = any> = EntityInterface<T>;
+type schema_d_UnvisitFunction = UnvisitFunction;
+type schema_d_CollectionInterface<S extends PolymorphicInterface = any, Parent extends any[] = any> = CollectionInterface<S, Parent>;
+type schema_d_CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Parent extends any[] = [
+    urlParams: Record<string, any>,
+    body?: Record<string, any>
+]> = CollectionFromSchema<S, Parent>;
+type schema_d_CollectionConstructor = CollectionConstructor;
 type schema_d_StrategyFunction<T> = StrategyFunction<T>;
 type schema_d_SchemaFunction<K = string> = SchemaFunction<K>;
 type schema_d_MergeFunction = MergeFunction;
 type schema_d_SchemaAttributeFunction<S extends Schema> = SchemaAttributeFunction<S>;
 type schema_d_UnionResult<Choices extends EntityMap> = UnionResult<Choices>;
-type schema_d_SchemaClass<T = any, N = T | undefined> = SchemaClass<T, N>;
-type schema_d_EntityInterface<T = any> = EntityInterface<T>;
 declare namespace schema_d {
   export {
     schema_d_Delete as Delete,
     schema_d_EntityMap as EntityMap,
     schema_d_Invalidate as Invalidate,
-    schema_d_UnvisitFunction as UnvisitFunction,
+    schema_d_SchemaClass as SchemaClass,
     Array$1 as Array,
     schema_d_All as All,
     Object$1 as Object,
     schema_d_Union as Union,
     schema_d_Values as Values,
     schema_d_CollectionArrayAdder as CollectionArrayAdder,
+    schema_d_CollectionRoot as CollectionRoot,
+    schema_d_Collection as Collection,
+    Entity$1 as Entity,
+    schema_d_EntityInterface as EntityInterface,
+    schema_d_UnvisitFunction as UnvisitFunction,
     schema_d_CollectionInterface as CollectionInterface,
     schema_d_CollectionFromSchema as CollectionFromSchema,
     schema_d_CollectionConstructor as CollectionConstructor,
-    schema_d_CollectionRoot as CollectionRoot,
-    schema_d_Collection as Collection,
     schema_d_StrategyFunction as StrategyFunction,
     schema_d_SchemaFunction as SchemaFunction,
     schema_d_MergeFunction as MergeFunction,
     schema_d_SchemaAttributeFunction as SchemaAttributeFunction,
     schema_d_UnionResult as UnionResult,
-    schema_d_SchemaClass as SchemaClass,
-    Entity$1 as Entity,
-    schema_d_EntityInterface as EntityInterface,
   };
 }
 
@@ -1721,4 +1647,4 @@ declare function paginationUpdate<E extends {
     [x: number]: (existing: any) => any;
 };
 
-export { AbortOptimistic, AbstractInstanceType, AddEndpoint, Array$1 as Array, ArrayElement, Collection, DELETED, Defaults, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, EndpointToFunction, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, FetchGet, FetchMutate, FromFallBack, GetEndpoint, HookResource, HookableEndpointInterface, INVALID, Index, IndexParams, Invalidate, KeyofEndpointInstance, KeyofRestEndpoint, KeysToArgs, MethodToSide, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, OptionsToFunction, PaginationEndpoint, PaginationFieldEndpoint, ParamFetchNoBody, ParamFetchWithBody, PartialRestGenerics, PathArgs, PathArgsAndSearch, PathKeys, PolymorphicInterface, Query, ReadEndpoint, ResolveType, Resource, ResourceGenerics, ResourceOptions, RestEndpoint, RestEndpointConstructor, RestEndpointConstructorOptions, RestEndpointExtendOptions, RestEndpointOptions, RestExtendedEndpoint, RestFetch, RestGenerics, RestInstance, RestInstanceBase, RestType, RestTypeNoBody, RestTypeWithBody, Schema, SchemaClass$1 as SchemaClass, SchemaSimple, SchemaSimpleNew, ShortenPath, SnapshotInterface, UnknownError, createResource, hookifyResource, paginationUpdate, schema_d as schema, validateRequired };
+export { AbortOptimistic, AbstractInstanceType, AddEndpoint, Array$1 as Array, ArrayElement, Collection, DELETED, Defaults, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, EndpointToFunction, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, FetchGet, FetchMutate, FromFallBack, GetEndpoint, HookResource, HookableEndpointInterface, INVALID, Index, IndexParams, Invalidate, KeyofEndpointInstance, KeyofRestEndpoint, KeysToArgs, MethodToSide, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, OptionsToFunction, PaginationEndpoint, PaginationFieldEndpoint, ParamFetchNoBody, ParamFetchWithBody, PartialRestGenerics, PathArgs, PathArgsAndSearch, PathKeys, PolymorphicInterface, Query, ReadEndpoint, ResolveType, Resource, ResourceGenerics, ResourceOptions, RestEndpoint, RestEndpointConstructor, RestEndpointConstructorOptions, RestEndpointExtendOptions, RestEndpointOptions, RestExtendedEndpoint, RestFetch, RestGenerics, RestInstance, RestInstanceBase, RestType, RestTypeNoBody, RestTypeWithBody, Schema, SchemaClass, SchemaSimple, SchemaSimpleNew, ShortenPath, SnapshotInterface, UnknownError, createResource, hookifyResource, paginationUpdate, schema_d as schema, validateRequired };
