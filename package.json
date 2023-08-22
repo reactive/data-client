@@ -19,7 +19,7 @@
     "build:types": "yarn build:copy:ambient && tsc --build && yarn workspaces foreach -pti --no-private run build:legacy-types",
     "ci:build:types": "yarn build:copy:ambient && tsc --build && yarn workspaces foreach -ptivR --from @data-client/react --from @data-client/rest --from @data-client/graphql --from @data-client/hooks run build:legacy-types",
     "ci:build": "yarn workspaces foreach -ptivR --from @data-client/react --from @data-client/rest --from @data-client/graphql --from @data-client/hooks --from @data-client/test run build:lib && yarn workspace @data-client/test run build:bundle && yarn workspace @data-client/normalizr run build:js:node && yarn workspace @data-client/endpoint run build:js:node",
-    "build:copy:ambient": "mkdirp ./packages/endpoint/lib && copyfiles --flat ./packages/endpoint/src/schema.d.ts ./packages/endpoint/lib/ && copyfiles --flat ./packages/endpoint/src/endpoint.d.ts ./packages/endpoint/lib/&& mkdirp ./packages/core/lib && copyfiles --flat ./packages/core/src/state/RIC.d.ts ./packages/core/lib/state && copyfiles --flat ./packages/rest/src/RestEndpoint.d.ts ./packages/rest/lib && copyfiles --flat ./packages/rest/src/next/RestEndpoint.d.ts ./packages/rest/lib/next",
+    "build:copy:ambient": "mkdirp ./packages/endpoint/lib && copyfiles --flat ./packages/endpoint/src/schema.d.ts ./packages/endpoint/lib/ && copyfiles --flat ./packages/endpoint/src/endpoint.d.ts ./packages/endpoint/lib/ && copyfiles --flat ./packages/rest/src/RestEndpoint.d.ts ./packages/rest/lib && copyfiles --flat ./packages/rest/src/next/RestEndpoint.d.ts ./packages/rest/lib/next",
     "copy:websitetypes": "./scripts/copywebsitetypes.sh",
     "test": "NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest",
     "test:ci": "yarn test --ci",

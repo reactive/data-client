@@ -1,7 +1,7 @@
 declare module 'react-native' {
-  declare const a: any;
+  const a: any;
   export default a;
-  export declare const InteractionManager: any;
-  export declare const Text: any;
-  export declare const View: any;
+  export const InteractionManager: any;
+  export const Text: any;
+  export const View: any;
 }
