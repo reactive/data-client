@@ -116,6 +116,10 @@ interface SchemaSimpleNew<T = any> {
     denormalizeOnly(input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any): T;
     infer(args: readonly any[], indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): any;
 }
+interface SchemaClass<T = any, N = T | undefined> extends SchemaSimple<T> {
+    _normalizeNullable(): any;
+    _denormalizeNullable(): [N, boolean, boolean];
+}
 interface EntityInterface<T = any> extends SchemaSimple {
     createIfValid?(props: any): any;
     pk(params: any, parent?: any, key?: string, args?: any[]): string | undefined;
@@ -225,19 +229,6 @@ type RemoveArray<Orig extends any[], Rem extends any[]> = Rem extends [
     ...infer RestRem
 ] ? Orig extends [any, ...infer RestOrig] ? RemoveArray<RestOrig, RestRem> : never : Orig;
 
-type CollectionOptions<Parent extends any[] = [
-    urlParams: Record<string, any>,
-    body?: Record<string, any>
-]> = ({
-    nestKey?: (parent: any, key: string) => Record<string, any>;
-} | {
-    argsKey?: (...args: any) => Record<string, any>;
-}) & ({
-    createCollectionFilter?: (...args: Parent) => (collectionKey: Record<string, string>) => boolean;
-} | {
-    nonFilterArgumentKeys?: ((key: string) => boolean) | string[] | RegExp;
-});
-
 /**
  * Marks entity as Invalid.
  *
@@ -278,6 +269,95 @@ declare class Invalidate<E extends EntityInterface & {
     ];
     _normalizeNullable(): string | undefined;
 }
+
+type CollectionOptions<Parent extends any[] = [
+    urlParams: Record<string, any>,
+    body?: Record<string, any>
+]> = ({
+    nestKey?: (parent: any, key: string) => Record<string, any>;
+} | {
+    argsKey?: (...args: any) => Record<string, any>;
+}) & ({
+    createCollectionFilter?: (...args: Parent) => (collectionKey: Record<string, string>) => boolean;
+} | {
+    nonFilterArgumentKeys?: ((key: string) => boolean) | string[] | RegExp;
+});
+
+type CollectionArrayAdder<S extends PolymorphicInterface> = S extends {
+    denormalizeOnly(...args: any): any[];
+    schema: infer T;
+} ? T : never;
+interface CollectionInterface<S extends PolymorphicInterface = any, Parent extends any[] = any> {
+    addWith<P extends any[] = Parent>(merge: (existing: any, incoming: any) => any, createCollectionFilter?: (...args: P) => (collectionKey: Record<string, string>) => boolean): Collection<S, P>;
+    readonly cacheWith: object;
+    readonly schema: S;
+    readonly key: string;
+    pk(value: any, parent: any, key: string, args: any[]): string;
+    normalize(input: any, parent: Parent, key: string, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args: any[]): string;
+    merge(existing: any, incoming: any): any;
+    shouldReorder(existingMeta: {
+        date: number;
+        fetchedAt: number;
+    }, incomingMeta: {
+        date: number;
+        fetchedAt: number;
+    }, existing: any, incoming: any): boolean;
+    mergeWithStore(existingMeta: {
+        date: number;
+        fetchedAt: number;
+    }, incomingMeta: {
+        date: number;
+        fetchedAt: number;
+    }, existing: any, incoming: any): any;
+    mergeMetaWithStore(existingMeta: {
+        expiresAt: number;
+        date: number;
+        fetchedAt: number;
+    }, incomingMeta: {
+        expiresAt: number;
+        date: number;
+        fetchedAt: number;
+    }, existing: any, incoming: any): {
+        expiresAt: number;
+        date: number;
+        fetchedAt: number;
+    };
+    infer(args: unknown, indexes: unknown, recurse: unknown, entities: unknown): any;
+    createIfValid: (value: any) => any | undefined;
+    denormalizeOnly(input: any, args: readonly any[], unvisit: (input: any, schema: any) => any): ReturnType<S['denormalizeOnly']>;
+    _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;
+    _normalizeNullable(): ReturnType<S['_normalizeNullable']>;
+    /** Schema to place at the *end* of this Collection
+     * @see https://resthooks.io/rest/api/Collection#push
+     */
+    push: CollectionArrayAdder<S>;
+    /** Schema to place at the *beginning* of this Collection
+     * @see https://resthooks.io/rest/api/Collection#unshift
+     */
+    unshift: CollectionArrayAdder<S>;
+    /** Schema to merge with a Values Collection
+     * @see https://resthooks.io/rest/api/Collection#assign
+     */
+    assign: S extends {
+        denormalizeOnly(...args: any): Record<string, unknown>;
+    } ? Collection<S, Parent> : never;
+}
+type CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Parent extends any[] = [
+    urlParams: Record<string, any>,
+    body?: Record<string, any>
+]> = CollectionInterface<S extends any[] ? Array$1<S[number]> : S, Parent>;
+interface CollectionConstructor {
+    new <S extends SchemaSimpleNew[] | PolymorphicInterface = any, Parent extends any[] = [
+        urlParams: Record<string, any>,
+        body?: Record<string, any>
+    ]>(schema: S, options?: CollectionOptions): CollectionFromSchema<S, Parent>;
+    readonly prototype: CollectionInterface;
+}
+type SchemaFunction<K = string> = (value: any, parent: any, key: string) => K;
+type UnionResult<Choices extends EntityMap> = {
+    id: string;
+    schema: keyof Choices;
+};
 
 /**
  * Represents arrays
@@ -382,144 +462,6 @@ declare class Object$1<O extends Record<string, any> = Record<string, Schema>>
   ): any;
 }
 
-type CollectionArrayAdder<S extends PolymorphicInterface> = S extends {
-  // ensure we are an array type
-  denormalizeOnly(...args: any): any[];
-  // get what we are an array of
-  schema: infer T;
-}
-  ? // TODO: eventually we want to allow singular or list and infer the return based on arguments
-    T
-  : never;
-
-declare class CollectionInterface<
-  S extends PolymorphicInterface = any,
-  Parent extends any[] = any,
-> {
-  addWith<P extends any[] = Parent>(
-    merge: (existing: any, incoming: any) => any,
-    createCollectionFilter?: (
-      ...args: P
-    ) => (collectionKey: Record<string, string>) => boolean,
-  ): Collection<S, P>;
-
-  readonly cacheWith: object;
-
-  readonly schema: S;
-  readonly key: string;
-  pk(value: any, parent: any, key: string, args: any[]): string;
-  normalize(
-    input: any,
-    parent: Parent,
-    key: string,
-    visit: (...args: any) => any,
-    addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: any,
-    args: any[],
-  ): string;
-
-  merge(existing: any, incoming: any): any;
-  shouldReorder(
-    existingMeta: {
-      date: number;
-      fetchedAt: number;
-    },
-    incomingMeta: {
-      date: number;
-      fetchedAt: number;
-    },
-    existing: any,
-    incoming: any,
-  ): boolean;
-
-  mergeWithStore(
-    existingMeta: {
-      date: number;
-      fetchedAt: number;
-    },
-    incomingMeta: {
-      date: number;
-      fetchedAt: number;
-    },
-    existing: any,
-    incoming: any,
-  ): any;
-
-  mergeMetaWithStore(
-    existingMeta: {
-      expiresAt: number;
-      date: number;
-      fetchedAt: number;
-    },
-    incomingMeta: {
-      expiresAt: number;
-      date: number;
-      fetchedAt: number;
-    },
-    existing: any,
-    incoming: any,
-  ): {
-    expiresAt: number;
-    date: number;
-    fetchedAt: number;
-  };
-
-  infer(
-    args: unknown,
-    indexes: unknown,
-    recurse: unknown,
-    entities: unknown,
-  ): any;
-
-  createIfValid: (value: any) => any | undefined;
-  denormalizeOnly(
-    input: any,
-    args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
-  ): ReturnType<S['denormalizeOnly']>;
-
-  _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;
-  _normalizeNullable(): ReturnType<S['_normalizeNullable']>;
-
-  /** Schema to place at the *end* of this Collection
-   * @see https://resthooks.io/rest/api/Collection#push
-   */
-  push: CollectionArrayAdder<S>;
-
-  /** Schema to place at the *beginning* of this Collection
-   * @see https://resthooks.io/rest/api/Collection#unshift
-   */
-  unshift: CollectionArrayAdder<S>;
-
-  /** Schema to merge with a Values Collection
-   * @see https://resthooks.io/rest/api/Collection#assign
-   */
-  assign: S extends { denormalizeOnly(...args: any): Record<string, unknown> }
-    ? Collection<S, Parent>
-    : never;
-}
-type CollectionFromSchema<
-  S extends any[] | PolymorphicInterface = any,
-  Parent extends any[] = [
-    urlParams: Record<string, any>,
-    body?: Record<string, any>,
-  ],
-> = CollectionInterface<S extends any[] ? Array$1<S[number]> : S, Parent>;
-
-interface CollectionConstructor {
-  new <
-    S extends SchemaSimpleNew[] | PolymorphicInterface = any,
-    Parent extends any[] = [
-      urlParams: Record<string, any>,
-      body?: Record<string, any>,
-    ],
-  >(
-    schema: S,
-    options?: CollectionOptions,
-  ): CollectionFromSchema<S, Parent>;
-  readonly prototype: CollectionInterface;
-}
 declare let CollectionRoot: CollectionConstructor;
 
 /**
@@ -533,22 +475,6 @@ declare class Collection<
     body?: Record<string, any>,
   ],
 > extends CollectionRoot<S, Parent> {}
-type SchemaFunction<K = string> = (
-  value: any,
-  parent: any,
-  key: string,
-) => K;
-type UnionResult<Choices extends EntityMap> = {
-  id: string;
-  schema: keyof Choices;
-};
-interface SchemaClass<T = any, N = T | undefined>
-  extends SchemaSimple<T> {
-  // this is not an actual member, but is needed for the recursive NormalizeNullable<> type algo
-  _normalizeNullable(): any;
-  // this is not an actual member, but is needed for the recursive DenormalizeNullable<> type algo
-  _denormalizeNullable(): [N, boolean, boolean];
-}
 
 type ExtractObject<S extends Record<string, any>> = {
     [K in keyof S]: S[K] extends Schema ? ExtractCollection<S[K]> : never;
