@@ -1,5 +1,13 @@
 # @data-client/react
 
+## 0.4.2
+
+### Patch Changes
+
+- 991c415135: Update readme
+- Updated dependencies [b60a4a558e]
+  - @data-client/core@0.4.2
+
 ## 0.4.1
 
 ### Patch Changes
