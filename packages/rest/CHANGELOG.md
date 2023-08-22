@@ -1,5 +1,13 @@
 # @data-client/rest
 
+## 0.7.5
+
+### Patch Changes
+
+- b60a4a558e: Change internal organization of some types
+- Updated dependencies [b60a4a558e]
+  - @data-client/endpoint@0.2.7
+
 ## 0.7.4
 
 ### Patch Changes

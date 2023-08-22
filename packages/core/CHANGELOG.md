@@ -1,5 +1,11 @@
 # @data-client/core
 
+## 0.4.2
+
+### Patch Changes
+
+- b60a4a558e: Change internal organization of some types
+
 ## 0.4.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @data-client/endpoint
 
+## 0.2.7
+
+### Patch Changes
+
+- b60a4a558e: Change internal organization of some types
+
 ## 0.2.6
 
 ### Patch Changes
