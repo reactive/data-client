@@ -133,7 +133,11 @@ This makes all mutations optimistic using some sensible default implementations 
 ### update/getList.push/getList.unshift
 
 ```ts
-function optimisticUpdate(snap: SnapshotInterface, params: any, body: any) {
+function optimisticUpdate(
+  snap: SnapshotInterface,
+  params: any,
+  body: any,
+) {
   return {
     ...params,
     ...ensureBodyPojo(body),
@@ -162,7 +166,7 @@ function optimisticPartial(
   getEndpoint: GetEndpoint<{ path: ResourcePath; schema: any }>,
 ) {
   return function (snap: SnapshotInterface, params: any, body: any) {
-    const { data } = snap.getResponse(getEndpoint, params) as { data: any };
+    const { data } = snap.getResponse(getEndpoint, params);
     if (!data) throw new AbortOptimistic();
     return {
       ...params,
@@ -272,19 +276,34 @@ function CounterPage() {
     setStateCount(val.count);
   });
   return (
-    <div>
+    <div className="vote">
       <p>
-        Click the button multiple times quickly to trigger the race condition
+        Click the button multiple times quickly to trigger the race
+        condition
       </p>
-      <div>
-        <h4>RDC:</h4>
-        {count}
-        <br />
-        Other Libraries: {responseCount}; with optimistic: {stateCount}
-        <br />
-        <button onClick={clickHandler}>+</button>
-        {loading ? ' ...loading' : ''}
-      </div>
+      <table>
+        <thead>
+          <td></td>
+          <td>Optimistic</td>
+          <td>Non-optimistic</td>
+        </thead>
+        <tbody>
+          <tr>
+            <th><abbr title="Reactive Data Client">RDC</abbr>:</th>
+            <td>{count}</td>
+            <td></td>
+          </tr>
+          <tr>
+            <th><abbr title="Other libraries like React Query">Other</abbr>:</th>
+            <td>{stateCount}</td>
+            <td>{responseCount}</td>
+          </tr>
+        </tbody>
+      </table>
+      <button className="up" onClick={clickHandler}>
+        &nbsp;
+      </button>
+      <p>{loading ? ' ...loading' : ''}</p>
     </div>
   );
 }
@@ -444,9 +463,9 @@ function CounterPage() {
   return (
     <div>
       <p>
-        Click the button multiple times quickly to trigger
-        the potential race condition. This time our vector
-        clock protects us.
+        Click the button multiple times quickly to trigger the
+        potential race condition. This time our vector clock protects
+        us.
       </p>
       <div>
         RDC: {count} Should be: {n}
