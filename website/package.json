@@ -18,13 +18,13 @@
   "devDependencies": {
     "@docusaurus/module-type-aliases": "canary",
     "@tsconfig/docusaurus": "^2.0.0",
-    "@types/react": "18.2.20",
+    "@types/react": "18.2.21",
     "@types/react-dom": "^18.2.7",
     "@types/react-helmet": "^6.1.5",
     "@types/react-router-dom": "^5.3.3",
     "@types/uuid": "^9",
     "raw-loader": "^4.0.2",
-    "serve": "14.2.0",
+    "serve": "14.2.1",
     "webpack": "^5.76.0"
   },
   "dependencies": {
