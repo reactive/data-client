@@ -10,53 +10,72 @@ title: Entity
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import { RestEndpoint } from '@data-client/rest';
+import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
-<LanguageTabs>
+`Entity` defines a single _unique_ object.
 
-```typescript
+[Entity.key](#key) + [Entity.pk()](#pk) (primary key) enable a [flat lookup table](https://react.dev/learn/choosing-the-state-structure#principles-for-structuring-state) store, enabling high
+performance, data consistency and atomic mutations.
+
+```ts title="Entity lookup table"
+{
+  Article: {
+    '1': {
+      id: '1',
+      title: 'Entities enable the highest performance',
+    }
+  }
+}
+```
+
+## Usage
+
+<TypeScriptEditor>
+
+```typescript title="User" collapsed
 import { Entity } from '@data-client/rest';
 
-export default class Article extends Entity {
-  id: number | undefined = undefined;
+export class User extends Entity {
+  id = '';
+  username = '';
+
+  pk() {
+    return this.id;
+  }
+}
+```
+
+```typescript title="Article"
+import { Entity } from '@data-client/rest';
+import { User } from './User';
+
+export class Article extends Entity {
+  id = '';
   title = '';
   content = '';
-  author: number | null = null;
+  author = User.fromJS();
   tags: string[] = [];
+  createdAt = new Date(0);
 
   pk() {
-    return this.id?.toString();
+    return this.id;
   }
+
+  static schema = {
+    author: User,
+    createdAt: Date,
+  };
 
   static key = 'Article';
 }
 ```
 
-```js
-import { Entity } from '@data-client/rest';
+</TypeScriptEditor>
 
-export default class Article extends Entity {
-  id = undefined;
-  title = '';
-  content = '';
-  author = null;
-  tags = [];
-
-  pk() {
-    return this.id?.toString();
-  }
-
-  static key = 'Article';
-}
-```
-
-</LanguageTabs>
-
-`Entity` is an abstract base class used to define data with some form of primary key (or `pk` for short).
-When representing data from a relational database, this makes an Entity roughly map 1:1 with a table, where
-each row represents an instance of the Entity.
-
-By defining a `pk()` member, Reactive Data Client will normalize entities, ensuring consistency and improve performance
-by increasing cache hit rates.
+[static schema](#schema) is a declarative definition of members to be automatically processed.
+In this case, `author` is another `Entity` to be extracted, and `createdAt` will be converted
+from a string to a [Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)
+object.
 
 :::tip
 
@@ -71,6 +90,8 @@ If you already have your classes defined, [schema.Entity](./schema.Entity.md) mi
 used to make Entities.
 
 :::
+
+Other static members overrides allow customizing the data lifecycle as seen below.
 
 ## Data lifecycle
 
@@ -411,7 +432,9 @@ delay: 150,
 },
 ]}>
 
-```tsx title="PostPage.tsx"
+```ts title="User" collapsed
+import { Entity } from '@data-client/rest';
+
 export class User extends Entity {
   id = '';
   name = '';
@@ -419,6 +442,12 @@ export class User extends Entity {
     return this.id;
   }
 }
+```
+
+```ts title="Post"
+import { Entity } from '@data-client/rest';
+import { User } from './User';
+
 export class Post extends Entity {
   id = '';
   author = User.fromJS({});
@@ -433,7 +462,13 @@ export class Post extends Entity {
   pk() {
     return this.id;
   }
+  static key = 'Post'
 }
+```
+
+```tsx title="PostPage" collapsed
+import { Post } from './Post';
+
 export const getPost = new RestEndpoint({
   path: '/posts/:id',
   schema: Post,

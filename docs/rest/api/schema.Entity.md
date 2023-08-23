@@ -12,6 +12,8 @@ import LanguageTabs from '@site/src/components/LanguageTabs';
 import { RestEndpoint } from '@data-client/rest';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
+`Entity` defines a single _unique_ object.
+
 If you already have classes for your data-types, `schema.Entity` mixin may be for you.
 
 <TypeScriptEditor>
