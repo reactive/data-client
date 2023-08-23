@@ -4656,15 +4656,15 @@ __metadata:
   linkType: hard
 
 "@monaco-editor/react@npm:^4.4.6":
-  version: 4.5.1
-  resolution: "@monaco-editor/react@npm:4.5.1"
+  version: 4.5.2
+  resolution: "@monaco-editor/react@npm:4.5.2"
   dependencies:
     "@monaco-editor/loader": ^1.3.3
   peerDependencies:
     monaco-editor: ">= 0.25.0 < 1"
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-  checksum: 989b98f5750f0b0ad54dc1dd7da8e92c67fcab55e89e26465ab7312fae87b3795f2e4603e7979e9545b7ad5d00fbcb3f21d20144d9e7eafa6f6989a76ad78c3a
+  checksum: b739b9012729daaa2acc6bccc100cc6e96770b4a5d3779360775b7c69e9b7a333152d639e554e28395302c5c914ad692951a930ffdb2f21916f3cdbe487916c2
   languageName: node
   linkType: hard
 
@@ -5510,7 +5510,7 @@ __metadata:
     "@rest-hooks/react": "workspace:*"
     "@rest-hooks/test": ^10.3.7
     "@types/node": ^20.0.0
-    "@types/react": 18.2.20
+    "@types/react": 18.2.21
     "@types/react-dom": ^18.0.11
     react: ^18.2.0
     react-dom: ^18.2.0
@@ -6497,10 +6497,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:20.5.1, @types/node@npm:^20.0.0":
-  version: 20.5.1
-  resolution: "@types/node@npm:20.5.1"
-  checksum: 3dbe611cd67afa987102c8558ee70f848949c5dcfee5f60abc073e55c0d7b048e391bf06bb1e0dc052cb7210ca97136ac496cbaf6e89123c989de6bd125fde82
+"@types/node@npm:*, @types/node@npm:20.5.3, @types/node@npm:^20.0.0":
+  version: 20.5.3
+  resolution: "@types/node@npm:20.5.3"
+  checksum: fe67a0fd7402218bdf91523a2b1c2e41d619f7294b1a471e0a778b8bc7bb3fcf291aed12041bcbe9622d50a3d1295a9adea0e7e19bb9386a246bf66071404721
   languageName: node
   linkType: hard
 
@@ -6642,14 +6642,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:18.2.20, @types/react@npm:>=16, @types/react@npm:^18.0.30":
-  version: 18.2.20
-  resolution: "@types/react@npm:18.2.20"
+"@types/react@npm:*, @types/react@npm:18.2.21, @types/react@npm:>=16, @types/react@npm:^18.0.30":
+  version: 18.2.21
+  resolution: "@types/react@npm:18.2.21"
   dependencies:
     "@types/prop-types": "*"
     "@types/scheduler": "*"
     csstype: ^3.0.2
-  checksum: 30f699c60e5e4bfef273ce64d320651cdd60f5c6a08361c6c7eca8cebcccda1ac953d2ee57c9f321b5ae87f8a62c72b6d35ca42df0e261d337849952daab2141
+  checksum: ffed203bfe7aad772b8286f7953305c9181ac3a8f27d3f5400fbbc2a8e27ca8e5bbff818ee014f39ca0d19d2b3bb154e5bdbec7e232c6f80b59069375aa78349
   languageName: node
   linkType: hard
 
@@ -12406,7 +12406,7 @@ __metadata:
     "@data-client/normalizr": "workspace:^"
     "@types/babel__core": ^7
     "@types/benchmark": 2.1.2
-    "@types/react": 18.2.20
+    "@types/react": 18.2.21
     benchmark: ^2.1.4
     normalizr: ^3.6.2
     react: ^18.2.0
@@ -21327,7 +21327,7 @@ __metadata:
     "@docusaurus/theme-mermaid": canary
     "@monaco-editor/react": ^4.4.6
     "@tsconfig/docusaurus": ^2.0.0
-    "@types/react": 18.2.20
+    "@types/react": 18.2.21
     "@types/react-dom": ^18.2.7
     "@types/react-helmet": ^6.1.5
     "@types/react-router-dom": ^5.3.3
@@ -21342,7 +21342,7 @@ __metadata:
     react-dom: ^18.2.0
     react-json-tree: 0.18.0
     react-live: ^4.0.0
-    serve: 14.2.0
+    serve: 14.2.1
     typescript: ^5.1.6
     uuid: ^9.0.0
     webpack: ^5.76.0
@@ -22697,8 +22697,8 @@ __metadata:
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/react-native": 12.2.2
     "@types/jest": 29.5.3
-    "@types/node": 20.5.1
-    "@types/react": 18.2.20
+    "@types/node": 20.5.3
+    "@types/react": 18.2.21
     "@typescript-eslint/eslint-plugin": 6.4.0
     "@typescript-eslint/parser": 6.4.0
     babel-plugin-module-resolver: 5.0.0
@@ -23108,9 +23108,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"serve@npm:14.2.0":
-  version: 14.2.0
-  resolution: "serve@npm:14.2.0"
+"serve@npm:14.2.1":
+  version: 14.2.1
+  resolution: "serve@npm:14.2.1"
   dependencies:
     "@zeit/schemas": 2.29.0
     ajv: 8.11.0
@@ -23125,7 +23125,7 @@ __metadata:
     update-check: 1.5.4
   bin:
     serve: build/main.js
-  checksum: a1c26e6c3dd0c482589b39a105e2f09bebf20ee8a0358accd5d64b313952ad3e1a56b8af2bdfef269f9fd37140b4f6c940d12395c851e4a46dfdace8f97616e4
+  checksum: c39a517b5d795a0a5c2f9fb9ff088b7e4962c579e34ace5b85dd62f93e0eacbc8a90359792c153c444a83258ffda392113dff7bfd10d41ced574a2d1886c2994
   languageName: node
   linkType: hard
 
