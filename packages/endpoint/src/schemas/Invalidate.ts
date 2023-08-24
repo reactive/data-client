@@ -42,7 +42,7 @@ export default class Invalidate<
     args?: any[],
   ): string | undefined {
     // TODO: what's store needs to be a differing type from fromJS
-    const processedEntity = this._entity.process(input, parent, key);
+    const processedEntity = this._entity.process(input, parent, key, args);
     const id = this._entity.pk(processedEntity, parent, key, args);
 
     if (
