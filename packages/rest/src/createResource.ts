@@ -138,7 +138,7 @@ export default function createResource<O extends ResourceGenerics>({
 function optimisticUpdate(snap: SnapshotInterface, params: any, body: any) {
   return {
     ...params,
-    ...ensureBodyPojo(body),
+    ...ensurePojo(body),
   };
 }
 function optimisticPartial(
@@ -151,14 +151,14 @@ function optimisticPartial(
       ...params,
       ...data,
       // even tho we don't always have two arguments, the extra one will simply be undefined which spreads fine
-      ...ensureBodyPojo(body),
+      ...ensurePojo(body),
     };
   };
 }
 function optimisticDelete(snap: SnapshotInterface, params: any) {
   return params;
 }
-function ensureBodyPojo(body: any) {
+function ensurePojo(body: any) {
   return body instanceof FormData
     ? Object.fromEntries((body as any).entries())
     : body;

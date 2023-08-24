@@ -1,5 +1,6 @@
 import type { EndpointInterface, ResolveType } from '@data-client/normalizr';
 
+import ensurePojo from './ensurePojo.js';
 import { EndpointUpdateFunction } from './types.js';
 import { SET_TYPE } from '../actionTypes.js';
 import type { SetAction, SetMeta } from '../types.js';
@@ -59,7 +60,7 @@ export default function createSet<
   }
   const now = Date.now();
   const meta: SetMeta = {
-    args,
+    args: args.map(ensurePojo),
     fetchedAt: fetchedAt ?? now,
     date: now,
     expiresAt: now + expiryLength,
