@@ -321,7 +321,7 @@ export default function ArticleList({ page }: { page: string }) {
 greatly reducing [TTFB](https://web.dev/ttfb/). [Reactive Data Client SSR's](../guides/ssr.md) automatic store hydration
 means immediate user interactivity with **zero** client-side fetches on first load.
 
-<StackBlitz app="nextjs" file="resources/ExchangeRates.ts,pages/AssetPrice.tsx" />
+<StackBlitz app="nextjs" file="resources/Ticker.ts,pages/AssetPrice.tsx" />
 
 ### Concurrent Mode
 

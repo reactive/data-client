@@ -84,7 +84,7 @@ export default function DemoList() {
             src={`https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/nextjs?${searchParams(
               {
                 embed: '1',
-                file: ['resources/ExchangeRates.ts,pages/AssetPrice.tsx'],
+                file: ['resources/Ticker.ts,pages/AssetPrice.tsx'],
                 hideDevTools: '1',
                 hideNavigation: '1',
                 terminalHeight: '0',

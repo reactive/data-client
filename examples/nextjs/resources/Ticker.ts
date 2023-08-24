@@ -1,4 +1,4 @@
-import { Entity, RestEndpoint, schema } from '@data-client/rest';
+import { Entity, RestEndpoint } from '@data-client/rest';
 import type { FixtureEndpoint } from '@data-client/test';
 
 class FloatSerializer extends Number {

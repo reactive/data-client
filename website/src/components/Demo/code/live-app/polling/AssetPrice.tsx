@@ -4,7 +4,7 @@ export default function AssetPrice({ symbol }: Props) {
   const productId = `${symbol}-USD`;
   const ticker = useLive(getTicker, { productId });
   return (
-    <tr key={symbol}>
+    <tr>
       <th>{symbol}</th>
       <td>
         <Formatted value={ticker.price} formatter="currency" />
