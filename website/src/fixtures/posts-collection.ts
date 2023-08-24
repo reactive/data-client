@@ -69,10 +69,11 @@ export const postFixtures = [
   {
     endpoint: getPosts.push,
     response({ group }, body) {
-      console.log('POST with', group, body);
       const id = randomId();
       this.entities[id] = { id, group };
-      for (const [key, value] of Object.entries(body)) {
+      const entries =
+        body instanceof FormData ? body.entries() : Object.entries(body);
+      for (const [key, value] of entries) {
         this.entities[id][key] = value;
       }
       return this.entities[id];

@@ -24,7 +24,7 @@ and [.getPage](./RestEndpoint.md#getpage)/ [.paginated()](./RestEndpoint.md#pagi
 
 ## Usage
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+<HooksPlayground row fixtures={[
 {
 endpoint: new RestEndpoint({path: '/users'}),
 args: [],
@@ -108,7 +108,7 @@ export const getUsers = new RestEndpoint({
 });
 ```
 
-```tsx title="NewTodo" {9-10}
+```tsx title="NewTodo" {9-13}
 import { getTodos } from './api/Todo';
 
 export default function NewTodo({ userId }: { userId?: string }) {
@@ -118,7 +118,10 @@ export default function NewTodo({ userId }: { userId?: string }) {
   const handlePress = async e => {
     if (e.key === 'Enter') {
       const createTodo = unshift ? getTodos.unshift : getTodos.push;
-      ctrl.fetch(createTodo, { title: e.currentTarget.value, userId });
+      ctrl.fetch(createTodo, {
+        title: e.currentTarget.value,
+        userId,
+      });
       e.currentTarget.value = '';
     }
   };
@@ -293,7 +296,7 @@ when `push` is called.
 
 <HooksPlayground fixtures={postFixtures} getInitialInterceptorData={getInitialInterceptorData} row>
 
-```ts title="getPosts" {17} collapsed
+```ts title="getPosts" {17}
 import { Entity, RestEndpoint } from '@data-client/rest';
 
 class Post extends Entity {
@@ -321,14 +324,12 @@ import { useLoading } from '@data-client/hooks';
 export default function PostListLayout({
   postsByBob,
   postsSorted,
-  handleAddBob,
-  handleAddClara,
+  addPost,
 }) {
-  const [bobClick, loadingBob] = useLoading(handleAddBob);
-  const [claraClick, loadingClara] = useLoading(handleAddClara);
+  const [handleSubmit, loading] = useLoading(addPost);
   return (
     <div>
-      <h4>Bob group posts</h4>
+      <h4>&#123;group: 'react', author: 'bob'&#125;</h4>
       <ul>
         {postsByBob.map(post => (
           <li key={post.pk()}>
@@ -336,7 +337,7 @@ export default function PostListLayout({
           </li>
         ))}
       </ul>
-      <h4>All group posts</h4>
+      <h4>&#123;group: 'react', orderBy: 'title'&#125;</h4>
       <ul>
         {postsSorted.map(post => (
           <li key={post.pk()}>
@@ -344,56 +345,55 @@ export default function PostListLayout({
           </li>
         ))}
       </ul>
-      <button onClick={bobClick} disabled={loadingBob}>
-        {loadingBob ? 'Add Bob po...' : 'Add Bob post'}
-      </button>
-      <button onClick={claraClick} disabled={loadingClara}>
-        {loadingClara ? 'Add Clara po...' : 'Add Clara post'}
-      </button>
+      <form onSubmit={handleSubmit}>
+        <div>Group: React</div>
+        Author: 
+        <label>
+          <input type="radio" value="bob" name="author" defaultChecked />
+          Bob
+        </label>
+        <label>
+          <input type="radio" value="clara" name="author" />
+          Clara
+        </label>
+        <input type="text" defaultValue="New Post" name="title" />
+        <button type="submit">{loading ? 'loading...' : 'Push'}</button>
+      </form>
     </div>
   );
 }
 ```
 
-```ts title="PostList"
+```ts title="PostList" collapsed
 import { useSuspense, useController } from '@data-client/react';
 import { getPosts } from './getPosts';
 import PostListLayout from './PostListLayout';
 
 function PostList() {
-  const postsByBob = useSuspense(getPosts, { group: 'react', author: 'bob' });
+  const postsByBob = useSuspense(getPosts, {
+    group: 'react',
+    author: 'bob',
+  });
   const postsSorted = useSuspense(getPosts, {
     group: 'react',
     orderBy: 'title',
   });
 
   const ctrl = useController();
-  // Will be appended to postByBob and postsSorted
-  const handleAddBob = () =>
-    ctrl.fetch(
+
+  const addPost = (e) => {
+    e.preventDefault();
+    return ctrl.fetch(
       getPosts.push,
       { group: 'react' },
-      {
-        author: 'bob',
-        title: 'new bob post',
-      },
+      new FormData(e.currentTarget),
     );
-  // Will be appended to postsSorted
-  const handleAddClara = () =>
-    ctrl.fetch(
-      getPosts.push,
-      { group: 'react' },
-      {
-        author: 'clara',
-        title: 'new clara post',
-      },
-    );
+  }
   return (
     <PostListLayout
       postsByBob={postsByBob}
       postsSorted={postsSorted}
-      handleAddBob={handleAddBob}
-      handleAddClara={handleAddClara}
+      addPost={addPost}
     />
   );
 }

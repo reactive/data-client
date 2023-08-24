@@ -452,11 +452,19 @@ describe.each([
           .get(`/todos?userId=1`)
           .reply(200, [{ id: '5', title: 'do things', userId: '1' }])
           .post(`/todos`)
-          .reply(200, (uri, body: any) => ({ ...body }))
+          .reply(200, (uri, body: any) => ({ ...ensurePojo(body) }))
           .post(`/todos?userId=5`)
-          .reply(200, (uri, body: any) => ({ userId: '5', ...body }))
+          .reply(200, (uri, body: any) => {
+            return {
+              userId: '5',
+              ...ensurePojo(body),
+            };
+          })
           .post(`/todos?userId=1`)
-          .reply(200, (uri, body: any) => ({ userId: '1', ...body }));
+          .reply(200, (uri, body: any) => ({
+            userId: '1',
+            ...ensurePojo(body),
+          }));
 
         mynock = nock(/.*/).defaultReplyHeaders({
           'Access-Control-Allow-Origin': '*',
@@ -468,13 +476,40 @@ describe.each([
         nock.cleanAll();
       });
 
-      it('should update collection on push/unshift', async () => {
-        const { result, waitForNextUpdate, controller } = renderRestHook(() => {
-          const todos = useSuspense(TodoResource.getList);
-          const userTodos = useSuspense(TodoResource.getList, { userId: '1' });
-          const user = useSuspense(UserResource.get, { id: '1' });
-          return { todos, userTodos, user };
-        });
+      const formPayload = new FormData();
+      formPayload.set('title', 'push');
+      formPayload.set('userId', '5');
+      it.each([
+        [
+          'pojo',
+          {
+            title: 'push',
+            userId: 5,
+          },
+        ],
+        ['FormData', formPayload],
+      ])('should update collection on push/unshift %s', async (_, payload) => {
+        const { result, waitForNextUpdate, controller } = renderRestHook(
+          () => {
+            const todos = useSuspense(TodoResource.getList);
+            const userTodos = useSuspense(TodoResource.getList, {
+              userId: '1',
+            });
+            const user = useSuspense(UserResource.get, { id: '1' });
+            return { todos, userTodos, user };
+          },
+          {
+            resolverFixtures: [
+              {
+                endpoint: TodoResource.getList.push,
+                args: [{ userId: '5' }, {}],
+                response({ userId }, body) {
+                  return { id: Math.random(), userId, ...ensurePojo(body) };
+                },
+              },
+            ],
+          },
+        );
         await waitForNextUpdate();
         expect(result.current).toMatchSnapshot();
         const firstUserTodos = result.current.userTodos;
@@ -485,10 +520,7 @@ describe.each([
           await controller.fetch(
             TodoResource.getList.push,
             { userId: '5' },
-            {
-              title: 'push',
-              userId: 5,
-            },
+            payload as any,
           );
         });
         expect(result.current.userTodos.map(({ id }) => id)).toEqual(['5']);
@@ -729,3 +761,9 @@ describe.each([
     },
   );
 });
+
+function ensurePojo(body: any) {
+  return body instanceof FormData
+    ? Object.fromEntries((body as any).entries())
+    : body;
+}

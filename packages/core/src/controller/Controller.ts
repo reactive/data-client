@@ -29,6 +29,7 @@ import {
   createUnsubscription,
   createSubscription,
 } from './createSubscription.js';
+import ensurePojo from './ensurePojo.js';
 import type { EndpointUpdateFunction } from './types.js';
 import { initialState } from '../state/reducer/createReducer.js';
 import selectMeta from '../state/selectMeta.js';
@@ -380,7 +381,9 @@ export default class Controller<
   } => {
     const state = rest[rest.length - 1] as State<unknown>;
     // this is typescript generics breaking
-    const args: any = rest.slice(0, rest.length - 1) as Parameters<E['key']>;
+    const args: any = rest
+      .slice(0, rest.length - 1)
+      .map(ensurePojo) as Parameters<E['key']>;
     const isActive = args.length !== 1 || args[0] !== null;
     const key = isActive ? endpoint.key(...args) : '';
     const cacheResults = isActive ? state.results[key] : undefined;

@@ -46,7 +46,48 @@ exports[`CacheProvider RestEndpoint/current pagination should work with cursor f
 }
 `;
 
-exports[`CacheProvider RestEndpoint/current should update collection on push/unshift 1`] = `
+exports[`CacheProvider RestEndpoint/current should update collection on push/unshift FormData 1`] = `
+{
+  "todos": [
+    Todo {
+      "completed": false,
+      "id": "5",
+      "title": "do things",
+      "userId": "1",
+    },
+    Todo {
+      "completed": false,
+      "id": "3",
+      "title": "ssdf",
+      "userId": "2",
+    },
+  ],
+  "user": User {
+    "email": "",
+    "id": "1",
+    "name": "",
+    "todos": [
+      Todo {
+        "completed": false,
+        "id": "5",
+        "title": "do things",
+        "userId": "1",
+      },
+    ],
+    "username": "bob",
+  },
+  "userTodos": [
+    Todo {
+      "completed": false,
+      "id": "5",
+      "title": "do things",
+      "userId": "1",
+    },
+  ],
+}
+`;
+
+exports[`CacheProvider RestEndpoint/current should update collection on push/unshift pojo 1`] = `
 {
   "todos": [
     Todo {
@@ -205,7 +246,48 @@ exports[`CacheProvider RestEndpoint/next pagination should work with cursor fiel
 }
 `;
 
-exports[`CacheProvider RestEndpoint/next should update collection on push/unshift 1`] = `
+exports[`CacheProvider RestEndpoint/next should update collection on push/unshift FormData 1`] = `
+{
+  "todos": [
+    Todo {
+      "completed": false,
+      "id": "5",
+      "title": "do things",
+      "userId": "1",
+    },
+    Todo {
+      "completed": false,
+      "id": "3",
+      "title": "ssdf",
+      "userId": "2",
+    },
+  ],
+  "user": User {
+    "email": "",
+    "id": "1",
+    "name": "",
+    "todos": [
+      Todo {
+        "completed": false,
+        "id": "5",
+        "title": "do things",
+        "userId": "1",
+      },
+    ],
+    "username": "bob",
+  },
+  "userTodos": [
+    Todo {
+      "completed": false,
+      "id": "5",
+      "title": "do things",
+      "userId": "1",
+    },
+  ],
+}
+`;
+
+exports[`CacheProvider RestEndpoint/next should update collection on push/unshift pojo 1`] = `
 {
   "todos": [
     Todo {
@@ -522,7 +604,48 @@ exports[`ExternalCacheProvider RestEndpoint/current pagination should work with 
 }
 `;
 
-exports[`ExternalCacheProvider RestEndpoint/current should update collection on push/unshift 1`] = `
+exports[`ExternalCacheProvider RestEndpoint/current should update collection on push/unshift FormData 1`] = `
+{
+  "todos": [
+    Todo {
+      "completed": false,
+      "id": "5",
+      "title": "do things",
+      "userId": "1",
+    },
+    Todo {
+      "completed": false,
+      "id": "3",
+      "title": "ssdf",
+      "userId": "2",
+    },
+  ],
+  "user": User {
+    "email": "",
+    "id": "1",
+    "name": "",
+    "todos": [
+      Todo {
+        "completed": false,
+        "id": "5",
+        "title": "do things",
+        "userId": "1",
+      },
+    ],
+    "username": "bob",
+  },
+  "userTodos": [
+    Todo {
+      "completed": false,
+      "id": "5",
+      "title": "do things",
+      "userId": "1",
+    },
+  ],
+}
+`;
+
+exports[`ExternalCacheProvider RestEndpoint/current should update collection on push/unshift pojo 1`] = `
 {
   "todos": [
     Todo {
@@ -681,7 +804,48 @@ exports[`ExternalCacheProvider RestEndpoint/next pagination should work with cur
 }
 `;
 
-exports[`ExternalCacheProvider RestEndpoint/next should update collection on push/unshift 1`] = `
+exports[`ExternalCacheProvider RestEndpoint/next should update collection on push/unshift FormData 1`] = `
+{
+  "todos": [
+    Todo {
+      "completed": false,
+      "id": "5",
+      "title": "do things",
+      "userId": "1",
+    },
+    Todo {
+      "completed": false,
+      "id": "3",
+      "title": "ssdf",
+      "userId": "2",
+    },
+  ],
+  "user": User {
+    "email": "",
+    "id": "1",
+    "name": "",
+    "todos": [
+      Todo {
+        "completed": false,
+        "id": "5",
+        "title": "do things",
+        "userId": "1",
+      },
+    ],
+    "username": "bob",
+  },
+  "userTodos": [
+    Todo {
+      "completed": false,
+      "id": "5",
+      "title": "do things",
+      "userId": "1",
+    },
+  ],
+}
+`;
+
+exports[`ExternalCacheProvider RestEndpoint/next should update collection on push/unshift pojo 1`] = `
 {
   "todos": [
     Todo {
