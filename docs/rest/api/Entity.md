@@ -12,21 +12,28 @@ import LanguageTabs from '@site/src/components/LanguageTabs';
 import { RestEndpoint } from '@data-client/rest';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
+<div style={{float:'right'}}>
+
+```ts
+{
+  Article: {
+    '1': {
+      id: '1',
+      title: 'Entities define data',
+    }
+  }
+}
+```
+
+</div>
+
 `Entity` defines a single _unique_ object.
 
 [Entity.key](#key) + [Entity.pk()](#pk) (primary key) enable a [flat lookup table](https://react.dev/learn/choosing-the-state-structure#principles-for-structuring-state) store, enabling high
 performance, data consistency and atomic mutations.
 
-```ts title="Entity lookup table"
-{
-  Article: {
-    '1': {
-      id: '1',
-      title: 'Entities enable the highest performance',
-    }
-  }
-}
-```
+`Entities` enable customizing the data processing lifecycle by defining [static schema](#schema) and [lifecycle method](#data-lifecycle)
+overrides.
 
 ## Usage
 
@@ -72,7 +79,7 @@ export class Article extends Entity {
 
 </TypeScriptEditor>
 
-[static schema](#schema) is a declarative definition of members to be automatically processed.
+[static schema](#schema) is a declarative definition of fields to process.
 In this case, `author` is another `Entity` to be extracted, and `createdAt` will be converted
 from a string to a [Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)
 object.
@@ -110,15 +117,13 @@ member to return. In case of multicolumn you can simply join them together.
 #### undefined value
 
 A `undefined` can be used as a default to indicate the entity has not been created yet.
-This is useful when initializing a creation form using [Entity.fromJS()](#static-fromjst-extends-typeof-simplerecordthis-t-props-partialabstractinstancetypet-abstractinstancetypet)
-directly. If `pk()` resolves to null it is considered not persisted to the server,
+This is useful when initializing a creation form using [Entity.fromJS()](#fromJS)
+directly. If `pk()` returns `undefined` it is considered not persisted to the server,
 and thus will not be kept in the cache.
 
 #### Other uses
 
-While the `pk()` definition is key (pun intended) for making the normalized cache work;
-it also becomes quite convenient for sending to a react element when iterating on
-list results:
+Since `pk()` is unique, it provides a consistent way of defining [JSX list keys](https://react.dev/learn/rendering-lists#keeping-list-items-in-order-with-key)
 
 ```tsx
 //....
@@ -173,7 +178,8 @@ class User extends Entity {
 
 ### static fromJS(props): Entity {#fromJS}
 
-Factory method that copies props to a new instance. Use this instead of `new MyEntity()`
+Factory method that copies props to a new instance. Use this instead of `new MyEntity()`,
+to ensure default props are overridden.
 
 ### process(input, parent, key): processedEntity {#process}
 
@@ -335,9 +341,11 @@ Indexes enable increased performance when doing lookups based on those parameter
 fieldnames (like `slug`, `username`) to the list that you want to send as params to lookup
 later.
 
-> #### Note:
->
-> Don't add your primary key like `id` to the indexes list, as that will already be optimized.
+:::note
+
+Don't add your primary key like `id` to the indexes list, as that will already be optimized.
+
+:::
 
 #### useSuspense()
 

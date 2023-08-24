@@ -59,7 +59,7 @@ export default function StackBlitz({
         sandbox="allow-scripts allow-same-origin"
       ></iframe>
       <p style={{ textAlign: 'center' }}>
-        <Link className="button button--secondary" to="/demos">
+        <Link className="button button--secondary button--sm" to="/demos">
           More Demos
         </Link>
       </p>

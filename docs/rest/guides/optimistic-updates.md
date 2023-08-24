@@ -284,8 +284,8 @@ function CounterPage() {
       <table>
         <thead>
           <td></td>
-          <td>Optimistic</td>
-          <td>Non-optimistic</td>
+          <td><small>Optimistic</small></td>
+          <td><small>Normal</small></td>
         </thead>
         <tbody>
           <tr>
