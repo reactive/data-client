@@ -1,0 +1,55 @@
+import HooksPlayground from '@site/src/components/HooksPlayground';
+
+<HooksPlayground row>
+
+```typescript title="Ticker" {27} collapsed
+import { Entity, RestEndpoint } from '@data-client/rest';
+
+export class Ticker extends Entity {
+  trade_id = 0;
+  price = 0;
+  size = '0';
+  time = new Date(0);
+  bid = '0';
+  ask = '0';
+  volume = '';
+
+  pk(): string {
+    return `${this.trade_id}`;
+  }
+  static key = 'Ticker';
+
+  static schema = {
+    price: FloatSerializer,
+    time: Date,
+  };
+}
+
+export const getTicker = new RestEndpoint({
+  urlPrefix: 'https://api.exchange.coinbase.com',
+  path: '/products/:productId/ticker',
+  schema: Ticker,
+  pollFrequency: 2000,
+});
+```
+
+```tsx title="AssetPrice" {5}
+import { useLive } from '@data-client/react';
+import { getTicker } from './Ticker';
+
+function AssetPrice({ productId }: Props) {
+  const ticker = useLive(getTicker, { productId });
+  return (
+    <center>
+      {productId}{' '}
+      <Formatted value={ticker.price} formatter="currency" />
+    </center>
+  );
+}
+interface Props {
+  productId: string;
+}
+render(<AssetPrice productId="BTC-USD" />);
+```
+
+</HooksPlayground>

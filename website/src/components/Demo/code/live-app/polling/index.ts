@@ -12,11 +12,11 @@ export default {
     },
     {
       path: 'AssetPrice',
+      open: true,
       code: AssetPrice,
     },
     {
       path: 'AssetList',
-      open: true,
       code: AssetList,
     },
   ],

@@ -12,6 +12,7 @@ import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import {RestEndpoint} from '@data-client/rest';
 import StackBlitz from '@site/src/components/StackBlitz';
+import UseLive from '../shared/\_useLive.mdx';
 
 Async rendering of frequently changing remote data.
 
@@ -19,58 +20,7 @@ Async rendering of frequently changing remote data.
 
 ## Usage
 
-<HooksPlayground row>
-
-```typescript title="ExchangeRates" collapsed
-import { Entity, RestEndpoint } from '@data-client/rest';
-
-export class ExchangeRates extends Entity {
-  currency = 'USD';
-  rates: Record<string, number> = {};
-
-  pk(): string {
-    return this.currency;
-  }
-  static key = 'ExchangeRates';
-
-  static schema = {
-    rates: new schema.Values(FloatSerializer),
-  };
-}
-
-export const getExchangeRates = new RestEndpoint({
-  urlPrefix: 'https://www.coinbase.com/api/v2',
-  path: '/exchange-rates',
-  searchParams: {} as { currency: string },
-  schema: { data: ExchangeRates },
-  pollFrequency: 15000,
-});
-```
-
-```tsx title="AssetPrice"
-import { useLive } from '@data-client/react';
-import { getExchangeRates } from './ExchangeRates';
-
-function AssetPrice({ symbol }: Props) {
-  const currency = 'USD';
-  const { data: price } = useLive(getExchangeRates, { currency });
-  return (
-    <center>
-      {symbol}{' '}
-      <Formatted
-        value={1 / price.rates[symbol]}
-        formatter="currency"
-      />
-    </center>
-  );
-}
-interface Props {
-  symbol: string;
-}
-render(<AssetPrice symbol="BTC" />);
-```
-
-</HooksPlayground>
+<UseLive />
 
 ## Behavior
 

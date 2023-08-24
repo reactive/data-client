@@ -16,6 +16,7 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import { postFixtures } from '@site/src/fixtures/posts';
 import { detailFixtures, listFixtures } from '@site/src/fixtures/profiles';
+import UseLive from '../shared/\_useLive.mdx';
 
 Make your components reusable by binding the data where you **use** it with the one-line [useSuspense()](../api/useSuspense.md),
 which guarantees data like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await).
@@ -293,60 +294,18 @@ ensures continual updates while a component is mounted. [useLive()](../api/useLi
 [useSubscription()](../api/useSubscription.md) and [useSuspense()](../api/useSuspense.md), making it quite
 easy to use fresh data.
 
-<HooksPlayground defaultOpen="n" row>
-
-```typescript title="ExchangeRates" {18} collapsed
-export class ExchangeRates extends Entity {
-  currency = 'USD';
-  rates: Record<string, number> = {};
-
-  pk() {
-    return this.currency;
-  }
-  static key = 'ExchangeRates';
-  static schema = {
-    rates: new schema.Values(FloatSerializer),
-  };
-}
-export const getExchangeRates = new RestEndpoint({
-  urlPrefix: 'https://www.coinbase.com/api/v2',
-  path: '/exchange-rates',
-  searchParams: {} as { currency: string },
-  schema: { data: ExchangeRates },
-  pollFrequency: 15000,
-});
-```
-
-```tsx title="AssetPrice" {6}
-import { useLive } from '@data-client/react';
-import { getExchangeRates } from './ExchangeRates';
-
-function AssetPrice({ symbol }: { symbol: string }) {
-  const currency = 'USD';
-  const { data: price } = useLive(getExchangeRates, { currency });
-  const value = 1 / price.rates[symbol];
-  return (
-    <center>
-      {symbol} <Formatted value={value} formatter="currency" />
-    </center>
-  );
-}
-render(<AssetPrice symbol="BTC" />);
-```
-
-</HooksPlayground>
+<UseLive />
 
 Subscriptions are orchestrated by [Managers](../api/Manager.md). Out of the box,
 polling based subscriptions can be used by adding [pollFrequency](/rest/api/Endpoint#pollfrequency-number) to an Endpoint or Resource.
 For pushed based networking protocols like SSE and websockets, see the [example stream manager](../api/Manager.md#data-stream).
 
 ```typescript
-export const getExchangeRates = new RestEndpoint({
-  urlPrefix: 'https://www.coinbase.com/api/v2',
-  path: '/exchange-rates',
-  searchParams: {} as { currency: string },
-  schema: { data: ExchangeRates },
+export const getTicker = new RestEndpoint({
+  urlPrefix: 'https://api.exchange.coinbase.com',
+  path: '/products/:productId/ticker',
+  schema: Ticker,
   // highlight-next-line
-  pollFrequency: 15000,
+  pollFrequency: 2000,
 });
 ```

@@ -1,13 +1,14 @@
 import { useLive } from '@data-client/react';
 import { Formatted } from '../components/Formatted';
-import { getExchangeRates } from '../resources/ExchangeRates';
+import { getTicker } from '../resources/Ticker';
 
 export default function AssetPrice({ symbol }: Props) {
+  const productId = `${symbol}-USD`
   // Learn more about Rest Hooks: https://resthooks.io/docs
-  const { data: price } = useLive(getExchangeRates, { currency: 'USD' });
+  const ticker = useLive(getTicker, { productId });
   return (
     <span>
-      {symbol} <Formatted value={1 / (price.rates[symbol])} formatter="currency" />
+      {symbol} <Formatted value={ticker.price} formatter="currency" />
     </span>
   );
 }
