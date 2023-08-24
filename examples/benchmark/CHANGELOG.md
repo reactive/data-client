@@ -1,5 +1,12 @@
 # example-benchmark
 
+## 0.4.25
+
+### Patch Changes
+
+- Updated dependencies [f95dbc64d1]
+  - @data-client/core@0.4.3
+
 ## 0.4.24
 
 ### Patch Changes

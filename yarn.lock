@@ -3135,7 +3135,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@data-client/core@^0.4.0, @data-client/core@^0.4.2, @data-client/core@workspace:^, @data-client/core@workspace:packages/core":
+"@data-client/core@^0.4.3, @data-client/core@workspace:^, @data-client/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@data-client/core@workspace:packages/core"
   dependencies:
@@ -3217,13 +3217,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/react@^0.4.0, @data-client/react@^0.4.1, @data-client/react@workspace:*, @data-client/react@workspace:^, @data-client/react@workspace:packages/react":
+"@data-client/react@^0.4.0, @data-client/react@^0.4.3, @data-client/react@workspace:*, @data-client/react@workspace:^, @data-client/react@workspace:packages/react":
   version: 0.0.0-use.local
   resolution: "@data-client/react@workspace:packages/react"
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@data-client/core": ^0.4.2
+    "@data-client/core": ^0.4.3
     "@data-client/use-enhanced-reducer": ^0.1.0
     "@react-navigation/native": ^6.1.6
     "@types/node": ^20.0.0
@@ -3247,7 +3247,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@data-client/core": ^0.4.2
+    "@data-client/core": ^0.4.3
     "@data-client/react": "workspace:*"
     "@types/node": ^20.0.0
     "@types/react": ^18.0.30
@@ -5470,7 +5470,7 @@ __metadata:
   resolution: "@rest-hooks/core@workspace:proxy-pkgs/core"
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
-    "@data-client/core": ^0.4.0
+    "@data-client/core": ^0.4.3
     "@types/node": ^20.0.0
   languageName: unknown
   linkType: soft
@@ -5537,7 +5537,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rest-hooks/react@workspace:proxy-pkgs/react"
   dependencies:
-    "@data-client/react": ^0.4.1
+    "@data-client/react": ^0.4.3
   languageName: unknown
   linkType: soft
 
