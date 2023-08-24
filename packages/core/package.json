@@ -1,6 +1,6 @@
 {
   "name": "@data-client/core",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "High performance reactive framework for async data.",
   "sideEffects": false,
   "main": "dist/index.js",
