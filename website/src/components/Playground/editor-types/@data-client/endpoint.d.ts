@@ -428,7 +428,7 @@ interface IEntityClass<TBase extends Constructor = any> {
      *
      * @see https://resthooks.io/docs/api/Entity#process
      */
-    process(input: any, parent: any, key: string | undefined): any;
+    process(input: any, parent: any, key: string | undefined, args: any[]): any;
     normalize(input: any, parent: any, key: string | undefined, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>): any;
     /** Do any transformations when first receiving input
      *
@@ -1051,7 +1051,7 @@ declare abstract class Entity extends Entity_base {
      *
      * @see https://resthooks.io/docs/api/Entity#process
      */
-    static process(input: any, parent: any, key: string | undefined): any;
+    static process(input: any, parent: any, key: string | undefined, args: any[]): any;
     /** Returning a string indicates an error (the string is the message)
      * @see https://resthooks.io/rest/api/Entity#validate
      */

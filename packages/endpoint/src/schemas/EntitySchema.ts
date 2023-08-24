@@ -238,7 +238,12 @@ export default function EntitySchema<TBase extends Constructor>(
      *
      * @see https://resthooks.io/docs/api/schema.Entity#process
      */
-    static process(input: any, parent: any, key: string | undefined): any {
+    static process(
+      input: any,
+      parent: any,
+      key: string | undefined,
+      args: any,
+    ): any {
       return { ...input };
     }
 
@@ -252,7 +257,7 @@ export default function EntitySchema<TBase extends Constructor>(
       storeEntities: any,
       args?: readonly any[],
     ): any {
-      const processedEntity = this.process(input, parent, key);
+      const processedEntity = this.process(input, parent, key, args);
       let id = this.pk(processedEntity, parent, key, args);
       if (id === undefined || id === '' || id === 'undefined') {
         // create a random id if a valid one cannot be computed
@@ -669,7 +674,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
    *
    * @see https://resthooks.io/docs/api/Entity#process
    */
-  process(input: any, parent: any, key: string | undefined): any;
+  process(input: any, parent: any, key: string | undefined, args: any[]): any;
   normalize(
     input: any,
     parent: any,

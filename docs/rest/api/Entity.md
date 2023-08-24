@@ -32,8 +32,8 @@ import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 [Entity.key](#key) + [Entity.pk()](#pk) (primary key) enable a [flat lookup table](https://react.dev/learn/choosing-the-state-structure#principles-for-structuring-state) store, enabling high
 performance, data consistency and atomic mutations.
 
-`Entities` enable customizing the data processing lifecycle by defining [static schema](#schema) and [lifecycle method](#data-lifecycle)
-overrides.
+`Entities` enable customizing the data processing lifecycle by defining its static members like [schema](#schema)
+and overriding its [lifecycle methods](#data-lifecycle).
 
 ## Usage
 
@@ -181,7 +181,7 @@ class User extends Entity {
 Factory method that copies props to a new instance. Use this instead of `new MyEntity()`,
 to ensure default props are overridden.
 
-### process(input, parent, key): processedEntity {#process}
+### static process(input, parent, key, args): processedEntity {#process}
 
 Run at the start of normalization for this entity. Return value is saved in store
 and sent to [pk()](#pk).
@@ -189,6 +189,30 @@ and sent to [pk()](#pk).
 **Defaults** to simply copying the response (`{...input}`)
 
 How to override to [build reverse-lookups for relational data](../guides/relational-data.md#reverse-lookups)
+
+#### Case of the missing id
+
+```ts
+class Stream extends Entity {
+  username = '';
+  title = '';
+  game = '';
+  currentViewers = 0;
+  live = false;
+
+  pk() {
+    return this.username;
+  }
+  static key = 'Stream';
+
+  process(value, parent, key, args) {
+    // super.process creates a copy of value
+    const processed = super.process(value, parent, key, args);
+    processed.username = args[0]?.username;
+    return processed;
+  }
+}
+```
 
 ### static merge(existing, incoming): mergedValue {#merge}
 
@@ -282,7 +306,7 @@ class LatestPriceEntity extends Entity {
 }
 ```
 
-### createIfValid(processedEntity): Entity | undefined {#createIfValid}
+### static createIfValid(processedEntity): Entity | undefined {#createIfValid}
 
 Called when denormalizing an entity. This will create an instance of this class
 if it is deemed 'valid'.
@@ -333,7 +357,7 @@ This determines expiry time when entity is part of a result that is inferred.
 
 Overriding can be used to change TTL policy specifically for inferred responses.
 
-## Members
+## Fields
 
 ### static indexes?: (keyof this)[] {#indexes}
 

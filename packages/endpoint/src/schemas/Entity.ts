@@ -133,7 +133,12 @@ export default abstract class Entity extends EntitySchema(EmptyBase) {
    *
    * @see https://resthooks.io/docs/api/Entity#process
    */
-  static process(input: any, parent: any, key: string | undefined): any {
+  static process(
+    input: any,
+    parent: any,
+    key: string | undefined,
+    args: any[],
+  ): any {
     /* istanbul ignore else */
     if (
       process.env.NODE_ENV !== 'production' &&
@@ -160,7 +165,7 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
       }
     }
 
-    return super.process(input, parent, key);
+    return super.process(input, parent, key, args);
   }
 
   /** Returning a string indicates an error (the string is the message)
