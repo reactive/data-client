@@ -3,6 +3,7 @@ title: Aborting Fetch
 ---
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
+import UseCancelling from '../../core/shared/\_useCancelling.mdx';
 
 [AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) provides a new way of cancelling
 fetches that are no longer considered relevant. This can be hooked into fetch via the second `RequestInit` parameter.
@@ -15,67 +16,7 @@ If this is a text input, they could potentially type quite quickly, thus creatin
 Using [@data-client/hooks](https://www.npmjs.com/package/@data-client/hooks) package with [useCancelling()](/docs/api/useCancelling) will automatically cancel in-flight requests if the parameters
 change before the request is resolved.
 
-<HooksPlayground row>
-
-```tsx title="api/Todo" collapsed
-export class Todo extends Entity {
-  id = 0;
-  userId = 0;
-  title = '';
-  completed = false;
-  pk() {
-    return `${this.id}`;
-  }
-  static key = 'Todo';
-}
-export const TodoResource = createResource({
-  urlPrefix: 'https://jsonplaceholder.typicode.com',
-  path: '/todos/:id',
-  schema: Todo,
-});
-```
-
-```tsx title="TodoDetail" {6}
-import { useSuspense } from '@data-client/react';
-import { useCancelling } from '@data-client/hooks';
-import { TodoResource } from './api/Todo';
-
-export default function TodoDetail({ id }: { id: number }) {
-  const todo = useSuspense(useCancelling(TodoResource.get, { id }), {
-    id,
-  });
-  return <div>{todo.title}</div>;
-}
-```
-
-```tsx title="Demo" collapsed
-import React from 'react';
-import TodoDetail from './TodoDetail';
-
-function AbortDemo() {
-  const [id, setId] = React.useState(1);
-  return (
-    <div>
-      <React.Suspense fallback="...">
-        <TodoDetail id={id} />
-      </React.Suspense>
-      <div>
-        <button onClick={() => setId(id => Math.max(id - 1, 1))}>
-          «
-        </button>
-        {id} &nbsp;
-        <button onClick={() => setId(id => id + 1)}>»</button>
-      </div>
-    </div>
-  );
-}
-render(<AbortDemo />);
-```
-
-</HooksPlayground>
-
-Try clicking the `»` very quickly. If you increment before it resolves the request will be cancelled and you should
-not see results in the store.
+<UseCancelling />
 
 :::caution Warning
 
