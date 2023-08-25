@@ -235,16 +235,44 @@ How to override to [build reverse-lookups for relational data](../guides/relatio
 
 ```typescript
 static mergeWithStore(
-  existingMeta: { date: number; fetchedAt: number },
+  existingMeta: {
+    date: number;
+    fetchedAt: number;
+  },
   incomingMeta: { date: number; fetchedAt: number },
   existing: any,
   incoming: any,
-): any;
+) {
+  const useIncoming = this.useIncoming(
+    existingMeta,
+    incomingMeta,
+    existing,
+    incoming,
+  );
+
+  if (useIncoming) {
+    // distinct types are not mergeable (like delete symbol), so just replace
+    if (typeof incoming !== typeof existing) {
+      return incoming;
+    } else {
+      return this.shouldReorder(
+        existingMeta,
+        incomingMeta,
+        existing,
+        incoming,
+      )
+        ? this.merge(incoming, existing)
+        : this.merge(existing, incoming);
+    }
+  } else {
+    return existing;
+  }
+}
 ```
 
 `mergeWithStore()` is called during normalization when a processed entity is already found in the store.
 
-This calls [useIncoming()](#useIncoming) and potentially [merge()](#merge)
+This calls [useIncoming()](#useIncoming), [shouldReorder()](#shouldOrder) and potentially [merge()](#merge)
 
 ### static useIncoming(existingMeta, incomingMeta, existing, incoming): boolean {#useincoming}
 
@@ -259,29 +287,6 @@ static useIncoming(
 }
 ```
 
-Override this to change the algorithm - for instance if having the absolutely correct latest value is important,
-adding a timestamp to the entity and then using it to select the return value will solve any race conditions.
-
-#### Example
-
-```typescript
-class LatestPriceEntity extends Entity {
-  readonly id: string = '';
-  readonly timestamp: string = '';
-  readonly price: string = '0.0';
-  readonly symbol: string = '';
-
-  static useIncoming(
-    existingMeta: { date: number; fetchedAt: number },
-    incomingMeta: { date: number; fetchedAt: number },
-    existing: any,
-    incoming: any,
-  ) {
-    return existing.timestamp <= incoming.timestamp;
-  }
-}
-```
-
 #### Preventing updates
 
 useIncoming can also be used to short-circuit an entity update.
@@ -289,11 +294,11 @@ useIncoming can also be used to short-circuit an entity update.
 ```typescript
 import deepEqual from 'deep-equal';
 
-class LatestPriceEntity extends Entity {
-  readonly id: string = '';
-  readonly timestamp: string = '';
-  readonly price: string = '0.0';
-  readonly symbol: string = '';
+class Article extends Entity {
+  id = '';
+  title = '';
+  content = '';
+  published = false;
 
   static useIncoming(
     existingMeta: { date: number; fetchedAt: number },
@@ -305,6 +310,49 @@ class LatestPriceEntity extends Entity {
   }
 }
 ```
+
+### static shouldReorder(existingMeta, incomingMeta, existing, incoming): boolean {#shouldreorder}
+
+```typescript
+static shouldReorder(
+  existingMeta: { date: number; fetchedAt: number },
+  incomingMeta: { date: number; fetchedAt: number },
+  existing: any,
+  incoming: any,
+) {
+  return incomingMeta.fetchedAt < existingMeta.fetchedAt;
+}
+```
+
+`true` return value will reorder incoming vs in-store entity argument order in merge. With
+the default merge, this will cause the fields of existing entities to override those of incoming,
+rather than the other way around.
+
+#### Example
+
+<TypeScriptEditor>
+
+```typescript path="shouldReorder"
+class LatestPriceEntity extends Entity {
+  id = '';
+  updatedAt = 0;
+  price = '0.0';
+  symbol = '';
+
+  pk() { return this.id }
+
+  static shouldReorder(
+    existingMeta: { date: number; fetchedAt: number },
+    incomingMeta: { date: number; fetchedAt: number },
+    existing: { updatedAt: number },
+    incoming: { updatedAt: number },
+  ) {
+    return incoming.updatedAt < existing.updatedAt;
+  }
+}
+```
+
+</TypeScriptEditor>
 
 ### static createIfValid(processedEntity): Entity | undefined {#createIfValid}
 

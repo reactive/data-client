@@ -369,8 +369,8 @@ Since we are performing optimistic updates this means we must use the client's c
 timing to the server in an `updatedAt` header via [getRequestInit()](../api/RestEndpoint.md#getRequestInit). The server should then ensure processing based on that order, and
 then store this `updatedAt` in the entity to return in any request.
 
-Overriding our [useIncoming](api/Entity.md#useincoming), we can check which data is newer, and disregard old data
-that resolves out of order.
+Overriding [shouldReorder](api/Entity.md#shouldreorder), we can reorder out-of-order responses based on the
+server timestamp.
 
 We use [snap.fetchedAt](/docs/api/Snapshot#fetchedat) in our [getOptimisticResponse](api/RestEndpoint.md#getoptimisticresponse). This respresents the moment the fetch is triggered, which will be the same time the `updatedAt` header is computed.
 
@@ -409,8 +409,8 @@ export class CountEntity extends Entity {
     return `SINGLETON`;
   }
 
-  static useIncoming(existingMeta, incomingMeta, existing, incoming) {
-    return existing.updatedAt <= incoming.updatedAt;
+  static shouldReorder(existingMeta, incomingMeta, existing, incoming) {
+    return incoming.updatedAt < existing.updatedAt;
   }
 }
 export const getCount = new RestEndpoint({
