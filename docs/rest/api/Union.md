@@ -112,4 +112,4 @@ render(<FeedList />);
 Contribution activity comes from grouping github events by their type. Each type of Event has its
 own distinct schema, which is why we use `schema.Union`
 
-<StackBlitz app="github-app" file="src/pages/ProfileDetail/UserEvents.tsx,src/resources/Event.tsx" view="preview" initialpath="/users/ntucker" height="700" ctl="1" />
+<StackBlitz app="github-app" file="src/pages/ProfileDetail/UserEvents.tsx,src/resources/Event.tsx" view="preview" initialpath="/users/ntucker" height="700" />

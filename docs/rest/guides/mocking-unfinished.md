@@ -11,7 +11,7 @@ you won't need to make major changes to your code.
 
 <HooksPlayground>
 
-```typescript title="api/Rating.ts"
+```typescript title="api/Rating"
 import { Entity, createResource } from '@data-client/rest';
 
 export class Rating extends Entity {
@@ -35,7 +35,7 @@ export const RatingResource = createResource({
   schema: Rating,
 }).extend({
   getList: {
-    dataExpiryLength: 10 * 60 * 1000, // 10 minutes
+    dataExpiryLength: Infinity,
     fetch() {
       return Promise.resolve(
         ['Morningstar', 'Seekingalpha', 'Morningstar', 'CNBC'].map(author => ({
@@ -50,7 +50,7 @@ export const RatingResource = createResource({
 });
 ```
 
-```tsx title="Demo.tsx" collapsed
+```tsx title="Demo" collapsed
 import { RatingResource } from './api/Rating';
 
 function Demo() {

@@ -4,7 +4,7 @@ import { getTicker } from '../resources/Ticker';
 
 export default function AssetPrice({ symbol }: Props) {
   const productId = `${symbol}-USD`
-  // Learn more about Rest Hooks: https://resthooks.io/docs
+  // Learn more about Reactive Data Client: https://dataclient.io/docs
   const ticker = useLive(getTicker, { productId });
   return (
     <span>
