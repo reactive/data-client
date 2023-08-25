@@ -745,11 +745,26 @@ describe(`${Entity.name} normalization`, () => {
 });
 
 describe.each([
-  ['current', denormalizeSimple, () => new WeakEntityMap()],
-  ['legacy', denormalizeLegacy, () => new WeakListMap()],
+  [
+    'current',
+    {
+      denormalize: denormalizeSimple,
+      createResultCache: () => new WeakEntityMap(),
+    },
+  ],
+  [
+    'legacy',
+    {
+      denormalize: denormalizeLegacy,
+      createResultCache: () => new WeakListMap(),
+    } as any as {
+      denormalize: typeof denormalizeSimple;
+      createResultCache: () => WeakEntityMap;
+    },
+  ],
 ] as const)(
   `${Entity.name} denormalization (%s)`,
-  (_, denormalize, createResultCache) => {
+  (_, { denormalize, createResultCache }) => {
     test('denormalizes an entity', () => {
       const entities = {
         Tacos: {
