@@ -23,6 +23,12 @@ export type {
 export { default as createResource } from './createResource.js';
 export type { Resource } from './resourceTypes.js';
 export type { ResourceOptions, ResourceGenerics } from './resourceTypes.js';
+export type {
+  ResourceExtension,
+  ResourceEndpointExtensions,
+  CustomResource,
+  ExtendedResource,
+} from './resourceExtensionTypes.js';
 export { default as hookifyResource } from './hookifyResource.js';
 export type {
   HookResource,
