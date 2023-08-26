@@ -1,5 +1,41 @@
 # @data-client/rest
 
+## 0.7.6
+
+### Patch Changes
+
+- 8d9f6fe15c: fix: Export types needed for Resource.extend
+
+  ```
+  cannot be named without a reference to '../../node_modules/@data-client/rest/lib/resourceExtensionTypes'. This is likely not portable. A type annotation is necessary.ts(2742)
+  ```
+
+- a8936f5e6d: Entity.process() now gets an addition argument of 'args' (sent from endpoint)
+
+  ```ts
+  class Stream extends Entity {
+    username = '';
+    title = '';
+    game = '';
+    currentViewers = 0;
+    live = false;
+
+    pk() {
+      return this.username;
+    }
+    static key = 'Stream';
+
+    process(value, parent, key, args) {
+      const processed = super.process(value, parent, key, args);
+      processed.username = args[0]?.username;
+      return processed;
+    }
+  }
+  ```
+
+- Updated dependencies [a8936f5e6d]
+  - @data-client/endpoint@0.2.8
+
 ## 0.7.5
 
 ### Patch Changes
