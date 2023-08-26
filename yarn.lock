@@ -3147,7 +3147,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/endpoint@^0.2.0, @data-client/endpoint@^0.2.6, @data-client/endpoint@^0.2.7, @data-client/endpoint@workspace:^, @data-client/endpoint@workspace:packages/endpoint":
+"@data-client/endpoint@^0.2.0, @data-client/endpoint@^0.2.8, @data-client/endpoint@workspace:^, @data-client/endpoint@workspace:packages/endpoint":
   version: 0.0.0-use.local
   resolution: "@data-client/endpoint@workspace:packages/endpoint"
   dependencies:
@@ -3163,7 +3163,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@data-client/endpoint": ^0.2.6
+    "@data-client/endpoint": ^0.2.8
     "@types/node": ^20.0.0
   languageName: unknown
   linkType: soft
@@ -3263,13 +3263,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/rest@^0.7.4, @data-client/rest@workspace:*, @data-client/rest@workspace:packages/rest":
+"@data-client/rest@^0.7.6, @data-client/rest@workspace:*, @data-client/rest@workspace:packages/rest":
   version: 0.0.0-use.local
   resolution: "@data-client/rest@workspace:packages/rest"
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@data-client/endpoint": ^0.2.7
+    "@data-client/endpoint": ^0.2.8
     "@types/node": ^20.0.0
     "@types/path-to-regexp": ^1.7.0
     path-to-regexp: ^6.2.1
@@ -5479,7 +5479,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rest-hooks/endpoint@workspace:proxy-pkgs/endpoint"
   dependencies:
-    "@data-client/endpoint": ^0.2.6
+    "@data-client/endpoint": ^0.2.8
   languageName: unknown
   linkType: soft
 
@@ -5545,7 +5545,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rest-hooks/rest@workspace:proxy-pkgs/rest"
   dependencies:
-    "@data-client/rest": ^0.7.4
+    "@data-client/rest": ^0.7.6
   languageName: unknown
   linkType: soft
 

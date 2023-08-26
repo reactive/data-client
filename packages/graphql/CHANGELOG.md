@@ -1,5 +1,35 @@
 # @data-client/graphql
 
+## 0.2.3
+
+### Patch Changes
+
+- a8936f5e6d: Entity.process() now gets an addition argument of 'args' (sent from endpoint)
+
+  ```ts
+  class Stream extends Entity {
+    username = '';
+    title = '';
+    game = '';
+    currentViewers = 0;
+    live = false;
+
+    pk() {
+      return this.username;
+    }
+    static key = 'Stream';
+
+    process(value, parent, key, args) {
+      const processed = super.process(value, parent, key, args);
+      processed.username = args[0]?.username;
+      return processed;
+    }
+  }
+  ```
+
+- Updated dependencies [a8936f5e6d]
+  - @data-client/endpoint@0.2.8
+
 ## 0.2.2
 
 ### Patch Changes
