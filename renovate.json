@@ -5,7 +5,21 @@
   "commitMessageTopic": "`{{depName}}`",
   "dependencyDashboardApproval": true,
   "rangeStrategy": "auto",
-  "ignoreDeps": ["whatwg-fetch", "react-error-overlay", "downlevel-dts", "immutable", "@types/lodash", "nock"],
+  "ignoreDeps": [
+    "whatwg-fetch",
+    "react-error-overlay",
+    "downlevel-dts",
+    "immutable",
+    "@types/lodash",
+    "nock",
+    "@linaria/babel-preset",
+    "@linaria/core",
+    "@linaria/react",
+    "@linaria/shaker",
+    "@linaria/tags",
+    "@linaria/utils",
+    "@linaria/webpack5-loader"
+  ],
   "timezone": "America/Chicago",
   "postUpdateOptions": ["yarnDedupeHighest"],
   "packageRules": [
@@ -69,7 +83,11 @@
       "groupName": "validation packages"
     },
     {
-      "matchPackageNames": ["@anansi/jest-preset", "@types/jsdom", "jest-environment-jsdom"],
+      "matchPackageNames": [
+        "@anansi/jest-preset",
+        "@types/jsdom",
+        "jest-environment-jsdom"
+      ],
       "matchUpdateTypes": ["major", "minor", "patch"],
       "groupSlug": "validation",
       "groupName": "validation packages"
