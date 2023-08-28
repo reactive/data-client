@@ -1,5 +1,4 @@
 import { schema as schemas } from '@data-client/endpoint';
-import { SimpleRecord } from '@rest-hooks/legacy';
 import {
   UnionResource,
   CoolerArticle,
@@ -61,32 +60,6 @@ describe('inferResults()', () => {
         { [CoolerArticle.key]: { '5': {} } },
       ),
     ).toEqual({
-      data: { article: '5' },
-    });
-  });
-
-  it('should work with SimpleRecord', () => {
-    class Data extends SimpleRecord {
-      readonly article = CoolerArticle.fromJS();
-      readonly otherfield = '';
-      static schema = {
-        article: CoolerArticle,
-      };
-    }
-    class Message extends SimpleRecord {
-      readonly data = Data.fromJS();
-      static schema = {
-        data: Data,
-      };
-    }
-    const schema = Message;
-    const results = buildInferredResults(
-      schema,
-      [{ id: 5 }],
-      {},
-      { [CoolerArticle.key]: { '5': {} } },
-    );
-    expect(results).toEqual({
       data: { article: '5' },
     });
   });

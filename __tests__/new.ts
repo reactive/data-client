@@ -9,17 +9,12 @@ import {
   Schema,
   Entity,
   RestGenerics,
-  GetEndpoint,
   hookifyResource,
   RestType,
-  MutateEndpoint,
   RestInstance,
   Resource,
   ResourceOptions,
-  ResourceGenerics,
-  PartialRestGenerics,
 } from '@data-client/rest';
-import { SimpleRecord } from '@rest-hooks/legacy';
 import React, { createContext, useContext } from 'react';
 
 /** Represents data with primary key being from 'id' field. */
@@ -579,12 +574,7 @@ abstract class OtherArticle extends CoolerArticle {}
 export class PaginatedArticle extends OtherArticle {}
 
 function makePaginatedRecord<T>(entity: T) {
-  return class PaginatedRecord extends SimpleRecord {
-    readonly prevPage = '';
-    readonly nextPage = '';
-    readonly results: AbstractInstanceType<T>[] = [];
-    static schema = { results: [entity] };
-  };
+  return { prevPage: '', nextPage: '', results: [entity] };
 }
 
 const PaginatedArticleResourceBase = createArticleResource({

@@ -2,7 +2,6 @@ import { schema, Entity, Query } from '@data-client/endpoint';
 import { Endpoint } from '@data-client/endpoint';
 import { CacheProvider } from '@data-client/react';
 import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
-import { SimpleRecord } from '@rest-hooks/legacy';
 import {
   CoolerArticleResource,
   EditorArticleResource,
@@ -190,22 +189,6 @@ describe.each([
       await expect(promise).rejects.toMatchSnapshot();
       expect(result.error).toBeUndefined();
       expect(result.current.data.title).toBe(payload.title);
-    });
-
-    it('should resolve useSuspense() with SimpleRecords', async () => {
-      mynock.get(`/article-paginated`).reply(200, paginatedFirstPage);
-
-      const { result, waitForNextUpdate } = renderRestHook(() => {
-        return useSuspense(ListPaginatedArticle);
-      });
-      expect(result.current).toBeUndefined();
-      await waitForNextUpdate();
-      expect(result.current).toBeInstanceOf(SimpleRecord);
-      expect(result.current.nextPage).toBe(2);
-      expect(result.current.prevPage).toBe('');
-      expect(result.current.results).toMatchSnapshot();
-      // @ts-expect-error
-      expect(result.current.lafsjlfd).toBeUndefined();
     });
   });
 
@@ -417,20 +400,6 @@ describe.each([
     expect(result.current[3]).not.toBeInstanceOf(FirstUnion);
     expect((global.console.warn as jest.Mock).mock.calls).toMatchSnapshot();
     global.console.warn = prevWarn;
-  });
-
-  it('should resolve useSuspense() with SimpleRecords', async () => {
-    mynock.get(`/article-paginated`).reply(200, paginatedFirstPage);
-
-    const { result, waitForNextUpdate } = renderRestHook(() => {
-      return useSuspense(PaginatedArticleResource.getListDefaults);
-    });
-    expect(result.current).toBeUndefined();
-    await waitForNextUpdate();
-    expect(result.current).toBeInstanceOf(SimpleRecord);
-    expect(result.current.nextPage).toBe(2);
-    expect(result.current.prevPage).toBe('');
-    expect(result.current.results).toMatchSnapshot();
   });
 
   it.each([CoolerArticleResource, CoolerArticleResourceFromMixin])(
