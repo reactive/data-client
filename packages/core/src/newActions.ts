@@ -25,7 +25,7 @@ type EndpointDefault = EndpointInterface & {
   update?: EndpointUpdateFunction<EndpointInterface>;
 };
 
-/* RECEIVE */
+/* SET */
 export interface SetMeta {
   args: readonly any[];
   key: string;
@@ -54,11 +54,6 @@ export interface SetActionError<
 export type SetAction<E extends EndpointAndUpdate<E> = EndpointDefault> =
   | SetActionSuccess<E>
   | SetActionError<E>;
-
-// TODO(breaking): Remove - legacy name compatibility
-/** @deprecated use SetAction instead */
-export type ReceiveAction<E extends EndpointAndUpdate<E> = EndpointDefault> =
-  SetAction<E>;
 
 /* FETCH */
 export interface FetchMeta {

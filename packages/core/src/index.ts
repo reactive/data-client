@@ -38,7 +38,7 @@ export type {
   GenericDispatch,
 } from './controller/Controller.js';
 export { default as createFetch } from './controller/createFetch.js';
-export { default as createReceive } from './controller/createSet.js';
+export { default as createSet } from './controller/createSet.js';
 
 export * from './controller/types.js';
 export * as actionTypes from './actionTypes.js';

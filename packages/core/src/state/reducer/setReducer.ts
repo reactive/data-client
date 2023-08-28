@@ -2,11 +2,11 @@ import { normalize } from '@data-client/normalizr';
 
 import { OPTIMISTIC_TYPE } from '../../actionTypes.js';
 import type Controller from '../../controller/Controller.js';
-import type { State, ReceiveAction, OptimisticAction } from '../../types.js';
+import type { State, SetAction, OptimisticAction } from '../../types.js';
 
 export function setReducer(
   state: State<unknown>,
-  action: OptimisticAction | ReceiveAction,
+  action: OptimisticAction | SetAction,
   controller: Controller,
 ) {
   if (action.error) {
@@ -14,7 +14,7 @@ export function setReducer(
   }
   try {
     let payload: any;
-    // for true receives payload is contained in action
+    // for true set's payload is contained in action
     if (action.type === OPTIMISTIC_TYPE) {
       // this should never happen
       if (!action.endpoint.getOptimisticResponse) return state;
@@ -104,7 +104,7 @@ export function setReducer(
 
 function reduceError(
   state: State<unknown>,
-  action: ReceiveAction | OptimisticAction,
+  action: SetAction | OptimisticAction,
   error: any,
 ): State<unknown> {
   if (error.name === 'AbortError') {
@@ -133,7 +133,7 @@ function reduceError(
 /** Filter all requests with same serialization that did not start after the resolving request */
 function filterOptimistic(
   state: State<unknown>,
-  resolvingAction: ReceiveAction | OptimisticAction,
+  resolvingAction: SetAction | OptimisticAction,
 ) {
   return state.optimistic.filter(
     optimisticAction =>

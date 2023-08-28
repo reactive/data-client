@@ -147,10 +147,10 @@ describe('resetEntireStore', () => {
     });
 
     /**
-     * upon reset, all inflight requests will not dispatch receives
+     * upon reset, all inflight requests will not dispatch sets
      *    promises still reject so external listeners know (abort signals do this as well)
      */
-    it('should not receive fetches that started before RESET', async () => {
+    it('should not set fetches that started before RESET', async () => {
       const detail: FixtureEndpoint = {
         endpoint: CoolerArticleDetail,
         args: [{ id: 9999 }],

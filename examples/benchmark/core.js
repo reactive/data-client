@@ -44,7 +44,7 @@ export default function addReducerSuite(suite) {
 
   let cachedState = state;
 
-  // receiveLong
+  // setLong
   const controller = new Controller({});
   const reducer = createReducer(controller);
   controller.dispatch = action => {
@@ -55,7 +55,7 @@ export default function addReducerSuite(suite) {
     reducer(state, action);
   };
 
-  // receiveLongWithMerge
+  // setLongWithMerge
   const controllerPop = new Controller({});
   const reducerPop = createReducer(controllerPop);
   let populatedState;

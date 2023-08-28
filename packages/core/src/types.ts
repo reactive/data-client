@@ -11,7 +11,7 @@ import type { ActionTypes, SetAction, OptimisticAction } from './newActions.js';
 
 export type { AbstractInstanceType, UpdateFunction };
 
-export type ReceiveTypes = typeof SET_TYPE;
+export type SetTypes = typeof SET_TYPE;
 
 export type PK = string;
 

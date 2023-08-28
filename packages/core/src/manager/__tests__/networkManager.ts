@@ -71,12 +71,9 @@ describe('NetworkManager', () => {
         return updates;
       },
     });
-    const fetchReceiveWithUpdatersAction = createFetch(
-      detailWithUpdaterEndpoint,
-      {
-        args: [{ id: 5 }],
-      },
-    );
+    const fetchSetWithUpdatersAction = createFetch(detailWithUpdaterEndpoint, {
+      args: [{ id: 5 }],
+    });
 
     const updateShape = new Endpoint(
       (params: any, body: any) => Promise.resolve(body),
@@ -158,7 +155,7 @@ describe('NetworkManager', () => {
 
       const data = await fetchResolveAction.payload();
 
-      // mutations resolve before dispatch, so we must wait for next tick to see receive
+      // mutations resolve before dispatch, so we must wait for next tick to see set
       await new Promise(resolve => setTimeout(resolve, 0));
 
       const action = {
@@ -176,7 +173,7 @@ describe('NetworkManager', () => {
       expect(dispatch).toHaveBeenCalledWith(action);
       expect(next).not.toHaveBeenCalledWith(action);
     });
-    it('should handle fetch receive action and dispatch on success with updaters', async () => {
+    it('should handle fetch set action and dispatch on success with updaters', async () => {
       const next = jest.fn();
       const dispatch = jest.fn();
       const controller = new Controller({ dispatch, getState });
@@ -187,20 +184,20 @@ describe('NetworkManager', () => {
         },
       );
 
-      middleware(API)(next)(fetchReceiveWithUpdatersAction);
+      middleware(API)(next)(fetchSetWithUpdatersAction);
 
-      const data = await fetchReceiveWithUpdatersAction.payload();
+      const data = await fetchSetWithUpdatersAction.payload();
 
-      // mutations resolve before dispatch, so we must wait for next tick to see receive
+      // mutations resolve before dispatch, so we must wait for next tick to see set
       await new Promise(resolve => setTimeout(resolve, 0));
 
       const action = {
         type: SET_TYPE,
-        endpoint: fetchReceiveWithUpdatersAction.endpoint,
+        endpoint: fetchSetWithUpdatersAction.endpoint,
         payload: data,
         meta: {
-          args: fetchReceiveWithUpdatersAction.meta.args,
-          key: fetchReceiveWithUpdatersAction.meta.key,
+          args: fetchSetWithUpdatersAction.meta.args,
+          key: fetchSetWithUpdatersAction.meta.key,
           date: expect.any(Number),
           expiresAt: expect.any(Number),
           fetchedAt: expect.any(Number),
@@ -224,7 +221,7 @@ describe('NetworkManager', () => {
 
       const data = await fetchRpcWithUpdatersAction.payload();
 
-      // mutations resolve before dispatch, so we must wait for next tick to see receive
+      // mutations resolve before dispatch, so we must wait for next tick to see set
       await new Promise(resolve => setTimeout(resolve, 0));
 
       const action = {
@@ -258,7 +255,7 @@ describe('NetworkManager', () => {
       const data = await fetchRpcWithUpdatersAndOptimisticAction.payload();
 
       expect(next).toHaveBeenCalled();
-      // mutations resolve before dispatch, so we must wait for next tick to see receive
+      // mutations resolve before dispatch, so we must wait for next tick to see set
       await new Promise(resolve => setTimeout(resolve, 0));
       expect(dispatch).toHaveBeenCalledWith({
         type: SET_TYPE,

@@ -59,7 +59,7 @@ skipLogging(action: ActionTypes) {
 
 ## Protected members
 
-### handleFetch(fetchAction)
+### handleFetch(fetchAction) {#handlefetch}
 
 Called when middleware intercepts 'rdc/fetch' action.
 
@@ -69,28 +69,28 @@ fetch.
 Uses throttle only when instructed by action meta. This is valuable
 for ensures mutation requests always go through.
 
-### handleReceive(receiveAction)
+### handleSet(setAction) {#handleset}
 
-Called when middleware intercepts a receive action.
+Called when middleware intercepts a set action.
 
-Will resolve the promise associated with receive key.
+Will resolve the promise associated with set key.
 
-### throttle(key, fetch)
+### throttle(key, fetch) {#throttle}
 
 Ensures only one request for a given key is in flight at any time
 
 Uses key to either retrieve in-flight promise, or if not
 create a new promise and call fetch.
 
-### getLastReset(): number
+### getLastReset(): number {#getlastreset}
 
 Timestamp when entire store was last reset
 
-### clear(key)
+### clear(key) {#clear}
 
 Clear promise state for a given key
 
-### clearAll()
+### clearAll() {#clearall}
 
 Ensures all promises are completed by rejecting remaining
 

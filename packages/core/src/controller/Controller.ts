@@ -200,21 +200,6 @@ export default class Controller<
   };
 
   /**
-   * @deprecated use https://dataclient.io/docs/api/Controller#setResponse instead
-   */
-  /* istanbul ignore next */ receive = <
-    E extends EndpointInterface & {
-      update?: EndpointUpdateFunction<E>;
-    },
-  >(
-    endpoint: E,
-    ...rest: readonly [...Parameters<E>, any]
-  ): Promise<void> => {
-    /* istanbul ignore next */
-    return this.setResponse(endpoint, ...rest);
-  };
-
-  /**
    * Stores the result of Endpoint and args as the error provided.
    * @see https://dataclient.io/docs/api/Controller#setError
    */
@@ -233,22 +218,6 @@ export default class Controller<
       error: true,
     });
     return this.dispatch(action);
-  };
-
-  /**
-   * Another name for setError
-   * @deprecated use https://dataclient.io/docs/api/Controller#setError instead
-   */
-  /* istanbul ignore next */ receiveError = <
-    E extends EndpointInterface & {
-      update?: EndpointUpdateFunction<E>;
-    },
-  >(
-    endpoint: E,
-    ...rest: readonly [...Parameters<E>, Error]
-  ): Promise<void> => {
-    /* istanbul ignore next */
-    return this.setError(endpoint, ...rest);
   };
 
   /**
