@@ -61,7 +61,7 @@ export default class NetworkManager implements Manager {
               }
               return Promise.resolve();
             case SET_TYPE:
-              // only receive after new state is computed
+              // only set after new state is computed
               return next(action).then(() => {
                 if (action.meta.key in this.fetched) {
                   // Note: meta *must* be set by reducer so this should be safe
@@ -69,7 +69,7 @@ export default class NetworkManager implements Manager {
                     controller.getState().meta[action.meta.key]?.error;
                   // processing errors result in state meta having error, so we should reject the promise
                   if (error) {
-                    this.handleReceive(
+                    this.handleSet(
                       createSet(action.endpoint, {
                         args: action.meta.args as any,
                         response: error,
@@ -78,7 +78,7 @@ export default class NetworkManager implements Manager {
                       }),
                     );
                   } else {
-                    this.handleReceive(action);
+                    this.handleSet(action);
                   }
                 }
               });
@@ -171,7 +171,7 @@ export default class NetworkManager implements Manager {
             reject(error);
             throw error;
           });
-      // schedule non-throttled resolutions in a microtask before receive
+      // schedule non-throttled resolutions in a microtask before set
       // this enables users awaiting their fetch to trigger any react updates needed to deal
       // with upcoming changes because of the fetch (for instance avoiding suspense if something is deleted)
       if (!throttle) {
@@ -224,11 +224,11 @@ export default class NetworkManager implements Manager {
     }
   }
 
-  /** Called when middleware intercepts a receive action.
+  /** Called when middleware intercepts a set action.
    *
-   * Will resolve the promise associated with receive key.
+   * Will resolve the promise associated with set key.
    */
-  protected handleReceive(action: SetAction) {
+  protected handleSet(action: SetAction) {
     // this can still turn out to be untrue since this is async
     if (action.meta.key in this.fetched) {
       let promiseHandler: (value?: any) => void;
@@ -247,7 +247,7 @@ export default class NetworkManager implements Manager {
    *
    * Intercepts 'rdc/fetch' actions to start requests.
    *
-   * Resolve/rejects a request when matching 'rdc/receive' event
+   * Resolve/rejects a request when matching 'rdc/set' event
    * is seen.
    */
   getMiddleware() {

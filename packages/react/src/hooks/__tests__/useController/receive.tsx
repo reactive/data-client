@@ -67,8 +67,8 @@ afterEach(() => {
   nock.cleanAll();
 });
 
-describe('receive', () => {
-  it('should update store when receive is complete', async () => {
+describe('set', () => {
+  it('should update store when set is complete', async () => {
     const { result } = renderRestHook(() => {
       return {
         data: useCache(FutureArticleResource.get, payload.id),

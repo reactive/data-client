@@ -43,7 +43,7 @@ describe('LogoutManager', () => {
         controller: { value: controller },
       },
     );
-    it('should ignore non-error receive', async () => {
+    it('should ignore non-error set', async () => {
       const action = createSet(CoolerArticleResource.get, {
         args: [{ id: 5 }],
         response: { id: 5, title: 'hi' },
@@ -52,7 +52,7 @@ describe('LogoutManager', () => {
 
       expect(dispatch.mock.calls.length).toBe(0);
     });
-    it('should ignore non-401 receive', async () => {
+    it('should ignore non-401 set', async () => {
       const error: any = new Error('network failed');
       error.status = 404;
       const action = createSet(CoolerArticleResource.get, {

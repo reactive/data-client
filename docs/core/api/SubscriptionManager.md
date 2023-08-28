@@ -67,7 +67,7 @@ Provides any cleanup of dangling resources after Subscription is no longer in us
 :::note
 
 Implementing your own `Subscription` to handle websockets can be done by
-dispatching `rdc/receive` actions with the data it gets to update.
+dispatching `rdc/set` actions with the data it gets to update.
 Be sure to handle connection opening in the constructor and close the connection
 in `cleanup()`
 

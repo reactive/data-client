@@ -25,7 +25,7 @@ export interface SubscriptionConstructable {
   ): Subscription;
 }
 
-/** Handles subscription actions -> fetch or receive actions
+/** Handles subscription actions -> fetch or set actions
  *
  * Constructor takes a SubscriptionConstructable class to control how
  * subscriptions are handled. (e.g., polling, websockets)

@@ -1,5 +1,5 @@
 import {
-  ReceiveAction,
+  SetAction,
   State,
   ActionTypes,
   Controller,
@@ -13,7 +13,7 @@ const { initialState, createReducer } = __INTERNAL__;
 export default function mockInitialState(
   fixtures: Fixture[] = [],
 ): State<unknown> {
-  const actions: ReceiveAction[] = [];
+  const actions: SetAction[] = [];
   const dispatch = (action: any) => {
     actions.push(action);
     return Promise.resolve();

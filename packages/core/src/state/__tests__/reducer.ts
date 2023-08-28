@@ -401,7 +401,7 @@ describe('reducer', () => {
     expectedMeta['20'] = { expiresAt: 0, invalidated: true };
     expect(newState.meta).toEqual(expectedMeta);
   });
-  it('should set error in meta for "receive"', () => {
+  it('should set error in meta for "set"', () => {
     const id = 20;
     const error = new Error('hi');
     const action: SetAction = {
