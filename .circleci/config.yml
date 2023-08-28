@@ -70,7 +70,6 @@ jobs:
             if [ "<< parameters.react-version >>" != "^18" ]; then
             yarn add --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >> @testing-library/react@^12.0.0 @testing-library/react-hooks
             yarn workspace @data-client/test add @testing-library/react@^12.0.0
-            yarn workspace @rest-hooks/legacy add --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
             yarn set resolution @testing-library/react@npm:^14.0.0 ^12.0.0 
             fi
       - run:
@@ -85,7 +84,7 @@ jobs:
                 ./codecov < ./lcov.info || true;
               fi
             else
-              yarn test:ci --maxWorkers=3 packages/react packages/redux packages/ssr packages/use-enhanced-reducer packages/img packages/legacy/src/__tests__/useStatefulResource.tsx packages/rest packages/hooks
+              yarn test:ci --maxWorkers=3 packages/react packages/redux packages/ssr packages/use-enhanced-reducer packages/img packages/rest packages/hooks
             fi
 
   node_matrix:

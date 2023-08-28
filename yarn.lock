@@ -3194,7 +3194,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/react@^0.4.0, @data-client/react@^0.4.3, @data-client/react@workspace:*, @data-client/react@workspace:^, @data-client/react@workspace:packages/react":
+"@data-client/react@^0.4.0, @data-client/react@workspace:*, @data-client/react@workspace:^, @data-client/react@workspace:packages/react":
   version: 0.0.0-use.local
   resolution: "@data-client/react@workspace:packages/react"
   dependencies:
@@ -5442,103 +5442,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rest-hooks/core@npm:^5.2.1":
-  version: 5.2.1
-  resolution: "@rest-hooks/core@npm:5.2.1"
-  dependencies:
-    "@data-client/core": ^0.4.3
-  checksum: 4907c199ae365d01d5468259040ed4784b14632f8e8f4aa83a8963da052e4810c92428a31dfcfbc46d5e59920189be6930e6440fb74b254a476573f12068d069
-  languageName: node
-  linkType: hard
-
-"@rest-hooks/endpoint@npm:*":
-  version: 4.0.8
-  resolution: "@rest-hooks/endpoint@npm:4.0.8"
-  dependencies:
-    "@data-client/endpoint": ^0.2.8
-  checksum: 48dad1e6d871abd51e9e41694242640f8cdb365c203916573e4e9d247c0b84cfabd2a8cf365c896e940fa74973a26269a1d219a2f2ce39744f5add0fbd1c1026
-  languageName: node
-  linkType: hard
-
-"@rest-hooks/legacy@workspace:packages/legacy":
-  version: 0.0.0-use.local
-  resolution: "@rest-hooks/legacy@workspace:packages/legacy"
-  dependencies:
-    "@anansi/browserslist-config": ^1.4.2
-    "@rest-hooks/core": ^5.2.1
-    "@rest-hooks/endpoint": "*"
-    "@rest-hooks/normalizr": ^11.1.0
-    "@rest-hooks/react": "*"
-    "@rest-hooks/test": ^10.3.7
-    "@types/node": ^20.0.0
-    "@types/react": 18.2.21
-    "@types/react-dom": ^18.0.11
-    react: ^18.2.0
-    react-dom: ^18.2.0
-  peerDependencies:
-    "@rest-hooks/endpoint": "*"
-    "@rest-hooks/react": ^8.0.0
-    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
-    react: ^16.8.4 || ^17.0.0 || ^18.0.0-0
-  peerDependenciesMeta:
-    "@types/react":
-      optional: true
-  languageName: unknown
-  linkType: soft
-
-"@rest-hooks/normalizr@npm:^11.1.0":
-  version: 11.1.0
-  resolution: "@rest-hooks/normalizr@npm:11.1.0"
-  dependencies:
-    "@data-client/normalizr": ^0.2.0
-  checksum: 73faed924fe778ecf017d1553fd235dfd10db3549ed5c1d382766416c71200b51dfe4d28008521d04b5ffdfa3b24c5577dc93f9070776389ef986f3217bb9163
-  languageName: node
-  linkType: hard
-
-"@rest-hooks/react@npm:*":
-  version: 8.2.2
-  resolution: "@rest-hooks/react@npm:8.2.2"
-  dependencies:
-    "@data-client/react": ^0.4.3
-  checksum: 0feedad95d1191d0f342e429a740832f1105aea4fbada02af4bf9f52a9e054eb40182708290240a38ef793824c422466b04c8a2985c6b6c91361769ff25722da
-  languageName: node
-  linkType: hard
-
-"@rest-hooks/test@npm:^10.3.7":
-  version: 10.3.7
-  resolution: "@rest-hooks/test@npm:10.3.7"
-  dependencies:
-    "@babel/runtime": ^7.17.0
-    "@testing-library/react": ^14.0.0
-    "@testing-library/react-hooks": ~8.0.0
-    "@testing-library/react-native": ^12.0.1
-    react-error-boundary: ^4.0.0
-  peerDependencies:
-    "@rest-hooks/react": ^0.2.0 || ^0.3.0 || ^1.0.0 || ^6.0.0 || ^7.0.0
-    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0
-    "@types/react-dom": "*"
-    jest: "*"
-    react: ^16.8.4 || ^17.0.0 || ^18.0.0
-    react-dom: "*"
-    react-native: "*"
-    react-test-renderer: "*"
-  peerDependenciesMeta:
-    "@types/react":
-      optional: true
-    "@types/react-dom":
-      optional: true
-    jest:
-      optional: true
-    react-dom:
-      optional: true
-    react-native:
-      optional: true
-    react-test-renderer:
-      optional: true
-  checksum: a8ca28cea3fc93b25d330bf95027d35e8506ff8ff0a1ebedd75224f06fb6c4adfb7e4b4691a9972f07b470ed35add3edb8462dee7d88c0877be8a0525704c95a
-  languageName: node
-  linkType: hard
-
 "@sideway/address@npm:^4.1.3":
   version: 4.1.4
   resolution: "@sideway/address@npm:4.1.4"
@@ -5944,7 +5847,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react-hooks@npm:8.0.1, @testing-library/react-hooks@npm:~8.0.0":
+"@testing-library/react-hooks@npm:8.0.1":
   version: 8.0.1
   resolution: "@testing-library/react-hooks@npm:8.0.1"
   dependencies:

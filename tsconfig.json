@@ -12,7 +12,6 @@
     { "path": "./packages/redux/tsconfig.compile.json" },
     { "path": "./packages/img/tsconfig.compile.json" },
     { "path": "./packages/hooks/tsconfig.compile.json" },
-    { "path": "./packages/legacy/tsconfig.compile.json" },
     { "path": "./packages/ssr/tsconfig.compile.json" },
     { "path": "./packages/test/tsconfig.compile.json" },
   ]

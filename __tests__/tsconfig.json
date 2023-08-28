@@ -8,6 +8,5 @@
     { "path": "../packages/endpoint" },
     { "path": "../packages/rest" },
     { "path": "../packages/core" },
-    { "path": "../packages/legacy" }
   ]
 }

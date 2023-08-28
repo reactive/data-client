@@ -26,7 +26,6 @@ const baseConfig = {
     'packages/rest/src/next',
     'packages/core/src/next',
     'packages/react/src/next',
-    'packages/legacy/src/',
     'packages/core/src/state/legacy-actions/createFetch',
     'packages/react/src/makeCacheProvider',
     'packages/endpoint/src/schemas-3.7',
@@ -40,12 +39,10 @@ const baseConfig = {
       '<rootDir>/packages/redux/src/makeExternalCacheProvider',
     ],
     '@data-client/([^/]+)(/.*|[^/]*)$': ['<rootDir>/packages/$1/src$2'],
-    '@rest-hooks/legacy$': ['<rootDir>/packages/legacy/src'],
   },
 };
 
 const packages = [
-  'legacy',
   'endpoint',
   'rest',
   'graphql',

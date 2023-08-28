@@ -464,21 +464,6 @@ describe('useSuspense()', () => {
       { data: { ...payload, id: undefined }, parcel: 2 },
       endpoint,
     );
-  });
-
-  it('should throw error when response is expected Resource inside Record', async () => {
-    class Scheme extends SimpleRecord {
-      data: CoolerArticleResource = CoolerArticleResource.fromJS();
-      optional: UserResource | null = null;
-      static schema = {
-        data: CoolerArticleResource,
-        optional: UserResource,
-      };
-    }
-    const endpoint = CoolerArticleResource.detail().extend({
-      schema: Scheme,
-    });
-    await testMalformedResponse({ data: null }, endpoint);
   });*/
   });
 

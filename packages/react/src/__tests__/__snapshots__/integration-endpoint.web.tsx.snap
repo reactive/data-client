@@ -2,39 +2,6 @@
 
 exports[`CacheProvider Endpoint should gracefully abort in useSuspense() 1`] = `[AbortError: Aborted]`;
 
-exports[`CacheProvider Endpoint should resolve useSuspense() with SimpleRecords 1`] = `
-[
-  PaginatedArticle {
-    "author": User {
-      "email": "bob@bob.com",
-      "id": 23,
-      "isAdmin": false,
-      "username": "charles",
-    },
-    "content": "whatever",
-    "id": 5,
-    "tags": [
-      "a",
-      "best",
-      "react",
-    ],
-    "title": "hi ho",
-  },
-  PaginatedArticle {
-    "author": User {
-      "email": "bob@bob.com",
-      "id": 23,
-      "isAdmin": false,
-      "username": "charles",
-    },
-    "content": "whatever",
-    "id": 3,
-    "tags": [],
-    "title": "the next time",
-  },
-]
-`;
-
 exports[`CacheProvider should filter Query based on arguments 1`] = `
 [
   CoolerArticle {
@@ -174,39 +141,6 @@ Value: {
 ]
 `;
 
-exports[`CacheProvider should resolve useSuspense() with SimpleRecords 1`] = `
-[
-  PaginatedArticle {
-    "author": User {
-      "email": "bob@bob.com",
-      "id": 23,
-      "isAdmin": false,
-      "username": "charles",
-    },
-    "content": "whatever",
-    "id": 5,
-    "tags": [
-      "a",
-      "best",
-      "react",
-    ],
-    "title": "hi ho",
-  },
-  PaginatedArticle {
-    "author": User {
-      "email": "bob@bob.com",
-      "id": 23,
-      "isAdmin": false,
-      "username": "charles",
-    },
-    "content": "whatever",
-    "id": 3,
-    "tags": [],
-    "title": "the next time",
-  },
-]
-`;
-
 exports[`CacheProvider useSuspense() should throw errors on malformed response 1`] = `
 [Error: Error processing GET http://test.com/article-cooler/878
 
@@ -237,39 +171,6 @@ First three members: [
 `;
 
 exports[`ExternalCacheProvider Endpoint should gracefully abort in useSuspense() 1`] = `[AbortError: Aborted]`;
-
-exports[`ExternalCacheProvider Endpoint should resolve useSuspense() with SimpleRecords 1`] = `
-[
-  PaginatedArticle {
-    "author": User {
-      "email": "bob@bob.com",
-      "id": 23,
-      "isAdmin": false,
-      "username": "charles",
-    },
-    "content": "whatever",
-    "id": 5,
-    "tags": [
-      "a",
-      "best",
-      "react",
-    ],
-    "title": "hi ho",
-  },
-  PaginatedArticle {
-    "author": User {
-      "email": "bob@bob.com",
-      "id": 23,
-      "isAdmin": false,
-      "username": "charles",
-    },
-    "content": "whatever",
-    "id": 3,
-    "tags": [],
-    "title": "the next time",
-  },
-]
-`;
 
 exports[`ExternalCacheProvider should filter Query based on arguments 1`] = `
 [
@@ -407,39 +308,6 @@ Value: {
   "body": "hi"
 }.",
   ],
-]
-`;
-
-exports[`ExternalCacheProvider should resolve useSuspense() with SimpleRecords 1`] = `
-[
-  PaginatedArticle {
-    "author": User {
-      "email": "bob@bob.com",
-      "id": 23,
-      "isAdmin": false,
-      "username": "charles",
-    },
-    "content": "whatever",
-    "id": 5,
-    "tags": [
-      "a",
-      "best",
-      "react",
-    ],
-    "title": "hi ho",
-  },
-  PaginatedArticle {
-    "author": User {
-      "email": "bob@bob.com",
-      "id": 23,
-      "isAdmin": false,
-      "username": "charles",
-    },
-    "content": "whatever",
-    "id": 3,
-    "tags": [],
-    "title": "the next time",
-  },
 ]
 `;
 
