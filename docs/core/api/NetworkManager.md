@@ -61,7 +61,7 @@ skipLogging(action: ActionTypes) {
 
 ### handleFetch(fetchAction)
 
-Called when middleware intercepts 'rest-hooks/fetch' action.
+Called when middleware intercepts 'rdc/fetch' action.
 
 Will then start a promise for a key and potentially start the network
 fetch.

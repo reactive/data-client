@@ -40,7 +40,7 @@ ReactDOM.render(
 
 ## Dispatched Actions
 
-- 'rest-hooks/fetch'
+- 'rdc/fetch'
 
 > #### Note:
 >
