@@ -16,7 +16,7 @@ exports[`useFetch should dispatch singles 1`] = `
     "throttle": true,
   },
   "payload": [Function],
-  "type": "rest-hooks/fetch",
+  "type": "rdc/fetch",
 }
 `;
 
@@ -36,7 +36,7 @@ exports[`useFetch should dispatch with fetch shape defined dataExpiryLength 1`] 
     "throttle": true,
   },
   "payload": [Function],
-  "type": "rest-hooks/fetch",
+  "type": "rdc/fetch",
 }
 `;
 
@@ -56,7 +56,7 @@ exports[`useFetch should dispatch with fetch shape defined errorExpiryLength 1`]
     "throttle": true,
   },
   "payload": [Function],
-  "type": "rest-hooks/fetch",
+  "type": "rdc/fetch",
 }
 `;
 
@@ -76,6 +76,6 @@ exports[`useFetch should dispatch with resource defined dataExpiryLength 1`] = `
     "throttle": true,
   },
   "payload": [Function],
-  "type": "rest-hooks/fetch",
+  "type": "rdc/fetch",
 }
 `;

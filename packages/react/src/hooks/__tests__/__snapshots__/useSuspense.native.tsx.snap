@@ -124,6 +124,6 @@ exports[`useSuspense() should dispatch an action that fetches 1`] = `
     "throttle": true,
   },
   "payload": [Function],
-  "type": "rest-hooks/fetch",
+  "type": "rdc/fetch",
 }
 `;

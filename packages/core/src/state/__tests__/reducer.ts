@@ -472,7 +472,7 @@ describe('reducer', () => {
     const newState = reducer(iniState, action);
     expect(newState.entities).toBe(iniState.entities);
   });
-  it('rest-hooks/fetch should console.warn()', () => {
+  it('rdc/fetch should console.warn()', () => {
     const warnspy = jest
       .spyOn(global.console, 'warn')
       .mockImplementation(() => {});

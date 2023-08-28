@@ -1,7 +1,6 @@
 ---
 '@data-client/normalizr': patch
 '@data-client/endpoint': patch
-'@rest-hooks/legacy': patch
 '@data-client/react': patch
 '@data-client/core': patch
 '@data-client/rest': patch

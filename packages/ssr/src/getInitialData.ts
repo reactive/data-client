@@ -11,7 +11,8 @@ export const awaitInitialData = (id = 'data-client-data') => {
     document.addEventListener('DOMContentLoaded', () => {
       el = document.getElementById(id) as any;
       if (el) resolve(getDataFromEl(el, id));
-      else reject(new Error('failed to find DOM with rest hooks state'));
+      else
+        reject(new Error('failed to find DOM with reactive data client state'));
     });
   });
 };
