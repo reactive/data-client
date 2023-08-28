@@ -5,7 +5,7 @@ import { EntityInterface, EntityMap, SchemaFunction } from './schema.js';
 /**
  * Retrieves all entities in cache
  *
- * @see https://resthooks.io/rest/api/All
+ * @see https://dataclient.io/rest/api/All
  */
 export default class AllSchema<
   S extends EntityMap | EntityInterface = EntityMap | EntityInterface,

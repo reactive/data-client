@@ -80,7 +80,7 @@
   ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",
-  "homepage": "https://resthooks.io/docs/guides/no-suspense",
+  "homepage": "https://dataclient.io/docs/guides/no-suspense",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:data-client/rest-hooks.git",
@@ -102,8 +102,8 @@
   },
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",
-    "@rest-hooks/endpoint": "workspace:*",
-    "@rest-hooks/react": "workspace:*",
+    "@rest-hooks/endpoint": "*",
+    "@rest-hooks/react": "*",
     "@rest-hooks/test": "^10.3.7",
     "@types/node": "^20.0.0",
     "@types/react": "18.2.21",
@@ -112,7 +112,7 @@
     "react-dom": "^18.2.0"
   },
   "dependencies": {
-    "@rest-hooks/core": "workspace:^",
-    "@rest-hooks/normalizr": "workspace:^"
+    "@rest-hooks/core": "^5.2.1",
+    "@rest-hooks/normalizr": "^11.1.0"
   }
 }

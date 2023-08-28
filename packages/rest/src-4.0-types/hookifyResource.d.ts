@@ -7,7 +7,7 @@ export interface HookableEndpointInterface extends EndpointInterface {
  *
  * Requires TypeScript 4.1 to be typed correctly
  *
- * @see https://resthooks.io/rest/api/hookifyResource
+ * @see https://dataclient.io/rest/api/hookifyResource
  */
 export default function hookifyResource<R extends {}>(
   resource: R,

@@ -1,6 +1,6 @@
 /** An error with a Rest Endpoint fetch
  *
- * @see https://resthooks.io/rest/api/NetworkError
+ * @see https://dataclient.io/rest/api/NetworkError
  */
 export default class NetworkError extends Error {
   declare status: number;

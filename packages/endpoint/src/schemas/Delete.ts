@@ -7,7 +7,7 @@ import { SchemaClass, UnvisitFunction } from '../schema.js';
 // TODO(breaking): mark deprecated
 /**
  * Marks entity as deleted.
- * @see https://resthooks.io/rest/api/Delete
+ * @see https://dataclient.io/rest/api/Delete
  */
 export default class Delete<
     E extends EntityInterface & {

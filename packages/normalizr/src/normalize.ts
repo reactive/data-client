@@ -322,7 +322,7 @@ export const normalize = <
 
 Parsing this input string as JSON worked. This likely indicates fetch function did not parse
 the JSON. By default, this only happens if "content-type" header includes "json".
-See https://resthooks.io/rest/api/RestEndpoint#parseResponse for more information
+See https://dataclient.io/rest/api/RestEndpoint#parseResponse for more information
 
   Schema: ${JSON.stringify(schema, undefined, 2)}
   Input: "${input}"`);

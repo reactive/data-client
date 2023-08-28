@@ -16,7 +16,7 @@ function Loading() {
     useEffect(() => {
       console.warn(
         `Uncaught suspense.
-Make sure to add your own Suspense boundaries: https://resthooks.io/docs/getting-started/data-dependency#async-fallbacks`,
+Make sure to add your own Suspense boundaries: https://dataclient.io/docs/getting-started/data-dependency#async-fallbacks`,
       );
     }, []);
 
@@ -29,7 +29,7 @@ Make sure to add your own Suspense boundaries: https://resthooks.io/docs/getting
             style={{ color: 'blue' }}
             onPress={() =>
               Linking.openURL(
-                'https://resthooks.io/docs/getting-started/data-dependency#async-fallbacks',
+                'https://dataclient.io/docs/getting-started/data-dependency#async-fallbacks',
               )
             }
           >

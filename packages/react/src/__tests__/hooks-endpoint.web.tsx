@@ -163,7 +163,7 @@ describe('useController.fetch', () => {
     expect(spy.mock.calls[0]).toMatchInlineSnapshot(`
       [
         "It appears you are trying to use Rest Hooks without a provider.
-      Follow instructions: https://resthooks.io/docs/getting-started/installation#add-provider-at-top-level-component",
+      Follow instructions: https://dataclient.io/docs/getting-started/installation#add-provider-at-top-level-component",
       ]
     `);
     console.error = oldError;

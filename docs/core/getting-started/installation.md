@@ -66,7 +66,7 @@ ReactJS 16.2 and above is supported (the one with hooks!). React 18 provides imp
 support and features. Both React Native and React Navigation are supported.
 
 Other native frameworks like Expo should work, but have not been verified. If you have a working project using other
-React libraries, [feel free to share with others](https://github.com/data-client/rest-hooks/discussions/2422) in our
+React libraries, [feel free to share with others](https://github.com/data-client/data-client/discussions/2422) in our
 discussions.
 
 </details>

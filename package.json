@@ -2,7 +2,6 @@
   "private": true,
   "workspaces": [
     "packages/*",
-    "proxy-pkgs/*",
     "examples/benchmark",
     "examples/normalizr-*",
     "website"

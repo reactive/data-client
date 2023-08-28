@@ -85,7 +85,7 @@ jobs:
                 ./codecov < ./lcov.info || true;
               fi
             else
-              yarn test:ci --maxWorkers=3 packages/react packages/redux packages/ssr packages/use-enhanced-reducer packages/img packages/legacy/src/__tests__/useStatefulResource.tsx packages/rest packages/hooks packages/rest-hooks
+              yarn test:ci --maxWorkers=3 packages/react packages/redux packages/ssr packages/use-enhanced-reducer packages/img packages/legacy/src/__tests__/useStatefulResource.tsx packages/rest packages/hooks
             fi
 
   node_matrix:

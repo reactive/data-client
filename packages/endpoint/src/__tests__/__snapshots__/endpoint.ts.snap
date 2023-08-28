@@ -6,7 +6,7 @@ exports[`Endpoint (CSP false) Function should console.error with autoname failur
     "Endpoint: Autonaming failure.
 
 Endpoint initialized with anonymous function.
-Please add \`name\` option or hoist the function definition. https://resthooks.io/rest/api/Endpoint#name",
+Please add \`name\` option or hoist the function definition. https://dataclient.io/rest/api/Endpoint#name",
   ],
 ]
 `;
@@ -17,7 +17,7 @@ exports[`Endpoint (CSP true) Function should console.error with autoname failure
     "Endpoint: Autonaming failure.
 
 Endpoint initialized with anonymous function.
-Please add \`name\` option or hoist the function definition. https://resthooks.io/rest/api/Endpoint#name",
+Please add \`name\` option or hoist the function definition. https://dataclient.io/rest/api/Endpoint#name",
   ],
 ]
 `;

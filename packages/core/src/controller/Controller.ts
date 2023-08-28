@@ -58,7 +58,7 @@ const unsetState = (): State<unknown> => {
 
 /**
  * Imperative control of Rest Hooks store
- * @see https://resthooks.io/docs/api/Controller
+ * @see https://dataclient.io/docs/api/Controller
  */
 export default class Controller<
   D extends GenericDispatch = DataClientDispatch,
@@ -66,7 +66,7 @@ export default class Controller<
   /**
    * Dispatches an action to Rest Hooks reducer.
    *
-   * @see https://resthooks.io/docs/api/Controller#dispatch
+   * @see https://dataclient.io/docs/api/Controller#dispatch
    */
   declare readonly dispatch: D;
   /**
@@ -74,7 +74,7 @@ export default class Controller<
    *
    * This can be useful for imperative use-cases like event handlers.
    * This should *not* be used to render; instead useSuspense() or useCache()
-   * @see https://resthooks.io/docs/api/Controller#getState
+   * @see https://dataclient.io/docs/api/Controller#getState
    */
   declare readonly getState: () => State<unknown>;
   declare readonly globalCache: DenormalizeCache;
@@ -96,7 +96,7 @@ export default class Controller<
 
   /**
    * Fetches the endpoint with given args, updating the Rest Hooks cache with the response or error upon completion.
-   * @see https://resthooks.io/docs/api/Controller#fetch
+   * @see https://dataclient.io/docs/api/Controller#fetch
    */
   fetch = <
     E extends EndpointInterface & { update?: EndpointUpdateFunction<E> },
@@ -143,7 +143,7 @@ export default class Controller<
 
   /**
    * Forces refetching and suspense on useSuspense with the same Endpoint and parameters.
-   * @see https://resthooks.io/docs/api/Controller#invalidate
+   * @see https://dataclient.io/docs/api/Controller#invalidate
    */
   invalidate = <E extends EndpointInterface>(
     endpoint: E,
@@ -159,7 +159,7 @@ export default class Controller<
 
   /**
    * Forces refetching and suspense on useSuspense on all matching endpoint result keys.
-   * @see https://resthooks.io/docs/api/Controller#invalidateAll
+   * @see https://dataclient.io/docs/api/Controller#invalidateAll
    * @returns Promise that resolves when invalidation is commited.
    */
   invalidateAll = (options: { testKey: (key: string) => boolean }) =>
@@ -175,13 +175,13 @@ export default class Controller<
 
   /**
    * Resets the entire Rest Hooks cache. All inflight requests will not resolve.
-   * @see https://resthooks.io/docs/api/Controller#resetEntireStore
+   * @see https://dataclient.io/docs/api/Controller#resetEntireStore
    */
   resetEntireStore = (): Promise<void> => this.dispatch(createReset());
 
   /**
    * Stores response in cache for given Endpoint and args.
-   * @see https://resthooks.io/docs/api/Controller#set
+   * @see https://dataclient.io/docs/api/Controller#set
    */
   setResponse = <
     E extends EndpointInterface & {
@@ -200,7 +200,7 @@ export default class Controller<
   };
 
   /**
-   * @deprecated use https://resthooks.io/docs/api/Controller#setResponse instead
+   * @deprecated use https://dataclient.io/docs/api/Controller#setResponse instead
    */
   /* istanbul ignore next */ receive = <
     E extends EndpointInterface & {
@@ -216,7 +216,7 @@ export default class Controller<
 
   /**
    * Stores the result of Endpoint and args as the error provided.
-   * @see https://resthooks.io/docs/api/Controller#setError
+   * @see https://dataclient.io/docs/api/Controller#setError
    */
   setError = <
     E extends EndpointInterface & {
@@ -237,7 +237,7 @@ export default class Controller<
 
   /**
    * Another name for setError
-   * @deprecated use https://resthooks.io/docs/api/Controller#setError instead
+   * @deprecated use https://dataclient.io/docs/api/Controller#setError instead
    */
   /* istanbul ignore next */ receiveError = <
     E extends EndpointInterface & {
@@ -253,7 +253,7 @@ export default class Controller<
 
   /**
    * Resolves an inflight fetch. `fetchedAt` should `fetch`'s `createdAt`
-   * @see https://resthooks.io/docs/api/Controller#resolve
+   * @see https://dataclient.io/docs/api/Controller#resolve
    */
   resolve = <
     E extends EndpointInterface & {
@@ -280,7 +280,7 @@ export default class Controller<
 
   /**
    * Marks a new subscription to a given Endpoint.
-   * @see https://resthooks.io/docs/api/Controller#subscribe
+   * @see https://dataclient.io/docs/api/Controller#subscribe
    */
   subscribe = <
     E extends EndpointInterface<
@@ -302,7 +302,7 @@ export default class Controller<
 
   /**
    * Marks completion of subscription to a given Endpoint.
-   * @see https://resthooks.io/docs/api/Controller#unsubscribe
+   * @see https://dataclient.io/docs/api/Controller#unsubscribe
    */
   unsubscribe = <
     E extends EndpointInterface<
@@ -332,8 +332,8 @@ export default class Controller<
   */
 
   /**
-   * Gets a snapshot (https://resthooks.io/docs/api/Snapshot)
-   * @see https://resthooks.io/docs/api/Controller#snapshot
+   * Gets a snapshot (https://dataclient.io/docs/api/Snapshot)
+   * @see https://dataclient.io/docs/api/Controller#snapshot
    */
   snapshot = (state: State<unknown>, fetchedAt?: number): SnapshotInterface => {
     return new Snapshot(this, state, fetchedAt);
@@ -341,7 +341,7 @@ export default class Controller<
 
   /**
    * Gets the error, if any, for a given endpoint. Returns undefined for no errors.
-   * @see https://resthooks.io/docs/api/Controller#getError
+   * @see https://dataclient.io/docs/api/Controller#getError
    */
   getError = <
     E extends Pick<EndpointInterface, 'key'>,
@@ -366,7 +366,7 @@ export default class Controller<
 
   /**
    * Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
-   * @see https://resthooks.io/docs/api/Controller#getResponse
+   * @see https://dataclient.io/docs/api/Controller#getResponse
    */
   getResponse = <
     E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>,
@@ -450,7 +450,7 @@ export default class Controller<
       expiresAt = entityExpiresAt(paths, state.entityMeta);
     }
 
-    // https://resthooks.io/docs/concepts/expiry-policy#expiry-status
+    // https://dataclient.io/docs/concepts/expiry-policy#expiry-status
     // we don't track the difference between stale or fresh because that is tied to triggering
     // conditions
     const expiryStatus =
@@ -520,7 +520,7 @@ class Snapshot<T = unknown> implements SnapshotInterface {
   }
 
   /*************** Data Access ***************/
-  /** @see https://resthooks.io/docs/api/Snapshot#getResponse */
+  /** @see https://dataclient.io/docs/api/Snapshot#getResponse */
   getResponse = <
     E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>,
     Args extends readonly [...Parameters<E['key']>],
@@ -535,7 +535,7 @@ class Snapshot<T = unknown> implements SnapshotInterface {
     return this.controller.getResponse(endpoint, ...args, this.state);
   };
 
-  /** @see https://resthooks.io/docs/api/Snapshot#getError */
+  /** @see https://dataclient.io/docs/api/Snapshot#getError */
   getError = <
     E extends Pick<EndpointInterface, 'key'>,
     Args extends readonly [...Parameters<E['key']>],

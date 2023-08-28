@@ -227,8 +227,8 @@ Attempted to initialize CoolerArticle with an array, but named members were expe
 
 This is likely due to a malformed response.
 Try inspecting the network response or fetch() return value.
-Or use debugging tools: https://resthooks.io/docs/guides/debugging
-Learn more about schemas: https://resthooks.io/docs/api/schema
+Or use debugging tools: https://dataclient.io/docs/guides/debugging
+Learn more about schemas: https://dataclient.io/docs/api/schema
 If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
 
 First three members: [
@@ -463,8 +463,8 @@ Attempted to initialize CoolerArticle with an array, but named members were expe
 
 This is likely due to a malformed response.
 Try inspecting the network response or fetch() return value.
-Or use debugging tools: https://resthooks.io/docs/guides/debugging
-Learn more about schemas: https://resthooks.io/docs/api/schema
+Or use debugging tools: https://dataclient.io/docs/guides/debugging
+Learn more about schemas: https://dataclient.io/docs/api/schema
 If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
 
 First three members: [

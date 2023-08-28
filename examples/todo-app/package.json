@@ -1,7 +1,7 @@
 {
   "name": "todo-app",
   "version": "0.2.24",
-  "description": "todo-app - A rest hooks example",
+  "description": "todo-app - A reactive data client example",
   "scripts": {
     "lint": "yarn g:lint src --ext .ts,.tsx",
     "format": "run lint --fix",

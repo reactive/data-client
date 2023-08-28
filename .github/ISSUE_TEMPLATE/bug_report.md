@@ -38,4 +38,4 @@ Any console errors? What does the networking inspector show?
 **Minimum reproducable example or test case**
 For many cases reproducing the bug is fairly straightforward. However, if
 this requires special conditions to trigger, an example can expedite resolution of the issue.
-Provide a github repo with usage, or fork rest hooks and add a test case that fails.
+Provide a github repo with usage, or fork reactive data client and add a test case that fails.

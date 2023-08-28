@@ -686,8 +686,8 @@ exports[`Entity normalization should error if no matching keys are found 1`] = `
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about schemas: https://resthooks.io/docs/api/schema
+  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Learn more about schemas: https://dataclient.io/docs/api/schema
   If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
 
   Expected keys:
@@ -744,8 +744,8 @@ exports[`Entity normalization should only warn if at least four members are foun
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about schemas: https://resthooks.io/docs/api/schema
+  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Learn more about schemas: https://dataclient.io/docs/api/schema
   If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
 
   Expected keys:
@@ -779,8 +779,8 @@ exports[`Entity normalization should throw a custom error if data does not inclu
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about primary keys: https://resthooks.io/rest/api/Entity#pk
+  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Learn more about primary keys: https://dataclient.io/rest/api/Entity#pk
 
   Entity: MyEntity
   Value (processed): {
@@ -794,8 +794,8 @@ exports[`Entity normalization should throw a custom error if data does not inclu
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about primary keys: https://resthooks.io/rest/api/Entity#pk
+  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Learn more about primary keys: https://dataclient.io/rest/api/Entity#pk
 
   Entity: MyEntity
   Value (processed): {
@@ -809,8 +809,8 @@ exports[`Entity normalization should throw a custom error if data loads with hal
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about schemas: https://resthooks.io/docs/api/schema
+  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Learn more about schemas: https://dataclient.io/docs/api/schema
   If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
 
   Expected keys:
@@ -827,8 +827,8 @@ exports[`Entity normalization should throw a custom error if data loads with no 
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about primary keys: https://resthooks.io/rest/api/Entity#pk
+  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Learn more about primary keys: https://dataclient.io/rest/api/Entity#pk
 
   Entity: MyEntity
   Value (processed): {}
@@ -852,8 +852,8 @@ exports[`Entity normalization should throw a custom error if schema key is missi
 "Schema key is missing in Entity
 
   Be sure all schema members are also part of the entity
-  Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about nesting schemas: https://resthooks.io/rest/guides/relational-data
+  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Learn more about nesting schemas: https://dataclient.io/rest/guides/relational-data
 
   Entity keys: name,secondthing
   Schema key(missing): blarb
@@ -865,8 +865,8 @@ exports[`Entity normalization should throw a custom error loads with array 1`] =
 
 This is likely due to a malformed response.
 Try inspecting the network response or fetch() return value.
-Or use debugging tools: https://resthooks.io/docs/guides/debugging
-Learn more about schemas: https://resthooks.io/docs/api/schema
+Or use debugging tools: https://dataclient.io/docs/guides/debugging
+Learn more about schemas: https://dataclient.io/docs/api/schema
 If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
 
 First three members: [
@@ -892,8 +892,8 @@ exports[`Entity normalization should warn when automaticValidation === "warn" 1`
 
 This is likely due to a malformed response.
 Try inspecting the network response or fetch() return value.
-Or use debugging tools: https://resthooks.io/docs/guides/debugging
-Learn more about schemas: https://resthooks.io/docs/api/schema
+Or use debugging tools: https://dataclient.io/docs/guides/debugging
+Learn more about schemas: https://dataclient.io/docs/api/schema
 If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
 
 First three members: [
@@ -921,8 +921,8 @@ exports[`Entity normalization should warn when automaticValidation === "warn" 2`
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about schemas: https://resthooks.io/docs/api/schema
+  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Learn more about schemas: https://dataclient.io/docs/api/schema
   If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
 
   Expected keys:

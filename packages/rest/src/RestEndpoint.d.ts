@@ -4,7 +4,7 @@ export * from './RestEndpointTypes.js';
 
 /** Simplifies endpoint definitions that follow REST patterns
  *
- * @see https://resthooks.io/rest/api/RestEndpoint
+ * @see https://dataclient.io/rest/api/RestEndpoint
  */
 export declare let RestEndpoint: RestEndpointConstructor;
 export default RestEndpoint;

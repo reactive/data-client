@@ -13,28 +13,28 @@ import RestEndpoint, {
 
 /** The typed (generic) options for a Resource */
 export interface ResourceGenerics {
-  /** @see https://resthooks.io/rest/api/createResource#path */
+  /** @see https://dataclient.io/rest/api/createResource#path */
   readonly path: ResourcePath;
-  /** @see https://resthooks.io/rest/api/createResource#schema */
+  /** @see https://dataclient.io/rest/api/createResource#schema */
   readonly schema: Schema;
   /** Only used for types */
   /** @see https://dataclient.io/rest/api/createResource#body */
   readonly body?: any;
   /** Only used for types */
-  /** @see https://resthooks.io/rest/api/createResource#searchParams */
+  /** @see https://dataclient.io/rest/api/createResource#searchParams */
   readonly searchParams?: any;
-  /** @see https://resthooks.io/rest/api/createResource#paginationfield */
+  /** @see https://dataclient.io/rest/api/createResource#paginationfield */
   readonly paginationField?: string;
 }
 /** The untyped options for createResource() */
 export interface ResourceOptions {
-  /** @see https://resthooks.io/rest/api/createResource#endpoint */
+  /** @see https://dataclient.io/rest/api/createResource#endpoint */
   Endpoint?: typeof RestEndpoint;
   /** @see https://dataclient.io/rest/api/createResource#collection */
   Collection?: typeof Collection;
-  /** @see https://resthooks.io/rest/api/createResource#optimistic */
+  /** @see https://dataclient.io/rest/api/createResource#optimistic */
   optimistic?: boolean;
-  /** @see https://resthooks.io/rest/api/createResource#urlprefix */
+  /** @see https://dataclient.io/rest/api/createResource#urlprefix */
   urlPrefix?: string;
   requestInit?: RequestInit;
   getHeaders?(headers: HeadersInit): Promise<HeadersInit> | HeadersInit;
@@ -54,19 +54,19 @@ export interface ResourceOptions {
 }
 
 /** Resources are a collection of methods for a given data model.
- * @see https://resthooks.io/rest/api/createResource
+ * @see https://dataclient.io/rest/api/createResource
  */
 export interface Resource<
   O extends ResourceGenerics = { path: ResourcePath; schema: any },
 > extends Extendable<O> {
   /** Get a singular item
    *
-   * @see https://resthooks.io/rest/api/createResource#get
+   * @see https://dataclient.io/rest/api/createResource#get
    */
   get: GetEndpoint<{ path: O['path']; schema: O['schema'] }>;
   /** Get a list of item
    *
-   * @see https://resthooks.io/rest/api/createResource#getlist
+   * @see https://dataclient.io/rest/api/createResource#getlist
    */
   getList: 'searchParams' extends keyof O
     ? GetEndpoint<
@@ -111,7 +111,7 @@ export interface Resource<
       }>;
   /** Update an item (PUT)
    *
-   * @see https://resthooks.io/rest/api/createResource#update
+   * @see https://dataclient.io/rest/api/createResource#update
    */
   update: 'body' extends keyof O
     ? MutateEndpoint<{
@@ -126,7 +126,7 @@ export interface Resource<
       }>;
   /** Update an item (PATCH)
    *
-   * @see https://resthooks.io/rest/api/createResource#partialupdate
+   * @see https://dataclient.io/rest/api/createResource#partialupdate
    */
   partialUpdate: 'body' extends keyof O
     ? MutateEndpoint<{
@@ -141,7 +141,7 @@ export interface Resource<
       }>;
   /** Delete an item (DELETE)
    *
-   * @see https://resthooks.io/rest/api/createResource#delete
+   * @see https://dataclient.io/rest/api/createResource#delete
    */
   delete: RestTypeNoBody<
     PathArgs<O['path']>,

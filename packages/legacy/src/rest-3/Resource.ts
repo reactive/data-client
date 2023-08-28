@@ -18,7 +18,7 @@ class NetworkError extends Error {
 /**
  * Represents an entity to be retrieved from a server.
  * Typically 1:1 with a url endpoint.
- * @see https://resthooks.io/docs/api/resource
+ * @see https://dataclient.io/docs/api/resource
  */
 export default abstract class Resource extends SimpleResource {
   /** Perform network request and resolve with HTTP Response */

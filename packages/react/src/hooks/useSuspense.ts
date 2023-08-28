@@ -17,7 +17,7 @@ import useController from '../hooks/useController.js';
  * Suspends until it is.
  *
  * `useSuspense` guarantees referential equality globally.
- * @see https://resthooks.io/docs/api/useSuspense
+ * @see https://dataclient.io/docs/api/useSuspense
  * @throws {Promise} If data is not yet available.
  * @throws {NetworkError} If fetch fails.
  */

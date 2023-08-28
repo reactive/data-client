@@ -46,7 +46,7 @@ export default function EntitySchema<TBase extends Constructor>(
 ) {
   /**
    * Represents data that should be deduped by specifying a primary key.
-   * @see https://resthooks.io/docs/api/Entity
+   * @see https://dataclient.io/docs/api/Entity
    */
   abstract class EntityMixin extends Base {
     static toString() {
@@ -97,7 +97,7 @@ export default function EntitySchema<TBase extends Constructor>(
 
     /** Return true to merge incoming data; false keeps existing entity
      *
-     * @see https://resthooks.io/docs/api/schema.Entity#useIncoming
+     * @see https://dataclient.io/docs/api/schema.Entity#useIncoming
      */
     static useIncoming(
       existingMeta: { date: number; fetchedAt: number },
@@ -110,7 +110,7 @@ export default function EntitySchema<TBase extends Constructor>(
 
     /** Determines the order of incoming entity vs entity already in store\
      *
-     * @see https://resthooks.io/docs/api/schema.Entity#shouldReorder
+     * @see https://dataclient.io/docs/api/schema.Entity#shouldReorder
      * @returns true if incoming entity should be first argument of merge()
      */
     static shouldReorder(
@@ -220,8 +220,8 @@ export default function EntitySchema<TBase extends Constructor>(
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about primary keys: https://resthooks.io/rest/api/Entity#pk
+  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Learn more about primary keys: https://dataclient.io/rest/api/Entity#pk
 
   Entity: ${this.name}
   Value (processed): ${
@@ -280,8 +280,8 @@ export default function EntitySchema<TBase extends Constructor>(
               return `Schema key is missing in Entity
 
   Be sure all schema members are also part of the entity
-  Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about nesting schemas: https://resthooks.io/rest/guides/relational-data
+  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Learn more about nesting schemas: https://dataclient.io/rest/guides/relational-data
 
   Entity keys: ${Object.keys(this.defaults)}
   Schema key(missing): ${key}
@@ -406,7 +406,9 @@ export default function EntitySchema<TBase extends Constructor>(
             key: string;
           }): string {
             const name = this.name === 'EntityMixin' ? Base.name : this.name;
-            console.error('Rest Hooks Error: https://resthooks.io/errors/dklj');
+            console.error(
+              'Rest Hooks Error: https://dataclient.io/errors/dklj',
+            );
             Object.defineProperty(this, 'key', {
               get() {
                 return name;
@@ -423,7 +425,7 @@ export default function EntitySchema<TBase extends Constructor>(
               (name === '' || name === 'EntityMixin' || name === '_temp')
             )
               throw new Error(
-                'Entity classes without a name must define `static key`\nSee: https://resthooks.io/rest/api/Entity#key',
+                'Entity classes without a name must define `static key`\nSee: https://dataclient.io/rest/api/Entity#key',
               );
             return name;
           };
@@ -491,7 +493,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
   ): string | undefined;
   /** Return true to merge incoming data; false keeps existing entity
    *
-   * @see https://resthooks.io/docs/api/schema.Entity#useIncoming
+   * @see https://dataclient.io/docs/api/schema.Entity#useIncoming
    */
   useIncoming(
     existingMeta: {
@@ -507,7 +509,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
   ): boolean;
   /** Determines the order of incoming entity vs entity already in store\
    *
-   * @see https://resthooks.io/docs/api/schema.Entity#shouldReorder
+   * @see https://dataclient.io/docs/api/schema.Entity#shouldReorder
    * @returns true if incoming entity should be first argument of merge()
    */
   shouldReorder(

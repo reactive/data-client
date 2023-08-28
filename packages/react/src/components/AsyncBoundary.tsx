@@ -5,7 +5,7 @@ import NetworkErrorBoundary from './NetworkErrorBoundary.js';
 
 /**
  * Handles loading and error conditions of Suspense
- * @see https://resthooks.io/docs/api/AsyncBoundary
+ * @see https://dataclient.io/docs/api/AsyncBoundary
  */
 function AsyncBoundary({
   children,

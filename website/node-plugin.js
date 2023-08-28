@@ -16,7 +16,7 @@ module.exports = function (context, options) {
         },
         module: {
           rules: [
-            // transpile rest hooks to not use classes so it works with buble
+            // transpile reactive data client to not use classes so it works with buble
             /*{
               test: /\.m?js$/,
               include: [

@@ -26,12 +26,12 @@ Normalizr is a small, but powerful utility for taking JSON with a schema definit
 
 ## Documentation
 
-- [Introduction](https://resthooks.io/docs/concepts/normalization)
-- [Quick Start](https://resthooks.io/rest/api/schema)
-- [API](https://resthooks.io/rest/api/Entity)
+- [Introduction](https://dataclient.io/docs/concepts/normalization)
+- [Quick Start](https://dataclient.io/rest/api/schema)
+- [API](https://dataclient.io/rest/api/Entity)
   - [normalize](./docs/api.md#normalizedata-schema)
   - [denormalize](./docs/api.md#denormalizeinput-schema-entities)
-  - [schema](https://resthooks.io/rest/api/schema)
+  - [schema](https://dataclient.io/rest/api/schema)
 
 ## Examples
 

@@ -14,7 +14,7 @@ import useSuspense from './useSuspense.js';
  * Ensure an endpoint is available. Keeps it fresh once it is.
  *
  * useSuspense() + useSubscription()
- * @see https://resthooks.io/docs/api/useLive
+ * @see https://dataclient.io/docs/api/useLive
  * @throws {Promise} If data is not yet available.
  * @throws {NetworkError} If fetch fails.
  */

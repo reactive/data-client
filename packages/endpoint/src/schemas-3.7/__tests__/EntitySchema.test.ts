@@ -177,7 +177,7 @@ describe(`${schema.Entity.name} construction`, () => {
       );
       expect(() => MyEntity.key).toThrowErrorMatchingInlineSnapshot(`
         "Entity classes without a name must define \`static key\`
-        See: https://resthooks.io/rest/api/Entity#key"
+        See: https://dataclient.io/rest/api/Entity#key"
       `);
     });
     it('should use entity class name with no key in options', () => {

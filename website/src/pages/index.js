@@ -54,7 +54,7 @@ function HomepageHeader() {
           <span className={styles.GitHubButtonWrapper}>
             <iframe
               className={styles.GitHubButton}
-              src="https://ghbtns.com/github-btn.html?user=data-client&amp;repo=rest-hooks&amp;type=star&amp;count=true&amp;size=large"
+              src="https://ghbtns.com/github-btn.html?user=data-client&amp;repo=data-client&amp;type=star&amp;count=true&amp;size=large"
               width={160}
               height={30}
               title="GitHub Stars"
@@ -119,7 +119,7 @@ export default function Home() {
             <div className="col">
               <iframe
                 loading="lazy"
-                src="https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app?embed=1&file=src%2Fresources%2FIssue.tsx%2Csrc%2Fpages%2FIssueList.tsx&hidedevtools=1&view=both&terminalHeight=0&hideNavigation=1"
+                src="https://stackblitz.com/github/data-client/data-client/tree/master/examples/github-app?embed=1&file=src%2Fresources%2FIssue.tsx%2Csrc%2Fpages%2FIssueList.tsx&hidedevtools=1&view=both&terminalHeight=0&hideNavigation=1"
                 width="100%"
                 height="750"
                 style={{ maxHeight: 'calc(100vh - 64px)', height: '800px' }}

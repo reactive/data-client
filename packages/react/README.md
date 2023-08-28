@@ -2,10 +2,11 @@
 
 [![CircleCI](https://circleci.com/gh/data-client/data-client/tree/master.svg?style=shield)](https://circleci.com/gh/data-client/data-client)
 [![Coverage Status](https://img.shields.io/codecov/c/gh/data-client/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/data-client/data-client?branch=master)
-[![Percentage of issues still open](https://isitmaintained.com/badge/open/data-client/rest-hooks.svg)](https://github.com/data-client/rest-hooks/issues "Percentage of issues still open")
+[![Percentage of issues still open](https://isitmaintained.com/badge/open/data-client/data-client.svg)](https://github.com/data-client/data-client/issues "Percentage of issues still open")
 [![bundle size](https://img.shields.io/bundlephobia/minzip/@data-client/react?style=flat-square)](https://bundlephobia.com/result?p=@data-client/react)
 [![npm version](https://img.shields.io/npm/v/@data-client/react.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/react)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+[![Chat](https://img.shields.io/discord/768254430381735967.svg?style=flat-square&colorB=758ED3)](https://discord.gg/35nb8Mz)
 
 Define your [async methods](https://dataclient.io/docs/getting-started/resource). Use them [synchronously in React](https://dataclient.io/docs/getting-started/data-dependency). [Instantly mutate](https://dataclient.io/docs/getting-started/mutations) the data and automatically update all usages.
 
@@ -27,6 +28,8 @@ npm install --save @data-client/react @data-client/rest @data-client/test
 ```
 
 For more details, see [the Installation docs page](https://dataclient.io/docs/getting-started/installation).
+
+## Usage
 
 ### Simple [TypeScript definition](https://dataclient.io/rest/api/Entity)
 
@@ -225,6 +228,6 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://da
 
 ## Examples
 
-- Todo: [![GitHub](https://badgen.net/badge/icon/github?icon=github&label)](https://github.com/data-client/rest-hooks/tree/master/examples/todo-app) | [![Sandbox](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx)
-- Github: [![GitHub](https://badgen.net/badge/icon/github?icon=github&label)](https://github.com/data-client/rest-hooks/tree/master/examples/github-app) | [![Sandbox](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx)
-- NextJS: [![GitHub](https://badgen.net/badge/icon/github?icon=github&label)](https://github.com/data-client/rest-hooks/tree/master/examples/nextjs) | [![Sandbox](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx)
+- Todo: [![GitHub](https://badgen.net/badge/icon/github?icon=github&label)](https://github.com/data-client/data-client/tree/master/examples/todo-app) | [![Sandbox](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/data-client/data-client/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx)
+- Github: [![GitHub](https://badgen.net/badge/icon/github?icon=github&label)](https://github.com/data-client/data-client/tree/master/examples/github-app) | [![Sandbox](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/data-client/data-client/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx)
+- NextJS: [![GitHub](https://badgen.net/badge/icon/github?icon=github&label)](https://github.com/data-client/data-client/tree/master/examples/nextjs) | [![Sandbox](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/data-client/data-client/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx)

@@ -54,7 +54,7 @@ export type ExtendedEndpoint<
 
 /**
  * Defines an async data source.
- * @see https://resthooks.io/docs/api/Endpoint
+ * @see https://dataclient.io/docs/api/Endpoint
  */
 export interface EndpointInstance<
   F extends (...args: any) => Promise<any> = FetchFunction,
@@ -78,7 +78,7 @@ export interface EndpointInstance<
 
 /**
  * Defines an async data source.
- * @see https://resthooks.io/docs/api/Endpoint
+ * @see https://dataclient.io/docs/api/Endpoint
  */
 export interface EndpointInstanceInterface<
   F extends FetchFunction = FetchFunction,
@@ -145,7 +145,7 @@ export interface EndpointInstanceInterface<
   fetch: F;
 
   /* utilities */
-  /** @see https://resthooks.io/rest/api/Endpoint#testKey */
+  /** @see https://dataclient.io/rest/api/Endpoint#testKey */
   testKey(key: string): boolean;
 }
 

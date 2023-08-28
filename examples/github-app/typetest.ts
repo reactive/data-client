@@ -17,13 +17,13 @@ function useTest() {
 
   const params = {
     owner: 'ntucker',
-    repo: 'rest-hooks',
+    repo: 'data-client',
     page: '1',
   };
   const { results: issues, link } = useLive(IssueResource.getList, params);
   useSuspense(IssueResource.getList, {
     owner: 'ntucker',
-    repo: 'rest-hooks',
+    repo: 'data-client',
   });
 
   issues.map((issue) => {

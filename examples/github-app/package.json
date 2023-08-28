@@ -1,7 +1,7 @@
 {
   "name": "github-app",
   "version": "0.4.15",
-  "description": "github-app - A rest hooks example",
+  "description": "github-app - A reactive data client example",
   "scripts": {
     "lint": "yarn g:lint src --ext .ts,.tsx",
     "format": "run lint --fix",

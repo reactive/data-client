@@ -2,7 +2,7 @@ import PolymorphicSchema from './Polymorphic.js';
 
 /**
  * Represents polymorphic values.
- * @see https://resthooks.io/rest/api/Union
+ * @see https://dataclient.io/rest/api/Union
  */
 export default class UnionSchema extends PolymorphicSchema {
   constructor(definition: any, schemaAttribute: any) {

@@ -14,5 +14,5 @@ exports[`RestEndpoint.fetch() should reject with custom message if content type 
 See https://www.rfc-editor.org/rfc/rfc4627 for information on JSON responses
 
 Using parsed JSON.
-If text content was expected see https://resthooks.io/rest/api/RestEndpoint#parseResponse]
+If text content was expected see https://dataclient.io/rest/api/RestEndpoint#parseResponse]
 `;

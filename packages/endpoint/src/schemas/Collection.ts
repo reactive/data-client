@@ -21,7 +21,7 @@ const createValue = (value: any) => ({ ...value });
 
 /**
  * Entities but for Arrays instead of classes
- * @see https://resthooks.io/rest/api/Collection
+ * @see https://dataclient.io/rest/api/Collection
  */
 export default class CollectionSchema<
   S extends PolymorphicInterface = any,

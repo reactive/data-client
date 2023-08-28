@@ -22,7 +22,7 @@ export function fetchReducer(state: State<unknown>, action: FetchAction) {
         'Fetch appears unhandled - you are likely missing the NetworkManager middleware',
       );
       console.warn(
-        'See https://resthooks.io/docs/guides/redux#indextsx for hooking up redux',
+        'See https://dataclient.io/docs/guides/redux#indextsx for hooking up redux',
       );
     }
 

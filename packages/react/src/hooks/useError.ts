@@ -11,7 +11,7 @@ type UseErrorReturn<P> = P extends [null] ? undefined : ErrorTypes | undefined;
 
 /**
  * Get any errors for a given request
- * @see https://resthooks.io/docs/api/useError
+ * @see https://dataclient.io/docs/api/useError
  */
 export default function useError<
   E extends Pick<EndpointInterface, 'key'>,

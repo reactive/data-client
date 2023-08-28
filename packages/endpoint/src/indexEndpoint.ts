@@ -3,7 +3,7 @@ import type { AbstractInstanceType } from './normal.js';
 
 /**
  * Performant lookups by secondary indexes
- * @see https://resthooks.io/docs/api/Index
+ * @see https://dataclient.io/docs/api/Index
  */
 export class Index<S extends Schema, P = Readonly<IndexParams<S>>> {
   declare schema: S;
