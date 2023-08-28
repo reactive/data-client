@@ -2,7 +2,7 @@
 
 ### Getting started (remote)
 
-See this demo live in your browser at [![Stackblitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app)
+See this demo live in your browser at [![Stackblitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/data-client/data-client/tree/master/examples/github-app)
 
 ### Getting started (local)
 

@@ -2,7 +2,7 @@ import { CSP } from './CSP.js';
 
 /**
  * Defines an async data source.
- * @see https://resthooks.io/docs/api/Endpoint
+ * @see https://dataclient.io/docs/api/Endpoint
  */
 export default class Endpoint extends Function {
   constructor(fetchFunction, options) {
@@ -45,7 +45,7 @@ export default class Endpoint extends Function {
           !(autoName || this.__name)
         ) {
           console.error(
-            'Endpoint: Autonaming failure.\n\nEndpoint initialized with anonymous function.\nPlease add `name` option or hoist the function definition. https://resthooks.io/rest/api/Endpoint#name',
+            'Endpoint: Autonaming failure.\n\nEndpoint initialized with anonymous function.\nPlease add `name` option or hoist the function definition. https://dataclient.io/rest/api/Endpoint#name',
           );
         }
         return autoName || this.__name;

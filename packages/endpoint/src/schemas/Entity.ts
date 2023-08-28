@@ -11,7 +11,7 @@ const EmptyBase = class {} as any as abstract new (...args: any[]) => {
 
 /**
  * Represents data that should be deduped by specifying a primary key.
- * @see https://resthooks.io/docs/api/Entity
+ * @see https://dataclient.io/docs/api/Entity
  */
 export default abstract class Entity extends EntitySchema(EmptyBase) {
   /**
@@ -20,7 +20,7 @@ export default abstract class Entity extends EntitySchema(EmptyBase) {
    * @param [parent] When normalizing, the object which included the entity
    * @param [key] When normalizing, the key where this entity was found
    * @param [args] ...args sent to Endpoint
-   * @see https://resthooks.io/rest/api/Entity#pk
+   * @see https://dataclient.io/rest/api/Entity#pk
    */
   abstract pk(
     parent?: any,
@@ -40,7 +40,7 @@ export default abstract class Entity extends EntitySchema(EmptyBase) {
 
   /** Return true to merge incoming data; false keeps existing entity
    *
-   * @see https://resthooks.io/docs/api/schema.Entity#useIncoming
+   * @see https://dataclient.io/docs/api/schema.Entity#useIncoming
    */
   static useIncoming(
     existingMeta: { date: number; fetchedAt: number },
@@ -52,7 +52,7 @@ export default abstract class Entity extends EntitySchema(EmptyBase) {
   }
 
   /** Run when an existing entity is found in the store
-   * @see https://resthooks.io/rest/api/Entity#mergeWithStore
+   * @see https://dataclient.io/rest/api/Entity#mergeWithStore
    */
   static mergeWithStore(
     existingMeta:
@@ -105,7 +105,7 @@ export default abstract class Entity extends EntitySchema(EmptyBase) {
   /** Factory method to convert from Plain JS Objects.
    *
    * @param [props] Plain Object of properties to assign.
-   * @see https://resthooks.io/rest/api/Entity#fromJS
+   * @see https://dataclient.io/rest/api/Entity#fromJS
    */
   declare static fromJS: <T extends typeof Entity>(
     this: T,
@@ -131,7 +131,7 @@ export default abstract class Entity extends EntitySchema(EmptyBase) {
 
   /** Do any transformations when first receiving input
    *
-   * @see https://resthooks.io/docs/api/Entity#process
+   * @see https://dataclient.io/docs/api/Entity#process
    */
   static process(
     input: any,
@@ -151,8 +151,8 @@ export default abstract class Entity extends EntitySchema(EmptyBase) {
 
 This is likely due to a malformed response.
 Try inspecting the network response or fetch() return value.
-Or use debugging tools: https://resthooks.io/docs/guides/debugging
-Learn more about schemas: https://resthooks.io/docs/api/schema
+Or use debugging tools: https://dataclient.io/docs/guides/debugging
+Learn more about schemas: https://dataclient.io/docs/api/schema
 If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
 
 First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
@@ -169,7 +169,7 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
   }
 
   /** Returning a string indicates an error (the string is the message)
-   * @see https://resthooks.io/rest/api/Entity#validate
+   * @see https://dataclient.io/rest/api/Entity#validate
    */
   static validate(processedEntity: any): string | undefined {
     /* istanbul ignore else */
@@ -226,8 +226,8 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about schemas: https://resthooks.io/docs/api/schema
+  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Learn more about schemas: https://dataclient.io/docs/api/schema
   If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
 
   Expected keys:

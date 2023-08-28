@@ -37,7 +37,7 @@ type StatefulReturn<S extends Schema, P> = CondNull<
 
 /**
  * Ensure a resource is available; loading and error returned explicitly.
- * @see https://resthooks.io/docs/guides/no-suspense
+ * @see https://dataclient.io/docs/guides/no-suspense
  */
 export default function useStatefulResource<
   E extends

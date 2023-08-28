@@ -3,7 +3,7 @@ import { filterEmpty, getValues } from './utils.js';
 
 /**
  * Represents arrays
- * @see https://resthooks.io/rest/api/Array
+ * @see https://dataclient.io/rest/api/Array
  */
 export default class ArraySchema extends PolymorphicSchema {
   normalize(

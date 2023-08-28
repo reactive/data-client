@@ -14,7 +14,7 @@ interface State<E extends NetworkError> {
 }
 /**
  * Handles any networking errors from suspense
- * @see https://resthooks.io/docs/api/NetworkErrorBoundary
+ * @see https://dataclient.io/docs/api/NetworkErrorBoundary
  */
 export default class NetworkErrorBoundary<
   E extends NetworkError,

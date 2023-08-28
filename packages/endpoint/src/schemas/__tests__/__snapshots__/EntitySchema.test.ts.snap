@@ -676,8 +676,8 @@ exports[`EntitySchema normalization should error if no matching keys are found 1
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about primary keys: https://resthooks.io/rest/api/Entity#pk
+  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Learn more about primary keys: https://dataclient.io/rest/api/Entity#pk
 
   Entity: MyEntity
   Value (processed): {
@@ -691,8 +691,8 @@ exports[`EntitySchema normalization should throw a custom error if data does not
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about primary keys: https://resthooks.io/rest/api/Entity#pk
+  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Learn more about primary keys: https://dataclient.io/rest/api/Entity#pk
 
   Entity: MyData
   Value (processed): {
@@ -706,8 +706,8 @@ exports[`EntitySchema normalization should throw a custom error if data loads wi
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about primary keys: https://resthooks.io/rest/api/Entity#pk
+  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Learn more about primary keys: https://dataclient.io/rest/api/Entity#pk
 
   Entity: MyData
   Value (processed): {}
@@ -731,8 +731,8 @@ exports[`EntitySchema normalization should throw a custom error if schema key is
 "Schema key is missing in Entity
 
   Be sure all schema members are also part of the entity
-  Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about nesting schemas: https://resthooks.io/rest/guides/relational-data
+  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Learn more about nesting schemas: https://dataclient.io/rest/guides/relational-data
 
   Entity keys: name,secondthing
   Schema key(missing): blarb
@@ -744,8 +744,8 @@ exports[`EntitySchema normalization should throw a custom error loads with array
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about primary keys: https://resthooks.io/rest/api/Entity#pk
+  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Learn more about primary keys: https://dataclient.io/rest/api/Entity#pk
 
   Entity: MyData
   Value (processed): {

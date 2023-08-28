@@ -8,7 +8,7 @@ import type { Denormalize } from './normal.js';
 
 /**
  * Programmatic cache reading
- * @see https://resthooks.io/rest/api/Query
+ * @see https://dataclient.io/rest/api/Query
  */
 export class Query<
   S extends SchemaSimple,

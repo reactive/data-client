@@ -31,7 +31,7 @@ export default abstract class SimpleResource extends EntityRecord {
       if (this.urlRoot === undefined) {
         throw new Error(`urlRoot is not defined for Resource "${this.name}"
   Resources require a 'static urlRoot' or 'static get key()' defined.
-  (See https://resthooks.io/docs/api/resource#static-urlroot-string)
+  (See https://dataclient.io/docs/api/resource#static-urlroot-string)
 `);
       }
     }

@@ -207,15 +207,15 @@ export class ArticleFromMixin extends schema.Entity(ArticleData, {
 class ArticleEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {}
 
 interface ArticleGenerics {
-  /** @see https://resthooks.io/rest/api/createResource#path */
+  /** @see https://dataclient.io/rest/api/createResource#path */
   readonly path?: string;
-  /** @see https://resthooks.io/rest/api/createResource#schema */
+  /** @see https://dataclient.io/rest/api/createResource#schema */
   readonly schema: Schema;
   /** Only used for types */
   /** @see https://dataclient.io/rest/api/createResource#body */
   readonly body?: any;
   /** Only used for types */
-  /** @see https://resthooks.io/rest/api/createResource#searchParams */
+  /** @see https://dataclient.io/rest/api/createResource#searchParams */
   readonly searchParams?: any;
 }
 function createArticleResource<O extends ArticleGenerics>({

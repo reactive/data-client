@@ -1,4 +1,4 @@
-[Progress over time](https://data-client.github.io/rest-hooks/dev/bench/)
+[Progress over time](https://data-client.github.io/data-client/dev/bench/)
 
 ### Usage
 

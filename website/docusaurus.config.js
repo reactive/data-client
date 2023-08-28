@@ -401,7 +401,7 @@ module.exports = {
               },
               {
                 label: 'Twitter',
-                href: 'https://twitter.com/RestHooks',
+                href: 'https://twitter.com/DataClient',
               },
               {
                 label: 'Bug Report',

@@ -19,7 +19,7 @@ declare const Entity_base: import('./EntitySchema.js').IEntityClass<
   });
 /**
  * Represents data that should be deduped by specifying a primary key.
- * @see https://resthooks.io/docs/api/Entity
+ * @see https://dataclient.io/docs/api/Entity
  */
 export default abstract class Entity extends Entity_base {
   /**
@@ -45,7 +45,7 @@ export default abstract class Entity extends Entity_base {
   protected static automaticValidation?: 'warn' | 'silent';
   /** Return true to merge incoming data; false keeps existing entity
    *
-   * @see https://resthooks.io/docs/api/schema.Entity#useIncoming
+   * @see https://dataclient.io/docs/api/schema.Entity#useIncoming
    */
   static useIncoming(
     existingMeta: {

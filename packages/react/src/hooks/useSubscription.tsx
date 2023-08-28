@@ -5,7 +5,7 @@ import useController from './useController.js';
 
 /**
  * Keeps a resource fresh by subscribing to updates.
- * @see https://resthooks.io/docs/api/useSubscription
+ * @see https://dataclient.io/docs/api/useSubscription
  */
 export default function useSubscription<
   E extends EndpointInterface<

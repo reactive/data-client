@@ -18,7 +18,7 @@ import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
 :::tip TypeScript 4
 
-This version requires TypeScript 4.0. For older versions, try [@rest-hooks/rest@5](https://resthooks.io/rest/5.2), which is fully compatible with
+This version requires TypeScript 4.0. For older versions, try [@rest-hooks/rest@5](https://dataclient.io/rest/5.2), which is fully compatible with
 the latest Reactive Data Client clients.
 
 :::

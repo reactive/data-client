@@ -15,7 +15,7 @@ import useFocusEffect from './useFocusEffect.native.js';
 
 /**
  * Request a resource if it is not in cache.
- * @see https://resthooks.io/docs/api/useFetch
+ * @see https://dataclient.io/docs/api/useFetch
  */
 export default function useFetch<
   E extends EndpointInterface<

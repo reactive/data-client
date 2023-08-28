@@ -35,7 +35,7 @@ export { EntityInterface } from './interface.js';
 
 /**
  * Represents arrays
- * @see https://resthooks.io/rest/api/Array
+ * @see https://dataclient.io/rest/api/Array
  */
 export class Array<S extends Schema = Schema> implements SchemaClass {
   constructor(
@@ -87,7 +87,7 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
 /**
  * Retrieves all entities in cache
  *
- * @see https://resthooks.io/rest/api/AllSchema
+ * @see https://dataclient.io/rest/api/AllSchema
  */
 export class All<
   S extends EntityMap | EntityInterface = EntityMap | EntityInterface,
@@ -142,7 +142,7 @@ export class All<
 
 /**
  * Represents objects with statically known members
- * @see https://resthooks.io/rest/api/Object
+ * @see https://dataclient.io/rest/api/Object
  */
 export class Object<O extends Record<string, any> = Record<string, Schema>>
   implements SchemaClass
@@ -178,7 +178,7 @@ export class Object<O extends Record<string, any> = Record<string, Schema>>
 
 /**
  * Represents polymorphic values.
- * @see https://resthooks.io/rest/api/Union
+ * @see https://dataclient.io/rest/api/Union
  */
 export class Union<Choices extends EntityMap = any> implements SchemaClass {
   constructor(
@@ -228,7 +228,7 @@ export class Union<Choices extends EntityMap = any> implements SchemaClass {
 
 /**
  * Represents variably sized objects
- * @see https://resthooks.io/rest/api/Values
+ * @see https://dataclient.io/rest/api/Values
  */
 export class Values<Choices extends Schema = any> implements SchemaClass {
   constructor(
@@ -329,7 +329,7 @@ export interface SchemaClass<T = any, N = T | undefined>
 // id is in Instance, so we default to that as pk
 /**
  * Represents data that should be deduped by specifying a primary key.
- * @see https://resthooks.io/docs/api/schema.Entity
+ * @see https://dataclient.io/docs/api/schema.Entity
  */
 export function Entity<TBase extends PKClass>(
   Base: TBase,

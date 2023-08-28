@@ -6,7 +6,7 @@ import { DELETED } from '../special.js';
 
 /**
  * Marks entity as deleted.
- * @see https://resthooks.io/rest/api/Delete
+ * @see https://dataclient.io/rest/api/Delete
  */
 export default class Delete<E extends EntityInterface & { process: any }>
   implements SchemaClass
@@ -45,8 +45,8 @@ export default class Delete<E extends EntityInterface & { process: any }>
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about schemas: https://resthooks.io/docs/api/schema
+  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Learn more about schemas: https://dataclient.io/docs/api/schema
 
   Delete(Entity): Delete(${(this._entity as any).name ?? this._entity})
   Value: ${input && JSON.stringify(input, null, 2)}

@@ -26,7 +26,7 @@ describe('<BackupBoundary />', () => {
     expect(warnspy.mock.lastCall).toMatchInlineSnapshot(`
       [
         "CacheProvider does not update while doing SSR.
-      Try using https://resthooks.io/docs/api/ExternalCacheProvider for server entry points.",
+      Try using https://dataclient.io/docs/api/ExternalCacheProvider for server entry points.",
       ]
     `);
 

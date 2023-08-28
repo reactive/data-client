@@ -23,11 +23,11 @@ function NavBar() {
         label: <Link name="Home">React Issues</Link>,
       },
       {
-        key: 'rest-hooks',
+        key: 'data-client',
         label: (
           <Link
             name="IssueList"
-            props={{ repo: 'rest-hooks', owner: 'data-client' }}
+            props={{ repo: 'data-client', owner: 'data-client' }}
           >
             Rest Hooks Issues
           </Link>

@@ -13,7 +13,7 @@ import useController from '../hooks/useController.js';
 
 /**
  * Request a resource if it is not in cache.
- * @see https://resthooks.io/docs/api/useFetch
+ * @see https://dataclient.io/docs/api/useFetch
  */
 export default function useFetch<
   E extends EndpointInterface<

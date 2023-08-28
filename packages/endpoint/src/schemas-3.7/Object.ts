@@ -73,7 +73,7 @@ export function infer(
 
 /**
  * Represents objects with statically known members
- * @see https://resthooks.io/rest/api/Object
+ * @see https://dataclient.io/rest/api/Object
  */
 export default class ObjectSchema {
   protected schema: any;

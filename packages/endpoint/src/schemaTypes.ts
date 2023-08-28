@@ -115,17 +115,17 @@ export interface CollectionInterface<
   _normalizeNullable(): ReturnType<S['_normalizeNullable']>;
 
   /** Schema to place at the *end* of this Collection
-   * @see https://resthooks.io/rest/api/Collection#push
+   * @see https://dataclient.io/rest/api/Collection#push
    */
   push: CollectionArrayAdder<S>;
 
   /** Schema to place at the *beginning* of this Collection
-   * @see https://resthooks.io/rest/api/Collection#unshift
+   * @see https://dataclient.io/rest/api/Collection#unshift
    */
   unshift: CollectionArrayAdder<S>;
 
   /** Schema to merge with a Values Collection
-   * @see https://resthooks.io/rest/api/Collection#assign
+   * @see https://dataclient.io/rest/api/Collection#assign
    */
   assign: S extends { denormalizeOnly(...args: any): Record<string, unknown> }
     ? schema.Collection<S, Parent>

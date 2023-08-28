@@ -50,25 +50,25 @@ export interface IEntityClass<TBase extends Constructor = any> {
   };
   /** Defines nested entities
    *
-   * @see https://resthooks.io/rest/api/Entity#schema
+   * @see https://dataclient.io/rest/api/Entity#schema
    */
   schema: {
     [k: string]: Schema;
   };
   /** Returns the globally unique identifier for the static Entity
    *
-   * @see https://resthooks.io/docs/api/Entity#key
+   * @see https://dataclient.io/docs/api/Entity#key
    */
   key: string;
   /** Defines indexes to enable lookup by
    *
-   * @see https://resthooks.io/rest/api/Entity#indexes
+   * @see https://dataclient.io/rest/api/Entity#indexes
    */
   indexes?: readonly string[] | undefined;
   /**
    * A unique identifier for each Entity
    *
-   * @see https://resthooks.io/docs/api/Entity#pk
+   * @see https://dataclient.io/docs/api/Entity#pk
    * @param [value] POJO of the entity or subset used
    * @param [parent] When normalizing, the object which included the entity
    * @param [key] When normalizing, the key where this entity was found
@@ -86,7 +86,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
   ): string | undefined;
   /** Return true to merge incoming data; false keeps existing entity
    *
-   * @see https://resthooks.io/docs/api/schema.Entity#useIncoming
+   * @see https://dataclient.io/docs/api/schema.Entity#useIncoming
    */
   useIncoming(
     existingMeta: {
@@ -102,7 +102,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
   ): boolean;
   /** Determines the order of incoming entity vs entity already in store\
    *
-   * @see https://resthooks.io/docs/api/schema.Entity#shouldReorder
+   * @see https://dataclient.io/docs/api/schema.Entity#shouldReorder
    * @returns true if incoming entity should be first argument of merge()
    */
   shouldReorder(
@@ -119,12 +119,12 @@ export interface IEntityClass<TBase extends Constructor = any> {
   ): boolean;
   /** Creates new instance copying over defined values of arguments
    *
-   * @see https://resthooks.io/docs/api/schema.Entity#merge
+   * @see https://dataclient.io/docs/api/schema.Entity#merge
    */
   merge(existing: any, incoming: any): any;
   /** Run when an existing entity is found in the store
    *
-   * @see https://resthooks.io/docs/api/schema.Entity#mergeWithStore
+   * @see https://dataclient.io/docs/api/schema.Entity#mergeWithStore
    */
   mergeWithStore(
     existingMeta: {
@@ -140,7 +140,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
   ): any;
   /** Run when an existing entity is found in the store
    *
-   * @see https://resthooks.io/docs/api/schema.Entity#mergeMetaWithStore
+   * @see https://dataclient.io/docs/api/schema.Entity#mergeMetaWithStore
    */
   mergeMetaWithStore(
     existingMeta: {
@@ -175,7 +175,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
   /** Called when denormalizing an entity to create an instance when 'valid'
    *
    * @param [props] Plain Object of properties to assign.
-   * @see https://resthooks.io/docs/api/Entity#createIfValid
+   * @see https://dataclient.io/docs/api/Entity#createIfValid
    */
   createIfValid<
     T extends (new (...args: any[]) => IEntityInstance & InstanceType<TBase>) &
@@ -187,7 +187,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
   ): AbstractInstanceType<T> | undefined;
   /** Do any transformations when first receiving input
    *
-   * @see https://resthooks.io/docs/api/Entity#process
+   * @see https://dataclient.io/docs/api/Entity#process
    */
   process(input: any, parent: any, key: string | undefined): any;
   normalize(
@@ -200,12 +200,12 @@ export interface IEntityClass<TBase extends Constructor = any> {
   ): any;
   /** Do any transformations when first receiving input
    *
-   * @see https://resthooks.io/docs/api/Entity#validate
+   * @see https://dataclient.io/docs/api/Entity#validate
    */
   validate(processedEntity: any): string | undefined;
   /** Attempts to infer results
    *
-   * @see https://resthooks.io/docs/api/Entity#infer
+   * @see https://dataclient.io/docs/api/Entity#infer
    */
   infer(args: readonly any[], indexes: NormalizedIndex, recurse: any): any;
   denormalize<

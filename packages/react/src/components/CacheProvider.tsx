@@ -25,7 +25,7 @@ interface ProviderProps {
 
 /**
  * Manages state, providing all context needed to use the hooks.
- * @see https://resthooks.io/docs/api/CacheProvider
+ * @see https://dataclient.io/docs/api/CacheProvider
  */
 export default function CacheProvider({
   children,
@@ -37,7 +37,7 @@ export default function CacheProvider({
   if (process.env.NODE_ENV !== 'production' && SSR) {
     console.warn(
       `CacheProvider does not update while doing SSR.
-Try using https://resthooks.io/docs/api/ExternalCacheProvider for server entry points.`,
+Try using https://dataclient.io/docs/api/ExternalCacheProvider for server entry points.`,
     );
   }
   // contents of this component expected to be relatively stable
@@ -69,7 +69,7 @@ Try using https://resthooks.io/docs/api/ExternalCacheProvider for server entry p
   );
 }
 /** Default props for CacheProvider
- * @see https://resthooks.io/docs/api/CacheProvider#defaultprops
+ * @see https://dataclient.io/docs/api/CacheProvider#defaultprops
  */
 CacheProvider.defaultProps = {
   managers: [

@@ -11,7 +11,7 @@ import { getUrlBase, getUrlTokens, isPojo } from './RestHelpers.js';
 
 /** Simplifies endpoint definitions that follow REST patterns
  *
- * @see https://resthooks.io/rest/api/RestEndpoint
+ * @see https://dataclient.io/rest/api/RestEndpoint
  */
 export default class RestEndpoint extends Endpoint {
   #hasBody;
@@ -158,7 +158,7 @@ export default class RestEndpoint extends Endpoint {
 See https://www.rfc-editor.org/rfc/rfc4627 for information on JSON responses
 
 Using parsed JSON.
-If text content was expected see https://resthooks.io/rest/api/RestEndpoint#parseResponse`;
+If text content was expected see https://dataclient.io/rest/api/RestEndpoint#parseResponse`;
             }
           } else {
             error.message = `Unexpected html response for schema ${this.schema}

@@ -4,7 +4,7 @@ import { ActionTypes } from '../../types';
 import NetworkManager from '../NetworkManager';
 
 const middleware: Middleware = new NetworkManager().getMiddleware();
-it('middlewares should compose with non-rest-hooks middlewares', () => {
+it('middlewares should compose with non-data-client middlewares', () => {
   type AnotherAction = {
     type: 'BOB';
     payload: any;

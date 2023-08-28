@@ -7,7 +7,7 @@ export interface HookableEndpointInterface extends EndpointInterface {
 /** Turns a collection of Endpoints (Resource) into a collection of hooks.
  * This is useful for Endpoints that need hooks to prepare their fetch requests.
  *
- * @see https://resthooks.io/rest/api/hookifyResource
+ * @see https://dataclient.io/rest/api/hookifyResource
  */
 export default function hookifyResource<R extends {}>(
   resource: R,

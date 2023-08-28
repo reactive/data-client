@@ -47,7 +47,7 @@ export default function EntitySchema<TBase extends Constructor>(
 ) {
   /**
    * Represents data that should be deduped by specifying a primary key.
-   * @see https://resthooks.io/docs/api/Entity
+   * @see https://dataclient.io/docs/api/Entity
    */
   abstract class EntityMixin extends Base {
     static toString() {
@@ -71,7 +71,7 @@ export default function EntitySchema<TBase extends Constructor>(
      * @param [parent] When normalizing, the object which included the entity
      * @param [key] When normalizing, the key where this entity was found
      * @param [args] ...args sent to Endpoint
-     * @see https://resthooks.io/docs/api/schema.Entity#pk
+     * @see https://dataclient.io/docs/api/schema.Entity#pk
      */
     abstract pk(
       parent?: any,
@@ -89,7 +89,7 @@ export default function EntitySchema<TBase extends Constructor>(
     /**
      * A unique identifier for each Entity
      *
-     * @see https://resthooks.io/docs/api/schema.Entity#pk
+     * @see https://dataclient.io/docs/api/schema.Entity#pk
      * @param [value] POJO of the entity or subset used
      * @param [parent] When normalizing, the object which included the entity
      * @param [key] When normalizing, the key where this entity was found
@@ -107,7 +107,7 @@ export default function EntitySchema<TBase extends Constructor>(
 
     /** Return true to merge incoming data; false keeps existing entity
      *
-     * @see https://resthooks.io/docs/api/schema.Entity#useIncoming
+     * @see https://dataclient.io/docs/api/schema.Entity#useIncoming
      */
     static useIncoming(
       existingMeta: { date: number; fetchedAt: number },
@@ -120,7 +120,7 @@ export default function EntitySchema<TBase extends Constructor>(
 
     /** Determines the order of incoming entity vs entity already in store\
      *
-     * @see https://resthooks.io/docs/api/schema.Entity#shouldReorder
+     * @see https://dataclient.io/docs/api/schema.Entity#shouldReorder
      * @returns true if incoming entity should be first argument of merge()
      */
     static shouldReorder(
@@ -134,7 +134,7 @@ export default function EntitySchema<TBase extends Constructor>(
 
     /** Creates new instance copying over defined values of arguments
      *
-     * @see https://resthooks.io/docs/api/schema.Entity#merge
+     * @see https://dataclient.io/docs/api/schema.Entity#merge
      */
     static merge(existing: any, incoming: any) {
       return {
@@ -145,7 +145,7 @@ export default function EntitySchema<TBase extends Constructor>(
 
     /** Run when an existing entity is found in the store
      *
-     * @see https://resthooks.io/docs/api/schema.Entity#mergeWithStore
+     * @see https://dataclient.io/docs/api/schema.Entity#mergeWithStore
      */
     static mergeWithStore(
       existingMeta: {
@@ -184,7 +184,7 @@ export default function EntitySchema<TBase extends Constructor>(
 
     /** Run when an existing entity is found in the store
      *
-     * @see https://resthooks.io/docs/api/schema.Entity#mergeMetaWithStore
+     * @see https://dataclient.io/docs/api/schema.Entity#mergeMetaWithStore
      */
     static mergeMetaWithStore(
       existingMeta: {
@@ -221,7 +221,7 @@ export default function EntitySchema<TBase extends Constructor>(
     /** Called when denormalizing an entity to create an instance when 'valid'
      *
      * @param [props] Plain Object of properties to assign.
-     * @see https://resthooks.io/docs/api/schema.Entity#createIfValid
+     * @see https://dataclient.io/docs/api/schema.Entity#createIfValid
      */
     static createIfValid<T extends typeof EntityMixin>(
       this: T,
@@ -236,7 +236,7 @@ export default function EntitySchema<TBase extends Constructor>(
 
     /** Do any transformations when first receiving input
      *
-     * @see https://resthooks.io/docs/api/schema.Entity#process
+     * @see https://dataclient.io/docs/api/schema.Entity#process
      */
     static process(
       input: any,
@@ -270,8 +270,8 @@ export default function EntitySchema<TBase extends Constructor>(
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about primary keys: https://resthooks.io/rest/api/Entity#pk
+  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Learn more about primary keys: https://dataclient.io/rest/api/Entity#pk
 
   Entity: ${this.key}
   Value (processed): ${
@@ -330,8 +330,8 @@ export default function EntitySchema<TBase extends Constructor>(
               return `Schema key is missing in Entity
 
   Be sure all schema members are also part of the entity
-  Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about nesting schemas: https://resthooks.io/rest/guides/relational-data
+  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Learn more about nesting schemas: https://dataclient.io/rest/guides/relational-data
 
   Entity keys: ${Object.keys(this.defaults)}
   Schema key(missing): ${key}
@@ -478,7 +478,7 @@ export default function EntitySchema<TBase extends Constructor>(
         (name === '' || name === 'EntityMixin' || name === '_temp')
       )
         throw new Error(
-          'Entity classes without a name must define `static key`\nSee: https://resthooks.io/rest/api/Entity#key',
+          'Entity classes without a name must define `static key`\nSee: https://dataclient.io/rest/api/Entity#key',
         );
       return name;
     };
@@ -538,25 +538,25 @@ export interface IEntityClass<TBase extends Constructor = any> {
   };
   /** Defines nested entities
    *
-   * @see https://resthooks.io/rest/api/Entity#schema
+   * @see https://dataclient.io/rest/api/Entity#schema
    */
   schema: {
     [k: string]: Schema;
   };
   /** Returns the globally unique identifier for the static Entity
    *
-   * @see https://resthooks.io/docs/api/Entity#key
+   * @see https://dataclient.io/docs/api/Entity#key
    */
   key: string;
   /** Defines indexes to enable lookup by
    *
-   * @see https://resthooks.io/rest/api/Entity#indexes
+   * @see https://dataclient.io/rest/api/Entity#indexes
    */
   indexes?: readonly string[] | undefined;
   /**
    * A unique identifier for each Entity
    *
-   * @see https://resthooks.io/docs/api/Entity#pk
+   * @see https://dataclient.io/docs/api/Entity#pk
    * @param [value] POJO of the entity or subset used
    * @param [parent] When normalizing, the object which included the entity
    * @param [key] When normalizing, the key where this entity was found
@@ -577,7 +577,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
   ): string | undefined;
   /** Return true to merge incoming data; false keeps existing entity
    *
-   * @see https://resthooks.io/docs/api/schema.Entity#useIncoming
+   * @see https://dataclient.io/docs/api/schema.Entity#useIncoming
    */
   useIncoming(
     existingMeta: {
@@ -593,7 +593,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
   ): boolean;
   /** Determines the order of incoming entity vs entity already in store\
    *
-   * @see https://resthooks.io/docs/api/schema.Entity#shouldReorder
+   * @see https://dataclient.io/docs/api/schema.Entity#shouldReorder
    * @returns true if incoming entity should be first argument of merge()
    */
   shouldReorder(
@@ -604,12 +604,12 @@ export interface IEntityClass<TBase extends Constructor = any> {
   ): boolean;
   /** Creates new instance copying over defined values of arguments
    *
-   * @see https://resthooks.io/docs/api/schema.Entity#merge
+   * @see https://dataclient.io/docs/api/schema.Entity#merge
    */
   merge(existing: any, incoming: any): any;
   /** Run when an existing entity is found in the store
    *
-   * @see https://resthooks.io/docs/api/schema.Entity#mergeWithStore
+   * @see https://dataclient.io/docs/api/schema.Entity#mergeWithStore
    */
   mergeWithStore(
     existingMeta: {
@@ -625,7 +625,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
   ): any;
   /** Run when an existing entity is found in the store
    *
-   * @see https://resthooks.io/docs/api/schema.Entity#mergeMetaWithStore
+   * @see https://dataclient.io/docs/api/schema.Entity#mergeMetaWithStore
    */
   mergeMetaWithStore(
     existingMeta: {
@@ -658,7 +658,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
   /** Called when denormalizing an entity to create an instance when 'valid'
    *
    * @param [props] Plain Object of properties to assign.
-   * @see https://resthooks.io/docs/api/Entity#createIfValid
+   * @see https://dataclient.io/docs/api/Entity#createIfValid
    */
   createIfValid<
     T extends (abstract new (
@@ -672,7 +672,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
   ): AbstractInstanceType<T> | undefined;
   /** Do any transformations when first receiving input
    *
-   * @see https://resthooks.io/docs/api/Entity#process
+   * @see https://dataclient.io/docs/api/Entity#process
    */
   process(input: any, parent: any, key: string | undefined, args: any[]): any;
   normalize(
@@ -685,12 +685,12 @@ export interface IEntityClass<TBase extends Constructor = any> {
   ): any;
   /** Do any transformations when first receiving input
    *
-   * @see https://resthooks.io/docs/api/Entity#validate
+   * @see https://dataclient.io/docs/api/Entity#validate
    */
   validate(processedEntity: any): string | undefined;
   /** Attempts to infer results
    *
-   * @see https://resthooks.io/docs/api/Entity#infer
+   * @see https://dataclient.io/docs/api/Entity#infer
    */
 
   infer(args: readonly any[], indexes: NormalizedIndex, recurse: any): any;

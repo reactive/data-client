@@ -6,11 +6,11 @@
 [![npm version](https://img.shields.io/npm/v/@rest-hooks/legacy.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/legacy)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-[Rest Hooks](https://resthooks.io) legacy support.
+[Rest Hooks](https://dataclient.io) legacy support.
 
 <div align="center">
 
-**[📖Read The Docs](https://resthooks.io/docs/upgrade/upgrading-to-7)**
+**[📖Read The Docs](https://dataclient.io/docs/upgrade/upgrading-to-7)**
 
 </div>
 

@@ -8,7 +8,7 @@ import { INVALID } from '../special.js';
  *
  * This triggers suspense for all endpoints requiring it.
  * Optional (like variable sized Array and Values) will simply remove the item.
- * @see https://resthooks.io/rest/api/Invalidate
+ * @see https://dataclient.io/rest/api/Invalidate
  */
 export default class Invalidate<
   E extends EntityInterface & {
@@ -54,8 +54,8 @@ export default class Invalidate<
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about schemas: https://resthooks.io/docs/api/schema
+  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Learn more about schemas: https://dataclient.io/docs/api/schema
 
   Invalidate(Entity): Invalidate(${this._entity.key})
   Value (processed): ${input && JSON.stringify(input, null, 2)}

@@ -1,10 +1,10 @@
-import commonjs from 'rollup-plugin-commonjs';
-import resolve from 'rollup-plugin-node-resolve';
 import babel from 'rollup-plugin-babel';
-import json from 'rollup-plugin-json';
-import { terser } from 'rollup-plugin-terser';
+import commonjs from 'rollup-plugin-commonjs';
 import filesize from 'rollup-plugin-filesize';
+import json from 'rollup-plugin-json';
+import resolve from 'rollup-plugin-node-resolve';
 import replace from 'rollup-plugin-replace';
+import { terser } from 'rollup-plugin-terser';
 
 import pkg from './package.json';
 
@@ -32,7 +32,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
   configs.push({
     input: 'lib/index.js',
     external: isExternal,
-    output: [{ file: pkg.unpkg, format: 'umd', name: 'restHooksLegacy' }],
+    output: [{ file: pkg.unpkg, format: 'umd', name: 'dataClientLegacy' }],
     plugins: [
       babel({
         exclude: ['node_modules/**', '/**__tests__/**'],

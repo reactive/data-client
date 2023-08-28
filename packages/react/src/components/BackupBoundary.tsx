@@ -23,7 +23,7 @@ function Loading() {
     useMemo(() => {
       console.warn(
         `Uncaught suspense.
-Make sure to add your own Suspense boundaries: https://resthooks.io/docs/getting-started/data-dependency#async-fallbacks`,
+Make sure to add your own Suspense boundaries: https://dataclient.io/docs/getting-started/data-dependency#async-fallbacks`,
       );
     }, []);
 
@@ -31,7 +31,7 @@ Make sure to add your own Suspense boundaries: https://resthooks.io/docs/getting
       <>
         <span>Uncaught Suspense.</span>
         Try
-        <a href="https://resthooks.io/docs/getting-started/data-dependency#async-fallbacks">
+        <a href="https://dataclient.io/docs/getting-started/data-dependency#async-fallbacks">
           adding a suspense boundary
         </a>
       </>

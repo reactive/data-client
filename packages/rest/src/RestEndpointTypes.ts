@@ -26,24 +26,24 @@ export interface RestInstanceBase<
     method?: string;
   } = { path: string },
 > extends EndpointInstanceInterface<F, S, M> {
-  /** @see https://resthooks.io/rest/api/RestEndpoint#body */
+  /** @see https://dataclient.io/rest/api/RestEndpoint#body */
   readonly body?: 'body' extends keyof O ? O['body'] : any;
-  /** @see https://resthooks.io/rest/api/RestEndpoint#searchParams */
+  /** @see https://dataclient.io/rest/api/RestEndpoint#searchParams */
   readonly searchParams?: 'searchParams' extends keyof O
     ? O['searchParams']
     : // unknown is identity with '&' type operator
       unknown;
 
   /** Pattern to construct url based on Url Parameters
-   * @see https://resthooks.io/rest/api/RestEndpoint#path
+   * @see https://dataclient.io/rest/api/RestEndpoint#path
    */
   readonly path: O['path'];
   /** Prepended to all urls
-   * @see https://resthooks.io/rest/api/RestEndpoint#urlPrefix
+   * @see https://dataclient.io/rest/api/RestEndpoint#urlPrefix
    */
   readonly urlPrefix: string;
   readonly requestInit: RequestInit;
-  /** @see https://resthooks.io/rest/api/RestEndpoint#method */
+  /** @see https://dataclient.io/rest/api/RestEndpoint#method */
   readonly method: (O & { method: string })['method'];
   readonly signal: AbortSignal | undefined;
   readonly paginationField?: string;
@@ -51,23 +51,23 @@ export interface RestInstanceBase<
   /* fetch lifecycles */
   /* before-fetch */
   url(...args: Parameters<F>): string;
-  /** @see https://resthooks.io/rest/api/RestEndpoint#getRequestInit */
+  /** @see https://dataclient.io/rest/api/RestEndpoint#getRequestInit */
   getRequestInit(
     this: any,
     body?: RequestInit['body'] | Record<string, unknown>,
   ): Promise<RequestInit> | RequestInit;
-  /** @see https://resthooks.io/rest/api/RestEndpoint#getHeaders */
+  /** @see https://dataclient.io/rest/api/RestEndpoint#getHeaders */
   getHeaders(headers: HeadersInit): Promise<HeadersInit> | HeadersInit;
   /* after-fetch */
-  /** @see https://resthooks.io/rest/api/RestEndpoint#fetchResponse */
+  /** @see https://dataclient.io/rest/api/RestEndpoint#fetchResponse */
   fetchResponse(input: RequestInfo, init: RequestInit): Promise<Response>;
-  /** @see https://resthooks.io/rest/api/RestEndpoint#parseResponse */
+  /** @see https://dataclient.io/rest/api/RestEndpoint#parseResponse */
   parseResponse(response: Response): Promise<any>;
-  /** @see https://resthooks.io/rest/api/RestEndpoint#process */
+  /** @see https://dataclient.io/rest/api/RestEndpoint#process */
   process(value: any, ...args: Parameters<F>): ResolveType<F>;
 
   /* utilities */
-  /** @see https://resthooks.io/rest/api/RestEndpoint#testKey */
+  /** @see https://dataclient.io/rest/api/RestEndpoint#testKey */
   testKey(key: string): boolean;
 
   /* extenders */
@@ -304,11 +304,11 @@ export type RestExtendedEndpoint<
   Omit<E, KeyofRestEndpoint | keyof O>;
 
 export interface PartialRestGenerics {
-  /** @see https://resthooks.io/rest/api/RestEndpoint#path */
+  /** @see https://dataclient.io/rest/api/RestEndpoint#path */
   readonly path?: string;
-  /** @see https://resthooks.io/rest/api/RestEndpoint#schema */
+  /** @see https://dataclient.io/rest/api/RestEndpoint#schema */
   readonly schema?: Schema | undefined;
-  /** @see https://resthooks.io/rest/api/RestEndpoint#method */
+  /** @see https://dataclient.io/rest/api/RestEndpoint#method */
   readonly method?: string;
   /** Only used for types */
   /** @see https://dataclient.io/rest/api/RestEndpoint#body */
@@ -318,7 +318,7 @@ export interface PartialRestGenerics {
   searchParams?: any;
   /** @see https://dataclient.io/rest/api/RestEndpoint#paginationfield */
   readonly paginationField?: string;
-  /** @see https://resthooks.io/rest/api/RestEndpoint#process */
+  /** @see https://dataclient.io/rest/api/RestEndpoint#process */
   process?(value: any, ...args: any): any;
 }
 export interface RestGenerics extends PartialRestGenerics {

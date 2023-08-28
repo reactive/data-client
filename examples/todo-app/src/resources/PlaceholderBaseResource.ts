@@ -30,7 +30,7 @@ export function createPlaceholderResource<O extends ResourceGenerics = any>(
     // the correct ID in certain cases
     //
     // This is sometimes needed when you don't control the server API itself
-    // More here: https://resthooks.io/docs/guides/network-transform#case-of-the-missing-id
+    // More here: https://dataclient.io/docs/guides/network-transform#case-of-the-missing-id
     partialUpdate: {
       process(response: any, ...args: any[]) {
         // body only contains what we're changing, but we can find the id in params

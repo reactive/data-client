@@ -40,7 +40,7 @@ export function createPlaceholderResource<U extends string, S extends Schema>({
     // the correct ID in certain cases
     //
     // This is sometimes needed when you don't control the server API itself
-    // More here: https://resthooks.io/docs/guides/network-transform#case-of-the-missing-id
+    // More here: https://dataclient.io/docs/guides/network-transform#case-of-the-missing-id
     partialUpdate,
     create: base.create.extend({
       fetch: async function (...args: any) {

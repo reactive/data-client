@@ -34,7 +34,7 @@ type StatefulReturn<S extends Schema | undefined, P> = CondNull<
 
 /**
  * Use async date with { data, loading, error } (DLE)
- * @see https://resthooks.io/docs/api/useDLE
+ * @see https://dataclient.io/docs/api/useDLE
  */
 export default function useDLE<
   E extends EndpointInterface<

@@ -2,7 +2,7 @@
   "name": "@data-client/normalizr",
   "version": "0.2.2",
   "description": "Normalizes and denormalizes JSON according to schema for Redux and Flux applications",
-  "homepage": "https://resthooks.io/docs/concepts/normalization",
+  "homepage": "https://dataclient.io/docs/concepts/normalization",
   "bugs": {
     "url": "https://github.com/data-client/data-client/issues"
   },

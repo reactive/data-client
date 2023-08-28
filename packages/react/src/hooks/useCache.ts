@@ -16,7 +16,7 @@ import useController from '../hooks/useController.js';
  * Access a response if it is available.
  *
  * `useCache` guarantees referential equality globally.
- * @see https://resthooks.io/docs/api/useCache
+ * @see https://dataclient.io/docs/api/useCache
  */
 export default function useCache<
   E extends Pick<

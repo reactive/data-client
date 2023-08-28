@@ -23,7 +23,7 @@ const { Invalidate, Collection: BaseCollection } = schema;
 
 /** Creates collection of Endpoints for common operations on a given data/schema.
  *
- * @see https://resthooks.io/rest/api/createResource
+ * @see https://dataclient.io/rest/api/createResource
  */
 export default function createResource<O extends ResourceGenerics>({
   path,

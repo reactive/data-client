@@ -32,7 +32,7 @@ function TodoListItem({ todo }: { todo: Todo }) {
         onClick={handleDelete}
       >
         <img
-          src="https://resthooks.io/img/cancel.png"
+          src="https://dataclient.io/img/cancel.png"
           width="16"
           height="16"
           style={{ marginBottom: '-3px' }}
