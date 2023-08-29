@@ -11,23 +11,29 @@ jobs:
     resource_class: large
     steps:
       - checkout
-      - run: npm pkg set 'workspaces[]'='examples/*'
+      - run:
+          name: examples use local packages
+          command: |
+            npm pkg set 'workspaces[]'='examples/*'
       - restore_cache:
           keys:
-            - v8-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package-lock.json" }}
+            - v9-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}
             # fallback to using the latest cache if no exact match is found
-            - v8-dependencies-
+            - v9-dependencies-
       - run:
           name: yarn install
           command: |
             sudo npm install -g corepack
             sudo corepack enable
+            YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn workspace todo-app add @data-client/endpoint@workspace:^ @data-client/react@workspace:^ @data-client/rest@workspace:^
+            YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn workspace next-app add @data-client/react@workspace:^ @data-client/rest@workspace:^ @data-client/redux@workspace:^  @data-client/ssr@workspace:^ @data-client/test@workspace:^
+            YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn workspace github-app add @data-client/graphql@workspace:^ @data-client/hooks@workspace:^ @data-client/react@workspace:^ @data-client/rest@workspace:^
             YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install
       - save_cache:
           paths:
             - .yarn/cache
             - .yarn/install-state.gz
-          key: v8-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package-lock.json" }}
+          key: v9-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}
       - run: yarn run ci:build:types
       - run: yarn run ci:build
       - persist_to_workspace:

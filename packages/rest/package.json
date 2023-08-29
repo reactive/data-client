@@ -124,7 +124,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime": "^7.17.0",
-    "@data-client/endpoint": "^0.7.0",
+    "@data-client/endpoint": "workspace:^",
     "path-to-regexp": "^6.2.1"
   },
   "devDependencies": {
