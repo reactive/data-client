@@ -18,7 +18,7 @@ const SSR = typeof window === 'undefined';
 
 interface ProviderProps {
   children: React.ReactNode;
-  managers: Manager[];
+  managers?: Manager[];
   initialState: State<unknown>;
   Controller: typeof Controller;
 }
@@ -45,14 +45,17 @@ Try using https://dataclient.io/docs/api/ExternalCacheProvider for server entry 
   if (!controllerRef.current) controllerRef.current = new Controller();
   //TODO: bind all methods so destructuring works
 
+  const managersRef: React.MutableRefObject<Manager[]> = useRef<any>(managers);
+  if (!managersRef.current) managersRef.current = getDefaultManagers();
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const memodManagers = useMemo(() => managers, managers);
+  const memodManagers = useMemo(() => managersRef.current, managersRef.current);
 
   // Makes manager middleware compatible with redux-style middleware (by a wrapper enhancement to provide controller API)
   const middlewares = useMemo(
-    () => applyManager(managers, controllerRef.current),
+    () => applyManager(managersRef.current, controllerRef.current),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    managers,
+    managersRef.current,
   );
 
   return (
@@ -72,24 +75,29 @@ Try using https://dataclient.io/docs/api/ExternalCacheProvider for server entry 
  * @see https://dataclient.io/docs/api/CacheProvider#defaultprops
  */
 CacheProvider.defaultProps = {
-  managers: [
-    new NetworkManager(),
-    new SubscriptionManager(PollingSubscription),
-  ] as Manager[],
   initialState: defaultState as State<unknown>,
   Controller,
 };
 
 /* istanbul ignore next */
+let getDefaultManagers = () =>
+  [
+    new NetworkManager(),
+    new SubscriptionManager(PollingSubscription),
+  ] as Manager[];
+
+/* istanbul ignore else */
 if (process.env.NODE_ENV !== 'production') {
-  const networkManager: NetworkManager | undefined =
-    CacheProvider.defaultProps.managers.find(
-      manager => manager instanceof NetworkManager,
-    ) as any;
-  CacheProvider.defaultProps.managers.unshift(
-    new DevToolsManager(
-      undefined,
-      networkManager && networkManager.skipLogging.bind(networkManager),
-    ),
-  );
+  getDefaultManagers = () => {
+    const networkManager = new NetworkManager();
+    return [
+      new DevToolsManager(
+        undefined,
+        networkManager.skipLogging.bind(networkManager),
+      ),
+      networkManager,
+      new SubscriptionManager(PollingSubscription),
+    ] as Manager[];
+  };
 }
+export { getDefaultManagers };

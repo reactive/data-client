@@ -41,7 +41,7 @@ type State<T> = Readonly<{
 Instead of starting with an empty cache, you can provide your own initial state. This can
 be useful for testing, or rehydrating the cache state when using server side rendering.
 
-### managers: Manager[] {#managers}
+### managers?: Manager[] {#managers}
 
 Default Production:
 
@@ -82,56 +82,14 @@ const RealApp = (
 
 ## defaultProps
 
-<Tabs
-defaultValue="prod"
-groupId="environment"
-values={[
-{ label: 'Production', value: 'prod' },
-{ label: 'Development', value: 'dev' },
-]}>
-<TabItem value="prod">
-
 ```ts
 import {
   defaultState,
   Controller,
-  NetworkManager,
-  SubscriptionManager,
-  PollingSubscription,
 } from '@data-client/core';
 
 CacheProvider.defaultProps = {
-  managers: [
-    new NetworkManager(),
-    new SubscriptionManager(PollingSubscription),
-  ] as Manager[],
   initialState: defaultState as State<unknown>,
   Controller,
 };
 ```
-
-</TabItem>
-<TabItem value="dev">
-
-```ts
-import {
-  defaultState,
-  Controller,
-  NetworkManager,
-  SubscriptionManager,
-  PollingSubscription,
-} from '@data-client/core';
-
-CacheProvider.defaultProps = {
-  managers: [
-    new DevToolsManager(),
-    new NetworkManager(),
-    new SubscriptionManager(PollingSubscription),
-  ] as Manager[],
-  initialState: defaultState as State<unknown>,
-  Controller,
-};
-```
-
-</TabItem>
-</Tabs>

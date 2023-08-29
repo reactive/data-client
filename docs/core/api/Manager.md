@@ -86,10 +86,10 @@ values={[
 <TabItem value="web">
 
 ```tsx title="/index.tsx"
-import { CacheProvider } from '@data-client/react';
+import { CacheProvider, getDefaultManagers } from '@data-client/react';
 import ReactDOM from 'react-dom';
 
-const managers = [...CacheProvider.defaultProps.managers, new MyManager()];
+const managers = [...getDefaultManagers(), new MyManager()];
 
 ReactDOM.render(
   <CacheProvider managers={managers}>
@@ -104,10 +104,10 @@ ReactDOM.render(
 <TabItem value="18-web">
 
 ```tsx title="/index.tsx"
-import { CacheProvider } from '@data-client/react';
+import { CacheProvider, getDefaultManagers } from '@data-client/react';
 import ReactDOM from 'react-dom';
 
-const managers = [...CacheProvider.defaultProps.managers, new MyManager()];
+const managers = [...getDefaultManagers(), new MyManager()];
 
 ReactDOM.createRoot(document.body).render(
   <CacheProvider managers={managers}>
@@ -121,10 +121,10 @@ ReactDOM.createRoot(document.body).render(
 <TabItem value="native">
 
 ```tsx title="/index.tsx"
-import { CacheProvider } from '@data-client/react';
+import { CacheProvider, getDefaultManagers } from '@data-client/react';
 import { AppRegistry } from 'react-native';
 
-const managers = [...CacheProvider.defaultProps.managers, new MyManager()];
+const managers = [...getDefaultManagers(), new MyManager()];
 
 const Root = () => (
   <CacheProvider managers={managers}>
@@ -139,11 +139,11 @@ AppRegistry.registerComponent('MyApp', () => Root);
 <TabItem value="nextjs">
 
 ```tsx title="pages/_app.tsx"
-import { CacheProvider } from '@data-client/react';
+import { CacheProvider, getDefaultManagers } from '@data-client/react';
 import { AppCacheProvider } from '@data-client/ssr/nextjs';
 import type { AppProps } from 'next/app';
 
-const managers = [...CacheProvider.defaultProps.managers, new MyManager()];
+const managers = [...getDefaultManagers(), new MyManager()];
 
 export default function App({ Component, pageProps }: AppProps) {
   return (

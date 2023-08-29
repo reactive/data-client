@@ -15,7 +15,7 @@ import { Text } from 'react-native';
 import { ControllerContext, StateContext } from '../../context';
 import { useController, useSuspense } from '../../hooks';
 import { payload } from '../../test-fixtures';
-import CacheProvider from '../CacheProvider';
+import CacheProvider, { getDefaultManagers } from '../CacheProvider';
 
 const { SET_TYPE } = actionTypes;
 
@@ -158,7 +158,7 @@ describe('<CacheProvider />', () => {
   });
 
   it('should have SubscriptionManager in default managers', () => {
-    const subManagers = CacheProvider.defaultProps.managers.filter(
+    const subManagers = getDefaultManagers().filter(
       manager => manager instanceof SubscriptionManager,
     );
     expect(subManagers.length).toBe(1);
