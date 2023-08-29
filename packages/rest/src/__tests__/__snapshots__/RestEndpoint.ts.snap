@@ -1,5 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`RestEndpoint getPage: should extend name of parent endpoint 1`] = `"http://test.com/article-paginated.getPage"`;
+
+exports[`RestEndpoint push: should extend name of parent endpoint 1`] = `"http://test.com/article-paginated.create"`;
+
+exports[`RestEndpoint unshift: should extend name of parent endpoint 1`] = `"http://test.com/article-paginated.create"`;
+
 exports[`RestEndpoint.fetch() should reject if content-type does not exist with schema 1`] = `[NetworkError: Unexpected text response for schema CoolerArticle]`;
 
 exports[`RestEndpoint.fetch() should reject if content-type is not json with schema 1`] = `
