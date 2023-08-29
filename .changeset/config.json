@@ -1,9 +1,22 @@
 {
-  "$schema": "https://unpkg.com/@changesets/config@2.3.0/schema.json",
-  "changelog": "@changesets/cli/changelog",
+  "$schema": "https://unpkg.com/@changesets/config@2.3.1/schema.json",
+  "changelog": ["@changesets/changelog-github", { "repo": "data-client/data-client" }],
   "commit": false,
+  "linked": [
+    [
+      "@data-client/core",
+      "@data-client/endpoint",
+      "@data-client/graphql",
+      "@data-client/img",
+      "@data-client/normalizr",
+      "@data-client/react",
+      "@data-client/redux",
+      "@data-client/rest",
+      "@data-client/ssr",
+      "@data-client/test"
+    ]
+  ],
   "fixed": [],
-  "linked": [],
   "access": "public",
   "baseBranch": "master",
   "updateInternalDependencies": "patch",

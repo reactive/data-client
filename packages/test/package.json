@@ -1,6 +1,6 @@
 {
   "name": "@data-client/test",
-  "version": "0.3.1",
+  "version": "0.7.0",
   "description": "Testing utilities for Data Client",
   "homepage": "https://dataclient.io/docs/guides/storybook",
   "repository": {
@@ -116,7 +116,7 @@
     "react-error-boundary": "^4.0.0"
   },
   "peerDependencies": {
-    "@data-client/react": "^0.5.0",
+    "@data-client/react": "^0.5.0 || ^0.7.0 || ^0.8.0",
     "@testing-library/react-hooks": "^8.0.0",
     "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0",
     "@types/react-dom": "*",
