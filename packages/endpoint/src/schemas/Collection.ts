@@ -1,11 +1,7 @@
 import { consistentSerialize } from './consistentSerialize.js';
 import { CREATE } from './special.js';
 import { PolymorphicInterface } from '../interface.js';
-import {
-  Entity as EntitySchema,
-  Values,
-  Array as ArraySchema,
-} from '../schema.js';
+import { Values, Array as ArraySchema } from '../schema.js';
 
 const pushMerge = (existing: any, incoming: any) => {
   return [...existing, ...incoming];
@@ -229,20 +225,21 @@ export default class CollectionSchema<
 
   // >>>>>>>>>>>>>>DENORMALIZE<<<<<<<<<<<<<<
 
-  infer(args: any, indexes: unknown, recurse: unknown, entities: unknown): any {
+  infer(args: any, indexes: unknown, recurse: unknown, entities: any): any {
     if (this.argsKey) {
-      return this.pk(undefined, undefined, '', args);
+      const id = this.pk(undefined, undefined, '', args);
+      if (entities[this.key]?.[id]) return id;
     }
   }
 
   declare createIfValid: (value: any) => any | undefined;
 
-  denormalizeOnly(
+  denormalize(
     input: any,
     args: readonly any[],
     unvisit: (input: any, schema: any) => any,
-  ): ReturnType<S['denormalizeOnly']> {
-    return this.schema.denormalizeOnly(input, args, unvisit) as any;
+  ): ReturnType<S['denormalize']> {
+    return this.schema.denormalize(input, args, unvisit) as any;
   }
 }
 
@@ -284,7 +281,7 @@ function CreateAdder<C extends CollectionSchema<any, any>, P extends any[]>(
   };
   if (collection.schema instanceof ArraySchema) {
     properties.createIfValid = { value: createIfValid };
-    properties.denormalizeOnly = { value: denormalizeOnly };
+    properties.denormalize = { value: denormalize };
   }
   if (createCollectionFilter) {
     properties.createCollectionFilter = { value: createCollectionFilter };
@@ -336,13 +333,13 @@ function createIfValid(value: object): any | undefined {
 }
 
 // only for arrays
-function denormalizeOnly(
+function denormalize(
   this: CollectionSchema<any, any>,
   input: any,
   args: readonly any[],
   unvisit: (input: any, schema: any) => any,
 ): any {
   return Array.isArray(input)
-    ? (this.schema.denormalizeOnly(input, args, unvisit) as any)
-    : (this.schema.denormalizeOnly([input], args, unvisit)[0] as any);
+    ? (this.schema.denormalize(input, args, unvisit) as any)
+    : (this.schema.denormalize([input], args, unvisit)[0] as any);
 }

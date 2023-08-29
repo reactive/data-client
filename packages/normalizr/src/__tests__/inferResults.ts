@@ -299,17 +299,21 @@ describe('inferResults()', () => {
   describe('legacy schema', () => {
     class MyEntity extends CoolerArticle {
       static infer(
-        args: readonly any[],
+        args: any[],
         indexes: NormalizedIndex,
         recurse: any,
+        entities: any,
       ) {
-        if (!args[0]) return undefined;
+        if (!args[0]) return;
+        let id: undefined | string;
         if (['string', 'number'].includes(typeof args[0])) {
-          return `${args[0]}`;
+          id = `${args[0]}`;
+        } else {
+          id = this.pk(args[0], undefined, '', args);
         }
-        const id = this.pk(args[0], undefined, '');
         // Was able to infer the entity's primary key from params
-        if (id !== undefined && id !== '') return id;
+        if (id !== undefined && id !== '' && entities[this.key]?.[id])
+          return id;
       }
     }
 
@@ -331,7 +335,7 @@ describe('inferResults()', () => {
       });
     });
 
-    it('should be undefined even when Entity.infer gives id', () => {
+    it('should be undefined even when Entity.infer gives id if entity is not present', () => {
       const schema = new schemas.Object({
         data: new schemas.Object({
           article: MyEntity,

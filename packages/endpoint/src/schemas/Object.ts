@@ -1,8 +1,4 @@
-import {
-  isImmutable,
-  denormalizeImmutable,
-  denormalizeOnlyImmutable,
-} from './ImmutableUtils.js';
+import { isImmutable, denormalizeImmutable } from './ImmutableUtils.js';
 
 export const normalize = (
   schema: any,
@@ -37,42 +33,14 @@ export const normalize = (
   return object;
 };
 
-export const denormalize = (
-  schema: any,
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  input: {},
-  unvisit: any,
-): [denormalized: any, found: boolean, deleted: boolean] => {
-  if (isImmutable(input)) {
-    return denormalizeImmutable(schema, input, unvisit);
-  }
-
-  const object: Record<string, any> = { ...input };
-  let found = true;
-  let deleted = false;
-  Object.keys(schema).forEach(key => {
-    const [item, foundItem, deletedItem] = unvisit(object[key], schema[key]);
-    if (object[key] !== undefined) {
-      object[key] = item;
-    }
-    if (deletedItem) {
-      deleted = true;
-    }
-    if (!foundItem) {
-      found = false;
-    }
-  });
-  return [object, found, deleted];
-};
-
-export function denormalizeOnly(
+export function denormalize(
   schema: any,
   input: {},
   args: readonly any[],
   unvisit: (input: any, schema: any) => any,
 ): any {
   if (isImmutable(input)) {
-    return denormalizeOnlyImmutable(schema, input, unvisit);
+    return denormalizeImmutable(schema, input, unvisit);
   }
 
   const object: Record<string, any> = { ...input };
@@ -135,17 +103,12 @@ export default class ObjectSchema {
     return normalize(this.schema, ...args);
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  denormalize(...args: readonly [input: {}, unvisit: any]) {
-    return denormalize(this.schema, ...args);
-  }
-
-  denormalizeOnly(
+  denormalize(
     input: {},
     args: readonly any[],
     unvisit: (input: any, schema: any) => any,
   ): any {
-    return denormalizeOnly(this.schema, input, args, unvisit);
+    return denormalize(this.schema, input, args, unvisit);
   }
 
   infer(args: any, indexes: any, recurse: any, entities: any) {

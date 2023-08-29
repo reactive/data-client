@@ -1,6 +1,5 @@
 import type {
   Schema,
-  UnvisitFunction,
   NormalizedIndex,
   EntityTable,
   EntityInterface,
@@ -19,7 +18,6 @@ import type {
   NormalizedNullableObject,
   EntityMap,
 } from './normal.js';
-import { default as Delete } from './schemas/Delete.js';
 import {
   EntityOptions,
   IEntityClass,
@@ -37,7 +35,7 @@ import type {
   UnionResult,
 } from './schemaTypes.js';
 
-export { Delete, EntityMap, Invalidate };
+export { EntityMap, Invalidate };
 
 export type { SchemaClass };
 
@@ -75,23 +73,11 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
     | (S extends EntityMap ? UnionResult<S> : Normalize<S>)[]
     | undefined;
 
+  _denormalizeNullable():
+    | (S extends EntityMap<infer T> ? T : Denormalize<S>)[]
+    | undefined;
+
   denormalize(
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    input: {},
-    unvisit: UnvisitFunction,
-  ): [
-    denormalized: (S extends EntityMap<infer T> ? T : Denormalize<S>)[],
-    found: boolean,
-    suspend: boolean,
-  ];
-
-  _denormalizeNullable(): [
-    (S extends EntityMap<infer T> ? T : Denormalize<S>)[] | undefined,
-    false,
-    boolean,
-  ];
-
-  denormalizeOnly(
     input: {},
     args: readonly any[],
     unvisit: (input: any, schema: any) => any,
@@ -101,6 +87,7 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
     args: readonly any[],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
+    entities: any,
   ): any;
 }
 
@@ -138,23 +125,11 @@ export class All<
     | (S extends EntityMap ? UnionResult<S> : Normalize<S>)[]
     | undefined;
 
+  _denormalizeNullable():
+    | (S extends EntityMap<infer T> ? T : Denormalize<S>)[]
+    | undefined;
+
   denormalize(
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    input: {},
-    unvisit: UnvisitFunction,
-  ): [
-    denormalized: (S extends EntityMap<infer T> ? T : Denormalize<S>)[],
-    found: boolean,
-    suspend: boolean,
-  ];
-
-  _denormalizeNullable(): [
-    (S extends EntityMap<infer T> ? T : Denormalize<S>)[] | undefined,
-    false,
-    boolean,
-  ];
-
-  denormalizeOnly(
     input: {},
     args: readonly any[],
     unvisit: (input: any, schema: any) => any,
@@ -191,15 +166,9 @@ export class Object<O extends Record<string, any> = Record<string, Schema>>
 
   _normalizeNullable(): NormalizedNullableObject<O>;
 
+  _denormalizeNullable(): DenormalizeNullableObject<O>;
+
   denormalize(
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    input: {},
-    unvisit: UnvisitFunction,
-  ): [denormalized: DenormalizeObject<O>, found: boolean, suspend: boolean];
-
-  _denormalizeNullable(): [DenormalizeNullableObject<O>, false, boolean];
-
-  denormalizeOnly(
     input: {},
     args: readonly any[],
     unvisit: (input: any, schema: any) => any,
@@ -209,6 +178,7 @@ export class Object<O extends Record<string, any> = Record<string, Schema>>
     args: readonly any[],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
+    entities: any,
   ): any;
 }
 
@@ -241,23 +211,11 @@ export class Union<Choices extends EntityMap = any> implements SchemaClass {
 
   _normalizeNullable(): UnionResult<Choices> | undefined;
 
+  _denormalizeNullable():
+    | AbstractInstanceType<Choices[keyof Choices]>
+    | undefined;
+
   denormalize(
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    input: {},
-    unvisit: UnvisitFunction,
-  ): [
-    denormalized: AbstractInstanceType<Choices[keyof Choices]>,
-    found: boolean,
-    suspend: boolean,
-  ];
-
-  _denormalizeNullable(): [
-    AbstractInstanceType<Choices[keyof Choices]> | undefined,
-    false,
-    boolean,
-  ];
-
-  denormalizeOnly(
     input: {},
     args: readonly any[],
     unvisit: (input: any, schema: any) => any,
@@ -267,6 +225,7 @@ export class Union<Choices extends EntityMap = any> implements SchemaClass {
     args: readonly any[],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
+    entities: any,
   ): any;
 }
 
@@ -316,31 +275,14 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
       >
     | undefined;
 
+  _denormalizeNullable(): Record<
+    string,
+    Choices extends EntityMap<infer T>
+      ? T | undefined
+      : DenormalizeNullable<Choices>
+  >;
+
   denormalize(
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    input: {},
-    unvisit: UnvisitFunction,
-  ): [
-    denormalized: Record<
-      string,
-      Choices extends EntityMap<infer T> ? T : Denormalize<Choices>
-    >,
-    found: boolean,
-    suspend: boolean,
-  ];
-
-  _denormalizeNullable(): [
-    Record<
-      string,
-      Choices extends EntityMap<infer T>
-        ? T | undefined
-        : DenormalizeNullable<Choices>
-    >,
-    false,
-    boolean,
-  ];
-
-  denormalizeOnly(
     input: {},
     args: readonly any[],
     unvisit: (input: any, schema: any) => any,
@@ -353,12 +295,13 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
     args: readonly any[],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
+    entities: any,
   ): any;
 }
 
 export type CollectionArrayAdder<S extends PolymorphicInterface> = S extends {
   // ensure we are an array type
-  denormalizeOnly(...args: any): any[];
+  denormalize(...args: any): any[];
   // get what we are an array of
   schema: infer T;
 }

@@ -36,13 +36,7 @@ export default class UnionSchema extends PolymorphicSchema {
     );
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  denormalize(input: {}, unvisit: any): any {
-    const value = this.denormalizeValue(input, unvisit);
-    return [value, value !== undefined, typeof value === 'symbol'];
-  }
-
-  denormalizeOnly(
+  denormalize(
     input: {},
     args: readonly any[],
     unvisit: (input: any, schema: any) => any,

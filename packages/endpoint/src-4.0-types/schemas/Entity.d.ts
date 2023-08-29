@@ -1,5 +1,4 @@
 // we just removed instances of 'abstract new'
-import type { UnvisitFunction } from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
 declare const Entity_base: import('./EntitySchema.js').IEntityClass<
   new (...args: any[]) => {
@@ -27,6 +26,8 @@ export default abstract class Entity extends Entity_base {
    *
    * @param [parent] When normalizing, the object which included the entity
    * @param [key] When normalizing, the key where this entity was found
+   * @param [args] ...args sent to Endpoint
+   * @see https://dataclient.io/rest/api/Entity#pk
    */
   abstract pk(
     parent?: any,
@@ -43,61 +44,10 @@ export default abstract class Entity extends Entity_base {
    * Note: this only applies to non-nested members.
    */
   protected static automaticValidation?: 'warn' | 'silent';
-  /** Return true to merge incoming data; false keeps existing entity
-   *
-   * @see https://dataclient.io/docs/api/schema.Entity#useIncoming
-   */
-  static useIncoming(
-    existingMeta: {
-      date: number;
-      fetchedAt: number;
-    },
-    incomingMeta: {
-      date: number;
-      fetchedAt: number;
-    },
-    existing: any,
-    incoming: any,
-  ): boolean;
-
-  /** Run when an existing entity is found in the store */
-  static mergeWithStore(
-    existingMeta:
-      | {
-          date: number;
-          fetchedAt: number;
-        }
-      | undefined,
-    incomingMeta: {
-      date: number;
-      fetchedAt: number;
-    },
-    existing: any,
-    incoming: any,
-  ): any;
-
-  static mergeMetaWithStore(
-    existingMeta: {
-      expiresAt: number;
-      date: number;
-      fetchedAt: number;
-    },
-    incomingMeta: {
-      expiresAt: number;
-      date: number;
-      fetchedAt: number;
-    },
-    existing: any,
-    incoming: any,
-  ): {
-    expiresAt: number;
-    date: number;
-    fetchedAt: number;
-  };
-
   /** Factory method to convert from Plain JS Objects.
    *
    * @param [props] Plain Object of properties to assign.
+   * @see https://dataclient.io/rest/api/Entity#fromJS
    */
   static fromJS: <T extends typeof Entity>(
     this: T,
@@ -110,6 +60,7 @@ export default abstract class Entity extends Entity_base {
    * @param [value] POJO of the entity or subset used
    * @param [parent] When normalizing, the object which included the entity
    * @param [key] When normalizing, the key where this entity was found
+   * @param [args] ...args sent to Endpoint
    */
   static pk: <T extends typeof Entity>(
     this: T,
@@ -119,16 +70,26 @@ export default abstract class Entity extends Entity_base {
     args?: any[],
   ) => string | undefined;
 
-  /** Do any transformations when first receiving input */
-  static process(input: any, parent: any, key: string | undefined): any;
+  /** Do any transformations when first receiving input
+   *
+   * @see https://dataclient.io/docs/api/Entity#process
+   */
+  static process(
+    input: any,
+    parent: any,
+    key: string | undefined,
+    args: any[],
+  ): any;
+
+  /** Returning a string indicates an error (the string is the message)
+   * @see https://dataclient.io/rest/api/Entity#validate
+   */
   static validate(processedEntity: any): string | undefined;
-  static denormalize<T extends typeof Entity>(
+  static denormalize: <T extends typeof Entity>(
     this: T,
     input: any,
-    unvisit: UnvisitFunction,
-  ): [denormalized: AbstractInstanceType<T>, found: boolean, suspend: boolean];
-
-  /** Used by denormalize to set nested members */
-  protected static set?(entity: any, key: string, value: any): void;
+    args: readonly any[],
+    unvisit: (input: any, schema: any) => any,
+  ) => AbstractInstanceType<T>;
 }
 export {};

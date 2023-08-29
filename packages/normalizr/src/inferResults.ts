@@ -4,7 +4,6 @@ import type {
   NormalizedIndex,
   EntityTable,
 } from './interface.js';
-import { isEntity } from './isEntity.js';
 import { infer as arrayInfer } from './schemas/Array.js';
 import { infer as objectInfer } from './schemas/Object.js';
 import type { NormalizeNullable } from './types.js';
@@ -21,12 +20,7 @@ export default function inferResults<S extends Schema>(
 ): NormalizeNullable<S> {
   // schema classes
   if (canInfer(schema)) {
-    const ret = schema.infer(args, indexes, inferResults, entities);
-    // TODO(breaking): back compatibility with endpoint@3.7 and less
-    if (isEntity(schema) && ret !== undefined && !entities[schema.key]?.[ret]) {
-      return undefined as any;
-    }
-    return ret;
+    return schema.infer(args, indexes, inferResults, entities);
   }
 
   // plain case

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import type { EntityInterface, SchemaSimpleNew } from '../interface.js';
+import type { EntityInterface, SchemaSimple } from '../interface.js';
 import type { AbstractInstanceType } from '../normal.js';
 import { INVALID } from '../special.js';
 
@@ -14,7 +14,7 @@ export default class Invalidate<
   E extends EntityInterface & {
     process: any;
   },
-> implements SchemaSimpleNew
+> implements SchemaSimple
 {
   protected declare _entity: E;
 
@@ -102,7 +102,7 @@ export default class Invalidate<
     return undefined;
   }
 
-  denormalizeOnly(
+  denormalize(
     id: string,
     args: readonly any[],
     unvisit: (input: any, schema: any) => any,
@@ -111,11 +111,7 @@ export default class Invalidate<
   }
 
   /* istanbul ignore next */
-  _denormalizeNullable(): [
-    AbstractInstanceType<E> | undefined,
-    boolean,
-    false,
-  ] {
+  _denormalizeNullable(): AbstractInstanceType<E> | undefined {
     return {} as any;
   }
 

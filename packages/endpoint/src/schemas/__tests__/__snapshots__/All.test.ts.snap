@@ -409,7 +409,7 @@ exports[`ArraySchema denormalization (direct) denormalizes nested in object with
 }
 `;
 
-exports[`ArraySchema denormalization (direct) denormalizes removes undefined or DELETED entities 1`] = `
+exports[`ArraySchema denormalization (direct) denormalizes removes undefined or INVALID entities 1`] = `
 [
   Cat {
     "id": "1",
@@ -422,7 +422,7 @@ exports[`ArraySchema denormalization (direct) denormalizes removes undefined or 
 ]
 `;
 
-exports[`ArraySchema denormalization (direct) denormalizes removes undefined or DELETED entities 2`] = `
+exports[`ArraySchema denormalization (direct) denormalizes removes undefined or INVALID entities 2`] = `
 {
   "nextPage": "",
   "results": [
@@ -549,7 +549,7 @@ exports[`ArraySchema denormalization (immutable) denormalizes nested in object w
 }
 `;
 
-exports[`ArraySchema denormalization (immutable) denormalizes removes undefined or DELETED entities 1`] = `
+exports[`ArraySchema denormalization (immutable) denormalizes removes undefined or INVALID entities 1`] = `
 [
   Cat {
     "id": "1",
@@ -562,7 +562,7 @@ exports[`ArraySchema denormalization (immutable) denormalizes removes undefined 
 ]
 `;
 
-exports[`ArraySchema denormalization (immutable) denormalizes removes undefined or DELETED entities 2`] = `
+exports[`ArraySchema denormalization (immutable) denormalizes removes undefined or INVALID entities 2`] = `
 {
   "nextPage": "",
   "results": [

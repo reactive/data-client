@@ -1,22 +1,20 @@
 import type { schema } from './index.js';
 import type {
-  SchemaSimpleNew,
+  SchemaSimple,
   Schema,
-  UnvisitFunction,
   PolymorphicInterface,
 } from './interface.js';
 import type { EntityMap } from './normal.js';
 import { CollectionOptions } from './schemas/Collection.js';
-import { default as Delete } from './schemas/Delete.js';
 import { default as Invalidate } from './schemas/Invalidate.js';
 
-export { Delete, EntityMap, Invalidate };
+export { EntityMap, Invalidate };
 
 export { EntityInterface } from './interface.js';
 
 export type CollectionArrayAdder<S extends PolymorphicInterface> = S extends {
   // ensure we are an array type
-  denormalizeOnly(...args: any): any[];
+  denormalize(...args: any): any[];
   // get what we are an array of
   schema: infer T;
 }
@@ -105,11 +103,11 @@ export interface CollectionInterface<
   ): any;
 
   createIfValid: (value: any) => any | undefined;
-  denormalizeOnly(
+  denormalize(
     input: any,
     args: readonly any[],
     unvisit: (input: any, schema: any) => any,
-  ): ReturnType<S['denormalizeOnly']>;
+  ): ReturnType<S['denormalize']>;
 
   _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;
   _normalizeNullable(): ReturnType<S['_normalizeNullable']>;
@@ -127,7 +125,7 @@ export interface CollectionInterface<
   /** Schema to merge with a Values Collection
    * @see https://dataclient.io/rest/api/Collection#assign
    */
-  assign: S extends { denormalizeOnly(...args: any): Record<string, unknown> }
+  assign: S extends { denormalize(...args: any): Record<string, unknown> }
     ? schema.Collection<S, Parent>
     : never;
 }
@@ -141,7 +139,7 @@ export type CollectionFromSchema<
 
 export interface CollectionConstructor {
   new <
-    S extends SchemaSimpleNew[] | PolymorphicInterface = any,
+    S extends SchemaSimple[] | PolymorphicInterface = any,
     Parent extends any[] = [
       urlParams: Record<string, any>,
       body?: Record<string, any>,
@@ -165,7 +163,6 @@ export type SchemaAttributeFunction<S extends Schema> = (
   parent: any,
   key: string,
 ) => S;
-export type { UnvisitFunction };
 export type UnionResult<Choices extends EntityMap> = {
   id: string;
   schema: keyof Choices;

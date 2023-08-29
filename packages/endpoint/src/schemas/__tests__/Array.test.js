@@ -3,7 +3,7 @@ import { normalize } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
-import { denormalizeSimple, denormalizeLegacy } from './denormalize';
+import { denormalizeSimple } from './denormalize';
 import { schema } from '../../';
 
 let dateSpy;
@@ -176,7 +176,6 @@ describe.each([
 
   describe.each([
     ['class', sch => new schema.Array(sch), denormalizeSimple],
-    ['class, legacy', sch => new schema.Array(sch), denormalizeLegacy],
     ['object, direct', sch => [sch], denormalizeSimple],
   ])(
     `${schema.Array.name} denormalization (%s)`,

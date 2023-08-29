@@ -4,7 +4,7 @@ import { IDEntity } from '__tests__/new';
 import { waterfallSchema } from '__tests__/UnionSchema';
 import { fromJS } from 'immutable';
 
-import { denormalizeSimple, denormalizeLegacy } from './denormalize';
+import { denormalizeSimple } from './denormalize';
 import { schema } from '../../';
 
 let dateSpy;
@@ -256,92 +256,94 @@ describe.each([
   ['direct', data => data],
   ['immutable', fromJS],
 ])(`input (%s)`, (_, createInput) => {
-  describe.each([
-    ['current', denormalizeSimple],
-    ['legacy', denormalizeLegacy],
-  ])(`${schema.Union.name} denormalization (%s)`, (_, denormalize) => {
-    test('denormalizes an object using string schemaAttribute', () => {
-      const union = new schema.Union(
-        {
-          users: User,
-          groups: Group,
-        },
-        'type',
-      );
+  describe.each([['current', denormalizeSimple]])(
+    `${schema.Union.name} denormalization (%s)`,
+    (_, denormalize) => {
+      test('denormalizes an object using string schemaAttribute', () => {
+        const union = new schema.Union(
+          {
+            users: User,
+            groups: Group,
+          },
+          'type',
+        );
 
-      expect(
-        denormalize(
-          createInput({ id: '1', schema: 'users' }),
-          union,
-          createInput(entities),
-        ),
-      ).toMatchSnapshot();
+        expect(
+          denormalize(
+            createInput({ id: '1', schema: 'users' }),
+            union,
+            createInput(entities),
+          ),
+        ).toMatchSnapshot();
 
-      expect(
-        denormalize(
-          createInput({ id: '2', schema: 'groups' }),
-          union,
-          createInput(entities),
-        ),
-      ).toMatchSnapshot();
-    });
+        expect(
+          denormalize(
+            createInput({ id: '2', schema: 'groups' }),
+            union,
+            createInput(entities),
+          ),
+        ).toMatchSnapshot();
+      });
 
-    test('denormalizes an array of multiple entities using a function to infer the schemaAttribute', () => {
-      const union = new schema.Union(
-        {
-          users: User,
-          groups: Group,
-        },
-        input => {
-          return input.username ? 'users' : 'groups';
-        },
-      );
+      test('denormalizes an array of multiple entities using a function to infer the schemaAttribute', () => {
+        const union = new schema.Union(
+          {
+            users: User,
+            groups: Group,
+          },
+          input => {
+            return input.username ? 'users' : 'groups';
+          },
+        );
 
-      expect(
-        denormalize(
-          createInput({ id: '1', schema: 'users' }),
-          union,
-          createInput(entities),
-        ),
-      ).toMatchSnapshot();
+        expect(
+          denormalize(
+            createInput({ id: '1', schema: 'users' }),
+            union,
+            createInput(entities),
+          ),
+        ).toMatchSnapshot();
 
-      expect(
-        denormalize(
-          createInput({ id: '2', schema: 'groups' }),
-          union,
-          createInput(entities),
-        ),
-      ).toMatchSnapshot();
-    });
+        expect(
+          denormalize(
+            createInput({ id: '2', schema: 'groups' }),
+            union,
+            createInput(entities),
+          ),
+        ).toMatchSnapshot();
+      });
 
-    test('returns the original value when no schema is given', () => {
-      const union = new schema.Union(
-        {
-          users: User,
-          groups: Group,
-        },
-        input => {
-          return input.username ? 'users' : 'groups';
-        },
-      );
+      test('returns the original value when no schema is given', () => {
+        const union = new schema.Union(
+          {
+            users: User,
+            groups: Group,
+          },
+          input => {
+            return input.username ? 'users' : 'groups';
+          },
+        );
 
-      expect(
-        denormalize(createInput({ id: '1' }), union, createInput(entities)),
-      ).toMatchSnapshot();
-    });
+        expect(
+          denormalize(createInput({ id: '1' }), union, createInput(entities)),
+        ).toMatchSnapshot();
+      });
 
-    test('returns the original value when string is given', () => {
-      const union = new schema.Union(
-        {
-          users: User,
-          groups: Group,
-        },
-        input => {
-          return input.username ? 'users' : 'groups';
-        },
-      );
+      test('returns the original value when string is given', () => {
+        const union = new schema.Union(
+          {
+            users: User,
+            groups: Group,
+          },
+          input => {
+            return input.username ? 'users' : 'groups';
+          },
+        );
 
-      expect(denormalize('1', union, createInput(entities))).toMatchSnapshot();
-    });
-  });
+        expect(
+          denormalize('1', union, createInput(entities)),
+        ).toMatchSnapshot();
+      });
+    },
+  );
 });

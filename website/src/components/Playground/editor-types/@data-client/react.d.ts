@@ -1,6 +1,6 @@
 import * as _data_client_core from '@data-client/core';
 import { Manager, State as State$1, Controller, NetworkError, EndpointInterface, FetchFunction, Schema, DenormalizeNullable, ResolveType, Denormalize, UnknownError, ErrorTypes as ErrorTypes$1, ActionTypes, __INTERNAL__, createReducer, applyManager } from '@data-client/core';
-export { AbstractInstanceType, ActionTypes, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, ReceiveAction, SetTypes as ReceiveTypes, ResetAction, ResolveType, Schema, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@data-client/core';
+export { AbstractInstanceType, ActionTypes, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, ResetAction, ResolveType, Schema, SetAction, SetTypes, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@data-client/core';
 import React$1, { Context } from 'react';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 
@@ -17,7 +17,7 @@ interface ProviderProps {
 }
 /**
  * Manages state, providing all context needed to use the hooks.
- * @see https://resthooks.io/docs/api/CacheProvider
+ * @see https://dataclient.io/docs/api/CacheProvider
  */
 declare function CacheProvider({ children, managers, initialState, Controller, }: ProviderProps): react_jsx_runtime.JSX.Element;
 declare namespace CacheProvider {
@@ -31,7 +31,7 @@ declare namespace CacheProvider {
 
 /**
  * Handles loading and error conditions of Suspense
- * @see https://resthooks.io/docs/api/AsyncBoundary
+ * @see https://dataclient.io/docs/api/AsyncBoundary
  */
 declare function AsyncBoundary({ children, errorComponent, fallback, }: {
     children: React$1.ReactNode;
@@ -54,7 +54,7 @@ interface State<E extends NetworkError> {
 }
 /**
  * Handles any networking errors from suspense
- * @see https://resthooks.io/docs/api/NetworkErrorBoundary
+ * @see https://dataclient.io/docs/api/NetworkErrorBoundary
  */
 declare class NetworkErrorBoundary<E extends NetworkError> extends React$1.Component<Props<E>, State<E>> {
     static defaultProps: {
@@ -77,7 +77,7 @@ type SuspenseReturn<E extends EndpointInterface<FetchFunction, Schema | undefine
  * Suspends until it is.
  *
  * `useSuspense` guarantees referential equality globally.
- * @see https://resthooks.io/docs/api/useSuspense
+ * @see https://dataclient.io/docs/api/useSuspense
  * @throws {Promise} If data is not yet available.
  * @throws {NetworkError} If fetch fails.
  */
@@ -87,7 +87,7 @@ declare function useSuspense<E extends EndpointInterface<FetchFunction, Schema |
  * Access a response if it is available.
  *
  * `useCache` guarantees referential equality globally.
- * @see https://resthooks.io/docs/api/useCache
+ * @see https://dataclient.io/docs/api/useCache
  */
 declare function useCache<E extends Pick<EndpointInterface<FetchFunction, Schema | undefined, undefined | false>, 'key' | 'schema' | 'invalidIfStale'>, Args extends readonly [...Parameters<E['key']>] | readonly [null]>(endpoint: E, ...args: Args): E['schema'] extends undefined | null ? E extends (...args: any) => any ? ResolveType<E> | undefined : any : DenormalizeNullable<E['schema']>;
 
@@ -95,19 +95,19 @@ type ErrorTypes = NetworkError | UnknownError;
 type UseErrorReturn<P> = P extends [null] ? undefined : ErrorTypes | undefined;
 /**
  * Get any errors for a given request
- * @see https://resthooks.io/docs/api/useError
+ * @see https://dataclient.io/docs/api/useError
  */
 declare function useError<E extends Pick<EndpointInterface, 'key'>, Args extends readonly [...Parameters<E['key']>] | readonly [null]>(endpoint: E, ...args: Args): UseErrorReturn<Args>;
 
 /**
  * Request a resource if it is not in cache.
- * @see https://resthooks.io/docs/api/useFetch
+ * @see https://dataclient.io/docs/api/useFetch
  */
 declare function useFetch<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>, Args extends readonly [...Parameters<E>] | readonly [null]>(endpoint: E, ...args: Args): (E["schema"] extends null | undefined ? ReturnType<E> : Promise<Denormalize<E["schema"]>>) | undefined;
 
 /**
  * Keeps a resource fresh by subscribing to updates.
- * @see https://resthooks.io/docs/api/useSubscription
+ * @see https://dataclient.io/docs/api/useSubscription
  */
 declare function useSubscription<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>, Args extends readonly [...Parameters<E>] | readonly [null]>(endpoint: E, ...args: Args): void;
 
@@ -131,7 +131,7 @@ type StatefulReturn<S extends Schema | undefined, P> = CondNull<P, {
 }>;
 /**
  * Use async date with { data, loading, error } (DLE)
- * @see https://resthooks.io/docs/api/useDLE
+ * @see https://dataclient.io/docs/api/useDLE
  */
 declare function useDLE<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>, Args extends readonly [...Parameters<E>] | readonly [null]>(endpoint: E, ...args: Args): E['schema'] extends undefined | null ? {
     data: E extends (...args: any) => any ? ResolveType<E> | undefined : any;
@@ -141,7 +141,7 @@ declare function useDLE<E extends EndpointInterface<FetchFunction, Schema | unde
 
 /**
  * Imperative control of Rest Hooks store
- * @see https://resthooks.io/docs/api/useController
+ * @see https://dataclient.io/docs/api/useController
  */
 declare function useController(): Controller;
 
@@ -149,7 +149,7 @@ declare function useController(): Controller;
  * Ensure an endpoint is available. Keeps it fresh once it is.
  *
  * useSuspense() + useSubscription()
- * @see https://resthooks.io/docs/api/useLive
+ * @see https://dataclient.io/docs/api/useLive
  * @throws {Promise} If data is not yet available.
  * @throws {NetworkError} If fetch fails.
  */
@@ -169,12 +169,10 @@ declare const useCacheState: () => State$1<unknown>;
 //# sourceMappingURL=useCacheState.d.ts.map
 
 declare const initialState: _data_client_core.State<unknown>;
-declare const DELETED: symbol;
 declare const INVALID: symbol;
 declare const inferResults: typeof __INTERNAL__.inferResults;
 
 declare const internal_d_initialState: typeof initialState;
-declare const internal_d_DELETED: typeof DELETED;
 declare const internal_d_INVALID: typeof INVALID;
 declare const internal_d_inferResults: typeof inferResults;
 declare const internal_d_createReducer: typeof createReducer;
@@ -183,7 +181,6 @@ declare const internal_d_useCacheState: typeof useCacheState;
 declare namespace internal_d {
   export {
     internal_d_initialState as initialState,
-    internal_d_DELETED as DELETED,
     internal_d_INVALID as INVALID,
     internal_d_inferResults as inferResults,
     internal_d_createReducer as createReducer,

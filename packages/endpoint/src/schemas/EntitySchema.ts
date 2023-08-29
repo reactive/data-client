@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { CREATE } from './special.js';
-import type { Schema, NormalizedIndex, UnvisitFunction } from '../interface.js';
+import type { Schema, NormalizedIndex } from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
 
 export type Constructor = abstract new (...args: any[]) => {};
@@ -348,45 +348,12 @@ export default function EntitySchema<TBase extends Constructor>(
       recurse: any,
       entities: any,
     ): any {
-      if (!args[0]) return undefined;
+      if (!args[0]) return;
       const id = inferId(this, args, indexes);
-      // no entity arg is back-compatibility
-      if (!entities || entities[this.key]?.[id]) return id;
-      return undefined;
+      if (entities[this.key]?.[id]) return id;
     }
 
     static denormalize<T extends typeof EntityMixin>(
-      this: T,
-      input: any,
-      unvisit: UnvisitFunction,
-    ): [
-      denormalized: AbstractInstanceType<T>,
-      found: boolean,
-      suspend: boolean,
-    ] {
-      // TODO: remove codecov ignore once denormalize is modified to expect this
-      /* istanbul ignore if */
-      if (typeof input === 'symbol') {
-        return [undefined, true, true] as any;
-      }
-
-      let deleted = false;
-      // note: iteration order must be stable
-      Object.keys(this.schema).forEach(key => {
-        const schema = this.schema[key];
-        const nextInput = (input as any)[key];
-        const [value, , deletedItem] = unvisit(nextInput, schema);
-
-        if (deletedItem && !!this.defaults[key]) {
-          deleted = true;
-        }
-        input[key] = value;
-      });
-
-      return [input, true, deleted];
-    }
-
-    static denormalizeOnly<T extends typeof EntityMixin>(
       this: T,
       input: any,
       args: any[],
@@ -693,7 +660,12 @@ export interface IEntityClass<TBase extends Constructor = any> {
    * @see https://dataclient.io/docs/api/Entity#infer
    */
 
-  infer(args: readonly any[], indexes: NormalizedIndex, recurse: any): any;
+  infer(
+    args: readonly any[],
+    indexes: NormalizedIndex,
+    recurse: any,
+    entities: any,
+  ): any;
   denormalize<
     T extends (abstract new (
       ...args: any[]
@@ -703,17 +675,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
   >(
     this: T,
     input: any,
-    unvisit: UnvisitFunction,
-  ): [denormalized: AbstractInstanceType<T>, found: boolean, suspend: boolean];
-  denormalizeOnly<
-    T extends (abstract new (
-      ...args: any[]
-    ) => IEntityInstance & InstanceType<TBase>) &
-      IEntityClass &
-      TBase,
-  >(
-    this: T,
-    input: any,
+    args: readonly any[],
     unvisit: (input: any, schema: any) => any,
   ): AbstractInstanceType<T>;
   /** All instance defaults set */

@@ -10,30 +10,20 @@ type Serializable<T extends {
 };
 interface SchemaSimple<T = any> {
     normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities?: any, args?: any[]): any;
-    denormalize?(input: {}, unvisit: UnvisitFunction): [denormalized: T, found: boolean, suspend: boolean];
-    denormalizeOnly?(input: {}, args: any, unvisit: (input: any, schema: any) => any): T;
+    denormalize(input: {}, args: any, unvisit: (input: any, schema: any) => any): T;
     infer(args: readonly any[], indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): any;
 }
 interface EntityInterface<T = any> extends SchemaSimple {
-    createIfValid?(props: any): any;
+    createIfValid(props: any): any;
     pk(params: any, parent?: any, key?: string, args?: readonly any[]): string | undefined;
     readonly key: string;
     merge(existing: any, incoming: any): any;
-    /** @deprecated use mergeWithStore instead (which can call this) */
-    expiresAt?(meta: any, input: any): number;
-    mergeWithStore?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
-    mergeMetaWithStore?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
-    /** @deprecated use mergeWithStore instead (which can call this) */
-    useIncoming?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): boolean;
+    mergeWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
+    mergeMetaWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
     indexes?: any;
     schema: Record<string, Schema>;
     cacheWith?: object;
     prototype: T;
-}
-interface UnvisitFunction {
-    (input: any, schema: any): [any, boolean, boolean] | any;
-    og?: UnvisitFunction;
-    setLocal?: (entity: any) => void;
 }
 interface NormalizedIndex {
     readonly [entityKey: string]: {
@@ -80,16 +70,16 @@ type AbstractInstanceType<T> = T extends new (...args: any) => infer U ? U : T e
     prototype: infer U;
 } ? U : never;
 type DenormalizeObject<S extends Record<string, any>> = {
-    [K in keyof S]: S[K] extends Schema ? Denormalize$1<S[K]> : S[K];
+    [K in keyof S]: S[K] extends Schema ? Denormalize<S[K]> : S[K];
 };
 type DenormalizeNullableObject<S extends Record<string, any>> = {
-    [K in keyof S]: S[K] extends Schema ? DenormalizeNullable$1<S[K]> : S[K];
+    [K in keyof S]: S[K] extends Schema ? DenormalizeNullable<S[K]> : S[K];
 };
 type NormalizeObject<S extends Record<string, any>> = {
-    [K in keyof S]: S[K] extends Schema ? Normalize$1<S[K]> : S[K];
+    [K in keyof S]: S[K] extends Schema ? Normalize<S[K]> : S[K];
 };
 type NormalizedNullableObject<S extends Record<string, any>> = {
-    [K in keyof S]: S[K] extends Schema ? NormalizeNullable$1<S[K]> : S[K];
+    [K in keyof S]: S[K] extends Schema ? NormalizeNullable<S[K]> : S[K];
 };
 interface NestedSchemaClass<T = any> {
     schema: Record<string, Schema>;
@@ -109,28 +99,25 @@ interface DenormalizeCache {
     };
 }
 type DenormalizeNullableNestedSchema<S extends NestedSchemaClass> = keyof S['schema'] extends never ? S['prototype'] : string extends keyof S['schema'] ? S['prototype'] : S['prototype'];
-type DenormalizeReturnType<T> = T extends (input: any, unvisit: any) => [infer R, any, any] ? R : never;
 type NormalizeReturnType<T> = T extends (...args: any) => infer R ? R : never;
-type Denormalize$1<S> = S extends EntityInterface<infer U> ? U : S extends RecordClass ? AbstractInstanceType<S> : S extends {
-    denormalizeOnly: (...args: any) => any;
-} ? ReturnType<S['denormalizeOnly']> : S extends {
+type Denormalize<S> = S extends EntityInterface<infer U> ? U : S extends RecordClass ? AbstractInstanceType<S> : S extends {
     denormalize: (...args: any) => any;
-} ? DenormalizeReturnType<S['denormalize']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Denormalize$1<F>[] : S extends {
+} ? ReturnType<S['denormalize']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Denormalize<F>[] : S extends {
     [K: string]: any;
 } ? DenormalizeObject<S> : S;
-type DenormalizeNullable$1<S> = S extends EntityInterface<any> ? DenormalizeNullableNestedSchema<S> | undefined : S extends RecordClass ? DenormalizeNullableNestedSchema<S> : S extends {
+type DenormalizeNullable<S> = S extends EntityInterface<any> ? DenormalizeNullableNestedSchema<S> | undefined : S extends RecordClass ? DenormalizeNullableNestedSchema<S> : S extends {
     _denormalizeNullable: (...args: any) => any;
-} ? DenormalizeReturnType<S['_denormalizeNullable']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Denormalize$1<F>[] | undefined : S extends {
+} ? ReturnType<S['_denormalizeNullable']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Denormalize<F>[] | undefined : S extends {
     [K: string]: any;
 } ? DenormalizeNullableObject<S> : S;
-type Normalize$1<S> = S extends EntityInterface ? string : S extends RecordClass ? NormalizeObject<S['schema']> : S extends {
+type Normalize<S> = S extends EntityInterface ? string : S extends RecordClass ? NormalizeObject<S['schema']> : S extends {
     normalize: (...args: any) => any;
-} ? NormalizeReturnType<S['normalize']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Normalize$1<F>[] : S extends {
+} ? NormalizeReturnType<S['normalize']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Normalize<F>[] : S extends {
     [K: string]: any;
 } ? NormalizeObject<S> : S;
-type NormalizeNullable$1<S> = S extends EntityInterface ? string | undefined : S extends RecordClass ? NormalizedNullableObject<S['schema']> : S extends {
+type NormalizeNullable<S> = S extends EntityInterface ? string | undefined : S extends RecordClass ? NormalizedNullableObject<S['schema']> : S extends {
     _normalizeNullable: (...args: any) => any;
-} ? NormalizeReturnType<S['_normalizeNullable']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Normalize$1<F>[] | undefined : S extends {
+} ? NormalizeReturnType<S['_normalizeNullable']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Normalize<F>[] | undefined : S extends {
     [K: string]: any;
 } ? NormalizedNullableObject<S> : S;
 
@@ -138,9 +125,7 @@ type NormalizeNullable$1<S> = S extends EntityInterface ? string | undefined : S
  * Build the result parameter to denormalize from schema alone.
  * Tries to compute the entity ids from params.
  */
-declare function inferResults<S extends Schema>(schema: S, args: any[], indexes: NormalizedIndex, entities: EntityTable): NormalizeNullable$1<S>;
-
-declare const DELETED: unique symbol;
+declare function inferResults<S extends Schema>(schema: S, args: any[], indexes: NormalizedIndex, entities: EntityTable): NormalizeNullable<S>;
 
 interface NetworkError extends Error {
     status: number;
@@ -195,18 +180,9 @@ interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
     /** User-land extra data to send */
     readonly extra?: any;
 }
-type UpdateFunction<SourceSchema extends Schema | undefined, DestSchema extends Schema> = (sourceResults: Normalize$1<SourceSchema>, destResults: Normalize$1<DestSchema> | undefined) => Normalize$1<DestSchema>;
+type UpdateFunction<SourceSchema extends Schema | undefined, DestSchema extends Schema> = (sourceResults: Normalize<SourceSchema>, destResults: Normalize<DestSchema> | undefined) => Normalize<DestSchema>;
 
 type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Promise<R>;
-
-/** This file exists to keep compatibility with SchemaDetail, and SchemaList type hacks
- * Support can be dropped once @data-client/rest@5 support is dropped
- */
-
-type Denormalize<S> = Extract<S, EntityInterface> extends never ? Extract<S, EntityInterface[]> extends never ? Denormalize$1<S> : Denormalize$1<Extract<S, EntityInterface[]>> : Denormalize$1<Extract<S, EntityInterface>>;
-type DenormalizeNullable<S> = Extract<S, EntityInterface> extends never ? Extract<S, EntityInterface[]> extends never ? DenormalizeNullable$1<S> : DenormalizeNullable$1<Extract<S, EntityInterface[]>> : DenormalizeNullable$1<Extract<S, EntityInterface>>;
-type Normalize<S> = Extract<S, EntityInterface> extends never ? Extract<S, EntityInterface[]> extends never ? Normalize$1<S> : Normalize$1<Extract<S, EntityInterface[]>> : Normalize$1<Extract<S, EntityInterface>>;
-type NormalizeNullable<S> = Extract<S, EntityInterface> extends never ? Extract<S, EntityInterface[]> extends never ? NormalizeNullable$1<S> : NormalizeNullable$1<Extract<S, EntityInterface[]>> : NormalizeNullable$1<Extract<S, EntityInterface>>;
 
 declare const INVALID: unique symbol;
 
@@ -218,21 +194,18 @@ type EndpointUpdateFunction<Source extends EndpointInterface, Updaters extends R
     [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K];
 };
 
-declare const FETCH_TYPE: "rest-hooks/fetch";
-/** @deprecated use SET_TYPE instead */
-declare const RECEIVE_TYPE: "rest-hooks/receive";
-declare const SET_TYPE: "rest-hooks/receive";
-declare const OPTIMISTIC_TYPE: "rest-hooks/optimistic";
-declare const RESET_TYPE: "rest-hooks/reset";
-declare const SUBSCRIBE_TYPE: "rest-hooks/subscribe";
-declare const UNSUBSCRIBE_TYPE: "rest-hook/unsubscribe";
-declare const INVALIDATE_TYPE: "rest-hooks/invalidate";
-declare const INVALIDATEALL_TYPE: "rest-hooks/invalidateall";
-declare const EXPIREALL_TYPE: "rest-hooks/expireall";
-declare const GC_TYPE: "rest-hooks/gc";
+declare const FETCH_TYPE: "rdc/fetch";
+declare const SET_TYPE: "rdc/set";
+declare const OPTIMISTIC_TYPE: "rdc/optimistic";
+declare const RESET_TYPE: "rdc/reset";
+declare const SUBSCRIBE_TYPE: "rdc/subscribe";
+declare const UNSUBSCRIBE_TYPE: "rdc/unsubscribe";
+declare const INVALIDATE_TYPE: "rdc/invalidate";
+declare const INVALIDATEALL_TYPE: "rdc/invalidateall";
+declare const EXPIREALL_TYPE: "rdc/expireall";
+declare const GC_TYPE: "rdc/gc";
 
 declare const actionTypes_d_FETCH_TYPE: typeof FETCH_TYPE;
-declare const actionTypes_d_RECEIVE_TYPE: typeof RECEIVE_TYPE;
 declare const actionTypes_d_SET_TYPE: typeof SET_TYPE;
 declare const actionTypes_d_OPTIMISTIC_TYPE: typeof OPTIMISTIC_TYPE;
 declare const actionTypes_d_RESET_TYPE: typeof RESET_TYPE;
@@ -245,7 +218,6 @@ declare const actionTypes_d_GC_TYPE: typeof GC_TYPE;
 declare namespace actionTypes_d {
   export {
     actionTypes_d_FETCH_TYPE as FETCH_TYPE,
-    actionTypes_d_RECEIVE_TYPE as RECEIVE_TYPE,
     actionTypes_d_SET_TYPE as SET_TYPE,
     actionTypes_d_OPTIMISTIC_TYPE as OPTIMISTIC_TYPE,
     actionTypes_d_RESET_TYPE as RESET_TYPE,
@@ -259,7 +231,7 @@ declare namespace actionTypes_d {
 }
 
 type RHDispatch<Actions = any> = (value: Actions) => Promise<void>;
-interface MiddlewareAPI$1<R extends RestHooksReducer = RestHooksReducer> extends Controller<RHDispatch<ActionTypes>> {
+interface MiddlewareAPI$1<R extends DataClientReducer = DataClientReducer> extends Controller<RHDispatch<ActionTypes>> {
     /** @deprecated use members directly instead */
     controller: Controller<RHDispatch<ActionTypes>>;
 }
@@ -267,7 +239,7 @@ interface MiddlewareController<Actions = ActionTypes> extends Controller<RHDispa
     controller: Controller<RHDispatch<Actions>>;
 }
 type Middleware$2<Actions = any> = <C extends MiddlewareController<Actions>>(controller: C) => (next: C['dispatch']) => C['dispatch'];
-type RestHooksReducer = (prevState: State<unknown>, action: ActionTypes) => State<unknown>;
+type DataClientReducer = (prevState: State<unknown>, action: ActionTypes) => State<unknown>;
 type Dispatch$1<R extends Reducer<any, any>> = (action: ReducerAction<R>) => Promise<void>;
 type Reducer<S, A> = (prevState: S, action: A) => S;
 type ReducerState<R extends Reducer<any, any>> = R extends Reducer<infer S, any> ? S : never;
@@ -301,8 +273,6 @@ interface SetActionError<E extends EndpointAndUpdate<E> = EndpointDefault> {
     error: true;
 }
 type SetAction<E extends EndpointAndUpdate<E> = EndpointDefault> = SetActionSuccess<E> | SetActionError<E>;
-/** @deprecated use SetAction instead */
-type ReceiveAction<E extends EndpointAndUpdate<E> = EndpointDefault> = SetAction<E>;
 interface FetchMeta {
     args: readonly any[];
     key: string;
@@ -370,7 +340,6 @@ type newActions_d_SetMeta = SetMeta;
 type newActions_d_SetActionSuccess<E extends EndpointAndUpdate<E> = EndpointDefault> = SetActionSuccess<E>;
 type newActions_d_SetActionError<E extends EndpointAndUpdate<E> = EndpointDefault> = SetActionError<E>;
 type newActions_d_SetAction<E extends EndpointAndUpdate<E> = EndpointDefault> = SetAction<E>;
-type newActions_d_ReceiveAction<E extends EndpointAndUpdate<E> = EndpointDefault> = ReceiveAction<E>;
 type newActions_d_FetchMeta = FetchMeta;
 type newActions_d_FetchAction<E extends EndpointAndUpdate<E> = EndpointDefault> = FetchAction<E>;
 type newActions_d_OptimisticAction<E extends EndpointAndUpdate<E> = EndpointDefault> = OptimisticAction<E>;
@@ -388,7 +357,6 @@ declare namespace newActions_d {
     newActions_d_SetActionSuccess as SetActionSuccess,
     newActions_d_SetActionError as SetActionError,
     newActions_d_SetAction as SetAction,
-    newActions_d_ReceiveAction as ReceiveAction,
     newActions_d_FetchMeta as FetchMeta,
     newActions_d_FetchAction as FetchAction,
     newActions_d_OptimisticAction as OptimisticAction,
@@ -403,7 +371,7 @@ declare namespace newActions_d {
   };
 }
 
-type ReceiveTypes = typeof SET_TYPE;
+type SetTypes = typeof SET_TYPE;
 type PK = string;
 interface State<T> {
     readonly entities: {
@@ -453,13 +421,13 @@ interface ConstructorProps<D extends GenericDispatch = DataClientDispatch> {
 }
 /**
  * Imperative control of Rest Hooks store
- * @see https://resthooks.io/docs/api/Controller
+ * @see https://dataclient.io/docs/api/Controller
  */
 declare class Controller<D extends GenericDispatch = DataClientDispatch> {
     /**
      * Dispatches an action to Rest Hooks reducer.
      *
-     * @see https://resthooks.io/docs/api/Controller#dispatch
+     * @see https://dataclient.io/docs/api/Controller#dispatch
      */
     readonly dispatch: D;
     /**
@@ -467,7 +435,7 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      *
      * This can be useful for imperative use-cases like event handlers.
      * This should *not* be used to render; instead useSuspense() or useCache()
-     * @see https://resthooks.io/docs/api/Controller#getState
+     * @see https://dataclient.io/docs/api/Controller#getState
      */
     readonly getState: () => State<unknown>;
     readonly globalCache: DenormalizeCache;
@@ -475,7 +443,7 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
     /*************** Action Dispatchers ***************/
     /**
      * Fetches the endpoint with given args, updating the Rest Hooks cache with the response or error upon completion.
-     * @see https://resthooks.io/docs/api/Controller#fetch
+     * @see https://dataclient.io/docs/api/Controller#fetch
      */
     fetch: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
         update?: EndpointUpdateFunction<E> | undefined;
@@ -489,12 +457,12 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
     }>(endpoint: E, ...args_0: Parameters<E>) => E["schema"] extends null | undefined ? ReturnType<E> | ResolveType<E> : Denormalize<E["schema"]> | Promise<Denormalize<E["schema"]>>;
     /**
      * Forces refetching and suspense on useSuspense with the same Endpoint and parameters.
-     * @see https://resthooks.io/docs/api/Controller#invalidate
+     * @see https://dataclient.io/docs/api/Controller#invalidate
      */
     invalidate: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]) => Promise<void>;
     /**
      * Forces refetching and suspense on useSuspense on all matching endpoint result keys.
-     * @see https://resthooks.io/docs/api/Controller#invalidateAll
+     * @see https://dataclient.io/docs/api/Controller#invalidateAll
      * @returns Promise that resolves when invalidation is commited.
      */
     invalidateAll: (options: {
@@ -510,39 +478,26 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
     }) => Promise<void>;
     /**
      * Resets the entire Rest Hooks cache. All inflight requests will not resolve.
-     * @see https://resthooks.io/docs/api/Controller#resetEntireStore
+     * @see https://dataclient.io/docs/api/Controller#resetEntireStore
      */
     resetEntireStore: () => Promise<void>;
     /**
      * Stores response in cache for given Endpoint and args.
-     * @see https://resthooks.io/docs/api/Controller#set
+     * @see https://dataclient.io/docs/api/Controller#set
      */
     setResponse: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
         update?: EndpointUpdateFunction<E> | undefined;
     }>(endpoint: E, ...rest: readonly [...Parameters<E>, any]) => Promise<void>;
     /**
-     * @deprecated use https://resthooks.io/docs/api/Controller#setResponse instead
-     */
-    receive: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
-        update?: EndpointUpdateFunction<E> | undefined;
-    }>(endpoint: E, ...rest: readonly [...Parameters<E>, any]) => Promise<void>;
-    /**
      * Stores the result of Endpoint and args as the error provided.
-     * @see https://resthooks.io/docs/api/Controller#setError
+     * @see https://dataclient.io/docs/api/Controller#setError
      */
     setError: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
         update?: EndpointUpdateFunction<E> | undefined;
     }>(endpoint: E, ...rest: readonly [...Parameters<E>, Error]) => Promise<void>;
     /**
-     * Another name for setError
-     * @deprecated use https://resthooks.io/docs/api/Controller#setError instead
-     */
-    receiveError: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
-        update?: EndpointUpdateFunction<E> | undefined;
-    }>(endpoint: E, ...rest: readonly [...Parameters<E>, Error]) => Promise<void>;
-    /**
      * Resolves an inflight fetch. `fetchedAt` should `fetch`'s `createdAt`
-     * @see https://resthooks.io/docs/api/Controller#resolve
+     * @see https://dataclient.io/docs/api/Controller#resolve
      */
     resolve: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
         update?: EndpointUpdateFunction<E> | undefined;
@@ -559,28 +514,28 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
     }) => Promise<void>;
     /**
      * Marks a new subscription to a given Endpoint.
-     * @see https://resthooks.io/docs/api/Controller#subscribe
+     * @see https://dataclient.io/docs/api/Controller#subscribe
      */
     subscribe: <E extends EndpointInterface<FetchFunction, Schema | undefined, false | undefined>>(endpoint: E, ...args: readonly [null] | readonly [...Parameters<E>]) => Promise<void>;
     /**
      * Marks completion of subscription to a given Endpoint.
-     * @see https://resthooks.io/docs/api/Controller#unsubscribe
+     * @see https://dataclient.io/docs/api/Controller#unsubscribe
      */
     unsubscribe: <E extends EndpointInterface<FetchFunction, Schema | undefined, false | undefined>>(endpoint: E, ...args: readonly [null] | readonly [...Parameters<E>]) => Promise<void>;
     /*************** More ***************/
     /**
-     * Gets a snapshot (https://resthooks.io/docs/api/Snapshot)
-     * @see https://resthooks.io/docs/api/Controller#snapshot
+     * Gets a snapshot (https://dataclient.io/docs/api/Snapshot)
+     * @see https://dataclient.io/docs/api/Controller#snapshot
      */
     snapshot: (state: State<unknown>, fetchedAt?: number) => SnapshotInterface;
     /**
      * Gets the error, if any, for a given endpoint. Returns undefined for no errors.
-     * @see https://resthooks.io/docs/api/Controller#getError
+     * @see https://dataclient.io/docs/api/Controller#getError
      */
     getError: <E extends Pick<EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined>, "key">, Args extends readonly [null] | readonly [...Parameters<E["key"]>]>(endpoint: E, ...rest: [...Args, State<unknown>]) => ErrorTypes | undefined;
     /**
      * Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
-     * @see https://resthooks.io/docs/api/Controller#getResponse
+     * @see https://dataclient.io/docs/api/Controller#getResponse
      */
     getResponse: <E extends Pick<EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined>, "schema" | "key" | "invalidIfStale">, Args extends readonly [null] | readonly [...Parameters<E["key"]>]>(endpoint: E, ...rest: [...Args, State<unknown>]) => {
         data: DenormalizeNullable<E["schema"]>;
@@ -596,14 +551,12 @@ type ReducerType = (state: State<unknown> | undefined, action: ActionTypes) => S
 //# sourceMappingURL=internal.d.ts.map
 
 declare const internal_d_inferResults: typeof inferResults;
-declare const internal_d_DELETED: typeof DELETED;
 declare const internal_d_INVALID: typeof INVALID;
 declare const internal_d_RIC: typeof RIC;
 declare const internal_d_initialState: typeof initialState;
 declare namespace internal_d {
   export {
     internal_d_inferResults as inferResults,
-    internal_d_DELETED as DELETED,
     internal_d_INVALID as INVALID,
     internal_d_RIC as RIC,
     internal_d_initialState as initialState,
@@ -654,7 +607,7 @@ declare class NetworkManager implements Manager {
     /** Clear promise state for a given key */
     protected clear(key: string): void;
     protected getLastReset(): number;
-    /** Called when middleware intercepts 'rest-hooks/fetch' action.
+    /** Called when middleware intercepts 'rdc/fetch' action.
      *
      * Will then start a promise for a key and potentially start the network
      * fetch.
@@ -663,16 +616,16 @@ declare class NetworkManager implements Manager {
      * for ensures mutation requests always go through.
      */
     protected handleFetch(action: FetchAction): Promise<any>;
-    /** Called when middleware intercepts a receive action.
+    /** Called when middleware intercepts a set action.
      *
-     * Will resolve the promise associated with receive key.
+     * Will resolve the promise associated with set key.
      */
-    protected handleReceive(action: SetAction): void;
+    protected handleSet(action: SetAction): void;
     /** Attaches NetworkManager to store
      *
-     * Intercepts 'rest-hooks/fetch' actions to start requests.
+     * Intercepts 'rdc/fetch' actions to start requests.
      *
-     * Resolve/rejects a request when matching 'rest-hooks/receive' event
+     * Resolve/rejects a request when matching 'rdc/set' event
      * is seen.
      */
     getMiddleware(): Middleware$2;
@@ -745,7 +698,7 @@ interface Subscription {
 interface SubscriptionConstructable {
     new (action: Omit<SubscribeAction, 'type'>, controller: Controller): Subscription;
 }
-/** Handles subscription actions -> fetch or receive actions
+/** Handles subscription actions -> fetch or set actions
  *
  * Constructor takes a SubscriptionConstructable class to control how
  * subscriptions are handled. (e.g., polling, websockets)
@@ -762,20 +715,20 @@ declare class SubscriptionManager<S extends SubscriptionConstructable> implement
     constructor(Subscription: S);
     /** Ensures all subscriptions are cleaned up. */
     cleanup(): void;
-    /** Called when middleware intercepts 'rest-hooks/subscribe' action.
+    /** Called when middleware intercepts 'rdc/subscribe' action.
      *
      */
     protected handleSubscribe(action: SubscribeAction): void;
-    /** Called when middleware intercepts 'rest-hooks/unsubscribe' action.
+    /** Called when middleware intercepts 'rdc/unsubscribe' action.
      *
      */
     protected handleUnsubscribe(action: UnsubscribeAction): void;
     /** Attaches Manager to store
      *
-     * Intercepts 'rest-hooks/subscribe'/'rest-hooks/unsubscribe' to register resources that
+     * Intercepts 'rdc/subscribe'/'rest-hordc/ribe' to register resources that
      * need to be kept up to date.
      *
-     * Will possibly dispatch 'rest-hooks/fetch' or 'rest-hooks/receive' to keep resources fresh
+     * Will possibly dispatch 'rdc/fetch' or 'rest-hordc/' to keep resources fresh
      *
      */
     getMiddleware(): Middleware$2;
@@ -1065,4 +1018,4 @@ declare class DevToolsManager implements Manager {
     getMiddleware(): Middleware;
 }
 
-export { AbstractInstanceType, ActionTypes, ConnectionListener, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeCache, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch$1 as Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityInterface, ErrorTypes, ExpireAllAction, ExpiryStatus, FetchAction, FetchFunction, FetchMeta, GCAction, GenericDispatch, InvalidateAction, InvalidateAllAction, LogoutManager, Manager, Middleware$2 as Middleware, MiddlewareAPI$1 as MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, OptimisticAction, PK, PollingSubscription, ReceiveAction, ReceiveTypes, ResetAction, ResetError, ResolveType, ResultEntry, Schema, SetAction, SetActionError, SetActionSuccess, SetMeta, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, applyManager, createFetch, createSet as createReceive, createReducer, initialState, newActions_d as newActions };
+export { AbstractInstanceType, ActionTypes, ConnectionListener, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeCache, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch$1 as Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityInterface, ErrorTypes, ExpireAllAction, ExpiryStatus, FetchAction, FetchFunction, FetchMeta, GCAction, GenericDispatch, InvalidateAction, InvalidateAllAction, LogoutManager, Manager, Middleware$2 as Middleware, MiddlewareAPI$1 as MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, OptimisticAction, PK, PollingSubscription, ResetAction, ResetError, ResolveType, ResultEntry, Schema, SetAction, SetActionError, SetActionSuccess, SetMeta, SetTypes, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, applyManager, createFetch, createReducer, createSet, initialState, newActions_d as newActions };

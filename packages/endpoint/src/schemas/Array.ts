@@ -36,13 +36,6 @@ export default class ArraySchema extends PolymorphicSchema {
 
   denormalize(
     input: any,
-    unvisit: any,
-  ): [denormalized: any, found: boolean, deleted: boolean] {
-    return [this.denormalizeOnly(input, [], unvisit), true, false];
-  }
-
-  denormalizeOnly(
-    input: any,
     args: any[],
     unvisit: (input: any, schema: any) => any,
   ) {

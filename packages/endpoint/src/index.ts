@@ -16,7 +16,7 @@ export * as schema from './schema.js';
 export type { Array, Invalidate, Collection } from './schema.js';
 export { default as Entity } from './schemas/Entity.js';
 export { default as validateRequired } from './validateRequired.js';
-export { DELETED, INVALID } from './special.js';
+export { INVALID } from './special.js';
 export type {
   EndpointInterface,
   ReadEndpoint,
@@ -26,7 +26,6 @@ export type {
   ExpiryStatusInterface,
   SchemaSimple,
   SchemaClass,
-  SchemaSimpleNew,
   PolymorphicInterface,
 } from './interface.js';
 export type {

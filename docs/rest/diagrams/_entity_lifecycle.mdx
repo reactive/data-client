@@ -20,9 +20,12 @@ flowchart BT
     end
     Entity.normalize--processedEntity-->addEntity
     subgraph addEntity
-      expiresAt("Entity.expiresAt()")---mergewithstore("Entity.mergeWithStore()")
-      expiresAt---merge("Entity.merge()")
-      mergewithstore--->merge("Entity.merge()")
+      subgraph Entity.mergeWithStore
+        direction TB
+        useincoming("Entity.useIncoming()")---shouldreorder("Entity.shouldReorder()")
+        shouldreorder---merge("Entity.merge()")
+      end
+      Entity.mergeWithStore---mergeMetaWithStore("Entity.mergeMetaWithStore()")
     end
   end
   click process "/rest/api/Entity#process"
@@ -31,8 +34,9 @@ flowchart BT
   click fromJS "/rest/api/Entity#fromJS"
   click validate "/rest/api/Entity#validate"
   click validate2 "/rest/api/Entity#validate"
-  click expiresAt "/rest/api/Entity#expiresat"
+  click mergeMetaWithStore "/rest/api/Entity#mergeMetaWithStore"
   click useincoming "/rest/api/Entity#useincoming"
+  click shouldreorder "/rest/api/Entity#shouldreorder"
   click mergewithstore "/rest/api/Entity#mergeWithStore"
   click merge "/rest/api/Entity#merge"
   click infer "/rest/api/Entity#infer"

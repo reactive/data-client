@@ -9,20 +9,21 @@ import { isEntity } from './isEntity.js';
 import { normalize } from './normalize.js';
 import WeakEntityMap from './WeakEntityMap.js';
 export { default as inferResults, validateInference } from './inferResults.js';
-export { DELETED } from './special.js';
 
 export type {
   AbstractInstanceType,
   NormalizeReturnType,
   NormalizedSchema,
-  DenormalizeReturnType,
   DenormalizeCache,
   Path,
+  Denormalize,
+  DenormalizeNullable,
+  Normalize,
+  NormalizeNullable,
 } from './types.js';
 export * from './endpoint/types.js';
 export * from './interface.js';
 export * from './Expiry.js';
-export * from './normal.js';
 export { INVALID } from './denormalize/symbol.js';
 
 export { denormalize, denormalizeCached, normalize, isEntity, WeakEntityMap };

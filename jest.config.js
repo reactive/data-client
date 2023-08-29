@@ -28,7 +28,6 @@ const baseConfig = {
     'packages/react/src/next',
     'packages/core/src/state/legacy-actions/createFetch',
     'packages/react/src/makeCacheProvider',
-    'packages/endpoint/src/schemas-3.7',
   ],
   testEnvironmentOptions: {
     url: 'http://localhost',

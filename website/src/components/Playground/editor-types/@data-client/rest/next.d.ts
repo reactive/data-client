@@ -33,18 +33,15 @@ interface RecordClass<T = any> extends NestedSchemaClass<T> {
 type DenormalizeNullableNestedSchema<S extends NestedSchemaClass> = keyof S['schema'] extends never ? S['prototype'] : string extends keyof S['schema'] ? S['prototype'] : S['prototype'] & {
     [K in keyof S['schema']]: DenormalizeNullable<S['schema'][K]>;
 };
-type DenormalizeReturnType<T> = T extends (input: any, unvisit: any) => [infer R, any, any] ? R : never;
 type NormalizeReturnType<T> = T extends (...args: any) => infer R ? R : never;
 type Denormalize<S> = S extends EntityInterface<infer U> ? U : S extends RecordClass ? AbstractInstanceType<S> : S extends {
-    denormalizeOnly: (...args: any) => any;
-} ? ReturnType<S['denormalizeOnly']> : S extends {
     denormalize: (...args: any) => any;
-} ? DenormalizeReturnType<S['denormalize']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Denormalize<F>[] : S extends {
+} ? ReturnType<S['denormalize']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Denormalize<F>[] : S extends {
     [K: string]: any;
 } ? DenormalizeObject<S> : S;
 type DenormalizeNullable<S> = S extends EntityInterface<any> ? DenormalizeNullableNestedSchema<S> | undefined : S extends RecordClass ? DenormalizeNullableNestedSchema<S> : S extends {
     _denormalizeNullable: (...args: any) => any;
-} ? DenormalizeReturnType<S['_denormalizeNullable']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Denormalize<F>[] | undefined : S extends {
+} ? ReturnType<S['_denormalizeNullable']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Denormalize<F>[] | undefined : S extends {
     [K: string]: any;
 } ? DenormalizeNullableObject<S> : S;
 type Normalize<S> = S extends EntityInterface ? string : S extends RecordClass ? NormalizeObject<S['schema']> : S extends {
@@ -106,43 +103,30 @@ type Serializable<T extends {
     prototype: T;
 };
 interface SchemaSimple<T = any> {
-    normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args: any[]): any;
-    denormalize(input: {}, unvisit: UnvisitFunction): [denormalized: T, found: boolean, suspend: boolean];
-    denormalizeOnly?(input: {}, args: any, unvisit: (input: any, schema: any) => any): T;
-    infer(args: readonly any[], indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): any;
-}
-interface SchemaSimpleNew<T = any> {
     normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args?: any[]): any;
-    denormalizeOnly(input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any): T;
+    denormalize(input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any): T;
     infer(args: readonly any[], indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): any;
 }
 interface SchemaClass<T = any, N = T | undefined> extends SchemaSimple<T> {
     _normalizeNullable(): any;
-    _denormalizeNullable(): [N, boolean, boolean];
+    _denormalizeNullable(): N;
 }
 interface EntityInterface<T = any> extends SchemaSimple {
-    createIfValid?(props: any): any;
+    createIfValid(props: any): any;
     pk(params: any, parent?: any, key?: string, args?: any[]): string | undefined;
     readonly key: string;
     merge(existing: any, incoming: any): any;
-    expiresAt?(meta: any, input: any): number;
-    mergeWithStore?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
-    mergeMetaWithStore?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
-    useIncoming?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): boolean;
+    mergeWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
+    mergeMetaWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
     indexes?: any;
     schema: Record<string, Schema>;
     prototype: T;
 }
 /** Represents Array or Values */
-interface PolymorphicInterface<T = any> extends SchemaSimpleNew<T> {
+interface PolymorphicInterface<T = any> extends SchemaSimple<T> {
     readonly schema: any;
     _normalizeNullable(): any;
-    _denormalizeNullable(): [any, boolean, boolean];
-}
-interface UnvisitFunction {
-    (input: any, schema: any): [any, boolean, boolean] | any;
-    og?: UnvisitFunction;
-    setLocal?: (entity: any) => void;
+    _denormalizeNullable(): any;
 }
 interface NormalizedIndex {
     readonly [entityKey: string]: {
@@ -177,14 +161,14 @@ type KeyofEndpointInstance = keyof EndpointInstance<FetchFunction>;
 type ExtendedEndpoint<O extends EndpointExtendOptions<F>, E extends EndpointInstance<FetchFunction, Schema | undefined, true | undefined>, F extends FetchFunction> = EndpointInstance<'fetch' extends keyof O ? Exclude<O['fetch'], undefined> : E['fetch'], 'schema' extends keyof O ? O['schema'] : E['schema'], 'sideEffect' extends keyof O ? O['sideEffect'] : E['sideEffect']> & Omit<O, KeyofEndpointInstance> & Omit<E, KeyofEndpointInstance>;
 /**
  * Defines an async data source.
- * @see https://resthooks.io/docs/api/Endpoint
+ * @see https://dataclient.io/docs/api/Endpoint
  */
 interface EndpointInstance<F extends (...args: any) => Promise<any> = FetchFunction, S extends Schema | undefined = Schema | undefined, M extends true | undefined = true | undefined> extends EndpointInstanceInterface<F, S, M> {
     extend<E extends EndpointInstance<(...args: any) => Promise<any>, Schema | undefined, true | undefined>, O extends EndpointExtendOptions<F> & Partial<Omit<E, keyof EndpointInstance<FetchFunction>>> & Record<string, unknown>>(this: E, options: Readonly<O>): ExtendedEndpoint<typeof options, E, F>;
 }
 /**
  * Defines an async data source.
- * @see https://resthooks.io/docs/api/Endpoint
+ * @see https://dataclient.io/docs/api/Endpoint
  */
 interface EndpointInstanceInterface<F extends FetchFunction = FetchFunction, S extends Schema | undefined = Schema | undefined, M extends true | undefined = true | undefined> extends EndpointInterface<F, S, M> {
     constructor: EndpointConstructor;
@@ -217,7 +201,7 @@ interface EndpointInstanceInterface<F extends FetchFunction = FetchFunction, S e
     readonly sideEffect: M;
     readonly schema: S;
     fetch: F;
-    /** @see https://resthooks.io/rest/api/Endpoint#testKey */
+    /** @see https://dataclient.io/rest/api/Endpoint#testKey */
     testKey(key: string): boolean;
 }
 interface EndpointConstructor {
@@ -234,11 +218,11 @@ type RemoveArray<Orig extends any[], Rem extends any[]> = Rem extends [
  *
  * This triggers suspense for all endpoints requiring it.
  * Optional (like variable sized Array and Values) will simply remove the item.
- * @see https://resthooks.io/rest/api/Invalidate
+ * @see https://dataclient.io/rest/api/Invalidate
  */
 declare class Invalidate<E extends EntityInterface & {
     process: any;
-}> implements SchemaSimpleNew {
+}> implements SchemaSimple {
     protected _entity: E;
     constructor(entity: E);
     get key(): string;
@@ -261,12 +245,8 @@ declare class Invalidate<E extends EntityInterface & {
     };
     /** /End Normalize lifecycles **/
     infer(args: any, indexes: any, recurse: any): any;
-    denormalizeOnly(id: string, args: readonly any[], unvisit: (input: any, schema: any) => any): AbstractInstanceType<E>;
-    _denormalizeNullable(): [
-        AbstractInstanceType<E> | undefined,
-        boolean,
-        false
-    ];
+    denormalize(id: string, args: readonly any[], unvisit: (input: any, schema: any) => any): AbstractInstanceType<E>;
+    _denormalizeNullable(): AbstractInstanceType<E> | undefined;
     _normalizeNullable(): string | undefined;
 }
 
@@ -284,7 +264,7 @@ type CollectionOptions<Parent extends any[] = [
 });
 
 type CollectionArrayAdder<S extends PolymorphicInterface> = S extends {
-    denormalizeOnly(...args: any): any[];
+    denormalize(...args: any): any[];
     schema: infer T;
 } ? T : never;
 interface CollectionInterface<S extends PolymorphicInterface = any, Parent extends any[] = any> {
@@ -324,22 +304,22 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Parent exten
     };
     infer(args: unknown, indexes: unknown, recurse: unknown, entities: unknown): any;
     createIfValid: (value: any) => any | undefined;
-    denormalizeOnly(input: any, args: readonly any[], unvisit: (input: any, schema: any) => any): ReturnType<S['denormalizeOnly']>;
+    denormalize(input: any, args: readonly any[], unvisit: (input: any, schema: any) => any): ReturnType<S['denormalize']>;
     _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;
     _normalizeNullable(): ReturnType<S['_normalizeNullable']>;
     /** Schema to place at the *end* of this Collection
-     * @see https://resthooks.io/rest/api/Collection#push
+     * @see https://dataclient.io/rest/api/Collection#push
      */
     push: CollectionArrayAdder<S>;
     /** Schema to place at the *beginning* of this Collection
-     * @see https://resthooks.io/rest/api/Collection#unshift
+     * @see https://dataclient.io/rest/api/Collection#unshift
      */
     unshift: CollectionArrayAdder<S>;
     /** Schema to merge with a Values Collection
-     * @see https://resthooks.io/rest/api/Collection#assign
+     * @see https://dataclient.io/rest/api/Collection#assign
      */
     assign: S extends {
-        denormalizeOnly(...args: any): Record<string, unknown>;
+        denormalize(...args: any): Record<string, unknown>;
     } ? Collection<S, Parent> : never;
 }
 type CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Parent extends any[] = [
@@ -347,7 +327,7 @@ type CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Parent e
     body?: Record<string, any>
 ]> = CollectionInterface<S extends any[] ? Array$1<S[number]> : S, Parent>;
 interface CollectionConstructor {
-    new <S extends SchemaSimpleNew[] | PolymorphicInterface = any, Parent extends any[] = [
+    new <S extends SchemaSimple[] | PolymorphicInterface = any, Parent extends any[] = [
         urlParams: Record<string, any>,
         body?: Record<string, any>
     ]>(schema: S, options?: CollectionOptions): CollectionFromSchema<S, Parent>;
@@ -361,7 +341,7 @@ type UnionResult<Choices extends EntityMap> = {
 
 /**
  * Represents arrays
- * @see https://resthooks.io/rest/api/Array
+ * @see https://dataclient.io/rest/api/Array
  */
 declare class Array$1<S extends Schema = Schema> implements SchemaClass {
   constructor(
@@ -389,23 +369,11 @@ declare class Array$1<S extends Schema = Schema> implements SchemaClass {
     | (S extends EntityMap ? UnionResult<S> : Normalize<S>)[]
     | undefined;
 
+  _denormalizeNullable():
+    | (S extends EntityMap<infer T> ? T : Denormalize<S>)[]
+    | undefined;
+
   denormalize(
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    input: {},
-    unvisit: UnvisitFunction,
-  ): [
-    denormalized: (S extends EntityMap<infer T> ? T : Denormalize<S>)[],
-    found: boolean,
-    suspend: boolean,
-  ];
-
-  _denormalizeNullable(): [
-    (S extends EntityMap<infer T> ? T : Denormalize<S>)[] | undefined,
-    false,
-    boolean,
-  ];
-
-  denormalizeOnly(
     input: {},
     args: readonly any[],
     unvisit: (input: any, schema: any) => any,
@@ -415,12 +383,13 @@ declare class Array$1<S extends Schema = Schema> implements SchemaClass {
     args: readonly any[],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
+    entities: any,
   ): any;
 }
 
 /**
  * Represents objects with statically known members
- * @see https://resthooks.io/rest/api/Object
+ * @see https://dataclient.io/rest/api/Object
  */
 declare class Object$1<O extends Record<string, any> = Record<string, Schema>>
   implements SchemaClass
@@ -441,15 +410,9 @@ declare class Object$1<O extends Record<string, any> = Record<string, Schema>>
 
   _normalizeNullable(): NormalizedNullableObject<O>;
 
+  _denormalizeNullable(): DenormalizeNullableObject<O>;
+
   denormalize(
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    input: {},
-    unvisit: UnvisitFunction,
-  ): [denormalized: DenormalizeObject<O>, found: boolean, suspend: boolean];
-
-  _denormalizeNullable(): [DenormalizeNullableObject<O>, false, boolean];
-
-  denormalizeOnly(
     input: {},
     args: readonly any[],
     unvisit: (input: any, schema: any) => any,
@@ -459,6 +422,7 @@ declare class Object$1<O extends Record<string, any> = Record<string, Schema>>
     args: readonly any[],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
+    entities: any,
   ): any;
 }
 
@@ -466,7 +430,7 @@ declare let CollectionRoot: CollectionConstructor;
 
 /**
  * Entities but for Arrays instead of classes
- * @see https://resthooks.io/rest/api/Collection
+ * @see https://dataclient.io/rest/api/Collection
  */
 declare class Collection<
   S extends any[] | PolymorphicInterface = any,
@@ -534,37 +498,37 @@ interface RestInstanceBase<F extends FetchFunction = FetchFunction, S extends Sc
 } = {
     path: string;
 }> extends EndpointInstanceInterface<F, S, M> {
-    /** @see https://resthooks.io/rest/api/RestEndpoint#body */
+    /** @see https://dataclient.io/rest/api/RestEndpoint#body */
     readonly body?: 'body' extends keyof O ? O['body'] : any;
-    /** @see https://resthooks.io/rest/api/RestEndpoint#searchParams */
+    /** @see https://dataclient.io/rest/api/RestEndpoint#searchParams */
     readonly searchParams?: 'searchParams' extends keyof O ? O['searchParams'] : unknown;
     /** Pattern to construct url based on Url Parameters
-     * @see https://resthooks.io/rest/api/RestEndpoint#path
+     * @see https://dataclient.io/rest/api/RestEndpoint#path
      */
     readonly path: O['path'];
     /** Prepended to all urls
-     * @see https://resthooks.io/rest/api/RestEndpoint#urlPrefix
+     * @see https://dataclient.io/rest/api/RestEndpoint#urlPrefix
      */
     readonly urlPrefix: string;
     readonly requestInit: RequestInit;
-    /** @see https://resthooks.io/rest/api/RestEndpoint#method */
+    /** @see https://dataclient.io/rest/api/RestEndpoint#method */
     readonly method: (O & {
         method: string;
     })['method'];
     readonly signal: AbortSignal | undefined;
     readonly paginationField?: string;
     url(...args: Parameters<F>): string;
-    /** @see https://resthooks.io/rest/api/RestEndpoint#getRequestInit */
+    /** @see https://dataclient.io/rest/api/RestEndpoint#getRequestInit */
     getRequestInit(this: any, body?: RequestInit['body'] | Record<string, unknown>): Promise<RequestInit> | RequestInit;
-    /** @see https://resthooks.io/rest/api/RestEndpoint#getHeaders */
+    /** @see https://dataclient.io/rest/api/RestEndpoint#getHeaders */
     getHeaders(headers: HeadersInit): Promise<HeadersInit> | HeadersInit;
-    /** @see https://resthooks.io/rest/api/RestEndpoint#fetchResponse */
+    /** @see https://dataclient.io/rest/api/RestEndpoint#fetchResponse */
     fetchResponse(input: RequestInfo, init: RequestInit): Promise<Response>;
-    /** @see https://resthooks.io/rest/api/RestEndpoint#parseResponse */
+    /** @see https://dataclient.io/rest/api/RestEndpoint#parseResponse */
     parseResponse(response: Response): Promise<any>;
-    /** @see https://resthooks.io/rest/api/RestEndpoint#process */
+    /** @see https://dataclient.io/rest/api/RestEndpoint#process */
     process(value: any, ...args: Parameters<F>): ResolveType<F>;
-    /** @see https://resthooks.io/rest/api/RestEndpoint#testKey */
+    /** @see https://dataclient.io/rest/api/RestEndpoint#testKey */
     testKey(key: string): boolean;
     /** Creates a child endpoint that inherits from this while overriding provided `options`.
      * @see https://dataclient.io/rest/api/RestEndpoint#extend
@@ -655,11 +619,11 @@ type RestExtendedEndpoint<O extends PartialRestGenerics, E extends RestInstanceB
     paginationField: E['getPage']['paginationField'];
 } : unknown), RestInstance<(...args: Parameters<E>) => O['process'] extends {} ? Promise<ReturnType<O['process']>> : ReturnType<E>, 'schema' extends keyof O ? O['schema'] : E['schema'], 'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect']>> & Omit<O, KeyofRestEndpoint> & Omit<E, KeyofRestEndpoint | keyof O>;
 interface PartialRestGenerics {
-    /** @see https://resthooks.io/rest/api/RestEndpoint#path */
+    /** @see https://dataclient.io/rest/api/RestEndpoint#path */
     readonly path?: string;
-    /** @see https://resthooks.io/rest/api/RestEndpoint#schema */
+    /** @see https://dataclient.io/rest/api/RestEndpoint#schema */
     readonly schema?: Schema | undefined;
-    /** @see https://resthooks.io/rest/api/RestEndpoint#method */
+    /** @see https://dataclient.io/rest/api/RestEndpoint#method */
     readonly method?: string;
     /** Only used for types */
     /** @see https://dataclient.io/rest/api/RestEndpoint#body */
@@ -669,7 +633,7 @@ interface PartialRestGenerics {
     searchParams?: any;
     /** @see https://dataclient.io/rest/api/RestEndpoint#paginationfield */
     readonly paginationField?: string;
-    /** @see https://resthooks.io/rest/api/RestEndpoint#process */
+    /** @see https://dataclient.io/rest/api/RestEndpoint#process */
     process?(value: any, ...args: any): any;
 }
 interface RestGenerics extends PartialRestGenerics {
@@ -804,7 +768,7 @@ type MutateEndpoint<O extends {
 
 /** Simplifies endpoint definitions that follow REST patterns
  *
- * @see https://resthooks.io/rest/api/RestEndpoint
+ * @see https://dataclient.io/rest/api/RestEndpoint
  */
 declare let RestEndpoint: RestEndpointConstructor;
 
@@ -857,28 +821,28 @@ interface Extendable<O extends ResourceGenerics = {
 
 /** The typed (generic) options for a Resource */
 interface ResourceGenerics {
-    /** @see https://resthooks.io/rest/api/createResource#path */
+    /** @see https://dataclient.io/rest/api/createResource#path */
     readonly path: ResourcePath;
-    /** @see https://resthooks.io/rest/api/createResource#schema */
+    /** @see https://dataclient.io/rest/api/createResource#schema */
     readonly schema: Schema;
     /** Only used for types */
     /** @see https://dataclient.io/rest/api/createResource#body */
     readonly body?: any;
     /** Only used for types */
-    /** @see https://resthooks.io/rest/api/createResource#searchParams */
+    /** @see https://dataclient.io/rest/api/createResource#searchParams */
     readonly searchParams?: any;
-    /** @see https://resthooks.io/rest/api/createResource#paginationfield */
+    /** @see https://dataclient.io/rest/api/createResource#paginationfield */
     readonly paginationField?: string;
 }
 /** The untyped options for createResource() */
 interface ResourceOptions {
-    /** @see https://resthooks.io/rest/api/createResource#endpoint */
+    /** @see https://dataclient.io/rest/api/createResource#endpoint */
     Endpoint?: typeof RestEndpoint;
     /** @see https://dataclient.io/rest/api/createResource#collection */
     Collection?: typeof Collection;
-    /** @see https://resthooks.io/rest/api/createResource#optimistic */
+    /** @see https://dataclient.io/rest/api/createResource#optimistic */
     optimistic?: boolean;
-    /** @see https://resthooks.io/rest/api/createResource#urlprefix */
+    /** @see https://dataclient.io/rest/api/createResource#urlprefix */
     urlPrefix?: string;
     requestInit?: RequestInit;
     getHeaders?(headers: HeadersInit): Promise<HeadersInit> | HeadersInit;
@@ -897,7 +861,7 @@ interface ResourceOptions {
     errorPolicy?(error: any): 'hard' | 'soft' | undefined;
 }
 /** Resources are a collection of methods for a given data model.
- * @see https://resthooks.io/rest/api/createResource
+ * @see https://dataclient.io/rest/api/createResource
  */
 interface Resource<O extends ResourceGenerics = {
     path: ResourcePath;
@@ -905,7 +869,7 @@ interface Resource<O extends ResourceGenerics = {
 }> extends Extendable<O> {
     /** Get a singular item
      *
-     * @see https://resthooks.io/rest/api/createResource#get
+     * @see https://dataclient.io/rest/api/createResource#get
      */
     get: GetEndpoint<{
         path: O['path'];
@@ -913,7 +877,7 @@ interface Resource<O extends ResourceGenerics = {
     }>;
     /** Get a list of item
      *
-     * @see https://resthooks.io/rest/api/createResource#getlist
+     * @see https://dataclient.io/rest/api/createResource#getlist
      */
     getList: 'searchParams' extends keyof O ? GetEndpoint<{
         path: ShortenPath<O['path']>;
@@ -942,7 +906,7 @@ interface Resource<O extends ResourceGenerics = {
     }>;
     /** Update an item (PUT)
      *
-     * @see https://resthooks.io/rest/api/createResource#update
+     * @see https://dataclient.io/rest/api/createResource#update
      */
     update: 'body' extends keyof O ? MutateEndpoint<{
         path: O['path'];
@@ -955,7 +919,7 @@ interface Resource<O extends ResourceGenerics = {
     }>;
     /** Update an item (PATCH)
      *
-     * @see https://resthooks.io/rest/api/createResource#partialupdate
+     * @see https://dataclient.io/rest/api/createResource#partialupdate
      */
     partialUpdate: 'body' extends keyof O ? MutateEndpoint<{
         path: O['path'];
@@ -968,7 +932,7 @@ interface Resource<O extends ResourceGenerics = {
     }>;
     /** Delete an item (DELETE)
      *
-     * @see https://resthooks.io/rest/api/createResource#delete
+     * @see https://dataclient.io/rest/api/createResource#delete
      */
     delete: RestTypeNoBody<PathArgs<O['path']>, O['schema'] extends EntityInterface & {
         process: any;
@@ -986,7 +950,7 @@ interface ResourceInterface {
 
 /** Creates collection of Endpoints for common operations on a given data/schema.
  *
- * @see https://resthooks.io/rest/api/createResource
+ * @see https://dataclient.io/rest/api/createResource
  */
 declare function createResource<O extends ResourceGenerics>({ path, schema, Endpoint, Collection, optimistic, paginationField, ...extraOptions }: Readonly<O> & ResourceOptions): Resource<O>;
 

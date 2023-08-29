@@ -176,11 +176,6 @@ class User extends Entity {
 }
 ```
 
-### static fromJS(props): Entity {#fromJS}
-
-Factory method that copies props to a new instance. Use this instead of `new MyEntity()`,
-to ensure default props are overridden.
-
 ### static process(input, parent, key, args): processedEntity {#process}
 
 Run at the start of normalization for this entity. Return value is saved in store
@@ -213,23 +208,6 @@ class Stream extends Entity {
   }
 }
 ```
-
-### static merge(existing, incoming): mergedValue {#merge}
-
-```typescript
-static merge(existing: any, incoming: any) {
-  return {
-    ...existing,
-    ...incoming,
-  };
-}
-```
-
-Merge is used to handle cases when an incoming entity is already found. This is called directly
-when the same entity is found in one response. By default it is also called when [mergeWithStore()](#mergeWithStore)
-determines the incoming entity should be merged with an entity already persisted in the Reactive Data Client store.
-
-How to override to [build reverse-lookups for relational data](../guides/relational-data.md#reverse-lookups)
 
 ### static mergeWithStore(existingMeta, incomingMeta, existing, incoming): mergedValue {#mergeWithStore}
 
@@ -339,7 +317,9 @@ class LatestPriceEntity extends Entity {
   price = '0.0';
   symbol = '';
 
-  pk() { return this.id }
+  pk() {
+    return this.id;
+  }
 
   static shouldReorder(
     existingMeta: { date: number; fetchedAt: number },
@@ -353,6 +333,56 @@ class LatestPriceEntity extends Entity {
 ```
 
 </TypeScriptEditor>
+
+### static merge(existing, incoming): mergedValue {#merge}
+
+```typescript
+static merge(existing: any, incoming: any) {
+  return {
+    ...existing,
+    ...incoming,
+  };
+}
+```
+
+Merge is used to handle cases when an incoming entity is already found. This is called directly
+when the same entity is found in one response. By default it is also called when [mergeWithStore()](#mergeWithStore)
+determines the incoming entity should be merged with an entity already persisted in the Reactive Data Client store.
+
+How to override to [build reverse-lookups for relational data](../guides/relational-data.md#reverse-lookups)
+
+### static mergeMetaWithStore(existingMeta, incomingMeta, existing, incoming): meta {#mergeMetaWithStore}
+
+```typescript
+static mergeMetaWithStore(
+  existingMeta: {
+    expiresAt: number;
+    date: number;
+    fetchedAt: number;
+  },
+  incomingMeta: { expiresAt: number; date: number; fetchedAt: number },
+  existing: any,
+  incoming: any,
+) {
+  return this.shouldReorder(existingMeta, incomingMeta, existing, incoming)
+    ? existingMeta
+    : incomingMeta;
+}
+```
+
+`mergeMetaWithStore()` is called during normalization when a processed entity is already found in the store.
+
+### static infer(args, indexes, recurse): pk? {#infer}
+
+Allows Reactive Data Client to build a response without having to fetch if its entities can be found.
+
+Returning `undefined` will not infer this entity
+
+Returning `pk` string will attempt to lookup this entity and use in the response.
+
+When inferring a response, this entity's expiresAt is used to compute the expiry policy.
+
+By **default** uses the first argument to lookup in [pk()](#pk) and [indexes](#indexes)
 
 ### static createIfValid(processedEntity): Entity | undefined {#createIfValid}
 
@@ -387,25 +417,109 @@ disable or customize.
 
 [Using validation for endpoints with incomplete fields](../guides/partial-entities.md)
 
-### static infer(args, indexes, recurse): pk? {#infer}
+### static fromJS(props): Entity {#fromJS}
 
-Allows Reactive Data Client to build a response without having to fetch if its entities can be found.
-
-Returning `undefined` will not infer this entity
-
-Returning `pk` string will attempt to lookup this entity and use in the response.
-
-When inferring a response, this entity's expiresAt is used to compute the expiry policy.
-
-By **default** uses the first argument to lookup in [pk()](#pk) and [indexes](#indexes)
-
-### static expiresAt(meta: \{ expiresAt: number; date: number }, input: any): expiresAt {#expiresat}
-
-This determines expiry time when entity is part of a result that is inferred.
-
-Overriding can be used to change TTL policy specifically for inferred responses.
+Factory method that copies props to a new instance. Use this instead of `new MyEntity()`,
+to ensure default props are overridden.
 
 ## Fields
+
+### static schema: \{ [k: keyof this]: Schema } {#schema}
+
+Defines [related entity](/rest/guides/relational-data) members, or
+[field deserialization](/rest/guides/network-transform#deserializing-fields) like Date and BigNumber.
+
+<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+{
+endpoint: new RestEndpoint({path: '/posts/:id'}),
+args: [{ id: '123' }],
+response: {
+id: '5',
+author: { id: '123', name: 'Jim' },
+content: 'Happy day',
+createdAt: '2019-01-23T06:07:48.311Z',
+},
+delay: 150,
+},
+]}>
+
+```ts title="User" collapsed
+import { Entity } from '@data-client/rest';
+
+export class User extends Entity {
+  id = '';
+  name = '';
+  pk() {
+    return this.id;
+  }
+}
+```
+
+```ts title="Post"
+import { Entity } from '@data-client/rest';
+import { User } from './User';
+
+export class Post extends Entity {
+  id = '';
+  author = User.fromJS({});
+  createdAt = new Date(0);
+  content = '';
+  title = '';
+
+  static schema = {
+    author: User,
+    createdAt: Date,
+  };
+  pk() {
+    return this.id;
+  }
+  static key = 'Post';
+}
+```
+
+```tsx title="PostPage" collapsed
+import { Post } from './Post';
+
+export const getPost = new RestEndpoint({
+  path: '/posts/:id',
+  schema: Post,
+});
+function PostPage() {
+  const post = useSuspense(getPost, { id: '123' });
+  return (
+    <div>
+      <p>
+        {post.content} - <cite>{post.author.name}</cite>
+      </p>
+      <time>
+        {Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
+          post.createdAt,
+        )}
+      </time>
+    </div>
+  );
+}
+render(<PostPage />);
+```
+
+</HooksPlayground>
+
+#### Optional members
+
+Entities references here whose default values in the Record definition itself are
+considered 'optional'
+
+```typescript
+class User extends Entity {
+  readonly friend: User | null = null; // this field is optional
+  readonly lastUpdated: Date = new Date(0);
+
+  static schema = {
+    friend: User,
+    lastUpdated: Date,
+  };
+}
+```
 
 ### static indexes?: (keyof this)[] {#indexes}
 
@@ -491,101 +605,4 @@ Nested below:
 
 ```tsx
 const price = useCache(latestPriceFromCache, { symbol: 'BTC' });
-```
-
-### static schema: \{ [k: keyof this]: Schema } {#schema}
-
-Defines [related entity](/rest/guides/relational-data) members, or
-[field deserialization](/rest/guides/network-transform#deserializing-fields) like Date and BigNumber.
-
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
-{
-endpoint: new RestEndpoint({path: '/posts/:id'}),
-args: [{ id: '123' }],
-response: {
-id: '5',
-author: { id: '123', name: 'Jim' },
-content: 'Happy day',
-createdAt: '2019-01-23T06:07:48.311Z',
-},
-delay: 150,
-},
-]}>
-
-```ts title="User" collapsed
-import { Entity } from '@data-client/rest';
-
-export class User extends Entity {
-  id = '';
-  name = '';
-  pk() {
-    return this.id;
-  }
-}
-```
-
-```ts title="Post"
-import { Entity } from '@data-client/rest';
-import { User } from './User';
-
-export class Post extends Entity {
-  id = '';
-  author = User.fromJS({});
-  createdAt = new Date(0);
-  content = '';
-  title = '';
-
-  static schema = {
-    author: User,
-    createdAt: Date,
-  };
-  pk() {
-    return this.id;
-  }
-  static key = 'Post'
-}
-```
-
-```tsx title="PostPage" collapsed
-import { Post } from './Post';
-
-export const getPost = new RestEndpoint({
-  path: '/posts/:id',
-  schema: Post,
-});
-function PostPage() {
-  const post = useSuspense(getPost, { id: '123' });
-  return (
-    <div>
-      <p>
-        {post.content} - <cite>{post.author.name}</cite>
-      </p>
-      <time>
-        {Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
-          post.createdAt,
-        )}
-      </time>
-    </div>
-  );
-}
-render(<PostPage />);
-```
-
-</HooksPlayground>
-
-#### Optional members
-
-Entities references here whose default values in the Record definition itself are
-considered 'optional'
-
-```typescript
-class User extends Entity {
-  readonly friend: User | null = null; // this field is optional
-  readonly lastUpdated: Date = new Date(0);
-
-  static schema = {
-    friend: User,
-    lastUpdated: Date,
-  };
-}
 ```

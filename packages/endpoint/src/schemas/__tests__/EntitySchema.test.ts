@@ -1,10 +1,9 @@
 // eslint-env jest
 import { normalize, WeakEntityMap } from '@data-client/normalizr';
-import { DELETED } from '@data-client/normalizr';
+import { INVALID } from '@data-client/normalizr';
 import { fromJS, Record } from 'immutable';
 
-import { denormalizeSimple, denormalize10 } from './denormalize';
-import WeakListMap from './legacy-compat/WeakListMap';
+import { denormalizeSimple } from './denormalize';
 import { schema } from '../..';
 
 let dateSpy: jest.SpyInstance;
@@ -779,7 +778,6 @@ describe(`${schema.Entity.name} normalization`, () => {
 
 describe.each([
   ['current', denormalizeSimple, () => new WeakEntityMap()],
-  ['legacy', denormalize10, () => new WeakEntityMap()],
 ] as const)(
   `${schema.Entity.name} denormalization (%s)`,
   (_, denormalize, createResultCache) => {
@@ -933,11 +931,11 @@ describe.each([
       const entities = {
         Menu: {
           '1': { id: '1', food: '2' },
-          '2': DELETED,
+          '2': INVALID,
         },
         Food: {
           '1': { id: '1' },
-          '2': DELETED,
+          '2': INVALID,
         },
       };
 
@@ -1280,7 +1278,7 @@ describe.each([
               },
             },
             [ArticleEntity.key]: {
-              ['5']: DELETED,
+              ['5']: INVALID,
             },
           });
           expect(denormalized).toEqual(expect.any(Symbol));
@@ -1298,7 +1296,7 @@ describe.each([
               }),
             },
             [ArticleEntity.key]: {
-              ['5']: DELETED,
+              ['5']: INVALID,
               ['6']: ArticleEntity.fromJS({ id: '6' }),
             },
           });
@@ -1330,7 +1328,7 @@ describe.each([
                 }),
               },
               [ArticleEntity.key]: {
-                ['5']: DELETED,
+                ['5']: INVALID,
                 ['6']: ArticleEntity.fromJS({ id: '6' }),
               },
             },

@@ -531,46 +531,6 @@ exports[`input (direct) UnionSchema denormalization (current) returns the origin
 
 exports[`input (direct) UnionSchema denormalization (current) returns the original value when string is given 1`] = `"1"`;
 
-exports[`input (direct) UnionSchema denormalization (legacy) denormalizes an array of multiple entities using a function to infer the schemaAttribute 1`] = `
-User {
-  "id": "1",
-  "type": "users",
-  "username": "Janey",
-}
-`;
-
-exports[`input (direct) UnionSchema denormalization (legacy) denormalizes an array of multiple entities using a function to infer the schemaAttribute 2`] = `
-Group {
-  "groupname": "People",
-  "id": "2",
-  "type": "groups",
-}
-`;
-
-exports[`input (direct) UnionSchema denormalization (legacy) denormalizes an object using string schemaAttribute 1`] = `
-User {
-  "id": "1",
-  "type": "users",
-  "username": "Janey",
-}
-`;
-
-exports[`input (direct) UnionSchema denormalization (legacy) denormalizes an object using string schemaAttribute 2`] = `
-Group {
-  "groupname": "People",
-  "id": "2",
-  "type": "groups",
-}
-`;
-
-exports[`input (direct) UnionSchema denormalization (legacy) returns the original value when no schema is given 1`] = `
-{
-  "id": "1",
-}
-`;
-
-exports[`input (direct) UnionSchema denormalization (legacy) returns the original value when string is given 1`] = `"1"`;
-
 exports[`input (immutable) UnionSchema denormalization (current) denormalizes an array of multiple entities using a function to infer the schemaAttribute 1`] = `
 User {
   "id": "1",
@@ -610,43 +570,3 @@ Immutable.Map {
 `;
 
 exports[`input (immutable) UnionSchema denormalization (current) returns the original value when string is given 1`] = `"1"`;
-
-exports[`input (immutable) UnionSchema denormalization (legacy) denormalizes an array of multiple entities using a function to infer the schemaAttribute 1`] = `
-User {
-  "id": "1",
-  "type": "users",
-  "username": "Janey",
-}
-`;
-
-exports[`input (immutable) UnionSchema denormalization (legacy) denormalizes an array of multiple entities using a function to infer the schemaAttribute 2`] = `
-Group {
-  "groupname": "People",
-  "id": "2",
-  "type": "groups",
-}
-`;
-
-exports[`input (immutable) UnionSchema denormalization (legacy) denormalizes an object using string schemaAttribute 1`] = `
-User {
-  "id": "1",
-  "type": "users",
-  "username": "Janey",
-}
-`;
-
-exports[`input (immutable) UnionSchema denormalization (legacy) denormalizes an object using string schemaAttribute 2`] = `
-Group {
-  "groupname": "People",
-  "id": "2",
-  "type": "groups",
-}
-`;
-
-exports[`input (immutable) UnionSchema denormalization (legacy) returns the original value when no schema is given 1`] = `
-Immutable.Map {
-  "id": "1",
-}
-`;
-
-exports[`input (immutable) UnionSchema denormalization (legacy) returns the original value when string is given 1`] = `"1"`;

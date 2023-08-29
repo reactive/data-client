@@ -1,11 +1,10 @@
 // eslint-env jest
 import { inferResults, normalize, WeakEntityMap } from '@data-client/normalizr';
-import { DELETED } from '@data-client/normalizr';
+import { INVALID } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS, Record } from 'immutable';
 
-import { denormalizeSimple, denormalizeLegacy } from './denormalize';
-import WeakListMap from './legacy-compat/WeakListMap';
+import { denormalizeSimple } from './denormalize';
 import { AbstractInstanceType } from '../../';
 import { schema } from '../../';
 import Entity from '../Entity';
@@ -752,16 +751,6 @@ describe.each([
       createResultCache: () => new WeakEntityMap(),
     },
   ],
-  [
-    'legacy',
-    {
-      denormalize: denormalizeLegacy,
-      createResultCache: () => new WeakListMap(),
-    } as any as {
-      denormalize: typeof denormalizeSimple;
-      createResultCache: () => WeakEntityMap;
-    },
-  ],
 ] as const)(
   `${Entity.name} denormalization (%s)`,
   (_, { denormalize, createResultCache }) => {
@@ -919,11 +908,11 @@ describe.each([
       const entities = {
         Menu: {
           '1': { id: '1', food: '2' },
-          '2': DELETED,
+          '2': INVALID,
         },
         Food: {
           '1': { id: '1' },
-          '2': DELETED,
+          '2': INVALID,
         },
       };
 
@@ -1253,7 +1242,7 @@ describe.each([
             },
           },
           [ArticleEntity.key]: {
-            ['5']: DELETED,
+            ['5']: INVALID,
           },
         });
         expect(denormalized).toEqual(expect.any(Symbol));
@@ -1271,7 +1260,7 @@ describe.each([
             }),
           },
           [ArticleEntity.key]: {
-            ['5']: DELETED,
+            ['5']: INVALID,
             ['6']: ArticleEntity.fromJS({ id: '6' }),
           },
         });
@@ -1302,7 +1291,7 @@ describe.each([
               }),
             },
             [ArticleEntity.key]: {
-              ['5']: DELETED,
+              ['5']: INVALID,
               ['6']: ArticleEntity.fromJS({ id: '6' }),
             },
           },
