@@ -7,7 +7,8 @@ function isNetworkError(error: NetworkError | unknown): error is NetworkError {
 
 interface Props<E extends NetworkError> {
   children: React.ReactNode;
-  fallbackComponent: React.ComponentType<{ error: E }>;
+  className?: string;
+  fallbackComponent: React.ComponentType<{ error: E; className?: string }>;
 }
 interface State<E extends NetworkError> {
   error?: E;
@@ -20,8 +21,14 @@ export default class NetworkErrorBoundary<
   E extends NetworkError,
 > extends React.Component<Props<E>, State<E>> {
   static defaultProps = {
-    fallbackComponent: ({ error }: { error: NetworkError }) => (
-      <div>
+    fallbackComponent: ({
+      error,
+      className,
+    }: {
+      error: NetworkError;
+      className: string;
+    }) => (
+      <div className={className}>
         {error.status} {error.response?.statusText}
       </div>
     ),
@@ -41,6 +48,8 @@ export default class NetworkErrorBoundary<
     if (!this.state.error) {
       return this.props.children as any;
     }
-    return <this.props.fallbackComponent error={this.state.error} />;
+    const props: { error: E; className?: string } = { error: this.state.error };
+    if (this.props.className) props.className = this.props.className;
+    return <this.props.fallbackComponent {...props} />;
   }
 }

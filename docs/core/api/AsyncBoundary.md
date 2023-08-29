@@ -49,6 +49,7 @@ interface BoundaryProps {
   fallback?: React.ReactNode;
   errorComponent?: React.ComponentType<{
     error: NetworkError;
+    className?: string;
   }>;
 }
 ```
@@ -65,11 +66,21 @@ Component to handle caught errors
 
 ```tsx
 import React from 'react';
-import { CacheProvider, AsyncBoundary, NetworkError } from '@data-client/react';
+import {
+  CacheProvider,
+  AsyncBoundary,
+  NetworkError,
+} from '@data-client/react';
 
-function ErrorPage({ error }: { error: NetworkError }) {
+function ErrorPage({
+  error,
+  className,
+}: {
+  error: NetworkError;
+  className?: string;
+}) {
   return (
-    <div>
+    <div className={className}>
       {error.status} {error.response && error.response.statusText}
     </div>
   );
@@ -90,3 +101,7 @@ Note: Once `<AsyncBoundary />` catches an error it will only render the fallback
 until it is remounted. To get around this you'll likely want to place the boundary at
 locations that will cause remounts when the error should be cleared. This is usually
 below the route itself.
+
+## errorClassName
+
+`className` to forward to [errorComponent](#errorcomponent)

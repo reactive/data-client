@@ -33,20 +33,26 @@ declare namespace CacheProvider {
  * Handles loading and error conditions of Suspense
  * @see https://dataclient.io/docs/api/AsyncBoundary
  */
-declare function AsyncBoundary({ children, errorComponent, fallback, }: {
+declare function AsyncBoundary({ children, errorComponent, fallback, ...errorProps }: Props$1): JSX.Element;
+declare const _default: typeof AsyncBoundary;
+
+interface Props$1 {
     children: React$1.ReactNode;
     fallback?: React$1.ReactNode;
+    errorClassName?: string;
     errorComponent?: React$1.ComponentType<{
         error: NetworkError;
+        className?: string;
     }>;
-}): JSX.Element;
-declare const _default: typeof AsyncBoundary;
+}
 //# sourceMappingURL=AsyncBoundary.d.ts.map
 
 interface Props<E extends NetworkError> {
     children: React$1.ReactNode;
+    className?: string;
     fallbackComponent: React$1.ComponentType<{
         error: E;
+        className?: string;
     }>;
 }
 interface State<E extends NetworkError> {
@@ -58,8 +64,9 @@ interface State<E extends NetworkError> {
  */
 declare class NetworkErrorBoundary<E extends NetworkError> extends React$1.Component<Props<E>, State<E>> {
     static defaultProps: {
-        fallbackComponent: ({ error }: {
+        fallbackComponent: ({ error, className, }: {
             error: NetworkError;
+            className: string;
         }) => react_jsx_runtime.JSX.Element;
     };
     static getDerivedStateFromError(error: NetworkError | any): {

@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { queryByAttribute, render } from '@testing-library/react';
 import React, { useContext, ReactChild, ReactNode, ReactElement } from 'react';
 
 import NetworkErrorBoundary from '../NetworkErrorBoundary';
@@ -46,14 +46,17 @@ describe('<NetworkErrorBoundary />', () => {
       throw error;
     }
     const tree = (
-      <NetworkErrorBoundary>
+      <NetworkErrorBoundary className="error">
         <Throw />
         <div>hi</div>
       </NetworkErrorBoundary>
     );
-    const { getByText, queryByText } = render(tree);
+    const { getByText, queryByText, container } = render(tree);
     expect(getByText(/500/i)).toBeDefined();
     expect(queryByText(/hi/i)).toBe(null);
+    expect(
+      (container.firstChild as any)?.classList?.contains?.('error'),
+    ).toBeTruthy();
   });
   it('should render response.statusText using default fallback', () => {
     function Throw(): ReactElement {

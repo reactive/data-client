@@ -11,17 +11,24 @@ function AsyncBoundary({
   children,
   errorComponent,
   fallback,
-}: {
-  children: React.ReactNode;
-  fallback?: React.ReactNode;
-  errorComponent?: React.ComponentType<{ error: NetworkError }>;
-}): JSX.Element {
+  ...errorProps
+}: Props): JSX.Element {
   return (
     <Suspense fallback={fallback}>
-      <NetworkErrorBoundary fallbackComponent={errorComponent}>
+      <NetworkErrorBoundary {...errorProps} fallbackComponent={errorComponent}>
         {children}
       </NetworkErrorBoundary>
     </Suspense>
   );
 }
 export default memo(AsyncBoundary) as typeof AsyncBoundary;
+
+interface Props {
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
+  errorClassName?: string;
+  errorComponent?: React.ComponentType<{
+    error: NetworkError;
+    className?: string;
+  }>;
+}

@@ -1,5 +1,5 @@
 ---
-title: "<NetworkErrorBoundary />"
+title: '<NetworkErrorBoundary />'
 ---
 
 Displays a fallback component when a network error happens in its subtree.
@@ -13,13 +13,20 @@ Catches any error with `status` member.
 ```tsx
 interface Props {
   children: React.ReactNode;
+  className?: string;
   fallbackComponent: React.ComponentType<{
     error: NetworkError;
+    className?: string;
   }>;
 }
 export default class NetworkErrorBoundary extends React.Component<Props> {
   static defaultProps: {
-    fallbackComponent: ({ error }: { error: NetworkError }) => JSX.Element;
+    fallbackComponent: ({
+      error,
+    }: {
+      error: NetworkError;
+      className?: string;
+    }) => JSX.Element;
   };
 }
 ```
@@ -28,11 +35,21 @@ Custom fallback usage example:
 
 ```tsx
 import React from 'react';
-import { CacheProvider, NetworkErrorBoundary, NetworkError } from '@data-client/react';
+import {
+  CacheProvider,
+  NetworkErrorBoundary,
+  NetworkError,
+} from '@data-client/react';
 
-function ErrorPage({ error }: { error: NetworkError }) {
+function ErrorPage({
+  error,
+  className,
+}: {
+  error: NetworkError;
+  className?: string;
+}) {
   return (
-    <div>
+    <div className={className}>
       {error.status} {error.response && error.response.statusText}
     </div>
   );
@@ -41,7 +58,7 @@ function ErrorPage({ error }: { error: NetworkError }) {
 export default function App(): React.ReactElement {
   return (
     <CacheProvider>
-      <NetworkErrorBoundary fallbackComponent={ErrorPage}>
+      <NetworkErrorBoundary fallbackComponent={ErrorPage} className="error">
         <Router />
       </NetworkErrorBoundary>
     </CacheProvider>
