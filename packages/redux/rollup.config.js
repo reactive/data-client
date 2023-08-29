@@ -46,13 +46,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
   configs.push(typeConfig);
 } else {
   // node-friendly commonjs build
-  [
-    { input: 'lib/index.js', output: pkg.main },
-    {
-      input: 'lib/makeExternalCacheProvider.js',
-      output: 'dist/makeExternalCacheProvider.js',
-    },
-  ].forEach(({ input, output }) => {
+  [{ input: 'lib/index.js', output: pkg.main }].forEach(({ input, output }) => {
     configs.push({
       input,
       external: isExternal,

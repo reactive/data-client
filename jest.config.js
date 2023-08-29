@@ -27,16 +27,12 @@ const baseConfig = {
     'packages/core/src/next',
     'packages/react/src/next',
     'packages/core/src/state/legacy-actions/createFetch',
-    'packages/react/src/makeCacheProvider',
   ],
   testEnvironmentOptions: {
     url: 'http://localhost',
   },
   /** TODO: Remove once we move to 'publishConfig' */
   moduleNameMapper: {
-    '@data-client/redux/makeCacheProvider$': [
-      '<rootDir>/packages/redux/src/makeExternalCacheProvider',
-    ],
     '@data-client/([^/]+)(/.*|[^/]*)$': ['<rootDir>/packages/$1/src$2'],
   },
 };

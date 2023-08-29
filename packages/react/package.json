@@ -59,9 +59,6 @@
       "": [
         "lib/index.d.ts"
       ],
-      "makeCacheProvider": [
-        "lib/makeCacheProvider.d.ts"
-      ],
       "next": [
         "lib/next/index.d.ts"
       ],
@@ -72,9 +69,6 @@
     ">=3.4": {
       "": [
         "ts3.4/index.d.ts"
-      ],
-      "makeCacheProvider": [
-        "ts3.4/makeCacheProvider.d.ts"
       ],
       "next": [
         "ts3.4/next/index.d.ts"
@@ -90,13 +84,6 @@
       "import": "./node.mjs",
       "require": "./dist/index.js",
       "default": "./lib/index.js"
-    },
-    "./makeCacheProvider": {
-      "types": "./lib/makeCacheProvider.d.ts",
-      "module": "./lib/makeCacheProvider.js",
-      "import": "./makeCacheProvider.mjs",
-      "require": "./dist/makeCacheProvider.js",
-      "default": "./lib/makeCacheProvider.js"
     },
     "./next": {
       "types": "./lib/next/index.d.ts",

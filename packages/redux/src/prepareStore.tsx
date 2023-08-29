@@ -1,7 +1,6 @@
 import { State, Manager, Controller, __INTERNAL__ } from '@data-client/react';
 import { createStore, applyMiddleware, combineReducers, Reducer } from 'redux';
 
-import type { DeepPartialWithUnknown } from './makeExternalCacheProvider.js';
 import { default as mapMiddleware } from './mapMiddleware.js';
 import { default as PromiseifyMiddleware } from './PromiseifyMiddleware.js';
 
@@ -26,3 +25,12 @@ export function prepareStore<R extends Record<string, Reducer> = {}>(
   );
   return { selector, store, controller };
 }
+
+// Extension of the DeepPartial type defined by Redux which handles unknown
+export type DeepPartialWithUnknown<T> = {
+  [K in keyof T]?: T[K] extends unknown
+    ? any
+    : T[K] extends object
+    ? DeepPartialWithUnknown<T[K]>
+    : T[K];
+};

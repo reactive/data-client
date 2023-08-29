@@ -52,9 +52,6 @@
       "": [
         "lib/index.d.ts"
       ],
-      "makeCacheProvider": [
-        "lib/makeExternalCacheProvider.d.ts"
-      ],
       "*": [
         "lib/index.d.ts"
       ]
@@ -62,9 +59,6 @@
     ">=3.4": {
       "": [
         "ts3.4/index.d.ts"
-      ],
-      "makeCacheProvider": [
-        "ts3.4/makeExternalCacheProvider.d.ts"
       ],
       "*": [
         "ts3.4/index.d.ts"
@@ -78,13 +72,6 @@
       "require": "./dist/index.js",
       "default": "./lib/index.js"
     },
-    "./makeCacheProvider": {
-      "types": "./lib/makeExternalCacheProvider.d.ts",
-      "module": "./lib/makeExternalCacheProvider.js",
-      "import": "./makeCacheProvider.mjs",
-      "require": "./dist/makeExternalCacheProvider.js",
-      "default": "./lib/makeExternalCacheProvider.js"
-    },
     "./package.json": "./package.json"
   },
   "type": "module",
@@ -97,7 +84,6 @@
     "lib",
     "ts3.4",
     "node.mjs",
-    "makeCacheProvider.mjs",
     "legacy",
     "LICENSE",
     "README.md",
