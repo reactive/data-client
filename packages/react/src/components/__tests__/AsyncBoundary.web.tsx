@@ -57,7 +57,7 @@ describe('<AsyncBoundary />', () => {
       throw new Error('you failed');
     }
     const tree = (
-      <AsyncBoundary>
+      <AsyncBoundary errorClassName="error">
         <Throw />
         <div>hi</div>
       </AsyncBoundary>
