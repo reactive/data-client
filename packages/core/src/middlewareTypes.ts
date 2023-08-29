@@ -4,14 +4,9 @@ import { ActionTypes, State } from './types.js';
 type RHDispatch<Actions = any> = (value: Actions) => Promise<void>;
 
 export interface MiddlewareAPI<R extends DataClientReducer = DataClientReducer>
-  extends Controller<RHDispatch<ActionTypes>> {
-  /** @deprecated use members directly instead */
-  controller: Controller<RHDispatch<ActionTypes>>;
-}
+  extends Controller<RHDispatch<ActionTypes>> {}
 export interface MiddlewareController<Actions = ActionTypes>
-  extends Controller<RHDispatch<Actions>> {
-  controller: Controller<RHDispatch<Actions>>;
-}
+  extends Controller<RHDispatch<Actions>> {}
 
 export type Middleware<Actions = any> = <
   C extends MiddlewareController<Actions>,

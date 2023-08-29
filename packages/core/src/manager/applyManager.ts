@@ -8,16 +8,11 @@ export default function applyManager(
 ): Middleware[] {
   return managers.map(manager => {
     const middleware = manager.getMiddleware();
-    // TODO(breaking): remove this once controller prop is no longer supported
     return ({ dispatch, getState }) => {
       (controller as any).dispatch = dispatch;
       (controller as any).getState = getState;
-      // this is needed for backwards compatibility as we added 'controller' prop previously
-      const API = Object.create(controller, {
-        controller: { value: controller },
-      });
       // controller is a superset of the middleware API
-      return middleware(API);
+      return middleware(controller as Controller<any>);
     };
   });
 }
