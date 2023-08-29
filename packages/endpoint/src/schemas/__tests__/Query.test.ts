@@ -3,7 +3,7 @@ import { WeakEntityMap, inferResults } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
-import { denormalizeSimple, denormalize10 } from './denormalize';
+import { denormalizeSimple } from './denormalize';
 import { schema, Query, Denormalize, DenormalizeNullable } from '../..';
 
 let dateSpy: jest.SpyInstance<number, []>;
@@ -27,7 +27,6 @@ describe.each([
 ])(`input (%s)`, (_, createInput, createOutput) => {
   describe.each([
     ['current', denormalizeSimple, () => new WeakEntityMap()],
-    ['legacy', denormalize10, () => new WeakEntityMap()],
   ] as const)(
     `${Query.name} denormalization (%s)`,
     (_, denormalize, createResultCache) => {

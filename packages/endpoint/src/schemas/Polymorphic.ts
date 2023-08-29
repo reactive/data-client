@@ -1,5 +1,4 @@
 import { isImmutable } from './ImmutableUtils.js';
-import { DELETED } from '../special.js';
 
 export default class PolymorphicSchema {
   private declare _schemaAttribute: any;
@@ -117,11 +116,6 @@ Value: ${JSON.stringify(value, undefined, 2)}.`,
       ? value.get('id')
       : value.id;
     const schema = this.isSingleSchema ? this.schema : this.schema[schemaKey];
-    const ret = unvisit(id || value, schema);
-    if (Array.isArray(ret) && ret.length === 3) {
-      if (ret[2] === true) return DELETED;
-      return ret[0];
-    }
-    return ret;
+    return unvisit(id || value, schema);
   }
 }

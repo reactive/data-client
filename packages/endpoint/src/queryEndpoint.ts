@@ -2,7 +2,6 @@ import type {
   EntityTable,
   NormalizedIndex,
   SchemaSimple,
-  UnvisitFunction,
 } from './interface.js';
 import type { Denormalize } from './normal.js';
 
@@ -37,24 +36,15 @@ export class Query<
     const query = Object.create(schema);
     query.denormalize = (
       { args, input }: { args: P; input: any },
+      _: P,
       unvisit: any,
     ) => {
-      if (input === undefined) return [undefined, false, false];
-      const [value, found, deleted] = schema.denormalize(input, unvisit);
-      return [found ? this.process(value, ...args) : undefined, found, deleted];
+      if (input === undefined) return undefined;
+      const value = (schema as any).denormalize(input, args, unvisit);
+      return typeof value === 'symbol'
+        ? undefined
+        : this.process(value, ...args);
     };
-    if (schema.denormalizeOnly)
-      query.denormalizeOnly = (
-        { args, input }: { args: P; input: any },
-        _: P,
-        unvisit: any,
-      ) => {
-        if (input === undefined) return undefined;
-        const value = (schema as any).denormalizeOnly(input, args, unvisit);
-        return typeof value === 'symbol'
-          ? undefined
-          : this.process(value, ...args);
-      };
     query.infer = (
       args: any,
       indexes: any,
@@ -76,15 +66,12 @@ type QuerySchema<Schema, R> = Exclude<
   Schema,
   'denormalize' | '_denormalizeNullable'
 > & {
-  denormalize(
-    input: {},
-    unvisit: UnvisitFunction,
-  ): [denormalized: R, found: boolean, suspend: boolean];
   _denormalizeNullable(
     input: {},
-    unvisit: UnvisitFunction,
-  ): [denormalized: R | undefined, found: boolean, suspend: boolean];
-  denormalizeOnly(
+    args: readonly any[],
+    unvisit: (input: any, schema: any) => any,
+  ): R | undefined;
+  denormalize(
     input: {},
     args: readonly any[],
     unvisit: (input: any, schema: any) => any,

@@ -2,13 +2,11 @@
 import { initialState } from '@data-client/core';
 import { inferResults, normalize, WeakEntityMap } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
-import { fromJS, Record } from 'immutable';
+import { Record } from 'immutable';
 
 import { denormalizeSimple as denormalize } from './denormalize';
-import WeakListMap from './legacy-compat/WeakListMap';
-import { AbstractInstanceType, PolymorphicInterface } from '../..';
+import { PolymorphicInterface } from '../..';
 import { schema } from '../..';
-import Entity from '../Entity';
 
 let dateSpy: jest.SpyInstance;
 beforeAll(() => {

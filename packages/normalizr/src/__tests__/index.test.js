@@ -5,7 +5,7 @@ import { fromJS } from 'immutable';
 import { normalize } from '../';
 import { denormalize as denormalizeSimple } from '../denormalize/denormalize';
 import { denormalize as denormalizeCached } from '../denormalize/denormalizeCached';
-import { DELETED } from '../special';
+import { INVALID } from '../denormalize/symbol';
 
 class IDEntity extends Entity {
   id = '';
@@ -436,10 +436,10 @@ describe.each([
     ).toMatchSnapshot();
   });
 
-  test('denormalizes suspends when symbol contains DELETED string', () => {
+  test('denormalizes suspends when symbol contains INVALID string', () => {
     const entities = {
       Tacos: {
-        1: Symbol('ENTITY WAS DELETED'),
+        1: Symbol('ENTITY WAS INVALID'),
       },
     };
     expect(denormalize('1', Tacos, entities)).toEqual(expect.any(Symbol));
@@ -449,7 +449,7 @@ describe.each([
     const entities = {
       Tacos: {
         1: { id: '1', type: 'foo' },
-        2: DELETED,
+        2: INVALID,
       },
     };
     expect(denormalize(['1', '2'], [Tacos], entities)).toMatchSnapshot();

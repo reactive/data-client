@@ -3,7 +3,6 @@ import type {
   Serializable,
   EntityInterface,
   NormalizedIndex,
-  SchemaClass,
 } from './interface.js';
 
 // TypeScript <4.2 InstanceType<> does not work on abstract classes
@@ -54,12 +53,6 @@ export type DenormalizeNullableNestedSchema<S extends NestedSchemaClass> =
         [K in keyof S['schema']]: DenormalizeNullable<S['schema'][K]>;
       };
 
-export type DenormalizeReturnType<T> = T extends (
-  input: any,
-  unvisit: any,
-) => [infer R, any, any]
-  ? R
-  : never;
 export type NormalizeReturnType<T> = T extends (...args: any) => infer R
   ? R
   : never;
@@ -68,10 +61,8 @@ export type Denormalize<S> = S extends EntityInterface<infer U>
   ? U
   : S extends RecordClass
   ? AbstractInstanceType<S>
-  : S extends { denormalizeOnly: (...args: any) => any }
-  ? ReturnType<S['denormalizeOnly']>
   : S extends { denormalize: (...args: any) => any }
-  ? DenormalizeReturnType<S['denormalize']>
+  ? ReturnType<S['denormalize']>
   : S extends Serializable<infer T>
   ? T
   : S extends Array<infer F>
@@ -85,7 +76,7 @@ export type DenormalizeNullable<S> = S extends EntityInterface<any>
   : S extends RecordClass
   ? DenormalizeNullableNestedSchema<S>
   : S extends { _denormalizeNullable: (...args: any) => any }
-  ? DenormalizeReturnType<S['_denormalizeNullable']>
+  ? ReturnType<S['_denormalizeNullable']>
   : S extends Serializable<infer T>
   ? T
   : S extends Array<infer F>

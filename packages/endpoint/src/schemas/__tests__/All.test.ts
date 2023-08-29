@@ -6,7 +6,7 @@ import { fromJS } from 'immutable';
 import denormalize from './denormalize';
 import { schema, AbstractInstanceType } from '../..';
 import { EntityTable } from '../../interface';
-import { DELETED } from '../../special';
+import { INVALID } from '../../special';
 
 let dateSpy: jest.SpyInstance<number, []>;
 beforeAll(() => {
@@ -164,7 +164,7 @@ describe.each([
       expect(createOutput(value)).toMatchSnapshot();
     });
 
-    test('denormalizes removes undefined or DELETED entities', () => {
+    test('denormalizes removes undefined or INVALID entities', () => {
       class Cat extends IDEntity {}
       const catSchema = { results: new schema.All(Cat), nextPage: '' };
       const entities = {
@@ -172,7 +172,7 @@ describe.each([
           1: { id: '1', name: 'Milo' },
           2: { id: '2', name: 'Jake' },
           3: undefined,
-          4: DELETED,
+          4: INVALID,
         },
       };
       const input = inferResults(catSchema, [], {}, entities);

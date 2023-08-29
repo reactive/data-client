@@ -1,6 +1,6 @@
 import type Cache from './cache.js';
 import { INVALID } from './symbol.js';
-import type { EntityInterface, UnvisitFunction } from '../interface.js';
+import type { EntityInterface } from '../interface.js';
 import { isEntity } from '../isEntity.js';
 import { denormalize as arrayDenormalize } from '../schemas/Array.js';
 import { isImmutable } from '../schemas/ImmutableUtils.js';
@@ -12,7 +12,7 @@ function unvisitEntity(
   entityOrId: Record<string, any> | string,
   schema: EntityInterface,
   args: readonly any[],
-  unvisit: UnvisitFunction,
+  unvisit: (input: any, schema: any) => any,
   getEntity: GetEntity,
   cache: Cache,
 ): object | undefined | symbol {
@@ -20,13 +20,8 @@ function unvisitEntity(
     typeof entityOrId === 'object'
       ? entityOrId
       : getEntity({ key: schema.key, pk: entityOrId });
-  if (typeof entity === 'symbol') {
-    if (typeof schema.denormalizeOnly === 'function') {
-      return schema.denormalizeOnly(entity, args, unvisit);
-      // TODO(breaking): Change to this as breaking change once we only support newer entities
-    } else if ((entity as symbol).toString().includes('DELETED')) {
-      return INVALID;
-    }
+  if (typeof entity === 'symbol' && typeof schema.denormalize === 'function') {
+    return schema.denormalize(entity, args, unvisit);
   }
 
   if (typeof entity !== 'object' || entity === null) {
@@ -71,50 +66,24 @@ function noCacheGetEntity(
 function unvisitEntityObject(
   entity: object,
   schema: EntityInterface<any>,
-  unvisit: UnvisitFunction,
+  unvisit: (input: any, schema: any) => any,
   pk: string,
   localCacheKey: Record<string, any>,
   args: readonly any[],
 ): void {
-  let entityCopy: any, _, deleted;
-  /* istanbul ignore else */
-  if (schema.createIfValid) {
-    entityCopy = localCacheKey[pk] = isImmutable(entity)
-      ? schema.createIfValid(entity.toObject())
-      : schema.createIfValid(entity);
-    // TODO(breaking): remove once old verions no longer supported
-  } /* istanbul ignore next */ else {
-    entityCopy = entity;
-    unvisit = withTrackedEntities(unvisit);
-    unvisit.setLocal = entityCopy => (localCacheKey[pk] = entityCopy);
-  }
+  let _, deleted;
+  const entityCopy = (localCacheKey[pk] = isImmutable(entity)
+    ? schema.createIfValid(entity.toObject())
+    : schema.createIfValid(entity));
 
   if (entityCopy === undefined) {
     // undefined indicates we should suspense (perhaps failed validation)
     localCacheKey[pk] = INVALID;
   } else {
-    if (typeof schema.denormalizeOnly === 'function') {
-      localCacheKey[pk] = schema.denormalizeOnly(entityCopy, args, unvisit);
-    } else {
-      [localCacheKey[pk], _, deleted] = (schema as any).denormalize(
-        entityCopy,
-        unvisit,
-      );
-      if (deleted) localCacheKey[pk] = INVALID;
+    if (typeof schema.denormalize === 'function') {
+      localCacheKey[pk] = schema.denormalize(entityCopy, args, unvisit);
     }
   }
-}
-
-// TODO(breaking): remove once unused
-/* istanbul ignore next */
-function withTrackedEntities(unvisit: UnvisitFunction): UnvisitFunction {
-  // every time we nest, we want to unwrap back to the top.
-  // this is due to only needed the next level of nested entities for lookup
-  const originalUnvisit = unvisit.og || unvisit;
-  const wrappedUnvisit = (input: any, schema: any) =>
-    originalUnvisit(input, schema);
-  wrappedUnvisit.og = unvisit;
-  return wrappedUnvisit;
 }
 
 const getUnvisit = (
@@ -122,9 +91,6 @@ const getUnvisit = (
   cache: Cache,
   args: readonly any[],
 ) => {
-  // TODO(breaking): This handles legacy schemas from 3.7 and below
-  const unvisitAdapter = getUnvisitAdapter(unvisit);
-
   function unvisit(input: any, schema: any): any {
     if (!schema) return input;
 
@@ -132,9 +98,7 @@ const getUnvisit = (
       return input;
     }
 
-    const hasDenormalize =
-      typeof schema.denormalize === 'function' ||
-      typeof schema.denormalizeOnly === 'function';
+    const hasDenormalize = typeof schema.denormalize === 'function';
 
     // deserialize fields (like Date)
     if (!hasDenormalize && typeof schema === 'function') {
@@ -144,8 +108,7 @@ const getUnvisit = (
     }
 
     if (input === undefined) {
-      // TODO(breaking): Drop support for initial All version
-      const isAll = schema.constructor?.name === 'AllSchema';
+      const isAll = schema.constructor.name === 'AllSchema';
 
       return isAll ? INVALID : undefined;
     }
@@ -158,22 +121,11 @@ const getUnvisit = (
     }
 
     if (isEntity(schema)) {
-      return unvisitEntity(
-        input,
-        schema,
-        args,
-        schema.denormalizeOnly ? unvisit : unvisitAdapter,
-        getEntity,
-        cache,
-      );
+      return unvisitEntity(input, schema, args, unvisit, getEntity, cache);
     }
 
     if (hasDenormalize) {
-      if (schema.denormalizeOnly) {
-        return schema.denormalizeOnly(input, args, unvisit);
-      } else {
-        return denormalizeLegacySchema(schema, input, unvisitAdapter);
-      }
+      return schema.denormalize(input, args, unvisit);
     }
 
     return input;
@@ -187,42 +139,3 @@ const getUnvisit = (
   };
 };
 export default getUnvisit;
-
-function denormalizeLegacySchema(
-  schema: any,
-  input: any,
-  unvisitAdapter: (input: any, schema: any) => [any, boolean, boolean],
-) {
-  const [data, _, suspend] = schema.denormalize(input, unvisitAdapter);
-  // TODO(breaking): Drop support for initial Query version
-  // queryEndpoint schema only overrides 'denormalize' and 'infer'
-  const isQuery =
-    !Object.hasOwn(schema, 'normalize') &&
-    Object.hasOwn(schema, 'denormalize') &&
-    Object.hasOwn(schema, 'infer');
-  return suspend && !isQuery ? INVALID : data;
-}
-
-// TODO(breaking): This handles legacy schemas from 3.7 and below
-function getUnvisitAdapter(unvisit) {
-  return function (input: any, schema: any): [any, boolean, boolean] {
-    const isAll = schema?.constructor?.name === 'AllSchema';
-    const value = unvisit(input, schema);
-
-    // TODO(breaking): Drop support for initial All version
-    if (isAll) {
-      // we swap 'found' and 'suspend' because the initial Query version used 'found' to determine whether
-      // it should 'process'
-      return [
-        typeof value === 'symbol' ? undefined : value,
-        typeof value !== 'symbol',
-        false,
-      ];
-    }
-    return [
-      typeof value === 'symbol' ? undefined : value,
-      true,
-      typeof value === 'symbol',
-    ];
-  };
-}

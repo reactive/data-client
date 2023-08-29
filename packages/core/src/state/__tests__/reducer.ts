@@ -143,20 +143,38 @@ describe('reducer', () => {
       expect(nextMeta.date).toBe(action.meta.date);
     });
 
-    it('should use entity.expiresAt()', () => {
+    it('should use entity.mergeMetaWithStore()', () => {
       class ExpiresSoon extends Article {
         static get key() {
           return Article.key;
         }
 
-        static expiresAt(
-          { expiresAt, date }: { expiresAt: number; date: number },
-          input: any,
-        ): number {
-          return input.content ? expiresAt : 0;
+        static mergeMetaWithStore(
+          existingMeta: {
+            expiresAt: number;
+            date: number;
+            fetchedAt: number;
+          },
+          incomingMeta: { expiresAt: number; date: number; fetchedAt: number },
+          existing: any,
+          incoming: any,
+        ) {
+          return this.shouldReorder(
+            existingMeta,
+            incomingMeta,
+            existing,
+            incoming,
+          )
+            ? existingMeta
+            : {
+                ...incomingMeta,
+                expiresAt: incoming.content
+                  ? incomingMeta.expiresAt
+                  : existingMeta.expiresAt,
+              };
         }
       }
-      const spy = jest.spyOn(ExpiresSoon, 'expiresAt');
+      const spy = jest.spyOn(ExpiresSoon, 'mergeMetaWithStore');
       const localAction = {
         ...partialResultAction,
         endpoint: (partialResultAction.endpoint as any).extend({

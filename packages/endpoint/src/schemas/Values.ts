@@ -35,24 +35,7 @@ export default class ValuesSchema extends PolymorphicSchema {
     }, {});
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  denormalize(input: {}, unvisit: any) {
-    return [
-      Object.keys(input).reduce((output, key) => {
-        const entityOrId = (input as any)[key];
-        const value = this.denormalizeValue(entityOrId, unvisit);
-        if (!value || typeof value === 'symbol') return output;
-        return {
-          ...output,
-          [key]: value,
-        };
-      }, {}),
-      true,
-      false,
-    ];
-  }
-
-  denormalizeOnly(
+  denormalize(
     input: {},
     args: readonly any[],
     unvisit: (input: any, schema: any) => any,

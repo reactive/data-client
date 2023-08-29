@@ -1,7 +1,7 @@
+import { INVALID } from './denormalize/symbol.js';
 import type { EntityInterface, Schema, NormalizedIndex } from './interface.js';
 import { normalize as arrayNormalize } from './schemas/Array.js';
 import { normalize as objectNormalize } from './schemas/Object.js';
-import { DELETED } from './special.js';
 import type { NormalizeNullable, NormalizedSchema } from './types.js';
 
 const visit = (
@@ -94,41 +94,22 @@ const addEntities =
       };
       // this case we already have this entity in store
       if (inStoreEntity && (inStoreMeta = storeEntityMeta[schemaKey][id])) {
-        entities[schemaKey][id] = schema.mergeWithStore
-          ? schema.mergeWithStore(
-              inStoreMeta,
-              meta,
-              inStoreEntity,
-              processedEntity,
-            )
-          : mergeWithStore(
-              schema,
-              inStoreMeta,
-              meta,
-              inStoreEntity,
-              processedEntity,
-            );
-        storeEntityMeta[schemaKey][id] = schema.mergeMetaWithStore
-          ? schema.mergeMetaWithStore(
-              inStoreMeta,
-              meta,
-              inStoreEntity,
-              processedEntity,
-            )
-          : mergeMetaWithStore(
-              schema,
-              inStoreMeta,
-              meta,
-              inStoreEntity,
-              processedEntity,
-            );
+        entities[schemaKey][id] = schema.mergeWithStore(
+          inStoreMeta,
+          meta,
+          inStoreEntity,
+          processedEntity,
+        );
+        storeEntityMeta[schemaKey][id] = schema.mergeMetaWithStore(
+          inStoreMeta,
+          meta,
+          inStoreEntity,
+          processedEntity,
+        );
       } else {
         entities[schemaKey][id] = processedEntity;
         storeEntityMeta[schemaKey][id] = {
-          // TODO(breaking): Remove schema.expiresat
-          expiresAt: schema.expiresAt
-            ? schema.expiresAt(meta, processedEntity)
-            : meta.expiresAt,
+          expiresAt: meta.expiresAt,
           date: meta.date,
           fetchedAt: meta.fetchedAt,
         };
@@ -176,7 +157,7 @@ function handleIndexes(
       storeEntities[id] &&
       storeEntities[id][index] !== entity[index]
     ) {
-      indexMap[storeEntities[id][index]] = DELETED;
+      indexMap[storeEntities[id][index]] = INVALID;
     }
     if (index in entity) {
       indexMap[entity[index]] = id;
@@ -189,68 +170,6 @@ Index: ${index}
 Entity: ${JSON.stringify(entity, undefined, 2)}`);
     }
   }
-}
-
-// TODO(breaking): remove this in 1 breaking releases
-/** @deprecated use Entity.mergeStore() instead */
-function mergeWithStore(
-  schema: EntityInterface<any>,
-  existingMeta: {
-    date: number;
-    expiresAt: number;
-    fetchedAt: number;
-  },
-  incomingMeta: {
-    expiresAt: number;
-    date: number;
-    fetchedAt?: number | undefined;
-  },
-  existing: any,
-  incoming: any,
-) {
-  const useIncoming =
-    // useIncoming should not be used with legacy optimistic
-    schema.useIncoming && incomingMeta.fetchedAt
-      ? schema.useIncoming(existingMeta, incomingMeta, existing, incoming)
-      : existingMeta.date <= incomingMeta.date;
-  if (useIncoming) {
-    if (typeof incoming !== typeof existing) {
-      return incoming;
-    } else {
-      return schema.merge(existing, incoming);
-    }
-  } else {
-    return existing;
-  }
-}
-
-// TODO(breaking): remove this in 1 breaking releases
-/** @deprecated use Entity.mergeMetaWithStore() instead */
-function mergeMetaWithStore(
-  schema: any,
-  existingMeta: {
-    date: number;
-    expiresAt: number;
-    fetchedAt: number;
-  },
-  incomingMeta: {
-    expiresAt: number;
-    date: number;
-    fetchedAt: number;
-  },
-  existing: any,
-  incoming: any,
-) {
-  return {
-    expiresAt: Math.max(
-      schema.expiresAt
-        ? schema.expiresAt(incomingMeta, incoming)
-        : incomingMeta.expiresAt,
-      existingMeta.expiresAt,
-    ),
-    date: Math.max(incomingMeta.date, existingMeta.date),
-    fetchedAt: Math.max(incomingMeta.fetchedAt, existingMeta.fetchedAt),
-  };
 }
 
 function expectedSchemaType(schema: Schema) {

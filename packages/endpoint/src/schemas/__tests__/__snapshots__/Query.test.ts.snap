@@ -50,56 +50,6 @@ exports[`input (direct) Query denormalization (current) denormalize sorts with a
 ]
 `;
 
-exports[`input (direct) Query denormalization (legacy) denormalize sorts 1`] = `
-[
-  User {
-    "id": "3",
-    "isAdmin": false,
-    "name": "Zeta",
-  },
-  User {
-    "id": "1",
-    "isAdmin": false,
-    "name": "Milo",
-  },
-  User {
-    "id": "2",
-    "isAdmin": false,
-    "name": "Jake",
-  },
-  User {
-    "id": "4",
-    "isAdmin": false,
-    "name": "Alpha",
-  },
-]
-`;
-
-exports[`input (direct) Query denormalization (legacy) denormalize sorts with arg 1`] = `
-[
-  User {
-    "id": "4",
-    "isAdmin": false,
-    "name": "Alpha",
-  },
-  User {
-    "id": "2",
-    "isAdmin": false,
-    "name": "Jake",
-  },
-  User {
-    "id": "1",
-    "isAdmin": false,
-    "name": "Milo",
-  },
-  User {
-    "id": "3",
-    "isAdmin": false,
-    "name": "Zeta",
-  },
-]
-`;
-
 exports[`input (immutable) Query denormalization (current) denormalize sorts 1`] = `
 [
   User {
@@ -126,56 +76,6 @@ exports[`input (immutable) Query denormalization (current) denormalize sorts 1`]
 `;
 
 exports[`input (immutable) Query denormalization (current) denormalize sorts with arg 1`] = `
-[
-  User {
-    "id": "4",
-    "isAdmin": false,
-    "name": "Alpha",
-  },
-  User {
-    "id": "2",
-    "isAdmin": false,
-    "name": "Jake",
-  },
-  User {
-    "id": "1",
-    "isAdmin": false,
-    "name": "Milo",
-  },
-  User {
-    "id": "3",
-    "isAdmin": false,
-    "name": "Zeta",
-  },
-]
-`;
-
-exports[`input (immutable) Query denormalization (legacy) denormalize sorts 1`] = `
-[
-  User {
-    "id": "3",
-    "isAdmin": false,
-    "name": "Zeta",
-  },
-  User {
-    "id": "1",
-    "isAdmin": false,
-    "name": "Milo",
-  },
-  User {
-    "id": "2",
-    "isAdmin": false,
-    "name": "Jake",
-  },
-  User {
-    "id": "4",
-    "isAdmin": false,
-    "name": "Alpha",
-  },
-]
-`;
-
-exports[`input (immutable) Query denormalization (legacy) denormalize sorts with arg 1`] = `
 [
   User {
     "id": "4",

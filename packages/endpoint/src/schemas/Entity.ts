@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 
-import { isImmutable, denormalizeImmutable } from './ImmutableUtils.js';
-import type { UnvisitFunction } from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
 import { Entity as EntitySchema } from '../schema.js';
 
@@ -37,70 +35,6 @@ export default abstract class Entity extends EntitySchema(EmptyBase) {
    * Note: this only applies to non-nested members.
    */
   protected declare static automaticValidation?: 'warn' | 'silent';
-
-  /** Return true to merge incoming data; false keeps existing entity
-   *
-   * @see https://dataclient.io/docs/api/schema.Entity#useIncoming
-   */
-  static useIncoming(
-    existingMeta: { date: number; fetchedAt: number },
-    incomingMeta: { date: number; fetchedAt: number },
-    existing: any,
-    incoming: any,
-  ) {
-    return existingMeta.fetchedAt <= incomingMeta.fetchedAt;
-  }
-
-  /** Run when an existing entity is found in the store
-   * @see https://dataclient.io/rest/api/Entity#mergeWithStore
-   */
-  static mergeWithStore(
-    existingMeta:
-      | {
-          date: number;
-          fetchedAt: number;
-        }
-      | undefined,
-    incomingMeta: { date: number; fetchedAt: number },
-    existing: any,
-    incoming: any,
-  ) {
-    const useIncoming =
-      // we may have in store but not in meta; so this existance check is still important
-      !existingMeta ||
-      this.useIncoming(existingMeta, incomingMeta, existing, incoming);
-
-    if (useIncoming) {
-      // distinct types are not mergeable, so just replace
-      if (typeof incoming !== typeof existing) {
-        return incoming;
-      } else {
-        return this.merge(existing, incoming);
-      }
-    } else {
-      return existing;
-    }
-  }
-
-  static mergeMetaWithStore(
-    existingMeta: {
-      expiresAt: number;
-      date: number;
-      fetchedAt: number;
-    },
-    incomingMeta: { expiresAt: number; date: number; fetchedAt: number },
-    existing: any,
-    incoming: any,
-  ) {
-    return {
-      expiresAt: Math.max(
-        (this as any).expiresAt(incomingMeta, incoming),
-        existingMeta.expiresAt,
-      ),
-      date: Math.max(incomingMeta.date, existingMeta.date),
-      fetchedAt: Math.max(incomingMeta.fetchedAt, existingMeta.fetchedAt),
-    };
-  }
 
   /** Factory method to convert from Plain JS Objects.
    *
@@ -247,69 +181,12 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     return super.validate(processedEntity);
   }
 
-  static denormalize<T extends typeof Entity>(
+  declare static denormalize: <T extends typeof Entity>(
     this: T,
     input: any,
-    unvisit: UnvisitFunction,
-  ): [denormalized: AbstractInstanceType<T>, found: boolean, suspend: boolean] {
-    // TODO: remove codecov ignore once denormalize is modified to expect this
-    /* istanbul ignore if */
-    if (typeof input === 'symbol') {
-      return [undefined, true, true] as any;
-    }
-    // TODO(breaking): Remove fromJS and setLocal call once old versions are no longer supported
-    if (isImmutable(input)) {
-      if (this.validate((input as any).toJS()))
-        return [undefined as any, false, true];
-      // Need to set this first so that if it is referenced further within the
-      // denormalization the reference will already exist.
-      unvisit.setLocal?.(input);
-      const [denormEntity, found, deleted] = denormalizeImmutable(
-        this.schema,
-        input,
-        unvisit,
-      );
-      return [this.fromJS(denormEntity.toObject()) as any, true, deleted];
-    }
-    let entityCopy: any;
-    // new path
-    if (input instanceof this) {
-      entityCopy = input;
-      // TODO(breaking): Remove fromJS and setLocal call once old versions are no longer supported
-    } else {
-      if (this.validate(input)) {
-        return [undefined as any, false, true];
-      }
-      entityCopy = this.fromJS(input);
-      // Need to set this first so that if it is referenced further within the
-      // denormalization the reference will already exist.
-      unvisit.setLocal?.(entityCopy);
-    }
-
-    let deleted = false;
-
-    // note: iteration order must be stable
-    Object.keys(this.schema).forEach(key => {
-      const schema = this.schema[key];
-      const nextInput = (input as any)[key];
-      const [value, , deletedItem] = unvisit(nextInput, schema);
-
-      if (deletedItem && !!this.defaults[key]) {
-        deleted = true;
-      }
-      if ((input as any)[key] !== value) {
-        // we're cheating because we know it is implemented
-        (this as any).set(entityCopy, key, value);
-      }
-    });
-
-    return [entityCopy, true, deleted];
-  }
-
-  /** Used by denormalize to set nested members */
-  protected static set?(entity: any, key: string, value: any) {
-    entity[key] = value;
-  }
+    args: readonly any[],
+    unvisit: (input: any, schema: any) => any,
+  ) => AbstractInstanceType<T>;
 }
 
 if (process.env.NODE_ENV !== 'production') {
@@ -326,11 +203,3 @@ if (process.env.NODE_ENV !== 'production') {
     return superFrom.call(this, props) as any;
   };
 }
-
-// we're avoiding this on the type
-(Entity as any).expiresAt = function (
-  meta: { expiresAt: number; date: number; fetchedAt: number },
-  input: any,
-): number {
-  return meta.expiresAt;
-};

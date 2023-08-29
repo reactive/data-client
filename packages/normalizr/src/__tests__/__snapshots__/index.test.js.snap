@@ -703,7 +703,7 @@ exports[`normalize normalizes schema with indexes 1`] = `
   "indexes": {
     "MyTaco": {
       "type": {
-        "bar": Symbol(ENTITY WAS DELETED),
+        "bar": Symbol(INVALID),
         "bar2": "2",
         "foo": "1",
       },

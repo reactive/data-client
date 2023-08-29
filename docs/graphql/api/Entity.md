@@ -262,12 +262,6 @@ When inferring a response, this entity's expiresAt is used to compute the expiry
 
 By **default** uses the first argument to lookup in [pk()](#pk) and [indexes](#indexes)
 
-### static expiresAt(meta: \{ expiresAt: number; date: number }, input: any): expiresAt {#expiresat}
-
-This determines expiry time when entity is part of a result that is inferred.
-
-Overriding can be used to change TTL policy specifically for inferred responses.
-
 ### static indexes?: (keyof this)[] {#indexes}
 
 Indexes enable increased performance when doing lookups based on those parameters. Add

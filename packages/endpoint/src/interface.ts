@@ -25,38 +25,9 @@ export interface SchemaSimple<T = any> {
     addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
     storeEntities: any,
-    args: any[],
-  ): any;
-  denormalize(
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    input: {},
-    unvisit: UnvisitFunction,
-  ): [denormalized: T, found: boolean, suspend: boolean];
-  denormalizeOnly?(
-    input: {},
-    args: any,
-    unvisit: (input: any, schema: any) => any,
-  ): T;
-  infer(
-    args: readonly any[],
-    indexes: NormalizedIndex,
-    recurse: (...args: any) => any,
-    entities: EntityTable,
-  ): any;
-}
-
-export interface SchemaSimpleNew<T = any> {
-  normalize(
-    input: any,
-    parent: any,
-    key: any,
-    visit: (...args: any) => any,
-    addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: any,
     args?: any[],
   ): any;
-  denormalizeOnly(
+  denormalize(
     input: {},
     args: readonly any[],
     unvisit: (input: any, schema: any) => any,
@@ -74,52 +45,38 @@ export interface SchemaClass<T = any, N = T | undefined>
   // this is not an actual member, but is needed for the recursive NormalizeNullable<> type algo
   _normalizeNullable(): any;
   // this is not an actual member, but is needed for the recursive DenormalizeNullable<> type algo
-  _denormalizeNullable(): [N, boolean, boolean];
+  _denormalizeNullable(): N;
 }
 
 export interface EntityInterface<T = any> extends SchemaSimple {
-  createIfValid?(props: any): any;
+  createIfValid(props: any): any;
   pk(params: any, parent?: any, key?: string, args?: any[]): string | undefined;
   readonly key: string;
   merge(existing: any, incoming: any): any;
-  expiresAt?(meta: any, input: any): number;
-  mergeWithStore?(
+  mergeWithStore(
     existingMeta: any,
     incomingMeta: any,
     existing: any,
     incoming: any,
   ): any;
-  mergeMetaWithStore?(
+  mergeMetaWithStore(
     existingMeta: any,
     incomingMeta: any,
     existing: any,
     incoming: any,
   ): any;
-  // TODO(breaking): deprecate this
-  useIncoming?(
-    existingMeta: any,
-    incomingMeta: any,
-    existing: any,
-    incoming: any,
-  ): boolean;
   indexes?: any;
   schema: Record<string, Schema>;
   prototype: T;
 }
 
 /** Represents Array or Values */
-export interface PolymorphicInterface<T = any> extends SchemaSimpleNew<T> {
+export interface PolymorphicInterface<T = any> extends SchemaSimple<T> {
   readonly schema: any;
   // this is not an actual member, but is needed for the recursive NormalizeNullable<> type algo
   _normalizeNullable(): any;
   // this is not an actual member, but is needed for the recursive DenormalizeNullable<> type algo
-  _denormalizeNullable(): [any, boolean, boolean];
-}
-
-export interface UnvisitFunction {
-  (input: any, schema: any): [any, boolean, boolean] | any;
-  og?: UnvisitFunction;
-  setLocal?: (entity: any) => void;
+  _denormalizeNullable(): any;
 }
 
 export interface NormalizedIndex {

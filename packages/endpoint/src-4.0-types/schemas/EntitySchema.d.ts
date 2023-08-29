@@ -1,5 +1,5 @@
 // we just removed instances of 'abstract new'
-import type { Schema, NormalizedIndex, UnvisitFunction } from '../interface.js';
+import type { Schema, NormalizedIndex } from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
 export type Constructor = new (...args: any[]) => {};
 export type IDClass = new (...args: any[]) => {
@@ -72,6 +72,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
    * @param [value] POJO of the entity or subset used
    * @param [parent] When normalizing, the object which included the entity
    * @param [key] When normalizing, the key where this entity was found
+   * @param [args] ...args sent to Endpoint
    */
   pk<
     T extends (new (...args: any[]) => IEntityInstance & InstanceType<TBase>) &
@@ -189,7 +190,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
    *
    * @see https://dataclient.io/docs/api/Entity#process
    */
-  process(input: any, parent: any, key: string | undefined): any;
+  process(input: any, parent: any, key: string | undefined, args: any[]): any;
   normalize(
     input: any,
     parent: any,
@@ -207,7 +208,12 @@ export interface IEntityClass<TBase extends Constructor = any> {
    *
    * @see https://dataclient.io/docs/api/Entity#infer
    */
-  infer(args: readonly any[], indexes: NormalizedIndex, recurse: any): any;
+  infer(
+    args: readonly any[],
+    indexes: NormalizedIndex,
+    recurse: any,
+    entities: any,
+  ): any;
   denormalize<
     T extends (new (...args: any[]) => IEntityInstance & InstanceType<TBase>) &
       IEntityClass &
@@ -215,15 +221,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
   >(
     this: T,
     input: any,
-    unvisit: UnvisitFunction,
-  ): [denormalized: AbstractInstanceType<T>, found: boolean, suspend: boolean];
-  denormalizeOnly<
-    T extends (new (...args: any[]) => IEntityInstance & InstanceType<TBase>) &
-      IEntityClass &
-      TBase,
-  >(
-    this: T,
-    input: any,
+    args: readonly any[],
     unvisit: (input: any, schema: any) => any,
   ): AbstractInstanceType<T>;
   /** All instance defaults set */
@@ -235,6 +233,7 @@ export interface IEntityInstance {
    *
    * @param [parent] When normalizing, the object which included the entity
    * @param [key] When normalizing, the key where this entity was found
+   * @param [args] ...args sent to Endpoint
    */
   pk(parent?: any, key?: string, args?: readonly any[]): string | undefined;
 }

@@ -3,9 +3,9 @@ import { Schema, normalize } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
-import { denormalizeSimple, denormalizeLegacy } from './denormalize';
-import { schema } from '../../';
-import { DELETED } from '../../special';
+import { denormalizeSimple } from './denormalize';
+import { schema } from '../..';
+import { INVALID } from '../../special';
 import Entity from '../Entity';
 
 let dateSpy: jest.SpyInstance;
@@ -19,25 +19,25 @@ afterAll(() => {
   dateSpy.mockRestore();
 });
 
-describe(`${schema.Delete.name} normalization`, () => {
+describe(`${schema.Invalidate.name} normalization`, () => {
   test('throws if not given an entity', () => {
     // @ts-expect-error
-    expect(() => new schema.Delete()).toThrow();
+    expect(() => new schema.Invalidate()).toThrow();
   });
 
   test('normalizes an object', () => {
     class User extends IDEntity {}
 
     expect(
-      normalize({ id: '1', type: 'users' }, new schema.Delete(User)),
+      normalize({ id: '1', type: 'users' }, new schema.Invalidate(User)),
     ).toMatchSnapshot();
   });
 
   test('normalizes already processed entities', () => {
     class MyEntity extends IDEntity {}
-    expect(normalize('1', new schema.Delete(MyEntity))).toMatchSnapshot();
+    expect(normalize('1', new schema.Invalidate(MyEntity))).toMatchSnapshot();
     expect(
-      normalize(['1', '2'], new schema.Array(new schema.Delete(MyEntity))),
+      normalize(['1', '2'], new schema.Array(new schema.Invalidate(MyEntity))),
     ).toMatchSnapshot();
   });
 
@@ -45,7 +45,7 @@ describe(`${schema.Delete.name} normalization`, () => {
     class User extends IDEntity {}
 
     expect(
-      new schema.Delete(User).infer([{ id: 5 }], {}, () => undefined),
+      new schema.Invalidate(User).infer([{ id: 5 }], {}, () => undefined),
     ).toBeUndefined();
   });
 
@@ -58,7 +58,7 @@ describe(`${schema.Delete.name} normalization`, () => {
       }
     }
     function normalizeBad() {
-      normalize({ secondthing: 'hi' }, new schema.Delete(MyEntity));
+      normalize({ secondthing: 'hi' }, new schema.Invalidate(MyEntity));
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
@@ -72,13 +72,13 @@ describe(`${schema.Delete.name} normalization`, () => {
       }
     }
     function normalizeBad() {
-      normalize({ secondthing: 'hi' }, new schema.Delete(MyEntity));
+      normalize({ secondthing: 'hi' }, new schema.Invalidate(MyEntity));
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
 });
 
-describe(`${schema.Delete.name} denormalization`, () => {
+describe(`${schema.Invalidate.name} denormalization`, () => {
   class User extends IDEntity {
     readonly username: string = '';
     readonly type: string = '';
@@ -90,7 +90,7 @@ describe(`${schema.Delete.name} denormalization`, () => {
   };
 
   test('denormalizes an object in the same manner as the Entity', () => {
-    const user = denormalizeSimple('1', new schema.Delete(User), entities);
+    const user = denormalizeSimple('1', new schema.Invalidate(User), entities);
     expect(user).not.toEqual(expect.any(Symbol));
     if (typeof user === 'symbol') return;
     expect(user).toBeDefined();
@@ -110,12 +110,6 @@ describe(`${schema.Delete.name} denormalization`, () => {
         denormalizeSimple,
       ],
       [
-        'class, legacy',
-        <T extends Schema>(sch: T) => new schema.Array(sch),
-        <T extends Record<string, any>>(sch: T) => new schema.Object(sch),
-        denormalizeLegacy,
-      ],
-      [
         'object, direct',
         <T extends Schema>(sch: T) => [sch],
         <T extends Record<string, any>>(sch: T) => sch,
@@ -127,9 +121,9 @@ describe(`${schema.Delete.name} denormalization`, () => {
         test('denormalizes deleted entities as symbol', () => {
           const user = denormalize(
             '1',
-            new schema.Delete(User),
+            new schema.Invalidate(User),
             createInput({
-              User: { '1': DELETED },
+              User: { '1': INVALID },
             }),
           );
           expect(user).toEqual(expect.any(Symbol));
@@ -137,9 +131,9 @@ describe(`${schema.Delete.name} denormalization`, () => {
           expect(
             denormalize(
               createInput({ data: '1' }),
-              createObject({ data: new schema.Delete(User) }),
+              createObject({ data: new schema.Invalidate(User) }),
               createInput({
-                User: { '1': DELETED },
+                User: { '1': INVALID },
               }),
             ),
           ).toEqual(expect.any(Symbol));
@@ -149,9 +143,9 @@ describe(`${schema.Delete.name} denormalization`, () => {
           expect(
             denormalize(
               createInput([{ data: '1' }]),
-              createArray(createObject({ data: new schema.Delete(User) })),
+              createArray(createObject({ data: new schema.Invalidate(User) })),
               createInput({
-                User: { '1': DELETED },
+                User: { '1': INVALID },
               }),
             ),
           ).toMatchSnapshot();
@@ -160,7 +154,7 @@ describe(`${schema.Delete.name} denormalization`, () => {
               createInput([{ data: '1' }]),
               createArray(createObject({ data: User })),
               createInput({
-                User: { '1': DELETED },
+                User: { '1': INVALID },
               }),
             ),
           ).toMatchSnapshot();
@@ -170,7 +164,7 @@ describe(`${schema.Delete.name} denormalization`, () => {
           expect(
             denormalize(
               createInput([{ data: '1' }]),
-              createArray(createObject({ data: new schema.Delete(User) })),
+              createArray(createObject({ data: new schema.Invalidate(User) })),
               createInput([{}]),
             ),
           ).toMatchSnapshot();
