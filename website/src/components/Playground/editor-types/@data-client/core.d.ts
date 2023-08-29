@@ -230,18 +230,6 @@ declare namespace actionTypes_d {
   };
 }
 
-type RHDispatch<Actions = any> = (value: Actions) => Promise<void>;
-interface MiddlewareAPI$1<R extends DataClientReducer = DataClientReducer> extends Controller<RHDispatch<ActionTypes>> {
-}
-interface MiddlewareController<Actions = ActionTypes> extends Controller<RHDispatch<Actions>> {
-}
-type Middleware$2<Actions = any> = <C extends MiddlewareController<Actions>>(controller: C) => (next: C['dispatch']) => C['dispatch'];
-type DataClientReducer = (prevState: State<unknown>, action: ActionTypes) => State<unknown>;
-type Dispatch$1<R extends Reducer<any, any>> = (action: ReducerAction<R>) => Promise<void>;
-type Reducer<S, A> = (prevState: S, action: A) => S;
-type ReducerState<R extends Reducer<any, any>> = R extends Reducer<infer S, any> ? S : never;
-type ReducerAction<R extends Reducer<any, any>> = R extends Reducer<any, infer A> ? A : never;
-
 type EndpointAndUpdate<E extends EndpointInterface> = EndpointInterface & {
     update?: EndpointUpdateFunction<E>;
 };
@@ -333,40 +321,17 @@ interface GCAction {
 }
 type ActionTypes = FetchAction | OptimisticAction | SetAction | SubscribeAction | UnsubscribeAction | InvalidateAction | InvalidateAllAction | ExpireAllAction | ResetAction | GCAction;
 
-type newActions_d_SetMeta = SetMeta;
-type newActions_d_SetActionSuccess<E extends EndpointAndUpdate<E> = EndpointDefault> = SetActionSuccess<E>;
-type newActions_d_SetActionError<E extends EndpointAndUpdate<E> = EndpointDefault> = SetActionError<E>;
-type newActions_d_SetAction<E extends EndpointAndUpdate<E> = EndpointDefault> = SetAction<E>;
-type newActions_d_FetchMeta = FetchMeta;
-type newActions_d_FetchAction<E extends EndpointAndUpdate<E> = EndpointDefault> = FetchAction<E>;
-type newActions_d_OptimisticAction<E extends EndpointAndUpdate<E> = EndpointDefault> = OptimisticAction<E>;
-type newActions_d_SubscribeAction<E extends EndpointAndUpdate<E> = EndpointDefault> = SubscribeAction<E>;
-type newActions_d_UnsubscribeAction<E extends EndpointAndUpdate<E> = EndpointDefault> = UnsubscribeAction<E>;
-type newActions_d_ExpireAllAction = ExpireAllAction;
-type newActions_d_InvalidateAllAction = InvalidateAllAction;
-type newActions_d_InvalidateAction = InvalidateAction;
-type newActions_d_ResetAction = ResetAction;
-type newActions_d_GCAction = GCAction;
-type newActions_d_ActionTypes = ActionTypes;
-declare namespace newActions_d {
-  export {
-    newActions_d_SetMeta as SetMeta,
-    newActions_d_SetActionSuccess as SetActionSuccess,
-    newActions_d_SetActionError as SetActionError,
-    newActions_d_SetAction as SetAction,
-    newActions_d_FetchMeta as FetchMeta,
-    newActions_d_FetchAction as FetchAction,
-    newActions_d_OptimisticAction as OptimisticAction,
-    newActions_d_SubscribeAction as SubscribeAction,
-    newActions_d_UnsubscribeAction as UnsubscribeAction,
-    newActions_d_ExpireAllAction as ExpireAllAction,
-    newActions_d_InvalidateAllAction as InvalidateAllAction,
-    newActions_d_InvalidateAction as InvalidateAction,
-    newActions_d_ResetAction as ResetAction,
-    newActions_d_GCAction as GCAction,
-    newActions_d_ActionTypes as ActionTypes,
-  };
+type RHDispatch<Actions = any> = (value: Actions) => Promise<void>;
+interface MiddlewareAPI$1<R extends DataClientReducer = DataClientReducer> extends Controller<RHDispatch<ActionTypes>> {
 }
+interface MiddlewareController<Actions = ActionTypes> extends Controller<RHDispatch<Actions>> {
+}
+type Middleware$2<Actions = any> = <C extends MiddlewareController<Actions>>(controller: C) => (next: C['dispatch']) => C['dispatch'];
+type DataClientReducer = (prevState: State<unknown>, action: ActionTypes) => State<unknown>;
+type Dispatch$1<R extends Reducer<any, any>> = (action: ReducerAction<R>) => Promise<void>;
+type Reducer<S, A> = (prevState: S, action: A) => S;
+type ReducerState<R extends Reducer<any, any>> = R extends Reducer<infer S, any> ? S : never;
+type ReducerAction<R extends Reducer<any, any>> = R extends Reducer<any, infer A> ? A : never;
 
 type SetTypes = typeof SET_TYPE;
 type PK = string;
@@ -1015,4 +980,4 @@ declare class DevToolsManager implements Manager {
     getMiddleware(): Middleware;
 }
 
-export { AbstractInstanceType, ActionTypes, ConnectionListener, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeCache, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch$1 as Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityInterface, ErrorTypes, ExpireAllAction, ExpiryStatus, FetchAction, FetchFunction, FetchMeta, GCAction, GenericDispatch, InvalidateAction, InvalidateAllAction, LogoutManager, Manager, Middleware$2 as Middleware, MiddlewareAPI$1 as MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, OptimisticAction, PK, PollingSubscription, ResetAction, ResetError, ResolveType, ResultEntry, Schema, SetAction, SetActionError, SetActionSuccess, SetMeta, SetTypes, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, applyManager, createFetch, createReducer, createSet, initialState, newActions_d as newActions };
+export { AbstractInstanceType, ActionTypes, ConnectionListener, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeCache, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch$1 as Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityInterface, ErrorTypes, ExpireAllAction, ExpiryStatus, FetchAction, FetchFunction, FetchMeta, GCAction, GenericDispatch, InvalidateAction, InvalidateAllAction, LogoutManager, Manager, Middleware$2 as Middleware, MiddlewareAPI$1 as MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, OptimisticAction, PK, PollingSubscription, ResetAction, ResetError, ResolveType, ResultEntry, Schema, SetAction, SetActionError, SetActionSuccess, SetMeta, SetTypes, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, applyManager, createFetch, createReducer, createSet, initialState };

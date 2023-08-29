@@ -5,9 +5,9 @@ import type {
 } from '@data-client/normalizr';
 import type { ErrorTypes } from '@data-client/normalizr';
 
+import type { ActionTypes, SetAction, OptimisticAction } from './actions.js';
 import { SET_TYPE } from './actionTypes.js';
 import type { Dispatch, Middleware, MiddlewareAPI } from './middlewareTypes.js';
-import type { ActionTypes, SetAction, OptimisticAction } from './newActions.js';
 
 export type { AbstractInstanceType, UpdateFunction };
 
@@ -44,8 +44,7 @@ export interface State<T> {
   readonly lastReset: number;
 }
 
-export * as newActions from './newActions.js';
-export * from './newActions.js';
+export * from './actions.js';
 
 export interface Manager<Actions = ActionTypes> {
   getMiddleware(): Middleware<Actions>;
