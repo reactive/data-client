@@ -26,7 +26,7 @@ export default [
   {
     input: 'lib/index.js',
     external: isExternal,
-    output: [{ file: pkg.unpkg, format: 'umd', name: 'restHookImg' }],
+    output: [{ file: pkg.unpkg, format: 'umd', name: 'dataClientImg' }],
     plugins: [
       babel({
         exclude: ['node_modules/**', '/**__tests__/**'],

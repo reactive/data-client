@@ -2,7 +2,7 @@
 '@data-client/react': minor
 ---
 
-Add className to error boundary and errorClassName to AsyncBoundary
+Add className to error boundary and errorClassName to [AsyncBoundary](https://dataclient.io/docs/api/AsyncBoundary)
 
 
 ```tsx

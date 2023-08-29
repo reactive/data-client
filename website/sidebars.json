@@ -261,7 +261,7 @@
             },
             {
               "type": "doc",
-              "id": "api/makeRenderRestHook"
+              "id": "api/makeRenderDataClient"
             },
             {
               "type": "doc",

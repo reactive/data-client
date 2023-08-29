@@ -6,7 +6,7 @@ import React from 'react';
 
 export default function MangledClassnames() {
   return (
-    <Layout title="Rest Hooks Error: Mangled class names detected">
+    <Layout title="Reactive Data Client Error: Mangled class names detected">
       <header>
         <div className="container">
           <h2>Error: Mangled class names detected</h2>

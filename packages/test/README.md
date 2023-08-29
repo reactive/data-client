@@ -1,10 +1,10 @@
-# ![Data Client Testing](../../packages/data-client/rest_hooks_logo_and_text.svg?sanitize=true)
+# ![Data Client Testing](../../packages/data-client/core/data_client_logo_and_text.svg?sanitize=true)
 
 [![Coverage Status](https://img.shields.io/codecov/c/gh/data-client/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/data-client/data-client?branch=master)
 
 <div align="center">
 
-**[🏁Guides](https://dataclient.io/docs/guides/storybook)** &nbsp;|&nbsp; [🏁API Reference](https://dataclient.io/docs/api/makeRenderRestHook)
+**[🏁Guides](https://dataclient.io/docs/guides/storybook)** &nbsp;|&nbsp; [🏁API Reference](https://dataclient.io/docs/api/makeRenderDataClient)
 
 </div>
 
@@ -111,13 +111,13 @@ export const FullArticleList = ({ result }) => (
 
 ```typescript
 import { CacheProvider } from '@data-client/react';
-import { makeRenderRestHook } from '@data-client/test';
+import { makeRenderDataClient } from '@data-client/test';
 import options from './fixtures';
 
-const renderRestHook = makeRenderRestHook(CacheProvider);
+const renderDataClient = makeRenderDataClient(CacheProvider);
 
 it('should resolve list', async () => {
-  const { result } = renderRestHook(
+  const { result } = renderDataClient(
     () => {
       return useSuspense(ArticleResource.list(), {
         maxResults: 10,
@@ -131,7 +131,7 @@ it('should resolve list', async () => {
 });
 
 it('should throw errors on bad network', async () => {
-  const { result } = renderRestHook(
+  const { result } = renderDataClient(
     () => {
       return useSuspense(ArticleResource.list(), {
         maxResults: 10,

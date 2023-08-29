@@ -1,5 +1,5 @@
 import { CacheProvider } from '@data-client/react';
-import { makeRenderRestHook } from '@data-client/test';
+import { makeRenderDataClient } from '@data-client/test';
 import { FixtureEndpoint } from '@data-client/test/mockState';
 import { renderHook } from '@testing-library/react-hooks';
 import { act } from '@testing-library/react-hooks';
@@ -55,11 +55,11 @@ export const nested: FixtureEndpoint = {
     },
   ],
 };
-let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+let renderDataClient: ReturnType<typeof makeRenderDataClient>;
 let mynock: nock.Scope;
 
 beforeEach(() => {
-  renderRestHook = makeRenderRestHook(CacheProvider);
+  renderDataClient = makeRenderDataClient(CacheProvider);
   mynock = nock(/.*/).defaultReplyHeaders({
     'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json',
@@ -71,7 +71,7 @@ afterEach(() => {
 
 describe('invalidateAll', () => {
   it('should not invalidate anything not matching', () => {
-    const { result } = renderRestHook(
+    const { result } = renderDataClient(
       () => {
         return {
           data: useCache(CoolerArticleResource.get, { id: 5 }),
@@ -92,7 +92,7 @@ describe('invalidateAll', () => {
   });
 
   it('should result in useCache having no entry', () => {
-    const { result } = renderRestHook(
+    const { result } = renderDataClient(
       () => {
         return {
           data: useCache(CoolerArticleResource.get, { id: 5 }),
@@ -125,7 +125,7 @@ describe('invalidateAll', () => {
   it('should work with ArrayBuffer shapes', () => {
     const userId = '5';
     const response = new ArrayBuffer(10);
-    const { result, waitForNextUpdate } = renderRestHook(
+    const { result, waitForNextUpdate } = renderDataClient(
       () => {
         return {
           data: useCache(GetPhoto, { userId }),

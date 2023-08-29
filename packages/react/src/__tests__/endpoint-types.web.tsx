@@ -3,7 +3,7 @@ import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
 import { TypedArticleResource } from '__tests__/new';
 import nock from 'nock';
 
-import { makeRenderRestHook } from '../../../test';
+import { makeRenderDataClient } from '../../../test';
 import { useController, useSuspense } from '../hooks';
 import { payload, createPayload, users, nested } from '../test-fixtures';
 
@@ -24,7 +24,7 @@ describe('endpoint types', () => {
     ['CacheProvider', CacheProvider],
     ['ExternalCacheProvider', ExternalCacheProvider],
   ] as const)(`%s should enforce defined types`, (_, makeProvider) => {
-    let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+    let renderDataClient: ReturnType<typeof makeRenderDataClient>;
     let mynock: nock.Scope;
 
     beforeEach(() => {
@@ -66,14 +66,14 @@ describe('endpoint types', () => {
     });
 
     beforeEach(() => {
-      renderRestHook = makeRenderRestHook(makeProvider);
+      renderDataClient = makeRenderDataClient(makeProvider);
     });
     afterEach(() => {
       nock.cleanAll();
     });
 
     it('should pass with exact params', async () => {
-      const { result, waitForNextUpdate } = renderRestHook(() => {
+      const { result, waitForNextUpdate } = renderDataClient(() => {
         return useSuspense(TypedArticleResource.get, {
           id: payload.id,
         });
@@ -84,7 +84,7 @@ describe('endpoint types', () => {
     });
 
     it('should fail with improperly typed param', async () => {
-      const { result, waitForNextUpdate } = renderRestHook(() => {
+      const { result, waitForNextUpdate } = renderDataClient(() => {
         // @ts-expect-error
         return useSuspense(TypedArticleResource.get, {
           id: 'abc ' as any as Date,
@@ -97,7 +97,7 @@ describe('endpoint types', () => {
     });
 
     it('should work with everything correct', async () => {
-      const { result } = renderRestHook(() => {
+      const { result } = renderDataClient(() => {
         return useController().fetch;
       });
       const a = await result.current(
@@ -108,7 +108,7 @@ describe('endpoint types', () => {
     });
 
     it('types should strictly enforce with parameters that are any', async () => {
-      const { result } = renderRestHook(() => {
+      const { result } = renderDataClient(() => {
         return useController().fetch;
       });
       () =>
@@ -122,7 +122,7 @@ describe('endpoint types', () => {
     });
 
     it('types should strictly enforce with body that are any', async () => {
-      const { result } = renderRestHook(() => {
+      const { result } = renderDataClient(() => {
         return useController().fetch;
       });
       () =>
@@ -136,7 +136,7 @@ describe('endpoint types', () => {
     });
 
     it('should error on invalid payload', async () => {
-      const { result } = renderRestHook(() => {
+      const { result } = renderDataClient(() => {
         return useController().fetch;
       });
       await result.current(
@@ -154,7 +154,7 @@ describe('endpoint types', () => {
     });
 
     it('should error on invalid params', async () => {
-      const { result } = renderRestHook(() => {
+      const { result } = renderDataClient(() => {
         return useController().fetch;
       });
 

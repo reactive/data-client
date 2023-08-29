@@ -60,7 +60,7 @@
     "LICENSE",
     "README.md",
     "./typescript.svg",
-    "./rest_hooks_logo_and_text.svg"
+    "./data_client_logo_and_text.svg"
   ],
   "scripts": {
     "build:lib": "NODE_ENV=production BROWSERSLIST_ENV='2020' yarn g:babel --out-dir lib",

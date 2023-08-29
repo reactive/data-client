@@ -17,7 +17,7 @@ import mockInitialState from '../mockState.js';
 
 export type { RenderHookOptions } from './renderHook.cjs';
 
-export default function makeRenderRestHook(
+export default function makeRenderDataClient(
   Provider: React.ComponentType<ProviderProps>,
 ) {
   /** Wraps dispatches that are typically called declaratively in act() */
@@ -42,7 +42,7 @@ export default function makeRenderRestHook(
     }
   }
 
-  const renderRestHook: RenderRestHook = (<P, R, T = any>(
+  const renderDataClient: RenderDataClient = (<P, R, T = any>(
     callback: (props: P) => R,
     options?: {
       initialProps?: P;
@@ -57,7 +57,7 @@ export default function makeRenderRestHook(
       new NetworkManager(),
       new SubscriptionManager(PollingSubscription),
     ];
-    renderRestHook.cleanup = () => {
+    renderDataClient.cleanup = () => {
       (managers[0] as any).cleanupDate = Infinity;
       Object.values(
         (managers[0] as any).rejectors as Record<string, any>,
@@ -67,7 +67,7 @@ export default function makeRenderRestHook(
       (managers[0] as any).clearAll();
       managers.forEach(manager => manager.cleanup());
     };
-    renderRestHook.allSettled = () => {
+    renderDataClient.allSettled = () => {
       return (managers[0] as NetworkManager).allSettled();
     };
 
@@ -146,9 +146,9 @@ export default function makeRenderRestHook(
     );
     return ret;
   }) as any;
-  renderRestHook.cleanup = () => {};
-  renderRestHook.allSettled = () => Promise.allSettled([]);
-  return renderRestHook;
+  renderDataClient.cleanup = () => {};
+  renderDataClient.allSettled = () => Promise.allSettled([]);
+  return renderDataClient;
 }
 interface ProviderProps {
   children: React.ReactNode;
@@ -157,7 +157,7 @@ interface ProviderProps {
   Controller: typeof Controller;
 }
 
-type RenderRestHook = (<P, R>(
+type RenderDataClient = (<P, R>(
   callback: (props: P) => R,
   options?: {
     initialProps?: P;

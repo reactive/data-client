@@ -6,7 +6,7 @@ import {
 } from '@data-client/core';
 import { normalize } from '@data-client/normalizr';
 import { CacheProvider } from '@data-client/react';
-import { makeRenderRestHook } from '@data-client/test';
+import { makeRenderDataClient } from '@data-client/test';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { renderHook } from '@testing-library/react-hooks';
@@ -56,7 +56,7 @@ async function testDispatchFetch(
   }
 }
 
-function testRestHook(
+function testDataClient(
   callback: () => void,
   state: State<unknown>,
   dispatch = (v: ActionTypes) => Promise.resolve(),
@@ -98,12 +98,12 @@ afterAll(() => {
 });
 
 describe('useFetch', () => {
-  let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+  let renderDataClient: ReturnType<typeof makeRenderDataClient>;
   beforeEach(() => {
     mynock.get(`/article-cooler/${payload.id}`).reply(200, payload);
     mynock.get(`/article-static/${payload.id}`).reply(200, payload);
     mynock.get(`/user/`).reply(200, users);
-    renderRestHook = makeRenderRestHook(CacheProvider);
+    renderDataClient = makeRenderDataClient(CacheProvider);
   });
   afterEach(() => {
     nock.cleanAll();
@@ -120,7 +120,7 @@ describe('useFetch', () => {
   it('should not dispatch will null params', () => {
     const dispatch = jest.fn();
     let params: any = null;
-    const { rerender } = testRestHook(
+    const { rerender } = testDataClient(
       () => {
         useFetch(CoolerArticleResource.get, params);
       },
@@ -170,7 +170,7 @@ describe('useFetch', () => {
         response: payload,
       },
     ];
-    const { result, rerender } = renderRestHook(
+    const { result, rerender } = renderDataClient(
       () => {
         return useFetch(CoolerArticleResource.get, { id: payload.id });
       },

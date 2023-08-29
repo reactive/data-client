@@ -9,7 +9,7 @@ import React, { Suspense, useContext, useEffect } from 'react';
 
 // relative imports to avoid circular dependency in tsconfig references
 
-import { makeRenderRestHook, mockInitialState } from '../../../test';
+import { makeRenderDataClient, mockInitialState } from '../../../test';
 import { ControllerContext, StateContext } from '../context';
 import { useController, useSuspense } from '../hooks';
 import { articlesPages, createPayload, payload } from '../test-fixtures';
@@ -43,7 +43,7 @@ async function testDispatchFetch(
   }
 }
 
-function testRestHook(
+function testDataClient(
   callback: () => void,
   state: State<unknown>,
   dispatch = (v: ActionTypes) => Promise.resolve(),
@@ -162,7 +162,7 @@ describe('useController.fetch', () => {
     });
     expect(spy.mock.calls[0]).toMatchInlineSnapshot(`
       [
-        "It appears you are trying to use Rest Hooks without a provider.
+        "It appears you are trying to use Reactive Data Client without a provider.
       Follow instructions: https://dataclient.io/docs/getting-started/installation#add-provider-at-top-level-component",
       ]
     `);
@@ -211,7 +211,7 @@ describe('useController().invalidate', () => {
     ]);
     const dispatch = jest.fn();
     let invalidate: any;
-    testRestHook(
+    testDataClient(
       () => {
         invalidate = useController().invalidate;
       },
@@ -231,7 +231,7 @@ describe('useController().invalidate', () => {
     ]);
     const dispatch = jest.fn();
     let invalidate: any;
-    testRestHook(
+    testDataClient(
       () => {
         invalidate = useController().invalidate;
       },
@@ -276,7 +276,7 @@ describe('useController().reset', () => {
     ]);
     const dispatch = jest.fn();
     let reset: () => Promise<void> = () => Promise.resolve();
-    testRestHook(
+    testDataClient(
       () => {
         reset = useController().resetEntireStore;
       },
@@ -309,7 +309,7 @@ describe('useController().getState', () => {
     ['CacheProvider', CacheProvider],
     ['ExternalCacheProvider', ExternalCacheProvider],
   ] as const)(`%s`, (_, makeProvider) => {
-    let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+    let renderDataClient: ReturnType<typeof makeRenderDataClient>;
     let mynock: nock.Scope;
 
     beforeEach(() => {
@@ -336,18 +336,18 @@ describe('useController().getState', () => {
       nock.cleanAll();
     });
     beforeEach(() => {
-      renderRestHook = makeRenderRestHook(makeProvider);
+      renderDataClient = makeRenderDataClient(makeProvider);
     });
 
     it('should have initial values before any state updates', () => {
-      const { result } = renderRestHook(() => {
+      const { result } = renderDataClient(() => {
         return [useController(), useContext(StateContext)] as const;
       });
       expect(result.current[0].getState()).toEqual(result.current[1]);
     });
 
     it('should eventually update', async () => {
-      const { result, waitForNextUpdate } = renderRestHook(() => {
+      const { result, waitForNextUpdate } = renderDataClient(() => {
         return [
           useSuspense(CoolerArticleResource.get, { id: payload.id }),
           useController(),

@@ -9,9 +9,9 @@ assignees: ''
 
 **React version** (e.g., 18.2.0)
 
-**TypeScript version (if used)** (e.g., 4.8.2)
+**TypeScript version (if used)** (e.g., 5.2.2)
 
-**Rest Hooks version** (e.g., 6.3.11)
+**Reactive Data Client version** (e.g., 0.8.0)
 
 **Package manager version** (e.g., yarn 2, npm 8)
 

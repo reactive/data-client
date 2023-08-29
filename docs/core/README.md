@@ -616,7 +616,7 @@ const incrementInterceptor: Interceptor = {
 </Tabs>
 
 - [Mock data for storybook](./guides/storybook.md) with [MockResolver](./api/MockResolver.md)
-- [Test hooks](./guides/unit-testing-hooks.md) with [makeRenderRestHook()](./api/makeRenderRestHook.md)
+- [Test hooks](./guides/unit-testing-hooks.md) with [makeRenderDataClient()](./api/makeRenderDataClient.md)
 - [Test components](./guides/unit-testing-components.md) with [MockResolver](./api/MockResolver.md) and [mockInitialState()](./api/mockInitialState.md)
 
 ## Demo

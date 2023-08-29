@@ -4,7 +4,7 @@ import nock from 'nock';
 import { useContext } from 'react';
 
 // relative imports to avoid circular dependency in tsconfig references
-import { makeRenderRestHook } from '../../../test';
+import { makeRenderDataClient } from '../../../test';
 import { CacheProvider } from '../components';
 import { StateContext } from '../context';
 import { useCache, useSuspense, useController } from '../hooks';
@@ -31,7 +31,7 @@ afterEach(() => {
 });
 
 describe('indexes', () => {
-  let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+  let renderDataClient: ReturnType<typeof makeRenderDataClient>;
   let mynock: nock.Scope;
 
   beforeEach(() => {
@@ -75,11 +75,11 @@ describe('indexes', () => {
   });
 
   beforeEach(() => {
-    renderRestHook = makeRenderRestHook(CacheProvider);
+    renderDataClient = makeRenderDataClient(CacheProvider);
   });
 
   it('should resolve parallel useSuspense() request', async () => {
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitForNextUpdate } = renderDataClient(() => {
       const { fetch } = useController();
       useSuspense(IndexedUserResource.getList);
       return {

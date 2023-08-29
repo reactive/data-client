@@ -318,12 +318,12 @@ interface ConstructorProps<D extends GenericDispatch = DataClientDispatch> {
     globalCache?: DenormalizeCache;
 }
 /**
- * Imperative control of Rest Hooks store
+ * Imperative control of Reactive Data Client store
  * @see https://dataclient.io/docs/api/Controller
  */
 declare class Controller<D extends GenericDispatch = DataClientDispatch> {
     /**
-     * Dispatches an action to Rest Hooks reducer.
+     * Dispatches an action to Reactive Data Client reducer.
      *
      * @see https://dataclient.io/docs/api/Controller#dispatch
      */
@@ -340,7 +340,7 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
     constructor({ dispatch, getState, globalCache, }?: ConstructorProps<D>);
     /*************** Action Dispatchers ***************/
     /**
-     * Fetches the endpoint with given args, updating the Rest Hooks cache with the response or error upon completion.
+     * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
      * @see https://dataclient.io/docs/api/Controller#fetch
      */
     fetch: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
@@ -375,7 +375,7 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
         testKey: (key: string) => boolean;
     }) => Promise<void>;
     /**
-     * Resets the entire Rest Hooks cache. All inflight requests will not resolve.
+     * Resets the entire Reactive Data Client cache. All inflight requests will not resolve.
      * @see https://dataclient.io/docs/api/Controller#resetEntireStore
      */
     resetEntireStore: () => Promise<void>;

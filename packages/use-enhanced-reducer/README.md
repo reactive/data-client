@@ -63,5 +63,5 @@ export default function CacheProvider({
 
 ## Middleware Examples
 
-- Rest Hook's [NetworkManager](https://github.com/data-client/data-client/blob/master/packages/data-client/src/state/NetworkManager.ts)
-- Rest Hook's [PollingSubscription](https://github.com/data-client/data-client/blob/master/packages/data-client/src/state/PollingSubscription.ts)
+- Reactive Data Client's [NetworkManager](https://github.com/data-client/data-client/blob/master/packages/data-client/src/state/NetworkManager.ts)
+- Reactive Data Client's [PollingSubscription](https://github.com/data-client/data-client/blob/master/packages/data-client/src/state/PollingSubscription.ts)

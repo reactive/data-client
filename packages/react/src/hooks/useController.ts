@@ -8,7 +8,7 @@ import { useContext } from 'react';
 import { ControllerContext } from '../context.js';
 
 /**
- * Imperative control of Rest Hooks store
+ * Imperative control of Reactive Data Client store
  * @see https://dataclient.io/docs/api/useController
  */
 export default function useController(): Controller {

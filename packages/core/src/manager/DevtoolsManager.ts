@@ -7,7 +7,7 @@ export type { DevToolsConfig };
 
 const HASINTL = typeof Intl !== 'undefined';
 const DEFAULT_CONFIG = {
-  name: `Rest Hooks: ${globalThis.document?.title}`,
+  name: `RDC: ${globalThis.document?.title}`,
   autoPause: true,
   serialize: {
     options: undefined,
@@ -70,7 +70,7 @@ export default class DevToolsManager implements Manager {
               action,
               state.optimistic.reduce(reducer, state),
               undefined,
-              'REST_HOOKS',
+              'RDC',
             );
           });
           return ret;

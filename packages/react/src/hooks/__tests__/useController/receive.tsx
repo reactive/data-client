@@ -5,7 +5,7 @@ import { CoolerArticle, FutureArticleResource } from '__tests__/new';
 import nock from 'nock';
 
 import { useCache, useController, useError } from '../..';
-import { makeRenderRestHook } from '../../../../../test';
+import { makeRenderDataClient } from '../../../../../test';
 
 export const payload = {
   id: 5,
@@ -53,11 +53,11 @@ export const nested: FixtureEndpoint = {
     },
   ],
 };
-let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+let renderDataClient: ReturnType<typeof makeRenderDataClient>;
 let mynock: nock.Scope;
 
 beforeEach(() => {
-  renderRestHook = makeRenderRestHook(CacheProvider);
+  renderDataClient = makeRenderDataClient(CacheProvider);
   mynock = nock(/.*/).defaultReplyHeaders({
     'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json',
@@ -69,7 +69,7 @@ afterEach(() => {
 
 describe('set', () => {
   it('should update store when set is complete', async () => {
-    const { result } = renderRestHook(() => {
+    const { result } = renderDataClient(() => {
       return {
         data: useCache(FutureArticleResource.get, payload.id),
         setResponse: useController().setResponse,
@@ -107,7 +107,7 @@ describe('set', () => {
   });
 
   it('should update store with error', async () => {
-    const { result } = renderRestHook(() => {
+    const { result } = renderDataClient(() => {
       return {
         data: useCache(FutureArticleResource.get, payload.id),
         err: useError(FutureArticleResource.get, payload.id),

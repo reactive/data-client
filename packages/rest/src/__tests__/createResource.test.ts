@@ -6,7 +6,7 @@ import {
   Controller,
   useSuspense,
 } from '@data-client/react';
-import { makeRenderRestHook } from '@data-client/test';
+import { makeRenderDataClient } from '@data-client/test';
 import { act } from '@testing-library/react-hooks';
 import nock, { ReplyHeaders } from 'nock';
 
@@ -14,8 +14,8 @@ import createResource from '../createResource';
 import RestEndpoint, { RestGenerics } from '../RestEndpoint';
 
 describe('createResource()', () => {
-  const renderRestHook: ReturnType<typeof makeRenderRestHook> =
-    makeRenderRestHook(CacheProvider);
+  const renderDataClient: ReturnType<typeof makeRenderDataClient> =
+    makeRenderDataClient(CacheProvider);
   let mynock: nock.Scope;
 
   class User extends Entity {
@@ -182,7 +182,7 @@ describe('createResource()', () => {
       isAdmin: false,
     });
 
-    const { result, waitForNextUpdate, controller } = renderRestHook(() => {
+    const { result, waitForNextUpdate, controller } = renderDataClient(() => {
       return useSuspense(UserResource.current);
     });
     await waitForNextUpdate();
@@ -321,7 +321,7 @@ describe('createResource()', () => {
       },
     ]);
 
-    const { result, waitForNextUpdate, controller } = renderRestHook(() => {
+    const { result, waitForNextUpdate, controller } = renderDataClient(() => {
       return [
         useSuspense(UserResource.current),
         useSuspense(UserResource.getList, { blob: '5', isAdmin: false }),
@@ -486,7 +486,7 @@ describe('createResource()', () => {
       },
     ]);
 
-    const { result, waitForNextUpdate, controller } = renderRestHook(() => {
+    const { result, waitForNextUpdate, controller } = renderDataClient(() => {
       return [
         useSuspense(UserResource.current),
         useSuspense(UserResource.getList, { blob: '5', isAdmin: false }),
@@ -543,7 +543,7 @@ describe('createResource()', () => {
   });
 
   it('UserResource.get should work', async () => {
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitForNextUpdate } = renderDataClient(() => {
       return useSuspense(UserResource.get, { group: 'five', id: '5' });
     });
     await waitForNextUpdate();
@@ -559,7 +559,7 @@ describe('createResource()', () => {
   });
 
   it('UserResource.getList should work', async () => {
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitForNextUpdate } = renderDataClient(() => {
       return useSuspense(UserResource.getList, { group: 'five' });
     });
     await waitForNextUpdate();
@@ -585,7 +585,7 @@ describe('createResource()', () => {
         ...body,
       }));
 
-    const { result, waitForNextUpdate } = renderRestHook(
+    const { result, waitForNextUpdate } = renderDataClient(
       () => {
         return [
           useSuspense(UserResource.get, { group: 'five', id: '5' }),
@@ -650,7 +650,7 @@ describe('createResource()', () => {
       ...body,
     }));
 
-    const { result } = renderRestHook(() => {
+    const { result } = renderDataClient(() => {
       return [
         useCache(UserResource.get, { group: 'five', id: '5' }),
         useController(),
@@ -724,7 +724,7 @@ describe('createResource()', () => {
       mynock
         .delete(`/groups/five/users/${userPayload.id}`)
         .reply(200, (uri, body: any) => response, headers);
-      const { result, waitForNextUpdate } = renderRestHook(
+      const { result, waitForNextUpdate } = renderDataClient(
         () => {
           return [
             useSuspense(UserResource.get, { group: 'five', id: '5' }),
@@ -801,7 +801,7 @@ describe('createResource()', () => {
         schema: User2,
       }),
     };
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitForNextUpdate } = renderDataClient(() => {
       return useSuspense(UserResourceExtend.get, { magic: 'vi', id: 5 });
     });
     await waitForNextUpdate();
@@ -848,7 +848,7 @@ describe('createResource()', () => {
     it('should work with detail', async () => {
       mynock.get(`/feed/${feedPayload.id}`).reply(200, feedPayload);
 
-      const { result, waitForNextUpdate } = renderRestHook(() => {
+      const { result, waitForNextUpdate } = renderDataClient(() => {
         return useSuspense(FeedResource.get, { id: '5' });
       });
       await waitForNextUpdate();
@@ -876,7 +876,7 @@ describe('createResource()', () => {
     it('should work with list [no args]', async () => {
       mynock.get(`/feed`).reply(200, [feedPayload]);
 
-      const { result, waitForNextUpdate } = renderRestHook(() => {
+      const { result, waitForNextUpdate } = renderDataClient(() => {
         return useSuspense(FeedResource.getList);
       });
       await waitForNextUpdate();
@@ -905,7 +905,7 @@ describe('createResource()', () => {
         ...body,
       }));
 
-      const { result, waitForNextUpdate } = renderRestHook(() => {
+      const { result, waitForNextUpdate } = renderDataClient(() => {
         return [
           useCache(FeedResource.get, { id: '5', type: 'link' }),
           useController(),
@@ -1073,7 +1073,7 @@ describe('createResource()', () => {
       }),
     }));
 
-    const { controller, result } = renderRestHook(
+    const { controller, result } = renderDataClient(
       () => {
         return useSuspense(UserResource.getList);
       },

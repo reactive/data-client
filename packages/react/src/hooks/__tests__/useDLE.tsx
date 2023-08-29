@@ -1,5 +1,5 @@
 import { CacheProvider } from '@data-client/react';
-import { makeRenderRestHook } from '@data-client/test';
+import { makeRenderDataClient } from '@data-client/test';
 import {
   CoolerArticle,
   CoolerArticleResource,
@@ -25,7 +25,7 @@ afterAll(() => {
 });
 
 describe('useDLE()', () => {
-  let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+  let renderDataClient: ReturnType<typeof makeRenderDataClient>;
 
   beforeAll(() => {
     nock(/.*/)
@@ -63,11 +63,11 @@ describe('useDLE()', () => {
   });
 
   beforeEach(() => {
-    renderRestHook = makeRenderRestHook(CacheProvider);
+    renderDataClient = makeRenderDataClient(CacheProvider);
   });
 
   it('should work on good network', async () => {
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitForNextUpdate } = renderDataClient(() => {
       return useDLE(CoolerArticleResource.get, {
         id: payload.id,
       });
@@ -82,7 +82,7 @@ describe('useDLE()', () => {
   });
 
   it('should work with no schema', async () => {
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitForNextUpdate } = renderDataClient(() => {
       return useDLE(CoolerArticleResource.get.extend({ schema: undefined }), {
         id: payload.id,
       });
@@ -97,7 +97,7 @@ describe('useDLE()', () => {
   });
 
   it('should work on good network with endpoint', async () => {
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitForNextUpdate } = renderDataClient(() => {
       return useDLE(TypedArticleResource.get, {
         id: payload.id,
       });
@@ -139,7 +139,7 @@ describe('useDLE()', () => {
   });
 
   it('should return errors on bad network', async () => {
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitForNextUpdate } = renderDataClient(() => {
       return useDLE(CoolerArticleResource.get, {
         title: '0',
       });
@@ -154,7 +154,7 @@ describe('useDLE()', () => {
   });
 
   it('should pass with exact params', async () => {
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitForNextUpdate } = renderDataClient(() => {
       return useDLE(TypedArticleResource.get, {
         id: payload.id,
       });
@@ -170,7 +170,7 @@ describe('useDLE()', () => {
   });
 
   it('should fail with improperly typed param', async () => {
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitForNextUpdate } = renderDataClient(() => {
       // @ts-expect-error
       return useDLE(TypedArticleResource.get, {
         id: "{ a: 'five' }" as any as Date,
@@ -188,7 +188,7 @@ describe('useDLE()', () => {
   });
 
   it('should fetch anew with param changes', async () => {
-    const { result, waitForNextUpdate, rerender } = renderRestHook(
+    const { result, waitForNextUpdate, rerender } = renderDataClient(
       ({ id }: { id: number }) => {
         return useDLE(CoolerArticleResource.get, {
           id,
@@ -214,14 +214,14 @@ describe('useDLE()', () => {
   });
 
   it('should not be loading with null params to useStatefulResource()', () => {
-    const { result } = renderRestHook(() => {
+    const { result } = renderDataClient(() => {
       return useDLE(CoolerArticleResource.get, null);
     });
     expect(result.current.loading).toBe(false);
   });
 
   it('should maintain schema structure even with null params', () => {
-    const { result } = renderRestHook(() => {
+    const { result } = renderDataClient(() => {
       return useDLE(PaginatedArticleResource.getList, null);
     });
     expect(result.current.loading).toBe(false);
@@ -235,7 +235,7 @@ describe('useDLE()', () => {
   it('should not select when results are stale and invalidIfStale is true', async () => {
     const realDate = global.Date.now;
     Date.now = jest.fn(() => 999999999);
-    const { result, rerender, waitForNextUpdate } = renderRestHook(
+    const { result, rerender, waitForNextUpdate } = renderDataClient(
       props => {
         return useDLE(InvalidIfStaleArticleResource.get, props);
       },

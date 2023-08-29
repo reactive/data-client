@@ -3,7 +3,7 @@ import { CacheProvider } from '@data-client/react';
 import { CoolerArticleResource, CoolerArticle, User } from '__tests__/new';
 import nock from 'nock';
 
-import { makeRenderRestHook } from '../../../test';
+import { makeRenderDataClient } from '../../../test';
 import hookifyResource from '../hookifyResource';
 
 const CoolerArticleHookResource = hookifyResource(
@@ -62,10 +62,10 @@ describe('hookifyResource()', () => {
       completed: false,
     };
 
-    let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+    let renderDataClient: ReturnType<typeof makeRenderDataClient>;
 
     beforeEach(() => {
-      renderRestHook = makeRenderRestHook(CacheProvider);
+      renderDataClient = makeRenderDataClient(CacheProvider);
 
       nock(/.*/)
         .defaultReplyHeaders({
@@ -110,7 +110,7 @@ describe('hookifyResource()', () => {
     });
 
     it('useDetail', async () => {
-      const { result, waitForNextUpdate } = renderRestHook(() =>
+      const { result, waitForNextUpdate } = renderDataClient(() =>
         useSuspense(CoolerArticleHookResource.useGet(), { id: payload.id }),
       );
       await waitForNextUpdate();
@@ -119,7 +119,7 @@ describe('hookifyResource()', () => {
     });
 
     it('useList', async () => {
-      const { result, waitForNextUpdate } = renderRestHook(() =>
+      const { result, waitForNextUpdate } = renderDataClient(() =>
         useSuspense(CoolerArticleHookResource.useGetList()),
       );
       await waitForNextUpdate();
@@ -127,7 +127,7 @@ describe('hookifyResource()', () => {
     });
 
     it('useCreate', async () => {
-      const { result } = renderRestHook(() => ({
+      const { result } = renderDataClient(() => ({
         endpoint: CoolerArticleHookResource.useCreate(),
         fetch: useController().fetch,
       }));
@@ -142,7 +142,7 @@ describe('hookifyResource()', () => {
     });
 
     it('useDelete', async () => {
-      const { result } = renderRestHook(() => ({
+      const { result } = renderDataClient(() => ({
         endpoint: CoolerArticleHookResource.useDelete(),
         fetch: useController().fetch,
       }));
@@ -154,7 +154,7 @@ describe('hookifyResource()', () => {
     });
 
     it('useUpdate', async () => {
-      const { result } = renderRestHook(() => ({
+      const { result } = renderDataClient(() => ({
         endpoint: CoolerArticleHookResource.useUpdate(),
         fetch: useController().fetch,
       }));
@@ -172,7 +172,7 @@ describe('hookifyResource()', () => {
     });
 
     it('usePartialUpdate', async () => {
-      const { result } = renderRestHook(() => ({
+      const { result } = renderDataClient(() => ({
         endpoint: CoolerArticleHookResource.usePartialUpdate(),
         fetch: useController().fetch,
       }));

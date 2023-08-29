@@ -4,7 +4,7 @@ import { PollingArticleResource, Article } from '__tests__/new';
 import nock from 'nock';
 import React from 'react';
 
-import { act, makeRenderRestHook } from '../../../../test';
+import { act, makeRenderDataClient } from '../../../../test';
 import useLive from '../useLive';
 
 function jsonNock() {
@@ -24,7 +24,7 @@ describe.each([
     content: 'whatever',
     tags: ['a', 'best', 'react'],
   };
-  let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+  let renderDataClient: ReturnType<typeof makeRenderDataClient>;
   async function validateSubscription(
     result: {
       readonly current: Article | undefined;
@@ -43,7 +43,7 @@ describe.each([
     expect(result.current).toBeUndefined();
     // should be defined after frequency milliseconds
     jest.advanceTimersByTime(frequency);
-    await renderRestHook.allSettled();
+    await renderDataClient.allSettled();
 
     await waitFor(() => expect(result.current).not.toBeUndefined());
     expect(result.current).toBeInstanceOf(Article);
@@ -56,7 +56,7 @@ describe.each([
     jest.advanceTimersByTime(frequency);
 
     await waitFor(() => expect(fiverNock.isDone()).toBeTruthy());
-    await renderRestHook.allSettled();
+    await renderDataClient.allSettled();
     await waitFor(() => expect((result.current as any).title).toBe('fiver'));
   }
 
@@ -90,10 +90,10 @@ describe.each([
       .reply(200, articlePayload)
       .get(`/article/${articlePayload.id}`)
       .reply(200, articlePayload);
-    renderRestHook = makeRenderRestHook(makeProvider);
+    renderDataClient = makeRenderDataClient(makeProvider);
   });
   afterEach(() => {
-    renderRestHook.cleanup();
+    renderDataClient.cleanup();
     nock.cleanAll();
     jest.useRealTimers();
   });
@@ -105,7 +105,7 @@ describe.each([
     const frequency = PollingArticleResource.get.pollFrequency as number;
     expect(frequency).toBeDefined();
 
-    const { result, rerender, waitFor } = renderRestHook(
+    const { result, rerender, waitFor } = renderDataClient(
       ({ active }) => {
         return useLive(
           PollingArticleResource.get,
@@ -145,7 +145,7 @@ describe.each([
         jest.runOnlyPendingTimers();
       });
       jest.useRealTimers();
-      await renderRestHook.allSettled();
+      await renderDataClient.allSettled();
 
       expect((result.current as any).title).toBe('fiver');
     }
@@ -159,11 +159,11 @@ describe.each([
     expect(frequency).toBeDefined();
     expect(PollingArticleResource.anotherGet.pollFrequency).toBeDefined();
 
-    const { result, waitFor } = renderRestHook(() => {
+    const { result, waitFor } = renderDataClient(() => {
       return useLive(PollingArticleResource.get, { id: articlePayload.id });
     });
 
     await validateSubscription(result, frequency, articlePayload, waitFor);
-    await renderRestHook.allSettled();
+    await renderDataClient.allSettled();
   });
 });

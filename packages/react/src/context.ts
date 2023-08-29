@@ -10,7 +10,7 @@ const dispatch = (value: ActionTypes) => {
   /* istanbul ignore next */
   if (process.env.NODE_ENV !== 'production') {
     console.error(
-      'It appears you are trying to use Rest Hooks without a provider.\nFollow instructions: https://dataclient.io/docs/getting-started/installation#add-provider-at-top-level-component',
+      'It appears you are trying to use Reactive Data Client without a provider.\nFollow instructions: https://dataclient.io/docs/getting-started/installation#add-provider-at-top-level-component',
     );
     /* istanbul ignore next */
     if (process.env.NODE_ENV === 'test') {

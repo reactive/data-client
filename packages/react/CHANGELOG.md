@@ -54,7 +54,7 @@
 
   This can be useful when prefetching data, as it avoids overfetching fresh data.
 
-  An [example](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app?file=src%2Frouting%2Froutes.tsx) with a fetch-as-you-render router:
+  An [example](https://stackblitz.com/github/data-client/data-client/tree/master/examples/github-app?file=src%2Frouting%2Froutes.tsx) with a fetch-as-you-render router:
 
   ```ts
   {

@@ -12,18 +12,18 @@ import {
 import React, { useEffect } from 'react';
 // relative imports to avoid circular dependency in tsconfig references
 
-import { makeRenderRestHook } from '../../../../test';
+import { makeRenderDataClient } from '../../../../test';
 import { articlesPages, payload, nested } from '../test-fixtures';
 import useCache from '../useCache';
 
 describe('useCache()', () => {
-  let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+  let renderDataClient: ReturnType<typeof makeRenderDataClient>;
   beforeEach(() => {
-    renderRestHook = makeRenderRestHook(CacheProvider);
+    renderDataClient = makeRenderDataClient(CacheProvider);
   });
 
   it('should be null with empty state', () => {
-    const { result } = renderRestHook(() => {
+    const { result } = renderDataClient(() => {
       return useCache(CoolerArticleResource.get, { id: payload.id });
     }, {});
     // @ts-expect-error
@@ -33,7 +33,7 @@ describe('useCache()', () => {
 
   it('should read with no params Endpoint', async () => {
     const List = CoolerArticleResource.getList;
-    const { result } = renderRestHook(
+    const { result } = renderDataClient(
       () => {
         return useCache(List);
       },
@@ -55,14 +55,14 @@ describe('useCache()', () => {
       path: '/' as const,
       key: () => 'noargs',
     });
-    const { result } = renderRestHook(() => {
+    const { result } = renderDataClient(() => {
       return useCache(noargs);
     });
     expect(result.current).toBeUndefined();
   });
 
   it(`should be undefined when args is null [CoolerArticleResource.get]`, () => {
-    const { result } = renderRestHook(() => {
+    const { result } = renderDataClient(() => {
       return useCache(CoolerArticleResource.get, null);
     });
     const b: CoolerArticle | undefined = result.current;
@@ -71,7 +71,7 @@ describe('useCache()', () => {
     expect(result.current).toBeUndefined();
   });
   it(`should be undefined when args is null [UnionResource.get]`, () => {
-    const { result } = renderRestHook(() => {
+    const { result } = renderDataClient(() => {
       return useCache(UnionResource.get, null);
     });
     const b: 'first' | 'second' | undefined = result.current?.type;
@@ -80,7 +80,7 @@ describe('useCache()', () => {
     expect(result.current).toBeUndefined();
   });
   it(`should be undefined when args is null [UnionResource.getList]`, () => {
-    const { result } = renderRestHook(() => {
+    const { result } = renderDataClient(() => {
       return useCache(UnionResource.getList, null);
     });
     const b: 'first' | 'second' | undefined = result.current?.[0]?.type;
@@ -90,7 +90,7 @@ describe('useCache()', () => {
   });
 
   it(`should maintain schema structure even with null params`, () => {
-    const { result } = renderRestHook(() => {
+    const { result } = renderDataClient(() => {
       return useCache(PaginatedArticleResource.getList, null);
     });
     const b: PaginatedArticle[] | undefined = result.current.results;
@@ -110,7 +110,7 @@ describe('useCache()', () => {
       typeof CoolerArticle,
       undefined
     >;
-    const { result } = renderRestHook(
+    const { result } = renderDataClient(
       () => {
         return useCache(Detail, 5);
       },
@@ -130,7 +130,7 @@ describe('useCache()', () => {
 
   it('should return undefined in entities slots when results are not found', async () => {
     const userId = '5';
-    const { result } = renderRestHook(() => {
+    const { result } = renderDataClient(() => {
       return useCache(GetNoEntities, { userId });
     });
     expect(result.current).toEqual({ firstThing: '', someItems: undefined });
@@ -144,7 +144,7 @@ describe('useCache()', () => {
         response: payload,
       },
     ];
-    const { result } = renderRestHook(
+    const { result } = renderDataClient(
       () => {
         return useCache(CoolerArticleResource.get, { id: payload.id });
       },
@@ -165,7 +165,7 @@ describe('useCache()', () => {
         response: payload,
       },
     ];
-    const { result, rerender } = renderRestHook(
+    const { result, rerender } = renderDataClient(
       props => {
         return useCache(InvalidIfStaleArticleResource.get, props);
       },
@@ -191,7 +191,7 @@ describe('useCache()', () => {
         response: articlesPages,
       },
     ];
-    const { result } = renderRestHook(
+    const { result } = renderDataClient(
       () => {
         return useCache(PaginatedArticleResource.getList);
       },
@@ -216,7 +216,7 @@ describe('useCache()', () => {
     ];
     const track = jest.fn();
 
-    const { rerender } = renderRestHook(
+    const { rerender } = renderDataClient(
       () => {
         const articles = useCache(PaginatedArticleResource.getList);
         useEffect(track, [articles]);
@@ -234,7 +234,7 @@ describe('useCache()', () => {
   describe('Nested with defaults', () => {
     it('should send defaults with nothing in state', () => {
       const defaults = { prevPage: '', nextPage: '', results: undefined };
-      const { result } = renderRestHook(
+      const { result } = renderDataClient(
         () => {
           return useCache(PaginatedArticleResource.getList);
         },
@@ -251,7 +251,7 @@ describe('useCache()', () => {
           response: articlesPages,
         },
       ];
-      const { result } = renderRestHook(
+      const { result } = renderDataClient(
         () => {
           return useCache(PaginatedArticleResource.getList);
         },
@@ -275,7 +275,7 @@ describe('useCache()', () => {
       ];
       const track = jest.fn();
 
-      const { rerender } = renderRestHook(
+      const { rerender } = renderDataClient(
         () => {
           useEffect(track, [initialFixtures]);
           return useCache(PaginatedArticleResource.getList);

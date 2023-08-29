@@ -9,7 +9,7 @@ import {
 } from '__tests__/new';
 import nock from 'nock';
 
-import { act, makeRenderRestHook } from '../../../../test';
+import { act, makeRenderDataClient } from '../../../../test';
 import { ControllerContext } from '../../context';
 import useCache from '../useCache';
 import useSubscription from '../useSubscription';
@@ -31,7 +31,7 @@ describe.each([
     content: 'whatever',
     tags: ['a', 'best', 'react'],
   };
-  let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+  let renderDataClient: ReturnType<typeof makeRenderDataClient>;
   async function validateSubscription(
     result: {
       readonly current: Article | undefined;
@@ -50,7 +50,7 @@ describe.each([
     expect(result.current).toBeUndefined();
     // should be defined after frequency milliseconds
     jest.advanceTimersByTime(frequency);
-    await renderRestHook.allSettled();
+    await renderDataClient.allSettled();
 
     await waitFor(() => expect(result.current).not.toBeUndefined());
     expect(result.current).toBeInstanceOf(Article);
@@ -63,7 +63,7 @@ describe.each([
     jest.advanceTimersByTime(frequency);
 
     await waitFor(() => expect(fiverNock.isDone()).toBeTruthy());
-    await renderRestHook.allSettled();
+    await renderDataClient.allSettled();
     await waitFor(() => expect((result.current as any).title).toBe('fiver'));
   }
 
@@ -98,10 +98,10 @@ describe.each([
       .reply(200, articlePayload)
       .get(`/article/${articlePayload.id}`)
       .reply(200, articlePayload);
-    renderRestHook = makeRenderRestHook(makeProvider);
+    renderDataClient = makeRenderDataClient(makeProvider);
   });
   afterEach(() => {
-    renderRestHook.cleanup();
+    renderDataClient.cleanup();
     nock.cleanAll();
     jest.useRealTimers();
   });
@@ -113,7 +113,7 @@ describe.each([
     const frequency = PollingArticleResource.get.pollFrequency as number;
     expect(frequency).toBeDefined();
 
-    const { result, rerender, waitFor } = renderRestHook(
+    const { result, rerender, waitFor } = renderDataClient(
       ({ active }) => {
         useSubscription(
           PollingArticleResource.get,
@@ -148,7 +148,7 @@ describe.each([
       jest.runOnlyPendingTimers();
     });
     jest.useRealTimers();
-    await renderRestHook.allSettled();
+    await renderDataClient.allSettled();
 
     expect((result.current as any).title).toBe('fiver');
   });
@@ -157,14 +157,14 @@ describe.each([
     const oldError = console.error;
     const spy = (console.error = jest.fn());
 
-    const { result } = renderRestHook(() => {
+    const { result } = renderDataClient(() => {
       useSubscription(ArticleResource.get, { id: articlePayload.id });
     });
     expect(result.error).toBeUndefined();
     expect(spy.mock.calls[0]).toMatchSnapshot();
 
     console.error = oldError;
-    await renderRestHook.allSettled();
+    await renderDataClient.allSettled();
   });
 
   it('useSubscription() without active arg', async () => {
@@ -175,13 +175,13 @@ describe.each([
     expect(frequency).toBeDefined();
     expect(PollingArticleResource.anotherGet.pollFrequency).toBeDefined();
 
-    const { result, waitFor } = renderRestHook(() => {
+    const { result, waitFor } = renderDataClient(() => {
       useSubscription(PollingArticleResource.get, { id: articlePayload.id });
       return useCache(PollingArticleResource.get, { id: articlePayload.id });
     });
 
     await validateSubscription(result, frequency, articlePayload, waitFor);
-    await renderRestHook.allSettled();
+    await renderDataClient.allSettled();
   });
 
   it('useSubscription() should dispatch data-client/subscribe only once even with rerender', async () => {
@@ -207,7 +207,7 @@ describe.each([
       rerender();
     }
     expect(fakeDispatch.mock.calls.length).toBe(1);
-    await renderRestHook.allSettled();
+    await renderDataClient.allSettled();
   });
 
   it('useSubscription() should unsubscribe with null arguments', async () => {
@@ -241,6 +241,6 @@ describe.each([
     expect(fakeDispatch.mock.calls[1][0].key).toBe(
       fakeDispatch.mock.calls[0][0].key,
     );
-    await renderRestHook.allSettled();
+    await renderDataClient.allSettled();
   });
 });

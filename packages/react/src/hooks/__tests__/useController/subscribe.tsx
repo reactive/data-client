@@ -4,7 +4,7 @@ import { act } from '@testing-library/react-hooks';
 import { FutureArticleResource } from '__tests__/new';
 import nock from 'nock';
 
-import { makeRenderRestHook } from '../../../../../test';
+import { makeRenderDataClient } from '../../../../../test';
 import useCache from '../../useCache';
 import useController from '../../useController';
 
@@ -54,11 +54,11 @@ export const nested: FixtureEndpoint = {
     },
   ],
 };
-let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+let renderDataClient: ReturnType<typeof makeRenderDataClient>;
 let mynock: nock.Scope;
 
 beforeEach(() => {
-  renderRestHook = makeRenderRestHook(CacheProvider);
+  renderDataClient = makeRenderDataClient(CacheProvider);
   mynock = nock(/.*/).defaultReplyHeaders({
     'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json',
@@ -70,7 +70,7 @@ afterEach(() => {
 
 describe('subscribe', () => {
   it('should not error on subscribe', async () => {
-    const { result } = renderRestHook(() => {
+    const { result } = renderDataClient(() => {
       return {
         data: useCache(FutureArticleResource.get, payload.id),
         subscribe: useController().subscribe,

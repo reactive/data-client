@@ -31,19 +31,13 @@ function getDataFromEl(el: HTMLScriptElement, key: string) {
   }
   if (getInitialData.name !== 'getInitialData') {
     (document as any).FUNC_MANGLE = function () {
-      console.error(
-        'Rest Hooks Error: https://dataclient.io/errors/osid',
-        this,
-      );
+      console.error('RDC Error: https://dataclient.io/errors/osid', this);
       delete (document as any).FUNC_MANGLE;
     };
   }
   if (Test.name !== 'Test') {
     (document as any).CLS_MANGLE = function () {
-      console.error(
-        'Rest Hooks Error: https://dataclient.io/errors/dklj',
-        this,
-      );
+      console.error('RDC Error: https://dataclient.io/errors/dklj', this);
       delete (document as any).CLS_MANGLE;
     };
   }
