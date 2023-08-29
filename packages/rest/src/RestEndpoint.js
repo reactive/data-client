@@ -5,7 +5,6 @@ import extractCollection from './extractCollection.js';
 import mapCollection from './mapCollection.js';
 import NetworkError from './NetworkError.js';
 import { createPaginationSchema } from './paginatedCollections.js';
-import paginationUpdate from './paginationUpdate.js';
 import paramsToString from './paramsToString.js';
 import { getUrlBase, getUrlTokens, isPojo } from './RestHelpers.js';
 
@@ -223,19 +222,17 @@ Response (first 300 characters): ${text.substring(0, 300)}`;
       return createPaginationSchema(removeCursor, collection);
     };
     const newSchema = mapCollection(this.schema, createPaginatedSchema);
-    if (found) {
-      const sup = this;
 
-      return this.extend({
-        schema: newSchema,
-        key(...args) {
-          return sup.key.call(this, ...removeCursor(...args));
-        },
-        name: this.name + '.getPage',
-      });
-    }
+    if (!found) throw new Error('Missing Collection');
+    const sup = this;
 
-    return this.extend({ update: paginationUpdate(this, removeCursor) });
+    return this.extend({
+      schema: newSchema,
+      key(...args) {
+        return sup.key.call(this, ...removeCursor(...args));
+      },
+      name: this.name + '.getPage',
+    });
   }
 
   get getPage() {

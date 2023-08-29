@@ -22,3 +22,5 @@ See https://www.rfc-editor.org/rfc/rfc4627 for information on JSON responses
 Using parsed JSON.
 If text content was expected see https://dataclient.io/rest/api/RestEndpoint#parseResponse]
 `;
+
+exports[`RestEndpoint.fetch() without Collection in schema - endpoint.getPage should throw 1`] = `"Missing Collection"`;
