@@ -232,11 +232,8 @@ declare namespace actionTypes_d {
 
 type RHDispatch<Actions = any> = (value: Actions) => Promise<void>;
 interface MiddlewareAPI$1<R extends DataClientReducer = DataClientReducer> extends Controller<RHDispatch<ActionTypes>> {
-    /** @deprecated use members directly instead */
-    controller: Controller<RHDispatch<ActionTypes>>;
 }
 interface MiddlewareController<Actions = ActionTypes> extends Controller<RHDispatch<Actions>> {
-    controller: Controller<RHDispatch<Actions>>;
 }
 type Middleware$2<Actions = any> = <C extends MiddlewareController<Actions>>(controller: C) => (next: C['dispatch']) => C['dispatch'];
 type DataClientReducer = (prevState: State<unknown>, action: ActionTypes) => State<unknown>;
