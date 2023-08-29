@@ -53,7 +53,6 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
   [
     { input: 'lib/index.js', output: pkg.main },
     { input: 'lib/next/index.js', output: 'dist/next.js' },
-    { input: 'lib/makeCacheProvider.js', output: 'dist/makeCacheProvider.js' },
   ].forEach(({ input, output }) => {
     configs.push({
       input,
