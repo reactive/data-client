@@ -1,4 +1,4 @@
-import { Entity, Schema } from '@data-client/endpoint';
+import { schema, Entity, Schema } from '@data-client/endpoint';
 import { useController } from '@data-client/react';
 import { useSuspense } from '@data-client/react';
 import { CacheProvider } from '@data-client/react';
@@ -17,6 +17,8 @@ import {
   paginatedFirstPage,
   paginatedSecondPage,
 } from '../test-fixtures';
+
+const { Collection } = schema;
 
 export class User extends Entity {
   readonly id: number | undefined = undefined;
@@ -61,7 +63,7 @@ function createPaginatableResource<U extends ResourcePath, S extends Schema>({
     path: 'http\\://test.com/article-paginated',
     schema: {
       nextPage: '',
-      data: { results: [PaginatedArticle] },
+      data: { results: new Collection([PaginatedArticle]) },
     },
   });
   const getNextPage = getList.paginated((v: { cursor: string | number }) => []);

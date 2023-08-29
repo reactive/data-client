@@ -58,7 +58,7 @@ const getArticleList = new RestEndpoint({
   path: '/article-paginated',
   schema: {
     nextPage: '',
-    data: { results: [PaginatedArticle] },
+    data: { results: new schema.Collection([PaginatedArticle]) },
   },
   method: 'GET',
 });
@@ -72,7 +72,7 @@ const getArticleList2 = new RestEndpoint({
   name: 'get',
   schema: {
     nextPage: '',
-    data: { results: [PaginatedArticle] },
+    data: { results: new schema.Collection([PaginatedArticle]) },
   },
   method: 'GET',
 });
@@ -1432,7 +1432,31 @@ describe('RestEndpoint.fetch()', () => {
   });
 
   it('without Collection in schema - endpoint.push schema should be null', () => {
-    expect(getArticleList2.push.schema).toBeFalsy();
+    const noColletionEndpoint = new RestEndpoint({
+      urlPrefix: 'http://test.com/article-paginated/',
+      path: ':group',
+      name: 'get',
+      schema: {
+        nextPage: '',
+        data: { results: [PaginatedArticle] },
+      },
+      method: 'GET',
+    });
+    expect(noColletionEndpoint.push.schema).toBeFalsy();
+  });
+
+  it('without Collection in schema - endpoint.getPage should throw', () => {
+    const noColletionEndpoint = new RestEndpoint({
+      urlPrefix: 'http://test.com/article-paginated/',
+      path: ':group',
+      name: 'get',
+      schema: {
+        nextPage: '',
+        data: { results: [PaginatedArticle] },
+      },
+      method: 'GET',
+    });
+    expect(() => noColletionEndpoint.getPage).toThrowErrorMatchingSnapshot();
   });
 });
 const proto = Object.prototype;

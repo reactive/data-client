@@ -35,7 +35,6 @@ export type {
   HookableEndpointInterface,
 } from './hookifyResource.js';
 export { default as NetworkError } from './NetworkError.js';
-export { default as paginationUpdate } from './paginationUpdate.js';
 export type { OptionsToFunction } from './OptionsToFunction.js';
 export type {
   ShortenPath,

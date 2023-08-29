@@ -867,6 +867,8 @@ page, to append to this endpoint. See [Infinite Scrolling Pagination](guides/pag
 const getNextPage = getList.paginated('cursor');
 ```
 
+Schema must also contain a [Collection](./Collection.md)
+
 ### paginated(removeCursor): Endpoint {#paginated-function}
 
 ```typescript
@@ -887,6 +889,8 @@ const getNextPage = getList.paginated(
 
 `removeCusor` is a function that takes the arguments sent in fetch of `getNextPage` and returns
 the arguments to update `getList`.
+
+Schema must also contain a [Collection](./Collection.md)
 
 ## Inheritance
 
