@@ -4,7 +4,7 @@ import React from 'react';
 
 export default function MangledFunctionnames() {
   return (
-    <Layout title="Rest Hooks Error: Mangled function names detected">
+    <Layout title="Reactive Data Client Error: Mangled function names detected">
       <header>
         <div className="container">
           <h2>Error: Mangled function names detected</h2>

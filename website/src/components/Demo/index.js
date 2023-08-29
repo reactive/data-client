@@ -25,7 +25,8 @@ const Demo = props => (
             <Link to="/docs/concepts/atomic-mutations">
               <em>atomically</em> and <em>immediately</em>
             </Link>{' '}
-            with zero additional fetches. Rest Hooks automatically ensures{' '}
+            with zero additional fetches. Reactive Data Client automatically
+            ensures{' '}
             <Link to="/docs/concepts/normalization">
               data consistency and integrity globally
             </Link>{' '}

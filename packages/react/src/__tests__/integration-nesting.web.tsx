@@ -8,7 +8,7 @@ import {
 } from '__tests__/new';
 import nock from 'nock';
 
-import { makeRenderRestHook } from '../../../test';
+import { makeRenderDataClient } from '../../../test';
 import { useCache, useSuspense, useController } from '../hooks';
 import { coAuthored } from '../test-fixtures';
 
@@ -30,7 +30,7 @@ describe.each([
 ] as const)(`%s`, (_, makeProvider) => {
   // TODO: add nested resource test case that has multiple partials to test merge functionality
 
-  let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+  let renderDataClient: ReturnType<typeof makeRenderDataClient>;
   let mynock: nock.Scope;
 
   beforeEach(() => {
@@ -62,12 +62,12 @@ describe.each([
   });
 
   beforeEach(() => {
-    renderRestHook = makeRenderRestHook(makeProvider);
+    renderDataClient = makeRenderDataClient(makeProvider);
   });
 
   it('should update nested lists inside entities', async () => {
     const expectedUser = coAuthored.coAuthors[0];
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitForNextUpdate } = renderDataClient(() => {
       return {
         article: useSuspense(CoauthoredArticleResource.get, {
           id: coAuthored.id,

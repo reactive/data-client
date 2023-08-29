@@ -37,7 +37,7 @@ import {
   ControllerContext,
   StateContext,
 } from '../..';
-import { makeRenderRestHook, mockInitialState } from '../../../../test';
+import { makeRenderDataClient, mockInitialState } from '../../../../test';
 import { articlesPages, payload, users, nested } from '../test-fixtures';
 import useSuspense from '../useSuspense';
 
@@ -90,7 +90,7 @@ function ArticleComponentTester({ invalidIfStale = false, schema = true }) {
 }
 
 describe('useSuspense()', () => {
-  let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+  let renderDataClient: ReturnType<typeof makeRenderDataClient>;
   const fbmock = jest.fn();
 
   async function testMalformedResponse(
@@ -107,7 +107,7 @@ describe('useSuspense()', () => {
       .get(`/article-cooler/400`)
       .reply(200, payload);
 
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitForNextUpdate } = renderDataClient(() => {
       return useSuspense(endpoint, {
         id: 400,
       });
@@ -157,7 +157,7 @@ describe('useSuspense()', () => {
   });
 
   beforeEach(() => {
-    renderRestHook = makeRenderRestHook(CacheProvider);
+    renderDataClient = makeRenderDataClient(CacheProvider);
     fbmock.mockReset();
   });
 
@@ -358,7 +358,7 @@ describe('useSuspense()', () => {
 
     // taken from integration
     it('should throw errors on bad network', async () => {
-      const { result, waitForNextUpdate } = renderRestHook(() => {
+      const { result, waitForNextUpdate } = renderDataClient(() => {
         return useSuspense(CoolerArticleResource.get, {
           id: '0',
         });
@@ -413,7 +413,7 @@ describe('useSuspense()', () => {
 
   /*it('should not suspend with null params to useSuspense()', () => {
     let article: CoolerArticle | undefined;
-    const { result } = renderRestHook(() => {
+    const { result } = renderDataClient(() => {
       const a = useSuspense(CoolerArticleResource.get, null);
       a.tags;
       article = a;
@@ -427,7 +427,7 @@ describe('useSuspense()', () => {
 
   it('should maintain schema structure even with null params', () => {
     let articles: PaginatedArticle[] | undefined;
-    const { result } = renderRestHook(
+    const { result } = renderDataClient(
       () => {
         const { results, nextPage } = useSuspense(
           PaginatedArticleResource.getList,
@@ -454,7 +454,7 @@ describe('useSuspense()', () => {
 
   it('should suspend with no params to useSuspense()', async () => {
     const List = CoolerArticleResource.getList;
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitForNextUpdate } = renderDataClient(() => {
       return useSuspense(List);
     });
     expect(result.current).toBeUndefined();
@@ -469,7 +469,7 @@ describe('useSuspense()', () => {
 
   it('should read with id params Endpoint', async () => {
     const Detail = FutureArticleResource.get;
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitForNextUpdate } = renderDataClient(() => {
       return useSuspense(Detail, 5);
     });
     expect(result.current).toBeUndefined();
@@ -493,7 +493,7 @@ describe('useSuspense()', () => {
       .defaultReplyHeaders({ 'access-control-allow-origin': '*' })
       .get(`/users/${userId}/simple`)
       .reply(200, response);
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitForNextUpdate } = renderDataClient(() => {
       return useSuspense(GetNoEntities, { userId });
     });
     // undefined means it threw
@@ -509,7 +509,7 @@ describe('useSuspense()', () => {
       .defaultReplyHeaders({ 'access-control-allow-origin': '*' })
       .get(`/users/${userId}/photo`)
       .reply(200, response);
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitForNextUpdate } = renderDataClient(() => {
       return useSuspense(GetPhoto, { userId });
     });
     // undefined means it threw
@@ -527,7 +527,7 @@ describe('useSuspense()', () => {
       })
       .get(`/users/${userId}/photo2`)
       .reply(200, response);
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitForNextUpdate } = renderDataClient(() => {
       return useSuspense(GetPhotoUndefined, { userId });
     });
     // undefined means it threw
@@ -537,7 +537,7 @@ describe('useSuspense()', () => {
   });
 
   it('should work with Serializable shapes', async () => {
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitForNextUpdate } = renderDataClient(() => {
       return useSuspense(ArticleTimedResource.get, { id: payload.id });
     });
     // undefined means it threw
@@ -565,7 +565,7 @@ describe('useSuspense()', () => {
         return 'MyEndpoint';
       },
     });
-    const { result, unmount } = renderRestHook(() => {
+    const { result, unmount } = renderDataClient(() => {
       return useSuspense(MyEndpoint);
     });
     expect(result.current).toBeUndefined();
@@ -607,7 +607,7 @@ describe('useSuspense()', () => {
           {children}
         </AuthContext.Provider>
       );
-      const { result, waitForNextUpdate, rerender } = renderRestHook(
+      const { result, waitForNextUpdate, rerender } = renderDataClient(
         () => {
           return {
             data: useSuspense(ContextAuthdArticleResource.useGet(), {

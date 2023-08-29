@@ -22,7 +22,7 @@ const ProjectTitle = () => {
       {/* <div className={styles.logoWrapper}>
         <ThemedImage
           sources={sources}
-          alt="Rest Hooks - The Relational Data Client for React"
+          alt="Reactive Data Client - The Relational Data Client for React"
           height={90}
           width={416}
         />

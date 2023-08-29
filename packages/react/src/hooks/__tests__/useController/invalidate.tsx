@@ -7,7 +7,7 @@ import nock from 'nock';
 import { useEffect } from 'react';
 
 import { useCache, useController } from '../..';
-import { makeRenderRestHook } from '../../../../../test';
+import { makeRenderDataClient } from '../../../../../test';
 
 export const payload = {
   id: 5,
@@ -55,11 +55,11 @@ export const nested: FixtureEndpoint = {
     },
   ],
 };
-let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+let renderDataClient: ReturnType<typeof makeRenderDataClient>;
 let mynock: nock.Scope;
 
 beforeEach(() => {
-  renderRestHook = makeRenderRestHook(CacheProvider);
+  renderDataClient = makeRenderDataClient(CacheProvider);
   mynock = nock(/.*/).defaultReplyHeaders({
     'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json',
@@ -71,7 +71,7 @@ afterEach(() => {
 
 describe('invalidate', () => {
   it('should not invalidate anything if params is null', () => {
-    const { result } = renderRestHook(
+    const { result } = renderDataClient(
       () => {
         return {
           data: useCache(FutureArticleResource.get, 5),
@@ -88,7 +88,7 @@ describe('invalidate', () => {
   });
 
   it('should result in useCache having no entry', () => {
-    const { result } = renderRestHook(
+    const { result } = renderDataClient(
       () => {
         return {
           data: useCache(FutureArticleResource.get, 5),
@@ -121,7 +121,7 @@ describe('invalidate', () => {
   it('should work with ArrayBuffer shapes', () => {
     const userId = '5';
     const response = new ArrayBuffer(10);
-    const { result, waitForNextUpdate } = renderRestHook(
+    const { result, waitForNextUpdate } = renderDataClient(
       () => {
         return {
           data: useCache(GetPhoto, { userId }),

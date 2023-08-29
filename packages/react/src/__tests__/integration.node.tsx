@@ -4,7 +4,7 @@ import { CoolerArticleResource, CoolerArticleDetail } from '__tests__/new';
 import nock from 'nock';
 
 // relative imports to avoid circular dependency in tsconfig references
-import { makeRenderRestHook } from '../../../test';
+import { makeRenderDataClient } from '../../../test';
 import { useCache, useSuspense } from '../hooks';
 import { useController } from '../hooks';
 import {
@@ -19,7 +19,7 @@ import {
 } from '../test-fixtures';
 
 describe('SSR', () => {
-  let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+  let renderDataClient: ReturnType<typeof makeRenderDataClient>;
   let mynock: nock.Scope;
 
   beforeEach(() => {
@@ -67,11 +67,11 @@ describe('SSR', () => {
   });
 
   beforeEach(() => {
-    renderRestHook = makeRenderRestHook(ExternalCacheProvider);
+    renderDataClient = makeRenderDataClient(ExternalCacheProvider);
   });
 
   it('should update useCache()', async () => {
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitForNextUpdate } = renderDataClient(() => {
       return [
         useCache(CoolerArticleDetail, { id: payload.id }),
         useController(),
@@ -89,7 +89,7 @@ describe('SSR', () => {
   });
 
   it('should resolve useSuspense()', async () => {
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitForNextUpdate } = renderDataClient(() => {
       return useSuspense(CoolerArticleDetail, payload);
     });
     expect(result.current).toBeUndefined();

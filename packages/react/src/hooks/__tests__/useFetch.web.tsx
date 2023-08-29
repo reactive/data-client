@@ -12,7 +12,7 @@ import nock from 'nock';
 import React, { Suspense } from 'react';
 // relative imports to avoid circular dependency in tsconfig references
 
-import { makeRenderRestHook } from '../../../../test';
+import { makeRenderDataClient } from '../../../../test';
 import { StateContext, ControllerContext } from '../../context';
 import { users, payload } from '../test-fixtures';
 import useFetch from '../useFetch';
@@ -46,7 +46,7 @@ async function testDispatchFetch(
   }
 }
 
-function testRestHook(
+function testDataClient(
   callback: () => void,
   state: State<unknown>,
   dispatch = (v: ActionTypes) => Promise.resolve(),
@@ -88,12 +88,12 @@ afterAll(() => {
 });
 
 describe('useFetch', () => {
-  let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+  let renderDataClient: ReturnType<typeof makeRenderDataClient>;
   beforeEach(() => {
     mynock.get(`/article-cooler/${payload.id}`).reply(200, payload);
     mynock.get(`/article-static/${payload.id}`).reply(200, payload);
     mynock.get(`/user/`).reply(200, users);
-    renderRestHook = makeRenderRestHook(CacheProvider);
+    renderDataClient = makeRenderDataClient(CacheProvider);
   });
   afterEach(() => {
     nock.cleanAll();
@@ -110,7 +110,7 @@ describe('useFetch', () => {
   it('should not dispatch will null params', () => {
     const dispatch = jest.fn();
     let params: any = null;
-    const { rerender } = testRestHook(
+    const { rerender } = testDataClient(
       () => {
         useFetch(CoolerArticleResource.get, params);
       },
@@ -160,7 +160,7 @@ describe('useFetch', () => {
         response: payload,
       },
     ];
-    const { result, rerender } = renderRestHook(
+    const { result, rerender } = renderDataClient(
       () => {
         return useFetch(CoolerArticleResource.get, { id: payload.id });
       },

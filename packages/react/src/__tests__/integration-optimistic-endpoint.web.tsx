@@ -18,7 +18,7 @@ import { SpyInstance } from 'jest-mock';
 import nock from 'nock';
 import { useContext } from 'react';
 
-import { makeRenderRestHook, act } from '../../../test';
+import { makeRenderDataClient, act } from '../../../test';
 import { StateContext } from '../context';
 import { useCache, useController, useSuspense } from '../hooks';
 import { useError } from '../hooks';
@@ -50,7 +50,7 @@ describe.each([
   ['ExternalCacheProvider', ExternalCacheProvider],
 ] as const)(`%s`, (_, makeProvider) => {
   describe('Optimistic Updates', () => {
-    let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+    let renderDataClient: ReturnType<typeof makeRenderDataClient>;
     let mynock: nock.Scope;
 
     beforeEach(() => {
@@ -95,7 +95,7 @@ describe.each([
     });
 
     beforeEach(() => {
-      renderRestHook = makeRenderRestHook(makeProvider);
+      renderDataClient = makeRenderDataClient(makeProvider);
     });
 
     it('works with partial update', async () => {
@@ -106,7 +106,7 @@ describe.each([
         content: 'real response',
       });
 
-      const { result, controller } = renderRestHook(
+      const { result, controller } = renderDataClient(
         () => {
           const article = useCache(OptimisticArticleResource.get, params);
           // @ts-expect-error
@@ -160,7 +160,7 @@ describe.each([
         content: 'real response',
       });
 
-      const { result, controller } = renderRestHook(() => {
+      const { result, controller } = renderDataClient(() => {
         return useCache(OptimisticArticleResource.get, params);
       });
       expect(result.current).toBeUndefined();
@@ -194,7 +194,7 @@ describe.each([
         content: 'real response',
       });
 
-      const { result, waitForNextUpdate } = renderRestHook(
+      const { result, waitForNextUpdate } = renderDataClient(
         () => {
           const { fetch } = useController();
           const article = useCache(OptimisticArticleResource.get, params);
@@ -250,7 +250,7 @@ describe.each([
         content: 'real response',
       });
 
-      const { result, controller } = renderRestHook(
+      const { result, controller } = renderDataClient(
         () => {
           const article = useCache(OptimisticArticleResource.get, params);
           // @ts-expect-error
@@ -306,7 +306,7 @@ describe.each([
       const params = { id: payload.id };
       mynock.delete('/article-cooler/5').reply(200, '');
 
-      const { result, waitForNextUpdate } = renderRestHook(
+      const { result, waitForNextUpdate } = renderDataClient(
         () => {
           const { fetch } = useController();
           const articles = useCache(OptimisticArticleResource.getList);
@@ -349,7 +349,7 @@ describe.each([
         content: 'real response',
       });
 
-      const { result, waitForNextUpdate } = renderRestHook(
+      const { result, waitForNextUpdate } = renderDataClient(
         () => {
           const { fetch } = useController();
           const listA = useCache(ArticleResourceWithOtherListUrl.getList);
@@ -402,7 +402,7 @@ describe.each([
     });
 
     it('should update on create (legacy)', async () => {
-      const { result, waitForNextUpdate } = renderRestHook(() => {
+      const { result, waitForNextUpdate } = renderDataClient(() => {
         const articles = useSuspense(
           FutureArticleResource.getList.extend({ schema: [CoolerArticle] }),
         );
@@ -436,7 +436,7 @@ describe.each([
     });
 
     it('should update on create', async () => {
-      const { result, waitForNextUpdate } = renderRestHook(() => {
+      const { result, waitForNextUpdate } = renderDataClient(() => {
         const articles = useSuspense(FutureArticleResource.getList);
         const { fetch } = useController();
         return { articles, fetch };
@@ -462,7 +462,7 @@ describe.each([
 
     it('should clear only earlier optimistic updates when a promise resolves', async () => {
       const params = { id: payload.id };
-      const { result, waitForNextUpdate } = renderRestHook(
+      const { result, waitForNextUpdate } = renderDataClient(
         () => {
           const { fetch } = useController();
           const article = useCache(OptimisticArticleResource.get, params);
@@ -601,7 +601,7 @@ describe.each([
 
     it('should clear optimistic when server response resolves in order', async () => {
       const params = { id: payload.id };
-      const { result, controller } = renderRestHook(
+      const { result, controller } = renderDataClient(
         () => {
           const article = useCache(OptimisticArticleResource.get, params);
           return article;
@@ -820,7 +820,7 @@ describe.each([
               return { id: 5, visible };
             });
 
-          const { result } = renderRestHook(
+          const { result } = renderDataClient(
             () => {
               const { fetch } = useController();
               const tog = useCache(getbool, 5);
@@ -848,7 +848,7 @@ describe.each([
           // nothing should change since this failed
           expect(result.current.tog).toEqual({ id: 5, visible: false });
           expect(result.current.err).toEqual(toThrow);
-          renderRestHook.cleanup();
+          renderDataClient.cleanup();
         },
       );
 
@@ -869,7 +869,7 @@ describe.each([
             return { id: 5, visible };
           });
 
-        const { result, waitForNextUpdate } = renderRestHook(
+        const { result, waitForNextUpdate } = renderDataClient(
           () => {
             const { fetch } = useController();
             const tog = useCache(getbool, 5);
@@ -936,7 +936,7 @@ describe.each([
 
         expect(result.current.tog).toEqual({ id: 5, visible: false });
 
-        renderRestHook.cleanup();
+        renderDataClient.cleanup();
       });
 
       it('toggle should handle when response is missing', async () => {
@@ -955,7 +955,7 @@ describe.each([
             return { id: 5, visible };
           });
 
-        const { result, waitForNextUpdate } = renderRestHook(() => {
+        const { result, waitForNextUpdate } = renderDataClient(() => {
           const { fetch, getError } = useController();
           const tog = useCache(getbool, 5);
           const state = useContext(StateContext);
@@ -1002,7 +1002,7 @@ describe.each([
             return { id: 5, visible };
           });
 
-        const { result } = renderRestHook(
+        const { result } = renderDataClient(
           () => {
             const { fetch, getError } = useController();
             const tog = useCache(getbool, 5);
@@ -1045,7 +1045,7 @@ describe.each([
               updatedAt: Date.now(),
             };
 
-            const { result } = renderRestHook(
+            const { result } = renderDataClient(
               () => {
                 const { fetch } = useController();
                 const vis = useCache(VisResource.get, { id: 5 });
@@ -1168,7 +1168,7 @@ describe.each([
 
             fetchSpy.mockClear();
             jest.useRealTimers();
-            await renderRestHook.allSettled();
+            await renderDataClient.allSettled();
           },
         );
       });

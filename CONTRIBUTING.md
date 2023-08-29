@@ -1,4 +1,4 @@
-# Contributing to Rest Hooks
+# Contributing to Reactive Data Client
 
 ## Code of Conduct
 

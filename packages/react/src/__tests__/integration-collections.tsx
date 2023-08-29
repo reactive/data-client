@@ -11,7 +11,7 @@ import {
 } from '__tests__/new';
 import nock from 'nock';
 
-import { makeRenderRestHook, act } from '../../../test';
+import { makeRenderDataClient, act } from '../../../test';
 import { useSuspense } from '../hooks';
 import {
   paginatedFirstPage,
@@ -146,17 +146,17 @@ describe.each([
   ['ExternalCacheProvider', ExternalCacheProvider],
 ] as const)(`%s`, (_, makeProvider) => {
   // TODO: add nested resource test case that has multiple partials to test merge functionality
-  let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+  let renderDataClient: ReturnType<typeof makeRenderDataClient>;
 
   beforeEach(() => {
-    renderRestHook = makeRenderRestHook(makeProvider);
+    renderDataClient = makeRenderDataClient(makeProvider);
   });
 
   it('should work with unions', async () => {
     const prevWarn = global.console.warn;
     global.console.warn = jest.fn();
 
-    const { result, controller } = renderRestHook(
+    const { result, controller } = renderDataClient(
       () => {
         return useSuspense(UnionResource.getList);
       },
@@ -213,7 +213,7 @@ describe.each([
     mynock.get(`/article?userId=1`).reply(200, paginatedFirstPage);
     mynock.get(`/article?userId=1&cursor=2`).reply(200, paginatedSecondPage);
 
-    const { result, waitForNextUpdate, controller } = renderRestHook(() => {
+    const { result, waitForNextUpdate, controller } = renderDataClient(() => {
       const { results: userArticles, nextPage } = useSuspense(
         ArticlePaginatedResource.getList,
         {
@@ -283,7 +283,7 @@ describe.each([
       .reply(200, paginatedSecondPage);
     mynock.get(`/article?cursor=2`).reply(200, paginatedSecondPage);
 
-    const { result, waitForNextUpdate, controller } = renderRestHook(() => {
+    const { result, waitForNextUpdate, controller } = renderDataClient(() => {
       const userArticles = useSuspense(ArticlePaginatedResource.getList, {
         userId: 1,
       }).results;
@@ -374,7 +374,7 @@ describe.each([
       schema: Todo,
       Collection: MyCollection,
     });
-    const { result, waitForNextUpdate, controller } = renderRestHook(() => {
+    const { result, waitForNextUpdate, controller } = renderDataClient(() => {
       const todos = useSuspense(TodoResource.getList, { sorted: true });
       const userTodos = useSuspense(TodoResource.getList, { userId: '1' });
       return { todos, userTodos };
@@ -489,7 +489,7 @@ describe.each([
         ],
         ['FormData', formPayload],
       ])('should update collection on push/unshift %s', async (_, payload) => {
-        const { result, waitForNextUpdate, controller } = renderRestHook(
+        const { result, waitForNextUpdate, controller } = renderDataClient(
           () => {
             const todos = useSuspense(TodoResource.getList);
             const userTodos = useSuspense(TodoResource.getList, {
@@ -589,10 +589,12 @@ describe.each([
           ({ cursor, ...rest }: { cursor?: number }) => [],
         );
 
-        const { result, waitForNextUpdate, controller } = renderRestHook(() => {
-          const ret = useSuspense(ArticleResource.getList);
-          return ret;
-        });
+        const { result, waitForNextUpdate, controller } = renderDataClient(
+          () => {
+            const ret = useSuspense(ArticleResource.getList);
+            return ret;
+          },
+        );
         await waitForNextUpdate();
         expect(result.current).toMatchSnapshot();
 
@@ -618,12 +620,14 @@ describe.each([
           ({ cursor, ...rest }: { cursor?: number; userId?: number }) => [rest],
         );
 
-        const { result, waitForNextUpdate, controller } = renderRestHook(() => {
-          const userArticles = useSuspense(getArticles, { userId: 1 });
-          const anotherUserArticles = useSuspense(getArticles, { userId: 2 });
-          const allArticles = useSuspense(getArticles);
-          return { userArticles, allArticles, anotherUserArticles };
-        });
+        const { result, waitForNextUpdate, controller } = renderDataClient(
+          () => {
+            const userArticles = useSuspense(getArticles, { userId: 1 });
+            const anotherUserArticles = useSuspense(getArticles, { userId: 2 });
+            const allArticles = useSuspense(getArticles);
+            return { userArticles, allArticles, anotherUserArticles };
+          },
+        );
         await waitForNextUpdate();
         expect(result.current.userArticles).toMatchSnapshot();
 
@@ -658,12 +662,14 @@ describe.each([
         });
         const getNextPage = getArticles.paginated('cursor');
 
-        const { result, waitForNextUpdate, controller } = renderRestHook(() => {
-          const userArticles = useSuspense(getArticles, { userId: 1 });
-          const anotherUserArticles = useSuspense(getArticles, { userId: 2 });
-          const allArticles = useSuspense(getArticles);
-          return { userArticles, allArticles, anotherUserArticles };
-        });
+        const { result, waitForNextUpdate, controller } = renderDataClient(
+          () => {
+            const userArticles = useSuspense(getArticles, { userId: 1 });
+            const anotherUserArticles = useSuspense(getArticles, { userId: 2 });
+            const allArticles = useSuspense(getArticles);
+            return { userArticles, allArticles, anotherUserArticles };
+          },
+        );
         await waitForNextUpdate();
         expect(result.current.userArticles).toMatchSnapshot();
 
@@ -695,9 +701,11 @@ describe.each([
           .post(`/article`)
           .reply(200, (uri, body: any) => ({ ...body }));
 
-        const { result, waitForNextUpdate, controller } = renderRestHook(() => {
-          return useSuspense(ArticleResource.getList);
-        });
+        const { result, waitForNextUpdate, controller } = renderDataClient(
+          () => {
+            return useSuspense(ArticleResource.getList);
+          },
+        );
         await waitForNextUpdate();
         expect(result.current.results.map(({ id }) => id)).toEqual([5, 3]);
 
@@ -734,9 +742,11 @@ describe.each([
           }),
         });
 
-        const { result, waitForNextUpdate, controller } = renderRestHook(() => {
-          return useSuspense(getValues);
-        });
+        const { result, waitForNextUpdate, controller } = renderDataClient(
+          () => {
+            return useSuspense(getValues);
+          },
+        );
         expect(result.current).toBeUndefined();
         await waitForNextUpdate();
         Object.keys(result.current).forEach(k => {

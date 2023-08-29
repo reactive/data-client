@@ -1,5 +1,5 @@
 import { CacheProvider } from '@data-client/react';
-import { makeRenderRestHook } from '@data-client/test';
+import { makeRenderDataClient } from '@data-client/test';
 import { FixtureEndpoint } from '@data-client/test/mockState';
 import { renderHook } from '@testing-library/react-hooks';
 import { act } from '@testing-library/react-hooks';
@@ -55,11 +55,11 @@ export const nested: FixtureEndpoint = {
     },
   ],
 };
-let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+let renderDataClient: ReturnType<typeof makeRenderDataClient>;
 let mynock: nock.Scope;
 
 beforeEach(() => {
-  renderRestHook = makeRenderRestHook(CacheProvider);
+  renderDataClient = makeRenderDataClient(CacheProvider);
   mynock = nock(/.*/).defaultReplyHeaders({
     'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json',
@@ -72,7 +72,7 @@ afterEach(() => {
 describe('expireAll', () => {
   // TODO: this test isn't really testing much
   it('should not expire anything not matching', () => {
-    const { result, controller } = renderRestHook(
+    const { result, controller } = renderDataClient(
       () => {
         return {
           data: useCache(CoolerArticleResource.get, { id: 5 }),
@@ -94,7 +94,7 @@ describe('expireAll', () => {
   it('should suspend when invalidIfStale is used', () => {
     const throws: Promise<any>[] = [];
 
-    const { result, controller } = renderRestHook(
+    const { result, controller } = renderDataClient(
       () => {
         try {
           return {
@@ -125,7 +125,7 @@ describe('expireAll', () => {
   it('should *not* suspend when invalidIfStale is false', () => {
     const throws: Promise<any>[] = [];
 
-    const { result, controller } = renderRestHook(
+    const { result, controller } = renderDataClient(
       () => {
         try {
           return {
@@ -152,7 +152,7 @@ describe('expireAll', () => {
   });
 
   it('should not change useCache()', () => {
-    const { result, controller } = renderRestHook(
+    const { result, controller } = renderDataClient(
       () => {
         return {
           data: useCache(CoolerArticleResource.get, { id: 5 }),
@@ -185,7 +185,7 @@ describe('expireAll', () => {
     const userId = '5';
     const response = new ArrayBuffer(10);
     const secondResponse = new ArrayBuffer(20);
-    const { result, controller } = renderRestHook(
+    const { result, controller } = renderDataClient(
       () => {
         return {
           data: useSuspense(GetPhoto, { userId }),

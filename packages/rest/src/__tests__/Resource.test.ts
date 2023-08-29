@@ -4,7 +4,7 @@ import { useSuspense } from '@data-client/react';
 import { CacheProvider } from '@data-client/react';
 import nock from 'nock';
 
-import { makeRenderRestHook } from '../../../test';
+import { makeRenderDataClient } from '../../../test';
 import createResource from '../createResource';
 import { ResourcePath } from '../pathTypes';
 import RestEndpoint from '../RestEndpoint';
@@ -81,8 +81,8 @@ export class UrlArticle extends PaginatedArticle {
 }
 
 describe('createResource()', () => {
-  const renderRestHook: ReturnType<typeof makeRenderRestHook> =
-    makeRenderRestHook(CacheProvider);
+  const renderDataClient: ReturnType<typeof makeRenderDataClient> =
+    makeRenderDataClient(CacheProvider);
   let mynock: nock.Scope;
 
   beforeEach(() => {
@@ -202,7 +202,7 @@ describe('createResource()', () => {
     mynock.get(`/article-paginated`).reply(200, paginatedFirstPage);
     mynock.get(`/article-paginated?cursor=2`).reply(200, paginatedSecondPage);
 
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitForNextUpdate } = renderDataClient(() => {
       const { fetch } = useController();
       const {
         data: { results: articles },
@@ -227,7 +227,7 @@ describe('createResource()', () => {
       results: [nested[nested.length - 1], ...moreNested],
     });
 
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitForNextUpdate } = renderDataClient(() => {
       const { fetch } = useController();
       const {
         data: { results: articles },
@@ -273,7 +273,7 @@ describe('createResource()', () => {
     };
     mynock.get(`/complex-thing/5`).reply(200, firstResponse);
 
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitForNextUpdate } = renderDataClient(() => {
       const { fetch } = useController();
       const article = useSuspense(ComplexResource.get, { id: '5' });
       return { article, fetch };

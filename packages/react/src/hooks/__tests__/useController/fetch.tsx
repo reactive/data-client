@@ -7,7 +7,7 @@ import nock from 'nock';
 
 import { useCache, useSuspense } from '../..';
 // relative imports to avoid circular dependency in tsconfig references
-import { makeRenderRestHook, FixtureEndpoint } from '../../../../../test';
+import { makeRenderDataClient, FixtureEndpoint } from '../../../../../test';
 import useController from '../../useController';
 
 export const payload = {
@@ -53,7 +53,7 @@ describe.each([
 ] as const)(`%s`, (_, makeProvider) => {
   // TODO: add nested resource test case that has multiple partials to test merge functionality
 
-  let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+  let renderDataClient: ReturnType<typeof makeRenderDataClient>;
   let mynock: nock.Scope;
 
   beforeEach(() => {
@@ -91,7 +91,7 @@ describe.each([
   });
 
   beforeEach(() => {
-    renderRestHook = makeRenderRestHook(makeProvider);
+    renderDataClient = makeRenderDataClient(makeProvider);
   });
 
   let errorspy: jest.SpyInstance;
@@ -104,7 +104,7 @@ describe.each([
   });
 
   it('should fetch', async () => {
-    const { result } = renderRestHook(() => {
+    const { result } = renderDataClient(() => {
       return {
         data: useCache(FutureArticleResource.get, payload.id),
         fetch: useController().fetch,
@@ -152,7 +152,7 @@ describe.each([
       args: [10000],
       response: payload,
     };
-    const { result } = renderRestHook(
+    const { result } = renderDataClient(
       () => {
         return {
           data: useCache(FutureArticleResource.get, id),
@@ -180,7 +180,7 @@ describe.each([
     ];
     // use nock, and use resolver
     for (const resolverFixtures of [undefined, fixtures]) {
-      const { result, waitForNextUpdate } = renderRestHook(
+      const { result, waitForNextUpdate } = renderDataClient(
         () => {
           const articles = useSuspense(FutureArticleResource.getList);
           const fetch = useController().fetch;
@@ -221,7 +221,7 @@ describe.each([
         response,
       },
     ];
-    const { result, waitForNextUpdate } = renderRestHook(
+    const { result, waitForNextUpdate } = renderDataClient(
       () => {
         const articles = useSuspense(FutureArticleResource.getList);
         const fetch = useController().fetch;
@@ -252,7 +252,7 @@ describe.each([
       .delete(`/article-cooler/${temppayload.id}`)
       .reply(204, '');
     const throws: Promise<any>[] = [];
-    const { result, waitForNextUpdate, rerender } = renderRestHook(
+    const { result, waitForNextUpdate, rerender } = renderDataClient(
       ({ id }) => {
         try {
           return [

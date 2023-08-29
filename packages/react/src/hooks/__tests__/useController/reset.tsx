@@ -1,5 +1,5 @@
 import { CacheProvider } from '@data-client/react';
-import { makeRenderRestHook } from '@data-client/test';
+import { makeRenderDataClient } from '@data-client/test';
 import { FixtureEndpoint } from '@data-client/test/mockState';
 import { waitFor } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
@@ -56,11 +56,11 @@ export const nested: FixtureEndpoint = {
     },
   ],
 };
-let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+let renderDataClient: ReturnType<typeof makeRenderDataClient>;
 let mynock: nock.Scope;
 
 beforeEach(() => {
-  renderRestHook = makeRenderRestHook(CacheProvider);
+  renderDataClient = makeRenderDataClient(CacheProvider);
   mynock = nock(/.*/).defaultReplyHeaders({
     'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json',
@@ -72,7 +72,7 @@ afterEach(() => {
 
 describe('resetEntireStore', () => {
   it('should result in useCache having no entry', async () => {
-    const { result, controller } = renderRestHook(
+    const { result, controller } = renderDataClient(
       () => {
         return {
           data: useCache(FutureArticleResource.get, 5),
@@ -104,7 +104,7 @@ describe('resetEntireStore', () => {
 
   describe('integration', () => {
     beforeEach(() => {
-      renderRestHook = makeRenderRestHook(CacheProvider);
+      renderDataClient = makeRenderDataClient(CacheProvider);
     });
     afterEach(() => {
       jest.useRealTimers();
@@ -125,7 +125,7 @@ describe('resetEntireStore', () => {
         })
         .persist();
 
-      const { result, rerender, controller } = renderRestHook(() => {
+      const { result, rerender, controller } = renderDataClient(() => {
         return useSuspense(CoolerArticleDetail, { id: 9999 });
       });
       expect(result.current).toBeUndefined();
@@ -166,7 +166,7 @@ describe('resetEntireStore', () => {
         })
         .persist();
 
-      const { result, rerender, controller } = renderRestHook(
+      const { result, rerender, controller } = renderDataClient(
         () => {
           return useCache(CoolerArticleDetail, { id: 9999 });
         },
@@ -205,7 +205,7 @@ describe('resetEntireStore', () => {
         .persist();
       jest.useRealTimers();
 
-      const { unmount, result } = renderRestHook(() => {
+      const { unmount, result } = renderDataClient(() => {
         return useFetch(CoolerArticleDetail, { id: 9999 });
       });
 

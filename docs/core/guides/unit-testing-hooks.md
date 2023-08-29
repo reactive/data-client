@@ -25,7 +25,7 @@ easier. But how does this work if you want to use hooks from `Reactive Data Clie
 We have provided some simple utilities to reduce boilerplate for unit tests
 that are wrappers around [@testing-library/react-hooks](https://github.com/testing-library/react-hooks-testing-library)'s [renderHook()](https://react-hooks-testing-library.com/reference/api#renderhook-options).
 
-We want a [renderRestHook()](../api/makeRenderRestHook#renderresthook) function that renders in the context of both
+We want a [renderDataClient()](../api/makeRenderDataClient#renderdataclient) function that renders in the context of both
 a `Provider` and `Suspense` boundary.
 
 These will generally be done during test setup. It's important to call cleanup
@@ -33,8 +33,8 @@ upon test completion.
 
 :::note
 
-`renderRestHook()` creates a Provider context with new manager instances. This means each call
-to `renderRestHook()` will result in a completely fresh cache state as well as manager state.
+`renderDataClient()` creates a Provider context with new manager instances. This means each call
+to `renderDataClient()` will result in a completely fresh cache state as well as manager state.
 
 :::
 
@@ -71,11 +71,11 @@ values={[
 
 ```typescript
 import nock from 'nock';
-import { makeRenderRestHook } from '@data-client/test';
+import { makeRenderDataClient } from '@data-client/test';
 import { CacheProvider } from '@data-client/react';
 
 describe('useSuspense()', () => {
-  let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+  let renderDataClient: ReturnType<typeof makeRenderDataClient>;
 
   beforeEach(() => {
     nock(/.*/)
@@ -88,7 +88,7 @@ describe('useSuspense()', () => {
       .reply(200)
       .get(`/article/0`)
       .reply(403, {});
-    renderRestHook = makeRenderRestHook(CacheProvider);
+    renderDataClient = makeRenderDataClient(CacheProvider);
   });
 
   afterEach(() => {
@@ -96,7 +96,7 @@ describe('useSuspense()', () => {
   });
 
   it('should throw errors on bad network', async () => {
-    const { result, waitFor } = renderRestHook(() => {
+    const { result, waitFor } = renderDataClient(() => {
       return useSuspense(ArticleResource.get, {
         title: '0',
       });
@@ -114,11 +114,11 @@ describe('useSuspense()', () => {
 
 ```typescript
 import nock from 'nock';
-import { makeRenderRestHook } from '@data-client/test';
+import { makeRenderDataClient } from '@data-client/test';
 import { ExternalCacheProvider } from '@data-client/redux';
 
 describe('useSuspense()', () => {
-  let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+  let renderDataClient: ReturnType<typeof makeRenderDataClient>;
 
   beforeEach(() => {
     nock(/.*/)
@@ -131,7 +131,7 @@ describe('useSuspense()', () => {
       .reply(200)
       .get(`/article/0`)
       .reply(403, {});
-    renderRestHook = makeRenderRestHook(ExternalCacheProvider);
+    renderDataClient = makeRenderDataClient(ExternalCacheProvider);
   });
 
   afterEach(() => {
@@ -139,7 +139,7 @@ describe('useSuspense()', () => {
   });
 
   it('should throw errors on bad network', async () => {
-    const { result, waitFor } = renderRestHook(() => {
+    const { result, waitFor } = renderDataClient(() => {
       return useSuspense(ArticleResource.get, {
         title: '0',
       });

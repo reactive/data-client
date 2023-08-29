@@ -5,7 +5,7 @@ import { CacheProvider } from '@data-client/react';
 import { Article, CoolerArticle, CoolerArticleResource } from '__tests__/new';
 import nock from 'nock';
 
-import { makeRenderRestHook } from '../../../test';
+import { makeRenderDataClient } from '../../../test';
 import RestEndpoint, {
   Defaults,
   RestEndpointConstructorOptions,
@@ -143,8 +143,8 @@ const getNextPage3 = getArticleList3.getPage;
 };
 
 describe('RestEndpoint', () => {
-  const renderRestHook: ReturnType<typeof makeRenderRestHook> =
-    makeRenderRestHook(CacheProvider);
+  const renderDataClient: ReturnType<typeof makeRenderDataClient> =
+    makeRenderDataClient(CacheProvider);
   let mynock: nock.Scope;
 
   beforeEach(() => {
@@ -306,7 +306,7 @@ describe('RestEndpoint', () => {
     mynock.get(`/article-paginated`).reply(200, paginatedFirstPage);
     mynock.get(`/article-paginated?cursor=2`).reply(200, paginatedSecondPage);
 
-    const { result, waitForNextUpdate, controller } = renderRestHook(() => {
+    const { result, waitForNextUpdate, controller } = renderDataClient(() => {
       const { fetch } = useController();
       const {
         data: { results: articles },
@@ -333,7 +333,7 @@ describe('RestEndpoint', () => {
       .get(`/article-paginated/happy?cursor=2`)
       .reply(200, paginatedSecondPage);
 
-    const { result, waitForNextUpdate, controller } = renderRestHook(() => {
+    const { result, waitForNextUpdate, controller } = renderDataClient(() => {
       const {
         data: { results: articles },
         nextPage,
@@ -364,7 +364,7 @@ describe('RestEndpoint', () => {
       .get(`/article-paginated?cursor=2&group=happy`)
       .reply(200, paginatedSecondPage);
 
-    const { result, waitForNextUpdate, controller } = renderRestHook(() => {
+    const { result, waitForNextUpdate, controller } = renderDataClient(() => {
       const {
         data: { results: articles },
         nextPage,
@@ -396,7 +396,7 @@ describe('RestEndpoint', () => {
       results: [nested[nested.length - 1], ...moreNested],
     });
 
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitForNextUpdate } = renderDataClient(() => {
       const { fetch } = useController();
       const {
         data: { results: articles },
@@ -444,7 +444,7 @@ describe('RestEndpoint', () => {
     };
     mynock.get(`/complex-thing/5`).reply(200, firstResponse);
 
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitForNextUpdate } = renderDataClient(() => {
       const { fetch } = useController();
       const article = useSuspense(getComplex, { id: '5' });
       return { article, fetch };
@@ -685,7 +685,7 @@ describe('RestEndpoint', () => {
         path: 'http\\://test.com/user/:id',
         name: 'update',
       });
-      const { result, waitForNextUpdate } = renderRestHook(() => {
+      const { result, waitForNextUpdate } = renderDataClient(() => {
         return useSuspense(getUser, { id: 5 });
       });
       await waitForNextUpdate();
@@ -724,7 +724,7 @@ describe('RestEndpoint', () => {
         method: 'GET',
         name: 'update',
       });
-      const { result, waitForNextUpdate } = renderRestHook(() => {
+      const { result, waitForNextUpdate } = renderDataClient(() => {
         return useSuspense(getUser, { id: 5 });
       });
       await waitForNextUpdate();

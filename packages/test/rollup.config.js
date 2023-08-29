@@ -50,7 +50,7 @@ export default [
     ],
   },
   {
-    input: 'lib/makeRenderRestHook/render18HookWrapped.js',
+    input: 'lib/makeRenderDataClient/render18HookWrapped.js',
     external: id => id === '..' || isExternal(id),
     output: [
       {

@@ -5,7 +5,7 @@
 
 Remove makeCacheProvider
 
-Current testing version is already [using the provider Component directly](https://dataclient.io/docs/api/makeRenderRestHook)
+Current testing version is already [using the provider Component directly](https://dataclient.io/docs/api/makeRenderDataClient)
 
 ```tsx
 import { CacheProvider } from '@data-client/react';

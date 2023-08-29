@@ -1,14 +1,14 @@
 ---
-title: makeRenderRestHook()
+title: makeRenderDataClient()
 ---
 
 ```typescript
-function makeRenderRestHook(
+function makeRenderDataClient(
   Provider: React.ComponentType<ProviderProps>,
-): RenderRestHookFunction;
+): RenderDataClientFunction;
 ```
 
-`makeRenderRestHook()` is useful to test hooks that rely on the `Reactive Data Client`. It creates a renderRestHook()
+`makeRenderDataClient()` is useful to test hooks that rely on the `Reactive Data Client`. It creates a renderDataClient()
 function that mirrors [@testing-library/react-hooks](https://github.com/testing-library/react-hooks-testing-library)'s [renderHook()](https://react-hooks-testing-library.com/reference/api#renderhook-options) but does so with a `<Suspense/>` boundary
 as well as in a `<Provider />` context.
 
@@ -30,12 +30,12 @@ The Reactive Data Client [&lt;CacheProvider /&gt;](./CacheProvider.md)
 - `import { CacheProvider } from @data-client/react;`
 - `import { CacheProvider } from @data-client/redux;`
 
-## renderRestHook()
+## renderDataClient()
 
-Returned from makeRenderRestHook():
+Returned from makeRenderDataClient():
 
 ```typescript
-type RenderRestHookFunction = {
+type RenderDataClientFunction = {
   <P, R, T=any>(
     callback: (props: P) => R,
     options?: {
@@ -65,8 +65,8 @@ type RenderRestHookFunction = {
 };
 ```
 
-`renderRestHook()` creates a Provider context with new manager instances. This means each call
-to `renderRestHook()` will result in a completely fresh cache state as well as manager state.
+`renderDataClient()` creates a Provider context with new manager instances. This means each call
+to `renderDataClient()` will result in a completely fresh cache state as well as manager state.
 
 ### Arguments
 
@@ -127,8 +127,8 @@ Returns a promise that resolves once all inflight requests are completed.
 ## Example
 
 ```typescript
-import { CacheProvider } from '@rest-hooks/react';
-import { makeRenderRestHook } from '@data-client/test';
+import { CacheProvider } from '@data-client/react';
+import { makeRenderDataClient } from '@data-client/test';
 
 const payload = {
   id: 5,
@@ -138,11 +138,11 @@ const payload = {
 };
 
 beforeEach(() => {
-  renderRestHook = makeRenderRestHook(CacheProvider);
+  renderDataClient = makeRenderDataClient(CacheProvider);
 });
 
 it('should resolve useSuspense()', async () => {
-  const { result, waitFor } = renderRestHook(
+  const { result, waitFor } = renderDataClient(
     () => {
       return useSuspense(ArticleResource.get, payload);
     },

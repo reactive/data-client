@@ -33,7 +33,7 @@ export default [
   {
     input: 'lib/index.js',
     external: isExternal,
-    output: [{ file: pkg.unpkg, format: 'umd', name: 'restHookHooks' }],
+    output: [{ file: pkg.unpkg, format: 'umd', name: 'dataClientHooks' }],
     plugins: [
       babel({
         exclude: ['node_modules/**', '/**__tests__/**'],
