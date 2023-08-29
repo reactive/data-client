@@ -231,6 +231,7 @@ Response (first 300 characters): ${text.substring(0, 300)}`;
         key(...args) {
           return sup.key.call(this, ...removeCursor(...args));
         },
+        name: this.name + '.getPage',
       });
     }
 
@@ -245,6 +246,7 @@ Response (first 300 characters): ${text.substring(0, 300)}`;
     return this.extend({
       method: 'POST',
       schema: extractCollection(this.schema, s => s.push),
+      name: this.name + '.create',
     });
   }
 
@@ -252,6 +254,7 @@ Response (first 300 characters): ${text.substring(0, 300)}`;
     return this.extend({
       method: 'POST',
       schema: extractCollection(this.schema, s => s.unshift),
+      name: this.name + '.create',
     });
   }
 
@@ -259,6 +262,7 @@ Response (first 300 characters): ${text.substring(0, 300)}`;
     return this.extend({
       method: 'POST',
       schema: extractCollection(this.schema, s => s.assign),
+      name: this.name + '.create',
     });
   }
 }

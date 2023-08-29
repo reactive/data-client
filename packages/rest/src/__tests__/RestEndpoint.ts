@@ -358,6 +358,24 @@ describe('RestEndpoint', () => {
     expect(result.current.articles.map(({ id }) => id)).toEqual([5, 3, 7, 8]);
   });
 
+  it('push: should extend name of parent endpoint', () => {
+    expect(getArticleList3.push.name).toMatchSnapshot();
+    expect(getArticleList3.push.name).toBe(getArticleList3.unshift.name);
+  });
+
+  it('unshift: should extend name of parent endpoint', () => {
+    expect(getArticleList3.unshift.name).toMatchSnapshot();
+  });
+
+  // TODO: but we need a Values collection
+  // it('assign: should extend name of parent endpoint', () => {
+  //   expect(getArticleList3.assign.name).toMatchSnapshot();
+  // });
+
+  it('getPage: should extend name of parent endpoint', () => {
+    expect(getNextPage3.name).toMatchSnapshot();
+  });
+
   it('getPage: should update on get for a paginated resource with parameter in path', async () => {
     mynock.get(`/article-paginated?group=happy`).reply(200, paginatedFirstPage);
     mynock
