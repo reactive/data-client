@@ -249,7 +249,6 @@ if (
         declare function Formatted({ downColor, formatter, formatterFn, timeout, transition, transitionLength, upColor, value, stylePrefix, }: NumberProps):JSX.Element
         declare function ResetableErrorBoundary(props: { children: JSX.ReactChild }):JSX.Element;
         declare function randomFloatInRange(min: number, max: number, decimals?: number): number;
-        declare class FloatSerializer extends Number {}
         declare interface NumberProps {
           /**
            * Color value when the component flashes 'down'.

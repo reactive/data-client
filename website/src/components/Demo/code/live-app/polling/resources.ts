@@ -16,7 +16,7 @@ export class Ticker extends Entity {
   static key = 'Ticker';
 
   static schema = {
-    price: FloatSerializer,
+    price: Number,
     time: Date,
   };
 }

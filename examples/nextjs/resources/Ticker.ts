@@ -1,12 +1,6 @@
 import { Entity, RestEndpoint } from '@data-client/rest';
 import type { FixtureEndpoint } from '@data-client/test';
 
-class FloatSerializer extends Number {
-  constructor(v:any) {
-    super(Number.parseFloat(v))
-  }
-}
-
 // Visit https://dataclient.io/docs/guides/resource-types to read more about these definitions
 export class Ticker extends Entity {
   trade_id = 0;
@@ -26,7 +20,7 @@ export class Ticker extends Entity {
   // convert price to a float and time to a Date
   // see https://dataclient.io/rest/api/Entity#schema
   static schema = {
-    price: FloatSerializer,
+    price: Number,
     time: Date,
   };
 }
