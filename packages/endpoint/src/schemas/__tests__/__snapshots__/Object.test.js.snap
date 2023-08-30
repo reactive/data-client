@@ -251,7 +251,7 @@ exports[`ObjectSchema normalization should deserialize Date 1`] = `
   },
   "indexes": {},
   "result": {
-    "createdAt": 2020-06-07T02:00:15.000Z,
+    "createdAt": "2020-06-07T02:00:15.000Z",
     "nextPage": "blob",
     "user": "5",
   },

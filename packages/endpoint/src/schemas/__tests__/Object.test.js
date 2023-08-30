@@ -62,9 +62,8 @@ describe(`${schema.Object.name} normalization`, () => {
       },
       WithOptional,
     );
-    expect(normalized.result.createdAt.getTime()).toBe(
-      normalized.result.createdAt.getTime(),
-    );
+    expect(normalized.result.createdAt).toBe(normalized.result.createdAt);
+    expect(typeof normalized.result.createdAt).toBe('string');
     expect(normalized).toMatchSnapshot();
   });
 
