@@ -43,7 +43,7 @@
     "@docusaurus/theme-live-codeblock": "canary",
     "@docusaurus/theme-mermaid": "canary",
     "@monaco-editor/react": "^4.4.6",
-    "bignumber.js": "9.1.1",
+    "bignumber.js": "9.1.2",
     "classnames": "^2.3.2",
     "clsx": "1.2.1",
     "monaco-editor": "^0.41.0",

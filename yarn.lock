@@ -6368,10 +6368,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:20.5.6, @types/node@npm:^20.0.0":
-  version: 20.5.6
-  resolution: "@types/node@npm:20.5.6"
-  checksum: d2ce44f1cfa3fd00fe7426f7cf9a46d680cd57802b874ed5618e7d9101a9c6b8de37f08c0e7185ee06fb363ad492549c3ea69665c7e8e31c7813210ed8e89005
+"@types/node@npm:*, @types/node@npm:20.5.7, @types/node@npm:^20.0.0":
+  version: 20.5.7
+  resolution: "@types/node@npm:20.5.7"
+  checksum: fc284c8e16ddc04569730d58e87eae349eb1c3dd9020cb79a1862d9d9add6f04e7367a236f3252db8db2572f90278e250f4cd43d27d264972b54394eaba1ed76
   languageName: node
   linkType: hard
 
@@ -8209,10 +8209,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bignumber.js@npm:9.1.1":
-  version: 9.1.1
-  resolution: "bignumber.js@npm:9.1.1"
-  checksum: ad243b7e2f9120b112d670bb3d674128f0bd2ca1745b0a6c9df0433bd2c0252c43e6315d944c2ac07b4c639e7496b425e46842773cf89c6a2dcd4f31e5c4b11e
+"bignumber.js@npm:9.1.2":
+  version: 9.1.2
+  resolution: "bignumber.js@npm:9.1.2"
+  checksum: 582c03af77ec9cb0ebd682a373ee6c66475db94a4325f92299621d544aa4bd45cb45fd60001610e94aef8ae98a0905fa538241d9638d4422d57abbeeac6fadaf
   languageName: node
   linkType: hard
 
@@ -21210,7 +21210,7 @@ __metadata:
     "@types/react-helmet": ^6.1.5
     "@types/react-router-dom": ^5.3.3
     "@types/uuid": ^9
-    bignumber.js: 9.1.1
+    bignumber.js: 9.1.2
     classnames: ^2.3.2
     clsx: 1.2.1
     monaco-editor: ^0.41.0
@@ -22576,7 +22576,7 @@ __metadata:
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/react-native": 12.2.2
     "@types/jest": 29.5.4
-    "@types/node": 20.5.6
+    "@types/node": 20.5.7
     "@types/react": 18.2.21
     "@typescript-eslint/eslint-plugin": 6.5.0
     "@typescript-eslint/parser": 6.5.0

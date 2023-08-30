@@ -47,13 +47,13 @@
     "webpack-dev-server": "4.15.1"
   },
   "dependencies": {
-    "@anansi/router": "0.9.0",
+    "@anansi/router": "0.9.1",
     "@ant-design/icons": "^5.0.0",
     "@data-client/graphql": "^0.2.2",
     "@data-client/hooks": "^0.1.1",
     "@data-client/react": "^0.4.1",
     "@data-client/rest": "^0.7.4",
-    "antd": "5.8.4",
+    "antd": "5.8.5",
     "parse-link-header": "^2.0.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
