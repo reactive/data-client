@@ -18,8 +18,8 @@ flowchart BT
       process-->validate
       validate---normNest("normalize(this.schema)")
     end
-    Entity.normalize--processedEntity-->addEntity
-    subgraph addEntity
+    Entity.normalize--processedEntity-->INSTORE
+    subgraph INSTORE["Found In Store"]
       subgraph Entity.mergeWithStore
         direction TB
         useincoming("Entity.useIncoming()")---shouldreorder("Entity.shouldReorder()")
