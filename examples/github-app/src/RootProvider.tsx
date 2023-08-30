@@ -1,4 +1,9 @@
-import { CacheProvider, Controller, LogoutManager } from '@data-client/react';
+import {
+  CacheProvider,
+  Controller,
+  LogoutManager,
+  getDefaultManagers,
+} from '@data-client/react';
 import { AuthdProvider } from 'navigation/authdContext';
 import type { ReactNode } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -15,7 +20,7 @@ const managers = [
       controller.resetEntireStore();
     },
   }),
-  ...CacheProvider.defaultProps.managers,
+  ...getDefaultManagers(),
 ];
 
 export default function RootProvider({ children, ...rest }: Props) {

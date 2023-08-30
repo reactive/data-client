@@ -16,7 +16,7 @@ import React, { useContext, Suspense, StrictMode } from 'react';
 import { ControllerContext, StateContext } from '../../context';
 import { useController, useSuspense } from '../../hooks';
 import { payload } from '../../test-fixtures';
-import CacheProvider from '../CacheProvider';
+import CacheProvider, { getDefaultManagers } from '../CacheProvider';
 
 const { SET_TYPE } = actionTypes;
 
@@ -157,7 +157,7 @@ describe('<CacheProvider />', () => {
   });
 
   it('should have SubscriptionManager in default managers', () => {
-    const subManagers = CacheProvider.defaultProps.managers.filter(
+    const subManagers = getDefaultManagers().filter(
       manager => manager instanceof SubscriptionManager,
     );
     expect(subManagers.length).toBe(1);
@@ -184,7 +184,7 @@ describe('<CacheProvider />', () => {
       }
     }
     const injector = new InjectorManager();
-    const managers = [injector, ...CacheProvider.defaultProps.managers];
+    const managers = [injector, ...getDefaultManagers()];
     let resolve: (r: any) => void = () => {};
     const endpoint = CoolerArticleResource.get.extend({
       fetch() {

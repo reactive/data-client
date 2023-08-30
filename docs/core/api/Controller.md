@@ -293,7 +293,7 @@ It's usually a good idea to also clear cache on 401 (unauthorized) with [LogoutM
 as well.
 
 ```ts
-import { CacheProvider, LogoutManager } from '@data-client/react';
+import { CacheProvider, LogoutManager, getDefaultManagers } from '@data-client/react';
 import ReactDOM from 'react-dom';
 import { unAuth } from '../authentication';
 
@@ -308,7 +308,7 @@ const managers = [
       controller.invalidateAll({ testKey });
     },
   }),
-  ...CacheProvider.defaultProps.managers,
+  ...getDefaultManagers(),
 ];
 
 ReactDOM.createRoot(document.body).render(
