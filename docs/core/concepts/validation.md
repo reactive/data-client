@@ -196,10 +196,10 @@ export const getArticleList = new RestEndpoint({
 
 export class ArticleFull extends ArticlePreview {
   readonly content: string = '';
-  readonly createdAt: Date = new Date(0);
+  readonly createdAt = Temporal.Instant.fromEpochSeconds(0);
 
   static schema = {
-    createdAt: Date,
+    createdAt: Temporal.Instant.from,
   };
 
   static validate(processedEntity) {
@@ -231,7 +231,7 @@ function ArticleDetail({ id, onHome }: { id: string; onHome: () => void }) {
         <div>
           Created:{' '}
           <time>
-            {Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
+            {DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
               article.createdAt,
             )}
           </time>

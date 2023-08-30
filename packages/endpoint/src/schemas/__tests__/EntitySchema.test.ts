@@ -1,6 +1,7 @@
 // eslint-env jest
 import { normalize, WeakEntityMap } from '@data-client/normalizr';
 import { INVALID } from '@data-client/normalizr';
+import { Temporal } from '@js-temporal/polyfill';
 import { fromJS, Record } from 'immutable';
 
 import { denormalizeSimple } from './denormalize';
@@ -240,56 +241,56 @@ describe(`${schema.Entity.name} construction`, () => {
         id = '';
         username = '';
         title = '';
-        createdAt = new Date(0);
+        createdAt = Temporal.Instant.fromEpochSeconds(0);
       }
       class MyEntity extends schema.Entity(MyData, {
-        schema: { createdAt: Date },
+        schema: { createdAt: Temporal.Instant.from },
       }) {}
-      expect(MyEntity.schema).toEqual({ createdAt: Date });
+      expect(MyEntity.schema).toEqual({ createdAt: Temporal.Instant.from });
     });
     it('options.schema should override base schema', () => {
       class MyData {
         id = '';
         username = '';
         title = '';
-        createdAt = new Date(0);
+        createdAt = Temporal.Instant.fromEpochSeconds(0);
         static schema = {
-          user: Date,
+          user: Temporal.Instant.from,
         };
       }
       class MyEntity extends schema.Entity(MyData, {
-        schema: { createdAt: Date },
+        schema: { createdAt: Temporal.Instant.from },
       }) {}
-      expect(MyEntity.schema).toEqual({ createdAt: Date });
+      expect(MyEntity.schema).toEqual({ createdAt: Temporal.Instant.from });
     });
     it('static schema in base should be used', () => {
       class MyData {
         id = '';
         username = '';
         title = '';
-        createdAt = new Date(0);
+        createdAt = Temporal.Instant.fromEpochSeconds(0);
         static schema = {
-          createdAt: Date,
+          createdAt: Temporal.Instant.from,
         };
       }
       class MyEntity extends schema.Entity(MyData) {}
-      expect(MyEntity.schema).toEqual({ createdAt: Date });
+      expect(MyEntity.schema).toEqual({ createdAt: Temporal.Instant.from });
     });
     it('static schema in Entity should override options', () => {
       class MyData {
         id = '';
         username = '';
         title = '';
-        createdAt = new Date(0);
+        createdAt = Temporal.Instant.fromEpochSeconds(0);
       }
       class MyEntity extends schema.Entity(MyData, {
-        schema: { createdAt: Date },
+        schema: { createdAt: Temporal.Instant.from },
       }) {
         static schema = {
-          user: Date,
+          user: Temporal.Instant.from,
         };
       }
-      expect(MyEntity.schema).toEqual({ user: Date });
+      expect(MyEntity.schema).toEqual({ user: Temporal.Instant.from });
     });
   });
 });
@@ -379,7 +380,7 @@ describe(`${schema.Entity.name} normalization`, () => {
     const MyEntity = schema.Entity(MyData, {
       pk: 'name',
       schema: {
-        blarb: Date,
+        blarb: Temporal.Instant.from,
       },
     });
 
@@ -398,7 +399,7 @@ describe(`${schema.Entity.name} normalization`, () => {
     class MyEntity extends schema.Entity(MyData, {
       pk: 'name',
       schema: {
-        blarb: Date,
+        blarb: Temporal.Instant.from,
       },
     }) {}
 
@@ -887,7 +888,7 @@ describe.each([
       }
       class MyEntity extends schema.Entity(MyData, {
         pk: 'name',
-        schema: { blarb: Date },
+        schema: { blarb: Temporal.Instant.from },
       }) {}
 
       expect(
@@ -911,7 +912,7 @@ describe.each([
       }
       class MyEntity extends schema.Entity(MyData, {
         pk: 'name',
-        schema: { blarb: Date },
+        schema: { blarb: Temporal.Instant.from },
       }) {}
 
       expect(
@@ -1360,10 +1361,10 @@ describe('Entity.defaults', () => {
     }
     class UserEntity extends ID {
       username = '';
-      createdAt = new Date(0);
+      createdAt = Temporal.Instant.fromEpochSeconds(0);
 
       static schema = {
-        createdAt: Date,
+        createdAt: Temporal.Instant.from,
       };
     }
 
@@ -1374,7 +1375,7 @@ describe('Entity.defaults', () => {
     `);
     expect(UserEntity.getMyDefaults()).toMatchInlineSnapshot(`
       UserEntity {
-        "createdAt": 1970-01-01T00:00:00.000Z,
+        "createdAt": "1970-01-01T00:00:00Z",
         "id": "",
         "username": "",
       }

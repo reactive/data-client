@@ -19,13 +19,13 @@ To explain these concepts we'll be faking an endpoint that gives us the current 
 ```tsx title="lastUpdated"
 class TimedEntity extends Entity {
   id = '';
-  updatedAt = new Date(0);
+  updatedAt = Temporal.Instant.fromEpochSeconds(0);
 
   pk() {
     return this.id;
   }
   static schema = {
-    updatedAt: Date,
+    updatedAt: Temporal.Instant.from,
   };
 }
 const lastUpdated = new RestEndpoint({
@@ -82,13 +82,13 @@ you will continue to see the old time without any refresh.
 ```ts title="api/lastUpdated" collapsed
 export class TimedEntity extends Entity {
   id = '';
-  updatedAt = new Date(0);
+  updatedAt = Temporal.Instant.fromEpochSeconds(0);
 
   pk() {
     return this.id;
   }
   static schema = {
-    updatedAt: Date,
+    updatedAt: Temporal.Instant.from,
   };
 }
 
@@ -109,7 +109,7 @@ function TimePage({ id }) {
     <div>
       API Time:{' '}
       <time>
-        {Intl.DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
+        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
       </time>
     </div>
   );
@@ -204,13 +204,13 @@ within the expiry time it just continues to display it.
 ```ts title="api/lastUpdated" collapsed
 export class TimedEntity extends Entity {
   id = '';
-  updatedAt = new Date(0);
+  updatedAt = Temporal.Instant.fromEpochSeconds(0);
   pk() {
     return this.id;
   }
 
   static schema = {
-    updatedAt: Date,
+    updatedAt: Temporal.Instant.from,
   };
 }
 
@@ -234,7 +234,7 @@ function TimePage({ id }) {
     <div>
       API Time:{' '}
       <time>
-        {Intl.DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
+        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
       </time>
     </div>
   );
@@ -293,13 +293,13 @@ the previous data. This can be done even with 'fresh' data.
 ```ts title="api/lastUpdated" collapsed
 export class TimedEntity extends Entity {
   id = '';
-  updatedAt = new Date(0);
+  updatedAt = Temporal.Instant.fromEpochSeconds(0);
   pk() {
     return this.id;
   }
 
   static schema = {
-    updatedAt: Date,
+    updatedAt: Temporal.Instant.from,
   };
 }
 
@@ -318,7 +318,7 @@ function ShowTime() {
   return (
     <div>
       <time>
-        {Intl.DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
+        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
       </time>{' '}
       <button onClick={() => ctrl.fetch(lastUpdated, { id: '1' })}>
         Refresh
@@ -354,13 +354,13 @@ render(<ShowTime />);
 ```ts title="api/lastUpdated" collapsed
 export class TimedEntity extends Entity {
   id = '';
-  updatedAt = new Date(0);
+  updatedAt = Temporal.Instant.fromEpochSeconds(0);
   pk() {
     return this.id;
   }
 
   static schema = {
-    updatedAt: Date,
+    updatedAt: Temporal.Instant.from,
   };
 }
 
@@ -380,7 +380,7 @@ export default function ShowTime({ id }: { id: string }) {
     <div>
       <b>{id}</b>{' '}
       <time>
-        {Intl.DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
+        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
       </time>
     </div>
   );
@@ -455,13 +455,13 @@ In this example we can see invalidating the endpoint shows the loading fallback 
 ```ts title="api/lastUpdated" collapsed
 export class TimedEntity extends Entity {
   id = '';
-  updatedAt = new Date(0);
+  updatedAt = Temporal.Instant.fromEpochSeconds(0);
   pk() {
     return this.id;
   }
 
   static schema = {
-    updatedAt: Date,
+    updatedAt: Temporal.Instant.from,
   };
 }
 
@@ -481,7 +481,7 @@ export default function ShowTime({ id }: { id: string }) {
     <div>
       <b>{id}</b>{' '}
       <time>
-        {Intl.DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
+        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
       </time>
     </div>
   );
@@ -563,13 +563,13 @@ response. If the endpoint uses the entity in an Array, it will simply be removed
 ```ts title="api/lastUpdated" collapsed
 export class TimedEntity extends Entity {
   id = '';
-  updatedAt = new Date(0);
+  updatedAt = Temporal.Instant.fromEpochSeconds(0);
   pk() {
     return this.id;
   }
 
   static schema = {
-    updatedAt: Date,
+    updatedAt: Temporal.Instant.from,
   };
 }
 
@@ -595,7 +595,7 @@ function ShowTime() {
   return (
     <div>
       <time>
-        {Intl.DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
+        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
       </time>{' '}
       <button onClick={() => ctrl.fetch(deleteLastUpdated, { id: '1' })}>
         Delete

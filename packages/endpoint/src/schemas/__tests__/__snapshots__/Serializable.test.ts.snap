@@ -3,11 +3,12 @@
 exports[`Serializable denormalization denormalizes as plain 1`] = `
 {
   "anotherItem": {
+    "defaulted": 0,
     "thing": 500,
   },
-  "time": 2020-06-07T02:00:15.000Z,
+  "time": "2020-06-07T02:00:15Z",
   "user": User {
-    "createdAt": 2020-06-07T02:00:15.000Z,
+    "createdAt": "2020-06-07T02:00:15Z",
     "id": "1",
     "name": "Nacho",
   },
@@ -17,11 +18,12 @@ exports[`Serializable denormalization denormalizes as plain 1`] = `
 exports[`Serializable denormalization denormalizes date and custom 1`] = `
 {
   "anotherItem": {
+    "defaulted": 0,
     "thing": 500,
   },
-  "time": 2020-06-07T02:00:15.000Z,
+  "time": "2020-06-07T02:00:15Z",
   "user": User {
-    "createdAt": 2020-06-07T02:00:15.000Z,
+    "createdAt": "2020-06-07T02:00:15Z",
     "id": "1",
     "name": "Nacho",
   },

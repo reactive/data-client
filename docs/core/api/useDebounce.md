@@ -32,17 +32,17 @@ export class Issue extends Entity {
   state: 'open' | 'closed' = 'open';
   locked = false;
   comments = 0;
-  created_at = new Date(0);
-  updated_at = new Date(0);
-  closed_at: Date | null = null;
+  created_at = Temporal.Instant.fromEpochSeconds(0);
+  updated_at = Temporal.Instant.fromEpochSeconds(0);
+  closed_at: Temporal.Instant | null = null;
   authorAssociation = 'NONE';
   pullRequest: Record<string, any> | null = null;
   declare draft?: boolean;
 
   static schema = {
-    created_at: Date,
-    updated_at: Date,
-    closed_at: Date,
+    created_at: Temporal.Instant.from,
+    updated_at: Temporal.Instant.from,
+    closed_at: Temporal.Instant.from,
   };
 
   pk() {

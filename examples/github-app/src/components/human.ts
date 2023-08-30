@@ -1,11 +1,16 @@
+import { Temporal } from '@js-temporal/polyfill';
+
 const REL = new Intl.RelativeTimeFormat(navigator.language || 'en-US', {
   localeMatcher: 'best fit',
   numeric: 'auto',
   style: 'long',
 });
 
-export function humanTime(date: Date) {
-  const seconds = Math.floor((date.getTime() - Date.now()) / 1000);
+export function humanTime(date: Temporal.Instant) {
+  const duration = date.until(Temporal.Now.instant(), {
+    largestUnit: 'second',
+  });
+  const seconds = duration.seconds;
   if (Math.abs(seconds) < 60) return REL.format(seconds, 'second');
   const minutes = Math.floor(seconds / 60);
   if (Math.abs(minutes) < 60) return REL.format(minutes, 'minute');

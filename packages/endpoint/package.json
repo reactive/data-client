@@ -120,6 +120,7 @@
   },
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",
+    "@js-temporal/polyfill": "^0.4.4",
     "@types/node": "^20.0.0"
   }
 }

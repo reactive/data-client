@@ -1,3 +1,5 @@
+import { Temporal } from '@js-temporal/polyfill';
+
 import { GithubEntity } from './Base';
 
 export class Review extends GithubEntity {
@@ -10,9 +12,9 @@ export class Review extends GithubEntity {
   pullRequestUrl = '';
 
   state = 'approved';
-  submittedAt = new Date(0);
+  submittedAt = Temporal.Instant.fromEpochSeconds(0);
 
   static schema = {
-    submittedAt: Date,
+    submittedAt: Temporal.Instant.from,
   };
 }

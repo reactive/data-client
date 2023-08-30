@@ -43,13 +43,13 @@ Hard errors always reject with `error` - even when data has previously made avai
 ```ts title="api/lastUpdated" collapsed
 export class TimedEntity extends Entity {
   id = '';
-  updatedAt = new Date(0);
+  updatedAt = Temporal.Instant.fromEpochSeconds(0);
   pk() {
     return this.id;
   }
 
   static schema = {
-    updatedAt: Date,
+    updatedAt: Temporal.Instant.from,
   };
 }
 
@@ -90,7 +90,7 @@ function ShowTime() {
   return (
     <div>
       <time>
-        {Intl.DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
+        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
       </time>{' '}
       <div>
         <button

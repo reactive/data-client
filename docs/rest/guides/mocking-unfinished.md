@@ -18,7 +18,7 @@ export class Rating extends Entity {
   id = '';
   rating = 4.6;
   author = '';
-  date = new Date(0);
+  date = Temporal.Instant.fromEpochSeconds(0);
 
   pk() {
     return this.id;
@@ -26,7 +26,7 @@ export class Rating extends Entity {
   static key = 'Rating';
 
   static schema = {
-    date: Date,
+    date: Temporal.Instant.from,
   };
 }
 
@@ -61,7 +61,7 @@ function Demo() {
         <div key={rating.pk()}>
           {rating.author}: {rating.rating}{' '}
           <time>
-            {Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
+            {DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
               rating.date,
             )}
           </time>

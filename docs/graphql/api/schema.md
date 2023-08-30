@@ -46,14 +46,14 @@ class User extends Entity {
 // Define your comments schema
 class Comment extends Entity {
   readonly id: string = '';
-  readonly createdAt: Date = new Date(0);
+  readonly createdAt = Temporal.Instant.fromEpochSeconds(0);
   readonly commenter: User = User.fromJS({});
 
   pk() { return this.id; }
 
   static schema = {
     commenter: User,
-    createdAt: Date,
+    createdAt: Temporal.Instant.from,
   }
 }
 
@@ -129,7 +129,7 @@ Now, `normalizedData` will be:
     "comments": {
       "324": Comment {
         id: "324",
-        "createdAt": Date(`May 29, 2013`),
+        "createdAt": "2013-05-29T00:00:00-04:00",
         "commenter": "2"
       }
     }

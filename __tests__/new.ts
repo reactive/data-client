@@ -1,5 +1,7 @@
+import { Temporal } from '@js-temporal/polyfill';
+import React, { createContext, useContext } from 'react';
+
 import {
-  AbstractInstanceType,
   schema,
   AbortOptimistic,
   Endpoint,
@@ -15,7 +17,6 @@ import {
   Resource,
   ResourceOptions,
 } from '@data-client/rest';
-import React, { createContext, useContext } from 'react';
 
 /** Represents data with primary key being from 'id' field. */
 export class IDEntity extends Entity {
@@ -295,11 +296,11 @@ export const ContextAuthdArticleResource = hookifyResource(
 );
 
 export class ArticleTimed extends Article {
-  readonly createdAt = new Date(0);
+  readonly createdAt = Temporal.Instant.fromEpochSeconds(0);
 
   static schema = {
     ...Article.schema,
-    createdAt: Date,
+    createdAt: Temporal.Instant.from,
   };
 }
 export const ArticleTimedResource = createArticleResource({

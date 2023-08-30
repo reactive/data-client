@@ -53,6 +53,7 @@
     "@data-client/hooks": "^0.1.1",
     "@data-client/react": "^0.4.1",
     "@data-client/rest": "^0.7.4",
+    "@js-temporal/polyfill": "^0.4.4",
     "antd": "5.8.5",
     "parse-link-header": "^2.0.0",
     "react": "18.2.0",

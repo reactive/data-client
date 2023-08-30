@@ -1,9 +1,11 @@
+import { Temporal } from '@js-temporal/polyfill';
+
 import WeakEntityMap, { getEntities } from '../WeakEntityMap';
 
 describe('WeakEntityMap', () => {
   const a = { hi: '5' };
   const b = [1, 2, 3];
-  const c = new Date(0);
+  const c = Temporal.Instant.fromEpochSeconds(0);
   const state: Record<string, Record<string, object>> = {
     A: {
       '1': a,

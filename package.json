@@ -57,6 +57,7 @@
     "@commitlint/config-conventional": "17.7.0",
     "@data-client/react": "workspace:^",
     "@data-client/test": "workspace:^",
+    "@js-temporal/polyfill": "^0.4.4",
     "@react-navigation/native": "^6.0.13",
     "@react-navigation/native-stack": "^6.9.1",
     "@testing-library/react": "14.0.0",

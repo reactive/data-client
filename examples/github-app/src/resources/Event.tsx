@@ -6,6 +6,7 @@ import {
   PullRequestOutlined,
 } from '@ant-design/icons';
 import { schema } from '@data-client/rest';
+import { Temporal } from '@js-temporal/polyfill';
 
 import { createGithubResource, GithubEntity } from './Base';
 import { Issue } from './Issue';
@@ -20,14 +21,14 @@ export class Event extends GithubEntity {
   readonly repo: { id: number; name: string; url: string } = {} as any;
   readonly payload: Record<string, any> = {};
   readonly public: boolean = true;
-  readonly createdAt: Date = new Date(0);
+  readonly createdAt = Temporal.Instant.fromEpochSeconds(0);
 
   get icon() {
     return typeToIcon[this.type];
   }
 
   static schema = {
-    createdAt: Date,
+    createdAt: Temporal.Instant.from,
   };
 }
 export class PullRequestEvent extends Event {

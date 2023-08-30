@@ -44,12 +44,12 @@ these as static members of the final class.
 ```typescript
 class User {
   username = '';
-  createdAt = new Date(0);
+  createdAt = Temporal.Instant.fromEpochSeconds(0);
 }
 class UserEntity extends schema.Entity(User, {
   pk: 'username',
   key: 'User',
-  schema: { createdAt: Date },
+  schema: { createdAt: Temporal.Instant.from },
 }) {}
 ```
 

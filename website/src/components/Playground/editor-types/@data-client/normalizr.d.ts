@@ -5,9 +5,7 @@ type Serializable<T extends {
     toJSON(): string;
 } = {
     toJSON(): string;
-}> = {
-    prototype: T;
-};
+}> = (value: any) => T;
 interface SchemaSimple<T = any> {
     normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities?: any, args?: any[]): any;
     denormalize(input: {}, args: any, unvisit: (input: any, schema: any) => any): T;

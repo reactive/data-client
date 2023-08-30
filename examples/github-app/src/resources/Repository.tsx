@@ -1,3 +1,5 @@
+import { Temporal } from '@js-temporal/polyfill';
+
 import { GithubEntity, createGithubResource, GithubGqlEndpoint } from './Base';
 
 export class Repository extends GithubEntity {
@@ -24,16 +26,16 @@ export class Repository extends GithubEntity {
   readonly archived: boolean = false;
   readonly disabled: boolean = false;
   readonly visibility: 'public' | 'private' = 'public';
-  readonly pushedAt: Date = new Date(0);
-  readonly createdAt: Date = new Date(0);
-  readonly updatedAt: Date = new Date(0);
+  readonly pushedAt = Temporal.Instant.fromEpochSeconds(0);
+  readonly createdAt = Temporal.Instant.fromEpochSeconds(0);
+  readonly updatedAt = Temporal.Instant.fromEpochSeconds(0);
   readonly templateRepository: null = null;
   readonly owner: { login: string } = { login: '' };
 
   static schema = {
-    pushedAt: Date,
-    createdAt: Date,
-    updatedAt: Date,
+    pushedAt: Temporal.Instant.from,
+    createdAt: Temporal.Instant.from,
+    updatedAt: Temporal.Instant.from,
   };
 
   pk() {

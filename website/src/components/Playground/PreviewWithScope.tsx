@@ -2,8 +2,8 @@ import * as graphql from '@data-client/graphql';
 import * as hooks from '@data-client/hooks';
 import * as rhReact from '@data-client/react';
 import * as rest from '@data-client/rest';
-import * as restNext from '@data-client/rest/next';
 import type { Fixture, Interceptor } from '@data-client/test';
+import { Temporal, Intl as PolyIntl } from '@js-temporal/polyfill';
 import BigNumber from 'bignumber.js';
 import React from 'react';
 import { LiveProvider } from 'react-live';
@@ -30,10 +30,14 @@ const mockFetch = (getResponse, name, delay = 150) => {
   return fetch;
 };
 
+const Intl = {
+  ...globalThis.Intl,
+  ...PolyIntl,
+};
+
 const scope = {
   ...rhReact,
   ...rest,
-  ...restNext,
   ...graphql,
   ...hooks,
   uuid,
@@ -41,6 +45,9 @@ const scope = {
   mockFetch,
   BigNumber,
   ResetableErrorBoundary,
+  Temporal,
+  Intl,
+  DateTimeFormat: PolyIntl.DateTimeFormat,
   ...designSystem,
 };
 

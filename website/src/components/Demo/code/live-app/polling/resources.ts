@@ -4,7 +4,7 @@ export class Ticker extends Entity {
   trade_id = 0;
   price = 0;
   size = '0';
-  time = new Date(0);
+  time = Temporal.Instant.fromEpochSeconds(0);
   bid = '0';
   ask = '0';
   volume = '';
@@ -17,7 +17,7 @@ export class Ticker extends Entity {
 
   static schema = {
     price: Number,
-    time: Date,
+    time: Temporal.Instant.from,
   };
 }
 
