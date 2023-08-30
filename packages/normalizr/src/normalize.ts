@@ -36,11 +36,6 @@ const visit = (
     );
   }
 
-  // serializable
-  if (typeof schema === 'function') {
-    return new schema(value);
-  }
-
   if (typeof value !== 'object' || typeof schema !== 'object') return value;
 
   const method = Array.isArray(schema) ? arrayNormalize : objectNormalize;

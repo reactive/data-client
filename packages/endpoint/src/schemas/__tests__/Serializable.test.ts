@@ -40,7 +40,7 @@ const objectSchema = {
 };
 
 describe(`Serializable normalization`, () => {
-  test('normalizes date and custom', () => {
+  test('normalizes date and custom as passthrough', () => {
     const norm = normalize(
       {
         user: {
@@ -53,8 +53,8 @@ describe(`Serializable normalization`, () => {
       },
       objectSchema,
     );
-    expect(norm.result.time.getTime()).toBe(norm.result.time.getTime());
-    expect(norm.result.anotherItem).toBeInstanceOf(Other);
+    expect(norm.result.time).toBe(norm.result.time);
+    expect(typeof norm.result.time).toBe('string');
     expect(norm.entities[User.key]['1'].createdAt).toBe(
       norm.entities[User.key]['1'].createdAt,
     );
