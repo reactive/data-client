@@ -1,5 +1,11 @@
 # @data-client/rest
 
+## 0.8.1
+
+### Patch Changes
+
+- [#2797](https://github.com/data-client/data-client/pull/2797) [`c6ee872c7d`](https://github.com/data-client/data-client/commit/c6ee872c7d4bb669fa7b08a5343b24419c797cee) Thanks [@ntucker](https://github.com/ntucker)! - Fix published dependency range
+
 ## 0.8.0
 
 ### Minor Changes

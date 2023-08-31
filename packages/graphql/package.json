@@ -1,6 +1,6 @@
 {
   "name": "@data-client/graphql",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Endpoints for GraphQL APIs",
   "homepage": "https://dataclient.io/docs/graphql",
   "repository": {

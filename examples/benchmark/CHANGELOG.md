@@ -1,5 +1,12 @@
 # example-benchmark
 
+## 0.4.28
+
+### Patch Changes
+
+- Updated dependencies [[`c6ee872c7d`](https://github.com/data-client/data-client/commit/c6ee872c7d4bb669fa7b08a5343b24419c797cee)]:
+  - @data-client/core@0.8.1
+
 ## 0.4.27
 
 ### Patch Changes
