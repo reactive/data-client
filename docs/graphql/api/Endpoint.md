@@ -121,7 +121,7 @@ endpoint an unpredictable number of times.
 Declarative definition of how to [process responses](./schema.md)
 
 - [where](./schema.md) to expect [Entities](./Entity.md)
-- Classes to [deserialize fields](/rest/guides/network-transform#deserializing-fields)
+- Functions to [deserialize fields](/rest/guides/network-transform#deserializing-fields)
 
 Not providing this option means no entities will be extracted.
 

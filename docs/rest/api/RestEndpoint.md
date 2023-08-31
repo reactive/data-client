@@ -643,7 +643,7 @@ async (id: string) => {
 [Declarative data lifecycle](./schema.md)
 
 - Global data consistency and performance with [DRY](https://www.plutora.com/blog/understanding-the-dry-dont-repeat-yourself-principle) state: [where](./schema.md) to expect [Entities](./Entity.md)
-- Classes to [deserialize fields](/rest/guides/network-transform#deserializing-fields)
+- Functions to [deserialize fields](/rest/guides/network-transform#deserializing-fields)
 - [Race condition handling](./Entity.md#useincoming)
 - [Validation](./Entity.md#validate)
 - [Expiry](./Entity.md#expiresat)

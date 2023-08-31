@@ -85,7 +85,7 @@ Perform any transforms with the parsed result. Defaults to identity function.
 Declarative definition of how to [process responses](./schema)
 
 - [where](./schema) to expect [Entities](./Entity.md)
-- Classes to deserialize fields
+- Functions to deserialize fields
 
 Not providing this option means no entities will be extracted.
 
