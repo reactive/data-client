@@ -124,8 +124,8 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime": "^7.17.0",
-    "@data-client/core": "workspace:^",
-    "@data-client/use-enhanced-reducer": "workspace:^"
+    "@data-client/core": "^0.8.0",
+    "@data-client/use-enhanced-reducer": "^0.1.0"
   },
   "peerDependencies": {
     "@react-navigation/native": "^6.0.0",

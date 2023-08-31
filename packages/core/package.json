@@ -120,7 +120,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.17.0",
-    "@data-client/normalizr": "workspace:^",
+    "@data-client/normalizr": "^0.8.0",
     "flux-standard-action": "^2.1.1"
   },
   "devDependencies": {
