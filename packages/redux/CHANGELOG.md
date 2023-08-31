@@ -1,5 +1,23 @@
 # @data-client/redux
 
+## 0.8.0
+
+### Minor Changes
+
+- [#2787](https://github.com/data-client/data-client/pull/2787) [`8ec35d7143`](https://github.com/data-client/data-client/commit/8ec35d71437c4042c6cb824eceb490d31c36ae21) Thanks [@ntucker](https://github.com/ntucker)! - Remove makeCacheProvider
+
+  Current testing version is already [using the provider Component directly](https://dataclient.io/docs/api/makeRenderDataClient)
+
+  ```tsx
+  import { CacheProvider } from '@data-client/react';
+  const renderDataClient = makeRenderDataClient(CacheProvider);
+  ```
+
+### Patch Changes
+
+- Updated dependencies [[`837cf57883`](https://github.com/data-client/data-client/commit/837cf57883544c7640344a01f43bf6d9e3369083), [`f65cf832f0`](https://github.com/data-client/data-client/commit/f65cf832f0cdc4d01cb2f389a2dc2b37f1e5cf04), [`c865415ce5`](https://github.com/data-client/data-client/commit/c865415ce598d2b882262f795c4a816b2aa0808a), [`ff51e71f45`](https://github.com/data-client/data-client/commit/ff51e71f45857eb172f3fe05829e34c9abb68252), [`c535f6c0ac`](https://github.com/data-client/data-client/commit/c535f6c0ac915b5242c1c7694308b7ee7aab16a1), [`d3343d42b9`](https://github.com/data-client/data-client/commit/d3343d42b970d075eda201cb85d201313120807c), [`5ff1d65eb5`](https://github.com/data-client/data-client/commit/5ff1d65eb526306f2a78635b659f29554625e853)]:
+  - @data-client/core@0.8.0
+
 ## 0.2.2
 
 ### Patch Changes

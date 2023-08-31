@@ -1,5 +1,11 @@
 # @data-client/ssr
 
+## 0.8.0
+
+### Patch Changes
+
+- [#2779](https://github.com/data-client/data-client/pull/2779) [`ff51e71f45`](https://github.com/data-client/data-client/commit/ff51e71f45857eb172f3fe05829e34c9abb68252) Thanks [@ntucker](https://github.com/ntucker)! - Update jsdocs references to dataclient.io
+
 ## 0.2.1
 
 ### Patch Changes

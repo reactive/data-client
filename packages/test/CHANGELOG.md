@@ -1,5 +1,13 @@
 # @data-client/test
 
+## 0.8.0
+
+### Minor Changes
+
+- [#2782](https://github.com/data-client/data-client/pull/2782) [`d3343d42b9`](https://github.com/data-client/data-client/commit/d3343d42b970d075eda201cb85d201313120807c) Thanks [@ntucker](https://github.com/ntucker)! - Requires @data-client/react@^0.5.0
+
+- [#2788](https://github.com/data-client/data-client/pull/2788) [`ccaccdbe99`](https://github.com/data-client/data-client/commit/ccaccdbe9971d95556144e90a3afa41e8dc39183) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING: makeRenderRestHook -> [makeRenderDataClient](https://dataclient.io/docs/api/makeRenderDataClient)
+
 ## 0.3.1
 
 ### Patch Changes
