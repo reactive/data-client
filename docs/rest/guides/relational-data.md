@@ -545,14 +545,14 @@ export class User extends Entity {
   id = '';
   name = '';
   posts: Post[] = [];
-  createdAt = new Date(0);
+  createdAt = Temporal.Instant.fromEpochSeconds(0);
 
   pk() {
     return this.id;
   }
 
   static schema: Record<string, Schema | Date> = {
-    createdAt: Date,
+    createdAt: Temporal.Instant.from,
   };
 }
 ```

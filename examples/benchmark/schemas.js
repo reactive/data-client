@@ -1,3 +1,5 @@
+import { Temporal } from '@js-temporal/polyfill';
+
 import { Entity, schema, Query } from './dist/index.js';
 
 export class BuildTypeDescription extends Entity {
@@ -165,16 +167,16 @@ export class User extends Entity {
   publicGists = 0;
   followers = 0;
   following = 0;
-  createdAt = new Date(0);
-  updatedAt = new Date(0);
+  createdAt = Temporal.Instant.fromEpochSeconds(0);
+  updatedAt = Temporal.Instant.fromEpochSeconds(0);
   privateGists = 0;
   totalPrivateRepos = 0;
   ownedPrivateRepos = 0;
   collaborators = 0;
 
   static schema = {
-    createdAt: Date,
-    updatedAt: Date,
+    createdAt: Temporal.Instant.from,
+    updatedAt: Temporal.Instant.from,
   };
 
   pk() {

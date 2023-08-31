@@ -48,7 +48,7 @@ class Article extends Entity {
   title = '';
   body = '';
   author = User.fromJS();
-  createdAt = new Date(0);
+  createdAt = Temporal.Instant.fromEpochSeconds(0);
 
   pk() {
     return this.id;
@@ -56,7 +56,7 @@ class Article extends Entity {
 
   static schema = {
     author: User,
-    createdAt: Date,
+    createdAt: Temporal.Instant.from,
   };
 }
 ```

@@ -1,5 +1,6 @@
 // eslint-env jest
 import { normalize } from '@data-client/normalizr';
+import { Temporal } from '@js-temporal/polyfill';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
@@ -52,7 +53,7 @@ describe(`${schema.Object.name} normalization`, () => {
     const WithOptional = new schema.Object({
       user: User,
       nextPage: '',
-      createdAt: Date,
+      createdAt: Temporal.Instant.from,
     });
     const normalized = normalize(
       {
@@ -72,7 +73,7 @@ describe(`${schema.Object.name} normalization`, () => {
     const WithOptional = new schema.Object({
       user: User,
       nextPage: '',
-      createdAt: Date,
+      createdAt: Temporal.Instant.from,
     });
     const normalized = normalize(
       {

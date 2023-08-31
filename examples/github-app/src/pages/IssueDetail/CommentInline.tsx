@@ -1,6 +1,7 @@
 import { Link, useRoutes } from '@anansi/router';
 import { EllipsisOutlined } from '@ant-design/icons';
 import { useCache, useController } from '@data-client/react';
+import { Intl } from '@js-temporal/polyfill';
 import { css } from '@linaria/core';
 import { Card, Avatar, Button, Tag, Popover } from 'antd';
 import FlexRow from 'components/FlexRow';

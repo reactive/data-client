@@ -361,10 +361,10 @@ class User extends Entity {
 }
 class Post extends Entity {
   readonly author: User = User.fromJS({});
-  readonly createdAt: Date = new Date(0);
+  readonly createdAt = Temporal.Instant.fromEpochSeconds(0);
   static schema = {
     author: User,
-    createdAt: Date,
+    createdAt: Temporal.Instant.from,
   };
   pk() {
     return this.id;
@@ -381,7 +381,7 @@ function PostPage() {
         {post.content} - <cite>{post.author.name}</cite>
       </p>
       <time>
-        {Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
+        {DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
           post.createdAt,
         )}
       </time>
@@ -401,11 +401,11 @@ considered 'optional'
 ```typescript
 class User extends Entity {
   readonly friend: User | null = null; // this field is optional
-  readonly lastUpdated: Date = new Date(0);
+  readonly lastUpdated = Temporal.Instant.fromEpochSeconds(0);
 
   static schema = {
     friend: User,
-    lastUpdated: Date,
+    lastUpdated: Temporal.Instant.from,
   };
 }
 ```

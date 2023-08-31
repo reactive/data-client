@@ -1,3 +1,5 @@
+import { Temporal } from '@js-temporal/polyfill';
+
 import { GithubEntity, createGithubResource } from './Base';
 import { Label } from './Label';
 import { stateToIcon } from './stateToIcon';
@@ -14,8 +16,8 @@ export class Issue extends GithubEntity {
   readonly state: 'open' | 'closed' = 'open';
   readonly locked: boolean = false;
   readonly comments: number = 0;
-  readonly createdAt: Date = new Date(0);
-  readonly updatedAt: Date = new Date(0);
+  readonly createdAt = Temporal.Instant.fromEpochSeconds(0);
+  readonly updatedAt = Temporal.Instant.fromEpochSeconds(0);
   readonly closedAt: Date | null = null;
   readonly labels: Label[] = [];
   readonly authorAssociation: string = 'NONE';
@@ -38,9 +40,9 @@ export class Issue extends GithubEntity {
 
   static schema = {
     user: User,
-    createdAt: Date,
-    updatedAt: Date,
-    closedAt: Date,
+    createdAt: Temporal.Instant.from,
+    updatedAt: Temporal.Instant.from,
+    closedAt: Temporal.Instant.from,
     labels: [Label],
   };
 

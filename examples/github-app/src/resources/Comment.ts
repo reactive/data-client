@@ -1,3 +1,5 @@
+import { Temporal } from '@js-temporal/polyfill';
+
 import { GithubEntity, createGithubResource } from './Base';
 import { User } from './User';
 
@@ -6,8 +8,8 @@ export class Comment extends GithubEntity {
   readonly htmlUrl: string = '';
   readonly body: string = '';
   readonly user: User = User.fromJS();
-  readonly createdAt: Date = new Date(0);
-  readonly updatedAt: Date = new Date(0);
+  readonly createdAt = Temporal.Instant.fromEpochSeconds(0);
+  readonly updatedAt = Temporal.Instant.fromEpochSeconds(0);
   readonly authorAssociation: string = 'NONE';
 
   get owner() {
@@ -22,8 +24,8 @@ export class Comment extends GithubEntity {
 
   static schema = {
     user: User,
-    createdAt: Date,
-    updatedAt: Date,
+    createdAt: Temporal.Instant.from,
+    updatedAt: Temporal.Instant.from,
   };
 }
 export const CommentResource = createGithubResource({

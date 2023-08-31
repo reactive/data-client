@@ -8,9 +8,7 @@ export type Schema =
 
 export type Serializable<
   T extends { toJSON(): string } = { toJSON(): string },
-> = {
-  prototype: T;
-};
+> = (value: any) => T;
 
 export interface SchemaSimple<T = any> {
   normalize(

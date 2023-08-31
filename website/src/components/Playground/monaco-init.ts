@@ -207,6 +207,9 @@ if (
         /* webpackChunkName: 'bignumberDTS', webpackPreload: true */ '!!raw-loader?esModule=false!./editor-types/bignumber.d.ts'
       ),
       import(
+        /* webpackChunkName: 'temporalDTS', webpackPreload: true */ '!!raw-loader?esModule=false!./editor-types/temporal.d.ts'
+      ),
+      import(
         /* webpackChunkName: 'uuidDTS', webpackPreload: true */ '!!raw-loader?esModule=false!./editor-types/uuid.d.ts'
       ),
       ...rhDeps.map(
@@ -218,8 +221,8 @@ if (
     ]).then(([mPromise, ...settles]) => {
       if (mPromise.status !== 'fulfilled' || !mPromise.value) return;
       const monaco = mPromise.value;
-      const [react, bignumber, uuid, ...rhLibs] = settles.map(result =>
-        result.status === 'fulfilled' ? result.value.default : '',
+      const [react, bignumber, temporal, uuid, ...rhLibs] = settles.map(
+        result => (result.status === 'fulfilled' ? result.value.default : ''),
       );
 
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
@@ -297,11 +300,18 @@ if (
         'file:///node_modules/bignumber.js/index.d.ts',
       );
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
+        `declare module "@js-temporal/polyfill" { ${temporal} }`,
+        'file:///node_modules/@js-temporal/polyfill/index.d.ts',
+      );
+      monaco.languages.typescript.typescriptDefaults.addExtraLib(
         `declare module "uuid" { ${uuid} }`,
         'file:///node_modules/@types/uuid/index.d.ts',
       );
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
         `declare globals { ${react} }`,
+      );
+      monaco.languages.typescript.typescriptDefaults.addExtraLib(
+        `declare globals { export { Temporal, DateTimeFormat } from '@js-temporal/polyfill'; }`,
       );
 
       rhLibs.forEach((lib, i) => {

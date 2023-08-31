@@ -57,7 +57,7 @@ class User extends Entity {
   id = '';
   firstName = '';
   lastName = '';
-  createdAt = new Date(0);
+  createdAt = Temporal.Instant.fromEpochSeconds(0);
 
   pk() {
     return this.id;
@@ -66,7 +66,7 @@ class User extends Entity {
 
   // highlight-start
   static schema = {
-    createdAt: Date,
+    createdAt: Temporal.Instant.from,
   };
   // highlight-end
 }

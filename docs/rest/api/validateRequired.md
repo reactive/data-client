@@ -24,7 +24,7 @@ This can be useful to automatically validate for [partial results](/docs/concept
 ```ts
 class SummaryAnalysis extends Entity {
   readonly id: string = '';
-  readonly createdAt: Date = new Date(0);
+  readonly createdAt = Temporal.Instant.fromEpochSeconds(0);
   readonly meanValue: number = 0;
   readonly title: string = '';
 
@@ -46,10 +46,10 @@ In case we have a field that won't always be present (like `lastRun` here), we c
 ```ts
 class FullAnalysis extends SummaryAnalysis {
   readonly graph: number[] = [];
-  readonly lastRun?: Date = new Date(0);
+  readonly lastRun? = Temporal.Instant.fromEpochSeconds(0);
 
   static schema = {
-    lastRun: Date,
+    lastRun: Temporal.Instant.from,
   }
 
   static validate(processedEntity) {
@@ -83,10 +83,10 @@ In case every field of the 'full' resource was optional:
 ```ts
 class FullAnalysis extends SummaryAnalysis {
   readonly graph?: number[] = [];
-  readonly lastRun?: Date = new Date(0);
+  readonly lastRun? = Temporal.Instant.fromEpochSeconds(0);
 
   static schema = {
-    lastRun: Date,
+    lastRun: Temporal.Instant.from,
   }
 
   static validate(processedEntity) {
@@ -102,10 +102,10 @@ In this case, it is best to provide a `null` default for *at least* one field.
 ```ts
 class FullAnalysis extends SummaryAnalysis {
   readonly graph: number[] = null;
-  readonly lastRun?: Date = new Date(0);
+  readonly lastRun? = Temporal.Instant.fromEpochSeconds(0);
 
   static schema = {
-    lastRun: Date,
+    lastRun: Temporal.Instant.from,
   }
 
   static validate(processedEntity) {

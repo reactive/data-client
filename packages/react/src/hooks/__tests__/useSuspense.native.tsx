@@ -10,6 +10,7 @@ import { Endpoint, FetchFunction, ReadEndpoint } from '@data-client/endpoint';
 import { normalize } from '@data-client/normalizr';
 import { makeRenderDataClient, mockInitialState } from '@data-client/test';
 import { jest } from '@jest/globals';
+import { Temporal } from '@js-temporal/polyfill';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { render, act, screen } from '@testing-library/react-native';
@@ -30,10 +31,10 @@ import { createEntityMeta } from '__tests__/utils';
 import { SpyInstance } from 'jest-mock';
 import nock from 'nock';
 import React, { Suspense } from 'react';
-// relative imports to avoid circular dependency in tsconfig references
 import { Text, View } from 'react-native';
 import { InteractionManager } from 'react-native';
 
+// relative imports to avoid circular dependency in tsconfig references
 import {
   CacheProvider,
   useController,
@@ -565,11 +566,11 @@ describe('useSuspense()', () => {
     // undefined means it threw
     expect(result.current).toBeUndefined();
     await waitForNextUpdate();
-    expect(result.current.createdAt.getDate()).toBe(
-      result.current.createdAt.getDate(),
-    );
+    expect(
+      result.current.createdAt.equals(result.current.createdAt),
+    ).toBeTruthy();
     expect(result.current.createdAt).toEqual(
-      new Date('2020-06-07T02:00:15+0000'),
+      Temporal.Instant.from('2020-06-07T02:00:15+0000'),
     );
     expect(result.current.id).toEqual(payload.id);
     expect(result.current).toBeInstanceOf(ArticleTimed);

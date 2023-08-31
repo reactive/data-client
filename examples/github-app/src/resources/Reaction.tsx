@@ -1,4 +1,5 @@
 import { HeartOutlined } from '@ant-design/icons';
+import { Temporal } from '@js-temporal/polyfill';
 
 import { createGithubResource, GithubEntity } from './Base';
 import PreviewEndpoint from './PreviewEndpoint';
@@ -7,7 +8,7 @@ import { User } from './User';
 export class Reaction extends GithubEntity {
   readonly user: User = User.fromJS();
   readonly content: ReactionType = '+1';
-  readonly createdAt: Date = new Date(0);
+  readonly createdAt = Temporal.Instant.fromEpochSeconds(0);
 
   get contentIcon() {
     return contentToIcon[this.content];
@@ -19,7 +20,7 @@ export class Reaction extends GithubEntity {
 
   static schema = {
     user: User,
-    createdAt: Date,
+    createdAt: Temporal.Instant.from,
   };
 }
 

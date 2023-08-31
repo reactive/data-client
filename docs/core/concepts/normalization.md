@@ -157,7 +157,9 @@ import { useController } from '@data-client/react';
 export default function NewTodoForm() {
   const ctrl = useController();
   return (
-    <Form onSubmit={e => ctrl.fetch(todoCreate, new FormData(e.target))}>
+    <Form
+      onSubmit={e => ctrl.fetch(todoCreate, new FormData(e.target))}
+    >
       <FormField name="title" />
     </Form>
   );
@@ -191,7 +193,9 @@ export default function UpdateTodoForm({ id }: { id: number }) {
   const ctrl = useController();
   return (
     <Form
-      onSubmit={e => ctrl.fetch(todoUpdate, { id }, new FormData(e.target))}
+      onSubmit={e =>
+        ctrl.fetch(todoUpdate, { id }, new FormData(e.target))
+      }
       initialValues={todo}
     >
       <FormField name="title" />
@@ -350,8 +354,8 @@ class User extends Entity {
 
 ### Data Representations
 
-Additionally, any `newable` class that has a toJSON() method, can be [used as a schema](/rest/guides/network-transform#deserializing-fields). This will simply construct the object during denormalization.
-This might be useful with representations like [bignumber](https://mikemcl.github.io/bignumber.js/)
+Additionally, functions can be [used as a schema](/rest/guides/network-transform#deserializing-fields). This will be called during denormalization.
+This might be useful with representations like [bignumber](https://mikemcl.github.io/bignumber.js/) or [temporal instant](https://tc39.es/proposal-temporal/docs/instant.html)
 
 ```ts
 import { Entity } from '@data-client/endpoint';
@@ -362,7 +366,7 @@ class Todo extends Entity {
   title = '';
   completed = false;
   // highlight-next-line
-  dueDate = new Date(0);
+  dueDate = Temporal.Instant.fromEpochSeconds(0);
 
   pk() {
     return `${this.id}`;
@@ -372,7 +376,7 @@ class Todo extends Entity {
   static schema = {
     user: User,
     // highlight-next-line
-    dueDate: Date,
+    dueDate: Temporal.Instant.from,
   };
 }
 ```

@@ -1,4 +1,5 @@
 // eslint-env jest
+import { Temporal } from '@js-temporal/polyfill';
 import { IDEntity } from '__tests__/new';
 
 import denormalize from '../schemas/__tests__/denormalize';
@@ -38,13 +39,13 @@ class Tacos extends IDEntity {
 class MyEntity extends Entity {
   readonly name: string = '';
   readonly secondthing: string = '';
-  readonly blarb?: Date = new Date(0);
+  blarb = Temporal.Instant.fromEpochSeconds(0);
   pk() {
     return this.name;
   }
 
   static schema = {
-    blarb: Date,
+    blarb: Temporal.Instant.from,
   };
 
   static validate(processedEntity: any): string | undefined {
@@ -62,7 +63,7 @@ describe(`validateRequired`, () => {
       }),
     ).toMatchInlineSnapshot(`
       MyEntity {
-        "blarb": 1970-01-01T00:00:00.000Z,
+        "blarb": "1970-01-01T00:00:00Z",
         "name": "bob",
         "secondthing": "hi",
       }
@@ -83,7 +84,7 @@ describe(`validateRequired`, () => {
       }),
     ).toMatchInlineSnapshot(`
       MyEntity {
-        "blarb": 1970-01-01T00:01:40.000Z,
+        "blarb": "1970-01-01T00:01:40Z",
         "name": "bob",
         "secondthing": "hi",
       }

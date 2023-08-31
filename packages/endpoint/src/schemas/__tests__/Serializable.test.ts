@@ -1,5 +1,6 @@
 // eslint-env jest
 import { normalize } from '@data-client/normalizr';
+import { Temporal, Intl, toTemporalInstant } from '@js-temporal/polyfill';
 import { IDEntity } from '__tests__/new';
 
 import denormalize from './denormalize';
@@ -17,26 +18,20 @@ afterAll(() => {
 });
 
 class User extends IDEntity {
-  createdAt = new Date(0);
+  createdAt = new Temporal.Instant(0n);
   name = '';
   static schema = {
-    createdAt: Date,
+    createdAt: Temporal.Instant.from,
   };
 }
-class Other {
-  thing = 0;
-  constructor(props) {
-    this.thing = props.thing;
-  }
 
-  toJSON() {
-    return { thing: this.thing };
-  }
+function Other(props: any) {
+  return { defaulted: 0, ...props };
 }
 const objectSchema = {
   user: User,
   anotherItem: Other,
-  time: Date,
+  time: Temporal.Instant.from,
 };
 
 describe(`Serializable normalization`, () => {
@@ -70,26 +65,25 @@ describe(`Serializable denormalization`, () => {
         '1': {
           id: '1',
           name: 'Nacho',
-          createdAt: new Date('2020-06-07T02:00:15+0000'),
+          createdAt: '2020-06-07T02:00:15+0000',
         },
       },
     };
     const response = denormalize(
       {
         user: '1',
-        anotherItem: new Other({ thing: 500 }),
-        time: new Date('2020-06-07T02:00:15+0000'),
+        anotherItem: Other({ thing: 500 }),
+        time: '2020-06-07T02:00:15+0000',
       },
       objectSchema,
       entities,
     );
     expect(response).not.toEqual(expect.any(Symbol));
     if (typeof response === 'symbol') return;
-    expect(response.anotherItem).toBeInstanceOf(Other);
-    expect(response.time.getTime()).toBe(response.time.getTime());
-    expect(response.user?.createdAt.getTime()).toBe(
-      response.user?.createdAt.getTime(),
-    );
+    expect(response.time.equals(response.time)).toBeTruthy();
+    expect(
+      response.user?.createdAt.equals(response.user?.createdAt),
+    ).toBeTruthy();
     expect(response).toMatchSnapshot();
   });
 
@@ -99,7 +93,7 @@ describe(`Serializable denormalization`, () => {
         '1': {
           id: '1',
           name: 'Nacho',
-          createdAt: '2020-06-07T02:00:15+0000',
+          createdAt: '2020-06-07T02:00:15Z',
         },
       },
     };
@@ -107,18 +101,18 @@ describe(`Serializable denormalization`, () => {
       {
         user: '1',
         anotherItem: { thing: 500 },
-        time: '2020-06-07T02:00:15+0000',
+        time: '2020-06-07T02:00:15Z',
       },
       objectSchema,
       entities,
     );
     expect(response).not.toEqual(expect.any(Symbol));
     if (typeof response === 'symbol') return;
-    expect(response.anotherItem).toBeInstanceOf(Other);
-    expect(response.time.getTime()).toBe(response.time.getTime());
-    expect(response.user?.createdAt.getTime()).toBe(
-      response.user?.createdAt.getTime(),
-    );
+    expect(response.anotherItem.defaulted).toBe(0);
+    expect(response.time.equals(response.time)).toBeTruthy();
+    expect(
+      response.user?.createdAt.equals(response.user?.createdAt),
+    ).toBeTruthy();
     expect(response).toMatchSnapshot();
   });
 });

@@ -82,10 +82,10 @@ export class ArticleSummary extends Entity {
 
 export class Article extends ArticleSummary {
   content = '';
-  createdAt = new Date(0);
+  createdAt = Temporal.Instant.fromEpochSeconds(0);
 
   static schema = {
-    createdAt: Date,
+    createdAt: Temporal.Instant.from,
   };
 
   static validate(processedEntity) {
@@ -124,7 +124,7 @@ function ArticleDetail({ id, onHome }: Props) {
         <div>
           Created:{' '}
           <time>
-            {Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
+            {DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
               article.createdAt,
             )}
           </time>
@@ -173,10 +173,10 @@ class ArticleSummary extends Entity {
   id = '';
   title = '';
   content = '';
-  createdAt = new Date(0);
+  createdAt = Temporal.Instant.fromEpochSeconds(0);
 
   static schema = {
-    createdAt: Date,
+    createdAt: Temporal.Instant.from,
   };
 
   pk() {

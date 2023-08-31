@@ -61,7 +61,7 @@ export class Article extends Entity {
   content = '';
   author = User.fromJS();
   tags: string[] = [];
-  createdAt = new Date(0);
+  createdAt = Temporal.Instant.fromEpochSeconds(0);
 
   pk() {
     return this.id;
@@ -69,7 +69,7 @@ export class Article extends Entity {
 
   static schema = {
     author: User,
-    createdAt: Date,
+    createdAt: Temporal.Instant.from,
   };
 
   static key = 'Article';
@@ -111,13 +111,13 @@ export class Article {
   content = '';
   author = UserEntity.fromJS();
   tags: string[] = [];
-  createdAt = new Date(0);
+  createdAt = Temporal.Instant.fromEpochSeconds(0);
 }
 
 export class ArticleEntity extends schema.Entity(Article, {
   schema: {
     author: UserEntity,
-    createdAt: Date,
+    createdAt: Temporal.Instant.from,
   },
   key: 'Article',
 }) {}

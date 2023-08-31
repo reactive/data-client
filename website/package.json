@@ -42,6 +42,7 @@
     "@docusaurus/preset-classic": "canary",
     "@docusaurus/theme-live-codeblock": "canary",
     "@docusaurus/theme-mermaid": "canary",
+    "@js-temporal/polyfill": "^0.4.4",
     "@monaco-editor/react": "^4.4.6",
     "bignumber.js": "9.1.2",
     "classnames": "^2.3.2",

@@ -1,3 +1,5 @@
+import { Temporal } from '@js-temporal/polyfill';
+
 import { GithubEntity, createGithubResource } from './Base';
 import { Label } from './Label';
 import { stateToIcon } from './stateToIcon';
@@ -17,8 +19,8 @@ export class Pull extends GithubEntity {
   body = '';
   labels: Label[] = [];
   activeLockReason = '';
-  createdAt = new Date(0);
-  updatedAt = new Date(0);
+  createdAt = Temporal.Instant.fromEpochSeconds(0);
+  updatedAt = Temporal.Instant.fromEpochSeconds(0);
   closedAt: Date | null = null;
   authorAssociation = 'OWNER';
   autoMerge: null | boolean = null;
@@ -40,9 +42,9 @@ export class Pull extends GithubEntity {
 
   static schema = {
     user: User,
-    createdAt: Date,
-    updatedAt: Date,
-    closedAt: Date,
+    createdAt: Temporal.Instant.from,
+    updatedAt: Temporal.Instant.from,
+    closedAt: Temporal.Instant.from,
     labels: [Label],
   };
 

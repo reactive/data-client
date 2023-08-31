@@ -1,3 +1,5 @@
+import { Temporal } from '@js-temporal/polyfill';
+
 import { createGithubResource, GithubEndpoint, GithubEntity } from './Base';
 
 export class User extends GithubEntity {
@@ -29,16 +31,16 @@ export class User extends GithubEntity {
   readonly publicGists: number = 0;
   readonly followers: number = 0;
   readonly following: number = 0;
-  readonly createdAt: Date = new Date(0);
-  readonly updatedAt: Date = new Date(0);
+  readonly createdAt = Temporal.Instant.fromEpochSeconds(0);
+  readonly updatedAt = Temporal.Instant.fromEpochSeconds(0);
   readonly privateGists: number = 0;
   readonly totalPrivateRepos: number = 0;
   readonly ownedPrivateRepos: number = 0;
   readonly collaborators: number = 0;
 
   static schema = {
-    createdAt: Date,
-    updatedAt: Date,
+    createdAt: Temporal.Instant.from,
+    updatedAt: Temporal.Instant.from,
   };
 
   pk() {

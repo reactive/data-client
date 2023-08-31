@@ -83,7 +83,7 @@ import BigNumber from 'bignumber.js';
 
 export class ExchangePrice extends Entity {
   exchangePair = '';
-  updatedAt = new Date(0);
+  updatedAt = Temporal.Instant.fromEpochSeconds(0);
   price = new BigNumber(0);
   pk() {
     return this.exchangePair;
@@ -91,7 +91,7 @@ export class ExchangePrice extends Entity {
   static key = 'ExchangePrice';
 
   static schema = {
-    updatedAt: Date,
+    updatedAt: Temporal.Instant.from,
     price: BigNumber,
   };
 }
@@ -110,7 +110,7 @@ function PricePage() {
     <div>
       ${currentPrice.price.toFormat(2)} as of{' '}
       <time>
-        {Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
+        {DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
           currentPrice.updatedAt,
         )}
       </time>

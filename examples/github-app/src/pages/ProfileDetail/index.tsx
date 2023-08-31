@@ -1,4 +1,5 @@
 import { useSuspense } from '@data-client/react';
+import { Intl } from '@js-temporal/polyfill';
 import { Card, List, Layout, Typography } from 'antd';
 import Markdown from 'react-markdown';
 import { UserResource } from 'resources/User';

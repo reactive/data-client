@@ -1,12 +1,13 @@
 import { Entity, RestEndpoint } from '@data-client/rest';
 import type { FixtureEndpoint } from '@data-client/test';
+import { Temporal } from '@js-temporal/polyfill';
 
 // Visit https://dataclient.io/docs/guides/resource-types to read more about these definitions
 export class Ticker extends Entity {
   trade_id = 0;
   price = 0;
   size = '0';
-  time = new Date(0);
+  time = Temporal.Instant.fromEpochSeconds(0);
   bid = '0';
   ask = '0';
   volume = '';
@@ -21,7 +22,13 @@ export class Ticker extends Entity {
   // see https://dataclient.io/rest/api/Entity#schema
   static schema = {
     price: Number,
-    time: Date,
+    _time: Temporal.Instant.from,
+    get time() {
+      return this._time;
+    },
+    set time(value) {
+      this._time = value;
+    },
   };
 }
 

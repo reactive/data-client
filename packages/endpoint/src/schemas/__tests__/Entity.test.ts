@@ -1,6 +1,7 @@
 // eslint-env jest
 import { inferResults, normalize, WeakEntityMap } from '@data-client/normalizr';
 import { INVALID } from '@data-client/normalizr';
+import { Temporal } from '@js-temporal/polyfill';
 import { IDEntity } from '__tests__/new';
 import { fromJS, Record } from 'immutable';
 
@@ -148,7 +149,7 @@ describe(`${Entity.name} normalization`, () => {
       }
 
       static schema = {
-        blarb: Date,
+        blarb: Temporal.Instant.from,
       };
     }
     const schema = MyEntity;
@@ -168,7 +169,7 @@ describe(`${Entity.name} normalization`, () => {
       }
 
       static schema = {
-        blarb: Date,
+        blarb: Temporal.Instant.from,
       };
     }
     const schema = MyEntity;
@@ -858,7 +859,7 @@ describe.each([
         }
 
         static schema = {
-          blarb: Date,
+          blarb: Temporal.Instant.from,
         };
       }
       const schema = MyEntity;
@@ -886,7 +887,7 @@ describe.each([
         }
 
         static schema = {
-          blarb: Date,
+          blarb: Temporal.Instant.from,
         };
       }
       const schema = MyEntity;
@@ -1330,10 +1331,10 @@ describe('Entity.defaults', () => {
     }
     class UserEntity extends ID {
       username = '';
-      createdAt = new Date(0);
+      createdAt = Temporal.Instant.fromEpochSeconds(0);
 
       static schema = {
-        createdAt: Date,
+        createdAt: Temporal.Instant.from,
       };
     }
 
@@ -1344,7 +1345,7 @@ describe('Entity.defaults', () => {
     `);
     expect(UserEntity.getMyDefaults()).toMatchInlineSnapshot(`
       UserEntity {
-        "createdAt": 1970-01-01T00:00:00.000Z,
+        "createdAt": "1970-01-01T00:00:00Z",
         "id": "",
         "username": "",
       }

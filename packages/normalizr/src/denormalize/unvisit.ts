@@ -100,11 +100,10 @@ const getUnvisit = (
 
     const hasDenormalize = typeof schema.denormalize === 'function';
 
-    // deserialize fields (like Date)
+    // deserialize fields (like Temporal.Instant)
     if (!hasDenormalize && typeof schema === 'function') {
-      if (input instanceof schema) return input;
       if (input === undefined) return input;
-      return new schema(input);
+      return schema(input);
     }
 
     if (input === undefined) {
