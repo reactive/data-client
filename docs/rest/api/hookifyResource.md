@@ -118,25 +118,63 @@ hookifyResource(
 
 Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidate](/docs/api/Controller#invalidate)
 
-### useCreate()
+### useGetList().push {#push}
+
+[push](./RestEndpoint.md#push) creates a new entity and pushes it to the end of useGetList().
 
 - method: 'POST'
 - path: `shortenPath(path)`
-  - Removes the last argument:
-    ```ts
-    hookifyResource(createResource({ path: '/:first/:second' })).useCreate()
-      .path === '/:first';
-    hookifyResource(createResource({ path: '/:first' })).useCreate().path ===
-      '/';
-    ```
-- schema: `schema`
+- schema: `useGetList().schema.push`
 
 ```typescript
 // POST //test.com/api/abc
 // BODY { "title": "winning" }
-hookifyResource(
-  createResource({ urlPrefix: '//test.com', path: '/api/:group/:id' }),
-).useCreate()({ group: 'abc' }, { title: 'winning' });
+createResource({
+  urlPrefix: '//test.com',
+  path: '/api/:group/:id',
+}).useGetList().push({ group: 'abc' }, { title: 'winning' });
+```
+
+Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
+
+### useGetList().unshift {#unshift}
+
+[unshift](./RestEndpoint.md#unshift) creates a new entity and pushes it to the beginning of useGetList().
+
+- method: 'POST'
+- path: `shortenPath(path)`
+- schema: `useGetList().schema.unshift`
+
+```typescript
+// POST //test.com/api/abc
+// BODY { "title": "winning" }
+createResource({
+  urlPrefix: '//test.com',
+  path: '/api/:group/:id',
+}).useGetList().push({ group: 'abc' }, { title: 'winning' });
+```
+
+Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
+
+### useGetList().getPage {#getpage}
+
+[getPage](./RestEndpoint.md#getpage) retrieves another [page](../guides/pagination.md#infinite-scrolling) appending to useGetList() ensuring there are no duplicates.
+
+- method: 'GET'
+- args: `shortenPath(path) & { [paginationField]: string | number } & searchParams`
+- schema: [new schema.Collection(\[schema\]).addWith(paginatedMerge, paginatedFilter(removeCursor))](./Collection.md)
+
+```typescript
+// GET //test.com/api/abc?isExtra=xyz&page=2
+createResource({
+  urlPrefix: '//test.com',
+  path: '/api/:group/:id',
+  paginationField: 'page',
+}).useGetList().getPage({
+  group: 'abc',
+  isExtra: 'xyz',
+  page: '2',
+});
 ```
 
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)

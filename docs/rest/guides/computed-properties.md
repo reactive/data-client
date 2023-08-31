@@ -32,11 +32,11 @@ class User extends Entity {
 ```
 
 If the computations are expensive feel free to add some
-memoization.
+[memoization](https://github.com/anywhichway/nano-memoize).
 
 ```typescript
 import { Entity } from '@data-client/rest';
-import { memoize } from 'lodash';
+import memoize from 'nano-memoize';
 
 class User extends Entity {
   truelyExpensiveValue = memoize(() => {
