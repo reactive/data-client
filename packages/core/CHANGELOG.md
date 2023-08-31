@@ -1,5 +1,64 @@
 # @data-client/core
 
+## 0.8.0
+
+### Minor Changes
+
+- [`837cf57883`](https://github.com/data-client/data-client/commit/837cf57883544c7640344a01f43bf6d9e3369083) Thanks [@ntucker](https://github.com/ntucker)! - Remove newActions export
+
+  (All members continue to be exported at top level)
+
+- [`f65cf832f0`](https://github.com/data-client/data-client/commit/f65cf832f0cdc4d01cb2f389a2dc2b37f1e5cf04) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING: Remove all /next exports
+
+- [#2786](https://github.com/data-client/data-client/pull/2786) [`c865415ce5`](https://github.com/data-client/data-client/commit/c865415ce598d2b882262f795c4a816b2aa0808a) Thanks [@ntucker](https://github.com/ntucker)! - [Middleware](https://dataclient.io/docs/api/Manager#getmiddleware) no longer gets `controller` prop.
+
+  The entire API is controller itself:
+  `({controller}) => next => async action => {}` ->
+  `(controller) => next => async action => {}`
+
+  ```ts
+  class LoggingManager implements Manager {
+    getMiddleware = (): Middleware => controller => next => async action => {
+      console.log('before', action, controller.getState());
+      await next(action);
+      console.log('after', action, controller.getState());
+    };
+
+    cleanup() {}
+  }
+  ```
+
+  Note this has been possible for some time this simply drops
+  legacy compatibility.
+
+- [#2784](https://github.com/data-client/data-client/pull/2784) [`c535f6c0ac`](https://github.com/data-client/data-client/commit/c535f6c0ac915b5242c1c7694308b7ee7aab16a1) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGES:
+
+  - DELETE removed -> INVALIDATE
+  - drop all support for legacy schemas
+    - entity.expiresAt removed
+    - Collections.infer does entity check
+    - all Entity overrides for backcompat are removed - operates just like EntitySchema, except with extra validation
+
+- [#2782](https://github.com/data-client/data-client/pull/2782) [`d3343d42b9`](https://github.com/data-client/data-client/commit/d3343d42b970d075eda201cb85d201313120807c) Thanks [@ntucker](https://github.com/ntucker)! - Remove all 'receive' action names (use 'set' instead)
+
+  BREAKING CHANGE:
+
+  - remove ReceiveAction
+  - ReceiveTypes -> SetTypes
+  - remove Controller.receive Controller.receiveError
+  - NetworkManager.handleReceive -> handleSet
+
+- [#2781](https://github.com/data-client/data-client/pull/2781) [`5ff1d65eb5`](https://github.com/data-client/data-client/commit/5ff1d65eb526306f2a78635b659f29554625e853) Thanks [@ntucker](https://github.com/ntucker)! - Prefix action types with 'rdc'
+
+  BREAKING CHANGE: Action types have new names
+
+### Patch Changes
+
+- [#2779](https://github.com/data-client/data-client/pull/2779) [`ff51e71f45`](https://github.com/data-client/data-client/commit/ff51e71f45857eb172f3fe05829e34c9abb68252) Thanks [@ntucker](https://github.com/ntucker)! - Update jsdocs references to dataclient.io
+
+- Updated dependencies [[`ff51e71f45`](https://github.com/data-client/data-client/commit/ff51e71f45857eb172f3fe05829e34c9abb68252), [`c535f6c0ac`](https://github.com/data-client/data-client/commit/c535f6c0ac915b5242c1c7694308b7ee7aab16a1), [`79e286109b`](https://github.com/data-client/data-client/commit/79e286109b5566f8e7acfdf0f44201263072d1d1), [`35ccedceb5`](https://github.com/data-client/data-client/commit/35ccedceb53d91dd54dd996990c7c75719be2b85)]:
+  - @data-client/normalizr@0.8.0
+
 ## 0.4.3
 
 ### Patch Changes
