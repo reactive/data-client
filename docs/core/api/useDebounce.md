@@ -112,7 +112,11 @@ render(<SearchIssues />);
 ## Types
 
 ```typescript
-function useDebounce<T>(value: T, delay: number, updatable?: boolean): T;
+function useDebounce<T>(
+  value: T,
+  delay: number,
+  updatable?: boolean,
+): T;
 ```
 
 Part of [@data-client/hooks](https://www.npmjs.com/package/@data-client/hooks)

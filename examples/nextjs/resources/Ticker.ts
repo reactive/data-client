@@ -22,13 +22,7 @@ export class Ticker extends Entity {
   // see https://dataclient.io/rest/api/Entity#schema
   static schema = {
     price: Number,
-    _time: Temporal.Instant.from,
-    get time() {
-      return this._time;
-    },
-    set time(value) {
-      this._time = value;
-    },
+    time: Temporal.Instant.from,
   };
 }
 
