@@ -3133,19 +3133,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@data-client/core@workspace:^, @data-client/core@workspace:packages/core":
+"@data-client/core@^0.8.0, @data-client/core@workspace:^, @data-client/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@data-client/core@workspace:packages/core"
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@data-client/normalizr": "workspace:^"
+    "@data-client/normalizr": ^0.8.0
     "@types/node": ^20.0.0
     flux-standard-action: ^2.1.1
   languageName: unknown
   linkType: soft
 
-"@data-client/endpoint@workspace:^, @data-client/endpoint@workspace:packages/endpoint":
+"@data-client/endpoint@^0.8.0, @data-client/endpoint@workspace:^, @data-client/endpoint@workspace:packages/endpoint":
   version: 0.0.0-use.local
   resolution: "@data-client/endpoint@workspace:packages/endpoint"
   dependencies:
@@ -3162,7 +3162,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@data-client/endpoint": "workspace:^"
+    "@data-client/endpoint": ^0.8.0
     "@types/node": ^20.0.0
   languageName: unknown
   linkType: soft
@@ -3173,7 +3173,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@data-client/normalizr": "workspace:^"
+    "@data-client/normalizr": ^0.8.0
     "@types/node": ^20.0.0
     "@types/react": ^18.0.30
   peerDependencies:
@@ -3191,7 +3191,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@data-client/endpoint": "workspace:^"
+    "@data-client/endpoint": ^0.8.0
     "@data-client/react": "workspace:*"
     "@types/node": ^20.0.0
     "@types/react": ^18.0.30
@@ -3205,7 +3205,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/normalizr@workspace:*, @data-client/normalizr@workspace:^, @data-client/normalizr@workspace:packages/normalizr":
+"@data-client/normalizr@^0.8.0, @data-client/normalizr@workspace:*, @data-client/normalizr@workspace:^, @data-client/normalizr@workspace:packages/normalizr":
   version: 0.0.0-use.local
   resolution: "@data-client/normalizr@workspace:packages/normalizr"
   dependencies:
@@ -3222,8 +3222,8 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@data-client/core": "workspace:^"
-    "@data-client/use-enhanced-reducer": "workspace:^"
+    "@data-client/core": ^0.8.0
+    "@data-client/use-enhanced-reducer": ^0.1.0
     "@react-navigation/native": ^6.1.6
     "@types/node": ^20.0.0
     "@types/react": ^18.0.30
@@ -3246,7 +3246,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@data-client/core": "workspace:^"
+    "@data-client/core": ^0.8.0
     "@data-client/react": "workspace:*"
     "@types/node": ^20.0.0
     "@types/react": ^18.0.30
@@ -3268,7 +3268,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@data-client/endpoint": "workspace:^"
+    "@data-client/endpoint": ^0.8.0
     "@types/node": ^20.0.0
     "@types/path-to-regexp": ^1.7.0
     path-to-regexp: ^6.2.1
@@ -3348,7 +3348,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/use-enhanced-reducer@workspace:^, @data-client/use-enhanced-reducer@workspace:packages/use-enhanced-reducer":
+"@data-client/use-enhanced-reducer@^0.1.0, @data-client/use-enhanced-reducer@workspace:packages/use-enhanced-reducer":
   version: 0.0.0-use.local
   resolution: "@data-client/use-enhanced-reducer@workspace:packages/use-enhanced-reducer"
   dependencies:
