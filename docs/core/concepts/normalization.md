@@ -255,7 +255,7 @@ Mutations automatically update the normalized cache, resulting in consistent and
 Schemas are a declarative definition of how to [process responses](/rest/api/schema)
 
 - [where](/rest/api/schema) to expect [Entities](/rest/api/Entity)
-- Classes to [deserialize fields](/rest/guides/network-transform#deserializing-fields)
+- Functions to [deserialize fields](/rest/guides/network-transform#deserializing-fields)
 
 ```typescript
 import { RestEndpoint, schema } from '@data-client/rest';

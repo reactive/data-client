@@ -63,7 +63,7 @@ Keeping data in the serialized form is often fine, especially if it is only bein
 be displayed. However, this can be problematic when derived data is computed like adding time to a date
 or multiplying two numbers.
 
-In this case, simply use the [static schema](api/Entity.md#schema) with [Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date) and [BigNumber](https://github.com/MikeMcl/bignumber.js)
+In this case, simply use the [static schema](api/Entity.md#schema) with [Temporal.Instant](https://tc39.es/proposal-temporal/) and [BigNumber](https://github.com/MikeMcl/bignumber.js)
 
 <HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
 {
