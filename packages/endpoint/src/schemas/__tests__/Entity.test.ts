@@ -140,7 +140,7 @@ describe(`${Entity.name} normalization`, () => {
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
 
-  it('should throw a custom error if schema key is missing from Entity', () => {
+  it('should not throw if schema key is missing from Entity', () => {
     class MyEntity extends Entity {
       readonly name: string = '';
       readonly secondthing: string = '';
@@ -153,10 +153,10 @@ describe(`${Entity.name} normalization`, () => {
       };
     }
     const schema = MyEntity;
-    function normalizeBad() {
-      normalize({ name: 'bob', secondthing: 'hi' }, schema);
-    }
-    expect(normalizeBad).toThrowErrorMatchingSnapshot();
+
+    expect(
+      normalize({ name: 'bob', secondthing: 'hi' }, schema),
+    ).toMatchSnapshot();
   });
 
   it('should handle optional schema entries Entity', () => {
@@ -262,81 +262,6 @@ describe(`${Entity.name} normalization`, () => {
     expect(warnSpy.mock.calls).toMatchSnapshot();
   });
 
-  it('should only warn if at least four members are found with unexpected', () => {
-    class MyEntity extends Entity {
-      readonly name: string = '';
-      readonly a: string = '';
-      readonly b: string = '';
-      readonly c: string = '';
-      readonly missinga: string = '';
-      readonly missingb: string = '';
-      readonly missingc: string = '';
-      readonly missingd: string = '';
-      readonly missinge: string = '';
-      readonly missingf: string = '';
-      readonly missingg: string = '';
-      readonly missingh: string = '';
-      readonly missingi: string = '';
-      readonly missingj: string = '';
-      readonly missingk: string = '';
-      readonly missingl: string = '';
-      readonly missingm: string = '';
-      readonly missingn: string = '';
-      readonly missingo: string = '';
-      readonly missingp: string = '';
-      pk() {
-        return this.name;
-      }
-    }
-    const schema = MyEntity;
-
-    expect(
-      normalize(
-        {
-          name: 'hi',
-          a: 'a',
-          b: 'b',
-          c: 'c',
-          d: 'e',
-          e: 0,
-          f: 0,
-          g: 0,
-          h: 0,
-          i: 0,
-          j: 0,
-          k: 0,
-          l: 0,
-          m: 0,
-          n: 0,
-          o: 0,
-          p: 0,
-        },
-        schema,
-      ),
-    ).toMatchSnapshot();
-    expect(warnSpy.mock.calls.length).toBe(1);
-    expect(warnSpy.mock.calls).toMatchSnapshot();
-  });
-
-  it('should error if no matching keys are found', () => {
-    class MyEntity extends Entity {
-      readonly name: string = '';
-      pk() {
-        return (this as any).e;
-      }
-    }
-    const schema = MyEntity;
-
-    expect(() =>
-      normalize(
-        {
-          e: 0,
-        },
-        schema,
-      ),
-    ).toThrowErrorMatchingSnapshot();
-  });
-
   it('should allow many unexpected as long as none are missing', () => {
     class MyEntity extends Entity {
       readonly name: string = '';
@@ -379,6 +304,30 @@ describe(`${Entity.name} normalization`, () => {
     expect(warnSpy.mock.calls.length).toBe(0);
   });
 
+  it('should throw with custom validator', () => {
+    class MyEntity extends Entity {
+      readonly name: string = '';
+      readonly secondthing: string = '';
+      readonly thirdthing: number = 0;
+
+      get nonexistantthing() {
+        return this.name + 5;
+      }
+
+      pk() {
+        return this.name;
+      }
+
+      static validate(value: any) {
+        if (value.nonexistantthing) return 'should not contain getter';
+      }
+    }
+    function normalizeBad() {
+      normalize({ name: 'hoho', nonexistantthing: 'hi' }, MyEntity);
+    }
+    expect(normalizeBad).toThrow();
+  });
+
   it('should not expect getters returned', () => {
     class MyEntity extends Entity {
       readonly name: string = '';
@@ -403,102 +352,6 @@ describe(`${Entity.name} normalization`, () => {
     }
     expect(normalizeBad).not.toThrow();
     expect(warnSpy.mock.calls.length).toBe(0);
-  });
-
-  it('should throw if data loads with unexpected prop that is a getter', () => {
-    class MyEntity extends Entity {
-      readonly name: string = '';
-      readonly secondthing: string = '';
-      readonly thirdthing: number = 0;
-
-      get nonexistantthing() {
-        return this.name + 5;
-      }
-
-      pk() {
-        return this.name;
-      }
-    }
-    function normalizeBad() {
-      normalize({ name: 'hoho', nonexistantthing: 'hi' }, MyEntity);
-    }
-    expect(normalizeBad).toThrow();
-  });
-
-  it('should throw if data loads with unexpected prop that is a method', () => {
-    class MyEntity extends Entity {
-      readonly name: string = '';
-      readonly secondthing: string = '';
-      readonly thirdthing: number = 0;
-      readonly thirdthing2: number = 0;
-
-      nonexistantthing() {
-        return this.name + 5;
-      }
-
-      nonexistantthing2() {
-        return this.name + 5;
-      }
-
-      nonexistantthing3() {
-        return this.name + 5;
-      }
-
-      nonexistantthing4() {
-        return this.name + 5;
-      }
-
-      pk() {
-        return this.name;
-      }
-    }
-    function normalizeBad() {
-      normalize(
-        {
-          name: 'hoho',
-          nonexistantthing: 'hi',
-          nonexistantthing2: 'hi',
-          nonexistantthing3: 'hi',
-        },
-        MyEntity,
-      );
-    }
-    expect(normalizeBad).toThrow();
-  });
-
-  it('should throw a custom error if data loads with half unexpected props', () => {
-    class MyEntity extends Entity {
-      readonly name: string = '';
-      readonly secondthing: string = '';
-      readonly thirdthing: number = 0;
-      pk() {
-        return this.name;
-      }
-    }
-    const schema = MyEntity;
-    function normalizeBad() {
-      normalize({ name: 'hoho', nonexistantthing: 'hi' }, schema);
-    }
-    expect(normalizeBad).toThrowErrorMatchingSnapshot();
-  });
-
-  it('should warn when automaticValidation === "warn"', () => {
-    class MyEntity extends Entity {
-      readonly name: string = '';
-      readonly secondthing: string = '';
-      readonly thirdthing: number = 0;
-      static automaticValidation = 'warn' as const;
-      pk() {
-        return this.name;
-      }
-    }
-    const schema = MyEntity;
-    function normalizeBad() {
-      normalize({ name: 'hoho', nonexistantthing: 'hi' }, schema);
-    }
-    expect(normalizeBad).not.toThrow();
-    expect(warnSpy.mock.calls.length).toBe(1);
-    expect(warnSpy.mock.calls).toMatchSnapshot();
   });
 
   it('should do nothing when automaticValidation === "silent"', () => {

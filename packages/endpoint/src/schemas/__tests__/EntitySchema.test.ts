@@ -371,7 +371,7 @@ describe(`${schema.Entity.name} normalization`, () => {
     schema.Entity(MyData, { pk: 'sdfasd' });
   });
 
-  it('should throw a custom error if schema key is missing from Entity', () => {
+  it('should not throw if schema key is missing from Entity', () => {
     class MyData {
       name = '';
       secondthing = '';
@@ -384,10 +384,9 @@ describe(`${schema.Entity.name} normalization`, () => {
       },
     });
 
-    function normalizeBad() {
-      normalize({ name: 'bob', secondthing: 'hi' }, MyEntity);
-    }
-    expect(normalizeBad).toThrowErrorMatchingSnapshot();
+    expect(
+      normalize({ name: 'bob', secondthing: 'hi' }, MyEntity),
+    ).toMatchSnapshot();
   });
 
   it('should handle optional schema entries Entity', () => {

@@ -477,51 +477,19 @@ exports[`Entity normalization should allow many unexpected as long as none are m
 }
 `;
 
-exports[`Entity normalization should error if no matching keys are found 1`] = `
-"Attempted to initialize MyEntity with no matching keys found
-
-  This is likely due to a malformed response.
-  Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://dataclient.io/docs/guides/debugging
-  Learn more about schemas: https://dataclient.io/docs/api/schema
-  If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
-
-  Expected keys:
-    Found: 
-    Missing: name
-  Value (processed): {
-  "e": 0
-}"
-`;
-
-exports[`Entity normalization should only warn if at least four members are found with unexpected 1`] = `
+exports[`Entity normalization should not throw if schema key is missing from Entity 1`] = `
 {
   "entities": {
     "MyEntity": {
-      "hi": {
-        "a": "a",
-        "b": "b",
-        "c": "c",
-        "d": "e",
-        "e": 0,
-        "f": 0,
-        "g": 0,
-        "h": 0,
-        "i": 0,
-        "j": 0,
-        "k": 0,
-        "l": 0,
-        "m": 0,
-        "n": 0,
-        "name": "hi",
-        "o": 0,
-        "p": 0,
+      "bob": {
+        "name": "bob",
+        "secondthing": "hi",
       },
     },
   },
   "entityMeta": {
     "MyEntity": {
-      "hi": {
+      "bob": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
@@ -529,45 +497,8 @@ exports[`Entity normalization should only warn if at least four members are foun
     },
   },
   "indexes": {},
-  "result": "hi",
+  "result": "bob",
 }
-`;
-
-exports[`Entity normalization should only warn if at least four members are found with unexpected 2`] = `
-[
-  [
-    "Attempted to initialize MyEntity with a large number of unexpected keys found
-
-  This is likely due to a malformed response.
-  Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://dataclient.io/docs/guides/debugging
-  Learn more about schemas: https://dataclient.io/docs/api/schema
-  If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
-
-  Expected keys:
-    Found: name,a,b,c
-    Unexpected keys: d,e,f,g,h,i,j,k,l,m,n,o,p
-  Value (processed): {
-  "name": "hi",
-  "a": "a",
-  "b": "b",
-  "c": "c",
-  "d": "e",
-  "e": 0,
-  "f": 0,
-  "g": 0,
-  "h": 0,
-  "i": 0,
-  "j": 0,
-  "k": 0,
-  "l": 0,
-  "m": 0,
-  "n": 0,
-  "o": 0,
-  "p": 0
-}",
-  ],
-]
 `;
 
 exports[`Entity normalization should throw a custom error if data does not include pk (serializes pk) 1`] = `
@@ -600,24 +531,6 @@ exports[`Entity normalization should throw a custom error if data does not inclu
 "
 `;
 
-exports[`Entity normalization should throw a custom error if data loads with half unexpected props 1`] = `
-"Attempted to initialize MyEntity with a large number of unexpected keys found
-
-  This is likely due to a malformed response.
-  Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://dataclient.io/docs/guides/debugging
-  Learn more about schemas: https://dataclient.io/docs/api/schema
-  If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
-
-  Expected keys:
-    Found: name
-    Unexpected keys: nonexistantthing
-  Value (processed): {
-  "name": "hoho",
-  "nonexistantthing": "hi"
-}"
-`;
-
 exports[`Entity normalization should throw a custom error if data loads with no matching props 1`] = `
 "Missing usable primary key when normalizing response.
 
@@ -642,18 +555,6 @@ exports[`Entity normalization should throw a custom error if data loads with str
   }
 }
           Input: "hibho""
-`;
-
-exports[`Entity normalization should throw a custom error if schema key is missing from Entity 1`] = `
-"Schema key is missing in Entity
-
-  Be sure all schema members are also part of the entity
-  Or use debugging tools: https://dataclient.io/docs/guides/debugging
-  Learn more about nesting schemas: https://dataclient.io/rest/guides/relational-data
-
-  Entity keys: name,secondthing
-  Schema key(missing): blarb
-  "
 `;
 
 exports[`Entity normalization should throw a custom error loads with array 1`] = `
@@ -706,28 +607,6 @@ First three members: [
     "secondthing": "ho"
   }
 ]",
-  ],
-]
-`;
-
-exports[`Entity normalization should warn when automaticValidation === "warn" 2`] = `
-[
-  [
-    "Attempted to initialize MyEntity with a large number of unexpected keys found
-
-  This is likely due to a malformed response.
-  Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://dataclient.io/docs/guides/debugging
-  Learn more about schemas: https://dataclient.io/docs/api/schema
-  If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
-
-  Expected keys:
-    Found: name
-    Unexpected keys: nonexistantthing
-  Value (processed): {
-  "name": "hoho",
-  "nonexistantthing": "hi"
-}",
   ],
 ]
 `;

@@ -29,6 +29,8 @@ delay: 500,
 ]} row>
 
 ```ts title="UserResource" collapsed
+import { Entity, createResource } from '@data-client/rest';
+
 export class User extends Entity {
   id = '';
   name = '';
@@ -38,16 +40,13 @@ export class User extends Entity {
   }
   static key = 'User';
 }
-export const UserResource = {
-  ...createResource({
-    path: '/users/:id',
-    schema: User,
-  }),
-  current: new RestEndpoint({
-    path: '/user',
-    schema: User,
-  }),
-};
+export const UserResource = createResource({
+  path: '/users/:id',
+  schema: User,
+}).extend('current', {
+  path: '/user',
+  schema: User,
+});
 ```
 
 ```tsx title="Unauthed" collapsed
@@ -63,7 +62,11 @@ export default function Unauthed() {
   return (
     <div>
       <p>Not authorized</p>
-      {loading ? 'logging in...' : <button onClick={handleLogin}>Login</button>}
+      {loading ? (
+        'logging in...'
+      ) : (
+        <button onClick={handleLogin}>Login</button>
+      )}
     </div>
   );
 }
@@ -74,14 +77,13 @@ import { User, UserResource } from './UserResource';
 
 export default function Authorized({ user }: { user: User }) {
   const ctrl = useController();
-  const handleLogout = (e: any) => ctrl.invalidate(UserResource.current);
+  const handleLogout = (e: any) =>
+    ctrl.invalidate(UserResource.current);
 
   return (
     <div>
       <p>Welcome, {user.name}!</p>
-      <button onClick={handleLogout}>
-        Logout
-      </button>
+      <button onClick={handleLogout}>Logout</button>
     </div>
   );
 }
@@ -184,7 +186,9 @@ import { UserResource, User } from './UserResource';
 const sortedUsers = new Query(
   new schema.All(User),
   (entries, { asc } = { asc: false }) => {
-    const sorted = [...entries].sort((a, b) => a.name.localeCompare(b.name));
+    const sorted = [...entries].sort((a, b) =>
+      a.name.localeCompare(b.name),
+    );
     if (asc) return sorted;
     return sorted.reverse();
   },
