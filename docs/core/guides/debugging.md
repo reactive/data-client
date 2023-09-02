@@ -54,10 +54,11 @@ by hooks to reduce spam. This can be changed with [skipLogging](../api/DevToolsM
 
 :::
 
-## Normalized Cache
+## State Inspection
 
-If [schema](/rest/api/schema)s are used, API responses are split into two pieces - entities, and results.
-This ensures consistency and alows allows for automatic as well as novel performances optimizations, especially
+If [schema](/rest/api/schema)s are used, API responses are split into two pieces - entities, and results. This
+is known as [normalization](../concepts/normalization.md), which ensures consistency
+and alows allows for automatic as well as novel performances optimizations, especially
 key if the data ever changes or is repeated.
 
 <Tabs
@@ -129,9 +130,46 @@ also a 'meta' section of the cache for information like when the request took pl
 
 ![Dev tools state inspector](/img/devtool-state.png)
 
+## State Diff
+
 For monitoring a particular fetch response, it might be more useful to see how the cache state updates.
 Click on the 'Diff' tab to see what changed.
 
 ![Dev tools diff inspector](/img/devtool-diff.png)
 
 Here we toggled the 'completed' status of a todo using an [optimistic update](/rest/guides/optimistic-updates).
+
+## Action Tracing
+
+Tracing is not enabled by default as it is very computationally expensive. However, it can be very useful
+in tracking down where actions are dispatched from. Create your own [DevToolsManager](../api/DevToolsManager.md)
+with the trace option set to `true`:
+
+```tsx title="index.tsx"
+import {
+  DevToolsManager,
+  CacheProvider,
+  getDefaultManagers,
+} from '@data-client/react';
+import ReactDOM from 'react-dom';
+
+const managers =
+  process.env.NODE_ENV !== 'production'
+    ? [
+        // highlight-start
+        new DevToolsManager({
+          trace: true,
+        }),
+        // highlight-end
+        ...getDefaultManagers().filter(
+          manager => manager.name !== 'DevToolsManager',
+        ),
+      ]
+    : getDefaultManagers();
+
+ReactDOM.createRoot(document.body).render(
+  <CacheProvider managers={managers}>
+    <App />
+  </CacheProvider>,
+);
+```

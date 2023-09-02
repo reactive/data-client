@@ -40,9 +40,11 @@ import ReactDOM from 'react-dom';
 const managers =
   process.env.NODE_ENV !== 'production'
     ? [
+        // highlight-start
         new DevToolsManager({
           trace: true,
         }),
+        // highlight-end
         ...getDefaultManagers().filter(
           manager => manager.name !== 'DevToolsManager',
         ),
@@ -63,6 +65,33 @@ ReactDOM.createRoot(document.body).render(
 Can skip some actions to be registered in the browser devtool.
 
 By default will skip inflight [fetch actions](./Controller.md#fetch)
+
+```tsx title="index.tsx"
+import {
+  DevToolsManager,
+  CacheProvider,
+  getDefaultManagers,
+} from '@data-client/react';
+import ReactDOM from 'react-dom';
+
+const managers =
+  process.env.NODE_ENV !== 'production'
+    ? [
+        // highlight-start
+        new DevToolsManager(undefined, () => true),
+        // highlight-end
+        ...getDefaultManagers().filter(
+          manager => manager.name !== 'DevToolsManager',
+        ),
+      ]
+    : getDefaultManagers();
+
+ReactDOM.createRoot(document.body).render(
+  <CacheProvider managers={managers}>
+    <App />
+  </CacheProvider>,
+);
+```
 
 ## More info
 
