@@ -35,15 +35,16 @@ export default function TodoDetail({ id }: { id: number }) {
 
 ```tsx title="Demo" collapsed
 import React from 'react';
+import { AsyncBoundary } from '@data-client/react';
 import TodoDetail from './TodoDetail';
 
 function AbortDemo() {
   const [id, setId] = React.useState(1);
   return (
     <div>
-      <React.Suspense fallback="...">
+      <AsyncBoundary fallback="...">
         <TodoDetail id={id} />
-      </React.Suspense>
+      </AsyncBoundary>
       <div>
         <button onClick={() => setId(id => Math.max(id - 1, 1))}>
           «

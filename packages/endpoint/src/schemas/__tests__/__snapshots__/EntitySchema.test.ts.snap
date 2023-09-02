@@ -504,6 +504,30 @@ exports[`EntitySchema normalization should error if no matching keys are found 1
 "
 `;
 
+exports[`EntitySchema normalization should not throw if schema key is missing from Entity 1`] = `
+{
+  "entities": {
+    "MyData": {
+      "bob": {
+        "name": "bob",
+        "secondthing": "hi",
+      },
+    },
+  },
+  "entityMeta": {
+    "MyData": {
+      "bob": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": "bob",
+}
+`;
+
 exports[`EntitySchema normalization should throw a custom error if data does not include pk 1`] = `
 "Missing usable primary key when normalizing response.
 
@@ -543,18 +567,6 @@ exports[`EntitySchema normalization should throw a custom error if data loads wi
   }
 }
           Input: "hibho""
-`;
-
-exports[`EntitySchema normalization should throw a custom error if schema key is missing from Entity 1`] = `
-"Schema key is missing in Entity
-
-  Be sure all schema members are also part of the entity
-  Or use debugging tools: https://dataclient.io/docs/guides/debugging
-  Learn more about nesting schemas: https://dataclient.io/rest/guides/relational-data
-
-  Entity keys: name,secondthing
-  Schema key(missing): blarb
-  "
 `;
 
 exports[`EntitySchema normalization should throw a custom error loads with array 1`] = `
