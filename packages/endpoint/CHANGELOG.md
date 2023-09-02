@@ -1,5 +1,20 @@
 # @data-client/endpoint
 
+## 0.8.2
+
+### Patch Changes
+
+- [`664d3eacff`](https://github.com/data-client/data-client/commit/664d3eacff08c3c75e8ed7c3ccc64ee21faa6f7f) Thanks [@ntucker](https://github.com/ntucker)! - Remove dev warning for old versions of client
+
+- [#2799](https://github.com/data-client/data-client/pull/2799) [`26a3843d1b`](https://github.com/data-client/data-client/commit/26a3843d1b61900c385d8626d7062d6f0424c137) Thanks [@ntucker](https://github.com/ntucker)! - Removed some forms of automatic entity validation
+
+  - Now allow missing schemas making it easier to declare partials
+  - Removed logic for certain keys found out of defaults
+
+  We are generally trying to be more lax and focus on catching
+  clearly wrong signals. A lot of help comes from network response
+  form detection.
+
 ## 0.8.0
 
 ### Minor Changes

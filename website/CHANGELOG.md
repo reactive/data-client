@@ -4,6 +4,15 @@
 
 ### Patch Changes
 
+- Updated dependencies [[`664d3eacff`](https://github.com/data-client/data-client/commit/664d3eacff08c3c75e8ed7c3ccc64ee21faa6f7f), [`26a3843d1b`](https://github.com/data-client/data-client/commit/26a3843d1b61900c385d8626d7062d6f0424c137)]:
+  - @data-client/endpoint@0.8.2
+  - @data-client/graphql@0.8.2
+  - @data-client/rest@0.8.2
+
+## null
+
+### Patch Changes
+
 - Updated dependencies [[`c6ee872c7d`](https://github.com/data-client/data-client/commit/c6ee872c7d4bb669fa7b08a5343b24419c797cee)]:
   - @data-client/graphql@0.8.1
   - @data-client/hooks@0.1.3

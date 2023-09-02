@@ -1,5 +1,12 @@
 # normalizr-relationships
 
+## 0.1.19
+
+### Patch Changes
+
+- Updated dependencies [[`664d3eacff`](https://github.com/data-client/data-client/commit/664d3eacff08c3c75e8ed7c3ccc64ee21faa6f7f), [`26a3843d1b`](https://github.com/data-client/data-client/commit/26a3843d1b61900c385d8626d7062d6f0424c137)]:
+  - @data-client/endpoint@0.8.2
+
 ## 0.1.18
 
 ### Patch Changes
