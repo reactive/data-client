@@ -94,7 +94,7 @@ export default class DevToolsManager implements Manager {
         ...DEFAULT_CONFIG,
         config,
       });
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== 'production' && this.devTools) {
       this.devTools.subscribe((msg: any) => {
         switch (msg.type) {
           case 'START':
