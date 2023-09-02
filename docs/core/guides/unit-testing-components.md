@@ -16,11 +16,12 @@ endpoints.
 
 If you need to add unit tests to your components to check some behavior you might want
 avoid dealing with network fetch cycle as that is probably orthogonal to what your are
-trying to test. Using [&lt;CacheProvider /\>](../api/CacheProvider.md) with [mockInitialState](../api/mockInitialState.md) in our tests allow
+trying to test. Using [&lt;CacheProvider /\>](../api/CacheProvider.md) with [mockInitialState](../api/mockInitialState.md) and [Fixtures](../api/Fixtures.md) in our tests allow
 us to prime the cache with provided fixtures so the components will immediately render
 with said results.
 
 Testing user interactions that trigger mutations can be aided with the use of [&lt;MockResolver /\>](../api/MockResolver.md)
+and [Interceptors](../api/Fixtures.md#interceptor)
 
 ```typescript title="__tests__/fixtures.ts"
 export default {
@@ -46,11 +47,11 @@ export default {
     {
       endpoint: ArticleResource.update,
       args: [{ id: 532 }] as const,
-      response: {
-        id: 532,
-        content: 'updated "never again"',
-        author: 23,
-        contributors: [5],
+      response({ id }, body) {
+        return {
+          id,
+          ...body,
+        };
       },
     },
   ],
@@ -76,7 +77,7 @@ export default {
 ```tsx title="__tests__/ArticleList.tsx"
 import { CacheProvider, AsyncBoundary } from '@data-client/react';
 import { render, waitFor } from '@testing-library/react';
-import { MockResolver } from '@data-client/test';
+import { MockResolver, mockInitialState } from '@data-client/test';
 
 import ArticleList from 'components/ArticleList';
 import results from './fixtures';

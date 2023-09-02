@@ -67,7 +67,7 @@ export default function ArticleList({ maxResults }: { maxResults: number }) {
 
 ## Fixtures
 
-We'll test three cases: some interesting results in the list, an empty list, and data not
+We'll test three cases with our [fixtures and interceptors](../api/Fixtures.md): some interesting results in the list, an empty list, and data not
 existing so loading fallback is shown.
 
 ```typescript title="ArticleResource.ts"
@@ -134,7 +134,7 @@ import { CacheProvider, AsyncBoundary } from '@data-client/react';
 export const decorators = [
   Story => (
     <CacheProvider>
-      <AsyncBoundary fallback="loading">
+      <AsyncBoundary>
         <Story />
       </AsyncBoundary>
     </CacheProvider>

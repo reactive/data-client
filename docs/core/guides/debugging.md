@@ -34,7 +34,7 @@ After installing and running your site, a new icon should appear in your locatio
 Clicking that will open the inspector, which allows you to observe dispatched actions,
 their effect on the cache state as well as current cache state.
 
-![redux-devtools](/img/redux-devtool-diff.png)
+![redux-devtools](/img/devtool-action.png)
 
 ## Understanding Reactive Data Client Cache
 
@@ -136,11 +136,11 @@ Once normalized, these entities and results are merged with the larger cache. Cl
 tab in devtools to see the entire state. This can be useful to determine exactly where data is. There is
 also a 'meta' section of the cache for information like when the request took place (useful for TTL).
 
-![Dev tools state inspector](/img/redux-devtools-state.png)
+![Dev tools state inspector](/img/devtool-state.png)
 
 For monitoring a particular fetch response, it might be more useful to see how the cache state updates.
 Click on the 'Diff' tab to see what changed.
 
-![Dev tools diff inspector](/img/redux-devtool-diff.png)
+![Dev tools diff inspector](/img/devtool-diff.png)
 
 Here we can see that an entity was inserted as well as new results.
