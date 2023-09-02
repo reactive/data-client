@@ -78,16 +78,17 @@ describe(`${schema.Collection.name} normalization`, () => {
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
 
-  test('should throw a custom error if data loads with string unexpected value', () => {
+  test('should throw a custom error if data loads with args of unexpected value', () => {
     function normalizeBad() {
-      // @ts-expect-error
       userTodos.normalize(
         [],
-        undefined,
+        undefined as any,
         '',
         () => undefined,
         () => undefined,
         {},
+        {},
+        [],
       );
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();

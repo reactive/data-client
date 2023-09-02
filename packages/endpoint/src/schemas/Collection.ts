@@ -160,11 +160,6 @@ export default class CollectionSchema<
     storeEntities: any,
     args: any[],
   ): string {
-    if (process.env.NODE_ENV !== 'production') {
-      if (args === undefined) {
-        throw new Error('Collections only work with @data-client/react>=7.4');
-      }
-    }
     const pkList = this.schema.normalize(
       input,
       parent,

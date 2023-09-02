@@ -250,6 +250,8 @@ exports[`CollectionSchema normalization normalizes top level collections 1`] = `
 }
 `;
 
+exports[`CollectionSchema normalization should throw a custom error if data loads with args of unexpected value 1`] = `"Cannot destructure property 'userId' of 'undefined' as it is undefined."`;
+
 exports[`CollectionSchema normalization should throw a custom error if data loads with string unexpected value 1`] = `
 "Unexpected input given to normalize. Expected type to be "object", found "string".
 
@@ -279,5 +281,3 @@ exports[`CollectionSchema normalization should throw a custom error if data load
 }
           Input: "null""
 `;
-
-exports[`CollectionSchema normalization should throw a custom error if data loads with string unexpected value 3`] = `"Collections only work with @data-client/react>=7.4"`;
