@@ -27,6 +27,35 @@ browser to get started.
 [Arguments](https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md)
 to send to redux devtools.
 
+For example, we can enable the `trace` option to help track down where actions are dispatched from.
+
+```tsx title="index.tsx"
+import {
+  DevToolsManager,
+  CacheProvider,
+  getDefaultManagers,
+} from '@data-client/react';
+import ReactDOM from 'react-dom';
+
+const managers =
+  process.env.NODE_ENV !== 'production'
+    ? [
+        new DevToolsManager({
+          trace: true,
+        }),
+        ...getDefaultManagers().filter(
+          manager => manager.name !== 'DevToolsManager',
+        ),
+      ]
+    : getDefaultManagers();
+
+ReactDOM.createRoot(document.body).render(
+  <CacheProvider managers={managers}>
+    <App />
+  </CacheProvider>,
+);
+```
+
 ### skipLogging
 
 `(action: ActionTypes) => boolean`
