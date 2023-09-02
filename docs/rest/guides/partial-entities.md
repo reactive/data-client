@@ -65,7 +65,7 @@ delay: 150,
 },
 ]} row>
 
-```typescript title="api/Article" {12,25}
+```typescript title="api/Article" {12,24}
 import { validateRequired } from '@data-client/rest';
 import { Entity, createResource, schema } from '@data-client/rest';
 
@@ -78,21 +78,18 @@ export class ArticleSummary extends Entity {
   }
   // this ensures `Article` maps to the same entity
   static key = 'Article';
+
+  static schema = {
+    createdAt: Temporal.Instant.from,
+  };
 }
 
 export class Article extends ArticleSummary {
   content = '';
   createdAt = Temporal.Instant.fromEpochSeconds(0);
 
-  static schema = {
-    createdAt: Temporal.Instant.from,
-  };
-
   static validate(processedEntity) {
-    return (
-      validateRequired(processedEntity, this.defaults) ||
-      super.validate(processedEntity)
-    );
+    return validateRequired(processedEntity, this.defaults);
   }
 }
 
@@ -177,6 +174,7 @@ class ArticleSummary extends Entity {
 
   static schema = {
     createdAt: Temporal.Instant.from,
+    meta: ArticleMeta,
   };
 
   pk() {
@@ -191,18 +189,9 @@ class Article extends ArticleSummary {
   // highlight-start
   meta = ArticleMeta.fromJS();
 
-  static schema = {
-    ...super.schema,
-    meta: ArticleMeta,
-  };
-  // highlight-end
-
   static validate(processedEntity) {
-    return (
-      // highlight-next-line
-      validateRequired(processedEntity, this.defaults) ||
-      super.validate(processedEntity)
-    );
+    // highlight-next-line
+    return validateRequired(processedEntity, this.defaults);
   }
 }
 
