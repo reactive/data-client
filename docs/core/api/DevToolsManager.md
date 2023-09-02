@@ -20,11 +20,21 @@ browser to get started.
 
 :::
 
-## constructor(options: Arguments)
+## constructor(options?, skipLogging?)
 
-[Arguments](https://github.com/zalmoxisus/redux-devtools-extension/blob/master/docs/API/Arguments.md)
+### options
+
+[Arguments](https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md)
 to send to redux devtools.
+
+### skipLogging
+
+`(action: ActionTypes) => boolean`
+
+Can skip some actions to be registered in the browser devtool.
+
+By default will skip inflight [fetch actions](./Controller.md#fetch)
 
 ## More info
 
-Using this Manager allows [debugging](../guides/debugging) with redux-devtools.
+Using this Manager allows in browser [debugging and store inspection](../guides/debugging).

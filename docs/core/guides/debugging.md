@@ -50,7 +50,7 @@ and [set](../api/Controller.md#setResponse).
 :::note
 
 By default the devtool integration will filter [fetch](../api/Controller.md#fetch) actions initiated
-by hooks to reduce spam.
+by hooks to reduce spam. This can be changed with [skipLogging](../api/DevToolsManager.md#skiplogging) option.
 
 :::
 
