@@ -179,7 +179,7 @@ export const UserResource = createResource({
 });
 ```
 
-```tsx title="UsersPage" {15}
+```tsx title="UsersPage" {17}
 import { Query, schema } from '@data-client/rest';
 import { UserResource, User } from './UserResource';
 

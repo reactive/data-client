@@ -175,7 +175,7 @@ Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidat
 Retrieve a list of items.
 
 - method: 'GET'
-- path: `shortenPath(path)`
+- args: PathToArgs(shortenPath(path)) & [searchParams](#searchparams)
   - Removes the last argument:
     ```ts
     createResource({ path: '/:first/:second' }).getList.path === '/:first';
@@ -198,8 +198,8 @@ Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidat
 [push](./RestEndpoint.md#push) creates a new entity and pushes it to the end of getList.
 
 - method: 'POST'
-- path: `shortenPath(path)`
-- schema: `getList.schema.push`
+- args: PathToArgs(shortenPath(path)) & [searchParams](#searchparams)
+- schema: getList.[schema.push](./Collection.md#push)
 
 ```typescript
 // POST //test.com/api/abc
@@ -217,8 +217,8 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 [unshift](./RestEndpoint.md#unshift) creates a new entity and pushes it to the beginning of getList.
 
 - method: 'POST'
-- path: `shortenPath(path)`
-- schema: `getList.schema.unshift`
+- args: PathToArgs(shortenPath(path)) & [searchParams](#searchparams)
+- schema: getList.[schema.unshift](./Collection.md#unshift)
 
 ```typescript
 // POST //test.com/api/abc
@@ -236,8 +236,8 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 [getPage](./RestEndpoint.md#getpage) retrieves another [page](../guides/pagination.md#infinite-scrolling) appending to getList ensuring there are no duplicates.
 
 - method: 'GET'
-- args: `shortenPath(path) & { [paginationField]: string | number } & searchParams`
-- schema: [new schema.Collection(\[schema\]).addWith(paginatedMerge, paginatedFilter(removeCursor))](./Collection.md)
+- args: PathToArgs(shortenPath(path)) & [searchParams](#searchparams) & \{ [paginationField]: string | number \}
+- schema: [getList.schema.addWith](./RestEndpoint.md#getpage)
 
 ```typescript
 // GET //test.com/api/abc?isExtra=xyz&page=2
