@@ -1,7 +1,7 @@
 /* eslint-disable no-inner-declarations */
 import type { DevToolsConfig } from './devtoolsTypes.js';
 import type { Middleware } from './LogoutManager.js';
-import { EndpointInterface } from '../index.js';
+import { Controller, EndpointInterface } from '../index.js';
 import createReducer from '../state/reducer/createReducer.js';
 import type { Manager, State, ActionTypes } from '../types.js';
 
@@ -78,6 +78,9 @@ if (process.env.NODE_ENV !== 'production') {
 export default class DevToolsManager implements Manager {
   protected declare middleware: Middleware;
   protected declare devTools: undefined | any;
+  protected started = false;
+  protected actions: [ActionTypes, State<unknown>][] = [];
+  protected declare controller: Controller;
 
   constructor(
     config?: DevToolsConfig,
@@ -91,29 +94,53 @@ export default class DevToolsManager implements Manager {
         ...DEFAULT_CONFIG,
         config,
       });
+    if (process.env.NODE_ENV !== 'production') {
+      this.devTools.subscribe((msg: any) => {
+        switch (msg.type) {
+          case 'START':
+            this.started = true;
+
+            this.actions.forEach(([action, state]) => {
+              this.handleAction(action, state);
+            });
+            this.actions = [];
+            break;
+          case 'DISPATCH':
+            if (msg.payload.type === 'RESET') {
+              this.controller.resetEntireStore();
+            }
+            break;
+        }
+      });
+    }
 
     /* istanbul ignore if */
     /* istanbul ignore next */
     if (this.devTools) {
       this.middleware = controller => {
+        this.controller = controller;
         const reducer = createReducer(controller as any);
         return next => action => {
           const ret = next(action);
           ret.then(() => {
             if (skipLogging?.(action)) return;
             const state = controller.getState();
-            this.devTools.send(
-              action,
-              state.optimistic.reduce(reducer, state),
-              undefined,
-              'RDC',
-            );
+            this.handleAction(action, state.optimistic.reduce(reducer, state));
           });
           return ret;
         };
       };
     } else {
       this.middleware = () => next => action => next(action);
+    }
+  }
+
+  handleAction(action: any, state: any) {
+    if (this.started) {
+      this.devTools.send(action, state, undefined, 'RDC');
+    } else {
+      // queue actions
+      this.actions.push([action, state]);
     }
   }
 
