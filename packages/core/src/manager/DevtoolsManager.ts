@@ -1,37 +1,73 @@
+/* eslint-disable no-inner-declarations */
 import type { DevToolsConfig } from './devtoolsTypes.js';
 import type { Middleware } from './LogoutManager.js';
+import { EndpointInterface } from '../index.js';
 import createReducer from '../state/reducer/createReducer.js';
 import type { Manager, State, ActionTypes } from '../types.js';
 
 export type { DevToolsConfig };
 
-const HASINTL = typeof Intl !== 'undefined';
-const DEFAULT_CONFIG = {
-  name: `RDC: ${globalThis.document?.title}`,
-  autoPause: true,
-  serialize: {
-    options: undefined,
-    /* istanbul ignore next */
-    replacer: HASINTL
-      ? (key: string | number | symbol, value: unknown) => {
-          if (
-            typeof value === 'number' &&
-            typeof key === 'string' &&
-            isFinite(value) &&
-            (key === 'date' || key.endsWith('At'))
-          ) {
-            return Intl.DateTimeFormat('en-US', {
-              hour: 'numeric',
-              minute: 'numeric',
-              second: 'numeric',
-              fractionalSecondDigits: 3,
-            }).format(value);
+let DEFAULT_CONFIG = {};
+
+if (process.env.NODE_ENV !== 'production') {
+  const extraEndpointKeys = [
+    'dataExpiryLength',
+    'errorExpiryLength',
+    'errorPolicy',
+    'invalidIfStale',
+    'pollFrequency',
+    'getOptimisticResponse',
+    'update',
+  ];
+
+  function serializeEndpoint(endpoint: EndpointInterface) {
+    const serial: any = {
+      name: endpoint.name,
+      schema: (endpoint.schema as any)?.toJSON?.() ?? endpoint.schema,
+      sideEffect: endpoint.sideEffect,
+    };
+    extraEndpointKeys.forEach(key => {
+      if (key in endpoint)
+        serial[key] = endpoint[key as keyof EndpointInterface];
+    });
+    return serial;
+  }
+
+  const HASINTL = typeof Intl !== 'undefined';
+  DEFAULT_CONFIG = {
+    name: `RDC: ${globalThis.document?.title}`,
+    autoPause: true,
+    actionSanitizer: (action: ActionTypes) => {
+      if (!('endpoint' in action)) return action;
+      return {
+        ...action,
+        endpoint: serializeEndpoint(action.endpoint),
+      };
+    },
+    serialize: {
+      options: undefined,
+      /* istanbul ignore next */
+      replacer: HASINTL
+        ? (key: string | number | symbol, value: unknown) => {
+            if (
+              typeof value === 'number' &&
+              typeof key === 'string' &&
+              isFinite(value) &&
+              (key === 'date' || key.endsWith('At'))
+            ) {
+              return Intl.DateTimeFormat('en-US', {
+                hour: 'numeric',
+                minute: 'numeric',
+                second: 'numeric',
+                fractionalSecondDigits: 3,
+              }).format(value);
+            }
+            return value;
           }
-          return value;
-        }
-      : undefined,
-  },
-};
+        : undefined,
+    },
+  };
+}
 
 /** Integrates with https://github.com/reduxjs/redux-devtools
  *
