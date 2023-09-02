@@ -26,7 +26,6 @@ jobs:
             sudo npm install -g corepack
             sudo corepack enable
             YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn workspace todo-app add @data-client/endpoint@workspace:^ @data-client/react@workspace:^ @data-client/rest@workspace:^
-            YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn workspace next-app add @data-client/react@workspace:^ @data-client/rest@workspace:^ @data-client/redux@workspace:^  @data-client/ssr@workspace:^ @data-client/test@workspace:^
             YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn workspace github-app add @data-client/graphql@workspace:^ @data-client/hooks@workspace:^ @data-client/react@workspace:^ @data-client/rest@workspace:^
             YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install
       - save_cache:
