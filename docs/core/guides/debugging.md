@@ -7,42 +7,8 @@ import TabItem from '@theme/TabItem';
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-By [default](../api/CacheProvider.md#defaultprops) (in dev mode) [CacheProvider](../api/CacheProvider.md) includes the [DevToolsManager](../api/DevToolsManager.md),
-which sends state and actions
-to [Redux DevTools](https://github.com/zalmoxisus/redux-devtools-extension).
-
-## Getting Started
-
-### Install browser extension
-
-Add the browser extension for
-[chrome extension](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en)
-or
-[firefox extension](https://addons.mozilla.org/en-US/firefox/addon/reduxdevtools/)
-
-### Ensure Manager is installed
-
-By default this is enabled in dev mode. If using your own set of managers, add [DevToolsManager](../api/DevToolsManager)
-to the beginning of the list.
-
-### Open dev tools
-
-After installing and running your site, a new icon should appear in your location bar
-
-![redux-devtools button](/img/redux-devtools.png)
-
-Clicking that will open the inspector, which allows you to observe dispatched actions,
-their effect on the cache state as well as current cache state.
-
-![redux-devtools](/img/devtool-action.png)
-
-## Understanding Reactive Data Client Cache
-
-Reactive Data Client uses the flux architecture to make it easy to understand and debug. This also
-has the benefit of making Reactive Data Client concurrent mode compatible.
-
-The same [core principals of redux](https://redux.js.org/introduction/core-concepts) apply
-to this store's design.
+RDC uses the [flux store](https://facebookarchive.github.io/flux/docs/in-depth-overview/) pattern, making debugging
+straightforward as each change is traceable and descriptive.
 
 <ThemedImage
   alt="FLUX"
@@ -52,18 +18,43 @@ to this store's design.
   }}
 />
 
-Here we see the data flow.
-
-For example, when a useSuspense() hook is first mounted it might
-
-- Start by dispatching a fetch action
-- If no identical fetches are in-flight, the central store will then start the network call over HTTP
-- When the network call resolves, a setResponse action is sent to the store's reducer, updating the state.
-- The component is re-rendered with the updated state, resolving the suspense.
-
 > [More about control flow](../api/Manager#control-flow)
 
-### Normalized Cache
+## Installation
+
+Add the browser extension for
+[chrome extension](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en)
+or
+[firefox extension](https://addons.mozilla.org/en-US/firefox/addon/reduxdevtools/)
+
+[DevToolsManager](../api/DevToolsManager) makes this work. This is part of the [default managers](../api/CacheProvider.md) for [CacheProvider](../api/CacheProvider.md)
+in dev mode. If you have custom managers, you'll need to ensure DevToolsManager is included.
+
+## Open dev tools
+
+<span style={{float:'right',marginLeft:'10px'}}>
+![redux-devtools button](/img/redux-devtools.png)
+</span>
+
+After installing and running your site, a new icon should appear in your location bar
+
+Clicking that will open the inspector, which allows you to observe dispatched actions,
+their effect on the cache state as well as current cache state.
+
+![browser-devtools](/img/devtool-action.png)
+
+The [Controller](../api/Controller.md) dispatches actions, making that page useful for understanding
+what actions you see. Here we observe the most common actions of [fetch](../api/Controller.md#fetch)
+and [set](../api/Controller.md#setResponse).
+
+:::note
+
+By default the devtool integration will filter [fetch](../api/Controller.md#fetch) actions initiated
+by hooks to reduce spam.
+
+:::
+
+## Normalized Cache
 
 If [schema](/rest/api/schema)s are used, API responses are split into two pieces - entities, and results.
 This ensures consistency and alows allows for automatic as well as novel performances optimizations, especially
@@ -132,9 +123,9 @@ export function PresentationsPage() {
 </TabItem>
 </Tabs>
 
-Once normalized, these entities and results are merged with the larger cache. Click on the 'state'
+Once [normalized](../concepts/normalization.md), these [entities](/rest/api/Entity) and results are merged with the larger cache. Click on the 'state'
 tab in devtools to see the entire state. This can be useful to determine exactly where data is. There is
-also a 'meta' section of the cache for information like when the request took place (useful for TTL).
+also a 'meta' section of the cache for information like when the request took place (useful for [TTL](../concepts/expiry-policy.md)).
 
 ![Dev tools state inspector](/img/devtool-state.png)
 
@@ -143,4 +134,4 @@ Click on the 'Diff' tab to see what changed.
 
 ![Dev tools diff inspector](/img/devtool-diff.png)
 
-Here we can see that an entity was inserted as well as new results.
+Here we toggled the 'completed' status of a todo using an [optimistic update](/rest/guides/optimistic-updates).

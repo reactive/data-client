@@ -10,6 +10,7 @@ sidebar_label: Data Normalization
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
+import Link from '@docusaurus/Link';
 
 [Entities](/rest/api/Entity) have a primary key. This enables easy access via a lookup table.
 This makes it easy to find, update, create, or delete the same data - no matter what
@@ -387,3 +388,16 @@ Due to the global referential equality guarantee - construction of members only 
 per update.
 
 :::
+
+## Store Inspection (debugging)
+
+[DevTools browser extension](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en)
+can be installed to inspect and [debug the store](../guides/debugging.md).
+
+![browser-devtools](/img/devtool-state.png)
+
+<center>
+
+<Link className="button button--secondary" to="../guides/debugging">RDC Debugging Guide »</Link>
+
+</center>
