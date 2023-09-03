@@ -7,7 +7,7 @@ import replace from 'rollup-plugin-replace';
 import { terser } from 'rollup-plugin-terser';
 
 import pkg from './package.json';
-import { typeConfig } from '../../config/rollup-utils';
+import { typeConfig } from '../../scripts/rollup-utils';
 
 const dependencies = Object.keys(pkg.dependencies)
   .concat(Object.keys(pkg.peerDependencies))
