@@ -11,16 +11,25 @@ import type { State, Manager } from '@data-client/core';
 import React, { useMemo, useRef } from 'react';
 
 import CacheStore from './CacheStore.js';
+import type { DevToolsPosition } from './DevToolsButton.js';
+import { SSR } from './LegacyReact.js';
+import { renderDevButton } from './renderDevButton.js';
 import { ControllerContext } from '../context.js';
 
-/* istanbul ignore next  */
-const SSR = typeof window === 'undefined';
+export interface ProviderProps {
+  children: React.ReactNode;
+  managers?: Manager[];
+  initialState?: State<unknown>;
+  Controller?: typeof Controller;
+  devButton?: DevToolsPosition | null | undefined;
+}
 
-interface ProviderProps {
+interface Props {
   children: React.ReactNode;
   managers?: Manager[];
   initialState: State<unknown>;
   Controller: typeof Controller;
+  devButton: DevToolsPosition | null | undefined;
 }
 
 /**
@@ -32,7 +41,8 @@ export default function CacheProvider({
   managers,
   initialState,
   Controller,
-}: ProviderProps) {
+  devButton,
+}: Props): JSX.Element {
   /* istanbul ignore else */
   if (process.env.NODE_ENV !== 'production' && SSR) {
     console.warn(
@@ -68,6 +78,7 @@ Try using https://dataclient.io/docs/api/ExternalCacheProvider for server entry 
       >
         {children}
       </CacheStore>
+      {renderDevButton(devButton)}
     </ControllerContext.Provider>
   );
 }
@@ -77,6 +88,7 @@ Try using https://dataclient.io/docs/api/ExternalCacheProvider for server entry 
 CacheProvider.defaultProps = {
   initialState: defaultState as State<unknown>,
   Controller,
+  devButton: 'bottom-right',
 };
 
 /* istanbul ignore next */

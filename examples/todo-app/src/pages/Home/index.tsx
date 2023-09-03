@@ -42,14 +42,14 @@ const home = css`
 
 const Title = styled.nav`
   position: fixed;
-  top: 4px;
+  top: 0;
   width: 100%;
-  padding: 18px;
+  padding: 15px;
   background: white;
   z-index: 100;
 `;
 
 const Main = styled.main`
-  padding: 50px 10px 0 10px;
+  padding: 60px 10px 0 10px;
   max-width: 800px;
 `;

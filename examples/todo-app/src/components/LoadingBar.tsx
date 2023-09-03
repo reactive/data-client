@@ -74,7 +74,7 @@ const LoadingBarContainer = styled.div`
 const LoadingBarInner = styled.div`
   position: absolute;
   top: 0;
-  left: 0;
+  left: -10px;
   height: 100%;
   width: 100%;
   background-color: red;

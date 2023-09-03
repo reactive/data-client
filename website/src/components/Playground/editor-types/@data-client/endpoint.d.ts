@@ -922,10 +922,6 @@ declare abstract class Entity extends Entity_base {
      * @see https://dataclient.io/docs/api/Entity#process
      */
     static process(input: any, parent: any, key: string | undefined, args: any[]): any;
-    /** Returning a string indicates an error (the string is the message)
-     * @see https://dataclient.io/rest/api/Entity#validate
-     */
-    static validate(processedEntity: any): string | undefined;
     static denormalize: <T extends typeof Entity>(this: T, input: any, args: readonly any[], unvisit: (input: any, schema: any) => any) => AbstractInstanceType<T>;
 }
 

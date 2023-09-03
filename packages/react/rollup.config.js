@@ -30,7 +30,14 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
   configs.push({
     input: 'lib/index.js',
     external: isExternal,
-    output: [{ file: pkg.unpkg, format: 'umd', name: 'dataClientCore' }],
+    output: [
+      {
+        file: pkg.unpkg,
+        format: 'umd',
+        name: 'dataClientCore',
+        inlineDynamicImports: true,
+      },
+    ],
     plugins: [
       babel({
         exclude: ['node_modules/**', '/**__tests__/**'],
@@ -57,7 +64,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
     configs.push({
       input,
       external: isExternal,
-      output: [{ file: output, format: 'cjs' }],
+      output: [{ file: output, format: 'cjs', inlineDynamicImports: true }],
       plugins: [
         babel({
           exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],

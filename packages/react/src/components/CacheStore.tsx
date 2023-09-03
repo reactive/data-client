@@ -7,7 +7,8 @@ import useEnhancedReducer from '@data-client/use-enhanced-reducer';
 import type { Middleware } from '@data-client/use-enhanced-reducer';
 import React, { useEffect, useMemo, memo } from 'react';
 
-import BackupBoundary from './BackupBoundary.js';
+import BackupLoading from './BackupLoading.js';
+import UniversalSuspense from './UniversalSuspense.js';
 import { StateContext } from '../context.js';
 
 interface StoreProps {
@@ -57,7 +58,9 @@ function CacheStore({
 
   return (
     <StateContext.Provider value={optimisticState}>
-      <BackupBoundary>{children}</BackupBoundary>
+      <UniversalSuspense fallback={<BackupLoading />}>
+        {children}
+      </UniversalSuspense>
     </StateContext.Provider>
   );
 }

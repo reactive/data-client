@@ -1,21 +1,15 @@
-import { Controller, Manager, State } from '@data-client/react';
-import { useEffect, useMemo } from 'react';
+import type { Controller, Manager, State } from '@data-client/react';
+import React, { useEffect, useMemo } from 'react';
 
 import ExternalCacheProvider from './ExternalCacheProvider.js';
 import { prepareStore } from './prepareStore.js';
 
-interface ProviderProps {
-  children: React.ReactNode;
-  managers: Manager[];
-  initialState: State<unknown>;
-  Controller: typeof Controller;
-}
 export default function CacheProvider({
   children,
   managers,
   initialState,
   Controller,
-}: ProviderProps) {
+}: Props) {
   const { selector, store, controller } = useMemo(
     () => prepareStore(initialState, managers, Controller),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -46,4 +40,11 @@ export default function CacheProvider({
       {children}
     </ExternalCacheProvider>
   );
+}
+
+interface Props {
+  children: React.ReactNode;
+  managers: Manager[];
+  initialState: State<unknown>;
+  Controller: typeof Controller;
 }

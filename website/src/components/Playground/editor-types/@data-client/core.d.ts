@@ -967,7 +967,11 @@ interface Props {
 declare class DevToolsManager implements Manager {
     protected middleware: Middleware;
     protected devTools: undefined | any;
+    protected started: boolean;
+    protected actions: [ActionTypes, State<unknown>][];
+    protected controller: Controller;
     constructor(config?: DevToolsConfig, skipLogging?: (action: ActionTypes) => boolean);
+    handleAction(action: any, state: any): void;
     /** Called when initial state is ready */
     init(state: State<any>): void;
     /** Ensures all subscriptions are cleaned up. */

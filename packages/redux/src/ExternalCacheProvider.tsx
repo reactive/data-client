@@ -9,7 +9,8 @@ import {
   StateContext,
   ControllerContext,
   StoreContext,
-  BackupBoundary,
+  BackupLoading,
+  UniversalSuspense,
 } from '@data-client/react';
 import React, {
   useEffect,
@@ -76,7 +77,12 @@ export default function ExternalCacheProvider<S>({
     <StateContext.Provider value={state}>
       <StoreContext.Provider value={adaptedStore}>
         <ControllerContext.Provider value={controller}>
-          <BackupBoundary>{children}</BackupBoundary>
+          <UniversalSuspense fallback={<BackupLoading />}>
+            {children}
+          </UniversalSuspense>
+          {process.env.NODE_ENV !== 'production' ? (
+            <UniversalSuspense fallback={null} />
+          ) : undefined}
         </ControllerContext.Provider>
       </StoreContext.Provider>
     </StateContext.Provider>

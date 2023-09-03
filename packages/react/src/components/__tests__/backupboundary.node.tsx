@@ -2,7 +2,8 @@
 import React, { version } from 'react';
 import { renderToString } from 'react-dom/server';
 
-import BackupBoundary from '../BackupBoundary';
+import BackupLoading from '../BackupLoading';
+import UniversalSuspense from '../UniversalSuspense';
 
 describe('<BackupBoundary />', () => {
   let warnspy: jest.SpyInstance;
@@ -15,16 +16,16 @@ describe('<BackupBoundary />', () => {
 
   it('should warn users about missing Suspense', () => {
     const tree = (
-      <BackupBoundary>
+      <UniversalSuspense fallback={<BackupLoading />}>
         <div>hi</div>
-      </BackupBoundary>
+      </UniversalSuspense>
     );
     const LegacyReact = version.startsWith('16') || version.startsWith('17');
     const msg = renderToString(tree);
 
     if (LegacyReact) {
       expect(msg).toBeDefined();
-      expect(msg).toMatchInlineSnapshot(`"<div>hi</div>"`);
+      expect(msg).toMatchInlineSnapshot(`"<div data-reactroot="">hi</div>"`);
     } else {
       expect(msg).toMatchInlineSnapshot(`"<!--$--><div>hi</div><!--/$-->"`);
     }
