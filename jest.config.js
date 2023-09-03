@@ -26,7 +26,6 @@ const baseConfig = {
     'packages/rest/src/next',
     'packages/core/src/next',
     'packages/react/src/next',
-    'packages/core/src/state/legacy-actions/createFetch',
   ],
   testEnvironmentOptions: {
     url: 'http://localhost',

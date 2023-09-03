@@ -128,5 +128,21 @@
     "semi": true,
     "singleQuote": true,
     "arrowParens": "avoid"
-  }  
+  },
+  "eslintConfig": {
+    "extends": [
+      "plugin:@anansi/typescript"
+    ],
+    "rules": {
+      "@typescript-eslint/no-empty-function": "warn"
+    },
+    "settings": {
+      "import/resolver": {
+        "node": {}
+      }
+    },
+    "globals": {
+      "process": "writable"
+    }
+  }
 }
