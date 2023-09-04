@@ -105,13 +105,6 @@ export default function Home() {
     >
       <HomepageHeader />
       <main>
-        <div className="container">
-          <h2 style={{ textAlign: 'center' }}>
-            Share server data and
-            <br />
-            update it instantly
-          </h2>
-        </div>
         <Demo />
         <HomepageFeatures />
         <div className="container">
