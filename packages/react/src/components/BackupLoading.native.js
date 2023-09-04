@@ -1,13 +1,8 @@
 /* eslint-disable react/prop-types */
-import React, { Suspense, memo, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Text, Linking, View } from 'react-native';
 
-function BackupBoundary({ children }) {
-  return <Suspense fallback={<Loading />}>{children}</Suspense>;
-}
-export default memo(BackupBoundary);
-
-function Loading() {
+export default function Loading() {
   let message = <Text>loading...</Text>;
   /* istanbul ignore else */
   if (process.env.NODE_ENV !== 'production') {

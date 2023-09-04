@@ -1,34 +1,48 @@
 import * as _data_client_core from '@data-client/core';
-import { State as State$1, Controller, Manager, NetworkError, EndpointInterface, FetchFunction, Schema, DenormalizeNullable, ResolveType, Denormalize, UnknownError, ErrorTypes as ErrorTypes$1, ActionTypes, __INTERNAL__, createReducer, applyManager } from '@data-client/core';
+import { Manager, State as State$1, Controller, NetworkError, EndpointInterface, FetchFunction, Schema, DenormalizeNullable, ResolveType, Denormalize, UnknownError, ErrorTypes as ErrorTypes$1, ActionTypes, __INTERNAL__, createReducer, applyManager } from '@data-client/core';
 export { AbstractInstanceType, ActionTypes, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, ResetAction, ResolveType, Schema, SetAction, SetTypes, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@data-client/core';
-import React$1, { Context } from 'react';
 import * as react_jsx_runtime from 'react/jsx-runtime';
+import React$1, { Context } from 'react';
 
-declare const _default$1: React$1.NamedExoticComponent<{
-    children: React$1.ReactNode;
-}>;
-//# sourceMappingURL=BackupBoundary.d.ts.map
+declare function Loading(): react_jsx_runtime.JSX.Element;
+
+type DevToolsPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
 
 interface ProviderProps {
     children: React$1.ReactNode;
     managers?: Manager[];
+    initialState?: State$1<unknown>;
+    Controller?: typeof Controller;
+    devButton?: DevToolsPosition | null | undefined;
+}
+interface Props$2 {
+    children: React$1.ReactNode;
+    managers?: Manager[];
     initialState: State$1<unknown>;
     Controller: typeof Controller;
+    devButton: DevToolsPosition | null | undefined;
 }
 /**
  * Manages state, providing all context needed to use the hooks.
  * @see https://dataclient.io/docs/api/CacheProvider
  */
-declare function CacheProvider({ children, managers, initialState, Controller, }: ProviderProps): react_jsx_runtime.JSX.Element;
+declare function CacheProvider({ children, managers, initialState, Controller, devButton, }: Props$2): JSX.Element;
 declare namespace CacheProvider {
     var defaultProps: {
         initialState: State$1<unknown>;
         Controller: typeof Controller;
+        devButton: string;
     };
 }
 
 declare let getDefaultManagers: () => Manager<_data_client_core.ActionTypes>[];
-//# sourceMappingURL=CacheProvider.d.ts.map
+
+/** Suspense but compatible with 18 SSR, 17, 16 and native */
+declare const UniversalSuspense: React$1.FunctionComponent<{
+    children?: React$1.ReactNode;
+    fallback: React$1.ReactNode;
+}>;
+//# sourceMappingURL=UniversalSuspense.d.ts.map
 
 /**
  * Handles loading and error conditions of Suspense
@@ -200,4 +214,4 @@ declare namespace internal_d {
 /** Turns a dispatch function into one that resolves once its been commited */
 declare function usePromisifiedDispatch<R extends React$1.Reducer<any, any>>(dispatch: React$1.Dispatch<React$1.ReducerAction<R>>, state: React$1.ReducerState<R>): (action: React$1.ReducerAction<R>) => Promise<void>;
 
-export { _default as AsyncBoundary, _default$1 as BackupBoundary, CacheProvider, ControllerContext, NetworkErrorBoundary, StateContext, Store, StoreContext, internal_d as __INTERNAL__, getDefaultManagers, useCache, useController, useDLE, useError, useFetch, useLive, usePromisifiedDispatch, useSubscription, useSuspense };
+export { _default as AsyncBoundary, Loading as BackupLoading, CacheProvider, ControllerContext, DevToolsPosition, NetworkErrorBoundary, ProviderProps, StateContext, Store, StoreContext, UniversalSuspense, internal_d as __INTERNAL__, getDefaultManagers, useCache, useController, useDLE, useError, useFetch, useLive, usePromisifiedDispatch, useSubscription, useSuspense };

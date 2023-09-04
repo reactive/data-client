@@ -35,7 +35,7 @@ if (process.env.NODE_ENV !== 'production') {
 
   const HASINTL = typeof Intl !== 'undefined';
   DEFAULT_CONFIG = {
-    name: `RDC: ${globalThis.document?.title}`,
+    name: `Data Client: ${globalThis.document?.title}`,
     autoPause: true,
     actionSanitizer: (action: ActionTypes) => {
       if (!('endpoint' in action)) return action;
@@ -100,10 +100,15 @@ export default class DevToolsManager implements Manager {
           case 'START':
             this.started = true;
 
-            this.actions.forEach(([action, state]) => {
-              this.handleAction(action, state);
-            });
-            this.actions = [];
+            if (this.actions.length) {
+              this.actions.forEach(([action, state]) => {
+                this.handleAction(action, state);
+              });
+              this.actions = [];
+            }
+            break;
+          case 'STOP':
+            this.started = false;
             break;
           case 'DISPATCH':
             if (msg.payload.type === 'RESET') {

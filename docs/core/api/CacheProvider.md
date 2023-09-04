@@ -1,6 +1,7 @@
 ---
 title: '<CacheProvider />'
 ---
+
 <head>
   <title>CacheProvider - Normalized async data management in React</title>
 </head>
@@ -23,6 +24,12 @@ interface ProviderProps {
   managers?: Manager[];
   initialState?: State<unknown>;
   Controller?: typeof Controller;
+  devButton?:
+    | 'bottom-right'
+    | 'bottom-left'
+    | 'top-right'
+    | 'top-left'
+    | null;
 }
 ```
 
@@ -30,8 +37,12 @@ interface ProviderProps {
 
 ```typescript
 type State<T> = Readonly<{
-  entities: Readonly<{ [fetchKey: string]: { [pk: string]: T } | undefined }>;
-  results: Readonly<{ [url: string]: unknown | PK[] | PK | undefined }>;
+  entities: Readonly<{
+    [fetchKey: string]: { [pk: string]: T } | undefined;
+  }>;
+  results: Readonly<{
+    [url: string]: unknown | PK[] | PK | undefined;
+  }>;
   meta: Readonly<{
     [url: string]: { date: number; error?: Error; expiresAt: number };
   }>;
@@ -80,16 +91,35 @@ const RealApp = (
 );
 ```
 
+### devButton
+
+<img src="/img/client-logo.png" style={{float:'right',width:'40px'}} />
+
+In development, a small button will appear that gives easy access to browser devtools if
+installed. This option configures where it shows up, or if null will disable it altogether.
+
+`'bottom-right' | 'bottom-left' | 'top-right'| 'top-left' | null`
+
+```tsx title="Disable button"
+<CacheProvider devButton={null}>
+  <App/>
+</CacheProvider>
+```
+
+```tsx title="Place in top right corner"
+<CacheProvider devButton="top-right">
+  <App/>
+</CacheProvider>
+```
+
 ## defaultProps
 
 ```ts
-import {
-  defaultState,
-  Controller,
-} from '@data-client/core';
+import { defaultState, Controller } from '@data-client/core';
 
 CacheProvider.defaultProps = {
   initialState: defaultState as State<unknown>,
   Controller,
+  devButton: 'bottom-right',
 };
 ```

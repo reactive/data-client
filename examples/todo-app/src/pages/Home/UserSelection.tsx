@@ -3,7 +3,7 @@ import { styled } from '@linaria/react';
 import { UserResource } from 'resources/UserResource';
 
 export default function UserSelection({ userId, setUserId }: Props) {
-  const users = useSuspense(UserResource.getList);
+  const users = useSuspense(UserResource.getList).slice(0, 7);
   return (
     <UserWrap>
       {users.map((user) => (

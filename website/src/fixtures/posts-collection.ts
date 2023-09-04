@@ -51,7 +51,7 @@ const entities = {
 
 export const getInitialInterceptorData = () => ({ entities: {} });
 
-const delay = 350;
+const delay = 250;
 
 export const postFixtures = [
   {

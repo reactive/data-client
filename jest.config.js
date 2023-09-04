@@ -26,6 +26,7 @@ const baseConfig = {
     'packages/rest/src/next',
     'packages/core/src/next',
     'packages/react/src/next',
+    'packages/react/src/components/DevToolsButton.tsx',
   ],
   testEnvironmentOptions: {
     url: 'http://localhost',

@@ -60,7 +60,7 @@ describe('<CacheProvider />', () => {
         <Component />
       </CacheProvider>
     );
-    const { getByText, unmount } = render(tree);
+    const { getByText } = render(tree);
     const msg = getByText('Uncaught Suspense.');
     expect(msg).toBeDefined();
     expect(warnspy).toHaveBeenCalled();

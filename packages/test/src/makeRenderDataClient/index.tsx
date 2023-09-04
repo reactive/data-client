@@ -87,6 +87,7 @@ export default function makeRenderDataClient(
               initialState={initialState}
               Controller={ActController}
               managers={managers}
+              devButton={null}
             >
               <MockResolver
                 fixtures={options.resolverFixtures as FixtureEndpoint[]}
@@ -104,6 +105,7 @@ export default function makeRenderDataClient(
               initialState={initialState}
               Controller={ActController}
               managers={managers}
+              devButton={null}
             >
               {children}
             </Provider>
@@ -155,6 +157,7 @@ interface ProviderProps {
   managers: Manager[];
   initialState: State<unknown>;
   Controller: typeof Controller;
+  devButton: any;
 }
 
 type RenderDataClient = (<P, R>(

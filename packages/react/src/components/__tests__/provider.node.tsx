@@ -13,13 +13,17 @@ describe('<BackupBoundary />', () => {
     warnspy.mockRestore();
   });
 
-  it('should warn users about SSR with CacheProvider', () => {
+  it('should warn users about SSR with CacheProvider', async () => {
     const tree = (
       <CacheProvider>
         <div>hi</div>
       </CacheProvider>
     );
     const LegacyReact = version.startsWith('16') || version.startsWith('17');
+
+    // let our lazy component load
+    renderToString(tree);
+    await new Promise(resolve => setTimeout(resolve, 0));
 
     const msg = renderToString(tree);
 
@@ -31,7 +35,9 @@ describe('<BackupBoundary />', () => {
     `);
 
     if (!LegacyReact) {
-      expect(msg).toMatchInlineSnapshot(`"<!--$--><div>hi</div><!--/$-->"`);
+      expect(msg).toMatchInlineSnapshot(
+        `"<!--$--><div>hi</div><!--/$--><!--$--><!--/$-->"`,
+      );
     } else {
       expect(msg).toMatchInlineSnapshot(`"<div>hi</div>"`);
     }

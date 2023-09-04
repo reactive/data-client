@@ -132,7 +132,7 @@ export default class CollectionSchema<
   toJSON() {
     return {
       name: `Collection(${this.schema.schema.name})`,
-      schema: this.schema.schema,
+      schema: this.schema.schema.toJSON(),
       key: this.key,
     };
   }
