@@ -1,5 +1,40 @@
 # @data-client/react
 
+## 0.9.0
+
+### Minor Changes
+
+- [#2803](https://github.com/data-client/data-client/pull/2803) [`386372ed4d`](https://github.com/data-client/data-client/commit/386372ed4d0b454687847ba2b8eed4369ef7cdf7) Thanks [@ntucker](https://github.com/ntucker)! - Replace BackupBoundary with UniversalSuspense + BackupLoading
+  BREAKING: Remove BackupBoundary
+
+- [#2803](https://github.com/data-client/data-client/pull/2803) [`386372ed4d`](https://github.com/data-client/data-client/commit/386372ed4d0b454687847ba2b8eed4369ef7cdf7) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING: In dev mode add second suspense boundary for devtool button. This will cause hydration mismatch if packages are not the same.
+
+### Patch Changes
+
+- [#2803](https://github.com/data-client/data-client/pull/2803) [`386372ed4d`](https://github.com/data-client/data-client/commit/386372ed4d0b454687847ba2b8eed4369ef7cdf7) Thanks [@ntucker](https://github.com/ntucker)! - Add button to open devtools in development mode
+
+  Can be disabled or location configured using `devButton` [CacheProvider](https://dataclient.io/docs/api/CacheProvider)
+  property
+
+  ```tsx
+  <CacheProvider devButton={null}>
+    <App />
+  </CacheProvider>
+  ```
+
+  ```tsx
+  <CacheProvider devButton="top-right">
+    <App />
+  </CacheProvider>
+  ```
+
+- [`a7da00e82d`](https://github.com/data-client/data-client/commit/a7da00e82d5473f12881b85c9736a79e016ee526) Thanks [@ntucker](https://github.com/ntucker)! - Endpoint properties fully visible in devtool
+
+- [`2d2e94126e`](https://github.com/data-client/data-client/commit/2d2e94126e5962511e250df5d813d056646de41b) Thanks [@ntucker](https://github.com/ntucker)! - DevTools no longer forgets history if not open on page load
+
+- Updated dependencies [[`a7da00e82d`](https://github.com/data-client/data-client/commit/a7da00e82d5473f12881b85c9736a79e016ee526), [`2d2e94126e`](https://github.com/data-client/data-client/commit/2d2e94126e5962511e250df5d813d056646de41b), [`386372ed4d`](https://github.com/data-client/data-client/commit/386372ed4d0b454687847ba2b8eed4369ef7cdf7)]:
+  - @data-client/core@0.9.0
+
 ## 0.8.1
 
 ### Patch Changes

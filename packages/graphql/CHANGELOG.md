@@ -1,5 +1,12 @@
 # @data-client/graphql
 
+## 0.9.0
+
+### Patch Changes
+
+- Updated dependencies [[`386372ed4d`](https://github.com/data-client/data-client/commit/386372ed4d0b454687847ba2b8eed4369ef7cdf7)]:
+  - @data-client/endpoint@0.9.0
+
 ## 0.8.2
 
 ### Patch Changes
