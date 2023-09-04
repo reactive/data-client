@@ -4,6 +4,17 @@
 
 ### Patch Changes
 
+- Updated dependencies [[`386372ed4d`](https://github.com/data-client/data-client/commit/386372ed4d0b454687847ba2b8eed4369ef7cdf7), [`386372ed4d`](https://github.com/data-client/data-client/commit/386372ed4d0b454687847ba2b8eed4369ef7cdf7), [`386372ed4d`](https://github.com/data-client/data-client/commit/386372ed4d0b454687847ba2b8eed4369ef7cdf7), [`a7da00e82d`](https://github.com/data-client/data-client/commit/a7da00e82d5473f12881b85c9736a79e016ee526), [`386372ed4d`](https://github.com/data-client/data-client/commit/386372ed4d0b454687847ba2b8eed4369ef7cdf7), [`2d2e94126e`](https://github.com/data-client/data-client/commit/2d2e94126e5962511e250df5d813d056646de41b), [`386372ed4d`](https://github.com/data-client/data-client/commit/386372ed4d0b454687847ba2b8eed4369ef7cdf7)]:
+  - @data-client/react@0.9.0
+  - @data-client/endpoint@0.9.0
+  - @data-client/test@0.9.0
+  - @data-client/graphql@0.9.0
+  - @data-client/rest@0.9.0
+
+## null
+
+### Patch Changes
+
 - Updated dependencies [[`664d3eacff`](https://github.com/data-client/data-client/commit/664d3eacff08c3c75e8ed7c3ccc64ee21faa6f7f), [`26a3843d1b`](https://github.com/data-client/data-client/commit/26a3843d1b61900c385d8626d7062d6f0424c137)]:
   - @data-client/endpoint@0.8.2
   - @data-client/graphql@0.8.2

@@ -1,5 +1,13 @@
 # @data-client/test
 
+## 0.9.0
+
+### Patch Changes
+
+- [#2803](https://github.com/data-client/data-client/pull/2803) [`386372ed4d`](https://github.com/data-client/data-client/commit/386372ed4d0b454687847ba2b8eed4369ef7cdf7) Thanks [@ntucker](https://github.com/ntucker)! - Support devButton CacheProvider prop from 'react'
+
+  BREAKING: `@data-client/redux` relies on new ProviderProps exported by `@data-client/react`
+
 ## 0.8.0
 
 ### Minor Changes

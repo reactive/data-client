@@ -1,5 +1,16 @@
 # @data-client/redux
 
+## 0.9.0
+
+### Minor Changes
+
+- [#2803](https://github.com/data-client/data-client/pull/2803) [`386372ed4d`](https://github.com/data-client/data-client/commit/386372ed4d0b454687847ba2b8eed4369ef7cdf7) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING: In dev mode add second suspense boundary for devtool button. This will cause hydration mismatch if packages are not the same.
+
+### Patch Changes
+
+- Updated dependencies [[`a7da00e82d`](https://github.com/data-client/data-client/commit/a7da00e82d5473f12881b85c9736a79e016ee526), [`2d2e94126e`](https://github.com/data-client/data-client/commit/2d2e94126e5962511e250df5d813d056646de41b), [`386372ed4d`](https://github.com/data-client/data-client/commit/386372ed4d0b454687847ba2b8eed4369ef7cdf7)]:
+  - @data-client/core@0.9.0
+
 ## 0.8.1
 
 ### Patch Changes
