@@ -1,5 +1,11 @@
 # @data-client/ssr
 
+## 0.9.1
+
+### Patch Changes
+
+- [`0cf8f584cc`](https://github.com/data-client/data-client/commit/0cf8f584cc6d6a4635eec4d185063a7eedabebf4) Thanks [@ntucker](https://github.com/ntucker)! - Support 0.9
+
 ## 0.8.0
 
 ### Patch Changes
