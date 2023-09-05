@@ -10,12 +10,12 @@
   overflow: hidden;
   /*margin-bottom: 10px;*/
 
-  background: linear-gradient(
+  /* background: linear-gradient(
       transparent 212px,
       var(--ifm-hero-fade-to-background-color) 100%
     ),
     url('../../static/img/rest_hooks_logo_grayscale.svg')
-      var(--ifm-hero-background-color) no-repeat;
+      var(--ifm-hero-background-color) no-repeat; */
   background-position: 0, 100% calc(20% - 3rem);
 
   /* overlap */
