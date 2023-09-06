@@ -125,11 +125,17 @@ export default class DevToolsManager implements Manager {
       this.middleware = controller => {
         this.controller = controller;
         const reducer = createReducer(controller as any);
+        let state = controller.getState();
         return next => action => {
           const ret = next(action);
+          if (this.started) {
+            // we track state changes here since getState() will only update after a batch commit
+            state = reducer(state, action);
+          } else {
+            state = controller.getState();
+          }
           ret.then(() => {
             if (skipLogging?.(action)) return;
-            const state = controller.getState();
             this.handleAction(action, state.optimistic.reduce(reducer, state));
           });
           return ret;
