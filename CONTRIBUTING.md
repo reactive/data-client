@@ -40,7 +40,7 @@ If your idea requires design considerations, it's best to [start a discussion][4
 
 Support is available in our [discord channel][3]
 
-[1]: https://github.com/data-client/data-client/issues
+[1]: https://github.com/reactive/data-client/issues
 [2]: https://medium.com/brigade-engineering/the-secrets-to-great-commit-messages-106fc0a92a25
 [3]: https://discord.gg/9aTc42GXWR
-[4]: https://github.com/data-client/data-client/discussions/new?category=ideas
+[4]: https://github.com/reactive/data-client/discussions/new?category=ideas

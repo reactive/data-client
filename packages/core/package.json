@@ -112,11 +112,11 @@
   "homepage": "https://dataclient.io",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com:data-client/data-client.git",
+    "url": "git+ssh://git@github.com:reactive/data-client.git",
     "directory": "packages/core"
   },
   "bugs": {
-    "url": "https://github.com/data-client/data-client/issues"
+    "url": "https://github.com/reactive/data-client/issues"
   },
   "dependencies": {
     "@babel/runtime": "^7.17.0",

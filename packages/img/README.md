@@ -1,6 +1,6 @@
 # &lt;Img /> - Suspenseful Image
-[![CircleCI](https://circleci.com/gh/data-client/data-client/tree/master.svg?style=shield)](https://circleci.com/gh/data-client/data-client)
-[![Coverage Status](https://img.shields.io/codecov/c/gh/data-client/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/data-client/data-client?branch=master)
+[![CircleCI](https://circleci.com/gh/reactive/data-client/tree/master.svg?style=shield)](https://circleci.com/gh/reactive/data-client)
+[![Coverage Status](https://img.shields.io/codecov/c/gh/reactive/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/reactive/data-client?branch=master)
 [![npm downloads](https://img.shields.io/npm/dm/@data-client/img.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/img)
 [![bundle size](https://img.shields.io/bundlephobia/minzip/@data-client/img?style=flat-square)](https://bundlephobia.com/result?p=@data-client/img)
 [![npm version](https://img.shields.io/npm/v/@data-client/img.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/img)

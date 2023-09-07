@@ -9,7 +9,7 @@ let data = '';
 const request = https.request(
   {
     host: 'api.github.com',
-    path: '/repos/data-client/data-client/issues',
+    path: '/repos/reactive/data-client/issues',
     method: 'get',
     headers: {
       'user-agent': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)',

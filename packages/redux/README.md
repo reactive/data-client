@@ -1,7 +1,7 @@
 # [![Reactive Data Client](./data_client_logo_and_text.svg?sanitize=true)](https://dataclient.io)
 
-[![CircleCI](https://circleci.com/gh/data-client/data-client/tree/master.svg?style=shield)](https://circleci.com/gh/data-client/data-client)
-[![Coverage Status](https://img.shields.io/codecov/c/gh/data-client/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/data-client/data-client?branch=master)
+[![CircleCI](https://circleci.com/gh/reactive/data-client/tree/master.svg?style=shield)](https://circleci.com/gh/reactive/data-client)
+[![Coverage Status](https://img.shields.io/codecov/c/gh/reactive/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/reactive/data-client?branch=master)
 [![npm downloads](https://img.shields.io/npm/dm/@data-client/redux.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/redux)
 [![bundle size](https://img.shields.io/bundlephobia/minzip/@data-client/redux?style=flat-square)](https://bundlephobia.com/result?p=@data-client/redux)
 [![npm version](https://img.shields.io/npm/v/@data-client/redux.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/redux)
@@ -12,8 +12,8 @@ Asynchronous dynamic data at scale. Performance, data integrity, and typing for 
 <div align="center">
 
 **[📖Read The Docs](https://dataclient.io/docs/api/ExternalCacheProvider)** &nbsp;|&nbsp; [🏁Getting Started](https://dataclient.io/docs/guides/redux) &nbsp;|&nbsp;
-[🎮Todo Demo](https://stackblitz.com/github/data-client/data-client/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx) &nbsp;|&nbsp;
-[🎮Github Demo](https://stackblitz.com/github/data-client/data-client/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx)
+[🎮Todo Demo](https://stackblitz.com/github/reactive/data-client/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx) &nbsp;|&nbsp;
+[🎮Github Demo](https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx)
 
 </div>
 

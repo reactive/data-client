@@ -140,7 +140,7 @@ module.exports = {
   //favicon: 'img/favicon/favicon.ico',
   themes: ['@docusaurus/theme-live-codeblock', '@docusaurus/theme-mermaid'],
   customFields: {
-    repoUrl: 'https://github.com/data-client/data-client',
+    repoUrl: 'https://github.com/reactive/data-client',
   },
   onBrokenLinks: 'log',
   onBrokenMarkdownLinks: 'log',
@@ -163,7 +163,7 @@ module.exports = {
             // We want users to submit doc updates to the upstream/next version!
             // Otherwise we risk losing the update on the next release.
             const nextVersionDocsDirPath = 'docs';
-            return `https://github.com/data-client/data-client/edit/master/${nextVersionDocsDirPath}/${docPath}`;
+            return `https://github.com/reactive/data-client/edit/master/${nextVersionDocsDirPath}/${docPath}`;
           },
           lastVersion: 'current',
           includeCurrentVersion: true,
@@ -206,7 +206,7 @@ module.exports = {
           // We want users to submit doc updates to the upstream/next version!
           // Otherwise we risk losing the update on the next release.
           const nextVersionDocsDirPath = 'docs/rest';
-          return `https://github.com/data-client/data-client/edit/master/${nextVersionDocsDirPath}/${docPath}`;
+          return `https://github.com/reactive/data-client/edit/master/${nextVersionDocsDirPath}/${docPath}`;
         },
         lastVersion: 'current',
         includeCurrentVersion: true,
@@ -234,7 +234,7 @@ module.exports = {
           // We want users to submit doc updates to the upstream/next version!
           // Otherwise we risk losing the update on the next release.
           const nextVersionDocsDirPath = 'docs/graphql';
-          return `https://github.com/data-client/data-client/edit/master/${nextVersionDocsDirPath}/${docPath}`;
+          return `https://github.com/reactive/data-client/edit/master/${nextVersionDocsDirPath}/${docPath}`;
         },
         lastVersion: 'current',
         includeCurrentVersion: true,
@@ -281,7 +281,7 @@ module.exports = {
       twitterImage: 'img/rest_hooks_logo.png',
       announcementBar: {
         id: 'announcementBar-2', // Increment on change
-        content: `If you like Reactive Data Client, give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/data-client/data-client">GitHub</a>`,
+        content: `If you like Reactive Data Client, give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/reactive/data-client">GitHub</a>`,
       },
       navbar: {
         title: 'Reactive Data Client',
@@ -344,7 +344,7 @@ module.exports = {
             'aria-label': 'Demo Applications',
           },
           {
-            href: 'https://www.github.com/data-client/data-client',
+            href: 'https://www.github.com/reactive/data-client',
             position: 'right',
             className: 'header-github-link',
             'aria-label': 'GitHub repository',
@@ -405,7 +405,7 @@ module.exports = {
               },
               {
                 label: 'Bug Report',
-                href: 'https://github.com/data-client/data-client/issues/new/choose',
+                href: 'https://github.com/reactive/data-client/issues/new/choose',
               },
             ],
           },
@@ -418,19 +418,19 @@ module.exports = {
               },
               {
                 label: 'Github',
-                to: 'https://github.com/data-client/data-client',
+                to: 'https://github.com/reactive/data-client',
               },
               {
                 label: 'Demo (Github)',
-                to: 'https://stackblitz.com/github/data-client/data-client/tree/master/examples/github-app?file=src%2Fpages%2FIssueList/index.tsx',
+                to: 'https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?file=src%2Fpages%2FIssueList/index.tsx',
               },
               {
                 label: 'Demo (Todo)',
-                to: 'https://stackblitz.com/github/data-client/data-client/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx',
+                to: 'https://stackblitz.com/github/reactive/data-client/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx',
               },
               {
                 label: 'Demo (NextJS)',
-                to: 'https://stackblitz.com/github/data-client/data-client/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx',
+                to: 'https://stackblitz.com/github/reactive/data-client/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx',
               },
               /*{
               html: `<iframe

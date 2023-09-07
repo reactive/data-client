@@ -1,7 +1,7 @@
 # Data Client for GraphQL
 
-[![CircleCI](https://circleci.com/gh/data-client/data-client/tree/master.svg?style=shield)](https://circleci.com/gh/data-client/data-client)
-[![Coverage Status](https://img.shields.io/codecov/c/gh/data-client/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/data-client/data-client?branch=master)
+[![CircleCI](https://circleci.com/gh/reactive/data-client/tree/master.svg?style=shield)](https://circleci.com/gh/reactive/data-client)
+[![Coverage Status](https://img.shields.io/codecov/c/gh/reactive/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/reactive/data-client?branch=master)
 [![npm downloads](https://img.shields.io/npm/dm/@data-client/graphql.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/graphql)
 [![bundle size](https://img.shields.io/bundlephobia/minzip/@data-client/graphql?style=flat-square)](https://bundlephobia.com/result?p=@data-client/graphql)
 [![npm version](https://img.shields.io/npm/v/@data-client/graphql.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/graphql)
@@ -12,7 +12,7 @@
 
 <div align="center">
 
-**[📖Read The Docs](https://dataclient.io/graphql)** &nbsp;|&nbsp; [🎮Github Demo](https://stackblitz.com/github/data-client/data-client/tree/master/examples/github-app?file=src%2Fresources%2FRepository.tsx)
+**[📖Read The Docs](https://dataclient.io/graphql)** &nbsp;|&nbsp; [🎮Github Demo](https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?file=src%2Fresources%2FRepository.tsx)
 
 </div>
 

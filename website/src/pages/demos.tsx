@@ -23,7 +23,7 @@ export default function DemoList() {
         <TabItem value="todo">
           {/*Todo
               <a
-                href="https://github.com/data-client/data-client/tree/master/examples/todo-app"
+                href="https://github.com/reactive/data-client/tree/master/examples/todo-app"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="header-github-link"
@@ -31,7 +31,7 @@ export default function DemoList() {
         ></a>*/}
           <iframe
             loading="lazy"
-            src={`https://stackblitz.com/github/data-client/data-client/tree/master/examples/todo-app?${searchParams(
+            src={`https://stackblitz.com/github/reactive/data-client/tree/master/examples/todo-app?${searchParams(
               {
                 embed: '1',
                 file: [
@@ -49,7 +49,7 @@ export default function DemoList() {
         </TabItem>
         <TabItem value="github">
           {/*            <a
-              href="https://github.com/data-client/data-client/tree/master/examples/github-app"
+              href="https://github.com/reactive/data-client/tree/master/examples/github-app"
               target="_blank"
               rel="noopener noreferrer"
               className="header-github-link"
@@ -57,7 +57,7 @@ export default function DemoList() {
             ></a>*/}
           <iframe
             loading="lazy"
-            src={`https://stackblitz.com/github/data-client/data-client/tree/master/examples/github-app?${searchParams(
+            src={`https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?${searchParams(
               {
                 embed: '1',
                 file: ['src/resources/Issue.tsx,src/pages/IssueList.tsx'],
@@ -73,7 +73,7 @@ export default function DemoList() {
         </TabItem>
         <TabItem value="nextjs">
           {/*            <a
-              href="https://github.com/data-client/data-client/tree/master/examples/github-app"
+              href="https://github.com/reactive/data-client/tree/master/examples/github-app"
               target="_blank"
               rel="noopener noreferrer"
               className="header-github-link"
@@ -81,7 +81,7 @@ export default function DemoList() {
             ></a>*/}
           <iframe
             loading="lazy"
-            src={`https://stackblitz.com/github/data-client/data-client/tree/master/examples/nextjs?${searchParams(
+            src={`https://stackblitz.com/github/reactive/data-client/tree/master/examples/nextjs?${searchParams(
               {
                 embed: '1',
                 file: ['resources/Ticker.ts,pages/AssetPrice.tsx'],

@@ -1,6 +1,6 @@
 # Networking Hooks
-[![CircleCI](https://circleci.com/gh/data-client/data-client/tree/master.svg?style=shield)](https://circleci.com/gh/data-client/data-client)
-[![Coverage Status](https://img.shields.io/codecov/c/gh/data-client/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/data-client/data-client?branch=master)
+[![CircleCI](https://circleci.com/gh/reactive/data-client/tree/master.svg?style=shield)](https://circleci.com/gh/reactive/data-client)
+[![Coverage Status](https://img.shields.io/codecov/c/gh/reactive/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/reactive/data-client?branch=master)
 [![npm downloads](https://img.shields.io/npm/dm/@data-client/hooks.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/hooks)
 [![bundle size](https://img.shields.io/bundlephobia/minzip/@data-client/hooks?style=flat-square)](https://bundlephobia.com/result?p=@data-client/hooks)
 [![npm version](https://img.shields.io/npm/v/@data-client/hooks.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/hooks)
