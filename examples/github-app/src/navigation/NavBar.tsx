@@ -27,7 +27,7 @@ function NavBar() {
         label: (
           <Link
             name="IssueList"
-            props={{ repo: 'data-client', owner: 'data-client' }}
+            props={{ repo: 'data-client', owner: 'reactive' }}
           >
             RDC Issues
           </Link>
