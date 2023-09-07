@@ -4,14 +4,14 @@
 
 ### Minor Changes
 
-- [#2803](https://github.com/data-client/data-client/pull/2803) [`386372ed4d`](https://github.com/data-client/data-client/commit/386372ed4d0b454687847ba2b8eed4369ef7cdf7) Thanks [@ntucker](https://github.com/ntucker)! - Replace BackupBoundary with UniversalSuspense + BackupLoading
+- [#2803](https://github.com/reactive/data-client/pull/2803) [`386372ed4d`](https://github.com/reactive/data-client/commit/386372ed4d0b454687847ba2b8eed4369ef7cdf7) Thanks [@ntucker](https://github.com/ntucker)! - Replace BackupBoundary with UniversalSuspense + BackupLoading
   BREAKING: Remove BackupBoundary
 
-- [#2803](https://github.com/data-client/data-client/pull/2803) [`386372ed4d`](https://github.com/data-client/data-client/commit/386372ed4d0b454687847ba2b8eed4369ef7cdf7) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING: In dev mode add second suspense boundary for devtool button. This will cause hydration mismatch if packages are not the same.
+- [#2803](https://github.com/reactive/data-client/pull/2803) [`386372ed4d`](https://github.com/reactive/data-client/commit/386372ed4d0b454687847ba2b8eed4369ef7cdf7) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING: In dev mode add second suspense boundary for devtool button. This will cause hydration mismatch if packages are not the same.
 
 ### Patch Changes
 
-- [#2803](https://github.com/data-client/data-client/pull/2803) [`386372ed4d`](https://github.com/data-client/data-client/commit/386372ed4d0b454687847ba2b8eed4369ef7cdf7) Thanks [@ntucker](https://github.com/ntucker)! - Add button to open devtools in development mode
+- [#2803](https://github.com/reactive/data-client/pull/2803) [`386372ed4d`](https://github.com/reactive/data-client/commit/386372ed4d0b454687847ba2b8eed4369ef7cdf7) Thanks [@ntucker](https://github.com/ntucker)! - Add button to open devtools in development mode
 
   Can be disabled or location configured using `devButton` [CacheProvider](https://dataclient.io/docs/api/CacheProvider)
   property
@@ -28,29 +28,29 @@
   </CacheProvider>
   ```
 
-- [`a7da00e82d`](https://github.com/data-client/data-client/commit/a7da00e82d5473f12881b85c9736a79e016ee526) Thanks [@ntucker](https://github.com/ntucker)! - Endpoint properties fully visible in devtool
+- [`a7da00e82d`](https://github.com/reactive/data-client/commit/a7da00e82d5473f12881b85c9736a79e016ee526) Thanks [@ntucker](https://github.com/ntucker)! - Endpoint properties fully visible in devtool
 
-- [`2d2e94126e`](https://github.com/data-client/data-client/commit/2d2e94126e5962511e250df5d813d056646de41b) Thanks [@ntucker](https://github.com/ntucker)! - DevTools no longer forgets history if not open on page load
+- [`2d2e94126e`](https://github.com/reactive/data-client/commit/2d2e94126e5962511e250df5d813d056646de41b) Thanks [@ntucker](https://github.com/ntucker)! - DevTools no longer forgets history if not open on page load
 
-- Updated dependencies [[`a7da00e82d`](https://github.com/data-client/data-client/commit/a7da00e82d5473f12881b85c9736a79e016ee526), [`2d2e94126e`](https://github.com/data-client/data-client/commit/2d2e94126e5962511e250df5d813d056646de41b), [`386372ed4d`](https://github.com/data-client/data-client/commit/386372ed4d0b454687847ba2b8eed4369ef7cdf7)]:
+- Updated dependencies [[`a7da00e82d`](https://github.com/reactive/data-client/commit/a7da00e82d5473f12881b85c9736a79e016ee526), [`2d2e94126e`](https://github.com/reactive/data-client/commit/2d2e94126e5962511e250df5d813d056646de41b), [`386372ed4d`](https://github.com/reactive/data-client/commit/386372ed4d0b454687847ba2b8eed4369ef7cdf7)]:
   - @data-client/core@0.9.0
 
 ## 0.8.1
 
 ### Patch Changes
 
-- [#2797](https://github.com/data-client/data-client/pull/2797) [`c6ee872c7d`](https://github.com/data-client/data-client/commit/c6ee872c7d4bb669fa7b08a5343b24419c797cee) Thanks [@ntucker](https://github.com/ntucker)! - Fix published dependency range
+- [#2797](https://github.com/reactive/data-client/pull/2797) [`c6ee872c7d`](https://github.com/reactive/data-client/commit/c6ee872c7d4bb669fa7b08a5343b24419c797cee) Thanks [@ntucker](https://github.com/ntucker)! - Fix published dependency range
 
-- Updated dependencies [[`c6ee872c7d`](https://github.com/data-client/data-client/commit/c6ee872c7d4bb669fa7b08a5343b24419c797cee)]:
+- Updated dependencies [[`c6ee872c7d`](https://github.com/reactive/data-client/commit/c6ee872c7d4bb669fa7b08a5343b24419c797cee)]:
   - @data-client/core@0.8.1
 
 ## 0.8.0
 
 ### Minor Changes
 
-- [`f65cf832f0`](https://github.com/data-client/data-client/commit/f65cf832f0cdc4d01cb2f389a2dc2b37f1e5cf04) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING: Remove all /next exports
+- [`f65cf832f0`](https://github.com/reactive/data-client/commit/f65cf832f0cdc4d01cb2f389a2dc2b37f1e5cf04) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING: Remove all /next exports
 
-- [#2787](https://github.com/data-client/data-client/pull/2787) [`8ec35d7143`](https://github.com/data-client/data-client/commit/8ec35d71437c4042c6cb824eceb490d31c36ae21) Thanks [@ntucker](https://github.com/ntucker)! - Remove makeCacheProvider
+- [#2787](https://github.com/reactive/data-client/pull/2787) [`8ec35d7143`](https://github.com/reactive/data-client/commit/8ec35d71437c4042c6cb824eceb490d31c36ae21) Thanks [@ntucker](https://github.com/ntucker)! - Remove makeCacheProvider
 
   Current testing version is already [using the provider Component directly](https://dataclient.io/docs/api/makeRenderDataClient)
 
@@ -59,7 +59,7 @@
   const renderDataClient = makeRenderDataClient(CacheProvider);
   ```
 
-- [#2785](https://github.com/data-client/data-client/pull/2785) [`c6a2071178`](https://github.com/data-client/data-client/commit/c6a2071178c82c7622713c40c5a9fa5807c4e756) Thanks [@ntucker](https://github.com/ntucker)! - Add className to error boundary and errorClassName to [AsyncBoundary](https://dataclient.io/docs/api/AsyncBoundary)
+- [#2785](https://github.com/reactive/data-client/pull/2785) [`c6a2071178`](https://github.com/reactive/data-client/commit/c6a2071178c82c7622713c40c5a9fa5807c4e756) Thanks [@ntucker](https://github.com/ntucker)! - Add className to error boundary and errorClassName to [AsyncBoundary](https://dataclient.io/docs/api/AsyncBoundary)
 
   ```tsx
   <AsyncBoundary errorClassName="error">
@@ -73,7 +73,7 @@
   </NetworkErrorBoundary>
   ```
 
-- [#2784](https://github.com/data-client/data-client/pull/2784) [`c535f6c0ac`](https://github.com/data-client/data-client/commit/c535f6c0ac915b5242c1c7694308b7ee7aab16a1) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGES:
+- [#2784](https://github.com/reactive/data-client/pull/2784) [`c535f6c0ac`](https://github.com/reactive/data-client/commit/c535f6c0ac915b5242c1c7694308b7ee7aab16a1) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGES:
 
   - DELETE removed -> INVALIDATE
   - drop all support for legacy schemas
@@ -81,7 +81,7 @@
     - Collections.infer does entity check
     - all Entity overrides for backcompat are removed - operates just like EntitySchema, except with extra validation
 
-- [#2782](https://github.com/data-client/data-client/pull/2782) [`d3343d42b9`](https://github.com/data-client/data-client/commit/d3343d42b970d075eda201cb85d201313120807c) Thanks [@ntucker](https://github.com/ntucker)! - Remove all 'receive' action names (use 'set' instead)
+- [#2782](https://github.com/reactive/data-client/pull/2782) [`d3343d42b9`](https://github.com/reactive/data-client/commit/d3343d42b970d075eda201cb85d201313120807c) Thanks [@ntucker](https://github.com/ntucker)! - Remove all 'receive' action names (use 'set' instead)
 
   BREAKING CHANGE:
 
@@ -90,14 +90,14 @@
   - remove Controller.receive Controller.receiveError
   - NetworkManager.handleReceive -> handleSet
 
-- [#2791](https://github.com/data-client/data-client/pull/2791) [`a726d9178a`](https://github.com/data-client/data-client/commit/a726d9178a60fd81ff97d862ed4943e1fd4814c0) Thanks [@ntucker](https://github.com/ntucker)! - CacheProvider elements no longer share default managers
+- [#2791](https://github.com/reactive/data-client/pull/2791) [`a726d9178a`](https://github.com/reactive/data-client/commit/a726d9178a60fd81ff97d862ed4943e1fd4814c0) Thanks [@ntucker](https://github.com/ntucker)! - CacheProvider elements no longer share default managers
 
   New export: `getDefaultManagers()`
 
   BREAKING CHANGE: Newly mounted CacheProviders will have new manager
   objects when default is used
 
-- [#2795](https://github.com/data-client/data-client/pull/2795) [`79e286109b`](https://github.com/data-client/data-client/commit/79e286109b5566f8e7acfdf0f44201263072d1d1) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING: [Schema Serializers](https://dataclient.io/rest/guides/network-transform#deserializing-fields) _must_ support function calls
+- [#2795](https://github.com/reactive/data-client/pull/2795) [`79e286109b`](https://github.com/reactive/data-client/commit/79e286109b5566f8e7acfdf0f44201263072d1d1) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING: [Schema Serializers](https://dataclient.io/rest/guides/network-transform#deserializing-fields) _must_ support function calls
 
   This means Date will no longer work like before. Possible migrations:
 
@@ -139,15 +139,15 @@
   }
   ```
 
-- [#2781](https://github.com/data-client/data-client/pull/2781) [`5ff1d65eb5`](https://github.com/data-client/data-client/commit/5ff1d65eb526306f2a78635b659f29554625e853) Thanks [@ntucker](https://github.com/ntucker)! - Prefix action types with 'rdc'
+- [#2781](https://github.com/reactive/data-client/pull/2781) [`5ff1d65eb5`](https://github.com/reactive/data-client/commit/5ff1d65eb526306f2a78635b659f29554625e853) Thanks [@ntucker](https://github.com/ntucker)! - Prefix action types with 'rdc'
 
   BREAKING CHANGE: Action types have new names
 
 ### Patch Changes
 
-- [#2779](https://github.com/data-client/data-client/pull/2779) [`ff51e71f45`](https://github.com/data-client/data-client/commit/ff51e71f45857eb172f3fe05829e34c9abb68252) Thanks [@ntucker](https://github.com/ntucker)! - Update jsdocs references to dataclient.io
+- [#2779](https://github.com/reactive/data-client/pull/2779) [`ff51e71f45`](https://github.com/reactive/data-client/commit/ff51e71f45857eb172f3fe05829e34c9abb68252) Thanks [@ntucker](https://github.com/ntucker)! - Update jsdocs references to dataclient.io
 
-- Updated dependencies [[`837cf57883`](https://github.com/data-client/data-client/commit/837cf57883544c7640344a01f43bf6d9e3369083), [`f65cf832f0`](https://github.com/data-client/data-client/commit/f65cf832f0cdc4d01cb2f389a2dc2b37f1e5cf04), [`c865415ce5`](https://github.com/data-client/data-client/commit/c865415ce598d2b882262f795c4a816b2aa0808a), [`ff51e71f45`](https://github.com/data-client/data-client/commit/ff51e71f45857eb172f3fe05829e34c9abb68252), [`c535f6c0ac`](https://github.com/data-client/data-client/commit/c535f6c0ac915b5242c1c7694308b7ee7aab16a1), [`d3343d42b9`](https://github.com/data-client/data-client/commit/d3343d42b970d075eda201cb85d201313120807c), [`5ff1d65eb5`](https://github.com/data-client/data-client/commit/5ff1d65eb526306f2a78635b659f29554625e853)]:
+- Updated dependencies [[`837cf57883`](https://github.com/reactive/data-client/commit/837cf57883544c7640344a01f43bf6d9e3369083), [`f65cf832f0`](https://github.com/reactive/data-client/commit/f65cf832f0cdc4d01cb2f389a2dc2b37f1e5cf04), [`c865415ce5`](https://github.com/reactive/data-client/commit/c865415ce598d2b882262f795c4a816b2aa0808a), [`ff51e71f45`](https://github.com/reactive/data-client/commit/ff51e71f45857eb172f3fe05829e34c9abb68252), [`c535f6c0ac`](https://github.com/reactive/data-client/commit/c535f6c0ac915b5242c1c7694308b7ee7aab16a1), [`d3343d42b9`](https://github.com/reactive/data-client/commit/d3343d42b970d075eda201cb85d201313120807c), [`5ff1d65eb5`](https://github.com/reactive/data-client/commit/5ff1d65eb526306f2a78635b659f29554625e853)]:
   - @data-client/core@0.8.0
 
 ## 0.4.3
@@ -204,7 +204,7 @@
 
   This can be useful when prefetching data, as it avoids overfetching fresh data.
 
-  An [example](https://stackblitz.com/github/data-client/data-client/tree/master/examples/github-app?file=src%2Frouting%2Froutes.tsx) with a fetch-as-you-render router:
+  An [example](https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?file=src%2Frouting%2Froutes.tsx) with a fetch-as-you-render router:
 
   ```ts
   {
