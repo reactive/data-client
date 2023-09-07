@@ -434,7 +434,7 @@ module.exports = {
               },
               /*{
               html: `<iframe
-              src="https://ghbtns.com/github-btn.html?user=data-client&amp;repo=data-client&amp;type=star&amp;count=true&amp;size=small"
+              src="https://ghbtns.com/github-btn.html?user=reactive&amp;repo=data-client&amp;type=star&amp;count=true&amp;size=small"
               width="110"
               height="19.6"
               title="GitHub Stars"
