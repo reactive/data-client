@@ -64,6 +64,7 @@ export class Article extends Entity {
   tags: string[] = [];
   createdAt = Temporal.Instant.fromEpochSeconds(0);
 
+  static key = 'Article';
   pk() {
     return this.id;
   }
@@ -72,8 +73,6 @@ export class Article extends Entity {
     author: User,
     createdAt: Temporal.Instant.from,
   };
-
-  static key = 'Article';
 }
 ```
 
