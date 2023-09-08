@@ -24,6 +24,8 @@ error to be caught by the nearest [NetworkErrorBoundary](../api/NetworkErrorBoun
 
 Hard errors always reject with `error` - even when data has previously made available.
 
+'hard' | `undefined` can both be used to indicate this state.
+
 <HooksPlayground fixtures={[
 {
   endpoint: new RestEndpoint({
@@ -154,3 +156,4 @@ errorPolicy(error) {
 }
 ```
 
+`undefined` is another way of specifying a [hard error](#hard)

@@ -103,7 +103,7 @@ import { lastUpdated } from './api/lastUpdated';
 
 const getUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
 
-function TimePage({ id }) {
+export default function TimePage({ id }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
     <div>
@@ -114,6 +114,10 @@ function TimePage({ id }) {
     </div>
   );
 }
+```
+
+```tsx title="Navigator" collapsed
+import TimePage from './TimePage';
 
 function Navigator() {
   const [id, setId] = React.useState('1');
@@ -228,7 +232,7 @@ const getUpdated = lastUpdated.extend({
   dataExpiryLength: 5000,
 });
 
-function TimePage({ id }) {
+export default function TimePage({ id }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
     <div>
@@ -239,6 +243,10 @@ function TimePage({ id }) {
     </div>
   );
 }
+```
+
+```tsx title="Navigator" collapsed
+import TimePage from './TimePage';
 
 function Navigator() {
   const [id, setId] = React.useState('1');
