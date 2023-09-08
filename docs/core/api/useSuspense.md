@@ -22,6 +22,8 @@ High performance async data rendering without overfetching.
 `useSuspense()` [suspends](../getting-started/data-dependency.md#async-fallbacks) rendering until the data is available. This is much like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await)ing an [async](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function) function. This avoids the complexity of handling loading and error conditions in your components by
 [centralizing](../getting-started/data-dependency.md#boundaries) them with a singular [AsyncBoundary](../api/AsyncBoundary.md).
 
+`useSuspense()` will rerender when its data [mutates](../getting-started/mutations.md).
+
 ## Usage
 
 <Tabs

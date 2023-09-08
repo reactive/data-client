@@ -15,7 +15,9 @@ import { RestEndpoint } from '@data-client/rest';
 Data rendering without the fetch.
 
 General purpose store access can be useful when the data's existance is of interest (like if a user is authenticated),
-or general purpose store access like [Query](/rest/api/Query)
+or general purpose store access like [Query](/rest/api/Query).
+
+`useDLE()` will rerender when its data [mutates](../getting-started/mutations.md).
 
 ## Usage
 

@@ -14,7 +14,7 @@ import {RestEndpoint} from '@data-client/rest';
 import StackBlitz from '@site/src/components/StackBlitz';
 import UseLive from '../shared/\_useLive.mdx';
 
-Async rendering of frequently changing remote data.
+Async rendering of changing remote data.
 
 [useSuspense()](./useSuspense.md) + [useSubscription()](./useSubscription.md) in one hook.
 
