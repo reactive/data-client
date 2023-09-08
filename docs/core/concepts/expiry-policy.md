@@ -14,26 +14,6 @@ By default, Reactive Data Client cache policy can be described as [stale-while-r
 This means that when data is available it can avoid blocking the application by using the stale data. However, in the background
 it will still refresh the data if old enough.
 
-To explain these concepts we'll be faking an endpoint that gives us the current time so it is easy to tell how stale it is.
-
-```tsx title="lastUpdated"
-class TimedEntity extends Entity {
-  id = '';
-  updatedAt = Temporal.Instant.fromEpochSeconds(0);
-
-  pk() {
-    return this.id;
-  }
-  static schema = {
-    updatedAt: Temporal.Instant.from,
-  };
-}
-const lastUpdated = new RestEndpoint({
-  path: '/api/currentTime/:id',
-  schema: TimedEntity,
-});
-```
-
 ## Expiry status
 
 ### Fresh
@@ -47,6 +27,12 @@ Data is still allowed to be shown, however Reactive Data Client might attempt to
 [useSuspense()](../api/useSuspense.md) considers fetching on mount as well as when its parameters change.
 In these cases it will fetch if the data is considered stale.
 
+:::info React Native
+
+When using React Navigation, [focus events](https://reactnavigation.org/docs/use-focus-effect/) also trigger fetches for stale data.
+
+:::
+
 ### Invalid
 
 Data should not be shown. Any components needing this data will trigger fetch and suspense. If
@@ -57,8 +43,8 @@ no components care about this data no action will be taken.
 ### Endpoint.dataExpiryLength
 
 [Endpoint.dataExpiryLength](/rest/api/Endpoint#dataexpirylength) sets how long (in miliseconds) it takes for data
-to transition from 'fresh' to 'stale' status. Try setting it to a very low number like '50'
-to make it becomes stale almost instantly; or a very large number to stay around for a long time.
+to transition from '[fresh](#fresh)' to '[stale](#stale)' status. Try setting it to a very low number like '50'
+to make it becomes [stale](#stale) almost instantly; or a very large number to stay around for a long time.
 
 Toggling between 'first' and 'second' changes the parameters. If the data is still considered fresh
 you will continue to see the old time without any refresh.
@@ -107,7 +93,7 @@ export default function TimePage({ id }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
     <div>
-      API Time:{' '}
+      API time for {id}:{' '}
       <time>
         {DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
       </time>
@@ -183,8 +169,8 @@ const NoRetryResource = createResource({
 
 ### Endpoint.invalidIfStale
 
-[Endpoint.invalidIfStale](/rest/api/Endpoint#invalidifstale) eliminates the `stale` status, making data
-that expires immediately be considered 'invalid'.
+[Endpoint.invalidIfStale](/rest/api/Endpoint#invalidifstale) eliminates the '[stale](#stale)' status, making data
+that expires immediately be considered '[invalid](#invalid)'.
 
 This is demonstrated by the component suspending once its data goes stale. If the data is still
 within the expiry time it just continues to display it.
@@ -236,7 +222,7 @@ export default function TimePage({ id }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
     <div>
-      API Time:{' '}
+      API time for {id}:{' '}
       <time>
         {DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
       </time>
@@ -438,11 +424,11 @@ render(<Demo />);
 
 ## Invalidate (re-suspend) {#invalidate}
 
-Both endpoints and entities can be targetted to be invalidated.
+Both [endpoints](/rest/api/Endpoint) and [entities](/rest/api/Entity) can be targetted to be invalidated.
 
 ### A specific endpoint
 
-In this example we can see invalidating the endpoint shows the loading fallback since the data is not allowed to be displayed.
+In this example we can see [invalidating the endpoint](../api/Controller.md#invalidate) shows the loading fallback since the data is not allowed to be displayed.
 
 <HooksPlayground fixtures={[
 {
@@ -539,8 +525,8 @@ render(<Demo />);
 
 ### Any endpoint with an entity
 
-Using [Invalidate](/rest/api/Invalidate) allows us to invalidate _any_ endpoint that includes that relies on that entity in their
-response. If the endpoint uses the entity in an Array, it will simply be removed from that Array.
+Using the [Invalidate schema](/rest/api/Invalidate) allows us to invalidate _any_ endpoint that includes that relies on that [entity](/rest/api/Entity) in their
+response. If the endpoint uses the entity in an [Array](/rest/api/Array), it will simply be removed from that [Array](/rest/api/Array).
 
 <HooksPlayground fixtures={[
 {
@@ -553,7 +539,7 @@ response. If the endpoint uses the entity in an Array, it will simply be removed
       updatedAt: new Date().toISOString(),
     });
   },
-  delay: () => 150,
+  delay: () => 200,
 },
 {
   endpoint: new RestEndpoint({
@@ -589,6 +575,7 @@ export const lastUpdated = new RestEndpoint({
 ```
 
 ```tsx title="ShowTime"
+import { useLoading } from '@data-client/hooks';
 import { lastUpdated, TimedEntity } from './api/lastUpdated';
 
 export const deleteLastUpdated = new RestEndpoint({
@@ -600,16 +587,17 @@ export const deleteLastUpdated = new RestEndpoint({
 function ShowTime() {
   const { updatedAt } = useSuspense(lastUpdated, { id: '1' });
   const ctrl = useController();
+  const [handleDelete, loadingDelete] = useLoading(() => ctrl.fetch(deleteLastUpdated, { id: '1' }), []);
   return (
     <div>
       <time>
         {DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
       </time>{' '}
-      <button onClick={() => ctrl.fetch(deleteLastUpdated, { id: '1' })}>
-        Delete
+      <button onClick={handleDelete}>
+        {loadingDelete ? 'loading...' : 'Invalidate'}
       </button>
       <button onClick={() => ctrl.setResponse(deleteLastUpdated, { id: '1' }, { id: '1' })}>
-        Delete (with no fetch)
+        Invalidate (without fetching DELETE)
       </button>
     </div>
   );
