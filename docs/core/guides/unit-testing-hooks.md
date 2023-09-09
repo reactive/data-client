@@ -115,7 +115,7 @@ describe('useSuspense()', () => {
 ```typescript
 import nock from 'nock';
 import { makeRenderDataClient } from '@data-client/test';
-import { ExternalCacheProvider } from '@data-client/redux';
+import { CacheProvider } from '@data-client/redux';
 
 describe('useSuspense()', () => {
   let renderDataClient: ReturnType<typeof makeRenderDataClient>;
@@ -131,7 +131,7 @@ describe('useSuspense()', () => {
       .reply(200)
       .get(`/article/0`)
       .reply(403, {});
-    renderDataClient = makeRenderDataClient(ExternalCacheProvider);
+    renderDataClient = makeRenderDataClient(CacheProvider);
   });
 
   afterEach(() => {
