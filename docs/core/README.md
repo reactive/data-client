@@ -1,5 +1,5 @@
 ---
-title: The Reactive Data Client
+title: Reactive Data Client Introduction
 sidebar_label: Introduction
 slug: /
 ---

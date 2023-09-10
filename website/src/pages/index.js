@@ -101,7 +101,7 @@ function HomepageEnder() {
 export default function Home() {
   return (
     <Layout
-      title={`Async State Management without the Management`}
+      title={`The Reactive Data Client`}
       description="Async State Management without the Management."
     >
       <HomepageHeader />
