@@ -14,7 +14,7 @@ export default function PreviewWrapper({ children }: Props) {
           id="theme.Playground.result"
           description="The result label of the live codeblocks"
         >
-          Live Preview
+          🔴 Live Preview
         </Translate>
       </Header>
       <div className={styles.playgroundResult}>{children}</div>
