@@ -2,14 +2,9 @@ import type { Manager, Middleware } from '@data-client/core';
 import type { EndpointInterface } from '@data-client/endpoint';
 import { ActionTypes, Controller, actionTypes } from '@data-client/react';
 
-/**
- * TODO:
+/** Updates crypto data using Coinbase websocket stream
  *
- * - off screen - slow down the feed
- * - online/offline detection
- * - handle network disconnects
- *
- * docs: https://docs.cloud.coinbase.com/advanced-trade-api/docs/ws-overview
+ * https://docs.cloud.coinbase.com/advanced-trade-api/docs/ws-overview
  */
 export default class StreamManager implements Manager {
   protected declare middleware: Middleware<ActionTypes>;
@@ -129,3 +124,10 @@ export default class StreamManager implements Manager {
     return this.middleware;
   }
 }
+/*
+ * TODO:
+ *
+ * - off screen - slow down the feed
+ * - online/offline detection
+ * - handle network disconnects
+ */

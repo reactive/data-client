@@ -3,7 +3,7 @@ title: Snapshot
 ---
 
 <head>
-  <title>Snapshot - Safe data access for Reactive Data Client</title>
+  <title>Snapshot - Safe data access with zero race conditions</title>
 </head>
 
 import Tabs from '@theme/Tabs';

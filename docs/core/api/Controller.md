@@ -3,7 +3,7 @@ title: Controller
 ---
 
 <head>
-  <title>Controller - Imperative Controls for Reactive Data Client</title>
+  <title>Controller - Typesafe imperative store access</title>
   <meta name="docsearch:pagerank" content="30"/>
 </head>
 

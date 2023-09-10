@@ -5,7 +5,6 @@ import {
   useCache,
   useSuspense,
 } from '@data-client/react';
-
 import { CurrencyResource, queryCurrency } from 'resources/Currency';
 
 import AssetPrice from './AssetPrice';
@@ -25,7 +24,7 @@ export default function CurrencyList() {
         </tr>
       </thead>
       <tbody>
-        {currencies.map((currency) => (
+        {currencies.map(currency => (
           <tr key={currency.pk()}>
             <td>
               <Link name="AssetDetail" props={{ id: currency.id }}>

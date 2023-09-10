@@ -5,8 +5,10 @@ sidebar_label: Managers and Middleware
 
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import StackBlitz from '@site/src/components/StackBlitz';
 
 <head>
+  <title>Centralized side-effect orchestration with React</title>
   <meta name="docsearch:pagerank" content="40"/>
 </head>
 
@@ -21,16 +23,17 @@ characterized by an easy to [understand and debug](../guides/debugging.md) the s
   }}
 />
 
-Reactive Data Client improves type-safety and ergonomics by performing dispatches and store access with
-its [Controller](../api/Controller.md)
+In flux architectures, it is critical all functions in the flux loop are [pure](https://react.dev/learn/keeping-components-pure).
+Managers provide centralized orchestration of side effects. In other words, they are the means to interface
+with the world outside RDC.
 
-Finally, everything is orchestrated by [Managers](../api/Manager.md). Managers integrate with the flux
-lifecycle by intercepting and dispatching actions, as well as reading the internal state.
+For instance, [NetworkManager](../api/NetworkManager.md) orchestrates data fetching and [SubscriptionManager](../api/SubscriptionManager.md)
+keeps track of which resources are subscribed with [useLive](../api/useLive.md) or [useSubscription](../api/useSubscription.md). By centralizing control, [NetworkManager](../api/NetworkManager.md) automatically deduplicates fetches, and [SubscriptionManager](../api/SubscriptionManager.md)
+will keep only actively rendered resources updated.
 
-This central orchestration is how Reactive Data Client is able to coordinate with all components, doing things
-like automatic fetch deduplication, polling fetch coordinating eliminating many cases of overfetching.
+This makes [Managers](../api/Manager.md) the best way to integrate additional side-effects like metrics and monitoring.
+They can also be customized to change core behaviors.
 
-It also means Reactive Data Client behavior can be arbitrarily customized by writing your own Managers.
 
 | Default managers                                     | |
 | ---------------------------------------------------- | ------------------------------------------------------------------------------------ |
@@ -41,6 +44,9 @@ It also means Reactive Data Client behavior can be arbitrarily customized by wri
 | [LogoutManager](../api/LogoutManager.md)             | Handles HTTP `401` (or other logout conditions)                                      |
 
 ## Examples
+
+Reactive Data Client improves type-safety and ergonomics by performing dispatches and store access with
+its [Controller](../api/Controller.md)
 
 ### Middleware logging
 
@@ -114,3 +120,7 @@ export default class StreamManager implements Manager {
 
 [Controller.setResponse()](../api/Controller.md#setResponse) updates the Reactive Data Client store
 with `event.data`.
+
+### Coin App
+
+<StackBlitz app="coin-app" file="src/index.tsx,src/resources/Ticker.ts,src/pages/Home/AssetPrice.tsx,src/resources/StreamManager.ts" view="editor" height="600" />

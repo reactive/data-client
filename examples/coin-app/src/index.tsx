@@ -9,10 +9,8 @@ import {
 import {
   useController,
   AsyncBoundary,
-  CacheProvider,
   getDefaultManagers,
 } from '@data-client/react';
-
 import StreamManager from 'resources/StreamManager';
 import { getTicker } from 'resources/Ticker';
 
