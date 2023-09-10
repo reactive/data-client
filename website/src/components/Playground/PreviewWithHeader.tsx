@@ -1,10 +1,8 @@
 import { Fixture, Interceptor } from '@data-client/test';
-import Translate from '@docusaurus/Translate';
 import React, { memo } from 'react';
 
-import Header from './Header';
 import Preview from './Preview';
-import styles from './styles.module.css';
+import PreviewWrapper from './PreviewWrapper';
 
 function PreviewWithHeader<T>({
   groupId,
@@ -14,32 +12,20 @@ function PreviewWithHeader<T>({
   getInitialInterceptorData,
 }: Props<T>) {
   return (
-    <div
-      style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
-    >
-      <Header>
-        <Translate
-          id="theme.Playground.result"
-          description="The result label of the live codeblocks"
-        >
-          Live Preview
-        </Translate>
-      </Header>
-      <div className={styles.playgroundResult}>
-        <Preview
-          groupId={groupId}
-          defaultOpen={defaultOpen}
-          row={row}
-          fixtures={fixtures}
-          getInitialInterceptorData={getInitialInterceptorData}
-        />
-      </div>
-    </div>
+    <PreviewWrapper>
+      <Preview
+        groupId={groupId}
+        defaultOpen={defaultOpen}
+        row={row}
+        fixtures={fixtures}
+        getInitialInterceptorData={getInitialInterceptorData}
+      />
+    </PreviewWrapper>
   );
 }
 export default memo(PreviewWithHeader);
 
-interface Props<T = any> {
+interface Props<T> {
   groupId: string;
   defaultOpen: 'y' | 'n';
   row: boolean;

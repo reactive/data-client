@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 export function useHasIntersected<T>(options: Props = {}) {
   const { threshold = 0.1, root = null, rootMargin = '0%' } = options;
   const ref = useRef<T>(null);
-  const [hasIntersected, setHasIntersected] = useState(true);
+  const [hasIntersected, setHasIntersected] = useState(false);
 
   useEffect(() => {
     const node = ref?.current;

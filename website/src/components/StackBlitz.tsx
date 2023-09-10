@@ -30,7 +30,7 @@ export default function StackBlitz({
   const src = `https://stackblitz.com/github/reactive/data-client/tree/master/examples/${app}?${params}`;
   const [frameRef, hasIntersected] = useHasIntersected<HTMLIFrameElement>();
 
-  /* This was causing CORS issues....we probably don't need anymore since we have the\
+  /* This was causing CORS issues....we probably don't need anymore since we have the
   intersection code anyway
   useEffect(() => {
     if (!hasIntersected) return;

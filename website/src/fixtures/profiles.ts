@@ -33,7 +33,7 @@ const entities = {
   },
 };
 
-const delay = 250;
+const delay = 150;
 
 export const detailFixtures = [
   {

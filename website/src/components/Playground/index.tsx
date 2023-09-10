@@ -1,4 +1,4 @@
-import type { Fixture, FixtureEndpoint, Interceptor } from '@data-client/test';
+import type { Fixture, Interceptor } from '@data-client/test';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import clsx from 'clsx';
 import type { Language, PrismTheme } from 'prism-react-renderer';
@@ -6,9 +6,10 @@ import React, { lazy } from 'react';
 import { LiveProvider } from 'react-live';
 
 import Boundary from './Boundary';
+import { isGoogleBot } from './isGoogleBot';
 import MonacoPreloads from './MonacoPreloads';
 import { PlaygroundTextEdit, useCode } from './PlaygroundTextEdit';
-import PreviewWithHeader from './PreviewWithHeader';
+import PreviewWrapper from './PreviewWrapper';
 import styles from './styles.module.css';
 import { useReactLiveTheme } from './useReactLiveTheme';
 
@@ -103,22 +104,9 @@ function PlaygroundContent<T>({
       />
       <Boundary
         fallback={
-          <LiveProvider
-            key="preview"
-            code={'render(() => "Loading...");'}
-            noInline
-          >
-            <PreviewWithHeader
-              key="preview"
-              {...{
-                groupId,
-                defaultOpen,
-                row,
-                fixtures,
-                getInitialInterceptorData,
-              }}
-            />
-          </LiveProvider>
+          <PreviewWrapper key="preview">
+            <div className={styles.playgroundPreview}></div>
+          </PreviewWrapper>
         }
       >
         <PreviewWithScopeLazy
@@ -144,10 +132,6 @@ interface ContentProps<T = any> {
   reverse?: boolean;
   getInitialInterceptorData?: () => T;
 }
-
-const isGoogleBot =
-  typeof navigator === 'object' &&
-  /bot|googlebot|crawler|spider|robot|crawling/i.test(navigator?.userAgent);
 
 const PreviewWithScopeLazy = lazy(() =>
   isGoogleBot
