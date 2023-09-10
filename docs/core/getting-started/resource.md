@@ -4,7 +4,7 @@ sidebar_label: Define Data
 ---
 
 <head>
-  <title>Defining Asynchronous Methods (Endpoints) for Reactive Data Client</title>
+  <title>Defining Resources for Reactive Data Client</title>
   <meta name="docsearch:pagerank" content="40"/>
 </head>
 
