@@ -1,0 +1,67 @@
+{
+  "name": "coinbase-lite",
+  "version": "0.0.1",
+  "packageManager": "yarn@3.6.3",
+  "description": "Coin App",
+  "scripts": {
+    "lint": "eslint src --ext .ts,.tsx",
+    "format": "npm run lint --fix",
+    "test:type": "tsc",
+    "start": "anansi serve --dev ./src/index.tsx",
+    "start:server": "anansi serve ./dist-server/App.js -a",
+    "build": "webpack --mode=production",
+    "build:server": "webpack --mode=production --target=node --env entrypath=index.server.tsx",
+    "build:analyze": "webpack --mode=production --env analyze",
+    "build:profile": "webpack --mode=production --env profile",
+    "test:pkg": "webpack --env check=nobuild",
+    "postinstall": "rm -rf node_modules/.cache"
+  },
+  "browserslist": "extends @anansi/browserslist-config",
+  "keywords": [
+    "anansi"
+  ],
+  "devDependencies": {
+    "@anansi/babel-preset": "^4.2.15",
+    "@anansi/browserslist-config": "^1.4.3",
+    "@anansi/webpack-config": "^15.0.34",
+    "@babel/core": "^7.22.15",
+    "@linaria/babel-preset": "*",
+    "@linaria/core": "*",
+    "@linaria/react": "*",
+    "@linaria/shaker": "*",
+    "@types/react": "*",
+    "@types/react-dom": "*",
+    "react-refresh": "*",
+    "typescript": "^5.2.2",
+    "webpack": "*",
+    "webpack-cli": "*"
+  },
+  "dependencies": {
+    "@anansi/cli": "^3.0.15",
+    "@anansi/core": "^0.18.4",
+    "@anansi/router": "^0.9.1",
+    "@babel/runtime": "^7.22.15",
+    "@data-client/img": "^0.9.0",
+    "@data-client/react": "^0.9.0",
+    "@data-client/redux": "^0.9.0",
+    "@data-client/rest": "^0.9.0",
+    "history": "*",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "redux": "^4.2.1"
+  },
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "private": true,
+  "license": "MIT",
+  "resolutions": {
+    "react-error-overlay": "6.0.9",
+    "@linaria/babel-preset": "4.4.5",
+    "@linaria/core": "4.2.10",
+    "@linaria/webpack5-loader": "4.1.17",
+    "@linaria/react": "4.3.8",
+    "@linaria/shaker": "4.2.11",
+    "@linaria/utils": "4.3.4",
+    "@linaria/tags": "4.3.5"
+  }
+}

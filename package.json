@@ -4,6 +4,7 @@
     "packages/*",
     "examples/benchmark",
     "examples/normalizr-*",
+    "examples/coin-app",
     "website"
   ],
   "scripts": {
