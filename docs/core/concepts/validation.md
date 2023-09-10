@@ -4,6 +4,7 @@ sidebar_label: Validation
 ---
 
 <head>
+  <title>Validating fetch responses in React</title>
   <meta name="docsearch:pagerank" content="40"/>
 </head>
 

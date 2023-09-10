@@ -4,6 +4,7 @@ sidebar_label: Expiry Policy
 ---
 
 <head>
+  <title>Controlling automatic fetch behavior with declarative Expiry Policies</title>
   <meta name="docsearch:pagerank" content="40"/>
 </head>
 

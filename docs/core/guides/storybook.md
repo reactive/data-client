@@ -2,6 +2,11 @@
 title: Mocking data for Storybook
 ---
 
+<head>
+  <title>Mocking data for Storybook</title>
+  <meta name="docsearch:pagerank" content="10"/>
+</head>
+
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 

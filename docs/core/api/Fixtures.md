@@ -3,6 +3,10 @@ title: Fixtures and Interceptors
 sidebar_label: Fixtures and Interceptors
 ---
 
+<head>
+  <title>Fixtures and Interceptors: declarative data mocking for tests and stories</title>
+</head>
+
 import GenericsTabs from '@site/src/components/GenericsTabs';
 
 Fixtures and Interceptors allow universal data mocking without the need for monkeypatching

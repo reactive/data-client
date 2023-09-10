@@ -4,6 +4,7 @@ sidebar_label: Error Policy
 ---
 
 <head>
+  <title>Distinguishing recoverable fetch errors in React</title>
   <meta name="docsearch:pagerank" content="40"/>
 </head>
 

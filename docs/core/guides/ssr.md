@@ -7,7 +7,7 @@ import PkgTabs from '@site/src/components/PkgTabs';
 import StackBlitz from '@site/src/components/StackBlitz';
 
 <head>
-  <title>Server Side Rendering Integrations - NextJS, Express</title>
+  <title>Server Side Rendering with NextJS, Express, and more</title>
   <meta name="docsearch:pagerank" content="10"/>
 </head>
 

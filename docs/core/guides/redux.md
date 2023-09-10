@@ -3,6 +3,10 @@ id: redux
 title: Redux integration
 ---
 
+<head>
+    <title>Empowering Redux with Reactive Data Client</title>
+</head>
+
 import PkgTabs from '@site/src/components/PkgTabs';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';

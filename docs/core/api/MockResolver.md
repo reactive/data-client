@@ -2,6 +2,10 @@
 title: '<MockResolver />'
 ---
 
+<head>
+  <title>MockResolver - Data Mocking for React</title>
+</head>
+
 ```typescript
 function MockResolver<T>(props: {
   children: React.ReactNode;

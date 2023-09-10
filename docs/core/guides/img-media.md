@@ -3,7 +3,7 @@ title: Images and other Media
 ---
 
 <head>
-  <title>Using React Suspense with Images and other Media | Reactive Data Client</title>
+  <title>React 18 Suspense with Images and other Media</title>
 </head>
 
 import PkgTabs from '@site/src/components/PkgTabs';
