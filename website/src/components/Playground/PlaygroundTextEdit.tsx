@@ -1,9 +1,11 @@
-import type { Fixture, FixtureEndpoint, Interceptor } from '@data-client/test';
+import type { Fixture, Interceptor } from '@data-client/test';
+import BrowserOnly from '@docusaurus/BrowserOnly';
 import { parseCodeBlockTitle } from '@docusaurus/theme-common/internal';
 import Translate from '@docusaurus/Translate';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo, useReducer, useState } from 'react';
 import React from 'react';
+import { LiveEditor } from 'react-live';
 
 import FixturePreview from './FixturePreview';
 import Header from './Header';
@@ -76,20 +78,26 @@ export function PlaygroundTextEdit({
               [styles.hidden]: closedList[i],
             })}
           >
-            {
-              /*closedList[i] ? null : */ <PlaygroundEditor
-                key={i}
-                tabIndex={i}
-                onFocus={
-                  row && codeTabs.length > 1 ? handleTabSwitch : handleTabOpen
-                }
-                onChange={handleCodeChange[i]}
-                code={codes[i]}
-                path={'/' + id + '/' + (path || title || 'default.tsx')}
-                {...rest}
-                large={large}
-              />
-            }
+            <BrowserOnly
+              fallback={
+                <LiveEditor key={i} language="tsx" code={codes[i]} disabled />
+              }
+            >
+              {() => (
+                /*closedList[i] ? null : */ <PlaygroundEditor
+                  key={i}
+                  tabIndex={i}
+                  onFocus={
+                    row && codeTabs.length > 1 ? handleTabSwitch : handleTabOpen
+                  }
+                  onChange={handleCodeChange[i]}
+                  code={codes[i]}
+                  path={'/' + id + '/' + (path || title || 'default.tsx')}
+                  {...rest}
+                  large={large}
+                />
+              )}
+            </BrowserOnly>
           </div>
         </React.Fragment>
       ))}
