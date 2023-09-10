@@ -4,6 +4,7 @@ sidebar_label: Render Data
 ---
 
 <head>
+  <title>Rendering Asynchronous Data in React</title>
   <meta name="docsearch:pagerank" content="40"/>
 </head>
 

@@ -1,5 +1,5 @@
 ---
-title: Reactive Data Client Introduction
+title: The Reactive Data Client
 sidebar_label: Introduction
 slug: /
 ---
@@ -14,7 +14,7 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 import Link from '@docusaurus/Link';
 
 <head>
-  <title>The Reactive Data Client ✨</title>
+  <title>Introducing the Reactive Data Client</title>
   <meta name="docsearch:pagerank" content="10"/>
 </head>
 

@@ -12,7 +12,7 @@ import UseLoading from '../shared/\_useLoading.mdx';
 import VoteDemo from '../shared/\_VoteDemo.mdx';
 
 <head>
-  <title>Mutating Asynchronous Data with Reactive Data Client</title>
+  <title>Mutating Asynchronous Data in React</title>
   <meta name="docsearch:pagerank" content="40"/>
 </head>
 

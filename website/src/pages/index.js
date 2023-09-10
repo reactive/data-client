@@ -1,3 +1,4 @@
+import Head from '@docusaurus/Head';
 import Link from '@docusaurus/Link';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
@@ -100,10 +101,10 @@ function HomepageEnder() {
 
 export default function Home() {
   return (
-    <Layout
-      title={`The Reactive Data Client`}
-      description="Async State Management without the Management."
-    >
+    <Layout description="Async State Management without the Management.">
+      <Head>
+        <title>The Reactive Data Client ✨</title>
+      </Head>
       <HomepageHeader />
       <main>
         <Demo />
