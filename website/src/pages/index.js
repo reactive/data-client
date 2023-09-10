@@ -9,6 +9,7 @@ import React from 'react';
 import styles from './index.module.css';
 import Demo from '../components/Demo/index';
 import HomepageFeatures from '../components/HomepageFeatures';
+import StackBlitz from '../components/StackBlitz';
 
 const ProjectTitle = () => {
   const sources = {
@@ -110,18 +111,14 @@ export default function Home() {
         <div className="container">
           <div className="row">
             <div className="col">
-              <iframe
-                loading="lazy"
-                src="https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?embed=1&file=src%2Fresources%2FIssue.tsx%2Csrc%2Fpages%2FIssueList.tsx&hidedevtools=1&view=both&terminalHeight=0&hideNavigation=1"
+              <StackBlitz
+                app="github-app"
                 width="100%"
                 height="750"
                 style={{ maxHeight: 'calc(100vh - 64px)', height: '800px' }}
-              ></iframe>
-              <div style={{ textAlign: 'center' }}>
-                <Link className="button button--secondary" to="/demos">
-                  More Demos
-                </Link>
-              </div>
+                file="src/resources/Issue.tsx,src/pages/IssueList.tsx"
+                view="both"
+              />
             </div>
           </div>
         </div>
