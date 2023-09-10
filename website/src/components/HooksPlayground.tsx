@@ -3,6 +3,10 @@ import React, { memo } from 'react';
 
 import Playground from './Playground';
 
+// React forces console.error, so we must demote it to warn
+// see https://github.com/facebook/react/issues/15069
+console.error = console.warn;
+
 const HooksPlayground = ({
   children,
   groupId,
