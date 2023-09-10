@@ -106,6 +106,14 @@ function PlaygroundContent<T>({
         fallback={
           <PreviewWrapper key="preview">
             <div className={styles.playgroundPreview}></div>
+            <div className={styles.debugToggle}>
+              Store
+              <span
+                className={clsx(styles.arrow, styles.right, styles.vertical)}
+              >
+                ▶
+              </span>
+            </div>
           </PreviewWrapper>
         }
       >
