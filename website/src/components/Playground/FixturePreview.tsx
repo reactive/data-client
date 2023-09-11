@@ -1,4 +1,5 @@
 import type { Fixture, Interceptor } from '@data-client/test';
+import BrowserOnly from '@docusaurus/BrowserOnly';
 import CodeBlock from '@theme/CodeBlock';
 import React, { memo, type ReactElement } from 'react';
 
@@ -21,13 +22,21 @@ function FixtureResponse({
   fixture: Fixture | Interceptor;
 }): ReactElement {
   return 'fetchResponse' in fixture ? (
-    <CodeBlock language="javascript" className={styles.fixtureJson}>
-      {`${fixture.fetchResponse}`}
-    </CodeBlock>
+    <BrowserOnly>
+      {() => (
+        <CodeBlock language="javascript" className={styles.fixtureJson}>
+          {`${fixture.fetchResponse}`}
+        </CodeBlock>
+      )}
+    </BrowserOnly>
   ) : typeof fixture.response === 'function' ? (
-    <CodeBlock language="javascript" className={styles.fixtureJson}>
-      {`${fixture.response}`}
-    </CodeBlock>
+    <BrowserOnly>
+      {() => (
+        <CodeBlock language="javascript" className={styles.fixtureJson}>
+          {`${fixture.response}`}
+        </CodeBlock>
+      )}
+    </BrowserOnly>
   ) : (
     <CodeBlock language="json" className={styles.fixtureJson}>
       {JSON.stringify(fixture.response)}
