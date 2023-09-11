@@ -29,6 +29,7 @@
     },
     {
       "type": "category",
+      "collapsed": false,
       "label": "Concepts",
       "items": [
         {
