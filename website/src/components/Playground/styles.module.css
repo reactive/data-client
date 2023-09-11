@@ -31,11 +31,8 @@
   border-bottom-left-radius: var(--ifm-global-radius);
   border-bottom-right-radius: var(--ifm-global-radius);
 }
-@media only screen and (min-width: 768px) {
-  .playgroundContainer.row {
-    flex-direction: row;
-  }
-}
+
+
 .playgroundContainer.row .hidden {
   display: none;
 }
@@ -401,4 +398,42 @@ div.fixtureJson {
 }
 .playgroundEditor > section {
   position: auto !important;
+}
+
+
+@media only screen and (min-width: 768px) and (max-width: 996px) {
+  .playgroundContainer.row {
+    flex-direction: row;
+  }
+}
+@media only screen and (max-width: 768px) {
+  .playgroundContainer.row > :last-child {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: var(--ifm-global-radius);
+    border-bottom-left-radius: var(--ifm-global-radius);
+  }
+  .row.playgroundContainer > div:first-child {
+    border-bottom-left-radius: 0;
+  }
+  .playgroundContainer .playgroundHeader.tabControls:first-of-type {
+    border-top-right-radius: var(--ifm-global-radius);
+  }
+}
+@media only screen and (min-width: 997px) and (max-width: 1268px) {
+  .playgroundContainer.row > :last-child {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: var(--ifm-global-radius);
+    border-bottom-left-radius: var(--ifm-global-radius);
+  }
+  .row.playgroundContainer > div:first-child {
+    border-bottom-left-radius: 0;
+  }
+  .playgroundContainer .playgroundHeader.tabControls:first-of-type {
+    border-top-right-radius: var(--ifm-global-radius);
+  }
+}
+@media only screen and (min-width: 1268px) {
+  .playgroundContainer.row {
+    flex-direction: row;
+  }
 }
