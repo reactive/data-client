@@ -1,3 +1,4 @@
+import BrowserOnly from '@docusaurus/BrowserOnly';
 import Head from '@docusaurus/Head';
 import Link from '@docusaurus/Link';
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -10,6 +11,7 @@ import React from 'react';
 import styles from './index.module.css';
 import Demo from '../components/Demo/index';
 import HomepageFeatures from '../components/HomepageFeatures';
+import { isGoogleBot } from '../components/Playground/isGoogleBot';
 import StackBlitz from '../components/StackBlitz';
 
 const ProjectTitle = () => {
@@ -54,13 +56,33 @@ function HomepageHeader() {
           </Link>
 
           <span className={styles.GitHubButtonWrapper}>
-            <iframe
-              className={styles.GitHubButton}
-              src="https://ghbtns.com/github-btn.html?user=reactive&amp;repo=data-client&amp;type=star&amp;count=true&amp;size=large"
-              width={160}
-              height={30}
-              title="GitHub Stars"
-            />
+            <BrowserOnly
+              fallback={
+                <iframe
+                  width={160}
+                  height={30}
+                  className={styles.GitHubButton}
+                ></iframe>
+              }
+            >
+              {() =>
+                isGoogleBot ? (
+                  <iframe
+                    width={160}
+                    height={30}
+                    className={styles.GitHubButton}
+                  ></iframe>
+                ) : (
+                  <iframe
+                    className={styles.GitHubButton}
+                    src="https://ghbtns.com/github-btn.html?user=reactive&amp;repo=data-client&amp;type=star&amp;count=true&amp;size=large"
+                    width={160}
+                    height={30}
+                    title="GitHub Stars"
+                  />
+                )
+              }
+            </BrowserOnly>
           </span>
         </div>
       </div>
