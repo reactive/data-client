@@ -215,7 +215,7 @@ if (
       ...rhDeps.map(
         dep =>
           import(
-            /* webpackChunkName: '[request]', webpackPreload: true */ `!!raw-loader?esModule=false!./editor-types/@data-client/${dep}.d.ts`
+            /* webpackChunkName: '[request]', webpackPreload: true, webpackMode: "lazy-once" */ `!!raw-loader?esModule=false!./editor-types/@data-client/${dep}.d.ts`
           ),
       ),
     ]).then(([mPromise, ...settles]) => {

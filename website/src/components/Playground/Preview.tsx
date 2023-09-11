@@ -92,6 +92,6 @@ function LivePreviewLoader() {
 const PreviewBlockLazy = lazy(
   () =>
     import(
-      /* webpackChunkName: '[request]', webpackPreload: true */ './PreviewBlock'
+      /* webpackChunkName: 'PreviewBlock', webpackPreload: true */ './PreviewBlock'
     ),
 );

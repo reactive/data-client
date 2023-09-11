@@ -1,6 +1,7 @@
 import Link from '@docusaurus/Link';
 import React, { useEffect } from 'react';
 
+import { isGoogleBot } from './Playground/isGoogleBot';
 import { useHasIntersected } from './useHasIntersected';
 
 export default function StackBlitz({
@@ -44,12 +45,13 @@ export default function StackBlitz({
     return () => frameRef.current?.removeEventListener('load', loadListener);
   }, [hasIntersected, frameRef]);*/
 
-  if (!hasIntersected) {
-    return <iframe width={width} height={height} ref={frameRef}></iframe>;
-  }
-
-  return (
-    <>
+  let embedElement: React.ReactElement;
+  if (!hasIntersected || isGoogleBot) {
+    embedElement = (
+      <iframe width={width} height={height} ref={frameRef}></iframe>
+    );
+  } else {
+    embedElement = (
       <iframe
         src={src}
         width={width}
@@ -58,6 +60,12 @@ export default function StackBlitz({
         loading="lazy"
         sandbox="allow-scripts allow-same-origin"
       ></iframe>
+    );
+  }
+
+  return (
+    <>
+      {embedElement}
       <p style={{ textAlign: 'center' }}>
         <Link className="button button--secondary button--sm" to="/demos">
           More Demos

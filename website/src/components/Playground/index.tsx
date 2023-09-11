@@ -102,21 +102,7 @@ function PlaygroundContent<T>({
         handleCodeChange={handleCodeChange}
         codes={codes}
       />
-      <Boundary
-        fallback={
-          <PreviewWrapper key="preview">
-            <div className={styles.playgroundPreview}></div>
-            <div className={styles.debugToggle}>
-              Store
-              <span
-                className={clsx(styles.arrow, styles.right, styles.vertical)}
-              >
-                ▶
-              </span>
-            </div>
-          </PreviewWrapper>
-        }
-      >
+      <Boundary fallback={previewLoading}>
         <PreviewWithScopeLazy
           code={code}
           {...{
@@ -141,11 +127,23 @@ interface ContentProps<T = any> {
   getInitialInterceptorData?: () => T;
 }
 
+const previewLoading = (
+  <PreviewWrapper key="preview">
+    <div className={styles.playgroundPreview}></div>
+    <div className={styles.debugToggle}>
+      Store
+      <span className={clsx(styles.arrow, styles.right, styles.vertical)}>
+        ▶
+      </span>
+    </div>
+  </PreviewWrapper>
+);
+
 const PreviewWithScopeLazy = lazy(() =>
   isGoogleBot
-    ? Promise.resolve({ default: (props: any): JSX.Element => null })
+    ? Promise.resolve({ default: (props: any): JSX.Element => previewLoading })
     : import(
-        /* webpackChunkName: '[request]', webpackPrefetch: true */ './PreviewWithScope'
+        /* webpackChunkName: 'PreviewWithScope', webpackPrefetch: true */ './PreviewWithScope'
       ),
 );
 
