@@ -31,7 +31,7 @@ const Demo = props => (
               data consistency and integrity globally
             </Link>{' '}
             including even the most challenging{' '}
-            <Link to="/rest/guides/optimistic-updates#example-race-condition">
+            <Link to="/docs/getting-started/mutations#optimistic-updates">
               <strike>race conditions</strike>
             </Link>
             .
@@ -51,9 +51,14 @@ const Demo = props => (
             data becomes more complex.
           </p>
           <p>
-            <Link to="/docs/concepts/atomic-mutations#create">Creates</Link> and{' '}
-            <Link to="/docs/concepts/atomic-mutations#delete">deletes</Link>{' '}
-            reactively update the correct lists, even when those lists are{' '}
+            <Link to="/docs/getting-started/mutations">
+              Creates and deletes
+            </Link>{' '}
+            reactively update the{' '}
+            <Link to="/rest/api/Collection#nonfilterargumentkeys">
+              correct lists
+            </Link>
+            , even when those lists are{' '}
             <Link to="/rest/api/Collection">nested inside other objects</Link>.
           </p>
           <p>
