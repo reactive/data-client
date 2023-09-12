@@ -47,7 +47,7 @@ function CommentInline({ comment }: { comment: Comment }) {
           ) : (
             <Markdown
               remarkPlugins={[remarkRemoveComments, remarkGfm]}
-              rehypePlugins={[rehypeHighlight]}
+              rehypePlugins={[rehypeHighlight()]}
             >
               {comment.body}
             </Markdown>
