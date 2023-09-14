@@ -249,7 +249,19 @@ module.exports = {
     [
       '@docusaurus/plugin-client-redirects',
       {
-        redirects: [],
+        redirects: [
+          {
+            to: '/rest/guides/side-effects',
+            from: ['/rest/guides/rpc'],
+          },
+          {
+            to: '/docs/api/makeRenderDataClient',
+            from: [
+              '/docs/api/makeExternalCacheProvider',
+              '/docs/api/makeCacheProvider',
+            ],
+          },
+        ],
       },
     ],
     path.resolve(__dirname, './node-plugin'),
@@ -452,7 +464,7 @@ module.exports = {
         },
       },
       algolia: {
-        appId: '09LY5NUEP1',
+        appId: 'PCV5G606RI',
         apiKey: 'c7ff0e67454c62cecdd72b22a317de43',
         indexName: 'dataclient',
         contextualSearch: true,
