@@ -11,7 +11,6 @@ sidebar_label: Error Policy
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import {RestEndpoint} from '@data-client/rest';
 
-
 [Endpoint.errorPolicy](/rest/api/Endpoint#errorpolicy) controls cache behavior upon a fetch rejection.
 It uses the rejection error to determine whether it should be treated as 'soft' or 'hard' error.
 
@@ -29,18 +28,19 @@ Hard errors always reject with `error` - even when data has previously made avai
 
 <HooksPlayground fixtures={[
 {
-  endpoint: new RestEndpoint({
-    path: '/api/currentTime/:id',
-  }),
-  response({ id }) {
-    return ({
-      id,
-      updatedAt: new Date().toISOString(),
-    });
-  },
-  delay: () => 150,
+endpoint: new RestEndpoint({
+path: '/api/currentTime/:id',
+}),
+response({ id }) {
+return ({
+id,
+updatedAt: new Date().toISOString(),
+});
+},
+delay: () => 150,
 }
 ]}
+
 >
 
 ```ts title="api/lastUpdated" collapsed
@@ -62,43 +62,63 @@ export const lastUpdated = new RestEndpoint({
 });
 ```
 
-```tsx title="ShowTime"
+```tsx title="TimePage"
 import { lastUpdated } from './api/lastUpdated';
 
-let FAKE_ERROR: Error | undefined = undefined;
-const superFetch = lastUpdated;
-const mockErrorFetch = arg =>
-  FAKE_ERROR !== undefined ? Promise.reject(FAKE_ERROR) : superFetch(arg);
-
-const getUpdated = lastUpdated.extend({
-  fetch: mockErrorFetch,
+export const getUpdated = lastUpdated.extend({
+  fetch(this: any, arg) {
+    return this.FAKE_ERROR !== undefined
+      ? Promise.reject(this.FAKE_ERROR)
+      : lastUpdated(arg);
+  },
   errorPolicy: error =>
     error.status >= 500 ? ('soft' as const) : ('hard' as const),
+  FAKE_ERROR: undefined as Error | undefined,
 });
-function createError(status) {
-  const error: Error & { status: any } = new Error('fake error') as any;
-  error.status = status;
-  return error;
-}
 
-function ShowTime() {
-  const { updatedAt } = useSuspense(getUpdated, { id: '1' });
-  const ctrl = useController();
+export default function TimePage({ id }) {
+  const { updatedAt } = useSuspense(getUpdated, { id });
   React.useEffect(
     () => () => {
-      FAKE_ERROR = undefined;
+      getUpdated.FAKE_ERROR = undefined;
     },
     [updatedAt],
   );
   return (
     <div>
+      API time:{' '}
       <time>
-        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
-      </time>{' '}
+        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(
+          updatedAt,
+        )}
+      </time>
+    </div>
+  );
+}
+```
+
+```tsx title="ShowTime" collapsed
+import TimePage, { getUpdated } from './TimePage';
+
+function createError(status) {
+  const error: Error & { status: any } = new Error(
+    'fake error',
+  ) as any;
+  error.status = status;
+  return error;
+}
+
+function ShowTime() {
+  const ctrl = useController();
+  return (
+    <div>
+      <AsyncBoundary fallback={<div>loading...</div>}>
+        <TimePage id="1" />
+      </AsyncBoundary>
       <div>
         <button
           onClick={() => {
-            FAKE_ERROR = createError(500);
+            getUpdated.FAKE_ERROR = createError(500);
             ctrl.fetch(getUpdated, { id: '1' });
           }}
         >
@@ -106,7 +126,7 @@ function ShowTime() {
         </button>
         <button
           onClick={() => {
-            FAKE_ERROR = createError(400);
+            getUpdated.FAKE_ERROR = createError(400);
             ctrl.fetch(getUpdated, { id: '1' });
           }}
         >
@@ -114,7 +134,7 @@ function ShowTime() {
         </button>
         <button
           onClick={() => {
-            FAKE_ERROR = createError(500);
+            getUpdated.FAKE_ERROR = createError(500);
             ctrl.invalidate(getUpdated, { id: '1' });
           }}
         >
@@ -122,7 +142,7 @@ function ShowTime() {
         </button>
         <button
           onClick={() => {
-            FAKE_ERROR = createError(400);
+            getUpdated.FAKE_ERROR = createError(400);
             ctrl.invalidate(getUpdated, { id: '1' });
           }}
         >

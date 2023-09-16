@@ -52,18 +52,19 @@ you will continue to see the old time without any refresh.
 
 <HooksPlayground fixtures={[
 {
-  endpoint: new RestEndpoint({
-    path: '/api/currentTime/:id',
-  }),
-  response({ id }) {
-    return ({
-      id,
-      updatedAt: new Date().toISOString(),
-    });
-  },
-  delay: () => 150,
+endpoint: new RestEndpoint({
+path: '/api/currentTime/:id',
+}),
+response({ id }) {
+return ({
+id,
+updatedAt: new Date().toISOString(),
+});
+},
+delay: () => 150,
 }
 ]}
+
 >
 
 ```ts title="api/lastUpdated" collapsed
@@ -96,7 +97,9 @@ export default function TimePage({ id }) {
     <div>
       API time for {id}:{' '}
       <time>
-        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
+        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(
+          updatedAt,
+        )}
       </time>
     </div>
   );
@@ -119,7 +122,9 @@ function Navigator() {
           Second
         </button>
       </div>
-      <TimePage id={id} />
+      <AsyncBoundary fallback={<div>loading...</div>}>
+        <TimePage id={id} />
+      </AsyncBoundary>
       <div>
         Current Time: <CurrentTime />
       </div>
@@ -137,10 +142,16 @@ render(<Navigator />);
 Long cache lifetime
 
 ```typescript title="LongLivingResource.ts"
-import { RestEndpoint, RestGenerics, createResource } from '@data-client/rest';
+import {
+  RestEndpoint,
+  RestGenerics,
+  createResource,
+} from '@data-client/rest';
 
 // We can now use LongLivingEndpoint to create endpoints that will be cached for one hour
-class LongLivingEndpoint<O extends RestGenerics> extends RestEndpoint<O> {
+class LongLivingEndpoint<
+  O extends RestGenerics,
+> extends RestEndpoint<O> {
   dataExpiryLength = 60 * 60 * 1000; // one hour
 }
 
@@ -153,10 +164,16 @@ const LongLivingResource = createResource({
 Never retry on error
 
 ```typescript title="NoRetryResource.ts"
-import { RestEndpoint, RestGenerics, createResource } from '@data-client/rest';
+import {
+  RestEndpoint,
+  RestGenerics,
+  createResource,
+} from '@data-client/rest';
 
 // We can now use NoRetryEndpoint to create endpoints that will be cached for one hour
-class NoRetryEndpoint<O extends RestGenerics> extends RestEndpoint<O> {
+class NoRetryEndpoint<
+  O extends RestGenerics,
+> extends RestEndpoint<O> {
   errorExpiryLength = Infinity;
 }
 
@@ -178,18 +195,19 @@ within the expiry time it just continues to display it.
 
 <HooksPlayground fixtures={[
 {
-  endpoint: new RestEndpoint({
-    path: '/api/currentTime/:id',
-  }),
-  response({ id }) {
-    return ({
-      id,
-      updatedAt: new Date().toISOString(),
-    });
-  },
-  delay: () => 150,
+endpoint: new RestEndpoint({
+path: '/api/currentTime/:id',
+}),
+response({ id }) {
+return ({
+id,
+updatedAt: new Date().toISOString(),
+});
+},
+delay: () => 150,
 }
 ]}
+
 >
 
 ```ts title="api/lastUpdated" collapsed
@@ -225,7 +243,9 @@ export default function TimePage({ id }) {
     <div>
       API time for {id}:{' '}
       <time>
-        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
+        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(
+          updatedAt,
+        )}
       </time>
     </div>
   );
@@ -248,7 +268,9 @@ function Navigator() {
           Second
         </button>
       </div>
-      <TimePage id={id} />
+      <AsyncBoundary fallback={<div>loading...</div>}>
+        <TimePage id={id} />
+      </AsyncBoundary>
       <div>
         Current Time: <CurrentTime />
       </div>
@@ -271,18 +293,19 @@ the previous data. This can be done even with 'fresh' data.
 
 <HooksPlayground fixtures={[
 {
-  endpoint: new RestEndpoint({
-    path: '/api/currentTime/:id',
-  }),
-  response({ id }) {
-    return ({
-      id,
-      updatedAt: new Date().toISOString(),
-    });
-  },
-  delay: () => 150,
+endpoint: new RestEndpoint({
+path: '/api/currentTime/:id',
+}),
+response({ id }) {
+return ({
+id,
+updatedAt: new Date().toISOString(),
+});
+},
+delay: () => 150,
 }
 ]}
+
 >
 
 ```ts title="api/lastUpdated" collapsed
@@ -313,7 +336,9 @@ function ShowTime() {
   return (
     <div>
       <time>
-        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
+        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(
+          updatedAt,
+        )}
       </time>{' '}
       <button onClick={() => ctrl.fetch(lastUpdated, { id: '1' })}>
         Refresh
@@ -332,18 +357,19 @@ render(<ShowTime />);
 
 <HooksPlayground fixtures={[
 {
-  endpoint: new RestEndpoint({
-    path: '/api/currentTime/:id',
-  }),
-  response({ id }) {
-    return ({
-      id,
-      updatedAt: new Date().toISOString(),
-    });
-  },
-  delay: () => 150,
+endpoint: new RestEndpoint({
+path: '/api/currentTime/:id',
+}),
+response({ id }) {
+return ({
+id,
+updatedAt: new Date().toISOString(),
+});
+},
+delay: () => 150,
 }
 ]}
+
 >
 
 ```ts title="api/lastUpdated" collapsed
@@ -375,7 +401,9 @@ export default function ShowTime({ id }: { id: string }) {
     <div>
       <b>{id}</b>{' '}
       <time>
-        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
+        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(
+          updatedAt,
+        )}
       </time>
     </div>
   );
@@ -433,18 +461,19 @@ In this example we can see [invalidating the endpoint](../api/Controller.md#inva
 
 <HooksPlayground fixtures={[
 {
-  endpoint: new RestEndpoint({
-    path: '/api/currentTime/:id',
-  }),
-  response({ id }) {
-    return ({
-      id,
-      updatedAt: new Date().toISOString(),
-    });
-  },
-  delay: () => 150,
+endpoint: new RestEndpoint({
+path: '/api/currentTime/:id',
+}),
+response({ id }) {
+return ({
+id,
+updatedAt: new Date().toISOString(),
+});
+},
+delay: () => 150,
 }
 ]}
+
 >
 
 ```ts title="api/lastUpdated" collapsed
@@ -476,7 +505,9 @@ export default function ShowTime({ id }: { id: string }) {
     <div>
       <b>{id}</b>{' '}
       <time>
-        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
+        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(
+          updatedAt,
+        )}
       </time>
     </div>
   );
@@ -513,7 +544,9 @@ function Demo() {
       <button onClick={() => ctrl.invalidateAll(lastUpdated)}>
         Invalidate All
       </button>
-      <button onClick={() => ctrl.invalidate(lastUpdated, { id: '1' })}>
+      <button
+        onClick={() => ctrl.invalidate(lastUpdated, { id: '1' })}
+      >
         Invalidate First
       </button>
     </div>
@@ -531,28 +564,29 @@ response. If the endpoint uses the entity in an [Array](/rest/api/Array), it wil
 
 <HooksPlayground fixtures={[
 {
-  endpoint: new RestEndpoint({
-    path: '/api/currentTime/:id',
-  }),
-  response({ id }) {
-    return ({
-      id,
-      updatedAt: new Date().toISOString(),
-    });
-  },
-  delay: () => 200,
+endpoint: new RestEndpoint({
+path: '/api/currentTime/:id',
+}),
+response({ id }) {
+return ({
+id,
+updatedAt: new Date().toISOString(),
+});
+},
+delay: () => 200,
 },
 {
-  endpoint: new RestEndpoint({
-    path: '/api/currentTime/:id',
-    method: 'DELETE',
-  }),
-  response({ id }) {
-    return {id}
-  },
-  delay: () => 150,
+endpoint: new RestEndpoint({
+path: '/api/currentTime/:id',
+method: 'DELETE',
+}),
+response({ id }) {
+return {id}
+},
+delay: () => 150,
 }
 ]}
+
 >
 
 ```ts title="api/lastUpdated" collapsed
@@ -572,12 +606,30 @@ export const lastUpdated = new RestEndpoint({
   path: '/api/currentTime/:id',
   schema: TimedEntity,
 });
+```
 
+```tsx title="TimePage" collapsed
+import { lastUpdated } from './api/lastUpdated';
+
+export default function TimePage({ id }) {
+  const { updatedAt } = useSuspense(lastUpdated, { id });
+  return (
+    <div>
+      API time for {id}:{' '}
+      <time>
+        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(
+          updatedAt,
+        )}
+      </time>
+    </div>
+  );
+}
 ```
 
 ```tsx title="ShowTime"
 import { useLoading } from '@data-client/hooks';
-import { lastUpdated, TimedEntity } from './api/lastUpdated';
+import { TimedEntity } from './api/lastUpdated';
+import TimePage from './TimePage';
 
 export const deleteLastUpdated = new RestEndpoint({
   path: '/api/currentTime/:id',
@@ -586,18 +638,31 @@ export const deleteLastUpdated = new RestEndpoint({
 });
 
 function ShowTime() {
-  const { updatedAt } = useSuspense(lastUpdated, { id: '1' });
   const ctrl = useController();
-  const [handleDelete, loadingDelete] = useLoading(() => ctrl.fetch(deleteLastUpdated, { id: '1' }), []);
+  const [handleDelete, loadingDelete] = useLoading(
+    () => ctrl.fetch(deleteLastUpdated, { id: '1' }),
+    [],
+  );
   return (
     <div>
-      <time>
-        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
-      </time>{' '}
+      <AsyncBoundary fallback={<div>loading...</div>}>
+        <TimePage id="1" />
+      </AsyncBoundary>
+      <div>
+        Current Time: <CurrentTime />
+      </div>
       <button onClick={handleDelete}>
         {loadingDelete ? 'loading...' : 'Invalidate'}
       </button>
-      <button onClick={() => ctrl.setResponse(deleteLastUpdated, { id: '1' }, { id: '1' })}>
+      <button
+        onClick={() =>
+          ctrl.setResponse(
+            deleteLastUpdated,
+            { id: '1' },
+            { id: '1' },
+          )
+        }
+      >
         Invalidate (without fetching DELETE)
       </button>
     </div>
@@ -611,4 +676,3 @@ render(<ShowTime />);
 [Controller.fetch()](../api/Controller.md#fetch) lets us update the server and store.
 We can use [Controller.setResponse()](../api/Controller.md#setResponse) for cases where we
 simply want to change the local store without updating the server.
-
