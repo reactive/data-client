@@ -289,12 +289,12 @@ __metadata:
   linkType: hard
 
 "@anansi/core@npm:^0.18.4":
-  version: 0.18.5
-  resolution: "@anansi/core@npm:0.18.5"
+  version: 0.18.6
+  resolution: "@anansi/core@npm:0.18.6"
   dependencies:
     "@anansi/router": ^0.9.1
     "@babel/runtime": ^7.17.0
-    "@data-client/ssr": ^0.8.0
+    "@data-client/ssr": ^0.9.2
     chalk: ^4.1.2
     compression: ^1.7.4
     cross-fetch: ^4.0.0
@@ -337,7 +337,7 @@ __metadata:
   bin:
     serve-anansi: ./lib/scripts/serve.js
     start-anansi: ./lib/scripts/startDevserver.js
-  checksum: d82c12a59bde9c25594a8bd7f2d2d4cbdb8325b532d35c3f9db20d08f4891c60000afc06f84dc60a6f14a99993b17b10a438344f2cc1e4a3166dddf6a32f286e
+  checksum: cef07221d908fa3533460a978b1710dfcddbd354954516f9e8de5e8e51fd67f35a9c9c04dcc14eff98957d8f557e08175108d1f6dd73170e27a691a86c871c8a
   languageName: node
   linkType: hard
 
@@ -3193,28 +3193,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/ssr@npm:^0.8.0":
-  version: 0.8.0
-  resolution: "@data-client/ssr@npm:0.8.0"
-  dependencies:
-    "@babel/runtime": ^7.17.0
-  peerDependencies:
-    "@data-client/react": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0 || ^0.5.0 || ^0.7.0 || ^0.8.0
-    "@data-client/redux": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.5.0 || ^0.7.0 || ^0.8.0
-    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
-    next: ">=12.0.0"
-    react: ^16.8.4 || ^17.0.0 || ^18.0.0-0
-    redux: ^4.0.0
-  peerDependenciesMeta:
-    "@types/react":
-      optional: true
-    next:
-      optional: true
-  checksum: 3d58dc45044d2eff272d68cd8a2566e52221baa144d76c62ab94c2f6d9c44d2062197d376b0ad73ee6d5a4c3b8481cb7c33cea264c0e69067e7f18741ad43869
-  languageName: node
-  linkType: hard
-
-"@data-client/ssr@workspace:packages/ssr":
+"@data-client/ssr@^0.9.2, @data-client/ssr@workspace:packages/ssr":
   version: 0.0.0-use.local
   resolution: "@data-client/ssr@workspace:packages/ssr"
   dependencies:
@@ -6374,9 +6353,9 @@ __metadata:
   linkType: hard
 
 "@tsconfig/docusaurus@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "@tsconfig/docusaurus@npm:2.0.0"
-  checksum: 39adca336d9d8d6838c982212e6661c3d211d02244be17861cae4e16b9b5ee9aa0f2d48099649417794b0c2b7661e53905615f94ffb4b5608a326f5b55194e2f
+  version: 2.0.1
+  resolution: "@tsconfig/docusaurus@npm:2.0.1"
+  checksum: 63bebda70d83c56f95a90176d2e188e1ea9c08c23b499e5e7b292ebfae0ce7117f712809828ed21ae3b8440daf22191d6bf71bf2575f9bd474a51b1770ca30cc
   languageName: node
   linkType: hard
 
@@ -6506,10 +6485,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/benchmark@npm:2.1.2":
-  version: 2.1.2
-  resolution: "@types/benchmark@npm:2.1.2"
-  checksum: dc5e544ffca59bdc61008d89f007c14c281c17e80d50385da81eb9182e4466a9208ceb7af72ddfb4df1e2445ea35f2af36854168f698edd4c015a4262232462d
+"@types/benchmark@npm:2.1.3":
+  version: 2.1.3
+  resolution: "@types/benchmark@npm:2.1.3"
+  checksum: 6cb21d0fe81e65f46d62ede244bbadd343dcb386761a0a0b1e5b06cf7c90d58739bf09ffdeabc260c7734628167e0c67f2f7d0ef81993567123660ee83230632
   languageName: node
   linkType: hard
 
@@ -6875,10 +6854,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:20.6.0, @types/node@npm:^20.0.0":
-  version: 20.6.0
-  resolution: "@types/node@npm:20.6.0"
-  checksum: 52611801af5cf151c6fac1963aa4a8a8ca2e388a9e9ed82b01b70bca762088ded5b32cc789c5564220d5d7dccba2b8dd34446a3d4fc74736805e1f2cf262e29d
+"@types/node@npm:*, @types/node@npm:20.6.1, @types/node@npm:^20.0.0":
+  version: 20.6.1
+  resolution: "@types/node@npm:20.6.1"
+  checksum: f9848617221b513d558071c804b006750d1ee1734c5ffea3ada9a0edd1642334ad0812222d6b99b7b8c0e1a5f1e557946ae99444c2705e9afc125abdf9fa36c2
   languageName: node
   linkType: hard
 
@@ -6904,9 +6883,9 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:^18.15.11":
-  version: 18.17.15
-  resolution: "@types/node@npm:18.17.15"
-  checksum: eed11d4398ccdb999a4c65658ee75de621a4ad57aece48ed2fb8803b1e2711fadf58d8aefbdb0a447d69cf3cba602ca32fe0fc92077575950a796e1dc13baa0f
+  version: 18.17.16
+  resolution: "@types/node@npm:18.17.16"
+  checksum: 8f9dbaf4a67a14110e2a0d805f9b57f3a5cda774dbcb7b1e7973efe31d5eeea358482dbe36a5bfadb0dde99f065f1ae0531f25a032f015871aa0b2896eb3c4ae
   languageName: node
   linkType: hard
 
@@ -7147,9 +7126,9 @@ __metadata:
   linkType: hard
 
 "@types/uuid@npm:^9":
-  version: 9.0.3
-  resolution: "@types/uuid@npm:9.0.3"
-  checksum: 3dde198defd71c067dd14b3050a8fe6d1ead5fe94ec318472e2c30a399d13f18941fe66cffabdcac7267177c9de2f975fdee6f0cc87cde610a2578e1ce4cc3af
+  version: 9.0.4
+  resolution: "@types/uuid@npm:9.0.4"
+  checksum: 356e2504456eaebbc43a5af5ca6c07d71f5ae5520b5767cb1c62cd0ec55475fc4ee3d16a2874f4a5fce78e40e8583025afd3a7d9ba41f82939de310665f53f0e
   languageName: node
   linkType: hard
 
@@ -13433,7 +13412,7 @@ __metadata:
     "@data-client/normalizr": "workspace:^"
     "@js-temporal/polyfill": ^0.4.4
     "@types/babel__core": ^7
-    "@types/benchmark": 2.1.2
+    "@types/benchmark": 2.1.3
     "@types/react": 18.2.21
     benchmark: ^2.1.4
     normalizr: ^3.6.2
@@ -25856,7 +25835,7 @@ __metadata:
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/react-native": 12.3.0
     "@types/jest": 29.5.5
-    "@types/node": 20.6.0
+    "@types/node": 20.6.1
     "@types/react": 18.2.21
     "@typescript-eslint/eslint-plugin": 6.7.0
     "@typescript-eslint/parser": 6.7.0
@@ -29068,11 +29047,11 @@ __metadata:
   linkType: hard
 
 "uuid@npm:^3.3.2":
-  version: 3.3.3
-  resolution: "uuid@npm:3.3.3"
+  version: 3.4.0
+  resolution: "uuid@npm:3.4.0"
   bin:
     uuid: ./bin/uuid
-  checksum: 21133d0e8a85e607f59a66913bf4f1dd79bdc4a80979a872b913f7ec75f530255edfe8bc6b69ce32017b8367f0d60a8b24ccd2af99156dc1ef2b8b9fe0ec8065
+  checksum: 58de2feed61c59060b40f8203c0e4ed7fd6f99d42534a499f1741218a1dd0c129f4aa1de797bcf822c8ea5da7e4137aa3673431a96dae729047f7aca7b27866f
   languageName: node
   linkType: hard
 
@@ -29086,11 +29065,11 @@ __metadata:
   linkType: hard
 
 "uuid@npm:^9.0.0":
-  version: 9.0.0
-  resolution: "uuid@npm:9.0.0"
+  version: 9.0.1
+  resolution: "uuid@npm:9.0.1"
   bin:
     uuid: dist/bin/uuid
-  checksum: 8dd2c83c43ddc7e1c71e36b60aea40030a6505139af6bee0f382ebcd1a56f6cd3028f7f06ffb07f8cf6ced320b76aea275284b224b002b289f89fe89c389b028
+  checksum: 39931f6da74e307f51c0fb463dc2462807531dc80760a9bff1e35af4316131b4fc3203d16da60ae33f07fdca5b56f3f1dd662da0c99fea9aaeab2004780cc5f4
   languageName: node
   linkType: hard
 
