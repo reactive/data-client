@@ -1,3 +1,4 @@
+import { version } from 'monaco-editor/package.json';
 import React, { memo } from 'react';
 
 function MonacoPreloads() {
@@ -12,7 +13,7 @@ function MonacoPreloads() {
 }
 export default memo(MonacoPreloads);
 
-export const MONACO_VERSION = '0.43.0';
+export const MONACO_VERSION = version ?? '0.43.0';
 
 const monacoPreloads = [
   `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/editor/editor.main.js`,
