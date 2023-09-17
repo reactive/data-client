@@ -465,7 +465,7 @@ module.exports = {
       },
       algolia: {
         appId: 'PCV5G606RI',
-        apiKey: 'c7ff0e67454c62cecdd72b22a317de43',
+        apiKey: 'a36d6d6008f8ac0a20e1ed088be3a8d4',
         indexName: 'dataclient',
         contextualSearch: true,
         sitemaps: ['https://dataclient.io/sitemap.xml'],
