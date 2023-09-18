@@ -105,6 +105,7 @@
     "legacy",
     "LICENSE",
     "README.md",
+    "./data_client_logo_and_text.png",
     "./typescript.svg"
   ],
   "scripts": {
