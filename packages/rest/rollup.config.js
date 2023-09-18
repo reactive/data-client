@@ -26,8 +26,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
   // browser-friendly UMD build
   configs.push({
     input: 'lib/index.js',
-    external: isExternal,
-    output: [{ file: pkg.unpkg, format: 'umd', name: 'dataClientRest' }],
+    output: [{ file: pkg.unpkg, format: 'umd', name: 'Rest' }],
     plugins: [
       babel({
         exclude: ['node_modules/**', '/**__tests__/**'],

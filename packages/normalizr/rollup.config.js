@@ -1,11 +1,11 @@
 import babel from 'rollup-plugin-babel';
 import commonjs from 'rollup-plugin-commonjs';
+import dts from 'rollup-plugin-dts';
 import filesize from 'rollup-plugin-filesize';
 import resolve from 'rollup-plugin-node-resolve';
 import { terser } from 'rollup-plugin-terser';
-import dts from 'rollup-plugin-dts';
 
-import { name } from './package.json';
+const name = 'normalizr';
 
 const isProduction = process.env.NODE_ENV === 'production';
 

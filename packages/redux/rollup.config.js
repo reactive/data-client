@@ -12,6 +12,7 @@ import { typeConfig } from '../../scripts/rollup-utils';
 const dependencies = Object.keys(pkg.dependencies)
   .concat(Object.keys(pkg.peerDependencies))
   .filter(dep => !['@babel/runtime'].includes(dep));
+const peers = Object.keys(pkg.peerDependencies);
 
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node', '.jsx'];
 const nativeExtensions = ['.native.ts', ...extensions];
@@ -26,8 +27,19 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
   // browser-friendly UMD build
   configs.push({
     input: 'lib/index.js',
-    external: isExternal,
-    output: [{ file: pkg.unpkg, format: 'umd', name: 'dataClientCore' }],
+    external: id => peers.some(dep => dep === id || id.startsWith(dep)),
+    output: [
+      {
+        file: pkg.unpkg,
+        format: 'umd',
+        name: 'RDC.Redux',
+        globals: {
+          '@data-client/react': 'RDC',
+          redux: 'Redux',
+          react: 'React',
+        },
+      },
+    ],
     plugins: [
       babel({
         exclude: ['node_modules/**', '/**__tests__/**'],

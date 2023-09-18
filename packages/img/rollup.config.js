@@ -11,6 +11,7 @@ import pkg from './package.json';
 const dependencies = Object.keys(pkg.dependencies)
   .concat(Object.keys(pkg.peerDependencies))
   .filter(dep => !['@babel/runtime'].includes(dep));
+const peers = Object.keys(pkg.peerDependencies);
 
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node'];
 const nativeExtensions = ['.native.ts', ...extensions];
@@ -25,8 +26,17 @@ export default [
   // browser-friendly UMD build
   {
     input: 'lib/index.js',
-    external: isExternal,
-    output: [{ file: pkg.unpkg, format: 'umd', name: 'dataClientImg' }],
+    external: id => peers.some(dep => dep === id || id.startsWith(dep)),
+    output: [
+      {
+        file: pkg.unpkg,
+        format: 'umd',
+        name: 'Img',
+        globals: {
+          '@data-client/react': 'RDC',
+        },
+      },
+    ],
     plugins: [
       babel({
         exclude: ['node_modules/**', '/**__tests__/**'],

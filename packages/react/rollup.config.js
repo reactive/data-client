@@ -15,6 +15,7 @@ const dependencies = Object.keys(pkg.dependencies)
     dep =>
       !['@data-client/use-enhanced-reducer', '@babel/runtime'].includes(dep),
   );
+const peers = Object.keys(pkg.peerDependencies);
 
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node', '.jsx'];
 const nativeExtensions = ['.native.ts', ...extensions];
@@ -29,12 +30,12 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
   // browser-friendly UMD build
   configs.push({
     input: 'lib/index.js',
-    external: isExternal,
+    external: id => peers.some(dep => dep === id || id.startsWith(dep)),
     output: [
       {
         file: pkg.unpkg,
         format: 'umd',
-        name: 'dataClientCore',
+        name: 'RDC',
         inlineDynamicImports: true,
       },
     ],
