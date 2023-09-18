@@ -16,28 +16,28 @@ import StackBlitz from '../components/StackBlitz';
 
 const ProjectTitle = () => {
   const sources = {
-    light: useBaseUrl('img/rest_hooks_logo_and_text_subtitle--light.svg'),
-    dark: useBaseUrl('img/rest_hooks_logo_and_text_subtitle--dark.svg'),
+    light: useBaseUrl('img/client_logo_and_text--light.png'),
+    dark: useBaseUrl('img/client_logo_and_text--dark.png'),
   };
   const { siteConfig } = useDocusaurusContext();
 
   return (
     <React.Fragment>
-      {/* <div className={styles.logoWrapper}>
+      <div className={styles.logoWrapper}>
         <ThemedImage
           sources={sources}
           alt="Reactive Data Client - The Relational Data Client for React"
           height={90}
           width={416}
         />
-      </div> */}
-
+      </div>
+      {/* 
       <h1 style={{ marginBottom: '0.0', fontWeight: '600' }}>
         {siteConfig.title}
       </h1>
       <p style={{ marginTop: '0.0', fontWeight: '500', fontSize: '18px' }}>
         Async State <strike>Management</strike> without the Management
-      </p>
+      </p> */}
     </React.Fragment>
   );
 };

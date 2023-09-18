@@ -89,13 +89,6 @@ module.exports = {
       crossOrigin: 'anonymous',
     },
     {
-      rel: 'preload',
-      href: '/font/Alternox-Semi-Bold.otf',
-      as: 'font',
-      type: 'font/otf',
-      crossOrigin: 'anonymous',
-    },
-    {
       rel: 'stylesheet',
       href: 'https://fonts.googleapis.com/css2?family=Rubik:wght@300..900&family=Rubik:ital,wght@1,300..900&family=Roboto+Mono:wght@100..700&family=Roboto+Mono:ital,wght@1,100..700&display=swap',
       crossOrigin: true,
@@ -123,6 +116,25 @@ module.exports = {
       href: '/img/favicon/favicon-32x32.png',
       sizes: '32x32',
     },
+    {
+      rel: 'icon',
+      type: 'image/png',
+      href: '/img/favicon/favicon-96x96.png',
+      sizes: '96x96',
+    },
+    // TODO: figure out where to put this
+    // {
+    //   name: 'application-name',
+    //   content: 'Reactive Data Client',
+    // },
+    // {
+    //   name: 'msapplication-TileColor',
+    //   content: '#FFFFFF',
+    // },
+    // {
+    //   name: 'msapplication-TileImage',
+    //   content: '/img/favicon/mstile-144x144.png',
+    // },
     /*{
       rel: 'preload',
       href: '/assets/css/root.css',
@@ -287,10 +299,10 @@ module.exports = {
         disableSwitch: false,
         respectPrefersColorScheme: true,
       },
-      image: 'img/rest_hooks_logo.png',
+      image: 'img/client-logo.png',
       // Open Graph and Twitter card images.
-      ogImage: 'img/rest_hooks_logo.png',
-      twitterImage: 'img/rest_hooks_logo.png',
+      ogImage: 'img/client-logo.png',
+      twitterImage: 'img/client-logo.png',
       announcementBar: {
         id: 'announcementBar-2', // Increment on change
         content: `If you like Reactive Data Client, give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/reactive/data-client">GitHub</a>`,

@@ -81,7 +81,7 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
   display: none;
 
 }
-.navbar .navbar__brand .navbar__logo:after {
+/*.navbar .navbar__brand .navbar__logo:after {
   font-family: 'Alternox','Avenir Next', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   font-size: 20px;
   letter-spacing: -0.02em;
@@ -92,15 +92,13 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
   margin-top: -40px;
   margin-left: 32px;
   padding-left: 0.5rem;
-}
+}*/
 .navbar .navbar__brand img {
   width: 32px;
   height: 32px;
 }
 
-.sidebarLogo_node_modules-\@docusaurus-theme-classic-lib-theme-DocSidebar-Desktop-styles-module {
-  font-family: 'Alternox','Avenir Next', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+
 
 .button {
   line-height: 2;
