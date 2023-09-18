@@ -1,6 +1,6 @@
 {
   "name": "@data-client/core",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "description": "High performance reactive framework for async data.",
   "sideEffects": false,
   "main": "dist/index.js",
@@ -120,7 +120,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.17.0",
-    "@data-client/normalizr": "^0.9.2",
+    "@data-client/normalizr": "^0.9.3",
     "flux-standard-action": "^2.1.1"
   },
   "devDependencies": {

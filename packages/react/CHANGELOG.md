@@ -1,5 +1,30 @@
 # @data-client/react
 
+## 0.9.3
+
+### Patch Changes
+
+- [#2818](https://github.com/reactive/data-client/pull/2818) [`fc0092883f`](https://github.com/reactive/data-client/commit/fc0092883f5af42a5d270250482b7f0ba9845e95) Thanks [@ntucker](https://github.com/ntucker)! - Fix unpkg bundles and update names
+
+  - Client packages namespace into RDC
+    - @data-client/react - RDC
+    - @data-client/core - RDC.Core
+    - @data-client/redux - RDC.Redux
+  - Definition packages namespace top level
+    - @data-client/rest - Rest
+    - @data-client/graphql - GraphQL
+    - @data-client/img - Img
+    - @data-client/endpoint - Endpoint
+  - Utility
+    - @data-client/normalizr - normalizr
+    - @data-client/use-enhanced-reducer - EnhancedReducer
+
+- [`9cafe908c1`](https://github.com/reactive/data-client/commit/9cafe908c1a0f5ed97f246acac37c1365bd4f476) Thanks [@ntucker](https://github.com/ntucker)! - docs: Update logo banner img
+
+- Updated dependencies [[`fc0092883f`](https://github.com/reactive/data-client/commit/fc0092883f5af42a5d270250482b7f0ba9845e95), [`327b94bedc`](https://github.com/reactive/data-client/commit/327b94bedc280e25c1766b3a51cc20078bfa1739)]:
+  - @data-client/use-enhanced-reducer@0.1.2
+  - @data-client/core@0.9.3
+
 ## 0.9.2
 
 ### Patch Changes
