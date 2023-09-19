@@ -1,5 +1,14 @@
 # @data-client/hooks
 
+## 0.1.6
+
+### Patch Changes
+
+- [`d1b51af7ac`](https://github.com/reactive/data-client/commit/d1b51af7ac4a8a7c0559f478cc9503be8e61514c) Thanks [@ntucker](https://github.com/ntucker)! - Fix unpkg bundles by ensuring dependencies are built in order
+
+- Updated dependencies [[`d1b51af7ac`](https://github.com/reactive/data-client/commit/d1b51af7ac4a8a7c0559f478cc9503be8e61514c)]:
+  - @data-client/normalizr@0.9.4
+
 ## 0.1.5
 
 ### Patch Changes
