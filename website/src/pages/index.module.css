@@ -32,7 +32,7 @@
 
 @media screen and (max-width: 966px) {
   .heroBanner {
-    padding: 2rem;
+    padding: 2rem 0;
     padding-bottom: 14rem;
     margin-bottom: -12rem;
   }
@@ -47,8 +47,7 @@
   font-weight: bold;
 }
 .buttons :global(.button) {
-  font-size: 20px;
-  padding: 0.3em 1.3em;
+  font-size: 18px;
   border-radius: 10px;
   letter-spacing: 1px;
 }
@@ -78,15 +77,27 @@
   .logoWrapper {
     margin-bottom: 15px;
   }
+  .heroBanner {
+    padding: 1rem 0;
+    padding-bottom: 14rem;
+
+  }
 }
 
 @media only screen and (max-width: 500px) {
   .buttons :global(.button.button--primary),.buttons :global(.button.button--info) {
-    font-size: 20px;
-    padding: 0.2em 1.1em;
+    font-size: 16px;
+    /* padding: 0.2em 1.1em; */
   }
   .GitHubButtonWrapper {
     transform: scale(80%);
+  }
+}
+
+@media only screen and (max-width: 455px) {
+  .logoWrapper img {
+    width:333px;
+    height:72px;
   }
 }
 

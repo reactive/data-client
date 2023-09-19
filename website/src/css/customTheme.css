@@ -81,18 +81,20 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
   display: none;
 
 }
-/*.navbar .navbar__brand .navbar__logo:after {
-  font-family: 'Alternox','Avenir Next', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-size: 20px;
-  letter-spacing: -0.02em;
-  font-weight: 450;
-  content: 'RDC';
-  display: block;
-  position: relative;
-  margin-top: -40px;
-  margin-left: 32px;
-  padding-left: 0.5rem;
-}*/
+@media only screen and (max-width: 996px) {
+  .navbar .navbar__brand .navbar__logo:after {
+    /* font-family: 'Alternox','Avenir Next', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; */
+    font-size: 20px;
+    letter-spacing: -0.02em;
+    font-weight: 450;
+    content: 'Reactive Data Client';
+    display: block;
+    position: relative;
+    margin-top: -40px;
+    margin-left: 32px;
+    padding-left: 0.5rem;
+  }
+}
 .navbar .navbar__brand img {
   width: 32px;
   height: 32px;
