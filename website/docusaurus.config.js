@@ -425,7 +425,7 @@ module.exports = {
               },
               {
                 label: 'Twitter',
-                href: 'https://twitter.com/DataClient',
+                href: 'https://twitter.com/dataclientio',
               },
               {
                 label: 'Bug Report',
