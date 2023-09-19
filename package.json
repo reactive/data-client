@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "changeset:version": "run changeset version && YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install",
-    "changeset:publish": "run build:types && run changeset publish",
+    "changeset:publish": "run build && run changeset publish",
     "lint": "eslint --ext .ts,.tsx,.js",
     "format": "eslint --fix \"packages/*/src/**/*.{js,ts,tsx,cts}\"",
     "clean:types": "rimraf packages/*/*.tsbuildinfo",

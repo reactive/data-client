@@ -31,7 +31,16 @@ export default [
   {
     input: 'lib/index.js',
     external: isExternal,
-    output: [{ file: pkg.unpkg, format: 'umd', name: 'EnhancedReducer' }],
+    output: [
+      {
+        file: pkg.unpkg,
+        format: 'umd',
+        name: 'EnhancedReducer',
+        globals: {
+          react: 'React',
+        },
+      },
+    ],
     plugins: [
       babel({
         exclude: ['node_modules/**', '**/__tests__/**'],

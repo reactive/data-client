@@ -119,7 +119,7 @@
     "build": "run build:lib && run build:legacy:lib && run build:bundle",
     "dev": "run build:lib -w",
     "prepare": "run build:lib",
-    "prepack": "run prepare && run build:bundle && run build:legacy:lib"
+    "prepack": "run prepare && run build:legacy:lib && run build:bundle"
   },
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",
