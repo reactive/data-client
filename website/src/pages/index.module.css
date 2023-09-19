@@ -86,8 +86,8 @@
 
 @media only screen and (max-width: 500px) {
   .buttons :global(.button.button--primary),.buttons :global(.button.button--info) {
-    font-size: 16px;
-    /* padding: 0.2em 1.1em; */
+    font-size: 15px;
+     padding: 0.3em 1.1em;
   }
   .GitHubButtonWrapper {
     transform: scale(80%);

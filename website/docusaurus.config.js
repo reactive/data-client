@@ -472,7 +472,7 @@ module.exports = {
           src: 'img/client-logo.png',
           alt: 'Reactive Data Client Logo',
           width: 94,
-          height: 90,
+          height: 94,
         },
       },
       algolia: {
