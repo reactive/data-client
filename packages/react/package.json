@@ -1,6 +1,6 @@
 {
   "name": "@data-client/react",
-  "version": "0.9.4",
+  "version": "0.9.6",
   "description": "Normalized state management for async data. Safe. Fast. Reusable.",
   "homepage": "https://dataclient.io",
   "repository": {
