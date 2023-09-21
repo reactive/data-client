@@ -77,7 +77,7 @@ function IssueDetail({ number, repo, owner }: Props) {
             >
               <Markdown
                 remarkPlugins={[remarkRemoveComments, remarkGfm]}
-                rehypePlugins={[rehypeHighlight()]}
+                rehypePlugins={[() => rehypeHighlight({ ignoreMissing: true })]}
               >
                 {issue.body}
               </Markdown>
