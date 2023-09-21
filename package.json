@@ -100,6 +100,7 @@
     "rimraf": "^5.0.0",
     "rollup": "2.79.1",
     "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-banner2": "^1.2.2",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-dts": "^5.0.0",
     "rollup-plugin-filesize": "^9.1.2",

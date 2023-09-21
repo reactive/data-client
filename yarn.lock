@@ -18438,7 +18438,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"magic-string@npm:^0.25.1, magic-string@npm:^0.25.2":
+"magic-string@npm:^0.25.1, magic-string@npm:^0.25.2, magic-string@npm:^0.25.7":
   version: 0.25.9
   resolution: "magic-string@npm:0.25.9"
   dependencies:
@@ -25684,6 +25684,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"rollup-plugin-banner2@npm:^1.2.2":
+  version: 1.2.2
+  resolution: "rollup-plugin-banner2@npm:1.2.2"
+  dependencies:
+    magic-string: ^0.25.7
+  checksum: 6647602b31d35d5f925920254e70fa9f0d272fda2a3eae0a749a500f32c78ce82f3f48200c5b6cc0f983fe412471b749b53333d87f9e430bd8b2a95637648347
+  languageName: node
+  linkType: hard
+
 "rollup-plugin-commonjs@npm:^10.1.0":
   version: 10.1.0
   resolution: "rollup-plugin-commonjs@npm:10.1.0"
@@ -25872,6 +25881,7 @@ __metadata:
     rimraf: ^5.0.0
     rollup: 2.79.1
     rollup-plugin-babel: ^4.4.0
+    rollup-plugin-banner2: ^1.2.2
     rollup-plugin-commonjs: ^10.1.0
     rollup-plugin-dts: ^5.0.0
     rollup-plugin-filesize: ^9.1.2
