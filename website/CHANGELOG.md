@@ -4,6 +4,14 @@
 
 ### Patch Changes
 
+- Updated dependencies [[`f5ac286623`](https://github.com/reactive/data-client/commit/f5ac286623a566acf5414a6ac8de18e9b7510ae7)]:
+  - @data-client/react@0.9.6
+  - @data-client/test@0.9.2
+
+## null
+
+### Patch Changes
+
 - Updated dependencies [[`bb4b9583c5`](https://github.com/reactive/data-client/commit/bb4b9583c52e2b2fe45765af10b385b571901ee7)]:
   - @data-client/rest@0.9.5
 

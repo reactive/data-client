@@ -1,5 +1,11 @@
 # @data-client/react
 
+## 0.9.6
+
+### Patch Changes
+
+- [#2825](https://github.com/reactive/data-client/pull/2825) [`f5ac286623`](https://github.com/reactive/data-client/commit/f5ac286623a566acf5414a6ac8de18e9b7510ae7) Thanks [@ntucker](https://github.com/ntucker)! - CommonJS build includes NextJS App Directive compatibility
+
 ## 0.9.4
 
 ### Patch Changes
