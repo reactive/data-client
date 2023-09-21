@@ -1,9 +1,8 @@
-# Data Client Server Side Rendering helpers
+# [![Reactive Data Client](./data_client_logo_and_text.png?sanitize=true)](https://dataclient.io)
 
 [![CircleCI](https://circleci.com/gh/reactive/data-client/tree/master.svg?style=shield)](https://circleci.com/gh/reactive/data-client)
 [![Coverage Status](https://img.shields.io/codecov/c/gh/reactive/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/reactive/data-client?branch=master)
 [![npm downloads](https://img.shields.io/npm/dm/@data-client/ssr.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/ssr)
-[![bundle size](https://img.shields.io/bundlephobia/minzip/@data-client/ssr?style=flat-square)](https://bundlephobia.com/result?p=@data-client/ssr)
 [![npm version](https://img.shields.io/npm/v/@data-client/ssr.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/ssr)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![Chat](https://img.shields.io/discord/768254430381735967.svg?style=flat-square&colorB=758ED3)](https://discord.gg/35nb8Mz)
@@ -11,81 +10,24 @@
 <div align="center">
 
 **[📖Read The Docs](https://dataclient.io/docs/guides/ssr)** &nbsp;|&nbsp;
-[🎮NextJS SSR Demo](https://stackblitz.com/github/reactive/data-client/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx)
+[🎮NextJS Demo](https://stackblitz.com/github/reactive/data-client/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx)
 
 </div>
 
-Hydrate/dehydration utilities for [Data Client](https://dataclient.io)
+Hydrate/dehydration utilities for Server Side Rendering with the [Reactive Data Client](https://dataclient.io)
 
-## Server side
+## Usage
 
-```tsx
-import express from 'express';
-import { renderToPipeableStream } from 'react-dom/server';
-import {
-  createPersistedStore,
-  createServerDataComponent,
-} from '@data-client/ssr';
+Integration with
 
-const rootId = 'react-root';
+- [NextJS](https://dataclient.io/docs/guides/ssr#nextjs)
+- Anansi
+  ```bash
+  npx @anansi/cli hatch my-project
+  ```
+- [ExpressJS](https://dataclient.io/docs/guides/ssr#express-js)
 
-const app = express();
-app.get('/*', (req: any, res: any) => {
-  const [ServerCacheProvider, useReadyCacheState, controller] =
-    createPersistedStore();
-  const ServerDataComponent = createServerDataComponent(useReadyCacheState);
-
-  controller.fetch(NeededForPage, { id: 5 });
-
-  const { pipe, abort } = renderToPipeableStream(
-    <Document
-      assets={assets}
-      scripts={[<ServerDataComponent key="server-data" />]}
-      rootId={rootId}
-    >
-      <ServerCacheProvider>{children}</ServerCacheProvider>
-    </Document>,
-
-    {
-      onCompleteShell() {
-        // If something errored before we started streaming, we set the error code appropriately.
-        res.statusCode = didError ? 500 : 200;
-        res.setHeader('Content-type', 'text/html');
-        pipe(res);
-      },
-      onError(x: any) {
-        didError = true;
-        console.error(x);
-        res.statusCode = 500;
-        pipe(res);
-      },
-    },
-  );
-  // Abandon and switch to client rendering if enough time passes.
-  // Try lowering this to see the client recover.
-  setTimeout(abort, 1000);
-});
-
-app.listen(3000, () => {
-  console.log(`Listening at ${PORT}...`);
-});
-```
-
-## Client
-
-```tsx
-import { hydrateRoot } from 'react-dom';
-import { awaitInitialData } from '@data-client/ssr';
-
-const rootId = 'react-root';
-
-awaitInitialData().then(initialState => {
-  hydrateRoot(
-    document.getElementById(rootId),
-    <CacheProvider initialState={initialState}>{children}</CacheProvider>,
-  );
-});
-```
+For more details, see the [Server Side Rendering docs page](https://dataclient.io/docs/guides/ssr).
 
 ## NextJS
 
@@ -190,6 +132,78 @@ export default class MyDocument extends DataClientDocument {
 ```
 
 </details>
+
+## Express JS
+
+### Server side
+
+```tsx
+import express from 'express';
+import { renderToPipeableStream } from 'react-dom/server';
+import {
+  createPersistedStore,
+  createServerDataComponent,
+} from '@data-client/ssr';
+
+const rootId = 'react-root';
+
+const app = express();
+app.get('/*', (req: any, res: any) => {
+  const [ServerCacheProvider, useReadyCacheState, controller] =
+    createPersistedStore();
+  const ServerDataComponent = createServerDataComponent(useReadyCacheState);
+
+  controller.fetch(NeededForPage, { id: 5 });
+
+  const { pipe, abort } = renderToPipeableStream(
+    <Document
+      assets={assets}
+      scripts={[<ServerDataComponent key="server-data" />]}
+      rootId={rootId}
+    >
+      <ServerCacheProvider>{children}</ServerCacheProvider>
+    </Document>,
+
+    {
+      onCompleteShell() {
+        // If something errored before we started streaming, we set the error code appropriately.
+        res.statusCode = didError ? 500 : 200;
+        res.setHeader('Content-type', 'text/html');
+        pipe(res);
+      },
+      onError(x: any) {
+        didError = true;
+        console.error(x);
+        res.statusCode = 500;
+        pipe(res);
+      },
+    },
+  );
+  // Abandon and switch to client rendering if enough time passes.
+  // Try lowering this to see the client recover.
+  setTimeout(abort, 1000);
+});
+
+app.listen(3000, () => {
+  console.log(`Listening at ${PORT}...`);
+});
+```
+
+### Client
+
+```tsx
+import { hydrateRoot } from 'react-dom';
+import { awaitInitialData } from '@data-client/ssr';
+
+const rootId = 'react-root';
+
+awaitInitialData().then(initialState => {
+  hydrateRoot(
+    document.getElementById(rootId),
+    <CacheProvider initialState={initialState}>{children}</CacheProvider>,
+  );
+});
+```
 
 ## API
 
