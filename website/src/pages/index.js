@@ -10,6 +10,7 @@ import React from 'react';
 
 import styles from './index.module.css';
 import Demo from '../components/Demo/index';
+import { GithubStarsButton } from '../components/GithubStarsButton';
 import HomepageFeatures from '../components/HomepageFeatures';
 import { isGoogleBot } from '../components/Playground/isGoogleBot';
 import StackBlitz from '../components/StackBlitz';
@@ -48,42 +49,13 @@ function HomepageHeader() {
       <div className="container">
         <ProjectTitle />
         <div className={styles.buttons}>
+          <GithubStarsButton />
           <Link
             className="button button--primary"
             to="/docs/getting-started/installation"
           >
             Get Started
           </Link>
-
-          <span className={styles.GitHubButtonWrapper}>
-            <BrowserOnly
-              fallback={
-                <iframe
-                  width={160}
-                  height={30}
-                  className={styles.GitHubButton}
-                ></iframe>
-              }
-            >
-              {() =>
-                isGoogleBot ? (
-                  <iframe
-                    width={160}
-                    height={30}
-                    className={styles.GitHubButton}
-                  ></iframe>
-                ) : (
-                  <iframe
-                    className={styles.GitHubButton}
-                    src="https://ghbtns.com/github-btn.html?user=reactive&amp;repo=data-client&amp;type=star&amp;count=true&amp;size=large"
-                    width={160}
-                    height={30}
-                    title="GitHub Stars"
-                  />
-                )
-              }
-            </BrowserOnly>
-          </span>
         </div>
       </div>
     </header>

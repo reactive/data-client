@@ -3,13 +3,20 @@ html[data-theme='dark'] {
   --monoco-code-lineHighlightBorder: hsl(228, 20%, 20%);
   --ifm-link-color: var(--ifm-color-primary-light);
   --docusaurus-highlighted-code-line-bg: rgb(72 77 91);
+  --ifm-color-secondary: #cbd0d8;
+  --ifm-color-secondary-dark: #b3bac6;
+  --ifm-color-secondary-darker: #a7b0bd;
+  --ifm-color-secondary-darkest: #838fa2;
+  --ifm-color-secondary-light: #e3e6ea;
+  --ifm-color-secondary-lighter: #eff0f3;
+  --ifm-color-secondary-lightest: #fff;
 }
 html[data-theme='light'] {
   --monoco-code-background: #292d3e;
   --monoco-code-lineHighlightBorder: hsl(228, 20%, 25%);
   --ifm-hero-fade-to-background-color: #fff;
   --ifm-link-color: var(--ifm-color-primary-dark);
-
+  --ifm-color-secondary: #ebedf0;
 }
 :root {
   --ifm-color-primary-lightest: hsl(206, 69%, 81%);
@@ -20,7 +27,7 @@ html[data-theme='light'] {
   --ifm-color-primary-darker: hsl(206, 69%, 44%);
   --ifm-color-primary-darkest: hsl(206, 69%, 35%);
   --ifm-color-info: hsl(206, 77%, 69%);
-  --ifm-color-info-dark: hsl(206, 77%,  45%);
+  --ifm-color-info-dark: hsl(206, 77%, 45%);
   --ifm-color-info-darker: hsl(206, 77%, 43%);
   --ifm-color-info-darkest: hsl(206, 77%, 37%);
   --ifm-color-info-light: hsl(206, 77%, 53%);
@@ -32,7 +39,7 @@ html[data-theme='light'] {
     Consolas, 'Liberation Mono', 'Courier New', monospace;
   --ifm-hero-background-color: var(--ifm-background-color);
   --ifm-hero-fade-to-background-color: var(--ifm-background-color);
-  --ifm-pre-padding: .8rem;
+  --ifm-pre-padding: 0.8rem;
 }
 
 .theme-code-block {
@@ -48,7 +55,8 @@ html[data-theme='light'] {
   font-family: var(--ifm-font-family-base);
 }
 
-code, pre {
+code,
+pre {
   font-family: var(-ifm-font-family-monospace);
 }
 

@@ -49,31 +49,35 @@
 .buttons :global(.button) {
   font-size: 18px;
   border-radius: 10px;
-  letter-spacing: 1px;
+  letter-spacing: 0;
+
+  padding: calc( var(--ifm-button-padding-vertical) * var(--ifm-button-size-multiplier) * 0.9 )
+          calc( var(--ifm-button-padding-horizontal) * var(--ifm-button-size-multiplier) * 0.9 );
+
+  --shadow: 0 10px 25px -5px var(--shadow-color),0 8px 10px -6px var(--shadow-color);
+  --ring-shadow: 0 0 #000;
+  --ring-offset-shadow: 0 0 #000;
+  box-shadow: var(--ring-offset-shadow,0 0 #0000),var(--ring-shadow,0 0 #0000),var(--shadow);
 }
+.buttons :global(.button.button--primary) {
+  --shadow-color: rgba(14,165,233,.2);
+}
+html[data-theme='dark'] .buttons :global(.button.button--secondary) {
+  --shadow-color: rgba(203, 208, 216,.2);
+}
+html[data-theme='light'] .buttons :global(.button.button--secondary) {
+  --shadow-color: rgba(167, 176, 189,.2);
+}
+
 .buttons :global(.button) svg {
   margin-bottom: -3px;
   display: inline-block;
 }
 .buttons :global(.button:last-of-type) {
-  margin: 0 36px;
-}
-
-.GitHubButtonWrapper {
-  display: flex;
-}
-
-.GitHubButton {
-  overflow: hidden;
+  margin: 0 16px;
 }
 
 @media only screen and (max-width: 768px) {
-  .buttons {
-    flex-direction: column;
-  }
-  .buttons :global(.button), .buttons :global(.button:last-of-type) {
-    margin: 0 0 15px 0;
-  }
   .logoWrapper {
     margin-bottom: 15px;
   }
@@ -85,12 +89,9 @@
 }
 
 @media only screen and (max-width: 500px) {
-  .buttons :global(.button.button--primary),.buttons :global(.button.button--info) {
+  .buttons :global(.button.button--primary),.buttons :global(.button.button--secondary) {
     font-size: 15px;
-     padding: 0.3em 1.1em;
-  }
-  .GitHubButtonWrapper {
-    transform: scale(80%);
+    padding: 0.3em 1.1em;
   }
 }
 

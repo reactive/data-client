@@ -1,0 +1,26 @@
+.GithubStars {
+  transition-duration: 0.3s;
+  display:inline-grid;
+  grid-auto-flow:column;
+  align-items:center;
+  gap: .375rem;
+  transition-timing-function: cubic-bezier(.4,0,.2,1);
+}
+
+.GithubStars svg {
+  margin-top:-5px;
+}
+
+.count {
+  white-space: nowrap;
+  overflow: hidden;
+  width:100%;
+}
+.count.done {
+  max-width:100px;
+  opacity:1;
+}
+.count.loading {
+  max-width: 0;
+  opacity: 0;
+}
