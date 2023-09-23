@@ -1,29 +1,13 @@
-import { lazy, Route } from '@anansi/router';
 import { getImage } from '@data-client/img';
 import { Controller } from '@data-client/react';
 import CommentResource from 'resources/Comment';
 import { EventResource } from 'resources/Event';
 import IssueResource from 'resources/Issue';
-import PullResource from 'resources/Pull';
 import ReactionResource from 'resources/Reaction';
 import RepositoryResource from 'resources/Repository';
 import UserResource from 'resources/User';
 
-const lazyPage = (pageName: string) =>
-  lazy(
-    () =>
-      import(
-        /* webpackChunkName: '[request]', webpackPrefetch: true */ `pages/${pageName}`
-      ),
-  );
-
-export const namedPaths = {
-  Home: '/',
-  PullList: '/:owner/:repo/pulls',
-  IssueList: '/:owner/:repo/issues',
-  IssueDetail: '/:owner/:repo/issue/:number',
-  ProfileDetail: '/users/:login',
-};
+import { lazyPage } from './lazyPage';
 
 export const routes = [
   {
@@ -106,3 +90,11 @@ export const routes = [
     },
   },
 ];
+
+export const namedPaths = {
+  Home: '/',
+  PullList: '/:owner/:repo/pulls',
+  IssueList: '/:owner/:repo/issues',
+  IssueDetail: '/:owner/:repo/issue/:number',
+  ProfileDetail: '/users/:login',
+};

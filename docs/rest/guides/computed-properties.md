@@ -5,6 +5,8 @@ title: Computed Properties
 import { RestEndpoint } from '@data-client/rest';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
+## Singular computations
+
 [Entity](../api/Entity.md) classes are just normal classes, so any common derived data can just be added as
 getters to the class itself.
 
@@ -47,17 +49,19 @@ class User extends Entity {
 
 :::tip
 
-If you simply want to [deserialize a field](./network-transform.md#deserializing-fields) to a more useful form like [Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date) or [BigNumber](https://github.com/MikeMcl/bignumber.js), you can use
+If you simply want to [deserialize a field](./network-transform.md#deserializing-fields) to a more useful form like [Temporal.Instant](https://tc39.es/proposal-temporal/docs/instant.html) or [BigNumber](https://github.com/MikeMcl/bignumber.js), you can use
 the declarative [static schema](./network-transform.md#deserializing-fields).
 
 ```typescript
 import { Entity } from '@data-client/rest';
+import BigNumber from 'bignumber.js';
 
 class User extends Entity {
   id = '';
   firstName = '';
   lastName = '';
   createdAt = Temporal.Instant.fromEpochSeconds(0);
+  lifetimeBlinkCount = BigNumber(0);
 
   pk() {
     return this.id;
@@ -67,6 +71,7 @@ class User extends Entity {
   // highlight-start
   static schema = {
     createdAt: Temporal.Instant.from,
+    lifetimeBlinkCount: BigNumber,
   };
   // highlight-end
 }
@@ -77,7 +82,7 @@ class User extends Entity {
 ## Global computations
 
 [Query](../api/Query.md) can be used for computations of derived data from more than
-one entity.
+one entity. We generally call these aggregates.
 
 <HooksPlayground row fixtures={[
 {

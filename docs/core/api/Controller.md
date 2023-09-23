@@ -10,6 +10,7 @@ title: Controller
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import StackBlitz from '@site/src/components/StackBlitz';
 
 ```ts
 class Controller {
@@ -174,6 +175,8 @@ An [example](https://stackblitz.com/github/reactive/data-client/tree/master/exam
   },
 },
 ```
+
+<StackBlitz app="github-app" file="src/routing/routes.tsx" view="editor" />
 
 ## expireAll(\{ testKey }) {#expireAll}
 
