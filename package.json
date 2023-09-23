@@ -114,13 +114,13 @@
   },
   "resolutions": {
     "whatwg-fetch": "3.0.0",
-    "@linaria/babel-preset": "4.4.5",
-    "@linaria/core": "4.2.10",
-    "@linaria/webpack5-loader": "4.1.17",
-    "@linaria/react": "4.3.8",
-    "@linaria/shaker": "4.2.11",
-    "@linaria/utils": "4.3.4",
-    "@linaria/tags": "4.3.5"
+    "@linaria/babel-preset": "5.0.1",
+    "@linaria/core": "5.0.1",
+    "@linaria/webpack5-loader": "5.0.1",
+    "@linaria/react": "5.0.1",
+    "@linaria/shaker": "5.0.1",
+    "@linaria/utils": "5.0.1",
+    "@linaria/tags": "5.0.1"
   },
   "packageManager": "yarn@3.6.3",
   "prettier": {
