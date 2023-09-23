@@ -11,14 +11,7 @@
     "downlevel-dts",
     "immutable",
     "@types/lodash",
-    "nock",
-    "@linaria/babel-preset",
-    "@linaria/core",
-    "@linaria/react",
-    "@linaria/shaker",
-    "@linaria/tags",
-    "@linaria/utils",
-    "@linaria/webpack5-loader"
+    "nock"
   ],
   "timezone": "America/Chicago",
   "postUpdateOptions": ["yarnDedupeHighest"],
