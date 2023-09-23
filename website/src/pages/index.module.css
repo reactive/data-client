@@ -30,11 +30,11 @@
   margin-bottom: 30px;
 }
 
-@media screen and (max-width: 966px) {
+@media screen and (max-width: 996px) {
   .heroBanner {
     padding: 2rem 0;
     padding-bottom: 14rem;
-    margin-bottom: -12rem;
+    margin-bottom: -13rem;
   }
 }
 
@@ -79,7 +79,7 @@ html[data-theme='light'] .buttons :global(.button.button--secondary) {
 
 @media only screen and (max-width: 768px) {
   .logoWrapper {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
   }
   .heroBanner {
     padding: 1rem 0;
