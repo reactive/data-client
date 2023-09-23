@@ -202,12 +202,17 @@ import { Todo } from './Todo';
 const getTodo = new RestEndpoint({ path: '/', schema: Todo });
 // Hover your mouse over 'todo' to see its type
 const todo = useSuspense(getTodo);
+
+async () => {
+  const ctrl = useController();
+  const todo2 = await ctrl.fetch(getTodo);
+};
 ```
 
 </TypeScriptEditor>
 
-[process](#process) determines the resolution value when the endpoint is called directly. Otherwise this will be `any` to
-ensure compatibility.
+[process](#process) determines the resolution value when the endpoint is called directly. For
+`RestEndpoints` without a schema, it also determines the return type of [hooks](/docs/api/useSuspense) and [Controller.fetch](/docs/api/Controller#fetch).
 
 <TypeScriptEditor>
 
