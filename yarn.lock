@@ -266,10 +266,10 @@ __metadata:
   linkType: hard
 
 "@anansi/cli@npm:^3.0.15":
-  version: 3.0.15
-  resolution: "@anansi/cli@npm:3.0.15"
+  version: 3.0.16
+  resolution: "@anansi/cli@npm:3.0.16"
   dependencies:
-    "@anansi/generator-js": ^12.0.13
+    "@anansi/generator-js": ^12.1.0
     bin-version-check: ^5.1.0
     chalk: ^4.1.2
     commander: ^11.0.0
@@ -284,17 +284,17 @@ __metadata:
       optional: true
   bin:
     anansi: ./run.mjs
-  checksum: 3252810f046be10156c682ea72835368cba040bdde6ef05ae01a281a47d07a262d255436f35b1da9138ce0dad3e794c5ae819e3a2ca8d12916cc86a651855181
+  checksum: d3a21abd7eecb5f58bc6da99f9b4a36f6316b430a1a46bd687e06a456ff8333834b616442edc3506b0774ef93210c90201a6106ddebd09c8e9ea43681d3ae92b
   languageName: node
   linkType: hard
 
 "@anansi/core@npm:^0.18.4":
-  version: 0.18.6
-  resolution: "@anansi/core@npm:0.18.6"
+  version: 0.18.7
+  resolution: "@anansi/core@npm:0.18.7"
   dependencies:
     "@anansi/router": ^0.9.1
     "@babel/runtime": ^7.17.0
-    "@data-client/ssr": ^0.9.2
+    "@data-client/ssr": ^0.9.5
     chalk: ^4.1.2
     compression: ^1.7.4
     cross-fetch: ^4.0.0
@@ -337,7 +337,7 @@ __metadata:
   bin:
     serve-anansi: ./lib/scripts/serve.js
     start-anansi: ./lib/scripts/startDevserver.js
-  checksum: cef07221d908fa3533460a978b1710dfcddbd354954516f9e8de5e8e51fd67f35a9c9c04dcc14eff98957d8f557e08175108d1f6dd73170e27a691a86c871c8a
+  checksum: ead3ee045aa0ee6eb7259cb4d001e93d14cada440183dbde6e4c52c270c638943fed0c0975a50d30a10ba6b77ae36565bc694138f5768929e9a20a9716fe69ce
   languageName: node
   linkType: hard
 
@@ -374,9 +374,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/generator-js@npm:^12.0.13":
-  version: 12.0.13
-  resolution: "@anansi/generator-js@npm:12.0.13"
+"@anansi/generator-js@npm:^12.1.0":
+  version: 12.1.0
+  resolution: "@anansi/generator-js@npm:12.1.0"
   dependencies:
     "@babel/runtime": ^7.17.0
     chalk: ^4.1.2
@@ -391,7 +391,7 @@ __metadata:
     pacote: ^17.0.4
     shelobsay: ^2.0.0
     yeoman-generator: ^5.9.0
-  checksum: 8e646b0f37bc1cb707e4450ced99885ed3d68a780d9f7d9b93dd15674966ee2278855d945135f94fdf076880c1762a8a1f9037c27c24e9e1f30fa1c7fffa69ea
+  checksum: 77359d4379b7dcc3fec7834a4d00f2b1e5ef5e84c319706b2e8d9889c2c8b8f3965f82d759da5c7730a79a026b9b6d6368e7e20e6c502a8ef26b100b2f015c25
   languageName: node
   linkType: hard
 
@@ -3202,7 +3202,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/ssr@^0.9.2, @data-client/ssr@workspace:packages/ssr":
+"@data-client/ssr@^0.9.5, @data-client/ssr@workspace:packages/ssr":
   version: 0.0.0-use.local
   resolution: "@data-client/ssr@workspace:packages/ssr"
   dependencies:
@@ -6868,10 +6868,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:20.6.3, @types/node@npm:^20.0.0":
-  version: 20.6.3
-  resolution: "@types/node@npm:20.6.3"
-  checksum: 444a6f1f41cfa8d3e20ce0108e6e43960fb2ae0e481f233bb1c14d6252aa63a92e021de561cd317d9fdb411688f871065f40175a1f18763282dee2613a08f8a3
+"@types/node@npm:*, @types/node@npm:20.6.4, @types/node@npm:^20.0.0":
+  version: 20.6.4
+  resolution: "@types/node@npm:20.6.4"
+  checksum: 5fdf81c8760b620a3f3b2cdac1688008f0c73a00af98e067b4621a572d39b831eaeee8fbd7300cd06667dec31d8b032fbb8e1bbedae56ec6ff1230a338b4e8a5
   languageName: node
   linkType: hard
 
@@ -6897,9 +6897,9 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:^18.15.11":
-  version: 18.17.18
-  resolution: "@types/node@npm:18.17.18"
-  checksum: 59cbd906363d37017fe9ba0c08c1446e440d4d977459609c5f90b8fb7eb41f273ce8af30c5a5b5d599d7de934c1b3702bc9fc27caf8d2270e5cdb659c5232991
+  version: 18.17.19
+  resolution: "@types/node@npm:18.17.19"
+  checksum: 6ab47127cd7534511aa199550659d56b44e5a6dbec9df054d0cde279926b4d43f0e6438f92c8392b039ab4e2a85aa0f698b95926430aff860e23bfc36c96576c
   languageName: node
   linkType: hard
 
@@ -25870,7 +25870,7 @@ __metadata:
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/react-native": 12.3.0
     "@types/jest": 29.5.5
-    "@types/node": 20.6.3
+    "@types/node": 20.6.4
     "@types/react": 18.2.22
     "@typescript-eslint/eslint-plugin": 6.7.0
     "@typescript-eslint/parser": 6.7.0
