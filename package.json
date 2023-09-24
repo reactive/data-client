@@ -63,7 +63,7 @@
     "@testing-library/react-hooks": "8.0.1",
     "@testing-library/react-native": "12.3.0",
     "@types/jest": "29.5.5",
-    "@types/node": "20.6.3",
+    "@types/node": "20.6.4",
     "@types/react": "18.2.22",
     "@typescript-eslint/eslint-plugin": "6.7.2",
     "@typescript-eslint/parser": "6.7.2",
