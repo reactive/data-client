@@ -4423,8 +4423,8 @@ __metadata:
   linkType: hard
 
 "@linaria/babel-preset@npm:*, @linaria/babel-preset@npm:^5.0.1":
-  version: 5.0.1
-  resolution: "@linaria/babel-preset@npm:5.0.1"
+  version: 5.0.2
+  resolution: "@linaria/babel-preset@npm:5.0.2"
   dependencies:
     "@babel/core": ^7.22.15
     "@babel/generator": ^7.22.15
@@ -4442,7 +4442,7 @@ __metadata:
     source-map: ^0.7.3
     stylis: ^3.5.4
     ts-invariant: ^0.10.3
-  checksum: 39948fc951e89ba0913b5e57d231f04ff967d72368c73efc68dc26e1b227d95e5e6952d32a7ddc8a4c21abbcbbf315413933ed9ce5ba2660f2dcf591acf52b47
+  checksum: b6d41b0ad842d1f14ebe1ecadfd52dfff8235ccc6a69cf9691bc2e54632f1a7b1f593be3082bd84ebf65c32770dc78459977d0285b8c93a48ec1946ae9d9ff9c
   languageName: node
   linkType: hard
 
