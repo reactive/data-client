@@ -414,6 +414,8 @@ div.fixtureJson {
   }
   .row.playgroundContainer > div:first-child {
     border-bottom-left-radius: 0;
+    border-top-right-radius: var(--ifm-global-radius);
+
   }
   .playgroundContainer .playgroundHeader.tabControls:first-of-type {
     border-top-right-radius: var(--ifm-global-radius);
@@ -427,6 +429,8 @@ div.fixtureJson {
   }
   .row.playgroundContainer > div:first-child {
     border-bottom-left-radius: 0;
+    border-top-right-radius: var(--ifm-global-radius);
+
   }
   .playgroundContainer .playgroundHeader.tabControls:first-of-type {
     border-top-right-radius: var(--ifm-global-radius);

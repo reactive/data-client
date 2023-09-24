@@ -17,6 +17,7 @@ html[data-theme='light'] {
   --ifm-hero-fade-to-background-color: #fff;
   --ifm-link-color: var(--ifm-color-primary-dark);
   --ifm-color-secondary: #ebedf0;
+  --ifm-navbar-link-color: black;
 }
 :root {
   --ifm-color-primary-lightest: hsl(206, 69%, 81%);
