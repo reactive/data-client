@@ -1,4 +1,5 @@
-# [![Reactive Data Client](./packages/react/data_client_logo_and_text.svg?sanitize=true)](https://dataclient.io)
+<a href="https://dataclient.io" target="_blank" rel="noopener"><img src="https://github.com/reactive/data-client/raw/master/packages/react/data_client_logo_and_text.svg?sanitize=true" alt="Reactive Data Client" style="max-width: 100%;"></a>
+
 [![CircleCI](https://circleci.com/gh/reactive/data-client/tree/master.svg?style=shield)](https://circleci.com/gh/reactive/data-client)
 [![Coverage Status](https://img.shields.io/codecov/c/gh/reactive/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/reactive/data-client?branch=master)
 [![Percentage of issues still open](https://isitmaintained.com/badge/open/reactive/data-client.svg)](https://github.com/reactive/data-client/issues "Percentage of issues still open")
@@ -207,7 +208,7 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://da
 
 ## Features
 
-- [x] ![TS](./packages/react/typescript.svg?sanitize=true) Strong [Typescript](https://www.typescriptlang.org/) inference
+- [x] <img src="https://github.com/reactive/data-client/raw/master/packages/react/typescript.svg?sanitize=true" alt="TS" style="max-width: 100%;"> Strong [Typescript](https://www.typescriptlang.org/) inference
 - [x] 🛌 React [Suspense](https://dataclient.io/docs/getting-started/data-dependency#boundaries) support
 - [x] 🧵 React 18 [Concurrent mode](https://dataclient.io/docs/guides/render-as-you-fetch) compatible
 - [x] 💦 [Partial Hydration Server Side Rendering](https://dataclient.io/docs/guides/ssr)
