@@ -93,7 +93,7 @@ const RealApp = (
 
 ### devButton
 
-<img src="/img/client-logo.png" style={{float:'right',width:'40px'}} />
+<img src="/img/client-logo.svg" style={{float:'right',width:'40px'}} />
 
 In development, a small button will appear that gives easy access to browser devtools if
 installed. This option configures where it shows up, or if null will disable it altogether.

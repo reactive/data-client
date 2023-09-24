@@ -1,4 +1,4 @@
-# [![Reactive Data Client](./packages/react/data_client_logo_and_text.png?sanitize=true)](https://dataclient.io)
+# [![Reactive Data Client](./packages/react/data_client_logo_and_text.svg?sanitize=true)](https://dataclient.io)
 
 [![CircleCI](https://circleci.com/gh/reactive/data-client/tree/master.svg?style=shield)](https://circleci.com/gh/reactive/data-client)
 [![Coverage Status](https://img.shields.io/codecov/c/gh/reactive/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/reactive/data-client?branch=master)

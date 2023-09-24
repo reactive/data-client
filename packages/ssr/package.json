@@ -91,7 +91,8 @@
     "legacy",
     "ts3.4",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "./data_client_logo_and_text.svg"
   ],
   "scripts": {
     "build:lib": "NODE_ENV=production BROWSERSLIST_ENV='2020' yarn g:babel --out-dir lib",

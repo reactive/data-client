@@ -1,4 +1,3 @@
-import BrowserOnly from '@docusaurus/BrowserOnly';
 import Head from '@docusaurus/Head';
 import Link from '@docusaurus/Link';
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -9,28 +8,29 @@ import clsx from 'clsx';
 import React from 'react';
 
 import styles from './index.module.css';
+import LogoAndText from '../../static/img/client_logo_and_text.svg';
 import Demo from '../components/Demo/index';
 import { GithubStarsButton } from '../components/GithubStarsButton';
 import HomepageFeatures from '../components/HomepageFeatures';
-import { isGoogleBot } from '../components/Playground/isGoogleBot';
 import StackBlitz from '../components/StackBlitz';
 
 const ProjectTitle = () => {
-  const sources = {
-    light: useBaseUrl('img/client_logo_and_text--light.png'),
-    dark: useBaseUrl('img/client_logo_and_text--dark.png'),
-  };
-  const { siteConfig } = useDocusaurusContext();
+  // const sources = {
+  //   light: useBaseUrl('img/client_logo_and_text.svg'),
+  //   dark: useBaseUrl('img/client_logo_and_text.svg'),
+  // };
+  // const { siteConfig } = useDocusaurusContext();
 
   return (
     <React.Fragment>
       <div className={styles.logoWrapper}>
-        <ThemedImage
+        {/* <ThemedImage
           sources={sources}
           alt="The Reactive Data Client"
           height={90}
           width={416}
-        />
+        /> */}
+        <LogoAndText alt="The Reactive Data Client" height={90} />
       </div>
       {/* 
       <h1 style={{ marginBottom: '0.0', fontWeight: '600' }}>

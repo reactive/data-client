@@ -38,7 +38,7 @@ export default function DevToolsButton({
         </a>
       </div>
       <img
-        src="https://dataclient.io/img/client-logo.png"
+        src="https://dataclient.io/img/client-logo.svg"
         style={{ width: '40px', height: '40px', cursor: 'pointer' }}
         onClick={() =>
           (window as any).__REDUX_DEVTOOLS_EXTENSION__.open('panel')

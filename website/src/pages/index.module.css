@@ -29,6 +29,10 @@
   align-items: center;
   margin-bottom: 30px;
 }
+/* our svg uses 'currentcolor' so we can adjust its light color here */
+html[data-theme='light'] .logoWrapper {
+  color: #0d0e0f;
+}
 
 @media screen and (max-width: 996px) {
   .heroBanner {
@@ -95,12 +99,6 @@ html[data-theme='light'] .buttons :global(.button.button--secondary) {
   }
 }
 
-@media only screen and (max-width: 455px) {
-  .logoWrapper img {
-    width:333px;
-    height:72px;
-  }
-}
 
 :global(.main-wrapper) > main {
   z-index: 1;
