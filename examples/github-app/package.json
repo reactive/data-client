@@ -65,23 +65,5 @@
     "remark-remove-comments": "^1.0.1",
     "uuid": "^9.0.0"
   },
-  "resolutions": {
-    "@linaria/babel-preset": "5.0.1",
-    "@linaria/core": "5.0.1",
-    "@linaria/webpack5-loader": "5.0.1",
-    "@linaria/react": "5.0.1",
-    "@linaria/shaker": "5.0.1",
-    "@linaria/utils": "5.0.1",
-    "@linaria/tags": "5.0.1"
-  },
-  "overrides": {
-    "@linaria/babel-preset": "5.0.1",
-    "@linaria/core": "5.0.1",
-    "@linaria/webpack5-loader": "5.0.1",
-    "@linaria/react": "5.0.1",
-    "@linaria/shaker": "5.0.1",
-    "@linaria/utils": "5.0.1",
-    "@linaria/tags": "5.0.1"
-  },
   "packageManager": "yarn@3.6.3"
 }

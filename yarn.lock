@@ -4422,7 +4422,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@linaria/babel-preset@npm:5.0.1":
+"@linaria/babel-preset@npm:*, @linaria/babel-preset@npm:^5.0.1":
   version: 5.0.1
   resolution: "@linaria/babel-preset@npm:5.0.1"
   dependencies:
@@ -4446,7 +4446,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@linaria/core@npm:5.0.1":
+"@linaria/core@npm:*, @linaria/core@npm:^5.0.1":
   version: 5.0.1
   resolution: "@linaria/core@npm:5.0.1"
   dependencies:
@@ -4467,7 +4467,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@linaria/react@npm:5.0.1":
+"@linaria/react@npm:*":
   version: 5.0.1
   resolution: "@linaria/react@npm:5.0.1"
   dependencies:
@@ -4484,7 +4484,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@linaria/shaker@npm:5.0.1":
+"@linaria/shaker@npm:*, @linaria/shaker@npm:^5.0.1":
   version: 5.0.1
   resolution: "@linaria/shaker@npm:5.0.1"
   dependencies:
@@ -4502,7 +4502,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@linaria/tags@npm:5.0.1":
+"@linaria/tags@npm:^5.0.1":
   version: 5.0.1
   resolution: "@linaria/tags@npm:5.0.1"
   dependencies:
@@ -4513,7 +4513,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@linaria/utils@npm:5.0.1":
+"@linaria/utils@npm:^5.0.1":
   version: 5.0.1
   resolution: "@linaria/utils@npm:5.0.1"
   dependencies:

@@ -55,13 +55,6 @@
   "private": true,
   "license": "MIT",
   "resolutions": {
-    "react-error-overlay": "6.0.9",
-    "@linaria/babel-preset": "5.0.1",
-    "@linaria/core": "5.0.1",
-    "@linaria/webpack5-loader": "5.0.1",
-    "@linaria/react": "5.0.1",
-    "@linaria/shaker": "5.0.1",
-    "@linaria/utils": "5.0.1",
-    "@linaria/tags": "5.0.1"
+    "react-error-overlay": "6.0.9"
   }
 }

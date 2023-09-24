@@ -113,14 +113,7 @@
     "whatwg-fetch": "3.0.0"
   },
   "resolutions": {
-    "whatwg-fetch": "3.0.0",
-    "@linaria/babel-preset": "5.0.1",
-    "@linaria/core": "5.0.1",
-    "@linaria/webpack5-loader": "5.0.1",
-    "@linaria/react": "5.0.1",
-    "@linaria/shaker": "5.0.1",
-    "@linaria/utils": "5.0.1",
-    "@linaria/tags": "5.0.1"
+    "whatwg-fetch": "3.0.0"
   },
   "packageManager": "yarn@3.6.3",
   "prettier": {
