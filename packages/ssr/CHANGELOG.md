@@ -1,5 +1,11 @@
 # @data-client/ssr
 
+## 0.9.7
+
+### Patch Changes
+
+- [`6c6678bd9d`](https://github.com/reactive/data-client/commit/6c6678bd9d0051c3bf1996c064457ca6f2389c62) Thanks [@ntucker](https://github.com/ntucker)! - docs: README uses svg version of logo
+
 ## 0.9.5
 
 ### Patch Changes
