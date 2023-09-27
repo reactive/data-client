@@ -122,7 +122,7 @@ const deleteTodo = data => ctrl.fetch(TodoResource.delete, { id });
 
 ```tsx
 const queryRemainingTodos = new Query(
-  TodoResource.getList,
+  TodoResource.getList.schema,
   (entries) => entries.filter((todo) => !todo.completed).length,
 );
 

@@ -85,7 +85,7 @@ const selector = state => state;
 
 // managers optionally provide initialization subroutine
 for (const manager of [networkManager, subscriptionManager]) {
-  managers[i].init?.(selector(store.getState()));
+  manager.init?.(selector(store.getState()));
 }
 
 ReactDOM.render(
@@ -139,7 +139,7 @@ const selector = state => state;
 
 // managers optionally provide initialization subroutine
 for (const manager of [networkManager, subscriptionManager]) {
-  managers[i].init?.(selector(store.getState()));
+  manager.init?.(selector(store.getState()));
 }
 
 ReactDOM.render(
