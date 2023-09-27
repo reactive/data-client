@@ -317,11 +317,12 @@ export declare let CollectionRoot: CollectionConstructor;
  */
 export declare class Collection<
   S extends any[] | PolymorphicInterface = any,
-  Parent extends any[] = [
+  Args extends any[] = [
     urlParams: Record<string, any>,
     body?: Record<string, any>,
   ],
-> extends CollectionRoot<S, Parent> {}
+  Parent = any,
+> extends CollectionRoot<S, Args, Parent> {}
 
 // id is in Instance, so we default to that as pk
 /**

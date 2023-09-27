@@ -14,7 +14,7 @@ export type Serializable<
   T extends { toJSON(): string } = { toJSON(): string },
 > = (value: any) => T;
 
-export interface SchemaSimple<T = any> {
+export interface SchemaSimple<T = any, Args extends any[] = any[]> {
   normalize(
     input: any,
     parent: any,
@@ -23,7 +23,7 @@ export interface SchemaSimple<T = any> {
     addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
     storeEntities: any,
-    args?: any[],
+    args: Args,
   ): any;
   denormalize(
     input: {},

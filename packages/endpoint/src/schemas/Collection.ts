@@ -21,10 +21,11 @@ const createValue = (value: any) => ({ ...value });
  */
 export default class CollectionSchema<
   S extends PolymorphicInterface = any,
-  Parent extends any[] = [
+  Args extends any[] = [
     urlParams: Record<string, any>,
     body?: Record<string, any>,
   ],
+  Parent = any,
 > {
   protected declare nestKey: (parent: any, key: string) => Record<string, any>;
 
@@ -35,18 +36,18 @@ export default class CollectionSchema<
   declare readonly key: string;
 
   declare push: S extends ArraySchema<any>
-    ? CollectionSchema<S, Parent>
+    ? CollectionSchema<S, Args, Parent>
     : undefined;
 
   declare unshift: S extends ArraySchema<any>
-    ? CollectionSchema<S, Parent>
+    ? CollectionSchema<S, Args, Parent>
     : undefined;
 
   declare assign: S extends Values<any>
-    ? CollectionSchema<S, Parent>
+    ? CollectionSchema<S, Args, Parent>
     : undefined;
 
-  addWith<P extends any[] = Parent>(
+  addWith<P extends any[] = Args>(
     merge: (existing: any, incoming: any) => any,
     createCollectionFilter?: (
       ...args: P
@@ -59,7 +60,7 @@ export default class CollectionSchema<
   // so fetch(create, { userId: 'bob', completed: true }, data)
   // would possibly add to {}, {userId: 'bob'}, {completed: true}, {userId: 'bob', completed: true } - but only those already in the store
   // it ignores keys that start with sort as those are presumed to not filter results
-  protected createCollectionFilter(...args: Parent) {
+  protected createCollectionFilter(...args: Args) {
     return (collectionKey: Record<string, string>) =>
       Object.entries(collectionKey).every(
         ([key, value]) =>
@@ -74,7 +75,7 @@ export default class CollectionSchema<
     return key.startsWith('order');
   }
 
-  constructor(schema: S, options?: CollectionOptions) {
+  constructor(schema: S, options?: CollectionOptions<Args, Parent>) {
     this.schema = Array.isArray(schema)
       ? (new ArraySchema(schema[0]) as any)
       : schema;
@@ -109,7 +110,7 @@ export default class CollectionSchema<
       this.createCollectionFilter = (
         options as any as {
           createCollectionFilter: (
-            ...args: Parent
+            ...args: Args
           ) => (collectionKey: Record<string, string>) => boolean;
         }
       ).createCollectionFilter.bind(this) as any;
@@ -152,13 +153,13 @@ export default class CollectionSchema<
 
   normalize(
     input: any,
-    parent: any,
+    parent: Parent,
     key: string,
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
     storeEntities: any,
-    args: any[],
+    args: Args,
   ): string {
     const pkList = this.schema.normalize(
       input,
@@ -239,22 +240,23 @@ export default class CollectionSchema<
 }
 
 export type CollectionOptions<
-  Parent extends any[] = [
+  Args extends any[] = [
     urlParams: Record<string, any>,
     body?: Record<string, any>,
   ],
+  Parent = any,
 > = (
   | {
-      nestKey?: (parent: any, key: string) => Record<string, any>;
+      nestKey?: (parent: Parent, key: string) => Record<string, any>;
     }
   | {
-      argsKey?: (...args: any) => Record<string, any>;
+      argsKey?: (...args: Args) => Record<string, any>;
     }
 ) &
   (
     | {
         createCollectionFilter?: (
-          ...args: Parent
+          ...args: Args
         ) => (collectionKey: Record<string, string>) => boolean;
       }
     | {

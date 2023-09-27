@@ -34,6 +34,7 @@ export type {
   NormalizeNullable,
   Denormalize,
   DenormalizeNullable,
+  SchemaToArgs,
 } from './normal.js';
 export type {
   EndpointExtraOptions,

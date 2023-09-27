@@ -72,7 +72,16 @@ export interface Resource<
     ? GetEndpoint<
         {
           path: ShortenPath<O['path']>;
-          schema: schema.Collection<[O['schema']]>;
+          schema: schema.Collection<
+            [O['schema']],
+            [
+              'searchParams' extends keyof O
+                ? O['searchParams'] extends undefined
+                  ? PathArgs<ShortenPath<O['path']>>
+                  : O['searchParams'] & PathArgs<ShortenPath<O['path']>>
+                : PathArgs<ShortenPath<O['path']>>,
+            ]
+          >;
           body: 'body' extends keyof O
             ? O['body']
             : Partial<Denormalize<O['schema']>>;
@@ -82,7 +91,16 @@ export interface Resource<
     : GetEndpoint<
         {
           path: ShortenPath<O['path']>;
-          schema: schema.Collection<[O['schema']]>;
+          schema: schema.Collection<
+            [O['schema']],
+            [
+              'searchParams' extends keyof O
+                ? O['searchParams'] extends undefined
+                  ? PathArgs<ShortenPath<O['path']>>
+                  : O['searchParams'] & PathArgs<ShortenPath<O['path']>>
+                : PathArgs<ShortenPath<O['path']>>,
+            ]
+          >;
           body: 'body' extends keyof O
             ? O['body']
             : Partial<Denormalize<O['schema']>>;
