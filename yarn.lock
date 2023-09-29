@@ -266,10 +266,10 @@ __metadata:
   linkType: hard
 
 "@anansi/cli@npm:^3.0.15":
-  version: 3.0.17
-  resolution: "@anansi/cli@npm:3.0.17"
+  version: 3.0.18
+  resolution: "@anansi/cli@npm:3.0.18"
   dependencies:
-    "@anansi/generator-js": ^12.1.1
+    "@anansi/generator-js": ^12.1.2
     bin-version-check: ^5.1.0
     chalk: ^4.1.2
     commander: ^11.0.0
@@ -284,7 +284,7 @@ __metadata:
       optional: true
   bin:
     anansi: ./run.mjs
-  checksum: 4191f90cd5195ea49be59b2f7c0df47b67198f37d6b595ecb9b23ea78d8463785562aeb0268f1acf19d749366f8d88c01aca8d0470f34d39938c85e16d6580ed
+  checksum: cef96cc9bea241fbc04d1583df6d179f80a374c34edcdec422794d03f08279e8f4ae89bbe8146a9f647fcf61ac15e323982f877ed36c37ffcfc72ff2e0bfac57
   languageName: node
   linkType: hard
 
@@ -374,9 +374,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/generator-js@npm:^12.1.1":
-  version: 12.1.1
-  resolution: "@anansi/generator-js@npm:12.1.1"
+"@anansi/generator-js@npm:^12.1.2":
+  version: 12.1.2
+  resolution: "@anansi/generator-js@npm:12.1.2"
   dependencies:
     "@babel/runtime": ^7.17.0
     chalk: ^4.1.2
@@ -391,7 +391,7 @@ __metadata:
     pacote: ^17.0.4
     shelobsay: ^2.0.0
     yeoman-generator: ^5.9.0
-  checksum: 1123553ffe40e510de49b9ef2fcd54b5338794324a0c5a243f1375d4d54d7325878ae38ba78ee31b6348a0ee61bdfc68f8d5d2f638ad855c8bf764d18fd4d7f9
+  checksum: da50119288bc6a8d7eaea123af41af4c700ea348211e49752b756492443ea7deec921cd9eaef8156da4bd21645ddbed48c0cb8eb1e90d05e6d83336b35fc22a9
   languageName: node
   linkType: hard
 
@@ -6868,10 +6868,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:20.7.0, @types/node@npm:^20.0.0":
-  version: 20.7.0
-  resolution: "@types/node@npm:20.7.0"
-  checksum: 1b2919925c213f4d2039ada7a8354c998e144f7291db8d719ef58ea9924ab636c113690073b0ec3b82ba62907385f7e0f51e9d1583c1a818776daa5156d3a590
+"@types/node@npm:*, @types/node@npm:20.7.1, @types/node@npm:^20.0.0":
+  version: 20.7.1
+  resolution: "@types/node@npm:20.7.1"
+  checksum: 3140bd6c9130f1ed73a78ce7a1765ee43e155c1eea50eea45e18faeb31d11d97a84fffdc5e3a97582101d2f57d2652a50f510ede6c702780267bad74c822d56c
   languageName: node
   linkType: hard
 
@@ -6962,20 +6962,20 @@ __metadata:
   linkType: hard
 
 "@types/react-dom@npm:*, @types/react-dom@npm:^18.0.0, @types/react-dom@npm:^18.0.11, @types/react-dom@npm:^18.2.7":
-  version: 18.2.7
-  resolution: "@types/react-dom@npm:18.2.7"
+  version: 18.2.8
+  resolution: "@types/react-dom@npm:18.2.8"
   dependencies:
     "@types/react": "*"
-  checksum: e02ea908289a7ad26053308248d2b87f6aeafd73d0e2de2a3d435947bcea0422599016ffd1c3e38ff36c42f5e1c87c7417f05b0a157e48649e4a02f21727d54f
+  checksum: d36264631028d021b73cd9e015f10b95c4959ae1ce8f7a7419f318d1f05b1d063e6afffcd2a349a6bccd64ccc9ee9d2d976e1f0437643f0e7db621fa035bca65
   languageName: node
   linkType: hard
 
 "@types/react-helmet@npm:^6.1.5":
-  version: 6.1.6
-  resolution: "@types/react-helmet@npm:6.1.6"
+  version: 6.1.7
+  resolution: "@types/react-helmet@npm:6.1.7"
   dependencies:
     "@types/react": "*"
-  checksum: 81560c56bfe854b6a43aee31360862588ac875d1177b975da5ce049ac9aa2f7c98dcde65d4397bfaa04e468f40cf3ab2975a2ef966a69d64a60493422898698d
+  checksum: d5ee8343f10f8746a022249c6401493baa73241a90b5002b59e8a6ce31650b9e1ab38d398eba5564af026f68eda107c8fcdca01fc046a163a96dc422710f6a77
   languageName: node
   linkType: hard
 
@@ -7012,11 +7012,11 @@ __metadata:
   linkType: hard
 
 "@types/react-test-renderer@npm:^18":
-  version: 18.0.2
-  resolution: "@types/react-test-renderer@npm:18.0.2"
+  version: 18.0.3
+  resolution: "@types/react-test-renderer@npm:18.0.3"
   dependencies:
     "@types/react": "*"
-  checksum: 2845b05adcb28180e530b63c47495b2c0beb1a669a0ce962dcfa6ed5b88d37c8438de1f29cb2e599b5f229307a4479e424677407111a571bbcab06bd538ea1df
+  checksum: 6834c7c998d9e699b7b9aca31ce0f550a29a63526a9ab15f62764eeade28fcce634030e5cfd223a8417e8c53234e01bfb961906b35fd9a72dd513aba549181f0
   languageName: node
   linkType: hard
 
@@ -25596,13 +25596,13 @@ __metadata:
   linkType: hard
 
 "rimraf@npm:^5.0.0":
-  version: 5.0.4
-  resolution: "rimraf@npm:5.0.4"
+  version: 5.0.5
+  resolution: "rimraf@npm:5.0.5"
   dependencies:
     glob: ^10.3.7
   bin:
     rimraf: dist/esm/bin.mjs
-  checksum: 44230119678153dc46f8e634947123e2a516689818cb1ca4b03c470cb8eece0f6a29135b9c8f785d30e50c34175a58927b8033a9eef0e154a9fab81b80712112
+  checksum: d66eef829b2e23b16445f34e73d75c7b7cf4cbc8834b04720def1c8f298eb0753c3d76df77325fad79d0a2c60470525d95f89c2475283ad985fd7441c32732d1
   languageName: node
   linkType: hard
 
@@ -25821,7 +25821,7 @@ __metadata:
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/react-native": 12.3.0
     "@types/jest": 29.5.5
-    "@types/node": 20.7.0
+    "@types/node": 20.7.1
     "@types/react": 18.2.23
     "@typescript-eslint/eslint-plugin": 6.7.2
     "@typescript-eslint/parser": 6.7.2
