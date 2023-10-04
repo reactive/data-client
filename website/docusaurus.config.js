@@ -311,7 +311,7 @@ module.exports = {
         title: 'Reactive Data Client',
         logo: {
           src: 'img/client-logo.svg',
-          alt: 'Reactive Data Client Logo',
+          alt: 'Reactive Data Client',
           width: '32',
           height: '32',
         },
@@ -470,7 +470,7 @@ module.exports = {
         copyright: `Copyright © ${new Date().getFullYear()} Nathaniel Tucker. Some icons by <a href="https://www.freepik.com" title="Freepik">Freepik</a>`,
         logo: {
           src: 'img/client-logo.svg',
-          alt: 'Reactive Data Client Logo',
+          alt: 'Reactive Data Client',
           width: 94,
           height: 94,
         },

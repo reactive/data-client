@@ -91,7 +91,7 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
     font-size: 20px;
     letter-spacing: -0.02em;
     font-weight: 450;
-    content: 'Reactive Data Client';
+    content: 'Data Client';
     display: block;
     position: relative;
     margin-top: -40px;
