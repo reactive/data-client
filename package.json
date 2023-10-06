@@ -115,7 +115,7 @@
   "resolutions": {
     "whatwg-fetch": "3.0.0"
   },
-  "packageManager": "yarn@3.6.3",
+  "packageManager": "yarn@3.6.4",
   "prettier": {
     "printWidth": 80,
     "semi": true,
