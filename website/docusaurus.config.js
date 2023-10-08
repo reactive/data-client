@@ -368,7 +368,7 @@ module.exports = {
             'aria-label': 'Demo Applications',
           },
           {
-            href: 'https://www.github.com/reactive/data-client',
+            href: 'https://github.com/reactive/data-client',
             position: 'right',
             className: 'header-github-link',
             'aria-label': 'GitHub repository',
