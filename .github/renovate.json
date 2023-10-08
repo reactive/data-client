@@ -107,6 +107,12 @@
       "matchUpdateTypes": ["major", "minor", "patch"],
       "groupSlug": "validation",
       "groupName": "validation packages"
+    },
+    {
+      "matchPackageNames": ["react-markdown", "rehype-highlight", "remark-gfm", "remark-remove-comments"],
+      "matchUpdateTypes": ["major"],
+      "groupSlug": "markdown",
+      "groupName": "markdown packages"
     }
   ]
 }
