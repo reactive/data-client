@@ -27,11 +27,11 @@
   "devDependencies": {
     "@anansi/babel-preset": "4.4.0",
     "@anansi/browserslist-config": "1.4.3",
-    "@anansi/webpack-config": "16.0.2",
+    "@anansi/webpack-config": "16.0.3",
     "@babel/core": "7.23.0",
     "@linaria/babel-preset": "5.0.3",
     "@linaria/core": "5.0.2",
-    "@linaria/react": "5.0.2",
+    "@linaria/react": "5.0.3",
     "@linaria/shaker": "5.0.2",
     "@types/react-dom": "18.2.11",
     "@types/uuid": "^9.0.0",

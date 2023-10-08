@@ -453,9 +453,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:16.0.2, @anansi/webpack-config@npm:^16.0.0":
-  version: 16.0.2
-  resolution: "@anansi/webpack-config@npm:16.0.2"
+"@anansi/webpack-config@npm:16.0.3, @anansi/webpack-config@npm:^16.0.0":
+  version: 16.0.3
+  resolution: "@anansi/webpack-config@npm:16.0.3"
   dependencies:
     "@babel/runtime": ^7.17.2
     "@linaria/webpack5-loader": 5.0.3
@@ -490,13 +490,13 @@ __metadata:
     os-browserify: ^0.3.0
     path: ^0.12.7
     path-browserify: ^1.0.1
-    postcss: ^8.4.30
+    postcss: ^8.4.31
     postcss-loader: ^7.3.3
     postcss-preset-env: ^9.1.4
     process: ^0.11.10
     punycode: ^2.3.0
     querystring-es3: ^0.2.1
-    ramda: ^0.29.0
+    ramda: ^0.29.1
     react-dev-utils: ^12.0.1
     react-error-overlay: 6.0.9
     readable-stream: ^4.4.2
@@ -560,7 +560,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: 1dc9988e5cd445835e8ce9074ac886ea2257fae31da2763a98a0502feeabdbe3e4e49e90df3678a6337a51eb3d1d35bdd421a712acdd3fda54a86a93fd911086
+  checksum: e43d59736119dc1d63447dc395452bd0c8e182248dfff345ae0c963f5c53ad6d3c8c59b22e63e20e29059c6562fc42108cb1c2a7f255e0f8a83346b50f53d65e
   languageName: node
   linkType: hard
 
@@ -4468,8 +4468,8 @@ __metadata:
   linkType: hard
 
 "@linaria/react@npm:*":
-  version: 5.0.2
-  resolution: "@linaria/react@npm:5.0.2"
+  version: 5.0.3
+  resolution: "@linaria/react@npm:5.0.3"
   dependencies:
     "@emotion/is-prop-valid": ^1.2.0
     "@linaria/core": ^5.0.2
@@ -4480,7 +4480,7 @@ __metadata:
     ts-invariant: ^0.10.3
   peerDependencies:
     react: ">=16"
-  checksum: 6003330b83156f03d0929f3a9d7aff1412f6a0da5840b297bbea5357d7f7c03850c12196607bb2384cac77ed6413aea27638a54fa63b3b4b2b4fcee7a3979ceb
+  checksum: 7788b019162ecff4366d26c38a18ce1df9f762bea43149d14b1f023d270d6a5387af2e5715abe76dd6c642389615118b4b091e8b91e8e2d15a0e88bc22707058
   languageName: node
   linkType: hard
 
@@ -10663,10 +10663,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:3.32.2, core-js@npm:^3.21.0, core-js@npm:^3.30.2, core-js@npm:^3.31.1, core-js@npm:^3.6.5":
-  version: 3.32.2
-  resolution: "core-js@npm:3.32.2"
-  checksum: d6fac7e8eb054eefc211c76cd0a0ff07447a917122757d085f469f046ec888d122409c7db1a9601c3eb5fa767608ed380bcd219eace02bdf973da155680edeec
+"core-js@npm:3.33.0, core-js@npm:^3.21.0, core-js@npm:^3.30.2, core-js@npm:^3.31.1, core-js@npm:^3.6.5":
+  version: 3.33.0
+  resolution: "core-js@npm:3.33.0"
+  checksum: dd62217935ac281faf6f833bb306fb891162919fcf9c1f0c975b1b91e82ac09a940f5deb5950bbb582739ceef716e8bd7e4f9eab8328932fb029d3bc2ecb2881
   languageName: node
   linkType: hard
 
@@ -23649,7 +23649,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:8.4.31, postcss@npm:^8.4.17, postcss@npm:^8.4.21, postcss@npm:^8.4.24, postcss@npm:^8.4.26, postcss@npm:^8.4.30":
+"postcss@npm:8.4.31, postcss@npm:^8.4.17, postcss@npm:^8.4.21, postcss@npm:^8.4.24, postcss@npm:^8.4.26, postcss@npm:^8.4.31":
   version: 8.4.31
   resolution: "postcss@npm:8.4.31"
   dependencies:
@@ -24139,10 +24139,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ramda@npm:^0.29.0":
-  version: 0.29.0
-  resolution: "ramda@npm:0.29.0"
-  checksum: 9ab26c06eb7545cbb7eebcf75526d6ee2fcaae19e338f165b2bf32772121e7b28192d6664d1ba222ff76188ba26ab307342d66e805dbb02c860560adc4d5dd57
+"ramda@npm:^0.29.1":
+  version: 0.29.1
+  resolution: "ramda@npm:0.29.1"
+  checksum: df7c627597a66d5f317f6ba77ad17d7ba818efc9c2c4a638440bc23f2c651e823970ea05b05a28895738c0e4b738fadbdc17b2c97b3ad922826febc09c859c44
   languageName: node
   linkType: hard
 
@@ -24222,7 +24222,7 @@ __metadata:
   resolution: "rdc-website@workspace:website"
   dependencies:
     "@anansi/browserslist-config": 1.4.3
-    "@anansi/webpack-config": 16.0.2
+    "@anansi/webpack-config": 16.0.3
     "@data-client/endpoint": "workspace:^"
     "@data-client/graphql": "workspace:*"
     "@data-client/hooks": "workspace:*"
@@ -25817,7 +25817,7 @@ __metadata:
     benchmark: ^2.1.4
     conventional-changelog-anansi: ^0.2.0
     copyfiles: ^2.4.1
-    core-js: 3.32.2
+    core-js: 3.33.0
     coveralls: ^3.1.0
     cpy-cli: 5.0.0
     cross-fetch: ^4.0.0
