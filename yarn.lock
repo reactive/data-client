@@ -4624,27 +4624,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@monaco-editor/loader@npm:^1.3.3":
-  version: 1.3.3
-  resolution: "@monaco-editor/loader@npm:1.3.3"
+"@monaco-editor/loader@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "@monaco-editor/loader@npm:1.4.0"
   dependencies:
     state-local: ^1.0.6
   peerDependencies:
     monaco-editor: ">= 0.21.0 < 1"
-  checksum: 037dd4758651cb623482398fba884c0ddec1ed40502185f1fa417e54f47485291e236eb13bcdffb7bca292edd97ca8e3c51c2c3505e17a3184f4c6d11016fcac
+  checksum: 374ec0ea872ee15b33310e105a43217148161480d3955c5cece87d0f801754cd2c45a3f6c539a75da18a066c1615756fb87eaf1003f1df6a64a0cbce5d2c3749
   languageName: node
   linkType: hard
 
 "@monaco-editor/react@npm:^4.4.6":
-  version: 4.5.2
-  resolution: "@monaco-editor/react@npm:4.5.2"
+  version: 4.6.0
+  resolution: "@monaco-editor/react@npm:4.6.0"
   dependencies:
-    "@monaco-editor/loader": ^1.3.3
+    "@monaco-editor/loader": ^1.4.0
   peerDependencies:
     monaco-editor: ">= 0.25.0 < 1"
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-  checksum: b739b9012729daaa2acc6bccc100cc6e96770b4a5d3779360775b7c69e9b7a333152d639e554e28395302c5c914ad692951a930ffdb2f21916f3cdbe487916c2
+  checksum: 9d44e76c5baad6db5f84c90a5540fbd3c9af691b97d76cf2a99b3c8273004d0efe44c2572d80e9d975c9af10022c21e4a66923924950a5201e82017c8b20428c
   languageName: node
   linkType: hard
 
@@ -6868,10 +6868,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:20.8.2, @types/node@npm:^20.0.0":
-  version: 20.8.2
-  resolution: "@types/node@npm:20.8.2"
-  checksum: 3da73e25d821bfcdb7de98589027e08bb4848e55408671c4a83ec0341e124b5313a0b20e1e4b4eff1168ea17a86f622ad73fcb04b761abd77496b9a27cbd5de5
+"@types/node@npm:*, @types/node@npm:20.8.3, @types/node@npm:^20.0.0":
+  version: 20.8.3
+  resolution: "@types/node@npm:20.8.3"
+  checksum: bfb88b341faeb19f8fd37306a3bf433721b876c6491d10fcb0b13fd26601fa36ee45113dd82b1e1c23e3c957dff5b99f81a16493cefa03abe797e41a2487a4f7
   languageName: node
   linkType: hard
 
@@ -6897,9 +6897,9 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:^18.15.11":
-  version: 18.18.3
-  resolution: "@types/node@npm:18.18.3"
-  checksum: ed97a832179e0cfbb93738021fe16d0bc5c0f34bea35269c23c9dd5f0ecc8be93dbe5efd51630189a099b31786a47c1bde115508831a7245613a55c3ad1a7d6b
+  version: 18.18.4
+  resolution: "@types/node@npm:18.18.4"
+  checksum: 4901e91c4cc479bb58acbcd79236a97a0ad6db4a53cb1f4ba4cf32af15324c61b16faa6e31c1b09bf538a20feb5f5274239157ce5237f5741db0b9ab71e69c52
   languageName: node
   linkType: hard
 
@@ -6962,11 +6962,11 @@ __metadata:
   linkType: hard
 
 "@types/react-dom@npm:*, @types/react-dom@npm:^18.0.0, @types/react-dom@npm:^18.0.11, @types/react-dom@npm:^18.2.7":
-  version: 18.2.10
-  resolution: "@types/react-dom@npm:18.2.10"
+  version: 18.2.11
+  resolution: "@types/react-dom@npm:18.2.11"
   dependencies:
     "@types/react": "*"
-  checksum: ced70643d82dd9d165cd6d1a98ec7556daf77d8fdec1ed19badb744a2a2370a84cc109248667536d7f850409e85432c300ec9f8c87d46e066ad295ddf9b6ab03
+  checksum: 70dbdd2f8836a797ab8a3771c773f51023aab187d4d88ed3733bb3f2cbc2146057788a0095a03637101aeab9a48fce0ea369f96a35fc07e785ef53b8ab870885
   languageName: node
   linkType: hard
 
@@ -7140,9 +7140,9 @@ __metadata:
   linkType: hard
 
 "@types/uuid@npm:^9":
-  version: 9.0.4
-  resolution: "@types/uuid@npm:9.0.4"
-  checksum: 356e2504456eaebbc43a5af5ca6c07d71f5ae5520b5767cb1c62cd0ec55475fc4ee3d16a2874f4a5fce78e40e8583025afd3a7d9ba41f82939de310665f53f0e
+  version: 9.0.5
+  resolution: "@types/uuid@npm:9.0.5"
+  checksum: 7577940949619768303c0bf0a7cc235fac3cfae1c0bb4a2e85bfb87b2eb1024955ab446f775394d259442cd769b663b6ce43c39bdfc955d946bf833804ddb421
   languageName: node
   linkType: hard
 
@@ -20333,10 +20333,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"monaco-editor@npm:^0.43.0":
-  version: 0.43.0
-  resolution: "monaco-editor@npm:0.43.0"
-  checksum: eaebd9241f4fc2476d7eaf5f15fafc6c273675bba717bda5197576990d2b6a7189e282afe927e76cd46e60dfa8263eed6367c41b7ae8cea293b7d592e777cf52
+"monaco-editor@npm:^0.44.0":
+  version: 0.44.0
+  resolution: "monaco-editor@npm:0.44.0"
+  checksum: 6e561b23e5e9090cbdbb820dae5895a8bf9d537acc09281756a8c428960da0481461c72f387cc9a2e14bff69ab4359186c98df2dd29d6d109f1ab7189b573a35
   languageName: node
   linkType: hard
 
@@ -24247,7 +24247,7 @@ __metadata:
     bignumber.js: 9.1.2
     classnames: ^2.3.2
     clsx: 1.2.1
-    monaco-editor: ^0.43.0
+    monaco-editor: ^0.44.0
     parse-numeric-range: ^1.3.0
     raw-loader: ^4.0.2
     react: ^18.2.0
@@ -25809,7 +25809,7 @@ __metadata:
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/react-native": 12.3.0
     "@types/jest": 29.5.5
-    "@types/node": 20.8.2
+    "@types/node": 20.8.3
     "@types/react": 18.2.25
     "@typescript-eslint/eslint-plugin": 6.7.2
     "@typescript-eslint/parser": 6.7.2
