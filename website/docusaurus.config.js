@@ -273,6 +273,14 @@ module.exports = {
               '/docs/api/makeCacheProvider',
             ],
           },
+          {
+            to: '/rest/guides/partial-entities',
+            from: ['/rest/guides/summary-list'],
+          },
+          {
+            to: '/docs/getting-started/resource',
+            from: ['/docs/getting-started/endpoint'],
+          },
         ],
       },
     ],

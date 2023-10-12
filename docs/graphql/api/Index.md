@@ -1,6 +1,6 @@
 ---
 title: Index
-slug: Index
+slug: IndexEndpoint
 ---
 
 ```typescript
