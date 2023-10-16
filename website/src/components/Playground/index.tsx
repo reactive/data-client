@@ -21,6 +21,7 @@ type LiveProviderProps = {
   noInline?: boolean;
   scope?: Record<string, unknown>;
   theme?: PrismTheme;
+  next?: boolean;
   transformCode?(code: string): void;
 };
 
@@ -30,6 +31,7 @@ export default function Playground<T>({
   groupId,
   defaultOpen,
   row,
+  next,
   hidden,
   fixtures,
   includeEndpoints,
@@ -61,6 +63,7 @@ export default function Playground<T>({
           <PlaygroundContent
             reverse={playgroundPosition === 'top'}
             row={row}
+            next={next}
             fixtures={fixtures}
             includeEndpoints={includeEndpoints}
             groupId={groupId}
@@ -84,6 +87,7 @@ function PlaygroundContent<T>({
   reverse,
   children,
   row,
+  next,
   fixtures,
   includeEndpoints,
   groupId,
@@ -135,6 +139,7 @@ function PlaygroundContent<T>({
             row,
             fixtures,
             getInitialInterceptorData,
+            next,
           }}
         />
       </Boundary>
@@ -145,6 +150,7 @@ interface ContentProps<T = any> {
   groupId: string;
   defaultOpen: 'y' | 'n';
   row: boolean;
+  next?: boolean;
   fixtures: (Fixture | Interceptor<T>)[];
   children: React.ReactNode;
   reverse?: boolean;

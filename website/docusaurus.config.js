@@ -11,8 +11,8 @@ module.exports = {
   tagline: 'Async State Management for React',
   url: 'https://resthooks.io',
   baseUrl: '/',
-  organizationName: 'data-client',
-  projectName: 'rest-hooks',
+  organizationName: 'reactive',
+  projectName: 'data-client',
   trailingSlash: false,
   markdown: {
     mermaid: true,
@@ -104,7 +104,7 @@ module.exports = {
   favicon: 'img/favicon/favicon.ico',
   themes: ['@docusaurus/theme-live-codeblock', '@docusaurus/theme-mermaid'],
   customFields: {
-    repoUrl: 'https://github.com/data-client/rest-hooks',
+    repoUrl: 'https://github.com/reactive/data-client',
   },
   onBrokenLinks: 'log',
   onBrokenMarkdownLinks: 'log',
@@ -127,7 +127,7 @@ module.exports = {
             // We want users to submit doc updates to the upstream/next version!
             // Otherwise we risk losing the update on the next release.
             const nextVersionDocsDirPath = 'docs';
-            return `https://github.com/data-client/rest-hooks/edit/master/${nextVersionDocsDirPath}/${docPath}`;
+            return `https://github.com/reactive/data-client/edit/rest-hooks-site/${nextVersionDocsDirPath}/${docPath}`;
           },
           lastVersion: 'current',
           includeCurrentVersion: true,
@@ -171,7 +171,7 @@ module.exports = {
           // We want users to submit doc updates to the upstream/next version!
           // Otherwise we risk losing the update on the next release.
           const nextVersionDocsDirPath = 'docs/rest';
-          return `https://github.com/data-client/rest-hooks/edit/master/${nextVersionDocsDirPath}/${docPath}`;
+          return `https://github.com/reactive/data-client/edit/rest-hooks-site/${nextVersionDocsDirPath}/${docPath}`;
         },
         lastVersion: 'current',
         includeCurrentVersion: true,
@@ -200,7 +200,7 @@ module.exports = {
           // We want users to submit doc updates to the upstream/next version!
           // Otherwise we risk losing the update on the next release.
           const nextVersionDocsDirPath = 'docs/graphql';
-          return `https://github.com/data-client/rest-hooks/edit/master/${nextVersionDocsDirPath}/${docPath}`;
+          return `https://github.com/reactive/data-client/edit/rest-hooks-site/${nextVersionDocsDirPath}/${docPath}`;
         },
         lastVersion: 'current',
         includeCurrentVersion: true,
@@ -359,10 +359,10 @@ module.exports = {
       // Open Graph and Twitter card images.
       ogImage: 'img/rest_hooks_logo.png',
       twitterImage: 'img/rest_hooks_logo.png',
-      announcementBar: {
-        id: 'announcementBar-2', // Increment on change
-        content: `If you like Rest Hooks, give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/data-client/rest-hooks">GitHub</a>`,
-      },
+      // announcementBar: {
+      //   id: 'announcementBar-4', // Increment on change
+      //   content: `Rest Hooks is now <a target="_blank" rel="noopener" href="https://dataclient.io">Reactive Data Client</a>.`,
+      // },
       navbar: {
         title: 'Rest Hooks',
         logo: {
@@ -496,19 +496,19 @@ module.exports = {
               },
               {
                 label: 'Github',
-                to: 'https://github.com/data-client/rest-hooks',
+                to: 'https://github.com/reactive/data-client',
               },
               {
                 label: 'Demo (Github)',
-                to: 'https://stackblitz.com/github/data-client/rest-hooks/tree/rest-hooks-site/examples/github-app?file=src%2Fpages%2FIssueList.tsx',
+                to: 'https://stackblitz.com/github/reactive/data-client/tree/rest-hooks-site/examples/github-app?file=src%2Fpages%2FIssueList.tsx',
               },
               {
                 label: 'Demo (Todo)',
-                to: 'https://stackblitz.com/github/data-client/rest-hooks/tree/rest-hooks-site/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx',
+                to: 'https://stackblitz.com/github/reactive/data-client/tree/rest-hooks-site/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx',
               },
               {
                 label: 'Demo (NextJS)',
-                to: 'https://stackblitz.com/github/data-client/rest-hooks/tree/rest-hooks-site/examples/nextjs?file=pages%2FAssetPrice.tsx',
+                to: 'https://stackblitz.com/github/reactive/data-client/tree/rest-hooks-site/examples/nextjs?file=pages%2FAssetPrice.tsx',
               },
               /*{
               html: `<iframe

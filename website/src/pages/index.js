@@ -49,15 +49,6 @@ function HomepageHeader() {
           <Link className="button button--info" to="/docs">
             Introduction
           </Link>
-          <span className={styles.GitHubButtonWrapper}>
-            <iframe
-              className={styles.GitHubButton}
-              src="https://ghbtns.com/github-btn.html?user=data-client&amp;repo=rest-hooks&amp;type=star&amp;count=true&amp;size=large"
-              width={160}
-              height={30}
-              title="GitHub Stars"
-            />
-          </span>
         </div>
       </div>
     </header>

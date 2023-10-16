@@ -9,6 +9,7 @@ const HooksPlayground = ({
   hidden = false,
   defaultOpen,
   row = false,
+  next = false,
   fixtures,
   getInitialInterceptorData,
 }: PlaygroundProps) => (
@@ -18,6 +19,7 @@ const HooksPlayground = ({
     groupId={groupId}
     defaultOpen={defaultOpen}
     row={row}
+    next={next}
     hidden={hidden}
     fixtures={fixtures}
     getInitialInterceptorData={getInitialInterceptorData}
@@ -42,6 +44,7 @@ interface PlaygroundProps<T = any> {
   groupId: string;
   defaultOpen: 'y' | 'n';
   row: boolean;
+  next?: boolean;
   hidden: boolean;
   fixtures: (Fixture | Interceptor<T>)[];
   getInitialInterceptorData?: () => T;

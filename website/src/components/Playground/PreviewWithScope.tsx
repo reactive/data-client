@@ -1,7 +1,9 @@
 import * as graphql from '@rest-hooks/graphql';
 import * as hooks from '@rest-hooks/hooks';
 import * as rhReact from '@rest-hooks/react';
+import * as rhReactNext from '@rest-hooks/react/next';
 import * as rest from '@rest-hooks/rest';
+import * as restNext from '@rest-hooks/rest/next';
 import type { Fixture, Interceptor } from '@rest-hooks/test';
 import BigNumber from 'bignumber.js';
 import React from 'react';
@@ -80,6 +82,11 @@ const scope = {
   ResetableErrorBoundary,
   ...designSystem,
 };
+const scopeWithNext = {
+  ...scope,
+  ...restNext,
+  ...rhReactNext,
+};
 const scopeWithEndpoint = {
   ...scope,
   lastUpdated,
@@ -92,9 +99,11 @@ const scopeWithEndpoint = {
 export default function PreviewWithScope<T>({
   code,
   includeEndpoints,
+  next,
   ...props
 }: {
   code: string;
+  next: boolean;
   includeEndpoints: boolean;
   groupId: string;
   defaultOpen: 'y' | 'n';
@@ -109,7 +118,9 @@ export default function PreviewWithScope<T>({
       transformCode={transformCode}
       enableTypeScript={true}
       noInline
-      scope={includeEndpoints ? scopeWithEndpoint : scope}
+      scope={
+        next ? scopeWithNext : includeEndpoints ? scopeWithEndpoint : scope
+      }
     >
       <PreviewWithHeader key="preview" {...props} />
     </LiveProvider>
