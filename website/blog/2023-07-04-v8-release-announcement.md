@@ -1,0 +1,266 @@
+---
+title: v0.2 Controller.fetch, async getHeaders, Collections
+authors: [ntucker]
+tags: [releases, packages, rest, resource, endpoint, collections]
+---
+
+import HooksPlayground from '@site/src/components/HooksPlayground';
+import { todoFixtures } from '@site/src/fixtures/todos';
+
+[Collections](/rest/api/Collection) enable Arrays and Objects to be easily
+extended by [pushing](/rest/api/Collection#push) or [unshifting](/rest/api/Collection#unshift) new
+members. The namesake comes from [Backbone Collections](https://backbonejs.org/#Collection).
+
+[Collections](/rest/api/Collection) are now the default schema for [Resource.getList](/rest/api/createResource#getlist).
+
+<HooksPlayground defaultOpen="n" row fixtures={todoFixtures}>
+
+```ts title="TodoResource" collapsed
+import { Entity } from '@data-client/rest';
+import { createResource } from '@data-client/rest';
+
+export class Todo extends Entity {
+  id = 0;
+  userId = 0;
+  title = '';
+  completed = false;
+  pk() {
+    return `${this.id}`;
+  }
+  static key = 'Todo';
+}
+export const TodoResource = createResource({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos/:id',
+  searchParams: {} as { userId?: string | number } | undefined,
+  schema: Todo,
+  optimistic: true,
+});
+```
+
+```tsx title="TodoItem" {7-11,13-15} collapsed
+import { useController } from '@data-client/react';
+import { TodoResource, type Todo } from './TodoResource';
+
+export default function TodoItem({ todo }: { todo: Todo }) {
+  const ctrl = useController();
+  const handleChange = e =>
+    ctrl.fetch(
+      TodoResource.partialUpdate,
+      { id: todo.id },
+      { completed: e.currentTarget.checked },
+    );
+  const handleDelete = () =>
+    ctrl.fetch(TodoResource.delete, {
+      id: todo.id,
+    });
+  return (
+    <div className="listItem nogap">
+      <label>
+        <input
+          type="checkbox"
+          checked={todo.completed}
+          onChange={handleChange}
+        />
+        {todo.completed ? <strike>{todo.title}</strike> : todo.title}
+      </label>
+      <CancelButton onClick={handleDelete} />
+    </div>
+  );
+}
+```
+
+```tsx title="CreateTodo" {8-12}
+import { useController } from '@data-client/react';
+import { TodoResource } from './TodoResource';
+
+export default function CreateTodo({ userId }: { userId: number }) {
+  const ctrl = useController();
+  const handleKeyDown = async e => {
+    if (e.key === 'Enter') {
+      ctrl.fetch(TodoResource.getList.push, {
+        userId,
+        title: e.currentTarget.value,
+        id: Math.random(),
+      });
+      e.currentTarget.value = '';
+    }
+  };
+  return (
+    <div className="listItem nogap">
+      <label>
+        <input type="checkbox" name="new" checked={false} disabled />
+        <input type="text" onKeyDown={handleKeyDown} />
+      </label>
+    </div>
+  );
+}
+```
+
+```tsx title="TodoList" collapsed
+import { useSuspense } from '@data-client/react';
+import { TodoResource } from './TodoResource';
+import TodoItem from './TodoItem';
+import CreateTodo from './CreateTodo';
+
+function TodoList() {
+  const userId = 1;
+  const todos = useSuspense(TodoResource.getList, { userId });
+  return (
+    <div>
+      {todos.map(todo => (
+        <TodoItem key={todo.pk()} todo={todo} />
+      ))}
+      <CreateTodo userId={userId} />
+    </div>
+  );
+}
+render(<TodoList />);
+```
+
+</HooksPlayground>
+
+Upgrading is quite simple, as `@data-client/rest/next` and `@data-client/react/next` were introduced
+to allow incremental adoption of the new APIs changed in this release. This makes the actual upgrade a simple import
+rename.
+
+Other highlights include
+
+- `@data-client/rest`
+  - [async RestEndpoint.getHeaders](https://github.com/reactive/data-client/pull/2542)
+- `@data-client/react`
+  - [Controller.fetch() return value is denormalized from schema](https://github.com/reactive/data-client/pull/2545)
+  - [Manager action type updates](https://github.com/reactive/data-client/pull/2690)
+
+For all details, [keep reading](/blog/2023/07/04/v8-release-announcement#data-clientreact-02):
+
+<!--truncate-->
+
+import PkgInstall from '@site/src/components/PkgInstall';
+
+### @data-client/react 0.2
+
+https://github.com/reactive/data-client/releases/tag/%40data-client%2Freact%400.2.0
+
+Upgrading can be done gradually as all changes were initially released in `/next`.
+
+1. Incrementally move to new versions by importing from `/next`
+
+   ```ts
+   import { useController } from '@data-client/react/next';
+   ```
+
+2. Upgrade to v0.2 - v0.4 (all compatible).
+
+   <PkgInstall pkgs="@data-client/rest@0.4.3" />
+
+3. Imports can be updated incrementally after upgrade. `/next` exports the same as top-level.
+
+   ```ts
+   import { useController } from '@data-client/rest';
+   ```
+
+#### Changes
+
+- **Controller.fetch()**: [2545](https://github.com/reactive/data-client/pull/2545) Controller.fetch() returns denormalized form when Endpoint has a Schema
+  ```ts
+  const handleChange = async e => {
+    const todo = await ctrl.fetch(
+      TodoResource.partialUpdate,
+      { id: todo.id },
+      { completed: e.currentTarget.checked },
+    );
+    // todo is Todo, we can use all its members and be type-safe
+    console.log(todo.pk(), todo.title);
+  };
+  ```
+
+- **NetworkManager**: NetworkManager interface changed to only support new actions [2690](https://github.com/reactive/data-client/pull/2690)
+- **SubscriptionManager/PollingSubscription** interfaces simplified based on new actions [2690](https://github.com/reactive/data-client/pull/2690)
+
+#### Removals of deprecated items
+
+- [2691](https://github.com/reactive/data-client/pull/2691): Remove DispatchContext, DenormalizeCacheContext
+
+#### Deprecations
+
+- controller.receive, controller.receiveError [2690](https://github.com/reactive/data-client/pull/2690)
+- RECEIVE_TYPE [2690](https://github.com/reactive/data-client/pull/2690)
+- MiddlewareAPI.controller (MiddlewareAPI is just controller itself) [2690](https://github.com/reactive/data-client/pull/2690)
+  - `({controller}) => {}` -> `(controller) => {}`
+
+### @data-client/rest 0.2
+
+https://github.com/reactive/data-client/releases/tag/%40data-client%2Frest%400.2.0
+
+Upgrading can be done gradually as all changes were initially released in `/next`.
+
+1. Incrementally [move to new versions](https://github.com/reactive/data-client/pull/2606/files) by importing from `/next`
+
+   ```ts
+   import {
+     RestEndpoint,
+     createResource,
+     GetEndpoint,
+     MutateEndpoint,
+   } from '@data-client/rest/next';
+   ```
+
+   See the [migrations](https://github.com/reactive/data-client/pull/2606/files) of the /examples directory as an example
+
+2. Upgrade to v0.2-0.7 (all compatible).
+
+   <PkgInstall pkgs="@data-client/rest@0.7.6" />
+
+3. Imports can be updated incrementally after upgrade. `/next` exports the same as top-level.
+
+   ```ts
+   import { RestEndpoint, createResource } from '@data-client/rest';
+   ```
+
+#### Changes
+
+- RestEndpoint's getRequestInit and getHeaders optionally return a promise [2542](https://github.com/reactive/data-client/pull/2542)
+
+  ```ts
+  import { RestEndpoint } from '@data-client/rest/next';
+
+  export default class AuthdEndpoint<
+    O extends RestGenerics = any,
+  > extends RestEndpoint<O> {
+    declare static accessToken?: string;
+
+    async getHeaders(headers: HeadersInit) {
+      return {
+        ...headers,
+        'Access-Token': await getOrFetchToken(),
+      } as HeadersInit;
+    }
+  }
+
+  export const TodoResource = createResource({
+    urlPrefix: 'https://jsonplaceholder.typicode.com',
+    path: '/todos/:id',
+    schema: Todo,
+    Endpoint: AuthdEndpoint,
+  });
+  ```
+
+- createResource().getList uses a Collection, which .create appends to [2593](https://github.com/reactive/data-client/pull/2593)
+  - `Resource.create` will automatically add to the list
+    - `Resource.getList.push` is identical to `Resource.create`
+  - **Remove** any `Endpoint.update` as it is not necessary and will not work
+- `GetEndpoint` and `MutateEndpoint` parameters changed to what `NewGetEndpoint`, `NewMutateEndpoint` was.
+- createResource() generics changed to `O extends ResourceGenerics` This allows customizing the Resource type with body and searchParams [2593](https://github.com/reactive/data-client/pull/2593)
+  - `createGithubResource<U extends string, S extends Schema>` -> `createGithubResource<O extends ResourceGenerics>`
+
+[Hoisting /next PR #2692](https://github.com/reactive/data-client/pull/2692)
+
+#### Removals of deprecated items
+
+- [2690](https://github.com/reactive/data-client/pull/2690): Removed deprecated `Endpoint.optimisticUpdate` -> use `Endpoint.getOptimisticResponse`
+- [2688](https://github.com/reactive/data-client/pull/2688) Remove `FetchShape` compatibility.
+
+### Upgrade support
+
+As usual, if you have any troubles or questions, feel free to join our [![Chat](https://img.shields.io/discord/768254430381735967.svg?style=flat-square&colorB=758ED3)](https://discord.gg/35nb8Mz) or [file a bug](https://github.com/reactive/data-client/issues/new/choose)

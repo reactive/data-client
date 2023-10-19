@@ -7,7 +7,7 @@ import { postPaginatedFixtures } from '@site/src/fixtures/posts';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
 <head>
-  <title>Paginating REST data</title>
+  <title>Pagination REST data with Reactive Data Client</title>
 </head>
 
 ## Expanding Lists
