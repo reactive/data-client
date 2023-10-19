@@ -1,5 +1,6 @@
 ---
-title: Pagination
+title: Rest Pagination
+sidebar_label: Pagination
 ---
 
 import StackBlitz from '@site/src/components/StackBlitz';
@@ -7,7 +8,7 @@ import { postPaginatedFixtures } from '@site/src/fixtures/posts';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
 <head>
-  <title>Pagination REST data with Reactive Data Client</title>
+  <title>Pagination of REST data with Reactive Data Client</title>
 </head>
 
 ## Expanding Lists
