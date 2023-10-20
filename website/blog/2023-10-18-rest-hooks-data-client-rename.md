@@ -11,11 +11,12 @@ import PkgTabs from '@site/src/components/PkgTabs';
 As previously [voted and discussed](https://github.com/reactive/data-client/discussions/2407) we are renaming
 this project to [Reactive Data Client](https://dataclient.io).
 
-Transitioning to the @data-client packages,
-
 https://twitter.com/dataclientio
 
 ### Compatibility
+
+This table outlines the equivalent [@data-client](https://dataclient.io) version. Transitions then
+become as simple as import renaming.
 
 | @rest-hooks/react                                                                         | @data-client/react | @rest-hooks/rest compatibility |
 | ----------------------------------------------------------------------------------------- | ------------------ | ------------------------------ |
