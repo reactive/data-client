@@ -122,6 +122,29 @@ render(<PricePage />);
 
 </HooksPlayground>
 
+### Deserializing Date
+
+In case you want to use legacy [Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date),
+you can turn the constructor into a function [schema](../api/schema.md).
+
+```ts
+export class ExchangePrice extends Entity {
+  exchangePair = '';
+  updatedAt = Temporal.Instant.fromEpochSeconds(0);
+  price = new BigNumber(0);
+  pk() {
+    return this.exchangePair;
+  }
+  static key = 'ExchangePrice';
+
+  static schema = {
+    // highlight-next-line
+    updatedAt: (iso) => new Date(iso),
+    price: BigNumber,
+  };
+}
+```
+
 ## Case of the missing `Id`
 
 You now want to interface with a great new streaming site called `mystreamsite.tv`. It has
