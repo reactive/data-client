@@ -195,7 +195,7 @@ workflows:
       - node_matrix:
           matrix:
             parameters:
-              node-version: ["14.21", "16.19"]
+              node-version: ["14.21", "16.19", "18.18"]
           requires:
             - setup
       - lint:
