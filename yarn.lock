@@ -6881,12 +6881,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:20.8.7, @types/node@npm:^20.0.0":
-  version: 20.8.7
-  resolution: "@types/node@npm:20.8.7"
+"@types/node@npm:*, @types/node@npm:20.8.8, @types/node@npm:^20.0.0":
+  version: 20.8.8
+  resolution: "@types/node@npm:20.8.8"
   dependencies:
     undici-types: ~5.25.1
-  checksum: 2173c0c03daefcb60c03a61b1371b28c8fe412e7a40dc6646458b809d14a85fbc7aeb369d957d57f0aaaafd99964e77436f29b3b579232d8f2b20c58abbd1d25
+  checksum: 028a9606e4ef594a4bc7b3310596499d7ce01b2e30f4d1d906ad8ec30c24cea7ec1b3dc181dd5df8d8d2bfe8de54bf3e28ae93be174b4c7d81c0db8326e4f35c
   languageName: node
   linkType: hard
 
@@ -7035,14 +7035,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:18.2.29, @types/react@npm:>=16, @types/react@npm:^18.0.30":
-  version: 18.2.29
-  resolution: "@types/react@npm:18.2.29"
+"@types/react@npm:*, @types/react@npm:18.2.31, @types/react@npm:>=16, @types/react@npm:^18.0.30":
+  version: 18.2.31
+  resolution: "@types/react@npm:18.2.31"
   dependencies:
     "@types/prop-types": "*"
     "@types/scheduler": "*"
     csstype: ^3.0.2
-  checksum: 3d09ac61a683fa976512a28ac175b9d823f0368adc5fb2abf53f64ab030e8ad866a201a8029f92ff48246c8e326f7517ebe165f976ecb412627c65c6f9a7c9d3
+  checksum: b11be8e39174d3303e308461400889e353e422d22b01d09795b2c35b7b99d5351716503d9ec5c58e4c2c871249603fa52840d45a34fb5901dd7a26e06129c716
   languageName: node
   linkType: hard
 
@@ -13456,7 +13456,7 @@ __metadata:
     "@js-temporal/polyfill": ^0.4.4
     "@types/babel__core": ^7
     "@types/benchmark": 2.1.4
-    "@types/react": 18.2.29
+    "@types/react": 18.2.31
     benchmark: ^2.1.4
     normalizr: ^3.6.2
     react: ^18.2.0
@@ -24262,7 +24262,7 @@ __metadata:
     "@js-temporal/polyfill": ^0.4.4
     "@monaco-editor/react": ^4.4.6
     "@tsconfig/docusaurus": ^2.0.0
-    "@types/react": 18.2.29
+    "@types/react": 18.2.31
     "@types/react-dom": ^18.2.7
     "@types/react-helmet": ^6.1.5
     "@types/react-router-dom": ^5.3.3
@@ -24536,15 +24536,15 @@ __metadata:
   linkType: hard
 
 "react-native-screens@npm:^3.18.2":
-  version: 3.26.0
-  resolution: "react-native-screens@npm:3.26.0"
+  version: 3.27.0
+  resolution: "react-native-screens@npm:3.27.0"
   dependencies:
     react-freeze: ^1.0.0
     warn-once: ^0.1.0
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 18750fb15e80d2c2e4eea9992d1f07f72298e1f65b5c7614196c539f2191bed853d5c09cfaad33f1c8be0ae5d3f70e90458d1e842954e1090957dd42a71084f5
+  checksum: 3a6f54bd755ba8c7909beb4888f96d159639221cbcdb56fccd460cd129ff9b144c7c20dc4c0b7eec23aa38698bbd0cf21bb9b6c99833e9d1399ee75da52f18ed
   languageName: node
   linkType: hard
 
@@ -25832,8 +25832,8 @@ __metadata:
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/react-native": 12.3.0
     "@types/jest": 29.5.5
-    "@types/node": 20.8.7
-    "@types/react": 18.2.29
+    "@types/node": 20.8.8
+    "@types/react": 18.2.31
     "@typescript-eslint/eslint-plugin": 6.7.5
     "@typescript-eslint/parser": 6.7.5
     babel-plugin-module-resolver: 5.0.0
