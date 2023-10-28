@@ -453,15 +453,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:16.0.4, @anansi/webpack-config@npm:^16.0.0":
-  version: 16.0.4
-  resolution: "@anansi/webpack-config@npm:16.0.4"
+"@anansi/webpack-config@npm:16.0.5, @anansi/webpack-config@npm:^16.0.0":
+  version: 16.0.5
+  resolution: "@anansi/webpack-config@npm:16.0.5"
   dependencies:
     "@babel/runtime": ^7.17.2
     "@linaria/webpack5-loader": 5.0.3
     "@pmmmwh/react-refresh-webpack-plugin": ^0.5.11
     "@svgr/webpack": ^8.1.0
-    "@types/webpack-bundle-analyzer": ^4.6.1
+    "@types/webpack-bundle-analyzer": ^4.6.2
     "@vue/preload-webpack-plugin": ^2.0.0
     assert: ^2.1.0
     autoprefixer: ^10.4.16
@@ -560,7 +560,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: d4b6d46a42d1d4457bd37925c242b123606276b248df297ddbe7f044c3c22ed85273a012b73140dc69736d823a2bcf7081719f1adea9c46720286cfe5f052289
+  checksum: 7c3048578b054f986eb59363f7bb62919138f87686ded780386adb3d8293fea099a5f104a01b502845ef129187c34db21d0bafd48078e15a1b9941d285989bae
   languageName: node
   linkType: hard
 
@@ -7171,14 +7171,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/webpack-bundle-analyzer@npm:^4.6.1":
-  version: 4.6.1
-  resolution: "@types/webpack-bundle-analyzer@npm:4.6.1"
+"@types/webpack-bundle-analyzer@npm:^4.6.2":
+  version: 4.6.2
+  resolution: "@types/webpack-bundle-analyzer@npm:4.6.2"
   dependencies:
     "@types/node": "*"
     tapable: ^2.2.0
     webpack: ^5
-  checksum: 7324dfb68cf399a2210d9e1ae5927655625f71e306b5cf2d8f583f12e6cb43e243e4b0e6ef53e3de9f685034ce767bc68ab49884e7e91c89609ec741c8e6ccf4
+  checksum: 2f798e0c6a4aac9da84f56c4600c8fafbac7cc2316b0a0b3e35cab46f5b0d045c29b8c9803c64f03756faa941ff7344920e16b45fe46a322ae3be52f4c8dee76
   languageName: node
   linkType: hard
 
@@ -10694,10 +10694,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:3.33.0, core-js@npm:^3.21.0, core-js@npm:^3.30.2, core-js@npm:^3.31.1, core-js@npm:^3.6.5":
-  version: 3.33.0
-  resolution: "core-js@npm:3.33.0"
-  checksum: dd62217935ac281faf6f833bb306fb891162919fcf9c1f0c975b1b91e82ac09a940f5deb5950bbb582739ceef716e8bd7e4f9eab8328932fb029d3bc2ecb2881
+"core-js@npm:3.33.1, core-js@npm:^3.21.0, core-js@npm:^3.30.2, core-js@npm:^3.31.1, core-js@npm:^3.6.5":
+  version: 3.33.1
+  resolution: "core-js@npm:3.33.1"
+  checksum: 3a95003b0e77995203587117f3bde7f4e96adf434b6b78033dbe60347ffe38b2bac31eafab6a4cc641e5766062846b52f336ab4553fc0902c278959af4778e53
   languageName: node
   linkType: hard
 
@@ -24275,7 +24275,7 @@ __metadata:
   resolution: "rdc-website@workspace:website"
   dependencies:
     "@anansi/browserslist-config": 1.4.3
-    "@anansi/webpack-config": 16.0.4
+    "@anansi/webpack-config": 16.0.5
     "@data-client/endpoint": "workspace:^"
     "@data-client/graphql": "workspace:*"
     "@data-client/hooks": "workspace:*"
@@ -25870,7 +25870,7 @@ __metadata:
     benchmark: ^2.1.4
     conventional-changelog-anansi: ^0.2.0
     copyfiles: ^2.4.1
-    core-js: 3.33.0
+    core-js: 3.33.1
     coveralls: ^3.1.0
     cpy-cli: 5.0.0
     cross-fetch: ^4.0.0
