@@ -266,10 +266,10 @@ __metadata:
   linkType: hard
 
 "@anansi/cli@npm:^3.0.15":
-  version: 3.0.19
-  resolution: "@anansi/cli@npm:3.0.19"
+  version: 3.1.0
+  resolution: "@anansi/cli@npm:3.1.0"
   dependencies:
-    "@anansi/generator-js": ^12.1.2
+    "@anansi/generator-js": ^12.1.3
     bin-version-check: ^5.1.0
     chalk: ^4.1.2
     commander: ^11.1.0
@@ -278,19 +278,19 @@ __metadata:
     latest-version: ^7.0.0
     yo: ^4.3.1
   peerDependencies:
-    "@anansi/core": ^0.13.0 || ^0.14.0 || ^0.15.0 || ^0.16.0
+    "@anansi/core": ^0.13.0 || ^0.14.0 || ^0.15.0 || ^0.16.0 || ^0.17.0 || ^0.18.0
   peerDependenciesMeta:
     "@anansi/core":
       optional: true
   bin:
     anansi: ./run.mjs
-  checksum: da6af6e57bffa7e2cf74b4d80f9a83a84575ab6e466e2a82d98595fbf06a18845563c91da9bfb2716af9fae8e585a41170c45e99bc6c09afc13011daea84f1e6
+  checksum: fb470d3793a5ea6f0fee9dbf0f5a8d8ee70111a972bf3ef4929ec1531c2b59b4ecff1347b29f965e1ffb17a08acd0d92627492c9db3c8a2ada34d746a3924d87
   languageName: node
   linkType: hard
 
 "@anansi/core@npm:^0.18.4":
-  version: 0.18.8
-  resolution: "@anansi/core@npm:0.18.8"
+  version: 0.18.9
+  resolution: "@anansi/core@npm:0.18.9"
   dependencies:
     "@anansi/router": ^0.9.1
     "@babel/runtime": ^7.17.0
@@ -337,7 +337,7 @@ __metadata:
   bin:
     serve-anansi: ./lib/scripts/serve.js
     start-anansi: ./lib/scripts/startDevserver.js
-  checksum: 9cb52be9ccac02713b7b5450c5514d9ba6aa224008c781bc8946b9064f6f9217f563f800d24c42cebf416bb9c45bde277d828c79720873241380b4137a277ed9
+  checksum: 7ec9ccca83932de51c9e6ad5776142f4556e498226055e98ce6bacaee8aaf0b0dbb472b1f289c4e62a94bda15a04a3dbf092d351c64a8c21311b9440f90daccc
   languageName: node
   linkType: hard
 
@@ -374,9 +374,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/generator-js@npm:^12.1.2":
-  version: 12.1.2
-  resolution: "@anansi/generator-js@npm:12.1.2"
+"@anansi/generator-js@npm:^12.1.3":
+  version: 12.1.3
+  resolution: "@anansi/generator-js@npm:12.1.3"
   dependencies:
     "@babel/runtime": ^7.17.0
     chalk: ^4.1.2
@@ -387,11 +387,11 @@ __metadata:
     gulp-prettier: ^5.0.0
     import-meta-resolve: ^3.0.0
     mem-fs: ^3.0.0
-    mem-fs-editor: ^10.0.2
+    mem-fs-editor: ^10.0.3
     pacote: ^17.0.4
     shelobsay: ^2.0.0
-    yeoman-generator: ^5.9.0
-  checksum: da50119288bc6a8d7eaea123af41af4c700ea348211e49752b756492443ea7deec921cd9eaef8156da4bd21645ddbed48c0cb8eb1e90d05e6d83336b35fc22a9
+    yeoman-generator: ^5.10.0
+  checksum: ef565333af934399400033c30fa4586ea4753afaae698fd0c3d3422ddfd868ca131c1a674b0d77065d8408385d055612d83d0b73b0ffcbb46969fc9a5b7df1d8
   languageName: node
   linkType: hard
 
@@ -6881,12 +6881,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:20.8.8, @types/node@npm:^20.0.0":
-  version: 20.8.8
-  resolution: "@types/node@npm:20.8.8"
+"@types/node@npm:*, @types/node@npm:20.8.9, @types/node@npm:^20.0.0":
+  version: 20.8.9
+  resolution: "@types/node@npm:20.8.9"
   dependencies:
-    undici-types: ~5.25.1
-  checksum: 028a9606e4ef594a4bc7b3310596499d7ce01b2e30f4d1d906ad8ec30c24cea7ec1b3dc181dd5df8d8d2bfe8de54bf3e28ae93be174b4c7d81c0db8326e4f35c
+    undici-types: ~5.26.4
+  checksum: 0c05f3502a9507ff27e91dd6fd574fa6f391b3fafedcfe8e0c8d33351fb22d02c0121f854e5b6b3ecb9a8a468407ddf6e7ac0029fb236d4c7e1361ffc758a01f
   languageName: node
   linkType: hard
 
@@ -6912,9 +6912,11 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:^18.15.11":
-  version: 18.18.6
-  resolution: "@types/node@npm:18.18.6"
-  checksum: a847639b8455fd3dfa6dbc2917274c82c9db789f1d41aaf69f94ac6c9e54c3c1dd29be6e1e1ccd7c17e54db3d78d7011bc4e70544c6447ceca253dccc0a187e1
+  version: 18.18.7
+  resolution: "@types/node@npm:18.18.7"
+  dependencies:
+    undici-types: ~5.26.4
+  checksum: 972f8b214f961b6c8d99f84aab8bfadc656bb71fc7ad4a543ad3405286c95f27385ee0c3844f88d612f3cf225cd4d49ce8a7d9aea05a2aba9b2524ac525040aa
   languageName: node
   linkType: hard
 
@@ -7035,14 +7037,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:18.2.31, @types/react@npm:>=16, @types/react@npm:^18.0.30":
-  version: 18.2.31
-  resolution: "@types/react@npm:18.2.31"
+"@types/react@npm:*, @types/react@npm:18.2.33, @types/react@npm:>=16, @types/react@npm:^18.0.30":
+  version: 18.2.33
+  resolution: "@types/react@npm:18.2.33"
   dependencies:
     "@types/prop-types": "*"
     "@types/scheduler": "*"
     csstype: ^3.0.2
-  checksum: b11be8e39174d3303e308461400889e353e422d22b01d09795b2c35b7b99d5351716503d9ec5c58e4c2c871249603fa52840d45a34fb5901dd7a26e06129c716
+  checksum: 75903c4d53898c69dd23d0b2730eac4676dc5ade15c25c793dec855f0d7c650cb823832bb1dd881efe8895724f15b06d4bf7081ea0b82391aa3059512ad49ccf
   languageName: node
   linkType: hard
 
@@ -13477,7 +13479,7 @@ __metadata:
     "@js-temporal/polyfill": ^0.4.4
     "@types/babel__core": ^7
     "@types/benchmark": 2.1.4
-    "@types/react": 18.2.31
+    "@types/react": 18.2.33
     benchmark: ^2.1.4
     normalizr: ^3.6.2
     react: ^18.2.0
@@ -18998,9 +19000,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mem-fs-editor@npm:^10.0.2":
-  version: 10.0.2
-  resolution: "mem-fs-editor@npm:10.0.2"
+"mem-fs-editor@npm:^10.0.3":
+  version: 10.0.3
+  resolution: "mem-fs-editor@npm:10.0.3"
   dependencies:
     "@types/ejs": ^3.1.2
     binaryextensions: ^4.16.0
@@ -19015,7 +19017,7 @@ __metadata:
     normalize-path: ^3.0.0
     textextensions: ^5.13.0
     vinyl: ^3.0.0
-  checksum: 27e4c24184c869d294bed701040ba9cb06da5e26714b87cf71bb96fccbd22b0c03d6ac68f0cb4afb1e1965005b53d1ecbc8bf848b55cd1739a54e82543311137
+  checksum: 7af4c12545f5976913392a49328b8ac69894fc580a7cd2b297b44a5829ad680ff5a0cf8449cabd7dfdf17f75deb2360ec9a7a83f112121b001c1b3eff77b0614
   languageName: node
   linkType: hard
 
@@ -24292,7 +24294,7 @@ __metadata:
     "@js-temporal/polyfill": ^0.4.4
     "@monaco-editor/react": ^4.4.6
     "@tsconfig/docusaurus": ^2.0.0
-    "@types/react": 18.2.31
+    "@types/react": 18.2.33
     "@types/react-dom": ^18.2.7
     "@types/react-helmet": ^6.1.5
     "@types/react-router-dom": ^5.3.3
@@ -24556,12 +24558,12 @@ __metadata:
   linkType: hard
 
 "react-native-safe-area-context@npm:^4.4.1":
-  version: 4.7.3
-  resolution: "react-native-safe-area-context@npm:4.7.3"
+  version: 4.7.4
+  resolution: "react-native-safe-area-context@npm:4.7.4"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 1cc304216f4bb18a3f883aca029751e190ef5b7b61756a2bf1424114c140bf8d9f6e149f2a16a2cfa7c4c255c3537a185d44b37ebf62d57e01ef9b024b24c9a6
+  checksum: c8553ca1b5972bb7180657574e8d9a9512b571724484f657e4f9bf269e60777fe623bd525082140c638904974981a59abd8e968595f4a000e16098faa41aeaf6
   languageName: node
   linkType: hard
 
@@ -25862,8 +25864,8 @@ __metadata:
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/react-native": 12.3.1
     "@types/jest": 29.5.6
-    "@types/node": 20.8.8
-    "@types/react": 18.2.31
+    "@types/node": 20.8.9
+    "@types/react": 18.2.33
     "@typescript-eslint/eslint-plugin": 6.9.0
     "@typescript-eslint/parser": 6.9.0
     babel-plugin-module-resolver: 5.0.0
@@ -28569,10 +28571,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici-types@npm:~5.25.1":
-  version: 5.25.3
-  resolution: "undici-types@npm:5.25.3"
-  checksum: ec9d2cc36520cbd9fbe3b3b6c682a87fe5be214699e1f57d1e3d9a2cb5be422e62735f06e0067dc325fd3dd7404c697e4d479f9147dc8a804e049e29f357f2ff
+"undici-types@npm:~5.26.4":
+  version: 5.26.5
+  resolution: "undici-types@npm:5.26.5"
+  checksum: 3192ef6f3fd5df652f2dc1cd782b49d6ff14dc98e5dced492aa8a8c65425227da5da6aafe22523c67f035a272c599bb89cfe803c1db6311e44bed3042fc25487
   languageName: node
   linkType: hard
 
@@ -30284,9 +30286,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yeoman-generator@npm:^5.9.0":
-  version: 5.9.0
-  resolution: "yeoman-generator@npm:5.9.0"
+"yeoman-generator@npm:^5.10.0":
+  version: 5.10.0
+  resolution: "yeoman-generator@npm:5.10.0"
   dependencies:
     chalk: ^4.1.0
     dargs: ^7.0.0
@@ -30308,7 +30310,7 @@ __metadata:
   peerDependenciesMeta:
     yeoman-environment:
       optional: true
-  checksum: f9e76e21af33acf9b8421f889fccac45e6f335f7a3b8d6741f5efc0eb2f950e9e04a5cbb20897e0084fd8a52a4a12a8221200b1bd40b948c94e1f32204019fed
+  checksum: 73ffc1fb0390e3b528283585763b67cf9a1cbec8445ab47076e3165ae469f1e264601c8e62a8167a6c7b5defddd6e0eb4fe0c8d55ea589d827821bbf92edbd15
   languageName: node
   linkType: hard
 
