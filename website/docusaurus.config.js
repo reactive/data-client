@@ -400,7 +400,7 @@ module.exports = {
             dropdownItemsBefore: [
               {
                 label: 'Upgrade Guide',
-                to: 'docs/upgrade/upgrading-to-7',
+                to: 'docs/upgrade/upgrading-to-8',
               },
             ],
           },

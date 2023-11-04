@@ -1,147 +1,10 @@
 ---
-title: v8 Controller.fetch, async getHeaders, Collections
-authors: [ntucker]
-tags: [releases, rest-hooks, packages, rest, resource, endpoint, collections]
+title: Upgrading from 7 to 8
 ---
-
-import HooksPlayground from '@site/src/components/HooksPlayground';
-import { todoFixtures } from '@site/src/fixtures/todos';
-
-[Collections](/rest/api/Collection) enable Arrays and Objects to be easily
-extended by [pushing](/rest/api/Collection#push) or [unshifting](/rest/api/Collection#unshift) new
-members. The namesake comes from [Backbone Collections](https://backbonejs.org/#Collection).
-
-[Collections](/rest/api/Collection) were first [introduced](https://github.com/reactive/data-client/pull/2593) in [@rest-hooks/rest@6.6](https://github.com/reactive/data-client/releases/tag/%40rest-hooks%2Frest%406.6.0). [@rest-hooks/rest@7](/blog/2023/07/04/v8-release-announcement#rest-hooksrest-70) takes this
-one step further, but using them in [Resource.getList](/rest/api/createResource#getlist).
-
-<HooksPlayground defaultOpen="n" fixtures={todoFixtures} next>
-
-```ts title="TodoResource" collapsed
-import { Entity } from '@rest-hooks/rest';
-import { createResource } from '@rest-hooks/rest/next';
-
-export class Todo extends Entity {
-  id = 0;
-  userId = 0;
-  title = '';
-  completed = false;
-  pk() {
-    return `${this.id}`;
-  }
-  static key = 'Todo';
-}
-export const TodoResource = createResource({
-  urlPrefix: 'https://jsonplaceholder.typicode.com',
-  path: '/todos/:id',
-  searchParams: {} as { userId?: string | number } | undefined,
-  schema: Todo,
-  optimistic: true,
-});
-```
-
-```tsx title="TodoItem" {7-11,13-15} collapsed
-import { useController } from '@rest-hooks/react/next';
-import { TodoResource, type Todo } from './TodoResource';
-
-export default function TodoItem({ todo }: { todo: Todo }) {
-  const ctrl = useController();
-  const handleChange = e =>
-    ctrl.fetch(
-      TodoResource.partialUpdate,
-      { id: todo.id },
-      { completed: e.currentTarget.checked },
-    );
-  const handleDelete = () =>
-    ctrl.fetch(TodoResource.delete, {
-      id: todo.id,
-    });
-  return (
-    <div className="listItem nogap">
-      <label>
-        <input
-          type="checkbox"
-          checked={todo.completed}
-          onChange={handleChange}
-        />
-        {todo.completed ? <strike>{todo.title}</strike> : todo.title}
-      </label>
-      <CancelButton onClick={handleDelete} />
-    </div>
-  );
-}
-```
-
-```tsx title="CreateTodo" {8-12}
-import { useController } from '@rest-hooks/react/next';
-import { TodoResource } from './TodoResource';
-
-export default function CreateTodo({ userId }: { userId: number }) {
-  const ctrl = useController();
-  const handleKeyDown = async e => {
-    if (e.key === 'Enter') {
-      ctrl.fetch(TodoResource.getList.push, {
-        userId,
-        title: e.currentTarget.value,
-        id: Math.random(),
-      });
-      e.currentTarget.value = '';
-    }
-  };
-  return (
-    <div className="listItem nogap">
-      <label>
-        <input type="checkbox" name="new" checked={false} disabled />
-        <input type="text" onKeyDown={handleKeyDown} />
-      </label>
-    </div>
-  );
-}
-```
-
-```tsx title="TodoList" collapsed
-import { useSuspense } from '@rest-hooks/react/next';
-import { TodoResource } from './TodoResource';
-import TodoItem from './TodoItem';
-import CreateTodo from './CreateTodo';
-
-function TodoList() {
-  const userId = 1;
-  const todos = useSuspense(TodoResource.getList, { userId });
-  return (
-    <div>
-      {todos.map(todo => (
-        <TodoItem key={todo.pk()} todo={todo} />
-      ))}
-      <CreateTodo userId={userId} />
-    </div>
-  );
-}
-render(<TodoList />);
-```
-
-</HooksPlayground>
-
-[Upgrading](/docs/upgrade/upgrading-to-8) is quite simple, as `@rest-hooks/rest/next` and `@rest-hooks/react/next` were introduced
-to allow incremental adoption of the new APIs changed in this release. This makes the actual upgrade a simple import
-rename.
-
-Other highlights include
-
-- `@rest-hooks/rest`
-  - [async RestEndpoint.getHeaders](https://github.com/reactive/data-client/pull/2542)
-- `@rest-hooks/react`
-  - [Controller.fetch() return value is denormalized from schema](https://github.com/reactive/data-client/pull/2545)
-  - [Manager action type updates](https://github.com/reactive/data-client/pull/2690)
-
-[Upgrade to Rest Hooks 8 guide](/docs/upgrade/upgrading-to-8)
-
-<!--truncate-->
 
 import PkgInstall from '@site/src/components/PkgInstall';
 
-### @rest-hooks/react 8.0
-
-https://github.com/reactive/data-client/releases/tag/%40rest-hooks%2Freact%408.0.0
+For those who previously upgraded from 6 to 7, be sure to complete [preparing for the future](https://resthooks.io/docs/upgrade/upgrading-to-7#preparing-for-the-future). The future is now.
 
 Upgrading can be done gradually as all changes were initially released in `/next`.
 
@@ -165,7 +28,7 @@ Upgrading can be done gradually as all changes were initially released in `/next
    import { useController } from '@rest-hooks/react';
    ```
 
-#### Changes
+### Changes
 
 - **Controller.fetch()**: [2545](https://github.com/reactive/data-client/pull/2545) Controller.fetch() returns denormalized form when Endpoint has a Schema
 
@@ -184,20 +47,20 @@ Upgrading can be done gradually as all changes were initially released in `/next
 - **NetworkManager**: NetworkManager interface changed to only support new actions [2690](https://github.com/reactive/data-client/pull/2690)
 - **SubscriptionManager/PollingSubscription** interfaces simplified based on new actions [2690](https://github.com/reactive/data-client/pull/2690)
 
-#### Removals of deprecated items
+### Removals of deprecated items
 
 - [2691](https://github.com/reactive/data-client/pull/2691): Remove DispatchContext, DenormalizeCacheContext
 
-#### Deprecations
+### Deprecations
 
 - controller.receive, controller.receiveError [2690](https://github.com/reactive/data-client/pull/2690)
 - RECEIVE_TYPE [2690](https://github.com/reactive/data-client/pull/2690)
 - MiddlewareAPI.controller (MiddlewareAPI is just controller itself) [2690](https://github.com/reactive/data-client/pull/2690)
   - `({controller}) => {}` -> `(controller) => {}`
 
-### @rest-hooks/rest 7.0
+[Github release link](https://github.com/reactive/data-client/releases/tag/%40rest-hooks%2Freact%408.0.0)
 
-https://github.com/reactive/data-client/releases/tag/%40rest-hooks%2Frest%407.0.0
+## Rest @7
 
 Upgrading can be done gradually as all changes were initially released in `/next`.
 
@@ -264,7 +127,7 @@ Upgrading can be done gradually as all changes were initially released in `/next
    import { RestEndpoint, createResource } from '@rest-hooks/rest';
    ```
 
-#### Changes
+### Changes
 
 - RestEndpoint's getRequestInit and getHeaders optionally return a promise [2542](https://github.com/reactive/data-client/pull/2542)
 
@@ -315,11 +178,13 @@ Upgrading can be done gradually as all changes were initially released in `/next
 
 [Hoisting /next PR #2692](https://github.com/reactive/data-client/pull/2692)
 
-#### Removals of deprecated items
+### Removals of deprecated items
 
 - [2690](https://github.com/reactive/data-client/pull/2690): Removed deprecated `Endpoint.optimisticUpdate` -> use `Endpoint.getOptimisticResponse`
 - [2688](https://github.com/reactive/data-client/pull/2688) Remove `FetchShape` compatibility. This removes support for the legacy hooks in 'rest-hooks' like useResource()
 
-### Upgrade support
+[Github release link](https://github.com/reactive/data-client/releases/tag/%40rest-hooks%2Frest%407.0.0)
+
+## Support
 
 As usual, if you have any troubles or questions, feel free to join our [![Chat](https://img.shields.io/discord/768254430381735967.svg?style=flat-square&colorB=758ED3)](https://discord.gg/35nb8Mz) or [file a bug](https://github.com/reactive/data-client/issues/new/choose)

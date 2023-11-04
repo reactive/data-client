@@ -306,6 +306,10 @@
       "items": [
         {
           "type": "doc",
+          "id": "upgrade/upgrading-to-8"
+        },
+        {
+          "type": "doc",
           "id": "upgrade/upgrading-to-7"
         },
         {

@@ -11,7 +11,7 @@ import PkgTabs from '@site/src/components/PkgTabs';
 As previously [voted and discussed](https://github.com/reactive/data-client/discussions/2407) we are renaming
 this project to [Reactive Data Client](https://dataclient.io).
 
-https://twitter.com/dataclientio
+[![Chat](https://img.shields.io/discord/768254430381735967.svg?style=flat-square&colorB=758ED3)](https://discord.gg/35nb8Mz) &nbsp; [![GitHub](https://badgen.net/badge/icon/github?icon=github&label)](https://github.com/reactive/data-client) &nbsp; [![Twitter](https://badgen.net/badge/icon/twitter?icon=twitter&label)](https://twitter.com/dataclientio)
 
 ### Compatibility
 
