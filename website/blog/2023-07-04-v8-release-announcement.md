@@ -14,7 +14,7 @@ members. The namesake comes from [Backbone Collections](https://backbonejs.org/#
 [Collections](/rest/api/Collection) were first [introduced](https://github.com/reactive/data-client/pull/2593) in [@rest-hooks/rest@6.6](https://github.com/reactive/data-client/releases/tag/%40rest-hooks%2Frest%406.6.0). [@rest-hooks/rest@7](/blog/2023/07/04/v8-release-announcement#rest-hooksrest-70) takes this
 one step further, but using them in [Resource.getList](/rest/api/createResource#getlist).
 
-<HooksPlayground defaultOpen="n" row fixtures={todoFixtures} next>
+<HooksPlayground defaultOpen="n" fixtures={todoFixtures} next>
 
 ```ts title="TodoResource" collapsed
 import { Entity } from '@rest-hooks/rest';
@@ -157,17 +157,18 @@ Upgrading can be done gradually as all changes were initially released in `/next
 
 3. Upgrade to v8.
 
-   <PkgInstall pkgs="@rest-hooks/rest@8.2.2" />
+   <PkgInstall pkgs="@rest-hooks/react@8.2.2" />
 
 4. Imports can be updated incrementally after upgrade. `/next` exports the same as top-level.
 
    ```ts
-   import { useController } from '@rest-hooks/rest';
+   import { useController } from '@rest-hooks/react';
    ```
 
 #### Changes
 
 - **Controller.fetch()**: [2545](https://github.com/reactive/data-client/pull/2545) Controller.fetch() returns denormalized form when Endpoint has a Schema
+
   ```ts
   const handleChange = async e => {
     const todo = await ctrl.fetch(
@@ -217,6 +218,42 @@ Upgrading can be done gradually as all changes were initially released in `/next
 
    See the [migrations](https://github.com/reactive/data-client/pull/2606/files) of the /examples directory as an example
 
+   If you have a base `RestEndpoint` and/or `createResource` function you can simply create two
+   versions, which each extend from `@rest-hooks/rest` and `@rest-hooks/rest/next`
+
+   <details><summary><b>Inheritance migration example</b></summary>
+
+   ```ts title="EndpointBase.ts"
+    import { RestEndpoint, RestGenerics  } from '@rest-hooks/rest';
+
+    export default class MyEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
+      urlPrefix = 'https://api.github.com';
+
+      getHeaders(headers: HeadersInit): HeadersInit {
+        return {
+          ...headers,
+          'Access-Token': getAuth(),
+        };
+      }
+    }
+   ```
+   ```ts title="NextEndpointBase.ts"
+    import { RestEndpoint, RestGenerics } from '@rest-hooks/rest/next';
+
+    export default class NextMyEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
+      urlPrefix = 'https://api.github.com';
+
+      getHeaders(headers: HeadersInit): Promise<HeadersInit> {
+        return {
+          ...headers,
+          'Access-Token': await getAuth(),
+        };
+      }
+    }
+   ```
+
+   </details>
+
 3. Upgrade to v7
 
    <PkgInstall pkgs="@rest-hooks/rest@7.4.0" />
@@ -258,7 +295,20 @@ Upgrading can be done gradually as all changes were initially released in `/next
 - createResource().getList uses a Collection, which .create appends to [2593](https://github.com/reactive/data-client/pull/2593)
   - `Resource.create` will automatically add to the list
     - `Resource.getList.push` is identical to `Resource.create`
-  - **Remove** any `Endpoint.update` as it is not necessary and will not work
+  - **Remove** any [Endpoint.update](/rest/api/RestEndpoint#update) as it is not necessary and will not work
+    ```ts
+    const createUser = new RestEndpoint({
+      path: '/user',
+      method: 'POST',
+      schema: User,
+      // delete the following:
+      // highlight-start
+      update: (newUserId: string) => ({
+        [userList.key()]: (users = []) => [newUserId, ...users],
+      }),
+      // highlight-end
+    });
+    ```
 - `GetEndpoint` and `MutateEndpoint` parameters changed to what `NewGetEndpoint`, `NewMutateEndpoint` was.
 - createResource() generics changed to `O extends ResourceGenerics` This allows customizing the Resource type with body and searchParams [2593](https://github.com/reactive/data-client/pull/2593)
   - `createGithubResource<U extends string, S extends Schema>` -> `createGithubResource<O extends ResourceGenerics>`
