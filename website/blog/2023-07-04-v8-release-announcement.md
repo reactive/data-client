@@ -145,7 +145,7 @@ https://github.com/reactive/data-client/releases/tag/%40rest-hooks%2Freact%408.0
 
 Upgrading can be done gradually as all changes were initially released in `/next`.
 
-1. Upgrade to the latest v6:
+1. Upgrade to the latest v7:
 
   <PkgInstall pkgs="@rest-hooks/react@7.4.3" />
 
