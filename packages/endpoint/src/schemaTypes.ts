@@ -24,9 +24,10 @@ export type CollectionArrayAdder<S extends PolymorphicInterface> = S extends {
 
 export interface CollectionInterface<
   S extends PolymorphicInterface = any,
-  Parent extends any[] = any,
+  Args extends any[] = any[],
+  Parent = any,
 > {
-  addWith<P extends any[] = Parent>(
+  addWith<P extends any[] = Args>(
     merge: (existing: any, incoming: any) => any,
     createCollectionFilter?: (
       ...args: P
@@ -46,7 +47,7 @@ export interface CollectionInterface<
     addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
     storeEntities: any,
-    args: any[],
+    args: Args,
   ): string;
 
   merge(existing: any, incoming: any): any;
@@ -126,28 +127,34 @@ export interface CollectionInterface<
    * @see https://dataclient.io/rest/api/Collection#assign
    */
   assign: S extends { denormalize(...args: any): Record<string, unknown> }
-    ? schema.Collection<S, Parent>
+    ? schema.Collection<S, Args, Parent>
     : never;
 }
 export type CollectionFromSchema<
   S extends any[] | PolymorphicInterface = any,
-  Parent extends any[] = [
+  Args extends any[] = [
     urlParams: Record<string, any>,
     body?: Record<string, any>,
   ],
-> = CollectionInterface<S extends any[] ? schema.Array<S[number]> : S, Parent>;
+  Parent = any,
+> = CollectionInterface<
+  S extends any[] ? schema.Array<S[number]> : S,
+  Args,
+  Parent
+>;
 
 export interface CollectionConstructor {
   new <
     S extends SchemaSimple[] | PolymorphicInterface = any,
-    Parent extends any[] = [
+    Args extends any[] = [
       urlParams: Record<string, any>,
       body?: Record<string, any>,
     ],
+    Parent = any,
   >(
     schema: S,
-    options?: CollectionOptions,
-  ): CollectionFromSchema<S, Parent>;
+    options?: CollectionOptions<Args, Parent>,
+  ): CollectionFromSchema<S, Args, Parent>;
   readonly prototype: CollectionInterface;
 }
 

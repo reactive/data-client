@@ -3,7 +3,7 @@ import type {
   NormalizedIndex,
   SchemaSimple,
 } from './interface.js';
-import type { Denormalize } from './normal.js';
+import type { Denormalize, SchemaToArgs } from './normal.js';
 
 /**
  * Programmatic cache reading
@@ -11,14 +11,12 @@ import type { Denormalize } from './normal.js';
  */
 export class Query<
   S extends SchemaSimple,
-  P extends any[] = [],
+  P extends SchemaToArgs<S> = SchemaToArgs<S>,
   R = Denormalize<S>,
 > {
   declare schema: QuerySchema<S, R>;
   // TODO: allow arbitrary return types then inferring it from
   declare process: (entries: Denormalize<S>, ...args: P) => R;
-
-  readonly sideEffect = undefined;
 
   constructor(schema: S, process?: (entries: Denormalize<S>, ...args: P) => R) {
     this.schema = this.createQuerySchema(schema);
@@ -34,17 +32,14 @@ export class Query<
 
   protected createQuerySchema(schema: SchemaSimple) {
     const query = Object.create(schema);
-    query.denormalize = (
-      { args, input }: { args: P; input: any },
-      _: P,
-      unvisit: any,
-    ) => {
-      if (input === undefined) return undefined;
-      const value = (schema as any).denormalize(input, args, unvisit);
+    query.denormalize = (input: any, args: P, unvisit: any) => {
+      const value = unvisit(input, schema);
       return typeof value === 'symbol'
         ? undefined
         : this.process(value, ...args);
     };
+    // do not look like an entity
+    query.pk = undefined;
     query.infer = (
       args: any,
       indexes: any,
@@ -56,7 +51,7 @@ export class Query<
       ) => any,
       entities: EntityTable,
     ) => {
-      return { args, input: recurse(schema, args, indexes, entities) };
+      return recurse(schema, args, indexes, entities);
     };
     return query;
   }

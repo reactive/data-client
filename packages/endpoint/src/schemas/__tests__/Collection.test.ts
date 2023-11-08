@@ -88,6 +88,7 @@ describe(`${schema.Collection.name} normalization`, () => {
         () => undefined,
         {},
         {},
+        // @ts-expect-error
         [],
       );
     }

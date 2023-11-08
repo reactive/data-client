@@ -131,3 +131,31 @@ export type NormalizedSchema<E, R> = {
 export interface EntityMap<T = any> {
   readonly [k: string]: EntityInterface<T>;
 }
+
+export type SchemaToArgs<
+  S extends {
+    normalize(
+      input: any,
+      parent: any,
+      key: any,
+      visit: (...args: any) => any,
+      addEntity: (...args: any) => any,
+      visitedEntities: Record<string, any>,
+      storeEntities: any,
+      args: any,
+    ): any;
+  },
+> = S extends {
+  normalize(
+    input: any,
+    parent: any,
+    key: any,
+    visit: (...args: any) => any,
+    addEntity: (...args: any) => any,
+    visitedEntities: Record<string, any>,
+    storeEntities: any,
+    args: infer Args,
+  ): any;
+}
+  ? Args
+  : never;
