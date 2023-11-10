@@ -1,6 +1,6 @@
 ---
-'@data-client/endpoint': minor
-'@data-client/rest': minor
+'@data-client/endpoint': patch
+'@data-client/rest': patch
 ---
 
 Query works with any Schema - including Collections
@@ -12,4 +12,4 @@ export const queryRemainingTodos = new Query(
 );
 ```
 
-BREAKING CHANGE: Query.schema internals are laid out differently
+NOTE: Query.schema internals are laid out differently
