@@ -1,5 +1,23 @@
 # @data-client/rest
 
+## 0.9.8
+
+### Patch Changes
+
+- [#2837](https://github.com/reactive/data-client/pull/2837) [`57d87d6d85`](https://github.com/reactive/data-client/commit/57d87d6d851c19b4fd22eb57c629a7f2cab01f87) Thanks [@ntucker](https://github.com/ntucker)! - Query works with any Schema - including Collections
+
+  ```ts
+  export const queryRemainingTodos = new Query(
+    TodoResource.getList.schema,
+    entries => entries && entries.filter(todo => !todo.completed).length,
+  );
+  ```
+
+  NOTE: Query.schema internals are laid out differently
+
+- Updated dependencies [[`57d87d6d85`](https://github.com/reactive/data-client/commit/57d87d6d851c19b4fd22eb57c629a7f2cab01f87)]:
+  - @data-client/endpoint@0.9.8
+
 ## 0.9.5
 
 ### Patch Changes
