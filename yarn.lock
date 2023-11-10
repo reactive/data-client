@@ -5783,8 +5783,8 @@ __metadata:
   linkType: hard
 
 "@react-navigation/native-stack@npm:^6.9.1":
-  version: 6.9.16
-  resolution: "@react-navigation/native-stack@npm:6.9.16"
+  version: 6.9.17
+  resolution: "@react-navigation/native-stack@npm:6.9.17"
   dependencies:
     "@react-navigation/elements": ^1.3.21
     warn-once: ^0.1.0
@@ -5794,7 +5794,7 @@ __metadata:
     react-native: "*"
     react-native-safe-area-context: ">= 3.0.0"
     react-native-screens: ">= 3.0.0"
-  checksum: 7ca847ef2c7f45bf27159655cf4825427692c4a1539f6a6fb8eab6a627473fb6b4742d7ba93dd130ae96a602ebb3e77c541b70eff1532392cf413770dc3deb53
+  checksum: 6bb838b7ce19c521b1da12a147f78671259fb3921761f678d9b24d02f9e536428fffe82045ad66ef59dcd4920c1e5230b0d4aaba6f12a20726ffacfeba719f06
   languageName: node
   linkType: hard
 
