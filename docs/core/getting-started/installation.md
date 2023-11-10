@@ -28,7 +28,7 @@ import Link from '@docusaurus/Link';
 
 ## Example
 
-<StackBlitz app="todo-app" file="src/RootProvider.tsx" view="both" ctl="1" />
+<StackBlitz app="todo-app" file="src/index.tsx,src/RootProvider.tsx" view="both" ctl="1" />
 
 ## Supported Tools
 
