@@ -138,8 +138,8 @@ function filterOptimistic(
   return state.optimistic.filter(
     optimisticAction =>
       optimisticAction.meta.key !== resolvingAction.meta.key ||
-      (optimisticAction.type === OPTIMISTIC_TYPE
-        ? optimisticAction.meta.fetchedAt !== resolvingAction.meta.fetchedAt
-        : optimisticAction.meta.date > resolvingAction.meta.date),
+      (optimisticAction.type === OPTIMISTIC_TYPE ?
+        optimisticAction.meta.fetchedAt !== resolvingAction.meta.fetchedAt
+      : optimisticAction.meta.date > resolvingAction.meta.date),
   );
 }

@@ -77,9 +77,9 @@ export default function makeRenderDataClient(
 
     // TODO: controller provided to middleware should be same as useController() - so pull out the mockresolver stuff and don't actually
     // use the component here
-    const ProviderWithResolver: React.ComponentType<any> = options
-      ?.resolverFixtures?.length
-      ? memo(function ProviderWithResolver({
+    const ProviderWithResolver: React.ComponentType<any> =
+      options?.resolverFixtures?.length ?
+        memo(function ProviderWithResolver({
           children,
         }: React.PropsWithChildren<P>) {
           return (
@@ -113,8 +113,9 @@ export default function makeRenderDataClient(
         });
 
     const Wrapper = options?.wrapper;
-    const ProviderWithWrapper = Wrapper
-      ? function ProviderWrapped(props: React.PropsWithChildren<P>) {
+    const ProviderWithWrapper =
+      Wrapper ?
+        function ProviderWrapped(props: React.PropsWithChildren<P>) {
           return (
             <ProviderWithResolver>
               <Wrapper {...props} />

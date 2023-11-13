@@ -10,8 +10,9 @@ import createServerDataComponent from '../createServerDataComponent.js';
 
 // nextjs oddly breaks their exports here
 // we conditionally check this just in case they fix it
-const Doc: typeof DType = Object.hasOwn(Document, 'default')
-  ? ((Document as any).default as any)
+const Doc: typeof DType =
+  Object.hasOwn(Document, 'default') ?
+    ((Document as any).default as any)
   : Document;
 
 export default class DataClientDocument extends Doc {

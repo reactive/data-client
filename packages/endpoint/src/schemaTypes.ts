@@ -12,13 +12,16 @@ export { EntityMap, Invalidate };
 
 export { EntityInterface } from './interface.js';
 
-export type CollectionArrayAdder<S extends PolymorphicInterface> = S extends {
-  // ensure we are an array type
-  denormalize(...args: any): any[];
-  // get what we are an array of
-  schema: infer T;
-}
-  ? // TODO: eventually we want to allow singular or list and infer the return based on arguments
+export type CollectionArrayAdder<S extends PolymorphicInterface> =
+  S extends (
+    {
+      // ensure we are an array type
+      denormalize(...args: any): any[];
+      // get what we are an array of
+      schema: infer T;
+    }
+  ) ?
+    // TODO: eventually we want to allow singular or list and infer the return based on arguments
     T
   : never;
 
@@ -126,9 +129,9 @@ export interface CollectionInterface<
   /** Schema to merge with a Values Collection
    * @see https://dataclient.io/rest/api/Collection#assign
    */
-  assign: S extends { denormalize(...args: any): Record<string, unknown> }
-    ? schema.Collection<S, Args, Parent>
-    : never;
+  assign: S extends { denormalize(...args: any): Record<string, unknown> } ?
+    schema.Collection<S, Args, Parent>
+  : never;
 }
 export type CollectionFromSchema<
   S extends any[] | PolymorphicInterface = any,

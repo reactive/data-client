@@ -103,9 +103,8 @@ export default class Controller<
   >(
     endpoint: E,
     ...args: readonly [...Parameters<E>]
-  ): E['schema'] extends undefined | null
-    ? ReturnType<E>
-    : Promise<Denormalize<E['schema']>> => {
+  ): E['schema'] extends undefined | null ? ReturnType<E>
+  : Promise<Denormalize<E['schema']>> => {
     const action = createFetch(endpoint, {
       args,
     });
@@ -128,9 +127,8 @@ export default class Controller<
   >(
     endpoint: E,
     ...args: readonly [...Parameters<E>]
-  ): E['schema'] extends undefined | null
-    ? ReturnType<E> | ResolveType<E>
-    : Promise<Denormalize<E['schema']>> | Denormalize<E['schema']> => {
+  ): E['schema'] extends undefined | null ? ReturnType<E> | ResolveType<E>
+  : Promise<Denormalize<E['schema']>> | Denormalize<E['schema']> => {
     const { data, expiresAt, expiryStatus } = this.getResponse(
       endpoint,
       ...args,
@@ -149,13 +147,13 @@ export default class Controller<
     endpoint: E,
     ...args: readonly [...Parameters<E>] | readonly [null]
   ): Promise<void> =>
-    args[0] !== null
-      ? this.dispatch(
-          createInvalidate(endpoint, {
-            args: args as readonly [...Parameters<E>],
-          }),
-        )
-      : Promise.resolve();
+    args[0] !== null ?
+      this.dispatch(
+        createInvalidate(endpoint, {
+          args: args as readonly [...Parameters<E>],
+        }),
+      )
+    : Promise.resolve();
 
   /**
    * Forces refetching and suspense on useSuspense on all matching endpoint result keys.
@@ -261,13 +259,13 @@ export default class Controller<
     endpoint: E,
     ...args: readonly [...Parameters<E>] | readonly [null]
   ): Promise<void> =>
-    args[0] !== null
-      ? this.dispatch(
-          createSubscription(endpoint, {
-            args: args as readonly [...Parameters<E>],
-          }),
-        )
-      : Promise.resolve();
+    args[0] !== null ?
+      this.dispatch(
+        createSubscription(endpoint, {
+          args: args as readonly [...Parameters<E>],
+        }),
+      )
+    : Promise.resolve();
 
   /**
    * Marks completion of subscription to a given Endpoint.
@@ -283,13 +281,13 @@ export default class Controller<
     endpoint: E,
     ...args: readonly [...Parameters<E>] | readonly [null]
   ): Promise<void> =>
-    args[0] !== null
-      ? this.dispatch(
-          createUnsubscription(endpoint, {
-            args: args as readonly [...Parameters<E>],
-          }),
-        )
-      : Promise.resolve();
+    args[0] !== null ?
+      this.dispatch(
+        createUnsubscription(endpoint, {
+          args: args as readonly [...Parameters<E>],
+        }),
+      )
+    : Promise.resolve();
 
   /*************** More ***************/
 
@@ -386,10 +384,9 @@ export default class Controller<
     if (!endpoint.schema || !schemaHasEntity(endpoint.schema)) {
       return {
         data: results,
-        expiryStatus: meta?.invalidated
-          ? ExpiryStatus.Invalid
-          : cacheResults && !endpoint.invalidIfStale
-          ? ExpiryStatus.Valid
+        expiryStatus:
+          meta?.invalidated ? ExpiryStatus.Invalid
+          : cacheResults && !endpoint.invalidIfStale ? ExpiryStatus.Valid
           : ExpiryStatus.InvalidIfStale,
         expiresAt: expiresAt || 0,
       } as {
@@ -423,11 +420,11 @@ export default class Controller<
     // we don't track the difference between stale or fresh because that is tied to triggering
     // conditions
     const expiryStatus =
-      meta?.invalidated || (invalidDenormalize && !meta?.error)
-        ? ExpiryStatus.Invalid
-        : invalidDenormalize || endpoint.invalidIfStale || invalidResults
-        ? ExpiryStatus.InvalidIfStale
-        : ExpiryStatus.Valid;
+      meta?.invalidated || (invalidDenormalize && !meta?.error) ?
+        ExpiryStatus.Invalid
+      : invalidDenormalize || endpoint.invalidIfStale || invalidResults ?
+        ExpiryStatus.InvalidIfStale
+      : ExpiryStatus.Valid;
 
     return { data, expiryStatus, expiresAt };
   };

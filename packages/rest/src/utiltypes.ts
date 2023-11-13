@@ -15,9 +15,9 @@ RequiredKeys<{
 export type RequiredKeys<T> = Values<OnlyRequired<T>>;
 
 type OnlyRequired<T> = {
-  [K in keyof T as string extends K ? never : K]-?: {} extends Pick<T, K>
-    ? never
-    : K;
+  [K in keyof T as string extends K ? never : K]-?: {} extends Pick<T, K> ?
+    never
+  : K;
 };
 
 // exclude number only required for typescript 4.4 and below

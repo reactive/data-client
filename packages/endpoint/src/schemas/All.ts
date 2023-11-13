@@ -12,9 +12,9 @@ export default class AllSchema<
 > extends ArraySchema {
   constructor(
     definition: S,
-    schemaAttribute?: S extends EntityMap<infer T>
-      ? keyof T | SchemaFunction<keyof S>
-      : undefined,
+    schemaAttribute?: S extends EntityMap<infer T> ?
+      keyof T | SchemaFunction<keyof S>
+    : undefined,
   ) {
     super(definition, schemaAttribute as any);
   }

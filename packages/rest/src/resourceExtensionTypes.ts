@@ -35,31 +35,21 @@ export interface CustomResource<
   Delete extends PartialRestGenerics | {} = any,
 > extends Extendable<O> {
   // unknown only extends any. this allows us to match exclusively on members not set
-  get: unknown extends Get
-    ? R['get']
-    : PartialRestGenerics extends Get
-    ? R['get']
-    : RestExtendedEndpoint<Get, R['get']>;
-  getList: unknown extends GetList
-    ? R['getList']
-    : PartialRestGenerics extends GetList
-    ? R['getList']
-    : RestExtendedEndpoint<GetList, R['getList']>;
-  update: unknown extends Update
-    ? R['update']
-    : PartialRestGenerics extends Update
-    ? R['update']
-    : RestExtendedEndpoint<Update, R['update']>;
-  partialUpdate: unknown extends PartialUpdate
-    ? R['partialUpdate']
-    : PartialRestGenerics extends PartialUpdate
-    ? R['partialUpdate']
-    : RestExtendedEndpoint<PartialUpdate, R['partialUpdate']>;
-  delete: unknown extends Delete
-    ? R['delete']
-    : PartialRestGenerics extends Delete
-    ? R['delete']
-    : RestExtendedEndpoint<Delete, R['delete']>;
+  get: unknown extends Get ? R['get']
+  : PartialRestGenerics extends Get ? R['get']
+  : RestExtendedEndpoint<Get, R['get']>;
+  getList: unknown extends GetList ? R['getList']
+  : PartialRestGenerics extends GetList ? R['getList']
+  : RestExtendedEndpoint<GetList, R['getList']>;
+  update: unknown extends Update ? R['update']
+  : PartialRestGenerics extends Update ? R['update']
+  : RestExtendedEndpoint<Update, R['update']>;
+  partialUpdate: unknown extends PartialUpdate ? R['partialUpdate']
+  : PartialRestGenerics extends PartialUpdate ? R['partialUpdate']
+  : RestExtendedEndpoint<PartialUpdate, R['partialUpdate']>;
+  delete: unknown extends Delete ? R['delete']
+  : PartialRestGenerics extends Delete ? R['delete']
+  : RestExtendedEndpoint<Delete, R['delete']>;
 }
 
 export type ExtendedResource<
@@ -76,45 +66,40 @@ export interface ResourceEndpointExtensions<
   Delete extends PartialRestGenerics = any,
 > {
   readonly get?: RestEndpointOptions<
-    unknown extends Get
-      ? EndpointToFunction<R['get']>
-      : OptionsToFunction<Get, R['get'], EndpointToFunction<R['get']>>,
+    unknown extends Get ? EndpointToFunction<R['get']>
+    : OptionsToFunction<Get, R['get'], EndpointToFunction<R['get']>>,
     R['get']['schema']
   > &
     Readonly<Get>;
   readonly getList?: RestEndpointOptions<
-    unknown extends GetList
-      ? EndpointToFunction<R['getList']>
-      : OptionsToFunction<
-          GetList,
-          R['getList'],
-          EndpointToFunction<R['getList']>
-        >,
+    unknown extends GetList ? EndpointToFunction<R['getList']>
+    : OptionsToFunction<
+        GetList,
+        R['getList'],
+        EndpointToFunction<R['getList']>
+      >,
     R['getList']['schema']
   > &
     Readonly<GetList>;
   readonly update?: RestEndpointOptions<
-    unknown extends Update
-      ? EndpointToFunction<R['update']>
-      : OptionsToFunction<Update, R['update'], EndpointToFunction<R['update']>>,
+    unknown extends Update ? EndpointToFunction<R['update']>
+    : OptionsToFunction<Update, R['update'], EndpointToFunction<R['update']>>,
     R['update']['schema']
   > &
     Readonly<Update>;
   readonly partialUpdate?: RestEndpointOptions<
-    unknown extends PartialUpdate
-      ? EndpointToFunction<R['partialUpdate']>
-      : OptionsToFunction<
-          PartialUpdate,
-          R['partialUpdate'],
-          EndpointToFunction<R['partialUpdate']>
-        >,
+    unknown extends PartialUpdate ? EndpointToFunction<R['partialUpdate']>
+    : OptionsToFunction<
+        PartialUpdate,
+        R['partialUpdate'],
+        EndpointToFunction<R['partialUpdate']>
+      >,
     R['partialUpdate']['schema']
   > &
     Readonly<PartialUpdate>;
   readonly delete?: RestEndpointOptions<
-    unknown extends Delete
-      ? EndpointToFunction<R['delete']>
-      : OptionsToFunction<Delete, R['delete'], EndpointToFunction<R['delete']>>,
+    unknown extends Delete ? EndpointToFunction<R['delete']>
+    : OptionsToFunction<Delete, R['delete'], EndpointToFunction<R['delete']>>,
     R['delete']['schema']
   > &
     Readonly<Delete>;

@@ -35,17 +35,15 @@ export default class CollectionSchema<
 
   declare readonly key: string;
 
-  declare push: S extends ArraySchema<any>
-    ? CollectionSchema<S, Args, Parent>
-    : undefined;
+  declare push: S extends ArraySchema<any> ? CollectionSchema<S, Args, Parent>
+  : undefined;
 
-  declare unshift: S extends ArraySchema<any>
-    ? CollectionSchema<S, Args, Parent>
-    : undefined;
+  declare unshift: S extends ArraySchema<any> ?
+    CollectionSchema<S, Args, Parent>
+  : undefined;
 
-  declare assign: S extends Values<any>
-    ? CollectionSchema<S, Args, Parent>
-    : undefined;
+  declare assign: S extends Values<any> ? CollectionSchema<S, Args, Parent>
+  : undefined;
 
   addWith<P extends any[] = Args>(
     merge: (existing: any, incoming: any) => any,
@@ -76,9 +74,8 @@ export default class CollectionSchema<
   }
 
   constructor(schema: S, options?: CollectionOptions<Args, Parent>) {
-    this.schema = Array.isArray(schema)
-      ? (new ArraySchema(schema[0]) as any)
-      : schema;
+    this.schema =
+      Array.isArray(schema) ? (new ArraySchema(schema[0]) as any) : schema;
     if (!options) {
       this.argsKey = params => ({ ...params });
     } else {
@@ -139,9 +136,8 @@ export default class CollectionSchema<
   }
 
   pk(value: any, parent: any, key: string, args: readonly any[]) {
-    const obj = this.argsKey
-      ? this.argsKey(...args)
-      : this.nestKey(parent, key);
+    const obj =
+      this.argsKey ? this.argsKey(...args) : this.nestKey(parent, key);
     for (const key in obj) {
       if (typeof obj[key] !== 'string' && obj[key] !== undefined)
         obj[key] = `${obj[key]}`;
@@ -199,8 +195,8 @@ export default class CollectionSchema<
     existing: any,
     incoming: any,
   ) {
-    return this.shouldReorder(existingMeta, incomingMeta, existing, incoming)
-      ? this.merge(incoming, existing)
+    return this.shouldReorder(existingMeta, incomingMeta, existing, incoming) ?
+        this.merge(incoming, existing)
       : this.merge(existing, incoming);
   }
 
@@ -214,8 +210,8 @@ export default class CollectionSchema<
     existing: any,
     incoming: any,
   ) {
-    return this.shouldReorder(existingMeta, incomingMeta, existing, incoming)
-      ? existingMeta
+    return this.shouldReorder(existingMeta, incomingMeta, existing, incoming) ?
+        existingMeta
       : incomingMeta;
   }
 
@@ -303,9 +299,9 @@ function normalizeCreate(
   visitedEntities[CREATE] = {};
   // we could call visit, but i'll just call this anyways
   const pkList = this.schema.normalize(
-    !(this.schema instanceof ArraySchema) || Array.isArray(input)
-      ? input
-      : [input],
+    !(this.schema instanceof ArraySchema) || Array.isArray(input) ?
+      input
+    : [input],
     parent,
     key,
     visit,
@@ -336,7 +332,7 @@ function denormalize(
   args: readonly any[],
   unvisit: (input: any, schema: any) => any,
 ): any {
-  return Array.isArray(input)
-    ? (this.schema.denormalize(input, args, unvisit) as any)
+  return Array.isArray(input) ?
+      (this.schema.denormalize(input, args, unvisit) as any)
     : (this.schema.denormalize([input], args, unvisit)[0] as any);
 }

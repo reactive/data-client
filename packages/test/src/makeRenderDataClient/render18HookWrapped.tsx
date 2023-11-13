@@ -61,8 +61,9 @@ export function render18Wrapper<
 
   // TODO: add error and waitforupdate
   const Wrapper = options?.wrapper;
-  const wrapper: React.ComponentType<any> = Wrapper
-    ? function ProviderWrapped(props: React.PropsWithChildren<any>) {
+  const wrapper: React.ComponentType<any> =
+    Wrapper ?
+      function ProviderWrapped(props: React.PropsWithChildren<any>) {
         return (
           <Wrapper {...renderProps} {...props}>
             <WithErrorWrap>{props.children}</WithErrorWrap>
@@ -79,8 +80,8 @@ export function render18Wrapper<
     result: {
       value: {
         get current(): any {
-          return render18Result.result.current === null
-            ? undefined
+          return render18Result.result.current === null ?
+              undefined
             : render18Result.result.current;
         },
         get error() {

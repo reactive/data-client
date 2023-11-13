@@ -4,10 +4,8 @@ import type {
   ResolveType,
 } from '@data-client/normalizr';
 
-export type ResultEntry<E extends EndpointInterface> = E['schema'] extends
-  | undefined
-  | null
-  ? ResolveType<E>
+export type ResultEntry<E extends EndpointInterface> =
+  E['schema'] extends undefined | null ? ResolveType<E>
   : Normalize<E['schema']>;
 
 export type EndpointUpdateFunction<

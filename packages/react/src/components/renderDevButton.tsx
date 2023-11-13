@@ -13,7 +13,9 @@ export function renderDevButton(
       <UniversalSuspense fallback={null}>
         {
           /*react 18 hydration needs the components the same, but 17,16 doesn't and suspense doesn't work*/
-          !SSR || !LegacyReact ? <DevToolsButton pos={devButton} /> : null
+          !SSR || !LegacyReact ?
+            <DevToolsButton pos={devButton} />
+          : null
         }
       </UniversalSuspense>
     );

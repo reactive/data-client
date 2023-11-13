@@ -17,9 +17,9 @@ function unvisitEntity(
   cache: Cache,
 ): object | undefined | symbol {
   const entity =
-    typeof entityOrId === 'object'
-      ? entityOrId
-      : getEntity({ key: schema.key, pk: entityOrId });
+    typeof entityOrId === 'object' ? entityOrId : (
+      getEntity({ key: schema.key, pk: entityOrId })
+    );
   if (typeof entity === 'symbol' && typeof schema.denormalize === 'function') {
     return schema.denormalize(entity, args, unvisit);
   }
@@ -31,14 +31,14 @@ function unvisitEntity(
   const pk =
     // normalize must always place a string, because pk() return value is string | undefined
     // therefore no need to check for numbers
-    typeof entityOrId === 'string'
-      ? entityOrId
-      : schema.pk(
-          isImmutable(entity) ? (entity as any).toJS() : entity,
-          undefined,
-          undefined,
-          args,
-        );
+    typeof entityOrId === 'string' ? entityOrId : (
+      schema.pk(
+        isImmutable(entity) ? (entity as any).toJS() : entity,
+        undefined,
+        undefined,
+        args,
+      )
+    );
 
   // if we can't generate a working pk we cannot do cache lookups properly,
   // so simply denormalize without caching
@@ -72,8 +72,9 @@ function unvisitEntityObject(
   args: readonly any[],
 ): void {
   let _, deleted;
-  const entityCopy = (localCacheKey[pk] = isImmutable(entity)
-    ? schema.createIfValid(entity.toObject())
+  const entityCopy = (localCacheKey[pk] =
+    isImmutable(entity) ?
+      schema.createIfValid(entity.toObject())
     : schema.createIfValid(entity));
 
   if (entityCopy === undefined) {
@@ -113,9 +114,8 @@ const getUnvisit = (
     }
 
     if (!hasDenormalize && typeof schema === 'object') {
-      const method = Array.isArray(schema)
-        ? arrayDenormalize
-        : objectDenormalize;
+      const method =
+        Array.isArray(schema) ? arrayDenormalize : objectDenormalize;
       return method(schema, input, args, unvisit);
     }
 

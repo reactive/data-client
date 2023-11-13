@@ -6,21 +6,16 @@ export default function mapCollection<
 >(
   s: S,
   mapper: M,
-): S extends schema.Collection
-  ? ReturnType<typeof mapper<S>>
-  : S extends schema.Object<infer T>
-  ? {
-      [K in keyof T]: T[K] extends Schema
-        ? typeof mapCollection<M, T[K]>
-        : T[K];
-    }
-  : S extends { [K: string]: any }
-  ? {
-      [K in keyof S]: S[K] extends Schema
-        ? typeof mapCollection<M, S[K]>
-        : S[K];
-    }
-  : S {
+): S extends schema.Collection ? ReturnType<typeof mapper<S>>
+: S extends schema.Object<infer T> ?
+  {
+    [K in keyof T]: T[K] extends Schema ? typeof mapCollection<M, T[K]> : T[K];
+  }
+: S extends { [K: string]: any } ?
+  {
+    [K in keyof S]: S[K] extends Schema ? typeof mapCollection<M, S[K]> : S[K];
+  }
+: S {
   if (typeof s !== 'object' || s === undefined) return s as any;
   if (s instanceof schema.Collection) {
     return mapper(s as any);
@@ -38,13 +33,10 @@ export default function mapCollection<
 type MapCollection<
   M extends <C extends schema.Collection>(collection: C) => any,
   S extends Schema | undefined,
-> = S extends schema.Collection
-  ? ReturnType<M>
-  : S extends schema.Object<infer T>
-  ? MapCollection<M, T>
-  : S extends { [K: string]: any }
-  ? MapObject<M, S>
-  : never;
+> = S extends schema.Collection ? ReturnType<M>
+: S extends schema.Object<infer T> ? MapCollection<M, T>
+: S extends { [K: string]: any } ? MapObject<M, S>
+: never;
 
 export type MapObject<
   M extends (collection: schema.Collection) => any,

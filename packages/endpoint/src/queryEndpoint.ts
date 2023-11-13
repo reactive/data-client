@@ -34,9 +34,9 @@ export class Query<
     const query = Object.create(schema);
     query.denormalize = (input: any, args: P, unvisit: any) => {
       const value = unvisit(input, schema);
-      return typeof value === 'symbol'
-        ? undefined
-        : this.process(value, ...args);
+      return typeof value === 'symbol' ? undefined : (
+          this.process(value, ...args)
+        );
     };
     // do not look like an entity
     query.pk = undefined;

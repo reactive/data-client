@@ -72,12 +72,14 @@ export type Interceptor<
   },
 > =
   | ResponseInterceptor<T, E>
-  | (E extends {
-      fetchResponse(input: RequestInfo, init: RequestInit): Promise<Response>;
-      extend(options: any): any;
-    }
-      ? FetchInterceptor<T, E>
-      : never);
+  | (E extends (
+      {
+        fetchResponse(input: RequestInfo, init: RequestInit): Promise<Response>;
+        extend(options: any): any;
+      }
+    ) ?
+      FetchInterceptor<T, E>
+    : never);
 
 export interface ErrorFixtureEndpoint<
   E extends EndpointInterface & { update?: Updater } = EndpointInterface,

@@ -36,9 +36,9 @@ export default class RestEndpoint extends Endpoint {
       ('method' in options && !('sideEffect' in options))
     ) {
       this.sideEffect =
-        options.method === 'GET' || options.method === undefined
-          ? undefined
-          : true;
+        options.method === 'GET' || options.method === undefined ?
+          undefined
+        : true;
     }
     if (this.method === undefined) {
       this.method = this.sideEffect ? 'POST' : 'GET';

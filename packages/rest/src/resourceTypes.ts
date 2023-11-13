@@ -68,104 +68,100 @@ export interface Resource<
    *
    * @see https://dataclient.io/rest/api/createResource#getlist
    */
-  getList: 'searchParams' extends keyof O
-    ? GetEndpoint<
-        {
-          path: ShortenPath<O['path']>;
-          schema: schema.Collection<
-            [O['schema']],
-            [
-              'searchParams' extends keyof O
-                ? O['searchParams'] extends undefined
-                  ? PathArgs<ShortenPath<O['path']>>
-                  : O['searchParams'] & PathArgs<ShortenPath<O['path']>>
-                : PathArgs<ShortenPath<O['path']>>,
-            ]
-          >;
-          body: 'body' extends keyof O
-            ? O['body']
-            : Partial<Denormalize<O['schema']>>;
-          searchParams: O['searchParams'];
-        } & Pick<O, 'paginationField'>
-      >
-    : GetEndpoint<
-        {
-          path: ShortenPath<O['path']>;
-          schema: schema.Collection<
-            [O['schema']],
-            [
-              'searchParams' extends keyof O
-                ? O['searchParams'] extends undefined
-                  ? PathArgs<ShortenPath<O['path']>>
-                  : O['searchParams'] & PathArgs<ShortenPath<O['path']>>
-                : PathArgs<ShortenPath<O['path']>>,
-            ]
-          >;
-          body: 'body' extends keyof O
-            ? O['body']
-            : Partial<Denormalize<O['schema']>>;
-          searchParams: Record<string, number | string | boolean> | undefined;
-        } & Pick<O, 'paginationField'>
-      >;
+  getList: 'searchParams' extends keyof O ?
+    GetEndpoint<
+      {
+        path: ShortenPath<O['path']>;
+        schema: schema.Collection<
+          [O['schema']],
+          [
+            'searchParams' extends keyof O ?
+              O['searchParams'] extends undefined ?
+                PathArgs<ShortenPath<O['path']>>
+              : O['searchParams'] & PathArgs<ShortenPath<O['path']>>
+            : PathArgs<ShortenPath<O['path']>>,
+          ]
+        >;
+        body: 'body' extends keyof O ? O['body']
+        : Partial<Denormalize<O['schema']>>;
+        searchParams: O['searchParams'];
+      } & Pick<O, 'paginationField'>
+    >
+  : GetEndpoint<
+      {
+        path: ShortenPath<O['path']>;
+        schema: schema.Collection<
+          [O['schema']],
+          [
+            'searchParams' extends keyof O ?
+              O['searchParams'] extends undefined ?
+                PathArgs<ShortenPath<O['path']>>
+              : O['searchParams'] & PathArgs<ShortenPath<O['path']>>
+            : PathArgs<ShortenPath<O['path']>>,
+          ]
+        >;
+        body: 'body' extends keyof O ? O['body']
+        : Partial<Denormalize<O['schema']>>;
+        searchParams: Record<string, number | string | boolean> | undefined;
+      } & Pick<O, 'paginationField'>
+    >;
   /** Create a new item (POST)
    *
    * @deprecated use Resource.getList.push instead
    */
-  create: 'searchParams' extends keyof O
-    ? MutateEndpoint<{
-        path: ShortenPath<O['path']>;
-        schema: schema.Collection<[O['schema']]>['push'];
-        body: 'body' extends keyof O
-          ? O['body']
-          : Partial<Denormalize<O['schema']>>;
-        searchParams: O['searchParams'];
-      }>
-    : MutateEndpoint<{
-        path: ShortenPath<O['path']>;
-        schema: schema.Collection<[O['schema']]>['push'];
-        body: 'body' extends keyof O
-          ? O['body']
-          : Partial<Denormalize<O['schema']>>;
-      }>;
+  create: 'searchParams' extends keyof O ?
+    MutateEndpoint<{
+      path: ShortenPath<O['path']>;
+      schema: schema.Collection<[O['schema']]>['push'];
+      body: 'body' extends keyof O ? O['body']
+      : Partial<Denormalize<O['schema']>>;
+      searchParams: O['searchParams'];
+    }>
+  : MutateEndpoint<{
+      path: ShortenPath<O['path']>;
+      schema: schema.Collection<[O['schema']]>['push'];
+      body: 'body' extends keyof O ? O['body']
+      : Partial<Denormalize<O['schema']>>;
+    }>;
   /** Update an item (PUT)
    *
    * @see https://dataclient.io/rest/api/createResource#update
    */
-  update: 'body' extends keyof O
-    ? MutateEndpoint<{
-        path: O['path'];
-        body: O['body'];
-        schema: O['schema'];
-      }>
-    : MutateEndpoint<{
-        path: O['path'];
-        body: Partial<Denormalize<O['schema']>> | FormData;
-        schema: O['schema'];
-      }>;
+  update: 'body' extends keyof O ?
+    MutateEndpoint<{
+      path: O['path'];
+      body: O['body'];
+      schema: O['schema'];
+    }>
+  : MutateEndpoint<{
+      path: O['path'];
+      body: Partial<Denormalize<O['schema']>> | FormData;
+      schema: O['schema'];
+    }>;
   /** Update an item (PATCH)
    *
    * @see https://dataclient.io/rest/api/createResource#partialupdate
    */
-  partialUpdate: 'body' extends keyof O
-    ? MutateEndpoint<{
-        path: O['path'];
-        body: Partial<O['body']>;
-        schema: O['schema'];
-      }>
-    : MutateEndpoint<{
-        path: O['path'];
-        body: Partial<Denormalize<O['schema']>> | FormData;
-        schema: O['schema'];
-      }>;
+  partialUpdate: 'body' extends keyof O ?
+    MutateEndpoint<{
+      path: O['path'];
+      body: Partial<O['body']>;
+      schema: O['schema'];
+    }>
+  : MutateEndpoint<{
+      path: O['path'];
+      body: Partial<Denormalize<O['schema']>> | FormData;
+      schema: O['schema'];
+    }>;
   /** Delete an item (DELETE)
    *
    * @see https://dataclient.io/rest/api/createResource#delete
    */
   delete: RestTypeNoBody<
     PathArgs<O['path']>,
-    O['schema'] extends schema.EntityInterface & { process: any }
-      ? schema.Invalidate<O['schema']>
-      : O['schema'],
+    O['schema'] extends schema.EntityInterface & { process: any } ?
+      schema.Invalidate<O['schema']>
+    : O['schema'],
     undefined,
     Partial<PathArgs<O['path']>>,
     {
