@@ -50,9 +50,9 @@ export * from './schemaTypes.js';
 export class Array<S extends Schema = Schema> implements SchemaClass {
   constructor(
     definition: S,
-    schemaAttribute?: S extends EntityMap<infer T>
-      ? keyof T | SchemaFunction<keyof S>
-      : undefined,
+    schemaAttribute?: S extends EntityMap<infer T> ?
+      keyof T | SchemaFunction<keyof S>
+    : undefined,
   );
 
   define(definition: Schema): void;
@@ -102,9 +102,9 @@ export class All<
 {
   constructor(
     definition: S,
-    schemaAttribute?: S extends EntityMap<infer T>
-      ? keyof T | SchemaFunction<keyof S>
-      : undefined,
+    schemaAttribute?: S extends EntityMap<infer T> ?
+      keyof T | SchemaFunction<keyof S>
+    : undefined,
   );
 
   define(definition: Schema): void;
@@ -236,9 +236,9 @@ export class Union<Choices extends EntityMap = any> implements SchemaClass {
 export class Values<Choices extends Schema = any> implements SchemaClass {
   constructor(
     definition: Choices,
-    schemaAttribute?: Choices extends EntityMap<infer T>
-      ? keyof T | SchemaFunction<keyof Choices>
-      : undefined,
+    schemaAttribute?: Choices extends EntityMap<infer T> ?
+      keyof T | SchemaFunction<keyof Choices>
+    : undefined,
   );
 
   define(definition: Schema): void;
@@ -247,9 +247,8 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
     Choices extends EntityMap ? Choices[keyof Choices] : Choices
   >;
 
-  getSchemaAttribute: Choices extends EntityMap
-    ? SchemaFunction<keyof Choices>
-    : false;
+  getSchemaAttribute: Choices extends EntityMap ? SchemaFunction<keyof Choices>
+  : false;
 
   readonly schema: Choices;
   normalize(
@@ -269,17 +268,15 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
   _normalizeNullable():
     | Record<
         string,
-        Choices extends EntityMap
-          ? UnionResult<Choices>
-          : NormalizeNullable<Choices>
+        Choices extends EntityMap ? UnionResult<Choices>
+        : NormalizeNullable<Choices>
       >
     | undefined;
 
   _denormalizeNullable(): Record<
     string,
-    Choices extends EntityMap<infer T>
-      ? T | undefined
-      : DenormalizeNullable<Choices>
+    Choices extends EntityMap<infer T> ? T | undefined
+    : DenormalizeNullable<Choices>
   >;
 
   denormalize(
@@ -299,13 +296,16 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
   ): any;
 }
 
-export type CollectionArrayAdder<S extends PolymorphicInterface> = S extends {
-  // ensure we are an array type
-  denormalize(...args: any): any[];
-  // get what we are an array of
-  schema: infer T;
-}
-  ? // TODO: eventually we want to allow singular or list and infer the return based on arguments
+export type CollectionArrayAdder<S extends PolymorphicInterface> =
+  S extends (
+    {
+      // ensure we are an array type
+      denormalize(...args: any): any[];
+      // get what we are an array of
+      schema: infer T;
+    }
+  ) ?
+    // TODO: eventually we want to allow singular or list and infer the return based on arguments
     T
   : never;
 

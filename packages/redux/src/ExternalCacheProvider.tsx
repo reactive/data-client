@@ -80,9 +80,9 @@ export default function ExternalCacheProvider<S>({
           <UniversalSuspense fallback={<BackupLoading />}>
             {children}
           </UniversalSuspense>
-          {process.env.NODE_ENV !== 'production' ? (
+          {process.env.NODE_ENV !== 'production' ?
             <UniversalSuspense fallback={null} />
-          ) : undefined}
+          : undefined}
         </ControllerContext.Provider>
       </StoreContext.Provider>
     </StateContext.Provider>

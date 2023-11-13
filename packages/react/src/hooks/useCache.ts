@@ -27,11 +27,11 @@ export default function useCache<
 >(
   endpoint: E,
   ...args: Args
-): E['schema'] extends undefined | null
-  ? E extends (...args: any) => any
-    ? ResolveType<E> | undefined
-    : any
-  : DenormalizeNullable<E['schema']> {
+): E['schema'] extends undefined | null ?
+  E extends (...args: any) => any ?
+    ResolveType<E> | undefined
+  : any
+: DenormalizeNullable<E['schema']> {
   const state = useCacheState();
   const controller = useController();
 

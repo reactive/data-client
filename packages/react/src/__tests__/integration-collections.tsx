@@ -773,7 +773,7 @@ describe.each([
 });
 
 function ensurePojo(body: any) {
-  return body instanceof FormData
-    ? Object.fromEntries((body as any).entries())
+  return body instanceof FormData ?
+      Object.fromEntries((body as any).entries())
     : body;
 }

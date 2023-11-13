@@ -15,6 +15,5 @@ export type EndpointUpdateFunction<
   [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K];
 };
 export type ResultEntry<E extends FetchFunction & { schema: any }> =
-  E['schema'] extends undefined | null
-    ? ResolveType<E>
-    : Normalize<E['schema']>;
+  E['schema'] extends undefined | null ? ResolveType<E>
+  : Normalize<E['schema']>;

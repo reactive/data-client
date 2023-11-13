@@ -25,12 +25,8 @@ export interface EndpointExtendOptions<
   fetch?: FetchFunction;
 }
 
-export type ParamFromFetch<F> = F extends (
-  params: infer P,
-  body?: any,
-) => Promise<any>
-  ? P
-  : never;
+export type ParamFromFetch<F> =
+  F extends (params: infer P, body?: any) => Promise<any> ? P : never;
 
 //type Overwrite<T, U> = Pick<T, Exclude<keyof T, keyof U>> & U; TODO: should we use this?
 
@@ -188,11 +184,10 @@ type IfTypeScriptLooseNull<Y, N> = 1 | undefined extends 1 ? Y : N;
 
 type OnlyFirst<A extends unknown[]> = A extends [] ? [] : [A[0]];
 
-type RemoveArray<Orig extends any[], Rem extends any[]> = Rem extends [
-  any,
-  ...infer RestRem,
-]
-  ? Orig extends [any, ...infer RestOrig]
-    ? RemoveArray<RestOrig, RestRem>
-    : never
-  : Orig;
+type RemoveArray<Orig extends any[], Rem extends any[]> = Rem extends (
+  [any, ...infer RestRem]
+) ?
+  Orig extends [any, ...infer RestOrig] ?
+    RemoveArray<RestOrig, RestRem>
+  : never
+: Orig;

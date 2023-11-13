@@ -10,8 +10,6 @@ export type ResolveType<E extends (...args: any) => any> =
 export type InferReturn<
   F extends FetchFunction,
   S extends Schema | undefined,
-> = S extends undefined
-  ? ReturnType<F>
-  : ReturnType<F> extends unknown
-  ? Promise<Denormalize<S>>
-  : ReturnType<F>;
+> = S extends undefined ? ReturnType<F>
+: ReturnType<F> extends unknown ? Promise<Denormalize<S>>
+: ReturnType<F>;

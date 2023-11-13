@@ -29,10 +29,9 @@ export interface RestInstanceBase<
   /** @see https://dataclient.io/rest/api/RestEndpoint#body */
   readonly body?: 'body' extends keyof O ? O['body'] : any;
   /** @see https://dataclient.io/rest/api/RestEndpoint#searchParams */
-  readonly searchParams?: 'searchParams' extends keyof O
-    ? O['searchParams']
-    : // unknown is identity with '&' type operator
-      unknown;
+  readonly searchParams?: 'searchParams' extends keyof O ? O['searchParams']
+  : // unknown is identity with '&' type operator
+    unknown;
 
   /** Pattern to construct url based on Url Parameters
    * @see https://dataclient.io/rest/api/RestEndpoint#path
@@ -121,14 +120,14 @@ export interface RestInstance<
   /** Endpoint to append the next page extending a list for pagination
    * @see https://dataclient.io/rest/api/RestEndpoint#getPage
    */
-  getPage: 'paginationField' extends keyof O
-    ? O['paginationField'] extends string
-      ? PaginationFieldEndpoint<
-          F & { schema: S; sideEffect: M } & O,
-          O['paginationField']
-        >
-      : undefined
-    : undefined;
+  getPage: 'paginationField' extends keyof O ?
+    O['paginationField'] extends string ?
+      PaginationFieldEndpoint<
+        F & { schema: S; sideEffect: M } & O,
+        O['paginationField']
+      >
+    : undefined
+  : undefined;
   /** Endpoint that pushes (place at end) a newly created entity to this Collection
    * @see https://dataclient.io/rest/api/RestEndpoint#push
    */
@@ -173,9 +172,8 @@ export type RestEndpointExtendOptions<
   F extends FetchFunction,
 > = RestEndpointOptions<
   OptionsToFunction<O, E, F>,
-  'schema' extends keyof O
-    ? Extract<O['schema'], Schema | undefined>
-    : E['schema']
+  'schema' extends keyof O ? Extract<O['schema'], Schema | undefined>
+  : E['schema']
 > &
   Partial<
     Omit<
@@ -188,98 +186,89 @@ type OptionsToRestEndpoint<
   O extends PartialRestGenerics,
   E extends RestInstanceBase & { body?: any; paginationField?: string },
   F extends FetchFunction,
-> = 'path' extends keyof O
-  ? RestType<
-      'searchParams' extends keyof O
-        ? O['searchParams'] extends undefined
-          ? PathArgs<Exclude<O['path'], undefined>>
-          : O['searchParams'] & PathArgs<Exclude<O['path'], undefined>>
-        : PathArgs<Exclude<O['path'], undefined>>,
-      OptionsToBodyArgument<
-        'body' extends keyof O ? O : E,
-        'method' extends keyof O ? O['method'] : E['method']
-      >,
-      'schema' extends keyof O ? O['schema'] : E['schema'],
-      'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'],
-      O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>,
-      {
-        path: Exclude<O['path'], undefined>;
-        body: 'body' extends keyof O ? O['body'] : E['body'];
-        searchParams: 'searchParams' extends keyof O
-          ? O['searchParams']
-          : E['searchParams'];
-        method: 'method' extends keyof O ? O['method'] : E['method'];
-        paginationField: 'paginationField' extends keyof O
-          ? O['paginationField']
-          : E['paginationField'];
-      }
-    >
-  : 'body' extends keyof O
-  ? RestType<
-      'searchParams' extends keyof O
-        ? O['searchParams'] extends undefined
-          ? PathArgs<Exclude<O['path'], undefined>>
-          : O['searchParams'] & PathArgs<Exclude<E['path'], undefined>>
-        : PathArgs<Exclude<E['path'], undefined>>,
-      OptionsToBodyArgument<
-        O,
-        'method' extends keyof O ? O['method'] : E['method']
-      >,
-      'schema' extends keyof O ? O['schema'] : E['schema'],
-      'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'],
-      O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>,
-      {
-        path: E['path'];
-        body: O['body'];
-        searchParams: 'searchParams' extends keyof O
-          ? O['searchParams']
-          : E['searchParams'];
-        method: 'method' extends keyof O ? O['method'] : E['method'];
-        paginationField: 'paginationField' extends keyof O
-          ? O['paginationField']
-          : Extract<E['paginationField'], string>;
-      }
-    >
-  : 'searchParams' extends keyof O
-  ? RestType<
-      O['searchParams'] extends undefined
-        ? PathArgs<Exclude<O['path'], undefined>>
-        : O['searchParams'] & PathArgs<Exclude<E['path'], undefined>>,
-      OptionsToBodyArgument<
-        E,
-        'method' extends keyof O ? O['method'] : E['method']
-      >,
-      'schema' extends keyof O ? O['schema'] : E['schema'],
-      'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'],
-      O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>,
-      {
-        path: E['path'];
-        body: E['body'];
-        searchParams: O['searchParams'];
-        method: 'method' extends keyof O ? O['method'] : E['method'];
-        paginationField: 'paginationField' extends keyof O
-          ? O['paginationField']
-          : Extract<E['paginationField'], string>;
-      }
-    >
-  : RestInstance<
-      F,
-      'schema' extends keyof O ? O['schema'] : E['schema'],
-      'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'],
-      {
-        path: 'path' extends keyof O
-          ? Exclude<O['path'], undefined>
-          : E['path'];
-        body: 'body' extends keyof O ? O['body'] : E['body'];
-        searchParams: 'searchParams' extends keyof O
-          ? O['searchParams']
-          : E['searchParams'];
-        method: 'method' extends keyof O ? O['method'] : E['method'];
-        paginationField: 'paginationField' extends keyof O
-          ? O['paginationField']
-          : E['paginationField'];
-      }
-    >;
+> = 'path' extends keyof O ?
+  RestType<
+    'searchParams' extends keyof O ?
+      O['searchParams'] extends undefined ?
+        PathArgs<Exclude<O['path'], undefined>>
+      : O['searchParams'] & PathArgs<Exclude<O['path'], undefined>>
+    : PathArgs<Exclude<O['path'], undefined>>,
+    OptionsToBodyArgument<
+      'body' extends keyof O ? O : E,
+      'method' extends keyof O ? O['method'] : E['method']
+    >,
+    'schema' extends keyof O ? O['schema'] : E['schema'],
+    'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'],
+    O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>,
+    {
+      path: Exclude<O['path'], undefined>;
+      body: 'body' extends keyof O ? O['body'] : E['body'];
+      searchParams: 'searchParams' extends keyof O ? O['searchParams']
+      : E['searchParams'];
+      method: 'method' extends keyof O ? O['method'] : E['method'];
+      paginationField: 'paginationField' extends keyof O ? O['paginationField']
+      : E['paginationField'];
+    }
+  >
+: 'body' extends keyof O ?
+  RestType<
+    'searchParams' extends keyof O ?
+      O['searchParams'] extends undefined ?
+        PathArgs<Exclude<O['path'], undefined>>
+      : O['searchParams'] & PathArgs<Exclude<E['path'], undefined>>
+    : PathArgs<Exclude<E['path'], undefined>>,
+    OptionsToBodyArgument<
+      O,
+      'method' extends keyof O ? O['method'] : E['method']
+    >,
+    'schema' extends keyof O ? O['schema'] : E['schema'],
+    'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'],
+    O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>,
+    {
+      path: E['path'];
+      body: O['body'];
+      searchParams: 'searchParams' extends keyof O ? O['searchParams']
+      : E['searchParams'];
+      method: 'method' extends keyof O ? O['method'] : E['method'];
+      paginationField: 'paginationField' extends keyof O ? O['paginationField']
+      : Extract<E['paginationField'], string>;
+    }
+  >
+: 'searchParams' extends keyof O ?
+  RestType<
+    O['searchParams'] extends undefined ?
+      PathArgs<Exclude<O['path'], undefined>>
+    : O['searchParams'] & PathArgs<Exclude<E['path'], undefined>>,
+    OptionsToBodyArgument<
+      E,
+      'method' extends keyof O ? O['method'] : E['method']
+    >,
+    'schema' extends keyof O ? O['schema'] : E['schema'],
+    'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'],
+    O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>,
+    {
+      path: E['path'];
+      body: E['body'];
+      searchParams: O['searchParams'];
+      method: 'method' extends keyof O ? O['method'] : E['method'];
+      paginationField: 'paginationField' extends keyof O ? O['paginationField']
+      : Extract<E['paginationField'], string>;
+    }
+  >
+: RestInstance<
+    F,
+    'schema' extends keyof O ? O['schema'] : E['schema'],
+    'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'],
+    {
+      path: 'path' extends keyof O ? Exclude<O['path'], undefined> : E['path'];
+      body: 'body' extends keyof O ? O['body'] : E['body'];
+      searchParams: 'searchParams' extends keyof O ? O['searchParams']
+      : E['searchParams'];
+      method: 'method' extends keyof O ? O['method'] : E['method'];
+      paginationField: 'paginationField' extends keyof O ? O['paginationField']
+      : E['paginationField'];
+    }
+  >;
 
 export type RestExtendedEndpoint<
   O extends PartialRestGenerics,
@@ -287,15 +276,14 @@ export type RestExtendedEndpoint<
 > = OptionsToRestEndpoint<
   O,
   E &
-    (E extends { getPage: { paginationField: string } }
-      ? { paginationField: E['getPage']['paginationField'] }
-      : unknown),
+    (E extends { getPage: { paginationField: string } } ?
+      { paginationField: E['getPage']['paginationField'] }
+    : unknown),
   RestInstance<
     (
       ...args: Parameters<E>
-    ) => O['process'] extends {}
-      ? Promise<ReturnType<O['process']>>
-      : ReturnType<E>,
+    ) => O['process'] extends {} ? Promise<ReturnType<O['process']>>
+    : ReturnType<E>,
     'schema' extends keyof O ? O['schema'] : E['schema'],
     'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect']
   >
@@ -361,11 +349,11 @@ export type AddEndpoint<
   } = { path: string; body: any },
 > = RestInstanceBase<
   RestFetch<
-    'searchParams' extends keyof O
-      ? O['searchParams'] extends undefined
-        ? PathArgs<Exclude<O['path'], undefined>>
-        : O['searchParams'] & PathArgs<Exclude<O['path'], undefined>>
-      : PathArgs<Exclude<O['path'], undefined>>,
+    'searchParams' extends keyof O ?
+      O['searchParams'] extends undefined ?
+        PathArgs<Exclude<O['path'], undefined>>
+      : O['searchParams'] & PathArgs<Exclude<O['path'], undefined>>
+    : PathArgs<Exclude<O['path'], undefined>>,
     O['body'],
     ResolveType<F>
   >,
@@ -374,10 +362,9 @@ export type AddEndpoint<
   Omit<O, 'method'> & { method: 'POST' }
 >;
 
-type OptionsBodyDefault<O extends RestGenerics> = 'body' extends keyof O
-  ? O
-  : O['method'] extends 'POST' | 'PUT' | 'PATCH'
-  ? O & { body: any }
+type OptionsBodyDefault<O extends RestGenerics> =
+  'body' extends keyof O ? O
+  : O['method'] extends 'POST' | 'PUT' | 'PATCH' ? O & { body: any }
   : O & { body: undefined };
 
 type OptionsToAdderBodyArgument<O extends { body?: any }> =
@@ -406,22 +393,19 @@ export interface RestEndpointOptions<
 export type RestEndpointConstructorOptions<O extends RestGenerics = any> =
   RestEndpointOptions<
     RestFetch<
-      'searchParams' extends keyof O
-        ? O['searchParams'] extends undefined
-          ? PathArgs<O['path']>
-          : O['searchParams'] & PathArgs<O['path']>
-        : PathArgs<O['path']>,
+      'searchParams' extends keyof O ?
+        O['searchParams'] extends undefined ?
+          PathArgs<O['path']>
+        : O['searchParams'] & PathArgs<O['path']>
+      : PathArgs<O['path']>,
       OptionsToBodyArgument<
         O,
-        'method' extends keyof O
-          ? O['method']
-          : O extends { sideEffect: true }
-          ? 'POST'
-          : 'GET'
+        'method' extends keyof O ? O['method']
+        : O extends { sideEffect: true } ? 'POST'
+        : 'GET'
       >,
-      O['process'] extends {}
-        ? ReturnType<O['process']>
-        : any /*Denormalize<O['schema']>*/
+      O['process'] extends {} ? ReturnType<O['process']>
+      : any /*Denormalize<O['schema']>*/
     >,
     O['schema']
   >;
@@ -434,39 +418,35 @@ export interface RestEndpointConstructor {
     ...options
   }: RestEndpointConstructorOptions<O> & Readonly<O>): RestInstance<
     RestFetch<
-      'searchParams' extends keyof O
-        ? O['searchParams'] extends undefined
-          ? PathArgs<O['path']>
-          : O['searchParams'] & PathArgs<O['path']>
-        : PathArgs<O['path']>,
+      'searchParams' extends keyof O ?
+        O['searchParams'] extends undefined ?
+          PathArgs<O['path']>
+        : O['searchParams'] & PathArgs<O['path']>
+      : PathArgs<O['path']>,
       OptionsToBodyArgument<
         O,
-        'method' extends keyof O
-          ? O['method']
-          : O extends { sideEffect: true }
-          ? 'POST'
-          : 'GET'
+        'method' extends keyof O ? O['method']
+        : O extends { sideEffect: true } ? 'POST'
+        : 'GET'
       >,
-      O['process'] extends {}
-        ? ReturnType<O['process']>
-        : any /*Denormalize<O['schema']>*/
+      O['process'] extends {} ? ReturnType<O['process']>
+      : any /*Denormalize<O['schema']>*/
     >,
     'schema' extends keyof O ? O['schema'] : undefined,
-    'sideEffect' extends keyof O
-      ? Extract<O['sideEffect'], undefined | true>
-      : MethodToSide<O['method']>,
-    'method' extends keyof O
-      ? O
-      : O & {
-          method: O extends { sideEffect: true } ? 'POST' : 'GET';
-        }
+    'sideEffect' extends keyof O ? Extract<O['sideEffect'], undefined | true>
+    : MethodToSide<O['method']>,
+    'method' extends keyof O ? O
+    : O & {
+        method: O extends { sideEffect: true } ? 'POST' : 'GET';
+      }
   >;
   readonly prototype: RestInstanceBase;
 }
 
-export type MethodToSide<M> = M extends string
-  ? M extends 'GET'
-    ? undefined
+export type MethodToSide<M> =
+  M extends string ?
+    M extends 'GET' ?
+      undefined
     : true
   : undefined;
 
@@ -486,29 +466,27 @@ export type RestType<
   // eslint-disable-next-line @typescript-eslint/ban-types
 > = IfTypeScriptLooseNull<
   RestInstance<
-    keyof UrlParams extends never
-      ? (this: EndpointInstanceInterface, body?: Body) => Promise<R>
-      : // even with loose null, this will only be true when all members are optional
-      {} extends UrlParams
-      ?
-          | ((this: EndpointInstanceInterface, body?: Body) => Promise<R>)
-          | ((
-              this: EndpointInstanceInterface,
-              params: UrlParams,
-              body?: Body,
-            ) => Promise<R>)
-      : (
+    keyof UrlParams extends never ?
+      (this: EndpointInstanceInterface, body?: Body) => Promise<R>
+    : // even with loose null, this will only be true when all members are optional
+    {} extends UrlParams ?
+      | ((this: EndpointInstanceInterface, body?: Body) => Promise<R>)
+      | ((
           this: EndpointInstanceInterface,
           params: UrlParams,
           body?: Body,
-        ) => Promise<R>,
+        ) => Promise<R>)
+    : (
+        this: EndpointInstanceInterface,
+        params: UrlParams,
+        body?: Body,
+      ) => Promise<R>,
     S,
     M,
     O
   >,
-  Body extends {}
-    ? RestTypeWithBody<UrlParams, S, M, Body, R, O>
-    : RestTypeNoBody<UrlParams, S, M, R, O>
+  Body extends {} ? RestTypeWithBody<UrlParams, S, M, Body, R, O>
+  : RestTypeNoBody<UrlParams, S, M, R, O>
 >;
 
 export type RestTypeWithBody<
@@ -545,50 +523,40 @@ export type RestFetch<
 > = IfTypeScriptLooseNull<
   | ParamFetchNoBody<UrlParams, Resolve>
   | ParamFetchWithBody<UrlParams, Body, Resolve>,
-  Body extends {}
-    ? ParamFetchWithBody<UrlParams, Body, Resolve>
-    : ParamFetchNoBody<UrlParams, Resolve>
+  Body extends {} ? ParamFetchWithBody<UrlParams, Body, Resolve>
+  : ParamFetchNoBody<UrlParams, Resolve>
 >;
 
 export type ParamFetchWithBody<P, B = {}, R = any> =
   // we must always allow undefined in a union and give it a type without params
-  P extends undefined
-    ? (this: EndpointInstanceInterface, body: B) => Promise<R>
-    : // even with loose null, this will only be true when all members are optional
-    {} extends P
-    ? // this safely handles PathArgs with no members that results in a simple `unknown` type
-      keyof P extends never
-      ? (this: EndpointInstanceInterface, body: B) => Promise<R>
-      :
-          | ((
-              this: EndpointInstanceInterface,
-              params: P,
-              body: B,
-            ) => Promise<R>)
-          | ((this: EndpointInstanceInterface, body: B) => Promise<R>)
-    : (this: EndpointInstanceInterface, params: P, body: B) => Promise<R>;
+  P extends undefined ? (this: EndpointInstanceInterface, body: B) => Promise<R>
+  : // even with loose null, this will only be true when all members are optional
+  {} extends P ?
+    // this safely handles PathArgs with no members that results in a simple `unknown` type
+    keyof P extends never ?
+      (this: EndpointInstanceInterface, body: B) => Promise<R>
+    : | ((this: EndpointInstanceInterface, params: P, body: B) => Promise<R>)
+      | ((this: EndpointInstanceInterface, body: B) => Promise<R>)
+  : (this: EndpointInstanceInterface, params: P, body: B) => Promise<R>;
 
 export type ParamFetchNoBody<P, R = any> =
   // we must always allow undefined in a union and give it a type without params
-  P extends undefined
-    ? (this: EndpointInstanceInterface) => Promise<R>
-    : // even with loose null, this will only be true when all members are optional
-    {} extends P
-    ? // this safely handles PathArgs with no members that results in a simple `unknown` type
-      keyof P extends never
-      ? (this: EndpointInstanceInterface) => Promise<R>
-      :
-          | ((this: EndpointInstanceInterface, params: P) => Promise<R>)
-          | ((this: EndpointInstanceInterface) => Promise<R>)
-    : (this: EndpointInstanceInterface, params: P) => Promise<R>;
+  P extends undefined ? (this: EndpointInstanceInterface) => Promise<R>
+  : // even with loose null, this will only be true when all members are optional
+  {} extends P ?
+    // this safely handles PathArgs with no members that results in a simple `unknown` type
+    keyof P extends never ?
+      (this: EndpointInstanceInterface) => Promise<R>
+    : | ((this: EndpointInstanceInterface, params: P) => Promise<R>)
+      | ((this: EndpointInstanceInterface) => Promise<R>)
+  : (this: EndpointInstanceInterface, params: P) => Promise<R>;
 
 type IfTypeScriptLooseNull<Y, N> = 1 | undefined extends 1 ? Y : N;
 
 export type KeyofRestEndpoint = keyof RestInstance;
 
-export type FromFallBack<K extends keyof E, O, E> = K extends keyof O
-  ? O[K]
-  : E[K];
+export type FromFallBack<K extends keyof E, O, E> = K extends keyof O ? O[K]
+: E[K];
 
 export type FetchMutate<
   A extends readonly any[] =  // eslint-disable-next-line @typescript-eslint/ban-types
@@ -604,9 +572,8 @@ export type FetchGet<A extends readonly any[] = [any], R = any> = (
 ) => Promise<R>;
 
 export type Defaults<O, D> = {
-  [K in keyof O | keyof D]: K extends keyof O
-    ? Exclude<O[K], undefined>
-    : D[Extract<K, keyof D>];
+  [K in keyof O | keyof D]: K extends keyof O ? Exclude<O[K], undefined>
+  : D[Extract<K, keyof D>];
 };
 
 export type GetEndpoint<
@@ -621,11 +588,11 @@ export type GetEndpoint<
     schema: Schema;
   },
 > = RestTypeNoBody<
-  'searchParams' extends keyof O
-    ? O['searchParams'] extends undefined
-      ? PathArgs<O['path']>
-      : O['searchParams'] & PathArgs<O['path']>
-    : PathArgs<O['path']>,
+  'searchParams' extends keyof O ?
+    O['searchParams'] extends undefined ?
+      PathArgs<O['path']>
+    : O['searchParams'] & PathArgs<O['path']>
+  : PathArgs<O['path']>,
   O['schema'],
   undefined,
   any,
@@ -646,11 +613,11 @@ export type MutateEndpoint<
     schema: Schema;
   },
 > = RestTypeWithBody<
-  'searchParams' extends keyof O
-    ? O['searchParams'] extends undefined
-      ? PathArgs<O['path']>
-      : O['searchParams'] & PathArgs<O['path']>
-    : PathArgs<O['path']>,
+  'searchParams' extends keyof O ?
+    O['searchParams'] extends undefined ?
+      PathArgs<O['path']>
+    : O['searchParams'] & PathArgs<O['path']>
+  : PathArgs<O['path']>,
   O['schema'],
   true,
   O['body'],

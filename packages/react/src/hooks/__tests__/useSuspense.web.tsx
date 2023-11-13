@@ -73,8 +73,9 @@ async function testDispatchFetch(
 }
 
 function ArticleComponentTester({ invalidIfStale = false, schema = true }) {
-  let endpoint = invalidIfStale
-    ? InvalidIfStaleArticleResource.get
+  let endpoint =
+    invalidIfStale ?
+      InvalidIfStaleArticleResource.get
     : CoolerArticleResource.get;
   if (!schema) {
     endpoint = (endpoint as any).extend({ schema: undefined }) as any;

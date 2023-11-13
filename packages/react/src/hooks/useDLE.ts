@@ -46,13 +46,13 @@ export default function useDLE<
 >(
   endpoint: E,
   ...args: Args
-): E['schema'] extends undefined | null
-  ? {
-      data: E extends (...args: any) => any ? ResolveType<E> | undefined : any;
-      loading: boolean;
-      error: ErrorTypes | undefined;
-    }
-  : StatefulReturn<E['schema'], Args[0]> {
+): E['schema'] extends undefined | null ?
+  {
+    data: E extends (...args: any) => any ? ResolveType<E> | undefined : any;
+    loading: boolean;
+    error: ErrorTypes | undefined;
+  }
+: StatefulReturn<E['schema'], Args[0]> {
   const state = useCacheState();
   const controller = useController();
 

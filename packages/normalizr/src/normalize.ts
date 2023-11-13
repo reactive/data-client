@@ -168,9 +168,9 @@ Entity: ${JSON.stringify(entity, undefined, 2)}`);
 }
 
 function expectedSchemaType(schema: Schema) {
-  return ['object', 'function'].includes(typeof schema)
-    ? 'object'
-    : typeof schema;
+  return ['object', 'function'].includes(typeof schema) ? 'object' : (
+      typeof schema
+    );
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types

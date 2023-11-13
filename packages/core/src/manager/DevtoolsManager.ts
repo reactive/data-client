@@ -47,8 +47,9 @@ if (process.env.NODE_ENV !== 'production') {
     serialize: {
       options: undefined,
       /* istanbul ignore next */
-      replacer: HASINTL
-        ? (key: string | number | symbol, value: unknown) => {
+      replacer:
+        HASINTL ?
+          (key: string | number | symbol, value: unknown) => {
             if (
               typeof value === 'number' &&
               typeof key === 'string' &&

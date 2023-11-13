@@ -55,8 +55,8 @@ export const denormalize = (
   unvisit: any,
 ): any => {
   schema = validateSchema(schema);
-  return input.map
-    ? input.map(entityOrId => unvisit(entityOrId, schema)).filter(filterEmpty)
+  return input.map ?
+      input.map(entityOrId => unvisit(entityOrId, schema)).filter(filterEmpty)
     : input;
 };
 

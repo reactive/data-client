@@ -19,10 +19,8 @@ export type SuspenseReturn<
   Args extends readonly [...Parameters<E>] | readonly [null],
 > = CondNull<
   Args[0],
-  E['schema'] extends undefined | null
-    ? undefined
-    : DenormalizeNullable<E['schema']>,
-  E['schema'] extends undefined | null
-    ? ResolveType<E>
-    : Denormalize<E['schema']>
+  E['schema'] extends undefined | null ? undefined
+  : DenormalizeNullable<E['schema']>,
+  E['schema'] extends undefined | null ? ResolveType<E>
+  : Denormalize<E['schema']>
 >;

@@ -47,7 +47,11 @@ describe(`${schema.Union.name} normalization`, () => {
         groups: Group,
       },
       input => {
-        return input.username ? 'users' : input.groupname ? 'groups' : null;
+        return (
+          input.username ? 'users'
+          : input.groupname ? 'groups'
+          : null
+        );
       },
     );
 

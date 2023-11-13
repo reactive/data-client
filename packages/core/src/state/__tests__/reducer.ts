@@ -159,17 +159,15 @@ describe('reducer', () => {
           existing: any,
           incoming: any,
         ) {
-          return this.shouldReorder(
-            existingMeta,
-            incomingMeta,
-            existing,
-            incoming,
-          )
-            ? existingMeta
+          return (
+              this.shouldReorder(existingMeta, incomingMeta, existing, incoming)
+            ) ?
+              existingMeta
             : {
                 ...incomingMeta,
-                expiresAt: incoming.content
-                  ? incomingMeta.expiresAt
+                expiresAt:
+                  incoming.content ?
+                    incomingMeta.expiresAt
                   : existingMeta.expiresAt,
               };
         }

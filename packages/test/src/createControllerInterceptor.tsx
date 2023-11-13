@@ -34,9 +34,9 @@ export function createControllerInterceptor<T>(
           ...action,
         };
         const delayMs =
-          typeof fixture.delay === 'function'
-            ? fixture.delay(...(args as any))
-            : fixture.delay ?? 0;
+          typeof fixture.delay === 'function' ?
+            fixture.delay(...(args as any))
+          : fixture.delay ?? 0;
 
         if ('fetchResponse' in fixture) {
           const { fetchResponse } = fixture;

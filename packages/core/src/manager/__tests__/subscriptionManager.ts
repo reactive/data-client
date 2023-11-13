@@ -51,8 +51,9 @@ describe('SubscriptionManager', () => {
       payload: Record<string, any>,
       reject = false,
     ): SubscribeAction {
-      const fetch = reject
-        ? () => Promise.reject(new Error('Failed'))
+      const fetch =
+        reject ?
+          () => Promise.reject(new Error('Failed'))
         : () => Promise.resolve(payload);
       return {
         type: SUBSCRIBE_TYPE,

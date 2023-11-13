@@ -20,10 +20,13 @@ export class Index<S extends Schema, P = Readonly<IndexParams<S>>> {
 export type ArrayElement<ArrayType extends unknown[] | readonly unknown[]> =
   ArrayType[number];
 
-export type IndexParams<S extends Schema> = S extends {
-  indexes: readonly string[];
-}
-  ? {
+export type IndexParams<S extends Schema> =
+  S extends (
+    {
+      indexes: readonly string[];
+    }
+  ) ?
+    {
       [K in Extract<
         ArrayElement<S['indexes']>,
         keyof AbstractInstanceType<S>

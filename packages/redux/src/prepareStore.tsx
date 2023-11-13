@@ -28,9 +28,7 @@ export function prepareStore<R extends Record<string, Reducer> = {}>(
 
 // Extension of the DeepPartial type defined by Redux which handles unknown
 export type DeepPartialWithUnknown<T> = {
-  [K in keyof T]?: T[K] extends unknown
-    ? any
-    : T[K] extends object
-    ? DeepPartialWithUnknown<T[K]>
-    : T[K];
+  [K in keyof T]?: T[K] extends unknown ? any
+  : T[K] extends object ? DeepPartialWithUnknown<T[K]>
+  : T[K];
 };

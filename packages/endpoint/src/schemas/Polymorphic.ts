@@ -10,9 +10,9 @@ export default class PolymorphicSchema {
   ) {
     if (schemaAttribute) {
       this._schemaAttribute =
-        typeof schemaAttribute === 'string'
-          ? (input: any) => input[schemaAttribute]
-          : schemaAttribute;
+        typeof schemaAttribute === 'string' ?
+          (input: any) => input[schemaAttribute]
+        : schemaAttribute;
     }
     this.define(definition);
   }
@@ -85,10 +85,12 @@ Value: ${JSON.stringify(value, undefined, 2)}`,
       storeEntities,
       args,
     );
-    return this.isSingleSchema ||
-      normalizedValue === undefined ||
-      normalizedValue === null
-      ? normalizedValue
+    return (
+        this.isSingleSchema ||
+          normalizedValue === undefined ||
+          normalizedValue === null
+      ) ?
+        normalizedValue
       : {
           id: normalizedValue,
           schema: this.getSchemaAttribute(value, parent, key),
@@ -110,10 +112,9 @@ Value: ${JSON.stringify(value, undefined, 2)}.`,
       }
       return value;
     }
-    const id = this.isSingleSchema
-      ? undefined
-      : isImmutable(value)
-      ? value.get('id')
+    const id =
+      this.isSingleSchema ? undefined
+      : isImmutable(value) ? value.get('id')
       : value.id;
     const schema = this.isSingleSchema ? this.schema : this.schema[schemaKey];
     return unvisit(id || value, schema);

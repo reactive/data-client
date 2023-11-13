@@ -115,11 +115,11 @@ describe('useDLE()', () => {
     () => {
       const result = useDLE(
         TypedArticleResource.get,
-        (true as boolean)
-          ? {
-              id: payload.id,
-            }
-          : null,
+        (true as boolean) ?
+          {
+            id: payload.id,
+          }
+        : null,
       );
       if (!result.loading && !result.error) {
         // @ts-expect-error

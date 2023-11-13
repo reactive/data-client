@@ -168,13 +168,10 @@ export default function EntitySchema<TBase extends Constructor>(
         if (typeof incoming !== typeof existing) {
           return incoming;
         } else {
-          return this.shouldReorder(
-            existingMeta,
-            incomingMeta,
-            existing,
-            incoming,
-          )
-            ? this.merge(incoming, existing)
+          return (
+              this.shouldReorder(existingMeta, incomingMeta, existing, incoming)
+            ) ?
+              this.merge(incoming, existing)
             : this.merge(existing, incoming);
         }
       } else {
@@ -196,8 +193,10 @@ export default function EntitySchema<TBase extends Constructor>(
       existing: any,
       incoming: any,
     ) {
-      return this.shouldReorder(existingMeta, incomingMeta, existing, incoming)
-        ? existingMeta
+      return (
+          this.shouldReorder(existingMeta, incomingMeta, existing, incoming)
+        ) ?
+          existingMeta
         : incomingMeta;
     }
 
@@ -434,21 +433,21 @@ export default function EntitySchema<TBase extends Constructor>(
     };
     const get =
       /* istanbul ignore if */
-      typeof document !== 'undefined' && (document as any).CLS_MANGLE
-        ? /* istanbul ignore next */ function (this: {
-            name: string;
-            key: string;
-          }): string {
-            (document as any).CLS_MANGLE?.(this);
-            Object.defineProperty(EntityMixin, 'key', {
-              get: baseGet,
-              set,
-              enumerable: true,
-              configurable: true,
-            });
-            return baseGet.call(this);
-          }
-        : baseGet;
+      typeof document !== 'undefined' && (document as any).CLS_MANGLE ?
+        /* istanbul ignore next */ function (this: {
+          name: string;
+          key: string;
+        }): string {
+          (document as any).CLS_MANGLE?.(this);
+          Object.defineProperty(EntityMixin, 'key', {
+            get: baseGet,
+            set,
+            enumerable: true,
+            configurable: true,
+          });
+          return baseGet.call(this);
+        }
+      : baseGet;
 
     Object.defineProperty(EntityMixin, 'key', {
       get,
