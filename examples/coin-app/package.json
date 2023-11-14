@@ -1,7 +1,7 @@
 {
   "name": "coinbase-lite",
   "version": "0.0.1",
-  "packageManager": "yarn@3.6.4",
+  "packageManager": "yarn@3.7.0",
   "description": "Coin App",
   "scripts": {
     "lint": "eslint src --ext .ts,.tsx",
