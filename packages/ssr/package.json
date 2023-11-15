@@ -12,6 +12,8 @@
     "url": "https://github.com/reactive/data-client/issues"
   },
   "keywords": [
+    "front-end",
+    "web",
     "ssr",
     "server side rendering",
     "incremental hydration",
