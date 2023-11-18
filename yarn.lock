@@ -189,9 +189,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/babel-preset@npm:4.4.2, @anansi/babel-preset@npm:^4.2.15":
-  version: 4.4.2
-  resolution: "@anansi/babel-preset@npm:4.4.2"
+"@anansi/babel-preset@npm:4.4.3, @anansi/babel-preset@npm:^4.2.15":
+  version: 4.4.3
+  resolution: "@anansi/babel-preset@npm:4.4.3"
   dependencies:
     "@anansi/ts-utils": ^0.3.6
     "@babel/plugin-proposal-class-properties": ^7.18.6
@@ -254,7 +254,7 @@ __metadata:
       optional: true
     typescript:
       optional: true
-  checksum: cc91816432527c9c5509a6915756e173a329a69f189824374778b4bbd4bf3f4252687f46cf41da0be3600a9b0c8d9d983884adf7d76a1994113e47da0e2c09c1
+  checksum: 12c3b2cb73399a92bf8a1cd6c72c067d36f420548406747d51c223a61b8d3b8f19ceee591f70a812803c6506d6b94e71140844f6fc19bdf57e3d6c8b336766e8
   languageName: node
   linkType: hard
 
@@ -455,9 +455,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:16.0.6, @anansi/webpack-config@npm:^16.0.0":
-  version: 16.0.6
-  resolution: "@anansi/webpack-config@npm:16.0.6"
+"@anansi/webpack-config@npm:16.0.7, @anansi/webpack-config@npm:^16.0.0":
+  version: 16.0.7
+  resolution: "@anansi/webpack-config@npm:16.0.7"
   dependencies:
     "@babel/runtime": ^7.17.2
     "@linaria/webpack5-loader": 5.0.4
@@ -478,7 +478,7 @@ __metadata:
     crypto-browserify: ^3.12.0
     css-loader: ^6.8.1
     css-minimizer-webpack-plugin: ^5.0.1
-    domain-browser: ^4.23.0
+    domain-browser: ^5.2.0
     duplicate-package-checker-webpack-plugin: ^3.0.0
     events: ^3.3.0
     file-loader: ^6.2.0
@@ -518,7 +518,7 @@ __metadata:
     url: ^0.11.3
     util: ^0.12.5
     vm-browserify: ^1.1.2
-    webpack-bundle-analyzer: ^4.9.1
+    webpack-bundle-analyzer: ^4.10.1
     webpack-node-externals: ^3.0.0
     webpack-remove-empty-scripts: ^1.0.4
     webpack-stats-plugin: ^1.1.3
@@ -562,7 +562,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: 30a70ca72047f07d45642390d428477224845b430fbd85ab80bee44eb8e06a7204ca9cbebb743ed64f1286fc54a8a40231d2e89c733325b69afd9e028407ee33
+  checksum: badb31c9ad143b1ccd21a09cdf8e1d856b76141d397ad321cb82f4b9596ab50aca71aad82d78d64b4b06b3e2cb0b53903d679094f852c039218f6ef1ddd3d87e
   languageName: node
   linkType: hard
 
@@ -11845,6 +11845,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"debounce@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "debounce@npm:1.2.1"
+  checksum: 682a89506d9e54fb109526f4da255c5546102fbb8e3ae75eef3b04effaf5d4853756aee97475cd4650641869794e44f410eeb20ace2b18ea592287ab2038519e
+  languageName: node
+  linkType: hard
+
 "debug@npm:2.6.9, debug@npm:^2.2.0, debug@npm:^2.6.0":
   version: 2.6.9
   resolution: "debug@npm:2.6.9"
@@ -12356,10 +12363,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"domain-browser@npm:^4.23.0":
-  version: 4.23.0
-  resolution: "domain-browser@npm:4.23.0"
-  checksum: 95b772f5fa88300240694380e06e03868573acdf86ca392a58c78602d6536dca2097ad2469a1500bd23a1329b09992de846e0b66c364cbf5711a7fee3ee5dac9
+"domain-browser@npm:^5.2.0":
+  version: 5.2.0
+  resolution: "domain-browser@npm:5.2.0"
+  checksum: 8204dd296ae7a951d6aac209f776ddabb1165dec40824b8ba5b057dad07685a8029e6f9b8537d2d41770ef485b7aa162a9cd6fc4c86f1e5b8c439171adb32c37
   languageName: node
   linkType: hard
 
@@ -15428,10 +15435,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"html-escaper@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "html-escaper@npm:2.0.0"
-  checksum: 02124d0018e5cdc1cec632a1e8b57dce103fa27c448dd915ddc22b6dffbd697bdce0ee0c23429c36c5036b2c61ea16c63a5132dd51d8e3c75d58e38bbd3c19bf
+"html-escaper@npm:^2.0.0, html-escaper@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "html-escaper@npm:2.0.2"
+  checksum: d2df2da3ad40ca9ee3a39c5cc6475ef67c8f83c234475f24d8e9ce0dc80a2c82df8e1d6fa78ddd1e9022a586ea1bd247a615e80a5cd9273d90111ddda7d9e974
   languageName: node
   linkType: hard
 
@@ -18143,31 +18150,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash.escape@npm:^4.0.1":
-  version: 4.0.1
-  resolution: "lodash.escape@npm:4.0.1"
-  checksum: fcb54f457497256964d619d5cccbd80a961916fca60df3fe0fa3e7f052715c2944c0ed5aefb4f9e047d127d44aa2d55555f3350cb42c6549e9e293fb30b41e7f
-  languageName: node
-  linkType: hard
-
-"lodash.flatten@npm:^4.4.0":
-  version: 4.4.0
-  resolution: "lodash.flatten@npm:4.4.0"
-  checksum: 0ac34a393d4b795d4b7421153d27c13ae67e08786c9cbb60ff5b732210d46f833598eee3fb3844bb10070e8488efe390ea53bb567377e0cb47e9e630bf0811cb
-  languageName: node
-  linkType: hard
-
 "lodash.flow@npm:^3.3.0":
   version: 3.5.0
   resolution: "lodash.flow@npm:3.5.0"
   checksum: a9a62ad344e3c5a1f42bc121da20f64dd855aaafecee24b1db640f29b88bd165d81c37ff7e380a7191de6f70b26f5918abcebbee8396624f78f3618a0b18634c
-  languageName: node
-  linkType: hard
-
-"lodash.invokemap@npm:^4.6.0":
-  version: 4.6.0
-  resolution: "lodash.invokemap@npm:4.6.0"
-  checksum: 646ceebbefbcb6da301f8c2868254680fd0bcdc6ada470495d9ae49c9c32938829c1b38a38c95d0258409a9655f85db404b16e648381c7450b7ed3d9c52d8808
   languageName: node
   linkType: hard
 
@@ -18220,13 +18206,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash.pullall@npm:^4.2.0":
-  version: 4.2.0
-  resolution: "lodash.pullall@npm:4.2.0"
-  checksum: 7a5fbaedf186ec197ce1e0b9ba1d88a89773ebaf6a8291c7d273838cac59cb3b339cf36ef00e94172862ee84d2304c38face161846f08f5581d0553dcbdcd090
-  languageName: node
-  linkType: hard
-
 "lodash.startcase@npm:^4.4.0":
   version: 4.4.0
   resolution: "lodash.startcase@npm:4.4.0"
@@ -18245,13 +18224,6 @@ __metadata:
   version: 4.5.0
   resolution: "lodash.uniq@npm:4.5.0"
   checksum: a4779b57a8d0f3c441af13d9afe7ecff22dd1b8ce1129849f71d9bbc8e8ee4e46dfb4b7c28f7ad3d67481edd6e51126e4e2a6ee276e25906d10f7140187c392d
-  languageName: node
-  linkType: hard
-
-"lodash.uniqby@npm:^4.7.0":
-  version: 4.7.0
-  resolution: "lodash.uniqby@npm:4.7.0"
-  checksum: 659264545a95726d1493123345aad8cbf56e17810fa9a0b029852c6d42bc80517696af09d99b23bef1845d10d95e01b8b4a1da578f22aeba7a30d3e0022a4938
   languageName: node
   linkType: hard
 
@@ -23885,7 +23857,7 @@ __metadata:
   resolution: "rdc-website@workspace:website"
   dependencies:
     "@anansi/browserslist-config": 1.4.3
-    "@anansi/webpack-config": 16.0.6
+    "@anansi/webpack-config": 16.0.7
     "@data-client/endpoint": "workspace:^"
     "@data-client/graphql": "workspace:*"
     "@data-client/hooks": "workspace:*"
@@ -25446,7 +25418,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    "@anansi/babel-preset": 4.4.2
+    "@anansi/babel-preset": 4.4.3
     "@anansi/browserslist-config": 1.4.3
     "@anansi/eslint-plugin": 0.16.36
     "@anansi/jest-preset": 0.10.23
@@ -28973,30 +28945,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-bundle-analyzer@npm:^4.9.0, webpack-bundle-analyzer@npm:^4.9.1":
-  version: 4.9.1
-  resolution: "webpack-bundle-analyzer@npm:4.9.1"
+"webpack-bundle-analyzer@npm:^4.10.1, webpack-bundle-analyzer@npm:^4.9.0":
+  version: 4.10.1
+  resolution: "webpack-bundle-analyzer@npm:4.10.1"
   dependencies:
     "@discoveryjs/json-ext": 0.5.7
     acorn: ^8.0.4
     acorn-walk: ^8.0.0
     commander: ^7.2.0
+    debounce: ^1.2.1
     escape-string-regexp: ^4.0.0
     gzip-size: ^6.0.0
+    html-escaper: ^2.0.2
     is-plain-object: ^5.0.0
-    lodash.debounce: ^4.0.8
-    lodash.escape: ^4.0.1
-    lodash.flatten: ^4.4.0
-    lodash.invokemap: ^4.6.0
-    lodash.pullall: ^4.2.0
-    lodash.uniqby: ^4.7.0
     opener: ^1.5.2
     picocolors: ^1.0.0
     sirv: ^2.0.3
     ws: ^7.3.1
   bin:
     webpack-bundle-analyzer: lib/bin/analyzer.js
-  checksum: 7e891c28d5a903242893e55ecc714fa01d7ad6bedade143235c07091b235915349812fa048968462781d59187507962f38b6c61ed7d25fb836ba0ac0ee919a39
+  checksum: 77f48f10a493b1cc95674526472978a2de32412ddbf556bd3903738f14890611426f19477352993efe5a9fd6ca16711eb912d986f2221b17ba6eeca1b6f71fb6
   languageName: node
   linkType: hard
 
