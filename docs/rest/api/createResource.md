@@ -322,7 +322,7 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 `extend()` is polymorphic with three forms:
 
-#### Batch extension of known members
+#### Batch extension of known members  {#extend-override}
 
 ```ts
 export const CommentResource = createResource({
@@ -334,7 +334,7 @@ export const CommentResource = createResource({
 });
 ```
 
-#### Adding new members
+#### Adding new members {#extend-new}
 
 ```ts
 export const UserResource = createGithubResource({
@@ -346,7 +346,7 @@ export const UserResource = createGithubResource({
 });
 ```
 
-#### Function form (to get BaseResource/super)
+#### Function form (to get BaseResource/super) {#extend-function}
 
 ```ts
 export const IssueResource= createResource({
