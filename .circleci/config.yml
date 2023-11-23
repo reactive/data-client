@@ -106,7 +106,7 @@ jobs:
             node --version
       - run:
           command: |
-            yarn test:ci --maxWorkers=3 --selectProjects Node
+            npm test --ci --maxWorkers=3 --selectProjects Node
 
   non-app-examples:
     docker: *docker
