@@ -38,7 +38,7 @@
     "g:lint": "cd $INIT_CWD && eslint"
   },
   "engines": {
-    "node": "^12.17 || ^13.7 || >=14"
+    "node": ">=14"
   },
   "browserslist": [
     "extends @anansi/browserslist-config"
