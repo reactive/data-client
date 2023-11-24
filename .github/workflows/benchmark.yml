@@ -38,7 +38,7 @@ jobs:
         yarn install --immutable
     - name: Build packages
       run: |
-        NODE_ENV=production BROWSERSLIST_ENV=modern yarn workspaces foreach -ptivR --from @data-client/core run build:lib && NODE_ENV=production BROWSERSLIST_ENV=modern yarn workspaces foreach -ptivR --from @data-client/endpoint run build:lib
+        NODE_ENV=production BROWSERSLIST_ENV=modern yarn workspaces foreach -WptivR --from @data-client/core run build:lib && NODE_ENV=production BROWSERSLIST_ENV=modern yarn workspaces foreach -WptivR --from @data-client/endpoint run build:lib
     - name: Run benchmark
       run: yarn workspace example-benchmark build && yarn workspace example-benchmark start | tee output.txt
 
