@@ -45,7 +45,11 @@ controller.fetch(
   { id: '5' },
   { ...todo, completed: true },
 );
-controller.fetch(TodoResource.partialUpdate, { id: '5' }, { completed: true });
+controller.fetch(
+  TodoResource.partialUpdate,
+  { id: '5' },
+  { completed: true },
+);
 controller.fetch(TodoResource.delete, { id: '5' });
 ```
 
@@ -137,7 +141,9 @@ class MyCollection<
 }
 const TodoResource = createResource({
   path: '/todos/:id',
-  searchParams: {} as { userId?: string; orderBy?: string } | undefined,
+  searchParams: {} as
+    | { userId?: string; orderBy?: string }
+    | undefined,
   schema: Todo,
   // highlight-next-line
   Collection: MyCollection,
@@ -154,52 +160,71 @@ new endpoints](#customizing-resources) based to match your API.
 
 ### get
 
-Retrieve a singular item.
+Retrieve a singular entity.
 
-- method: 'GET'
-- path: `path`
-- schema: [schema](#schema)
+| Field  | Value             |
+| :----: | ----------------- |
+| method | 'GET'             |
+|  path  | [path](#path)     |
+| schema | [schema](#schema) |
 
 ```typescript
 // GET //test.com/api/abc/xyz
-createResource({ urlPrefix: '//test.com', path: '/api/:group/:id' }).get({
+createResource({
+  urlPrefix: '//test.com',
+  path: '/api/:group/:id',
+}).get({
   group: 'abc',
   id: 'xyz',
 });
-````
+```
 
-Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidate](/docs/api/Controller#invalidate)
+Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidate](/docs/api/Controller#invalidate), [Controller.expireAll](/docs/api/Controller#expireAll)
 
 ### getList
 
-Retrieve a list of items.
+Retrieve a list of entities.
 
-- method: 'GET'
-- args: PathToArgs(shortenPath(path)) & [searchParams](#searchparams)
-  - Removes the last argument:
-    ```ts
-    createResource({ path: '/:first/:second' }).getList.path === '/:first';
-    createResource({ path: '/:first' }).getList.path === '/';
-    ```
-- schema: [new schema.Collection(\[schema\])](./Collection.md)
+|      Field      | Value                                                |
+| :-------------: | ---------------------------------------------------- |
+|     method      | 'GET'                                                |
+|      path       | removeLastArg([path](#path))                         |
+|  searchParams   | [searchParams](#searchparams)                        |
+| paginationField | [paginationField](#paginationfield)                  |
+|     schema      | [new schema.Collection(\[schema\])](./Collection.md) |
+
+<!-- prettier-ignore-start -->
+```ts
+createResource({ path: '/:first/:second' }).getList.path === '/:first';
+createResource({ path: '/:first' }).getList.path === '/';
+```
+<!-- prettier-ignore-end -->
 
 ```typescript
 // GET //test.com/api/abc?isExtra=xyz
-createResource({ urlPrefix: '//test.com', path: '/api/:group/:id' }).getList({
+createResource({
+  urlPrefix: '//test.com',
+  path: '/api/:group/:id',
+  searchParams: {} as { isExtra: string },
+}).getList({
   group: 'abc',
   isExtra: 'xyz',
 });
 ```
 
-Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidate](/docs/api/Controller#invalidate)
+Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidate](/docs/api/Controller#invalidate), [Controller.expireAll](/docs/api/Controller#expireAll)
 
 ### getList.push {#push}
 
 [push](./RestEndpoint.md#push) creates a new entity and pushes it to the end of getList.
 
-- method: 'POST'
-- args: PathToArgs(shortenPath(path)) & [searchParams](#searchparams)
-- schema: getList.[schema.push](./Collection.md#push)
+|    Field     | Value                                       |
+| :----------: | ------------------------------------------- |
+|    method    | 'POST'                                      |
+|     path     | removeLastArg([path](#path))                |
+| searchParams | [searchParams](#searchparams)               |
+|     body     | [body](#body)                               |
+|    schema    | getList.[schema.push](./Collection.md#push) |
 
 ```typescript
 // POST //test.com/api/abc
@@ -216,9 +241,13 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 [unshift](./RestEndpoint.md#unshift) creates a new entity and pushes it to the beginning of getList.
 
-- method: 'POST'
-- args: PathToArgs(shortenPath(path)) & [searchParams](#searchparams)
-- schema: getList.[schema.unshift](./Collection.md#unshift)
+|    Field     | Value                                             |
+| :----------: | ------------------------------------------------- |
+|    method    | 'POST'                                            |
+|     path     | removeLastArg([path](#path))                      |
+| searchParams | [searchParams](#searchparams)                     |
+|     body     | [body](#body)                                     |
+|    schema    | getList.[schema.unshift](./Collection.md#unshift) |
 
 ```typescript
 // POST //test.com/api/abc
@@ -235,9 +264,15 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 [getPage](./RestEndpoint.md#getpage) retrieves another [page](../guides/pagination.md#infinite-scrolling) appending to getList ensuring there are no duplicates.
 
-- method: 'GET'
-- args: PathToArgs(shortenPath(path)) & [searchParams](#searchparams) & \{ [paginationField]: string | number \}
-- schema: [getList.schema.addWith](./RestEndpoint.md#getpage)
+|      Field      | Value                                               |
+| :-------------: | --------------------------------------------------- |
+|     method      | 'GET'                                               |
+|      path       | removeLastArg([path](#path))                        |
+|  searchParams   | [searchParams](#searchparams)                       |
+| paginationField | [paginationField](#paginationfield)                 |
+|     schema      | [getList.schema.addWith](./RestEndpoint.md#getpage) |
+
+args: `PathToArgs(shortenPath(path)) & searchParams & \{ [paginationField]: string | number \}`
 
 ```typescript
 // GET //test.com/api/abc?isExtra=xyz&page=2
@@ -256,30 +291,36 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ### update
 
-Update an item.
+Update an entity.
 
-- method: 'PUT'
-- path: `path`
-- schema: `schema`
+| Field  | Value             |
+| :----: | ----------------- |
+| method | 'PUT'             |
+|  path  | [path](#path)     |
+|  body  | [body](#body)     |
+| schema | [schema](#schema) |
 
 ```typescript
 // PUT //test.com/api/abc/xyz
 // BODY { "title": "winning" }
-createResource({ urlPrefix: '//test.com', path: '/api/:group/:id' }).update(
-  { group: 'abc', id: 'xyz' },
-  { title: 'winning' },
-);
+createResource({
+  urlPrefix: '//test.com',
+  path: '/api/:group/:id',
+}).update({ group: 'abc', id: 'xyz' }, { title: 'winning' });
 ```
 
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ### partialUpdate
 
-Update some subset of fields of an item.
+Update some subset of fields of an entity.
 
-- method: 'PATCH'
-- path: `path`
-- schema: `schema`
+| Field  | Value             |
+| :----: | ----------------- |
+| method | 'PATCH'           |
+|  path  | [path](#path)     |
+|  body  | [body](#body)     |
+| schema | [schema](#schema) |
 
 ```typescript
 // PATCH //test.com/api/abc/xyz
@@ -294,21 +335,38 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ### delete
 
-Deletes an item.
+Deletes an entity.
 
-- method: 'DELETE'
-- path: `path`
-- schema: [new schema.Invalidate(schema)](./Invalidate.md)
-- process:
-  ```ts
-  (value, params) {
-    return value && Object.keys(value).length ? value : params;
-  },
-  ```
+<table>
+<tr>
+<th>method</th><td>'DELETE'</td>
+</tr>
+<tr>
+<th>path</th><td>[path](#path)</td>
+</tr>
+<tr>
+<th>schema</th><td>[new schema.Invalidate(schema)](./Invalidate.md)</td>
+</tr>
+<tr>
+<th>process</th>
+<td>
+
+```ts
+(value, params) {
+  return value && Object.keys(value).length ? value : params;
+},
+```
+
+</td>
+</tr>
+</table>
 
 ```typescript
 // DELETE //test.com/api/abc/xyz
-createResource({ urlPrefix: '//test.com', path: '/api/:group/:id' }).delete({
+createResource({
+  urlPrefix: '//test.com',
+  path: '/api/:group/:id',
+}).delete({
   group: 'abc',
   id: 'xyz',
 });
@@ -322,7 +380,7 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 `extend()` is polymorphic with three forms:
 
-#### Batch extension of known members  {#extend-override}
+#### Batch extension of known members {#extend-override}
 
 ```ts
 export const CommentResource = createResource({
