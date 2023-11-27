@@ -374,6 +374,21 @@ createResource({
 
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
+#### Response
+
+```json
+{ "id": "xyz" }
+```
+
+Response should either be the [pk](./Entity.md#pk) as a string (like `'xyz'`). Or an object with the members needed to compute
+[Entity.pk](./Entity.md#pk) (like `{id: 'xyz'}`).
+
+If no response is provided, the `process` implementation will attempt to use the url parameters sent as an object to compute
+the [Entity.pk](./Entity.md#pk). This enables the default implementation to still work with no response, so long as standard
+arguments are used.
+
+This allows [schema.Invalidate](./Invalidate.md) to remove the entity from the [entity table](/docs/concepts/normalization)
+
 ### extend() {#extend}
 
 `createResource` builds a great starting point, but often endpoints need to be [further customized](./RestEndpoint.md#typing).
