@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "jsx": "react",
+    "jsx": "react-jsx",
     "lib": ["dom", "esnext"],
     "strictNullChecks": true
   },

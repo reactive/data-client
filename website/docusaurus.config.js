@@ -164,6 +164,7 @@ module.exports = {
         docs: {
           //id: 'core',
           path: '../docs/core',
+          exclude: ['getting-started/README.md'],
           //routeBasePath: 'core',
           sidebarPath: require.resolve('./sidebars.json'),
           showLastUpdateAuthor: true,
@@ -182,8 +183,9 @@ module.exports = {
           versions: {
             current: { label: '0.1', path: '', badge: false },
           },
-          onlyIncludeVersions: isDev
-            ? ['current', ...versions.slice(0, 4)]
+          onlyIncludeVersions:
+            isDev ?
+              ['current', ...versions.slice(0, 4)]
             : ['current', ...versions],
         },
         blog: {
@@ -492,6 +494,11 @@ module.exports = {
         apiKey: 'a36d6d6008f8ac0a20e1ed088be3a8d4',
         indexName: 'dataclient',
         contextualSearch: true,
+        searchParameters: {
+          /* de-rank blog */
+          optionalFilters: ['docusaurus_tag:-default'],
+        },
+        /* algolia specific settings - https://docsearch.algolia.com/docs/api */
         sitemaps: ['https://dataclient.io/sitemap.xml'],
         placeholder: 'Search Reactive Data Client',
         debug: process.env.NODE_ENV === 'development',
