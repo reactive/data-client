@@ -1,4 +1,5 @@
 const path = require('path');
+const { themes } = require('prism-react-renderer');
 
 const versions = require('./versions.json');
 //const versionsRest = require('./rest_versions.json');
@@ -312,6 +313,10 @@ module.exports = {
         defaultMode: 'light',
         disableSwitch: false,
         respectPrefersColorScheme: true,
+      },
+      prism: {
+        additionalLanguages: ['bash', /*'diff', */ 'json'],
+        darkTheme: { ...themes.palenight, plain: {} },
       },
       image: 'img/client-logo.png',
       // Open Graph and Twitter card images.

@@ -4,7 +4,7 @@ title: createResource
 ---
 
 <head>
-  <title>createResource() - Collection of CRUD Endpoints</title>
+  <title>createResource() - TypeScript definition for REST API resources</title>
   <meta name="docsearch:pagerank" content="30"/>
 </head>
 
@@ -172,6 +172,7 @@ createResource({
   id: 'xyz',
 });
 ```
+
 
 | Field  | Value             |
 | :----: | ----------------- |
