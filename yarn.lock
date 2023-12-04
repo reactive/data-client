@@ -3236,12 +3236,12 @@ __metadata:
     "@data-client/react": "workspace:*"
     "@types/node": "npm:^20.0.0"
     "@types/react": "npm:^18.0.30"
-    redux: "npm:^4.2.1"
+    redux: "npm:^5.0.0"
   peerDependencies:
     "@data-client/react": ^0.8.0 || ^0.9.0
     "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0
     react: ^16.8.4 || ^17.0.0 || ^18.0.0
-    redux: ^4.0.0
+    redux: ^4.0.0 || ^5.0.0
   peerDependenciesMeta:
     "@types/react":
       optional: true
@@ -3274,14 +3274,14 @@ __metadata:
     "@types/react-dom": "npm:^18.0.11"
     next: "npm:^14.0.0"
     react-dom: "npm:^18.2.0"
-    redux: "npm:^4.2.1"
+    redux: "npm:^5.0.0"
   peerDependencies:
     "@data-client/react": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0 || ^0.5.0 || ^0.7.0 || ^0.8.0 || ^0.9.0
     "@data-client/redux": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.5.0 || ^0.7.0 || ^0.8.0 || ^0.9.0
     "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
     next: ">=12.0.0"
     react: ^16.8.4 || ^17.0.0 || ^18.0.0-0
-    redux: ^4.0.0
+    redux: ^4.0.0 || ^5.0.0
   peerDependenciesMeta:
     "@types/react":
       optional: true
@@ -10198,7 +10198,7 @@ __metadata:
     react: "npm:^18.2.0"
     react-dom: "npm:^18.2.0"
     react-refresh: "npm:*"
-    redux: "npm:^4.2.1"
+    redux: "npm:^5.0.0"
     typescript: "npm:^5.2.2"
     webpack: "npm:*"
     webpack-cli: "npm:*"
@@ -21037,7 +21037,7 @@ __metadata:
     "@octokit/rest": "npm:19.0.13"
     "@types/babel__core": "npm:^7"
     inquirer: "npm:^8.1.1"
-    redux: "npm:4.2.1"
+    redux: "npm:5.0.0"
     redux-thunk: "npm:^2.3.0"
     rollup: "npm:2.79.1"
     rollup-plugin-babel: "npm:^4.4.0"
@@ -24857,7 +24857,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"redux@npm:4.2.1, redux@npm:^4.2.1":
+"redux@npm:5.0.0, redux@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "redux@npm:5.0.0"
+  checksum: 31e0e1c1483ff7f264cf3a8e47b8d5149249273bc8694edf72291faf9a631e4164a77d515c688e7f74ecac1dc629ed2c05d0598aebdb896ed9e2f39fd014a2a3
+  languageName: node
+  linkType: hard
+
+"redux@npm:^4.2.1":
   version: 4.2.1
   resolution: "redux@npm:4.2.1"
   dependencies:
@@ -25735,7 +25742,7 @@ __metadata:
     react-native-safe-area-context: "npm:^4.4.1"
     react-native-screens: "npm:^3.18.2"
     react-test-renderer: "npm:18.2.0"
-    redux: "npm:4.2.1"
+    redux: "npm:5.0.0"
     rimraf: "npm:^5.0.0"
     rollup: "npm:2.79.1"
     rollup-plugin-babel: "npm:^4.4.0"
