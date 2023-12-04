@@ -1,13 +1,15 @@
-const path = require('path');
-const { themes } = require('prism-react-renderer');
+import type * as Preset from '@docusaurus/preset-classic';
+import type * as PresetMermaid from '@docusaurus/theme-mermaid';
+import type { Config } from '@docusaurus/types';
+import path from 'path';
+import { themes } from 'prism-react-renderer';
 
-const versions = require('./versions.json');
+import versions from './versions.json';
 //const versionsRest = require('./rest_versions.json');
 
 const isDev = process.env.NODE_ENV === 'development';
 
-/** @type {import('@docusaurus/types').DocusaurusConfig} */
-module.exports = {
+const config: Config = {
   title: 'Reactive Data Client',
   tagline: 'Async State Management without the Management',
   url: 'https://dataclient.io',
@@ -160,7 +162,6 @@ module.exports = {
   presets: [
     [
       '@docusaurus/preset-classic',
-      /** @type {import('@docusaurus/preset-classic').Options} */
       {
         docs: {
           //id: 'core',
@@ -201,7 +202,7 @@ module.exports = {
         gtag: {
           trackingID: 'G-1E9TCGX1ZE',
         },
-      },
+      } satisfies Preset.Options,
     ],
   ],
   plugins: [
@@ -295,70 +296,70 @@ module.exports = {
     path.resolve(__dirname, './profiling-plugin'),
     path.resolve(__dirname, './raw-plugin'),
   ],
-  themeConfig:
-    /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
-    /** @type {import('@docusaurus/theme-mermaid').ThemeConfig} */
-    {
-      mermaid: {
-        theme: { light: 'neutral', dark: 'dark' },
-        options: {
-          fontFamily:
-            "'Rubik', 'Avenir Next', 'Segoe UI', Tahoma, Geneva,Verdana, sans-serif",
-          flowchart: {
-            //diagramPadding: 100,
-          },
+  themeConfig: {
+    mermaid: {
+      theme: { light: 'neutral', dark: 'dark' },
+      options: {
+        fontFamily:
+          "'Rubik', 'Avenir Next', 'Segoe UI', Tahoma, Geneva,Verdana, sans-serif",
+        flowchart: {
+          //diagramPadding: 100,
         },
       },
-      colorMode: {
-        defaultMode: 'light',
-        disableSwitch: false,
-        respectPrefersColorScheme: true,
+    },
+    colorMode: {
+      defaultMode: 'light',
+      disableSwitch: false,
+      respectPrefersColorScheme: true,
+    },
+    prism: {
+      additionalLanguages: ['bash', /*'diff', */ 'json'],
+      darkTheme: {
+        ...themes.palenight,
+        plain: { backgroundColor: 'transparent' },
       },
-      prism: {
-        additionalLanguages: ['bash', /*'diff', */ 'json'],
-        darkTheme: { ...themes.palenight, plain: {} },
+    },
+    image: 'img/client-logo.png',
+    // Open Graph and Twitter card images.
+    ogImage: 'img/client-logo.png',
+    twitterImage: 'img/client-logo.png',
+    announcementBar: {
+      id: 'announcementBar-2', // Increment on change
+      content: `If you like Reactive Data Client, give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/reactive/data-client">GitHub</a>`,
+    },
+    navbar: {
+      title: 'Reactive Data Client',
+      logo: {
+        src: 'img/client-logo.svg',
+        alt: 'Reactive Data Client',
+        width: '32',
+        height: '32',
       },
-      image: 'img/client-logo.png',
-      // Open Graph and Twitter card images.
-      ogImage: 'img/client-logo.png',
-      twitterImage: 'img/client-logo.png',
-      announcementBar: {
-        id: 'announcementBar-2', // Increment on change
-        content: `If you like Reactive Data Client, give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/reactive/data-client">GitHub</a>`,
-      },
-      navbar: {
-        title: 'Reactive Data Client',
-        logo: {
-          src: 'img/client-logo.svg',
-          alt: 'Reactive Data Client',
-          width: '32',
-          height: '32',
+      hideOnScroll: true,
+      items: [
+        {
+          to: 'docs',
+          label: 'Docs',
+          position: 'left',
         },
-        hideOnScroll: true,
-        items: [
-          {
-            to: 'docs',
-            label: 'Docs',
-            position: 'left',
-          },
-          {
-            to: 'docs/api/useSuspense',
-            label: 'Hooks',
-            position: 'left',
-            activeBasePath: '/donotuse',
-          },
-          {
-            to: 'rest',
-            label: 'REST',
-            position: 'left',
-          },
-          {
-            to: 'graphql',
-            label: 'GraphQL',
-            position: 'left',
-          },
-          { to: '/blog', label: 'News', position: 'left' },
-          /*{
+        {
+          to: 'docs/api/useSuspense',
+          label: 'Hooks',
+          position: 'left',
+          activeBasePath: '/donotuse',
+        },
+        {
+          to: 'rest',
+          label: 'REST',
+          position: 'left',
+        },
+        {
+          to: 'graphql',
+          label: 'GraphQL',
+          position: 'left',
+        },
+        { to: '/blog', label: 'News', position: 'left' },
+        /*{
             type: 'docsVersionDropdown',
             docsPluginId: 'default',
             position: 'right',
@@ -379,103 +380,103 @@ module.exports = {
             docsPluginId: 'graphql',
             position: 'right',
           }, TODO: Add back when we have versions to upgrade*/
-          {
-            to: 'demos',
-            //label: '🎮 Demos',
-            position: 'right',
-            className: 'header-demos-link',
-            'aria-label': 'Demo Applications',
-          },
-          {
-            href: 'https://github.com/reactive/data-client',
-            position: 'right',
-            className: 'header-github-link',
-            'aria-label': 'GitHub repository',
-          },
-          {
-            href: 'https://discord.gg/9aTc42GXWR',
-            position: 'right',
-            className: 'header-discord-link',
-            'aria-label': 'Discord chat support',
-          },
-        ],
-      },
-      footer: {
-        links: [
-          {
-            title: 'Docs',
-            items: [
-              {
-                label: 'Introduction',
-                to: '/docs',
-              },
-              {
-                label: 'REST',
-                to: '/rest',
-              },
-              {
-                label: 'GraphQL',
-                to: '/graphql',
-              },
-              {
-                label: 'Images / Binary',
-                to: '/docs/guides/img-media',
-              },
-              {
-                label: 'Websockets+SSE',
-                to: '/docs/api/Manager#data-stream',
-              },
-              {
-                label: 'Hooks',
-                to: '/docs/api/useSuspense',
-              },
-            ],
-          },
-          {
-            title: 'Community',
-            items: [
-              {
-                label: 'Discord',
-                href: 'https://discord.gg/35nb8Mz',
-              },
-              {
-                label: 'Stack Overflow',
-                href: 'http://stackoverflow.com/questions/tagged/data-client',
-              },
-              {
-                label: 'Twitter',
-                href: 'https://twitter.com/dataclientio',
-              },
-              {
-                label: 'Bug Report',
-                href: 'https://github.com/reactive/data-client/issues/new/choose',
-              },
-            ],
-          },
-          {
-            title: 'More',
-            items: [
-              {
-                label: 'Blog',
-                to: '/blog',
-              },
-              {
-                label: 'Github',
-                to: 'https://github.com/reactive/data-client',
-              },
-              {
-                label: 'Demo (Github)',
-                to: 'https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?file=src%2Fpages%2FIssueList/index.tsx',
-              },
-              {
-                label: 'Demo (Todo)',
-                to: 'https://stackblitz.com/github/reactive/data-client/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx',
-              },
-              {
-                label: 'Demo (NextJS)',
-                to: 'https://stackblitz.com/github/reactive/data-client/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx',
-              },
-              /*{
+        {
+          to: 'demos',
+          //label: '🎮 Demos',
+          position: 'right',
+          className: 'header-demos-link',
+          'aria-label': 'Demo Applications',
+        },
+        {
+          href: 'https://github.com/reactive/data-client',
+          position: 'right',
+          className: 'header-github-link',
+          'aria-label': 'GitHub repository',
+        },
+        {
+          href: 'https://discord.gg/9aTc42GXWR',
+          position: 'right',
+          className: 'header-discord-link',
+          'aria-label': 'Discord chat support',
+        },
+      ],
+    },
+    footer: {
+      links: [
+        {
+          title: 'Docs',
+          items: [
+            {
+              label: 'Introduction',
+              to: '/docs',
+            },
+            {
+              label: 'REST',
+              to: '/rest',
+            },
+            {
+              label: 'GraphQL',
+              to: '/graphql',
+            },
+            {
+              label: 'Images / Binary',
+              to: '/docs/guides/img-media',
+            },
+            {
+              label: 'Websockets+SSE',
+              to: '/docs/api/Manager#data-stream',
+            },
+            {
+              label: 'Hooks',
+              to: '/docs/api/useSuspense',
+            },
+          ],
+        },
+        {
+          title: 'Community',
+          items: [
+            {
+              label: 'Discord',
+              href: 'https://discord.gg/35nb8Mz',
+            },
+            {
+              label: 'Stack Overflow',
+              href: 'http://stackoverflow.com/questions/tagged/data-client',
+            },
+            {
+              label: 'Twitter',
+              href: 'https://twitter.com/dataclientio',
+            },
+            {
+              label: 'Bug Report',
+              href: 'https://github.com/reactive/data-client/issues/new/choose',
+            },
+          ],
+        },
+        {
+          title: 'More',
+          items: [
+            {
+              label: 'Blog',
+              to: '/blog',
+            },
+            {
+              label: 'Github',
+              to: 'https://github.com/reactive/data-client',
+            },
+            {
+              label: 'Demo (Github)',
+              to: 'https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?file=src%2Fpages%2FIssueList/index.tsx',
+            },
+            {
+              label: 'Demo (Todo)',
+              to: 'https://stackblitz.com/github/reactive/data-client/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx',
+            },
+            {
+              label: 'Demo (NextJS)',
+              to: 'https://stackblitz.com/github/reactive/data-client/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx',
+            },
+            /*{
               html: `<iframe
               src="https://ghbtns.com/github-btn.html?user=reactive&amp;repo=data-client&amp;type=star&amp;count=true&amp;size=small"
               width="110"
@@ -483,30 +484,27 @@ module.exports = {
               title="GitHub Stars"
             />`,
             },*/
-            ],
-          },
-        ],
-        copyright: `Copyright © ${new Date().getFullYear()} Nathaniel Tucker. Some icons by <a href="https://www.freepik.com" title="Freepik">Freepik</a>`,
-        logo: {
-          src: 'img/client-logo.svg',
-          alt: 'Reactive Data Client',
-          width: 94,
-          height: 94,
+          ],
         },
-      },
-      algolia: {
-        appId: 'PCV5G606RI',
-        apiKey: 'a36d6d6008f8ac0a20e1ed088be3a8d4',
-        indexName: 'dataclient',
-        contextualSearch: true,
-        searchParameters: {
-          /* de-rank blog */
-          optionalFilters: ['docusaurus_tag:-default'],
-        },
-        /* algolia specific settings - https://docsearch.algolia.com/docs/api */
-        sitemaps: ['https://dataclient.io/sitemap.xml'],
-        placeholder: 'Search Reactive Data Client',
-        debug: process.env.NODE_ENV === 'development',
+      ],
+      copyright: `Copyright © ${new Date().getFullYear()} Nathaniel Tucker. Some icons by <a href="https://www.freepik.com" title="Freepik">Freepik</a>`,
+      logo: {
+        src: 'img/client-logo.svg',
+        alt: 'Reactive Data Client',
+        width: 94,
+        height: 94,
       },
     },
+    algolia: {
+      appId: 'PCV5G606RI',
+      apiKey: 'a36d6d6008f8ac0a20e1ed088be3a8d4',
+      indexName: 'dataclient',
+      contextualSearch: true,
+      searchParameters: {
+        /* de-rank blog */
+        optionalFilters: ['docusaurus_tag:-default'],
+      },
+    },
+  } satisfies Preset.ThemeConfig & PresetMermaid.ThemeConfig,
 };
+export default config;

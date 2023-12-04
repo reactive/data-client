@@ -8,7 +8,7 @@ Integrates external stores with `Reactive Data Client`. Should be placed as high
 in application tree as any usage of the hooks is only possible for components below the provider
 in the React tree.
 
-:::caution
+:::warning
 
 **Is a replacement for [&lt;CacheProvider /\>](./CacheProvider.md) - do _NOT_ use both at once**
 

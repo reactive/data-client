@@ -560,7 +560,7 @@ Called by [getRequestInit](#getRequestInit) to determine [HTTP Headers](https://
 
 This is often useful for [authentication](../guides/auth)
 
-:::caution
+:::warning
 
 Don't use hooks here. If you need to use hooks, try using [hookifyResource](./hookifyResource.md)
 

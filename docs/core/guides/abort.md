@@ -64,7 +64,7 @@ change before the request is resolved.
 
 <UseCancelling />
 
-:::caution Warning
+:::warning Warning
 
 Be careful when using this with many disjoint components fetching the same
 arguments (Endpoint/params pair) to useSuspense(). This solution aborts fetches per-component,

@@ -6,7 +6,7 @@ import PkgTabs from '@site/src/components/PkgTabs';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-:::caution
+:::warning
 
 Be careful when using [jest.mock](https://jestjs.io/docs/jest-object#jestmockmodulename-factory-options) on modules like Reactive Data Client. Eliminating expected
 exports can lead to hard-to trace

@@ -58,7 +58,7 @@ Called by [getRequestInit](#getRequestInit) to determine [HTTP Headers](https://
 
 This is often useful for [authentication](../auth)
 
-:::caution
+:::warning
 
 Don't use hooks here.
 

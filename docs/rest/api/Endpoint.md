@@ -177,7 +177,7 @@ Default:
 `${this.name} ${JSON.stringify(params)}`;
 ```
 
-:::caution Overrides
+:::warning Overrides
 
 When overriding `key`, be sure to also include an updated [testKey](#testKey) if
 you intend on using that method.
@@ -196,7 +196,7 @@ Used in [key](#key) to distinguish endpoints. Should be globally unique.
 
 Defaults to `this.fetch.name`
 
-:::caution
+:::warning
 
 This may break in production builds that change function names.
 This is often know as [function name mangling](https://terser.org/docs/api-reference#mangle-options).

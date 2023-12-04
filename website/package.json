@@ -15,6 +15,9 @@
     "deploy": "USE_SSH=true docusaurus deploy",
     "docusaurus": "docusaurus"
   },
+  "engines": {
+    "node": ">=18.0"
+  },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^3.0.1",
     "@tsconfig/docusaurus": "^2.0.0",

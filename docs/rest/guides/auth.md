@@ -9,7 +9,7 @@ import TabItem from '@theme/TabItem';
 All network requests are run through the [getRequestInit](../api/RestEndpoint.md#getRequestInit) optionally
 defined in your [RestEndpoint](../api/RestEndpoint.md).
 
-## Cookie Auth
+## Cookie Auth (credentials)
 
 Here's an example using simple cookie auth:
 
@@ -196,7 +196,7 @@ export const MyResource = createResource({
 
 ## Auth Headers from React Context
 
-:::caution
+:::warning
 
 Using React Context for state that is not displayed (like auth tokens) is not recommended.
 This will result in unnecessary re-renders and application complexity.
@@ -244,7 +244,7 @@ function PostDetail({ id }) {
 }
 ```
 
-:::caution
+:::warning
 
 Using this means all endpoint calls must only occur during a function render.
 
@@ -300,7 +300,7 @@ function useEndpoint(endpoint: RestEndpoint) {
 }
 ```
 
-:::caution
+:::warning
 
 Using this means all endpoint calls must only occur during a function render.
 

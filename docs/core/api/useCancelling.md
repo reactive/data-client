@@ -20,7 +20,7 @@ Builds an Endpoint that cancels fetch everytime parameters change
 
 <UseCancelling />
 
-:::caution Warning
+:::warning Warning
 
 Be careful when using this with many disjoint components fetching the same
 arguments (Endpoint/params pair) to useSuspense(). This solution aborts fetches per-component,
