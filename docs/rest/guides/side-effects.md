@@ -29,7 +29,7 @@ sequenceDiagram
 ```
 </div>
 <div>
-<h4 style={{textAlign: 'center'}}>Response Bundling</h4>
+<h4 style={{textAlign: 'center'}}><img src="https://dataclient.io/img/client-logo.svg" width="20" height="20" style={{marginBottom: '-4px',marginRight: '4px'}} /> Response Bundling</h4>
 
 ```mermaid
 sequenceDiagram
