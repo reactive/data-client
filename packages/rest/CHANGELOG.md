@@ -1,5 +1,14 @@
 # @data-client/rest
 
+## 0.9.9
+
+### Patch Changes
+
+- [`e3314a7`](https://github.com/reactive/data-client/commit/e3314a7ca64919c093b838048caaa8b7530fa7c8) Thanks [@ntucker](https://github.com/ntucker)! - docs: Add keywords to package
+
+- Updated dependencies [[`e3314a7`](https://github.com/reactive/data-client/commit/e3314a7ca64919c093b838048caaa8b7530fa7c8)]:
+  - @data-client/endpoint@0.9.9
+
 ## 0.9.8
 
 ### Patch Changes

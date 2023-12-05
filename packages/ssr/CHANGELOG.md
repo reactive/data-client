@@ -1,5 +1,13 @@
 # @data-client/ssr
 
+## 0.9.9
+
+### Patch Changes
+
+- [`e3314a7`](https://github.com/reactive/data-client/commit/e3314a7ca64919c093b838048caaa8b7530fa7c8) Thanks [@ntucker](https://github.com/ntucker)! - docs: Add keywords to package
+
+- [#2895](https://github.com/reactive/data-client/pull/2895) [`2f3667b`](https://github.com/reactive/data-client/commit/2f3667b90f6b73cb6e856970446d891b1a89f733) Thanks [@renovate](https://github.com/apps/renovate)! - Support redux 5
+
 ## 0.9.7
 
 ### Patch Changes
