@@ -22,8 +22,12 @@ export default function createPersistedStore(managers?: Manager[]) {
     throw new Error('managers must include a NetworkManager');
   const reducer = createReducer(controller);
   const enhancer = applyMiddleware(
+    // redux 5's types are wrong and do not allow any return typing from next, which is incorrect.
+    // `next: (action: unknown) => unknown`: allows any action, but disallows all return types.
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     ...applyManager(managers, controller),
-    PromiseifyMiddleware as any,
+    PromiseifyMiddleware,
   );
   const store = createStore(reducer, initialState as any, enhancer);
   managers.forEach(manager => manager.init?.(store.getState()));
