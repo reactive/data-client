@@ -1,5 +1,11 @@
 # @data-client/use-enhanced-reducer
 
+## 0.1.4
+
+### Patch Changes
+
+- [`e3314a7`](https://github.com/reactive/data-client/commit/e3314a7ca64919c093b838048caaa8b7530fa7c8) Thanks [@ntucker](https://github.com/ntucker)! - docs: Add keywords to package
+
 ## 0.1.3
 
 ### Patch Changes
