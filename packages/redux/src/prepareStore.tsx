@@ -1,4 +1,11 @@
-import { State, Manager, Controller, __INTERNAL__ } from '@data-client/react';
+import {
+  State,
+  Manager,
+  Controller,
+  __INTERNAL__,
+  ActionTypes,
+  Store,
+} from '@data-client/react';
 import { createStore, applyMiddleware, combineReducers, Reducer } from 'redux';
 
 import { default as mapMiddleware } from './mapMiddleware.js';
@@ -6,7 +13,9 @@ import { default as PromiseifyMiddleware } from './PromiseifyMiddleware.js';
 
 const { createReducer, applyManager } = __INTERNAL__;
 
-export function prepareStore<R extends Record<string, Reducer> = {}>(
+export function prepareStore<
+  R extends ReducersMapObject<any, ActionTypes> = {},
+>(
   initialState: DeepPartialWithUnknown<State<any>>,
   managers: Manager[],
   Ctrl: typeof Controller,
@@ -15,14 +24,18 @@ export function prepareStore<R extends Record<string, Reducer> = {}>(
   const selector = (s: { dataclient: State<unknown> }) => s.dataclient;
   const controller = new Ctrl();
   const reducer = createReducer(controller);
-  const store = createStore(
+  const store: Store<
+    StateFromReducersMapObject<R> & { dataclient: State<unknown> }
+  > = createStore(
     combineReducers({ ...reducers, dataclient: reducer }),
     { dataclient: initialState } as any,
     applyMiddleware(
-      ...mapMiddleware(selector)(...applyManager(managers, controller)),
-      PromiseifyMiddleware,
+      ...mapMiddleware(selector)(
+        ...(applyManager(managers, controller) as any),
+      ),
+      PromiseifyMiddleware as any,
     ),
-  );
+  ) as any;
   return { selector, store, controller };
 }
 
@@ -32,3 +45,24 @@ export type DeepPartialWithUnknown<T> = {
   : T[K] extends object ? DeepPartialWithUnknown<T[K]>
   : T[K];
 };
+
+/* From redux@5 - we extract to maintain compatibility with v4 */
+type StateFromReducersMapObject<M> =
+  M[keyof M] extends Reducer<any, any, any> | undefined ?
+    {
+      [P in keyof M]: M[P] extends Reducer<infer S, any, any> ? S : never;
+    }
+  : never;
+type ReducersMapObject<
+  S = any,
+  A extends { type: string } = any,
+  PreloadedState = S,
+> = keyof PreloadedState extends keyof S ?
+  {
+    [K in keyof S]: Reducer<
+      S[K],
+      A,
+      K extends keyof PreloadedState ? PreloadedState[K] : never
+    >;
+  }
+: never;
