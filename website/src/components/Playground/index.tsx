@@ -8,9 +8,10 @@ import { LiveProvider } from 'react-live';
 import Boundary from './Boundary';
 import { isGoogleBot } from './isGoogleBot';
 import MonacoPreloads from './MonacoPreloads';
-import { PlaygroundTextEdit, useCode } from './PlaygroundTextEdit';
+import { PlaygroundTextEdit } from './PlaygroundTextEdit';
 import PreviewWrapper from './PreviewWrapper';
 import styles from './styles.module.css';
+import { useCode } from './useCode';
 import { useReactLiveTheme } from './useReactLiveTheme';
 
 // previously exported by react-live
@@ -140,11 +141,11 @@ const previewLoading = (
 );
 
 const PreviewWithScopeLazy = lazy(() =>
-  isGoogleBot
-    ? Promise.resolve({ default: (props: any): JSX.Element => previewLoading })
-    : import(
-        /* webpackChunkName: 'PreviewWithScope', webpackPrefetch: true */ './PreviewWithScope'
-      ),
+  isGoogleBot ?
+    Promise.resolve({ default: (props: any): JSX.Element => previewLoading })
+  : import(
+      /* webpackChunkName: 'PreviewWithScope', webpackPrefetch: true */ './PreviewWithScope'
+    ),
 );
 
 function Reversible({

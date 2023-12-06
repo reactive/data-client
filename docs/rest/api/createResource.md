@@ -10,6 +10,8 @@ title: createResource
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import StackBlitz from '@site/src/components/StackBlitz';
+import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
+import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
 `Resources` are a collection of [RestEndpoints](./RestEndpoint.md) that operate on a common
 data by sharing a [schema](./schema.md)
@@ -162,17 +164,35 @@ new endpoints](#customizing-resources) based to match your API.
 
 Retrieve a singular entity.
 
-```typescript
-// GET //test.com/api/abc/xyz
-createResource({
-  urlPrefix: '//test.com',
-  path: '/api/:group/:id',
-}).get({
-  group: 'abc',
-  id: 'xyz',
+<EndpointPlayground input="/react/posts/1" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}} status={200} response={{  "id": "1","group": "react","title": "this post",author: 'clara',}}>
+
+```typescript title="Post" collapsed
+export default class Post extends Entity {
+  id = '';
+  title = '';
+  group = '';
+  author = '';
+  pk() {
+    return this.id;
+  }
+}
+```
+
+```typescript title="Resource" {8-11}
+import Post from './Post';
+const PostResource = createResource({
+  schema: Post,
+  path: '/:group/posts/:id',
+  searchParams: {} as { author?: string },
+});
+
+PostResource.get({
+  group: 'react',
+  id: '1',
 });
 ```
 
+</EndpointPlayground>
 
 | Field  | Value             |
 | :----: | ----------------- |
@@ -180,24 +200,41 @@ createResource({
 |  path  | [path](#path)     |
 | schema | [schema](#schema) |
 
-
 Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidate](/docs/api/Controller#invalidate), [Controller.expireAll](/docs/api/Controller#expireAll)
 
 ### getList
 
 Retrieve a list of entities.
 
-```typescript
-// GET //test.com/api/abc?isExtra=xyz
-createResource({
-  urlPrefix: '//test.com',
-  path: '/api/:group/:id',
-  searchParams: {} as { isExtra: string },
-}).getList({
-  group: 'abc',
-  isExtra: 'xyz',
+<EndpointPlayground input="/react/posts?author=clara" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}} status={200} response={[{ "id": "1","group": "react","title": "this post",author: 'clara',}]}>
+
+```typescript title="Post" collapsed
+export default class Post extends Entity {
+  id = '';
+  title = '';
+  group = '';
+  author = '';
+  pk() {
+    return this.id;
+  }
+}
+```
+
+```typescript title="Resource" {8-11}
+import Post from './Post';
+const PostResource = createResource({
+  schema: Post,
+  path: '/:group/posts/:id',
+  searchParams: {} as { author?: string },
+});
+
+PostResource.getList({
+  group: 'react',
+  author: 'clara',
 });
 ```
+
+</EndpointPlayground>
 
 |      Field      | Value                                                |
 | :-------------: | ---------------------------------------------------- |
@@ -220,14 +257,35 @@ Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidat
 
 [RestEndpoint.push](./RestEndpoint.md#push) creates a new entity and pushes it to the end of getList.
 
-```typescript
-// POST //test.com/api/abc
-// BODY { "title": "winning" }
-createResource({
-  urlPrefix: '//test.com',
-  path: '/api/:group/:id',
-}).getList.push({ group: 'abc' }, { title: 'winning' });
+<EndpointPlayground input="/react/posts?author=clara" init={{method: 'POST', headers: {'Content-Type': 'application/json', Body: JSON.stringify({ "title": "winning" })}}} status={201} response={{  "id": "2","group": "react","title": "winning",author: 'clara',}}>
+
+```typescript title="Post" collapsed
+export default class Post extends Entity {
+  id = '';
+  title = '';
+  group = '';
+  author = '';
+  pk() {
+    return this.id;
+  }
+}
 ```
+
+```typescript title="Resource" {8-11}
+import Post from './Post';
+const PostResource = createResource({
+  schema: Post,
+  path: '/:group/posts/:id',
+  searchParams: {} as { author?: string },
+});
+
+PostResource.getList.push(
+  { group: 'react', author: 'clara' },
+  { title: 'winning' },
+);
+```
+
+</EndpointPlayground>
 
 |    Field     | Value                                       |
 | :----------: | ------------------------------------------- |
@@ -237,21 +295,41 @@ createResource({
 |     body     | [body](#body)                               |
 |    schema    | getList.[schema.push](./Collection.md#push) |
 
-
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ### getList.unshift {#unshift}
 
 [RestEndpoint.unshift](./RestEndpoint.md#unshift) creates a new entity and pushes it to the beginning of getList.
 
-```typescript
-// POST //test.com/api/abc
-// BODY { "title": "winning" }
-createResource({
-  urlPrefix: '//test.com',
-  path: '/api/:group/:id',
-}).getList.push({ group: 'abc' }, { title: 'winning' });
+<EndpointPlayground input="/react/posts?author=clara" init={{method: 'POST', headers: {'Content-Type': 'application/json', Body: JSON.stringify({ "title": "winning" })}}} status={201} response={{  "id": "2","group": "react","title": "winning",author: 'clara',}}>
+
+```typescript title="Post" collapsed
+export default class Post extends Entity {
+  id = '';
+  title = '';
+  group = '';
+  author = '';
+  pk() {
+    return this.id;
+  }
+}
 ```
+
+```typescript title="Resource" {8-11}
+import Post from './Post';
+const PostResource = createResource({
+  schema: Post,
+  path: '/:group/posts/:id',
+  searchParams: {} as { author?: string },
+});
+
+PostResource.getList.unshift(
+  { group: 'react', author: 'clara' },
+  { title: 'winning' },
+);
+```
+
+</EndpointPlayground>
 
 |    Field     | Value                                             |
 | :----------: | ------------------------------------------------- |
@@ -261,7 +339,6 @@ createResource({
 |     body     | [body](#body)                                     |
 |    schema    | getList.[schema.unshift](./Collection.md#unshift) |
 
-
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ### getList.getPage {#getpage}
@@ -270,18 +347,37 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 This member is only available when [paginationField](#paginationfield) is specified.
 
-```typescript
-// GET //test.com/api/abc?isExtra=xyz&page=2
-createResource({
-  urlPrefix: '//test.com',
-  path: '/api/:group/:id',
+<EndpointPlayground input="/react/posts?author=clara&page=2" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}} status={200} response={[{ "id": "5","group": "react","title": "second page",author: 'clara',}]}>
+
+```typescript title="Post" collapsed
+export default class Post extends Entity {
+  id = '';
+  title = '';
+  group = '';
+  author = '';
+  pk() {
+    return this.id;
+  }
+}
+```
+
+```typescript title="Resource" {9-13}
+import Post from './Post';
+const PostResource = createResource({
+  schema: Post,
+  path: '/:group/posts/:id',
+  searchParams: {} as { author?: string },
   paginationField: 'page',
-}).getList.getPage({
-  group: 'abc',
-  isExtra: 'xyz',
-  page: '2',
+});
+
+PostResource.getList.getPage({
+  group: 'react',
+  author: 'clara',
+  page: 2,
 });
 ```
+
+</EndpointPlayground>
 
 |      Field      | Value                                               |
 | :-------------: | --------------------------------------------------- |
@@ -293,21 +389,41 @@ createResource({
 
 args: `PathToArgs(shortenPath(path)) & searchParams & \{ [paginationField]: string | number \}`
 
-
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ### update
 
 Update an entity.
 
-```typescript
-// PUT //test.com/api/abc/xyz
-// BODY { "title": "winning" }
-createResource({
-  urlPrefix: '//test.com',
-  path: '/api/:group/:id',
-}).update({ group: 'abc', id: 'xyz' }, { title: 'winning' });
+<EndpointPlayground input="/react/posts/1" init={{method: 'PUT', headers: {'Content-Type': 'application/json', Body: JSON.stringify({ "title": "updated title", author: 'clara' })}}} status={200} response={{  "id": "1","group": "react","title": "updated title",author: 'clara',}}>
+
+```typescript title="Post" collapsed
+export default class Post extends Entity {
+  id = '';
+  title = '';
+  group = '';
+  author = '';
+  pk() {
+    return this.id;
+  }
+}
 ```
+
+```typescript title="Resource" {8-11}
+import Post from './Post';
+const PostResource = createResource({
+  schema: Post,
+  path: '/:group/posts/:id',
+  searchParams: {} as { author?: string },
+});
+
+PostResource.update(
+  { group: 'react', id: '1' },
+  { title: 'updated title', author: 'clara' },
+);
+```
+
+</EndpointPlayground>
 
 | Field  | Value             |
 | :----: | ----------------- |
@@ -316,21 +432,41 @@ createResource({
 |  body  | [body](#body)     |
 | schema | [schema](#schema) |
 
-
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ### partialUpdate
 
 Update some subset of fields of an entity.
 
-```typescript
-// PATCH //test.com/api/abc/xyz
-// BODY { "title": "winning" }
-createResource({
-  urlPrefix: '//test.com',
-  path: '/api/:group/:id',
-}).partialUpdate({ group: 'abc', id: 'xyz' }, { title: 'winning' });
+<EndpointPlayground input="/react/posts/1" init={{method: 'PATCH', headers: {'Content-Type': 'application/json', Body: JSON.stringify({ "title": "updated title" })}}} status={200} response={{  "id": "1","group": "react","title": "updated title",author: 'clara',}}>
+
+```typescript title="Post" collapsed
+export default class Post extends Entity {
+  id = '';
+  title = '';
+  group = '';
+  author = '';
+  pk() {
+    return this.id;
+  }
+}
 ```
+
+```typescript title="Resource" {8-11}
+import Post from './Post';
+const PostResource = createResource({
+  schema: Post,
+  path: '/:group/posts/:id',
+  searchParams: {} as { author?: string },
+});
+
+PostResource.partialUpdate(
+  { group: 'react', id: '1' },
+  { title: 'updated title' },
+);
+```
+
+</EndpointPlayground>
 
 | Field  | Value             |
 | :----: | ----------------- |
@@ -345,16 +481,32 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 Deletes an entity.
 
-```typescript
-// DELETE //test.com/api/abc/xyz
-createResource({
-  urlPrefix: '//test.com',
-  path: '/api/:group/:id',
-}).delete({
-  group: 'abc',
-  id: 'xyz',
-});
+<EndpointPlayground input="/react/posts/1" init={{method: 'DELETE', headers: {'Content-Type': 'application/json', }}} status={200} response={{ "id": "1" }}>
+
+```typescript title="Post" collapsed
+export default class Post extends Entity {
+  id = '';
+  title = '';
+  group = '';
+  author = '';
+  pk() {
+    return this.id;
+  }
+}
 ```
+
+```typescript title="Resource" {8-11}
+import Post from './Post';
+const PostResource = createResource({
+  schema: Post,
+  path: '/:group/posts/:id',
+  searchParams: {} as { author?: string },
+});
+
+PostResource.delete({ group: 'react', id: '1' });
+```
+
+</EndpointPlayground>
 
 <table>
 <tr>

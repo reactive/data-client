@@ -1,0 +1,21 @@
+.doubleTitle {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+div.fixtureCol {
+  flex: 1 4 50%;
+}
+
+.fixtureCol .containedCode:global(.theme-code-block) {
+  margin-bottom: 0;
+}
+.fixtureCol > div:not(:last-child) .containedCode:global(.theme-code-block) {
+  border-radius: 0;
+}
+.fixtureCol > div:last-child .containedCode:global(.theme-code-block) {
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}

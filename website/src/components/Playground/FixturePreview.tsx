@@ -21,26 +21,26 @@ function FixtureResponse({
 }: {
   fixture: Fixture | Interceptor;
 }): ReactElement {
-  return 'fetchResponse' in fixture ? (
-    <BrowserOnly>
-      {() => (
-        <CodeBlock language="javascript" className={styles.fixtureJson}>
-          {`${fixture.fetchResponse}`}
-        </CodeBlock>
-      )}
-    </BrowserOnly>
-  ) : typeof fixture.response === 'function' ? (
-    <BrowserOnly>
-      {() => (
-        <CodeBlock language="javascript" className={styles.fixtureJson}>
-          {`${fixture.response}`}
-        </CodeBlock>
-      )}
-    </BrowserOnly>
-  ) : (
-    <CodeBlock language="json" className={styles.fixtureJson}>
-      {JSON.stringify(fixture.response)}
-    </CodeBlock>
+  return (
+    'fetchResponse' in fixture ?
+      <BrowserOnly>
+        {() => (
+          <CodeBlock language="javascript" className={styles.fixtureJson}>
+            {`${fixture.fetchResponse}`}
+          </CodeBlock>
+        )}
+      </BrowserOnly>
+    : typeof fixture.response === 'function' ?
+      <BrowserOnly>
+        {() => (
+          <CodeBlock language="javascript" className={styles.fixtureJson}>
+            {`${fixture.response}`}
+          </CodeBlock>
+        )}
+      </BrowserOnly>
+    : <CodeBlock language="json" className={styles.fixtureJson}>
+        {JSON.stringify(fixture.response)}
+      </CodeBlock>
   );
 }
 

@@ -6,9 +6,7 @@ import styles from './styles.module.css';
 
 export default function PreviewWrapper({ children }: Props) {
   return (
-    <div
-      style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
-    >
+    <div className={styles.previewWrapper}>
       <Header>
         <Translate
           id="theme.Playground.result"

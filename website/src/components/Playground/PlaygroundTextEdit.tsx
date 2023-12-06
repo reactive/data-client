@@ -1,9 +1,8 @@
 import type { Fixture, Interceptor } from '@data-client/test';
 import BrowserOnly from '@docusaurus/BrowserOnly';
-import { parseCodeBlockTitle } from '@docusaurus/theme-common/internal';
 import Translate from '@docusaurus/Translate';
 import clsx from 'clsx';
-import { useCallback, useContext, useMemo, useReducer, useState } from 'react';
+import { useCallback, useContext, useMemo, useState } from 'react';
 import React from 'react';
 import { LiveEditor } from 'react-live';
 
@@ -48,22 +47,22 @@ export function PlaygroundTextEdit({
   }, []);
 
   return (
-    <div>
+    <div className={styles.playgroundTextEdit}>
       <EditorHeader
         fixtures={!row ? fixtures : []}
         title={row && codeTabs.length === 1 ? codeTabs[0].title : undefined}
       />
-      {row && codeTabs.length > 1 ? (
+      {row && codeTabs.length > 1 ?
         <EditorTabs
           titles={codeTabs.map(({ title }) => title)}
           closedList={closedList}
           onClick={handleTabSwitch}
           isPlayground={isPlayground}
         />
-      ) : null}
+      : null}
       {codeTabs.map(({ title, path, code, collapsed, ...rest }, i) => (
         <React.Fragment key={i}>
-          {!row && title ? (
+          {!row && title ?
             <CodeTabHeader
               onClick={() => handleTabToggle(i)}
               closed={closedList[i]}
@@ -71,7 +70,7 @@ export function PlaygroundTextEdit({
               collapsible={codeTabs.length > 1 || fixtures?.length}
               lastChild={i === codeTabs.length - 1 && large}
             />
-          ) : null}
+          : null}
           <div
             key={i}
             className={clsx(styles.playgroundEditor, {
@@ -116,73 +115,16 @@ interface PlaygroundProps {
 
 const codeBlockCollapsedRegex = /collapsed(?=)(?<collapsed>.*?)\1/;
 const codeBlockPathRegex = /path=(?<quote>["'])(?<path>.*?)\1/;
-function parseCodeBlockCollapsed(metastring?: string): boolean {
-  return metastring?.match(codeBlockCollapsedRegex)?.groups!.collapsed !==
-    undefined
-    ? true
+export function parseCodeBlockCollapsed(metastring?: string): boolean {
+  return (
+      metastring?.match(codeBlockCollapsedRegex)?.groups!.collapsed !==
+        undefined
+    ) ?
+      true
     : false;
 }
-function parseCodeBlockPath(metastring?: string): string {
+export function parseCodeBlockPath(metastring?: string): string {
   return metastring?.match(codeBlockPathRegex)?.groups!.title ?? '';
-}
-
-export function useCode(children) {
-  const codeTabs: {
-    code: string;
-    path?: string;
-    title?: string;
-    collapsed: boolean;
-    [k: string]: any;
-  }[] = useMemo(() => {
-    if (typeof children === 'string')
-      return [{ code: children.replace(/\n$/, ''), collapsed: false }];
-    return (Array.isArray(children) ? children : [children])
-      .filter(child => child.props.children)
-      .map(child =>
-        typeof child.props.children === 'string'
-          ? child.props
-          : child.props.children.props,
-      )
-      .map(({ children, metastring = '', ...rest }) => {
-        const title = parseCodeBlockTitle(metastring) ?? '';
-        const collapsed = parseCodeBlockCollapsed(metastring) ?? false;
-        const path = parseCodeBlockPath(metastring);
-        const highlights = /\{([\d\-,.]+)\}/.exec(metastring)?.[1];
-        return {
-          code: children.replace(/\n$/, ''),
-          title,
-          collapsed,
-          path,
-          highlights,
-          ...rest,
-        };
-      });
-  }, [children]);
-
-  const [codes, dispatch] = useReducer(reduceCodes, undefined, () =>
-    codeTabs.map(({ code }) => code),
-  );
-  //const [ready, setReady] = useState(() => codeTabs.map(() => false));
-  const handleCodeChange = useMemo(
-    () =>
-      codeTabs.map((_, i) => v => {
-        /*setReady(readies => {
-        const ret = [...readies];
-        ret[i] = true;
-        return ret;
-      });*/
-        dispatch({ i, code: v });
-      }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [codeTabs.length],
-  );
-  return { handleCodeChange, codes, codeTabs };
-}
-
-function reduceCodes(state: string[], action: { i: number; code: string }) {
-  const newstate = [...state];
-  newstate[action.i] = action.code;
-  return newstate;
 }
 
 function CodeTabHeader({
@@ -195,9 +137,10 @@ function CodeTabHeader({
   if (collapsible)
     return (
       <Header
-        className={clsx(styles.small, {
+        className={clsx({
           [styles.lastChild]: lastChild && closed,
         })}
+        small={true}
         onClick={onClick}
       >
         <span
@@ -217,10 +160,11 @@ function EditorTabs({ titles, closedList, onClick, isPlayground = true }) {
   return (
     <Header
       className={clsx(
-        { [styles.small]: hasTabs || !isPlayground, [styles.subtabs]: hasTabs },
+        { [styles.subtabs]: hasTabs },
         styles.noupper,
         styles.tabControls,
       )}
+      small={hasTabs || !isPlayground}
     >
       <div className={styles.tabs} role="tablist" aria-orientation="horizontal">
         {titles.map((title, i) => (
@@ -289,13 +233,15 @@ function EditorHeader({
 
   return (
     <>
-      {fixtures.length ? (
+      {fixtures.length ?
         <>
-          <Header className={styles.small}>Fixtures</Header>
+          <Header small={true}>Fixtures</Header>
           <FixturePreview fixtures={fixtures} />
         </>
-      ) : null}
-      {hasTabs ? <HeaderWithTabControls>{title}</HeaderWithTabControls> : null}
+      : null}
+      {hasTabs ?
+        <HeaderWithTabControls>{title}</HeaderWithTabControls>
+      : null}
     </>
   );
 }

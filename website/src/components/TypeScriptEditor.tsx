@@ -2,8 +2,9 @@ import clsx from 'clsx';
 import React from 'react';
 import { LiveProvider } from 'react-live';
 
-import { PlaygroundTextEdit, useCode } from './Playground/PlaygroundTextEdit';
+import { PlaygroundTextEdit } from './Playground/PlaygroundTextEdit';
 import styles from './Playground/styles.module.css';
+import { useCode } from './Playground/useCode';
 import { useReactLiveTheme } from './Playground/useReactLiveTheme';
 
 export default function TypeScriptEditor({ children, row }) {
@@ -16,7 +17,13 @@ export default function TypeScriptEditor({ children, row }) {
       >
         <PlaygroundTextEdit
           fixtures={[]}
-          row={row === undefined ? (codeTabs.length > 1 ? true : false) : row}
+          row={
+            row === undefined ?
+              codeTabs.length > 1 ?
+                true
+              : false
+            : row
+          }
           codeTabs={codeTabs}
           handleCodeChange={handleCodeChange}
           codes={codes}

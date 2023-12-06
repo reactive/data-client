@@ -43,6 +43,9 @@
 .playgroundContainer > div:first-child {
   flex: 0 0 65%;
 }
+.playgroundContainer.endpointPlayground > div:first-child {
+  flex: 0 1 50%;
+}
 .row.playgroundContainer > div:first-child {
   background-color: var(--monoco-code-background);
   border-bottom-left-radius: var(--ifm-global-radius);
@@ -92,12 +95,12 @@ body {
   --ifm-color-playground-tab-selected: var(--ifm-color-emphasis-300);
 }
 
-div:first-of-type > .playgroundHeader {
+div.playgroundTextEdit > .playgroundHeader {
   background: var(--ifm-color-emphasis-600);
   color: var(--ifm-color-content-inverse);
 }
 .playgroundContainer:not(.row)
-  > div:first-of-type
+  > div.playgroundTextEdit
   > .playgroundHeader:first-child {
   border-top-right-radius: var(--ifm-global-radius);
   border-top-left-radius: var(--ifm-global-radius);
@@ -172,6 +175,11 @@ div > .playgroundHeader.subtabs {
   white-space: pre-wrap;
 }
 
+.previewWrapper {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
 .playgroundResult {
   display: flex;
   height: 100%;
