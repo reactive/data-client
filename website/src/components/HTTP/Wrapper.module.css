@@ -6,6 +6,10 @@
 
 div.fixtureCol {
   flex: 1 4 50%;
+  background-color: var(--monoco-code-background);
+}
+div.fixtureCol .containedCode:global(.theme-code-block) {
+  box-shadow: none;
 }
 
 .fixtureCol .containedCode:global(.theme-code-block) {

@@ -446,7 +446,7 @@ This is only used by endpoings with a method that uses body: 'POST', 'PUT', 'PAT
 
 <TypeScriptEditor>
 
-```ts {3}
+```ts {4}
 const updateSite = new RestEndpoint({
   path: 'https\\://site.com/:slug',
   method: 'POST',

@@ -92,6 +92,7 @@ export function PlaygroundTextEdit({
                   onChange={handleCodeChange[i]}
                   code={codes[i]}
                   path={'/' + id + '/' + (path || title || 'default.tsx')}
+                  isFocused={!closedList[i]}
                   {...rest}
                   large={large}
                 />

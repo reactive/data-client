@@ -1,7 +1,7 @@
-import Editor, { type OnMount } from '@monaco-editor/react';
+import Editor, { useMonaco, type OnMount } from '@monaco-editor/react';
 import type { ISelection } from 'monaco-editor';
 import rangeParser from 'parse-numeric-range';
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { LiveEditor } from 'react-live';
 import './monaco-init';
 import type * as Monaco from 'monaco-editor';
@@ -17,15 +17,22 @@ export default function PlaygroundMonacoEditor({
   highlights,
   autoFocus = false,
   large = false,
+  isFocused = false,
   ...rest
 }) {
   const editorOptions = large ? largeOptions : options;
-
   //const isBrowser = useIsBrowser(); we used to key Editor on this; but I'm not sure why
 
   if (!path.endsWith('.tsx') && !path.endsWith('.ts')) {
     path = path + '.tsx';
   }
+
+  const updateHeightRef = useRef<() => void>();
+  useEffect(() => {
+    if (isFocused && updateHeightRef.current) {
+      setTimeout(updateHeightRef.current, 5);
+    }
+  }, [isFocused]);
   /* TODO: using ts to compile rather than babel
   const handleChange = useWorkerCB(
     tsWorker => {
@@ -85,27 +92,37 @@ export default function PlaygroundMonacoEditor({
 
       let prevLineCount = 0;
 
-      const contentHeight =
-        editor.getModel().getLineCount() * LINE_HEIGHT + CONTAINER_GUTTER;
+      const model: any = editor.getModel();
+      let lineCount = 10;
+      if (model) {
+        // before rendering we have no view information, so we initialize based on unwrapped lines
+        lineCount = model.getLineCount();
+      }
+
+      const contentHeight = lineCount * LINE_HEIGHT + CONTAINER_GUTTER;
       el.style.height = contentHeight + 'px';
       setHeight(contentHeight);
 
       editor.layout();
 
+      updateHeightRef.current = () => {
+        const viewlinecount = editor._modelData.viewModel.getLineCount();
+        const modellinecount =
+          editor.getModel()?.getLineCount?.() ??
+          codeContainer.childElementCount;
+        const lineCount =
+          viewlinecount < modellinecount * 3 ? viewlinecount : modellinecount;
+        const height = lineCount * LINE_HEIGHT + CONTAINER_GUTTER; // fold
+        prevLineCount = codeContainer.childElementCount;
+
+        el.style.height = height + 'px';
+        setHeight(height);
+
+        editor.layout();
+      };
       editor.onDidChangeModelDecorations(() => {
         // wait until dom rendered
-        setTimeout(() => {
-          const lineCount =
-            editor.getModel()?.getLineCount?.() ??
-            codeContainer.childElementCount;
-          const height = lineCount * LINE_HEIGHT + CONTAINER_GUTTER; // fold
-          prevLineCount = codeContainer.childElementCount;
-
-          el.style.height = height + 'px';
-          setHeight(height);
-
-          editor.layout();
-        }, 0);
+        setTimeout(updateHeightRef.current, 0);
       });
       return () => editor?.dispose();
     },
