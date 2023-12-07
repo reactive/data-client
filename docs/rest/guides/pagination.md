@@ -69,7 +69,6 @@ export const PostResource = createResource({
 ```
 
 ```tsx title="PostItem" collapsed
-import { useSuspense } from '@data-client/react';
 import { type Post } from './Post';
 
 export default function PostItem({ post }: Props) {

@@ -2,10 +2,11 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 
 <HooksPlayground row>
 
-```typescript title="Ticker" {27} collapsed
+```typescript title="Ticker" {32} collapsed
 import { Entity, RestEndpoint } from '@data-client/rest';
 
 export class Ticker extends Entity {
+  product_id = '';
   trade_id = 0;
   price = 0;
   size = '0';
@@ -15,7 +16,7 @@ export class Ticker extends Entity {
   volume = '';
 
   pk(): string {
-    return `${this.trade_id}`;
+    return this.product_id;
   }
   static key = 'Ticker';
 
@@ -29,6 +30,10 @@ export const getTicker = new RestEndpoint({
   urlPrefix: 'https://api.exchange.coinbase.com',
   path: '/products/:productId/ticker',
   schema: Ticker,
+  process(value, { productId }) {
+    value.product_id = productId;
+    return value;
+  },
   pollFrequency: 2000,
 });
 ```

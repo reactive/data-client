@@ -105,7 +105,9 @@ export const getPrice = new RestEndpoint({
 import { getPrice } from './api/Price';
 
 function PricePage() {
-  const currentPrice = useSuspense(getPrice, { exchangePair: 'btc-usd' });
+  const currentPrice = useSuspense(getPrice, {
+    exchangePair: 'btc-usd',
+  });
   return (
     <div>
       ${currentPrice.price.toFormat(2)} as of{' '}
@@ -130,7 +132,7 @@ you can turn the constructor into a function [schema](../api/schema.md).
 ```ts
 export class ExchangePrice extends Entity {
   exchangePair = '';
-  updatedAt = Temporal.Instant.fromEpochSeconds(0);
+  updatedAt = new Date(0);
   price = new BigNumber(0);
   pk() {
     return this.exchangePair;
@@ -139,7 +141,7 @@ export class ExchangePrice extends Entity {
 
   static schema = {
     // highlight-next-line
-    updatedAt: (iso) => new Date(iso),
+    updatedAt: iso => new Date(iso),
     price: BigNumber,
   };
 }
@@ -185,12 +187,75 @@ const getStream = new RestEndpoint({
   urlPrefix: 'https://mystreamsite.tv',
   path: '/:username',
   schema: Stream,
+  // highlight-start
   process(value, { username }) {
     value.username = username;
     return value;
   },
+  // highlight-end
 });
 ```
+
+### Ticker prices
+
+<HooksPlayground row>
+
+```typescript title="Ticker" {28-31}
+import { Entity, RestEndpoint } from '@data-client/rest';
+
+export class Ticker extends Entity {
+  product_id = '';
+  trade_id = 0;
+  price = 0;
+  size = '0';
+  time = Temporal.Instant.fromEpochSeconds(0);
+  bid = '0';
+  ask = '0';
+  volume = '';
+
+  pk(): string {
+    return this.product_id;
+  }
+  static key = 'Ticker';
+
+  static schema = {
+    price: Number,
+    time: Temporal.Instant.from,
+  };
+}
+
+export const getTicker = new RestEndpoint({
+  urlPrefix: 'https://api.exchange.coinbase.com',
+  path: '/products/:productId/ticker',
+  schema: Ticker,
+  process(value, { productId }) {
+    value.product_id = productId;
+    return value;
+  },
+  pollFrequency: 2000,
+});
+```
+
+```tsx title="AssetPrice" {5} collapsed
+import { useLive } from '@data-client/react';
+import { getTicker } from './Ticker';
+
+function AssetPrice({ productId }: Props) {
+  const ticker = useLive(getTicker, { productId });
+  return (
+    <center>
+      {productId}{' '}
+      <Formatted value={ticker.price} formatter="currency" />
+    </center>
+  );
+}
+interface Props {
+  productId: string;
+}
+render(<AssetPrice productId="BTC-USD" />);
+```
+
+</HooksPlayground>
 
 ## Using HTTP Headers
 
@@ -203,7 +268,9 @@ Sometimes this is used for cursor based [pagination](./pagination.md#tokens-in-h
 ```typescript
 import { RestEndpoint, RestGenerics } from '@data-client/rest';
 
-class GithubEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
+class GithubEndpoint<
+  O extends RestGenerics = any,
+> extends RestEndpoint<O> {
   async parseResponse(response: Response) {
     const results = await super.parseResponse(response);
     if (
@@ -227,10 +294,15 @@ you have much better naming standards, so instead of your `Resource` class defin
 and all your code, you just want to remap that key.
 
 ```typescript title="ArticleResource.ts"
-class RenamedEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
+class RenamedEndpoint<
+  O extends RestGenerics = any,
+> extends RestEndpoint<O> {
   getRequestInit(body) {
     if (body && 'carrotsUsed' in body) {
-      const newBody = { ...body, carrotsUSedIsThisNameTooLong: carrotsUsed };
+      const newBody = {
+        ...body,
+        carrotsUSedIsThisNameTooLong: carrotsUsed,
+      };
       delete newBody.carrotsUsed;
       return super.getRequestInit(newBody);
     }

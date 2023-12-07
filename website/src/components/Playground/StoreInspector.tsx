@@ -20,9 +20,13 @@ function StoreInspector({
     <>
       <div className={styles.debugToggle} onClick={toggle}>
         Store
-        <span className={clsx(styles.arrow, rotation, styles.vertical)}>▶</span>
+        <span className={clsx(styles.arrow, rotation, styles.vertical)}>
+          ▶
+        </span>
       </div>
-      {isSelected ? <StoreTreeM /> : null}
+      {isSelected ?
+        <StoreTreeM />
+      : null}
     </>
   );
 }
