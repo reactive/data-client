@@ -63,7 +63,7 @@
     "@testing-library/react-hooks": "8.0.1",
     "@testing-library/react-native": "12.4.1",
     "@types/jest": "29.5.10",
-    "@types/node": "20.10.3",
+    "@types/node": "20.10.4",
     "@types/react": "18.2.42",
     "@typescript-eslint/eslint-plugin": "6.13.2",
     "@typescript-eslint/parser": "6.13.2",
@@ -92,7 +92,7 @@
     "prettier": "3.1.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-native": "0.72.7",
+    "react-native": "0.73.0",
     "react-native-safe-area-context": "^4.4.1",
     "react-native-screens": "^3.18.2",
     "react-test-renderer": "18.2.0",
@@ -109,11 +109,12 @@
     "rollup-plugin-replace": "^2.2.0",
     "rollup-plugin-terser": "^7.0.2",
     "ts-node": "10.9.1",
-    "typescript": "5.3.2",
+    "typescript": "5.3.3",
     "whatwg-fetch": "3.0.0"
   },
   "resolutions": {
-    "whatwg-fetch": "3.0.0"
+    "whatwg-fetch": "3.0.0",
+    "downlevel-dts/typescript": "4.9.0-dev.20220903"
   },
   "packageManager": "yarn@4.0.2",
   "prettier": {
