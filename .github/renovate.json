@@ -17,6 +17,11 @@
   "postUpdateOptions": ["yarnDedupeHighest"],
   "packageRules": [
     {
+      "matchCurrentVersion": "4.9.0-dev.20220903",
+      "matchPackageNames": ["typescript"],
+      "enabled": false
+    },
+    {
       "matchPackageNames": ["@babel/runtime", "core-js", "core-js-compat"],
       "matchDepTypes": ["dependencies"],
       "rangeStrategy": "replace"
@@ -41,7 +46,8 @@
     {
       "matchSourceUrlPrefixes": [
         "https://github.com/webpack",
-        "https://github.com/callstack/linaria"
+        "https://github.com/callstack/linaria",
+        "https://github.com/Anber/wyw-in-js"
       ],
       "matchUpdateTypes": ["major", "minor", "patch"],
       "groupSlug": "build",
