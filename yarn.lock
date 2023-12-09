@@ -281,10 +281,10 @@ __metadata:
   linkType: hard
 
 "@anansi/cli@npm:^3.0.15":
-  version: 3.1.5
-  resolution: "@anansi/cli@npm:3.1.5"
+  version: 3.1.6
+  resolution: "@anansi/cli@npm:3.1.6"
   dependencies:
-    "@anansi/generator-js": "npm:^12.2.1"
+    "@anansi/generator-js": "npm:^12.3.0"
     bin-version-check: "npm:^5.1.0"
     chalk: "npm:^4.1.2"
     commander: "npm:^11.1.0"
@@ -299,17 +299,17 @@ __metadata:
       optional: true
   bin:
     anansi: ./run.mjs
-  checksum: 1100f435f0919c016380eac6efd95bbd31fee6d8446c3c094195bd30181289a8d4e907d6c1371adb719f956a79eb9eb92ae91b04ca7ecd6e216105116919ee53
+  checksum: 1b4bc5cbeffcc59a4f27a9cd030d8a6d9d4a5ddda0d52f1ad5fd8a2401efed88a4d0f7b3fc4ad7af5148702881a60c27e00bb1a5fb072d0a8a07a815be5873a9
   languageName: node
   linkType: hard
 
 "@anansi/core@npm:^0.18.4":
-  version: 0.18.12
-  resolution: "@anansi/core@npm:0.18.12"
+  version: 0.18.13
+  resolution: "@anansi/core@npm:0.18.13"
   dependencies:
-    "@anansi/router": "npm:^0.9.2"
+    "@anansi/router": "npm:^0.9.3"
     "@babel/runtime": "npm:^7.17.0"
-    "@data-client/ssr": "npm:^0.9.7"
+    "@data-client/ssr": "npm:^0.9.9"
     chalk: "npm:^4.1.2"
     compression: "npm:^1.7.4"
     cross-fetch: "npm:^4.0.0"
@@ -352,7 +352,7 @@ __metadata:
   bin:
     serve-anansi: ./lib/scripts/serve.js
     start-anansi: ./lib/scripts/startDevserver.js
-  checksum: fb5dd0707dacd065b4ffd1d5cf7798ef706ffc33e99d15e439d7cd366cdeb00d79d94fb2818ff23748a57a2fe0ebcfed5ab2f9d5a50775bcba96704b0a478545
+  checksum: e0450535059f43301d4d6e74f596dda14cd462642e9eb298f3ddab492a5faa8f4d5b8a71932ef8d98da954b9aa5c5357c8b8f5ccd02951b627be98d82cc672f5
   languageName: node
   linkType: hard
 
@@ -389,9 +389,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/generator-js@npm:^12.2.1":
-  version: 12.2.1
-  resolution: "@anansi/generator-js@npm:12.2.1"
+"@anansi/generator-js@npm:^12.3.0":
+  version: 12.3.0
+  resolution: "@anansi/generator-js@npm:12.3.0"
   dependencies:
     "@babel/runtime": "npm:^7.17.0"
     "@types/inquirer": "npm:^9.0.7"
@@ -408,7 +408,7 @@ __metadata:
     pacote: "npm:^17.0.5"
     shelobsay: "npm:^2.0.0"
     yeoman-generator: "npm:^7.1.1"
-  checksum: 2826dcb42879b0300fda31bfd5df03f247c5f924b3d3a2728ad4a635526c282ddc8ad04973e340b91034183a2fd84485f9639fc8c1f7d13882babe061192ada1
+  checksum: ed2428aceb0044a5431301e0dcf1198e84a0a0c5919cd4000fc6d09488ac73ee93ffd280cbb343aba9e9bbe3470acc94830338b029a7a9fb75b4d80a15f03ca7
   languageName: node
   linkType: hard
 
@@ -443,12 +443,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/router@npm:^0.9.1, @anansi/router@npm:^0.9.2":
-  version: 0.9.2
-  resolution: "@anansi/router@npm:0.9.2"
+"@anansi/router@npm:^0.9.1, @anansi/router@npm:^0.9.3":
+  version: 0.9.3
+  resolution: "@anansi/router@npm:0.9.3"
   dependencies:
     "@babel/runtime": "npm:^7.17.0"
-    "@pojo-router/core": "npm:^0.6.2"
+    "@pojo-router/core": "npm:^0.6.3"
     history: "npm:^5.3.0"
     nano-memoize: "npm:^3.0.16"
   peerDependencies:
@@ -457,7 +457,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: fd9968b3b4dad10cff79e9c513765de265e6cd9c1fcbe713749767b1035b2c0d4674d992864d2e3ff5c6f85ae19daedc7582010f264dcf992905b3ae408935eb
+  checksum: 9de4bfd3aa90fe6e423c6ca231f6159752bb875a78bf4208d464da902be424902126920f10cefb38798897c15450e2ccacc620ae1a66818d018d1a990f5b731b
   languageName: node
   linkType: hard
 
@@ -3257,7 +3257,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/ssr@npm:^0.9.7, @data-client/ssr@workspace:packages/ssr":
+"@data-client/ssr@npm:^0.9.9, @data-client/ssr@workspace:packages/ssr":
   version: 0.0.0-use.local
   resolution: "@data-client/ssr@workspace:packages/ssr"
   dependencies:
@@ -4708,72 +4708,72 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/env@npm:14.0.3":
-  version: 14.0.3
-  resolution: "@next/env@npm:14.0.3"
-  checksum: 8688367c22461a075b5406463d16c284cf58e6861418e974fbd5901721da73402988340f8dd72d8e2e41e32ae0b7f24f91bd49029ee6e63424361587165febc5
+"@next/env@npm:14.0.4":
+  version: 14.0.4
+  resolution: "@next/env@npm:14.0.4"
+  checksum: 59b893d30aea0556379a24f6e4eac830677feb149bd8416b72383ea2600ce194fa22a79b2dd86e0b295c4a8f0702e461f48edaff1ac9173eddef42a4cce7fd98
   languageName: node
   linkType: hard
 
-"@next/swc-darwin-arm64@npm:14.0.3":
-  version: 14.0.3
-  resolution: "@next/swc-darwin-arm64@npm:14.0.3"
+"@next/swc-darwin-arm64@npm:14.0.4":
+  version: 14.0.4
+  resolution: "@next/swc-darwin-arm64@npm:14.0.4"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@next/swc-darwin-x64@npm:14.0.3":
-  version: 14.0.3
-  resolution: "@next/swc-darwin-x64@npm:14.0.3"
+"@next/swc-darwin-x64@npm:14.0.4":
+  version: 14.0.4
+  resolution: "@next/swc-darwin-x64@npm:14.0.4"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@next/swc-linux-arm64-gnu@npm:14.0.3":
-  version: 14.0.3
-  resolution: "@next/swc-linux-arm64-gnu@npm:14.0.3"
+"@next/swc-linux-arm64-gnu@npm:14.0.4":
+  version: 14.0.4
+  resolution: "@next/swc-linux-arm64-gnu@npm:14.0.4"
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@next/swc-linux-arm64-musl@npm:14.0.3":
-  version: 14.0.3
-  resolution: "@next/swc-linux-arm64-musl@npm:14.0.3"
+"@next/swc-linux-arm64-musl@npm:14.0.4":
+  version: 14.0.4
+  resolution: "@next/swc-linux-arm64-musl@npm:14.0.4"
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
 
-"@next/swc-linux-x64-gnu@npm:14.0.3":
-  version: 14.0.3
-  resolution: "@next/swc-linux-x64-gnu@npm:14.0.3"
+"@next/swc-linux-x64-gnu@npm:14.0.4":
+  version: 14.0.4
+  resolution: "@next/swc-linux-x64-gnu@npm:14.0.4"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@next/swc-linux-x64-musl@npm:14.0.3":
-  version: 14.0.3
-  resolution: "@next/swc-linux-x64-musl@npm:14.0.3"
+"@next/swc-linux-x64-musl@npm:14.0.4":
+  version: 14.0.4
+  resolution: "@next/swc-linux-x64-musl@npm:14.0.4"
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
 
-"@next/swc-win32-arm64-msvc@npm:14.0.3":
-  version: 14.0.3
-  resolution: "@next/swc-win32-arm64-msvc@npm:14.0.3"
+"@next/swc-win32-arm64-msvc@npm:14.0.4":
+  version: 14.0.4
+  resolution: "@next/swc-win32-arm64-msvc@npm:14.0.4"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@next/swc-win32-ia32-msvc@npm:14.0.3":
-  version: 14.0.3
-  resolution: "@next/swc-win32-ia32-msvc@npm:14.0.3"
+"@next/swc-win32-ia32-msvc@npm:14.0.4":
+  version: 14.0.4
+  resolution: "@next/swc-win32-ia32-msvc@npm:14.0.4"
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"@next/swc-win32-x64-msvc@npm:14.0.3":
-  version: 14.0.3
-  resolution: "@next/swc-win32-x64-msvc@npm:14.0.3"
+"@next/swc-win32-x64-msvc@npm:14.0.4":
+  version: 14.0.4
+  resolution: "@next/swc-win32-x64-msvc@npm:14.0.4"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
@@ -5462,9 +5462,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pojo-router/core@npm:^0.6.2":
-  version: 0.6.2
-  resolution: "@pojo-router/core@npm:0.6.2"
+"@pojo-router/core@npm:^0.6.3":
+  version: 0.6.3
+  resolution: "@pojo-router/core@npm:0.6.3"
   dependencies:
     "@babel/runtime": "npm:^7.17.0"
     history: "npm:5.3.0"
@@ -5475,7 +5475,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 01b1e7b2082749909119bc9db4c55fa25635683d94250774a4199f3c1f8bab506e6c42aee2d1faa839136ffdcb1abf516148c33cf2f2af938dd331bb1c9dcb92
+  checksum: 8d175a11d6c29d77910dd79fd709dc024dede76358f6b1cf43f800cfb605407ebfdb88cff5cb10cae1390efd83b26521b87ff74e812c683440704a62c2c9d1fa
   languageName: node
   linkType: hard
 
@@ -7150,14 +7150,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:18.2.42, @types/react@npm:^18.0.30":
-  version: 18.2.42
-  resolution: "@types/react@npm:18.2.42"
+"@types/react@npm:*, @types/react@npm:18.2.43, @types/react@npm:^18.0.30":
+  version: 18.2.43
+  resolution: "@types/react@npm:18.2.43"
   dependencies:
     "@types/prop-types": "npm:*"
     "@types/scheduler": "npm:*"
     csstype: "npm:^3.0.2"
-  checksum: 2946d78c1f9a220a4dfedd7995b8bcba47235b19756bf3dd845c604bb24fff8d0ff5be81c0c98ac7f4488791e8c7e6cbcc4898c40c0209d74a1223b8fbfb994f
+  checksum: 10477a50fbd3c0cc5b8a2ade679f442717f68fb27c8460b2aa1d3256cd18c48f742bbe5b9ee37a8c4c5f832ffa37b3a23c09fd96dd880a8e3182d8929c05e803
   languageName: node
   linkType: hard
 
@@ -13623,7 +13623,7 @@ __metadata:
     "@js-temporal/polyfill": "npm:^0.4.4"
     "@types/babel__core": "npm:^7"
     "@types/benchmark": "npm:2.1.5"
-    "@types/react": "npm:18.2.42"
+    "@types/react": "npm:18.2.43"
     benchmark: "npm:^2.1.4"
     normalizr: "npm:^3.6.2"
     react: "npm:^18.2.0"
@@ -15070,7 +15070,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graceful-fs@npm:^4.1.11, graceful-fs@npm:^4.1.2, graceful-fs@npm:^4.1.3, graceful-fs@npm:^4.1.5, graceful-fs@npm:^4.1.6, graceful-fs@npm:^4.2.0, graceful-fs@npm:^4.2.10, graceful-fs@npm:^4.2.3, graceful-fs@npm:^4.2.4, graceful-fs@npm:^4.2.6, graceful-fs@npm:^4.2.9":
+"graceful-fs@npm:^4.1.11, graceful-fs@npm:^4.1.2, graceful-fs@npm:^4.1.3, graceful-fs@npm:^4.1.5, graceful-fs@npm:^4.1.6, graceful-fs@npm:^4.2.0, graceful-fs@npm:^4.2.10, graceful-fs@npm:^4.2.11, graceful-fs@npm:^4.2.3, graceful-fs@npm:^4.2.4, graceful-fs@npm:^4.2.6, graceful-fs@npm:^4.2.9":
   version: 4.2.11
   resolution: "graceful-fs@npm:4.2.11"
   checksum: 386d011a553e02bc594ac2ca0bd6d9e4c22d7fa8cfbfc448a6d148c59ea881b092db9dbe3547ae4b88e55f1b01f7c4a2ecc53b310c042793e63aa44cf6c257f2
@@ -20733,22 +20733,23 @@ __metadata:
   linkType: hard
 
 "next@npm:^14.0.0":
-  version: 14.0.3
-  resolution: "next@npm:14.0.3"
+  version: 14.0.4
+  resolution: "next@npm:14.0.4"
   dependencies:
-    "@next/env": "npm:14.0.3"
-    "@next/swc-darwin-arm64": "npm:14.0.3"
-    "@next/swc-darwin-x64": "npm:14.0.3"
-    "@next/swc-linux-arm64-gnu": "npm:14.0.3"
-    "@next/swc-linux-arm64-musl": "npm:14.0.3"
-    "@next/swc-linux-x64-gnu": "npm:14.0.3"
-    "@next/swc-linux-x64-musl": "npm:14.0.3"
-    "@next/swc-win32-arm64-msvc": "npm:14.0.3"
-    "@next/swc-win32-ia32-msvc": "npm:14.0.3"
-    "@next/swc-win32-x64-msvc": "npm:14.0.3"
+    "@next/env": "npm:14.0.4"
+    "@next/swc-darwin-arm64": "npm:14.0.4"
+    "@next/swc-darwin-x64": "npm:14.0.4"
+    "@next/swc-linux-arm64-gnu": "npm:14.0.4"
+    "@next/swc-linux-arm64-musl": "npm:14.0.4"
+    "@next/swc-linux-x64-gnu": "npm:14.0.4"
+    "@next/swc-linux-x64-musl": "npm:14.0.4"
+    "@next/swc-win32-arm64-msvc": "npm:14.0.4"
+    "@next/swc-win32-ia32-msvc": "npm:14.0.4"
+    "@next/swc-win32-x64-msvc": "npm:14.0.4"
     "@swc/helpers": "npm:0.5.2"
     busboy: "npm:1.6.0"
     caniuse-lite: "npm:^1.0.30001406"
+    graceful-fs: "npm:^4.2.11"
     postcss: "npm:8.4.31"
     styled-jsx: "npm:5.1.1"
     watchpack: "npm:2.4.0"
@@ -20783,7 +20784,7 @@ __metadata:
       optional: true
   bin:
     next: dist/bin/next
-  checksum: 73aa3d5dd7b65b53ef68fa7723a7a98536482a69ae2d56e7b335194168f00b2851397bbdfe490b53dba2c70dfb8ad0150035fab4c762d6bc331e884487c4ff07
+  checksum: e6c829fd473d8c3605b2b62d15e1bf41e9d90cf59a2c213b4adeadff2846999bc9a653ffef18f6aa13cc9f5d6de02469c222acf5a4184901a4690a4504bd468f
   languageName: node
   linkType: hard
 
@@ -24276,7 +24277,7 @@ __metadata:
     "@js-temporal/polyfill": "npm:^0.4.4"
     "@monaco-editor/react": "npm:^4.4.6"
     "@tsconfig/docusaurus": "npm:^2.0.0"
-    "@types/react": "npm:18.2.42"
+    "@types/react": "npm:18.2.43"
     "@types/react-dom": "npm:^18.2.7"
     "@types/react-helmet": "npm:^6.1.5"
     "@types/react-router-dom": "npm:^5.3.3"
@@ -24515,12 +24516,12 @@ __metadata:
   linkType: hard
 
 "react-native-safe-area-context@npm:^4.4.1":
-  version: 4.7.4
-  resolution: "react-native-safe-area-context@npm:4.7.4"
+  version: 4.8.0
+  resolution: "react-native-safe-area-context@npm:4.8.0"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 72744331ec2487e8f4a04efda0343e5fae75a2db95762711f2ae18c5b16c25eec89262e8f8cffb6224410b103c5077251c201a8489179259f5fd161b7f8baf13
+  checksum: ccc59970bd0bf12ee019e5b05ee1b93933ea80fe17a4fa01c71a533aaa70269ecde086c04dbede6c736b6d68968ed571b17c045133ca54fdb1a7db478865624a
   languageName: node
   linkType: hard
 
@@ -25813,7 +25814,7 @@ __metadata:
     "@testing-library/react-native": "npm:12.4.1"
     "@types/jest": "npm:29.5.10"
     "@types/node": "npm:20.10.4"
-    "@types/react": "npm:18.2.42"
+    "@types/react": "npm:18.2.43"
     "@typescript-eslint/eslint-plugin": "npm:6.13.2"
     "@typescript-eslint/parser": "npm:6.13.2"
     babel-plugin-module-resolver: "npm:5.0.0"
@@ -25857,7 +25858,7 @@ __metadata:
     rollup-plugin-node-resolve: "npm:^5.2.0"
     rollup-plugin-replace: "npm:^2.2.0"
     rollup-plugin-terser: "npm:^7.0.2"
-    ts-node: "npm:10.9.1"
+    ts-node: "npm:10.9.2"
     typescript: "npm:5.3.3"
     whatwg-fetch: "npm:3.0.0"
   languageName: unknown
@@ -28078,9 +28079,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-node@npm:10.9.1":
-  version: 10.9.1
-  resolution: "ts-node@npm:10.9.1"
+"ts-node@npm:10.9.2":
+  version: 10.9.2
+  resolution: "ts-node@npm:10.9.2"
   dependencies:
     "@cspotcode/source-map-support": "npm:^0.8.0"
     "@tsconfig/node10": "npm:^1.0.7"
@@ -28112,7 +28113,7 @@ __metadata:
     ts-node-script: dist/bin-script.js
     ts-node-transpile-only: dist/bin-transpile.js
     ts-script: dist/bin-script-deprecated.js
-  checksum: 95187932fb83f3901e22546bd2feeac7d2feb4f412f42ac3a595f049a23e8dcf70516dffb51866391228ea2dbcfaea039e250fb2bb334d48a86ab2b6aea0ae2d
+  checksum: 5f29938489f96982a25ba650b64218e83a3357d76f7bede80195c65ab44ad279c8357264639b7abdd5d7e75fc269a83daa0e9c62fd8637a3def67254ecc9ddc2
   languageName: node
   linkType: hard
 
