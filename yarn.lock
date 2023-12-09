@@ -470,16 +470,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:16.0.9, @anansi/webpack-config@npm:^16.0.0":
-  version: 16.0.9
-  resolution: "@anansi/webpack-config@npm:16.0.9"
+"@anansi/webpack-config@npm:17.0.0, @anansi/webpack-config@npm:^17.0.0":
+  version: 17.0.0
+  resolution: "@anansi/webpack-config@npm:17.0.0"
   dependencies:
     "@babel/runtime": "npm:^7.17.2"
-    "@linaria/webpack5-loader": "npm:5.0.4"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.11"
     "@svgr/webpack": "npm:^8.1.0"
     "@types/webpack-bundle-analyzer": "npm:^4.6.3"
     "@vue/preload-webpack-plugin": "npm:^2.0.0"
+    "@wyw-in-js/webpack-loader": "npm:0.2.2"
     assert: "npm:^2.1.0"
     autoprefixer: "npm:^10.4.16"
     babel-loader: "npm:^9.1.3"
@@ -493,13 +493,12 @@ __metadata:
     crypto-browserify: "npm:^3.12.0"
     css-loader: "npm:^6.8.1"
     css-minimizer-webpack-plugin: "npm:^5.0.1"
-    domain-browser: "npm:^5.4.0"
+    domain-browser: "npm:^5.5.0"
     duplicate-package-checker-webpack-plugin: "npm:^3.0.0"
     events: "npm:^3.3.0"
     file-loader: "npm:^6.2.0"
-    find-cache-dir: "npm:^3.3.2"
     html-loader: "npm:^4.2.0"
-    html-webpack-plugin: "npm:^5.5.3"
+    html-webpack-plugin: "npm:^5.5.4"
     https-browserify: "npm:^1.0.0"
     is-wsl: "npm:^2.2.0"
     mini-css-extract-plugin: "npm:^2.7.6"
@@ -507,7 +506,7 @@ __metadata:
     os-browserify: "npm:^0.3.0"
     path: "npm:^0.12.7"
     path-browserify: "npm:^1.0.1"
-    postcss: "npm:^8.4.31"
+    postcss: "npm:^8.4.32"
     postcss-loader: "npm:^7.3.3"
     postcss-preset-env: "npm:^9.3.0"
     process: "npm:^0.11.10"
@@ -524,7 +523,7 @@ __metadata:
     stream-http: "npm:^3.2.0"
     string_decoder: "npm:^1.3.0"
     strip-ansi: "npm:^6.0.1"
-    svgo: "npm:^3.0.4"
+    svgo: "npm:^3.0.5"
     svgo-loader: "npm:^4.0.0"
     terser-webpack-plugin: "npm:^5.3.9"
     timers-browserify: "npm:^2.0.12"
@@ -541,7 +540,6 @@ __metadata:
   peerDependencies:
     "@babel/core": ^6 || ^7 || ^8
     "@hot-loader/react-dom": ^16.0.0 || ^17.0.0
-    "@linaria/babel-preset": ^5.0.0
     "@storybook/react": ^6.2.0 || ^7.0.0-rc.0
     "@types/react": ^16.0.0 || ^17.0.0 || ^18.0.0
     node-sass: ^7.0.1 || ^8.0.0 || ^9.0.0
@@ -556,8 +554,6 @@ __metadata:
     "@babel/core":
       optional: true
     "@hot-loader/react-dom":
-      optional: true
-    "@linaria/babel-preset":
       optional: true
     "@storybook/react":
       optional: true
@@ -577,7 +573,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: b91d765d9d39648ed586be233f57eb09c5098a0b4bc553c58ab1506373102951afc4966137f262df06e7d7692ef1722868cfaa1d7c3abbbe4b008b7aeeefa13b
+  checksum: 0187f14fc0aba7d78b88e31612e111ff4865d31ce6447787ab161571f7ee16604d6db8f3b616446579410e5bf36ed45943287ffe14a837bef147b6c5cdd2c9ee
   languageName: node
   linkType: hard
 
@@ -625,7 +621,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/core@npm:7.23.5, @babel/core@npm:^7.11.6, @babel/core@npm:^7.12.3, @babel/core@npm:^7.13.16, @babel/core@npm:^7.19.6, @babel/core@npm:^7.20.0, @babel/core@npm:^7.21.3, @babel/core@npm:^7.22.15, @babel/core@npm:^7.23.3":
+"@babel/core@npm:7.23.5, @babel/core@npm:^7.11.6, @babel/core@npm:^7.12.3, @babel/core@npm:^7.13.16, @babel/core@npm:^7.19.6, @babel/core@npm:^7.20.0, @babel/core@npm:^7.21.3, @babel/core@npm:^7.22.15, @babel/core@npm:^7.23.3, @babel/core@npm:^7.23.5":
   version: 7.23.5
   resolution: "@babel/core@npm:7.23.5"
   dependencies:
@@ -4492,7 +4488,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@linaria/babel-preset@npm:*, @linaria/babel-preset@npm:^5.0.4":
+"@linaria/babel-preset@npm:*":
   version: 5.0.4
   resolution: "@linaria/babel-preset@npm:5.0.4"
   dependencies:
@@ -4516,7 +4512,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@linaria/core@npm:*, @linaria/core@npm:^5.0.2":
+"@linaria/core@npm:*, @linaria/core@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "@linaria/core@npm:6.0.0"
+  dependencies:
+    "@wyw-in-js/processor-utils": "npm:^0.2.2"
+  checksum: 4f114a62ac0d14c7a34126101f7047142d636c649801cbf56fb0f54c9f0efcb03057b8ae9c5e140e6f4b3bb62c54c5ed6cd9528f2f8c3d48dacd3df3cba15ea8
+  languageName: node
+  linkType: hard
+
+"@linaria/core@npm:^5.0.2":
   version: 5.0.2
   resolution: "@linaria/core@npm:5.0.2"
   dependencies:
@@ -4538,19 +4543,19 @@ __metadata:
   linkType: hard
 
 "@linaria/react@npm:*":
-  version: 5.0.3
-  resolution: "@linaria/react@npm:5.0.3"
+  version: 6.0.0
+  resolution: "@linaria/react@npm:6.0.0"
   dependencies:
     "@emotion/is-prop-valid": "npm:^1.2.0"
-    "@linaria/core": "npm:^5.0.2"
-    "@linaria/tags": "npm:^5.0.2"
-    "@linaria/utils": "npm:^5.0.2"
+    "@linaria/core": "npm:^6.0.0"
+    "@wyw-in-js/processor-utils": "npm:^0.2.2"
+    "@wyw-in-js/shared": "npm:^0.2.2"
     minimatch: "npm:^9.0.3"
     react-html-attributes: "npm:^1.4.6"
     ts-invariant: "npm:^0.10.3"
   peerDependencies:
     react: ">=16"
-  checksum: ef1f6c21eedac4a35113ace490d9ff418cd3fb8e043ebc39527bb8bb1ff4a880b0b59aeeeffd926b6417a70d49ffd8e12cfab7a73d452255bef60eedc628178a
+  checksum: 60ecdfe11980bb035100de6364290fe0302df19528c8f4665d672e5c3866840c91fdd8ff6eadfbc23d4a10729feae13be58217fd63d16ead3136ece2eaae0f71
   languageName: node
   linkType: hard
 
@@ -4598,21 +4603,6 @@ __metadata:
     find-up: "npm:^5.0.0"
     minimatch: "npm:^9.0.3"
   checksum: 4ba05a56231877061e61dfe884474aa1b5c5f8f04ec012cf7fa0570f3afa94284f17ddbf32a6f4000d8f5dc3c9f6d542d305170772d2e01eed0e49eedb6d0930
-  languageName: node
-  linkType: hard
-
-"@linaria/webpack5-loader@npm:5.0.4":
-  version: 5.0.4
-  resolution: "@linaria/webpack5-loader@npm:5.0.4"
-  dependencies:
-    "@linaria/babel-preset": "npm:^5.0.4"
-    "@linaria/logger": "npm:^5.0.0"
-    "@linaria/utils": "npm:^5.0.2"
-    enhanced-resolve: "npm:^5.3.1"
-    mkdirp: "npm:^0.5.1"
-  peerDependencies:
-    webpack: ^5.0.0
-  checksum: 62cb584ef09bb0a7216d95fc3c91685d5afbf312cd9112e9229b8a99eba2dbcfdb71cd4bacffbe72487b3966e03239e03aee674bdd95b3f30601829429b1e907
   languageName: node
   linkType: hard
 
@@ -7680,6 +7670,62 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@wyw-in-js/processor-utils@npm:0.2.2, @wyw-in-js/processor-utils@npm:^0.2.2":
+  version: 0.2.2
+  resolution: "@wyw-in-js/processor-utils@npm:0.2.2"
+  dependencies:
+    "@babel/generator": "npm:^7.23.5"
+    "@wyw-in-js/shared": "npm:0.2.2"
+  checksum: f63f37ff511fb43c35f081fe95607cd0111199bf5febcc0ec13bb3c7b722f22d76fe72cb10c942f59dc4ff8074530f688e54a04874e57c9fdc284d77696e8157
+  languageName: node
+  linkType: hard
+
+"@wyw-in-js/shared@npm:0.2.2, @wyw-in-js/shared@npm:^0.2.2":
+  version: 0.2.2
+  resolution: "@wyw-in-js/shared@npm:0.2.2"
+  dependencies:
+    debug: "npm:^4.3.4"
+    find-up: "npm:^5.0.0"
+    minimatch: "npm:^9.0.3"
+  checksum: 447a917a5eda5b3104549a71d661141deb2f1264f81929a39ecd97cc9a48c853a21d6395918be53317c301638ce64234acd6eddfef5a7d563a988f9a1ab8ffbf
+  languageName: node
+  linkType: hard
+
+"@wyw-in-js/transform@npm:0.2.2":
+  version: 0.2.2
+  resolution: "@wyw-in-js/transform@npm:0.2.2"
+  dependencies:
+    "@babel/core": "npm:^7.23.5"
+    "@babel/generator": "npm:^7.23.5"
+    "@babel/helper-module-imports": "npm:^7.22.15"
+    "@babel/plugin-transform-modules-commonjs": "npm:^7.23.3"
+    "@babel/template": "npm:^7.22.15"
+    "@babel/traverse": "npm:^7.23.5"
+    "@babel/types": "npm:^7.23.5"
+    "@wyw-in-js/processor-utils": "npm:0.2.2"
+    "@wyw-in-js/shared": "npm:0.2.2"
+    babel-merge: "npm:^3.0.0"
+    cosmiconfig: "npm:^8.0.0"
+    happy-dom: "npm:^12.5.0"
+    source-map: "npm:^0.7.4"
+    stylis: "npm:^4.3.0"
+    ts-invariant: "npm:^0.10.3"
+  checksum: e14c1d5e48dc1d790c14bf7630b8c2ea8f4cb6d7a1d4331f9198b3394af4f7b4b4c76a0db8be5ffd42b71520630797f586090add523d50a00bc76ce6a5337830
+  languageName: node
+  linkType: hard
+
+"@wyw-in-js/webpack-loader@npm:0.2.2":
+  version: 0.2.2
+  resolution: "@wyw-in-js/webpack-loader@npm:0.2.2"
+  dependencies:
+    "@wyw-in-js/shared": "npm:0.2.2"
+    "@wyw-in-js/transform": "npm:0.2.2"
+  peerDependencies:
+    webpack: ^5.76.0
+  checksum: abfd11ef571959231b7435a66aa39c126648071d516a1c609f3ef4a0d7ab50f93066bf34b468f4a15ea823fa05bfe181de225e953a58451c9df0779d7b3901ef
+  languageName: node
+  linkType: hard
+
 "@xtuc/ieee754@npm:^1.2.0":
   version: 1.2.0
   resolution: "@xtuc/ieee754@npm:1.2.0"
@@ -10320,7 +10366,7 @@ __metadata:
     "@anansi/cli": "npm:^3.0.15"
     "@anansi/core": "npm:^0.18.4"
     "@anansi/router": "npm:^0.9.1"
-    "@anansi/webpack-config": "npm:^16.0.0"
+    "@anansi/webpack-config": "npm:^17.0.0"
     "@babel/core": "npm:^7.22.15"
     "@babel/runtime": "npm:^7.22.15"
     "@data-client/img": "npm:^0.9.0"
@@ -12502,10 +12548,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"domain-browser@npm:^5.4.0":
-  version: 5.4.0
-  resolution: "domain-browser@npm:5.4.0"
-  checksum: 62c4d61073cce13b33a5c30a5d7a16e9ccd5dee277a70f0956016e3401204023cdad58ee1c55f5c23c2ffc3dc147843460e4ded4409780b73b8b8766d86ec54d
+"domain-browser@npm:^5.5.0":
+  version: 5.5.0
+  resolution: "domain-browser@npm:5.5.0"
+  checksum: 4c0f8838284c87e9e60ddb41b5b6ca1413d52674b3cd1f1ec12c9889cc7b62941049e3e9257a89442498fa6a4bae163f744684fbe2c83a610afe7e61c7fb66f9
   languageName: node
   linkType: hard
 
@@ -12805,7 +12851,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"enhanced-resolve@npm:^5.12.0, enhanced-resolve@npm:^5.15.0, enhanced-resolve@npm:^5.3.1, enhanced-resolve@npm:^5.7.0":
+"enhanced-resolve@npm:^5.12.0, enhanced-resolve@npm:^5.15.0, enhanced-resolve@npm:^5.7.0":
   version: 5.15.0
   resolution: "enhanced-resolve@npm:5.15.0"
   dependencies:
@@ -13568,7 +13614,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "example-benchmark@workspace:examples/benchmark"
   dependencies:
-    "@anansi/webpack-config": "npm:^16.0.0"
+    "@anansi/webpack-config": "npm:^17.0.0"
     "@babel/core": "npm:7.23.5"
     "@babel/node": "npm:7.22.19"
     "@data-client/core": "workspace:^"
@@ -14067,17 +14113,6 @@ __metadata:
     make-dir: "npm:^2.0.0"
     pkg-dir: "npm:^3.0.0"
   checksum: 556117fd0af14eb88fb69250f4bba9e905e7c355c6136dff0e161b9cbd1f5285f761b778565a278da73a130f42eccc723d7ad4c002ae547ed1d698d39779dabb
-  languageName: node
-  linkType: hard
-
-"find-cache-dir@npm:^3.3.2":
-  version: 3.3.2
-  resolution: "find-cache-dir@npm:3.3.2"
-  dependencies:
-    commondir: "npm:^1.0.1"
-    make-dir: "npm:^3.0.2"
-    pkg-dir: "npm:^4.1.0"
-  checksum: 92747cda42bff47a0266b06014610981cfbb71f55d60f2c8216bc3108c83d9745507fb0b14ecf6ab71112bed29cd6fb1a137ee7436179ea36e11287e3159e587
   languageName: node
   linkType: hard
 
@@ -15133,6 +15168,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"happy-dom@npm:^12.5.0":
+  version: 12.10.3
+  resolution: "happy-dom@npm:12.10.3"
+  dependencies:
+    css.escape: "npm:^1.5.1"
+    entities: "npm:^4.5.0"
+    iconv-lite: "npm:^0.6.3"
+    webidl-conversions: "npm:^7.0.0"
+    whatwg-encoding: "npm:^2.0.0"
+    whatwg-mimetype: "npm:^3.0.0"
+  checksum: fbf8647e17c4af5c166d7c4b6963f4bbc9d1c279e94a4c77234b1fecca98c59989b894c7b186f5107e1062d40ffd84f12350b757f51330a5fc1c5228eb199517
+  languageName: node
+  linkType: hard
+
 "har-schema@npm:^2.0.0":
   version: 2.0.0
   resolution: "har-schema@npm:2.0.0"
@@ -15668,9 +15717,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"html-webpack-plugin@npm:^5.5.3":
-  version: 5.5.3
-  resolution: "html-webpack-plugin@npm:5.5.3"
+"html-webpack-plugin@npm:^5.5.3, html-webpack-plugin@npm:^5.5.4":
+  version: 5.5.4
+  resolution: "html-webpack-plugin@npm:5.5.4"
   dependencies:
     "@types/html-minifier-terser": "npm:^6.0.0"
     html-minifier-terser: "npm:^6.0.2"
@@ -15679,7 +15728,7 @@ __metadata:
     tapable: "npm:^2.0.0"
   peerDependencies:
     webpack: ^5.20.0
-  checksum: 7ba0d0f87d08f5c4c51f821842d736ec1762940bc39798932528adaec1e9cca8f52944987b88789007f5706d15110edbdfa30df445d61c6628b02ebe163c4f42
+  checksum: fd7b9882a7b44b78711d3489fd571308372a915924c2e619ad8a08d9100a17ae8899a3d3bb1934c326d45bf942330a693206088ba80f292dd6574d9e33c67a43
   languageName: node
   linkType: hard
 
@@ -18575,7 +18624,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"make-dir@npm:^3.0.0, make-dir@npm:^3.0.2":
+"make-dir@npm:^3.0.0":
   version: 3.1.0
   resolution: "make-dir@npm:3.1.0"
   dependencies:
@@ -20646,12 +20695,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nanoid@npm:^3.1.23, nanoid@npm:^3.3.6":
-  version: 3.3.6
-  resolution: "nanoid@npm:3.3.6"
+"nanoid@npm:^3.1.23, nanoid@npm:^3.3.6, nanoid@npm:^3.3.7":
+  version: 3.3.7
+  resolution: "nanoid@npm:3.3.7"
   bin:
     nanoid: bin/nanoid.cjs
-  checksum: 606b355960d0fcbe3d27924c4c52ef7d47d3b57208808ece73279420d91469b01ec1dce10fae512b6d4a8c5a5432b352b228336a8b2202a6ea68e67fa348e2ee
+  checksum: e3fb661aa083454f40500473bb69eedb85dc160e763150b9a2c567c7e9ff560ce028a9f833123b618a6ea742e311138b591910e795614a629029e86e180660f3
   languageName: node
   linkType: hard
 
@@ -22538,7 +22587,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pkg-dir@npm:^4.1.0, pkg-dir@npm:^4.2.0":
+"pkg-dir@npm:^4.2.0":
   version: 4.2.0
   resolution: "pkg-dir@npm:4.2.0"
   dependencies:
@@ -23669,7 +23718,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:8.4.31, postcss@npm:^8.4.17, postcss@npm:^8.4.21, postcss@npm:^8.4.24, postcss@npm:^8.4.26, postcss@npm:^8.4.31":
+"postcss@npm:8.4.31":
   version: 8.4.31
   resolution: "postcss@npm:8.4.31"
   dependencies:
@@ -23677,6 +23726,17 @@ __metadata:
     picocolors: "npm:^1.0.0"
     source-map-js: "npm:^1.0.2"
   checksum: 748b82e6e5fc34034dcf2ae88ea3d11fd09f69b6c50ecdd3b4a875cfc7cdca435c958b211e2cb52355422ab6fccb7d8f2f2923161d7a1b281029e4a913d59acf
+  languageName: node
+  linkType: hard
+
+"postcss@npm:^8.4.17, postcss@npm:^8.4.21, postcss@npm:^8.4.24, postcss@npm:^8.4.26, postcss@npm:^8.4.32":
+  version: 8.4.32
+  resolution: "postcss@npm:8.4.32"
+  dependencies:
+    nanoid: "npm:^3.3.7"
+    picocolors: "npm:^1.0.0"
+    source-map-js: "npm:^1.0.2"
+  checksum: 39308a9195fa34d4dbdd7b58a896cff0c7809f84f7a4ac1b95b68ca86c9138a395addff33075668ed3983d41b90aac05754c445237a9365eb1c3a5602ebd03ad
   languageName: node
   linkType: hard
 
@@ -24199,7 +24259,7 @@ __metadata:
   resolution: "rdc-website@workspace:website"
   dependencies:
     "@anansi/browserslist-config": "npm:1.4.3"
-    "@anansi/webpack-config": "npm:16.0.9"
+    "@anansi/webpack-config": "npm:17.0.0"
     "@data-client/endpoint": "workspace:^"
     "@data-client/graphql": "workspace:*"
     "@data-client/hooks": "workspace:*"
@@ -26697,7 +26757,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"source-map@npm:^0.7.0, source-map@npm:^0.7.3":
+"source-map@npm:^0.7.0, source-map@npm:^0.7.3, source-map@npm:^0.7.4":
   version: 0.7.4
   resolution: "source-map@npm:0.7.4"
   checksum: dc0cf3768fe23c345ea8760487f8c97ef6fca8a73c83cd7c9bf2fde8bc2c34adb9c0824d6feb14bc4f9e37fb522e18af621543f1289038a66ac7586da29aa7dc
@@ -27383,7 +27443,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylis@npm:^4.1.3":
+"stylis@npm:^4.1.3, stylis@npm:^4.3.0":
   version: 4.3.0
   resolution: "stylis@npm:4.3.0"
   checksum: 5a9f7e0cf2a15591efaacc1c6416a8785d2b57522cd38bb8e0a81a03c23d3bea2363659fa5f9d486a73d1b6ebaf1d32826ce1c1974c95afdb5b495d98acb25c0
@@ -27509,9 +27569,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"svgo@npm:^3.0.0, svgo@npm:^3.0.2, svgo@npm:^3.0.4":
-  version: 3.0.4
-  resolution: "svgo@npm:3.0.4"
+"svgo@npm:^3.0.0, svgo@npm:^3.0.2, svgo@npm:^3.0.5":
+  version: 3.0.5
+  resolution: "svgo@npm:3.0.5"
   dependencies:
     "@trysound/sax": "npm:0.2.0"
     commander: "npm:^7.2.0"
@@ -27522,7 +27582,7 @@ __metadata:
     picocolors: "npm:^1.0.0"
   bin:
     svgo: ./bin/svgo
-  checksum: 2751ddbb27a9461a0e9b2b9faa2e599bbd57da1a9115565bb0336582655d38292f4ec444b6abf2e7adb3fc38abb8a6acb7cabd7f30bd186722dceba8495c2583
+  checksum: 6644fe2d01622d4d9a20816f5f2a65f4ec218e428ddbc0027e57eef209733b9b967d5547ef4f87a4a11aa4ab03b58ab26a51dba3e06d142b149d4d5ae12ce9cc
   languageName: node
   linkType: hard
 
