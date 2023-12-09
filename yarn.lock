@@ -204,9 +204,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/babel-preset@npm:4.4.5, @anansi/babel-preset@npm:^4.2.15":
-  version: 4.4.5
-  resolution: "@anansi/babel-preset@npm:4.4.5"
+"@anansi/babel-preset@npm:4.5.0, @anansi/babel-preset@npm:^4.2.15":
+  version: 4.5.0
+  resolution: "@anansi/babel-preset@npm:4.5.0"
   dependencies:
     "@anansi/ts-utils": "npm:^0.3.6"
     "@babel/plugin-proposal-class-properties": "npm:^7.18.6"
@@ -269,7 +269,7 @@ __metadata:
       optional: true
     typescript:
       optional: true
-  checksum: 2e2b91bc5722d9109b374fe7f5e62a59e972ee5018ff796ffd9e30650ec765f0453d7ab41d436aac49e0fc3a53d8b33f2e24846f4e4474a58fc54bed84c4a9cb
+  checksum: 8bd98b07e41c563358c581e7d23cb6476a3629285f60dbf247eda0a850a0f094073f83b54186ee2d6a13580e418fca5f2a76e53c71b356f8d038215c22499683
   languageName: node
   linkType: hard
 
@@ -10865,10 +10865,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:3.33.3, core-js@npm:^3.21.0, core-js@npm:^3.30.2, core-js@npm:^3.31.1, core-js@npm:^3.6.5":
-  version: 3.33.3
-  resolution: "core-js@npm:3.33.3"
-  checksum: 08abdc9470c8228b9d09f61e62ab312738681202c4c34e9638889125b304b235f34c4fe22e9d41c20906ac0fcc807dca57c5ff7d6b90021bf64e8fe23461d9ab
+"core-js@npm:3.34.0, core-js@npm:^3.21.0, core-js@npm:^3.30.2, core-js@npm:^3.31.1, core-js@npm:^3.6.5":
+  version: 3.34.0
+  resolution: "core-js@npm:3.34.0"
+  checksum: 408a77898abe03bf3e5dec2a451c36f4745081cca9022f8bdf9b817d57bb6d3a534d555f47a4b95e1daa5e21dbc79122eac2402e25720d425f5925127e55dcd8
   languageName: node
   linkType: hard
 
@@ -25793,7 +25793,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    "@anansi/babel-preset": "npm:4.4.5"
+    "@anansi/babel-preset": "npm:4.5.0"
     "@anansi/browserslist-config": "npm:1.4.3"
     "@anansi/eslint-plugin": "npm:0.16.39"
     "@anansi/jest-preset": "npm:0.10.24"
@@ -25820,7 +25820,7 @@ __metadata:
     benchmark: "npm:^2.1.4"
     conventional-changelog-anansi: "npm:^0.2.0"
     copyfiles: "npm:^2.4.1"
-    core-js: "npm:3.33.3"
+    core-js: "npm:3.34.0"
     coveralls: "npm:^3.1.0"
     cpy-cli: "npm:5.0.0"
     cross-fetch: "npm:^4.0.0"
