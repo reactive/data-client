@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@anansi/webpack-config": "^17.0.0",
-    "@babel/core": "7.23.5",
+    "@babel/core": "7.23.6",
     "@babel/node": "7.22.19",
     "@types/babel__core": "^7",
     "@types/benchmark": "2.1.5",
