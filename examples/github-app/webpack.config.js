@@ -10,6 +10,7 @@ const options = {
   },
   globalStyleDir: 'style',
   terserOptions: { keep_classnames: true },
+  sassOptions: false,
 };
 
 const generateConfig = makeConfig(options);

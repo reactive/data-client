@@ -3,7 +3,7 @@ import { MatchedRoute } from '@anansi/router';
 import { Layout } from 'antd';
 import Boundary from 'Boundary';
 import 'antd/dist/reset.css';
-import 'style/main.scss';
+import 'style/main.css';
 import NavBar from 'navigation/NavBar';
 
 const { Content } = Layout;

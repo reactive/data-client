@@ -5,6 +5,7 @@ const options = {
   buildDir: 'dist/',
   serverDir: 'dist-server/',
   globalStyleDir: 'style',
+  sassOptions: false,
 };
 
 const generateConfig = makeConfig(options);

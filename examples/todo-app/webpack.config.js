@@ -9,6 +9,7 @@ const options = {
     template: 'index.ejs',
   },
   globalStyleDir: 'style',
+  sassOptions: false,
 };
 
 const generateConfig = makeConfig(options);
