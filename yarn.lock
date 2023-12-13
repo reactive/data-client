@@ -470,9 +470,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:17.0.1, @anansi/webpack-config@npm:^17.0.0":
-  version: 17.0.1
-  resolution: "@anansi/webpack-config@npm:17.0.1"
+"@anansi/webpack-config@npm:17.0.2, @anansi/webpack-config@npm:^17.0.0":
+  version: 17.0.2
+  resolution: "@anansi/webpack-config@npm:17.0.2"
   dependencies:
     "@babel/runtime": "npm:^7.17.2"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.11"
@@ -573,7 +573,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: 77521cfcfcfda14ad550a009d40f0371caab00f2191dc8e7b7ad09803120449718aae516eef6bf98b1dde16a9118957a34faf7a24bf326120b66915ef88451b5
+  checksum: 3e25904a4c8210b45ad5c0a55a25b876511e339b5bf718902409c4bdf88869cbb1be1be7a115489b9f0727d900b0eba46cac3d51f1d7890b4784bbe961784bc5
   languageName: node
   linkType: hard
 
@@ -24262,7 +24262,7 @@ __metadata:
   resolution: "rdc-website@workspace:website"
   dependencies:
     "@anansi/browserslist-config": "npm:1.4.3"
-    "@anansi/webpack-config": "npm:17.0.1"
+    "@anansi/webpack-config": "npm:17.0.2"
     "@data-client/endpoint": "workspace:^"
     "@data-client/graphql": "workspace:*"
     "@data-client/hooks": "workspace:*"
