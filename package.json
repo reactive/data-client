@@ -64,7 +64,7 @@
     "@testing-library/react-native": "12.4.1",
     "@types/jest": "29.5.11",
     "@types/node": "20.10.4",
-    "@types/react": "18.2.43",
+    "@types/react": "18.2.45",
     "@typescript-eslint/eslint-plugin": "6.14.0",
     "@typescript-eslint/parser": "6.14.0",
     "babel-plugin-module-resolver": "5.0.0",
