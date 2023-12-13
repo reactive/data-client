@@ -281,10 +281,10 @@ __metadata:
   linkType: hard
 
 "@anansi/cli@npm:^3.0.15":
-  version: 3.1.6
-  resolution: "@anansi/cli@npm:3.1.6"
+  version: 3.1.8
+  resolution: "@anansi/cli@npm:3.1.8"
   dependencies:
-    "@anansi/generator-js": "npm:^12.3.0"
+    "@anansi/generator-js": "npm:^12.3.2"
     bin-version-check: "npm:^5.1.0"
     chalk: "npm:^4.1.2"
     commander: "npm:^11.1.0"
@@ -299,7 +299,7 @@ __metadata:
       optional: true
   bin:
     anansi: ./run.mjs
-  checksum: 1b4bc5cbeffcc59a4f27a9cd030d8a6d9d4a5ddda0d52f1ad5fd8a2401efed88a4d0f7b3fc4ad7af5148702881a60c27e00bb1a5fb072d0a8a07a815be5873a9
+  checksum: 2d7f8a8d7c0c5b0214fd2bdd604a562679dcdc8e7511887f2355d9d9dc85bc24c841f563e1f05ead7f926acc7edd2ad332ba74e17e7b4ecbf62fe2aade7c48a8
   languageName: node
   linkType: hard
 
@@ -389,9 +389,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/generator-js@npm:^12.3.0":
-  version: 12.3.0
-  resolution: "@anansi/generator-js@npm:12.3.0"
+"@anansi/generator-js@npm:^12.3.2":
+  version: 12.3.2
+  resolution: "@anansi/generator-js@npm:12.3.2"
   dependencies:
     "@babel/runtime": "npm:^7.17.0"
     "@types/inquirer": "npm:^9.0.7"
@@ -408,7 +408,7 @@ __metadata:
     pacote: "npm:^17.0.5"
     shelobsay: "npm:^2.0.0"
     yeoman-generator: "npm:^7.1.1"
-  checksum: ed2428aceb0044a5431301e0dcf1198e84a0a0c5919cd4000fc6d09488ac73ee93ffd280cbb343aba9e9bbe3470acc94830338b029a7a9fb75b4d80a15f03ca7
+  checksum: 0a0b8aa5bf6fd37a3bd917f39fd989f1fc681be07f0858bde8ab68bae88fc0dc937b12cfc059fcf9f2b593f97f28ab5d49abc10913d91f796929e3b09b020402
   languageName: node
   linkType: hard
 
@@ -7152,14 +7152,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:18.2.43, @types/react@npm:^18.0.30":
-  version: 18.2.43
-  resolution: "@types/react@npm:18.2.43"
+"@types/react@npm:*, @types/react@npm:18.2.45, @types/react@npm:^18.0.30":
+  version: 18.2.45
+  resolution: "@types/react@npm:18.2.45"
   dependencies:
     "@types/prop-types": "npm:*"
     "@types/scheduler": "npm:*"
     csstype: "npm:^3.0.2"
-  checksum: 10477a50fbd3c0cc5b8a2ade679f442717f68fb27c8460b2aa1d3256cd18c48f742bbe5b9ee37a8c4c5f832ffa37b3a23c09fd96dd880a8e3182d8929c05e803
+  checksum: 4cc650c47ffb88baac29fb7a74e842e4af4a55f437086ef70250fdc75f0a5f2fcf8adc272d05ab2e00b1de6e14613296881271caee037dadf9130fdeb498c59e
   languageName: node
   linkType: hard
 
@@ -13625,7 +13625,7 @@ __metadata:
     "@js-temporal/polyfill": "npm:^0.4.4"
     "@types/babel__core": "npm:^7"
     "@types/benchmark": "npm:2.1.5"
-    "@types/react": "npm:18.2.43"
+    "@types/react": "npm:18.2.45"
     benchmark: "npm:^2.1.4"
     normalizr: "npm:^3.6.2"
     react: "npm:^18.2.0"
@@ -24279,7 +24279,7 @@ __metadata:
     "@js-temporal/polyfill": "npm:^0.4.4"
     "@monaco-editor/react": "npm:^4.4.6"
     "@tsconfig/docusaurus": "npm:^2.0.0"
-    "@types/react": "npm:18.2.43"
+    "@types/react": "npm:18.2.45"
     "@types/react-dom": "npm:^18.2.7"
     "@types/react-helmet": "npm:^6.1.5"
     "@types/react-router-dom": "npm:^5.3.3"
@@ -24518,12 +24518,12 @@ __metadata:
   linkType: hard
 
 "react-native-safe-area-context@npm:^4.4.1":
-  version: 4.8.0
-  resolution: "react-native-safe-area-context@npm:4.8.0"
+  version: 4.8.1
+  resolution: "react-native-safe-area-context@npm:4.8.1"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: ccc59970bd0bf12ee019e5b05ee1b93933ea80fe17a4fa01c71a533aaa70269ecde086c04dbede6c736b6d68968ed571b17c045133ca54fdb1a7db478865624a
+  checksum: 8e01b05c1d40edeefaafca5abe32595c4d2707c3f3369f5f6e4d64d24c536a4e084611cf34c85c7c080a152ae35f7212e95081d977cc6dc3f46e1002dbb0350f
   languageName: node
   linkType: hard
 
@@ -25816,7 +25816,7 @@ __metadata:
     "@testing-library/react-native": "npm:12.4.1"
     "@types/jest": "npm:29.5.11"
     "@types/node": "npm:20.10.4"
-    "@types/react": "npm:18.2.43"
+    "@types/react": "npm:18.2.45"
     "@typescript-eslint/eslint-plugin": "npm:6.14.0"
     "@typescript-eslint/parser": "npm:6.14.0"
     babel-plugin-module-resolver: "npm:5.0.0"
