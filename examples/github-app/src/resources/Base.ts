@@ -57,8 +57,9 @@ export class GithubEndpoint<
       init = await super.getRequestInit(
         deeplyApplyKeyTransform(body, snakeCase),
       );
+    } else {
+      init = await super.getRequestInit(body);
     }
-    init = await super.getRequestInit(body);
     if (getAuth()) {
       init.mode = 'cors';
       init.headers = {

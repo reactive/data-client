@@ -602,6 +602,8 @@ export const IssueResource= createResource({
 )});
 ```
 
+#### Github CommentResource
+
 <StackBlitz app="github-app" file="src/pages/IssueDetail/CommentsList.tsx,src/resources/Comment.ts" initialpath="/reactjs/rfcs/issue/68" view="editor" height={600} />
 
 ## Function Inheritance Patterns
@@ -651,5 +653,7 @@ export function createMyResource<O extends ResourceGenerics = any>({
   });
 }
 ```
+
+#### Github Example
 
 <StackBlitz app="github-app" file="src/resources/Base.ts" view="editor" height={750} />
