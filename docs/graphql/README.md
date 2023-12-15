@@ -3,16 +3,17 @@ id: README
 title: GraphQL Usage
 sidebar_label: Usage
 ---
+
 <head>
   <title>GraphQL Usage with Reactive Data Client</title>
 </head>
-
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import PkgTabs from '@site/src/components/PkgTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
+import StackBlitz from '@site/src/components/StackBlitz';
 
 <PkgTabs pkgs="@data-client/graphql" />
 
@@ -152,7 +153,7 @@ const PageInfo = {
   hasNextPage: false,
   startCursor: '',
   endCursor: '',
-}
+};
 const allPeople = gql.query(
   (v: { first?: number; after?: string }) => `
 query People($first: Int, $after:String) {
@@ -168,10 +169,12 @@ query People($first: Int, $after:String) {
   }
 }
 `,
-{ allPeople: { people: [Person], pageInfo: PageInfo } },
+  { allPeople: { people: [Person], pageInfo: PageInfo } },
 );
 function StarPeople() {
-  const { people, pageInfo } = useSuspense(allPeople, { first: 5 }).allPeople;
+  const { people, pageInfo } = useSuspense(allPeople, {
+    first: 5,
+  }).allPeople;
   return (
     <div>
       {people.map(person => (
@@ -182,7 +185,7 @@ function StarPeople() {
     </div>
   );
 }
-render(<StarPeople/>);
+render(<StarPeople />);
 ```
 
 </HooksPlayground>
@@ -222,7 +225,9 @@ const createReview = gql.mutation(
 export default function NewReviewForm() {
   const ctrl = useController();
   return (
-    <Form onSubmit={e => ctrl.fetch(createReview, new FormData(e.target))}>
+    <Form
+      onSubmit={e => ctrl.fetch(createReview, new FormData(e.target))}
+    >
       <FormField name="ep" />
       <FormField name="review" type="compound" />
     </Form>
@@ -234,3 +239,6 @@ The first argument to GQLEndpoint.query or GQLEndpoint.mutate is either the quer
 _or_ a function that returns the query string. The main value of using the latter is enforcing
 the function argument types.
 
+## Mixing with REST Demo
+
+<StackBlitz app="github-app" file="src/pages/ProfileDetail/UserRepos.tsx,src/resources/Repository.tsx" view="editor" initialpath="/users/ntucker" />
