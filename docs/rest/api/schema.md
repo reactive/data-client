@@ -1,11 +1,10 @@
 ---
-title: Schema Quick Start
+title: Thinking in Schemas
 sidebar_label: Schema
 ---
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import SchemaTable from '../../core/shared/\_schema_table.mdx';
-
 
 Consider a typical blog post. The API response for a single post might look something like this:
 
@@ -25,118 +24,186 @@ Consider a typical blog post. The API response for a single post might look some
         "id": "2",
         "name": "Nicole"
       }
+    },
+    {
+      "id": "544",
+      "createdAt": "2013-05-30T00:00:00-04:00",
+      "commenter": {
+        "id": "1",
+        "name": "Paul"
+      }
     }
   ]
 }
 ```
 
-We have two nested entity types within our `article`: `users` and `comments`. Using various `schema`, we can normalize all three entity types down:
+## Declarative definitions
+
+We have two nested [entity](./Entity.md) types within our `article`: `users` and `comments`. Using various [schema](./Entity.md#schema), we can normalize all three entity types down:
 
 <LanguageTabs>
 
 ```typescript
-import { normalize, schema, Entity } from '@data-client/normalizr';
+import { schema, Entity } from '@data-client/endpoint';
+import { Temporal } from '@js-temporal/polyfill';
 
-// Define a users schema
 class User extends Entity {
   id = '';
   name = '';
 
-  pk() { return this.id; }
+  pk() {
+    return this.id;
+  }
 }
 
-// Define your comments schema
 class Comment extends Entity {
   id = '';
   createdAt = Temporal.Instant.fromEpochSeconds(0);
-  commenter = User.fromJS({});
+  commenter = User.fromJS();
 
-  pk() { return this.id; }
+  pk() {
+    return this.id;
+  }
 
   static schema = {
     commenter: User,
     createdAt: Temporal.Instant.from,
-  }
+  };
 }
 
-// Define your article
 class Article extends Entity {
   id = '';
   title = '';
-  author = User.fromJS({});
+  author = User.fromJS();
   comments: Comment[] = [];
 
-  pk() { return this.id; }
+  pk() {
+    return this.id;
+  }
 
   static schema = {
     author: User,
     comments: [Comment],
-  }
+  };
 }
-
-const normalizedData = normalize(originalData, article);
 ```
 
 ```javascript
-import { normalize, schema, Entity } from '@data-client/normalizr';
+import { schema, Entity } from '@data-client/endpoint';
+import { Temporal } from '@js-temporal/polyfill';
 
 // Define a users schema
 class User extends Entity {
-  pk() { return this.id; }
+  pk() {
+    return this.id;
+  }
 }
 
 // Define your comments schema
 class Comment extends Entity {
-  pk() { return this.id; }
+  pk() {
+    return this.id;
+  }
 
   static schema = {
     commenter: User,
     createdAt: Temporal.Instant.from,
-  }
+  };
 }
 
 // Define your article
 class Article extends Entity {
-  pk() { return this.id; }
+  pk() {
+    return this.id;
+  }
 
   static schema = {
     author: User,
     comments: [Comment],
-  }
+  };
 }
-
-const normalizedData = normalize(originalData, article);
 ```
 
 </LanguageTabs>
 
-Now, `normalizedData` will be:
+## Normalize
+
+```js
+import { normalize } from '@data-client/normalizr';
+
+const args = [{ id: '123' }];
+const normalizedData = normalize(originalData, Article, args);
+```
+
+Now, `normalizedData` will create a single serializable source of truth for all entities:
 
 ```js
 {
   result: "123",
   entities: {
-    "articles": Article {
+    articles: {
       "123": {
         id: "123",
         author: "1",
         title: "My awesome blog post",
-        comments: [ "324" ]
+        comments: [ "324", "544" ]
       }
     },
-    "users": {
-      "1": User { "id": "1", "name": "Paul" },
-      "2": User { "id": "2", "name": "Nicole" }
+    users: {
+      "1": { "id": "1", "name": "Paul" },
+      "2": { "id": "2", "name": "Nicole" }
     },
-    "comments": {
-      "324": Comment {
+    comments: {
+      "324": {
         id: "324",
-        "createdAt": "2013-05-29T00:00:00-04:00",
-        "commenter": "2"
+        createdAt: "2013-05-29T00:00:00-04:00",
+        commenter: "2"
+      },
+      "544": {
+        id: "544",
+        createdAt: "2013-05-30T00:00:00-04:00",
+        commenter: "1"
       }
     }
-  }
+  },
 }
 ```
+
+## Denormalize
+
+```js
+import { denormalize } from '@data-client/normalizr';
+
+const denormalizedData = denormalize(
+  normalizedData.result,
+  Article,
+  normalizedData.entities,
+  args,
+);
+```
+
+Now, `denormalizedData` will instantiate the classes, ensuring all instances of the same member (like `Paul`) are referentially equal:
+
+```js
+Article {
+  id: '123',
+  title: 'My awesome blog post',
+  author: User { id: '1', name: 'Paul' },
+  comments: [
+    Comment {
+      id: '324',
+      createdAt: Instant [Temporal.Instant] {},
+      commenter: [User { id: '2', name: 'Nicole' }]
+    },
+    Comment {
+      id: '544',
+      createdAt: Instant [Temporal.Instant] {},
+      commenter: [User { id: '1', name: 'Paul' }]
+    }
+  ]
+}
+```
+
+## Schema Overview
 
 <SchemaTable/>

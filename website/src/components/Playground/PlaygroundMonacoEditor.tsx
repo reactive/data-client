@@ -106,7 +106,9 @@ export default function PlaygroundMonacoEditor({
       editor.layout();
 
       updateHeightRef.current = () => {
-        const viewlinecount = editor._modelData.viewModel.getLineCount();
+        const viewlinecount =
+          editor._modelData?.viewModel?.getLineCount?.() ??
+          codeContainer.childElementCount;
         const modellinecount =
           editor.getModel()?.getLineCount?.() ??
           codeContainer.childElementCount;
