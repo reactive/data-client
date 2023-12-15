@@ -51,6 +51,19 @@ export class Article extends GQLEntity {
 
 </TypeScriptEditor>
 
+[static schema](#schema) is a declarative definition of fields to process.
+In this case, `author` is another `Entity` to be extracted, and `createdAt` will be converted
+from a string to a [Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)
+object.
+
+:::tip
+
+Entities are bound to [GQLEndpoints](./GQLEndpoint.md) using the second argument of `query` or `mutate`.
+
+:::
+
+Other static members overrides allow customizing the data lifecycle as seen below.
+
 ## Data lifecycle
 
 import Lifecycle from '../diagrams/\_entity_lifecycle.mdx';

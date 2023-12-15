@@ -4,12 +4,64 @@ title: GQLEndpoint
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import mutationDemo from '@site/src/components/Demo/code/profile-edit';
+import CodeEditor from '@site/src/components/Demo/CodeEditor';
+
+`GQLEndpoints` are for [GraphQL](https://graphql.org/) based protocols.
 
 :::info extends
 
 `GQLEndpoint` extends [Endpoint](/rest/api/Endpoint)
 
 :::
+
+## Usage
+
+<CodeEditor codes={[mutationDemo[1]]} defaultValue="graphql" />
+
+## query(gql, schema)
+
+```ts
+import { GQLEndpoint } from '@data-client/graphql';
+import User from 'schema/User';
+
+const gql = new GQLEndpoint('/');
+
+export const getUser = gql.query(
+  (v: { name: string }) => `query getUser($name: String!) {
+    user(name: $name) {
+      id
+      name
+      email
+    }
+  }`,
+  { user: User },
+);
+
+getUser({ name: 'bob' });
+```
+
+## mutate(gql, schema)
+
+```ts
+import { GQLEndpoint } from '@data-client/graphql';
+import User from 'schema/User';
+
+const gql = new GQLEndpoint('/');
+
+export const updateUser = gql.mutate(
+  (v: Partial<User>) => `query updateUser($user: User!) {
+    user(name: $user) {
+      id
+      name
+      email
+    }
+  }`,
+  { user: User },
+);
+
+updateUser({ id: '5', name: 'bob', email: 'bob@bob.com' });
+```
 
 ## Fetch Lifecycle
 
@@ -27,9 +79,10 @@ GQLEndpoint adds to Endpoint by providing customizations for a provided fetch me
 
 ```ts title="fetch implementation for GQLEndpoint"
 async function fetch(variables) {
-  return this.fetchResponse(this.url, this.getRequestInit(variables)).then(
-    res => this.process(res, variables),
-  );
+  return this.fetchResponse(
+    this.url,
+    this.getRequestInit(variables),
+  ).then(res => this.process(res, variables));
 }
 ```
 
@@ -41,7 +94,6 @@ have defaults.
 ### url: string {#path}
 
 GraphQL uses one url for all operations.
-
 
 ### getRequestInit(body): RequestInit {#getRequestInit}
 
