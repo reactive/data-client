@@ -19,7 +19,7 @@ import CodeEditor from '@site/src/components/Demo/CodeEditor';
 
 <CodeEditor codes={[mutationDemo[1]]} defaultValue="graphql" />
 
-## query(gql, schema)
+## query(gql, schema) {#query}
 
 ```ts
 import { GQLEndpoint } from '@data-client/graphql';
@@ -41,7 +41,7 @@ export const getUser = gql.query(
 getUser({ name: 'bob' });
 ```
 
-## mutate(gql, schema)
+## mutate(gql, schema) {#mutate}
 
 ```ts
 import { GQLEndpoint } from '@data-client/graphql';
