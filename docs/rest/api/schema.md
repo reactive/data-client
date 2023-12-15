@@ -2,7 +2,9 @@
 title: Schema Quick Start
 sidebar_label: Schema
 ---
+
 import LanguageTabs from '@site/src/components/LanguageTabs';
+import SchemaTable from '../../core/shared/\_schema_table.mdx';
 
 
 Consider a typical blog post. The API response for a single post might look something like this:
@@ -136,3 +138,5 @@ Now, `normalizedData` will be:
   }
 }
 ```
+
+<SchemaTable/>
