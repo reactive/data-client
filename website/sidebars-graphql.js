@@ -11,7 +11,7 @@ module.exports = {
     {
       type: 'category',
       collapsed: false,
-      label: 'Endpoint API',
+      label: 'GraphQL API',
       items: [
         {
           type: 'doc',
@@ -19,19 +19,9 @@ module.exports = {
         },
         {
           type: 'doc',
-          id: 'api/Endpoint',
-        },
-        {
-          type: 'doc',
-          id: 'api/Index',
+          id: 'api/GQLEntity',
         },
       ],
-    },
-    {
-      type: 'category',
-      label: 'Schema API',
-      collapsed: false,
-      items: require('./sidebars-endpoint.json').slice(2),
     },
   ],
 };

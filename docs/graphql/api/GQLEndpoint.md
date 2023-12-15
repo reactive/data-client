@@ -7,7 +7,7 @@ import TabItem from '@theme/TabItem';
 
 :::info extends
 
-`GQLEndpoint` extends [Endpoint](./Endpoint.md)
+`GQLEndpoint` extends [Endpoint](/rest/api/Endpoint)
 
 :::
 
@@ -82,9 +82,9 @@ Perform any transforms with the parsed result. Defaults to identity function.
 
 ### schema: Schema {#schema}
 
-Declarative definition of how to [process responses](./schema)
+Declarative definition of how to [process responses](/docs/concepts/normalization)
 
-- [where](./schema) to expect [Entities](./Entity.md)
+- [where](/docs/concepts/normalization) to expect [Entities](./GQLEntity.md)
 - Functions to deserialize fields
 
 Not providing this option means no entities will be extracted.
@@ -147,18 +147,6 @@ Frequency in millisecond to poll at. Requires using [useSubscription()](/docs/ap
 When provided, any fetches with this endpoint will behave as though the `fakePayload` return value
 from this function was a succesful network response. When the actual fetch completes (regardless
 of failure or success), the optimistic update will be replaced with the actual network response.
-
-### update(normalizedResponseOfThis, ...args) => (\{ [endpointKey]: (normalizedResponseOfEndpointToUpdate) => updatedNormalizedResponse) }) {#update}
-
-```ts title="UpdateType.ts"
-type UpdateFunction<
-  Source extends EndpointInterface,
-  Updaters extends Record<string, any> = Record<string, any>,
-> = (
-  source: ResultEntry<Source>,
-  ...args: Parameters<Source>
-) => { [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K] };
-```
 
 ## extend(options): Endpoint {#extend}
 
