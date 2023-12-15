@@ -356,11 +356,11 @@ div > .playgroundHeader.subtabs {
   color: rgb(195, 232, 141);
   font: var(--ifm-code-font-size) / var(--ifm-pre-line-height)
     var(--ifm-font-family-monospace);
-  flex: 0 0 auto;
+  flex: 0 1 auto;
 }
 div.fixtureJson {
   margin-bottom: 0;
-  flex: 1 1 auto;
+  flex: 1 4 auto;
   min-width: 200px;
 }
 .fixtureJson code {

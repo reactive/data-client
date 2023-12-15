@@ -2,14 +2,14 @@
 flowchart BT
   subgraph Controller.getResponse
     infer("Entity.infer()")---pk2
-    pk2("Entity.pk()")-->denormalize
-    subgraph Entity.denormalize
+    pk2("Entity.pk()")---Entity.createIfValid
+    subgraph Entity.createIfValid
       direction TB
       validate2("Entity.validate()")---fromJS("Entity.fromJS()")
-      fromJS---denormNest("denormalize(this.schema)")
     end
+    Entity.createIfValid-->denormNest("Entity.denormalize")
   end
-  subgraph reducer:SET
+  subgraph Controller.setResponse
     direction LR
     subgraph Entity.normalize
       direction TB
@@ -18,11 +18,14 @@ flowchart BT
       process-->validate
       validate---normNest("normalize(this.schema)")
     end
-    Entity.normalize--processedEntity-->addEntity
-    subgraph addEntity
-      expiresAt("Entity.expiresAt()")---mergewithstore("Entity.mergeWithStore()")
-      expiresAt---merge("Entity.merge()")
-      mergewithstore--->merge("Entity.merge()")
+    Entity.normalize--processedEntity-->INSTORE
+    subgraph INSTORE["Found In Store"]
+      subgraph Entity.mergeWithStore
+        direction TB
+        useincoming("Entity.useIncoming()")---shouldreorder("Entity.shouldReorder()")
+        shouldreorder---merge("Entity.merge()")
+      end
+      Entity.mergeWithStore---mergeMetaWithStore("Entity.mergeMetaWithStore()")
     end
   end
   click process "/rest/api/Entity#process"
@@ -31,8 +34,9 @@ flowchart BT
   click fromJS "/rest/api/Entity#fromJS"
   click validate "/rest/api/Entity#validate"
   click validate2 "/rest/api/Entity#validate"
-  click expiresAt "/rest/api/Entity#expiresat"
+  click mergeMetaWithStore "/rest/api/Entity#mergeMetaWithStore"
   click useincoming "/rest/api/Entity#useincoming"
+  click shouldreorder "/rest/api/Entity#shouldreorder"
   click mergewithstore "/rest/api/Entity#mergeWithStore"
   click merge "/rest/api/Entity#merge"
   click infer "/rest/api/Entity#infer"

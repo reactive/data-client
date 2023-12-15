@@ -510,8 +510,8 @@ considered 'optional'
 
 ```typescript
 class User extends Entity {
-  readonly friend: User | null = null; // this field is optional
-  readonly lastUpdated = Temporal.Instant.fromEpochSeconds(0);
+  friend: User | null = null; // this field is optional
+  lastUpdated = Temporal.Instant.fromEpochSeconds(0);
 
   static schema = {
     friend: User,
@@ -540,18 +540,16 @@ cache has already been populated by another request like a list request.
 
 ```typescript
 export class User extends Entity {
-  readonly id: number | undefined = undefined;
-  readonly username: string = '';
-  readonly email: string = '';
-  readonly isAdmin: boolean = false;
+  id: number | undefined = undefined;
+  username = '';
+  email = '';
+  isAdmin = false;
 
   pk() {
     return this.id?.toString();
   }
 
-  static urlRoot = 'http://test.com/user/';
-
-  // right here
+  // highlight-next-line
   static indexes = ['username' as const];
 }
 export const UserResource = createResource({
@@ -571,18 +569,18 @@ if there is no endpoint it can be fetched from.
 
 ```typescript
 class LatestPrice extends Entity {
-  readonly id: string = '';
-  readonly symbol: string = '';
-  readonly price: string = '0.0';
-  static indexes = ['symbol'] as const;
+  id = '';
+  symbol = '';
+  price = '0.0';
+  static indexes = ['symbol' as const];
 }
 const latestPriceFromCache = new Index(LatestPrice);
 ```
 
 ```typescript
 class Asset extends Entity {
-  readonly id: string = '';
-  readonly price: string = '';
+  id = '';
+  price = '';
 
   static schema = {
     price: LatestPrice,
