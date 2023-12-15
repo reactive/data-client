@@ -370,7 +370,7 @@ useEffect(() => {
 });
 ```
 
-This shows a proof of concept in React; however a [Manager websockets implementation](./Manager.md#data-stream)
+This shows a proof of concept in React; however a [Manager websockets implementation](../concepts/managers.md#data-stream)
 would be much more robust.
 
 ## setError(endpoint, ...args, error) {#setError}
@@ -391,7 +391,7 @@ processing fetch requests.
 
 Marks a new subscription to a given [Endpoint](/rest/api/Endpoint). This should increment the subscription.
 
-[useSubscription](./useSubscription.md) calls this on mount.
+[useSubscription](./useSubscription.md) and [useLive](./useLive.md) call this on mount.
 
 This might be useful for custom hooks to sub/unsub based on other factors.
 
@@ -410,7 +410,7 @@ useEffect(() => {
 Marks completion of subscription to a given [Endpoint](/rest/api/Endpoint). This should
 decrement the subscription and if the count reaches 0, more updates won't be received automatically.
 
-[useSubscription](./useSubscription.md) calls this on unmount.
+[useSubscription](./useSubscription.md) and [useLive](./useLive.md) call this on unmount.
 
 ## getResponse(endpoint, ...args, state) {#getResponse}
 
