@@ -54,7 +54,10 @@ export default function addNormlizrSuite(suite) {
     })
     .add('denormalizeShort donotcache 500x', () => {
       for (let i = 0; i < 500; ++i) {
-        denormalize('gnoff', User, githubState.entities);
+        const user = denormalize('gnoff', User, githubState.entities);
+        // legacy normalizr doesn't convert this for us, so we must do manually afterward.
+        user.createdAt = new Date(user.createdAt);
+        user.updatedAt = new Date(user.updatedAt);
       }
     })
     .on('complete', function () {
