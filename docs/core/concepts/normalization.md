@@ -393,3 +393,38 @@ can be installed to inspect and [debug the store](../guides/debugging.md).
 <Link className="button button--secondary" to="../guides/debugging">RDC Debugging Guide »</Link>
 
 </center>
+
+
+## Benchmarks
+
+Here we compare denormalization performance with the legacy [normalizr](https://github.com/paularmstrong/normalizr)
+library, which has less features, but similar schema definitions.
+
+Memoization is done at every entity level - no matter how nested, ensuring global referential equality guarantees
+and up to 20x performance even after [mutation operations](../getting-started/mutations.md) like Create, Update and Delete.
+
+<div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '15px'}}>
+
+```mermaid
+xychart-beta
+    title "Denormalize Single Entity"
+    x-axis [normalizr, "RDC", "RDC (cached)"]
+    y-axis "Operations per second" 0 --> 4636333
+    bar [228833.3, 1243833.3, 4636333.3]
+```
+
+```mermaid
+xychart-beta
+    title "Denormalize Large List"
+    x-axis [normalizr, "RDC", "RDC (cached)"]
+    y-axis "Operations per second" 0 --> 12785
+    bar [1525.3, 1821, 12785]
+```
+
+</div>
+
+<center>
+
+[View benchmark](https://github.com/reactive/data-client/blob/master/examples/benchmark)
+
+</center>

@@ -224,6 +224,18 @@ const { data: denormalizedData, paths } = denormalizeCached(
 
 `paths` is an Array of paths of all entities included in the result.
 
+## Benchmarks
+
+[Performance compared](https://github.com/reactive/data-client/blob/master/examples/benchmark/README.md) to normalizr package (higher is better):
+
+|                     | no cache | with cache |
+| ------------------- | -------- | ---------- |
+| normalize (long)    | 80%      | 80%        |
+| denormalize (long)  | 119%     | 838%       |
+| denormalize (short) | 544%     | 2,026%     |
+
+[View benchmark](https://github.com/reactive/data-client/blob/master/examples/benchmark)
+
 ## Credits
 
 Normalizr Client is based on [Normalizr](https://github.com/paularmstrong/normalizr) - originally created by [Dan Abramov](http://github.com/gaearon) and inspired by a conversation with [Jing Chen](https://twitter.com/jingc). Since v3, it was completely rewritten and maintained by [Paul Armstrong](https://twitter.com/paularmstrong).
