@@ -19,7 +19,8 @@ Normalizes input data per the schema definition provided.
 ### Usage
 
 ```js
-import { normalize, schema } from '@data-client/normalizr';
+import { schema } from '@data-client/endpoint';
+import { normalize } from '@data-client/normalizr';
 
 const myData = { users: [{ id: 1 }, { id: 2 }] };
 const user = new schema.Entity('users');
@@ -56,7 +57,8 @@ If your schema and data have recursive references, only the first instance of an
 ### Usage
 
 ```js
-import { denormalize, schema } from '@data-client/normalizr';
+import { schema } from '@data-client/endpoint';
+import { denormalize } from '@data-client/normalizr';
 
 const user = new schema.Entity('users');
 const mySchema = { users: [user] };
@@ -95,6 +97,8 @@ _Note: The same behavior can be defined with shorthand syntax: `[ mySchema ]`_
 To describe a simple array of a singular entity type:
 
 ```js
+import { schema } from '@data-client/endpoint';
+
 const data = [{ id: '123', name: 'Jim' }, { id: '456', name: 'Jane' }];
 const userSchema = new schema.Entity('users');
 
@@ -126,6 +130,8 @@ _Note: If your data returns an object that you did not provide a mapping for, th
 For example:
 
 ```js
+import { schema } from '@data-client/endpoint';
+
 const data = [{ id: 1, type: 'admin' }, { id: 2, type: 'user' }];
 
 const userSchema = new schema.Entity('users');
@@ -379,6 +385,8 @@ _Note: If your data returns an object that you did not provide a mapping for, th
 For example:
 
 ```js
+import { schema } from '@data-client/endpoint';
+
 const data = {
   '1': { id: 1, type: 'admin' },
   '2': { id: 2, type: 'user' }
