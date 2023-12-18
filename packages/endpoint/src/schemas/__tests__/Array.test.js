@@ -133,7 +133,7 @@ describe.each([
       ).toMatchSnapshot();
     });
 
-    test('filters out undefined and null normalized values', () => {
+    test('does not filter out undefined and null normalized values', () => {
       class User extends IDEntity {}
       const users = createSchema(User);
       expect(
@@ -284,7 +284,7 @@ describe.each([
         expect(value).toMatchSnapshot();
       });
 
-      test('denormalizes removes undefined', () => {
+      test('denormalizes removes undefined but not null', () => {
         class Cat extends IDEntity {}
         const catSchema = new schema.Object({
           results: createSchema(Cat),
@@ -297,7 +297,7 @@ describe.each([
           },
         };
         let value = denormalize(
-          createInput({ results: ['1', undefined, '2'] }),
+          createInput({ results: ['1', undefined, '2', null] }),
           catSchema,
           createInput(entities),
         );

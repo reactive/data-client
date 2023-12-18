@@ -25,7 +25,7 @@ export const normalize = (
       storeEntities,
       args,
     );
-    if (value === undefined || value === null) {
+    if (value === undefined) {
       delete object[key];
     } else {
       object[key] = value;
