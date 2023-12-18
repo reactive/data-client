@@ -625,6 +625,7 @@ exports[`normalize normalizes schema with extra members 1`] = `
         "complex": false,
         "next": true,
       },
+      "first": null,
       "second": {
         "thing": "two",
       },

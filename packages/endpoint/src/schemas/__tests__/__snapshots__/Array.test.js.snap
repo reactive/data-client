@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ArraySchema normalization (plain) Class filters out undefined and null normalized values 1`] = `
+exports[`ArraySchema normalization (plain) Class does not filter out undefined and null normalized values 1`] = `
 {
   "entities": {
     "User": {
@@ -467,7 +467,7 @@ exports[`ArraySchema normalization (plain) Object should throw a custom error if
           Input: "abc""
 `;
 
-exports[`ArraySchema normalization (schema) Class filters out undefined and null normalized values 1`] = `
+exports[`ArraySchema normalization (schema) Class does not filter out undefined and null normalized values 1`] = `
 {
   "entities": {
     "User": {
@@ -487,7 +487,9 @@ exports[`ArraySchema normalization (schema) Class filters out undefined and null
   },
   "indexes": {},
   "result": [
+    undefined,
     "123",
+    null,
   ],
 }
 `;
@@ -1055,7 +1057,7 @@ exports[`input (direct) ArraySchema denormalization (class) denormalizes plain a
 }
 `;
 
-exports[`input (direct) ArraySchema denormalization (class) denormalizes removes undefined 1`] = `
+exports[`input (direct) ArraySchema denormalization (class) denormalizes removes undefined but not null 1`] = `
 {
   "results": [
     Cat {
@@ -1066,11 +1068,12 @@ exports[`input (direct) ArraySchema denormalization (class) denormalizes removes
       "id": "2",
       "name": "Jake",
     },
+    null,
   ],
 }
 `;
 
-exports[`input (direct) ArraySchema denormalization (class) denormalizes removes undefined 2`] = `
+exports[`input (direct) ArraySchema denormalization (class) denormalizes removes undefined but not null 2`] = `
 {
   "results": [
     Cat {
@@ -1281,7 +1284,7 @@ exports[`input (direct) ArraySchema denormalization (object, direct) denormalize
 }
 `;
 
-exports[`input (direct) ArraySchema denormalization (object, direct) denormalizes removes undefined 1`] = `
+exports[`input (direct) ArraySchema denormalization (object, direct) denormalizes removes undefined but not null 1`] = `
 {
   "results": [
     Cat {
@@ -1292,11 +1295,12 @@ exports[`input (direct) ArraySchema denormalization (object, direct) denormalize
       "id": "2",
       "name": "Jake",
     },
+    null,
   ],
 }
 `;
 
-exports[`input (direct) ArraySchema denormalization (object, direct) denormalizes removes undefined 2`] = `
+exports[`input (direct) ArraySchema denormalization (object, direct) denormalizes removes undefined but not null 2`] = `
 {
   "results": [
     Cat {
@@ -1545,7 +1549,7 @@ Immutable.Map {
 }
 `;
 
-exports[`input (immutable) ArraySchema denormalization (class) denormalizes removes undefined 1`] = `
+exports[`input (immutable) ArraySchema denormalization (class) denormalizes removes undefined but not null 1`] = `
 Immutable.Map {
   "results": Immutable.List [
     Cat {
@@ -1556,11 +1560,12 @@ Immutable.Map {
       "id": "2",
       "name": "Jake",
     },
+    null,
   ],
 }
 `;
 
-exports[`input (immutable) ArraySchema denormalization (class) denormalizes removes undefined 2`] = `
+exports[`input (immutable) ArraySchema denormalization (class) denormalizes removes undefined but not null 2`] = `
 {
   "results": [
     Cat {
@@ -1771,7 +1776,7 @@ Immutable.Map {
 }
 `;
 
-exports[`input (immutable) ArraySchema denormalization (object, direct) denormalizes removes undefined 1`] = `
+exports[`input (immutable) ArraySchema denormalization (object, direct) denormalizes removes undefined but not null 1`] = `
 Immutable.Map {
   "results": Immutable.List [
     Cat {
@@ -1782,11 +1787,12 @@ Immutable.Map {
       "id": "2",
       "name": "Jake",
     },
+    null,
   ],
 }
 `;
 
-exports[`input (immutable) ArraySchema denormalization (object, direct) denormalizes removes undefined 2`] = `
+exports[`input (immutable) ArraySchema denormalization (object, direct) denormalizes removes undefined but not null 2`] = `
 {
   "results": [
     Cat {

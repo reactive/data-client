@@ -166,6 +166,7 @@ describe.each([
             endpoint: UnionResource.getList,
             args: [],
             response: [
+              undefined,
               null,
               { id: '5', body: 'hi', type: 'first' },
               { id: '6', body: 'hi', type: 'another' },
@@ -185,9 +186,10 @@ describe.each([
       },
     );
     expect(result.current).toBeDefined();
-    expect(result.current[0]).toBeInstanceOf(FirstUnion);
-    expect(result.current[1]).not.toBeInstanceOf(FirstUnion);
+    expect(result.current[0]).toBeNull();
+    expect(result.current[1]).toBeInstanceOf(FirstUnion);
     expect(result.current[2]).not.toBeInstanceOf(FirstUnion);
+    expect(result.current[3]).not.toBeInstanceOf(FirstUnion);
     expect((global.console.warn as jest.Mock).mock.calls).toMatchSnapshot();
 
     await act(async () => {
@@ -197,7 +199,7 @@ describe.each([
         id: '100',
       });
     });
-    expect(result.current[3]).toBeInstanceOf(SecondUnion);
+    expect(result.current[4]).toBeInstanceOf(SecondUnion);
     expect(result.current).toMatchSnapshot();
     global.console.warn = prevWarn;
   });

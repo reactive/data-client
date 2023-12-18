@@ -18,20 +18,18 @@ export default class ArraySchema extends PolymorphicSchema {
   ): any {
     const values = getValues(input);
 
-    return values
-      .map((value, index) =>
-        this.normalizeValue(
-          value,
-          parent,
-          key,
-          visit,
-          addEntity,
-          visitedEntities,
-          storeEntities,
-          args,
-        ),
-      )
-      .filter(value => value !== undefined && value !== null);
+    return values.map((value, index) =>
+      this.normalizeValue(
+        value,
+        parent,
+        key,
+        visit,
+        addEntity,
+        visitedEntities,
+        storeEntities,
+        args,
+      ),
+    );
   }
 
   denormalize(

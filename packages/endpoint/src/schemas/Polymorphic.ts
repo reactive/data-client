@@ -101,10 +101,11 @@ Value: ${JSON.stringify(value, undefined, 2)}`,
   denormalizeValue(value: any, unvisit: any) {
     const schemaKey =
       !this.isSingleSchema &&
+      value &&
       (isImmutable(value) ? value.get('schema') : value.schema);
     if (!this.isSingleSchema && !schemaKey) {
       /* istanbul ignore else */
-      if (process.env.NODE_ENV !== 'production') {
+      if (process.env.NODE_ENV !== 'production' && value) {
         console.warn(
           `TypeError: Unable to infer schema for ${this.constructor.name}
 Value: ${JSON.stringify(value, undefined, 2)}.`,

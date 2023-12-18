@@ -534,6 +534,7 @@ Value: {
 
 exports[`CacheProvider should work with unions 2`] = `
 [
+  null,
   FirstUnion {
     "body": "hi",
     "firstOnlyField": 5,
@@ -1092,6 +1093,7 @@ Value: {
 
 exports[`ExternalCacheProvider should work with unions 2`] = `
 [
+  null,
   FirstUnion {
     "body": "hi",
     "firstOnlyField": 5,

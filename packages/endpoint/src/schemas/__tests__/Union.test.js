@@ -348,6 +348,36 @@ describe.each([
           denormalize('1', union, createInput(entities)),
         ).toMatchSnapshot();
       });
+
+      test('returns the original value when null is given', () => {
+        const union = new schema.Union(
+          {
+            users: User,
+            groups: Group,
+          },
+          input => {
+            return input.username ? 'users' : 'groups';
+          },
+        );
+
+        expect(denormalize(null, union, createInput(entities))).toBeNull();
+      });
+
+      test('returns the original value when undefined is given', () => {
+        const union = new schema.Union(
+          {
+            users: User,
+            groups: Group,
+          },
+          input => {
+            return input.username ? 'users' : 'groups';
+          },
+        );
+
+        expect(
+          denormalize(undefined, union, createInput(entities)),
+        ).toBeUndefined();
+      });
     },
   );
 });
