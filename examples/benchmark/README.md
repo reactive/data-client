@@ -1,4 +1,4 @@
-[Progress over time](https://data-client.github.io/data-client/dev/bench/)
+[Progress over time](https://reactive.github.io/data-client/dev/bench/)
 
 ### Usage
 
@@ -22,12 +22,11 @@ No argument will run `normalizr` + `core`
 Performance compared to normalizr package (higher is better):
 
 |                     | no cache | with cache |
-|---------------------|----------|------------|
-| normalize (long)    | 72%      | 72%        |
-| denormalize (long)  | 100%     | 830%       |
-| denormalize (short) | 600%     | 1120%      |
+| ------------------- | -------- | ---------- |
+| normalize (long)    | 80%     | 80%       |
+| denormalize (long)  | 119%     | 838%     |
+| denormalize (short) | 544%     | 2,026%     |
 
-[Comparison done on a Ryzen 7950x; Ubuntu; Node 18.15.0]
+[Comparison done on a Ryzen 7950x; Ubuntu; Node 20.10.0]
 
-Our normalize is slower due to handling much more features like metadata. Denormalize
-is even more feature rich, but significantly faster.
+Not only is denormalize faster, but it is more feature-rich as well.

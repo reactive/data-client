@@ -13622,7 +13622,6 @@ __metadata:
     "@data-client/core": "workspace:^"
     "@data-client/endpoint": "workspace:^"
     "@data-client/normalizr": "workspace:^"
-    "@js-temporal/polyfill": "npm:^0.4.4"
     "@types/babel__core": "npm:^7"
     "@types/benchmark": "npm:2.1.5"
     "@types/react": "npm:18.2.45"

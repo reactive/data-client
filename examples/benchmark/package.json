@@ -20,7 +20,6 @@
     "@data-client/core": "workspace:^",
     "@data-client/endpoint": "workspace:^",
     "@data-client/normalizr": "workspace:^",
-    "@js-temporal/polyfill": "^0.4.4",
     "benchmark": "^2.1.4",
     "normalizr": "^3.6.2",
     "react": "^18.2.0"

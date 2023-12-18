@@ -1,5 +1,3 @@
-import { Temporal } from '@js-temporal/polyfill';
-
 import { Entity, schema, Query } from './dist/index.js';
 
 export class BuildTypeDescription extends Entity {
