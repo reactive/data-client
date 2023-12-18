@@ -14,6 +14,7 @@ import {
   ProjectWithBuildTypesDescriptionSimpleMerge,
   ProjectQuerySorted,
   User,
+  ProjectSchemaCollection,
 } from './schemas.js';
 import userData from './user.json' assert { type: 'json' };
 
@@ -23,6 +24,12 @@ export default function addReducerSuite(suite) {
     schema: ProjectSchema,
     key() {
       return '/fake';
+    },
+  });
+  const getProjectCollection = new Endpoint(() => Promise.resolve(data), {
+    schema: ProjectSchemaCollection,
+    key() {
+      return '/fakeCollection';
     },
   });
   // eslint-disable-next-line no-unused-vars
@@ -53,6 +60,18 @@ export default function addReducerSuite(suite) {
   controller.setResponse(getProject, data);
   controller.dispatch = action => {
     reducer(state, action);
+  };
+
+  // setLongCollection
+  const controllerCollection = new Controller({});
+  const reducerCollection = createReducer(controllerCollection);
+  let collectionState = state;
+  controllerCollection.dispatch = action => {
+    collectionState = reducerCollection(state, action);
+  };
+  controllerCollection.setResponse(getProjectCollection, data);
+  controllerCollection.dispatch = action => {
+    reducerCollection(collectionState, action);
   };
 
   // setLongWithMerge
@@ -115,6 +134,12 @@ export default function addReducerSuite(suite) {
       })
       .add('getResponse Query-sorted', () => {
         return controller.getResponse(ProjectQuerySorted, cachedState);
+      })
+      .add('getResponse Collection', () => {
+        return controllerCollection.getResponse(
+          getProjectCollection,
+          collectionState,
+        );
       })
       .add('setLong', () => {
         return controller.setResponse(getProject, data);

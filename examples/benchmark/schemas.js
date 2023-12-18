@@ -90,6 +90,9 @@ export const ProjectWithBuildTypesDescriptionEntity = schema.Entity(
 export const ProjectSchema = {
   project: [ProjectWithBuildTypesDescription],
 };
+export const ProjectSchemaCollection = {
+  project: new schema.Collection([ProjectWithBuildTypesDescription]),
+};
 export const ProjectSchemaMixin = {
   project: [ProjectWithBuildTypesDescriptionEntity],
 };
