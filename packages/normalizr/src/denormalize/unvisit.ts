@@ -108,6 +108,7 @@ const getUnvisit = (
     }
 
     if (input === undefined) {
+      // TODO: This is prone to breaking from name mangling
       const isAll = schema.constructor.name === 'AllSchema';
 
       return isAll ? INVALID : undefined;

@@ -157,7 +157,7 @@ export default class CollectionSchema<
     storeEntities: any,
     args: Args,
   ): string {
-    const pkList = this.schema.normalize(
+    const normalizedValue = this.schema.normalize(
       input,
       parent,
       key,
@@ -167,12 +167,13 @@ export default class CollectionSchema<
       storeEntities,
       args,
     );
-    const id = this.pk(pkList, parent, key, args);
+    const id = this.pk(normalizedValue, parent, key, args);
 
-    addEntity(this, pkList, id);
+    addEntity(this, normalizedValue, id);
     return id;
   }
 
+  // always replace
   merge(existing: any, incoming: any) {
     return incoming;
   }
@@ -297,8 +298,7 @@ function normalizeCreate(
 ): any {
   // means 'this is a creation endpoint' - so real PKs are not required
   visitedEntities[CREATE] = {};
-  // we could call visit, but i'll just call this anyways
-  const pkList = this.schema.normalize(
+  const normalizedValue = this.schema.normalize(
     !(this.schema instanceof ArraySchema) || Array.isArray(input) ?
       input
     : [input],
@@ -316,9 +316,9 @@ function normalizeCreate(
   if (storeEntities[this.key])
     Object.keys(storeEntities[this.key]).forEach(collectionPk => {
       if (!filterCollections(JSON.parse(collectionPk))) return;
-      addEntity(this, pkList, collectionPk);
+      addEntity(this, normalizedValue, collectionPk);
     });
-  return pkList as any;
+  return normalizedValue as any;
 }
 
 function createIfValid(value: object): any | undefined {
@@ -336,3 +336,9 @@ function denormalize(
       (this.schema.denormalize(input, args, unvisit) as any)
     : (this.schema.denormalize([input], args, unvisit)[0] as any);
 }
+
+/**
+ * We call schema.denormalize and schema.normalize directly
+ * instead of visit/unvisit as we are not operating on new data
+ * so the additional checks in those methods are redundant
+ */
