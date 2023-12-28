@@ -28,7 +28,7 @@ a subset of fields needed to summarize.
 
 </div>
 
-In this case we can use [Entity.validate()](../api/Entity.md#validate) to ensure
+In this case we can override [Entity.validate()](../api/Entity.md#validate) using [validateRequired()](../api/validateRequired.md) to ensure
 we have the full and complete response when needed (detail views), while keeping our state [DRY](https://deviq.com/principles/dont-repeat-yourself) and normalized to ensure data integrity.
 
 <HooksPlayground fixtures={[

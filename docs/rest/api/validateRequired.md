@@ -19,7 +19,7 @@ class CustomBaseEntity extends Entity {
 
 ## Partial/full results
 
-This can be useful to automatically validate for [partial results](/docs/concepts/validation#partial-results)
+This can be useful to automatically validate for [partial results](../guides/partial-entities.md)
 
 ```ts
 class SummaryAnalysis extends Entity {
@@ -35,6 +35,10 @@ class SummaryAnalysis extends Entity {
 
 class FullAnalysis extends SummaryAnalysis {
   readonly graph: number[] = [];
+
+  static validate(processedEntity) {
+    return validateRequired(processedEntity, this.defaults) || super.validate(processedEntity);
+  }
 }
 ```
 
