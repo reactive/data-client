@@ -8,7 +8,8 @@ flowchart TB
         direction BT
         urlPrefix-->url("url(urlParams)")
         path-->url
-        searchParams-->url
+        searchToString("searchToString()")-->url
+        searchParams-->searchToString("searchToString()")
       end
       subgraph INIT
       direction BT
@@ -22,6 +23,7 @@ flowchart TB
     parse-->process("process()")
     end
     click url "/rest/api/RestEndpoint#url"
+    click searchToString "/rest/api/RestEndpoint#searchToString"
     click searchParams "/rest/api/RestEndpoint#searchParams"
     click urlPrefix "/rest/api/RestEndpoint#urlPrefix"
     click path "/rest/api/RestEndpoint#path"

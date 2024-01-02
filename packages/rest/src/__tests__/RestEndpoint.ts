@@ -761,7 +761,7 @@ describe('RestEndpoint', () => {
       () => useSuspense(getUser);
     });
 
-    it('should work with extends', async () => {
+    it('update should work with extends', async () => {
       mynock.put('/6/user/5').reply(200, (uri, body: any) => ({
         id: 5,
         username: 'charles',
@@ -792,7 +792,7 @@ describe('RestEndpoint', () => {
       `);
     });
 
-    it('should work with extends', async () => {
+    it('get should work with extends', async () => {
       mynock.get('/6/user/5').reply(200, (uri, body: any) => ({
         id: 5,
         username2: 'charles',
@@ -961,7 +961,59 @@ describe('RestEndpoint', () => {
       ).toMatchInlineSnapshot(`"/users?bigger=true"`);
       expect(searchParams4.url()).toMatchInlineSnapshot(`"/users"`);
     });
+
+    it('should work with custom searchToString', async () => {
+      class SearchEndpoint<O extends RestGenerics = any> extends MyEndpoint<O> {
+        searchToString(searchParams: Record<string, any>) {
+          return super.searchToString({ ...searchParams, bob: 5 });
+        }
+      }
+
+      mynock.get('/6/user/5').reply(200, (uri, body: any) => ({
+        id: 5,
+        username2: 'charles',
+        ...body,
+      }));
+      class User2 extends Entity {
+        readonly id: number | undefined = undefined;
+        readonly username2: string = '';
+        readonly email: string = '';
+        readonly isAdmin: boolean = false;
+
+        pk() {
+          return this.id?.toString();
+        }
+      }
+
+      const getUserBase = new SearchEndpoint({
+        method: 'GET',
+        path: 'http\\://test.com/user/:id',
+        name: 'getuser',
+        schema: User,
+      });
+      const getUser = getUserBase.extend({
+        path: 'http\\://test.com/:group/user/:id',
+        schema: User2,
+      });
+
+      const searchParams = getUser.extend({
+        path: 'http\\://test.com/:group/user/:id',
+        searchParams: {} as { isAdmin?: boolean; sort: 'asc' | 'desc' },
+      });
+
+      expect(
+        searchParams.url({
+          group: 'hi',
+          id: 'what',
+          sort: 'desc',
+          isAdmin: true,
+        }),
+      ).toMatchInlineSnapshot(
+        `"http://test.com/hi/user/what?bob=5&isAdmin=true&sort=desc"`,
+      );
+    });
   });
+
   it('extending with name should work', () => {
     const endpoint = CoolerArticleResource.get.extend({ name: 'mything' });
     const endpoint2 = CoolerArticleResource.get.extend({ path: '/:bob' });

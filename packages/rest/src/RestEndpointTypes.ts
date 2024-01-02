@@ -42,31 +42,53 @@ export interface RestInstanceBase<
    */
   readonly urlPrefix: string;
   readonly requestInit: RequestInit;
-  /** @see https://dataclient.io/rest/api/RestEndpoint#method */
+  /** HTTP request method
+   * @see https://dataclient.io/rest/api/RestEndpoint#method
+   */
   readonly method: (O & { method: string })['method'];
   readonly signal: AbortSignal | undefined;
+  /** @see https://dataclient.io/rest/api/RestEndpoint#paginationField */
   readonly paginationField?: string;
 
   /* fetch lifecycles */
   /* before-fetch */
+  /** Builds the URL to fetch
+   * @see https://dataclient.io/rest/api/RestEndpoint#url
+   */
   url(...args: Parameters<F>): string;
-  /** @see https://dataclient.io/rest/api/RestEndpoint#getRequestInit */
+  /** Encode the searchParams component of the url
+   * @see https://dataclient.io/rest/api/RestEndpoint#searchToString
+   */
+  searchToString(searchParams: Record<string, any>): string;
+  /** Prepares RequestInit used in fetch. This is sent to fetchResponse()
+   * @see https://dataclient.io/rest/api/RestEndpoint#getRequestInit
+   */
   getRequestInit(
     this: any,
     body?: RequestInit['body'] | Record<string, unknown>,
   ): Promise<RequestInit> | RequestInit;
-  /** @see https://dataclient.io/rest/api/RestEndpoint#getHeaders */
+  /** Called by getRequestInit to determine HTTP Headers
+   * @see https://dataclient.io/rest/api/RestEndpoint#getHeaders
+   */
   getHeaders(headers: HeadersInit): Promise<HeadersInit> | HeadersInit;
   /* after-fetch */
-  /** @see https://dataclient.io/rest/api/RestEndpoint#fetchResponse */
+  /** Performs the fetch call
+   * @see https://dataclient.io/rest/api/RestEndpoint#fetchResponse
+   */
   fetchResponse(input: RequestInfo, init: RequestInit): Promise<Response>;
-  /** @see https://dataclient.io/rest/api/RestEndpoint#parseResponse */
+  /** Takes the Response and parses via .text() or .json()
+   * @see https://dataclient.io/rest/api/RestEndpoint#parseResponse
+   */
   parseResponse(response: Response): Promise<any>;
-  /** @see https://dataclient.io/rest/api/RestEndpoint#process */
+  /** Perform any transforms with the parsed result.
+   * @see https://dataclient.io/rest/api/RestEndpoint#process
+   */
   process(value: any, ...args: Parameters<F>): ResolveType<F>;
 
   /* utilities */
-  /** @see https://dataclient.io/rest/api/RestEndpoint#testKey */
+  /** Returns true if the provided (fetch) key matches this endpoint.
+   * @see https://dataclient.io/rest/api/RestEndpoint#testKey
+   */
   testKey(key: string): boolean;
 
   /* extenders */

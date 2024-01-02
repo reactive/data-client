@@ -76,9 +76,14 @@ export default class RestEndpoint extends Endpoint {
       }
     });
     if (Object.keys(searchParams).length) {
-      return `${this.urlPrefix}${urlBase}?${paramsToString(searchParams)}`;
+      return `${this.urlPrefix}${urlBase}?${this.searchToString(searchParams)}`;
     }
     return `${this.urlPrefix}${urlBase}`;
+  }
+
+  /** Encode the url searchParams */
+  searchToString(searchParams) {
+    return paramsToString(searchParams);
   }
 
   getHeaders(headers) {
