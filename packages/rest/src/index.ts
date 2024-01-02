@@ -20,6 +20,7 @@ export type {
   PaginationFieldEndpoint,
   PaginationEndpoint,
 } from './RestEndpoint.js';
+export { getUrlBase, getUrlTokens } from './RestHelpers.js';
 export { default as createResource } from './createResource.js';
 export type { Resource } from './resourceTypes.js';
 export type { ResourceOptions, ResourceGenerics } from './resourceTypes.js';

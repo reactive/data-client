@@ -333,17 +333,17 @@ have defaults.
 
 ### url(params): string {#url}
 
-`urlPrefix` + `path template` + '?' + `searchParams`
+`urlPrefix` + `path template` + '?' + searchToString(`searchParams`)
 
 `url()` uses the `params` to fill in the [path template](#path). Any unused `params` members are then used
 as [searchParams](https://developer.mozilla.org/en-US/docs/Web/API/URL/searchParams) (aka 'GET' params - the stuff after `?`).
-
-[searchParams](https://developer.mozilla.org/en-US/docs/Web/API/URL/searchParams) (aka queryParams) are sorted to maintain determinism.
 
 <details collapsed>
 <summary><b>Implementation</b></summary>
 
 ```typescript
+import { getUrlBase, getUrlTokens } from '@rest-hooks/rest';
+
 url(urlParams = {}) {
   const urlBase = getUrlBase(this.path)(urlParams);
   const tokens = getUrlTokens(this.path);
@@ -354,12 +354,27 @@ url(urlParams = {}) {
     }
   });
   if (Object.keys(searchParams).length) {
-    return `${this.urlPrefix}${urlBase}?${paramsToString(searchParams)}`;
+    return `${this.urlPrefix}${urlBase}?${this.searchToString(searchParams)}`;
   }
   return `${this.urlPrefix}${urlBase}`;
 }
+```
 
-function paramsToString(searchParams) {
+</details>
+
+### searchToString(searchParams): string {#searchToString}
+
+Constructs the [searchParams](https://developer.mozilla.org/en-US/docs/Web/API/URL/searchParams) component of [url](#url).
+
+By default uses the standard [URLSearchParams](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams) global.
+
+[searchParams](https://developer.mozilla.org/en-US/docs/Web/API/URL/searchParams) (aka queryParams) are sorted to maintain determinism.
+
+<details collapsed>
+<summary><b>Implementation</b></summary>
+
+```typescript
+searchToString(searchParams) {
   const params = new URLSearchParams(searchParams);
   params.sort();
   return params.toString();
@@ -367,6 +382,21 @@ function paramsToString(searchParams) {
 ```
 
 </details>
+
+#### Using `qs` library
+
+To encode complex objects in the searchParams, you can use the [qs](https://github.com/ljharb/qs) library.
+
+```typescript
+import { RestEndpoint, RestGenerics } from '@data-client/rest';
+import qs from 'qs';
+
+class MyEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
+  searchToString(searchParams) {
+    return qs.stringify(searchParams);
+  }
+}
+```
 
 ### path: string {#path}
 
@@ -416,7 +446,7 @@ and [body](#body).
 
 :::
 
-### searchParams: \{ [key\:string]: string|number|boolean } {#searchParams}
+### searchParams {#searchParams}
 
 `searchParams` can be to specify types extra parameters, used for the GET searchParams/queryParams in a [url()](#url).
 
@@ -460,7 +490,8 @@ updateSite({ slug: 'cool' }, { url: '/' });
 
 ### paginationField
 
-If specified, will add [getPage](#getpage) method on the `RestEndpoint`.
+If specified, will add [getPage](#getpage) method on the `RestEndpoint`. [Pagination guide](../guides/pagination.md). Schema
+must also contain a [Collection](./Collection.md).
 
 ### urlPrefix: string = '' {#urlPrefix}
 
@@ -794,7 +825,8 @@ Default:
 
 Returns `true` if the provided (fetch) [key](#key) matches this endpoint.
 
-This is used for mock interceptors with with [&lt;MockResolver /&gt;](/docs/api/MockResolver)
+This is used for mock interceptors with with [&lt;MockResolver /&gt;](/docs/api/MockResolver),
+[Controller.expireAll()](/docs/api/Controller#expireAll), and [Controller.invalidateAll()](/docs/api/Controller#invalidateAll).
 
 ## extend(options): Endpoint {#extend}
 
@@ -861,7 +893,7 @@ return (
 );
 ```
 
-See [Infinite Scrolling Pagination](guides/pagination.md#infinite-scrolling) for more info.
+See [pagination guide](guides/pagination.md) for more info.
 
 ### paginated(paginationfield): Endpoint {#paginated}
 
