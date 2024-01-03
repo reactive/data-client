@@ -168,7 +168,10 @@ const getComments = new RestEndpoint({
 });
 
 // Hover your mouse over 'comments' to see its type
-const comments = useSuspense(getComments, { postId: '5', sortBy: 'votes' });
+const comments = useSuspense(getComments, {
+  postId: '5',
+  sortBy: 'votes',
+});
 
 const ctrl = useController();
 const createComment = async data =>
@@ -261,7 +264,10 @@ getById({ id: '5' });
 <TypeScriptEditor>
 
 ```ts path=method.ts
-export const update = new RestEndpoint({ path: '/:id', method: 'PUT' });
+export const update = new RestEndpoint({
+  path: '/:id',
+  method: 'PUT',
+});
 update({ id: 5 }, { title: 'updated', completed: true });
 ```
 
@@ -300,9 +306,14 @@ const getUsers = new RestEndpoint({
   path: '/:group/user/:id',
   searchParams: {} as { isAdmin?: boolean; sort: 'asc' | 'desc' },
 });
-getList.url({ group: 'big', id: '5', sort: 'asc' }) === '/big/user/5?sort=asc';
-getList.url({ group: 'big', id: '5', sort: 'desc', isAdmin: true }) ===
-  '/big/user/5?isAdmin=true&sort=asc';
+getList.url({ group: 'big', id: '5', sort: 'asc' }) ===
+  '/big/user/5?sort=asc';
+getList.url({
+  group: 'big',
+  id: '5',
+  sort: 'desc',
+  isAdmin: true,
+}) === '/big/user/5?isAdmin=true&sort=asc';
 ```
 
 ## Fetch Lifecycle
@@ -391,11 +402,19 @@ To encode complex objects in the searchParams, you can use the [qs](https://gith
 import { RestEndpoint, RestGenerics } from '@data-client/rest';
 import qs from 'qs';
 
-class MyEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
+class QSEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
   searchToString(searchParams) {
     return qs.stringify(searchParams);
   }
 }
+
+const getFoo = new QSEndpoint({
+  path: '/foo',
+  searchParams: {} as { a: Record<string, string> },
+});
+
+getFoo({ a: { b: 'c' } });
+getFoo.url({ a: { b: 'c' } }) === '/foo?a%5Bb%5D=c';
 ```
 
 ### path: string {#path}
@@ -419,7 +438,9 @@ getThing({ group: 'first', id: 77 });
 <TypeScriptEditor>
 
 ```ts
-const optional = new RestEndpoint({ path: '/:group/things/:number?' });
+const optional = new RestEndpoint({
+  path: '/:group/things/:number?',
+});
 optional({ group: 'first' });
 optional({ group: 'first', number: 'fifty' });
 ```
@@ -431,7 +452,9 @@ optional({ group: 'first', number: 'fifty' });
 <TypeScriptEditor>
 
 ```ts
-const getSite = new RestEndpoint({ path: 'https\\://site.com/:slug' });
+const getSite = new RestEndpoint({
+  path: 'https\\://site.com/:slug',
+});
 getSite({ slug: 'first' });
 ```
 
@@ -936,7 +959,9 @@ Make sure you use `RestGenerics` to keep types working.
 ```ts
 import { RestEndpoint, RestGenerics } from '@data-client/rest';
 
-class GithubEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
+class GithubEndpoint<
+  O extends RestGenerics = any,
+> extends RestEndpoint<O> {
   urlPrefix = 'https://api.github.com';
 
   getHeaders(headers: HeadersInit): HeadersInit {
