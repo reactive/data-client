@@ -4,7 +4,9 @@ import type { Config } from '@docusaurus/types';
 import path from 'path';
 import { themes } from 'prism-react-renderer';
 
+import gqlRedirects from './gqlRedirects';
 import versions from './versions.json';
+
 //const versionsRest = require('./rest_versions.json');
 
 const isDev = process.env.NODE_ENV === 'development';
@@ -289,6 +291,7 @@ const config: Config = {
             to: '/blog/2023/07/04/v0.2-release-announcement',
             from: ['/blog/2023/07/04/v8-release-announcement'],
           },
+          ...gqlRedirects,
         ],
       },
     ],
