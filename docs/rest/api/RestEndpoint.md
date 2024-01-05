@@ -11,6 +11,7 @@ description: Strongly typed path-based API definitions.
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
+import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 
 `RestEndpoints` are for [HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP) based protocols like REST.
 
@@ -404,9 +405,27 @@ import qs from 'qs';
 
 class QSEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
   searchToString(searchParams) {
+    // highlight-next-line
     return qs.stringify(searchParams);
   }
 }
+```
+
+<EndpointPlayground input="/foo?a%5Bb%5D=c" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}}>
+
+```typescript title="QSEndpoint" collapsed {6}
+import { RestEndpoint, RestGenerics } from '@data-client/rest';
+import qs from 'qs';
+
+export default class QSEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
+  searchToString(searchParams) {
+    return qs.stringify(searchParams);
+  }
+}
+```
+
+```typescript title="getFoo"
+import QSEndpoint from './QSEndpoint';
 
 const getFoo = new QSEndpoint({
   path: '/foo',
@@ -414,8 +433,9 @@ const getFoo = new QSEndpoint({
 });
 
 getFoo({ a: { b: 'c' } });
-getFoo.url({ a: { b: 'c' } }) === '/foo?a%5Bb%5D=c';
 ```
+
+</EndpointPlayground>
 
 ### path: string {#path}
 
@@ -475,20 +495,18 @@ and [body](#body).
 
 The actual **value is not used** in any way - this only determines [typing](#typing).
 
-<TypeScriptEditor>
+<EndpointPlayground input="https://site.com/cool?isReact=true" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}}>
 
-```ts {3}
+```typescript title="getFoo"
 const getReactSite = new RestEndpoint({
   path: 'https\\://site.com/:slug',
   searchParams: {} as { isReact: boolean },
 });
 
 getReactSite({ slug: 'cool', isReact: true });
-getReactSite.url({ slug: 'cool', isReact: true }) ===
-  'https://site.com/cool?isReact=true';
 ```
 
-</TypeScriptEditor>
+</EndpointPlayground>
 
 ### body {#body}
 
