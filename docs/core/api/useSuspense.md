@@ -167,7 +167,11 @@ function useSuspense(
 
 ```typescript
 function useSuspense<
-  E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
+  E extends EndpointInterface<
+    FetchFunction,
+    Schema | undefined,
+    undefined
+  >,
   Args extends readonly [...Parameters<E>] | readonly [null],
 >(
   endpoint: E,
@@ -250,8 +254,55 @@ function PostWithAuthor() {
 
 `null` will avoid binding and fetching data
 
-```tsx
-function PostWithAuthor() {
+<TypeScriptEditor row={false}>
+
+```ts title="Resources" collapsed
+import { Entity, createResource } from '@data-client/rest';
+
+export class Post extends Entity {
+  id = 0;
+  userId = 0;
+  title = '';
+  body = '';
+
+  pk() {
+    return this.id?.toString();
+  }
+  static key = 'Post';
+}
+export const PostResource = createResource({
+  path: '/posts/:id',
+  schema: Post,
+});
+
+export class User extends Entity {
+  id = 0;
+  name = '';
+  username = '';
+  email = '';
+  phone = '';
+  website = '';
+
+  get profileImage() {
+    return `https://i.pravatar.cc/64?img=${this.id + 4}`;
+  }
+
+  pk() {
+    return `${this.id}`;
+  }
+  static key = 'User';
+}
+export const UserResource = createResource({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/users/:id',
+  schema: User,
+});
+```
+
+```tsx title="PostWithAuthor"
+import { PostResource, UserResource } from './Resources';
+
+export default function PostWithAuthor({ id }: { id: string }) {
   const post = useSuspense(PostResource.get, { id });
   // post as Post
   const author = useSuspense(
@@ -266,6 +317,8 @@ function PostWithAuthor() {
   if (!author) return;
 }
 ```
+
+</TypeScriptEditor>
 
 ### Embedded data
 
@@ -333,6 +386,6 @@ continue showing the previous screen while the new data loads. Combined with
 loading indicators - improving the user experience.
 
 Click one of the names to navigate to their todos. Here long loading states are indicated by the
-less intrusive *loading bar*, like YouTube and Robinhood use.
+less intrusive _loading bar_, like YouTube and Robinhood use.
 
 <StackBlitz app="todo-app" file="src/pages/Home/TodoList.tsx,src/pages/Home/index.tsx,src/useNavigationState.ts" height={600} />
