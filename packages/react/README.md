@@ -231,3 +231,21 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://da
 - Todo: [![GitHub](https://badgen.net/badge/icon/github?icon=github&label)](https://github.com/reactive/data-client/tree/master/examples/todo-app) | [![Sandbox](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/reactive/data-client/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx)
 - Github: [![GitHub](https://badgen.net/badge/icon/github?icon=github&label)](https://github.com/reactive/data-client/tree/master/examples/github-app) | [![Sandbox](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx)
 - NextJS: [![GitHub](https://badgen.net/badge/icon/github?icon=github&label)](https://github.com/reactive/data-client/tree/master/examples/nextjs) | [![Sandbox](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/reactive/data-client/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx)
+
+## API
+
+- Rendering: [useSuspense()](https://dataclient.io/docs/api/useSuspense), [useLive()](https://dataclient.io/docs/api/useLive), [useCache()](https://dataclient.io/docs/api/useCache), [useDLE()](https://dataclient.io/docs/api/useDLE)
+- Event handling: [useController()](https://dataclient.io/docs/api/useController) returns [Controller](https://dataclient.io/docs/api/Controller)
+  - [ctrl.fetch](https://dataclient.io/docs/api/Controller#fetch)
+  - [ctrl.fetchIfStale](https://dataclient.io/docs/api/Controller#fetchIfStale)
+  - [ctrl.expireAll](https://dataclient.io/docs/api/Controller#expireAll)
+  - [ctrl.invalidate](https://dataclient.io/docs/api/Controller#invalidate)
+  - [ctrl.invalidateAll](https://dataclient.io/docs/api/Controller#invalidateAll)
+  - [ctrl.resetEntireStore](https://dataclient.io/docs/api/Controller#resetEntireStore)
+  - [ctrl.setResponse](https://dataclient.io/docs/api/Controller#setResponse)
+  - [ctrl.setError](https://dataclient.io/docs/api/Controller#setError)
+  - [ctrl.resolve](https://dataclient.io/docs/api/Controller#resolve)
+  - [ctrl.subscribe](https://dataclient.io/docs/api/Controller#subscribe)
+  - [ctrl.unsubscribe](https://dataclient.io/docs/api/Controller#unsubscribe)
+- Components: [&lt;CacheProvider/>](https://dataclient.io/docs/api/CacheProvider), [&lt;AsyncBoundary/>](https://dataclient.io/docs/api/AsyncBoundary), [&lt;NetworkErrorBoundary/>](https://dataclient.io/docs/api/NetworkErrorBoundary)
+- Middleware: [LogoutManager](https://dataclient.io/docs/api/LogoutManager), [NetworkManager](https://dataclient.io/docs/api/NetworkManager), [SubscriptionManager](https://dataclient.io/docs/api/SubscriptionManager), [PollingSubscription](https://dataclient.io/docs/api/PollingSubscription), [DevToolsManager](https://dataclient.io/docs/api/DevToolsManager)

@@ -69,3 +69,25 @@ function useSuspense(endpoint, ...args)
   return data;
 }
 ```
+
+
+## API
+
+- [Controller](https://dataclient.io/docs/api/Controller)
+  - [ctrl.fetch](https://dataclient.io/docs/api/Controller#fetch)
+  - [ctrl.fetchIfStale](https://dataclient.io/docs/api/Controller#fetchIfStale)
+  - [ctrl.expireAll](https://dataclient.io/docs/api/Controller#expireAll)
+  - [ctrl.invalidate](https://dataclient.io/docs/api/Controller#invalidate)
+  - [ctrl.invalidateAll](https://dataclient.io/docs/api/Controller#invalidateAll)
+  - [ctrl.resetEntireStore](https://dataclient.io/docs/api/Controller#resetEntireStore)
+  - [ctrl.setResponse](https://dataclient.io/docs/api/Controller#setResponse)
+  - [ctrl.setError](https://dataclient.io/docs/api/Controller#setError)
+  - [ctrl.resolve](https://dataclient.io/docs/api/Controller#resolve)
+  - [ctrl.subscribe](https://dataclient.io/docs/api/Controller#subscribe)
+  - [ctrl.unsubscribe](https://dataclient.io/docs/api/Controller#unsubscribe)
+  - [ctrl.getResponse](https://dataclient.io/docs/api/Controller#getResponse)
+  - [ctrl.getError](https://dataclient.io/docs/api/Controller#getError)
+  - [ctrl.snapshot](https://dataclient.io/docs/api/Controller#snapshot)
+  - [ctrl.getState](https://dataclient.io/docs/api/Controller#getState)
+- Middleware: [LogoutManager](https://dataclient.io/docs/api/LogoutManager), [NetworkManager](https://dataclient.io/docs/api/NetworkManager), [SubscriptionManager](https://dataclient.io/docs/api/SubscriptionManager), [PollingSubscription](https://dataclient.io/docs/api/PollingSubscription), [DevToolsManager](https://dataclient.io/docs/api/DevToolsManager)
+- State: createReducer(), initialState, applyManager

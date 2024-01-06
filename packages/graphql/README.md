@@ -90,3 +90,17 @@ const controller = useController();
 const createReview = useFetcher(createReview);
 return <ReviewForm onSubmit={data => controller.fetch(createReview, data)} />;
 ```
+
+## API
+
+- Networking definition
+  - [Endpoints](https://dataclient.io/rest/api/Endpoint): [GQLEndpoint](https://dataclient.io/graphql/api/GQLEndpoint)
+- [Data model](https://dataclient.io/docs/concepts/normalization)
+  - [Entity](https://dataclient.io/rest/api/Entity), [schema.Entity](https://dataclient.io/rest/api/schema.Entity) mixin, [GQLEntity](https://dataclient.io/graphql/api/GQLEntity)
+  - [Object](https://dataclient.io/rest/api/Object)
+  - [Array](https://dataclient.io/rest/api/Array)
+  - [Values](https://dataclient.io/rest/api/Values)
+  - [All](https://dataclient.io/rest/api/All)
+  - [Collection](https://dataclient.io/rest/api/Collection)
+  - [Union](https://dataclient.io/rest/api/Union)
+  - [Invalidate](https://dataclient.io/rest/api/Invalidate)

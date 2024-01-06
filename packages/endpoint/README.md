@@ -231,3 +231,17 @@ const bob = useCache(UserIndex, { username: 'bob' });
 // @ts-expect-error Indexes don't fetch, they just retrieve already existing data
 const bob = useSuspense(UserIndex, { username: 'bob' });
 ```
+
+## API
+
+- Networking definition
+  - [Endpoints](https://dataclient.io/rest/api/Endpoint)
+- [Data model](https://dataclient.io/docs/concepts/normalization)
+  - [Entity](https://dataclient.io/rest/api/Entity), [schema.Entity](https://dataclient.io/rest/api/schema.Entity) mixin
+  - [Object](https://dataclient.io/rest/api/Object)
+  - [Array](https://dataclient.io/rest/api/Array)
+  - [Values](https://dataclient.io/rest/api/Values)
+  - [All](https://dataclient.io/rest/api/All)
+  - [Collection](https://dataclient.io/rest/api/Collection)
+  - [Union](https://dataclient.io/rest/api/Union)
+  - [Invalidate](https://dataclient.io/rest/api/Invalidate)

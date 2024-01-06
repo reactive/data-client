@@ -139,3 +139,19 @@ supports inferring argument types from the path templates.
 
 - [Backbone Model](https://backbonejs.org/#Model)
 - [ImmutableJS Record](https://immutable-js.github.io/immutable-js/docs/#/Record)
+
+
+## API
+
+- Networking definition
+  - [Endpoints](https://dataclient.io/rest/api/Endpoint): [RestEndpoint](https://dataclient.io/rest/api/RestEndpoint)
+  - [Resources](https://dataclient.io/docs/getting-started/resource): [createResource()](https://dataclient.io/rest/api/createResource), [hookifyResource()](https://dataclient.io/rest/api/hookifyResource)
+- [Data model](https://dataclient.io/docs/concepts/normalization)
+  - [Entity](https://dataclient.io/rest/api/Entity), [schema.Entity](https://dataclient.io/rest/api/schema.Entity) mixin
+  - [Object](https://dataclient.io/rest/api/Object)
+  - [Array](https://dataclient.io/rest/api/Array)
+  - [Values](https://dataclient.io/rest/api/Values)
+  - [All](https://dataclient.io/rest/api/All)
+  - [Collection](https://dataclient.io/rest/api/Collection)
+  - [Union](https://dataclient.io/rest/api/Union)
+  - [Invalidate](https://dataclient.io/rest/api/Invalidate)

@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/reactive/data-client/tree/master.svg?style=shield)](https://circleci.com/gh/reactive/data-client)
 [![Coverage Status](https://img.shields.io/codecov/c/gh/reactive/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/reactive/data-client?branch=master)
-[![Percentage of issues still open](https://isitmaintained.com/badge/open/reactive/data-client.svg)](https://github.com/reactive/data-client/issues "Percentage of issues still open")
+[![Percentage of issues still open](https://isitmaintained.com/badge/open/reactive/data-client.svg)](https://github.com/reactive/data-client/issues 'Percentage of issues still open')
 [![bundle size](https://img.shields.io/bundlephobia/minzip/@data-client/react?style=flat-square)](https://bundlephobia.com/result?p=@data-client/react)
 [![npm version](https://img.shields.io/npm/v/@data-client/react.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/react)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
@@ -237,3 +237,39 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://da
 - Todo: [![GitHub](https://badgen.net/badge/icon/github?icon=github&label)](https://github.com/reactive/data-client/tree/master/examples/todo-app) | [![Sandbox](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/reactive/data-client/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx)
 - Github: [![GitHub](https://badgen.net/badge/icon/github?icon=github&label)](https://github.com/reactive/data-client/tree/master/examples/github-app) | [![Sandbox](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx)
 - NextJS: [![GitHub](https://badgen.net/badge/icon/github?icon=github&label)](https://github.com/reactive/data-client/tree/master/examples/nextjs) | [![Sandbox](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/reactive/data-client/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx)
+
+## API
+
+### Reactive Applications
+
+- Rendering: [useSuspense()](https://dataclient.io/docs/api/useSuspense), [useLive()](https://dataclient.io/docs/api/useLive), [useCache()](https://dataclient.io/docs/api/useCache), [useDLE()](https://dataclient.io/docs/api/useDLE)
+- Event handling: [useController()](https://dataclient.io/docs/api/useController) returns [Controller](https://dataclient.io/docs/api/Controller)
+  - [ctrl.fetch](https://dataclient.io/docs/api/Controller#fetch)
+  - [ctrl.fetchIfStale](https://dataclient.io/docs/api/Controller#fetchIfStale)
+  - [ctrl.expireAll](https://dataclient.io/docs/api/Controller#expireAll)
+  - [ctrl.invalidate](https://dataclient.io/docs/api/Controller#invalidate)
+  - [ctrl.invalidateAll](https://dataclient.io/docs/api/Controller#invalidateAll)
+  - [ctrl.resetEntireStore](https://dataclient.io/docs/api/Controller#resetEntireStore)
+  - [ctrl.setResponse](https://dataclient.io/docs/api/Controller#setResponse)
+  - [ctrl.setError](https://dataclient.io/docs/api/Controller#setError)
+  - [ctrl.resolve](https://dataclient.io/docs/api/Controller#resolve)
+  - [ctrl.subscribe](https://dataclient.io/docs/api/Controller#subscribe)
+  - [ctrl.unsubscribe](https://dataclient.io/docs/api/Controller#unsubscribe)
+- Components: [&lt;CacheProvider/>](https://dataclient.io/docs/api/CacheProvider), [&lt;AsyncBoundary/>](https://dataclient.io/docs/api/AsyncBoundary), [&lt;NetworkErrorBoundary/>](https://dataclient.io/docs/api/NetworkErrorBoundary), [&lt;MockResolver/>](https://dataclient.io/docs/api/MockResolver)
+- Data Mocking: [Fixture](https://dataclient.io/docs/api/Fixtures#successfixture), [Interceptor](https://dataclient.io/docs/api/Fixtures#interceptor), [renderDataClient()](https://dataclient.io/docs/api/makeRenderDataClient)
+- Middleware: [LogoutManager](https://dataclient.io/docs/api/LogoutManager), [NetworkManager](https://dataclient.io/docs/api/NetworkManager), [SubscriptionManager](https://dataclient.io/docs/api/SubscriptionManager), [PollingSubscription](https://dataclient.io/docs/api/PollingSubscription), [DevToolsManager](https://dataclient.io/docs/api/DevToolsManager)
+
+### [Define Data](https://dataclient.io/docs/getting-started/resource)
+
+- Networking definition
+  - [Endpoints](https://dataclient.io/rest/api/Endpoint): [RestEndpoint](https://dataclient.io/rest/api/RestEndpoint), [GQLEndpoint](https://dataclient.io/graphql/api/GQLEndpoint)
+  - [Resources](https://dataclient.io/docs/getting-started/resource): [createResource()](https://dataclient.io/rest/api/createResource), [hookifyResource()](https://dataclient.io/rest/api/hookifyResource)
+- [Data model](https://dataclient.io/docs/concepts/normalization)
+  - [Entity](https://dataclient.io/rest/api/Entity), [schema.Entity](https://dataclient.io/rest/api/schema.Entity) mixin, [GQLEntity](https://dataclient.io/graphql/api/GQLEntity)
+  - [Object](https://dataclient.io/rest/api/Object)
+  - [Array](https://dataclient.io/rest/api/Array)
+  - [Values](https://dataclient.io/rest/api/Values)
+  - [All](https://dataclient.io/rest/api/All)
+  - [Collection](https://dataclient.io/rest/api/Collection)
+  - [Union](https://dataclient.io/rest/api/Union)
+  - [Invalidate](https://dataclient.io/rest/api/Invalidate)
