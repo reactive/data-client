@@ -416,20 +416,21 @@ describe.each([
         .delete(`/article-cooler/${temppayload.id}`)
         .reply(204, '');
       const throws: Promise<any>[] = [];
-      const { result, waitForNextUpdate, controller } = renderDataClient(() => {
-        try {
-          return useSuspense(ArticleResource.get, {
-            id: temppayload.id,
-          });
-        } catch (e: any) {
-          if (typeof e.then === 'function') {
-            if (e !== throws[throws.length - 1]) {
-              throws.push(e);
+      const { result, waitForNextUpdate, waitFor, controller } =
+        renderDataClient(() => {
+          try {
+            return useSuspense(ArticleResource.get, {
+              id: temppayload.id,
+            });
+          } catch (e: any) {
+            if (typeof e.then === 'function') {
+              if (e !== throws[throws.length - 1]) {
+                throws.push(e);
+              }
             }
+            throw e;
           }
-          throw e;
-        }
-      });
+        });
       expect(result.current).toBeUndefined();
       await waitForNextUpdate();
       let data = result.current;
@@ -446,10 +447,12 @@ describe.each([
         await controller.fetch(ArticleResource.delete, { id: temppayload.id });
       });
       expect(throws.length).toBeGreaterThanOrEqual(2); //TODO: delete seems to have receive process multiple times. we suspect this is because of test+act integration.
-      await Promise.race([waitForNextUpdate(), throws[throws.length - 1]]);
+      await Promise.race([
+        waitFor(() => expect(data.title).toBe('othertitle')),
+        throws[throws.length - 1],
+      ]);
       data = result.current;
       expect(data).toBeInstanceOf(ArticleResource.get.schema);
-      expect(data.title).toBe('othertitle');
     },
   );
 
