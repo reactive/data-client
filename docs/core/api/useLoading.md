@@ -4,6 +4,7 @@ title: useLoading()
 
 import UseLoading from '../shared/\_useLoading.mdx';
 import PkgInstall from '@site/src/components/PkgInstall';
+import StackBlitz from '@site/src/components/StackBlitz';
 
 <head>
   <title>useLoading() - Turn any promise into React State</title>
@@ -46,10 +47,19 @@ of [react-hooks/exhaustive-deps](https://www.npmjs.com/package/eslint-plugin-rea
 ## Types
 
 ```typescript
-export default function useLoading<F extends (...args: any) => Promise<any>>(
-  func: F,
-  deps: readonly any[] = [],
-): [F, boolean];
+export default function useLoading<
+  F extends (...args: any) => Promise<any>,
+>(func: F, deps: readonly any[] = []): [F, boolean];
 ```
 
 Part of [@data-client/hooks](https://www.npmjs.com/package/@data-client/hooks)
+
+## Examples
+
+### Github pagination
+
+<StackBlitz app="github-app" file="src/resources/Issue.tsx,src/pages/IssueList.tsx,src/pages/NextPage.tsx" view="editor" />
+
+### Github comment form submission
+
+<StackBlitz app="github-app" file="src/pages/IssueDetail/CreateComment.tsx,src/pages/IssueDetail/CommentForm.tsx" view="editor" />

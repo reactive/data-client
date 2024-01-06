@@ -79,8 +79,7 @@ import { User, UserResource } from './UserResource';
 
 export default function Authorized({ user }: { user: User }) {
   const ctrl = useController();
-  const handleLogout = (e: any) =>
-    ctrl.invalidate(UserResource.current);
+  const handleLogout = (e: any) => ctrl.invalidate(UserResource.current);
 
   return (
     <div>
@@ -217,6 +216,10 @@ render(<UsersPage />);
 
 <StackBlitz app="todo-app" file="src/resources/TodoResource.ts,src/pages/Home/TodoStats.tsx" />
 
-### Github App Auth Detection
+### Github Navbar login/logout
 
 <StackBlitz app="github-app" file="src/resources/User.ts,src/navigation/NavBar.tsx" view="editor" />
+
+### Github Comment Authorization
+
+<StackBlitz app="github-app" file="src/resources/User.ts,src/pages/IssueDetail/CreateComment.tsx" view="editor" />
