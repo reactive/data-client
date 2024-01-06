@@ -213,6 +213,10 @@ render(<UsersPage />);
 
 </HooksPlayground>
 
-### Todo App
+### Remaining Todo Query
 
 <StackBlitz app="todo-app" file="src/resources/TodoResource.ts,src/pages/Home/TodoStats.tsx" />
+
+### Github App Auth Detection
+
+<StackBlitz app="github-app" file="src/resources/User.ts,src/navigation/NavBar.tsx" view="editor" />
