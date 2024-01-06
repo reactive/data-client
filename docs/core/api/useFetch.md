@@ -4,6 +4,7 @@ title: useFetch()
 
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
+import StackBlitz from '@site/src/components/StackBlitz';
 
 <head>
   <title>useFetch() - Declarative fetch triggers for React</title>
@@ -52,8 +53,6 @@ stale.
 
 :::
 
-
-
 <ConditionalDependencies hook="useFetch" />
 
 ## Types
@@ -69,9 +68,25 @@ function useFetch(
 
 ```typescript
 function useFetch<
-  E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
+  E extends EndpointInterface<
+    FetchFunction,
+    Schema | undefined,
+    undefined
+  >,
   Args extends readonly [...Parameters<E>] | readonly [null],
 >(endpoint: E, ...args: Args): ReturnType<E>;
 ```
 
 </GenericsTabs>
+
+## Examples
+
+### Github Reactions
+
+`useFetch()` allows us to declaratively fetch reactions on any issue page the moment we navigate to it. This allows
+us to not block the issues page from showing if the reactions are not completed loading.
+
+It's usually better to wrap cases like this in new [Suspense Boundaries](../getting-started/data-dependency.md#boundaries).
+However, our component library `ant design` does not allow this.
+
+<StackBlitz app="github-app" file="src/resources/Reaction.tsx,src/pages/IssueDetail/index.tsx" view="editor" initialpath="/reactive/data-client/issue/1113" height={750} />
