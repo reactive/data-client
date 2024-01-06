@@ -298,7 +298,7 @@ easy to use fresh data.
 <UseLive />
 
 Subscriptions are orchestrated by [Managers](../api/Manager.md). Out of the box,
-polling based subscriptions can be used by adding [pollFrequency](/rest/api/Endpoint#pollfrequency-number) to an Endpoint or Resource.
+polling based subscriptions can be used by adding [pollFrequency](/rest/api/Endpoint#pollfrequency) to an Endpoint or Resource.
 For pushed based networking protocols like SSE and websockets, see the [example stream manager](../api/Manager.md#data-stream).
 
 ```typescript

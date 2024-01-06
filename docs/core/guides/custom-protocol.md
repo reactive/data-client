@@ -92,7 +92,7 @@ In addition to an async function and (optional) types, [Endpoint](/rest/api/Endp
 allowing them to provide any additional relevant information about the endpoint itself.
 
 For instance, to allow integration into a cache as well as knowing when to recompute and/or refetch
-when parameters change, Endpoints have a [key()](/rest/api/Endpoint#key-params--string) member that serializes
+when parameters change, Endpoints have a [key()](/rest/api/Endpoint#key) member that serializes
 the endpoint and parameters to a unique string.
 
 ```js

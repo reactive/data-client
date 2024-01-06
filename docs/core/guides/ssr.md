@@ -16,7 +16,7 @@ Client takes this one step further by pre-populating the data store. Unlike othe
 Reactive Data Client becomes interactive the moment the page is visible, making [data mutations](https://dataclient.io/docs/getting-started/mutations) instantaneous. Additionally there is no need for additional data fetches that increase server
 load and slow client hydration, potentially causing application stutters.
 
-## NextJS SSR
+## NextJS SSR {#nextjs}
 
 We've optimized integration into NextJS with a custom [Document](https://nextjs.org/docs/advanced-features/custom-document)
 and NextJS specific wrapper for [App](https://nextjs.org/docs/advanced-features/custom-app)

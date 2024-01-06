@@ -723,9 +723,8 @@ async (id: string) => {
 
 - Global data consistency and performance with [DRY](https://www.plutora.com/blog/understanding-the-dry-dont-repeat-yourself-principle) state: [where](./schema.md) to expect [Entities](./Entity.md)
 - Functions to [deserialize fields](/rest/guides/network-transform#deserializing-fields)
-- [Race condition handling](./Entity.md#useincoming)
+- [Race condition handling](./Entity.md#shouldreorder)
 - [Validation](./Entity.md#validate)
-- [Expiry](./Entity.md#expiresat)
 
 ```tsx
 import { Entity, RestEndpoint } from '@data-client/rest';
