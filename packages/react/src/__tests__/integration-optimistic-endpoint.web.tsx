@@ -582,13 +582,17 @@ describe.each([
 
       // resolve the first fetch; but the second fetch happened after so we use it first since this is default 'first fetchedAt' behavior
       // this can be solved by either canceling requests or having server send the total order
-      act(() =>
-        resolves[0]({
-          ...payload,
-          title: 'first',
-          content: 'first',
-        }),
-      );
+      act(() => {
+        setTimeout(
+          () =>
+            resolves[0]({
+              ...payload,
+              title: 'first',
+              content: 'first',
+            }),
+          1,
+        );
+      });
       await act(() => fetches[0]);
       expect(result.current.article).toEqual(
         CoolerArticle.fromJS({
