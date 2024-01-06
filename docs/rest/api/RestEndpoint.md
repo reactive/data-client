@@ -12,6 +12,8 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
+import Link from '@docusaurus/Link';
+import VoteDemo from '../../core/shared/\_VoteDemo.mdx';
 
 `RestEndpoints` are for [HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP) based protocols like REST.
 
@@ -786,7 +788,11 @@ When provided, any fetches with this endpoint will behave as though the `fakePay
 from this function was a succesful network response. When the actual fetch completes (regardless
 of failure or success), the optimistic update will be replaced with the actual network response.
 
-[Optimistic update guide](guides/optimistic-updates.md)
+<VoteDemo />
+
+<center>
+<Link className="button button--secondary button--sm" to="../guides/optimistic-updates">Optimistic update guide</Link>
+</center>
 
 ### update() {#update}
 

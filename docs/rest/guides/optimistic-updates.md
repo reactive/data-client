@@ -10,6 +10,7 @@ title: Optimistic Updates
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import {RestEndpoint} from '@data-client/rest';
 import { todoFixtures } from '@site/src/fixtures/todos';
+import OptimisticTransform from '../shared/\_optimisticTransform.mdx';
 
 Optimistic updates enable highly responsive and fast interfaces by avoiding network wait times.
 An update is optimistic by assuming the network is successful.
@@ -201,116 +202,7 @@ Sometimes user actions should result in data transformations that are dependent 
 The simplest examples of this are toggling a boolean, or incrementing a counter; but the same principal applies to
 more complicated transforms. To make it more obvious we're using a simple counter here.
 
-<HooksPlayground fixtures={[
-{
-endpoint: new RestEndpoint({path: '/api/count'}),
-args: [],
-response: { count: 0 }
-},
-{
-endpoint: new RestEndpoint({
-path: '/api/count/increment',
-method: 'POST',
-body: undefined,
-}),
-response() {
-return ({
-"count": (this.count = this.count + 1),
-});
-},
-delay: () => 500 + Math.random() * 4500,
-}
-]}
-getInitialInterceptorData={() => ({count: 0})}
-row
->
-
-```ts title="count" collapsed
-export class CountEntity extends Entity {
-  count = 0;
-
-  pk() {
-    return `SINGLETON`;
-  }
-}
-export const getCount = new RestEndpoint({
-  path: '/api/count',
-  schema: CountEntity,
-  name: 'get',
-});
-```
-
-```ts title="increment" {9-15}
-import { CountEntity, getCount } from './count';
-
-export const increment = new RestEndpoint({
-  path: '/api/count/increment',
-  method: 'POST',
-  body: undefined,
-  name: 'increment',
-  schema: CountEntity,
-  getOptimisticResponse(snap) {
-    const { data } = snap.getResponse(getCount);
-    if (!data) throw new AbortOptimistic();
-    return {
-      count: data.count + 1,
-    };
-  },
-});
-```
-
-```tsx title="CounterPage" collapsed
-import { useLoading } from '@data-client/hooks';
-import { getCount } from './count';
-import { increment } from './increment';
-
-function CounterPage() {
-  const ctrl = useController();
-  const { count } = useSuspense(getCount);
-  const [stateCount, setStateCount] = React.useState(0);
-  const [responseCount, setResponseCount] = React.useState(0);
-  const [clickHandler, loading, error] = useLoading(async () => {
-    setStateCount(stateCount + 1);
-    const val = await ctrl.fetch(increment);
-    setResponseCount(val.count);
-    setStateCount(val.count);
-  });
-  return (
-    <div className="vote">
-      <p>
-        Click the button multiple times quickly to trigger the race
-        condition
-      </p>
-      <table>
-        <thead>
-          <td></td>
-          <td><small>Optimistic</small></td>
-          <td><small>Normal</small></td>
-        </thead>
-        <tbody>
-          <tr>
-            <th><abbr title="Reactive Data Client">RDC</abbr>:</th>
-            <td>{count}</td>
-            <td></td>
-          </tr>
-          <tr>
-            <th><abbr title="Other libraries like React Query">Other</abbr>:</th>
-            <td>{stateCount}</td>
-            <td>{responseCount}</td>
-          </tr>
-        </tbody>
-      </table>
-      <button className="up" onClick={clickHandler}>
-        &nbsp;
-      </button>
-      <p>{loading ? ' ...loading' : ''}</p>
-    </div>
-  );
-}
-render(<CounterPage />);
-```
-
-</HooksPlayground>
+<OptimisticTransform />
 
 Reactive Data Client automatically handles all race conditions due to network timings. Reactive Data Client both tracks
 fetch timings, pairs responses with their respective optimistic update and rollsback in case of resolution or
