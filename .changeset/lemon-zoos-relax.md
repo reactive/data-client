@@ -2,7 +2,7 @@
 "@data-client/rest": minor
 ---
 
-Add RestEndpoint.searchToString()
+Add [RestEndpoint.searchToString()](https://dataclient.io/rest/api/RestEndpoint#searchToString)
 
 For example:
 
