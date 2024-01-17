@@ -57,12 +57,13 @@ type ReducersMapObject<
   S = any,
   A extends { type: string } = any,
   PreloadedState = S,
-> = keyof PreloadedState extends keyof S ?
-  {
-    [K in keyof S]: Reducer<
-      S[K],
-      A,
-      K extends keyof PreloadedState ? PreloadedState[K] : never
-    >;
-  }
-: never;
+> =
+  keyof PreloadedState extends keyof S ?
+    {
+      [K in keyof S]: Reducer<
+        S[K],
+        A,
+        K extends keyof PreloadedState ? PreloadedState[K] : never
+      >;
+    }
+  : never;
