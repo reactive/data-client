@@ -33,10 +33,11 @@ export default function mapCollection<
 type MapCollection<
   M extends <C extends schema.Collection>(collection: C) => any,
   S extends Schema | undefined,
-> = S extends schema.Collection ? ReturnType<M>
-: S extends schema.Object<infer T> ? MapCollection<M, T>
-: S extends { [K: string]: any } ? MapObject<M, S>
-: never;
+> =
+  S extends schema.Collection ? ReturnType<M>
+  : S extends schema.Object<infer T> ? MapCollection<M, T>
+  : S extends { [K: string]: any } ? MapObject<M, S>
+  : never;
 
 export type MapObject<
   M extends (collection: schema.Collection) => any,
