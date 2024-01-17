@@ -65,3 +65,5 @@ export default function CacheProvider({
 
 - Reactive Data Client's [NetworkManager](https://github.com/reactive/data-client/blob/master/packages/data-client/src/state/NetworkManager.ts)
 - Reactive Data Client's [PollingSubscription](https://github.com/reactive/data-client/blob/master/packages/data-client/src/state/PollingSubscription.ts)
+- [LogoutManager](https://dataclient.io/docs/api/LogoutManager)
+- [StreamManager](https://github.com/reactive/data-client/blob/master/examples/coin-app/src/resources/StreamManager.ts) a websocket stream for cryptocurrency prices. [![Sandbox](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/reactive/data-client/tree/master/examples/coin-app?hidedevtools=1&terminalHeight=0&file=src%2Findex.tsx%2Csrc%2Fresources%2FTicker.ts%2Csrc%2Fpages%2FHome%2FAssetPrice.tsx%2Csrc%2Fresources%2FStreamManager.ts)
