@@ -143,9 +143,7 @@ class MyCollection<
 }
 const TodoResource = createResource({
   path: '/todos/:id',
-  searchParams: {} as
-    | { userId?: string; orderBy?: string }
-    | undefined,
+  searchParams: {} as { userId?: string; orderBy?: string } | undefined,
   schema: Todo,
   // highlight-next-line
   Collection: MyCollection,
@@ -198,14 +196,17 @@ export default class Post extends Entity {
 }
 ```
 
-```typescript title="Resource" {8-11}
+```typescript title="Resource"
 import Post from './Post';
-const PostResource = createResource({
+export const PostResource = createResource({
   schema: Post,
   path: '/:group/posts/:id',
   searchParams: {} as { author?: string },
 });
+```
 
+```typescript title="Request" column
+import { PostResource } from './Resource';
 PostResource.get({
   group: 'react',
   id: '1',
@@ -240,14 +241,17 @@ export default class Post extends Entity {
 }
 ```
 
-```typescript title="Resource" {8-11}
+```typescript title="Resource"
 import Post from './Post';
-const PostResource = createResource({
+export const PostResource = createResource({
   schema: Post,
   path: '/:group/posts/:id',
   searchParams: {} as { author?: string },
 });
+```
 
+```typescript title="Request" column
+import { PostResource } from './Resource';
 PostResource.getList({
   group: 'react',
   author: 'clara',
@@ -291,14 +295,17 @@ export default class Post extends Entity {
 }
 ```
 
-```typescript title="Resource" {8-11}
+```typescript title="Resource"
 import Post from './Post';
-const PostResource = createResource({
+export const PostResource = createResource({
   schema: Post,
   path: '/:group/posts/:id',
   searchParams: {} as { author?: string },
 });
+```
 
+```typescript title="Request" column
+import { PostResource } from './Resource';
 PostResource.getList.push(
   { group: 'react', author: 'clara' },
   { title: 'winning' },
@@ -335,14 +342,17 @@ export default class Post extends Entity {
 }
 ```
 
-```typescript title="Resource" {8-11}
+```typescript title="Resource"
 import Post from './Post';
-const PostResource = createResource({
+export const PostResource = createResource({
   schema: Post,
   path: '/:group/posts/:id',
   searchParams: {} as { author?: string },
 });
+```
 
+```typescript title="Request" column
+import { PostResource } from './Resource';
 PostResource.getList.unshift(
   { group: 'react', author: 'clara' },
   { title: 'winning' },
@@ -381,15 +391,18 @@ export default class Post extends Entity {
 }
 ```
 
-```typescript title="Resource" {9-13}
+```typescript title="Resource"
 import Post from './Post';
-const PostResource = createResource({
+export const PostResource = createResource({
   schema: Post,
   path: '/:group/posts/:id',
   searchParams: {} as { author?: string },
   paginationField: 'page',
 });
+```
 
+```typescript title="Request" column
+import { PostResource } from './Resource';
 PostResource.getList.getPage({
   group: 'react',
   author: 'clara',
@@ -429,14 +442,17 @@ export default class Post extends Entity {
 }
 ```
 
-```typescript title="Resource" {8-11}
+```typescript title="Resource"
 import Post from './Post';
-const PostResource = createResource({
+export const PostResource = createResource({
   schema: Post,
   path: '/:group/posts/:id',
   searchParams: {} as { author?: string },
 });
+```
 
+```typescript title="Request" column
+import { PostResource } from './Resource';
 PostResource.update(
   { group: 'react', id: '1' },
   { title: 'updated title', author: 'clara' },
@@ -472,14 +488,17 @@ export default class Post extends Entity {
 }
 ```
 
-```typescript title="Resource" {8-11}
+```typescript title="Resource"
 import Post from './Post';
-const PostResource = createResource({
+export const PostResource = createResource({
   schema: Post,
   path: '/:group/posts/:id',
   searchParams: {} as { author?: string },
 });
+```
 
+```typescript title="Request" column
+import { PostResource } from './Resource';
 PostResource.partialUpdate(
   { group: 'react', id: '1' },
   { title: 'updated title' },
@@ -515,14 +534,17 @@ export default class Post extends Entity {
 }
 ```
 
-```typescript title="Resource" {8-11}
+```typescript title="Resource"
 import Post from './Post';
-const PostResource = createResource({
+export const PostResource = createResource({
   schema: Post,
   path: '/:group/posts/:id',
   searchParams: {} as { author?: string },
 });
+```
 
+```typescript title="Request" column
+import { PostResource } from './Resource';
 PostResource.delete({ group: 'react', id: '1' });
 ```
 

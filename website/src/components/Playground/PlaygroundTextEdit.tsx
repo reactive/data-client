@@ -28,7 +28,12 @@ export function PlaygroundTextEdit({
   );
 
   const handleTabSwitch = useCallback(i => {
-    setClosed(cl => cl.map((_, j) => j !== i));
+    setClosed(cl =>
+      cl.map((prev, j) => {
+        if (codeTabs[j].col) return prev;
+        return j !== i;
+      }),
+    );
   }, []);
   const handleTabOpen = useCallback(i => {
     setClosed(cl => {
@@ -54,15 +59,15 @@ export function PlaygroundTextEdit({
       />
       {row && codeTabs.length > 1 ?
         <EditorTabs
-          titles={codeTabs.map(({ title }) => title)}
+          titles={codeTabs.filter(({ col }) => !col).map(({ title }) => title)}
           closedList={closedList}
           onClick={handleTabSwitch}
           isPlayground={isPlayground}
         />
       : null}
-      {codeTabs.map(({ title, path, code, collapsed, ...rest }, i) => (
+      {codeTabs.map(({ title, path, code, collapsed, col, ...rest }, i) => (
         <React.Fragment key={i}>
-          {!row && title ?
+          {(!row || col) && title ?
             <CodeTabHeader
               onClick={() => handleTabToggle(i)}
               closed={closedList[i]}
@@ -87,7 +92,9 @@ export function PlaygroundTextEdit({
                   key={i}
                   tabIndex={i}
                   onFocus={
-                    row && codeTabs.length > 1 ? handleTabSwitch : handleTabOpen
+                    row && !col && codeTabs.length > 1 ?
+                      handleTabSwitch
+                    : handleTabOpen
                   }
                   onChange={handleCodeChange[i]}
                   code={codes[i]}
@@ -112,20 +119,6 @@ interface PlaygroundProps {
   codes: any;
   large?: boolean;
   isPlayground?: boolean;
-}
-
-const codeBlockCollapsedRegex = /collapsed(?=)(?<collapsed>.*?)\1/;
-const codeBlockPathRegex = /path=(?<quote>["'])(?<path>.*?)\1/;
-export function parseCodeBlockCollapsed(metastring?: string): boolean {
-  return (
-      metastring?.match(codeBlockCollapsedRegex)?.groups!.collapsed !==
-        undefined
-    ) ?
-      true
-    : false;
-}
-export function parseCodeBlockPath(metastring?: string): string {
-  return metastring?.match(codeBlockPathRegex)?.groups!.title ?? '';
 }
 
 function CodeTabHeader({

@@ -113,7 +113,7 @@ div > .playgroundHeader.subtabs {
 .playgroundEditor {
   /*rtl:ignore*/
   direction: ltr;
-  height: 100%;
+  /* height: 100%; */
   padding-top: 8px;
 }
 .playgroundContainer.standaloneEditor .playgroundEditor {

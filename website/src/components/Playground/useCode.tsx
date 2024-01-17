@@ -1,11 +1,6 @@
 import { parseCodeBlockTitle } from '@docusaurus/theme-common/internal';
 import { useMemo, useReducer } from 'react';
 
-import {
-  parseCodeBlockCollapsed,
-  parseCodeBlockPath,
-} from './PlaygroundTextEdit';
-
 export function useCode(children) {
   const codeTabs: {
     code: string;
@@ -26,12 +21,14 @@ export function useCode(children) {
       .map(({ children, metastring = '', ...rest }) => {
         const title = parseCodeBlockTitle(metastring) ?? '';
         const collapsed = parseCodeBlockCollapsed(metastring) ?? false;
+        const col = parseCodeBlockCol(metastring) ?? false;
         const path = parseCodeBlockPath(metastring);
         const highlights = /\{([\d\-,.]+)\}/.exec(metastring)?.[1];
         return {
           code: children.replace(/\n$/, ''),
           title,
           collapsed,
+          col,
           path,
           highlights,
           ...rest,
@@ -62,4 +59,24 @@ function reduceCodes(state: string[], action: { i: number; code: string }) {
   const newstate = [...state];
   newstate[action.i] = action.code;
   return newstate;
+}
+
+const codeBlockCollapsedRegex = /collapsed(?=)(?<collapsed>\S*?)\1/;
+const codeBlockColRegex = /column(?=)(?<column>\S*?)\1/;
+const codeBlockPathRegex = /path=(?<quote>["'])(?<path>.*?)\1/;
+export function parseCodeBlockCollapsed(metastring?: string): boolean {
+  return (
+      metastring?.match(codeBlockCollapsedRegex)?.groups!.collapsed !==
+        undefined
+    ) ?
+      true
+    : false;
+}
+export function parseCodeBlockCol(metastring?: string): boolean {
+  return metastring?.match(codeBlockColRegex)?.groups!.column !== undefined ?
+      true
+    : false;
+}
+export function parseCodeBlockPath(metastring?: string): string {
+  return metastring?.match(codeBlockPathRegex)?.groups!.title ?? '';
 }
