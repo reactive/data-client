@@ -148,6 +148,15 @@ render(<TodoDetail />);
 
 </HooksPlayground>
 
+### Configuration sharing
+
+Use [Endpoint.extend()](#extend) instead of `{...getTodo}` (spread)
+
+```ts
+const getTodoNormalized = getTodo.extend({ schema: Todo });
+const getTodoUpdatingEveryFiveSeconds = getTodo.extend({ pollFrequency: 5000 });
+```
+
 ## Lifecycle
 
 ### Success
@@ -231,7 +240,7 @@ class User extends Entity {
   pk() { return this.id;}
 }
 
-const UserDetail = new Endpoint(
+const getUser = new Endpoint(
     ({ id }) ⇒ fetch(`/users/${id}`),
     { schema: User }
 );
@@ -242,10 +251,10 @@ const UserDetail = new Endpoint(
 Can be used to further customize the endpoint definition
 
 ```typescript
-const UserDetail = new Endpoint(({ id }) ⇒ fetch(`/users/${id}`));
+const getUser = new Endpoint(({ id }) ⇒ fetch(`/users/${id}`));
 
 
-const UserDetailNormalized = UserDetail.extend({ schema: User });
+const getUserNormalized = getUser.extend({ schema: User });
 ```
 
 In addition to the members, `fetch` can be sent to override the fetch function.

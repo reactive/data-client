@@ -113,6 +113,14 @@ const getTodo = new RestEndpoint({
 });
 ```
 
+### Configuration sharing
+
+Use [RestEndpoint.extend()](#extend) instead of `{...getTodo}` (spread)
+
+```ts
+const updateTodo = getTodo.extend({ method: 'PUT' });
+```
+
 ### Managing state
 
 <TypeScriptEditor>
@@ -127,17 +135,12 @@ export class Todo extends Entity {
   }
 }
 
-const getTodo = new RestEndpoint({
+export const getTodo = new RestEndpoint({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   schema: Todo,
 });
-const updateTodo = new RestEndpoint({
-  urlPrefix: 'https://jsonplaceholder.typicode.com',
-  path: '/todos/:id',
-  method: 'PUT',
-  schema: Todo,
-});
+export const updateTodo = getTodo.extend({ method: 'PUT' });
 ```
 
 </TypeScriptEditor>
@@ -419,7 +422,9 @@ class QSEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
 import { RestEndpoint, RestGenerics } from '@data-client/rest';
 import qs from 'qs';
 
-export default class QSEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
+export default class QSEndpoint<
+  O extends RestGenerics = any,
+> extends RestEndpoint<O> {
   searchToString(searchParams) {
     return qs.stringify(searchParams);
   }
