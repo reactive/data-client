@@ -1,5 +1,5 @@
 ---
-title: Entity Validation
+title: API Validation
 sidebar_label: Validation
 ---
 

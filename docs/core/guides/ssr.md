@@ -61,7 +61,7 @@ export const getServerSideProps = () => ({ props: {} });
 
 ### Demo
 
-<StackBlitz app="nextjs" file="resources/TodoResource.ts,components/todo/TodoList.tsx" view="both" />
+<StackBlitz app="nextjs" file="components/todo/TodoList.tsx,pages/_app.tsx,pages/_document.tsx" view="both" />
 
 ### Further customizing Document
 
