@@ -82,6 +82,7 @@ export default class DevToolsManager implements Manager {
   protected started = false;
   protected actions: [ActionTypes, State<unknown>][] = [];
   protected declare controller: Controller;
+  maxBufferLength = 100;
 
   constructor(
     config?: DevToolsConfig,
@@ -151,6 +152,10 @@ export default class DevToolsManager implements Manager {
     if (this.started) {
       this.devTools.send(action, state, undefined, 'RDC');
     } else {
+      // avoid this getting too big in case this is long running
+      // we cut in half so we aren't constantly reallocating
+      if (this.actions.length > this.maxBufferLength)
+        this.actions = this.actions.slice(this.maxBufferLength / 2);
       // queue actions
       this.actions.push([action, state]);
     }
