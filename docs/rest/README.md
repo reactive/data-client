@@ -147,7 +147,7 @@ TypeScript enforces the arguments specified with a prefixed colon like `:id` in 
 
 ```ts
 // GET http://test.com/article/5
-TodoResource.get({ id: 5 });
+ArticleResource.get({ id: 5 });
 ```
 
 ## Bind the data with Suspense
