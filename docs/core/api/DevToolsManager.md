@@ -46,7 +46,7 @@ const managers =
         }),
         // highlight-end
         ...getDefaultManagers().filter(
-          manager => manager.name !== 'DevToolsManager',
+          manager => manager.constructor.name !== 'DevToolsManager',
         ),
       ]
     : getDefaultManagers();
@@ -81,7 +81,7 @@ const managers =
         new DevToolsManager(undefined, () => true),
         // highlight-end
         ...getDefaultManagers().filter(
-          manager => manager.name !== 'DevToolsManager',
+          manager => manager.constructor.name !== 'DevToolsManager',
         ),
       ]
     : getDefaultManagers();

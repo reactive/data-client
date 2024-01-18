@@ -162,7 +162,7 @@ const managers =
         }),
         // highlight-end
         ...getDefaultManagers().filter(
-          manager => manager.name !== 'DevToolsManager',
+          manager => manager.constructor.name !== 'DevToolsManager',
         ),
       ]
     : getDefaultManagers();
