@@ -35,7 +35,7 @@ export default function DemoList() {
               {
                 embed: '1',
                 file: [
-                  'src/resources/TodoResource.ts,src/pages/Home/TodoList.tsx',
+                  'src/resources/TodoResource.ts,src/pages/Home/NewTodo.tsx,src/pages/Home/TodoListItem.tsx,src/pages/Home/TodoList.tsx',
                 ],
                 hideDevTools: '1',
                 hideNavigation: '1',
