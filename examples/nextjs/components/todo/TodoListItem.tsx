@@ -5,7 +5,7 @@ import { TodoResource, Todo } from '../../resources/TodoResource';
 function TodoListItem({ todo }: { todo: Todo }) {
   const ctrl = useController();
 
-  const toggleHandler = (e: React.ChangeEvent<HTMLInputElement>) =>
+  const handleToggle = (e: React.ChangeEvent<HTMLInputElement>) =>
     ctrl.fetch(
       TodoResource.partialUpdate,
       { id: todo.id },
@@ -22,7 +22,7 @@ function TodoListItem({ todo }: { todo: Todo }) {
         <input
           type="checkbox"
           checked={todo.completed}
-          onChange={toggleHandler}
+          onChange={handleToggle}
         />
         {todo.completed ? <s>{todo.title}</s> : todo.title}
       </label>
