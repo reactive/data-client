@@ -1,5 +1,7 @@
 import { Entity, Query, createResource, schema } from '@data-client/rest';
 
+import { Stats } from './Stats';
+
 export class Currency extends Entity {
   id = '';
   name = '';
@@ -26,11 +28,28 @@ export class Currency extends Entity {
   default_network = 'ethereum';
   supported_networks = [];
 
+  // faked for client-side join
+  stats = Stats.fromJS();
+
   pk(): string {
     return this.id;
   }
 
   static key = 'Currency';
+
+  static process(
+    input: any,
+    parent: any,
+    key: string | undefined,
+    args: any[],
+  ) {
+    // enables client-side join with stats
+    return { ...input, stats: `${input.id}-USD` };
+  }
+
+  static schema = {
+    stats: Stats,
+  };
 }
 
 export const CurrencyResource = createResource({

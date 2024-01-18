@@ -1,7 +1,5 @@
 import { useSuspense } from '@data-client/react';
-
 import { CurrencyResource } from 'resources/Currency';
-import { StatsResource } from 'resources/Stats';
 
 import AssetPrice from './AssetPrice';
 import Stats from './Stats';

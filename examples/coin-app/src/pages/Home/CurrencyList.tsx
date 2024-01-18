@@ -3,36 +3,43 @@ import {
   AsyncBoundary,
   NetworkError,
   useCache,
+  useFetch,
   useSuspense,
 } from '@data-client/react';
 import { CurrencyResource, queryCurrency } from 'resources/Currency';
+import { StatsResource } from 'resources/Stats';
 
 import AssetPrice from './AssetPrice';
 import { formatPrice } from './formatPrice';
 
 export default function CurrencyList() {
+  useFetch(StatsResource.getList);
   useSuspense(CurrencyResource.getList);
+  useSuspense(StatsResource.getList);
   const currencies = useCache(queryCurrency, {});
   if (!currencies) return;
+  currencies.sort((a, b) => b?.stats?.volume_usd - a?.stats?.volume_usd);
   return (
     <table>
       <thead>
         <tr>
-          <th>Name</th>
+          <th align="left">Name</th>
           <th>Volume 30d</th>
-          <th>Price</th>
+          <th align="right">Price</th>
         </tr>
       </thead>
       <tbody>
-        {currencies.map(currency => (
+        {currencies.slice(0, 25).map(currency => (
           <tr key={currency.pk()}>
-            <td>
+            <td align="left">
               <Link name="AssetDetail" props={{ id: currency.id }}>
                 {currency.name}
               </Link>
             </td>
-            <td>{formatPrice.format(0)}</td>
-            <td>
+            <td align="right">
+              {formatPrice.format(currency?.stats?.volume_usd)}
+            </td>
+            <td align="right" width="100">
               <AsyncBoundary errorComponent={ErrorComponent}>
                 <AssetPrice product_id={`${currency.id}-USD`} />
               </AsyncBoundary>

@@ -1,5 +1,4 @@
 import { useSuspense } from '@data-client/react';
-
 import { StatsResource } from 'resources/Stats';
 
 export default function Stats({ id }: { id: string }) {

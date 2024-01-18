@@ -1,5 +1,4 @@
-import { useCache, useLive, useSubscription } from '@data-client/react';
-
+import { useLive } from '@data-client/react';
 import { getTicker } from 'resources/Ticker';
 
 import { formatPrice } from '../Home/formatPrice';

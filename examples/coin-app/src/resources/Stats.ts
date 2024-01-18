@@ -2,12 +2,16 @@ import { Entity, createResource, schema } from '@data-client/rest';
 
 export class Stats extends Entity {
   id = '';
-  open = '26031.15';
-  high = '26115.44';
-  low = '25931.57';
-  last = '26005.52';
+  open = '0.15';
+  high = '0.44';
+  low = '0.57';
+  last = 0;
   volume = 0;
   volume_30day = 0;
+
+  get volume_usd() {
+    return this.volume_30day * this.last;
+  }
 
   pk(parent: any, key: string, args: any[]) {
     return this.id ?? key ?? args[0]?.id;
@@ -17,6 +21,7 @@ export class Stats extends Entity {
   static schema = {
     volume: Number,
     volume_30day: Number,
+    last: Number,
   };
 
   process(value: any, parent: any, key: string, args: any[]) {
