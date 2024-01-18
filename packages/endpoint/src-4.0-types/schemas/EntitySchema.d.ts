@@ -57,7 +57,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
   };
   /** Returns the globally unique identifier for the static Entity
    *
-   * @see https://dataclient.io/docs/api/Entity#key
+   * @see https://dataclient.io/rest/api/Entity#key
    */
   key: string;
   /** Defines indexes to enable lookup by
@@ -68,7 +68,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
   /**
    * A unique identifier for each Entity
    *
-   * @see https://dataclient.io/docs/api/Entity#pk
+   * @see https://dataclient.io/rest/api/Entity#pk
    * @param [value] POJO of the entity or subset used
    * @param [parent] When normalizing, the object which included the entity
    * @param [key] When normalizing, the key where this entity was found
@@ -176,7 +176,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
   /** Called when denormalizing an entity to create an instance when 'valid'
    *
    * @param [props] Plain Object of properties to assign.
-   * @see https://dataclient.io/docs/api/Entity#createIfValid
+   * @see https://dataclient.io/rest/api/Entity#createIfValid
    */
   createIfValid<
     T extends (new (...args: any[]) => IEntityInstance & InstanceType<TBase>) &
@@ -188,7 +188,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
   ): AbstractInstanceType<T> | undefined;
   /** Do any transformations when first receiving input
    *
-   * @see https://dataclient.io/docs/api/Entity#process
+   * @see https://dataclient.io/rest/api/Entity#process
    */
   process(input: any, parent: any, key: string | undefined, args: any[]): any;
   normalize(
@@ -201,12 +201,12 @@ export interface IEntityClass<TBase extends Constructor = any> {
   ): any;
   /** Do any transformations when first receiving input
    *
-   * @see https://dataclient.io/docs/api/Entity#validate
+   * @see https://dataclient.io/rest/api/Entity#validate
    */
   validate(processedEntity: any): string | undefined;
   /** Attempts to infer results
    *
-   * @see https://dataclient.io/docs/api/Entity#infer
+   * @see https://dataclient.io/rest/api/Entity#infer
    */
   infer(
     args: readonly any[],

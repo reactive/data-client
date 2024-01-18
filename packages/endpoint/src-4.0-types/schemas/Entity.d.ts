@@ -18,7 +18,7 @@ declare const Entity_base: import('./EntitySchema.js').IEntityClass<
   });
 /**
  * Represents data that should be deduped by specifying a primary key.
- * @see https://dataclient.io/docs/api/Entity
+ * @see https://dataclient.io/rest/api/Entity
  */
 export default abstract class Entity extends Entity_base {
   /**
@@ -72,7 +72,7 @@ export default abstract class Entity extends Entity_base {
 
   /** Do any transformations when first receiving input
    *
-   * @see https://dataclient.io/docs/api/Entity#process
+   * @see https://dataclient.io/rest/api/Entity#process
    */
   static process(
     input: any,

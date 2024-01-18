@@ -9,7 +9,7 @@ const EmptyBase = class {} as any as abstract new (...args: any[]) => {
 
 /**
  * Represents data that should be deduped by specifying a primary key.
- * @see https://dataclient.io/docs/api/Entity
+ * @see https://dataclient.io/rest/api/Entity
  */
 export default abstract class Entity extends EntitySchema(EmptyBase) {
   /**
@@ -65,7 +65,7 @@ export default abstract class Entity extends EntitySchema(EmptyBase) {
 
   /** Do any transformations when first receiving input
    *
-   * @see https://dataclient.io/docs/api/Entity#process
+   * @see https://dataclient.io/rest/api/Entity#process
    */
   static process(
     input: any,
