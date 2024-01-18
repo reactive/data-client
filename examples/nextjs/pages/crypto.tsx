@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <div className={styles.container}>
       <Head>
-        <title>Reactive Data Client Live Crypto Prices</title>
+        <title>Live Crypto Prices with Reactive Data Client</title>
         <meta name="description" content="Live BTC price using the Reactive Data Client" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
