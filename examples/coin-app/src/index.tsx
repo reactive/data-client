@@ -32,7 +32,9 @@ const spouts = JSONSpout()(
             new WebSocket('wss://ws-feed.exchange.coinbase.com'),
             { ticker: getTicker },
           ),
-          ...getDefaultManagers(),
+          ...getDefaultManagers().filter(
+            manager => manager.constructor.name !== 'DevToolsManager',
+          ),
         ];
       },
     })(
