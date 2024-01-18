@@ -477,7 +477,7 @@ const config: Config = {
             },
             {
               label: 'Demo (NextJS)',
-              to: 'https://stackblitz.com/github/reactive/data-client/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx',
+              to: 'https://stackblitz.com/github/reactive/data-client/tree/master/examples/nextjs?file=components%2Ftodo%2FTodoList.tsx',
             },
             /*{
               html: `<iframe

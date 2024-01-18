@@ -84,7 +84,9 @@ export default function DemoList() {
             src={`https://stackblitz.com/github/reactive/data-client/tree/master/examples/nextjs?${searchParams(
               {
                 embed: '1',
-                file: ['resources/Ticker.ts,pages/AssetPrice.tsx'],
+                file: [
+                  'resources/TodoResource.ts,components/todo/TodoList.tsx',
+                ],
                 hideDevTools: '1',
                 hideNavigation: '1',
                 terminalHeight: '0',

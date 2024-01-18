@@ -1,5 +1,5 @@
 import { useLive } from '@data-client/react';
-import { Formatted } from '../components/Formatted';
+import { Formatted } from './Formatted';
 import { getTicker } from '../resources/Ticker';
 
 export default function AssetPrice({ symbol }: Props) {

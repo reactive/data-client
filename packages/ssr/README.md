@@ -10,7 +10,7 @@
 <div align="center">
 
 **[📖Read The Docs](https://dataclient.io/docs/guides/ssr)** &nbsp;|&nbsp;
-[🎮NextJS Demo](https://stackblitz.com/github/reactive/data-client/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx)
+[🎮NextJS Demo](https://stackblitz.com/github/reactive/data-client/tree/master/examples/nextjs?file=components%2Ftodo%2FTodoList.tsx)
 
 </div>
 

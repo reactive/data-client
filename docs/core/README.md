@@ -656,7 +656,7 @@ const incrementInterceptor: Interceptor = {
 
 <iframe
   loading="lazy"
-  src="https://stackblitz.com/github/reactive/data-client/tree/master/examples/nextjs?embed=1&file=pages%2FAssetPrice.tsx&hidedevtools=1&view=both&terminalHeight=0&showSidebar=0&hideNavigation=1"
+  src="https://stackblitz.com/github/reactive/data-client/tree/master/examples/nextjs?embed=1&file=components%2Ftodo%2FTodoList.tsx&hidedevtools=1&view=both&terminalHeight=0&showSidebar=0&hideNavigation=1"
   width="100%"
   height="500"
 ></iframe>

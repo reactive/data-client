@@ -66,4 +66,4 @@ function useLive<
 
 ### Bitcoin Price
 
-<StackBlitz app="nextjs" file="resources/Ticker.ts,pages/AssetPrice.tsx" view="both" />
+<StackBlitz app="nextjs" file="resources/Ticker.ts,components/AssetPrice.tsx" initialpath="/crypto" view="both" />

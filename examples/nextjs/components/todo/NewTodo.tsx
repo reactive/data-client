@@ -1,7 +1,7 @@
 import { useController } from '@data-client/react';
-import { styled } from '@linaria/react';
 import { memo, useCallback } from 'react';
-import { TodoResource } from 'resources/TodoResource';
+import { TodoResource } from '../../resources/TodoResource';
+import styles from './NewTodo.module.css'
 
 function NewTodo({ userId }: { userId?: number }) {
   const ctrl = useController();
@@ -20,25 +20,10 @@ function NewTodo({ userId }: { userId?: number }) {
   );
 
   return (
-    <TodoBox>
+    <div className={styles.todoBox}>
       <input type="checkbox" name="new" checked={false} disabled />{' '}
-      <TitleInput type="text" onKeyDown={handlePress} />
-    </TodoBox>
+      <input className={styles.titleInput} type="text" onKeyDown={handlePress} />
+    </div>
   );
 }
 export default memo(NewTodo);
-
-const TodoBox = styled.div`
-  text-align: left;
-  display: flex;
-`;
-const TitleInput = styled.input`
-  flex: 1 1 auto;
-  width: 100%;
-  background: #efefef;
-  opacity: 0.5;
-  &:focus,
-  &:hover {
-    opacity: 1;
-  }
-`;

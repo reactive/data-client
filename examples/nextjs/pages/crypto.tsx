@@ -3,15 +3,15 @@ import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
 
+import AssetPrice from '../components/AssetPrice';
 import styles from '../styles/Home.module.css';
-import TodoList from '../components/todo/TodoList';
 
 export default function Home() {
   return (
     <div className={styles.container}>
       <Head>
-        <title>NextJS + Reactive Data Client = ❤️</title>
-        <meta name="description" content="NextJS integration with Reactive Data Client" />
+        <title>Reactive Data Client Live Crypto Prices</title>
+        <meta name="description" content="Live BTC price using the Reactive Data Client" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
@@ -21,20 +21,22 @@ export default function Home() {
           <a href="https://dataclient.io">Reactive Data Client</a>
         </h1>
 
-        <AsyncBoundary>
-          <TodoList userId={1} />
-        </AsyncBoundary>
+        <h2 className={styles.subtitle}>
+          Here we show the live price of BTC using Reactive Data Client
+        </h2>
 
-        <p>
-          No fetch requests took place on the client. The client is immediately interactive
-          without the need for revalidation.
+        <p className={styles.price}>
+          <AsyncBoundary>
+            <AssetPrice symbol="BTC" />
+          </AsyncBoundary>
         </p>
 
         <p>
-          This is because Reactive Data Client's store is initialized and <a href="https://dataclient.io/docs/concepts/normalization">normalized</a>
+          The latest price is immediately available before any JavaScript runs;
+          while automatically updating as prices change.
         </p>
 
-        <p><Link href="/crypto">Live BTC Price</Link></p>
+        <p><Link href="/">Todo List</Link></p>
       </main>
 
       <footer className={styles.footer}>
