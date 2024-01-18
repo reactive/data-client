@@ -74,10 +74,8 @@ export const queryCurrency = new Query(
       );*/
 
     sorted = sorted.sort((a, b) => {
-      return a.name.localeCompare(b.name);
+      return b?.stats?.volume_usd - a?.stats?.volume_usd;
     });
-    //const btc = sorted.find((currency) => currency.id === 'BTC');
-    //if (btc) sorted.unshift(btc);
     return sorted;
   },
 );

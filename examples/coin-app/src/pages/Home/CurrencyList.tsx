@@ -18,7 +18,6 @@ export default function CurrencyList() {
   useSuspense(StatsResource.getList);
   const currencies = useCache(queryCurrency, {});
   if (!currencies) return;
-  currencies.sort((a, b) => b?.stats?.volume_usd - a?.stats?.volume_usd);
   return (
     <table>
       <thead>
