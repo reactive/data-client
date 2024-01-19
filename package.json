@@ -44,7 +44,7 @@
     "extends @anansi/browserslist-config"
   ],
   "devDependencies": {
-    "@anansi/babel-preset": "4.5.3",
+    "@anansi/babel-preset": "4.5.4",
     "@anansi/browserslist-config": "1.4.3",
     "@anansi/eslint-plugin": "0.16.43",
     "@anansi/jest-preset": "0.10.24",
