@@ -10,7 +10,7 @@ import { CurrencyResource, queryCurrency } from 'resources/Currency';
 import { StatsResource } from 'resources/Stats';
 
 import AssetPrice from './AssetPrice';
-import { formatPrice } from './formatPrice';
+import { formatLargePrice } from './formatPrice';
 
 export default function CurrencyList() {
   useFetch(StatsResource.getList);
@@ -36,7 +36,7 @@ export default function CurrencyList() {
               </Link>
             </td>
             <td align="right">
-              {formatPrice.format(currency?.stats?.volume_usd)}
+              {formatLargePrice.format(currency?.stats?.volume_usd)}
             </td>
             <td align="right" width="100">
               <AsyncBoundary errorComponent={ErrorComponent}>

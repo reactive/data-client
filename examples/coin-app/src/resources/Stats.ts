@@ -3,8 +3,8 @@ import { Entity, createResource, schema } from '@data-client/rest';
 export class Stats extends Entity {
   id = '';
   open = '0.15';
-  high = '0.44';
-  low = '0.57';
+  high = 0;
+  low = 0;
   last = 0;
   volume = 0;
   volume_30day = 0;
@@ -19,6 +19,8 @@ export class Stats extends Entity {
 
   static key = 'Stats';
   static schema = {
+    high: Number,
+    low: Number,
     volume: Number,
     volume_30day: Number,
     last: Number,
