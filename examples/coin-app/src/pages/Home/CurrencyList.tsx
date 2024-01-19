@@ -10,14 +10,14 @@ import { CurrencyResource, queryCurrency } from 'resources/Currency';
 import { StatsResource } from 'resources/Stats';
 
 import AssetPrice from './AssetPrice';
-import { formatLargePrice } from './formatPrice';
+import { formatLargePrice } from '../../components/formatPrice';
 
 export default function CurrencyList() {
   useFetch(StatsResource.getList);
   useSuspense(CurrencyResource.getList);
   useSuspense(StatsResource.getList);
   const currencies = useCache(queryCurrency, {});
-  if (!currencies) return;
+  if (!currencies) return null;
   return (
     <table>
       <thead>

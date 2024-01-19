@@ -1,21 +1,10 @@
-import { lazy, Route } from '@anansi/router';
+import { Route } from '@anansi/router';
 import { Controller } from '@data-client/react';
 import { CurrencyResource } from 'resources/Currency';
 import { StatsResource } from 'resources/Stats';
 import { getTicker } from 'resources/Ticker';
 
-const lazyPage = (pageName: string) =>
-  lazy(
-    () =>
-      import(
-        /* webpackChunkName: '[request]', webpackPrefetch: true */ `pages/${pageName}`
-      ),
-  );
-
-export const namedPaths = {
-  Home: '/',
-  AssetDetail: '/asset/:id',
-} as const;
+import { lazyPage } from './lazyPage';
 
 export const routes: Route<Controller>[] = [
   {
@@ -33,7 +22,16 @@ export const routes: Route<Controller>[] = [
     component: lazyPage('AssetDetail'),
     async resolveData(controller, { id }) {
       const product_id = `${id}-USD`;
-      await controller.fetchIfStale(getTicker, { product_id });
+      await Promise.allSettled([
+        controller.fetchIfStale(getTicker, { product_id }),
+        controller.fetchIfStale(CurrencyResource.get, { id }),
+        controller.fetchIfStale(StatsResource.get, { id: product_id }),
+      ]);
     },
   },
 ];
+
+export const namedPaths = {
+  Home: '/',
+  AssetDetail: '/asset/:id',
+} as const;

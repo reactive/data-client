@@ -17,6 +17,7 @@ export default function DemoList() {
           { label: 'Todo', value: 'todo' },
           { label: 'GitHub', value: 'github' },
           { label: 'NextJS SSR', value: 'nextjs' },
+          { label: 'Live Coin Prices', value: 'coin-app' },
         ]}
         groupId="Demos"
       >
@@ -86,6 +87,32 @@ export default function DemoList() {
                 embed: '1',
                 file: [
                   'resources/TodoResource.ts,components/todo/TodoList.tsx',
+                ],
+                hideDevTools: '1',
+                hideNavigation: '1',
+                terminalHeight: '0',
+              },
+            )}`}
+            width="900"
+            height="700"
+            style={{ width: '100%', height: 'calc(100vh - 170px)' }}
+          ></iframe>
+        </TabItem>
+        <TabItem value="coin-app">
+          {/*            <a
+              href="https://github.com/reactive/data-client/tree/master/examples/github-app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="header-github-link"
+              style={{ marginLeft: '1ex' }}
+            ></a>*/}
+          <iframe
+            loading="lazy"
+            src={`https://stackblitz.com/github/reactive/data-client/tree/master/examples/coin-app?${searchParams(
+              {
+                embed: '1',
+                file: [
+                  'src/resources/StreamManager.ts,src/resources/Ticker.ts,src/pages/Home/AssetPrice.tsx',
                 ],
                 hideDevTools: '1',
                 hideNavigation: '1',

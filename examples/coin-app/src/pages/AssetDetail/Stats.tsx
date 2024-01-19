@@ -1,7 +1,7 @@
 import { useSuspense } from '@data-client/react';
 import { StatsResource } from 'resources/Stats';
 
-import { formatPrice, formatLargePrice } from '../Home/formatPrice';
+import { formatPrice, formatLargePrice } from '../../components/formatPrice';
 
 export default function Stats({ id }: { id: string }) {
   const stats = useSuspense(StatsResource.get, { id });

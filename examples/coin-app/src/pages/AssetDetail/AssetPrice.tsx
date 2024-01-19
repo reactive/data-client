@@ -1,7 +1,7 @@
 import { useLive } from '@data-client/react';
 import { getTicker } from 'resources/Ticker';
 
-import { formatPrice } from '../Home/formatPrice';
+import { formatPrice } from '../../components/formatPrice';
 
 export default function AssetPrice({ product_id }: Props) {
   const ticker = useLive(getTicker, { product_id });

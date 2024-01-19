@@ -2,7 +2,7 @@ import { useCache, useSubscription } from '@data-client/react';
 import { StatsResource } from 'resources/Stats';
 import { getTicker } from 'resources/Ticker';
 
-import { formatPrice } from './formatPrice';
+import { formatPrice } from '../../components/formatPrice';
 
 export default function AssetPrice({ product_id }: Props) {
   useSubscription(getTicker, { product_id });
