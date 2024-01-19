@@ -8,6 +8,7 @@ title: useSubscription()
 
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
+import StackBlitz from '@site/src/components/StackBlitz';
 
 
 Great for keeping resources up-to-date with frequent changes.
@@ -66,6 +67,26 @@ When using React Navigation, useSubscription() will sub/unsub with focus/unfocus
 
 :::
 
+## Types
+
+<GenericsTabs>
+
+```typescript
+function useSubscription(
+  endpoint: ReadEndpoint,
+  ...args: Parameters<typeof endpoint> | [null]
+): void;
+```
+
+```typescript
+function useSubscription<
+  E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
+  Args extends readonly [...Parameters<E>] | readonly [null],
+>(endpoint: E, ...args: Args): void;
+```
+
+</GenericsTabs>
+
 ## Examples
 
 ### Only subscribe while element is visible
@@ -94,22 +115,9 @@ based on whether the element rendered is [visible on screen](https://usehooks.co
 [useOnScreen()](https://usehooks.com/useOnScreen/) uses [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API), which is very performant. [useRef](https://react.dev/reference/react/useRef) allows
 us to access the [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model).
 
-## Types
+### Crypto prices (websockets)
 
-<GenericsTabs>
+We implemented our own `StreamManager` to handle our custom websocket protocol. Here we listen to the subcribe/unsubcribe
+actions sent by `useSubscription` to ensure we only listen to updates for components that are rendered.
 
-```typescript
-function useSubscription(
-  endpoint: ReadEndpoint,
-  ...args: Parameters<typeof endpoint> | [null]
-): void;
-```
-
-```typescript
-function useSubscription<
-  E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
-  Args extends readonly [...Parameters<E>] | readonly [null],
->(endpoint: E, ...args: Args): void;
-```
-
-</GenericsTabs>
+<StackBlitz app="coin-app" file="src/resources/StreamManager.ts,src/resources/Ticker.ts,src/pages/Home/AssetPrice.tsx" height="600" />

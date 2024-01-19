@@ -133,7 +133,10 @@ export const PostResource = createResource({
 
 ### Demo
 
-<StackBlitz app="github-app" file="src/resources/Issue.tsx,src/pages/NextPage.tsx" />
+Our `NextPage` component has a click handler that calls [RestEndpoint.getPage](../api/RestEndpoint.md#getpage).
+Scroll to the bottom of the preview to click *"Load more"* to append the next page of issues.
+
+<StackBlitz app="github-app" file="src/resources/Issue.tsx,src/pages/NextPage.tsx" height={700} />
 
 ### Infinite Scrolling
 

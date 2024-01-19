@@ -64,6 +64,9 @@ function useLive<
 
 ## Examples
 
-### Bitcoin Price
+### Bitcoin Price (polling)
+
+When our component with `useLive` is rendered, `getTicker` will fetch at [pollFrequency](/rest/api/RestEndpoint#pollfrequency)
+miliseconds.
 
 <StackBlitz app="nextjs" file="resources/Ticker.ts,components/AssetPrice.tsx" initialpath="/crypto" view="both" />

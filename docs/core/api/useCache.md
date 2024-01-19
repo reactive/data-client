@@ -214,12 +214,19 @@ render(<UsersPage />);
 
 ### Remaining Todo Query
 
+[Queries](/rest/api/Query) can also be used to compute aggregates
+
 <StackBlitz app="todo-app" file="src/resources/TodoResource.ts,src/pages/Home/TodoStats.tsx" />
 
 ### Github Navbar login/logout
 
+Our current user only exists when we are authenticated. Thus we can `useCache(UserResource.current)`
+to determine whether to show the login or logout navigation buttons.
+
 <StackBlitz app="github-app" file="src/resources/User.ts,src/navigation/NavBar.tsx" view="editor" />
 
 ### Github Comment Authorization
+
+Here we only show commenting form if the user is authenticated.
 
 <StackBlitz app="github-app" file="src/resources/User.ts,src/pages/IssueDetail/CreateComment.tsx" view="editor" />
