@@ -266,18 +266,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/browserslist-config@npm:1.4.3, @anansi/browserslist-config@npm:^1.4.2, @anansi/browserslist-config@npm:^1.4.3":
-  version: 1.4.3
-  resolution: "@anansi/browserslist-config@npm:1.4.3"
-  checksum: b3b1fd78c680d68dd7b46aef40fcc080d9502ad4c962508c6a89dd4d01fa6e7733ea807b57451521b6fe0be4de0b00e5cc013fefeb559f48e948ca79db1afb34
+"@anansi/browserslist-config@npm:1.5.0, @anansi/browserslist-config@npm:^1.4.2, @anansi/browserslist-config@npm:^1.4.3":
+  version: 1.5.0
+  resolution: "@anansi/browserslist-config@npm:1.5.0"
+  checksum: 1ef39d3ac0599da18f6c1c242ecc969f5720f70e6448b8e14d59aa3f0046ec121964c01d9efddd5fd6f50d9c849b9a27ba2e7f839936419ddc859d25a22206f8
   languageName: node
   linkType: hard
 
 "@anansi/cli@npm:^3.0.15":
-  version: 3.1.9
-  resolution: "@anansi/cli@npm:3.1.9"
+  version: 3.1.10
+  resolution: "@anansi/cli@npm:3.1.10"
   dependencies:
-    "@anansi/generator-js": "npm:^12.3.3"
+    "@anansi/generator-js": "npm:^12.3.4"
     bin-version-check: "npm:^5.1.0"
     chalk: "npm:^4.1.2"
     commander: "npm:^11.1.0"
@@ -292,7 +292,7 @@ __metadata:
       optional: true
   bin:
     anansi: ./run.mjs
-  checksum: 87d3dd09c097996657dbd3f9015845f33074a1c406d857acdc0757a02680ecfbad099854da55e9dda5c6499462d5aafe7e83abd4d5d96f1d19cb5c758ac41a0c
+  checksum: 047980d7ad44a9a5cad68739ef343d5f060d0fa87c6a7f36e1d33ad837905688c4d6ed0deed011d3934a927d5faf9d00215bcb25a4c00c480cf3231aac6d7d90
   languageName: node
   linkType: hard
 
@@ -382,9 +382,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/generator-js@npm:^12.3.3":
-  version: 12.3.3
-  resolution: "@anansi/generator-js@npm:12.3.3"
+"@anansi/generator-js@npm:^12.3.4":
+  version: 12.3.4
+  resolution: "@anansi/generator-js@npm:12.3.4"
   dependencies:
     "@babel/runtime": "npm:^7.17.0"
     "@types/inquirer": "npm:^9.0.7"
@@ -401,7 +401,7 @@ __metadata:
     pacote: "npm:^17.0.6"
     shelobsay: "npm:^2.0.0"
     yeoman-generator: "npm:^7.1.1"
-  checksum: 0fe918efa45eba5940fbfa12e2becf0b4cc131eb0c9698b945563784626c806d02c68a5b88234bc10ec80f88bf03771c776331ed0a93f72e50399e3430b00cd1
+  checksum: 503dc292de2ec027eba180c5bd55b8a3cf10a51b61923f2ce72f86713f1a8afebd637feade06166b4fb43d8d5de7c8cf0c5a9d8bcc94e3225bf3d680a9e87c56
   languageName: node
   linkType: hard
 
@@ -24204,7 +24204,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "rdc-website@workspace:website"
   dependencies:
-    "@anansi/browserslist-config": "npm:1.4.3"
+    "@anansi/browserslist-config": "npm:1.5.0"
     "@anansi/webpack-config": "npm:18.0.2"
     "@data-client/endpoint": "workspace:^"
     "@data-client/graphql": "workspace:*"
@@ -25740,7 +25740,7 @@ __metadata:
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
     "@anansi/babel-preset": "npm:5.0.1"
-    "@anansi/browserslist-config": "npm:1.4.3"
+    "@anansi/browserslist-config": "npm:1.5.0"
     "@anansi/eslint-plugin": "npm:0.16.43"
     "@anansi/jest-preset": "npm:0.10.24"
     "@babel/cli": "npm:7.23.4"
