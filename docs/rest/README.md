@@ -18,7 +18,7 @@ import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
 :::tip TypeScript 4
 
-This version requires TypeScript 4.0.
+When using TypeScript, version 4.0 or above is required.
 
 :::
 
