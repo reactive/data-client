@@ -8,10 +8,10 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
-    "build": "BROWSERSLIST_ENV=node18 webpack --mode=production --target=node --env readable",
+    "build": "BROWSERSLIST_ENV=node20 webpack --mode=production --target=node --env readable",
     "start": "NODE_ENV=production node --allow-natives-syntax ./index.js",
     "start:trace": "yarn run start --trace_opt --trace_deopt",
     "start:deopt": "NODE_ENV=production npx dexnode --out v8.log --redirect-code-traces-to=/tmp/codetrace --allow-natives-syntax ./index.js"
