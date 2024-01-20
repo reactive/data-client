@@ -117,7 +117,7 @@ render(<PostList />);
 </HooksPlayground>
 
 Don't forget to define our [Resource's](../api/createResource.md) [paginationField](../api/createResource.md#paginationfield) and
-correct [schema](../api/createResource.md#schema)! 
+correct [schema](../api/createResource.md#schema)!
 
 ```ts title="Post"
 export const PostResource = createResource({
@@ -131,12 +131,134 @@ export const PostResource = createResource({
 });
 ```
 
-### Demo
+### Github Issues Demo
 
 Our `NextPage` component has a click handler that calls [RestEndpoint.getPage](../api/RestEndpoint.md#getpage).
-Scroll to the bottom of the preview to click *"Load more"* to append the next page of issues.
+Scroll to the bottom of the preview to click _"Load more"_ to append the next page of issues.
 
 <StackBlitz app="github-app" file="src/resources/Issue.tsx,src/pages/NextPage.tsx" height={700} />
+
+### Crypto Staking Validators Demo
+
+Here we explore a real world example using [cosmos validators list](https://rest.cosmos.directory/stargaze/cosmos/staking/v1beta1/validators).
+
+Since validators only have one Endpoint, we use [RestEndpoint](../api/RestEndpoint.md) + [Collections](../api/Collection.md) instead of [createResource](../api/createResource.md).
+
+<HooksPlayground defaultOpen="n" row>
+
+```ts title="Validator" {46-50} collapsed
+import { Entity, RestEndpoint, schema } from '@data-client/rest';
+
+export class Validator extends Entity {
+  operator_address = '';
+  consensus_pubkey = { '@type': '', key: '' };
+  jailed = false;
+  status = 'BOND_STATUS_BONDED';
+  tokens = '0';
+  delegator_shares = '0';
+  description = {
+    moniker: '',
+    identity: '',
+    website: 'https://fake.com',
+    security_contact: '',
+    details: '',
+  };
+  unbonding_height = '0';
+  unbonding_time = Temporal.Instant.fromEpochSeconds(0);
+  comission = {
+    commission_rates: { rate: 0, max_rate: 0, max_change_rate: 0 },
+    update_time: Temporal.Instant.fromEpochSeconds(0),
+  };
+  min_self_delegation = '0';
+
+  pk() {
+    return this.operator_address;
+  }
+
+  static schema = {
+    unbonding_time: Temporal.Instant.from,
+    comission: {
+      commission_rates: {
+        rate: Number,
+        max_rate: Number,
+        max_change_rate: Number,
+      },
+      update_time: Temporal.Instant.from,
+    },
+  };
+}
+
+export const getValidators = new RestEndpoint({
+  urlPrefix: 'https://rest.cosmos.directory',
+  path: '/stargaze/cosmos/staking/v1beta1/validators',
+  searchParams: {} as { 'pagination.limit': string },
+  paginationField: 'pagination.key',
+  schema: {
+    validators: new schema.Collection([Validator]),
+    pagination: { next_key: '', total: '' },
+  },
+});
+```
+
+```tsx title="ValidatorItem" collapsed
+import { type Validator } from './Validator';
+
+export default function ValidatorItem({ validator }: Props) {
+  return (
+    <div className="listItem spaced">
+      <div>
+        <h4>{validator.description.moniker}</h4>
+        <small>
+          <a href={validator.description.website} target="_blank">
+            {validator.description.website}
+          </a>
+        </small>
+        <p>{validator.description.details}</p>
+      </div>
+    </div>
+  );
+}
+
+interface Props {
+  validator: Validator;
+}
+```
+
+```tsx title="ValidatorList" {12-16}
+import { useSuspense } from '@data-client/react';
+import ValidatorItem from './ValidatorItem';
+import { getValidators } from './Validator';
+
+const PAGE_LIMIT = '3';
+
+export default function ValidatorList() {
+  const { validators, pagination } = useSuspense(getValidators, {
+    'pagination.limit': PAGE_LIMIT,
+  });
+  const ctrl = useController();
+  const handleLoadMore = () =>
+    ctrl.fetch(getValidators.getPage, {
+      'pagination.limit': PAGE_LIMIT,
+      'pagination.key': pagination.next_key,
+    });
+
+  return (
+    <div>
+      {validators.map(validator => (
+        <ValidatorItem key={validator.pk()} validator={validator} />
+      ))}
+      {pagination.next_key ? (
+        <center>
+          <button onClick={handleLoadMore}>Load more</button>
+        </center>
+      ) : null}
+    </div>
+  );
+}
+render(<ValidatorList />);
+```
+
+</HooksPlayground>
 
 ### Infinite Scrolling
 
@@ -153,7 +275,11 @@ function NewsList() {
   const ctrl = useController();
 
   return (
-    <Pagination onPaginate={() => ctrl.fetch(PostResource.getList.getPage, { cursor })}>
+    <Pagination
+      onPaginate={() =>
+        ctrl.fetch(PostResource.getList.getPage, { cursor })
+      }
+    >
       <NewsList data={results} />
     </Pagination>
   );

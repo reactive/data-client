@@ -9,6 +9,7 @@ sidebar_label: Relational data
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import { RestEndpoint } from '@data-client/rest';
+import StackBlitz from '@site/src/components/StackBlitz';
 
 Reactive Data Client handles one-to-one, many-to-one and many-to-many relationships on [entities][1]
 using [Entity.schema][3]
@@ -249,6 +250,20 @@ render(<TodosPage />);
 
 </HooksPlayground>
 
+### Crypto price example
+
+Here we want to sort `Currencies` by their trade volume. However, trade volume is only available in the `Stats`
+Entity. Even though `CurrencyResource.getList` fetch does not include `Stats` in the response, we can additionally
+call `StatsResource.getList`, while adding it to our `Currency's` [Entity.schema](../api/Entity.md#schema) - enabling
+`Stats` inclusion in our `Currency` Entity, which enables sorting with:
+
+```ts
+entries.sort((a, b) => {
+  return b?.stats?.volume_usd - a?.stats?.volume_usd;
+});
+```
+
+<StackBlitz app="coin-app" file="src/pages/Home/CurrencyList.tsx,src/resources/Stats.ts,src/resources/Currency.ts" height="700" view="editor" />
 
 ## Reverse lookups
 
