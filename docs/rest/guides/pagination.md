@@ -14,7 +14,7 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 ## Expanding Lists
 
 In case you want to append results to your existing list, rather than move to another page
-[RestEndpoint.getPage](../api/RestEndpoint.md#getpage) can be used as long as [paginationField](../api/RestEndpoint.md#paginationfield) was provided.
+[Resource.getList.getPage](../api/createResource.md#getpage) can be used as long as [paginationField](../api/createResource.md#paginationfield) was provided.
 
 <HooksPlayground defaultOpen="n" row fixtures={postPaginatedFixtures}>
 
@@ -138,11 +138,12 @@ Scroll to the bottom of the preview to click _"Load more"_ to append the next pa
 
 <StackBlitz app="github-app" file="src/resources/Issue.tsx,src/pages/NextPage.tsx" height={700} />
 
-### Crypto Staking Validators Demo
+### Using RestEndpoint Directly
 
 Here we explore a real world example using [cosmos validators list](https://rest.cosmos.directory/stargaze/cosmos/staking/v1beta1/validators).
 
-Since validators only have one Endpoint, we use [RestEndpoint](../api/RestEndpoint.md) + [Collections](../api/Collection.md) instead of [createResource](../api/createResource.md).
+Since validators only have one Endpoint, we use [RestEndpoint](../api/RestEndpoint.md) instead of [createResource](../api/createResource.md). By using [Collections](../api/Collection.md) and [paginationField](../api/RestEndpoint.md#paginationfield), we can call [RestEndpoint.getPage](../api/RestEndpoint.md#getpage)
+to append the next page of validators to our list.
 
 <HooksPlayground defaultOpen="n" row>
 
