@@ -1,5 +1,22 @@
 # @data-client/endpoint
 
+## 0.10.0
+
+### Minor Changes
+
+- [#2912](https://github.com/reactive/data-client/pull/2912) [`922be79`](https://github.com/reactive/data-client/commit/922be79169a3eeea8e336eee519c165431ead474) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: `null` inputs are no longer filtered from Array or Object
+
+  - `[]` and [schema.Array](https://dataclient.io/rest/api/Array) now behave in the same manner.
+  - `null` values are now consistently handled everywhere (being retained).
+    - These were already being retained in [nested Entities](https://dataclient.io/rest/guides/relational-data#nesting)
+  - `undefined` is still filtered out.
+
+### Patch Changes
+
+- [`69834b5`](https://github.com/reactive/data-client/commit/69834b50c6d2b33f46d7c63cabdc0744abf160ae) Thanks [@ntucker](https://github.com/ntucker)! - Update README with API links
+
+- [`bf9c79c`](https://github.com/reactive/data-client/commit/bf9c79cb42e3df091eafe63fee619764a7ae4350) Thanks [@ntucker](https://github.com/ntucker)! - docs: Fix Entity links
+
 ## 0.9.9
 
 ### Patch Changes
@@ -15,7 +32,7 @@
   ```ts
   export const queryRemainingTodos = new Query(
     TodoResource.getList.schema,
-    entries => entries && entries.filter(todo => !todo.completed).length,
+    (entries) => entries && entries.filter((todo) => !todo.completed).length,
   );
   ```
 
@@ -98,7 +115,7 @@
     pk(): string {
       return `${this.trade_id}`;
     }
-    static key = 'Ticker';
+    static key = "Ticker";
 
     static schema = {
       price: Number,
@@ -118,7 +135,7 @@
     pk(): string {
       return `${this.trade_id}`;
     }
-    static key = 'Ticker';
+    static key = "Ticker";
 
     static schema = {
       price: Number,
@@ -139,16 +156,16 @@
 
   ```ts
   class Stream extends Entity {
-    username = '';
-    title = '';
-    game = '';
+    username = "";
+    title = "";
+    game = "";
     currentViewers = 0;
     live = false;
 
     pk() {
       return this.username;
     }
-    static key = 'Stream';
+    static key = "Stream";
 
     process(value, parent, key, args) {
       const processed = super.process(value, parent, key, args);

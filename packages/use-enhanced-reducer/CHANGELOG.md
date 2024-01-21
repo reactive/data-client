@@ -1,5 +1,11 @@
 # @data-client/use-enhanced-reducer
 
+## 0.1.5
+
+### Patch Changes
+
+- [`056737e`](https://github.com/reactive/data-client/commit/056737ec98a2f4406b0239bcb86a5668cbd0ad92) Thanks [@ntucker](https://github.com/ntucker)! - Add Manager examples to readme
+
 ## 0.1.4
 
 ### Patch Changes

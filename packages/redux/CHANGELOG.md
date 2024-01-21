@@ -1,5 +1,14 @@
 # @data-client/redux
 
+## 0.10.0
+
+### Patch Changes
+
+- [#2912](https://github.com/reactive/data-client/pull/2912) [`922be79`](https://github.com/reactive/data-client/commit/922be79169a3eeea8e336eee519c165431ead474) Thanks [@ntucker](https://github.com/ntucker)! - Expand compatibility
+
+- Updated dependencies [[`4e6a39e`](https://github.com/reactive/data-client/commit/4e6a39ea2bfdb1390051f12781e899488609e1a8), [`922be79`](https://github.com/reactive/data-client/commit/922be79169a3eeea8e336eee519c165431ead474), [`69834b5`](https://github.com/reactive/data-client/commit/69834b50c6d2b33f46d7c63cabdc0744abf160ae)]:
+  - @data-client/core@0.10.0
+
 ## 0.9.9
 
 ### Patch Changes
@@ -86,7 +95,7 @@
   Current testing version is already [using the provider Component directly](https://dataclient.io/docs/api/makeRenderDataClient)
 
   ```tsx
-  import { CacheProvider } from '@data-client/react';
+  import { CacheProvider } from "@data-client/react";
   const renderDataClient = makeRenderDataClient(CacheProvider);
   ```
 

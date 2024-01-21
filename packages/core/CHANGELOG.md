@@ -1,5 +1,27 @@
 # @data-client/core
 
+## 0.10.0
+
+### Minor Changes
+
+- [#2912](https://github.com/reactive/data-client/pull/2912) [`922be79`](https://github.com/reactive/data-client/commit/922be79169a3eeea8e336eee519c165431ead474) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: `null` inputs are no longer filtered from Array or Object
+
+  - `[]` and [schema.Array](https://dataclient.io/rest/api/Array) now behave in the same manner.
+  - `null` values are now consistently handled everywhere (being retained).
+    - These were already being retained in [nested Entities](https://dataclient.io/rest/guides/relational-data#nesting)
+  - `undefined` is still filtered out.
+
+### Patch Changes
+
+- [`4e6a39e`](https://github.com/reactive/data-client/commit/4e6a39ea2bfdb1390051f12781e899488609e1a8) Thanks [@ntucker](https://github.com/ntucker)! - Limit DevToolsManager action buffer depth to 100
+
+  This will avoid memory leaks in long running applications, or ones with frequent updates.
+
+- [`69834b5`](https://github.com/reactive/data-client/commit/69834b50c6d2b33f46d7c63cabdc0744abf160ae) Thanks [@ntucker](https://github.com/ntucker)! - Update README with API links
+
+- Updated dependencies [[`67f4e0b`](https://github.com/reactive/data-client/commit/67f4e0b45068da32d20e250267cb1cd2cea51226), [`053e823`](https://github.com/reactive/data-client/commit/053e82377bd29f200cd7dfbc700da7a3ad7fa8d7), [`922be79`](https://github.com/reactive/data-client/commit/922be79169a3eeea8e336eee519c165431ead474)]:
+  - @data-client/normalizr@0.10.0
+
 ## 0.9.7
 
 ### Patch Changes
@@ -90,11 +112,12 @@
 
   ```ts
   class LoggingManager implements Manager {
-    getMiddleware = (): Middleware => controller => next => async action => {
-      console.log('before', action, controller.getState());
-      await next(action);
-      console.log('after', action, controller.getState());
-    };
+    getMiddleware =
+      (): Middleware => (controller) => (next) => async (action) => {
+        console.log("before", action, controller.getState());
+        await next(action);
+        console.log("after", action, controller.getState());
+      };
 
     cleanup() {}
   }
@@ -138,7 +161,7 @@
 - f95dbc64d1: [Collections](https://dataclient.io/rest/api/Collection) can filter based on FormData arguments
 
   ```ts
-  ctrl.fetch(getPosts.push, { group: 'react' }, new FormData(e.currentTarget));
+  ctrl.fetch(getPosts.push, { group: "react" }, new FormData(e.currentTarget));
   ```
 
   Say our FormData contained an `author` field. Now that newly created
@@ -146,8 +169,8 @@
 
   ```ts
   useSuspense(getPosts, {
-    group: 'react',
-    author: 'bob',
+    group: "react",
+    author: "bob",
   });
   ```
 

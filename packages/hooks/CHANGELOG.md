@@ -1,5 +1,12 @@
 # @data-client/hooks
 
+## 0.1.7
+
+### Patch Changes
+
+- Updated dependencies [[`67f4e0b`](https://github.com/reactive/data-client/commit/67f4e0b45068da32d20e250267cb1cd2cea51226), [`053e823`](https://github.com/reactive/data-client/commit/053e82377bd29f200cd7dfbc700da7a3ad7fa8d7), [`922be79`](https://github.com/reactive/data-client/commit/922be79169a3eeea8e336eee519c165431ead474)]:
+  - @data-client/normalizr@0.10.0
+
 ## 0.1.6
 
 ### Patch Changes
