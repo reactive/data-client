@@ -11,8 +11,8 @@ yarn start [suite-name]
 #### Suites
 
 - `entity` - benchmarks various entity-specific operations
-- `normalizr` - benchmarks just normalize/denormalize
 - `core` - benchmarks entire operations using [Controller](https://dataclient.io/docs/api/Controller)
+- `normalizr` - benchmarks just normalize/denormalize
 - `old-normalizr` (runs equivalent benchmarks using the normalizr package)
 
 No argument will run `normalizr` + `core`

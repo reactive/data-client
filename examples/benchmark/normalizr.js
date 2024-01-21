@@ -68,6 +68,7 @@ export default function addNormlizrSuite(suite) {
     [],
   );
   %OptimizeFunctionOnNextCall(denormalizeCached);
+  %OptimizeFunctionOnNextCall(denormalize);
   %OptimizeFunctionOnNextCall(normalize);
 
   return suite
