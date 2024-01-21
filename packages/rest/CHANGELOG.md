@@ -1,5 +1,37 @@
 # @data-client/rest
 
+## 0.10.0
+
+### Minor Changes
+
+- [#2919](https://github.com/reactive/data-client/pull/2919) [`44f9ec2`](https://github.com/reactive/data-client/commit/44f9ec2801fe389a5afb215553a3441143078803) Thanks [@ntucker](https://github.com/ntucker)! - Add exports getUrlBase, getUrlTokens used to construct URLs
+
+  This enables custom [RestEndpoint.url()](https://dataclient.io/rest/api/RestEndpoint#url) implementations
+
+- [#2919](https://github.com/reactive/data-client/pull/2919) [`44f9ec2`](https://github.com/reactive/data-client/commit/44f9ec2801fe389a5afb215553a3441143078803) Thanks [@ntucker](https://github.com/ntucker)! - Add [RestEndpoint.searchToString()](https://dataclient.io/rest/api/RestEndpoint#searchToString)
+
+  For example:
+
+  To encode complex objects in the searchParams, you can use the [qs](https://github.com/ljharb/qs) library.
+
+  ```typescript
+  import { RestEndpoint, RestGenerics } from "@data-client/rest";
+  import qs from "qs";
+
+  class MyEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
+    searchToString(searchParams) {
+      return qs.stringify(searchParams);
+    }
+  }
+  ```
+
+### Patch Changes
+
+- [`69834b5`](https://github.com/reactive/data-client/commit/69834b50c6d2b33f46d7c63cabdc0744abf160ae) Thanks [@ntucker](https://github.com/ntucker)! - Update README with API links
+
+- Updated dependencies [[`922be79`](https://github.com/reactive/data-client/commit/922be79169a3eeea8e336eee519c165431ead474), [`69834b5`](https://github.com/reactive/data-client/commit/69834b50c6d2b33f46d7c63cabdc0744abf160ae), [`bf9c79c`](https://github.com/reactive/data-client/commit/bf9c79cb42e3df091eafe63fee619764a7ae4350)]:
+  - @data-client/endpoint@0.10.0
+
 ## 0.9.9
 
 ### Patch Changes
@@ -18,7 +50,7 @@
   ```ts
   export const queryRemainingTodos = new Query(
     TodoResource.getList.schema,
-    entries => entries && entries.filter(todo => !todo.completed).length,
+    (entries) => entries && entries.filter((todo) => !todo.completed).length,
   );
   ```
 
@@ -118,15 +150,15 @@
 
   ```ts
   const getTodos = new RestEndpoint({
-    urlPrefix: 'https://jsonplaceholder.typicode.com',
-    path: '/todos',
+    urlPrefix: "https://jsonplaceholder.typicode.com",
+    path: "/todos",
     schema: new schema.Collection([Todo]),
-    name: 'gettodos',
+    name: "gettodos",
   });
 
-  getTodos.getPage.name === 'gettodos.getPage';
-  getTodos.push.name === 'gettodos.create';
-  getTodos.unshift.name === 'gettodos.create';
+  getTodos.getPage.name === "gettodos.getPage";
+  getTodos.push.name === "gettodos.create";
+  getTodos.unshift.name === "gettodos.create";
   ```
 
 - [#2795](https://github.com/reactive/data-client/pull/2795) [`79e286109b`](https://github.com/reactive/data-client/commit/79e286109b5566f8e7acfdf0f44201263072d1d1) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING: [Schema Serializers](https://dataclient.io/rest/guides/network-transform#deserializing-fields) _must_ support function calls
@@ -142,7 +174,7 @@
     pk(): string {
       return `${this.trade_id}`;
     }
-    static key = 'Ticker';
+    static key = "Ticker";
 
     static schema = {
       price: Number,
@@ -162,7 +194,7 @@
     pk(): string {
       return `${this.trade_id}`;
     }
-    static key = 'Ticker';
+    static key = "Ticker";
 
     static schema = {
       price: Number,
@@ -192,16 +224,16 @@
 
   ```ts
   class Stream extends Entity {
-    username = '';
-    title = '';
-    game = '';
+    username = "";
+    title = "";
+    game = "";
     currentViewers = 0;
     live = false;
 
     pk() {
       return this.username;
     }
-    static key = 'Stream';
+    static key = "Stream";
 
     process(value, parent, key, args) {
       const processed = super.process(value, parent, key, args);
@@ -230,7 +262,7 @@
 
   ```ts
   const RatingResource = createResource({
-    path: '/ratings/:id',
+    path: "/ratings/:id",
     schema: Rating,
   }).extend({
     getList: {
@@ -289,10 +321,10 @@
 
   ```ts
   const TodoResource = createResource({
-    path: '/todos/:id',
+    path: "/todos/:id",
     schema: Todo,
-    paginationField: 'page',
-  }).getList.getPage({ page: '2' });
+    paginationField: "page",
+  }).getList.getPage({ page: "2" });
   ```
 
 ### Patch Changes
@@ -324,7 +356,7 @@
   Set any field based on arguments:
 
   ```ts
-  Resource.extend('fieldName', { path: 'mypath/:id' });
+  Resource.extend("fieldName", { path: "mypath/:id" });
   ```
 
   Override any of the provided endpoints with options:
@@ -332,7 +364,7 @@
   ```ts
   Resource.extend({
     getList: {
-      path: 'mypath/:id',
+      path: "mypath/:id",
     },
     update: {
       body: {} as Other,
@@ -343,9 +375,9 @@
   Function to compute derived endpoints:
 
   ```ts
-  Resource.extend(base => ({
+  Resource.extend((base) => ({
     getByComment: base.getList.extend({
-      path: 'repos/:owner/:repo/issues/comments/:comment/reactions',
+      path: "repos/:owner/:repo/issues/comments/:comment/reactions",
     }),
   }));
   ```

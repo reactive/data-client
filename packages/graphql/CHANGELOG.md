@@ -1,5 +1,14 @@
 # @data-client/graphql
 
+## 0.10.0
+
+### Patch Changes
+
+- [`69834b5`](https://github.com/reactive/data-client/commit/69834b50c6d2b33f46d7c63cabdc0744abf160ae) Thanks [@ntucker](https://github.com/ntucker)! - Update README with API links
+
+- Updated dependencies [[`922be79`](https://github.com/reactive/data-client/commit/922be79169a3eeea8e336eee519c165431ead474), [`69834b5`](https://github.com/reactive/data-client/commit/69834b50c6d2b33f46d7c63cabdc0744abf160ae), [`bf9c79c`](https://github.com/reactive/data-client/commit/bf9c79cb42e3df091eafe63fee619764a7ae4350)]:
+  - @data-client/endpoint@0.10.0
+
 ## 0.9.9
 
 ### Patch Changes
@@ -95,16 +104,16 @@
 
   ```ts
   class Stream extends Entity {
-    username = '';
-    title = '';
-    game = '';
+    username = "";
+    title = "";
+    game = "";
     currentViewers = 0;
     live = false;
 
     pk() {
       return this.username;
     }
-    static key = 'Stream';
+    static key = "Stream";
 
     process(value, parent, key, args) {
       const processed = super.process(value, parent, key, args);

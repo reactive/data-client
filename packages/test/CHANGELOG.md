@@ -1,5 +1,11 @@
 # @data-client/test
 
+## 0.10.0
+
+### Patch Changes
+
+- [#2912](https://github.com/reactive/data-client/pull/2912) [`922be79`](https://github.com/reactive/data-client/commit/922be79169a3eeea8e336eee519c165431ead474) Thanks [@ntucker](https://github.com/ntucker)! - Expand compatibility
+
 ## 0.9.2
 
 ### Patch Changes

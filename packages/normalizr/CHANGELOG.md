@@ -1,5 +1,22 @@
 # Change Log
 
+## 0.10.0
+
+### Minor Changes
+
+- [#2912](https://github.com/reactive/data-client/pull/2912) [`922be79`](https://github.com/reactive/data-client/commit/922be79169a3eeea8e336eee519c165431ead474) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: `null` inputs are no longer filtered from Array or Object
+
+  - `[]` and [schema.Array](https://dataclient.io/rest/api/Array) now behave in the same manner.
+  - `null` values are now consistently handled everywhere (being retained).
+    - These were already being retained in [nested Entities](https://dataclient.io/rest/guides/relational-data#nesting)
+  - `undefined` is still filtered out.
+
+### Patch Changes
+
+- [`67f4e0b`](https://github.com/reactive/data-client/commit/67f4e0b45068da32d20e250267cb1cd2cea51226) Thanks [@ntucker](https://github.com/ntucker)! - Update README
+
+- [`053e823`](https://github.com/reactive/data-client/commit/053e82377bd29f200cd7dfbc700da7a3ad7fa8d7) Thanks [@ntucker](https://github.com/ntucker)! - Update NextJS Demo link
+
 ## 0.9.5
 
 ### Patch Changes
@@ -62,7 +79,7 @@
     pk(): string {
       return `${this.trade_id}`;
     }
-    static key = 'Ticker';
+    static key = "Ticker";
 
     static schema = {
       price: Number,
@@ -82,7 +99,7 @@
     pk(): string {
       return `${this.trade_id}`;
     }
-    static key = 'Ticker';
+    static key = "Ticker";
 
     static schema = {
       price: Number,

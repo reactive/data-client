@@ -1,5 +1,26 @@
 # @data-client/react
 
+## 0.10.0
+
+### Minor Changes
+
+- [#2912](https://github.com/reactive/data-client/pull/2912) [`922be79`](https://github.com/reactive/data-client/commit/922be79169a3eeea8e336eee519c165431ead474) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: `null` inputs are no longer filtered from Array or Object
+
+  - `[]` and [schema.Array](https://dataclient.io/rest/api/Array) now behave in the same manner.
+  - `null` values are now consistently handled everywhere (being retained).
+    - These were already being retained in [nested Entities](https://dataclient.io/rest/guides/relational-data#nesting)
+  - `undefined` is still filtered out.
+
+### Patch Changes
+
+- [`053e823`](https://github.com/reactive/data-client/commit/053e82377bd29f200cd7dfbc700da7a3ad7fa8d7) Thanks [@ntucker](https://github.com/ntucker)! - Update NextJS Demo link
+
+- [`69834b5`](https://github.com/reactive/data-client/commit/69834b50c6d2b33f46d7c63cabdc0744abf160ae) Thanks [@ntucker](https://github.com/ntucker)! - Update README with API links
+
+- Updated dependencies [[`4e6a39e`](https://github.com/reactive/data-client/commit/4e6a39ea2bfdb1390051f12781e899488609e1a8), [`922be79`](https://github.com/reactive/data-client/commit/922be79169a3eeea8e336eee519c165431ead474), [`69834b5`](https://github.com/reactive/data-client/commit/69834b50c6d2b33f46d7c63cabdc0744abf160ae), [`056737e`](https://github.com/reactive/data-client/commit/056737ec98a2f4406b0239bcb86a5668cbd0ad92)]:
+  - @data-client/core@0.10.0
+  - @data-client/use-enhanced-reducer@0.1.5
+
 ## 0.9.9
 
 ### Patch Changes
@@ -132,7 +153,7 @@
   Current testing version is already [using the provider Component directly](https://dataclient.io/docs/api/makeRenderDataClient)
 
   ```tsx
-  import { CacheProvider } from '@data-client/react';
+  import { CacheProvider } from "@data-client/react";
   const renderDataClient = makeRenderDataClient(CacheProvider);
   ```
 
@@ -187,7 +208,7 @@
     pk(): string {
       return `${this.trade_id}`;
     }
-    static key = 'Ticker';
+    static key = "Ticker";
 
     static schema = {
       price: Number,
@@ -207,7 +228,7 @@
     pk(): string {
       return `${this.trade_id}`;
     }
-    static key = 'Ticker';
+    static key = "Ticker";
 
     static schema = {
       price: Number,
@@ -234,7 +255,7 @@
 - f95dbc64d1: [Collections](https://dataclient.io/rest/api/Collection) can filter based on FormData arguments
 
   ```ts
-  ctrl.fetch(getPosts.push, { group: 'react' }, new FormData(e.currentTarget));
+  ctrl.fetch(getPosts.push, { group: "react" }, new FormData(e.currentTarget));
   ```
 
   Say our FormData contained an `author` field. Now that newly created
@@ -242,8 +263,8 @@
 
   ```ts
   useSuspense(getPosts, {
-    group: 'react',
-    author: 'bob',
+    group: "react",
+    author: "bob",
   });
   ```
 
