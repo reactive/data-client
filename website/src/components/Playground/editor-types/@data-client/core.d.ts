@@ -970,6 +970,7 @@ declare class DevToolsManager implements Manager {
     protected started: boolean;
     protected actions: [ActionTypes, State<unknown>][];
     protected controller: Controller;
+    maxBufferLength: number;
     constructor(config?: DevToolsConfig, skipLogging?: (action: ActionTypes) => boolean);
     handleAction(action: any, state: any): void;
     /** Called when initial state is ready */

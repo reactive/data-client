@@ -187,9 +187,9 @@ interface IndexInterface<S extends Schema = Schema, P = object> {
     readonly schema: S;
 }
 type ArrayElement<ArrayType extends unknown[] | readonly unknown[]> = ArrayType[number];
-type IndexParams<S extends Schema> = S extends {
+type IndexParams<S extends Schema> = S extends ({
     indexes: readonly string[];
-} ? {
+}) ? {
     [K in Extract<ArrayElement<S['indexes']>, keyof AbstractInstanceType<S>>]?: AbstractInstanceType<S>[K];
 } : Readonly<object>;
 
