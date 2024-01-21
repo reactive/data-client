@@ -19,8 +19,8 @@ import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
 [Resources](/rest/api/createResource) are a collection of `methods` for a given `data model`.
 
-[Entities](/rest/api/Entity) and [Schemas](../concepts/normalization.md) declaratively define the _data model_.
-[Endpoints](/rest/api/RestEndpoint) are the [_methods_](<https://en.wikipedia.org/wiki/Method_(computer_programming)>) on
+[Entities](/rest/api/Entity) and [Schemas](/rest/api/Schema) declaratively define the [_data model_](../concepts/normalization.md).
+[Endpoints](/rest/api/Endpoint) are the [_methods_](<https://en.wikipedia.org/wiki/Method_(computer_programming)>) on
 that data.
 
 <Tabs
@@ -34,6 +34,8 @@ values={[
 <TabItem value="rest">
 
   <PkgInstall pkgs="@data-client/rest" />
+
+[createResource()](/rest/api/createResource) constructs a namespace of [RestEndpoints](/rest/api/RestEndpoint)
 
 <TypeScriptEditor row={false}>
 
@@ -89,6 +91,8 @@ TodoResource.delete({ id: 5 });
 
   <PkgInstall pkgs="@data-client/graphql" />
 
+[GQLEndpoint](/graphql/api/GQLEndpoint) helps quickly defined [queries](/graphql/api/GQLEndpoint#query) and [mutations](/graphql/api/GQLEndpoint#mutate)
+
 <TypeScriptEditor row={false}>
 
 ```typescript title="TodoResource"
@@ -136,8 +140,8 @@ export const TodoResource = {
 
   <PkgInstall pkgs="@data-client/endpoint" />
 
-In case you have existing class and/or api definitions, you can use
-[Endpoint](/rest/api/Endpoint) and [schema.Entity](/rest/api/schema.Entity) to make them useable in RDC.
+Pre-existing TypeScript definitions can be used in <abbr title="Reactive Data Client">RDC</abbr> with
+[Endpoint](/rest/api/Endpoint) and [schema.Entity](/rest/api/schema.Entity).
 
 <TypeScriptEditor row={false}>
 

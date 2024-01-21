@@ -12,7 +12,7 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 
 `Endpoint` are for any asynchronous function (one that returns a Promise).
 
-`Endpoints` define a standard interface to extend the function with relevant metadata and lifecycles
+`Endpoints` define a strongly typed standard interface of relevant metadata and lifecycles
 useful for Reactive Data Client and other stores.
 
 Package: [@data-client/endpoint](https://www.npmjs.com/package/@data-client/endpoint)
