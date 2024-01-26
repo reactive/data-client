@@ -10,8 +10,8 @@
     "start": "babel-node ./ --root-mode upward --extensions '.ts,.tsx,.js'"
   },
   "devDependencies": {
-    "@babel/core": "7.23.7",
-    "@babel/node": "7.22.19",
+    "@babel/core": "7.23.9",
+    "@babel/node": "7.23.9",
     "@types/babel__core": "^7",
     "mockdate": "^3.0.5",
     "rollup": "2.79.1",
