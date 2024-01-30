@@ -212,6 +212,9 @@ if (
       import(
         /* webpackChunkName: 'uuidDTS', webpackPreload: true */ '!!raw-loader?esModule=false!./editor-types/uuid.d.ts'
       ),
+      import(
+        /* webpackChunkName: 'qsDTS', webpackPreload: true */ '!!raw-loader?esModule=false!./editor-types/qs.d.ts'
+      ),
       ...rhDeps.map(
         dep =>
           import(
@@ -221,7 +224,7 @@ if (
     ]).then(([mPromise, ...settles]) => {
       if (mPromise.status !== 'fulfilled' || !mPromise.value) return;
       const monaco = mPromise.value;
-      const [react, bignumber, temporal, uuid, ...rhLibs] = settles.map(
+      const [react, bignumber, temporal, uuid, qs, ...rhLibs] = settles.map(
         result => (result.status === 'fulfilled' ? result.value.default : ''),
       );
 
@@ -306,6 +309,10 @@ if (
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
         `declare module "uuid" { ${uuid} }`,
         'file:///node_modules/@types/uuid/index.d.ts',
+      );
+      monaco.languages.typescript.typescriptDefaults.addExtraLib(
+        `declare module "qs" { ${qs} }`,
+        'file:///node_modules/@types/qs/index.d.ts',
       );
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
         `declare globals { ${react} }`,

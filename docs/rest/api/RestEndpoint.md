@@ -418,7 +418,7 @@ class QSEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
 
 <EndpointPlayground input="/foo?a%5Bb%5D=c" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}}>
 
-```typescript title="QSEndpoint" collapsed {6}
+```typescript title="QSEndpoint" collapsed {7}
 import { RestEndpoint, RestGenerics } from '@data-client/rest';
 import qs from 'qs';
 
