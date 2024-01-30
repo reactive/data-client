@@ -19,7 +19,7 @@ High performance async data rendering without overfetching. With fetch meta data
 
 In case you cannot use [suspense](../getting-started/data-dependency.md#async-fallbacks), useDLE() is just like [useSuspense()](./useSuspense.md) but returns [D]ata [L]oading [E]rror values.
 
-`useDLE()` will rerender when its data [mutates](../getting-started/mutations.md).
+`useDLE()` is reactive to data [mutations](../getting-started/mutations.md); rerendering only when necessary.
 
 ## Usage
 

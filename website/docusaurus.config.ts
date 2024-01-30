@@ -427,7 +427,7 @@ const config: Config = {
             },
             {
               label: 'Websockets+SSE',
-              to: '/docs/api/Manager#data-stream',
+              to: '/docs/concepts/managers#data-stream',
             },
             {
               label: 'Hooks',
@@ -453,6 +453,14 @@ const config: Config = {
             {
               label: 'Bug Report',
               href: 'https://github.com/reactive/data-client/issues/new/choose',
+            },
+            {
+              label: 'Ideas',
+              href: 'https://github.com/reactive/data-client/discussions/categories/ideas',
+            },
+            {
+              label: 'Showcase',
+              href: 'https://github.com/reactive/data-client/discussions/2422',
             },
           ],
         },

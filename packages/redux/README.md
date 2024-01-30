@@ -7,7 +7,7 @@
 [![npm version](https://img.shields.io/npm/v/@data-client/redux.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/redux)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-Asynchronous dynamic data at scale. Performance, data integrity, and typing for [REST](https://dataclient.io/rest), proto, [GraphQL](https://dataclient.io/graphql), [websockets](https://dataclient.io/docs/api/Manager#data-stream) and [more](https://dataclient.io/docs/guides/img-media)..
+Asynchronous mutable data at scale. Performance, data integrity, and typing for [REST](https://dataclient.io/rest), proto, [GraphQL](https://dataclient.io/graphql), [websockets](https://dataclient.io/docs/api/Manager#data-stream) and [more](https://dataclient.io/docs/guides/img-media)..
 
 <div align="center">
 

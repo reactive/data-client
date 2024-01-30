@@ -299,7 +299,7 @@ easy to use fresh data.
 
 Subscriptions are orchestrated by [Managers](../api/Manager.md). Out of the box,
 polling based subscriptions can be used by adding [pollFrequency](/rest/api/Endpoint#pollfrequency) to an Endpoint or Resource.
-For pushed based networking protocols like SSE and websockets, see the [example stream manager](../api/Manager.md#data-stream).
+For pushed based networking protocols like SSE and websockets, see the [example stream manager](../concepts/managers.md#data-stream).
 
 ```typescript
 export const getTicker = new RestEndpoint({

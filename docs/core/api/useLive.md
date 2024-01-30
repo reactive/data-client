@@ -14,9 +14,11 @@ import {RestEndpoint} from '@data-client/rest';
 import StackBlitz from '@site/src/components/StackBlitz';
 import UseLive from '../shared/\_useLive.mdx';
 
-Async rendering of changing remote data.
+Async rendering of remotely triggered data mutations.
 
 [useSuspense()](./useSuspense.md) + [useSubscription()](./useSubscription.md) in one hook.
+
+`useLive()` is reactive to data [mutations](../getting-started/mutations.md); rerendering only when necessary.
 
 ## Usage
 

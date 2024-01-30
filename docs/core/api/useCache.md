@@ -17,7 +17,7 @@ Data rendering without the fetch.
 General purpose store access can be useful when the data's existance is of interest (like if a user is authenticated),
 or general purpose store access like [Query](/rest/api/Query).
 
-`useCache()` will rerender when its data [mutates](../getting-started/mutations.md).
+`useCache()` is reactive to data [mutations](../getting-started/mutations.md); rerendering only when necessary.
 
 ## Usage
 

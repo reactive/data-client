@@ -17,12 +17,14 @@ import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import StackBlitz from '@site/src/components/StackBlitz';
 import { detailFixtures, listFixtures } from '@site/src/fixtures/profiles';
 
+<p class="tagline">
 High performance async data rendering without overfetching.
+</p>
 
-`useSuspense()` [suspends](../getting-started/data-dependency.md#async-fallbacks) rendering until the data is available. This is much like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await)ing an [async](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function) function. This avoids the complexity of handling loading and error conditions in your components by
-[centralizing](../getting-started/data-dependency.md#boundaries) them with a singular [AsyncBoundary](../api/AsyncBoundary.md).
+`useSuspense()` is like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await) for React components. This means the remainder of the component only runs after the data has loaded, avoiding the complexity of handling loading and error conditions. Instead, fallback handling is
+[centralized](../getting-started/data-dependency.md#boundaries) with a singular [AsyncBoundary](../api/AsyncBoundary.md).
 
-`useSuspense()` will rerender when its data [mutates](../getting-started/mutations.md).
+`useSuspense()` is reactive to data [mutations](../getting-started/mutations.md); rerendering only when necessary.
 
 ## Usage
 

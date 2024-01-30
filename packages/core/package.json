@@ -1,7 +1,7 @@
 {
   "name": "@data-client/core",
   "version": "0.10.0",
-  "description": "High performance reactive framework for async data.",
+  "description": "High performance mutable data framework.",
   "sideEffects": false,
   "main": "dist/index.js",
   "react-native": "legacy/index.js",
