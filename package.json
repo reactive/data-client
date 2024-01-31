@@ -116,7 +116,7 @@
     "whatwg-fetch": "3.0.0",
     "downlevel-dts/typescript": "4.9.0-dev.20220903"
   },
-  "packageManager": "yarn@4.0.2",
+  "packageManager": "yarn@4.1.0",
   "prettier": {
     "printWidth": 80,
     "semi": true,
