@@ -48,5 +48,5 @@
     "react-dom": "18.2.0",
     "uuid": "^9.0.0"
   },
-  "packageManager": "yarn@4.0.2"
+  "packageManager": "yarn@4.1.0"
 }
