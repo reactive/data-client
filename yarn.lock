@@ -349,11 +349,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/eslint-plugin@npm:0.16.46":
-  version: 0.16.46
-  resolution: "@anansi/eslint-plugin@npm:0.16.46"
+"@anansi/eslint-plugin@npm:0.16.47":
+  version: 0.16.47
+  resolution: "@anansi/eslint-plugin@npm:0.16.47"
   dependencies:
-    "@babel/eslint-parser": "npm:^7.23.9"
+    "@babel/eslint-parser": "npm:^7.23.10"
     "@typescript-eslint/parser": "npm:^6.20.0"
     eslint-config-prettier: "npm:^9.1.0"
     eslint-import-resolver-typescript: "npm:^3.6.1"
@@ -378,7 +378,7 @@ __metadata:
       optional: true
     webpack:
       optional: true
-  checksum: 10c0/b516e38525e2847ce9d801a71d18318e18c3dd686acc993d8549d1bca924dd6866a6738c7057b7f78b40cb23757b5ff40fae3db6b4cc5fad06cabf275d461c74
+  checksum: 10c0/cb355f2b71306ddc95fb3c664372128aa1207b27fb9e6f16009a232a068d4096d5ad64c53ff0aadbdbac8a36b286baba0055e7a6f48a2d6e3ce5b77337f6b0cc
   languageName: node
   linkType: hard
 
@@ -637,9 +637,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/eslint-parser@npm:^7.23.9":
-  version: 7.23.9
-  resolution: "@babel/eslint-parser@npm:7.23.9"
+"@babel/eslint-parser@npm:^7.23.10":
+  version: 7.23.10
+  resolution: "@babel/eslint-parser@npm:7.23.10"
   dependencies:
     "@nicolo-ribaudo/eslint-scope-5-internals": "npm:5.1.1-v1"
     eslint-visitor-keys: "npm:^2.1.0"
@@ -647,7 +647,7 @@ __metadata:
   peerDependencies:
     "@babel/core": ^7.11.0
     eslint: ^7.5.0 || ^8.0.0
-  checksum: 10c0/8a025e6c2d9ad47e86bfea9011422c8a053382692901607236cd0fba1ee52504d7d2b2c6186c14f15de7553ec0e2786b9a3c3d92542153f2d41c5241fb166745
+  checksum: 10c0/dfc091d44c86c72658d53abe66c778f7aa436672d66ae99a0b72857c968defed4749c18d2d3a35b1f61c77a193761ae7a71997dbe43c4c7cffcf945bd106bd67
   languageName: node
   linkType: hard
 
@@ -6384,9 +6384,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react@npm:14.2.0, @testing-library/react@npm:^14.0.0":
-  version: 14.2.0
-  resolution: "@testing-library/react@npm:14.2.0"
+"@testing-library/react@npm:14.2.1, @testing-library/react@npm:^14.0.0":
+  version: 14.2.1
+  resolution: "@testing-library/react@npm:14.2.1"
   dependencies:
     "@babel/runtime": "npm:^7.12.5"
     "@testing-library/dom": "npm:^9.0.0"
@@ -6394,7 +6394,7 @@ __metadata:
   peerDependencies:
     react: ^18.0.0
     react-dom: ^18.0.0
-  checksum: 10c0/dfb6c7eee892a20eeb251094358f37ce88cd3473e12462ceac7e609b1fb365faed21e285ce6c5783abccb3ba19a62c45c61f1eb306812cf9171c473cc5aaca56
+  checksum: 10c0/83b35cf8bf5640f1b63b32223ebc75799dc1a8e034d819120b26838fba0b0ab10bdbe6ad07dd8ae8287365f2b0c52dc9892a6fa11bb24d3e63ad97dfb7f2f296
   languageName: node
   linkType: hard
 
@@ -6819,13 +6819,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:29.5.11, @types/jest@npm:^29.5.0":
-  version: 29.5.11
-  resolution: "@types/jest@npm:29.5.11"
+"@types/jest@npm:29.5.12, @types/jest@npm:^29.5.0":
+  version: 29.5.12
+  resolution: "@types/jest@npm:29.5.12"
   dependencies:
     expect: "npm:^29.0.0"
     pretty-format: "npm:^29.0.0"
-  checksum: 10c0/524a3394845214581278bf4d75055927261fbeac7e1a89cd621bd0636da37d265fe0a85eac58b5778758faad1cbd7c7c361dfc190c78ebde03a91cce33463261
+  checksum: 10c0/25fc8e4c611fa6c4421e631432e9f0a6865a8cb07c9815ec9ac90d630271cad773b2ee5fe08066f7b95bebd18bb967f8ce05d018ee9ab0430f9dfd1d84665b6f
   languageName: node
   linkType: hard
 
@@ -23768,12 +23768,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:3.2.4, prettier@npm:^3.0.0":
-  version: 3.2.4
-  resolution: "prettier@npm:3.2.4"
+"prettier@npm:3.2.5, prettier@npm:^3.0.0":
+  version: 3.2.5
+  resolution: "prettier@npm:3.2.5"
   bin:
     prettier: bin/prettier.cjs
-  checksum: 10c0/88dfeb78ac6096522c9a5b81f1413d875f568420d9bb6a5e5103527912519b993f2bcdcac311fcff5718d5869671d44e4f85827d3626f3a6ce32b9abc65d88e0
+  checksum: 10c0/ea327f37a7d46f2324a34ad35292af2ad4c4c3c3355da07313339d7e554320f66f65f91e856add8530157a733c6c4a897dc41b577056be5c24c40f739f5ee8c6
   languageName: node
   linkType: hard
 
@@ -25775,7 +25775,7 @@ __metadata:
   dependencies:
     "@anansi/babel-preset": "npm:5.0.2"
     "@anansi/browserslist-config": "npm:1.5.0"
-    "@anansi/eslint-plugin": "npm:0.16.46"
+    "@anansi/eslint-plugin": "npm:0.16.47"
     "@anansi/jest-preset": "npm:0.10.26"
     "@babel/cli": "npm:7.23.9"
     "@babel/core": "npm:7.23.9"
@@ -25788,10 +25788,10 @@ __metadata:
     "@js-temporal/polyfill": "npm:^0.4.4"
     "@react-navigation/native": "npm:^6.0.13"
     "@react-navigation/native-stack": "npm:^6.9.1"
-    "@testing-library/react": "npm:14.2.0"
+    "@testing-library/react": "npm:14.2.1"
     "@testing-library/react-hooks": "npm:8.0.1"
     "@testing-library/react-native": "npm:12.4.3"
-    "@types/jest": "npm:29.5.11"
+    "@types/jest": "npm:29.5.12"
     "@types/node": "npm:20.11.10"
     "@types/react": "npm:18.2.48"
     "@typescript-eslint/eslint-plugin": "npm:6.20.0"
@@ -25818,7 +25818,7 @@ __metadata:
     nock: "npm:13.3.1"
     node-fetch: "npm:^3.3.0"
     npm-run-all: "npm:^4.1.5"
-    prettier: "npm:3.2.4"
+    prettier: "npm:3.2.5"
     react: "npm:18.2.0"
     react-dom: "npm:18.2.0"
     react-native: "npm:0.73.3"
