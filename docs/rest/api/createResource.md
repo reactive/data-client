@@ -97,7 +97,8 @@ If specified, will add [Resource.getList.getPage](#getpage) method on the `Resou
 
 ### optimistic
 
-`true` makes all mutation endpoints [optimistic](../guides/optimistic-updates.md)
+`true` makes all mutation endpoints [optimistic](../guides/optimistic-updates.md), making <abbr title="User Interface">UI</abbr>
+updates immediate, even before fetch completion.
 
 ### Endpoint
 

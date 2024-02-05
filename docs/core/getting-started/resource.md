@@ -62,7 +62,7 @@ export const TodoResource = createResource({
   paginationField: 'page',
 });
 
-/** Methods provided */
+/** Methods can be called as functions or used in hooks */
 
 // GET https://jsonplaceholder.typicode.com/todos/5
 TodoResource.get({ id: 5 });

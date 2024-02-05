@@ -127,6 +127,7 @@ export const ArticleResource = createResource({
   path: '/article/:id',
   searchParams: {} as { userId?: string } | undefined,
   schema: ArticleEntity,
+  paginationField: 'page',
 });
 ```
 

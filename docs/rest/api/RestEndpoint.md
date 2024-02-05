@@ -41,6 +41,7 @@ interface RestGenerics {
   readonly method?: string;
   readonly body?: any;
   readonly searchParams?: any;
+  readonly paginationField?: string;
   process?(value: any, ...args: any): any;
 }
 
@@ -50,18 +51,22 @@ export class RestEndpoint<O extends RestGenerics = any> extends Endpoint {
   readonly urlPrefix: string;
   readonly requestInit: RequestInit;
   readonly method: string;
+  readonly paginationField?: string;
   readonly signal: AbortSignal | undefined;
   url(...args: Parameters<F>): string;
+  searchToString(searchParams: Record<string, any>): string;
   getRequestInit(
     this: any,
     body?: RequestInit['body'] | Record<string, unknown>,
-  ): RequestInit;
-  getHeaders(headers: HeadersInit): HeadersInit;
+  ): Promise<RequestInit> | RequestInit;
+  getHeaders(headers: HeadersInit): Promise<HeadersInit> | HeadersInit;
 
   /* Perform/process fetch */
   fetchResponse(input: RequestInfo, init: RequestInit): Promise<Response>;
   parseResponse(response: Response): Promise<any>;
   process(value: any, ...args: Parameters<F>): any;
+
+  testKey(key: string): boolean;
 }
 ```
 
@@ -93,6 +98,8 @@ class Endpoint<F extends (...args: any) => Promise<any>> {
   ) => ResolveType<F>;
   /** Determines whether to throw or fallback to */
   readonly errorPolicy?: (error: any) => 'soft' | undefined;
+
+  testKey(key: string): boolean;
 }
 ```
 
@@ -107,11 +114,19 @@ All options are supported as arguments to the constructor, [extend](#extend), an
 
 ### Simplest retrieval
 
+<div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '15px'}}>
+
 ```ts
 const getTodo = new RestEndpoint({
-  path: 'https\\://jsonplaceholder.typicode.com/todos/:id',
+  path: '/todos/:id',
 });
 ```
+
+```ts
+const todo = await getTodo({ id: 1 });
+```
+
+</div>
 
 ### Configuration sharing
 
@@ -324,7 +339,8 @@ getList.url({
 
 ## Fetch Lifecycle
 
-RestEndpoint adds to Endpoint by providing customizations for a provided fetch method.
+RestEndpoint adds to Endpoint by providing customizations for a provided fetch method using
+[inheritance](#inheritance) or [.extend()](#extend).
 
 import Lifecycle from '../diagrams/\_restendpoint_lifecycle.mdx';
 
