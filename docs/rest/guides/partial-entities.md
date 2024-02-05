@@ -4,11 +4,12 @@ title: Partial Entities
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import {RestEndpoint} from '@data-client/rest';
+import Grid from '@site/src/components/Grid';
 
 Sometimes you have a [list endpoint](../api/createResource.md#getlist) whose entities only include
 a subset of fields needed to summarize.
 
-<div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '15px'}}>
+<Grid>
 
 ```json title="ArticleSummary"
 {
@@ -26,7 +27,7 @@ a subset of fields needed to summarize.
 }
 ```
 
-</div>
+</Grid>
 
 In this case we can override [Entity.validate()](../api/Entity.md#validate) using [validateRequired()](../api/validateRequired.md) to ensure
 we have the full and complete response when needed (detail views), while keeping our state [DRY](https://deviq.com/principles/dont-repeat-yourself) and normalized to ensure data integrity.

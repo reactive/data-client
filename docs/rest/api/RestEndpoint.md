@@ -12,6 +12,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
+import Grid from '@site/src/components/Grid';
 import Link from '@docusaurus/Link';
 import VoteDemo from '../../core/shared/\_VoteDemo.mdx';
 
@@ -114,7 +115,7 @@ All options are supported as arguments to the constructor, [extend](#extend), an
 
 ### Simplest retrieval
 
-<div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '15px'}}>
+<Grid>
 
 ```ts
 const getTodo = new RestEndpoint({
@@ -126,7 +127,7 @@ const getTodo = new RestEndpoint({
 const todo = await getTodo({ id: 1 });
 ```
 
-</div>
+</Grid>
 
 ### Configuration sharing
 

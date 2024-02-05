@@ -12,6 +12,7 @@ import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import Link from '@docusaurus/Link';
 import SchemaTable from '../shared/\_schema_table.mdx';
+import Grid from '@site/src/components/Grid';
 
 [Entities](/rest/api/Entity) have a primary key. This enables easy access via a lookup table.
 This makes it easy to find, update, create, or delete the same data - no matter what
@@ -403,7 +404,7 @@ library, which has less features, but similar schema definitions.
 Memoization is done at every entity level - no matter how nested, ensuring global referential equality guarantees
 and up to 20x performance even after [mutation operations](../getting-started/mutations.md) like Create, Update and Delete.
 
-<div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '15px'}}>
+<Grid>
 
 ```mermaid
 xychart-beta
@@ -421,7 +422,7 @@ xychart-beta
     bar [1525.3, 1821, 12785]
 ```
 
-</div>
+</Grid>
 
 <center>
 

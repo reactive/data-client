@@ -1,0 +1,17 @@
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(min-content, 1fr) minmax(min-content, 1fr);
+  column-gap: 15px;
+}
+
+@media only screen and (max-width: 768px) {
+  .grid {
+    grid-template-columns: minmax(min-content, 1fr);
+  }
+}
+@media only screen and (min-width: 997px) and (max-width: 1268px) {
+  .grid {
+    grid-template-columns: minmax(min-content, 1fr);
+  }
+}
