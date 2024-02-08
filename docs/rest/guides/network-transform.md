@@ -198,6 +198,10 @@ const getStream = new RestEndpoint({
 
 ### Ticker prices
 
+Here's a real world example of an API that does where ticket data does not include its primary key `product_id`.
+
+We use [RestEndpoint.process()](../api/RestEndpoint.md#process) to add the `product_id` member from its argument.
+
 <HooksPlayground row>
 
 ```typescript title="Ticker" {28-31}

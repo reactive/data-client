@@ -43,6 +43,7 @@ export const ArticleResource = createResource({
   urlPrefix: 'http://test.com',
   path: '/article/:id',
   schema: Article,
+  searchParams: {} as { maxResults: number },
 });
 
 export let ArticleFixtures: Record<string, Fixture> = {};
@@ -55,7 +56,11 @@ export let ArticleFixtures: Record<string, Fixture> = {};
 import { ArticleResource } from 'resources/ArticleResource';
 import ArticleSummary from './ArticleSummary';
 
-export default function ArticleList({ maxResults }: { maxResults: number }) {
+export default function ArticleList({
+  maxResults,
+}: {
+  maxResults: number;
+}) {
   const articles = useSuspense(ArticleResource.getList, { maxResults });
   return (
     <div>
@@ -117,7 +122,11 @@ if (process.env.NODE_ENV !== 'production') {
       {
         endpoint: ArticleResource.getList,
         args: [{ maxResults: 10 }] as const,
-        response: { message: 'Bad request', status: 400, name: 'Not Found' },
+        response: {
+          message: 'Bad request',
+          status: 400,
+          name: 'Not Found',
+        },
         error: true,
       },
     ],
@@ -155,9 +164,9 @@ control how Reactive Data Client' fetches are resolved.
 Here we select which fixtures should be used by [storybook controls](https://storybook.js.org/docs/react/essentials/controls).
 
 ```tsx title="ArticleList.stories.tsx"
+import { type StoryObj } from '@storybook/react';
 import { MockResolver } from '@data-client/test';
 import type { Fixture } from '@data-client/test';
-import { Story } from '@storybook/react/types-6-0';
 
 import ArticleList from 'ArticleList';
 import { ArticleFixtures } from 'resources/ArticleResource';
@@ -177,17 +186,15 @@ export default {
   },
 };
 
-const Template: Story<{ result: keyof typeof options }> = ({ result }) => (
-  // highlight-next-line
-  <MockResolver fixtures={options[result]}>
-    <ArticleList maxResults={10} />
-    // highlight-next-line
-  </MockResolver>
-);
-
-export const FullArticleList = Template.bind({});
-
-FullArticleList.args = {
-  result: 'full',
-};
+export const FullArticleList: StoryObj<{ result: keyof typeof options }> =
+  {
+    render: ({ result }) => (
+      // highlight-next-line
+      <MockResolver fixtures={options[result]}>
+        <ArticleList maxResults={10} />
+        // highlight-next-line
+      </MockResolver>
+    ),
+    args: { result: 'full' },
+  };
 ```
