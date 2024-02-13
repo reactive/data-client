@@ -463,16 +463,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:18.0.6, @anansi/webpack-config@npm:^18.0.0":
-  version: 18.0.6
-  resolution: "@anansi/webpack-config@npm:18.0.6"
+"@anansi/webpack-config@npm:18.0.8, @anansi/webpack-config@npm:^18.0.0":
+  version: 18.0.8
+  resolution: "@anansi/webpack-config@npm:18.0.8"
   dependencies:
     "@babel/runtime": "npm:^7.17.2"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.11"
     "@svgr/webpack": "npm:^8.1.0"
     "@types/webpack-bundle-analyzer": "npm:^4.7.0"
     "@vue/preload-webpack-plugin": "npm:^2.0.0"
-    "@wyw-in-js/webpack-loader": "npm:0.4.0"
+    "@wyw-in-js/webpack-loader": "npm:^0.4.1"
     assert: "npm:^2.1.0"
     autoprefixer: "npm:^10.4.17"
     babel-loader: "npm:^9.1.3"
@@ -533,7 +533,7 @@ __metadata:
   peerDependencies:
     "@babel/core": ^6 || ^7 || ^8
     "@hot-loader/react-dom": ^16.0.0 || ^17.0.0
-    "@storybook/react": ^6.2.0 || ^7.0.0-rc.0
+    "@storybook/react": ^6.2.0 || ^7.0.0
     "@types/react": ^16.0.0 || ^17.0.0 || ^18.0.0
     node-sass: ^7.0.1 || ^8.0.0 || ^9.0.0
     react: "*"
@@ -542,7 +542,7 @@ __metadata:
     svgo: ^3.0.0
     webpack: ^5.12.0
     webpack-cli: ^4.1.0 || ^5.0.0
-    webpack-dev-server: ^4.0.0
+    webpack-dev-server: ^4.0.0 || ^5.0.0
   peerDependenciesMeta:
     "@babel/core":
       optional: true
@@ -566,7 +566,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: 10c0/cd4a77bb25e9006713693bc413afdd0e89902bd5e82640425a2440e94bcdb85cbee68374e9601dddf4c0791e7075b234e30f4501228e4a1490427c3da34a51e3
+  checksum: 10c0/04f986f56e33e3fdd1f42724a5186dbee58f2a0b38356464a5aaf76b154f47bdb1926205c5469bf9167513dfc058bafb0ae900f730f82010f854d7a783f39d25
   languageName: node
   linkType: hard
 
@@ -7616,30 +7616,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@wyw-in-js/processor-utils@npm:0.4.0, @wyw-in-js/processor-utils@npm:^0.4.0":
-  version: 0.4.0
-  resolution: "@wyw-in-js/processor-utils@npm:0.4.0"
+"@wyw-in-js/processor-utils@npm:0.4.1, @wyw-in-js/processor-utils@npm:^0.4.0":
+  version: 0.4.1
+  resolution: "@wyw-in-js/processor-utils@npm:0.4.1"
   dependencies:
     "@babel/generator": "npm:^7.23.5"
-    "@wyw-in-js/shared": "npm:0.4.0"
-  checksum: 10c0/ea151a800079212ac463fee82e6aee5dcbcc6694384c32b4decf01961d442414ef77b65958a0ea8af608ac5e9c849a46468fdb6ab6df07c5a918d2a167bdde19
+    "@wyw-in-js/shared": "npm:0.4.1"
+  checksum: 10c0/6f4695610ad634ed7cfc5130b75b9f8e3aa3a225417084bef07633d8a26c8e31f4f62ae96ab50e6430e24bda1a6020bfa8e7fc7f0b2b55dcc77379adddafd572
   languageName: node
   linkType: hard
 
-"@wyw-in-js/shared@npm:0.4.0, @wyw-in-js/shared@npm:^0.4.0":
-  version: 0.4.0
-  resolution: "@wyw-in-js/shared@npm:0.4.0"
+"@wyw-in-js/shared@npm:0.4.1, @wyw-in-js/shared@npm:^0.4.0":
+  version: 0.4.1
+  resolution: "@wyw-in-js/shared@npm:0.4.1"
   dependencies:
     debug: "npm:^4.3.4"
     find-up: "npm:^5.0.0"
     minimatch: "npm:^9.0.3"
-  checksum: 10c0/f30ae19d1e555b4224f79032e8b297a3153206b314cb5b2950c5cc122c2d48e90fde51bce2e3e297945d9bda4fad04042a125dec137a23b6c556edf308cb0170
+  checksum: 10c0/c166d527120ed18828efdba849d8ea38fbc4d266e29efd9283340512235c2752c9f7602145d18b79362aafffff4af275e6096958955a1af6ded269a8c1294df1
   languageName: node
   linkType: hard
 
-"@wyw-in-js/transform@npm:0.4.0":
-  version: 0.4.0
-  resolution: "@wyw-in-js/transform@npm:0.4.0"
+"@wyw-in-js/transform@npm:0.4.1":
+  version: 0.4.1
+  resolution: "@wyw-in-js/transform@npm:0.4.1"
   dependencies:
     "@babel/core": "npm:^7.23.5"
     "@babel/generator": "npm:^7.23.5"
@@ -7648,27 +7648,27 @@ __metadata:
     "@babel/template": "npm:^7.22.15"
     "@babel/traverse": "npm:^7.23.5"
     "@babel/types": "npm:^7.23.5"
-    "@wyw-in-js/processor-utils": "npm:0.4.0"
-    "@wyw-in-js/shared": "npm:0.4.0"
+    "@wyw-in-js/processor-utils": "npm:0.4.1"
+    "@wyw-in-js/shared": "npm:0.4.1"
     babel-merge: "npm:^3.0.0"
     cosmiconfig: "npm:^8.0.0"
     happy-dom: "npm:^12.5.0"
     source-map: "npm:^0.7.4"
     stylis: "npm:^4.3.0"
     ts-invariant: "npm:^0.10.3"
-  checksum: 10c0/510a4b450f4a6eb973c9dfbbf0e2a686d78876e5e5a1a91e97c62c6419b82de49d4fb742ace9a5220d669be1c46203258c554115326dd0a146904f9185f2e1b0
+  checksum: 10c0/f6058d4cbabff17bf8ce44fd3600b90ffb725450c9af0bb6ff7b217cf5a5be7abace900e0f13f8b6035d77352aacde104339bb9f283680f1e74675b019b53807
   languageName: node
   linkType: hard
 
-"@wyw-in-js/webpack-loader@npm:0.4.0":
-  version: 0.4.0
-  resolution: "@wyw-in-js/webpack-loader@npm:0.4.0"
+"@wyw-in-js/webpack-loader@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "@wyw-in-js/webpack-loader@npm:0.4.1"
   dependencies:
-    "@wyw-in-js/shared": "npm:0.4.0"
-    "@wyw-in-js/transform": "npm:0.4.0"
+    "@wyw-in-js/shared": "npm:0.4.1"
+    "@wyw-in-js/transform": "npm:0.4.1"
   peerDependencies:
     webpack: ^5.76.0
-  checksum: 10c0/8961d898f521640738af8d17468142a658631dbec506649f0b5a0c40450ae019445107d83a53a5f470e0f26034bdaeb354fdad29cfd52c23c5d097ccd45a07fa
+  checksum: 10c0/b06480fd08f4653030801b38426d4dfcdbbea195d40dbef24b4f97f351ff910884d644c3510ce0ed0a1cd6bd6714df6e091891b8f1b7ef1e8594beaa5c120175
   languageName: node
   linkType: hard
 
@@ -24225,7 +24225,7 @@ __metadata:
   resolution: "rdc-website@workspace:website"
   dependencies:
     "@anansi/browserslist-config": "npm:1.5.0"
-    "@anansi/webpack-config": "npm:18.0.6"
+    "@anansi/webpack-config": "npm:18.0.8"
     "@data-client/endpoint": "workspace:^"
     "@data-client/graphql": "workspace:*"
     "@data-client/hooks": "workspace:*"
