@@ -390,11 +390,57 @@ describe('denormalize with global cache', () => {
       );
 
       expect(first).not.toBe(second);
-      expect(first.title).toBe(second.title);
+      expect(first.data.title).toBe(second.data.title);
       expect(first.data.author).toBe(second.data.author);
       expect(second.data.comments[0].comment).toEqual('Updated comment!');
       expect(first.data.comments[0]).not.toBe(second.data.comments[0]);
       expect(first.data.comments[0].user).toBe(second.data.comments[0].user);
+    });
+
+    test('nested entity becomes present in entity table', () => {
+      const entityCache = {};
+      const resultCache = new WeakEntityMap();
+
+      const result = { data: '123' };
+      const emptyEntities = {
+        ...entities,
+        // no Users exist
+        User: {},
+      };
+      const { data: first } = denormalize(
+        result,
+        { data: Article },
+        emptyEntities,
+        entityCache,
+        resultCache,
+      );
+
+      const { data: second } = denormalize(
+        result,
+        { data: Article },
+        emptyEntities,
+        entityCache,
+        resultCache,
+      );
+
+      const { data: third } = denormalize(
+        result,
+        { data: Article },
+        // now has users
+        entities,
+        entityCache,
+        resultCache,
+      );
+
+      expect(first.data.title).toBe(third.data.title);
+      expect(first.data.author).toBeUndefined();
+      // maintain cache when nested value is undefined
+      expect(first.data).toBe(second.data);
+      expect(first).toBe(second);
+      // update value when nested value becomes defined
+      expect(third.data.author).toBeDefined();
+      expect(third.data.author.name).toEqual(expect.any(String));
+      expect(first).not.toBe(third);
     });
   });
 
