@@ -24,9 +24,8 @@ export class Post extends Entity {
 }
 ```
 
-```ts title="PostResource" {16-23}
+```ts title="PostResource" {15-22}
 import { RestEndpoint, createResource } from '@data-client/rest';
-import { AbortOptimistic } from '@data-client/rest';
 import { Post } from './Post';
 
 export { Post };
@@ -42,7 +41,7 @@ export const PostResource = createResource({
     schema: Post,
     getOptimisticResponse(snapshot, { id }) {
       const { data } = snapshot.getResponse(Base.get, { id });
-      if (!data) throw new AbortOptimistic();
+      if (!data) throw snapshot.abort;
       return {
         id,
         votes: data.votes + 1,

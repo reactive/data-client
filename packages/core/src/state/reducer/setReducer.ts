@@ -1,6 +1,7 @@
 import { normalize } from '@data-client/normalizr';
 
 import { OPTIMISTIC_TYPE } from '../../actionTypes.js';
+import AbortOptimistic from '../../controller/AbortOptimistic.js';
 import type Controller from '../../controller/Controller.js';
 import type { State, SetAction, OptimisticAction } from '../../types.js';
 
@@ -27,7 +28,7 @@ export function setReducer(
         );
       } catch (e: any) {
         // AbortOptimistic means 'do nothing', otherwise we count the exception as endpoint failure
-        if (e.constructor?.name === 'AbortOptimistic') {
+        if (e.constructor === AbortOptimistic) {
           return state;
         }
         throw e;

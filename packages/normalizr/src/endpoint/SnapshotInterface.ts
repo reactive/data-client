@@ -24,4 +24,5 @@ export interface SnapshotInterface {
   ) => ErrorTypes | undefined;
 
   readonly fetchedAt: number;
+  readonly abort: Error;
 }

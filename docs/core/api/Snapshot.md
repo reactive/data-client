@@ -21,6 +21,7 @@ interface Snapshot {
   getResponse(endpoint, ...args)​ => { data, expiryStatus, expiresAt };
   getError(endpoint, ...args)​ => ErrorTypes | undefined;
   fetchedAt: number;
+  abort: Error;
 }
 ```
 
@@ -90,3 +91,8 @@ Gets the error, if any, for a given endpoint. Returns undefined for no errors.
 ### fetchedAt
 
 When the fetch was called that resulted in this snapshot.
+
+### abort
+
+This is an Error to be thrown in [Endpoint.getOptimisticResponse()](/rest/api/RestEndpoint#getoptimisticresponse)
+to cancel an optimistic update.

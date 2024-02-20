@@ -1,6 +1,5 @@
 import {
   schema,
-  AbortOptimistic,
   Endpoint,
   Index,
   createResource,
@@ -90,7 +89,7 @@ export const VisSettingsResource = {
   partialUpdate: VisSettingsResourceBase.partialUpdate.extend({
     getOptimisticResponse(snap, params, body) {
       const { data } = snap.getResponse(VisSettingsResourceBase.get, params);
-      if (!data) throw new AbortOptimistic();
+      if (!data) throw snap.abort;
       return {
         ...data,
         ...body,
@@ -129,7 +128,7 @@ export const VisSettingsResourceFromMixin = {
         VisSettingsResourceBaseFromMixin.get,
         params,
       );
-      if (!data) throw new AbortOptimistic();
+      if (!data) throw snap.abort;
       return {
         ...data,
         ...body,

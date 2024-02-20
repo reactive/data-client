@@ -153,6 +153,7 @@ interface SnapshotInterface {
     };
     getError: <E extends Pick<EndpointInterface, 'key'>, Args extends readonly [...Parameters<E['key']>]>(endpoint: E, ...args: Args) => ErrorTypes | undefined;
     readonly fetchedAt: number;
+    readonly abort: Error;
 }
 
 /** Defines a networking endpoint */
