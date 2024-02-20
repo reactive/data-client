@@ -1,10 +1,4 @@
-import {
-  Entity,
-  createResource,
-  RestEndpoint,
-  AbortOptimistic,
-  schema,
-} from '@data-client/rest';
+import { Entity, RestEndpoint, schema } from '@data-client/rest';
 import { v4 as uuid } from 'uuid';
 
 class Post extends Entity {

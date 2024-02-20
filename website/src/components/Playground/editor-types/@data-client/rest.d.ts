@@ -73,6 +73,7 @@ interface SnapshotInterface {
     };
     getError: <E extends Pick<EndpointInterface, 'key'>, Args extends readonly [...Parameters<E['key']>]>(endpoint: E, ...args: Args) => ErrorTypes | undefined;
     readonly fetchedAt: number;
+    readonly abort: Error;
 }
 type ExpiryStatusInterface = 1 | 2 | 3;
 
@@ -962,9 +963,6 @@ type QuerySchema<Schema, R> = Exclude<Schema, 'denormalize' | '_denormalizeNulla
     denormalize(input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any): R;
 };
 
-declare class AbortOptimistic extends Error {
-}
-
 type ExtractObject<S extends Record<string, any>> = {
     [K in keyof S]: S[K] extends Schema ? ExtractCollection<S[K]> : never;
 }[keyof S];
@@ -1539,4 +1537,4 @@ declare class NetworkError extends Error {
     constructor(response: Response);
 }
 
-export { AbortOptimistic, AbstractInstanceType, AddEndpoint, Array$1 as Array, ArrayElement, Collection, CustomResource, Defaults, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, EndpointToFunction, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, ExtendedResource, FetchFunction, FetchGet, FetchMutate, FromFallBack, GetEndpoint, HookResource, HookableEndpointInterface, INVALID, Index, IndexParams, Invalidate, KeyofEndpointInstance, KeyofRestEndpoint, KeysToArgs, MethodToSide, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, OptionsToFunction, PaginationEndpoint, PaginationFieldEndpoint, ParamFetchNoBody, ParamFetchWithBody, PartialRestGenerics, PathArgs, PathArgsAndSearch, PathKeys, PolymorphicInterface, Query, ReadEndpoint, ResolveType, Resource, ResourceEndpointExtensions, ResourceExtension, ResourceGenerics, ResourceOptions, RestEndpoint, RestEndpointConstructor, RestEndpointConstructorOptions, RestEndpointExtendOptions, RestEndpointOptions, RestExtendedEndpoint, RestFetch, RestGenerics, RestInstance, RestInstanceBase, RestType, RestTypeNoBody, RestTypeWithBody, Schema, SchemaClass, SchemaSimple, SchemaToArgs, ShortenPath, SnapshotInterface, UnknownError, createResource, getUrlBase, getUrlTokens, hookifyResource, schema_d as schema, validateRequired };
+export { AbstractInstanceType, AddEndpoint, Array$1 as Array, ArrayElement, Collection, CustomResource, Defaults, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, EndpointToFunction, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, ExtendedResource, FetchFunction, FetchGet, FetchMutate, FromFallBack, GetEndpoint, HookResource, HookableEndpointInterface, INVALID, Index, IndexParams, Invalidate, KeyofEndpointInstance, KeyofRestEndpoint, KeysToArgs, MethodToSide, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, OptionsToFunction, PaginationEndpoint, PaginationFieldEndpoint, ParamFetchNoBody, ParamFetchWithBody, PartialRestGenerics, PathArgs, PathArgsAndSearch, PathKeys, PolymorphicInterface, Query, ReadEndpoint, ResolveType, Resource, ResourceEndpointExtensions, ResourceExtension, ResourceGenerics, ResourceOptions, RestEndpoint, RestEndpointConstructor, RestEndpointConstructorOptions, RestEndpointExtendOptions, RestEndpointOptions, RestExtendedEndpoint, RestFetch, RestGenerics, RestInstance, RestInstanceBase, RestType, RestTypeNoBody, RestTypeWithBody, Schema, SchemaClass, SchemaSimple, SchemaToArgs, ShortenPath, SnapshotInterface, UnknownError, createResource, getUrlBase, getUrlTokens, hookifyResource, schema_d as schema, validateRequired };

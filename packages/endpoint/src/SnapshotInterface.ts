@@ -24,6 +24,7 @@ export interface SnapshotInterface {
   ) => ErrorTypes | undefined;
 
   readonly fetchedAt: number;
+  readonly abort: Error;
 }
 
 // looser version to allow for cross-package version compatibility

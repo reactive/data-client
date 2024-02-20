@@ -1,4 +1,4 @@
-import { Endpoint, Entity, AbortOptimistic } from '@data-client/endpoint';
+import { Endpoint, Entity } from '@data-client/endpoint';
 import { CacheProvider } from '@data-client/react';
 import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
 import { jest } from '@jest/globals';
@@ -792,7 +792,7 @@ describe.each([
           sideEffect: true,
           getOptimisticResponse(snap, id) {
             const { data } = snap.getResponse(getbool, id);
-            if (!data) throw new AbortOptimistic();
+            if (!data) throw snap.abort;
             return {
               id,
               visible: data.visible ? false : true,

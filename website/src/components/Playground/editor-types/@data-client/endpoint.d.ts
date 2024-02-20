@@ -71,6 +71,7 @@ interface SnapshotInterface {
     };
     getError: <E extends Pick<EndpointInterface, 'key'>, Args extends readonly [...Parameters<E['key']>]>(endpoint: E, ...args: Args) => ErrorTypes | undefined;
     readonly fetchedAt: number;
+    readonly abort: Error;
 }
 type ExpiryStatusInterface = 1 | 2 | 3;
 
@@ -964,7 +965,4 @@ type QuerySchema<Schema, R> = Exclude<Schema, 'denormalize' | '_denormalizeNulla
     denormalize(input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any): R;
 };
 
-declare class AbortOptimistic extends Error {
-}
-
-export { AbortOptimistic, AbstractInstanceType, Array$1 as Array, ArrayElement, Collection, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, EndpointToFunction, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, INVALID, Index, IndexParams, Invalidate, KeyofEndpointInstance, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, PolymorphicInterface, Query, ReadEndpoint, ResolveType, Schema, SchemaClass, SchemaSimple, SchemaToArgs, SnapshotInterface, UnknownError, schema_d as schema, validateRequired };
+export { AbstractInstanceType, Array$1 as Array, ArrayElement, Collection, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, EndpointToFunction, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, INVALID, Index, IndexParams, Invalidate, KeyofEndpointInstance, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, PolymorphicInterface, Query, ReadEndpoint, ResolveType, Schema, SchemaClass, SchemaSimple, SchemaToArgs, SnapshotInterface, UnknownError, schema_d as schema, validateRequired };

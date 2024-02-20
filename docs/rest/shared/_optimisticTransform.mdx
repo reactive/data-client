@@ -51,7 +51,7 @@ export const increment = new RestEndpoint({
   schema: CountEntity,
   getOptimisticResponse(snap) {
     const { data } = snap.getResponse(getCount);
-    if (!data) throw new AbortOptimistic();
+    if (!data) throw snap.abort;
     return {
       count: data.count + 1,
     };

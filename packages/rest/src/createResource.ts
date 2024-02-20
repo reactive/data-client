@@ -1,8 +1,4 @@
-import {
-  AbortOptimistic,
-  SnapshotInterface,
-  schema,
-} from '@data-client/endpoint';
+import { SnapshotInterface, schema } from '@data-client/endpoint';
 
 import { ResourcePath } from './pathTypes.js';
 import {
@@ -146,7 +142,7 @@ function optimisticPartial(
 ) {
   return function (snap: SnapshotInterface, params: any, body: any) {
     const { data } = snap.getResponse(getEndpoint, params) as { data: any };
-    if (!data) throw new AbortOptimistic();
+    if (!data) throw snap.abort;
     return {
       ...params,
       ...data,

@@ -19,6 +19,7 @@ import {
 } from '@data-client/normalizr';
 import { inferResults, validateInference } from '@data-client/normalizr';
 
+import AbortOptimistic from './AbortOptimistic.js';
 import createExpireAll from './createExpireAll.js';
 import createFetch from './createFetch.js';
 import createInvalidate from './createInvalidate.js';
@@ -478,6 +479,7 @@ class Snapshot<T = unknown> implements SnapshotInterface {
   private state: State<T>;
   private controller: Controller;
   readonly fetchedAt: number;
+  readonly abort = new AbortOptimistic();
 
   constructor(controller: Controller, state: State<T>, fetchedAt = 0) {
     this.state = state;

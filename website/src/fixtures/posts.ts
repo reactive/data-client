@@ -1,9 +1,4 @@
-import {
-  Entity,
-  createResource,
-  RestEndpoint,
-  AbortOptimistic,
-} from '@data-client/rest';
+import { Entity, createResource, RestEndpoint } from '@data-client/rest';
 import { v4 as uuid } from 'uuid';
 
 export class Post extends Entity {
@@ -37,7 +32,7 @@ export const PostResource = {
     schema: Post,
     getOptimisticResponse(snap, { id }) {
       const { data } = snap.getResponse(PostResource.get, { id });
-      if (!data) throw new AbortOptimistic();
+      if (!data) throw snap.abort;
       return {
         votes: data.votes + 1,
       };
@@ -205,15 +200,15 @@ export const postPaginatedFixtures = [
       // get users to merge
       await Promise.all(
         results.map(post =>
-          post.userId
-            ? UserResource.get({ id: post.userId })
-                .then(user => {
-                  (post as any).author = user;
-                  delete (post as any).userId;
-                  return user;
-                })
-                .catch(e => {})
-            : Promise.resolve({}),
+          post.userId ?
+            UserResource.get({ id: post.userId })
+              .then(user => {
+                (post as any).author = user;
+                delete (post as any).userId;
+                return user;
+              })
+              .catch(e => {})
+          : Promise.resolve({}),
         ),
       );
       if (PAGE_SIZE * cursor >= Object.keys(extendedEntities).length)

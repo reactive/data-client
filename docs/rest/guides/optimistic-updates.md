@@ -168,7 +168,7 @@ function optimisticPartial(
 ) {
   return function (snap: SnapshotInterface, params: any, body: any) {
     const { data } = snap.getResponse(getEndpoint, params);
-    if (!data) throw new AbortOptimistic();
+    if (!data) throw snap.abort;
     return {
       ...params,
       ...data,
@@ -330,7 +330,7 @@ export const increment = new RestEndpoint({
   },
   getOptimisticResponse(snap) {
     const { data } = snap.getResponse(getCount);
-    if (!data) throw new AbortOptimistic();
+    if (!data) throw snap.abort;
     return {
       count: data.count + 1,
       updatedAt: snap.fetchedAt,
