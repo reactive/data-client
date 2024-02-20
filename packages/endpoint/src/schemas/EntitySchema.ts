@@ -351,7 +351,7 @@ export default function EntitySchema<TBase extends Constructor>(
         const value = unvisit(input[key], schema);
 
         if (typeof value === 'symbol') {
-          // if default is not 'fasly', then this is required, so propagate INVALID symbol
+          // if default is not 'falsy', then this is required, so propagate INVALID symbol
           if (this.defaults[key]) {
             return value as any;
           }
