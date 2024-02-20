@@ -33,7 +33,6 @@ jobs:
         cache: 'yarn'
     - name: Install packages
       run: |
-        npm install -g corepack
         corepack enable
         yarn install --immutable
     - name: Build packages
