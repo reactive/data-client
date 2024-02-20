@@ -95,36 +95,27 @@ const getUnvisit = (
   function unvisit(input: any, schema: any): any {
     if (!schema) return input;
 
-    if (input === null) {
+    if (input === null || input === undefined) {
       return input;
     }
 
-    const hasDenormalize = typeof schema.denormalize === 'function';
+    if (typeof schema.denormalize !== 'function') {
+      // deserialize fields (like Temporal.Instant)
+      if (typeof schema === 'function') {
+        return schema(input);
+      }
 
-    // deserialize fields (like Temporal.Instant)
-    if (!hasDenormalize && typeof schema === 'function') {
-      if (input === undefined) return input;
-      return schema(input);
-    }
+      // shorthand for object, array
+      if (typeof schema === 'object') {
+        const method =
+          Array.isArray(schema) ? arrayDenormalize : objectDenormalize;
+        return method(schema, input, args, unvisit);
+      }
+    } else {
+      if (isEntity(schema)) {
+        return unvisitEntity(input, schema, args, unvisit, getEntity, cache);
+      }
 
-    if (input === undefined) {
-      // TODO: This is prone to breaking from name mangling
-      const isAll = schema.constructor.name === 'AllSchema';
-
-      return isAll ? INVALID : undefined;
-    }
-
-    if (!hasDenormalize && typeof schema === 'object') {
-      const method =
-        Array.isArray(schema) ? arrayDenormalize : objectDenormalize;
-      return method(schema, input, args, unvisit);
-    }
-
-    if (isEntity(schema)) {
-      return unvisitEntity(input, schema, args, unvisit, getEntity, cache);
-    }
-
-    if (hasDenormalize) {
       return schema.denormalize(input, args, unvisit);
     }
 

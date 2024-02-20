@@ -1,6 +1,7 @@
 import ArraySchema from './Array.js';
 import { EntityTable } from '../interface.js';
 import { EntityInterface, EntityMap, SchemaFunction } from '../schema.js';
+import { INVALID } from '../special.js';
 
 /**
  * Retrieves all entities in cache
@@ -45,7 +46,8 @@ export default class AllSchema<
   infer(args: any, indexes: any, recurse: any, entities: EntityTable): any {
     if (this.isSingleSchema) {
       const entitiesEntry = entities[this.schema.key];
-      if (entitiesEntry === undefined) return undefined;
+      // we must wait until there are entries for any 'All' query to be valid
+      if (entitiesEntry === undefined) return INVALID;
       return Object.values(entitiesEntry).map(
         entity => entity && this.schema.pk(entity),
       );
