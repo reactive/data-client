@@ -1,3 +1,4 @@
+import { UNDEF } from './denormalize/UNDEF.js';
 import { isImmutable } from './schemas/ImmutableUtils.js';
 import { Path } from './types.js';
 
@@ -14,7 +15,8 @@ export default class WeakEntityMap<K extends object = object, V = any> {
     let curLink = this.next.get(entity);
     if (!curLink) return EMPTY;
     while (curLink.nextPath) {
-      const nextEntity = getEntity(curLink.nextPath);
+      // we cannot perform lookups with `undefined`, so we use a special object to represent undefined
+      const nextEntity = getEntity(curLink.nextPath) ?? UNDEF;
       curLink = curLink.next.get(nextEntity as any);
       if (!curLink) return EMPTY;
     }

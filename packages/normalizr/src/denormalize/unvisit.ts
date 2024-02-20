@@ -1,5 +1,6 @@
 import type Cache from './cache.js';
 import { INVALID } from './symbol.js';
+import { UNDEF } from './UNDEF.js';
 import type { EntityInterface } from '../interface.js';
 import { isEntity } from '../isEntity.js';
 import { denormalize as arrayDenormalize } from '../schemas/Array.js';
@@ -22,6 +23,20 @@ function unvisitEntity(
     );
   if (typeof entity === 'symbol' && typeof schema.denormalize === 'function') {
     return schema.denormalize(entity, args, unvisit);
+  }
+
+  if (
+    entity === undefined &&
+    typeof entityOrId === 'string' &&
+    entityOrId !== '' &&
+    entityOrId !== 'undefined'
+  ) {
+    // we cannot perform lookups with `undefined`, so we use a special object to represent undefined
+    // we're actually using this call to ensure we update the cache if a nested schema changes from `undefined`
+    // this is because cache.getEntity adds this key,pk as a dependency of anything it is nested under
+    return cache.getEntity(entityOrId, schema, UNDEF, localCacheKey => {
+      localCacheKey[entityOrId] = undefined;
+    });
   }
 
   if (typeof entity !== 'object' || entity === null) {
@@ -71,7 +86,6 @@ function unvisitEntityObject(
   localCacheKey: Record<string, any>,
   args: readonly any[],
 ): void {
-  let _, deleted;
   const entityCopy = (localCacheKey[pk] =
     isImmutable(entity) ?
       schema.createIfValid(entity.toObject())
