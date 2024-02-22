@@ -60,7 +60,7 @@ describe('normalize', () => {
   });
 
   test('passthrough with id in place of entity', () => {
-    const input = { taco: 5 };
+    const input = { taco: '5' };
     expect(normalize(input, { taco: Tacos }).result).toStrictEqual(input);
   });
 
@@ -272,6 +272,25 @@ describe('normalize', () => {
       }),
     });
     expect(() => normalize(input, Article)).not.toThrow();
+  });
+
+  test('handles number ids when nesting', () => {
+    class User extends IDEntity {}
+    class Article extends IDEntity {
+      title = '';
+      static schema = {
+        author: User,
+      };
+    }
+    const input = Object.freeze({
+      id: 123,
+      title: 'A Great Article',
+      author: {
+        id: 8472,
+        name: 'Paul',
+      },
+    });
+    expect(normalize(input, Article).entities).toMatchSnapshot();
   });
 
   test('ignores null values', () => {

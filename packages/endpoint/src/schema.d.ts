@@ -351,7 +351,7 @@ export function Entity<TBase extends Constructor>(
   Base: TBase,
   opt?: EntityOptions<keyof InstanceType<TBase>>,
 ): (abstract new (...args: any[]) => {
-  pk(parent?: any, key?: string): string | undefined;
+  pk(parent?: any, key?: string): string | number | undefined;
 }) &
   IEntityClass<TBase> &
   TBase;

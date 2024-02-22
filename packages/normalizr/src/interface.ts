@@ -49,7 +49,7 @@ export interface EntityInterface<T = any> extends SchemaSimple {
     parent?: any,
     key?: string,
     args?: readonly any[],
-  ): string | undefined;
+  ): string | number | undefined;
   readonly key: string;
   merge(existing: any, incoming: any): any;
   mergeWithStore(

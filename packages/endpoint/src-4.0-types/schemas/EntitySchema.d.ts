@@ -6,7 +6,11 @@ export type IDClass = new (...args: any[]) => {
   id: string | number | undefined;
 };
 export type PKClass = new (...args: any[]) => {
-  pk(parent?: any, key?: string, args?: readonly any[]): string | undefined;
+  pk(
+    parent?: any,
+    key?: string,
+    args?: readonly any[],
+  ): string | number | undefined;
 };
 type ValidSchemas<TInstance> = {
   [k in keyof TInstance]?: Schema;
@@ -14,7 +18,11 @@ type ValidSchemas<TInstance> = {
 export type EntityOptions<TInstance extends {}> = {
   readonly schema?: ValidSchemas<TInstance>;
   readonly pk?:
-    | ((value: TInstance, parent?: any, key?: string) => string | undefined)
+    | ((
+        value: TInstance,
+        parent?: any,
+        key?: string,
+      ) => string | number | undefined)
     | keyof TInstance;
   readonly key?: string;
 } & {
@@ -33,7 +41,11 @@ export type EntityOptions<TInstance extends {}> = {
 export interface RequiredPKOptions<TInstance extends {}>
   extends EntityOptions<TInstance> {
   readonly pk:
-    | ((value: TInstance, parent?: any, key?: string) => string | undefined)
+    | ((
+        value: TInstance,
+        parent?: any,
+        key?: string,
+      ) => string | number | undefined)
     | keyof TInstance;
 }
 export default function EntitySchema<TBase extends Constructor>(
@@ -84,7 +96,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
     parent?: any,
     key?: string,
     args?: any[],
-  ): string | undefined;
+  ): string | number | undefined;
   /** Return true to merge incoming data; false keeps existing entity
    *
    * @see https://dataclient.io/docs/api/schema.Entity#useIncoming
@@ -235,6 +247,10 @@ export interface IEntityInstance {
    * @param [key] When normalizing, the key where this entity was found
    * @param [args] ...args sent to Endpoint
    */
-  pk(parent?: any, key?: string, args?: readonly any[]): string | undefined;
+  pk(
+    parent?: any,
+    key?: string,
+    args?: readonly any[],
+  ): string | number | undefined;
 }
 export {};

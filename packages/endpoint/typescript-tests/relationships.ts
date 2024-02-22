@@ -12,7 +12,7 @@ export class IDEntity extends Entity {
    * @param [parent] When normalizing, the object which included the entity
    * @param [key] When normalizing, the key where this entity was found
    */
-  pk(parent?: any, key?: string): string | undefined {
+  pk(parent?: any, key?: string): string | number | undefined {
     return `${this.id}`;
   }
 }

@@ -23,7 +23,10 @@ const visit = (
   }
 
   if (schema.normalize && typeof schema.normalize === 'function') {
-    if (typeof value !== 'object') return value;
+    if (typeof value !== 'object') {
+      if (schema.pk) return `${value}`;
+      return value;
+    }
     return schema.normalize(
       value,
       parent,

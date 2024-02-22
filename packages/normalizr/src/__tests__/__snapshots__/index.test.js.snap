@@ -394,7 +394,7 @@ exports[`normalize can use fully custom entity classes 1`] = `
     "Food": {
       "1234": {
         "children": [
-          4,
+          "4",
         ],
         "name": "tacos",
         "uuid": "1234",
@@ -421,6 +421,24 @@ exports[`normalize can use fully custom entity classes 1`] = `
   "result": {
     "schema": "Food",
     "uuid": "1234",
+  },
+}
+`;
+
+exports[`normalize handles number ids when nesting 1`] = `
+{
+  "Article": {
+    "123": {
+      "author": "8472",
+      "id": 123,
+      "title": "A Great Article",
+    },
+  },
+  "User": {
+    "8472": {
+      "id": 8472,
+      "name": "Paul",
+    },
   },
 }
 `;

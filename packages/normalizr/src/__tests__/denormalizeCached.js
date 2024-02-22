@@ -444,6 +444,74 @@ describe('denormalize with global cache', () => {
     });
   });
 
+  test('nested entity becomes present in entity table with numbers', () => {
+    const entityCache = {};
+    const resultCache = new WeakEntityMap();
+
+    class User extends IDEntity {}
+    class Article extends IDEntity {
+      title = '';
+      static schema = {
+        author: User,
+      };
+    }
+    const result = { data: 123 };
+    const entities = {
+      Article: {
+        123: {
+          author: 8472,
+          id: 123,
+          title: 'A Great Article',
+        },
+      },
+      User: {
+        8472: {
+          id: 8472,
+          name: 'Paul',
+        },
+      },
+    };
+    const emptyEntities = {
+      ...entities,
+      // no Users exist
+      User: {},
+    };
+    const { data: first } = denormalize(
+      result,
+      { data: Article },
+      emptyEntities,
+      entityCache,
+      resultCache,
+    );
+
+    const { data: second } = denormalize(
+      result,
+      { data: Article },
+      emptyEntities,
+      entityCache,
+      resultCache,
+    );
+
+    const { data: third } = denormalize(
+      result,
+      { data: Article },
+      // now has users
+      entities,
+      entityCache,
+      resultCache,
+    );
+
+    expect(first.data.title).toBe(third.data.title);
+    expect(first.data.author).toBeUndefined();
+    // maintain cache when nested value is undefined
+    expect(first.data).toBe(second.data);
+    expect(first).toBe(second);
+    // update value when nested value becomes defined
+    expect(third.data.author).toBeDefined();
+    expect(third.data.author.name).toEqual(expect.any(String));
+    expect(first).not.toBe(third);
+  });
+
   test('denormalizes plain object with no entities', () => {
     const entityCache = {};
     const resultCache = new WeakEntityMap();

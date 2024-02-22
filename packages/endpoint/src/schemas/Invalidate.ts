@@ -40,7 +40,7 @@ export default class Invalidate<
     visitedEntities: Record<string, any>,
     storeEntities: Record<string, any>,
     args?: any[],
-  ): string | undefined {
+  ): string | number | undefined {
     // TODO: what's store needs to be a differing type from fromJS
     const processedEntity = this._entity.process(input, parent, key, args);
     const id = this._entity.pk(processedEntity, parent, key, args);

@@ -48,7 +48,12 @@ export interface SchemaClass<T = any, N = T | undefined>
 
 export interface EntityInterface<T = any> extends SchemaSimple {
   createIfValid(props: any): any;
-  pk(params: any, parent?: any, key?: string, args?: any[]): string | undefined;
+  pk(
+    params: any,
+    parent?: any,
+    key?: string,
+    args?: any[],
+  ): string | number | undefined;
   readonly key: string;
   merge(existing: any, incoming: any): any;
   mergeWithStore(
