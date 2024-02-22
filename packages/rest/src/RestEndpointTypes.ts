@@ -493,26 +493,7 @@ export type RestType<
   } = { path: string; paginationField: string },
   // eslint-disable-next-line @typescript-eslint/ban-types
 > = IfTypeScriptLooseNull<
-  RestInstance<
-    keyof UrlParams extends never ?
-      (this: EndpointInstanceInterface, body?: Body) => Promise<R>
-    : // even with loose null, this will only be true when all members are optional
-    {} extends UrlParams ?
-      | ((this: EndpointInstanceInterface, body?: Body) => Promise<R>)
-      | ((
-          this: EndpointInstanceInterface,
-          params: UrlParams,
-          body?: Body,
-        ) => Promise<R>)
-    : (
-        this: EndpointInstanceInterface,
-        params: UrlParams,
-        body?: Body,
-      ) => Promise<R>,
-    S,
-    M,
-    O
-  >,
+  RestInstance<RestFetch<UrlParams, Body, R>, S, M, O>,
   Body extends {} ? RestTypeWithBody<UrlParams, S, M, Body, R, O>
   : RestTypeNoBody<UrlParams, S, M, R, O>
 >;
