@@ -121,7 +121,7 @@ interface SchemaClass<T = any, N = T | undefined> extends SchemaSimple<T> {
 }
 interface EntityInterface<T = any> extends SchemaSimple {
     createIfValid(props: any): any;
-    pk(params: any, parent?: any, key?: string, args?: any[]): string | undefined;
+    pk(params: any, parent?: any, key?: string, args?: any[]): string | number | undefined;
     readonly key: string;
     merge(existing: any, incoming: any): any;
     mergeWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
@@ -241,20 +241,20 @@ type IDClass = abstract new (...args: any[]) => {
     id: string | number | undefined;
 };
 type PKClass = abstract new (...args: any[]) => {
-    pk(parent?: any, key?: string, args?: readonly any[]): string | undefined;
+    pk(parent?: any, key?: string, args?: readonly any[]): string | number | undefined;
 };
 type ValidSchemas<TInstance> = {
     [k in keyof TInstance]?: Schema;
 };
 type EntityOptions<TInstance extends {}> = {
     readonly schema?: ValidSchemas<TInstance>;
-    readonly pk?: ((value: TInstance, parent?: any, key?: string) => string | undefined) | keyof TInstance;
+    readonly pk?: ((value: TInstance, parent?: any, key?: string) => string | number | undefined) | keyof TInstance;
     readonly key?: string;
 } & {
     readonly [K in Extract<keyof IEntityClass, 'process' | 'merge' | 'expiresAt' | 'createIfValid' | 'mergeWithStore' | 'validate' | 'shouldReorder' | 'useIncoming'>]?: IEntityClass<abstract new (...args: any[]) => TInstance>[K];
 };
 interface RequiredPKOptions<TInstance extends {}> extends EntityOptions<TInstance> {
-    readonly pk: ((value: TInstance, parent?: any, key?: string) => string | undefined) | keyof TInstance;
+    readonly pk: ((value: TInstance, parent?: any, key?: string) => string | number | undefined) | keyof TInstance;
 }
 interface IEntityClass<TBase extends Constructor = any> {
     toJSON(): {
@@ -290,7 +290,7 @@ interface IEntityClass<TBase extends Constructor = any> {
      * @param [key] When normalizing, the key where this entity was found
      * @param [args] ...args sent to Endpoint
      */
-    pk<T extends (abstract new (...args: any[]) => IEntityInstance & InstanceType<TBase>) & IEntityClass & TBase>(this: T, value: Partial<AbstractInstanceType<T>>, parent?: any, key?: string, args?: any[]): string | undefined;
+    pk<T extends (abstract new (...args: any[]) => IEntityInstance & InstanceType<TBase>) & IEntityClass & TBase>(this: T, value: Partial<AbstractInstanceType<T>>, parent?: any, key?: string, args?: any[]): string | number | undefined;
     /** Return true to merge incoming data; false keeps existing entity
      *
      * @see https://dataclient.io/docs/api/schema.Entity#useIncoming
@@ -386,7 +386,7 @@ interface IEntityInstance {
      * @param [key] When normalizing, the key where this entity was found
      * @param [args] ...args sent to Endpoint
      */
-    pk(parent?: any, key?: string, args?: readonly any[]): string | undefined;
+    pk(parent?: any, key?: string, args?: readonly any[]): string | number | undefined;
 }
 
 /**
@@ -403,7 +403,7 @@ declare class Invalidate<E extends EntityInterface & {
     constructor(entity: E);
     get key(): string;
     /** Normalize lifecycles **/
-    normalize(input: any, parent: any, key: string | undefined, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: Record<string, any>, args?: any[]): string | undefined;
+    normalize(input: any, parent: any, key: string | undefined, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: Record<string, any>, args?: any[]): string | number | undefined;
     merge(existing: any, incoming: any): any;
     mergeWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
     mergeMetaWithStore(existingMeta: {
@@ -879,9 +879,9 @@ declare namespace schema_d {
 }
 
 declare const Entity_base: IEntityClass<abstract new (...args: any[]) => {
-    pk(parent?: any, key?: string | undefined, args?: readonly any[] | undefined): string | undefined;
+    pk(parent?: any, key?: string | undefined, args?: readonly any[] | undefined): string | number | undefined;
 }> & (abstract new (...args: any[]) => {
-    pk(parent?: any, key?: string | undefined, args?: readonly any[] | undefined): string | undefined;
+    pk(parent?: any, key?: string | undefined, args?: readonly any[] | undefined): string | number | undefined;
 });
 /**
  * Represents data that should be deduped by specifying a primary key.
@@ -896,7 +896,7 @@ declare abstract class Entity extends Entity_base {
      * @param [args] ...args sent to Endpoint
      * @see https://dataclient.io/rest/api/Entity#pk
      */
-    abstract pk(parent?: any, key?: string, args?: readonly any[]): string | undefined;
+    abstract pk(parent?: any, key?: string, args?: readonly any[]): string | number | undefined;
     /** Control how automatic schema validation is handled
      *
      * `undefined`: Defaults - throw error in worst offense
@@ -920,7 +920,7 @@ declare abstract class Entity extends Entity_base {
      * @param [key] When normalizing, the key where this entity was found
      * @param [args] ...args sent to Endpoint
      */
-    static pk: <T extends typeof Entity>(this: T, value: Partial<AbstractInstanceType<T>>, parent?: any, key?: string, args?: any[]) => string | undefined;
+    static pk: <T extends typeof Entity>(this: T, value: Partial<AbstractInstanceType<T>>, parent?: any, key?: string, args?: any[]) => string | number | undefined;
     /** Do any transformations when first receiving input
      *
      * @see https://dataclient.io/rest/api/Entity#process

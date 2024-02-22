@@ -27,7 +27,7 @@ function unvisitEntity(
 
   if (
     entity === undefined &&
-    typeof entityOrId === 'string' &&
+    typeof entityOrId !== 'object' &&
     entityOrId !== '' &&
     entityOrId !== 'undefined'
   ) {
@@ -43,16 +43,14 @@ function unvisitEntity(
     return entity as any;
   }
 
-  const pk =
-    // normalize must always place a string, because pk() return value is string | undefined
-    // therefore no need to check for numbers
-    typeof entityOrId === 'string' ? entityOrId : (
-      schema.pk(
+  let pk: string =
+    typeof entityOrId !== 'object' ? entityOrId : (
+      (schema.pk(
         isImmutable(entity) ? (entity as any).toJS() : entity,
         undefined,
         undefined,
         args,
-      )
+      ) as any)
     );
 
   // if we can't generate a working pk we cannot do cache lookups properly,
@@ -62,6 +60,9 @@ function unvisitEntity(
       unvisitEntityObject(entity, schema, unvisit, '', localCacheKey, args),
     );
   }
+
+  // just an optimization to make all cache usages of pk monomorphic
+  if (typeof pk !== 'string') pk = `${pk}`;
 
   // last function computes if it is not in any caches
   return cache.getEntity(pk, schema, entity, localCacheKey =>

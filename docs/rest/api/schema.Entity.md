@@ -55,7 +55,7 @@ class UserEntity extends schema.Entity(User, {
 
 </TypeScriptEditor>
 
-### pk: string | (value, parent?, key?, args?) => string | undefined = 'id' {#pk}
+### pk: string | (value, parent?, key?, args?) => string | number | undefined = 'id' {#pk}
 
 Specifies the [Entity.pk](./Entity.md#pk)
 

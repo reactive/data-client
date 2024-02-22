@@ -6,7 +6,7 @@ declare const Entity_base: import('./EntitySchema.js').IEntityClass<
       parent?: any,
       key?: string | undefined,
       args?: readonly any[] | undefined,
-    ): string | undefined;
+    ): string | number | undefined;
   }
 > &
   (new (...args: any[]) => {
@@ -14,7 +14,7 @@ declare const Entity_base: import('./EntitySchema.js').IEntityClass<
       parent?: any,
       key?: string | undefined,
       args?: readonly any[] | undefined,
-    ): string | undefined;
+    ): string | number | undefined;
   });
 /**
  * Represents data that should be deduped by specifying a primary key.
@@ -33,7 +33,7 @@ export default abstract class Entity extends Entity_base {
     parent?: any,
     key?: string,
     args?: readonly any[],
-  ): string | undefined;
+  ): string | number | undefined;
 
   /** Control how automatic schema validation is handled
    *
@@ -68,7 +68,7 @@ export default abstract class Entity extends Entity_base {
     parent?: any,
     key?: string,
     args?: any[],
-  ) => string | undefined;
+  ) => string | number | undefined;
 
   /** Do any transformations when first receiving input
    *

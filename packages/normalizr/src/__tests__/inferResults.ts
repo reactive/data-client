@@ -305,7 +305,7 @@ describe('inferResults()', () => {
         entities: any,
       ) {
         if (!args[0]) return;
-        let id: undefined | string;
+        let id: undefined | number | string;
         if (['string', 'number'].includes(typeof args[0])) {
           id = `${args[0]}`;
         } else {

@@ -295,6 +295,7 @@ function TodosPage() {
   useFetch(TodoResource.getList);
   const todos = useCache(todosWithUser, { userId: 1 });
   if (!todos) return <div>No Todos in cache yet</div>;
+  if (!todos.length) return <div>No Todos match user</div>;
   return (
     <div>
       {todos.map(todo => (

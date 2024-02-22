@@ -17,7 +17,7 @@ interface SchemaClass<T = any, N = T | undefined> extends SchemaSimple<T> {
 }
 interface EntityInterface<T = any> extends SchemaSimple {
     createIfValid(props: any): any;
-    pk(params: any, parent?: any, key?: string, args?: readonly any[]): string | undefined;
+    pk(params: any, parent?: any, key?: string, args?: readonly any[]): string | number | undefined;
     readonly key: string;
     merge(existing: any, incoming: any): any;
     mergeWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;

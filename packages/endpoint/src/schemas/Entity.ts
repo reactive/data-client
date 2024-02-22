@@ -4,7 +4,11 @@ import { AbstractInstanceType } from '../normal.js';
 import { Entity as EntitySchema } from '../schema.js';
 
 const EmptyBase = class {} as any as abstract new (...args: any[]) => {
-  pk(parent?: any, key?: string, args?: readonly any[]): string | undefined;
+  pk(
+    parent?: any,
+    key?: string,
+    args?: readonly any[],
+  ): string | number | undefined;
 };
 
 /**
@@ -24,7 +28,7 @@ export default abstract class Entity extends EntitySchema(EmptyBase) {
     parent?: any,
     key?: string,
     args?: readonly any[],
-  ): string | undefined;
+  ): string | number | undefined;
 
   /** Control how automatic schema validation is handled
    *
@@ -61,7 +65,7 @@ export default abstract class Entity extends EntitySchema(EmptyBase) {
     parent?: any,
     key?: string,
     args?: any[],
-  ) => string | undefined;
+  ) => string | number | undefined;
 
   /** Do any transformations when first receiving input
    *
