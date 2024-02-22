@@ -1254,7 +1254,7 @@ type RestType<UrlParams = any, Body = any, S extends Schema | undefined = Schema
 } = {
     path: string;
     paginationField: string;
-}> = IfTypeScriptLooseNull<RestInstance<keyof UrlParams extends never ? (this: EndpointInstanceInterface, body?: Body) => Promise<R> : {} extends UrlParams ? ((this: EndpointInstanceInterface, body?: Body) => Promise<R>) | ((this: EndpointInstanceInterface, params: UrlParams, body?: Body) => Promise<R>) : (this: EndpointInstanceInterface, params: UrlParams, body?: Body) => Promise<R>, S, M, O>, Body extends {} ? RestTypeWithBody<UrlParams, S, M, Body, R, O> : RestTypeNoBody<UrlParams, S, M, R, O>>;
+}> = IfTypeScriptLooseNull<RestInstance<RestFetch<UrlParams, Body, R>, S, M, O>, Body extends {} ? RestTypeWithBody<UrlParams, S, M, Body, R, O> : RestTypeNoBody<UrlParams, S, M, R, O>>;
 type RestTypeWithBody<UrlParams = any, S extends Schema | undefined = Schema | undefined, M extends true | undefined = true | undefined, Body = any, R = any, O extends {
     path: string;
     body?: any;

@@ -205,6 +205,9 @@ describe('createResource()', () => {
     expect(user.username).toBe('newbob');
     expect(user).toBeInstanceOf(User);
     expect(user.isAdmin).toBe(false);
+
+    // check types
+    () => controller.getResponse(UserResource.current, controller.getState());
   });
 
   it('can override endpoint options', async () => {
