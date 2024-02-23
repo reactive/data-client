@@ -3115,7 +3115,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/endpoint@npm:^0.10.0, @data-client/endpoint@workspace:^, @data-client/endpoint@workspace:packages/endpoint":
+"@data-client/endpoint@npm:^0.10.0, @data-client/endpoint@workspace:*, @data-client/endpoint@workspace:^, @data-client/endpoint@workspace:packages/endpoint":
   version: 0.0.0-use.local
   resolution: "@data-client/endpoint@workspace:packages/endpoint"
   dependencies:
@@ -24269,7 +24269,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": "npm:1.5.0"
     "@anansi/webpack-config": "npm:18.0.9"
-    "@data-client/endpoint": "workspace:^"
+    "@data-client/endpoint": "workspace:*"
     "@data-client/graphql": "workspace:*"
     "@data-client/hooks": "workspace:*"
     "@data-client/react": "workspace:*"

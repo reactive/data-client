@@ -33,7 +33,7 @@
   "dependencies": {
     "@anansi/browserslist-config": "1.5.0",
     "@anansi/webpack-config": "18.0.9",
-    "@data-client/endpoint": "workspace:^",
+    "@data-client/endpoint": "workspace:*",
     "@data-client/graphql": "workspace:*",
     "@data-client/hooks": "workspace:*",
     "@data-client/react": "workspace:*",
