@@ -424,10 +424,7 @@ declare class Invalidate<E extends EntityInterface & {
     _normalizeNullable(): string | undefined;
 }
 
-type CollectionOptions<Args extends any[] = [
-    urlParams: Record<string, any>,
-    body?: Record<string, any>
-], Parent = any> = ({
+type CollectionOptions<Args extends any[] = [] | [urlParams: Record<string, any>] | [urlParams: Record<string, any>, body: any], Parent = any> = ({
     nestKey?: (parent: Parent, key: string) => Record<string, any>;
 } | {
     argsKey?: (...args: Args) => Record<string, any>;
@@ -496,15 +493,9 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
         denormalize(...args: any): Record<string, unknown>;
     } ? Collection<S, Args, Parent> : never;
 }
-type CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Args extends any[] = [
-    urlParams: Record<string, any>,
-    body?: Record<string, any>
-], Parent = any> = CollectionInterface<S extends any[] ? Array$1<S[number]> : S, Args, Parent>;
+type CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Args extends any[] = [] | [urlParams: Record<string, any>] | [urlParams: Record<string, any>, body: any], Parent = any> = CollectionInterface<S extends any[] ? Array$1<S[number]> : S, Args, Parent>;
 interface CollectionConstructor {
-    new <S extends SchemaSimple[] | PolymorphicInterface = any, Args extends any[] = [
-        urlParams: Record<string, any>,
-        body?: Record<string, any>
-    ], Parent = any>(schema: S, options?: CollectionOptions<Args, Parent>): CollectionFromSchema<S, Args, Parent>;
+    new <S extends SchemaSimple[] | PolymorphicInterface = any, Args extends any[] = [] | [urlParams: Record<string, any>] | [urlParams: Record<string, any>, body: any], Parent = any>(schema: S, options?: CollectionOptions<Args, Parent>): CollectionFromSchema<S, Args, Parent>;
     readonly prototype: CollectionInterface;
 }
 type StrategyFunction<T> = (value: any, parent: any, key: string) => T;
@@ -539,7 +530,7 @@ declare class Array$1<S extends Schema = Schema> implements SchemaClass {
     addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
     storeEntities: any,
-    args?: any[],
+    args: any[],
   ): (S extends EntityMap ? UnionResult<S> : Normalize<S>)[];
 
   _normalizeNullable():
@@ -598,9 +589,7 @@ declare class All<
     | (S extends EntityMap ? UnionResult<S> : Normalize<S>)[]
     | undefined;
 
-  _denormalizeNullable():
-    | (S extends EntityMap<infer T> ? T : Denormalize<S>)[]
-    | undefined;
+  _denormalizeNullable(): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
 
   denormalize(
     input: {},
@@ -790,10 +779,10 @@ declare let CollectionRoot: CollectionConstructor;
  */
 declare class Collection<
   S extends any[] | PolymorphicInterface = any,
-  Args extends any[] = [
-    urlParams: Record<string, any>,
-    body?: Record<string, any>,
-  ],
+  Args extends any[] =
+    | []
+    | [urlParams: Record<string, any>]
+    | [urlParams: Record<string, any>, body: any],
   Parent = any,
 > extends CollectionRoot<S, Args, Parent> {}
 
@@ -833,17 +822,14 @@ type schema_d_Values<Choices extends Schema = any> = Values<Choices>;
 declare const schema_d_Values: typeof Values;
 type schema_d_CollectionArrayAdder<S extends PolymorphicInterface> = CollectionArrayAdder<S>;
 declare const schema_d_CollectionRoot: typeof CollectionRoot;
-type schema_d_Collection<S extends any[] | PolymorphicInterface = any, Args extends any[] = [
-    urlParams: Record<string, any>,
-    body?: Record<string, any>,
-  ], Parent = any> = Collection<S, Args, Parent>;
+type schema_d_Collection<S extends any[] | PolymorphicInterface = any, Args extends any[] =
+    | []
+    | [urlParams: Record<string, any>]
+    | [urlParams: Record<string, any>, body: any], Parent = any> = Collection<S, Args, Parent>;
 declare const schema_d_Collection: typeof Collection;
 type schema_d_EntityInterface<T = any> = EntityInterface<T>;
 type schema_d_CollectionInterface<S extends PolymorphicInterface = any, Args extends any[] = any[], Parent = any> = CollectionInterface<S, Args, Parent>;
-type schema_d_CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Args extends any[] = [
-    urlParams: Record<string, any>,
-    body?: Record<string, any>
-], Parent = any> = CollectionFromSchema<S, Args, Parent>;
+type schema_d_CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Args extends any[] = [] | [urlParams: Record<string, any>] | [urlParams: Record<string, any>, body: any], Parent = any> = CollectionFromSchema<S, Args, Parent>;
 type schema_d_CollectionConstructor = CollectionConstructor;
 type schema_d_StrategyFunction<T> = StrategyFunction<T>;
 type schema_d_SchemaFunction<K = string> = SchemaFunction<K>;
@@ -1275,6 +1261,8 @@ type RestTypeNoBody<UrlParams = any, S extends Schema | undefined = Schema | und
 type RestFetch<UrlParams, Body = {}, Resolve = any> = IfTypeScriptLooseNull<ParamFetchNoBody<UrlParams, Resolve> | ParamFetchWithBody<UrlParams, Body, Resolve>, Body extends {} ? ParamFetchWithBody<UrlParams, Body, Resolve> : ParamFetchNoBody<UrlParams, Resolve>>;
 type ParamFetchWithBody<P, B = {}, R = any> = P extends undefined ? (this: EndpointInstanceInterface, body: B) => Promise<R> : {} extends P ? keyof P extends never ? (this: EndpointInstanceInterface, body: B) => Promise<R> : ((this: EndpointInstanceInterface, params: P, body: B) => Promise<R>) | ((this: EndpointInstanceInterface, body: B) => Promise<R>) : (this: EndpointInstanceInterface, params: P, body: B) => Promise<R>;
 type ParamFetchNoBody<P, R = any> = P extends undefined ? (this: EndpointInstanceInterface) => Promise<R> : {} extends P ? keyof P extends never ? (this: EndpointInstanceInterface) => Promise<R> : ((this: EndpointInstanceInterface, params: P) => Promise<R>) | ((this: EndpointInstanceInterface) => Promise<R>) : (this: EndpointInstanceInterface, params: P) => Promise<R>;
+type ParamToArgs<P> = P extends undefined ? [] : {} extends P ? keyof P extends never ? [
+] : [] | [P] : [P];
 type IfTypeScriptLooseNull<Y, N> = 1 | undefined extends 1 ? Y : N;
 type KeyofRestEndpoint = keyof RestInstance;
 type FromFallBack<K extends keyof E, O, E> = K extends keyof O ? O[K] : E[K];
@@ -1434,18 +1422,14 @@ interface Resource<O extends ResourceGenerics = {
         path: ShortenPath<O['path']>;
         schema: Collection<[
             O['schema']
-        ], [
-            'searchParams' extends keyof O ? O['searchParams'] extends undefined ? PathArgs<ShortenPath<O['path']>> : O['searchParams'] & PathArgs<ShortenPath<O['path']>> : PathArgs<ShortenPath<O['path']>>
-        ]>;
+        ], ParamToArgs<O['searchParams'] extends undefined ? KeysToArgs<ShortenPath<O['path']>> : O['searchParams'] & PathArgs<ShortenPath<O['path']>>>>;
         body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>>;
         searchParams: O['searchParams'];
     } & Pick<O, 'paginationField'>> : GetEndpoint<{
         path: ShortenPath<O['path']>;
         schema: Collection<[
             O['schema']
-        ], [
-            'searchParams' extends keyof O ? O['searchParams'] extends undefined ? PathArgs<ShortenPath<O['path']>> : O['searchParams'] & PathArgs<ShortenPath<O['path']>> : PathArgs<ShortenPath<O['path']>>
-        ]>;
+        ], ParamToArgs<(Record<string, number | string | boolean> | undefined) & PathArgs<ShortenPath<O['path']>>>>;
         body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>>;
         searchParams: Record<string, number | string | boolean> | undefined;
     } & Pick<O, 'paginationField'>>;
@@ -1537,4 +1521,4 @@ declare class NetworkError extends Error {
     constructor(response: Response);
 }
 
-export { AbstractInstanceType, AddEndpoint, Array$1 as Array, ArrayElement, Collection, CustomResource, Defaults, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, EndpointToFunction, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, ExtendedResource, FetchFunction, FetchGet, FetchMutate, FromFallBack, GetEndpoint, HookResource, HookableEndpointInterface, INVALID, Index, IndexParams, Invalidate, KeyofEndpointInstance, KeyofRestEndpoint, KeysToArgs, MethodToSide, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, OptionsToFunction, PaginationEndpoint, PaginationFieldEndpoint, ParamFetchNoBody, ParamFetchWithBody, PartialRestGenerics, PathArgs, PathArgsAndSearch, PathKeys, PolymorphicInterface, Query, ReadEndpoint, ResolveType, Resource, ResourceEndpointExtensions, ResourceExtension, ResourceGenerics, ResourceOptions, RestEndpoint, RestEndpointConstructor, RestEndpointConstructorOptions, RestEndpointExtendOptions, RestEndpointOptions, RestExtendedEndpoint, RestFetch, RestGenerics, RestInstance, RestInstanceBase, RestType, RestTypeNoBody, RestTypeWithBody, Schema, SchemaClass, SchemaSimple, SchemaToArgs, ShortenPath, SnapshotInterface, UnknownError, createResource, getUrlBase, getUrlTokens, hookifyResource, schema_d as schema, validateRequired };
+export { AbstractInstanceType, AddEndpoint, Array$1 as Array, ArrayElement, Collection, CustomResource, Defaults, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, EndpointToFunction, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, ExtendedResource, FetchFunction, FetchGet, FetchMutate, FromFallBack, GetEndpoint, HookResource, HookableEndpointInterface, INVALID, Index, IndexParams, Invalidate, KeyofEndpointInstance, KeyofRestEndpoint, KeysToArgs, MethodToSide, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, OptionsToFunction, PaginationEndpoint, PaginationFieldEndpoint, ParamFetchNoBody, ParamFetchWithBody, ParamToArgs, PartialRestGenerics, PathArgs, PathArgsAndSearch, PathKeys, PolymorphicInterface, Query, ReadEndpoint, ResolveType, Resource, ResourceEndpointExtensions, ResourceExtension, ResourceGenerics, ResourceOptions, RestEndpoint, RestEndpointConstructor, RestEndpointConstructorOptions, RestEndpointExtendOptions, RestEndpointOptions, RestExtendedEndpoint, RestFetch, RestGenerics, RestInstance, RestInstanceBase, RestType, RestTypeNoBody, RestTypeWithBody, Schema, SchemaClass, SchemaSimple, SchemaToArgs, ShortenPath, SnapshotInterface, UnknownError, createResource, getUrlBase, getUrlTokens, hookifyResource, schema_d as schema, validateRequired };

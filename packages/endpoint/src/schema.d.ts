@@ -66,7 +66,7 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
     addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
     storeEntities: any,
-    args?: any[],
+    args: any[],
   ): (S extends EntityMap ? UnionResult<S> : Normalize<S>)[];
 
   _normalizeNullable():
@@ -125,9 +125,7 @@ export class All<
     | (S extends EntityMap ? UnionResult<S> : Normalize<S>)[]
     | undefined;
 
-  _denormalizeNullable():
-    | (S extends EntityMap<infer T> ? T : Denormalize<S>)[]
-    | undefined;
+  _denormalizeNullable(): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
 
   denormalize(
     input: {},
@@ -317,10 +315,10 @@ export declare let CollectionRoot: CollectionConstructor;
  */
 export declare class Collection<
   S extends any[] | PolymorphicInterface = any,
-  Args extends any[] = [
-    urlParams: Record<string, any>,
-    body?: Record<string, any>,
-  ],
+  Args extends any[] =
+    | []
+    | [urlParams: Record<string, any>]
+    | [urlParams: Record<string, any>, body: any],
   Parent = any,
 > extends CollectionRoot<S, Args, Parent> {}
 

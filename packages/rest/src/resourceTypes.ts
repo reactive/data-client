@@ -2,11 +2,17 @@ import type { Collection, schema } from '@data-client/endpoint';
 import type { Schema } from '@data-client/endpoint';
 import type { Denormalize } from '@data-client/endpoint';
 
-import type { PathArgs, ResourcePath, ShortenPath } from './pathTypes.js';
+import type {
+  KeysToArgs,
+  PathArgs,
+  ResourcePath,
+  ShortenPath,
+} from './pathTypes.js';
 import { Extendable } from './resourceExtendable.js';
 import RestEndpoint, {
   GetEndpoint,
   MutateEndpoint,
+  ParamToArgs,
   RestInstanceBase,
   RestTypeNoBody,
 } from './RestEndpoint.js';
@@ -74,13 +80,11 @@ export interface Resource<
         path: ShortenPath<O['path']>;
         schema: schema.Collection<
           [O['schema']],
-          [
-            'searchParams' extends keyof O ?
-              O['searchParams'] extends undefined ?
-                PathArgs<ShortenPath<O['path']>>
-              : O['searchParams'] & PathArgs<ShortenPath<O['path']>>
-            : PathArgs<ShortenPath<O['path']>>,
-          ]
+          ParamToArgs<
+            O['searchParams'] extends undefined ?
+              KeysToArgs<ShortenPath<O['path']>>
+            : O['searchParams'] & PathArgs<ShortenPath<O['path']>>
+          >
         >;
         body: 'body' extends keyof O ? O['body']
         : Partial<Denormalize<O['schema']>>;
@@ -92,13 +96,10 @@ export interface Resource<
         path: ShortenPath<O['path']>;
         schema: schema.Collection<
           [O['schema']],
-          [
-            'searchParams' extends keyof O ?
-              O['searchParams'] extends undefined ?
-                PathArgs<ShortenPath<O['path']>>
-              : O['searchParams'] & PathArgs<ShortenPath<O['path']>>
-            : PathArgs<ShortenPath<O['path']>>,
-          ]
+          ParamToArgs<
+            (Record<string, number | string | boolean> | undefined) &
+              PathArgs<ShortenPath<O['path']>>
+          >
         >;
         body: 'body' extends keyof O ? O['body']
         : Partial<Denormalize<O['schema']>>;

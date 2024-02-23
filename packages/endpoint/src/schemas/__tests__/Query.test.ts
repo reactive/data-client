@@ -208,7 +208,7 @@ describe.each([
 describe('top level schema', () => {
   const sortedUsers = new Query(
     new schema.Collection([User]),
-    (results, { asc } = { asc: false }) => {
+    (results, { asc } = { asc: false }, ...args) => {
       if (!results) return results;
       const sorted = [...results].sort((a, b) => a.name.localeCompare(b.name));
       if (asc) return sorted;

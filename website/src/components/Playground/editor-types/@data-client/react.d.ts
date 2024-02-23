@@ -1,5 +1,5 @@
 import * as _data_client_core from '@data-client/core';
-import { Manager, State as State$1, Controller, NetworkError, EndpointInterface, FetchFunction, Schema, DenormalizeNullable, ResolveType, Denormalize, UnknownError, ErrorTypes as ErrorTypes$1, ActionTypes, __INTERNAL__, createReducer, applyManager } from '@data-client/core';
+import { Manager, State, Controller, NetworkError, EndpointInterface, FetchFunction, Schema, DenormalizeNullable, ResolveType, Denormalize, UnknownError, ErrorTypes as ErrorTypes$1, ActionTypes, __INTERNAL__, createReducer, applyManager } from '@data-client/core';
 export { AbstractInstanceType, ActionTypes, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, ResetAction, ResolveType, Schema, SetAction, SetTypes, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@data-client/core';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import React$1, { Context } from 'react';
@@ -11,14 +11,14 @@ type DevToolsPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left
 interface ProviderProps {
     children: React$1.ReactNode;
     managers?: Manager[];
-    initialState?: State$1<unknown>;
+    initialState?: State<unknown>;
     Controller?: typeof Controller;
     devButton?: DevToolsPosition | null | undefined;
 }
-interface Props$2 {
+interface Props$1 {
     children: React$1.ReactNode;
     managers?: Manager[];
-    initialState: State$1<unknown>;
+    initialState: State<unknown>;
     Controller: typeof Controller;
     devButton: DevToolsPosition | null | undefined;
 }
@@ -26,10 +26,10 @@ interface Props$2 {
  * Manages state, providing all context needed to use the hooks.
  * @see https://dataclient.io/docs/api/CacheProvider
  */
-declare function CacheProvider({ children, managers, initialState, Controller, devButton, }: Props$2): JSX.Element;
+declare function CacheProvider({ children, managers, initialState, Controller, devButton, }: Props$1): JSX.Element;
 declare namespace CacheProvider {
     var defaultProps: {
-        initialState: State$1<unknown>;
+        initialState: State<unknown>;
         Controller: typeof Controller;
         devButton: string;
     };
@@ -48,10 +48,10 @@ declare const UniversalSuspense: React$1.FunctionComponent<{
  * Handles loading and error conditions of Suspense
  * @see https://dataclient.io/docs/api/AsyncBoundary
  */
-declare function AsyncBoundary({ children, errorComponent, fallback, ...errorProps }: Props$1): JSX.Element;
+declare function AsyncBoundary({ children, errorComponent, fallback, ...errorProps }: Props): JSX.Element;
 declare const _default: typeof AsyncBoundary;
 
-interface Props$1 {
+interface Props {
     children: React$1.ReactNode;
     fallback?: React$1.ReactNode;
     errorClassName?: string;
@@ -62,7 +62,7 @@ interface Props$1 {
 }
 //# sourceMappingURL=AsyncBoundary.d.ts.map
 
-interface Props<E extends NetworkError> {
+interface ErrorBoundaryProps<E extends NetworkError> {
     children: React$1.ReactNode;
     className?: string;
     fallbackComponent: React$1.ComponentType<{
@@ -70,14 +70,14 @@ interface Props<E extends NetworkError> {
         className?: string;
     }>;
 }
-interface State<E extends NetworkError> {
+interface ErrorState<E extends NetworkError> {
     error?: E;
 }
 /**
  * Handles any networking errors from suspense
  * @see https://dataclient.io/docs/api/NetworkErrorBoundary
  */
-declare class NetworkErrorBoundary<E extends NetworkError> extends React$1.Component<Props<E>, State<E>> {
+declare class NetworkErrorBoundary<E extends NetworkError> extends React$1.Component<ErrorBoundaryProps<E>, ErrorState<E>> {
     static defaultProps: {
         fallbackComponent: ({ error, className, }: {
             error: NetworkError;
@@ -87,7 +87,7 @@ declare class NetworkErrorBoundary<E extends NetworkError> extends React$1.Compo
     static getDerivedStateFromError(error: NetworkError | any): {
         error: NetworkError;
     };
-    state: State<E>;
+    state: ErrorState<E>;
     render(): JSX.Element;
 }
 
@@ -177,7 +177,7 @@ declare function useController(): Controller;
  */
 declare function useLive<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>, Args extends readonly [...Parameters<E>] | readonly [null]>(endpoint: E, ...args: Args): SuspenseReturn<E, Args>;
 
-declare const StateContext: Context<State$1<unknown>>;
+declare const StateContext: Context<State<unknown>>;
 declare const ControllerContext: Context<Controller<_data_client_core.DataClientDispatch>>;
 interface Store<S> {
     subscribe(listener: () => void): () => void;
@@ -185,9 +185,9 @@ interface Store<S> {
     getState(): S;
     uninitialized?: boolean;
 }
-declare const StoreContext: Context<Store<State$1<unknown>>>;
+declare const StoreContext: Context<Store<State<unknown>>>;
 
-declare const useCacheState: () => State$1<unknown>;
+declare const useCacheState: () => State<unknown>;
 //# sourceMappingURL=useCacheState.d.ts.map
 
 declare const initialState: _data_client_core.State<unknown>;

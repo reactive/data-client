@@ -1,9 +1,7 @@
-import { Endpoint, Entity } from '@data-client/endpoint';
 import { normalize } from '@data-client/normalizr';
 import { CoolerArticleResource } from '__tests__/new';
 import { createEntityMeta } from '__tests__/utils';
 
-import { ExpiryStatus } from '../..';
 import { initialState } from '../../state/reducer/createReducer';
 import Controller from '../Controller';
 

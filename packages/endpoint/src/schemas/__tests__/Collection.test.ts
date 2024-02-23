@@ -252,15 +252,7 @@ describe(`${schema.Collection.name} normalization`, () => {
         state.entityMeta,
       ),
     };
-    function validate(
-      sch: schema.Collection<
-        (typeof Todo)[],
-        [
-          urlParams: globalThis.Record<string, any>,
-          body?: globalThis.Record<string, any> | undefined,
-        ]
-      >,
-    ) {
+    function validate(sch: schema.Collection<(typeof Todo)[]>) {
       expect(
         (
           denormalize(
@@ -328,7 +320,7 @@ describe(`${schema.Collection.name} normalization`, () => {
               ([key, value]) =>
                 key.startsWith('ignored') ||
                 // strings are canonical form. See pk() above for value transformation
-                `${args[0][key]}` === value ||
+                `${args[0]?.[key]}` === value ||
                 `${args[1]?.[key]}` === value,
             ),
       });
@@ -337,7 +329,10 @@ describe(`${schema.Collection.name} normalization`, () => {
     it('should work with function override of nonFilterArgumentKeys', () => {
       class MyCollection<
         S extends any[] | PolymorphicInterface = any,
-        Parent extends any[] = [urlParams: any, body?: any],
+        Parent extends any[] =
+          | []
+          | [urlParams: { [k: string]: any }]
+          | [urlParams: { [k: string]: any }, body: { [k: string]: any }],
       > extends schema.Collection<S, Parent> {
         nonFilterArgumentKeys(key: string) {
           return key.startsWith('ignored');
@@ -349,7 +344,10 @@ describe(`${schema.Collection.name} normalization`, () => {
     it('should work with function override of createCollectionFilter', () => {
       class MyCollection<
         S extends any[] | PolymorphicInterface = any,
-        Parent extends any[] = [urlParams: any, body?: any],
+        Parent extends any[] =
+          | []
+          | [urlParams: { [k: string]: any }]
+          | [urlParams: { [k: string]: any }, body: { [k: string]: any }],
       > extends schema.Collection<S, Parent> {
         createCollectionFilter(...args: Parent) {
           return (collectionKey: { [k: string]: string }) =>

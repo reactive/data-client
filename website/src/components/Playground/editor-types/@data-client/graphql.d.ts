@@ -426,10 +426,7 @@ declare class Invalidate<E extends EntityInterface & {
     _normalizeNullable(): string | undefined;
 }
 
-type CollectionOptions<Args extends any[] = [
-    urlParams: Record<string, any>,
-    body?: Record<string, any>
-], Parent = any> = ({
+type CollectionOptions<Args extends any[] = [] | [urlParams: Record<string, any>] | [urlParams: Record<string, any>, body: any], Parent = any> = ({
     nestKey?: (parent: Parent, key: string) => Record<string, any>;
 } | {
     argsKey?: (...args: Args) => Record<string, any>;
@@ -498,15 +495,9 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
         denormalize(...args: any): Record<string, unknown>;
     } ? Collection<S, Args, Parent> : never;
 }
-type CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Args extends any[] = [
-    urlParams: Record<string, any>,
-    body?: Record<string, any>
-], Parent = any> = CollectionInterface<S extends any[] ? Array$1<S[number]> : S, Args, Parent>;
+type CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Args extends any[] = [] | [urlParams: Record<string, any>] | [urlParams: Record<string, any>, body: any], Parent = any> = CollectionInterface<S extends any[] ? Array$1<S[number]> : S, Args, Parent>;
 interface CollectionConstructor {
-    new <S extends SchemaSimple[] | PolymorphicInterface = any, Args extends any[] = [
-        urlParams: Record<string, any>,
-        body?: Record<string, any>
-    ], Parent = any>(schema: S, options?: CollectionOptions<Args, Parent>): CollectionFromSchema<S, Args, Parent>;
+    new <S extends SchemaSimple[] | PolymorphicInterface = any, Args extends any[] = [] | [urlParams: Record<string, any>] | [urlParams: Record<string, any>, body: any], Parent = any>(schema: S, options?: CollectionOptions<Args, Parent>): CollectionFromSchema<S, Args, Parent>;
     readonly prototype: CollectionInterface;
 }
 type StrategyFunction<T> = (value: any, parent: any, key: string) => T;
@@ -541,7 +532,7 @@ declare class Array$1<S extends Schema = Schema> implements SchemaClass {
     addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
     storeEntities: any,
-    args?: any[],
+    args: any[],
   ): (S extends EntityMap ? UnionResult<S> : Normalize<S>)[];
 
   _normalizeNullable():
@@ -600,9 +591,7 @@ declare class All<
     | (S extends EntityMap ? UnionResult<S> : Normalize<S>)[]
     | undefined;
 
-  _denormalizeNullable():
-    | (S extends EntityMap<infer T> ? T : Denormalize<S>)[]
-    | undefined;
+  _denormalizeNullable(): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
 
   denormalize(
     input: {},
@@ -792,10 +781,10 @@ declare let CollectionRoot: CollectionConstructor;
  */
 declare class Collection<
   S extends any[] | PolymorphicInterface = any,
-  Args extends any[] = [
-    urlParams: Record<string, any>,
-    body?: Record<string, any>,
-  ],
+  Args extends any[] =
+    | []
+    | [urlParams: Record<string, any>]
+    | [urlParams: Record<string, any>, body: any],
   Parent = any,
 > extends CollectionRoot<S, Args, Parent> {}
 
@@ -835,17 +824,14 @@ type schema_d_Values<Choices extends Schema = any> = Values<Choices>;
 declare const schema_d_Values: typeof Values;
 type schema_d_CollectionArrayAdder<S extends PolymorphicInterface> = CollectionArrayAdder<S>;
 declare const schema_d_CollectionRoot: typeof CollectionRoot;
-type schema_d_Collection<S extends any[] | PolymorphicInterface = any, Args extends any[] = [
-    urlParams: Record<string, any>,
-    body?: Record<string, any>,
-  ], Parent = any> = Collection<S, Args, Parent>;
+type schema_d_Collection<S extends any[] | PolymorphicInterface = any, Args extends any[] =
+    | []
+    | [urlParams: Record<string, any>]
+    | [urlParams: Record<string, any>, body: any], Parent = any> = Collection<S, Args, Parent>;
 declare const schema_d_Collection: typeof Collection;
 type schema_d_EntityInterface<T = any> = EntityInterface<T>;
 type schema_d_CollectionInterface<S extends PolymorphicInterface = any, Args extends any[] = any[], Parent = any> = CollectionInterface<S, Args, Parent>;
-type schema_d_CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Args extends any[] = [
-    urlParams: Record<string, any>,
-    body?: Record<string, any>
-], Parent = any> = CollectionFromSchema<S, Args, Parent>;
+type schema_d_CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Args extends any[] = [] | [urlParams: Record<string, any>] | [urlParams: Record<string, any>, body: any], Parent = any> = CollectionFromSchema<S, Args, Parent>;
 type schema_d_CollectionConstructor = CollectionConstructor;
 type schema_d_StrategyFunction<T> = StrategyFunction<T>;
 type schema_d_SchemaFunction<K = string> = SchemaFunction<K>;

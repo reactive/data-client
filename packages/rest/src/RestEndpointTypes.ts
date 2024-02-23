@@ -560,6 +560,15 @@ export type ParamFetchNoBody<P, R = any> =
       | ((this: EndpointInstanceInterface) => Promise<R>)
   : (this: EndpointInstanceInterface, params: P) => Promise<R>;
 
+// same algorithm, but for Args (aka readonly any[])
+export type ParamToArgs<P> =
+  P extends undefined ? []
+  : {} extends P ?
+    keyof P extends never ?
+      []
+    : [] | [P]
+  : [P];
+
 type IfTypeScriptLooseNull<Y, N> = 1 | undefined extends 1 ? Y : N;
 
 export type KeyofRestEndpoint = keyof RestInstance;

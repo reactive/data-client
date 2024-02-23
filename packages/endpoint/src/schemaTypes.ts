@@ -135,10 +135,10 @@ export interface CollectionInterface<
 }
 export type CollectionFromSchema<
   S extends any[] | PolymorphicInterface = any,
-  Args extends any[] = [
-    urlParams: Record<string, any>,
-    body?: Record<string, any>,
-  ],
+  Args extends any[] =
+    | []
+    | [urlParams: Record<string, any>]
+    | [urlParams: Record<string, any>, body: any],
   Parent = any,
 > = CollectionInterface<
   S extends any[] ? schema.Array<S[number]> : S,
@@ -149,10 +149,10 @@ export type CollectionFromSchema<
 export interface CollectionConstructor {
   new <
     S extends SchemaSimple[] | PolymorphicInterface = any,
-    Args extends any[] = [
-      urlParams: Record<string, any>,
-      body?: Record<string, any>,
-    ],
+    Args extends any[] =
+      | []
+      | [urlParams: Record<string, any>]
+      | [urlParams: Record<string, any>, body: any],
     Parent = any,
   >(
     schema: S,

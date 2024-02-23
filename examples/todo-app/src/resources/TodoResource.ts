@@ -22,5 +22,6 @@ export const TodoResource = createPlaceholderResource({
 
 export const queryRemainingTodos = new Query(
   TodoResource.getList.schema,
-  (entries) => entries && entries.filter((todo) => !todo.completed).length,
+  (entries, ...rest) =>
+    entries && entries.filter((todo) => !todo.completed).length,
 );

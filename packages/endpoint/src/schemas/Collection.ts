@@ -21,10 +21,10 @@ const createValue = (value: any) => ({ ...value });
  */
 export default class CollectionSchema<
   S extends PolymorphicInterface = any,
-  Args extends any[] = [
-    urlParams: Record<string, any>,
-    body?: Record<string, any>,
-  ],
+  Args extends any[] =
+    | []
+    | [urlParams: Record<string, any>]
+    | [urlParams: Record<string, any>, body: any],
   Parent = any,
 > {
   protected declare nestKey: (parent: any, key: string) => Record<string, any>;
@@ -237,10 +237,10 @@ export default class CollectionSchema<
 }
 
 export type CollectionOptions<
-  Args extends any[] = [
-    urlParams: Record<string, any>,
-    body?: Record<string, any>,
-  ],
+  Args extends any[] =
+    | []
+    | [urlParams: Record<string, any>]
+    | [urlParams: Record<string, any>, body: any],
   Parent = any,
 > = (
   | {

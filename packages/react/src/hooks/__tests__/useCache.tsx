@@ -22,7 +22,7 @@ describe('useCache()', () => {
     renderDataClient = makeRenderDataClient(CacheProvider);
   });
 
-  it('should be null with empty state', () => {
+  it('should be undefined with empty state', () => {
     const { result } = renderDataClient(() => {
       return useCache(CoolerArticleResource.get, { id: payload.id });
     }, {});
