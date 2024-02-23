@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import {
+import type {
   EndpointInterface,
   DenormalizeNullable,
   Schema,
@@ -20,7 +20,11 @@ import useController from '../hooks/useController.js';
  */
 export default function useCache<
   E extends Pick<
-    EndpointInterface<FetchFunction, Schema | undefined, undefined | false>,
+    EndpointInterface<
+      FetchFunction,
+      Schema | undefined,
+      undefined | false | true
+    >,
     'key' | 'schema' | 'invalidIfStale'
   >,
   Args extends readonly [...Parameters<E['key']>] | readonly [null],
@@ -84,7 +88,8 @@ export default function useCache<
     }
     return data;
     // key substitutes args + endpoint
+    // we only need cacheResults, as entities are not used in this case
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, controller, data, wouldSuspend, state]);
+  }, [key, controller, data, wouldSuspend, cacheResults]);
   /*********************** end block *****************************/
 }
