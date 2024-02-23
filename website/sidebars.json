@@ -168,6 +168,10 @@
             },
             {
               "type": "doc",
+              "id": "api/useQuery"
+            },
+            {
+              "type": "doc",
               "id": "api/useSubscription"
             },
             {

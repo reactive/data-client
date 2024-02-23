@@ -10,6 +10,7 @@ export {
   useError,
   useFetch,
   useLive,
+  useQuery,
   useSubscription,
   useSuspense,
 } from '../packages/react/lib/index.js';

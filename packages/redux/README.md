@@ -74,7 +74,7 @@ return price.value;
 ### [Programmatic queries](https://dataclient.io/rest/api/Query)
 
 ```tsx
-const sortedArticles = new Query(
+const sortedArticles = new schema.Query(
   new schema.All(Article),
   (entries, { asc } = { asc: false }) => {
     const sorted = [...entries].sort((a, b) => a.title.localeCompare(b.title));
@@ -83,9 +83,9 @@ const sortedArticles = new Query(
   }
 );
 
-const articlesUnsorted = useCache(sortedArticles);
-const articlesAscending = useCache(sortedArticles, { asc: true });
-const articlesDescending = useCache(sortedArticles, { asc: false });
+const articlesUnsorted = useQuery(sortedArticles);
+const articlesAscending = useQuery(sortedArticles, { asc: true });
+const articlesDescending = useQuery(sortedArticles, { asc: false });
 ```
 
 ### ...all typed ...fast ...and consistent

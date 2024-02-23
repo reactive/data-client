@@ -121,13 +121,13 @@ const deleteTodo = data => ctrl.fetch(TodoResource.delete, { id });
 ### [Programmatic queries](https://dataclient.io/rest/api/Query)
 
 ```tsx
-const queryRemainingTodos = new Query(
+const queryRemainingTodos = new schema.Query(
   TodoResource.getList.schema,
   (entries) => entries.filter((todo) => !todo.completed).length,
 );
 
-const allRemainingTodos = useCache(queryRemainingTodos);
-const firstUserRemainingTodos = useCache(queryRemainingTodos, { userId: 1 });
+const allRemainingTodos = useQuery(queryRemainingTodos);
+const firstUserRemainingTodos = useQuery(queryRemainingTodos, { userId: 1 });
 ```
 
 ### TypeScript requirements
@@ -153,5 +153,6 @@ supports inferring argument types from the path templates.
   - [Values](https://dataclient.io/rest/api/Values)
   - [All](https://dataclient.io/rest/api/All)
   - [Collection](https://dataclient.io/rest/api/Collection)
+  - [Query](https://dataclient.io/rest/api/Query)
   - [Union](https://dataclient.io/rest/api/Union)
   - [Invalidate](https://dataclient.io/rest/api/Invalidate)

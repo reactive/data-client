@@ -1,4 +1,4 @@
-import { Query, schema } from '@data-client/rest';
+import { schema } from '@data-client/rest';
 
 import {
   createPlaceholderResource,
@@ -20,7 +20,7 @@ export const TodoResource = createPlaceholderResource({
   searchParams: {} as { userId?: string | number } | undefined,
 });
 
-export const queryRemainingTodos = new Query(
+export const queryRemainingTodos = new schema.Query(
   TodoResource.getList.schema,
   (entries) => entries && entries.filter((todo) => !todo.completed).length,
 );

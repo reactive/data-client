@@ -1,9 +1,11 @@
 import type {
   ErrorTypes,
   SnapshotInterface,
-  DenormalizeCache,
   Schema,
   Denormalize,
+  Queryable,
+  SchemaArgs,
+  ResultCache,
 } from '@data-client/normalizr';
 import {
   WeakEntityMap,
@@ -34,7 +36,7 @@ import ensurePojo from './ensurePojo.js';
 import type { EndpointUpdateFunction } from './types.js';
 import { initialState } from '../state/reducer/createReducer.js';
 import selectMeta from '../state/selectMeta.js';
-import type { ActionTypes, State } from '../types.js';
+import type { ActionTypes, State, DenormalizeCache } from '../types.js';
 
 export type GenericDispatch = (value: any) => Promise<void>;
 export type DataClientDispatch = (value: ActionTypes) => Promise<void>;
@@ -336,22 +338,52 @@ export default class Controller<
    * Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
    * @see https://dataclient.io/docs/api/Controller#getResponse
    */
-  getResponse = <
-    E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>,
-    Args extends readonly [...Parameters<E['key']>] | readonly [null],
-  >(
+  getResponse<E extends EndpointInterface>(
     endpoint: E,
-    ...rest: [...Args, State<unknown>]
+    ...rest: readonly [null, State<unknown>]
   ): {
     data: DenormalizeNullable<E['schema']>;
     expiryStatus: ExpiryStatus;
     expiresAt: number;
-  } => {
+  };
+
+  getResponse<E extends EndpointInterface>(
+    endpoint: E,
+    ...rest: readonly [...Parameters<E>, State<unknown>]
+  ): {
+    data: DenormalizeNullable<E['schema']>;
+    expiryStatus: ExpiryStatus;
+    expiresAt: number;
+  };
+
+  getResponse<
+    E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>,
+  >(
+    endpoint: E,
+    ...rest: readonly [
+      ...(readonly [...Parameters<E['key']>] | readonly [null]),
+      State<unknown>,
+    ]
+  ): {
+    data: DenormalizeNullable<E['schema']>;
+    expiryStatus: ExpiryStatus;
+    expiresAt: number;
+  };
+
+  getResponse(
+    endpoint: EndpointInterface,
+    ...rest: readonly [...unknown[], State<unknown>]
+  ): {
+    data: unknown;
+    expiryStatus: ExpiryStatus;
+    expiresAt: number;
+  } {
     const state = rest[rest.length - 1] as State<unknown>;
     // this is typescript generics breaking
     const args: any = rest
       .slice(0, rest.length - 1)
-      .map(ensurePojo) as Parameters<E['key']>;
+      // handle FormData
+      .map(ensurePojo);
     const isActive = args.length !== 1 || args[0] !== null;
     const key = isActive ? endpoint.key(...args) : '';
     const cacheResults = isActive ? state.results[key] : undefined;
@@ -390,26 +422,78 @@ export default class Controller<
           : cacheResults && !endpoint.invalidIfStale ? ExpiryStatus.Valid
           : ExpiryStatus.InvalidIfStale,
         expiresAt: expiresAt || 0,
-      } as {
-        data: DenormalizeNullable<E['schema']>;
-        expiryStatus: ExpiryStatus;
-        expiresAt: number;
       };
     }
 
     if (!this.globalCache.results[key])
       this.globalCache.results[key] = new WeakEntityMap();
 
-    // second argument is false if any entities are missing
-    // eslint-disable-next-line prefer-const
-    const { data, paths } = denormalizeCached(
+    return this.getSchemaResponse(
+      results,
+      schema as Exclude<Schema, undefined>,
+      args,
+      state,
+      expiresAt,
+      this.globalCache.results[key],
+      endpoint.invalidIfStale || invalidResults,
+      meta,
+    );
+  }
+
+  /**
+   * Queries the store for a Querable schema
+   * @see https://dataclient.io/docs/api/Controller#get
+   */
+  get<S extends Queryable>(
+    schema: S,
+    ...rest: readonly [
+      ...SchemaArgs<S>,
+      Pick<State<unknown>, 'entities' | 'entityMeta'>,
+    ]
+  ): DenormalizeNullable<S> | undefined {
+    const state = rest[rest.length - 1] as State<unknown>;
+    // this is typescript generics breaking
+    const args: any = rest
+      .slice(0, rest.length - 1)
+      .map(ensurePojo) as SchemaArgs<S>;
+
+    const results = inferResults(schema, args, state.indexes, state.entities);
+
+    const data = denormalizeCached(
       results,
       schema,
       state.entities,
       this.globalCache.entities,
-      this.globalCache.results[key],
+      undefined,
       args,
-    ) as { data: DenormalizeNullable<E['schema']>; paths: Path[] };
+    ).data;
+    return typeof data === 'symbol' ? undefined : (data as any);
+  }
+
+  private getSchemaResponse<S extends Schema>(
+    input: any,
+    schema: S,
+    args: any,
+    state: State<unknown>,
+    expiresAt: number,
+    resultCache: ResultCache,
+    invalidIfStale: boolean,
+    meta: { error?: unknown; invalidated?: unknown } = {},
+  ): {
+    data: DenormalizeNullable<S>;
+    expiryStatus: ExpiryStatus;
+    expiresAt: number;
+  } {
+    // second argument is false if any entities are missing
+    // eslint-disable-next-line prefer-const
+    const { data, paths } = denormalizeCached(
+      input,
+      schema,
+      state.entities,
+      this.globalCache.entities,
+      resultCache,
+      args,
+    ) as { data: DenormalizeNullable<S>; paths: Path[] };
     const invalidDenormalize = typeof data === 'symbol';
 
     // fallback to entity expiry time
@@ -423,12 +507,11 @@ export default class Controller<
     const expiryStatus =
       meta?.invalidated || (invalidDenormalize && !meta?.error) ?
         ExpiryStatus.Invalid
-      : invalidDenormalize || endpoint.invalidIfStale || invalidResults ?
-        ExpiryStatus.InvalidIfStale
+      : invalidDenormalize || invalidIfStale ? ExpiryStatus.InvalidIfStale
       : ExpiryStatus.Valid;
 
     return { data, expiryStatus, expiresAt };
-  };
+  }
 }
 
 // benchmark: https://www.measurethat.net/Benchmarks/Show/24691/0/min-reducer-vs-imperative-with-paths
@@ -489,19 +572,47 @@ class Snapshot<T = unknown> implements SnapshotInterface {
 
   /*************** Data Access ***************/
   /** @see https://dataclient.io/docs/api/Snapshot#getResponse */
-  getResponse = <
-    E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>,
-    Args extends readonly [...Parameters<E['key']>],
-  >(
+  getResponse<E extends EndpointInterface>(
     endpoint: E,
-    ...args: Args
+    ...args: readonly [null]
   ): {
     data: DenormalizeNullable<E['schema']>;
     expiryStatus: ExpiryStatus;
     expiresAt: number;
-  } => {
-    return this.controller.getResponse(endpoint, ...args, this.state);
   };
+
+  getResponse<E extends EndpointInterface>(
+    endpoint: E,
+    ...args: readonly [...Parameters<E>]
+  ): {
+    data: DenormalizeNullable<E['schema']>;
+    expiryStatus: ExpiryStatus;
+    expiresAt: number;
+  };
+
+  getResponse<
+    E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>,
+  >(
+    endpoint: E,
+    ...args: readonly [...Parameters<E['key']>] | readonly [null]
+  ): {
+    data: DenormalizeNullable<E['schema']>;
+    expiryStatus: ExpiryStatus;
+    expiresAt: number;
+  };
+
+  getResponse<
+    E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>,
+  >(
+    endpoint: E,
+    ...args: readonly [...Parameters<E['key']>] | readonly [null]
+  ): {
+    data: DenormalizeNullable<E['schema']>;
+    expiryStatus: ExpiryStatus;
+    expiresAt: number;
+  } {
+    return this.controller.getResponse(endpoint, ...args, this.state);
+  }
 
   /** @see https://dataclient.io/docs/api/Snapshot#getError */
   getError = <
@@ -513,4 +624,15 @@ class Snapshot<T = unknown> implements SnapshotInterface {
   ): ErrorTypes | undefined => {
     return this.controller.getError(endpoint, ...args, this.state);
   };
+
+  /**
+   * Retrieved memoized value for any Querable schema
+   * @see https://dataclient.io/docs/api/Snapshot#get
+   */
+  get<S extends Queryable>(
+    schema: S,
+    ...args: SchemaArgs<S>
+  ): DenormalizeNullable<S> | undefined {
+    return this.controller.get(schema, ...args, this.state);
+  }
 }

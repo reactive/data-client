@@ -14,8 +14,8 @@ import { RestEndpoint } from '@data-client/rest';
 
 Data rendering without the fetch.
 
-General purpose store access can be useful when the data's existance is of interest (like if a user is authenticated),
-or general purpose store access like [Query](/rest/api/Query).
+Access any [Endpoint](/rest/api/Endpoint)'s response. If the response does not exist, returns
+`undefined`. This can be used to check for an `Endpoint's` existance like for authentication.
 
 `useCache()` is reactive to data [mutations](../getting-started/mutations.md); rerendering only when necessary.
 
@@ -146,75 +146,6 @@ function useCache<
 </GenericsTabs>
 
 ## Examples
-
-### Query arbitrary Entities
-
-[Query](/rest/api/Query) provides programmatic access to the Reactive Data Client store.
-
-<HooksPlayground fixtures={[
-{
-endpoint: new RestEndpoint({path: '/users'}),
-args: [],
-response: [
-{ id: '123', name: 'Jim' },
-{ id: '456', name: 'Jane' },
-{ id: '777', name: 'Albatras', isAdmin: true },
-],
-delay: 150,
-},
-]} row>
-
-```ts title="UserResource" collapsed
-export class User extends Entity {
-  id = '';
-  name = '';
-  isAdmin = false;
-  pk() {
-    return this.id;
-  }
-  static key = 'User';
-}
-export const UserResource = createResource({
-  path: '/users/:id',
-  schema: User,
-});
-```
-
-```tsx title="UsersPage" {17}
-import { Query, schema } from '@data-client/rest';
-import { UserResource, User } from './UserResource';
-
-const sortedUsers = new Query(
-  new schema.All(User),
-  (entries, { asc } = { asc: false }) => {
-    const sorted = [...entries].sort((a, b) =>
-      a.name.localeCompare(b.name),
-    );
-    if (asc) return sorted;
-    return sorted.reverse();
-  },
-);
-
-function UsersPage() {
-  useFetch(UserResource.getList);
-  const users = useCache(sortedUsers, { asc: true });
-  if (!users) return <div>No users in cache yet</div>;
-  return (
-    <div>
-      {users.map(user => (
-        <div key={user.pk()}>{user.name}</div>
-      ))}
-    </div>
-  );
-}
-render(<UsersPage />);
-```
-
-</HooksPlayground>
-
-### Remaining Todo Query
-
-[Queries](/rest/api/Query) can also be used to compute aggregates
 
 <StackBlitz app="todo-app" file="src/resources/TodoResource.ts,src/pages/Home/TodoStats.tsx" />
 

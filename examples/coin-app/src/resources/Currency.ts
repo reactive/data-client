@@ -1,4 +1,4 @@
-import { Entity, Query, createResource, schema } from '@data-client/rest';
+import { Entity, createResource, schema } from '@data-client/rest';
 
 import { Stats } from './Stats';
 
@@ -61,7 +61,7 @@ export const CurrencyResource = createResource({
 interface Args {
   type?: string;
 }
-export const queryCurrency = new Query(
+export const queryCurrency = new schema.Query(
   new schema.All(Currency),
   (entries, { type = 'crypto' }: Args) => {
     let sorted = entries.filter(

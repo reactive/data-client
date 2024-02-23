@@ -1,9 +1,10 @@
+import { EntityFields } from './EntityFields.js';
 import type {
   Schema,
   Serializable,
   EntityInterface,
   NormalizedIndex,
-  SchemaClass,
+  Queryable,
 } from './interface.js';
 import type WeakEntityMap from './WeakEntityMap.js';
 
@@ -53,16 +54,12 @@ export interface RecordClass<T = any> extends NestedSchemaClass<T> {
   fromJS: (...args: any) => AbstractInstanceType<T>;
 }
 
-export interface DenormalizeCache {
-  entities: {
-    [key: string]: {
-      [pk: string]: WeakMap<EntityInterface, WeakEntityMap<object, any>>;
-    };
-  };
-  results: {
-    [key: string]: WeakEntityMap<object, any>;
+export interface EntityCache {
+  [key: string]: {
+    [pk: string]: WeakMap<EntityInterface, WeakEntityMap<object, any>>;
   };
 }
+export type ResultCache = WeakEntityMap<object, any>;
 
 export type DenormalizeNullableNestedSchema<S extends NestedSchemaClass> =
   keyof S['schema'] extends never ?
@@ -132,3 +129,18 @@ export type NormalizedSchema<E, R> = {
 };
 
 export type EntityMap<T = any> = Record<string, EntityInterface<T>>;
+
+export type SchemaArgs<S extends Queryable> =
+  S extends EntityInterface<infer U> ? [EntityFields<U>]
+  : S extends (
+    {
+      infer(
+        args: infer Args,
+        indexes: any,
+        recurse: (...args: any) => any,
+        entities: any,
+      ): any;
+    }
+  ) ?
+    Args
+  : never;

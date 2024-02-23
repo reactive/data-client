@@ -98,7 +98,7 @@ export default class Invalidate<
 
   /** /End Normalize lifecycles **/
 
-  infer(args: any, indexes: any, recurse: any): any {
+  infer(args: any, indexes: any, recurse: any): undefined {
     return undefined;
   }
 

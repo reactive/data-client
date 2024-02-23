@@ -1,17 +1,20 @@
 type Schema = null | string | {
     [K: string]: any;
 } | Schema[] | SchemaSimple | Serializable;
+interface Queryable {
+    infer(args: readonly any[], indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): {};
+}
 type Serializable<T extends {
     toJSON(): string;
 } = {
     toJSON(): string;
 }> = (value: any) => T;
-interface SchemaSimple<T = any> {
-    normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities?: any, args?: any[]): any;
-    denormalize(input: {}, args: any, unvisit: (input: any, schema: any) => any): T;
-    infer(args: readonly any[], indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): any;
+interface SchemaSimple<T = any, Args extends any[] = any[]> {
+    normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args: any[]): any;
+    denormalize(input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any): T;
+    infer(args: Args, indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): any;
 }
-interface SchemaClass<T = any, N = T | undefined> extends SchemaSimple<T> {
+interface SchemaClass<T = any, N = T | undefined, Args extends any[] = any[]> extends SchemaSimple<T, Args> {
     _normalizeNullable(): any;
     _denormalizeNullable(): N;
 }
@@ -39,6 +42,11 @@ interface EntityTable {
         [pk: string]: unknown;
     } | undefined;
 }
+
+/** Attempts to infer reasonable input type to construct an Entity */
+type EntityFields<U> = {
+    readonly [K in keyof U as U[K] extends (...args: any) => any ? never : K]?: U[K] extends number ? U[K] | string : U[K] extends string ? U[K] | number : U[K];
+};
 
 /** Maps entity dependencies to a value (usually their denormalized form)
  *
@@ -90,16 +98,12 @@ interface NestedSchemaClass<T = any> {
 interface RecordClass<T = any> extends NestedSchemaClass<T> {
     fromJS: (...args: any) => AbstractInstanceType<T>;
 }
-interface DenormalizeCache {
-    entities: {
-        [key: string]: {
-            [pk: string]: WeakMap<EntityInterface, WeakEntityMap<object, any>>;
-        };
-    };
-    results: {
-        [key: string]: WeakEntityMap<object, any>;
+interface EntityCache {
+    [key: string]: {
+        [pk: string]: WeakMap<EntityInterface, WeakEntityMap<object, any>>;
     };
 }
+type ResultCache = WeakEntityMap<object, any>;
 type DenormalizeNullableNestedSchema<S extends NestedSchemaClass> = keyof S['schema'] extends never ? S['prototype'] : string extends keyof S['schema'] ? S['prototype'] : S['prototype'];
 type NormalizeReturnType<T> = T extends (...args: any) => infer R ? R : never;
 type Denormalize<S> = S extends EntityInterface<infer U> ? U : S extends RecordClass ? AbstractInstanceType<S> : S extends {
@@ -136,10 +140,13 @@ type NormalizedSchema<E, R> = {
         };
     };
 };
+type SchemaArgs<S extends Queryable> = S extends EntityInterface<infer U> ? [EntityFields<U>] : S extends ({
+    infer(args: infer Args, indexes: any, recurse: (...args: any) => any, entities: any): any;
+}) ? Args : never;
 
 declare function denormalize$1<S extends Schema>(input: any, schema: S | undefined, entities: any, args?: readonly any[]): DenormalizeNullable<S> | symbol;
 
-declare function denormalize<S extends Schema>(input: unknown, schema: S | undefined, entities: any, entityCache?: DenormalizeCache['entities'], resultCache?: DenormalizeCache['results'][string], args?: readonly any[]): {
+declare function denormalize<S extends Schema>(input: unknown, schema: S | undefined, entities: any, entityCache?: EntityCache, resultCache?: ResultCache, args?: readonly any[]): {
     data: DenormalizeNullable<S> | symbol;
     paths: Path[];
 };
@@ -201,12 +208,22 @@ declare const enum ExpiryStatus {
 type ExpiryStatusInterface = 1 | 2 | 3;
 
 interface SnapshotInterface {
-    getResponse: <E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>, Args extends readonly [...Parameters<E['key']>]>(endpoint: E, ...args: Args) => {
-        data: any;
+    /**
+     * Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
+     * @see https://dataclient.io/docs/api/Snapshot#getResponse
+     */
+    getResponse<E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>>(endpoint: E, ...args: readonly any[]): {
+        data: DenormalizeNullable<E['schema']>;
         expiryStatus: ExpiryStatusInterface;
         expiresAt: number;
     };
+    /** @see https://dataclient.io/docs/api/Snapshot#getError */
     getError: <E extends Pick<EndpointInterface, 'key'>, Args extends readonly [...Parameters<E['key']>]>(endpoint: E, ...args: Args) => ErrorTypes | undefined;
+    /**
+     * Retrieved memoized value for any Querable schema
+     * @see https://dataclient.io/docs/api/Snapshot#get
+     */
+    get<S extends Queryable>(schema: S, ...args: readonly any[]): any;
     readonly fetchedAt: number;
     readonly abort: Error;
 }
@@ -251,4 +268,4 @@ type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Pr
 
 declare const INVALID: unique symbol;
 
-export { AbstractInstanceType, ArrayElement, Denormalize, DenormalizeCache, DenormalizeNullable, EndpointExtraOptions, EndpointInterface, EntityInterface, EntityTable, ErrorTypes, ExpiryStatus, ExpiryStatusInterface, FetchFunction, INVALID, IndexInterface, IndexParams, InferReturn, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, NormalizeReturnType, NormalizedIndex, NormalizedSchema, OptimisticUpdateParams, Path, ReadEndpoint, ResolveType, Schema, SchemaClass, SchemaSimple, Serializable, SnapshotInterface, UnknownError, UpdateFunction, WeakEntityMap, denormalize$1 as denormalize, denormalize as denormalizeCached, inferResults, isEntity, normalize, validateInference };
+export { AbstractInstanceType, ArrayElement, Denormalize, DenormalizeNullable, EndpointExtraOptions, EndpointInterface, EntityCache, EntityInterface, EntityTable, ErrorTypes, ExpiryStatus, ExpiryStatusInterface, FetchFunction, INVALID, IndexInterface, IndexParams, InferReturn, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, NormalizeReturnType, NormalizedIndex, NormalizedSchema, OptimisticUpdateParams, Path, Queryable, ReadEndpoint, ResolveType, ResultCache, Schema, SchemaArgs, SchemaClass, SchemaSimple, Serializable, SnapshotInterface, UnknownError, UpdateFunction, WeakEntityMap, denormalize$1 as denormalize, denormalize as denormalizeCached, inferResults, isEntity, normalize, validateInference };

@@ -19,7 +19,7 @@ import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
 [Resources](/rest/api/createResource) are a collection of `methods` for a given `data model`.
 
-[Entities](/rest/api/Entity) and [Schemas](/rest/api/Schema) declaratively define the [_data model_](../concepts/normalization.md).
+[Entities](/rest/api/Entity) and [Schemas](/rest/api/schema) declaratively define the [_data model_](../concepts/normalization.md).
 [Endpoints](/rest/api/Endpoint) are the [_methods_](<https://en.wikipedia.org/wiki/Method_(computer_programming)>) on
 that data.
 

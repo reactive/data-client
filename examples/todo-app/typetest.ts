@@ -1,4 +1,4 @@
-import { useCache, useController, useSuspense } from '@data-client/react';
+import { useQuery, useController, useSuspense } from '@data-client/react';
 
 import {
   queryRemainingTodos,
@@ -23,7 +23,9 @@ function useTest() {
     );
   });
 
-  const remaining = useCache(queryRemainingTodos, { userId: 1 });
+  let remaining = useQuery(queryRemainingTodos, { userId: 1 });
+
+  if (remaining !== undefined) remaining++;
 
   const users = useSuspense(UserResource.getList);
   users.map((user) => {

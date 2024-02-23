@@ -135,7 +135,7 @@ ctrl.fetch(ArticleResource.get, { id });
 ### [Programmatic queries](https://dataclient.io/rest/api/Query)
 
 ```tsx
-const queryTotalVotes = new Query(
+const queryTotalVotes = new schema.Query(
   new schema.All(Post),
   (posts, { userId } = {}) => {
     if (userId !== undefined)
@@ -144,8 +144,8 @@ const queryTotalVotes = new Query(
   },
 );
 
-const totalVotes = useCache(queryTotalVotes);
-const totalVotesForUser = useCache(queryTotalVotes, { userId });
+const totalVotes = useQuery(queryTotalVotes);
+const totalVotesForUser = useQuery(queryTotalVotes, { userId });
 ```
 
 ### [Powerful Middlewares](https://dataclient.io/docs/concepts/managers)
@@ -271,5 +271,6 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://da
   - [Values](https://dataclient.io/rest/api/Values)
   - [All](https://dataclient.io/rest/api/All)
   - [Collection](https://dataclient.io/rest/api/Collection)
+  - [Query](https://dataclient.io/rest/api/Query)
   - [Union](https://dataclient.io/rest/api/Union)
   - [Invalidate](https://dataclient.io/rest/api/Invalidate)

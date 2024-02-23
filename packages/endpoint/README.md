@@ -206,13 +206,6 @@ const UserDetailNormalized = UserDetail.extend({ schema: User });
 ### Index
 
 ```typescript
-export interface IndexInterface<S extends typeof Entity> {
-  key(parmas?: Readonly<IndexParams<S>>): string;
-  readonly schema: S;
-}
-```
-
-```typescript
 import { Entity } from '@data-client/normalizr';
 import { Index } from '@data-client/endpoint';
 
@@ -224,9 +217,7 @@ class User extends Entity {
   static indexes = ['username'] as const;
 }
 
-const UserIndex = new Index(User)
-
-const bob = useCache(UserIndex, { username: 'bob' });
+const bob = useQuery(User, { username: 'bob' });
 
 // @ts-expect-error Indexes don't fetch, they just retrieve already existing data
 const bob = useSuspense(UserIndex, { username: 'bob' });
@@ -242,6 +233,7 @@ const bob = useSuspense(UserIndex, { username: 'bob' });
   - [Array](https://dataclient.io/rest/api/Array)
   - [Values](https://dataclient.io/rest/api/Values)
   - [All](https://dataclient.io/rest/api/All)
+  - [Query](https://dataclient.io/rest/api/Query)
   - [Collection](https://dataclient.io/rest/api/Collection)
   - [Union](https://dataclient.io/rest/api/Union)
   - [Invalidate](https://dataclient.io/rest/api/Invalidate)

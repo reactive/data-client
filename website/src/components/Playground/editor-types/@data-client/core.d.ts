@@ -1,15 +1,18 @@
 type Schema = null | string | {
     [K: string]: any;
 } | Schema[] | SchemaSimple | Serializable;
+interface Queryable {
+    infer(args: readonly any[], indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): {};
+}
 type Serializable<T extends {
     toJSON(): string;
 } = {
     toJSON(): string;
 }> = (value: any) => T;
-interface SchemaSimple<T = any> {
-    normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities?: any, args?: any[]): any;
-    denormalize(input: {}, args: any, unvisit: (input: any, schema: any) => any): T;
-    infer(args: readonly any[], indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): any;
+interface SchemaSimple<T = any, Args extends any[] = any[]> {
+    normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args: any[]): any;
+    denormalize(input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any): T;
+    infer(args: Args, indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): any;
 }
 interface EntityInterface<T = any> extends SchemaSimple {
     createIfValid(props: any): any;
@@ -35,6 +38,11 @@ interface EntityTable {
         [pk: string]: unknown;
     } | undefined;
 }
+
+/** Attempts to infer reasonable input type to construct an Entity */
+type EntityFields<U> = {
+    readonly [K in keyof U as U[K] extends (...args: any) => any ? never : K]?: U[K] extends number ? U[K] | string : U[K] extends string ? U[K] | number : U[K];
+};
 
 /** Maps entity dependencies to a value (usually their denormalized form)
  *
@@ -86,16 +94,12 @@ interface NestedSchemaClass<T = any> {
 interface RecordClass<T = any> extends NestedSchemaClass<T> {
     fromJS: (...args: any) => AbstractInstanceType<T>;
 }
-interface DenormalizeCache {
-    entities: {
-        [key: string]: {
-            [pk: string]: WeakMap<EntityInterface, WeakEntityMap<object, any>>;
-        };
-    };
-    results: {
-        [key: string]: WeakEntityMap<object, any>;
+interface EntityCache {
+    [key: string]: {
+        [pk: string]: WeakMap<EntityInterface, WeakEntityMap<object, any>>;
     };
 }
+type ResultCache = WeakEntityMap<object, any>;
 type DenormalizeNullableNestedSchema<S extends NestedSchemaClass> = keyof S['schema'] extends never ? S['prototype'] : string extends keyof S['schema'] ? S['prototype'] : S['prototype'];
 type NormalizeReturnType<T> = T extends (...args: any) => infer R ? R : never;
 type Denormalize<S> = S extends EntityInterface<infer U> ? U : S extends RecordClass ? AbstractInstanceType<S> : S extends {
@@ -118,6 +122,9 @@ type NormalizeNullable<S> = S extends EntityInterface ? string | undefined : S e
 } ? NormalizeReturnType<S['_normalizeNullable']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Normalize<F>[] | undefined : S extends {
     [K: string]: any;
 } ? NormalizedNullableObject<S> : S;
+type SchemaArgs<S extends Queryable> = S extends EntityInterface<infer U> ? [EntityFields<U>] : S extends ({
+    infer(args: infer Args, indexes: any, recurse: (...args: any) => any, entities: any): any;
+}) ? Args : never;
 
 /**
  * Build the result parameter to denormalize from schema alone.
@@ -146,12 +153,22 @@ declare const enum ExpiryStatus {
 type ExpiryStatusInterface = 1 | 2 | 3;
 
 interface SnapshotInterface {
-    getResponse: <E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>, Args extends readonly [...Parameters<E['key']>]>(endpoint: E, ...args: Args) => {
-        data: any;
+    /**
+     * Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
+     * @see https://dataclient.io/docs/api/Snapshot#getResponse
+     */
+    getResponse<E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>>(endpoint: E, ...args: readonly any[]): {
+        data: DenormalizeNullable<E['schema']>;
         expiryStatus: ExpiryStatusInterface;
         expiresAt: number;
     };
+    /** @see https://dataclient.io/docs/api/Snapshot#getError */
     getError: <E extends Pick<EndpointInterface, 'key'>, Args extends readonly [...Parameters<E['key']>]>(endpoint: E, ...args: Args) => ErrorTypes | undefined;
+    /**
+     * Retrieved memoized value for any Querable schema
+     * @see https://dataclient.io/docs/api/Snapshot#get
+     */
+    get<S extends Queryable>(schema: S, ...args: readonly any[]): any;
     readonly fetchedAt: number;
     readonly abort: Error;
 }
@@ -366,6 +383,12 @@ interface State<T> {
     readonly optimistic: (SetAction | OptimisticAction)[];
     readonly lastReset: number;
 }
+interface DenormalizeCache {
+    entities: EntityCache;
+    results: {
+        [key: string]: ResultCache;
+    };
+}
 
 interface Manager<Actions = ActionTypes> {
     getMiddleware(): Middleware$2<Actions>;
@@ -498,11 +521,33 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      * Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
      * @see https://dataclient.io/docs/api/Controller#getResponse
      */
-    getResponse: <E extends Pick<EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined>, "schema" | "key" | "invalidIfStale">, Args extends readonly [null] | readonly [...Parameters<E["key"]>]>(endpoint: E, ...rest: [...Args, State<unknown>]) => {
-        data: DenormalizeNullable<E["schema"]>;
+    getResponse<E extends EndpointInterface>(endpoint: E, ...rest: readonly [null, State<unknown>]): {
+        data: DenormalizeNullable<E['schema']>;
         expiryStatus: ExpiryStatus;
         expiresAt: number;
     };
+    getResponse<E extends EndpointInterface>(endpoint: E, ...rest: readonly [...Parameters<E>, State<unknown>]): {
+        data: DenormalizeNullable<E['schema']>;
+        expiryStatus: ExpiryStatus;
+        expiresAt: number;
+    };
+    getResponse<E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>>(endpoint: E, ...rest: readonly [
+        ...(readonly [...Parameters<E['key']>] | readonly [null]),
+        State<unknown>
+    ]): {
+        data: DenormalizeNullable<E['schema']>;
+        expiryStatus: ExpiryStatus;
+        expiresAt: number;
+    };
+    /**
+     * Queries the store for a Querable schema
+     * @see https://dataclient.io/docs/api/Controller#get
+     */
+    get<S extends Queryable>(schema: S, ...rest: readonly [
+        ...SchemaArgs<S>,
+        Pick<State<unknown>, 'entities' | 'entityMeta'>
+    ]): DenormalizeNullable<S> | undefined;
+    private getSchemaResponse;
 }
 
 declare function createReducer(controller: Controller): ReducerType;
@@ -984,4 +1029,4 @@ declare class DevToolsManager implements Manager {
     getMiddleware(): Middleware;
 }
 
-export { AbstractInstanceType, ActionTypes, ConnectionListener, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeCache, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch$1 as Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityInterface, ErrorTypes, ExpireAllAction, ExpiryStatus, FetchAction, FetchFunction, FetchMeta, GCAction, GenericDispatch, InvalidateAction, InvalidateAllAction, LogoutManager, Manager, Middleware$2 as Middleware, MiddlewareAPI$1 as MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, OptimisticAction, PK, PollingSubscription, ResetAction, ResetError, ResolveType, ResultEntry, Schema, SetAction, SetActionError, SetActionSuccess, SetMeta, SetTypes, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, applyManager, createFetch, createReducer, createSet, initialState };
+export { AbstractInstanceType, ActionTypes, ConnectionListener, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeCache, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch$1 as Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityCache, EntityInterface, ErrorTypes, ExpireAllAction, ExpiryStatus, FetchAction, FetchFunction, FetchMeta, GCAction, GenericDispatch, InvalidateAction, InvalidateAllAction, LogoutManager, Manager, Middleware$2 as Middleware, MiddlewareAPI$1 as MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, OptimisticAction, PK, PollingSubscription, Queryable, ResetAction, ResetError, ResolveType, ResultCache, ResultEntry, Schema, SchemaArgs, SetAction, SetActionError, SetActionSuccess, SetMeta, SetTypes, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, applyManager, createFetch, createReducer, createSet, initialState };

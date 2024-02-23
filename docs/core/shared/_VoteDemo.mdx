@@ -1,7 +1,7 @@
 import { postFixtures } from '@site/src/fixtures/posts';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
-<HooksPlayground fixtures={postFixtures} getInitialInterceptorData={() => ({votes: {}})} row>
+<HooksPlayground fixtures={postFixtures} getInitialInterceptorData={() => ({votes: {}})} row defaultTab={props.defaultTab}>
 
 ```ts title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -24,8 +24,8 @@ export class Post extends Entity {
 }
 ```
 
-```ts title="PostResource" {15-22}
-import { RestEndpoint, createResource } from '@data-client/rest';
+```ts title="PostResource" {14-21}
+import { createResource } from '@data-client/rest';
 import { Post } from './Post';
 
 export { Post };
@@ -33,29 +33,27 @@ export { Post };
 export const PostResource = createResource({
   path: '/posts/:id',
   schema: Post,
-}).extend(Base => ({
-  vote: new RestEndpoint({
-    path: '/posts/:id/vote',
-    method: 'POST',
-    body: undefined,
-    schema: Post,
-    getOptimisticResponse(snapshot, { id }) {
-      const { data } = snapshot.getResponse(Base.get, { id });
-      if (!data) throw snapshot.abort;
-      return {
-        id,
-        votes: data.votes + 1,
-      };
-    },
-  }),
-}));
+}).extend('vote', {
+  path: '/posts/:id/vote',
+  method: 'POST',
+  body: undefined,
+  schema: Post,
+  getOptimisticResponse(snapshot, { id }) {
+    const post = snapshot.get(Post, { id });
+    if (!post) throw snapshot.abort;
+    return {
+      id,
+      votes: post.votes + 1,
+    };
+  },
+});
 ```
 
 ```tsx title="PostItem" {7} collapsed
 import { useController } from '@data-client/react';
 import { PostResource, type Post } from './PostResource';
 
-export default function PostItem({ post }: { post: Post }) {
+export default function PostItem({ post }: Props) {
   const ctrl = useController();
   const handleVote = () => {
     ctrl.fetch(PostResource.vote, { id: post.id });
@@ -78,13 +76,15 @@ export default function PostItem({ post }: { post: Post }) {
     </div>
   );
 }
+interface Props { post: Post }
 ```
 
-```tsx title="TotalVotes" collapsed
-import { Query, schema } from '@data-client/rest';
+```tsx title="TotalVotes" collapsed {15}
+import { schema } from '@data-client/rest';
+import { useQuery } from '@data-client/react';
 import { Post } from './PostResource';
 
-const queryTotalVotes = new Query(
+const queryTotalVotes = new schema.Query(
   new schema.All(Post),
   (posts, { userId } = {}) => {
     if (userId !== undefined)
@@ -93,14 +93,15 @@ const queryTotalVotes = new Query(
   },
 );
 
-export default function TotalVotes({ userId }: { userId: number }) {
-  const totalVotes = useCache(queryTotalVotes, { userId });
+export default function TotalVotes({ userId }: Props) {
+  const totalVotes = useQuery(queryTotalVotes, { userId });
   return (
     <center>
       <small>{totalVotes} votes total</small>
     </center>
   );
 }
+interface Props { userId: number }
 ```
 
 ```tsx title="PostList" collapsed

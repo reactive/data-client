@@ -25,10 +25,6 @@ const dispatch = (value: ActionTypes) => {
 export const ControllerContext = createContext<Controller>(
   new Controller({
     dispatch,
-    globalCache: {
-      entities: {},
-      results: {},
-    },
   }),
 );
 

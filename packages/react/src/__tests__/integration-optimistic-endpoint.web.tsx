@@ -791,7 +791,7 @@ describe.each([
           schema: Toggle,
           sideEffect: true,
           getOptimisticResponse(snap, id) {
-            const { data } = snap.getResponse(getbool, id);
+            const data = snap.get(Toggle, { id });
             if (!data) throw snap.abort;
             return {
               id,

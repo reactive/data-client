@@ -31,10 +31,10 @@ export const PostResource = {
     name: 'vote',
     schema: Post,
     getOptimisticResponse(snap, { id }) {
-      const { data } = snap.getResponse(PostResource.get, { id });
-      if (!data) throw snap.abort;
+      const post = snap.get(Post, { id });
+      if (!post) throw snap.abort;
       return {
-        votes: data.votes + 1,
+        votes: post.votes + 1,
       };
     },
   }),

@@ -157,7 +157,7 @@ static mergeWithStore(
 
 `mergeWithStore()` is called during normalization when a processed entity is already found in the store.
 
-This calls [useIncoming()](#useIncoming), [shouldReorder()](#shouldOrder) and potentially [merge()](#merge)
+This calls [useIncoming()](#useincoming), [shouldReorder()](#shouldreorder) and potentially [merge()](#merge)
 
 ### static useIncoming(existingMeta, incomingMeta, existing, incoming): boolean {#useincoming}
 

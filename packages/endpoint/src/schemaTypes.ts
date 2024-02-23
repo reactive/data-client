@@ -50,7 +50,7 @@ export interface CollectionInterface<
     addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
     storeEntities: any,
-    args: Args,
+    args: any,
   ): string;
 
   merge(existing: any, incoming: any): any;
@@ -99,12 +99,7 @@ export interface CollectionInterface<
     fetchedAt: number;
   };
 
-  infer(
-    args: unknown,
-    indexes: unknown,
-    recurse: unknown,
-    entities: unknown,
-  ): any;
+  infer(args: Args, indexes: unknown, recurse: unknown, entities: unknown): any;
 
   createIfValid: (value: any) => any | undefined;
   denormalize(
@@ -162,8 +157,8 @@ export interface CollectionConstructor {
 }
 
 export type StrategyFunction<T> = (value: any, parent: any, key: string) => T;
-export type SchemaFunction<K = string> = (
-  value: any,
+export type SchemaFunction<K = string, Args = any> = (
+  value: Args,
   parent: any,
   key: string,
 ) => K;

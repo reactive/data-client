@@ -1,0 +1,120 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Controller.get() Query+All based on args 1`] = `
+[
+  Tacos {
+    "id": "1",
+    "type": "foo",
+  },
+]
+`;
+
+exports[`Controller.get() Query+All based on args 2`] = `
+[
+  Tacos {
+    "id": "1",
+    "type": "foo",
+  },
+  Tacos {
+    "id": "2",
+    "type": "bar",
+  },
+]
+`;
+
+exports[`Controller.get() Query+All based on args 3`] = `
+[
+  Tacos {
+    "id": "2",
+    "type": "bar",
+  },
+  Tacos {
+    "id": "3",
+    "name": "thing3",
+    "type": "bar",
+  },
+]
+`;
+
+exports[`Controller.get() Union based on args 1`] = `
+User {
+  "id": "1",
+  "type": "users",
+  "username": "bob",
+}
+`;
+
+exports[`Controller.get() Union based on args 2`] = `
+Group {
+  "groupname": "fast",
+  "id": "2",
+  "memberCount": 5,
+  "type": "groups",
+}
+`;
+
+exports[`Controller.get() query All should get all entities 1`] = `
+[
+  Tacos {
+    "id": "1",
+    "type": "foo",
+  },
+  Tacos {
+    "id": "2",
+    "type": "bar",
+  },
+]
+`;
+
+exports[`Controller.get() query All should include new entities when added 1`] = `
+[
+  Tacos {
+    "id": "1",
+    "type": "foo",
+  },
+  Tacos {
+    "id": "2",
+    "type": "bar",
+  },
+  Tacos {
+    "id": "3",
+    "type": "extra",
+  },
+]
+`;
+
+exports[`Controller.get() query Collection based on args 1`] = `
+[
+  Tacos {
+    "id": "1",
+    "type": "foo",
+  },
+]
+`;
+
+exports[`Controller.get() query Collection based on args 2`] = `
+[
+  Tacos {
+    "id": "1",
+    "type": "foo",
+  },
+  Tacos {
+    "id": "2",
+    "type": "bar",
+  },
+]
+`;
+
+exports[`Controller.get() query Entity based on index 1`] = `
+User {
+  "id": "1",
+  "username": "bob",
+}
+`;
+
+exports[`Controller.get() query Entity based on pk 1`] = `
+Tacos {
+  "id": "1",
+  "type": "foo",
+}
+`;

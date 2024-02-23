@@ -6,6 +6,7 @@ import {
   Endpoint,
   Entity,
   normalize,
+  WeakEntityMap,
 } from './dist/index.js';
 import { printStatus } from './printStatus.js';
 import {
@@ -113,6 +114,9 @@ export default function addReducerSuite(suite) {
         controller.globalCache = {
           entities: {},
           results: {},
+          queries: new Map(),
+          inputEndpointCache: {},
+          infer: new WeakEntityMap(),
         };
         return controller.getResponse(getProject, cachedState);
       })
@@ -133,7 +137,7 @@ export default function addReducerSuite(suite) {
         }
       })
       .add('getResponse Query-sorted', () => {
-        return controller.getResponse(ProjectQuerySorted, cachedState);
+        return controller.get(ProjectQuerySorted, cachedState);
       })
       .add('getResponse Collection', () => {
         return controllerCollection.getResponse(

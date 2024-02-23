@@ -1,5 +1,5 @@
 import * as _data_client_core from '@data-client/core';
-import { Manager, State, Controller, NetworkError, EndpointInterface, FetchFunction, Schema, DenormalizeNullable, ResolveType, Denormalize, UnknownError, ErrorTypes as ErrorTypes$1, ActionTypes, __INTERNAL__, createReducer, applyManager } from '@data-client/core';
+import { Manager, State, Controller, NetworkError, EndpointInterface, FetchFunction, Schema, DenormalizeNullable, ResolveType, Denormalize, Queryable, SchemaArgs, UnknownError, ErrorTypes as ErrorTypes$1, ActionTypes, __INTERNAL__, createReducer, applyManager } from '@data-client/core';
 export { AbstractInstanceType, ActionTypes, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, ResetAction, ResolveType, Schema, SetAction, SetTypes, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@data-client/core';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import React$1, { Context } from 'react';
@@ -113,6 +113,14 @@ declare function useSuspense<E extends EndpointInterface<FetchFunction, Schema |
  */
 declare function useCache<E extends Pick<EndpointInterface<FetchFunction, Schema | undefined, undefined | false | true>, 'key' | 'schema' | 'invalidIfStale'>, Args extends readonly [...Parameters<E['key']>] | readonly [null]>(endpoint: E, ...args: Args): E['schema'] extends undefined | null ? E extends (...args: any) => any ? ResolveType<E> | undefined : any : DenormalizeNullable<E['schema']>;
 
+/**
+ * Query the store.
+ *
+ * `useQuery` results are globally memoized.
+ * @see https://dataclient.io/docs/api/useQuery
+ */
+declare function useQuery<S extends Queryable>(schema: S, ...args: SchemaArgs<S>): DenormalizeNullable<S> | undefined;
+
 type ErrorTypes = NetworkError | UnknownError;
 type UseErrorReturn<P> = P extends [null] ? undefined : ErrorTypes | undefined;
 /**
@@ -214,4 +222,4 @@ declare namespace internal_d {
 /** Turns a dispatch function into one that resolves once its been commited */
 declare function usePromisifiedDispatch<R extends React$1.Reducer<any, any>>(dispatch: React$1.Dispatch<React$1.ReducerAction<R>>, state: React$1.ReducerState<R>): (action: React$1.ReducerAction<R>) => Promise<void>;
 
-export { _default as AsyncBoundary, Loading as BackupLoading, CacheProvider, ControllerContext, DevToolsPosition, NetworkErrorBoundary, ProviderProps, StateContext, Store, StoreContext, UniversalSuspense, internal_d as __INTERNAL__, getDefaultManagers, useCache, useController, useDLE, useError, useFetch, useLive, usePromisifiedDispatch, useSubscription, useSuspense };
+export { _default as AsyncBoundary, Loading as BackupLoading, CacheProvider, ControllerContext, DevToolsPosition, NetworkErrorBoundary, ProviderProps, StateContext, Store, StoreContext, UniversalSuspense, internal_d as __INTERNAL__, getDefaultManagers, useCache, useController, useDLE, useError, useFetch, useLive, usePromisifiedDispatch, useQuery, useSubscription, useSuspense };

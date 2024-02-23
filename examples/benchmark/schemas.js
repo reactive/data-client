@@ -1,4 +1,4 @@
-import { Entity, schema, Query } from './dist/index.js';
+import { Entity, schema } from './dist/index.js';
 
 export class BuildTypeDescription extends Entity {
   id = '';
@@ -100,7 +100,7 @@ export const ProjectSchemaMixin = {
 export const ProjectQuery = {
   project: new schema.All(ProjectWithBuildTypesDescription),
 };
-export const ProjectQuerySorted = new Query(
+export const ProjectQuerySorted = new schema.Query(
   new schema.All(ProjectWithBuildTypesDescription),
   entries => {
     return [...entries].sort((a, b) => a.name.localeCompare(b.name));

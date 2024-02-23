@@ -90,7 +90,7 @@ Passed to [RestEndpoint.searchParams](./RestEndpoint.md#searchParams) for [getLi
 
 ### body
 
-Passed to [RestEndpoint.body](./RestEndpoint.md#body) for [getList.push](#push) [update](#update) and [partialUpdate](#partialUpdate)
+Passed to [RestEndpoint.body](./RestEndpoint.md#body) for [getList.push](#push) [update](#update) and [partialUpdate](#partialupdate)
 
 ### paginationField
 
@@ -158,7 +158,7 @@ const TodoResource = createResource({
 
 These provide the standard [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
 [endpoints](./Endpoint.md)s common in [REST](https://www.restapitutorial.com/) APIs. Feel free to [customize or add
-new endpoints](#customizing-resources) based to match your API.
+new endpoints](#extend-new) based to match your API.
 
 ```ts
 const PostResource = createResource({

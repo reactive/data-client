@@ -83,21 +83,13 @@ module.exports = {
           type: 'doc',
           id: 'api/hookifyResource',
         },
-        {
-          type: 'doc',
-          id: 'api/Query',
-        },
-        {
-          type: 'doc',
-          id: 'api/Index',
-        },
       ],
     },
     {
       type: 'category',
       label: 'Schema API',
       collapsed: false,
-      items: require('./sidebars-endpoint.json').slice(2),
+      items: require('./sidebars-endpoint.json').slice(1),
     },
   ],
 };

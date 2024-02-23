@@ -28,7 +28,7 @@ queryState.result = inferResults(
   queryState.entities,
 );
 const queryInfer = inferResults(
-  ProjectQuerySorted.schema,
+  ProjectQuerySorted,
   [],
   queryState.indexes,
   queryState.entities,
@@ -152,7 +152,7 @@ export default function addNormlizrSuite(suite) {
     .add('denormalizeLong Query-sorted withCache', () => {
       return denormalizeCached(
         queryInfer,
-        ProjectQuerySorted.schema,
+        ProjectQuerySorted,
         queryState.entities,
         denormCache.entities,
         denormCache.results['/fakeQuery'],

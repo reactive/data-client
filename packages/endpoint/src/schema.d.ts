@@ -18,6 +18,7 @@ import type {
   NormalizedNullableObject,
   EntityMap,
 } from './normal.js';
+import { EntityFields } from './schemas/EntityFields.js';
 import {
   EntityOptions,
   IEntityClass,
@@ -28,6 +29,7 @@ import {
   PKClass,
 } from './schemas/EntitySchema.js';
 import { default as Invalidate } from './schemas/Invalidate.js';
+import { default as Query } from './schemas/Query.js';
 import type {
   CollectionConstructor,
   SchemaAttributeFunction,
@@ -35,7 +37,7 @@ import type {
   UnionResult,
 } from './schemaTypes.js';
 
-export { EntityMap, Invalidate };
+export { EntityMap, Invalidate, Query };
 
 export type { SchemaClass };
 
@@ -88,7 +90,7 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
     entities: any,
-  ): any;
+  ): undefined;
 }
 
 /**
@@ -134,7 +136,8 @@ export class All<
   ): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
 
   infer(
-    args: readonly any[],
+    // TODO: hack for now to allow for variable arg combinations with Query
+    args: [] | [unknown],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
     entities: EntityTable,
@@ -180,18 +183,55 @@ export class Object<O extends Record<string, any> = Record<string, Schema>>
   ): any;
 }
 
+type RequiredMember<
+  O extends Record<string | number | symbol, unknown>,
+  Required extends keyof O,
+> = {
+  [K in Required]: O[K];
+};
+
+type UnionSchemaToArgs<
+  Choices extends EntityMap,
+  SchemaAttribute extends
+    | keyof AbstractInstanceType<Choices[keyof Choices]>
+    | SchemaFunction<keyof Choices>,
+> =
+  SchemaAttribute extends keyof AbstractInstanceType<Choices[keyof Choices]> ?
+    RequiredMember<
+      AbstractInstanceType<Choices[keyof Choices]>,
+      SchemaAttribute
+    >
+  : SchemaAttribute extends (value: infer Args, ...rest: any) => unknown ? Args
+  : never;
+
+export interface UnionConstructor {
+  new <
+    Choices extends EntityMap,
+    SchemaAttribute extends
+      | keyof AbstractInstanceType<Choices[keyof Choices]>
+      | SchemaFunction<keyof Choices>,
+  >(
+    definition: Choices,
+    schemaAttribute: SchemaAttribute,
+  ): UnionInstance<
+    Choices,
+    UnionSchemaToArgs<Choices, SchemaAttribute> &
+      Partial<AbstractInstanceType<Choices[keyof Choices]>>
+  >;
+
+  readonly prototype: UnionInstance;
+}
+
 /**
  * Represents polymorphic values.
  * @see https://dataclient.io/rest/api/Union
  */
-export class Union<Choices extends EntityMap = any> implements SchemaClass {
-  constructor(
-    definition: Choices,
-    schemaAttribute:
-      | keyof AbstractInstanceType<Choices[keyof Choices]>
-      | SchemaFunction<keyof Choices>,
-  );
-
+export interface UnionInstance<
+  Choices extends EntityMap = any,
+  Args extends EntityFields<
+    AbstractInstanceType<Choices[keyof Choices]>
+  > = EntityFields<AbstractInstanceType<Choices[keyof Choices]>>,
+> {
   define(definition: Schema): void;
   inferSchema: SchemaAttributeFunction<Choices[keyof Choices]>;
   getSchemaAttribute: SchemaFunction<keyof Choices>;
@@ -220,12 +260,29 @@ export class Union<Choices extends EntityMap = any> implements SchemaClass {
   ): AbstractInstanceType<Choices[keyof Choices]>;
 
   infer(
-    args: readonly any[],
+    args: [Args],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
     entities: any,
-  ): any;
+  ): { id: any; schema: string };
 }
+
+/**
+ * Represents polymorphic values.
+ * @see https://dataclient.io/rest/api/Union
+ */
+export declare let UnionRoot: UnionConstructor;
+
+/**
+ * Represents polymorphic values.
+ * @see https://dataclient.io/rest/api/Union
+ */
+export declare class Union<
+  Choices extends EntityMap,
+  SchemaAttribute extends
+    | keyof AbstractInstanceType<Choices[keyof Choices]>
+    | SchemaFunction<keyof Choices>,
+> extends UnionRoot<Choices, SchemaAttribute> {}
 
 /**
  * Represents variably sized objects
@@ -291,7 +348,7 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
     entities: any,
-  ): any;
+  ): undefined;
 }
 
 export type CollectionArrayAdder<S extends PolymorphicInterface> =

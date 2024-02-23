@@ -2,6 +2,57 @@
 
 exports[`CacheProvider Endpoint should gracefully abort in useSuspense() 1`] = `[AbortError: Aborted]`;
 
+exports[`CacheProvider Query should work as endpoint Schema 1`] = `
+[
+  CoolerArticle {
+    "author": User {
+      "email": "bob@bob.com",
+      "id": 23,
+      "isAdmin": false,
+      "username": "charles",
+    },
+    "content": "whatever",
+    "id": 5,
+    "tags": [
+      "a",
+      "best",
+      "react",
+    ],
+    "title": "hi ho",
+  },
+]
+`;
+
+exports[`CacheProvider Query should work as endpoint Schema 2`] = `
+[
+  CoolerArticle {
+    "author": User {
+      "email": "bob@bob.com",
+      "id": 23,
+      "isAdmin": false,
+      "username": "charles",
+    },
+    "content": "whatever",
+    "id": 5,
+    "tags": [
+      "a",
+      "best",
+      "react",
+    ],
+    "title": "hi ho",
+  },
+  CoolerArticle {
+    "author": null,
+    "content": "whatever",
+    "id": 1000,
+    "tags": [
+      "a",
+    ],
+    "title": "bob says",
+  },
+]
+`;
+
 exports[`CacheProvider should filter Query based on arguments 1`] = `
 [
   CoolerArticle {
@@ -171,6 +222,57 @@ First three members: [
 `;
 
 exports[`ExternalCacheProvider Endpoint should gracefully abort in useSuspense() 1`] = `[AbortError: Aborted]`;
+
+exports[`ExternalCacheProvider Query should work as endpoint Schema 1`] = `
+[
+  CoolerArticle {
+    "author": User {
+      "email": "bob@bob.com",
+      "id": 23,
+      "isAdmin": false,
+      "username": "charles",
+    },
+    "content": "whatever",
+    "id": 5,
+    "tags": [
+      "a",
+      "best",
+      "react",
+    ],
+    "title": "hi ho",
+  },
+]
+`;
+
+exports[`ExternalCacheProvider Query should work as endpoint Schema 2`] = `
+[
+  CoolerArticle {
+    "author": User {
+      "email": "bob@bob.com",
+      "id": 23,
+      "isAdmin": false,
+      "username": "charles",
+    },
+    "content": "whatever",
+    "id": 5,
+    "tags": [
+      "a",
+      "best",
+      "react",
+    ],
+    "title": "hi ho",
+  },
+  CoolerArticle {
+    "author": null,
+    "content": "whatever",
+    "id": 1000,
+    "tags": [
+      "a",
+    ],
+    "title": "bob says",
+  },
+]
+`;
 
 exports[`ExternalCacheProvider should filter Query based on arguments 1`] = `
 [

@@ -1,9 +1,4 @@
-import {
-  GQLEndpoint,
-  GQLEntity,
-  Query,
-  schema,
-} from '@data-client/graphql';
+import { GQLEndpoint, GQLEntity, schema } from '@data-client/graphql';
 
 const gql = new GQLEndpoint('/');
 
@@ -48,7 +43,7 @@ export const TodoResource = {
   }`,
     { updateTodo: Todo },
   ),
-  queryRemaining: new Query(
+  queryRemaining: new schema.Query(
     new schema.All(Todo),
     (entries, { userId } = {}) => {
       if (userId !== undefined)
