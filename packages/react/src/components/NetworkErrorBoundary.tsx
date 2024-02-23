@@ -5,12 +5,12 @@ function isNetworkError(error: NetworkError | unknown): error is NetworkError {
   return 'status' in (error as any);
 }
 
-interface Props<E extends NetworkError> {
+interface ErrorBoundaryProps<E extends NetworkError> {
   children: React.ReactNode;
   className?: string;
   fallbackComponent: React.ComponentType<{ error: E; className?: string }>;
 }
-interface State<E extends NetworkError> {
+interface ErrorState<E extends NetworkError> {
   error?: E;
 }
 /**
@@ -19,7 +19,7 @@ interface State<E extends NetworkError> {
  */
 export default class NetworkErrorBoundary<
   E extends NetworkError,
-> extends React.Component<Props<E>, State<E>> {
+> extends React.Component<ErrorBoundaryProps<E>, ErrorState<E>> {
   static defaultProps = {
     fallbackComponent: ({
       error,
@@ -42,7 +42,7 @@ export default class NetworkErrorBoundary<
     }
   }
 
-  state: State<E> = {};
+  state: ErrorState<E> = {};
 
   render(): JSX.Element {
     if (!this.state.error) {

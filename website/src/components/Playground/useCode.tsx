@@ -1,7 +1,7 @@
 import { parseCodeBlockTitle } from '@docusaurus/theme-common/internal';
 import { useMemo, useReducer } from 'react';
 
-export function useCode(children) {
+export function useCode(children, defaultTab) {
   const codeTabs: {
     code: string;
     path?: string;
@@ -20,7 +20,10 @@ export function useCode(children) {
       )
       .map(({ children, metastring = '', ...rest }) => {
         const title = parseCodeBlockTitle(metastring) ?? '';
-        const collapsed = parseCodeBlockCollapsed(metastring) ?? false;
+        const collapsed =
+          defaultTab ?
+            title !== defaultTab
+          : parseCodeBlockCollapsed(metastring) ?? false;
         const col = parseCodeBlockCol(metastring) ?? false;
         const path = parseCodeBlockPath(metastring);
         const highlights = /\{([\d\-,.]+)\}/.exec(metastring)?.[1];

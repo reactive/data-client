@@ -14,6 +14,7 @@ const HooksPlayground = ({
   defaultOpen,
   row = false,
   fixtures,
+  defaultTab,
   getInitialInterceptorData,
 }: PlaygroundProps) => (
   <Playground
@@ -24,12 +25,13 @@ const HooksPlayground = ({
     hidden={hidden}
     fixtures={fixtures}
     getInitialInterceptorData={getInitialInterceptorData}
+    defaultTab={defaultTab}
   >
-    {typeof children === 'string'
-      ? children
-      : Array.isArray(children)
-      ? children
-      : children.props.children}
+    {typeof children === 'string' ?
+      children
+    : Array.isArray(children) ?
+      children
+    : children.props.children}
   </Playground>
 );
 HooksPlayground.defaultProps = {
@@ -50,4 +52,5 @@ interface PlaygroundProps<T = any> {
   getInitialInterceptorData?: () => T;
   children: React.ReactNode;
   reverse?: boolean;
+  defaultTab?: string;
 }

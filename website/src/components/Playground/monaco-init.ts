@@ -215,6 +215,9 @@ if (
       import(
         /* webpackChunkName: 'qsDTS', webpackPreload: true */ '!!raw-loader?esModule=false!./editor-types/qs.d.ts'
       ),
+      import(
+        /* webpackChunkName: 'globalsDTS', webpackPreload: true */ '!!raw-loader?esModule=false!./editor-types/globals.d.ts'
+      ),
       ...rhDeps.map(
         dep =>
           import(
@@ -224,9 +227,10 @@ if (
     ]).then(([mPromise, ...settles]) => {
       if (mPromise.status !== 'fulfilled' || !mPromise.value) return;
       const monaco = mPromise.value;
-      const [react, bignumber, temporal, uuid, qs, ...rhLibs] = settles.map(
-        result => (result.status === 'fulfilled' ? result.value.default : ''),
-      );
+      const [react, bignumber, temporal, uuid, qs, globals, ...rhLibs] =
+        settles.map(result =>
+          result.status === 'fulfilled' ? result.value.default : '',
+        );
 
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
         `declare module "react/jsx-runtime" {
@@ -327,12 +331,11 @@ if (
           `declare module "@data-client/${dep}" { ${lib} }`,
           `file:///node_modules/@data-client/${dep}/index.d.ts`,
         );
-        if (['rest', 'react'].includes(dep)) {
-          monaco.languages.typescript.typescriptDefaults.addExtraLib(
-            `declare globals { ${lib} }`,
-          );
-        }
       });
+
+      monaco.languages.typescript.typescriptDefaults.addExtraLib(
+        `declare globals { ${globals} }`,
+      );
 
       monaco.languages.typescript.typescriptDefaults.setEagerModelSync(true);
       return monaco;

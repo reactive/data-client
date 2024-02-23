@@ -35,6 +35,7 @@ export default function Playground<T>({
   hidden,
   fixtures,
   getInitialInterceptorData,
+  defaultTab,
   ...props
 }: Omit<LiveProviderProps, 'ref'> & {
   groupId: string;
@@ -43,6 +44,7 @@ export default function Playground<T>({
   children: string | any[];
   fixtures: (Fixture | Interceptor<T>)[];
   getInitialInterceptorData?: () => T;
+  defaultTab?: string;
 }) {
   const {
     liveCodeBlock: { playgroundPosition },
@@ -65,6 +67,7 @@ export default function Playground<T>({
             groupId={groupId}
             defaultOpen={defaultOpen}
             getInitialInterceptorData={getInitialInterceptorData}
+            defaultTab={defaultTab}
           >
             {children}
           </PlaygroundContent>
@@ -86,9 +89,10 @@ function PlaygroundContent<T>({
   fixtures,
   groupId,
   defaultOpen,
+  defaultTab,
   getInitialInterceptorData,
 }: ContentProps<T>) {
-  const { handleCodeChange, codes, codeTabs } = useCode(children);
+  const { handleCodeChange, codes, codeTabs } = useCode(children, defaultTab);
   /*const code = ready.every(v => v)
     ? codes.join('\n')
     : 'render(<div>Loading...</div>);';*/
@@ -126,6 +130,7 @@ interface ContentProps<T = any> {
   children: React.ReactNode;
   reverse?: boolean;
   getInitialInterceptorData?: () => T;
+  defaultTab?: string;
 }
 
 const previewLoading = (
