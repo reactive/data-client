@@ -107,6 +107,11 @@ export default function addNormlizrSuite(suite) {
         denormalizeCached('gnoff', User, githubState.entities);
       }
     })
+    .add('denormalizeShort 500x withCache', () => {
+      for (let i = 0; i < 500; ++i) {
+        denormalizeCached('gnoff', User, githubState.entities,denormCache.entities,denormCache.results['/user'], []);
+      }
+    })
     .add('denormalizeLong with mixin Entity', () => {
       return denormalizeCached(result, ProjectSchemaMixin, entities);
     })
