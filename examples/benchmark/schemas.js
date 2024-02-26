@@ -103,7 +103,7 @@ export const ProjectQuery = {
 export const ProjectQuerySorted = new Query(
   new schema.All(ProjectWithBuildTypesDescription),
   entries => {
-    return [...entries].sort((a, b) => a.internalId - b.internalId);
+    return [...entries].sort((a, b) => a.name.localeCompare(b.name));
   },
 );
 
