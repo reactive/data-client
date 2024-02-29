@@ -1,7 +1,7 @@
 import clsx from 'clsx';
-import React from 'react';
 import { LiveProvider } from 'react-live';
 
+import MonacoPreloads from './Playground/MonacoPreloads';
 import { PlaygroundTextEdit } from './Playground/PlaygroundTextEdit';
 import styles from './Playground/styles.module.css';
 import { useCode } from './Playground/useCode';
@@ -31,6 +31,7 @@ export default function TypeScriptEditor({ children, row }) {
           isPlayground={false}
         />
       </div>
+      <MonacoPreloads />
     </LiveProvider>
   );
 }

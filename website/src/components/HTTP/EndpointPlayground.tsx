@@ -5,6 +5,7 @@ import { LiveProvider } from 'react-live';
 import Request from './Request';
 import Response from './Response';
 import styles from './Wrapper.module.css';
+import MonacoPreloads from '../Playground/MonacoPreloads';
 import { PlaygroundTextEdit } from '../Playground/PlaygroundTextEdit';
 import playgroundstyles from '../Playground/styles.module.css';
 import { useCode } from '../Playground/useCode';
@@ -45,6 +46,7 @@ export default function EndpointPlayground({
           <Response status={status} response={response} />
         : null}
       </div>
+      <MonacoPreloads />
     </div>
   );
 }
