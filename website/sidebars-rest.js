@@ -33,6 +33,10 @@ module.exports = {
           type: 'doc',
           id: 'guides/abort',
         },
+        {
+          type: 'doc',
+          id: 'guides/django',
+        },
       ],
     },
     {
