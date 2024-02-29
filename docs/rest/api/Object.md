@@ -3,7 +3,7 @@ title: schema.Object
 ---
 
 <head>
-  <title>schema.Values - Representing Objects with known keys | Reactive Data Client</title>
+  <title>schema.Object - Declarative Object data for React</title>
 </head>
 
 import LanguageTabs from '@site/src/components/LanguageTabs';

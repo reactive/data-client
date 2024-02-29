@@ -2,7 +2,7 @@
 title: schema.Invalidate
 ---
 <head>
-  <title>schema.Invalidate - Invalidating Entities | Reactive Data Client</title>
+  <title>schema.Invalidate - Invalidating Entities</title>
 </head>
 
 import HooksPlayground from '@site/src/components/HooksPlayground';

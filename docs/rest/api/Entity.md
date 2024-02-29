@@ -3,7 +3,7 @@ title: Entity
 ---
 
 <head>
-  <title>Entity - Declarative Data Normalization | Reactive Data Client</title>
+  <title>Entity - Declarative unique objects for React</title>
   <meta name="docsearch:pagerank" content="10"/>
 </head>
 

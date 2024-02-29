@@ -3,7 +3,7 @@ title: schema.Array
 ---
 
 <head>
-  <title>schema.Array - Representing Arrays | Reactive Data Client</title>
+  <title>schema.Array - Declarative list data for React</title>
 </head>
 
 import Tabs from '@theme/Tabs';

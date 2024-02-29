@@ -2,7 +2,7 @@
 title: schema.Union
 ---
 <head>
-  <title>schema.Union - Representing a Union of possible types | Reactive Data Client</title>
+  <title>schema.Union - Declarative polymorphic data for React</title>
 </head>
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
