@@ -635,7 +635,7 @@ export default class AuthdEndpoint<
 > extends RestEndpoint<O> {
   async getRequestInit(body) {
     return {
-      ...super.getRequestInit(body),
+      ...(await super.getRequestInit(body)),
       method: await getMethod(),
     };
   }

@@ -110,9 +110,9 @@ import { RestEndpoint } from '@data-client/rest';
 export default class AuthdEndpoint<
   O extends RestGenerics = any,
 > extends RestEndpoint<O> {
-  getRequestInit(body: any): RequestInit {
+  async getRequestInit(body: any): Promise<RequestInit> {
     return {
-      ...super.getRequestInit(body),
+      ...(await super.getRequestInit(body)),
       credentials: 'same-origin',
     };
   }
@@ -668,9 +668,9 @@ import {
 export class AuthdEndpoint<
   O extends RestGenerics = any,
 > extends RestEndpoint<O> {
-  getRequestInit(body: any): RequestInit {
+  async getRequestInit(body: any): Promise<RequestInit> {
     return {
-      ...super.getRequestInit(body),
+      ...(await super.getRequestInit(body)),
       credentials: 'same-origin',
     };
   }

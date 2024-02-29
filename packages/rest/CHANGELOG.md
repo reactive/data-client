@@ -444,6 +444,36 @@
 
 ### Minor Changes
 
+BREAKING: Calling super.getRequestInit() will return a promise - so you must resolve it:
+
+```ts
+class AuthdEndpoint<
+  O extends RestGenerics = any,
+> extends RestEndpoint<O> {
+  getRequestInit(body: any): RequestInit {
+    return {
+      ...super.getRequestInit(body),
+      credentials: 'same-origin',
+    };
+  }
+}
+```
+
+->
+
+```ts
+class AuthdEndpoint<
+  O extends RestGenerics = any,
+> extends RestEndpoint<O> {
+  async getRequestInit(body: any): Promise<RequestInit> {
+    return {
+      ...(await super.getRequestInit(body)),
+      credentials: 'same-origin',
+    };
+  }
+}
+```
+
 - bf141cb5a5: Removed deprecated Endpoint.optimisticUpdate -> use Endpoint.getOptimisticResponse
 - 9788090c55: RestEndpoint's getRequestInit and getHeaders optionally return a promise
 - 9788090c55: GetEndpoint and MutateEndpoint parameters changed to what NewXEndpoint was.

@@ -15,12 +15,12 @@ Here's an example using simple cookie auth:
 
 ```ts title="schema/endpoint.ts"
 export const gql = new GQLEndpoint('https://nosy-baritone.glitch.me', {
-  getFetchInit(init: RequestInit): RequestInit {
+  getRequestInit(body: any): Promise<RequestInit> {
     return {
-      ...init,
+      ...super.getRequestInit(body),
       credentials: 'same-origin',
     };
-  },
+  }
 });
 export default gql;
 ```
