@@ -12,6 +12,7 @@ import LanguageTabs from '@site/src/components/LanguageTabs';
 import StackBlitz from '@site/src/components/StackBlitz';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
+import DeleteProcess from './_DeleteProcess.mdx';
 
 `Resources` are a collection of [RestEndpoints](./RestEndpoint.md) that operate on a common
 data by sharing a [schema](./schema.md)
@@ -552,29 +553,12 @@ PostResource.delete({ group: 'react', id: '1' });
 
 </EndpointPlayground>
 
-<table>
-<tr>
-<th>method</th><td>'DELETE'</td>
-</tr>
-<tr>
-<th>path</th><td>[path](#path)</td>
-</tr>
-<tr>
-<th>schema</th><td>[new schema.Invalidate(schema)](./Invalidate.md)</td>
-</tr>
-<tr>
-<th>process</th>
-<td>
-
-```ts
-(value, params) {
-  return value && Object.keys(value).length ? value : params;
-},
-```
-
-</td>
-</tr>
-</table>
+|  Field  | Value                                            |
+| :-----: | ------------------------------------------------ |
+| method  | 'DELETE'                                         |
+|  path   | [path](#path)                                    |
+| schema  | [new schema.Invalidate(schema)](./Invalidate.md) |
+| process | <DeleteProcess />                                |
 
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 

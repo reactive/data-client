@@ -44,7 +44,7 @@ sources={{
                 </tr>
         </thead>
         <tbody>
-        		<tr class="grouplabel"><th colspan="2"><Link to="./expiry-policy">Expiry Status</Link></th></tr>
+        		<tr class="grouplabel"><th colSpan="2"><Link to="./expiry-policy">Expiry Status</Link></th></tr>
                 <tr>
                         <th>Fresh</th>
                         <td>Data can always be used and needs no updates.</td>
@@ -59,7 +59,7 @@ sources={{
                 </tr>
         </tbody>
         <tbody>
-        		<tr class="grouplabel"><th colspan="2"><Link to="./error-policy">Error Policy</Link></th></tr>
+        		<tr class="grouplabel"><th colSpan="2"><Link to="./error-policy">Error Policy</Link></th></tr>
                 <tr>
                         <th>Soft</th>
                         <td>Transient errors that should not invalidate existing data.</td>
