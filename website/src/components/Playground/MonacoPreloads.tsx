@@ -13,7 +13,7 @@ function MonacoPreloads() {
 }
 export default memo(MonacoPreloads);
 
-export const MONACO_VERSION = pkg.version ?? '0.43.0';
+export const MONACO_VERSION = pkg.version ?? '0.46.0';
 
 const monacoPreloads = [
   `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/editor/editor.main.js`,
