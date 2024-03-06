@@ -37,6 +37,7 @@
     "lib/",
     "node.mjs",
     "legacy",
+    "ts4.0",
     "ts3.4",
     "LICENSE",
     "README.md"
@@ -46,12 +47,20 @@
   "module": "legacy/index.js",
   "types": "lib/index.d.ts",
   "typesVersions": {
-    ">=4.0": {
+    ">=4.1": {
       "": [
         "lib/index.d.ts"
       ],
       "*": [
         "lib/index.d.ts"
+      ]
+    },
+    ">=4.0": {
+      "": [
+        "ts4.0/index.d.ts"
+      ],
+      "*": [
+        "ts4.0/index.d.ts"
       ]
     },
     ">=3.4": {
@@ -85,8 +94,8 @@
     "build:lib": "NODE_ENV=production BROWSERSLIST_ENV='2020' yarn g:babel --out-dir lib",
     "build:legacy:lib": "NODE_ENV=production BROWSERSLIST_ENV='2018' yarn g:babel --out-dir legacy",
     "build:bundle": "yarn g:runs build:js:\\*",
-    "build:clean": "yarn g:clean",
-    "build:legacy-types": "yarn g:downtypes lib ts3.4",
+    "build:clean": "yarn g:clean ts3.4 ts4.0",
+    "build:legacy-types": "yarn g:downtypes lib ts3.4 && yarn g:downtypes lib ts4.0 --to=4.0 && yarn g:copy --up 1 ./src-4.0-types/**/*.d.ts ./ts3.4/ && yarn g:copy --up 1 ./src-4.0-types/**/*.d.ts ./ts4.0",
     "prepublishOnly": "run build"
   },
   "author": "Nathaniel Tucker",

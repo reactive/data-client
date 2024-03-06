@@ -48,7 +48,7 @@ export const TodoResource = {
     getOptimisticResponse(snap, params, body) {
       return {
         id: params.id,
-        ...snap.getResponse(TodoResourceBase.get, { id: params.id }).data,
+        ...snap.get(Todo, { id: params.id }),
         ...body,
         updatedAt: snap.fetchedAt,
       };

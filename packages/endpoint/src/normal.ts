@@ -3,7 +3,9 @@ import type {
   Serializable,
   EntityInterface,
   NormalizedIndex,
+  Queryable,
 } from './interface.js';
+import { EntityFields } from './schemas/EntityFields.js';
 
 // TypeScript <4.2 InstanceType<> does not work on abstract classes
 export type AbstractInstanceType<T> =
@@ -117,31 +119,15 @@ export interface EntityMap<T = any> {
   readonly [k: string]: EntityInterface<T>;
 }
 
-export type SchemaToArgs<
-  S extends {
-    normalize(
-      input: any,
-      parent: any,
-      key: any,
-      visit: (...args: any) => any,
-      addEntity: (...args: any) => any,
-      visitedEntities: Record<string, any>,
-      storeEntities: any,
-      args: any,
-    ): any;
-  },
-> =
-  S extends (
+export type SchemaArgs<S extends Schema> =
+  S extends EntityInterface<infer U> ? [EntityFields<U>]
+  : S extends (
     {
-      normalize(
-        input: any,
-        parent: any,
-        key: any,
-        visit: (...args: any) => any,
-        addEntity: (...args: any) => any,
-        visitedEntities: Record<string, any>,
-        storeEntities: any,
+      infer(
         args: infer Args,
+        indexes: any,
+        recurse: (...args: any) => any,
+        entities: any,
       ): any;
     }
   ) ?

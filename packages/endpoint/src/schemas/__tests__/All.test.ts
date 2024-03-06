@@ -298,7 +298,7 @@ describe.each([
         createInput(entities),
       );
 
-      expect(createOutput(value)).toEqual(undefined);
+      expect(createOutput(value)).toEqual(expect.any(Symbol));
     });
 
     test('returns the input value if is null', () => {

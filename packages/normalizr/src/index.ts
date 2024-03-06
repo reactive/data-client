@@ -14,12 +14,14 @@ export type {
   AbstractInstanceType,
   NormalizeReturnType,
   NormalizedSchema,
-  DenormalizeCache,
+  EntityCache,
+  ResultCache,
   Path,
   Denormalize,
   DenormalizeNullable,
   Normalize,
   NormalizeNullable,
+  SchemaArgs,
 } from './types.js';
 export * from './endpoint/types.js';
 export * from './interface.js';

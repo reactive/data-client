@@ -1,5 +1,5 @@
 import { act } from '@testing-library/react-hooks';
-import { IndexedUserResource, User } from '__tests__/new';
+import { IndexedUser, IndexedUserResource, User } from '__tests__/new';
 import nock from 'nock';
 import { useContext } from 'react';
 
@@ -7,14 +7,12 @@ import { useContext } from 'react';
 import { makeRenderDataClient } from '../../../test';
 import { CacheProvider } from '../components';
 import { StateContext } from '../context';
-import { useCache, useSuspense, useController } from '../hooks';
+import { useSuspense, useController, useQuery } from '../hooks';
 import {
   payload,
   createPayload,
   users,
   nested,
-  paginatedFirstPage,
-  paginatedSecondPage,
   valuesFixture,
 } from '../test-fixtures';
 
@@ -83,10 +81,10 @@ describe('indexes', () => {
       const { fetch } = useController();
       useSuspense(IndexedUserResource.getList);
       return {
-        bob: useCache(IndexedUserResource.getIndex, {
+        bob: useQuery(IndexedUser, {
           username: 'bob',
         }),
-        charlie: useCache(IndexedUserResource.getIndex, {
+        charlie: useQuery(IndexedUser, {
           username: 'charlie',
         }),
         fetch,

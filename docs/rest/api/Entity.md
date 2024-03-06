@@ -249,7 +249,7 @@ static mergeWithStore(
 
 `mergeWithStore()` is called during normalization when a processed entity is already found in the store.
 
-This calls [useIncoming()](#useIncoming), [shouldReorder()](#shouldOrder) and potentially [merge()](#merge)
+This calls [useIncoming()](#useincoming), [shouldReorder()](#shouldreorder) and potentially [merge()](#merge)
 
 ### static useIncoming(existingMeta, incomingMeta, existing, incoming): boolean {#useincoming}
 
@@ -562,9 +562,9 @@ export const UserResource = createResource({
 const user = useSuspense(UserResource.get, { username: 'bob' });
 ```
 
-#### useCache()
+#### useQuery()
 
-With [useCache()](/docs/api/useCache), this enables accessing results retrieved inside other requests - even
+With [useQuery()](/docs/api/useQuery), this enables accessing results retrieved inside other requests - even
 if there is no endpoint it can be fetched from.
 
 ```typescript
@@ -574,7 +574,6 @@ class LatestPrice extends Entity {
   price = '0.0';
   static indexes = ['symbol' as const];
 }
-const latestPriceFromCache = new Index(LatestPrice);
 ```
 
 ```typescript
@@ -601,5 +600,5 @@ const assets = useSuspense(getAssets);
 Nested below:
 
 ```tsx
-const price = useCache(latestPriceFromCache, { symbol: 'BTC' });
+const price = useQuery(LatestPrice, { symbol: 'BTC' });
 ```

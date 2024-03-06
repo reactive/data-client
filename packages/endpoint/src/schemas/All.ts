@@ -46,7 +46,7 @@ export default class AllSchema<
   infer(args: any, indexes: any, recurse: any, entities: EntityTable): any {
     if (this.isSingleSchema) {
       const entitiesEntry = entities[this.schema.key];
-      // we must wait until there are entries for any 'All' query to be valid
+      // we must wait until there are entries for any 'All' query to be Valid
       if (entitiesEntry === undefined) return INVALID;
       return Object.values(entitiesEntry).map(
         entity => entity && this.schema.pk(entity),
@@ -65,8 +65,8 @@ export default class AllSchema<
         );
       },
     );
-    // if no table entries exist we shouldn't grab anything
-    if (!found) return;
+    // we need at least one table entry of the Union for this to count as Valid.
+    if (!found) return INVALID;
     return list;
   }
 }

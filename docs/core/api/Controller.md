@@ -27,6 +27,7 @@ class Controller {
   subscribe(endpoint, ...args): Promise<void>;
   unsubscribe(endpoint, ...args): Promise<void>;
   /*************** Data Access ***************/
+  get(queryable, ...args, state): Denormalized<typeof queryable>;
   getResponse(endpoint, ...args, state): { data; expiryStatus; expiresAt };
   getError(endpoint, ...args, state): ErrorTypes | undefined;
   snapshot(state: State<unknown>, fetchedAt?: number): SnapshotInterface;
@@ -124,7 +125,10 @@ When using schemas, the denormalized value is returned
 // highlight-next-line
 import { useController } from '@data-client/react';
 
-const post = await controller.fetch(PostResource.getList.push, createPayload);
+const post = await controller.fetch(
+  PostResource.getList.push,
+  createPayload,
+);
 post.title;
 post.pk();
 ```
@@ -364,7 +368,11 @@ useEffect(() => {
   const websocket = new Websocket(url);
 
   websocket.onmessage = event =>
-    ctrl.setResponse(EndpointLookup[event.endpoint], ...event.args, event.data);
+    ctrl.setResponse(
+      EndpointLookup[event.endpoint],
+      ...event.args,
+      event.data,
+    );
 
   return () => websocket.close();
 });
@@ -411,6 +419,36 @@ Marks completion of subscription to a given [Endpoint](/rest/api/Endpoint). This
 decrement the subscription and if the count reaches 0, more updates won't be received automatically.
 
 [useSubscription](./useSubscription.md) and [useLive](./useLive.md) call this on unmount.
+
+## get(schema, ...args, state) {#get}
+
+Looks up any [Queryable](./useQuery.md#queryable) [Schema](/rest/api/schema#schema-overview) in `state`.
+
+### Example
+
+This is used in [useQuery](./useQuery.md) and can be used in
+[Managers](./Manager.md) to safely access the store.
+
+```tsx title="useQuery.ts"
+import {
+  useController,
+  useCacheState,
+  type Queryable,
+  type SchemaArgs,
+  type DenormalizeNullable,
+} from '@data-client/core';
+
+/** Oversimplified useQuery */
+function useQuery<S extends Queryable>(
+  schema: S,
+  ...args: SchemaArgs<S>
+): DenormalizeNullable<S> | undefined {
+  const state = useCacheState();
+  const controller = useController();
+
+  return controller.get(schema, ...args, state);
+}
+```
 
 ## getResponse(endpoint, ...args, state) {#getResponse}
 
@@ -487,7 +525,7 @@ import type { EndpointInterface } from '@data-client/endpoint';
 export default class MyManager implements Manager {
   protected declare middleware: Middleware;
   constructor() {
-    this.middleware = ({ controller, getState }) => {
+    this.middleware = controller => {
       return next => async action => {
         if (action.type === actionTypes.FETCH_TYPE) {
           console.log('The existing response of the requested fetch');
@@ -495,7 +533,7 @@ export default class MyManager implements Manager {
             controller.getResponse(
               action.endpoint,
               ...(action.meta.args as Parameters<typeof action.endpoint>),
-              getState(),
+              controller.getState(),
             ).data,
           );
         }

@@ -1,7 +1,6 @@
 import {
   schema,
   Endpoint,
-  Index,
   createResource,
   RestEndpoint,
   Schema,
@@ -188,6 +187,13 @@ export class Article extends Entity {
     author: User,
   };
 }
+
+export class ArticleWithSlug extends Article {
+  readonly slug: string = '';
+
+  static indexes = ['slug'] as const;
+}
+
 class ArticleData {
   readonly id: number | undefined = undefined;
   readonly title: string = '';
@@ -265,6 +271,9 @@ function createArticleResource<O extends ArticleGenerics>({
   return resource as any;
 }
 export const ArticleResource = createArticleResource({ schema: Article });
+export const ArticleSlugResource = createArticleResource({
+  schema: ArticleWithSlug,
+});
 
 export const AuthContext = createContext('');
 
@@ -518,13 +527,10 @@ export const CoolerArticleDetail = new Endpoint(
 export class IndexedUser extends User {
   static readonly indexes = ['username'];
 }
-export const IndexedUserResource = {
-  ...createResource({
-    path: 'http\\://test.com/user/:id',
-    schema: IndexedUser,
-  }),
-  getIndex: new Index(IndexedUser),
-};
+export const IndexedUserResource = createResource({
+  path: 'http\\://test.com/user/:id',
+  schema: IndexedUser,
+});
 
 class InvalidIfStaleEndpoint<
   O extends RestGenerics = any,

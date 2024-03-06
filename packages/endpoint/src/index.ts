@@ -27,6 +27,7 @@ export type {
   SchemaSimple,
   SchemaClass,
   PolymorphicInterface,
+  Queryable,
 } from './interface.js';
 export type {
   AbstractInstanceType,
@@ -34,7 +35,7 @@ export type {
   NormalizeNullable,
   Denormalize,
   DenormalizeNullable,
-  SchemaToArgs,
+  SchemaArgs,
 } from './normal.js';
 export type {
   EndpointExtraOptions,
@@ -49,5 +50,3 @@ export type {
 
 export { default as Endpoint, ExtendableEndpoint } from './endpoint.js';
 export type { KeyofEndpointInstance } from './endpoint.js';
-export * from './indexEndpoint.js';
-export * from './queryEndpoint.js';

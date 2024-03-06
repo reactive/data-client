@@ -468,7 +468,3 @@ TypeScript the definition of a networking API.
 - A function to uniquely store those results
 - Optional: information about how to store the data in a normalized cache
 - Optional: whether the request could have side effects - to prevent repeat calls
-
-## See also
-
-- [Index](./Index.md)

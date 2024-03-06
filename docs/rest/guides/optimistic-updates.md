@@ -163,17 +163,15 @@ a real `id` in the entity.
 ### partialUpdate
 
 ```ts
-function optimisticPartial(
-  getEndpoint: GetEndpoint<{ path: ResourcePath; schema: any }>,
-) {
+function optimisticPartial(schema: Queryable) {
   return function (snap: SnapshotInterface, params: any, body: any) {
-    const { data } = snap.getResponse(getEndpoint, params);
+    const data = snap.get(schema, params);
     if (!data) throw snap.abort;
     return {
       ...params,
       ...data,
       // even tho we don't always have two arguments, the extra one will simply be undefined which spreads fine
-      ...ensureBodyPojo(body),
+      ...ensurePojo(body),
     };
   };
 }
@@ -329,7 +327,7 @@ export const increment = new RestEndpoint({
     });
   },
   getOptimisticResponse(snap) {
-    const { data } = snap.getResponse(getCount);
+    const data = snap.get(CountEntity, {});
     if (!data) throw snap.abort;
     return {
       count: data.count + 1,

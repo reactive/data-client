@@ -1,20 +1,26 @@
 import type { EndpointInterface } from './EndpointInterface.js';
 import type { ErrorTypes } from './ErrorTypes.js';
 import type { ExpiryStatusInterface } from '../Expiry.js';
+import { Queryable } from '../interface.js';
+import { DenormalizeNullable } from '../types.js';
 
 export interface SnapshotInterface {
-  getResponse: <
+  /**
+   * Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
+   * @see https://dataclient.io/docs/api/Snapshot#getResponse
+   */
+  getResponse<
     E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>,
-    Args extends readonly [...Parameters<E['key']>],
   >(
     endpoint: E,
-    ...args: Args
-  ) => {
-    data: any;
+    ...args: readonly any[]
+  ): {
+    data: DenormalizeNullable<E['schema']>;
     expiryStatus: ExpiryStatusInterface;
     expiresAt: number;
   };
 
+  /** @see https://dataclient.io/docs/api/Snapshot#getError */
   getError: <
     E extends Pick<EndpointInterface, 'key'>,
     Args extends readonly [...Parameters<E['key']>],
@@ -22,6 +28,12 @@ export interface SnapshotInterface {
     endpoint: E,
     ...args: Args
   ) => ErrorTypes | undefined;
+
+  /**
+   * Retrieved memoized value for any Querable schema
+   * @see https://dataclient.io/docs/api/Snapshot#get
+   */
+  get<S extends Queryable>(schema: S, ...args: readonly any[]): any;
 
   readonly fetchedAt: number;
   readonly abort: Error;

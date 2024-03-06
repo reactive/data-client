@@ -155,7 +155,7 @@ export default class CollectionSchema<
     addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
     storeEntities: any,
-    args: Args,
+    args: any,
   ): string {
     const normalizedValue = this.schema.normalize(
       input,
@@ -218,7 +218,7 @@ export default class CollectionSchema<
 
   // >>>>>>>>>>>>>>DENORMALIZE<<<<<<<<<<<<<<
 
-  infer(args: any, indexes: unknown, recurse: unknown, entities: any): any {
+  infer(args: Args, indexes: unknown, recurse: unknown, entities: any): any {
     if (this.argsKey) {
       const id = this.pk(undefined, undefined, '', args);
       if (entities[this.key]?.[id]) return id;

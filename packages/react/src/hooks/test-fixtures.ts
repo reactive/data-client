@@ -5,6 +5,14 @@ export const payload = {
   tags: ['a', 'best', 'react'],
 };
 
+export const payloadSlug = {
+  id: 5,
+  title: 'hi ho',
+  slug: 'hi-ho',
+  content: 'whatever',
+  tags: ['a', 'best', 'react'],
+};
+
 export const createPayload = {
   id: 1,
   title: 'hi ho',

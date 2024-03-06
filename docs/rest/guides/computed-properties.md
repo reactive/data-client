@@ -113,10 +113,11 @@ export const UserResource = createResource({
 ```
 
 ```tsx title="UsersPage"
-import { Query, schema } from '@data-client/rest';
+import { schema } from '@data-client/rest';
+import { useQuery, useFetch } from '@data-client/react';
 import { UserResource, User } from './api/User';
 
-const getUserCount = new Query(
+const getUserCount = new schema.Query(
   new schema.All(User),
   (entries, { isAdmin } = {}) => {
     if (isAdmin !== undefined)
@@ -127,8 +128,8 @@ const getUserCount = new Query(
 
 function UsersPage() {
   useFetch(UserResource.getList);
-  const userCount = useCache(getUserCount);
-  const adminCount = useCache(getUserCount, { isAdmin: true });
+  const userCount = useQuery(getUserCount);
+  const adminCount = useQuery(getUserCount, { isAdmin: true });
   if (userCount === undefined)
     return <div>No users in cache yet</div>;
   return (

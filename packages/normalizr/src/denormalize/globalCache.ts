@@ -1,6 +1,6 @@
 import type Cache from './cache.js';
 import type { EntityInterface } from '../interface.js';
-import type { DenormalizeCache, Path } from '../types.js';
+import type { EntityCache, Path, ResultCache } from '../types.js';
 import WeakEntityMap, {
   type Dep,
   type GetEntity,
@@ -19,12 +19,12 @@ export default class GlobalCache implements Cache {
   ) => WeakEntityMap<object, any>;
 
   private declare _getEntity: GetEntity;
-  private declare resultCache: DenormalizeCache['results'][string];
+  private declare resultCache: ResultCache;
 
   constructor(
     getEntity: GetEntity,
-    entityCache: DenormalizeCache['entities'],
-    resultCache: DenormalizeCache['results'][string],
+    entityCache: EntityCache,
+    resultCache: ResultCache,
   ) {
     this._getEntity = getEntity;
     this.getCache = getEntityCaches(entityCache);
@@ -104,6 +104,7 @@ export default class GlobalCache implements Cache {
     return { localCacheKey, cycleCacheKey };
   }
 
+  /** Cache varies based on input (=== aka reference) */
   getResults(
     input: any,
     cachable: boolean,
@@ -140,7 +141,7 @@ interface EntityCacheValue {
   value: object | symbol | undefined;
 }
 
-const getEntityCaches = (entityCache: DenormalizeCache['entities']) => {
+const getEntityCaches = (entityCache: EntityCache) => {
   return (pk: string, schema: EntityInterface) => {
     const key = schema.key;
     // collections should use the entities they collect over

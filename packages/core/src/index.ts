@@ -13,13 +13,16 @@ export type {
   EndpointInterface,
   EntityInterface,
   ResolveType,
-  DenormalizeCache,
+  EntityCache,
+  ResultCache,
   DenormalizeNullable,
   Denormalize,
   Normalize,
   NormalizeNullable,
   FetchFunction,
   EndpointExtraOptions,
+  Queryable,
+  SchemaArgs,
 } from '@data-client/normalizr';
 export { ExpiryStatus } from '@data-client/normalizr';
 export {

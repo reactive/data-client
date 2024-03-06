@@ -19,14 +19,6 @@ afterAll(() => {
   dateSpy.mockRestore();
 });
 
-const values = <T extends { [k: string]: any }>(obj: T) =>
-  Object.keys(obj).map(key => obj[key]);
-
-class Tacos extends IDEntity {
-  readonly name: string = '';
-  readonly alias: string | undefined = undefined;
-}
-
 class Todo extends IDEntity {
   userId = 0;
   title = '';
@@ -88,7 +80,6 @@ describe(`${schema.Collection.name} normalization`, () => {
         () => undefined,
         {},
         {},
-        // @ts-expect-error
         [],
       );
     }

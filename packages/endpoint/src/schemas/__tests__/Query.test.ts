@@ -4,7 +4,7 @@ import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
 import { denormalizeSimple } from './denormalize';
-import { schema, Query, Denormalize, DenormalizeNullable } from '../..';
+import { schema, DenormalizeNullable } from '../..';
 
 let dateSpy: jest.SpyInstance<number, []>;
 beforeAll(() => {
@@ -43,9 +43,9 @@ describe.each([
   }
 
   describe.each(SCHEMA_CASES)(
-    `${Query.name} denormalization (%s schema)`,
+    `${schema.Query.name} denormalization (%s schema)`,
     (_, usersSchema) => {
-      const sortedUsers = new Query(
+      const sortedUsers = new schema.Query(
         usersSchema,
         ({ results }, { asc } = { asc: false }) => {
           if (!results) return results;
@@ -71,10 +71,10 @@ describe.each([
             ],
           },
         };
-        const users: DenormalizeNullable<typeof sortedUsers.schema> | symbol =
+        const users: DenormalizeNullable<typeof sortedUsers> | symbol =
           denormalize(
-            inferResults(sortedUsers.schema, [], {}, entities),
-            sortedUsers.schema,
+            inferResults(sortedUsers, [], {}, entities),
+            sortedUsers,
             createInput(entities),
           );
         expect(users).not.toEqual(expect.any(Symbol));
@@ -99,8 +99,8 @@ describe.each([
         };
         expect(
           denormalize(
-            inferResults(sortedUsers.schema, [{ asc: true }], {}, entities),
-            sortedUsers.schema,
+            inferResults(sortedUsers, [{ asc: true }], {}, entities),
+            sortedUsers,
             createInput(entities),
             {},
             new WeakEntityMap(),
@@ -116,11 +116,11 @@ describe.each([
             2: { id: '2', name: 'Jake' },
           },
         };
-        const input = inferResults(sortedUsers.schema, [], {}, entities);
+        const input = inferResults(sortedUsers, [], {}, entities);
 
         const value = denormalize(
           createInput(input),
-          sortedUsers.schema,
+          sortedUsers,
           createInput(entities),
         );
 
@@ -128,9 +128,10 @@ describe.each([
       });
 
       test('denormalize aggregates', () => {
-        const userCountByAdmin = new Query(
+        const userCountByAdmin = new schema.Query(
           usersSchema,
           ({ results }, { isAdmin }: { isAdmin?: boolean } = {}) => {
+            if (!results) return 0;
             if (isAdmin === undefined) return results.length;
             return results.filter(user => user.isAdmin === isAdmin).length;
           },
@@ -155,23 +156,18 @@ describe.each([
           },
         };
         const totalCount:
-          | DenormalizeNullable<typeof userCountByAdmin.schema>
+          | DenormalizeNullable<typeof userCountByAdmin>
           | symbol = denormalize(
-          inferResults(userCountByAdmin.schema, [], {}, entities),
-          userCountByAdmin.schema,
+          inferResults(userCountByAdmin, [], {}, entities),
+          userCountByAdmin,
           createInput(entities),
         );
         expect(totalCount).toBe(4);
         const nonAdminCount:
-          | DenormalizeNullable<typeof userCountByAdmin.schema>
+          | DenormalizeNullable<typeof userCountByAdmin>
           | symbol = denormalize(
-          inferResults(
-            userCountByAdmin.schema,
-            [{ isAdmin: false }],
-            {},
-            entities,
-          ),
-          userCountByAdmin.schema,
+          inferResults(userCountByAdmin, [{ isAdmin: false }], {}, entities),
+          userCountByAdmin,
           createInput(entities),
           {},
           new WeakEntityMap(),
@@ -179,15 +175,10 @@ describe.each([
         );
         expect(nonAdminCount).toBe(3);
         const adminCount:
-          | DenormalizeNullable<typeof userCountByAdmin.schema>
+          | DenormalizeNullable<typeof userCountByAdmin>
           | symbol = denormalize(
-          inferResults(
-            userCountByAdmin.schema,
-            [{ isAdmin: true }],
-            {},
-            entities,
-          ),
-          userCountByAdmin.schema,
+          inferResults(userCountByAdmin, [{ isAdmin: true }], {}, entities),
+          userCountByAdmin,
           createInput(entities),
           {},
           new WeakEntityMap(),
@@ -206,7 +197,7 @@ describe.each([
 });
 
 describe('top level schema', () => {
-  const sortedUsers = new Query(
+  const sortedUsers = new schema.Query(
     new schema.Collection([User]),
     (results, { asc } = { asc: false }, ...args) => {
       if (!results) return results;
@@ -228,12 +219,11 @@ describe('top level schema', () => {
         [new schema.Collection([User]).pk({}, undefined, '', [])]: [1, 2, 3, 4],
       },
     };
-    const users: DenormalizeNullable<typeof sortedUsers.schema> | symbol =
-      denormalize(
-        inferResults(sortedUsers.schema, [], {}, entities),
-        sortedUsers.schema,
-        entities,
-      );
+    const users: DenormalizeNullable<typeof sortedUsers> | symbol = denormalize(
+      inferResults(sortedUsers, [], {}, entities),
+      sortedUsers,
+      entities,
+    );
     expect(users).not.toEqual(expect.any(Symbol));
     if (typeof users === 'symbol') return;
     expect(users && users[0].name).toBe('Zeta');
@@ -247,9 +237,9 @@ describe('top level schema', () => {
         2: { id: '2', name: 'Jake' },
       },
     };
-    const input = inferResults(sortedUsers.schema, [], {}, entities);
+    const input = inferResults(sortedUsers, [], {}, entities);
 
-    const value = denormalize(input, sortedUsers.schema, entities);
+    const value = denormalize(input, sortedUsers, entities);
 
     expect(value).toEqual(undefined);
   });

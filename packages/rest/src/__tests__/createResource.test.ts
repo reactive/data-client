@@ -1,10 +1,11 @@
-import { Entity, schema } from '@data-client/endpoint';
+import { Entity, schema, SchemaArgs } from '@data-client/endpoint';
 import {
   CacheProvider,
   useCache,
   useController,
   Controller,
   useSuspense,
+  useQuery,
 } from '@data-client/react';
 import { makeRenderDataClient } from '@data-client/test';
 import { act } from '@testing-library/react-hooks';
@@ -840,7 +841,7 @@ describe('createResource()', () => {
     }
     const FeedUnion = new schema.Union(
       { post: FeedPost, link: FeedLink },
-      'type' as const,
+      'type',
     );
     const FeedResource = createResource({
       path: 'http\\://test.com/feed/:id',
@@ -1096,5 +1097,41 @@ describe('createResource()', () => {
     expect(result.current.length).toBe(1);
     // this is set in our override
     expect(result.current[0].isAdmin).toBe(true);
+  });
+
+  it('searchParams are used in Queries based on getList.schema', () => {
+    class Todo extends Entity {
+      id = '';
+      readonly userId: number = 0;
+      readonly title: string = '';
+      readonly completed: boolean = false;
+
+      static key = 'Todo';
+
+      pk() {
+        return this.id;
+      }
+    }
+
+    const TodoResource = createResource({
+      path: '/todos/:id',
+      schema: Todo,
+      optimistic: true,
+      searchParams: {} as { userId?: string | number } | undefined,
+    });
+
+    const queryRemainingTodos = new schema.Query(
+      TodoResource.getList.schema,
+      entries => entries && entries.filter(todo => !todo.completed).length,
+    );
+
+    () => useQuery(queryRemainingTodos, { userId: 1 });
+    () => useQuery(queryRemainingTodos);
+    // @ts-expect-error
+    () => useQuery(queryRemainingTodos, { user: 1 });
+    // @ts-expect-error
+    () => useQuery(queryRemainingTodos, 5);
+    // @ts-expect-error
+    () => useQuery(queryRemainingTodos, { userId: 1 }, 5);
   });
 });

@@ -1,4 +1,4 @@
-import { schema, Entity, Query } from '@data-client/endpoint';
+import { schema, Entity } from '@data-client/endpoint';
 import { Endpoint } from '@data-client/endpoint';
 import { CacheProvider } from '@data-client/react';
 import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
@@ -20,7 +20,13 @@ import nock from 'nock';
 
 // relative imports to avoid circular dependency in tsconfig references
 import { makeRenderDataClient, act } from '../../../test';
-import { useCache, useController, useFetch, useSuspense } from '../hooks';
+import {
+  useCache,
+  useController,
+  useFetch,
+  useQuery,
+  useSuspense,
+} from '../hooks';
 import {
   payload,
   createPayload,
@@ -234,15 +240,15 @@ describe.each([
     });
   });
 
-  it('should denormalize Query', async () => {
+  it('should denormalize All', async () => {
     const getList = CoolerArticleResource.getList.extend({
       schema: new schema.All(CoolerArticle),
     });
-    const queryArticle = new Query(new schema.All(CoolerArticle));
+    const allArticles = new schema.All(CoolerArticle);
 
     const { result, waitForNextUpdate } = renderDataClient(() => {
       useFetch(getList);
-      return useCache(queryArticle);
+      return useQuery(allArticles);
     });
     expect(result.current).toBeUndefined();
     await waitForNextUpdate();
@@ -256,7 +262,7 @@ describe.each([
   });
 
   it('should filter Query based on arguments', async () => {
-    const queryArticle = new Query(
+    const queryArticle = new schema.Query(
       new schema.All(CoolerArticle),
       (entries, { tags }: { tags: string }) => {
         if (!tags) return entries;
@@ -268,8 +274,7 @@ describe.each([
       renderDataClient(
         ({ tags }: { tags: string }) => {
           useFetch(CoolerArticleResource.getList);
-          const data = useCache(queryArticle, { tags });
-          return useCache(queryArticle, { tags });
+          return useQuery(queryArticle, { tags });
         },
         { initialProps: { tags: 'a' } },
       );
@@ -304,6 +309,53 @@ describe.each([
     // should not need to fetch as data already provided
     // with no tags should include all entries
     expect(result.current?.length).toBe(4);
+    expect(result.current).toMatchSnapshot();
+  });
+
+  it('Query should work as endpoint Schema', async () => {
+    const queryArticle = new schema.Query(
+      CoolerArticleResource.getList.schema,
+      (entries, { tags }: { tags: string }) => {
+        if (!tags || !entries) return entries;
+        return entries.filter(article => article.tags.includes(tags));
+      },
+    );
+    const getList = CoolerArticleResource.getList.extend({
+      schema: queryArticle,
+    });
+
+    const { result, waitForNextUpdate, controller } = renderDataClient(
+      ({ tags }: { tags: string }) => {
+        return useSuspense(getList, { tags });
+      },
+      { initialProps: { tags: 'a' } },
+    );
+    expect(result.current).toBeUndefined();
+    await waitForNextUpdate();
+    expect(result.current).toBeDefined();
+    expect(result.current?.length).toBe(1);
+
+    expect(result.current).toMatchSnapshot();
+
+    await act(
+      async () =>
+        await controller.fetch(getList.push, {
+          id: 1000,
+          title: 'bob says',
+          tags: ['a'],
+        }),
+    );
+    await act(
+      async () =>
+        await controller.fetch(getList.push, {
+          id: 2000,
+          title: 'should not exist',
+          tags: [],
+        }),
+    );
+    expect(result.current).toBeDefined();
+    // should only include the one with the tag
+    expect(result.current?.length).toBe(2);
     expect(result.current).toMatchSnapshot();
   });
 

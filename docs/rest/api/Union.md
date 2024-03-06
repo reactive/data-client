@@ -51,20 +51,20 @@ delay: 150,
 
 ```typescript title="api/Feed.ts"
 abstract class FeedItem extends Entity {
-  readonly id: number = 0;
-  declare readonly type: 'link' | 'post';
+  id = 0;
+  declare type: 'link' | 'post';
   pk() {
-    return `${this.id}`;
+    return this.id;
   }
 }
 class Link extends FeedItem {
-  readonly type = 'link' as const;
-  readonly url: string = '';
-  readonly title: string = '';
+  type = 'link' as const;
+  url = '';
+  title = '';
 }
 class Post extends FeedItem {
-  readonly type = 'post' as const;
-  readonly content: string = '';
+  type = 'post' as const;
+  content = '';
 }
 
 const feed = new RestEndpoint({

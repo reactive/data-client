@@ -18,6 +18,7 @@ allow safe and performant access to the denormalized data based on the current s
 
 ```ts
 interface Snapshot {
+  get(schema, ...args)​ => DenormalizeNullable<typeof schema> | undefined;
   getResponse(endpoint, ...args)​ => { data, expiryStatus, expiresAt };
   getError(endpoint, ...args)​ => ErrorTypes | undefined;
   fetchedAt: number;
@@ -36,6 +37,10 @@ Use [Controller.snapshot()](./Controller.md#snapshot) to construct a snapshot
 <VoteDemo />
 
 ## Members
+
+### get(schema, ...args) {#get}
+
+Looks up any [Queryable](./useQuery.md#queryable) [Schema](/rest/api/schema#schema-overview).
 
 ### getResponse(endpoint, ...args) {#getResponse}
 
@@ -81,7 +86,6 @@ export enum ExpiryStatus {
 #### expiresAt
 
 A number representing time when it expires. Compare to Date.now().
-
 
 ### getError(endpoint, ...args) {#getError}
 

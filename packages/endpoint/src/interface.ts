@@ -10,11 +10,21 @@ export type Schema =
   | SchemaSimple
   | Serializable;
 
+export interface Queryable {
+  infer(
+    args: readonly any[],
+    indexes: NormalizedIndex,
+    recurse: (...args: any) => any,
+    entities: EntityTable,
+    // Must be non-void
+  ): {};
+}
+
 export type Serializable<
   T extends { toJSON(): string } = { toJSON(): string },
 > = (value: any) => T;
 
-export interface SchemaSimple<T = any, Args extends any[] = any[]> {
+export interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
   normalize(
     input: any,
     parent: any,
@@ -23,7 +33,7 @@ export interface SchemaSimple<T = any, Args extends any[] = any[]> {
     addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
     storeEntities: any,
-    args: Args,
+    args: any[],
   ): any;
   denormalize(
     input: {},
@@ -31,15 +41,18 @@ export interface SchemaSimple<T = any, Args extends any[] = any[]> {
     unvisit: (input: any, schema: any) => any,
   ): T;
   infer(
-    args: readonly any[],
+    args: Args,
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
     entities: EntityTable,
   ): any;
 }
 
-export interface SchemaClass<T = any, N = T | undefined>
-  extends SchemaSimple<T> {
+export interface SchemaClass<
+  T = any,
+  N = T | undefined,
+  Args extends any[] = any[],
+> extends SchemaSimple<T, Args> {
   // this is not an actual member, but is needed for the recursive NormalizeNullable<> type algo
   _normalizeNullable(): any;
   // this is not an actual member, but is needed for the recursive DenormalizeNullable<> type algo
@@ -74,7 +87,8 @@ export interface EntityInterface<T = any> extends SchemaSimple {
 }
 
 /** Represents Array or Values */
-export interface PolymorphicInterface<T = any> extends SchemaSimple<T> {
+export interface PolymorphicInterface<T = any, Args extends any[] = any[]>
+  extends SchemaSimple<T, Args> {
   readonly schema: any;
   // this is not an actual member, but is needed for the recursive NormalizeNullable<> type algo
   _normalizeNullable(): any;

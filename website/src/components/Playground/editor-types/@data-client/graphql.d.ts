@@ -8,6 +8,11 @@ interface UnknownError extends Error {
 }
 type ErrorTypes = NetworkError | UnknownError;
 
+/** Attempts to infer reasonable input type to construct an Entity */
+type EntityFields<U> = {
+    readonly [K in keyof U as U[K] extends (...args: any) => any ? never : K]?: U[K] extends number ? U[K] | string : U[K] extends string ? U[K] | number : U[K];
+};
+
 type AbstractInstanceType<T> = T extends new (...args: any) => infer U ? U : T extends {
     prototype: infer U;
 } ? U : never;
@@ -57,19 +62,37 @@ type NormalizeNullable<S> = S extends EntityInterface ? string | undefined : S e
 interface EntityMap<T = any> {
     readonly [k: string]: EntityInterface<T>;
 }
-type SchemaToArgs<S extends {
-    normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args: any): any;
-}> = S extends ({
-    normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args: infer Args): any;
+type SchemaArgs<S extends Schema> = S extends EntityInterface<infer U> ? [EntityFields<U>] : S extends ({
+    infer(args: infer Args, indexes: any, recurse: (...args: any) => any, entities: any): any;
 }) ? Args : never;
 
 interface SnapshotInterface {
-    getResponse: <E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>, Args extends readonly [...Parameters<E['key']>]>(endpoint: E, ...args: Args) => {
+    /**
+     * Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
+     * @see https://dataclient.io/docs/api/Snapshot#getResponse
+     */
+    getResponse<E extends EndpointInterface>(endpoint: E, ...args: readonly [null]): {
         data: DenormalizeNullable<E['schema']>;
         expiryStatus: ExpiryStatusInterface;
         expiresAt: number;
     };
+    getResponse<E extends EndpointInterface>(endpoint: E, ...args: readonly [...Parameters<E>]): {
+        data: DenormalizeNullable<E['schema']>;
+        expiryStatus: ExpiryStatusInterface;
+        expiresAt: number;
+    };
+    getResponse<E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>>(endpoint: E, ...args: readonly [...Parameters<E['key']>] | readonly [null]): {
+        data: DenormalizeNullable<E['schema']>;
+        expiryStatus: ExpiryStatusInterface;
+        expiresAt: number;
+    };
+    /** @see https://dataclient.io/docs/api/Snapshot#getError */
     getError: <E extends Pick<EndpointInterface, 'key'>, Args extends readonly [...Parameters<E['key']>]>(endpoint: E, ...args: Args) => ErrorTypes | undefined;
+    /**
+     * Retrieved memoized value for any Querable schema
+     * @see https://dataclient.io/docs/api/Snapshot#get
+     */
+    get<S extends Queryable>(schema: S, ...args: SchemaArgs<S>): DenormalizeNullable<S> | undefined;
     readonly fetchedAt: number;
     readonly abort: Error;
 }
@@ -105,17 +128,20 @@ interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
 type Schema = null | string | {
     [K: string]: any;
 } | Schema[] | SchemaSimple | Serializable;
+interface Queryable {
+    infer(args: readonly any[], indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): {};
+}
 type Serializable<T extends {
     toJSON(): string;
 } = {
     toJSON(): string;
 }> = (value: any) => T;
-interface SchemaSimple<T = any, Args extends any[] = any[]> {
-    normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args: Args): any;
+interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
+    normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args: any[]): any;
     denormalize(input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any): T;
-    infer(args: readonly any[], indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): any;
+    infer(args: Args, indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): any;
 }
-interface SchemaClass<T = any, N = T | undefined> extends SchemaSimple<T> {
+interface SchemaClass<T = any, N = T | undefined, Args extends any[] = any[]> extends SchemaSimple<T, Args> {
     _normalizeNullable(): any;
     _denormalizeNullable(): N;
 }
@@ -131,7 +157,7 @@ interface EntityInterface<T = any> extends SchemaSimple {
     prototype: T;
 }
 /** Represents Array or Values */
-interface PolymorphicInterface<T = any> extends SchemaSimple<T> {
+interface PolymorphicInterface<T = any, Args extends any[] = any[]> extends SchemaSimple<T, Args> {
     readonly schema: any;
     _normalizeNullable(): any;
     _denormalizeNullable(): any;
@@ -420,11 +446,28 @@ declare class Invalidate<E extends EntityInterface & {
         fetchedAt: number;
     };
     /** /End Normalize lifecycles **/
-    infer(args: any, indexes: any, recurse: any): any;
+    infer(args: any, indexes: any, recurse: any): undefined;
     denormalize(id: string, args: readonly any[], unvisit: (input: any, schema: any) => any): AbstractInstanceType<E>;
     _denormalizeNullable(): AbstractInstanceType<E> | undefined;
     _normalizeNullable(): string | undefined;
 }
+
+/**
+ * Programmatic cache reading
+ *
+ * @see https://dataclient.io/rest/api/Query
+ */
+declare class Query<S extends Queryable, P extends (entries: DenormalizeNullable<S>, ...args: any) => any> implements SchemaSimple<ReturnType<P> | undefined, ProcessParameters<P, S>> {
+    schema: S;
+    process: P;
+    constructor(schema: S, process: P);
+    normalize(...args: any): any;
+    denormalize(input: {}, args: any, unvisit: any): ReturnType<P> | undefined;
+    infer(args: ProcessParameters<P, S>, indexes: any, recurse: (schema: any, args: any, indexes: NormalizedIndex, entities: EntityTable) => any, entities: EntityTable): any;
+    _denormalizeNullable: (input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any) => ReturnType<P> | undefined;
+    _normalizeNullable: () => NormalizeNullable<S>;
+}
+type ProcessParameters<P, S extends Queryable> = P extends (entries: any, ...args: infer Par) => any ? Par extends [] ? SchemaArgs<S> : Par & SchemaArgs<S> : SchemaArgs<S>;
 
 type CollectionOptions<Args extends any[] = [] | [urlParams: Record<string, any>] | [urlParams: Record<string, any>, body: any], Parent = any> = ({
     nestKey?: (parent: Parent, key: string) => Record<string, any>;
@@ -446,7 +489,7 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
     readonly schema: S;
     readonly key: string;
     pk(value: any, parent: any, key: string, args: any[]): string;
-    normalize(input: any, parent: Parent, key: string, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args: Args): string;
+    normalize(input: any, parent: Parent, key: string, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args: any): string;
     merge(existing: any, incoming: any): any;
     shouldReorder(existingMeta: {
         date: number;
@@ -475,7 +518,7 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
         date: number;
         fetchedAt: number;
     };
-    infer(args: unknown, indexes: unknown, recurse: unknown, entities: unknown): any;
+    infer(args: Args, indexes: unknown, recurse: unknown, entities: unknown): any;
     createIfValid: (value: any) => any | undefined;
     denormalize(input: any, args: readonly any[], unvisit: (input: any, schema: any) => any): ReturnType<S['denormalize']>;
     _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;
@@ -501,7 +544,7 @@ interface CollectionConstructor {
     readonly prototype: CollectionInterface;
 }
 type StrategyFunction<T> = (value: any, parent: any, key: string) => T;
-type SchemaFunction<K = string> = (value: any, parent: any, key: string) => K;
+type SchemaFunction<K = string, Args = any> = (value: Args, parent: any, key: string) => K;
 type MergeFunction = (entityA: any, entityB: any) => any;
 type SchemaAttributeFunction<S extends Schema> = (value: any, parent: any, key: string) => S;
 type UnionResult<Choices extends EntityMap> = {
@@ -554,7 +597,7 @@ declare class Array$1<S extends Schema = Schema> implements SchemaClass {
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
     entities: any,
-  ): any;
+  ): undefined;
 }
 
 /**
@@ -600,7 +643,8 @@ declare class All<
   ): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
 
   infer(
-    args: readonly any[],
+    // TODO: hack for now to allow for variable arg combinations with Query
+    args: [] | [unknown],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
     entities: EntityTable,
@@ -646,18 +690,55 @@ declare class Object$1<O extends Record<string, any> = Record<string, Schema>>
   ): any;
 }
 
+type RequiredMember<
+  O extends Record<string | number | symbol, unknown>,
+  Required extends keyof O,
+> = {
+  [K in Required]: O[K];
+};
+
+type UnionSchemaToArgs<
+  Choices extends EntityMap,
+  SchemaAttribute extends
+    | keyof AbstractInstanceType<Choices[keyof Choices]>
+    | SchemaFunction<keyof Choices>,
+> =
+  SchemaAttribute extends keyof AbstractInstanceType<Choices[keyof Choices]> ?
+    RequiredMember<
+      AbstractInstanceType<Choices[keyof Choices]>,
+      SchemaAttribute
+    >
+  : SchemaAttribute extends (value: infer Args, ...rest: any) => unknown ? Args
+  : never;
+
+interface UnionConstructor {
+  new <
+    Choices extends EntityMap,
+    SchemaAttribute extends
+      | keyof AbstractInstanceType<Choices[keyof Choices]>
+      | SchemaFunction<keyof Choices>,
+  >(
+    definition: Choices,
+    schemaAttribute: SchemaAttribute,
+  ): UnionInstance<
+    Choices,
+    UnionSchemaToArgs<Choices, SchemaAttribute> &
+      Partial<AbstractInstanceType<Choices[keyof Choices]>>
+  >;
+
+  readonly prototype: UnionInstance;
+}
+
 /**
  * Represents polymorphic values.
  * @see https://dataclient.io/rest/api/Union
  */
-declare class Union<Choices extends EntityMap = any> implements SchemaClass {
-  constructor(
-    definition: Choices,
-    schemaAttribute:
-      | keyof AbstractInstanceType<Choices[keyof Choices]>
-      | SchemaFunction<keyof Choices>,
-  );
-
+interface UnionInstance<
+  Choices extends EntityMap = any,
+  Args extends EntityFields<
+    AbstractInstanceType<Choices[keyof Choices]>
+  > = EntityFields<AbstractInstanceType<Choices[keyof Choices]>>,
+> {
   define(definition: Schema): void;
   inferSchema: SchemaAttributeFunction<Choices[keyof Choices]>;
   getSchemaAttribute: SchemaFunction<keyof Choices>;
@@ -686,12 +767,29 @@ declare class Union<Choices extends EntityMap = any> implements SchemaClass {
   ): AbstractInstanceType<Choices[keyof Choices]>;
 
   infer(
-    args: readonly any[],
+    args: [Args],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
     entities: any,
-  ): any;
+  ): { id: any; schema: string };
 }
+
+/**
+ * Represents polymorphic values.
+ * @see https://dataclient.io/rest/api/Union
+ */
+declare let UnionRoot: UnionConstructor;
+
+/**
+ * Represents polymorphic values.
+ * @see https://dataclient.io/rest/api/Union
+ */
+declare class Union<
+  Choices extends EntityMap,
+  SchemaAttribute extends
+    | keyof AbstractInstanceType<Choices[keyof Choices]>
+    | SchemaFunction<keyof Choices>,
+> extends UnionRoot<Choices, SchemaAttribute> {}
 
 /**
  * Represents variably sized objects
@@ -757,7 +855,7 @@ declare class Values<Choices extends Schema = any> implements SchemaClass {
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
     entities: any,
-  ): any;
+  ): undefined;
 }
 
 type CollectionArrayAdder<S extends PolymorphicInterface> =
@@ -815,10 +913,19 @@ type schema_d_Invalidate<E extends EntityInterface & {
     process: any;
 }> = Invalidate<E>;
 declare const schema_d_Invalidate: typeof Invalidate;
-type schema_d_SchemaClass<T = any, N = T | undefined> = SchemaClass<T, N>;
+type schema_d_Query<S extends Queryable, P extends (entries: DenormalizeNullable<S>, ...args: any) => any> = Query<S, P>;
+declare const schema_d_Query: typeof Query;
+type schema_d_SchemaClass<T = any, N = T | undefined, Args extends any[] = any[]> = SchemaClass<T, N, Args>;
 type schema_d_All<S extends EntityMap | EntityInterface = EntityMap | EntityInterface> = All<S>;
 declare const schema_d_All: typeof All;
-type schema_d_Union<Choices extends EntityMap = any> = Union<Choices>;
+type schema_d_UnionConstructor = UnionConstructor;
+type schema_d_UnionInstance<Choices extends EntityMap = any, Args extends EntityFields<
+    AbstractInstanceType<Choices[keyof Choices]>
+  > = EntityFields<AbstractInstanceType<Choices[keyof Choices]>>> = UnionInstance<Choices, Args>;
+declare const schema_d_UnionRoot: typeof UnionRoot;
+type schema_d_Union<Choices extends EntityMap, SchemaAttribute extends
+    | keyof AbstractInstanceType<Choices[keyof Choices]>
+    | SchemaFunction<keyof Choices>> = Union<Choices, SchemaAttribute>;
 declare const schema_d_Union: typeof Union;
 type schema_d_Values<Choices extends Schema = any> = Values<Choices>;
 declare const schema_d_Values: typeof Values;
@@ -834,7 +941,7 @@ type schema_d_CollectionInterface<S extends PolymorphicInterface = any, Args ext
 type schema_d_CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Args extends any[] = [] | [urlParams: Record<string, any>] | [urlParams: Record<string, any>, body: any], Parent = any> = CollectionFromSchema<S, Args, Parent>;
 type schema_d_CollectionConstructor = CollectionConstructor;
 type schema_d_StrategyFunction<T> = StrategyFunction<T>;
-type schema_d_SchemaFunction<K = string> = SchemaFunction<K>;
+type schema_d_SchemaFunction<K = string, Args = any> = SchemaFunction<K, Args>;
 type schema_d_MergeFunction = MergeFunction;
 type schema_d_SchemaAttributeFunction<S extends Schema> = SchemaAttributeFunction<S>;
 type schema_d_UnionResult<Choices extends EntityMap> = UnionResult<Choices>;
@@ -842,10 +949,14 @@ declare namespace schema_d {
   export {
     schema_d_EntityMap as EntityMap,
     schema_d_Invalidate as Invalidate,
+    schema_d_Query as Query,
     schema_d_SchemaClass as SchemaClass,
     Array$1 as Array,
     schema_d_All as All,
     Object$1 as Object,
+    schema_d_UnionConstructor as UnionConstructor,
+    schema_d_UnionInstance as UnionInstance,
+    schema_d_UnionRoot as UnionRoot,
     schema_d_Union as Union,
     schema_d_Values as Values,
     schema_d_CollectionArrayAdder as CollectionArrayAdder,
@@ -919,38 +1030,6 @@ declare function validateRequired(processedEntity: any, requiredDefaults: Record
 
 declare const INVALID: unique symbol;
 
-/**
- * Performant lookups by secondary indexes
- * @see https://dataclient.io/docs/api/Index
- */
-declare class Index<S extends Schema, P = Readonly<IndexParams<S>>> {
-    schema: S;
-    constructor(schema: S, key?: (params: P) => string);
-    key(params?: P): string;
-}
-type ArrayElement<ArrayType extends unknown[] | readonly unknown[]> = ArrayType[number];
-type IndexParams<S extends Schema> = S extends ({
-    indexes: readonly string[];
-}) ? {
-    [K in Extract<ArrayElement<S['indexes']>, keyof AbstractInstanceType<S>>]?: AbstractInstanceType<S>[K];
-} : Readonly<object>;
-
-/**
- * Programmatic cache reading
- * @see https://dataclient.io/rest/api/Query
- */
-declare class Query<S extends SchemaSimple, P extends SchemaToArgs<S> = SchemaToArgs<S>, R = Denormalize<S>> {
-    schema: QuerySchema<S, R>;
-    process: (entries: Denormalize<S>, ...args: P) => R;
-    constructor(schema: S, process?: (entries: Denormalize<S>, ...args: P) => R);
-    key(...args: P): string;
-    protected createQuerySchema(schema: SchemaSimple): any;
-}
-type QuerySchema<Schema, R> = Exclude<Schema, 'denormalize' | '_denormalizeNullable'> & {
-    _denormalizeNullable(input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any): R | undefined;
-    denormalize(input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any): R;
-};
-
 declare class GQLEntity extends Entity {
     readonly id: string;
     pk(): string;
@@ -993,4 +1072,4 @@ interface GQLError {
     path: (string | number)[];
 }
 
-export { AbstractInstanceType, Array$1 as Array, ArrayElement, Collection, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, EndpointToFunction, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, GQLEndpoint, GQLEntity, GQLError, GQLNetworkError, GQLOptions, INVALID, Index, IndexParams, Invalidate, KeyofEndpointInstance, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, PolymorphicInterface, Query, ReadEndpoint, ResolveType, Schema, SchemaClass, SchemaSimple, SchemaToArgs, SnapshotInterface, UnknownError, schema_d as schema, validateRequired };
+export { AbstractInstanceType, Array$1 as Array, Collection, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, EndpointToFunction, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, GQLEndpoint, GQLEntity, GQLError, GQLNetworkError, GQLOptions, INVALID, Invalidate, KeyofEndpointInstance, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, PolymorphicInterface, Queryable, ReadEndpoint, ResolveType, Schema, SchemaArgs, SchemaClass, SchemaSimple, SnapshotInterface, UnknownError, schema_d as schema, validateRequired };

@@ -1,0 +1,111 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`useQuery() should retrieve a nested collection 1`] = `
+[
+  Todo {
+    "completed": false,
+    "id": "5",
+    "title": "finish collections",
+    "userId": "1",
+  },
+]
+`;
+
+exports[`useQuery() should select Collections 1`] = `
+[
+  Article {
+    "author": User {
+      "email": "bob@bob.com",
+      "id": 23,
+      "isAdmin": false,
+      "username": "charles",
+    },
+    "content": "whatever",
+    "id": 5,
+    "tags": [
+      "a",
+      "best",
+      "react",
+    ],
+    "title": "hi ho",
+  },
+  Article {
+    "author": User {
+      "email": "bob@bob.com",
+      "id": 23,
+      "isAdmin": false,
+      "username": "charles",
+    },
+    "content": "whatever",
+    "id": 3,
+    "tags": [],
+    "title": "the next time",
+  },
+]
+`;
+
+exports[`useQuery() should work with unions collections 1`] = `
+[
+  [
+    "Schema attribute "another" is not expected.
+Expected one of: "first", "second"
+
+Value: {
+  "id": "6",
+  "body": "hi",
+  "type": "another"
+}",
+  ],
+  [
+    "Schema attribute undefined is not expected.
+Expected one of: "first", "second"
+
+Value: {
+  "id": "7",
+  "body": "hi"
+}",
+  ],
+  [
+    "TypeError: Unable to infer schema for ArraySchema
+Value: {
+  "id": "6",
+  "body": "hi",
+  "type": "another"
+}.",
+  ],
+  [
+    "TypeError: Unable to infer schema for ArraySchema
+Value: {
+  "id": "7",
+  "body": "hi"
+}.",
+  ],
+]
+`;
+
+exports[`useQuery() should work with unions collections 2`] = `
+[
+  null,
+  FirstUnion {
+    "body": "hi",
+    "firstOnlyField": 5,
+    "id": "5",
+    "type": "first",
+  },
+  {
+    "body": "hi",
+    "id": "6",
+    "type": "another",
+  },
+  {
+    "body": "hi",
+    "id": "7",
+  },
+  SecondUnion {
+    "body": "hi",
+    "id": "100",
+    "secondeOnlyField": 10,
+    "type": "second",
+  },
+]
+`;

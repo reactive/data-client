@@ -1,6 +1,6 @@
-import { SnapshotInterface, schema } from '@data-client/endpoint';
+import { schema } from '@data-client/endpoint';
+import type { SnapshotInterface, Queryable } from '@data-client/endpoint';
 
-import { ResourcePath } from './pathTypes.js';
 import {
   ResourceGenerics,
   ResourceOptions,
@@ -48,8 +48,9 @@ export default function createResource<O extends ResourceGenerics>({
     }) as any;
   if (optimistic) {
     (extraMutateOptions as any).getOptimisticResponse = optimisticUpdate;
+    // TODO: Check that schema is a queryable, otherwise this doesn't make sense
     (extraPartialOptions as any).getOptimisticResponse = optimisticPartial(
-      get as any,
+      schema as any,
     );
   }
   const getList = new Endpoint({
@@ -137,11 +138,9 @@ function optimisticUpdate(snap: SnapshotInterface, params: any, body: any) {
     ...ensurePojo(body),
   };
 }
-function optimisticPartial(
-  getEndpoint: GetEndpoint<{ path: ResourcePath; schema: any }>,
-) {
+function optimisticPartial(schema: Queryable) {
   return function (snap: SnapshotInterface, params: any, body: any) {
-    const { data } = snap.getResponse(getEndpoint, params) as { data: any };
+    const data = snap.get(schema, params);
     if (!data) throw snap.abort;
     return {
       ...params,

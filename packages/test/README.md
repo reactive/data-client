@@ -20,19 +20,23 @@
 <summary><b>Resource</b></summary>
 
 ```typescript
-import { Resource } from '@data-client/rest';
+import { createResource, Entity } from '@data-client/rest';
 
-export default class ArticleResource extends Resource {
-  readonly id: number | undefined = undefined;
-  readonly content: string = '';
-  readonly author: number | null = null;
-  readonly contributors: number[] = [];
+export default class Article extends Entity {
+  id = '';
+  content = '';
+  author: number | null = null;
+  contributors: number[] = [];
 
   pk() {
     return this.id?.toString();
   }
-  static urlRoot = 'http://test.com/article/';
 }
+export const ArticleResource = createResource({
+  urlRoot: 'http://test.com',
+  path: '/article/:id',
+  schema: Article,
+})
 ```
 
 </details>
@@ -44,9 +48,9 @@ export default class ArticleResource extends Resource {
 export default {
   full: [
     {
-      request: ArticleResource.list(),
-      params: { maxResults: 10 },
-      result: [
+      endpoint: ArticleResource.getList,
+      args: [{ maxResults: 10 }],
+      response: [
         {
           id: 5,
           content: 'have a merry christmas',
@@ -64,16 +68,16 @@ export default {
   ],
   empty: [
     {
-      request: ArticleResource.list(),
-      params: { maxResults: 10 },
-      result: [],
+      endpoint: ArticleResource.getList,
+      args: [{ maxResults: 10 }],
+      response: [],
     },
   ],
   error: [
     {
-      request: ArticleResource.list(),
-      params: { maxResults: 10 },
-      result: { message: 'Bad request', status: 400, name: 'Not Found' },
+      endpoint: ArticleResource.getList,
+      args: [{ maxResults: 10 }],
+      response: { message: 'Bad request', status: 400, name: 'Not Found' },
       error: true,
     },
   ],
@@ -119,7 +123,7 @@ const renderDataClient = makeRenderDataClient(CacheProvider);
 it('should resolve list', async () => {
   const { result } = renderDataClient(
     () => {
-      return useSuspense(ArticleResource.list(), {
+      return useSuspense(ArticleResource.getList, {
         maxResults: 10,
       });
     },
@@ -133,7 +137,7 @@ it('should resolve list', async () => {
 it('should throw errors on bad network', async () => {
   const { result } = renderDataClient(
     () => {
-      return useSuspense(ArticleResource.list(), {
+      return useSuspense(ArticleResource.getList, {
         maxResults: 10,
       });
     },

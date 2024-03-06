@@ -129,7 +129,7 @@ ctrl.fetch(ArticleResource.get, { id });
 ### [Programmatic queries](https://dataclient.io/rest/api/Query)
 
 ```tsx
-const queryTotalVotes = new Query(
+const queryTotalVotes = new schema.Query(
   new schema.All(Post),
   (posts, { userId } = {}) => {
     if (userId !== undefined)
@@ -138,8 +138,8 @@ const queryTotalVotes = new Query(
   },
 );
 
-const totalVotes = useCache(queryTotalVotes);
-const totalVotesForUser = useCache(queryTotalVotes, { userId });
+const totalVotes = useQuery(queryTotalVotes);
+const totalVotesForUser = useQuery(queryTotalVotes, { userId });
 ```
 
 ### [Powerful Middlewares](https://dataclient.io/docs/concepts/managers)
