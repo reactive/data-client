@@ -113,7 +113,7 @@ export default function addReducerSuite(suite) {
       .add('getResponse (clear cache)', () => {
         controller.globalCache = {
           entities: {},
-          results: {},
+          endpoints: {},
           queries: new Map(),
           inputEndpointCache: {},
           infer: new WeakEntityMap(),

@@ -43,7 +43,7 @@ describe('Controller', () => {
       const state = {
         ...initialState,
         entities,
-        results: {
+        endpoints: {
           [fetchKey]: result,
         },
         entityMeta: createEntityMeta(entities),
@@ -80,7 +80,7 @@ describe('Controller', () => {
       const state = {
         ...initialState,
         entities,
-        results: {
+        endpoints: {
           [fetchKey]: result,
         },
         entityMeta: createEntityMeta(entities),

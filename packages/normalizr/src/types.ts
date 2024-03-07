@@ -59,7 +59,7 @@ export interface EntityCache {
     [pk: string]: WeakMap<EntityInterface, WeakEntityMap<object, any>>;
   };
 }
-export type ResultCache = WeakEntityMap<object, any>;
+export type EndpointsCache = WeakEntityMap<object, any>;
 
 export type DenormalizeNullableNestedSchema<S extends NestedSchemaClass> =
   keyof S['schema'] extends never ?

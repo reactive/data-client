@@ -28,8 +28,8 @@ export default function createReducer(controller: Controller): ReducerType {
           delete (state as any).entities[key]?.[pk];
           delete (state as any).entityMeta[key]?.[pk];
         });
-        action.results.forEach(fetchKey => {
-          delete (state as any).results[fetchKey];
+        action.endpoints.forEach(fetchKey => {
+          delete (state as any).endpoints[fetchKey];
           delete (state as any).meta[fetchKey];
         });
         return state;
@@ -62,7 +62,7 @@ export default function createReducer(controller: Controller): ReducerType {
 export const initialState: State<unknown> = {
   entities: {},
   indexes: {},
-  results: {},
+  endpoints: {},
   meta: {},
   entityMeta: {},
   optimistic: [],

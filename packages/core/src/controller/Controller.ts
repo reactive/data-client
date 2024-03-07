@@ -87,7 +87,7 @@ export default class Controller<
     getState = unsetState,
     globalCache = {
       entities: {},
-      results: {},
+      endpoints: {},
     },
   }: ConstructorProps<D> = {}) {
     this.dispatch = dispatch;
@@ -327,9 +327,9 @@ export default class Controller<
     const key = endpoint.key(...args);
 
     const meta = selectMeta(state, key);
-    const results = state.results[key];
+    const error = state.endpoints[key];
 
-    if (results !== undefined && meta?.errorPolicy === 'soft') return;
+    if (error !== undefined && meta?.errorPolicy === 'soft') return;
 
     return meta?.error as any;
   };
@@ -386,14 +386,14 @@ export default class Controller<
       .map(ensurePojo);
     const isActive = args.length !== 1 || args[0] !== null;
     const key = isActive ? endpoint.key(...args) : '';
-    const cacheResults = isActive ? state.results[key] : undefined;
+    const cacheEndpoints = isActive ? state.endpoints[key] : undefined;
     const schema = endpoint.schema;
     const meta = selectMeta(state, key);
     let expiresAt = meta?.expiresAt;
 
     let invalidResults = false;
     let results;
-    if (cacheResults === undefined && endpoint.schema !== undefined) {
+    if (cacheEndpoints === undefined && endpoint.schema !== undefined) {
       results = inferResults(
         endpoint.schema,
         args,
@@ -403,7 +403,7 @@ export default class Controller<
       invalidResults = !validateInference(results);
       if (!expiresAt && invalidResults) expiresAt = 1;
     } else {
-      results = cacheResults;
+      results = cacheEndpoints;
     }
 
     if (!isActive) {
@@ -419,14 +419,14 @@ export default class Controller<
         data: results,
         expiryStatus:
           meta?.invalidated ? ExpiryStatus.Invalid
-          : cacheResults && !endpoint.invalidIfStale ? ExpiryStatus.Valid
+          : cacheEndpoints && !endpoint.invalidIfStale ? ExpiryStatus.Valid
           : ExpiryStatus.InvalidIfStale,
         expiresAt: expiresAt || 0,
       };
     }
 
-    if (!this.globalCache.results[key])
-      this.globalCache.results[key] = new WeakEntityMap();
+    if (!this.globalCache.endpoints[key])
+      this.globalCache.endpoints[key] = new WeakEntityMap();
 
     return this.getSchemaResponse(
       results,
@@ -434,7 +434,7 @@ export default class Controller<
       args,
       state,
       expiresAt,
-      this.globalCache.results[key],
+      this.globalCache.endpoints[key],
       endpoint.invalidIfStale || invalidResults,
       meta,
     );

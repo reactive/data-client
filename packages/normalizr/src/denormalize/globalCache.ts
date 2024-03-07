@@ -1,6 +1,6 @@
 import type Cache from './cache.js';
 import type { EntityInterface } from '../interface.js';
-import type { EntityCache, Path, ResultCache } from '../types.js';
+import type { EntityCache, Path, EndpointsCache } from '../types.js';
 import WeakEntityMap, {
   type Dep,
   type GetEntity,
@@ -19,12 +19,12 @@ export default class GlobalCache implements Cache {
   ) => WeakEntityMap<object, any>;
 
   private declare _getEntity: GetEntity;
-  private declare resultCache: ResultCache;
+  private declare resultCache: EndpointsCache;
 
   constructor(
     getEntity: GetEntity,
     entityCache: EntityCache,
-    resultCache: ResultCache,
+    resultCache: EndpointsCache,
   ) {
     this._getEntity = getEntity;
     this.getCache = getEntityCaches(entityCache);
@@ -49,7 +49,7 @@ export default class GlobalCache implements Cache {
       if (cachePath) {
         localCacheKey[pk] = cacheValue.value;
         // TODO: can we store the cache values instead of tracking *all* their sources?
-        // this is only used for setting results cache correctly. if we got this far we will def need to set as we would have already tried getting it
+        // this is only used for setting endpoints cache correctly. if we got this far we will def need to set as we would have already tried getting it
         this.dependencies.push(...cacheValue.dependencies);
         return cacheValue.value;
       }

@@ -137,7 +137,7 @@ export interface ResetAction {
 export interface GCAction {
   type: typeof GC_TYPE;
   entities: [string, string][];
-  results: string[];
+  endpoints: string[];
 }
 
 export type ActionTypes =

@@ -2,6 +2,9 @@
 
 exports[`<CacheProvider /> should change state 1`] = `
 {
+  "endpoints": {
+    "GET http://test.com/article-cooler/5": "5",
+  },
   "entities": {
     "CoolerArticle": {
       "5": {
@@ -30,9 +33,6 @@ exports[`<CacheProvider /> should change state 1`] = `
     },
   },
   "optimistic": [],
-  "results": {
-    "GET http://test.com/article-cooler/5": "5",
-  },
 }
 `;
 

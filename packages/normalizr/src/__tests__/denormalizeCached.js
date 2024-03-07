@@ -239,7 +239,7 @@ describe('denormalize with global cache', () => {
         static key = 'Article';
       }
       const entityCache = {};
-      // we have different result caches because they are keyed based on the endpoint
+      // we have different endpoints caches because they are keyed based on the endpoint
       const resultCacheA = new WeakEntityMap();
       const resultCacheB = new WeakEntityMap();
       const resultCacheC = new WeakEntityMap();

@@ -359,7 +359,7 @@ describe('useController().getState', () => {
       // @ts-expect-error
       expect(result.current[0].lafsjlfd).toBeUndefined();
       expect(
-        Object.keys(result.current[1].getState().results).length,
+        Object.keys(result.current[1].getState().endpoints).length,
       ).toBeGreaterThanOrEqual(1);
       // === guarantee
       expect(
