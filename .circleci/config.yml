@@ -216,7 +216,7 @@ workflows:
               # 4.1 is min version for rest package working well
               # 4.3
               # 4.7 (but its broken so we do 4.8) lets you apply a generic type to a function type to see its return value
-              typescript-version: ["~4.0", "~4.1", "~4.3", "~4.8", "latest"]
+              typescript-version: ["~4.0", "~4.1", "~4.3", "~4.8", "~5.3", "latest"]
           requires:
             - setup
       - esmodule-loosenulltypes:
