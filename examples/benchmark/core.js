@@ -144,6 +144,12 @@ export default function addReducerSuite(suite) {
           collectionState,
         );
       })
+      .add('get Collection', () => {
+        return controllerCollection.get(
+          ProjectSchemaCollection.project,
+          collectionState,
+        );
+      })
       .add('setLong', () => {
         return controller.setResponse(getProject, data);
       })
