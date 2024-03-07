@@ -53,7 +53,7 @@ export default function addReducerSuite(suite) {
   let cachedState = state;
 
   // setLong
-  const controller = new Controller({});
+  let controller = new Controller({});
   const reducer = createReducer(controller);
   controller.dispatch = action => {
     cachedState = reducer(state, action);
@@ -111,12 +111,11 @@ export default function addReducerSuite(suite) {
         return controller.getResponse(getProject, null, cachedState);
       })
       .add('getResponse (clear cache)', () => {
+        // TODO: is this better?
+        //controller = new Controller({});
         controller.globalCache = {
           entities: {},
           endpoints: {},
-          queries: new Map(),
-          inputEndpointCache: {},
-          infer: new WeakEntityMap(),
         };
         return controller.getResponse(getProject, cachedState);
       })
