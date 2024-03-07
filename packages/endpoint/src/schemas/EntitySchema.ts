@@ -406,13 +406,13 @@ export default function EntitySchema<TBase extends Constructor>(
       };
     } else {
       EntityMixin.prototype.pk = function () {
-        return this[options.pk];
+        return (this as any)[options.pk];
       };
     }
     // default to 'id' field if the base class doesn't have a pk
   } else if (typeof Base.prototype.pk !== 'function') {
     EntityMixin.prototype.pk = function () {
-      return this.id;
+      return (this as any).id;
     };
   }
   if ('key' in options) {

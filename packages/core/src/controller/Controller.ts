@@ -242,7 +242,7 @@ export default class Controller<
           args: readonly [...Parameters<E>];
           response: any;
           fetchedAt: number;
-          error?: false;
+          error?: false | undefined;
         },
   ): Promise<void> => {
     return this.dispatch(createSet(endpoint, meta as any));
