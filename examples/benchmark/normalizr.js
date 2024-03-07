@@ -45,7 +45,7 @@ const actionMeta = {
 export default function addNormlizrSuite(suite) {
   let denormCache = {
     entities: {},
-    results: {
+    endpoints: {
       '/fake': new WeakEntityMap(),
       '/fakeQuery': new WeakEntityMap(),
     },
@@ -56,7 +56,7 @@ export default function addNormlizrSuite(suite) {
     ProjectSchema,
     entities,
     denormCache.entities,
-    denormCache.results['/fake'],
+    denormCache.endpoints['/fake'],
     [],
   );
   denormalizeCached(
@@ -64,7 +64,7 @@ export default function addNormlizrSuite(suite) {
     ProjectQuery,
     queryState.entities,
     denormCache.entities,
-    denormCache.results['/fakeQuery'],
+    denormCache.endpoints['/fakeQuery'],
     [],
   );
   %OptimizeFunctionOnNextCall(denormalizeCached);
@@ -109,7 +109,7 @@ export default function addNormlizrSuite(suite) {
     })
     .add('denormalizeShort 500x withCache', () => {
       for (let i = 0; i < 500; ++i) {
-        denormalizeCached('gnoff', User, githubState.entities,denormCache.entities,denormCache.results['/user'], []);
+        denormalizeCached('gnoff', User, githubState.entities,denormCache.entities,denormCache.endpoints['/user'], []);
       }
     })
     .add('denormalizeLong with mixin Entity', () => {
@@ -121,7 +121,7 @@ export default function addNormlizrSuite(suite) {
         ProjectSchema,
         entities,
         denormCache.entities,
-        denormCache.results['/fake'],
+        denormCache.endpoints['/fake'],
         [],
       );
     })
@@ -145,7 +145,7 @@ export default function addNormlizrSuite(suite) {
         ProjectQuery,
         queryState.entities,
         denormCache.entities,
-        denormCache.results['/fakeQuery'],
+        denormCache.endpoints['/fakeQuery'],
         [],
       );
     })
@@ -155,7 +155,7 @@ export default function addNormlizrSuite(suite) {
         ProjectQuerySorted,
         queryState.entities,
         denormCache.entities,
-        denormCache.results['/fakeQuery'],
+        denormCache.endpoints['/fakeQuery'],
         [],
       );
     })

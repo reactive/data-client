@@ -5,7 +5,7 @@ import type {
   DenormalizeNullable,
   EntityCache,
   Path,
-  ResultCache,
+  EndpointsCache,
 } from '../types.js';
 import WeakEntityMap, { getEntities } from '../WeakEntityMap.js';
 
@@ -15,7 +15,7 @@ export function denormalize<S extends Schema>(
   schema: S | undefined,
   entities: any,
   entityCache: EntityCache = {},
-  resultCache: ResultCache = new WeakEntityMap(),
+  resultCache: EndpointsCache = new WeakEntityMap(),
   args: readonly any[] = [],
 ): {
   data: DenormalizeNullable<S> | symbol;

@@ -15,7 +15,7 @@ export type {
   NormalizeReturnType,
   NormalizedSchema,
   EntityCache,
-  ResultCache,
+  EndpointsCache as ResultCache,
   Path,
   Denormalize,
   DenormalizeNullable,

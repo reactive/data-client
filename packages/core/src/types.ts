@@ -22,7 +22,9 @@ export interface State<T> {
     readonly [entityKey: string]: { readonly [pk: string]: T } | undefined;
   };
   readonly indexes: NormalizedIndex;
-  readonly results: { readonly [key: string]: unknown | PK[] | PK | undefined };
+  readonly endpoints: {
+    readonly [key: string]: unknown | PK[] | PK | undefined;
+  };
   readonly meta: {
     readonly [key: string]: {
       readonly date: number;
@@ -48,7 +50,7 @@ export interface State<T> {
 
 export interface DenormalizeCache {
   entities: EntityCache;
-  results: {
+  endpoints: {
     [key: string]: ResultCache;
   };
 }

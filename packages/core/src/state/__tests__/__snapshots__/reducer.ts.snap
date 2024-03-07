@@ -2,6 +2,7 @@
 
 exports[`reducer should set error in meta for "set" 1`] = `
 {
+  "endpoints": {},
   "entities": {},
   "entityMeta": {},
   "indexes": {},
@@ -15,12 +16,14 @@ exports[`reducer should set error in meta for "set" 1`] = `
     },
   },
   "optimistic": [],
-  "results": {},
 }
 `;
 
 exports[`reducer singles should update state correctly 1`] = `
 {
+  "endpoints": {
+    "http://test.com/article/20": "20",
+  },
   "entities": {
     "Article": {
       "20": {
@@ -49,8 +52,5 @@ exports[`reducer singles should update state correctly 1`] = `
     },
   },
   "optimistic": [],
-  "results": {
-    "http://test.com/article/20": "20",
-  },
 }
 `;

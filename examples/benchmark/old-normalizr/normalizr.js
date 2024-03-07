@@ -17,7 +17,7 @@ let githubState = normalize(userData, User);
 const state = {
   ...initialState,
   entities: githubState.entities,
-  results: { github: githubState.result },
+  endpoints: { github: githubState.result },
 };
 
 function mergeWithStore({ entities, result }, storeState) {
@@ -38,7 +38,7 @@ function mergeWithStore({ entities, result }, storeState) {
   return {
     ...storeState,
     entities: newEntities,
-    results: { ...storeState.results, ...{ abc: result } },
+    endpoints: { ...storeState.endpoints, ...{ abc: result } },
   };
 }
 

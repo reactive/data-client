@@ -33,7 +33,7 @@ export default function useSuspense<
   const controller = useController();
 
   const key = args[0] !== null ? endpoint.key(...args) : '';
-  const cacheResults = key && state.results[key];
+  const cacheResults = key && state.endpoints[key];
   const meta = state.meta[key];
 
   // Compute denormalized value

@@ -39,7 +39,7 @@ describe('Controller.getResponse()', () => {
     const state = {
       ...initialState,
       entities,
-      results: {
+      endpoints: {
         [ep.key()]: {
           data: ['1', '2'],
         },
@@ -84,7 +84,7 @@ describe('Controller.getResponse()', () => {
     const state = {
       ...initialState,
       entities,
-      results: {
+      endpoints: {
         [ep.key()]: {
           data: ['1', '2'],
         },

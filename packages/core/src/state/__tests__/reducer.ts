@@ -207,7 +207,7 @@ describe('reducer', () => {
     });
   });
 
-  it('mutate should never change results', () => {
+  it('mutate should never change endpoints', () => {
     const id = 20;
     const payload = { id, title: 'hi', content: 'this is the content' };
     const action: SetAction = {
@@ -224,10 +224,10 @@ describe('reducer', () => {
     };
     const iniState = {
       ...initialState,
-      results: { abc: '5', [ArticleResource.get.key(payload)]: `${id}` },
+      endpoints: { abc: '5', [ArticleResource.get.key(payload)]: `${id}` },
     };
     const newState = reducer(iniState, action);
-    expect(newState.results).toStrictEqual(iniState.results);
+    expect(newState.endpoints).toStrictEqual(iniState.endpoints);
   });
   it('purge should delete entities', () => {
     const id = 20;
@@ -256,10 +256,10 @@ describe('reducer', () => {
         },
         '5': undefined,
       },
-      results: { abc: '20' },
+      endpoints: { abc: '20' },
     };
     const newState = reducer(iniState, action);
-    expect(newState.results.abc).toBe(iniState.results.abc);
+    expect(newState.endpoints.abc).toBe(iniState.endpoints.abc);
     const expectedEntities = { ...iniState.entities[Article.key] };
     expectedEntities['20'] = INVALID;
     expect(newState.entities[Article.key]).toEqual(expectedEntities);
@@ -277,8 +277,8 @@ describe('reducer', () => {
             '10': PaginatedArticle.fromJS({ id: 10 }),
           },
         },
-        results: {
-          [PaginatedArticleResource.getList.key({})]: { results: ['10'] },
+        endpoints: {
+          [PaginatedArticleResource.getList.key({})]: { endpoints: ['10'] },
         },
       };
 
@@ -301,7 +301,7 @@ describe('reducer', () => {
         );
         const newState = reducer(iniState, action);
         expect(
-          newState.results[PaginatedArticleResource.getList.key({})],
+          newState.endpoints[PaginatedArticleResource.getList.key({})],
         ).toStrictEqual({
           results: ['10', '11', '12'],
         });
@@ -328,7 +328,7 @@ describe('reducer', () => {
           ),
         );
         expect(
-          newState.results[PaginatedArticleResource.getList.key({})],
+          newState.endpoints[PaginatedArticleResource.getList.key({})],
         ).toStrictEqual({
           results: ['11', '12', '10'],
         });
@@ -342,7 +342,7 @@ describe('reducer', () => {
               '10': PaginatedArticle.fromJS({ id: 10 }),
             },
           },
-          results: {
+          endpoints: {
             [PaginatedArticleResource.getList.key({ admin: true })]: {
               results: ['10'],
             },
@@ -369,7 +369,7 @@ describe('reducer', () => {
           ),
         );
         expect(
-          newState.results[
+          newState.endpoints[
             PaginatedArticleResource.getList.key({ admin: true })
           ],
         ).toStrictEqual({
@@ -400,7 +400,7 @@ describe('reducer', () => {
         },
         '5': undefined,
       },
-      results: { abc: '20' },
+      endpoints: { abc: '20' },
       meta: {
         '20': {
           expiresAt: 500,
@@ -411,7 +411,7 @@ describe('reducer', () => {
       },
     };
     const newState = reducer(iniState, action);
-    expect(newState.results).toEqual(iniState.results);
+    expect(newState.endpoints).toEqual(iniState.endpoints);
     expect(newState.entities).toBe(iniState.entities);
     const expectedMeta = { ...iniState.meta };
     expectedMeta['20'] = { expiresAt: 0, invalidated: true };
@@ -481,7 +481,7 @@ describe('reducer', () => {
           [id]: Article.fromJS({}),
         },
       },
-      results: {
+      endpoints: {
         [ArticleResource.get.url({ id })]: id,
       },
     };
@@ -509,7 +509,7 @@ describe('reducer', () => {
       };
       const iniState = {
         ...initialState,
-        results: { abc: '5' },
+        endpoints: { abc: '5' },
       };
       const newState = reducer(iniState, action);
       expect(newState).toBe(iniState);
@@ -524,7 +524,7 @@ describe('reducer', () => {
     };
     const iniState = {
       ...initialState,
-      results: { abc: '5' },
+      endpoints: { abc: '5' },
     };
     const newState = reducer(iniState, action);
     expect(newState).toBe(iniState);
@@ -556,10 +556,10 @@ describe('reducer', () => {
           },
           '5': undefined,
         },
-        results: { abc: '20' },
+        endpoints: { abc: '20' },
       };
       const newState = reducer(iniState, action);
-      expect(newState.results).toEqual({});
+      expect(newState.endpoints).toEqual({});
       expect(newState.meta).toEqual({});
       expect(newState.entities).toEqual({});
     });
@@ -591,7 +591,7 @@ describe('reducer', () => {
             '250': { date: 0, expiresAt: 10000, fetchedAt: 0 },
           },
         },
-        results: { abc: '20' },
+        endpoints: { abc: '20' },
       };
     });
 
@@ -599,13 +599,13 @@ describe('reducer', () => {
       const action: GCAction = {
         type: GC_TYPE,
         entities: [],
-        results: [],
+        endpoints: [],
       };
 
       const newState = reducer(iniState, action);
       expect(newState).toBe(iniState);
       expect(Object.keys(newState.entities[Article.key] ?? {}).length).toBe(4);
-      expect(Object.keys(newState.results).length).toBe(1);
+      expect(Object.keys(newState.endpoints).length).toBe(1);
     });
 
     it('empty deleting entities should work', () => {
@@ -615,7 +615,7 @@ describe('reducer', () => {
           [Article.key, '10'],
           [Article.key, '250'],
         ],
-        results: ['abc'],
+        endpoints: ['abc'],
       };
 
       const newState = reducer(iniState, action);
@@ -624,7 +624,7 @@ describe('reducer', () => {
       expect(Object.keys(newState.entityMeta[Article.key] ?? {}).length).toBe(
         2,
       );
-      expect(Object.keys(newState.results).length).toBe(0);
+      expect(Object.keys(newState.endpoints).length).toBe(0);
     });
 
     it('empty deleting nonexistant things should passthrough', () => {
@@ -634,13 +634,13 @@ describe('reducer', () => {
           [Article.key, '100000000'],
           ['sillythings', '10'],
         ],
-        results: [],
+        endpoints: [],
       };
 
       const newState = reducer(iniState, action);
       expect(newState).toBe(iniState);
       expect(Object.keys(newState.entities[Article.key] ?? {}).length).toBe(4);
-      expect(Object.keys(newState.results).length).toBe(1);
+      expect(Object.keys(newState.endpoints).length).toBe(1);
     });
   });
 });

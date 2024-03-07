@@ -57,7 +57,7 @@ export default function useDLE<
   const controller = useController();
 
   const key = args[0] !== null ? endpoint.key(...args) : '';
-  const cacheResults = args[0] !== null && state.results[key];
+  const cacheResults = args[0] !== null && state.endpoints[key];
 
   // Compute denormalized value
   // eslint-disable-next-line prefer-const

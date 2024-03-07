@@ -103,7 +103,7 @@ interface EntityCache {
         [pk: string]: WeakMap<EntityInterface, WeakEntityMap<object, any>>;
     };
 }
-type ResultCache = WeakEntityMap<object, any>;
+type EndpointsCache = WeakEntityMap<object, any>;
 type DenormalizeNullableNestedSchema<S extends NestedSchemaClass> = keyof S['schema'] extends never ? S['prototype'] : string extends keyof S['schema'] ? S['prototype'] : S['prototype'];
 type NormalizeReturnType<T> = T extends (...args: any) => infer R ? R : never;
 type Denormalize<S> = S extends EntityInterface<infer U> ? U : S extends RecordClass ? AbstractInstanceType<S> : S extends {
@@ -146,14 +146,14 @@ type SchemaArgs<S extends Queryable> = S extends EntityInterface<infer U> ? [Ent
 
 declare function denormalize$1<S extends Schema>(input: any, schema: S | undefined, entities: any, args?: readonly any[]): DenormalizeNullable<S> | symbol;
 
-declare function denormalize<S extends Schema>(input: unknown, schema: S | undefined, entities: any, entityCache?: EntityCache, resultCache?: ResultCache, args?: readonly any[]): {
+declare function denormalize<S extends Schema>(input: unknown, schema: S | undefined, entities: any, entityCache?: EntityCache, resultCache?: EndpointsCache, args?: readonly any[]): {
     data: DenormalizeNullable<S> | symbol;
     paths: Path[];
 };
 
 declare function isEntity(schema: Schema): schema is EntityInterface;
 
-declare const normalize: <S extends Schema = Schema, E extends Record<string, Record<string, any> | undefined> = Record<string, Record<string, any>>, R = NormalizeNullable<S>>(input: any, schema?: S | undefined, args?: any[], storeEntities?: Readonly<E>, storeIndexes?: Readonly<NormalizedIndex>, storeEntityMeta?: {
+declare const normalize: <S extends Schema = Schema, E extends Record<string, Record<string, any> | undefined> = Record<string, Record<string, any>>, R = NormalizeNullable<S>>(input: any, schema?: S, args?: any[], storeEntities?: Readonly<E>, storeIndexes?: Readonly<NormalizedIndex>, storeEntityMeta?: {
     readonly [entityKey: string]: {
         readonly [pk: string]: {
             readonly date: number;
@@ -268,4 +268,4 @@ type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Pr
 
 declare const INVALID: unique symbol;
 
-export { AbstractInstanceType, ArrayElement, Denormalize, DenormalizeNullable, EndpointExtraOptions, EndpointInterface, EntityCache, EntityInterface, EntityTable, ErrorTypes, ExpiryStatus, ExpiryStatusInterface, FetchFunction, INVALID, IndexInterface, IndexParams, InferReturn, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, NormalizeReturnType, NormalizedIndex, NormalizedSchema, OptimisticUpdateParams, Path, Queryable, ReadEndpoint, ResolveType, ResultCache, Schema, SchemaArgs, SchemaClass, SchemaSimple, Serializable, SnapshotInterface, UnknownError, UpdateFunction, WeakEntityMap, denormalize$1 as denormalize, denormalize as denormalizeCached, inferResults, isEntity, normalize, validateInference };
+export { AbstractInstanceType, ArrayElement, Denormalize, DenormalizeNullable, EndpointExtraOptions, EndpointInterface, EntityCache, EntityInterface, EntityTable, ErrorTypes, ExpiryStatus, ExpiryStatusInterface, FetchFunction, INVALID, IndexInterface, IndexParams, InferReturn, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, NormalizeReturnType, NormalizedIndex, NormalizedSchema, OptimisticUpdateParams, Path, Queryable, ReadEndpoint, ResolveType, EndpointsCache as ResultCache, Schema, SchemaArgs, SchemaClass, SchemaSimple, Serializable, SnapshotInterface, UnknownError, UpdateFunction, WeakEntityMap, denormalize$1 as denormalize, denormalize as denormalizeCached, inferResults, isEntity, normalize, validateInference };

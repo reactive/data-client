@@ -45,15 +45,15 @@ export function setReducer(
       state.entityMeta,
       action.meta,
     );
-    const results = {
-      ...state.results,
+    const endpoints = {
+      ...state.endpoints,
       [action.meta.key]: result,
     };
     try {
       if (action.endpoint.update) {
         const updaters = action.endpoint.update(result, ...action.meta.args);
         Object.keys(updaters).forEach(key => {
-          results[key] = updaters[key](results[key]);
+          endpoints[key] = updaters[key](endpoints[key]);
         });
       }
       // no reason to completely fail because of user-code error
@@ -67,7 +67,7 @@ export function setReducer(
     return {
       entities,
       indexes,
-      results,
+      endpoints,
       entityMeta,
       meta: {
         ...state.meta,
@@ -80,7 +80,7 @@ export function setReducer(
       optimistic: filterOptimistic(state, action),
       lastReset: state.lastReset,
     };
-    // reducer must update the state, so in case of processing errors we simply compute the results inline
+    // reducer must update the state, so in case of processing errors we simply compute the endpoints inline
   } catch (error: any) {
     if (typeof error === 'object') {
       error.message = `Error processing ${
