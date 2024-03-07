@@ -38,7 +38,7 @@ export type EntityOptions<TInstance extends {}> = {
     | 'mergeWithStore'
     | 'validate'
     | 'shouldReorder'
-    | 'useIncoming'
+    | 'shouldUpdate'
   >]?: IEntityClass<abstract new (...args: any[]) => TInstance>[K];
 };
 
@@ -119,9 +119,9 @@ export default function EntitySchema<TBase extends Constructor>(
 
     /** Return true to merge incoming data; false keeps existing entity
      *
-     * @see https://dataclient.io/docs/api/schema.Entity#useIncoming
+     * @see https://dataclient.io/docs/api/schema.Entity#shouldUpdate
      */
-    static useIncoming(
+    static shouldUpdate(
       existingMeta: { date: number; fetchedAt: number },
       incomingMeta: { date: number; fetchedAt: number },
       existing: any,
@@ -168,14 +168,14 @@ export default function EntitySchema<TBase extends Constructor>(
       existing: any,
       incoming: any,
     ) {
-      const useIncoming = this.useIncoming(
+      const shouldUpdate = this.shouldUpdate(
         existingMeta,
         incomingMeta,
         existing,
         incoming,
       );
 
-      if (useIncoming) {
+      if (shouldUpdate) {
         // distinct types are not mergeable (like delete symbol), so just replace
         if (typeof incoming !== typeof existing) {
           return incoming;
@@ -540,9 +540,9 @@ export interface IEntityClass<TBase extends Constructor = any> {
   ): string | number | undefined;
   /** Return true to merge incoming data; false keeps existing entity
    *
-   * @see https://dataclient.io/docs/api/schema.Entity#useIncoming
+   * @see https://dataclient.io/docs/api/schema.Entity#shouldUpdate
    */
-  useIncoming(
+  shouldUpdate(
     existingMeta: {
       date: number;
       fetchedAt: number;

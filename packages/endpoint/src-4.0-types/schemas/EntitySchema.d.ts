@@ -35,7 +35,7 @@ export type EntityOptions<TInstance extends {}> = {
     | 'mergeWithStore'
     | 'validate'
     | 'shouldReorder'
-    | 'useIncoming'
+    | 'shouldUpdate'
   >]?: IEntityClass<new (...args: any[]) => TInstance>[K];
 };
 export interface RequiredPKOptions<TInstance extends {}>
@@ -99,9 +99,9 @@ export interface IEntityClass<TBase extends Constructor = any> {
   ): string | number | undefined;
   /** Return true to merge incoming data; false keeps existing entity
    *
-   * @see https://dataclient.io/docs/api/schema.Entity#useIncoming
+   * @see https://dataclient.io/docs/api/schema.Entity#shouldUpdate
    */
-  useIncoming(
+  shouldUpdate(
     existingMeta: {
       date: number;
       fetchedAt: number;

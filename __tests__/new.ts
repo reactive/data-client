@@ -47,7 +47,7 @@ export class VisSettings extends Entity implements Vis {
     return `${this.id}`;
   }
 
-  static useIncoming(
+  static shouldUpdate(
     existingMeta: { date: number },
     incomingMeta: { date: number },
     existing: any,

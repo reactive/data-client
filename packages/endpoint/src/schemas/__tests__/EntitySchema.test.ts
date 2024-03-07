@@ -329,13 +329,13 @@ describe(`${schema.Entity.name} normalization`, () => {
     ).toMatchSnapshot();
   });
 
-  test('normalizes does not change value when useIncoming() returns false', () => {
+  test('normalizes does not change value when shouldUpdate() returns false', () => {
     class MyData {
       id = '';
       title = '';
     }
     class MyEntity extends schema.Entity(MyData) {
-      static useIncoming() {
+      static shouldUpdate() {
         return false;
       }
     }

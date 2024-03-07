@@ -277,7 +277,7 @@ type EntityOptions<TInstance extends {}> = {
     readonly pk?: ((value: TInstance, parent?: any, key?: string) => string | number | undefined) | keyof TInstance;
     readonly key?: string;
 } & {
-    readonly [K in Extract<keyof IEntityClass, 'process' | 'merge' | 'expiresAt' | 'createIfValid' | 'mergeWithStore' | 'validate' | 'shouldReorder' | 'useIncoming'>]?: IEntityClass<abstract new (...args: any[]) => TInstance>[K];
+    readonly [K in Extract<keyof IEntityClass, 'process' | 'merge' | 'expiresAt' | 'createIfValid' | 'mergeWithStore' | 'validate' | 'shouldReorder' | 'shouldUpdate'>]?: IEntityClass<abstract new (...args: any[]) => TInstance>[K];
 };
 interface RequiredPKOptions<TInstance extends {}> extends EntityOptions<TInstance> {
     readonly pk: ((value: TInstance, parent?: any, key?: string) => string | number | undefined) | keyof TInstance;
@@ -319,9 +319,9 @@ interface IEntityClass<TBase extends Constructor = any> {
     pk<T extends (abstract new (...args: any[]) => IEntityInstance & InstanceType<TBase>) & IEntityClass & TBase>(this: T, value: Partial<AbstractInstanceType<T>>, parent?: any, key?: string, args?: any[]): string | number | undefined;
     /** Return true to merge incoming data; false keeps existing entity
      *
-     * @see https://dataclient.io/docs/api/schema.Entity#useIncoming
+     * @see https://dataclient.io/docs/api/schema.Entity#shouldUpdate
      */
-    useIncoming(existingMeta: {
+    shouldUpdate(existingMeta: {
         date: number;
         fetchedAt: number;
     }, incomingMeta: {
