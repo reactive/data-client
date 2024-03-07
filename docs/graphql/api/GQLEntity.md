@@ -128,14 +128,14 @@ static mergeWithStore(
   existing: any,
   incoming: any,
 ) {
-  const useIncoming = this.useIncoming(
+  const shouldUpdate = this.shouldUpdate(
     existingMeta,
     incomingMeta,
     existing,
     incoming,
   );
 
-  if (useIncoming) {
+  if (shouldUpdate) {
     // distinct types are not mergeable (like delete symbol), so just replace
     if (typeof incoming !== typeof existing) {
       return incoming;
@@ -157,12 +157,12 @@ static mergeWithStore(
 
 `mergeWithStore()` is called during normalization when a processed entity is already found in the store.
 
-This calls [useIncoming()](#useincoming), [shouldReorder()](#shouldreorder) and potentially [merge()](#merge)
+This calls [shouldUpdate()](#shouldupdate), [shouldReorder()](#shouldreorder) and potentially [merge()](#merge)
 
-### static useIncoming(existingMeta, incomingMeta, existing, incoming): boolean {#useincoming}
+### static shouldUpdate(existingMeta, incomingMeta, existing, incoming): boolean {#shouldupdate}
 
 ```typescript
-static useIncoming(
+static shouldUpdate(
   existingMeta: { date: number; fetchedAt: number },
   incomingMeta: { date: number; fetchedAt: number },
   existing: any,
@@ -174,7 +174,7 @@ static useIncoming(
 
 #### Preventing updates
 
-useIncoming can also be used to short-circuit an entity update.
+shouldUpdate can also be used to short-circuit an entity update.
 
 ```typescript
 import deepEqual from 'deep-equal';
@@ -184,7 +184,7 @@ class Article extends GQLEntity {
   content = '';
   published = false;
 
-  static useIncoming(
+  static shouldUpdate(
     existingMeta: { date: number; fetchedAt: number },
     incomingMeta: { date: number; fetchedAt: number },
     existing: any,

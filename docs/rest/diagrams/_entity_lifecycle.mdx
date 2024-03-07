@@ -22,7 +22,7 @@ flowchart BT
     subgraph INSTORE["Found In Store"]
       subgraph Entity.mergeWithStore
         direction TB
-        useincoming("Entity.useIncoming()")---shouldreorder("Entity.shouldReorder()")
+        shouldupdate("Entity.shouldUpdate()")---shouldreorder("Entity.shouldReorder()")
         shouldreorder---merge("Entity.merge()")
       end
       Entity.mergeWithStore---mergeMetaWithStore("Entity.mergeMetaWithStore()")
@@ -35,7 +35,7 @@ flowchart BT
   click validate "/rest/api/Entity#validate"
   click validate2 "/rest/api/Entity#validate"
   click mergeMetaWithStore "/rest/api/Entity#mergeMetaWithStore"
-  click useincoming "/rest/api/Entity#useincoming"
+  click shouldupdate "/rest/api/Entity#shouldupdate"
   click shouldreorder "/rest/api/Entity#shouldreorder"
   click mergewithstore "/rest/api/Entity#mergeWithStore"
   click merge "/rest/api/Entity#merge"

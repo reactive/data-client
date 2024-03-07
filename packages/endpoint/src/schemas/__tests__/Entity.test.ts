@@ -85,11 +85,11 @@ describe(`${Entity.name} normalization`, () => {
     ).toMatchSnapshot();
   });
 
-  test('normalizes does not change value when useIncoming() returns false', () => {
+  test('normalizes does not change value when shouldUpdate() returns false', () => {
     class MyEntity extends IDEntity {
       id = '';
       title = '';
-      static useIncoming() {
+      static shouldUpdate() {
         return false;
       }
     }

@@ -13,7 +13,7 @@ export class Todo extends PlaceholderEntity {
 
   static key = 'Todo';
 
-  static useIncoming(
+  static shouldUpdate(
     existingMeta: { date: number; fetchedAt: number },
     incomingMeta: { date: number; fetchedAt: number },
     existing: { updatedAt: number },
