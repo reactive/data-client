@@ -40,7 +40,7 @@ const actionMeta = {
   fetchedAt: Date.now(),
   date: Date.now(),
   expiresAt: Date.now() + 10000000,
-}
+};
 
 export default function addNormlizrSuite(suite) {
   let denormCache = {
@@ -71,17 +71,19 @@ export default function addNormlizrSuite(suite) {
   %OptimizeFunctionOnNextCall(denormalize);
   %OptimizeFunctionOnNextCall(normalize);
 
+  let curState = initialState;
   return suite
     .add('normalizeLong', () => {
-      return normalize(
+      normalize(
         data,
         ProjectSchema,
         [],
-        initialState.entities,
-        initialState.indexes,
-        initialState.entityMeta,
+        curState.entities,
+        curState.indexes,
+        curState.entityMeta,
         actionMeta,
       );
+      curState = { ...initialState, entities: {}, endpoints: {} };
     })
     .add('infer All', () => {
       return inferResults(
@@ -109,7 +111,14 @@ export default function addNormlizrSuite(suite) {
     })
     .add('denormalizeShort 500x withCache', () => {
       for (let i = 0; i < 500; ++i) {
-        denormalizeCached('gnoff', User, githubState.entities,denormCache.entities,denormCache.endpoints['/user'], []);
+        denormalizeCached(
+          'gnoff',
+          User,
+          githubState.entities,
+          denormCache.entities,
+          denormCache.endpoints['/user'],
+          [],
+        );
       }
     })
     .add('denormalizeLong with mixin Entity', () => {
@@ -126,12 +135,7 @@ export default function addNormlizrSuite(suite) {
       );
     })
     .add('denormalizeLongAndShort withEntityCacheOnly', () => {
-      denormalizeCached(
-        result,
-        ProjectSchema,
-        entities,
-        denormCache.entities,
-      );
+      denormalizeCached(result, ProjectSchema, entities, denormCache.entities);
       denormalizeCached(
         'gnoff',
         User,

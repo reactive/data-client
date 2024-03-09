@@ -316,12 +316,11 @@ export default function EntitySchema<TBase extends Constructor>(
 
       Object.keys(this.schema).forEach(key => {
         if (Object.hasOwn(processedEntity, key)) {
-          const schema = this.schema[key];
           processedEntity[key] = visit(
             processedEntity[key],
             processedEntity,
             key,
-            schema,
+            this.schema[key],
             addEntity,
             visitedEntities,
             storeEntities,

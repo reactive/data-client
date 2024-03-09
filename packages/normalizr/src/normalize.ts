@@ -57,8 +57,8 @@ const visit = (
 
 const addEntities =
   (
-    entities: Record<string, any>,
-    indexes: Record<string, any>,
+    newEntities: Record<string, any>,
+    newIndexes: Record<string, any>,
     storeEntities: Record<string, any>,
     storeIndexes: Record<string, any>,
     storeEntityMeta: {
@@ -70,19 +70,24 @@ const addEntities =
         };
       };
     },
-    meta: { expiresAt: number; date: number; fetchedAt: number },
+    actionMeta: { expiresAt: number; date: number; fetchedAt: number },
   ) =>
   (schema: EntityInterface, processedEntity: any, id: string) => {
     const schemaKey = schema.key;
-    if (!(schemaKey in entities)) {
-      entities[schemaKey] = {};
+    // first time we come across this type of entity
+    if (!(schemaKey in newEntities)) {
+      newEntities[schemaKey] = {};
+      // we will be editing these, so we need to clone them first
       storeEntities[schemaKey] = { ...storeEntities[schemaKey] };
       storeEntityMeta[schemaKey] = { ...storeEntityMeta[schemaKey] };
     }
 
-    const existingEntity = entities[schemaKey][id];
+    const existingEntity = newEntities[schemaKey][id];
     if (existingEntity) {
-      entities[schemaKey][id] = schema.merge(existingEntity, processedEntity);
+      newEntities[schemaKey][id] = schema.merge(
+        existingEntity,
+        processedEntity,
+      );
     } else {
       const inStoreEntity = storeEntities[schemaKey][id];
       let inStoreMeta: {
@@ -92,45 +97,41 @@ const addEntities =
       };
       // this case we already have this entity in store
       if (inStoreEntity && (inStoreMeta = storeEntityMeta[schemaKey][id])) {
-        entities[schemaKey][id] = schema.mergeWithStore(
+        newEntities[schemaKey][id] = schema.mergeWithStore(
           inStoreMeta,
-          meta,
+          actionMeta,
           inStoreEntity,
           processedEntity,
         );
         storeEntityMeta[schemaKey][id] = schema.mergeMetaWithStore(
           inStoreMeta,
-          meta,
+          actionMeta,
           inStoreEntity,
           processedEntity,
         );
       } else {
-        entities[schemaKey][id] = processedEntity;
-        storeEntityMeta[schemaKey][id] = {
-          expiresAt: meta.expiresAt,
-          date: meta.date,
-          fetchedAt: meta.fetchedAt,
-        };
+        newEntities[schemaKey][id] = processedEntity;
+        storeEntityMeta[schemaKey][id] = actionMeta;
       }
     }
 
     // update index
     if (schema.indexes) {
-      if (!(schemaKey in indexes)) {
-        indexes[schemaKey] = {};
+      if (!(schemaKey in newIndexes)) {
+        newIndexes[schemaKey] = {};
         storeIndexes[schemaKey] = { ...storeIndexes[schemaKey] };
       }
       handleIndexes(
         id,
         schema.indexes,
-        indexes[schemaKey],
+        newIndexes[schemaKey],
         storeIndexes[schemaKey],
-        entities[schemaKey][id],
+        newEntities[schemaKey][id],
         storeEntities[schemaKey],
       );
     }
     // set this after index updates so we know what indexes to remove from
-    storeEntities[schemaKey][id] = entities[schemaKey][id];
+    storeEntities[schemaKey][id] = newEntities[schemaKey][id];
   };
 
 function handleIndexes(
@@ -273,7 +274,7 @@ See https://dataclient.io/rest/api/RestEndpoint#parseResponse for more informati
     entities,
     indexes,
     entityMeta,
-    meta,
+    { expiresAt: meta.expiresAt, date: meta.date, fetchedAt: meta.fetchedAt },
   );
   const visitedEntities = {};
 

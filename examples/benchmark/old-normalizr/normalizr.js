@@ -23,31 +23,40 @@ const state = {
 function mergeWithStore({ entities, result }, storeState) {
   const newEntities = { ...storeState.entities };
   Object.keys(entities).forEach(key => {
-    if (key in newEntities) {
-      Object.keys(entities[key]).forEach(pk => {
+    // we will be editing these, so we need to clone them first
+    newEntities[key] = { ...storeState.entities[key] };
+    Object.keys(entities[key]).forEach(pk => {
+      if (!newEntities[key][pk]) {
+        newEntities[key][pk] = entities[key][pk];
+      } else {
         // represent default merge
         newEntities[key][pk] = {
           ...newEntities[key][pk],
           ...entities[key][pk],
         };
-      });
-    } else {
-      newEntities[key] = entities[key];
-    }
+      }
+    });
   });
   return {
     ...storeState,
     entities: newEntities,
-    endpoints: { ...storeState.endpoints, ...{ abc: result } },
+    endpoints: { ...storeState.endpoints, ...{ fakeEndpointKey: result } },
   };
 }
 
+let curState = state;
 export default function addNormlizrSuite(suite) {
   %OptimizeFunctionOnNextCall(normalize);
   %OptimizeFunctionOnNextCall(denormalize);
   return suite
     .add('normalizeLong', () => {
       return mergeWithStore(normalize(data, ProjectSchema), state);
+    })
+    .add('normalizeLong with merge', () => {
+      return (curState = mergeWithStore(
+        normalize(data, ProjectSchema),
+        curState,
+      ));
     })
     .add('denormalizeLong donotcache', () => {
       return denormalize(result, ProjectSchema, entities);
