@@ -2,7 +2,10 @@
 
 [![CircleCI](https://circleci.com/gh/reactive/data-client/tree/master.svg?style=shield)](https://circleci.com/gh/data-clientdata-clients)
 [![Coverage Status](https://img.shields.io/codecov/c/gh/reactive/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/data-clientdata-clients?branch=master)
+[![npm downloads](https://img.shields.io/npm/dt/@data-client/normalizr.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/normalizr)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/@data-client/normalizr?style=flat-square)](https://bundlephobia.com/result?p=@data-client/normalizr)
 [![npm version](https://img.shields.io/npm/v/@data-client/normalizr.svg?style=flat-square)](https://www.npmjs.com/package/data-clients/normalizr) [![npm downloads](https://img.shields.io/npm/dm/@data-client/normalizr.svg?style=flat-square)](https://www.npmjs.com/packagdata-clientoks/normalizr)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 ## Install
 

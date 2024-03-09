@@ -3,14 +3,6 @@
   "version": "0.10.0",
   "description": "Normalizes and denormalizes JSON according to schema for Redux and Flux applications",
   "homepage": "https://dataclient.io/docs/concepts/normalization",
-  "bugs": {
-    "url": "https://github.com/reactive/data-client/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com:reactive/data-client.git",
-    "directory": "packages/normalizr"
-  },
   "keywords": [
     "normalize",
     "denormalize",
@@ -32,16 +24,7 @@
     "reactive",
     "json"
   ],
-  "files": [
-    "dist/",
-    "lib/",
-    "node.mjs",
-    "legacy",
-    "ts4.0",
-    "ts3.4",
-    "LICENSE",
-    "README.md"
-  ],
+  "sideEffects": false,
   "main": "dist/normalizr.js",
   "react-native": "legacy/index.js",
   "module": "legacy/index.js",
@@ -85,7 +68,17 @@
   "engines": {
     "node": "^12.17 || ^13.7 || >=14"
   },
-  "sideEffects": false,
+  "files": [
+    "src",
+    "dist",
+    "lib",
+    "node.mjs",
+    "legacy",
+    "ts4.0",
+    "ts3.4",
+    "LICENSE",
+    "README.md"
+  ],
   "scripts": {
     "build": "run build:lib && run build:legacy:lib && run build:bundle",
     "build:js:development": "BROWSERSLIST_ENV=legacy NODE_ENV=development yarn g:rollup",
@@ -98,18 +91,26 @@
     "build:legacy-types": "yarn g:downtypes lib ts3.4 && yarn g:downtypes lib ts4.0 --to=4.0 && yarn g:copy --up 1 ./src-4.0-types/**/*.d.ts ./ts3.4/ && yarn g:copy --up 1 ./src-4.0-types/**/*.d.ts ./ts4.0",
     "prepublishOnly": "run build"
   },
-  "author": "Nathaniel Tucker",
+  "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "contributors": [
     "Paul Armstrong",
     "Dan Abramov"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:reactive/data-client.git",
+    "directory": "packages/normalizr"
+  },
+  "bugs": {
+    "url": "https://github.com/reactive/data-client/issues"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.17.0"
+  },
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",
     "@types/node": "^20.0.0",
     "immutable": "4.2.2"
-  },
-  "dependencies": {
-    "@babel/runtime": "^7.17.0"
   }
 }
