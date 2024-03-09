@@ -20,7 +20,7 @@ the same high performance and referential equality guarantees expected of Reacti
 ### schema
 
 [Schema](./schema.md) used to retrieve/denormalize data from the Reactive Data Client cache.
-This accepts any [Queryable](/docs/api/useQuery#queryable) schema: [Entity](./Entity.md), [All](./All.md), [Collection](./Collection.md), [Query](./Query.md),
+This accepts any [Queryable](/rest/api/schema#queryable) schema: [Entity](./Entity.md), [All](./All.md), [Collection](./Collection.md), [Query](./Query.md),
 and [Union](./Union.md).
 
 ### process(entries, ...args) {#process}
