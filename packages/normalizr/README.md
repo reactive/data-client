@@ -234,7 +234,7 @@ const { data: denormalizedData, paths } = denormalizeCached(
 |                     | no cache | with cache |
 | ------------------- | -------- | ---------- |
 | normalize (long)    | 113%     | 113%       |
-| denormalize (long)  | 158%     | 1262%      |
+| denormalize (long)  | 158%     | 1,262%      |
 | denormalize (short) | 676%     | 2,367%     |
 
 [View benchmark](https://github.com/reactive/data-client/blob/master/examples/benchmark)
