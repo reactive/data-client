@@ -15,7 +15,7 @@ import VoteDemo from '../shared/\_VoteDemo.mdx';
 
 Query the store.
 
-Renders any [Queryable Schema](/rest/api/schema#schema-overview) from the store.
+Renders any [Queryable Schema](/rest/api/schema#queryable) from the store.
 [Queries](/rest/api/Query) are a great companion to efficiently render aggregate computations like those that use [groupBy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/groupBy#browser_compatibility),
 [map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map), [reduce](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce), and [filter](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter).
 

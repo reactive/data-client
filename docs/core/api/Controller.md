@@ -12,6 +12,16 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import StackBlitz from '@site/src/components/StackBlitz';
 
+`Controller` is a singleton providing safe access to the Reactive Data Client [flux store and lifecycle](./Manager.md#control-flow).
+`Controller` memoizes all store access, allowing a global referential equality guarantee and the fastest rendering
+and retrieval performance.
+
+`Controller` is provided:
+
+  - [Managers](./Manager.md) as the first argument in [Manager.getMiddleware()](./Manager.md#getmiddleware)
+  - React with [useController()](./useController.md)
+  - [Unit testing hooks](../guides/unit-testing-hooks.md) with [renderDataClient()](./makeRenderDataClient.md#renderdataclient)
+
 ```ts
 class Controller {
   /*************** Action Dispatchers ***************/
@@ -34,11 +44,6 @@ class Controller {
   getState(): State<unknown>;
 }
 ```
-
-`Controller` is a singleton providing safe access to the Reactive Data Client [flux store and lifecycle](./Manager.md#control-flow).
-
-[useController()](./useController.md) provides access in React components, and for [Managers](./Manager.md)
-it is passed as the first argument in [Manager.getMiddleware()](./Manager.md#getmiddleware)
 
 ## fetch(endpoint, ...args) {#fetch}
 
@@ -422,7 +427,7 @@ decrement the subscription and if the count reaches 0, more updates won't be rec
 
 ## get(schema, ...args, state) {#get}
 
-Looks up any [Queryable](./useQuery.md#queryable) [Schema](/rest/api/schema#schema-overview) in `state`.
+Looks up any [Queryable](/rest/api/schema#queryable) [Schema](/rest/api/schema#schema-overview) in `state`.
 
 ### Example
 
