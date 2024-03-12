@@ -6,10 +6,10 @@ import {
   FirstUnion,
 } from '__tests__/new';
 
-import buildInferredResults from '../inferResults';
+import buildInferredResults from '../buildQueryKey';
 import { NormalizedIndex } from '../interface';
 
-describe('inferResults()', () => {
+describe('buildQueryKey()', () => {
   it('should work with Object', () => {
     const schema = new schemas.Object({
       data: new schemas.Object({
@@ -298,7 +298,7 @@ describe('inferResults()', () => {
 
   describe('legacy schema', () => {
     class MyEntity extends CoolerArticle {
-      static infer(
+      static queryKey(
         args: any[],
         indexes: NormalizedIndex,
         recurse: any,

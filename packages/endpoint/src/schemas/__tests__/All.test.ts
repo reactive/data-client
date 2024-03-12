@@ -1,10 +1,14 @@
 // eslint-env jest
-import { inferResults, normalize, WeakEntityMap } from '@data-client/normalizr';
+import {
+  buildQueryKey,
+  normalize,
+  WeakEntityMap,
+} from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
 import denormalize from './denormalize';
-import { schema, AbstractInstanceType } from '../..';
+import { schema } from '../..';
 import { EntityTable } from '../../interface';
 import { INVALID } from '../../special';
 
@@ -121,7 +125,7 @@ describe.each([
       const sch = new schema.All(Cat);
       expect(
         denormalize(
-          inferResults(sch, [], {}, entities),
+          buildQueryKey(sch, [], {}, entities),
           sch,
           createInput(entities),
         ),
@@ -139,7 +143,7 @@ describe.each([
       };
       expect(
         denormalize(
-          inferResults(catSchema, [], {}, entities),
+          buildQueryKey(catSchema, [], {}, entities),
           catSchema,
           createInput(entities),
         ),
@@ -155,7 +159,7 @@ describe.each([
           2: { id: '2', name: 'Jake' },
         },
       };
-      const input = inferResults(catSchema, [], {}, entities);
+      const input = buildQueryKey(catSchema, [], {}, entities);
       let value = denormalize(input, catSchema, createInput(entities));
       expect(value).not.toEqual(expect.any(Symbol));
       if (typeof value === 'symbol') return;
@@ -175,7 +179,7 @@ describe.each([
           4: INVALID,
         },
       };
-      const input = inferResults(catSchema, [], {}, entities);
+      const input = buildQueryKey(catSchema, [], {}, entities);
       let value = denormalize(input, catSchema, createInput(entities));
       expect(value).not.toEqual(expect.any(Symbol));
       if (typeof value === 'symbol') return;
@@ -195,7 +199,7 @@ describe.each([
           2: { id: '2', name: 'Jake' },
         },
       };
-      const input = createInput(inferResults(catSchema, [], {}, entities));
+      const input = createInput(buildQueryKey(catSchema, [], {}, entities));
       const entityCache = {};
       const resultCache = new WeakEntityMap();
       const value = denormalize(
@@ -227,7 +231,7 @@ describe.each([
           3: { id: '3', name: 'Jelico' },
         },
       };
-      const input3 = createInput(inferResults(catSchema, [], {}, entities));
+      const input3 = createInput(buildQueryKey(catSchema, [], {}, entities));
       const value3 = denormalize(
         input3,
         catSchema,
@@ -255,7 +259,7 @@ describe.each([
           2: { id: '2', name: 'Jake' },
         },
       };
-      const input = inferResults(catSchema, [], {}, entities);
+      const input = buildQueryKey(catSchema, [], {}, entities);
 
       const value = denormalize(
         createInput(input),
@@ -291,7 +295,7 @@ describe.each([
           2: { id: '2', name: 'Jake' },
         },
       };
-      const input = inferResults(listSchema, [], {}, entities);
+      const input = buildQueryKey(listSchema, [], {}, entities);
       const value = denormalize(
         createInput(input),
         listSchema,
@@ -355,7 +359,7 @@ describe.each([
         },
       };
 
-      const input = inferResults(listSchema, [], {}, entities);
+      const input = buildQueryKey(listSchema, [], {}, entities);
       const value = denormalize(input, listSchema, createInput(entities));
       expect(value).not.toEqual(expect.any(Symbol));
       if (typeof value === 'symbol') return;

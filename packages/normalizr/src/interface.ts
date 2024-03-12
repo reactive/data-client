@@ -7,7 +7,7 @@ export type Schema =
   | Serializable;
 
 export interface Queryable {
-  infer(
+  queryKey(
     args: readonly any[],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
@@ -36,7 +36,7 @@ export interface SchemaSimple<T = any, Args extends any[] = any[]> {
     args: readonly any[],
     unvisit: (input: any, schema: any) => any,
   ): T;
-  infer(
+  queryKey(
     args: Args,
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,

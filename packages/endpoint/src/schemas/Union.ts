@@ -44,7 +44,7 @@ export default class UnionSchema extends PolymorphicSchema {
     return this.denormalizeValue(input, unvisit);
   }
 
-  infer(args: any, indexes: any, recurse: any, entities: any) {
+  queryKey(args: any, indexes: any, recurse: any, entities: any) {
     if (!args[0]) return undefined;
     const attr = this.getSchemaAttribute(args[0], undefined, '');
     const discriminatedSchema = this.schema[attr];

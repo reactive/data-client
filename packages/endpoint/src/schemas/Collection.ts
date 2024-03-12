@@ -218,7 +218,7 @@ export default class CollectionSchema<
 
   // >>>>>>>>>>>>>>DENORMALIZE<<<<<<<<<<<<<<
 
-  infer(args: Args, indexes: unknown, recurse: unknown, entities: any): any {
+  queryKey(args: Args, indexes: unknown, recurse: unknown, entities: any): any {
     if (this.argsKey) {
       const id = this.pk(undefined, undefined, '', args);
       if (entities[this.key]?.[id]) return id;

@@ -53,7 +53,7 @@ export default class ValuesSchema extends PolymorphicSchema {
     }, {});
   }
 
-  infer(args: any, indexes: any, recurse: any) {
+  queryKey(args: any, indexes: any, recurse: any) {
     return undefined;
   }
 }

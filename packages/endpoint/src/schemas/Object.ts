@@ -57,7 +57,7 @@ export function denormalize(
   return object;
 }
 
-export function infer(
+export function queryKey(
   schema: any,
   args: readonly any[],
   indexes: any,
@@ -111,7 +111,7 @@ export default class ObjectSchema {
     return denormalize(this.schema, input, args, unvisit);
   }
 
-  infer(args: any, indexes: any, recurse: any, entities: any) {
-    return infer(this.schema, args, indexes, recurse, entities);
+  queryKey(args: any, indexes: any, recurse: any, entities: any) {
+    return queryKey(this.schema, args, indexes, recurse, entities);
   }
 }

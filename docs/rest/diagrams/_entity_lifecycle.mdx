@@ -1,7 +1,7 @@
 ```mermaid
 flowchart BT
   subgraph Controller.getResponse
-    infer("Entity.infer()")---pk2
+    queryKey("Entity.queryKey()")---pk2
     pk2("Entity.pk()")---Entity.createIfValid
     subgraph Entity.createIfValid
       direction TB
@@ -39,5 +39,5 @@ flowchart BT
   click shouldreorder "/rest/api/Entity#shouldreorder"
   click mergewithstore "/rest/api/Entity#mergeWithStore"
   click merge "/rest/api/Entity#merge"
-  click infer "/rest/api/Entity#infer"
+  click queryKey "/rest/api/Entity#queryKey"
 ```

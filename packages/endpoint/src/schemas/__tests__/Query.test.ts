@@ -1,5 +1,5 @@
 // eslint-env jest
-import { WeakEntityMap, inferResults } from '@data-client/normalizr';
+import { WeakEntityMap, buildQueryKey } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
@@ -73,7 +73,7 @@ describe.each([
         };
         const users: DenormalizeNullable<typeof sortedUsers> | symbol =
           denormalize(
-            inferResults(sortedUsers, [], {}, entities),
+            buildQueryKey(sortedUsers, [], {}, entities),
             sortedUsers,
             createInput(entities),
           );
@@ -99,7 +99,7 @@ describe.each([
         };
         expect(
           denormalize(
-            inferResults(sortedUsers, [{ asc: true }], {}, entities),
+            buildQueryKey(sortedUsers, [{ asc: true }], {}, entities),
             sortedUsers,
             createInput(entities),
             {},
@@ -116,7 +116,7 @@ describe.each([
             2: { id: '2', name: 'Jake' },
           },
         };
-        const input = inferResults(sortedUsers, [], {}, entities);
+        const input = buildQueryKey(sortedUsers, [], {}, entities);
 
         const value = denormalize(
           createInput(input),
@@ -158,7 +158,7 @@ describe.each([
         const totalCount:
           | DenormalizeNullable<typeof userCountByAdmin>
           | symbol = denormalize(
-          inferResults(userCountByAdmin, [], {}, entities),
+          buildQueryKey(userCountByAdmin, [], {}, entities),
           userCountByAdmin,
           createInput(entities),
         );
@@ -166,7 +166,7 @@ describe.each([
         const nonAdminCount:
           | DenormalizeNullable<typeof userCountByAdmin>
           | symbol = denormalize(
-          inferResults(userCountByAdmin, [{ isAdmin: false }], {}, entities),
+          buildQueryKey(userCountByAdmin, [{ isAdmin: false }], {}, entities),
           userCountByAdmin,
           createInput(entities),
           {},
@@ -177,7 +177,7 @@ describe.each([
         const adminCount:
           | DenormalizeNullable<typeof userCountByAdmin>
           | symbol = denormalize(
-          inferResults(userCountByAdmin, [{ isAdmin: true }], {}, entities),
+          buildQueryKey(userCountByAdmin, [{ isAdmin: true }], {}, entities),
           userCountByAdmin,
           createInput(entities),
           {},
@@ -220,7 +220,7 @@ describe('top level schema', () => {
       },
     };
     const users: DenormalizeNullable<typeof sortedUsers> | symbol = denormalize(
-      inferResults(sortedUsers, [], {}, entities),
+      buildQueryKey(sortedUsers, [], {}, entities),
       sortedUsers,
       entities,
     );
@@ -237,7 +237,7 @@ describe('top level schema', () => {
         2: { id: '2', name: 'Jake' },
       },
     };
-    const input = inferResults(sortedUsers, [], {}, entities);
+    const input = buildQueryKey(sortedUsers, [], {}, entities);
 
     const value = denormalize(input, sortedUsers, entities);
 

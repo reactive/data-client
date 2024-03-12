@@ -200,11 +200,11 @@ declare const useCacheState: () => State<unknown>;
 
 declare const initialState: _data_client_core.State<unknown>;
 declare const INVALID: symbol;
-declare const inferResults: typeof __INTERNAL__.inferResults;
+declare const buildQueryKey: typeof __INTERNAL__.buildQueryKey;
 
 declare const internal_d_initialState: typeof initialState;
 declare const internal_d_INVALID: typeof INVALID;
-declare const internal_d_inferResults: typeof inferResults;
+declare const internal_d_buildQueryKey: typeof buildQueryKey;
 declare const internal_d_createReducer: typeof createReducer;
 declare const internal_d_applyManager: typeof applyManager;
 declare const internal_d_useCacheState: typeof useCacheState;
@@ -212,7 +212,7 @@ declare namespace internal_d {
   export {
     internal_d_initialState as initialState,
     internal_d_INVALID as INVALID,
-    internal_d_inferResults as inferResults,
+    internal_d_buildQueryKey as buildQueryKey,
     internal_d_createReducer as createReducer,
     internal_d_applyManager as applyManager,
     internal_d_useCacheState as useCacheState,

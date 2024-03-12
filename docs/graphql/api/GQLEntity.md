@@ -275,15 +275,17 @@ static mergeMetaWithStore(
 
 `mergeMetaWithStore()` is called during normalization when a processed entity is already found in the store.
 
-### static infer(args, indexes, recurse): pk? {#infer}
+### static queryKey(args, indexes, recurse): pk? {#queryKey}
 
-Allows Reactive Data Client to build a response without having to fetch if its entities can be found.
+This method enables `Entities` to be [Queryable](/rest/api/schema#queryable) - allowing store access without an endpoint.
 
-Returning `undefined` will not infer this entity
+Overriding can allow customization or disabling of this behavior altogether.
+
+Returning `undefined` will disallow this behavior.
 
 Returning `pk` string will attempt to lookup this entity and use in the response.
 
-When inferring a response, this entity's expiresAt is used to compute the expiry policy.
+When used, expiry policy is computed based on the entity's own meta data.
 
 By **default** uses the first argument to lookup in [pk()](#pk) and [indexes](#indexes)
 

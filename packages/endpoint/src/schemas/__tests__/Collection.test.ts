@@ -1,6 +1,10 @@
 // eslint-env jest
 import { initialState } from '@data-client/core';
-import { inferResults, normalize, WeakEntityMap } from '@data-client/normalizr';
+import {
+  buildQueryKey,
+  normalize,
+  WeakEntityMap,
+} from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 import { Record } from 'immutable';
 
@@ -555,16 +559,16 @@ describe(`${schema.Collection.name} denormalization`, () => {
     });
   });
 
-  it('should infer with matching args', () => {
-    const inferred = inferResults(
+  it('should buildQueryKey with matching args', () => {
+    const queryKey = buildQueryKey(
       userTodos,
       [{ userId: '1' }],
       {},
       normalizeNested.entities,
     );
-    expect(inferred).toBeDefined();
-    // now ensure our inferred result is usable
-    const results = denormalize(inferred, userTodos, normalizeNested.entities);
+    expect(queryKey).toBeDefined();
+    // now ensure our queryKey is usable
+    const results = denormalize(queryKey, userTodos, normalizeNested.entities);
     expect(results).toBeDefined();
     expect(results).toMatchInlineSnapshot(`
       [
@@ -578,23 +582,23 @@ describe(`${schema.Collection.name} denormalization`, () => {
     `);
   });
 
-  it('should infer undefined when not in cache', () => {
-    const inferred = inferResults(
+  it('should buildQueryKey undefined when not in cache', () => {
+    const queryKey = buildQueryKey(
       userTodos,
       [{ userId: '100' }],
       {},
       normalizeNested.entities,
     );
-    expect(inferred).toBeUndefined();
+    expect(queryKey).toBeUndefined();
   });
 
-  it('should infer undefined with nested Collection', () => {
-    const inferred = inferResults(
+  it('should buildQueryKey undefined with nested Collection', () => {
+    const queryKey = buildQueryKey(
       User.schema.todos,
       [{ userId: '1' }],
       {},
       normalizeNested.entities,
     );
-    expect(inferred).toBeUndefined();
+    expect(queryKey).toBeUndefined();
   });
 });

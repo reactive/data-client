@@ -85,7 +85,7 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
     unvisit: (input: any, schema: any) => any,
   ): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
 
-  infer(
+  queryKey(
     args: readonly any[],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
@@ -135,7 +135,7 @@ export class All<
     unvisit: (input: any, schema: any) => any,
   ): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
 
-  infer(
+  queryKey(
     // TODO: hack for now to allow for variable arg combinations with Query
     args: [] | [unknown],
     indexes: NormalizedIndex,
@@ -175,7 +175,7 @@ export class Object<O extends Record<string, any> = Record<string, Schema>>
     unvisit: (input: any, schema: any) => any,
   ): DenormalizeObject<O>;
 
-  infer(
+  queryKey(
     args: readonly any[],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
@@ -259,7 +259,7 @@ export interface UnionInstance<
     unvisit: (input: any, schema: any) => any,
   ): AbstractInstanceType<Choices[keyof Choices]>;
 
-  infer(
+  queryKey(
     args: [Args],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
@@ -343,7 +343,7 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
     Choices extends EntityMap<infer T> ? T : Denormalize<Choices>
   >;
 
-  infer(
+  queryKey(
     args: readonly any[],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
