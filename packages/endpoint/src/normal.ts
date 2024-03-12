@@ -123,7 +123,7 @@ export type SchemaArgs<S extends Schema> =
   S extends EntityInterface<infer U> ? [EntityFields<U>]
   : S extends (
     {
-      infer(
+      queryKey(
         args: infer Args,
         indexes: any,
         recurse: (...args: any) => any,

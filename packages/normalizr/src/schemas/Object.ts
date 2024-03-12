@@ -59,7 +59,7 @@ export const denormalize = (
   return deleted ? INVALID : object;
 };
 
-export function infer(
+export function queryKey(
   schema: any,
   args: readonly any[],
   indexes: any,

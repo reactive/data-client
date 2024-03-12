@@ -3,7 +3,7 @@ import {
   Entity,
   normalize,
   denormalize,
-  inferResults,
+  buildQueryKey,
   WeakEntityMap,
   denormalizeCached,
   initialState,
@@ -21,13 +21,13 @@ import userData from './user.json' assert { type: 'json' };
 
 const { result, entities } = normalize(data, ProjectSchema);
 const queryState = normalize(data, ProjectQuery);
-queryState.result = inferResults(
+queryState.result = buildQueryKey(
   ProjectQuery,
   [],
   queryState.indexes,
   queryState.entities,
 );
-const queryInfer = inferResults(
+const queryInfer = buildQueryKey(
   ProjectQuerySorted,
   [],
   queryState.indexes,
@@ -86,7 +86,7 @@ export default function addNormlizrSuite(suite) {
       curState = { ...initialState, entities: {}, endpoints: {} };
     })
     .add('infer All', () => {
-      return inferResults(
+      return buildQueryKey(
         ProjectQuery,
         [],
         queryState.indexes,

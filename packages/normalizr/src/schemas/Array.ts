@@ -60,6 +60,6 @@ export const denormalize = (
     : input;
 };
 
-export function infer(schema: any, args: any, indexes: any, recurse: any) {
+export function queryKey(schema: any, args: any, indexes: any, recurse: any) {
   return undefined;
 }

@@ -19,7 +19,7 @@ import {
   isEntity,
   denormalize,
 } from '@data-client/normalizr';
-import { inferResults, validateInference } from '@data-client/normalizr';
+import { buildQueryKey, validateQueryKey } from '@data-client/normalizr';
 
 import AbortOptimistic from './AbortOptimistic.js';
 import createExpireAll from './createExpireAll.js';
@@ -394,13 +394,13 @@ export default class Controller<
     let invalidResults = false;
     let results;
     if (cacheEndpoints === undefined && endpoint.schema !== undefined) {
-      results = inferResults(
+      results = buildQueryKey(
         endpoint.schema,
         args,
         state.indexes,
         state.entities,
       );
-      invalidResults = !validateInference(results);
+      invalidResults = !validateQueryKey(results);
       if (!expiresAt && invalidResults) expiresAt = 1;
     } else {
       results = cacheEndpoints;
@@ -457,7 +457,7 @@ export default class Controller<
       .slice(0, rest.length - 1)
       .map(ensurePojo) as SchemaArgs<S>;
 
-    const results = inferResults(schema, args, state.indexes, state.entities);
+    const results = buildQueryKey(schema, args, state.indexes, state.entities);
 
     const data = denormalizeCached(
       results,
@@ -539,7 +539,7 @@ function entityExpiresAt(
 
 /** Determine whether the schema has any entities.
  *
- * Without entities, denormalization is not needed, and results should not be inferred.
+ * Without entities, denormalization is not needed, and results should not be queried.
  */
 function schemaHasEntity(schema: Schema): boolean {
   if (isEntity(schema)) return true;

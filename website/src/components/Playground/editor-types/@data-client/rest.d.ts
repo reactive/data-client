@@ -65,7 +65,7 @@ interface EntityMap<T = any> {
     readonly [k: string]: EntityInterface<T>;
 }
 type SchemaArgs<S extends Schema> = S extends EntityInterface<infer U> ? [EntityFields<U>] : S extends ({
-    infer(args: infer Args, indexes: any, recurse: (...args: any) => any, entities: any): any;
+    queryKey(args: infer Args, indexes: any, recurse: (...args: any) => any, entities: any): any;
 }) ? Args : never;
 
 interface SnapshotInterface {
@@ -131,7 +131,7 @@ type Schema = null | string | {
     [K: string]: any;
 } | Schema[] | SchemaSimple | Serializable;
 interface Queryable {
-    infer(args: readonly any[], indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): {};
+    queryKey(args: readonly any[], indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): {};
 }
 type Serializable<T extends {
     toJSON(): string;
@@ -141,7 +141,7 @@ type Serializable<T extends {
 interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
     normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args: any[]): any;
     denormalize(input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any): T;
-    infer(args: Args, indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): any;
+    queryKey(args: Args, indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): any;
 }
 interface SchemaClass<T = any, N = T | undefined, Args extends any[] = any[]> extends SchemaSimple<T, Args> {
     _normalizeNullable(): any;
@@ -393,11 +393,11 @@ interface IEntityClass<TBase extends Constructor = any> {
      * @see https://dataclient.io/rest/api/Entity#validate
      */
     validate(processedEntity: any): string | undefined;
-    /** Attempts to infer results
+    /** Builds a key access the entity without endpoint results
      *
-     * @see https://dataclient.io/rest/api/Entity#infer
+     * @see https://dataclient.io/rest/api/Entity#queryKey
      */
-    infer(args: readonly any[], indexes: NormalizedIndex, recurse: any, entities: any): any;
+    queryKey(args: readonly any[], indexes: NormalizedIndex, recurse: any, entities: any): any;
     denormalize<T extends (abstract new (...args: any[]) => IEntityInstance & InstanceType<TBase>) & IEntityClass & TBase>(this: T, input: any, args: readonly any[], unvisit: (input: any, schema: any) => any): AbstractInstanceType<T>;
     /** All instance defaults set */
     readonly defaults: any;
@@ -444,7 +444,7 @@ declare class Invalidate<E extends EntityInterface & {
         fetchedAt: number;
     };
     /** /End Normalize lifecycles **/
-    infer(args: any, indexes: any, recurse: any): undefined;
+    queryKey(args: any, indexes: any, recurse: any): undefined;
     denormalize(id: string, args: readonly any[], unvisit: (input: any, schema: any) => any): AbstractInstanceType<E>;
     _denormalizeNullable(): AbstractInstanceType<E> | undefined;
     _normalizeNullable(): string | undefined;
@@ -461,7 +461,7 @@ declare class Query<S extends Queryable, P extends (entries: DenormalizeNullable
     constructor(schema: S, process: P);
     normalize(...args: any): any;
     denormalize(input: {}, args: any, unvisit: any): ReturnType<P> | undefined;
-    infer(args: ProcessParameters<P, S>, indexes: any, recurse: (schema: any, args: any, indexes: NormalizedIndex, entities: EntityTable) => any, entities: EntityTable): any;
+    queryKey(args: ProcessParameters<P, S>, indexes: any, recurse: (schema: any, args: any, indexes: NormalizedIndex, entities: EntityTable) => any, entities: EntityTable): any;
     _denormalizeNullable: (input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any) => ReturnType<P> | undefined;
     _normalizeNullable: () => NormalizeNullable<S>;
 }
@@ -516,7 +516,7 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
         date: number;
         fetchedAt: number;
     };
-    infer(args: Args, indexes: unknown, recurse: unknown, entities: unknown): any;
+    queryKey(args: Args, indexes: unknown, recurse: unknown, entities: unknown): any;
     createIfValid: (value: any) => any | undefined;
     denormalize(input: any, args: readonly any[], unvisit: (input: any, schema: any) => any): ReturnType<S['denormalize']>;
     _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;
@@ -590,7 +590,7 @@ declare class Array$1<S extends Schema = Schema> implements SchemaClass {
     unvisit: (input: any, schema: any) => any,
   ): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
 
-  infer(
+  queryKey(
     args: readonly any[],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
@@ -640,7 +640,7 @@ declare class All<
     unvisit: (input: any, schema: any) => any,
   ): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
 
-  infer(
+  queryKey(
     // TODO: hack for now to allow for variable arg combinations with Query
     args: [] | [unknown],
     indexes: NormalizedIndex,
@@ -680,7 +680,7 @@ declare class Object$1<O extends Record<string, any> = Record<string, Schema>>
     unvisit: (input: any, schema: any) => any,
   ): DenormalizeObject<O>;
 
-  infer(
+  queryKey(
     args: readonly any[],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
@@ -764,7 +764,7 @@ interface UnionInstance<
     unvisit: (input: any, schema: any) => any,
   ): AbstractInstanceType<Choices[keyof Choices]>;
 
-  infer(
+  queryKey(
     args: [Args],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
@@ -848,7 +848,7 @@ declare class Values<Choices extends Schema = any> implements SchemaClass {
     Choices extends EntityMap<infer T> ? T : Denormalize<Choices>
   >;
 
-  infer(
+  queryKey(
     args: readonly any[],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,

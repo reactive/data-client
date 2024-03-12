@@ -43,7 +43,7 @@ export default class AllSchema<
     );
   }
 
-  infer(args: any, indexes: any, recurse: any, entities: EntityTable): any {
+  queryKey(args: any, indexes: any, recurse: any, entities: EntityTable): any {
     if (this.isSingleSchema) {
       const entitiesEntry = entities[this.schema.key];
       // we must wait until there are entries for any 'All' query to be Valid

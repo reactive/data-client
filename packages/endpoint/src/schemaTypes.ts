@@ -99,7 +99,12 @@ export interface CollectionInterface<
     fetchedAt: number;
   };
 
-  infer(args: Args, indexes: unknown, recurse: unknown, entities: unknown): any;
+  queryKey(
+    args: Args,
+    indexes: unknown,
+    recurse: unknown,
+    entities: unknown,
+  ): any;
 
   createIfValid: (value: any) => any | undefined;
   denormalize(

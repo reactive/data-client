@@ -337,14 +337,14 @@ export default function EntitySchema<TBase extends Constructor>(
       return;
     }
 
-    static infer(
+    static queryKey(
       args: readonly any[],
       indexes: NormalizedIndex,
       recurse: any,
       entities: any,
     ): any {
       if (!args[0]) return;
-      const id = inferId(this, args, indexes);
+      const id = queryKeyCandidate(this, args, indexes);
       if (entities[this.key]?.[id]) return id;
     }
 
@@ -650,12 +650,11 @@ export interface IEntityClass<TBase extends Constructor = any> {
    * @see https://dataclient.io/rest/api/Entity#validate
    */
   validate(processedEntity: any): string | undefined;
-  /** Attempts to infer results
+  /** Builds a key access the entity without endpoint results
    *
-   * @see https://dataclient.io/rest/api/Entity#infer
+   * @see https://dataclient.io/rest/api/Entity#queryKey
    */
-
-  infer(
+  queryKey(
     args: readonly any[],
     indexes: NormalizedIndex,
     recurse: any,
@@ -692,7 +691,11 @@ export interface IEntityInstance {
   ): string | number | undefined;
 }
 
-function inferId(schema: any, args: readonly any[], indexes: NormalizedIndex) {
+function queryKeyCandidate(
+  schema: any,
+  args: readonly any[],
+  indexes: NormalizedIndex,
+) {
   if (['string', 'number'].includes(typeof args[0])) {
     return `${args[0]}`;
   }

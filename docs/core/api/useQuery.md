@@ -51,13 +51,13 @@ function useQuery<S extends Queryable>(
 
 ### Queryable
 
-`Queryable` schemas require an `infer()` method that returns something. These include
+`Queryable` schemas require an `queryKey()` method that returns something. These include
 [Entity](/rest/api/Entity), [All](/rest/api/All), [Collection](/rest/api/Collection), [Query](/rest/api/Query),
 and [Union](/rest/api/Union).
 
 ```ts
 interface Queryable {
-  infer(
+  queryKey(
     args: readonly any[],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,

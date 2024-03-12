@@ -216,11 +216,11 @@ export interface IEntityClass<TBase extends Constructor = any> {
    * @see https://dataclient.io/rest/api/Entity#validate
    */
   validate(processedEntity: any): string | undefined;
-  /** Attempts to infer results
+  /** Builds a key access the entity without endpoint results
    *
-   * @see https://dataclient.io/rest/api/Entity#infer
+   * @see https://dataclient.io/rest/api/Entity#queryKey
    */
-  infer(
+  queryKey(
     args: readonly any[],
     indexes: NormalizedIndex,
     recurse: any,

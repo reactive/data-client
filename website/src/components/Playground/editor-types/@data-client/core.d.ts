@@ -2,7 +2,7 @@ type Schema = null | string | {
     [K: string]: any;
 } | Schema[] | SchemaSimple | Serializable;
 interface Queryable {
-    infer(args: readonly any[], indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): {};
+    queryKey(args: readonly any[], indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): {};
 }
 type Serializable<T extends {
     toJSON(): string;
@@ -12,7 +12,7 @@ type Serializable<T extends {
 interface SchemaSimple<T = any, Args extends any[] = any[]> {
     normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args: any[]): any;
     denormalize(input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any): T;
-    infer(args: Args, indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): any;
+    queryKey(args: Args, indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): any;
 }
 interface EntityInterface<T = any> extends SchemaSimple {
     createIfValid(props: any): any;
@@ -123,14 +123,14 @@ type NormalizeNullable<S> = S extends EntityInterface ? string | undefined : S e
     [K: string]: any;
 } ? NormalizedNullableObject<S> : S;
 type SchemaArgs<S extends Queryable> = S extends EntityInterface<infer U> ? [EntityFields<U>] : S extends ({
-    infer(args: infer Args, indexes: any, recurse: (...args: any) => any, entities: any): any;
+    queryKey(args: infer Args, indexes: any, recurse: (...args: any) => any, entities: any): any;
 }) ? Args : never;
 
 /**
  * Build the result parameter to denormalize from schema alone.
  * Tries to compute the entity ids from params.
  */
-declare function inferResults<S extends Schema>(schema: S, args: any[], indexes: NormalizedIndex, entities: EntityTable): NormalizeNullable<S>;
+declare function buildQueryKey<S extends Schema>(schema: S, args: any[], indexes: NormalizedIndex, entities: EntityTable): NormalizeNullable<S>;
 
 interface NetworkError extends Error {
     status: number;
@@ -556,13 +556,13 @@ type ReducerType = (state: State<unknown> | undefined, action: ActionTypes) => S
 
 //# sourceMappingURL=internal.d.ts.map
 
-declare const internal_d_inferResults: typeof inferResults;
+declare const internal_d_buildQueryKey: typeof buildQueryKey;
 declare const internal_d_INVALID: typeof INVALID;
 declare const internal_d_RIC: typeof RIC;
 declare const internal_d_initialState: typeof initialState;
 declare namespace internal_d {
   export {
-    internal_d_inferResults as inferResults,
+    internal_d_buildQueryKey as buildQueryKey,
     internal_d_INVALID as INVALID,
     internal_d_RIC as RIC,
     internal_d_initialState as initialState,

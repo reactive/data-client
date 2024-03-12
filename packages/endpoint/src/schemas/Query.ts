@@ -37,7 +37,7 @@ export default class Query<
     return typeof value === 'symbol' ? undefined : this.process(value, ...args);
   }
 
-  infer(
+  queryKey(
     args: ProcessParameters<P, S>,
     indexes: any,
     recurse: (

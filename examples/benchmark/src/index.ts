@@ -2,7 +2,7 @@ export {
   normalize,
   denormalize,
   WeakEntityMap,
-  inferResults,
+  buildQueryKey,
   denormalizeCached,
 } from '@data-client/normalizr';
 export * from '@data-client/core';

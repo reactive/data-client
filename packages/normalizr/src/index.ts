@@ -8,7 +8,7 @@ import { denormalize as denormalizeCached } from './denormalize/denormalizeCache
 import { isEntity } from './isEntity.js';
 import { normalize } from './normalize.js';
 import WeakEntityMap from './WeakEntityMap.js';
-export { default as inferResults, validateInference } from './inferResults.js';
+export { default as buildQueryKey, validateQueryKey } from './buildQueryKey.js';
 
 export type {
   AbstractInstanceType,

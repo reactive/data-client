@@ -1,5 +1,5 @@
 // eslint-env jest
-import { inferResults, normalize, WeakEntityMap } from '@data-client/normalizr';
+import { normalize, WeakEntityMap } from '@data-client/normalizr';
 import { INVALID } from '@data-client/normalizr';
 import { Temporal } from '@js-temporal/polyfill';
 import { IDEntity } from '__tests__/new';

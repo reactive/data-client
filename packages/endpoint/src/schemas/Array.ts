@@ -44,7 +44,7 @@ export default class ArraySchema extends PolymorphicSchema {
       : input;
   }
 
-  infer(
+  queryKey(
     args: unknown,
     indexes: unknown,
     recurse: unknown,

@@ -45,7 +45,7 @@ describe(`${schema.Invalidate.name} normalization`, () => {
     class User extends IDEntity {}
 
     expect(
-      new schema.Invalidate(User).infer([{ id: 5 }], {}, () => undefined),
+      new schema.Invalidate(User).queryKey([{ id: 5 }], {}, () => undefined),
     ).toBeUndefined();
   });
 

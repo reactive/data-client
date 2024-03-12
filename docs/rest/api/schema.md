@@ -204,7 +204,7 @@ Article {
 ## Queryable
 
 `Queryable` Schemas allow store access without an endpoint. They achieve this using the
-`infer` method that produces the results normally stored in the endpoint cache.
+[queryKey](./Entity.md#queryKey) method that produces the results normally stored in the endpoint cache.
 
 This enables their use in these additional cases:
 
@@ -215,13 +215,14 @@ This enables their use in these additional cases:
   - React with [useController()](/docs/api/useController)
   - [RestEndpoint.getOptimisticResponse](./RestEndpoint.md#getoptimisticresponse)
   - [Unit testing hooks](/docs/guides/unit-testing-hooks) with [renderDataClient()](/docs/api/makeRenderDataClient#renderdataclient)
+- Improve performance of [useSuspense](/docs/api/useSuspense), [useDLE](/docs/api/useDLE) by rendering before endpoint resolution
 
 `Querables` include [Entity](./Entity.md), [All](./All.md), [Collection](./Collection.md), [Query](./Query.md),
 and [Union](./Union.md).
 
 ```ts
 interface Queryable {
-  infer(
+  queryKey(
     args: readonly any[],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,

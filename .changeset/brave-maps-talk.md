@@ -9,4 +9,4 @@
 Fix schema.All denormalize INVALID case should also work when class name mangling is performed in production builds
 
 - `unvisit()` always returns `undefined` with `undefined` as input.
-- `All` returns INVALID from `infer()` to invalidate what was previously a special case in `unvisit()` (when there is no table entry for the given entity)
+- `All` returns INVALID from `queryKey()` to invalidate what was previously a special case in `unvisit()` (when there is no table entry for the given entity)
