@@ -274,10 +274,10 @@ __metadata:
   linkType: hard
 
 "@anansi/cli@npm:^3.0.15":
-  version: 3.1.15
-  resolution: "@anansi/cli@npm:3.1.15"
+  version: 3.1.16
+  resolution: "@anansi/cli@npm:3.1.16"
   dependencies:
-    "@anansi/generator-js": "npm:^12.3.7"
+    "@anansi/generator-js": "npm:^12.4.0"
     bin-version-check: "npm:^5.1.0"
     chalk: "npm:^4.1.2"
     commander: "npm:^12.0.0"
@@ -292,21 +292,21 @@ __metadata:
       optional: true
   bin:
     anansi: ./run.mjs
-  checksum: 10c0/6e19c85cba0c891b30784b3a8a361a187e01a8a32bac454088230c17514f17a7b9e867a92dbd84aeeea3989de85beabc976b7212b6881b085d133f43c5e85050
+  checksum: 10c0/ea8b64e714486feaf42544cd6631522e6c4d295be5ffd658d9e1df7a1afda07c310167cbeb59866381eda6ed0c88d9d226f7965bcc9b0593a665420c51eec262
   languageName: node
   linkType: hard
 
 "@anansi/core@npm:^0.18.4":
-  version: 0.18.19
-  resolution: "@anansi/core@npm:0.18.19"
+  version: 0.18.20
+  resolution: "@anansi/core@npm:0.18.20"
   dependencies:
-    "@anansi/router": "npm:^0.9.3"
+    "@anansi/router": "npm:^0.9.4"
     "@babel/runtime": "npm:^7.17.0"
     "@data-client/ssr": "npm:^0.10.0"
     chalk: "npm:^4.1.2"
     compression: "npm:^1.7.4"
     cross-fetch: "npm:^4.0.0"
-    enhanced-resolve: "npm:^5.15.1"
+    enhanced-resolve: "npm:^5.16.0"
     express: "npm:^4.18.3"
     fs-require: "npm:^1.6.0"
     history: "npm:^5.3.0"
@@ -317,7 +317,7 @@ __metadata:
     source-map-support: "npm:^0.5.21"
     tmp: "npm:^0.2.3"
     unionfs: "npm:^4.5.1"
-    webpack-dev-server: "npm:^5.0.2"
+    webpack-dev-server: "npm:^5.0.3"
     whatwg-fetch: "npm:^3.6.2"
   peerDependencies:
     "@ant-design/cssinjs": ^1.5.1
@@ -345,7 +345,7 @@ __metadata:
   bin:
     serve-anansi: ./lib/scripts/serve.js
     start-anansi: ./lib/scripts/startDevserver.js
-  checksum: 10c0/09df3fa2bfb7b17b03dab97258a5d7c9383f5054ed8a24dd46b2ec109e930d8624525ab8390037055cd1ae4a061c05f534380fc2197e68e45b87e26eba776552
+  checksum: 10c0/1ce366887a5c0247fbe8e3c806da30323136b009113a6c0171317d3a663d5c5dbaaf9f568a753559195ab1c60accdd3ca9e419c2eb02ea177019ab462b2e1363
   languageName: node
   linkType: hard
 
@@ -382,13 +382,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/generator-js@npm:^12.3.7":
-  version: 12.3.7
-  resolution: "@anansi/generator-js@npm:12.3.7"
+"@anansi/generator-js@npm:^12.4.0":
+  version: 12.4.0
+  resolution: "@anansi/generator-js@npm:12.4.0"
   dependencies:
     "@babel/runtime": "npm:^7.17.0"
     "@types/inquirer": "npm:^9.0.7"
-    "@yeoman/types": "npm:^1.1.2"
+    "@yeoman/types": "npm:^1.2.0"
     chalk: "npm:^4.1.2"
     core-js: "npm:^3.21.0"
     ejs: "npm:^3.1.9"
@@ -401,7 +401,7 @@ __metadata:
     pacote: "npm:^17.0.6"
     shelobsay: "npm:^2.0.0"
     yeoman-generator: "npm:^7.1.1"
-  checksum: 10c0/3d5a811a01dfeb379f95f8f58eecb065c7f967c3dfe8763aac112975bd48523f16be5a254ad26d2b8c2d08d0a0df8c11066054b0f5a555316ace21e8853353c8
+  checksum: 10c0/10b06cba66e08384826228f3b0184af90c0749e4f20e3ac27e1d1867aabf5ab0921922a8820380a7ed3a7058fbe171469aab31096760ae4a530490ab29a9f629
   languageName: node
   linkType: hard
 
@@ -436,12 +436,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/router@npm:^0.9.1, @anansi/router@npm:^0.9.3":
-  version: 0.9.3
-  resolution: "@anansi/router@npm:0.9.3"
+"@anansi/router@npm:^0.9.1, @anansi/router@npm:^0.9.4":
+  version: 0.9.4
+  resolution: "@anansi/router@npm:0.9.4"
   dependencies:
     "@babel/runtime": "npm:^7.17.0"
-    "@pojo-router/core": "npm:^0.6.3"
+    "@pojo-router/core": "npm:^0.7.0"
     history: "npm:^5.3.0"
     nano-memoize: "npm:^3.0.16"
   peerDependencies:
@@ -450,7 +450,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/9de4bfd3aa90fe6e423c6ca231f6159752bb875a78bf4208d464da902be424902126920f10cefb38798897c15450e2ccacc620ae1a66818d018d1a990f5b731b
+  checksum: 10c0/16369fdd39eaecb82ce93a50fd1c254caab54804c527cd7db29fe121ce0a61b54a06e7af8dd2686ff47d5af545a2971e54ae211ae990b8fe620692b6eec17411
   languageName: node
   linkType: hard
 
@@ -5437,9 +5437,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pojo-router/core@npm:^0.6.3":
-  version: 0.6.3
-  resolution: "@pojo-router/core@npm:0.6.3"
+"@pojo-router/core@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "@pojo-router/core@npm:0.7.0"
   dependencies:
     "@babel/runtime": "npm:^7.17.0"
     history: "npm:5.3.0"
@@ -5450,7 +5450,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/8d175a11d6c29d77910dd79fd709dc024dede76358f6b1cf43f800cfb605407ebfdb88cff5cb10cae1390efd83b26521b87ff74e812c683440704a62c2c9d1fa
+  checksum: 10c0/1276eee261b32ff348a32a2425823364d880ac06984ae3c66ce5b9435431084a2dcbffea2f5488a19126a4d27ccfc0759e8572e6d5e0989cbca435790eeb5c84
   languageName: node
   linkType: hard
 
@@ -6988,12 +6988,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:20.11.25, @types/node@npm:^20.0.0, @types/node@npm:^20.8.3":
-  version: 20.11.25
-  resolution: "@types/node@npm:20.11.25"
+"@types/node@npm:*, @types/node@npm:20.11.26, @types/node@npm:^20.0.0, @types/node@npm:^20.8.3":
+  version: 20.11.26
+  resolution: "@types/node@npm:20.11.26"
   dependencies:
     undici-types: "npm:~5.26.4"
-  checksum: 10c0/3a65a0469309d503e572a3198d81c9248876236b1bcc0c9943e995cfa536df7ce9a9302638258984877420d1613167a8a82dbfb3a92197319fb79ebebf9abc83
+  checksum: 10c0/2df81e4f109588c4c490f2c7d616a06d2b3b9298f217468134b80711af810c9a6017a59beb3e6b1c596eb9b6c5a39d33403b99179acb89006badfbc55f2468bb
   languageName: node
   linkType: hard
 
@@ -7005,9 +7005,9 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:^16.18.26, @types/node@npm:^16.18.28, @types/node@npm:^16.18.31":
-  version: 16.18.87
-  resolution: "@types/node@npm:16.18.87"
-  checksum: 10c0/4f35cecf4525cde4d376398e7cdda499a658d5d01904af072490e9312d85a0a0cc62023ec9c494e1d64a3886de50e03122f2c6d0e7a454fb45de4ba33c1f6307
+  version: 16.18.88
+  resolution: "@types/node@npm:16.18.88"
+  checksum: 10c0/4d449426d355450d081d23d91859bbe924bdc0e989071e3a25fbf3c939d922ff7c8eaec4effb37a96f06ce3ce3a3832a7ea371b57ce08f4fbc2408046cfd58a9
   languageName: node
   linkType: hard
 
@@ -7019,11 +7019,11 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:^18.18.5":
-  version: 18.19.22
-  resolution: "@types/node@npm:18.19.22"
+  version: 18.19.23
+  resolution: "@types/node@npm:18.19.23"
   dependencies:
     undici-types: "npm:~5.26.4"
-  checksum: 10c0/1dd22450c0a508ce1c11b289032f8ac41dc188a9c2da948bb97696a1b2c7382f56587a7c9d14233e68a3b8c57627710223631cde8f36d030585ccf48a9128119
+  checksum: 10c0/b945024b919cfc0a25df2da0e95336bae317760a30083e3fc719d3f21710855edc76e260e7fdada53e4d9254429d2c73a1a90850193d818580a73af98977217c
   languageName: node
   linkType: hard
 
@@ -7137,14 +7137,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:18.2.64, @types/react@npm:^18.0.30":
-  version: 18.2.64
-  resolution: "@types/react@npm:18.2.64"
+"@types/react@npm:*, @types/react@npm:18.2.65, @types/react@npm:^18.0.30":
+  version: 18.2.65
+  resolution: "@types/react@npm:18.2.65"
   dependencies:
     "@types/prop-types": "npm:*"
     "@types/scheduler": "npm:*"
     csstype: "npm:^3.0.2"
-  checksum: 10c0/ab3ba9597990d08ffd419a5ad28fd22393c7a9a241ae455fb1d5d193d209471aa1909fa7ad016fd8d161eab6d0babba77b013b56a5170bedf78833085b9ee424
+  checksum: 10c0/91158b5a9e90489a5984bb610c3692001ecdf1d286c78384252698bcb306ef88e9434e75f01bf7739017e949e7690b7d6f1b7ef9d7097f86f3f649482a33604b
   languageName: node
   linkType: hard
 
@@ -7793,9 +7793,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@yeoman/types@npm:^1.1.2":
-  version: 1.1.2
-  resolution: "@yeoman/types@npm:1.1.2"
+"@yeoman/types@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@yeoman/types@npm:1.2.0"
   dependencies:
     "@types/node": "npm:^16.18.26"
   peerDependencies:
@@ -7809,7 +7809,7 @@ __metadata:
       optional: true
     mem-fs-editor:
       optional: true
-  checksum: 10c0/7e5acc183706d10d6c549030408827ec18394007fba7116754f1d83b45c066f6f2f5b89427904781a30ed85fd6dd1cb4835cc1efe256a636e93d7beb36c89675
+  checksum: 10c0/c0c13e1e4e8daf87d15e7d7c6f35cfc6a89116f505fd650df1912a4f101a4f6525573573b54bb244e20a0669fb198efa10a05bebcf3cf309b24c9e7e3559f67f
   languageName: node
   linkType: hard
 
@@ -12926,13 +12926,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"enhanced-resolve@npm:^5.12.0, enhanced-resolve@npm:^5.15.0, enhanced-resolve@npm:^5.15.1, enhanced-resolve@npm:^5.7.0":
-  version: 5.15.1
-  resolution: "enhanced-resolve@npm:5.15.1"
+"enhanced-resolve@npm:^5.12.0, enhanced-resolve@npm:^5.15.0, enhanced-resolve@npm:^5.16.0, enhanced-resolve@npm:^5.7.0":
+  version: 5.16.0
+  resolution: "enhanced-resolve@npm:5.16.0"
   dependencies:
     graceful-fs: "npm:^4.2.4"
     tapable: "npm:^2.2.0"
-  checksum: 10c0/f56a0f3726dc5fb65cb4518ab0806aecfd553f4cd4146f403ffe618ece36610443d8624a89d18fe0bb0be307b1c9ca8fb835267345ca4afc25d2932d58ced715
+  checksum: 10c0/dd69669cbb638ccacefd03e04d5e195ee6a99b7f5f8012f86d2df7781834de357923e06064ea621137c4ce0b37cc12b872b4e6d1ac6ab15fe98e7f1dfbbb08c4
   languageName: node
   linkType: hard
 
@@ -13723,7 +13723,7 @@ __metadata:
     "@data-client/normalizr": "workspace:^"
     "@types/babel__core": "npm:^7"
     "@types/benchmark": "npm:2.1.5"
-    "@types/react": "npm:18.2.64"
+    "@types/react": "npm:18.2.65"
     benchmark: "npm:^2.1.4"
     normalizr: "npm:^3.6.2"
     react: "npm:^18.2.0"
@@ -24502,7 +24502,7 @@ __metadata:
     "@js-temporal/polyfill": "npm:^0.4.4"
     "@monaco-editor/react": "npm:^4.4.6"
     "@tsconfig/docusaurus": "npm:^2.0.0"
-    "@types/react": "npm:18.2.64"
+    "@types/react": "npm:18.2.65"
     "@types/react-dom": "npm:^18.2.7"
     "@types/react-helmet": "npm:^6.1.5"
     "@types/react-router-dom": "npm:^5.3.3"
@@ -24763,9 +24763,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native@npm:0.73.5, react-native@npm:^0.73.0":
-  version: 0.73.5
-  resolution: "react-native@npm:0.73.5"
+"react-native@npm:0.73.6, react-native@npm:^0.73.0":
+  version: 0.73.6
+  resolution: "react-native@npm:0.73.6"
   dependencies:
     "@jest/create-cache-key-function": "npm:^29.6.3"
     "@react-native-community/cli": "npm:12.3.6"
@@ -24809,7 +24809,7 @@ __metadata:
     react: 18.2.0
   bin:
     react-native: cli.js
-  checksum: 10c0/ba9b7ba8cdf88daa61e7abc466a2e25b96cf31af68f2a6cca5a863e6147531861539df78a1eae251b0cc24ec1cbd933342a69f791f6186523bad3a5cd2e2eb1b
+  checksum: 10c0/1185a5310ffa1f3ac49a0e3be96a49780f779f40d4bd186a8ecaeb796890382f8ba5a27e33f7fef239c7c6b4c6037628a6fc79195c05a3e1290b589976857f93
   languageName: node
   linkType: hard
 
@@ -26040,8 +26040,8 @@ __metadata:
     "@testing-library/react-hooks": "npm:8.0.1"
     "@testing-library/react-native": "npm:12.4.3"
     "@types/jest": "npm:29.5.12"
-    "@types/node": "npm:20.11.25"
-    "@types/react": "npm:18.2.64"
+    "@types/node": "npm:20.11.26"
+    "@types/react": "npm:18.2.65"
     "@typescript-eslint/eslint-plugin": "npm:7.1.1"
     "@typescript-eslint/parser": "npm:7.1.1"
     babel-plugin-module-resolver: "npm:5.0.0"
@@ -26069,7 +26069,7 @@ __metadata:
     prettier: "npm:3.2.5"
     react: "npm:18.2.0"
     react-dom: "npm:18.2.0"
-    react-native: "npm:0.73.5"
+    react-native: "npm:0.73.6"
     react-native-safe-area-context: "npm:^4.4.1"
     react-native-screens: "npm:^3.18.2"
     react-test-renderer: "npm:18.2.0"
@@ -29610,9 +29610,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-dev-server@npm:^5.0.2":
-  version: 5.0.2
-  resolution: "webpack-dev-server@npm:5.0.2"
+"webpack-dev-server@npm:^5.0.3":
+  version: 5.0.3
+  resolution: "webpack-dev-server@npm:5.0.3"
   dependencies:
     "@types/bonjour": "npm:^3.5.13"
     "@types/connect-history-api-fallback": "npm:^1.5.4"
@@ -29653,7 +29653,7 @@ __metadata:
       optional: true
   bin:
     webpack-dev-server: bin/webpack-dev-server.js
-  checksum: 10c0/89fc40d7a66403b7c9071523981314965368a44cae7ac05d3cac2b63e4f6c21379734a7d8614390b7c6baafa9f3433caaff53df8f49c08317d32a4d1cbb07f59
+  checksum: 10c0/5c3802d261f87c10023ad44a9b0f4d6caf696e36b11c78fff815aed0e903bec49f48b61fa7d007127f88d706f26ee6a3a1fe3fd08489224182b1cdeb7f104f59
   languageName: node
   linkType: hard
 
