@@ -5,6 +5,7 @@ Object.hasOwn =
   };
 import { denormalize } from './denormalize/denormalize.js';
 import { denormalize as denormalizeCached } from './denormalize/denormalizeCached.js';
+import { queryMemoized } from './denormalize/queryMemoized.js';
 import { isEntity } from './isEntity.js';
 import { normalize } from './normalize.js';
 import WeakEntityMap from './WeakEntityMap.js';
@@ -28,4 +29,11 @@ export * from './interface.js';
 export * from './Expiry.js';
 export { INVALID } from './denormalize/symbol.js';
 
-export { denormalize, denormalizeCached, normalize, isEntity, WeakEntityMap };
+export {
+  denormalize,
+  denormalizeCached,
+  queryMemoized as queryCached,
+  normalize,
+  isEntity,
+  WeakEntityMap,
+};

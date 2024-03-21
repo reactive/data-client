@@ -4,6 +4,7 @@ import type {
   AbstractInstanceType,
   EntityCache,
   ResultCache,
+  Queryable,
 } from '@data-client/normalizr';
 import type { ErrorTypes } from '@data-client/normalizr';
 
@@ -53,6 +54,16 @@ export interface DenormalizeCache {
   endpoints: {
     [key: string]: ResultCache;
   };
+  infer: ResultCache;
+  inputEndpointCache: {
+    [key: string]: unknown;
+  };
+  queries: Map<
+    Queryable,
+    {
+      [key: string]: unknown;
+    }
+  >;
 }
 
 export * from './actions.js';
