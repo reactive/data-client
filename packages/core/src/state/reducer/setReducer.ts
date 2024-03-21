@@ -1,4 +1,4 @@
-import { normalize } from '@data-client/normalizr';
+import { EndpointInterface, normalize } from '@data-client/normalizr';
 
 import { OPTIMISTIC_TYPE } from '../../actionTypes.js';
 import AbortOptimistic from '../../controller/AbortOptimistic.js';
@@ -14,72 +14,9 @@ export function setReducer(
     return reduceError(state, action, action.payload);
   }
   try {
-    let payload: any;
-    // for true set's payload is contained in action
-    if (action.type === OPTIMISTIC_TYPE) {
-      // this should never happen
-      if (!action.endpoint.getOptimisticResponse) return state;
-      try {
-        // compute optimistic response based on current state
-        payload = action.endpoint.getOptimisticResponse.call(
-          action.endpoint,
-          controller.snapshot(state, action.meta.fetchedAt),
-          ...action.meta.args,
-        );
-      } catch (e: any) {
-        // AbortOptimistic means 'do nothing', otherwise we count the exception as endpoint failure
-        if (e.constructor === AbortOptimistic) {
-          return state;
-        }
-        throw e;
-      }
-    } else {
-      payload = action.payload;
-    }
-    const { result, entities, indexes, entityMeta } = normalize(
-      payload,
-      action.endpoint.schema,
-      action.meta.args as any,
-      state.entities,
-      state.indexes,
-      state.entityMeta,
-      action.meta,
-    );
-    const endpoints = {
-      ...state.endpoints,
-      [action.meta.key]: result,
-    };
-    try {
-      if (action.endpoint.update) {
-        const updaters = action.endpoint.update(result, ...action.meta.args);
-        Object.keys(updaters).forEach(key => {
-          endpoints[key] = updaters[key](endpoints[key]);
-        });
-      }
-      // no reason to completely fail because of user-code error
-      // integrity of this state update is still guaranteed
-    } catch (error) {
-      console.error(
-        `The following error occured during Endpoint.update() for ${action.meta.key}`,
-      );
-      console.error(error);
-    }
-    return {
-      entities,
-      indexes,
-      endpoints,
-      entityMeta,
-      meta: {
-        ...state.meta,
-        [action.meta.key]: {
-          date: action.meta.date,
-          expiresAt: action.meta.expiresAt,
-          prevExpiresAt: state.meta[action.meta.key]?.expiresAt,
-        },
-      },
-      optimistic: filterOptimistic(state, action),
-      lastReset: state.lastReset,
-    };
+    // v8 won't optimize functions with try/catch, so we put the bulk in its own function
+    // https://web.dev/articles/speed-v8#therefore_5
+    return setReducerUnsafe(state, action, controller);
     // reducer must update the state, so in case of processing errors we simply compute the endpoints inline
   } catch (error: any) {
     if (typeof error === 'object') {
@@ -143,4 +80,107 @@ function filterOptimistic(
         optimisticAction.meta.fetchedAt !== resolvingAction.meta.fetchedAt
       : optimisticAction.meta.date > resolvingAction.meta.date),
   );
+}
+
+function handleOptimistic(
+  state: State<unknown>,
+  action: OptimisticAction & {
+    endpoint: {
+      getOptimisticResponse(...args: any): any;
+    };
+  },
+  controller: Controller,
+) {
+  try {
+    // compute optimistic response based on current state
+    return action.endpoint.getOptimisticResponse.call(
+      action.endpoint,
+      controller.snapshot(state, action.meta.fetchedAt),
+      ...action.meta.args,
+    );
+  } catch (e: any) {
+    // AbortOptimistic means 'do nothing', otherwise we count the exception as endpoint failure
+    if (e.constructor === AbortOptimistic) {
+      return;
+    }
+    throw e;
+  }
+}
+
+function handleUpdate(
+  action: OptimisticAction | SetAction,
+  result: any,
+  endpoints: { [x: string]: unknown },
+) {
+  try {
+    if (action.endpoint.update) {
+      const updaters = action.endpoint.update(result, ...action.meta.args);
+      Object.keys(updaters).forEach(key => {
+        endpoints[key] = updaters[key](endpoints[key]);
+      });
+    }
+    // no reason to completely fail because of user-code error
+    // integrity of this state update is still guaranteed
+  } catch (error) {
+    console.error(
+      `The following error occured during Endpoint.update() for ${action.meta.key}`,
+    );
+    console.error(error);
+  }
+}
+
+/** Top level main handling, but without try/catch for v8 perf */
+function setReducerUnsafe(
+  state: State<unknown>,
+  action: OptimisticAction | SetAction,
+  controller: Controller,
+) {
+  let payload: any;
+  // for true set's payload is contained in action
+  if (action.type === OPTIMISTIC_TYPE) {
+    // this should never happen
+    if (!action.endpoint.getOptimisticResponse) return state;
+    payload = handleOptimistic(
+      state,
+      action as OptimisticAction & {
+        endpoint: {
+          getOptimisticResponse(...args: any): any;
+        };
+      },
+      controller,
+    );
+    if (!payload) return state;
+  } else {
+    payload = action.payload;
+  }
+  const { result, entities, indexes, entityMeta } = normalize(
+    payload,
+    action.endpoint.schema,
+    action.meta.args as any,
+    state.entities,
+    state.indexes,
+    state.entityMeta,
+    action.meta,
+  );
+  const endpoints = {
+    ...state.endpoints,
+    [action.meta.key]: result,
+  };
+  handleUpdate(action, result, endpoints);
+  return {
+    entities,
+    indexes,
+    endpoints,
+    entityMeta,
+    meta: {
+      ...state.meta,
+      [action.meta.key]: {
+        date: action.meta.date,
+        expiresAt: action.meta.expiresAt,
+        prevExpiresAt: state.meta[action.meta.key]?.expiresAt,
+      },
+    },
+    optimistic: filterOptimistic(state, action),
+    lastReset: state.lastReset,
+  };
 }
