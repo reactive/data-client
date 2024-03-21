@@ -131,7 +131,7 @@ const todo = await getTodo({ id: 1 });
 
 ### Configuration sharing
 
-Use [RestEndpoint.extend()](#extend) instead of `{...getTodo}` (spread)
+Use [RestEndpoint.extend()](#extend) instead of `{...getTodo}` ([Object spread](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax#spread_in_object_literals))
 
 ```ts
 const updateTodo = getTodo.extend({ method: 'PUT' });

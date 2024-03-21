@@ -51,7 +51,7 @@ function useQuery<S extends Queryable>(
 
 ### Queryable
 
-`Queryable` schemas require an `queryKey()` method that returns something. These include
+[Queryable](/rest/api/schema#queryable) schemas require an `queryKey()` method that returns something. These include
 [Entity](/rest/api/Entity), [All](/rest/api/All), [Collection](/rest/api/Collection), [Query](/rest/api/Query),
 and [Union](/rest/api/Union).
 
