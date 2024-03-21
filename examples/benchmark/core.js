@@ -6,7 +6,6 @@ import {
   Endpoint,
   Entity,
   normalize,
-  WeakEntityMap,
 } from './dist/index.js';
 import { printStatus } from './printStatus.js';
 import {
@@ -159,6 +158,12 @@ export default function addReducerSuite(suite) {
       // biggest performance bump is not spreading in merge
       .add('setLongWithSimpleMerge', () => {
         return controllerPop.setResponse(getProjectSimple, data);
+      })
+      .add('setSmallResponse 500x', () => {
+        // more commonly we'll be dealing with many usages of simple data
+        for (let i = 0; i < 500; ++i) {
+          controller.setResponse(getUser, 'gnoff', userData);
+        }
       })
       .on('complete', function () {
         if (process.env.SHOW_OPTIMIZATION) {
