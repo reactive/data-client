@@ -88,6 +88,9 @@ export default class Controller<
     globalCache = {
       entities: {},
       endpoints: {},
+      queries: new Map(),
+      inputEndpointCache: {},
+      infer: new WeakEntityMap(),
     },
   }: ConstructorProps<D> = {}) {
     this.dispatch = dispatch;
@@ -393,17 +396,25 @@ export default class Controller<
 
     let invalidResults = false;
     let results;
+    let resultCache: ResultCache;
     if (cacheEndpoints === undefined && endpoint.schema !== undefined) {
-      results = buildQueryKey(
-        endpoint.schema,
-        args,
-        state.indexes,
-        state.entities,
-      );
+      if (!this.globalCache.inputEndpointCache[key])
+        this.globalCache.inputEndpointCache[key] = buildQueryKey(
+          endpoint.schema,
+          args,
+          state.indexes,
+          state.entities,
+        );
+      results = this.globalCache.inputEndpointCache[key];
+
       invalidResults = !validateQueryKey(results);
       if (!expiresAt && invalidResults) expiresAt = 1;
+      resultCache = this.globalCache.infer;
     } else {
       results = cacheEndpoints;
+      if (!this.globalCache.endpoints[key])
+        this.globalCache.endpoints[key] = new WeakEntityMap();
+      resultCache = this.globalCache.endpoints[key];
     }
 
     if (!isActive) {
@@ -425,16 +436,13 @@ export default class Controller<
       };
     }
 
-    if (!this.globalCache.endpoints[key])
-      this.globalCache.endpoints[key] = new WeakEntityMap();
-
     return this.getSchemaResponse(
       results,
       schema as Exclude<Schema, undefined>,
       args,
       state,
       expiresAt,
-      this.globalCache.endpoints[key],
+      resultCache,
       endpoint.invalidIfStale || invalidResults,
       meta,
     );
@@ -457,14 +465,31 @@ export default class Controller<
       .slice(0, rest.length - 1)
       .map(ensurePojo) as SchemaArgs<S>;
 
-    const results = buildQueryKey(schema, args, state.indexes, state.entities);
+    // MEMOIZE inferResults - vary on schema + args
+    // NOTE: different orders can result in cache busting here; but since it's just a perf penalty we will allow for now
+    const key = JSON.stringify(args);
+    if (!this.globalCache.queries.has(schema)) {
+      this.globalCache.queries.set(schema, {});
+    }
+    const querySchemaCache = this.globalCache.queries.get(schema) as {
+      [key: string]: unknown;
+    };
+    if (!querySchemaCache[key] || true)
+      querySchemaCache[key] = buildQueryKey(
+        schema,
+        args,
+        state.indexes,
+        state.entities,
+      );
+    const results = querySchemaCache[key];
+    // END BLOCK
 
     const data = denormalizeCached(
       results,
       schema,
       state.entities,
       this.globalCache.entities,
-      undefined,
+      this.globalCache.infer,
       args,
     ).data;
     return typeof data === 'symbol' ? undefined : (data as any);
