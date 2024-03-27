@@ -18,8 +18,8 @@ characterized by an easy to [understand and debug](../guides/debugging.md) the s
 <ThemedImage
   alt="Manager flux flow"
   sources={{
-    light: useBaseUrl('/img/managers.png'),
-    dark: useBaseUrl('/img/managers-dark.png'),
+    light: useBaseUrl('/img/flux-full.png'),
+    dark: useBaseUrl('/img/flux-full-dark.png'),
   }}
 />
 
