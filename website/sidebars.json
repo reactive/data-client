@@ -64,7 +64,7 @@
     },
     {
       "type": "category",
-      "label": "Testing",
+      "label": "Tooling",
       "items": [
         {
           "type": "doc",
