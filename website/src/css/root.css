@@ -64,3 +64,8 @@ pre {
 html {
   font-family: var(--ifm-font-family-base);
 }
+
+table {
+  display: table;
+  width: 100%;
+}

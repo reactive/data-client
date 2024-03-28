@@ -10,33 +10,15 @@ import Link from '@docusaurus/Link';
 
 ## API Definition
 
-|              Name              | Definition                                       |
-| :----------------------------: | ------------------------------------------------ |
-| [Endpoint](/rest/api/Endpoint) | Async methods                                    |
-|  [Schema](./normalization.md)  | Declarative Data model                           |
-|   [Entity](/rest/api/Entity)   | A type of schema defining a single unique object |
-|            Resource            | Collection of methods for a given data model.    |
+|                 Name                 | Definition                                    |
+| :----------------------------------: | --------------------------------------------- |
+|    [Endpoint](/rest/api/Endpoint)    | Async methods                                 |
+|     [Schema](./normalization.md)     | Declarative Data model                        |
+| [Resource](/rest/api/createResource) | Collection of methods for a given data model. |
 
-## Client
+### Endpoint Conditions
 
-<ThemedImage
-alt="FLUX"
-sources={{
-    light: useBaseUrl('/img/flux.png'),
-    dark: useBaseUrl('/img/flux-dark.png'),
-  }}
-/>
-
-|                Name                | Definition                                                                         |
-| :--------------------------------: | ---------------------------------------------------------------------------------- |
-|                Flux                | Unidirectional data flow                                                           |
-|               Store                | Centralized location for holding data and processing it                            |
-|      [Manager](./managers.md)      | Orchestrates global control flow. Interfaces with store by providing a middleware. |
-| [Controller](../api/Controller.md) | Type-safe imperative access to store.                                              |
-
-## Endpoint Conditions
-
-<table width="100%">
+<table>
         <thead>
                 <tr>
                         <th>Value</th>
@@ -70,3 +52,37 @@ sources={{
                 </tr>
         </tbody>
 </table>
+
+<!-- #### Endpoint Options
+
+|         Name          | Definition                                                               |
+| :-------------------: | ------------------------------------------------------------------------ |
+|        schema         | Declarative Data model                                                   |
+|      sideEffect       | `false` means it is safe to run more than once without consequence.      |
+|   dataExpiryLength    | Lifetime when successful.                                                |
+|   errorExpiryLength   | Lifetime in case of failure.                                             |
+|      errorPolicy      | Uses `error` to determine [expiryPolicy](./expiry-policy.md).            |
+|    invalidIfStale     | `Stale` cache should always be considered `Invalid`.                     |
+|     pollFrequency     | Miliseconds before refetch when Endpoint is subscribed.                  |
+| getOptimisticResponse | Enables immediate mutation updates, without waiting on async resolution. | -->
+
+### Schema
+
+<SchemaTable />
+
+## Client
+
+<ThemedImage
+alt="FLUX"
+sources={{
+    light: useBaseUrl('/img/flux-full.png'),
+    dark: useBaseUrl('/img/flux-full-dark.png'),
+  }}
+/>
+
+|                                  Name                                  | Definition                                                                         |
+| :--------------------------------------------------------------------: | ---------------------------------------------------------------------------------- |
+| [Flux](https://facebookarchive.github.io/flux/docs/in-depth-overview/) | Unidirectional data flow                                                           |
+|                                 Store                                  | Centralized location for holding data and processing it                            |
+|                        [Manager](./managers.md)                        | Orchestrates global control flow. Interfaces with store by providing a middleware. |
+|                   [Controller](../api/Controller.md)                   | Type-safe imperative access to store.                                              |
