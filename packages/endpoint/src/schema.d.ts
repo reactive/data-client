@@ -5,6 +5,8 @@ import type {
   EntityInterface,
   PolymorphicInterface,
   SchemaClass,
+  LookupIndex,
+  MapEntities,
 } from './interface.js';
 import type {
   AbstractInstanceType,
@@ -87,9 +89,9 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
 
   queryKey(
     args: readonly any[],
-    indexes: NormalizedIndex,
-    recurse: (...args: any) => any,
-    entities: any,
+    queryKey: (...args: any) => any,
+    lookupIndex: any,
+    mapEntities: any,
   ): undefined;
 }
 
@@ -138,9 +140,9 @@ export class All<
   queryKey(
     // TODO: hack for now to allow for variable arg combinations with Query
     args: [] | [unknown],
-    indexes: NormalizedIndex,
-    recurse: (...args: any) => any,
-    entities: EntityTable,
+    queryKey: (...args: any) => any,
+    lookupIndex: LookupIndex,
+    mapEntities: MapEntities,
   ): any;
 }
 
@@ -177,9 +179,9 @@ export class Object<O extends Record<string, any> = Record<string, Schema>>
 
   queryKey(
     args: readonly any[],
-    indexes: NormalizedIndex,
-    recurse: (...args: any) => any,
-    entities: any,
+    queryKey: (...args: any) => any,
+    lookupIndex: LookupIndex,
+    mapEntities: MapEntities,
   ): any;
 }
 
@@ -261,9 +263,9 @@ export interface UnionInstance<
 
   queryKey(
     args: [Args],
-    indexes: NormalizedIndex,
-    recurse: (...args: any) => any,
-    entities: any,
+    queryKey: (...args: any) => any,
+    lookupIndex: LookupIndex,
+    mapEntities: MapEntities,
   ): { id: any; schema: string };
 }
 
@@ -345,9 +347,9 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
 
   queryKey(
     args: readonly any[],
-    indexes: NormalizedIndex,
-    recurse: (...args: any) => any,
-    entities: any,
+    queryKey: (...args: any) => any,
+    lookupIndex: LookupIndex,
+    mapEntities: MapEntities,
   ): undefined;
 }
 

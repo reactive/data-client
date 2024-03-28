@@ -13,9 +13,9 @@ export type Schema =
 export interface Queryable {
   queryKey(
     args: readonly any[],
-    indexes: NormalizedIndex,
-    recurse: (...args: any) => any,
-    entities: EntityTable,
+    queryKey: (...args: any) => any,
+    lookupIndex: LookupIndex,
+    mapEntities: MapEntities,
     // Must be non-void
   ): {};
 }
@@ -42,9 +42,9 @@ export interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
   ): T;
   queryKey(
     args: Args,
-    indexes: NormalizedIndex,
-    recurse: (...args: any) => any,
-    entities: EntityTable,
+    queryKey: (...args: any) => any,
+    lookupIndex: LookupIndex,
+    mapEntities: MapEntities,
   ): any;
 }
 
@@ -108,6 +108,16 @@ export interface EntityTable {
         [pk: string]: unknown;
       }
     | undefined;
+}
+
+/** Get Array of entities with map function applied */
+export interface MapEntities {
+  <T>(entityKey: string, mapEntity: (entity: any) => T): T[] | symbol;
+}
+/** Get PK using an Entity Index */
+export interface LookupIndex {
+  /** lookupIndex('User', 'username', 'ntucker') */
+  (entityKey: string, indexName: string, indexKey: string): string | undefined;
 }
 
 /** Defines a networking endpoint */

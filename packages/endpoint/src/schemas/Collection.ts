@@ -218,10 +218,16 @@ export default class CollectionSchema<
 
   // >>>>>>>>>>>>>>DENORMALIZE<<<<<<<<<<<<<<
 
-  queryKey(args: Args, indexes: unknown, recurse: unknown, entities: any): any {
+  queryKey(
+    args: Args,
+    queryKey: unknown,
+    lookupIndex: unknown,
+    mapEntities: unknown,
+  ): any {
     if (this.argsKey) {
       const id = this.pk(undefined, undefined, '', args);
-      if (entities[this.key]?.[id]) return id;
+      return id;
+      //if (entities[this.key]?.[id]) return id; TODO: is this needed? (nested case)
     }
   }
 

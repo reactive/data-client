@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { CREATE } from './special.js';
-import type { Schema, NormalizedIndex } from '../interface.js';
+import type {
+  Schema,
+  NormalizedIndex,
+  LookupIndex,
+  MapEntities,
+} from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
 
 export type Constructor = abstract new (...args: any[]) => {};
@@ -339,13 +344,14 @@ export default function EntitySchema<TBase extends Constructor>(
 
     static queryKey(
       args: readonly any[],
-      indexes: NormalizedIndex,
-      recurse: any,
-      entities: any,
+      queryKey: any,
+      lookupIndex: LookupIndex,
+      mapEntities: MapEntities,
     ): any {
       if (!args[0]) return;
-      const id = queryKeyCandidate(this, args, indexes);
-      if (entities[this.key]?.[id]) return id;
+      const id = queryKeyCandidate(this, args, lookupIndex);
+      return id;
+      //if (entities[this.key]?.[id]) return id; TODO: is this needed? (nested case)
     }
 
     static denormalize<T extends typeof EntityMixin>(
@@ -694,7 +700,7 @@ export interface IEntityInstance {
 function queryKeyCandidate(
   schema: any,
   args: readonly any[],
-  indexes: NormalizedIndex,
+  lookupIndex: LookupIndex,
 ) {
   if (['string', 'number'].includes(typeof args[0])) {
     return `${args[0]}`;
@@ -704,12 +710,12 @@ function queryKeyCandidate(
   if (id !== undefined && id !== '') return id;
   // now attempt lookup in indexes
   const indexName = indexFromParams(args[0], schema.indexes);
-  if (indexName && indexes[schema.key]) {
-    // 'as Record<string, any>': indexName can only be found if params is a string key'd object
-    const id =
-      indexes[schema.key][indexName][
-        (args[0] as Record<string, any>)[indexName]
-      ];
-    return id;
-  }
+  return (
+    indexName &&
+    lookupIndex(
+      schema.key,
+      indexName,
+      (args[0] as Record<string, any>)[indexName],
+    )
+  );
 }

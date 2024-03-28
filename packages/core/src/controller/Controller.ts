@@ -20,6 +20,7 @@ import {
   denormalize,
 } from '@data-client/normalizr';
 import { buildQueryKey, validateQueryKey } from '@data-client/normalizr';
+import { queryMemoized } from 'packages/normalizr/src/denormalize/queryMemoized.js';
 
 import AbortOptimistic from './AbortOptimistic.js';
 import createExpireAll from './createExpireAll.js';
@@ -459,40 +460,21 @@ export default class Controller<
       Pick<State<unknown>, 'entities' | 'entityMeta'>,
     ]
   ): DenormalizeNullable<S> | undefined {
-    const state = rest[rest.length - 1] as State<unknown>;
+    const state = rest[rest.length - 1] as State<any>;
     // this is typescript generics breaking
     const args: any = rest
       .slice(0, rest.length - 1)
       .map(ensurePojo) as SchemaArgs<S>;
 
-    // MEMOIZE inferResults - vary on schema + args
-    // NOTE: different orders can result in cache busting here; but since it's just a perf penalty we will allow for now
-    const key = JSON.stringify(args);
-    if (!this.globalCache.queries.has(schema)) {
-      this.globalCache.queries.set(schema, {});
-    }
-    const querySchemaCache = this.globalCache.queries.get(schema) as {
-      [key: string]: unknown;
-    };
-    if (!querySchemaCache[key] || true)
-      querySchemaCache[key] = buildQueryKey(
-        schema,
-        args,
-        state.indexes,
-        state.entities,
-      );
-    const results = querySchemaCache[key];
-    // END BLOCK
-
-    const data = denormalizeCached(
-      results,
+    return queryMemoized(
       schema,
-      state.entities,
+      args,
+      state.entities as any,
+      state.indexes,
       this.globalCache.entities,
       this.globalCache.infer,
-      args,
-    ).data;
-    return typeof data === 'symbol' ? undefined : (data as any);
+      this.globalCache.queries,
+    );
   }
 
   private getSchemaResponse<S extends Schema>(
