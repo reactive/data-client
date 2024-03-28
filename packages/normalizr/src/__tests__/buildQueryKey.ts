@@ -7,7 +7,7 @@ import {
 } from '__tests__/new';
 
 import buildInferredResults from '../buildQueryKey';
-import { NormalizedIndex } from '../interface';
+import { LookupIndex, LookupEntities, NormalizedIndex } from '../interface';
 
 describe('buildQueryKey()', () => {
   it('should work with Object', () => {
@@ -300,9 +300,9 @@ describe('buildQueryKey()', () => {
     class MyEntity extends CoolerArticle {
       static queryKey(
         args: any[],
-        indexes: NormalizedIndex,
-        recurse: any,
-        entities: any,
+        queryKey: any,
+        lookupIndex: LookupIndex,
+        lookupEntities: LookupEntities,
       ) {
         if (!args[0]) return;
         let id: undefined | number | string;
@@ -312,7 +312,7 @@ describe('buildQueryKey()', () => {
           id = this.pk(args[0], undefined, '', args);
         }
         // Was able to infer the entity's primary key from params
-        if (id !== undefined && id !== '' && entities[this.key]?.[id])
+        if (id !== undefined && id !== '' && lookupEntities(this.key)?.[id])
           return id;
       }
     }

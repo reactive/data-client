@@ -1,6 +1,6 @@
 import type {
-  EntityTable,
-  NormalizedIndex,
+  LookupIndex,
+  LookupEntities,
   Queryable,
   SchemaSimple,
 } from '../interface.js';
@@ -39,16 +39,16 @@ export default class Query<
 
   queryKey(
     args: ProcessParameters<P, S>,
-    indexes: any,
-    recurse: (
+    queryKey: (
       schema: any,
       args: any,
-      indexes: NormalizedIndex,
-      entities: EntityTable,
+      lookupIndex: LookupIndex,
+      lookupEntities: LookupEntities,
     ) => any,
-    entities: EntityTable,
+    lookupIndex: LookupIndex,
+    lookupEntities: LookupEntities,
   ) {
-    return recurse(this.schema, args, indexes, entities);
+    return queryKey(this.schema, args, lookupIndex, lookupEntities);
   }
 
   declare _denormalizeNullable: (

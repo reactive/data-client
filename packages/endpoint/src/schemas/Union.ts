@@ -1,4 +1,5 @@
 import PolymorphicSchema from './Polymorphic.js';
+import { LookupIndex, LookupEntities } from '../interface.js';
 
 /**
  * Represents polymorphic values.
@@ -44,14 +45,24 @@ export default class UnionSchema extends PolymorphicSchema {
     return this.denormalizeValue(input, unvisit);
   }
 
-  queryKey(args: any, indexes: any, recurse: any, entities: any) {
+  queryKey(
+    args: any,
+    queryKey: (
+      schema: any,
+      args: any,
+      lookupIndex: LookupIndex,
+      lookupEntities: LookupEntities,
+    ) => any,
+    lookupIndex: LookupIndex,
+    lookupEntities: LookupEntities,
+  ) {
     if (!args[0]) return;
     const schema = this.getSchemaAttribute(args[0], undefined, '');
     const discriminatedSchema = this.schema[schema];
 
     // Was unable to infer the entity's schema from params
     if (discriminatedSchema === undefined) return;
-    const id = recurse(discriminatedSchema, args, indexes, entities);
+    const id = queryKey(discriminatedSchema, args, lookupIndex, lookupEntities);
     if (id === undefined) return;
     return { id, schema };
   }

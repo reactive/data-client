@@ -41,11 +41,16 @@ describe(`${schema.Invalidate.name} normalization`, () => {
     ).toMatchSnapshot();
   });
 
-  test('does not infer', () => {
+  test('does not query', () => {
     class User extends IDEntity {}
 
     expect(
-      new schema.Invalidate(User).queryKey([{ id: 5 }], {}, () => undefined),
+      new schema.Invalidate(User).queryKey(
+        [{ id: 5 }],
+        () => undefined,
+        () => undefined,
+        () => undefined,
+      ),
     ).toBeUndefined();
   });
 

@@ -55,9 +55,6 @@ export interface DenormalizeCache {
     [key: string]: ResultCache;
   };
   infer: ResultCache;
-  inputEndpointCache: {
-    [key: string]: unknown;
-  };
   queries: Map<
     Queryable,
     {

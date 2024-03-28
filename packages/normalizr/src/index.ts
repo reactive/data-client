@@ -32,7 +32,7 @@ export { INVALID } from './denormalize/symbol.js';
 export {
   denormalize,
   denormalizeCached,
-  queryMemoized as queryCached,
+  queryMemoized,
   normalize,
   isEntity,
   WeakEntityMap,

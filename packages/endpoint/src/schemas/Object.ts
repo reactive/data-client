@@ -1,4 +1,5 @@
 import { isImmutable, denormalizeImmutable } from './ImmutableUtils.js';
+import { LookupIndex, LookupEntities } from '../interface.js';
 
 export const normalize = (
   schema: any,
@@ -60,13 +61,18 @@ export function denormalize(
 export function queryKey(
   schema: any,
   args: readonly any[],
-  indexes: any,
-  recurse: any,
-  entities: any,
+  queryKey: (
+    schema: any,
+    args: any,
+    lookupIndex: LookupIndex,
+    lookupEntities: LookupEntities,
+  ) => any,
+  lookupIndex: LookupIndex,
+  lookupEntities: LookupEntities,
 ) {
   const resultObject: any = {};
   Object.keys(schema).forEach(k => {
-    resultObject[k] = recurse(schema[k], args, indexes, entities);
+    resultObject[k] = queryKey(schema[k], args, lookupIndex, lookupEntities);
   });
   return resultObject;
 }
@@ -111,7 +117,7 @@ export default class ObjectSchema {
     return denormalize(this.schema, input, args, unvisit);
   }
 
-  queryKey(args: any, indexes: any, recurse: any, entities: any) {
-    return queryKey(this.schema, args, indexes, recurse, entities);
+  queryKey(args: any, queryKey: any, lookupIndex: any, lookupEntities: any) {
+    return queryKey(this.schema, args, queryKey, lookupIndex, lookupEntities);
   }
 }
