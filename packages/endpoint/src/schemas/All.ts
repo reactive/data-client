@@ -1,5 +1,5 @@
 import ArraySchema from './Array.js';
-import { EntityTable } from '../interface.js';
+import { EntityTable, MapEntities } from '../interface.js';
 import { EntityInterface, EntityMap, SchemaFunction } from '../schema.js';
 import { INVALID } from '../special.js';
 
@@ -43,26 +43,28 @@ export default class AllSchema<
     );
   }
 
-  queryKey(args: any, indexes: any, recurse: any, entities: EntityTable): any {
+  queryKey(
+    args: any,
+    queryKey: any,
+    lookupIndex: any,
+    mapEntities: MapEntities,
+  ): any {
     if (this.isSingleSchema) {
-      const entitiesEntry = entities[this.schema.key];
-      // we must wait until there are entries for any 'All' query to be Valid
-      if (entitiesEntry === undefined) return INVALID;
-      return Object.values(entitiesEntry).map(
+      return mapEntities(
+        this.schema.key,
         entity => entity && this.schema.pk(entity),
       );
     }
     let found = false;
     const list = Object.values(this.schema as Record<string, any>).flatMap(
       (schema: EntityInterface) => {
-        if (!entities[schema.key]) return [];
+        const entities = mapEntities(schema.key, entity => ({
+          id: entity && schema.pk(entity),
+          schema: this.getSchemaAttribute(entity, undefined, undefined),
+        }));
+        if (typeof entities === 'symbol') return [];
         found = true;
-        return Object.values(entities[schema.key] as Record<string, any>).map(
-          entity => ({
-            id: entity && schema.pk(entity),
-            schema: this.getSchemaAttribute(entity, undefined, undefined),
-          }),
-        );
+        return entities;
       },
     );
     // we need at least one table entry of the Union for this to count as Valid.

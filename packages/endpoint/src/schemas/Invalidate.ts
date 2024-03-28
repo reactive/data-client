@@ -98,7 +98,12 @@ export default class Invalidate<
 
   /** /End Normalize lifecycles **/
 
-  queryKey(args: any, indexes: any, recurse: any): undefined {
+  queryKey(
+    args: any,
+    queryKey: unknown,
+    lookupIndex: unknown,
+    mapEntities: unknown,
+  ): undefined {
     return undefined;
   }
 

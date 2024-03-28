@@ -46,9 +46,9 @@ export default class ArraySchema extends PolymorphicSchema {
 
   queryKey(
     args: unknown,
-    indexes: unknown,
-    recurse: unknown,
-    entities: unknown,
+    queryKey: unknown,
+    lookupIndex: unknown,
+    mapEntities: unknown,
   ): any {
     return undefined;
   }

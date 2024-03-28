@@ -20,6 +20,7 @@ import {
   denormalize,
 } from '@data-client/normalizr';
 import { buildQueryKey, validateQueryKey } from '@data-client/normalizr';
+import { queryMemoized } from 'packages/normalizr/src/denormalize/queryMemoized.js';
 
 import AbortOptimistic from './AbortOptimistic.js';
 import createExpireAll from './createExpireAll.js';
@@ -88,6 +89,9 @@ export default class Controller<
     globalCache = {
       entities: {},
       endpoints: {},
+      queries: new Map(),
+      inputEndpointCache: {},
+      infer: new WeakEntityMap(),
     },
   }: ConstructorProps<D> = {}) {
     this.dispatch = dispatch;
@@ -393,17 +397,25 @@ export default class Controller<
 
     let invalidResults = false;
     let results;
+    let resultCache: ResultCache;
     if (cacheEndpoints === undefined && endpoint.schema !== undefined) {
-      results = buildQueryKey(
-        endpoint.schema,
-        args,
-        state.indexes,
-        state.entities,
-      );
+      if (!this.globalCache.inputEndpointCache[key])
+        this.globalCache.inputEndpointCache[key] = buildQueryKey(
+          endpoint.schema,
+          args,
+          state.indexes,
+          state.entities,
+        );
+      results = this.globalCache.inputEndpointCache[key];
+
       invalidResults = !validateQueryKey(results);
       if (!expiresAt && invalidResults) expiresAt = 1;
+      resultCache = this.globalCache.infer;
     } else {
       results = cacheEndpoints;
+      if (!this.globalCache.endpoints[key])
+        this.globalCache.endpoints[key] = new WeakEntityMap();
+      resultCache = this.globalCache.endpoints[key];
     }
 
     if (!isActive) {
@@ -425,16 +437,13 @@ export default class Controller<
       };
     }
 
-    if (!this.globalCache.endpoints[key])
-      this.globalCache.endpoints[key] = new WeakEntityMap();
-
     return this.getSchemaResponse(
       results,
       schema as Exclude<Schema, undefined>,
       args,
       state,
       expiresAt,
-      this.globalCache.endpoints[key],
+      resultCache,
       endpoint.invalidIfStale || invalidResults,
       meta,
     );
@@ -451,23 +460,21 @@ export default class Controller<
       Pick<State<unknown>, 'entities' | 'entityMeta'>,
     ]
   ): DenormalizeNullable<S> | undefined {
-    const state = rest[rest.length - 1] as State<unknown>;
+    const state = rest[rest.length - 1] as State<any>;
     // this is typescript generics breaking
     const args: any = rest
       .slice(0, rest.length - 1)
       .map(ensurePojo) as SchemaArgs<S>;
 
-    const results = buildQueryKey(schema, args, state.indexes, state.entities);
-
-    const data = denormalizeCached(
-      results,
+    return queryMemoized(
       schema,
-      state.entities,
-      this.globalCache.entities,
-      undefined,
       args,
-    ).data;
-    return typeof data === 'symbol' ? undefined : (data as any);
+      state.entities as any,
+      state.indexes,
+      this.globalCache.entities,
+      this.globalCache.infer,
+      this.globalCache.queries,
+    );
   }
 
   private getSchemaResponse<S extends Schema>(
