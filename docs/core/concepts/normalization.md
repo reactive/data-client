@@ -60,7 +60,7 @@ values={[
 ]}>
 <TabItem value="State">
 
-![Entities cache](/img/entities.png)
+![Entities cache](/img/entities.png 'Entities cache')
 
 </TabItem>
 <TabItem value="Response">
@@ -387,7 +387,7 @@ per update.
 [DevTools browser extension](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en)
 can be installed to inspect and [debug the store](../guides/debugging.md).
 
-![browser-devtools](/img/devtool-state.png)
+![browser-devtools](/img/devtool-state.png 'Reactive Data Client devtools')
 
 <center>
 

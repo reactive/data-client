@@ -24,20 +24,6 @@ const config: Config = {
   },
   scripts: [],
   stylesheets: [
-    /*{
-      rel: 'preload',
-      href: '/font/Rubik-VariableFont_wght.ttf',
-      as: 'font',
-      type: 'font/ttf',
-      crossOrigin: 'anonymous',
-    },
-    {
-      rel: 'preload',
-      href: '/font/Rubik-Italic-VariableFont_wght.ttf',
-      as: 'font',
-      type: 'font/ttf',
-      crossOrigin: 'anonymous',
-    },*/
     {
       rel: 'preconnect',
       href: 'https://fonts.gstatic.com',
@@ -107,7 +93,8 @@ const config: Config = {
     },
     {
       rel: 'icon',
-      href: '/img/favicon/favicon.ico',
+      href: '/favicon.ico',
+      type: 'image/x-icon',
     },
     {
       rel: 'icon',
@@ -122,24 +109,20 @@ const config: Config = {
       sizes: '32x32',
     },
     {
-      rel: 'icon',
+      rel: 'apple-touch-icon',
       type: 'image/png',
-      href: '/img/favicon/favicon-96x96.png',
-      sizes: '96x96',
+      href: '/apple-touch-icon.png',
+      sizes: '180x180',
     },
-    // TODO: figure out where to put this
-    // {
-    //   name: 'application-name',
-    //   content: 'Reactive Data Client',
-    // },
-    // {
-    //   name: 'msapplication-TileColor',
-    //   content: '#FFFFFF',
-    // },
-    // {
-    //   name: 'msapplication-TileImage',
-    //   content: '/img/favicon/mstile-144x144.png',
-    // },
+    {
+      rel: 'manifest',
+      href: '/img/favicon/site.webmanifest',
+    },
+    {
+      rel: 'mask-icon',
+      href: '/img/favicon/safari-pinned-tab.svg',
+      color: '#3E96DB',
+    },
     /*{
       rel: 'preload',
       href: '/assets/css/root.css',
@@ -153,8 +136,38 @@ const config: Config = {
       media: 'all',
     }, TODO: figure out how to load this*/
   ],
+  headTags: [
+    {
+      tagName: 'link',
+      attributes: {
+        name: 'application-name',
+        content: 'Reactive Data Client',
+      },
+    },
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'msapplication-TileColor',
+        content: '#3e96db',
+      },
+    },
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'msapplication-config',
+        content: '/browserconfig.xml',
+      },
+    },
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'theme-color',
+        content: '#003a67',
+      },
+    },
+  ],
   clientModules: [require.resolve('./src/gtagfix.ts')],
-  //favicon: 'img/favicon/favicon.ico',
+  //favicon: '/favicon.ico', we declare our own headers for this above
   themes: ['@docusaurus/theme-live-codeblock', '@docusaurus/theme-mermaid'],
   customFields: {
     repoUrl: 'https://github.com/reactive/data-client',

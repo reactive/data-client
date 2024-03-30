@@ -41,7 +41,7 @@ After installing and running your site, a new icon should appear in your locatio
 Clicking that will open the inspector, which allows you to observe dispatched actions,
 their effect on the cache state as well as current cache state.
 
-![browser-devtools](/img/devtool-action.png)
+![browser-devtools](/img/devtool-action.png 'Reactive Data Client devtools')
 
 The [Controller](../api/Controller.md) dispatches actions, making that page useful for understanding
 what actions you see. Here we observe the most common actions of [fetch](../api/Controller.md#fetch)
@@ -72,7 +72,7 @@ values={[
 ]}>
 <TabItem value="State">
 
-![Entities cache](/img/entities.png)
+![Entities cache](/img/entities.png 'Entities cache')
 
 </TabItem>
 <TabItem value="Response">
@@ -128,14 +128,14 @@ Once [normalized](../concepts/normalization.md), these [entities](/rest/api/Enti
 tab in devtools to see the entire state. This can be useful to determine exactly where data is. There is
 also a 'meta' section of the cache for information like when the request took place (useful for [TTL](../concepts/expiry-policy.md)).
 
-![Dev tools state inspector](/img/devtool-state.png)
+![Dev tools state inspector](/img/devtool-state.png 'Reactive Data Client devtools state inspector')
 
 ## State Diff
 
 For monitoring a particular fetch response, it might be more useful to see how the cache state updates.
 Click on the 'Diff' tab to see what changed.
 
-![Dev tools diff inspector](/img/devtool-diff.png)
+![Dev tools diff inspector](/img/devtool-diff.png 'Reactive Data Client devtools diff')
 
 Here we toggled the 'completed' status of a todo using an [optimistic update](/rest/guides/optimistic-updates).
 
