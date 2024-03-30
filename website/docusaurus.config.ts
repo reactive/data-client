@@ -204,6 +204,11 @@ const config: Config = {
         gtag: {
           trackingID: 'G-1E9TCGX1ZE',
         },
+        sitemap: {
+          lastmod: 'date',
+          priority: null,
+          changefreq: null,
+        },
       } satisfies Preset.Options,
     ],
   ],
