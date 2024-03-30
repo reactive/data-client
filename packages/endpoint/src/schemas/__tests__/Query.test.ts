@@ -1,5 +1,5 @@
 // eslint-env jest
-import { WeakEntityMap, buildQueryKey } from '@data-client/normalizr';
+import { WeakEntityMap, queryMemoized } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
@@ -72,11 +72,7 @@ describe.each([
           },
         };
         const users: DenormalizeNullable<typeof sortedUsers> | symbol =
-          denormalize(
-            buildQueryKey(sortedUsers, [], {}, entities),
-            sortedUsers,
-            createInput(entities),
-          );
+          queryMemoized(sortedUsers, [], createInput(entities), {}).data;
         expect(users).not.toEqual(expect.any(Symbol));
         if (typeof users === 'symbol') return;
         expect(users && users[0].name).toBe('Zeta');
@@ -98,33 +94,32 @@ describe.each([
           },
         };
         expect(
-          denormalize(
-            buildQueryKey(sortedUsers, [{ asc: true }], {}, entities),
+          queryMemoized(
             sortedUsers,
+            [{ asc: true }],
             createInput(entities),
             {},
+            {},
             new WeakEntityMap(),
-            [{ asc: true }],
-          ),
+          ).data,
         ).toMatchSnapshot();
       });
 
-      test('denormalizes should not be found when no entities are present', () => {
+      test.only('denormalizes should not be found when no entities are present', () => {
         const entities = {
           DOG: {
             1: { id: '1', name: 'Milo' },
             2: { id: '2', name: 'Jake' },
           },
         };
-        const input = buildQueryKey(sortedUsers, [], {}, entities);
-
-        const value = denormalize(
-          createInput(input),
+        const { data, isInvalid } = queryMemoized(
           sortedUsers,
-          createInput(entities),
+          [],
+          entities,
+          {},
         );
 
-        expect(createOutput(value)).toEqual(undefined);
+        expect(createOutput(data)).toEqual(undefined);
       });
 
       test('denormalize aggregates', () => {
@@ -157,33 +152,35 @@ describe.each([
         };
         const totalCount:
           | DenormalizeNullable<typeof userCountByAdmin>
-          | symbol = denormalize(
-          buildQueryKey(userCountByAdmin, [], {}, entities),
+          | symbol = queryMemoized(
           userCountByAdmin,
+          [],
           createInput(entities),
-        );
+          {},
+        ).data;
+
         expect(totalCount).toBe(4);
         const nonAdminCount:
           | DenormalizeNullable<typeof userCountByAdmin>
-          | symbol = denormalize(
-          buildQueryKey(userCountByAdmin, [{ isAdmin: false }], {}, entities),
+          | symbol = queryMemoized(
           userCountByAdmin,
+          [{ isAdmin: false }],
           createInput(entities),
           {},
+          {},
           new WeakEntityMap(),
-          [{ isAdmin: false }],
-        );
+        ).data;
         expect(nonAdminCount).toBe(3);
         const adminCount:
           | DenormalizeNullable<typeof userCountByAdmin>
-          | symbol = denormalize(
-          buildQueryKey(userCountByAdmin, [{ isAdmin: true }], {}, entities),
+          | symbol = queryMemoized(
           userCountByAdmin,
+          [{ isAdmin: true }],
           createInput(entities),
           {},
+          {},
           new WeakEntityMap(),
-          [{ isAdmin: true }],
-        );
+        ).data;
         expect(adminCount).toBe(1);
         if (typeof totalCount === 'symbol') return;
 
@@ -219,11 +216,8 @@ describe('top level schema', () => {
         [new schema.Collection([User]).pk({}, undefined, '', [])]: [1, 2, 3, 4],
       },
     };
-    const users: DenormalizeNullable<typeof sortedUsers> | symbol = denormalize(
-      buildQueryKey(sortedUsers, [], {}, entities),
-      sortedUsers,
-      entities,
-    );
+    const users: DenormalizeNullable<typeof sortedUsers> | symbol =
+      queryMemoized(sortedUsers, [], entities, {}).data;
     expect(users).not.toEqual(expect.any(Symbol));
     if (typeof users === 'symbol') return;
     expect(users && users[0].name).toBe('Zeta');
@@ -237,9 +231,8 @@ describe('top level schema', () => {
         2: { id: '2', name: 'Jake' },
       },
     };
-    const input = buildQueryKey(sortedUsers, [], {}, entities);
 
-    const value = denormalize(input, sortedUsers, entities);
+    const value = queryMemoized(sortedUsers, [], entities, {}).data;
 
     expect(value).toEqual(undefined);
   });

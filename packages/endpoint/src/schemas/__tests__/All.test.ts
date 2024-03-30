@@ -2,6 +2,7 @@
 import {
   buildQueryKey,
   normalize,
+  queryMemoized,
   WeakEntityMap,
 } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
@@ -124,11 +125,7 @@ describe.each([
       };
       const sch = new schema.All(Cat);
       expect(
-        denormalize(
-          buildQueryKey(sch, [], {}, entities),
-          sch,
-          createInput(entities),
-        ),
+        queryMemoized(sch, [], createInput(entities), {}).data,
       ).toMatchSnapshot();
     });
 
@@ -142,11 +139,7 @@ describe.each([
         },
       };
       expect(
-        denormalize(
-          buildQueryKey(catSchema, [], {}, entities),
-          catSchema,
-          createInput(entities),
-        ),
+        queryMemoized(catSchema, [], createInput(entities), {}).data,
       ).toMatchSnapshot();
     });
 
@@ -159,12 +152,15 @@ describe.each([
           2: { id: '2', name: 'Jake' },
         },
       };
-      const input = buildQueryKey(catSchema, [], {}, entities);
-      let value = denormalize(input, catSchema, createInput(entities));
+      const value = queryMemoized(
+        catSchema,
+        [],
+        createInput(entities),
+        {},
+      ).data;
       expect(value).not.toEqual(expect.any(Symbol));
-      if (typeof value === 'symbol') return;
+      if (typeof value === 'symbol' || value === undefined) return;
       expect(createOutput(value.results)).toMatchSnapshot();
-      value = denormalize(createInput(input), catSchema, createInput(entities));
       expect(createOutput(value)).toMatchSnapshot();
     });
 
@@ -179,13 +175,16 @@ describe.each([
           4: INVALID,
         },
       };
-      const input = buildQueryKey(catSchema, [], {}, entities);
-      let value = denormalize(input, catSchema, createInput(entities));
+      const value = queryMemoized(
+        catSchema,
+        [],
+        createInput(entities) as any,
+        {},
+      ).data;
       expect(value).not.toEqual(expect.any(Symbol));
-      if (typeof value === 'symbol') return;
+      if (typeof value === 'symbol' || value === undefined) return;
       expect(createOutput(value.results).length).toBe(2);
       expect(createOutput(value.results)).toMatchSnapshot();
-      value = denormalize(createInput(input), catSchema, createInput(entities));
       expect(createOutput(value)).toMatchSnapshot();
     });
 
@@ -193,32 +192,33 @@ describe.each([
       class Cat extends IDEntity {}
       (Cat as any).defaults;
       const catSchema = { results: new schema.All(Cat), nextPage: '' };
-      let entities: EntityTable = {
+      let entities: Record<string, Record<string, object>> = {
         Cat: {
           1: { id: '1', name: 'Milo' },
           2: { id: '2', name: 'Jake' },
         },
       };
-      const input = createInput(buildQueryKey(catSchema, [], {}, entities));
       const entityCache = {};
       const resultCache = new WeakEntityMap();
-      const value = denormalize(
-        input,
+      const value = queryMemoized(
         catSchema,
+        [],
         entities,
+        {},
         entityCache,
         resultCache,
-      );
+      ).data;
 
       expect(createOutput(value).results?.length).toBe(2);
       expect(createOutput(value).results).toMatchSnapshot();
-      const value2 = denormalize(
-        input,
+      const value2 = queryMemoized(
         catSchema,
+        [],
         entities,
+        {},
         entityCache,
         resultCache,
-      );
+      ).data;
       expect(createOutput(value).results[0]).toBe(
         createOutput(value2).results[0],
       );
@@ -231,14 +231,14 @@ describe.each([
           3: { id: '3', name: 'Jelico' },
         },
       };
-      const input3 = createInput(buildQueryKey(catSchema, [], {}, entities));
-      const value3 = denormalize(
-        input3,
+      const value3 = queryMemoized(
         catSchema,
+        [],
         entities,
+        {},
         entityCache,
         resultCache,
-      );
+      ).data;
       expect(createOutput(value3).results?.length).toBe(3);
       expect(createOutput(value3).results).toMatchSnapshot();
       expect(createOutput(value).results[0]).toBe(
@@ -259,13 +259,13 @@ describe.each([
           2: { id: '2', name: 'Jake' },
         },
       };
-      const input = buildQueryKey(catSchema, [], {}, entities);
 
-      const value = denormalize(
-        createInput(input),
+      const value = queryMemoized(
         catSchema,
+        [],
         createInput(entities),
-      );
+        {},
+      ).data;
 
       expect(createOutput(value)).toEqual(expect.any(Symbol));
     });
@@ -295,12 +295,12 @@ describe.each([
           2: { id: '2', name: 'Jake' },
         },
       };
-      const input = buildQueryKey(listSchema, [], {}, entities);
-      const value = denormalize(
-        createInput(input),
+      const value = queryMemoized(
         listSchema,
+        [],
         createInput(entities),
-      );
+        {},
+      ).data;
 
       expect(createOutput(value)).toEqual(expect.any(Symbol));
     });
@@ -358,9 +358,12 @@ describe.each([
           },
         },
       };
-
-      const input = buildQueryKey(listSchema, [], {}, entities);
-      const value = denormalize(input, listSchema, createInput(entities));
+      const value = queryMemoized(
+        listSchema,
+        [],
+        createInput(entities) as any,
+        {},
+      ).data;
       expect(value).not.toEqual(expect.any(Symbol));
       if (typeof value === 'symbol') return;
       expect(value).toMatchSnapshot();

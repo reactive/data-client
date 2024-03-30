@@ -392,13 +392,13 @@ export default class Controller<
     const cacheEndpoints = isActive ? state.endpoints[key] : undefined;
     const schema = endpoint.schema;
     const meta = selectMeta(state, key);
-    const expiresAt = meta?.expiresAt;
+    let expiresAt = meta?.expiresAt;
 
     let results;
     let resultCache: ResultCache;
     // nothing in endpoints cache, so try querying if we have a schema to do so
     if (cacheEndpoints === undefined && endpoint.schema !== undefined) {
-      const { data, paths } = queryMemoized(
+      const { data, paths, isInvalid } = queryMemoized(
         endpoint.schema,
         args,
         state.entities as any,
@@ -407,27 +407,28 @@ export default class Controller<
         this.globalCache.infer,
         this.globalCache.queries,
       );
-      return {
+      if (!expiresAt && isInvalid) expiresAt = 1;
+      return this.getSchemaResponse(
         data,
-        expiryStatus:
-          typeof data === 'symbol' ? ExpiryStatus.Invalid
-          : endpoint.invalidIfStale ? ExpiryStatus.InvalidIfStale
-          : ExpiryStatus.Valid,
-        expiresAt: entityExpiresAt(paths, state.entityMeta),
-      };
+        paths,
+        state.entityMeta,
+        expiresAt,
+        endpoint.invalidIfStale || isInvalid,
+        meta,
+      );
     } else {
+      if (!isActive) {
+        return {
+          data: cacheEndpoints as any,
+          expiryStatus: ExpiryStatus.Valid,
+          expiresAt: Infinity,
+        };
+      }
+
       results = cacheEndpoints;
       if (!this.globalCache.endpoints[key])
         this.globalCache.endpoints[key] = new WeakEntityMap();
       resultCache = this.globalCache.endpoints[key];
-    }
-
-    if (!isActive) {
-      return {
-        data: results as any,
-        expiryStatus: ExpiryStatus.Valid,
-        expiresAt: Infinity,
-      };
     }
 
     if (!endpoint.schema || !schemaHasEntity(endpoint.schema)) {
@@ -441,13 +442,22 @@ export default class Controller<
       };
     }
 
-    return this.getSchemaResponse(
+    // second argument is false if any entities are missing
+    // eslint-disable-next-line prefer-const
+    const { data, paths } = denormalizeCached(
       results,
-      schema as Exclude<Schema, undefined>,
-      args,
-      state,
-      expiresAt,
+      schema,
+      state.entities,
+      this.globalCache.entities,
       resultCache,
+      args,
+    ) as { data: any; paths: Path[] };
+
+    return this.getSchemaResponse(
+      data,
+      paths,
+      state.entityMeta,
+      expiresAt,
       !!endpoint.invalidIfStale,
       meta,
     );
@@ -482,35 +492,23 @@ export default class Controller<
     return typeof data === 'symbol' ? undefined : (data as any);
   }
 
-  private getSchemaResponse<S extends Schema>(
-    input: any,
-    schema: S,
-    args: any,
-    state: State<unknown>,
+  private getSchemaResponse<T>(
+    data: T,
+    paths: Path[],
+    entityMeta: State<unknown>['entityMeta'],
     expiresAt: number,
-    resultCache: ResultCache,
     invalidIfStale: boolean,
     meta: { error?: unknown; invalidated?: unknown } = {},
   ): {
-    data: DenormalizeNullable<S>;
+    data: T;
     expiryStatus: ExpiryStatus;
     expiresAt: number;
   } {
-    // second argument is false if any entities are missing
-    // eslint-disable-next-line prefer-const
-    const { data, paths } = denormalizeCached(
-      input,
-      schema,
-      state.entities,
-      this.globalCache.entities,
-      resultCache,
-      args,
-    ) as { data: DenormalizeNullable<S>; paths: Path[] };
     const invalidDenormalize = typeof data === 'symbol';
 
     // fallback to entity expiry time
     if (!expiresAt) {
-      expiresAt = entityExpiresAt(paths, state.entityMeta);
+      expiresAt = entityExpiresAt(paths, entityMeta);
     }
 
     // https://dataclient.io/docs/concepts/expiry-policy#expiry-status

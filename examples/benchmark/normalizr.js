@@ -7,6 +7,8 @@ import {
   WeakEntityMap,
   denormalizeCached,
   initialState,
+  createLookupEntity,
+  createLookupIndex,
 } from './dist/index.js';
 import { printStatus } from './printStatus.js';
 import {
@@ -24,14 +26,14 @@ const queryState = normalize(data, ProjectQuery);
 queryState.result = buildQueryKey(
   ProjectQuery,
   [],
-  queryState.indexes,
-  queryState.entities,
+  createLookupIndex(queryState.indexes),
+  createLookupEntity(queryState.entities),
 );
 const queryInfer = buildQueryKey(
   ProjectQuerySorted,
   [],
-  queryState.indexes,
-  queryState.entities,
+  createLookupIndex(queryState.indexes),
+  createLookupEntity(queryState.entities),
 );
 
 let githubState = normalize(userData, User);
@@ -89,8 +91,8 @@ export default function addNormlizrSuite(suite) {
       return buildQueryKey(
         ProjectQuery,
         [],
-        queryState.indexes,
-        queryState.entities,
+        createLookupIndex(queryState.indexes),
+        createLookupEntity(queryState.entities),
       );
     })
     .add('denormalizeLong', () => {

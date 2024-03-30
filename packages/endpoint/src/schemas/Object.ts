@@ -58,7 +58,7 @@ export function denormalize(
   return object;
 }
 
-export function queryKey(
+export function objectQueryKey(
   schema: any,
   args: readonly any[],
   queryKey: (
@@ -118,6 +118,12 @@ export default class ObjectSchema {
   }
 
   queryKey(args: any, queryKey: any, lookupIndex: any, lookupEntities: any) {
-    return queryKey(this.schema, args, queryKey, lookupIndex, lookupEntities);
+    return objectQueryKey(
+      this.schema,
+      args,
+      queryKey,
+      lookupIndex,
+      lookupEntities,
+    );
   }
 }

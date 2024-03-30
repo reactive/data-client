@@ -46,7 +46,13 @@ export default class WeakEntityMap<K extends object = object, V = any> {
 
 const EMPTY = [undefined, undefined] as const;
 
-export function getEntities<K extends object>(state: State<K>): GetEntity<K> {
+export function getEntities<K extends object>(
+  state:
+    | State<K>
+    | {
+        getIn(k: string[]): any;
+      },
+): GetEntity<K> {
   const entityIsImmutable = isImmutable(state);
 
   if (entityIsImmutable) {

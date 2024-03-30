@@ -6,7 +6,11 @@ import {
   FirstUnion,
 } from '__tests__/new';
 
-import buildInferredResults from '../buildQueryKey';
+import buildQueryKey from '../buildQueryKey';
+import {
+  createLookupEntity,
+  createLookupIndex,
+} from '../denormalize/queryMemoized';
 import { LookupIndex, LookupEntities, NormalizedIndex } from '../interface';
 
 describe('buildQueryKey()', () => {
@@ -17,11 +21,13 @@ describe('buildQueryKey()', () => {
       }),
     });
     expect(
-      buildInferredResults(
+      buildQueryKey(
         schema,
         [{ id: 5 }],
-        {},
-        { [CoolerArticle.key]: { '5': {} } },
+        createLookupIndex({}),
+        createLookupEntity({
+          [CoolerArticle.key]: { '5': {} },
+        }),
       ),
     ).toEqual({
       data: { article: '5' },
@@ -35,11 +41,13 @@ describe('buildQueryKey()', () => {
       }),
     });
     expect(
-      buildInferredResults(
+      buildQueryKey(
         schema,
         [5],
-        {},
-        { [CoolerArticle.key]: { '5': {} } },
+        createLookupIndex({}),
+        createLookupEntity({
+          [CoolerArticle.key]: { '5': {} },
+        }),
       ),
     ).toEqual({
       data: { article: '5' },
@@ -53,11 +61,13 @@ describe('buildQueryKey()', () => {
       }),
     });
     expect(
-      buildInferredResults(
+      buildQueryKey(
         schema,
         ['5'],
-        {},
-        { [CoolerArticle.key]: { '5': {} } },
+        createLookupIndex({}),
+        createLookupEntity({
+          [CoolerArticle.key]: { '5': {} },
+        }),
       ),
     ).toEqual({
       data: { article: '5' },
@@ -69,11 +79,13 @@ describe('buildQueryKey()', () => {
       data: new schemas.Array(CoolerArticle),
     };
     expect(
-      buildInferredResults(
+      buildQueryKey(
         schema,
         [{ id: 5 }],
-        {},
-        { [CoolerArticle.key]: { '5': {} } },
+        createLookupIndex({}),
+        createLookupEntity({
+          [CoolerArticle.key]: { '5': {} },
+        }),
       ),
     ).toStrictEqual({
       data: undefined,
@@ -83,11 +95,13 @@ describe('buildQueryKey()', () => {
       data: [CoolerArticle],
     };
     expect(
-      buildInferredResults(
+      buildQueryKey(
         schema2,
         [{ id: 5 }],
-        {},
-        { [CoolerArticle.key]: { '5': {} } },
+        createLookupIndex({}),
+        createLookupEntity({
+          [CoolerArticle.key]: { '5': {} },
+        }),
       ),
     ).toStrictEqual({
       data: undefined,
@@ -99,11 +113,13 @@ describe('buildQueryKey()', () => {
       data: new schemas.Values(CoolerArticle),
     };
     expect(
-      buildInferredResults(
+      buildQueryKey(
         schema,
         [{ id: 5 }],
-        {},
-        { [CoolerArticle.key]: { '5': {} } },
+        createLookupIndex({}),
+        createLookupEntity({
+          [CoolerArticle.key]: { '5': {} },
+        }),
       ),
     ).toStrictEqual({
       data: undefined,
@@ -113,15 +129,15 @@ describe('buildQueryKey()', () => {
   it('should be undefined with Union and type', () => {
     const schema = UnionResource.get.schema;
     expect(
-      buildInferredResults(
+      buildQueryKey(
         schema,
         [{ id: 5 }],
-        {},
-        {
+        createLookupIndex({}),
+        createLookupEntity({
           [CoolerArticle.key]: {
             '5': {},
           },
-        },
+        }),
       ),
     ).toBe(undefined);
   });
@@ -129,15 +145,15 @@ describe('buildQueryKey()', () => {
   it('should work with Union', () => {
     const schema = UnionResource.get.schema;
     expect(
-      buildInferredResults(
+      buildQueryKey(
         schema,
         [{ id: 5, type: 'first' }],
-        {},
-        {
+        createLookupIndex({}),
+        createLookupEntity({
           [FirstUnion.key]: {
             '5': {},
           },
-        },
+        }),
       ),
     ).toMatchInlineSnapshot(`
       {
@@ -153,15 +169,15 @@ describe('buildQueryKey()', () => {
       data: CoolerArticle,
     };
     expect(
-      buildInferredResults(
+      buildQueryKey(
         schema,
         [{ id: 5 }],
-        {},
-        {
+        createLookupIndex({}),
+        createLookupEntity({
           [CoolerArticle.key]: {
             '5': {},
           },
-        },
+        }),
       ),
     ).toEqual({
       pagination: { next: '', previous: '' },
@@ -175,42 +191,42 @@ describe('buildQueryKey()', () => {
       data: IndexedUser,
     };
     expect(
-      buildInferredResults(
+      buildQueryKey(
         schema,
         [{ username: 'bob' }],
-        {
+        createLookupIndex({
           [IndexedUser.key]: {
             username: {
               bob: '5',
             },
           },
-        },
-        {
+        }),
+        createLookupEntity({
           [IndexedUser.key]: {
             '5': {},
           },
-        },
+        }),
       ),
     ).toEqual({
       pagination: { next: '', previous: '' },
       data: '5',
     });
     expect(
-      buildInferredResults(
+      buildQueryKey(
         schema,
         [{ username: 'bob', mary: 'five' }],
-        {
+        createLookupIndex({
           [IndexedUser.key]: {
             username: {
               bob: '5',
             },
           },
-        },
-        {
+        }),
+        createLookupEntity({
           [IndexedUser.key]: {
             '5': {},
           },
-        },
+        }),
       ),
     ).toEqual({
       pagination: { next: '', previous: '' },
@@ -224,42 +240,42 @@ describe('buildQueryKey()', () => {
       data: IndexedUser,
     };
     expect(
-      buildInferredResults(
+      buildQueryKey(
         schema,
         [{ username: 'bob' }],
-        {
+        createLookupIndex({
           [IndexedUser.key]: {
             username: {
               charles: '5',
             },
           },
-        },
-        {
+        }),
+        createLookupEntity({
           [IndexedUser.key]: {
             '5': {},
           },
-        },
+        }),
       ),
     ).toEqual({
       pagination: { next: '', previous: '' },
       data: undefined,
     });
     expect(
-      buildInferredResults(
+      buildQueryKey(
         schema,
         [{ hover: 'bob' }],
-        {
+        createLookupIndex({
           [IndexedUser.key]: {
             username: {
               charles: '5',
             },
           },
-        },
-        {
+        }),
+        createLookupEntity({
           [IndexedUser.key]: {
             '5': {},
           },
-        },
+        }),
       ),
     ).toEqual({
       pagination: { next: '', previous: '' },
@@ -273,22 +289,26 @@ describe('buildQueryKey()', () => {
       data: IndexedUser,
     };
     expect(
-      buildInferredResults(
+      buildQueryKey(
         schema,
         [{ username: 'bob' }],
-        {},
-        { [IndexedUser.key]: { '5': {} } },
+        createLookupIndex({}),
+        createLookupEntity({
+          [IndexedUser.key]: { '5': {} },
+        }),
       ),
     ).toEqual({
       pagination: { next: '', previous: '' },
       data: undefined,
     });
     expect(
-      buildInferredResults(
+      buildQueryKey(
         schema,
         [{ hover: 'bob' }],
-        {},
-        { [IndexedUser.key]: { '5': {} } },
+        createLookupIndex({}),
+        createLookupEntity({
+          [IndexedUser.key]: { '5': {} },
+        }),
       ),
     ).toEqual({
       pagination: { next: '', previous: '' },
@@ -324,11 +344,13 @@ describe('buildQueryKey()', () => {
         }),
       });
       expect(
-        buildInferredResults(
+        buildQueryKey(
           schema,
           ['5'],
-          {},
-          { [MyEntity.key]: { '5': {} } },
+          createLookupIndex({}),
+          createLookupEntity({
+            [MyEntity.key]: { '5': {} },
+          }),
         ),
       ).toEqual({
         data: { article: '5' },
@@ -341,7 +363,14 @@ describe('buildQueryKey()', () => {
           article: MyEntity,
         }),
       });
-      expect(buildInferredResults(schema, ['5'], {}, {})).toEqual({
+      expect(
+        buildQueryKey(
+          schema,
+          ['5'],
+          createLookupIndex({}),
+          createLookupEntity({}),
+        ),
+      ).toEqual({
         data: { article: undefined },
       });
     });
