@@ -22,23 +22,61 @@ const config: Config = {
   markdown: {
     mermaid: true,
   },
-  scripts: [],
+  headTags: [
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'preconnect',
+        href: 'https://fonts.gstatic.com',
+        crossOrigin: 'anonymous',
+      },
+    },
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'preconnect',
+        href: 'https://fonts.googleapis.com',
+        crossOrigin: 'anonymous',
+      },
+    },
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'preconnect',
+        href: 'https://cdn.jsdelivr.net',
+        crossOrigin: 'anonymous',
+      },
+    },
+    {
+      tagName: 'link',
+      attributes: {
+        name: 'application-name',
+        content: 'Reactive Data Client',
+      },
+    },
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'msapplication-TileColor',
+        content: '#3e96db',
+      },
+    },
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'msapplication-config',
+        content: '/browserconfig.xml',
+      },
+    },
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'theme-color',
+        content: '#003a67',
+      },
+    },
+  ],
   stylesheets: [
-    {
-      rel: 'preconnect',
-      href: 'https://fonts.gstatic.com',
-      crossOrigin: true,
-    },
-    {
-      rel: 'preconnect',
-      href: 'https://fonts.googleapis.com',
-      crossOrigin: true,
-    },
-    {
-      rel: 'preconnect',
-      href: 'https://cdn.jsdelivr.net',
-      crossOrigin: true,
-    },
     {
       rel: 'preload',
       href: 'https://fonts.googleapis.com/css2?family=Rubik:wght@300..900&family=Rubik:ital,wght@1,300..900&family=Roboto+Mono:wght@100..700&family=Roboto+Mono:ital,wght@1,100..700&display=swap',
@@ -136,36 +174,7 @@ const config: Config = {
       media: 'all',
     }, TODO: figure out how to load this*/
   ],
-  headTags: [
-    {
-      tagName: 'link',
-      attributes: {
-        name: 'application-name',
-        content: 'Reactive Data Client',
-      },
-    },
-    {
-      tagName: 'link',
-      attributes: {
-        rel: 'msapplication-TileColor',
-        content: '#3e96db',
-      },
-    },
-    {
-      tagName: 'link',
-      attributes: {
-        rel: 'msapplication-config',
-        content: '/browserconfig.xml',
-      },
-    },
-    {
-      tagName: 'link',
-      attributes: {
-        rel: 'theme-color',
-        content: '#003a67',
-      },
-    },
-  ],
+  scripts: [],
   clientModules: [require.resolve('./src/gtagfix.ts')],
   //favicon: '/favicon.ico', we declare our own headers for this above
   themes: ['@docusaurus/theme-live-codeblock', '@docusaurus/theme-mermaid'],
