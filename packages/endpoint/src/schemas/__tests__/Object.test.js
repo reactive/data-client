@@ -1,10 +1,9 @@
 // eslint-env jest
-import { normalize } from '@data-client/normalizr';
+import { normalize, denormalize } from '@data-client/normalizr';
 import { Temporal } from '@js-temporal/polyfill';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
-import denormalize from './denormalize';
 import { schema } from '../../';
 import Entity from '../Entity';
 

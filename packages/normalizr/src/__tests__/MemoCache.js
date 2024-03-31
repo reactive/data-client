@@ -1,8 +1,7 @@
 // eslint-env jest
 import { Entity } from '@data-client/endpoint';
 
-import { denormalize } from '../denormalize/denormalizeCached';
-import { INVALID } from '../denormalize/symbol';
+import MemoCache from '../denormalize/MemoCache';
 import WeakEntityMap from '../WeakEntityMap';
 
 class IDEntity extends Entity {
@@ -34,11 +33,12 @@ describe('denormalize with global cache', () => {
         1: Symbol('ENTITY WAS DELETED'),
       },
     };
-    expect(denormalize('1', Tacos, entities).data).toEqual(expect.any(Symbol));
+    expect(new MemoCache().denormalize('1', Tacos, entities).data).toEqual(
+      expect.any(Symbol),
+    );
   });
   test('maintains referential equality with same results', () => {
-    const entityCache = {};
-    const resultCache = new WeakEntityMap();
+    const memo = new MemoCache();
     const entities = {
       Tacos: {
         1: { id: '1', type: 'foo' },
@@ -47,39 +47,17 @@ describe('denormalize with global cache', () => {
     };
     const result = ['1', '2'];
     const schema = [Tacos];
-    const { data: first } = denormalize(
-      result,
-      schema,
-      entities,
-      entityCache,
-      resultCache,
-    );
-    const { data: second } = denormalize(
-      result,
-      schema,
-      entities,
-      entityCache,
-      resultCache,
-    );
+    const { data: first } = memo.denormalize(result, schema, entities);
+    const { data: second } = memo.denormalize(result, schema, entities);
     expect(first).toBe(second);
 
-    const { data: third } = denormalize(
-      [...result],
-      schema,
-      entities,
-      entityCache,
-      resultCache,
-    );
+    const { data: third } = memo.denormalize([...result], schema, entities);
     expect(first).not.toBe(third);
     expect(first).toEqual(third);
 
-    const fourth = denormalize(
-      result,
-      schema,
-      { Tacos: { ...entities.Tacos, 2: { id: '2', type: 'bar' } } },
-      entityCache,
-      resultCache,
-    ).data;
+    const fourth = memo.denormalize(result, schema, {
+      Tacos: { ...entities.Tacos, 2: { id: '2', type: 'bar' } },
+    }).data;
     expect(first).not.toBe(fourth);
     expect(first).toEqual(fourth);
   });
@@ -131,71 +109,31 @@ describe('denormalize with global cache', () => {
     };
 
     test('maintains referential equality with nested entities', () => {
-      const entityCache = {};
-      const resultCache = new WeakEntityMap();
+      const memo = new MemoCache();
 
       const result = { data: '123' };
       const schema = { data: Article };
-      const first = denormalize(
-        result,
-        schema,
-        entities,
-        entityCache,
-        resultCache,
-      ).data;
-      const second = denormalize(
-        result,
-        schema,
-        entities,
-        entityCache,
-        resultCache,
-      ).data;
+      const first = memo.denormalize(result, schema, entities).data;
+      const second = memo.denormalize(result, schema, entities).data;
       expect(first).toBe(second);
-      const third = denormalize(
-        '123',
-        Article,
-        entities,
-        entityCache,
-        resultCache,
-      ).data;
-      const fourth = denormalize(
-        '123',
-        Article,
-        entities,
-        entityCache,
-        resultCache,
-      ).data;
+      const third = memo.denormalize('123', Article, entities).data;
+      const fourth = memo.denormalize('123', Article, entities).data;
       expect(third).toBe(fourth);
     });
 
     test('maintains responds to entity updates for distinct top-level results', () => {
-      const entityCache = {};
-      const resultCache = new WeakEntityMap();
+      const memo = new MemoCache();
 
       const result1 = { data: '123' };
       const result2 = { results: ['123'] };
-      const first = denormalize(
-        result1,
-        { data: Article },
-        entities,
-        entityCache,
-        resultCache,
-      ).data;
-      const second = denormalize(
+      const first = memo.denormalize(result1, { data: Article }, entities).data;
+      const second = memo.denormalize(
         result2,
         { results: [Article] },
         entities,
-        entityCache,
-        resultCache,
       ).data;
       expect(first.data).toBe(second.results[0]);
-      const third = denormalize(
-        '123',
-        Article,
-        entities,
-        entityCache,
-        resultCache,
-      ).data;
+      const third = memo.denormalize('123', Article, entities).data;
       expect(third).toBe(first.data);
 
       // now change
@@ -209,20 +147,16 @@ describe('denormalize with global cache', () => {
           },
         },
       };
-      const firstChanged = denormalize(
+      const firstChanged = memo.denormalize(
         result1,
         { data: Article },
         nextState,
-        entityCache,
-        resultCache,
       ).data;
       expect(firstChanged).not.toBe(first);
-      const secondChanged = denormalize(
+      const secondChanged = memo.denormalize(
         result2,
         { results: [Article] },
         nextState,
-        entityCache,
-        resultCache,
       ).data;
       expect(secondChanged).not.toBe(second);
       expect(firstChanged.data).toBe(secondChanged.results[0]);
@@ -238,29 +172,19 @@ describe('denormalize with global cache', () => {
 
         static key = 'Article';
       }
-      const entityCache = {};
-      // we have different endpoints caches because they are keyed based on the endpoint
+      const memo = new MemoCache();
       const resultCacheA = new WeakEntityMap();
       const resultCacheB = new WeakEntityMap();
       const resultCacheC = new WeakEntityMap();
 
-      const result = { data: '123' };
+      // we have different result values to represent different endpoint inputs
+      const resultA = { data: '123' };
+      const resultB = { data: '123' };
+      const resultC = '123';
       const firstSchema = { data: ArticleSummary };
       const secondSchema = { data: Article };
-      const first = denormalize(
-        result,
-        firstSchema,
-        entities,
-        entityCache,
-        resultCacheA,
-      ).data;
-      const second = denormalize(
-        result,
-        secondSchema,
-        entities,
-        entityCache,
-        resultCacheB,
-      ).data;
+      const first = memo.denormalize(resultA, firstSchema, entities).data;
+      const second = memo.denormalize(resultB, secondSchema, entities).data;
       // show distinction between how they are denormalized
       expect(first.data.author).toMatchInlineSnapshot(`"8472"`);
       expect(second.data.author).toMatchInlineSnapshot(`
@@ -270,22 +194,14 @@ describe('denormalize with global cache', () => {
         }
       `);
       expect(first.data).not.toBe(second.data);
-      const firstWithoutChange = denormalize(
-        result,
+      const firstWithoutChange = memo.denormalize(
+        resultA,
         firstSchema,
         entities,
-        entityCache,
-        resultCacheA,
       ).data;
       expect(first).toBe(firstWithoutChange);
 
-      const third = denormalize(
-        '123',
-        Article,
-        entities,
-        entityCache,
-        resultCacheC,
-      ).data;
+      const third = memo.denormalize(resultC, Article, entities).data;
       expect(third).toBe(second.data);
 
       // now change
@@ -299,20 +215,16 @@ describe('denormalize with global cache', () => {
           },
         },
       };
-      const firstChanged = denormalize(
-        result,
+      const firstChanged = memo.denormalize(
+        resultA,
         firstSchema,
         nextState,
-        entityCache,
-        resultCacheA,
       ).data;
       expect(firstChanged).not.toBe(first);
-      const secondChanged = denormalize(
-        result,
+      const secondChanged = memo.denormalize(
+        resultB,
         secondSchema,
         nextState,
-        entityCache,
-        resultCacheB,
       ).data;
       expect(secondChanged).not.toBe(second);
       expect(firstChanged.data.author).toMatchInlineSnapshot(`"8472"`);
@@ -325,18 +237,15 @@ describe('denormalize with global cache', () => {
     });
 
     test('entity equality changes', () => {
-      const entityCache = {};
-      const resultCache = new WeakEntityMap();
+      const memo = new MemoCache();
 
       const result = { data: '123' };
-      const { data: first } = denormalize(
+      const { data: first } = memo.denormalize(
         result,
         { data: Article },
         entities,
-        entityCache,
-        resultCache,
       );
-      const { data: second } = denormalize(
+      const { data: second } = memo.denormalize(
         result,
         { data: Article },
         {
@@ -351,8 +260,6 @@ describe('denormalize with global cache', () => {
             },
           },
         },
-        entityCache,
-        resultCache,
       );
       expect(first).not.toBe(second);
       expect(first.data.author).toBe(second.data.author);
@@ -360,19 +267,16 @@ describe('denormalize with global cache', () => {
     });
 
     test('nested entity equality changes', () => {
-      const entityCache = {};
-      const resultCache = new WeakEntityMap();
+      const memo = new MemoCache();
 
       const result = { data: '123' };
-      const { data: first } = denormalize(
+      const { data: first } = memo.denormalize(
         result,
         { data: Article },
         entities,
-        entityCache,
-        resultCache,
       );
 
-      const { data: second } = denormalize(
+      const { data: second } = memo.denormalize(
         result,
         { data: Article },
         {
@@ -385,8 +289,6 @@ describe('denormalize with global cache', () => {
             },
           },
         },
-        entityCache,
-        resultCache,
       );
 
       expect(first).not.toBe(second);
@@ -398,8 +300,7 @@ describe('denormalize with global cache', () => {
     });
 
     test('nested entity becomes present in entity table', () => {
-      const entityCache = {};
-      const resultCache = new WeakEntityMap();
+      const memo = new MemoCache();
 
       const result = { data: '123' };
       const emptyEntities = {
@@ -407,29 +308,23 @@ describe('denormalize with global cache', () => {
         // no Users exist
         User: {},
       };
-      const { data: first } = denormalize(
+      const { data: first } = memo.denormalize(
         result,
         { data: Article },
         emptyEntities,
-        entityCache,
-        resultCache,
       );
 
-      const { data: second } = denormalize(
+      const { data: second } = memo.denormalize(
         result,
         { data: Article },
         emptyEntities,
-        entityCache,
-        resultCache,
       );
 
-      const { data: third } = denormalize(
+      const { data: third } = memo.denormalize(
         result,
         { data: Article },
         // now has users
         entities,
-        entityCache,
-        resultCache,
       );
 
       expect(first.data.title).toBe(third.data.title);
@@ -445,8 +340,7 @@ describe('denormalize with global cache', () => {
   });
 
   test('nested entity becomes present in entity table with numbers', () => {
-    const entityCache = {};
-    const resultCache = new WeakEntityMap();
+    const memo = new MemoCache();
 
     class User extends IDEntity {}
     class Article extends IDEntity {
@@ -476,29 +370,23 @@ describe('denormalize with global cache', () => {
       // no Users exist
       User: {},
     };
-    const { data: first } = denormalize(
+    const { data: first } = memo.denormalize(
       result,
       { data: Article },
       emptyEntities,
-      entityCache,
-      resultCache,
     );
 
-    const { data: second } = denormalize(
+    const { data: second } = memo.denormalize(
       result,
       { data: Article },
       emptyEntities,
-      entityCache,
-      resultCache,
     );
 
-    const { data: third } = denormalize(
+    const { data: third } = memo.denormalize(
       result,
       { data: Article },
       // now has users
       entities,
-      entityCache,
-      resultCache,
     );
 
     expect(first.data.title).toBe(third.data.title);
@@ -513,8 +401,7 @@ describe('denormalize with global cache', () => {
   });
 
   test('denormalizes plain object with no entities', () => {
-    const entityCache = {};
-    const resultCache = new WeakEntityMap();
+    const memo = new MemoCache();
 
     const input = {
       firstThing: { five: 5, seven: 42 },
@@ -524,55 +411,40 @@ describe('denormalize with global cache', () => {
       firstThing: { five: 0, seven: 0 },
       secondThing: { cars: '' },
     };
-    const { data: first } = denormalize(
-      input,
-      schema,
-      {},
-      entityCache,
-      resultCache,
-    );
+    const { data: first } = memo.denormalize(input, schema, {});
     expect(first).toEqual(input);
     // should maintain referential equality
-    const { data: second } = denormalize(input, schema, {}, {}, resultCache);
+    const { data: second } = memo.denormalize(input, schema, {});
     expect(second).toBe(first);
   });
 
   test('passthrough for null schema and an object input', () => {
-    const entityCache = {};
-    const resultCache = new WeakEntityMap();
+    const memo = new MemoCache();
 
     const input = {
       firstThing: { five: 5, seven: 42 },
       secondThing: { cars: 'never' },
     };
-    const { data } = denormalize(input, null, {}, entityCache, resultCache);
+    const { data } = memo.denormalize(input, null, {});
     expect(data).toBe(input);
   });
 
   test('passthrough for null schema and an number input', () => {
-    const entityCache = {};
-    const resultCache = new WeakEntityMap();
+    const memo = new MemoCache();
 
     const input = 5;
-    const { data } = denormalize(input, null, {}, entityCache, resultCache);
+    const { data } = memo.denormalize(input, null, {});
     expect(data).toBe(input);
   });
 
   test('passthrough for undefined schema and an object input', () => {
-    const entityCache = {};
-    const resultCache = new WeakEntityMap();
+    const memo = new MemoCache();
 
     const input = {
       firstThing: { five: 5, seven: 42 },
       secondThing: { cars: 'never' },
     };
-    const { data } = denormalize(
-      input,
-      undefined,
-      {},
-      entityCache,
-      resultCache,
-    );
+    const { data } = memo.denormalize(input, undefined, {});
     expect(data).toBe(input);
   });
 
@@ -596,47 +468,26 @@ describe('denormalize with global cache', () => {
     }
 
     test('handles null at top level', () => {
-      const entityCache = {};
-      const resultCache = new WeakEntityMap();
+      const memo = new MemoCache();
 
-      const denorm = denormalize(
-        null,
-        { data: Article },
-        {},
-        entityCache,
-        resultCache,
-      ).data;
+      const denorm = memo.denormalize(null, { data: Article }, {}).data;
       expect(denorm).toEqual(null);
     });
 
     test('handles undefined at top level', () => {
-      const entityCache = {};
-      const resultCache = new WeakEntityMap();
+      const memo = new MemoCache();
 
-      const denorm = denormalize(
-        undefined,
-        { data: Article },
-        {},
-        entityCache,
-        resultCache,
-      ).data;
+      const denorm = memo.denormalize(undefined, { data: Article }, {}).data;
       expect(denorm).toEqual(undefined);
     });
 
     test('handles null in nested place', () => {
-      const entityCache = {};
-      const resultCache = new WeakEntityMap();
+      const memo = new MemoCache();
 
       const input = {
         data: { id: '5', title: 'hehe', author: null, comments: [] },
       };
-      const denorm = denormalize(
-        input,
-        { data: Article },
-        {},
-        entityCache,
-        resultCache,
-      ).data;
+      const denorm = memo.denormalize(input, { data: Article }, {}).data;
       expect(denorm).toMatchInlineSnapshot(`
         {
           "data": Article {

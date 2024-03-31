@@ -1,9 +1,8 @@
 // eslint-env jest
-import { WeakEntityMap, queryMemoized } from '@data-client/normalizr';
+import { MemoCache } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
-import { denormalizeSimple } from './denormalize';
 import { schema, DenormalizeNullable } from '../..';
 
 let dateSpy: jest.SpyInstance<number, []>;
@@ -17,7 +16,6 @@ afterAll(() => {
   dateSpy.mockRestore();
 });
 
-const denormalize = denormalizeSimple;
 class User extends IDEntity {
   name = '';
   isAdmin = false;
@@ -72,7 +70,13 @@ describe.each([
           },
         };
         const users: DenormalizeNullable<typeof sortedUsers> | symbol =
-          queryMemoized(sortedUsers, [], createInput(entities), {}).data;
+          new MemoCache().query(
+            '',
+            sortedUsers,
+            [],
+            createInput(entities),
+            {},
+          ).data;
         expect(users).not.toEqual(expect.any(Symbol));
         if (typeof users === 'symbol') return;
         expect(users && users[0].name).toBe('Zeta');
@@ -94,25 +98,25 @@ describe.each([
           },
         };
         expect(
-          queryMemoized(
+          new MemoCache().query(
+            '',
             sortedUsers,
             [{ asc: true }],
             createInput(entities),
             {},
-            {},
-            new WeakEntityMap(),
           ).data,
         ).toMatchSnapshot();
       });
 
-      test.only('denormalizes should not be found when no entities are present', () => {
+      test('denormalizes should not be found when no entities are present', () => {
         const entities = {
           DOG: {
             1: { id: '1', name: 'Milo' },
             2: { id: '2', name: 'Jake' },
           },
         };
-        const { data, isInvalid } = queryMemoized(
+        const { data, isInvalid } = new MemoCache().query(
+          '',
           sortedUsers,
           [],
           entities,
@@ -152,7 +156,8 @@ describe.each([
         };
         const totalCount:
           | DenormalizeNullable<typeof userCountByAdmin>
-          | symbol = queryMemoized(
+          | symbol = new MemoCache().query(
+          '',
           userCountByAdmin,
           [],
           createInput(entities),
@@ -162,24 +167,22 @@ describe.each([
         expect(totalCount).toBe(4);
         const nonAdminCount:
           | DenormalizeNullable<typeof userCountByAdmin>
-          | symbol = queryMemoized(
+          | symbol = new MemoCache().query(
+          '',
           userCountByAdmin,
           [{ isAdmin: false }],
           createInput(entities),
           {},
-          {},
-          new WeakEntityMap(),
         ).data;
         expect(nonAdminCount).toBe(3);
         const adminCount:
           | DenormalizeNullable<typeof userCountByAdmin>
-          | symbol = queryMemoized(
+          | symbol = new MemoCache().query(
+          '',
           userCountByAdmin,
           [{ isAdmin: true }],
           createInput(entities),
           {},
-          {},
-          new WeakEntityMap(),
         ).data;
         expect(adminCount).toBe(1);
         if (typeof totalCount === 'symbol') return;
@@ -217,7 +220,7 @@ describe('top level schema', () => {
       },
     };
     const users: DenormalizeNullable<typeof sortedUsers> | symbol =
-      queryMemoized(sortedUsers, [], entities, {}).data;
+      new MemoCache().query('', sortedUsers, [], entities, {}).data;
     expect(users).not.toEqual(expect.any(Symbol));
     if (typeof users === 'symbol') return;
     expect(users && users[0].name).toBe('Zeta');
@@ -232,7 +235,7 @@ describe('top level schema', () => {
       },
     };
 
-    const value = queryMemoized(sortedUsers, [], entities, {}).data;
+    const value = new MemoCache().query('', sortedUsers, [], entities, {}).data;
 
     expect(value).toEqual(undefined);
   });

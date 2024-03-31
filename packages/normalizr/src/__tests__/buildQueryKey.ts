@@ -10,7 +10,7 @@ import buildQueryKey from '../buildQueryKey';
 import {
   createLookupEntity,
   createLookupIndex,
-} from '../denormalize/queryMemoized';
+} from '../denormalize/MemoCache';
 import { LookupIndex, LookupEntities, NormalizedIndex } from '../interface';
 
 describe('buildQueryKey()', () => {

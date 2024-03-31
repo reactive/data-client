@@ -1,10 +1,9 @@
 // eslint-env jest
 import { normalize } from '@data-client/normalizr';
-import { Temporal, Intl, toTemporalInstant } from '@js-temporal/polyfill';
+import { Temporal } from '@js-temporal/polyfill';
 import { IDEntity } from '__tests__/new';
 
-import denormalize from './denormalize';
-import { schema } from '../../';
+import SimpleMemoCache from './denormalize';
 
 let dateSpy;
 beforeAll(() => {
@@ -69,7 +68,7 @@ describe(`Serializable denormalization`, () => {
         },
       },
     };
-    const response = denormalize(
+    const response = new SimpleMemoCache().denormalize(
       {
         user: '1',
         anotherItem: Other({ thing: 500 }),
@@ -97,7 +96,7 @@ describe(`Serializable denormalization`, () => {
         },
       },
     };
-    const response = denormalize(
+    const response = new SimpleMemoCache().denormalize(
       {
         user: '1',
         anotherItem: { thing: 500 },

@@ -1,14 +1,10 @@
 // eslint-env jest
 import { initialState } from '@data-client/core';
-import {
-  buildQueryKey,
-  normalize,
-  WeakEntityMap,
-} from '@data-client/normalizr';
+import { normalize, denormalize, MemoCache } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 import { Record } from 'immutable';
 
-import { denormalizeSimple as denormalize } from './denormalize';
+import SimpleMemoCache from './denormalize';
 import { PolymorphicInterface } from '../..';
 import { schema } from '../..';
 
@@ -421,23 +417,19 @@ describe(`${schema.Collection.name} denormalization`, () => {
   });
 
   describe('caching', () => {
-    const entityCache = {};
-    const resultCache = new WeakEntityMap();
+    const memo = new SimpleMemoCache();
     test('denormalizes nested and top level share referential equality', () => {
-      const todos = denormalize(
+      const todos = memo.denormalize(
         '{"userId":"1"}',
         userTodos,
         normalizeNested.entities,
-        entityCache,
-        resultCache,
+
         [{ userId: '1' }],
       );
-      const user = denormalize(
+      const user = memo.denormalize(
         normalizeNested.result,
         User,
         normalizeNested.entities,
-        entityCache,
-        resultCache,
       );
       expect(user).toBeDefined();
       expect(user).not.toEqual(expect.any(Symbol));
@@ -454,20 +446,17 @@ describe(`${schema.Collection.name} denormalization`, () => {
         normalizeNested.indexes,
         normalizeNested.entityMeta,
       );
-      const todos = denormalize(
+      const todos = memo.denormalize(
         '{"userId":"1"}',
         userTodos,
         pushedState.entities,
-        entityCache,
-        resultCache,
+
         [{ userId: '1' }],
       );
-      const user = denormalize(
+      const user = memo.denormalize(
         normalizeNested.result,
         User,
         pushedState.entities,
-        entityCache,
-        resultCache,
         [{ id: '1' }],
       );
       expect(user).toBeDefined();
@@ -486,20 +475,16 @@ describe(`${schema.Collection.name} denormalization`, () => {
         normalizeNested.indexes,
         normalizeNested.entityMeta,
       );
-      const todos = denormalize(
+      const todos = memo.denormalize(
         '{"userId":"1"}',
         userTodos,
         unshiftState.entities,
-        entityCache,
-        resultCache,
         [{ userId: '1' }],
       );
-      const user = denormalize(
+      const user = memo.denormalize(
         normalizeNested.result,
         User,
         unshiftState.entities,
-        entityCache,
-        resultCache,
         [{ id: '1' }],
       );
       expect(user).toBeDefined();
@@ -511,12 +496,10 @@ describe(`${schema.Collection.name} denormalization`, () => {
     });
 
     test('denormalizes unshift', () => {
-      const todos = denormalize(
+      const todos = memo.denormalize(
         [{ id: '2', title: 'from the start' }],
         userTodos.unshift,
         {},
-        entityCache,
-        resultCache,
         [{ id: '1' }],
       );
       expect(todos).toBeDefined();
@@ -536,12 +519,10 @@ describe(`${schema.Collection.name} denormalization`, () => {
     });
 
     test('denormalizes unshift (single item)', () => {
-      const todos = denormalize(
+      const todos = memo.denormalize(
         { id: '2', title: 'from the start' },
         userTodos.unshift,
         {},
-        entityCache,
-        resultCache,
         [{ id: '1' }],
       );
       expect(todos).toBeDefined();
@@ -560,11 +541,13 @@ describe(`${schema.Collection.name} denormalization`, () => {
   });
 
   it('should buildQueryKey with matching args', () => {
-    const queryKey = buildQueryKey(
+    const memo = new MemoCache();
+    const queryKey = memo.buildQueryKey(
+      '',
       userTodos,
       [{ userId: '1' }],
-      () => undefined,
-      (key: string) => normalizeNested.entities[key],
+      normalizeNested.entities,
+      {},
     );
     expect(queryKey).toBeDefined();
     // now ensure our queryKey is usable
@@ -583,21 +566,25 @@ describe(`${schema.Collection.name} denormalization`, () => {
   });
 
   it('should buildQueryKey undefined when not in cache', () => {
-    const queryKey = buildQueryKey(
+    const memo = new MemoCache();
+    const queryKey = memo.buildQueryKey(
+      '',
       userTodos,
       [{ userId: '100' }],
-      () => undefined,
-      (key: string) => normalizeNested.entities[key],
+      normalizeNested.entities,
+      {},
     );
     expect(queryKey).toBeUndefined();
   });
 
   it('should buildQueryKey undefined with nested Collection', () => {
-    const queryKey = buildQueryKey(
+    const memo = new MemoCache();
+    const queryKey = memo.buildQueryKey(
+      '',
       User.schema.todos,
       [{ userId: '1' }],
-      () => undefined,
-      (key: string) => normalizeNested.entities[key],
+      normalizeNested.entities,
+      {},
     );
     expect(queryKey).toBeUndefined();
   });

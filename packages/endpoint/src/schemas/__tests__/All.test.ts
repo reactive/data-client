@@ -1,16 +1,9 @@
 // eslint-env jest
-import {
-  buildQueryKey,
-  normalize,
-  queryMemoized,
-  WeakEntityMap,
-} from '@data-client/normalizr';
+import { normalize, MemoCache, denormalize } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
-import denormalize from './denormalize';
 import { schema } from '../..';
-import { EntityTable } from '../../interface';
 import { INVALID } from '../../special';
 
 let dateSpy: jest.SpyInstance<number, []>;
@@ -125,7 +118,7 @@ describe.each([
       };
       const sch = new schema.All(Cat);
       expect(
-        queryMemoized(sch, [], createInput(entities), {}).data,
+        new MemoCache().query('', sch, [], createInput(entities), {}).data,
       ).toMatchSnapshot();
     });
 
@@ -139,7 +132,8 @@ describe.each([
         },
       };
       expect(
-        queryMemoized(catSchema, [], createInput(entities), {}).data,
+        new MemoCache().query('', catSchema, [], createInput(entities), {})
+          .data,
       ).toMatchSnapshot();
     });
 
@@ -152,7 +146,8 @@ describe.each([
           2: { id: '2', name: 'Jake' },
         },
       };
-      const value = queryMemoized(
+      const value = new MemoCache().query(
+        '',
         catSchema,
         [],
         createInput(entities),
@@ -175,7 +170,8 @@ describe.each([
           4: INVALID,
         },
       };
-      const value = queryMemoized(
+      const value = new MemoCache().query(
+        '',
         catSchema,
         [],
         createInput(entities) as any,
@@ -198,27 +194,12 @@ describe.each([
           2: { id: '2', name: 'Jake' },
         },
       };
-      const entityCache = {};
-      const resultCache = new WeakEntityMap();
-      const value = queryMemoized(
-        catSchema,
-        [],
-        entities,
-        {},
-        entityCache,
-        resultCache,
-      ).data;
+      const memo = new MemoCache();
+      const value = memo.query('', catSchema, [], entities, {}).data;
 
       expect(createOutput(value).results?.length).toBe(2);
       expect(createOutput(value).results).toMatchSnapshot();
-      const value2 = queryMemoized(
-        catSchema,
-        [],
-        entities,
-        {},
-        entityCache,
-        resultCache,
-      ).data;
+      const value2 = memo.query('', catSchema, [], entities, {}).data;
       expect(createOutput(value).results[0]).toBe(
         createOutput(value2).results[0],
       );
@@ -231,14 +212,7 @@ describe.each([
           3: { id: '3', name: 'Jelico' },
         },
       };
-      const value3 = queryMemoized(
-        catSchema,
-        [],
-        entities,
-        {},
-        entityCache,
-        resultCache,
-      ).data;
+      const value3 = memo.query('', catSchema, [], entities, {}).data;
       expect(createOutput(value3).results?.length).toBe(3);
       expect(createOutput(value3).results).toMatchSnapshot();
       expect(createOutput(value).results[0]).toBe(
@@ -260,7 +234,8 @@ describe.each([
         },
       };
 
-      const value = queryMemoized(
+      const value = new MemoCache().query(
+        '',
         catSchema,
         [],
         createInput(entities),
@@ -295,7 +270,8 @@ describe.each([
           2: { id: '2', name: 'Jake' },
         },
       };
-      const value = queryMemoized(
+      const value = new MemoCache().query(
+        '',
         listSchema,
         [],
         createInput(entities),
@@ -358,7 +334,8 @@ describe.each([
           },
         },
       };
-      const value = queryMemoized(
+      const value = new MemoCache().query(
+        '',
         listSchema,
         [],
         createInput(entities) as any,

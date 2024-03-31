@@ -2,9 +2,6 @@ import { NormalizedIndex } from '@data-client/normalizr';
 import type {
   UpdateFunction,
   AbstractInstanceType,
-  EntityCache,
-  ResultCache,
-  Queryable,
 } from '@data-client/normalizr';
 import type { ErrorTypes } from '@data-client/normalizr';
 
@@ -47,20 +44,6 @@ export interface State<T> {
   };
   readonly optimistic: (SetAction | OptimisticAction)[];
   readonly lastReset: number;
-}
-
-export interface DenormalizeCache {
-  entities: EntityCache;
-  endpoints: {
-    [key: string]: ResultCache;
-  };
-  infer: ResultCache;
-  queries: Map<
-    Queryable,
-    {
-      [key: string]: unknown;
-    }
-  >;
 }
 
 export * from './actions.js';

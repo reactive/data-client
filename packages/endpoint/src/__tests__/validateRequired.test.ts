@@ -2,7 +2,7 @@
 import { Temporal } from '@js-temporal/polyfill';
 import { IDEntity } from '__tests__/new';
 
-import denormalize from '../schemas/__tests__/denormalize';
+import SimpleMemoCache from '../schemas/__tests__/denormalize';
 import Entity from '../schemas/Entity';
 import validateRequired from '../validateRequired';
 
@@ -58,7 +58,7 @@ describe(`validateRequired`, () => {
     const schema = MyEntity;
 
     expect(
-      denormalize('bob', schema, {
+      new SimpleMemoCache().denormalize('bob', schema, {
         MyEntity: { bob: { name: 'bob', secondthing: 'hi' } },
       }),
     ).toMatchInlineSnapshot(`
@@ -73,7 +73,7 @@ describe(`validateRequired`, () => {
     const schema = MyEntity;
 
     expect(
-      denormalize('bob', schema, {
+      new SimpleMemoCache().denormalize('bob', schema, {
         MyEntity: {
           bob: {
             name: 'bob',
@@ -93,7 +93,7 @@ describe(`validateRequired`, () => {
   it('should be invalid (suspend) with required fields missing', () => {
     const schema = MyEntity;
 
-    const data = denormalize('bob', schema, {
+    const data = new SimpleMemoCache().denormalize('bob', schema, {
       MyEntity: {
         bob: {
           name: 'bob',

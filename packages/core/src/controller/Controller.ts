@@ -5,21 +5,17 @@ import type {
   Denormalize,
   Queryable,
   SchemaArgs,
-  ResultCache,
 } from '@data-client/normalizr';
 import {
-  WeakEntityMap,
   ExpiryStatus,
   EndpointInterface,
   FetchFunction,
   ResolveType,
   DenormalizeNullable,
   Path,
-  denormalizeCached,
+  MemoCache,
   isEntity,
   denormalize,
-  queryMemoized,
-  validateQueryKey,
 } from '@data-client/normalizr';
 
 import AbortOptimistic from './AbortOptimistic.js';
@@ -37,7 +33,7 @@ import ensurePojo from './ensurePojo.js';
 import type { EndpointUpdateFunction } from './types.js';
 import { initialState } from '../state/reducer/createReducer.js';
 import selectMeta from '../state/selectMeta.js';
-import type { ActionTypes, State, DenormalizeCache } from '../types.js';
+import type { ActionTypes, State } from '../types.js';
 
 export type GenericDispatch = (value: any) => Promise<void>;
 export type DataClientDispatch = (value: ActionTypes) => Promise<void>;
@@ -45,7 +41,7 @@ export type DataClientDispatch = (value: ActionTypes) => Promise<void>;
 interface ConstructorProps<D extends GenericDispatch = DataClientDispatch> {
   dispatch?: D;
   getState?: () => State<unknown>;
-  globalCache?: DenormalizeCache;
+  globalCache?: Pick<MemoCache, 'denormalize' | 'query' | 'buildQueryKey'>;
 }
 
 const unsetDispatch = (action: unknown): Promise<void> => {
@@ -81,17 +77,18 @@ export default class Controller<
    * @see https://dataclient.io/docs/api/Controller#getState
    */
   declare readonly getState: () => State<unknown>;
-  declare readonly globalCache: DenormalizeCache;
+  /**
+   * Singleton to maintain referential equality between calls
+   */
+  declare readonly globalCache: Pick<
+    MemoCache,
+    'denormalize' | 'query' | 'buildQueryKey'
+  >;
 
   constructor({
     dispatch = unsetDispatch as any,
     getState = unsetState,
-    globalCache = {
-      entities: {},
-      endpoints: {},
-      queries: new Map(),
-      infer: new WeakEntityMap(),
-    },
+    globalCache = new MemoCache(),
   }: ConstructorProps<D> = {}) {
     this.dispatch = dispatch;
     this.getState = getState;
@@ -389,23 +386,40 @@ export default class Controller<
       .map(ensurePojo);
     const isActive = args.length !== 1 || args[0] !== null;
     const key = isActive ? endpoint.key(...args) : '';
-    const cacheEndpoints = isActive ? state.endpoints[key] : undefined;
+    let cacheEndpoints = isActive ? state.endpoints[key] : undefined;
     const schema = endpoint.schema;
     const meta = selectMeta(state, key);
     let expiresAt = meta?.expiresAt;
+    // if we have no endpoint entry, and our endpoint has a schema - try querying the store
+    const shouldQuery =
+      cacheEndpoints === undefined && endpoint.schema !== undefined;
 
-    let results;
-    let resultCache: ResultCache;
+    if (!isActive) {
+      if (shouldQuery) {
+        // when not active simply return the query input without denormalizing
+        cacheEndpoints = this.globalCache.buildQueryKey(
+          key,
+          endpoint.schema,
+          args,
+          state.indexes,
+          state.indexes,
+        );
+      }
+      return {
+        data: cacheEndpoints as any,
+        expiryStatus: ExpiryStatus.Valid,
+        expiresAt: Infinity,
+      };
+    }
+
     // nothing in endpoints cache, so try querying if we have a schema to do so
-    if (cacheEndpoints === undefined && endpoint.schema !== undefined) {
-      const { data, paths, isInvalid } = queryMemoized(
+    if (shouldQuery) {
+      const { data, paths, isInvalid } = this.globalCache.query(
+        key,
         endpoint.schema,
         args,
         state.entities as any,
         state.indexes,
-        this.globalCache.entities,
-        this.globalCache.infer,
-        this.globalCache.queries,
       );
       if (!expiresAt && isInvalid) expiresAt = 1;
       return this.getSchemaResponse(
@@ -416,24 +430,11 @@ export default class Controller<
         endpoint.invalidIfStale || isInvalid,
         meta,
       );
-    } else {
-      if (!isActive) {
-        return {
-          data: cacheEndpoints as any,
-          expiryStatus: ExpiryStatus.Valid,
-          expiresAt: Infinity,
-        };
-      }
-
-      results = cacheEndpoints;
-      if (!this.globalCache.endpoints[key])
-        this.globalCache.endpoints[key] = new WeakEntityMap();
-      resultCache = this.globalCache.endpoints[key];
     }
 
     if (!endpoint.schema || !schemaHasEntity(endpoint.schema)) {
       return {
-        data: results,
+        data: cacheEndpoints,
         expiryStatus:
           meta?.invalidated ? ExpiryStatus.Invalid
           : cacheEndpoints && !endpoint.invalidIfStale ? ExpiryStatus.Valid
@@ -444,12 +445,10 @@ export default class Controller<
 
     // second argument is false if any entities are missing
     // eslint-disable-next-line prefer-const
-    const { data, paths } = denormalizeCached(
-      results,
+    const { data, paths } = this.globalCache.denormalize(
+      cacheEndpoints,
       schema,
       state.entities,
-      this.globalCache.entities,
-      resultCache,
       args,
     ) as { data: any; paths: Path[] };
 
@@ -480,14 +479,14 @@ export default class Controller<
       .slice(0, rest.length - 1)
       .map(ensurePojo) as SchemaArgs<S>;
 
-    const { data } = queryMemoized(
+    const key = JSON.stringify(args);
+
+    const { data } = this.globalCache.query(
+      key,
       schema,
       args,
       state.entities as any,
       state.indexes,
-      this.globalCache.entities,
-      this.globalCache.infer,
-      this.globalCache.queries,
     );
     return typeof data === 'symbol' ? undefined : (data as any);
   }

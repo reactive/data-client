@@ -4,11 +4,11 @@ import {
   normalize,
   denormalize,
   buildQueryKey,
-  WeakEntityMap,
-  denormalizeCached,
   initialState,
   createLookupEntity,
   createLookupIndex,
+  MemoCache,
+  WeakEntityMap,
 } from './dist/index.js';
 import { printStatus } from './printStatus.js';
 import {
@@ -45,31 +45,11 @@ const actionMeta = {
 };
 
 export default function addNormlizrSuite(suite) {
-  let denormCache = {
-    entities: {},
-    endpoints: {
-      '/fake': new WeakEntityMap(),
-      '/fakeQuery': new WeakEntityMap(),
-    },
-  };
+  const memo = new MemoCache();
   // prime the cache
-  denormalizeCached(
-    result,
-    ProjectSchema,
-    entities,
-    denormCache.entities,
-    denormCache.endpoints['/fake'],
-    [],
-  );
-  denormalizeCached(
-    queryState.result,
-    ProjectQuery,
-    queryState.entities,
-    denormCache.entities,
-    denormCache.endpoints['/fakeQuery'],
-    [],
-  );
-  %OptimizeFunctionOnNextCall(denormalizeCached);
+  memo.denormalize(result, ProjectSchema, entities, []);
+  memo.denormalize(queryState.result, ProjectQuery, queryState.entities, []);
+  %OptimizeFunctionOnNextCall(memo.denormalize);
   %OptimizeFunctionOnNextCall(denormalize);
   %OptimizeFunctionOnNextCall(normalize);
 
@@ -96,7 +76,7 @@ export default function addNormlizrSuite(suite) {
       );
     })
     .add('denormalizeLong', () => {
-      return denormalizeCached(result, ProjectSchema, entities);
+      return new MemoCache().denormalize(result, ProjectSchema, entities);
     })
     .add('denormalizeLong donotcache', () => {
       return denormalize(result, ProjectSchema, entities);
@@ -108,66 +88,44 @@ export default function addNormlizrSuite(suite) {
     })
     .add('denormalizeShort 500x', () => {
       for (let i = 0; i < 500; ++i) {
-        denormalizeCached('gnoff', User, githubState.entities);
+        new MemoCache().denormalize('gnoff', User, githubState.entities);
       }
     })
     .add('denormalizeShort 500x withCache', () => {
       for (let i = 0; i < 500; ++i) {
-        denormalizeCached(
-          'gnoff',
-          User,
-          githubState.entities,
-          denormCache.entities,
-          denormCache.endpoints['/user'],
-          [],
-        );
+        memo.denormalize('gnoff', User, githubState.entities, []);
       }
     })
     .add('denormalizeLong with mixin Entity', () => {
-      return denormalizeCached(result, ProjectSchemaMixin, entities);
+      return new MemoCache().denormalize(result, ProjectSchemaMixin, entities);
     })
     .add('denormalizeLong withCache', () => {
-      return denormalizeCached(
-        result,
-        ProjectSchema,
-        entities,
-        denormCache.entities,
-        denormCache.endpoints['/fake'],
-        [],
-      );
-    })
-    .add('denormalizeLongAndShort withEntityCacheOnly', () => {
-      denormalizeCached(result, ProjectSchema, entities, denormCache.entities);
-      denormalizeCached(
-        'gnoff',
-        User,
-        githubState.entities,
-        denormCache.entities,
-      );
+      return memo.denormalize(result, ProjectSchema, entities, []);
     })
     .add('denormalizeLong All withCache', () => {
-      return denormalizeCached(
+      return memo.denormalize(
         queryState.result,
         ProjectQuery,
         queryState.entities,
-        denormCache.entities,
-        denormCache.endpoints['/fakeQuery'],
         [],
       );
     })
     .add('denormalizeLong Query-sorted withCache', () => {
-      return denormalizeCached(
+      return memo.denormalize(
         queryInfer,
         ProjectQuerySorted,
         queryState.entities,
-        denormCache.entities,
-        denormCache.endpoints['/fakeQuery'],
         [],
       );
     })
+    .add('denormalizeLongAndShort withEntityCacheOnly', () => {
+      memo.endpoints = new WeakEntityMap();
+      memo.denormalize(result, ProjectSchema, entities);
+      memo.denormalize('gnoff', User, githubState.entities);
+    })
     .on('complete', function () {
       if (process.env.SHOW_OPTIMIZATION) {
-        printStatus(denormalizeCached);
+        printStatus(memo.denormalize);
         printStatus(Entity.normalize);
         printStatus(Entity.denormalize);
         printStatus(ProjectWithBuildTypesDescription.prototype.pk);

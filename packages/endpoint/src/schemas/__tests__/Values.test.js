@@ -3,7 +3,7 @@ import { normalize } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
-import { denormalizeSimple } from './denormalize';
+import SimpleMemoCache from './denormalize';
 import { schema } from '../../';
 import { INVALID } from '../../special';
 import Entity from '../Entity';
@@ -202,7 +202,7 @@ describe.each([
   ['direct', data => data],
   ['immutable', fromJS],
 ])(`input (%s)`, (_, createInput) => {
-  describe.each([['current', denormalizeSimple]])(
+  describe.each([['current', new SimpleMemoCache().denormalize]])(
     `${schema.Values.name} denormalization (%s)`,
     (_, denormalize) => {
       test('denormalizes without schemaAttribute', () => {
