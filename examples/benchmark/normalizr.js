@@ -3,12 +3,9 @@ import {
   Entity,
   normalize,
   denormalize,
-  buildQueryKey,
   initialState,
-  createLookupEntity,
-  createLookupIndex,
   MemoCache,
-  WeakEntityMap,
+  WeakDependencyMap,
 } from './dist/index.js';
 import { printStatus } from './printStatus.js';
 import {
@@ -23,17 +20,20 @@ import userData from './user.json' assert { type: 'json' };
 
 const { result, entities } = normalize(data, ProjectSchema);
 const queryState = normalize(data, ProjectQuery);
-queryState.result = buildQueryKey(
+const queryMemo = new MemoCache();
+queryState.result = queryMemo.buildQueryKey(
+  '',
   ProjectQuery,
   [],
-  createLookupIndex(queryState.indexes),
-  createLookupEntity(queryState.entities),
+  queryState.entities,
+  queryState.indexes,
 );
-const queryInfer = buildQueryKey(
+const queryInfer = queryMemo.buildQueryKey(
+  '',
   ProjectQuerySorted,
   [],
-  createLookupIndex(queryState.indexes),
-  createLookupEntity(queryState.entities),
+  queryState.entities,
+  queryState.indexes,
 );
 
 let githubState = normalize(userData, User);
@@ -68,11 +68,12 @@ export default function addNormlizrSuite(suite) {
       curState = { ...initialState, entities: {}, endpoints: {} };
     })
     .add('infer All', () => {
-      return buildQueryKey(
+      return memo.buildQueryKey(
+        '',
         ProjectQuery,
         [],
-        createLookupIndex(queryState.indexes),
-        createLookupEntity(queryState.entities),
+        queryState.entities,
+        queryState.indexes,
       );
     })
     .add('denormalizeLong', () => {
@@ -119,7 +120,7 @@ export default function addNormlizrSuite(suite) {
       );
     })
     .add('denormalizeLongAndShort withEntityCacheOnly', () => {
-      memo.endpoints = new WeakEntityMap();
+      memo.endpoints = new WeakDependencyMap();
       memo.denormalize(result, ProjectSchema, entities);
       memo.denormalize('gnoff', User, githubState.entities);
     })

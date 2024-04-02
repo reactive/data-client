@@ -1,8 +1,10 @@
 import { Temporal } from '@js-temporal/polyfill';
 
-import WeakEntityMap, { getEntities } from '../WeakEntityMap';
+import { getEntities } from '../denormalize/getEntities';
+import { EntityPath } from '../types';
+import WeakDependencyMap from '../WeakDependencyMap';
 
-describe('WeakEntityMap', () => {
+describe('WeakDependencyMap', () => {
   const a = { hi: '5' };
   const b = [1, 2, 3];
   const c = Temporal.Instant.fromEpochSeconds(0);
@@ -23,11 +25,11 @@ describe('WeakEntityMap', () => {
   const depC = { path: { key: 'C', pk: '3' }, entity: c };
 
   it('should construct', () => {
-    const wem = new WeakEntityMap();
+    const wem = new WeakDependencyMap<EntityPath>();
   });
 
   it('should set one item', () => {
-    const wem = new WeakEntityMap();
+    const wem = new WeakDependencyMap<EntityPath>();
     const deps = [depA];
     wem.set(deps, 'myvalue');
 
@@ -38,7 +40,7 @@ describe('WeakEntityMap', () => {
   });
 
   it('should set multiple on same path', () => {
-    const wem = new WeakEntityMap();
+    const wem = new WeakDependencyMap<EntityPath>();
     const attempts = [
       { key: [depA], value: 'first' },
       {
@@ -58,7 +60,7 @@ describe('WeakEntityMap', () => {
   });
 
   it('should set multiple on distinct paths', () => {
-    const wem = new WeakEntityMap();
+    const wem = new WeakDependencyMap<EntityPath>();
     const attempts = [
       {
         key: [depA, depB],
@@ -90,7 +92,7 @@ describe('WeakEntityMap', () => {
   });
 
   it('considers empty key list invalid', () => {
-    const wem = new WeakEntityMap();
+    const wem = new WeakDependencyMap<EntityPath>();
     expect(() => wem.set([], 'whatever')).toThrowErrorMatchingInlineSnapshot(
       `"Keys must include at least one member"`,
     );

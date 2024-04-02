@@ -1,5 +1,5 @@
 import type { EntityInterface } from '../interface.js';
-import { Path } from '../types.js';
+import { EntityPath } from '../types.js';
 
 export default interface Cache {
   getEntity(
@@ -14,6 +14,6 @@ export default interface Cache {
     computeValue: () => any,
   ): {
     data: any;
-    paths: Path[];
+    paths: EntityPath[];
   };
 }

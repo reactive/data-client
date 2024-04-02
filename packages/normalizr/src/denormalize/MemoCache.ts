@@ -1,3 +1,4 @@
+import { getEntities } from './getEntities.js';
 import GlobalCache from './globalCache.js';
 import getUnvisit from './unvisit.js';
 import buildQueryKey, { validateQueryKey } from '../buildQueryKey.js';
@@ -6,11 +7,11 @@ import { isImmutable } from '../schemas/ImmutableUtils.js';
 import type {
   DenormalizeNullable,
   EntityCache,
-  Path,
+  EntityPath,
   EndpointsCache,
   NormalizeNullable,
 } from '../types.js';
-import WeakEntityMap, { getEntities } from '../WeakEntityMap.js';
+import WeakDependencyMap from '../WeakDependencyMap.js';
 
 //TODO: make immutable distinction occur when initilizing MemoCache
 
@@ -19,7 +20,7 @@ export default class MemoCache {
   /** Cache for every entity based on its dependencies and its own input */
   protected entities: EntityCache = {};
   /** Caches the final denormalized form based on input, entities */
-  protected endpoints: EndpointsCache = new WeakEntityMap();
+  protected endpoints: EndpointsCache = new WeakDependencyMap<EntityPath>();
   /** Caches the queryKey based on schema, args, and any used entities or indexes */
   protected queryKey: Map<
     Schema,
@@ -36,11 +37,11 @@ export default class MemoCache {
     args: readonly any[] = [],
   ): {
     data: DenormalizeNullable<S> | symbol;
-    paths: Path[];
+    paths: EntityPath[];
   } {
     // we already vary based on input, so we don't need endpointKey? TODO: verify
     // if (!this.endpoints[endpointKey])
-    //   this.endpoints[endpointKey] = new WeakEntityMap();
+    //   this.endpoints[endpointKey] = new WeakDependencyMap<EntityPath>();
 
     // undefined means don't do anything
     if (schema === undefined) {
@@ -76,7 +77,7 @@ export default class MemoCache {
         },
   ): {
     data: DenormalizeNullable<S> | undefined;
-    paths: Path[];
+    paths: EntityPath[];
     isInvalid: boolean;
   } {
     const input = this.buildQueryKey(argsKey, schema, args, entities, indexes);
@@ -139,6 +140,7 @@ export function createLookupEntity(
     | {
         get(k: string): { toJS(): any } | undefined;
       },
+  touchList: any[] = [],
 ) {
   const entityIsImmutable = isImmutable(entities);
   if (entityIsImmutable) {

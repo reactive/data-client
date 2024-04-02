@@ -12,7 +12,7 @@ import {
   FetchFunction,
   ResolveType,
   DenormalizeNullable,
-  Path,
+  EntityPath,
   MemoCache,
   isEntity,
   denormalize,
@@ -450,7 +450,7 @@ export default class Controller<
       schema,
       state.entities,
       args,
-    ) as { data: any; paths: Path[] };
+    ) as { data: any; paths: EntityPath[] };
 
     return this.getSchemaResponse(
       data,
@@ -493,7 +493,7 @@ export default class Controller<
 
   private getSchemaResponse<T>(
     data: T,
-    paths: Path[],
+    paths: EntityPath[],
     entityMeta: State<unknown>['entityMeta'],
     expiresAt: number,
     invalidIfStale: boolean,
@@ -526,7 +526,7 @@ export default class Controller<
 // benchmark: https://www.measurethat.net/Benchmarks/Show/24691/0/min-reducer-vs-imperative-with-paths
 // earliest expiry dictates age
 function entityExpiresAt(
-  paths: Path[],
+  paths: EntityPath[],
   entityMeta: {
     readonly [entityKey: string]: {
       readonly [pk: string]: {

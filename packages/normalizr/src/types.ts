@@ -6,9 +6,9 @@ import type {
   NormalizedIndex,
   Queryable,
 } from './interface.js';
-import type WeakEntityMap from './WeakEntityMap.js';
+import type WeakDependencyMap from './WeakDependencyMap.js';
 
-export interface Path {
+export interface EntityPath {
   key: string;
   pk: string;
 }
@@ -56,10 +56,13 @@ export interface RecordClass<T = any> extends NestedSchemaClass<T> {
 
 export interface EntityCache {
   [key: string]: {
-    [pk: string]: WeakMap<EntityInterface, WeakEntityMap<object, any>>;
+    [pk: string]: WeakMap<
+      EntityInterface,
+      WeakDependencyMap<EntityPath, object, any>
+    >;
   };
 }
-export type EndpointsCache = WeakEntityMap<object, any>;
+export type EndpointsCache = WeakDependencyMap<EntityPath, object, any>;
 
 export type DenormalizeNullableNestedSchema<S extends NestedSchemaClass> =
   keyof S['schema'] extends never ?

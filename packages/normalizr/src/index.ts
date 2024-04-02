@@ -6,7 +6,7 @@ Object.hasOwn =
 import { denormalize } from './denormalize/denormalize.js';
 import { isEntity } from './isEntity.js';
 import { normalize } from './normalize.js';
-import WeakEntityMap from './WeakEntityMap.js';
+import WeakDependencyMap from './WeakDependencyMap.js';
 
 export { default as MemoCache } from './denormalize/MemoCache.js';
 export type {
@@ -15,7 +15,7 @@ export type {
   NormalizedSchema,
   EntityCache,
   EndpointsCache,
-  Path,
+  EntityPath,
   Denormalize,
   DenormalizeNullable,
   Normalize,
@@ -27,4 +27,4 @@ export * from './interface.js';
 export * from './Expiry.js';
 export { INVALID } from './denormalize/symbol.js';
 
-export { denormalize, normalize, isEntity, WeakEntityMap };
+export { denormalize, normalize, isEntity, WeakDependencyMap };

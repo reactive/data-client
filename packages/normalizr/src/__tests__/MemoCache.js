@@ -2,7 +2,7 @@
 import { Entity } from '@data-client/endpoint';
 
 import MemoCache from '../denormalize/MemoCache';
-import WeakEntityMap from '../WeakEntityMap';
+import WeakDependencyMap from '../WeakDependencyMap';
 
 class IDEntity extends Entity {
   id = '';
@@ -47,9 +47,18 @@ describe('denormalize with global cache', () => {
     };
     const result = ['1', '2'];
     const schema = [Tacos];
-    const { data: first } = memo.denormalize(result, schema, entities);
-    const { data: second } = memo.denormalize(result, schema, entities);
+    const { data: first, paths: pathsFirst } = memo.denormalize(
+      result,
+      schema,
+      entities,
+    );
+    const { data: second, paths: pathsSecond } = memo.denormalize(
+      result,
+      schema,
+      entities,
+    );
     expect(first).toBe(second);
+    expect(pathsFirst).toEqual(pathsSecond);
 
     const { data: third } = memo.denormalize([...result], schema, entities);
     expect(first).not.toBe(third);
@@ -60,6 +69,40 @@ describe('denormalize with global cache', () => {
     }).data;
     expect(first).not.toBe(fourth);
     expect(first).toEqual(fourth);
+  });
+  test('updates when results change, but entities are the same', () => {
+    const memo = new MemoCache();
+    const entities = {
+      Tacos: {
+        1: { id: '1', type: 'foo' },
+        2: { id: '2', type: 'bar' },
+      },
+    };
+    const result = { data: ['1', '2'], nextPage: 'initial' };
+    const schema = { data: [Tacos], nextPage: '' };
+    const { data: first, paths } = memo.denormalize(result, schema, entities);
+    const { data: second, paths: pathsSecond } = memo.denormalize(
+      { ...result, nextPage: 'second' },
+      schema,
+      entities,
+    );
+    expect(first.nextPage).toBe('initial');
+    expect(second.nextPage).toBe('second');
+    expect(first.data).toEqual(second.data);
+    for (let i = 0; i < first.data.length; i++) {
+      expect(first.data[i]).toBe(second.data[i]);
+    }
+
+    const { data: fourth, paths: fourthPaths } = memo.denormalize(
+      result,
+      schema,
+      {
+        Tacos: { ...entities.Tacos, 2: { id: '2', type: 'bar' } },
+      },
+    );
+    expect(first).not.toBe(fourth);
+    expect(first).toEqual(fourth);
+    expect(first.data[0]).toBe(fourth.data[0]);
   });
 
   describe('nested entities', () => {
@@ -173,9 +216,9 @@ describe('denormalize with global cache', () => {
         static key = 'Article';
       }
       const memo = new MemoCache();
-      const resultCacheA = new WeakEntityMap();
-      const resultCacheB = new WeakEntityMap();
-      const resultCacheC = new WeakEntityMap();
+      const resultCacheA = new WeakDependencyMap();
+      const resultCacheB = new WeakDependencyMap();
+      const resultCacheC = new WeakDependencyMap();
 
       // we have different result values to represent different endpoint inputs
       const resultA = { data: '123' };
