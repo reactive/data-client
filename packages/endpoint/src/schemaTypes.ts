@@ -101,9 +101,9 @@ export interface CollectionInterface<
 
   queryKey(
     args: Args,
-    indexes: unknown,
-    recurse: unknown,
-    entities: unknown,
+    queryKey: unknown,
+    lookupEntities: unknown,
+    lookupIndex: unknown,
   ): any;
 
   createIfValid: (value: any) => any | undefined;

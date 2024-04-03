@@ -221,8 +221,8 @@ export default class CollectionSchema<
   queryKey(
     args: Args,
     queryKey: unknown,
-    lookupIndex: unknown,
     lookupEntities: LookupEntities,
+    lookupIndex: unknown,
   ): any {
     if (this.argsKey) {
       const id = this.pk(undefined, undefined, '', args);

@@ -15,25 +15,27 @@ import type { NormalizeNullable } from './types.js';
 export default function buildQueryKey<S extends Schema>(
   schema: S,
   args: any[],
-  lookupIndex: LookupIndex,
   lookupEntities: LookupEntities,
+  lookupIndex: LookupIndex,
 ): NormalizeNullable<S> {
   // schema classes
   if (canQuery(schema)) {
-    return schema.queryKey(args, buildQueryKey, lookupIndex, lookupEntities);
+    return schema.queryKey(args, buildQueryKey, lookupEntities, lookupIndex);
   }
 
   // plain case
   if (typeof schema === 'object' && schema) {
     const method = Array.isArray(schema) ? arrayQuery : objectQuery;
-    return method(schema, args, buildQueryKey, lookupIndex, lookupEntities);
+    return method(schema, args, buildQueryKey, lookupEntities, lookupIndex);
   }
 
   // fallback for things like null or undefined
   return schema as any;
 }
 
-function canQuery(schema: Schema): schema is Pick<SchemaSimple, 'queryKey'> {
+export function canQuery(
+  schema: Schema,
+): schema is Pick<SchemaSimple, 'queryKey'> {
   return !!schema && typeof (schema as any).queryKey === 'function';
 }
 

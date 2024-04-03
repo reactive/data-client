@@ -42,13 +42,13 @@ export default class Query<
     queryKey: (
       schema: any,
       args: any,
-      lookupIndex: LookupIndex,
       lookupEntities: LookupEntities,
+      lookupIndex: LookupIndex,
     ) => any,
-    lookupIndex: LookupIndex,
     lookupEntities: LookupEntities,
+    lookupIndex: LookupIndex,
   ) {
-    return queryKey(this.schema, args, lookupIndex, lookupEntities);
+    return queryKey(this.schema, args, lookupEntities, lookupIndex);
   }
 
   declare _denormalizeNullable: (

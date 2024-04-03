@@ -139,9 +139,9 @@ export type SchemaArgs<S extends Queryable> =
     {
       queryKey(
         args: infer Args,
-        indexes: any,
-        recurse: (...args: any) => any,
-        entities: any,
+        queryKey: (...args: any) => any,
+        lookupEntities: any,
+        lookupIndex: any,
       ): any;
     }
   ) ?

@@ -64,8 +64,8 @@ export function queryKey(
   schema: any,
   args: any,
   queryKey: any,
-  lookupIndex: any,
   lookupEntities: any,
+  lookupIndex: any,
 ) {
   return undefined;
 }

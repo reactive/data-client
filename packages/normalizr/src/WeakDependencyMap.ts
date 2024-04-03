@@ -35,7 +35,8 @@ export default class WeakDependencyMap<
       let nextLink = curLink.next.get(entity);
       if (!nextLink) {
         nextLink = new Link<Path, K, V>();
-        curLink.next.set(entity, nextLink);
+        // void members are represented as a symbol so we can lookup
+        curLink.next.set(entity ?? UNDEF, nextLink);
       }
       curLink.nextPath = path;
       curLink = nextLink;
@@ -46,6 +47,13 @@ export default class WeakDependencyMap<
     // we could recompute this on get, but it would have a cost and we optimize for `get`
     curLink.journey = dependencies.map(dep => dep.path);
   }
+}
+
+export type GetDependency<Path, K = object | symbol> = (lookup: Path) => K;
+
+export interface Dep<Path, K = object> {
+  path: Path;
+  entity: K;
 }
 
 const EMPTY = [undefined, undefined] as const;
@@ -60,11 +68,4 @@ class Link<Path, K extends object, V> {
 
 class KeySize extends Error {
   message = 'Keys must include at least one member';
-}
-
-export type GetDependency<Path, K = object | symbol> = (lookup: Path) => K;
-
-export interface Dep<Path, K = object> {
-  path: Path;
-  entity: K;
 }

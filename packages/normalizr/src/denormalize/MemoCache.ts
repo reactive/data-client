@@ -11,7 +11,7 @@ import type {
   EndpointsCache,
   NormalizeNullable,
 } from '../types.js';
-import WeakDependencyMap from '../WeakDependencyMap.js';
+import WeakDependencyMap, { Dep, GetDependency } from '../WeakDependencyMap.js';
 
 //TODO: make immutable distinction occur when initilizing MemoCache
 
@@ -22,12 +22,7 @@ export default class MemoCache {
   /** Caches the final denormalized form based on input, entities */
   protected endpoints: EndpointsCache = new WeakDependencyMap<EntityPath>();
   /** Caches the queryKey based on schema, args, and any used entities or indexes */
-  protected queryKey: Map<
-    Schema,
-    {
-      [key: string]: unknown;
-    }
-  > = new Map();
+  protected queryKeys: Record<string, WeakDependencyMap<QueryPath>> = {};
 
   /** Compute denormalized form maintaining referential equality for same inputs */
   denormalize<S extends Schema>(
@@ -106,32 +101,67 @@ export default class MemoCache {
           getIn(k: string[]): any;
         },
   ): NormalizeNullable<S> {
-    // MEMOIZE buildQueryKey - vary on schema + argsKey
-    // NOTE: different orders can result in cache busting here; but since it's just a perf penalty we will allow for now
-    if (!this.queryKey.has(schema)) {
-      this.queryKey.set(schema, {});
+    // This is redundant for buildQueryKey checks, but that was is used for recursion so we still need the checks there
+    // null is object so we need double check
+    if (
+      (typeof schema !== 'object' &&
+        typeof (schema as any).queryKey !== 'function') ||
+      !schema
+    )
+      return schema as any;
+
+    if (!this.queryKeys[argsKey]) {
+      this.queryKeys[argsKey] = new WeakDependencyMap<QueryPath>();
     }
-    const querySchemaCache = this.queryKey.get(schema) as {
-      [key: string]: NormalizeNullable<S>;
-    };
-    if (!querySchemaCache[argsKey] || true) {
-      // do equivalent of this:
-      // cache.getEntity(pk, schema, entity, localCacheKey =>
-      //   unvisitEntityObject(entity, schema, unvisit, pk, localCacheKey, args),
-      // );
-      // stores any object touched
-      const touchList = [];
-      const lookupEntity = createLookupEntity(entities);
-      const lookupIndex = createLookupIndex(indexes);
-      querySchemaCache[argsKey] = buildQueryKey(
+    // cache lookup: argsKey -> schema -> ...touched indexes or entities
+    const queryCache = this.queryKeys[argsKey];
+    const lookupEntity = createLookupEntity(entities);
+    const lookupIndex = createLookupIndex(indexes);
+    // eslint-disable-next-line prefer-const
+    let [value, paths] = queryCache.get(
+      schema as any,
+      createDepLookup(lookupEntity, lookupIndex),
+    );
+
+    // paths undefined is the only way to truly tell nothing was found (the value could have actually been undefined)
+    if (!paths) {
+      // first dep path is ignored
+      // we start with schema object, then lookup any 'touched' members and their paths
+      const dependencies: Dep<QueryPath>[] = [
+        { path: [''], entity: schema as any },
+      ];
+
+      value = buildQueryKey(
         schema,
         args,
-        lookupIndex,
-        lookupEntity,
+        trackLookup(lookupEntity, dependencies),
+        trackLookup(lookupIndex, dependencies),
       );
+      queryCache.set(dependencies, value);
     }
-    return querySchemaCache[argsKey];
+    return value;
   }
+}
+
+type IndexPath = [key: string, field: string];
+type EntitySchemaPath = [key: string];
+type QueryPath = IndexPath | EntitySchemaPath;
+
+function createDepLookup(lookupEntity, lookupIndex): GetDependency<QueryPath> {
+  return (args: QueryPath) => {
+    return args.length === 1 ? lookupEntity(...args) : lookupIndex(...args);
+  };
+}
+
+function trackLookup<D extends any[], FD extends D>(
+  lookup: (...args: FD) => any,
+  dependencies: Dep<D>[],
+) {
+  return ((...args: Parameters<typeof lookup>) => {
+    const value = lookup(...args);
+    dependencies.push({ path: args, entity: value });
+    return value;
+  }) as any;
 }
 
 export function createLookupEntity(
@@ -140,7 +170,6 @@ export function createLookupEntity(
     | {
         get(k: string): { toJS(): any } | undefined;
       },
-  touchList: any[] = [],
 ) {
   const entityIsImmutable = isImmutable(entities);
   if (entityIsImmutable) {
@@ -161,19 +190,19 @@ export function createLookupIndex(
   const entityIsImmutable = isImmutable(indexes);
   if (entityIsImmutable) {
     return (
-      entityKey: string,
-      indexName: string,
-      indexKey: string,
-    ): string | undefined => indexes.getIn([entityKey, indexName, indexKey]);
+      key: string,
+      field: string,
+    ): { readonly [indexKey: string]: string | undefined } =>
+      indexes.getIn([key, field])?.toJS?.();
   } else {
     return (
-      entityKey: string,
-      indexName: string,
-      indexKey: string,
-    ): string | undefined => {
-      if (indexes[entityKey]) {
-        return indexes[entityKey][indexName][indexKey];
+      key: string,
+      field: string,
+    ): { readonly [indexKey: string]: string | undefined } => {
+      if (indexes[key]) {
+        return indexes[key][field];
       }
+      return {};
     };
   }
 }

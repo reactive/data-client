@@ -46,8 +46,8 @@ export default class AllSchema<
   queryKey(
     args: any,
     queryKey: any,
-    lookupIndex: any,
     lookupEntities: LookupEntities,
+    lookupIndex: any,
   ): any {
     if (this.isSingleSchema) {
       const entitiesEntry = lookupEntities(this.schema.key);

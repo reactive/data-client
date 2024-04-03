@@ -340,8 +340,8 @@ export default function EntitySchema<TBase extends Constructor>(
     static queryKey(
       args: readonly any[],
       queryKey: any,
-      lookupIndex: LookupIndex,
       lookupEntities: LookupEntities,
+      lookupIndex: LookupIndex,
     ): any {
       if (!args[0]) return;
       const id = queryKeyCandidate(this, args, lookupIndex);
@@ -658,8 +658,8 @@ export interface IEntityClass<TBase extends Constructor = any> {
   queryKey(
     args: readonly any[],
     queryKey: any,
-    lookupIndex: LookupIndex,
     lookupEntities: LookupEntities,
+    lookupIndex: LookupIndex,
   ): any;
   denormalize<
     T extends (abstract new (
@@ -707,10 +707,8 @@ function queryKeyCandidate(
   const indexName = indexFromParams(args[0], schema.indexes);
   return (
     indexName &&
-    lookupIndex(
-      schema.key,
-      indexName,
-      (args[0] as Record<string, any>)[indexName],
-    )
+    lookupIndex(schema.key, indexName)[
+      (args[0] as Record<string, any>)[indexName]
+    ]
   );
 }

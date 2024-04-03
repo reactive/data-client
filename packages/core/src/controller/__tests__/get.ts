@@ -1,7 +1,7 @@
 import { Entity, schema } from '@data-client/endpoint';
 
 import { initialState } from '../../state/reducer/createReducer';
-import Contoller from '../Controller';
+import Controller from '../Controller';
 
 describe('Controller.get()', () => {
   class Tacos extends Entity {
@@ -25,7 +25,7 @@ describe('Controller.get()', () => {
   };
 
   it('query Entity based on pk', () => {
-    const controller = new Contoller();
+    const controller = new Controller();
     const state = {
       ...initialState,
       entities,
@@ -61,7 +61,7 @@ describe('Controller.get()', () => {
       static indexes = ['username'] as const;
     }
 
-    const controller = new Contoller();
+    const controller = new Controller();
     const state = {
       ...initialState,
       entities: {
@@ -87,7 +87,7 @@ describe('Controller.get()', () => {
   });
 
   it('query Collection based on args', () => {
-    const controller = new Contoller();
+    const controller = new Controller();
     const state = {
       ...initialState,
       entities,
@@ -113,7 +113,7 @@ describe('Controller.get()', () => {
   });
 
   describe('query All', () => {
-    const controller = new Contoller();
+    const controller = new Controller();
     const state = {
       ...initialState,
       entities,
@@ -130,11 +130,10 @@ describe('Controller.get()', () => {
       () => controller.get(AllTacos, 5, state);
     });
 
-    // // TODO: (add infer cache)
-    // it('should maintain referential equality', () => {
-    //   const allTacos = controller.get(AllTacos, state);
-    //   expect(allTacos).toBe(controller.get(TacoList, state));
-    // });
+    it('should maintain referential equality', () => {
+      const allTacos = controller.get(AllTacos, state);
+      expect(allTacos).toStrictEqual(controller.get(TacoList, state));
+    });
 
     it('should include new entities when added', () => {
       controller.get(AllTacos, state);
@@ -155,7 +154,7 @@ describe('Controller.get()', () => {
   });
 
   it('Query+All based on args', () => {
-    const controller = new Contoller();
+    const controller = new Controller();
     const state = {
       ...initialState,
       entities,
@@ -177,7 +176,7 @@ describe('Controller.get()', () => {
     expect(tacosBars?.[0]).toBeInstanceOf(Tacos);
     expect(tacosBars).not.toEqual(tacos);
     // should maintain referential equality
-    // TODO: (add infer cache) expect(tacos).toBe(controller.get(QueryTacos, { type: 'foo' }, state));
+    expect(tacos).toBe(controller.get(queryTacos, { type: 'foo' }, state));
 
     const allTacos = controller.get(queryTacos, state);
     expect(allTacos).toBeDefined();
@@ -207,7 +206,7 @@ describe('Controller.get()', () => {
   });
 
   it('Query+Collection based on args', () => {
-    const controller = new Contoller();
+    const controller = new Controller();
     const state = {
       ...initialState,
       entities,
@@ -244,7 +243,7 @@ describe('Controller.get()', () => {
       },
       'type',
     );
-    const controller = new Contoller();
+    const controller = new Controller();
     const state = {
       ...initialState,
       entities: {

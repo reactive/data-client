@@ -50,11 +50,11 @@ export default class UnionSchema extends PolymorphicSchema {
     queryKey: (
       schema: any,
       args: any,
-      lookupIndex: LookupIndex,
       lookupEntities: LookupEntities,
+      lookupIndex: LookupIndex,
     ) => any,
-    lookupIndex: LookupIndex,
     lookupEntities: LookupEntities,
+    lookupIndex: LookupIndex,
   ) {
     if (!args[0]) return;
     const schema = this.getSchemaAttribute(args[0], undefined, '');
@@ -62,7 +62,7 @@ export default class UnionSchema extends PolymorphicSchema {
 
     // Was unable to infer the entity's schema from params
     if (discriminatedSchema === undefined) return;
-    const id = queryKey(discriminatedSchema, args, lookupIndex, lookupEntities);
+    const id = queryKey(discriminatedSchema, args, lookupEntities, lookupIndex);
     if (id === undefined) return;
     return { id, schema };
   }

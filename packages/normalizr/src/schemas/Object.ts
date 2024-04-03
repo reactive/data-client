@@ -63,12 +63,12 @@ export function queryKey(
   schema: any,
   args: readonly any[],
   queryKey: any,
-  lookupIndex: any,
   lookupEntities: any,
+  lookupIndex: any,
 ) {
   const resultObject: any = {};
   for (const k of Object.keys(schema)) {
-    resultObject[k] = queryKey(schema[k], args, lookupIndex, lookupEntities);
+    resultObject[k] = queryKey(schema[k], args, lookupEntities, lookupIndex);
   }
   return resultObject;
 }

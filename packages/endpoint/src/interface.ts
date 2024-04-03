@@ -14,8 +14,8 @@ export interface Queryable {
   queryKey(
     args: readonly any[],
     queryKey: (...args: any) => any,
-    lookupIndex: LookupIndex,
     lookupEntities: LookupEntities,
+    lookupIndex: LookupIndex,
     // Must be non-void
   ): {};
 }
@@ -43,8 +43,8 @@ export interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
   queryKey(
     args: Args,
     queryKey: (...args: any) => any,
-    lookupIndex: LookupIndex,
     lookupEntities: LookupEntities,
+    lookupIndex: LookupIndex,
   ): any;
 }
 
@@ -117,7 +117,10 @@ export interface LookupEntities {
 /** Get PK using an Entity Index */
 export interface LookupIndex {
   /** lookupIndex('User', 'username', 'ntucker') */
-  (entityKey: string, indexName: string, indexKey: string): string | undefined;
+  (
+    entityKey: string,
+    indexName: string,
+  ): { readonly [indexKey: string]: string | undefined };
 }
 
 /** Defines a networking endpoint */

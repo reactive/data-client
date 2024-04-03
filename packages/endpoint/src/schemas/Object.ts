@@ -64,15 +64,15 @@ export function objectQueryKey(
   queryKey: (
     schema: any,
     args: any,
-    lookupIndex: LookupIndex,
     lookupEntities: LookupEntities,
+    lookupIndex: LookupIndex,
   ) => any,
-  lookupIndex: LookupIndex,
   lookupEntities: LookupEntities,
+  lookupIndex: LookupIndex,
 ) {
   const resultObject: any = {};
   Object.keys(schema).forEach(k => {
-    resultObject[k] = queryKey(schema[k], args, lookupIndex, lookupEntities);
+    resultObject[k] = queryKey(schema[k], args, lookupEntities, lookupIndex);
   });
   return resultObject;
 }
@@ -117,13 +117,13 @@ export default class ObjectSchema {
     return denormalize(this.schema, input, args, unvisit);
   }
 
-  queryKey(args: any, queryKey: any, lookupIndex: any, lookupEntities: any) {
+  queryKey(args: any, queryKey: any, lookupEntities: any, lookupIndex: any) {
     return objectQueryKey(
       this.schema,
       args,
       queryKey,
-      lookupIndex,
       lookupEntities,
+      lookupIndex,
     );
   }
 }

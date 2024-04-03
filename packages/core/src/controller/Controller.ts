@@ -479,6 +479,7 @@ export default class Controller<
       .slice(0, rest.length - 1)
       .map(ensurePojo) as SchemaArgs<S>;
 
+    // NOTE: different orders can result in cache busting here; but since it's just a perf penalty we will allow for now
     const key = JSON.stringify(args);
 
     const { data } = this.globalCache.query(

@@ -68,7 +68,7 @@ export default function addNormlizrSuite(suite) {
       curState = { ...initialState, entities: {}, endpoints: {} };
     })
     .add('infer All', () => {
-      return memo.buildQueryKey(
+      return new MemoCache().buildQueryKey(
         '',
         ProjectQuery,
         [],
