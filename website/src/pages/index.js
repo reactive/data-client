@@ -19,7 +19,7 @@ const ProjectTitle = () => {
   //   light: useBaseUrl('img/client_logo_and_text.svg'),
   //   dark: useBaseUrl('img/client_logo_and_text.svg'),
   // };
-  // const { siteConfig } = useDocusaurusContext();
+  const { siteConfig } = useDocusaurusContext();
 
   return (
     <React.Fragment>
@@ -30,12 +30,14 @@ const ProjectTitle = () => {
           height={90}
           width={416}
         /> */}
-        <LogoAndText alt="The Reactive Data Client" height={90} />
+        <LogoAndText
+          role="img"
+          aria-label="The Reactive Data Client"
+          height={90}
+        />
       </div>
+      <h1 style={{ display: 'none' }}>{siteConfig.title}</h1>
       {/* 
-      <h1 style={{ marginBottom: '0.0', fontWeight: '600' }}>
-        {siteConfig.title}
-      </h1>
       <p style={{ marginTop: '0.0', fontWeight: '500', fontSize: '18px' }}>
         Async State <strike>Management</strike> without the Management
       </p> */}
