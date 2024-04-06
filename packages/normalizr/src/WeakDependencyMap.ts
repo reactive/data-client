@@ -12,8 +12,8 @@ export default class WeakDependencyMap<
   K extends object = object,
   V = any,
 > {
-  readonly next = new WeakMap<K, Link<Path, K, V>>();
-  nextPath: Path | undefined = undefined;
+  private readonly next = new WeakMap<K, Link<Path, K, V>>();
+  private nextPath: Path | undefined = undefined;
 
   get(entity: K, getDependency: GetDependency<Path, K | symbol>) {
     let curLink = this.next.get(entity);

@@ -227,7 +227,7 @@ export default class CollectionSchema<
     if (this.argsKey) {
       const id = this.pk(undefined, undefined, '', args);
       // ensure this actually has entity or we shouldn't try to use it in our query
-      if (lookupEntities(this.key)?.[id]) return id;
+      if (lookupEntities(this.key, id)) return id;
     }
   }
 

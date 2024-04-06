@@ -958,7 +958,7 @@ describe('MemoCache', () => {
             id = this.pk(args[0], undefined, '', args);
           }
           // Was able to infer the entity's primary key from params
-          if (id !== undefined && id !== '' && lookupEntities(this.key)?.[id])
+          if (id !== undefined && id !== '' && lookupEntities(this.key, id))
             return id;
         }
       }
@@ -1062,6 +1062,22 @@ describe('MemoCache', () => {
             {
               ...state.entities,
               ['another']: { '5': { id: '5', title: 'hi' } },
+            },
+            state.indexes,
+          );
+          expect(withEntity).toBe(first);
+        });
+        it('should be the same if other entities of the same type are updated', () => {
+          const withEntity = memo.buildQueryKey(
+            '',
+            schema,
+            ['5'],
+            {
+              ...state.entities,
+              [MyEntity.key]: {
+                ...state.entities[MyEntity.key],
+                '500': { id: '500', title: 'second title' },
+              },
             },
             state.indexes,
           );

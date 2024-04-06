@@ -38,11 +38,12 @@ interface LookupEntities {
     (entityKey: string): {
         readonly [pk: string]: any;
     } | undefined;
+    (entityKey: string, pk: string | number): any;
 }
 /** Get PK using an Entity Index */
 interface LookupIndex {
-    /** lookupIndex('User', 'username')['ntucker'] */
-    (entityKey: string, indexName: string): {
+    /** lookupIndex('User', 'username', 'ntucker') */
+    (entityKey: string, field: string, value: string): {
         readonly [indexKey: string]: string | undefined;
     };
 }
@@ -60,8 +61,8 @@ type EntityFields<U> = {
  * when any dependencies are no longer used.
  */
 declare class WeakDependencyMap<Path, K extends object = object, V = any> {
-    readonly next: WeakMap<K, Link<Path, K, V>>;
-    nextPath: Path | undefined;
+    private readonly next;
+    private nextPath;
     get(entity: K, getDependency: GetDependency<Path, K | symbol>): readonly [undefined, undefined] | readonly [V, Path[]];
     set(dependencies: Dep<Path, K>[], value: V): void;
 }
@@ -69,13 +70,6 @@ type GetDependency<Path, K = object | symbol> = (lookup: Path) => K;
 interface Dep<Path, K = object> {
     path: Path;
     entity: K;
-}
-/** Link in a chain */
-declare class Link<Path, K extends object, V> {
-    next: WeakMap<K, Link<Path, K, V>>;
-    value: V | undefined;
-    journey: Path[];
-    nextPath: Path | undefined;
 }
 
 interface EntityPath {
@@ -151,7 +145,6 @@ declare class MemoCache {
     };
     /** Compute denormalized form maintaining referential equality for same inputs */
     query<S extends Schema>(argsKey: string, schema: S, args: any[], entities: Record<string, Record<string, object>> | {
-        get(k: string): any;
         getIn(k: string[]): any;
     }, indexes: NormalizedIndex | {
         getIn(k: string[]): any;
@@ -161,14 +154,13 @@ declare class MemoCache {
         isInvalid: boolean;
     };
     buildQueryKey<S extends Schema>(argsKey: string, schema: S, args: any[], entities: Record<string, Record<string, object>> | {
-        get(k: string): any;
         getIn(k: string[]): any;
     }, indexes: NormalizedIndex | {
         getIn(k: string[]): any;
     }): NormalizeNullable<S>;
 }
-type IndexPath = [key: string, field: string];
-type EntitySchemaPath = [key: string];
+type IndexPath = [key: string, field: string, value: string];
+type EntitySchemaPath = [key: string] | [key: string, pk: string];
 type QueryPath = IndexPath | EntitySchemaPath;
 
 interface NetworkError extends Error {

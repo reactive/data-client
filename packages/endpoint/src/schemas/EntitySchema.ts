@@ -346,7 +346,7 @@ export default function EntitySchema<TBase extends Constructor>(
       if (!args[0]) return;
       const id = queryKeyCandidate(this, args, lookupIndex);
       // ensure this actually has entity or we shouldn't try to use it in our query
-      if (lookupEntities(this.key)?.[id]) return id;
+      if (lookupEntities(this.key, id)) return id;
     }
 
     static denormalize<T extends typeof EntityMixin>(
@@ -707,8 +707,10 @@ function queryKeyCandidate(
   const indexName = indexFromParams(args[0], schema.indexes);
   return (
     indexName &&
-    lookupIndex(schema.key, indexName)[
-      (args[0] as Record<string, any>)[indexName]
-    ]
+    lookupIndex(
+      schema.key,
+      indexName,
+      (args[0] as Record<string, any>)[indexName],
+    )[(args[0] as Record<string, any>)[indexName]]
   );
 }

@@ -62,7 +62,6 @@ export default class MemoCache {
     entities:
       | Record<string, Record<string, object>>
       | {
-          get(k: string): any;
           getIn(k: string[]): any;
         },
     indexes:
@@ -92,7 +91,6 @@ export default class MemoCache {
     entities:
       | Record<string, Record<string, object>>
       | {
-          get(k: string): any;
           getIn(k: string[]): any;
         },
     indexes:
@@ -102,6 +100,7 @@ export default class MemoCache {
         },
   ): NormalizeNullable<S> {
     // This is redundant for buildQueryKey checks, but that was is used for recursion so we still need the checks there
+    // TODO: If we make each recursive call include cache lookups, we combine these checks together
     // null is object so we need double check
     if (
       (typeof schema !== 'object' &&
@@ -110,10 +109,10 @@ export default class MemoCache {
     )
       return schema as any;
 
+    // cache lookup: argsKey -> schema -> ...touched indexes or entities
     if (!this.queryKeys[argsKey]) {
       this.queryKeys[argsKey] = new WeakDependencyMap<QueryPath>();
     }
-    // cache lookup: argsKey -> schema -> ...touched indexes or entities
     const queryCache = this.queryKeys[argsKey];
     const lookupEntity = createLookupEntity(entities);
     const lookupIndex = createLookupIndex(indexes);
@@ -143,13 +142,13 @@ export default class MemoCache {
   }
 }
 
-type IndexPath = [key: string, field: string];
-type EntitySchemaPath = [key: string];
+type IndexPath = [key: string, field: string, value: string];
+type EntitySchemaPath = [key: string] | [key: string, pk: string];
 type QueryPath = IndexPath | EntitySchemaPath;
 
 function createDepLookup(lookupEntity, lookupIndex): GetDependency<QueryPath> {
   return (args: QueryPath) => {
-    return args.length === 1 ? lookupEntity(...args) : lookupIndex(...args);
+    return args.length === 3 ? lookupIndex(...args) : lookupEntity(...args);
   };
 }
 
@@ -158,9 +157,9 @@ function trackLookup<D extends any[], FD extends D>(
   dependencies: Dep<D>[],
 ) {
   return ((...args: Parameters<typeof lookup>) => {
-    const value = lookup(...args);
-    dependencies.push({ path: args, entity: value });
-    return value;
+    const entity = lookup(...args);
+    dependencies.push({ path: args, entity });
+    return entity;
   }) as any;
 }
 
@@ -168,15 +167,15 @@ export function createLookupEntity(
   entities:
     | EntityTable
     | {
-        get(k: string): { toJS(): any } | undefined;
+        getIn(k: string[]): { toJS(): any } | undefined;
       },
 ) {
   const entityIsImmutable = isImmutable(entities);
   if (entityIsImmutable) {
-    return (entityKey: string) => entities.get(entityKey)?.toJS?.();
+    return (...args) => entities.getIn(args)?.toJS?.();
   } else {
-    return (entityKey: string): { readonly [pk: string]: any } | undefined =>
-      entities[entityKey];
+    return (entityKey: string, pk?: string): any =>
+      pk ? entities[entityKey]?.[pk] : entities[entityKey];
   }
 }
 
@@ -192,12 +191,14 @@ export function createLookupIndex(
     return (
       key: string,
       field: string,
+      value: string,
     ): { readonly [indexKey: string]: string | undefined } =>
       indexes.getIn([key, field])?.toJS?.();
   } else {
     return (
       key: string,
       field: string,
+      value: string,
     ): { readonly [indexKey: string]: string | undefined } => {
       if (indexes[key]) {
         return indexes[key][field];

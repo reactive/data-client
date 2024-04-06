@@ -167,11 +167,12 @@ interface LookupEntities {
     (entityKey: string): {
         readonly [pk: string]: any;
     } | undefined;
+    (entityKey: string, pk: string | number): any;
 }
 /** Get PK using an Entity Index */
 interface LookupIndex {
     /** lookupIndex('User', 'username', 'ntucker') */
-    (entityKey: string, indexName: string): {
+    (entityKey: string, field: string, value: string): {
         readonly [indexKey: string]: string | undefined;
     };
 }

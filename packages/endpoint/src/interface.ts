@@ -113,13 +113,15 @@ export interface EntityTable {
 /** Get Array of entities with map function applied */
 export interface LookupEntities {
   (entityKey: string): { readonly [pk: string]: any } | undefined;
+  (entityKey: string, pk: string | number): any;
 }
 /** Get PK using an Entity Index */
 export interface LookupIndex {
   /** lookupIndex('User', 'username', 'ntucker') */
   (
     entityKey: string,
-    indexName: string,
+    field: string,
+    value: string,
   ): { readonly [indexKey: string]: string | undefined };
 }
 
