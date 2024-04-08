@@ -66,7 +66,7 @@ export default function useSuspense<
 
     return controller
       .fetch(endpoint, ...(args as readonly [...Parameters<E>]))
-      .catch(() => null);
+      .catch(() => {});
     // we need to check against serialized params, since params can change frequently
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expiresAt, controller, key, forceFetch, state.lastReset]);

@@ -1,0 +1,81 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`useDLE should dispatch singles 1`] = `
+{
+  "endpoint": [Function],
+  "meta": {
+    "args": [
+      {
+        "id": 5,
+      },
+    ],
+    "key": "GET http://test.com/article-cooler/5",
+    "nm": false,
+    "reject": [Function],
+    "resolve": [Function],
+    "throttle": true,
+  },
+  "payload": [Function],
+  "type": "rdc/fetch",
+}
+`;
+
+exports[`useDLE should dispatch with fetch shape defined dataExpiryLength 1`] = `
+{
+  "endpoint": [Function],
+  "meta": {
+    "args": [
+      {
+        "id": 5,
+      },
+    ],
+    "key": "GET http://test.com/article-static/5",
+    "nm": false,
+    "reject": [Function],
+    "resolve": [Function],
+    "throttle": true,
+  },
+  "payload": [Function],
+  "type": "rdc/fetch",
+}
+`;
+
+exports[`useDLE should dispatch with fetch shape defined errorExpiryLength 1`] = `
+{
+  "endpoint": [Function],
+  "meta": {
+    "args": [
+      {
+        "id": 5,
+      },
+    ],
+    "key": "GET http://test.com/article-static/5",
+    "nm": false,
+    "reject": [Function],
+    "resolve": [Function],
+    "throttle": true,
+  },
+  "payload": [Function],
+  "type": "rdc/fetch",
+}
+`;
+
+exports[`useDLE should dispatch with resource defined dataExpiryLength 1`] = `
+{
+  "endpoint": [Function],
+  "meta": {
+    "args": [
+      {
+        "id": 5,
+      },
+    ],
+    "key": "GET http://test.com/article-static/5",
+    "nm": false,
+    "reject": [Function],
+    "resolve": [Function],
+    "throttle": true,
+  },
+  "payload": [Function],
+  "type": "rdc/fetch",
+}
+`;

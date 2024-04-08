@@ -1,48 +1,72 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { ExpiryStatus } from '@data-client/core';
 import type {
-  EndpointInterface,
   Denormalize,
-  Schema,
+  DenormalizeNullable,
+  ErrorTypes,
+  EndpointInterface,
   FetchFunction,
+  Schema,
+  ResolveType,
 } from '@data-client/core';
+import { ExpiryStatus } from '@data-client/core';
 import { useMemo } from 'react';
 import { InteractionManager } from 'react-native';
 
-import { SuspenseReturn } from './types.js';
 import useCacheState from './useCacheState.js';
 import useController from './useController.js';
 import useFocusEffect from './useFocusEffect.native.js';
 
+type CondNull<P, A, B> = P extends null ? A : B;
+
+type StatefulReturn<S extends Schema | undefined, P> = CondNull<
+  P,
+  {
+    data: DenormalizeNullable<S>;
+    loading: false;
+    error: undefined;
+  },
+  | {
+      data: Denormalize<S>;
+      loading: false;
+      error: undefined;
+    }
+  | { data: DenormalizeNullable<S>; loading: true; error: undefined }
+  | { data: DenormalizeNullable<S>; loading: false; error: ErrorTypes }
+>;
+
 /**
- * Ensure an endpoint is available.
- * Suspends until it is.
- *
- * `useSuspense` guarantees referential equality globally.
- * @see https://dataclient.io/docs/api/useSuspense
- * @throws {Promise} If data is not yet available.
- * @throws {NetworkError} If fetch fails.
+ * Use async date with { data, loading, error } (DLE)
+ * @see https://dataclient.io/docs/api/useDLE
  */
-export default function useSuspense<
+export default function useDLE<
   E extends EndpointInterface<
     FetchFunction,
     Schema | undefined,
     undefined | false
   >,
   Args extends readonly [...Parameters<E>] | readonly [null],
->(endpoint: E, ...args: Args): SuspenseReturn<E, Args> {
+>(
+  endpoint: E,
+  ...args: Args
+): E['schema'] extends undefined | null ?
+  {
+    data: E extends (...args: any) => any ? ResolveType<E> | undefined : any;
+    loading: boolean;
+    error: ErrorTypes | undefined;
+  }
+: StatefulReturn<E['schema'], Args[0]> {
   const state = useCacheState();
   const controller = useController();
 
   const key = args[0] !== null ? endpoint.key(...args) : '';
-  const cacheResults = key && state.endpoints[key];
-  const meta = state.meta[key];
+  const cacheResults = args[0] !== null && state.endpoints[key];
 
   // Compute denormalized value
-  const { data, expiryStatus, expiresAt } = useMemo(() => {
+  // eslint-disable-next-line prefer-const
+  let { data, expiryStatus, expiresAt } = useMemo(() => {
     // @ts-ignore
     return controller.getResponse(endpoint, ...args, state) as {
-      data: Denormalize<E['schema']>;
+      data: DenormalizeNullable<E['schema']> | undefined;
       expiryStatus: ExpiryStatus;
       expiresAt: number;
     };
@@ -52,7 +76,7 @@ export default function useSuspense<
     state.indexes,
     state.entities,
     state.entityMeta,
-    meta,
+    state.meta,
     key,
   ]);
 
@@ -66,19 +90,13 @@ export default function useSuspense<
     // null params mean don't do anything
     if ((Date.now() <= expiresAt && !forceFetch) || !key) return;
 
-    return controller
-      .fetch(endpoint, ...(args as readonly [...Parameters<E>]))
-      .catch(() => {});
+    return controller.fetch(endpoint, ...(args as any)).catch(() => {});
     // we need to check against serialized params, since params can change frequently
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expiresAt, controller, key, forceFetch, state.lastReset]);
 
-  // fully "valid" data will not suspend even if it is not fresh
-  if (expiryStatus !== ExpiryStatus.Valid && maybePromise) {
-    throw maybePromise;
-  }
-
-  if (error) throw error;
+  // fully "valid" data will not suspend/loading even if it is not fresh
+  const loading = expiryStatus !== ExpiryStatus.Valid && !!maybePromise;
 
   useFocusEffect(() => {
     // revalidating non-suspending data is low priority, so make sure it doesn't stutter animations
@@ -91,5 +109,24 @@ export default function useSuspense<
     return () => task.cancel();
   }, []);
 
-  return data as any;
+  data = useMemo(() => {
+    // if useSuspense() would suspend, don't include entities from cache
+    if (loading) {
+      if (!endpoint.schema) return undefined;
+      // @ts-ignore
+      return controller.getResponse(endpoint, ...args, {
+        ...state,
+        entities: {},
+      }).data as any;
+    }
+    return data;
+    // key substitutes args + endpoint
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key, controller, data, loading, state]);
+
+  return {
+    data,
+    loading,
+    error,
+  } as any;
 }
