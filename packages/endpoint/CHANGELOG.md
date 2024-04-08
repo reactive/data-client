@@ -1,5 +1,251 @@
 # @data-client/endpoint
 
+## 0.11.0
+
+### Minor Changes
+
+- [#2921](https://github.com/reactive/data-client/pull/2921) [`6e55026`](https://github.com/reactive/data-client/commit/6e550260672507592d75c4781dc2563a50e664fa) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING: new AbortOptimistic() -> [snapshot.abort](https://dataclient/docs/api/Snapshot#abort)
+
+  #### Before
+
+  ```ts
+  getOptimisticResponse(snapshot, { id }) {
+    const { data } = snapshot.getResponse(Base.get, { id });
+    if (!data) throw new AbortOptimistic();
+    return {
+      id,
+      votes: data.votes + 1,
+    };
+  }
+  ```
+
+  #### After
+
+  ```ts
+  getOptimisticResponse(snapshot, { id }) {
+    const { data } = snapshot.getResponse(Base.get, { id });
+    if (!data) throw snapshot.abort;
+    return {
+      id,
+      votes: data.votes + 1,
+    };
+  }
+  ```
+
+- [#2921](https://github.com/reactive/data-client/pull/2921) [`6e55026`](https://github.com/reactive/data-client/commit/6e550260672507592d75c4781dc2563a50e664fa) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING: new Query -> [new schema.Query](https://dataclient.io/rest/api/Query)
+
+  #### Before
+
+  ```jsx
+  const getUserCount = new Query(
+    new schema.All(User),
+    (entries, { isAdmin } = {}) => {
+      if (isAdmin !== undefined)
+        return entries.filter((user) => user.isAdmin === isAdmin).length;
+      return entries.length;
+    },
+  );
+
+  const userCount = useCache(getUserCount);
+  const adminCount = useCache(getUserCount, { isAdmin: true });
+  ```
+
+  #### After
+
+  ```jsx
+  const getUserCount = new schema.Query(
+    new schema.All(User),
+    (entries, { isAdmin } = {}) => {
+      if (isAdmin !== undefined)
+        return entries.filter((user) => user.isAdmin === isAdmin).length;
+      return entries.length;
+    },
+  );
+
+  const userCount = useQuery(getUserCount);
+  const adminCount = useQuery(getUserCount, { isAdmin: true });
+  ```
+
+- [#2977](https://github.com/reactive/data-client/pull/2977) [`59a407a`](https://github.com/reactive/data-client/commit/59a407a5bcaa8e5c6a948a85f5c52f106b24c5af) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING: Schema.infer -> Schema.queryKey
+
+  ```ts title="Before"
+  class MyEntity extends Entity {
+    // highlight-next-line
+    static infer(
+      args: readonly any[],
+      indexes: NormalizedIndex,
+      recurse: any,
+      entities: any,
+    ): any {
+      if (SILLYCONDITION) return undefined;
+      return super.infer(args, indexes, recurse, entities);
+    }
+  }
+  ```
+
+  ```ts title="After"
+  class MyEntity extends Entity {
+    // highlight-next-line
+    static queryKey(
+      args: readonly any[],
+      queryKey: (...args: any) => any,
+      getEntity: GetEntity,
+      getIndex: GetIndex,
+    ): any {
+      if (SILLYCONDITION) return undefined;
+      return super.queryKey(args, queryKey, getEntity, getIndex);
+    }
+  }
+  ```
+
+- [#2957](https://github.com/reactive/data-client/pull/2957) [`c129a25`](https://github.com/reactive/data-client/commit/c129a2558ecb21b5d9985c13747c555b88c51b3a) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: Remove new AbortOptimistic() in favor of [snapshot.abort](https://dataclient.io/docs/api/Snapshot#abort)
+
+  ```ts
+  getOptimisticResponse(snapshot, { id }) {
+    const { data } = snapshot.getResponse(Base.get, { id });
+    if (!data) throw snapshot.abort;
+    return {
+      id,
+      votes: data.votes + 1,
+    };
+  }
+  ```
+
+- [#2972](https://github.com/reactive/data-client/pull/2972) [`bb24601`](https://github.com/reactive/data-client/commit/bb24601e5ca5b0d92b8db75f115fcfb99fb97563) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING: Entity.useIncoming → [Entity.shouldUpdate](https://dataclient.io/rest/api/Entity#shouldupdate))
+
+  ```ts title="Before"
+  class MyEntity extends Entity {
+    // highlight-next-line
+    static useIncoming(
+      existingMeta: { date: number },
+      incomingMeta: { date: number },
+      existing: any,
+      incoming: any,
+    ) {
+      return !deepEquals(existing, incoming);
+    }
+  }
+  ```
+
+  ```ts title="After"
+  class MyEntity extends Entity {
+    // highlight-next-line
+    static shouldUpdate(
+      existingMeta: { date: number },
+      incomingMeta: { date: number },
+      existing: any,
+      incoming: any,
+    ) {
+      return !deepEquals(existing, incoming);
+    }
+  }
+  ```
+
+- [#2921](https://github.com/reactive/data-client/pull/2921) [`6e55026`](https://github.com/reactive/data-client/commit/6e550260672507592d75c4781dc2563a50e664fa) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING: useCache(new Index(MyEntity)) -> useQuery(MyEntity)
+
+  #### Before
+
+  ```jsx
+  const UserIndex = new Index(User);
+
+  const bob = useCache(UserIndex, { username: "bob" });
+  ```
+
+  #### After
+
+  ```jsx
+  const bob = useQuery(User, { username: "bob" });
+  ```
+
+### Patch Changes
+
+- [`2e169b7`](https://github.com/reactive/data-client/commit/2e169b705e4f8e2eea8005291a0e76e9d11764a4) Thanks [@ntucker](https://github.com/ntucker)! - Fix schema.All denormalize INVALID case should also work when class name mangling is performed in production builds
+
+  - `unvisit()` always returns `undefined` with `undefined` as input.
+  - `All` returns INVALID from `queryKey()` to invalidate what was previously a special case in `unvisit()` (when there is no table entry for the given entity)
+
+- [`73de27f`](https://github.com/reactive/data-client/commit/73de27fadb214c3c2995ca558daa9736312de7a9) Thanks [@ntucker](https://github.com/ntucker)! - Slight code reduction in EntitySchema.normalize
+
+- [`8377e0a`](https://github.com/reactive/data-client/commit/8377e0a157419f0f4c237c392a895fec1772854d) Thanks [@ntucker](https://github.com/ntucker)! - Default Collection Args type is:
+
+  ```ts
+  | []
+  | [urlParams: Record<string, any>]
+  | [urlParams: Record<string, any>, body: any]
+  ```
+
+- [#2921](https://github.com/reactive/data-client/pull/2921) [`6e55026`](https://github.com/reactive/data-client/commit/6e550260672507592d75c4781dc2563a50e664fa) Thanks [@ntucker](https://github.com/ntucker)! - Update README
+
+- [#2961](https://github.com/reactive/data-client/pull/2961) [`446f0b9`](https://github.com/reactive/data-client/commit/446f0b905f57c290e120c6f11a6b4708554283d1) Thanks [@ntucker](https://github.com/ntucker)! - Always normalize pk to string type
+
+  Warning: This will affect contents of the store state (some numbers will appear as strings)
+
+  Before:
+
+  ```json
+  {
+    "Article": {
+      "123": {
+        "author": 8472,
+        "id": 123,
+        "title": "A Great Article"
+      }
+    },
+    "User": {
+      "8472": {
+        "id": 8472,
+        "name": "Paul"
+      }
+    }
+  }
+  ```
+
+  After:
+
+  ```json
+  {
+    "Article": {
+      "123": {
+        "author": "8472",
+        "id": 123,
+        "title": "A Great Article"
+      }
+    },
+    "User": {
+      "8472": {
+        "id": 8472,
+        "name": "Paul"
+      }
+    }
+  }
+  ```
+
+- [#2961](https://github.com/reactive/data-client/pull/2961) [`446f0b9`](https://github.com/reactive/data-client/commit/446f0b905f57c290e120c6f11a6b4708554283d1) Thanks [@ntucker](https://github.com/ntucker)! - Allow pk() to return numbers
+
+  Before:
+
+  ```ts
+  class MyEntity extends Entity {
+    id = 0;
+    pk() {
+      return `${this.id}`;
+    }
+  }
+  ```
+
+  After:
+
+  ```ts
+  class MyEntity extends Entity {
+    id = 0;
+    pk() {
+      return this.id;
+    }
+  }
+  ```
+
+- [#2978](https://github.com/reactive/data-client/pull/2978) [`f68750f`](https://github.com/reactive/data-client/commit/f68750f8b0cafa66f6d50521e474db5e3d3c9cdd) Thanks [@ntucker](https://github.com/ntucker)! - More robustly handle Union queries when the schema cannot be found
+
 ## 0.10.0
 
 ### Minor Changes

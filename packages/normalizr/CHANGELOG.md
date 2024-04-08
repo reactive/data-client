@@ -1,5 +1,207 @@
 # Change Log
 
+## 0.11.0
+
+### Minor Changes
+
+- [`2e169b7`](https://github.com/reactive/data-client/commit/2e169b705e4f8e2eea8005291a0e76e9d11764a4) Thanks [@ntucker](https://github.com/ntucker)! - Fix schema.All denormalize INVALID case should also work when class name mangling is performed in production builds
+
+  - `unvisit()` always returns `undefined` with `undefined` as input.
+  - `All` returns INVALID from `queryKey()` to invalidate what was previously a special case in `unvisit()` (when there is no table entry for the given entity)
+
+- [#2921](https://github.com/reactive/data-client/pull/2921) [`6e55026`](https://github.com/reactive/data-client/commit/6e550260672507592d75c4781dc2563a50e664fa) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING: new AbortOptimistic() -> [snapshot.abort](https://dataclient/docs/api/Snapshot#abort)
+
+  #### Before
+
+  ```ts
+  getOptimisticResponse(snapshot, { id }) {
+    const { data } = snapshot.getResponse(Base.get, { id });
+    if (!data) throw new AbortOptimistic();
+    return {
+      id,
+      votes: data.votes + 1,
+    };
+  }
+  ```
+
+  #### After
+
+  ```ts
+  getOptimisticResponse(snapshot, { id }) {
+    const { data } = snapshot.getResponse(Base.get, { id });
+    if (!data) throw snapshot.abort;
+    return {
+      id,
+      votes: data.votes + 1,
+    };
+  }
+  ```
+
+- [#2978](https://github.com/reactive/data-client/pull/2978) [`f68750f`](https://github.com/reactive/data-client/commit/f68750f8b0cafa66f6d50521e474db5e3d3c9cdd) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: buildQueryKey() -> memo.buildQueryKey()
+
+  ```ts title="Before"
+  const results = buildQueryKey(schema, args, state.indexes, state.entities);
+  ```
+
+  ```ts title="After"
+  const memo = new MemoCached();
+  memo.buildQueryKey(key, schema, args, state.entities, state.indexes);
+  ```
+
+- [#2978](https://github.com/reactive/data-client/pull/2978) [`f68750f`](https://github.com/reactive/data-client/commit/f68750f8b0cafa66f6d50521e474db5e3d3c9cdd) Thanks [@ntucker](https://github.com/ntucker)! - Add MemoCache
+
+  `MemoCache` is a singleton to store the memoization cache for denormalization methods
+
+  ```ts
+  const memo = new MemoCache();
+  const data = memo.query(key, schema, args, state.entities, state.indexes);
+  const { data, paths } = memo.denormalize(input, schema, state.entities, args);
+  const queryKey = memo.buildQueryKey(
+    key,
+    schema,
+    args,
+    state.entities,
+    state.indexes,
+  );
+  ```
+
+- [#2977](https://github.com/reactive/data-client/pull/2977) [`59a407a`](https://github.com/reactive/data-client/commit/59a407a5bcaa8e5c6a948a85f5c52f106b24c5af) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING: Schema.infer -> Schema.queryKey
+
+  ```ts title="Before"
+  class MyEntity extends Entity {
+    // highlight-next-line
+    static infer(
+      args: readonly any[],
+      indexes: NormalizedIndex,
+      recurse: any,
+      entities: any,
+    ): any {
+      if (SILLYCONDITION) return undefined;
+      return super.infer(args, indexes, recurse, entities);
+    }
+  }
+  ```
+
+  ```ts title="After"
+  class MyEntity extends Entity {
+    // highlight-next-line
+    static queryKey(
+      args: readonly any[],
+      queryKey: (...args: any) => any,
+      getEntity: GetEntity,
+      getIndex: GetIndex,
+    ): any {
+      if (SILLYCONDITION) return undefined;
+      return super.queryKey(args, queryKey, getEntity, getIndex);
+    }
+  }
+  ```
+
+- [#2971](https://github.com/reactive/data-client/pull/2971) [`b738e18`](https://github.com/reactive/data-client/commit/b738e18f7dc2976907198192ed4ec62775e52161) Thanks [@ntucker](https://github.com/ntucker)! - type ResultCache -> EndpointCache
+
+- [#2978](https://github.com/reactive/data-client/pull/2978) [`f68750f`](https://github.com/reactive/data-client/commit/f68750f8b0cafa66f6d50521e474db5e3d3c9cdd) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: WeakEntityMap -> WeakDependencyMap
+
+  We generalize this data type so it can be used with other dependencies.
+
+  ```ts title="Before"
+  new WeakEntityMap();
+  ```
+
+  ```ts title="After"
+  new WeakDependencyMap<EntityPath>();
+  ```
+
+- [#2978](https://github.com/reactive/data-client/pull/2978) [`f68750f`](https://github.com/reactive/data-client/commit/f68750f8b0cafa66f6d50521e474db5e3d3c9cdd) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: denormalizeCached() -> new MemoCache().denormalize()
+
+  ```ts title="Before"
+  const endpointCache = new WeakEntityMap();
+  const entityCache = {};
+  denormalizeCached(
+    input,
+    schema,
+    state.entities,
+    entityCache,
+    endpointCache,
+    args,
+  );
+  ```
+
+  ```ts title="After"
+  const memo = new MemoCached();
+  memo.denormalize(input, schema, state.entities, args);
+  ```
+
+- [#2957](https://github.com/reactive/data-client/pull/2957) [`c129a25`](https://github.com/reactive/data-client/commit/c129a2558ecb21b5d9985c13747c555b88c51b3a) Thanks [@ntucker](https://github.com/ntucker)! - Add [snapshot.abort](https://dataclient.io/docs/api/Snapshot#abort)
+
+  ```ts
+  getOptimisticResponse(snapshot, { id }) {
+    const { data } = snapshot.getResponse(Base.get, { id });
+    if (!data) throw snapshot.abort;
+    return {
+      id,
+      votes: data.votes + 1,
+    };
+  }
+  ```
+
+- [#2977](https://github.com/reactive/data-client/pull/2977) [`59a407a`](https://github.com/reactive/data-client/commit/59a407a5bcaa8e5c6a948a85f5c52f106b24c5af) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING: inferResults() -> buildQueryKey()
+
+### Patch Changes
+
+- [`ca79a62`](https://github.com/reactive/data-client/commit/ca79a6266cc6834ee8d8e228b4715513d13185e0) Thanks [@ntucker](https://github.com/ntucker)! - Update description in package.json
+
+- [`73de27f`](https://github.com/reactive/data-client/commit/73de27fadb214c3c2995ca558daa9736312de7a9) Thanks [@ntucker](https://github.com/ntucker)! - Use same state meta for each entity, rather than duplicating
+
+- [#2961](https://github.com/reactive/data-client/pull/2961) [`446f0b9`](https://github.com/reactive/data-client/commit/446f0b905f57c290e120c6f11a6b4708554283d1) Thanks [@ntucker](https://github.com/ntucker)! - fix: Missing nested entities should appear once they are present (When nesting pk was a number type)
+
+- [#2921](https://github.com/reactive/data-client/pull/2921) [`6e55026`](https://github.com/reactive/data-client/commit/6e550260672507592d75c4781dc2563a50e664fa) Thanks [@ntucker](https://github.com/ntucker)! - Update README
+
+- [#2961](https://github.com/reactive/data-client/pull/2961) [`446f0b9`](https://github.com/reactive/data-client/commit/446f0b905f57c290e120c6f11a6b4708554283d1) Thanks [@ntucker](https://github.com/ntucker)! - Always normalize pk to string type
+
+  Warning: This will affect contents of the store state (some numbers will appear as strings)
+
+  Before:
+
+  ```json
+  {
+    "Article": {
+      "123": {
+        "author": 8472,
+        "id": 123,
+        "title": "A Great Article"
+      }
+    },
+    "User": {
+      "8472": {
+        "id": 8472,
+        "name": "Paul"
+      }
+    }
+  }
+  ```
+
+  After:
+
+  ```json
+  {
+    "Article": {
+      "123": {
+        "author": "8472",
+        "id": 123,
+        "title": "A Great Article"
+      }
+    },
+    "User": {
+      "8472": {
+        "id": 8472,
+        "name": "Paul"
+      }
+    }
+  }
+  ```
+
+- [#2956](https://github.com/reactive/data-client/pull/2956) [`10432b7`](https://github.com/reactive/data-client/commit/10432b7eeab8f1e31ed764d46b0775e36ea74041) Thanks [@ntucker](https://github.com/ntucker)! - fix: Missing nested entities should appear once they are present
+
 ## 0.10.0
 
 ### Minor Changes

@@ -3125,19 +3125,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@data-client/core@npm:^0.10.0, @data-client/core@workspace:^, @data-client/core@workspace:packages/core":
+"@data-client/core@npm:^0.11.0, @data-client/core@workspace:^, @data-client/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@data-client/core@workspace:packages/core"
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
-    "@data-client/normalizr": "npm:^0.10.0"
+    "@data-client/normalizr": "npm:^0.11.0"
     "@types/node": "npm:^20.0.0"
     flux-standard-action: "npm:^2.1.1"
   languageName: unknown
   linkType: soft
 
-"@data-client/endpoint@npm:^0.10.0, @data-client/endpoint@workspace:*, @data-client/endpoint@workspace:^, @data-client/endpoint@workspace:packages/endpoint":
+"@data-client/endpoint@npm:^0.11.0, @data-client/endpoint@workspace:*, @data-client/endpoint@workspace:^, @data-client/endpoint@workspace:packages/endpoint":
   version: 0.0.0-use.local
   resolution: "@data-client/endpoint@workspace:packages/endpoint"
   dependencies:
@@ -3154,7 +3154,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
-    "@data-client/endpoint": "npm:^0.10.0"
+    "@data-client/endpoint": "npm:^0.11.0"
     "@types/node": "npm:^20.0.0"
   languageName: unknown
   linkType: soft
@@ -3165,7 +3165,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
-    "@data-client/normalizr": "npm:^0.10.0"
+    "@data-client/normalizr": "npm:^0.11.0"
     "@types/node": "npm:^20.0.0"
     "@types/react": "npm:^18.0.30"
   peerDependencies:
@@ -3177,13 +3177,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/img@npm:^0.10.0, @data-client/img@workspace:packages/img":
+"@data-client/img@npm:^0.11.0, @data-client/img@workspace:packages/img":
   version: 0.0.0-use.local
   resolution: "@data-client/img@workspace:packages/img"
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
-    "@data-client/endpoint": "npm:^0.10.0"
+    "@data-client/endpoint": "npm:^0.11.0"
     "@data-client/react": "workspace:*"
     "@types/node": "npm:^20.0.0"
     "@types/react": "npm:^18.0.30"
@@ -3197,7 +3197,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/normalizr@npm:^0.10.0, @data-client/normalizr@workspace:*, @data-client/normalizr@workspace:^, @data-client/normalizr@workspace:packages/normalizr":
+"@data-client/normalizr@npm:^0.11.0, @data-client/normalizr@workspace:*, @data-client/normalizr@workspace:^, @data-client/normalizr@workspace:packages/normalizr":
   version: 0.0.0-use.local
   resolution: "@data-client/normalizr@workspace:packages/normalizr"
   dependencies:
@@ -3208,13 +3208,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/react@npm:^0.10.0, @data-client/react@workspace:*, @data-client/react@workspace:^, @data-client/react@workspace:packages/react":
+"@data-client/react@npm:^0.11.0, @data-client/react@workspace:*, @data-client/react@workspace:^, @data-client/react@workspace:packages/react":
   version: 0.0.0-use.local
   resolution: "@data-client/react@workspace:packages/react"
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
-    "@data-client/core": "npm:^0.10.0"
+    "@data-client/core": "npm:^0.11.0"
     "@data-client/use-enhanced-reducer": "npm:^0.1.5"
     "@react-navigation/native": "npm:^6.1.6"
     "@types/node": "npm:^20.0.0"
@@ -3232,13 +3232,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/redux@npm:^0.10.0, @data-client/redux@workspace:*, @data-client/redux@workspace:packages/redux":
+"@data-client/redux@npm:^0.11.0, @data-client/redux@workspace:*, @data-client/redux@workspace:packages/redux":
   version: 0.0.0-use.local
   resolution: "@data-client/redux@workspace:packages/redux"
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
-    "@data-client/core": "npm:^0.10.0"
+    "@data-client/core": "npm:^0.11.0"
     "@data-client/react": "workspace:*"
     "@types/node": "npm:^20.0.0"
     "@types/react": "npm:^18.0.30"
@@ -3254,20 +3254,41 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/rest@npm:^0.10.0, @data-client/rest@workspace:*, @data-client/rest@workspace:packages/rest":
+"@data-client/rest@npm:^0.11.0, @data-client/rest@workspace:*, @data-client/rest@workspace:packages/rest":
   version: 0.0.0-use.local
   resolution: "@data-client/rest@workspace:packages/rest"
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
-    "@data-client/endpoint": "npm:^0.10.0"
+    "@data-client/endpoint": "npm:^0.11.0"
     "@types/node": "npm:^20.0.0"
     "@types/path-to-regexp": "npm:^1.7.0"
     path-to-regexp: "npm:^6.2.1"
   languageName: unknown
   linkType: soft
 
-"@data-client/ssr@npm:^0.10.0, @data-client/ssr@workspace:packages/ssr":
+"@data-client/ssr@npm:^0.10.0":
+  version: 0.10.0
+  resolution: "@data-client/ssr@npm:0.10.0"
+  dependencies:
+    "@babel/runtime": "npm:^7.17.0"
+  peerDependencies:
+    "@data-client/react": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0 || ^0.5.0 || ^0.7.0 || ^0.8.0 || ^0.9.0 || ^0.10.0
+    "@data-client/redux": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.5.0 || ^0.7.0 || ^0.8.0 || ^0.9.0 || ^0.10.0
+    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
+    next: ">=12.0.0"
+    react: ^16.8.4 || ^17.0.0 || ^18.0.0-0
+    redux: ^4.0.0 || ^5.0.0
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    next:
+      optional: true
+  checksum: 10c0/9695c73862fa90bdd5ccafe8f0d421ac4fe769275b4bb43d6beb41feb8f9d65bbe1b21ead5c23b21d4d35fafe6e7581defb812a95536362df405b6c4cb75b287
+  languageName: node
+  linkType: hard
+
+"@data-client/ssr@workspace:packages/ssr":
   version: 0.0.0-use.local
   resolution: "@data-client/ssr@workspace:packages/ssr"
   dependencies:
@@ -10363,10 +10384,10 @@ __metadata:
     "@anansi/webpack-config": "npm:^19.0.0"
     "@babel/core": "npm:^7.22.15"
     "@babel/runtime": "npm:^7.22.15"
-    "@data-client/img": "npm:^0.10.0"
-    "@data-client/react": "npm:^0.10.0"
-    "@data-client/redux": "npm:^0.10.0"
-    "@data-client/rest": "npm:^0.10.0"
+    "@data-client/img": "npm:^0.11.0"
+    "@data-client/react": "npm:^0.11.0"
+    "@data-client/redux": "npm:^0.11.0"
+    "@data-client/rest": "npm:^0.11.0"
     "@linaria/babel-preset": "npm:*"
     "@linaria/core": "npm:*"
     "@linaria/react": "npm:*"
