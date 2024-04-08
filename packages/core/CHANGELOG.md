@@ -1,5 +1,153 @@
 # @data-client/core
 
+## 0.11.0
+
+### Minor Changes
+
+- [#2921](https://github.com/reactive/data-client/pull/2921) [`6e55026`](https://github.com/reactive/data-client/commit/6e550260672507592d75c4781dc2563a50e664fa) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING: new AbortOptimistic() -> [snapshot.abort](https://dataclient/docs/api/Snapshot#abort)
+
+  #### Before
+
+  ```ts
+  getOptimisticResponse(snapshot, { id }) {
+    const { data } = snapshot.getResponse(Base.get, { id });
+    if (!data) throw new AbortOptimistic();
+    return {
+      id,
+      votes: data.votes + 1,
+    };
+  }
+  ```
+
+  #### After
+
+  ```ts
+  getOptimisticResponse(snapshot, { id }) {
+    const { data } = snapshot.getResponse(Base.get, { id });
+    if (!data) throw snapshot.abort;
+    return {
+      id,
+      votes: data.votes + 1,
+    };
+  }
+  ```
+
+- [#2977](https://github.com/reactive/data-client/pull/2977) [`59a407a`](https://github.com/reactive/data-client/commit/59a407a5bcaa8e5c6a948a85f5c52f106b24c5af) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING: Schema.infer -> Schema.queryKey
+
+  ```ts title="Before"
+  class MyEntity extends Entity {
+    // highlight-next-line
+    static infer(
+      args: readonly any[],
+      indexes: NormalizedIndex,
+      recurse: any,
+      entities: any,
+    ): any {
+      if (SILLYCONDITION) return undefined;
+      return super.infer(args, indexes, recurse, entities);
+    }
+  }
+  ```
+
+  ```ts title="After"
+  class MyEntity extends Entity {
+    // highlight-next-line
+    static queryKey(
+      args: readonly any[],
+      queryKey: (...args: any) => any,
+      getEntity: GetEntity,
+      getIndex: GetIndex,
+    ): any {
+      if (SILLYCONDITION) return undefined;
+      return super.queryKey(args, queryKey, getEntity, getIndex);
+    }
+  }
+  ```
+
+- [#2921](https://github.com/reactive/data-client/pull/2921) [`6e55026`](https://github.com/reactive/data-client/commit/6e550260672507592d75c4781dc2563a50e664fa) Thanks [@ntucker](https://github.com/ntucker)! - Add [controller.get](https://dataclient.io/docs/api/Controller#get) / [snapshot.get](https://dataclient.io/docs/api/Snapshot#get) to directly read [Querable Schemas](https://dataclient.io/docs/api/useQuery#queryable)
+
+  #### Before
+
+  ```tsx
+  export const PostResource = createResource({
+    path: "/posts/:id",
+    schema: Post,
+  }).extend((Base) => ({
+    vote: new RestEndpoint({
+      path: "/posts/:id/vote",
+      method: "POST",
+      body: undefined,
+      schema: Post,
+      getOptimisticResponse(snapshot, { id }) {
+        const { data } = snapshot.getResponse(Base.get, { id });
+        if (!data) throw new AbortOptimistic();
+        return {
+          id,
+          votes: data.votes + 1,
+        };
+      },
+    }),
+  }));
+  ```
+
+  #### After
+
+  ```tsx
+  export const PostResource = createResource({
+    path: "/posts/:id",
+    schema: Post,
+  }).extend("vote", {
+    path: "/posts/:id/vote",
+    method: "POST",
+    body: undefined,
+    schema: Post,
+    getOptimisticResponse(snapshot, { id }) {
+      const post = snapshot.get(Post, { id });
+      if (!post) throw new AbortOptimistic();
+      return {
+        id,
+        votes: post.votes + 1,
+      };
+    },
+  });
+  ```
+
+- [#2957](https://github.com/reactive/data-client/pull/2957) [`c129a25`](https://github.com/reactive/data-client/commit/c129a2558ecb21b5d9985c13747c555b88c51b3a) Thanks [@ntucker](https://github.com/ntucker)! - Add [snapshot.abort](https://dataclient.io/docs/api/Snapshot#abort)
+
+  ```ts
+  getOptimisticResponse(snapshot, { id }) {
+    const { data } = snapshot.getResponse(Base.get, { id });
+    if (!data) throw snapshot.abort;
+    return {
+      id,
+      votes: data.votes + 1,
+    };
+  }
+  ```
+
+- [#2977](https://github.com/reactive/data-client/pull/2977) [`59a407a`](https://github.com/reactive/data-client/commit/59a407a5bcaa8e5c6a948a85f5c52f106b24c5af) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING: inferResults() -> buildQueryKey()
+
+- [#2971](https://github.com/reactive/data-client/pull/2971) [`b738e18`](https://github.com/reactive/data-client/commit/b738e18f7dc2976907198192ed4ec62775e52161) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING: Internal state.results -> state.endpoints
+
+### Patch Changes
+
+- [`2e169b7`](https://github.com/reactive/data-client/commit/2e169b705e4f8e2eea8005291a0e76e9d11764a4) Thanks [@ntucker](https://github.com/ntucker)! - Fix schema.All denormalize INVALID case should also work when class name mangling is performed in production builds
+
+  - `unvisit()` always returns `undefined` with `undefined` as input.
+  - `All` returns INVALID from `queryKey()` to invalidate what was previously a special case in `unvisit()` (when there is no table entry for the given entity)
+
+- [`ca79a62`](https://github.com/reactive/data-client/commit/ca79a6266cc6834ee8d8e228b4715513d13185e0) Thanks [@ntucker](https://github.com/ntucker)! - Update description in package.json
+
+- [#2921](https://github.com/reactive/data-client/pull/2921) [`6e55026`](https://github.com/reactive/data-client/commit/6e550260672507592d75c4781dc2563a50e664fa) Thanks [@ntucker](https://github.com/ntucker)! - Improve controller.getResponse() type matching
+
+  Uses function overloading to more precisely match argument
+  expectations for fetchable Endpoints vs only keyable Endpoints.
+
+- [#2921](https://github.com/reactive/data-client/pull/2921) [`6e55026`](https://github.com/reactive/data-client/commit/6e550260672507592d75c4781dc2563a50e664fa) Thanks [@ntucker](https://github.com/ntucker)! - Update README
+
+- Updated dependencies [[`2e169b7`](https://github.com/reactive/data-client/commit/2e169b705e4f8e2eea8005291a0e76e9d11764a4), [`6e55026`](https://github.com/reactive/data-client/commit/6e550260672507592d75c4781dc2563a50e664fa), [`ca79a62`](https://github.com/reactive/data-client/commit/ca79a6266cc6834ee8d8e228b4715513d13185e0), [`f68750f`](https://github.com/reactive/data-client/commit/f68750f8b0cafa66f6d50521e474db5e3d3c9cdd), [`f68750f`](https://github.com/reactive/data-client/commit/f68750f8b0cafa66f6d50521e474db5e3d3c9cdd), [`59a407a`](https://github.com/reactive/data-client/commit/59a407a5bcaa8e5c6a948a85f5c52f106b24c5af), [`73de27f`](https://github.com/reactive/data-client/commit/73de27fadb214c3c2995ca558daa9736312de7a9), [`446f0b9`](https://github.com/reactive/data-client/commit/446f0b905f57c290e120c6f11a6b4708554283d1), [`b738e18`](https://github.com/reactive/data-client/commit/b738e18f7dc2976907198192ed4ec62775e52161), [`6e55026`](https://github.com/reactive/data-client/commit/6e550260672507592d75c4781dc2563a50e664fa), [`446f0b9`](https://github.com/reactive/data-client/commit/446f0b905f57c290e120c6f11a6b4708554283d1), [`f68750f`](https://github.com/reactive/data-client/commit/f68750f8b0cafa66f6d50521e474db5e3d3c9cdd), [`f68750f`](https://github.com/reactive/data-client/commit/f68750f8b0cafa66f6d50521e474db5e3d3c9cdd), [`c129a25`](https://github.com/reactive/data-client/commit/c129a2558ecb21b5d9985c13747c555b88c51b3a), [`10432b7`](https://github.com/reactive/data-client/commit/10432b7eeab8f1e31ed764d46b0775e36ea74041), [`59a407a`](https://github.com/reactive/data-client/commit/59a407a5bcaa8e5c6a948a85f5c52f106b24c5af)]:
+  - @data-client/normalizr@0.11.0
+
 ## 0.10.0
 
 ### Minor Changes

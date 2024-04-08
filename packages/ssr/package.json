@@ -1,6 +1,6 @@
 {
   "name": "@data-client/ssr",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Server Side Rendering helpers for Data Client",
   "homepage": "https://dataclient.io/docs/guides/ssr",
   "repository": {

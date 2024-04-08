@@ -1,6 +1,6 @@
 {
   "name": "@data-client/react",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "High performance mutable data rendering in React.",
   "homepage": "https://dataclient.io",
   "repository": {
@@ -127,7 +127,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime": "^7.17.0",
-    "@data-client/core": "^0.10.0",
+    "@data-client/core": "^0.11.0",
     "@data-client/use-enhanced-reducer": "^0.1.5"
   },
   "peerDependencies": {
