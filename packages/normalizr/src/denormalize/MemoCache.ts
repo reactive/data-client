@@ -69,19 +69,15 @@ export default class MemoCache {
       | {
           getIn(k: string[]): any;
         },
-  ): {
-    data: DenormalizeNullable<S> | undefined;
-    paths: EntityPath[];
-    isInvalid: boolean;
-  } {
+  ): DenormalizeNullable<S> | undefined {
     const input = this.buildQueryKey(argsKey, schema, args, entities, indexes);
 
-    if (!validateQueryKey(input)) {
-      return { data: input as any, paths: [], isInvalid: true };
+    if (!input) {
+      return;
     }
 
-    const { data, paths } = this.denormalize(input, schema, entities, args);
-    return { data, paths, isInvalid: false } as any;
+    const { data } = this.denormalize(input, schema, entities, args);
+    return typeof data === 'symbol' ? undefined : (data as any);
   }
 
   buildQueryKey<S extends Schema>(

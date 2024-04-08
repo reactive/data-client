@@ -16,6 +16,7 @@ import {
   MemoCache,
   isEntity,
   denormalize,
+  validateQueryKey,
 } from '@data-client/normalizr';
 
 import AbortOptimistic from './AbortOptimistic.js';
@@ -41,7 +42,7 @@ export type DataClientDispatch = (value: ActionTypes) => Promise<void>;
 interface ConstructorProps<D extends GenericDispatch = DataClientDispatch> {
   dispatch?: D;
   getState?: () => State<unknown>;
-  globalCache?: Pick<MemoCache, 'denormalize' | 'query' | 'buildQueryKey'>;
+  memo?: Pick<MemoCache, 'denormalize' | 'query' | 'buildQueryKey'>;
 }
 
 const unsetDispatch = (action: unknown): Promise<void> => {
@@ -80,7 +81,7 @@ export default class Controller<
   /**
    * Singleton to maintain referential equality between calls
    */
-  declare readonly globalCache: Pick<
+  declare readonly memo: Pick<
     MemoCache,
     'denormalize' | 'query' | 'buildQueryKey'
   >;
@@ -88,11 +89,11 @@ export default class Controller<
   constructor({
     dispatch = unsetDispatch as any,
     getState = unsetState,
-    globalCache = new MemoCache(),
+    memo = new MemoCache(),
   }: ConstructorProps<D> = {}) {
     this.dispatch = dispatch;
     this.getState = getState;
-    this.globalCache = globalCache;
+    this.memo = memo;
   }
 
   /*************** Action Dispatchers ***************/
@@ -397,7 +398,7 @@ export default class Controller<
     if (!isActive) {
       if (shouldQuery) {
         // when not active simply return the query input without denormalizing
-        cacheEndpoints = this.globalCache.buildQueryKey(
+        cacheEndpoints = this.memo.buildQueryKey(
           key,
           endpoint.schema,
           args,
@@ -414,13 +415,22 @@ export default class Controller<
 
     // nothing in endpoints cache, so try querying if we have a schema to do so
     if (shouldQuery) {
-      const { data, paths, isInvalid } = this.globalCache.query(
+      const queryKey = this.memo.buildQueryKey(
         key,
         endpoint.schema,
         args,
         state.entities as any,
         state.indexes,
       );
+      const isInvalid = !validateQueryKey(queryKey);
+
+      const { data, paths } = this.memo.denormalize(
+        queryKey,
+        schema,
+        state.entities,
+        args,
+      );
+
       if (!expiresAt && isInvalid) expiresAt = 1;
       return this.getSchemaResponse(
         data,
@@ -445,7 +455,7 @@ export default class Controller<
 
     // second argument is false if any entities are missing
     // eslint-disable-next-line prefer-const
-    const { data, paths } = this.globalCache.denormalize(
+    const { data, paths } = this.memo.denormalize(
       cacheEndpoints,
       schema,
       state.entities,
@@ -482,14 +492,13 @@ export default class Controller<
     // NOTE: different orders can result in cache busting here; but since it's just a perf penalty we will allow for now
     const key = JSON.stringify(args);
 
-    const { data } = this.globalCache.query(
+    return this.memo.query(
       key,
       schema,
       args,
       state.entities as any,
       state.indexes,
     );
-    return typeof data === 'symbol' ? undefined : (data as any);
   }
 
   private getSchemaResponse<T>(

@@ -118,7 +118,7 @@ describe.each([
       };
       const sch = new schema.All(Cat);
       expect(
-        new MemoCache().query('', sch, [], createInput(entities), {}).data,
+        new MemoCache().query('', sch, [], createInput(entities), {}),
       ).toMatchSnapshot();
     });
 
@@ -132,8 +132,7 @@ describe.each([
         },
       };
       expect(
-        new MemoCache().query('', catSchema, [], createInput(entities), {})
-          .data,
+        new MemoCache().query('', catSchema, [], createInput(entities), {}),
       ).toMatchSnapshot();
     });
 
@@ -152,7 +151,7 @@ describe.each([
         [],
         createInput(entities),
         {},
-      ).data;
+      );
       expect(value).not.toEqual(expect.any(Symbol));
       if (typeof value === 'symbol' || value === undefined) return;
       expect(createOutput(value.results)).toMatchSnapshot();
@@ -176,7 +175,7 @@ describe.each([
         [],
         createInput(entities) as any,
         {},
-      ).data;
+      );
       expect(value).not.toEqual(expect.any(Symbol));
       if (typeof value === 'symbol' || value === undefined) return;
       expect(createOutput(value.results).length).toBe(2);
@@ -195,11 +194,11 @@ describe.each([
         },
       };
       const memo = new MemoCache();
-      const value = memo.query('', catSchema, [], entities, {}).data;
+      const value = memo.query('', catSchema, [], entities, {});
 
       expect(createOutput(value).results?.length).toBe(2);
       expect(createOutput(value).results).toMatchSnapshot();
-      const value2 = memo.query('', catSchema, [], entities, {}).data;
+      const value2 = memo.query('', catSchema, [], entities, {});
       expect(createOutput(value).results[0]).toBe(
         createOutput(value2).results[0],
       );
@@ -212,7 +211,7 @@ describe.each([
           3: { id: '3', name: 'Jelico' },
         },
       };
-      const value3 = memo.query('', catSchema, [], entities, {}).data;
+      const value3 = memo.query('', catSchema, [], entities, {});
       expect(createOutput(value3).results?.length).toBe(3);
       expect(createOutput(value3).results).toMatchSnapshot();
       expect(createOutput(value).results[0]).toBe(
@@ -240,9 +239,9 @@ describe.each([
         [],
         createInput(entities),
         {},
-      ).data;
+      );
 
-      expect(createOutput(value)).toEqual(expect.any(Symbol));
+      expect(createOutput(value)).toBeUndefined();
     });
 
     test('denormalizes should not be found when no entities are present (polymorphic)', () => {
@@ -276,9 +275,9 @@ describe.each([
         [],
         createInput(entities),
         {},
-      ).data;
+      );
 
-      expect(createOutput(value)).toEqual(expect.any(Symbol));
+      expect(createOutput(value)).toBeUndefined();
     });
 
     test('returns the input value if is null', () => {
@@ -340,7 +339,7 @@ describe.each([
         [],
         createInput(entities) as any,
         {},
-      ).data;
+      );
       expect(value).not.toEqual(expect.any(Symbol));
       if (typeof value === 'symbol') return;
       expect(value).toMatchSnapshot();

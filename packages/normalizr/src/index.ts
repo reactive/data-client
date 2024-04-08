@@ -26,5 +26,6 @@ export * from './endpoint/types.js';
 export * from './interface.js';
 export * from './Expiry.js';
 export { INVALID } from './denormalize/symbol.js';
+export { validateQueryKey } from './buildQueryKey.js';
 
 export { denormalize, normalize, isEntity, WeakDependencyMap };

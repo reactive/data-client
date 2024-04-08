@@ -189,11 +189,7 @@ declare class MemoCache {
         getIn(k: string[]): any;
     }, indexes: NormalizedIndex | {
         getIn(k: string[]): any;
-    }): {
-        data: DenormalizeNullable<S> | undefined;
-        paths: EntityPath[];
-        isInvalid: boolean;
-    };
+    }): DenormalizeNullable<S> | undefined;
     buildQueryKey<S extends Schema>(argsKey: string, schema: S, args: any[], entities: Record<string, Record<string, object>> | {
         getIn(k: string[]): any;
     }, indexes: NormalizedIndex | {
@@ -298,4 +294,6 @@ type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Pr
 
 declare const INVALID: unique symbol;
 
-export { AbstractInstanceType, ArrayElement, Denormalize, DenormalizeNullable, EndpointExtraOptions, EndpointInterface, EndpointsCache, EntityCache, EntityInterface, EntityPath, EntityTable, ErrorTypes, ExpiryStatus, ExpiryStatusInterface, FetchFunction, INVALID, IndexInterface, IndexParams, InferReturn, LookupEntities, LookupIndex, MemoCache, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, NormalizeReturnType, NormalizedIndex, NormalizedSchema, OptimisticUpdateParams, Queryable, ReadEndpoint, ResolveType, Schema, SchemaArgs, SchemaClass, SchemaSimple, Serializable, SnapshotInterface, UnknownError, UpdateFunction, WeakDependencyMap, denormalize, isEntity, normalize };
+declare function validateQueryKey(queryKey: unknown): any;
+
+export { AbstractInstanceType, ArrayElement, Denormalize, DenormalizeNullable, EndpointExtraOptions, EndpointInterface, EndpointsCache, EntityCache, EntityInterface, EntityPath, EntityTable, ErrorTypes, ExpiryStatus, ExpiryStatusInterface, FetchFunction, INVALID, IndexInterface, IndexParams, InferReturn, LookupEntities, LookupIndex, MemoCache, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, NormalizeReturnType, NormalizedIndex, NormalizedSchema, OptimisticUpdateParams, Queryable, ReadEndpoint, ResolveType, Schema, SchemaArgs, SchemaClass, SchemaSimple, Serializable, SnapshotInterface, UnknownError, UpdateFunction, WeakDependencyMap, denormalize, isEntity, normalize, validateQueryKey };

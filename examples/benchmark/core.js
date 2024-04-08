@@ -115,7 +115,7 @@ export default function addReducerSuite(suite) {
       .add('getResponse (clear cache)', () => {
         // TODO: is this better?
         //controller = new Controller({});
-        controller.globalCache = new MemoCache();
+        controller.memo = new MemoCache();
         return controller.getResponse(getProject, cachedState);
       })
       .add('getSmallResponse', () => {

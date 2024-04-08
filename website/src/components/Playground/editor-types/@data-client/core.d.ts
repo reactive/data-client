@@ -148,11 +148,7 @@ declare class MemoCache {
         getIn(k: string[]): any;
     }, indexes: NormalizedIndex | {
         getIn(k: string[]): any;
-    }): {
-        data: DenormalizeNullable<S> | undefined;
-        paths: EntityPath[];
-        isInvalid: boolean;
-    };
+    }): DenormalizeNullable<S> | undefined;
     buildQueryKey<S extends Schema>(argsKey: string, schema: S, args: any[], entities: Record<string, Record<string, object>> | {
         getIn(k: string[]): any;
     }, indexes: NormalizedIndex | {
@@ -426,7 +422,7 @@ type DataClientDispatch = (value: ActionTypes) => Promise<void>;
 interface ConstructorProps<D extends GenericDispatch = DataClientDispatch> {
     dispatch?: D;
     getState?: () => State<unknown>;
-    globalCache?: Pick<MemoCache, 'denormalize' | 'query' | 'buildQueryKey'>;
+    memo?: Pick<MemoCache, 'denormalize' | 'query' | 'buildQueryKey'>;
 }
 /**
  * Imperative control of Reactive Data Client store
@@ -450,8 +446,8 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
     /**
      * Singleton to maintain referential equality between calls
      */
-    readonly globalCache: Pick<MemoCache, 'denormalize' | 'query' | 'buildQueryKey'>;
-    constructor({ dispatch, getState, globalCache, }?: ConstructorProps<D>);
+    readonly memo: Pick<MemoCache, 'denormalize' | 'query' | 'buildQueryKey'>;
+    constructor({ dispatch, getState, memo, }?: ConstructorProps<D>);
     /*************** Action Dispatchers ***************/
     /**
      * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
