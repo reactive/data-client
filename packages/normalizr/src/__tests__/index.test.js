@@ -4,8 +4,8 @@ import { fromJS } from 'immutable';
 
 import { normalize } from '../';
 import { denormalize as denormalizeSimple } from '../denormalize/denormalize';
-import MemoCached from '../denormalize/MemoCache';
 import { INVALID } from '../denormalize/symbol';
+import MemoCached from '../memo/MemoCache';
 
 class IDEntity extends Entity {
   id = '';

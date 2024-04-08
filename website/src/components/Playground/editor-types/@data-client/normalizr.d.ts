@@ -2,7 +2,7 @@ type Schema = null | string | {
     [K: string]: any;
 } | Schema[] | SchemaSimple | Serializable;
 interface Queryable {
-    queryKey(args: readonly any[], queryKey: (...args: any) => any, lookupEntities: LookupEntities, lookupIndex: LookupIndex): {};
+    queryKey(args: readonly any[], queryKey: (...args: any) => any, getEntity: GetEntity, getIndex: GetIndex): {};
 }
 type Serializable<T extends {
     toJSON(): string;
@@ -12,7 +12,7 @@ type Serializable<T extends {
 interface SchemaSimple<T = any, Args extends any[] = any[]> {
     normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args: any[]): any;
     denormalize(input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any): T;
-    queryKey(args: Args, queryKey: (...args: any) => any, lookupEntities: LookupEntities, lookupIndex: LookupIndex): any;
+    queryKey(args: Args, queryKey: (...args: any) => any, getEntity: GetEntity, getIndex: GetIndex): any;
 }
 interface SchemaClass<T = any, N = T | undefined, Args extends any[] = any[]> extends SchemaSimple<T, Args> {
     _normalizeNullable(): any;
@@ -43,15 +43,15 @@ interface EntityTable {
     } | undefined;
 }
 /** Get Array of entities with map function applied */
-interface LookupEntities {
+interface GetEntity {
     (entityKey: string): {
         readonly [pk: string]: any;
     } | undefined;
     (entityKey: string, pk: string | number): any;
 }
 /** Get PK using an Entity Index */
-interface LookupIndex {
-    /** lookupIndex('User', 'username', 'ntucker') */
+interface GetIndex {
+    /** getIndex('User', 'username', 'ntucker') */
     (entityKey: string, field: string, value: string): {
         readonly [indexKey: string]: string | undefined;
     };
@@ -61,25 +61,6 @@ interface LookupIndex {
 type EntityFields<U> = {
     readonly [K in keyof U as U[K] extends (...args: any) => any ? never : K]?: U[K] extends number ? U[K] | string : U[K] extends string ? U[K] | number : U[K];
 };
-
-/** Maps a (ordered) list of dependencies to a value.
- *
- * Useful as a memoization cache for flat/normalized stores.
- *
- * All dependencies are only weakly referenced, allowing automatic garbage collection
- * when any dependencies are no longer used.
- */
-declare class WeakDependencyMap<Path, K extends object = object, V = any> {
-    private readonly next;
-    private nextPath;
-    get(entity: K, getDependency: GetDependency<Path, K | symbol>): readonly [undefined, undefined] | readonly [V, Path[]];
-    set(dependencies: Dep<Path, K>[], value: V): void;
-}
-type GetDependency<Path, K = object | symbol> = (lookup: Path) => K;
-interface Dep<Path, K = object> {
-    path: Path;
-    entity: K;
-}
 
 interface EntityPath {
     key: string;
@@ -107,12 +88,6 @@ interface NestedSchemaClass<T = any> {
 interface RecordClass<T = any> extends NestedSchemaClass<T> {
     fromJS: (...args: any) => AbstractInstanceType<T>;
 }
-interface EntityCache {
-    [key: string]: {
-        [pk: string]: WeakMap<EntityInterface, WeakDependencyMap<EntityPath, object, any>>;
-    };
-}
-type EndpointsCache = WeakDependencyMap<EntityPath, object, any>;
 type DenormalizeNullableNestedSchema<S extends NestedSchemaClass> = keyof S['schema'] extends never ? S['prototype'] : string extends keyof S['schema'] ? S['prototype'] : S['prototype'];
 type NormalizeReturnType<T> = T extends (...args: any) => infer R ? R : never;
 type Denormalize<S> = S extends EntityInterface<infer U> ? U : S extends RecordClass ? AbstractInstanceType<S> : S extends {
@@ -150,12 +125,31 @@ type NormalizedSchema<E, R> = {
     };
 };
 type SchemaArgs<S extends Queryable> = S extends EntityInterface<infer U> ? [EntityFields<U>] : S extends ({
-    queryKey(args: infer Args, queryKey: (...args: any) => any, lookupEntities: any, lookupIndex: any): any;
+    queryKey(args: infer Args, queryKey: (...args: any) => any, getEntity: any, getIndex: any): any;
 }) ? Args : never;
 
 declare function denormalize<S extends Schema>(input: any, schema: S | undefined, entities: any, args?: readonly any[]): DenormalizeNullable<S> | symbol;
 
 declare function isEntity(schema: Schema): schema is EntityInterface;
+
+/** Maps a (ordered) list of dependencies to a value.
+ *
+ * Useful as a memoization cache for flat/normalized stores.
+ *
+ * All dependencies are only weakly referenced, allowing automatic garbage collection
+ * when any dependencies are no longer used.
+ */
+declare class WeakDependencyMap<Path, K extends object = object, V = any> {
+    private readonly next;
+    private nextPath;
+    get(entity: K, getDependency: GetDependency<Path, K | symbol>): readonly [undefined, undefined] | readonly [V, Path[]];
+    set(dependencies: Dep<Path, K>[], value: V): void;
+}
+type GetDependency<Path, K = object | symbol> = (lookup: Path) => K;
+interface Dep<Path, K = object> {
+    path: Path;
+    entity: K;
+}
 
 declare const normalize: <S extends Schema = Schema, E extends Record<string, Record<string, any> | undefined> = Record<string, Record<string, any>>, R = NormalizeNullable<S>>(input: any, schema?: S, args?: any[], storeEntities?: Readonly<E>, storeIndexes?: Readonly<NormalizedIndex>, storeEntityMeta?: {
     readonly [entityKey: string]: {
@@ -170,6 +164,13 @@ declare const normalize: <S extends Schema = Schema, E extends Record<string, Re
     date: number;
     fetchedAt: number;
 }) => NormalizedSchema<E, R>;
+
+interface EntityCache {
+    [key: string]: {
+        [pk: string]: WeakMap<EntityInterface, WeakDependencyMap<EntityPath, object, any>>;
+    };
+}
+type EndpointsCache = WeakDependencyMap<EntityPath, object, any>;
 
 /** Singleton to store the memoization cache for denormalization methods */
 declare class MemoCache {
@@ -296,4 +297,4 @@ declare const INVALID: unique symbol;
 
 declare function validateQueryKey(queryKey: unknown): any;
 
-export { AbstractInstanceType, ArrayElement, Denormalize, DenormalizeNullable, EndpointExtraOptions, EndpointInterface, EndpointsCache, EntityCache, EntityInterface, EntityPath, EntityTable, ErrorTypes, ExpiryStatus, ExpiryStatusInterface, FetchFunction, INVALID, IndexInterface, IndexParams, InferReturn, LookupEntities, LookupIndex, MemoCache, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, NormalizeReturnType, NormalizedIndex, NormalizedSchema, OptimisticUpdateParams, Queryable, ReadEndpoint, ResolveType, Schema, SchemaArgs, SchemaClass, SchemaSimple, Serializable, SnapshotInterface, UnknownError, UpdateFunction, WeakDependencyMap, denormalize, isEntity, normalize, validateQueryKey };
+export { AbstractInstanceType, ArrayElement, Denormalize, DenormalizeNullable, EndpointExtraOptions, EndpointInterface, EntityInterface, EntityPath, EntityTable, ErrorTypes, ExpiryStatus, ExpiryStatusInterface, FetchFunction, GetEntity, GetIndex, INVALID, IndexInterface, IndexParams, InferReturn, MemoCache, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, NormalizeReturnType, NormalizedIndex, NormalizedSchema, OptimisticUpdateParams, Queryable, ReadEndpoint, ResolveType, Schema, SchemaArgs, SchemaClass, SchemaSimple, Serializable, SnapshotInterface, UnknownError, UpdateFunction, WeakDependencyMap, denormalize, isEntity, normalize, validateQueryKey };

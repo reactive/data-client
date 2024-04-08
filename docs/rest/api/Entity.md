@@ -371,7 +371,7 @@ static mergeMetaWithStore(
 
 `mergeMetaWithStore()` is called during normalization when a processed entity is already found in the store.
 
-### static queryKey(args, indexes, recurse, entities): pk? {#queryKey}
+### static queryKey(args, queryKey, getEntity, getIndex): pk? {#queryKey}
 
 This method enables `Entities` to be [Queryable](./schema.md#queryable) - allowing store access without an endpoint.
 
@@ -384,6 +384,31 @@ Returning `pk` string will attempt to lookup this entity and use in the response
 When used, expiry policy is computed based on the entity's own meta data.
 
 By **default** uses the first argument to lookup in [pk()](#pk) and [indexes](#indexes)
+
+#### getEntity(key, pk?)
+
+Gets all entities of a type with one argument, or a single entity with two
+
+```ts title="One argument"
+const entitiesEntry = getEntity(this.schema.key);
+if (entitiesEntry === undefined) return INVALID;
+return Object.values(entitiesEntry).map(
+  entity => entity && this.schema.pk(entity),
+);
+```
+
+```ts title="Two arguments"
+if (getEntity(this.key, id)) return id;
+```
+
+#### getIndex(key, indexName, value)
+
+Returns the index entry (value->pk map)
+
+```ts
+const value = args[0][indexName];
+return getIndex(schema.key, indexName, value)[value];
+```
 
 ### static createIfValid(processedEntity): Entity | undefined {#createIfValid}
 

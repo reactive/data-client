@@ -7,9 +7,10 @@ import {
   IndexedUser,
   FirstUnion,
 } from '__tests__/new';
+import { fromJS } from 'immutable';
 
-import MemoCache from '../denormalize/MemoCache';
-import { LookupEntities, LookupIndex } from '../interface';
+import { GetEntity, GetIndex } from '../interface';
+import MemoCache from '../memo/MemoCache';
 
 class IDEntity extends Entity {
   id = '';
@@ -947,8 +948,8 @@ describe('MemoCache', () => {
         static queryKey(
           args: any[],
           queryKey: any,
-          lookupEntities: LookupEntities,
-          lookupIndex: LookupIndex,
+          getEntity: GetEntity,
+          getIndex: GetIndex,
         ) {
           if (!args[0]) return;
           let id: undefined | number | string;
@@ -958,7 +959,7 @@ describe('MemoCache', () => {
             id = this.pk(args[0], undefined, '', args);
           }
           // Was able to infer the entity's primary key from params
-          if (id !== undefined && id !== '' && lookupEntities(this.key, id))
+          if (id !== undefined && id !== '' && getEntity(this.key, id))
             return id;
         }
       }
@@ -1084,6 +1085,75 @@ describe('MemoCache', () => {
           expect(withEntity).toBe(first);
         });
       });
+    });
+  });
+
+  describe.each([
+    ['direct', <T>(data: T) => data, <T>(data: T) => data],
+    [
+      'immutable',
+      fromJS,
+      (v: any) => (typeof v?.toJS === 'function' ? v.toJS() : v),
+    ],
+  ])(`query (%s)`, (_, createInput, createOutput) => {
+    class Cat extends IDEntity {
+      id = '0';
+      name = '';
+      username = '';
+      static indexes = ['username' as const];
+    }
+    const entities = {
+      Cat: {
+        '1': { id: '1', name: 'Milo', username: 'm' },
+        '2': { id: '2', name: 'Jake', username: 'j' },
+      },
+    };
+    const indexes = {
+      Cat: {
+        username: { m: '1', j: '2' },
+      },
+    };
+
+    test('works with indexes', () => {
+      const m = new MemoCache().query(
+        '',
+        Cat,
+        [{ username: 'm' }],
+        createInput(entities),
+        createInput(indexes),
+      );
+      expect(m).toBeDefined();
+      expect(m).toMatchSnapshot();
+      expect(
+        new MemoCache().query(
+          '',
+          Cat,
+          [{ username: 'doesnotexist' }],
+          createInput(entities),
+          createInput(indexes),
+        ),
+      ).toBeUndefined();
+    });
+
+    test('works with pk', () => {
+      const m = new MemoCache().query(
+        '',
+        Cat,
+        [{ id: '1' }],
+        createInput(entities),
+        createInput(indexes),
+      );
+      expect(m).toBeDefined();
+      expect(m).toMatchSnapshot();
+      expect(
+        new MemoCache().query(
+          '',
+          Cat,
+          [{ id: 'doesnotexist' }],
+          createInput(entities),
+          createInput(indexes),
+        ),
+      ).toBeUndefined();
     });
   });
 });

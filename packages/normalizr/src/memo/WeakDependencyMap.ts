@@ -1,4 +1,4 @@
-import { UNDEF } from './denormalize/UNDEF.js';
+import { UNDEF } from '../denormalize/UNDEF.js';
 
 /** Maps a (ordered) list of dependencies to a value.
  *

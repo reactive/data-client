@@ -2,7 +2,7 @@ type Schema = null | string | {
     [K: string]: any;
 } | Schema[] | SchemaSimple | Serializable;
 interface Queryable {
-    queryKey(args: readonly any[], queryKey: (...args: any) => any, lookupEntities: LookupEntities, lookupIndex: LookupIndex): {};
+    queryKey(args: readonly any[], queryKey: (...args: any) => any, getEntity: GetEntity, getIndex: GetIndex): {};
 }
 type Serializable<T extends {
     toJSON(): string;
@@ -12,7 +12,7 @@ type Serializable<T extends {
 interface SchemaSimple<T = any, Args extends any[] = any[]> {
     normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args: any[]): any;
     denormalize(input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any): T;
-    queryKey(args: Args, queryKey: (...args: any) => any, lookupEntities: LookupEntities, lookupIndex: LookupIndex): any;
+    queryKey(args: Args, queryKey: (...args: any) => any, getEntity: GetEntity, getIndex: GetIndex): any;
 }
 interface EntityInterface<T = any> extends SchemaSimple {
     createIfValid(props: any): any;
@@ -34,15 +34,15 @@ interface NormalizedIndex {
     };
 }
 /** Get Array of entities with map function applied */
-interface LookupEntities {
+interface GetEntity {
     (entityKey: string): {
         readonly [pk: string]: any;
     } | undefined;
     (entityKey: string, pk: string | number): any;
 }
 /** Get PK using an Entity Index */
-interface LookupIndex {
-    /** lookupIndex('User', 'username', 'ntucker') */
+interface GetIndex {
+    /** getIndex('User', 'username', 'ntucker') */
     (entityKey: string, field: string, value: string): {
         readonly [indexKey: string]: string | undefined;
     };
@@ -52,25 +52,6 @@ interface LookupIndex {
 type EntityFields<U> = {
     readonly [K in keyof U as U[K] extends (...args: any) => any ? never : K]?: U[K] extends number ? U[K] | string : U[K] extends string ? U[K] | number : U[K];
 };
-
-/** Maps a (ordered) list of dependencies to a value.
- *
- * Useful as a memoization cache for flat/normalized stores.
- *
- * All dependencies are only weakly referenced, allowing automatic garbage collection
- * when any dependencies are no longer used.
- */
-declare class WeakDependencyMap<Path, K extends object = object, V = any> {
-    private readonly next;
-    private nextPath;
-    get(entity: K, getDependency: GetDependency<Path, K | symbol>): readonly [undefined, undefined] | readonly [V, Path[]];
-    set(dependencies: Dep<Path, K>[], value: V): void;
-}
-type GetDependency<Path, K = object | symbol> = (lookup: Path) => K;
-interface Dep<Path, K = object> {
-    path: Path;
-    entity: K;
-}
 
 interface EntityPath {
     key: string;
@@ -98,12 +79,6 @@ interface NestedSchemaClass<T = any> {
 interface RecordClass<T = any> extends NestedSchemaClass<T> {
     fromJS: (...args: any) => AbstractInstanceType<T>;
 }
-interface EntityCache {
-    [key: string]: {
-        [pk: string]: WeakMap<EntityInterface, WeakDependencyMap<EntityPath, object, any>>;
-    };
-}
-type EndpointsCache = WeakDependencyMap<EntityPath, object, any>;
 type DenormalizeNullableNestedSchema<S extends NestedSchemaClass> = keyof S['schema'] extends never ? S['prototype'] : string extends keyof S['schema'] ? S['prototype'] : S['prototype'];
 type NormalizeReturnType<T> = T extends (...args: any) => infer R ? R : never;
 type Denormalize<S> = S extends EntityInterface<infer U> ? U : S extends RecordClass ? AbstractInstanceType<S> : S extends {
@@ -127,8 +102,34 @@ type NormalizeNullable<S> = S extends EntityInterface ? string | undefined : S e
     [K: string]: any;
 } ? NormalizedNullableObject<S> : S;
 type SchemaArgs<S extends Queryable> = S extends EntityInterface<infer U> ? [EntityFields<U>] : S extends ({
-    queryKey(args: infer Args, queryKey: (...args: any) => any, lookupEntities: any, lookupIndex: any): any;
+    queryKey(args: infer Args, queryKey: (...args: any) => any, getEntity: any, getIndex: any): any;
 }) ? Args : never;
+
+/** Maps a (ordered) list of dependencies to a value.
+ *
+ * Useful as a memoization cache for flat/normalized stores.
+ *
+ * All dependencies are only weakly referenced, allowing automatic garbage collection
+ * when any dependencies are no longer used.
+ */
+declare class WeakDependencyMap<Path, K extends object = object, V = any> {
+    private readonly next;
+    private nextPath;
+    get(entity: K, getDependency: GetDependency<Path, K | symbol>): readonly [undefined, undefined] | readonly [V, Path[]];
+    set(dependencies: Dep<Path, K>[], value: V): void;
+}
+type GetDependency<Path, K = object | symbol> = (lookup: Path) => K;
+interface Dep<Path, K = object> {
+    path: Path;
+    entity: K;
+}
+
+interface EntityCache {
+    [key: string]: {
+        [pk: string]: WeakMap<EntityInterface, WeakDependencyMap<EntityPath, object, any>>;
+    };
+}
+type EndpointsCache = WeakDependencyMap<EntityPath, object, any>;
 
 /** Singleton to store the memoization cache for denormalization methods */
 declare class MemoCache {
@@ -1054,4 +1055,4 @@ declare class DevToolsManager implements Manager {
     getMiddleware(): Middleware;
 }
 
-export { AbstractInstanceType, ActionTypes, ConnectionListener, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch$1 as Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EndpointsCache, EntityCache, EntityInterface, ErrorTypes, ExpireAllAction, ExpiryStatus, FetchAction, FetchFunction, FetchMeta, GCAction, GenericDispatch, InvalidateAction, InvalidateAllAction, LogoutManager, Manager, Middleware$2 as Middleware, MiddlewareAPI$1 as MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, OptimisticAction, PK, PollingSubscription, Queryable, ResetAction, ResetError, ResolveType, ResultEntry, Schema, SchemaArgs, SetAction, SetActionError, SetActionSuccess, SetMeta, SetTypes, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, applyManager, createFetch, createReducer, createSet, initialState };
+export { AbstractInstanceType, ActionTypes, ConnectionListener, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch$1 as Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityInterface, ErrorTypes, ExpireAllAction, ExpiryStatus, FetchAction, FetchFunction, FetchMeta, GCAction, GenericDispatch, InvalidateAction, InvalidateAllAction, LogoutManager, Manager, Middleware$2 as Middleware, MiddlewareAPI$1 as MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, OptimisticAction, PK, PollingSubscription, Queryable, ResetAction, ResetError, ResolveType, ResultEntry, Schema, SchemaArgs, SetAction, SetActionError, SetActionSuccess, SetMeta, SetTypes, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, applyManager, createFetch, createReducer, createSet, initialState };

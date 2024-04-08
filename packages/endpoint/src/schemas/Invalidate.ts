@@ -101,8 +101,8 @@ export default class Invalidate<
   queryKey(
     args: any,
     queryKey: unknown,
-    lookupEntities: unknown,
-    lookupIndex: unknown,
+    getEntity: unknown,
+    getIndex: unknown,
   ): undefined {
     return undefined;
   }

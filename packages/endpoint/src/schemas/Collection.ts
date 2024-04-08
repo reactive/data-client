@@ -1,6 +1,6 @@
 import { consistentSerialize } from './consistentSerialize.js';
 import { CREATE } from './special.js';
-import { LookupEntities, PolymorphicInterface } from '../interface.js';
+import { GetEntity, PolymorphicInterface } from '../interface.js';
 import { Values, Array as ArraySchema } from '../schema.js';
 
 const pushMerge = (existing: any, incoming: any) => {
@@ -221,13 +221,13 @@ export default class CollectionSchema<
   queryKey(
     args: Args,
     queryKey: unknown,
-    lookupEntities: LookupEntities,
-    lookupIndex: unknown,
+    getEntity: GetEntity,
+    getIndex: unknown,
   ): any {
     if (this.argsKey) {
       const id = this.pk(undefined, undefined, '', args);
       // ensure this actually has entity or we shouldn't try to use it in our query
-      if (lookupEntities(this.key, id)) return id;
+      if (getEntity(this.key, id)) return id;
     }
   }
 

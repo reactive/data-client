@@ -224,9 +224,9 @@ and [Union](./Union.md).
 interface Queryable {
   queryKey(
     args: readonly any[],
-    indexes: NormalizedIndex,
-    recurse: (...args: any) => any,
-    entities: EntityTable,
+    queryKey: (...args: any) => any,
+    getEntity: GetEntity,
+    getIndex: GetIndex,
     // `{}` means non-void
   ): {};
 };

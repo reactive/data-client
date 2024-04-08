@@ -56,8 +56,8 @@ export default class ValuesSchema extends PolymorphicSchema {
   queryKey(
     args: any,
     queryKey: unknown,
-    lookupEntities: unknown,
-    lookupIndex: unknown,
+    getEntity: unknown,
+    getIndex: unknown,
   ) {
     return undefined;
   }

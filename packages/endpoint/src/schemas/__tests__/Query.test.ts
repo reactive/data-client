@@ -207,8 +207,7 @@ describe('top level schema', () => {
         [new schema.Collection([User]).pk({}, undefined, '', [])]: [1, 2, 3, 4],
       },
     };
-    const users: DenormalizeNullable<typeof sortedUsers> | symbol =
-      new MemoCache().query('', sortedUsers, [], entities, {});
+    const users = new MemoCache().query('', sortedUsers, [], entities, {});
     expect(users).not.toEqual(expect.any(Symbol));
     if (typeof users === 'symbol') return;
     expect(users && users[0].name).toBe('Zeta');

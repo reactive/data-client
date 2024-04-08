@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MemoCache query (direct) works with indexes 1`] = `
+Cat {
+  "id": "1",
+  "name": "Milo",
+  "username": "m",
+}
+`;
+
+exports[`MemoCache query (direct) works with pk 1`] = `
+Cat {
+  "id": "1",
+  "name": "Milo",
+  "username": "m",
+}
+`;
+
+exports[`MemoCache query (immutable) works with indexes 1`] = `
+Cat {
+  "id": "1",
+  "name": "Milo",
+  "username": "m",
+}
+`;
+
+exports[`MemoCache query (immutable) works with pk 1`] = `
+Cat {
+  "id": "1",
+  "name": "Milo",
+  "username": "m",
+}
+`;

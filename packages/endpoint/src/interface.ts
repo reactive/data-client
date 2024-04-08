@@ -14,8 +14,8 @@ export interface Queryable {
   queryKey(
     args: readonly any[],
     queryKey: (...args: any) => any,
-    lookupEntities: LookupEntities,
-    lookupIndex: LookupIndex,
+    getEntity: GetEntity,
+    getIndex: GetIndex,
     // Must be non-void
   ): {};
 }
@@ -43,8 +43,8 @@ export interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
   queryKey(
     args: Args,
     queryKey: (...args: any) => any,
-    lookupEntities: LookupEntities,
-    lookupIndex: LookupIndex,
+    getEntity: GetEntity,
+    getIndex: GetIndex,
   ): any;
 }
 
@@ -111,13 +111,13 @@ export interface EntityTable {
 }
 
 /** Get Array of entities with map function applied */
-export interface LookupEntities {
+export interface GetEntity {
   (entityKey: string): { readonly [pk: string]: any } | undefined;
   (entityKey: string, pk: string | number): any;
 }
 /** Get PK using an Entity Index */
-export interface LookupIndex {
-  /** lookupIndex('User', 'username', 'ntucker') */
+export interface GetIndex {
+  /** getIndex('User', 'username', 'ntucker') */
   (
     entityKey: string,
     field: string,

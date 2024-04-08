@@ -203,29 +203,36 @@ Article {
 }
 ```
 
-### Memoizing results
+### MemoCache
 
-`denormalizeCached` can also be used to maintain referential equality between calls as well
-as potentially improved performance by 2000%.
+`MemoCache` is a singleton that can be used to maintain referential equality between calls as well
+as potentially improved performance by 2000%. All three methods are memoized.
 
 ```js
-import { WeakEntityMap, denormalizeCached } from '@data-client/normalizr';
+import { MemoCache } from '@data-client/normalizr';
 
-// maintain these cache variables unless you want to reset the cache
-const entityCache = {};
-const resultCache = new WeakEntityMap();
+// you can construct a new memo anytime you want to reset the cache
+const memo = new MemoCache();
 
-const { data: denormalizedData, paths } = denormalizeCached(
-  normalizedData.result,
-  Article,
-  normalizedData.entities,
-  entityCache,
-  resultCache,
+const { data, paths } = memo.denormalize(input, schema, state.entities, args);
+
+const data = memo.query(key, schema, args, state.entities, state.indexes);
+const queryKey = memo.buildQueryKey(
+  key,
+  schema,
   args,
+  state.entities,
+  state.indexes,
 );
 ```
 
-`paths` is an Array of paths of all entities included in the result.
+`memo.denormalize()` is just like denormalize() above but includes `paths` as part of the return value. `paths`
+is an Array of paths of all entities included in the result.
+
+`memo.query()` allows denormalizing without a normalized input. See [Queryable](https://dataclient.io/rest/api/schema#queryable) for more info.
+
+`memo.buildQueryKey()` builds the input used to denormalize for `query()`. This is exposed
+to allow greater flexibility in its usage.
 
 ## Benchmarks
 

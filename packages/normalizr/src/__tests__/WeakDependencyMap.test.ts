@@ -1,8 +1,8 @@
 import { Temporal } from '@js-temporal/polyfill';
 
 import { getEntities } from '../denormalize/getEntities';
+import WeakDependencyMap from '../memo/WeakDependencyMap';
 import { EntityPath } from '../types';
-import WeakDependencyMap from '../WeakDependencyMap';
 
 describe('WeakDependencyMap', () => {
   const a = { hi: '5' };

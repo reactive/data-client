@@ -1,5 +1,5 @@
 // we just removed instances of 'abstract new'
-import type { Schema, LookupIndex, LookupEntities } from '../interface.js';
+import type { Schema, GetIndex, GetEntity } from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
 export type Constructor = new (...args: any[]) => {};
 export type IDClass = new (...args: any[]) => {
@@ -223,8 +223,8 @@ export interface IEntityClass<TBase extends Constructor = any> {
   queryKey(
     args: readonly any[],
     queryKey: any,
-    lookupEntities: LookupEntities,
-    lookupIndex: LookupIndex,
+    getEntity: GetEntity,
+    getIndex: GetIndex,
   ): any;
   denormalize<
     T extends (new (...args: any[]) => IEntityInstance & InstanceType<TBase>) &

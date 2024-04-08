@@ -1,17 +1,16 @@
-import { getEntities } from './getEntities.js';
 import GlobalCache from './globalCache.js';
-import getUnvisit from './unvisit.js';
-import buildQueryKey, { validateQueryKey } from '../buildQueryKey.js';
+import { EndpointsCache, EntityCache } from './types.js';
+import WeakDependencyMap, { Dep, GetDependency } from './WeakDependencyMap.js';
+import buildQueryKey from '../buildQueryKey.js';
+import { getEntities } from '../denormalize/getEntities.js';
+import getUnvisit from '../denormalize/unvisit.js';
 import type { EntityTable, NormalizedIndex, Schema } from '../interface.js';
 import { isImmutable } from '../schemas/ImmutableUtils.js';
 import type {
   DenormalizeNullable,
-  EntityCache,
   EntityPath,
-  EndpointsCache,
   NormalizeNullable,
 } from '../types.js';
-import WeakDependencyMap, { Dep, GetDependency } from '../WeakDependencyMap.js';
 
 //TODO: make immutable distinction occur when initilizing MemoCache
 
@@ -110,12 +109,12 @@ export default class MemoCache {
       this.queryKeys[argsKey] = new WeakDependencyMap<QueryPath>();
     }
     const queryCache = this.queryKeys[argsKey];
-    const lookupEntity = createLookupEntity(entities);
-    const lookupIndex = createLookupIndex(indexes);
+    const getEntity = createGetEntity(entities);
+    const getIndex = createGetIndex(indexes);
     // eslint-disable-next-line prefer-const
     let [value, paths] = queryCache.get(
       schema as any,
-      createDepLookup(lookupEntity, lookupIndex),
+      createDepLookup(getEntity, getIndex),
     );
 
     // paths undefined is the only way to truly tell nothing was found (the value could have actually been undefined)
@@ -129,8 +128,8 @@ export default class MemoCache {
       value = buildQueryKey(
         schema,
         args,
-        trackLookup(lookupEntity, dependencies),
-        trackLookup(lookupIndex, dependencies),
+        trackLookup(getEntity, dependencies),
+        trackLookup(getIndex, dependencies),
       );
       queryCache.set(dependencies, value);
     }
@@ -142,9 +141,9 @@ type IndexPath = [key: string, field: string, value: string];
 type EntitySchemaPath = [key: string] | [key: string, pk: string];
 type QueryPath = IndexPath | EntitySchemaPath;
 
-function createDepLookup(lookupEntity, lookupIndex): GetDependency<QueryPath> {
+function createDepLookup(getEntity, getIndex): GetDependency<QueryPath> {
   return (args: QueryPath) => {
-    return args.length === 3 ? lookupIndex(...args) : lookupEntity(...args);
+    return args.length === 3 ? getIndex(...args) : getEntity(...args);
   };
 }
 
@@ -159,7 +158,7 @@ function trackLookup<D extends any[], FD extends D>(
   }) as any;
 }
 
-export function createLookupEntity(
+export function createGetEntity(
   entities:
     | EntityTable
     | {
@@ -175,7 +174,7 @@ export function createLookupEntity(
   }
 }
 
-export function createLookupIndex(
+export function createGetIndex(
   indexes:
     | NormalizedIndex
     | {

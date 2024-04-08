@@ -126,8 +126,8 @@ export type SchemaArgs<S extends Schema> =
       queryKey(
         args: infer Args,
         queryKey: (...args: any) => any,
-        lookupEntities: any,
-        lookupIndex: any,
+        getEntity: any,
+        getIndex: any,
       ): any;
     }
   ) ?

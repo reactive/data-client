@@ -275,7 +275,7 @@ static mergeMetaWithStore(
 
 `mergeMetaWithStore()` is called during normalization when a processed entity is already found in the store.
 
-### static queryKey(args, indexes, recurse): pk? {#queryKey}
+### static queryKey(args, queryKey, getEntity, getIndex): pk? {#queryKey}
 
 This method enables `Entities` to be [Queryable](/rest/api/schema#queryable) - allowing store access without an endpoint.
 

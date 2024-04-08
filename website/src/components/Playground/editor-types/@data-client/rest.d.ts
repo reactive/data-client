@@ -65,7 +65,7 @@ interface EntityMap<T = any> {
     readonly [k: string]: EntityInterface<T>;
 }
 type SchemaArgs<S extends Schema> = S extends EntityInterface<infer U> ? [EntityFields<U>] : S extends ({
-    queryKey(args: infer Args, queryKey: (...args: any) => any, lookupEntities: any, lookupIndex: any): any;
+    queryKey(args: infer Args, queryKey: (...args: any) => any, getEntity: any, getIndex: any): any;
 }) ? Args : never;
 
 interface SnapshotInterface {
@@ -131,7 +131,7 @@ type Schema = null | string | {
     [K: string]: any;
 } | Schema[] | SchemaSimple | Serializable;
 interface Queryable {
-    queryKey(args: readonly any[], queryKey: (...args: any) => any, lookupEntities: LookupEntities, lookupIndex: LookupIndex): {};
+    queryKey(args: readonly any[], queryKey: (...args: any) => any, getEntity: GetEntity, getIndex: GetIndex): {};
 }
 type Serializable<T extends {
     toJSON(): string;
@@ -141,7 +141,7 @@ type Serializable<T extends {
 interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
     normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args: any[]): any;
     denormalize(input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any): T;
-    queryKey(args: Args, queryKey: (...args: any) => any, lookupEntities: LookupEntities, lookupIndex: LookupIndex): any;
+    queryKey(args: Args, queryKey: (...args: any) => any, getEntity: GetEntity, getIndex: GetIndex): any;
 }
 interface SchemaClass<T = any, N = T | undefined, Args extends any[] = any[]> extends SchemaSimple<T, Args> {
     _normalizeNullable(): any;
@@ -165,15 +165,15 @@ interface PolymorphicInterface<T = any, Args extends any[] = any[]> extends Sche
     _denormalizeNullable(): any;
 }
 /** Get Array of entities with map function applied */
-interface LookupEntities {
+interface GetEntity {
     (entityKey: string): {
         readonly [pk: string]: any;
     } | undefined;
     (entityKey: string, pk: string | number): any;
 }
 /** Get PK using an Entity Index */
-interface LookupIndex {
-    /** lookupIndex('User', 'username', 'ntucker') */
+interface GetIndex {
+    /** getIndex('User', 'username', 'ntucker') */
     (entityKey: string, field: string, value: string): {
         readonly [indexKey: string]: string | undefined;
     };
@@ -399,7 +399,7 @@ interface IEntityClass<TBase extends Constructor = any> {
      *
      * @see https://dataclient.io/rest/api/Entity#queryKey
      */
-    queryKey(args: readonly any[], queryKey: any, lookupEntities: LookupEntities, lookupIndex: LookupIndex): any;
+    queryKey(args: readonly any[], queryKey: any, getEntity: GetEntity, getIndex: GetIndex): any;
     denormalize<T extends (abstract new (...args: any[]) => IEntityInstance & InstanceType<TBase>) & IEntityClass & TBase>(this: T, input: any, args: readonly any[], unvisit: (input: any, schema: any) => any): AbstractInstanceType<T>;
     /** All instance defaults set */
     readonly defaults: any;
@@ -446,7 +446,7 @@ declare class Invalidate<E extends EntityInterface & {
         fetchedAt: number;
     };
     /** /End Normalize lifecycles **/
-    queryKey(args: any, queryKey: unknown, lookupEntities: unknown, lookupIndex: unknown): undefined;
+    queryKey(args: any, queryKey: unknown, getEntity: unknown, getIndex: unknown): undefined;
     denormalize(id: string, args: readonly any[], unvisit: (input: any, schema: any) => any): AbstractInstanceType<E>;
     _denormalizeNullable(): AbstractInstanceType<E> | undefined;
     _normalizeNullable(): string | undefined;
@@ -463,7 +463,7 @@ declare class Query<S extends Queryable, P extends (entries: DenormalizeNullable
     constructor(schema: S, process: P);
     normalize(...args: any): any;
     denormalize(input: {}, args: any, unvisit: any): ReturnType<P> | undefined;
-    queryKey(args: ProcessParameters<P, S>, queryKey: (schema: any, args: any, lookupEntities: LookupEntities, lookupIndex: LookupIndex) => any, lookupEntities: LookupEntities, lookupIndex: LookupIndex): any;
+    queryKey(args: ProcessParameters<P, S>, queryKey: (schema: any, args: any, getEntity: GetEntity, getIndex: GetIndex) => any, getEntity: GetEntity, getIndex: GetIndex): any;
     _denormalizeNullable: (input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any) => ReturnType<P> | undefined;
     _normalizeNullable: () => NormalizeNullable<S>;
 }
@@ -518,7 +518,7 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
         date: number;
         fetchedAt: number;
     };
-    queryKey(args: Args, queryKey: unknown, lookupEntities: unknown, lookupIndex: unknown): any;
+    queryKey(args: Args, queryKey: unknown, getEntity: unknown, getIndex: unknown): any;
     createIfValid: (value: any) => any | undefined;
     denormalize(input: any, args: readonly any[], unvisit: (input: any, schema: any) => any): ReturnType<S['denormalize']>;
     _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;
@@ -595,8 +595,8 @@ declare class Array$1<S extends Schema = Schema> implements SchemaClass {
   queryKey(
     args: readonly any[],
     queryKey: (...args: any) => any,
-    lookupEntities: any,
-    lookupIndex: any,
+    getEntity: any,
+    getIndex: any,
   ): undefined;
 }
 
@@ -646,8 +646,8 @@ declare class All<
     // TODO: hack for now to allow for variable arg combinations with Query
     args: [] | [unknown],
     queryKey: (...args: any) => any,
-    lookupEntities: LookupEntities,
-    lookupIndex: LookupIndex,
+    getEntity: GetEntity,
+    getIndex: GetIndex,
   ): any;
 }
 
@@ -685,8 +685,8 @@ declare class Object$1<O extends Record<string, any> = Record<string, Schema>>
   queryKey(
     args: readonly any[],
     queryKey: (...args: any) => any,
-    lookupEntities: LookupEntities,
-    lookupIndex: LookupIndex,
+    getEntity: GetEntity,
+    getIndex: GetIndex,
   ): any;
 }
 
@@ -769,8 +769,8 @@ interface UnionInstance<
   queryKey(
     args: [Args],
     queryKey: (...args: any) => any,
-    lookupEntities: LookupEntities,
-    lookupIndex: LookupIndex,
+    getEntity: GetEntity,
+    getIndex: GetIndex,
   ): { id: any; schema: string };
 }
 
@@ -853,8 +853,8 @@ declare class Values<Choices extends Schema = any> implements SchemaClass {
   queryKey(
     args: readonly any[],
     queryKey: (...args: any) => any,
-    lookupEntities: LookupEntities,
-    lookupIndex: LookupIndex,
+    getEntity: GetEntity,
+    getIndex: GetIndex,
   ): undefined;
 }
 

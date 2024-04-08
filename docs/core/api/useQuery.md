@@ -59,10 +59,10 @@ and [Union](/rest/api/Union).
 interface Queryable {
   queryKey(
     args: readonly any[],
-    indexes: NormalizedIndex,
-    recurse: (...args: any) => any,
-    entities: EntityTable,
-    // `{}` means non-void
+    queryKey: (...args: any) => any,
+    getEntity: GetEntity,
+    getIndex: GetIndex,
+    // Must be non-void
   ): {};
 };
 ```

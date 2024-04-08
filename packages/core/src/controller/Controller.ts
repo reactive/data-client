@@ -387,62 +387,38 @@ export default class Controller<
       .map(ensurePojo);
     const isActive = args.length !== 1 || args[0] !== null;
     const key = isActive ? endpoint.key(...args) : '';
-    let cacheEndpoints = isActive ? state.endpoints[key] : undefined;
+    const cacheEndpoints = isActive ? state.endpoints[key] : undefined;
     const schema = endpoint.schema;
     const meta = selectMeta(state, key);
     let expiresAt = meta?.expiresAt;
     // if we have no endpoint entry, and our endpoint has a schema - try querying the store
-    const shouldQuery =
-      cacheEndpoints === undefined && endpoint.schema !== undefined;
+    const shouldQuery = cacheEndpoints === undefined && schema !== undefined;
+
+    const input =
+      shouldQuery ?
+        // nothing in endpoints cache, so try querying if we have a schema to do so
+        this.memo.buildQueryKey(
+          key,
+          schema,
+          args,
+          state.entities as any,
+          state.indexes,
+        )
+      : cacheEndpoints;
 
     if (!isActive) {
-      if (shouldQuery) {
-        // when not active simply return the query input without denormalizing
-        cacheEndpoints = this.memo.buildQueryKey(
-          key,
-          endpoint.schema,
-          args,
-          state.indexes,
-          state.indexes,
-        );
-      }
+      // when not active simply return the query input without denormalizing
       return {
-        data: cacheEndpoints as any,
+        data: input as any,
         expiryStatus: ExpiryStatus.Valid,
         expiresAt: Infinity,
       };
     }
 
-    // nothing in endpoints cache, so try querying if we have a schema to do so
+    let isInvalid = false;
     if (shouldQuery) {
-      const queryKey = this.memo.buildQueryKey(
-        key,
-        endpoint.schema,
-        args,
-        state.entities as any,
-        state.indexes,
-      );
-      const isInvalid = !validateQueryKey(queryKey);
-
-      const { data, paths } = this.memo.denormalize(
-        queryKey,
-        schema,
-        state.entities,
-        args,
-      );
-
-      if (!expiresAt && isInvalid) expiresAt = 1;
-      return this.getSchemaResponse(
-        data,
-        paths,
-        state.entityMeta,
-        expiresAt,
-        endpoint.invalidIfStale || isInvalid,
-        meta,
-      );
-    }
-
-    if (!endpoint.schema || !schemaHasEntity(endpoint.schema)) {
+      isInvalid = !validateQueryKey(input);
+    } else if (!schema || !schemaHasEntity(schema)) {
       return {
         data: cacheEndpoints,
         expiryStatus:
@@ -456,18 +432,21 @@ export default class Controller<
     // second argument is false if any entities are missing
     // eslint-disable-next-line prefer-const
     const { data, paths } = this.memo.denormalize(
-      cacheEndpoints,
+      input,
       schema,
       state.entities,
       args,
     ) as { data: any; paths: EntityPath[] };
+
+    // note: isInvalid can only be true if shouldQuery is true
+    if (!expiresAt && isInvalid) expiresAt = 1;
 
     return this.getSchemaResponse(
       data,
       paths,
       state.entityMeta,
       expiresAt,
-      !!endpoint.invalidIfStale,
+      endpoint.invalidIfStale || isInvalid,
       meta,
     );
   }

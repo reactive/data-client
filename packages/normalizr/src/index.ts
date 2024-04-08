@@ -5,16 +5,14 @@ Object.hasOwn =
   };
 import { denormalize } from './denormalize/denormalize.js';
 import { isEntity } from './isEntity.js';
+import WeakDependencyMap from './memo/WeakDependencyMap.js';
 import { normalize } from './normalize.js';
-import WeakDependencyMap from './WeakDependencyMap.js';
 
-export { default as MemoCache } from './denormalize/MemoCache.js';
+export { default as MemoCache } from './memo/MemoCache.js';
 export type {
   AbstractInstanceType,
   NormalizeReturnType,
   NormalizedSchema,
-  EntityCache,
-  EndpointsCache,
   EntityPath,
   Denormalize,
   DenormalizeNullable,

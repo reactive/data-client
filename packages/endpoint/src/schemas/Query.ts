@@ -1,6 +1,6 @@
 import type {
-  LookupIndex,
-  LookupEntities,
+  GetIndex,
+  GetEntity,
   Queryable,
   SchemaSimple,
 } from '../interface.js';
@@ -42,13 +42,13 @@ export default class Query<
     queryKey: (
       schema: any,
       args: any,
-      lookupEntities: LookupEntities,
-      lookupIndex: LookupIndex,
+      getEntity: GetEntity,
+      getIndex: GetIndex,
     ) => any,
-    lookupEntities: LookupEntities,
-    lookupIndex: LookupIndex,
+    getEntity: GetEntity,
+    getIndex: GetIndex,
   ) {
-    return queryKey(this.schema, args, lookupEntities, lookupIndex);
+    return queryKey(this.schema, args, getEntity, getIndex);
   }
 
   declare _denormalizeNullable: (
