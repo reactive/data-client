@@ -2,8 +2,8 @@ import { Link } from '@anansi/router';
 import {
   AsyncBoundary,
   NetworkError,
-  useCache,
   useFetch,
+  useQuery,
   useSuspense,
 } from '@data-client/react';
 import { CurrencyResource, queryCurrency } from 'resources/Currency';
@@ -16,7 +16,7 @@ export default function CurrencyList() {
   useFetch(StatsResource.getList);
   useSuspense(CurrencyResource.getList);
   useSuspense(StatsResource.getList);
-  const currencies = useCache(queryCurrency, {});
+  const currencies = useQuery(queryCurrency, {});
   if (!currencies) return null;
   return (
     <table>
