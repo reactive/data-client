@@ -8,9 +8,11 @@ import {
 
 const fakeNavigation = { addListener(name: string) {} } as any;
 let _useNavigation: typeof useNavigation = () => fakeNavigation;
-import('@react-navigation/native').then(rn => {
-  _useNavigation = rn.useNavigation;
-});
+import('@react-navigation/native')
+  .then(rn => {
+    _useNavigation = rn.useNavigation;
+  })
+  .catch(() => {});
 
 function useFocusEffect(
   effect: EffectCallback,

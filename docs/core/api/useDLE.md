@@ -89,6 +89,13 @@ render(<ProfileList />);
 
 :::
 
+:::info React Native
+
+When using React Navigation, useDLE() will trigger fetches on focus if the data is considered
+stale.
+
+:::
+
 <ConditionalDependencies hook="useDLE" />
 
 ## Types

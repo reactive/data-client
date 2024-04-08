@@ -544,7 +544,7 @@ describe('useSuspense()', () => {
     () => useSuspense(Detail, new Date());
   });
 
-  it('should work with shapes with no entities', async () => {
+  it('should work with endpoints with no entities', async () => {
     const userId = '5';
     const response = { firstThing: '', someItems: [{ a: 5 }] };
     nock(/.*/)
