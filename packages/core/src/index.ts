@@ -13,8 +13,6 @@ export type {
   EndpointInterface,
   EntityInterface,
   ResolveType,
-  EntityCache,
-  ResultCache,
   DenormalizeNullable,
   Denormalize,
   Normalize,

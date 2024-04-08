@@ -1,7 +1,4 @@
-import {
-  normalize,
-  denormalizeCached as denormalize,
-} from '@data-client/normalizr';
+import { normalize, denormalize } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 
 import { schema, DenormalizeNullable, Normalize, Denormalize } from '../src';
@@ -40,7 +37,7 @@ const scheme = {
 };
 const schemeEntity = Magic;
 
-const { data } = denormalize({}, scheme, {});
+const data = denormalize({}, scheme, {});
 const r = normalize({}, scheme);
 
 type A = DenormalizeNullable<typeof scheme>;
@@ -61,7 +58,7 @@ if (typeof data === 'symbol') {
 
 const schemeValues = new schema.Values({ btc: Magic, eth: Magic2 });
 const schemeValuesSimple = new schema.Values(Magic);
-const { data: valueValues, paths } = denormalize({}, schemeValues, {});
+const valueValues = denormalize({}, schemeValues, {});
 if (typeof valueValues !== 'symbol') {
   Object.keys(schemeValues).forEach(k => {
     const v = valueValues[k];
@@ -71,8 +68,4 @@ if (typeof valueValues !== 'symbol') {
   });
 }
 
-const { data: valueValuesSimple, paths: pathsSimple } = denormalize(
-  {},
-  schemeValuesSimple,
-  {},
-);
+const valueValuesSimple = denormalize({}, schemeValuesSimple, {});

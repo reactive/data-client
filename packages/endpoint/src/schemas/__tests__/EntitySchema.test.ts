@@ -1,10 +1,10 @@
 // eslint-env jest
-import { normalize, WeakEntityMap } from '@data-client/normalizr';
+import { normalize, denormalize } from '@data-client/normalizr';
 import { INVALID } from '@data-client/normalizr';
 import { Temporal } from '@js-temporal/polyfill';
 import { fromJS, Record } from 'immutable';
 
-import { denormalizeSimple } from './denormalize';
+import SimpleMemoCache from './denormalize';
 import { schema } from '../..';
 
 let dateSpy: jest.SpyInstance;
@@ -675,7 +675,7 @@ describe(`${schema.Entity.name} normalization`, () => {
         { id: '1', name: 'foo' },
         ProcessTaco,
       );
-      const final = denormalizeSimple(result, ProcessTaco, entities);
+      const final = denormalize(result, ProcessTaco, entities);
       expect(final).not.toEqual(expect.any(Symbol));
       if (typeof final === 'symbol') return;
       expect(final?.slug).toEqual('thing-1');
@@ -715,7 +715,7 @@ describe(`${schema.Entity.name} normalization`, () => {
         },
         ParentEntity,
       );
-      const final = denormalizeSimple(result, ParentEntity, entities);
+      const final = denormalize(result, ParentEntity, entities);
       expect(final).not.toEqual(expect.any(Symbol));
       if (typeof final === 'symbol') return;
       expect(final?.child?.parentId).toEqual('1');
@@ -765,7 +765,7 @@ describe(`${schema.Entity.name} normalization`, () => {
             { message: { id: '123', data: { attachment: { id: '456' } } } },
             EntriesEntity,
           );
-          const final = denormalizeSimple(result, EntriesEntity, entities);
+          const final = denormalize(result, EntriesEntity, entities);
           expect(final).not.toEqual(expect.any(Symbol));
           if (typeof final === 'symbol') return;
           expect(final?.type).toEqual('message');
@@ -776,522 +776,513 @@ describe(`${schema.Entity.name} normalization`, () => {
   });
 });
 
-describe.each([
-  ['current', denormalizeSimple, () => new WeakEntityMap()],
-] as const)(
-  `${schema.Entity.name} denormalization (%s)`,
-  (_, denormalize, createResultCache) => {
-    test('denormalizes an entity', () => {
-      const entities = {
-        Tacos: {
-          '1': { id: '1', name: 'foo' },
-        },
-      };
-      expect(denormalize('1', Tacos, entities)).toMatchSnapshot();
-      expect(denormalize('1', Tacos, fromJS(entities))).toMatchSnapshot();
-    });
-
-    class Food extends schema.Entity(
-      class {
-        id = '';
+describe(`${schema.Entity.name} denormalization`, () => {
+  test('denormalizes an entity', () => {
+    const entities = {
+      Tacos: {
+        '1': { id: '1', name: 'foo' },
       },
-    ) {}
-    class MenuData {
+    };
+    expect(denormalize('1', Tacos, entities)).toMatchSnapshot();
+    expect(denormalize('1', Tacos, fromJS(entities))).toMatchSnapshot();
+  });
+
+  class Food extends schema.Entity(
+    class {
       id = '';
-      readonly food: Food = Food.fromJS();
+    },
+  ) {}
+  class MenuData {
+    id = '';
+    readonly food: Food = Food.fromJS();
+  }
+  class Menu extends schema.Entity(MenuData, { schema: { food: Food } }) {}
+
+  test('denormalizes deep entities', () => {
+    const entities = {
+      Menu: {
+        '1': { id: '1', food: '1' },
+        '2': { id: '2' },
+      },
+      Food: {
+        '1': { id: '1' },
+      },
+    };
+
+    const de1 = denormalize('1', Menu, entities);
+    expect(de1).toMatchSnapshot();
+    expect(denormalize('1', Menu, fromJS(entities))).toEqual(de1);
+
+    const de2 = denormalize('2', Menu, entities);
+    expect(de2).toMatchSnapshot();
+    expect(denormalize('2', Menu, fromJS(entities))).toEqual(de2);
+  });
+
+  test('denormalizes deep entities while maintaining referential equality', () => {
+    const entities = {
+      Menu: {
+        '1': { id: '1', food: '1' },
+        '2': { id: '2' },
+      },
+      Food: {
+        '1': { id: '1' },
+      },
+    };
+    const memo = new SimpleMemoCache();
+
+    const first = memo.denormalize('1', Menu, entities);
+    const second = memo.denormalize('1', Menu, entities);
+    expect(first).not.toEqual(expect.any(Symbol));
+    if (typeof first === 'symbol') return;
+    expect(second).not.toEqual(expect.any(Symbol));
+    if (typeof second === 'symbol') return;
+    expect(first).toBe(second);
+    expect(first?.food).toBe(second?.food);
+  });
+
+  test('denormalizes to undefined when validate() returns string', () => {
+    class MyTacos extends Tacos {
+      static validate(entity) {
+        if (!Object.hasOwn(entity, 'name')) return 'no name';
+      }
     }
-    class Menu extends schema.Entity(MenuData, { schema: { food: Food } }) {}
+    const entities = {
+      MyTacos: {
+        '1': { id: '1' },
+      },
+    };
+    expect(denormalize('1', MyTacos, entities)).toEqual(expect.any(Symbol));
+    expect(denormalize('1', MyTacos, fromJS(entities))).toEqual(
+      expect.any(Symbol),
+    );
+  });
 
-    test('denormalizes deep entities', () => {
-      const entities = {
-        Menu: {
-          '1': { id: '1', food: '1' },
-          '2': { id: '2' },
-        },
-        Food: {
-          '1': { id: '1' },
-        },
-      };
+  test('denormalizes to undefined for missing data', () => {
+    const entities = {
+      Menu: {
+        '1': { id: '1', food: '2' },
+      },
+      Food: {
+        '1': { id: '1' },
+      },
+    };
 
-      const de1 = denormalize('1', Menu, entities);
-      expect(de1).toMatchSnapshot();
-      expect(denormalize('1', Menu, fromJS(entities))).toEqual(de1);
+    expect(denormalize('1', Menu, entities)).toMatchSnapshot();
+    expect(denormalize('1', Menu, fromJS(entities))).toMatchSnapshot();
 
-      const de2 = denormalize('2', Menu, entities);
-      expect(de2).toMatchSnapshot();
-      expect(denormalize('2', Menu, fromJS(entities))).toEqual(de2);
-    });
+    expect(denormalize('2', Menu, entities)).toMatchSnapshot();
+    expect(denormalize('2', Menu, fromJS(entities))).toMatchSnapshot();
+  });
 
-    test('denormalizes deep entities while maintaining referential equality', () => {
-      const entities = {
-        Menu: {
-          '1': { id: '1', food: '1' },
-          '2': { id: '2' },
-        },
-        Food: {
-          '1': { id: '1' },
-        },
-      };
-      const entityCache = {};
-      const resultCache = createResultCache();
+  it('should handle optional schema entries Entity', () => {
+    class MyData {
+      readonly name: string = '';
+      readonly secondthing: string = '';
+      readonly blarb: Date | undefined = undefined;
+    }
+    class MyEntity extends schema.Entity(MyData, {
+      pk: 'name',
+      schema: { blarb: Temporal.Instant.from },
+    }) {}
 
-      const first = denormalize('1', Menu, entities, entityCache, resultCache);
-      const second = denormalize('1', Menu, entities, entityCache, resultCache);
-      expect(first).not.toEqual(expect.any(Symbol));
-      if (typeof first === 'symbol') return;
-      expect(second).not.toEqual(expect.any(Symbol));
-      if (typeof second === 'symbol') return;
-      expect(first).toBe(second);
-      expect(first?.food).toBe(second?.food);
-    });
-
-    test('denormalizes to undefined when validate() returns string', () => {
-      class MyTacos extends Tacos {
-        static validate(entity) {
-          if (!Object.hasOwn(entity, 'name')) return 'no name';
-        }
-      }
-      const entities = {
-        MyTacos: {
-          '1': { id: '1' },
-        },
-      };
-      expect(denormalize('1', MyTacos, entities)).toEqual(expect.any(Symbol));
-      expect(denormalize('1', MyTacos, fromJS(entities))).toEqual(
-        expect.any(Symbol),
-      );
-    });
-
-    test('denormalizes to undefined for missing data', () => {
-      const entities = {
-        Menu: {
-          '1': { id: '1', food: '2' },
-        },
-        Food: {
-          '1': { id: '1' },
-        },
-      };
-
-      expect(denormalize('1', Menu, entities)).toMatchSnapshot();
-      expect(denormalize('1', Menu, fromJS(entities))).toMatchSnapshot();
-
-      expect(denormalize('2', Menu, entities)).toMatchSnapshot();
-      expect(denormalize('2', Menu, fromJS(entities))).toMatchSnapshot();
-    });
-
-    it('should handle optional schema entries Entity', () => {
-      class MyData {
-        readonly name: string = '';
-        readonly secondthing: string = '';
-        readonly blarb: Date | undefined = undefined;
-      }
-      class MyEntity extends schema.Entity(MyData, {
-        pk: 'name',
-        schema: { blarb: Temporal.Instant.from },
-      }) {}
-
-      expect(
-        denormalize('bob', MyEntity, {
-          MyEntity: { bob: { name: 'bob', secondthing: 'hi' } },
-        }),
-      ).toMatchInlineSnapshot(`
+    expect(
+      denormalize('bob', MyEntity, {
+        MyEntity: { bob: { name: 'bob', secondthing: 'hi' } },
+      }),
+    ).toMatchInlineSnapshot(`
         MyEntity {
           "blarb": undefined,
           "name": "bob",
           "secondthing": "hi",
         }
       `);
-    });
+  });
 
-    it('should handle null schema entries Entity', () => {
-      class MyData {
-        readonly name: string = '';
-        readonly secondthing: string = '';
-        readonly blarb: Date | null = null;
-      }
-      class MyEntity extends schema.Entity(MyData, {
-        pk: 'name',
-        schema: { blarb: Temporal.Instant.from },
-      }) {}
+  it('should handle null schema entries Entity', () => {
+    class MyData {
+      readonly name: string = '';
+      readonly secondthing: string = '';
+      readonly blarb: Date | null = null;
+    }
+    class MyEntity extends schema.Entity(MyData, {
+      pk: 'name',
+      schema: { blarb: Temporal.Instant.from },
+    }) {}
 
-      expect(
-        denormalize('bob', MyEntity, {
-          MyEntity: { bob: { name: 'bob', secondthing: 'hi', blarb: null } },
-        }),
-      ).toMatchInlineSnapshot(`
+    expect(
+      denormalize('bob', MyEntity, {
+        MyEntity: { bob: { name: 'bob', secondthing: 'hi', blarb: null } },
+      }),
+    ).toMatchInlineSnapshot(`
         MyEntity {
           "blarb": null,
           "name": "bob",
           "secondthing": "hi",
         }
       `);
+  });
+
+  test('denormalizes to undefined for deleted data', () => {
+    const entities = {
+      Menu: {
+        '1': { id: '1', food: '2' },
+        '2': INVALID,
+      },
+      Food: {
+        '1': { id: '1' },
+        '2': INVALID,
+      },
+    };
+
+    expect(denormalize('1', Menu, entities)).toMatchSnapshot();
+    expect(denormalize('1', Menu, fromJS(entities))).toMatchSnapshot();
+
+    expect(denormalize('2', Menu, entities)).toMatchSnapshot();
+    expect(denormalize('2', Menu, fromJS(entities))).toMatchSnapshot();
+  });
+
+  test('denormalizes deep entities with records', () => {
+    const Food = Record<{ id: null | string }>({ id: null });
+    const MenuR = Record<{ id: null | string; food: null | string }>({
+      id: null,
+      food: null,
     });
 
-    test('denormalizes to undefined for deleted data', () => {
+    const entities = {
+      Menu: {
+        '1': new MenuR({ id: '1', food: '1' }),
+        '2': new MenuR({ id: '2' }),
+      },
+      Food: {
+        '1': new Food({ id: '1' }),
+      },
+    };
+
+    expect(denormalize('1', Menu, entities)).toMatchSnapshot();
+    expect(denormalize('1', Menu, fromJS(entities))).toMatchSnapshot();
+
+    expect(denormalize('2', Menu, entities)).toMatchSnapshot();
+    expect(denormalize('2', Menu, fromJS(entities))).toMatchSnapshot();
+  });
+
+  test('can denormalize already partially denormalized data', () => {
+    const entities = {
+      Menu: {
+        '1': { id: '1', food: { id: '1' } },
+      },
+      Food: {
+        // TODO: BREAKING CHANGE: Update this to use main entity and only return nested as 'fallback' in case main entity is not set
+        '1': { id: '1', extra: 'hi' },
+      },
+    };
+
+    expect(denormalize('1', Menu, entities)).toMatchSnapshot();
+    expect(denormalize('1', Menu, fromJS(entities))).toMatchSnapshot();
+  });
+
+  describe('nesting', () => {
+    class UserData {
+      id = '';
+      readonly role = '';
+      readonly reports: Report[] = [];
+    }
+    class User extends schema.Entity(UserData) {}
+    class ReportData {
+      id = '';
+      readonly title: string = '';
+      readonly draftedBy: User = User.fromJS();
+      readonly publishedBy: User = User.fromJS();
+    }
+    class Report extends schema.Entity(ReportData, {
+      schema: {
+        draftedBy: User,
+        publishedBy: User,
+      },
+    }) {}
+    User.schema = {
+      reports: new schema.Array(Report),
+    };
+    class CommentData {
+      id = '';
+      readonly body: string = '';
+      readonly author: User = User.fromJS();
+    }
+    class Comment extends schema.Entity(CommentData, {
+      schema: { author: User },
+    }) {}
+
+    test('denormalizes recursive dependencies', () => {
       const entities = {
-        Menu: {
-          '1': { id: '1', food: '2' },
-          '2': INVALID,
+        Report: {
+          '123': {
+            id: '123',
+            title: 'Weekly report',
+            draftedBy: '456',
+            publishedBy: '456',
+          },
         },
-        Food: {
-          '1': { id: '1' },
-          '2': INVALID,
+        User: {
+          '456': {
+            id: '456',
+            role: 'manager',
+            reports: ['123'],
+          },
         },
       };
 
-      expect(denormalize('1', Menu, entities)).toMatchSnapshot();
-      expect(denormalize('1', Menu, fromJS(entities))).toMatchSnapshot();
+      expect(denormalize('123', Report, entities)).toMatchSnapshot();
+      expect(denormalize('123', Report, fromJS(entities))).toMatchSnapshot();
 
-      expect(denormalize('2', Menu, entities)).toMatchSnapshot();
-      expect(denormalize('2', Menu, fromJS(entities))).toMatchSnapshot();
+      expect(denormalize('456', User, entities)).toMatchSnapshot();
+      expect(denormalize('456', User, fromJS(entities))).toMatchSnapshot();
     });
 
-    test('denormalizes deep entities with records', () => {
-      const Food = Record<{ id: null | string }>({ id: null });
-      const MenuR = Record<{ id: null | string; food: null | string }>({
-        id: null,
-        food: null,
+    test('denormalizes recursive entities with referential equality', () => {
+      const entities = {
+        Report: {
+          '123': {
+            id: '123',
+            title: 'Weekly report',
+            draftedBy: '456',
+            publishedBy: '456',
+          },
+        },
+        Comment: {
+          '999': {
+            id: '999',
+            body: 'Good morning',
+            author: '456',
+          },
+        },
+        User: {
+          '456': {
+            id: '456',
+            role: 'manager',
+            reports: ['123'],
+          },
+          '457': {
+            id: '457',
+            role: 'servant',
+            reports: ['123'],
+          },
+        },
+      };
+      const memo = new SimpleMemoCache();
+
+      const denormalizedReport = memo.denormalize('123', Report, entities);
+      expect(denormalizedReport).not.toEqual(expect.any(Symbol));
+      if (typeof denormalizedReport === 'symbol') return;
+
+      expect(denormalizedReport).toBeDefined();
+      // This is just for TypeScript, the above line actually determines this
+      if (!denormalizedReport) throw new Error('expected to be defined');
+      expect(denormalizedReport).toBe(denormalizedReport.draftedBy?.reports[0]);
+      expect(denormalizedReport.publishedBy).toBe(denormalizedReport.draftedBy);
+      expect(denormalizedReport.draftedBy?.reports[0].draftedBy).toBe(
+        denormalizedReport.draftedBy,
+      );
+
+      const denormalizedReport2 = memo.denormalize('123', Report, entities);
+      expect(denormalizedReport2).not.toEqual(expect.any(Symbol));
+      if (typeof denormalizedReport2 === 'symbol') return;
+
+      expect(denormalizedReport2).toStrictEqual(denormalizedReport);
+      expect(denormalizedReport2).toBe(denormalizedReport);
+      // NOTE: Given how immutable data works, referential equality can't be
+      // maintained with nested denormalization.
+    });
+
+    test('denormalizes maintain referential equality when appropriate', () => {
+      const entities = {
+        Report: {
+          '123': {
+            id: '123',
+            title: 'Weekly report',
+            draftedBy: '456',
+            publishedBy: '456',
+          },
+        },
+        Comment: {
+          '999': {
+            id: '999',
+            body: 'Good morning',
+            author: '456',
+          },
+        },
+        User: {
+          '456': {
+            id: '456',
+            role: 'manager',
+            reports: ['123'],
+          },
+          '457': {
+            id: '457',
+            role: 'servant',
+            reports: ['123'],
+          },
+        },
+      };
+      const memo = new SimpleMemoCache();
+
+      const input = { report: '123', comment: '999' };
+      const sch = new schema.Object({
+        report: Report,
+        comment: Comment,
       });
 
-      const entities = {
-        Menu: {
-          '1': new MenuR({ id: '1', food: '1' }),
-          '2': new MenuR({ id: '2' }),
-        },
-        Food: {
-          '1': new Food({ id: '1' }),
+      const denormalizedReport = memo.denormalize(input, sch, entities);
+      expect(denormalizedReport).not.toEqual(expect.any(Symbol));
+      if (typeof denormalizedReport === 'symbol') return;
+
+      expect(denormalizedReport.report).toBeDefined();
+      expect(denormalizedReport.comment).toBeDefined();
+      // This is just for TypeScript, the above line actually determines this
+      if (!denormalizedReport.report || !denormalizedReport.comment)
+        throw new Error('expected to be defined');
+      expect(denormalizedReport.report.publishedBy).toBe(
+        denormalizedReport.comment.author,
+      );
+
+      const denormalizedReport2 = memo.denormalize(input, sch, entities);
+      expect(denormalizedReport2).not.toEqual(expect.any(Symbol));
+      if (typeof denormalizedReport2 === 'symbol') return;
+
+      expect(denormalizedReport2).toStrictEqual(denormalizedReport);
+      expect(denormalizedReport2).toBe(denormalizedReport);
+
+      // should update all uses of user
+      const nextEntities = {
+        ...entities,
+        User: {
+          ...entities.User,
+          '456': {
+            ...entities.User[456],
+            role: 'supervisor',
+          },
         },
       };
 
-      expect(denormalize('1', Menu, entities)).toMatchSnapshot();
-      expect(denormalize('1', Menu, fromJS(entities))).toMatchSnapshot();
+      const denormalizedReport3 = memo.denormalize(input, sch, nextEntities);
+      expect(denormalizedReport3).not.toEqual(expect.any(Symbol));
+      if (typeof denormalizedReport3 === 'symbol') return;
 
-      expect(denormalize('2', Menu, entities)).toMatchSnapshot();
-      expect(denormalize('2', Menu, fromJS(entities))).toMatchSnapshot();
+      expect(denormalizedReport3.comment?.author?.role).toBe('supervisor');
+      expect(denormalizedReport3.report?.draftedBy?.role).toBe('supervisor');
+      // NOTE: Given how immutable data works, referential equality can't be
+      // maintained with nested denormalization.
     });
 
-    test('can denormalize already partially denormalized data', () => {
-      const entities = {
-        Menu: {
-          '1': { id: '1', food: { id: '1' } },
-        },
-        Food: {
-          // TODO: BREAKING CHANGE: Update this to use main entity and only return nested as 'fallback' in case main entity is not set
-          '1': { id: '1', extra: 'hi' },
-        },
-      };
-
-      expect(denormalize('1', Menu, entities)).toMatchSnapshot();
-      expect(denormalize('1', Menu, fromJS(entities))).toMatchSnapshot();
-    });
-
-    describe('nesting', () => {
-      class UserData {
-        id = '';
-        readonly role = '';
-        readonly reports: Report[] = [];
-      }
-      class User extends schema.Entity(UserData) {}
-      class ReportData {
-        id = '';
-        readonly title: string = '';
-        readonly draftedBy: User = User.fromJS();
-        readonly publishedBy: User = User.fromJS();
-      }
-      class Report extends schema.Entity(ReportData, {
-        schema: {
-          draftedBy: User,
-          publishedBy: User,
-        },
-      }) {}
-      User.schema = {
-        reports: new schema.Array(Report),
-      };
-      class CommentData {
-        id = '';
-        readonly body: string = '';
-        readonly author: User = User.fromJS();
-      }
-      class Comment extends schema.Entity(CommentData, {
-        schema: { author: User },
-      }) {}
-
-      test('denormalizes recursive dependencies', () => {
-        const entities = {
-          Report: {
-            '123': {
-              id: '123',
-              title: 'Weekly report',
-              draftedBy: '456',
-              publishedBy: '456',
+    describe('optional entities', () => {
+      it('should be marked as found even when optional is not there', () => {
+        const denormalized = denormalize('abc', WithOptional, {
+          [WithOptional.key]: {
+            abc: {
+              id: 'abc',
+              // this is typed because we're actually sending wrong data to it
+              requiredArticle: '5' as any,
+              nextPage: 'blob',
             },
           },
-          User: {
-            '456': {
-              id: '456',
-              role: 'manager',
-              reports: ['123'],
-            },
+          [ArticleEntity.key]: {
+            ['5']: { id: '5' },
           },
-        };
-
-        expect(denormalize('123', Report, entities)).toMatchSnapshot();
-        expect(denormalize('123', Report, fromJS(entities))).toMatchSnapshot();
-
-        expect(denormalize('456', User, entities)).toMatchSnapshot();
-        expect(denormalize('456', User, fromJS(entities))).toMatchSnapshot();
-      });
-
-      test('denormalizes recursive entities with referential equality', () => {
-        const entities = {
-          Report: {
-            '123': {
-              id: '123',
-              title: 'Weekly report',
-              draftedBy: '456',
-              publishedBy: '456',
-            },
-          },
-          Comment: {
-            '999': {
-              id: '999',
-              body: 'Good morning',
-              author: '456',
-            },
-          },
-          User: {
-            '456': {
-              id: '456',
-              role: 'manager',
-              reports: ['123'],
-            },
-            '457': {
-              id: '457',
-              role: 'servant',
-              reports: ['123'],
-            },
-          },
-        };
-        const entityCache: any = {};
-        const resultCache = createResultCache();
-
-        const denormalizedReport = denormalize(
-          '123',
-          Report,
-          entities,
-          entityCache,
-          resultCache,
-        );
-        expect(denormalizedReport).not.toEqual(expect.any(Symbol));
-        if (typeof denormalizedReport === 'symbol') return;
-
-        expect(denormalizedReport).toBeDefined();
-        // This is just for TypeScript, the above line actually determines this
-        if (!denormalizedReport) throw new Error('expected to be defined');
-        expect(denormalizedReport).toBe(
-          denormalizedReport.draftedBy?.reports[0],
-        );
-        expect(denormalizedReport.publishedBy).toBe(
-          denormalizedReport.draftedBy,
-        );
-        expect(denormalizedReport.draftedBy?.reports[0].draftedBy).toBe(
-          denormalizedReport.draftedBy,
-        );
-
-        const denormalizedReport2 = denormalize(
-          '123',
-          Report,
-          entities,
-          entityCache,
-          resultCache,
-        );
-        expect(denormalizedReport2).not.toEqual(expect.any(Symbol));
-        if (typeof denormalizedReport2 === 'symbol') return;
-
-        expect(denormalizedReport2).toStrictEqual(denormalizedReport);
-        expect(denormalizedReport2).toBe(denormalizedReport);
-        // NOTE: Given how immutable data works, referential equality can't be
-        // maintained with nested denormalization.
-      });
-
-      test('denormalizes maintain referential equality when appropriate', () => {
-        const entities = {
-          Report: {
-            '123': {
-              id: '123',
-              title: 'Weekly report',
-              draftedBy: '456',
-              publishedBy: '456',
-            },
-          },
-          Comment: {
-            '999': {
-              id: '999',
-              body: 'Good morning',
-              author: '456',
-            },
-          },
-          User: {
-            '456': {
-              id: '456',
-              role: 'manager',
-              reports: ['123'],
-            },
-            '457': {
-              id: '457',
-              role: 'servant',
-              reports: ['123'],
-            },
-          },
-        };
-        const entityCache: any = {};
-        const resultCache = createResultCache();
-
-        const input = { report: '123', comment: '999' };
-        const sch = new schema.Object({
-          report: Report,
-          comment: Comment,
         });
-
-        const denormalizedReport = denormalize(
-          input,
-          sch,
-          entities,
-          entityCache,
-          resultCache,
-        );
-        expect(denormalizedReport).not.toEqual(expect.any(Symbol));
-        if (typeof denormalizedReport === 'symbol') return;
-
-        expect(denormalizedReport.report).toBeDefined();
-        expect(denormalizedReport.comment).toBeDefined();
-        // This is just for TypeScript, the above line actually determines this
-        if (!denormalizedReport.report || !denormalizedReport.comment)
-          throw new Error('expected to be defined');
-        expect(denormalizedReport.report.publishedBy).toBe(
-          denormalizedReport.comment.author,
-        );
-
-        const denormalizedReport2 = denormalize(
-          input,
-          sch,
-          entities,
-          entityCache,
-          resultCache,
-        );
-        expect(denormalizedReport2).not.toEqual(expect.any(Symbol));
-        if (typeof denormalizedReport2 === 'symbol') return;
-
-        expect(denormalizedReport2).toStrictEqual(denormalizedReport);
-        expect(denormalizedReport2).toBe(denormalizedReport);
-
-        // should update all uses of user
-        const nextEntities = {
-          ...entities,
-          User: {
-            ...entities.User,
-            '456': {
-              ...entities.User[456],
-              role: 'supervisor',
-            },
-          },
-        };
-
-        const denormalizedReport3 = denormalize(
-          input,
-          sch,
-          nextEntities,
-          entityCache,
-          resultCache,
-        );
-        expect(denormalizedReport3).not.toEqual(expect.any(Symbol));
-        if (typeof denormalizedReport3 === 'symbol') return;
-
-        expect(denormalizedReport3.comment?.author?.role).toBe('supervisor');
-        expect(denormalizedReport3.report?.draftedBy?.role).toBe('supervisor');
-        // NOTE: Given how immutable data works, referential equality can't be
-        // maintained with nested denormalization.
+        const response = denormalized;
+        expect(response).toBeDefined();
+        expect(response).toBeInstanceOf(WithOptional);
+        expect(response).toEqual({
+          id: 'abc',
+          article: null,
+          requiredArticle: ArticleEntity.fromJS({ id: '5' }),
+          nextPage: 'blob',
+        });
       });
 
-      describe('optional entities', () => {
-        it('should be marked as found even when optional is not there', () => {
-          const denormalized = denormalize('abc', WithOptional, {
-            [WithOptional.key]: {
-              abc: {
-                id: 'abc',
-                // this is typed because we're actually sending wrong data to it
-                requiredArticle: '5' as any,
-                nextPage: 'blob',
-              },
-            },
-            [ArticleEntity.key]: {
-              ['5']: { id: '5' },
-            },
-          });
-          const response = denormalized;
-          expect(response).toBeDefined();
-          expect(response).toBeInstanceOf(WithOptional);
-          expect(response).toEqual({
-            id: 'abc',
-            article: null,
-            requiredArticle: ArticleEntity.fromJS({ id: '5' }),
-            nextPage: 'blob',
-          });
+      it('should be marked as found when nested entity is missing', () => {
+        const denormalized = denormalize('abc', WithOptional, {
+          [WithOptional.key]: {
+            abc: WithOptional.fromJS({
+              id: 'abc',
+              // this is typed because we're actually sending wrong data to it
+              article: '5' as any,
+              nextPage: 'blob',
+            }),
+          },
+          [ArticleEntity.key]: {
+            ['5']: ArticleEntity.fromJS({ id: '5' }),
+          },
         });
+        expect(denormalized).not.toEqual(expect.any(Symbol));
+        if (typeof denormalized === 'symbol') return;
 
-        it('should be marked as found when nested entity is missing', () => {
-          const denormalized = denormalize('abc', WithOptional, {
+        const response = denormalized;
+        expect(response).toBeDefined();
+        expect(response).toBeInstanceOf(WithOptional);
+        expect(response).toEqual({
+          id: 'abc',
+          article: ArticleEntity.fromJS({ id: '5' }),
+          requiredArticle: ArticleEntity.fromJS(),
+          nextPage: 'blob',
+        });
+      });
+
+      it('should be marked as deleted when required entity is deleted symbol', () => {
+        const denormalized = denormalize('abc', WithOptional, {
+          [WithOptional.key]: {
+            abc: {
+              id: 'abc',
+              // this is typed because we're actually sending wrong data to it
+              requiredArticle: '5' as any,
+              nextPage: 'blob',
+            },
+          },
+          [ArticleEntity.key]: {
+            ['5']: INVALID,
+          },
+        });
+        expect(denormalized).toEqual(expect.any(Symbol));
+      });
+
+      it('should be non-required deleted members should not result in deleted indicator', () => {
+        const denormalized = denormalize('abc', WithOptional, {
+          [WithOptional.key]: {
+            abc: WithOptional.fromJS({
+              id: 'abc',
+              // this is typed because we're actually sending wrong data to it
+              article: '5' as any,
+              requiredArticle: '6' as any,
+              nextPage: 'blob',
+            }),
+          },
+          [ArticleEntity.key]: {
+            ['5']: INVALID,
+            ['6']: ArticleEntity.fromJS({ id: '6' }),
+          },
+        });
+        expect(denormalized).not.toEqual(expect.any(Symbol));
+        if (typeof denormalized === 'symbol') return;
+        const response = denormalized;
+        expect(response).toBeDefined();
+        expect(response).toBeInstanceOf(WithOptional);
+        expect(response).toEqual({
+          id: 'abc',
+          article: undefined,
+          requiredArticle: ArticleEntity.fromJS({ id: '6' }),
+          nextPage: 'blob',
+        });
+      });
+
+      it('should be both deleted and not found when both are true in different parts of schema', () => {
+        const denormalized = denormalize(
+          { data: 'abc' },
+          new schema.Object({ data: WithOptional, other: ArticleEntity }),
+          {
             [WithOptional.key]: {
               abc: WithOptional.fromJS({
                 id: 'abc',
                 // this is typed because we're actually sending wrong data to it
-                article: '5' as any,
-                nextPage: 'blob',
-              }),
-            },
-            [ArticleEntity.key]: {
-              ['5']: ArticleEntity.fromJS({ id: '5' }),
-            },
-          });
-          expect(denormalized).not.toEqual(expect.any(Symbol));
-          if (typeof denormalized === 'symbol') return;
-
-          const response = denormalized;
-          expect(response).toBeDefined();
-          expect(response).toBeInstanceOf(WithOptional);
-          expect(response).toEqual({
-            id: 'abc',
-            article: ArticleEntity.fromJS({ id: '5' }),
-            requiredArticle: ArticleEntity.fromJS(),
-            nextPage: 'blob',
-          });
-        });
-
-        it('should be marked as deleted when required entity is deleted symbol', () => {
-          const denormalized = denormalize('abc', WithOptional, {
-            [WithOptional.key]: {
-              abc: {
-                id: 'abc',
-                // this is typed because we're actually sending wrong data to it
+                article: '6' as any,
                 requiredArticle: '5' as any,
-                nextPage: 'blob',
-              },
-            },
-            [ArticleEntity.key]: {
-              ['5']: INVALID,
-            },
-          });
-          expect(denormalized).toEqual(expect.any(Symbol));
-        });
-
-        it('should be non-required deleted members should not result in deleted indicator', () => {
-          const denormalized = denormalize('abc', WithOptional, {
-            [WithOptional.key]: {
-              abc: WithOptional.fromJS({
-                id: 'abc',
-                // this is typed because we're actually sending wrong data to it
-                article: '5' as any,
-                requiredArticle: '6' as any,
                 nextPage: 'blob',
               }),
             },
@@ -1299,46 +1290,13 @@ describe.each([
               ['5']: INVALID,
               ['6']: ArticleEntity.fromJS({ id: '6' }),
             },
-          });
-          expect(denormalized).not.toEqual(expect.any(Symbol));
-          if (typeof denormalized === 'symbol') return;
-          const response = denormalized;
-          expect(response).toBeDefined();
-          expect(response).toBeInstanceOf(WithOptional);
-          expect(response).toEqual({
-            id: 'abc',
-            article: undefined,
-            requiredArticle: ArticleEntity.fromJS({ id: '6' }),
-            nextPage: 'blob',
-          });
-        });
-
-        it('should be both deleted and not found when both are true in different parts of schema', () => {
-          const denormalized = denormalize(
-            { data: 'abc' },
-            new schema.Object({ data: WithOptional, other: ArticleEntity }),
-            {
-              [WithOptional.key]: {
-                abc: WithOptional.fromJS({
-                  id: 'abc',
-                  // this is typed because we're actually sending wrong data to it
-                  article: '6' as any,
-                  requiredArticle: '5' as any,
-                  nextPage: 'blob',
-                }),
-              },
-              [ArticleEntity.key]: {
-                ['5']: INVALID,
-                ['6']: ArticleEntity.fromJS({ id: '6' }),
-              },
-            },
-          );
-          expect(denormalized).toEqual(expect.any(Symbol));
-        });
+          },
+        );
+        expect(denormalized).toEqual(expect.any(Symbol));
       });
     });
-  },
-);
+  });
+});
 
 describe('Entity.defaults', () => {
   it('should work with inheritance', () => {

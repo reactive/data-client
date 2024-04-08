@@ -62,13 +62,13 @@ export const denormalize = (
 export function queryKey(
   schema: any,
   args: readonly any[],
-  indexes: any,
-  recurse: any,
-  entities: any,
+  queryKey: any,
+  getEntity: any,
+  getIndex: any,
 ) {
   const resultObject: any = {};
   for (const k of Object.keys(schema)) {
-    resultObject[k] = recurse(schema[k], args, indexes, entities);
+    resultObject[k] = queryKey(schema[k], args, getEntity, getIndex);
   }
   return resultObject;
 }

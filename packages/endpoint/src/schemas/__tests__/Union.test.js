@@ -4,7 +4,7 @@ import { IDEntity } from '__tests__/new';
 import { waterfallSchema } from '__tests__/UnionSchema';
 import { fromJS } from 'immutable';
 
-import { denormalizeSimple } from './denormalize';
+import SimpleMemoCache from './denormalize';
 import { schema } from '../../';
 
 let dateSpy;
@@ -241,7 +241,11 @@ describe('complex case', () => {
     const denorm = normalize(response, waterfallSchema);
     expect(denorm).toMatchSnapshot();
     expect(
-      denormalizeSimple(denorm.result, waterfallSchema, denorm.entities),
+      new SimpleMemoCache().denormalize(
+        denorm.result,
+        waterfallSchema,
+        denorm.entities,
+      ),
     ).toMatchSnapshot();
   });
 });
@@ -260,7 +264,7 @@ describe.each([
   ['direct', data => data],
   ['immutable', fromJS],
 ])(`input (%s)`, (_, createInput) => {
-  describe.each([['current', denormalizeSimple]])(
+  describe.each([['current', new SimpleMemoCache().denormalize]])(
     `${schema.Union.name} denormalization (%s)`,
     (_, denormalize) => {
       test('denormalizes an object using string schemaAttribute', () => {

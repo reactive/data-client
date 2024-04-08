@@ -4,8 +4,8 @@ import { fromJS } from 'immutable';
 
 import { normalize } from '../';
 import { denormalize as denormalizeSimple } from '../denormalize/denormalize';
-import { denormalize as denormalizeCached } from '../denormalize/denormalizeCached';
 import { INVALID } from '../denormalize/symbol';
+import MemoCached from '../memo/MemoCache';
 
 class IDEntity extends Entity {
   id = '';
@@ -405,8 +405,9 @@ describe('normalize', () => {
   });
 });
 
+const memo = new MemoCached();
 function denormalizeCachedValue(...args) {
-  return denormalizeCached(...args).data;
+  return memo.denormalize(...args).data;
 }
 describe.each([
   ['fast', denormalizeSimple],

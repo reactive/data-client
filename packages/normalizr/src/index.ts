@@ -4,19 +4,16 @@ Object.hasOwn =
     return Object.prototype.hasOwnProperty.call(it, key);
   };
 import { denormalize } from './denormalize/denormalize.js';
-import { denormalize as denormalizeCached } from './denormalize/denormalizeCached.js';
 import { isEntity } from './isEntity.js';
+import WeakDependencyMap from './memo/WeakDependencyMap.js';
 import { normalize } from './normalize.js';
-import WeakEntityMap from './WeakEntityMap.js';
-export { default as buildQueryKey, validateQueryKey } from './buildQueryKey.js';
 
+export { default as MemoCache } from './memo/MemoCache.js';
 export type {
   AbstractInstanceType,
   NormalizeReturnType,
   NormalizedSchema,
-  EntityCache,
-  EndpointsCache as ResultCache,
-  Path,
+  EntityPath,
   Denormalize,
   DenormalizeNullable,
   Normalize,
@@ -27,5 +24,6 @@ export * from './endpoint/types.js';
 export * from './interface.js';
 export * from './Expiry.js';
 export { INVALID } from './denormalize/symbol.js';
+export { validateQueryKey } from './buildQueryKey.js';
 
-export { denormalize, denormalizeCached, normalize, isEntity, WeakEntityMap };
+export { denormalize, normalize, isEntity, WeakDependencyMap };

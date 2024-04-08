@@ -1,6 +1,6 @@
 import { consistentSerialize } from './consistentSerialize.js';
 import { CREATE } from './special.js';
-import { PolymorphicInterface } from '../interface.js';
+import { GetEntity, PolymorphicInterface } from '../interface.js';
 import { Values, Array as ArraySchema } from '../schema.js';
 
 const pushMerge = (existing: any, incoming: any) => {
@@ -218,10 +218,16 @@ export default class CollectionSchema<
 
   // >>>>>>>>>>>>>>DENORMALIZE<<<<<<<<<<<<<<
 
-  queryKey(args: Args, indexes: unknown, recurse: unknown, entities: any): any {
+  queryKey(
+    args: Args,
+    queryKey: unknown,
+    getEntity: GetEntity,
+    getIndex: unknown,
+  ): any {
     if (this.argsKey) {
       const id = this.pk(undefined, undefined, '', args);
-      if (entities[this.key]?.[id]) return id;
+      // ensure this actually has entity or we shouldn't try to use it in our query
+      if (getEntity(this.key, id)) return id;
     }
   }
 

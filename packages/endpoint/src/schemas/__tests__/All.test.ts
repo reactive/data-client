@@ -1,15 +1,9 @@
 // eslint-env jest
-import {
-  buildQueryKey,
-  normalize,
-  WeakEntityMap,
-} from '@data-client/normalizr';
+import { normalize, MemoCache, denormalize } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
-import denormalize from './denormalize';
 import { schema } from '../..';
-import { EntityTable } from '../../interface';
 import { INVALID } from '../../special';
 
 let dateSpy: jest.SpyInstance<number, []>;
@@ -124,11 +118,7 @@ describe.each([
       };
       const sch = new schema.All(Cat);
       expect(
-        denormalize(
-          buildQueryKey(sch, [], {}, entities),
-          sch,
-          createInput(entities),
-        ),
+        new MemoCache().query('', sch, [], createInput(entities), {}),
       ).toMatchSnapshot();
     });
 
@@ -142,11 +132,7 @@ describe.each([
         },
       };
       expect(
-        denormalize(
-          buildQueryKey(catSchema, [], {}, entities),
-          catSchema,
-          createInput(entities),
-        ),
+        new MemoCache().query('', catSchema, [], createInput(entities), {}),
       ).toMatchSnapshot();
     });
 
@@ -159,12 +145,16 @@ describe.each([
           2: { id: '2', name: 'Jake' },
         },
       };
-      const input = buildQueryKey(catSchema, [], {}, entities);
-      let value = denormalize(input, catSchema, createInput(entities));
+      const value = new MemoCache().query(
+        '',
+        catSchema,
+        [],
+        createInput(entities),
+        {},
+      );
       expect(value).not.toEqual(expect.any(Symbol));
-      if (typeof value === 'symbol') return;
+      if (typeof value === 'symbol' || value === undefined) return;
       expect(createOutput(value.results)).toMatchSnapshot();
-      value = denormalize(createInput(input), catSchema, createInput(entities));
       expect(createOutput(value)).toMatchSnapshot();
     });
 
@@ -179,13 +169,17 @@ describe.each([
           4: INVALID,
         },
       };
-      const input = buildQueryKey(catSchema, [], {}, entities);
-      let value = denormalize(input, catSchema, createInput(entities));
+      const value = new MemoCache().query(
+        '',
+        catSchema,
+        [],
+        createInput(entities) as any,
+        {},
+      );
       expect(value).not.toEqual(expect.any(Symbol));
-      if (typeof value === 'symbol') return;
+      if (typeof value === 'symbol' || value === undefined) return;
       expect(createOutput(value.results).length).toBe(2);
       expect(createOutput(value.results)).toMatchSnapshot();
-      value = denormalize(createInput(input), catSchema, createInput(entities));
       expect(createOutput(value)).toMatchSnapshot();
     });
 
@@ -193,32 +187,18 @@ describe.each([
       class Cat extends IDEntity {}
       (Cat as any).defaults;
       const catSchema = { results: new schema.All(Cat), nextPage: '' };
-      let entities: EntityTable = {
+      let entities: Record<string, Record<string, object>> = {
         Cat: {
           1: { id: '1', name: 'Milo' },
           2: { id: '2', name: 'Jake' },
         },
       };
-      const input = createInput(buildQueryKey(catSchema, [], {}, entities));
-      const entityCache = {};
-      const resultCache = new WeakEntityMap();
-      const value = denormalize(
-        input,
-        catSchema,
-        entities,
-        entityCache,
-        resultCache,
-      );
+      const memo = new MemoCache();
+      const value = memo.query('', catSchema, [], entities, {});
 
       expect(createOutput(value).results?.length).toBe(2);
       expect(createOutput(value).results).toMatchSnapshot();
-      const value2 = denormalize(
-        input,
-        catSchema,
-        entities,
-        entityCache,
-        resultCache,
-      );
+      const value2 = memo.query('', catSchema, [], entities, {});
       expect(createOutput(value).results[0]).toBe(
         createOutput(value2).results[0],
       );
@@ -231,14 +211,7 @@ describe.each([
           3: { id: '3', name: 'Jelico' },
         },
       };
-      const input3 = createInput(buildQueryKey(catSchema, [], {}, entities));
-      const value3 = denormalize(
-        input3,
-        catSchema,
-        entities,
-        entityCache,
-        resultCache,
-      );
+      const value3 = memo.query('', catSchema, [], entities, {});
       expect(createOutput(value3).results?.length).toBe(3);
       expect(createOutput(value3).results).toMatchSnapshot();
       expect(createOutput(value).results[0]).toBe(
@@ -259,15 +232,16 @@ describe.each([
           2: { id: '2', name: 'Jake' },
         },
       };
-      const input = buildQueryKey(catSchema, [], {}, entities);
 
-      const value = denormalize(
-        createInput(input),
+      const value = new MemoCache().query(
+        '',
         catSchema,
+        [],
         createInput(entities),
+        {},
       );
 
-      expect(createOutput(value)).toEqual(expect.any(Symbol));
+      expect(createOutput(value)).toBeUndefined();
     });
 
     test('denormalizes should not be found when no entities are present (polymorphic)', () => {
@@ -295,14 +269,15 @@ describe.each([
           2: { id: '2', name: 'Jake' },
         },
       };
-      const input = buildQueryKey(listSchema, [], {}, entities);
-      const value = denormalize(
-        createInput(input),
+      const value = new MemoCache().query(
+        '',
         listSchema,
+        [],
         createInput(entities),
+        {},
       );
 
-      expect(createOutput(value)).toEqual(expect.any(Symbol));
+      expect(createOutput(value)).toBeUndefined();
     });
 
     test('returns the input value if is null', () => {
@@ -358,9 +333,13 @@ describe.each([
           },
         },
       };
-
-      const input = buildQueryKey(listSchema, [], {}, entities);
-      const value = denormalize(input, listSchema, createInput(entities));
+      const value = new MemoCache().query(
+        '',
+        listSchema,
+        [],
+        createInput(entities) as any,
+        {},
+      );
       expect(value).not.toEqual(expect.any(Symbol));
       if (typeof value === 'symbol') return;
       expect(value).toMatchSnapshot();

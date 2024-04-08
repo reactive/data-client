@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`EntitySchema denormalization (current) can denormalize already partially denormalized data 1`] = `
+exports[`EntitySchema denormalization can denormalize already partially denormalized data 1`] = `
 Menu {
   "food": Food {
     "id": "1",
@@ -9,7 +9,7 @@ Menu {
 }
 `;
 
-exports[`EntitySchema denormalization (current) can denormalize already partially denormalized data 2`] = `
+exports[`EntitySchema denormalization can denormalize already partially denormalized data 2`] = `
 Menu {
   "food": Food {
     "id": "1",
@@ -18,7 +18,7 @@ Menu {
 }
 `;
 
-exports[`EntitySchema denormalization (current) denormalizes an entity 1`] = `
+exports[`EntitySchema denormalization denormalizes an entity 1`] = `
 Tacos {
   "alias": undefined,
   "id": "1",
@@ -26,7 +26,7 @@ Tacos {
 }
 `;
 
-exports[`EntitySchema denormalization (current) denormalizes an entity 2`] = `
+exports[`EntitySchema denormalization denormalizes an entity 2`] = `
 Tacos {
   "alias": undefined,
   "id": "1",
@@ -34,7 +34,7 @@ Tacos {
 }
 `;
 
-exports[`EntitySchema denormalization (current) denormalizes deep entities 1`] = `
+exports[`EntitySchema denormalization denormalizes deep entities 1`] = `
 Menu {
   "food": Food {
     "id": "1",
@@ -43,7 +43,7 @@ Menu {
 }
 `;
 
-exports[`EntitySchema denormalization (current) denormalizes deep entities 2`] = `
+exports[`EntitySchema denormalization denormalizes deep entities 2`] = `
 Menu {
   "food": Food {
     "id": "",
@@ -52,7 +52,7 @@ Menu {
 }
 `;
 
-exports[`EntitySchema denormalization (current) denormalizes deep entities with records 1`] = `
+exports[`EntitySchema denormalization denormalizes deep entities with records 1`] = `
 Menu {
   "food": Food {
     "id": "1",
@@ -61,7 +61,7 @@ Menu {
 }
 `;
 
-exports[`EntitySchema denormalization (current) denormalizes deep entities with records 2`] = `
+exports[`EntitySchema denormalization denormalizes deep entities with records 2`] = `
 Menu {
   "food": Food {
     "id": "1",
@@ -70,47 +70,47 @@ Menu {
 }
 `;
 
-exports[`EntitySchema denormalization (current) denormalizes deep entities with records 3`] = `
+exports[`EntitySchema denormalization denormalizes deep entities with records 3`] = `
 Menu {
   "food": null,
   "id": "2",
 }
 `;
 
-exports[`EntitySchema denormalization (current) denormalizes deep entities with records 4`] = `
+exports[`EntitySchema denormalization denormalizes deep entities with records 4`] = `
 Menu {
   "food": null,
   "id": "2",
 }
 `;
 
-exports[`EntitySchema denormalization (current) denormalizes to undefined for deleted data 1`] = `Symbol(INVALID)`;
+exports[`EntitySchema denormalization denormalizes to undefined for deleted data 1`] = `Symbol(INVALID)`;
 
-exports[`EntitySchema denormalization (current) denormalizes to undefined for deleted data 2`] = `Symbol(INVALID)`;
+exports[`EntitySchema denormalization denormalizes to undefined for deleted data 2`] = `Symbol(INVALID)`;
 
-exports[`EntitySchema denormalization (current) denormalizes to undefined for deleted data 3`] = `Symbol(INVALID)`;
+exports[`EntitySchema denormalization denormalizes to undefined for deleted data 3`] = `Symbol(INVALID)`;
 
-exports[`EntitySchema denormalization (current) denormalizes to undefined for deleted data 4`] = `Symbol(INVALID)`;
+exports[`EntitySchema denormalization denormalizes to undefined for deleted data 4`] = `Symbol(INVALID)`;
 
-exports[`EntitySchema denormalization (current) denormalizes to undefined for missing data 1`] = `
+exports[`EntitySchema denormalization denormalizes to undefined for missing data 1`] = `
 Menu {
   "food": undefined,
   "id": "1",
 }
 `;
 
-exports[`EntitySchema denormalization (current) denormalizes to undefined for missing data 2`] = `
+exports[`EntitySchema denormalization denormalizes to undefined for missing data 2`] = `
 Menu {
   "food": undefined,
   "id": "1",
 }
 `;
 
-exports[`EntitySchema denormalization (current) denormalizes to undefined for missing data 3`] = `undefined`;
+exports[`EntitySchema denormalization denormalizes to undefined for missing data 3`] = `undefined`;
 
-exports[`EntitySchema denormalization (current) denormalizes to undefined for missing data 4`] = `undefined`;
+exports[`EntitySchema denormalization denormalizes to undefined for missing data 4`] = `undefined`;
 
-exports[`EntitySchema denormalization (current) nesting denormalizes recursive dependencies 1`] = `
+exports[`EntitySchema denormalization nesting denormalizes recursive dependencies 1`] = `
 Report {
   "draftedBy": User {
     "id": "456",
@@ -131,7 +131,7 @@ Report {
 }
 `;
 
-exports[`EntitySchema denormalization (current) nesting denormalizes recursive dependencies 2`] = `
+exports[`EntitySchema denormalization nesting denormalizes recursive dependencies 2`] = `
 Report {
   "draftedBy": User {
     "id": "456",
@@ -152,7 +152,7 @@ Report {
 }
 `;
 
-exports[`EntitySchema denormalization (current) nesting denormalizes recursive dependencies 3`] = `
+exports[`EntitySchema denormalization nesting denormalizes recursive dependencies 3`] = `
 User {
   "id": "456",
   "reports": [
@@ -167,7 +167,7 @@ User {
 }
 `;
 
-exports[`EntitySchema denormalization (current) nesting denormalizes recursive dependencies 4`] = `
+exports[`EntitySchema denormalization nesting denormalizes recursive dependencies 4`] = `
 User {
   "id": "456",
   "reports": Immutable.List [

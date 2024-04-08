@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { CREATE } from './special.js';
-import type { Schema, NormalizedIndex } from '../interface.js';
+import type { Schema, GetIndex, GetEntity } from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
 
 export type Constructor = abstract new (...args: any[]) => {};
@@ -339,13 +339,14 @@ export default function EntitySchema<TBase extends Constructor>(
 
     static queryKey(
       args: readonly any[],
-      indexes: NormalizedIndex,
-      recurse: any,
-      entities: any,
+      queryKey: any,
+      getEntity: GetEntity,
+      getIndex: GetIndex,
     ): any {
       if (!args[0]) return;
-      const id = queryKeyCandidate(this, args, indexes);
-      if (entities[this.key]?.[id]) return id;
+      const id = queryKeyCandidate(this, args, getIndex);
+      // ensure this actually has entity or we shouldn't try to use it in our query
+      if (getEntity(this.key, id)) return id;
     }
 
     static denormalize<T extends typeof EntityMixin>(
@@ -656,9 +657,9 @@ export interface IEntityClass<TBase extends Constructor = any> {
    */
   queryKey(
     args: readonly any[],
-    indexes: NormalizedIndex,
-    recurse: any,
-    entities: any,
+    queryKey: any,
+    getEntity: GetEntity,
+    getIndex: GetIndex,
   ): any;
   denormalize<
     T extends (abstract new (
@@ -694,7 +695,7 @@ export interface IEntityInstance {
 function queryKeyCandidate(
   schema: any,
   args: readonly any[],
-  indexes: NormalizedIndex,
+  getIndex: GetIndex,
 ) {
   if (['string', 'number'].includes(typeof args[0])) {
     return `${args[0]}`;
@@ -704,12 +705,7 @@ function queryKeyCandidate(
   if (id !== undefined && id !== '') return id;
   // now attempt lookup in indexes
   const indexName = indexFromParams(args[0], schema.indexes);
-  if (indexName && indexes[schema.key]) {
-    // 'as Record<string, any>': indexName can only be found if params is a string key'd object
-    const id =
-      indexes[schema.key][indexName][
-        (args[0] as Record<string, any>)[indexName]
-      ];
-    return id;
-  }
+  if (!indexName) return;
+  const value = (args[0] as Record<string, any>)[indexName];
+  return getIndex(schema.key, indexName, value)[value];
 }

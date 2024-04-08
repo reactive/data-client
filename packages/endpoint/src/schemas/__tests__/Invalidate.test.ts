@@ -3,7 +3,7 @@ import { Schema, normalize } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
-import { denormalizeSimple } from './denormalize';
+import SimpleMemoCache from './denormalize';
 import { schema } from '../..';
 import { INVALID } from '../../special';
 import Entity from '../Entity';
@@ -41,11 +41,16 @@ describe(`${schema.Invalidate.name} normalization`, () => {
     ).toMatchSnapshot();
   });
 
-  test('does not infer', () => {
+  test('does not query', () => {
     class User extends IDEntity {}
 
     expect(
-      new schema.Invalidate(User).queryKey([{ id: 5 }], {}, () => undefined),
+      new schema.Invalidate(User).queryKey(
+        [{ id: 5 }],
+        () => undefined,
+        () => undefined,
+        () => undefined,
+      ),
     ).toBeUndefined();
   });
 
@@ -90,7 +95,11 @@ describe(`${schema.Invalidate.name} denormalization`, () => {
   };
 
   test('denormalizes an object in the same manner as the Entity', () => {
-    const user = denormalizeSimple('1', new schema.Invalidate(User), entities);
+    const user = new SimpleMemoCache().denormalize(
+      '1',
+      new schema.Invalidate(User),
+      entities,
+    );
     expect(user).not.toEqual(expect.any(Symbol));
     if (typeof user === 'symbol') return;
     expect(user).toBeDefined();
@@ -107,13 +116,13 @@ describe(`${schema.Invalidate.name} denormalization`, () => {
         'class',
         <T extends Schema>(sch: T) => new schema.Array(sch),
         <T extends Record<string, any>>(sch: T) => new schema.Object(sch),
-        denormalizeSimple,
+        new SimpleMemoCache().denormalize,
       ],
       [
         'object, direct',
         <T extends Schema>(sch: T) => [sch],
         <T extends Record<string, any>>(sch: T) => sch,
-        denormalizeSimple,
+        new SimpleMemoCache().denormalize,
       ],
     ])(
       `schema construction (%s)`,

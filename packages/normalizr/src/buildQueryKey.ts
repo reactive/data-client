@@ -1,9 +1,4 @@
-import type {
-  Schema,
-  SchemaSimple,
-  NormalizedIndex,
-  EntityTable,
-} from './interface.js';
+import type { Schema, SchemaSimple, GetIndex, GetEntity } from './interface.js';
 import { queryKey as arrayQuery } from './schemas/Array.js';
 import { queryKey as objectQuery } from './schemas/Object.js';
 import type { NormalizeNullable } from './types.js';
@@ -15,25 +10,27 @@ import type { NormalizeNullable } from './types.js';
 export default function buildQueryKey<S extends Schema>(
   schema: S,
   args: any[],
-  indexes: NormalizedIndex,
-  entities: EntityTable,
+  getEntity: GetEntity,
+  getIndex: GetIndex,
 ): NormalizeNullable<S> {
   // schema classes
   if (canQuery(schema)) {
-    return schema.queryKey(args, indexes, buildQueryKey, entities);
+    return schema.queryKey(args, buildQueryKey, getEntity, getIndex);
   }
 
   // plain case
   if (typeof schema === 'object' && schema) {
     const method = Array.isArray(schema) ? arrayQuery : objectQuery;
-    return method(schema, args, indexes, buildQueryKey, entities);
+    return method(schema, args, buildQueryKey, getEntity, getIndex);
   }
 
   // fallback for things like null or undefined
   return schema as any;
 }
 
-function canQuery(schema: Schema): schema is Pick<SchemaSimple, 'queryKey'> {
+export function canQuery(
+  schema: Schema,
+): schema is Pick<SchemaSimple, 'queryKey'> {
   return !!schema && typeof (schema as any).queryKey === 'function';
 }
 

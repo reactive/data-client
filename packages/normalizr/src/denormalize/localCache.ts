@@ -1,6 +1,6 @@
 import type Cache from './cache.js';
 import type { EntityInterface } from '../interface.js';
-import type { Path } from '../types.js';
+import type { EntityPath } from '../types.js';
 
 export default class LocalCache implements Cache {
   private localCache: Record<string, Record<string, any>> = {};
@@ -29,7 +29,7 @@ export default class LocalCache implements Cache {
     computeValue: () => any,
   ): {
     data: any;
-    paths: Path[];
+    paths: EntityPath[];
   } {
     return { data: computeValue(), paths: [] };
   }

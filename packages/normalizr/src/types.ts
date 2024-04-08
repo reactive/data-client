@@ -6,9 +6,8 @@ import type {
   NormalizedIndex,
   Queryable,
 } from './interface.js';
-import type WeakEntityMap from './WeakEntityMap.js';
 
-export interface Path {
+export interface EntityPath {
   key: string;
   pk: string;
 }
@@ -53,13 +52,6 @@ interface NestedSchemaClass<T = any> {
 export interface RecordClass<T = any> extends NestedSchemaClass<T> {
   fromJS: (...args: any) => AbstractInstanceType<T>;
 }
-
-export interface EntityCache {
-  [key: string]: {
-    [pk: string]: WeakMap<EntityInterface, WeakEntityMap<object, any>>;
-  };
-}
-export type EndpointsCache = WeakEntityMap<object, any>;
 
 export type DenormalizeNullableNestedSchema<S extends NestedSchemaClass> =
   keyof S['schema'] extends never ?
@@ -136,9 +128,9 @@ export type SchemaArgs<S extends Queryable> =
     {
       queryKey(
         args: infer Args,
-        indexes: any,
-        recurse: (...args: any) => any,
-        entities: any,
+        queryKey: (...args: any) => any,
+        getEntity: any,
+        getIndex: any,
       ): any;
     }
   ) ?

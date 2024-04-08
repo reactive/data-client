@@ -5,21 +5,19 @@ import type {
   Denormalize,
   Queryable,
   SchemaArgs,
-  ResultCache,
 } from '@data-client/normalizr';
 import {
-  WeakEntityMap,
   ExpiryStatus,
   EndpointInterface,
   FetchFunction,
   ResolveType,
   DenormalizeNullable,
-  Path,
-  denormalizeCached,
+  EntityPath,
+  MemoCache,
   isEntity,
   denormalize,
+  validateQueryKey,
 } from '@data-client/normalizr';
-import { buildQueryKey, validateQueryKey } from '@data-client/normalizr';
 
 import AbortOptimistic from './AbortOptimistic.js';
 import createExpireAll from './createExpireAll.js';
@@ -36,7 +34,7 @@ import ensurePojo from './ensurePojo.js';
 import type { EndpointUpdateFunction } from './types.js';
 import { initialState } from '../state/reducer/createReducer.js';
 import selectMeta from '../state/selectMeta.js';
-import type { ActionTypes, State, DenormalizeCache } from '../types.js';
+import type { ActionTypes, State } from '../types.js';
 
 export type GenericDispatch = (value: any) => Promise<void>;
 export type DataClientDispatch = (value: ActionTypes) => Promise<void>;
@@ -44,7 +42,7 @@ export type DataClientDispatch = (value: ActionTypes) => Promise<void>;
 interface ConstructorProps<D extends GenericDispatch = DataClientDispatch> {
   dispatch?: D;
   getState?: () => State<unknown>;
-  globalCache?: DenormalizeCache;
+  memo?: Pick<MemoCache, 'denormalize' | 'query' | 'buildQueryKey'>;
 }
 
 const unsetDispatch = (action: unknown): Promise<void> => {
@@ -80,19 +78,22 @@ export default class Controller<
    * @see https://dataclient.io/docs/api/Controller#getState
    */
   declare readonly getState: () => State<unknown>;
-  declare readonly globalCache: DenormalizeCache;
+  /**
+   * Singleton to maintain referential equality between calls
+   */
+  declare readonly memo: Pick<
+    MemoCache,
+    'denormalize' | 'query' | 'buildQueryKey'
+  >;
 
   constructor({
     dispatch = unsetDispatch as any,
     getState = unsetState,
-    globalCache = {
-      entities: {},
-      endpoints: {},
-    },
+    memo = new MemoCache(),
   }: ConstructorProps<D> = {}) {
     this.dispatch = dispatch;
     this.getState = getState;
-    this.globalCache = globalCache;
+    this.memo = memo;
   }
 
   /*************** Action Dispatchers ***************/
@@ -390,33 +391,36 @@ export default class Controller<
     const schema = endpoint.schema;
     const meta = selectMeta(state, key);
     let expiresAt = meta?.expiresAt;
+    // if we have no endpoint entry, and our endpoint has a schema - try querying the store
+    const shouldQuery = cacheEndpoints === undefined && schema !== undefined;
 
-    let invalidResults = false;
-    let results;
-    if (cacheEndpoints === undefined && endpoint.schema !== undefined) {
-      results = buildQueryKey(
-        endpoint.schema,
-        args,
-        state.indexes,
-        state.entities,
-      );
-      invalidResults = !validateQueryKey(results);
-      if (!expiresAt && invalidResults) expiresAt = 1;
-    } else {
-      results = cacheEndpoints;
-    }
+    const input =
+      shouldQuery ?
+        // nothing in endpoints cache, so try querying if we have a schema to do so
+        this.memo.buildQueryKey(
+          key,
+          schema,
+          args,
+          state.entities as any,
+          state.indexes,
+        )
+      : cacheEndpoints;
 
     if (!isActive) {
+      // when not active simply return the query input without denormalizing
       return {
-        data: results as any,
+        data: input as any,
         expiryStatus: ExpiryStatus.Valid,
         expiresAt: Infinity,
       };
     }
 
-    if (!endpoint.schema || !schemaHasEntity(endpoint.schema)) {
+    let isInvalid = false;
+    if (shouldQuery) {
+      isInvalid = !validateQueryKey(input);
+    } else if (!schema || !schemaHasEntity(schema)) {
       return {
-        data: results,
+        data: cacheEndpoints,
         expiryStatus:
           meta?.invalidated ? ExpiryStatus.Invalid
           : cacheEndpoints && !endpoint.invalidIfStale ? ExpiryStatus.Valid
@@ -425,17 +429,24 @@ export default class Controller<
       };
     }
 
-    if (!this.globalCache.endpoints[key])
-      this.globalCache.endpoints[key] = new WeakEntityMap();
+    // second argument is false if any entities are missing
+    // eslint-disable-next-line prefer-const
+    const { data, paths } = this.memo.denormalize(
+      input,
+      schema,
+      state.entities,
+      args,
+    ) as { data: any; paths: EntityPath[] };
+
+    // note: isInvalid can only be true if shouldQuery is true
+    if (!expiresAt && isInvalid) expiresAt = 1;
 
     return this.getSchemaResponse(
-      results,
-      schema as Exclude<Schema, undefined>,
-      args,
-      state,
+      data,
+      paths,
+      state.entityMeta,
       expiresAt,
-      this.globalCache.endpoints[key],
-      endpoint.invalidIfStale || invalidResults,
+      endpoint.invalidIfStale || isInvalid,
       meta,
     );
   }
@@ -451,54 +462,41 @@ export default class Controller<
       Pick<State<unknown>, 'entities' | 'entityMeta'>,
     ]
   ): DenormalizeNullable<S> | undefined {
-    const state = rest[rest.length - 1] as State<unknown>;
+    const state = rest[rest.length - 1] as State<any>;
     // this is typescript generics breaking
     const args: any = rest
       .slice(0, rest.length - 1)
       .map(ensurePojo) as SchemaArgs<S>;
 
-    const results = buildQueryKey(schema, args, state.indexes, state.entities);
+    // NOTE: different orders can result in cache busting here; but since it's just a perf penalty we will allow for now
+    const key = JSON.stringify(args);
 
-    const data = denormalizeCached(
-      results,
+    return this.memo.query(
+      key,
       schema,
-      state.entities,
-      this.globalCache.entities,
-      undefined,
       args,
-    ).data;
-    return typeof data === 'symbol' ? undefined : (data as any);
+      state.entities as any,
+      state.indexes,
+    );
   }
 
-  private getSchemaResponse<S extends Schema>(
-    input: any,
-    schema: S,
-    args: any,
-    state: State<unknown>,
+  private getSchemaResponse<T>(
+    data: T,
+    paths: EntityPath[],
+    entityMeta: State<unknown>['entityMeta'],
     expiresAt: number,
-    resultCache: ResultCache,
     invalidIfStale: boolean,
     meta: { error?: unknown; invalidated?: unknown } = {},
   ): {
-    data: DenormalizeNullable<S>;
+    data: T;
     expiryStatus: ExpiryStatus;
     expiresAt: number;
   } {
-    // second argument is false if any entities are missing
-    // eslint-disable-next-line prefer-const
-    const { data, paths } = denormalizeCached(
-      input,
-      schema,
-      state.entities,
-      this.globalCache.entities,
-      resultCache,
-      args,
-    ) as { data: DenormalizeNullable<S>; paths: Path[] };
     const invalidDenormalize = typeof data === 'symbol';
 
     // fallback to entity expiry time
     if (!expiresAt) {
-      expiresAt = entityExpiresAt(paths, state.entityMeta);
+      expiresAt = entityExpiresAt(paths, entityMeta);
     }
 
     // https://dataclient.io/docs/concepts/expiry-policy#expiry-status
@@ -517,7 +515,7 @@ export default class Controller<
 // benchmark: https://www.measurethat.net/Benchmarks/Show/24691/0/min-reducer-vs-imperative-with-paths
 // earliest expiry dictates age
 function entityExpiresAt(
-  paths: Path[],
+  paths: EntityPath[],
   entityMeta: {
     readonly [entityKey: string]: {
       readonly [pk: string]: {

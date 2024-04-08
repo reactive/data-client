@@ -6,6 +6,7 @@ import {
   Endpoint,
   Entity,
   normalize,
+  MemoCache,
 } from './dist/index.js';
 import { printStatus } from './printStatus.js';
 import {
@@ -101,6 +102,8 @@ export default function addReducerSuite(suite) {
     githubReducer(githubState, action);
   };
 
+  %OptimizeFunctionOnNextCall(ProjectQuerySorted.schema.queryKey);
+
   return (
     suite
       .add('getResponse', () => {
@@ -112,10 +115,7 @@ export default function addReducerSuite(suite) {
       .add('getResponse (clear cache)', () => {
         // TODO: is this better?
         //controller = new Controller({});
-        controller.globalCache = {
-          entities: {},
-          endpoints: {},
-        };
+        controller.memo = new MemoCache();
         return controller.getResponse(getProject, cachedState);
       })
       .add('getSmallResponse', () => {

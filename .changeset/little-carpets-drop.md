@@ -27,12 +27,12 @@ class MyEntity extends Entity {
   // highlight-next-line
   static queryKey(
     args: readonly any[],
-    indexes: NormalizedIndex,
-    recurse: any,
-    entities: any,
+    queryKey: (...args: any) => any,
+    getEntity: GetEntity,
+    getIndex: GetIndex,
   ): any {
     if (SILLYCONDITION) return undefined;
-    return super.queryKey(args, indexes, recurse, entities);
+    return super.queryKey(args, queryKey, getEntity, getIndex);
   }
 }
 ```

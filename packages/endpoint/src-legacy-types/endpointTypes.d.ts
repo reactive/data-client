@@ -1,13 +1,9 @@
-// relaxed constraints on call,apply,bind *this*
+// had to remove all [...T], which included importing PartialParameters from types
+// also relaxed constraints on call,apply,bind *this*
 
 /* eslint-disable @typescript-eslint/ban-types */
 import type { EndpointInterface, Schema } from './interface.js';
-import type {
-  EndpointExtraOptions,
-  FetchFunction,
-  PartialArray,
-} from './types.js';
-
+import type { EndpointExtraOptions, FetchFunction } from './types.js';
 export interface EndpointOptions<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = undefined,
@@ -18,7 +14,6 @@ export interface EndpointOptions<
   schema?: S;
   [k: string]: any;
 }
-
 export interface EndpointExtendOptions<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = Schema | undefined,
@@ -26,18 +21,9 @@ export interface EndpointExtendOptions<
 > extends EndpointOptions<F, S, M> {
   fetch?: FetchFunction;
 }
-
-export type ParamFromFetch<F> = F extends (
-  params: infer P,
-  body?: any,
-) => Promise<any>
-  ? P
-  : never;
-
-type Overwrite<T, U> = Pick<T, Exclude<keyof T, keyof U>> & U;
-
+export type ParamFromFetch<F> =
+  F extends (params: infer P, body?: any) => Promise<any> ? P : never;
 export type KeyofEndpointInstance = keyof EndpointInstance<FetchFunction>;
-
 export type ExtendedEndpoint<
   O extends EndpointExtendOptions<F>,
   E extends EndpointInstance<
@@ -53,9 +39,6 @@ export type ExtendedEndpoint<
 > &
   Omit<O, KeyofEndpointInstance> &
   Omit<E, KeyofEndpointInstance>;
-
-export function Make(...args: any[]): EndpointInstance<FetchFunction>;
-
 /**
  * Defines an async data source.
  * @see https://dataclient.io/docs/api/Endpoint
@@ -79,7 +62,6 @@ export interface EndpointInstance<
     options: Readonly<O>,
   ): ExtendedEndpoint<typeof options, E, F>;
 }
-
 /**
  * Defines an async data source.
  * @see https://dataclient.io/docs/api/Endpoint
@@ -90,7 +72,6 @@ export interface EndpointInstanceInterface<
   M extends true | undefined = true | undefined,
 > extends EndpointInterface<F, S, M> {
   constructor: EndpointConstructor;
-
   /**
    * Calls the function, substituting the specified object for the this value of the function, and the specified array for the arguments of the function.
    * @param thisArg The object to be used as the this object.
@@ -101,7 +82,6 @@ export interface EndpointInstanceInterface<
     thisArg: any,
     argArray?: Parameters<E>,
   ): ReturnType<E>;
-
   /**
    * Calls a method of an object, substituting another object for the current object.
    * @param thisArg The object to be used as the current object.
@@ -112,48 +92,32 @@ export interface EndpointInstanceInterface<
     thisArg: any,
     ...argArray: Parameters<E>
   ): ReturnType<E>;
-
   /**
    * For a given function, creates a bound function that has the same body as the original function.
    * The this object of the bound function is associated with the specified object, and has the specified initial parameters.
    * @param thisArg An object to which the this keyword can refer inside the new function.
    * @param argArray A list of arguments to be passed to the new function.
    */
-  bind<E extends FetchFunction, P extends PartialArray<Parameters<E>>>(
+  bind<E extends FetchFunction, P extends Parameters<E>>(
     this: E,
     thisArg: any,
-    ...args: readonly [...P]
-  ): EndpointInstance<
-    (...args: readonly [...RemoveArray<Parameters<E>, P>]) => ReturnType<E>,
-    S,
-    M
-  > &
+    ...args: P
+  ): EndpointInstance<() => ReturnType<E>, S, M> &
     Omit<E, keyof EndpointInstance<FetchFunction>>;
-
   /** Returns a string representation of a function. */
   toString(): string;
-
   prototype: any;
   readonly length: number;
-
-  // Non-standard extensions
   arguments: any;
   caller: F;
-
   key(...args: Parameters<F>): string;
-
   readonly sideEffect: M;
-
   readonly schema: S;
-
   fetch: F;
-
-  /* utilities */
   /** @see https://dataclient.io/rest/api/Endpoint#testKey */
   testKey(key: string): boolean;
 }
-
-interface EndpointConstructor {
+export interface EndpointConstructor {
   new <
     F extends (
       this: EndpointInstance<FetchFunction> & E,
@@ -169,11 +133,7 @@ interface EndpointConstructor {
   ): EndpointInstance<F, S, M> & E;
   readonly prototype: Function;
 }
-declare let Endpoint: EndpointConstructor;
-
-export default Endpoint;
-
-interface ExtendableEndpointConstructor {
+export interface ExtendableEndpointConstructor {
   new <
     F extends (
       this: EndpointInstanceInterface<FetchFunction> & E,
@@ -189,18 +149,5 @@ interface ExtendableEndpointConstructor {
   ): EndpointInstanceInterface<F, S, M> & E;
   readonly prototype: Function;
 }
-export declare let ExtendableEndpoint: ExtendableEndpointConstructor;
-
-type IfAny<T, Y, N> = 0 extends 1 & T ? Y : N;
-type IfTypeScriptLooseNull<Y, N> = 1 | undefined extends 1 ? Y : N;
-
-type OnlyFirst<A extends unknown[]> = A extends [] ? [] : [A[0]];
-
-type RemoveArray<Orig extends any[], Rem extends any[]> = Rem extends [
-  any,
-  ...infer RestRem,
-]
-  ? Orig extends [any, ...infer RestOrig]
-    ? RemoveArray<RestOrig, RestRem>
-    : never
-  : Orig;
+export {};
+//# sourceMappingURL=endpointTypes.d.ts.map

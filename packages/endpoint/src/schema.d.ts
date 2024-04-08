@@ -1,10 +1,10 @@
 import type {
   Schema,
-  NormalizedIndex,
-  EntityTable,
   EntityInterface,
   PolymorphicInterface,
   SchemaClass,
+  GetIndex,
+  GetEntity,
 } from './interface.js';
 import type {
   AbstractInstanceType,
@@ -87,9 +87,9 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
 
   queryKey(
     args: readonly any[],
-    indexes: NormalizedIndex,
-    recurse: (...args: any) => any,
-    entities: any,
+    queryKey: (...args: any) => any,
+    getEntity: any,
+    getIndex: any,
   ): undefined;
 }
 
@@ -138,9 +138,9 @@ export class All<
   queryKey(
     // TODO: hack for now to allow for variable arg combinations with Query
     args: [] | [unknown],
-    indexes: NormalizedIndex,
-    recurse: (...args: any) => any,
-    entities: EntityTable,
+    queryKey: (...args: any) => any,
+    getEntity: GetEntity,
+    getIndex: GetIndex,
   ): any;
 }
 
@@ -177,9 +177,9 @@ export class Object<O extends Record<string, any> = Record<string, Schema>>
 
   queryKey(
     args: readonly any[],
-    indexes: NormalizedIndex,
-    recurse: (...args: any) => any,
-    entities: any,
+    queryKey: (...args: any) => any,
+    getEntity: GetEntity,
+    getIndex: GetIndex,
   ): any;
 }
 
@@ -261,9 +261,9 @@ export interface UnionInstance<
 
   queryKey(
     args: [Args],
-    indexes: NormalizedIndex,
-    recurse: (...args: any) => any,
-    entities: any,
+    queryKey: (...args: any) => any,
+    getEntity: GetEntity,
+    getIndex: GetIndex,
   ): { id: any; schema: string };
 }
 
@@ -345,9 +345,9 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
 
   queryKey(
     args: readonly any[],
-    indexes: NormalizedIndex,
-    recurse: (...args: any) => any,
-    entities: any,
+    queryKey: (...args: any) => any,
+    getEntity: GetEntity,
+    getIndex: GetIndex,
   ): undefined;
 }
 

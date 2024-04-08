@@ -1,4 +1,5 @@
 import type Cache from './cache.js';
+import { type GetEntity } from './getEntities.js';
 import { INVALID } from './symbol.js';
 import { UNDEF } from './UNDEF.js';
 import type { EntityInterface } from '../interface.js';
@@ -6,8 +7,7 @@ import { isEntity } from '../isEntity.js';
 import { denormalize as arrayDenormalize } from '../schemas/Array.js';
 import { isImmutable } from '../schemas/ImmutableUtils.js';
 import { denormalize as objectDenormalize } from '../schemas/Object.js';
-import type { Path } from '../types.js';
-import { type GetEntity } from '../WeakEntityMap.js';
+import type { EntityPath } from '../types.js';
 
 function unvisitEntity(
   entityOrId: Record<string, any> | string,
@@ -137,7 +137,7 @@ const getUnvisit = (
     return input;
   }
 
-  return (input: any, schema: any): { data: any; paths: Path[] } => {
+  return (input: any, schema: any): { data: any; paths: EntityPath[] } => {
     // in the case where WeakMap cannot be used
     // this test ensures null is properly excluded from WeakMap
     const cachable = Object(input) === input && Object(schema) === schema;
