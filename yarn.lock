@@ -297,12 +297,12 @@ __metadata:
   linkType: hard
 
 "@anansi/core@npm:^0.18.4":
-  version: 0.18.23
-  resolution: "@anansi/core@npm:0.18.23"
+  version: 0.18.24
+  resolution: "@anansi/core@npm:0.18.24"
   dependencies:
     "@anansi/router": "npm:^0.9.5"
     "@babel/runtime": "npm:^7.17.0"
-    "@data-client/ssr": "npm:^0.10.0"
+    "@data-client/ssr": "npm:^0.11.0"
     chalk: "npm:^4.1.2"
     compression: "npm:^1.7.4"
     cross-fetch: "npm:^4.0.0"
@@ -321,8 +321,8 @@ __metadata:
     whatwg-fetch: "npm:^3.6.2"
   peerDependencies:
     "@ant-design/cssinjs": ^1.5.1
-    "@data-client/react": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0 || ^1.0.0 || ^0.8.0 || ^0.9.0 || ^0.10.0
-    "@data-client/redux": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0 || ^1.0.0 || ^0.8.0 || ^0.9.0 || ^0.10.0
+    "@data-client/react": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0 || ^1.0.0 || ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0
+    "@data-client/redux": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0 || ^1.0.0 || ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0
     "@types/react": ^17.0.40 || ^18.0.0
     "@types/react-dom": ^17.0.40 || ^18.0.0
     react: ^18.0.0
@@ -345,7 +345,7 @@ __metadata:
   bin:
     serve-anansi: ./lib/scripts/serve.js
     start-anansi: ./lib/scripts/startDevserver.js
-  checksum: 10c0/fa2237b2f302ff56da19de2ea40849327091dc329073f9c7bd6720657f51286a6b5269464bf284bb54c9da38363a2102fe62f721065e8f7849d977d6be0a72fa
+  checksum: 10c0/385b26247fad912cf2d042ace6571f9c8785fce4fb4aefea0c77f4271e6c675f2fa47547b70f028be52761b8408b99785a69b9f565382e56ca9e148e01b85d71
   languageName: node
   linkType: hard
 
@@ -3267,28 +3267,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/ssr@npm:^0.10.0":
-  version: 0.10.0
-  resolution: "@data-client/ssr@npm:0.10.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.17.0"
-  peerDependencies:
-    "@data-client/react": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0 || ^0.5.0 || ^0.7.0 || ^0.8.0 || ^0.9.0 || ^0.10.0
-    "@data-client/redux": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.5.0 || ^0.7.0 || ^0.8.0 || ^0.9.0 || ^0.10.0
-    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
-    next: ">=12.0.0"
-    react: ^16.8.4 || ^17.0.0 || ^18.0.0-0
-    redux: ^4.0.0 || ^5.0.0
-  peerDependenciesMeta:
-    "@types/react":
-      optional: true
-    next:
-      optional: true
-  checksum: 10c0/9695c73862fa90bdd5ccafe8f0d421ac4fe769275b4bb43d6beb41feb8f9d65bbe1b21ead5c23b21d4d35fafe6e7581defb812a95536362df405b6c4cb75b287
-  languageName: node
-  linkType: hard
-
-"@data-client/ssr@workspace:packages/ssr":
+"@data-client/ssr@npm:^0.11.0, @data-client/ssr@workspace:packages/ssr":
   version: 0.0.0-use.local
   resolution: "@data-client/ssr@workspace:packages/ssr"
   dependencies:
