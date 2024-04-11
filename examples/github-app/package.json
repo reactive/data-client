@@ -35,7 +35,7 @@
     "@linaria/shaker": "5.0.3",
     "@types/lodash": "4.14.192",
     "@types/parse-link-header": "^2.0.0",
-    "@types/react": "18.2.74",
+    "@types/react": "18.2.75",
     "@types/react-dom": "18.2.24",
     "@types/uuid": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "7.5.0",
