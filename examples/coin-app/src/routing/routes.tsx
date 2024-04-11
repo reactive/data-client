@@ -1,5 +1,6 @@
 import { Route } from '@anansi/router';
 import { Controller } from '@data-client/react';
+import { getCandles } from 'resources/Candles';
 import { CurrencyResource } from 'resources/Currency';
 import { StatsResource } from 'resources/Stats';
 import { getTicker } from 'resources/Ticker';
@@ -22,6 +23,7 @@ export const routes: Route<Controller>[] = [
     component: lazyPage('AssetDetail'),
     async resolveData(controller, { id }) {
       const product_id = `${id}-USD`;
+      controller.fetchIfStale(getCandles, { product_id });
       await Promise.allSettled([
         controller.fetchIfStale(getTicker, { product_id }),
         controller.fetchIfStale(CurrencyResource.get, { id }),

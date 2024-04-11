@@ -37,7 +37,7 @@
   },
   {
     "type": "doc",
-    "id": "api/Invalidate"
+    "id": "api/Query"
   },
   {
     "type": "doc",
@@ -45,7 +45,7 @@
   },
   {
     "type": "doc",
-    "id": "api/Query"
+    "id": "api/Invalidate"
   },
   {
     "type": "doc",

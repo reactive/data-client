@@ -1,0 +1,10 @@
+# Cloudflare headers - https://developers.cloudflare.com/pages/configuration/headers/
+/img/client-logo.svg
+  Cross-Origin-Resource-Policy: cross-origin
+  Access-Control-Allow-Origin: *
+  Cross-Origin-Embedder-Policy: credentialless
+
+/img/cancel.svg
+  Cross-Origin-Resource-Policy: cross-origin
+  Access-Control-Allow-Origin: *
+  Cross-Origin-Embedder-Policy: credentialless

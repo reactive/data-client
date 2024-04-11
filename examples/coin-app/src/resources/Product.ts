@@ -43,12 +43,9 @@ export const queryProduct = new schema.Query(
         product => product.quote_currency === quote_currency,
       );
 
-    sorted = sorted.sort((a, b) => {
+    return sorted.sort((a, b) => {
       return b.stats.volume_30day - a.stats.volume_30day;
     });
-    const btc = sorted.find(product => product.base_currency === 'BTC');
-    if (btc) sorted.unshift(btc);
-    return sorted;
   },
 );
 

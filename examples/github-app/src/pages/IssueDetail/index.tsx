@@ -1,5 +1,5 @@
 import { Link } from '@anansi/router';
-import { useSuspense, useFetch, useCache } from '@data-client/react';
+import { useSuspense, useCache, useDLE } from '@data-client/react';
 import { Card, Avatar, Popover } from 'antd';
 import { Tag } from 'antd';
 import Boundary from 'Boundary';
@@ -25,9 +25,10 @@ const { Meta } = Card;
 
 function IssueDetail({ number, repo, owner }: Props) {
   const params = { number, repo, owner };
-  useFetch(ReactionResource.getList, params);
+  const {
+    data: { results: reactions },
+  } = useDLE(ReactionResource.getList, params);
   const issue = useSuspense(IssueResource.get, params);
-  const { results: reactions } = useCache(ReactionResource.getList, params);
   const currentUser = useCache(UserResource.current);
 
   const actions: JSX.Element[] = useMemo(() => {

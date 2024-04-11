@@ -10,6 +10,7 @@ import PkgTabs from '@site/src/components/PkgTabs';
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
+import StackBlitz from '@site/src/components/StackBlitz';
 
 <head>
   <title>useDLE() - [D]ata [L]oading [E]rror React State</title>
@@ -309,3 +310,13 @@ export default function ArticleList({ page }: { page: string }) {
 ```
 
 </TypeScriptEditor>
+
+### Github Reactions
+
+`useDLE()` allows us to declaratively fetch reactions on any issue page the moment we navigate to it. This allows
+us to not block the issues page from showing if the reactions are not completed loading.
+
+It's usually better to wrap cases like this in new [Suspense Boundaries](../getting-started/data-dependency.md#boundaries).
+However, our component library `ant design` does not allow this.
+
+<StackBlitz app="github-app" file="src/resources/Reaction.tsx,src/pages/IssueDetail/index.tsx" view="editor" initialpath="/reactive/data-client/issue/1113" height={750} />
