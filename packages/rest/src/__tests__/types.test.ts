@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Entity, schema } from '@data-client/endpoint';
-import { useSuspense } from '@data-client/react';
+import { useController, useLive, useSuspense } from '@data-client/react';
 import { User } from '__tests__/new';
 
 import createResource from '../createResource';
@@ -426,6 +426,62 @@ it('should precisely type function arguments', () => {
     () => noSearch({ userId: 'hi' });
     // @ts-expect-error
     () => noSearch(5);
+  };
+});
+
+it('should allow sideEffect overrides', () => {
+  const getEth = new RestEndpoint({
+    urlPrefix: 'https://rpc.ankr.com',
+    path: '/eth',
+    method: 'POST',
+    body: {} as { jsonrpc: string; id: number; method: string; params: any[] },
+    pollFrequency: 30 * 1000,
+    sideEffect: undefined,
+  });
+  () => {
+    const ctrl = useController();
+    ctrl.fetch(getEth, {
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'eth_getBlockByNumber',
+      params: ['latest', true],
+    });
+    useSuspense(getEth, {
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'eth_getBlockByNumber',
+      params: ['latest', true],
+    });
+    // @ts-expect-error
+    ctrl.fetch(getEth, {
+      id: 1,
+      method: 'eth_getBlockByNumber',
+      params: ['latest', true],
+    });
+    // @ts-expect-error
+    useSuspense(getEth, {
+      id: 1,
+      method: 'eth_getBlockByNumber',
+      params: ['latest', true],
+    });
+    // @ts-expect-error
+    useSuspense(getEth, {
+      jsonrpc: '2.0',
+      id: 1,
+      method: 6,
+      params: ['latest', true],
+    });
+    useSuspense(
+      getEth,
+      // @ts-expect-error
+      {},
+      {
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'eth_getBlockByNumber',
+        params: ['latest', true],
+      },
+    );
   };
 });
 
