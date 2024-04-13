@@ -18,7 +18,7 @@ import { EndpointUpdateFunction } from './RestEndpointTypeHelp.js';
 export interface RestInstanceBase<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = any,
-  M extends true | undefined = true | undefined,
+  M extends boolean | undefined = boolean | undefined,
   O extends {
     path: string;
     body?: any;
@@ -113,7 +113,7 @@ export interface RestInstanceBase<
 export interface RestInstance<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = any,
-  M extends true | undefined = true | undefined,
+  M extends boolean | undefined = boolean | undefined,
   O extends {
     path: string;
     body?: any;
@@ -350,7 +350,7 @@ export interface RestGenerics extends PartialRestGenerics {
 }
 
 export type PaginationEndpoint<
-  E extends FetchFunction & RestGenerics & { sideEffect?: true | undefined },
+  E extends FetchFunction & RestGenerics & { sideEffect?: boolean | undefined },
   A extends any[],
 > = RestInstanceBase<
   ParamFetchNoBody<A[0], ResolveType<E>>,
@@ -361,7 +361,7 @@ export type PaginationEndpoint<
   }
 >;
 export type PaginationFieldEndpoint<
-  E extends FetchFunction & RestGenerics & { sideEffect?: true | undefined },
+  E extends FetchFunction & RestGenerics & { sideEffect?: boolean | undefined },
   C extends string,
 > = RestInstanceBase<
   ParamFetchNoBody<
@@ -417,7 +417,7 @@ export interface RestEndpointOptions<
   fetchResponse?(input: RequestInfo, init: RequestInit): Promise<any>;
   parseResponse?(response: Response): Promise<any>;
 
-  sideEffect?: true | undefined;
+  sideEffect?: boolean | undefined;
   name?: string;
   signal?: AbortSignal;
   fetch?: F;
@@ -491,7 +491,7 @@ export type RestType<
   UrlParams = any,
   Body = any,
   S extends Schema | undefined = Schema | undefined,
-  M extends true | undefined = true | undefined,
+  M extends boolean | undefined = boolean | undefined,
   R = any,
   O extends {
     path: string;
@@ -509,7 +509,7 @@ export type RestType<
 export type RestTypeWithBody<
   UrlParams = any,
   S extends Schema | undefined = Schema | undefined,
-  M extends true | undefined = true | undefined,
+  M extends boolean | undefined = boolean | undefined,
   Body = any,
   R = any /*Denormalize<S>*/,
   O extends {
@@ -522,7 +522,7 @@ export type RestTypeWithBody<
 export type RestTypeNoBody<
   UrlParams = any,
   S extends Schema | undefined = Schema | undefined,
-  M extends true | undefined = true | undefined,
+  M extends boolean | undefined = boolean | undefined,
   R = any /*Denormalize<S>*/,
   O extends {
     path: string;

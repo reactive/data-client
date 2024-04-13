@@ -111,7 +111,7 @@ declare function useSuspense<E extends EndpointInterface<FetchFunction, Schema |
  * `useCache` guarantees referential equality globally.
  * @see https://dataclient.io/docs/api/useCache
  */
-declare function useCache<E extends Pick<EndpointInterface<FetchFunction, Schema | undefined, undefined | false | true>, 'key' | 'schema' | 'invalidIfStale'>, Args extends readonly [...Parameters<E['key']>] | readonly [null]>(endpoint: E, ...args: Args): E['schema'] extends undefined | null ? E extends (...args: any) => any ? ResolveType<E> | undefined : any : DenormalizeNullable<E['schema']>;
+declare function useCache<E extends Pick<EndpointInterface<FetchFunction, Schema | undefined, undefined | boolean>, 'key' | 'schema' | 'invalidIfStale'>, Args extends readonly [...Parameters<E['key']>] | readonly [null]>(endpoint: E, ...args: Args): E['schema'] extends undefined | null ? E extends (...args: any) => any ? ResolveType<E> | undefined : any : DenormalizeNullable<E['schema']>;
 
 /**
  * Query the store.

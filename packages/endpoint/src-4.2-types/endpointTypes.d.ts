@@ -10,7 +10,7 @@ import type {
 export interface EndpointOptions<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = undefined,
-  M extends true | undefined = undefined,
+  M extends boolean | undefined = undefined,
 > extends EndpointExtraOptions<F> {
   key?: (...args: Parameters<F>) => string;
   sideEffect?: M;
@@ -20,7 +20,7 @@ export interface EndpointOptions<
 export interface EndpointExtendOptions<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = Schema | undefined,
-  M extends true | undefined = true | undefined,
+  M extends boolean | undefined = boolean | undefined,
 > extends EndpointOptions<F, S, M> {
   fetch?: FetchFunction;
 }
@@ -32,7 +32,7 @@ export type ExtendedEndpoint<
   E extends EndpointInstance<
     FetchFunction,
     Schema | undefined,
-    true | undefined
+    boolean | undefined
   >,
   F extends FetchFunction,
 > = EndpointInstance<
@@ -49,13 +49,13 @@ export type ExtendedEndpoint<
 export interface EndpointInstance<
   F extends (...args: any) => Promise<any> = FetchFunction,
   S extends Schema | undefined = Schema | undefined,
-  M extends true | undefined = true | undefined,
+  M extends boolean | undefined = boolean | undefined,
 > extends EndpointInstanceInterface<F, S, M> {
   extend<
     E extends EndpointInstance<
       (...args: any) => Promise<any>,
       Schema | undefined,
-      true | undefined
+      boolean | undefined
     >,
     O extends EndpointExtendOptions<F> &
       Partial<Omit<E, keyof EndpointInstance<FetchFunction>>> &
@@ -72,7 +72,7 @@ export interface EndpointInstance<
 export interface EndpointInstanceInterface<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = Schema | undefined,
-  M extends true | undefined = true | undefined,
+  M extends boolean | undefined = boolean | undefined,
 > extends EndpointInterface<F, S, M> {
   constructor: EndpointConstructor;
   /**
@@ -132,7 +132,7 @@ export interface EndpointConstructor {
       body?: any,
     ) => Promise<any>,
     S extends Schema | undefined = undefined,
-    M extends true | undefined = undefined,
+    M extends boolean | undefined = false,
     E extends Record<string, any> = {},
   >(
     fetchFunction: F,
@@ -148,7 +148,7 @@ export interface ExtendableEndpointConstructor {
       body?: any,
     ) => Promise<any>,
     S extends Schema | undefined = undefined,
-    M extends true | undefined = undefined,
+    M extends boolean | undefined = false,
     E extends Record<string, any> = {},
   >(
     RestFetch: F,

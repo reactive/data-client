@@ -20,11 +20,7 @@ import useController from '../hooks/useController.js';
  */
 export default function useCache<
   E extends Pick<
-    EndpointInterface<
-      FetchFunction,
-      Schema | undefined,
-      undefined | false | true
-    >,
+    EndpointInterface<FetchFunction, Schema | undefined, undefined | boolean>,
     'key' | 'schema' | 'invalidIfStale'
   >,
   Args extends readonly [...Parameters<E['key']>] | readonly [null],
