@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Entity, schema } from '@data-client/endpoint';
-import { useController, useLive, useSuspense } from '@data-client/react';
+import { useController, useSuspense } from '@data-client/react';
 import { User } from '__tests__/new';
 
 import createResource from '../createResource';
-import { PathArgs, PathKeys } from '../pathTypes';
 import RestEndpoint, { GetEndpoint, MutateEndpoint } from '../RestEndpoint';
 
 it('RestEndpoint construct and extend with typed options', () => {
@@ -430,113 +429,125 @@ it('should precisely type function arguments', () => {
 });
 
 it('should allow sideEffect overrides', () => {
-  const getEth = new RestEndpoint({
-    urlPrefix: 'https://rpc.ankr.com',
-    path: '/eth',
-    method: 'POST',
-    body: {} as { jsonrpc: string; id: number; method: string; params: any[] },
-    pollFrequency: 30 * 1000,
-    sideEffect: undefined,
-  });
-  const getEthExtend = new RestEndpoint({
-    urlPrefix: 'https://rpc.ankr.com',
-    path: '/eth',
-    method: 'POST',
-    body: {} as { jsonrpc: string; id: number; method: string; params: any[] },
-    pollFrequency: 30 * 1000,
-  }).extend({ sideEffect: undefined });
+  () => {
+    const getEth = new RestEndpoint({
+      urlPrefix: 'https://rpc.ankr.com',
+      path: '/eth',
+      method: 'POST',
+      body: {} as {
+        jsonrpc: string;
+        id: number;
+        method: string;
+        params: any[];
+      },
+      pollFrequency: 30 * 1000,
+      sideEffect: undefined,
+    });
+    const getEthExtend = new RestEndpoint({
+      urlPrefix: 'https://rpc.ankr.com',
+      path: '/eth',
+      method: 'POST',
+      body: {} as {
+        jsonrpc: string;
+        id: number;
+        method: string;
+        params: any[];
+      },
+      pollFrequency: 30 * 1000,
+    }).extend({ sideEffect: undefined });
 
-  const a: undefined = getEth.sideEffect;
-  const b: undefined = getEthExtend.sideEffect;
-  () => {
-    const ctrl = useController();
-    ctrl.fetch(getEth, {
-      jsonrpc: '2.0',
-      id: 1,
-      method: 'eth_getBlockByNumber',
-      params: ['latest', true],
-    });
-    useSuspense(getEth, {
-      jsonrpc: '2.0',
-      id: 1,
-      method: 'eth_getBlockByNumber',
-      params: ['latest', true],
-    });
-    // @ts-expect-error
-    ctrl.fetch(getEth, {
-      id: 1,
-      method: 'eth_getBlockByNumber',
-      params: ['latest', true],
-    });
-    // @ts-expect-error
-    useSuspense(getEth, {
-      id: 1,
-      method: 'eth_getBlockByNumber',
-      params: ['latest', true],
-    });
-    // @ts-expect-error
-    useSuspense(getEth, {
-      jsonrpc: '2.0',
-      id: 1,
-      method: 6,
-      params: ['latest', true],
-    });
-    useSuspense(
-      getEth,
-      // @ts-expect-error
-      {},
-      {
+    const a: undefined = getEth.sideEffect;
+    const b: undefined = getEthExtend.sideEffect;
+    () => {
+      const ctrl = useController();
+      ctrl.fetch(getEth, {
         jsonrpc: '2.0',
         id: 1,
         method: 'eth_getBlockByNumber',
         params: ['latest', true],
-      },
-    );
-  };
-  () => {
-    const ctrl = useController();
-    ctrl.fetch(getEthExtend, {
-      jsonrpc: '2.0',
-      id: 1,
-      method: 'eth_getBlockByNumber',
-      params: ['latest', true],
-    });
-    useSuspense(getEthExtend, {
-      jsonrpc: '2.0',
-      id: 1,
-      method: 'eth_getBlockByNumber',
-      params: ['latest', true],
-    });
-    // @ts-expect-error
-    ctrl.fetch(getEthExtend, {
-      id: 1,
-      method: 'eth_getBlockByNumber',
-      params: ['latest', true],
-    });
-    // @ts-expect-error
-    useSuspense(getEthExtend, {
-      id: 1,
-      method: 'eth_getBlockByNumber',
-      params: ['latest', true],
-    });
-    // @ts-expect-error
-    useSuspense(getEthExtend, {
-      jsonrpc: '2.0',
-      id: 1,
-      method: 6,
-      params: ['latest', true],
-    });
-    useSuspense(
-      getEthExtend,
-      // @ts-expect-error
-      {},
-      {
+      });
+      useSuspense(getEth, {
         jsonrpc: '2.0',
         id: 1,
         method: 'eth_getBlockByNumber',
         params: ['latest', true],
-      },
-    );
+      });
+      // @ts-expect-error
+      ctrl.fetch(getEth, {
+        id: 1,
+        method: 'eth_getBlockByNumber',
+        params: ['latest', true],
+      });
+      // @ts-expect-error
+      useSuspense(getEth, {
+        id: 1,
+        method: 'eth_getBlockByNumber',
+        params: ['latest', true],
+      });
+      // @ts-expect-error
+      useSuspense(getEth, {
+        jsonrpc: '2.0',
+        id: 1,
+        method: 6,
+        params: ['latest', true],
+      });
+      useSuspense(
+        getEth,
+        // @ts-expect-error
+        {},
+        {
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'eth_getBlockByNumber',
+          params: ['latest', true],
+        },
+      );
+    };
+    () => {
+      const ctrl = useController();
+      ctrl.fetch(getEthExtend, {
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'eth_getBlockByNumber',
+        params: ['latest', true],
+      });
+      useSuspense(getEthExtend, {
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'eth_getBlockByNumber',
+        params: ['latest', true],
+      });
+      // @ts-expect-error
+      ctrl.fetch(getEthExtend, {
+        id: 1,
+        method: 'eth_getBlockByNumber',
+        params: ['latest', true],
+      });
+      // @ts-expect-error
+      useSuspense(getEthExtend, {
+        id: 1,
+        method: 'eth_getBlockByNumber',
+        params: ['latest', true],
+      });
+      // @ts-expect-error
+      useSuspense(getEthExtend, {
+        jsonrpc: '2.0',
+        id: 1,
+        method: 6,
+        params: ['latest', true],
+      });
+      useSuspense(
+        getEthExtend,
+        // @ts-expect-error
+        {},
+        {
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'eth_getBlockByNumber',
+          params: ['latest', true],
+        },
+      );
+    };
   };
 });
 
