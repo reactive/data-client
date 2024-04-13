@@ -1,5 +1,16 @@
 # @data-client/rest
 
+## 0.11.1
+
+### Patch Changes
+
+- [#3006](https://github.com/reactive/data-client/pull/3006) [`13c6466`](https://github.com/reactive/data-client/commit/13c64662bce3813869140bc709badffc59929c5e) Thanks [@ntucker](https://github.com/ntucker)! - Endpoint.sideEffect can be `false`
+
+- [#3004](https://github.com/reactive/data-client/pull/3004) [`18ec81e`](https://github.com/reactive/data-client/commit/18ec81eaacd1ab6e860653fa23ea95a0f5889e36) Thanks [@ntucker](https://github.com/ntucker)! - Allow sideEffect overrides when using .extend()
+
+- Updated dependencies [[`13c6466`](https://github.com/reactive/data-client/commit/13c64662bce3813869140bc709badffc59929c5e)]:
+  - @data-client/endpoint@0.11.1
+
 ## 0.11.0
 
 [Release notes and migration guide](https://dataclient.io/blog/2024/04/08/v0.11-queries-querable-usequery)
