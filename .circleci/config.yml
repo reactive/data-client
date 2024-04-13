@@ -130,6 +130,9 @@ jobs:
             if [ "<< parameters.typescript-version >>" != "latest" ]; then
             yarn add --dev typescript@<< parameters.typescript-version >>
             fi
+            if [ "<< parameters.typescript-version >>" == "~4.0" ]; then
+            yarn add --dev @types/react@18.2.0
+            fi
       - run:
           name: typecheck
           command: |
