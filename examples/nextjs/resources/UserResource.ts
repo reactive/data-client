@@ -17,11 +17,11 @@ export class User extends PlaceholderEntity {
   }
 
   get coverImage() {
-    return `http://placekitten.com/800/200?image=${this.id}`;
+    return `https://loremflickr.com/800/200/kitten,cat?lock=${this.id % 16}`;
   }
 
   get coverImageFallback() {
-    return `http://placekitten.com/80/20?image=${this.id}`;
+    return `https://loremflickr.com/80/20/kitten,cat?lock=${this.id % 16}`;
   }
 
   get coverBackgroundImage() {

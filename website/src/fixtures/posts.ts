@@ -14,7 +14,7 @@ export class Post extends Entity {
   static key = 'Post';
 
   get img() {
-    return `http://placekitten.com/400/200?image=${this.id % 16}`;
+    return `https://loremflickr.com/400/200/kitten,cat?lock=${this.id % 16}`;
   }
 }
 

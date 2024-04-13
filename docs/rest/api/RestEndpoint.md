@@ -581,7 +581,8 @@ const getTodo = new RestEndpoint({
 
 [Method](https://developer.mozilla.org/en-US/docs/Web/API/Request/method) is part of the HTTP protocol.
 REST protocols use these to indicate the type of operation. Because of this RestEndpoint uses this
-to inform `sideEffect` and whether the endpoint should use a `body` payload.
+to inform `sideEffect` and whether the endpoint should use a `body` payload. Setting
+`sideEffect` explicitly will override this behavior, allowing for non-standard API designs.
 
 `GET` is 'readonly', other methods imply sideEffects.
 

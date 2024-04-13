@@ -19,7 +19,7 @@ export class Post extends Entity {
   static key = 'Post';
 
   get img() {
-    return `//placekitten.com/96/72?image=${this.id % 16}`;
+    return `//loremflickr.com/96/72/kitten,cat?lock=${this.id % 16}`;
   }
 }
 export const PostResource = createResource({
