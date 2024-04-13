@@ -6,7 +6,7 @@ import GQLNetworkError from './GQLNetworkError.js';
 export interface GQLOptions<
   Variables,
   S extends Schema | undefined = Schema | undefined,
-  M extends true | undefined = true | undefined,
+  M extends boolean | undefined = boolean | undefined,
 > extends EndpointOptions<(v: Variables) => Promise<any>, S, M> {
   getHeaders?(headers: HeadersInit): HeadersInit;
   getRequestInit?(variables: any): RequestInit;
@@ -17,7 +17,7 @@ export interface GQLOptions<
 export default class GQLEndpoint<
   Variables,
   S extends Schema | undefined = Schema | undefined,
-  M extends true | undefined = true | undefined,
+  M extends boolean | undefined = boolean | undefined,
 > extends Endpoint<
   (v: Variables) => Promise<S extends undefined ? any : Denormalize<S>>,
   S,

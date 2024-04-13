@@ -240,20 +240,20 @@ describe.each([true, false])(`Endpoint (CSP %s)`, mockCSP => {
     const BaseFetch = new Endpoint(fetchUsers);
     // @ts-expect-error
     const aa: true = BaseFetch.sideEffect;
-    const bb: undefined = BaseFetch.sideEffect;
+    const bb: false = BaseFetch.sideEffect;
     const UserDetail = new Endpoint(fetchUsers).extend({
       sideEffect: true,
       key: ({ id }: { id: string }) => `fetch my user ${id}`,
     });
     // @ts-expect-error
-    const a: undefined = UserDetail.sideEffect;
+    const a: false = UserDetail.sideEffect;
     const b: true = UserDetail.sideEffect;
 
     // ts-expect-error
     //const c: undefined = UserDetail.extend({ dataExpiryLength: 5 }).sideEffect;
     //const d: true = UserDetail.extend({ dataExpiryLength: 5 }).sideEffect;
 
-    function t(a: EndpointInterface<typeof fetchUsers, any, undefined>) {}
+    function t(a: EndpointInterface<typeof fetchUsers, any, false>) {}
     // @ts-expect-error
     t(UserDetail);
     t(BaseFetch);
@@ -457,7 +457,7 @@ describe.each([true, false])(`Endpoint (CSP %s)`, mockCSP => {
           name: 'UserDetai',
         },
       );
-      const a: undefined = UserDetail.sideEffect;
+      const a: false = UserDetail.sideEffect;
       // @ts-expect-error
       const b: true = UserDetail.sideEffect;
       UserDetail.schema;
@@ -533,7 +533,7 @@ describe.each([true, false])(`Endpoint (CSP %s)`, mockCSP => {
         },
       );
       const sch: (typeof User)[] = UserDetail.schema;
-      const s: undefined = UserDetail.sideEffect;
+      const s: false = UserDetail.sideEffect;
       UserDetail.random;
       // @ts-expect-error
       UserDetail.nonexistant;
@@ -593,7 +593,7 @@ describe.each([true, false])(`Endpoint (CSP %s)`, mockCSP => {
     /*class ResourceEndpoint<
       F extends (params?: any, body?: any) => Promise<any>,
       S extends Schema | undefined = undefined,
-      M extends true | undefined = undefined
+      M extends boolean | undefined = undefined
     > extends Endpoint<F, S, M> {
       constructor(
         fetchFunction: F,
@@ -647,7 +647,7 @@ describe.each([true, false])(`Endpoint (CSP %s)`, mockCSP => {
           body?: any,
         ) => Promise<any>,
         S extends Schema | undefined = undefined,
-        M extends true | undefined = undefined
+        M extends boolean | undefined = undefined
       > extends Endpoint<F, S, M> {
         token = 'password';
         authdFetch(info: RequestInfo, init?: RequestInit) {

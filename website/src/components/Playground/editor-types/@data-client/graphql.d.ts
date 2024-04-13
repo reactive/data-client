@@ -177,7 +177,7 @@ interface GetIndex {
     };
 }
 /** Defines a networking endpoint */
-interface EndpointInterface<F extends FetchFunction = FetchFunction, S extends Schema | undefined = Schema | undefined, M extends true | undefined = true | undefined> extends EndpointExtraOptions<F> {
+interface EndpointInterface<F extends FetchFunction = FetchFunction, S extends Schema | undefined = Schema | undefined, M extends boolean | undefined = boolean | undefined> extends EndpointExtraOptions<F> {
     (...args: Parameters<F>): ReturnType<F>;
     key(...args: Parameters<F>): string;
     readonly sideEffect?: M;
@@ -190,29 +190,29 @@ interface MutateEndpoint<F extends FetchFunction = FetchFunction, S extends Sche
 /** For retrieval requests */
 type ReadEndpoint<F extends FetchFunction = FetchFunction, S extends Schema | undefined = Schema | undefined> = EndpointInterface<F, S, undefined>;
 
-interface EndpointOptions<F extends FetchFunction = FetchFunction, S extends Schema | undefined = undefined, M extends true | undefined = undefined> extends EndpointExtraOptions<F> {
+interface EndpointOptions<F extends FetchFunction = FetchFunction, S extends Schema | undefined = undefined, M extends boolean | undefined = false> extends EndpointExtraOptions<F> {
     key?: (...args: Parameters<F>) => string;
     sideEffect?: M;
     schema?: S;
     [k: string]: any;
 }
-interface EndpointExtendOptions<F extends FetchFunction = FetchFunction, S extends Schema | undefined = Schema | undefined, M extends true | undefined = true | undefined> extends EndpointOptions<F, S, M> {
+interface EndpointExtendOptions<F extends FetchFunction = FetchFunction, S extends Schema | undefined = Schema | undefined, M extends boolean | undefined = boolean | undefined> extends EndpointOptions<F, S, M> {
     fetch?: FetchFunction;
 }
 type KeyofEndpointInstance = keyof EndpointInstance<FetchFunction>;
-type ExtendedEndpoint<O extends EndpointExtendOptions<F>, E extends EndpointInstance<FetchFunction, Schema | undefined, true | undefined>, F extends FetchFunction> = EndpointInstance<'fetch' extends keyof O ? Exclude<O['fetch'], undefined> : E['fetch'], 'schema' extends keyof O ? O['schema'] : E['schema'], 'sideEffect' extends keyof O ? O['sideEffect'] : E['sideEffect']> & Omit<O, KeyofEndpointInstance> & Omit<E, KeyofEndpointInstance>;
+type ExtendedEndpoint<O extends EndpointExtendOptions<F>, E extends EndpointInstance<FetchFunction, Schema | undefined, boolean | undefined>, F extends FetchFunction> = EndpointInstance<'fetch' extends keyof O ? Exclude<O['fetch'], undefined> : E['fetch'], 'schema' extends keyof O ? O['schema'] : E['schema'], 'sideEffect' extends keyof O ? O['sideEffect'] : E['sideEffect']> & Omit<O, KeyofEndpointInstance> & Omit<E, KeyofEndpointInstance>;
 /**
  * Defines an async data source.
  * @see https://dataclient.io/docs/api/Endpoint
  */
-interface EndpointInstance<F extends (...args: any) => Promise<any> = FetchFunction, S extends Schema | undefined = Schema | undefined, M extends true | undefined = true | undefined> extends EndpointInstanceInterface<F, S, M> {
-    extend<E extends EndpointInstance<(...args: any) => Promise<any>, Schema | undefined, true | undefined>, O extends EndpointExtendOptions<F> & Partial<Omit<E, keyof EndpointInstance<FetchFunction>>> & Record<string, unknown>>(this: E, options: Readonly<O>): ExtendedEndpoint<typeof options, E, F>;
+interface EndpointInstance<F extends (...args: any) => Promise<any> = FetchFunction, S extends Schema | undefined = Schema | undefined, M extends boolean | undefined = boolean | undefined> extends EndpointInstanceInterface<F, S, M> {
+    extend<E extends EndpointInstance<(...args: any) => Promise<any>, Schema | undefined, boolean | undefined>, O extends EndpointExtendOptions<F> & Partial<Omit<E, keyof EndpointInstance<FetchFunction>>> & Record<string, unknown>>(this: E, options: Readonly<O>): ExtendedEndpoint<typeof options, E, F>;
 }
 /**
  * Defines an async data source.
  * @see https://dataclient.io/docs/api/Endpoint
  */
-interface EndpointInstanceInterface<F extends FetchFunction = FetchFunction, S extends Schema | undefined = Schema | undefined, M extends true | undefined = true | undefined> extends EndpointInterface<F, S, M> {
+interface EndpointInstanceInterface<F extends FetchFunction = FetchFunction, S extends Schema | undefined = Schema | undefined, M extends boolean | undefined = boolean | undefined> extends EndpointInterface<F, S, M> {
     constructor: EndpointConstructor;
     /**
      * Calls the function, substituting the specified object for the this value of the function, and the specified array for the arguments of the function.
@@ -247,11 +247,11 @@ interface EndpointInstanceInterface<F extends FetchFunction = FetchFunction, S e
     testKey(key: string): boolean;
 }
 interface EndpointConstructor {
-    new <F extends (this: EndpointInstance<FetchFunction> & E, params?: any, body?: any) => Promise<any>, S extends Schema | undefined = undefined, M extends true | undefined = undefined, E extends Record<string, any> = {}>(fetchFunction: F, options?: EndpointOptions<F, S, M> & E): EndpointInstance<F, S, M> & E;
+    new <F extends (this: EndpointInstance<FetchFunction> & E, params?: any, body?: any) => Promise<any>, S extends Schema | undefined = undefined, M extends boolean | undefined = false, E extends Record<string, any> = {}>(fetchFunction: F, options?: EndpointOptions<F, S, M> & E): EndpointInstance<F, S, M> & E;
     readonly prototype: Function;
 }
 interface ExtendableEndpointConstructor {
-    new <F extends (this: EndpointInstanceInterface<FetchFunction> & E, params?: any, body?: any) => Promise<any>, S extends Schema | undefined = undefined, M extends true | undefined = undefined, E extends Record<string, any> = {}>(RestFetch: F, options?: Readonly<EndpointOptions<F, S, M>> & E): EndpointInstanceInterface<F, S, M> & E;
+    new <F extends (this: EndpointInstanceInterface<FetchFunction> & E, params?: any, body?: any) => Promise<any>, S extends Schema | undefined = undefined, M extends boolean | undefined = false, E extends Record<string, any> = {}>(RestFetch: F, options?: Readonly<EndpointOptions<F, S, M>> & E): EndpointInstanceInterface<F, S, M> & E;
     readonly prototype: Function;
 }
 type RemoveArray<Orig extends any[], Rem extends any[]> = Rem extends [any, ...infer RestRem] ? Orig extends [any, ...infer RestOrig] ? RemoveArray<RestOrig, RestRem> : never : Orig;
@@ -1037,13 +1037,13 @@ declare class GQLEntity extends Entity {
     pk(): string;
 }
 
-interface GQLOptions<Variables, S extends Schema | undefined = Schema | undefined, M extends true | undefined = true | undefined> extends EndpointOptions<(v: Variables) => Promise<any>, S, M> {
+interface GQLOptions<Variables, S extends Schema | undefined = Schema | undefined, M extends boolean | undefined = boolean | undefined> extends EndpointOptions<(v: Variables) => Promise<any>, S, M> {
     getHeaders?(headers: HeadersInit): HeadersInit;
     getRequestInit?(variables: any): RequestInit;
     fetchResponse?(input: RequestInfo, init: RequestInit): Promise<any>;
     process?(value: any, variables: any): any;
 }
-declare class GQLEndpoint<Variables, S extends Schema | undefined = Schema | undefined, M extends true | undefined = true | undefined> extends Endpoint<(v: Variables) => Promise<S extends undefined ? any : Denormalize<S>>, S, M> {
+declare class GQLEndpoint<Variables, S extends Schema | undefined = Schema | undefined, M extends boolean | undefined = boolean | undefined> extends Endpoint<(v: Variables) => Promise<S extends undefined ? any : Denormalize<S>>, S, M> {
     readonly url: string;
     signal?: AbortSignal;
     constructor(url: string, options?: GQLOptions<Variables, S, M>);
