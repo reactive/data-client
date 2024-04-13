@@ -15,6 +15,7 @@ export const getCandles = new RestEndpoint({
       price_open: candle[3],
     }));
   },
+  pollFrequency: 60 * 1000,
 });
 
 type CandleTuple = [

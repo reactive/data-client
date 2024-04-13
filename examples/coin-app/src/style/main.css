@@ -20,3 +20,13 @@ a {
 a:hover {
   color: gray;
 }
+
+h1 {
+  margin-block-end: .4em;
+}
+h2 {
+  margin-block-start: .4em;
+}
+h1 + h2 {
+  margin-block-start: 0;
+}
