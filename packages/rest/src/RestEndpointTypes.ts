@@ -221,7 +221,9 @@ type OptionsToRestEndpoint<
         'method' extends keyof O ? O['method'] : E['method']
       >,
       'schema' extends keyof O ? O['schema'] : E['schema'],
-      'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'],
+      'sideEffect' extends keyof O ? Extract<O['sideEffect'], undefined | true>
+      : 'method' extends keyof O ? MethodToSide<O['method']>
+      : E['sideEffect'],
       O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>,
       {
         path: Exclude<O['path'], undefined>;
@@ -246,7 +248,9 @@ type OptionsToRestEndpoint<
         'method' extends keyof O ? O['method'] : E['method']
       >,
       'schema' extends keyof O ? O['schema'] : E['schema'],
-      'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'],
+      'sideEffect' extends keyof O ? Extract<O['sideEffect'], undefined | true>
+      : 'method' extends keyof O ? MethodToSide<O['method']>
+      : E['sideEffect'],
       O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>,
       {
         path: E['path'];
@@ -269,7 +273,9 @@ type OptionsToRestEndpoint<
         'method' extends keyof O ? O['method'] : E['method']
       >,
       'schema' extends keyof O ? O['schema'] : E['schema'],
-      'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'],
+      'sideEffect' extends keyof O ? Extract<O['sideEffect'], undefined | true>
+      : 'method' extends keyof O ? MethodToSide<O['method']>
+      : E['sideEffect'],
       O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>,
       {
         path: E['path'];
@@ -284,7 +290,9 @@ type OptionsToRestEndpoint<
   : RestInstance<
       F,
       'schema' extends keyof O ? O['schema'] : E['schema'],
-      'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'],
+      'sideEffect' extends keyof O ? Extract<O['sideEffect'], undefined | true>
+      : 'method' extends keyof O ? MethodToSide<O['method']>
+      : E['sideEffect'],
       {
         path: 'path' extends keyof O ? Exclude<O['path'], undefined>
         : E['path'];

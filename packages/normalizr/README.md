@@ -217,13 +217,18 @@ const memo = new MemoCache();
 const { data, paths } = memo.denormalize(input, schema, state.entities, args);
 
 const data = memo.query(key, schema, args, state.entities, state.indexes);
-const queryKey = memo.buildQueryKey(
-  key,
-  schema,
-  args,
-  state.entities,
-  state.indexes,
-);
+
+function query(key, schema, args, state) {
+  const queryKey = memo.buildQueryKey(
+    key,
+    schema,
+    args,
+    state.entities,
+    state.indexes,
+  );
+  const { data } = this.denormalize(queryKey, schema, state.entities, args);
+  return typeof data === 'symbol' ? undefined : (data as any);
+}
 ```
 
 `memo.denormalize()` is just like denormalize() above but includes `paths` as part of the return value. `paths`

@@ -234,7 +234,7 @@ describe('RestEndpoint', () => {
     () => epbody({ title: 'hi' }, { title: 'hi' });
   });
 
-  /* TODO: it('should allow sideEffect overrides', () => {
+  it('should allow sideEffect overrides', () => {
     const weirdGetUser = new RestEndpoint({
       path: 'http\\://test.com/user/:id',
       name: 'getter',
@@ -244,9 +244,10 @@ describe('RestEndpoint', () => {
     });
 
     expect(weirdGetUser.sideEffect).toBe(undefined);
-    //s @ts-expect-error
-    //const y: true = weirdGetUser.sideEffect;
-  });*/
+    const a: undefined = weirdGetUser.sideEffect;
+    // @ts-expect-error
+    const y: true = weirdGetUser.sideEffect;
+  });
 
   it('should handle simple urls', () => {
     expect(getUser.url({ id: '5' })).toBe('http://test.com/user/5');

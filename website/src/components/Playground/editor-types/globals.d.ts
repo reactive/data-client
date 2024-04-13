@@ -1203,25 +1203,25 @@ type RestEndpointExtendOptions<O extends PartialRestGenerics, E extends {
 type OptionsToRestEndpoint<O extends PartialRestGenerics, E extends RestInstanceBase & {
     body?: any;
     paginationField?: string;
-}, F extends FetchFunction> = 'path' extends keyof O ? RestType<'searchParams' extends keyof O ? O['searchParams'] extends undefined ? PathArgs<Exclude<O['path'], undefined>> : O['searchParams'] & PathArgs<Exclude<O['path'], undefined>> : PathArgs<Exclude<O['path'], undefined>>, OptionsToBodyArgument<'body' extends keyof O ? O : E, 'method' extends keyof O ? O['method'] : E['method']>, 'schema' extends keyof O ? O['schema'] : E['schema'], 'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'], O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>, {
+}, F extends FetchFunction> = 'path' extends keyof O ? RestType<'searchParams' extends keyof O ? O['searchParams'] extends undefined ? PathArgs<Exclude<O['path'], undefined>> : O['searchParams'] & PathArgs<Exclude<O['path'], undefined>> : PathArgs<Exclude<O['path'], undefined>>, OptionsToBodyArgument<'body' extends keyof O ? O : E, 'method' extends keyof O ? O['method'] : E['method']>, 'schema' extends keyof O ? O['schema'] : E['schema'], 'sideEffect' extends keyof O ? Extract<O['sideEffect'], undefined | true> : 'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'], O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>, {
     path: Exclude<O['path'], undefined>;
     body: 'body' extends keyof O ? O['body'] : E['body'];
     searchParams: 'searchParams' extends keyof O ? O['searchParams'] : E['searchParams'];
     method: 'method' extends keyof O ? O['method'] : E['method'];
     paginationField: 'paginationField' extends keyof O ? O['paginationField'] : E['paginationField'];
-}> : 'body' extends keyof O ? RestType<'searchParams' extends keyof O ? O['searchParams'] extends undefined ? PathArgs<Exclude<O['path'], undefined>> : O['searchParams'] & PathArgs<Exclude<E['path'], undefined>> : PathArgs<Exclude<E['path'], undefined>>, OptionsToBodyArgument<O, 'method' extends keyof O ? O['method'] : E['method']>, 'schema' extends keyof O ? O['schema'] : E['schema'], 'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'], O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>, {
+}> : 'body' extends keyof O ? RestType<'searchParams' extends keyof O ? O['searchParams'] extends undefined ? PathArgs<Exclude<O['path'], undefined>> : O['searchParams'] & PathArgs<Exclude<E['path'], undefined>> : PathArgs<Exclude<E['path'], undefined>>, OptionsToBodyArgument<O, 'method' extends keyof O ? O['method'] : E['method']>, 'schema' extends keyof O ? O['schema'] : E['schema'], 'sideEffect' extends keyof O ? Extract<O['sideEffect'], undefined | true> : 'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'], O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>, {
     path: E['path'];
     body: O['body'];
     searchParams: 'searchParams' extends keyof O ? O['searchParams'] : E['searchParams'];
     method: 'method' extends keyof O ? O['method'] : E['method'];
     paginationField: 'paginationField' extends keyof O ? O['paginationField'] : Extract<E['paginationField'], string>;
-}> : 'searchParams' extends keyof O ? RestType<O['searchParams'] extends undefined ? PathArgs<Exclude<O['path'], undefined>> : O['searchParams'] & PathArgs<Exclude<E['path'], undefined>>, OptionsToBodyArgument<E, 'method' extends keyof O ? O['method'] : E['method']>, 'schema' extends keyof O ? O['schema'] : E['schema'], 'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'], O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>, {
+}> : 'searchParams' extends keyof O ? RestType<O['searchParams'] extends undefined ? PathArgs<Exclude<O['path'], undefined>> : O['searchParams'] & PathArgs<Exclude<E['path'], undefined>>, OptionsToBodyArgument<E, 'method' extends keyof O ? O['method'] : E['method']>, 'schema' extends keyof O ? O['schema'] : E['schema'], 'sideEffect' extends keyof O ? Extract<O['sideEffect'], undefined | true> : 'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'], O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>, {
     path: E['path'];
     body: E['body'];
     searchParams: O['searchParams'];
     method: 'method' extends keyof O ? O['method'] : E['method'];
     paginationField: 'paginationField' extends keyof O ? O['paginationField'] : Extract<E['paginationField'], string>;
-}> : RestInstance<F, 'schema' extends keyof O ? O['schema'] : E['schema'], 'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'], {
+}> : RestInstance<F, 'schema' extends keyof O ? O['schema'] : E['schema'], 'sideEffect' extends keyof O ? Extract<O['sideEffect'], undefined | true> : 'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'], {
     path: 'path' extends keyof O ? Exclude<O['path'], undefined> : E['path'];
     body: 'body' extends keyof O ? O['body'] : E['body'];
     searchParams: 'searchParams' extends keyof O ? O['searchParams'] : E['searchParams'];
