@@ -1,7 +1,7 @@
 ---
-"@data-client/endpoint": minor
-"@data-client/graphql": minor
-"@data-client/rest": minor
+"@data-client/endpoint": patch
+"@data-client/graphql": patch
+"@data-client/rest": patch
 ---
 
 Endpoint.sideEffect can be `false`
