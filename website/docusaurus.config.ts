@@ -470,10 +470,6 @@ const config: Config = {
               href: 'https://discord.gg/35nb8Mz',
             },
             {
-              label: 'Stack Overflow',
-              href: 'http://stackoverflow.com/questions/tagged/data-client',
-            },
-            {
               label: 'Twitter',
               href: 'https://twitter.com/dataclientio',
             },
@@ -486,9 +482,13 @@ const config: Config = {
               href: 'https://github.com/reactive/data-client/discussions/categories/ideas',
             },
             {
-              label: 'Showcase',
-              href: 'https://github.com/reactive/data-client/discussions/2422',
+              label: 'Stack Overflow',
+              href: 'http://stackoverflow.com/questions/tagged/data-client',
             },
+            // {
+            //   label: 'Showcase',
+            //   href: 'https://github.com/reactive/data-client/discussions/2422',
+            // }, Don't link until we want to push this
           ],
         },
         {
