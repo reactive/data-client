@@ -199,7 +199,7 @@ Returns `true` if the provided (fetch) [key](#key) matches this endpoint.
 
 This is used for mock interceptors with with [&lt;MockResolver /&gt;](/docs/api/MockResolver)
 
-### name: string {#name}
+## name: string {#name}
 
 Used in [key](#key) to distinguish endpoints. Should be globally unique.
 
@@ -214,13 +214,13 @@ In these cases you can override `name` or disable function mangling.
 
 :::
 
-### sideEffect: true | undefined {#sideeffect}
+## sideEffect: true | undefined {#sideeffect}
 
 Used to indicate endpoint might have side-effects (non-idempotent). This restricts it
 from being used with [useSuspense()](/docs/api/useSuspense) or [useFetch()](/docs/api/useFetch) as those can hit the
 endpoint an unpredictable number of times.
 
-### schema: Schema {#schema}
+## schema: Schema {#schema}
 
 Declarative definition of how to [process responses](./schema)
 
@@ -246,7 +246,13 @@ const getUser = new Endpoint(
 );
 ```
 
-### extend(EndpointOptions): Endpoint {#extend}
+## EndpointExtraOptions
+
+import EndpointLifecycle from './_EndpointLifecycle.mdx';
+
+<EndpointLifecycle />
+
+## extend(EndpointOptions): Endpoint {#extend}
 
 Can be used to further customize the endpoint definition
 
@@ -258,92 +264,6 @@ const getUserNormalized = getUser.extend({ schema: User });
 ```
 
 In addition to the members, `fetch` can be sent to override the fetch function.
-
-### EndpointExtraOptions
-
-#### dataExpiryLength?: number {#dataexpirylength}
-
-Custom data cache lifetime for the fetched resource. Will override the value set in NetworkManager.
-
-[Learn more about expiry time](/docs/concepts/expiry-policy#expiry-time)
-
-#### errorExpiryLength?: number {#errorexpirylength}
-
-Custom data error lifetime for the fetched resource. Will override the value set in NetworkManager.
-
-#### errorPolicy?: (error: any) => 'soft' | undefined {#errorpolicy}
-
-'soft' will use stale data (if exists) in case of error; undefined or not providing option will result
-in error.
-
-[Learn more about errorPolicy](/docs/concepts/error-policy)
-
-#### invalidIfStale: boolean {#invalidifstale}
-
-Indicates stale data should be considered unusable and thus not be returned from the cache. This means
-that useSuspense() will suspend when data is stale even if it already exists in cache.
-
-#### pollFrequency: number {#pollfrequency}
-
-Frequency in millisecond to poll at. Requires using [useSubscription()](/docs/api/useSubscription) or
-[useLive()](/docs/api/useLive) to have an effect.
-
-#### getOptimisticResponse: (snap, ...args) => fakePayload {#getoptimisticresponse}
-
-When provided, any fetches with this endpoint will behave as though the `fakePayload` return value
-from this function was a succesful network response. When the actual fetch completes (regardless
-of failure or success), the optimistic update will be replaced with the actual network response.
-
-[Optimistic update guide](../guides/optimistic-updates.md)
-
-#### update(normalizedResponseOfThis, ...args) => (\{ [endpointKey]: (normalizedResponseOfEndpointToUpdate) => updatedNormalizedResponse) }) {#update}
-
-```ts title="UpdateType.ts"
-type UpdateFunction<
-  Source extends EndpointInterface,
-  Updaters extends Record<string, any> = Record<string, any>,
-> = (
-  source: ResultEntry<Source>,
-  ...args: Parameters<Source>
-) => { [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K] };
-```
-
-Simplest case:
-
-```ts title="userEndpoint.ts"
-const createUser = new Endpoint(postToUserFunction, {
-  schema: User,
-  update: (newUserId: string) => ({
-    [userList.key()]: (users = []) => [newUserId, ...users],
-  }),
-});
-```
-
-More updates:
-
-```typescript title="Component.tsx"
-const allusers = useSuspense(userList);
-const adminUsers = useSuspense(userList, { admin: true });
-```
-
-The endpoint below ensures the new user shows up immediately in the usages above.
-
-```ts title="userEndpoint.ts"
-const createUser = new Endpoint(postToUserFunction, {
-  schema: User,
-  update: (newUserId, newUser)  => {
-    const updates = {
-      [userList.key()]: (users = []) => [newUserId, ...users],
-    ];
-    if (newUser.isAdmin) {
-      updates[userList.key({ admin: true })] = (users = []) => [newUserId, ...users];
-    }
-    return updates;
-  },
-});
-```
-
-See usage with [Resource or RestEndpoint](./RestEndpoint.md#update)
 
 ## Examples
 
