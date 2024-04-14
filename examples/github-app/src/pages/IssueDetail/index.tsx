@@ -1,11 +1,9 @@
 import { Link } from '@anansi/router';
 import { useSuspense, useCache, useDLE } from '@data-client/react';
-import { Card, Avatar, Popover } from 'antd';
+import { Card, Avatar } from 'antd';
 import { Tag } from 'antd';
 import Boundary from 'Boundary';
 import FlexRow from 'components/FlexRow';
-import Labels from 'components/Labels';
-import { groupBy } from 'lodash';
 import React, { useMemo, memo } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import Markdown from 'react-markdown';
@@ -13,13 +11,12 @@ import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
 import remarkRemoveComments from 'remark-remove-comments';
 import { IssueResource } from 'resources/Issue';
-import { ReactionResource, contentToIcon } from 'resources/Reaction';
+import { ReactionResource } from 'resources/Reaction';
 import UserResource from 'resources/User';
 
 import CommentsList, { CardLoading } from './CommentsList';
 import CreateComment from './CreateComment';
-import { CreateReaction } from './CreateReaction';
-import { ReactionSpan } from './ReactionSpan';
+import { issueActions } from './issueActions';
 
 const { Meta } = Card;
 
@@ -31,29 +28,10 @@ function IssueDetail({ number, repo, owner }: Props) {
   const issue = useSuspense(IssueResource.get, params);
   const currentUser = useCache(UserResource.current);
 
-  const actions: JSX.Element[] = useMemo(() => {
-    const grouped = groupBy(reactions, (reaction) => reaction.content);
-    const list = Object.entries(grouped)
-      .map(([k, v]) => <ReactionSpan key={k} reactions={v} issue={issue} />)
-      .concat(<Labels labels={issue.labels} />);
-    list.unshift(
-      <Popover
-        placement="bottomRight"
-        content={Object.keys(contentToIcon).map((content: any) => (
-          <CreateReaction
-            key={content}
-            content={content}
-            issue={issue}
-            reactions={grouped[content]}
-          />
-        ))}
-        trigger="hover"
-      >
-        😄
-      </Popover>,
-    );
-    return list;
-  }, [reactions, issue]);
+  const actions: JSX.Element[] = useMemo(
+    () => issueActions(reactions, issue),
+    [reactions, issue],
+  );
 
   return (
     <React.Fragment>
