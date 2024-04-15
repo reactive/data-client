@@ -300,6 +300,10 @@ const config: Config = {
             from: ['/rest/guides/rpc'],
           },
           {
+            to: '/docs/api/ErrorBoundary',
+            from: ['/docs/api/NetworkErrorBoundary'],
+          },
+          {
             to: '/docs/api/makeRenderDataClient',
             from: [
               '/docs/api/makeExternalCacheProvider',

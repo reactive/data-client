@@ -195,7 +195,7 @@ describe('useFetch', () => {
     const fbmock = jest.fn();
     function FetchTester() {
       useFetch(CoolerArticleResource.get, { id: payload.id });
-      return <Text testId="stuff">stuff</Text>;
+      return <Text testID="stuff">stuff</Text>;
     }
     const { entities, result } = normalize(payload, CoolerArticle);
     const fetchKey = CoolerArticleResource.get.key({ id: payload.id });
@@ -220,7 +220,7 @@ describe('useFetch', () => {
     function SyncArticleComponentTester({ navigation }: { navigation: any }) {
       thenavigation = navigation;
       return (
-        <AsyncBoundary fallback={<Text testId="sus"></Text>}>
+        <AsyncBoundary fallback={<Text testID="sus"></Text>}>
           <FetchTester />
         </AsyncBoundary>
       );
@@ -258,7 +258,9 @@ describe('useFetch', () => {
       const { getByText, getByTestId } = render(tree);
       expect(fbmock).not.toBeCalled();
       await new Promise(resolve =>
-        InteractionManager.runAfterInteractions(resolve),
+        InteractionManager.runAfterInteractions(() => {
+          resolve(null);
+        }),
       );
       // still should revalidate
       expect(dispatch.mock.calls.length).toBe(1);
@@ -267,8 +269,11 @@ describe('useFetch', () => {
 
       act(() => thenavigation.goBack());
       await new Promise(resolve =>
-        InteractionManager.runAfterInteractions(resolve),
+        InteractionManager.runAfterInteractions(() => {
+          resolve(null);
+        }),
       );
+
       // since we got focus back we should have called again
       expect(dispatch.mock.calls.length).toBe(2);
     });

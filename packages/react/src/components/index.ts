@@ -6,4 +6,7 @@ export type { DevToolsPosition } from './DevToolsButton.js';
 
 export { CacheProvider, BackupLoading, UniversalSuspense, getDefaultManagers };
 export { default as AsyncBoundary } from './AsyncBoundary.js';
-export { default as NetworkErrorBoundary } from './NetworkErrorBoundary.js';
+export {
+  default as NetworkErrorBoundary,
+  default as ErrorBoundary,
+} from './ErrorBoundary.js';

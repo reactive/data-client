@@ -1,5 +1,5 @@
 import * as _data_client_core from '@data-client/core';
-import { Manager, State, Controller, NetworkError, EndpointInterface, FetchFunction, Schema, DenormalizeNullable, ResolveType, Denormalize, Queryable, SchemaArgs, UnknownError, ErrorTypes as ErrorTypes$1, ActionTypes, __INTERNAL__, createReducer, applyManager } from '@data-client/core';
+import { Manager, State, Controller, EndpointInterface, FetchFunction, Schema, DenormalizeNullable, ResolveType, Denormalize, Queryable, SchemaArgs, NetworkError, UnknownError, ErrorTypes as ErrorTypes$1, ActionTypes, __INTERNAL__, createReducer, applyManager } from '@data-client/core';
 export { AbstractInstanceType, ActionTypes, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, ResetAction, ResolveType, Schema, SetAction, SetTypes, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@data-client/core';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import React$1, { Context } from 'react';
@@ -44,6 +44,47 @@ declare const UniversalSuspense: React$1.FunctionComponent<{
 }>;
 //# sourceMappingURL=UniversalSuspense.d.ts.map
 
+interface ErrorBoundaryProps<E extends Error> {
+    children: React$1.ReactNode;
+    /** className prop sent to fallbackComponent */
+    className?: string;
+    /** Renders when an error is caught */
+    fallbackComponent: React$1.ComponentType<{
+        error: E;
+        resetErrorBoundary: () => void;
+        className?: string;
+    }>;
+    /** Subscription handler to reset error state on events like URL location changes */
+    listen?: (resetListener: () => void) => () => void;
+}
+interface ErrorState<E extends Error> {
+    error?: E;
+}
+/**
+ * Reusable React error boundary component
+ * @see https://dataclient.io/docs/api/ErrorBoundary
+ */
+declare class ErrorBoundary<E extends Error> extends React$1.Component<ErrorBoundaryProps<E>, ErrorState<E>> {
+    static defaultProps: {
+        fallbackComponent: ({ error, className, }: {
+            error: Error;
+            resetErrorBoundary: () => void;
+            className: string;
+        }) => react_jsx_runtime.JSX.Element;
+    };
+    static getDerivedStateFromError(error: Error): {
+        error: Error;
+    };
+    private unsubscribe;
+    state: ErrorState<E>;
+    componentDidMount(): void;
+    componentDidUpdate(prevProps: Readonly<ErrorBoundaryProps<E>>, prevState: Readonly<ErrorState<E>>, snapshot?: any): void;
+    componentWillUnmount(): void;
+    listen(): void;
+    unlisten(): void;
+    render(): JSX.Element;
+}
+
 /**
  * Handles loading and error conditions of Suspense
  * @see https://dataclient.io/docs/api/AsyncBoundary
@@ -55,40 +96,10 @@ interface Props {
     children: React$1.ReactNode;
     fallback?: React$1.ReactNode;
     errorClassName?: string;
-    errorComponent?: React$1.ComponentType<{
-        error: NetworkError;
-        className?: string;
-    }>;
-}
-//# sourceMappingURL=AsyncBoundary.d.ts.map
-
-interface ErrorBoundaryProps<E extends NetworkError> {
-    children: React$1.ReactNode;
-    className?: string;
-    fallbackComponent: React$1.ComponentType<{
-        error: E;
-        className?: string;
-    }>;
-}
-interface ErrorState<E extends NetworkError> {
-    error?: E;
-}
-/**
- * Handles any networking errors from suspense
- * @see https://dataclient.io/docs/api/NetworkErrorBoundary
- */
-declare class NetworkErrorBoundary<E extends NetworkError> extends React$1.Component<ErrorBoundaryProps<E>, ErrorState<E>> {
-    static defaultProps: {
-        fallbackComponent: ({ error, className, }: {
-            error: NetworkError;
-            className: string;
-        }) => react_jsx_runtime.JSX.Element;
-    };
-    static getDerivedStateFromError(error: NetworkError | any): {
-        error: NetworkError;
-    };
-    state: ErrorState<E>;
-    render(): JSX.Element;
+    /** Renders when an error is caught */
+    errorComponent?: ErrorBoundaryProps<Error>['fallbackComponent'];
+    /** Subscription handler to reset error state on events like URL location changes */
+    listen?: ErrorBoundaryProps<Error>['listen'];
 }
 
 type CondNull$1<P, A, B> = P extends null ? A : B;
@@ -222,4 +233,4 @@ declare namespace internal_d {
 /** Turns a dispatch function into one that resolves once its been commited */
 declare function usePromisifiedDispatch<R extends React$1.Reducer<any, any>>(dispatch: React$1.Dispatch<React$1.ReducerAction<R>>, state: React$1.ReducerState<R>): (action: React$1.ReducerAction<R>) => Promise<void>;
 
-export { _default as AsyncBoundary, Loading as BackupLoading, CacheProvider, ControllerContext, DevToolsPosition, NetworkErrorBoundary, ProviderProps, StateContext, Store, StoreContext, UniversalSuspense, internal_d as __INTERNAL__, getDefaultManagers, useCache, useController, useDLE, useError, useFetch, useLive, usePromisifiedDispatch, useQuery, useSubscription, useSuspense };
+export { _default as AsyncBoundary, Loading as BackupLoading, CacheProvider, ControllerContext, DevToolsPosition, ErrorBoundary, ErrorBoundary as NetworkErrorBoundary, ProviderProps, StateContext, Store, StoreContext, UniversalSuspense, internal_d as __INTERNAL__, getDefaultManagers, useCache, useController, useDLE, useError, useFetch, useLive, usePromisifiedDispatch, useQuery, useSubscription, useSuspense };

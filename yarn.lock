@@ -405,9 +405,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/jest-preset@npm:0.10.27":
-  version: 0.10.27
-  resolution: "@anansi/jest-preset@npm:0.10.27"
+"@anansi/jest-preset@npm:0.11.0":
+  version: 0.11.0
+  resolution: "@anansi/jest-preset@npm:0.11.0"
   dependencies:
     "@anansi/ts-utils": "npm:^0.3.6"
     "@types/babel__core": "npm:^7.20.5"
@@ -432,7 +432,7 @@ __metadata:
       optional: true
     react:
       optional: true
-  checksum: 10c0/bf61977f333ba2203b0ec15e5fb1038d4ed7d70699627ec67c58ad7b6b936ea164fd49a3cbb2fb2659a235ba11e00f81db3157b23815c21545707a8a69892413
+  checksum: 10c0/9b5f01f3f73dae2497122d6a5f02e41e97db6b31f92d66a3486cc2fac0c857571c643c43639d1e68d537d4480dac8e52e0a3e1bacd79d785db04b00adfad9784
   languageName: node
   linkType: hard
 
@@ -7364,6 +7364,15 @@ __metadata:
   dependencies:
     "@types/react": "npm:*"
   checksum: 10c0/f7b3bb2151d992a108ae46fed876fb9c8119108397d9a01d150c5642782997542c8b3c52e742b56e8689b7dbfa62ca9cfc76aa7e05dec4e60c652f7ef53fa783
+  languageName: node
+  linkType: hard
+
+"@types/react-native@npm:^0.73.0":
+  version: 0.73.0
+  resolution: "@types/react-native@npm:0.73.0"
+  dependencies:
+    react-native: "npm:*"
+  checksum: 10c0/81b8824f3bea30f18f92bb1e7c69777801b6b91a603c712173179b10e8fd6754f3594841dc452d0fc4a4cdc597e366fdf7839d27e0c5c5957f7dadde65882212
   languageName: node
   linkType: hard
 
@@ -25074,7 +25083,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native@npm:0.73.6, react-native@npm:^0.73.0":
+"react-native@npm:*, react-native@npm:0.73.6, react-native@npm:^0.73.0":
   version: 0.73.6
   resolution: "react-native@npm:0.73.6"
   dependencies:
@@ -26335,7 +26344,7 @@ __metadata:
     "@anansi/babel-preset": "npm:5.0.5"
     "@anansi/browserslist-config": "npm:1.5.0"
     "@anansi/eslint-plugin": "npm:0.17.6"
-    "@anansi/jest-preset": "npm:0.10.27"
+    "@anansi/jest-preset": "npm:0.11.0"
     "@babel/cli": "npm:7.24.1"
     "@babel/core": "npm:7.24.4"
     "@babel/node": "npm:7.23.9"
@@ -26353,6 +26362,7 @@ __metadata:
     "@types/jest": "npm:29.5.12"
     "@types/node": "npm:20.12.7"
     "@types/react": "npm:18.2.78"
+    "@types/react-native": "npm:^0.73.0"
     "@typescript-eslint/eslint-plugin": "npm:7.5.0"
     "@typescript-eslint/parser": "npm:7.5.0"
     babel-plugin-module-resolver: "npm:5.0.0"

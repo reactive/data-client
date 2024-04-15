@@ -1,7 +1,6 @@
-import type { NetworkError } from '@data-client/core';
 import React, { memo, Suspense } from 'react';
 
-import NetworkErrorBoundary from './NetworkErrorBoundary.js';
+import ErrorBoundary, { ErrorBoundaryProps } from './ErrorBoundary.js';
 
 /**
  * Handles loading and error conditions of Suspense
@@ -15,20 +14,20 @@ function AsyncBoundary({
 }: Props): JSX.Element {
   return (
     <Suspense fallback={fallback}>
-      <NetworkErrorBoundary {...errorProps} fallbackComponent={errorComponent}>
+      <ErrorBoundary {...errorProps} fallbackComponent={errorComponent}>
         {children}
-      </NetworkErrorBoundary>
+      </ErrorBoundary>
     </Suspense>
   );
 }
 export default memo(AsyncBoundary) as typeof AsyncBoundary;
 
-interface Props {
+export interface Props {
   children: React.ReactNode;
   fallback?: React.ReactNode;
   errorClassName?: string;
-  errorComponent?: React.ComponentType<{
-    error: NetworkError;
-    className?: string;
-  }>;
+  /** Renders when an error is caught */
+  errorComponent?: ErrorBoundaryProps<Error>['fallbackComponent'];
+  /** Subscription handler to reset error state on events like URL location changes */
+  listen?: ErrorBoundaryProps<Error>['listen'];
 }
