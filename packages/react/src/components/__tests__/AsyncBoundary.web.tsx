@@ -1,4 +1,5 @@
 import { Endpoint } from '@data-client/endpoint';
+import { NetworkError } from '@data-client/rest';
 import { render } from '@testing-library/react';
 import React, {
   useContext,
@@ -31,7 +32,9 @@ describe('<AsyncBoundary />', () => {
     expect(getByText(/hi/i)).toBeDefined();
   });
   it('should render fallback when suspending', () => {
-    const getThing = new Endpoint(() => Promise.resolve('data'));
+    const getThing = new Endpoint(() => Promise.resolve('data'), {
+      name: 'getThing',
+    });
     function Data() {
       const thing = useSuspense(getThing);
       return <div>{thing}</div>;
@@ -48,7 +51,7 @@ describe('<AsyncBoundary />', () => {
     const { getByText } = render(tree);
     expect(getByText(/loading/i)).toBeDefined();
   });
-  it('should fallthrough if status is not set', () => {
+  it('should catch non-network errors', () => {
     const originalError = console.error;
     console.error = jest.fn();
     let renderCount = 0;
@@ -62,15 +65,19 @@ describe('<AsyncBoundary />', () => {
         <div>hi</div>
       </AsyncBoundary>
     );
-    expect(() => render(tree)).toThrow('you failed');
+    const { getByText, queryByText, container } = render(tree);
+    expect(getByText(/you failed/i)).toBeDefined();
     console.error = originalError;
     expect(renderCount).toBeLessThan(10);
   });
   it('should render error case when thrown', () => {
     function Throw(): ReactElement {
-      const error: any = new Error('you failed');
-      error.status = 500;
-      throw error;
+      throw new NetworkError(
+        new Response('you failed', {
+          statusText: '',
+          status: 500,
+        }),
+      );
     }
     const tree = (
       <AsyncBoundary>
@@ -84,12 +91,11 @@ describe('<AsyncBoundary />', () => {
   });
   it('should render response.statusText using default fallback', () => {
     function Throw(): ReactElement {
-      const error: any = new Error('you failed');
-      error.status = 500;
-      error.response = {
+      const response = new Response('', {
         statusText: 'my status text',
-      };
-      throw error;
+        status: 500,
+      });
+      throw new NetworkError(response);
     }
     const tree = (
       <AsyncBoundary>

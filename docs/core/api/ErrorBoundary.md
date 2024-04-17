@@ -1,35 +1,28 @@
 ---
-title: '<AsyncBoundary />'
+title: '<ErrorBoundary />'
 ---
 
-<head>
-  <title>AsyncBoundary - Centralize loading and error handling</title>
-  <meta name="docsearch:pagerank" content="20"/>
-</head>
+Displays a fallback component an error is thrown (including rejected [useSuspense()](./useSuspense.md)).
 
-Handles loading and error conditions of Suspense.
+:::info
 
-In React 18, this will create a [concurrent split](https://react.dev/reference/react/useTransition), and in 16 and 17 it will show loading fallbacks. If there is an irrecoverable error, it will show an error fallback.
-
-:::tip
-
-Learn more about boundary placement by learning how to [co-locate data dependencies](../getting-started/data-dependency.md)
+Reusable React error boundary component.
 
 :::
 
 ## Usage
 
-Place `AsyncBoundary` [at or above navigational boundaries](../getting-started/data-dependency.md#boundaries) like **pages, routes, or modals**.
+Place `ErrorBoundary` [at or above navigational boundaries](../getting-started/data-dependency.md#boundaries) like **pages, routes, or modals** to "catch" errors and render a fallback UI.
 
 ```tsx
 import React from 'react';
-import { AsyncBoundary } from '@data-client/react';
+import { ErrorBoundary } from '@data-client/react';
 
 export default function MyPage() {
   return (
-    <AsyncBoundary>
+    <ErrorBoundary>
       <SuspendingComponent />
-    </AsyncBoundary>
+    </ErrorBoundary>
   );
 }
 
@@ -42,13 +35,12 @@ function SuspendingComponent() {
 
 ## Props
 
-```ts
-interface BoundaryProps {
+```tsx
+interface Props {
   children: React.ReactNode;
-  fallback?: React.ReactNode;
-  errorClassName?: string;
-  errorComponent?: React.ComponentType<{
-    error: NetworkError;
+  className?: string;
+  fallbackComponent: React.ComponentType<{
+    error: E;
     resetErrorBoundary: () => void;
     className?: string;
   }>;
@@ -56,19 +48,11 @@ interface BoundaryProps {
 }
 ```
 
-### fallback
-
-Any renderable (React Node) element to show when loading
-
-### errorComponent
-
-Component to handle caught errors
-
-#### Custom fallback example {#custom-fallback}
+### fallbackComponent
 
 ```tsx
 import React from 'react';
-import { CacheProvider, AsyncBoundary } from '@data-client/react';
+import { CacheProvider, ErrorBoundary } from '@data-client/react';
 
 function ErrorPage({
   error,
@@ -89,17 +73,13 @@ function ErrorPage({
 export default function App() {
   return (
     <CacheProvider>
-      <AsyncBoundary fallback="loading" errorComponent={ErrorPage}>
+      <ErrorBoundary fallbackComponent={ErrorPage} className="error">
         <Router />
-      </AsyncBoundary>
+      </ErrorBoundary>
     </CacheProvider>
   );
 }
 ```
-
-### errorClassName
-
-`className` to forward to [errorComponent](#errorcomponent)
 
 ### listen
 
@@ -111,7 +91,7 @@ An example using [Anansi Router](https://www.npmjs.com/package/@anansi/router), 
 
 ```tsx
 import { useController } from '@anansi/router';
-import { AsyncBoundary } from '@data-client/react';
+import { ErrorBoundary } from '@data-client/react';
 
 function App() {
   const { history } = useController();
@@ -122,12 +102,16 @@ function App() {
       </nav>
       <main>
         // highlight-start
-        <AsyncBoundary listen={history.listen}>
+        <ErrorBoundary listen={history.listen}>
           <MatchedRoute index={0} />
-        </AsyncBoundary>
+        </ErrorBoundary>
         // highlight-end
       </main>
     </div>
   );
 }
 ```
+
+### className
+
+`className` to forward to [fallbackComponent](#fallbackcomponent)

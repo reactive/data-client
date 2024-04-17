@@ -222,7 +222,7 @@
             },
             {
               "type": "doc",
-              "id": "api/NetworkErrorBoundary"
+              "id": "api/ErrorBoundary"
             }
           ]
         },

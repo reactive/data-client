@@ -274,7 +274,9 @@ describe('useDLE', () => {
       const { getByText, getByTestId } = render(tree);
       expect(fbmock).not.toBeCalled();
       await new Promise(resolve =>
-        InteractionManager.runAfterInteractions(resolve),
+        InteractionManager.runAfterInteractions(() => {
+          resolve(null);
+        }),
       );
       // still should revalidate
       expect(dispatch.mock.calls.length).toBe(1);
@@ -283,7 +285,9 @@ describe('useDLE', () => {
 
       act(() => thenavigation.goBack());
       await new Promise(resolve =>
-        InteractionManager.runAfterInteractions(resolve),
+        InteractionManager.runAfterInteractions(() => {
+          resolve(null);
+        }),
       );
       expect(getByTestId('article')).toBeDefined();
       // since we got focus back we should have called again

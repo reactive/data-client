@@ -247,5 +247,5 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://da
   - [ctrl.resolve](https://dataclient.io/docs/api/Controller#resolve)
   - [ctrl.subscribe](https://dataclient.io/docs/api/Controller#subscribe)
   - [ctrl.unsubscribe](https://dataclient.io/docs/api/Controller#unsubscribe)
-- Components: [&lt;CacheProvider/>](https://dataclient.io/docs/api/CacheProvider), [&lt;AsyncBoundary/>](https://dataclient.io/docs/api/AsyncBoundary), [&lt;NetworkErrorBoundary/>](https://dataclient.io/docs/api/NetworkErrorBoundary)
+- Components: [&lt;CacheProvider/>](https://dataclient.io/docs/api/CacheProvider), [&lt;AsyncBoundary/>](https://dataclient.io/docs/api/AsyncBoundary), [&lt;ErrorBoundary/>](https://dataclient.io/docs/api/ErrorBoundary)
 - Middleware: [LogoutManager](https://dataclient.io/docs/api/LogoutManager), [NetworkManager](https://dataclient.io/docs/api/NetworkManager), [SubscriptionManager](https://dataclient.io/docs/api/SubscriptionManager), [PollingSubscription](https://dataclient.io/docs/api/PollingSubscription), [DevToolsManager](https://dataclient.io/docs/api/DevToolsManager)

@@ -87,7 +87,7 @@ jobs:
                 ./codecov < ./lcov.info || true;
               fi
             else
-              yarn test:ci --maxWorkers=3 packages/react packages/redux packages/ssr packages/use-enhanced-reducer packages/img packages/rest packages/hooks
+              yarn test:ci --maxWorkers=3
             fi
 
   node_matrix:
@@ -129,9 +129,6 @@ jobs:
           command: |
             if [ "<< parameters.typescript-version >>" != "latest" ]; then
             yarn add --dev typescript@<< parameters.typescript-version >>
-            fi
-            if [ "<< parameters.typescript-version >>" == "~4.0" ]; then
-            yarn add --dev @types/react@18.2.0
             fi
       - run:
           name: typecheck

@@ -65,7 +65,6 @@ describe('LogoutManager', () => {
       expect(dispatch.mock.calls.length).toBe(0);
     });
     it('should dispatch reset on 401', async () => {
-      jest.setSystemTime(0);
       const error: any = new Error('network failed');
       error.status = 401;
       const action = createSet(CoolerArticleResource.get, {
@@ -87,7 +86,6 @@ describe('LogoutManager', () => {
         },
         handleLogout,
       }).getMiddleware();
-      jest.setSystemTime(0);
       const error: any = new Error('network failed');
       error.status = 403;
       const action = createSet(CoolerArticleResource.get, {

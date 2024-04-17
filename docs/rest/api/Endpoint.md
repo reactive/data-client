@@ -214,7 +214,7 @@ In these cases you can override `name` or disable function mangling.
 
 :::
 
-## sideEffect: true | undefined {#sideeffect}
+## sideEffect: boolean {#sideeffect}
 
 Used to indicate endpoint might have side-effects (non-idempotent). This restricts it
 from being used with [useSuspense()](/docs/api/useSuspense) or [useFetch()](/docs/api/useFetch) as those can hit the

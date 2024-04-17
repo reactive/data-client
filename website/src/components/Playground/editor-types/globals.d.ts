@@ -1,5 +1,5 @@
 import { PathFunction } from 'path-to-regexp';
-import { State, Controller, Manager, NetworkError as NetworkError$2, EndpointInterface as EndpointInterface$1, FetchFunction as FetchFunction$1, Schema as Schema$1, DenormalizeNullable as DenormalizeNullable$1, ResolveType as ResolveType$1, Denormalize as Denormalize$1, Queryable as Queryable$1, SchemaArgs as SchemaArgs$1, UnknownError as UnknownError$1, ErrorTypes as ErrorTypes$2 } from '@data-client/core';
+import { State, Controller, Manager, EndpointInterface as EndpointInterface$1, FetchFunction as FetchFunction$1, Schema as Schema$1, DenormalizeNullable as DenormalizeNullable$1, ResolveType as ResolveType$1, Denormalize as Denormalize$1, Queryable as Queryable$1, SchemaArgs as SchemaArgs$1, NetworkError as NetworkError$2, UnknownError as UnknownError$1, ErrorTypes as ErrorTypes$2 } from '@data-client/core';
 export { Manager } from '@data-client/core';
 import React from 'react';
 import * as react_jsx_runtime from 'react/jsx-runtime';
@@ -1628,6 +1628,47 @@ declare namespace CacheProvider {
     };
 }
 
+interface ErrorBoundaryProps<E extends Error> {
+    children: React.ReactNode;
+    /** className prop sent to fallbackComponent */
+    className?: string;
+    /** Renders when an error is caught */
+    fallbackComponent: React.ComponentType<{
+        error: E;
+        resetErrorBoundary: () => void;
+        className?: string;
+    }>;
+    /** Subscription handler to reset error state on events like URL location changes */
+    listen?: (resetListener: () => void) => () => void;
+}
+interface ErrorState<E extends Error> {
+    error?: E;
+}
+/**
+ * Reusable React error boundary component
+ * @see https://dataclient.io/docs/api/ErrorBoundary
+ */
+declare class ErrorBoundary<E extends Error> extends React.Component<ErrorBoundaryProps<E>, ErrorState<E>> {
+    static defaultProps: {
+        fallbackComponent: ({ error, className, }: {
+            error: Error;
+            resetErrorBoundary: () => void;
+            className: string;
+        }) => react_jsx_runtime.JSX.Element;
+    };
+    static getDerivedStateFromError(error: Error): {
+        error: Error;
+    };
+    private unsubscribe;
+    state: ErrorState<E>;
+    componentDidMount(): void;
+    componentDidUpdate(prevProps: Readonly<ErrorBoundaryProps<E>>, prevState: Readonly<ErrorState<E>>, snapshot?: any): void;
+    componentWillUnmount(): void;
+    listen(): void;
+    unlisten(): void;
+    render(): JSX.Element;
+}
+
 /**
  * Handles loading and error conditions of Suspense
  * @see https://dataclient.io/docs/api/AsyncBoundary
@@ -1639,40 +1680,10 @@ interface Props {
     children: React.ReactNode;
     fallback?: React.ReactNode;
     errorClassName?: string;
-    errorComponent?: React.ComponentType<{
-        error: NetworkError$2;
-        className?: string;
-    }>;
-}
-//# sourceMappingURL=AsyncBoundary.d.ts.map
-
-interface ErrorBoundaryProps<E extends NetworkError$2> {
-    children: React.ReactNode;
-    className?: string;
-    fallbackComponent: React.ComponentType<{
-        error: E;
-        className?: string;
-    }>;
-}
-interface ErrorState<E extends NetworkError$2> {
-    error?: E;
-}
-/**
- * Handles any networking errors from suspense
- * @see https://dataclient.io/docs/api/NetworkErrorBoundary
- */
-declare class NetworkErrorBoundary<E extends NetworkError$2> extends React.Component<ErrorBoundaryProps<E>, ErrorState<E>> {
-    static defaultProps: {
-        fallbackComponent: ({ error, className, }: {
-            error: NetworkError$2;
-            className: string;
-        }) => react_jsx_runtime.JSX.Element;
-    };
-    static getDerivedStateFromError(error: NetworkError$2 | any): {
-        error: NetworkError$2;
-    };
-    state: ErrorState<E>;
-    render(): JSX.Element;
+    /** Renders when an error is caught */
+    errorComponent?: ErrorBoundaryProps<Error>['fallbackComponent'];
+    /** Subscription handler to reset error state on events like URL location changes */
+    listen?: ErrorBoundaryProps<Error>['listen'];
 }
 
 type CondNull$1<P, A, B> = P extends null ? A : B;
@@ -1769,4 +1780,4 @@ declare function useController(): Controller;
  */
 declare function useLive<E extends EndpointInterface$1<FetchFunction$1, Schema$1 | undefined, undefined | false>, Args extends readonly [...Parameters<E>] | readonly [null]>(endpoint: E, ...args: Args): SuspenseReturn<E, Args>;
 
-export { AbstractInstanceType, AddEndpoint, Array$1 as Array, _default as AsyncBoundary, CacheProvider, Collection, CustomResource, Defaults, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, EndpointToFunction, Entity, ErrorTypes$1 as ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, ExtendedResource, FetchFunction, FetchGet, FetchMutate, FromFallBack, GetEndpoint, HookResource, HookableEndpointInterface, INVALID, Invalidate, KeyofEndpointInstance, KeyofRestEndpoint, KeysToArgs, MethodToSide, MutateEndpoint, NetworkError, NetworkErrorBoundary, Normalize, NormalizeNullable, OptionsToFunction, PaginationEndpoint, PaginationFieldEndpoint, ParamFetchNoBody, ParamFetchWithBody, ParamToArgs, PartialRestGenerics, PathArgs, PathArgsAndSearch, PathKeys, PolymorphicInterface, Queryable, ReadEndpoint, ResolveType, Resource, ResourceEndpointExtensions, ResourceExtension, ResourceGenerics, ResourceOptions, RestEndpoint, RestEndpointConstructor, RestEndpointConstructorOptions, RestEndpointExtendOptions, RestEndpointOptions, RestExtendedEndpoint, RestFetch, RestGenerics, RestInstance, RestInstanceBase, RestType, RestTypeNoBody, RestTypeWithBody, Schema, SchemaArgs, SchemaClass, SchemaSimple, ShortenPath, SnapshotInterface, UnknownError, createResource, getUrlBase, getUrlTokens, hookifyResource, schema_d as schema, useCache, useController, useDLE, useError, useFetch, useLive, useQuery, useSubscription, useSuspense, validateRequired };
+export { AbstractInstanceType, AddEndpoint, Array$1 as Array, _default as AsyncBoundary, CacheProvider, Collection, CustomResource, Defaults, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, EndpointToFunction, Entity, ErrorTypes$1 as ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, ExtendedResource, FetchFunction, FetchGet, FetchMutate, FromFallBack, GetEndpoint, HookResource, HookableEndpointInterface, INVALID, Invalidate, KeyofEndpointInstance, KeyofRestEndpoint, KeysToArgs, MethodToSide, MutateEndpoint, NetworkError, ErrorBoundary as NetworkErrorBoundary, Normalize, NormalizeNullable, OptionsToFunction, PaginationEndpoint, PaginationFieldEndpoint, ParamFetchNoBody, ParamFetchWithBody, ParamToArgs, PartialRestGenerics, PathArgs, PathArgsAndSearch, PathKeys, PolymorphicInterface, Queryable, ReadEndpoint, ResolveType, Resource, ResourceEndpointExtensions, ResourceExtension, ResourceGenerics, ResourceOptions, RestEndpoint, RestEndpointConstructor, RestEndpointConstructorOptions, RestEndpointExtendOptions, RestEndpointOptions, RestExtendedEndpoint, RestFetch, RestGenerics, RestInstance, RestInstanceBase, RestType, RestTypeNoBody, RestTypeWithBody, Schema, SchemaArgs, SchemaClass, SchemaSimple, ShortenPath, SnapshotInterface, UnknownError, createResource, getUrlBase, getUrlTokens, hookifyResource, schema_d as schema, useCache, useController, useDLE, useError, useFetch, useLive, useQuery, useSubscription, useSuspense, validateRequired };

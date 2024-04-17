@@ -1,4 +1,9 @@
-import { Link, MatchedRoute } from '@anansi/router';
+import {
+  Link,
+  MatchedRoute,
+  ErrorBoundary,
+  useController,
+} from '@anansi/router';
 import { AsyncBoundary } from '@data-client/react';
 import { css } from '@linaria/core';
 import { memo } from 'react';
@@ -31,13 +36,14 @@ const home = css`
 
 // Typically place global navigation and routing layer in here
 function App() {
+  const { history } = useController();
   return (
     <div className={home}>
       <nav>
         <Link name="Home">Coin App</Link>
       </nav>
       <main>
-        <AsyncBoundary>
+        <AsyncBoundary listen={history.listen}>
           <MatchedRoute index={0} />
         </AsyncBoundary>
       </main>
