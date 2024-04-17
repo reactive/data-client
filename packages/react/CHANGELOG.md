@@ -1,5 +1,43 @@
 # @data-client/react
 
+## 0.11.2
+
+### Patch Changes
+
+- [#3010](https://github.com/reactive/data-client/pull/3010) [`c906392`](https://github.com/reactive/data-client/commit/c9063927c7437a387f426a14c4b244cc1caa49c2) Thanks [@ntucker](https://github.com/ntucker)! - ErrorBoundary listens to all errors
+
+  This means it may catch errors that were previously passing thorugh
+
+- [#3010](https://github.com/reactive/data-client/pull/3010) [`c906392`](https://github.com/reactive/data-client/commit/c9063927c7437a387f426a14c4b244cc1caa49c2) Thanks [@ntucker](https://github.com/ntucker)! - ErrorBoundary default error fallback supports react native
+
+- [#3010](https://github.com/reactive/data-client/pull/3010) [`c906392`](https://github.com/reactive/data-client/commit/c9063927c7437a387f426a14c4b244cc1caa49c2) Thanks [@ntucker](https://github.com/ntucker)! - Add listen prop to ErrorBoundary and AsyncBoundary
+
+  ```tsx
+  <AsyncBoundary listen={history.listen}>
+    <MatchedRoute index={0} />
+  </AsyncBoundary>
+  ```
+
+- [#3010](https://github.com/reactive/data-client/pull/3010) [`c906392`](https://github.com/reactive/data-client/commit/c9063927c7437a387f426a14c4b244cc1caa49c2) Thanks [@ntucker](https://github.com/ntucker)! - Add resetErrorBoundary sent to errorComponent
+
+  ```tsx
+  function ErrorComponent({
+    error,
+    className,
+    resetErrorBoundary,
+  }: {
+    error: Error;
+    resetErrorBoundary: () => void;
+    className?: string;
+  }) {
+    return (
+      <pre role="alert" className={className}>
+        {error.message} <button onClick={resetErrorBoundary}>Reset</button>
+      </pre>
+    );
+  }
+  ```
+
 ## 0.11.0
 
 [Release notes and migration guide](https://dataclient.io/blog/2024/04/08/v0.11-queries-querable-usequery)
