@@ -204,9 +204,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/babel-preset@npm:5.0.5, @anansi/babel-preset@npm:^5.0.0":
-  version: 5.0.5
-  resolution: "@anansi/babel-preset@npm:5.0.5"
+"@anansi/babel-preset@npm:5.0.6, @anansi/babel-preset@npm:^5.0.0":
+  version: 5.0.6
+  resolution: "@anansi/babel-preset@npm:5.0.6"
   dependencies:
     "@anansi/ts-utils": "npm:^0.3.6"
     "@babel/plugin-proposal-decorators": "npm:^7.24.1"
@@ -221,7 +221,7 @@ __metadata:
     "@babel/preset-env": "npm:^7.24.4"
     "@babel/preset-react": "npm:^7.24.1"
     babel-plugin-macros: "npm:^3.1.0"
-    babel-plugin-module-resolver: "npm:^5.0.0"
+    babel-plugin-module-resolver: "npm:^5.0.1"
     babel-plugin-react-require: "npm:^4.0.2"
     babel-plugin-root-import: "npm:^6.6.0"
     babel-plugin-transform-import-meta: "npm:^2.2.1"
@@ -262,7 +262,7 @@ __metadata:
       optional: true
     typescript:
       optional: true
-  checksum: 10c0/2c8515a18280926476354df48447f55100e2d6a6ead99b004cfcd85ced535bc6cec6889300b176a96927c32e3bcd97af0356f4ea21e74973c934056fad3a5c40
+  checksum: 10c0/3468d3f56af69558bb64637cb9066a4fabb9d662ee2925598774011b9b719285c371a62ff10547981c8458689764109a3dec852dc40a6fc10e8b8b19a79a9ef6
   languageName: node
   linkType: hard
 
@@ -463,16 +463,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:19.0.0, @anansi/webpack-config@npm:^19.0.0":
-  version: 19.0.0
-  resolution: "@anansi/webpack-config@npm:19.0.0"
+"@anansi/webpack-config@npm:19.0.2, @anansi/webpack-config@npm:^19.0.0":
+  version: 19.0.2
+  resolution: "@anansi/webpack-config@npm:19.0.2"
   dependencies:
     "@babel/runtime": "npm:^7.17.2"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.11"
     "@svgr/webpack": "npm:^8.1.0"
     "@types/webpack-bundle-analyzer": "npm:^4.7.0"
     "@vue/preload-webpack-plugin": "npm:^2.0.0"
-    "@wyw-in-js/webpack-loader": "npm:^0.5.0"
+    "@wyw-in-js/webpack-loader": "npm:^0.5.1"
     assert: "npm:^2.1.0"
     autoprefixer: "npm:^10.4.19"
     babel-loader: "npm:^9.1.3"
@@ -484,7 +484,7 @@ __metadata:
     constants-browserify: "npm:^1.0.0"
     core-js: "npm:^3.21.0"
     crypto-browserify: "npm:^3.12.0"
-    css-loader: "npm:^7.0.0"
+    css-loader: "npm:^7.1.1"
     css-minimizer-webpack-plugin: "npm:^6.0.0"
     domain-browser: "npm:^5.7.0"
     duplicate-package-checker-webpack-plugin: "npm:^3.0.0"
@@ -494,14 +494,14 @@ __metadata:
     html-webpack-plugin: "npm:^5.6.0"
     https-browserify: "npm:^1.0.0"
     is-wsl: "npm:^2.2.0"
-    mini-css-extract-plugin: "npm:^2.8.1"
+    mini-css-extract-plugin: "npm:^2.9.0"
     mkdirp: "npm:^3.0.1"
     os-browserify: "npm:^0.3.0"
     path: "npm:^0.12.7"
     path-browserify: "npm:^1.0.1"
     postcss: "npm:^8.4.38"
     postcss-loader: "npm:^8.1.1"
-    postcss-preset-env: "npm:^9.5.4"
+    postcss-preset-env: "npm:^9.5.5"
     process: "npm:^0.11.10"
     punycode: "npm:^2.3.1"
     querystring-es3: "npm:^0.2.1"
@@ -509,7 +509,7 @@ __metadata:
     react-dev-utils: "npm:^12.0.1"
     react-error-overlay: "npm:6.0.9"
     readable-stream: "npm:^4.5.2"
-    sass-loader: "npm:^14.1.1"
+    sass-loader: "npm:^14.2.1"
     sass-resources-loader: "npm:^2.2.5"
     semver: "npm:^7.6.0"
     stream-browserify: "npm:^3.0.0"
@@ -525,7 +525,7 @@ __metadata:
     url: "npm:^0.11.3"
     util: "npm:^0.12.5"
     vm-browserify: "npm:^1.1.2"
-    webpack-bundle-analyzer: "npm:^4.10.1"
+    webpack-bundle-analyzer: "npm:^4.10.2"
     webpack-node-externals: "npm:^3.0.0"
     webpack-remove-empty-scripts: "npm:^1.0.4"
     webpack-stats-plugin: "npm:^1.1.3"
@@ -566,7 +566,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: 10c0/d303eca8df3eb25f04536d5d69abe6bb4e081c0451469b9ab209b7209f82f3ab34daea4792a9efc00e004b6ca0670ff2281e2eb7e909eb43420d7f4da486f963
+  checksum: 10c0/5ca41669a0b0def047097e0aedba87bb2087e431d6d82283282e9ebf1d9cac4faae43f58b414e018ad474a2ed4417b877d6a7218a6f027b6009b7f9072708207
   languageName: node
   linkType: hard
 
@@ -7951,13 +7951,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@wyw-in-js/processor-utils@npm:0.5.0":
-  version: 0.5.0
-  resolution: "@wyw-in-js/processor-utils@npm:0.5.0"
+"@wyw-in-js/processor-utils@npm:0.5.1":
+  version: 0.5.1
+  resolution: "@wyw-in-js/processor-utils@npm:0.5.1"
   dependencies:
     "@babel/generator": "npm:^7.23.5"
-    "@wyw-in-js/shared": "npm:0.5.0"
-  checksum: 10c0/cd900310398f3f8c374939829803fe71d296999c117b04afc6e25761c6ddc8189ce28e13be389b3c4aed5c12512827b2c80d0b0a456f1f77740fe4a0869c0783
+    "@wyw-in-js/shared": "npm:0.5.1"
+  checksum: 10c0/28f6a7bc3ba2aed116cadb51c1167ab78234ff6a7380c7b0ebe5181faeb6ab2082f068ca3138efb92e1ea5d582e4c04f4d5d78d695c3df0b3f2c69357e6c45f2
   languageName: node
   linkType: hard
 
@@ -7982,20 +7982,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@wyw-in-js/shared@npm:0.5.0":
-  version: 0.5.0
-  resolution: "@wyw-in-js/shared@npm:0.5.0"
+"@wyw-in-js/shared@npm:0.5.1":
+  version: 0.5.1
+  resolution: "@wyw-in-js/shared@npm:0.5.1"
   dependencies:
     debug: "npm:^4.3.4"
     find-up: "npm:^5.0.0"
     minimatch: "npm:^9.0.3"
-  checksum: 10c0/029eb1aa50ff4b57d5da64b62ab79f9190cb1b527cc05dd1cc06ea4de94133cc801674f4b3e2fa00475732d1dca3b3864a60629eb0a6ad01091d1c5c4beb4074
+  checksum: 10c0/5a79129b3e86c91531b4127a5c13c679a9f57152308fc1d9a8c765c4c8059e1142e6535c8e7676eef595df419a7b93c4403baa9cc744336c4a578576d1511091
   languageName: node
   linkType: hard
 
-"@wyw-in-js/transform@npm:0.5.0":
-  version: 0.5.0
-  resolution: "@wyw-in-js/transform@npm:0.5.0"
+"@wyw-in-js/transform@npm:0.5.1":
+  version: 0.5.1
+  resolution: "@wyw-in-js/transform@npm:0.5.1"
   dependencies:
     "@babel/core": "npm:^7.23.5"
     "@babel/generator": "npm:^7.23.5"
@@ -8004,27 +8004,27 @@ __metadata:
     "@babel/template": "npm:^7.22.15"
     "@babel/traverse": "npm:^7.23.5"
     "@babel/types": "npm:^7.23.5"
-    "@wyw-in-js/processor-utils": "npm:0.5.0"
-    "@wyw-in-js/shared": "npm:0.5.0"
+    "@wyw-in-js/processor-utils": "npm:0.5.1"
+    "@wyw-in-js/shared": "npm:0.5.1"
     babel-merge: "npm:^3.0.0"
     cosmiconfig: "npm:^8.0.0"
     happy-dom: "npm:^12.5.0"
     source-map: "npm:^0.7.4"
     stylis: "npm:^4.3.0"
     ts-invariant: "npm:^0.10.3"
-  checksum: 10c0/c32d976a1360f8ccd5c5dda0dbe2833f120fdb3d10e66c401cefca077e04fddfcc81defc8268b2a46b0263fedb8b435320618c4bce5d7aa748003d41eee75618
+  checksum: 10c0/5603e146b1ce561dfe3dadb4124cd70b272ae6f3d45091ec02ed3e69db0fe9da6859c20b7515d0fcab99c59d3726b41e4b0cc22e5b2ea7f86df8e5aa86d84ac5
   languageName: node
   linkType: hard
 
-"@wyw-in-js/webpack-loader@npm:^0.5.0":
-  version: 0.5.0
-  resolution: "@wyw-in-js/webpack-loader@npm:0.5.0"
+"@wyw-in-js/webpack-loader@npm:^0.5.1":
+  version: 0.5.1
+  resolution: "@wyw-in-js/webpack-loader@npm:0.5.1"
   dependencies:
-    "@wyw-in-js/shared": "npm:0.5.0"
-    "@wyw-in-js/transform": "npm:0.5.0"
+    "@wyw-in-js/shared": "npm:0.5.1"
+    "@wyw-in-js/transform": "npm:0.5.1"
   peerDependencies:
     webpack: ^5.76.0
-  checksum: 10c0/d0aaf4a0c6c9dfbd875ad1d874c2ab908cb98e1e31f4903001893841ce0e2423945b13e7f8d5fb6c5241276e80d8a417cf764a98c76ca9a194156b97ae140a6b
+  checksum: 10c0/fb1fa08ebf5c1d3e55912c85f7687dbacd4912897e11d770fd7c584b2c348a4762fbaf8a1b3658b39bdb7c672c97076c80c17a8567b57075e0121c275544ee74
   languageName: node
   linkType: hard
 
@@ -9166,7 +9166,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-plugin-module-resolver@npm:5.0.1, babel-plugin-module-resolver@npm:^5.0.0":
+"babel-plugin-module-resolver@npm:5.0.1, babel-plugin-module-resolver@npm:^5.0.1":
   version: 5.0.1
   resolution: "babel-plugin-module-resolver@npm:5.0.1"
   dependencies:
@@ -11162,10 +11162,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:3.36.1, core-js@npm:^3.21.0, core-js@npm:^3.30.2, core-js@npm:^3.31.1, core-js@npm:^3.6.5":
-  version: 3.36.1
-  resolution: "core-js@npm:3.36.1"
-  checksum: 10c0/4f0ad2464535d809ba659226feca15bff14b9b5452518bddff8d81b9c94b0227b3027d9838f22f1dce664958acb4107b935cc0037695ae545edc2a303bca98bf
+"core-js@npm:3.37.0, core-js@npm:^3.21.0, core-js@npm:^3.30.2, core-js@npm:^3.31.1, core-js@npm:^3.6.5":
+  version: 3.37.0
+  resolution: "core-js@npm:3.37.0"
+  checksum: 10c0/7e00331f346318ca3f595c08ce9e74ddae744715aef137486c1399163afd79792fb94c3161280863adfdc3e30f8026912d56bd3036f93cacfc689d33e185f2ee
   languageName: node
   linkType: hard
 
@@ -11535,9 +11535,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"css-loader@npm:^7.0.0":
-  version: 7.0.0
-  resolution: "css-loader@npm:7.0.0"
+"css-loader@npm:^7.1.1":
+  version: 7.1.1
+  resolution: "css-loader@npm:7.1.1"
   dependencies:
     icss-utils: "npm:^5.1.0"
     postcss: "npm:^8.4.33"
@@ -11555,7 +11555,7 @@ __metadata:
       optional: true
     webpack:
       optional: true
-  checksum: 10c0/7264eaeda77e1312b15510dc5aa82e4c46ccb82c3b34fb6ecb5c5bd0a3f53b0ec0d04839e65ad34c73297075bfdd072b62d2dae6f7d8d97ec2c630d7c1909e9a
+  checksum: 10c0/ebb4ffe68e9df0036fcce66ae182648d4d16b2fdfdc04a5bf7d7783776d389a23be161bb7139a3f842dc75466882544f46d2183bc9399d0bacf83b66a1802b41
   languageName: node
   linkType: hard
 
@@ -20816,15 +20816,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mini-css-extract-plugin@npm:^2.7.6, mini-css-extract-plugin@npm:^2.8.1":
-  version: 2.8.1
-  resolution: "mini-css-extract-plugin@npm:2.8.1"
+"mini-css-extract-plugin@npm:^2.7.6, mini-css-extract-plugin@npm:^2.9.0":
+  version: 2.9.0
+  resolution: "mini-css-extract-plugin@npm:2.9.0"
   dependencies:
     schema-utils: "npm:^4.0.0"
     tapable: "npm:^2.2.1"
   peerDependencies:
     webpack: ^5.0.0
-  checksum: 10c0/ef0064f32051294e76141ba74ddf139d313ba26f3abcef1a3906347ca75df8e69c490351bd4c2f373b0cf5c934f39c7d643c8615421c24e4d2c724345294f80a
+  checksum: 10c0/46e20747ea250420db8a82801b9779299ce3cd5ec4d6dd75e00904c39cc80f0f01decaa534b8cb9658d7d3b656b919cb2cc84b1ba7e2394d2d6548578a5c2901
   languageName: node
   linkType: hard
 
@@ -23371,9 +23371,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-custom-properties@npm:^13.3.6":
-  version: 13.3.6
-  resolution: "postcss-custom-properties@npm:13.3.6"
+"postcss-custom-properties@npm:^13.3.7":
+  version: 13.3.7
+  resolution: "postcss-custom-properties@npm:13.3.7"
   dependencies:
     "@csstools/cascade-layer-name-parser": "npm:^1.0.9"
     "@csstools/css-parser-algorithms": "npm:^2.6.1"
@@ -23382,7 +23382,7 @@ __metadata:
     postcss-value-parser: "npm:^4.2.0"
   peerDependencies:
     postcss: ^8.4
-  checksum: 10c0/faa3b692966314a6dfcba93e74d91f20f2484ea328f88c809b1d0daa8ecc0d8d5125e06d1d7c18b5455ac30cb3501c7069b6e56e5efac61523a6ed75c3d73a30
+  checksum: 10c0/5d8767efae956f98d9a62a8f54d913c9ea95eaab1c906679ddeee64d87f0fb37d99c8ac1d16ec199794ed7c13a42d39ca2ea0a98df1056d400d4cbc9f31d6b94
   languageName: node
   linkType: hard
 
@@ -24097,9 +24097,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-preset-env@npm:^9.5.4":
-  version: 9.5.4
-  resolution: "postcss-preset-env@npm:9.5.4"
+"postcss-preset-env@npm:^9.5.5":
+  version: 9.5.5
+  resolution: "postcss-preset-env@npm:9.5.5"
   dependencies:
     "@csstools/postcss-cascade-layers": "npm:^4.0.4"
     "@csstools/postcss-color-function": "npm:^3.0.13"
@@ -24142,7 +24142,7 @@ __metadata:
     postcss-color-hex-alpha: "npm:^9.0.4"
     postcss-color-rebeccapurple: "npm:^9.0.3"
     postcss-custom-media: "npm:^10.0.4"
-    postcss-custom-properties: "npm:^13.3.6"
+    postcss-custom-properties: "npm:^13.3.7"
     postcss-custom-selectors: "npm:^7.1.8"
     postcss-dir-pseudo-class: "npm:^8.0.1"
     postcss-double-position-gradients: "npm:^5.0.6"
@@ -24163,7 +24163,7 @@ __metadata:
     postcss-selector-not: "npm:^7.0.2"
   peerDependencies:
     postcss: ^8.4
-  checksum: 10c0/6af900ad2f46b640339b626317288543ebb7c47b739f4776e4006513b32eceabe0be78109aa58446fa0f50284a433b3e3a9bd48aa5730fd0ac59ef51153e8f7b
+  checksum: 10c0/afc31fb75bc5e8e223d38fd34b81da08ee340818f5e392df1781728f2ff2a9dbc75e458673ce9f52deafefa90bbc99e0bd1453271498f5e02746c785180bad07
   languageName: node
   linkType: hard
 
@@ -24886,7 +24886,7 @@ __metadata:
   resolution: "rdc-website@workspace:website"
   dependencies:
     "@anansi/browserslist-config": "npm:1.5.0"
-    "@anansi/webpack-config": "npm:19.0.0"
+    "@anansi/webpack-config": "npm:19.0.2"
     "@data-client/endpoint": "workspace:*"
     "@data-client/graphql": "workspace:*"
     "@data-client/hooks": "workspace:*"
@@ -26418,7 +26418,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    "@anansi/babel-preset": "npm:5.0.5"
+    "@anansi/babel-preset": "npm:5.0.6"
     "@anansi/browserslist-config": "npm:1.5.0"
     "@anansi/eslint-plugin": "npm:0.17.6"
     "@anansi/jest-preset": "npm:0.11.0"
@@ -26446,7 +26446,7 @@ __metadata:
     benchmark: "npm:^2.1.4"
     conventional-changelog-anansi: "npm:^0.2.0"
     copyfiles: "npm:^2.4.1"
-    core-js: "npm:3.36.1"
+    core-js: "npm:3.37.0"
     coveralls: "npm:^3.1.0"
     cpy-cli: "npm:5.0.0"
     cross-fetch: "npm:^4.0.0"
@@ -26614,9 +26614,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sass-loader@npm:^14.1.1":
-  version: 14.1.1
-  resolution: "sass-loader@npm:14.1.1"
+"sass-loader@npm:^14.2.1":
+  version: 14.2.1
+  resolution: "sass-loader@npm:14.2.1"
   dependencies:
     neo-async: "npm:^2.6.2"
   peerDependencies:
@@ -26636,7 +26636,7 @@ __metadata:
       optional: true
     webpack:
       optional: true
-  checksum: 10c0/303ae65c38019723c1d534d6c70ba051b2744ea52c9e07c1c761303962540e8f3147bd73ff0ce2767c7435bc76f544f5cbc5db03617689f30ec9ffb26494289d
+  checksum: 10c0/9a48d454584d96d6c562eb323bb9e3c6808e930eeaaa916975b97d45831e0b87936a8655cdb3a4512a25abc9587dea65a9616e42396be0d7e7c507a4795a8146
   languageName: node
   linkType: hard
 
@@ -29892,9 +29892,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-bundle-analyzer@npm:^4.10.1, webpack-bundle-analyzer@npm:^4.9.0":
-  version: 4.10.1
-  resolution: "webpack-bundle-analyzer@npm:4.10.1"
+"webpack-bundle-analyzer@npm:^4.10.2, webpack-bundle-analyzer@npm:^4.9.0":
+  version: 4.10.2
+  resolution: "webpack-bundle-analyzer@npm:4.10.2"
   dependencies:
     "@discoveryjs/json-ext": "npm:0.5.7"
     acorn: "npm:^8.0.4"
@@ -29904,14 +29904,13 @@ __metadata:
     escape-string-regexp: "npm:^4.0.0"
     gzip-size: "npm:^6.0.0"
     html-escaper: "npm:^2.0.2"
-    is-plain-object: "npm:^5.0.0"
     opener: "npm:^1.5.2"
     picocolors: "npm:^1.0.0"
     sirv: "npm:^2.0.3"
     ws: "npm:^7.3.1"
   bin:
     webpack-bundle-analyzer: lib/bin/analyzer.js
-  checksum: 10c0/6a94c8f6aa03296fb2eb00d6ad3b27bd5c551590fd253772bc61debf3177414d42701014079d4f85c74ba1ca685ae9f0cb4063812b58c21f294d108e9908e5cd
+  checksum: 10c0/00603040e244ead15b2d92981f0559fa14216381349412a30070a7358eb3994cd61a8221d34a3b3fb8202dc3d1c5ee1fbbe94c5c52da536e5b410aa1cf279a48
   languageName: node
   linkType: hard
 
