@@ -114,7 +114,7 @@ export const UserResource = createResource({
 
 ```tsx title="UsersPage"
 import { schema } from '@data-client/rest';
-import { useQuery, useFetch } from '@data-client/react';
+import { useQuery, useSuspense } from '@data-client/react';
 import { UserResource, User } from './api/User';
 
 const getUserCount = new schema.Query(
@@ -127,11 +127,11 @@ const getUserCount = new schema.Query(
 );
 
 function UsersPage() {
-  useFetch(UserResource.getList);
+  useSuspense(UserResource.getList);
   const userCount = useQuery(getUserCount);
   const adminCount = useQuery(getUserCount, { isAdmin: true });
-  if (userCount === undefined)
-    return <div>No users in cache yet</div>;
+  // this should never happen since we suspense but typescript does not know that
+  if (userCount === undefined) return;
   return (
     <div>
       <div>Total users: {userCount}</div>
