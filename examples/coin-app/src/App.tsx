@@ -16,7 +16,6 @@ const home = css`
   margin: -${margin};
   display: flex;
   align-items: center;
-  justify-content: center;
   position: relative;
   flex-direction: column;
   text-align: center;
@@ -31,6 +30,7 @@ const home = css`
 
   > main {
     margin-top: 44px;
+    text-align: left;
   }
 `;
 
