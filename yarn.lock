@@ -204,9 +204,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/babel-preset@npm:5.0.6, @anansi/babel-preset@npm:^5.0.0":
-  version: 5.0.6
-  resolution: "@anansi/babel-preset@npm:5.0.6"
+"@anansi/babel-preset@npm:5.0.7, @anansi/babel-preset@npm:^5.0.0":
+  version: 5.0.7
+  resolution: "@anansi/babel-preset@npm:5.0.7"
   dependencies:
     "@anansi/ts-utils": "npm:^0.3.6"
     "@babel/plugin-proposal-decorators": "npm:^7.24.1"
@@ -221,7 +221,7 @@ __metadata:
     "@babel/preset-env": "npm:^7.24.4"
     "@babel/preset-react": "npm:^7.24.1"
     babel-plugin-macros: "npm:^3.1.0"
-    babel-plugin-module-resolver: "npm:^5.0.1"
+    babel-plugin-module-resolver: "npm:^5.0.2"
     babel-plugin-react-require: "npm:^4.0.2"
     babel-plugin-root-import: "npm:^6.6.0"
     babel-plugin-transform-import-meta: "npm:^2.2.1"
@@ -262,7 +262,7 @@ __metadata:
       optional: true
     typescript:
       optional: true
-  checksum: 10c0/3468d3f56af69558bb64637cb9066a4fabb9d662ee2925598774011b9b719285c371a62ff10547981c8458689764109a3dec852dc40a6fc10e8b8b19a79a9ef6
+  checksum: 10c0/08070d29468f390ff98e07451a045ed71eccc0832c1494bf342d11f155da7b76752ba09ccc4d38a49bf346e0bbf359cc2d335a2ca2bbd326b2808de8b2ea3b9e
   languageName: node
   linkType: hard
 
@@ -463,9 +463,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:19.0.2, @anansi/webpack-config@npm:^19.0.0":
-  version: 19.0.2
-  resolution: "@anansi/webpack-config@npm:19.0.2"
+"@anansi/webpack-config@npm:19.0.3, @anansi/webpack-config@npm:^19.0.0":
+  version: 19.0.3
+  resolution: "@anansi/webpack-config@npm:19.0.3"
   dependencies:
     "@babel/runtime": "npm:^7.17.2"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.11"
@@ -501,7 +501,7 @@ __metadata:
     path-browserify: "npm:^1.0.1"
     postcss: "npm:^8.4.38"
     postcss-loader: "npm:^8.1.1"
-    postcss-preset-env: "npm:^9.5.5"
+    postcss-preset-env: "npm:^9.5.6"
     process: "npm:^0.11.10"
     punycode: "npm:^2.3.1"
     querystring-es3: "npm:^0.2.1"
@@ -566,7 +566,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: 10c0/5ca41669a0b0def047097e0aedba87bb2087e431d6d82283282e9ebf1d9cac4faae43f58b414e018ad474a2ed4417b877d6a7218a6f027b6009b7f9072708207
+  checksum: 10c0/a6aad424f80fcf390e73fd878703c18b31c1746b9b5a03bad4e44aac1df6c0deeae83d8cfe270c785812203e2dc6859019e52f9006c73730760d6a577fb20cf3
   languageName: node
   linkType: hard
 
@@ -9166,7 +9166,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-plugin-module-resolver@npm:5.0.2, babel-plugin-module-resolver@npm:^5.0.1":
+"babel-plugin-module-resolver@npm:5.0.2, babel-plugin-module-resolver@npm:^5.0.2":
   version: 5.0.2
   resolution: "babel-plugin-module-resolver@npm:5.0.2"
   dependencies:
@@ -11469,14 +11469,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"css-blank-pseudo@npm:^6.0.1":
-  version: 6.0.1
-  resolution: "css-blank-pseudo@npm:6.0.1"
+"css-blank-pseudo@npm:^6.0.2":
+  version: 6.0.2
+  resolution: "css-blank-pseudo@npm:6.0.2"
   dependencies:
     postcss-selector-parser: "npm:^6.0.13"
   peerDependencies:
     postcss: ^8.4
-  checksum: 10c0/04f2dc1c39a429cb4958b60a9d00b03e29a78e3e55fe111b3a0660b7c6c478455d5907eda7c7a495cf72dbe83ae3c80b409e0468ca1ba5ccef992e69a8f49df8
+  checksum: 10c0/609303551c2a518ca23ed12fed43945ca4f7af04140da68a5536f5dc9d42f33412c13ac3fe5c616d7401a9e13a23d80b4cfa87149a45f94b244d8067bb11f3dd
   languageName: node
   linkType: hard
 
@@ -24097,9 +24097,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-preset-env@npm:^9.5.5":
-  version: 9.5.5
-  resolution: "postcss-preset-env@npm:9.5.5"
+"postcss-preset-env@npm:^9.5.6":
+  version: 9.5.6
+  resolution: "postcss-preset-env@npm:9.5.6"
   dependencies:
     "@csstools/postcss-cascade-layers": "npm:^4.0.4"
     "@csstools/postcss-color-function": "npm:^3.0.13"
@@ -24132,7 +24132,7 @@ __metadata:
     "@csstools/postcss-unset-value": "npm:^3.0.1"
     autoprefixer: "npm:^10.4.19"
     browserslist: "npm:^4.22.3"
-    css-blank-pseudo: "npm:^6.0.1"
+    css-blank-pseudo: "npm:^6.0.2"
     css-has-pseudo: "npm:^6.0.3"
     css-prefers-color-scheme: "npm:^9.0.1"
     cssdb: "npm:^8.0.0"
@@ -24163,7 +24163,7 @@ __metadata:
     postcss-selector-not: "npm:^7.0.2"
   peerDependencies:
     postcss: ^8.4
-  checksum: 10c0/afc31fb75bc5e8e223d38fd34b81da08ee340818f5e392df1781728f2ff2a9dbc75e458673ce9f52deafefa90bbc99e0bd1453271498f5e02746c785180bad07
+  checksum: 10c0/21738ecac400cca9a96841959308538516ed00ca80d4c53beb20e080c7d963120fa77b7435b02e1beefc20043abce666419b81eccf6dacdc4298f540778c111d
   languageName: node
   linkType: hard
 
@@ -24886,7 +24886,7 @@ __metadata:
   resolution: "rdc-website@workspace:website"
   dependencies:
     "@anansi/browserslist-config": "npm:1.5.0"
-    "@anansi/webpack-config": "npm:19.0.2"
+    "@anansi/webpack-config": "npm:19.0.3"
     "@data-client/endpoint": "workspace:*"
     "@data-client/graphql": "workspace:*"
     "@data-client/hooks": "workspace:*"
@@ -26418,7 +26418,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    "@anansi/babel-preset": "npm:5.0.6"
+    "@anansi/babel-preset": "npm:5.0.7"
     "@anansi/browserslist-config": "npm:1.5.0"
     "@anansi/eslint-plugin": "npm:0.17.6"
     "@anansi/jest-preset": "npm:0.11.0"
