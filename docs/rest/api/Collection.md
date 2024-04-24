@@ -317,7 +317,7 @@ export const getPosts = new RestEndpoint({
       nonFilterArgumentKeys: /orderBy/,
     }),
     (posts, { orderBy } = {}) => {
-      if (orderBy && posts) {
+      if (orderBy) {
         return [...posts].sort((a, b) => a[orderBy].localeCompare(b[orderBy]));
       }
       return posts;

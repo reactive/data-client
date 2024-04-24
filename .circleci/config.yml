@@ -10,7 +10,8 @@ jobs:
       - image: cimg/node:20.12
     resource_class: large
     steps:
-      - checkout
+      - checkout:
+          depth: 1
       - run:
           name: examples use local packages
           command: |
@@ -37,8 +38,21 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - project
-
+            # excplitily list so we can ignore some directories that are not needed
+            - project/packages
+            - project/examples
+            - project/node_modules
+            - project/__tests__
+            - project/scripts
+            - project/babel.config.js
+            - project/jest.config.js
+            - project/tsconfig-base.json
+            - project/tsconfig.json
+            - project/yarn.lock
+            - project/tsconfig.test.json
+            - project/package.json
+            - project/.yarnrc.yml
+            - project/.yarn
   lint:
     docker: *docker
     resource_class: medium+
@@ -80,7 +94,7 @@ jobs:
             if [ "<< parameters.react-version >>" == "^17.0.0" ]; then
               curl -Os https://uploader.codecov.io/latest/linux/codecov;
               chmod +x codecov;
-              yarn run test:coverage --ci --maxWorkers=3 --coverageReporters=text-lcov > ./lcov.info;
+              yarn run test:coverage --ci --maxWorkers=4 --coverageReporters=text-lcov > ./lcov.info;
               if [ "$CODECOV_TOKEN" != "" ]; then
                 ./codecov -t ${CODECOV_TOKEN} < ./lcov.info || true;
               else

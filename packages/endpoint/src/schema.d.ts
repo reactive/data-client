@@ -127,7 +127,9 @@ export class All<
     | (S extends EntityMap ? UnionResult<S> : Normalize<S>)[]
     | undefined;
 
-  _denormalizeNullable(): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
+  _denormalizeNullable():
+    | (S extends EntityMap<infer T> ? T : Denormalize<S>)[]
+    | undefined;
 
   denormalize(
     input: {},

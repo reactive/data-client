@@ -5,6 +5,7 @@ import type {
   SchemaSimple,
 } from '../interface.js';
 import type {
+  Denormalize,
   DenormalizeNullable,
   NormalizeNullable,
   SchemaArgs,
@@ -17,7 +18,7 @@ import type {
  */
 export default class Query<
   S extends Queryable,
-  P extends (entries: DenormalizeNullable<S>, ...args: any) => any,
+  P extends (entries: Denormalize<S>, ...args: any) => any,
 > implements SchemaSimple<ReturnType<P> | undefined, ProcessParameters<P, S>>
 {
   declare schema: S;
@@ -32,9 +33,9 @@ export default class Query<
     return (this.schema as any).normalize(...args);
   }
 
-  denormalize(input: {}, args: any, unvisit: any): ReturnType<P> | undefined {
+  denormalize(input: {}, args: any, unvisit: any): ReturnType<P> {
     const value = unvisit(input, this.schema);
-    return typeof value === 'symbol' ? undefined : this.process(value, ...args);
+    return typeof value === 'symbol' ? value : this.process(value, ...args);
   }
 
   queryKey(

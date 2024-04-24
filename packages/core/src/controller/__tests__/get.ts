@@ -212,7 +212,7 @@ describe('Controller.get()', () => {
       entities,
     };
     const tacoCount = new schema.Query(TacoList, tacos => {
-      return tacos?.length ?? 0;
+      return tacos.length ?? 0;
     });
 
     expect(controller.get(tacoCount, { type: 'foo' }, state)).toBe(1);

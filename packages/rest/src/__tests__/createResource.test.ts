@@ -1122,7 +1122,7 @@ describe('createResource()', () => {
 
     const queryRemainingTodos = new schema.Query(
       TodoResource.getList.schema,
-      entries => entries && entries.filter(todo => !todo.completed).length,
+      entries => entries.filter(todo => !todo.completed).length,
     );
 
     () => useQuery(queryRemainingTodos, { userId: 1 });
