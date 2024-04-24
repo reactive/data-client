@@ -7,4 +7,6 @@ if (ExecutionEnvironment.canUseDOM) {
       console.info(args);
     };
   }
+  // fix devmode webpack bug
+  if (!('installedCssChunks' in window)) window.installedCssChunks = {};
 }

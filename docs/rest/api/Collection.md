@@ -312,9 +312,17 @@ class Post extends Entity {
 export const getPosts = new RestEndpoint({
   path: '/:group/posts',
   searchParams: {} as { orderBy?: string; author?: string },
-  schema: new schema.Collection([Post], {
-    nonFilterArgumentKeys: /orderBy/,
-  }),
+  schema: new schema.Query(
+    new schema.Collection([Post], {
+      nonFilterArgumentKeys: /orderBy/,
+    }),
+    (posts, { orderBy } = {}) => {
+      if (orderBy && posts) {
+        return [...posts].sort((a, b) => a[orderBy].localeCompare(b[orderBy]));
+      }
+      return posts;
+    },
+  )
 });
 ```
 

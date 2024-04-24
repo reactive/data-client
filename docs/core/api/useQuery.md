@@ -71,7 +71,7 @@ interface Queryable {
 
 <!-- TODO: Add examples for each Queryable schema type and the different args that can be sent (like index, vs pk; union needing 'type') -->
 
-### Client-side User sorting
+### Sorting & Filtering
 
 [Query](/rest/api/Query) provides programmatic access to the Reactive Data Client store.
 
@@ -104,17 +104,21 @@ export const UserResource = createResource({
 });
 ```
 
-```tsx title="UsersPage" {18}
+```tsx title="UsersPage" {22}
 import { schema } from '@data-client/rest';
 import { useQuery, useFetch } from '@data-client/react';
 import { UserResource, User } from './UserResource';
 
+interface Args {
+  asc: boolean;
+  isAdmin?: boolean;
+}
 const sortedUsers = new schema.Query(
   new schema.All(User),
-  (entries, { asc } = { asc: false }) => {
-    const sorted = [...entries].sort((a, b) =>
-      a.name.localeCompare(b.name),
-    );
+  (entries, { asc, isAdmin }: Args = { asc: false }) => {
+    let sorted = [...entries].sort((a, b) => a.name.localeCompare(b.name));
+    if (isAdmin !== undefined)
+      sorted = sorted.filter(user => user.isAdmin === isAdmin);
     if (asc) return sorted;
     return sorted.reverse();
   },

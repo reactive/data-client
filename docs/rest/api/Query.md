@@ -30,69 +30,114 @@ response for use with [useQuery](/docs/api/useQuery)
 
 ## Usage
 
-### Sorting & Filtering
+### Maintaining sort after creates {#sorting}
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
-{
-endpoint: new RestEndpoint({path: '/users'}),
-args: [],
-response: [
-{ id: '123', name: 'Jim' },
-{ id: '456', name: 'Jane' },
-{ id: '777', name: 'Albatras', isAdmin: true },
-],
-delay: 150,
-},
-]}>
+import { postFixtures,getInitialInterceptorData } from '@site/src/fixtures/posts-collection';
 
-```ts title="api/User.ts" collapsed
-export class User extends Entity {
+Here we have an API that sorts based on the `orderBy` field. By wrapping our [Collection](./Collection.md)
+in a `Query` that sorts, we can ensure we maintain the correct order after [pushing](./RestEndpoint.md#push)
+new posts.
+
+Our example code starts sorting by `title`. Try adding some posts and see them inserted in the correct sort
+order.
+
+<HooksPlayground fixtures={postFixtures} getInitialInterceptorData={getInitialInterceptorData} row>
+
+```ts title="getPosts" {20-27}
+import { Entity, RestEndpoint } from '@data-client/rest';
+
+class Post extends Entity {
   id = '';
-  name = '';
-  isAdmin = false;
+  title = '';
+  group = '';
+  author = '';
+
   pk() {
     return this.id;
   }
 }
-export const UserResource = createResource({
-  path: '/users/:id',
-  schema: User,
+export const getPosts = new RestEndpoint({
+  path: '/:group/posts',
+  searchParams: {} as { orderBy?: string; author?: string },
+  schema: new schema.Query(
+    new schema.Collection([Post], {
+      nonFilterArgumentKeys: /orderBy/,
+    }),
+    (posts, { orderBy } = {}) => {
+      if (orderBy && posts) {
+        return [...posts].sort((a, b) =>
+          a[orderBy].localeCompare(b[orderBy]),
+        );
+      }
+      return posts;
+    },
+  ),
 });
 ```
 
-```tsx title="UsersPage.tsx"
-import { schema } from '@data-client/rest';
-import { useQuery, useFetch } from '@data-client/react';
-import { UserResource, User } from './api/User';
+```tsx title="NewPost" collapsed
+import { useLoading } from '@data-client/hooks';
+import { getPosts } from './getPosts';
 
-interface Args {
-  asc: boolean;
-  isAdmin?: boolean;
+export default function NewPost({ user }: { user: string }) {
+  const ctrl = useController();
+
+const [handlePress, loading] = useLoading(async e => {
+    if (e.key === 'Enter') {
+      const title = e.currentTarget.value;
+      e.currentTarget.value = '';
+      await ctrl.fetch(getPosts.push, {group: 'react'}, {
+        title,
+        author: user,
+      });
+    }
+  });
+
+  return (
+    <div>
+      <input type="text" onKeyDown={handlePress} />{loading ? ' ...' : ''}
+    </div>
+  );
 }
-const sortedUsers = new schema.Query(
-  new schema.All(User),
-  (entries, { asc, isAdmin }: Args = { asc: false }) => {
-    let sorted = [...entries].sort((a, b) => a.name.localeCompare(b.name));
-    if (isAdmin !== undefined)
-      sorted = sorted.filter(user => user.isAdmin === isAdmin);
-    if (asc) return sorted;
-    return sorted.reverse();
-  },
-);
+```
 
-function UsersPage() {
-  useFetch(UserResource.getList);
-  const users = useQuery(sortedUsers, { asc: true });
-  if (!users) return <div>No users in cache yet</div>;
+```tsx title="PostList" collapsed
+import { useSuspense } from '@data-client/react';
+import { getPosts } from './getPosts';
+import NewPost from './NewPost';
+
+export default function PostList({
+  user,
+}) {
+  const posts = useSuspense(getPosts, { author: user, orderBy: 'title', group: 'react' });
+  return (
+    <div>
+      {posts.map(post => (
+        <div key={post.pk()}>{post.title}</div>
+      ))}
+      <NewPost user={user} />
+    </div>
+  );
+}
+```
+
+```tsx title="UserList" collapsed
+import PostList from './PostList';
+
+function UserList() {
+  const users = ['bob', 'clara']
   return (
     <div>
       {users.map(user => (
-        <div key={user.pk()}>{user.name}</div>
+        <section key={user}>
+          <h3>{user}</h3>
+          <PostList user={user} />
+        </section>
       ))}
     </div>
   );
 }
-render(<UsersPage />);
+render(<UserList />);
 ```
 
 </HooksPlayground>
@@ -291,7 +336,10 @@ import { UserResource } from './api/User';
 const groupTodoByUser = new schema.Query(
   TodoResource.getList.schema,
   todos => {
-    return Object.groupBy(todos, todo => todo?.userId?.username) as Record<string, Todo[]>;
+    return Object.groupBy(todos, todo => todo?.userId?.username) as Record<
+      string,
+      Todo[]
+    >;
   },
 );
 
