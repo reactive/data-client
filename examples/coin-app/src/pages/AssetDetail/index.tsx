@@ -11,7 +11,9 @@ export default function AssetDetail({ id }: { id: string }) {
   return (
     <>
       <header>
-        <h1>{currency.name}</h1>
+        <h1>
+          <img src={currency.icon} /> {currency.name}
+        </h1>
         <h2>
           <AssetPrice product_id={`${currency.id}-USD`} />
         </h2>

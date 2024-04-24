@@ -22,6 +22,7 @@ export default function CurrencyList() {
     <table>
       <thead>
         <tr>
+          <th></th>
           <th align="left">Name</th>
           <th>Volume 30d</th>
           <th align="right">Price</th>
@@ -30,6 +31,11 @@ export default function CurrencyList() {
       <tbody>
         {currencies.slice(0, 25).map(currency => (
           <tr key={currency.pk()}>
+            <td>
+              {currency.icon && (
+                <img src={currency.icon} width="20" height="20" />
+              )}
+            </td>
             <td align="left">
               <Link name="AssetDetail" props={{ id: currency.id }}>
                 {currency.name}

@@ -1,5 +1,6 @@
 import { Entity, createResource, schema } from '@data-client/rest';
 
+import { iconTable } from './cryptoIconTable';
 import { Stats } from './Stats';
 
 export class Currency extends Entity {
@@ -30,6 +31,10 @@ export class Currency extends Entity {
 
   // faked for client-side join
   stats = Stats.fromJS();
+
+  get icon() {
+    return iconTable[this.id]?.img_url;
+  }
 
   pk(): string {
     return this.id;
