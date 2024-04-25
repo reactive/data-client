@@ -1034,4 +1034,7 @@ declare function validateRequired(processedEntity: any, requiredDefaults: Record
 
 declare const INVALID: unique symbol;
 
-export { AbstractInstanceType, Array$1 as Array, Collection, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, EndpointToFunction, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, INVALID, Invalidate, KeyofEndpointInstance, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, PolymorphicInterface, Queryable, ReadEndpoint, ResolveType, Schema, SchemaArgs, SchemaClass, SchemaSimple, SnapshotInterface, UnknownError, schema_d as schema, validateRequired };
+/** https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-4.html#the-noinfer-utility-type */
+type NI<T> = NoInfer<T>;
+
+export { AbstractInstanceType, Array$1 as Array, Collection, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, EndpointToFunction, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, INVALID, Invalidate, KeyofEndpointInstance, MutateEndpoint, NI, NetworkError, Normalize, NormalizeNullable, PolymorphicInterface, Queryable, ReadEndpoint, ResolveType, Schema, SchemaArgs, SchemaClass, SchemaSimple, SnapshotInterface, UnknownError, schema_d as schema, validateRequired };

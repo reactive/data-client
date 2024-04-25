@@ -911,8 +911,12 @@ describe('createResource()', () => {
 
       const { result, waitForNextUpdate } = renderDataClient(() => {
         return [
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore users should useQuery() for this now.
+          // Tho there is an argument for useSuspense() being able to pre-use it
           useCache(FeedResource.get, { id: '5', type: 'link' }),
           useController(),
+          useQuery(FeedUnion, { id: '5', type: 'link' }),
         ] as const;
       });
       // eslint-disable-next-line prefer-const
@@ -929,6 +933,16 @@ describe('createResource()', () => {
         // @ts-expect-error
         expect(feed.content).toBeUndefined();
       }
+      expect(feed).toBe(result.current[2]);
+
+      () => {
+        // @ts-expect-error
+        useQuery(FeedUnion, { id: '5', typed: 'link' });
+        // @ts-expect-error
+        useQuery(FeedUnion, { id: '5' });
+        // @ts-expect-error
+        useQuery(FeedUnion, { id: '5', type: 'bob' });
+      };
 
       () =>
         controller.fetch(

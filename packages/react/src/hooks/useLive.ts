@@ -4,9 +4,11 @@ import {
   Denormalize,
   Schema,
   FetchFunction,
+  ResolveType,
+  DenormalizeNullable,
+  NI,
 } from '@data-client/core';
 
-import { SuspenseReturn } from './types.js';
 import useSubscription from './useSubscription.js';
 import useSuspense from './useSuspense.js';
 
@@ -24,8 +26,31 @@ export default function useLive<
     Schema | undefined,
     undefined | false
   >,
-  Args extends readonly [...Parameters<E>] | readonly [null],
->(endpoint: E, ...args: Args): SuspenseReturn<E, Args> {
+>(
+  endpoint: E,
+  ...args: readonly [...Parameters<NI<E>>]
+): E['schema'] extends undefined | null ? ResolveType<E>
+: Denormalize<E['schema']>;
+
+export default function useLive<
+  E extends EndpointInterface<
+    FetchFunction,
+    Schema | undefined,
+    undefined | false
+  >,
+>(
+  endpoint: E,
+  ...args: readonly [...Parameters<NI<E>>] | readonly [null]
+): E['schema'] extends undefined | null ? ResolveType<E> | undefined
+: DenormalizeNullable<E['schema']>;
+
+export default function useLive<
+  E extends EndpointInterface<
+    FetchFunction,
+    Schema | undefined,
+    undefined | false
+  >,
+>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): any {
   useSubscription(endpoint, ...args);
   return useSuspense(endpoint, ...args);
 }

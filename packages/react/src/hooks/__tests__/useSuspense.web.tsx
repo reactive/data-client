@@ -671,9 +671,6 @@ describe('useSuspense()', () => {
           sortBy: 'votes',
         });
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore TODO: if you put a string that doesn't match it will complain
-        // but it somehow grabs the args as what it extends, making it include null
         comments.map(comment => comment.title);
       }
     };

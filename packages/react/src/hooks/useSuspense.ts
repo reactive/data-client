@@ -5,10 +5,12 @@ import {
   Denormalize,
   Schema,
   FetchFunction,
+  DenormalizeNullable,
+  ResolveType,
+  NI,
 } from '@data-client/core';
 import { useMemo } from 'react';
 
-import { SuspenseReturn } from './types.js';
 import useCacheState from './useCacheState.js';
 import useController from '../hooks/useController.js';
 
@@ -27,8 +29,31 @@ export default function useSuspense<
     Schema | undefined,
     undefined | false
   >,
-  Args extends readonly [...Parameters<E>] | readonly [null],
->(endpoint: E, ...args: Args): SuspenseReturn<E, Args> {
+>(
+  endpoint: E,
+  ...args: readonly [...Parameters<NI<E>>]
+): E['schema'] extends undefined | null ? ResolveType<E>
+: Denormalize<E['schema']>;
+
+export default function useSuspense<
+  E extends EndpointInterface<
+    FetchFunction,
+    Schema | undefined,
+    undefined | false
+  >,
+>(
+  endpoint: E,
+  ...args: readonly [...Parameters<NI<E>>] | readonly [null]
+): E['schema'] extends undefined | null ? ResolveType<E> | undefined
+: DenormalizeNullable<E['schema']>;
+
+export default function useSuspense<
+  E extends EndpointInterface<
+    FetchFunction,
+    Schema | undefined,
+    undefined | false
+  >,
+>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): any {
   const state = useCacheState();
   const controller = useController();
 

@@ -47,6 +47,7 @@ export type {
   ErrorTypes,
   EndpointToFunction,
 } from './types.js';
+export type { NI } from './NoInfer.js';
 
 export { default as Endpoint, ExtendableEndpoint } from './endpoint.js';
 export type { KeyofEndpointInstance } from './endpoint.js';

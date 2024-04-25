@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import type {
   DenormalizeNullable,
+  NI,
   Queryable,
   SchemaArgs,
 } from '@data-client/core';
@@ -17,7 +18,7 @@ import useController from '../hooks/useController.js';
  */
 export default function useQuery<S extends Queryable>(
   schema: S,
-  ...args: SchemaArgs<S>
+  ...args: NI<SchemaArgs<S>>
   // INVALID results in undefined regardless of DenormalizeNullable
 ): DenormalizeNullable<S> | undefined {
   const state = useCacheState();

@@ -5,6 +5,7 @@ import type {
   Schema,
   FetchFunction,
   ResolveType,
+  NI,
 } from '@data-client/core';
 import { ExpiryStatus } from '@data-client/core';
 import { useMemo } from 'react';
@@ -23,10 +24,9 @@ export default function useCache<
     EndpointInterface<FetchFunction, Schema | undefined, undefined | boolean>,
     'key' | 'schema' | 'invalidIfStale'
   >,
-  Args extends readonly [...Parameters<E['key']>] | readonly [null],
 >(
   endpoint: E,
-  ...args: Args
+  ...args: NI<readonly [...Parameters<E['key']>] | readonly [null]>
 ): E['schema'] extends undefined | null ?
   E extends (...args: any) => any ?
     ResolveType<E> | undefined

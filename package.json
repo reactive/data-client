@@ -33,6 +33,7 @@
     "g:clean": "cd $INIT_CWD && rimraf lib ts3.4 legacy dist *.tsbuildinfo",
     "g:downtypes": "cd $INIT_CWD && downlevel-dts",
     "g:tsc": "cd $INIT_CWD && tsc",
+    "g:legacy-types": "cd $INIT_CWD && ../../scripts/build-legacy-types.sh",
     "g:runs": "cd $INIT_CWD && run-s",
     "g:copy": "cd $INIT_CWD && copyfiles",
     "g:lint": "cd $INIT_CWD && eslint"

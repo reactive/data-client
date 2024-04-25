@@ -1,4 +1,9 @@
-import { EndpointInterface, Schema, FetchFunction } from '@data-client/core';
+import {
+  EndpointInterface,
+  Schema,
+  FetchFunction,
+  NI,
+} from '@data-client/core';
 import { useEffect } from 'react';
 
 import useController from './useController.js';
@@ -13,8 +18,7 @@ export default function useSubscription<
     Schema | undefined,
     undefined | false
   >,
-  Args extends readonly [...Parameters<E>] | readonly [null],
->(endpoint: E, ...args: Args) {
+>(endpoint: E, ...args: NI<readonly [...Parameters<E>] | readonly [null]>) {
   const controller = useController();
 
   const key = args[0] !== null ? endpoint.key(...args) : '';
