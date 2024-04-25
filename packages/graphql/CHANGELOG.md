@@ -1,5 +1,18 @@
 # @data-client/graphql
 
+## 0.11.3
+
+### Patch Changes
+
+- [#3017](https://github.com/reactive/data-client/pull/3017) [`ce164d2`](https://github.com/reactive/data-client/commit/ce164d286c8afcb2593a86abbf23948a08aa40ba) Thanks [@ntucker](https://github.com/ntucker)! - Queries pass-through suspense rather than ever being undefined
+
+  - [useSuspense()](https://dataclient.io/docs/api/useSuspense) return values will not be nullable
+  - [useQuery()](https://dataclient.io/docs/api/useQuery) will still be nullable due to it handling `INVALID` as `undefined` return
+  - [Query.process](https://dataclient.io/rest/api/Query#process) does not need to handle nullable cases
+
+- Updated dependencies [[`ce164d2`](https://github.com/reactive/data-client/commit/ce164d286c8afcb2593a86abbf23948a08aa40ba)]:
+  - @data-client/endpoint@0.11.3
+
 ## 0.11.1
 
 ### Patch Changes
