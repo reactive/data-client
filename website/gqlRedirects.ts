@@ -1,4 +1,4 @@
-import linkData from './sidebars-endpoint.json' assert { type: 'json' };
+import linkData from './sidebars-endpoint.json' with { type: 'json' };
 
 const redirects = linkData
   .filter(({ id }) => id !== 'api/Index')

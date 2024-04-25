@@ -1,4 +1,4 @@
-import data from './data.json' assert { type: 'json' };
+import data from './data.json' with { type: 'json' };
 import {
   createReducer,
   initialState,
@@ -17,7 +17,7 @@ import {
   User,
   ProjectSchemaCollection,
 } from './schemas.js';
-import userData from './user.json' assert { type: 'json' };
+import userData from './user.json' with { type: 'json' };
 
 export default function addReducerSuite(suite) {
   let state = initialState;

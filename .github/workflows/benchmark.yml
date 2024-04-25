@@ -18,6 +18,7 @@ on:
       - 'packages/endpoint/src/schemas/**'
       - 'packages/core/src/**'
       - 'examples/benchmark/**'
+      - '.github/workflows/benchmark.yml'
 jobs:
   benchmark:
 
@@ -29,7 +30,7 @@ jobs:
         fetch-depth: 1
     - uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: '22'
         cache: 'yarn'
     - name: Install packages
       run: |

@@ -1,4 +1,4 @@
-import data from './data.json' assert { type: 'json' };
+import data from './data.json' with { type: 'json' };
 import {
   Entity,
   normalize,
@@ -16,7 +16,7 @@ import {
   ProjectSchemaMixin,
   User,
 } from './schemas.js';
-import userData from './user.json' assert { type: 'json' };
+import userData from './user.json' with { type: 'json' };
 
 const { result, entities } = normalize(data, ProjectSchema);
 const queryState = normalize(data, ProjectQuery);

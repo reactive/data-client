@@ -5,10 +5,10 @@ import {
   ProjectWithBuildTypesDescription,
   User,
 } from './schemas.js';
-import data from '../data.json' assert { type: 'json' };
+import data from '../data.json' with { type: 'json' };
 import { initialState } from '../dist/index.js';
 import { printStatus } from '../printStatus.js';
-import userData from '../user.json' assert { type: 'json' };
+import userData from '../user.json' with { type: 'json' };
 
 const { result, entities } = normalize(data, ProjectSchema);
 

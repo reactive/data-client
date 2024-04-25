@@ -1,4 +1,4 @@
-import data from './data.json' assert { type: 'json' };
+import data from './data.json' with { type: 'json' };
 import { Entity } from './dist/index.js';
 import { printStatus } from './printStatus.js';
 import {
