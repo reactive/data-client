@@ -7,6 +7,7 @@ import type {
   FetchFunction,
   Schema,
   ResolveType,
+  NI,
 } from '@data-client/core';
 import { ExpiryStatus } from '@data-client/core';
 import { useMemo } from 'react';
@@ -14,23 +15,23 @@ import { useMemo } from 'react';
 import useCacheState from './useCacheState.js';
 import useController from '../hooks/useController.js';
 
-type CondNull<P, A, B> = P extends null ? A : B;
-
-type StatefulReturn<S extends Schema | undefined, P> = CondNull<
-  P,
-  {
-    data: DenormalizeNullable<S>;
-    loading: false;
-    error: undefined;
-  },
+type SchemaReturn<S extends Schema | undefined> =
   | {
       data: Denormalize<S>;
       loading: false;
       error: undefined;
     }
   | { data: DenormalizeNullable<S>; loading: true; error: undefined }
-  | { data: DenormalizeNullable<S>; loading: false; error: ErrorTypes }
->;
+  | { data: DenormalizeNullable<S>; loading: false; error: ErrorTypes };
+
+type AsyncReturn<E> =
+  | {
+      data: E extends (...args: any) => any ? ResolveType<E> : any;
+      loading: false;
+      error: undefined;
+    }
+  | { data: undefined; loading: true; error: undefined }
+  | { data: undefined; loading: false; error: ErrorTypes };
 
 /**
  * Use async date with { data, loading, error } (DLE)
@@ -42,17 +43,35 @@ export default function useDLE<
     Schema | undefined,
     undefined | false
   >,
-  Args extends readonly [...Parameters<E>] | readonly [null],
 >(
   endpoint: E,
-  ...args: Args
-): E['schema'] extends undefined | null ?
-  {
-    data: E extends (...args: any) => any ? ResolveType<E> | undefined : any;
-    loading: boolean;
-    error: ErrorTypes | undefined;
-  }
-: StatefulReturn<E['schema'], Args[0]> {
+  ...args: readonly [...Parameters<NI<E>>]
+): E['schema'] extends undefined | null ? AsyncReturn<E>
+: SchemaReturn<E['schema']>;
+
+export default function useDLE<
+  E extends EndpointInterface<
+    FetchFunction,
+    Schema | undefined,
+    undefined | false
+  >,
+>(
+  endpoint: E,
+  ...args: readonly [...Parameters<NI<E>>] | readonly [null]
+): {
+  data: E['schema'] extends undefined | null ? undefined
+  : DenormalizeNullable<E['schema']>;
+  loading: false;
+  error: undefined;
+};
+
+export default function useDLE<
+  E extends EndpointInterface<
+    FetchFunction,
+    Schema | undefined,
+    undefined | false
+  >,
+>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): any {
   const state = useCacheState();
   const controller = useController();
 

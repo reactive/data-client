@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { ExpiryStatus } from '@data-client/core';
+import { ExpiryStatus, NI } from '@data-client/core';
 import {
   EndpointInterface,
   Denormalize,
@@ -21,8 +21,7 @@ export default function useFetch<
     Schema | undefined,
     undefined | false
   >,
-  Args extends readonly [...Parameters<E>] | readonly [null],
->(endpoint: E, ...args: Args) {
+>(endpoint: E, ...args: NI<readonly [...Parameters<E>] | readonly [null]>) {
   const state = useCacheState();
   const controller = useController();
 

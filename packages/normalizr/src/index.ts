@@ -20,6 +20,7 @@ export type {
   NormalizeNullable,
   SchemaArgs,
 } from './types.js';
+export type { NI } from './NoInfer.js';
 export * from './endpoint/types.js';
 export * from './interface.js';
 export * from './Expiry.js';

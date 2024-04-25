@@ -21,6 +21,7 @@ export type {
   EndpointExtraOptions,
   Queryable,
   SchemaArgs,
+  NI,
 } from '@data-client/normalizr';
 export { ExpiryStatus } from '@data-client/normalizr';
 export {

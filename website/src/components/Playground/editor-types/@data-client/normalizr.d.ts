@@ -201,6 +201,9 @@ type IndexPath = [key: string, field: string, value: string];
 type EntitySchemaPath = [key: string] | [key: string, pk: string];
 type QueryPath = IndexPath | EntitySchemaPath;
 
+/** https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-4.html#the-noinfer-utility-type */
+type NI<T> = NoInfer<T>;
+
 interface NetworkError extends Error {
     status: number;
     response?: Response;
@@ -297,4 +300,4 @@ declare const INVALID: unique symbol;
 
 declare function validateQueryKey(queryKey: unknown): any;
 
-export { AbstractInstanceType, ArrayElement, Denormalize, DenormalizeNullable, EndpointExtraOptions, EndpointInterface, EntityInterface, EntityPath, EntityTable, ErrorTypes, ExpiryStatus, ExpiryStatusInterface, FetchFunction, GetEntity, GetIndex, INVALID, IndexInterface, IndexParams, InferReturn, MemoCache, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, NormalizeReturnType, NormalizedIndex, NormalizedSchema, OptimisticUpdateParams, Queryable, ReadEndpoint, ResolveType, Schema, SchemaArgs, SchemaClass, SchemaSimple, Serializable, SnapshotInterface, UnknownError, UpdateFunction, WeakDependencyMap, denormalize, isEntity, normalize, validateQueryKey };
+export { AbstractInstanceType, ArrayElement, Denormalize, DenormalizeNullable, EndpointExtraOptions, EndpointInterface, EntityInterface, EntityPath, EntityTable, ErrorTypes, ExpiryStatus, ExpiryStatusInterface, FetchFunction, GetEntity, GetIndex, INVALID, IndexInterface, IndexParams, InferReturn, MemoCache, MutateEndpoint, NI, NetworkError, Normalize, NormalizeNullable, NormalizeReturnType, NormalizedIndex, NormalizedSchema, OptimisticUpdateParams, Queryable, ReadEndpoint, ResolveType, Schema, SchemaArgs, SchemaClass, SchemaSimple, Serializable, SnapshotInterface, UnknownError, UpdateFunction, WeakDependencyMap, denormalize, isEntity, normalize, validateQueryKey };
