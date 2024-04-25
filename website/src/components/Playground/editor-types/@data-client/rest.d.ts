@@ -457,12 +457,12 @@ declare class Invalidate<E extends EntityInterface & {
  *
  * @see https://dataclient.io/rest/api/Query
  */
-declare class Query<S extends Queryable, P extends (entries: DenormalizeNullable<S>, ...args: any) => any> implements SchemaSimple<ReturnType<P> | undefined, ProcessParameters<P, S>> {
+declare class Query<S extends Queryable, P extends (entries: Denormalize<S>, ...args: any) => any> implements SchemaSimple<ReturnType<P> | undefined, ProcessParameters<P, S>> {
     schema: S;
     process: P;
     constructor(schema: S, process: P);
     normalize(...args: any): any;
-    denormalize(input: {}, args: any, unvisit: any): ReturnType<P> | undefined;
+    denormalize(input: {}, args: any, unvisit: any): ReturnType<P>;
     queryKey(args: ProcessParameters<P, S>, queryKey: (schema: any, args: any, getEntity: GetEntity, getIndex: GetIndex) => any, getEntity: GetEntity, getIndex: GetIndex): any;
     _denormalizeNullable: (input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any) => ReturnType<P> | undefined;
     _normalizeNullable: () => NormalizeNullable<S>;
@@ -634,7 +634,9 @@ declare class All<
     | (S extends EntityMap ? UnionResult<S> : Normalize<S>)[]
     | undefined;
 
-  _denormalizeNullable(): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
+  _denormalizeNullable():
+    | (S extends EntityMap<infer T> ? T : Denormalize<S>)[]
+    | undefined;
 
   denormalize(
     input: {},
@@ -913,7 +915,7 @@ type schema_d_Invalidate<E extends EntityInterface & {
     process: any;
 }> = Invalidate<E>;
 declare const schema_d_Invalidate: typeof Invalidate;
-type schema_d_Query<S extends Queryable, P extends (entries: DenormalizeNullable<S>, ...args: any) => any> = Query<S, P>;
+type schema_d_Query<S extends Queryable, P extends (entries: Denormalize<S>, ...args: any) => any> = Query<S, P>;
 declare const schema_d_Query: typeof Query;
 type schema_d_SchemaClass<T = any, N = T | undefined, Args extends any[] = any[]> = SchemaClass<T, N, Args>;
 type schema_d_All<S extends EntityMap | EntityInterface = EntityMap | EntityInterface> = All<S>;

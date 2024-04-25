@@ -1,5 +1,7 @@
 // eslint-env jest
 import { MemoCache } from '@data-client/normalizr';
+import { useQuery, useSuspense } from '@data-client/react';
+import { RestEndpoint } from '@data-client/rest';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
@@ -188,7 +190,6 @@ describe('top level schema', () => {
   const sortedUsers = new schema.Query(
     new schema.Collection([User]),
     (results, { asc } = { asc: false }, ...args) => {
-      if (!results) return results;
       const sorted = [...results].sort((a, b) => a.name.localeCompare(b.name));
       if (asc) return sorted;
       return sorted.reverse();
@@ -214,6 +215,49 @@ describe('top level schema', () => {
     expect(users).toMatchSnapshot();
   });
 
+  test('works if base entity suspends', () => {
+    const entities = {
+      User: {
+        1: { id: '1', name: 'Milo' },
+        2: { id: '2', name: 'Jake' },
+        3: { id: '3', name: 'Zeta' },
+        4: { id: '4', name: 'Alpha' },
+      },
+    };
+    const users = new MemoCache().query('', sortedUsers, [], entities, {});
+    expect(users).toBeUndefined();
+  });
+
+  test('works if base entity suspends', () => {
+    const allSortedUsers = new schema.Query(
+      new schema.All(User),
+      (results, { asc } = { asc: false }, ...args) => {
+        const sorted = [...results].sort((a, b) =>
+          a.name.localeCompare(b.name),
+        );
+        if (asc) return sorted;
+        return sorted.reverse();
+      },
+    );
+    const users = new MemoCache().query('', allSortedUsers, [], {}, {});
+    expect(users).toBeUndefined();
+  });
+
+  test('works with nested schemas', () => {
+    const allSortedUsers = new schema.Query(
+      new schema.All(User),
+      (results, { asc } = { asc: false }, ...args) => {
+        const sorted = [...results].sort((a, b) =>
+          a.name.localeCompare(b.name),
+        );
+        if (asc) return sorted;
+        return sorted.reverse();
+      },
+    );
+    const users = new MemoCache().query('', allSortedUsers, [], {}, {});
+    expect(users).toBeUndefined();
+  });
+
   test('denormalizes should not be found when no entities are present', () => {
     const entities = {
       DOG: {
@@ -225,5 +269,21 @@ describe('top level schema', () => {
     const value = new MemoCache().query('', sortedUsers, [], entities, {});
 
     expect(value).toEqual(undefined);
+  });
+
+  test('', () => {
+    const getUsers = new RestEndpoint({
+      path: '/users',
+      searchParams: {} as { asc?: boolean },
+      schema: sortedUsers,
+    });
+    () => {
+      const users = useSuspense(getUsers, { asc: true });
+      users.map(user => user.name);
+      const others = useQuery(getUsers.schema, { asc: true });
+      // @ts-expect-error
+      others.map(user => user.name);
+      others?.map(user => user.name);
+    };
   });
 });
