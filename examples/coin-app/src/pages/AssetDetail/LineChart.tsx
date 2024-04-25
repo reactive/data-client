@@ -47,6 +47,7 @@ function LineChart({ data, width, height }: Props) {
       width="100%"
       height={height}
       preserveAspectRatio="none"
+      style={{ overflow: 'visible' }}
     >
       <path d={path} fill="none" stroke="currentColor" strokeWidth="2" />
       {/* <text
