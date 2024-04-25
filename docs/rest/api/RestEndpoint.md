@@ -191,7 +191,7 @@ const getComments = new RestEndpoint({
 // Hover your mouse over 'comments' to see its type
 const comments = useSuspense(getComments, {
   postId: '5',
-  sortBy: 'votes',
+  sortBy: 'votes' as const,
 });
 
 const ctrl = useController();

@@ -6,7 +6,13 @@ import {
   actionTypes,
 } from '@data-client/core';
 import { FetchAction } from '@data-client/core';
-import { Endpoint, FetchFunction, ReadEndpoint } from '@data-client/endpoint';
+import {
+  Endpoint,
+  Entity,
+  FetchFunction,
+  ReadEndpoint,
+  schema,
+} from '@data-client/endpoint';
 import { normalize } from '@data-client/normalizr';
 import { jest } from '@jest/globals';
 import { Temporal } from '@js-temporal/polyfill';
@@ -638,5 +644,38 @@ describe('useSuspense()', () => {
       // ensure we don't violate call-order changes
       expect(consoleSpy.mock.calls.length).toBeLessThan(1);
     });
+  });
+
+  test('(type-only) should match string literal args, ensuring return value is not null', () => {
+    () => {
+      class Comment extends Entity {
+        id = '';
+        title = '';
+        body = '';
+        postId = '';
+        pk() {
+          return this.id;
+        }
+
+        static key = 'Comment';
+      }
+
+      const getC = new Endpoint(
+        (args: { postId: string | number; sortBy?: 'votes' | 'recent' }) =>
+          Promise.resolve({ a: 5, ...args }),
+        { schema: new schema.Collection([Comment]) },
+      );
+      function useThings() {
+        const comments = useSuspense(getC, {
+          postId: '5',
+          sortBy: 'votes',
+        });
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore TODO: if you put a string that doesn't match it will complain
+        // but it somehow grabs the args as what it extends, making it include null
+        comments.map(comment => comment.title);
+      }
+    };
   });
 });
