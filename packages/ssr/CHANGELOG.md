@@ -1,5 +1,11 @@
 # @data-client/ssr
 
+## 0.11.4
+
+### Patch Changes
+
+- [#3023](https://github.com/reactive/data-client/pull/3023) [`9dea825`](https://github.com/reactive/data-client/commit/9dea825cc979eeb1558f1e686cbbaacee6d137c5) Thanks [@renovate](https://github.com/apps/renovate)! - Compatibility with React 19 by removing defaultProps
+
 ## 0.11.0
 
 ### Patch Changes
