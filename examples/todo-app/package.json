@@ -35,7 +35,7 @@
     "@linaria/shaker": "5.0.3",
     "@types/react-dom": "18.2.25",
     "@types/uuid": "^9.0.0",
-    "react-refresh": "0.14.0",
+    "react-refresh": "0.14.1",
     "webpack": "5.91.0",
     "webpack-cli": "5.1.4",
     "webpack-dev-server": "5.0.4"
@@ -44,8 +44,8 @@
     "@data-client/endpoint": "^0.11.0",
     "@data-client/react": "^0.11.0",
     "@data-client/rest": "^0.11.0",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
+    "react": "18.3.0",
+    "react-dom": "18.3.0",
     "uuid": "^9.0.0"
   },
   "packageManager": "yarn@4.1.1"

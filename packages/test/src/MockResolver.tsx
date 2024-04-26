@@ -9,8 +9,8 @@ import type { Fixture, Interceptor } from './fixtureTypes.js';
 type Props<T> = {
   children: React.ReactNode;
   readonly fixtures: (Fixture | Interceptor<T>)[];
-  silenceMissing: boolean;
-  getInitialInterceptorData: () => T;
+  silenceMissing?: boolean;
+  getInitialInterceptorData?: () => T;
 };
 
 /** Can be used to mock responses based on fixtures provided.
@@ -22,8 +22,8 @@ type Props<T> = {
 export default function MockResolver<T = any>({
   children,
   fixtures,
-  getInitialInterceptorData,
-  silenceMissing,
+  getInitialInterceptorData = () => ({}) as any,
+  silenceMissing = false,
 }: Props<T>) {
   const controller = useController();
 
@@ -56,8 +56,3 @@ export default function MockResolver<T = any>({
     </ControllerContext.Provider>
   );
 }
-
-MockResolver.defaultProps = {
-  silenceMissing: false,
-  getInitialInterceptorData: () => ({}),
-};

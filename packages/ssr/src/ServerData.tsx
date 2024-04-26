@@ -3,10 +3,10 @@ import type { State } from '@data-client/redux';
 export const ServerData = ({
   data,
   nonce,
-  id,
+  id = 'data-client-data',
 }: {
   data: State<unknown>;
-  id: string;
+  id?: string;
   nonce?: string | undefined;
 }) => {
   try {
@@ -26,9 +26,6 @@ export const ServerData = ({
     console.error(e);
     return null;
   }
-};
-ServerData.defaultProps = {
-  id: 'data-client-data',
 };
 
 export default ServerData;

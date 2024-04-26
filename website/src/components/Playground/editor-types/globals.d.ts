@@ -1,5 +1,5 @@
 import { PathFunction } from 'path-to-regexp';
-import { State, Controller, Manager, EndpointInterface as EndpointInterface$1, FetchFunction as FetchFunction$1, Schema as Schema$1, NI as NI$1, ResolveType as ResolveType$1, Denormalize as Denormalize$1, DenormalizeNullable as DenormalizeNullable$1, Queryable as Queryable$1, SchemaArgs as SchemaArgs$1, NetworkError as NetworkError$2, UnknownError as UnknownError$1, ErrorTypes as ErrorTypes$2 } from '@data-client/core';
+import { Manager, State, Controller, EndpointInterface as EndpointInterface$1, FetchFunction as FetchFunction$1, Schema as Schema$1, NI as NI$1, ResolveType as ResolveType$1, Denormalize as Denormalize$1, DenormalizeNullable as DenormalizeNullable$1, Queryable as Queryable$1, SchemaArgs as SchemaArgs$1, NetworkError as NetworkError$2, UnknownError as UnknownError$1, ErrorTypes as ErrorTypes$2 } from '@data-client/core';
 export { Manager } from '@data-client/core';
 import React from 'react';
 import * as react_jsx_runtime from 'react/jsx-runtime';
@@ -1616,22 +1616,15 @@ type DevToolsPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left
 interface Props$1 {
     children: React.ReactNode;
     managers?: Manager[];
-    initialState: State<unknown>;
-    Controller: typeof Controller;
-    devButton: DevToolsPosition | null | undefined;
+    initialState?: State<unknown>;
+    Controller?: typeof Controller;
+    devButton?: DevToolsPosition | null | undefined;
 }
 /**
  * Manages state, providing all context needed to use the hooks.
  * @see https://dataclient.io/docs/api/CacheProvider
  */
 declare function CacheProvider({ children, managers, initialState, Controller, devButton, }: Props$1): JSX.Element;
-declare namespace CacheProvider {
-    var defaultProps: {
-        initialState: State<unknown>;
-        Controller: typeof Controller;
-        devButton: string;
-    };
-}
 
 interface ErrorBoundaryProps<E extends Error> {
     children: React.ReactNode;

@@ -18,23 +18,15 @@ interface ProviderProps {
 interface Props$1 {
     children: React$1.ReactNode;
     managers?: Manager[];
-    initialState: State<unknown>;
-    Controller: typeof Controller;
-    devButton: DevToolsPosition | null | undefined;
+    initialState?: State<unknown>;
+    Controller?: typeof Controller;
+    devButton?: DevToolsPosition | null | undefined;
 }
 /**
  * Manages state, providing all context needed to use the hooks.
  * @see https://dataclient.io/docs/api/CacheProvider
  */
 declare function CacheProvider({ children, managers, initialState, Controller, devButton, }: Props$1): JSX.Element;
-declare namespace CacheProvider {
-    var defaultProps: {
-        initialState: State<unknown>;
-        Controller: typeof Controller;
-        devButton: string;
-    };
-}
-
 declare let getDefaultManagers: () => Manager<_data_client_core.ActionTypes>[];
 
 /** Suspense but compatible with 18 SSR, 17, 16 and native */
