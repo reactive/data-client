@@ -1,7 +1,7 @@
 import {
   initialState as defaultState,
   NetworkManager,
-  Controller,
+  Controller as DataController,
   applyManager,
   SubscriptionManager,
   PollingSubscription,
@@ -20,16 +20,16 @@ export interface ProviderProps {
   children: React.ReactNode;
   managers?: Manager[];
   initialState?: State<unknown>;
-  Controller?: typeof Controller;
+  Controller?: typeof DataController;
   devButton?: DevToolsPosition | null | undefined;
 }
 
 interface Props {
   children: React.ReactNode;
   managers?: Manager[];
-  initialState: State<unknown>;
-  Controller: typeof Controller;
-  devButton: DevToolsPosition | null | undefined;
+  initialState?: State<unknown>;
+  Controller?: typeof DataController;
+  devButton?: DevToolsPosition | null | undefined;
 }
 
 /**
@@ -39,9 +39,9 @@ interface Props {
 export default function CacheProvider({
   children,
   managers,
-  initialState,
-  Controller,
-  devButton,
+  initialState = defaultState as State<unknown>,
+  Controller = DataController,
+  devButton = 'bottom-right',
 }: Props): JSX.Element {
   /* istanbul ignore else */
   if (process.env.NODE_ENV !== 'production' && SSR) {
@@ -51,7 +51,7 @@ Try using https://dataclient.io/docs/api/ExternalCacheProvider for server entry 
     );
   }
   // contents of this component expected to be relatively stable
-  const controllerRef: React.MutableRefObject<Controller> = useRef<any>();
+  const controllerRef: React.MutableRefObject<DataController> = useRef<any>();
   if (!controllerRef.current) controllerRef.current = new Controller();
   //TODO: bind all methods so destructuring works
 
@@ -82,14 +82,6 @@ Try using https://dataclient.io/docs/api/ExternalCacheProvider for server entry 
     </ControllerContext.Provider>
   );
 }
-/** Default props for CacheProvider
- * @see https://dataclient.io/docs/api/CacheProvider#defaultprops
- */
-CacheProvider.defaultProps = {
-  initialState: defaultState as State<unknown>,
-  Controller,
-  devButton: 'bottom-right',
-};
 
 /* istanbul ignore next */
 let getDefaultManagers = () =>

@@ -3181,8 +3181,8 @@ __metadata:
     "@types/node": "npm:^20.0.0"
     "@types/react": "npm:^18.0.30"
   peerDependencies:
-    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
-    react: ^16.8.4 || ^17.0.0 || ^18.0.0-0
+    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0 || ^19.0.0
+    react: ^16.8.4 || ^17.0.0 || ^18.0.0-0 || ^19.0.0
   peerDependenciesMeta:
     "@types/react":
       optional: true
@@ -3201,8 +3201,8 @@ __metadata:
     "@types/react": "npm:^18.0.30"
   peerDependencies:
     "@data-client/react": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0 || ^0.5.0 || ^0.7.0 || ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0
-    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
-    react: ^16.8.4 || ^17.0.0 || ^18.0.0-0
+    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0 || ^19.0.0
+    react: ^16.8.4 || ^17.0.0 || ^18.0.0-0 || ^19.0.0
   peerDependenciesMeta:
     "@types/react":
       optional: true
@@ -3234,8 +3234,8 @@ __metadata:
     react-native: "npm:^0.74.0"
   peerDependencies:
     "@react-navigation/native": ^6.0.0
-    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0
-    react: ^16.8.4 || ^17.0.0 || ^18.0.0
+    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    react: ^16.8.4 || ^17.0.0 || ^18.0.0 || ^19.0.0
   peerDependenciesMeta:
     "@react-navigation/native":
       optional: true
@@ -3257,8 +3257,8 @@ __metadata:
     redux: "npm:^5.0.0"
   peerDependencies:
     "@data-client/react": ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0
-    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0
-    react: ^16.8.4 || ^17.0.0 || ^18.0.0
+    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    react: ^16.8.4 || ^17.0.0 || ^18.0.0 || ^19.0.0
     redux: ^4.0.0 || ^5.0.0
   peerDependenciesMeta:
     "@types/react":
@@ -3296,9 +3296,9 @@ __metadata:
   peerDependencies:
     "@data-client/react": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0 || ^0.5.0 || ^0.7.0 || ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0
     "@data-client/redux": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.5.0 || ^0.7.0 || ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0
-    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
+    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0 || ^19.0.0
     next: ">=12.0.0"
-    react: ^16.8.4 || ^17.0.0 || ^18.0.0-0
+    react: ^16.8.4 || ^17.0.0 || ^18.0.0 || ^19.0.0
     redux: ^4.0.0 || ^5.0.0
   peerDependenciesMeta:
     "@types/react":
@@ -3327,10 +3327,10 @@ __metadata:
   peerDependencies:
     "@data-client/react": ^0.5.0 || ^0.7.0 || ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0
     "@testing-library/react-hooks": ^8.0.0
-    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0
+    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0 || ^19.0.0
     "@types/react-dom": "*"
     jest: "*"
-    react: ^16.8.4 || ^17.0.0 || ^18.0.0
+    react: ^16.8.4 || ^17.0.0 || ^18.0.0 || ^19.0.0
     react-dom: "*"
     react-native: "*"
     react-test-renderer: "*"
@@ -3360,8 +3360,8 @@ __metadata:
     "@types/node": "npm:^20.0.0"
     "@types/react": "npm:^18.0.30"
   peerDependencies:
-    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
-    react: ^16.8.4 || ^17.0.0 || ^18.0.0-0
+    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0 || ^19.0.0
+    react: ^16.8.4 || ^17.0.0 || ^18.0.0-0 || ^19.0.0
   peerDependenciesMeta:
     "@types/react":
       optional: true
