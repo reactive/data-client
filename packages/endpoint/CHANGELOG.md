@@ -1,5 +1,11 @@
 # @data-client/endpoint
 
+## 0.11.4
+
+### Patch Changes
+
+- [#3020](https://github.com/reactive/data-client/pull/3020) [`dcb6b2f`](https://github.com/reactive/data-client/commit/dcb6b2fd4a5015242f43edc155352da6789cdb5d) Thanks [@ntucker](https://github.com/ntucker)! - Add NI<> utility type that is back-compat NoInfer<>
+
 ## 0.11.3
 
 ### Patch Changes

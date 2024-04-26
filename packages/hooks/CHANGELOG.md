@@ -1,5 +1,14 @@
 # @data-client/hooks
 
+## 0.1.9
+
+### Patch Changes
+
+- [#3023](https://github.com/reactive/data-client/pull/3023) [`9dea825`](https://github.com/reactive/data-client/commit/9dea825cc979eeb1558f1e686cbbaacee6d137c5) Thanks [@renovate](https://github.com/apps/renovate)! - Compatibility with React 19 by removing defaultProps
+
+- Updated dependencies [[`dcb6b2f`](https://github.com/reactive/data-client/commit/dcb6b2fd4a5015242f43edc155352da6789cdb5d)]:
+  - @data-client/normalizr@0.11.4
+
 ## 0.1.8
 
 ### Patch Changes
