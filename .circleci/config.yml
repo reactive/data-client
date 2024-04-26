@@ -7,7 +7,7 @@ jobs:
   setup:
     docker: &docker
       # specify the version you desire here
-      - image: cimg/node:20.12
+      - image: cimg/node:22.0
     resource_class: large
     steps:
       - checkout:
