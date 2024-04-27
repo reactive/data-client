@@ -1,4 +1,4 @@
-import { Entity, schema, SchemaArgs } from '@data-client/endpoint';
+import { Entity, PolymorphicInterface, schema } from '@data-client/endpoint';
 import {
   CacheProvider,
   useCache,
@@ -1147,5 +1147,48 @@ describe('createResource()', () => {
     () => useQuery(queryRemainingTodos, 5);
     // @ts-expect-error
     () => useQuery(queryRemainingTodos, { userId: 1 }, 5);
+  });
+
+  describe('warnings', () => {
+    let warnSpy: jest.SpyInstance;
+    afterEach(() => {
+      warnSpy.mockRestore();
+    });
+    beforeEach(() => {
+      warnSpy = jest.spyOn(global.console, 'warn').mockImplementation(() => {});
+    });
+
+    it('should warn when mis-capitalizing options', () => {
+      createResource({
+        path: 'http\\://test.com/users/:id',
+        schema: User,
+        endpoint: MyEndpoint,
+      });
+      expect(warnSpy).toHaveBeenCalled();
+      expect(warnSpy.mock.calls).toMatchSnapshot();
+    });
+    it('should warn when mis-capitalizing options', () => {
+      class MyCollection<
+        S extends any[] | PolymorphicInterface = any,
+        Args extends any[] =
+          | []
+          | [urlParams: Record<string, any>]
+          | [urlParams: Record<string, any>, body: any],
+        Parent = any,
+      > extends schema.Collection<S, Args, Parent> {
+        // getList.push should add to Collections regardless of its 'orderBy' argument
+        // in other words: `orderBy` is a non-filtering argument - it does not influence which results are returned
+        nonFilterArgumentKeys(key: string) {
+          return key === 'orderBy';
+        }
+      }
+      createResource({
+        path: 'http\\://test.com/users/:id',
+        schema: User,
+        collection: MyCollection,
+      });
+      expect(warnSpy).toHaveBeenCalled();
+      expect(warnSpy.mock.calls).toMatchSnapshot();
+    });
   });
 });
