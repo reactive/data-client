@@ -30,6 +30,46 @@ export default function createResource<O extends ResourceGenerics>({
   paginationField,
   ...extraOptions
 }: Readonly<O> & ResourceOptions): Resource<O> {
+  if (process.env.NODE_ENV !== 'production') {
+    // if they lowercase and it looks like they meant to use upper-case version
+    if (
+      'endpoint' in extraOptions &&
+      Endpoint === RestEndpoint &&
+      typeof extraOptions['endpoint'] === 'function' &&
+      extraOptions['endpoint'] &&
+      Object.prototype.isPrototypeOf.call(
+        RestEndpoint.prototype,
+        (extraOptions['endpoint'] as any).prototype,
+      )
+    ) {
+      console.warn(
+        `You passed 'endpoint' option; did you mean to use Endpoint?
+https://dataclient.io/rest/api/createResource#endpoint
+This parameter must be capitalized.
+
+This warning will not show in production.`,
+      );
+    }
+    // if they lowercase and it looks like they meant to use upper-case version
+    if (
+      'collection' in extraOptions &&
+      Collection === BaseCollection &&
+      typeof extraOptions['collection'] === 'function' &&
+      extraOptions['collection'] &&
+      Object.prototype.isPrototypeOf.call(
+        BaseCollection.prototype,
+        (extraOptions['collection'] as any).prototype,
+      )
+    ) {
+      console.warn(
+        `You passed 'collection' option; did you mean to use Collection?
+https://dataclient.io/rest/api/createResource#collection
+This parameter must be capitalized.
+
+This warning will not show in production.`,
+      );
+    }
+  }
   const shortenedPath = shortenPath(path);
   const getName = (name: string) => `${(schema as any)?.name}.${name}`;
   // this accounts for derivative endpoints

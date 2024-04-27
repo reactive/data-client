@@ -5,3 +5,27 @@ exports[`createResource() UserResource.delete should work with  1`] = `"not foun
 exports[`createResource() UserResource.delete should work with {"id": 5} 1`] = `"not found"`;
 
 exports[`createResource() should not allow paths without at least one argument 1`] = `"Resource path requires at least one :parameter"`;
+
+exports[`createResource() warnings should warn when mis-capitalizing options 1`] = `
+[
+  [
+    "You passed 'endpoint' option; did you mean to use Endpoint?
+https://dataclient.io/rest/api/createResource#endpoint
+This parameter must be capitalized.
+
+This warning will not show in production.",
+  ],
+]
+`;
+
+exports[`createResource() warnings should warn when mis-capitalizing options 2`] = `
+[
+  [
+    "You passed 'collection' option; did you mean to use Collection?
+https://dataclient.io/rest/api/createResource#collection
+This parameter must be capitalized.
+
+This warning will not show in production.",
+  ],
+]
+`;

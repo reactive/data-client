@@ -6,7 +6,7 @@ import { formatPrice } from '../../components/formatPrice';
 const TICK_LENGTH = 5;
 const AXIS_HEIGHT = 20;
 
-function LineChart({ data, width, height }: Props) {
+function LineChart({ data, width = 500, height = 400 }: Props) {
   const graphDetails = {
     xScale: scaleTime().range([0, width]),
     yScale: scaleLinear().range([height - AXIS_HEIGHT, 0]),
@@ -89,15 +89,10 @@ function LineChart({ data, width, height }: Props) {
   );
 }
 
-LineChart.defaultProps = {
-  width: 500,
-  height: 400,
-};
-
 interface Props {
   data: { timestamp: number; price_open: number }[];
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
 }
 
 const formatter = new Intl.DateTimeFormat('en-US', {
