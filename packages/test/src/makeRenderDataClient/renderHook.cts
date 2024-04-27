@@ -7,6 +7,7 @@ import type {
   waitForOptions,
   RenderHookOptions,
 } from '@testing-library/react';
+import React from 'react';
 import type { act as reactAct } from 'react-dom/test-utils';
 
 import { USE18 } from './use18.cjs';
@@ -17,11 +18,13 @@ export const renderHook: RenderHook =
   : (require('@testing-library/react-hooks').renderHook as any);
 export default renderHook;
 
-export const act: typeof reactAct extends undefined ?
-  (callback: () => void) => void
-: typeof reactAct =
-  USE18 ?
-    (require('./render18HookWrapped.js').act as any)
+type ActType =
+  typeof reactAct extends undefined ? (callback: () => void) => void
+  : typeof reactAct;
+
+export const act: ActType =
+  Object.hasOwn(React, 'act') ? (React as any).act
+  : USE18 ? (require('./render18HookWrapped.js').act as any)
   : (require('@testing-library/react-hooks').act as any);
 
 export type { RenderHookOptions } from '@testing-library/react';
