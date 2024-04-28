@@ -117,8 +117,9 @@ jobs:
           command: |
             node --version
       - run:
+          # we must use npm because yarn 4 isn't compatible with legacy node versions
           command: |
-            npm test --ci --maxWorkers=3 --selectProjects Node
+            npm test --ci --maxWorkers=2 --selectProjects Node
 
   non-app-examples:
     docker: *docker
@@ -207,7 +208,7 @@ workflows:
       - node_matrix:
           matrix:
             parameters:
-              node-version: ["14.21", "16.19", "18.18"]
+              node-version: ["14.21", "16.19", "18.18", "20.12.2"]
           requires:
             - setup
       - lint:
