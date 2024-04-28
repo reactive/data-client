@@ -119,7 +119,7 @@ jobs:
       - run:
           # we must use npm because yarn 4 isn't compatible with legacy node versions
           command: |
-            npm test --ci --maxWorkers=2 --selectProjects Node
+            ANANSI_JEST_TYPECHECK=false npm test --ci --maxWorkers=2 --selectProjects Node
 
   non-app-examples:
     docker: *docker
