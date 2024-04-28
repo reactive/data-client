@@ -60,7 +60,7 @@
     "@js-temporal/polyfill": "^0.4.4",
     "@react-navigation/native": "^6.0.13",
     "@react-navigation/native-stack": "^6.9.1",
-    "@testing-library/react": "14.3.1",
+    "@testing-library/react": "15.0.5",
     "@testing-library/react-hooks": "8.0.1",
     "@testing-library/react-native": "12.4.5",
     "@types/jest": "29.5.12",

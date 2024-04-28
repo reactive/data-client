@@ -3315,7 +3315,7 @@ __metadata:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
     "@data-client/react": "workspace:*"
-    "@testing-library/react": "npm:^14.0.0"
+    "@testing-library/react": "npm:^15.0.0"
     "@testing-library/react-native": "npm:^12.0.1"
     "@types/jest": "npm:^29.5.0"
     "@types/node": "npm:^20.0.0"
@@ -6434,19 +6434,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/dom@npm:^9.0.0":
-  version: 9.0.0
-  resolution: "@testing-library/dom@npm:9.0.0"
+"@testing-library/dom@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "@testing-library/dom@npm:10.0.0"
   dependencies:
     "@babel/code-frame": "npm:^7.10.4"
     "@babel/runtime": "npm:^7.12.5"
     "@types/aria-query": "npm:^5.0.1"
-    aria-query: "npm:^5.0.0"
+    aria-query: "npm:5.3.0"
     chalk: "npm:^4.1.0"
     dom-accessibility-api: "npm:^0.5.9"
-    lz-string: "npm:^1.4.4"
+    lz-string: "npm:^1.5.0"
     pretty-format: "npm:^27.0.2"
-  checksum: 10c0/3dfb7997acf573af7b20be0e5acb594bd9371558242aa7c270ab48af9759a14227aea9663beae1b7e26493c695432ba4e6d63ed292a10fc7b2ce49c8ac7ba022
+  checksum: 10c0/2d12d2a6018a6f1d15e91834180bc068932c699ff1fcbfb80aa21aba519a4f5329c861dfa852e06ee5615bcb92ef2a0f0e755e32684ea3dada63bc34248382ab
   languageName: node
   linkType: hard
 
@@ -6491,17 +6491,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react@npm:14.3.1, @testing-library/react@npm:^14.0.0":
-  version: 14.3.1
-  resolution: "@testing-library/react@npm:14.3.1"
+"@testing-library/react@npm:15.0.5, @testing-library/react@npm:^15.0.0":
+  version: 15.0.5
+  resolution: "@testing-library/react@npm:15.0.5"
   dependencies:
     "@babel/runtime": "npm:^7.12.5"
-    "@testing-library/dom": "npm:^9.0.0"
+    "@testing-library/dom": "npm:^10.0.0"
     "@types/react-dom": "npm:^18.0.0"
   peerDependencies:
     react: ^18.0.0
     react-dom: ^18.0.0
-  checksum: 10c0/1ccf4eb1510500cc20a805cb0244c9098dca28a8745173a8f71ea1274d63774f0b7898a35c878b43c797b89c13621548909ff37843b835c1a27ee1efbbdd098c
+  checksum: 10c0/8759cc8e7e6b4d8964f151d8872ea3c91b6ef6d8fb3b9116fae53350b9a6b29e5ad45b18408c22525924d050263f7ea77cd17ca803918759f22a760f68a42227
   languageName: node
   linkType: hard
 
@@ -8687,7 +8687,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aria-query@npm:^5.0.0, aria-query@npm:^5.3.0":
+"aria-query@npm:5.3.0, aria-query@npm:^5.3.0":
   version: 5.3.0
   resolution: "aria-query@npm:5.3.0"
   dependencies:
@@ -19058,12 +19058,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lz-string@npm:^1.4.4":
-  version: 1.4.4
-  resolution: "lz-string@npm:1.4.4"
+"lz-string@npm:^1.5.0":
+  version: 1.5.0
+  resolution: "lz-string@npm:1.5.0"
   bin:
     lz-string: bin/bin.js
-  checksum: 10c0/683d2d01607444605bee9902b05851415ae54e4de75ff14971c7e070d0fab53a7f1f82e659f24e6ccdc63080832b937418e278a611ed4a354bf2e7ad6f0b874b
+  checksum: 10c0/36128e4de34791838abe979b19927c26e67201ca5acf00880377af7d765b38d1c60847e01c5ec61b1a260c48029084ab3893a3925fd6e48a04011364b089991b
   languageName: node
   linkType: hard
 
@@ -26422,7 +26422,7 @@ __metadata:
     "@js-temporal/polyfill": "npm:^0.4.4"
     "@react-navigation/native": "npm:^6.0.13"
     "@react-navigation/native-stack": "npm:^6.9.1"
-    "@testing-library/react": "npm:14.3.1"
+    "@testing-library/react": "npm:15.0.5"
     "@testing-library/react-hooks": "npm:8.0.1"
     "@testing-library/react-native": "npm:12.4.5"
     "@types/jest": "npm:29.5.12"
