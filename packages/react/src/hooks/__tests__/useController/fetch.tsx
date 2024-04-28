@@ -1,13 +1,16 @@
 import { ResolveType } from '@data-client/core';
 import { CacheProvider } from '@data-client/react';
 import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
-import { act } from '@testing-library/react-hooks';
 import { CoolerArticle, FutureArticleResource } from '__tests__/new';
 import nock from 'nock';
 
 import { useCache, useSuspense } from '../..';
 // relative imports to avoid circular dependency in tsconfig references
-import { makeRenderDataClient, FixtureEndpoint } from '../../../../../test';
+import {
+  makeRenderDataClient,
+  FixtureEndpoint,
+  act,
+} from '../../../../../test';
 import useController from '../../useController';
 
 export const payload = {
