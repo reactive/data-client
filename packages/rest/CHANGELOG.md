@@ -1,5 +1,25 @@
 # @data-client/rest
 
+## 0.11.5
+
+### Patch Changes
+
+- [#3028](https://github.com/reactive/data-client/pull/3028) [`b173c52`](https://github.com/reactive/data-client/commit/b173c52aa00bc9d57337983f01b2ce5c8ee84f6f) Thanks [@ntucker](https://github.com/ntucker)! - Warn for capitalization mistakes when calling createResource()
+
+  `Endpoint` and `Collection` are both capitalized because they
+  are classes. However, this may not be intuitive since other arguments are lower-first. Let's add a console.warn() to help
+  guide, since this may be intentional?
+
+  ```ts
+  export const UserResource = createResource({
+    urlPrefix: CONFIG.API_ROOT,
+    path: "/users/:id",
+    schema: User,
+    // this should be 'Endpoint:'
+    endpoint: AuthedEndpoint,
+  });
+  ```
+
 ## 0.11.3
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @data-client/react
 
+## 0.11.5
+
+### Patch Changes
+
+- [#3033](https://github.com/reactive/data-client/pull/3033) [`2152b41`](https://github.com/reactive/data-client/commit/2152b41afc56027175bd36e7ef89c433a2e5e025) Thanks [@ntucker](https://github.com/ntucker)! - Environments without RequestIdleCallback will call immediately
+
+- Updated dependencies [[`2152b41`](https://github.com/reactive/data-client/commit/2152b41afc56027175bd36e7ef89c433a2e5e025)]:
+  - @data-client/core@0.11.5
+
 ## 0.11.4
 
 ### Patch Changes

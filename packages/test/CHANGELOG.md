@@ -1,5 +1,13 @@
 # @data-client/test
 
+## 0.11.5
+
+### Patch Changes
+
+- [#3030](https://github.com/reactive/data-client/pull/3030) [`068ae03`](https://github.com/reactive/data-client/commit/068ae0335d3e1c75a62393937a641a9578a2fa4e) Thanks [@renovate](https://github.com/apps/renovate)! - Use @testing-library/react-hooks act as it is fully compatible with 17,18,19 of React
+
+- [`95524f8`](https://github.com/reactive/data-client/commit/95524f8818a485c35be4c095d83f397be6831f65) Thanks [@ntucker](https://github.com/ntucker)! - Prefer using act from 'react' (v19)
+
 ## 0.11.4
 
 ### Patch Changes
