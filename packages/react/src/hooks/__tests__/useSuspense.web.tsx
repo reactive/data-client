@@ -16,7 +16,7 @@ import {
 import { normalize } from '@data-client/normalizr';
 import { jest } from '@jest/globals';
 import { Temporal } from '@js-temporal/polyfill';
-import { render, act } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import {
   CoolerArticleResource,
   InvalidIfStaleArticleResource,
@@ -44,7 +44,7 @@ import {
   ControllerContext,
   StateContext,
 } from '../..';
-import { makeRenderDataClient, mockInitialState } from '../../../../test';
+import { makeRenderDataClient, mockInitialState, act } from '../../../../test';
 import { articlesPages, payload, users, nested } from '../test-fixtures';
 import useSuspense from '../useSuspense';
 
