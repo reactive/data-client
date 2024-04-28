@@ -93,7 +93,7 @@
     },
     {
       "extends": ["packages:linters"],
-      "matchUpdateTypes": ["major", "minor", "patch"],
+      "matchUpdateTypes": ["minor", "patch"],
       "groupSlug": "validation",
       "groupName": "validation packages"
     },
