@@ -3,7 +3,7 @@ import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
 import { TypedArticleResource } from '__tests__/new';
 import nock from 'nock';
 
-import { makeRenderDataClient } from '../../../test';
+import { act, makeRenderDataClient } from '../../../test';
 import { useController, useSuspense } from '../hooks';
 import { payload, createPayload, users, nested } from '../test-fixtures';
 
@@ -55,7 +55,7 @@ describe('endpoint types', () => {
         .get(/article-cooler\/.*/)
         .reply(404, 'not found')
         .put(`/article-cooler/${payload.id}`)
-        .reply(200, (uri, body) => body)
+        .reply(200, (uri, body: any) => ({ ...payload, ...body }))
         .put(/article-cooler\/[^5].*/)
         .reply(404, 'not found');
 
@@ -72,6 +72,14 @@ describe('endpoint types', () => {
       nock.cleanAll();
     });
 
+    let errorSpy: jest.SpyInstance;
+    afterEach(() => {
+      errorSpy.mockRestore();
+    });
+    beforeEach(
+      () => (errorSpy = jest.spyOn(console, 'error').mockImplementation()),
+    );
+
     it('should pass with exact params', async () => {
       const { result, waitForNextUpdate } = renderDataClient(() => {
         return useSuspense(TypedArticleResource.get, {
@@ -81,6 +89,7 @@ describe('endpoint types', () => {
       expect(result.current).toBeUndefined();
       await waitForNextUpdate();
       expect(result.current.title).toBe(payload.title);
+      expect(errorSpy.mock.calls).toEqual([]);
     });
 
     it('should fail with improperly typed param', async () => {
@@ -100,11 +109,14 @@ describe('endpoint types', () => {
       const { result } = renderDataClient(() => {
         return useController().fetch;
       });
-      const a = await result.current(
-        TypedArticleResource.update,
-        { id: payload.id },
-        { title: 'hi' },
-      );
+      await act(async () => {
+        const a = await result.current(
+          TypedArticleResource.update,
+          { id: payload.id },
+          { title: 'hi' },
+        );
+      });
+      expect(errorSpy.mock.calls).toEqual([]);
     });
 
     it('types should strictly enforce with parameters that are any', async () => {
@@ -119,6 +131,7 @@ describe('endpoint types', () => {
           { title: 'hi' },
         );
       () => result.current(TypedArticleResource.anyparam, { id: payload.id });
+      expect(errorSpy.mock.calls).toEqual([]);
     });
 
     it('types should strictly enforce with body that are any', async () => {
@@ -133,9 +146,10 @@ describe('endpoint types', () => {
         );
       // @ts-expect-error
       () => result.current(TypedArticleResource.anybody(), { id: payload.id });
+      expect(errorSpy.mock.calls).toEqual([]);
     });
 
-    it('should error on invalid payload', async () => {
+    it('should console.error on invalid payload', async () => {
       const { result } = renderDataClient(() => {
         return useController().fetch;
       });
@@ -151,6 +165,7 @@ describe('endpoint types', () => {
         // @ts-expect-error
         { title: 5 },
       );
+      expect(errorSpy.mock.calls).toMatchSnapshot();
     });
 
     it('should error on invalid params', async () => {
@@ -158,14 +173,21 @@ describe('endpoint types', () => {
         return useController().fetch;
       });
 
-      expect(() =>
-        result.current(
-          TypedArticleResource.update,
-          // @ts-expect-error
-          'hi',
-          { title: 'hi' },
-        ),
-      ).toThrow(expect.any(Error));
+      let caught;
+      await act(async () => {
+        try {
+          await result.current(
+            TypedArticleResource.update,
+            // @ts-expect-error
+            'hi',
+            { title: 'hi' },
+          );
+        } catch (error) {
+          caught = error;
+        }
+      });
+
+      expect(caught).toEqual(expect.any(Error));
     });
   });
 });

@@ -6,7 +6,6 @@ import type {
   Queries,
   waitForOptions,
   RenderHookOptions,
-  act as ActType,
 } from '@testing-library/react';
 
 import { USE18 } from './use18.cjs';
@@ -17,8 +16,16 @@ export const renderHook: RenderHook =
   : (require('@testing-library/react-hooks').renderHook as any);
 export default renderHook;
 
+// we declare our own type here because the one is marked as deprecated in the react library
+declare const UNDEFINED_VOID_ONLY: unique symbol;
+type VoidOrUndefinedOnly = void | { [UNDEFINED_VOID_ONLY]: never };
+interface ActType {
+  (callback: () => VoidOrUndefinedOnly): void;
+  <T>(callback: () => T | Promise<T>): Promise<T>;
+}
+
 // this is for react native + react web compatibility, not actually 18 compatibility
-export const act: typeof ActType =
+export const act: ActType =
   USE18 ?
     require('./render18HookWrapped.js').act
   : (require('@testing-library/react-hooks').act as any);
