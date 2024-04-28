@@ -463,12 +463,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:19.0.4, @anansi/webpack-config@npm:^19.0.0":
-  version: 19.0.4
-  resolution: "@anansi/webpack-config@npm:19.0.4"
+"@anansi/webpack-config@npm:19.0.5, @anansi/webpack-config@npm:^19.0.0":
+  version: 19.0.5
+  resolution: "@anansi/webpack-config@npm:19.0.5"
   dependencies:
     "@babel/runtime": "npm:^7.17.2"
-    "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.11"
+    "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.13"
     "@svgr/webpack": "npm:^8.1.0"
     "@types/webpack-bundle-analyzer": "npm:^4.7.0"
     "@vue/preload-webpack-plugin": "npm:^2.0.0"
@@ -505,7 +505,7 @@ __metadata:
     process: "npm:^0.11.10"
     punycode: "npm:^2.3.1"
     querystring-es3: "npm:^0.2.1"
-    ramda: "npm:^0.29.1"
+    ramda: "npm:^0.30.0"
     react-dev-utils: "npm:^12.0.1"
     react-error-overlay: "npm:6.0.9"
     readable-stream: "npm:^4.5.2"
@@ -566,7 +566,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: 10c0/548e42630268ebd2e5c51c5b42ba83366ee5fe2dd75c118973eebd659c0a6b642812dd2c1027b4f90ccf53c1456c7d48fbbefb3b9560ccba745cd34be6044b0a
+  checksum: 10c0/50e28f993ed8b3a457a3798efd9dd62dfd10e531b76b5238e15449ad978c7a1113074f60a58fc3d659143ee020da2e2a3506793be3522f50e866827de6eaa0b2
   languageName: node
   linkType: hard
 
@@ -5423,15 +5423,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pmmmwh/react-refresh-webpack-plugin@npm:^0.5.11":
-  version: 0.5.11
-  resolution: "@pmmmwh/react-refresh-webpack-plugin@npm:0.5.11"
+"@pmmmwh/react-refresh-webpack-plugin@npm:^0.5.13":
+  version: 0.5.13
+  resolution: "@pmmmwh/react-refresh-webpack-plugin@npm:0.5.13"
   dependencies:
     ansi-html-community: "npm:^0.0.8"
-    common-path-prefix: "npm:^3.0.0"
     core-js-pure: "npm:^3.23.3"
     error-stack-parser: "npm:^2.0.6"
-    find-up: "npm:^5.0.0"
     html-entities: "npm:^2.1.0"
     loader-utils: "npm:^2.0.4"
     schema-utils: "npm:^3.0.0"
@@ -5442,7 +5440,7 @@ __metadata:
     sockjs-client: ^1.4.0
     type-fest: ">=0.17.0 <5.0.0"
     webpack: ">=4.43.0 <6.0.0"
-    webpack-dev-server: 3.x || 4.x
+    webpack-dev-server: 3.x || 4.x || 5.x
     webpack-hot-middleware: 2.x
     webpack-plugin-serve: 0.x || 1.x
   peerDependenciesMeta:
@@ -5458,7 +5456,7 @@ __metadata:
       optional: true
     webpack-plugin-serve:
       optional: true
-  checksum: 10c0/a9c8468417a14a23339e313cff6ddb8029e0637748973070e61d83a2534620b3492b9a42ecf9eb9d63cb709f53c17fe814bc7dd68d64c300db338e9fd7287bc4
+  checksum: 10c0/2aa713ce0979bfe508fc8a4605eaf39be2ee8f3d8e53d0dd7af1eab1249c7782e95aa644938210c86a654570ea355659a228c150b3fde51f2831211be8e4a0cc
   languageName: node
   linkType: hard
 
@@ -24791,10 +24789,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ramda@npm:^0.29.1":
-  version: 0.29.1
-  resolution: "ramda@npm:0.29.1"
-  checksum: 10c0/5de53a07400959c1a704c366ec52b1b8cd9a444dc1f9cdf17d607e0b9eeaa38cbaea309d43e59dbd7f36731ba977a64d40092555c0e7c2d4a41e8e922239c0ba
+"ramda@npm:^0.30.0":
+  version: 0.30.0
+  resolution: "ramda@npm:0.30.0"
+  checksum: 10c0/31752fc1ff43905ebabe666fc07f3a55e4fb4565f54fa38bc823c336eb399d3d1f90d0f538d3a620974d59aec35973850a9f034922601836aba594b2ed6c1574
   languageName: node
   linkType: hard
 
@@ -24874,7 +24872,7 @@ __metadata:
   resolution: "rdc-website@workspace:website"
   dependencies:
     "@anansi/browserslist-config": "npm:1.5.0"
-    "@anansi/webpack-config": "npm:19.0.4"
+    "@anansi/webpack-config": "npm:19.0.5"
     "@data-client/endpoint": "workspace:*"
     "@data-client/graphql": "workspace:*"
     "@data-client/hooks": "workspace:*"
