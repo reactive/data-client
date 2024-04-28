@@ -83,12 +83,22 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/
+      - restore_cache:
+          keys:
+            - v9-react-deps-<< parameters.react-version >>-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v9-react-deps-<< parameters.react-version >>-
       - run:
           command: |
             if [ "<< parameters.react-version >>" != "^18" ]; then
             yarn add --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >> @testing-library/react@^12.0.0 @testing-library/react-hooks
             yarn workspace @data-client/test add @testing-library/react@^12.0.0
             fi
+      - save_cache:
+          paths:
+            - .yarn/cache
+            - .yarn/install-state.gz
+          key: v9-react-deps-<< parameters.react-version >>-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}
       - run:
           command: |
             if [ "<< parameters.react-version >>" == "^17.0.0" ]; then
