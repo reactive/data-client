@@ -101,7 +101,7 @@ jobs:
                 ./codecov < ./lcov.info || true;
               fi
             else
-              yarn test:ci --maxWorkers=3
+              yarn test:ci --maxWorkers=3 --selectProjects ReactDOM ReactNative
             fi
 
   node_matrix:

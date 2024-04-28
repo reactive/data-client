@@ -89,7 +89,7 @@ const projects = [
     ...baseConfig,
     rootDir: __dirname,
     roots: packages.map(pkgName => `<rootDir>/packages/${pkgName}/src`),
-    displayName: 'React Native',
+    displayName: 'ReactNative',
     testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.native\\.(j|t)sx?$',
     testEnvironment:
       '<rootDir>/node_modules/react-native/jest/react-native-env.js',
