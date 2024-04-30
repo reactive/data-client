@@ -7,8 +7,7 @@ import {
   useSuspense,
   useQuery,
 } from '@data-client/react';
-import { makeRenderDataClient } from '@data-client/test';
-import { act } from '@testing-library/react-hooks';
+import { makeRenderDataClient, act } from '@data-client/test';
 import nock, { ReplyHeaders } from 'nock';
 
 import createResource from '../createResource';

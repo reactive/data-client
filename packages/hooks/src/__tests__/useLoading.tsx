@@ -1,6 +1,6 @@
 import { render, waitFor } from '@testing-library/react';
-import { renderHook, act } from '@testing-library/react-hooks';
 
+import { renderHook, act } from '../../../test';
 import useLoading from '../useLoading';
 
 describe('useLoading()', () => {

@@ -2,14 +2,17 @@ import { State, ActionTypes, Controller, actionTypes } from '@data-client/core';
 import { CacheProvider } from '@data-client/react';
 import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
 import { render, act } from '@testing-library/react';
-import { renderHook } from '@testing-library/react-hooks';
 import { CoolerArticleResource, PaginatedArticleResource } from '__tests__/new';
 import nock from 'nock';
 import React, { Suspense, useContext, useEffect } from 'react';
 
 // relative imports to avoid circular dependency in tsconfig references
 
-import { makeRenderDataClient, mockInitialState } from '../../../test';
+import {
+  makeRenderDataClient,
+  mockInitialState,
+  renderHook,
+} from '../../../test';
 import { ControllerContext, StateContext } from '../context';
 import { useController, useSuspense } from '../hooks';
 import { articlesPages, createPayload, payload } from '../test-fixtures';

@@ -6,13 +6,12 @@ import {
 } from '@data-client/core';
 import { CacheProvider } from '@data-client/react';
 import { render } from '@testing-library/react';
-import { renderHook } from '@testing-library/react-hooks';
 import { CoolerArticleResource, StaticArticleResource } from '__tests__/new';
 import nock from 'nock';
 import React, { Suspense } from 'react';
-// relative imports to avoid circular dependency in tsconfig references
 
-import { makeRenderDataClient } from '../../../../test';
+// relative imports to avoid circular dependency in tsconfig references
+import { makeRenderDataClient, renderHook } from '../../../../test';
 import { StateContext, ControllerContext } from '../../context';
 import { users, payload } from '../test-fixtures';
 import useFetch from '../useFetch';

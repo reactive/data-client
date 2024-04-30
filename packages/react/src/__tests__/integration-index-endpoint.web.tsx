@@ -1,10 +1,9 @@
-import { act } from '@testing-library/react-hooks';
 import { IndexedUser, IndexedUserResource, User } from '__tests__/new';
 import nock from 'nock';
 import { useContext } from 'react';
 
 // relative imports to avoid circular dependency in tsconfig references
-import { makeRenderDataClient } from '../../../test';
+import { makeRenderDataClient, act } from '../../../test';
 import { CacheProvider } from '../components';
 import { StateContext } from '../context';
 import { useSuspense, useController, useQuery } from '../hooks';

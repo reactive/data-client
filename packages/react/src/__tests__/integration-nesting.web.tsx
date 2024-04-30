@@ -1,6 +1,5 @@
 import { CacheProvider } from '@data-client/react';
 import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
-import { act } from '@testing-library/react-hooks';
 import {
   CoauthoredArticle,
   CoauthoredArticleResource,
@@ -8,7 +7,7 @@ import {
 } from '__tests__/new';
 import nock from 'nock';
 
-import { makeRenderDataClient } from '../../../test';
+import { makeRenderDataClient, act } from '../../../test';
 import { useCache, useSuspense, useController } from '../hooks';
 import { coAuthored } from '../test-fixtures';
 

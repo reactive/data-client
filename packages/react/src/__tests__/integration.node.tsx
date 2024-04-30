@@ -1,9 +1,8 @@
 import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
-import { act } from '@testing-library/react-hooks';
 import { CoolerArticleDetail } from '__tests__/new';
 
 // relative imports to avoid circular dependency in tsconfig references
-import { makeRenderDataClient } from '../../../test';
+import { makeRenderDataClient, act } from '../../../test';
 import { useCache, useSuspense } from '../hooks';
 import { useController } from '../hooks';
 import { payload } from '../test-fixtures';

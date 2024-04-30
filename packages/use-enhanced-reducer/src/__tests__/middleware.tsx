@@ -1,6 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
-import React from 'react';
-
+import { renderHook, act } from '../../../test';
 import { MiddlewareAPI } from '../types';
 import useEnhancedReducer from '../useEnhancedReducer';
 
@@ -181,27 +179,32 @@ describe('createEnhancedReducerHook', () => {
       ...state,
       counter: state.counter + 1,
     });
-    const { result } = renderHook(() => {
+    const { result, waitFor } = renderHook(() => {
       return useEnhancedReducer(reducer, { counter: 0 }, [logger]);
     });
     let [state, dispatch] = result.current;
     expect(callBefore.mock.calls.length).toBe(0);
     let action: any = { type: 'hi' };
-    await act(() => {
-      return dispatch(action);
+    act(() => {
+      dispatch(action);
     });
+
     [state, dispatch] = result.current;
     expect(callBefore.mock.calls.length).toBe(1);
-    expect(callAfter.mock.calls.length).toBe(1);
+    await waitFor(() => {
+      expect(callAfter.mock.calls.length).toBe(1);
+    });
     expect(callBefore.mock.calls[0][0]).toEqual({ counter: 0 });
     expect(callAfter.mock.calls[0][0]).toEqual({ counter: 1 });
     expect(callAfter.mock.calls[0][0]).toEqual(state);
     action = { type: 'dispatch', payload: 5 };
-    await act(() => {
-      return dispatch(action);
+    act(() => {
+      dispatch(action);
     });
     expect(callBefore.mock.calls.length).toBe(2);
-    expect(callAfter.mock.calls.length).toBe(2);
+    await waitFor(() => {
+      expect(callAfter.mock.calls.length).toBe(2);
+    });
     expect(callBefore.mock.calls[1][0]).toEqual({ counter: 1 });
     expect(callAfter.mock.calls[1][0]).toEqual({ counter: 2 });
   });

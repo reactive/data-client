@@ -3323,9 +3323,8 @@ __metadata:
     "@types/react-dom": "npm:^18.0.11"
     "@types/react-test-renderer": "npm:^18"
     jest: "npm:^29.5.0"
-    react-error-boundary: "npm:^4.0.0"
   peerDependencies:
-    "@data-client/react": ^0.5.0 || ^0.7.0 || ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0
+    "@data-client/react": ^0.11.0
     "@testing-library/react-hooks": ^8.0.0
     "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0 || ^19.0.0
     "@types/react-dom": "*"
@@ -24985,17 +24984,6 @@ __metadata:
   peerDependencies:
     react: ">=16.13.1"
   checksum: 10c0/f977ca61823e43de2381d53dd7aa8b4d79ff6a984c9afdc88dc44f9973b99de7fd382d2f0f91f2688e24bb987c0185bf45d0b004f22afaaab0f990a830253bfb
-  languageName: node
-  linkType: hard
-
-"react-error-boundary@npm:^4.0.0":
-  version: 4.0.13
-  resolution: "react-error-boundary@npm:4.0.13"
-  dependencies:
-    "@babel/runtime": "npm:^7.12.5"
-  peerDependencies:
-    react: ">=16.13.1"
-  checksum: 10c0/6f3e0e4d7669f680ccf49c08c9571519c6e31f04dcfc30a765a7136c7e6fbbbe93423dd5a9fce12107f8166e54133e9dd5c2079a00c7a38201ac811f7a28b8e7
   languageName: node
   linkType: hard
 
