@@ -7,30 +7,48 @@ import { ActionTypes, Controller, actionTypes } from '@data-client/react';
  * https://docs.cloud.coinbase.com/advanced-trade-api/docs/ws-overview
  */
 export default class StreamManager implements Manager {
-  protected  middleware: Middleware<ActionTypes>;
-  protected  evtSource: WebSocket; // | EventSource;
-  protected  endpoints: Record<string, EndpointInterface>;
+  protected declare middleware: Middleware<ActionTypes>;
+  protected declare evtSource: WebSocket; // | EventSource;
+  protected declare endpoints: Record<string, EndpointInterface>;
   protected msgQueue: (string | ArrayBufferLike | Blob | ArrayBufferView)[] =
     [];
 
   protected product_ids: string[] = [];
+  private attempts = 0;
+  protected declare connect: () => void;
 
   constructor(
-    evtSource: WebSocket, // | EventSource,
+    evtSource: () => WebSocket, // | EventSource,
     endpoints: Record<string, EndpointInterface>,
   ) {
-    this.evtSource = evtSource;
     this.endpoints = endpoints;
 
     this.middleware = controller => {
-      this.evtSource.onmessage = event => {
-        try {
-          const msg = JSON.parse(event.data);
-          this.handleMessage(controller, msg);
-        } catch (e) {
-          console.error('Failed to handle message');
-          console.error(e);
-        }
+      this.connect = () => {
+        this.evtSource = evtSource();
+        this.evtSource.onmessage = event => {
+          try {
+            const msg = JSON.parse(event.data);
+            this.handleMessage(controller, msg);
+          } catch (e) {
+            console.error('Failed to handle message');
+            console.error(e);
+          }
+        };
+        this.evtSource.onopen = () => {
+          console.info('WebSocket connected');
+          // Reset reconnection attempts after a successful connection
+          this.attempts = 0;
+        };
+        this.evtSource.onclose = () => {
+          console.info('WebSocket disconnected');
+          this.reconnect();
+        };
+        this.evtSource.onerror = error => {
+          console.error('WebSocket error:', error);
+          // Ensures that the onclose handler gets triggered for reconnection
+          this.evtSource.close();
+        };
       };
       return next => async action => {
         switch (action.type) {
@@ -110,14 +128,31 @@ export default class StreamManager implements Manager {
   }
 
   init() {
+    this.connect();
     this.evtSource.addEventListener('open', event => {
       //this.msgQueue.forEach((msg) => this.evtSource.send(msg));
       this.flushSubscribe();
     });
   }
 
+  reconnect() {
+    // Exponential backoff formula to gradually increase the reconnection time
+    setTimeout(
+      () => {
+        console.info(
+          `Attempting to reconnect... (Attempt: ${this.attempts + 1})`,
+        );
+        this.attempts++;
+        this.connect();
+      },
+      Math.min(10000, (Math.pow(2, this.attempts) - 1) * 1000),
+    );
+  }
+
   cleanup() {
-    //this.evtSource.close();
+    // remove our event handler that attempts reconnection
+    this.evtSource.onclose = null;
+    this.evtSource.close();
   }
 
   getMiddleware() {
