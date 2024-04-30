@@ -274,15 +274,15 @@ __metadata:
   linkType: hard
 
 "@anansi/cli@npm:^3.0.15":
-  version: 3.1.22
-  resolution: "@anansi/cli@npm:3.1.22"
+  version: 3.1.23
+  resolution: "@anansi/cli@npm:3.1.23"
   dependencies:
-    "@anansi/generator-js": "npm:^12.4.4"
+    "@anansi/generator-js": "npm:^12.4.5"
     bin-version-check: "npm:^6.0.0"
     chalk: "npm:^4.1.2"
     commander: "npm:^12.0.0"
     execa: "npm:^8.0.1"
-    import-meta-resolve: "npm:^4.0.0"
+    import-meta-resolve: "npm:^4.1.0"
     latest-version: "npm:^9.0.0"
     yo: "npm:^5.0.0"
   peerDependencies:
@@ -292,13 +292,13 @@ __metadata:
       optional: true
   bin:
     anansi: ./run.mjs
-  checksum: 10c0/652602d4b6cb0be793252d9e867a28f9a5702f44dd84873fc0d24295dc595c208efa1cb8445f17c54e3607184f3539298703caeda62bde476961f14e44416626
+  checksum: 10c0/cd75381caf0f938f38e401565d42f173732f3917a80f30a59f4f8957a99f3d09e135328aee8d4c05beba537f06e04ff1c4089984c39d61021e1187150b12faf8
   languageName: node
   linkType: hard
 
 "@anansi/core@npm:^0.19.0":
-  version: 0.19.0
-  resolution: "@anansi/core@npm:0.19.0"
+  version: 0.19.1
+  resolution: "@anansi/core@npm:0.19.1"
   dependencies:
     "@anansi/router": "npm:^0.10.0"
     "@babel/runtime": "npm:^7.17.0"
@@ -310,7 +310,7 @@ __metadata:
     express: "npm:^4.19.2"
     fs-require: "npm:^1.6.0"
     history: "npm:^5.3.0"
-    http-proxy-middleware: "npm:^2.0.6"
+    http-proxy-middleware: "npm:^3.0.0"
     memfs: "npm:^3.5.3"
     ora: "npm:^6.3.1"
     redux: "npm:^5.0.1"
@@ -345,7 +345,7 @@ __metadata:
   bin:
     serve-anansi: ./lib/scripts/serve.js
     start-anansi: ./lib/scripts/startDevserver.js
-  checksum: 10c0/7c3176b649c3e108b9da65622bd711dffa147e0b1f184d262ad9942742a4b64449638022669298215e1df29896a43c0c3f9b87ef3e7695e3e0cafaa6669cea69
+  checksum: 10c0/8148d84d3063ee6dc4cee6a8f6df050e2a4a0d1b4867c25f80d64da5d3911f4582e8a73d6dae1377307052f490a608051afa9069d20af455e785dd188fc16192
   languageName: node
   linkType: hard
 
@@ -382,9 +382,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/generator-js@npm:^12.4.4":
-  version: 12.4.4
-  resolution: "@anansi/generator-js@npm:12.4.4"
+"@anansi/generator-js@npm:^12.4.5":
+  version: 12.4.5
+  resolution: "@anansi/generator-js@npm:12.4.5"
   dependencies:
     "@babel/runtime": "npm:^7.17.0"
     "@types/inquirer": "npm:^9.0.7"
@@ -395,13 +395,13 @@ __metadata:
     execa: "npm:^8.0.1"
     gulp-filter: "npm:^9.0.1"
     gulp-prettier: "npm:^6.0.0"
-    import-meta-resolve: "npm:^4.0.0"
+    import-meta-resolve: "npm:^4.1.0"
     mem-fs: "npm:^4.1.0"
     mem-fs-editor: "npm:^11.0.0"
     pacote: "npm:^18.0.2"
     shelobsay: "npm:^2.0.0"
     yeoman-generator: "npm:^7.1.1"
-  checksum: 10c0/7a44c4a1494238a7554fc0308af3c185e8a5393735c64be5cd2d8b1af0ad063c61a768660a072adade635388868118bea44b68550dd06380bcaccd3d236d4b78
+  checksum: 10c0/cd39741e9a59331e8b9489bcbf9c6f06da821a6ad27b0777f876276941070827ac1654d2e64b54a3c4a33fef89360c566d1648794512ac2d311c4661996b3017
   languageName: node
   linkType: hard
 
@@ -7130,12 +7130,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/http-proxy@npm:^1.17.8":
-  version: 1.17.11
-  resolution: "@types/http-proxy@npm:1.17.11"
+"@types/http-proxy@npm:^1.17.10, @types/http-proxy@npm:^1.17.8":
+  version: 1.17.14
+  resolution: "@types/http-proxy@npm:1.17.14"
   dependencies:
     "@types/node": "npm:*"
-  checksum: 10c0/0af1bed7c1eaace924b8a316a718a702d40882dc541320ca1629c7f4ee852ef4dbef1963d4cb9e523b59dbe4d7f07e37def38b15e8ebb92d5b569b800b1c2bf7
+  checksum: 10c0/c4bffd87be9aff7e879c05bd2c28716220e0eb39788e3f8d314eee665324ad8f5f0919041cbd710254d553cd9cea023f8b776d4b1ec31d2188eac60af18c3022
   languageName: node
   linkType: hard
 
@@ -16251,7 +16251,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"http-proxy-middleware@npm:^2.0.3, http-proxy-middleware@npm:^2.0.6":
+"http-proxy-middleware@npm:^2.0.3":
   version: 2.0.6
   resolution: "http-proxy-middleware@npm:2.0.6"
   dependencies:
@@ -16266,6 +16266,20 @@ __metadata:
     "@types/express":
       optional: true
   checksum: 10c0/25a0e550dd1900ee5048a692e0e9b2b6339d06d487a705d90c47e359e9c6561d648cd7862d001d090e651c9efffa1b6e5160fcf1f299b5fa4935f76e9754eb11
+  languageName: node
+  linkType: hard
+
+"http-proxy-middleware@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "http-proxy-middleware@npm:3.0.0"
+  dependencies:
+    "@types/http-proxy": "npm:^1.17.10"
+    debug: "npm:^4.3.4"
+    http-proxy: "npm:^1.18.1"
+    is-glob: "npm:^4.0.1"
+    is-plain-obj: "npm:^3.0.0"
+    micromatch: "npm:^4.0.5"
+  checksum: 10c0/a3da2e9211483834384c27ad37dcff00dc8ea4990bb791f1383d3a5951f28f77fdc41dbaf2501a6607dcfca3dacac11e43bda22c4f68224abe532cbab8983ede
   languageName: node
   linkType: hard
 
@@ -16530,10 +16544,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"import-meta-resolve@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "import-meta-resolve@npm:4.0.0"
-  checksum: 10c0/709375e01f8c3a87b7870991ca29c630d71bb7e22b7bb0f622613173d87b41b4043b4a983800e6d38ab3867496a46f82d30df0cbc2e55792c91c23193eea67a1
+"import-meta-resolve@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "import-meta-resolve@npm:4.1.0"
+  checksum: 10c0/42f3284b0460635ddf105c4ad99c6716099c3ce76702602290ad5cbbcd295700cbc04e4bdf47bacf9e3f1a4cec2e1ff887dabc20458bef398f9de22ddff45ef5
   languageName: node
   linkType: hard
 
