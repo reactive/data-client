@@ -1,7 +1,6 @@
 import { Controller } from '@data-client/core';
 import { CacheProvider } from '@data-client/react';
 import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
-import { renderHook } from '@testing-library/react-hooks';
 import {
   PollingArticleResource,
   ArticleResource,
@@ -9,7 +8,7 @@ import {
 } from '__tests__/new';
 import nock from 'nock';
 
-import { act, makeRenderDataClient } from '../../../test';
+import { act, makeRenderDataClient, renderHook } from '../../../test';
 import { ControllerContext } from '../context';
 import { useSubscription, useCache } from '../hooks';
 

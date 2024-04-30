@@ -1,7 +1,7 @@
-import { renderHook, act } from '@testing-library/react-hooks';
 import { ArticleResource } from '__tests__/new';
 import nock from 'nock';
 
+import { renderHook, act } from '../../../test';
 import useCancelling from '../useCancelling';
 
 describe('useCancelling()', () => {

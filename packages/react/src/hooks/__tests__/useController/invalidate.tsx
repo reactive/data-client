@@ -1,13 +1,11 @@
 import { CacheProvider } from '@data-client/react';
 import { FixtureEndpoint } from '@data-client/test/mockState';
-import { renderHook } from '@testing-library/react-hooks';
-import { act } from '@testing-library/react-hooks';
 import { FutureArticleResource, GetPhoto } from '__tests__/new';
 import nock from 'nock';
 import { useEffect } from 'react';
 
 import { useCache, useController } from '../..';
-import { makeRenderDataClient } from '../../../../../test';
+import { makeRenderDataClient, act, renderHook } from '../../../../../test';
 
 export const payload = {
   id: 5,

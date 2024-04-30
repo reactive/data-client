@@ -1,6 +1,5 @@
 import { CacheProvider } from '@data-client/react';
 import { FixtureEndpoint } from '@data-client/test/mockState';
-import { act } from '@testing-library/react-hooks';
 import { CoolerArticle, FutureArticleResource } from '__tests__/new';
 import nock from 'nock';
 

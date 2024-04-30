@@ -1,9 +1,9 @@
 /**
  * Provides an abstraction over react 17 and 18 compatible libraries
  */
+import { ErrorBoundary } from '@data-client/react';
 import type { Queries, waitForOptions } from '@testing-library/react';
 import React, { Suspense } from 'react';
-import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 
 import { act, waitFor, renderHook, RenderHookOptions } from './render18Hook.js';
 
@@ -25,13 +25,10 @@ export function render18Wrapper<
     error = e;
   };
   let resetErrorBoundary = () => {};
-  const ErrorFallback = ({
-    error,
-    resetErrorBoundary: reset,
-  }: FallbackProps) => {
+  const ErrorFallback = ({ error, resetErrorBoundary: reset }: any) => {
     resetErrorBoundary = () => {
       resetErrorBoundary = () => {};
-      reset();
+      setTimeout(reset, 0);
     };
     setError(error);
     return null;
@@ -52,7 +49,7 @@ export function render18Wrapper<
 
     return (
       <Suspense fallback={<SetUndefined />}>
-        <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <ErrorBoundary fallbackComponent={ErrorFallback}>
           {props.children}
         </ErrorBoundary>
       </Suspense>

@@ -15,7 +15,7 @@ export type {
   ErrorFixture,
   Interceptor,
 } from './fixtureTypes.js';
-export { act } from './makeRenderDataClient/renderHook.cjs';
+export { act, renderHook } from './makeRenderDataClient/renderHook.cjs';
 export type { RenderHookOptions } from './makeRenderDataClient/renderHook.cjs';
 
 export { makeRenderDataClient, mockInitialState };
