@@ -1,5 +1,17 @@
 # @data-client/test
 
+## 0.12.0
+
+### Minor Changes
+
+- [#3038](https://github.com/reactive/data-client/pull/3038) [`7a22440`](https://github.com/reactive/data-client/commit/7a224401d2601735b9a96f477d1975e23089e199) Thanks [@ntucker](https://github.com/ntucker)! - Rely on [ErrorBoundary](https://dataclient.io/docs/api/ErrorBoundary) from '@data-client/react' rather than error-boundary package.
+
+  BREAKING CHANGE: This means only 0.11 and higher of '@data-client/react' is supported
+
+### Patch Changes
+
+- [#3038](https://github.com/reactive/data-client/pull/3038) [`7a22440`](https://github.com/reactive/data-client/commit/7a224401d2601735b9a96f477d1975e23089e199) Thanks [@ntucker](https://github.com/ntucker)! - Export renderHook() - React 17 & 18 compatible
+
 ## 0.11.5
 
 ### Patch Changes

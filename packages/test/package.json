@@ -1,6 +1,6 @@
 {
   "name": "@data-client/test",
-  "version": "0.11.5",
+  "version": "0.12.0",
   "description": "Testing utilities for Data Client",
   "homepage": "https://dataclient.io/docs/guides/storybook",
   "repository": {
