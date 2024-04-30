@@ -36,7 +36,7 @@ Returned from makeRenderDataClient():
 
 ```typescript
 type RenderDataClientFunction = {
-  <P, R, T=any>(
+  <P, R, T = any>(
     callback: (props: P) => R,
     options?: {
       initialProps?: P;
@@ -102,6 +102,38 @@ Pass a React Component as the wrapper option to have it rendered around the inne
 ### controller
 
 [Controller](./Controller.md) to dispatch imperative effects
+
+```ts
+it('should update', async () => {
+  const id = 5;
+  const payload = { title: 'first item', id, completed: false };
+  // highlight-next-line
+  const { result, controller } = renderDataClient(
+    () => {
+      return useSuspense(TodoResource.get, { id });
+    },
+    {
+      initialFixtures: [
+        {
+          endpoint: TodoResource.get,
+          args: [{ id }],
+          response: [payload],
+        },
+      ],
+    },
+  );
+  expect(result.current).toEqual(TodoResource.fromJS(payload));
+  // highlight-start
+  await act(() => {
+    await controller.fetch(TodoResource.update, {
+      id,
+      title: 'updated title',
+    });
+  });
+  // highlight-end
+  expect(result.current.title).toBe('updated title');
+});
+```
 
 ### cleanup()
 

@@ -20,7 +20,7 @@ and retrieval performance.
 
   - [Managers](./Manager.md) as the first argument in [Manager.getMiddleware()](./Manager.md#getmiddleware)
   - React with [useController()](./useController.md)
-  - [Unit testing hooks](../guides/unit-testing-hooks.md) with [renderDataClient()](./makeRenderDataClient.md#renderdataclient)
+  - [Unit testing hooks](../guides/unit-testing-hooks.md) with [renderDataClient()](./makeRenderDataClient.md#controller)
 
 ```ts
 class Controller {
