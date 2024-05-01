@@ -33,7 +33,7 @@ export default function useSuspense<
   >,
 >(
   endpoint: E,
-  ...args: readonly [...NI<Parameters<E>>]
+  ...args: readonly [...Parameters<E>]
 ): E['schema'] extends undefined | null ? ResolveType<E>
 : Denormalize<E['schema']>;
 
@@ -45,7 +45,7 @@ export default function useSuspense<
   >,
 >(
   endpoint: E,
-  ...args: readonly [...NI<Parameters<E>>] | readonly [null]
+  ...args: readonly [...Parameters<E>] | readonly [null]
 ): E['schema'] extends undefined | null ? ResolveType<E> | undefined
 : DenormalizeNullable<E['schema']>;
 

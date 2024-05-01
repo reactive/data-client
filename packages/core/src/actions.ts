@@ -71,7 +71,7 @@ export interface FetchMeta<A extends readonly any[] = readonly any[]> {
 export interface FetchAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
   type: typeof FETCH_TYPE;
   endpoint: E;
-  meta: FetchMeta<Parameters<E>>;
+  meta: FetchMeta<readonly [...Parameters<E>]>;
   payload: () => ReturnType<E>;
 }
 

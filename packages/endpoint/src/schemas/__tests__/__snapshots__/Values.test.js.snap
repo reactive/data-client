@@ -50,6 +50,20 @@ exports[`ValuesSchema normalization can use a function to determine the schema w
 }
 `;
 
+exports[`ValuesSchema normalization can use a function to determine the schema when normalizing 2`] = `
+[
+  [
+    "Schema attribute "lizards" is not expected.
+Expected one of: "dogs", "cats"
+
+Value: {
+  "id": "2",
+  "type": "lizard"
+}",
+  ],
+]
+`;
+
 exports[`ValuesSchema normalization filters out null and undefined values 1`] = `
 {
   "entities": {

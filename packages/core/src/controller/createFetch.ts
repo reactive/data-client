@@ -19,7 +19,7 @@ export default function createFetch<
   const promise = new Promise<any>((a, b) => {
     [resolve, reject] = [a, b];
   });
-  const meta: FetchMeta<any> = {
+  const meta: FetchMeta<typeof args> = {
     args,
     key,
     throttle: !endpoint.sideEffect,

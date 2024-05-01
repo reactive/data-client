@@ -25,7 +25,7 @@ export default function useFetch<
   >,
 >(
   endpoint: E,
-  ...args: readonly [...NI<Parameters<E>>]
+  ...args: readonly [...Parameters<E>]
 ): E['schema'] extends undefined | null ? ReturnType<E>
 : Promise<Denormalize<E['schema']>>;
 
@@ -37,7 +37,7 @@ export default function useFetch<
   >,
 >(
   endpoint: E,
-  ...args: readonly [...NI<Parameters<E>>] | readonly [null]
+  ...args: readonly [...Parameters<E>] | readonly [null]
 ): E['schema'] extends undefined | null ? ReturnType<E> | undefined
 : Promise<DenormalizeNullable<E['schema']>>;
 
@@ -49,7 +49,7 @@ export default function useFetch<
   >,
 >(
   endpoint: E,
-  ...args: readonly [...NI<Parameters<E>>] | readonly [null]
+  ...args: readonly [...Parameters<E>] | readonly [null]
 ): Promise<any> | undefined {
   const state = useCacheState();
   const controller = useController();

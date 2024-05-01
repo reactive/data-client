@@ -17,6 +17,13 @@ beforeAll(() => {
 afterAll(() => {
   dateSpy.mockRestore();
 });
+let warnSpy;
+afterEach(() => {
+  warnSpy.mockRestore();
+});
+beforeEach(() =>
+  (warnSpy = jest.spyOn(console, 'warn')).mockImplementation(() => {}),
+);
 
 describe(`${schema.Union.name} normalization`, () => {
   test('throws if not given a schemaAttribute', () => {
@@ -60,6 +67,7 @@ describe(`${schema.Union.name} normalization`, () => {
       normalize({ id: '2', groupname: 'People' }, union),
     ).toMatchSnapshot();
     expect(normalize({ id: '3', notdefined: 'yep' }, union)).toMatchSnapshot();
+    expect(warnSpy.mock.calls).toMatchSnapshot();
   });
 });
 
@@ -335,6 +343,7 @@ describe.each([
         expect(
           denormalize(createInput({ id: '1' }), union, createInput(entities)),
         ).toMatchSnapshot();
+        expect(warnSpy.mock.calls).toMatchSnapshot();
       });
 
       test('returns the original value when string is given', () => {
@@ -351,6 +360,7 @@ describe.each([
         expect(
           denormalize('1', union, createInput(entities)),
         ).toMatchSnapshot();
+        expect(warnSpy.mock.calls).toMatchSnapshot();
       });
 
       test('returns the original value when null is given', () => {

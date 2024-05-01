@@ -27,6 +27,14 @@ class Dog extends IDEntity {
 }
 
 describe(`${schema.Values.name} normalization`, () => {
+  let warnSpy;
+  afterEach(() => {
+    warnSpy.mockRestore();
+  });
+  beforeEach(() =>
+    (warnSpy = jest.spyOn(console, 'warn')).mockImplementation(() => {}),
+  );
+
   test('normalizes without schemaAttribute', () => {
     class MyEntity extends IDEntity {
       name = '';
@@ -89,6 +97,7 @@ describe(`${schema.Values.name} normalization`, () => {
         valuesSchema,
       ),
     ).toMatchSnapshot();
+    expect(warnSpy.mock.calls).toMatchSnapshot();
   });
 
   test('filters out null and undefined values', () => {

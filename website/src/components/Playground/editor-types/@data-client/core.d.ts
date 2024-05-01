@@ -305,8 +305,8 @@ interface SetActionError<E extends EndpointAndUpdate<E> = EndpointDefault> {
     error: true;
 }
 type SetAction<E extends EndpointAndUpdate<E> = EndpointDefault> = SetActionSuccess<E> | SetActionError<E>;
-interface FetchMeta {
-    args: readonly any[];
+interface FetchMeta<A extends readonly any[] = readonly any[]> {
+    args: A;
     key: string;
     throttle: boolean;
     resolve: (value?: any | PromiseLike<any>) => void;
@@ -318,7 +318,7 @@ interface FetchMeta {
 interface FetchAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
     type: typeof FETCH_TYPE;
     endpoint: E;
-    meta: FetchMeta;
+    meta: FetchMeta<readonly [...Parameters<E>]>;
     payload: () => ReturnType<E>;
 }
 interface OptimisticAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
@@ -459,19 +459,19 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      */
     fetch: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
         update?: EndpointUpdateFunction<E> | undefined;
-    }>(endpoint: E, ...args_0: Parameters<NoInfer<E>>) => E['schema'] extends undefined | null ? ReturnType<E> : Promise<Denormalize<E['schema']>>;
+    }>(endpoint: E, ...args_0: Parameters<E>) => E['schema'] extends undefined | null ? ReturnType<E> : Promise<Denormalize<E['schema']>>;
     /**
      * Fetches only if endpoint is considered 'stale'; otherwise returns undefined
      * @see https://dataclient.io/docs/api/Controller#fetchIfStale
      */
     fetchIfStale: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
         update?: EndpointUpdateFunction<E> | undefined;
-    }>(endpoint: E, ...args_0: Parameters<NoInfer<E>>) => E['schema'] extends undefined | null ? ReturnType<E> | ResolveType<E> : Promise<Denormalize<E['schema']>> | Denormalize<E['schema']>;
+    }>(endpoint: E, ...args_0: Parameters<E>) => E['schema'] extends undefined | null ? ReturnType<E> | ResolveType<E> : Promise<Denormalize<E['schema']>> | Denormalize<E['schema']>;
     /**
      * Forces refetching and suspense on useSuspense with the same Endpoint and parameters.
      * @see https://dataclient.io/docs/api/Controller#invalidate
      */
-    invalidate: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined>>(endpoint: E, ...args: readonly [...Parameters<NI<E>>] | readonly [null]) => Promise<void>;
+    invalidate: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]) => Promise<void>;
     /**
      * Forces refetching and suspense on useSuspense on all matching endpoint result keys.
      * @see https://dataclient.io/docs/api/Controller#invalidateAll
@@ -499,14 +499,14 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      */
     setResponse: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
         update?: EndpointUpdateFunction<E> | undefined;
-    }>(endpoint: E, ...rest: readonly [...Parameters<NI<E>>, any]) => Promise<void>;
+    }>(endpoint: E, ...rest: readonly [...Parameters<E>, any]) => Promise<void>;
     /**
      * Stores the result of Endpoint and args as the error provided.
      * @see https://dataclient.io/docs/api/Controller#setError
      */
     setError: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
         update?: EndpointUpdateFunction<E> | undefined;
-    }>(endpoint: E, ...rest: readonly [...Parameters<NI<E>>, Error]) => Promise<void>;
+    }>(endpoint: E, ...rest: readonly [...Parameters<E>, Error]) => Promise<void>;
     /**
      * Resolves an inflight fetch. `fetchedAt` should `fetch`'s `createdAt`
      * @see https://dataclient.io/docs/api/Controller#resolve
@@ -514,12 +514,12 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
     resolve: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
         update?: EndpointUpdateFunction<E> | undefined;
     }>(endpoint: E, meta: {
-        args: readonly [...Parameters<NI<E>>];
+        args: readonly [...Parameters<E>];
         response: Error;
         fetchedAt: number;
         error: true;
     } | {
-        args: readonly [...Parameters<NI<E>>];
+        args: readonly [...Parameters<E>];
         response: any;
         fetchedAt: number;
         error?: false | undefined;

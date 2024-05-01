@@ -60,7 +60,9 @@ describe(`${Entity.name} normalization`, () => {
   afterEach(() => {
     warnSpy.mockRestore();
   });
-  beforeEach(() => (warnSpy = jest.spyOn(console, 'warn')));
+  beforeEach(() =>
+    (warnSpy = jest.spyOn(console, 'warn')).mockImplementation(() => {}),
+  );
 
   test('normalizes an entity', () => {
     class MyEntity extends IDEntity {}

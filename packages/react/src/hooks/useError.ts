@@ -13,7 +13,7 @@ export type ErrorTypes = NetworkError | UnknownError;
  */
 export default function useError<E extends Pick<EndpointInterface, 'key'>>(
   endpoint: E,
-  ...args: readonly [...NI<Parameters<E['key']>>] | readonly [null]
+  ...args: readonly [...Parameters<E['key']>] | readonly [null]
 ): ErrorTypes | undefined {
   const state = useCacheState();
 

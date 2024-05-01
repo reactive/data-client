@@ -1,5 +1,5 @@
 import * as _data_client_core from '@data-client/core';
-import { Manager, State, Controller, EndpointInterface, FetchFunction, Schema, NI, ResolveType, Denormalize, DenormalizeNullable, Queryable, SchemaArgs, NetworkError, UnknownError, ErrorTypes as ErrorTypes$1, ActionTypes, __INTERNAL__, createReducer, applyManager } from '@data-client/core';
+import { Manager, State, Controller, EndpointInterface, FetchFunction, Schema, ResolveType, Denormalize, DenormalizeNullable, Queryable, NI, SchemaArgs, NetworkError, UnknownError, ErrorTypes as ErrorTypes$1, ActionTypes, __INTERNAL__, createReducer, applyManager } from '@data-client/core';
 export { AbstractInstanceType, ActionTypes, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, ResetAction, ResolveType, Schema, SetAction, SetTypes, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@data-client/core';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import React$1, { Context } from 'react';
@@ -103,8 +103,8 @@ interface Props {
  * @throws {Promise} If data is not yet available.
  * @throws {NetworkError} If fetch fails.
  */
-declare function useSuspense<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<NI<E>>]): E['schema'] extends undefined | null ? ResolveType<E> : Denormalize<E['schema']>;
-declare function useSuspense<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<NI<E>>] | readonly [null]): E['schema'] extends undefined | null ? ResolveType<E> | undefined : DenormalizeNullable<E['schema']>;
+declare function useSuspense<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>]): E['schema'] extends undefined | null ? ResolveType<E> : Denormalize<E['schema']>;
+declare function useSuspense<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): E['schema'] extends undefined | null ? ResolveType<E> | undefined : DenormalizeNullable<E['schema']>;
 
 /**
  * Access a response if it is available.
@@ -112,7 +112,7 @@ declare function useSuspense<E extends EndpointInterface<FetchFunction, Schema |
  * `useCache` guarantees referential equality globally.
  * @see https://dataclient.io/docs/api/useCache
  */
-declare function useCache<E extends Pick<EndpointInterface<FetchFunction, Schema | undefined, undefined | boolean>, 'key' | 'schema' | 'invalidIfStale'>>(endpoint: E, ...args: readonly [...Parameters<NI<E>['key']>] | readonly [null]): E['schema'] extends undefined | null ? E extends (...args: any) => any ? ResolveType<E> | undefined : any : DenormalizeNullable<E['schema']>;
+declare function useCache<E extends Pick<EndpointInterface<FetchFunction, Schema | undefined, undefined | boolean>, 'key' | 'schema' | 'invalidIfStale'>>(endpoint: E, ...args: readonly [...Parameters<E['key']>] | readonly [null]): E['schema'] extends undefined | null ? E extends (...args: any) => any ? ResolveType<E> | undefined : any : DenormalizeNullable<E['schema']>;
 
 /**
  * Query the store.
@@ -127,20 +127,20 @@ type ErrorTypes = NetworkError | UnknownError;
  * Get any errors for a given request
  * @see https://dataclient.io/docs/api/useError
  */
-declare function useError<E extends Pick<EndpointInterface, 'key'>>(endpoint: E, ...args: readonly [...Parameters<NI<E>['key']>] | readonly [null]): ErrorTypes | undefined;
+declare function useError<E extends Pick<EndpointInterface, 'key'>>(endpoint: E, ...args: readonly [...Parameters<E['key']>] | readonly [null]): ErrorTypes | undefined;
 
 /**
  * Request a resource if it is not in cache.
  * @see https://dataclient.io/docs/api/useFetch
  */
-declare function useFetch<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<NI<E>>]): E['schema'] extends undefined | null ? ReturnType<E> : Promise<Denormalize<E['schema']>>;
-declare function useFetch<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<NI<E>>] | readonly [null]): E['schema'] extends undefined | null ? ReturnType<E> | undefined : Promise<DenormalizeNullable<E['schema']>>;
+declare function useFetch<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>]): E['schema'] extends undefined | null ? ReturnType<E> : Promise<Denormalize<E['schema']>>;
+declare function useFetch<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): E['schema'] extends undefined | null ? ReturnType<E> | undefined : Promise<DenormalizeNullable<E['schema']>>;
 
 /**
  * Keeps a resource fresh by subscribing to updates.
  * @see https://dataclient.io/docs/api/useSubscription
  */
-declare function useSubscription<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<NI<E>>] | readonly [null]): void;
+declare function useSubscription<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): void;
 
 type SchemaReturn<S extends Schema | undefined> = {
     data: Denormalize<S>;
@@ -172,8 +172,8 @@ type AsyncReturn<E> = {
  * Use async date with { data, loading, error } (DLE)
  * @see https://dataclient.io/docs/api/useDLE
  */
-declare function useDLE<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<NI<E>>]): E['schema'] extends undefined | null ? AsyncReturn<E> : SchemaReturn<E['schema']>;
-declare function useDLE<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<NI<E>>] | readonly [null]): {
+declare function useDLE<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>]): E['schema'] extends undefined | null ? AsyncReturn<E> : SchemaReturn<E['schema']>;
+declare function useDLE<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): {
     data: E['schema'] extends undefined | null ? undefined : DenormalizeNullable<E['schema']>;
     loading: false;
     error: undefined;
@@ -193,8 +193,8 @@ declare function useController(): Controller;
  * @throws {Promise} If data is not yet available.
  * @throws {NetworkError} If fetch fails.
  */
-declare function useLive<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<NI<E>>]): E['schema'] extends undefined | null ? ResolveType<E> : Denormalize<E['schema']>;
-declare function useLive<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<NI<E>>] | readonly [null]): E['schema'] extends undefined | null ? ResolveType<E> | undefined : DenormalizeNullable<E['schema']>;
+declare function useLive<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>]): E['schema'] extends undefined | null ? ResolveType<E> : Denormalize<E['schema']>;
+declare function useLive<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): E['schema'] extends undefined | null ? ResolveType<E> | undefined : DenormalizeNullable<E['schema']>;
 
 declare const StateContext: Context<State<unknown>>;
 declare const ControllerContext: Context<Controller<_data_client_core.DataClientDispatch>>;
