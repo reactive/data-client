@@ -54,6 +54,7 @@ describe('NetworkManager', () => {
       (v: { id: number }) => Promise.resolve({ id: 5, title: 'hi' }),
       {
         schema: Article,
+        name: 'detailEndpoint',
       },
     );
     const fetchResolveAction = createFetch(detailEndpoint, {

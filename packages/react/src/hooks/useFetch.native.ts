@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { ExpiryStatus } from '@data-client/core';
+import { DenormalizeNullable, ExpiryStatus, NI } from '@data-client/core';
 import {
   EndpointInterface,
   Denormalize,
@@ -23,8 +23,34 @@ export default function useFetch<
     Schema | undefined,
     undefined | false
   >,
-  Args extends readonly [...Parameters<E>] | readonly [null],
->(endpoint: E, ...args: Args) {
+>(
+  endpoint: E,
+  ...args: readonly [...Parameters<E>]
+): E['schema'] extends undefined | null ? ReturnType<E>
+: Promise<Denormalize<E['schema']>>;
+
+export default function useFetch<
+  E extends EndpointInterface<
+    FetchFunction,
+    Schema | undefined,
+    undefined | false
+  >,
+>(
+  endpoint: E,
+  ...args: readonly [...Parameters<E>] | readonly [null]
+): E['schema'] extends undefined | null ? ReturnType<E> | undefined
+: Promise<DenormalizeNullable<E['schema']>>;
+
+export default function useFetch<
+  E extends EndpointInterface<
+    FetchFunction,
+    Schema | undefined,
+    undefined | false
+  >,
+>(
+  endpoint: E,
+  ...args: readonly [...Parameters<E>] | readonly [null]
+): Promise<any> | undefined {
   const state = useCacheState();
   const controller = useController();
 
@@ -34,7 +60,6 @@ export default function useFetch<
 
   // Compute denormalized value
   const { expiryStatus, expiresAt } = useMemo(() => {
-    // @ts-ignore
     return controller.getResponse(endpoint, ...args, state) as {
       data: Denormalize<E['schema']>;
       expiryStatus: ExpiryStatus;
@@ -56,8 +81,8 @@ export default function useFetch<
   const maybePromise = useMemo(() => {
     // null params mean don't do anything
     if ((Date.now() <= expiresAt && !forceFetch) || !key) return;
-    // @ts-ignore
-    return controller.fetch(endpoint, ...args);
+    // if args is [null], we won't get to this line
+    return controller.fetch(endpoint, ...(args as [...Parameters<E>]));
     // we need to check against serialized params, since params can change frequently
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expiresAt, controller, key, forceFetch, state.lastReset]);

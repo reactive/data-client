@@ -305,8 +305,8 @@ interface SetActionError<E extends EndpointAndUpdate<E> = EndpointDefault> {
     error: true;
 }
 type SetAction<E extends EndpointAndUpdate<E> = EndpointDefault> = SetActionSuccess<E> | SetActionError<E>;
-interface FetchMeta {
-    args: readonly any[];
+interface FetchMeta<A extends readonly any[] = readonly any[]> {
+    args: A;
     key: string;
     throttle: boolean;
     resolve: (value?: any | PromiseLike<any>) => void;
@@ -318,7 +318,7 @@ interface FetchMeta {
 interface FetchAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
     type: typeof FETCH_TYPE;
     endpoint: E;
-    meta: FetchMeta;
+    meta: FetchMeta<readonly [...Parameters<E>]>;
     payload: () => ReturnType<E>;
 }
 interface OptimisticAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
@@ -544,17 +544,13 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      * Gets the error, if any, for a given endpoint. Returns undefined for no errors.
      * @see https://dataclient.io/docs/api/Controller#getError
      */
-    getError: <E extends Pick<EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined>, "key">, Args extends readonly [null] | readonly [...Parameters<E["key"]>]>(endpoint: E, ...rest: [...Args, State<unknown>]) => ErrorTypes | undefined;
+    getError<E extends EndpointInterface>(endpoint: E, ...rest: readonly [null, State<unknown>] | readonly [...Parameters<E>, State<unknown>]): ErrorTypes | undefined;
+    getError<E extends Pick<EndpointInterface, 'key'>>(endpoint: E, ...rest: readonly [null, State<unknown>] | readonly [...Parameters<E['key']>, State<unknown>]): ErrorTypes | undefined;
     /**
      * Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
      * @see https://dataclient.io/docs/api/Controller#getResponse
      */
-    getResponse<E extends EndpointInterface>(endpoint: E, ...rest: readonly [null, State<unknown>]): {
-        data: DenormalizeNullable<E['schema']>;
-        expiryStatus: ExpiryStatus;
-        expiresAt: number;
-    };
-    getResponse<E extends EndpointInterface>(endpoint: E, ...rest: readonly [...Parameters<E>, State<unknown>]): {
+    getResponse<E extends EndpointInterface>(endpoint: E, ...rest: readonly [null, State<unknown>] | readonly [...Parameters<E>, State<unknown>]): {
         data: DenormalizeNullable<E['schema']>;
         expiryStatus: ExpiryStatus;
         expiresAt: number;

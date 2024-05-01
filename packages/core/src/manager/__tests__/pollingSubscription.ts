@@ -288,7 +288,9 @@ describe('PollingSubscription', () => {
       afterEach(() => {
         warnSpy.mockRestore();
       });
-      beforeEach(() => (warnSpy = jest.spyOn(console, 'warn')));
+      beforeEach(() =>
+        (warnSpy = jest.spyOn(console, 'warn')).mockImplementation(() => {}),
+      );
 
       it('should stop all timers', () => {
         dispatch.mockClear();

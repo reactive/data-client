@@ -66,6 +66,20 @@ exports[`UnionSchema normalization normalizes an array of multiple entities usin
 }
 `;
 
+exports[`UnionSchema normalization normalizes an array of multiple entities using a function to infer the schemaAttribute 4`] = `
+[
+  [
+    "Schema attribute null is not expected.
+Expected one of: "users", "groups"
+
+Value: {
+  "id": "3",
+  "notdefined": "yep"
+}",
+  ],
+]
+`;
+
 exports[`UnionSchema normalization normalizes an object using string schemaAttribute 1`] = `
 {
   "entities": {
@@ -529,7 +543,27 @@ exports[`input (direct) UnionSchema denormalization (current) returns the origin
 }
 `;
 
+exports[`input (direct) UnionSchema denormalization (current) returns the original value when no schema is given 2`] = `
+[
+  [
+    "TypeError: Unable to infer schema for UnionSchema
+Value: {
+  "id": "1"
+}.",
+  ],
+]
+`;
+
 exports[`input (direct) UnionSchema denormalization (current) returns the original value when string is given 1`] = `"1"`;
+
+exports[`input (direct) UnionSchema denormalization (current) returns the original value when string is given 2`] = `
+[
+  [
+    "TypeError: Unable to infer schema for UnionSchema
+Value: "1".",
+  ],
+]
+`;
 
 exports[`input (immutable) UnionSchema denormalization (current) denormalizes an array of multiple entities using a function to infer the schemaAttribute 1`] = `
 User {
@@ -569,4 +603,24 @@ Immutable.Map {
 }
 `;
 
+exports[`input (immutable) UnionSchema denormalization (current) returns the original value when no schema is given 2`] = `
+[
+  [
+    "TypeError: Unable to infer schema for UnionSchema
+Value: {
+  "id": "1"
+}.",
+  ],
+]
+`;
+
 exports[`input (immutable) UnionSchema denormalization (current) returns the original value when string is given 1`] = `"1"`;
+
+exports[`input (immutable) UnionSchema denormalization (current) returns the original value when string is given 2`] = `
+[
+  [
+    "TypeError: Unable to infer schema for UnionSchema
+Value: "1".",
+  ],
+]
+`;

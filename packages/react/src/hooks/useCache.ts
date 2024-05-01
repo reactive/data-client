@@ -26,7 +26,7 @@ export default function useCache<
   >,
 >(
   endpoint: E,
-  ...args: NI<readonly [...Parameters<E['key']>] | readonly [null]>
+  ...args: readonly [...Parameters<E['key']>] | readonly [null]
 ): E['schema'] extends undefined | null ?
   E extends (...args: any) => any ?
     ResolveType<E> | undefined
@@ -41,12 +41,7 @@ export default function useCache<
 
   // Compute denormalized value
   const { data, expiryStatus, expiresAt } = useMemo(() => {
-    // @ts-ignore
-    return controller.getResponse(endpoint, ...args, state) as {
-      data: DenormalizeNullable<E['schema']>;
-      expiryStatus: ExpiryStatus;
-      expiresAt: number;
-    };
+    return controller.getResponse(endpoint, ...args, state);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     cacheResults,
@@ -76,7 +71,6 @@ export default function useCache<
     // if useSuspense() would suspend, don't include entities from cache
     if (wouldSuspend) {
       if (!endpoint.schema) return undefined;
-      // @ts-ignore
       return controller.getResponse(endpoint, ...args, {
         ...state,
         entities: {},

@@ -54,7 +54,9 @@ describe(`${schema.Collection.name} normalization`, () => {
   afterEach(() => {
     warnSpy.mockRestore();
   });
-  beforeEach(() => (warnSpy = jest.spyOn(console, 'warn')));
+  beforeEach(() =>
+    (warnSpy = jest.spyOn(console, 'warn')).mockImplementation(() => {}),
+  );
 
   test('should throw a custom error if data loads with string unexpected value', () => {
     function normalizeBad() {

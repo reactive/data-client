@@ -595,8 +595,7 @@ describe.each([
       const params = { id: payload.id };
       const { result, controller } = renderDataClient(
         () => {
-          const article = useCache(OptimisticArticleResource.get, params);
-          return article;
+          return useCache(OptimisticArticleResource.get, params);
         },
         {
           initialFixtures: [
@@ -638,7 +637,9 @@ describe.each([
           content: 'firstoptimistic',
         }),
       );
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await act(async () => {
+        await new Promise(resolve => setTimeout(resolve, 0));
+      });
 
       // second optimistic
       act(() => {
@@ -665,7 +666,9 @@ describe.each([
           content: 'firstoptimistic',
         }),
       );
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await act(async () => {
+        await new Promise(resolve => setTimeout(resolve, 0));
+      });
 
       // third optimistic
       act(() => {

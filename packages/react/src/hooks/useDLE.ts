@@ -45,7 +45,7 @@ export default function useDLE<
   >,
 >(
   endpoint: E,
-  ...args: readonly [...Parameters<NI<E>>]
+  ...args: readonly [...Parameters<E>]
 ): E['schema'] extends undefined | null ? AsyncReturn<E>
 : SchemaReturn<E['schema']>;
 
@@ -57,7 +57,7 @@ export default function useDLE<
   >,
 >(
   endpoint: E,
-  ...args: readonly [...Parameters<NI<E>>] | readonly [null]
+  ...args: readonly [...Parameters<E>] | readonly [null]
 ): {
   data: E['schema'] extends undefined | null ? undefined
   : DenormalizeNullable<E['schema']>;
@@ -81,12 +81,7 @@ export default function useDLE<
   // Compute denormalized value
   // eslint-disable-next-line prefer-const
   let { data, expiryStatus, expiresAt } = useMemo(() => {
-    // @ts-ignore
-    return controller.getResponse(endpoint, ...args, state) as {
-      data: DenormalizeNullable<E['schema']> | undefined;
-      expiryStatus: ExpiryStatus;
-      expiresAt: number;
-    };
+    return controller.getResponse(endpoint, ...args, state);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     cacheResults,
@@ -97,7 +92,6 @@ export default function useDLE<
     key,
   ]);
 
-  // @ts-ignore
   const error = controller.getError(endpoint, ...args, state);
 
   // If we are hard invalid we must fetch regardless of triggering or staleness
@@ -119,7 +113,6 @@ export default function useDLE<
     // if useSuspense() would suspend, don't include entities from cache
     if (loading) {
       if (!endpoint.schema) return undefined;
-      // @ts-ignore
       return controller.getResponse(endpoint, ...args, {
         ...state,
         entities: {},
@@ -134,5 +127,5 @@ export default function useDLE<
     data,
     loading,
     error,
-  } as any;
+  };
 }
