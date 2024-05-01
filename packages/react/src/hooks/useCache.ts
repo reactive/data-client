@@ -26,7 +26,7 @@ export default function useCache<
   >,
 >(
   endpoint: E,
-  ...args: readonly [...Parameters<NI<E>['key']>] | readonly [null]
+  ...args: readonly [...NI<Parameters<E['key']>>] | readonly [null]
 ): E['schema'] extends undefined | null ?
   E extends (...args: any) => any ?
     ResolveType<E> | undefined

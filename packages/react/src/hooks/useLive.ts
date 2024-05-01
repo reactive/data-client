@@ -28,7 +28,7 @@ export default function useLive<
   >,
 >(
   endpoint: E,
-  ...args: readonly [...Parameters<NI<E>>]
+  ...args: readonly [...NI<Parameters<E>>]
 ): E['schema'] extends undefined | null ? ResolveType<E>
 : Denormalize<E['schema']>;
 
@@ -40,7 +40,7 @@ export default function useLive<
   >,
 >(
   endpoint: E,
-  ...args: readonly [...Parameters<NI<E>>] | readonly [null]
+  ...args: readonly [...NI<Parameters<E>>] | readonly [null]
 ): E['schema'] extends undefined | null ? ResolveType<E> | undefined
 : DenormalizeNullable<E['schema']>;
 

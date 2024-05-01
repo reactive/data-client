@@ -1,4 +1,4 @@
-import type { EndpointInterface } from '@data-client/normalizr';
+import type { EndpointInterface, NI } from '@data-client/normalizr';
 
 import { EndpointUpdateFunction } from './types.js';
 import { FETCH_TYPE } from '../actionTypes.js';
@@ -19,7 +19,7 @@ export default function createFetch<
   const promise = new Promise<any>((a, b) => {
     [resolve, reject] = [a, b];
   });
-  const meta: FetchMeta = {
+  const meta: FetchMeta<any> = {
     args,
     key,
     throttle: !endpoint.sideEffect,

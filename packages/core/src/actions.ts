@@ -56,8 +56,8 @@ export type SetAction<E extends EndpointAndUpdate<E> = EndpointDefault> =
   | SetActionError<E>;
 
 /* FETCH */
-export interface FetchMeta {
-  args: readonly any[];
+export interface FetchMeta<A extends readonly any[] = readonly any[]> {
+  args: A;
   key: string;
   throttle: boolean;
   resolve: (value?: any | PromiseLike<any>) => void;
@@ -71,7 +71,7 @@ export interface FetchMeta {
 export interface FetchAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
   type: typeof FETCH_TYPE;
   endpoint: E;
-  meta: FetchMeta;
+  meta: FetchMeta<Parameters<E>>;
   payload: () => ReturnType<E>;
 }
 

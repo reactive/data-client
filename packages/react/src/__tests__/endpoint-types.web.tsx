@@ -135,14 +135,26 @@ describe('endpoint types', () => {
     });
 
     it('types should strictly enforce with body that are any', async () => {
-      const { result } = renderDataClient(() => {
+      const { result, controller } = renderDataClient(() => {
         return useController().fetch;
       });
+      () => TypedArticleResource.anybody({ id: payload.id }, { title: 'hi' });
+      () =>
+        controller.fetch(
+          TypedArticleResource.anybody,
+          { id: payload.id },
+          {
+            title: 'hi',
+          },
+        );
+
       () =>
         result.current(
           TypedArticleResource.anybody,
           { id: payload.id },
-          { title: 'hi' },
+          {
+            title: 'hi',
+          },
         );
       // @ts-expect-error
       () => result.current(TypedArticleResource.anybody(), { id: payload.id });

@@ -107,7 +107,7 @@ export default class Controller<
     E extends EndpointInterface & { update?: EndpointUpdateFunction<E> },
   >(
     endpoint: E,
-    ...args: readonly [...Parameters<NI<E>>]
+    ...args: readonly [...NI<Parameters<E>>]
   ): E['schema'] extends undefined | null ? ReturnType<E>
   : Promise<Denormalize<E['schema']>> => {
     const action = createFetch(endpoint, {
@@ -131,7 +131,7 @@ export default class Controller<
     E extends EndpointInterface & { update?: EndpointUpdateFunction<E> },
   >(
     endpoint: E,
-    ...args: readonly [...Parameters<NI<E>>]
+    ...args: readonly [...NI<Parameters<E>>]
   ): E['schema'] extends undefined | null ? ReturnType<E> | ResolveType<E>
   : Promise<Denormalize<E['schema']>> | Denormalize<E['schema']> => {
     const { data, expiresAt, expiryStatus } = this.getResponse(
@@ -150,12 +150,12 @@ export default class Controller<
    */
   invalidate = <E extends EndpointInterface>(
     endpoint: E,
-    ...args: readonly [...Parameters<NI<E>>] | readonly [null]
+    ...args: readonly [...NI<Parameters<E>>] | readonly [null]
   ): Promise<void> =>
     args[0] !== null ?
       this.dispatch(
         createInvalidate(endpoint, {
-          args: args as readonly [...Parameters<E>],
+          args: args as Parameters<E>,
         }),
       )
     : Promise.resolve();
@@ -192,7 +192,7 @@ export default class Controller<
     },
   >(
     endpoint: E,
-    ...rest: readonly [...Parameters<NI<E>>, any]
+    ...rest: readonly [...NI<Parameters<E>>, any]
   ): Promise<void> => {
     const response: ResolveType<E> = rest[rest.length - 1];
     const action = createSet(endpoint, {
@@ -212,7 +212,7 @@ export default class Controller<
     },
   >(
     endpoint: E,
-    ...rest: readonly [...Parameters<NI<E>>, Error]
+    ...rest: readonly [...NI<Parameters<E>>, Error]
   ): Promise<void> => {
     const response: Error = rest[rest.length - 1];
     const action = createSet(endpoint, {
@@ -235,13 +235,13 @@ export default class Controller<
     endpoint: E,
     meta:
       | {
-          args: readonly [...Parameters<NI<E>>];
+          args: readonly [...NI<Parameters<E>>];
           response: Error;
           fetchedAt: number;
           error: true;
         }
       | {
-          args: readonly [...Parameters<NI<E>>];
+          args: readonly [...NI<Parameters<E>>];
           response: any;
           fetchedAt: number;
           error?: false | undefined;
@@ -579,14 +579,14 @@ class Snapshot<T = unknown> implements SnapshotInterface {
     endpoint: E,
     ...args: readonly [null]
   ): {
-    data: DenormalizeNullable<NI<E>['schema']>;
+    data: DenormalizeNullable<E['schema']>;
     expiryStatus: ExpiryStatus;
     expiresAt: number;
   };
 
   getResponse<E extends EndpointInterface>(
     endpoint: E,
-    ...args: readonly [...Parameters<NI<E>>]
+    ...args: readonly [...NI<Parameters<E>>]
   ): {
     data: DenormalizeNullable<E['schema']>;
     expiryStatus: ExpiryStatus;
@@ -597,7 +597,7 @@ class Snapshot<T = unknown> implements SnapshotInterface {
     E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>,
   >(
     endpoint: E,
-    ...args: readonly [...Parameters<NI<E>['key']>] | readonly [null]
+    ...args: readonly [...NI<Parameters<E['key']>>] | readonly [null]
   ): {
     data: DenormalizeNullable<E['schema']>;
     expiryStatus: ExpiryStatus;
@@ -608,7 +608,7 @@ class Snapshot<T = unknown> implements SnapshotInterface {
     E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>,
   >(
     endpoint: E,
-    ...args: readonly [...Parameters<NI<E>['key']>] | readonly [null]
+    ...args: readonly [...NI<Parameters<E['key']>>] | readonly [null]
   ): {
     data: DenormalizeNullable<E['schema']>;
     expiryStatus: ExpiryStatus;
@@ -620,17 +620,17 @@ class Snapshot<T = unknown> implements SnapshotInterface {
   /** @see https://dataclient.io/docs/api/Snapshot#getError */
   getError<E extends EndpointInterface>(
     endpoint: E,
-    ...args: readonly [...Parameters<NI<E>>] | readonly [null]
+    ...args: readonly [...NI<Parameters<E>>] | readonly [null]
   ): ErrorTypes | undefined;
 
   getError<E extends Pick<EndpointInterface, 'key'>>(
     endpoint: E,
-    ...args: readonly [...Parameters<NI<E>['key']>] | readonly [null]
+    ...args: readonly [...NI<Parameters<E['key']>>] | readonly [null]
   ): ErrorTypes | undefined;
 
   getError<E extends Pick<EndpointInterface, 'key'>>(
     endpoint: E,
-    ...args: readonly [...Parameters<NI<E>['key']>] | readonly [null]
+    ...args: readonly [...NI<Parameters<E['key']>>] | readonly [null]
   ): ErrorTypes | undefined {
     return this.controller.getError(endpoint, ...args, this.state);
   }

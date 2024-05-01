@@ -47,7 +47,7 @@ export default function useDLE<
   >,
 >(
   endpoint: E,
-  ...args: readonly [...Parameters<NI<E>>]
+  ...args: readonly [...NI<Parameters<E>>]
 ): E['schema'] extends undefined | null ? AsyncReturn<E>
 : SchemaReturn<E['schema']>;
 
@@ -59,7 +59,7 @@ export default function useDLE<
   >,
 >(
   endpoint: E,
-  ...args: readonly [...Parameters<NI<E>>] | readonly [null]
+  ...args: readonly [...NI<Parameters<E>>] | readonly [null]
 ): {
   data: E['schema'] extends undefined | null ? undefined
   : DenormalizeNullable<E['schema']>;

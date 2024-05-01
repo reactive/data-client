@@ -31,7 +31,7 @@ export default function useSuspense<
   >,
 >(
   endpoint: E,
-  ...args: readonly [...Parameters<NI<E>>]
+  ...args: readonly [...NI<Parameters<E>>]
 ): E['schema'] extends undefined | null ? ResolveType<E>
 : Denormalize<E['schema']>;
 
