@@ -1,5 +1,11 @@
 # @data-client/core
 
+## 0.12.1
+
+### Patch Changes
+
+- [#3043](https://github.com/reactive/data-client/pull/3043) [`5b64cbf`](https://github.com/reactive/data-client/commit/5b64cbf3126c404b70853960a4bdedc268e3328c) Thanks [@ntucker](https://github.com/ntucker)! - Improve [controller](https://dataclient.io/docs/api/Controller) type matching for its methods
+
 ## 0.11.5
 
 ### Patch Changes
