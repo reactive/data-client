@@ -1,5 +1,11 @@
 # @data-client/redux
 
+## 0.12.2
+
+### Patch Changes
+
+- [`1dcc39b`](https://github.com/reactive/data-client/commit/1dcc39b0ee08bbe5d7aed3bec17050bcad58d406) Thanks [@ntucker](https://github.com/ntucker)! - Relax peerDeps to allow older versions
+
 ## 0.12.1
 
 ### Patch Changes
