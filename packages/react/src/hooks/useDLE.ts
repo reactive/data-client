@@ -61,8 +61,8 @@ export default function useDLE<
 ): {
   data: E['schema'] extends undefined | null ? undefined
   : DenormalizeNullable<E['schema']>;
-  loading: false;
-  error: undefined;
+  loading: boolean;
+  error: ErrorTypes | undefined;
 };
 
 export default function useDLE<

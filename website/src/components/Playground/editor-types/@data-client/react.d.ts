@@ -175,8 +175,8 @@ type AsyncReturn<E> = {
 declare function useDLE<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>]): E['schema'] extends undefined | null ? AsyncReturn<E> : SchemaReturn<E['schema']>;
 declare function useDLE<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): {
     data: E['schema'] extends undefined | null ? undefined : DenormalizeNullable<E['schema']>;
-    loading: false;
-    error: undefined;
+    loading: boolean;
+    error: ErrorTypes$1 | undefined;
 };
 
 /**
