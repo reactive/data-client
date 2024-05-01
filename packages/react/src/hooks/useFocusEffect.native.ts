@@ -1,4 +1,3 @@
-import type { useNavigation, NavigationProp } from '@react-navigation/native';
 import {
   type DependencyList,
   type EffectCallback,
@@ -6,20 +5,36 @@ import {
   useRef,
 } from 'react';
 
-const fakeNavigation = { addListener(name: string) {} } as any;
-let _useNavigation: typeof useNavigation = () => fakeNavigation;
-import('@react-navigation/native')
-  .then(rn => {
-    _useNavigation = rn.useNavigation;
+const fakeNavigation = {
+  addListener(name: string, cb: () => void) {
+    return () => {};
+  },
+};
+let _useNavigation = () => fakeNavigation;
+
+console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+// if they are using expo-router they are more likely wanting to use that implementation
+// as react-navigation can often appear in node_modules when not used
+import('expo-router')
+  .then(router => {
+    _useNavigation = router.useNavigation;
+    console.log('hi', _useNavigation, router);
   })
-  .catch(() => {});
+  .catch(e => {
+    console.log('caught error', e);
+    import('@react-navigation/native')
+      .then(rn => {
+        _useNavigation = rn.useNavigation;
+      })
+      .catch(() => {});
+  });
 
 function useFocusEffect(
   effect: EffectCallback,
   deps?: DependencyList,
   runOnMount = false,
 ) {
-  let navigation: NavigationProp<ReactNavigation.RootParamList>;
+  let navigation: typeof fakeNavigation;
   // if we aren't in react-navigation context, just ignore focus events
   try {
     navigation = _useNavigation();

@@ -283,6 +283,8 @@ describe('useSuspense()', () => {
     });
   });
 
+});
+
   it('should NOT suspend if result is not stale and options.invalidIfStale is true', () => {
     const { entities, result } = normalize(payload, CoolerArticle);
     const fetchKey = InvalidIfStaleArticleResource.get.key({ id: payload.id });
@@ -473,11 +475,11 @@ describe('useSuspense()', () => {
   });*/
   });
 
-  /*it('should not suspend with null params to useSuspense()', () => {
+  it('should not suspend with null params to useSuspense()', () => {
     let article: CoolerArticle | undefined;
     const { result } = renderDataClient(() => {
       const a = useSuspense(CoolerArticleResource.get, null);
-      a.tags;
+      a?.tags;
       article = a;
       // @ts-expect-error
       const b: CoolerArticleResource = a;
@@ -485,7 +487,7 @@ describe('useSuspense()', () => {
     });
     expect(result.current).toBe('done');
     expect(article).toBeUndefined();
-  });*/
+  });
 
   it('should maintain schema structure even with null params', () => {
     let articles: PaginatedArticle[] | undefined;
