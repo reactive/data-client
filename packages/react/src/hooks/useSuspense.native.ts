@@ -5,11 +5,13 @@ import type {
   Denormalize,
   Schema,
   FetchFunction,
+  DenormalizeNullable,
+  ResolveType,
+  NI,
 } from '@data-client/core';
 import { useMemo } from 'react';
 import { InteractionManager } from 'react-native';
 
-import { SuspenseReturn } from './types.js';
 import useCacheState from './useCacheState.js';
 import useController from './useController.js';
 import useFocusEffect from './useFocusEffect.native.js';
@@ -29,8 +31,31 @@ export default function useSuspense<
     Schema | undefined,
     undefined | false
   >,
-  Args extends readonly [...Parameters<E>] | readonly [null],
->(endpoint: E, ...args: Args): SuspenseReturn<E, Args> {
+>(
+  endpoint: E,
+  ...args: readonly [...Parameters<NI<E>>]
+): E['schema'] extends undefined | null ? ResolveType<E>
+: Denormalize<E['schema']>;
+
+export default function useSuspense<
+  E extends EndpointInterface<
+    FetchFunction,
+    Schema | undefined,
+    undefined | false
+  >,
+>(
+  endpoint: E,
+  ...args: readonly [...Parameters<NI<E>>] | readonly [null]
+): E['schema'] extends undefined | null ? ResolveType<E> | undefined
+: DenormalizeNullable<E['schema']>;
+
+export default function useSuspense<
+  E extends EndpointInterface<
+    FetchFunction,
+    Schema | undefined,
+    undefined | false
+  >,
+>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): any {
   const state = useCacheState();
   const controller = useController();
 
@@ -40,12 +65,7 @@ export default function useSuspense<
 
   // Compute denormalized value
   const { data, expiryStatus, expiresAt } = useMemo(() => {
-    // @ts-ignore
-    return controller.getResponse(endpoint, ...args, state) as {
-      data: Denormalize<E['schema']>;
-      expiryStatus: ExpiryStatus;
-      expiresAt: number;
-    };
+    return controller.getResponse(endpoint, ...args, state);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     cacheResults,
@@ -56,7 +76,6 @@ export default function useSuspense<
     key,
   ]);
 
-  // @ts-ignore
   const error = controller.getError(endpoint, ...args, state);
 
   // If we are hard invalid we must fetch regardless of triggering or staleness
@@ -66,9 +85,12 @@ export default function useSuspense<
     // null params mean don't do anything
     if ((Date.now() <= expiresAt && !forceFetch) || !key) return;
 
-    return controller
-      .fetch(endpoint, ...(args as readonly [...Parameters<E>]))
-      .catch(() => {});
+    return (
+      controller
+        // if args is [null], we won't get to this line
+        .fetch(endpoint, ...(args as [...Parameters<E>]))
+        .catch(() => {})
+    );
     // we need to check against serialized params, since params can change frequently
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expiresAt, controller, key, forceFetch, state.lastReset]);
@@ -91,5 +113,5 @@ export default function useSuspense<
     return () => task.cancel();
   }, []);
 
-  return data as any;
+  return data;
 }

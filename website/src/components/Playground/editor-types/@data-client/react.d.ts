@@ -112,7 +112,7 @@ declare function useSuspense<E extends EndpointInterface<FetchFunction, Schema |
  * `useCache` guarantees referential equality globally.
  * @see https://dataclient.io/docs/api/useCache
  */
-declare function useCache<E extends Pick<EndpointInterface<FetchFunction, Schema | undefined, undefined | boolean>, 'key' | 'schema' | 'invalidIfStale'>>(endpoint: E, ...args: NI<readonly [...Parameters<E['key']>] | readonly [null]>): E['schema'] extends undefined | null ? E extends (...args: any) => any ? ResolveType<E> | undefined : any : DenormalizeNullable<E['schema']>;
+declare function useCache<E extends Pick<EndpointInterface<FetchFunction, Schema | undefined, undefined | boolean>, 'key' | 'schema' | 'invalidIfStale'>>(endpoint: E, ...args: readonly [...Parameters<NI<E>['key']>] | readonly [null]): E['schema'] extends undefined | null ? E extends (...args: any) => any ? ResolveType<E> | undefined : any : DenormalizeNullable<E['schema']>;
 
 /**
  * Query the store.
@@ -127,19 +127,20 @@ type ErrorTypes = NetworkError | UnknownError;
  * Get any errors for a given request
  * @see https://dataclient.io/docs/api/useError
  */
-declare function useError<E extends Pick<EndpointInterface, 'key'>>(endpoint: E, ...args: NI<readonly [...Parameters<E['key']>] | readonly [null]>): ErrorTypes | undefined;
+declare function useError<E extends Pick<EndpointInterface, 'key'>>(endpoint: E, ...args: readonly [...Parameters<NI<E>['key']>] | readonly [null]): ErrorTypes | undefined;
 
 /**
  * Request a resource if it is not in cache.
  * @see https://dataclient.io/docs/api/useFetch
  */
-declare function useFetch<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: NI<readonly [...Parameters<E>] | readonly [null]>): (E["schema"] extends null | undefined ? ReturnType<E> : Promise<Denormalize<E["schema"]>>) | undefined;
+declare function useFetch<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<NI<E>>]): E['schema'] extends undefined | null ? ReturnType<E> : Promise<Denormalize<E['schema']>>;
+declare function useFetch<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<NI<E>>] | readonly [null]): E['schema'] extends undefined | null ? ReturnType<E> | undefined : Promise<DenormalizeNullable<E['schema']>>;
 
 /**
  * Keeps a resource fresh by subscribing to updates.
  * @see https://dataclient.io/docs/api/useSubscription
  */
-declare function useSubscription<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: NI<readonly [...Parameters<E>] | readonly [null]>): void;
+declare function useSubscription<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<NI<E>>] | readonly [null]): void;
 
 type SchemaReturn<S extends Schema | undefined> = {
     data: Denormalize<S>;

@@ -71,7 +71,7 @@ export default class NetworkManager implements Manager {
                   if (error) {
                     this.handleSet(
                       createSet(action.endpoint, {
-                        args: action.meta.args as any,
+                        args: action.meta.args,
                         response: error,
                         fetchedAt: action.meta.fetchedAt,
                         error: true,
@@ -192,7 +192,7 @@ export default class NetworkManager implements Manager {
           // don't update state with promises started before last clear
           if (createdAt >= lastReset) {
             this.controller.resolve(action.endpoint, {
-              args: action.meta.args as any,
+              args: action.meta.args,
               response: data,
               fetchedAt: createdAt,
             });
@@ -204,7 +204,7 @@ export default class NetworkManager implements Manager {
           // don't update state with promises started before last clear
           if (createdAt >= lastReset) {
             this.controller.resolve(action.endpoint, {
-              args: action.meta.args as any,
+              args: action.meta.args,
               response: error,
               fetchedAt: createdAt,
               error: true,

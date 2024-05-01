@@ -18,7 +18,7 @@ export default function useSubscription<
     Schema | undefined,
     undefined | false
   >,
->(endpoint: E, ...args: NI<readonly [...Parameters<E>] | readonly [null]>) {
+>(endpoint: E, ...args: readonly [...Parameters<NI<E>>] | readonly [null]) {
   const controller = useController();
 
   const key = args[0] !== null ? endpoint.key(...args) : '';

@@ -459,19 +459,19 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      */
     fetch: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
         update?: EndpointUpdateFunction<E> | undefined;
-    }>(endpoint: E, ...args_0: Parameters<E>) => E['schema'] extends undefined | null ? ReturnType<E> : Promise<Denormalize<E['schema']>>;
+    }>(endpoint: E, ...args_0: Parameters<NoInfer<E>>) => E['schema'] extends undefined | null ? ReturnType<E> : Promise<Denormalize<E['schema']>>;
     /**
      * Fetches only if endpoint is considered 'stale'; otherwise returns undefined
      * @see https://dataclient.io/docs/api/Controller#fetchIfStale
      */
     fetchIfStale: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
         update?: EndpointUpdateFunction<E> | undefined;
-    }>(endpoint: E, ...args_0: Parameters<E>) => E['schema'] extends undefined | null ? ReturnType<E> | ResolveType<E> : Promise<Denormalize<E['schema']>> | Denormalize<E['schema']>;
+    }>(endpoint: E, ...args_0: Parameters<NoInfer<E>>) => E['schema'] extends undefined | null ? ReturnType<E> | ResolveType<E> : Promise<Denormalize<E['schema']>> | Denormalize<E['schema']>;
     /**
      * Forces refetching and suspense on useSuspense with the same Endpoint and parameters.
      * @see https://dataclient.io/docs/api/Controller#invalidate
      */
-    invalidate: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]) => Promise<void>;
+    invalidate: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined>>(endpoint: E, ...args: readonly [...Parameters<NI<E>>] | readonly [null]) => Promise<void>;
     /**
      * Forces refetching and suspense on useSuspense on all matching endpoint result keys.
      * @see https://dataclient.io/docs/api/Controller#invalidateAll
@@ -499,14 +499,14 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      */
     setResponse: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
         update?: EndpointUpdateFunction<E> | undefined;
-    }>(endpoint: E, ...rest: readonly [...Parameters<E>, any]) => Promise<void>;
+    }>(endpoint: E, ...rest: readonly [...Parameters<NI<E>>, any]) => Promise<void>;
     /**
      * Stores the result of Endpoint and args as the error provided.
      * @see https://dataclient.io/docs/api/Controller#setError
      */
     setError: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
         update?: EndpointUpdateFunction<E> | undefined;
-    }>(endpoint: E, ...rest: readonly [...Parameters<E>, Error]) => Promise<void>;
+    }>(endpoint: E, ...rest: readonly [...Parameters<NI<E>>, Error]) => Promise<void>;
     /**
      * Resolves an inflight fetch. `fetchedAt` should `fetch`'s `createdAt`
      * @see https://dataclient.io/docs/api/Controller#resolve
@@ -514,12 +514,12 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
     resolve: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
         update?: EndpointUpdateFunction<E> | undefined;
     }>(endpoint: E, meta: {
-        args: readonly [...Parameters<E>];
+        args: readonly [...Parameters<NI<E>>];
         response: Error;
         fetchedAt: number;
         error: true;
     } | {
-        args: readonly [...Parameters<E>];
+        args: readonly [...Parameters<NI<E>>];
         response: any;
         fetchedAt: number;
         error?: false | undefined;
@@ -544,17 +544,13 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      * Gets the error, if any, for a given endpoint. Returns undefined for no errors.
      * @see https://dataclient.io/docs/api/Controller#getError
      */
-    getError: <E extends Pick<EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined>, "key">, Args extends readonly [null] | readonly [...Parameters<E["key"]>]>(endpoint: E, ...rest: [...Args, State<unknown>]) => ErrorTypes | undefined;
+    getError<E extends EndpointInterface>(endpoint: E, ...rest: readonly [null, State<unknown>] | readonly [...Parameters<E>, State<unknown>]): ErrorTypes | undefined;
+    getError<E extends Pick<EndpointInterface, 'key'>>(endpoint: E, ...rest: readonly [null, State<unknown>] | readonly [...Parameters<E['key']>, State<unknown>]): ErrorTypes | undefined;
     /**
      * Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
      * @see https://dataclient.io/docs/api/Controller#getResponse
      */
-    getResponse<E extends EndpointInterface>(endpoint: E, ...rest: readonly [null, State<unknown>]): {
-        data: DenormalizeNullable<E['schema']>;
-        expiryStatus: ExpiryStatus;
-        expiresAt: number;
-    };
-    getResponse<E extends EndpointInterface>(endpoint: E, ...rest: readonly [...Parameters<E>, State<unknown>]): {
+    getResponse<E extends EndpointInterface>(endpoint: E, ...rest: readonly [null, State<unknown>] | readonly [...Parameters<E>, State<unknown>]): {
         data: DenormalizeNullable<E['schema']>;
         expiryStatus: ExpiryStatus;
         expiresAt: number;
