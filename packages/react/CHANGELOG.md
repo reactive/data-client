@@ -1,5 +1,18 @@
 # @data-client/react
 
+## 0.12.1
+
+### Patch Changes
+
+- [#3043](https://github.com/reactive/data-client/pull/3043) [`5b64cbf`](https://github.com/reactive/data-client/commit/5b64cbf3126c404b70853960a4bdedc268e3328c) Thanks [@ntucker](https://github.com/ntucker)! - Improve [controller](https://dataclient.io/docs/api/Controller) type matching for its methods
+
+- [#3043](https://github.com/reactive/data-client/pull/3043) [`5b64cbf`](https://github.com/reactive/data-client/commit/5b64cbf3126c404b70853960a4bdedc268e3328c) Thanks [@ntucker](https://github.com/ntucker)! - Improve [useFetch()](https://dataclient.io/docs/api/useFetch) argtype matching similar to [useSuspense()](https://dataclient.io/docs/api/useSuspense)
+
+- [`6e9d36b`](https://github.com/reactive/data-client/commit/6e9d36b6cb287763c0fcc3f07d9f2ef0df619d12) Thanks [@ntucker](https://github.com/ntucker)! - Fix useDLE return loading and error when args can be null
+
+- Updated dependencies [[`5b64cbf`](https://github.com/reactive/data-client/commit/5b64cbf3126c404b70853960a4bdedc268e3328c)]:
+  - @data-client/core@0.12.1
+
 ## 0.11.5
 
 ### Patch Changes
