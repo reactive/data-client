@@ -274,10 +274,10 @@ __metadata:
   linkType: hard
 
 "@anansi/cli@npm:^3.0.15":
-  version: 3.1.23
-  resolution: "@anansi/cli@npm:3.1.23"
+  version: 3.1.24
+  resolution: "@anansi/cli@npm:3.1.24"
   dependencies:
-    "@anansi/generator-js": "npm:^12.4.5"
+    "@anansi/generator-js": "npm:^12.4.6"
     bin-version-check: "npm:^6.0.0"
     chalk: "npm:^4.1.2"
     commander: "npm:^12.0.0"
@@ -292,17 +292,17 @@ __metadata:
       optional: true
   bin:
     anansi: ./run.mjs
-  checksum: 10c0/cd75381caf0f938f38e401565d42f173732f3917a80f30a59f4f8957a99f3d09e135328aee8d4c05beba537f06e04ff1c4089984c39d61021e1187150b12faf8
+  checksum: 10c0/fdfe77fb6357defabc6ca4be0669f7832511e33dc62281957956a6eef85abb6c66659ae951a1d82f395b0f2ee344fc2ad90b45fc004e56fa9313f1fe4b650bbb
   languageName: node
   linkType: hard
 
 "@anansi/core@npm:^0.19.0":
-  version: 0.19.1
-  resolution: "@anansi/core@npm:0.19.1"
+  version: 0.19.2
+  resolution: "@anansi/core@npm:0.19.2"
   dependencies:
     "@anansi/router": "npm:^0.10.0"
     "@babel/runtime": "npm:^7.17.0"
-    "@data-client/ssr": "npm:^0.11.4"
+    "@data-client/ssr": "npm:^0.12.2"
     chalk: "npm:^4.1.2"
     compression: "npm:^1.7.4"
     cross-fetch: "npm:^4.0.0"
@@ -321,8 +321,8 @@ __metadata:
     whatwg-fetch: "npm:^3.6.2"
   peerDependencies:
     "@ant-design/cssinjs": ^1.5.1
-    "@data-client/react": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0 || ^1.0.0 || ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0
-    "@data-client/redux": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0 || ^1.0.0 || ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0
+    "@data-client/react": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0 || ^1.0.0 || ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0
+    "@data-client/redux": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0 || ^1.0.0 || ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0
     "@types/react": ^17.0.40 || ^18.0.0 || ^19.0.0-0
     "@types/react-dom": ^17.0.40 || ^18.0.0 || ^19.0.0-0
     react: ^18.0.0 || ^19.0.0-0
@@ -345,7 +345,7 @@ __metadata:
   bin:
     serve-anansi: ./lib/scripts/serve.js
     start-anansi: ./lib/scripts/startDevserver.js
-  checksum: 10c0/8148d84d3063ee6dc4cee6a8f6df050e2a4a0d1b4867c25f80d64da5d3911f4582e8a73d6dae1377307052f490a608051afa9069d20af455e785dd188fc16192
+  checksum: 10c0/2015b2e9d2de2cfd9a824417ea84fcf84ffcbf4072bd436db1ac07d4ff3d98bd43a5507742cfb73e4d3a21cbc10f09b7b3913a3006935e68f5453122e0d6c35c
   languageName: node
   linkType: hard
 
@@ -382,9 +382,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/generator-js@npm:^12.4.5":
-  version: 12.4.5
-  resolution: "@anansi/generator-js@npm:12.4.5"
+"@anansi/generator-js@npm:^12.4.6":
+  version: 12.4.6
+  resolution: "@anansi/generator-js@npm:12.4.6"
   dependencies:
     "@babel/runtime": "npm:^7.17.0"
     "@types/inquirer": "npm:^9.0.7"
@@ -398,10 +398,10 @@ __metadata:
     import-meta-resolve: "npm:^4.1.0"
     mem-fs: "npm:^4.1.0"
     mem-fs-editor: "npm:^11.0.0"
-    pacote: "npm:^18.0.2"
+    pacote: "npm:^18.0.3"
     shelobsay: "npm:^2.0.0"
     yeoman-generator: "npm:^7.1.1"
-  checksum: 10c0/cd39741e9a59331e8b9489bcbf9c6f06da821a6ad27b0777f876276941070827ac1654d2e64b54a3c4a33fef89360c566d1648794512ac2d311c4661996b3017
+  checksum: 10c0/071cc19f917ec25a55d03e0dafabdf286335a8a89a024c5586f394df97be2c2a23a3edaf34cb2b9dcc7a20ddba79c458b322e43033f3448262984ac17204e29b
   languageName: node
   linkType: hard
 
@@ -3279,28 +3279,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/ssr@npm:^0.11.4":
-  version: 0.11.4
-  resolution: "@data-client/ssr@npm:0.11.4"
-  dependencies:
-    "@babel/runtime": "npm:^7.17.0"
-  peerDependencies:
-    "@data-client/react": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0 || ^0.5.0 || ^0.7.0 || ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0
-    "@data-client/redux": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.5.0 || ^0.7.0 || ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0
-    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0 || ^19.0.0
-    next: ">=12.0.0"
-    react: ^16.8.4 || ^17.0.0 || ^18.0.0 || ^19.0.0
-    redux: ^4.0.0 || ^5.0.0
-  peerDependenciesMeta:
-    "@types/react":
-      optional: true
-    next:
-      optional: true
-  checksum: 10c0/fb83416a2b39b12a0c93bfbbfccbbc021930980b1cea752af88c1e52f17175ddf556058a324b696ab0c1db173512fc3f045bcbb0168e6c2c74261cda7df1b070
-  languageName: node
-  linkType: hard
-
-"@data-client/ssr@workspace:packages/ssr":
+"@data-client/ssr@npm:^0.12.2, @data-client/ssr@workspace:packages/ssr":
   version: 0.0.0-use.local
   resolution: "@data-client/ssr@workspace:packages/ssr"
   dependencies:
@@ -5105,6 +5084,13 @@ __metadata:
   dependencies:
     postcss-selector-parser: "npm:^6.0.10"
   checksum: 10c0/497f03887121df13dbbc7a008772708746ecb9d8b9dbb1d8a8cdc5eb03ff6dbce0e78cbc48102e7cd3d2f3abc2faf22fd5348bb3c33efd13e2077faf8d71efde
+  languageName: node
+  linkType: hard
+
+"@npmcli/redact@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@npmcli/redact@npm:2.0.0"
+  checksum: 10c0/8a09619ff542412e32b795ff2e88668fcb4d5c6fe2eb329a034f988f59a97553b6664ad270398b0f131184db9f21ca5aa2786a718af5da244addda2f736cda0d
   languageName: node
   linkType: hard
 
@@ -7331,12 +7317,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:20.12.7, @types/node@npm:^20.0.0, @types/node@npm:^20.8.3":
-  version: 20.12.7
-  resolution: "@types/node@npm:20.12.7"
+"@types/node@npm:*, @types/node@npm:20.12.8, @types/node@npm:^20.0.0, @types/node@npm:^20.8.3":
+  version: 20.12.8
+  resolution: "@types/node@npm:20.12.8"
   dependencies:
     undici-types: "npm:~5.26.4"
-  checksum: 10c0/dce80d63a3b91892b321af823d624995c61e39c6a223cc0ac481a44d337640cc46931d33efb3beeed75f5c85c3bda1d97cef4c5cd4ec333caf5dee59cff6eca0
+  checksum: 10c0/840002d20654e38a9af8cdffa215598fdb28ac4f96c5701ed672ec365ed6ccc66da299edddaa409baf13cd71bbf1128901f633b5e44e070fc236e26415805b78
   languageName: node
   linkType: hard
 
@@ -21878,6 +21864,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"npm-registry-fetch@npm:^17.0.0":
+  version: 17.0.1
+  resolution: "npm-registry-fetch@npm:17.0.1"
+  dependencies:
+    "@npmcli/redact": "npm:^2.0.0"
+    make-fetch-happen: "npm:^13.0.0"
+    minipass: "npm:^7.0.2"
+    minipass-fetch: "npm:^3.0.0"
+    minipass-json-stream: "npm:^1.0.1"
+    minizlib: "npm:^2.1.2"
+    npm-package-arg: "npm:^11.0.0"
+    proc-log: "npm:^4.0.0"
+  checksum: 10c0/c5235928fe31fdb8dc28982f8b20109c5f630adaaf21f69bfece609d3851d670d31e1ea2b70d38c2e573fb88145c6ba270c1c9efc0893860ae89d9e6789ab0fb
+  languageName: node
+  linkType: hard
+
 "npm-run-all@npm:^4.1.5":
   version: 4.1.5
   resolution: "npm-run-all@npm:4.1.5"
@@ -22738,9 +22740,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pacote@npm:^18.0.2":
-  version: 18.0.2
-  resolution: "pacote@npm:18.0.2"
+"pacote@npm:^18.0.3":
+  version: 18.0.3
+  resolution: "pacote@npm:18.0.3"
   dependencies:
     "@npmcli/git": "npm:^5.0.0"
     "@npmcli/installed-package-contents": "npm:^2.0.1"
@@ -22753,7 +22755,7 @@ __metadata:
     npm-package-arg: "npm:^11.0.0"
     npm-packlist: "npm:^8.0.0"
     npm-pick-manifest: "npm:^9.0.0"
-    npm-registry-fetch: "npm:^16.0.0"
+    npm-registry-fetch: "npm:^17.0.0"
     proc-log: "npm:^4.0.0"
     promise-retry: "npm:^2.0.1"
     sigstore: "npm:^2.2.0"
@@ -22761,7 +22763,7 @@ __metadata:
     tar: "npm:^6.1.11"
   bin:
     pacote: lib/bin.js
-  checksum: 10c0/7aea55895894a4cb1f2d86804bda24dede171c1536f72fa860624ec981de2791164d09e71cf77ce289407961a52e9d833734ed53db052e9c8807fcd4d777b706
+  checksum: 10c0/73984dab9b0f6631138772bf72f33ed9dedc17a1b3411feadd8d4e4aecd2a713ba564f5a1f16b6400c74a76f47325719df6ba11cd0d65defaec50cdc0f0d43b8
   languageName: node
   linkType: hard
 
@@ -26449,7 +26451,7 @@ __metadata:
     "@testing-library/react-hooks": "npm:8.0.1"
     "@testing-library/react-native": "npm:12.4.5"
     "@types/jest": "npm:29.5.12"
-    "@types/node": "npm:20.12.7"
+    "@types/node": "npm:20.12.8"
     "@types/react": "npm:18.3.1"
     "@types/react-native": "npm:^0.73.0"
     "@typescript-eslint/eslint-plugin": "npm:7.7.1"
