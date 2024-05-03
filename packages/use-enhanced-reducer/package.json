@@ -74,6 +74,7 @@
     "prepack": "run prepare && run build:bundle"
   },
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
+  "funding": "https://github.com/sponsors/ntucker",
   "license": "Apache-2.0",
   "peerDependencies": {
     "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0-0 || ^19.0.0",

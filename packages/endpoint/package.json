@@ -117,6 +117,7 @@
     "typecheck": "run tsc:ci"
   },
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
+  "funding": "https://github.com/sponsors/ntucker",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

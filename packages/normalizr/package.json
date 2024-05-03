@@ -101,6 +101,7 @@
     "prepublishOnly": "run build"
   },
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
+  "funding": "https://github.com/sponsors/ntucker",
   "contributors": [
     "Paul Armstrong",
     "Dan Abramov"

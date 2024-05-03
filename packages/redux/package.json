@@ -104,6 +104,7 @@
     "prepack": "run prepare && run build:bundle && run build:legacy:lib"
   },
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
+  "funding": "https://github.com/sponsors/ntucker",
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime": "^7.17.0",
