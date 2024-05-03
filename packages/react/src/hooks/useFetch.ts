@@ -58,11 +58,7 @@ export default function useFetch<
 
   // Compute denormalized value
   const { expiryStatus, expiresAt } = useMemo(() => {
-    return controller.getResponse(endpoint, ...args, state) as {
-      data: Denormalize<E['schema']>;
-      expiryStatus: ExpiryStatus;
-      expiresAt: number;
-    };
+    return controller.getResponse(endpoint, ...args, state);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     cacheResults,
@@ -81,7 +77,7 @@ export default function useFetch<
     if ((Date.now() <= expiresAt && !forceFetch) || !key) return;
 
     // if args is [null], we won't get to this line
-    return controller.fetch(endpoint, ...(args as [...Parameters<E>]));
+    return controller.fetch(endpoint, ...(args as Parameters<E>));
     // we need to check against serialized params, since params can change frequently
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expiresAt, controller, key, forceFetch, state.lastReset]);

@@ -88,7 +88,7 @@ export default function useSuspense<
     return (
       controller
         // if args is [null], we won't get to this line
-        .fetch(endpoint, ...(args as [...Parameters<E>]))
+        .fetch(endpoint, ...(args as Parameters<E>))
         .catch(() => {})
     );
     // we need to check against serialized params, since params can change frequently
@@ -106,7 +106,7 @@ export default function useSuspense<
     // revalidating non-suspending data is low priority, so make sure it doesn't stutter animations
     const task = InteractionManager.runAfterInteractions(() => {
       if (Date.now() > expiresAt && key) {
-        controller.fetch(endpoint, ...(args as readonly [...Parameters<E>]));
+        controller.fetch(endpoint, ...(args as Parameters<E>));
       }
     });
 

@@ -27,7 +27,7 @@ export default function useSubscription<
     () => {
       if (!key) return;
       // typescript cannot infer truthy key means args is not null
-      const cleanedArgs = args as readonly [...Parameters<E>];
+      const cleanedArgs = args as Parameters<E>;
 
       controller.subscribe(endpoint, ...cleanedArgs);
       return () => {

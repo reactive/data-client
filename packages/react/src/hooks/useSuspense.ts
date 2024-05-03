@@ -86,7 +86,7 @@ export default function useSuspense<
     return (
       controller
         // if args is [null], we won't get to this line
-        .fetch(endpoint, ...(args as [...Parameters<E>]))
+        .fetch(endpoint, ...(args as Parameters<E>))
         .catch(() => {})
     );
     // we need to check against serialized params, since params can change frequently

@@ -267,7 +267,7 @@ export default class Controller<
     args[0] !== null ?
       this.dispatch(
         createSubscription(endpoint, {
-          args: args as readonly [...Parameters<E>],
+          args: args as Parameters<E>,
         }),
       )
     : Promise.resolve();
@@ -289,7 +289,7 @@ export default class Controller<
     args[0] !== null ?
       this.dispatch(
         createUnsubscription(endpoint, {
-          args: args as readonly [...Parameters<E>],
+          args: args as Parameters<E>,
         }),
       )
     : Promise.resolve();

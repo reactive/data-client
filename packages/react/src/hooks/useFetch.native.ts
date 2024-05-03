@@ -60,11 +60,7 @@ export default function useFetch<
 
   // Compute denormalized value
   const { expiryStatus, expiresAt } = useMemo(() => {
-    return controller.getResponse(endpoint, ...args, state) as {
-      data: Denormalize<E['schema']>;
-      expiryStatus: ExpiryStatus;
-      expiresAt: number;
-    };
+    return controller.getResponse(endpoint, ...args, state);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     cacheResults,
@@ -82,7 +78,7 @@ export default function useFetch<
     // null params mean don't do anything
     if ((Date.now() <= expiresAt && !forceFetch) || !key) return;
     // if args is [null], we won't get to this line
-    return controller.fetch(endpoint, ...(args as [...Parameters<E>]));
+    return controller.fetch(endpoint, ...(args as Parameters<E>));
     // we need to check against serialized params, since params can change frequently
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expiresAt, controller, key, forceFetch, state.lastReset]);
@@ -91,7 +87,7 @@ export default function useFetch<
     // revalidating non-suspending data is low priority, so make sure it doesn't stutter animations
     const task = InteractionManager.runAfterInteractions(() => {
       if (Date.now() > expiresAt && key) {
-        controller.fetch(endpoint, ...(args as readonly [...Parameters<E>]));
+        controller.fetch(endpoint, ...(args as Parameters<E>));
       }
     });
 

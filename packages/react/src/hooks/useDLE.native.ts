@@ -115,7 +115,7 @@ export default function useDLE<
     // revalidating non-suspending data is low priority, so make sure it doesn't stutter animations
     const task = InteractionManager.runAfterInteractions(() => {
       if (Date.now() > expiresAt && key) {
-        controller.fetch(endpoint, ...(args as readonly [...Parameters<E>]));
+        controller.fetch(endpoint, ...(args as Parameters<E>));
       }
     });
 
