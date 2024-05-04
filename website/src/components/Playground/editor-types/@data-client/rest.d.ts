@@ -69,6 +69,8 @@ type SchemaArgs<S extends Schema> = S extends EntityInterface<infer U> ? [Entity
 }) ? Args : never;
 
 interface SnapshotInterface {
+    readonly fetchedAt: number;
+    readonly abort: Error;
     /**
      * Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
      * @see https://dataclient.io/docs/api/Snapshot#getResponse
@@ -89,14 +91,13 @@ interface SnapshotInterface {
         expiresAt: number;
     };
     /** @see https://dataclient.io/docs/api/Snapshot#getError */
-    getError: <E extends Pick<EndpointInterface, 'key'>, Args extends readonly [...Parameters<E['key']>]>(endpoint: E, ...args: Args) => ErrorTypes | undefined;
+    getError<E extends EndpointInterface>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): ErrorTypes | undefined;
+    getError<E extends Pick<EndpointInterface, 'key'>>(endpoint: E, ...args: readonly [...Parameters<E['key']>] | readonly [null]): ErrorTypes | undefined;
     /**
      * Retrieved memoized value for any Querable schema
      * @see https://dataclient.io/docs/api/Snapshot#get
      */
     get<S extends Queryable>(schema: S, ...args: SchemaArgs<S>): DenormalizeNullable<S> | undefined;
-    readonly fetchedAt: number;
-    readonly abort: Error;
 }
 type ExpiryStatusInterface = 1 | 2 | 3;
 

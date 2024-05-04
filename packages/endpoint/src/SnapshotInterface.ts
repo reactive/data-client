@@ -3,6 +3,9 @@ import type { EndpointInterface, Queryable } from './interface.js';
 import type { DenormalizeNullable, SchemaArgs } from './normal.js';
 
 export interface SnapshotInterface {
+  readonly fetchedAt: number;
+  readonly abort: Error;
+
   /**
    * Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
    * @see https://dataclient.io/docs/api/Snapshot#getResponse
@@ -37,13 +40,15 @@ export interface SnapshotInterface {
   };
 
   /** @see https://dataclient.io/docs/api/Snapshot#getError */
-  getError: <
-    E extends Pick<EndpointInterface, 'key'>,
-    Args extends readonly [...Parameters<E['key']>],
-  >(
+  getError<E extends EndpointInterface>(
     endpoint: E,
-    ...args: Args
-  ) => ErrorTypes | undefined;
+    ...args: readonly [...Parameters<E>] | readonly [null]
+  ): ErrorTypes | undefined;
+
+  getError<E extends Pick<EndpointInterface, 'key'>>(
+    endpoint: E,
+    ...args: readonly [...Parameters<E['key']>] | readonly [null]
+  ): ErrorTypes | undefined;
 
   /**
    * Retrieved memoized value for any Querable schema
@@ -53,9 +58,6 @@ export interface SnapshotInterface {
     schema: S,
     ...args: SchemaArgs<S>
   ): DenormalizeNullable<S> | undefined;
-
-  readonly fetchedAt: number;
-  readonly abort: Error;
 }
 
 // looser version to allow for cross-package version compatibility

@@ -562,10 +562,12 @@ function schemaHasEntity(schema: Schema): boolean {
 export type { ErrorTypes };
 
 class Snapshot<T = unknown> implements SnapshotInterface {
+  static readonly abort = new AbortOptimistic();
+
   private state: State<T>;
   private controller: Controller;
   readonly fetchedAt: number;
-  readonly abort = new AbortOptimistic();
+  readonly abort = Snapshot.abort;
 
   constructor(controller: Controller, state: State<T>, fetchedAt = 0) {
     this.state = state;
