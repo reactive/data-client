@@ -18,21 +18,21 @@ jobs:
             npm pkg set 'workspaces[]'='examples/*'
       - restore_cache:
           keys:
-            - v9-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}
+            - v11-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}
             # fallback to using the latest cache if no exact match is found
-            - v9-dependencies-
+            - v11-dependencies-
       - run:
           name: yarn install
           command: |
             sudo corepack enable
-            YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn workspace todo-app add @data-client/endpoint@workspace:^ @data-client/react@workspace:^ @data-client/rest@workspace:^
-            YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn workspace github-app add @data-client/graphql@workspace:^ @data-client/hooks@workspace:^ @data-client/react@workspace:^ @data-client/rest@workspace:^
-            YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install
+            YARN_ENABLE_GLOBAL_CACHE=false YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn workspace todo-app add @data-client/endpoint@workspace:^ @data-client/react@workspace:^ @data-client/rest@workspace:^
+            YARN_ENABLE_GLOBAL_CACHE=false YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn workspace github-app add @data-client/graphql@workspace:^ @data-client/hooks@workspace:^ @data-client/react@workspace:^ @data-client/rest@workspace:^
+            YARN_ENABLE_GLOBAL_CACHE=false YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install
       - save_cache:
           paths:
             - .yarn/cache
             - .yarn/install-state.gz
-          key: v9-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}
+          key: v11-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}
       - run: yarn run ci:build:types
       - run: yarn run ci:build
       - persist_to_workspace:
@@ -86,8 +86,8 @@ jobs:
       - run:
           command: |
             if [ "<< parameters.react-version >>" != "^18" ]; then
-            yarn add --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >> @testing-library/react@^12.0.0 @testing-library/react-hooks
-            yarn workspace @data-client/test add @testing-library/react@^12.0.0
+            YARN_ENABLE_GLOBAL_CACHE=false yarn add --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >> @testing-library/react@^12.0.0 @testing-library/react-hooks
+            YARN_ENABLE_GLOBAL_CACHE=false yarn workspace @data-client/test add @testing-library/react@^12.0.0
             fi
       - run:
           command: |
@@ -143,12 +143,15 @@ jobs:
       - run:
           command: |
             if [ "<< parameters.typescript-version >>" != "latest" ]; then
-            yarn add --dev typescript@<< parameters.typescript-version >>
+            YARN_ENABLE_GLOBAL_CACHE=false yarn add --dev typescript@<< parameters.typescript-version >>
+            fi
+            if [ "<< parameters.typescript-version >>" == "~4.0" ]; then
+            YARN_ENABLE_GLOBAL_CACHE=false yarn workspaces foreach -Rpt --from github-app --from todo-app add --dev @types/react@18.0.0
             fi
       - run:
           name: typecheck
           command: |
-            if [ "<< parameters.typescript-version >>" == "latest" ] || [ "<< parameters.typescript-version >>" == "~4.8" ]; then
+            if [ "<< parameters.typescript-version >>" == "latest" ] || [ "<< parameters.typescript-version >>" == "~5.3" ] || [ "<< parameters.typescript-version >>" == "~4.8" ]; then
             yarn run tsc --project examples/todo-app/tsconfig.json
             yarn run tsc --project examples/github-app/tsconfig.json
             fi
