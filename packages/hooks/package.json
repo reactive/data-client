@@ -1,6 +1,6 @@
 {
   "name": "@data-client/hooks",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Collection of composable data hooks",
   "homepage": "https://dataclient.io/docs/api/useDebounce",
   "repository": {
@@ -74,7 +74,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime": "^7.17.0",
-    "@data-client/normalizr": "^0.11.4"
+    "@data-client/normalizr": "^0.12.3"
   },
   "peerDependencies": {
     "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0-0 || ^19.0.0",

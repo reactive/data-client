@@ -1,5 +1,11 @@
 # @data-client/use-enhanced-reducer
 
+## 0.1.7
+
+### Patch Changes
+
+- [`00d4205`](https://github.com/reactive/data-client/commit/00d4205f03562cfe4acd18215718e23ae5466b8d) Thanks [@ntucker](https://github.com/ntucker)! - Add funding package.json field
+
 ## 0.1.6
 
 ### Patch Changes
