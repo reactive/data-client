@@ -1,5 +1,16 @@
 # @data-client/core
 
+## 0.12.3
+
+### Patch Changes
+
+- [`00d4205`](https://github.com/reactive/data-client/commit/00d4205f03562cfe4acd18215718e23ae5466b8d) Thanks [@ntucker](https://github.com/ntucker)! - Add funding package.json field
+
+- [`8a8634c`](https://github.com/reactive/data-client/commit/8a8634c7a263cf99e9ce426b2c9b92fd2a12a259) Thanks [@ntucker](https://github.com/ntucker)! - Reduce GC pressure by reusing AbortOptimistic instance
+
+- Updated dependencies [[`00d4205`](https://github.com/reactive/data-client/commit/00d4205f03562cfe4acd18215718e23ae5466b8d)]:
+  - @data-client/normalizr@0.12.3
+
 ## 0.12.1
 
 ### Patch Changes

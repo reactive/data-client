@@ -4,6 +4,18 @@
 
 ### Patch Changes
 
+- Updated dependencies [[`00d4205`](https://github.com/reactive/data-client/commit/00d4205f03562cfe4acd18215718e23ae5466b8d), [`8a8634c`](https://github.com/reactive/data-client/commit/8a8634c7a263cf99e9ce426b2c9b92fd2a12a259)]:
+  - @data-client/endpoint@0.12.3
+  - @data-client/graphql@0.12.3
+  - @data-client/hooks@0.1.10
+  - @data-client/react@0.12.3
+  - @data-client/rest@0.12.3
+  - @data-client/test@0.12.3
+
+## null
+
+### Patch Changes
+
 - Updated dependencies [[`5b64cbf`](https://github.com/reactive/data-client/commit/5b64cbf3126c404b70853960a4bdedc268e3328c), [`5b64cbf`](https://github.com/reactive/data-client/commit/5b64cbf3126c404b70853960a4bdedc268e3328c), [`6e9d36b`](https://github.com/reactive/data-client/commit/6e9d36b6cb287763c0fcc3f07d9f2ef0df619d12)]:
   - @data-client/react@0.12.1
   - @data-client/test@0.12.1
