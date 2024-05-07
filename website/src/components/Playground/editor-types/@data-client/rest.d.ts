@@ -1307,14 +1307,20 @@ interface RestEndpointOptions<F extends FetchFunction = FetchFunction, S extends
 type RestEndpointConstructorOptions<O extends RestGenerics = any> = RestEndpointOptions<RestFetch<'searchParams' extends keyof O ? O['searchParams'] extends undefined ? PathArgs<O['path']> : O['searchParams'] & PathArgs<O['path']> : PathArgs<O['path']>, OptionsToBodyArgument<O, 'method' extends keyof O ? O['method'] : O extends {
     sideEffect: true;
 } ? 'POST' : 'GET'>, O['process'] extends {} ? ReturnType<O['process']> : any>, O['schema']>;
-interface RestEndpointConstructor {
-    new <O extends RestGenerics = any>({ method, sideEffect, name, ...options }: RestEndpointConstructorOptions<O> & Readonly<O>): RestInstance<RestFetch<'searchParams' extends keyof O ? O['searchParams'] extends undefined ? PathArgs<O['path']> : O['searchParams'] & PathArgs<O['path']> : PathArgs<O['path']>, OptionsToBodyArgument<O, 'method' extends keyof O ? O['method'] : O extends {
+/** Simplifies endpoint definitions that follow REST patterns
+ *
+ * @see https://dataclient.io/rest/api/RestEndpoint
+ */
+interface RestEndpoint$1<O extends RestGenerics = any> extends RestInstance<RestFetch<'searchParams' extends keyof O ? O['searchParams'] extends undefined ? PathArgs<O['path']> : O['searchParams'] & PathArgs<O['path']> : PathArgs<O['path']>, OptionsToBodyArgument<O, 'method' extends keyof O ? O['method'] : O extends {
+    sideEffect: true;
+} ? 'POST' : 'GET'>, O['process'] extends {} ? ReturnType<O['process']> : any>, 'schema' extends keyof O ? O['schema'] : undefined, 'sideEffect' extends keyof O ? Extract<O['sideEffect'], undefined | true> : MethodToSide<O['method']>, 'method' extends keyof O ? O : O & {
+    method: O extends {
         sideEffect: true;
-    } ? 'POST' : 'GET'>, O['process'] extends {} ? ReturnType<O['process']> : any>, 'schema' extends keyof O ? O['schema'] : undefined, 'sideEffect' extends keyof O ? Extract<O['sideEffect'], undefined | true> : MethodToSide<O['method']>, 'method' extends keyof O ? O : O & {
-        method: O extends {
-            sideEffect: true;
-        } ? 'POST' : 'GET';
-    }>;
+    } ? 'POST' : 'GET';
+}> {
+}
+interface RestEndpointConstructor {
+    new <O extends RestGenerics = any>({ method, sideEffect, name, ...options }: RestEndpointConstructorOptions<O> & Readonly<O>): RestEndpoint$1<O>;
     readonly prototype: RestInstanceBase;
 }
 type MethodToSide<M> = M extends string ? M extends 'GET' ? undefined : true : undefined;

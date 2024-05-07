@@ -446,13 +446,12 @@ export type RestEndpointConstructorOptions<O extends RestGenerics = any> =
     O['schema']
   >;
 
-export interface RestEndpointConstructor {
-  new <O extends RestGenerics = any>({
-    method,
-    sideEffect,
-    name,
-    ...options
-  }: RestEndpointConstructorOptions<O> & Readonly<O>): RestInstance<
+/** Simplifies endpoint definitions that follow REST patterns
+ *
+ * @see https://dataclient.io/rest/api/RestEndpoint
+ */
+export interface RestEndpoint<O extends RestGenerics = any>
+  extends RestInstance<
     RestFetch<
       'searchParams' extends keyof O ?
         O['searchParams'] extends undefined ?
@@ -475,7 +474,15 @@ export interface RestEndpointConstructor {
     : O & {
         method: O extends { sideEffect: true } ? 'POST' : 'GET';
       }
-  >;
+  > {}
+
+export interface RestEndpointConstructor {
+  new <O extends RestGenerics = any>({
+    method,
+    sideEffect,
+    name,
+    ...options
+  }: RestEndpointConstructorOptions<O> & Readonly<O>): RestEndpoint<O>;
   readonly prototype: RestInstanceBase;
 }
 
