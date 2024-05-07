@@ -490,7 +490,7 @@ optional({ group: 'first', number: 'fifty' });
 
 </TypeScriptEditor>
 
-`\\` to escape special characters like `:` or `?`
+`\\` to escape special characters `:`, `?`, `+`, `*`, `{`, or `}`
 
 <TypeScriptEditor>
 
