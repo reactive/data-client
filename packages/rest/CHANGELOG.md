@@ -1,5 +1,25 @@
 # @data-client/rest
 
+## 0.12.4
+
+### Patch Changes
+
+- [`a6b4f4a`](https://github.com/reactive/data-client/commit/a6b4f4aabbfd06f5106a96e809a6c1a5e7045172) Thanks [@ntucker](https://github.com/ntucker)! - Support + and \* in RestEndpoint.path
+
+- [`a6b4f4a`](https://github.com/reactive/data-client/commit/a6b4f4aabbfd06f5106a96e809a6c1a5e7045172) Thanks [@ntucker](https://github.com/ntucker)! - Add support for {} to RestEndpoint.path
+
+  ```ts
+  const getThing = new RestEndpoint({
+    path: "/:attr1?{-:attr2}?{-:attr3}?",
+  });
+
+  getThing({ attr1: "hi" });
+  getThing({ attr2: "hi" });
+  getThing({ attr3: "hi" });
+  getThing({ attr1: "hi", attr3: "ho" });
+  getThing({ attr2: "hi", attr3: "ho" });
+  ```
+
 ## 0.12.3
 
 ### Patch Changes
