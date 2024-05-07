@@ -3,8 +3,8 @@ import { Entity, schema } from '@data-client/endpoint';
 import { useController, useSuspense } from '@data-client/react';
 import { User } from '__tests__/new';
 
-import createResource from '../createResource';
-import RestEndpoint, { GetEndpoint, MutateEndpoint } from '../RestEndpoint';
+import createResource from '../src/createResource';
+import RestEndpoint, { GetEndpoint, MutateEndpoint } from '../src/RestEndpoint';
 
 it('RestEndpoint construct and extend with typed options', () => {
   new RestEndpoint({
@@ -574,3 +574,91 @@ it('should handle more open ended type definitions', () => {
     explicit.push();
   };
 });
+
+() => {
+  const getThing = new RestEndpoint({
+    path: '/:id*:bob',
+  });
+
+  getThing({ id: 5, bob: 'hi' });
+  // @ts-expect-error
+  getThing({ id: 'hi' });
+  // @ts-expect-error
+  getThing({ bob: 'hi' });
+  // @ts-expect-error
+  getThing(5);
+};
+() => {
+  const getThing = new RestEndpoint({
+    path: '/:id+:bob',
+  });
+
+  getThing({ id: 5, bob: 'hi' });
+  // @ts-expect-error
+  getThing({ 'id+': 5, bob: 'hi' });
+  // @ts-expect-error
+  getThing({ id: 'hi' });
+  // @ts-expect-error
+  getThing({ bob: 'hi' });
+  // @ts-expect-error
+  getThing(5);
+};
+() => {
+  const getThing = new RestEndpoint({
+    path: '/:id\\+:bob',
+  });
+
+  getThing({ id: 5, bob: 'hi' });
+  // @ts-expect-error
+  getThing({ 'id+': 5, bob: 'hi' });
+  // @ts-expect-error
+  getThing({ id: 'hi' });
+  // @ts-expect-error
+  getThing({ bob: 'hi' });
+  // @ts-expect-error
+  getThing(5);
+};
+() => {
+  const getThing = new RestEndpoint({
+    path: '/:id:bob+',
+  });
+
+  getThing({ id: 5, bob: 'hi' });
+  // @ts-expect-error
+  getThing({ id: 5, 'bob+': 'hi' });
+  // @ts-expect-error
+  getThing({ id: 'hi' });
+  // @ts-expect-error
+  getThing({ bob: 'hi' });
+  // @ts-expect-error
+  getThing(5);
+};
+() => {
+  const getThing = new RestEndpoint({
+    path: '/:foo/(.*)',
+  });
+
+  getThing({ foo: 'hi' });
+  // @ts-expect-error
+  getThing({});
+  // @ts-expect-error
+  getThing({ id: 'hi' });
+  // @ts-expect-error
+  getThing(5);
+};
+() => {
+  const getThing = new RestEndpoint({
+    path: '/:attr1?{-:attr2}?{-:attr3}?',
+  });
+
+  getThing({ attr1: 'hi' });
+  getThing({ attr2: 'hi' });
+  getThing({ attr3: 'hi' });
+  getThing({ attr1: 'hi', attr3: 'ho' });
+  getThing({ attr2: 'hi', attr3: 'ho' });
+  getThing({});
+  // @ts-expect-error
+  getThing({ random: 'hi' });
+  // @ts-expect-error
+  getThing(5);
+};
