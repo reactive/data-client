@@ -1,13 +1,13 @@
 import { GithubEntity } from './Base';
 
 export class Push extends GithubEntity {
-  readonly pushId: number = -1;
-  readonly size: number = 0;
-  readonly distinctSize: number = 0;
-  readonly ref: string = '';
-  readonly head: string = '';
-  readonly before: string = '';
-  readonly commits: Commit[] = [];
+  pushId = -1;
+  size = 0;
+  distinctSize = 0;
+  ref = '';
+  head = '';
+  before = '';
+  commits: Commit[] = [];
 
   pk() {
     return `${this.pushId}`;

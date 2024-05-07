@@ -153,7 +153,7 @@ function ensureBodyPojo(body: any) {
 ```
 
 For creates (push/unshift) this typically results in no `id` in the response to compute a pk.
-RDC will create a random `pk` to make this work.
+<abbr title="Reactive Data Client">Data Client</abbr> will create a random `pk` to make this work.
 
 Until the object is actually created, doing mutations on that object generally does not work.
 Therefore, it may be prudent in these cases to disable further mutations until the actual
@@ -358,7 +358,7 @@ function CounterPage() {
         us.
       </p>
       <div>
-        RDC: {count} Should be: {n}
+        Data Client: {count} Should be: {n}
         <br />
         <button onClick={clickHandler}>+</button>
         {loading ? ' ...loading' : ''}

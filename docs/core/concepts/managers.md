@@ -25,7 +25,7 @@ characterized by an easy to [understand and debug](../guides/debugging.md) the s
 
 In flux architectures, it is critical all functions in the flux loop are [pure](https://react.dev/learn/keeping-components-pure).
 Managers provide centralized orchestration of side effects. In other words, they are the means to interface
-with the world outside RDC.
+with the world outside <abbr title="Reactive Data Client">Data Client</abbr>.
 
 For instance, [NetworkManager](../api/NetworkManager.md) orchestrates data fetching and [SubscriptionManager](../api/SubscriptionManager.md)
 keeps track of which resources are subscribed with [useLive](../api/useLive.md) or [useSubscription](../api/useSubscription.md). By centralizing control, [NetworkManager](../api/NetworkManager.md) automatically deduplicates fetches, and [SubscriptionManager](../api/SubscriptionManager.md)

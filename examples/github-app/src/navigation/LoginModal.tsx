@@ -1,4 +1,4 @@
-import { Button, Modal } from 'antd';
+import { Modal } from 'antd';
 import { useCallback, useContext } from 'react';
 
 import { authdContext } from './authdContext';

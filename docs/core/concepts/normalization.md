@@ -391,7 +391,7 @@ can be installed to inspect and [debug the store](../guides/debugging.md).
 
 <center>
 
-<Link className="button button--secondary" to="../guides/debugging">RDC Debugging Guide »</Link>
+<Link className="button button--secondary" to="../guides/debugging">Data Client Debugging Guide »</Link>
 
 </center>
 
@@ -409,7 +409,7 @@ and up to 20x performance even after [mutation operations](../getting-started/mu
 ```mermaid
 xychart-beta
     title "Denormalize Single Entity"
-    x-axis [normalizr, "RDC", "RDC (cached)"]
+    x-axis [normalizr, "Data Client", "Data Client (cached)"]
     y-axis "Operations per second" 0 --> 4875500
     bar [218500, 1079500, 4875500]
 ```
@@ -417,7 +417,7 @@ xychart-beta
 ```mermaid
 xychart-beta
     title "Denormalize Large List"
-    x-axis [normalizr, "RDC", "RDC (cached)"]
+    x-axis [normalizr, "Data Client", "Data Client (cached)"]
     y-axis "Operations per second" 0 --> 12962
     bar [1165, 1807, 13168]
 ```

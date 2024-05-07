@@ -8,7 +8,7 @@ import {
 import { v4 as uuid } from 'uuid';
 
 export abstract class PlaceholderEntity extends Entity {
-  readonly id: number = 0;
+  id = 0;
 
   // all Resources of `jsonplaceholder` use an id for the primary key
   pk() {

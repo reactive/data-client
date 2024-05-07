@@ -140,7 +140,7 @@ export const TodoResource = {
 
   <PkgInstall pkgs="@data-client/endpoint" />
 
-Pre-existing TypeScript definitions can be used in <abbr title="Reactive Data Client">RDC</abbr> with
+Pre-existing TypeScript definitions can be used in <abbr title="Reactive Data Client">Data Client</abbr> with
 [Endpoint](/rest/api/Endpoint) and [schema.Entity](/rest/api/schema.Entity).
 
 <TypeScriptEditor row={false}>

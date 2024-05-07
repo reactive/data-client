@@ -132,7 +132,7 @@ render(<TodoList />);
 </HooksPlayground>
 
 Rather than triggering invalidation cascades or using manually written update functions,
-<abbr title="Reactive Data Client">RDC</abbr> reactively updates appropriate components using the fetch response.
+<abbr title="Reactive Data Client">Data Client</abbr> reactively updates appropriate components using the fetch response.
 
 ## Optimistic mutations based on previous state {#optimistic-updates}
 

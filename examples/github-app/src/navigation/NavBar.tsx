@@ -29,7 +29,7 @@ function NavBar() {
             name="IssueList"
             props={{ repo: 'data-client', owner: 'reactive' }}
           >
-            RDC Issues
+            Data Client Issues
           </Link>
         ),
       },

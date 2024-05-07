@@ -6,9 +6,9 @@ import PreviewEndpoint from './PreviewEndpoint';
 import { User } from './User';
 
 export class Reaction extends GithubEntity {
-  readonly user: User = User.fromJS();
-  readonly content: ReactionType = '+1';
-  readonly createdAt = Temporal.Instant.fromEpochSeconds(0);
+  user = User.fromJS();
+  content: ReactionType = '+1';
+  createdAt = Temporal.Instant.fromEpochSeconds(0);
 
   get contentIcon() {
     return contentToIcon[this.content];

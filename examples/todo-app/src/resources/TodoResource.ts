@@ -6,9 +6,9 @@ import {
 } from './PlaceholderBaseResource';
 
 export class Todo extends PlaceholderEntity {
-  readonly userId: number = 0;
-  readonly title: string = '';
-  readonly completed: boolean = false;
+  userId = 0;
+  title = '';
+  completed = false;
 
   static key = 'Todo';
 }
@@ -22,5 +22,5 @@ export const TodoResource = createPlaceholderResource({
 
 export const queryRemainingTodos = new schema.Query(
   TodoResource.getList.schema,
-  (entries) => entries && entries.filter((todo) => !todo.completed).length,
+  (entries) => entries.filter((todo) => !todo.completed).length,
 );

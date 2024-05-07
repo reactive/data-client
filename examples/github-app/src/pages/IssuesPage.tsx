@@ -1,5 +1,5 @@
 import { Link, useLocationSearch } from '@anansi/router';
-import { HomeOutlined, UserOutlined } from '@ant-design/icons';
+import { HomeOutlined } from '@ant-design/icons';
 import { Breadcrumb } from 'antd';
 import { Issue } from 'resources/Issue';
 
