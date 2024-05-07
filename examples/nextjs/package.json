@@ -11,11 +11,11 @@
   "dependencies": {
     "@data-client/react": "^0.12.0",
     "@data-client/redux": "^0.12.0",
-    "@data-client/rest": "^0.11.0",
+    "@data-client/rest": "^0.12.0",
     "@data-client/ssr": "^0.12.0",
     "@data-client/test": "^0.12.0",
     "@js-temporal/polyfill": "^0.4.4",
-    "@types/node": "20.12.8",
+    "@types/node": "20.12.10",
     "@types/react": "18.3.1",
     "@types/react-dom": "18.3.0",
     "classnames": "^2.3.2",
