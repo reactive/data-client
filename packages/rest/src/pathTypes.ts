@@ -1,20 +1,8 @@
-type OnlyOptional<S extends string> = S extends `${infer K}?` ? K : never;
-type OnlyRequired<S extends string> = S extends `${string}?` ? never : S;
-
-/** Computes the union of keys for a path string */
-export type PathKeys<S extends string> =
-  string extends S ? string
-  : S extends `${infer A}\\:${infer B}` ? PathKeys<A> | PathKeys<B>
-  : S extends `${infer A}\\?${infer B}` ? PathKeys<A> | PathKeys<B>
-  : PathSplits<S>;
-
-type PathSplits<S extends string> =
-  S extends `${string}:${infer K}${'/' | ',' | '%' | '&'}${infer R}` ?
-    PathSplits<`:${K}`> | PathSplits<R>
-  : S extends `${string}:${infer K}:${infer R}` ?
-    PathSplits<`:${K}`> | PathSplits<`:${R}`>
-  : S extends `${string}:${infer K}` ? K
+type OnlyOptional<S extends string> =
+  S extends `${infer K}}?` ? K
+  : S extends `${infer K}?` ? K
   : never;
+type OnlyRequired<S extends string> = S extends `${string}?` ? never : S;
 
 /** Parameters for a given path */
 export type PathArgs<S extends string> =
@@ -22,6 +10,23 @@ export type PathArgs<S extends string> =
     // unknown is identity for intersection ('&')
     unknown
   : KeysToArgs<PathKeys<S>>;
+
+/** Computes the union of keys for a path string */
+export type PathKeys<S extends string> =
+  string extends S ? string
+  : S extends `${infer A}\\${':' | '?' | '+' | '*' | '{' | '}'}${infer B}` ?
+    PathKeys<A> | PathKeys<B>
+  : PathSplits<S>;
+
+type PathSplits<S extends string> =
+  S extends (
+    `${string}:${infer K}${'/' | ',' | '%' | '&' | '+' | '*' | '{'}${infer R}`
+  ) ?
+    PathSplits<`:${K}`> | PathSplits<R>
+  : S extends `${string}:${infer K}:${infer R}` ?
+    PathSplits<`:${K}`> | PathSplits<`:${R}`>
+  : S extends `${string}:${infer K}` ? K
+  : never;
 
 export type KeysToArgs<Key extends string> = {
   [K in Key as OnlyOptional<K>]?: string | number;

@@ -71,8 +71,7 @@ jobs:
           at: ~/
       - run:
           command: |
-            cd packages/endpoint
-            yarn run typecheck
+            yarn workspaces foreach -A --include @data-client/endpoint --include @data-client/rest run typecheck
 
   unit_tests:
     parameters:

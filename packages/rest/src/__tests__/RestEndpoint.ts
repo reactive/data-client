@@ -2,7 +2,7 @@ import { Entity, schema } from '@data-client/endpoint';
 import { useController } from '@data-client/react';
 import { useSuspense } from '@data-client/react';
 import { CacheProvider } from '@data-client/react';
-import { Article, CoolerArticle, CoolerArticleResource } from '__tests__/new';
+import { CoolerArticle, CoolerArticleResource } from '__tests__/new';
 import nock from 'nock';
 
 import { makeRenderDataClient } from '../../../test';
