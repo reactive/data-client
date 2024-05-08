@@ -4,6 +4,15 @@
 
 ### Patch Changes
 
+- Updated dependencies [[`019e1bc`](https://github.com/reactive/data-client/commit/019e1bc2ecf3651540f905912aaae30c545dd521), [`e4d5f01`](https://github.com/reactive/data-client/commit/e4d5f019f7c3817fb740094244e8ce17ccd5452d), [`30208fb`](https://github.com/reactive/data-client/commit/30208fb065cc071643f338c8e6333449e2cc0340), [`c3481ad`](https://github.com/reactive/data-client/commit/c3481ad578c77a6dc73f45f1afcec353ba032534)]:
+  - @data-client/rest@0.12.5
+  - @data-client/react@0.12.5
+  - @data-client/test@0.12.3
+
+## null
+
+### Patch Changes
+
 - Updated dependencies [[`a6b4f4a`](https://github.com/reactive/data-client/commit/a6b4f4aabbfd06f5106a96e809a6c1a5e7045172), [`a6b4f4a`](https://github.com/reactive/data-client/commit/a6b4f4aabbfd06f5106a96e809a6c1a5e7045172)]:
   - @data-client/rest@0.12.4
 
