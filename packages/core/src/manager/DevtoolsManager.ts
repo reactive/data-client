@@ -94,7 +94,7 @@ export default class DevToolsManager implements Manager {
       (window as any).__REDUX_DEVTOOLS_EXTENSION__ &&
       (window as any).__REDUX_DEVTOOLS_EXTENSION__.connect({
         ...DEFAULT_CONFIG,
-        config,
+        ...config,
       });
     if (process.env.NODE_ENV !== 'production' && this.devTools) {
       this.devTools.subscribe((msg: any) => {
@@ -150,7 +150,7 @@ export default class DevToolsManager implements Manager {
 
   handleAction(action: any, state: any) {
     if (this.started) {
-      this.devTools.send(action, state, undefined, 'RDC');
+      this.devTools.send(action, state);
     } else {
       // avoid this getting too big in case this is long running
       // we cut in half so we aren't constantly reallocating
