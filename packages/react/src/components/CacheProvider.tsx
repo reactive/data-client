@@ -78,7 +78,7 @@ Try using https://dataclient.io/docs/api/ExternalCacheProvider for server entry 
       >
         {children}
       </CacheStore>
-      {renderDevButton(devButton)}
+      {renderDevButton(devButton, managersRef.current)}
     </ControllerContext.Provider>
   );
 }

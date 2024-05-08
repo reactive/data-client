@@ -1,4 +1,5 @@
-import React, { lazy } from 'react';
+import { DevToolsManager, type Manager } from '@data-client/core';
+import { lazy } from 'react';
 
 import type { DevToolsPosition } from './DevToolsButton.js';
 import { LegacyReact, SSR } from './LegacyReact.js';
@@ -6,9 +7,14 @@ import UniversalSuspense from './UniversalSuspense.js';
 
 export function renderDevButton(
   devButton: DevToolsPosition | null | undefined,
+  managers: Manager[],
 ) {
   /* istanbul ignore else */
-  if (process.env.NODE_ENV !== 'production') {
+  if (
+    process.env.NODE_ENV !== 'production' &&
+    // only include if they have devtools integrated
+    managers.find(manager => manager instanceof DevToolsManager)
+  ) {
     return (
       <UniversalSuspense fallback={null}>
         {
