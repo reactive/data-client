@@ -1,5 +1,14 @@
 # @data-client/rest
 
+## 0.12.5
+
+### Patch Changes
+
+- [`019e1bc`](https://github.com/reactive/data-client/commit/019e1bc2ecf3651540f905912aaae30c545dd521) Thanks [@ntucker](https://github.com/ntucker)! - Improve readability of RestEndpoint instance types
+
+  Now `new RestEndpoint()` will show a `RestEndpoint` type with the relevant
+  options.
+
 ## 0.12.4
 
 ### Patch Changes
