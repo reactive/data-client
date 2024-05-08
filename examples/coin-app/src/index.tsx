@@ -10,6 +10,8 @@ import {
   useController,
   AsyncBoundary,
   getDefaultManagers,
+  DevToolsManager,
+  NetworkManager,
 } from '@data-client/react';
 import StreamManager from 'resources/StreamManager';
 import { getTicker } from 'resources/Ticker';
@@ -32,9 +34,7 @@ const spouts = JSONSpout()(
             new WebSocket('wss://ws-feed.exchange.coinbase.com'),
             { ticker: getTicker },
           ),
-          ...getDefaultManagers().filter(
-            manager => manager.constructor.name !== 'DevToolsManager',
-          ),
+          ...getManagers(),
         ];
       },
     })(
@@ -45,5 +45,30 @@ const spouts = JSONSpout()(
     ),
   ),
 );
+
+function getManagers() {
+  const managers = getDefaultManagers().filter(
+    manager => manager.constructor.name !== 'DevToolsManager',
+  );
+  if (process.env.NODE_ENV !== 'production') {
+    const networkManager: NetworkManager | undefined = managers.find(
+      manager => manager instanceof NetworkManager,
+    ) as any;
+    managers.unshift(
+      new DevToolsManager(
+        {
+          // double latency to help with high frequency updates
+          latency: 1000,
+          // don't use replacer because it is way too slow for our fast updating
+          serialize: {
+            options: undefined,
+          },
+        },
+        networkManager?.skipLogging?.bind?.(networkManager),
+      ),
+    );
+  }
+  return managers;
+}
 
 export default floodSpouts(spouts);
