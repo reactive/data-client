@@ -13,7 +13,6 @@
     "@data-client/redux": "^0.12.0",
     "@data-client/rest": "^0.12.0",
     "@data-client/ssr": "^0.12.0",
-    "@data-client/test": "^0.12.0",
     "@js-temporal/polyfill": "^0.4.4",
     "@types/node": "20.12.10",
     "@types/react": "18.3.1",
@@ -23,7 +22,7 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "redux": "^5.0.0",
-    "typescript": "^5.1.6",
+    "typescript": "^5.4.5",
     "uuid": "^9.0.1"
   }
 }
