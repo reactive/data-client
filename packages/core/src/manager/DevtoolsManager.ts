@@ -96,6 +96,8 @@ export default class DevToolsManager implements Manager {
         ...DEFAULT_CONFIG,
         ...config,
       });
+    // we cut it in half so we should double so we don't lose
+    if (config?.maxAge) this.maxBufferLength = config.maxAge * 2;
     if (process.env.NODE_ENV !== 'production' && this.devTools) {
       this.devTools.subscribe((msg: any) => {
         switch (msg.type) {
