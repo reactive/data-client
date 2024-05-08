@@ -163,6 +163,9 @@ Now, `normalizedData` will create a single serializable source of truth for all 
       }
     }
   },
+  // contents excluded for brevity
+  indexes,
+  entityMeta,
 }
 ```
 
@@ -201,6 +204,56 @@ Article {
 }
 ```
 
+### MemoCache
+
+`MemoCache` is a singleton that can be used to maintain referential equality between calls as well
+as potentially improved performance by 2000%. Its methods are memoized.
+
+#### memo.denormalize
+
+```js
+import { MemoCache } from '@data-client/normalizr';
+
+// you can construct a new memo anytime you want to reset the cache
+const memo = new MemoCache();
+
+const { data, paths } = memo.denormalize(
+  normalizedData.result,
+  Article,
+  normalizedData.entities,
+  args,
+);
+const { data: data2 } = memo.denormalize(
+  normalizedData.result,
+  Article,
+  normalizedData.entities,
+  args,
+);
+
+// referential equality maintained between calls
+assert(data === data2);
+```
+
+`memo.denormalize()` is just like [denormalize()](#denormalize) above but includes `paths` as part of the return value. `paths`
+is an Array of paths of all entities included in the result.
+
+#### memo.query
+
+`memo.query()` allows denormalizing [Queryable](#queryable) based on args alone, rather than a normalized input.
+
+```ts
+// key is just any serialization of args
+const key = JSON.stringify(args);
+
+const data = memo.query(
+  key,
+  Article,
+  args,
+  normalizedData.entities,
+  normalizedData.indexes,
+);
+```
+
 ## Queryable
 
 `Queryable` Schemas allow store access without an endpoint. They achieve this using the
@@ -215,6 +268,7 @@ This enables their use in these additional cases:
   - React with [useController()](/docs/api/useController)
   - [RestEndpoint.getOptimisticResponse](./RestEndpoint.md#getoptimisticresponse)
   - [Unit testing hooks](/docs/guides/unit-testing-hooks) with [renderDataClient()](/docs/api/makeRenderDataClient#renderdataclient)
+- [memo.query()](#memoquery)
 - Improve performance of [useSuspense](/docs/api/useSuspense), [useDLE](/docs/api/useDLE) by rendering before endpoint resolution
 
 `Querables` include [Entity](./Entity.md), [All](./All.md), [Collection](./Collection.md), [Query](./Query.md),
@@ -229,7 +283,7 @@ interface Queryable {
     getIndex: GetIndex,
     // `{}` means non-void
   ): {};
-};
+}
 ```
 
 ## Schema Overview
