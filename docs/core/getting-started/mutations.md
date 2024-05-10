@@ -80,8 +80,7 @@ export default function TodoItem({ todo }: { todo: Todo }) {
 }
 ```
 
-```tsx title="CreateTodo" {9-12} collapsed
-import { v4 as uuid } from 'uuid';
+```tsx title="CreateTodo" {8-11} collapsed
 import { useController } from '@data-client/react';
 import { TodoResource } from './TodoResource';
 
