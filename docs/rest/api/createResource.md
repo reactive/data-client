@@ -12,7 +12,7 @@ import LanguageTabs from '@site/src/components/LanguageTabs';
 import StackBlitz from '@site/src/components/StackBlitz';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
-import DeleteProcess from './_DeleteProcess.mdx';
+import DeleteProcess from './\_DeleteProcess.mdx';
 
 `Resources` are a collection of [RestEndpoints](./RestEndpoint.md) that operate on a common
 data by sharing a [schema](./schema.md)
@@ -74,11 +74,29 @@ controller.fetch(TodoResource.delete, { id: '5' });
 
 ### path
 
-Passed to [RestEndpoint.path](./RestEndpoint.md#path)
+Passed to [RestEndpoint.path](./RestEndpoint.md#path) for single item [](#members).
+
+Create ([getList.push](#push)/[getList.unshift](#unshift)) and [getList](#getlist) remove the last argument.
+
+```ts
+const PostResource = createResource({
+  schema: Post,
+  path: '/:group/posts/:id',
+});
+
+// GET /react/posts/abc
+PostResource.get({ group: 'react', id: 'abc' });
+// GET /react/posts
+PostResource.getList({ group: 'react' });
+```
 
 ### schema
 
-Passed to [RestEndpoint.schema](./RestEndpoint.md#schema)
+Passed to [RestEndpoint.schema](./RestEndpoint.md#schema) representing a single item. This is usually
+an [Entity](./Entity.md) or [Union](./Union.md).
+
+- [getList](#getlist) uses an [Array](./Array.md) [Collection](./Collection.md) of the schema.
+- [delete](#delete) uses a [Invalidate](./Invalidate.md) of the schema.
 
 ### urlPrefix
 
