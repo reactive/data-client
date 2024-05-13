@@ -7326,13 +7326,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:18.3.1, @types/react@npm:^18.0.30":
-  version: 18.3.1
-  resolution: "@types/react@npm:18.3.1"
+"@types/react@npm:*, @types/react@npm:18.3.2, @types/react@npm:^18.0.30":
+  version: 18.3.2
+  resolution: "@types/react@npm:18.3.2"
   dependencies:
     "@types/prop-types": "npm:*"
     csstype: "npm:^3.0.2"
-  checksum: 10c0/18d856c12a4ec93f3cda2d58ef3d77a9480818afd3af895f812896fb82cfca1f35a692ab1add4ce826a4eb58a071624c7d1c8c6c4ccfb81c100d2916dc607614
+  checksum: 10c0/9fb2f1fcf7e889ee4ea7c3c5978df595c66e770e5fd3a245dbdd2589b9b911524c11dab25a6275d8af4e336e4cb5fa850d447884b84c335a187a338c89df99ba
   languageName: node
   linkType: hard
 
@@ -13806,7 +13806,7 @@ __metadata:
     "@data-client/normalizr": "workspace:^"
     "@types/babel__core": "npm:^7"
     "@types/benchmark": "npm:2.1.5"
-    "@types/react": "npm:18.3.1"
+    "@types/react": "npm:18.3.2"
     benchmark: "npm:^2.1.4"
     normalizr: "npm:^3.6.2"
     react: "npm:^18.2.0"
@@ -24370,7 +24370,7 @@ __metadata:
     "@js-temporal/polyfill": "npm:^0.4.4"
     "@monaco-editor/react": "npm:^4.4.6"
     "@tsconfig/docusaurus": "npm:^2.0.0"
-    "@types/react": "npm:18.3.1"
+    "@types/react": "npm:18.3.2"
     "@types/react-dom": "npm:^18.2.7"
     "@types/react-helmet": "npm:^6.1.5"
     "@types/react-router-dom": "npm:^5.3.3"
@@ -25682,13 +25682,13 @@ __metadata:
   linkType: hard
 
 "rimraf@npm:^5.0.0, rimraf@npm:^5.0.5":
-  version: 5.0.5
-  resolution: "rimraf@npm:5.0.5"
+  version: 5.0.7
+  resolution: "rimraf@npm:5.0.7"
   dependencies:
     glob: "npm:^10.3.7"
   bin:
     rimraf: dist/esm/bin.mjs
-  checksum: 10c0/d50dbe724f33835decd88395b25ed35995077c60a50ae78ded06e0185418914e555817aad1b4243edbff2254548c2f6ad6f70cc850040bebb4da9e8cc016f586
+  checksum: 10c0/bd6dbfaa98ae34ce1e54d1e06045d2d63e8859d9a1979bb4a4628b652b459a2d17b17dc20ee072b034bd2d09bd691e801d24c4d9cfe94e16fdbcc8470a1d4807
   languageName: node
   linkType: hard
 
@@ -25748,11 +25748,11 @@ __metadata:
   linkType: hard
 
 "rollup-plugin-banner2@npm:^1.2.2":
-  version: 1.2.3
-  resolution: "rollup-plugin-banner2@npm:1.2.3"
+  version: 1.3.0
+  resolution: "rollup-plugin-banner2@npm:1.3.0"
   dependencies:
     magic-string: "npm:^0.25.7"
-  checksum: 10c0/d6060d99d2eb708f181b541267120cfe4589aa1e0dda474e3e0654215099442f7b3d02072a1333677e6071691a91195d1885dcba91259949ac7aa282c7bc2b5a
+  checksum: 10c0/8c0089f93a4f57a1eb99a243465175cbec70099cb92d47a2938ea43aa61bdc7f0e8b1f52e0bf1389991dbd917de1bbc9ad240da7cb182af515dc04604bf78b28
   languageName: node
   linkType: hard
 
@@ -25908,7 +25908,7 @@ __metadata:
     "@testing-library/react-native": "npm:12.5.0"
     "@types/jest": "npm:29.5.12"
     "@types/node": "npm:20.12.11"
-    "@types/react": "npm:18.3.1"
+    "@types/react": "npm:18.3.2"
     "@types/react-native": "npm:^0.73.0"
     "@typescript-eslint/eslint-plugin": "npm:7.8.0"
     "@typescript-eslint/parser": "npm:7.8.0"
