@@ -333,7 +333,7 @@ interface IEntityClass<TBase extends Constructor = any> {
         date: number;
         fetchedAt: number;
     }, existing: any, incoming: any): boolean;
-    /** Determines the order of incoming entity vs entity already in store\
+    /** Determines the order of incoming entity vs entity already in store
      *
      * @see https://dataclient.io/docs/api/schema.Entity#shouldReorder
      * @returns true if incoming entity should be first argument of merge()
@@ -475,12 +475,28 @@ declare class Query<S extends Queryable, P extends (entries: Denormalize<S>, ...
 type ProcessParameters<P, S extends Queryable> = P extends (entries: any, ...args: infer Par) => any ? Par extends [] ? SchemaArgs<S> : Par & SchemaArgs<S> : SchemaArgs<S>;
 
 type CollectionOptions<Args extends any[] = [] | [urlParams: Record<string, any>] | [urlParams: Record<string, any>, body: any], Parent = any> = ({
+    /** Defines lookups for Collections nested in other schemas.
+     *
+     * @see https://dataclient.io/rest/api/Collection#nestKey
+     */
     nestKey?: (parent: Parent, key: string) => Record<string, any>;
 } | {
+    /** Defines lookups top-level Collections using ...args.
+     *
+     * @see https://dataclient.io/rest/api/Collection#argsKey
+     */
     argsKey?: (...args: Args) => Record<string, any>;
 }) & ({
+    /** Sets a default createCollectionFilter for addWith(), push, unshift, and assign.
+     *
+     * @see https://dataclient.io/rest/api/Collection#createcollectionfilter
+     */
     createCollectionFilter?: (...args: Args) => (collectionKey: Record<string, string>) => boolean;
 } | {
+    /** Test to determine which arg keys should **not** be used for filtering results.
+     *
+     * @see https://dataclient.io/rest/api/Collection#nonfilterargumentkeys
+     */
     nonFilterArgumentKeys?: ((key: string) => boolean) | string[] | RegExp;
 });
 
@@ -489,13 +505,36 @@ type CollectionArrayAdder$1<S extends PolymorphicInterface> = S extends ({
     schema: infer T;
 }) ? T : never;
 interface CollectionInterface<S extends PolymorphicInterface = any, Args extends any[] = any[], Parent = any> {
+    /** Constructs a custom creation schema for this collection
+     *
+     * @see https://dataclient.io/rest/api/Collection#addWith
+     */
     addWith<P extends any[] = Args>(merge: (existing: any, incoming: any) => any, createCollectionFilter?: (...args: P) => (collectionKey: Record<string, string>) => boolean): Collection<S, P>;
     readonly cacheWith: object;
     readonly schema: S;
     readonly key: string;
+    /**
+     * A unique identifier for each Collection
+     *
+     * Calls argsKey or nestKey depending on which are specified, and then serializes the result for the pk string.
+     *
+     * @param [parent] When normalizing, the object which included the entity
+     * @param [key] When normalizing, the key where this entity was found
+     * @param [args] ...args sent to Endpoint
+     * @see https://dataclient.io/docs/api/Collection#pk
+     */
     pk(value: any, parent: any, key: string, args: any[]): string;
     normalize(input: any, parent: Parent, key: string, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args: any): string;
+    /** Creates new instance copying over defined values of arguments
+     *
+     * @see https://dataclient.io/docs/api/Collection#merge
+     */
     merge(existing: any, incoming: any): any;
+    /** Determines the order of incoming Collection vs Collection already in store
+     *
+     * @see https://dataclient.io/docs/api/Collection#shouldReorder
+     * @returns true if incoming Collection should be first argument of merge()
+     */
     shouldReorder(existingMeta: {
         date: number;
         fetchedAt: number;
@@ -503,6 +542,10 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
         date: number;
         fetchedAt: number;
     }, existing: any, incoming: any): boolean;
+    /** Run when an existing Collection is found in the store
+     *
+     * @see https://dataclient.io/docs/api/schema.Entity#mergeWithStore
+     */
     mergeWithStore(existingMeta: {
         date: number;
         fetchedAt: number;
@@ -523,6 +566,10 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
         date: number;
         fetchedAt: number;
     };
+    /** Builds a key access the Collection without endpoint results
+     *
+     * @see https://dataclient.io/rest/api/Collection#queryKey
+     */
     queryKey(args: Args, queryKey: unknown, getEntity: unknown, getIndex: unknown): any;
     createIfValid: (value: any) => any | undefined;
     denormalize(input: any, args: readonly any[], unvisit: (input: any, schema: any) => any): ReturnType<S['denormalize']>;

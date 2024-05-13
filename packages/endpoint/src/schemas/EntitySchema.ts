@@ -554,7 +554,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
     existing: any,
     incoming: any,
   ): boolean;
-  /** Determines the order of incoming entity vs entity already in store\
+  /** Determines the order of incoming entity vs entity already in store
    *
    * @see https://dataclient.io/docs/api/schema.Entity#shouldReorder
    * @returns true if incoming entity should be first argument of merge()

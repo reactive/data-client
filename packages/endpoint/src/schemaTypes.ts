@@ -30,6 +30,10 @@ export interface CollectionInterface<
   Args extends any[] = any[],
   Parent = any,
 > {
+  /** Constructs a custom creation schema for this collection
+   *
+   * @see https://dataclient.io/rest/api/Collection#addWith
+   */
   addWith<P extends any[] = Args>(
     merge: (existing: any, incoming: any) => any,
     createCollectionFilter?: (
@@ -41,6 +45,17 @@ export interface CollectionInterface<
 
   readonly schema: S;
   readonly key: string;
+
+  /**
+   * A unique identifier for each Collection
+   *
+   * Calls argsKey or nestKey depending on which are specified, and then serializes the result for the pk string.
+   *
+   * @param [parent] When normalizing, the object which included the entity
+   * @param [key] When normalizing, the key where this entity was found
+   * @param [args] ...args sent to Endpoint
+   * @see https://dataclient.io/docs/api/Collection#pk
+   */
   pk(value: any, parent: any, key: string, args: any[]): string;
   normalize(
     input: any,
@@ -53,7 +68,17 @@ export interface CollectionInterface<
     args: any,
   ): string;
 
+  /** Creates new instance copying over defined values of arguments
+   *
+   * @see https://dataclient.io/docs/api/Collection#merge
+   */
   merge(existing: any, incoming: any): any;
+
+  /** Determines the order of incoming Collection vs Collection already in store
+   *
+   * @see https://dataclient.io/docs/api/Collection#shouldReorder
+   * @returns true if incoming Collection should be first argument of merge()
+   */
   shouldReorder(
     existingMeta: {
       date: number;
@@ -67,6 +92,10 @@ export interface CollectionInterface<
     incoming: any,
   ): boolean;
 
+  /** Run when an existing Collection is found in the store
+   *
+   * @see https://dataclient.io/docs/api/schema.Entity#mergeWithStore
+   */
   mergeWithStore(
     existingMeta: {
       date: number;
@@ -99,6 +128,10 @@ export interface CollectionInterface<
     fetchedAt: number;
   };
 
+  /** Builds a key access the Collection without endpoint results
+   *
+   * @see https://dataclient.io/rest/api/Collection#queryKey
+   */
   queryKey(
     args: Args,
     queryKey: unknown,

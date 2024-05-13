@@ -250,19 +250,35 @@ export type CollectionOptions<
   Parent = any,
 > = (
   | {
+      /** Defines lookups for Collections nested in other schemas.
+       *
+       * @see https://dataclient.io/rest/api/Collection#nestKey
+       */
       nestKey?: (parent: Parent, key: string) => Record<string, any>;
     }
   | {
+      /** Defines lookups top-level Collections using ...args.
+       *
+       * @see https://dataclient.io/rest/api/Collection#argsKey
+       */
       argsKey?: (...args: Args) => Record<string, any>;
     }
 ) &
   (
     | {
+        /** Sets a default createCollectionFilter for addWith(), push, unshift, and assign.
+         *
+         * @see https://dataclient.io/rest/api/Collection#createcollectionfilter
+         */
         createCollectionFilter?: (
           ...args: Args
         ) => (collectionKey: Record<string, string>) => boolean;
       }
     | {
+        /** Test to determine which arg keys should **not** be used for filtering results.
+         *
+         * @see https://dataclient.io/rest/api/Collection#nonfilterargumentkeys
+         */
         nonFilterArgumentKeys?: ((key: string) => boolean) | string[] | RegExp;
       }
   );
