@@ -1,5 +1,16 @@
 # @data-client/rest
 
+## 0.12.6
+
+### Patch Changes
+
+- [`9551e9a`](https://github.com/reactive/data-client/commit/9551e9aa64f16562e440bb8393e5a4b31b638fb5) Thanks [@ntucker](https://github.com/ntucker)! - Export RestEndpoint interface type to remove TS warnings about portability
+
+- [`19832bc`](https://github.com/reactive/data-client/commit/19832bc1ee15805788697748b275c134ea81ebf6) Thanks [@ntucker](https://github.com/ntucker)! - Add docstrings to Collection methods
+
+- Updated dependencies [[`19832bc`](https://github.com/reactive/data-client/commit/19832bc1ee15805788697748b275c134ea81ebf6)]:
+  - @data-client/endpoint@0.12.6
+
 ## 0.12.5
 
 ### Patch Changes
