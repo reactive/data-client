@@ -345,6 +345,10 @@ export interface PartialRestGenerics {
   /** @see https://dataclient.io/rest/api/RestEndpoint#process */
   process?(value: any, ...args: any): any;
 }
+/** Generic types when constructing a RestEndpoint
+ *
+ * @see https://dataclient.io/rest/api/RestEndpoint#inheritance
+ */
 export interface RestGenerics extends PartialRestGenerics {
   readonly path: string;
 }
@@ -410,11 +414,26 @@ export interface RestEndpointOptions<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = undefined,
 > extends EndpointExtraOptions<F> {
+  /** Prepended to all urls
+   * @see https://dataclient.io/rest/api/RestEndpoint#urlPrefix
+   */
   urlPrefix?: string;
   requestInit?: RequestInit;
+  /** Called by getRequestInit to determine HTTP Headers
+   * @see https://dataclient.io/rest/api/RestEndpoint#getHeaders
+   */
   getHeaders?(headers: HeadersInit): Promise<HeadersInit> | HeadersInit;
+  /** Prepares RequestInit used in fetch. This is sent to fetchResponse()
+   * @see https://dataclient.io/rest/api/RestEndpoint#getRequestInit
+   */
   getRequestInit?(body: any): Promise<RequestInit> | RequestInit;
+  /** Performs the fetch call
+   * @see https://dataclient.io/rest/api/RestEndpoint#fetchResponse
+   */
   fetchResponse?(input: RequestInfo, init: RequestInit): Promise<any>;
+  /** Takes the Response and parses via .text() or .json()
+   * @see https://dataclient.io/rest/api/RestEndpoint#parseResponse
+   */
   parseResponse?(response: Response): Promise<any>;
 
   sideEffect?: boolean | undefined;

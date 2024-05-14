@@ -17,7 +17,10 @@ import RestEndpoint, {
   RestTypeNoBody,
 } from './RestEndpoint.js';
 
-/** The typed (generic) options for a Resource */
+/** The typed (generic) options for a Resource
+ *
+ * @see https://dataclient.io/rest/api/createResource#function-inheritance-patterns
+ */
 export interface ResourceGenerics {
   /** @see https://dataclient.io/rest/api/createResource#path */
   readonly path: ResourcePath;

@@ -1350,6 +1350,10 @@ interface PartialRestGenerics {
     /** @see https://dataclient.io/rest/api/RestEndpoint#process */
     process?(value: any, ...args: any): any;
 }
+/** Generic types when constructing a RestEndpoint
+ *
+ * @see https://dataclient.io/rest/api/RestEndpoint#inheritance
+ */
 interface RestGenerics extends PartialRestGenerics {
     readonly path: string;
 }
@@ -1383,11 +1387,26 @@ type OptionsToAdderBodyArgument<O extends {
     body?: any;
 }> = 'body' extends keyof O ? O['body'] : any;
 interface RestEndpointOptions<F extends FetchFunction = FetchFunction, S extends Schema | undefined = undefined> extends EndpointExtraOptions<F> {
+    /** Prepended to all urls
+     * @see https://dataclient.io/rest/api/RestEndpoint#urlPrefix
+     */
     urlPrefix?: string;
     requestInit?: RequestInit;
+    /** Called by getRequestInit to determine HTTP Headers
+     * @see https://dataclient.io/rest/api/RestEndpoint#getHeaders
+     */
     getHeaders?(headers: HeadersInit): Promise<HeadersInit> | HeadersInit;
+    /** Prepares RequestInit used in fetch. This is sent to fetchResponse()
+     * @see https://dataclient.io/rest/api/RestEndpoint#getRequestInit
+     */
     getRequestInit?(body: any): Promise<RequestInit> | RequestInit;
+    /** Performs the fetch call
+     * @see https://dataclient.io/rest/api/RestEndpoint#fetchResponse
+     */
     fetchResponse?(input: RequestInfo, init: RequestInit): Promise<any>;
+    /** Takes the Response and parses via .text() or .json()
+     * @see https://dataclient.io/rest/api/RestEndpoint#parseResponse
+     */
     parseResponse?(response: Response): Promise<any>;
     sideEffect?: boolean | undefined;
     name?: string;
@@ -1548,7 +1567,10 @@ interface Extendable<O extends ResourceGenerics = {
     extend<R extends ResourceInterface, T extends Record<string, EndpointInterface>>(this: R, extender: (baseResource: R) => T): ExtendedResource<R, T>;
 }
 
-/** The typed (generic) options for a Resource */
+/** The typed (generic) options for a Resource
+ *
+ * @see https://dataclient.io/rest/api/createResource#function-inheritance-patterns
+ */
 interface ResourceGenerics {
     /** @see https://dataclient.io/rest/api/createResource#path */
     readonly path: ResourcePath;
