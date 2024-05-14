@@ -477,6 +477,10 @@ export interface RestEndpoint<O extends RestGenerics = any>
   > {}
 
 export interface RestEndpointConstructor {
+  /** Simplifies endpoint definitions that follow REST patterns
+   *
+   * @see https://dataclient.io/rest/api/RestEndpoint
+   */
   new <O extends RestGenerics = any>({
     method,
     sideEffect,

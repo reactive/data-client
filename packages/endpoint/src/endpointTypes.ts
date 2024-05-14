@@ -146,6 +146,10 @@ export interface EndpointInstanceInterface<
 }
 
 export interface EndpointConstructor {
+  /**
+   * Defines an async data source.
+   * @see https://dataclient.io/docs/api/Endpoint
+   */
   new <
     F extends (
       this: EndpointInstance<FetchFunction> & E,
@@ -163,6 +167,10 @@ export interface EndpointConstructor {
 }
 
 export interface ExtendableEndpointConstructor {
+  /**
+   * Defines an async data source.
+   * @see https://dataclient.io/docs/api/Endpoint
+   */
   new <
     F extends (
       this: EndpointInstanceInterface<FetchFunction> & E,

@@ -250,10 +250,18 @@ interface EndpointInstanceInterface<F extends FetchFunction = FetchFunction, S e
     testKey(key: string): boolean;
 }
 interface EndpointConstructor {
+    /**
+     * Defines an async data source.
+     * @see https://dataclient.io/docs/api/Endpoint
+     */
     new <F extends (this: EndpointInstance<FetchFunction> & E, params?: any, body?: any) => Promise<any>, S extends Schema | undefined = undefined, M extends boolean | undefined = false, E extends Record<string, any> = {}>(fetchFunction: F, options?: EndpointOptions<F, S, M> & E): EndpointInstance<F, S, M> & E;
     readonly prototype: Function;
 }
 interface ExtendableEndpointConstructor {
+    /**
+     * Defines an async data source.
+     * @see https://dataclient.io/docs/api/Endpoint
+     */
     new <F extends (this: EndpointInstanceInterface<FetchFunction> & E, params?: any, body?: any) => Promise<any>, S extends Schema | undefined = undefined, M extends boolean | undefined = false, E extends Record<string, any> = {}>(RestFetch: F, options?: Readonly<EndpointOptions<F, S, M>> & E): EndpointInstanceInterface<F, S, M> & E;
     readonly prototype: Function;
 }
@@ -431,6 +439,13 @@ declare class Invalidate<E extends EntityInterface & {
     process: any;
 }> implements SchemaSimple {
     protected _entity: E;
+    /**
+     * Marks entity as Invalid.
+     *
+     * This triggers suspense for all endpoints requiring it.
+     * Optional (like variable sized Array and Values) will simply remove the item.
+     * @see https://dataclient.io/rest/api/Invalidate
+     */
     constructor(entity: E);
     get key(): string;
     /** Normalize lifecycles **/
@@ -465,6 +480,11 @@ declare class Invalidate<E extends EntityInterface & {
 declare class Query<S extends Queryable, P extends (entries: Denormalize<S>, ...args: any) => any> implements SchemaSimple<ReturnType<P> | undefined, ProcessParameters<P, S>> {
     schema: S;
     process: P;
+    /**
+     * Programmatic cache reading
+     *
+     * @see https://dataclient.io/rest/api/Query
+     */
     constructor(schema: S, process: P);
     normalize(...args: any): any;
     denormalize(input: {}, args: any, unvisit: any): ReturnType<P>;
@@ -474,7 +494,7 @@ declare class Query<S extends Queryable, P extends (entries: Denormalize<S>, ...
 }
 type ProcessParameters<P, S extends Queryable> = P extends (entries: any, ...args: infer Par) => any ? Par extends [] ? SchemaArgs<S> : Par & SchemaArgs<S> : SchemaArgs<S>;
 
-type CollectionOptions<Args extends any[] = [] | [urlParams: Record<string, any>] | [urlParams: Record<string, any>, body: any], Parent = any> = ({
+type CollectionOptions<Args extends any[] = DefaultArgs, Parent = any> = ({
     /** Defines lookups for Collections nested in other schemas.
      *
      * @see https://dataclient.io/rest/api/Collection#nestKey
@@ -590,9 +610,13 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
         denormalize(...args: any): Record<string, unknown>;
     } ? Collection<S, Args, Parent> : never;
 }
-type CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Args extends any[] = [] | [urlParams: Record<string, any>] | [urlParams: Record<string, any>, body: any], Parent = any> = CollectionInterface<S extends any[] ? Array$1<S[number]> : S, Args, Parent>;
+type CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Args extends any[] = DefaultArgs, Parent = any> = CollectionInterface<S extends any[] ? Array$1<S[number]> : S, Args, Parent>;
 interface CollectionConstructor {
-    new <S extends SchemaSimple[] | PolymorphicInterface = any, Args extends any[] = [] | [urlParams: Record<string, any>] | [urlParams: Record<string, any>, body: any], Parent = any>(schema: S, options?: CollectionOptions<Args, Parent>): CollectionFromSchema<S, Args, Parent>;
+    /**
+     * Entities but for Arrays instead of classes
+     * @see https://dataclient.io/rest/api/Collection
+     */
+    new <S extends SchemaSimple[] | PolymorphicInterface = any, Args extends any[] = DefaultArgs, Parent = any>(schema: S, options?: CollectionOptions<Args, Parent>): CollectionFromSchema<S, Args, Parent>;
     readonly prototype: CollectionInterface;
 }
 type StrategyFunction<T> = (value: any, parent: any, key: string) => T;
@@ -603,12 +627,17 @@ type UnionResult<Choices extends EntityMap> = {
     id: string;
     schema: keyof Choices;
 };
+type DefaultArgs = [] | [urlParams: Record<string, any>] | [urlParams: Record<string, any>, body: any];
 
 /**
  * Represents arrays
  * @see https://dataclient.io/rest/api/Array
  */
 declare class Array$1<S extends Schema = Schema> implements SchemaClass {
+  /**
+   * Represents arrays
+   * @see https://dataclient.io/rest/api/Array
+   */
   constructor(
     definition: S,
     schemaAttribute?: S extends EntityMap<infer T> ?
@@ -655,12 +684,17 @@ declare class Array$1<S extends Schema = Schema> implements SchemaClass {
 /**
  * Retrieves all entities in cache
  *
- * @see https://dataclient.io/rest/api/AllSchema
+ * @see https://dataclient.io/rest/api/All
  */
 declare class All<
   S extends EntityMap | EntityInterface = EntityMap | EntityInterface,
 > implements SchemaClass
 {
+  /**
+   * Retrieves all entities in cache
+   *
+   * @see https://dataclient.io/rest/api/All
+   */
   constructor(
     definition: S,
     schemaAttribute?: S extends EntityMap<infer T> ?
@@ -712,6 +746,10 @@ declare class All<
 declare class Object$1<O extends Record<string, any> = Record<string, Schema>>
   implements SchemaClass
 {
+  /**
+   * Represents objects with statically known members
+   * @see https://dataclient.io/rest/api/Object
+   */
   constructor(definition: O);
   define(definition: Schema): void;
   readonly schema: O;
@@ -765,7 +803,15 @@ type UnionSchemaToArgs<
   : SchemaAttribute extends (value: infer Args, ...rest: any) => unknown ? Args
   : never;
 
+/**
+ * Represents polymorphic values.
+ * @see https://dataclient.io/rest/api/Union
+ */
 interface UnionConstructor {
+  /**
+   * Represents polymorphic values.
+   * @see https://dataclient.io/rest/api/Union
+   */
   new <
     Choices extends EntityMap,
     SchemaAttribute extends
@@ -850,6 +896,10 @@ declare class Union<
  * @see https://dataclient.io/rest/api/Values
  */
 declare class Values<Choices extends Schema = any> implements SchemaClass {
+  /**
+   * Represents variably sized objects
+   * @see https://dataclient.io/rest/api/Values
+   */
   constructor(
     definition: Choices,
     schemaAttribute?: Choices extends EntityMap<infer T> ?
@@ -933,10 +983,7 @@ declare let CollectionRoot: CollectionConstructor;
  */
 declare class Collection<
   S extends any[] | PolymorphicInterface = any,
-  Args extends any[] =
-    | []
-    | [urlParams: Record<string, any>]
-    | [urlParams: Record<string, any>, body: any],
+  Args extends any[] = DefaultArgs,
   Parent = any,
 > extends CollectionRoot<S, Args, Parent> {}
 
@@ -985,20 +1032,18 @@ type schema_d_Values<Choices extends Schema = any> = Values<Choices>;
 declare const schema_d_Values: typeof Values;
 type schema_d_CollectionArrayAdder<S extends PolymorphicInterface> = CollectionArrayAdder<S>;
 declare const schema_d_CollectionRoot: typeof CollectionRoot;
-type schema_d_Collection<S extends any[] | PolymorphicInterface = any, Args extends any[] =
-    | []
-    | [urlParams: Record<string, any>]
-    | [urlParams: Record<string, any>, body: any], Parent = any> = Collection<S, Args, Parent>;
+type schema_d_Collection<S extends any[] | PolymorphicInterface = any, Args extends any[] = DefaultArgs, Parent = any> = Collection<S, Args, Parent>;
 declare const schema_d_Collection: typeof Collection;
 type schema_d_EntityInterface<T = any> = EntityInterface<T>;
 type schema_d_CollectionInterface<S extends PolymorphicInterface = any, Args extends any[] = any[], Parent = any> = CollectionInterface<S, Args, Parent>;
-type schema_d_CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Args extends any[] = [] | [urlParams: Record<string, any>] | [urlParams: Record<string, any>, body: any], Parent = any> = CollectionFromSchema<S, Args, Parent>;
+type schema_d_CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Args extends any[] = DefaultArgs, Parent = any> = CollectionFromSchema<S, Args, Parent>;
 type schema_d_CollectionConstructor = CollectionConstructor;
 type schema_d_StrategyFunction<T> = StrategyFunction<T>;
 type schema_d_SchemaFunction<K = string, Args = any> = SchemaFunction<K, Args>;
 type schema_d_MergeFunction = MergeFunction;
 type schema_d_SchemaAttributeFunction<S extends Schema> = SchemaAttributeFunction<S>;
 type schema_d_UnionResult<Choices extends EntityMap> = UnionResult<Choices>;
+type schema_d_DefaultArgs = DefaultArgs;
 declare namespace schema_d {
   export {
     schema_d_EntityMap as EntityMap,
@@ -1026,6 +1071,7 @@ declare namespace schema_d {
     schema_d_MergeFunction as MergeFunction,
     schema_d_SchemaAttributeFunction as SchemaAttributeFunction,
     schema_d_UnionResult as UnionResult,
+    schema_d_DefaultArgs as DefaultArgs,
   };
 }
 
@@ -1371,6 +1417,10 @@ interface RestEndpoint$1<O extends RestGenerics = any> extends RestInstance<Rest
 }> {
 }
 interface RestEndpointConstructor {
+    /** Simplifies endpoint definitions that follow REST patterns
+     *
+     * @see https://dataclient.io/rest/api/RestEndpoint
+     */
     new <O extends RestGenerics = any>({ method, sideEffect, name, ...options }: RestEndpointConstructorOptions<O> & Readonly<O>): RestEndpoint$1<O>;
     readonly prototype: RestInstanceBase;
 }
@@ -1840,4 +1890,4 @@ declare function useController(): Controller;
 declare function useLive<E extends EndpointInterface$1<FetchFunction$1, Schema$1 | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>]): E['schema'] extends undefined | null ? ResolveType$1<E> : Denormalize$1<E['schema']>;
 declare function useLive<E extends EndpointInterface$1<FetchFunction$1, Schema$1 | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): E['schema'] extends undefined | null ? ResolveType$1<E> | undefined : DenormalizeNullable$1<E['schema']>;
 
-export { AbstractInstanceType, AddEndpoint, Array$1 as Array, _default as AsyncBoundary, CacheProvider, Collection, CustomResource, Defaults, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, EndpointToFunction, Entity, ErrorTypes$1 as ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, ExtendedResource, FetchFunction, FetchGet, FetchMutate, FromFallBack, GetEndpoint, HookResource, HookableEndpointInterface, INVALID, RestEndpoint$1 as IRestEndpoint, Invalidate, KeyofEndpointInstance, KeyofRestEndpoint, KeysToArgs, MethodToSide, MutateEndpoint, NI, NetworkError, ErrorBoundary as NetworkErrorBoundary, Normalize, NormalizeNullable, OptionsToFunction, PaginationEndpoint, PaginationFieldEndpoint, ParamFetchNoBody, ParamFetchWithBody, ParamToArgs, PartialRestGenerics, PathArgs, PathArgsAndSearch, PathKeys, PolymorphicInterface, Queryable, ReadEndpoint, ResolveType, Resource, ResourceEndpointExtensions, ResourceExtension, ResourceGenerics, ResourceOptions, RestEndpoint, RestEndpointConstructor, RestEndpointConstructorOptions, RestEndpointExtendOptions, RestEndpointOptions, RestExtendedEndpoint, RestFetch, RestGenerics, RestInstance, RestInstanceBase, RestType, RestTypeNoBody, RestTypeWithBody, Schema, SchemaArgs, SchemaClass, SchemaSimple, ShortenPath, SnapshotInterface, UnknownError, createResource, getUrlBase, getUrlTokens, hookifyResource, schema_d as schema, useCache, useController, useDLE, useError, useFetch, useLive, useQuery, useSubscription, useSuspense, validateRequired };
+export { AbstractInstanceType, AddEndpoint, Array$1 as Array, _default as AsyncBoundary, CacheProvider, Collection, CustomResource, DefaultArgs, Defaults, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, EndpointToFunction, Entity, ErrorTypes$1 as ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, ExtendedResource, FetchFunction, FetchGet, FetchMutate, FromFallBack, GetEndpoint, HookResource, HookableEndpointInterface, INVALID, RestEndpoint$1 as IRestEndpoint, Invalidate, KeyofEndpointInstance, KeyofRestEndpoint, KeysToArgs, MethodToSide, MutateEndpoint, NI, NetworkError, ErrorBoundary as NetworkErrorBoundary, Normalize, NormalizeNullable, OptionsToFunction, PaginationEndpoint, PaginationFieldEndpoint, ParamFetchNoBody, ParamFetchWithBody, ParamToArgs, PartialRestGenerics, PathArgs, PathArgsAndSearch, PathKeys, PolymorphicInterface, Queryable, ReadEndpoint, ResolveType, Resource, ResourceEndpointExtensions, ResourceExtension, ResourceGenerics, ResourceOptions, RestEndpoint, RestEndpointConstructor, RestEndpointConstructorOptions, RestEndpointExtendOptions, RestEndpointOptions, RestExtendedEndpoint, RestFetch, RestGenerics, RestInstance, RestInstanceBase, RestType, RestTypeNoBody, RestTypeWithBody, Schema, SchemaArgs, SchemaClass, SchemaSimple, ShortenPath, SnapshotInterface, UnknownError, createResource, getUrlBase, getUrlTokens, hookifyResource, schema_d as schema, useCache, useController, useDLE, useError, useFetch, useLive, useQuery, useSubscription, useSuspense, validateRequired };

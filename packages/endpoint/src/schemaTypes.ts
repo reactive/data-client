@@ -168,10 +168,7 @@ export interface CollectionInterface<
 }
 export type CollectionFromSchema<
   S extends any[] | PolymorphicInterface = any,
-  Args extends any[] =
-    | []
-    | [urlParams: Record<string, any>]
-    | [urlParams: Record<string, any>, body: any],
+  Args extends any[] = DefaultArgs,
   Parent = any,
 > = CollectionInterface<
   S extends any[] ? schema.Array<S[number]> : S,
@@ -180,12 +177,13 @@ export type CollectionFromSchema<
 >;
 
 export interface CollectionConstructor {
+  /**
+   * Entities but for Arrays instead of classes
+   * @see https://dataclient.io/rest/api/Collection
+   */
   new <
     S extends SchemaSimple[] | PolymorphicInterface = any,
-    Args extends any[] =
-      | []
-      | [urlParams: Record<string, any>]
-      | [urlParams: Record<string, any>, body: any],
+    Args extends any[] = DefaultArgs,
     Parent = any,
   >(
     schema: S,
@@ -210,3 +208,7 @@ export type UnionResult<Choices extends EntityMap> = {
   id: string;
   schema: keyof Choices;
 };
+export type DefaultArgs =
+  | []
+  | [urlParams: Record<string, any>]
+  | [urlParams: Record<string, any>, body: any];

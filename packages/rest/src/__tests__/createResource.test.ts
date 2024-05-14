@@ -1,4 +1,5 @@
 import { Entity, PolymorphicInterface, schema } from '@data-client/endpoint';
+import type { DefaultArgs } from '@data-client/endpoint';
 import {
   CacheProvider,
   useCache,
@@ -1169,10 +1170,7 @@ describe('createResource()', () => {
     it('should warn when mis-capitalizing options', () => {
       class MyCollection<
         S extends any[] | PolymorphicInterface = any,
-        Args extends any[] =
-          | []
-          | [urlParams: Record<string, any>]
-          | [urlParams: Record<string, any>, body: any],
+        Args extends any[] = DefaultArgs,
         Parent = any,
       > extends schema.Collection<S, Args, Parent> {
         // getList.push should add to Collections regardless of its 'orderBy' argument

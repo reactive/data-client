@@ -2,6 +2,7 @@ import { consistentSerialize } from './consistentSerialize.js';
 import { CREATE } from './special.js';
 import { GetEntity, PolymorphicInterface } from '../interface.js';
 import { Values, Array as ArraySchema } from '../schema.js';
+import type { DefaultArgs } from '../schemaTypes.js';
 
 const pushMerge = (existing: any, incoming: any) => {
   return [...existing, ...incoming];
@@ -21,10 +22,7 @@ const createValue = (value: any) => ({ ...value });
  */
 export default class CollectionSchema<
   S extends PolymorphicInterface = any,
-  Args extends any[] =
-    | []
-    | [urlParams: Record<string, any>]
-    | [urlParams: Record<string, any>, body: any],
+  Args extends any[] = DefaultArgs,
   Parent = any,
 > {
   protected declare nestKey: (parent: any, key: string) => Record<string, any>;
@@ -243,10 +241,7 @@ export default class CollectionSchema<
 }
 
 export type CollectionOptions<
-  Args extends any[] =
-    | []
-    | [urlParams: Record<string, any>]
-    | [urlParams: Record<string, any>, body: any],
+  Args extends any[] = DefaultArgs,
   Parent = any,
 > = (
   | {

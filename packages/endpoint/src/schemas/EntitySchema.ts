@@ -53,6 +53,10 @@ export interface RequiredPKOptions<TInstance extends {}>
     | keyof TInstance;
 }
 
+/**
+ * Represents data that should be deduped by specifying a primary key.
+ * @see https://dataclient.io/rest/api/schema.Entity
+ */
 export default function EntitySchema<TBase extends Constructor>(
   Base: TBase,
   options: EntityOptions<InstanceType<TBase>> = {},

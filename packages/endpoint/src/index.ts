@@ -13,7 +13,7 @@ export type {
 export * as schema from './schema.js';
 // Without this we get 'cannot be named without a reference to' for createResource()....why is this?
 // Clue 1) It only happens with types mentioned in return types of other types
-export type { Array, Invalidate, Collection } from './schema.js';
+export type { Array, Invalidate, Collection, DefaultArgs } from './schema.js';
 export { default as Entity } from './schemas/Entity.js';
 export { default as validateRequired } from './validateRequired.js';
 export { INVALID } from './special.js';

@@ -18,6 +18,13 @@ export default class Invalidate<
 {
   protected declare _entity: E;
 
+  /**
+   * Marks entity as Invalid.
+   *
+   * This triggers suspense for all endpoints requiring it.
+   * Optional (like variable sized Array and Values) will simply remove the item.
+   * @see https://dataclient.io/rest/api/Invalidate
+   */
   constructor(entity: E) {
     if (process.env.NODE_ENV !== 'production' && !entity) {
       throw new Error('Expected option "entity" not found on DeleteSchema.');

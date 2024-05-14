@@ -4,12 +4,7 @@ import type {
   Queryable,
   SchemaSimple,
 } from '../interface.js';
-import type {
-  Denormalize,
-  DenormalizeNullable,
-  NormalizeNullable,
-  SchemaArgs,
-} from '../normal.js';
+import type { Denormalize, NormalizeNullable, SchemaArgs } from '../normal.js';
 
 /**
  * Programmatic cache reading
@@ -24,6 +19,11 @@ export default class Query<
   declare schema: S;
   declare process: P;
 
+  /**
+   * Programmatic cache reading
+   *
+   * @see https://dataclient.io/rest/api/Query
+   */
   constructor(schema: S, process: P) {
     this.schema = schema;
     this.process = process;

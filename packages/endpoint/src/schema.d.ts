@@ -32,6 +32,7 @@ import { default as Invalidate } from './schemas/Invalidate.js';
 import { default as Query } from './schemas/Query.js';
 import type {
   CollectionConstructor,
+  DefaultArgs,
   SchemaAttributeFunction,
   SchemaFunction,
   UnionResult,
@@ -50,6 +51,10 @@ export * from './schemaTypes.js';
  * @see https://dataclient.io/rest/api/Array
  */
 export class Array<S extends Schema = Schema> implements SchemaClass {
+  /**
+   * Represents arrays
+   * @see https://dataclient.io/rest/api/Array
+   */
   constructor(
     definition: S,
     schemaAttribute?: S extends EntityMap<infer T> ?
@@ -96,12 +101,17 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
 /**
  * Retrieves all entities in cache
  *
- * @see https://dataclient.io/rest/api/AllSchema
+ * @see https://dataclient.io/rest/api/All
  */
 export class All<
   S extends EntityMap | EntityInterface = EntityMap | EntityInterface,
 > implements SchemaClass
 {
+  /**
+   * Retrieves all entities in cache
+   *
+   * @see https://dataclient.io/rest/api/All
+   */
   constructor(
     definition: S,
     schemaAttribute?: S extends EntityMap<infer T> ?
@@ -153,6 +163,10 @@ export class All<
 export class Object<O extends Record<string, any> = Record<string, Schema>>
   implements SchemaClass
 {
+  /**
+   * Represents objects with statically known members
+   * @see https://dataclient.io/rest/api/Object
+   */
   constructor(definition: O);
   define(definition: Schema): void;
   readonly schema: O;
@@ -206,7 +220,15 @@ type UnionSchemaToArgs<
   : SchemaAttribute extends (value: infer Args, ...rest: any) => unknown ? Args
   : never;
 
+/**
+ * Represents polymorphic values.
+ * @see https://dataclient.io/rest/api/Union
+ */
 export interface UnionConstructor {
+  /**
+   * Represents polymorphic values.
+   * @see https://dataclient.io/rest/api/Union
+   */
   new <
     Choices extends EntityMap,
     SchemaAttribute extends
@@ -291,6 +313,10 @@ export declare class Union<
  * @see https://dataclient.io/rest/api/Values
  */
 export class Values<Choices extends Schema = any> implements SchemaClass {
+  /**
+   * Represents variably sized objects
+   * @see https://dataclient.io/rest/api/Values
+   */
   constructor(
     definition: Choices,
     schemaAttribute?: Choices extends EntityMap<infer T> ?
@@ -374,10 +400,7 @@ export declare let CollectionRoot: CollectionConstructor;
  */
 export declare class Collection<
   S extends any[] | PolymorphicInterface = any,
-  Args extends any[] =
-    | []
-    | [urlParams: Record<string, any>]
-    | [urlParams: Record<string, any>, body: any],
+  Args extends any[] = DefaultArgs,
   Parent = any,
 > extends CollectionRoot<S, Args, Parent> {}
 
