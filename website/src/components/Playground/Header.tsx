@@ -12,7 +12,7 @@ export default function Header({
   children,
   className,
   onClick,
-  small,
+  small = false,
 }: {
   children: React.ReactNode;
   className?: string;
@@ -33,6 +33,3 @@ export default function Header({
     </div>
   );
 }
-Header.defaultProps = {
-  small: false,
-};

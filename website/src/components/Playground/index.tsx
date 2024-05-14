@@ -23,6 +23,7 @@ type LiveProviderProps = {
   noInline?: boolean;
   scope?: Record<string, unknown>;
   theme?: PrismTheme;
+  hidden?: boolean;
   transformCode?(code: string): void;
 };
 
@@ -31,8 +32,8 @@ export default function Playground<T>({
   transformCode,
   groupId,
   defaultOpen,
-  row,
-  hidden,
+  row = false,
+  hidden = false,
   fixtures,
   getInitialInterceptorData,
   defaultTab,
@@ -40,7 +41,7 @@ export default function Playground<T>({
 }: Omit<LiveProviderProps, 'ref'> & {
   groupId: string;
   defaultOpen: 'y' | 'n';
-  row: boolean;
+  row?: boolean;
   children: string | any[];
   fixtures: (Fixture | Interceptor<T>)[];
   getInitialInterceptorData?: () => T;
@@ -77,10 +78,6 @@ export default function Playground<T>({
     </>
   );
 }
-Playground.defaultProps = {
-  row: false,
-  hidden: false,
-};
 
 function PlaygroundContent<T>({
   reverse,
@@ -155,10 +152,10 @@ const PreviewWithScopeLazy = lazy(() =>
 
 function Reversible({
   children,
-  reverse,
+  reverse = false,
 }: {
   children: React.ReactNode[];
-  reverse: boolean;
+  reverse?: boolean;
 }): React.ReactElement {
   const newchild = [...children];
   newchild.reverse();
@@ -167,6 +164,3 @@ function Reversible({
   }
   return children as any;
 }
-Reversible.defaultProps = {
-  reverse: false,
-};

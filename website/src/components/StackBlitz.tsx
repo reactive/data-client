@@ -6,15 +6,15 @@ import { useHasIntersected } from './useHasIntersected';
 
 export default function StackBlitz({
   app,
-  width,
-  height,
-  hidedevtools,
-  view,
-  terminalHeight,
-  hideNavigation,
+  width = '100%',
+  height = '500',
+  hidedevtools = '1',
+  view = 'both',
+  terminalHeight = '0',
+  hideNavigation = '1',
   file,
-  ctl,
-  initialpath,
+  ctl = '0',
+  initialpath = '',
 }) {
   const embed = '1';
   const params = new URLSearchParams({
@@ -74,13 +74,3 @@ export default function StackBlitz({
     </>
   );
 }
-StackBlitz.defaultProps = {
-  width: '100%',
-  height: '500',
-  hidedevtools: '1',
-  view: 'both',
-  terminalHeight: '0',
-  hideNavigation: '1',
-  ctl: '0',
-  initialpath: '',
-};

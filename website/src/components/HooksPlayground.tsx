@@ -11,11 +11,11 @@ const HooksPlayground = ({
   children,
   groupId,
   hidden = false,
-  defaultOpen,
+  defaultOpen = 'n',
   row = false,
-  fixtures,
+  fixtures = [],
   defaultTab,
-  getInitialInterceptorData,
+  getInitialInterceptorData = () => ({}),
 }: PlaygroundProps) => (
   <Playground
     noInline
@@ -34,21 +34,16 @@ const HooksPlayground = ({
     : children.props.children}
   </Playground>
 );
-HooksPlayground.defaultProps = {
-  defaultOpen: 'n' as const,
-  fixtures: [] as Fixture[],
-  getInitialInterceptorData: () => ({}),
-};
 export default memo(HooksPlayground);
 
 //child.props.children.props.title
 
 interface PlaygroundProps<T = any> {
   groupId: string;
-  defaultOpen: 'y' | 'n';
+  defaultOpen?: 'y' | 'n';
   row: boolean;
   hidden: boolean;
-  fixtures: (Fixture | Interceptor<T>)[];
+  fixtures?: (Fixture | Interceptor<T>)[];
   getInitialInterceptorData?: () => T;
   children: React.ReactNode;
   reverse?: boolean;
