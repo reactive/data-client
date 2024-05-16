@@ -1,5 +1,25 @@
 # @data-client/rest
 
+## 0.12.7
+
+### Patch Changes
+
+- [`4bc9145`](https://github.com/reactive/data-client/commit/4bc914574116d285f81546ffe37ead3e8aa339dc) Thanks [@ntucker](https://github.com/ntucker)! - Improve readability of Collection generics by naming DefaultArgs
+
+- [#3063](https://github.com/reactive/data-client/pull/3063) [`2080c87`](https://github.com/reactive/data-client/commit/2080c8751df147a839f03eade9804d57291d12fb) Thanks [@ntucker](https://github.com/ntucker)! - Polymorphic (Union) types should still denormalize when handling passthrough (non-normalized) data
+
+  When denormalizing non-normalized (like return of ctrl.fetch), it is still expected to handle
+  all steps like constructing class instances if possible. However, to do this for Polymorphic
+  types we need to fallback to using part of the normalize process to find out _which_ schema
+  to use for the remainder of denormalization.
+
+- [`4bc9145`](https://github.com/reactive/data-client/commit/4bc914574116d285f81546ffe37ead3e8aa339dc) Thanks [@ntucker](https://github.com/ntucker)! - Add docstrings to schema constructors
+
+- [`bf1f9bb`](https://github.com/reactive/data-client/commit/bf1f9bbfce9efc293cdb40939227795ea750452f) Thanks [@ntucker](https://github.com/ntucker)! - Add docstrings to RestGenerics, ResourceGenerics, and RestEndpointOptions members
+
+- Updated dependencies [[`4bc9145`](https://github.com/reactive/data-client/commit/4bc914574116d285f81546ffe37ead3e8aa339dc), [`2080c87`](https://github.com/reactive/data-client/commit/2080c8751df147a839f03eade9804d57291d12fb), [`4bc9145`](https://github.com/reactive/data-client/commit/4bc914574116d285f81546ffe37ead3e8aa339dc)]:
+  - @data-client/endpoint@0.12.7
+
 ## 0.12.6
 
 ### Patch Changes
