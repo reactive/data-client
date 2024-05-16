@@ -24,7 +24,7 @@ Describes a map whose values follow the given schema.
 
 :::tip
 
-Make it mutable with [Collections](./Collection.md)
+Make it mutable (new items can be [assigned](./Collection.md#assign)) with [Collections](./Collection.md)
 
 :::
 

@@ -104,6 +104,12 @@ Value: ${JSON.stringify(value, undefined, 2)}`,
       value &&
       (isImmutable(value) ? value.get('schema') : value.schema);
     if (!this.isSingleSchema && !schemaKey) {
+      // denormalize should also handle 'passthrough' values (not normalized) and still
+      // construct the correct Entity instance
+      if (typeof value === 'object' && value !== null) {
+        const schema = this.inferSchema(value, undefined, undefined);
+        if (schema) return unvisit(value, schema);
+      }
       /* istanbul ignore else */
       if (process.env.NODE_ENV !== 'production' && value) {
         console.warn(
