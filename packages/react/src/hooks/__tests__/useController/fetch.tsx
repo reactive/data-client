@@ -1,7 +1,13 @@
 import { ResolveType } from '@data-client/core';
 import { CacheProvider } from '@data-client/react';
 import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
-import { CoolerArticle, FutureArticleResource } from '__tests__/new';
+import {
+  CoolerArticle,
+  CoolerArticleResource,
+  FirstUnion,
+  FutureArticleResource,
+  UnionResource,
+} from '__tests__/new';
 import nock from 'nock';
 
 import { useCache, useSuspense } from '../..';
@@ -105,6 +111,13 @@ describe.each([
   afterEach(() => {
     errorspy.mockRestore();
   });
+  let warnSpy: jest.SpyInstance;
+  afterEach(() => {
+    warnSpy.mockRestore();
+  });
+  beforeEach(() =>
+    (warnSpy = jest.spyOn(console, 'warn')).mockImplementation(() => {}),
+  );
 
   it('should fetch', async () => {
     const { result } = renderDataClient(() => {
@@ -292,5 +305,57 @@ describe.each([
     });
     expect(throws.length).toBe(1);
     expect(result.current[0]).toBe(null);
+  });
+
+  it('should return denormalized value when schema is present', async () => {
+    const { controller } = renderDataClient(
+      () => {
+        return 'hi';
+      },
+      {
+        resolverFixtures: [
+          {
+            endpoint: CoolerArticleResource.get,
+            args: [{ id: payload.id }],
+            response: payload,
+          },
+        ],
+      },
+    );
+    const ret = await controller.fetch(CoolerArticleResource.get, {
+      id: payload.id,
+    });
+    expect(ret.content).toEqual(payload.content);
+    expect(ret).toBeInstanceOf(CoolerArticle);
+    expect(warnSpy.mock.calls.length).toBe(0);
+  });
+
+  it('should return denormalized value when schema is present (unions)', async () => {
+    const response = [
+      null,
+      { id: '5', body: 'hi', type: 'first' },
+      { id: '6', body: 'hi', type: 'another' },
+      { id: '7', body: 'hi' },
+    ];
+    const { controller } = renderDataClient(
+      () => {
+        return 'hi';
+      },
+      {
+        resolverFixtures: [
+          {
+            endpoint: UnionResource.getList,
+            args: [],
+            response,
+          },
+        ],
+      },
+    );
+    const ret = await controller.fetch(UnionResource.getList);
+    expect(ret[0]).toBeNull();
+    expect(ret[1]).toBeInstanceOf(FirstUnion);
+    expect(ret[2]).toEqual(response[2]);
+    expect(ret[3]).toEqual(response[3]);
+    expect(warnSpy.mock.calls).toMatchSnapshot();
   });
 });

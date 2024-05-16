@@ -427,6 +427,12 @@ describe.each([
     const prevWarn = global.console.warn;
     global.console.warn = jest.fn();
 
+    const response = [
+      null,
+      { id: '5', body: 'hi', type: 'first' },
+      { id: '5', body: 'hi', type: 'another' },
+      { id: '5', body: 'hi' },
+    ];
     const { result } = renderDataClient(
       () => {
         return useSuspense(UnionResource.getList);
@@ -436,12 +442,7 @@ describe.each([
           {
             endpoint: UnionResource.getList,
             args: [],
-            response: [
-              null,
-              { id: '5', body: 'hi', type: 'first' },
-              { id: '5', body: 'hi', type: 'another' },
-              { id: '5', body: 'hi' },
-            ],
+            response,
           },
         ],
       },
@@ -451,6 +452,9 @@ describe.each([
     expect(result.current[1]).toBeInstanceOf(FirstUnion);
     expect(result.current[2]).not.toBeInstanceOf(FirstUnion);
     expect(result.current[3]).not.toBeInstanceOf(FirstUnion);
+    // should still passthrough objects
+    expect(result.current[2]).toEqual(result.current[2]);
+    expect(result.current[3]).toEqual(result.current[3]);
     expect((global.console.warn as jest.Mock).mock.calls).toMatchSnapshot();
     global.console.warn = prevWarn;
   });

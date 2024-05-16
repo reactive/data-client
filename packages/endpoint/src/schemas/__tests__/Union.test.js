@@ -336,7 +336,11 @@ describe.each([
             groups: Group,
           },
           input => {
-            return input.username ? 'users' : 'groups';
+            return (
+              input.username ? 'users'
+              : input.groupname ? 'groups'
+              : undefined
+            );
           },
         );
 
@@ -353,7 +357,11 @@ describe.each([
             groups: Group,
           },
           input => {
-            return input.username ? 'users' : 'groups';
+            return (
+              input.username ? 'users'
+              : input.groupname ? 'groups'
+              : undefined
+            );
           },
         );
 
@@ -370,7 +378,11 @@ describe.each([
             groups: Group,
           },
           input => {
-            return input.username ? 'users' : 'groups';
+            return (
+              input.username ? 'users'
+              : input.groupname ? 'groups'
+              : undefined
+            );
           },
         );
 
@@ -384,7 +396,11 @@ describe.each([
             groups: Group,
           },
           input => {
-            return input.username ? 'users' : 'groups';
+            return (
+              input.username ? 'users'
+              : input.groupname ? 'groups'
+              : undefined
+            );
           },
         );
 

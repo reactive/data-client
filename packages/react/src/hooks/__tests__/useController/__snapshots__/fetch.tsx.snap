@@ -6,8 +6,86 @@ exports[`CacheProvider should log error message when user update method throws 1
 ]
 `;
 
+exports[`CacheProvider should return denormalized value when schema is present (unions) 1`] = `
+[
+  [
+    "Schema attribute "another" is not expected.
+Expected one of: "first", "second"
+
+Value: {
+  "id": "6",
+  "body": "hi",
+  "type": "another"
+}",
+  ],
+  [
+    "Schema attribute undefined is not expected.
+Expected one of: "first", "second"
+
+Value: {
+  "id": "7",
+  "body": "hi"
+}",
+  ],
+  [
+    "TypeError: Unable to infer schema for UnionSchema
+Value: {
+  "id": "6",
+  "body": "hi",
+  "type": "another"
+}.",
+  ],
+  [
+    "TypeError: Unable to infer schema for UnionSchema
+Value: {
+  "id": "7",
+  "body": "hi"
+}.",
+  ],
+]
+`;
+
 exports[`ExternalCacheProvider should log error message when user update method throws 1`] = `
 [
   "The following error occured during Endpoint.update() for POST http://test.com/article-cooler",
+]
+`;
+
+exports[`ExternalCacheProvider should return denormalized value when schema is present (unions) 1`] = `
+[
+  [
+    "Schema attribute "another" is not expected.
+Expected one of: "first", "second"
+
+Value: {
+  "id": "6",
+  "body": "hi",
+  "type": "another"
+}",
+  ],
+  [
+    "Schema attribute undefined is not expected.
+Expected one of: "first", "second"
+
+Value: {
+  "id": "7",
+  "body": "hi"
+}",
+  ],
+  [
+    "TypeError: Unable to infer schema for UnionSchema
+Value: {
+  "id": "6",
+  "body": "hi",
+  "type": "another"
+}.",
+  ],
+  [
+    "TypeError: Unable to infer schema for UnionSchema
+Value: {
+  "id": "7",
+  "body": "hi"
+}.",
+  ],
 ]
 `;

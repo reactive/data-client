@@ -31,7 +31,7 @@ For unbounded collections with `string` keys, use [schema.Values](./Values.md)
 
 :::tip
 
-Make it mutable with [Collections](./Collection.md)
+Make it mutable (new items can be [pushed](./Collection.md#push)/[unshifted](./Collection.md#unshift)) with [Collections](./Collection.md)
 
 :::
 
