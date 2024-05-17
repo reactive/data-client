@@ -11,6 +11,7 @@ export const routes: Route<Controller>[] = [
   {
     name: 'Home',
     component: lazyPage('Home'),
+    // purely for performance - eliminates network waterfalls
     async resolveData(controller) {
       await Promise.allSettled([
         controller.fetchIfStale(CurrencyResource.getList),
@@ -21,6 +22,7 @@ export const routes: Route<Controller>[] = [
   {
     name: 'AssetDetail',
     component: lazyPage('AssetDetail'),
+    // purely for performance - eliminates network waterfalls
     async resolveData(controller, { id }) {
       const product_id = `${id}-USD`;
       controller.fetchIfStale(getCandles, { product_id });

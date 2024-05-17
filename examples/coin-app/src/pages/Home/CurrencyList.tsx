@@ -1,7 +1,6 @@
 import { Link } from '@anansi/router';
 import {
   AsyncBoundary,
-  NetworkError,
   useFetch,
   useQuery,
   useSuspense,
@@ -16,7 +15,7 @@ export default function CurrencyList() {
   useFetch(StatsResource.getList);
   useSuspense(CurrencyResource.getList);
   useSuspense(StatsResource.getList);
-  const currencies = useQuery(queryCurrency, {});
+  const currencies = useQuery(queryCurrency);
   if (!currencies) return null;
   return (
     <table>
@@ -45,7 +44,7 @@ export default function CurrencyList() {
               {formatLargePrice.format(currency?.stats?.volume_usd)}
             </td>
             <td align="right" width="100">
-              <AsyncBoundary errorComponent={ErrorComponent}>
+              <AsyncBoundary>
                 <AssetPrice product_id={`${currency.id}-USD`} />
               </AsyncBoundary>
             </td>
@@ -55,9 +54,3 @@ export default function CurrencyList() {
     </table>
   );
 }
-
-const ErrorComponent = ({ error }: { error: NetworkError }) => (
-  <div style={{ color: 'red' }}>
-    {error.status} {error.response?.statusText}
-  </div>
-);

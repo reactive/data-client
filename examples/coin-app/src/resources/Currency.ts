@@ -68,7 +68,7 @@ interface Args {
 }
 export const queryCurrency = new schema.Query(
   new schema.All(Currency),
-  (entries, { type = 'crypto' }: Args) => {
+  (entries, { type = 'crypto' }: Args = {}) => {
     let sorted = entries.filter(
       currency =>
         currency.details.type === type && currency.status === 'online',
