@@ -68,12 +68,12 @@ export interface ResourceOptions {
 export interface Resource<
   O extends ResourceGenerics = { path: ResourcePath; schema: any },
 > extends Extendable<O> {
-  /** Get a singular item
+  /** Get one item (GET)
    *
    * @see https://dataclient.io/rest/api/createResource#get
    */
   get: GetEndpoint<{ path: O['path']; schema: O['schema'] }>;
-  /** Get a list of item
+  /** Get an Array of items (GET)
    *
    * @see https://dataclient.io/rest/api/createResource#getlist
    */

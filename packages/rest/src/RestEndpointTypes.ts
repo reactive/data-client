@@ -139,7 +139,7 @@ export interface RestInstance<
     this: E,
     cursorField: C,
   ): PaginationFieldEndpoint<E, C>;
-  /** Endpoint to append the next page extending a list for pagination
+  /** Concatinate the next page of results (GET)
    * @see https://dataclient.io/rest/api/RestEndpoint#getPage
    */
   getPage: 'paginationField' extends keyof O ?
@@ -150,7 +150,7 @@ export interface RestInstance<
       >
     : undefined
   : undefined;
-  /** Endpoint that pushes (place at end) a newly created entity to this Collection
+  /** Create a new item (POST) and `push` to the end
    * @see https://dataclient.io/rest/api/RestEndpoint#push
    */
   push: AddEndpoint<
@@ -163,7 +163,7 @@ export interface RestInstance<
         | FormData;
     }
   >;
-  /** Endpoint that unshifts (place at start) a newly created entity to this Collection
+  /** Create a new item (POST) and `unshift` to the beginning
    * @see https://dataclient.io/rest/api/RestEndpoint#unshift
    */
   unshift: AddEndpoint<
@@ -176,7 +176,7 @@ export interface RestInstance<
         | FormData;
     }
   >;
-  /** Endpoint that assigns newly created entities to their respective keys in this Collection
+  /** Create new item(s) (POST) and `Object.assign` merge
    * @see https://dataclient.io/rest/api/RestEndpoint#assign
    */
   assign: AddEndpoint<

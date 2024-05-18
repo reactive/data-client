@@ -1263,26 +1263,26 @@ interface RestInstance<F extends FetchFunction = FetchFunction, S extends Schema
      */
     paginated<E extends RestInstanceBase<FetchFunction, any, undefined>, A extends any[]>(this: E, removeCursor: (...args: A) => readonly [...Parameters<E>]): PaginationEndpoint<E, A>;
     paginated<E extends RestInstanceBase<FetchFunction, any, undefined>, C extends string>(this: E, cursorField: C): PaginationFieldEndpoint<E, C>;
-    /** Endpoint to append the next page extending a list for pagination
+    /** Concatinate the next page of results (GET)
      * @see https://dataclient.io/rest/api/RestEndpoint#getPage
      */
     getPage: 'paginationField' extends keyof O ? O['paginationField'] extends string ? PaginationFieldEndpoint<F & {
         schema: S;
         sideEffect: M;
     } & O, O['paginationField']> : undefined : undefined;
-    /** Endpoint that pushes (place at end) a newly created entity to this Collection
+    /** Create a new item (POST) and `push` to the end
      * @see https://dataclient.io/rest/api/RestEndpoint#push
      */
     push: AddEndpoint<F, ExtractCollection<S>['push'], Exclude<O, 'body' | 'method'> & {
         body: OptionsToAdderBodyArgument<O> | OptionsToAdderBodyArgument<O>[] | FormData;
     }>;
-    /** Endpoint that unshifts (place at start) a newly created entity to this Collection
+    /** Create a new item (POST) and `unshift` to the beginning
      * @see https://dataclient.io/rest/api/RestEndpoint#unshift
      */
     unshift: AddEndpoint<F, ExtractCollection<S>['unshift'], Exclude<O, 'body' | 'method'> & {
         body: OptionsToAdderBodyArgument<O> | OptionsToAdderBodyArgument<O>[] | FormData;
     }>;
-    /** Endpoint that assigns newly created entities to their respective keys in this Collection
+    /** Create new item(s) (POST) and `Object.assign` merge
      * @see https://dataclient.io/rest/api/RestEndpoint#assign
      */
     assign: AddEndpoint<F, ExtractCollection<S>, Exclude<O, 'body' | 'method'> & {
@@ -1618,7 +1618,7 @@ interface Resource<O extends ResourceGenerics = {
     path: ResourcePath;
     schema: any;
 }> extends Extendable<O> {
-    /** Get a singular item
+    /** Get one item (GET)
      *
      * @see https://dataclient.io/rest/api/createResource#get
      */
@@ -1626,7 +1626,7 @@ interface Resource<O extends ResourceGenerics = {
         path: O['path'];
         schema: O['schema'];
     }>;
-    /** Get a list of item
+    /** Get an Array of items (GET)
      *
      * @see https://dataclient.io/rest/api/createResource#getlist
      */
