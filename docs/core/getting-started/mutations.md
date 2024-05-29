@@ -19,8 +19,7 @@ import VoteDemo from '../shared/\_VoteDemo.mdx';
 Using our [Create, Update, and Delete](/docs/concepts/atomic-mutations) endpoints with
 [Controller.fetch()](../api/Controller.md#fetch) reactively updates _all_ appropriate components atomically (at the same time).
 
-[useController()](../api/useController.md) gives components access to this global [setState()](https://react.dev/reference/react/useState#setstate)
-on steriods.
+[useController()](../api/useController.md) gives components access to this global supercharged [setState()](https://react.dev/reference/react/useState#setstate).
 
 [//]: # 'TODO: Add create, and delete examples as well (in tabs)'
 

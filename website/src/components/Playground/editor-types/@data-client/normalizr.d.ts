@@ -301,4 +301,3 @@ declare const INVALID: unique symbol;
 declare function validateQueryKey(queryKey: unknown): any;
 
 export { AbstractInstanceType, ArrayElement, Denormalize, DenormalizeNullable, EndpointExtraOptions, EndpointInterface, EntityInterface, EntityPath, EntityTable, ErrorTypes, ExpiryStatus, ExpiryStatusInterface, FetchFunction, GetEntity, GetIndex, INVALID, IndexInterface, IndexParams, InferReturn, MemoCache, MutateEndpoint, NI, NetworkError, Normalize, NormalizeNullable, NormalizeReturnType, NormalizedIndex, NormalizedSchema, OptimisticUpdateParams, Queryable, ReadEndpoint, ResolveType, Schema, SchemaArgs, SchemaClass, SchemaSimple, Serializable, SnapshotInterface, UnknownError, UpdateFunction, WeakDependencyMap, denormalize, isEntity, normalize, validateQueryKey };
-type NoInfer<T> = T;

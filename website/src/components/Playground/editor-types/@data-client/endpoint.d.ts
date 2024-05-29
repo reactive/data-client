@@ -1132,4 +1132,3 @@ declare const INVALID: unique symbol;
 type NI<T> = NoInfer<T>;
 
 export { AbstractInstanceType, Array$1 as Array, Collection, DefaultArgs, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, EndpointToFunction, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, INVALID, Invalidate, KeyofEndpointInstance, MutateEndpoint, NI, NetworkError, Normalize, NormalizeNullable, PolymorphicInterface, Queryable, ReadEndpoint, ResolveType, Schema, SchemaArgs, SchemaClass, SchemaSimple, SnapshotInterface, UnknownError, schema_d as schema, validateRequired };
-type NoInfer<T> = T;
