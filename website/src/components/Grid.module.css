@@ -5,6 +5,11 @@
   column-gap: 15px;
 }
 
+.grid.wrap :global(.prism-code) {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
 @media only screen and (max-width: 768px) {
   .grid {
     grid-template-columns: minmax(min-content, 1fr);

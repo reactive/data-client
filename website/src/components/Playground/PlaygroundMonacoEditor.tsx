@@ -1,38 +1,35 @@
-import Editor, { useMonaco, type OnMount } from '@monaco-editor/react';
+import Editor from '@monaco-editor/react';
 import type { ISelection } from 'monaco-editor';
+import type * as Monaco from 'monaco-editor';
 import rangeParser from 'parse-numeric-range';
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { LiveEditor } from 'react-live';
 import './monaco-init';
-import type * as Monaco from 'monaco-editor';
 
-const MemoEditor = memo(Editor);
+import { extensionToMonacoLanguage } from './extensionToMonacoLanguage';
+import useAutoHeight from './useAutoHeight';
 
 export default function PlaygroundMonacoEditor({
   onChange,
   code,
-  path,
+  path = '',
   onFocus,
   tabIndex,
   highlights,
   autoFocus = false,
   large = false,
   isFocused = false,
+  language = 'tsx',
+  original,
+  readOnly,
   ...rest
 }) {
-  const editorOptions = large ? largeOptions : options;
+  const editorOptions = useMemo(
+    () => ({ ...(large ? largeOptions : options), readOnly }),
+    [large, readOnly],
+  );
   //const isBrowser = useIsBrowser(); we used to key Editor on this; but I'm not sure why
 
-  if (!path.endsWith('.tsx') && !path.endsWith('.ts')) {
-    path = path + '.tsx';
-  }
-
-  const updateHeightRef = useRef<() => void>();
-  useEffect(() => {
-    if (isFocused && updateHeightRef.current) {
-      setTimeout(updateHeightRef.current, 5);
-    }
-  }, [isFocused]);
   /* TODO: using ts to compile rather than babel
   const handleChange = useWorkerCB(
     tsWorker => {
@@ -42,7 +39,10 @@ export default function PlaygroundMonacoEditor({
     },
     [onChange, path],
   );*/
-  const [height, setHeight] = useState<string | number>('1000');
+  const { height, handleMount: handleAutoMount } = useAutoHeight({
+    isFocused,
+    lineHeight: editorOptions.lineHeight,
+  });
   const handleMount = useCallback(
     (editor: Monaco.editor.ICodeEditor, monaco: typeof Monaco) => {
       // autofocus
@@ -83,58 +83,15 @@ export default function PlaygroundMonacoEditor({
         onFocus(tabIndex);
       });
 
-      // autoheight
-      const LINE_HEIGHT = editorOptions.lineHeight;
-      const CONTAINER_GUTTER = 10;
-
-      const el = editor.getDomNode();
-      const codeContainer = el.getElementsByClassName('view-lines')[0];
-
-      let prevLineCount = 0;
-
-      const model: any = editor.getModel();
-      let lineCount = 10;
-      if (model) {
-        // before rendering we have no view information, so we initialize based on unwrapped lines
-        lineCount = model.getLineCount();
-      }
-
-      const contentHeight = lineCount * LINE_HEIGHT + CONTAINER_GUTTER;
-      el.style.height = contentHeight + 'px';
-      setHeight(contentHeight);
-
-      editor.layout();
-
-      updateHeightRef.current = () => {
-        const viewlinecount =
-          editor._modelData?.viewModel?.getLineCount?.() ??
-          codeContainer.childElementCount;
-        const modellinecount =
-          editor.getModel()?.getLineCount?.() ??
-          codeContainer.childElementCount;
-        const lineCount =
-          viewlinecount < modellinecount * 3 ? viewlinecount : modellinecount;
-        const height = lineCount * LINE_HEIGHT + CONTAINER_GUTTER; // fold
-        prevLineCount = codeContainer.childElementCount;
-
-        el.style.height = height + 'px';
-        setHeight(height);
-
-        editor.layout();
-      };
-      editor.onDidChangeModelDecorations(() => {
-        // wait until dom rendered
-        setTimeout(updateHeightRef.current, 0);
-      });
-      return () => editor?.dispose();
+      return handleAutoMount(editor, monaco);
     },
     [],
   );
 
   return (
-    <MemoEditor
+    <Editor
       path={path}
-      defaultLanguage="typescript"
+      defaultLanguage={extensionToMonacoLanguage(language)}
       onChange={onChange}
       defaultValue={code}
       //value={code}
@@ -142,12 +99,12 @@ export default function PlaygroundMonacoEditor({
       theme="prism"
       onMount={handleMount}
       height={height}
-      loading={<LiveEditor language="tsx" code={code} disabled />}
+      loading={<LiveEditor language={language} code={code} disabled />}
     />
   );
 }
 
-const options = {
+export const options = {
   scrollbar: { alwaysConsumeMouseWheel: false },
   minimap: { enabled: false },
   wordWrap: 'on',

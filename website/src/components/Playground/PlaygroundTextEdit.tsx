@@ -65,49 +65,57 @@ export function PlaygroundTextEdit({
           isPlayground={isPlayground}
         />
       : null}
-      {codeTabs.map(({ title, path, code, collapsed, col, ...rest }, i) => (
-        <React.Fragment key={i}>
-          {(!row || col) && title ?
-            <CodeTabHeader
-              onClick={() => handleTabToggle(i)}
-              closed={closedList[i]}
-              title={title}
-              collapsible={codeTabs.length > 1 || fixtures?.length}
-              lastChild={i === codeTabs.length - 1 && large}
-            />
-          : null}
-          <div
-            key={i}
-            className={clsx(styles.playgroundEditor, {
-              [styles.hidden]: closedList[i],
-            })}
-          >
-            <BrowserOnly
-              fallback={
-                <LiveEditor key={i} language="tsx" code={codes[i]} disabled />
-              }
+      {codeTabs.map(
+        ({ title, path, code, collapsed, col, language, ...rest }, i) => (
+          <React.Fragment key={i}>
+            {(!row || col) && title ?
+              <CodeTabHeader
+                onClick={() => handleTabToggle(i)}
+                closed={closedList[i]}
+                title={title}
+                collapsible={codeTabs.length > 1 || fixtures?.length}
+                lastChild={i === codeTabs.length - 1 && large}
+              />
+            : null}
+            <div
+              key={i}
+              className={clsx(styles.playgroundEditor, {
+                [styles.hidden]: closedList[i],
+              })}
             >
-              {() => (
-                /*closedList[i] ? null : */ <PlaygroundEditor
-                  key={i}
-                  tabIndex={i}
-                  onFocus={
-                    row && !col && codeTabs.length > 1 ?
-                      handleTabSwitch
-                    : handleTabOpen
-                  }
-                  onChange={handleCodeChange[i]}
-                  code={codes[i]}
-                  path={'/' + id + '/' + (path || title || 'default.tsx')}
-                  isFocused={!closedList[i]}
-                  {...rest}
-                  large={large}
-                />
-              )}
-            </BrowserOnly>
-          </div>
-        </React.Fragment>
-      ))}
+              <BrowserOnly
+                fallback={
+                  <LiveEditor
+                    key={i}
+                    language={language}
+                    code={codes[i]}
+                    disabled
+                  />
+                }
+              >
+                {() => (
+                  /*closedList[i] ? null : */ <PlaygroundEditor
+                    key={i}
+                    tabIndex={i}
+                    onFocus={
+                      row && !col && codeTabs.length > 1 ?
+                        handleTabSwitch
+                      : handleTabOpen
+                    }
+                    onChange={handleCodeChange[i]}
+                    code={codes[i]}
+                    path={'/' + id + '/' + path}
+                    isFocused={!closedList[i]}
+                    language={language}
+                    {...rest}
+                    large={large}
+                  />
+                )}
+              </BrowserOnly>
+            </div>
+          </React.Fragment>
+        ),
+      )}
     </div>
   );
 }
@@ -216,11 +224,18 @@ function HeaderWithTabControls({ children }) {
 }
 
 function EditorHeader({
-  title,
+  title = (
+    <Translate
+      id="theme.Playground.liveEditor"
+      description="The live editor label of the live codeblocks"
+    >
+      Editor
+    </Translate>
+  ),
   fixtures = [],
 }: {
-  title: string;
-  fixtures: (Fixture | Interceptor)[];
+  title?: React.ReactNode;
+  fixtures?: (Fixture | Interceptor)[];
 }) {
   const { values } = useContext(CodeTabContext);
   const hasTabs = values.length > 0;
@@ -239,14 +254,3 @@ function EditorHeader({
     </>
   );
 }
-EditorHeader.defaultProps = {
-  title: (
-    <Translate
-      id="theme.Playground.liveEditor"
-      description="The live editor label of the live codeblocks"
-    >
-      Editor
-    </Translate>
-  ),
-  fixtures: [],
-};
