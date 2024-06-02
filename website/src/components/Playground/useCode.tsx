@@ -10,7 +10,7 @@ export function useCode(children, defaultTab) {
     [k: string]: any;
   }[] = useMemo(() => {
     if (typeof children === 'string')
-      return [{ code: children.replace(/\n$/, ''), collapsed: false }];
+      return [{ code: getCode(children), collapsed: false }];
     return (Array.isArray(children) ? children : [children])
       .filter(child => child.props.children)
       .map(child =>
@@ -25,15 +25,22 @@ export function useCode(children, defaultTab) {
             title !== defaultTab
           : parseCodeBlockCollapsed(metastring) ?? false;
         const col = parseCodeBlockCol(metastring) ?? false;
-        const path = parseCodeBlockPath(metastring);
         const highlights = /\{([\d\-,.]+)\}/.exec(metastring)?.[1];
+        const language = /language-(\w+)/.exec(rest.className)?.[1] ?? 'tsx';
+        const extension = langToExtension(language);
+        const fileBase = title || 'default';
+        const path =
+          parseCodeBlockPath(metastring) || fileBase.includes('.') ?
+            fileBase
+          : `${fileBase}.${extension}`;
         return {
-          code: children.replace(/\n$/, ''),
+          code: getCode(children),
           title,
           collapsed,
           col,
           path,
           highlights,
+          language,
           ...rest,
         };
       });
@@ -82,4 +89,13 @@ export function parseCodeBlockCol(metastring?: string): boolean {
 }
 export function parseCodeBlockPath(metastring?: string): string {
   return metastring?.match(codeBlockPathRegex)?.groups!.title ?? '';
+}
+
+export function langToExtension(lang: string) {
+  if (lang === 'typescript') return 'ts';
+  return lang;
+}
+
+function getCode(code: string) {
+  return code.replace(/\n$/, '');
 }

@@ -56,7 +56,7 @@ if (
         skipLibCheck: true,
         noImplicitAny: false,
       });
-      // TODO: load theme from docusaurus config
+      // TODO: load theme from docusaurus config so we eliminate DRY violation
       // see https://microsoft.github.io/monaco-editor/playground.html for full options
       monaco.editor.defineTheme('prism', {
         base: 'vs-dark',
@@ -130,6 +130,14 @@ if (
             endLineNumber: position.lineNumber,
             endColumn: position.column,
           });
+          // Get the current word
+          const word = model.getWordUntilPosition(position);
+          const range = {
+            startLineNumber: position.lineNumber,
+            endLineNumber: position.lineNumber,
+            startColumn: word.startColumn,
+            endColumn: word.endColumn,
+          };
           // Match things like `from "` and `require("`
           if (
             /(([\s|\n]+from\s+)|(\brequire\b\s*\())["|'][^'^"]*$/.test(
@@ -158,6 +166,7 @@ if (
                     // Don't keep extension for JS files
                     insertText: file.replace(/\.tsx?$/, ''),
                     kind: monaco.languages.CompletionItemKind.Module,
+                    range,
                   };
                 });
               if (!completions.length) return;
@@ -190,6 +199,7 @@ if (
                   //detail: suggestionDependencies[name],
                   kind: monaco.languages.CompletionItemKind.Module,
                   insertText: name,
+                  range,
                 })),
               };
             }
