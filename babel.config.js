@@ -9,6 +9,7 @@ module.exports = function (api) {
       [
         '@anansi',
         {
+          hasJsxRuntime: true,
           loose: true,
           resolver: {
             resolvePath(sourcePath, currentFile, opts) {
