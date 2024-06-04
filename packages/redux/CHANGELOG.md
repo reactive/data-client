@@ -1,5 +1,15 @@
 # @data-client/redux
 
+## 0.12.8
+
+### Patch Changes
+
+- [#3071](https://github.com/reactive/data-client/pull/3071) [`7fba440`](https://github.com/reactive/data-client/commit/7fba44050a4e3fdcc37ab8405730b35366c293e1) Thanks [@ntucker](https://github.com/ntucker)! - React 19 JSX runtime compatibility.
+
+  BREAKING CHANGE: Min React version 16.8.4 -> 16.14
+
+  16.14 is the first version of React to include JSX runtime.
+
 ## 0.12.3
 
 ### Patch Changes
@@ -140,7 +150,7 @@
   Current testing version is already [using the provider Component directly](https://dataclient.io/docs/api/makeRenderDataClient)
 
   ```tsx
-  import { CacheProvider } from "@data-client/react";
+  import { CacheProvider } from '@data-client/react';
   const renderDataClient = makeRenderDataClient(CacheProvider);
   ```
 

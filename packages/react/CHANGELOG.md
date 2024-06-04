@@ -1,5 +1,18 @@
 # @data-client/react
 
+## 0.12.8
+
+### Patch Changes
+
+- [#3071](https://github.com/reactive/data-client/pull/3071) [`7fba440`](https://github.com/reactive/data-client/commit/7fba44050a4e3fdcc37ab8405730b35366c293e1) Thanks [@ntucker](https://github.com/ntucker)! - React 19 JSX runtime compatibility.
+
+  BREAKING CHANGE: Min React version 16.8.4 -> 16.14
+
+  16.14 is the first version of React to include JSX runtime.
+
+- Updated dependencies [[`7fba440`](https://github.com/reactive/data-client/commit/7fba44050a4e3fdcc37ab8405730b35366c293e1)]:
+  - @data-client/use-enhanced-reducer@0.1.8
+
 ## 0.12.5
 
 ### Patch Changes
@@ -59,14 +72,14 @@
 
   ```ts
   const getThing = new Endpoint(
-    (args: { postId: string | number; sortBy?: "votes" | "recent" }) =>
+    (args: { postId: string | number; sortBy?: 'votes' | 'recent' }) =>
       Promise.resolve({ a: 5, ...args }),
     { schema: MyEntity },
   );
 
   const myThing = useSuspense(getThing, {
-    postId: "5",
-    sortBy: "votes",
+    postId: '5',
+    sortBy: 'votes',
   });
   ```
 
@@ -186,16 +199,16 @@
 
   ```ts
   class User extends Entity {
-    username = "";
-    id = "";
-    groupId = "";
+    username = '';
+    id = '';
+    groupId = '';
     pk() {
       return this.id;
     }
-    static index = ["username" as const];
+    static index = ['username' as const];
   }
 
-  const bob = useQuery(User, { username: "bob" });
+  const bob = useQuery(User, { username: 'bob' });
   ```
 
   ```ts
@@ -203,7 +216,7 @@
     new schema.All(User),
     (entries, { isAdmin } = {}) => {
       if (isAdmin !== undefined)
-        return entries.filter((user) => user.isAdmin === isAdmin).length;
+        return entries.filter(user => user.isAdmin === isAdmin).length;
       return entries.length;
     },
   );
@@ -219,7 +232,7 @@
     }),
   });
 
-  const usersInGroup = useQuery(UserCollection, { groupId: "5" });
+  const usersInGroup = useQuery(UserCollection, { groupId: '5' });
   ```
 
 - [#2921](https://github.com/reactive/data-client/pull/2921) [`6e55026`](https://github.com/reactive/data-client/commit/6e550260672507592d75c4781dc2563a50e664fa) Thanks [@ntucker](https://github.com/ntucker)! - Add [controller.get](https://dataclient.io/docs/api/Controller#get) / [snapshot.get](https://dataclient.io/docs/api/Snapshot#get) to directly read [Querable Schemas](https://dataclient.io/docs/api/useQuery#queryable)
@@ -228,12 +241,12 @@
 
   ```tsx
   export const PostResource = createResource({
-    path: "/posts/:id",
+    path: '/posts/:id',
     schema: Post,
-  }).extend((Base) => ({
+  }).extend(Base => ({
     vote: new RestEndpoint({
-      path: "/posts/:id/vote",
-      method: "POST",
+      path: '/posts/:id/vote',
+      method: 'POST',
       body: undefined,
       schema: Post,
       getOptimisticResponse(snapshot, { id }) {
@@ -252,11 +265,11 @@
 
   ```tsx
   export const PostResource = createResource({
-    path: "/posts/:id",
+    path: '/posts/:id',
     schema: Post,
-  }).extend("vote", {
-    path: "/posts/:id/vote",
-    method: "POST",
+  }).extend('vote', {
+    path: '/posts/:id/vote',
+    method: 'POST',
     body: undefined,
     schema: Post,
     getOptimisticResponse(snapshot, { id }) {
@@ -462,7 +475,7 @@
   Current testing version is already [using the provider Component directly](https://dataclient.io/docs/api/makeRenderDataClient)
 
   ```tsx
-  import { CacheProvider } from "@data-client/react";
+  import { CacheProvider } from '@data-client/react';
   const renderDataClient = makeRenderDataClient(CacheProvider);
   ```
 
@@ -517,7 +530,7 @@
     pk(): string {
       return `${this.trade_id}`;
     }
-    static key = "Ticker";
+    static key = 'Ticker';
 
     static schema = {
       price: Number,
@@ -537,7 +550,7 @@
     pk(): string {
       return `${this.trade_id}`;
     }
-    static key = "Ticker";
+    static key = 'Ticker';
 
     static schema = {
       price: Number,
@@ -564,7 +577,7 @@
 - f95dbc64d1: [Collections](https://dataclient.io/rest/api/Collection) can filter based on FormData arguments
 
   ```ts
-  ctrl.fetch(getPosts.push, { group: "react" }, new FormData(e.currentTarget));
+  ctrl.fetch(getPosts.push, { group: 'react' }, new FormData(e.currentTarget));
   ```
 
   Say our FormData contained an `author` field. Now that newly created
@@ -572,8 +585,8 @@
 
   ```ts
   useSuspense(getPosts, {
-    group: "react",
-    author: "bob",
+    group: 'react',
+    author: 'bob',
   });
   ```
 
