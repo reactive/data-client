@@ -56,6 +56,8 @@ if (
         skipLibCheck: true,
         noImplicitAny: false,
       });
+      // TODO: monaco.languages.setMonarchTokensProvider('typescript', tsxMonarch);
+
       // TODO: load theme from docusaurus config so we eliminate DRY violation
       // see https://microsoft.github.io/monaco-editor/playground.html for full options
       monaco.editor.defineTheme('prism', {
