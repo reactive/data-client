@@ -1,5 +1,11 @@
 # @data-client/rest
 
+## 0.12.8
+
+### Patch Changes
+
+- [`9c04770`](https://github.com/reactive/data-client/commit/9c04770414e52cfc932878581736a3a93721ab7c) Thanks [@ntucker](https://github.com/ntucker)! - Improve clarity of Resource method docstrings
+
 ## 0.12.7
 
 ### Patch Changes
@@ -50,14 +56,14 @@
 
   ```ts
   const getThing = new RestEndpoint({
-    path: "/:attr1?{-:attr2}?{-:attr3}?",
+    path: '/:attr1?{-:attr2}?{-:attr3}?',
   });
 
-  getThing({ attr1: "hi" });
-  getThing({ attr2: "hi" });
-  getThing({ attr3: "hi" });
-  getThing({ attr1: "hi", attr3: "ho" });
-  getThing({ attr2: "hi", attr3: "ho" });
+  getThing({ attr1: 'hi' });
+  getThing({ attr2: 'hi' });
+  getThing({ attr3: 'hi' });
+  getThing({ attr1: 'hi', attr3: 'ho' });
+  getThing({ attr2: 'hi', attr3: 'ho' });
   ```
 
 ## 0.12.3
@@ -84,7 +90,7 @@
   ```ts
   export const UserResource = createResource({
     urlPrefix: CONFIG.API_ROOT,
-    path: "/users/:id",
+    path: '/users/:id',
     schema: User,
     // this should be 'Endpoint:'
     endpoint: AuthedEndpoint,
@@ -158,7 +164,7 @@
     new schema.All(User),
     (entries, { isAdmin } = {}) => {
       if (isAdmin !== undefined)
-        return entries.filter((user) => user.isAdmin === isAdmin).length;
+        return entries.filter(user => user.isAdmin === isAdmin).length;
       return entries.length;
     },
   );
@@ -174,7 +180,7 @@
     new schema.All(User),
     (entries, { isAdmin } = {}) => {
       if (isAdmin !== undefined)
-        return entries.filter((user) => user.isAdmin === isAdmin).length;
+        return entries.filter(user => user.isAdmin === isAdmin).length;
       return entries.length;
     },
   );
@@ -233,13 +239,13 @@
   ```jsx
   const UserIndex = new Index(User);
 
-  const bob = useCache(UserIndex, { username: "bob" });
+  const bob = useCache(UserIndex, { username: 'bob' });
   ```
 
   #### After
 
   ```jsx
-  const bob = useQuery(User, { username: "bob" });
+  const bob = useQuery(User, { username: 'bob' });
   ```
 
 ### Patch Changes
@@ -297,8 +303,8 @@
   To encode complex objects in the searchParams, you can use the [qs](https://github.com/ljharb/qs) library.
 
   ```typescript
-  import { RestEndpoint, RestGenerics } from "@data-client/rest";
-  import qs from "qs";
+  import { RestEndpoint, RestGenerics } from '@data-client/rest';
+  import qs from 'qs';
 
   class MyEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
     searchToString(searchParams) {
@@ -332,7 +338,7 @@
   ```ts
   export const queryRemainingTodos = new Query(
     TodoResource.getList.schema,
-    (entries) => entries && entries.filter((todo) => !todo.completed).length,
+    entries => entries && entries.filter(todo => !todo.completed).length,
   );
   ```
 
@@ -432,15 +438,15 @@
 
   ```ts
   const getTodos = new RestEndpoint({
-    urlPrefix: "https://jsonplaceholder.typicode.com",
-    path: "/todos",
+    urlPrefix: 'https://jsonplaceholder.typicode.com',
+    path: '/todos',
     schema: new schema.Collection([Todo]),
-    name: "gettodos",
+    name: 'gettodos',
   });
 
-  getTodos.getPage.name === "gettodos.getPage";
-  getTodos.push.name === "gettodos.create";
-  getTodos.unshift.name === "gettodos.create";
+  getTodos.getPage.name === 'gettodos.getPage';
+  getTodos.push.name === 'gettodos.create';
+  getTodos.unshift.name === 'gettodos.create';
   ```
 
 - [#2795](https://github.com/reactive/data-client/pull/2795) [`79e286109b`](https://github.com/reactive/data-client/commit/79e286109b5566f8e7acfdf0f44201263072d1d1) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING: [Schema Serializers](https://dataclient.io/rest/guides/network-transform#deserializing-fields) _must_ support function calls
@@ -456,7 +462,7 @@
     pk(): string {
       return `${this.trade_id}`;
     }
-    static key = "Ticker";
+    static key = 'Ticker';
 
     static schema = {
       price: Number,
@@ -476,7 +482,7 @@
     pk(): string {
       return `${this.trade_id}`;
     }
-    static key = "Ticker";
+    static key = 'Ticker';
 
     static schema = {
       price: Number,
@@ -506,16 +512,16 @@
 
   ```ts
   class Stream extends Entity {
-    username = "";
-    title = "";
-    game = "";
+    username = '';
+    title = '';
+    game = '';
     currentViewers = 0;
     live = false;
 
     pk() {
       return this.username;
     }
-    static key = "Stream";
+    static key = 'Stream';
 
     process(value, parent, key, args) {
       const processed = super.process(value, parent, key, args);
@@ -544,7 +550,7 @@
 
   ```ts
   const RatingResource = createResource({
-    path: "/ratings/:id",
+    path: '/ratings/:id',
     schema: Rating,
   }).extend({
     getList: {
@@ -603,10 +609,10 @@
 
   ```ts
   const TodoResource = createResource({
-    path: "/todos/:id",
+    path: '/todos/:id',
     schema: Todo,
-    paginationField: "page",
-  }).getList.getPage({ page: "2" });
+    paginationField: 'page',
+  }).getList.getPage({ page: '2' });
   ```
 
 ### Patch Changes
@@ -638,7 +644,7 @@
   Set any field based on arguments:
 
   ```ts
-  Resource.extend("fieldName", { path: "mypath/:id" });
+  Resource.extend('fieldName', { path: 'mypath/:id' });
   ```
 
   Override any of the provided endpoints with options:
@@ -646,7 +652,7 @@
   ```ts
   Resource.extend({
     getList: {
-      path: "mypath/:id",
+      path: 'mypath/:id',
     },
     update: {
       body: {} as Other,
@@ -657,9 +663,9 @@
   Function to compute derived endpoints:
 
   ```ts
-  Resource.extend((base) => ({
+  Resource.extend(base => ({
     getByComment: base.getList.extend({
-      path: "repos/:owner/:repo/issues/comments/:comment/reactions",
+      path: 'repos/:owner/:repo/issues/comments/:comment/reactions',
     }),
   }));
   ```
@@ -733,7 +739,7 @@ class AuthdEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
   getRequestInit(body: any): RequestInit {
     return {
       ...super.getRequestInit(body),
-      credentials: "same-origin",
+      credentials: 'same-origin',
     };
   }
 }
@@ -746,7 +752,7 @@ class AuthdEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
   async getRequestInit(body: any): Promise<RequestInit> {
     return {
       ...(await super.getRequestInit(body)),
-      credentials: "same-origin",
+      credentials: 'same-origin',
     };
   }
 }

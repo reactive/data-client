@@ -1,5 +1,15 @@
 # @data-client/hooks
 
+## 0.1.11
+
+### Patch Changes
+
+- [#3071](https://github.com/reactive/data-client/pull/3071) [`7fba440`](https://github.com/reactive/data-client/commit/7fba44050a4e3fdcc37ab8405730b35366c293e1) Thanks [@ntucker](https://github.com/ntucker)! - React 19 JSX runtime compatibility.
+
+  BREAKING CHANGE: Min React version 16.8.4 -> 16.14
+
+  16.14 is the first version of React to include JSX runtime.
+
 ## 0.1.10
 
 ### Patch Changes
