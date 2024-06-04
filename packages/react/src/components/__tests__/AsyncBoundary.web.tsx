@@ -1,13 +1,7 @@
 import { Endpoint } from '@data-client/endpoint';
 import { NetworkError } from '@data-client/rest';
 import { render } from '@testing-library/react';
-import React, {
-  useContext,
-  ReactChild,
-  ReactNode,
-  ReactElement,
-  StrictMode,
-} from 'react';
+import { ReactElement, StrictMode } from 'react';
 
 import { useSuspense } from '../../hooks';
 import AsyncBoundary from '../AsyncBoundary';

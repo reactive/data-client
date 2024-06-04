@@ -1,4 +1,5 @@
 import React, { Suspense } from 'react';
+import type { JSX } from 'react';
 
 import { LegacyReact, SSR } from './LegacyReact.js';
 

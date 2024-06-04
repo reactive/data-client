@@ -9,6 +9,7 @@ import {
 } from '@data-client/core';
 import type { State, Manager } from '@data-client/core';
 import React, { useMemo, useRef } from 'react';
+import type { JSX } from 'react';
 
 import CacheStore from './CacheStore.js';
 import type { DevToolsPosition } from './DevToolsButton.js';
@@ -51,7 +52,8 @@ Try using https://dataclient.io/docs/api/ExternalCacheProvider for server entry 
     );
   }
   // contents of this component expected to be relatively stable
-  const controllerRef: React.MutableRefObject<DataController> = useRef<any>();
+  const controllerRef: React.MutableRefObject<DataController> =
+    useRef<any>(undefined);
   if (!controllerRef.current) controllerRef.current = new Controller();
   //TODO: bind all methods so destructuring works
 

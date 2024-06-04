@@ -77,8 +77,8 @@
   "funding": "https://github.com/sponsors/ntucker",
   "license": "Apache-2.0",
   "peerDependencies": {
-    "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0-0 || ^19.0.0",
-    "react": "^16.8.4 || ^17.0.0 || ^18.0.0-0 || ^19.0.0"
+    "@types/react": "^16.14.0 || ^17.0.0 || ^18.0.0-0 || ^19.0.0",
+    "react": "^16.14.0 || ^17.0.0 || ^18.0.0-0 || ^19.0.0"
   },
   "peerDependenciesMeta": {
     "@types/react": {

@@ -1,5 +1,6 @@
 import { useSuspense } from '@data-client/react';
 import React from 'react';
+import type { JSX } from 'react';
 
 import getImage from './getImage.js';
 

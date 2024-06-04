@@ -1,4 +1,5 @@
 import React, { memo, Suspense } from 'react';
+import type { JSX } from 'react';
 
 import ErrorBoundary, { ErrorBoundaryProps } from './ErrorBoundary.js';
 
