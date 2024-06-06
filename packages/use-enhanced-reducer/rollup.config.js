@@ -1,4 +1,5 @@
 import babel from 'rollup-plugin-babel';
+import banner from 'rollup-plugin-banner2';
 import commonjs from 'rollup-plugin-commonjs';
 import filesize from 'rollup-plugin-filesize';
 import json from 'rollup-plugin-json';
@@ -70,6 +71,8 @@ export default [
       }),
       resolve({ extensions }),
       commonjs({ extensions }),
+      // for nextjs 13 compatibility in node https://nextjs.org/docs/app/building-your-application/rendering
+      banner(() => "'use client';\n"),
     ],
   },
 ];

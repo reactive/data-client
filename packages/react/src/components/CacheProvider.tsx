@@ -1,3 +1,4 @@
+'use client';
 import {
   initialState as defaultState,
   NetworkManager,

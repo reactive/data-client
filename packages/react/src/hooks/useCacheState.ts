@@ -1,16 +1,20 @@
+'use client';
 import type { State } from '@data-client/core';
-import React, { useContext } from 'react';
+import React from 'react';
 
+import use from './useUniversal.js';
 import { StateContext, StoreContext } from '../context.js';
 
 const useCacheState: () => State<unknown> =
+  /* istanbul ignore if */
   (
     typeof window === 'undefined' &&
     Object.hasOwn(React, 'useSyncExternalStore')
   ) ?
+    /* istanbul ignore next */
     () => {
-      const store = useContext(StoreContext);
-      const state = useContext(StateContext);
+      const store = use(StoreContext);
+      const state = use(StateContext);
       const syncState = React.useSyncExternalStore(
         store.subscribe,
         store.getState,
@@ -18,6 +22,6 @@ const useCacheState: () => State<unknown> =
       );
       return store.uninitialized ? state : syncState;
     }
-  : () => useContext(StateContext);
+  : () => use(StateContext);
 
 export default useCacheState;

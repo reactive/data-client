@@ -1,3 +1,4 @@
+'use client';
 import React, { useRef, useCallback, useEffect } from 'react';
 
 type PromiseHolder = { promise: Promise<void>; resolve: () => void };

@@ -11,6 +11,8 @@ import {
 import { useSyncExternalStore } from 'react';
 import { createStore, applyMiddleware } from 'redux';
 
+import { readyContext } from './context.js';
+
 const { createReducer, initialState, applyManager } = __INTERNAL__;
 
 export default function createPersistedStore(managers?: Manager[]) {
@@ -47,19 +49,22 @@ export default function createPersistedStore(managers?: Manager[]) {
       firstRender = false;
       throw new Promise(resolve => setTimeout(resolve, 10));
     }
+
     return useSyncExternalStore(store.subscribe, getState, getState);
   }
 
   function ServerCacheProvider({ children }: { children: React.ReactNode }) {
     return (
-      <ExternalCacheProvider
-        store={store}
-        selector={selector}
-        controller={controller}
-      >
-        {children}
-      </ExternalCacheProvider>
+      <readyContext.Provider value={useReadyCacheState}>
+        <ExternalCacheProvider
+          store={store}
+          selector={selector}
+          controller={controller}
+        >
+          {children}
+        </ExternalCacheProvider>
+      </readyContext.Provider>
     );
   }
-  return [ServerCacheProvider, useReadyCacheState, controller, store] as const;
+  return [ServerCacheProvider, controller, store] as const;
 }
