@@ -1,5 +1,14 @@
 # @data-client/react
 
+## 0.12.9
+
+### Patch Changes
+
+- [#3074](https://github.com/reactive/data-client/pull/3074) [`1f1f66a`](https://github.com/reactive/data-client/commit/1f1f66a54219d65019f8c3cea380e627b317bbef) Thanks [@ntucker](https://github.com/ntucker)! - Compatibility with server/client component build rules
+
+- Updated dependencies [[`1f1f66a`](https://github.com/reactive/data-client/commit/1f1f66a54219d65019f8c3cea380e627b317bbef)]:
+  - @data-client/use-enhanced-reducer@0.1.9
+
 ## 0.12.8
 
 ### Patch Changes
