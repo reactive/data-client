@@ -1,10 +1,6 @@
-// Server Side Component compatibility (specifying this cannot be used as such)
-// context does not work in server components
-// https://beta.nextjs.org/docs/rendering/server-and-client-components#third-party-packages
-'use client';
 import type { Controller } from '@data-client/core';
-import { useContext } from 'react';
 
+import use from './useUniversal.js';
 import { ControllerContext } from '../context.js';
 
 /**
@@ -12,5 +8,5 @@ import { ControllerContext } from '../context.js';
  * @see https://dataclient.io/docs/api/useController
  */
 export default function useController(): Controller {
-  return useContext(ControllerContext);
+  return use(ControllerContext);
 }

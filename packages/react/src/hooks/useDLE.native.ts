@@ -7,7 +7,6 @@ import type {
   FetchFunction,
   Schema,
   ResolveType,
-  NI,
 } from '@data-client/core';
 import { ExpiryStatus } from '@data-client/core';
 import { useMemo } from 'react';

@@ -1,3 +1,4 @@
+'use client';
 import { Controller, initialState } from '@data-client/core';
 import type { ActionTypes, State } from '@data-client/core';
 import { createContext } from 'react';
