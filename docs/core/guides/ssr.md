@@ -18,7 +18,88 @@ load and slow client hydration, potentially causing application stutters.
 
 ## NextJS SSR {#nextjs}
 
-We've optimized integration into NextJS with a custom [Document](https://nextjs.org/docs/advanced-features/custom-document)
+### App Router
+
+NextJS 14 includes a new way of routing in the '/app' directory. This allows further
+performance improvements, as well as dynamic and nested routing.
+
+#### Root Layout
+
+Place [DataProvider](https://dataclient.io/docs/api/DataProvider) in your [root layout](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#root-layout-required)
+
+```tsx title="app/layout.tsx"
+import { DataProvider } from '@data-client/ssr/nextjs';
+import { AsyncBoundary } from '@data-client/react';
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <DataProvider>
+          <header>Title</header>
+          <AsyncBoundary>{children}</AsyncBoundary>
+          <footer></footer>
+        </DataProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+#### Client Components
+
+To keep your data fresh and performant, you can use client components and [useSuspense()](../api/useSuspense.md)
+
+```tsx title="app/todos/page.tsx"
+'use client';
+import { useSuspense } from '@data-client/react';
+import { TodoResource } from '../../resources/Todo';
+
+export default function InteractivePage() {
+  const todos = useSuspense(TodoResource.getList);
+  return <TodoList todos={todos} />;
+}
+```
+
+#### Server Components
+
+However, if your data never changes, you can slightly decrease the javascript bundle sent, by
+using a server component. Simply `await` the endpoint:
+
+```tsx title="app/todos/page.tsx"
+import { TodoResource } from '../../resources/Todo';
+
+export default async function StaticPage() {
+  const todos = await TodoResource.getList();
+  return <TodoList todos={todos} />;
+}
+```
+
+#### Demo
+
+<StackBlitz app="nextjs" file="components/todo/TodoList.tsx,app/layout.tsx" view="both" />
+
+#### Class mangling and Entity.key
+
+NextJS will rename classes for production builds. Due to this, it's critical to
+define [Entity.key](/rest/api/Entity#key) as its default implementation is based on
+the class name.
+
+```ts
+class User extends Entity {
+  id = '';
+  username = '';
+
+  pk() { return this.id }
+
+  // highlight-next-line
+  static key = 'User';
+}
+```
+
+### Pages Router
+
+With NextJS &lt; 14, you might be using the pages router. For this we have [Document](https://nextjs.org/docs/advanced-features/custom-document)
 and NextJS specific wrapper for [App](https://nextjs.org/docs/advanced-features/custom-app)
 
 <PkgTabs pkgs="@data-client/ssr @data-client/redux redux" />
@@ -59,11 +140,7 @@ export const getServerSideProps = () => ({ props: {} });
 
 :::
 
-### Demo
-
-<StackBlitz app="nextjs" file="components/todo/TodoList.tsx,pages/_app.tsx,pages/_document.tsx" view="both" />
-
-### Further customizing Document
+#### Further customizing Document
 
 To further customize Document, simply extend from the provided document.
 
@@ -107,7 +184,7 @@ export default class MyDocument extends DataClientDocument {
 }
 ```
 
-### CSP Nonce
+#### CSP Nonce
 
 Reactive Data Client Document serializes the store state in a script tag. In case you have
 Content Security Policy restrictions that require use of a nonce, you can override
@@ -126,24 +203,6 @@ export default class MyDocument extends DataClientDocument {
     // this assumes nonce has been added here - customize as you need
     return ctx?.res?.nonce;
   }
-}
-```
-
-### Class mangling and Entity.key
-
-NextJS will rename classes for production builds. Due to this, it's critical to
-define [Entity.key](/rest/api/Entity#key) as its default implementation is based on
-the class name.
-
-```ts
-class User extends Entity {
-  id = '';
-  username = '';
-
-  pk() { return this.id }
-
-  // highlight-next-line
-  static key = 'User';
 }
 ```
 

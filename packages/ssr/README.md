@@ -31,6 +31,58 @@ For more details, see the [Server Side Rendering docs page](https://dataclient.i
 
 ## NextJS
 
+### App Router
+
+Place [DataProvider](https://dataclient.io/docs/api/DataProvider) in your [root layout](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#root-layout-required)
+
+<details open>
+<summary><b>app/layout.tsx</b></summary>
+
+```tsx
+import { DataProvider } from '@data-client/ssr/nextjs';
+import { AsyncBoundary } from '@data-client/react';
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <DataProvider>
+          <header>Title</header>
+          <AsyncBoundary>{children}</AsyncBoundary>
+          <footer></footer>
+        </DataProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+</details>
+
+Any endpoints can be used in server components by simply awaiting them
+
+```tsx
+export default async function StaticPage() {
+  const todos = await TodoResource.getList();
+  return <TodoList todos={todos} />;
+}
+```
+
+Or used in client components - meaning their state can be mutated client-side with `useSuspense()`
+
+
+```tsx
+'use client';
+import { useSuspense } from '@data-client/react';
+
+export default function InteractivePage() {
+  const todos = useSuspense(TodoResource.getList);
+  return <TodoList todos={todos} />;
+}
+```
+
+### Pages Router
+
 We've optimized integration into NextJS with a custom [Document](https://nextjs.org/docs/advanced-features/custom-document)
 and NextJS specific wrapper for [App](https://nextjs.org/docs/advanced-features/custom-app)
 

@@ -8,11 +8,11 @@ import Link from '@docusaurus/Link';
 defaultValue="18-web"
 groupId="platform"
 values={[
-{ label: 'React Web 16+', value: 'web' },
 { label: 'React Web 18+', value: '18-web' },
 { label: 'React Native', value: 'native' },
-{ label: 'NextJS', value: 'nextjs' },
+{ label: 'NextJS 14+', value: 'nextjs' },
 { label: 'Anansi', value: 'anansi' },
+{ label: 'React Web 16+', value: 'web' },
 ]}>
 <TabItem value="web">
 
@@ -73,21 +73,23 @@ Alternatively [integrate state with redux](../guides/redux.md)
 <Link className="button button--primary" to="../guides/ssr#nextjs">Full NextJS Guide</Link>
 </p>
 
-```tsx title="pages/_document.tsx"
-import { DataClientDocument } from '@data-client/ssr/nextjs';
+```tsx title="app/layout.tsx"
+import { DataProvider } from '@data-client/ssr/nextjs';
+import { AsyncBoundary } from '@data-client/react';
 
-export default DataClientDocument;
-```
-
-```tsx title="pages/_app.tsx"
-import { AppCacheProvider } from '@data-client/ssr/nextjs';
-import type { AppProps } from 'next/app';
-
-export default function App({ Component, pageProps }: AppProps) {
+export default function RootLayout({ children }) {
   return (
-    <AppCacheProvider>
-      <Component {...pageProps} />
-    </AppCacheProvider>
+    <html>
+      <body>
+        // highlight-next-line
+        <DataProvider>
+          <header>Title</header>
+          <AsyncBoundary>{children}</AsyncBoundary>
+          <footer></footer>
+        // highlight-next-line
+        </DataProvider>
+      </body>
+    </html>
   );
 }
 ```
