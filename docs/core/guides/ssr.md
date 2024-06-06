@@ -35,10 +35,12 @@ export default function RootLayout({ children }) {
   return (
     <html>
       <body>
+        // highlight-next-line
         <DataProvider>
           <header>Title</header>
           <AsyncBoundary>{children}</AsyncBoundary>
           <footer></footer>
+        // highlight-next-line
         </DataProvider>
       </body>
     </html>
