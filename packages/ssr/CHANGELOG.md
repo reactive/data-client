@@ -1,5 +1,11 @@
 # @data-client/ssr
 
+## 0.12.10
+
+### Patch Changes
+
+- [`8493e50`](https://github.com/reactive/data-client/commit/8493e509ec737557d7367cd864b6f72a7d3caa27) Thanks [@ntucker](https://github.com/ntucker)! - Update README to include DataProvider (app routes) docs
+
 ## 0.12.9
 
 ### Patch Changes
