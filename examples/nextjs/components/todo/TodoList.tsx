@@ -1,5 +1,6 @@
+'use client';
 import { useSuspense } from '@data-client/react';
-import { TodoResource } from '../../resources/TodoResource';
+import { TodoResource } from 'resources/TodoResource';
 
 import NewTodo from './NewTodo';
 import TodoListItem from './TodoListItem';

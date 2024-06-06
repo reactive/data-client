@@ -1,6 +1,6 @@
 import { useController } from '@data-client/react';
 import { memo } from 'react';
-import { TodoResource, Todo } from '../../resources/TodoResource';
+import { TodoResource, Todo } from 'resources/TodoResource';
 
 function TodoListItem({ todo }: { todo: Todo }) {
   const ctrl = useController();

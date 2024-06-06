@@ -1,6 +1,7 @@
+'use client';
 import { useLive } from '@data-client/react';
 import { Formatted } from './Formatted';
-import { getTicker } from '../resources/Ticker';
+import { getTicker } from 'resources/Ticker';
 
 export default function AssetPrice({ symbol }: Props) {
   const productId = `${symbol}-USD`

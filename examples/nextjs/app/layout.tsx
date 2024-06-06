@@ -2,7 +2,7 @@ import { AsyncBoundary } from '@data-client/react';
 import { DataProvider } from '@data-client/ssr/nextjs';
 import Image from 'next/image';
 
-import styles from '../styles/Home.module.css';
+import styles from 'styles/Home.module.css';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (

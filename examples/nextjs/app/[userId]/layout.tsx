@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import UserSelection from '../../components/todo/UserSelection';
+import UserSelection from 'components/todo/UserSelection';
 
 export default function TodoLayout({
   children,

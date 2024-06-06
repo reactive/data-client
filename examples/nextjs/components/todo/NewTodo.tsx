@@ -1,6 +1,6 @@
 import { useController } from '@data-client/react';
 import { memo, useCallback } from 'react';
-import { TodoResource } from '../../resources/TodoResource';
+import { TodoResource } from 'resources/TodoResource';
 import styles from './NewTodo.module.css'
 
 function NewTodo({ userId }: { userId?: number }) {
