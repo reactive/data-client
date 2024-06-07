@@ -1,4 +1,4 @@
-import classnames from 'classnames';
+import classnames from 'clsx';
 import React from 'react';
 
 import { formatters, Formatter } from './formatters';
@@ -85,9 +85,9 @@ export const Formatted = ({
   const style = {
     transition:
       transition || `background-color ${transitionLength}ms ease-in-out`,
-    ...(flash
-      ? { backgroundColor: flash === FlashDirection.Up ? upColor : downColor }
-      : null),
+    ...(flash ?
+      { backgroundColor: flash === FlashDirection.Up ? upColor : downColor }
+    : null),
   };
   const cls = classnames(stylePrefix, {
     [`${stylePrefix}--flashing`]: flash != null,
