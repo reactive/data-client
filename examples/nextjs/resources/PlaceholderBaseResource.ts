@@ -5,7 +5,6 @@ import {
   ResourceOptions,
   Resource,
 } from '@data-client/rest';
-import { v4 as uuid } from 'uuid';
 
 export abstract class PlaceholderEntity extends Entity {
   id = 0;
@@ -53,5 +52,5 @@ export function createPlaceholderResource<O extends ResourceGenerics = any>(
   }) as any;
 }
 function randomId() {
-  return Number.parseInt(uuid().slice(0, 8), 16);
+  return (Math.random() * 100000).toPrecision(6).toString();
 }

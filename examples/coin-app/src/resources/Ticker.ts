@@ -1,6 +1,6 @@
 import { Entity, RestEndpoint } from '@data-client/rest';
 
-// Visit https://dataclient.io/rest to read more about these definitions
+// Visit https://dataclient.io/docs/getting-started/resource to read more about these definitions
 export class Ticker extends Entity {
   product_id = '';
   trade_id = 0;
