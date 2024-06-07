@@ -1,8 +1,8 @@
 import { AsyncBoundary } from '@data-client/react';
-import { DataProvider } from '@data-client/ssr/nextjs';
 import Image from 'next/image';
 
 import styles from 'styles/Home.module.css';
+import Provider from './Provider';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -11,7 +11,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <link rel="icon" href="/favicon.ico" />
       </head>
       <body>
-        <DataProvider>
+        <Provider>
           <div className={styles.container}>
             <main className={styles.main}>
               <h1 className={styles.title}>
@@ -40,7 +40,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </a>
             </footer>
           </div>
-        </DataProvider>
+        </Provider>
       </body>
     </html>
   );

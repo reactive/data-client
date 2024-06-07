@@ -8,11 +8,24 @@ type Formatters = {
   default: Formatter;
 };
 
+// Reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat
+export const formatPrice = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+});
+export const formatLargePrice = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  notation: 'compact',
+  maximumSignificantDigits: 4,
+  minimumSignificantDigits: 4,
+});
+
 const numberFormatter = (value: number) =>
   Intl.NumberFormat("en").format(value);
 
 const currencyFormatter = (value: number) =>
-  Intl.NumberFormat("en", { style: "currency", currency: "USD" }).format(value);
+  formatPrice.format(value);
 
 const percentageFormatter = (value: number) =>
   Intl.NumberFormat("en", {
@@ -30,3 +43,4 @@ export const formatters: Formatters = {
   currency: currencyFormatter,
   percentage: percentageFormatter,
 };
+
