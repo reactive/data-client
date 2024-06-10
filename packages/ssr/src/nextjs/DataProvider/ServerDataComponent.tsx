@@ -1,12 +1,17 @@
 import { use } from 'react';
 
-import { readyContext } from './context.js';
 import ServerData from '../../ServerData.js';
 
 const id = 'data-client-data';
 
-const ServerDataComponent = ({ nonce }: { nonce?: string | undefined }) => {
-  const data = use(readyContext)();
+const ServerDataComponent = ({
+  nonce,
+  initPromise,
+}: {
+  nonce?: string | undefined;
+  initPromise: Promise<any>;
+}) => {
+  const data = use(initPromise);
   return <ServerData data={data} id={id} nonce={nonce} />;
 };
 export default ServerDataComponent;
