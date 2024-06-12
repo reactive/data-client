@@ -204,9 +204,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/babel-preset@npm:5.0.10, @anansi/babel-preset@npm:^5.0.0":
-  version: 5.0.10
-  resolution: "@anansi/babel-preset@npm:5.0.10"
+"@anansi/babel-preset@npm:6.0.0, @anansi/babel-preset@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "@anansi/babel-preset@npm:6.0.0"
   dependencies:
     "@anansi/ts-utils": "npm:^0.3.6"
     "@babel/plugin-proposal-decorators": "npm:^7.24.7"
@@ -222,7 +222,7 @@ __metadata:
     "@babel/preset-react": "npm:^7.24.7"
     babel-plugin-macros: "npm:^3.1.0"
     babel-plugin-module-resolver: "npm:^5.0.2"
-    babel-plugin-react-require: "npm:^4.0.2"
+    babel-plugin-react-compiler: "npm:^0.0.0-experimental-938cd9a-20240601"
     babel-plugin-root-import: "npm:^6.6.0"
     babel-plugin-transform-import-meta: "npm:^2.2.1"
     babel-plugin-transform-react-remove-prop-types: "npm:^0.4.24"
@@ -238,8 +238,7 @@ __metadata:
     core-js: "*"
     lodash: "*"
     ramda: "*"
-    react-hot-loader: ^4.12.0
-    react-refresh: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^0.14.0
+    react-refresh: "*"
     typescript: ^3.0.0 || ^4.0.0 || ^5.0.0
   peerDependenciesMeta:
     "@babel/runtime":
@@ -256,13 +255,11 @@ __metadata:
       optional: true
     ramda:
       optional: true
-    react-hot-loader:
-      optional: true
     react-refresh:
       optional: true
     typescript:
       optional: true
-  checksum: 10c0/c1e43504e1912ad4325ac5e8b830f38bc6fcf18780c1eb3b1a26c08b72c719077c5ee5efa1b36b716f172c3f0b7f5f6327915d2c8df0f3aafde6fdbde29c153e
+  checksum: 10c0/275d2cc8f79dda2fbe845b421c70f5f7c0e593a57ac8293edabad3925ae9699c1b7cfd5e4a40545c80a069fb15d44a453024ad914ddd21d0a54eea12e5243ba7
   languageName: node
   linkType: hard
 
@@ -9112,10 +9109,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-plugin-react-require@npm:^4.0.2":
-  version: 4.0.2
-  resolution: "babel-plugin-react-require@npm:4.0.2"
-  checksum: 10c0/b3d205f201cf0433ffab3f4d92f5701c577e52184463a42c388bff2bac39d97356f4aab7fd50cac4541d0829eda17cc9cd963076627cae09f691abbabf4dad1d
+"babel-plugin-react-compiler@npm:^0.0.0-experimental-938cd9a-20240601":
+  version: 0.0.0
+  resolution: "babel-plugin-react-compiler@npm:0.0.0"
+  checksum: 10c0/b7db0bd49dfe28ea8945a72e90a21f1ab8a14e5ed6987a4f8780bbf15e68bb742aa0be45c019084390623a73c39c44dd57964cc71a01093f4f929c09eb5e5e50
   languageName: node
   linkType: hard
 
@@ -10518,7 +10515,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "coinbase-lite@workspace:examples/coin-app"
   dependencies:
-    "@anansi/babel-preset": "npm:^5.0.0"
+    "@anansi/babel-preset": "npm:^6.0.0"
     "@anansi/browserslist-config": "npm:^1.4.3"
     "@anansi/cli": "npm:^3.0.15"
     "@anansi/core": "npm:^0.19.0"
@@ -26374,7 +26371,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    "@anansi/babel-preset": "npm:5.0.10"
+    "@anansi/babel-preset": "npm:6.0.0"
     "@anansi/browserslist-config": "npm:1.5.0"
     "@anansi/eslint-plugin": "npm:0.17.11"
     "@anansi/jest-preset": "npm:0.11.2"
