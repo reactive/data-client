@@ -1,6 +1,6 @@
 import { Text } from 'react-native';
 
-const ErrorFallback = ({
+const ErrorFallbackNative = ({
   error,
 }: {
   error: Error;
@@ -8,4 +8,4 @@ const ErrorFallback = ({
   className: string;
 }) => <Text role="alert">{error.message}</Text>;
 
-export default ErrorFallback;
+export default ErrorFallbackNative;

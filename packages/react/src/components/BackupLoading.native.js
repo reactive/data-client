@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { Text, Linking, View } from 'react-native';
 
-export default function Loading() {
+export default function BackupLoadingNative() {
   let message = <Text>loading...</Text>;
   /* istanbul ignore else */
   if (process.env.NODE_ENV !== 'production') {

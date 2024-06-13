@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 
-export default function Loading() {
+export default function BackupLoading() {
   let message: React.ReactNode = 'loading...';
   /* istanbul ignore else */
   if (process.env.NODE_ENV !== 'production') {

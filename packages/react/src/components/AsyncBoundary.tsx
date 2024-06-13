@@ -13,8 +13,9 @@ function AsyncBoundary({
   fallback,
   ...errorProps
 }: Props): JSX.Element {
+  const susProps = fallback !== undefined ? { fallback } : {};
   return (
-    <Suspense fallback={fallback}>
+    <Suspense {...susProps}>
       <ErrorBoundary {...errorProps} fallbackComponent={errorComponent}>
         {children}
       </ErrorBoundary>
