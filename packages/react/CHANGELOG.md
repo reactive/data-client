@@ -1,5 +1,11 @@
 # @data-client/react
 
+## 0.12.11
+
+### Patch Changes
+
+- [`ad23e04`](https://github.com/reactive/data-client/commit/ad23e04b717d9b3862ec9bd19dd51d6405904f18) Thanks [@ntucker](https://github.com/ntucker)! - React Native components have distinct name from non-native to help debuggability
+
 ## 0.12.9
 
 ### Patch Changes
