@@ -1,3 +1,4 @@
+import { CacheProvider } from '@data-client/react';
 import {
   ExternalCacheProvider,
   PromiseifyMiddleware,
@@ -7,6 +8,7 @@ import {
   State,
   __INTERNAL__,
 } from '@data-client/redux';
+import { ComponentProps } from 'react';
 import { createStore, applyMiddleware } from 'redux';
 
 const { createReducer, initialState, applyManager } = __INTERNAL__;
@@ -56,7 +58,7 @@ export default function createPersistedStore(managers?: Manager[]) {
     return getState();
   })();
 
-  function ServerCacheProvider({ children }: { children: React.ReactNode }) {
+  const StoreCacheProvider = ({ children }: ProviderProps) => {
     return (
       <ExternalCacheProvider
         store={store}
@@ -66,6 +68,15 @@ export default function createPersistedStore(managers?: Manager[]) {
         {children}
       </ExternalCacheProvider>
     );
-  }
-  return [ServerCacheProvider, initPromise, controller, store] as const;
+  };
+
+  return [StoreCacheProvider, initPromise] as const;
 }
+
+type ProviderProps = Omit<
+  Partial<ComponentProps<typeof CacheProvider>>,
+  'initialState'
+> & {
+  children: React.ReactNode;
+  initPromise: Promise<State<any>>;
+};

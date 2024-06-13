@@ -1,30 +1,25 @@
 'use client';
-import { CacheProvider } from '@data-client/react';
-import { type ComponentProps, use } from 'react';
+import { type CacheProvider } from '@data-client/react';
+import { useMemo, type ComponentProps } from 'react';
 
+import createPersistedStore from './createPersistedStore.js';
 import ServerDataComponent from './ServerDataComponent.js';
-import ServerProvider from './ServerProvider.js';
-import { awaitInitialData } from '../../getInitialData.js';
 
-const DataProvider =
-  typeof window !== 'undefined' ?
-    (() => {
-      const initPromise = awaitInitialData();
-      const DataProvider = ({ children, ...props }: ProviderProps) => {
-        const initialState = use(initPromise);
-        return (
-          <>
-            <ServerDataComponent initPromise={initPromise} />
-            <CacheProvider {...props} initialState={initialState}>
-              {children}
-            </CacheProvider>
-          </>
-        );
-      };
-      return DataProvider;
-    })()
-  : ServerProvider;
-export default DataProvider;
+export default function DataProvider({
+  children,
+  ...props
+}: ProviderProps): React.ReactElement {
+  const [ServerCacheProvider, initPromise] = useMemo(createPersistedStore, []);
+
+  return (
+    <>
+      <ServerDataComponent initPromise={initPromise} />
+      <ServerCacheProvider {...props} initPromise={initPromise}>
+        {children}
+      </ServerCacheProvider>
+    </>
+  );
+}
 
 type ProviderProps = Omit<
   Partial<ComponentProps<typeof CacheProvider>>,
