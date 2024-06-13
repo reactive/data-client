@@ -1,7 +1,7 @@
 import { __INTERNAL__ } from '@data-client/react';
 const { initialState } = __INTERNAL__;
 
-export const awaitInitialData = (id = 'data-client-data') => {
+export const awaitInitialData = (id = 'data-client-data'): Promise<any> => {
   return new Promise<any>((resolve, reject) => {
     let el: HTMLScriptElement | null;
     if ((el = document.getElementById(id) as any)) {

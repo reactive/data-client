@@ -1,5 +1,7 @@
 import CurrencyList from './CurrencyList';
 
+export const dynamic = 'force-dynamic'
+
 export default function Crypto() {
   return (
     <>

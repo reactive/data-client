@@ -1,4 +1,4 @@
-'use client';
+import { CacheProvider } from '@data-client/react';
 import {
   ExternalCacheProvider,
   PromiseifyMiddleware,
@@ -8,10 +8,8 @@ import {
   State,
   __INTERNAL__,
 } from '@data-client/redux';
-import { useSyncExternalStore } from 'react';
+import { ComponentProps } from 'react';
 import { createStore, applyMiddleware } from 'redux';
-
-import { readyContext } from './context.js';
 
 const { createReducer, initialState, applyManager } = __INTERNAL__;
 
@@ -38,33 +36,47 @@ export default function createPersistedStore(managers?: Manager[]) {
   const selector = (state: any) => state;
 
   const getState = () => selector(store.getState());
-  let firstRender = true;
-  function useReadyCacheState(): State<unknown> {
-    const inFlightFetches = nm.allSettled();
-    if (inFlightFetches) {
-      firstRender = false;
-      throw inFlightFetches;
-    }
-    if (firstRender) {
-      firstRender = false;
-      throw new Promise(resolve => setTimeout(resolve, 10));
-    }
 
-    return useSyncExternalStore(store.subscribe, getState, getState);
-  }
+  const initPromise: Promise<State<any>> = (async () => {
+    let firstRender = true;
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const inFlightFetches = nm.allSettled();
+      if (inFlightFetches) {
+        firstRender = false;
+        await inFlightFetches;
+        continue;
+      }
+      if (firstRender) {
+        firstRender = false;
+        // TODO: instead of waiting 10ms - see if we can wait until next part of react is streamed and race with nm getting new fetches
+        await new Promise(resolve => setTimeout(resolve, 10));
+        continue;
+      }
+      break;
+    }
+    return getState();
+  })();
 
-  function ServerCacheProvider({ children }: { children: React.ReactNode }) {
+  const StoreCacheProvider = ({ children }: ProviderProps) => {
     return (
-      <readyContext.Provider value={useReadyCacheState}>
-        <ExternalCacheProvider
-          store={store}
-          selector={selector}
-          controller={controller}
-        >
-          {children}
-        </ExternalCacheProvider>
-      </readyContext.Provider>
+      <ExternalCacheProvider
+        store={store}
+        selector={selector}
+        controller={controller}
+      >
+        {children}
+      </ExternalCacheProvider>
     );
-  }
-  return [ServerCacheProvider, controller, store] as const;
+  };
+
+  return [StoreCacheProvider, initPromise] as const;
 }
+
+type ProviderProps = Omit<
+  Partial<ComponentProps<typeof CacheProvider>>,
+  'initialState'
+> & {
+  children: React.ReactNode;
+  initPromise: Promise<State<any>>;
+};

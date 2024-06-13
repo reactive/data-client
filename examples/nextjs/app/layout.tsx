@@ -12,13 +12,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <Provider>
+          <h1 className={styles.title}>
+            Welcome to <a href="https://nextjs.org">Next.js!</a> with{' '}
+            <a href="https://dataclient.io">Reactive Data Client</a>
+          </h1>
           <div className={styles.container}>
             <main className={styles.main}>
-              <h1 className={styles.title}>
-                Welcome to <a href="https://nextjs.org">Next.js!</a> with{' '}
-                <a href="https://dataclient.io">Reactive Data Client</a>
-              </h1>
-
               <AsyncBoundary>{children}</AsyncBoundary>
             </main>
 

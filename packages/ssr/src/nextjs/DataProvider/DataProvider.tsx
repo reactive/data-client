@@ -1,40 +1,25 @@
 'use client';
-import { CacheProvider } from '@data-client/react';
-import { Suspense, useMemo, type ComponentProps } from 'react';
+import { type CacheProvider } from '@data-client/react';
+import { useMemo, type ComponentProps } from 'react';
 
-import { readyContext } from './context.js';
+import createPersistedStore from './createPersistedStore.js';
 import ServerDataComponent from './ServerDataComponent.js';
-import ServerProvider from './ServerProvider.js';
-import { getInitialData } from '../../getInitialData.js';
 
-const DataProvider =
-  typeof window !== 'undefined' ?
-    ({ children, ...props }: ProviderProps) => {
-      const [initialState, useReady] = useMemo(() => {
-        const initialState = getInitialData();
-        return [initialState, () => initialState];
-      }, []);
+export default function DataProvider({
+  children,
+  ...props
+}: ProviderProps): React.ReactElement {
+  const [ServerCacheProvider, initPromise] = useMemo(createPersistedStore, []);
 
-      return (
-        <CacheProvider {...props} initialState={initialState}>
-          <readyContext.Provider value={useReady}>
-            <Suspense>
-              <ServerDataComponent />
-            </Suspense>
-            {children}
-          </readyContext.Provider>
-        </CacheProvider>
-      );
-    }
-  : ({ children, ...props }: ProviderProps) => (
-      <ServerProvider {...props}>
-        <Suspense>
-          <ServerDataComponent />
-        </Suspense>
+  return (
+    <>
+      <ServerDataComponent initPromise={initPromise} />
+      <ServerCacheProvider {...props} initPromise={initPromise}>
         {children}
-      </ServerProvider>
-    );
-export default DataProvider;
+      </ServerCacheProvider>
+    </>
+  );
+}
 
 type ProviderProps = Omit<
   Partial<ComponentProps<typeof CacheProvider>>,
