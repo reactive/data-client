@@ -1,5 +1,34 @@
 # @data-client/react
 
+## 0.12.12
+
+### Patch Changes
+
+- [#3093](https://github.com/reactive/data-client/pull/3093) [`a998a0b`](https://github.com/reactive/data-client/commit/a998a0b31c9e2d008eb678f175a262af561d2b42) Thanks [@ntucker](https://github.com/ntucker)! - Add /nextjs entrypoint - eliminating the need for @data-client/ssr package
+
+  ```tsx
+  import { DataProvider } from '@data-client/react/nextjs';
+
+  export default function RootLayout({ children }) {
+    return (
+      <html>
+        <body>
+          <DataProvider>{children}</DataProvider>
+        </body>
+      </html>
+    );
+  }
+  ```
+
+- [`764728e`](https://github.com/reactive/data-client/commit/764728e45c26088a815e2f49b55d4f4ccab4d388) Thanks [@ntucker](https://github.com/ntucker)! - Support unreleased versions of React 19
+
+- [#3095](https://github.com/reactive/data-client/pull/3095) [`aab27d9`](https://github.com/reactive/data-client/commit/aab27d956a9b47c2fd5f79869c1e68373c3e5745) Thanks [@ntucker](https://github.com/ntucker)! - CacheProvider -> DataProvider
+
+  CacheProvider name is still usable
+
+- Updated dependencies [[`764728e`](https://github.com/reactive/data-client/commit/764728e45c26088a815e2f49b55d4f4ccab4d388)]:
+  - @data-client/use-enhanced-reducer@0.1.10
+
 ## 0.12.11
 
 ### Patch Changes

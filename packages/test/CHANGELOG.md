@@ -1,5 +1,15 @@
 # @data-client/test
 
+## 0.12.12
+
+### Patch Changes
+
+- [`764728e`](https://github.com/reactive/data-client/commit/764728e45c26088a815e2f49b55d4f4ccab4d388) Thanks [@ntucker](https://github.com/ntucker)! - Support unreleased versions of React 19
+
+- [#3095](https://github.com/reactive/data-client/pull/3095) [`aab27d9`](https://github.com/reactive/data-client/commit/aab27d956a9b47c2fd5f79869c1e68373c3e5745) Thanks [@ntucker](https://github.com/ntucker)! - CacheProvider -> DataProvider
+
+  CacheProvider name is still usable
+
 ## 0.12.8
 
 ### Patch Changes

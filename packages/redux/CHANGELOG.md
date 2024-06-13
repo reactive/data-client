@@ -1,5 +1,17 @@
 # @data-client/redux
 
+## 0.12.12
+
+### Patch Changes
+
+- [#3095](https://github.com/reactive/data-client/pull/3095) [`aab27d9`](https://github.com/reactive/data-client/commit/aab27d956a9b47c2fd5f79869c1e68373c3e5745) Thanks [@ntucker](https://github.com/ntucker)! - ExternalCacheProvider -> ExternalDataProvider
+
+  ExternalCacheProvider name is still usable
+
+- [#3095](https://github.com/reactive/data-client/pull/3095) [`aab27d9`](https://github.com/reactive/data-client/commit/aab27d956a9b47c2fd5f79869c1e68373c3e5745) Thanks [@ntucker](https://github.com/ntucker)! - CacheProvider -> DataProvider
+
+  CacheProvider name is still usable
+
 ## 0.12.9
 
 ### Patch Changes
