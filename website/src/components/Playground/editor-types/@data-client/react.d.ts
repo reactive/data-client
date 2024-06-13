@@ -4,7 +4,7 @@ export { AbstractInstanceType, ActionTypes, Controller, DataClientDispatch, Defa
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import React$1, { JSX, Context } from 'react';
 
-declare function Loading(): react_jsx_runtime.JSX.Element;
+declare function BackupLoading(): react_jsx_runtime.JSX.Element;
 
 type DevToolsPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
 
@@ -233,4 +233,4 @@ declare namespace internal_d {
 /** Turns a dispatch function into one that resolves once its been commited */
 declare function usePromisifiedDispatch<R extends React$1.Reducer<any, any>>(dispatch: React$1.Dispatch<React$1.ReducerAction<R>>, state: React$1.ReducerState<R>): (action: React$1.ReducerAction<R>) => Promise<void>;
 
-export { _default as AsyncBoundary, Loading as BackupLoading, CacheProvider, ControllerContext, DevToolsPosition, ErrorBoundary, ErrorBoundary as NetworkErrorBoundary, ProviderProps, StateContext, Store, StoreContext, UniversalSuspense, internal_d as __INTERNAL__, getDefaultManagers, useCache, useController, useDLE, useError, useFetch, useLive, usePromisifiedDispatch, useQuery, useSubscription, useSuspense };
+export { _default as AsyncBoundary, BackupLoading, CacheProvider, ControllerContext, DevToolsPosition, ErrorBoundary, ErrorBoundary as NetworkErrorBoundary, ProviderProps, StateContext, Store, StoreContext, UniversalSuspense, internal_d as __INTERNAL__, getDefaultManagers, useCache, useController, useDLE, useError, useFetch, useLive, usePromisifiedDispatch, useQuery, useSubscription, useSuspense };
