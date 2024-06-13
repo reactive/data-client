@@ -22,7 +22,7 @@ export class Issue extends GithubEntity {
   readonly labels: Label[] = [];
   readonly authorAssociation: string = 'NONE';
   readonly pullRequest: Record<string, any> | null = null;
-  declare readonly draft?: boolean;
+  readonly draft?: boolean;
 
   get stateIcon() {
     return stateToIcon[this.state];
