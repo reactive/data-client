@@ -25,7 +25,7 @@ performance improvements, as well as dynamic and nested routing.
 
 #### Root Layout
 
-Place [DataProvider](https://dataclient.io/docs/api/DataProvider) in your [root layout](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#root-layout-required)
+Place [DataProvider](../api/DataProvider.md) in your [root layout](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#root-layout-required)
 
 ```tsx title="app/layout.tsx"
 import { DataProvider } from '@data-client/react/nextjs';
@@ -79,7 +79,7 @@ export default async function StaticPage() {
 
 #### Demo
 
-<StackBlitz app="nextjs" file="components/todo/TodoList.tsx,app/layout.tsx" view="both" />
+<StackBlitz app="nextjs" file="components/todo/TodoList.tsx,app/Provider.tsx,app/layout.tsx" view="both" />
 
 #### Class mangling and Entity.key
 
