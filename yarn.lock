@@ -460,9 +460,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:19.0.7, @anansi/webpack-config@npm:^19.0.0":
-  version: 19.0.7
-  resolution: "@anansi/webpack-config@npm:19.0.7"
+"@anansi/webpack-config@npm:19.0.8, @anansi/webpack-config@npm:^19.0.0":
+  version: 19.0.8
+  resolution: "@anansi/webpack-config@npm:19.0.8"
   dependencies:
     "@babel/runtime": "npm:^7.17.2"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.15"
@@ -500,7 +500,6 @@ __metadata:
     postcss-loader: "npm:^8.1.1"
     postcss-preset-env: "npm:^9.5.14"
     process: "npm:^0.11.10"
-    punycode: "npm:^2.3.1"
     querystring-es3: "npm:^0.2.1"
     ramda: "npm:^0.30.1"
     react-dev-utils: "npm:^12.0.1"
@@ -534,7 +533,7 @@ __metadata:
     "@types/react": ^16.0.0 || ^17.0.0 || ^18.0.0
     node-sass: ^7.0.1 || ^8.0.0 || ^9.0.0
     react: "*"
-    react-refresh: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^0.14.0
+    react-refresh: "*"
     sass: ^1.3.0
     svgo: ^3.0.0
     webpack: ^5.12.0
@@ -563,7 +562,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: 10c0/fa809d39600b707d0926bfd4d99a816408a21511a1b82929777404758ff5381f4751754524afe34adf9e7e9938cea4cb29172b2628314a542af486e6342187d7
+  checksum: 10c0/1d6d1a49dc558958adc35e6d0929a3f9878e8971343910fe7ab035248196e89f477973e9db771bfde65d20bac681d81accf6883c93fb9512e3c1e0dfdd9d428e
   languageName: node
   linkType: hard
 
@@ -24623,7 +24622,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"punycode@npm:^2.1.0, punycode@npm:^2.1.1, punycode@npm:^2.3.1":
+"punycode@npm:^2.1.0, punycode@npm:^2.1.1":
   version: 2.3.1
   resolution: "punycode@npm:2.3.1"
   checksum: 10c0/14f76a8206bc3464f794fb2e3d3cc665ae416c01893ad7a02b23766eb07159144ee612ad67af5e84fa4479ccfe67678c4feb126b0485651b302babf66f04f9e9
@@ -24840,7 +24839,7 @@ __metadata:
   resolution: "rdc-website@workspace:website"
   dependencies:
     "@anansi/browserslist-config": "npm:1.5.0"
-    "@anansi/webpack-config": "npm:19.0.7"
+    "@anansi/webpack-config": "npm:19.0.8"
     "@data-client/endpoint": "workspace:*"
     "@data-client/graphql": "workspace:*"
     "@data-client/hooks": "workspace:*"
