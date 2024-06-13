@@ -64,6 +64,9 @@
       "next": [
         "lib/next/index.d.ts"
       ],
+      "nextjs": [
+        "lib/server/nextjs/index.d.ts"
+      ],
       "*": [
         "lib/index.d.ts"
       ]
@@ -91,6 +94,10 @@
       "types": "./lib/next/index.d.ts",
       "require": "./dist/next.js",
       "default": "./lib/next/index.js"
+    },
+    "./nextjs": {
+      "types": "./lib/server/nextjs/index.d.ts",
+      "default": "./lib/server/nextjs/index.js"
     },
     "./package.json": "./package.json"
   },

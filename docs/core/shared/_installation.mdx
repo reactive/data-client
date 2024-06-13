@@ -67,15 +67,12 @@ Alternatively [integrate state with redux](../guides/redux.md)
 
 <TabItem value="nextjs">
 
-<PkgInstall pkgs="@data-client/ssr @data-client/redux redux" />
-
 <p style={{textAlign: 'center'}}>
 <Link className="button button--primary" to="../guides/ssr#nextjs">Full NextJS Guide</Link>
 </p>
 
 ```tsx title="app/layout.tsx"
-import { DataProvider } from '@data-client/ssr/nextjs';
-import { AsyncBoundary } from '@data-client/react';
+import { DataProvider } from '@data-client/react/nextjs';
 
 export default function RootLayout({ children }) {
   return (

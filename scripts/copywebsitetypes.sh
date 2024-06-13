@@ -11,6 +11,7 @@ mkdir -p ./website/src/components/Playground/editor-types/@data-client/react
 cp ./packages/rest/next.d.ts ./website/src/components/Playground/editor-types/@data-client/rest/next.d.ts
 cp ./packages/core/next.d.ts ./website/src/components/Playground/editor-types/@data-client/core/next.d.ts
 cp ./packages/react/next.d.ts ./website/src/components/Playground/editor-types/@data-client/react/next.d.ts
+cp ./packages/react/nextjs.d.ts ./website/src/components/Playground/editor-types/@data-client/react/nextjs.d.ts
 cp ./node_modules/@types/react/index.d.ts ./website/src/components/Playground/editor-types/react.d.ts
 rm ./website/src/components/Playground/editor-types/globals.d.ts
 yarn run rollup --config ./scripts/globals.rollup.config.js

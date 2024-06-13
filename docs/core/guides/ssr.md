@@ -28,7 +28,7 @@ performance improvements, as well as dynamic and nested routing.
 Place [DataProvider](https://dataclient.io/docs/api/DataProvider) in your [root layout](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#root-layout-required)
 
 ```tsx title="app/layout.tsx"
-import { DataProvider } from '@data-client/ssr/nextjs';
+import { DataProvider } from '@data-client/react/nextjs';
 import { AsyncBoundary } from '@data-client/react';
 
 export default function RootLayout({ children }) {

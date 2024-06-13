@@ -57,6 +57,11 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
   });
   configs.push(typeConfig);
   configs.push(typeConfigNext);
+  configs.push({
+    ...typeConfig,
+    input: './lib/server/nextjs/index.d.ts',
+    output: [{ file: 'nextjs.d.ts', format: 'es' }],
+  });
 } else {
   // node-friendly commonjs build
   [
