@@ -1,5 +1,11 @@
 # @data-client/ssr
 
+## 0.12.11
+
+### Patch Changes
+
+- [#3080](https://github.com/reactive/data-client/pull/3080) [`559cd8a`](https://github.com/reactive/data-client/commit/559cd8a1bf3d0952eefb37c3e61c01af788a8486) Thanks [@ntucker](https://github.com/ntucker)! - NextJS App Router: Prevent serialization race conditions by stalling client hydration until serialization is complete
+
 ## 0.12.10
 
 ### Patch Changes
