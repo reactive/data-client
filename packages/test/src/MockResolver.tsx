@@ -17,7 +17,7 @@ type Props<T> = {
  *
  * <MockResolver fixtures={postFixtures[state]}><MyComponent /></MockResolver>
  *
- * Place below <CacheProvider /> and above any components you want to mock.
+ * Place below <DataProvider /> and above any components you want to mock.
  */
 export default function MockResolver<T = any>({
   children,

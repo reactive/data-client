@@ -5,7 +5,7 @@ import { ReactElement, StrictMode } from 'react';
 
 import { useSuspense } from '../../hooks';
 import AsyncBoundary from '../AsyncBoundary';
-import CacheProvider from '../CacheProvider';
+import CacheProvider from '../DataProvider';
 
 describe('<AsyncBoundary />', () => {
   function onError(e: any) {

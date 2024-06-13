@@ -1,7 +1,6 @@
 'use client';
 import { getDefaultManagers } from '@data-client/react';
-import { DataProvider } from '@data-client/ssr/nextjs';
-import React from 'react';
+import { DataProvider } from '@data-client/react/nextjs';
 import StreamManager from 'resources/StreamManager';
 import { getTicker } from 'resources/Ticker';
 

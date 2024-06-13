@@ -21,7 +21,7 @@ export default class DataClientDocument extends Doc {
   ): Promise<DocumentInitialProps> {
     const originalRenderPage = ctx.renderPage;
 
-    const [ServerCacheProvider, useReadyCacheState] = createPersistedStore();
+    const [ServerDataProvider, useReadyCacheState] = createPersistedStore();
     const ServerDataComponent = createServerDataComponent(useReadyCacheState);
 
     // Run the React rendering logic synchronously
@@ -29,9 +29,9 @@ export default class DataClientDocument extends Doc {
       return originalRenderPage({
         // Useful for wrapping the whole react tree
         enhanceApp: (App: AppType) => (props: any) => (
-          <ServerCacheProvider>
+          <ServerDataProvider>
             <App {...props} />
-          </ServerCacheProvider>
+          </ServerDataProvider>
         ),
       });
     };

@@ -1,9 +1,9 @@
 ---
-title: '<CacheProvider />'
+title: '<DataProvider />'
 ---
 
 <head>
-  <title>CacheProvider - Normalized async data management in React</title>
+  <title>DataProvider - Normalized async data management in React</title>
 </head>
 
 import Installation from '../shared/\_installation.mdx';
@@ -85,9 +85,9 @@ class MyController extends Controller {
 }
 
 const RealApp = (
-  <CacheProvider Controller={MyController}>
+  <DataProvider Controller={MyController}>
     <App />
-  </CacheProvider>
+  </DataProvider>
 );
 ```
 
@@ -101,15 +101,15 @@ installed. This option configures where it shows up, or if null will disable it 
 `'bottom-right' | 'bottom-left' | 'top-right'| 'top-left' | null`
 
 ```tsx title="Disable button"
-<CacheProvider devButton={null}>
+<DataProvider devButton={null}>
   <App/>
-</CacheProvider>
+</DataProvider>
 ```
 
 ```tsx title="Place in top right corner"
-<CacheProvider devButton="top-right">
+<DataProvider devButton="top-right">
   <App/>
-</CacheProvider>
+</DataProvider>
 ```
 
 ## defaultProps
@@ -117,7 +117,7 @@ installed. This option configures where it shows up, or if null will disable it 
 ```ts
 import { defaultState, Controller } from '@data-client/core';
 
-CacheProvider.defaultProps = {
+DataProvider.defaultProps = {
   initialState: defaultState as State<unknown>,
   Controller,
   devButton: 'bottom-right',

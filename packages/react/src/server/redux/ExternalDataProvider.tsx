@@ -33,10 +33,10 @@ interface Props<S> {
 }
 
 /**
- * Like CacheProvider, but for an external store
- * @see https://dataclient.io/docs/api/ExternalCacheProvider
+ * Like DataProvider, but for an external store
+ * @see https://dataclient.io/docs/api/ExternalDataProvider
  */
-export default function ExternalCacheProvider<S>({
+export default function ExternalDataProvider<S>({
   children,
   store,
   selector,

@@ -27,7 +27,7 @@ Add the browser extension for
 or
 [firefox extension](https://addons.mozilla.org/en-US/firefox/addon/reduxdevtools/)
 
-[DevToolsManager](../api/DevToolsManager) makes this work. This is part of the [default managers](../api/CacheProvider.md) for [CacheProvider](../api/CacheProvider.md)
+[DevToolsManager](../api/DevToolsManager) makes this work. This is part of the [default managers](../api/DataProvider.md) for [DataProvider](../api/DataProvider.md)
 in dev mode. If you have custom managers, you'll need to ensure DevToolsManager is included.
 
 ## Open dev tools
@@ -148,7 +148,7 @@ with the trace option set to `true`:
 ```tsx title="index.tsx"
 import {
   DevToolsManager,
-  CacheProvider,
+  DataProvider,
   getDefaultManagers,
 } from '@data-client/react';
 import ReactDOM from 'react-dom';
@@ -168,8 +168,8 @@ const managers =
     : getDefaultManagers();
 
 ReactDOM.createRoot(document.body).render(
-  <CacheProvider managers={managers}>
+  <DataProvider managers={managers}>
     <App />
-  </CacheProvider>,
+  </DataProvider>,
 );
 ```

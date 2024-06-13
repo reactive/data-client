@@ -32,7 +32,7 @@ For example, we can enable the `trace` option to help track down where actions a
 ```tsx title="index.tsx"
 import {
   DevToolsManager,
-  CacheProvider,
+  DataProvider,
   getDefaultManagers,
 } from '@data-client/react';
 import ReactDOM from 'react-dom';
@@ -52,9 +52,9 @@ const managers =
     : getDefaultManagers();
 
 ReactDOM.createRoot(document.body).render(
-  <CacheProvider managers={managers}>
+  <DataProvider managers={managers}>
     <App />
-  </CacheProvider>,
+  </DataProvider>,
 );
 ```
 
@@ -69,7 +69,7 @@ By default will skip inflight [fetch actions](./Controller.md#fetch)
 ```tsx title="index.tsx"
 import {
   DevToolsManager,
-  CacheProvider,
+  DataProvider,
   getDefaultManagers,
 } from '@data-client/react';
 import ReactDOM from 'react-dom';
@@ -87,9 +87,9 @@ const managers =
     : getDefaultManagers();
 
 ReactDOM.createRoot(document.body).render(
-  <CacheProvider managers={managers}>
+  <DataProvider managers={managers}>
     <App />
-  </CacheProvider>,
+  </DataProvider>,
 );
 ```
 

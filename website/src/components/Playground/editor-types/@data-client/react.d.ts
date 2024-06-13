@@ -24,9 +24,9 @@ interface Props$1 {
 }
 /**
  * Manages state, providing all context needed to use the hooks.
- * @see https://dataclient.io/docs/api/CacheProvider
+ * @see https://dataclient.io/docs/api/DataProvider
  */
-declare function CacheProvider({ children, managers, initialState, Controller, devButton, }: Props$1): JSX.Element;
+declare function DataProvider({ children, managers, initialState, Controller, devButton, }: Props$1): JSX.Element;
 declare let getDefaultManagers: () => Manager<_data_client_core.ActionTypes>[];
 
 /** Suspense but compatible with 18 SSR, 17, 16 and native */
@@ -233,4 +233,4 @@ declare namespace internal_d {
 /** Turns a dispatch function into one that resolves once its been commited */
 declare function usePromisifiedDispatch<R extends React$1.Reducer<any, any>>(dispatch: React$1.Dispatch<React$1.ReducerAction<R>>, state: React$1.ReducerState<R>): (action: React$1.ReducerAction<R>) => Promise<void>;
 
-export { _default as AsyncBoundary, BackupLoading, CacheProvider, ControllerContext, DevToolsPosition, ErrorBoundary, ErrorBoundary as NetworkErrorBoundary, ProviderProps, StateContext, Store, StoreContext, UniversalSuspense, internal_d as __INTERNAL__, getDefaultManagers, useCache, useController, useDLE, useError, useFetch, useLive, usePromisifiedDispatch, useQuery, useSubscription, useSuspense };
+export { _default as AsyncBoundary, BackupLoading, DataProvider as CacheProvider, ControllerContext, DataProvider, DevToolsPosition, ErrorBoundary, ErrorBoundary as NetworkErrorBoundary, ProviderProps, StateContext, Store, StoreContext, UniversalSuspense, internal_d as __INTERNAL__, getDefaultManagers, useCache, useController, useDLE, useError, useFetch, useLive, usePromisifiedDispatch, useQuery, useSubscription, useSuspense };

@@ -16,7 +16,7 @@ endpoints.
 
 If you need to add unit tests to your components to check some behavior you might want
 avoid dealing with network fetch cycle as that is probably orthogonal to what your are
-trying to test. Using [&lt;CacheProvider /\>](../api/CacheProvider.md) with [mockInitialState](../api/mockInitialState.md) and [Fixtures](../api/Fixtures.md) in our tests allow
+trying to test. Using [&lt;DataProvider /\>](../api/DataProvider.md) with [mockInitialState](../api/mockInitialState.md) and [Fixtures](../api/Fixtures.md) in our tests allow
 us to prime the cache with provided fixtures so the components will immediately render
 with said results.
 
@@ -75,7 +75,7 @@ export default {
 ```
 
 ```tsx title="__tests__/ArticleList.tsx"
-import { CacheProvider, AsyncBoundary } from '@data-client/react';
+import { DataProvider, AsyncBoundary } from '@data-client/react';
 import { render, waitFor } from '@testing-library/react';
 import { MockResolver, mockInitialState } from '@data-client/test';
 
@@ -85,9 +85,9 @@ import results from './fixtures';
 describe('<ArticleList />', () => {
   it('renders', () => {
     const tree = (
-      <CacheProvider initialState={mockInitialState(results.full)}>
+      <DataProvider initialState={mockInitialState(results.full)}>
         <ArticleList maxResults={10} />
-      </CacheProvider>
+      </DataProvider>
     );
     const { findByText } = render(tree);
     const content = findByText(results.full.result[0].content);
@@ -96,13 +96,13 @@ describe('<ArticleList />', () => {
 
   it('suspends then resolves', async () => {
     const tree = (
-      <CacheProvider>
+      <DataProvider>
         <MockResolver fixtures={results.full}>
           <AsyncBoundary fallback="loading">
             <ArticleList maxResults={10} />
           </AsyncBoundary>
         </MockResolver>
-      </CacheProvider>
+      </DataProvider>
     );
     const { findByText } = render(tree);
     expect(findByText('loading')).toBeDefined();

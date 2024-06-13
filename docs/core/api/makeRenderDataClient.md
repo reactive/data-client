@@ -25,10 +25,10 @@ interface ProviderProps {
 }
 ```
 
-The Reactive Data Client [&lt;CacheProvider /&gt;](./CacheProvider.md)
+The Reactive Data Client [&lt;DataProvider /&gt;](./DataProvider.md)
 
-- `import { CacheProvider } from @data-client/react;`
-- `import { CacheProvider } from @data-client/redux;`
+- `import { DataProvider } from @data-client/react;`
+- `import { DataProvider } from @data-client/redux;`
 
 ## renderDataClient()
 
@@ -79,7 +79,7 @@ Hooks to run inside React. Return value will become available in `result`
 Can be used to prime the cache if test expects cache values to already be filled. Takes an
 [array of fixtures](./Fixtures.md)
 
-This has the same effect as initializing [&lt;CacheProvider /\>](../api/CacheProvider) with [mockInitialState()](../api/mockInitialState)
+This has the same effect as initializing [&lt;DataProvider /\>](../api/DataProvider) with [mockInitialState()](../api/mockInitialState)
 
 #### options.resolverFixtures
 
@@ -159,7 +159,7 @@ Returns a promise that resolves once all inflight requests are completed.
 ## Example
 
 ```typescript
-import { CacheProvider } from '@data-client/react';
+import { DataProvider } from '@data-client/react';
 import { makeRenderDataClient } from '@data-client/test';
 
 const payload = {
@@ -170,7 +170,7 @@ const payload = {
 };
 
 beforeEach(() => {
-  renderDataClient = makeRenderDataClient(CacheProvider);
+  renderDataClient = makeRenderDataClient(DataProvider);
 });
 
 it('should resolve useSuspense()', async () => {

@@ -5,4 +5,5 @@ Object.hasOwn =
   };
 export { default as DataClientDocument } from './DataClientDocument.js';
 export { default as DataProvider } from './DataProvider/DataProvider.js';
-export { default as AppCacheProvider } from './AppCacheProvider.js';
+export { default as AppDataProvider } from './AppDataProvider.js';
+export { default as AppCacheProvider } from './AppDataProvider.js';

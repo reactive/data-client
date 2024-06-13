@@ -114,11 +114,11 @@ export const FullArticleList = ({ result }) => (
 <details open><summary><b>Hook Unit Test</b></summary>
 
 ```typescript
-import { CacheProvider } from '@data-client/react';
+import { DataProvider } from '@data-client/react';
 import { makeRenderDataClient } from '@data-client/test';
 import options from './fixtures';
 
-const renderDataClient = makeRenderDataClient(CacheProvider);
+const renderDataClient = makeRenderDataClient(DataProvider);
 
 it('should resolve list', async () => {
   const { result } = renderDataClient(

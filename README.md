@@ -255,7 +255,7 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://da
   - [ctrl.resolve](https://dataclient.io/docs/api/Controller#resolve)
   - [ctrl.subscribe](https://dataclient.io/docs/api/Controller#subscribe)
   - [ctrl.unsubscribe](https://dataclient.io/docs/api/Controller#unsubscribe)
-- Components: [&lt;CacheProvider/>](https://dataclient.io/docs/api/CacheProvider), [&lt;AsyncBoundary/>](https://dataclient.io/docs/api/AsyncBoundary), [&lt;ErrorBoundary/>](https://dataclient.io/docs/api/ErrorBoundary), [&lt;MockResolver/>](https://dataclient.io/docs/api/MockResolver)
+- Components: [&lt;DataProvider/>](https://dataclient.io/docs/api/DataProvider), [&lt;AsyncBoundary/>](https://dataclient.io/docs/api/AsyncBoundary), [&lt;ErrorBoundary/>](https://dataclient.io/docs/api/ErrorBoundary), [&lt;MockResolver/>](https://dataclient.io/docs/api/MockResolver)
 - Data Mocking: [Fixture](https://dataclient.io/docs/api/Fixtures#successfixture), [Interceptor](https://dataclient.io/docs/api/Fixtures#interceptor), [renderDataClient()](https://dataclient.io/docs/api/makeRenderDataClient)
 - Middleware: [LogoutManager](https://dataclient.io/docs/api/LogoutManager), [NetworkManager](https://dataclient.io/docs/api/NetworkManager), [SubscriptionManager](https://dataclient.io/docs/api/SubscriptionManager), [PollingSubscription](https://dataclient.io/docs/api/PollingSubscription), [DevToolsManager](https://dataclient.io/docs/api/DevToolsManager)
 

@@ -1,5 +1,5 @@
 import {
-  CacheProvider,
+  DataProvider,
   Controller,
   LogoutManager,
   getDefaultManagers,
@@ -27,7 +27,7 @@ const managers = [
 export default function RootProvider({ children, ...rest }: Props) {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <CacheProvider {...rest} managers={managers}>
+      <DataProvider {...rest} managers={managers}>
         <Router>
           <AuthdProvider>
             <ErrorBoundary FallbackComponent={ErrorFallback}>
@@ -35,7 +35,7 @@ export default function RootProvider({ children, ...rest }: Props) {
             </ErrorBoundary>
           </AuthdProvider>
         </Router>
-      </CacheProvider>
+      </DataProvider>
     </ErrorBoundary>
   );
 }

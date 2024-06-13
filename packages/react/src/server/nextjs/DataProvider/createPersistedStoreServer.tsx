@@ -9,9 +9,9 @@ import {
 } from '@data-client/core';
 import type { ComponentProps } from 'react';
 
-import type CacheProvider from '../../../components/CacheProvider.js';
+import type DataProvider from '../../../components/DataProvider.js';
 import {
-  ExternalCacheProvider,
+  ExternalDataProvider,
   PromiseifyMiddleware,
 } from '../../redux/index.js';
 import { createStore, applyMiddleware } from '../../redux/redux.js';
@@ -61,23 +61,23 @@ export default function createPersistedStore(managers?: Manager[]) {
     return getState();
   })();
 
-  const StoreCacheProvider = ({ children }: ProviderProps) => {
+  const StoreDataProvider = ({ children }: ProviderProps) => {
     return (
-      <ExternalCacheProvider
+      <ExternalDataProvider
         store={store}
         selector={selector}
         controller={controller}
       >
         {children}
-      </ExternalCacheProvider>
+      </ExternalDataProvider>
     );
   };
 
-  return [StoreCacheProvider, initPromise] as const;
+  return [StoreDataProvider, initPromise] as const;
 }
 
 type ProviderProps = Omit<
-  Partial<ComponentProps<typeof CacheProvider>>,
+  Partial<ComponentProps<typeof DataProvider>>,
   'initialState'
 > & {
   children: React.ReactNode;

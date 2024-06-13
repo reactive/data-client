@@ -11,7 +11,7 @@ Asynchronous mutable data at scale. Performance, data integrity, and typing for 
 
 <div align="center">
 
-**[📖Read The Docs](https://dataclient.io/docs/api/ExternalCacheProvider)** &nbsp;|&nbsp; [🏁Getting Started](https://dataclient.io/docs/guides/redux) &nbsp;|&nbsp;
+**[📖Read The Docs](https://dataclient.io/docs/api/ExternalDataProvider)** &nbsp;|&nbsp; [🏁Getting Started](https://dataclient.io/docs/guides/redux) &nbsp;|&nbsp;
 [🎮Todo Demo](https://stackblitz.com/github/reactive/data-client/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx) &nbsp;|&nbsp;
 [🎮Github Demo](https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx)
 

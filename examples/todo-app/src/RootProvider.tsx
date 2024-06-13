@@ -1,14 +1,14 @@
 import {
-  CacheProvider,
+  DataProvider,
   AsyncBoundary,
   ProviderProps,
 } from '@data-client/react';
 
 export default function RootProvider({ children, ...rest }: Props) {
   return (
-    <CacheProvider {...rest}>
+    <DataProvider {...rest}>
       <AsyncBoundary>{children}</AsyncBoundary>
-    </CacheProvider>
+    </DataProvider>
   );
 }
 

@@ -53,7 +53,7 @@ const unsetDispatch = (action: unknown): Promise<void> => {
   );
 };
 const unsetState = (): State<unknown> => {
-  // This is only the value until it is set by the CacheProvider
+  // This is only the value until it is set by the DataProvider
   /* istanbul ignore next */
   return initialState;
 };
@@ -526,7 +526,7 @@ function entityExpiresAt(
       readonly [pk: string]: {
         readonly date: number;
         readonly expiresAt: number;
-        readonly fetchedAt: number; // This is only the value until it is set by the CacheProvider
+        readonly fetchedAt: number; // This is only the value until it is set by the DataProvider
       };
     };
   },

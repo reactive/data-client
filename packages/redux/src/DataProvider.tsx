@@ -1,10 +1,10 @@
 import type { Controller, Manager, State } from '@data-client/react';
 import React, { useEffect, useMemo } from 'react';
 
-import ExternalCacheProvider from './ExternalCacheProvider.js';
+import ExternalCacheProvider from './ExternalDataProvider.js';
 import { prepareStore } from './prepareStore.js';
 
-export default function CacheProvider({
+export default function DataProvider({
   children,
   managers,
   initialState,

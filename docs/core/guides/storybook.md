@@ -143,15 +143,15 @@ This should resemble what you have added in [initial setup](../getting-started/i
 
 ```tsx title=".storybook/preview.tsx"
 import { Suspense } from 'react';
-import { CacheProvider, AsyncBoundary } from '@data-client/react';
+import { DataProvider, AsyncBoundary } from '@data-client/react';
 
 export const decorators = [
   Story => (
-    <CacheProvider>
+    <DataProvider>
       <AsyncBoundary>
         <Story />
       </AsyncBoundary>
-    </CacheProvider>
+    </DataProvider>
   ),
 ];
 ```

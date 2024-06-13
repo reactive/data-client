@@ -68,7 +68,7 @@ Component to handle caught errors
 
 ```tsx
 import React from 'react';
-import { CacheProvider, AsyncBoundary } from '@data-client/react';
+import { DataProvider, AsyncBoundary } from '@data-client/react';
 
 function ErrorPage({
   error,
@@ -88,11 +88,11 @@ function ErrorPage({
 
 export default function App() {
   return (
-    <CacheProvider>
+    <DataProvider>
       <AsyncBoundary fallback="loading" errorComponent={ErrorPage}>
         <Router />
       </AsyncBoundary>
-    </CacheProvider>
+    </DataProvider>
   );
 }
 ```
