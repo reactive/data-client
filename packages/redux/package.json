@@ -1,6 +1,6 @@
 {
   "name": "@data-client/redux",
-  "version": "0.12.9",
+  "version": "0.12.12",
   "description": "Asynchronous data framework for React",
   "homepage": "https://dataclient.io",
   "repository": {

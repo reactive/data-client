@@ -1,5 +1,11 @@
 # @data-client/use-enhanced-reducer
 
+## 0.1.10
+
+### Patch Changes
+
+- [`764728e`](https://github.com/reactive/data-client/commit/764728e45c26088a815e2f49b55d4f4ccab4d388) Thanks [@ntucker](https://github.com/ntucker)! - Support unreleased versions of React 19
+
 ## 0.1.9
 
 ### Patch Changes
