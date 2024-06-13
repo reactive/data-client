@@ -210,11 +210,11 @@
           "items": [
             {
               "type": "doc",
-              "id": "api/CacheProvider"
+              "id": "api/DataProvider"
             },
             {
               "type": "doc",
-              "id": "api/ExternalCacheProvider"
+              "id": "api/ExternalDataProvider"
             },
             {
               "type": "doc",

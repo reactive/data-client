@@ -1,6 +1,6 @@
 export * from '../packages/rest/lib/index.js';
 export {
-  CacheProvider,
+  DataProvider,
   AsyncBoundary,
   NetworkErrorBoundary,
   Manager,

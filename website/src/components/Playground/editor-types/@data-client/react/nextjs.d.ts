@@ -12,12 +12,12 @@ interface Props {
 }
 /**
  * Manages state, providing all context needed to use the hooks.
- * @see https://dataclient.io/docs/api/CacheProvider
+ * @see https://dataclient.io/docs/api/DataProvider
  */
-declare function CacheProvider({ children, managers, initialState, Controller, devButton, }: Props): JSX.Element;
+declare function DataProvider$1({ children, managers, initialState, Controller, devButton, }: Props): JSX.Element;
 
 declare function DataProvider({ children, ...props }: ProviderProps): React.ReactElement;
-type ProviderProps = Omit<Partial<ComponentProps<typeof CacheProvider>>, 'initialState'> & {
+type ProviderProps = Omit<Partial<ComponentProps<typeof DataProvider$1>>, 'initialState'> & {
     children: React.ReactNode;
 };
 

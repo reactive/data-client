@@ -113,14 +113,14 @@ export default DataClientDocument;
 ```
 
 ```tsx title="pages/_app.tsx"
-import { AppCacheProvider } from '@data-client/ssr/nextjs';
+import { AppDataProvider } from '@data-client/ssr/nextjs';
 import type { AppProps } from 'next/app';
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <AppCacheProvider>
+    <AppDataProvider>
       <Component {...pageProps} />
-    </AppCacheProvider>
+    </AppDataProvider>
   );
 }
 ```
@@ -228,7 +228,7 @@ const rootId = 'react-root';
 
 const app = express();
 app.get('/*', (req: any, res: any) => {
-  const [ServerCacheProvider, useReadyCacheState, controller] =
+  const [ServerDataProvider, useReadyCacheState, controller] =
     createPersistedStore();
   const ServerDataComponent = createServerDataComponent(useReadyCacheState);
 
@@ -240,7 +240,7 @@ app.get('/*', (req: any, res: any) => {
       scripts={[<ServerDataComponent key="server-data" />]}
       rootId={rootId}
     >
-      <ServerCacheProvider>{children}</ServerCacheProvider>
+      <ServerDataProvider>{children}</ServerDataProvider>
     </Document>,
 
     {
@@ -279,7 +279,7 @@ const rootId = 'react-root';
 awaitInitialData().then(initialState => {
   hydrateRoot(
     document.getElementById(rootId),
-    <CacheProvider initialState={initialState}>{children}</CacheProvider>,
+    <DataProvider initialState={initialState}>{children}</DataProvider>,
   );
 });
 ```

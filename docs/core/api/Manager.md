@@ -43,7 +43,7 @@ interface Manager {
 getMiddleware() returns a function that very similar to a [redux middleware](https://redux.js.org/advanced/middleware).
 The only differences is that the `next()` function returns a `Promise`. This promise resolves when the reducer update is
 [committed](https://indepth.dev/inside-fiber-in-depth-overview-of-the-new-reconciliation-algorithm-in-react/#general-algorithm)
-when using &lt;CacheProvider /\>. This is necessary since the commit phase is asynchronously scheduled. This enables building
+when using &lt;DataProvider /\>. This is necessary since the commit phase is asynchronously scheduled. This enables building
 managers that perform work after the DOM is updated and also with the newly computed state.
 
 Since redux is fully synchronous, an adapter must be placed in front of Reactive Data Client style middleware to
@@ -70,7 +70,7 @@ relies on state actually existing.
 
 ## Adding managers to Reactive Data Client
 
-Use the [managers](../api/CacheProvider.md#managers) prop of [CacheProvider](../api/CacheProvider.md). Be
+Use the [managers](../api/DataProvider.md#managers) prop of [DataProvider](../api/DataProvider.md). Be
 sure to hoist to module level or wrap in a useMemo() to ensure they are not recreated. Managers
 have internal state, so it is important to not constantly recreate them.
 
@@ -86,15 +86,15 @@ values={[
 <TabItem value="web">
 
 ```tsx title="/index.tsx"
-import { CacheProvider, getDefaultManagers } from '@data-client/react';
+import { DataProvider, getDefaultManagers } from '@data-client/react';
 import ReactDOM from 'react-dom';
 
 const managers = [...getDefaultManagers(), new MyManager()];
 
 ReactDOM.render(
-  <CacheProvider managers={managers}>
+  <DataProvider managers={managers}>
     <App />
-  </CacheProvider>,
+  </DataProvider>,
   document.body,
 );
 ```
@@ -104,15 +104,15 @@ ReactDOM.render(
 <TabItem value="18-web">
 
 ```tsx title="/index.tsx"
-import { CacheProvider, getDefaultManagers } from '@data-client/react';
+import { DataProvider, getDefaultManagers } from '@data-client/react';
 import ReactDOM from 'react-dom';
 
 const managers = [...getDefaultManagers(), new MyManager()];
 
 ReactDOM.createRoot(document.body).render(
-  <CacheProvider managers={managers}>
+  <DataProvider managers={managers}>
     <App />
-  </CacheProvider>,
+  </DataProvider>,
 );
 ```
 
@@ -121,15 +121,15 @@ ReactDOM.createRoot(document.body).render(
 <TabItem value="native">
 
 ```tsx title="/index.tsx"
-import { CacheProvider, getDefaultManagers } from '@data-client/react';
+import { DataProvider, getDefaultManagers } from '@data-client/react';
 import { AppRegistry } from 'react-native';
 
 const managers = [...getDefaultManagers(), new MyManager()];
 
 const Root = () => (
-  <CacheProvider managers={managers}>
+  <DataProvider managers={managers}>
     <App />
-  </CacheProvider>
+  </DataProvider>
 );
 AppRegistry.registerComponent('MyApp', () => Root);
 ```
@@ -139,17 +139,17 @@ AppRegistry.registerComponent('MyApp', () => Root);
 <TabItem value="nextjs">
 
 ```tsx title="pages/_app.tsx"
-import { CacheProvider, getDefaultManagers } from '@data-client/react';
-import { AppCacheProvider } from '@data-client/ssr/nextjs';
+import { DataProvider, getDefaultManagers } from '@data-client/react';
+import { AppDataProvider } from '@data-client/ssr/nextjs';
 import type { AppProps } from 'next/app';
 
 const managers = [...getDefaultManagers(), new MyManager()];
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <AppCacheProvider managers={managers}>
+    <AppDataProvider managers={managers}>
       <Component {...pageProps} />
-    </AppCacheProvider>
+    </AppDataProvider>
   );
 }
 ```
@@ -159,7 +159,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
 ## Control flow
 
-Managers live in the CacheProvider centralized store. They orchestrate complex control flows by interfacing
+Managers live in the DataProvider centralized store. They orchestrate complex control flows by interfacing
 via intercepting and dispatching actions, as well as reading the internal state.
 
 <ThemedImage

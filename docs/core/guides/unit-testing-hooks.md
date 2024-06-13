@@ -62,17 +62,17 @@ require('whatwg-fetch');
 ### Example:
 
 <Tabs
-defaultValue="CacheProvider"
+defaultValue="DataProvider"
 values={[
-{ label: '@data-client/react', value: 'CacheProvider' },
-{ label: '@data-client/redux', value: 'ExternalCacheProvider' },
+{ label: '@data-client/react', value: 'DataProvider' },
+{ label: '@data-client/redux', value: 'ExternalDataProvider' },
 ]}>
-<TabItem value="CacheProvider">
+<TabItem value="DataProvider">
 
 ```typescript
 import nock from 'nock';
 import { makeRenderDataClient } from '@data-client/test';
-import { CacheProvider } from '@data-client/react';
+import { DataProvider } from '@data-client/react';
 
 describe('useSuspense()', () => {
   let renderDataClient: ReturnType<typeof makeRenderDataClient>;
@@ -88,7 +88,7 @@ describe('useSuspense()', () => {
       .reply(200)
       .get(`/article/0`)
       .reply(403, {});
-    renderDataClient = makeRenderDataClient(CacheProvider);
+    renderDataClient = makeRenderDataClient(DataProvider);
   });
 
   afterEach(() => {
@@ -110,12 +110,12 @@ describe('useSuspense()', () => {
 ```
 
 </TabItem>
-<TabItem value="ExternalCacheProvider">
+<TabItem value="ExternalDataProvider">
 
 ```typescript
 import nock from 'nock';
 import { makeRenderDataClient } from '@data-client/test';
-import { CacheProvider } from '@data-client/redux';
+import { DataProvider } from '@data-client/redux';
 
 describe('useSuspense()', () => {
   let renderDataClient: ReturnType<typeof makeRenderDataClient>;
@@ -131,7 +131,7 @@ describe('useSuspense()', () => {
       .reply(200)
       .get(`/article/0`)
       .reply(403, {});
-    renderDataClient = makeRenderDataClient(CacheProvider);
+    renderDataClient = makeRenderDataClient(DataProvider);
   });
 
   afterEach(() => {

@@ -20,7 +20,7 @@ resource.
 import {
   SubscriptionManager,
   PollingSubscription,
-  CacheProvider,
+  DataProvider,
   NetworkManager,
 } from '@data-client/react';
 import ReactDOM from 'react-dom';
@@ -31,9 +31,9 @@ const managers = [
 ]
 
 ReactDOM.render(
-  <CacheProvider managers={managers}>
+  <DataProvider managers={managers}>
     <App />
-  </CacheProvider>,
+  </DataProvider>,
   document.body,
 );
 ```
@@ -44,4 +44,4 @@ ReactDOM.render(
 
 > #### Note:
 >
-> This is already used by `CacheProvider` by default.
+> This is already used by `DataProvider` by default.

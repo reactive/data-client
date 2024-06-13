@@ -28,7 +28,7 @@ export default function loggerMiddleware<R extends React.Reducer<any, any>>({
 }
 ```
 
-#### `CacheProvider.tsx`
+#### `DataProvider.tsx`
 
 ```tsx
 import {
@@ -42,7 +42,7 @@ interface ProviderProps {
   initialState: State<unknown>;
 }
 
-export default function CacheProvider({
+export default function DataProvider({
   children,
   middlewares,
   initialState,

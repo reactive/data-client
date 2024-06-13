@@ -194,13 +194,13 @@
       "updated": 1711533615749,
       "link": null,
       "locked": false,
-      "text": "<CacheProvider/>",
+      "text": "<DataProvider/>",
       "fontSize": 20,
       "fontFamily": 1,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "<CacheProvider/>",
+      "originalText": "<DataProvider/>",
       "lineHeight": 1.25
     },
     {

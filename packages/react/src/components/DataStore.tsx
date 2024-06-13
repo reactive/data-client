@@ -22,7 +22,7 @@ interface StoreProps {
  * This part of the provider concerns only the parts that matter for store changes
  * It expects its props to have referential stability
  */
-function CacheStore({
+function DataStore({
   children,
   managers,
   middlewares,
@@ -64,4 +64,4 @@ function CacheStore({
     </StateContext.Provider>
   );
 }
-export default memo(CacheStore);
+export default memo(DataStore);

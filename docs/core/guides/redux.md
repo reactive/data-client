@@ -24,8 +24,8 @@ First make sure you have redux installed:
 
 Note: react-redux is _not_ needed for this integration (though you will need it if you want to use redux directly as well).
 
-Then you'll want to use the [&lt;ExternalCacheProvider /\>](../api/ExternalCacheProvider.md) instead of
-[&lt;CacheProvider /\>](../api/CacheProvider.md) and pass in the store and a selector function to grab
+Then you'll want to use the [&lt;ExternalDataProvider /\>](../api/ExternalDataProvider.md) instead of
+[&lt;DataProvider /\>](../api/DataProvider.md) and pass in the store and a selector function to grab
 the Reactive Data Client specific part of the state.
 
 :::info Note
@@ -56,7 +56,7 @@ values={[
 import {
   SubscriptionManager,
   PollingSubscription,
-  ExternalCacheProvider,
+  ExternalDataProvider,
   PromiseifyMiddleware,
   applyManager,
   initialState,
@@ -89,13 +89,13 @@ for (const manager of [networkManager, subscriptionManager]) {
 }
 
 ReactDOM.render(
-  <ExternalCacheProvider
+  <ExternalDataProvider
     store={store}
     selector={selector}
     controller={controller}
   >
     <App />
-  </ExternalCacheProvider>,
+  </ExternalDataProvider>,
   document.body,
 );
 ```
@@ -109,7 +109,7 @@ ReactDOM.render(
 import {
   SubscriptionManager,
   PollingSubscription,
-  ExternalCacheProvider,
+  ExternalDataProvider,
   PromiseifyMiddleware,
   applyManager,
   initialState,
@@ -143,7 +143,7 @@ for (const manager of [networkManager, subscriptionManager]) {
 }
 
 ReactDOM.render(
-  <ExternalCacheProvider
+  <ExternalDataProvider
     store={store}
     selector={selector}
     controller={controller}
@@ -151,7 +151,7 @@ ReactDOM.render(
     <Provider store={store}>
       <App />
     </Provider>
-  </ExternalCacheProvider>,
+  </ExternalDataProvider>,
   document.body,
 );
 ```
@@ -161,7 +161,7 @@ ReactDOM.render(
 
 Above we have the simplest case where the entire redux store is used for Reactive Data Client.
 However, more commonly you will be integrating with other state. In this case, you
-will need to use the `selector` prop of `<ExternalCacheProvider/>` to specify
+will need to use the `selector` prop of `<ExternalDataProvider/>` to specify
 where in the state tree the Reactive Data Client information is.
 
 ```typescript

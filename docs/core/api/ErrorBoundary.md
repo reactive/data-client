@@ -52,7 +52,7 @@ interface Props {
 
 ```tsx
 import React from 'react';
-import { CacheProvider, ErrorBoundary } from '@data-client/react';
+import { DataProvider, ErrorBoundary } from '@data-client/react';
 
 function ErrorPage({
   error,
@@ -72,11 +72,11 @@ function ErrorPage({
 
 export default function App() {
   return (
-    <CacheProvider>
+    <DataProvider>
       <ErrorBoundary fallbackComponent={ErrorPage} className="error">
         <Router />
       </ErrorBoundary>
-    </CacheProvider>
+    </DataProvider>
   );
 }
 ```

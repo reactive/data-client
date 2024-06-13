@@ -15,7 +15,7 @@ import { Text } from 'react-native';
 import { ControllerContext, StateContext } from '../../context';
 import { useController, useSuspense } from '../../hooks';
 import { payload } from '../../test-fixtures';
-import CacheProvider, { getDefaultManagers } from '../CacheProvider';
+import CacheProvider, { getDefaultManagers } from '../DataProvider';
 
 const { SET_TYPE } = actionTypes;
 

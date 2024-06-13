@@ -33,16 +33,16 @@ values={[
 <TabItem value="web">
 
 ```tsx title="/index.tsx"
-import { CacheProvider, LogoutManager, getDefaultManagers } from '@data-client/react';
+import { DataProvider, LogoutManager, getDefaultManagers } from '@data-client/react';
 import ReactDOM from 'react-dom';
 
 // highlight-next-line
 const managers = [new LogoutManager(), ...getDefaultManagers()];
 
 ReactDOM.render(
-  <CacheProvider managers={managers}>
+  <DataProvider managers={managers}>
     <App />
-  </CacheProvider>,
+  </DataProvider>,
   document.body,
 );
 ```
@@ -52,16 +52,16 @@ ReactDOM.render(
 <TabItem value="18-web">
 
 ```tsx title="/index.tsx"
-import { CacheProvider, LogoutManager, getDefaultManagers } from '@data-client/react';
+import { DataProvider, LogoutManager, getDefaultManagers } from '@data-client/react';
 import ReactDOM from 'react-dom';
 
 // highlight-next-line
 const managers = [new LogoutManager(), ...getDefaultManagers()];
 
 ReactDOM.createRoot(document.body).render(
-  <CacheProvider managers={managers}>
+  <DataProvider managers={managers}>
     <App />
-  </CacheProvider>,
+  </DataProvider>,
 );
 ```
 
@@ -70,16 +70,16 @@ ReactDOM.createRoot(document.body).render(
 <TabItem value="native">
 
 ```tsx title="/index.tsx"
-import { CacheProvider, LogoutManager, getDefaultManagers } from '@data-client/react';
+import { DataProvider, LogoutManager, getDefaultManagers } from '@data-client/react';
 import { AppRegistry } from 'react-native';
 
 // highlight-next-line
 const managers = [new LogoutManager(), ...getDefaultManagers()];
 
 const Root = () => (
-  <CacheProvider managers={managers}>
+  <DataProvider managers={managers}>
     <App />
-  </CacheProvider>
+  </DataProvider>
 );
 AppRegistry.registerComponent('MyApp', () => Root);
 ```
@@ -89,8 +89,8 @@ AppRegistry.registerComponent('MyApp', () => Root);
 <TabItem value="nextjs">
 
 ```tsx title="pages/_app.tsx"
-import { CacheProvider, LogoutManager, getDefaultManagers } from '@data-client/react';
-import { AppCacheProvider } from '@data-client/ssr/nextjs';
+import { DataProvider, LogoutManager, getDefaultManagers } from '@data-client/react';
+import { AppDataProvider } from '@data-client/ssr/nextjs';
 import type { AppProps } from 'next/app';
 
 // highlight-next-line
@@ -98,9 +98,9 @@ const managers = [new LogoutManager(), ...getDefaultManagers()];
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <AppCacheProvider managers={managers}>
+    <AppDataProvider managers={managers}>
       <Component {...pageProps} />
-    </AppCacheProvider>
+    </AppDataProvider>
   );
 }
 ```

@@ -322,6 +322,14 @@ const config: Config = {
             to: '/blog/2023/07/04/v0.2-release-announcement',
             from: ['/blog/2023/07/04/v8-release-announcement'],
           },
+          {
+            to: '/docs/api/DataProvider',
+            from: ['/docs/api/CacheProvider'],
+          },
+          {
+            to: '/docs/api/ExternalDataProvider',
+            from: ['/docs/api/ExternalCacheProvider'],
+          },
           ...gqlRedirects,
         ],
       },

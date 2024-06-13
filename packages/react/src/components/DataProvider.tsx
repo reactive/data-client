@@ -12,7 +12,7 @@ import type { State, Manager } from '@data-client/core';
 import React, { useMemo, useRef } from 'react';
 import type { JSX } from 'react';
 
-import CacheStore from './CacheStore.js';
+import DataStore from './DataStore.js';
 import type { DevToolsPosition } from './DevToolsButton.js';
 import { SSR } from './LegacyReact.js';
 import { renderDevButton } from './renderDevButton.js';
@@ -36,9 +36,9 @@ interface Props {
 
 /**
  * Manages state, providing all context needed to use the hooks.
- * @see https://dataclient.io/docs/api/CacheProvider
+ * @see https://dataclient.io/docs/api/DataProvider
  */
-export default function CacheProvider({
+export default function DataProvider({
   children,
   managers,
   initialState = defaultState as State<unknown>,
@@ -48,8 +48,8 @@ export default function CacheProvider({
   /* istanbul ignore else */
   if (process.env.NODE_ENV !== 'production' && SSR) {
     console.warn(
-      `CacheProvider does not update while doing SSR.
-Try using https://dataclient.io/docs/api/ExternalCacheProvider for server entry points.`,
+      `DataProvider from @data-client/react does not update while doing SSR.
+See https://dataclient.io/docs/guides/ssr.`,
     );
   }
   // contents of this component expected to be relatively stable
@@ -73,14 +73,14 @@ Try using https://dataclient.io/docs/api/ExternalCacheProvider for server entry 
 
   return (
     <ControllerContext.Provider value={controllerRef.current}>
-      <CacheStore
+      <DataStore
         managers={memodManagers}
         middlewares={middlewares}
         initialState={initialState}
         controller={controllerRef.current}
       >
         {children}
-      </CacheStore>
+      </DataStore>
       {renderDevButton(devButton, managersRef.current)}
     </ControllerContext.Provider>
   );

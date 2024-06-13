@@ -17,13 +17,13 @@ values={[
 <TabItem value="web">
 
 ```tsx title="index.tsx"
-import { CacheProvider } from '@data-client/react';
+import { DataProvider } from '@data-client/react';
 import ReactDOM from 'react-dom';
 
 ReactDOM.render(
-  <CacheProvider>
+  <DataProvider>
     <App />
-  </CacheProvider>,
+  </DataProvider>,
   document.body,
 );
 ```
@@ -35,13 +35,13 @@ Alternatively [integrate state with redux](../guides/redux.md)
 <TabItem value="18-web">
 
 ```tsx title="index.tsx"
-import { CacheProvider } from '@data-client/react';
+import { DataProvider } from '@data-client/react';
 import ReactDOM from 'react-dom';
 
 ReactDOM.createRoot(document.body).render(
-  <CacheProvider>
+  <DataProvider>
     <App />
-  </CacheProvider>,
+  </DataProvider>,
 );
 ```
 
@@ -50,13 +50,13 @@ ReactDOM.createRoot(document.body).render(
 <TabItem value="native">
 
 ```tsx title="index.tsx"
-import { CacheProvider } from '@data-client/react';
+import { DataProvider } from '@data-client/react';
 import { AppRegistry } from 'react-native';
 
 const Root = () => (
-  <CacheProvider>
+  <DataProvider>
     <App />
-  </CacheProvider>
+  </DataProvider>
 );
 AppRegistry.registerComponent('MyApp', () => Root);
 ```

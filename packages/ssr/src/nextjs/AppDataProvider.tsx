@@ -1,16 +1,16 @@
-import { CacheProvider } from '@data-client/react';
+import { DataProvider } from '@data-client/react';
 import type { ComponentProps } from 'react';
 
 import { getInitialData } from '../getInitialData.js';
 
 type ProviderProps = Omit<
-  Partial<ComponentProps<typeof CacheProvider>>,
+  Partial<ComponentProps<typeof DataProvider>>,
   'initialState'
 > & {
   children: React.ReactNode;
 };
 
-export default function AppCacheProvider({
+export default function AppDataProvider({
   children,
   ...props
 }: ProviderProps): React.ReactElement {
@@ -18,9 +18,9 @@ export default function AppCacheProvider({
   if (typeof window !== 'undefined') {
     const initialState = getInitialData();
     return (
-      <CacheProvider {...props} initialState={initialState}>
+      <DataProvider {...props} initialState={initialState}>
         {children}
-      </CacheProvider>
+      </DataProvider>
     );
   }
   // provider is done via Document server side, so we don't put the children here

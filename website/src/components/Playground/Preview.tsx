@@ -1,5 +1,5 @@
 import {
-  CacheProvider,
+  DataProvider,
   PollingSubscription,
   SubscriptionManager,
   NetworkManager,
@@ -64,7 +64,7 @@ function Preview<T>({
 
   const hiddenResult = !(selectedValue === 'n' || !row);
   return (
-    <CacheProvider managers={managers}>
+    <DataProvider managers={managers}>
       <MockResolver
         fixtures={fixtures}
         silenceMissing={true}
@@ -81,7 +81,7 @@ function Preview<T>({
         </div>
         <StoreInspector selectedValue={selectedValue} toggle={toggle} />
       </MockResolver>
-    </CacheProvider>
+    </DataProvider>
   );
 }
 export default memo(Preview);

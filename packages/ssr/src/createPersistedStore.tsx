@@ -1,6 +1,6 @@
 'use client';
 import {
-  ExternalCacheProvider,
+  ExternalDataProvider,
   PromiseifyMiddleware,
   Controller,
   Manager,
@@ -50,16 +50,16 @@ export default function createPersistedStore(managers?: Manager[]) {
     return useSyncExternalStore(store.subscribe, getState, getState);
   }
 
-  function ServerCacheProvider({ children }: { children: React.ReactNode }) {
+  function ServerDataProvider({ children }: { children: React.ReactNode }) {
     return (
-      <ExternalCacheProvider
+      <ExternalDataProvider
         store={store}
         selector={selector}
         controller={controller}
       >
         {children}
-      </ExternalCacheProvider>
+      </ExternalDataProvider>
     );
   }
-  return [ServerCacheProvider, useReadyCacheState, controller, store] as const;
+  return [ServerDataProvider, useReadyCacheState, controller, store] as const;
 }

@@ -1,5 +1,5 @@
 ---
-title: "<ExternalCacheProvider />"
+title: "<ExternalDataProvider />"
 ---
 
 import PkgTabs from '@site/src/components/PkgTabs';
@@ -10,7 +10,7 @@ in the React tree.
 
 :::warning
 
-**Is a replacement for [&lt;CacheProvider /\>](./CacheProvider.md) - do _NOT_ use both at once**
+**Is a replacement for [&lt;DataProvider /\>](./DataProvider.md) - do _NOT_ use both at once**
 
 :::
 
@@ -21,15 +21,15 @@ in the React tree.
 ## Usage
 
 ```tsx title="index.tsx"
-import { ExternalCacheProvider } from '@data-client/redux';
+import { ExternalDataProvider } from '@data-client/redux';
 import ReactDOM from 'react-dom';
 
 import { store, selector } from './store';
 
 ReactDOM.render(
-  <ExternalCacheProvider store={store} selector={selector}>
+  <ExternalDataProvider store={store} selector={selector}>
     <App />
-  </ExternalCacheProvider>,
+  </ExternalDataProvider>,
   document.body,
 );
 ```

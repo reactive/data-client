@@ -1,5 +1,5 @@
 'use client';
-import { type CacheProvider } from '@data-client/react';
+import { type DataProvider as DataProviderClient } from '@data-client/react';
 import { useMemo, type ComponentProps } from 'react';
 
 import createPersistedStore from './createPersistedStore.js';
@@ -9,20 +9,20 @@ export default function DataProvider({
   children,
   ...props
 }: ProviderProps): React.ReactElement {
-  const [ServerCacheProvider, initPromise] = useMemo(createPersistedStore, []);
+  const [ServerDataProvider, initPromise] = useMemo(createPersistedStore, []);
 
   return (
     <>
       <ServerDataComponent initPromise={initPromise} />
-      <ServerCacheProvider {...props} initPromise={initPromise}>
+      <ServerDataProvider {...props} initPromise={initPromise}>
         {children}
-      </ServerCacheProvider>
+      </ServerDataProvider>
     </>
   );
 }
 
 type ProviderProps = Omit<
-  Partial<ComponentProps<typeof CacheProvider>>,
+  Partial<ComponentProps<typeof DataProviderClient>>,
   'initialState'
 > & {
   children: React.ReactNode;

@@ -2,7 +2,7 @@
 import React, { version } from 'react';
 import { renderToString } from 'react-dom/server';
 
-import CacheProvider from '../CacheProvider';
+import DataProvider from '../DataProvider';
 
 describe('<BackupBoundary />', () => {
   let warnspy: jest.SpyInstance;
@@ -13,11 +13,11 @@ describe('<BackupBoundary />', () => {
     warnspy.mockRestore();
   });
 
-  it('should warn users about SSR with CacheProvider', async () => {
+  it('should warn users about SSR with DataProvider', async () => {
     const tree = (
-      <CacheProvider>
+      <DataProvider>
         <div>hi</div>
-      </CacheProvider>
+      </DataProvider>
     );
     const LegacyReact = version.startsWith('16') || version.startsWith('17');
 
@@ -27,12 +27,7 @@ describe('<BackupBoundary />', () => {
 
     const msg = renderToString(tree);
 
-    expect(warnspy.mock.lastCall).toMatchInlineSnapshot(`
-      [
-        "CacheProvider does not update while doing SSR.
-      Try using https://dataclient.io/docs/api/ExternalCacheProvider for server entry points.",
-      ]
-    `);
+    expect(warnspy.mock.lastCall).toMatchSnapshot();
 
     if (!LegacyReact) {
       expect(msg).toMatchInlineSnapshot(

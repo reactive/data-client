@@ -99,13 +99,13 @@ export default DataClientDocument;
 <details open><summary><b>pages/_app.tsx</b></summary>
 
 ```tsx
-import { AppCacheProvider } from '@data-client/ssr/nextjs';
+import { AppDataProvider } from '@data-client/ssr/nextjs';
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <AppCacheProvider>
+    <AppDataProvider>
       <Component {...pageProps} />
-    </AppCacheProvider>
+    </AppDataProvider>
   );
 }
 ```
@@ -201,7 +201,7 @@ const rootId = 'react-root';
 
 const app = express();
 app.get('/*', (req: any, res: any) => {
-  const [ServerCacheProvider, useReadyCacheState, controller] =
+  const [ServerDataProvider, useReadyCacheState, controller] =
     createPersistedStore();
   const ServerDataComponent = createServerDataComponent(useReadyCacheState);
 
@@ -213,7 +213,7 @@ app.get('/*', (req: any, res: any) => {
       scripts={[<ServerDataComponent key="server-data" />]}
       rootId={rootId}
     >
-      <ServerCacheProvider>{children}</ServerCacheProvider>
+      <ServerDataProvider>{children}</ServerDataProvider>
     </Document>,
 
     {
@@ -252,14 +252,14 @@ const rootId = 'react-root';
 awaitInitialData().then(initialState => {
   hydrateRoot(
     document.getElementById(rootId),
-    <CacheProvider initialState={initialState}>{children}</CacheProvider>,
+    <DataProvider initialState={initialState}>{children}</DataProvider>,
   );
 });
 ```
 
 ## API
 
-### createPersistedStore(managers) => [ServerCacheProvider, useReadyCacheState, controller, store]
+### createPersistedStore(managers) => [ServerDataProvider, useReadyCacheState, controller, store]
 
 Used to server side render cache. Renders &lt;ServerDataComponent/> inside to serialize cache so client can hydrate.
 
@@ -270,4 +270,4 @@ element so React will not need to hydrate it.
 
 ### getInitialData(id = 'data-client-data') => Promise(State)
 
-Resolves promise with serialized initialState to pass to &lt;CacheProvider />
+Resolves promise with serialized initialState to pass to &lt;DataProvider />
