@@ -20,7 +20,7 @@ load and slow client hydration, potentially causing application stutters.
 
 ### App Router
 
-NextJS 14 includes a new way of routing in the '/app' directory. This allows further
+NextJS 12 includes a new way of routing in the '/app' directory. This allows further
 performance improvements, as well as dynamic and nested routing.
 
 #### Root Layout
