@@ -7,7 +7,6 @@
   "include": ["src"],
   "references": [
     { "path": "../../__tests__" },
-    { "path": "../react" },
-    { "path": "../redux" }
+    { "path": "../react" }
   ]
 }

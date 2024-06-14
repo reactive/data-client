@@ -9,7 +9,6 @@
     { "path": "./packages/graphql/tsconfig.compile.json" },
     { "path": "./packages/core/tsconfig.compile.json" },
     { "path": "./packages/react/tsconfig.compile.json" },
-    { "path": "./packages/redux/tsconfig.compile.json" },
     { "path": "./packages/img/tsconfig.compile.json" },
     { "path": "./packages/hooks/tsconfig.compile.json" },
     { "path": "./packages/ssr/tsconfig.compile.json" },

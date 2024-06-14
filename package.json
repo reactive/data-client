@@ -97,7 +97,6 @@
     "react-native-safe-area-context": "^4.4.1",
     "react-native-screens": "^3.18.2",
     "react-test-renderer": "18.3.1",
-    "redux": "5.0.1",
     "rimraf": "^5.0.0",
     "rollup": "2.79.1",
     "rollup-plugin-babel": "^4.4.0",

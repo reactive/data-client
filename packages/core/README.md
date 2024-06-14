@@ -21,7 +21,7 @@ automatic expiry policies, data normalization. Consumes [TypeScript Standard End
 ### Framework Implementations
 
 - [React](https://www.npmjs.com/package/@data-client/react)
-- [React-Redux](https://www.npmjs.com/package/@data-client/redux)
+- [React-Redux](https://dataclient.io/docs/guides/redux)
 
 ### Sample React Hook suspense implementation
 
