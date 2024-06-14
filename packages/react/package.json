@@ -113,6 +113,7 @@
     },
     "./ssr": {
       "types": "./lib/server/index.d.ts",
+      "require": "./dist/ssr.js",
       "default": "./lib/server/index.js"
     },
     "./redux": {

@@ -77,6 +77,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
   [
     { input: 'lib/index.js', output: pkg.main },
     { input: 'lib/next/index.js', output: 'dist/next.js' },
+    { input: 'lib/server/index.js', output: 'dist/ssr.js' },
     { input: 'lib/server/redux/index.js', output: 'dist/redux.js' },
   ].forEach(({ input, output }) => {
     configs.push({
