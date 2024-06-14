@@ -1,5 +1,6 @@
+'use client';
 import { ControllerContext, useController } from '@data-client/react';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import React from 'react';
 
 import { createControllerInterceptor } from './createControllerInterceptor.js';
