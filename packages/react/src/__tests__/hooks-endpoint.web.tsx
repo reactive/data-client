@@ -1,6 +1,6 @@
 import { State, ActionTypes, Controller, actionTypes } from '@data-client/core';
 import { CacheProvider } from '@data-client/react';
-import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
+import { DataProvider as ExternalDataProvider } from '@data-client/react/redux';
 import { render, act } from '@testing-library/react';
 import { CoolerArticleResource, PaginatedArticleResource } from '__tests__/new';
 import nock from 'nock';
@@ -310,7 +310,7 @@ describe('useController().reset', () => {
 describe('useController().getState', () => {
   describe.each([
     ['CacheProvider', CacheProvider],
-    ['ExternalCacheProvider', ExternalCacheProvider],
+    ['ExternalDataProvider', ExternalDataProvider],
   ] as const)(`%s`, (_, makeProvider) => {
     let renderDataClient: ReturnType<typeof makeRenderDataClient>;
     let mynock: nock.Scope;

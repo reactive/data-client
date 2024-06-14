@@ -65,7 +65,7 @@ require('whatwg-fetch');
 defaultValue="DataProvider"
 values={[
 { label: '@data-client/react', value: 'DataProvider' },
-{ label: '@data-client/redux', value: 'ExternalDataProvider' },
+{ label: '@data-client/react/redux', value: 'ExternalDataProvider' },
 ]}>
 <TabItem value="DataProvider">
 
@@ -115,7 +115,7 @@ describe('useSuspense()', () => {
 ```typescript
 import nock from 'nock';
 import { makeRenderDataClient } from '@data-client/test';
-import { DataProvider } from '@data-client/redux';
+import { DataProvider } from '@data-client/react/redux';
 
 describe('useSuspense()', () => {
   let renderDataClient: ReturnType<typeof makeRenderDataClient>;

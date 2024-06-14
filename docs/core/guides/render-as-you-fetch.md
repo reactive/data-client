@@ -10,7 +10,7 @@ or [useSuspense()](../api/useSuspense) actually only dispatch the request to fet
 then uses its global awareness to determine whether to fetch. This means, for instance, that
 duplicate requests for data can be deduped into one fetch, with one promise to resolve.
 
-Another interesting implication is that fetches started imperatively via [Controller.fetch()](../api/Controller.md#fetch)
+Another interesting implication is that fetches started imperatively via [Controller.fetchIfStale()](../api/Controller.md#fetchIfStale) and [Controller.fetch()](../api/Controller.md#fetch)
 won't result in redundant fetches. This is known as 'fetch as you render,' and often results
 in an improved user experience.
 

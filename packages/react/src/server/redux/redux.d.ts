@@ -182,7 +182,7 @@ type PreloadedStateShapeFromReducersMapObject<M> =
  * @template A The type of things (actions or otherwise) which may be
  *   dispatched.
  */
-interface Dispatch<A extends Action = UnknownAction> {
+export interface Dispatch<A extends Action = UnknownAction> {
   <T extends A>(action: T, ...extraArgs: any[]): T;
 }
 /**
@@ -714,4 +714,7 @@ export {
   createStore,
   isAction,
   isPlainObject,
+  actionTypes_default,
+  kindOf,
+  formatProdErrorMessage,
 };

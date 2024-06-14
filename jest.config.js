@@ -26,6 +26,7 @@ const baseConfig = {
     'packages/rest/src/next',
     'packages/core/src/next',
     'packages/react/src/next',
+    'packages/react/src/server',
     'packages/react/src/components/DevToolsButton.tsx',
   ],
   testEnvironmentOptions: {
@@ -33,6 +34,7 @@ const baseConfig = {
   },
   /** TODO: Remove once we move to 'publishConfig' */
   moduleNameMapper: {
+    '@data-client/react/redux$': ['<rootDir>/packages/react/src/server/redux'],
     '@data-client/([^/]+)(/.*|[^/]*)$': ['<rootDir>/packages/$1/src$2'],
   },
 };

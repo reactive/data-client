@@ -1,5 +1,5 @@
 import { CacheProvider } from '@data-client/react';
-import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
+import { DataProvider as ExternalDataProvider } from '@data-client/react/redux';
 import {
   CoauthoredArticle,
   CoauthoredArticleResource,
@@ -25,7 +25,7 @@ afterEach(() => {
 
 describe.each([
   ['CacheProvider', CacheProvider],
-  ['ExternalCacheProvider', ExternalCacheProvider],
+  ['ExternalDataProvider', ExternalDataProvider],
 ] as const)(`%s`, (_, makeProvider) => {
   // TODO: add nested resource test case that has multiple partials to test merge functionality
 

@@ -1,6 +1,6 @@
 import { Endpoint, Entity } from '@data-client/endpoint';
 import { CacheProvider } from '@data-client/react';
-import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
+import { DataProvider as ExternalDataProvider } from '@data-client/react/redux';
 import { jest } from '@jest/globals';
 import {
   OptimisticArticleResource,
@@ -44,7 +44,7 @@ afterEach(() => {
 */
 describe.each([
   ['CacheProvider', CacheProvider],
-  ['ExternalCacheProvider', ExternalCacheProvider],
+  ['ExternalDataProvider', ExternalDataProvider],
 ] as const)(`%s`, (_, makeProvider) => {
   describe('Optimistic Updates', () => {
     let renderDataClient: ReturnType<typeof makeRenderDataClient>;

@@ -221,9 +221,9 @@ First three members: [
 ]]
 `;
 
-exports[`ExternalCacheProvider Endpoint should gracefully abort in useSuspense() 1`] = `[AbortError: Aborted]`;
+exports[`ExternalDataProvider Endpoint should gracefully abort in useSuspense() 1`] = `[AbortError: Aborted]`;
 
-exports[`ExternalCacheProvider Query should work as endpoint Schema 1`] = `
+exports[`ExternalDataProvider Query should work as endpoint Schema 1`] = `
 [
   CoolerArticle {
     "author": User {
@@ -244,58 +244,7 @@ exports[`ExternalCacheProvider Query should work as endpoint Schema 1`] = `
 ]
 `;
 
-exports[`ExternalCacheProvider Query should work as endpoint Schema 2`] = `
-[
-  CoolerArticle {
-    "author": User {
-      "email": "bob@bob.com",
-      "id": 23,
-      "isAdmin": false,
-      "username": "charles",
-    },
-    "content": "whatever",
-    "id": 5,
-    "tags": [
-      "a",
-      "best",
-      "react",
-    ],
-    "title": "hi ho",
-  },
-  CoolerArticle {
-    "author": null,
-    "content": "whatever",
-    "id": 1000,
-    "tags": [
-      "a",
-    ],
-    "title": "bob says",
-  },
-]
-`;
-
-exports[`ExternalCacheProvider should filter Query based on arguments 1`] = `
-[
-  CoolerArticle {
-    "author": User {
-      "email": "bob@bob.com",
-      "id": 23,
-      "isAdmin": false,
-      "username": "charles",
-    },
-    "content": "whatever",
-    "id": 5,
-    "tags": [
-      "a",
-      "best",
-      "react",
-    ],
-    "title": "hi ho",
-  },
-]
-`;
-
-exports[`ExternalCacheProvider should filter Query based on arguments 2`] = `
+exports[`ExternalDataProvider Query should work as endpoint Schema 2`] = `
 [
   CoolerArticle {
     "author": User {
@@ -325,7 +274,58 @@ exports[`ExternalCacheProvider should filter Query based on arguments 2`] = `
 ]
 `;
 
-exports[`ExternalCacheProvider should filter Query based on arguments 3`] = `
+exports[`ExternalDataProvider should filter Query based on arguments 1`] = `
+[
+  CoolerArticle {
+    "author": User {
+      "email": "bob@bob.com",
+      "id": 23,
+      "isAdmin": false,
+      "username": "charles",
+    },
+    "content": "whatever",
+    "id": 5,
+    "tags": [
+      "a",
+      "best",
+      "react",
+    ],
+    "title": "hi ho",
+  },
+]
+`;
+
+exports[`ExternalDataProvider should filter Query based on arguments 2`] = `
+[
+  CoolerArticle {
+    "author": User {
+      "email": "bob@bob.com",
+      "id": 23,
+      "isAdmin": false,
+      "username": "charles",
+    },
+    "content": "whatever",
+    "id": 5,
+    "tags": [
+      "a",
+      "best",
+      "react",
+    ],
+    "title": "hi ho",
+  },
+  CoolerArticle {
+    "author": null,
+    "content": "whatever",
+    "id": 1000,
+    "tags": [
+      "a",
+    ],
+    "title": "bob says",
+  },
+]
+`;
+
+exports[`ExternalDataProvider should filter Query based on arguments 3`] = `
 [
   CoolerArticle {
     "author": User {
@@ -374,7 +374,7 @@ exports[`ExternalCacheProvider should filter Query based on arguments 3`] = `
 ]
 `;
 
-exports[`ExternalCacheProvider should passthrough union with unexpected schema attribute 1`] = `
+exports[`ExternalDataProvider should passthrough union with unexpected schema attribute 1`] = `
 [
   [
     "Schema attribute "another" is not expected.
@@ -413,7 +413,7 @@ Value: {
 ]
 `;
 
-exports[`ExternalCacheProvider useSuspense() should throw errors on malformed response 1`] = `
+exports[`ExternalDataProvider useSuspense() should throw errors on malformed response 1`] = `
 [Error: Error processing GET http://test.com/article-cooler/878
 
 Full Schema: {

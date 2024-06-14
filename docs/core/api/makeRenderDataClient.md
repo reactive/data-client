@@ -28,7 +28,7 @@ interface ProviderProps {
 The Reactive Data Client [&lt;DataProvider /&gt;](./DataProvider.md)
 
 - `import { DataProvider } from @data-client/react;`
-- `import { DataProvider } from @data-client/redux;`
+- `import { DataProvider } from @data-client/react/redux;`
 
 ## renderDataClient()
 

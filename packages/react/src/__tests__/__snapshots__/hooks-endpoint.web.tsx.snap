@@ -16,7 +16,7 @@ exports[`useController().getState CacheProvider should eventually update 1`] = `
 ]
 `;
 
-exports[`useController().getState ExternalCacheProvider should eventually update 1`] = `
+exports[`useController().getState ExternalDataProvider should eventually update 1`] = `
 [
   CoolerArticle {
     "author": null,

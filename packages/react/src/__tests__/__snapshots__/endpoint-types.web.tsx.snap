@@ -2,4 +2,4 @@
 
 exports[`endpoint types CacheProvider should enforce defined types should console.error on invalid payload 1`] = `[]`;
 
-exports[`endpoint types ExternalCacheProvider should enforce defined types should console.error on invalid payload 1`] = `[]`;
+exports[`endpoint types ExternalDataProvider should enforce defined types should console.error on invalid payload 1`] = `[]`;

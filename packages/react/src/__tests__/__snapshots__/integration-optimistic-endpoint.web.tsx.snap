@@ -13,7 +13,7 @@ Error:
 this should fail]
 `;
 
-exports[`ExternalCacheProvider Optimistic Updates race conditions should error when user error happens 1`] = `
+exports[`ExternalDataProvider Optimistic Updates race conditions should error when user error happens 1`] = `
 [Error: Error processing toggle [5]
 
 Full Schema: {

@@ -1,5 +1,5 @@
 import { CacheProvider } from '@data-client/react';
-import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
+import { DataProvider as ExternalDataProvider } from '@data-client/react/redux';
 import { TypedArticleResource } from '__tests__/new';
 import nock from 'nock';
 
@@ -22,7 +22,7 @@ afterEach(() => {
 describe('endpoint types', () => {
   describe.each([
     ['CacheProvider', CacheProvider],
-    ['ExternalCacheProvider', ExternalCacheProvider],
+    ['ExternalDataProvider', ExternalDataProvider],
   ] as const)(`%s should enforce defined types`, (_, makeProvider) => {
     let renderDataClient: ReturnType<typeof makeRenderDataClient>;
     let mynock: nock.Scope;

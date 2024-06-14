@@ -13,6 +13,7 @@ cp ./packages/core/next.d.ts ./website/src/components/Playground/editor-types/@d
 cp ./packages/react/next.d.ts ./website/src/components/Playground/editor-types/@data-client/react/next.d.ts
 cp ./packages/react/nextjs.d.ts ./website/src/components/Playground/editor-types/@data-client/react/nextjs.d.ts
 cp ./packages/react/ssr.d.ts ./website/src/components/Playground/editor-types/@data-client/react/ssr.d.ts
+cp ./packages/react/redux.d.ts ./website/src/components/Playground/editor-types/@data-client/react/redux.d.ts
 cp ./node_modules/@types/react/index.d.ts ./website/src/components/Playground/editor-types/react.d.ts
 rm ./website/src/components/Playground/editor-types/globals.d.ts
 yarn run rollup --config ./scripts/globals.rollup.config.js
