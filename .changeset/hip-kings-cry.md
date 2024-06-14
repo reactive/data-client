@@ -2,4 +2,4 @@
 '@data-client/test': patch
 ---
 
-MockResolver marked as 'client' code for usage with NextJS
+[MockResolver](https://dataclient.io/docs/api/MockResolver) marked as 'client' code for usage with NextJS
