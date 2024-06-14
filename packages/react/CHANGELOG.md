@@ -1,5 +1,13 @@
 # @data-client/react
 
+## 0.12.15
+
+### Patch Changes
+
+- [`233f400`](https://github.com/reactive/data-client/commit/233f400ae72b8a9470454b3f3df2b9e75a9b1a36) Thanks [@ntucker](https://github.com/ntucker)! - Fix commonjs builds to keep same context instance
+
+  There must be only one instance of a context, so we need to ensure our new entrypoints don't include createContext
+
 ## 0.12.14
 
 ### Patch Changes
