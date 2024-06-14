@@ -271,10 +271,10 @@ __metadata:
   linkType: hard
 
 "@anansi/cli@npm:^3.0.15":
-  version: 3.1.27
-  resolution: "@anansi/cli@npm:3.1.27"
+  version: 3.1.28
+  resolution: "@anansi/cli@npm:3.1.28"
   dependencies:
-    "@anansi/generator-js": "npm:^12.4.8"
+    "@anansi/generator-js": "npm:^12.4.9"
     binary-version-check: "npm:^6.1.0"
     chalk: "npm:^4.1.2"
     commander: "npm:^12.1.0"
@@ -289,17 +289,16 @@ __metadata:
       optional: true
   bin:
     anansi: ./run.mjs
-  checksum: 10c0/e6b71aa50711b289cf0b2834040541608ba13cdc590c1921f2f5223b9b587e760a61533c7f425988107197085394b315053f6436745af647f9b82e2e1d0fa1e7
+  checksum: 10c0/853e6fe3b1fb23a41a3a4c141aae00da17fae15a36973525e90a33252e75eac4994069c09f760fbfb5b4f914a34dcf30566f6db2ce8f4a8ae051b6ab6d894d4d
   languageName: node
   linkType: hard
 
-"@anansi/core@npm:^0.19.0":
-  version: 0.19.5
-  resolution: "@anansi/core@npm:0.19.5"
+"@anansi/core@npm:^0.20.0":
+  version: 0.20.0
+  resolution: "@anansi/core@npm:0.20.0"
   dependencies:
-    "@anansi/router": "npm:^0.10.1"
+    "@anansi/router": "npm:^0.10.2"
     "@babel/runtime": "npm:^7.17.0"
-    "@data-client/ssr": "npm:^0.12.10"
     chalk: "npm:^4.1.2"
     compression: "npm:^1.7.4"
     cross-fetch: "npm:^4.0.0"
@@ -310,7 +309,6 @@ __metadata:
     http-proxy-middleware: "npm:^3.0.0"
     memfs: "npm:^3.5.3"
     ora: "npm:^6.3.1"
-    redux: "npm:^5.0.1"
     source-map-support: "npm:^0.5.21"
     tmp: "npm:^0.2.3"
     unionfs: "npm:^4.5.4"
@@ -318,31 +316,25 @@ __metadata:
     whatwg-fetch: "npm:^3.6.2"
   peerDependencies:
     "@ant-design/cssinjs": ^1.5.1
-    "@data-client/react": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0 || ^1.0.0 || ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0
-    "@data-client/redux": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0 || ^1.0.0 || ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0
+    "@data-client/react": ^0.12.15
     "@types/react": ^17.0.40 || ^18.0.0 || ^19.0.0-0
     "@types/react-dom": ^17.0.40 || ^18.0.0 || ^19.0.0-0
     react: ^18.0.0 || ^19.0.0-0
     react-dom: ^18.0.0 || ^19.0.0-0
-    redux: ^4.0.0 || ^5.0.0
     webpack: ^5.60.0
   peerDependenciesMeta:
     "@ant-design/cssinjs":
       optional: true
     "@data-client/react":
       optional: true
-    "@data-client/redux":
-      optional: true
     "@types/react":
       optional: true
     "@types/react-dom":
       optional: true
-    redux:
-      optional: true
   bin:
     serve-anansi: ./lib/scripts/serve.js
     start-anansi: ./lib/scripts/startDevserver.js
-  checksum: 10c0/59c2874243e4ce0cba716330cd4fe4fbf2221dc39da2bb87ec6b912026af82775dbed5eec97dffb54fef66620fa1f0d5ea7a39d05d39dbf85da203b4ded74e1b
+  checksum: 10c0/34e11a99673e1d60b2fefa630bced9f867d3ab73f52707a61b57f1376bd76a4f948f438284ac785b0694744f9b3c995f02be961f4865abc9a12c536795ae2601
   languageName: node
   linkType: hard
 
@@ -379,9 +371,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/generator-js@npm:^12.4.8":
-  version: 12.4.8
-  resolution: "@anansi/generator-js@npm:12.4.8"
+"@anansi/generator-js@npm:^12.4.9":
+  version: 12.4.9
+  resolution: "@anansi/generator-js@npm:12.4.9"
   dependencies:
     "@babel/runtime": "npm:^7.17.0"
     "@types/inquirer": "npm:^9.0.7"
@@ -398,7 +390,7 @@ __metadata:
     pacote: "npm:^18.0.6"
     shelobsay: "npm:^2.0.0"
     yeoman-generator: "npm:^7.2.0"
-  checksum: 10c0/6c106ccb814d4e09588b2ac3d6415eb78df73bf43e92528246cf28e5b3cf3b2f357d98bf79ec7258cb82759864fa8b4a74b67059a8f727c86b151092103524e3
+  checksum: 10c0/568c0843ddfff5d2be798e22c44e8777fe665ad54208412ba7789973ab79fb66f8b15587752c8569673d61c7457ca29854ad06938f9631f0301b866dcf8aaa3b
   languageName: node
   linkType: hard
 
@@ -433,12 +425,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/router@npm:^0.10.0, @anansi/router@npm:^0.10.1":
-  version: 0.10.1
-  resolution: "@anansi/router@npm:0.10.1"
+"@anansi/router@npm:^0.10.0, @anansi/router@npm:^0.10.2":
+  version: 0.10.2
+  resolution: "@anansi/router@npm:0.10.2"
   dependencies:
     "@babel/runtime": "npm:^7.17.0"
-    "@pojo-router/core": "npm:^0.8.1"
+    "@pojo-router/core": "npm:^0.9.0"
     history: "npm:^5.3.0"
     nano-memoize: "npm:^3.0.16"
   peerDependencies:
@@ -447,7 +439,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/fdbacfb81b0775395f0c14513fe7abbb4b412c080a820297177782103dec02be3f07d08b39504f1103f109c9a5ae44489d8c333c9f389ef521dd2ffef0890431
+  checksum: 10c0/6ddfc35688b9b833c1d058f94af0262b67162fdf2cc38091f490a43eb7738e242fdcad5c379234abb1c1cbe9585d3d05ad39c4189be3dba7f55dcae64626819d
   languageName: node
   linkType: hard
 
@@ -3261,9 +3253,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/redux@npm:^0.12.0":
-  version: 0.12.12
-  resolution: "@data-client/redux@npm:0.12.12"
+"@data-client/redux@npm:^0.13.0":
+  version: 0.13.0
+  resolution: "@data-client/redux@npm:0.13.0"
   dependencies:
     "@babel/runtime": "npm:^7.17.0"
     "@data-client/core": "npm:^0.12.5"
@@ -3275,7 +3267,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/8ce94c7d9ad61417446abe49cf5f6965cc8e6453b9484eccbb86b6d75329bcc7377d22397a26fddf5bd8d263843099fa4f51da61d485980d2a9c69f1dcd8bdb2
+  checksum: 10c0/7e691fd367b8f5172d7968f77989e45f5b8e8868c1c45ac5ecfd14141b892616716a60d6bb0bd2bc2036f6b344aa9f388386cad8e7bfadd21e8ec0cfec2fa275
   languageName: node
   linkType: hard
 
@@ -3292,14 +3284,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/ssr@npm:^0.12.10, @data-client/ssr@workspace:packages/ssr":
+"@data-client/ssr@workspace:packages/ssr":
   version: 0.0.0-use.local
   resolution: "@data-client/ssr@workspace:packages/ssr"
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
     "@data-client/react": "workspace:*"
-    "@data-client/redux": "npm:^0.12.0"
+    "@data-client/redux": "npm:^0.13.0"
     "@types/node": "npm:^20.0.0"
     "@types/react": "npm:^18.0.30"
     "@types/react-dom": "npm:^18.0.11"
@@ -5495,9 +5487,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pojo-router/core@npm:^0.8.1":
-  version: 0.8.1
-  resolution: "@pojo-router/core@npm:0.8.1"
+"@pojo-router/core@npm:^0.9.0":
+  version: 0.9.0
+  resolution: "@pojo-router/core@npm:0.9.0"
   dependencies:
     "@babel/runtime": "npm:^7.17.0"
     history: "npm:5.3.0"
@@ -5508,7 +5500,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/e10edaa24b1b292a3bc6d6cc07cab188e1336cdcd10480730fcb32067162ee0935d00e5d54d0ae001d89e2918e0ca5d2b8e6530ecd3f3b88bf6bab67139ccaa5
+  checksum: 10c0/c5896df56e32c9b4e483fd7486594ae3d563291fc7822222469ebb1c4a32d3a4f0685f11c9a1fbf6e73a947a115743ecdb5681dc72d91632e44bcf56b6b3aa4e
   languageName: node
   linkType: hard
 
@@ -10507,14 +10499,14 @@ __metadata:
     "@anansi/babel-preset": "npm:^6.0.0"
     "@anansi/browserslist-config": "npm:^1.4.3"
     "@anansi/cli": "npm:^3.0.15"
-    "@anansi/core": "npm:^0.19.0"
+    "@anansi/core": "npm:^0.20.0"
     "@anansi/router": "npm:^0.10.0"
     "@anansi/webpack-config": "npm:^19.0.0"
     "@babel/core": "npm:^7.22.15"
     "@babel/runtime": "npm:^7.22.15"
     "@data-client/img": "npm:^0.12.3"
     "@data-client/react": "npm:^0.12.13"
-    "@data-client/redux": "npm:^0.12.0"
+    "@data-client/redux": "npm:^0.13.0"
     "@data-client/rest": "npm:^0.12.3"
     "@linaria/babel-preset": "npm:*"
     "@linaria/core": "npm:*"
@@ -25535,7 +25527,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"redux@npm:5.0.1, redux@npm:^5.0.0, redux@npm:^5.0.1":
+"redux@npm:5.0.1, redux@npm:^5.0.0":
   version: 5.0.1
   resolution: "redux@npm:5.0.1"
   checksum: 10c0/b10c28357194f38e7d53b760ed5e64faa317cc63de1fb95bc5d9e127fab956392344368c357b8e7a9bedb0c35b111e7efa522210cfdc3b3c75e5074718e9069c
