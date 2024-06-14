@@ -40,7 +40,7 @@ export default function RootLayout({ children }) {
           <header>Title</header>
           <AsyncBoundary>{children}</AsyncBoundary>
           <footer></footer>
-        // highlight-next-line
+          // highlight-next-line
         </DataProvider>
       </body>
     </html>
@@ -92,7 +92,9 @@ class User extends Entity {
   id = '';
   username = '';
 
-  pk() { return this.id }
+  pk() {
+    return this.id;
+  }
 
   // highlight-next-line
   static key = 'User';
@@ -212,8 +214,6 @@ export default class MyDocument extends DataClientDocument {
 
 When implementing your own server using express.
 
-<PkgTabs pkgs="@data-client/ssr @data-client/redux redux" />
-
 ### Server side
 
 ```tsx
@@ -222,7 +222,7 @@ import { renderToPipeableStream } from 'react-dom/server';
 import {
   createPersistedStore,
   createServerDataComponent,
-} from '@data-client/ssr';
+} from '@data-client/react/ssr';
 
 const rootId = 'react-root';
 
@@ -230,7 +230,8 @@ const app = express();
 app.get('/*', (req: any, res: any) => {
   const [ServerDataProvider, useReadyCacheState, controller] =
     createPersistedStore();
-  const ServerDataComponent = createServerDataComponent(useReadyCacheState);
+  const ServerDataComponent =
+    createServerDataComponent(useReadyCacheState);
 
   controller.fetch(NeededForPage, { id: 5 });
 
@@ -266,13 +267,13 @@ app.get('/*', (req: any, res: any) => {
 app.listen(3000, () => {
   console.log(`Listening at ${PORT}...`);
 });
-````
+```
 
 ### Client
 
 ```tsx
 import { hydrateRoot } from 'react-dom';
-import { awaitInitialData } from '@data-client/ssr';
+import { awaitInitialData } from '@data-client/react/ssr';
 
 const rootId = 'react-root';
 

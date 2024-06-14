@@ -67,6 +67,9 @@
       "nextjs": [
         "lib/server/nextjs/index.d.ts"
       ],
+      "ssr": [
+        "lib/server/index.d.ts"
+      ],
       "*": [
         "lib/index.d.ts"
       ]
@@ -77,6 +80,9 @@
       ],
       "next": [
         "ts3.4/next/index.d.ts"
+      ],
+      "ssr": [
+        "lib/server/index.d.ts"
       ],
       "*": [
         "ts3.4/index.d.ts"
@@ -98,6 +104,10 @@
     "./nextjs": {
       "types": "./lib/server/nextjs/index.d.ts",
       "default": "./lib/server/nextjs/index.js"
+    },
+    "./ssr": {
+      "types": "./lib/server/index.d.ts",
+      "default": "./lib/server/index.js"
     },
     "./package.json": "./package.json"
   },
