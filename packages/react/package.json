@@ -1,6 +1,6 @@
 {
   "name": "@data-client/react",
-  "version": "0.12.13",
+  "version": "0.12.14",
   "description": "High performance mutable data rendering in React.",
   "homepage": "https://dataclient.io",
   "repository": {
