@@ -1,5 +1,67 @@
 # @data-client/react
 
+## 0.12.13
+
+### Patch Changes
+
+- [#3099](https://github.com/reactive/data-client/pull/3099) [`428ddd1`](https://github.com/reactive/data-client/commit/428ddd1a185cd5fcc4bb53b2bc64605cca48ba82) Thanks [@ntucker](https://github.com/ntucker)! - Add [@data-client/react/redux](https://dataclient.io/docs/guides/redux)
+
+  ```ts
+  import {
+    ExternalDataProvider,
+    PromiseifyMiddleware,
+    applyManager,
+    initialState,
+    createReducer,
+    prepareStore,
+  } from '@data-client/react/redux';
+  ```
+
+- [`d1b9e96`](https://github.com/reactive/data-client/commit/d1b9e96dffe69527f9ce0ebff4727f0b1226c9d5) Thanks [@ntucker](https://github.com/ntucker)! - Add /ssr entrypoint - eliminating the need for @data-client/ssr package completely
+
+  ```ts
+  import {
+    createPersistedStore,
+    createServerDataComponent,
+  } from '@data-client/react/ssr';
+  ```
+
+- [#3099](https://github.com/reactive/data-client/pull/3099) [`428ddd1`](https://github.com/reactive/data-client/commit/428ddd1a185cd5fcc4bb53b2bc64605cca48ba82) Thanks [@ntucker](https://github.com/ntucker)! - Add middlewares argument to prepareStore()
+
+  ```tsx title="index.tsx"
+  import {
+    ExternalDataProvider,
+    prepareStore,
+    type Middleware,
+  } from '@data-client/react/redux';
+  import { getDefaultManagers, Controller } from '@data-client/react';
+  import ReactDOM from 'react-dom';
+
+  const managers = getDefaultManagers();
+  // be sure to include your other reducers here
+  const otherReducers = {};
+  const extraMiddlewares: Middleware = [];
+
+  const { store, selector, controller } = prepareStore(
+    initialState,
+    managers,
+    Controller,
+    otherReducers,
+    extraMiddlewares,
+  );
+
+  ReactDOM.render(
+    <ExternalDataProvider
+      store={store}
+      selector={selector}
+      controller={controller}
+    >
+      <App />
+    </ExternalDataProvider>,
+    document.body,
+  );
+  ```
+
 ## 0.12.12
 
 ### Patch Changes
