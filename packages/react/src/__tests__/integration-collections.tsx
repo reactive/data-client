@@ -1,5 +1,5 @@
 import { CacheProvider } from '@data-client/react';
-import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
+import { DataProvider as ExternalDataProvider } from '@data-client/react/redux';
 import { schema, RestEndpoint, PolymorphicInterface } from '@data-client/rest';
 import { createResource } from '@data-client/rest';
 import {
@@ -143,7 +143,7 @@ const ResourceCombos: [
 ];
 describe.each([
   ['CacheProvider', CacheProvider],
-  ['ExternalCacheProvider', ExternalCacheProvider],
+  ['ExternalDataProvider', ExternalDataProvider],
 ] as const)(`%s`, (_, makeProvider) => {
   // TODO: add nested resource test case that has multiple partials to test merge functionality
   let renderDataClient: ReturnType<typeof makeRenderDataClient>;

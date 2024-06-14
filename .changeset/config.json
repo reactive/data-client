@@ -10,9 +10,7 @@
       "@data-client/img",
       "@data-client/normalizr",
       "@data-client/react",
-      "@data-client/redux",
       "@data-client/rest",
-      "@data-client/ssr",
       "@data-client/test"
     ]
   ],

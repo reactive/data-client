@@ -45,13 +45,13 @@ Value: {
 ]
 `;
 
-exports[`ExternalCacheProvider should log error message when user update method throws 1`] = `
+exports[`ExternalDataProvider should log error message when user update method throws 1`] = `
 [
   "The following error occured during Endpoint.update() for POST http://test.com/article-cooler",
 ]
 `;
 
-exports[`ExternalCacheProvider should return denormalized value when schema is present (unions) 1`] = `
+exports[`ExternalDataProvider should return denormalized value when schema is present (unions) 1`] = `
 [
   [
     "Schema attribute "another" is not expected.

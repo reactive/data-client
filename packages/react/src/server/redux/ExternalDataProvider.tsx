@@ -1,3 +1,4 @@
+'use client';
 import {
   State,
   ActionTypes,
@@ -18,6 +19,7 @@ import {
   BackupLoading,
   UniversalSuspense,
   usePromisifiedDispatch,
+  StateContext,
 } from '../../index.js';
 
 interface Store<S> {
@@ -72,15 +74,17 @@ export default function ExternalDataProvider<S>({
   }, [selector, store]);
 
   return (
-    <StoreContext.Provider value={adaptedStore}>
-      <ControllerContext.Provider value={controller}>
-        <UniversalSuspense fallback={<BackupLoading />}>
-          {children}
-        </UniversalSuspense>
-        {process.env.NODE_ENV !== 'production' ?
-          <UniversalSuspense fallback={null} />
-        : undefined}
-      </ControllerContext.Provider>
-    </StoreContext.Provider>
+    <StateContext.Provider value={state}>
+      <StoreContext.Provider value={adaptedStore}>
+        <ControllerContext.Provider value={controller}>
+          <UniversalSuspense fallback={<BackupLoading />}>
+            {children}
+          </UniversalSuspense>
+          {process.env.NODE_ENV !== 'production' ?
+            <UniversalSuspense fallback={null} />
+          : undefined}
+        </ControllerContext.Provider>
+      </StoreContext.Provider>
+    </StateContext.Provider>
   );
 }

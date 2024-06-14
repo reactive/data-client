@@ -1,4 +1,4 @@
-import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
+import { DataProvider as ExternalDataProvider } from '@data-client/react/redux';
 import { CoolerArticleDetail } from '__tests__/new';
 
 // relative imports to avoid circular dependency in tsconfig references
@@ -11,7 +11,7 @@ describe('SSR', () => {
   let renderDataClient: ReturnType<typeof makeRenderDataClient>;
 
   beforeEach(() => {
-    renderDataClient = makeRenderDataClient(ExternalCacheProvider);
+    renderDataClient = makeRenderDataClient(ExternalDataProvider);
   });
 
   it('should update useCache()', async () => {

@@ -1,13 +1,12 @@
 import { schema, Entity } from '@data-client/endpoint';
 import { Endpoint } from '@data-client/endpoint';
 import { CacheProvider } from '@data-client/react';
-import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
+import { DataProvider as ExternalDataProvider } from '@data-client/react/redux';
 import {
   CoolerArticleResource,
   EditorArticleResource,
   ArticleResource,
   PaginatedArticleResource,
-  ListPaginatedArticle,
   CoolerArticleDetail,
   TypedArticleResource,
   UnionResource,
@@ -49,7 +48,7 @@ afterEach(() => {
 
 describe.each([
   ['CacheProvider', CacheProvider],
-  ['ExternalCacheProvider', ExternalCacheProvider],
+  ['ExternalDataProvider', ExternalDataProvider],
 ] as const)(`%s`, (_, makeProvider) => {
   // TODO: add nested resource test case that has multiple partials to test merge functionality
   let renderDataClient: ReturnType<typeof makeRenderDataClient>;

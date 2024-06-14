@@ -70,6 +70,9 @@
       "ssr": [
         "lib/server/index.d.ts"
       ],
+      "redux": [
+        "lib/server/redux/index.d.ts"
+      ],
       "*": [
         "lib/index.d.ts"
       ]
@@ -82,7 +85,10 @@
         "ts3.4/next/index.d.ts"
       ],
       "ssr": [
-        "lib/server/index.d.ts"
+        "ts3.4/server/index.d.ts"
+      ],
+      "redux": [
+        "ts3.4/server/redux/index.d.ts"
       ],
       "*": [
         "ts3.4/index.d.ts"
@@ -108,6 +114,11 @@
     "./ssr": {
       "types": "./lib/server/index.d.ts",
       "default": "./lib/server/index.js"
+    },
+    "./redux": {
+      "types": "./lib/server/redux/index.d.ts",
+      "require": "./dist/redux.js",
+      "default": "./lib/server/redux/index.js"
     },
     "./package.json": "./package.json"
   },

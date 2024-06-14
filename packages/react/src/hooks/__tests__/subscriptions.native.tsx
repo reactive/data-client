@@ -1,6 +1,6 @@
 import { actionTypes, Controller } from '@data-client/core';
 import { CacheProvider, useCache } from '@data-client/react';
-import { CacheProvider as ExternalCacheProvider } from '@data-client/redux';
+import { DataProvider as ExternalDataProvider } from '@data-client/react/redux';
 import { renderHook } from '@testing-library/react-native';
 import {
   PollingArticleResource,
@@ -22,7 +22,7 @@ function jsonNock() {
 
 describe.each([
   ['CacheProvider', CacheProvider],
-  ['ExternalCacheProvider', ExternalCacheProvider],
+  ['ExternalDataProvider', ExternalDataProvider],
 ] as const)(`%s with subscriptions`, (_, makeProvider) => {
   const articlePayload = {
     id: 5,

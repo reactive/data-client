@@ -16,12 +16,10 @@ in the React tree.
 
 ## Installation
 
-<PkgTabs pkgs="@data-client/redux redux" />
-
 ## Usage
 
 ```tsx title="index.tsx"
-import { ExternalDataProvider } from '@data-client/redux';
+import { ExternalDataProvider } from '@data-client/react/redux';
 import ReactDOM from 'react-dom';
 
 import { store, selector } from './store';
@@ -58,3 +56,7 @@ but theoretically any external store could be used.
 ```
 
 This function is used to retrieve the `Reactive Data Client` specific part of the store's state tree.
+
+## controller
+
+[Controller](./Controller.md) instance to use.

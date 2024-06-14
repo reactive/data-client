@@ -559,7 +559,7 @@ exports[`CacheProvider should work with unions 2`] = `
 ]
 `;
 
-exports[`ExternalCacheProvider RestEndpoint/current endpoint.assign should add to schema.Values Collections 1`] = `
+exports[`ExternalDataProvider RestEndpoint/current endpoint.assign should add to schema.Values Collections 1`] = `
 Article {
   "author": null,
   "content": "blah",
@@ -569,7 +569,7 @@ Article {
 }
 `;
 
-exports[`ExternalCacheProvider RestEndpoint/current pagination should work with cursor field parameters 1`] = `
+exports[`ExternalDataProvider RestEndpoint/current pagination should work with cursor field parameters 1`] = `
 {
   "nextPage": 2,
   "results": [
@@ -605,7 +605,7 @@ exports[`ExternalCacheProvider RestEndpoint/current pagination should work with 
 }
 `;
 
-exports[`ExternalCacheProvider RestEndpoint/current should update collection on push/unshift FormData 1`] = `
+exports[`ExternalDataProvider RestEndpoint/current should update collection on push/unshift FormData 1`] = `
 {
   "todos": [
     Todo {
@@ -646,7 +646,7 @@ exports[`ExternalCacheProvider RestEndpoint/current should update collection on 
 }
 `;
 
-exports[`ExternalCacheProvider RestEndpoint/current should update collection on push/unshift pojo 1`] = `
+exports[`ExternalDataProvider RestEndpoint/current should update collection on push/unshift pojo 1`] = `
 {
   "todos": [
     Todo {
@@ -687,7 +687,7 @@ exports[`ExternalCacheProvider RestEndpoint/current should update collection on 
 }
 `;
 
-exports[`ExternalCacheProvider RestEndpoint/current should update on get for a paginated resource 1`] = `
+exports[`ExternalDataProvider RestEndpoint/current should update on get for a paginated resource 1`] = `
 {
   "nextPage": 2,
   "results": [
@@ -723,7 +723,7 @@ exports[`ExternalCacheProvider RestEndpoint/current should update on get for a p
 }
 `;
 
-exports[`ExternalCacheProvider RestEndpoint/current should update on get for a paginated resource with searchParams 1`] = `
+exports[`ExternalDataProvider RestEndpoint/current should update on get for a paginated resource with searchParams 1`] = `
 {
   "nextPage": 2,
   "results": [
@@ -759,7 +759,7 @@ exports[`ExternalCacheProvider RestEndpoint/current should update on get for a p
 }
 `;
 
-exports[`ExternalCacheProvider RestEndpoint/next endpoint.assign should add to schema.Values Collections 1`] = `
+exports[`ExternalDataProvider RestEndpoint/next endpoint.assign should add to schema.Values Collections 1`] = `
 Article {
   "author": null,
   "content": "blah",
@@ -769,7 +769,7 @@ Article {
 }
 `;
 
-exports[`ExternalCacheProvider RestEndpoint/next pagination should work with cursor field parameters 1`] = `
+exports[`ExternalDataProvider RestEndpoint/next pagination should work with cursor field parameters 1`] = `
 {
   "nextPage": 2,
   "results": [
@@ -805,7 +805,7 @@ exports[`ExternalCacheProvider RestEndpoint/next pagination should work with cur
 }
 `;
 
-exports[`ExternalCacheProvider RestEndpoint/next should update collection on push/unshift FormData 1`] = `
+exports[`ExternalDataProvider RestEndpoint/next should update collection on push/unshift FormData 1`] = `
 {
   "todos": [
     Todo {
@@ -846,7 +846,7 @@ exports[`ExternalCacheProvider RestEndpoint/next should update collection on pus
 }
 `;
 
-exports[`ExternalCacheProvider RestEndpoint/next should update collection on push/unshift pojo 1`] = `
+exports[`ExternalDataProvider RestEndpoint/next should update collection on push/unshift pojo 1`] = `
 {
   "todos": [
     Todo {
@@ -887,7 +887,7 @@ exports[`ExternalCacheProvider RestEndpoint/next should update collection on pus
 }
 `;
 
-exports[`ExternalCacheProvider RestEndpoint/next should update on get for a paginated resource 1`] = `
+exports[`ExternalDataProvider RestEndpoint/next should update on get for a paginated resource 1`] = `
 {
   "nextPage": 2,
   "results": [
@@ -923,7 +923,7 @@ exports[`ExternalCacheProvider RestEndpoint/next should update on get for a pagi
 }
 `;
 
-exports[`ExternalCacheProvider RestEndpoint/next should update on get for a paginated resource with searchParams 1`] = `
+exports[`ExternalDataProvider RestEndpoint/next should update on get for a paginated resource with searchParams 1`] = `
 {
   "nextPage": 2,
   "results": [
@@ -959,7 +959,7 @@ exports[`ExternalCacheProvider RestEndpoint/next should update on get for a pagi
 }
 `;
 
-exports[`ExternalCacheProvider pagination should ignore undefined values 1`] = `
+exports[`ExternalDataProvider pagination should ignore undefined values 1`] = `
 [
   Article {
     "author": User {
@@ -992,7 +992,7 @@ exports[`ExternalCacheProvider pagination should ignore undefined values 1`] = `
 ]
 `;
 
-exports[`ExternalCacheProvider pagination should work with cursor field from getList.paginated 1`] = `
+exports[`ExternalDataProvider pagination should work with cursor field from getList.paginated 1`] = `
 [
   Article {
     "author": User {
@@ -1025,7 +1025,7 @@ exports[`ExternalCacheProvider pagination should work with cursor field from get
 ]
 `;
 
-exports[`ExternalCacheProvider should use custom Collection class 1`] = `
+exports[`ExternalDataProvider should use custom Collection class 1`] = `
 {
   "todos": [
     Todo {
@@ -1052,7 +1052,7 @@ exports[`ExternalCacheProvider should use custom Collection class 1`] = `
 }
 `;
 
-exports[`ExternalCacheProvider should work with unions 1`] = `
+exports[`ExternalDataProvider should work with unions 1`] = `
 [
   [
     "Schema attribute "another" is not expected.
@@ -1091,7 +1091,7 @@ Value: {
 ]
 `;
 
-exports[`ExternalCacheProvider should work with unions 2`] = `
+exports[`ExternalDataProvider should work with unions 2`] = `
 [
   null,
   FirstUnion {
