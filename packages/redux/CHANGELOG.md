@@ -1,5 +1,11 @@
 # @data-client/redux
 
+## 0.13.0
+
+### Minor Changes
+
+- [#3099](https://github.com/reactive/data-client/pull/3099) [`428ddd1`](https://github.com/reactive/data-client/commit/428ddd1a185cd5fcc4bb53b2bc64605cca48ba82) Thanks [@ntucker](https://github.com/ntucker)! - Deprecate in favor of [@data-client/react/redux](https://dataclient.io/docs/guides/redux)
+
 ## 0.12.12
 
 ### Patch Changes

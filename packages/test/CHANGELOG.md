@@ -1,5 +1,11 @@
 # @data-client/test
 
+## 0.12.13
+
+### Patch Changes
+
+- [`eebd453`](https://github.com/reactive/data-client/commit/eebd4537829248c02ad9c0b9c5ac988123366949) Thanks [@ntucker](https://github.com/ntucker)! - [MockResolver](https://dataclient.io/docs/api/MockResolver) marked as 'client' code for usage with NextJS
+
 ## 0.12.12
 
 ### Patch Changes
