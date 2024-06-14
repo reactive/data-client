@@ -23,7 +23,11 @@ const nativeExtensions = ['.native.ts', ...extensions];
 process.env.NODE_ENV = 'production';
 
 function isExternal(id) {
-  return dependencies.some(dep => dep === id || id.startsWith(dep));
+  return (
+    // when we import contexts in our other entry points
+    id === '../../index.js' ||
+    dependencies.some(dep => dep === id || id.startsWith(dep))
+  );
 }
 
 const configs = [];
@@ -77,8 +81,11 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
   [
     { input: 'lib/index.js', output: pkg.main },
     { input: 'lib/next/index.js', output: 'dist/next.js' },
-    { input: 'lib/server/index.js', output: 'dist/ssr.js' },
-    { input: 'lib/server/redux/index.js', output: 'dist/redux.js' },
+    { input: 'lib/server/index.js', output: 'dist/server/index.js' },
+    {
+      input: 'lib/server/redux/index.js',
+      output: 'dist/server/redux/index.js',
+    },
   ].forEach(({ input, output }) => {
     configs.push({
       input,

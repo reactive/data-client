@@ -113,12 +113,12 @@
     },
     "./ssr": {
       "types": "./lib/server/index.d.ts",
-      "require": "./dist/ssr.js",
+      "require": "./dist/server/index.js",
       "default": "./lib/server/index.js"
     },
     "./redux": {
       "types": "./lib/server/redux/index.d.ts",
-      "require": "./dist/redux.js",
+      "require": "./dist/server/redux/index.js",
       "default": "./lib/server/redux/index.js"
     },
     "./package.json": "./package.json"
