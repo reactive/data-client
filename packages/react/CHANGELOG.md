@@ -1,5 +1,11 @@
 # @data-client/react
 
+## 0.12.14
+
+### Patch Changes
+
+- [`d3cdbef`](https://github.com/reactive/data-client/commit/d3cdbef2012e5934594be18822c9af7465019b17) Thanks [@ntucker](https://github.com/ntucker)! - Add commonjs bundle for @data-client/react/ssr
+
 ## 0.12.13
 
 ### Patch Changes
