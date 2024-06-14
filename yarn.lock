@@ -3261,17 +3261,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/redux@npm:^0.13.0, @data-client/redux@workspace:*, @data-client/redux@workspace:packages/redux":
-  version: 0.0.0-use.local
-  resolution: "@data-client/redux@workspace:packages/redux"
+"@data-client/redux@npm:^0.12.0":
+  version: 0.12.12
+  resolution: "@data-client/redux@npm:0.12.12"
   dependencies:
-    "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
     "@data-client/core": "npm:^0.12.5"
-    "@data-client/react": "workspace:*"
-    "@types/node": "npm:^20.0.0"
-    "@types/react": "npm:^18.0.30"
-    redux: "npm:^5.0.0"
   peerDependencies:
     "@data-client/react": ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0
     "@types/react": ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -3280,8 +3275,9 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  languageName: unknown
-  linkType: soft
+  checksum: 10c0/8ce94c7d9ad61417446abe49cf5f6965cc8e6453b9484eccbb86b6d75329bcc7377d22397a26fddf5bd8d263843099fa4f51da61d485980d2a9c69f1dcd8bdb2
+  languageName: node
+  linkType: hard
 
 "@data-client/rest@npm:^0.12.3, @data-client/rest@workspace:*, @data-client/rest@workspace:packages/rest":
   version: 0.0.0-use.local
@@ -3303,7 +3299,7 @@ __metadata:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
     "@data-client/react": "workspace:*"
-    "@data-client/redux": "workspace:*"
+    "@data-client/redux": "npm:^0.12.0"
     "@types/node": "npm:^20.0.0"
     "@types/react": "npm:^18.0.30"
     "@types/react-dom": "npm:^18.0.11"
@@ -3312,7 +3308,7 @@ __metadata:
     redux: "npm:^5.0.0"
   peerDependencies:
     "@data-client/react": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0 || ^0.5.0 || ^0.7.0 || ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0
-    "@data-client/redux": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0 || ^0.5.0 || ^0.7.0 || ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^ 0.13.0
+    "@data-client/redux": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0 || ^0.5.0 || ^0.7.0 || ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0
     "@types/react": ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
     next: ">=12.0.0"
     react: ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -10518,7 +10514,7 @@ __metadata:
     "@babel/runtime": "npm:^7.22.15"
     "@data-client/img": "npm:^0.12.3"
     "@data-client/react": "npm:^0.12.13"
-    "@data-client/redux": "npm:^0.13.0"
+    "@data-client/redux": "npm:^0.12.0"
     "@data-client/rest": "npm:^0.12.3"
     "@linaria/babel-preset": "npm:*"
     "@linaria/core": "npm:*"
@@ -26416,7 +26412,6 @@ __metadata:
     react-native-safe-area-context: "npm:^4.4.1"
     react-native-screens: "npm:^3.18.2"
     react-test-renderer: "npm:18.3.1"
-    redux: "npm:5.0.1"
     rimraf: "npm:^5.0.0"
     rollup: "npm:2.79.1"
     rollup-plugin-babel: "npm:^4.4.0"
