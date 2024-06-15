@@ -9,8 +9,8 @@
     "lint": "yarn g:lint"
   },
   "dependencies": {
-    "@data-client/react": "^0.12.0",
-    "@data-client/rest": "^0.12.0",
+    "@data-client/react": "^0.12.15",
+    "@data-client/rest": "^0.12.8",
     "@types/node": "20.14.2",
     "@types/react": "npm:types-react@rc",
     "@types/react-dom": "npm:types-react-dom@rc",
