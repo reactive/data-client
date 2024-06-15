@@ -181,4 +181,4 @@ declare const mapMiddleware: <M extends Middleware<{}, any, Dispatch<UnknownActi
 declare const PromiseifyMiddleware: <R extends React$1.Reducer<any, any>>(_: unknown) => (next: Dispatch$1<R>) => (action: React$1.ReducerAction<R>) => Promise<void>;
 //# sourceMappingURL=PromiseifyMiddleware.d.ts.map
 
-export { ExternalDataProvider$1 as DataProvider, ExternalDataProvider, PromiseifyMiddleware, mapMiddleware, prepareStore };
+export { ExternalDataProvider$1 as DataProvider, ExternalDataProvider, Middleware, PromiseifyMiddleware, Reducer, mapMiddleware, prepareStore };
