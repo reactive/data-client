@@ -7,7 +7,7 @@ import { getTicker } from 'resources/Ticker';
 const managers =
   typeof window === 'undefined' ? getDefaultManagers() : (
     [
-      new StreamManager(new WebSocket('wss://ws-feed.exchange.coinbase.com'), {
+      new StreamManager(() => new WebSocket('wss://ws-feed.exchange.coinbase.com'), {
         ticker: getTicker,
       }),
       ...getDefaultManagers(),

@@ -31,7 +31,7 @@ const spouts = JSONSpout()(
       getManagers: () => {
         return [
           new StreamManager(
-            new WebSocket('wss://ws-feed.exchange.coinbase.com'),
+            () => new WebSocket('wss://ws-feed.exchange.coinbase.com'),
             { ticker: getTicker },
           ),
           ...getManagers(),
