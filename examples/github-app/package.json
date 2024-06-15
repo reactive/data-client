@@ -47,7 +47,7 @@
     "webpack-dev-server": "5.0.4"
   },
   "dependencies": {
-    "@anansi/router": "0.10.1",
+    "@anansi/router": "0.10.2",
     "@ant-design/icons": "^5.0.0",
     "@data-client/graphql": "^0.12.0",
     "@data-client/hooks": "^0.1.1",

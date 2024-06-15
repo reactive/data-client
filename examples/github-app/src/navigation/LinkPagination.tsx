@@ -1,4 +1,4 @@
-import { useController } from '@anansi/router';
+import { useRouter } from '@anansi/router';
 import { Pagination } from 'antd';
 import type { History } from 'history';
 import parseLink from 'parse-link-header';
@@ -12,14 +12,14 @@ interface PageProps {
   link: string;
 }
 function LinkPagination({ link }: PageProps) {
-  const controller = useController();
+  const controller = useRouter();
   const parsed = parseLink(link);
   const curPage =
     parsed && parsed.next
       ? Number.parseInt(parsed.next.page ?? '0') - 1
       : parsed && parsed.prev
-      ? Number.parseInt(parsed.prev.page ?? '0') + 1
-      : 1;
+        ? Number.parseInt(parsed.prev.page ?? '0') + 1
+        : 1;
   let total;
   if (!parsed) {
     total = 1;

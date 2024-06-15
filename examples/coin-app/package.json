@@ -39,18 +39,16 @@
   },
   "dependencies": {
     "@anansi/cli": "^3.0.15",
-    "@anansi/core": "^0.19.0",
+    "@anansi/core": "^0.20.0",
     "@anansi/router": "^0.10.0",
     "@babel/runtime": "^7.22.15",
     "@data-client/img": "^0.12.3",
     "@data-client/react": "^0.12.13",
-    "@data-client/redux": "^0.12.0",
     "@data-client/rest": "^0.12.3",
     "d3": "^7.9.0",
     "history": "*",
     "react": "^18.3.0",
-    "react-dom": "^18.3.0",
-    "redux": "^5.0.0"
+    "react-dom": "^18.3.0"
   },
   "main": "src/index.ts",
   "types": "src/index.ts",
