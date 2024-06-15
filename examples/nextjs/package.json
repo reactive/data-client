@@ -9,6 +9,7 @@
     "lint": "yarn g:lint"
   },
   "dependencies": {
+    "@anansi/babel-preset": "^6.0.0",
     "@data-client/react": "^0.12.15",
     "@data-client/rest": "^0.12.8",
     "@types/node": "20.14.2",
