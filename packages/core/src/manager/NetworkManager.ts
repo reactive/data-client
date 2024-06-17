@@ -1,6 +1,6 @@
-import { SET_TYPE, FETCH_TYPE, RESET_TYPE } from '../actionTypes.js';
+import { SET_RESPONSE_TYPE, FETCH_TYPE, RESET_TYPE } from '../actionTypes.js';
 import Controller from '../controller/Controller.js';
-import createSet from '../controller/createSet.js';
+import createSetResponse from '../controller/createSetResponse.js';
 import RIC from '../state/RIC.js';
 import type {
   FetchAction,
@@ -8,7 +8,7 @@ import type {
   ActionTypes,
   MiddlewareAPI,
   Middleware,
-  SetAction,
+  SetResponseAction,
 } from '../types.js';
 
 export class ResetError extends Error {
@@ -60,7 +60,7 @@ export default class NetworkManager implements Manager {
                 return next(action);
               }
               return Promise.resolve();
-            case SET_TYPE:
+            case SET_RESPONSE_TYPE:
               // only set after new state is computed
               return next(action).then(() => {
                 if (action.meta.key in this.fetched) {
@@ -70,7 +70,7 @@ export default class NetworkManager implements Manager {
                   // processing errors result in state meta having error, so we should reject the promise
                   if (error) {
                     this.handleSet(
-                      createSet(action.endpoint, {
+                      createSetResponse(action.endpoint, {
                         args: action.meta.args,
                         response: error,
                         fetchedAt: action.meta.fetchedAt,
@@ -228,7 +228,7 @@ export default class NetworkManager implements Manager {
    *
    * Will resolve the promise associated with set key.
    */
-  protected handleSet(action: SetAction) {
+  protected handleSet(action: SetResponseAction) {
     // this can still turn out to be untrue since this is async
     if (action.meta.key in this.fetched) {
       let promiseHandler: (value?: any) => void;

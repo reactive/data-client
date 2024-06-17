@@ -1,7 +1,7 @@
 import { Endpoint } from '@data-client/endpoint';
 import { Article, ArticleResource } from '__tests__/new';
 
-import { SET_TYPE } from '../../actionTypes';
+import { SET_RESPONSE_TYPE } from '../../actionTypes';
 import Controller from '../../controller/Controller';
 import createFetch from '../../controller/createFetch';
 import NetworkManager from '../../manager/NetworkManager';
@@ -160,7 +160,7 @@ describe('NetworkManager', () => {
       await new Promise(resolve => setTimeout(resolve, 0));
 
       const action = {
-        type: SET_TYPE,
+        type: SET_RESPONSE_TYPE,
         endpoint: fetchResolveAction.endpoint,
         payload: data,
         meta: {
@@ -193,7 +193,7 @@ describe('NetworkManager', () => {
       await new Promise(resolve => setTimeout(resolve, 0));
 
       const action = {
-        type: SET_TYPE,
+        type: SET_RESPONSE_TYPE,
         endpoint: fetchSetWithUpdatersAction.endpoint,
         payload: data,
         meta: {
@@ -226,7 +226,7 @@ describe('NetworkManager', () => {
       await new Promise(resolve => setTimeout(resolve, 0));
 
       const action = {
-        type: SET_TYPE,
+        type: SET_RESPONSE_TYPE,
         endpoint: fetchRpcWithUpdatersAction.endpoint,
         payload: data,
         meta: {
@@ -259,7 +259,7 @@ describe('NetworkManager', () => {
       // mutations resolve before dispatch, so we must wait for next tick to see set
       await new Promise(resolve => setTimeout(resolve, 0));
       expect(dispatch).toHaveBeenCalledWith({
-        type: SET_TYPE,
+        type: SET_RESPONSE_TYPE,
         endpoint: fetchRpcWithUpdatersAndOptimisticAction.endpoint,
         payload: data,
         meta: {
@@ -329,7 +329,7 @@ describe('NetworkManager', () => {
       } catch (error) {
         expect(next).not.toHaveBeenCalled();
         expect(dispatch).toHaveBeenCalledWith({
-          type: SET_TYPE,
+          type: SET_RESPONSE_TYPE,
           payload: error,
           meta: {
             key: fetchRejectAction.meta.key,

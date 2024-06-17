@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`set should update store with error 1`] = `
+[
+  [
+    [Error: Unexpected input given to normalize. Expected type to be "object", found "number".
+
+          Schema: {
+  "name": "CoolerArticle",
+  "schema": {
+    "author": {
+      "name": "User",
+      "schema": {},
+      "key": "User"
+    }
+  },
+  "key": "CoolerArticle"
+}
+          Input: "5"],
+  ],
+]
+`;

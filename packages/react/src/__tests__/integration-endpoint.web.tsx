@@ -1,6 +1,6 @@
 import { schema, Entity } from '@data-client/endpoint';
 import { Endpoint } from '@data-client/endpoint';
-import { CacheProvider } from '@data-client/react';
+import { DataProvider } from '@data-client/react';
 import { DataProvider as ExternalDataProvider } from '@data-client/react/redux';
 import {
   CoolerArticleResource,
@@ -47,7 +47,7 @@ afterEach(() => {
 });
 
 describe.each([
-  ['CacheProvider', CacheProvider],
+  ['DataProvider', DataProvider],
   ['ExternalDataProvider', ExternalDataProvider],
 ] as const)(`%s`, (_, makeProvider) => {
   // TODO: add nested resource test case that has multiple partials to test merge functionality

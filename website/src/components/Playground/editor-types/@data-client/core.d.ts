@@ -243,6 +243,7 @@ type EndpointUpdateFunction<Source extends EndpointInterface, Updaters extends R
 
 declare const FETCH_TYPE: "rdc/fetch";
 declare const SET_TYPE: "rdc/set";
+declare const SET_RESPONSE_TYPE: "rdc/setresponse";
 declare const OPTIMISTIC_TYPE: "rdc/optimistic";
 declare const RESET_TYPE: "rdc/reset";
 declare const SUBSCRIBE_TYPE: "rdc/subscribe";
@@ -254,6 +255,7 @@ declare const GC_TYPE: "rdc/gc";
 
 declare const actionTypes_d_FETCH_TYPE: typeof FETCH_TYPE;
 declare const actionTypes_d_SET_TYPE: typeof SET_TYPE;
+declare const actionTypes_d_SET_RESPONSE_TYPE: typeof SET_RESPONSE_TYPE;
 declare const actionTypes_d_OPTIMISTIC_TYPE: typeof OPTIMISTIC_TYPE;
 declare const actionTypes_d_RESET_TYPE: typeof RESET_TYPE;
 declare const actionTypes_d_SUBSCRIBE_TYPE: typeof SUBSCRIBE_TYPE;
@@ -266,6 +268,7 @@ declare namespace actionTypes_d {
   export {
     actionTypes_d_FETCH_TYPE as FETCH_TYPE,
     actionTypes_d_SET_TYPE as SET_TYPE,
+    actionTypes_d_SET_RESPONSE_TYPE as SET_RESPONSE_TYPE,
     actionTypes_d_OPTIMISTIC_TYPE as OPTIMISTIC_TYPE,
     actionTypes_d_RESET_TYPE as RESET_TYPE,
     actionTypes_d_SUBSCRIBE_TYPE as SUBSCRIBE_TYPE,
@@ -285,26 +288,38 @@ type EndpointDefault = EndpointInterface & {
 };
 interface SetMeta {
     args: readonly any[];
+    fetchedAt: number;
+    date: number;
+    expiresAt: number;
+}
+interface SetAction<S extends Queryable = any> {
+    type: typeof SET_TYPE;
+    schema: S;
+    meta: SetMeta;
+    value: Denormalize<S>;
+}
+interface SetResponseMeta {
+    args: readonly any[];
     key: string;
     fetchedAt: number;
     date: number;
     expiresAt: number;
 }
-interface SetActionSuccess<E extends EndpointAndUpdate<E> = EndpointDefault> {
-    type: typeof SET_TYPE;
+interface SetResponseActionSuccess<E extends EndpointAndUpdate<E> = EndpointDefault> {
+    type: typeof SET_RESPONSE_TYPE;
     endpoint: E;
-    meta: SetMeta;
+    meta: SetResponseMeta;
     payload: ResolveType<E>;
     error?: false;
 }
-interface SetActionError<E extends EndpointAndUpdate<E> = EndpointDefault> {
-    type: typeof SET_TYPE;
+interface SetResponseActionError<E extends EndpointAndUpdate<E> = EndpointDefault> {
+    type: typeof SET_RESPONSE_TYPE;
     endpoint: E;
-    meta: SetMeta;
+    meta: SetResponseMeta;
     payload: UnknownError;
     error: true;
 }
-type SetAction<E extends EndpointAndUpdate<E> = EndpointDefault> = SetActionSuccess<E> | SetActionError<E>;
+type SetResponseAction<E extends EndpointAndUpdate<E> = EndpointDefault> = SetResponseActionSuccess<E> | SetResponseActionError<E>;
 interface FetchMeta<A extends readonly any[] = readonly any[]> {
     args: A;
     key: string;
@@ -324,7 +339,7 @@ interface FetchAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
 interface OptimisticAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
     type: typeof OPTIMISTIC_TYPE;
     endpoint: E;
-    meta: SetMeta;
+    meta: SetResponseMeta;
     error?: false;
 }
 interface SubscribeAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
@@ -366,7 +381,7 @@ interface GCAction {
     entities: [string, string][];
     endpoints: string[];
 }
-type ActionTypes = FetchAction | OptimisticAction | SetAction | SubscribeAction | UnsubscribeAction | InvalidateAction | InvalidateAllAction | ExpireAllAction | ResetAction | GCAction;
+type ActionTypes = FetchAction | OptimisticAction | SetAction | SetResponseAction | SubscribeAction | UnsubscribeAction | InvalidateAction | InvalidateAllAction | ExpireAllAction | ResetAction | GCAction;
 
 type RHDispatch<Actions = any> = (value: Actions) => Promise<void>;
 interface MiddlewareAPI$1<R extends DataClientReducer = DataClientReducer> extends Controller<RHDispatch<ActionTypes>> {
@@ -380,7 +395,6 @@ type Reducer<S, A> = (prevState: S, action: A) => S;
 type ReducerState<R extends Reducer<any, any>> = R extends Reducer<infer S, any> ? S : never;
 type ReducerAction<R extends Reducer<any, any>> = R extends Reducer<any, infer A> ? A : never;
 
-type SetTypes = typeof SET_TYPE;
 type PK = string;
 interface State<T> {
     readonly entities: {
@@ -411,7 +425,7 @@ interface State<T> {
             };
         };
     };
-    readonly optimistic: (SetAction | OptimisticAction)[];
+    readonly optimistic: (SetResponseAction | OptimisticAction)[];
     readonly lastReset: number;
 }
 
@@ -471,7 +485,9 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      * Forces refetching and suspense on useSuspense with the same Endpoint and parameters.
      * @see https://dataclient.io/docs/api/Controller#invalidate
      */
-    invalidate: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]) => Promise<void>;
+    invalidate: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [
+        null
+    ]) => Promise<void>;
     /**
      * Forces refetching and suspense on useSuspense on all matching endpoint result keys.
      * @see https://dataclient.io/docs/api/Controller#invalidateAll
@@ -494,14 +510,19 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      */
     resetEntireStore: () => Promise<void>;
     /**
-     * Stores response in cache for given Endpoint and args.
+     * Sets value for the Queryable and args.
      * @see https://dataclient.io/docs/api/Controller#set
+     */
+    set: <S extends Queryable>(schema: S, ...rest: readonly [...SchemaArgs<S>, any]) => Promise<void>;
+    /**
+     * Sets response for the Endpoint and args.
+     * @see https://dataclient.io/docs/api/Controller#setResponse
      */
     setResponse: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
         update?: EndpointUpdateFunction<E> | undefined;
     }>(endpoint: E, ...rest: readonly [...Parameters<E>, any]) => Promise<void>;
     /**
-     * Stores the result of Endpoint and args as the error provided.
+     * Sets an error response for the Endpoint and args.
      * @see https://dataclient.io/docs/api/Controller#setError
      */
     setError: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
@@ -528,12 +549,16 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      * Marks a new subscription to a given Endpoint.
      * @see https://dataclient.io/docs/api/Controller#subscribe
      */
-    subscribe: <E extends EndpointInterface<FetchFunction, Schema | undefined, false | undefined>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]) => Promise<void>;
+    subscribe: <E extends EndpointInterface<FetchFunction, Schema | undefined, false | undefined>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [
+        null
+    ]) => Promise<void>;
     /**
      * Marks completion of subscription to a given Endpoint.
      * @see https://dataclient.io/docs/api/Controller#unsubscribe
      */
-    unsubscribe: <E extends EndpointInterface<FetchFunction, Schema | undefined, false | undefined>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]) => Promise<void>;
+    unsubscribe: <E extends EndpointInterface<FetchFunction, Schema | undefined, false | undefined>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [
+        null
+    ]) => Promise<void>;
     /*************** More ***************/
     /**
      * Gets a snapshot (https://dataclient.io/docs/api/Snapshot)
@@ -651,7 +676,7 @@ declare class NetworkManager implements Manager {
      *
      * Will resolve the promise associated with set key.
      */
-    protected handleSet(action: SetAction): void;
+    protected handleSet(action: SetResponseAction): void;
     /** Attaches NetworkManager to store
      *
      * Intercepts 'rdc/fetch' actions to start requests.
@@ -689,22 +714,28 @@ declare function createFetch<E extends EndpointInterface & {
     args: readonly [...Parameters<E>];
 }): FetchAction<E>;
 
-declare function createSet<E extends EndpointInterface & {
+declare function createSet<S extends Queryable>(schema: S, { args, fetchedAt, value, }: {
+    args: readonly [...SchemaArgs<S>];
+    value: any;
+    fetchedAt?: number;
+}): SetAction<S>;
+
+declare function createSetResponse<E extends EndpointInterface & {
     update?: EndpointUpdateFunction<E>;
 }>(endpoint: E, options: {
     args: readonly [...Parameters<E>];
     response: Error;
     fetchedAt?: number;
     error: true;
-}): SetAction<E>;
-declare function createSet<E extends EndpointInterface & {
+}): SetResponseAction<E>;
+declare function createSetResponse<E extends EndpointInterface & {
     update?: EndpointUpdateFunction<E>;
 }>(endpoint: E, options: {
     args: readonly [...Parameters<E>];
     response: ResolveType<E>;
     fetchedAt?: number;
     error?: false;
-}): SetAction<E>;
+}): SetResponseAction<E>;
 
 interface ConnectionListener {
     isOnline: () => boolean;
@@ -1054,4 +1085,4 @@ declare class DevToolsManager implements Manager {
     getMiddleware(): Middleware;
 }
 
-export { AbstractInstanceType, ActionTypes, ConnectionListener, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch$1 as Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityInterface, ErrorTypes, ExpireAllAction, ExpiryStatus, FetchAction, FetchFunction, FetchMeta, GCAction, GenericDispatch, InvalidateAction, InvalidateAllAction, LogoutManager, Manager, Middleware$2 as Middleware, MiddlewareAPI$1 as MiddlewareAPI, NI, NetworkError, NetworkManager, Normalize, NormalizeNullable, OptimisticAction, PK, PollingSubscription, Queryable, ResetAction, ResetError, ResolveType, ResultEntry, Schema, SchemaArgs, SetAction, SetActionError, SetActionSuccess, SetMeta, SetTypes, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, applyManager, createFetch, createReducer, createSet, initialState };
+export { AbstractInstanceType, ActionTypes, ConnectionListener, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch$1 as Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityInterface, ErrorTypes, ExpireAllAction, ExpiryStatus, FetchAction, FetchFunction, FetchMeta, GCAction, GenericDispatch, InvalidateAction, InvalidateAllAction, LogoutManager, Manager, Middleware$2 as Middleware, MiddlewareAPI$1 as MiddlewareAPI, NI, NetworkError, NetworkManager, Normalize, NormalizeNullable, OptimisticAction, PK, PollingSubscription, Queryable, ResetAction, ResetError, ResolveType, ResultEntry, Schema, SchemaArgs, SetAction, SetMeta, SetResponseAction, SetResponseActionError, SetResponseActionSuccess, SetResponseMeta, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, applyManager, createFetch, createReducer, createSet, createSetResponse, initialState };

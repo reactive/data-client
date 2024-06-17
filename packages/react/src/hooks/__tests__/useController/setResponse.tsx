@@ -66,7 +66,7 @@ afterEach(() => {
   nock.cleanAll();
 });
 
-describe('set', () => {
+describe('setResponse', () => {
   it('should update store when set is complete', async () => {
     const { result } = renderDataClient(() => {
       return {

@@ -1,5 +1,7 @@
 import type {
+  Denormalize,
   EndpointInterface,
+  Queryable,
   ResolveType,
   UnknownError,
 } from '@data-client/normalizr';
@@ -15,6 +17,7 @@ import type {
   OPTIMISTIC_TYPE,
   INVALIDATEALL_TYPE,
   EXPIREALL_TYPE,
+  SET_RESPONSE_TYPE,
 } from './actionTypes.js';
 import type { EndpointUpdateFunction } from './controller/types.js';
 
@@ -28,32 +31,47 @@ type EndpointDefault = EndpointInterface & {
 /* SET */
 export interface SetMeta {
   args: readonly any[];
+  fetchedAt: number;
+  date: number;
+  expiresAt: number;
+}
+
+export interface SetAction<S extends Queryable = any> {
+  type: typeof SET_TYPE;
+  schema: S;
+  meta: SetMeta;
+  value: Denormalize<S>;
+}
+
+/* setResponse */
+export interface SetResponseMeta {
+  args: readonly any[];
   key: string;
   fetchedAt: number;
   date: number;
   expiresAt: number;
 }
-export interface SetActionSuccess<
+export interface SetResponseActionSuccess<
   E extends EndpointAndUpdate<E> = EndpointDefault,
 > {
-  type: typeof SET_TYPE;
+  type: typeof SET_RESPONSE_TYPE;
   endpoint: E;
-  meta: SetMeta;
+  meta: SetResponseMeta;
   payload: ResolveType<E>;
   error?: false;
 }
-export interface SetActionError<
+export interface SetResponseActionError<
   E extends EndpointAndUpdate<E> = EndpointDefault,
 > {
-  type: typeof SET_TYPE;
+  type: typeof SET_RESPONSE_TYPE;
   endpoint: E;
-  meta: SetMeta;
+  meta: SetResponseMeta;
   payload: UnknownError;
   error: true;
 }
-export type SetAction<E extends EndpointAndUpdate<E> = EndpointDefault> =
-  | SetActionSuccess<E>
-  | SetActionError<E>;
+export type SetResponseAction<
+  E extends EndpointAndUpdate<E> = EndpointDefault,
+> = SetResponseActionSuccess<E> | SetResponseActionError<E>;
 
 /* FETCH */
 export interface FetchMeta<A extends readonly any[] = readonly any[]> {
@@ -81,7 +99,7 @@ export interface OptimisticAction<
 > {
   type: typeof OPTIMISTIC_TYPE;
   endpoint: E;
-  meta: SetMeta;
+  meta: SetResponseMeta;
   error?: false;
 }
 
@@ -144,6 +162,7 @@ export type ActionTypes =
   | FetchAction
   | OptimisticAction
   | SetAction
+  | SetResponseAction
   | SubscribeAction
   | UnsubscribeAction
   | InvalidateAction

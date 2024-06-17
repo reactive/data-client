@@ -5,13 +5,14 @@ import type {
 } from '@data-client/normalizr';
 import type { ErrorTypes } from '@data-client/normalizr';
 
-import type { ActionTypes, SetAction, OptimisticAction } from './actions.js';
-import { SET_TYPE } from './actionTypes.js';
+import type {
+  ActionTypes,
+  SetResponseAction,
+  OptimisticAction,
+} from './actions.js';
 import type { Dispatch, Middleware, MiddlewareAPI } from './middlewareTypes.js';
 
 export type { AbstractInstanceType, UpdateFunction };
-
-export type SetTypes = typeof SET_TYPE;
 
 export type PK = string;
 
@@ -42,7 +43,7 @@ export interface State<T> {
       };
     };
   };
-  readonly optimistic: (SetAction | OptimisticAction)[];
+  readonly optimistic: (SetResponseAction | OptimisticAction)[];
   readonly lastReset: number;
 }
 

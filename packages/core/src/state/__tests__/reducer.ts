@@ -1,29 +1,24 @@
 import { INVALID } from '@data-client/endpoint';
-import {
-  ArticleResource,
-  PaginatedArticleResource,
-  Article,
-  PaginatedArticle,
-} from '__tests__/new';
+import { ArticleResource, Article, PaginatedArticle } from '__tests__/new';
 
 import { Controller } from '../..';
 import {
-  SET_TYPE,
   INVALIDATE_TYPE,
   FETCH_TYPE,
   RESET_TYPE,
   GC_TYPE,
+  SET_RESPONSE_TYPE,
+  SET_TYPE,
 } from '../../actionTypes';
-import createSet from '../../controller/createSet';
 import {
-  UpdateFunction,
   State,
   ActionTypes,
   FetchAction,
-  SetAction,
+  SetResponseAction,
   ResetAction,
   InvalidateAction,
   GCAction,
+  SetAction,
 } from '../../types';
 import createReducer, { initialState } from '../reducer/createReducer';
 
@@ -40,8 +35,8 @@ describe('reducer', () => {
   describe('singles', () => {
     const id = 20;
     const payload = { id, title: 'hi', content: 'this is the content' };
-    const action: SetAction = {
-      type: SET_TYPE,
+    const action: SetResponseAction = {
+      type: SET_RESPONSE_TYPE,
       payload,
       endpoint: ArticleResource.get,
       meta: {
@@ -207,11 +202,55 @@ describe('reducer', () => {
     });
   });
 
+  it('set should add entity when it does not exist', () => {
+    const id = 20;
+    const value = { id, title: 'hi', content: 'this is the content' };
+    const action: SetAction = {
+      type: SET_TYPE,
+      value,
+      schema: Article,
+      meta: {
+        args: [{ id }],
+        date: 0,
+        fetchedAt: 0,
+        expiresAt: 1000000000000,
+      },
+    };
+    const iniState = {
+      ...initialState,
+      endpoints: { abc: '5', [ArticleResource.get.key(value)]: `${id}` },
+    };
+    const newState = reducer(iniState, action);
+    expect(newState.entities[Article.key]?.[id]).toEqual(value);
+  });
+
+  it('set should never change endpoints', () => {
+    const id = 20;
+    const value = { id, title: 'hi', content: 'this is the content' };
+    const action: SetAction = {
+      type: SET_TYPE,
+      value,
+      schema: Article,
+      meta: {
+        args: [{ id }],
+        date: 0,
+        fetchedAt: 0,
+        expiresAt: 1000000000000,
+      },
+    };
+    const iniState = {
+      ...initialState,
+      endpoints: { abc: '5', [ArticleResource.get.key(value)]: `${id}` },
+    };
+    const newState = reducer(iniState, action);
+    expect(newState.endpoints).toStrictEqual(iniState.endpoints);
+  });
+
   it('mutate should never change endpoints', () => {
     const id = 20;
     const payload = { id, title: 'hi', content: 'this is the content' };
-    const action: SetAction = {
-      type: SET_TYPE,
+    const action: SetResponseAction = {
+      type: SET_RESPONSE_TYPE,
       payload,
       endpoint: ArticleResource.get,
       meta: {
@@ -231,8 +270,8 @@ describe('reducer', () => {
   });
   it('purge should delete entities', () => {
     const id = 20;
-    const action: SetAction = {
-      type: SET_TYPE,
+    const action: SetResponseAction = {
+      type: SET_RESPONSE_TYPE,
       payload: { id },
       endpoint: ArticleResource.delete,
       meta: {
@@ -283,7 +322,7 @@ describe('reducer', () => {
       };
 
       it('should insert a new page of resources into a list request', () => {
-        const action = createSet(
+        const action = createSetResponse(
           { results: [{ id: 11 }, { id: 12 }] },
           {
             ...endpoint,
@@ -310,7 +349,7 @@ describe('reducer', () => {
       it('should insert correctly into the beginning of the list request', () => {
         const newState = reducer(
           iniState,
-          createSet(
+          createSetResponse(
             { results: [{ id: 11 }, { id: 12 }] },
             {
               ...endpoint,
@@ -350,7 +389,7 @@ describe('reducer', () => {
         };
         const newState = reducer(
           iniState,
-          createSet(
+          createSetResponse(
             { results: [{ id: 11 }, { id: 12 }] },
             {
               ...endpoint,
@@ -420,8 +459,8 @@ describe('reducer', () => {
   it('should set error in meta for "set"', () => {
     const id = 20;
     const error = new Error('hi');
-    const action: SetAction = {
-      type: SET_TYPE,
+    const action: SetResponseAction = {
+      type: SET_RESPONSE_TYPE,
       payload: error,
       endpoint: ArticleResource.get,
       meta: {
@@ -440,8 +479,8 @@ describe('reducer', () => {
   it('should not modify state on error for "rpc"', () => {
     const id = 20;
     const error = new Error('hi');
-    const action: SetAction = {
-      type: SET_TYPE,
+    const action: SetResponseAction = {
+      type: SET_RESPONSE_TYPE,
       payload: error,
       endpoint: ArticleResource.get,
       meta: {
@@ -461,8 +500,8 @@ describe('reducer', () => {
   it('should not delete on error for "purge"', () => {
     const id = 20;
     const error = new Error('hi');
-    const action: SetAction = {
-      type: SET_TYPE,
+    const action: SetResponseAction = {
+      type: SET_RESPONSE_TYPE,
       payload: error,
       endpoint: ArticleResource.delete,
       meta: {

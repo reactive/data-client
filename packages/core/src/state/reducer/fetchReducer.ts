@@ -1,13 +1,13 @@
 import createOptimistic from '../../controller/createOptimistic.js';
 import type {
   State,
-  SetAction,
+  SetResponseAction,
   OptimisticAction,
   FetchAction,
 } from '../../types.js';
 
 export function fetchReducer(state: State<unknown>, action: FetchAction) {
-  let setAction: SetAction | OptimisticAction;
+  let setAction: SetResponseAction | OptimisticAction;
 
   if (action.endpoint.getOptimisticResponse && action.endpoint.sideEffect) {
     setAction = createOptimistic(action.endpoint, {

@@ -5,7 +5,6 @@ import type {
   Denormalize,
   Queryable,
   SchemaArgs,
-  NI,
 } from '@data-client/normalizr';
 import {
   ExpiryStatus,
@@ -27,6 +26,7 @@ import createInvalidate from './createInvalidate.js';
 import createInvalidateAll from './createInvalidateAll.js';
 import createReset from './createReset.js';
 import createSet from './createSet.js';
+import createSetResponse from './createSetResponse.js';
 import {
   createUnsubscription,
   createSubscription,
@@ -183,8 +183,25 @@ export default class Controller<
   resetEntireStore = (): Promise<void> => this.dispatch(createReset());
 
   /**
-   * Stores response in cache for given Endpoint and args.
+   * Sets value for the Queryable and args.
    * @see https://dataclient.io/docs/api/Controller#set
+   */
+  set = <S extends Queryable>(
+    schema: S,
+    ...rest: readonly [...SchemaArgs<S>, any]
+  ): Promise<void> => {
+    const value: Denormalize<S> = rest[rest.length - 1];
+    const action = createSet(schema, {
+      args: rest.slice(0, rest.length - 1) as SchemaArgs<S>,
+      value,
+    });
+    // TODO: reject with error if this fails in reducer
+    return this.dispatch(action);
+  };
+
+  /**
+   * Sets response for the Endpoint and args.
+   * @see https://dataclient.io/docs/api/Controller#setResponse
    */
   setResponse = <
     E extends EndpointInterface & {
@@ -195,7 +212,7 @@ export default class Controller<
     ...rest: readonly [...Parameters<E>, any]
   ): Promise<void> => {
     const response: ResolveType<E> = rest[rest.length - 1];
-    const action = createSet(endpoint, {
+    const action = createSetResponse(endpoint, {
       args: rest.slice(0, rest.length - 1) as Parameters<E>,
       response,
     });
@@ -203,7 +220,7 @@ export default class Controller<
   };
 
   /**
-   * Stores the result of Endpoint and args as the error provided.
+   * Sets an error response for the Endpoint and args.
    * @see https://dataclient.io/docs/api/Controller#setError
    */
   setError = <
@@ -215,7 +232,7 @@ export default class Controller<
     ...rest: readonly [...Parameters<E>, Error]
   ): Promise<void> => {
     const response: Error = rest[rest.length - 1];
-    const action = createSet(endpoint, {
+    const action = createSetResponse(endpoint, {
       args: rest.slice(0, rest.length - 1) as Parameters<E>,
       response,
       error: true,
@@ -247,7 +264,7 @@ export default class Controller<
           error?: false | undefined;
         },
   ): Promise<void> => {
-    return this.dispatch(createSet(endpoint, meta as any));
+    return this.dispatch(createSetResponse(endpoint, meta as any));
   };
 
   /**
