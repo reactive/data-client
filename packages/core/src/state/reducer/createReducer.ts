@@ -2,6 +2,7 @@ import { expireReducer } from './expireReducer.js';
 import { fetchReducer } from './fetchReducer.js';
 import { invalidateReducer } from './invalidateReducer.js';
 import { setReducer } from './setReducer.js';
+import { setResponseReducer } from './setResponseReducer.js';
 import {
   SET_TYPE,
   INVALIDATE_TYPE,
@@ -11,6 +12,7 @@ import {
   OPTIMISTIC_TYPE,
   INVALIDATEALL_TYPE,
   EXPIREALL_TYPE,
+  SET_RESPONSE_TYPE,
 } from '../../actionTypes.js';
 import type Controller from '../../controller/Controller.js';
 import type { ActionTypes, State } from '../../types.js';
@@ -38,8 +40,11 @@ export default function createReducer(controller: Controller): ReducerType {
 
       case OPTIMISTIC_TYPE:
       // eslint-disable-next-line no-fallthrough
+      case SET_RESPONSE_TYPE:
+        return setResponseReducer(state, action, controller);
+
       case SET_TYPE:
-        return setReducer(state, action, controller);
+        return setReducer(state, action);
 
       case INVALIDATEALL_TYPE:
       case INVALIDATE_TYPE:

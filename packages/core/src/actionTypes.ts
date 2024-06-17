@@ -1,5 +1,6 @@
 export const FETCH_TYPE = 'rdc/fetch' as const;
 export const SET_TYPE = 'rdc/set' as const;
+export const SET_RESPONSE_TYPE = 'rdc/setresponse' as const;
 export const OPTIMISTIC_TYPE = 'rdc/optimistic' as const;
 export const RESET_TYPE = 'rdc/reset' as const;
 export const SUBSCRIBE_TYPE = 'rdc/subscribe' as const;

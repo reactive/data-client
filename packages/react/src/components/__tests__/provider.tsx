@@ -6,10 +6,10 @@ import {
   Manager,
   Middleware,
   Controller,
-  SetAction,
+  SetResponseAction,
 } from '@data-client/core';
 import { act, render } from '@testing-library/react';
-import { CoolerArticle, CoolerArticleResource } from '__tests__/new';
+import { CoolerArticleResource } from '__tests__/new';
 import nock from 'nock';
 import React, { useContext, Suspense, StrictMode } from 'react';
 
@@ -18,7 +18,7 @@ import { useController, useSuspense } from '../../hooks';
 import { payload } from '../../test-fixtures';
 import CacheProvider, { getDefaultManagers } from '../DataProvider';
 
-const { SET_TYPE } = actionTypes;
+const { SET_RESPONSE_TYPE } = actionTypes;
 
 describe('<CacheProvider />', () => {
   let warnspy: jest.SpyInstance;
@@ -137,8 +137,8 @@ describe('<CacheProvider />', () => {
     render(tree);
     expect(dispatch).toBeDefined();
     expect(state).toBeDefined();
-    const action: SetAction = {
-      type: SET_TYPE,
+    const action: SetResponseAction = {
+      type: SET_RESPONSE_TYPE,
       payload: { id: 5, title: 'hi', content: 'more things here' },
       endpoint: CoolerArticleResource.get,
       meta: {

@@ -2,7 +2,7 @@ import { CoolerArticleResource } from '__tests__/new';
 
 import { Controller, initialState } from '../..';
 import { FETCH_TYPE, RESET_TYPE } from '../../actionTypes';
-import createSet from '../../controller/createSet';
+import createSetResponse from '../../controller/createSetResponse';
 import LogoutManager from '../LogoutManager.js';
 
 function onError(e: any) {
@@ -44,7 +44,7 @@ describe('LogoutManager', () => {
       },
     );
     it('should ignore non-error set', async () => {
-      const action = createSet(CoolerArticleResource.get, {
+      const action = createSetResponse(CoolerArticleResource.get, {
         args: [{ id: 5 }],
         response: { id: 5, title: 'hi' },
       });
@@ -55,7 +55,7 @@ describe('LogoutManager', () => {
     it('should ignore non-401 set', async () => {
       const error: any = new Error('network failed');
       error.status = 404;
-      const action = createSet(CoolerArticleResource.get, {
+      const action = createSetResponse(CoolerArticleResource.get, {
         args: [{ id: 5 }],
         response: error,
         error: true,
@@ -67,7 +67,7 @@ describe('LogoutManager', () => {
     it('should dispatch reset on 401', async () => {
       const error: any = new Error('network failed');
       error.status = 401;
-      const action = createSet(CoolerArticleResource.get, {
+      const action = createSetResponse(CoolerArticleResource.get, {
         args: [{ id: 5 }],
         response: error,
         error: true,
@@ -88,7 +88,7 @@ describe('LogoutManager', () => {
       }).getMiddleware();
       const error: any = new Error('network failed');
       error.status = 403;
-      const action = createSet(CoolerArticleResource.get, {
+      const action = createSetResponse(CoolerArticleResource.get, {
         args: [{ id: 5 }],
         response: error,
         error: true,

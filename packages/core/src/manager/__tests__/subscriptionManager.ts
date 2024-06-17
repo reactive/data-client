@@ -4,7 +4,7 @@ import { actionTypes, Controller, initialState } from '../..';
 import { SubscribeAction, UnsubscribeAction } from '../../types';
 import SubscriptionManager, { Subscription } from '../SubscriptionManager.js';
 
-const { UNSUBSCRIBE_TYPE, SUBSCRIBE_TYPE, SET_TYPE } = actionTypes;
+const { UNSUBSCRIBE_TYPE, SUBSCRIBE_TYPE, SET_RESPONSE_TYPE } = actionTypes;
 
 function onError(e: any) {
   e.preventDefault();
@@ -192,7 +192,7 @@ describe('SubscriptionManager', () => {
     });
 
     it('should let other actions pass through', () => {
-      const action = { type: SET_TYPE };
+      const action = { type: SET_RESPONSE_TYPE };
       next.mockReset();
 
       middleware(API)(next)(action as any);

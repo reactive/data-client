@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`CacheProvider Endpoint should gracefully abort in useSuspense() 1`] = `[AbortError: Aborted]`;
+exports[`DataProvider Endpoint should gracefully abort in useSuspense() 1`] = `[AbortError: Aborted]`;
 
-exports[`CacheProvider Query should work as endpoint Schema 1`] = `
+exports[`DataProvider Query should work as endpoint Schema 1`] = `
 [
   CoolerArticle {
     "author": User {
@@ -23,58 +23,7 @@ exports[`CacheProvider Query should work as endpoint Schema 1`] = `
 ]
 `;
 
-exports[`CacheProvider Query should work as endpoint Schema 2`] = `
-[
-  CoolerArticle {
-    "author": User {
-      "email": "bob@bob.com",
-      "id": 23,
-      "isAdmin": false,
-      "username": "charles",
-    },
-    "content": "whatever",
-    "id": 5,
-    "tags": [
-      "a",
-      "best",
-      "react",
-    ],
-    "title": "hi ho",
-  },
-  CoolerArticle {
-    "author": null,
-    "content": "whatever",
-    "id": 1000,
-    "tags": [
-      "a",
-    ],
-    "title": "bob says",
-  },
-]
-`;
-
-exports[`CacheProvider should filter Query based on arguments 1`] = `
-[
-  CoolerArticle {
-    "author": User {
-      "email": "bob@bob.com",
-      "id": 23,
-      "isAdmin": false,
-      "username": "charles",
-    },
-    "content": "whatever",
-    "id": 5,
-    "tags": [
-      "a",
-      "best",
-      "react",
-    ],
-    "title": "hi ho",
-  },
-]
-`;
-
-exports[`CacheProvider should filter Query based on arguments 2`] = `
+exports[`DataProvider Query should work as endpoint Schema 2`] = `
 [
   CoolerArticle {
     "author": User {
@@ -104,7 +53,58 @@ exports[`CacheProvider should filter Query based on arguments 2`] = `
 ]
 `;
 
-exports[`CacheProvider should filter Query based on arguments 3`] = `
+exports[`DataProvider should filter Query based on arguments 1`] = `
+[
+  CoolerArticle {
+    "author": User {
+      "email": "bob@bob.com",
+      "id": 23,
+      "isAdmin": false,
+      "username": "charles",
+    },
+    "content": "whatever",
+    "id": 5,
+    "tags": [
+      "a",
+      "best",
+      "react",
+    ],
+    "title": "hi ho",
+  },
+]
+`;
+
+exports[`DataProvider should filter Query based on arguments 2`] = `
+[
+  CoolerArticle {
+    "author": User {
+      "email": "bob@bob.com",
+      "id": 23,
+      "isAdmin": false,
+      "username": "charles",
+    },
+    "content": "whatever",
+    "id": 5,
+    "tags": [
+      "a",
+      "best",
+      "react",
+    ],
+    "title": "hi ho",
+  },
+  CoolerArticle {
+    "author": null,
+    "content": "whatever",
+    "id": 1000,
+    "tags": [
+      "a",
+    ],
+    "title": "bob says",
+  },
+]
+`;
+
+exports[`DataProvider should filter Query based on arguments 3`] = `
 [
   CoolerArticle {
     "author": User {
@@ -153,7 +153,7 @@ exports[`CacheProvider should filter Query based on arguments 3`] = `
 ]
 `;
 
-exports[`CacheProvider should passthrough union with unexpected schema attribute 1`] = `
+exports[`DataProvider should passthrough union with unexpected schema attribute 1`] = `
 [
   [
     "Schema attribute "another" is not expected.
@@ -192,7 +192,7 @@ Value: {
 ]
 `;
 
-exports[`CacheProvider useSuspense() should throw errors on malformed response 1`] = `
+exports[`DataProvider useSuspense() should throw errors on malformed response 1`] = `
 [Error: Error processing GET http://test.com/article-cooler/878
 
 Full Schema: {

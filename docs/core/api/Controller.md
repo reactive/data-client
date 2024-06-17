@@ -31,6 +31,7 @@ class Controller {
   invalidate(endpoint, ...args): Promise<void>;
   invalidateAll({ testKey }): Promise<void>;
   resetEntireStore(): Promise<void>;
+  set(queryable, ...args, response): Promise<void>;
   setResponse(endpoint, ...args, response): Promise<void>;
   setError(endpoint, ...args, error): Promise<void>;
   resolve(endpoint, { args, response, fetchedAt, error }): Promise<void>;
@@ -356,6 +357,14 @@ function UserName() {
     </div>
   );
 }
+```
+
+## set(queryable, ...args, value) {#set}
+
+Updates any [Queryable](/rest/api/schema#queryable) [Schema](/rest/api/schema#schema-overview).
+
+```ts
+ctrl.set(Todo, { id: '5' }, { id: '5', title: 'tell me friends how great Data Client is' });
 ```
 
 ## setResponse(endpoint, ...args, response) {#setResponse}
