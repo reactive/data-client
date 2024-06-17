@@ -1,5 +1,13 @@
 # coinbase-lite
 
+## 0.0.7
+
+### Patch Changes
+
+- Updated dependencies [[`cf770de`](https://github.com/reactive/data-client/commit/cf770de244ad890b286c59ac305ceb6c3b1288ea), [`cf770de`](https://github.com/reactive/data-client/commit/cf770de244ad890b286c59ac305ceb6c3b1288ea)]:
+  - @data-client/img@0.13.0
+  - @data-client/react@0.13.0
+
 ## 0.0.6
 
 ### Patch Changes
