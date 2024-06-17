@@ -3146,7 +3146,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@data-client/core@npm:^0.12.5, @data-client/core@workspace:^, @data-client/core@workspace:packages/core":
+"@data-client/core@npm:^0.12.5":
+  version: 0.12.5
+  resolution: "@data-client/core@npm:0.12.5"
+  dependencies:
+    "@babel/runtime": "npm:^7.17.0"
+    "@data-client/normalizr": "npm:^0.12.3"
+    flux-standard-action: "npm:^2.1.1"
+  checksum: 10c0/2950c37e72d7899780c4ba375ee74749edd79024b562a1afc335aa9fb8530fd20c0c8f0c4200a12fa57dfdede0616d175eed01a1bed1d4b9d12887bf843bd0d4
+  languageName: node
+  linkType: hard
+
+"@data-client/core@npm:^0.13.0, @data-client/core@workspace:^, @data-client/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@data-client/core@workspace:packages/core"
   dependencies:
@@ -3198,7 +3209,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/img@npm:^0.12.3, @data-client/img@workspace:packages/img":
+"@data-client/img@npm:^0.13.0, @data-client/img@workspace:packages/img":
   version: 0.0.0-use.local
   resolution: "@data-client/img@workspace:packages/img"
   dependencies:
@@ -3229,13 +3240,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/react@npm:^0.12.13, @data-client/react@workspace:*, @data-client/react@workspace:^, @data-client/react@workspace:packages/react":
+"@data-client/react@npm:^0.13.0, @data-client/react@workspace:*, @data-client/react@workspace:^, @data-client/react@workspace:packages/react":
   version: 0.0.0-use.local
   resolution: "@data-client/react@workspace:packages/react"
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
-    "@data-client/core": "npm:^0.12.5"
+    "@data-client/core": "npm:^0.13.0"
     "@data-client/use-enhanced-reducer": "npm:^0.1.10"
     "@react-navigation/native": "npm:^6.1.6"
     "@types/node": "npm:^20.0.0"
@@ -10504,8 +10515,8 @@ __metadata:
     "@anansi/webpack-config": "npm:^19.0.0"
     "@babel/core": "npm:^7.22.15"
     "@babel/runtime": "npm:^7.22.15"
-    "@data-client/img": "npm:^0.12.3"
-    "@data-client/react": "npm:^0.12.13"
+    "@data-client/img": "npm:^0.13.0"
+    "@data-client/react": "npm:^0.13.0"
     "@data-client/rest": "npm:^0.12.3"
     "@linaria/babel-preset": "npm:*"
     "@linaria/core": "npm:*"

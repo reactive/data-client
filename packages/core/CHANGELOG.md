@@ -1,5 +1,24 @@
 # @data-client/core
 
+## 0.13.0
+
+### Minor Changes
+
+- [#3105](https://github.com/reactive/data-client/pull/3105) [`cf770de`](https://github.com/reactive/data-client/commit/cf770de244ad890b286c59ac305ceb6c3b1288ea) Thanks [@ntucker](https://github.com/ntucker)! - Add controller.set()
+
+  ```ts
+  ctrl.set(
+    Todo,
+    { id: '5' },
+    { id: '5', title: 'tell me friends how great Data Client is' },
+  );
+  ```
+
+  BREAKING CHANGE:
+
+  - actionTypes.SET_TYPE -> actionTypes.SET_RESPONSE_TYPE
+  - SetAction -> SetResponseAction
+
 ## 0.12.5
 
 ### Patch Changes
@@ -112,12 +131,12 @@
 
   ```tsx
   export const PostResource = createResource({
-    path: "/posts/:id",
+    path: '/posts/:id',
     schema: Post,
-  }).extend((Base) => ({
+  }).extend(Base => ({
     vote: new RestEndpoint({
-      path: "/posts/:id/vote",
-      method: "POST",
+      path: '/posts/:id/vote',
+      method: 'POST',
       body: undefined,
       schema: Post,
       getOptimisticResponse(snapshot, { id }) {
@@ -136,11 +155,11 @@
 
   ```tsx
   export const PostResource = createResource({
-    path: "/posts/:id",
+    path: '/posts/:id',
     schema: Post,
-  }).extend("vote", {
-    path: "/posts/:id/vote",
-    method: "POST",
+  }).extend('vote', {
+    path: '/posts/:id/vote',
+    method: 'POST',
     body: undefined,
     schema: Post,
     getOptimisticResponse(snapshot, { id }) {
@@ -302,12 +321,11 @@
 
   ```ts
   class LoggingManager implements Manager {
-    getMiddleware =
-      (): Middleware => (controller) => (next) => async (action) => {
-        console.log("before", action, controller.getState());
-        await next(action);
-        console.log("after", action, controller.getState());
-      };
+    getMiddleware = (): Middleware => controller => next => async action => {
+      console.log('before', action, controller.getState());
+      await next(action);
+      console.log('after', action, controller.getState());
+    };
 
     cleanup() {}
   }
@@ -351,7 +369,7 @@
 - f95dbc64d1: [Collections](https://dataclient.io/rest/api/Collection) can filter based on FormData arguments
 
   ```ts
-  ctrl.fetch(getPosts.push, { group: "react" }, new FormData(e.currentTarget));
+  ctrl.fetch(getPosts.push, { group: 'react' }, new FormData(e.currentTarget));
   ```
 
   Say our FormData contained an `author` field. Now that newly created
@@ -359,8 +377,8 @@
 
   ```ts
   useSuspense(getPosts, {
-    group: "react",
-    author: "bob",
+    group: 'react',
+    author: 'bob',
   });
   ```
 

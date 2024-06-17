@@ -1,5 +1,11 @@
 # @data-client/img
 
+## 0.13.0
+
+### Patch Changes
+
+- [#3105](https://github.com/reactive/data-client/pull/3105) [`cf770de`](https://github.com/reactive/data-client/commit/cf770de244ad890b286c59ac305ceb6c3b1288ea) Thanks [@ntucker](https://github.com/ntucker)! - Support 0.13 of @data-client/react
+
 ## 0.12.8
 
 ### Patch Changes
