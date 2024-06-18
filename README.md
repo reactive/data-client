@@ -250,6 +250,7 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://da
   - [ctrl.invalidate](https://dataclient.io/docs/api/Controller#invalidate)
   - [ctrl.invalidateAll](https://dataclient.io/docs/api/Controller#invalidateAll)
   - [ctrl.resetEntireStore](https://dataclient.io/docs/api/Controller#resetEntireStore)
+  - [ctrl.set](https://dataclient.io/docs/api/Controller#set)
   - [ctrl.setResponse](https://dataclient.io/docs/api/Controller#setResponse)
   - [ctrl.setError](https://dataclient.io/docs/api/Controller#setError)
   - [ctrl.resolve](https://dataclient.io/docs/api/Controller#resolve)
