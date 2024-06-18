@@ -7204,12 +7204,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:20.14.2, @types/node@npm:^20.0.0, @types/node@npm:^20.8.3":
-  version: 20.14.2
-  resolution: "@types/node@npm:20.14.2"
+"@types/node@npm:*, @types/node@npm:20.14.5, @types/node@npm:^20.0.0, @types/node@npm:^20.8.3":
+  version: 20.14.5
+  resolution: "@types/node@npm:20.14.5"
   dependencies:
     undici-types: "npm:~5.26.4"
-  checksum: 10c0/2d86e5f2227aaa42212e82ea0affe72799111b888ff900916376450b02b09b963ca888b20d9c332d8d2b833ed4781987867a38eaa2e4863fa8439071468b0a6f
+  checksum: 10c0/06a8c304b5f7f190d4497807dc67ad09ee7b14ea2996bfdc823553c624698d8cab1ef9d16f8b764f20cb9eb11caa0e832787741e9ef70e1c89d620797ab28436
   languageName: node
   linkType: hard
 
@@ -7221,9 +7221,9 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:^16.18.26, @types/node@npm:^16.18.28, @types/node@npm:^16.18.31":
-  version: 16.18.98
-  resolution: "@types/node@npm:16.18.98"
-  checksum: 10c0/5f79c70ace541c3ee7d61a00e48c796a56690882d612cc17fb518aeec30215a70ebaf2a72a6db4083e49ce2e7eda2b144703a5346b831820d8a405efc9c11b75
+  version: 16.18.99
+  resolution: "@types/node@npm:16.18.99"
+  checksum: 10c0/3edd35e0116473db8493031c5c757e33a4485d41466b811516f0816f2946c849769e7a2a80b5296ebeaadc93bc0c3daf1451383cfd11b108070e69ec5537b4e0
   languageName: node
   linkType: hard
 
@@ -7235,11 +7235,11 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:^18.0.0, @types/node@npm:^18.18.5":
-  version: 18.19.34
-  resolution: "@types/node@npm:18.19.34"
+  version: 18.19.36
+  resolution: "@types/node@npm:18.19.36"
   dependencies:
     undici-types: "npm:~5.26.4"
-  checksum: 10c0/e985f50684def801801069e236165ee511f9195fc04ad4a2af7642d86aeaeaf7bfe34c147f894a48618a5c71c15b388ca91341a244792149543a712e38351988
+  checksum: 10c0/ae46848ea54e7672d556ed616f104dfb2500f6e5cca9fb8107897f74ef3d4fef0e9a4cc0ebc4c5d3a04fca775f917f829af7a8718f4aafc9a3532999bc130082
   languageName: node
   linkType: hard
 
@@ -25078,12 +25078,12 @@ __metadata:
   linkType: hard
 
 "react-native-safe-area-context@npm:^4.4.1":
-  version: 4.10.4
-  resolution: "react-native-safe-area-context@npm:4.10.4"
+  version: 4.10.5
+  resolution: "react-native-safe-area-context@npm:4.10.5"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 10c0/7b94f6151fa1e0a483d6939d4a51c5c7f2d50afd5e4baaa755253d2dff4ac3b6d613741997d66c935e7ff0b39aff8d14ea479b2cf83fe606d10676eb213b9998
+  checksum: 10c0/b385d07ad0bd8400f957e458cf9f715312ccfe00db0c0806831a419f44fbe1eef5004c7d007156db8bc235f738880d2467d89e334ab585c682d38c0c8635c7f1
   languageName: node
   linkType: hard
 
@@ -26380,7 +26380,7 @@ __metadata:
     "@testing-library/react-hooks": "npm:8.0.1"
     "@testing-library/react-native": "npm:12.5.1"
     "@types/jest": "npm:29.5.12"
-    "@types/node": "npm:20.14.2"
+    "@types/node": "npm:20.14.5"
     "@types/react": "npm:18.3.3"
     "@typescript-eslint/eslint-plugin": "npm:7.13.0"
     "@typescript-eslint/parser": "npm:7.13.0"
