@@ -25,10 +25,10 @@ Logs out based on fetch responses. By default this is triggered by [401 (Unautho
 defaultValue="18-web"
 groupId="platform"
 values={[
-{ label: 'React Web 16+', value: 'web' },
 { label: 'React Web 18+', value: '18-web' },
 { label: 'React Native', value: 'native' },
 { label: 'NextJS', value: 'nextjs' },
+{ label: 'React Web 16+', value: 'web' },
 ]}>
 <TabItem value="web">
 
@@ -88,20 +88,32 @@ AppRegistry.registerComponent('MyApp', () => Root);
 
 <TabItem value="nextjs">
 
-```tsx title="pages/_app.tsx"
-import { DataProvider, LogoutManager, getDefaultManagers } from '@data-client/react';
-import { AppDataProvider } from '@data-client/ssr/nextjs';
-import type { AppProps } from 'next/app';
+```tsx title="app/_layout.tsx"
+import Provider from './Provider';
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <Provider>
+          {children}
+        </Provider>
+      </body>
+    </html>
+  );
+}
+```
+
+```tsx title="app/Provider.tsx"
+'use client';
+import { LogoutManager, getDefaultManagers } from '@data-client/react';
+import { DataProvider } from '@data-client/react/nextjs';
 
 // highlight-next-line
 const managers = [new LogoutManager(), ...getDefaultManagers()];
 
-export default function App({ Component, pageProps }: AppProps) {
-  return (
-    <AppDataProvider managers={managers}>
-      <Component {...pageProps} />
-    </AppDataProvider>
-  );
+export default function Provider({ children }: { children: React.ReactNode }) {
+  return <DataProvider managers={managers}>{children}</DataProvider>;
 }
 ```
 
