@@ -271,10 +271,10 @@ __metadata:
   linkType: hard
 
 "@anansi/cli@npm:^3.0.15":
-  version: 3.1.29
-  resolution: "@anansi/cli@npm:3.1.29"
+  version: 3.1.30
+  resolution: "@anansi/cli@npm:3.1.30"
   dependencies:
-    "@anansi/generator-js": "npm:^12.4.10"
+    "@anansi/generator-js": "npm:^12.4.11"
     binary-version-check: "npm:^6.1.0"
     chalk: "npm:^4.1.2"
     commander: "npm:^12.1.0"
@@ -289,13 +289,13 @@ __metadata:
       optional: true
   bin:
     anansi: ./run.mjs
-  checksum: 10c0/9d3686b5c83e077af4ecd7ce1b89a8c456970d108e1cbedfb3c4e2f114bcdeb7ea47fb2f5105644277db12de476c65fb4d5f30e19133efc6d85abdd343490b90
+  checksum: 10c0/da3a4369581c9035b3755414495f9ea4ef8955c25cda260266676dfe592644d6464c998c5d63cf6b1097c4be51350e7adc6b484730430c621f9cd85ceb387d83
   languageName: node
   linkType: hard
 
 "@anansi/core@npm:^0.20.0":
-  version: 0.20.0
-  resolution: "@anansi/core@npm:0.20.0"
+  version: 0.20.1
+  resolution: "@anansi/core@npm:0.20.1"
   dependencies:
     "@anansi/router": "npm:^0.10.2"
     "@babel/runtime": "npm:^7.17.0"
@@ -316,7 +316,7 @@ __metadata:
     whatwg-fetch: "npm:^3.6.2"
   peerDependencies:
     "@ant-design/cssinjs": ^1.5.1
-    "@data-client/react": ^0.12.15
+    "@data-client/react": ^0.12.15 || ^0.13.0
     "@types/react": ^17.0.40 || ^18.0.0 || ^19.0.0-0
     "@types/react-dom": ^17.0.40 || ^18.0.0 || ^19.0.0-0
     react: ^18.0.0 || ^19.0.0-0
@@ -334,7 +334,7 @@ __metadata:
   bin:
     serve-anansi: ./lib/scripts/serve.js
     start-anansi: ./lib/scripts/startDevserver.js
-  checksum: 10c0/34e11a99673e1d60b2fefa630bced9f867d3ab73f52707a61b57f1376bd76a4f948f438284ac785b0694744f9b3c995f02be961f4865abc9a12c536795ae2601
+  checksum: 10c0/17f995f3c6b20bf39a8b4209d73fab0e6cf7ce4e78c83a1cd654ad2d58fb549eae2b76582398e7425ebafb7a503ba74f2fbbd8614b281e92d120437dd588a989
   languageName: node
   linkType: hard
 
@@ -371,9 +371,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/generator-js@npm:^12.4.10":
-  version: 12.4.10
-  resolution: "@anansi/generator-js@npm:12.4.10"
+"@anansi/generator-js@npm:^12.4.11":
+  version: 12.4.11
+  resolution: "@anansi/generator-js@npm:12.4.11"
   dependencies:
     "@babel/runtime": "npm:^7.17.0"
     "@types/inquirer": "npm:^9.0.7"
@@ -389,8 +389,8 @@ __metadata:
     mem-fs-editor: "npm:^11.0.1"
     pacote: "npm:^18.0.6"
     shelobsay: "npm:^2.0.0"
-    yeoman-generator: "npm:^7.2.0"
-  checksum: 10c0/56ef089dfe4b682eab30f9d7b2eac7e8ea1cd15bdf9bf62f2d29a89e1c269a9ae6802223a318c498b0af58c8202c2f78f0839e7a3ca371308847f9ae32fdaf63
+    yeoman-generator: "npm:^7.3.1"
+  checksum: 10c0/a45aa6ae1cca1bfa994880236607619a850515ae214ba3562fa17e5464aab802dcc28b04fc00f1cd11ff90286fe1ac5e6413635eeb67ae1b231d6318075f0422
   languageName: node
   linkType: hard
 
@@ -25078,15 +25078,15 @@ __metadata:
   linkType: hard
 
 "react-native-screens@npm:^3.18.2":
-  version: 3.31.1
-  resolution: "react-native-screens@npm:3.31.1"
+  version: 3.32.0
+  resolution: "react-native-screens@npm:3.32.0"
   dependencies:
     react-freeze: "npm:^1.0.0"
     warn-once: "npm:^0.1.0"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 10c0/899a02751ecbc6231ce3c869268fb510e5b53428c788135ae46f4bbd768efe78bf74f17fec5becc4c4c1e81a5f224a907dc890ba2406181ff9e21830dda95dec
+  checksum: 10c0/38dc2e2bf3072c544d3bacceedbcc8ffaee5a588f4984c8d7186a236bd436f761c9b987a37fb3af8e0df2e5980db6155c5f6b6d4a3983001d0f45aa704a20b93
   languageName: node
   linkType: hard
 
@@ -30700,9 +30700,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yeoman-generator@npm:^7.2.0":
-  version: 7.2.0
-  resolution: "yeoman-generator@npm:7.2.0"
+"yeoman-generator@npm:^7.3.1":
+  version: 7.3.1
+  resolution: "yeoman-generator@npm:7.3.1"
   dependencies:
     "@types/lodash-es": "npm:^4.17.9"
     "@types/node": "npm:^18.18.5"
@@ -30728,7 +30728,7 @@ __metadata:
   peerDependenciesMeta:
     yeoman-environment:
       optional: true
-  checksum: 10c0/851db9a5f42df1e239d5e2b44e754eb02b6d753bf7c714e280632c9568710ec875e7cefa08a25bdc800803ccbe4dba2d5162aac71c1d557fc4b3838f9cfda621
+  checksum: 10c0/643a2815f68a1b09db456db0cd62c80c2aff48d86326ffce51c75bba099859a58695392109974f16c71da741afd61b1d6b575d53f16f97eae2123db5eb6e8178
   languageName: node
   linkType: hard
 
