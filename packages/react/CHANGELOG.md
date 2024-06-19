@@ -1,5 +1,22 @@
 # @data-client/react
 
+## 0.13.1
+
+### Patch Changes
+
+- [`96b683b`](https://github.com/reactive/data-client/commit/96b683bea7e5a71bdfe40913f8ec21969e2d43e0) Thanks [@ntucker](https://github.com/ntucker)! - Remove need for dispatch in StoreContext as it is never used
+
+  This should have no affect unless you're working with internals of Data Client
+
+- [`4d8a8a5`](https://github.com/reactive/data-client/commit/4d8a8a5f5f6e68dfc1d7055db528911b7650ae0f) Thanks [@ntucker](https://github.com/ntucker)! - Fix SSR hydration when removing devtools manager
+
+- [#3112](https://github.com/reactive/data-client/pull/3112) [`afe0640`](https://github.com/reactive/data-client/commit/afe0640f47acfe8fc9509b87d49292297726f74d) Thanks [@ntucker](https://github.com/ntucker)! - enhance: Use custom SSRProvider for SSR rather than ExternalDataProvider
+
+- [`327d666`](https://github.com/reactive/data-client/commit/327d6668958e45119eb075f6af4de7239fc1dda6) Thanks [@ntucker](https://github.com/ntucker)! - Add ctrl.set() to README
+
+- Updated dependencies [[`327d666`](https://github.com/reactive/data-client/commit/327d6668958e45119eb075f6af4de7239fc1dda6)]:
+  - @data-client/core@0.13.1
+
 ## 0.13.0
 
 ### Minor Changes

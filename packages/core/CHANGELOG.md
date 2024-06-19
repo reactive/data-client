@@ -1,5 +1,11 @@
 # @data-client/core
 
+## 0.13.1
+
+### Patch Changes
+
+- [`327d666`](https://github.com/reactive/data-client/commit/327d6668958e45119eb075f6af4de7239fc1dda6) Thanks [@ntucker](https://github.com/ntucker)! - Add ctrl.set() to README
+
 ## 0.13.0
 
 ### Minor Changes
