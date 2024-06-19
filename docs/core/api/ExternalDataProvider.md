@@ -34,12 +34,13 @@ ReactDOM.render(
 
 See [redux example](../guides/redux.md) for a more complete example.
 
-## store
+## Props
+
+### store
 
 ```typescript
 interface Store<S> {
   subscribe(listener: () => void): () => void;
-  dispatch: React.Dispatch<ActionTypes>;
   getState(): S;
 }
 ```
@@ -49,7 +50,7 @@ but theoretically any external store could be used.
 
 [Read more about integrating redux.](../guides/redux.md)
 
-## selector
+### selector
 
 ```typescript
 (state: S) => State<unknown>
@@ -57,6 +58,27 @@ but theoretically any external store could be used.
 
 This function is used to retrieve the `Reactive Data Client` specific part of the store's state tree.
 
-## controller
+### controller
 
 [Controller](./Controller.md) instance to use.
+
+### devButton
+
+<img src="/img/client-logo.svg" style={{float:'right',width:'40px'}} />
+
+In development, a small button will appear that gives easy access to browser devtools if
+installed. This option configures where it shows up, or if null will disable it altogether.
+
+`'bottom-right' | 'bottom-left' | 'top-right'| 'top-left' | null` = `'bottom-right'`
+
+```tsx title="Disable button"
+<DataProvider devButton={null}>
+  <App/>
+</DataProvider>
+```
+
+```tsx title="Place in top right corner"
+<DataProvider devButton="top-right">
+  <App/>
+</DataProvider>
+```

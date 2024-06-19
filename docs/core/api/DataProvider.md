@@ -36,23 +36,46 @@ interface ProviderProps {
 ### initialState: State&lt;unknown\> {#initialState}
 
 ```typescript
-type State<T> = Readonly<{
-  entities: Readonly<{
-    [fetchKey: string]: { [pk: string]: T } | undefined;
-  }>;
-  results: Readonly<{
-    [url: string]: unknown | PK[] | PK | undefined;
-  }>;
-  meta: Readonly<{
-    [url: string]: { date: number; error?: Error; expiresAt: number };
-  }>;
-}>;
+export interface State<T> {
+  readonly entities: {
+    readonly [entityKey: string]: { readonly [pk: string]: T } | undefined;
+  };
+  readonly indexes: NormalizedIndex;
+  readonly endpoints: {
+    readonly [key: string]: unknown | PK[] | PK | undefined;
+  };
+  readonly meta: {
+    readonly [key: string]: {
+      readonly date: number;
+      readonly error?: ErrorTypes;
+      readonly expiresAt: number;
+      readonly prevExpiresAt?: number;
+      readonly invalidated?: boolean;
+      readonly errorPolicy?: 'hard' | 'soft' | undefined;
+    };
+  };
+  readonly entityMeta: {
+    readonly [entityKey: string]: {
+      readonly [pk: string]: {
+        readonly date: number;
+        readonly expiresAt: number;
+        readonly fetchedAt: number;
+      };
+    };
+  };
+  readonly optimistic: (SetResponseAction | OptimisticAction)[];
+  readonly lastReset: number;
+}
 ```
 
 Instead of starting with an empty cache, you can provide your own initial state. This can
 be useful for testing, or rehydrating the cache state when using server side rendering.
 
 ### managers?: Manager[] {#managers}
+
+List of [Manager](./Manager.md#provided-managers)s use. This is the main extensibility point of the provider.
+
+`getDefaultManagers()` can be used to extend the default managers.
 
 Default Production:
 
@@ -69,8 +92,6 @@ Default Development:
   new SubscriptionManager(PollingSubscription),
 ];
 ```
-
-List of [Manager](./Manager.md#provided-managers)s use. This is the main extensibility point of the provider.
 
 ### Controller: typeof Controller {#Controller}
 
@@ -98,7 +119,7 @@ const RealApp = (
 In development, a small button will appear that gives easy access to browser devtools if
 installed. This option configures where it shows up, or if null will disable it altogether.
 
-`'bottom-right' | 'bottom-left' | 'top-right'| 'top-left' | null`
+`'bottom-right' | 'bottom-left' | 'top-right'| 'top-left' | null` = `'bottom-right'`
 
 ```tsx title="Disable button"
 <DataProvider devButton={null}>
@@ -110,16 +131,4 @@ installed. This option configures where it shows up, or if null will disable it 
 <DataProvider devButton="top-right">
   <App/>
 </DataProvider>
-```
-
-## defaultProps
-
-```ts
-import { defaultState, Controller } from '@data-client/core';
-
-DataProvider.defaultProps = {
-  initialState: defaultState as State<unknown>,
-  Controller,
-  devButton: 'bottom-right',
-};
 ```
