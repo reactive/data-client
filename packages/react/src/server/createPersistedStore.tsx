@@ -10,8 +10,9 @@ import {
 } from '@data-client/core';
 import { useSyncExternalStore } from 'react';
 
-import { ExternalDataProvider, PromiseifyMiddleware } from './redux/index.js';
+import { PromiseifyMiddleware } from './redux/index.js';
 import { createStore, applyMiddleware } from './redux/redux.js';
+import SSRDataProvider from './SSRDataProvider.js';
 
 export default function createPersistedStore(
   managers?: Manager[],
@@ -55,14 +56,14 @@ export default function createPersistedStore(
 
   function ServerDataProvider({ children }: { children: React.ReactNode }) {
     return (
-      <ExternalDataProvider
-        store={store}
-        selector={selector}
-        controller={controller}
+      <SSRDataProvider
+        getState={store.getState}
+        subscribe={store.subscribe}
+        dispatch={store.dispatch}
         hasDevManager={hasDevManager}
       >
         {children}
-      </ExternalDataProvider>
+      </SSRDataProvider>
     );
   }
   return [ServerDataProvider, useReadyCacheState, controller, store] as const;
