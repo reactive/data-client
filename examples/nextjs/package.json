@@ -17,7 +17,6 @@
     "@types/react": "npm:types-react@rc",
     "@types/react-dom": "npm:types-react-dom@rc",
     "clsx": "^2.1.1",
-    "d3": "^7.9.0",
     "next": "canary",
     "react": "rc",
     "react-dom": "rc",
