@@ -26,6 +26,7 @@ function isExternal(id) {
   return (
     // when we import contexts in our other entry points
     id === '../../index.js' ||
+    id === '../index.js' ||
     dependencies.some(dep => dep === id || id.startsWith(dep))
   );
 }

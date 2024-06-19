@@ -11,11 +11,9 @@ import {
 import type { ComponentProps } from 'react';
 
 import type DataProvider from '../../../components/DataProvider.js';
-import {
-  ExternalDataProvider,
-  PromiseifyMiddleware,
-} from '../../redux/index.js';
+import { PromiseifyMiddleware } from '../../redux/index.js';
 import { createStore, applyMiddleware } from '../../redux/redux.js';
+import SSRDataProvider from '../../SSRDataProvider.js';
 
 export default function createPersistedStore(managers?: Manager[]) {
   const controller = new Controller();
@@ -34,12 +32,12 @@ export default function createPersistedStore(managers?: Manager[]) {
     ...applyManager(managers, controller),
     PromiseifyMiddleware,
   );
-  const store = createStore(reducer, initialState as any, enhancer);
-  managers.forEach(manager => manager.init?.(store.getState()));
-
-  const selector = (state: any) => state;
-
-  const getState = () => selector(store.getState());
+  const { getState, dispatch, subscribe } = createStore(
+    reducer,
+    initialState as any,
+    enhancer,
+  );
+  managers.forEach(manager => manager.init?.(getState()));
 
   const initPromise: Promise<State<any>> = (async () => {
     let firstRender = true;
@@ -72,15 +70,15 @@ export default function createPersistedStore(managers?: Manager[]) {
       manager => manager instanceof DevToolsManager,
     );
     return (
-      <ExternalDataProvider
-        store={store}
-        selector={selector}
-        controller={controller}
+      <SSRDataProvider
+        getState={getState}
+        subscribe={subscribe}
+        dispatch={dispatch}
         devButton={devButton}
         hasDevManager={hasDevManager}
       >
         {children}
-      </ExternalDataProvider>
+      </SSRDataProvider>
     );
   };
 

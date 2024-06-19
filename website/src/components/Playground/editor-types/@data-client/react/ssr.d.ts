@@ -154,7 +154,7 @@ interface Store<S = any, A extends Action = UnknownAction, StateExt = unknown> {
   // [Symbol.observable](): Observable<S & StateExt>;
 }
 
-declare function createPersistedStore(managers?: Manager[]): readonly [({ children }: {
+declare function createPersistedStore(managers?: Manager[], hasDevManager?: boolean): readonly [({ children }: {
     children: React.ReactNode;
 }) => react_jsx_runtime.JSX.Element, () => State<unknown>, Controller<_data_client_core.DataClientDispatch>, Store<State<unknown>, _data_client_core.ActionTypes, unknown> & {
     dispatch: unknown;
