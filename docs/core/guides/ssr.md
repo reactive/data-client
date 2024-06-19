@@ -79,7 +79,7 @@ export default async function StaticPage() {
 
 #### Demo
 
-<StackBlitz app="nextjs" file="components/todo/TodoList.tsx,app/Provider.tsx,app/layout.tsx" view="both" />
+<StackBlitz app="nextjs" file="components/todo/TodoList.tsx,app/layout.tsx" view="both" />
 
 #### Class mangling and Entity.key
 

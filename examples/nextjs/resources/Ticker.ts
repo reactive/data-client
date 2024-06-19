@@ -54,6 +54,5 @@ export const getTicker = new RestEndpoint({
   urlPrefix: 'https://api.exchange.coinbase.com',
   path: '/products/:product_id/ticker',
   schema: Ticker,
-  channel: 'ticker',
   pollFrequency: 2000,
 });

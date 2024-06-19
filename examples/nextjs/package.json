@@ -11,7 +11,7 @@
   "dependencies": {
     "@anansi/babel-preset": "^6.0.0",
     "@babel/core": "^7.24.7",
-    "@data-client/react": "^0.13.1",
+    "@data-client/react": "^0.13.2",
     "@data-client/rest": "^0.12.8",
     "@types/node": "20.14.5",
     "@types/react": "npm:types-react@rc",

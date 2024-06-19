@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import styles from 'styles/Home.module.css';
 
 export default function CryptoLayout({
   children,
@@ -7,14 +8,9 @@ export default function CryptoLayout({
 }) {
   return (
     <>
-      <meta
-        name="description"
-        content="Live BTC price using the Reactive Data Client"
-      />
-
-      {/* <h2 className={styles.subtitle}>
+      <h2 className={styles.subtitle}>
         Here we show the live price of BTC using Reactive Data Client
-      </h2> */}
+      </h2>
 
       {children}
 
@@ -24,8 +20,7 @@ export default function CryptoLayout({
       </p>
 
       <p>
-        <Link href="/">Todo List</Link> |{' '}
-        <Link href="/crypto">Crypto List</Link>
+        <Link href="/">Todo List</Link>
       </p>
     </>
   );

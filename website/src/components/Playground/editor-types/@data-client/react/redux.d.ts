@@ -2,7 +2,7 @@ import * as _data_client_core from '@data-client/core';
 import { ActionTypes, State, Manager, Controller, Dispatch as Dispatch$1 } from '@data-client/core';
 export { applyManager, createReducer, initialState } from '@data-client/core';
 import * as react_jsx_runtime from 'react/jsx-runtime';
-import React$1 from 'react';
+import React from 'react';
 
 /**
  * An *action* is a plain object that represents an intention to change the
@@ -123,7 +123,6 @@ interface Middleware<
 
 interface Store$1<S> {
     subscribe(listener: () => void): () => void;
-    dispatch: React.Dispatch<ActionTypes>;
     getState(): S;
     uninitialized?: boolean;
 }
@@ -154,7 +153,7 @@ type DevToolsPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left
 /** For usage with https://dataclient.io/docs/api/makeRenderDataClient */
 declare function ExternalDataProvider$1({ children, managers, initialState, Controller, devButton, }: Props$1): react_jsx_runtime.JSX.Element;
 interface Props$1 {
-    children: React$1.ReactNode;
+    children: React.ReactNode;
     managers: Manager[];
     initialState: State<unknown>;
     Controller: typeof Controller;
@@ -163,11 +162,10 @@ interface Props$1 {
 
 interface Store<S> {
     subscribe(listener: () => void): () => void;
-    dispatch: React$1.Dispatch<ActionTypes>;
     getState(): S;
 }
 interface Props<S> {
-    children: React$1.ReactNode;
+    children: React.ReactNode;
     store: Store<S>;
     selector: (state: S) => State<unknown>;
     controller: Controller;
@@ -183,7 +181,7 @@ declare function ExternalDataProvider<S>({ children, store, selector, controller
 declare const mapMiddleware: <M extends Middleware<{}, any, Dispatch<UnknownAction>>[]>(selector: (state: any) => State<unknown>) => (...middlewares: Middleware[]) => M;
 //# sourceMappingURL=mapMiddleware.d.ts.map
 
-declare const PromiseifyMiddleware: <R extends React$1.Reducer<any, any>>(_: unknown) => (next: Dispatch$1<R>) => (action: React$1.ReducerAction<R>) => Promise<void>;
+declare const PromiseifyMiddleware: <R extends React.Reducer<any, any>>(_: unknown) => (next: Dispatch$1<R>) => (action: React.ReducerAction<R>) => Promise<void>;
 //# sourceMappingURL=PromiseifyMiddleware.d.ts.map
 
 export { ExternalDataProvider$1 as DataProvider, ExternalDataProvider, Middleware, PromiseifyMiddleware, Reducer, mapMiddleware, prepareStore };

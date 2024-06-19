@@ -1,22 +1,22 @@
 import * as _data_client_core from '@data-client/core';
-import { Manager, State, Controller, EndpointInterface, FetchFunction, Schema, ResolveType, Denormalize, DenormalizeNullable, Queryable, NI, SchemaArgs, NetworkError, UnknownError, ErrorTypes as ErrorTypes$1, ActionTypes, __INTERNAL__, createReducer, applyManager } from '@data-client/core';
+import { Manager, State, Controller, EndpointInterface, FetchFunction, Schema, ResolveType, Denormalize, DenormalizeNullable, Queryable, NI, SchemaArgs, NetworkError, UnknownError, ErrorTypes as ErrorTypes$1, __INTERNAL__, createReducer, applyManager } from '@data-client/core';
 export { AbstractInstanceType, ActionTypes, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, ResetAction, ResolveType, Schema, SetAction, SetResponseAction, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@data-client/core';
 import * as react_jsx_runtime from 'react/jsx-runtime';
-import React$1, { JSX, Context } from 'react';
+import React, { JSX, Context } from 'react';
 
 declare function BackupLoading(): react_jsx_runtime.JSX.Element;
 
 type DevToolsPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
 
 interface ProviderProps {
-    children: React$1.ReactNode;
+    children: React.ReactNode;
     managers?: Manager[];
     initialState?: State<unknown>;
     Controller?: typeof Controller;
     devButton?: DevToolsPosition | null | undefined;
 }
 interface Props$1 {
-    children: React$1.ReactNode;
+    children: React.ReactNode;
     managers?: Manager[];
     initialState?: State<unknown>;
     Controller?: typeof Controller;
@@ -30,18 +30,18 @@ declare function DataProvider({ children, managers, initialState, Controller, de
 declare let getDefaultManagers: () => Manager<_data_client_core.ActionTypes>[];
 
 /** Suspense but compatible with 18 SSR, 17, 16 and native */
-declare const UniversalSuspense: React$1.FunctionComponent<{
-    children?: React$1.ReactNode;
-    fallback: React$1.ReactNode;
+declare const UniversalSuspense: React.FunctionComponent<{
+    children?: React.ReactNode;
+    fallback: React.ReactNode;
 }>;
 //# sourceMappingURL=UniversalSuspense.d.ts.map
 
 interface ErrorBoundaryProps<E extends Error> {
-    children: React$1.ReactNode;
+    children: React.ReactNode;
     /** className prop sent to fallbackComponent */
     className?: string;
     /** Renders when an error is caught */
-    fallbackComponent: React$1.ComponentType<{
+    fallbackComponent: React.ComponentType<{
         error: E;
         resetErrorBoundary: () => void;
         className?: string;
@@ -56,7 +56,7 @@ interface ErrorState<E extends Error> {
  * Reusable React error boundary component
  * @see https://dataclient.io/docs/api/ErrorBoundary
  */
-declare class ErrorBoundary<E extends Error> extends React$1.Component<ErrorBoundaryProps<E>, ErrorState<E>> {
+declare class ErrorBoundary<E extends Error> extends React.Component<ErrorBoundaryProps<E>, ErrorState<E>> {
     static defaultProps: {
         fallbackComponent: ({ error, className, }: {
             error: Error;
@@ -85,8 +85,8 @@ declare function AsyncBoundary({ children, errorComponent, fallback, ...errorPro
 declare const _default: typeof AsyncBoundary;
 
 interface Props {
-    children: React$1.ReactNode;
-    fallback?: React$1.ReactNode;
+    children: React.ReactNode;
+    fallback?: React.ReactNode;
     errorClassName?: string;
     /** Renders when an error is caught */
     errorComponent?: ErrorBoundaryProps<Error>['fallbackComponent'];
@@ -200,7 +200,6 @@ declare const StateContext: Context<State<unknown>>;
 declare const ControllerContext: Context<Controller<_data_client_core.DataClientDispatch>>;
 interface Store<S> {
     subscribe(listener: () => void): () => void;
-    dispatch: React.Dispatch<ActionTypes>;
     getState(): S;
     uninitialized?: boolean;
 }
@@ -231,6 +230,6 @@ declare namespace internal_d {
 }
 
 /** Turns a dispatch function into one that resolves once its been commited */
-declare function usePromisifiedDispatch<R extends React$1.Reducer<any, any>>(dispatch: React$1.Dispatch<React$1.ReducerAction<R>>, state: React$1.ReducerState<R>): (action: React$1.ReducerAction<R>) => Promise<void>;
+declare function usePromisifiedDispatch<R extends React.Reducer<any, any>>(dispatch: React.Dispatch<React.ReducerAction<R>>, state: React.ReducerState<R>): (action: React.ReducerAction<R>) => Promise<void>;
 
 export { _default as AsyncBoundary, BackupLoading, DataProvider as CacheProvider, ControllerContext, DataProvider, DevToolsPosition, ErrorBoundary, ErrorBoundary as NetworkErrorBoundary, ProviderProps, StateContext, Store, StoreContext, UniversalSuspense, internal_d as __INTERNAL__, getDefaultManagers, useCache, useController, useDLE, useError, useFetch, useLive, usePromisifiedDispatch, useQuery, useSubscription, useSuspense };
