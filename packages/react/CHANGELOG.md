@@ -1,5 +1,11 @@
 # @data-client/react
 
+## 0.13.2
+
+### Patch Changes
+
+- [`2ba27aa`](https://github.com/reactive/data-client/commit/2ba27aab7b582a7dabf460acbe2cd5c05e02be9a) Thanks [@ntucker](https://github.com/ntucker)! - Fix NextJS DataProvider hydration with no managers prop
+
 ## 0.13.1
 
 ### Patch Changes
