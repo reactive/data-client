@@ -66,9 +66,10 @@ export default function createPersistedStore(managers?: Manager[]) {
     managers,
   }: ProviderProps) => {
     // only include if they have devtools integrated
-    const hasDevManager = !!managers?.find(
-      manager => manager instanceof DevToolsManager,
-    );
+    // if managers isn't overridden we know it will by default include DevToolsManager, so set this to true
+    const hasDevManager =
+      !managers ||
+      !!managers.find(manager => manager instanceof DevToolsManager);
     return (
       <SSRDataProvider
         getState={getState}
