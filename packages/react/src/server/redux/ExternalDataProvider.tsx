@@ -13,6 +13,8 @@ import React, {
   useCallback,
 } from 'react';
 
+import type { DevToolsPosition } from '../../components/DevToolsButton.js';
+import { renderDevButton } from '../../components/renderDevButton.js';
 import {
   ControllerContext,
   StoreContext,
@@ -32,6 +34,8 @@ interface Props<S> {
   store: Store<S>;
   selector: (state: S) => State<unknown>;
   controller: Controller;
+  devButton?: DevToolsPosition | null | undefined;
+  hasDevManager?: boolean;
 }
 
 /**
@@ -43,6 +47,8 @@ export default function ExternalDataProvider<S>({
   store,
   selector,
   controller,
+  devButton = 'bottom-right',
+  hasDevManager = false,
 }: Props<S>) {
   const masterReducer = useMemo(() => createReducer(controller), [controller]);
   const selectState = useCallback(() => {
@@ -80,9 +86,7 @@ export default function ExternalDataProvider<S>({
           <UniversalSuspense fallback={<BackupLoading />}>
             {children}
           </UniversalSuspense>
-          {process.env.NODE_ENV !== 'production' ?
-            <UniversalSuspense fallback={null} />
-          : undefined}
+          {renderDevButton(devButton, hasDevManager)}
         </ControllerContext.Provider>
       </StoreContext.Provider>
     </StateContext.Provider>

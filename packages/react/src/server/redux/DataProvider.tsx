@@ -1,9 +1,15 @@
 'use client';
-import type { Controller, Manager, State } from '@data-client/core';
+import {
+  DevToolsManager,
+  type Controller,
+  type Manager,
+  type State,
+} from '@data-client/core';
 import React, { useEffect, useMemo } from 'react';
 
 import ExternalCacheProvider from './ExternalDataProvider.js';
 import { prepareStore } from './prepareStore.js';
+import { DevToolsPosition } from '../../components/DevToolsButton.js';
 
 /** For usage with https://dataclient.io/docs/api/makeRenderDataClient */
 export default function ExternalDataProvider({
@@ -11,6 +17,7 @@ export default function ExternalDataProvider({
   managers,
   initialState,
   Controller,
+  devButton = 'bottom-right',
 }: Props) {
   const { selector, store, controller } = useMemo(
     () => prepareStore(initialState, managers, Controller),
@@ -33,11 +40,18 @@ export default function ExternalDataProvider({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [...managers]);
 
+  // only include if they have devtools integrated
+  const hasDevManager = !!managers.find(
+    manager => manager instanceof DevToolsManager,
+  );
+
   return (
     <ExternalCacheProvider
       store={store}
       selector={selector}
       controller={controller}
+      devButton={devButton}
+      hasDevManager={hasDevManager}
     >
       {children}
     </ExternalCacheProvider>
@@ -49,4 +63,5 @@ interface Props {
   managers: Manager[];
   initialState: State<unknown>;
   Controller: typeof Controller;
+  devButton?: DevToolsPosition | null | undefined;
 }

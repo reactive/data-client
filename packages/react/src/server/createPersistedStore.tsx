@@ -13,7 +13,10 @@ import { useSyncExternalStore } from 'react';
 import { ExternalDataProvider, PromiseifyMiddleware } from './redux/index.js';
 import { createStore, applyMiddleware } from './redux/redux.js';
 
-export default function createPersistedStore(managers?: Manager[]) {
+export default function createPersistedStore(
+  managers?: Manager[],
+  hasDevManager: boolean = true,
+) {
   const controller = new Controller();
   managers = managers ?? [new NetworkManager()];
   const nm: NetworkManager = managers.find(
@@ -56,6 +59,7 @@ export default function createPersistedStore(managers?: Manager[]) {
         store={store}
         selector={selector}
         controller={controller}
+        hasDevManager={hasDevManager}
       >
         {children}
       </ExternalDataProvider>

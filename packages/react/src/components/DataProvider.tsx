@@ -71,6 +71,10 @@ See https://dataclient.io/docs/guides/ssr.`,
     managersRef.current,
   );
 
+  // only include if they have devtools integrated
+  const hasDevManager = !!managersRef.current.find(
+    manager => manager instanceof DevToolsManager,
+  );
   return (
     <ControllerContext.Provider value={controllerRef.current}>
       <DataStore
@@ -81,7 +85,7 @@ See https://dataclient.io/docs/guides/ssr.`,
       >
         {children}
       </DataStore>
-      {renderDevButton(devButton, managersRef.current)}
+      {renderDevButton(devButton, hasDevManager)}
     </ControllerContext.Provider>
   );
 }

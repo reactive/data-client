@@ -485,9 +485,7 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      * Forces refetching and suspense on useSuspense with the same Endpoint and parameters.
      * @see https://dataclient.io/docs/api/Controller#invalidate
      */
-    invalidate: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [
-        null
-    ]) => Promise<void>;
+    invalidate: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]) => Promise<void>;
     /**
      * Forces refetching and suspense on useSuspense on all matching endpoint result keys.
      * @see https://dataclient.io/docs/api/Controller#invalidateAll
@@ -549,16 +547,12 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      * Marks a new subscription to a given Endpoint.
      * @see https://dataclient.io/docs/api/Controller#subscribe
      */
-    subscribe: <E extends EndpointInterface<FetchFunction, Schema | undefined, false | undefined>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [
-        null
-    ]) => Promise<void>;
+    subscribe: <E extends EndpointInterface<FetchFunction, Schema | undefined, false | undefined>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]) => Promise<void>;
     /**
      * Marks completion of subscription to a given Endpoint.
      * @see https://dataclient.io/docs/api/Controller#unsubscribe
      */
-    unsubscribe: <E extends EndpointInterface<FetchFunction, Schema | undefined, false | undefined>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [
-        null
-    ]) => Promise<void>;
+    unsubscribe: <E extends EndpointInterface<FetchFunction, Schema | undefined, false | undefined>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]) => Promise<void>;
     /*************** More ***************/
     /**
      * Gets a snapshot (https://dataclient.io/docs/api/Snapshot)

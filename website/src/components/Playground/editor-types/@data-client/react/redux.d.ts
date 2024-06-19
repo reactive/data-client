@@ -149,13 +149,16 @@ type ReducersMapObject<S = any, A extends {
     [K in keyof S]: Reducer<S[K], A, K extends keyof PreloadedState ? PreloadedState[K] : never>;
 } : never;
 
+type DevToolsPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
+
 /** For usage with https://dataclient.io/docs/api/makeRenderDataClient */
-declare function ExternalDataProvider$1({ children, managers, initialState, Controller, }: Props$1): react_jsx_runtime.JSX.Element;
+declare function ExternalDataProvider$1({ children, managers, initialState, Controller, devButton, }: Props$1): react_jsx_runtime.JSX.Element;
 interface Props$1 {
     children: React$1.ReactNode;
     managers: Manager[];
     initialState: State<unknown>;
     Controller: typeof Controller;
+    devButton?: DevToolsPosition | null | undefined;
 }
 
 interface Store<S> {
@@ -168,12 +171,14 @@ interface Props<S> {
     store: Store<S>;
     selector: (state: S) => State<unknown>;
     controller: Controller;
+    devButton?: DevToolsPosition | null | undefined;
+    hasDevManager?: boolean;
 }
 /**
  * Like DataProvider, but for an external store
  * @see https://dataclient.io/docs/api/ExternalDataProvider
  */
-declare function ExternalDataProvider<S>({ children, store, selector, controller, }: Props<S>): react_jsx_runtime.JSX.Element;
+declare function ExternalDataProvider<S>({ children, store, selector, controller, devButton, hasDevManager, }: Props<S>): react_jsx_runtime.JSX.Element;
 
 declare const mapMiddleware: <M extends Middleware<{}, any, Dispatch<UnknownAction>>[]>(selector: (state: any) => State<unknown>) => (...middlewares: Middleware[]) => M;
 //# sourceMappingURL=mapMiddleware.d.ts.map

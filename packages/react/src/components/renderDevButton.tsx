@@ -1,4 +1,3 @@
-import { DevToolsManager, type Manager } from '@data-client/core';
 import { lazy } from 'react';
 
 import type { DevToolsPosition } from './DevToolsButton.js';
@@ -7,14 +6,10 @@ import UniversalSuspense from './UniversalSuspense.js';
 
 export function renderDevButton(
   devButton: DevToolsPosition | null | undefined,
-  managers: Manager[],
+  hasDevManager: boolean,
 ) {
   /* istanbul ignore else */
-  if (
-    process.env.NODE_ENV !== 'production' &&
-    // only include if they have devtools integrated
-    managers.find(manager => manager instanceof DevToolsManager)
-  ) {
+  if (process.env.NODE_ENV !== 'production' && hasDevManager) {
     return (
       <UniversalSuspense fallback={null}>
         {

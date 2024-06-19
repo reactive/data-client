@@ -3,11 +3,6 @@ export function formatProdErrorMessage(code) {
   return `Minified Redux error #${code}; visit https://redux.js.org/Errors?code=${code} for the full message or use the non-minified dev environment for full errors. `;
 }
 
-// src/utils/symbol-observable.ts
-var $$observable = /* @__PURE__ */ (() =>
-  (typeof Symbol === 'function' && Symbol.observable) || '@@observable')();
-var symbol_observable_default = $$observable;
-
 // src/utils/actionTypes.ts
 var randomString = () =>
   Math.random().toString(36).substring(7).split('').join('.');
@@ -224,55 +219,6 @@ function createStore(reducer, preloadedState, enhancer) {
     });
     return action;
   }
-  function replaceReducer(nextReducer) {
-    if (typeof nextReducer !== 'function') {
-      throw new Error(
-        process.env.NODE_ENV === 'production' ?
-          formatProdErrorMessage(10)
-        : `Expected the nextReducer to be a function. Instead, received: '${kindOf(nextReducer)}`,
-      );
-    }
-    currentReducer = nextReducer;
-    dispatch({
-      type: actionTypes_default.REPLACE,
-    });
-  }
-  function observable() {
-    const outerSubscribe = subscribe;
-    return {
-      /**
-       * The minimal observable subscription method.
-       * @param observer Any object that can be used as an observer.
-       * The observer object should have a `next` method.
-       * @returns An object with an `unsubscribe` method that can
-       * be used to unsubscribe the observable from the store, and prevent further
-       * emission of values from the observable.
-       */
-      subscribe(observer) {
-        if (typeof observer !== 'object' || observer === null) {
-          throw new Error(
-            process.env.NODE_ENV === 'production' ?
-              formatProdErrorMessage(11)
-            : `Expected the observer to be an object. Instead, received: '${kindOf(observer)}'`,
-          );
-        }
-        function observeState() {
-          const observerAsObserver = observer;
-          if (observerAsObserver.next) {
-            observerAsObserver.next(getState());
-          }
-        }
-        observeState();
-        const unsubscribe = outerSubscribe(observeState);
-        return {
-          unsubscribe,
-        };
-      },
-      [symbol_observable_default]() {
-        return this;
-      },
-    };
-  }
   dispatch({
     type: actionTypes_default.INIT,
   });
@@ -280,8 +226,6 @@ function createStore(reducer, preloadedState, enhancer) {
     dispatch,
     subscribe,
     getState,
-    replaceReducer,
-    [symbol_observable_default]: observable,
   };
   return store;
 }

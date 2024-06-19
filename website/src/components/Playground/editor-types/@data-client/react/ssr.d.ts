@@ -32,36 +32,6 @@ interface UnknownAction extends Action {
 }
 
 /**
- * A *reducer* is a function that accepts
- * an accumulation and a value and returns a new accumulation. They are used
- * to reduce a collection of values down to a single value
- *
- * Reducers are not unique to Redux—they are a fundamental concept in
- * functional programming.  Even most non-functional languages, like
- * JavaScript, have a built-in API for reducing. In JavaScript, it's
- * `Array.prototype.reduce()`.
- *
- * In Redux, the accumulated value is the state object, and the values being
- * accumulated are actions. Reducers calculate a new state given the previous
- * state and an action. They must be *pure functions*—functions that return
- * the exact same output for given inputs. They should also be free of
- * side-effects. This is what enables exciting features like hot reloading and
- * time travel.
- *
- * Reducers are the most important concept in Redux.
- *
- * *Do not put API calls into reducers.*
- *
- * @template S The type of state consumed and produced by this reducer.
- * @template A The type of actions the reducer can potentially respond to.
- * @template PreloadedState The type of state consumed by this reducer the first time it's called.
- */
-type Reducer<S = any, A extends Action = UnknownAction, PreloadedState = S> = (
-  state: S | PreloadedState | undefined,
-  action: A,
-) => S;
-
-/**
  * A *dispatching function* (or simply *dispatch function*) is a function that
  * accepts an action or an async action; it then may or may not dispatch one
  * or more actions to the store.
@@ -97,32 +67,6 @@ declare global {
     readonly observable: symbol;
   }
 }
-/**
- * A minimal observable of state changes.
- * For more information, see the observable proposal:
- * https://github.com/tc39/proposal-observable
- */
-type Observable<T> = {
-  /**
-   * The minimal observable subscription method.
-   * @param {Object} observer Any object that can be used as an observer.
-   * The observer object should have a `next` method.
-   * @returns {subscription} An object with an `unsubscribe` method that can
-   * be used to unsubscribe the observable from the store, and prevent further
-   * emission of values from the observable.
-   */
-  subscribe: (observer: Observer<T>) => {
-    unsubscribe: Unsubscribe;
-  };
-  [Symbol.observable](): Observable<T>;
-};
-/**
- * An Observer is used to receive data from an Observable, and is supplied as
- * an argument to subscribe.
- */
-type Observer<T> = {
-  next?(value: T): void;
-};
 /**
  * A store is an object that holds the application's state tree.
  * There should only be a single store in a Redux app, as the composition
@@ -191,23 +135,23 @@ interface Store<S = any, A extends Action = UnknownAction, StateExt = unknown> {
    * @returns A function to remove this change listener.
    */
   subscribe(listener: ListenerCallback): Unsubscribe;
-  /**
-   * Replaces the reducer currently used by the store to calculate the state.
-   *
-   * You might need this if your app implements code splitting and you want to
-   * load some of the reducers dynamically. You might also need this if you
-   * implement a hot reloading mechanism for Redux.
-   *
-   * @param nextReducer The reducer for the store to use instead.
-   */
-  replaceReducer(nextReducer: Reducer<S, A>): void;
-  /**
-   * Interoperability point for observable/reactive libraries.
-   * @returns {observable} A minimal observable of state changes.
-   * For more information, see the observable proposal:
-   * https://github.com/tc39/proposal-observable
-   */
-  [Symbol.observable](): Observable<S & StateExt>;
+  // /**
+  //  * Replaces the reducer currently used by the store to calculate the state.
+  //  *
+  //  * You might need this if your app implements code splitting and you want to
+  //  * load some of the reducers dynamically. You might also need this if you
+  //  * implement a hot reloading mechanism for Redux.
+  //  *
+  //  * @param nextReducer The reducer for the store to use instead.
+  //  */
+  // replaceReducer(nextReducer: Reducer<S, A>): void;
+  // /**
+  //  * Interoperability point for observable/reactive libraries.
+  //  * @returns {observable} A minimal observable of state changes.
+  //  * For more information, see the observable proposal:
+  //  * https://github.com/tc39/proposal-observable
+  //  */
+  // [Symbol.observable](): Observable<S & StateExt>;
 }
 
 declare function createPersistedStore(managers?: Manager[]): readonly [({ children }: {

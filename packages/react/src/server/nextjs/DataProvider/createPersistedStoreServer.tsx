@@ -6,6 +6,7 @@ import {
   createReducer,
   initialState,
   applyManager,
+  DevToolsManager,
 } from '@data-client/core';
 import type { ComponentProps } from 'react';
 
@@ -61,12 +62,22 @@ export default function createPersistedStore(managers?: Manager[]) {
     return getState();
   })();
 
-  const StoreDataProvider = ({ children }: ProviderProps) => {
+  const StoreDataProvider = ({
+    children,
+    devButton,
+    managers,
+  }: ProviderProps) => {
+    // only include if they have devtools integrated
+    const hasDevManager = !!managers?.find(
+      manager => manager instanceof DevToolsManager,
+    );
     return (
       <ExternalDataProvider
         store={store}
         selector={selector}
         controller={controller}
+        devButton={devButton}
+        hasDevManager={hasDevManager}
       >
         {children}
       </ExternalDataProvider>
