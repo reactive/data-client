@@ -31,14 +31,12 @@ export const ControllerContext = createContext<Controller>(
 
 export interface Store<S> {
   subscribe(listener: () => void): () => void;
-  dispatch: React.Dispatch<ActionTypes>;
   getState(): S;
   uninitialized?: boolean;
 }
 /* istanbul ignore next */
 export const StoreContext = createContext<Store<State<unknown>>>({
   subscribe: listener => () => {},
-  dispatch: () => {},
   getState: () => initialState,
   uninitialized: true,
 });

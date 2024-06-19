@@ -20,13 +20,11 @@ import {
   StoreContext,
   BackupLoading,
   UniversalSuspense,
-  usePromisifiedDispatch,
   StateContext,
 } from '../../index.js';
 
 interface Store<S> {
   subscribe(listener: () => void): () => void;
-  dispatch: React.Dispatch<ActionTypes>;
   getState(): S;
 }
 interface Props<S> {
@@ -72,8 +70,6 @@ export default function ExternalDataProvider<S>({
     });
     return unsubscribe;
   }, [selectState, store]);
-
-  const dispatch = usePromisifiedDispatch(store.dispatch, state);
 
   const adaptedStore = useMemo(() => {
     return { ...store, getState: () => selector(store.getState()) };

@@ -33,11 +33,8 @@ export default function SSRDataProvider({
   devButton,
   hasDevManager = true,
 }: Props<State<any>>) {
-  const controller = useMemo(() => new Controller({ dispatch }), []);
-  const store = useMemo(
-    () => ({ subscribe, dispatch, getState }),
-    [subscribe, dispatch, getState],
-  );
+  const controller = useMemo(() => new Controller({ dispatch }), [dispatch]);
+  const store = useMemo(() => ({ subscribe, getState }), [subscribe, getState]);
 
   return (
     <StoreContext.Provider value={store}>
