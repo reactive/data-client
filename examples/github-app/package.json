@@ -63,7 +63,7 @@
     "rehype-highlight": "7.0.0",
     "remark-gfm": "^4.0.0",
     "remark-remove-comments": "^1.0.1",
-    "uuid": "^9.0.0"
+    "uuid": "^10.0.0"
   },
   "packageManager": "yarn@4.3.0"
 }
