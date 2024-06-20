@@ -22,37 +22,23 @@ Logs out based on fetch responses. By default this is triggered by [401 (Unautho
 ## Usage
 
 <Tabs
-defaultValue="18-web"
+defaultValue="web"
 groupId="platform"
 values={[
-{ label: 'React Web 18+', value: '18-web' },
+{ label: 'Web', value: 'web' },
 { label: 'React Native', value: 'native' },
 { label: 'NextJS', value: 'nextjs' },
-{ label: 'React Web 16+', value: 'web' },
+{ label: 'Expo', value: 'expo' },
 ]}>
+
 <TabItem value="web">
 
 ```tsx title="/index.tsx"
-import { DataProvider, LogoutManager, getDefaultManagers } from '@data-client/react';
-import ReactDOM from 'react-dom';
-
-// highlight-next-line
-const managers = [new LogoutManager(), ...getDefaultManagers()];
-
-ReactDOM.render(
-  <DataProvider managers={managers}>
-    <App />
-  </DataProvider>,
-  document.body,
-);
-```
-
-</TabItem>
-
-<TabItem value="18-web">
-
-```tsx title="/index.tsx"
-import { DataProvider, LogoutManager, getDefaultManagers } from '@data-client/react';
+import {
+  DataProvider,
+  LogoutManager,
+  getDefaultManagers,
+} from '@data-client/react';
 import ReactDOM from 'react-dom';
 
 // highlight-next-line
@@ -70,7 +56,11 @@ ReactDOM.createRoot(document.body).render(
 <TabItem value="native">
 
 ```tsx title="/index.tsx"
-import { DataProvider, LogoutManager, getDefaultManagers } from '@data-client/react';
+import {
+  DataProvider,
+  LogoutManager,
+  getDefaultManagers,
+} from '@data-client/react';
 import { AppRegistry } from 'react-native';
 
 // highlight-next-line
@@ -88,22 +78,6 @@ AppRegistry.registerComponent('MyApp', () => Root);
 
 <TabItem value="nextjs">
 
-```tsx title="app/_layout.tsx"
-import Provider from './Provider';
-
-export default function RootLayout({ children }) {
-  return (
-    <html>
-      <body>
-        <Provider>
-          {children}
-        </Provider>
-      </body>
-    </html>
-  );
-}
-```
-
 ```tsx title="app/Provider.tsx"
 'use client';
 import { LogoutManager, getDefaultManagers } from '@data-client/react';
@@ -112,8 +86,86 @@ import { DataProvider } from '@data-client/react/nextjs';
 // highlight-next-line
 const managers = [new LogoutManager(), ...getDefaultManagers()];
 
-export default function Provider({ children }: { children: React.ReactNode }) {
+export default function Provider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return <DataProvider managers={managers}>{children}</DataProvider>;
+}
+```
+
+```tsx title="app/_layout.tsx"
+import Provider from './Provider';
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <Provider>{children}</Provider>
+      </body>
+    </html>
+  );
+}
+```
+
+</TabItem>
+<TabItem value="expo">
+
+```tsx title="app/Provider.tsx"
+import {
+  LogoutManager,
+  getDefaultManagers,
+  DataProvider,
+} from '@data-client/react';
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from '@react-navigation/native';
+import { useColorScheme } from '@/hooks/useColorScheme';
+
+// highlight-next-line
+const managers = [new LogoutManager(), ...getDefaultManagers()];
+
+export default function Provider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const colorScheme = useColorScheme();
+
+  return (
+    <ThemeProvider
+      value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
+    >
+      // highlight-next-line
+      <DataProvider managers={managers}>{children}</DataProvider>
+    </ThemeProvider>
+  );
+}
+```
+
+```tsx title="app/_layout.tsx"
+import { Stack } from 'expo-router';
+import 'react-native-reanimated';
+
+// highlight-next-line
+import Provider from './Provider';
+
+export default function RootLayout() {
+  return (
+    // highlight-start
+    <Provider>
+      // highlight-end
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="+not-found" />
+      </Stack>
+      // highlight-start
+    </Provider>
+    // highlight-end
+  );
 }
 ```
 
@@ -155,7 +207,7 @@ const managers = [
       unAuth();
       // still reset the store
       // highlight-next-line
-      controller.invalidateAll({ testKey })
+      controller.invalidateAll({ testKey });
     },
   }),
   ...getDefaultManagers(),

@@ -5,34 +5,17 @@ import PkgInstall from '@site/src/components/PkgInstall';
 import Link from '@docusaurus/Link';
 
 <Tabs
-defaultValue="18-web"
+defaultValue="web"
 groupId="platform"
 values={[
-{ label: 'React Web 18+', value: '18-web' },
+{ label: 'Web', value: 'web' },
 { label: 'React Native', value: 'native' },
-{ label: 'NextJS 13+', value: 'nextjs' },
+{ label: 'NextJS', value: 'nextjs' },
+{ label: 'Expo', value: 'expo' },
 { label: 'Anansi', value: 'anansi' },
-{ label: 'React Web 16+', value: 'web' },
 ]}>
+
 <TabItem value="web">
-
-```tsx title="index.tsx"
-import { DataProvider } from '@data-client/react';
-import ReactDOM from 'react-dom';
-
-ReactDOM.render(
-  <DataProvider>
-    <App />
-  </DataProvider>,
-  document.body,
-);
-```
-
-Alternatively [integrate state with redux](../guides/redux.md)
-
-</TabItem>
-
-<TabItem value="18-web">
 
 ```tsx title="index.tsx"
 import { DataProvider } from '@data-client/react';
@@ -74,6 +57,7 @@ Alternatively [integrate state with redux](../guides/redux.md)
 </p>
 
 ```tsx title="app/layout.tsx"
+// highlight-next-line
 import { DataProvider } from '@data-client/react/nextjs';
 
 export default function RootLayout({ children }) {
@@ -83,7 +67,7 @@ export default function RootLayout({ children }) {
         // highlight-next-line
         <DataProvider>
           {children}
-        // highlight-next-line
+          // highlight-next-line
         </DataProvider>
       </body>
     </html>
@@ -92,6 +76,45 @@ export default function RootLayout({ children }) {
 ```
 
 </TabItem>
+<TabItem value="expo">
+
+```tsx title="app/_layout.tsx"
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from '@react-navigation/native';
+import { Stack } from 'expo-router';
+import 'react-native-reanimated';
+// highlight-next-line
+import { DataProvider } from '@data-client/react';
+
+import { useColorScheme } from '@/hooks/useColorScheme';
+
+export default function RootLayout() {
+  const colorScheme = useColorScheme();
+
+  return (
+    <ThemeProvider
+      value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
+    >
+      // highlight-start
+      <DataProvider>
+        // highlight-end
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+        // highlight-start
+      </DataProvider>
+      // highlight-end
+    </ThemeProvider>
+  );
+}
+```
+
+</TabItem>
+
 <TabItem value="anansi">
 
 [Anansi](https://github.com/ntucker/anansi) (beta) is a fully composable framework for React development with optional

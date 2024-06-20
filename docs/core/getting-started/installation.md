@@ -63,9 +63,9 @@ follow the instructions to [add legacy browser support to packages](../guides/le
 <summary><b>ReactJS 16+ and React Native</b></summary>
 
 ReactJS 16.2 and above is supported (the one with hooks!). React 18 provides improved [Suspense](../api/useSuspense.md)
-support and features. Both React Native and React Navigation are supported.
+support and features. Both React Native, [React Navigation](https://reactnavigation.org/) and [Expo](https://docs.expo.dev) are supported.
 
-Other native frameworks like Expo should work, but have not been verified. If you have a working project using other
+If you have a working project using other
 React libraries, [feel free to share with others](https://github.com/reactive/data-client/discussions/2422) in our
 discussions.
 

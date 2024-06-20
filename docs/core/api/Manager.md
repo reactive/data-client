@@ -75,33 +75,16 @@ sure to hoist to module level or wrap in a useMemo() to ensure they are not recr
 have internal state, so it is important to not constantly recreate them.
 
 <Tabs
-defaultValue="18-web"
+defaultValue="web"
 groupId="platform"
 values={[
-{ label: 'React Web 16+', value: 'web' },
-{ label: 'React Web 18+', value: '18-web' },
+{ label: 'Web', value: 'web' },
 { label: 'React Native', value: 'native' },
 { label: 'NextJS', value: 'nextjs' },
+{ label: 'Expo', value: 'expo' },
 ]}>
+
 <TabItem value="web">
-
-```tsx title="/index.tsx"
-import { DataProvider, getDefaultManagers } from '@data-client/react';
-import ReactDOM from 'react-dom';
-
-const managers = [...getDefaultManagers(), new MyManager()];
-
-ReactDOM.render(
-  <DataProvider managers={managers}>
-    <App />
-  </DataProvider>,
-  document.body,
-);
-```
-
-</TabItem>
-
-<TabItem value="18-web">
 
 ```tsx title="/index.tsx"
 import { DataProvider, getDefaultManagers } from '@data-client/react';
@@ -138,18 +121,89 @@ AppRegistry.registerComponent('MyApp', () => Root);
 
 <TabItem value="nextjs">
 
-```tsx title="pages/_app.tsx"
-import { DataProvider, getDefaultManagers } from '@data-client/react';
-import { AppDataProvider } from '@data-client/ssr/nextjs';
-import type { AppProps } from 'next/app';
+```tsx title="app/Provider.tsx"
+'use client';
+import { getDefaultManagers } from '@data-client/react';
+import { DataProvider } from '@data-client/react/nextjs';
 
+// highlight-next-line
 const managers = [...getDefaultManagers(), new MyManager()];
 
-export default function App({ Component, pageProps }: AppProps) {
+export default function Provider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <DataProvider managers={managers}>{children}</DataProvider>;
+}
+```
+
+```tsx title="app/_layout.tsx"
+import Provider from './Provider';
+
+export default function RootLayout({ children }) {
   return (
-    <AppDataProvider managers={managers}>
-      <Component {...pageProps} />
-    </AppDataProvider>
+    <html>
+      <body>
+        <Provider>{children}</Provider>
+      </body>
+    </html>
+  );
+}
+```
+
+</TabItem>
+<TabItem value="expo">
+
+```tsx title="app/Provider.tsx"
+import { getDefaultManagers, DataProvider } from '@data-client/react';
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from '@react-navigation/native';
+import { useColorScheme } from '@/hooks/useColorScheme';
+
+// highlight-next-line
+const managers = [...getDefaultManagers(), new MyManager()];
+
+export default function Provider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const colorScheme = useColorScheme();
+
+  return (
+    <ThemeProvider
+      value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
+    >
+      // highlight-next-line
+      <DataProvider managers={managers}>{children}</DataProvider>
+    </ThemeProvider>
+  );
+}
+```
+
+```tsx title="app/_layout.tsx"
+import { Stack } from 'expo-router';
+import 'react-native-reanimated';
+
+// highlight-next-line
+import Provider from './Provider';
+
+export default function RootLayout() {
+  return (
+    // highlight-start
+    <Provider>
+      // highlight-end
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="+not-found" />
+      </Stack>
+      // highlight-start
+    </Provider>
+    // highlight-end
   );
 }
 ```
@@ -163,8 +217,8 @@ Managers live in the DataProvider centralized store. They orchestrate complex co
 via intercepting and dispatching actions, as well as reading the internal state.
 
 <ThemedImage
-  alt="Manager flux flow"
-  sources={{
+alt="Manager flux flow"
+sources={{
     light: useBaseUrl('/img/flux-full.png'),
     dark: useBaseUrl('/img/flux-full-dark.png'),
   }}
@@ -215,7 +269,11 @@ export default class StreamManager implements Manager {
         try {
           const msg = JSON.parse(event.data);
           if (msg.type in this.endpoints)
-            controller.setResponse(this.endpoints[msg.type], ...msg.args, msg.data);
+            controller.setResponse(
+              this.endpoints[msg.type],
+              ...msg.args,
+              msg.data,
+            );
         } catch (e) {
           console.error('Failed to handle message');
           console.error(e);
