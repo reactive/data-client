@@ -15,8 +15,6 @@ Useful to avoid spamming network requests when parameters might change quickly (
 
 ## Usage
 
-<PkgInstall pkgs="@data-client/hooks" />
-
 <HooksPlayground row>
 
 ```ts title="IssueQuery" collapsed
@@ -84,8 +82,7 @@ export default React.memo(IssueList) as typeof IssueList;
 ```
 
 ```tsx title="SearchIssues" {8}
-import { useDebounce } from '@data-client/hooks';
-import { AsyncBoundary } from '@data-client/react';
+import { useDebounce, AsyncBoundary } from '@data-client/react';
 import IssueList from './IssueList';
 
 export default function SearchIssues() {
@@ -118,5 +115,3 @@ function useDebounce<T>(
   updatable?: boolean,
 ): T;
 ```
-
-Part of [@data-client/hooks](https://www.npmjs.com/package/@data-client/hooks)

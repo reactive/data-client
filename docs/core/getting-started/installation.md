@@ -14,7 +14,7 @@ import Installation from '../shared/\_installation.mdx';
 import StackBlitz from '@site/src/components/StackBlitz';
 import Link from '@docusaurus/Link';
 
-<PkgTabs pkgs="@data-client/react @data-client/test @data-client/hooks @data-client/rest" />
+<PkgTabs pkgs="@data-client/react @data-client/test @data-client/rest" />
 
 ## Add provider at top-level component
 

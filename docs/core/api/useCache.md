@@ -52,7 +52,7 @@ export const UserResource = createResource({
 ```
 
 ```tsx title="Unauthed" collapsed
-import { useLoading } from '@data-client/hooks';
+import { useLoading } from '@data-client/react';
 import { UserResource } from './UserResource';
 
 export default function Unauthed() {

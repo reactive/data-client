@@ -260,8 +260,7 @@ function ArticleEdit() {
 [useLoading()](./api/useLoading.md) enhances async functions by tracking their loading and error states.
 
 ```tsx
-import { useController } from '@data-client/react';
-import { useLoading } from '@data-client/hooks';
+import { useController, useLoading } from '@data-client/react';
 
 function ArticleEdit() {
   const ctrl = useController();
@@ -279,7 +278,6 @@ React 18 version with [useTransition](https://react.dev/reference/react/useTrans
 ```tsx
 import { useTransition } from 'react';
 import { useController } from '@data-client/react';
-import { useLoading } from '@data-client/hooks';
 
 function ArticleEdit() {
   const ctrl = useController();

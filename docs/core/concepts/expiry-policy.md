@@ -627,7 +627,7 @@ export default function TimePage({ id }) {
 ```
 
 ```tsx title="ShowTime"
-import { useLoading } from '@data-client/hooks';
+import { useLoading } from '@data-client/react';
 import { TimedEntity } from './api/lastUpdated';
 import TimePage from './TimePage';
 

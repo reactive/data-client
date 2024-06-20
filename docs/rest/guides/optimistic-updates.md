@@ -338,7 +338,7 @@ export const increment = new RestEndpoint({
 ```
 
 ```tsx title="CounterPage" collapsed
-import { useLoading } from '@data-client/hooks';
+import { useLoading } from '@data-client/react';
 import { getCount } from './count';
 import { increment } from './increment';
 

@@ -13,7 +13,7 @@ fetches that are no longer considered relevant. This can be hooked into fetch vi
 Sometimes a user has the opportunity to fill out a field that is used to affect the results of a network call.
 If this is a text input, they could potentially type quite quickly, thus creating a lot of network requests.
 
-Using [@data-client/hooks](https://www.npmjs.com/package/@data-client/hooks) package with [useCancelling()](/docs/api/useCancelling) will automatically cancel in-flight requests if the parameters
+Using [useCancelling()](/docs/api/useCancelling) will automatically cancel in-flight requests if the parameters
 change before the request is resolved.
 
 <UseCancelling />

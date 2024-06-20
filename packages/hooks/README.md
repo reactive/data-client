@@ -1,4 +1,5 @@
 # Networking Hooks
+
 [![CircleCI](https://circleci.com/gh/reactive/data-client/tree/master.svg?style=shield)](https://circleci.com/gh/reactive/data-client)
 [![Coverage Status](https://img.shields.io/codecov/c/gh/reactive/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/reactive/data-client?branch=master)
 [![npm downloads](https://img.shields.io/npm/dm/@data-client/hooks.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/hooks)
@@ -13,6 +14,10 @@ Composable hooks for networking data
 **[📖Read The Docs](https://dataclient.io/docs/api/useDebounce)**
 
 </div>
+
+## 🚨 Repository Deprecated and Moved! 🚨
+
+**This repository has been deprecated and is no longer actively maintained.** All hooks moved to [@data-client/react](https://www.npmjs.com/package/@data-client/react)
 
 ### [useCancelling()](https://dataclient.io/docs/api/useCancelling)
 

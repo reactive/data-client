@@ -20,8 +20,6 @@ Helps track loading state of imperative async functions.
 
 ## Usage
 
-<PkgInstall pkgs="@data-client/hooks" />
-
 <UseLoading />
 
 ## Eslint
@@ -51,8 +49,6 @@ export default function useLoading<
   F extends (...args: any) => Promise<any>,
 >(func: F, deps: readonly any[] = []): [F, boolean];
 ```
-
-Part of [@data-client/hooks](https://www.npmjs.com/package/@data-client/hooks)
 
 ## Examples
 

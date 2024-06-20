@@ -16,8 +16,6 @@ Builds an Endpoint that cancels fetch everytime parameters change
 
 ## Usage
 
-<PkgInstall pkgs="@data-client/hooks" />
-
 <UseCancelling />
 
 :::warning Warning
@@ -37,5 +35,3 @@ function useCancelling<
   },
 >(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): E {
 ```
-
-Part of [@data-client/hooks](https://www.npmjs.com/package/@data-client/hooks)
