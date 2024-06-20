@@ -88,8 +88,7 @@ export default function PostForm({ onSubmit, loading, error }) {
 ```
 
 ```tsx title="PostCreate" {8}
-import { useController } from '@data-client/react';
-import { useLoading } from '@data-client/hooks';
+import { useLoading, useController } from '@data-client/react';
 import { PostResource } from './PostResource';
 import PostForm from './PostForm';
 

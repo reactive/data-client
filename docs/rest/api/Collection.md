@@ -327,7 +327,7 @@ export const getPosts = new RestEndpoint({
 ```
 
 ```ts title="PostListLayout" collapsed
-import { useLoading } from '@data-client/hooks';
+import { useLoading } from '@data-client/react';
 
 export default function PostListLayout({
   postsByBob,

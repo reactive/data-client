@@ -76,7 +76,7 @@ export const getPosts = new RestEndpoint({
 ```
 
 ```tsx title="NewPost" collapsed
-import { useLoading } from '@data-client/hooks';
+import { useLoading } from '@data-client/react';
 import { getPosts } from './getPosts';
 
 export default function NewPost({ user }: { user: string }) {

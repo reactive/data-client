@@ -192,15 +192,15 @@
             },
             {
               "type": "doc",
+              "id": "api/useLoading"
+            },
+            {
+              "type": "doc",
               "id": "api/useDebounce"
             },
             {
               "type": "doc",
               "id": "api/useCancelling"
-            },
-            {
-              "type": "doc",
-              "id": "api/useLoading"
             }
           ]
         },

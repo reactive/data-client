@@ -7,3 +7,6 @@ export { default as useSubscription } from './useSubscription.js';
 export { default as useDLE } from './useDLE.js';
 export { default as useController } from './useController.js';
 export { default as useLive } from './useLive.js';
+export { default as useDebounce } from './useDebounce.js';
+export { default as useCancelling } from './useCancelling.js';
+export { default as useLoading } from './useLoading.js';
