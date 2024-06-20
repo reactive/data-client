@@ -1,6 +1,6 @@
 {
   "name": "@data-client/hooks",
-  "version": "0.1.11",
+  "version": "0.2.0",
   "description": "Collection of composable data hooks",
   "homepage": "https://dataclient.io/docs/api/useDebounce",
   "repository": {

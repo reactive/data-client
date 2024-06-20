@@ -1,5 +1,13 @@
 # @data-client/hooks
 
+## 0.2.0
+
+### Minor Changes
+
+- [#3115](https://github.com/reactive/data-client/pull/3115) [`34f12c4`](https://github.com/reactive/data-client/commit/34f12c4022462bea441ec134a61cfcc4cf505e6d) Thanks [@ntucker](https://github.com/ntucker)! - **This repository has been deprecated and is no longer actively maintained.**
+
+  All hooks moved to [@data-client/react](https://www.npmjs.com/package/@data-client/react)
+
 ## 0.1.11
 
 ### Patch Changes
