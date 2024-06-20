@@ -79,36 +79,21 @@ export default function RootLayout({ children }) {
 <TabItem value="expo">
 
 ```tsx title="app/_layout.tsx"
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from '@react-navigation/native';
 import { Stack } from 'expo-router';
-import 'react-native-reanimated';
 // highlight-next-line
 import { DataProvider } from '@data-client/react';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
-
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-
   return (
-    <ThemeProvider
-      value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
-    >
+    // highlight-start
+    <DataProvider>
+    // highlight-end
+      <Stack>
+        <Stack.Screen name="index" />
+      </Stack>
       // highlight-start
-      <DataProvider>
-        // highlight-end
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-        // highlight-start
-      </DataProvider>
-      // highlight-end
-    </ThemeProvider>
+    </DataProvider>
+    // highlight-end
   );
 }
 ```
