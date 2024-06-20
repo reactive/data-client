@@ -1,5 +1,15 @@
 # @data-client/react
 
+## 0.13.3
+
+### Patch Changes
+
+- [#3115](https://github.com/reactive/data-client/pull/3115) [`34f12c4`](https://github.com/reactive/data-client/commit/34f12c4022462bea441ec134a61cfcc4cf505e6d) Thanks [@ntucker](https://github.com/ntucker)! - Add [useLoading()](https://dataclient.io/docs/api/useLoading), [useDebounce()](https://dataclient.io/docs/api/useDebounce), [useCancelling()](https://dataclient.io/docs/api/useCancelling)
+
+  These are taken from the hooks package.
+
+- [`47bf5af`](https://github.com/reactive/data-client/commit/47bf5aff1a473f113b14b9c619e838e766c394ce) Thanks [@ntucker](https://github.com/ntucker)! - Fix React Native should not render anything for dev button
+
 ## 0.13.2
 
 ### Patch Changes
