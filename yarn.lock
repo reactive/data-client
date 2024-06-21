@@ -452,9 +452,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:19.0.8, @anansi/webpack-config@npm:^19.0.0":
-  version: 19.0.8
-  resolution: "@anansi/webpack-config@npm:19.0.8"
+"@anansi/webpack-config@npm:19.0.9, @anansi/webpack-config@npm:^19.0.0":
+  version: 19.0.9
+  resolution: "@anansi/webpack-config@npm:19.0.9"
   dependencies:
     "@babel/runtime": "npm:^7.17.2"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.15"
@@ -554,7 +554,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: 10c0/1d6d1a49dc558958adc35e6d0929a3f9878e8971343910fe7ab035248196e89f477973e9db771bfde65d20bac681d81accf6883c93fb9512e3c1e0dfdd9d428e
+  checksum: 10c0/1eadac369709b616604cfc4ee891a0f73fad5897301579c46a7caa1ffbcbfcf3c82ac916b0126900a5262bcdf9b67e28db7438c69bcc42fd575927342f29a6de
   languageName: node
   linkType: hard
 
@@ -24799,7 +24799,7 @@ __metadata:
   resolution: "rdc-website@workspace:website"
   dependencies:
     "@anansi/browserslist-config": "npm:1.5.0"
-    "@anansi/webpack-config": "npm:19.0.8"
+    "@anansi/webpack-config": "npm:19.0.9"
     "@data-client/endpoint": "workspace:*"
     "@data-client/graphql": "workspace:*"
     "@data-client/react": "workspace:*"
@@ -30028,8 +30028,8 @@ __metadata:
   linkType: hard
 
 "webpack@npm:*, webpack@npm:^5, webpack@npm:^5.76.0, webpack@npm:^5.76.2, webpack@npm:^5.88.1":
-  version: 5.92.0
-  resolution: "webpack@npm:5.92.0"
+  version: 5.92.1
+  resolution: "webpack@npm:5.92.1"
   dependencies:
     "@types/eslint-scope": "npm:^3.7.3"
     "@types/estree": "npm:^1.0.5"
@@ -30060,7 +30060,7 @@ __metadata:
       optional: true
   bin:
     webpack: bin/webpack.js
-  checksum: 10c0/588de5ce6f1e8fb4fec7300c2c36a8fc844fe71f4c871b06aca1a68553bea8f6479697615abb53cbbeb2e3859fc1b982f2f48ff23dd0e60024f69bb3d46d0712
+  checksum: 10c0/43ca7c76b9c1005bd85f05303d048f918bac10276a209e3ef5e359353fbfef4e5fcee876265e6bc305bf5ef326576e02df63bc7e5af878fb7f06d7e1795b811a
   languageName: node
   linkType: hard
 
