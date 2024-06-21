@@ -27,7 +27,7 @@ interface Props$1 {
  * @see https://dataclient.io/docs/api/DataProvider
  */
 declare function DataProvider({ children, managers, initialState, Controller, devButton, }: Props$1): JSX.Element;
-declare let getDefaultManagers: () => Manager<_data_client_core.ActionTypes>[];
+declare let getDefaultManagers: () => Manager[];
 
 /** Suspense but compatible with 18 SSR, 17, 16 and native */
 declare const UniversalSuspense: React.FunctionComponent<{
@@ -61,7 +61,7 @@ declare class ErrorBoundary<E extends Error> extends React.Component<ErrorBounda
         fallbackComponent: ({ error, className, }: {
             error: Error;
             resetErrorBoundary: () => void;
-            className?: string | undefined;
+            className?: string;
         }) => react_jsx_runtime.JSX.Element;
     };
     static getDerivedStateFromError(error: Error): {

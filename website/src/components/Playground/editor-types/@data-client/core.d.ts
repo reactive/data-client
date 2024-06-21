@@ -471,21 +471,21 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
      * @see https://dataclient.io/docs/api/Controller#fetch
      */
-    fetch: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
-        update?: EndpointUpdateFunction<E> | undefined;
-    }>(endpoint: E, ...args_0: Parameters<E>) => E['schema'] extends undefined | null ? ReturnType<E> : Promise<Denormalize<E['schema']>>;
+    fetch: <E extends EndpointInterface & {
+        update?: EndpointUpdateFunction<E>;
+    }>(endpoint: E, ...args_0: Parameters<E>) => E["schema"] extends undefined | null ? ReturnType<E> : Promise<Denormalize<E["schema"]>>;
     /**
      * Fetches only if endpoint is considered 'stale'; otherwise returns undefined
      * @see https://dataclient.io/docs/api/Controller#fetchIfStale
      */
-    fetchIfStale: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
-        update?: EndpointUpdateFunction<E> | undefined;
-    }>(endpoint: E, ...args_0: Parameters<E>) => E['schema'] extends undefined | null ? ReturnType<E> | ResolveType<E> : Promise<Denormalize<E['schema']>> | Denormalize<E['schema']>;
+    fetchIfStale: <E extends EndpointInterface & {
+        update?: EndpointUpdateFunction<E>;
+    }>(endpoint: E, ...args_0: Parameters<E>) => E["schema"] extends undefined | null ? ReturnType<E> | ResolveType<E> : Promise<Denormalize<E["schema"]>> | Denormalize<E["schema"]>;
     /**
      * Forces refetching and suspense on useSuspense with the same Endpoint and parameters.
      * @see https://dataclient.io/docs/api/Controller#invalidate
      */
-    invalidate: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]) => Promise<void>;
+    invalidate: <E extends EndpointInterface>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]) => Promise<void>;
     /**
      * Forces refetching and suspense on useSuspense on all matching endpoint result keys.
      * @see https://dataclient.io/docs/api/Controller#invalidateAll
@@ -516,22 +516,22 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      * Sets response for the Endpoint and args.
      * @see https://dataclient.io/docs/api/Controller#setResponse
      */
-    setResponse: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
-        update?: EndpointUpdateFunction<E> | undefined;
+    setResponse: <E extends EndpointInterface & {
+        update?: EndpointUpdateFunction<E>;
     }>(endpoint: E, ...rest: readonly [...Parameters<E>, any]) => Promise<void>;
     /**
      * Sets an error response for the Endpoint and args.
      * @see https://dataclient.io/docs/api/Controller#setError
      */
-    setError: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
-        update?: EndpointUpdateFunction<E> | undefined;
+    setError: <E extends EndpointInterface & {
+        update?: EndpointUpdateFunction<E>;
     }>(endpoint: E, ...rest: readonly [...Parameters<E>, Error]) => Promise<void>;
     /**
      * Resolves an inflight fetch. `fetchedAt` should `fetch`'s `createdAt`
      * @see https://dataclient.io/docs/api/Controller#resolve
      */
-    resolve: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
-        update?: EndpointUpdateFunction<E> | undefined;
+    resolve: <E extends EndpointInterface & {
+        update?: EndpointUpdateFunction<E>;
     }>(endpoint: E, meta: {
         args: readonly [...Parameters<E>];
         response: Error;
@@ -547,12 +547,12 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      * Marks a new subscription to a given Endpoint.
      * @see https://dataclient.io/docs/api/Controller#subscribe
      */
-    subscribe: <E extends EndpointInterface<FetchFunction, Schema | undefined, false | undefined>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]) => Promise<void>;
+    subscribe: <E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]) => Promise<void>;
     /**
      * Marks completion of subscription to a given Endpoint.
      * @see https://dataclient.io/docs/api/Controller#unsubscribe
      */
-    unsubscribe: <E extends EndpointInterface<FetchFunction, Schema | undefined, false | undefined>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]) => Promise<void>;
+    unsubscribe: <E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]) => Promise<void>;
     /*************** More ***************/
     /**
      * Gets a snapshot (https://dataclient.io/docs/api/Snapshot)

@@ -1076,9 +1076,9 @@ declare namespace schema_d {
 }
 
 declare const Entity_base: IEntityClass<abstract new (...args: any[]) => {
-    pk(parent?: any, key?: string | undefined, args?: readonly any[] | undefined): string | number | undefined;
+    pk(parent?: any, key?: string, args?: readonly any[]): string | number | undefined;
 }> & (abstract new (...args: any[]) => {
-    pk(parent?: any, key?: string | undefined, args?: readonly any[] | undefined): string | number | undefined;
+    pk(parent?: any, key?: string, args?: readonly any[]): string | number | undefined;
 });
 /**
  * Represents data that should be deduped by specifying a primary key.
@@ -1777,7 +1777,7 @@ declare class ErrorBoundary<E extends Error> extends React.Component<ErrorBounda
         fallbackComponent: ({ error, className, }: {
             error: Error;
             resetErrorBoundary: () => void;
-            className?: string | undefined;
+            className?: string;
         }) => react_jsx_runtime.JSX.Element;
     };
     static getDerivedStateFromError(error: Error): {

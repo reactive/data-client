@@ -1072,9 +1072,9 @@ declare namespace schema_d {
 }
 
 declare const Entity_base: IEntityClass<abstract new (...args: any[]) => {
-    pk(parent?: any, key?: string | undefined, args?: readonly any[] | undefined): string | number | undefined;
+    pk(parent?: any, key?: string, args?: readonly any[]): string | number | undefined;
 }> & (abstract new (...args: any[]) => {
-    pk(parent?: any, key?: string | undefined, args?: readonly any[] | undefined): string | number | undefined;
+    pk(parent?: any, key?: string, args?: readonly any[]): string | number | undefined;
 });
 /**
  * Represents data that should be deduped by specifying a primary key.

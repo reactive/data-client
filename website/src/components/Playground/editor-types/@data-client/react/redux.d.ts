@@ -178,7 +178,7 @@ interface Props<S> {
  */
 declare function ExternalDataProvider<S>({ children, store, selector, controller, devButton, hasDevManager, }: Props<S>): react_jsx_runtime.JSX.Element;
 
-declare const mapMiddleware: <M extends Middleware<{}, any, Dispatch<UnknownAction>>[]>(selector: (state: any) => State<unknown>) => (...middlewares: Middleware[]) => M;
+declare const mapMiddleware: <M extends Middleware[]>(selector: (state: any) => State<unknown>) => (...middlewares: Middleware[]) => M;
 //# sourceMappingURL=mapMiddleware.d.ts.map
 
 declare const PromiseifyMiddleware: <R extends React.Reducer<any, any>>(_: unknown) => (next: Dispatch$1<R>) => (action: React.ReducerAction<R>) => Promise<void>;
