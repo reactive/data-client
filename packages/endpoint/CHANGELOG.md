@@ -1,5 +1,11 @@
 # @data-client/endpoint
 
+## 0.13.4
+
+### Patch Changes
+
+- [`720ff0c`](https://github.com/reactive/data-client/commit/720ff0c3d833ff4d1eb5020694131e87282b585d) Thanks [@ntucker](https://github.com/ntucker)! - Update keywords
+
 ## 0.12.7
 
 ### Patch Changes
@@ -94,7 +100,7 @@
     new schema.All(User),
     (entries, { isAdmin } = {}) => {
       if (isAdmin !== undefined)
-        return entries.filter((user) => user.isAdmin === isAdmin).length;
+        return entries.filter(user => user.isAdmin === isAdmin).length;
       return entries.length;
     },
   );
@@ -110,7 +116,7 @@
     new schema.All(User),
     (entries, { isAdmin } = {}) => {
       if (isAdmin !== undefined)
-        return entries.filter((user) => user.isAdmin === isAdmin).length;
+        return entries.filter(user => user.isAdmin === isAdmin).length;
       return entries.length;
     },
   );
@@ -201,13 +207,13 @@
   ```jsx
   const UserIndex = new Index(User);
 
-  const bob = useCache(UserIndex, { username: "bob" });
+  const bob = useCache(UserIndex, { username: 'bob' });
   ```
 
   #### After
 
   ```jsx
-  const bob = useQuery(User, { username: "bob" });
+  const bob = useQuery(User, { username: 'bob' });
   ```
 
 ### Patch Changes
@@ -331,7 +337,7 @@
   ```ts
   export const queryRemainingTodos = new Query(
     TodoResource.getList.schema,
-    (entries) => entries && entries.filter((todo) => !todo.completed).length,
+    entries => entries && entries.filter(todo => !todo.completed).length,
   );
   ```
 
@@ -414,7 +420,7 @@
     pk(): string {
       return `${this.trade_id}`;
     }
-    static key = "Ticker";
+    static key = 'Ticker';
 
     static schema = {
       price: Number,
@@ -434,7 +440,7 @@
     pk(): string {
       return `${this.trade_id}`;
     }
-    static key = "Ticker";
+    static key = 'Ticker';
 
     static schema = {
       price: Number,
@@ -455,16 +461,16 @@
 
   ```ts
   class Stream extends Entity {
-    username = "";
-    title = "";
-    game = "";
+    username = '';
+    title = '';
+    game = '';
     currentViewers = 0;
     live = false;
 
     pk() {
       return this.username;
     }
-    static key = "Stream";
+    static key = 'Stream';
 
     process(value, parent, key, args) {
       const processed = super.process(value, parent, key, args);
