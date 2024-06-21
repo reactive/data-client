@@ -43,7 +43,7 @@ module.exports = function (api) {
                     resolved + ext,
                   );
                   if (fs.existsSync(absolutePath)) {
-                    return resolved;
+                    return resolved + path.extname(sourcePath);
                   }
                 }
               }

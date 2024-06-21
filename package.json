@@ -142,6 +142,7 @@
     "ignorePatterns": [
       "**/lib*/*",
       "**/dist*/*",
+      "packages/*/native/*",
       "**/node_modules*/*",
       "node_modules/*"
     ]
