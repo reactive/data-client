@@ -1,5 +1,20 @@
 # @data-client/react
 
+## 0.13.4
+
+### Patch Changes
+
+- [`720ff0c`](https://github.com/reactive/data-client/commit/720ff0c3d833ff4d1eb5020694131e87282b585d) Thanks [@ntucker](https://github.com/ntucker)! - Widen ErrorFallback types
+
+- [`720ff0c`](https://github.com/reactive/data-client/commit/720ff0c3d833ff4d1eb5020694131e87282b585d) Thanks [@ntucker](https://github.com/ntucker)! - Update keywords
+
+- [#3123](https://github.com/reactive/data-client/pull/3123) [`c38714d`](https://github.com/reactive/data-client/commit/c38714ddb42819f2d05e0dda9a19579025600928) Thanks [@ntucker](https://github.com/ntucker)! - Fix React Native use correct native specific modules
+
+  Fully realized path names (including .js at end of import)
+  was breaking [platform specific extensions](https://docs.expo.dev/router/advanced/platform-specific-modules/#platform-specific-extensions). To workaround this issue, we
+  simply create a custom react-native build that remaps any
+  imports with full extension written ("file.native.js")
+
 ## 0.13.3
 
 ### Patch Changes
