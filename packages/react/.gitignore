@@ -1,6 +1,7 @@
 /lib
 /dist
 /legacy
+/native
 /index.d.ts
 /next.d.ts
 /nextjs.d.ts
