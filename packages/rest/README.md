@@ -25,7 +25,7 @@ const getTodo = new RestEndpoint({
 });
 ```
 
-[RestEndpoint](https://dataclient.io/rest/api/RestEndpoint) infers [path-to-regex](https://github.com/pillarjs/path-to-regexp#compile-reverse-path-to-regexp)
+[RestEndpoint](https://dataclient.io/rest/api/RestEndpoint) infers [path-to-regexp](https://github.com/pillarjs/path-to-regexp#compile-reverse-path-to-regexp)
 argument types, enabling enforcement of function calls
 
 ```typescript

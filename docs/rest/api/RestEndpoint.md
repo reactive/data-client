@@ -462,7 +462,7 @@ getFoo({ a: { b: 'c' } });
 
 ### path: string {#path}
 
-Uses [path-to-regex](https://github.com/pillarjs/path-to-regexp#compile-reverse-path-to-regexp) to build
+Uses [path-to-regexp](https://github.com/pillarjs/path-to-regexp#compile-reverse-path-to-regexp) to build
 urls using the parameters passed. This also informs the types so they are properly enforced.
 
 `:` prefixed words are key names. Both strings and numbers are accepted as options.

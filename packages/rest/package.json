@@ -22,7 +22,7 @@
     "resource",
     "typescript",
     "HTTP",
-    "path-to-regex",
+    "path-to-regexp",
     "path template",
     "data fetching",
     "data cache",
