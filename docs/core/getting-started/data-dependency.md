@@ -157,9 +157,7 @@ import PostDetail from './PostDetail';
 function Navigation() {
   const [route, setRoute] = React.useState('list');
   if (route.startsWith('detail'))
-    return (
-      <PostDetail setRoute={setRoute} id={route.split('/')[1]} />
-    );
+    return <PostDetail setRoute={setRoute} id={route.split('/')[1]} />;
 
   return <PostList setRoute={setRoute} />;
 }
@@ -197,22 +195,86 @@ us to make error/loading disjoint from data usage.
 Instead we place [&lt;AsyncBoundary /\>](../api/AsyncBoundary.md) to handling loading and error conditions at or above navigational boundaries like **pages,
 routes, or [modals](https://www.appcues.com/blog/modal-dialog-windows)**.
 
-```tsx {7,11}
+<Tabs
+defaultValue="web"
+groupId="platform"
+values={[
+{ label: 'React Router', value: 'web' },
+{ label: 'NextJS', value: 'nextjs' },
+{ label: 'Expo', value: 'expo' },
+]}>
+
+<TabItem value="web">
+
+```tsx {9,11} title="Dashboard.tsx"
 import { AsyncBoundary } from '@data-client/react';
+import { Outlet } from 'react-router';
 
 export default function Dashboard() {
   return (
     <div>
       <h1>Dashboard</h1>
-      <AsyncBoundary>
-        <section>
+      <section>
+        <AsyncBoundary>
           <Outlet />
-        </section>
-      </AsyncBoundary>
+        </AsyncBoundary>
+      </section>
     </div>
   );
 }
 ```
+
+</TabItem>
+<TabItem value="nextjs">
+
+```tsx {12} title="app/dashboard/layout.tsx"
+import { AsyncBoundary } from '@data-client/react';
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <h1>Dashboard</h1>
+      <section>
+        <AsyncBoundary>{children}</AsyncBoundary>
+      </section>
+    </div>
+  );
+}
+```
+
+</TabItem>
+<TabItem value="expo">
+
+```tsx {15,17} title="app/dashboard/_layout.tsx"
+import { AsyncBoundary } from '@data-client/react';
+import { Slot } from 'expo-router';
+
+export default function DashboardLayout() {
+  return (
+    <ParallaxScrollView
+      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+      headerImage={
+        <Image
+          source={require('@/assets/images/my-logo.png')}
+          style={styles.logo}
+        />
+      }
+    >
+      <AsyncBoundary>
+        <Slot />
+      </AsyncBoundary>
+    </ParallaxScrollView>
+  );
+}
+```
+
+</TabItem>
+
+</Tabs>
 
 React 18's [useTransition](https://react.dev/reference/react/useTransition) and [Server Side Rendering](../guides/ssr.md)
 powered routers or navigation means never seeing a loading fallback again. In React 16 and 17 fallbacks can be centralized
