@@ -25,7 +25,10 @@
     "react-native",
     "ios",
     "android",
-    "web"
+    "web",
+    "expo",
+    "async",
+    "promise"
   ],
   "sideEffects": false,
   "main": "dist/index.js",

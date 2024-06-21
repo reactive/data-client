@@ -37,7 +37,9 @@
     "ios",
     "android",
     "web",
-    "json"
+    "json",
+    "async",
+    "promise"
   ],
   "sideEffects": false,
   "main": "dist/index.js",

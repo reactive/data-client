@@ -5,7 +5,7 @@ const ErrorFallbackNative = ({
 }: {
   error: Error;
   resetErrorBoundary: () => void;
-  className: string;
+  className?: string;
 }) => <Text role="alert">{error.message}</Text>;
 
 export default ErrorFallbackNative;

@@ -40,13 +40,16 @@
     "android",
     "web",
     "expo",
+    "nextjs",
     "middleware",
     "websocket",
     "REST",
     "GraphQL",
     "RPC",
     "sse",
-    "declarative"
+    "declarative",
+    "dynamic data",
+    "mutations"
   ],
   "sideEffects": [
     "./lib/hooks/useFocusEffect.native.js"

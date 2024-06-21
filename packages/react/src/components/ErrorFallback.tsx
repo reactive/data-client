@@ -4,7 +4,7 @@ const ErrorFallback = ({
 }: {
   error: Error;
   resetErrorBoundary: () => void;
-  className: string;
+  className?: string;
 }) => (
   <pre role="alert" className={className}>
     {error.message}

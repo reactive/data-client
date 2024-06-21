@@ -1777,7 +1777,7 @@ declare class ErrorBoundary<E extends Error> extends React.Component<ErrorBounda
         fallbackComponent: ({ error, className, }: {
             error: Error;
             resetErrorBoundary: () => void;
-            className: string;
+            className?: string | undefined;
         }) => react_jsx_runtime.JSX.Element;
     };
     static getDerivedStateFromError(error: Error): {
