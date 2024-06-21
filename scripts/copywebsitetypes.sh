@@ -1,7 +1,6 @@
 cp ./packages/core/index.d.ts ./website/src/components/Playground/editor-types/@data-client/core.d.ts
 cp ./packages/endpoint/index.d.ts ./website/src/components/Playground/editor-types/@data-client/endpoint.d.ts
 cp ./packages/graphql/index.d.ts ./website/src/components/Playground/editor-types/@data-client/graphql.d.ts
-cp ./packages/hooks/index.d.ts ./website/src/components/Playground/editor-types/@data-client/hooks.d.ts
 cp ./packages/normalizr/index.d.ts ./website/src/components/Playground/editor-types/@data-client/normalizr.d.ts
 cp ./packages/react/index.d.ts ./website/src/components/Playground/editor-types/@data-client/react.d.ts
 cp ./packages/rest/index.d.ts ./website/src/components/Playground/editor-types/@data-client/rest.d.ts

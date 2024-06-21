@@ -18,7 +18,6 @@ if (
     'endpoint',
     'normalizr',
     'graphql',
-    'hooks',
   ] as const;
 
   const suggestionDependencies = [

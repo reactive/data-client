@@ -46,7 +46,6 @@ const packages = [
   'react',
   'normalizr',
   'use-enhanced-reducer',
-  'hooks',
   'img',
   'test',
 ];
