@@ -35,7 +35,6 @@
     "@anansi/webpack-config": "19.0.8",
     "@data-client/endpoint": "workspace:*",
     "@data-client/graphql": "workspace:*",
-    "@data-client/hooks": "workspace:*",
     "@data-client/react": "workspace:*",
     "@data-client/rest": "workspace:*",
     "@data-client/test": "workspace:*",

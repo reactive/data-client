@@ -1,5 +1,4 @@
 import * as graphql from '@data-client/graphql';
-import * as hooks from '@data-client/hooks';
 import * as rhReact from '@data-client/react';
 import * as rest from '@data-client/rest';
 import type { Fixture, Interceptor } from '@data-client/test';
@@ -39,7 +38,6 @@ const scope = {
   ...rhReact,
   ...rest,
   ...graphql,
-  ...hooks,
   uuid,
   randomFloatInRange,
   mockFetch,

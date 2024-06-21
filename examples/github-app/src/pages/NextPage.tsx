@@ -1,5 +1,4 @@
-import { useLoading } from '@data-client/hooks';
-import { useController } from '@data-client/react';
+import { useController, useLoading } from '@data-client/react';
 import { Button } from 'antd';
 import { IssueResource } from 'resources/Issue';
 

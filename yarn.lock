@@ -3191,7 +3191,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/hooks@workspace:*, @data-client/hooks@workspace:packages/hooks":
+"@data-client/hooks@workspace:packages/hooks":
   version: 0.0.0-use.local
   resolution: "@data-client/hooks@workspace:packages/hooks"
   dependencies:
@@ -24820,7 +24820,6 @@ __metadata:
     "@anansi/webpack-config": "npm:19.0.8"
     "@data-client/endpoint": "workspace:*"
     "@data-client/graphql": "workspace:*"
-    "@data-client/hooks": "workspace:*"
     "@data-client/react": "workspace:*"
     "@data-client/rest": "workspace:*"
     "@data-client/test": "workspace:*"
