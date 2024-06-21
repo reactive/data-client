@@ -26,7 +26,6 @@ if (
     '@data-client/rest',
     '@data-client/react',
     '@data-client/graphql',
-    '@data-client/hooks',
     'bignumber.js',
   ];
 
