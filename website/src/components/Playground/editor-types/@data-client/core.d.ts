@@ -293,7 +293,7 @@ interface SetAction<S extends Queryable = any> {
     type: typeof SET_TYPE;
     schema: S;
     meta: SetMeta;
-    value: Denormalize<S>;
+    value: {} | ((previousValue: Denormalize<S>) => {});
 }
 interface SetResponseMeta {
     args: readonly any[];
@@ -508,7 +508,8 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      * Sets value for the Queryable and args.
      * @see https://dataclient.io/docs/api/Controller#set
      */
-    set: <S extends Queryable>(schema: S, ...rest: readonly [...SchemaArgs<S>, any]) => Promise<void>;
+    set<S extends Queryable>(schema: S, ...rest: readonly [...SchemaArgs<S>, (previousValue: Denormalize<S>) => {}]): Promise<void>;
+    set<S extends Queryable>(schema: S, ...rest: readonly [...SchemaArgs<S>, {}]): Promise<void>;
     /**
      * Sets response for the Endpoint and args.
      * @see https://dataclient.io/docs/api/Controller#setResponse
@@ -710,7 +711,7 @@ declare function createFetch<E extends EndpointInterface & {
 
 declare function createSet<S extends Queryable>(schema: S, { args, fetchedAt, value, }: {
     args: readonly [...SchemaArgs<S>];
-    value: any;
+    value: {} | ((previousValue: Denormalize<S>) => {});
     fetchedAt?: number;
 }): SetAction<S>;
 

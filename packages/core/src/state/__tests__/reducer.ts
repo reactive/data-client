@@ -1,4 +1,4 @@
-import { INVALID } from '@data-client/endpoint';
+import { INVALID, Entity } from '@data-client/endpoint';
 import { ArticleResource, Article, PaginatedArticle } from '__tests__/new';
 
 import { Controller } from '../..';
@@ -200,6 +200,75 @@ describe('reducer', () => {
 
       expect(nextEntity.title).toBe('hello');
     });
+  });
+
+  it('set(function) should do nothing when entity does not exist', () => {
+    const id = 20;
+    const value = (previous: { counter: number }) => ({
+      counter: previous.counter + 1,
+    });
+    class Counter extends Entity {
+      id = 0;
+      counter = 0;
+      pk() {
+        return this.id;
+      }
+
+      static key = 'Counter';
+    }
+    const action: SetAction = {
+      type: SET_TYPE,
+      value,
+      schema: Counter,
+      meta: {
+        args: [{ id }],
+        date: 0,
+        fetchedAt: 0,
+        expiresAt: 1000000000000,
+      },
+    };
+    const newState = reducer(initialState, action);
+    expect(newState).toBe(initialState);
+  });
+
+  it('set(function) should increment when it is found', () => {
+    const id = 20;
+    const value = (previous: { id: number; counter: number }) => ({
+      id: previous.id,
+      counter: previous.counter + 1,
+    });
+    class Counter extends Entity {
+      id = 0;
+      counter = 0;
+      pk() {
+        return this.id;
+      }
+
+      static key = 'Counter';
+    }
+    const action: SetAction = {
+      type: SET_TYPE,
+      value,
+      schema: Counter,
+      meta: {
+        args: [{ id }],
+        date: 0,
+        fetchedAt: 0,
+        expiresAt: 1000000000000,
+      },
+    };
+    const state = {
+      ...initialState,
+      entities: {
+        [Counter.key]: {
+          [id]: { id, counter: 5 },
+        },
+      },
+    };
+    const newState = reducer(state, action);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    expect(newState.entities[Counter.key]?.[id]?.counter).toBe(6);
   });
 
   it('set should add entity when it does not exist', () => {

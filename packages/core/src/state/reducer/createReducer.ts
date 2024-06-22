@@ -44,7 +44,7 @@ export default function createReducer(controller: Controller): ReducerType {
         return setResponseReducer(state, action, controller);
 
       case SET_TYPE:
-        return setReducer(state, action);
+        return setReducer(state, action, controller);
 
       case INVALIDATEALL_TYPE:
       case INVALIDATE_TYPE:

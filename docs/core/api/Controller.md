@@ -31,7 +31,7 @@ class Controller {
   invalidate(endpoint, ...args): Promise<void>;
   invalidateAll({ testKey }): Promise<void>;
   resetEntireStore(): Promise<void>;
-  set(queryable, ...args, response): Promise<void>;
+  set(queryable, ...args, value): Promise<void>;
   setResponse(endpoint, ...args, response): Promise<void>;
   setError(endpoint, ...args, error): Promise<void>;
   resolve(endpoint, { args, response, fetchedAt, error }): Promise<void>;
@@ -365,6 +365,13 @@ Updates any [Queryable](/rest/api/schema#queryable) [Schema](/rest/api/schema#sc
 
 ```ts
 ctrl.set(Todo, { id: '5' }, { id: '5', title: 'tell me friends how great Data Client is' });
+```
+
+Functions can be used in the value when derived data is used. This [prevents race conditions](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state).
+
+```ts
+const id = '2';
+ctrl.set(Article, { id }, article => ({ id, votes: article.votes + 1 }));
 ```
 
 ## setResponse(endpoint, ...args, response) {#setResponse}

@@ -186,18 +186,28 @@ export default class Controller<
    * Sets value for the Queryable and args.
    * @see https://dataclient.io/docs/api/Controller#set
    */
-  set = <S extends Queryable>(
+  set<S extends Queryable>(
+    schema: S,
+    ...rest: readonly [...SchemaArgs<S>, (previousValue: Denormalize<S>) => {}]
+  ): Promise<void>;
+
+  set<S extends Queryable>(
+    schema: S,
+    ...rest: readonly [...SchemaArgs<S>, {}]
+  ): Promise<void>;
+
+  set<S extends Queryable>(
     schema: S,
     ...rest: readonly [...SchemaArgs<S>, any]
-  ): Promise<void> => {
-    const value: Denormalize<S> = rest[rest.length - 1];
+  ): Promise<void> {
+    const value = rest[rest.length - 1];
     const action = createSet(schema, {
       args: rest.slice(0, rest.length - 1) as SchemaArgs<S>,
       value,
     });
     // TODO: reject with error if this fails in reducer
     return this.dispatch(action);
-  };
+  }
 
   /**
    * Sets response for the Endpoint and args.

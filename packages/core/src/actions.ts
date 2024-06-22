@@ -40,7 +40,7 @@ export interface SetAction<S extends Queryable = any> {
   type: typeof SET_TYPE;
   schema: S;
   meta: SetMeta;
-  value: Denormalize<S>;
+  value: {} | ((previousValue: Denormalize<S>) => {});
 }
 
 /* setResponse */
