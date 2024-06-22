@@ -233,9 +233,6 @@ type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Pr
 
 declare const INVALID: unique symbol;
 
-declare const RIC: (cb: (...args: any[]) => void, options: any) => void;
-//# sourceMappingURL=RIC.d.ts.map
-
 type ResultEntry<E extends EndpointInterface> = E['schema'] extends undefined | null ? ResolveType<E> : Normalize<E['schema']>;
 type EndpointUpdateFunction<Source extends EndpointInterface, Updaters extends Record<string, any> = Record<string, any>> = (source: ResultEntry<Source>, ...args: any) => {
     [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K];
@@ -602,13 +599,11 @@ type ReducerType = (state: State<unknown> | undefined, action: ActionTypes) => S
 type internal_d_MemoCache = MemoCache;
 declare const internal_d_MemoCache: typeof MemoCache;
 declare const internal_d_INVALID: typeof INVALID;
-declare const internal_d_RIC: typeof RIC;
 declare const internal_d_initialState: typeof initialState;
 declare namespace internal_d {
   export {
     internal_d_MemoCache as MemoCache,
     internal_d_INVALID as INVALID,
-    internal_d_RIC as RIC,
     internal_d_initialState as initialState,
   };
 }
@@ -690,6 +685,11 @@ declare class NetworkManager implements Manager {
      * by the reducer.
      */
     protected throttle(key: string, fetch: () => Promise<any>, createdAt: number): Promise<any>;
+    /** Calls the callback when client is not 'busy' with high priority interaction tasks
+     *
+     * Override for platform-specific implementations
+     */
+    protected idleCallback(callback: (...args: any[]) => void, options?: IdleRequestOptions): void;
 }
 
 declare function applyManager(managers: Manager[], controller: Controller): Middleware$1[];

@@ -3,17 +3,7 @@ Object.hasOwn =
   /* istanbul ignore next */ function hasOwn(it, key) {
     return Object.prototype.hasOwnProperty.call(it, key);
   };
-export {
-  PollingSubscription,
-  DevToolsManager,
-  SubscriptionManager,
-  DefaultConnectionListener,
-  NetworkManager,
-  LogoutManager,
-  Controller,
-  ExpiryStatus,
-  actionTypes,
-} from '@data-client/core';
+export { Controller, ExpiryStatus, actionTypes } from '@data-client/core';
 export type {
   EndpointExtraOptions,
   FetchFunction,
@@ -47,6 +37,7 @@ export type {
   DataClientDispatch,
   GenericDispatch,
 } from '@data-client/core';
+export * from './managers/index.js';
 export * from './components/index.js';
 export * from './hooks/index.js';
 export { StateContext, ControllerContext, StoreContext } from './context.js';
