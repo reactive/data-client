@@ -1,5 +1,11 @@
 # @data-client/react
 
+## 0.13.6
+
+### Patch Changes
+
+- [`bfd86dc`](https://github.com/reactive/data-client/commit/bfd86dc58735c6f1041878714c1d5afa5db60143) Thanks [@ntucker](https://github.com/ntucker)! - Fix fetch calls on web
+
 ## 0.13.5
 
 ### Patch Changes
