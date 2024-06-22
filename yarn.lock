@@ -24830,7 +24830,7 @@ __metadata:
     react-json-tree: "npm:0.19.0"
     react-live: "npm:^4.0.0"
     serve: "npm:14.2.3"
-    typescript: "npm:^5.1.6"
+    typescript: "npm:^5.5.2"
     uuid: "npm:^10.0.0"
     webpack: "npm:^5.76.0"
   languageName: unknown
@@ -28969,7 +28969,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:5.5.2, typescript@npm:^5.1.6, typescript@npm:^5.4.5":
+"typescript@npm:5.5.2, typescript@npm:^5.4.5, typescript@npm:^5.5.2":
   version: 5.5.2
   resolution: "typescript@npm:5.5.2"
   bin:
@@ -28989,7 +28989,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A5.5.2#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^5.1.6#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^5.4.5#optional!builtin<compat/typescript>":
+"typescript@patch:typescript@npm%3A5.5.2#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^5.4.5#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^5.5.2#optional!builtin<compat/typescript>":
   version: 5.5.2
   resolution: "typescript@patch:typescript@npm%3A5.5.2#optional!builtin<compat/typescript>::version=5.5.2&hash=379a07"
   bin:
