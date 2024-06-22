@@ -1,7 +1,6 @@
 'use client';
 import {
   initialState as defaultState,
-  NetworkManager,
   Controller as DataController,
   applyManager,
   SubscriptionManager,
@@ -17,6 +16,7 @@ import type { DevToolsPosition } from './DevToolsButton.js';
 import { SSR } from './LegacyReact.js';
 import { renderDevButton } from './renderDevButton.js';
 import { ControllerContext } from '../context.js';
+import { NetworkManager } from '../managers/index.js';
 
 export interface ProviderProps {
   children: React.ReactNode;

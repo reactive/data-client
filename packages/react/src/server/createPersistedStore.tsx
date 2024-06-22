@@ -13,13 +13,14 @@ import { useSyncExternalStore } from 'react';
 import { PromiseifyMiddleware } from './redux/index.js';
 import { createStore, applyMiddleware } from './redux/redux.js';
 import SSRDataProvider from './SSRDataProvider.js';
+import { NetworkManager as ReactNetworkManager } from '../managers/index.js';
 
 export default function createPersistedStore(
   managers?: Manager[],
   hasDevManager: boolean = true,
 ) {
   const controller = new Controller();
-  managers = managers ?? [new NetworkManager()];
+  managers = managers ?? [new ReactNetworkManager()];
   const nm: NetworkManager = managers.find(
     m => m instanceof NetworkManager,
   ) as any;

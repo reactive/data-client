@@ -11,13 +11,14 @@ import {
 import type { ComponentProps } from 'react';
 
 import type DataProvider from '../../../components/DataProvider.js';
+import { NetworkManager as ReactNetworkManager } from '../../../managers/index.js';
 import { PromiseifyMiddleware } from '../../redux/index.js';
 import { createStore, applyMiddleware } from '../../redux/redux.js';
 import SSRDataProvider from '../../SSRDataProvider.js';
 
 export default function createPersistedStore(managers?: Manager[]) {
   const controller = new Controller();
-  managers = managers ?? [new NetworkManager()];
+  managers = managers ?? [new ReactNetworkManager()];
   const nm: NetworkManager = managers.find(
     m => m instanceof NetworkManager,
   ) as any;

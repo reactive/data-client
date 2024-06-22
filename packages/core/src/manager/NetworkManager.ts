@@ -1,7 +1,6 @@
 import { SET_RESPONSE_TYPE, FETCH_TYPE, RESET_TYPE } from '../actionTypes.js';
 import Controller from '../controller/Controller.js';
 import createSetResponse from '../controller/createSetResponse.js';
-import RIC from '../state/RIC.js';
 import type {
   FetchAction,
   Manager,
@@ -282,16 +281,27 @@ export default class NetworkManager implements Manager {
     });
     this.fetchedAt[key] = createdAt;
 
-    // since our real promise is resolved via the wrapReducer(),
-    // we should just stop all errors here.
-    // TODO: decouple this from useFetcher() (that's what's dispatching the error the resolves in here)
-    RIC(
+    this.idleCallback(
       () => {
+        // since our real promise is resolved via the wrapReducer(),
+        // we should just stop all errors here.
+        // TODO: decouple this from useFetcher() (that's what's dispatching the error the resolves in here)
         fetch().catch(() => null);
       },
       { timeout: 500 },
     );
 
     return this.fetched[key];
+  }
+
+  /** Calls the callback when client is not 'busy' with high priority interaction tasks
+   *
+   * Override for platform-specific implementations
+   */
+  protected idleCallback(
+    callback: (...args: any[]) => void,
+    options?: IdleRequestOptions,
+  ) {
+    callback();
   }
 }
