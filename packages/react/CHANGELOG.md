@@ -1,5 +1,27 @@
 # @data-client/react
 
+## 0.13.5
+
+### Patch Changes
+
+- [#3129](https://github.com/reactive/data-client/pull/3129) [`2503402`](https://github.com/reactive/data-client/commit/2503402c28a51b2a686bf61132b74d673950e63e) Thanks [@ntucker](https://github.com/ntucker)! - Allow ctrl.set() value to be a function
+
+  This [prevents race conditions](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state).
+
+  ```ts
+  const id = '2';
+  ctrl.set(Article, { id }, article => ({ id, votes: article.votes + 1 }));
+  ```
+
+  Note: the response must include values sufficient to compute Entity.pk()
+
+- [#3127](https://github.com/reactive/data-client/pull/3127) [`c18fbf7`](https://github.com/reactive/data-client/commit/c18fbf7fdc7c421d15dc26cc5add3b5840ddca6d) Thanks [@ntucker](https://github.com/ntucker)! - React Native calls fetches in InteractionManager.runAfterInteractions callback
+
+  This reduces the chance of frame drops.
+
+- Updated dependencies [[`2503402`](https://github.com/reactive/data-client/commit/2503402c28a51b2a686bf61132b74d673950e63e), [`c18fbf7`](https://github.com/reactive/data-client/commit/c18fbf7fdc7c421d15dc26cc5add3b5840ddca6d), [`c18fbf7`](https://github.com/reactive/data-client/commit/c18fbf7fdc7c421d15dc26cc5add3b5840ddca6d)]:
+  - @data-client/core@0.13.5
+
 ## 0.13.4
 
 ### Patch Changes
