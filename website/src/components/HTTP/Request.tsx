@@ -8,6 +8,9 @@ export default function Request({ input, init }: Props) {
   Object.entries(init.headers).forEach(([key, value]) => {
     text += `\n${key}: ${value}`;
   });
+  if (init.body) {
+    text += `\n${'Body'}: ${init.body}`;
+  }
   return (
     <div>
       <Header small>Request</Header>

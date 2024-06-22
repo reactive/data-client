@@ -302,7 +302,7 @@ Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidat
 [RestEndpoint.push](./RestEndpoint.md#push) creates a new entity and pushes it to the end of getList. Use [getList.unshift](#unshift)
 to place at the beginning instead.
 
-<EndpointPlayground input="/react/posts?author=clara" init={{method: 'POST', headers: {'Content-Type': 'application/json', Body: JSON.stringify({ "title": "winning" })}}} status={201} response={{  "id": "2","group": "react","title": "winning",author: 'clara',}}>
+<EndpointPlayground input="/react/posts?author=clara" init={{method: 'POST', headers: {'Content-Type': 'application/json'},body: JSON.stringify({ "title": "winning" })}} status={201} response={{  "id": "2","group": "react","title": "winning",author: 'clara',}}>
 
 ```typescript title="Post" collapsed
 export default class Post extends Entity {
@@ -349,7 +349,7 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 [RestEndpoint.unshift](./RestEndpoint.md#unshift) creates a new entity and pushes it to the beginning of getList.
 
-<EndpointPlayground input="/react/posts?author=clara" init={{method: 'POST', headers: {'Content-Type': 'application/json', Body: JSON.stringify({ "title": "winning" })}}} status={201} response={{  "id": "2","group": "react","title": "winning",author: 'clara',}}>
+<EndpointPlayground input="/react/posts?author=clara" init={{method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ "title": "winning" })}} status={201} response={{  "id": "2","group": "react","title": "winning",author: 'clara',}}>
 
 ```typescript title="Post" collapsed
 export default class Post extends Entity {
@@ -449,7 +449,7 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 Update an entity.
 
-<EndpointPlayground input="/react/posts/1" init={{method: 'PUT', headers: {'Content-Type': 'application/json', Body: JSON.stringify({ "title": "updated title", author: 'clara' })}}} status={200} response={{  "id": "1","group": "react","title": "updated title",author: 'clara',}}>
+<EndpointPlayground input="/react/posts/1" init={{method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ "title": "updated title", author: 'clara' })}} status={200} response={{  "id": "1","group": "react","title": "updated title",author: 'clara',}}>
 
 ```typescript title="Post" collapsed
 export default class Post extends Entity {
@@ -495,7 +495,7 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 Update some subset of fields of an entity.
 
-<EndpointPlayground input="/react/posts/1" init={{method: 'PATCH', headers: {'Content-Type': 'application/json', Body: JSON.stringify({ "title": "updated title" })}}} status={200} response={{  "id": "1","group": "react","title": "updated title",author: 'clara',}}>
+<EndpointPlayground input="/react/posts/1" init={{method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ "title": "updated title" })}} status={200} response={{  "id": "1","group": "react","title": "updated title",author: 'clara',}}>
 
 ```typescript title="Post" collapsed
 export default class Post extends Entity {

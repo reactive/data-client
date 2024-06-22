@@ -257,9 +257,7 @@ it('should precisely type function arguments', () => {
     () => requiredSearch({ userId: 'hi' }, { userId: 'hi' });
 
     () => undef();
-    // @ts-ignore TODO
     () => undef({});
-    // @ts-ignore TODO
     () => undef({ id: '5' });
     // @ts-expect-error
     () => undef({ userId: 'hi' });
@@ -412,9 +410,7 @@ it('should precisely type function arguments', () => {
     () => requiredSearch({ userId: 'hi' }, { userId: 'hi' });
 
     () => undef();
-    // @ts-ignore TODO
     () => undef({});
-    // @ts-ignore TODO
     () => undef({ id: '5' });
     // @ts-expect-error
     () => undef(5);

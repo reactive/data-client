@@ -538,7 +538,7 @@ used** in any way - this only determines [typing](#typing).
 
 This is only used by endpoings with a method that uses body: 'POST', 'PUT', 'PATCH'.
 
-<TypeScriptEditor>
+<EndpointPlayground input="https://site.com/cool" init={{method: 'POST', body: '{ "url": "/" }', headers: {'Content-Type': 'application/json'}}}>
 
 ```ts {4}
 const updateSite = new RestEndpoint({
@@ -550,7 +550,7 @@ const updateSite = new RestEndpoint({
 updateSite({ slug: 'cool' }, { url: '/' });
 ```
 
-</TypeScriptEditor>
+</EndpointPlayground>
 
 ### paginationField
 
