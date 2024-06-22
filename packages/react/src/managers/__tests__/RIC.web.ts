@@ -14,4 +14,17 @@ describe('RequestIdleCallback', () => {
     (global as any).requestIdleCallback = requestIdle;
     jest.useRealTimers();
   });
+
+  it('should run through requestIdleCallback', async () => {
+    jest.resetModules();
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { NetworkManager } = await import('..');
+    const fn = jest.fn();
+    jest.useFakeTimers();
+    // @ts-expect-error
+    new NetworkManager().idleCallback(fn, {});
+    jest.runAllTimers();
+    expect(fn).toHaveBeenCalled();
+    jest.useRealTimers();
+  });
 });
