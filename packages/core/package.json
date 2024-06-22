@@ -1,6 +1,6 @@
 {
   "name": "@data-client/core",
-  "version": "0.13.1",
+  "version": "0.13.5",
   "description": "High performance mutable data framework.",
   "sideEffects": false,
   "main": "dist/index.js",
