@@ -1,11 +1,28 @@
 import { normalize } from '@data-client/normalizr';
 
+import Controller from '../../controller/Controller.js';
 import type { State, SetAction } from '../../types.js';
 
-export function setReducer(state: State<unknown>, action: SetAction) {
+export function setReducer(
+  state: State<unknown>,
+  action: SetAction,
+  controller: Controller,
+) {
+  let value: any;
+  if (typeof action.value === 'function') {
+    const previousValue = controller.get(
+      action.schema,
+      ...action.meta.args,
+      state,
+    );
+    if (previousValue === undefined) return state;
+    value = action.value(previousValue);
+  } else {
+    value = action.value;
+  }
   try {
     const { entities, indexes, entityMeta } = normalize(
-      action.value,
+      value,
       action.schema,
       action.meta.args as any,
       state.entities,

@@ -1,4 +1,8 @@
-import type { Queryable, SchemaArgs } from '@data-client/normalizr';
+import type {
+  Denormalize,
+  Queryable,
+  SchemaArgs,
+} from '@data-client/normalizr';
 
 import ensurePojo from './ensurePojo.js';
 import { SET_TYPE } from '../actionTypes.js';
@@ -12,7 +16,7 @@ export default function createSet<S extends Queryable>(
     value,
   }: {
     args: readonly [...SchemaArgs<S>];
-    value: any;
+    value: {} | ((previousValue: Denormalize<S>) => {});
     fetchedAt?: number;
   },
 ): SetAction<S> {
