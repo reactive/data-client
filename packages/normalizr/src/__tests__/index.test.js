@@ -216,6 +216,20 @@ describe('normalize', () => {
     expect(normalize(input, User)).toMatchSnapshot();
   });
 
+  test('normalizes entities with circular references that fails validation', () => {
+    class User extends IDEntity {
+      static validate(processedEntity) {
+        return 'this always fails';
+      }
+    }
+    User.schema = { friends: [User] };
+
+    const input = { id: '123', friends: [] };
+    input.friends.push(input);
+
+    expect(() => normalize(input, User)).toThrowErrorMatchingSnapshot();
+  });
+
   test('normalizes nested entities', () => {
     class User extends IDEntity {}
     class Comment extends IDEntity {
