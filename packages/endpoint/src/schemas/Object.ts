@@ -1,30 +1,21 @@
 import { isImmutable, denormalizeImmutable } from './ImmutableUtils.js';
-import { GetIndex, GetEntity } from '../interface.js';
+import { GetIndex, GetEntity, Visit } from '../interface.js';
 
 export const normalize = (
   schema: any,
   input: any,
   parent: any,
   key: any,
-  visit: any,
-  addEntity: any,
-  visitedEntities: any,
-  storeEntities: any,
   args: any[],
+  visit: Visit,
+  addEntity: any,
+  getEntity: any,
+  checkLoop: any,
 ) => {
   const object = { ...input };
   Object.keys(schema).forEach(key => {
     const localSchema = schema[key];
-    const value = visit(
-      input[key],
-      input,
-      key,
-      localSchema,
-      addEntity,
-      visitedEntities,
-      storeEntities,
-      args,
-    );
+    const value = visit(localSchema, input[key], input, key, args);
     if (value === undefined) {
       delete object[key];
     } else {
@@ -99,11 +90,11 @@ export default class ObjectSchema {
       input: any,
       parent: any,
       key: any,
+      args: any[],
       visit: any,
       addEntity: any,
-      visitedEntities: any,
-      storeEntities: any,
-      args: any[],
+      getEntity: any,
+      checkLoop: any,
     ]
   ) {
     return normalize(this.schema, ...args);

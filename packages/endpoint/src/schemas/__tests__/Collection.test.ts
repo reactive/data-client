@@ -78,11 +78,11 @@ describe(`${schema.Collection.name} normalization`, () => {
         [],
         undefined as any,
         '',
-        () => undefined,
-        () => undefined,
-        {},
-        {},
         [],
+        () => undefined,
+        () => undefined,
+        () => undefined,
+        () => false,
       );
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();

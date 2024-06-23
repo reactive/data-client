@@ -1,5 +1,5 @@
 // we just removed instances of 'abstract new'
-import type { Schema, GetIndex, GetEntity } from '../interface.js';
+import type { Schema, GetIndex, GetEntity, CheckLoop } from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
 export type Constructor = new (...args: any[]) => {};
 export type IDClass = new (...args: any[]) => {
@@ -207,9 +207,11 @@ export interface IEntityClass<TBase extends Constructor = any> {
     input: any,
     parent: any,
     key: string | undefined,
+    args: any[],
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
+    getEntity: GetEntity,
+    checkLoop: CheckLoop,
   ): any;
   /** Do any transformations when first receiving input
    *

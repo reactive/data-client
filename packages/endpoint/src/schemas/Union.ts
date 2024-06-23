@@ -1,5 +1,5 @@
 import PolymorphicSchema from './Polymorphic.js';
-import { GetIndex, GetEntity } from '../interface.js';
+import { GetIndex, GetEntity, Visit } from '../interface.js';
 
 /**
  * Represents polymorphic values.
@@ -19,22 +19,13 @@ export default class UnionSchema extends PolymorphicSchema {
     input: any,
     parent: any,
     key: any,
-    visit: any,
-    addEntity: any,
-    visitedEntities: any,
-    storeEntities: any,
     args: any[],
+    visit: Visit,
+    addEntity: any,
+    getEntity: any,
+    checkLoop: any,
   ) {
-    return this.normalizeValue(
-      input,
-      parent,
-      key,
-      visit,
-      addEntity,
-      visitedEntities,
-      storeEntities,
-      args,
-    );
+    return this.normalizeValue(input, parent, key, args, visit);
   }
 
   denormalize(

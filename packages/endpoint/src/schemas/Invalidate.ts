@@ -37,16 +37,15 @@ export default class Invalidate<
   }
 
   /** Normalize lifecycles **/
-
   normalize(
     input: any,
     parent: any,
     key: string | undefined,
+    args: any[],
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: Record<string, any>,
-    args?: any[],
+    getEntity: any,
+    checkLoop: any,
   ): string | number | undefined {
     // TODO: what's store needs to be a differing type from fromJS
     const processedEntity = this._entity.process(input, parent, key, args);

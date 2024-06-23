@@ -1,5 +1,6 @@
 import PolymorphicSchema from './Polymorphic.js';
 import { filterEmpty, getValues } from './utils.js';
+import { Visit } from '../interface.js';
 
 /**
  * Represents arrays
@@ -10,25 +11,16 @@ export default class ArraySchema extends PolymorphicSchema {
     input: any,
     parent: any,
     key: any,
-    visit: any,
+    args: any[],
+    visit: Visit,
     addEntity: any,
-    visitedEntities: any,
-    storeEntities: any,
-    args?: any[],
+    getEntity: any,
+    checkLoop: any,
   ): any {
     const values = getValues(input);
 
     return values.map((value, index) =>
-      this.normalizeValue(
-        value,
-        parent,
-        key,
-        visit,
-        addEntity,
-        visitedEntities,
-        storeEntities,
-        args,
-      ),
+      this.normalizeValue(value, parent, key, args, visit),
     );
   }
 

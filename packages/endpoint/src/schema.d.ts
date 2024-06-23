@@ -5,6 +5,7 @@ import type {
   SchemaClass,
   GetIndex,
   GetEntity,
+  CheckLoop,
 } from './interface.js';
 import type {
   AbstractInstanceType,
@@ -69,11 +70,11 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
     input: any,
     parent: any,
     key: any,
+    args: any[],
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: any,
-    args: any[],
+    getEntity: GetEntity,
+    checkLoop: CheckLoop,
   ): (S extends EntityMap ? UnionResult<S> : Normalize<S>)[];
 
   _normalizeNullable():
@@ -126,11 +127,11 @@ export class All<
     input: any,
     parent: any,
     key: any,
+    args: any[],
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: any,
-    args?: any[],
+    getEntity: GetEntity,
+    checkLoop: CheckLoop,
   ): (S extends EntityMap ? UnionResult<S> : Normalize<S>)[];
 
   _normalizeNullable():
@@ -174,11 +175,11 @@ export class Object<O extends Record<string, any> = Record<string, Schema>>
     input: any,
     parent: any,
     key: any,
+    args: any[],
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: any,
-    args?: any[],
+    getEntity: GetEntity,
+    checkLoop: CheckLoop,
   ): NormalizeObject<O>;
 
   _normalizeNullable(): NormalizedNullableObject<O>;
@@ -264,11 +265,11 @@ export interface UnionInstance<
     input: any,
     parent: any,
     key: any,
+    args: any[],
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: any,
-    args?: any[],
+    getEntity: GetEntity,
+    checkLoop: CheckLoop,
   ): UnionResult<Choices>;
 
   _normalizeNullable(): UnionResult<Choices> | undefined;
@@ -338,11 +339,11 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
     input: any,
     parent: any,
     key: any,
+    args: any[],
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: any,
-    args?: any[],
+    getEntity: GetEntity,
+    checkLoop: CheckLoop,
   ): Record<
     string,
     Choices extends EntityMap ? UnionResult<Choices> : Normalize<Choices>

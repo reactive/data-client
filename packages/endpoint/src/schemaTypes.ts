@@ -3,6 +3,8 @@ import type {
   SchemaSimple,
   Schema,
   PolymorphicInterface,
+  GetEntity,
+  CheckLoop,
 } from './interface.js';
 import type { EntityMap } from './normal.js';
 import { CollectionOptions } from './schemas/Collection.js';
@@ -61,11 +63,11 @@ export interface CollectionInterface<
     input: any,
     parent: Parent,
     key: string,
+    args: any[],
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: any,
-    args: any,
+    getEntity: GetEntity,
+    checkLoop: CheckLoop,
   ): string;
 
   /** Creates new instance copying over defined values of arguments

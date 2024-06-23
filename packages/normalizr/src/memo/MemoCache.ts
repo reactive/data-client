@@ -169,7 +169,7 @@ export function createGetEntity(
   if (entityIsImmutable) {
     return (...args) => entities.getIn(args)?.toJS?.();
   } else {
-    return (entityKey: string, pk?: string): any =>
+    return (entityKey: string | symbol, pk?: string): any =>
       pk ? entities[entityKey]?.[pk] : entities[entityKey];
   }
 }
