@@ -1,58 +1,68 @@
 import { INVALID } from './denormalize/symbol.js';
-import type { EntityInterface, Schema, NormalizedIndex } from './interface.js';
+import type {
+  EntityInterface,
+  Schema,
+  NormalizedIndex,
+  GetEntity,
+} from './interface.js';
+import { createGetEntity } from './memo/MemoCache.js';
 import { normalize as arrayNormalize } from './schemas/Array.js';
 import { normalize as objectNormalize } from './schemas/Object.js';
 import type { NormalizeNullable, NormalizedSchema } from './types.js';
 
-const visit = (
-  value: any,
-  parent: any,
-  key: any,
-  schema: any,
+const getVisit = (
   addEntity: (
     schema: EntityInterface,
     processedEntity: any,
     id: string,
   ) => void,
-  visitedEntities: any,
-  storeEntities: any,
-  args: any[],
+  getEntity: GetEntity,
+  checkLoop: (entityKey: string, pk: string, input: object) => boolean,
 ) => {
-  if (!value || !schema) {
-    return value;
-  }
-
-  if (schema.normalize && typeof schema.normalize === 'function') {
-    if (typeof value !== 'object') {
-      if (schema.pk) return `${value}`;
+  const visit = (
+    schema: any,
+    value: any,
+    parent: any,
+    key: any,
+    args: readonly any[],
+  ) => {
+    if (!value || !schema) {
       return value;
     }
-    return schema.normalize(
+
+    if (schema.normalize && typeof schema.normalize === 'function') {
+      if (typeof value !== 'object') {
+        if (schema.pk) return `${value}`;
+        return value;
+      }
+      return schema.normalize(
+        value,
+        parent,
+        key,
+        args,
+        visit,
+        addEntity,
+        getEntity,
+        checkLoop,
+      );
+    }
+
+    if (typeof value !== 'object' || typeof schema !== 'object') return value;
+
+    const method = Array.isArray(schema) ? arrayNormalize : objectNormalize;
+    return method(
+      schema,
       value,
       parent,
       key,
+      args,
       visit,
       addEntity,
-      visitedEntities,
-      storeEntities,
-      args,
+      getEntity,
+      checkLoop,
     );
-  }
-
-  if (typeof value !== 'object' || typeof schema !== 'object') return value;
-
-  const method = Array.isArray(schema) ? arrayNormalize : objectNormalize;
-  return method(
-    schema,
-    value,
-    parent,
-    key,
-    visit,
-    addEntity,
-    visitedEntities,
-    storeEntities,
-    args,
-  );
+  };
+  return visit;
 };
 
 const addEntities =
@@ -277,16 +287,23 @@ See https://dataclient.io/rest/api/RestEndpoint#parseResponse for more informati
     { expiresAt: meta.expiresAt, date: meta.date, fetchedAt: meta.fetchedAt },
   );
   const visitedEntities = {};
-
-  const result = visit(
-    input,
-    input,
-    undefined,
-    schema,
-    addEntity,
-    visitedEntities,
-    storeEntities,
-    args,
-  );
+  /* Returns true if a circular reference is found */
+  function checkLoop(entityKey: string, pk: string, input: object) {
+    if (!(entityKey in visitedEntities)) {
+      visitedEntities[entityKey] = {};
+    }
+    if (!(pk in visitedEntities[entityKey])) {
+      visitedEntities[entityKey][pk] = [];
+    }
+    if (
+      visitedEntities[entityKey][pk].some((entity: any) => entity === input)
+    ) {
+      return true;
+    }
+    visitedEntities[entityKey][pk].push(input);
+    return false;
+  }
+  const visit = getVisit(addEntity, createGetEntity(storeEntities), checkLoop);
+  const result = visit(schema, input, input, undefined, args);
   return { entities, indexes, result, entityMeta };
 };

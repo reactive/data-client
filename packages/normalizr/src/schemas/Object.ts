@@ -1,30 +1,22 @@
 import { isImmutable, denormalizeImmutable } from './ImmutableUtils.js';
 import { INVALID } from '../denormalize/symbol.js';
+import type { Visit } from '../interface.js';
 
 export const normalize = (
   schema: any,
   input: any,
   parent: any,
   key: any,
-  visit: any,
+  args: readonly any[],
+  visit: Visit,
   addEntity: any,
-  visitedEntities: any,
-  storeEntities: any,
-  args: any[],
+  getEntity: any,
+  checkLoop: any,
 ) => {
   const object = { ...input };
   Object.keys(schema).forEach(key => {
     const localSchema = schema[key];
-    const value = visit(
-      input[key],
-      input,
-      key,
-      localSchema,
-      addEntity,
-      visitedEntities,
-      storeEntities,
-      args,
-    );
+    const value = visit(localSchema, input[key], input, key, args);
     if (value === undefined) {
       delete object[key];
     } else {

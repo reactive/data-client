@@ -1,4 +1,5 @@
 import PolymorphicSchema from './Polymorphic.js';
+import { Visit } from '../interface.js';
 
 /**
  * Represents variably sized objects
@@ -9,27 +10,18 @@ export default class ValuesSchema extends PolymorphicSchema {
     input: any,
     parent: any,
     key: any,
-    visit: any,
-    addEntity: any,
-    visitedEntities: any,
-    storeEntities: any,
     args: any[],
+    visit: Visit,
+    addEntity: any,
+    getEntity: any,
+    checkLoop: any,
   ) {
     return Object.keys(input).reduce((output, key, index) => {
       const value = input[key];
       return value !== undefined && value !== null ?
           {
             ...output,
-            [key]: this.normalizeValue(
-              value,
-              input,
-              key,
-              visit,
-              addEntity,
-              visitedEntities,
-              storeEntities,
-              args,
-            ),
+            [key]: this.normalizeValue(value, input, key, args, visit),
           }
         : output;
     }, {});

@@ -330,18 +330,20 @@ describe('normalize', () => {
         return this.uuid;
       }
 
-      static normalize(input, parent, key, visit, addEntity, visitedEntities) {
+      static normalize(
+        input,
+        parent,
+        key,
+        args,
+        visit,
+        addEntity,
+        getEntity,
+        checkLoop,
+      ) {
         const entity = { ...input };
         Object.keys(this.schema).forEach(key => {
           const schema = this.schema[key];
-          entity[key] = visit(
-            input[key],
-            input,
-            key,
-            schema,
-            addEntity,
-            visitedEntities,
-          );
+          entity[key] = visit(schema, input[key], input, key, args);
         });
         addEntity(this, entity, this.pk(entity));
         return {

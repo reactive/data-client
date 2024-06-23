@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { CREATE } from './special.js';
-import type { Schema, GetIndex, GetEntity } from '../interface.js';
+import type {
+  Schema,
+  GetIndex,
+  GetEntity,
+  CheckLoop,
+  Visit,
+} from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
 
 export type Constructor = abstract new (...args: any[]) => {};
@@ -266,11 +271,11 @@ export default function EntitySchema<TBase extends Constructor>(
       input: any,
       parent: any,
       key: string | undefined,
-      visit: (...args: any) => any,
+      args: readonly any[],
+      visit: Visit,
       addEntity: (...args: any) => any,
-      visitedEntities: Record<string | symbol, any>,
-      storeEntities: any,
-      args?: readonly any[],
+      getEntity: GetEntity,
+      checkLoop: CheckLoop,
     ): any {
       const processedEntity = this.process(input, parent, key, args);
       let id = this.pk(processedEntity, parent, key, args);
@@ -279,7 +284,7 @@ export default function EntitySchema<TBase extends Constructor>(
         // this is useful for optimistic creates that don't need real ids - just something to hold their place
         id = `MISS-${Math.random()}`;
         // 'creates' conceptually should allow missing PK to make optimistic creates easy
-        if (process.env.NODE_ENV !== 'production' && !visitedEntities[CREATE]) {
+        if (process.env.NODE_ENV !== 'production' && !visit.creating) {
           const error = new Error(
             `Missing usable primary key when normalizing response.
 
@@ -302,19 +307,7 @@ export default function EntitySchema<TBase extends Constructor>(
       }
 
       /* Circular reference short-circuiter */
-      const entityType = this.key;
-      if (!(entityType in visitedEntities)) {
-        visitedEntities[entityType] = {};
-      }
-      if (!(id in visitedEntities[entityType])) {
-        visitedEntities[entityType][id] = [];
-      }
-      if (
-        visitedEntities[entityType][id].some((entity: any) => entity === input)
-      ) {
-        return id;
-      }
-      visitedEntities[entityType][id].push(input);
+      if (checkLoop(this.key, id, input)) return id;
 
       const errorMessage = this.validate(processedEntity);
       throwValidationError(errorMessage);
@@ -322,13 +315,10 @@ export default function EntitySchema<TBase extends Constructor>(
       Object.keys(this.schema).forEach(key => {
         if (Object.hasOwn(processedEntity, key)) {
           processedEntity[key] = visit(
+            this.schema[key],
             processedEntity[key],
             processedEntity,
             key,
-            this.schema[key],
-            addEntity,
-            visitedEntities,
-            storeEntities,
             args,
           );
         }
@@ -647,9 +637,11 @@ export interface IEntityClass<TBase extends Constructor = any> {
     input: any,
     parent: any,
     key: string | undefined,
+    args: any[],
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
+    getEntity: (...args: any) => any,
+    checkLoop: (...args: any) => any,
   ): any;
   /** Do any transformations when first receiving input
    *

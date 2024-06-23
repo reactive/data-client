@@ -226,7 +226,7 @@ type Serializable<T extends {
     toJSON(): string;
 }> = (value: any) => T;
 interface SchemaSimple<T = any, Args extends any[] = any[]> {
-    normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args: any[]): any;
+    normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, addEntity: (...args: any) => any, getEntity: (...args: any) => any, checkLoop: (...args: any) => any): any;
     denormalize(input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any): T;
     queryKey(args: Args, queryKey: (...args: any) => any, getEntity: GetEntity, getIndex: GetIndex): any;
 }
@@ -244,10 +244,10 @@ interface EntityInterface<T = any> extends SchemaSimple {
 }
 /** Get Array of entities with map function applied */
 interface GetEntity {
-    (entityKey: string): {
+    (entityKey: string | symbol): {
         readonly [pk: string]: any;
     } | undefined;
-    (entityKey: string, pk: string | number): any;
+    (entityKey: string | symbol, pk: string | number): any;
 }
 /** Get PK using an Entity Index */
 interface GetIndex {

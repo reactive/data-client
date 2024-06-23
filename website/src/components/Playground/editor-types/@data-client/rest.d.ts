@@ -140,7 +140,7 @@ type Serializable<T extends {
     toJSON(): string;
 }> = (value: any) => T;
 interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
-    normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args: any[]): any;
+    normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, addEntity: (...args: any) => any, getEntity: (...args: any) => any, checkLoop: (...args: any) => any): any;
     denormalize(input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any): T;
     queryKey(args: Args, queryKey: (...args: any) => any, getEntity: GetEntity, getIndex: GetIndex): any;
 }
@@ -165,12 +165,16 @@ interface PolymorphicInterface<T = any, Args extends any[] = any[]> extends Sche
     _normalizeNullable(): any;
     _denormalizeNullable(): any;
 }
+/** Returns true if a circular reference is found */
+interface CheckLoop {
+    (entityKey: string, pk: string, input: object): boolean;
+}
 /** Get Array of entities with map function applied */
 interface GetEntity {
-    (entityKey: string): {
+    (entityKey: string | symbol): {
         readonly [pk: string]: any;
     } | undefined;
-    (entityKey: string, pk: string | number): any;
+    (entityKey: string | symbol, pk: string | number): any;
 }
 /** Get PK using an Entity Index */
 interface GetIndex {
@@ -398,7 +402,7 @@ interface IEntityClass<TBase extends Constructor = any> {
      * @see https://dataclient.io/rest/api/Entity#process
      */
     process(input: any, parent: any, key: string | undefined, args: any[]): any;
-    normalize(input: any, parent: any, key: string | undefined, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>): any;
+    normalize(input: any, parent: any, key: string | undefined, args: any[], visit: (...args: any) => any, addEntity: (...args: any) => any, getEntity: (...args: any) => any, checkLoop: (...args: any) => any): any;
     /** Do any transformations when first receiving input
      *
      * @see https://dataclient.io/rest/api/Entity#validate
@@ -445,7 +449,7 @@ declare class Invalidate<E extends EntityInterface & {
     constructor(entity: E);
     get key(): string;
     /** Normalize lifecycles **/
-    normalize(input: any, parent: any, key: string | undefined, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: Record<string, any>, args?: any[]): string | number | undefined;
+    normalize(input: any, parent: any, key: string | undefined, args: any[], visit: (...args: any) => any, addEntity: (...args: any) => any, getEntity: any, checkLoop: any): string | number | undefined;
     merge(existing: any, incoming: any): any;
     mergeWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
     mergeMetaWithStore(existingMeta: {
@@ -540,7 +544,7 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
      * @see https://dataclient.io/docs/api/Collection#pk
      */
     pk(value: any, parent: any, key: string, args: any[]): string;
-    normalize(input: any, parent: Parent, key: string, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args: any): string;
+    normalize(input: any, parent: Parent, key: string, args: any[], visit: (...args: any) => any, addEntity: (...args: any) => any, getEntity: GetEntity, checkLoop: CheckLoop): string;
     /** Creates new instance copying over defined values of arguments
      *
      * @see https://dataclient.io/docs/api/Collection#merge
@@ -648,11 +652,11 @@ declare class Array$1<S extends Schema = Schema> implements SchemaClass {
     input: any,
     parent: any,
     key: any,
+    args: any[],
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: any,
-    args: any[],
+    getEntity: GetEntity,
+    checkLoop: CheckLoop,
   ): (S extends EntityMap ? UnionResult<S> : Normalize<S>)[];
 
   _normalizeNullable():
@@ -705,11 +709,11 @@ declare class All<
     input: any,
     parent: any,
     key: any,
+    args: any[],
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: any,
-    args?: any[],
+    getEntity: GetEntity,
+    checkLoop: CheckLoop,
   ): (S extends EntityMap ? UnionResult<S> : Normalize<S>)[];
 
   _normalizeNullable():
@@ -753,11 +757,11 @@ declare class Object$1<O extends Record<string, any> = Record<string, Schema>>
     input: any,
     parent: any,
     key: any,
+    args: any[],
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: any,
-    args?: any[],
+    getEntity: GetEntity,
+    checkLoop: CheckLoop,
   ): NormalizeObject<O>;
 
   _normalizeNullable(): NormalizedNullableObject<O>;
@@ -843,11 +847,11 @@ interface UnionInstance<
     input: any,
     parent: any,
     key: any,
+    args: any[],
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: any,
-    args?: any[],
+    getEntity: GetEntity,
+    checkLoop: CheckLoop,
   ): UnionResult<Choices>;
 
   _normalizeNullable(): UnionResult<Choices> | undefined;
@@ -917,11 +921,11 @@ declare class Values<Choices extends Schema = any> implements SchemaClass {
     input: any,
     parent: any,
     key: any,
+    args: any[],
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: any,
-    args?: any[],
+    getEntity: GetEntity,
+    checkLoop: CheckLoop,
   ): Record<
     string,
     Choices extends EntityMap ? UnionResult<Choices> : Normalize<Choices>

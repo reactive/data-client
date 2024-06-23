@@ -1,4 +1,5 @@
 import { isImmutable } from './ImmutableUtils.js';
+import { Visit } from '../interface.js';
 
 export default class PolymorphicSchema {
   private declare _schemaAttribute: any;
@@ -44,16 +45,7 @@ export default class PolymorphicSchema {
     return this.schema[attr];
   }
 
-  normalizeValue(
-    value: any,
-    parent: any,
-    key: any,
-    visit: any,
-    addEntity: any,
-    visitedEntities: any,
-    storeEntities: any,
-    args?: any[],
-  ) {
+  normalizeValue(value: any, parent: any, key: any, args: any[], visit: Visit) {
     if (!value) return value;
     const schema = this.inferSchema(value, parent, key);
     if (!schema) {
@@ -75,16 +67,7 @@ Value: ${JSON.stringify(value, undefined, 2)}`,
       }
       return value;
     }
-    const normalizedValue = visit(
-      value,
-      parent,
-      key,
-      schema,
-      addEntity,
-      visitedEntities,
-      storeEntities,
-      args,
-    );
+    const normalizedValue = visit(schema, value, parent, key, args);
     return (
         this.isSingleSchema ||
           normalizedValue === undefined ||
