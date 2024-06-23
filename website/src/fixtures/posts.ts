@@ -90,8 +90,6 @@ const entities = {
 
 export const getInitialInterceptorData = () => ({ entities: {} });
 
-const delay = 150;
-
 export const postFixtures = [
   {
     endpoint: PostResource.get,
@@ -102,7 +100,6 @@ export const postFixtures = [
         ...entities[id],
       };
     },
-    delay,
   },
   {
     endpoint: PostResource.getList,
@@ -114,7 +111,6 @@ export const postFixtures = [
       }
       return Object.values(entities);
     },
-    delay,
   },
   {
     endpoint: PostResource.vote,

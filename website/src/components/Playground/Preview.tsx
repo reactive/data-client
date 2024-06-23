@@ -75,7 +75,7 @@ function Preview<T>({
             [styles.hidden]: hiddenResult,
           })}
         >
-          <Boundary fallback={<LivePreviewLoader />}>
+          <Boundary fallback={null}>
             <PreviewBlockLazy />
           </Boundary>
         </div>
@@ -86,9 +86,6 @@ function Preview<T>({
 }
 export default memo(Preview);
 
-function LivePreviewLoader() {
-  return <div>Loading...</div>;
-}
 const PreviewBlockLazy = lazy(
   () =>
     import(
