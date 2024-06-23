@@ -300,8 +300,9 @@ export default function EntitySchema<TBase extends Constructor>(
       } else {
         id = `${id}`;
       }
-      const entityType = this.key;
 
+      /* Circular reference short-circuiter */
+      const entityType = this.key;
       if (!(entityType in visitedEntities)) {
         visitedEntities[entityType] = {};
       }
@@ -313,10 +314,10 @@ export default function EntitySchema<TBase extends Constructor>(
       ) {
         return id;
       }
+      visitedEntities[entityType][id].push(input);
+
       const errorMessage = this.validate(processedEntity);
       throwValidationError(errorMessage);
-
-      visitedEntities[entityType][id].push(input);
 
       Object.keys(this.schema).forEach(key => {
         if (Object.hasOwn(processedEntity, key)) {

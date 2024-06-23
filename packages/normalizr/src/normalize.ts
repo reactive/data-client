@@ -59,9 +59,9 @@ const addEntities =
   (
     newEntities: Record<string, any>,
     newIndexes: Record<string, any>,
-    storeEntities: Record<string, any>,
-    storeIndexes: Record<string, any>,
-    storeEntityMeta: {
+    entitiesCopy: Record<string, any>,
+    indexesCopy: Record<string, any>,
+    entityMetaCopy: {
       [entityKey: string]: {
         [pk: string]: {
           date: number;
@@ -78,8 +78,8 @@ const addEntities =
     if (!(schemaKey in newEntities)) {
       newEntities[schemaKey] = {};
       // we will be editing these, so we need to clone them first
-      storeEntities[schemaKey] = { ...storeEntities[schemaKey] };
-      storeEntityMeta[schemaKey] = { ...storeEntityMeta[schemaKey] };
+      entitiesCopy[schemaKey] = { ...entitiesCopy[schemaKey] };
+      entityMetaCopy[schemaKey] = { ...entityMetaCopy[schemaKey] };
     }
 
     const existingEntity = newEntities[schemaKey][id];
@@ -89,21 +89,21 @@ const addEntities =
         processedEntity,
       );
     } else {
-      const inStoreEntity = storeEntities[schemaKey][id];
+      const inStoreEntity = entitiesCopy[schemaKey][id];
       let inStoreMeta: {
         date: number;
         expiresAt: number;
         fetchedAt: number;
       };
       // this case we already have this entity in store
-      if (inStoreEntity && (inStoreMeta = storeEntityMeta[schemaKey][id])) {
+      if (inStoreEntity && (inStoreMeta = entityMetaCopy[schemaKey][id])) {
         newEntities[schemaKey][id] = schema.mergeWithStore(
           inStoreMeta,
           actionMeta,
           inStoreEntity,
           processedEntity,
         );
-        storeEntityMeta[schemaKey][id] = schema.mergeMetaWithStore(
+        entityMetaCopy[schemaKey][id] = schema.mergeMetaWithStore(
           inStoreMeta,
           actionMeta,
           inStoreEntity,
@@ -111,7 +111,7 @@ const addEntities =
         );
       } else {
         newEntities[schemaKey][id] = processedEntity;
-        storeEntityMeta[schemaKey][id] = actionMeta;
+        entityMetaCopy[schemaKey][id] = actionMeta;
       }
     }
 
@@ -119,19 +119,19 @@ const addEntities =
     if (schema.indexes) {
       if (!(schemaKey in newIndexes)) {
         newIndexes[schemaKey] = {};
-        storeIndexes[schemaKey] = { ...storeIndexes[schemaKey] };
+        indexesCopy[schemaKey] = { ...indexesCopy[schemaKey] };
       }
       handleIndexes(
         id,
         schema.indexes,
         newIndexes[schemaKey],
-        storeIndexes[schemaKey],
+        indexesCopy[schemaKey],
         newEntities[schemaKey][id],
-        storeEntities[schemaKey],
+        entitiesCopy[schemaKey],
       );
     }
     // set this after index updates so we know what indexes to remove from
-    storeEntities[schemaKey][id] = newEntities[schemaKey][id];
+    entitiesCopy[schemaKey][id] = newEntities[schemaKey][id];
   };
 
 function handleIndexes(

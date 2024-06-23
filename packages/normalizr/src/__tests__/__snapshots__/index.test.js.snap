@@ -538,6 +538,8 @@ exports[`normalize normalizes entities with circular references 1`] = `
 }
 `;
 
+exports[`normalize normalizes entities with circular references that fails validation 1`] = `"this always fails"`;
+
 exports[`normalize normalizes nested entities 1`] = `
 {
   "entities": {
