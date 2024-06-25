@@ -30,7 +30,7 @@ export default class ValuesSchema extends PolymorphicSchema {
   denormalize(
     input: {},
     args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ): any {
     return Object.keys(input).reduce((output, key) => {
       const entityOrId = (input as any)[key];

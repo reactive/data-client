@@ -249,8 +249,8 @@ describe(`${schema.Collection.name} normalization`, () => {
       expect(
         (
           denormalize(
-            JSON.stringify({ userId: '1' }),
             sch,
+            JSON.stringify({ userId: '1' }),
             state.entities,
           ) as any
         )?.length,
@@ -268,8 +268,8 @@ describe(`${schema.Collection.name} normalization`, () => {
       };
       function getResponse(...args: any) {
         return denormalize(
-          sch.pk(undefined, undefined, '', args),
           sch,
+          sch.pk(undefined, undefined, '', args),
           testState.entities,
         ) as any;
       }
@@ -408,13 +408,13 @@ describe(`${schema.Collection.name} denormalization`, () => {
 
   test('denormalizes nested collections', () => {
     expect(
-      denormalize(normalizeNested.result, User, normalizeNested.entities),
+      denormalize(User, normalizeNested.result, normalizeNested.entities),
     ).toMatchSnapshot();
   });
 
   test('denormalizes top level collections', () => {
     expect(
-      denormalize('{"userId":"1"}', userTodos, normalizeNested.entities),
+      denormalize(userTodos, '{"userId":"1"}', normalizeNested.entities),
     ).toMatchSnapshot();
   });
 
@@ -422,15 +422,15 @@ describe(`${schema.Collection.name} denormalization`, () => {
     const memo = new SimpleMemoCache();
     test('denormalizes nested and top level share referential equality', () => {
       const todos = memo.denormalize(
-        '{"userId":"1"}',
         userTodos,
+        '{"userId":"1"}',
         normalizeNested.entities,
 
         [{ userId: '1' }],
       );
       const user = memo.denormalize(
-        normalizeNested.result,
         User,
+        normalizeNested.result,
         normalizeNested.entities,
       );
       expect(user).toBeDefined();
@@ -449,15 +449,15 @@ describe(`${schema.Collection.name} denormalization`, () => {
         normalizeNested.entityMeta,
       );
       const todos = memo.denormalize(
-        '{"userId":"1"}',
         userTodos,
+        '{"userId":"1"}',
         pushedState.entities,
 
         [{ userId: '1' }],
       );
       const user = memo.denormalize(
-        normalizeNested.result,
         User,
+        normalizeNested.result,
         pushedState.entities,
         [{ id: '1' }],
       );
@@ -478,14 +478,14 @@ describe(`${schema.Collection.name} denormalization`, () => {
         normalizeNested.entityMeta,
       );
       const todos = memo.denormalize(
-        '{"userId":"1"}',
         userTodos,
+        '{"userId":"1"}',
         unshiftState.entities,
         [{ userId: '1' }],
       );
       const user = memo.denormalize(
-        normalizeNested.result,
         User,
+        normalizeNested.result,
         unshiftState.entities,
         [{ id: '1' }],
       );
@@ -499,8 +499,8 @@ describe(`${schema.Collection.name} denormalization`, () => {
 
     test('denormalizes unshift', () => {
       const todos = memo.denormalize(
-        [{ id: '2', title: 'from the start' }],
         userTodos.unshift,
+        [{ id: '2', title: 'from the start' }],
         {},
         [{ id: '1' }],
       );
@@ -522,8 +522,8 @@ describe(`${schema.Collection.name} denormalization`, () => {
 
     test('denormalizes unshift (single item)', () => {
       const todos = memo.denormalize(
-        { id: '2', title: 'from the start' },
         userTodos.unshift,
+        { id: '2', title: 'from the start' },
         {},
         [{ id: '1' }],
       );
@@ -553,7 +553,7 @@ describe(`${schema.Collection.name} denormalization`, () => {
     );
     expect(queryKey).toBeDefined();
     // now ensure our queryKey is usable
-    const results = denormalize(queryKey, userTodos, normalizeNested.entities);
+    const results = denormalize(userTodos, queryKey, normalizeNested.entities);
     expect(results).toBeDefined();
     expect(results).toMatchInlineSnapshot(`
       [

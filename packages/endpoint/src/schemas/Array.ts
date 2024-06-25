@@ -27,7 +27,7 @@ export default class ArraySchema extends PolymorphicSchema {
   denormalize(
     input: any,
     args: any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ) {
     return input.map ?
         input

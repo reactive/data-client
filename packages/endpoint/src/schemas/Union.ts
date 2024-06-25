@@ -31,7 +31,7 @@ export default class UnionSchema extends PolymorphicSchema {
   denormalize(
     input: {},
     args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ) {
     return this.denormalizeValue(input, unvisit);
   }

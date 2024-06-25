@@ -527,8 +527,8 @@ describe(`${Entity.name} normalization`, () => {
         ProcessTaco,
       );
       const final = new SimpleMemoCache().denormalize(
-        result,
         ProcessTaco,
+        result,
         entities,
       );
       expect(final).not.toEqual(expect.any(Symbol));
@@ -567,8 +567,8 @@ describe(`${Entity.name} normalization`, () => {
         ParentEntity,
       );
       const final = new SimpleMemoCache().denormalize(
-        result,
         ParentEntity,
+        result,
         entities,
       );
       expect(final).not.toEqual(expect.any(Symbol));
@@ -599,8 +599,8 @@ describe(`${Entity.name} normalization`, () => {
         EntriesEntity,
       );
       const final = new SimpleMemoCache().denormalize(
-        result,
         EntriesEntity,
+        result,
         entities,
       );
       expect(final).not.toEqual(expect.any(Symbol));
@@ -618,8 +618,8 @@ describe(`${Entity.name} denormalization`, () => {
         '1': { id: '1', name: 'foo' },
       },
     };
-    expect(denormalize('1', Tacos, entities)).toMatchSnapshot();
-    expect(denormalize('1', Tacos, fromJS(entities))).toMatchSnapshot();
+    expect(denormalize(Tacos, '1', entities)).toMatchSnapshot();
+    expect(denormalize(Tacos, '1', fromJS(entities))).toMatchSnapshot();
   });
 
   class Food extends IDEntity {}
@@ -640,13 +640,13 @@ describe(`${Entity.name} denormalization`, () => {
       },
     };
 
-    const de1 = denormalize('1', Menu, entities);
+    const de1 = denormalize(Menu, '1', entities);
     expect(de1).toMatchSnapshot();
-    expect(denormalize('1', Menu, fromJS(entities))).toEqual(de1);
+    expect(denormalize(Menu, '1', fromJS(entities))).toEqual(de1);
 
-    const de2 = denormalize('2', Menu, entities);
+    const de2 = denormalize(Menu, '2', entities);
     expect(de2).toMatchSnapshot();
-    expect(denormalize('2', Menu, fromJS(entities))).toEqual(de2);
+    expect(denormalize(Menu, '2', fromJS(entities))).toEqual(de2);
   });
 
   test('denormalizes deep entities while maintaining referential equality', () => {
@@ -661,8 +661,8 @@ describe(`${Entity.name} denormalization`, () => {
     };
     const memo = new SimpleMemoCache();
 
-    const first = memo.denormalize('1', Menu, entities);
-    const second = memo.denormalize('1', Menu, entities);
+    const first = memo.denormalize(Menu, '1', entities);
+    const second = memo.denormalize(Menu, '1', entities);
     expect(first).not.toEqual(expect.any(Symbol));
     if (typeof first === 'symbol') return;
     expect(second).not.toEqual(expect.any(Symbol));
@@ -682,8 +682,8 @@ describe(`${Entity.name} denormalization`, () => {
         '1': { id: '1' },
       },
     };
-    expect(denormalize('1', MyTacos, entities)).toEqual(expect.any(Symbol));
-    expect(denormalize('1', MyTacos, fromJS(entities))).toEqual(
+    expect(denormalize(MyTacos, '1', entities)).toEqual(expect.any(Symbol));
+    expect(denormalize(MyTacos, '1', fromJS(entities))).toEqual(
       expect.any(Symbol),
     );
   });
@@ -698,11 +698,11 @@ describe(`${Entity.name} denormalization`, () => {
       },
     };
 
-    expect(denormalize('1', Menu, entities)).toMatchSnapshot();
-    expect(denormalize('1', Menu, fromJS(entities))).toMatchSnapshot();
+    expect(denormalize(Menu, '1', entities)).toMatchSnapshot();
+    expect(denormalize(Menu, '1', fromJS(entities))).toMatchSnapshot();
 
-    expect(denormalize('2', Menu, entities)).toMatchSnapshot();
-    expect(denormalize('2', Menu, fromJS(entities))).toMatchSnapshot();
+    expect(denormalize(Menu, '2', entities)).toMatchSnapshot();
+    expect(denormalize(Menu, '2', fromJS(entities))).toMatchSnapshot();
   });
 
   it('should handle optional schema entries Entity', () => {
@@ -721,7 +721,7 @@ describe(`${Entity.name} denormalization`, () => {
     const schema = MyEntity;
 
     expect(
-      denormalize('bob', schema, {
+      denormalize(schema, 'bob', {
         MyEntity: { bob: { name: 'bob', secondthing: 'hi' } },
       }),
     ).toMatchInlineSnapshot(`
@@ -749,7 +749,7 @@ describe(`${Entity.name} denormalization`, () => {
     const schema = MyEntity;
 
     expect(
-      denormalize('bob', schema, {
+      denormalize(schema, 'bob', {
         MyEntity: { bob: { name: 'bob', secondthing: 'hi', blarb: null } },
       }),
     ).toMatchInlineSnapshot(`
@@ -773,11 +773,11 @@ describe(`${Entity.name} denormalization`, () => {
       },
     };
 
-    expect(denormalize('1', Menu, entities)).toMatchSnapshot();
-    expect(denormalize('1', Menu, fromJS(entities))).toMatchSnapshot();
+    expect(denormalize(Menu, '1', entities)).toMatchSnapshot();
+    expect(denormalize(Menu, '1', fromJS(entities))).toMatchSnapshot();
 
-    expect(denormalize('2', Menu, entities)).toMatchSnapshot();
-    expect(denormalize('2', Menu, fromJS(entities))).toMatchSnapshot();
+    expect(denormalize(Menu, '2', entities)).toMatchSnapshot();
+    expect(denormalize(Menu, '2', fromJS(entities))).toMatchSnapshot();
   });
 
   test('denormalizes deep entities with records', () => {
@@ -797,11 +797,11 @@ describe(`${Entity.name} denormalization`, () => {
       },
     };
 
-    expect(denormalize('1', Menu, entities)).toMatchSnapshot();
-    expect(denormalize('1', Menu, fromJS(entities))).toMatchSnapshot();
+    expect(denormalize(Menu, '1', entities)).toMatchSnapshot();
+    expect(denormalize(Menu, '1', fromJS(entities))).toMatchSnapshot();
 
-    expect(denormalize('2', Menu, entities)).toMatchSnapshot();
-    expect(denormalize('2', Menu, fromJS(entities))).toMatchSnapshot();
+    expect(denormalize(Menu, '2', entities)).toMatchSnapshot();
+    expect(denormalize(Menu, '2', fromJS(entities))).toMatchSnapshot();
   });
 
   test('can denormalize already partially denormalized data', () => {
@@ -815,8 +815,8 @@ describe(`${Entity.name} denormalization`, () => {
       },
     };
 
-    expect(denormalize('1', Menu, entities)).toMatchSnapshot();
-    expect(denormalize('1', Menu, fromJS(entities))).toMatchSnapshot();
+    expect(denormalize(Menu, '1', entities)).toMatchSnapshot();
+    expect(denormalize(Menu, '1', fromJS(entities))).toMatchSnapshot();
   });
 
   class User extends IDEntity {
@@ -864,11 +864,11 @@ describe(`${Entity.name} denormalization`, () => {
       },
     };
 
-    expect(denormalize('123', Report, entities)).toMatchSnapshot();
-    expect(denormalize('123', Report, fromJS(entities))).toMatchSnapshot();
+    expect(denormalize(Report, '123', entities)).toMatchSnapshot();
+    expect(denormalize(Report, '123', fromJS(entities))).toMatchSnapshot();
 
-    expect(denormalize('456', User, entities)).toMatchSnapshot();
-    expect(denormalize('456', User, fromJS(entities))).toMatchSnapshot();
+    expect(denormalize(User, '456', entities)).toMatchSnapshot();
+    expect(denormalize(User, '456', fromJS(entities))).toMatchSnapshot();
   });
 
   test('denormalizes recursive entities with referential equality', () => {
@@ -903,7 +903,7 @@ describe(`${Entity.name} denormalization`, () => {
     };
     const memo = new SimpleMemoCache();
 
-    const denormalizedReport = memo.denormalize('123', Report, entities);
+    const denormalizedReport = memo.denormalize(Report, '123', entities);
     expect(denormalizedReport).not.toEqual(expect.any(Symbol));
     if (typeof denormalizedReport === 'symbol') return;
 
@@ -916,7 +916,7 @@ describe(`${Entity.name} denormalization`, () => {
       denormalizedReport.draftedBy,
     );
 
-    const denormalizedReport2 = memo.denormalize('123', Report, entities);
+    const denormalizedReport2 = memo.denormalize(Report, '123', entities);
 
     expect(denormalizedReport2).toStrictEqual(denormalizedReport);
     expect(denormalizedReport2).toBe(denormalizedReport);
@@ -962,7 +962,7 @@ describe(`${Entity.name} denormalization`, () => {
       comment: Comment,
     });
 
-    const denormalizedReport = memo.denormalize(input, sch, entities);
+    const denormalizedReport = memo.denormalize(sch, input, entities);
     expect(denormalizedReport).not.toEqual(expect.any(Symbol));
     if (typeof denormalizedReport === 'symbol') return;
 
@@ -975,7 +975,7 @@ describe(`${Entity.name} denormalization`, () => {
       denormalizedReport.comment.author,
     );
 
-    const denormalizedReport2 = memo.denormalize(input, sch, entities);
+    const denormalizedReport2 = memo.denormalize(sch, input, entities);
     expect(denormalizedReport2).not.toEqual(expect.any(Symbol));
     if (typeof denormalizedReport2 === 'symbol') return;
 
@@ -994,7 +994,7 @@ describe(`${Entity.name} denormalization`, () => {
       },
     };
 
-    const denormalizedReport3 = memo.denormalize(input, sch, nextEntities);
+    const denormalizedReport3 = memo.denormalize(sch, input, nextEntities);
     expect(denormalizedReport3).not.toEqual(expect.any(Symbol));
     if (typeof denormalizedReport3 === 'symbol') return;
 
@@ -1006,7 +1006,7 @@ describe(`${Entity.name} denormalization`, () => {
 
   describe('optional entities', () => {
     it('should be marked as found even when optional is not there', () => {
-      const denormalized = denormalize('abc', WithOptional, {
+      const denormalized = denormalize(WithOptional, 'abc', {
         [WithOptional.key]: {
           abc: {
             id: 'abc',
@@ -1031,7 +1031,7 @@ describe(`${Entity.name} denormalization`, () => {
     });
 
     it('should be marked as found when nested entity is missing', () => {
-      const denormalized = denormalize('abc', WithOptional, {
+      const denormalized = denormalize(WithOptional, 'abc', {
         [WithOptional.key]: {
           abc: WithOptional.fromJS({
             id: 'abc',
@@ -1057,7 +1057,7 @@ describe(`${Entity.name} denormalization`, () => {
     });
 
     it('should be marked as deleted when required entity is deleted symbol', () => {
-      const denormalized = denormalize('abc', WithOptional, {
+      const denormalized = denormalize(WithOptional, 'abc', {
         [WithOptional.key]: {
           abc: {
             id: 'abc',
@@ -1074,7 +1074,7 @@ describe(`${Entity.name} denormalization`, () => {
     });
 
     it('should be non-required deleted members should not result in deleted indicator', () => {
-      const denormalized = denormalize('abc', WithOptional, {
+      const denormalized = denormalize(WithOptional, 'abc', {
         [WithOptional.key]: {
           abc: WithOptional.fromJS({
             id: 'abc',
@@ -1103,8 +1103,8 @@ describe(`${Entity.name} denormalization`, () => {
 
     it('should be deleted when both are true in different parts of schema', () => {
       const denormalized = denormalize(
-        { data: 'abc' },
         new schema.Object({ data: WithOptional, other: ArticleEntity }),
+        { data: 'abc' },
         {
           [WithOptional.key]: {
             abc: WithOptional.fromJS({

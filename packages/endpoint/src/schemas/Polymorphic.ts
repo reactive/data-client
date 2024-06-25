@@ -91,7 +91,7 @@ Value: ${JSON.stringify(value, undefined, 2)}`,
       // construct the correct Entity instance
       if (typeof value === 'object' && value !== null) {
         const schema = this.inferSchema(value, undefined, undefined);
-        if (schema) return unvisit(value, schema);
+        if (schema) return unvisit(schema, value);
       }
       /* istanbul ignore else */
       if (process.env.NODE_ENV !== 'production' && value) {
@@ -107,6 +107,6 @@ Value: ${JSON.stringify(value, undefined, 2)}.`,
       : isImmutable(value) ? value.get('id')
       : value.id;
     const schema = this.isSingleSchema ? this.schema : this.schema[schemaKey];
-    return unvisit(id || value, schema);
+    return unvisit(schema, id || value);
   }
 }

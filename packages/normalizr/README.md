@@ -174,8 +174,8 @@ Accessing the store can then be done using flux `selectors` by `denormalizing`:
 import { denormalize } from '@data-client/normalizr';
 
 const denormalizedData = denormalize(
-  normalizedData.result,
   Article,
+  normalizedData.result,
   normalizedData.entities,
   args,
 );
@@ -214,11 +214,11 @@ import { MemoCache } from '@data-client/normalizr';
 // you can construct a new memo anytime you want to reset the cache
 const memo = new MemoCache();
 
-const { data, paths } = memo.denormalize(input, schema, state.entities, args);
+const { data, paths } = memo.denormalize(schema, input, state.entities, args);
 
-const data = memo.query(key, schema, args, state.entities, state.indexes);
+const data = memo.query(schema, key, args, state.entities, state.indexes);
 
-function query(key, schema, args, state) {
+function query(schema, key, args, state) {
   const queryKey = memo.buildQueryKey(
     key,
     schema,
@@ -226,7 +226,7 @@ function query(key, schema, args, state) {
     state.entities,
     state.indexes,
   );
-  const { data } = this.denormalize(queryKey, schema, state.entities, args);
+  const { data } = this.denormalize(schema, queryKey, state.entities, args);
   return typeof data === 'symbol' ? undefined : (data as any);
 }
 ```

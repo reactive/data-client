@@ -233,7 +233,7 @@ export default class CollectionSchema<
   denormalize(
     input: any,
     args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ): ReturnType<S['denormalize']> {
     return this.schema.denormalize(input, args, unvisit) as any;
   }
@@ -351,7 +351,7 @@ function denormalize(
   this: CollectionSchema<any, any>,
   input: any,
   args: readonly any[],
-  unvisit: (input: any, schema: any) => any,
+  unvisit: (schema: any, input: any) => any,
 ): any {
   return Array.isArray(input) ?
       (this.schema.denormalize(input, args, unvisit) as any)

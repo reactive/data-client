@@ -116,9 +116,9 @@ export default class Invalidate<
   denormalize(
     id: string,
     args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ): AbstractInstanceType<E> {
-    return unvisit(id, this._entity) as any;
+    return unvisit(this._entity, id) as any;
   }
 
   /* istanbul ignore next */

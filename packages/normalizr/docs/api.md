@@ -42,7 +42,7 @@ const normalizedData = normalize(myData, mySchema);
 }
 ```
 
-## `denormalize(input, schema, entities): [denormalized, foundAllEntities]`
+## `denormalize(schema, input, entities): [denormalized, foundAllEntities]`
 
 Denormalizes an input based on schema and provided entities from a plain object or Immutable data. The reverse of `normalize`.
 
@@ -50,8 +50,8 @@ _Special Note:_ Be careful with denormalization. Prematurely reverting your data
 
 If your schema and data have recursive references, only the first instance of an entity will be given. Subsequent references will be returned as the `id` provided.
 
-- `input`: **required** The normalized result that should be _de-normalized_. Usually the same value that was given in the `result` key of the output of `normalize`.
 - `schema`: **required** A schema definition that was used to get the value for `input`.
+- `input`: **required** The normalized result that should be _de-normalized_. Usually the same value that was given in the `result` key of the output of `normalize`.
 - `entities`: **required** An object, keyed by entity schema names that may appear in the denormalized output. Also accepts an object with Immutable data.
 
 ### Usage

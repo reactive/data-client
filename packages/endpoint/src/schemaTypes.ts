@@ -145,7 +145,7 @@ export interface CollectionInterface<
   denormalize(
     input: any,
     args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ): ReturnType<S['denormalize']>;
 
   _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;

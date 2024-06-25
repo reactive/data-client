@@ -55,8 +55,8 @@ const tweet = Tweet;
 
 const normalizedData = normalize(data, tweet);
 const denormalizedData = denormalize(
-  normalizedData.result,
   tweet,
+  normalizedData.result,
   normalizedData.entities,
 );
 

@@ -117,7 +117,7 @@ export default class Controller<
 
     if (endpoint.schema) {
       return action.meta.promise.then(input =>
-        denormalize(input, endpoint.schema, {}, args),
+        denormalize(endpoint.schema, input, {}, args),
       ) as any;
     }
     return action.meta.promise as any;
@@ -464,8 +464,8 @@ export default class Controller<
     // second argument is false if any entities are missing
     // eslint-disable-next-line prefer-const
     const { data, paths } = this.memo.denormalize(
-      input,
       schema,
+      input,
       state.entities,
       args,
     ) as { data: any; paths: EntityPath[] };

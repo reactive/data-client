@@ -46,7 +46,7 @@ export function denormalizeImmutable(
     // we're accessing them using string keys.
     const stringKey = `${key}`;
 
-    const item = unvisit(object.get(stringKey), schema[stringKey]);
+    const item = unvisit(schema[stringKey], object.get(stringKey));
     if (typeof item === 'symbol') {
       deleted = true;
     }

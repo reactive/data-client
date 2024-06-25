@@ -89,7 +89,7 @@ export default abstract class Entity extends Entity_base {
     this: T,
     input: any,
     args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ) => AbstractInstanceType<T>;
 }
 export {};

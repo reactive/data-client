@@ -96,8 +96,8 @@ describe(`${schema.Invalidate.name} denormalization`, () => {
 
   test('denormalizes an object in the same manner as the Entity', () => {
     const user = new SimpleMemoCache().denormalize(
-      '1',
       new schema.Invalidate(User),
+      '1',
       entities,
     );
     expect(user).not.toEqual(expect.any(Symbol));
@@ -129,8 +129,8 @@ describe(`${schema.Invalidate.name} denormalization`, () => {
       (_, createArray, createObject, denormalize) => {
         test('denormalizes deleted entities as symbol', () => {
           const user = denormalize(
-            '1',
             new schema.Invalidate(User),
+            '1',
             createInput({
               User: { '1': INVALID },
             }),
@@ -139,8 +139,8 @@ describe(`${schema.Invalidate.name} denormalization`, () => {
 
           expect(
             denormalize(
-              createInput({ data: '1' }),
               createObject({ data: new schema.Invalidate(User) }),
+              createInput({ data: '1' }),
               createInput({
                 User: { '1': INVALID },
               }),
@@ -151,8 +151,8 @@ describe(`${schema.Invalidate.name} denormalization`, () => {
         test('denormalize removes deleted entries in array', () => {
           expect(
             denormalize(
-              createInput([{ data: '1' }]),
               createArray(createObject({ data: new schema.Invalidate(User) })),
+              createInput([{ data: '1' }]),
               createInput({
                 User: { '1': INVALID },
               }),
@@ -160,8 +160,8 @@ describe(`${schema.Invalidate.name} denormalization`, () => {
           ).toMatchSnapshot();
           expect(
             denormalize(
-              createInput([{ data: '1' }]),
               createArray(createObject({ data: User })),
+              createInput([{ data: '1' }]),
               createInput({
                 User: { '1': INVALID },
               }),
@@ -172,24 +172,24 @@ describe(`${schema.Invalidate.name} denormalization`, () => {
         test('denormalize sets undefined entities that are not present', () => {
           expect(
             denormalize(
-              createInput([{ data: '1' }]),
               createArray(createObject({ data: new schema.Invalidate(User) })),
-              createInput([{}]),
-            ),
-          ).toMatchSnapshot();
-
-          expect(
-            denormalize(
               createInput([{ data: '1' }]),
-              createArray(createObject({ data: User })),
               createInput([{}]),
             ),
           ).toMatchSnapshot();
 
           expect(
             denormalize(
-              createInput({ data: '1' }),
+              createArray(createObject({ data: User })),
+              createInput([{ data: '1' }]),
+              createInput([{}]),
+            ),
+          ).toMatchSnapshot();
+
+          expect(
+            denormalize(
               createObject({ data: User }),
+              createInput({ data: '1' }),
               createInput({}),
             ),
           ).toMatchSnapshot();

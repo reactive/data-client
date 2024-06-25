@@ -235,11 +235,11 @@ describe.each([
 
         expect(
           denormalize(
+            valuesSchema,
             {
               first: '1',
               second: '2',
             },
-            valuesSchema,
             createInput(entities),
           ),
         ).toMatchSnapshot();
@@ -261,11 +261,11 @@ describe.each([
 
         expect(
           denormalize(
+            valuesSchema,
             {
               fido: { id: '1', schema: 'dogs' },
               fluffy: { id: '1', schema: 'cats' },
             },
-            valuesSchema,
             createInput(entities),
           ),
         ).toMatchSnapshot();
@@ -287,12 +287,12 @@ describe.each([
 
         expect(
           denormalize(
+            valuesSchema,
             {
               fido: { id: '1', schema: 'dogs' },
               fluffy: { id: '1', schema: 'cats' },
               prancy: { id: '5', schema: 'cats' },
             },
-            valuesSchema,
             createInput(entities),
           ),
         ).toMatchSnapshot();
@@ -314,12 +314,12 @@ describe.each([
 
         expect(
           denormalize(
+            valuesSchema,
             {
               fido: { id: '1', schema: 'dogs' },
               fluffy: { id: '1', schema: 'cats' },
               prancy: { id: '5', schema: 'cats' },
             },
-            valuesSchema,
             createInput(entities),
           ),
         ).toMatchSnapshot();
@@ -410,7 +410,7 @@ describe.each([
         });
         const { result, entities } = normalize(response, shape);
         expect(
-          denormalize(result, shape, createInput(entities)),
+          denormalize(shape, result, createInput(entities)),
         ).toMatchSnapshot();
       });
     },

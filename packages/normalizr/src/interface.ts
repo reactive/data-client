@@ -34,7 +34,7 @@ export interface SchemaSimple<T = any, Args extends any[] = any[]> {
   denormalize(
     input: {},
     args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ): T;
   queryKey(
     args: Args,
