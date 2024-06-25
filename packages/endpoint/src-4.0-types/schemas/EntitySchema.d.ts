@@ -236,7 +236,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
     this: T,
     input: any,
     args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ): AbstractInstanceType<T>;
   /** All instance defaults set */
   readonly defaults: any;

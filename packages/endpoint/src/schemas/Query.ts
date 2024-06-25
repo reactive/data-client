@@ -34,7 +34,7 @@ export default class Query<
   }
 
   denormalize(input: {}, args: any, unvisit: any): ReturnType<P> {
-    const value = unvisit(input, this.schema);
+    const value = unvisit(this.schema, input);
     return typeof value === 'symbol' ? value : this.process(value, ...args);
   }
 
@@ -55,7 +55,7 @@ export default class Query<
   declare _denormalizeNullable: (
     input: {},
     args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ) => ReturnType<P> | undefined;
 
   declare _normalizeNullable: () => NormalizeNullable<S>;

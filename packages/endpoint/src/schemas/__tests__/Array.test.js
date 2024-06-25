@@ -155,19 +155,19 @@ describe.each([
     };
     const sch = new schema.Object({ user: User, tacos: [] });
     expect(
-      denormalize({ user: '1' }, sch, createInput(entities)),
+      denormalize(sch, { user: '1' }, createInput(entities)),
     ).toMatchSnapshot();
     expect(
-      denormalize(createInput({ user: '1' }), sch, createInput(entities)),
+      denormalize(sch, createInput({ user: '1' }), createInput(entities)),
     ).toMatchSnapshot();
 
     expect(
-      denormalize({ user: '1', tacos: [] }, sch, createInput(entities)),
+      denormalize(sch, { user: '1', tacos: [] }, createInput(entities)),
     ).toMatchSnapshot();
     expect(
       denormalize(
-        createInput({ user: '1', tacos: [] }),
         sch,
+        createInput({ user: '1', tacos: [] }),
         createInput(entities),
       ),
     ).toMatchSnapshot();
@@ -186,7 +186,7 @@ describe.each([
         },
       };
       expect(
-        denormalize(['1', '2'], createSchema(Cat), createInput(entities)),
+        denormalize(createSchema(Cat), ['1', '2'], createInput(entities)),
       ).toMatchSnapshot();
     });
 
@@ -200,8 +200,8 @@ describe.each([
       };
       expect(
         denormalize(
-          { a: '1', b: '2' },
           createSchema(Cat),
+          { a: '1', b: '2' },
           createInput(entities),
         ),
       ).toMatchSnapshot();
@@ -219,19 +219,19 @@ describe.each([
         tacos: createSchema({ next: '' }),
       });
       expect(
-        denormalize({ user: '1' }, sch, createInput(entities)),
+        denormalize(sch, { user: '1' }, createInput(entities)),
       ).toMatchSnapshot();
       expect(
-        denormalize(createInput({ user: '1' }), sch, createInput(entities)),
+        denormalize(sch, createInput({ user: '1' }), createInput(entities)),
       ).toMatchSnapshot();
 
       expect(
-        denormalize({ user: '1', tacos: [] }, sch, createInput(entities)),
+        denormalize(sch, { user: '1', tacos: [] }, createInput(entities)),
       ).toMatchSnapshot();
       expect(
         denormalize(
-          createInput({ user: '1', tacos: [] }),
           sch,
+          createInput({ user: '1', tacos: [] }),
           createInput(entities),
         ),
       ).toMatchSnapshot();
@@ -247,7 +247,7 @@ describe.each([
         },
       };
       expect(
-        denormalize({ results: ['1', '2'] }, catSchema, createInput(entities)),
+        denormalize(catSchema, { results: ['1', '2'] }, createInput(entities)),
       ).toMatchSnapshot();
     });
 
@@ -264,14 +264,14 @@ describe.each([
         },
       };
       let value = denormalize(
-        { results: ['1', '2'] },
         catSchema,
+        { results: ['1', '2'] },
         createInput(entities),
       );
       expect(value).toMatchSnapshot();
       value = denormalize(
-        createInput({ results: ['1', '2'] }),
         catSchema,
+        createInput({ results: ['1', '2'] }),
         createInput(entities),
       );
       expect(value).toMatchSnapshot();
@@ -290,14 +290,14 @@ describe.each([
         },
       };
       let value = denormalize(
-        createInput({ results: ['1', undefined, '2', null] }),
         catSchema,
+        createInput({ results: ['1', undefined, '2', null] }),
         createInput(entities),
       );
       expect(value).toMatchSnapshot();
       value = denormalize(
-        { results: ['1', '2'] },
         catSchema,
+        { results: ['1', '2'] },
         createInput(entities),
       );
       expect(value).toMatchSnapshot();
@@ -313,8 +313,8 @@ describe.each([
         },
       };
       let value = denormalize(
-        createInput({ results: undefined }),
         catSchema,
+        createInput({ results: undefined }),
         createInput(entities),
       );
       expect(value).toMatchSnapshot();
@@ -329,8 +329,8 @@ describe.each([
         },
       };
       let value = denormalize(
-        createInput([{ data: '1' }, { data: '2' }, { data: '3' }]),
         createSchema(new schema.Object({ data: Cat })),
+        createInput([{ data: '1' }, { data: '2' }, { data: '3' }]),
         createInput(entities),
       );
       expect(value).toMatchSnapshot();
@@ -350,7 +350,7 @@ describe.each([
         },
       };
 
-      expect(denormalize('123', Taco, createInput(entities))).toMatchSnapshot();
+      expect(denormalize(Taco, '123', createInput(entities))).toMatchSnapshot();
     });
 
     test('denormalizes multiple entities', () => {
@@ -396,8 +396,8 @@ describe.each([
       ];
 
       const value = denormalize(
-        createInput(input),
         listSchema,
+        createInput(input),
         createInput(entities),
       );
       expect(value).toMatchSnapshot();
@@ -415,7 +415,7 @@ describe.each([
       ];
       const output = normalize(input, catList);
       expect(output).toMatchSnapshot();
-      expect(denormalize(output.result, catList, output.entities)).toEqual(
+      expect(denormalize(catList, output.result, output.entities)).toEqual(
         input,
       );
     });

@@ -431,15 +431,15 @@ describe.each([
 ])(`denormalize [%s]`, (_, denormalize) => {
   test('passthrough with undefined schema', () => {
     const input = {};
-    expect(denormalize(input)).toEqual(input);
+    expect(denormalize(undefined, input)).toEqual(input);
   });
 
   test('returns the input if undefined', () => {
-    expect(denormalize(undefined, {}, {})).toEqual(undefined);
+    expect(denormalize({}, undefined, {})).toEqual(undefined);
   });
 
   test('returns the input if string', () => {
-    expect(denormalize('bob', '', {})).toEqual('bob');
+    expect(denormalize('', 'bob', {})).toEqual('bob');
   });
 
   test('denormalizes entities', () => {
@@ -449,15 +449,15 @@ describe.each([
         2: { id: '2', type: 'bar' },
       },
     };
-    expect(denormalize(['1', '2'], [Tacos], entities)).toMatchSnapshot();
+    expect(denormalize([Tacos], ['1', '2'], entities)).toMatchSnapshot();
   });
 
   test('denormalizes without entities fills undefined', () => {
-    expect(denormalize({ data: '1' }, { data: Tacos }, {})).toMatchSnapshot();
+    expect(denormalize({ data: Tacos }, { data: '1' }, {})).toMatchSnapshot();
     expect(
-      denormalize(fromJS({ data: '1' }), { data: Tacos }, {}),
+      denormalize({ data: Tacos }, fromJS({ data: '1' }), {}),
     ).toMatchSnapshot();
-    expect(denormalize('1', Tacos, {})).toEqual(undefined);
+    expect(denormalize(Tacos, '1', {})).toEqual(undefined);
   });
 
   test('denormalizes ignoring unfound entities in arrays', () => {
@@ -466,9 +466,9 @@ describe.each([
         1: { id: '1', type: 'foo' },
       },
     };
-    expect(denormalize(['1', '2'], [Tacos], entities)).toMatchSnapshot();
+    expect(denormalize([Tacos], ['1', '2'], entities)).toMatchSnapshot();
     expect(
-      denormalize({ results: ['1', '2'] }, { results: [Tacos] }, entities),
+      denormalize({ results: [Tacos] }, { results: ['1', '2'] }, entities),
     ).toMatchSnapshot();
   });
 
@@ -478,7 +478,7 @@ describe.each([
         1: Symbol('ENTITY WAS INVALID'),
       },
     };
-    expect(denormalize('1', Tacos, entities)).toEqual(expect.any(Symbol));
+    expect(denormalize(Tacos, '1', entities)).toEqual(expect.any(Symbol));
   });
 
   test('denormalizes ignoring deleted entities in arrays', () => {
@@ -488,9 +488,9 @@ describe.each([
         2: INVALID,
       },
     };
-    expect(denormalize(['1', '2'], [Tacos], entities)).toMatchSnapshot();
+    expect(denormalize([Tacos], ['1', '2'], entities)).toMatchSnapshot();
     expect(
-      denormalize({ results: ['1', '2'] }, { results: [Tacos] }, entities),
+      denormalize({ results: [Tacos] }, { results: ['1', '2'] }, entities),
     ).toMatchSnapshot();
   });
 
@@ -501,10 +501,10 @@ describe.each([
       },
     };
     /*expect(
-      denormalize([{ data: 1 }, { data: 2 }], [{ data: Tacos }], {}),
+      denormalize([{ data: Tacos }],[{ data: 1 }, { data: 2 }],  {}),
     ).toEqual([]);*/
     expect(
-      denormalize([{ data: 1 }, { data: 2 }], [{ data: Tacos }], entities),
+      denormalize([{ data: Tacos }], [{ data: 1 }, { data: 2 }], entities),
     ).toMatchSnapshot();
   });
 
@@ -518,16 +518,6 @@ describe.each([
     expect(
       denormalize(
         {
-          data: ['1', '2'],
-          extra: '5',
-          page: {
-            first: null,
-            second: { thing: 'two' },
-            third: 1,
-            complex: { complex: false, next: true },
-          },
-        },
-        {
           data: [Tacos],
           extra: '',
           page: {
@@ -537,6 +527,17 @@ describe.each([
             complex: { complex: true, next: false },
           },
         },
+        {
+          data: ['1', '2'],
+          extra: '5',
+          page: {
+            first: null,
+            second: { thing: 'two' },
+            third: 1,
+            complex: { complex: false, next: true },
+          },
+        },
+
         entities,
       ),
     ).toMatchSnapshot();
@@ -552,9 +553,6 @@ describe.each([
     expect(
       denormalize(
         {
-          data: ['1', '2'],
-        },
-        {
           data: [Tacos],
           extra: '',
           page: {
@@ -564,6 +562,10 @@ describe.each([
             complex: { complex: true, next: false },
           },
         },
+        {
+          data: ['1', '2'],
+        },
+
         entities,
       ),
     ).toMatchSnapshot();
@@ -614,7 +616,7 @@ describe.each([
         },
       },
     };
-    expect(denormalize('123', Article, entities)).toMatchSnapshot();
+    expect(denormalize(Article, '123', entities)).toMatchSnapshot();
   });
 
   test('gracefully handles when nested entities are primitives', () => {
@@ -658,7 +660,7 @@ describe.each([
         },
       },
     };
-    expect(() => denormalize('123', Article, entities)).toMatchSnapshot();
+    expect(() => denormalize(Article, '123', entities)).toMatchSnapshot();
   });
 
   test('set to undefined if schema key is not in entities', () => {
@@ -695,7 +697,7 @@ describe.each([
         },
       },
     };
-    expect(denormalize('123', Article, entities)).toMatchSnapshot();
+    expect(denormalize(Article, '123', entities)).toMatchSnapshot();
   });
 
   test('does not modify the original entities', () => {
@@ -720,7 +722,7 @@ describe.each([
         }),
       }),
     });
-    expect(() => denormalize('123', Article, entities)).not.toThrow();
+    expect(() => denormalize(Article, '123', entities)).not.toThrow();
   });
 
   test('denormalizes with function as pk()', () => {
@@ -747,18 +749,18 @@ describe.each([
     };
 
     expect(
-      denormalize(normalizedData.result, [Patron], normalizedData.entities),
+      denormalize([Patron], normalizedData.result, normalizedData.entities),
     ).toMatchSnapshot();
   });
 
   test('denormalizes where id is only in key', () => {
     expect(
       denormalize(
+        new schema.Values(Tacos),
         {
           1: { type: 'foo' },
           2: { type: 'bar' },
         },
-        new schema.Values(Tacos),
         {},
       ),
     ).toMatchSnapshot();

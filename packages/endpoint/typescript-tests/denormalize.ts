@@ -37,7 +37,7 @@ const scheme = {
 };
 const schemeEntity = Magic;
 
-const data = denormalize({}, scheme, {});
+const data = denormalize(scheme, {}, {});
 const r = normalize({}, scheme);
 
 type A = DenormalizeNullable<typeof scheme>;
@@ -58,7 +58,7 @@ if (typeof data === 'symbol') {
 
 const schemeValues = new schema.Values({ btc: Magic, eth: Magic2 });
 const schemeValuesSimple = new schema.Values(Magic);
-const valueValues = denormalize({}, schemeValues, {});
+const valueValues = denormalize(schemeValues, {}, {});
 if (typeof valueValues !== 'symbol') {
   Object.keys(schemeValues).forEach(k => {
     const v = valueValues[k];
@@ -68,4 +68,4 @@ if (typeof valueValues !== 'symbol') {
   });
 }
 
-const valueValuesSimple = denormalize({}, schemeValuesSimple, {});
+const valueValuesSimple = denormalize(schemeValuesSimple, {}, {});

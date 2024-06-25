@@ -293,7 +293,7 @@ describe.each([
           },
         },
       };
-      expect(denormalize('123', Taco, createInput(entities))).toMatchSnapshot();
+      expect(denormalize(Taco, '123', createInput(entities))).toMatchSnapshot();
     });
 
     test('denormalizes multiple entities', () => {

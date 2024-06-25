@@ -16,7 +16,7 @@ const userListSchemaAlt = [User];
 const normalizedDataAlt = normalize(data, userListSchemaAlt);
 
 const denormalizedData = denormalize(
-  normalizedData.result,
   userListSchema,
+  normalizedData.result,
   normalizedData.entities,
 );

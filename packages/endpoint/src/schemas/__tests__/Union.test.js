@@ -250,8 +250,8 @@ describe('complex case', () => {
     expect(denorm).toMatchSnapshot();
     expect(
       new SimpleMemoCache().denormalize(
-        denorm.result,
         waterfallSchema,
+        denorm.result,
         denorm.entities,
       ),
     ).toMatchSnapshot();
@@ -286,16 +286,16 @@ describe.each([
 
         expect(
           denormalize(
-            createInput({ id: '1', schema: 'users' }),
             union,
+            createInput({ id: '1', schema: 'users' }),
             createInput(entities),
           ),
         ).toMatchSnapshot();
 
         expect(
           denormalize(
-            createInput({ id: '2', schema: 'groups' }),
             union,
+            createInput({ id: '2', schema: 'groups' }),
             createInput(entities),
           ),
         ).toMatchSnapshot();
@@ -314,16 +314,16 @@ describe.each([
 
         expect(
           denormalize(
-            createInput({ id: '1', schema: 'users' }),
             union,
+            createInput({ id: '1', schema: 'users' }),
             createInput(entities),
           ),
         ).toMatchSnapshot();
 
         expect(
           denormalize(
-            createInput({ id: '2', schema: 'groups' }),
             union,
+            createInput({ id: '2', schema: 'groups' }),
             createInput(entities),
           ),
         ).toMatchSnapshot();
@@ -345,7 +345,7 @@ describe.each([
         );
 
         expect(
-          denormalize(createInput({ id: '1' }), union, createInput(entities)),
+          denormalize(union, createInput({ id: '1' }), createInput(entities)),
         ).toMatchSnapshot();
         expect(warnSpy.mock.calls).toMatchSnapshot();
       });
@@ -366,7 +366,7 @@ describe.each([
         );
 
         expect(
-          denormalize('1', union, createInput(entities)),
+          denormalize(union, '1', createInput(entities)),
         ).toMatchSnapshot();
         expect(warnSpy.mock.calls).toMatchSnapshot();
       });
@@ -386,7 +386,7 @@ describe.each([
           },
         );
 
-        expect(denormalize(null, union, createInput(entities))).toBeNull();
+        expect(denormalize(union, null, createInput(entities))).toBeNull();
       });
 
       test('returns the original value when undefined is given', () => {
@@ -405,7 +405,7 @@ describe.each([
         );
 
         expect(
-          denormalize(undefined, union, createInput(entities)),
+          denormalize(union, undefined, createInput(entities)),
         ).toBeUndefined();
       });
     },

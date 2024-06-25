@@ -9,12 +9,12 @@ export class SimpleMemoCache {
   private memo = new MemoCache();
 
   denormalize = <S extends Schema>(
-    input: any,
     schema: S | undefined,
+    input: any,
     entities: any,
     args: any[] = [],
   ): Denormalize<S> | DenormalizeNullable<S> | symbol =>
-    this.memo.denormalize(input, schema, entities, args).data as any;
+    this.memo.denormalize(schema, input, entities, args).data as any;
 }
 
 export default SimpleMemoCache;

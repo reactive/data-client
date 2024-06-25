@@ -69,12 +69,12 @@ describe(`Serializable denormalization`, () => {
       },
     };
     const response = new SimpleMemoCache().denormalize(
+      objectSchema,
       {
         user: '1',
         anotherItem: Other({ thing: 500 }),
         time: '2020-06-07T02:00:15+0000',
       },
-      objectSchema,
       entities,
     );
     expect(response).not.toEqual(expect.any(Symbol));
@@ -97,12 +97,12 @@ describe(`Serializable denormalization`, () => {
       },
     };
     const response = new SimpleMemoCache().denormalize(
+      objectSchema,
       {
         user: '1',
         anotherItem: { thing: 500 },
         time: '2020-06-07T02:00:15Z',
       },
-      objectSchema,
       entities,
     );
     expect(response).not.toEqual(expect.any(Symbol));

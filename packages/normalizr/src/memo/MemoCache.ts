@@ -25,8 +25,8 @@ export default class MemoCache {
 
   /** Compute denormalized form maintaining referential equality for same inputs */
   denormalize<S extends Schema>(
-    input: unknown,
     schema: S | undefined,
+    input: unknown,
     entities: any,
     args: readonly any[] = [],
   ): {
@@ -50,7 +50,7 @@ export default class MemoCache {
       getEntity,
       new GlobalCache(getEntity, this.entities, this.endpoints),
       args,
-    )(input, schema);
+    )(schema, input);
   }
 
   /** Compute denormalized form maintaining referential equality for same inputs */
@@ -75,7 +75,7 @@ export default class MemoCache {
       return;
     }
 
-    const { data } = this.denormalize(input, schema, entities, args);
+    const { data } = this.denormalize(schema, input, entities, args);
     return typeof data === 'symbol' ? undefined : (data as any);
   }
 

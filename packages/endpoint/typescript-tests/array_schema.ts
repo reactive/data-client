@@ -25,8 +25,8 @@ const myArray = new schema.Array(
 const normalizedData = normalize(data, myArray);
 
 const denormalizedData = denormalize(
-  normalizedData.result,
   myArray,
+  normalizedData.result,
   normalizedData.entities,
 );
 

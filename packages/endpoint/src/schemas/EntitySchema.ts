@@ -348,7 +348,7 @@ export default function EntitySchema<TBase extends Constructor>(
       this: T,
       input: any,
       args: any[],
-      unvisit: (input: any, schema: any) => any,
+      unvisit: (schema: any, input: any) => any,
     ): AbstractInstanceType<T> {
       if (typeof input === 'symbol') {
         return input as any;
@@ -357,7 +357,7 @@ export default function EntitySchema<TBase extends Constructor>(
       // note: iteration order must be stable
       for (const key of Object.keys(this.schema)) {
         const schema = this.schema[key];
-        const value = unvisit(input[key], schema);
+        const value = unvisit(schema, input[key]);
 
         if (typeof value === 'symbol') {
           // if default is not 'falsy', then this is required, so propagate INVALID symbol
@@ -668,7 +668,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
     this: T,
     input: any,
     args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ): AbstractInstanceType<T>;
   /** All instance defaults set */
   readonly defaults: any;
