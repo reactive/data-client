@@ -29,4 +29,4 @@ const errorUnionSchema = new schema.Union(
   'blob',
 );
 
-const normalizedData = normalize(data, { owner: unionSchema });
+const normalizedData = normalize({ owner: unionSchema }, data);

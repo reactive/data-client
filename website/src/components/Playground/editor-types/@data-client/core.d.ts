@@ -11,7 +11,7 @@ type Serializable<T extends {
 }> = (value: any) => T;
 interface SchemaSimple<T = any, Args extends any[] = any[]> {
     normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, addEntity: (...args: any) => any, getEntity: (...args: any) => any, checkLoop: (...args: any) => any): any;
-    denormalize(input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any): T;
+    denormalize(input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any): T;
     queryKey(args: Args, queryKey: (...args: any) => any, getEntity: GetEntity, getIndex: GetIndex): any;
 }
 interface EntityInterface<T = any> extends SchemaSimple {
@@ -140,7 +140,7 @@ declare class MemoCache {
     /** Caches the queryKey based on schema, args, and any used entities or indexes */
     protected queryKeys: Record<string, WeakDependencyMap<QueryPath>>;
     /** Compute denormalized form maintaining referential equality for same inputs */
-    denormalize<S extends Schema>(input: unknown, schema: S | undefined, entities: any, args?: readonly any[]): {
+    denormalize<S extends Schema>(schema: S | undefined, input: unknown, entities: any, args?: readonly any[]): {
         data: DenormalizeNullable<S> | symbol;
         paths: EntityPath[];
     };

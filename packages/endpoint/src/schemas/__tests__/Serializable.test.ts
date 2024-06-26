@@ -35,18 +35,15 @@ const objectSchema = {
 
 describe(`Serializable normalization`, () => {
   test('normalizes date and custom as passthrough', () => {
-    const norm = normalize(
-      {
-        user: {
-          id: '1',
-          name: 'Nacho',
-          createdAt: '2020-06-07T02:00:15+0000',
-        },
-        anotherItem: { thing: 500 },
-        time: '2020-06-07T02:00:15+0000',
+    const norm = normalize(objectSchema, {
+      user: {
+        id: '1',
+        name: 'Nacho',
+        createdAt: '2020-06-07T02:00:15+0000',
       },
-      objectSchema,
-    );
+      anotherItem: { thing: 500 },
+      time: '2020-06-07T02:00:15+0000',
+    });
     expect(norm.result.time).toBe(norm.result.time);
     expect(typeof norm.result.time).toBe('string');
     expect(norm.entities[User.key]['1'].createdAt).toBe(

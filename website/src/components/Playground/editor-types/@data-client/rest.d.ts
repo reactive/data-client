@@ -141,7 +141,7 @@ type Serializable<T extends {
 }> = (value: any) => T;
 interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
     normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, addEntity: (...args: any) => any, getEntity: (...args: any) => any, checkLoop: (...args: any) => any): any;
-    denormalize(input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any): T;
+    denormalize(input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any): T;
     queryKey(args: Args, queryKey: (...args: any) => any, getEntity: GetEntity, getIndex: GetIndex): any;
 }
 interface SchemaClass<T = any, N = T | undefined, Args extends any[] = any[]> extends SchemaSimple<T, Args> {
@@ -413,7 +413,7 @@ interface IEntityClass<TBase extends Constructor = any> {
      * @see https://dataclient.io/rest/api/Entity#queryKey
      */
     queryKey(args: readonly any[], queryKey: any, getEntity: GetEntity, getIndex: GetIndex): any;
-    denormalize<T extends (abstract new (...args: any[]) => IEntityInstance & InstanceType<TBase>) & IEntityClass & TBase>(this: T, input: any, args: readonly any[], unvisit: (input: any, schema: any) => any): AbstractInstanceType<T>;
+    denormalize<T extends (abstract new (...args: any[]) => IEntityInstance & InstanceType<TBase>) & IEntityClass & TBase>(this: T, input: any, args: readonly any[], unvisit: (schema: any, input: any) => any): AbstractInstanceType<T>;
     /** All instance defaults set */
     readonly defaults: any;
 }
@@ -467,7 +467,7 @@ declare class Invalidate<E extends EntityInterface & {
     };
     /** /End Normalize lifecycles **/
     queryKey(args: any, queryKey: unknown, getEntity: unknown, getIndex: unknown): undefined;
-    denormalize(id: string, args: readonly any[], unvisit: (input: any, schema: any) => any): AbstractInstanceType<E>;
+    denormalize(id: string, args: readonly any[], unvisit: (schema: any, input: any) => any): AbstractInstanceType<E>;
     _denormalizeNullable(): AbstractInstanceType<E> | undefined;
     _normalizeNullable(): string | undefined;
 }
@@ -489,7 +489,7 @@ declare class Query<S extends Queryable, P extends (entries: Denormalize<S>, ...
     normalize(...args: any): any;
     denormalize(input: {}, args: any, unvisit: any): ReturnType<P>;
     queryKey(args: ProcessParameters<P, S>, queryKey: (schema: any, args: any, getEntity: GetEntity, getIndex: GetIndex) => any, getEntity: GetEntity, getIndex: GetIndex): any;
-    _denormalizeNullable: (input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any) => ReturnType<P> | undefined;
+    _denormalizeNullable: (input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any) => ReturnType<P> | undefined;
     _normalizeNullable: () => NormalizeNullable<S>;
 }
 type ProcessParameters<P, S extends Queryable> = P extends (entries: any, ...args: infer Par) => any ? Par extends [] ? SchemaArgs<S> : Par & SchemaArgs<S> : SchemaArgs<S>;
@@ -592,7 +592,7 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
      */
     queryKey(args: Args, queryKey: unknown, getEntity: unknown, getIndex: unknown): any;
     createIfValid: (value: any) => any | undefined;
-    denormalize(input: any, args: readonly any[], unvisit: (input: any, schema: any) => any): ReturnType<S['denormalize']>;
+    denormalize(input: any, args: readonly any[], unvisit: (schema: any, input: any) => any): ReturnType<S['denormalize']>;
     _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;
     _normalizeNullable(): ReturnType<S['_normalizeNullable']>;
     /** Schema to place at the *end* of this Collection
@@ -670,7 +670,7 @@ declare class Array$1<S extends Schema = Schema> implements SchemaClass {
   denormalize(
     input: {},
     args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
 
   queryKey(
@@ -727,7 +727,7 @@ declare class All<
   denormalize(
     input: {},
     args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
 
   queryKey(
@@ -771,7 +771,7 @@ declare class Object$1<O extends Record<string, any> = Record<string, Schema>>
   denormalize(
     input: {},
     args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ): DenormalizeObject<O>;
 
   queryKey(
@@ -863,7 +863,7 @@ interface UnionInstance<
   denormalize(
     input: {},
     args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ): AbstractInstanceType<Choices[keyof Choices]>;
 
   queryKey(
@@ -948,7 +948,7 @@ declare class Values<Choices extends Schema = any> implements SchemaClass {
   denormalize(
     input: {},
     args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ): Record<
     string,
     Choices extends EntityMap<infer T> ? T : Denormalize<Choices>
@@ -1123,7 +1123,7 @@ declare abstract class Entity extends Entity_base {
      * @see https://dataclient.io/rest/api/Entity#process
      */
     static process(input: any, parent: any, key: string | undefined, args: any[]): any;
-    static denormalize: <T extends typeof Entity>(this: T, input: any, args: readonly any[], unvisit: (input: any, schema: any) => any) => AbstractInstanceType<T>;
+    static denormalize: <T extends typeof Entity>(this: T, input: any, args: readonly any[], unvisit: (schema: any, input: any) => any) => AbstractInstanceType<T>;
 }
 
 declare function validateRequired(processedEntity: any, requiredDefaults: Record<string, unknown>): string | undefined;

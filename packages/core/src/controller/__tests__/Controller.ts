@@ -36,8 +36,8 @@ describe('Controller', () => {
         tags: ['a', 'best', 'react'],
       };
       const { entities, result } = normalize(
-        payload,
         CoolerArticleResource.get.schema,
+        payload,
       );
       const fetchKey = CoolerArticleResource.get.key({ id: payload.id });
       const state = {
@@ -73,8 +73,8 @@ describe('Controller', () => {
         tags: ['a', 'best', 'react'],
       };
       const { entities, result } = normalize(
-        payload,
         CoolerArticleResource.get.schema,
+        payload,
       );
       const fetchKey = CoolerArticleResource.get.key({ id: payload.id });
       const state = {

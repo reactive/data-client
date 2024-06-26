@@ -38,7 +38,7 @@ const scheme = {
 const schemeEntity = Magic;
 
 const data = denormalize(scheme, {}, {});
-const r = normalize({}, scheme);
+const r = normalize(scheme, {});
 
 type A = DenormalizeNullable<typeof scheme>;
 type B = A['thing']['members'];

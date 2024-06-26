@@ -199,7 +199,7 @@ describe('useSuspense()', () => {
     expect(title).toBeDefined();
   });
   describe('result is stale and options.invalidIfStale is false', () => {
-    const { entities, result } = normalize(payload, CoolerArticle);
+    const { entities, result } = normalize(CoolerArticle, payload);
     const fetchKey = CoolerArticleResource.get.key({ id: payload.id });
     const state = {
       ...initialState,
@@ -284,7 +284,7 @@ describe('useSuspense()', () => {
   });
 
   it('should NOT suspend if result is not stale and options.invalidIfStale is true', () => {
-    const { entities, result } = normalize(payload, CoolerArticle);
+    const { entities, result } = normalize(CoolerArticle, payload);
     const fetchKey = InvalidIfStaleArticleResource.get.key({ id: payload.id });
     const state = {
       ...initialState,
@@ -314,7 +314,7 @@ describe('useSuspense()', () => {
     expect(title).toBeDefined();
   });
   it('should suspend if result stale in cache and options.invalidIfStale is true', () => {
-    const { entities, result } = normalize(payload, CoolerArticle);
+    const { entities, result } = normalize(CoolerArticle, payload);
     const fetchKey = InvalidIfStaleArticleResource.get.key({ id: payload.id });
     const state = {
       ...initialState,

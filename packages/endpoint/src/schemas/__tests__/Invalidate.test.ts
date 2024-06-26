@@ -29,15 +29,15 @@ describe(`${schema.Invalidate.name} normalization`, () => {
     class User extends IDEntity {}
 
     expect(
-      normalize({ id: '1', type: 'users' }, new schema.Invalidate(User)),
+      normalize(new schema.Invalidate(User), { id: '1', type: 'users' }),
     ).toMatchSnapshot();
   });
 
   test('normalizes already processed entities', () => {
     class MyEntity extends IDEntity {}
-    expect(normalize('1', new schema.Invalidate(MyEntity))).toMatchSnapshot();
+    expect(normalize(new schema.Invalidate(MyEntity), '1')).toMatchSnapshot();
     expect(
-      normalize(['1', '2'], new schema.Array(new schema.Invalidate(MyEntity))),
+      normalize(new schema.Array(new schema.Invalidate(MyEntity)), ['1', '2']),
     ).toMatchSnapshot();
   });
 
@@ -63,7 +63,7 @@ describe(`${schema.Invalidate.name} normalization`, () => {
       }
     }
     function normalizeBad() {
-      normalize({ secondthing: 'hi' }, new schema.Invalidate(MyEntity));
+      normalize(new schema.Invalidate(MyEntity), { secondthing: 'hi' });
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
@@ -77,7 +77,7 @@ describe(`${schema.Invalidate.name} normalization`, () => {
       }
     }
     function normalizeBad() {
-      normalize({ secondthing: 'hi' }, new schema.Invalidate(MyEntity));
+      normalize(new schema.Invalidate(MyEntity), { secondthing: 'hi' });
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });

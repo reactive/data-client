@@ -22,7 +22,7 @@ const myArray = new schema.Array(
   (input: User | Admin, parent, key) => `${input.type}s`,
 );
 
-const normalizedData = normalize(data, myArray);
+const normalizedData = normalize(myArray, data);
 
 const denormalizedData = denormalize(
   myArray,
