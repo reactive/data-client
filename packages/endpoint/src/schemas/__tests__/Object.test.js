@@ -24,12 +24,12 @@ describe(`${schema.Object.name} normalization`, () => {
     const object = new schema.Object({
       user: User,
     });
-    expect(normalize({ user: { id: '1' } }, object)).toMatchSnapshot();
+    expect(normalize(object, { user: { id: '1' } })).toMatchSnapshot();
   });
 
   test(`normalizes plain objects as shorthand for ${schema.Object.name}`, () => {
     class User extends IDEntity {}
-    expect(normalize({ user: { id: '1' } }, { user: User })).toMatchSnapshot();
+    expect(normalize({ user: User }, { user: { id: '1' } })).toMatchSnapshot();
   });
 
   test('filters out undefined and null values', () => {
@@ -42,7 +42,7 @@ describe(`${schema.Object.name} normalization`, () => {
     const oldenv = process.env.NODE_ENV;
     process.env.NODE_ENV = 'production';
     expect(
-      normalize({ foo: undefined, bar: { id: '1' } }, users),
+      normalize(users, { foo: undefined, bar: { id: '1' } }),
     ).toMatchSnapshot();
     process.env.NODE_ENV = oldenv;
   });
@@ -54,14 +54,11 @@ describe(`${schema.Object.name} normalization`, () => {
       nextPage: '',
       createdAt: Temporal.Instant.from,
     });
-    const normalized = normalize(
-      {
-        user: { id: '5' },
-        nextPage: 'blob',
-        createdAt: '2020-06-07T02:00:15.000Z',
-      },
-      WithOptional,
-    );
+    const normalized = normalize(WithOptional, {
+      user: { id: '5' },
+      nextPage: 'blob',
+      createdAt: '2020-06-07T02:00:15.000Z',
+    });
     expect(normalized.result.createdAt).toBe(normalized.result.createdAt);
     expect(typeof normalized.result.createdAt).toBe('string');
     expect(normalized).toMatchSnapshot();
@@ -74,13 +71,10 @@ describe(`${schema.Object.name} normalization`, () => {
       nextPage: '',
       createdAt: Temporal.Instant.from,
     });
-    const normalized = normalize(
-      {
-        user: { id: '5' },
-        nextPage: 'blob',
-      },
-      WithOptional,
-    );
+    const normalized = normalize(WithOptional, {
+      user: { id: '5' },
+      nextPage: 'blob',
+    });
     expect(normalized.result.createdAt).toBeUndefined();
     expect(normalized).toMatchSnapshot();
   });

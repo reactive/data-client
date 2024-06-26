@@ -22,7 +22,7 @@ describe.each([[]])(`${schema.All.name} normalization (%s)`, () => {
     class User extends IDEntity {}
     const sch = new schema.All(User);
     function normalizeBad() {
-      normalize('abc', sch);
+      normalize(sch, 'abc');
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
@@ -31,17 +31,17 @@ describe.each([[]])(`${schema.All.name} normalization (%s)`, () => {
     class User extends IDEntity {}
     const sch = new schema.All(User);
     function normalizeBad() {
-      normalize('[{"id":5}]', sch);
+      normalize(sch, '[{"id":5}]');
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
 
   test('normalizes Objects using their values', () => {
     class User extends IDEntity {}
-    const { result, entities } = normalize(
-      { foo: { id: '1' }, bar: { id: '2' } },
-      new schema.All(User),
-    );
+    const { result, entities } = normalize(new schema.All(User), {
+      foo: { id: '1' },
+      bar: { id: '2' },
+    });
     expect(result).toBeUndefined();
     expect(entities).toMatchSnapshot();
   });
@@ -51,7 +51,7 @@ describe.each([[]])(`${schema.All.name} normalization (%s)`, () => {
     test('normalizes a single entity', () => {
       const listSchema = new schema.All(Cats);
       expect(
-        normalize([{ id: '1' }, { id: '2' }], listSchema).entities,
+        normalize(listSchema, [{ id: '1' }, { id: '2' }]).entities,
       ).toMatchSnapshot();
     });
 
@@ -66,15 +66,12 @@ describe.each([[]])(`${schema.All.name} normalization (%s)`, () => {
         inferSchemaFn,
       );
 
-      const { result, entities } = normalize(
-        [
-          { type: 'Cat', id: '123' },
-          { type: 'people', id: '123' },
-          { id: '789', name: 'fido' },
-          { type: 'Cat', id: '456' },
-        ],
-        listSchema,
-      );
+      const { result, entities } = normalize(listSchema, [
+        { type: 'Cat', id: '123' },
+        { type: 'people', id: '123' },
+        { id: '789', name: 'fido' },
+        { type: 'Cat', id: '456' },
+      ]);
       expect(result).toBeUndefined();
       expect(entities).toMatchSnapshot();
       expect(inferSchemaFn.mock.calls).toMatchSnapshot();
@@ -84,7 +81,7 @@ describe.each([[]])(`${schema.All.name} normalization (%s)`, () => {
       class User extends IDEntity {}
       const users = new schema.All(User);
       expect(
-        normalize({ foo: { id: '1' }, bar: { id: '2' } }, users).entities,
+        normalize(users, { foo: { id: '1' }, bar: { id: '2' } }).entities,
       ).toMatchSnapshot();
     });
 
@@ -92,7 +89,7 @@ describe.each([[]])(`${schema.All.name} normalization (%s)`, () => {
       class User extends IDEntity {}
       const users = new schema.All(User);
       expect(
-        normalize([undefined, { id: '123' }, null], users).entities,
+        normalize(users, [undefined, { id: '123' }, null]).entities,
       ).toMatchSnapshot();
     });
   });

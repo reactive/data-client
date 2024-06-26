@@ -22,13 +22,10 @@ export function setReducer(
   }
   try {
     const { entities, indexes, entityMeta } = normalize(
-      value,
       action.schema,
-      action.meta.args as any,
-      state.entities,
-      state.indexes,
-      state.entityMeta,
+      value,
       action.meta,
+      state,
     );
     return {
       entities,

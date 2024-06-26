@@ -196,7 +196,7 @@ describe('useFetch', () => {
       useFetch(CoolerArticleResource.get, { id: payload.id });
       return <Text testID="stuff">stuff</Text>;
     }
-    const { entities, result } = normalize(payload, CoolerArticle);
+    const { entities, result } = normalize(CoolerArticle, payload);
     const fetchKey = CoolerArticleResource.get.key({ id: payload.id });
     const state = {
       ...initialState,

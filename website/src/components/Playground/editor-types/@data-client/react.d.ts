@@ -227,7 +227,7 @@ type Serializable<T extends {
 }> = (value: any) => T;
 interface SchemaSimple<T = any, Args extends any[] = any[]> {
     normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, addEntity: (...args: any) => any, getEntity: (...args: any) => any, checkLoop: (...args: any) => any): any;
-    denormalize(input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any): T;
+    denormalize(input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any): T;
     queryKey(args: Args, queryKey: (...args: any) => any, getEntity: GetEntity, getIndex: GetIndex): any;
 }
 interface EntityInterface<T = any> extends SchemaSimple {

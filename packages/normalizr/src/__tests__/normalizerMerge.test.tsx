@@ -8,22 +8,17 @@ describe('normalizer() merging', () => {
   describe('with instance.constructor.merge()', () => {
     it('should merge two Resource instances', () => {
       const id = 20;
-      const { entities: first, entityMeta: firstEM } = normalize(
-        {
-          id,
-          title: 'hi',
-          content: 'this is the content',
-        },
-        Article,
-      );
+      const { entities: first, entityMeta: firstEM } = normalize(Article, {
+        id,
+        title: 'hi',
+        content: 'this is the content',
+      });
 
       const { result, entities } = normalize(
-        { id, title: 'hello' },
         Article,
-        [],
-        first,
+        { id, title: 'hello' },
         {},
-        firstEM,
+        { entities: first, entityMeta: firstEM, indexes: {} },
       );
 
       const merged = denormalize(Article, result, entities);
@@ -55,10 +50,10 @@ describe('normalizer() merging', () => {
       };
 
       const { entities } = normalize(
-        { id, title: 'hi', content: 'this is the content' },
         Article,
-        [],
-        entitiesA,
+        { id, title: 'hi', content: 'this is the content' },
+        {},
+        { entities: entitiesA, indexes: {}, entityMeta: {} },
       );
 
       expect(entities[Article.key][42]).toBe(entitiesA[Article.key][42]);
@@ -68,22 +63,17 @@ describe('normalizer() merging', () => {
   describe('basics', function () {
     it('should assign `null` values', () => {
       const id = 20;
-      const { entities: first, entityMeta: firstEM } = normalize(
-        {
-          id,
-          title: 'hi',
-          content: 'this is the content',
-        },
-        Article,
-      );
+      const { entities: first, entityMeta: firstEM } = normalize(Article, {
+        id,
+        title: 'hi',
+        content: 'this is the content',
+      });
 
       const { result, entities } = normalize(
-        { id, title: null },
         Article,
-        [],
-        first,
+        { id, title: null },
         {},
-        firstEM,
+        { entities: first, entityMeta: firstEM, indexes: {} },
       );
 
       const merged = denormalize(Article, result, entities);
@@ -99,16 +89,18 @@ describe('normalizer() merging', () => {
 
     it('should not augment source objects', () => {
       const id = 20;
-      const { entities: first } = normalize(
-        {
-          id,
-          title: 'hi',
-          content: 'this is the content',
-        },
-        Article,
-      );
+      const { entities: first } = normalize(Article, {
+        id,
+        title: 'hi',
+        content: 'this is the content',
+      });
 
-      normalize({ id, title: 'hello' }, Article, [], first);
+      normalize(
+        Article,
+        { id, title: 'hello' },
+        {},
+        { entities: first, indexes: {}, entityMeta: {} },
+      );
 
       const merged = denormalize(Article, id, first);
       expect(merged).toBeInstanceOf(Article);
@@ -123,13 +115,19 @@ describe('normalizer() merging', () => {
 
     it('should still clone even when overwriting', () => {
       const id = 20;
-      const { entities: first } = normalize(
-        { id },
-        new schema.Invalidate(Article),
-      );
+      const { entities: first } = normalize(new schema.Invalidate(Article), {
+        id,
+      });
 
       const nested = { id, title: 'hello' };
-      const { entities } = normalize(nested, Article, [], first);
+      const { entities } = normalize(
+        Article,
+        nested,
+        {
+          args: [],
+        },
+        { entities: first, indexes: {}, entityMeta: {} },
+      );
 
       expect(entities).toMatchInlineSnapshot(`
         {

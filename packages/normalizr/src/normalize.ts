@@ -17,8 +17,8 @@ const getVisit = (
     id: string,
   ) => void,
   getEntity: GetEntity,
-  checkLoop: (entityKey: string, pk: string, input: object) => boolean,
 ) => {
+  const checkLoop = getCheckLoop();
   const visit = (
     schema: any,
     value: any,
@@ -187,6 +187,50 @@ function expectedSchemaType(schema: Schema) {
     );
 }
 
+function getCheckLoop() {
+  const visitedEntities = {};
+  /* Returns true if a circular reference is found */
+  return function checkLoop(entityKey: string, pk: string, input: object) {
+    if (!(entityKey in visitedEntities)) {
+      visitedEntities[entityKey] = {};
+    }
+    if (!(pk in visitedEntities[entityKey])) {
+      visitedEntities[entityKey][pk] = [];
+    }
+    if (
+      visitedEntities[entityKey][pk].some((entity: any) => entity === input)
+    ) {
+      return true;
+    }
+    visitedEntities[entityKey][pk].push(input);
+    return false;
+  };
+}
+
+interface StoreData<E> {
+  entities: Readonly<E>;
+  indexes: Readonly<NormalizedIndex>;
+  entityMeta: {
+    readonly [entityKey: string]: {
+      readonly [pk: string]: {
+        readonly date: number;
+        readonly expiresAt: number;
+        readonly fetchedAt: number;
+      };
+    };
+  };
+}
+const emptyStore: StoreData<any> = {
+  entities: {},
+  indexes: {},
+  entityMeta: {},
+};
+interface NormalizeMeta {
+  expiresAt?: number;
+  date?: number;
+  fetchedAt?: number;
+  args?: readonly any[];
+}
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const normalize = <
   S extends Schema = Schema,
@@ -196,33 +240,23 @@ export const normalize = <
   >,
   R = NormalizeNullable<S>,
 >(
+  schema: S | undefined,
   input: any,
-  schema?: S,
-  args: any[] = [],
-  storeEntities: Readonly<E> = {} as any,
-  storeIndexes: Readonly<NormalizedIndex> = {},
-  storeEntityMeta: {
-    readonly [entityKey: string]: {
-      readonly [pk: string]: {
-        readonly date: number;
-        readonly expiresAt: number;
-        readonly fetchedAt: number;
-      };
-    };
-  } = {},
-  meta: { expiresAt: number; date: number; fetchedAt: number } = {
-    date: Date.now(),
-    expiresAt: Infinity,
-    fetchedAt: 0,
-  },
+  {
+    date = Date.now(),
+    expiresAt = Infinity,
+    fetchedAt = 0,
+    args = [],
+  }: NormalizeMeta = {},
+  store: StoreData<E> = emptyStore,
 ): NormalizedSchema<E, R> => {
   // no schema means we don't process at all
   if (schema === undefined || schema === null)
     return {
-      entities: storeEntities,
-      indexes: storeIndexes,
+      entities: store.entities,
+      indexes: store.indexes,
       result: input,
-      entityMeta: storeEntityMeta,
+      entityMeta: store.entityMeta,
     };
 
   const schemaType = expectedSchemaType(schema);
@@ -275,35 +309,24 @@ See https://dataclient.io/rest/api/RestEndpoint#parseResponse for more informati
 
   const newEntities: E = {} as any;
   const newIndexes: NormalizedIndex = {} as any;
-  const entities: E = { ...storeEntities } as any;
-  const indexes: NormalizedIndex = { ...storeIndexes };
-  const entityMeta: any = { ...storeEntityMeta };
+  const entities: E = { ...store.entities } as any;
+  const indexes: NormalizedIndex = { ...store.indexes };
+  const entityMeta: any = { ...store.entityMeta };
   const addEntity = addEntities(
     newEntities,
     newIndexes,
     entities,
     indexes,
     entityMeta,
-    { expiresAt: meta.expiresAt, date: meta.date, fetchedAt: meta.fetchedAt },
+    { expiresAt, date, fetchedAt },
   );
-  const visitedEntities = {};
-  /* Returns true if a circular reference is found */
-  function checkLoop(entityKey: string, pk: string, input: object) {
-    if (!(entityKey in visitedEntities)) {
-      visitedEntities[entityKey] = {};
-    }
-    if (!(pk in visitedEntities[entityKey])) {
-      visitedEntities[entityKey][pk] = [];
-    }
-    if (
-      visitedEntities[entityKey][pk].some((entity: any) => entity === input)
-    ) {
-      return true;
-    }
-    visitedEntities[entityKey][pk].push(input);
-    return false;
-  }
-  const visit = getVisit(addEntity, createGetEntity(storeEntities), checkLoop);
+
+  const visit = getVisit(addEntity, createGetEntity(store.entities));
   const result = visit(schema, input, input, undefined, args);
-  return { entities, indexes, result, entityMeta };
+  return {
+    result,
+    entities,
+    indexes,
+    entityMeta,
+  };
 };

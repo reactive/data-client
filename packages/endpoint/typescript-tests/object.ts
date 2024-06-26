@@ -11,7 +11,7 @@ class User extends IDEntity {}
 const responseSchema = new schema.Object({
   users: new schema.Array(User),
 });
-const normalizedData = normalize(data, responseSchema);
+const normalizedData = normalize(responseSchema, data);
 
 const responseSchemaAlt = { users: new schema.Array(User) };
-const normalizedDataAlt = normalize(data, responseSchemaAlt);
+const normalizedDataAlt = normalize(responseSchemaAlt, data);

@@ -18,8 +18,8 @@ import {
 } from './schemas.js';
 import userData from './user.json' with { type: 'json' };
 
-const { result, entities } = normalize(data, ProjectSchema);
-const queryState = normalize(data, ProjectQuery);
+const { result, entities } = normalize(ProjectSchema, data);
+const queryState = normalize(ProjectQuery, data);
 const queryMemo = new MemoCache();
 queryState.result = queryMemo.buildQueryKey(
   '',
@@ -36,19 +36,20 @@ const queryInfer = queryMemo.buildQueryKey(
   queryState.indexes,
 );
 
-let githubState = normalize(userData, User);
+let githubState = normalize(User, userData);
 
 const actionMeta = {
   fetchedAt: Date.now(),
   date: Date.now(),
   expiresAt: Date.now() + 10000000,
+  args: [],
 };
 
 export default function addNormlizrSuite(suite) {
   const memo = new MemoCache();
   // prime the cache
-  memo.denormalize(result, ProjectSchema, entities, []);
-  memo.denormalize(queryState.result, ProjectQuery, queryState.entities, []);
+  memo.denormalize(ProjectSchema, result, entities, []);
+  memo.denormalize(ProjectQuery, queryState.result, queryState.entities, []);
   %OptimizeFunctionOnNextCall(memo.denormalize);
   %OptimizeFunctionOnNextCall(denormalize);
   %OptimizeFunctionOnNextCall(normalize);
@@ -57,13 +58,10 @@ export default function addNormlizrSuite(suite) {
   return suite
     .add('normalizeLong', () => {
       normalize(
-        data,
         ProjectSchema,
-        [],
-        curState.entities,
-        curState.indexes,
-        curState.entityMeta,
+        data,
         actionMeta,
+        curState,
       );
       curState = { ...initialState, entities: {}, endpoints: {} };
     })
@@ -77,52 +75,52 @@ export default function addNormlizrSuite(suite) {
       );
     })
     .add('denormalizeLong', () => {
-      return new MemoCache().denormalize(result, ProjectSchema, entities);
+      return new MemoCache().denormalize(ProjectSchema, result, entities);
     })
     .add('denormalizeLong donotcache', () => {
-      return denormalize(result, ProjectSchema, entities);
+      return denormalize(ProjectSchema, result, entities);
     })
     .add('denormalizeShort donotcache 500x', () => {
       for (let i = 0; i < 500; ++i) {
-        denormalize('gnoff', User, githubState.entities);
+        denormalize(User, 'gnoff', githubState.entities);
       }
     })
     .add('denormalizeShort 500x', () => {
       for (let i = 0; i < 500; ++i) {
-        new MemoCache().denormalize('gnoff', User, githubState.entities);
+        new MemoCache().denormalize(User, 'gnoff', githubState.entities);
       }
     })
     .add('denormalizeShort 500x withCache', () => {
       for (let i = 0; i < 500; ++i) {
-        memo.denormalize('gnoff', User, githubState.entities, []);
+        memo.denormalize(User, 'gnoff', githubState.entities, []);
       }
     })
     .add('denormalizeLong with mixin Entity', () => {
-      return new MemoCache().denormalize(result, ProjectSchemaMixin, entities);
+      return new MemoCache().denormalize(ProjectSchemaMixin, result, entities);
     })
     .add('denormalizeLong withCache', () => {
-      return memo.denormalize(result, ProjectSchema, entities, []);
+      return memo.denormalize(ProjectSchema, result, entities, []);
     })
     .add('denormalizeLong All withCache', () => {
       return memo.denormalize(
-        queryState.result,
         ProjectQuery,
+        queryState.result,
         queryState.entities,
         [],
       );
     })
     .add('denormalizeLong Query-sorted withCache', () => {
       return memo.denormalize(
-        queryInfer,
         ProjectQuerySorted,
+        queryInfer,
         queryState.entities,
         [],
       );
     })
     .add('denormalizeLongAndShort withEntityCacheOnly', () => {
       memo.endpoints = new WeakDependencyMap();
-      memo.denormalize(result, ProjectSchema, entities);
-      memo.denormalize('gnoff', User, githubState.entities);
+      memo.denormalize(ProjectSchema, result, entities);
+      memo.denormalize(User, 'gnoff', githubState.entities);
     })
     .on('complete', function () {
       if (process.env.SHOW_OPTIMIZATION) {

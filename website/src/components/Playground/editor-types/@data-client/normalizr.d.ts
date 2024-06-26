@@ -11,7 +11,7 @@ type Serializable<T extends {
 }> = (value: any) => T;
 interface SchemaSimple<T = any, Args extends any[] = any[]> {
     normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, addEntity: (...args: any) => any, getEntity: (...args: any) => any, checkLoop: (...args: any) => any): any;
-    denormalize(input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any): T;
+    denormalize(input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any): T;
     queryKey(args: Args, queryKey: (...args: any) => any, getEntity: GetEntity, getIndex: GetIndex): any;
 }
 interface SchemaClass<T = any, N = T | undefined, Args extends any[] = any[]> extends SchemaSimple<T, Args> {
@@ -136,7 +136,7 @@ type SchemaArgs<S extends Queryable> = S extends EntityInterface<infer U> ? [Ent
     queryKey(args: infer Args, queryKey: (...args: any) => any, getEntity: any, getIndex: any): any;
 }) ? Args : never;
 
-declare function denormalize<S extends Schema>(input: any, schema: S | undefined, entities: any, args?: readonly any[]): DenormalizeNullable<S> | symbol;
+declare function denormalize<S extends Schema>(schema: S | undefined, input: any, entities: any, args?: readonly any[]): DenormalizeNullable<S> | symbol;
 
 declare function isEntity(schema: Schema): schema is EntityInterface;
 
@@ -159,19 +159,26 @@ interface Dep<Path, K = object> {
     entity: K;
 }
 
-declare const normalize: <S extends Schema = Schema, E extends Record<string, Record<string, any> | undefined> = Record<string, Record<string, any>>, R = NormalizeNullable<S>>(input: any, schema?: S, args?: any[], storeEntities?: Readonly<E>, storeIndexes?: Readonly<NormalizedIndex>, storeEntityMeta?: {
-    readonly [entityKey: string]: {
-        readonly [pk: string]: {
-            readonly date: number;
-            readonly expiresAt: number;
-            readonly fetchedAt: number;
+interface StoreData<E> {
+    entities?: Readonly<E>;
+    indexes?: Readonly<NormalizedIndex>;
+    entityMeta?: {
+        readonly [entityKey: string]: {
+            readonly [pk: string]: {
+                readonly date: number;
+                readonly expiresAt: number;
+                readonly fetchedAt: number;
+            };
         };
     };
-}, meta?: {
-    expiresAt: number;
-    date: number;
-    fetchedAt: number;
-}) => NormalizedSchema<E, R>;
+}
+interface NormalizeMeta {
+    expiresAt?: number;
+    date?: number;
+    fetchedAt?: number;
+    args?: readonly any[];
+}
+declare const normalize: <S extends Schema = Schema, E extends Record<string, Record<string, any> | undefined> = Record<string, Record<string, any>>, R = NormalizeNullable<S>>(schema: S | undefined, input: any, { date, expiresAt, fetchedAt, args, }?: NormalizeMeta, { entities, indexes, entityMeta }?: StoreData<E>) => NormalizedSchema<E, R>;
 
 interface EntityCache {
     [key: string]: {
@@ -189,7 +196,7 @@ declare class MemoCache {
     /** Caches the queryKey based on schema, args, and any used entities or indexes */
     protected queryKeys: Record<string, WeakDependencyMap<QueryPath>>;
     /** Compute denormalized form maintaining referential equality for same inputs */
-    denormalize<S extends Schema>(input: unknown, schema: S | undefined, entities: any, args?: readonly any[]): {
+    denormalize<S extends Schema>(schema: S | undefined, input: unknown, entities: any, args?: readonly any[]): {
         data: DenormalizeNullable<S> | symbol;
         paths: EntityPath[];
     };
