@@ -626,7 +626,6 @@ describe('MemoCache', () => {
       });
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema,
           [{ id: 5 }],
           {
@@ -647,7 +646,6 @@ describe('MemoCache', () => {
       });
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema,
           [5],
           {
@@ -668,7 +666,6 @@ describe('MemoCache', () => {
       });
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema,
           ['5'],
           {
@@ -687,7 +684,6 @@ describe('MemoCache', () => {
       };
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema,
           [{ id: 5 }],
           {
@@ -704,7 +700,6 @@ describe('MemoCache', () => {
       };
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema2,
           [{ id: 5 }],
           {
@@ -723,7 +718,6 @@ describe('MemoCache', () => {
       };
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema,
           [{ id: 5 }],
           {
@@ -740,7 +734,6 @@ describe('MemoCache', () => {
       const schema = UnionResource.get.schema;
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema,
           [{ id: 5 }],
           {
@@ -757,7 +750,6 @@ describe('MemoCache', () => {
       const schema = UnionResource.get.schema;
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema,
           [{ id: 5, type: 'first' }],
           {
@@ -782,7 +774,6 @@ describe('MemoCache', () => {
       };
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema,
           [{ id: 5 }],
           {
@@ -805,7 +796,6 @@ describe('MemoCache', () => {
       };
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema,
           [{ username: 'bob' }],
           {
@@ -827,7 +817,6 @@ describe('MemoCache', () => {
       });
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema,
           [{ username: 'bob', mary: 'five' }],
           {
@@ -856,7 +845,6 @@ describe('MemoCache', () => {
       };
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema,
           [{ username: 'bob' }],
           {
@@ -878,7 +866,6 @@ describe('MemoCache', () => {
       });
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema,
           [{ hover: 'bob' }],
           {
@@ -907,7 +894,6 @@ describe('MemoCache', () => {
       };
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema,
           [{ username: 'bob' }],
           {
@@ -921,7 +907,6 @@ describe('MemoCache', () => {
       });
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema,
           [{ hover: 'bob' }],
           {
@@ -964,7 +949,6 @@ describe('MemoCache', () => {
         });
         expect(
           new MemoCache().buildQueryKey(
-            '',
             schema,
             ['5'],
             {
@@ -984,12 +968,11 @@ describe('MemoCache', () => {
           }),
         });
         const memo = new MemoCache();
-        expect(memo.buildQueryKey('', schema, ['5'], {}, {})).toEqual({
+        expect(memo.buildQueryKey(schema, ['5'], {}, {})).toEqual({
           data: { article: undefined },
         });
         expect(
           memo.buildQueryKey(
-            '',
             schema,
             ['5'],
             { [MyEntity.key]: { '5': { id: '5', title: 'hi' } } },
@@ -1012,7 +995,6 @@ describe('MemoCache', () => {
           indexes: {},
         };
         const first = memo.buildQueryKey(
-          '',
           schema,
           ['5'],
           state.entities,
@@ -1020,25 +1002,18 @@ describe('MemoCache', () => {
         );
         it('should maintain referential equality', () => {
           expect(
-            memo.buildQueryKey(
-              '',
-              schema,
-              ['5'],
-              state.entities,
-              state.indexes,
-            ),
+            memo.buildQueryKey(schema, ['5'], state.entities, state.indexes),
           ).toBe(first);
         });
         it('should not change on index update if not used', () => {
           expect(
-            memo.buildQueryKey('', schema, ['5'], state.entities, {
+            memo.buildQueryKey(schema, ['5'], state.entities, {
               [MyEntity.key]: {},
             }),
           ).toBe(first);
         });
         it('should be new when entity is updated', () => {
           const withEntity = memo.buildQueryKey(
-            '',
             schema,
             ['5'],
             { [MyEntity.key]: { '5': { id: '5', title: 'hi' } } },
@@ -1049,7 +1024,6 @@ describe('MemoCache', () => {
         });
         it('should be the same if other entities are updated', () => {
           const withEntity = memo.buildQueryKey(
-            '',
             schema,
             ['5'],
             {
@@ -1062,7 +1036,6 @@ describe('MemoCache', () => {
         });
         it('should be the same if other entities of the same type are updated', () => {
           const withEntity = memo.buildQueryKey(
-            '',
             schema,
             ['5'],
             {
@@ -1108,7 +1081,6 @@ describe('MemoCache', () => {
 
     test('works with indexes', () => {
       const m = new MemoCache().query(
-        '',
         Cat,
         [{ username: 'm' }],
         createInput(entities),
@@ -1118,7 +1090,6 @@ describe('MemoCache', () => {
       expect(m).toMatchSnapshot();
       expect(
         new MemoCache().query(
-          '',
           Cat,
           [{ username: 'doesnotexist' }],
           createInput(entities),
@@ -1129,7 +1100,6 @@ describe('MemoCache', () => {
 
     test('works with pk', () => {
       const m = new MemoCache().query(
-        '',
         Cat,
         [{ id: '1' }],
         createInput(entities),
@@ -1139,7 +1109,6 @@ describe('MemoCache', () => {
       expect(m).toMatchSnapshot();
       expect(
         new MemoCache().query(
-          '',
           Cat,
           [{ id: 'doesnotexist' }],
           createInput(entities),

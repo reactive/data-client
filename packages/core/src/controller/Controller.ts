@@ -430,11 +430,11 @@ export default class Controller<
       shouldQuery ?
         // nothing in endpoints cache, so try querying if we have a schema to do so
         this.memo.buildQueryKey(
-          key,
           schema,
           args,
           state.entities as any,
           state.indexes,
+          key,
         )
       : cacheEndpoints;
 
@@ -500,16 +500,7 @@ export default class Controller<
       .slice(0, rest.length - 1)
       .map(ensurePojo) as SchemaArgs<S>;
 
-    // NOTE: different orders can result in cache busting here; but since it's just a perf penalty we will allow for now
-    const key = JSON.stringify(args);
-
-    return this.memo.query(
-      key,
-      schema,
-      args,
-      state.entities as any,
-      state.indexes,
-    );
+    return this.memo.query(schema, args, state.entities as any, state.indexes);
   }
 
   private getSchemaResponse<T>(

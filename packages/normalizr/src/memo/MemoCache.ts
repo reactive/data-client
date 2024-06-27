@@ -55,7 +55,6 @@ export default class MemoCache {
 
   /** Compute denormalized form maintaining referential equality for same inputs */
   query<S extends Schema>(
-    argsKey: string,
     schema: S,
     args: any[],
     entities:
@@ -68,8 +67,10 @@ export default class MemoCache {
       | {
           getIn(k: string[]): any;
         },
+    // NOTE: different orders can result in cache busting here; but since it's just a perf penalty we will allow for now
+    argsKey: string = JSON.stringify(args),
   ): DenormalizeNullable<S> | undefined {
-    const input = this.buildQueryKey(argsKey, schema, args, entities, indexes);
+    const input = this.buildQueryKey(schema, args, entities, indexes, argsKey);
 
     if (!input) {
       return;
@@ -80,7 +81,6 @@ export default class MemoCache {
   }
 
   buildQueryKey<S extends Schema>(
-    argsKey: string,
     schema: S,
     args: any[],
     entities:
@@ -93,6 +93,8 @@ export default class MemoCache {
       | {
           getIn(k: string[]): any;
         },
+    // NOTE: different orders can result in cache busting here; but since it's just a perf penalty we will allow for now
+    argsKey: string = JSON.stringify(args),
   ): NormalizeNullable<S> {
     // This is redundant for buildQueryKey checks, but that was is used for recursion so we still need the checks there
     // TODO: If we make each recursive call include cache lookups, we combine these checks together

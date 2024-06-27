@@ -216,15 +216,15 @@ const memo = new MemoCache();
 
 const { data, paths } = memo.denormalize(schema, input, state.entities, args);
 
-const data = memo.query(schema, key, args, state.entities, state.indexes);
+const data = memo.query(schema, args, state.entities, state.indexes);
 
-function query(schema, key, args, state) {
+function query(schema, args, state, key) {
   const queryKey = memo.buildQueryKey(
-    key,
     schema,
     args,
     state.entities,
     state.indexes,
+    key,
   );
   const { data } = this.denormalize(schema, queryKey, state.entities, args);
   return typeof data === 'symbol' ? undefined : (data as any);

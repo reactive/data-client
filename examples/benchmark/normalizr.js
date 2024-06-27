@@ -22,14 +22,12 @@ const { result, entities } = normalize(ProjectSchema, data);
 const queryState = normalize(ProjectQuery, data);
 const queryMemo = new MemoCache();
 queryState.result = queryMemo.buildQueryKey(
-  '',
   ProjectQuery,
   [],
   queryState.entities,
   queryState.indexes,
 );
 const queryInfer = queryMemo.buildQueryKey(
-  '',
   ProjectQuerySorted,
   [],
   queryState.entities,
@@ -57,17 +55,11 @@ export default function addNormlizrSuite(suite) {
   let curState = initialState;
   return suite
     .add('normalizeLong', () => {
-      normalize(
-        ProjectSchema,
-        data,
-        actionMeta,
-        curState,
-      );
+      normalize(ProjectSchema, data, actionMeta, curState);
       curState = { ...initialState, entities: {}, endpoints: {} };
     })
     .add('infer All', () => {
       return new MemoCache().buildQueryKey(
-        '',
         ProjectQuery,
         [],
         queryState.entities,

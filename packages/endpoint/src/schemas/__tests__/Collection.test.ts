@@ -523,7 +523,6 @@ describe(`${schema.Collection.name} denormalization`, () => {
   it('should buildQueryKey with matching args', () => {
     const memo = new MemoCache();
     const queryKey = memo.buildQueryKey(
-      '',
       userTodos,
       [{ userId: '1' }],
       normalizeNested.entities,
@@ -548,7 +547,6 @@ describe(`${schema.Collection.name} denormalization`, () => {
   it('should buildQueryKey undefined when not in cache', () => {
     const memo = new MemoCache();
     const queryKey = memo.buildQueryKey(
-      '',
       userTodos,
       [{ userId: '100' }],
       normalizeNested.entities,
@@ -560,7 +558,6 @@ describe(`${schema.Collection.name} denormalization`, () => {
   it('should buildQueryKey undefined with nested Collection', () => {
     const memo = new MemoCache();
     const queryKey = memo.buildQueryKey(
-      '',
       User.schema.todos,
       [{ userId: '1' }],
       normalizeNested.entities,

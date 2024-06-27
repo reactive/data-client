@@ -115,7 +115,7 @@ describe.each([
       };
       const sch = new schema.All(Cat);
       expect(
-        new MemoCache().query('', sch, [], createInput(entities), {}),
+        new MemoCache().query(sch, [], createInput(entities), {}),
       ).toMatchSnapshot();
     });
 
@@ -129,7 +129,7 @@ describe.each([
         },
       };
       expect(
-        new MemoCache().query('', catSchema, [], createInput(entities), {}),
+        new MemoCache().query(catSchema, [], createInput(entities), {}),
       ).toMatchSnapshot();
     });
 
@@ -143,7 +143,6 @@ describe.each([
         },
       };
       const value = new MemoCache().query(
-        '',
         catSchema,
         [],
         createInput(entities),
@@ -167,7 +166,6 @@ describe.each([
         },
       };
       const value = new MemoCache().query(
-        '',
         catSchema,
         [],
         createInput(entities) as any,
@@ -191,11 +189,11 @@ describe.each([
         },
       };
       const memo = new MemoCache();
-      const value = memo.query('', catSchema, [], entities, {});
+      const value = memo.query(catSchema, [], entities, {});
 
       expect(createOutput(value).results?.length).toBe(2);
       expect(createOutput(value).results).toMatchSnapshot();
-      const value2 = memo.query('', catSchema, [], entities, {});
+      const value2 = memo.query(catSchema, [], entities, {});
       expect(createOutput(value).results[0]).toBe(
         createOutput(value2).results[0],
       );
@@ -208,7 +206,7 @@ describe.each([
           3: { id: '3', name: 'Jelico' },
         },
       };
-      const value3 = memo.query('', catSchema, [], entities, {});
+      const value3 = memo.query(catSchema, [], entities, {});
       expect(createOutput(value3).results?.length).toBe(3);
       expect(createOutput(value3).results).toMatchSnapshot();
       expect(createOutput(value).results[0]).toBe(
@@ -231,7 +229,6 @@ describe.each([
       };
 
       const value = new MemoCache().query(
-        '',
         catSchema,
         [],
         createInput(entities),
@@ -267,7 +264,6 @@ describe.each([
         },
       };
       const value = new MemoCache().query(
-        '',
         listSchema,
         [],
         createInput(entities),
@@ -331,7 +327,6 @@ describe.each([
         },
       };
       const value = new MemoCache().query(
-        '',
         listSchema,
         [],
         createInput(entities) as any,
