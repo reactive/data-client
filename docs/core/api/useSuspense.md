@@ -1,9 +1,10 @@
 ---
-title: useSuspense()
+title: useSuspense() - Simplified data fetching for React
+sidebar_label: useSuspense()
+description: High performance async data rendering without overfetching. useSuspense() is like await for React components.
 ---
 
 <head>
-  <title>useSuspense() - Simplified data fetching for React</title>
   <meta name="docsearch:pagerank" content="10"/>
 </head>
 
@@ -16,6 +17,8 @@ import { RestEndpoint } from '@data-client/rest';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import StackBlitz from '@site/src/components/StackBlitz';
 import { detailFixtures, listFixtures } from '@site/src/fixtures/profiles';
+
+# useSuspense()
 
 <p class="tagline">
 High performance async data rendering without overfetching.

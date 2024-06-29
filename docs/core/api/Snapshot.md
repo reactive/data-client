@@ -1,10 +1,9 @@
 ---
-title: Snapshot
+title: Snapshot - Safe data access with zero race conditions
+sidebar_label: Snapshot
 ---
 
-<head>
-  <title>Snapshot - Safe data access with zero race conditions</title>
-</head>
+# Snapshot
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';

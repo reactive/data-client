@@ -1,14 +1,16 @@
 ---
 title: Mocking data for Storybook
+sidebar_label: Mocking data for Storybook
 ---
 
 <head>
-  <title>Mocking data for Storybook</title>
   <meta name="docsearch:pagerank" content="10"/>
 </head>
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+
+# Mocking data for Storybook
 
 [Storybook](https://storybook.js.org/) is a great utility to do isolated development and
 testing, potentially speeding up development time greatly.

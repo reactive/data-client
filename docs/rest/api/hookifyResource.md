@@ -1,15 +1,17 @@
 ---
-title: hookifyResource
+title: hookifyResource() - Collection of CRUD hook Endpoints
+sidebar_label: hookifyResource
 ---
 
 <head>
-  <title>hookifyResource() - Collection of CRUD hook Endpoints</title>
   <meta name="docsearch:pagerank" content="20"/>
 </head>
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
+
+# hookfiyResource
 
 `hookifyResource()` Turns any [Resource](./createResource.md) (collection of [RestEndpoints](./RestEndpoint.md)) into a collection
 of hooks that return [RestEndpoints](./RestEndpoint.md).

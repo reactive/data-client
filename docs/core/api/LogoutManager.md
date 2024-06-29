@@ -1,5 +1,5 @@
 ---
-title: 'LogoutManager'
+title: LogoutManager - Handling 401s and other deauthorization triggers
 sidebar_label: LogoutManager
 ---
 
@@ -7,9 +7,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import StackBlitz from '@site/src/components/StackBlitz';
 
-<head>
-  <title>LogoutManager - Handling 401s and other deauthorization triggers</title>
-</head>
+# LogoutManager
 
 Logs out based on fetch responses. By default this is triggered by [401 (Unauthorized)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401) status responses.
 

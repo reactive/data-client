@@ -1,9 +1,9 @@
 ---
-title: schema.Entity
+title: schema.Entity - Entity mixin
+sidebar_label: schema.Entity
 ---
 
 <head>
-  <title>schema.Entity - Entity mixin</title>
   <meta name="docsearch:pagerank" content="10"/>
 </head>
 
@@ -11,6 +11,8 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import { RestEndpoint } from '@data-client/rest';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
+
+# schema.Entity
 
 `Entity` defines a single _unique_ object.
 

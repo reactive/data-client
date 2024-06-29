@@ -1,6 +1,7 @@
 ---
-title: The Reactive Data Client
+title: Introducing the Reactive Data Client
 sidebar_label: Introduction
+description: Building delightful dynamic applications with NextJS, Expo, React Native and more.
 slug: /
 ---
 
@@ -14,10 +15,10 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 import Link from '@docusaurus/Link';
 
 <head>
-  <title>Introducing the Reactive Data Client</title>
   <meta name="docsearch:pagerank" content="10"/>
 </head>
 
+# The Reactive Data Client
 
 Reactive Data Client provides safe and performant [client access](./api/useSuspense.md) and [mutation](./api/Controller.md#fetch) over [remote data protocols](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/).
 Both pull/fetch ([REST](/rest) and [GraphQL](/graphql)) and push/stream ([WebSockets or Server Sent Events](./api/Manager.md#data-stream)) can be used simultaneously.

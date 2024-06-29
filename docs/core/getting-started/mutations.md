@@ -1,6 +1,7 @@
 ---
-title: Data mutations
+title: Mutating Asynchronous Data in React
 sidebar_label: Mutate Data
+description: Safe and high performance data mutations without refetching or writing state management.
 ---
 
 import ProtocolTabs from '@site/src/components/ProtocolTabs';
@@ -12,9 +13,10 @@ import UseLoading from '../shared/\_useLoading.mdx';
 import VoteDemo from '../shared/\_VoteDemo.mdx';
 
 <head>
-  <title>Mutating Asynchronous Data in React</title>
   <meta name="docsearch:pagerank" content="40"/>
 </head>
+
+# Data mutations
 
 Using our [Create, Update, and Delete](/docs/concepts/atomic-mutations) endpoints with
 [Controller.fetch()](../api/Controller.md#fetch) reactively updates _all_ appropriate components atomically (at the same time).

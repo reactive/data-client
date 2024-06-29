@@ -3,14 +3,12 @@ title: TypeScript Standard Endpoints
 sidebar_label: Custom Protocol
 ---
 
-<head>
-  <title>TypeScript Standard Endpoints</title>
-</head>
-
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import PkgTabs from '@site/src/components/PkgTabs';
+
+# TypeScript Standard Endpoints
 
 [Endpoints](/rest/api/Endpoint) describe an asynchronous [API](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/). This includes both runtime behavior as well as (optionally) typing.
 

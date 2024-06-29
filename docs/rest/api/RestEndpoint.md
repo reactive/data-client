@@ -1,10 +1,10 @@
 ---
-title: RestEndpoint
-description: Strongly typed path-based API definitions.
+title: RestEndpoint - Strongly typed path-based HTTP API definitions
+sidebar_label: RestEndpoint
+description: Strongly typed path-based extensible HTTP API definitions.
 ---
 
 <head>
-  <title>RestEndpoint - Strongly typed path-based HTTP API definitions</title>
   <meta name="docsearch:pagerank" content="30"/>
 </head>
 
@@ -14,6 +14,8 @@ import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 import Grid from '@site/src/components/Grid';
 import Link from '@docusaurus/Link';
+
+# RestEndpoint
 
 `RestEndpoints` are for [HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP) based protocols like REST.
 
@@ -160,7 +162,7 @@ export const updateTodo = getTodo.extend({ method: 'PUT' });
 
 </TypeScriptEditor>
 
-Using a [Schema](./schema.md) enables automatic data consistency without the need to hurt performance with [refetching](/docs/api/Controller#expireAll).
+Using a [Schema](./schema.md) enables [automatic data consistency](/docs/concepts/normalization) without the need to hurt performance with [refetching](/docs/api/Controller#expireAll).
 
 ### Typing
 

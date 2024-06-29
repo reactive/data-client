@@ -1,10 +1,9 @@
 ---
-title: useError()
+title: useError() - Accessing error metadata
+sidebar_label: useError()
 ---
 
-<head>
-  <title>useError() - Accessing error metadata</title>
-</head>
+# useError()
 
 ```typescript
 export interface SyntheticError extends Error {

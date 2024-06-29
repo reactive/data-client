@@ -1,10 +1,9 @@
 ---
-title: Define Resources
+title: Defining Resources for Reactive Data Client
 sidebar_label: Define Data
 ---
 
 <head>
-  <title>Defining Resources for Reactive Data Client</title>
   <meta name="docsearch:pagerank" content="40"/>
 </head>
 
@@ -16,6 +15,8 @@ import LanguageTabs from '@site/src/components/LanguageTabs';
 import ProtocolTabs from '@site/src/components/ProtocolTabs';
 import PkgInstall from '@site/src/components/PkgInstall';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
+
+# Define Resources
 
 [Resources](/rest/api/createResource) are a collection of `methods` for a given `data model`.
 

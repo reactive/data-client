@@ -1,9 +1,9 @@
 ---
-title: Controller
+title: Controller - Typesafe imperative store access
+sidebar_label: Controller
 ---
 
 <head>
-  <title>Controller - Typesafe imperative store access</title>
   <meta name="docsearch:pagerank" content="30"/>
 </head>
 
@@ -11,6 +11,8 @@ import LanguageTabs from '@site/src/components/LanguageTabs';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import StackBlitz from '@site/src/components/StackBlitz';
+
+# Controller
 
 `Controller` is a singleton providing safe access to the Reactive Data Client [flux store and lifecycle](./Manager.md#control-flow).
 `Controller` memoizes all store access, allowing a global referential equality guarantee and the fastest rendering

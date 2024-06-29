@@ -1,14 +1,13 @@
 ---
-title: schema.Object
+title: schema.Object - Declarative Object data for React
+sidebar_label: schema.Object
 ---
-
-<head>
-  <title>schema.Object - Declarative Object data for React</title>
-</head>
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import { RestEndpoint } from '@data-client/rest';
+
+# schema.Object
 
 Define a plain object mapping that has values needing to be normalized into Entities. _Note: The same behavior can be defined with shorthand syntax: `{ ... }`_
 

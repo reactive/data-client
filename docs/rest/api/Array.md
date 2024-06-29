@@ -1,16 +1,15 @@
 ---
-title: schema.Array
+title: schema.Array - Declarative list data for React
+sidebar_label: schema.Array
 ---
-
-<head>
-  <title>schema.Array - Declarative list data for React</title>
-</head>
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import { RestEndpoint } from '@data-client/rest';
+
+# schema.Array
 
 Creates a schema to normalize an array of schemas. If the input value is an [Object](./Object.md) instead of an `Array`,
 the normalized result will be an `Array` of the [Object](./Object.md)'s values.

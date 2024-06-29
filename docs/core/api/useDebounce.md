@@ -1,13 +1,13 @@
 ---
-title: useDebounce()
+title: useDebounce() - Declarative value delays for React
+sidebar_label: useDebounce()
+description: Delays updating the parameters by debouncing. Avoid excessive network requests due to quick parameter changes like typeaheads.
 ---
 
 import PkgInstall from '@site/src/components/PkgInstall';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
-<head>
-  <title>useDebounce() - Declarative value delays for React</title>
-</head>
+# useDebounce()
 
 Delays updating the parameters by [debouncing](https://css-tricks.com/debouncing-throttling-explained-examples/).
 

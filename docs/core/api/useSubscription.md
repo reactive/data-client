@@ -1,15 +1,14 @@
 ---
-title: useSubscription()
+title: useSubscription() - Updating frequent data changes in React
+sidebar_label: useSubscription()
+description: Keeps data fresh, but only when component is active. Supports polling, websockets, and SSE.
 ---
-
-<head>
-  <title>useSubscription() - Updating frequent data changes in React</title>
-</head>
 
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import StackBlitz from '@site/src/components/StackBlitz';
 
+# useSubscription()
 
 Great for keeping resources up-to-date with frequent changes.
 

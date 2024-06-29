@@ -1,13 +1,12 @@
 ---
-title: GraphQL Authentication
+title: GraphQL Authentication patterns for Reactive Data Client
 sidebar_label: Authentication
 ---
-<head>
-  <title>GraphQL Authentication patterns for Reactive Data Client</title>
-</head>
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+
+# GraphQL Authentication
 
 ## Cookie Auth
 

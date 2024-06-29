@@ -1,10 +1,9 @@
 ---
-title: Atomic Mutations ⚛
+title: '⚛ Atomic Mutations: Safe, high performance async mutations'
 sidebar_label: Atomic Mutations
 ---
 
 <head>
-  <title>⚛ Atomic Mutations: Safe, high performance async mutations</title>
   <meta name="docsearch:pagerank" content="10"/>
 </head>
 

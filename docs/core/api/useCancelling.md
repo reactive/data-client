@@ -1,14 +1,14 @@
 ---
-title: useCancelling()
+title: useCancelling() - Declarative fetch aborting for React
+sidebar_label: useCancelling()
+description: Builds an Endpoint that cancels fetch everytime parameters change. Aborts inflight request on param change.
 ---
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import PkgInstall from '@site/src/components/PkgInstall';
 import UseCancelling from '../shared/\_useCancelling.mdx';
 
-<head>
-  <title>useCancelling() - Declarative fetch aborting for React</title>
-</head>
+# useCancelling()
 
 Builds an Endpoint that cancels fetch everytime parameters change
 

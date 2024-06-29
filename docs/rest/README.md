@@ -1,12 +1,10 @@
 ---
 id: README
-title: REST Usage
+title: Using REST APIs with Reactive Data Client
 sidebar_label: Usage
+description: Writing TypeScript REST APIs quickly using path templates and Schemas.
+hide_title: true
 ---
-
-<head>
-  <title>Using REST APIs with Reactive Data Client</title>
-</head>
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import Tabs from '@theme/Tabs';
@@ -18,7 +16,7 @@ import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
 :::tip TypeScript 4
 
-When using TypeScript, version 4.0 or above is required.
+When using TypeScript (optional), version 4.0 or above is required.
 
 :::
 

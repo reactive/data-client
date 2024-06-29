@@ -1,16 +1,15 @@
 ---
-title: schema.All
+title: schema.All - Access every entity in the Reactive Data Client store
+sidebar_label: schema.All
 ---
-
-<head>
-  <title>schema.All - Access every entity in the Reactive Data Client store</title>
-</head>
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import { RestEndpoint } from '@data-client/rest';
+
+# schema.All
 
 Retrieves all entities in cache as an Array.
 

@@ -1,6 +1,8 @@
 ---
-title: Managers and Middleware
+title: Centralized side-effect orchestration with React
 sidebar_label: Managers and Middleware
+description: Safe programmatic access to the global store. Enables fully extensible and scalable side-effects.
+image: /img/flux-full.png
 ---
 
 import ThemedImage from '@theme/ThemedImage';
@@ -8,9 +10,10 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 import StackBlitz from '@site/src/components/StackBlitz';
 
 <head>
-  <title>Centralized side-effect orchestration with React</title>
   <meta name="docsearch:pagerank" content="40"/>
 </head>
+
+# Managers and Middleware
 
 Reactive Data Client uses the [flux store](https://facebookarchive.github.io/flux/docs/in-depth-overview/) pattern, which is
 characterized by an easy to [understand and debug](../guides/debugging.md) the store's [undirectional data flow](<https://en.wikipedia.org/wiki/Unidirectional_Data_Flow_(computer_science)>). State updates are performed by a [reducer function](https://github.com/reactive/data-client/blob/master/packages/core/src/state/reducer/createReducer.ts#L19).

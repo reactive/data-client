@@ -1,10 +1,9 @@
 ---
-title: '<MockResolver />'
+title: MockResolver - Data Mocking for React
+sidebar_label: <MockResolver />
 ---
 
-<head>
-  <title>MockResolver - Data Mocking for React</title>
-</head>
+# &lt;MockResolver />
 
 ```typescript
 function MockResolver<T>(props: {

@@ -1,6 +1,7 @@
 ---
-title: useDLE() - [D]ata [L]oading [E]rror
+title: useDLE() - [D]ata [L]oading [E]rror React State
 sidebar_label: useDLE()
+description: High performance async data rendering without overfetching. With fetch meta data.
 ---
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
@@ -12,9 +13,7 @@ import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import StackBlitz from '@site/src/components/StackBlitz';
 
-<head>
-  <title>useDLE() - [D]ata [L]oading [E]rror React State</title>
-</head>
+# useDLE() - [D]ata [L]oading [E]rror
 
 High performance async data rendering without overfetching. With fetch meta data.
 
