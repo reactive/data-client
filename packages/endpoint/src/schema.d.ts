@@ -20,15 +20,15 @@ import type {
   EntityMap,
 } from './normal.js';
 import { EntityFields } from './schemas/EntityFields.js';
-import {
-  EntityOptions,
+import type {
   IEntityClass,
   IEntityInstance,
+  EntityOptions,
   RequiredPKOptions,
   IDClass,
   Constructor,
   PKClass,
-} from './schemas/EntitySchema.js';
+} from './schemas/EntityTypes.js';
 import { default as Invalidate } from './schemas/Invalidate.js';
 import { default as Query } from './schemas/Query.js';
 import type {

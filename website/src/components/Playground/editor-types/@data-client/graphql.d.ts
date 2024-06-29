@@ -277,26 +277,6 @@ declare let Endpoint: EndpointConstructor;
 
 declare let ExtendableEndpoint: ExtendableEndpointConstructor;
 
-type Constructor = abstract new (...args: any[]) => {};
-type IDClass = abstract new (...args: any[]) => {
-    id: string | number | undefined;
-};
-type PKClass = abstract new (...args: any[]) => {
-    pk(parent?: any, key?: string, args?: readonly any[]): string | number | undefined;
-};
-type ValidSchemas<TInstance> = {
-    [k in keyof TInstance]?: Schema;
-};
-type EntityOptions<TInstance extends {}> = {
-    readonly schema?: ValidSchemas<TInstance>;
-    readonly pk?: ((value: TInstance, parent?: any, key?: string) => string | number | undefined) | keyof TInstance;
-    readonly key?: string;
-} & {
-    readonly [K in Extract<keyof IEntityClass, 'process' | 'merge' | 'expiresAt' | 'createIfValid' | 'mergeWithStore' | 'validate' | 'shouldReorder' | 'shouldUpdate'>]?: IEntityClass<abstract new (...args: any[]) => TInstance>[K];
-};
-interface RequiredPKOptions<TInstance extends {}> extends EntityOptions<TInstance> {
-    readonly pk: ((value: TInstance, parent?: any, key?: string) => string | number | undefined) | keyof TInstance;
-}
 interface IEntityClass<TBase extends Constructor = any> {
     toJSON(): {
         name: string;
@@ -428,6 +408,26 @@ interface IEntityInstance {
      * @param [args] ...args sent to Endpoint
      */
     pk(parent?: any, key?: string, args?: readonly any[]): string | number | undefined;
+}
+type Constructor = abstract new (...args: any[]) => {};
+type IDClass = abstract new (...args: any[]) => {
+    id: string | number | undefined;
+};
+type PKClass = abstract new (...args: any[]) => {
+    pk(parent?: any, key?: string, args?: readonly any[]): string | number | undefined;
+};
+type ValidSchemas<TInstance> = {
+    [k in keyof TInstance]?: Schema;
+};
+type EntityOptions<TInstance extends {}> = {
+    readonly schema?: ValidSchemas<TInstance>;
+    readonly pk?: ((value: TInstance, parent?: any, key?: string) => string | number | undefined) | keyof TInstance;
+    readonly key?: string;
+} & {
+    readonly [K in Extract<keyof IEntityClass, 'process' | 'merge' | 'expiresAt' | 'createIfValid' | 'mergeWithStore' | 'validate' | 'shouldReorder' | 'shouldUpdate'>]?: IEntityClass<abstract new (...args: any[]) => TInstance>[K];
+};
+interface RequiredPKOptions<TInstance extends {}> extends EntityOptions<TInstance> {
+    readonly pk: ((value: TInstance, parent?: any, key?: string) => string | number | undefined) | keyof TInstance;
 }
 
 /**

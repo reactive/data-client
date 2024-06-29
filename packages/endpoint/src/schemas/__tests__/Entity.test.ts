@@ -104,7 +104,7 @@ describe(`${Entity.name} normalization`, () => {
       MyEntity,
       { id: '1', title: 'second' },
       {},
-      { entities, entityMeta },
+      { entities, entityMeta, indexes: {} },
     ).entities;
     expect(entities.MyEntity['1']).toBeDefined();
     expect(entities.MyEntity['1']).toBe(secondEntities.MyEntity['1']);
