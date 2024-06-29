@@ -1,0 +1,39 @@
+releases:
+  label: 'Releases'
+  description: 'New versions of Reactive Data Client'
+  permalink: /releases
+
+schema:
+  label: 'Schemas'
+  description: 'TypeSafe definition of a data model'
+  permalink: /schema
+
+queryable:
+  label: 'Queryable'
+  description: 'Queryable Schemas allow store access without an endpoint'
+  permalink: /queryable
+
+rest:
+  label: 'REST'
+  description: 'Representational state transfer: HTTP based APIs'
+  permalink: /rest
+
+graphql:
+  label: 'GraphQL'
+  description: 'Query and manipulation language for APIs'
+  permalink: /graphql
+
+resource:
+  label: 'Resources'
+  description: 'Resources are a collection of methods for a given data model'
+  permalink: /resource
+
+endpoint:
+  label: 'Endpoint'
+  description: 'Endpoints are the methods on that data'
+  permalink: /endpoint
+
+collection:
+  label: 'Collections'
+  description: 'Mutable Arrays or Values'
+  permalink: /collection
