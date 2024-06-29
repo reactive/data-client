@@ -1,14 +1,13 @@
 ---
-title: Images and other Media
+title: React 18 Suspense with Images and other Media
+sidebar_label: Images and other Media
 ---
-
-<head>
-  <title>React 18 Suspense with Images and other Media</title>
-</head>
 
 import PkgTabs from '@site/src/components/PkgTabs';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+
+# Images and other Media
 
 After setting up Reactive Data Client for structured data fetching, you might want to incorporate
 some media fetches as well to take advantage of suspense and [concurrent mode support](/docs/guides/render-as-you-fetch).

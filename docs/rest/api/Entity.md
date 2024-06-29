@@ -1,9 +1,9 @@
 ---
-title: Entity
+title: Entity - Declarative unique objects for React
+sidebar_label: Entity
 ---
 
 <head>
-  <title>Entity - Declarative unique objects for React</title>
   <meta name="docsearch:pagerank" content="10"/>
 </head>
 
@@ -11,6 +11,8 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import { RestEndpoint } from '@data-client/rest';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
+
+# Entity
 
 <div style={{float:'right'}}>
 

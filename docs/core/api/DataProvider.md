@@ -1,14 +1,14 @@
 ---
-title: '<DataProvider />'
+title: DataProvider - Normalized async data management in React
+sidebar_label: <DataProvider />
+description: High performance, globally consistent data management in React
 ---
-
-<head>
-  <title>DataProvider - Normalized async data management in React</title>
-</head>
 
 import Installation from '../shared/\_installation.mdx';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+
+# &lt;DataProvider />
 
 Manages state, providing all context needed to use the hooks. Should be placed as high as possible
 in application tree as any usage of the hooks is only possible for components below the provider

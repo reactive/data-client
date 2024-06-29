@@ -1,14 +1,14 @@
 ---
-title: schema.Union
+titlke: schema.Union - Declarative polymorphic data for React
+sidebar_label: schema.Union
 ---
-<head>
-  <title>schema.Union - Declarative polymorphic data for React</title>
-</head>
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import { RestEndpoint } from '@data-client/rest';
 import StackBlitz from '@site/src/components/StackBlitz';
+
+# schema.Union
 
 Describe a schema which is a union of multiple schemas. This is useful if you need the polymorphic behavior provided by [schema.Array](./Array.md) or [schema.Values](./Values.md) but for non-collection fields.
 

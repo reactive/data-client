@@ -1,15 +1,17 @@
 ---
-title: Endpoint Error Policy
+title: Distinguishing recoverable fetch errors in React
 sidebar_label: Error Policy
+description: Controlling how errors affect revalidation strategies in Reactive Data Client.
 ---
 
 <head>
-  <title>Distinguishing recoverable fetch errors in React</title>
   <meta name="docsearch:pagerank" content="40"/>
 </head>
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import {RestEndpoint} from '@data-client/rest';
+
+# Endpoint Error Policy
 
 [Endpoint.errorPolicy](/rest/api/Endpoint#errorpolicy) controls cache behavior upon a fetch rejection.
 It uses the rejection error to determine whether it should be treated as 'soft' or 'hard' error.

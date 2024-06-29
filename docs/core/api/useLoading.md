@@ -1,14 +1,14 @@
 ---
-title: useLoading()
+title: useLoading() - Turn any promise into React State
+sidebar_label: useLoading()
+description: Track loading and error state of any async function.
 ---
 
 import UseLoading from '../shared/\_useLoading.mdx';
 import PkgInstall from '@site/src/components/PkgInstall';
 import StackBlitz from '@site/src/components/StackBlitz';
 
-<head>
-  <title>useLoading() - Turn any promise into React State</title>
-</head>
+# useLoading()
 
 Helps track loading state of imperative async functions.
 

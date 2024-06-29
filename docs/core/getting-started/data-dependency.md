@@ -1,10 +1,9 @@
 ---
-title: Rendering Asynchronous Data
+title: Rendering Asynchronous Data in React
 sidebar_label: Render Data
 ---
 
 <head>
-  <title>Rendering Asynchronous Data in React</title>
   <meta name="docsearch:pagerank" content="40"/>
 </head>
 
@@ -18,6 +17,8 @@ import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import { postFixtures } from '@site/src/fixtures/posts';
 import { detailFixtures, listFixtures } from '@site/src/fixtures/profiles';
 import UseLive from '../shared/\_useLive.mdx';
+
+# Rendering Asynchronous Data
 
 Make your components reusable by binding the data where you **use** it with the one-line [useSuspense()](../api/useSuspense.md),
 which guarantees data like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await).

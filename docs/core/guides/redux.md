@@ -1,15 +1,14 @@
 ---
 id: redux
-title: Redux integration
+title: Empowering Redux with Reactive Data Client
+sidebar_label: Redux integration
 ---
-
-<head>
-    <title>Empowering Redux with Reactive Data Client</title>
-</head>
 
 import PkgTabs from '@site/src/components/PkgTabs';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+
+# Redux integration
 
 Using [redux](https://redux.js.org/) is completely optional. However, for many it means easy integration or migration
 with existing projects, or just a nice centralized state management abstraction.

@@ -1,12 +1,9 @@
 ---
-title: NetworkManager
+title: NetworkManager - Orchestrating efficient race-condition free fetching
 sidebar_label: NetworkManager
 ---
 
-<head>
-  <title>NetworkManager - Orchestrating efficient race-condition free fetching</title>
-</head>
-
+# NetworkManager
 
 NetworkManager orchestrates asynchronous fetches. By keeping track of all in-flight requests
 it is able to dedupe identical requests if they are made using the throttle flag.

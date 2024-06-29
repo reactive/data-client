@@ -1,10 +1,7 @@
 ---
-title: schema.Collection
+title: schema.Collection - Entities of Arrays or Values
+sidebar_label: schema.Collection
 ---
-
-<head>
-  <title>schema.Collection - Entities of Arrays or Values</title>
-</head>
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
@@ -13,6 +10,8 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 import { RestEndpoint } from '@data-client/rest';
 import { v4 as uuid } from 'uuid';
 import { postFixtures,getInitialInterceptorData } from '@site/src/fixtures/posts-collection';
+
+# schema.Collection
 
 `Collections` are entities but for [Arrays](./Array.md) or [Values](./Values.md).
 

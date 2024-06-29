@@ -1,12 +1,9 @@
 ---
 id: README
-title: GraphQL Usage
+title: GraphQL Usage with Reactive Data Client
 sidebar_label: Usage
+hide_title: true
 ---
-
-<head>
-  <title>GraphQL Usage with Reactive Data Client</title>
-</head>
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import Tabs from '@theme/Tabs';

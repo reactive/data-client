@@ -1,14 +1,13 @@
 ---
-title: schema.Values
+title: schema.Values - Declarative map data for React
+sidebar_label: schema.Values
 ---
-
-<head>
-  <title>schema.Values - Declarative map data for React</title>
-</head>
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import { RestEndpoint } from '@data-client/rest';
+
+# schema.Values
 
 Like [Array](./Array), `Values` are unbounded in size. The definition here describes the types of values to expect,
 with keys being any string.

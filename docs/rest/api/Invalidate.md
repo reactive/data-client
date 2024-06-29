@@ -1,12 +1,12 @@
 ---
-title: schema.Invalidate
+title: schema.Invalidate - Invalidating Entities
+sidebar_label: schema.Invalidate
 ---
-<head>
-  <title>schema.Invalidate - Invalidating Entities</title>
-</head>
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import { RestEndpoint } from '@data-client/rest';
+
+# schema.Invalidate
 
 Describes entities to be marked as [INVALID](/docs/concepts/expiry-policy#invalid). This removes items from a
 collection, or [forces suspense](/docs/concepts/expiry-policy#any-endpoint-with-an-entity) for endpoints where the entity is required. 

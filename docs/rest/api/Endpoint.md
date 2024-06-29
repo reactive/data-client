@@ -1,14 +1,13 @@
 ---
-title: Endpoint
+title: Endpoint - Strongly typed API definitions
+sidebar_label: Endpoint
 ---
-
-<head>
-  <title>Endpoint - Strongly typed API definitions</title>
-</head>
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import HooksPlayground from '@site/src/components/HooksPlayground';
+
+# Endpoint
 
 `Endpoint` are for any asynchronous function (one that returns a Promise).
 

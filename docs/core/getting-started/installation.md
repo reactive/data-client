@@ -1,11 +1,9 @@
 ---
 id: installation
-title: Installation
+title: Getting Started with Reactive Data Client
+sidebar_label: Installation
+hide_title: true
 ---
-
-<head>
-  <title>Getting Started with Reactive Data Client</title>
-</head>
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';

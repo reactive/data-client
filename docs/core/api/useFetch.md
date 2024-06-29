@@ -1,14 +1,17 @@
 ---
-title: useFetch()
+title: useFetch() - Declarative fetch triggers for React
+sidebar_label: useFetch()
+description: Fetch without the data rendering. Prevent fetch waterfalls by prefetching without duplicate requests.
 ---
 
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 
 <head>
-  <title>useFetch() - Declarative fetch triggers for React</title>
   <meta name="docsearch:pagerank" content="10"/>
 </head>
+
+# useFetch()
 
 Fetch without the data rendering.
 

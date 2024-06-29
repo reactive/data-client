@@ -51,7 +51,7 @@ const config: Config = {
       tagName: 'link',
       attributes: {
         name: 'application-name',
-        content: 'Reactive Data Client',
+        content: 'Data Client',
       },
     },
     {
@@ -424,9 +424,10 @@ const config: Config = {
           }, TODO: Add back when we have versions to upgrade*/
         {
           to: 'demos',
-          //label: '🎮 Demos',
-          position: 'right',
-          className: 'header-demos-link',
+          label: 'Demos',
+          position: 'left',
+          // TODO: move this to right once we get a better image that is more obvious (cube with play triangle inside)
+          //className: 'header-demos-link',
           'aria-label': 'Demo Applications',
         },
         {

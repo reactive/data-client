@@ -1,9 +1,9 @@
 ---
-title: Optimistic Updates
+title: Making React 100x faster with Optimistic Updates
+sidebar_label: Optimistic Updates
 ---
 
 <head>
-  <title>Making React 100x faster with Optimistic Updates</title>
   <meta name="docsearch:pagerank" content="40"/>
 </head>
 
@@ -11,6 +11,8 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 import {RestEndpoint} from '@data-client/rest';
 import { todoFixtures } from '@site/src/fixtures/todos';
 import OptimisticTransform from '../shared/\_optimisticTransform.mdx';
+
+# Optimistic Updates
 
 Optimistic updates enable highly responsive and fast interfaces by avoiding network wait times.
 An update is optimistic by assuming the network is successful.

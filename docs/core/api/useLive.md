@@ -1,9 +1,10 @@
 ---
-title: useLive()
+title: useLive() - Rendering dynamic data in React
+sidebar_label: useLive()
+description: Async rendering of remotely triggered data mutations. useSuspense() + useSubscription() in one hook.
 ---
 
 <head>
-  <title>useLive() - Rendering dynamic data in React</title>
   <meta name="docsearch:pagerank" content="10"/>
 </head>
 
@@ -13,6 +14,8 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 import {RestEndpoint} from '@data-client/rest';
 import StackBlitz from '@site/src/components/StackBlitz';
 import UseLive from '../shared/\_useLive.mdx';
+
+# useLive()
 
 Async rendering of remotely triggered data mutations.
 

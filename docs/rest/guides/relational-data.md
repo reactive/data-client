@@ -1,15 +1,13 @@
 ---
-title: Relational data
+title: Simplified relational data rendering in React
 sidebar_label: Relational data
 ---
-
-<head>
-  <title>Simplified relational data rendering in React</title>
-</head>
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import { RestEndpoint } from '@data-client/rest';
 import StackBlitz from '@site/src/components/StackBlitz';
+
+# Relational data
 
 Reactive Data Client handles one-to-one, many-to-one and many-to-many relationships on [entities][1]
 using [Entity.schema][3]

@@ -1,15 +1,17 @@
 ---
-title: Endpoint Expiry Policy
+title: Controlling automatic fetch behavior with declarative Expiry Policies
 sidebar_label: Expiry Policy
+description: When data is considere Fresh, Stale, or Invalid. And how that state affects fetching and rendering.
 ---
 
 <head>
-  <title>Controlling automatic fetch behavior with declarative Expiry Policies</title>
   <meta name="docsearch:pagerank" content="40"/>
 </head>
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import {RestEndpoint} from '@data-client/rest';
+
+# Endpoint Expiry Policy
 
 By default, Reactive Data Client cache policy can be described as [stale-while-revalidate](https://web.dev/stale-while-revalidate/).
 This means that when data is available it can avoid blocking the application by using the stale data. However, in the background

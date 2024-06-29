@@ -1,15 +1,16 @@
 ---
-title: API Validation
+title: Validating fetch responses in React
 sidebar_label: Validation
 ---
 
 <head>
-  <title>Validating fetch responses in React</title>
   <meta name="docsearch:pagerank" content="40"/>
 </head>
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import {RestEndpoint} from '@data-client/rest';
+
+# API Validation
 
 [Entity.validate()](/rest/api/Entity#validate) is called during normalization and denormalization.
 `undefined` indicates no error, and a string error message if there is an error.

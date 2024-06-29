@@ -1,14 +1,16 @@
 ---
-title: schema.Query
+title: Query - Programmatic memoized store access
+sidebar_label: schema.Query
 ---
 
 <head>
-  <title>Query - Programmatic performant store access</title>
   <meta name="docsearch:pagerank" content="30"/>
 </head>
 
 import { RestEndpoint } from '@data-client/rest';
 import HooksPlayground from '@site/src/components/HooksPlayground';
+
+# schema.Query
 
 `Query` provides programmatic access to the Reactive Data Client cache while maintaining
 the same high performance and referential equality guarantees expected of Reactive Data Client.

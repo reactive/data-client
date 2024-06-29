@@ -1,14 +1,17 @@
 ---
-title: useController()
+title: useController() - Type safe store manipulation in React
+sidebar_label: useController()
+description: Controller provides type-safe methods to access and dispatch actions to the store.
 ---
 
 <head>
-  <title>useController() - Type safe store manipulation in React</title>
   <meta name="docsearch:pagerank" content="10"/>
 </head>
 
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import StackBlitz from '@site/src/components/StackBlitz';
+
+# useController()
 
 [Controller](./Controller.md) provides type-safe methods to access and dispatch actions to the store.
 

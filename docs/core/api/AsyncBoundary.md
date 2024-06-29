@@ -1,11 +1,14 @@
 ---
-title: '<AsyncBoundary />'
+title: AsyncBoundary - Centralize loading and error handling
+sidebar_label: <AsyncBoundary />
+description: Handles loading and error conditions of Suspense.
 ---
 
 <head>
-  <title>AsyncBoundary - Centralize loading and error handling</title>
   <meta name="docsearch:pagerank" content="20"/>
 </head>
+
+# &lt;AsyncBoundary />
 
 Handles loading and error conditions of Suspense.
 

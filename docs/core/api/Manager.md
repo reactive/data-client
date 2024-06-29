@@ -1,5 +1,6 @@
 ---
-title: Manager
+title: Manager - Powerful middlewares with global store knowledge
+sidebar_label: Manager
 ---
 
 import Tabs from '@theme/Tabs';
@@ -8,9 +9,10 @@ import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
 <head>
-  <title>Manager - Powerful middlewares with global store knowledge</title>
   <meta name="docsearch:pagerank" content="20"/>
 </head>
+
+# Manager
 
 Managers are singletons that orchestrate the complex asynchronous behavior of `Reactive Data Client`.
 Several managers are provided by `Reactive Data Client` and used by default; however there is nothing

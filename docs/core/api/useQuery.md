@@ -1,10 +1,8 @@
 ---
-title: useQuery()
+title: useQuery() - Normalized data store access in React
+sidebar_label: useQuery()
+description: Data rendering without the fetch. Access any Schema's memoized store value.
 ---
-
-<head>
-  <title>useQuery() - Normalized data store access in React</title>
-</head>
 
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
@@ -12,6 +10,8 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 import StackBlitz from '@site/src/components/StackBlitz';
 import { RestEndpoint } from '@data-client/rest';
 import VoteDemo from '../shared/\_VoteDemo.mdx';
+
+# useQuery()
 
 Query the store.
 

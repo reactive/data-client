@@ -1,15 +1,17 @@
 ---
 id: ssr
-title: Server Side Rendering
+title: Server Side Rendering with NextJS, Express, and more
+sidebar_label: Server Side Rendering
 ---
 
 import PkgTabs from '@site/src/components/PkgTabs';
 import StackBlitz from '@site/src/components/StackBlitz';
 
 <head>
-  <title>Server Side Rendering with NextJS, Express, and more</title>
   <meta name="docsearch:pagerank" content="10"/>
 </head>
+
+# Server Side Rendering
 
 Server Side Rendering (SSR) can improve the first-load performance of your application. Reactive Data
 Client takes this one step further by pre-populating the data store. Unlike other SSR methodologies,

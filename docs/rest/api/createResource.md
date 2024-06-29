@@ -1,10 +1,10 @@
 ---
 id: createResource
-title: createResource
+title: createResource() - TypeScript definition for REST API resources
+sidebar_label: createResource
 ---
 
 <head>
-  <title>createResource() - TypeScript definition for REST API resources</title>
   <meta name="docsearch:pagerank" content="30"/>
 </head>
 
@@ -13,6 +13,8 @@ import StackBlitz from '@site/src/components/StackBlitz';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import DeleteProcess from './\_DeleteProcess.mdx';
+
+# createResource
 
 `Resources` are a collection of [RestEndpoints](./RestEndpoint.md) that operate on a common
 data by sharing a [schema](./schema.md)
