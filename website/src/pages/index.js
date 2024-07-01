@@ -1,5 +1,6 @@
 import Head from '@docusaurus/Head';
 import Link from '@docusaurus/Link';
+import { PageMetadata } from '@docusaurus/theme-common';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
@@ -96,8 +97,10 @@ function HomepageEnder() {
 }
 
 export default function Home() {
+  const image = useBaseUrl('img/social/client_logo_and_text_card.png');
   return (
     <Layout description="Async State Management without the Management.">
+      <PageMetadata image={image} />
       <Head>
         <title>The Reactive Data Client ✨</title>
       </Head>

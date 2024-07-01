@@ -216,7 +216,7 @@ export const ProfileResource = createResource({
 });
 ```
 
-```tsx title="ProfileList"
+```tsx title="ProfileList"  {5}
 import { useSuspense } from '@data-client/react';
 import { ProfileResource } from './ProfileResource';
 
@@ -241,6 +241,12 @@ render(<ProfileList />);
 
 </HooksPlayground>
 
+### Pagination
+
+Reactive [pagination](/rest/guides/pagination) is achieved with [mutable schemas](/rest/api/Collection)
+
+<PaginationDemo />
+
 ### Sequential
 
 When fetch parameters depend on data from another resource.
@@ -248,11 +254,10 @@ When fetch parameters depend on data from another resource.
 ```tsx
 function PostWithAuthor() {
   const post = useSuspense(PostResource.get, { id });
-  // post as Post
   const author = useSuspense(UserResource.get, {
+    // highlight-next-line
     id: post.userId,
   });
-  // author as User
 }
 ```
 
@@ -305,12 +310,11 @@ export const UserResource = createResource({
 });
 ```
 
-```tsx title="PostWithAuthor"
+```tsx title="PostWithAuthor" {7-11}
 import { PostResource, UserResource } from './Resources';
 
 export default function PostWithAuthor({ id }: { id: string }) {
   const post = useSuspense(PostResource.get, { id });
-  // post as Post
   const author = useSuspense(
     UserResource.get,
     post.userId
@@ -332,7 +336,7 @@ When entities are stored in [nested structures](/rest/guides/relational-data#nes
 
 <TypeScriptEditor row={false}>
 
-```typescript title="api/Post"
+```typescript title="api/Post" {15-19}
 export class PaginatedPost extends Entity {
   id = '';
   title = '';
@@ -348,19 +352,19 @@ export const getPosts = new RestEndpoint({
   path: '/post',
   searchParams: { page: '' },
   schema: {
-    results: new schema.Collection([PaginatedPost]),
+    posts: new schema.Collection([PaginatedPost]),
     nextPage: '',
     lastPage: '',
   },
 });
 ```
 
-```tsx title="ArticleList"
+```tsx title="ArticleList" {5-7}
 import { getPosts } from './api/Post';
 
 export default function ArticleList({ page }: { page: string }) {
   const {
-    results: posts,
+    posts,
     nextPage,
     lastPage,
   } = useSuspense(getPosts, { page });
@@ -375,12 +379,6 @@ export default function ArticleList({ page }: { page: string }) {
 ```
 
 </TypeScriptEditor>
-
-### Pagination
-
-Reactive [pagination](/rest/guides/pagination) is achieved with [mutable schemas](/rest/api/Collection)
-
-<PaginationDemo />
 
 ### Server Side Rendering
 
@@ -398,6 +396,8 @@ continue showing the previous screen while the new data loads. Combined with
 loading indicators - improving the user experience.
 
 Click one of the names to navigate to their todos. Here long loading states are indicated by the
-less intrusive _loading bar_, like YouTube and Robinhood use.
+less intrusive _loading bar_, like [YouTube](https://youtube.com) and [Robinhood](https://robinhood.com) use.
 
 <StackBlitz app="todo-app" file="src/pages/Home/TodoList.tsx,src/pages/Home/index.tsx,src/useNavigationState.ts" height={600} />
+
+If you need help adding this to your own custom router, check out the [official React guide](https://react.dev/reference/react/useTransition#building-a-suspense-enabled-router)
