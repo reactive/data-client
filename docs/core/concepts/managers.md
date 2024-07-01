@@ -2,7 +2,7 @@
 title: Centralized side-effect orchestration with React
 sidebar_label: Managers and Middleware
 description: Safe programmatic access to the global store. Enables fully extensible and scalable side-effects.
-image: /img/flux-full.png
+image: /img/social/managers-card.png
 ---
 
 import ThemedImage from '@theme/ThemedImage';
