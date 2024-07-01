@@ -97,7 +97,7 @@ function HomepageEnder() {
 }
 
 export default function Home() {
-  const image = useBaseUrl('img/social/client_logo_and_text_card.png');
+  const image = useBaseUrl('img/social/data_client_logo_card.jpg');
   return (
     <Layout description="Async State Management without the Management.">
       <PageMetadata image={image} />
