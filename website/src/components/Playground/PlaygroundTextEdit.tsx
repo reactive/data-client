@@ -2,12 +2,19 @@ import type { Fixture, Interceptor } from '@data-client/test';
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import Translate from '@docusaurus/Translate';
 import clsx from 'clsx';
-import { useCallback, useContext, useMemo, useState } from 'react';
+import {
+  ComponentProps,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
 import React from 'react';
 import { LiveEditor } from 'react-live';
 
 import FixturePreview from './FixturePreview';
 import Header from './Header';
+import { isGoogleBot } from './isGoogleBot';
 import PlaygroundEditor from './PlaygroundEditor';
 import styles from './styles.module.css';
 import CodeTabContext from '../Demo/CodeTabContext';
@@ -77,42 +84,23 @@ export function PlaygroundTextEdit({
                 lastChild={i === codeTabs.length - 1 && large}
               />
             : null}
-            <div
+            <TextEditTab
+              hidden={closedList[i]}
               key={i}
-              className={clsx(styles.playgroundEditor, {
-                [styles.hidden]: closedList[i],
-              })}
-            >
-              <BrowserOnly
-                fallback={
-                  <LiveEditor
-                    key={i}
-                    language={language}
-                    code={codes[i]}
-                    disabled
-                  />
-                }
-              >
-                {() => (
-                  /*closedList[i] ? null : */ <PlaygroundEditor
-                    key={i}
-                    tabIndex={i}
-                    onFocus={
-                      row && !col && codeTabs.length > 1 ?
-                        handleTabSwitch
-                      : handleTabOpen
-                    }
-                    onChange={handleCodeChange[i]}
-                    code={codes[i]}
-                    path={'/' + id + '/' + path}
-                    isFocused={!closedList[i]}
-                    language={language}
-                    {...rest}
-                    large={large}
-                  />
-                )}
-              </BrowserOnly>
-            </div>
+              tabIndex={i}
+              onFocus={
+                row && !col && codeTabs.length > 1 ?
+                  handleTabSwitch
+                : handleTabOpen
+              }
+              onChange={handleCodeChange[i]}
+              code={codes[i]}
+              path={'/' + id + '/' + path}
+              isFocused={!closedList[i]}
+              language={language}
+              {...rest}
+              large={large}
+            />
           </React.Fragment>
         ),
       )}
@@ -127,6 +115,48 @@ interface PlaygroundProps {
   codes: any;
   large?: boolean;
   isPlayground?: boolean;
+}
+
+function TextEditTab({
+  hidden,
+  code,
+  language,
+  tabIndex,
+  ...rest
+}: ComponentProps<typeof PlaygroundEditor> & { hidden: boolean }) {
+  const fallback =
+    // to reduce HTML sent, in SSR don't render hidden tabs
+    hidden ? <></>
+      // google doesn't benefit from syntax highlighting, so just rendering code will greatly reduce html
+      // TODO: make this actually work in SSR for google - currently does nothing since isGoogleBot is only true client-side
+    : isGoogleBot ?
+      <pre className="prism-code language-tsx" spellCheck="false">
+        {code}
+      </pre>
+      // monaco editor doesn't work with SSR - so use LiveEditor which still shows readable code while the js loads
+    : <LiveEditor key={tabIndex} language={language} code={code} disabled />;
+  return (
+    <>
+      <div
+        key={tabIndex}
+        className={clsx(styles.playgroundEditor, {
+          [styles.hidden]: hidden,
+        })}
+      >
+        <BrowserOnly fallback={fallback}>
+          {() => (
+            <PlaygroundEditor
+              key={tabIndex}
+              tabIndex={tabIndex}
+              code={code}
+              language={language}
+              {...rest}
+            />
+          )}
+        </BrowserOnly>
+      </div>
+    </>
+  );
 }
 
 function CodeTabHeader({

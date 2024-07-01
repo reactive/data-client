@@ -4,8 +4,8 @@ import clsx from 'clsx';
 import { useMemo } from 'react';
 
 import { extensionToMonacoLanguage } from './Playground/extensionToMonacoLanguage';
+import { options } from './Playground/monacoOptions';
 import MonacoPreloads from './Playground/MonacoPreloads';
-import { options } from './Playground/PlaygroundMonacoEditor';
 import styles from './Playground/styles.module.css';
 import useAutoHeight from './Playground/useAutoHeight';
 

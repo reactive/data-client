@@ -319,6 +319,14 @@ const config: Config = {
             from: ['/docs/getting-started/endpoint'],
           },
           {
+            to: '/docs/api/useQuery',
+            from: ['/rest/api/IndexEndpoint'],
+          },
+          {
+            to: '/rest/api/schema',
+            from: ['/rest/api/Schema'],
+          },
+          {
             to: '/blog/2023/07/04/v0.2-release-announcement',
             from: ['/blog/2023/07/04/v8-release-announcement'],
           },
