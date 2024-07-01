@@ -75,6 +75,13 @@ const config: Config = {
         content: '#003a67',
       },
     },
+    {
+      tagName: 'meta',
+      attributes: {
+        name: 'twitter:site',
+        content: '@dataclientio',
+      },
+    },
   ],
   stylesheets: [
     {

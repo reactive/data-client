@@ -97,12 +97,14 @@ function HomepageEnder() {
 }
 
 export default function Home() {
-  const image = useBaseUrl('img/social/data_client_logo_card.jpg');
+  const image = useBaseUrl('img/social/data_client_logo_card.png');
   return (
     <Layout description="Async State Management without the Management.">
       <PageMetadata image={image} />
       <Head>
         <title>The Reactive Data Client ✨</title>
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="402" />
       </Head>
       <HomepageHeader />
       <main>
