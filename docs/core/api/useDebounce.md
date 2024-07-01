@@ -81,7 +81,7 @@ function IssueList({ q, owner, repo }) {
 export default React.memo(IssueList) as typeof IssueList;
 ```
 
-```tsx title="SearchIssues" {8}
+```tsx title="SearchIssues" {7}
 import { useDebounce, AsyncBoundary } from '@data-client/react';
 import IssueList from './IssueList';
 
