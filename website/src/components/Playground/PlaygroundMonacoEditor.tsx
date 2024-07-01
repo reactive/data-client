@@ -7,6 +7,7 @@ import { LiveEditor } from 'react-live';
 import './monaco-init';
 
 import { extensionToMonacoLanguage } from './extensionToMonacoLanguage';
+import { largeOptions, options } from './monacoOptions';
 import useAutoHeight from './useAutoHeight';
 
 export default function PlaygroundMonacoEditor({
@@ -15,13 +16,12 @@ export default function PlaygroundMonacoEditor({
   path = '',
   onFocus,
   tabIndex,
-  highlights,
+  highlights = undefined,
   autoFocus = false,
   large = false,
   isFocused = false,
   language = 'tsx',
-  original,
-  readOnly,
+  readOnly = false,
   ...rest
 }) {
   const editorOptions = useMemo(
@@ -103,59 +103,3 @@ export default function PlaygroundMonacoEditor({
     />
   );
 }
-
-export const options = {
-  scrollbar: { alwaysConsumeMouseWheel: false },
-  minimap: { enabled: false },
-  wordWrap: 'on',
-  scrollBeyondLastLine: false,
-  wrappingIndent: 'indent',
-  lineNumbers: 'off',
-  //glyphMargin: false,
-  folding: false,
-  // Undocumented see https://github.com/Microsoft/vscode/issues/30795#issuecomment-410998882
-  //lineDecorationsWidth: 0,
-  //lineNumbersMinChars: 0,
-  fontLigatures: true,
-  fontFamily:
-    '"Roboto Mono",SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace',
-  fontSize: 13,
-  lineHeight: 19,
-} as const;
-
-const largeOptions = {
-  ...options,
-  fontSize: 14,
-  lineHeight: 20,
-};
-
-/*function useMonacoWorker(
-  callback: (worker: languages.typescript.TypeScriptWorker) => void,
-): MutableRefObject<languages.typescript.TypeScriptWorker | undefined> {
-  const monaco = useMonaco();
-  const workerRef = useRef<languages.typescript.TypeScriptWorker | undefined>();
-  useEffect(() => {
-    if (!monaco) return;
-    monaco.languages.typescript
-      .getTypeScriptWorker()
-      .then(a => a())
-      .then(worker => {
-        workerRef.current = worker;
-        //callback(worker);
-      });
-  }, [monaco]);
-  return workerRef;
-}
-
-function useWorkerCB(
-  callback: (worker: languages.typescript.TypeScriptWorker) => void,
-  deps: any[],
-) {
-  const tsWorkerRef = useMonacoWorker(callback);
-
-  return useCallback((...args) => {
-    if (!tsWorkerRef.current) return;
-    callback(tsWorkerRef.current);
-  }, deps);
-}
-*/
