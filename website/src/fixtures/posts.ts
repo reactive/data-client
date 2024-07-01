@@ -183,19 +183,19 @@ export const postPaginatedFixtures = [
     async response(...args) {
       const cursor = args?.[0]?.cursor ?? 1;
       const userId = args?.[0]?.userId;
-      let results = Object.values(extendedEntities);
+      let posts = Object.values(extendedEntities);
       if (userId) {
-        results = Object.values(extendedEntities).filter(
+        posts = Object.values(extendedEntities).filter(
           post => post.userId === args[0].userId,
         );
       }
       const PAGE_SIZE = 3;
-      results = results.slice((cursor - 1) * PAGE_SIZE, PAGE_SIZE * cursor);
+      posts = posts.slice((cursor - 1) * PAGE_SIZE, PAGE_SIZE * cursor);
       // we are modifying the post later so we need to shallow copy it
-      results = results.map(post => ({ ...post }));
+      posts = posts.map(post => ({ ...post }));
       // get users to merge
       await Promise.all(
-        results.map(post =>
+        posts.map(post =>
           post.userId ?
             UserResource.get({ id: post.userId })
               .then(user => {
@@ -208,9 +208,9 @@ export const postPaginatedFixtures = [
         ),
       );
       if (PAGE_SIZE * cursor >= Object.keys(extendedEntities).length)
-        return { results, cursor: null };
+        return { posts, cursor: null };
       return {
-        results,
+        posts,
         cursor: cursor + 1,
       };
     },

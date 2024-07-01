@@ -3,9 +3,13 @@ title: Pagination of REST data with Reactive Data Client
 sidebar_label: Pagination
 ---
 
+<head>
+  <meta name="docsearch:pagerank" content="10"/>
+</head>
+
 import StackBlitz from '@site/src/components/StackBlitz';
-import { postPaginatedFixtures } from '@site/src/fixtures/posts';
 import HooksPlayground from '@site/src/components/HooksPlayground';
+import PaginationDemo from '../../core/shared/\_pagination.mdx';
 
 # Rest Pagination
 
@@ -14,105 +18,7 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 In case you want to append results to your existing list, rather than move to another page
 [Resource.getList.getPage](../api/createResource.md#getpage) can be used as long as [paginationField](../api/createResource.md#paginationfield) was provided.
 
-<HooksPlayground defaultOpen="n" row fixtures={postPaginatedFixtures}>
-
-```ts title="User" collapsed
-import { Entity } from '@data-client/rest';
-
-export class User extends Entity {
-  id = 0;
-  name = '';
-  username = '';
-  email = '';
-  phone = '';
-  website = '';
-
-  get profileImage() {
-    return `https://i.pravatar.cc/64?img=${this.id + 4}`;
-  }
-
-  pk() {
-    return `${this.id}`;
-  }
-  static key = 'User';
-}
-```
-
-```ts title="Post" {22,24} collapsed
-import { Entity, createResource } from '@data-client/rest';
-import { User } from './User';
-
-export class Post extends Entity {
-  id = 0;
-  author = User.fromJS();
-  title = '';
-  body = '';
-
-  pk() {
-    return this.id?.toString();
-  }
-  static key = 'Post';
-
-  static schema = {
-    author: User,
-  };
-}
-export const PostResource = createResource({
-  path: '/posts/:id',
-  schema: Post,
-  paginationField: 'cursor',
-}).extend('getList', {
-  schema: { results: new schema.Collection([Post]), cursor: '' },
-});
-```
-
-```tsx title="PostItem" collapsed
-import { type Post } from './Post';
-
-export default function PostItem({ post }: Props) {
-  return (
-    <div className="listItem spaced">
-      <Avatar src={post.author.profileImage} />
-      <div>
-        <h4>{post.title}</h4>
-        <small>by {post.author.name}</small>
-      </div>
-    </div>
-  );
-}
-
-interface Props {
-  post: Post;
-}
-```
-
-```tsx title="PostList" {9}
-import { useSuspense } from '@data-client/react';
-import PostItem from './PostItem';
-import { PostResource } from './Post';
-
-export default function PostList() {
-  const { results, cursor } = useSuspense(PostResource.getList);
-  const ctrl = useController();
-  const handlePageLoad = () =>
-    ctrl.fetch(PostResource.getList.getPage, { cursor });
-  return (
-    <div>
-      {results.map(post => (
-        <PostItem key={post.pk()} post={post} />
-      ))}
-      {cursor ? (
-        <center>
-          <button onClick={handlePageLoad}>Load more</button>
-        </center>
-      ) : null}
-    </div>
-  );
-}
-render(<PostList />);
-```
-
-</HooksPlayground>
+<PaginationDemo />
 
 Don't forget to define our [Resource's](../api/createResource.md) [paginationField](../api/createResource.md#paginationfield) and
 correct [schema](../api/createResource.md#schema)!
@@ -125,7 +31,7 @@ export const PostResource = createResource({
   paginationField: 'cursor',
 }).extend('getList', {
   // highlight-next-line
-  schema: { results: new schema.Collection([Post]), cursor: '' },
+  schema: { posts: new schema.Collection([Post]), cursor: '' },
 });
 ```
 

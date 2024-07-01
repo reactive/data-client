@@ -12,6 +12,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
+import PaginationDemo from '../shared/\_pagination.mdx';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import { RestEndpoint } from '@data-client/rest';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
@@ -374,6 +375,12 @@ export default function ArticleList({ page }: { page: string }) {
 ```
 
 </TypeScriptEditor>
+
+### Pagination
+
+Reactive [pagination](/rest/guides/pagination) is achieved with [mutable schemas](/rest/api/Collection)
+
+<PaginationDemo />
 
 ### Server Side Rendering
 
