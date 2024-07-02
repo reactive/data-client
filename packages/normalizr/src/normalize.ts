@@ -248,15 +248,15 @@ export const normalize = <
     fetchedAt = 0,
     args = [],
   }: NormalizeMeta = {},
-  store: StoreData<E> = emptyStore,
+  { entities, indexes, entityMeta }: StoreData<E> = emptyStore,
 ): NormalizedSchema<E, R> => {
   // no schema means we don't process at all
   if (schema === undefined || schema === null)
     return {
-      entities: store.entities,
-      indexes: store.indexes,
       result: input,
-      entityMeta: store.entityMeta,
+      entities,
+      indexes,
+      entityMeta,
     };
 
   const schemaType = expectedSchemaType(schema);
@@ -309,24 +309,22 @@ See https://dataclient.io/rest/api/RestEndpoint#parseResponse for more informati
 
   const newEntities: E = {} as any;
   const newIndexes: NormalizedIndex = {} as any;
-  const entities: E = { ...store.entities } as any;
-  const indexes: NormalizedIndex = { ...store.indexes };
-  const entityMeta: any = { ...store.entityMeta };
+  const ret: NormalizedSchema<E, R> = {
+    result: '' as any,
+    entities: { ...entities },
+    indexes: { ...indexes },
+    entityMeta: { ...entityMeta },
+  };
   const addEntity = addEntities(
     newEntities,
     newIndexes,
-    entities,
-    indexes,
-    entityMeta,
+    ret.entities,
+    ret.indexes,
+    ret.entityMeta,
     { expiresAt, date, fetchedAt },
   );
 
-  const visit = getVisit(addEntity, createGetEntity(store.entities));
-  const result = visit(schema, input, input, undefined, args);
-  return {
-    result,
-    entities,
-    indexes,
-    entityMeta,
-  };
+  const visit = getVisit(addEntity, createGetEntity(entities));
+  ret.result = visit(schema, input, input, undefined, args);
+  return ret;
 };
