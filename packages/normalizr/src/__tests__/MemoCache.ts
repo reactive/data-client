@@ -42,7 +42,7 @@ describe('MemoCache', () => {
           1: Symbol('ENTITY WAS DELETED'),
         },
       };
-      expect(new MemoCache().denormalize('1', Tacos, entities).data).toEqual(
+      expect(new MemoCache().denormalize(Tacos, '1', entities).data).toEqual(
         expect.any(Symbol),
       );
     });
@@ -57,23 +57,23 @@ describe('MemoCache', () => {
       const result = ['1', '2'];
       const schema = [Tacos];
       const { data: first, paths: pathsFirst } = memo.denormalize(
-        result,
         schema,
+        result,
         entities,
       );
       const { data: second, paths: pathsSecond } = memo.denormalize(
-        result,
         schema,
+        result,
         entities,
       );
       expect(first).toBe(second);
       expect(pathsFirst).toEqual(pathsSecond);
 
-      const { data: third } = memo.denormalize([...result], schema, entities);
+      const { data: third } = memo.denormalize(schema, [...result], entities);
       expect(first).not.toBe(third);
       expect(first).toEqual(third);
 
-      const fourth = memo.denormalize(result, schema, {
+      const fourth = memo.denormalize(schema, result, {
         Tacos: { ...entities.Tacos, 2: { id: '2', type: 'bar' } },
       }).data;
       expect(first).not.toBe(fourth);
@@ -89,10 +89,10 @@ describe('MemoCache', () => {
       };
       const result = { data: ['1', '2'], nextPage: 'initial' };
       const schema = { data: [Tacos], nextPage: '' };
-      const { data: first, paths } = memo.denormalize(result, schema, entities);
+      const { data: first, paths } = memo.denormalize(schema, result, entities);
       const { data: second, paths: pathsSecond } = memo.denormalize(
-        { ...result, nextPage: 'second' },
         schema,
+        { ...result, nextPage: 'second' },
         entities,
       );
       if (typeof first === 'symbol' || typeof second === 'symbol')
@@ -106,8 +106,8 @@ describe('MemoCache', () => {
       }
 
       const { data: fourth, paths: fourthPaths } = memo.denormalize(
-        result,
         schema,
+        result,
         {
           Tacos: { ...entities.Tacos, 2: { id: '2', type: 'bar' } },
         },
@@ -175,11 +175,11 @@ describe('MemoCache', () => {
 
         const result = { data: '123' };
         const schema = { data: Article };
-        const first = memo.denormalize(result, schema, entities).data;
-        const second = memo.denormalize(result, schema, entities).data;
+        const first = memo.denormalize(schema, result, entities).data;
+        const second = memo.denormalize(schema, result, entities).data;
         expect(first).toBe(second);
-        const third = memo.denormalize('123', Article, entities).data;
-        const fourth = memo.denormalize('123', Article, entities).data;
+        const third = memo.denormalize(Article, '123', entities).data;
+        const fourth = memo.denormalize(Article, '123', entities).data;
         expect(third).toBe(fourth);
       });
 
@@ -189,13 +189,13 @@ describe('MemoCache', () => {
         const result1 = { data: '123' };
         const result2 = { results: ['123'] };
         const first = memo.denormalize(
-          result1,
           { data: Article },
+          result1,
           entities,
         ).data;
         const second = memo.denormalize(
-          result2,
           { results: [Article] },
+          result2,
           entities,
         ).data;
         if (
@@ -205,7 +205,7 @@ describe('MemoCache', () => {
         )
           throw new Error();
         expect(first.data).toBe(second.results[0]);
-        const third = memo.denormalize('123', Article, entities).data;
+        const third = memo.denormalize(Article, '123', entities).data;
         expect(third).toBe(first.data);
 
         // now change
@@ -220,14 +220,14 @@ describe('MemoCache', () => {
           },
         };
         const firstChanged = memo.denormalize(
-          result1,
           { data: Article },
+          result1,
           nextState,
         ).data;
         expect(firstChanged).not.toBe(first);
         const secondChanged = memo.denormalize(
-          result2,
           { results: [Article] },
+          result2,
           nextState,
         ).data;
         expect(secondChanged).not.toBe(second);
@@ -258,8 +258,8 @@ describe('MemoCache', () => {
         const resultC = '123';
         const firstSchema = { data: ArticleSummary };
         const secondSchema = { data: Article };
-        const first = memo.denormalize(resultA, firstSchema, entities).data;
-        const second = memo.denormalize(resultB, secondSchema, entities).data;
+        const first = memo.denormalize(firstSchema, resultA, entities).data;
+        const second = memo.denormalize(secondSchema, resultB, entities).data;
         if (
           typeof first === 'symbol' ||
           typeof second === 'symbol' ||
@@ -277,13 +277,13 @@ describe('MemoCache', () => {
           `);
         expect(first.data).not.toBe(second.data);
         const firstWithoutChange = memo.denormalize(
-          resultA,
           firstSchema,
+          resultA,
           entities,
         ).data;
         expect(first).toBe(firstWithoutChange);
 
-        const third = memo.denormalize(resultC, Article, entities).data;
+        const third = memo.denormalize(Article, resultC, entities).data;
         expect(third).toBe(second.data);
 
         // now change
@@ -298,14 +298,14 @@ describe('MemoCache', () => {
           },
         };
         const firstChanged = memo.denormalize(
-          resultA,
           firstSchema,
+          resultA,
           nextState,
         ).data;
         expect(firstChanged).not.toBe(first);
         const secondChanged = memo.denormalize(
-          resultB,
           secondSchema,
+          resultB,
           nextState,
         ).data;
         expect(secondChanged).not.toBe(second);
@@ -330,26 +330,22 @@ describe('MemoCache', () => {
 
         const result = { data: '123' };
         const { data: first } = memo.denormalize(
-          result,
           { data: Article },
+          result,
           entities,
         );
-        const { data: second } = memo.denormalize(
-          result,
-          { data: Article },
-          {
-            ...entities,
-            Article: {
-              123: {
-                author: '8472',
-                body: 'This article is great.',
-                comments: ['comment-123-4738'],
-                id: '123',
-                title: 'A Great Article',
-              },
+        const { data: second } = memo.denormalize({ data: Article }, result, {
+          ...entities,
+          Article: {
+            123: {
+              author: '8472',
+              body: 'This article is great.',
+              comments: ['comment-123-4738'],
+              id: '123',
+              title: 'A Great Article',
             },
           },
-        );
+        });
         expect(first).not.toBe(second);
         if (
           typeof first === 'symbol' ||
@@ -367,25 +363,21 @@ describe('MemoCache', () => {
 
         const result = { data: '123' };
         const { data: first } = memo.denormalize(
-          result,
           { data: Article },
+          result,
           entities,
         );
 
-        const { data: second } = memo.denormalize(
-          result,
-          { data: Article },
-          {
-            ...entities,
-            Comment: {
-              'comment-123-4738': {
-                comment: 'Updated comment!',
-                id: 'comment-123-4738',
-                user: '10293',
-              },
+        const { data: second } = memo.denormalize({ data: Article }, result, {
+          ...entities,
+          Comment: {
+            'comment-123-4738': {
+              comment: 'Updated comment!',
+              id: 'comment-123-4738',
+              user: '10293',
             },
           },
-        );
+        });
 
         expect(first).not.toBe(second);
         if (
@@ -412,20 +404,20 @@ describe('MemoCache', () => {
           User: {},
         };
         const { data: first } = memo.denormalize(
-          result,
           { data: Article },
+          result,
           emptyEntities,
         );
 
         const { data: second } = memo.denormalize(
-          result,
           { data: Article },
+          result,
           emptyEntities,
         );
 
         const { data: third } = memo.denormalize(
-          result,
           { data: Article },
+          result,
           // now has users
           entities,
         );
@@ -485,20 +477,20 @@ describe('MemoCache', () => {
           User: {},
         };
         const { data: first } = memo.denormalize(
-          result,
           { data: Article },
+          result,
           emptyEntities,
         );
 
         const { data: second } = memo.denormalize(
-          result,
           { data: Article },
+          result,
           emptyEntities,
         );
 
         const { data: third } = memo.denormalize(
-          result,
           { data: Article },
+          result,
           // now has users
           entities,
         );
@@ -534,10 +526,10 @@ describe('MemoCache', () => {
         firstThing: { five: 0, seven: 0 },
         secondThing: { cars: '' },
       };
-      const { data: first } = memo.denormalize(input, schema, {});
+      const { data: first } = memo.denormalize(schema, input, {});
       expect(first).toEqual(input);
       // should maintain referential equality
-      const { data: second } = memo.denormalize(input, schema, {});
+      const { data: second } = memo.denormalize(schema, input, {});
       expect(second).toBe(first);
     });
 
@@ -548,7 +540,7 @@ describe('MemoCache', () => {
         firstThing: { five: 5, seven: 42 },
         secondThing: { cars: 'never' },
       };
-      const { data } = memo.denormalize(input, null, {});
+      const { data } = memo.denormalize(null, input, {});
       expect(data).toBe(input);
     });
 
@@ -556,7 +548,7 @@ describe('MemoCache', () => {
       const memo = new MemoCache();
 
       const input = 5;
-      const { data } = memo.denormalize(input, null, {});
+      const { data } = memo.denormalize(null, input, {});
       expect(data).toBe(input);
     });
 
@@ -567,7 +559,7 @@ describe('MemoCache', () => {
         firstThing: { five: 5, seven: 42 },
         secondThing: { cars: 'never' },
       };
-      const { data } = memo.denormalize(input, undefined, {});
+      const { data } = memo.denormalize(undefined, input, {});
       expect(data).toBe(input);
     });
 
@@ -593,14 +585,14 @@ describe('MemoCache', () => {
       test('handles null at top level', () => {
         const memo = new MemoCache();
 
-        const denorm = memo.denormalize(null, { data: Article }, {}).data;
+        const denorm = memo.denormalize({ data: Article }, null, {}).data;
         expect(denorm).toEqual(null);
       });
 
       test('handles undefined at top level', () => {
         const memo = new MemoCache();
 
-        const denorm = memo.denormalize(undefined, { data: Article }, {}).data;
+        const denorm = memo.denormalize({ data: Article }, undefined, {}).data;
         expect(denorm).toEqual(undefined);
       });
 
@@ -610,7 +602,7 @@ describe('MemoCache', () => {
         const input = {
           data: { id: '5', title: 'hehe', author: null, comments: [] },
         };
-        const denorm = memo.denormalize(input, { data: Article }, {}).data;
+        const denorm = memo.denormalize({ data: Article }, input, {}).data;
         expect(denorm).toMatchInlineSnapshot(`
           {
             "data": Article {
@@ -634,7 +626,6 @@ describe('MemoCache', () => {
       });
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema,
           [{ id: 5 }],
           {
@@ -655,7 +646,6 @@ describe('MemoCache', () => {
       });
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema,
           [5],
           {
@@ -676,7 +666,6 @@ describe('MemoCache', () => {
       });
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema,
           ['5'],
           {
@@ -695,7 +684,6 @@ describe('MemoCache', () => {
       };
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema,
           [{ id: 5 }],
           {
@@ -712,7 +700,6 @@ describe('MemoCache', () => {
       };
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema2,
           [{ id: 5 }],
           {
@@ -731,7 +718,6 @@ describe('MemoCache', () => {
       };
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema,
           [{ id: 5 }],
           {
@@ -748,7 +734,6 @@ describe('MemoCache', () => {
       const schema = UnionResource.get.schema;
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema,
           [{ id: 5 }],
           {
@@ -765,7 +750,6 @@ describe('MemoCache', () => {
       const schema = UnionResource.get.schema;
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema,
           [{ id: 5, type: 'first' }],
           {
@@ -790,7 +774,6 @@ describe('MemoCache', () => {
       };
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema,
           [{ id: 5 }],
           {
@@ -813,7 +796,6 @@ describe('MemoCache', () => {
       };
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema,
           [{ username: 'bob' }],
           {
@@ -835,7 +817,6 @@ describe('MemoCache', () => {
       });
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema,
           [{ username: 'bob', mary: 'five' }],
           {
@@ -864,7 +845,6 @@ describe('MemoCache', () => {
       };
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema,
           [{ username: 'bob' }],
           {
@@ -886,7 +866,6 @@ describe('MemoCache', () => {
       });
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema,
           [{ hover: 'bob' }],
           {
@@ -915,7 +894,6 @@ describe('MemoCache', () => {
       };
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema,
           [{ username: 'bob' }],
           {
@@ -929,7 +907,6 @@ describe('MemoCache', () => {
       });
       expect(
         new MemoCache().buildQueryKey(
-          '',
           schema,
           [{ hover: 'bob' }],
           {
@@ -972,7 +949,6 @@ describe('MemoCache', () => {
         });
         expect(
           new MemoCache().buildQueryKey(
-            '',
             schema,
             ['5'],
             {
@@ -992,12 +968,11 @@ describe('MemoCache', () => {
           }),
         });
         const memo = new MemoCache();
-        expect(memo.buildQueryKey('', schema, ['5'], {}, {})).toEqual({
+        expect(memo.buildQueryKey(schema, ['5'], {}, {})).toEqual({
           data: { article: undefined },
         });
         expect(
           memo.buildQueryKey(
-            '',
             schema,
             ['5'],
             { [MyEntity.key]: { '5': { id: '5', title: 'hi' } } },
@@ -1020,7 +995,6 @@ describe('MemoCache', () => {
           indexes: {},
         };
         const first = memo.buildQueryKey(
-          '',
           schema,
           ['5'],
           state.entities,
@@ -1028,25 +1002,18 @@ describe('MemoCache', () => {
         );
         it('should maintain referential equality', () => {
           expect(
-            memo.buildQueryKey(
-              '',
-              schema,
-              ['5'],
-              state.entities,
-              state.indexes,
-            ),
+            memo.buildQueryKey(schema, ['5'], state.entities, state.indexes),
           ).toBe(first);
         });
         it('should not change on index update if not used', () => {
           expect(
-            memo.buildQueryKey('', schema, ['5'], state.entities, {
+            memo.buildQueryKey(schema, ['5'], state.entities, {
               [MyEntity.key]: {},
             }),
           ).toBe(first);
         });
         it('should be new when entity is updated', () => {
           const withEntity = memo.buildQueryKey(
-            '',
             schema,
             ['5'],
             { [MyEntity.key]: { '5': { id: '5', title: 'hi' } } },
@@ -1057,7 +1024,6 @@ describe('MemoCache', () => {
         });
         it('should be the same if other entities are updated', () => {
           const withEntity = memo.buildQueryKey(
-            '',
             schema,
             ['5'],
             {
@@ -1070,7 +1036,6 @@ describe('MemoCache', () => {
         });
         it('should be the same if other entities of the same type are updated', () => {
           const withEntity = memo.buildQueryKey(
-            '',
             schema,
             ['5'],
             {
@@ -1116,7 +1081,6 @@ describe('MemoCache', () => {
 
     test('works with indexes', () => {
       const m = new MemoCache().query(
-        '',
         Cat,
         [{ username: 'm' }],
         createInput(entities),
@@ -1126,7 +1090,6 @@ describe('MemoCache', () => {
       expect(m).toMatchSnapshot();
       expect(
         new MemoCache().query(
-          '',
           Cat,
           [{ username: 'doesnotexist' }],
           createInput(entities),
@@ -1137,7 +1100,6 @@ describe('MemoCache', () => {
 
     test('works with pk', () => {
       const m = new MemoCache().query(
-        '',
         Cat,
         [{ id: '1' }],
         createInput(entities),
@@ -1147,7 +1109,6 @@ describe('MemoCache', () => {
       expect(m).toMatchSnapshot();
       expect(
         new MemoCache().query(
-          '',
           Cat,
           [{ id: 'doesnotexist' }],
           createInput(entities),

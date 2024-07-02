@@ -42,5 +42,5 @@ const issueOrPullRequest = new schema.Array(
 const data = {
   /* ...*/
 };
-const normalizedData = normalize(data, issueOrPullRequest);
+const normalizedData = normalize(issueOrPullRequest, data);
 console.log(normalizedData);

@@ -5,8 +5,8 @@ import type { Schema } from '../interface.js';
 import type { DenormalizeNullable } from '../types.js';
 
 export function denormalize<S extends Schema>(
-  input: any,
   schema: S | undefined,
+  input: any,
   entities: any,
   args: readonly any[] = [],
 ): DenormalizeNullable<S> | symbol {
@@ -19,5 +19,5 @@ export function denormalize<S extends Schema>(
     getEntities(entities),
     new LocalCache(),
     args,
-  )(input, schema).data;
+  )(schema, input).data;
 }

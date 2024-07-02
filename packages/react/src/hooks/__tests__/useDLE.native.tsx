@@ -210,7 +210,7 @@ describe('useDLE', () => {
   describe('result is stale and options.invalidIfStale is false', () => {
     const fbmock = jest.fn();
 
-    const { entities, result } = normalize(payload, CoolerArticle);
+    const { entities, result } = normalize(CoolerArticle, payload);
     const fetchKey = CoolerArticleResource.get.key({ id: payload.id });
     const state = {
       ...initialState,

@@ -41,8 +41,8 @@ describe(`${schema.Union.name} normalization`, () => {
       'type',
     );
 
-    expect(normalize({ id: '1', type: 'users' }, union)).toMatchSnapshot();
-    expect(normalize({ id: '2', type: 'groups' }, union)).toMatchSnapshot();
+    expect(normalize(union, { id: '1', type: 'users' })).toMatchSnapshot();
+    expect(normalize(union, { id: '2', type: 'groups' })).toMatchSnapshot();
   });
 
   test('normalizes an array of multiple entities using a function to infer the schemaAttribute', () => {
@@ -62,11 +62,11 @@ describe(`${schema.Union.name} normalization`, () => {
       },
     );
 
-    expect(normalize({ id: '1', username: 'Janey' }, union)).toMatchSnapshot();
+    expect(normalize(union, { id: '1', username: 'Janey' })).toMatchSnapshot();
     expect(
-      normalize({ id: '2', groupname: 'People' }, union),
+      normalize(union, { id: '2', groupname: 'People' }),
     ).toMatchSnapshot();
-    expect(normalize({ id: '3', notdefined: 'yep' }, union)).toMatchSnapshot();
+    expect(normalize(union, { id: '3', notdefined: 'yep' })).toMatchSnapshot();
     expect(warnSpy.mock.calls).toMatchSnapshot();
   });
 });
@@ -246,12 +246,12 @@ describe('complex case', () => {
         },
       ],
     };
-    const denorm = normalize(response, waterfallSchema);
+    const denorm = normalize(waterfallSchema, response);
     expect(denorm).toMatchSnapshot();
     expect(
       new SimpleMemoCache().denormalize(
-        denorm.result,
         waterfallSchema,
+        denorm.result,
         denorm.entities,
       ),
     ).toMatchSnapshot();
@@ -286,16 +286,16 @@ describe.each([
 
         expect(
           denormalize(
-            createInput({ id: '1', schema: 'users' }),
             union,
+            createInput({ id: '1', schema: 'users' }),
             createInput(entities),
           ),
         ).toMatchSnapshot();
 
         expect(
           denormalize(
-            createInput({ id: '2', schema: 'groups' }),
             union,
+            createInput({ id: '2', schema: 'groups' }),
             createInput(entities),
           ),
         ).toMatchSnapshot();
@@ -314,16 +314,16 @@ describe.each([
 
         expect(
           denormalize(
-            createInput({ id: '1', schema: 'users' }),
             union,
+            createInput({ id: '1', schema: 'users' }),
             createInput(entities),
           ),
         ).toMatchSnapshot();
 
         expect(
           denormalize(
-            createInput({ id: '2', schema: 'groups' }),
             union,
+            createInput({ id: '2', schema: 'groups' }),
             createInput(entities),
           ),
         ).toMatchSnapshot();
@@ -345,7 +345,7 @@ describe.each([
         );
 
         expect(
-          denormalize(createInput({ id: '1' }), union, createInput(entities)),
+          denormalize(union, createInput({ id: '1' }), createInput(entities)),
         ).toMatchSnapshot();
         expect(warnSpy.mock.calls).toMatchSnapshot();
       });
@@ -366,7 +366,7 @@ describe.each([
         );
 
         expect(
-          denormalize('1', union, createInput(entities)),
+          denormalize(union, '1', createInput(entities)),
         ).toMatchSnapshot();
         expect(warnSpy.mock.calls).toMatchSnapshot();
       });
@@ -386,7 +386,7 @@ describe.each([
           },
         );
 
-        expect(denormalize(null, union, createInput(entities))).toBeNull();
+        expect(denormalize(union, null, createInput(entities))).toBeNull();
       });
 
       test('returns the original value when undefined is given', () => {
@@ -405,7 +405,7 @@ describe.each([
         );
 
         expect(
-          denormalize(undefined, union, createInput(entities)),
+          denormalize(union, undefined, createInput(entities)),
         ).toBeUndefined();
       });
     },

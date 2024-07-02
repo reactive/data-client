@@ -1,3 +1,5 @@
+import type { Visit } from '../interface.js';
+
 const validateSchema = definition => {
   /* istanbul ignore else */
   if (process.env.NODE_ENV !== 'production') {
@@ -22,11 +24,11 @@ export const normalize = (
   input: any,
   parent: any,
   key: any,
-  visit: any,
+  args: readonly any[],
+  visit: Visit,
   addEntity: any,
-  visitedEntities: any,
-  storeEntities: any,
-  args: any[],
+  getEntity: any,
+  checkLoop: any,
 ) => {
   schema = validateSchema(schema);
 
@@ -34,18 +36,7 @@ export const normalize = (
 
   // Special case: Arrays pass *their* parent on to their children, since there
   // is not any special information that can be gathered from themselves directly
-  return values.map((value, index) =>
-    visit(
-      value,
-      parent,
-      key,
-      schema,
-      addEntity,
-      visitedEntities,
-      storeEntities,
-      args,
-    ),
-  );
+  return values.map((value, index) => visit(schema, value, parent, key, args));
 };
 
 export const denormalize = (
@@ -56,7 +47,7 @@ export const denormalize = (
 ): any => {
   schema = validateSchema(schema);
   return input.map ?
-      input.map(entityOrId => unvisit(entityOrId, schema)).filter(filterEmpty)
+      input.map(entityOrId => unvisit(schema, entityOrId)).filter(filterEmpty)
     : input;
 };
 

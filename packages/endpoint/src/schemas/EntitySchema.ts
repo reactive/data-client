@@ -1,57 +1,13 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { CREATE } from './special.js';
-import type { Schema, GetIndex, GetEntity } from '../interface.js';
+import { Constructor, EntityOptions } from './EntityTypes.js';
+import type {
+  Schema,
+  GetIndex,
+  GetEntity,
+  CheckLoop,
+  Visit,
+} from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
-
-export type Constructor = abstract new (...args: any[]) => {};
-export type IDClass = abstract new (...args: any[]) => {
-  id: string | number | undefined;
-};
-export type PKClass = abstract new (...args: any[]) => {
-  pk(
-    parent?: any,
-    key?: string,
-    args?: readonly any[],
-  ): string | number | undefined;
-};
-
-// TODO: Figure out what Schema must be for each key
-type ValidSchemas<TInstance> = { [k in keyof TInstance]?: Schema };
-
-export type EntityOptions<TInstance extends {}> = {
-  readonly schema?: ValidSchemas<TInstance>;
-  readonly pk?:
-    | ((
-        value: TInstance,
-        parent?: any,
-        key?: string,
-      ) => string | number | undefined)
-    | keyof TInstance;
-  readonly key?: string;
-} & {
-  readonly [K in Extract<
-    keyof IEntityClass,
-    | 'process'
-    | 'merge'
-    | 'expiresAt'
-    | 'createIfValid'
-    | 'mergeWithStore'
-    | 'validate'
-    | 'shouldReorder'
-    | 'shouldUpdate'
-  >]?: IEntityClass<abstract new (...args: any[]) => TInstance>[K];
-};
-
-export interface RequiredPKOptions<TInstance extends {}>
-  extends EntityOptions<TInstance> {
-  readonly pk:
-    | ((
-        value: TInstance,
-        parent?: any,
-        key?: string,
-      ) => string | number | undefined)
-    | keyof TInstance;
-}
 
 /**
  * Represents data that should be deduped by specifying a primary key.
@@ -266,11 +222,11 @@ export default function EntitySchema<TBase extends Constructor>(
       input: any,
       parent: any,
       key: string | undefined,
-      visit: (...args: any) => any,
+      args: readonly any[],
+      visit: Visit,
       addEntity: (...args: any) => any,
-      visitedEntities: Record<string | symbol, any>,
-      storeEntities: any,
-      args?: readonly any[],
+      getEntity: GetEntity,
+      checkLoop: CheckLoop,
     ): any {
       const processedEntity = this.process(input, parent, key, args);
       let id = this.pk(processedEntity, parent, key, args);
@@ -279,7 +235,7 @@ export default function EntitySchema<TBase extends Constructor>(
         // this is useful for optimistic creates that don't need real ids - just something to hold their place
         id = `MISS-${Math.random()}`;
         // 'creates' conceptually should allow missing PK to make optimistic creates easy
-        if (process.env.NODE_ENV !== 'production' && !visitedEntities[CREATE]) {
+        if (process.env.NODE_ENV !== 'production' && !visit.creating) {
           const error = new Error(
             `Missing usable primary key when normalizing response.
 
@@ -302,19 +258,7 @@ export default function EntitySchema<TBase extends Constructor>(
       }
 
       /* Circular reference short-circuiter */
-      const entityType = this.key;
-      if (!(entityType in visitedEntities)) {
-        visitedEntities[entityType] = {};
-      }
-      if (!(id in visitedEntities[entityType])) {
-        visitedEntities[entityType][id] = [];
-      }
-      if (
-        visitedEntities[entityType][id].some((entity: any) => entity === input)
-      ) {
-        return id;
-      }
-      visitedEntities[entityType][id].push(input);
+      if (checkLoop(this.key, id, input)) return id;
 
       const errorMessage = this.validate(processedEntity);
       throwValidationError(errorMessage);
@@ -322,13 +266,10 @@ export default function EntitySchema<TBase extends Constructor>(
       Object.keys(this.schema).forEach(key => {
         if (Object.hasOwn(processedEntity, key)) {
           processedEntity[key] = visit(
+            this.schema[key],
             processedEntity[key],
             processedEntity,
             key,
-            this.schema[key],
-            addEntity,
-            visitedEntities,
-            storeEntities,
             args,
           );
         }
@@ -358,7 +299,7 @@ export default function EntitySchema<TBase extends Constructor>(
       this: T,
       input: any,
       args: any[],
-      unvisit: (input: any, schema: any) => any,
+      unvisit: (schema: any, input: any) => any,
     ): AbstractInstanceType<T> {
       if (typeof input === 'symbol') {
         return input as any;
@@ -367,7 +308,7 @@ export default function EntitySchema<TBase extends Constructor>(
       // note: iteration order must be stable
       for (const key of Object.keys(this.schema)) {
         const schema = this.schema[key];
-        const value = unvisit(input[key], schema);
+        const value = unvisit(schema, input[key]);
 
         if (typeof value === 'symbol') {
           // if default is not 'falsy', then this is required, so propagate INVALID symbol
@@ -494,207 +435,6 @@ function throwValidationError(errorMessage: string | undefined) {
     (error as any).status = 400;
     throw error;
   }
-}
-
-export interface IEntityClass<TBase extends Constructor = any> {
-  toJSON(): {
-    name: string;
-    schema: {
-      [k: string]: Schema;
-    };
-    key: string;
-  };
-  /** Defines nested entities
-   *
-   * @see https://dataclient.io/rest/api/Entity#schema
-   */
-  schema: {
-    [k: string]: Schema;
-  };
-  /** Returns the globally unique identifier for the static Entity
-   *
-   * @see https://dataclient.io/rest/api/Entity#key
-   */
-  key: string;
-  /** Defines indexes to enable lookup by
-   *
-   * @see https://dataclient.io/rest/api/Entity#indexes
-   */
-  indexes?: readonly string[] | undefined;
-  /**
-   * A unique identifier for each Entity
-   *
-   * @see https://dataclient.io/rest/api/Entity#pk
-   * @param [value] POJO of the entity or subset used
-   * @param [parent] When normalizing, the object which included the entity
-   * @param [key] When normalizing, the key where this entity was found
-   * @param [args] ...args sent to Endpoint
-   */
-  pk<
-    T extends (abstract new (
-      ...args: any[]
-    ) => IEntityInstance & InstanceType<TBase>) &
-      IEntityClass &
-      TBase,
-  >(
-    this: T,
-    value: Partial<AbstractInstanceType<T>>,
-    parent?: any,
-    key?: string,
-    args?: any[],
-  ): string | number | undefined;
-  /** Return true to merge incoming data; false keeps existing entity
-   *
-   * @see https://dataclient.io/docs/api/schema.Entity#shouldUpdate
-   */
-  shouldUpdate(
-    existingMeta: {
-      date: number;
-      fetchedAt: number;
-    },
-    incomingMeta: {
-      date: number;
-      fetchedAt: number;
-    },
-    existing: any,
-    incoming: any,
-  ): boolean;
-  /** Determines the order of incoming entity vs entity already in store
-   *
-   * @see https://dataclient.io/docs/api/schema.Entity#shouldReorder
-   * @returns true if incoming entity should be first argument of merge()
-   */
-  shouldReorder(
-    existingMeta: { date: number; fetchedAt: number },
-    incomingMeta: { date: number; fetchedAt: number },
-    existing: any,
-    incoming: any,
-  ): boolean;
-  /** Creates new instance copying over defined values of arguments
-   *
-   * @see https://dataclient.io/docs/api/schema.Entity#merge
-   */
-  merge(existing: any, incoming: any): any;
-  /** Run when an existing entity is found in the store
-   *
-   * @see https://dataclient.io/docs/api/schema.Entity#mergeWithStore
-   */
-  mergeWithStore(
-    existingMeta: {
-      date: number;
-      fetchedAt: number;
-    },
-    incomingMeta: {
-      date: number;
-      fetchedAt: number;
-    },
-    existing: any,
-    incoming: any,
-  ): any;
-  /** Run when an existing entity is found in the store
-   *
-   * @see https://dataclient.io/docs/api/schema.Entity#mergeMetaWithStore
-   */
-  mergeMetaWithStore(
-    existingMeta: {
-      expiresAt: number;
-      date: number;
-      fetchedAt: number;
-    },
-    incomingMeta: { expiresAt: number; date: number; fetchedAt: number },
-    existing: any,
-    incoming: any,
-  ): {
-    expiresAt: number;
-    date: number;
-    fetchedAt: number;
-  };
-  /** Factory method to convert from Plain JS Objects.
-   *
-   * @param [props] Plain Object of properties to assign.
-   */
-  fromJS<
-    T extends (abstract new (
-      ...args: any[]
-    ) => IEntityInstance & InstanceType<TBase>) &
-      IEntityClass &
-      TBase,
-  >(
-    this: T,
-    props?: Partial<AbstractInstanceType<T>>,
-  ): AbstractInstanceType<T>;
-  /** Called when denormalizing an entity to create an instance when 'valid'
-   *
-   * @param [props] Plain Object of properties to assign.
-   * @see https://dataclient.io/rest/api/Entity#createIfValid
-   */
-  createIfValid<
-    T extends (abstract new (
-      ...args: any[]
-    ) => IEntityInstance & InstanceType<TBase>) &
-      IEntityClass &
-      TBase,
-  >(
-    this: T,
-    props: Partial<AbstractInstanceType<T>>,
-  ): AbstractInstanceType<T> | undefined;
-  /** Do any transformations when first receiving input
-   *
-   * @see https://dataclient.io/rest/api/Entity#process
-   */
-  process(input: any, parent: any, key: string | undefined, args: any[]): any;
-  normalize(
-    input: any,
-    parent: any,
-    key: string | undefined,
-    visit: (...args: any) => any,
-    addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-  ): any;
-  /** Do any transformations when first receiving input
-   *
-   * @see https://dataclient.io/rest/api/Entity#validate
-   */
-  validate(processedEntity: any): string | undefined;
-  /** Builds a key access the entity without endpoint results
-   *
-   * @see https://dataclient.io/rest/api/Entity#queryKey
-   */
-  queryKey(
-    args: readonly any[],
-    queryKey: any,
-    getEntity: GetEntity,
-    getIndex: GetIndex,
-  ): any;
-  denormalize<
-    T extends (abstract new (
-      ...args: any[]
-    ) => IEntityInstance & InstanceType<TBase>) &
-      IEntityClass &
-      TBase,
-  >(
-    this: T,
-    input: any,
-    args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
-  ): AbstractInstanceType<T>;
-  /** All instance defaults set */
-  readonly defaults: any;
-  //set(entity: any, key: string, value: any): void;
-}
-export interface IEntityInstance {
-  /**
-   * A unique identifier for each Entity
-   *
-   * @param [parent] When normalizing, the object which included the entity
-   * @param [key] When normalizing, the key where this entity was found
-   * @param [args] ...args sent to Endpoint
-   */
-  pk(
-    parent?: any,
-    key?: string,
-    args?: readonly any[],
-  ): string | number | undefined;
 }
 
 function queryKeyCandidate(

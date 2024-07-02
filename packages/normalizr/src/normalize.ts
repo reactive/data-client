@@ -1,58 +1,68 @@
 import { INVALID } from './denormalize/symbol.js';
-import type { EntityInterface, Schema, NormalizedIndex } from './interface.js';
+import type {
+  EntityInterface,
+  Schema,
+  NormalizedIndex,
+  GetEntity,
+} from './interface.js';
+import { createGetEntity } from './memo/MemoCache.js';
 import { normalize as arrayNormalize } from './schemas/Array.js';
 import { normalize as objectNormalize } from './schemas/Object.js';
 import type { NormalizeNullable, NormalizedSchema } from './types.js';
 
-const visit = (
-  value: any,
-  parent: any,
-  key: any,
-  schema: any,
+const getVisit = (
   addEntity: (
     schema: EntityInterface,
     processedEntity: any,
     id: string,
   ) => void,
-  visitedEntities: any,
-  storeEntities: any,
-  args: any[],
+  getEntity: GetEntity,
 ) => {
-  if (!value || !schema) {
-    return value;
-  }
-
-  if (schema.normalize && typeof schema.normalize === 'function') {
-    if (typeof value !== 'object') {
-      if (schema.pk) return `${value}`;
+  const checkLoop = getCheckLoop();
+  const visit = (
+    schema: any,
+    value: any,
+    parent: any,
+    key: any,
+    args: readonly any[],
+  ) => {
+    if (!value || !schema) {
       return value;
     }
-    return schema.normalize(
+
+    if (schema.normalize && typeof schema.normalize === 'function') {
+      if (typeof value !== 'object') {
+        if (schema.pk) return `${value}`;
+        return value;
+      }
+      return schema.normalize(
+        value,
+        parent,
+        key,
+        args,
+        visit,
+        addEntity,
+        getEntity,
+        checkLoop,
+      );
+    }
+
+    if (typeof value !== 'object' || typeof schema !== 'object') return value;
+
+    const method = Array.isArray(schema) ? arrayNormalize : objectNormalize;
+    return method(
+      schema,
       value,
       parent,
       key,
+      args,
       visit,
       addEntity,
-      visitedEntities,
-      storeEntities,
-      args,
+      getEntity,
+      checkLoop,
     );
-  }
-
-  if (typeof value !== 'object' || typeof schema !== 'object') return value;
-
-  const method = Array.isArray(schema) ? arrayNormalize : objectNormalize;
-  return method(
-    schema,
-    value,
-    parent,
-    key,
-    visit,
-    addEntity,
-    visitedEntities,
-    storeEntities,
-    args,
-  );
+  };
+  return visit;
 };
 
 const addEntities =
@@ -177,6 +187,50 @@ function expectedSchemaType(schema: Schema) {
     );
 }
 
+function getCheckLoop() {
+  const visitedEntities = {};
+  /* Returns true if a circular reference is found */
+  return function checkLoop(entityKey: string, pk: string, input: object) {
+    if (!(entityKey in visitedEntities)) {
+      visitedEntities[entityKey] = {};
+    }
+    if (!(pk in visitedEntities[entityKey])) {
+      visitedEntities[entityKey][pk] = [];
+    }
+    if (
+      visitedEntities[entityKey][pk].some((entity: any) => entity === input)
+    ) {
+      return true;
+    }
+    visitedEntities[entityKey][pk].push(input);
+    return false;
+  };
+}
+
+interface StoreData<E> {
+  entities: Readonly<E>;
+  indexes: Readonly<NormalizedIndex>;
+  entityMeta: {
+    readonly [entityKey: string]: {
+      readonly [pk: string]: {
+        readonly date: number;
+        readonly expiresAt: number;
+        readonly fetchedAt: number;
+      };
+    };
+  };
+}
+const emptyStore: StoreData<any> = {
+  entities: {},
+  indexes: {},
+  entityMeta: {},
+};
+interface NormalizeMeta {
+  expiresAt?: number;
+  date?: number;
+  fetchedAt?: number;
+  args?: readonly any[];
+}
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const normalize = <
   S extends Schema = Schema,
@@ -186,33 +240,23 @@ export const normalize = <
   >,
   R = NormalizeNullable<S>,
 >(
+  schema: S | undefined,
   input: any,
-  schema?: S,
-  args: any[] = [],
-  storeEntities: Readonly<E> = {} as any,
-  storeIndexes: Readonly<NormalizedIndex> = {},
-  storeEntityMeta: {
-    readonly [entityKey: string]: {
-      readonly [pk: string]: {
-        readonly date: number;
-        readonly expiresAt: number;
-        readonly fetchedAt: number;
-      };
-    };
-  } = {},
-  meta: { expiresAt: number; date: number; fetchedAt: number } = {
-    date: Date.now(),
-    expiresAt: Infinity,
-    fetchedAt: 0,
-  },
+  {
+    date = Date.now(),
+    expiresAt = Infinity,
+    fetchedAt = 0,
+    args = [],
+  }: NormalizeMeta = {},
+  { entities, indexes, entityMeta }: StoreData<E> = emptyStore,
 ): NormalizedSchema<E, R> => {
   // no schema means we don't process at all
   if (schema === undefined || schema === null)
     return {
-      entities: storeEntities,
-      indexes: storeIndexes,
       result: input,
-      entityMeta: storeEntityMeta,
+      entities,
+      indexes,
+      entityMeta,
     };
 
   const schemaType = expectedSchemaType(schema);
@@ -265,28 +309,22 @@ See https://dataclient.io/rest/api/RestEndpoint#parseResponse for more informati
 
   const newEntities: E = {} as any;
   const newIndexes: NormalizedIndex = {} as any;
-  const entities: E = { ...storeEntities } as any;
-  const indexes: NormalizedIndex = { ...storeIndexes };
-  const entityMeta: any = { ...storeEntityMeta };
+  const ret: NormalizedSchema<E, R> = {
+    result: '' as any,
+    entities: { ...entities },
+    indexes: { ...indexes },
+    entityMeta: { ...entityMeta },
+  };
   const addEntity = addEntities(
     newEntities,
     newIndexes,
-    entities,
-    indexes,
-    entityMeta,
-    { expiresAt: meta.expiresAt, date: meta.date, fetchedAt: meta.fetchedAt },
+    ret.entities,
+    ret.indexes,
+    ret.entityMeta,
+    { expiresAt, date, fetchedAt },
   );
-  const visitedEntities = {};
 
-  const result = visit(
-    input,
-    input,
-    undefined,
-    schema,
-    addEntity,
-    visitedEntities,
-    storeEntities,
-    args,
-  );
-  return { entities, indexes, result, entityMeta };
+  const visit = getVisit(addEntity, createGetEntity(entities));
+  ret.result = visit(schema, input, input, undefined, args);
+  return ret;
 };

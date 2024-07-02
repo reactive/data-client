@@ -10,10 +10,10 @@ import { denormalize as objectDenormalize } from '../schemas/Object.js';
 import type { EntityPath } from '../types.js';
 
 function unvisitEntity(
-  entityOrId: Record<string, any> | string,
   schema: EntityInterface,
+  entityOrId: Record<string, any> | string,
   args: readonly any[],
-  unvisit: (input: any, schema: any) => any,
+  unvisit: (schema: any, input: any) => any,
   getEntity: GetEntity,
   cache: Cache,
 ): object | undefined | symbol {
@@ -82,7 +82,7 @@ function noCacheGetEntity(
 function unvisitEntityObject(
   entity: object,
   schema: EntityInterface<any>,
-  unvisit: (input: any, schema: any) => any,
+  unvisit: (schema: any, input: any) => any,
   pk: string,
   localCacheKey: Record<string, any>,
   args: readonly any[],
@@ -107,7 +107,7 @@ const getUnvisit = (
   cache: Cache,
   args: readonly any[],
 ) => {
-  function unvisit(input: any, schema: any): any {
+  function unvisit(schema: any, input: any): any {
     if (!schema) return input;
 
     if (input === null || input === undefined) {
@@ -128,7 +128,7 @@ const getUnvisit = (
       }
     } else {
       if (isEntity(schema)) {
-        return unvisitEntity(input, schema, args, unvisit, getEntity, cache);
+        return unvisitEntity(schema, input, args, unvisit, getEntity, cache);
       }
 
       return schema.denormalize(input, args, unvisit);
@@ -137,11 +137,11 @@ const getUnvisit = (
     return input;
   }
 
-  return (input: any, schema: any): { data: any; paths: EntityPath[] } => {
+  return (schema: any, input: any): { data: any; paths: EntityPath[] } => {
     // in the case where WeakMap cannot be used
     // this test ensures null is properly excluded from WeakMap
     const cachable = Object(input) === input && Object(schema) === schema;
-    return cache.getResults(input, cachable, () => unvisit(input, schema));
+    return cache.getResults(input, cachable, () => unvisit(schema, input));
   };
 };
 export default getUnvisit;

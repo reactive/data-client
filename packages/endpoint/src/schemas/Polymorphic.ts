@@ -1,4 +1,5 @@
 import { isImmutable } from './ImmutableUtils.js';
+import { Visit } from '../interface.js';
 
 export default class PolymorphicSchema {
   private declare _schemaAttribute: any;
@@ -44,16 +45,7 @@ export default class PolymorphicSchema {
     return this.schema[attr];
   }
 
-  normalizeValue(
-    value: any,
-    parent: any,
-    key: any,
-    visit: any,
-    addEntity: any,
-    visitedEntities: any,
-    storeEntities: any,
-    args?: any[],
-  ) {
+  normalizeValue(value: any, parent: any, key: any, args: any[], visit: Visit) {
     if (!value) return value;
     const schema = this.inferSchema(value, parent, key);
     if (!schema) {
@@ -75,16 +67,7 @@ Value: ${JSON.stringify(value, undefined, 2)}`,
       }
       return value;
     }
-    const normalizedValue = visit(
-      value,
-      parent,
-      key,
-      schema,
-      addEntity,
-      visitedEntities,
-      storeEntities,
-      args,
-    );
+    const normalizedValue = visit(schema, value, parent, key, args);
     return (
         this.isSingleSchema ||
           normalizedValue === undefined ||
@@ -108,7 +91,7 @@ Value: ${JSON.stringify(value, undefined, 2)}`,
       // construct the correct Entity instance
       if (typeof value === 'object' && value !== null) {
         const schema = this.inferSchema(value, undefined, undefined);
-        if (schema) return unvisit(value, schema);
+        if (schema) return unvisit(schema, value);
       }
       /* istanbul ignore else */
       if (process.env.NODE_ENV !== 'production' && value) {
@@ -124,6 +107,6 @@ Value: ${JSON.stringify(value, undefined, 2)}.`,
       : isImmutable(value) ? value.get('id')
       : value.id;
     const schema = this.isSingleSchema ? this.schema : this.schema[schemaKey];
-    return unvisit(id || value, schema);
+    return unvisit(schema, id || value);
   }
 }

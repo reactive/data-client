@@ -5,6 +5,7 @@ import type {
   SchemaClass,
   GetIndex,
   GetEntity,
+  CheckLoop,
 } from './interface.js';
 import type {
   AbstractInstanceType,
@@ -19,15 +20,15 @@ import type {
   EntityMap,
 } from './normal.js';
 import { EntityFields } from './schemas/EntityFields.js';
-import {
-  EntityOptions,
+import type {
   IEntityClass,
   IEntityInstance,
+  EntityOptions,
   RequiredPKOptions,
   IDClass,
   Constructor,
   PKClass,
-} from './schemas/EntitySchema.js';
+} from './schemas/EntityTypes.js';
 import { default as Invalidate } from './schemas/Invalidate.js';
 import { default as Query } from './schemas/Query.js';
 import type {
@@ -69,11 +70,11 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
     input: any,
     parent: any,
     key: any,
+    args: any[],
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: any,
-    args: any[],
+    getEntity: GetEntity,
+    checkLoop: CheckLoop,
   ): (S extends EntityMap ? UnionResult<S> : Normalize<S>)[];
 
   _normalizeNullable():
@@ -87,7 +88,7 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
   denormalize(
     input: {},
     args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
 
   queryKey(
@@ -126,11 +127,11 @@ export class All<
     input: any,
     parent: any,
     key: any,
+    args: any[],
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: any,
-    args?: any[],
+    getEntity: GetEntity,
+    checkLoop: CheckLoop,
   ): (S extends EntityMap ? UnionResult<S> : Normalize<S>)[];
 
   _normalizeNullable():
@@ -144,7 +145,7 @@ export class All<
   denormalize(
     input: {},
     args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
 
   queryKey(
@@ -174,11 +175,11 @@ export class Object<O extends Record<string, any> = Record<string, Schema>>
     input: any,
     parent: any,
     key: any,
+    args: any[],
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: any,
-    args?: any[],
+    getEntity: GetEntity,
+    checkLoop: CheckLoop,
   ): NormalizeObject<O>;
 
   _normalizeNullable(): NormalizedNullableObject<O>;
@@ -188,7 +189,7 @@ export class Object<O extends Record<string, any> = Record<string, Schema>>
   denormalize(
     input: {},
     args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ): DenormalizeObject<O>;
 
   queryKey(
@@ -264,11 +265,11 @@ export interface UnionInstance<
     input: any,
     parent: any,
     key: any,
+    args: any[],
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: any,
-    args?: any[],
+    getEntity: GetEntity,
+    checkLoop: CheckLoop,
   ): UnionResult<Choices>;
 
   _normalizeNullable(): UnionResult<Choices> | undefined;
@@ -280,7 +281,7 @@ export interface UnionInstance<
   denormalize(
     input: {},
     args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ): AbstractInstanceType<Choices[keyof Choices]>;
 
   queryKey(
@@ -338,11 +339,11 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
     input: any,
     parent: any,
     key: any,
+    args: any[],
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: any,
-    args?: any[],
+    getEntity: GetEntity,
+    checkLoop: CheckLoop,
   ): Record<
     string,
     Choices extends EntityMap ? UnionResult<Choices> : Normalize<Choices>
@@ -365,7 +366,7 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
   denormalize(
     input: {},
     args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ): Record<
     string,
     Choices extends EntityMap<infer T> ? T : Denormalize<Choices>

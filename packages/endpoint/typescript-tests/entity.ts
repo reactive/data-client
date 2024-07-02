@@ -53,10 +53,10 @@ const data = {
 const user = User;
 const tweet = Tweet;
 
-const normalizedData = normalize(data, tweet);
+const normalizedData = normalize(tweet, data);
 const denormalizedData = denormalize(
-  normalizedData.result,
   tweet,
+  normalizedData.result,
   normalizedData.entities,
 );
 

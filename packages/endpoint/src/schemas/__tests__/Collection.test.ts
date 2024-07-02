@@ -60,14 +60,14 @@ describe(`${schema.Collection.name} normalization`, () => {
 
   test('should throw a custom error if data loads with string unexpected value', () => {
     function normalizeBad() {
-      normalize('abc', userTodos);
+      normalize(userTodos, 'abc');
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
 
   test('should throw a custom error if data loads with string unexpected value', () => {
     function normalizeBad() {
-      normalize(null, userTodos.push);
+      normalize(userTodos.push, null);
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
@@ -78,25 +78,22 @@ describe(`${schema.Collection.name} normalization`, () => {
         [],
         undefined as any,
         '',
-        () => undefined,
-        () => undefined,
-        {},
-        {},
         [],
+        () => undefined,
+        () => undefined,
+        () => undefined,
+        () => false,
       );
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
 
   test('normalizes nested collections', () => {
-    const state = normalize(
-      {
-        id: '1',
-        username: 'bob',
-        todos: [{ id: '5', title: 'finish collections' }],
-      },
-      User,
-    );
+    const state = normalize(User, {
+      id: '1',
+      username: 'bob',
+      todos: [{ id: '5', title: 'finish collections' }],
+    });
     expect(state).toMatchSnapshot();
     //const a: string | undefined = state.result;
     // @ts-expect-error
@@ -105,9 +102,9 @@ describe(`${schema.Collection.name} normalization`, () => {
 
   test('normalizes top level collections', () => {
     const state = normalize(
-      [{ id: '5', title: 'finish collections' }],
       userTodos,
-      [{ userId: '1' }],
+      [{ id: '5', title: 'finish collections' }],
+      { args: [{ userId: '1' }] },
     );
     expect(state).toMatchSnapshot();
     //const a: string[] | undefined = state.result;
@@ -117,9 +114,9 @@ describe(`${schema.Collection.name} normalization`, () => {
 
   test('normalizes top level collections (no args)', () => {
     const state = normalize(
-      [{ id: '5', title: 'finish collections' }],
       new schema.Collection(new schema.Array(Todo)),
-      [{ userId: '1' }],
+      [{ id: '5', title: 'finish collections' }],
+      { args: [{ userId: '1' }] },
     );
     expect(state).toMatchSnapshot();
     //const a: string[] | undefined = state.result;
@@ -128,14 +125,11 @@ describe(`${schema.Collection.name} normalization`, () => {
   });
 
   test('normalizes already processed entities', () => {
-    const state = normalize(
-      {
-        id: '1',
-        username: 'bob',
-        todos: ['5', '6'],
-      },
-      User,
-    );
+    const state = normalize(User, {
+      id: '1',
+      username: 'bob',
+      todos: ['5', '6'],
+    });
     expect(state).toMatchSnapshot();
   });
 
@@ -186,12 +180,10 @@ describe(`${schema.Collection.name} normalization`, () => {
       result: '1',
     };
     const state = normalize(
-      [{ id: '10', title: 'create new items' }],
       User.schema.todos.push,
-      [{ userId: '1' }],
-      init.entities,
-      init.indexes,
-      init.entityMeta,
+      [{ id: '10', title: 'create new items' }],
+      { args: [{ userId: '1' }] },
+      init,
     );
     expect(state).toMatchSnapshot();
   });
@@ -201,56 +193,48 @@ describe(`${schema.Collection.name} normalization`, () => {
     let state = {
       ...initialState,
       ...normalize(
-        [{ id: '10', title: 'create new items' }],
         initializingSchema,
-        [{ userId: '1' }],
-        initialState.entities,
-        initialState.indexes,
-        initialState.entityMeta,
+        [{ id: '10', title: 'create new items' }],
+        { args: [{ userId: '1' }] },
+        initialState,
       ),
     };
     state = {
       ...state,
       ...normalize(
-        [{ id: '10', title: 'create new items' }],
         initializingSchema,
-        [{ userId: '1', ignoredMe: '5' }],
-        state.entities,
-        state.indexes,
-        state.entityMeta,
+        [{ id: '10', title: 'create new items' }],
+        { args: [{ userId: '1', ignoredMe: '5' }] },
+        state,
       ),
     };
     state = {
       ...state,
       ...normalize(
+        initializingSchema,
         [{ id: '20', title: 'second user' }],
-        initializingSchema,
-        [{ userId: '2' }],
-        state.entities,
-        state.indexes,
-        state.entityMeta,
+        { args: [{ userId: '2' }] },
+        state,
       ),
     };
     state = {
       ...state,
       ...normalize(
+        initializingSchema,
         [
           { id: '10', title: 'create new items' },
           { id: '20', title: 'the ignored one' },
         ],
-        initializingSchema,
-        [{}],
-        state.entities,
-        state.indexes,
-        state.entityMeta,
+        { args: [{}] },
+        state,
       ),
     };
     function validate(sch: schema.Collection<(typeof Todo)[]>) {
       expect(
         (
           denormalize(
-            JSON.stringify({ userId: '1' }),
             sch,
+            JSON.stringify({ userId: '1' }),
             state.entities,
           ) as any
         )?.length,
@@ -258,18 +242,16 @@ describe(`${schema.Collection.name} normalization`, () => {
       const testState = {
         ...state,
         ...normalize(
-          [{ id: '30', title: 'pushed to the end' }],
           sch.push,
-          [{ userId: '1' }],
-          state.entities,
-          state.indexes,
-          state.entityMeta,
+          [{ id: '30', title: 'pushed to the end' }],
+          { args: [{ userId: '1' }] },
+          state,
         ),
       };
       function getResponse(...args: any) {
         return denormalize(
-          sch.pk(undefined, undefined, '', args),
           sch,
+          sch.pk(undefined, undefined, '', args),
           testState.entities,
         ) as any;
       }
@@ -408,13 +390,13 @@ describe(`${schema.Collection.name} denormalization`, () => {
 
   test('denormalizes nested collections', () => {
     expect(
-      denormalize(normalizeNested.result, User, normalizeNested.entities),
+      denormalize(User, normalizeNested.result, normalizeNested.entities),
     ).toMatchSnapshot();
   });
 
   test('denormalizes top level collections', () => {
     expect(
-      denormalize('{"userId":"1"}', userTodos, normalizeNested.entities),
+      denormalize(userTodos, '{"userId":"1"}', normalizeNested.entities),
     ).toMatchSnapshot();
   });
 
@@ -422,15 +404,15 @@ describe(`${schema.Collection.name} denormalization`, () => {
     const memo = new SimpleMemoCache();
     test('denormalizes nested and top level share referential equality', () => {
       const todos = memo.denormalize(
-        '{"userId":"1"}',
         userTodos,
+        '{"userId":"1"}',
         normalizeNested.entities,
 
         [{ userId: '1' }],
       );
       const user = memo.denormalize(
-        normalizeNested.result,
         User,
+        normalizeNested.result,
         normalizeNested.entities,
       );
       expect(user).toBeDefined();
@@ -441,23 +423,21 @@ describe(`${schema.Collection.name} denormalization`, () => {
 
     test('push updates cache', () => {
       const pushedState = normalize(
-        [{ id: '10', title: 'create new items' }],
         User.schema.todos.push,
-        [{ userId: '1' }],
-        normalizeNested.entities,
-        normalizeNested.indexes,
-        normalizeNested.entityMeta,
+        [{ id: '10', title: 'create new items' }],
+        { args: [{ userId: '1' }] },
+        normalizeNested,
       );
       const todos = memo.denormalize(
-        '{"userId":"1"}',
         userTodos,
+        '{"userId":"1"}',
         pushedState.entities,
 
         [{ userId: '1' }],
       );
       const user = memo.denormalize(
-        normalizeNested.result,
         User,
+        normalizeNested.result,
         pushedState.entities,
         [{ id: '1' }],
       );
@@ -470,22 +450,20 @@ describe(`${schema.Collection.name} denormalization`, () => {
 
     test('unshift places at start', () => {
       const unshiftState = normalize(
-        [{ id: '2', title: 'from the start' }],
         User.schema.todos.unshift,
-        [{ userId: '1' }],
-        normalizeNested.entities,
-        normalizeNested.indexes,
-        normalizeNested.entityMeta,
+        [{ id: '2', title: 'from the start' }],
+        { args: [{ userId: '1' }] },
+        normalizeNested,
       );
       const todos = memo.denormalize(
-        '{"userId":"1"}',
         userTodos,
+        '{"userId":"1"}',
         unshiftState.entities,
         [{ userId: '1' }],
       );
       const user = memo.denormalize(
-        normalizeNested.result,
         User,
+        normalizeNested.result,
         unshiftState.entities,
         [{ id: '1' }],
       );
@@ -499,8 +477,8 @@ describe(`${schema.Collection.name} denormalization`, () => {
 
     test('denormalizes unshift', () => {
       const todos = memo.denormalize(
-        [{ id: '2', title: 'from the start' }],
         userTodos.unshift,
+        [{ id: '2', title: 'from the start' }],
         {},
         [{ id: '1' }],
       );
@@ -522,8 +500,8 @@ describe(`${schema.Collection.name} denormalization`, () => {
 
     test('denormalizes unshift (single item)', () => {
       const todos = memo.denormalize(
-        { id: '2', title: 'from the start' },
         userTodos.unshift,
+        { id: '2', title: 'from the start' },
         {},
         [{ id: '1' }],
       );
@@ -545,7 +523,6 @@ describe(`${schema.Collection.name} denormalization`, () => {
   it('should buildQueryKey with matching args', () => {
     const memo = new MemoCache();
     const queryKey = memo.buildQueryKey(
-      '',
       userTodos,
       [{ userId: '1' }],
       normalizeNested.entities,
@@ -553,7 +530,7 @@ describe(`${schema.Collection.name} denormalization`, () => {
     );
     expect(queryKey).toBeDefined();
     // now ensure our queryKey is usable
-    const results = denormalize(queryKey, userTodos, normalizeNested.entities);
+    const results = denormalize(userTodos, queryKey, normalizeNested.entities);
     expect(results).toBeDefined();
     expect(results).toMatchInlineSnapshot(`
       [
@@ -570,7 +547,6 @@ describe(`${schema.Collection.name} denormalization`, () => {
   it('should buildQueryKey undefined when not in cache', () => {
     const memo = new MemoCache();
     const queryKey = memo.buildQueryKey(
-      '',
       userTodos,
       [{ userId: '100' }],
       normalizeNested.entities,
@@ -582,7 +558,6 @@ describe(`${schema.Collection.name} denormalization`, () => {
   it('should buildQueryKey undefined with nested Collection', () => {
     const memo = new MemoCache();
     const queryKey = memo.buildQueryKey(
-      '',
       User.schema.todos,
       [{ userId: '1' }],
       normalizeNested.entities,

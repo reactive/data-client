@@ -1,8 +1,7 @@
 import { consistentSerialize } from './consistentSerialize.js';
-import { CREATE } from './special.js';
-import { GetEntity, PolymorphicInterface } from '../interface.js';
+import { CheckLoop, GetEntity, PolymorphicInterface } from '../interface.js';
 import { Values, Array as ArraySchema } from '../schema.js';
-import type { DefaultArgs } from '../schemaTypes.js';
+import type { DefaultArgs, EntityInterface } from '../schemaTypes.js';
 
 const pushMerge = (existing: any, incoming: any) => {
   return [...existing, ...incoming];
@@ -149,21 +148,21 @@ export default class CollectionSchema<
     input: any,
     parent: Parent,
     key: string,
+    args: any[],
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: any,
-    args: any,
+    getEntity: any,
+    checkLoop: any,
   ): string {
     const normalizedValue = this.schema.normalize(
       input,
       parent,
       key,
+      args,
       visit,
       addEntity,
-      visitedEntities,
-      storeEntities,
-      args,
+      getEntity,
+      checkLoop,
     );
     const id = this.pk(normalizedValue, parent, key, args);
 
@@ -234,7 +233,7 @@ export default class CollectionSchema<
   denormalize(
     input: any,
     args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ): ReturnType<S['denormalize']> {
     return this.schema.denormalize(input, args, unvisit) as any;
   }
@@ -307,31 +306,36 @@ function normalizeCreate(
   input: any,
   parent: any,
   key: string,
-  visit: (...args: any) => any,
-  addEntity: (...args: any) => any,
-  visitedEntities: Record<string | symbol, any>,
-  storeEntities: Record<string, any>,
   args: readonly any[],
+  visit: ((...args: any) => any) & { creating?: boolean },
+  addEntity: (schema: any, processedEntity: any, id: string) => void,
+  getEntity: GetEntity,
+  checkLoop: CheckLoop,
 ): any {
-  // means 'this is a creation endpoint' - so real PKs are not required
-  visitedEntities[CREATE] = {};
+  if (process.env.NODE_ENV !== 'production') {
+    // means 'this is a creation endpoint' - so real PKs are not required
+    // this is used by Entity.normalize() to determine whether to allow empty pks
+    // visit instances are created on each normalize call so this will safely be reset
+    visit.creating = true;
+  }
   const normalizedValue = this.schema.normalize(
     !(this.schema instanceof ArraySchema) || Array.isArray(input) ?
       input
     : [input],
     parent,
     key,
+    args,
     visit,
     addEntity,
-    visitedEntities,
-    storeEntities,
-    args,
+    getEntity,
+    checkLoop,
   );
   // parent is args when not nested
   const filterCollections = (this.createCollectionFilter as any)(...args);
   // add to any collections that match this
-  if (storeEntities[this.key])
-    Object.keys(storeEntities[this.key]).forEach(collectionPk => {
+  const entities = getEntity(this.key);
+  if (entities)
+    Object.keys(entities).forEach(collectionPk => {
       if (!filterCollections(JSON.parse(collectionPk))) return;
       addEntity(this, normalizedValue, collectionPk);
     });
@@ -347,7 +351,7 @@ function denormalize(
   this: CollectionSchema<any, any>,
   input: any,
   args: readonly any[],
-  unvisit: (input: any, schema: any) => any,
+  unvisit: (schema: any, input: any) => any,
 ): any {
   return Array.isArray(input) ?
       (this.schema.denormalize(input, args, unvisit) as any)

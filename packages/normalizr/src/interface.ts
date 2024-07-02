@@ -25,16 +25,16 @@ export interface SchemaSimple<T = any, Args extends any[] = any[]> {
     input: any,
     parent: any,
     key: any,
+    args: any[],
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: any,
-    args: any[],
+    getEntity: (...args: any) => any,
+    checkLoop: (...args: any) => any,
   ): any;
   denormalize(
     input: {},
     args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ): T;
   queryKey(
     args: Args,
@@ -97,10 +97,20 @@ export interface EntityTable {
     | undefined;
 }
 
+/** Visits next data + schema while recurisvely normalizing */
+export interface Visit {
+  (schema: any, value: any, parent: any, key: any, args: readonly any[]): any;
+}
+
+/** Returns true if a circular reference is found */
+export interface CheckLoop {
+  (entityKey: string, pk: string, input: object): boolean;
+}
+
 /** Get Array of entities with map function applied */
 export interface GetEntity {
-  (entityKey: string): { readonly [pk: string]: any } | undefined;
-  (entityKey: string, pk: string | number): any;
+  (entityKey: string | symbol): { readonly [pk: string]: any } | undefined;
+  (entityKey: string | symbol, pk: string | number): any;
 }
 /** Get PK using an Entity Index */
 export interface GetIndex {

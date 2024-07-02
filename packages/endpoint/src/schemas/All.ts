@@ -1,5 +1,5 @@
 import ArraySchema from './Array.js';
-import { EntityTable, GetEntity } from '../interface.js';
+import { EntityTable, GetEntity, Visit } from '../interface.js';
 import { EntityInterface, EntityMap, SchemaFunction } from '../schema.js';
 import { INVALID } from '../special.js';
 
@@ -24,22 +24,22 @@ export default class AllSchema<
     input: any,
     parent: any,
     key: any,
-    visit: any,
+    args: any[],
+    visit: Visit,
     addEntity: any,
-    visitedEntities: any,
-    storeEntities: any,
-    args?: any[],
+    getEntity: any,
+    checkLoop: any,
   ): any {
     // we return undefined
     super.normalize(
       input,
       parent,
       key,
+      args,
       visit,
       addEntity,
-      visitedEntities,
-      storeEntities,
-      args,
+      getEntity,
+      checkLoop,
     );
   }
 
