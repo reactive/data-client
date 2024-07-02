@@ -178,7 +178,7 @@ interface NormalizeMeta {
     fetchedAt?: number;
     args?: readonly any[];
 }
-declare const normalize: <S extends Schema = Schema, E extends Record<string, Record<string, any> | undefined> = Record<string, Record<string, any>>, R = NormalizeNullable<S>>(schema: S | undefined, input: any, { date, expiresAt, fetchedAt, args, }?: NormalizeMeta, store?: StoreData<E>) => NormalizedSchema<E, R>;
+declare const normalize: <S extends Schema = Schema, E extends Record<string, Record<string, any> | undefined> = Record<string, Record<string, any>>, R = NormalizeNullable<S>>(schema: S | undefined, input: any, { date, expiresAt, fetchedAt, args, }?: NormalizeMeta, { entities, indexes, entityMeta }?: StoreData<E>) => NormalizedSchema<E, R>;
 
 interface EntityCache {
     [key: string]: {
