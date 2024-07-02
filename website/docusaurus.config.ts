@@ -369,10 +369,8 @@ const config: Config = {
         plain: { backgroundColor: 'transparent' },
       },
     },
-    image: 'img/client-logo.png',
     // Open Graph and Twitter card images.
-    ogImage: 'img/client-logo.png',
-    twitterImage: 'img/client-logo.png',
+    image: 'img/social/data-client-logo.png',
     metadata: [
       {
         name: 'twitter:site',
