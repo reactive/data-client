@@ -1,5 +1,11 @@
 # @data-client/test
 
+## 0.13.7
+
+### Patch Changes
+
+- [`39471f5`](https://github.com/reactive/data-client/commit/39471f5e2a76e4bb4ee401020875ffa324f3eaf2) Thanks [@ntucker](https://github.com/ntucker)! - Add missing types export to @data-client/test/browser
+
 ## 0.13.0
 
 ### Patch Changes

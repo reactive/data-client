@@ -1,5 +1,15 @@
 # @data-client/endpoint
 
+## 0.13.7
+
+### Patch Changes
+
+- [#3133](https://github.com/reactive/data-client/pull/3133) [`7bd322d`](https://github.com/reactive/data-client/commit/7bd322d585b0893561b3ffb3c5ad47b2764c18bd) Thanks [@ntucker](https://github.com/ntucker)! - Validate after marking cirucular reference loops
+
+  This should not change any behavior as validate should be deterministic so if it fails
+  it will fail again and failure measure throwing which exits the whole stack.
+  This improves code grouping. (And possibly cache locality improvement - though didn't check.)
+
 ## 0.13.4
 
 ### Patch Changes

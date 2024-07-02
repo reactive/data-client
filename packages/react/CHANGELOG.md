@@ -1,5 +1,11 @@
 # @data-client/react
 
+## 0.13.7
+
+### Patch Changes
+
+- [`8aabe18`](https://github.com/reactive/data-client/commit/8aabe189330bdef2f36dd2c76c9e0ff80659468b) Thanks [@ntucker](https://github.com/ntucker)! - More robust requestIdleCallback wrapper
+
 ## 0.13.6
 
 ### Patch Changes
