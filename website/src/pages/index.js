@@ -105,6 +105,7 @@ export default function Home() {
         <title>The Reactive Data Client ✨</title>
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="402" />
+        <meta name="twitter:card" content="summary_large_image" />
       </Head>
       <HomepageHeader />
       <main>
