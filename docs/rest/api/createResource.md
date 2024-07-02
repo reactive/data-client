@@ -2,6 +2,7 @@
 id: createResource
 title: createResource() - TypeScript definition for REST API resources
 sidebar_label: createResource
+description: Resources are a collection of RestEndpoints that operate on a common data by sharing a schema
 ---
 
 <head>

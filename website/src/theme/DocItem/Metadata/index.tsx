@@ -12,7 +12,7 @@ export default function MetadataWrapper(props: Props): JSX.Element {
     metadata: { title },
   } = useDoc();
   // for short titles, without subheaders
-  if (title.length < 28 && !title.includes(' - '))
+  if (title.length < 30 && !title.includes(' - '))
     return <Metadata {...props} />;
   return (
     <>

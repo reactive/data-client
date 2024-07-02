@@ -75,13 +75,6 @@ const config: Config = {
         content: '#003a67',
       },
     },
-    {
-      tagName: 'meta',
-      attributes: {
-        name: 'twitter:site',
-        content: '@dataclientio',
-      },
-    },
   ],
   stylesheets: [
     {
@@ -380,6 +373,17 @@ const config: Config = {
     // Open Graph and Twitter card images.
     ogImage: 'img/client-logo.png',
     twitterImage: 'img/client-logo.png',
+    metadata: [
+      {
+        name: 'twitter:site',
+        content: '@dataclientio',
+      },
+      {
+        property: 'og:site_name',
+        content: 'Data Client',
+      },
+      { name: 'twitter:card', content: 'summary' },
+    ],
     announcementBar: {
       id: 'announcementBar-2', // Increment on change
       content: `If you like Reactive Data Client, give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/reactive/data-client">GitHub</a>`,
