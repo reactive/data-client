@@ -102,7 +102,7 @@ export default function Home() {
     <Layout description="Async State Management without the Management.">
       <PageMetadata image={image} />
       <Head>
-        <title>The Reactive Data Client ✨</title>
+        <title>The Reactive Data Client</title>
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="402" />
         <meta name="twitter:card" content="summary_large_image" />
