@@ -88,9 +88,56 @@ render(<UsersPage />);
 
 ### Batch Invalidation
 
-Here we add another endpoint for deleting many entities at a time. Here we
-pass in a list of ids, and the response is an empty string.
+Here we add another endpoint for deleting many entities at a time by wrapping
+`schema.Invalidate` in an array. `Data Client` can then `invalidate` every
+entity from the response.
 
+<EndpointPlayground
+input="/posts"
+init={
+  {
+    method: 'DELETE',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(['5', '13', '7']),
+  }
+}
+status={200}
+response={[{ id: '5' }, { id: '13' }, { id: '7' }]}>
+
+```typescript title="Post" collapsed
+export default class Post extends Entity {
+  id = '';
+  title = '';
+  author = '';
+  pk() {
+    return this.id;
+  }
+}
+```
+
+```typescript title="Resource" {9}
+import Post from './Post';
+export const PostResource = createResource({
+  schema: Post,
+  path: '/posts/:id',
+}).extend('deleteMany', {
+  path: '/posts',
+  body: [] as string[],
+  method: 'DELETE',
+  schema: [new schema.Invalidate(Post)],
+});
+```
+
+```typescript title="Request" column
+import { PostResource } from './Resource';
+PostResource.deleteMany(['5', '13', '7']);
+```
+
+</EndpointPlayground>
+
+Sometimes our backend returns nothing for 'DELETE'. In this
+case, we can use [process](./RestEndpoint.md#process) to build
+a usable response from the argument `body`.
 
 <EndpointPlayground
 input="/posts"
@@ -115,7 +162,7 @@ export default class Post extends Entity {
 }
 ```
 
-```typescript title="Resource" {9}
+```typescript title="Resource" {10-13}
 import Post from './Post';
 export const PostResource = createResource({
   schema: Post,
