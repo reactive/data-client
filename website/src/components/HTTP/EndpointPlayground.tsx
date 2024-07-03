@@ -42,7 +42,7 @@ export default function EndpointPlayground({
 
       <div className={clsx(styles.fixtureCol, playgroundstyles.previewWrapper)}>
         <Request input={input} init={init} />
-        {status && response ?
+        {status ?
           <Response status={status} response={response} />
         : null}
       </div>

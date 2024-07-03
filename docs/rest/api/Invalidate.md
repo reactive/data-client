@@ -5,6 +5,7 @@ sidebar_label: schema.Invalidate
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import { RestEndpoint } from '@data-client/rest';
+import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 
 # schema.Invalidate
 
@@ -90,47 +91,53 @@ render(<UsersPage />);
 Here we add another endpoint for deleting many entities at a time. Here we
 pass in a list of ids, and the response is an empty string.
 
-Constructing an article response using the `params` argument in fetch empowers
-the normalized cache to know which entities to invalidate when the request is success,
-or if optimistic updates are used.
 
-```typescript
-import { Resource, schema } from '@data-client/rest';
+<EndpointPlayground
+input="/posts"
+init={
+  {
+    method: 'DELETE',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(['5', '13', '7']),
+  }
+}
+status={204}
+response={undefined}>
 
-class MyResource extends Resource {
-  static deleteList<T extends typeof MyResource>(this: T) {
-    const init = this.getFetchInit({ method: 'DELETE' });
-    return new Endpoint(
-      (params: readonly string[]) =>
-        this.fetch(this.url(params).then(() => params.map(id => ({ id })))),
-      {
-        ...this.getEndpointExtra(),
-        schema: [new schemas.Invalidate(this)],
-      },
-    );
+```typescript title="Post" collapsed
+export default class Post extends Entity {
+  id = '';
+  title = '';
+  author = '';
+  pk() {
+    return this.id;
   }
 }
 ```
 
-```tsx
-function MyTable() {
-  const { selectedIds } = useFields(TableForm);
-  const list = useSuspense(MyResource.list());
-  const ctrl = useController();
-
-  return (
-    <div>
-      <header>
-        <span>My Table</span>
-        <button onClick={() => ctrl.fetch(MyResource.delete, selectedIds)}>
-          Delete
-        </button>
-      </header>
-      <TableBody data={list} form={TableForm} />
-    </div>
-  );
-}
+```typescript title="Resource" {9}
+import Post from './Post';
+export const PostResource = createResource({
+  schema: Post,
+  path: '/posts/:id',
+}).extend('deleteMany', {
+  path: '/posts',
+  body: [] as string[],
+  method: 'DELETE',
+  schema: [new schema.Invalidate(Post)],
+  process(value, body) {
+    // use the body payload to inform which entities to delete
+    return body.map(id => ({ id }));
+  }
+});
 ```
+
+```typescript title="Request" column
+import { PostResource } from './Resource';
+PostResource.deleteMany(['5', '13', '7']);
+```
+
+</EndpointPlayground>
 
 ### Impact on useSuspense()
 

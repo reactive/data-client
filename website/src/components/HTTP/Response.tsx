@@ -7,7 +7,7 @@ import { useCode } from '../Playground/useCode';
 
 export default function Response({ response, status }: Props) {
   const { handleCodeChange, codes, codeTabs } = useCode(
-    JSON.stringify(response, undefined, 2),
+    response ? JSON.stringify(response, undefined, 2) : 'NO CONTENT',
   );
 
   return (
