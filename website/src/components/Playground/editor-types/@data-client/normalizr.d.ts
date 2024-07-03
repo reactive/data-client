@@ -201,12 +201,12 @@ declare class MemoCache {
         paths: EntityPath[];
     };
     /** Compute denormalized form maintaining referential equality for same inputs */
-    query<S extends Schema>(schema: S, args: any[], entities: Record<string, Record<string, object>> | {
+    query<S extends Schema>(schema: S, args: readonly any[], entities: Record<string, Record<string, object>> | {
         getIn(k: string[]): any;
     }, indexes: NormalizedIndex | {
         getIn(k: string[]): any;
     }, argsKey?: string): DenormalizeNullable<S> | undefined;
-    buildQueryKey<S extends Schema>(schema: S, args: any[], entities: Record<string, Record<string, object>> | {
+    buildQueryKey<S extends Schema>(schema: S, args: readonly any[], entities: Record<string, Record<string, object>> | {
         getIn(k: string[]): any;
     }, indexes: NormalizedIndex | {
         getIn(k: string[]): any;

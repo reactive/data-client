@@ -56,7 +56,7 @@ export default class MemoCache {
   /** Compute denormalized form maintaining referential equality for same inputs */
   query<S extends Schema>(
     schema: S,
-    args: any[],
+    args: readonly any[],
     entities:
       | Record<string, Record<string, object>>
       | {
@@ -82,7 +82,7 @@ export default class MemoCache {
 
   buildQueryKey<S extends Schema>(
     schema: S,
-    args: any[],
+    args: readonly any[],
     entities:
       | Record<string, Record<string, object>>
       | {
