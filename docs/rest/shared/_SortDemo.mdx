@@ -1,0 +1,119 @@
+import HooksPlayground from '@site/src/components/HooksPlayground';
+import {
+  postFixtures,
+  getInitialInterceptorData,
+} from '@site/src/fixtures/posts-collection';
+
+<HooksPlayground fixtures={postFixtures} getInitialInterceptorData={getInitialInterceptorData} row defaultTab={props.defaultTab}>
+
+```ts title="getPosts" {20-27}
+import { Entity, RestEndpoint } from '@data-client/rest';
+
+class Post extends Entity {
+  id = '';
+  title = '';
+  group = '';
+  author = '';
+
+  pk() {
+    return this.id;
+  }
+}
+export const getPosts = new RestEndpoint({
+  path: '/:group/posts',
+  searchParams: {} as { orderBy?: string; author?: string },
+  schema: new schema.Query(
+    new schema.Collection([Post], {
+      nonFilterArgumentKeys: /orderBy/,
+    }),
+    (posts, { orderBy } = {}) => {
+      if (orderBy) {
+        return [...posts].sort((a, b) =>
+          a[orderBy].localeCompare(b[orderBy]),
+        );
+      }
+      return posts;
+    },
+  ),
+});
+```
+
+```tsx title="NewPost" collapsed
+import { useLoading } from '@data-client/react';
+import { getPosts } from './getPosts';
+
+export default function NewPost({ author }: Props) {
+  const ctrl = useController();
+
+  const [handlePress, loading] = useLoading(async e => {
+    if (e.key === 'Enter') {
+      const title = e.currentTarget.value;
+      e.currentTarget.value = '';
+      await ctrl.fetch(
+        getPosts.push,
+        { group: 'react' },
+        {
+          title,
+          author,
+        },
+      );
+    }
+  });
+
+  return (
+    <div>
+      <input type="text" onKeyDown={handlePress} />
+      {loading ? ' ...' : ''}
+    </div>
+  );
+}
+interface Props {
+  author: string;
+}
+```
+
+```tsx title="PostList" collapsed {8}
+import { useSuspense } from '@data-client/react';
+import { getPosts } from './getPosts';
+import NewPost from './NewPost';
+
+export default function PostList({ author }: Props) {
+  const posts = useSuspense(getPosts, {
+    author,
+    orderBy: 'title',
+    group: 'react',
+  });
+  return (
+    <div>
+      {posts.map(post => (
+        <div key={post.pk()}>{post.title}</div>
+      ))}
+      <NewPost author={author} />
+    </div>
+  );
+}
+interface Props {
+  author: string;
+}
+```
+
+```tsx title="UserList" collapsed
+import PostList from './PostList';
+
+function UserList() {
+  const users = ['bob', 'clara'];
+  return (
+    <div>
+      {users.map(user => (
+        <section key={user}>
+          <h3>{user}</h3>
+          <PostList author={user} />
+        </section>
+      ))}
+    </div>
+  );
+}
+render(<UserList />);
+```
+
+</HooksPlayground>

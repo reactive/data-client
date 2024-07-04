@@ -46,6 +46,10 @@ module.exports = {
       items: [
         {
           type: 'doc',
+          id: 'guides/sorting-client-side',
+        },
+        {
+          type: 'doc',
           id: 'guides/relational-data',
         },
         {
