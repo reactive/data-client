@@ -1,5 +1,5 @@
 ---
-title: Django Integration
+title: Django Auth and CSRF handling | Reactive Data Client
 sidebar_label: Django Integration
 ---
 
@@ -7,6 +7,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 
+# Django Integration
 
 ## Cookie Auth + CSRF
 

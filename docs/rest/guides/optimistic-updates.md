@@ -1,5 +1,5 @@
 ---
-title: Making React 100x faster with Optimistic Updates
+title: 100x faster React with Optimistic Updates
 sidebar_label: Optimistic Updates
 ---
 
