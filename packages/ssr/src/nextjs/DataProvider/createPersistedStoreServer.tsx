@@ -16,10 +16,10 @@ const { createReducer, initialState, applyManager } = __INTERNAL__;
 export default function createPersistedStore(managers?: Manager[]) {
   const controller = new Controller();
   managers = managers ?? [new NetworkManager()];
-  const nm: NetworkManager = managers.find(
+  const networkManager: NetworkManager = managers.find(
     m => m instanceof NetworkManager,
   ) as any;
-  if (nm === undefined)
+  if (networkManager === undefined)
     throw new Error('managers must include a NetworkManager');
   const reducer = createReducer(controller);
   const enhancer = applyMiddleware(
@@ -41,7 +41,7 @@ export default function createPersistedStore(managers?: Manager[]) {
     let firstRender = true;
     // eslint-disable-next-line no-constant-condition
     while (true) {
-      const inFlightFetches = nm.allSettled();
+      const inFlightFetches = networkManager.allSettled();
       if (inFlightFetches) {
         firstRender = false;
         await inFlightFetches;
@@ -49,7 +49,7 @@ export default function createPersistedStore(managers?: Manager[]) {
       }
       if (firstRender) {
         firstRender = false;
-        // TODO: instead of waiting 10ms - see if we can wait until next part of react is streamed and race with nm getting new fetches
+        // TODO: instead of waiting 10ms - see if we can wait until next part of react is streamed and race with networkManager getting new fetches
         await new Promise(resolve => setTimeout(resolve, 10));
         continue;
       }

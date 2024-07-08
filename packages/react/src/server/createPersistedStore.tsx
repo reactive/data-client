@@ -21,10 +21,10 @@ export default function createPersistedStore(
 ) {
   const controller = new Controller();
   managers = managers ?? [new ReactNetworkManager()];
-  const nm: NetworkManager = managers.find(
+  const networkManager: NetworkManager = managers.find(
     m => m instanceof NetworkManager,
   ) as any;
-  if (nm === undefined)
+  if (networkManager === undefined)
     throw new Error('managers must include a NetworkManager');
   const reducer = createReducer(controller);
   const enhancer = applyMiddleware(
@@ -43,7 +43,7 @@ export default function createPersistedStore(
   const getState = () => selector(store.getState());
   let firstRender = true;
   function useReadyCacheState(): State<unknown> {
-    const inFlightFetches = nm.allSettled();
+    const inFlightFetches = networkManager.allSettled();
     if (inFlightFetches) {
       firstRender = false;
       throw inFlightFetches;
