@@ -10,13 +10,13 @@ const data = [
 class User extends IDEntity {}
 
 const userListSchema = new schema.Array(User);
-const normalizedData = normalize(data, userListSchema);
+const normalizedData = normalize(userListSchema, data);
 
 const userListSchemaAlt = [User];
-const normalizedDataAlt = normalize(data, userListSchemaAlt);
+const normalizedDataAlt = normalize(userListSchemaAlt, data);
 
 const denormalizedData = denormalize(
-  normalizedData.result,
   userListSchema,
+  normalizedData.result,
   normalizedData.entities,
 );

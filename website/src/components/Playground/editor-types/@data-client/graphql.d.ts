@@ -138,8 +138,8 @@ type Serializable<T extends {
     toJSON(): string;
 }> = (value: any) => T;
 interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
-    normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args: any[]): any;
-    denormalize(input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any): T;
+    normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, addEntity: (...args: any) => any, getEntity: (...args: any) => any, checkLoop: (...args: any) => any): any;
+    denormalize(input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any): T;
     queryKey(args: Args, queryKey: (...args: any) => any, getEntity: GetEntity, getIndex: GetIndex): any;
 }
 interface SchemaClass<T = any, N = T | undefined, Args extends any[] = any[]> extends SchemaSimple<T, Args> {
@@ -163,12 +163,16 @@ interface PolymorphicInterface<T = any, Args extends any[] = any[]> extends Sche
     _normalizeNullable(): any;
     _denormalizeNullable(): any;
 }
+/** Returns true if a circular reference is found */
+interface CheckLoop {
+    (entityKey: string, pk: string, input: object): boolean;
+}
 /** Get Array of entities with map function applied */
 interface GetEntity {
-    (entityKey: string): {
+    (entityKey: string | symbol): {
         readonly [pk: string]: any;
     } | undefined;
-    (entityKey: string, pk: string | number): any;
+    (entityKey: string | symbol, pk: string | number): any;
 }
 /** Get PK using an Entity Index */
 interface GetIndex {
@@ -273,26 +277,6 @@ declare let Endpoint: EndpointConstructor;
 
 declare let ExtendableEndpoint: ExtendableEndpointConstructor;
 
-type Constructor = abstract new (...args: any[]) => {};
-type IDClass = abstract new (...args: any[]) => {
-    id: string | number | undefined;
-};
-type PKClass = abstract new (...args: any[]) => {
-    pk(parent?: any, key?: string, args?: readonly any[]): string | number | undefined;
-};
-type ValidSchemas<TInstance> = {
-    [k in keyof TInstance]?: Schema;
-};
-type EntityOptions<TInstance extends {}> = {
-    readonly schema?: ValidSchemas<TInstance>;
-    readonly pk?: ((value: TInstance, parent?: any, key?: string) => string | number | undefined) | keyof TInstance;
-    readonly key?: string;
-} & {
-    readonly [K in Extract<keyof IEntityClass, 'process' | 'merge' | 'expiresAt' | 'createIfValid' | 'mergeWithStore' | 'validate' | 'shouldReorder' | 'shouldUpdate'>]?: IEntityClass<abstract new (...args: any[]) => TInstance>[K];
-};
-interface RequiredPKOptions<TInstance extends {}> extends EntityOptions<TInstance> {
-    readonly pk: ((value: TInstance, parent?: any, key?: string) => string | number | undefined) | keyof TInstance;
-}
 interface IEntityClass<TBase extends Constructor = any> {
     toJSON(): {
         name: string;
@@ -400,7 +384,7 @@ interface IEntityClass<TBase extends Constructor = any> {
      * @see https://dataclient.io/rest/api/Entity#process
      */
     process(input: any, parent: any, key: string | undefined, args: any[]): any;
-    normalize(input: any, parent: any, key: string | undefined, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>): any;
+    normalize(input: any, parent: any, key: string | undefined, args: any[], visit: (...args: any) => any, addEntity: (...args: any) => any, getEntity: (...args: any) => any, checkLoop: (...args: any) => any): any;
     /** Do any transformations when first receiving input
      *
      * @see https://dataclient.io/rest/api/Entity#validate
@@ -411,7 +395,7 @@ interface IEntityClass<TBase extends Constructor = any> {
      * @see https://dataclient.io/rest/api/Entity#queryKey
      */
     queryKey(args: readonly any[], queryKey: any, getEntity: GetEntity, getIndex: GetIndex): any;
-    denormalize<T extends (abstract new (...args: any[]) => IEntityInstance & InstanceType<TBase>) & IEntityClass & TBase>(this: T, input: any, args: readonly any[], unvisit: (input: any, schema: any) => any): AbstractInstanceType<T>;
+    denormalize<T extends (abstract new (...args: any[]) => IEntityInstance & InstanceType<TBase>) & IEntityClass & TBase>(this: T, input: any, args: readonly any[], unvisit: (schema: any, input: any) => any): AbstractInstanceType<T>;
     /** All instance defaults set */
     readonly defaults: any;
 }
@@ -424,6 +408,26 @@ interface IEntityInstance {
      * @param [args] ...args sent to Endpoint
      */
     pk(parent?: any, key?: string, args?: readonly any[]): string | number | undefined;
+}
+type Constructor = abstract new (...args: any[]) => {};
+type IDClass = abstract new (...args: any[]) => {
+    id: string | number | undefined;
+};
+type PKClass = abstract new (...args: any[]) => {
+    pk(parent?: any, key?: string, args?: readonly any[]): string | number | undefined;
+};
+type ValidSchemas<TInstance> = {
+    [k in keyof TInstance]?: Schema;
+};
+type EntityOptions<TInstance extends {}> = {
+    readonly schema?: ValidSchemas<TInstance>;
+    readonly pk?: ((value: TInstance, parent?: any, key?: string) => string | number | undefined) | keyof TInstance;
+    readonly key?: string;
+} & {
+    readonly [K in Extract<keyof IEntityClass, 'process' | 'merge' | 'expiresAt' | 'createIfValid' | 'mergeWithStore' | 'validate' | 'shouldReorder' | 'shouldUpdate'>]?: IEntityClass<abstract new (...args: any[]) => TInstance>[K];
+};
+interface RequiredPKOptions<TInstance extends {}> extends EntityOptions<TInstance> {
+    readonly pk: ((value: TInstance, parent?: any, key?: string) => string | number | undefined) | keyof TInstance;
 }
 
 /**
@@ -447,7 +451,7 @@ declare class Invalidate<E extends EntityInterface & {
     constructor(entity: E);
     get key(): string;
     /** Normalize lifecycles **/
-    normalize(input: any, parent: any, key: string | undefined, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: Record<string, any>, args?: any[]): string | number | undefined;
+    normalize(input: any, parent: any, key: string | undefined, args: any[], visit: (...args: any) => any, addEntity: (...args: any) => any, getEntity: any, checkLoop: any): string | number | undefined;
     merge(existing: any, incoming: any): any;
     mergeWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
     mergeMetaWithStore(existingMeta: {
@@ -465,7 +469,7 @@ declare class Invalidate<E extends EntityInterface & {
     };
     /** /End Normalize lifecycles **/
     queryKey(args: any, queryKey: unknown, getEntity: unknown, getIndex: unknown): undefined;
-    denormalize(id: string, args: readonly any[], unvisit: (input: any, schema: any) => any): AbstractInstanceType<E>;
+    denormalize(id: string, args: readonly any[], unvisit: (schema: any, input: any) => any): AbstractInstanceType<E>;
     _denormalizeNullable(): AbstractInstanceType<E> | undefined;
     _normalizeNullable(): string | undefined;
 }
@@ -487,7 +491,7 @@ declare class Query<S extends Queryable, P extends (entries: Denormalize<S>, ...
     normalize(...args: any): any;
     denormalize(input: {}, args: any, unvisit: any): ReturnType<P>;
     queryKey(args: ProcessParameters<P, S>, queryKey: (schema: any, args: any, getEntity: GetEntity, getIndex: GetIndex) => any, getEntity: GetEntity, getIndex: GetIndex): any;
-    _denormalizeNullable: (input: {}, args: readonly any[], unvisit: (input: any, schema: any) => any) => ReturnType<P> | undefined;
+    _denormalizeNullable: (input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any) => ReturnType<P> | undefined;
     _normalizeNullable: () => NormalizeNullable<S>;
 }
 type ProcessParameters<P, S extends Queryable> = P extends (entries: any, ...args: infer Par) => any ? Par extends [] ? SchemaArgs<S> : Par & SchemaArgs<S> : SchemaArgs<S>;
@@ -542,7 +546,7 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
      * @see https://dataclient.io/docs/api/Collection#pk
      */
     pk(value: any, parent: any, key: string, args: any[]): string;
-    normalize(input: any, parent: Parent, key: string, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>, storeEntities: any, args: any): string;
+    normalize(input: any, parent: Parent, key: string, args: any[], visit: (...args: any) => any, addEntity: (...args: any) => any, getEntity: GetEntity, checkLoop: CheckLoop): string;
     /** Creates new instance copying over defined values of arguments
      *
      * @see https://dataclient.io/docs/api/Collection#merge
@@ -590,7 +594,7 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
      */
     queryKey(args: Args, queryKey: unknown, getEntity: unknown, getIndex: unknown): any;
     createIfValid: (value: any) => any | undefined;
-    denormalize(input: any, args: readonly any[], unvisit: (input: any, schema: any) => any): ReturnType<S['denormalize']>;
+    denormalize(input: any, args: readonly any[], unvisit: (schema: any, input: any) => any): ReturnType<S['denormalize']>;
     _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;
     _normalizeNullable(): ReturnType<S['_normalizeNullable']>;
     /** Schema to place at the *end* of this Collection
@@ -650,11 +654,11 @@ declare class Array$1<S extends Schema = Schema> implements SchemaClass {
     input: any,
     parent: any,
     key: any,
+    args: any[],
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: any,
-    args: any[],
+    getEntity: GetEntity,
+    checkLoop: CheckLoop,
   ): (S extends EntityMap ? UnionResult<S> : Normalize<S>)[];
 
   _normalizeNullable():
@@ -668,7 +672,7 @@ declare class Array$1<S extends Schema = Schema> implements SchemaClass {
   denormalize(
     input: {},
     args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
 
   queryKey(
@@ -707,11 +711,11 @@ declare class All<
     input: any,
     parent: any,
     key: any,
+    args: any[],
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: any,
-    args?: any[],
+    getEntity: GetEntity,
+    checkLoop: CheckLoop,
   ): (S extends EntityMap ? UnionResult<S> : Normalize<S>)[];
 
   _normalizeNullable():
@@ -725,7 +729,7 @@ declare class All<
   denormalize(
     input: {},
     args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
 
   queryKey(
@@ -755,11 +759,11 @@ declare class Object$1<O extends Record<string, any> = Record<string, Schema>>
     input: any,
     parent: any,
     key: any,
+    args: any[],
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: any,
-    args?: any[],
+    getEntity: GetEntity,
+    checkLoop: CheckLoop,
   ): NormalizeObject<O>;
 
   _normalizeNullable(): NormalizedNullableObject<O>;
@@ -769,7 +773,7 @@ declare class Object$1<O extends Record<string, any> = Record<string, Schema>>
   denormalize(
     input: {},
     args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ): DenormalizeObject<O>;
 
   queryKey(
@@ -845,11 +849,11 @@ interface UnionInstance<
     input: any,
     parent: any,
     key: any,
+    args: any[],
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: any,
-    args?: any[],
+    getEntity: GetEntity,
+    checkLoop: CheckLoop,
   ): UnionResult<Choices>;
 
   _normalizeNullable(): UnionResult<Choices> | undefined;
@@ -861,7 +865,7 @@ interface UnionInstance<
   denormalize(
     input: {},
     args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ): AbstractInstanceType<Choices[keyof Choices]>;
 
   queryKey(
@@ -919,11 +923,11 @@ declare class Values<Choices extends Schema = any> implements SchemaClass {
     input: any,
     parent: any,
     key: any,
+    args: any[],
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
-    visitedEntities: Record<string, any>,
-    storeEntities: any,
-    args?: any[],
+    getEntity: GetEntity,
+    checkLoop: CheckLoop,
   ): Record<
     string,
     Choices extends EntityMap ? UnionResult<Choices> : Normalize<Choices>
@@ -946,7 +950,7 @@ declare class Values<Choices extends Schema = any> implements SchemaClass {
   denormalize(
     input: {},
     args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ): Record<
     string,
     Choices extends EntityMap<infer T> ? T : Denormalize<Choices>
@@ -1121,7 +1125,7 @@ declare abstract class Entity extends Entity_base {
      * @see https://dataclient.io/rest/api/Entity#process
      */
     static process(input: any, parent: any, key: string | undefined, args: any[]): any;
-    static denormalize: <T extends typeof Entity>(this: T, input: any, args: readonly any[], unvisit: (input: any, schema: any) => any) => AbstractInstanceType<T>;
+    static denormalize: <T extends typeof Entity>(this: T, input: any, args: readonly any[], unvisit: (schema: any, input: any) => any) => AbstractInstanceType<T>;
 }
 
 declare function validateRequired(processedEntity: any, requiredDefaults: Record<string, unknown>): string | undefined;

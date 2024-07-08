@@ -129,7 +129,7 @@ class Article extends Entity {
 import { normalize } from '@data-client/normalizr';
 
 const args = [{ id: '123' }];
-const normalizedData = normalize(originalData, Article, args);
+const normalizedData = normalize(Article, originalData, args);
 ```
 
 Now, `normalizedData` will create a single serializable source of truth for all entities:
@@ -175,8 +175,8 @@ Now, `normalizedData` will create a single serializable source of truth for all 
 import { denormalize } from '@data-client/normalizr';
 
 const denormalizedData = denormalize(
-  normalizedData.result,
   Article,
+  normalizedData.result,
   normalizedData.entities,
   args,
 );
@@ -218,14 +218,14 @@ import { MemoCache } from '@data-client/normalizr';
 const memo = new MemoCache();
 
 const { data, paths } = memo.denormalize(
-  normalizedData.result,
   Article,
+  normalizedData.result,
   normalizedData.entities,
   args,
 );
 const { data: data2 } = memo.denormalize(
-  normalizedData.result,
   Article,
+  normalizedData.result,
   normalizedData.entities,
   args,
 );
@@ -242,11 +242,7 @@ is an Array of paths of all entities included in the result.
 `memo.query()` allows denormalizing [Queryable](#queryable) based on args alone, rather than a normalized input.
 
 ```ts
-// key is just any serialization of args
-const key = JSON.stringify(args);
-
 const data = memo.query(
-  key,
   Article,
   args,
   normalizedData.entities,

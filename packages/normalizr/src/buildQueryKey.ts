@@ -9,13 +9,13 @@ import type { NormalizeNullable } from './types.js';
  */
 export default function buildQueryKey<S extends Schema>(
   schema: S,
-  args: any[],
+  args: readonly any[],
   getEntity: GetEntity,
   getIndex: GetIndex,
 ): NormalizeNullable<S> {
   // schema classes
   if (canQuery(schema)) {
-    return schema.queryKey(args, buildQueryKey, getEntity, getIndex);
+    return schema.queryKey(args as any[], buildQueryKey, getEntity, getIndex);
   }
 
   // plain case

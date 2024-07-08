@@ -35,7 +35,7 @@ export function isImmutable(object: {}): object is {
 export function denormalizeImmutable(
   schema: any,
   input: any,
-  unvisit: (input: any, schema: any) => any,
+  unvisit: (schema: any, input: any) => any,
 ): any {
   let deleted;
   const value = Object.keys(schema).reduce((object, key) => {
@@ -43,7 +43,7 @@ export function denormalizeImmutable(
     // we're accessing them using string keys.
     const stringKey = `${key}`;
 
-    const item = unvisit(object.get(stringKey), schema[stringKey]);
+    const item = unvisit(schema[stringKey], object.get(stringKey));
     if (typeof item === 'symbol') {
       deleted = item;
     }

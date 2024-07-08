@@ -32,7 +32,7 @@ export const getLabels =
       })
       .then(response => {
         console.log(response.data);
-        const data = normalize(response.data, [schema.Label]);
+        const data = normalize([schema.Label], response.data);
         dispatch(addEntities(data.entities));
         return response;
       })
@@ -41,4 +41,4 @@ export const getLabels =
       });
   };
 
-export const selectHydrated = (state, id) => denormalize(id, Label, state);
+export const selectHydrated = (state, id) => denormalize(Label, id, state);

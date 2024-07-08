@@ -306,7 +306,7 @@ describe(`${schema.Entity.name} normalization`, () => {
 
   test('normalizes an entity', () => {
     class MyEntity extends schema.Entity(IDData) {}
-    expect(normalize({ id: '1' }, MyEntity)).toMatchSnapshot();
+    expect(normalize(MyEntity, { id: '1' })).toMatchSnapshot();
   });
 
   test('normalizes already processed entities', () => {
@@ -322,12 +322,12 @@ describe(`${schema.Entity.name} normalization`, () => {
       },
     }) {}
 
-    expect(normalize(['1'], new schema.Array(MyEntity))).toMatchSnapshot();
+    expect(normalize(new schema.Array(MyEntity), ['1'])).toMatchSnapshot();
     expect(
-      normalize({ data: '1' }, new schema.Object({ data: MyEntity })),
+      normalize(new schema.Object({ data: MyEntity }), { data: '1' }),
     ).toMatchSnapshot();
     expect(
-      normalize({ title: 'hi', id: '5', nest: '10' }, Nested),
+      normalize(Nested, { title: 'hi', id: '5', nest: '10' }),
     ).toMatchSnapshot();
   });
 
@@ -341,17 +341,15 @@ describe(`${schema.Entity.name} normalization`, () => {
         return false;
       }
     }
-    const { entities, entityMeta } = normalize(
-      { id: '1', title: 'hi' },
-      MyEntity,
-    );
+    const { entities, entityMeta } = normalize(MyEntity, {
+      id: '1',
+      title: 'hi',
+    });
     const secondEntities = normalize(
-      { id: '1', title: 'second' },
       MyEntity,
-      [],
-      entities,
+      { id: '1', title: 'second' },
       {},
-      entityMeta,
+      { entities, entityMeta, indexes: {} },
     ).entities;
     expect(entities.MyEntity['1']).toBeDefined();
     expect(entities.MyEntity['1']).toBe(secondEntities.MyEntity['1']);
@@ -365,7 +363,7 @@ describe(`${schema.Entity.name} normalization`, () => {
     const MyEntity = schema.Entity(MyData, { pk: 'name' });
 
     function normalizeBad() {
-      normalize({ secondthing: 'hi' }, MyEntity);
+      normalize(MyEntity, { secondthing: 'hi' });
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
 
@@ -387,7 +385,7 @@ describe(`${schema.Entity.name} normalization`, () => {
     });
 
     expect(
-      normalize({ name: 'bob', secondthing: 'hi' }, MyEntity),
+      normalize(MyEntity, { name: 'bob', secondthing: 'hi' }),
     ).toMatchSnapshot();
   });
 
@@ -404,7 +402,7 @@ describe(`${schema.Entity.name} normalization`, () => {
       },
     }) {}
 
-    expect(normalize({ name: 'bob', secondthing: 'hi' }, MyEntity))
+    expect(normalize(MyEntity, { name: 'bob', secondthing: 'hi' }))
       .toMatchInlineSnapshot(`
       {
         "entities": {
@@ -437,7 +435,7 @@ describe(`${schema.Entity.name} normalization`, () => {
     }
     const MyEntity = schema.Entity(MyData, { pk: 'name' });
     function normalizeBad() {
-      normalize({}, MyEntity);
+      normalize(MyEntity, {});
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
@@ -449,14 +447,11 @@ describe(`${schema.Entity.name} normalization`, () => {
     }
     const MyEntity = schema.Entity(MyData, { pk: 'name' });
     function normalizeBad() {
-      normalize(
-        [
-          { name: 'hi', secondthing: 'ho' },
-          { name: 'hi', secondthing: 'ho' },
-          { name: 'hi', secondthing: 'ho' },
-        ],
-        MyEntity,
-      );
+      normalize(MyEntity, [
+        { name: 'hi', secondthing: 'ho' },
+        { name: 'hi', secondthing: 'ho' },
+        { name: 'hi', secondthing: 'ho' },
+      ]);
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
@@ -469,12 +464,9 @@ describe(`${schema.Entity.name} normalization`, () => {
     class MyEntity extends schema.Entity(MyData, { pk: 'e' }) {}
 
     expect(() =>
-      normalize(
-        {
-          name: 0,
-        },
-        MyEntity,
-      ),
+      normalize(MyEntity, {
+        name: 0,
+      }),
     ).toThrowErrorMatchingSnapshot();
   });
 
@@ -486,33 +478,30 @@ describe(`${schema.Entity.name} normalization`, () => {
     class MyEntity extends schema.Entity(MyData, { pk: 'name' }) {}
 
     expect(
-      normalize(
-        {
-          name: 'hi',
-          a: 'a',
-          b: 'b',
-          c: 'c',
-          d: 'e',
-          e: 0,
-          f: 0,
-          g: 0,
-          h: 0,
-          i: 0,
-          j: 0,
-          k: 0,
-          l: 0,
-          m: 0,
-          n: 0,
-          o: 0,
-          p: 0,
-          q: 0,
-          r: 0,
-          s: 0,
-          t: 0,
-          u: 0,
-        },
-        MyEntity,
-      ),
+      normalize(MyEntity, {
+        name: 'hi',
+        a: 'a',
+        b: 'b',
+        c: 'c',
+        d: 'e',
+        e: 0,
+        f: 0,
+        g: 0,
+        h: 0,
+        i: 0,
+        j: 0,
+        k: 0,
+        l: 0,
+        m: 0,
+        n: 0,
+        o: 0,
+        p: 0,
+        q: 0,
+        r: 0,
+        s: 0,
+        t: 0,
+        u: 0,
+      }),
     ).toMatchSnapshot();
     expect(warnSpy.mock.calls.length).toBe(0);
   });
@@ -534,7 +523,7 @@ describe(`${schema.Entity.name} normalization`, () => {
     }
     class MyEntity extends schema.Entity(MyData, { pk: 'name' }) {}
     function normalizeBad() {
-      normalize({ name: 'bob' }, MyEntity);
+      normalize(MyEntity, { name: 'bob' });
     }
     expect(normalizeBad).not.toThrow();
     expect(warnSpy.mock.calls.length).toBe(0);
@@ -551,7 +540,7 @@ describe(`${schema.Entity.name} normalization`, () => {
     }
     const MyEntity = schema.Entity(MyData);
     function normalizeBad() {
-      normalize('hibho', { data: MyEntity });
+      normalize({ data: MyEntity }, 'hibho');
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
@@ -578,7 +567,7 @@ describe(`${schema.Entity.name} normalization`, () => {
       }
       const UserEntity = schema.Entity(User, { pk: 'idStr' });
       expect(
-        normalize({ idStr: '134351', name: 'Kathy' }, UserEntity),
+        normalize(UserEntity, { idStr: '134351', name: 'Kathy' }),
       ).toMatchSnapshot();
     });
 
@@ -598,10 +587,10 @@ describe(`${schema.Entity.name} normalization`, () => {
       );
 
       expect(
-        normalize(
-          { '4': { name: 'taco' }, '56': { name: 'burrito' } },
-          inputSchema,
-        ),
+        normalize(inputSchema, {
+          '4': { name: 'taco' },
+          '56': { name: 'burrito' },
+        }),
       ).toMatchSnapshot();
     });
 
@@ -619,10 +608,10 @@ describe(`${schema.Entity.name} normalization`, () => {
       const inputSchema = new schema.Object({ user: UserEntity });
 
       expect(
-        normalize(
-          { name: 'tacos', user: { id: '4', name: 'Jimmy' } },
-          inputSchema,
-        ),
+        normalize(inputSchema, {
+          name: 'tacos',
+          user: { id: '4', name: 'Jimmy' },
+        }),
       ).toMatchSnapshot();
     });
   });
@@ -631,11 +620,11 @@ describe(`${schema.Entity.name} normalization`, () => {
     test('defaults to plain merging', () => {
       expect(
         normalize(
+          [Tacos],
           [
             { id: '1', name: 'foo' },
             { id: '1', name: 'bar', alias: 'bar' },
           ],
-          [Tacos],
         ),
       ).toMatchSnapshot();
     });
@@ -652,11 +641,11 @@ describe(`${schema.Entity.name} normalization`, () => {
 
       expect(
         normalize(
+          [MergeTaco],
           [
             { id: '1', name: 'foo' },
             { id: '1', name: 'bar', alias: 'bar' },
           ],
-          [MergeTaco],
         ),
       ).toMatchSnapshot();
     });
@@ -673,11 +662,11 @@ describe(`${schema.Entity.name} normalization`, () => {
           };
         }
       }
-      const { entities, result } = normalize(
-        { id: '1', name: 'foo' },
-        ProcessTaco,
-      );
-      const final = denormalize(result, ProcessTaco, entities);
+      const { entities, result } = normalize(ProcessTaco, {
+        id: '1',
+        name: 'foo',
+      });
+      const final = denormalize(ProcessTaco, result, entities);
       expect(final).not.toEqual(expect.any(Symbol));
       if (typeof final === 'symbol') return;
       expect(final?.slug).toEqual('thing-1');
@@ -709,15 +698,12 @@ describe(`${schema.Entity.name} normalization`, () => {
         schema: { child: ChildEntity },
       });
 
-      const { entities, result } = normalize(
-        {
-          id: '1',
-          content: 'parent',
-          child: { id: '4', content: 'child' },
-        },
-        ParentEntity,
-      );
-      const final = denormalize(result, ParentEntity, entities);
+      const { entities, result } = normalize(ParentEntity, {
+        id: '1',
+        content: 'parent',
+        child: { id: '4', content: 'child' },
+      });
+      const final = denormalize(ParentEntity, result, entities);
       expect(final).not.toEqual(expect.any(Symbol));
       if (typeof final === 'symbol') return;
       expect(final?.child?.parentId).toEqual('1');
@@ -763,11 +749,10 @@ describe(`${schema.Entity.name} normalization`, () => {
       it.each([EntriesEntity, EntriesEntity2])(
         'is run before and passed to the schema denormalization %s',
         EntriesEntity => {
-          const { entities, result } = normalize(
-            { message: { id: '123', data: { attachment: { id: '456' } } } },
-            EntriesEntity,
-          );
-          const final = denormalize(result, EntriesEntity, entities);
+          const { entities, result } = normalize(EntriesEntity, {
+            message: { id: '123', data: { attachment: { id: '456' } } },
+          });
+          const final = denormalize(EntriesEntity, result, entities);
           expect(final).not.toEqual(expect.any(Symbol));
           if (typeof final === 'symbol') return;
           expect(final?.type).toEqual('message');
@@ -785,8 +770,8 @@ describe(`${schema.Entity.name} denormalization`, () => {
         '1': { id: '1', name: 'foo' },
       },
     };
-    expect(denormalize('1', Tacos, entities)).toMatchSnapshot();
-    expect(denormalize('1', Tacos, fromJS(entities))).toMatchSnapshot();
+    expect(denormalize(Tacos, '1', entities)).toMatchSnapshot();
+    expect(denormalize(Tacos, '1', fromJS(entities))).toMatchSnapshot();
   });
 
   class Food extends schema.Entity(
@@ -811,13 +796,13 @@ describe(`${schema.Entity.name} denormalization`, () => {
       },
     };
 
-    const de1 = denormalize('1', Menu, entities);
+    const de1 = denormalize(Menu, '1', entities);
     expect(de1).toMatchSnapshot();
-    expect(denormalize('1', Menu, fromJS(entities))).toEqual(de1);
+    expect(denormalize(Menu, '1', fromJS(entities))).toEqual(de1);
 
-    const de2 = denormalize('2', Menu, entities);
+    const de2 = denormalize(Menu, '2', entities);
     expect(de2).toMatchSnapshot();
-    expect(denormalize('2', Menu, fromJS(entities))).toEqual(de2);
+    expect(denormalize(Menu, '2', fromJS(entities))).toEqual(de2);
   });
 
   test('denormalizes deep entities while maintaining referential equality', () => {
@@ -832,8 +817,8 @@ describe(`${schema.Entity.name} denormalization`, () => {
     };
     const memo = new SimpleMemoCache();
 
-    const first = memo.denormalize('1', Menu, entities);
-    const second = memo.denormalize('1', Menu, entities);
+    const first = memo.denormalize(Menu, '1', entities);
+    const second = memo.denormalize(Menu, '1', entities);
     expect(first).not.toEqual(expect.any(Symbol));
     if (typeof first === 'symbol') return;
     expect(second).not.toEqual(expect.any(Symbol));
@@ -853,8 +838,8 @@ describe(`${schema.Entity.name} denormalization`, () => {
         '1': { id: '1' },
       },
     };
-    expect(denormalize('1', MyTacos, entities)).toEqual(expect.any(Symbol));
-    expect(denormalize('1', MyTacos, fromJS(entities))).toEqual(
+    expect(denormalize(MyTacos, '1', entities)).toEqual(expect.any(Symbol));
+    expect(denormalize(MyTacos, '1', fromJS(entities))).toEqual(
       expect.any(Symbol),
     );
   });
@@ -869,11 +854,11 @@ describe(`${schema.Entity.name} denormalization`, () => {
       },
     };
 
-    expect(denormalize('1', Menu, entities)).toMatchSnapshot();
-    expect(denormalize('1', Menu, fromJS(entities))).toMatchSnapshot();
+    expect(denormalize(Menu, '1', entities)).toMatchSnapshot();
+    expect(denormalize(Menu, '1', fromJS(entities))).toMatchSnapshot();
 
-    expect(denormalize('2', Menu, entities)).toMatchSnapshot();
-    expect(denormalize('2', Menu, fromJS(entities))).toMatchSnapshot();
+    expect(denormalize(Menu, '2', entities)).toMatchSnapshot();
+    expect(denormalize(Menu, '2', fromJS(entities))).toMatchSnapshot();
   });
 
   it('should handle optional schema entries Entity', () => {
@@ -888,7 +873,7 @@ describe(`${schema.Entity.name} denormalization`, () => {
     }) {}
 
     expect(
-      denormalize('bob', MyEntity, {
+      denormalize(MyEntity, 'bob', {
         MyEntity: { bob: { name: 'bob', secondthing: 'hi' } },
       }),
     ).toMatchInlineSnapshot(`
@@ -912,7 +897,7 @@ describe(`${schema.Entity.name} denormalization`, () => {
     }) {}
 
     expect(
-      denormalize('bob', MyEntity, {
+      denormalize(MyEntity, 'bob', {
         MyEntity: { bob: { name: 'bob', secondthing: 'hi', blarb: null } },
       }),
     ).toMatchInlineSnapshot(`
@@ -936,11 +921,11 @@ describe(`${schema.Entity.name} denormalization`, () => {
       },
     };
 
-    expect(denormalize('1', Menu, entities)).toMatchSnapshot();
-    expect(denormalize('1', Menu, fromJS(entities))).toMatchSnapshot();
+    expect(denormalize(Menu, '1', entities)).toMatchSnapshot();
+    expect(denormalize(Menu, '1', fromJS(entities))).toMatchSnapshot();
 
-    expect(denormalize('2', Menu, entities)).toMatchSnapshot();
-    expect(denormalize('2', Menu, fromJS(entities))).toMatchSnapshot();
+    expect(denormalize(Menu, '2', entities)).toMatchSnapshot();
+    expect(denormalize(Menu, '2', fromJS(entities))).toMatchSnapshot();
   });
 
   test('denormalizes deep entities with records', () => {
@@ -960,11 +945,11 @@ describe(`${schema.Entity.name} denormalization`, () => {
       },
     };
 
-    expect(denormalize('1', Menu, entities)).toMatchSnapshot();
-    expect(denormalize('1', Menu, fromJS(entities))).toMatchSnapshot();
+    expect(denormalize(Menu, '1', entities)).toMatchSnapshot();
+    expect(denormalize(Menu, '1', fromJS(entities))).toMatchSnapshot();
 
-    expect(denormalize('2', Menu, entities)).toMatchSnapshot();
-    expect(denormalize('2', Menu, fromJS(entities))).toMatchSnapshot();
+    expect(denormalize(Menu, '2', entities)).toMatchSnapshot();
+    expect(denormalize(Menu, '2', fromJS(entities))).toMatchSnapshot();
   });
 
   test('can denormalize already partially denormalized data', () => {
@@ -978,8 +963,8 @@ describe(`${schema.Entity.name} denormalization`, () => {
       },
     };
 
-    expect(denormalize('1', Menu, entities)).toMatchSnapshot();
-    expect(denormalize('1', Menu, fromJS(entities))).toMatchSnapshot();
+    expect(denormalize(Menu, '1', entities)).toMatchSnapshot();
+    expect(denormalize(Menu, '1', fromJS(entities))).toMatchSnapshot();
   });
 
   describe('nesting', () => {
@@ -1032,11 +1017,11 @@ describe(`${schema.Entity.name} denormalization`, () => {
         },
       };
 
-      expect(denormalize('123', Report, entities)).toMatchSnapshot();
-      expect(denormalize('123', Report, fromJS(entities))).toMatchSnapshot();
+      expect(denormalize(Report, '123', entities)).toMatchSnapshot();
+      expect(denormalize(Report, '123', fromJS(entities))).toMatchSnapshot();
 
-      expect(denormalize('456', User, entities)).toMatchSnapshot();
-      expect(denormalize('456', User, fromJS(entities))).toMatchSnapshot();
+      expect(denormalize(User, '456', entities)).toMatchSnapshot();
+      expect(denormalize(User, '456', fromJS(entities))).toMatchSnapshot();
     });
 
     test('denormalizes recursive entities with referential equality', () => {
@@ -1071,7 +1056,7 @@ describe(`${schema.Entity.name} denormalization`, () => {
       };
       const memo = new SimpleMemoCache();
 
-      const denormalizedReport = memo.denormalize('123', Report, entities);
+      const denormalizedReport = memo.denormalize(Report, '123', entities);
       expect(denormalizedReport).not.toEqual(expect.any(Symbol));
       if (typeof denormalizedReport === 'symbol') return;
 
@@ -1084,7 +1069,7 @@ describe(`${schema.Entity.name} denormalization`, () => {
         denormalizedReport.draftedBy,
       );
 
-      const denormalizedReport2 = memo.denormalize('123', Report, entities);
+      const denormalizedReport2 = memo.denormalize(Report, '123', entities);
       expect(denormalizedReport2).not.toEqual(expect.any(Symbol));
       if (typeof denormalizedReport2 === 'symbol') return;
 
@@ -1132,7 +1117,7 @@ describe(`${schema.Entity.name} denormalization`, () => {
         comment: Comment,
       });
 
-      const denormalizedReport = memo.denormalize(input, sch, entities);
+      const denormalizedReport = memo.denormalize(sch, input, entities);
       expect(denormalizedReport).not.toEqual(expect.any(Symbol));
       if (typeof denormalizedReport === 'symbol') return;
 
@@ -1145,7 +1130,7 @@ describe(`${schema.Entity.name} denormalization`, () => {
         denormalizedReport.comment.author,
       );
 
-      const denormalizedReport2 = memo.denormalize(input, sch, entities);
+      const denormalizedReport2 = memo.denormalize(sch, input, entities);
       expect(denormalizedReport2).not.toEqual(expect.any(Symbol));
       if (typeof denormalizedReport2 === 'symbol') return;
 
@@ -1164,7 +1149,7 @@ describe(`${schema.Entity.name} denormalization`, () => {
         },
       };
 
-      const denormalizedReport3 = memo.denormalize(input, sch, nextEntities);
+      const denormalizedReport3 = memo.denormalize(sch, input, nextEntities);
       expect(denormalizedReport3).not.toEqual(expect.any(Symbol));
       if (typeof denormalizedReport3 === 'symbol') return;
 
@@ -1176,7 +1161,7 @@ describe(`${schema.Entity.name} denormalization`, () => {
 
     describe('optional entities', () => {
       it('should be marked as found even when optional is not there', () => {
-        const denormalized = denormalize('abc', WithOptional, {
+        const denormalized = denormalize(WithOptional, 'abc', {
           [WithOptional.key]: {
             abc: {
               id: 'abc',
@@ -1201,7 +1186,7 @@ describe(`${schema.Entity.name} denormalization`, () => {
       });
 
       it('should be marked as found when nested entity is missing', () => {
-        const denormalized = denormalize('abc', WithOptional, {
+        const denormalized = denormalize(WithOptional, 'abc', {
           [WithOptional.key]: {
             abc: WithOptional.fromJS({
               id: 'abc',
@@ -1229,7 +1214,7 @@ describe(`${schema.Entity.name} denormalization`, () => {
       });
 
       it('should be marked as deleted when required entity is deleted symbol', () => {
-        const denormalized = denormalize('abc', WithOptional, {
+        const denormalized = denormalize(WithOptional, 'abc', {
           [WithOptional.key]: {
             abc: {
               id: 'abc',
@@ -1246,7 +1231,7 @@ describe(`${schema.Entity.name} denormalization`, () => {
       });
 
       it('should be non-required deleted members should not result in deleted indicator', () => {
-        const denormalized = denormalize('abc', WithOptional, {
+        const denormalized = denormalize(WithOptional, 'abc', {
           [WithOptional.key]: {
             abc: WithOptional.fromJS({
               id: 'abc',
@@ -1276,8 +1261,8 @@ describe(`${schema.Entity.name} denormalization`, () => {
 
       it('should be both deleted and not found when both are true in different parts of schema', () => {
         const denormalized = denormalize(
-          { data: 'abc' },
           new schema.Object({ data: WithOptional, other: ArticleEntity }),
+          { data: 'abc' },
           {
             [WithOptional.key]: {
               abc: WithOptional.fromJS({

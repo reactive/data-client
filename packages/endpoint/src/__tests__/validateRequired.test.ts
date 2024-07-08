@@ -58,7 +58,7 @@ describe(`validateRequired`, () => {
     const schema = MyEntity;
 
     expect(
-      new SimpleMemoCache().denormalize('bob', schema, {
+      new SimpleMemoCache().denormalize(schema, 'bob', {
         MyEntity: { bob: { name: 'bob', secondthing: 'hi' } },
       }),
     ).toMatchInlineSnapshot(`
@@ -73,7 +73,7 @@ describe(`validateRequired`, () => {
     const schema = MyEntity;
 
     expect(
-      new SimpleMemoCache().denormalize('bob', schema, {
+      new SimpleMemoCache().denormalize(schema, 'bob', {
         MyEntity: {
           bob: {
             name: 'bob',
@@ -93,7 +93,7 @@ describe(`validateRequired`, () => {
   it('should be invalid (suspend) with required fields missing', () => {
     const schema = MyEntity;
 
-    const data = new SimpleMemoCache().denormalize('bob', schema, {
+    const data = new SimpleMemoCache().denormalize(schema, 'bob', {
       MyEntity: {
         bob: {
           name: 'bob',

@@ -110,7 +110,7 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     this: T,
     input: any,
     args: readonly any[],
-    unvisit: (input: any, schema: any) => any,
+    unvisit: (schema: any, input: any) => any,
   ) => AbstractInstanceType<T>;
 }
 

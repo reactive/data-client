@@ -31,7 +31,7 @@ export const getMilestones =
         repo,
       })
       .then(response => {
-        const data = normalize(response.data, [schema.Milestone]);
+        const data = normalize([schema.Milestone], response.data);
         dispatch(addEntities(data.entities));
         return response;
       })
@@ -40,4 +40,4 @@ export const getMilestones =
       });
   };
 
-export const selectHydrated = (state, id) => denormalize(id, Milestone, state);
+export const selectHydrated = (state, id) => denormalize(Milestone, id, state);

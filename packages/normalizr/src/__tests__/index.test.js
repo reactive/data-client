@@ -34,42 +34,42 @@ describe('normalize', () => {
     `cannot normalize input that == %s`,
     input => {
       class Test extends IDEntity {}
-      expect(() => normalize(input, Test)).toThrow();
+      expect(() => normalize(Test, input)).toThrow();
     },
   );
   test.each([42, null, undefined, '42', () => {}])(
     `cannot normalize input that == %s`,
     input => {
       class Test extends IDEntity {}
-      expect(() => normalize(input, { data: Test })).toThrow();
+      expect(() => normalize({ data: Test }, input)).toThrow();
     },
   );
 
   test('can normalize strings for entity (already processed)', () => {
     class Test extends IDEntity {}
-    expect(normalize(['42'], new schema.Array(Test)).result).toEqual(['42']);
+    expect(normalize(new schema.Array(Test), ['42']).result).toEqual(['42']);
   });
 
   test('can normalize null schema with string response', () => {
-    expect(normalize('17,234', null).result).toEqual('17,234');
+    expect(normalize(null, '17,234').result).toEqual('17,234');
   });
 
   test('passthrough with undefined schema', () => {
     const input = {};
-    expect(normalize(input).result).toBe(input);
+    expect(normalize(undefined, input).result).toBe(input);
   });
 
   test('passthrough with id in place of entity', () => {
     const input = { taco: '5' };
-    expect(normalize(input, { taco: Tacos }).result).toStrictEqual(input);
+    expect(normalize({ taco: Tacos }, input).result).toStrictEqual(input);
   });
 
   test('cannot normalize with null input', () => {
-    expect(() => normalize(null, Tacos)).toThrow(/null/);
+    expect(() => normalize(Tacos, null)).toThrow(/null/);
   });
 
   test('passthrough primitive schema', () => {
-    expect(normalize({ happy: { bob: 5 } }, { happy: 5 }).result).toStrictEqual(
+    expect(normalize({ happy: 5 }, { happy: { bob: 5 } }).result).toStrictEqual(
       {
         happy: { bob: 5 },
       },
@@ -78,7 +78,7 @@ describe('normalize', () => {
 
   test('can normalize string', () => {
     const mySchema = '';
-    expect(normalize('bob', mySchema)).toMatchInlineSnapshot(`
+    expect(normalize(mySchema, 'bob')).toMatchInlineSnapshot(`
       {
         "entities": {},
         "entityMeta": {},
@@ -91,11 +91,11 @@ describe('normalize', () => {
   test('normalizes entities', () => {
     expect(
       normalize(
+        [Tacos],
         [
           { id: '1', type: 'foo' },
           { id: '2', type: 'bar' },
         ],
-        [Tacos],
       ),
     ).toMatchSnapshot();
   });
@@ -103,6 +103,16 @@ describe('normalize', () => {
   test('normalizes schema with extra members', () => {
     expect(
       normalize(
+        {
+          data: [Tacos],
+          extra: '',
+          page: {
+            first: null,
+            second: undefined,
+            third: 0,
+            complex: { complex: true, next: false },
+          },
+        },
         {
           data: [
             { id: '1', type: 'foo' },
@@ -116,16 +126,6 @@ describe('normalize', () => {
             complex: { complex: false, next: true },
           },
         },
-        {
-          data: [Tacos],
-          extra: '',
-          page: {
-            first: null,
-            second: undefined,
-            third: 0,
-            complex: { complex: true, next: false },
-          },
-        },
       ),
     ).toMatchSnapshot();
   });
@@ -134,12 +134,6 @@ describe('normalize', () => {
     expect(
       normalize(
         {
-          data: [
-            { id: '1', type: 'foo' },
-            { id: '2', type: 'bar' },
-          ],
-        },
-        {
           data: [Tacos],
           extra: '',
           page: {
@@ -148,6 +142,12 @@ describe('normalize', () => {
             third: 0,
             complex: { complex: true, next: false },
           },
+        },
+        {
+          data: [
+            { id: '1', type: 'foo' },
+            { id: '2', type: 'bar' },
+          ],
         },
       ),
     ).toMatchSnapshot();
@@ -160,6 +160,7 @@ describe('normalize', () => {
 
     expect(
       normalize(
+        { data: [MyTaco], alt: MyTaco },
         {
           data: [
             { id: '1', type: 'foo' },
@@ -167,7 +168,6 @@ describe('normalize', () => {
           ],
           alt: { id: '2', type: 'bar2' },
         },
-        { data: [MyTaco], alt: MyTaco },
       ),
     ).toMatchSnapshot();
   });
@@ -182,6 +182,7 @@ describe('normalize', () => {
 
     expect(
       normalize(
+        { data: [MyTaco], alt: MyTaco },
         {
           data: [
             { id: '1', type: 'foo' },
@@ -189,7 +190,6 @@ describe('normalize', () => {
           ],
           alt: { id: '2', type: 'bar2' },
         },
-        { data: [MyTaco], alt: MyTaco },
       ),
     ).toMatchSnapshot();
 
@@ -213,7 +213,7 @@ describe('normalize', () => {
     const input = { id: '123', friends: [] };
     input.friends.push(input);
 
-    expect(normalize(input, User)).toMatchSnapshot();
+    expect(normalize(User, input)).toMatchSnapshot();
   });
 
   test('normalizes entities with circular references that fails validation', () => {
@@ -227,7 +227,7 @@ describe('normalize', () => {
     const input = { id: '123', friends: [] };
     input.friends.push(input);
 
-    expect(() => normalize(input, User)).toThrowErrorMatchingSnapshot();
+    expect(() => normalize(User, input)).toThrowErrorMatchingSnapshot();
   });
 
   test('normalizes nested entities', () => {
@@ -266,7 +266,7 @@ describe('normalize', () => {
         },
       ],
     };
-    expect(normalize(input, Article)).toMatchSnapshot();
+    expect(normalize(Article, input)).toMatchSnapshot();
   });
 
   test('does not modify the original input', () => {
@@ -285,7 +285,7 @@ describe('normalize', () => {
         name: 'Paul',
       }),
     });
-    expect(() => normalize(input, Article)).not.toThrow();
+    expect(() => normalize(Article, input)).not.toThrow();
   });
 
   test('handles number ids when nesting', () => {
@@ -304,14 +304,14 @@ describe('normalize', () => {
         name: 'Paul',
       },
     });
-    expect(normalize(input, Article).entities).toMatchSnapshot();
+    expect(normalize(Article, input).entities).toMatchSnapshot();
   });
 
   test('ignores null values', () => {
     class MyEntity extends IDEntity {}
-    expect(normalize([null], [MyEntity])).toMatchSnapshot();
-    expect(normalize([undefined], [MyEntity])).toMatchSnapshot();
-    expect(normalize([false], [MyEntity])).toMatchSnapshot();
+    expect(normalize([MyEntity], [null])).toMatchSnapshot();
+    expect(normalize([MyEntity], [undefined])).toMatchSnapshot();
+    expect(normalize([MyEntity], [false])).toMatchSnapshot();
   });
 
   test('can use fully custom entity classes', () => {
@@ -330,18 +330,20 @@ describe('normalize', () => {
         return this.uuid;
       }
 
-      static normalize(input, parent, key, visit, addEntity, visitedEntities) {
+      static normalize(
+        input,
+        parent,
+        key,
+        args,
+        visit,
+        addEntity,
+        getEntity,
+        checkLoop,
+      ) {
         const entity = { ...input };
         Object.keys(this.schema).forEach(key => {
           const schema = this.schema[key];
-          entity[key] = visit(
-            input[key],
-            input,
-            key,
-            schema,
-            addEntity,
-            visitedEntities,
-          );
+          entity[key] = visit(schema, input[key], input, key, args);
         });
         addEntity(this, entity, this.pk(entity));
         return {
@@ -353,14 +355,11 @@ describe('normalize', () => {
 
     class Food extends MyEntity {}
     expect(
-      normalize(
-        {
-          uuid: '1234',
-          name: 'tacos',
-          children: [{ id: 4, name: 'lettuce' }],
-        },
-        Food,
-      ),
+      normalize(Food, {
+        uuid: '1234',
+        name: 'tacos',
+        children: [{ id: 4, name: 'lettuce' }],
+      }),
     ).toMatchSnapshot();
   });
 
@@ -377,7 +376,7 @@ describe('normalize', () => {
     }
 
     expect(
-      normalize({ user: { id: '456' } }, Recommendations, [{ id: '456' }]),
+      normalize(Recommendations, { user: { id: '456' } }, [{ id: '456' }]),
     ).toMatchSnapshot();
     expect(calls).toMatchSnapshot();
   });
@@ -390,13 +389,14 @@ describe('normalize', () => {
     }
 
     expect(
-      normalize(
-        { id: '123', title: 'normalizr is great!', author: '1' },
-        Article,
-      ),
+      normalize(Article, {
+        id: '123',
+        title: 'normalizr is great!',
+        author: '1',
+      }),
     ).toMatchSnapshot();
 
-    expect(normalize({ user: '1' }, { user: User })).toMatchSnapshot();
+    expect(normalize({ user: User }, { user: '1' })).toMatchSnapshot();
   });
 
   test('can normalize object without proper object prototype inheritance', () => {
@@ -415,7 +415,7 @@ describe('normalize', () => {
       };
     }
 
-    expect(() => normalize(test, Test)).not.toThrow();
+    expect(() => normalize(Test, test)).not.toThrow();
   });
 });
 
@@ -429,15 +429,15 @@ describe.each([
 ])(`denormalize [%s]`, (_, denormalize) => {
   test('passthrough with undefined schema', () => {
     const input = {};
-    expect(denormalize(input)).toEqual(input);
+    expect(denormalize(undefined, input)).toEqual(input);
   });
 
   test('returns the input if undefined', () => {
-    expect(denormalize(undefined, {}, {})).toEqual(undefined);
+    expect(denormalize({}, undefined, {})).toEqual(undefined);
   });
 
   test('returns the input if string', () => {
-    expect(denormalize('bob', '', {})).toEqual('bob');
+    expect(denormalize('', 'bob', {})).toEqual('bob');
   });
 
   test('denormalizes entities', () => {
@@ -447,15 +447,15 @@ describe.each([
         2: { id: '2', type: 'bar' },
       },
     };
-    expect(denormalize(['1', '2'], [Tacos], entities)).toMatchSnapshot();
+    expect(denormalize([Tacos], ['1', '2'], entities)).toMatchSnapshot();
   });
 
   test('denormalizes without entities fills undefined', () => {
-    expect(denormalize({ data: '1' }, { data: Tacos }, {})).toMatchSnapshot();
+    expect(denormalize({ data: Tacos }, { data: '1' }, {})).toMatchSnapshot();
     expect(
-      denormalize(fromJS({ data: '1' }), { data: Tacos }, {}),
+      denormalize({ data: Tacos }, fromJS({ data: '1' }), {}),
     ).toMatchSnapshot();
-    expect(denormalize('1', Tacos, {})).toEqual(undefined);
+    expect(denormalize(Tacos, '1', {})).toEqual(undefined);
   });
 
   test('denormalizes ignoring unfound entities in arrays', () => {
@@ -464,9 +464,9 @@ describe.each([
         1: { id: '1', type: 'foo' },
       },
     };
-    expect(denormalize(['1', '2'], [Tacos], entities)).toMatchSnapshot();
+    expect(denormalize([Tacos], ['1', '2'], entities)).toMatchSnapshot();
     expect(
-      denormalize({ results: ['1', '2'] }, { results: [Tacos] }, entities),
+      denormalize({ results: [Tacos] }, { results: ['1', '2'] }, entities),
     ).toMatchSnapshot();
   });
 
@@ -476,7 +476,7 @@ describe.each([
         1: Symbol('ENTITY WAS INVALID'),
       },
     };
-    expect(denormalize('1', Tacos, entities)).toEqual(expect.any(Symbol));
+    expect(denormalize(Tacos, '1', entities)).toEqual(expect.any(Symbol));
   });
 
   test('denormalizes ignoring deleted entities in arrays', () => {
@@ -486,9 +486,9 @@ describe.each([
         2: INVALID,
       },
     };
-    expect(denormalize(['1', '2'], [Tacos], entities)).toMatchSnapshot();
+    expect(denormalize([Tacos], ['1', '2'], entities)).toMatchSnapshot();
     expect(
-      denormalize({ results: ['1', '2'] }, { results: [Tacos] }, entities),
+      denormalize({ results: [Tacos] }, { results: ['1', '2'] }, entities),
     ).toMatchSnapshot();
   });
 
@@ -499,10 +499,10 @@ describe.each([
       },
     };
     /*expect(
-      denormalize([{ data: 1 }, { data: 2 }], [{ data: Tacos }], {}),
+      denormalize([{ data: Tacos }],[{ data: 1 }, { data: 2 }],  {}),
     ).toEqual([]);*/
     expect(
-      denormalize([{ data: 1 }, { data: 2 }], [{ data: Tacos }], entities),
+      denormalize([{ data: Tacos }], [{ data: 1 }, { data: 2 }], entities),
     ).toMatchSnapshot();
   });
 
@@ -516,16 +516,6 @@ describe.each([
     expect(
       denormalize(
         {
-          data: ['1', '2'],
-          extra: '5',
-          page: {
-            first: null,
-            second: { thing: 'two' },
-            third: 1,
-            complex: { complex: false, next: true },
-          },
-        },
-        {
           data: [Tacos],
           extra: '',
           page: {
@@ -535,6 +525,17 @@ describe.each([
             complex: { complex: true, next: false },
           },
         },
+        {
+          data: ['1', '2'],
+          extra: '5',
+          page: {
+            first: null,
+            second: { thing: 'two' },
+            third: 1,
+            complex: { complex: false, next: true },
+          },
+        },
+
         entities,
       ),
     ).toMatchSnapshot();
@@ -550,9 +551,6 @@ describe.each([
     expect(
       denormalize(
         {
-          data: ['1', '2'],
-        },
-        {
           data: [Tacos],
           extra: '',
           page: {
@@ -562,6 +560,10 @@ describe.each([
             complex: { complex: true, next: false },
           },
         },
+        {
+          data: ['1', '2'],
+        },
+
         entities,
       ),
     ).toMatchSnapshot();
@@ -612,7 +614,7 @@ describe.each([
         },
       },
     };
-    expect(denormalize('123', Article, entities)).toMatchSnapshot();
+    expect(denormalize(Article, '123', entities)).toMatchSnapshot();
   });
 
   test('gracefully handles when nested entities are primitives', () => {
@@ -656,7 +658,7 @@ describe.each([
         },
       },
     };
-    expect(() => denormalize('123', Article, entities)).toMatchSnapshot();
+    expect(() => denormalize(Article, '123', entities)).toMatchSnapshot();
   });
 
   test('set to undefined if schema key is not in entities', () => {
@@ -693,7 +695,7 @@ describe.each([
         },
       },
     };
-    expect(denormalize('123', Article, entities)).toMatchSnapshot();
+    expect(denormalize(Article, '123', entities)).toMatchSnapshot();
   });
 
   test('does not modify the original entities', () => {
@@ -718,7 +720,7 @@ describe.each([
         }),
       }),
     });
-    expect(() => denormalize('123', Article, entities)).not.toThrow();
+    expect(() => denormalize(Article, '123', entities)).not.toThrow();
   });
 
   test('denormalizes with function as pk()', () => {
@@ -745,18 +747,18 @@ describe.each([
     };
 
     expect(
-      denormalize(normalizedData.result, [Patron], normalizedData.entities),
+      denormalize([Patron], normalizedData.result, normalizedData.entities),
     ).toMatchSnapshot();
   });
 
   test('denormalizes where id is only in key', () => {
     expect(
       denormalize(
+        new schema.Values(Tacos),
         {
           1: { type: 'foo' },
           2: { type: 'bar' },
         },
-        new schema.Values(Tacos),
         {},
       ),
     ).toMatchSnapshot();

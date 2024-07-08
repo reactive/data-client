@@ -42,19 +42,16 @@ describe(`${schema.Values.name} normalization`, () => {
     const valuesSchema = new schema.Values(MyEntity);
 
     expect(
-      normalize(
-        {
-          first: {
-            id: '1',
-            name: 'first thing',
-          },
-          second: {
-            id: '2',
-            name: 'second thing',
-          },
+      normalize(valuesSchema, {
+        first: {
+          id: '1',
+          name: 'first thing',
         },
-        valuesSchema,
-      ),
+        second: {
+          id: '2',
+          name: 'second thing',
+        },
+      }),
     ).toMatchSnapshot();
   });
 
@@ -68,13 +65,10 @@ describe(`${schema.Values.name} normalization`, () => {
     );
 
     expect(
-      normalize(
-        {
-          fido: { id: '1', type: 'dogs' },
-          fluffy: { id: '1', type: 'cats' },
-        },
-        valuesSchema,
-      ),
+      normalize(valuesSchema, {
+        fido: { id: '1', type: 'dogs' },
+        fluffy: { id: '1', type: 'cats' },
+      }),
     ).toMatchSnapshot();
   });
 
@@ -88,14 +82,11 @@ describe(`${schema.Values.name} normalization`, () => {
     );
 
     expect(
-      normalize(
-        {
-          fido: { id: '1', type: 'dog' },
-          fluffy: { id: '1', type: 'cat' },
-          jim: { id: '2', type: 'lizard' },
-        },
-        valuesSchema,
-      ),
+      normalize(valuesSchema, {
+        fido: { id: '1', type: 'dog' },
+        fluffy: { id: '1', type: 'cat' },
+        jim: { id: '2', type: 'lizard' },
+      }),
     ).toMatchSnapshot();
     expect(warnSpy.mock.calls).toMatchSnapshot();
   });
@@ -110,14 +101,11 @@ describe(`${schema.Values.name} normalization`, () => {
     );
 
     expect(
-      normalize(
-        {
-          fido: undefined,
-          milo: null,
-          fluffy: { id: '1', type: 'cats' },
-        },
-        valuesSchema,
-      ),
+      normalize(valuesSchema, {
+        fido: undefined,
+        milo: null,
+        fluffy: { id: '1', type: 'cats' },
+      }),
     ).toMatchSnapshot();
   });
 
@@ -202,7 +190,7 @@ describe(`${schema.Values.name} normalization`, () => {
       },
     };
     expect(
-      normalize(response, { data: { estimates: new schema.Values(Estimate) } }),
+      normalize({ data: { estimates: new schema.Values(Estimate) } }, response),
     ).toMatchSnapshot();
   });
 });
@@ -235,11 +223,11 @@ describe.each([
 
         expect(
           denormalize(
+            valuesSchema,
             {
               first: '1',
               second: '2',
             },
-            valuesSchema,
             createInput(entities),
           ),
         ).toMatchSnapshot();
@@ -261,11 +249,11 @@ describe.each([
 
         expect(
           denormalize(
+            valuesSchema,
             {
               fido: { id: '1', schema: 'dogs' },
               fluffy: { id: '1', schema: 'cats' },
             },
-            valuesSchema,
             createInput(entities),
           ),
         ).toMatchSnapshot();
@@ -287,12 +275,12 @@ describe.each([
 
         expect(
           denormalize(
+            valuesSchema,
             {
               fido: { id: '1', schema: 'dogs' },
               fluffy: { id: '1', schema: 'cats' },
               prancy: { id: '5', schema: 'cats' },
             },
-            valuesSchema,
             createInput(entities),
           ),
         ).toMatchSnapshot();
@@ -314,12 +302,12 @@ describe.each([
 
         expect(
           denormalize(
+            valuesSchema,
             {
               fido: { id: '1', schema: 'dogs' },
               fluffy: { id: '1', schema: 'cats' },
               prancy: { id: '5', schema: 'cats' },
             },
-            valuesSchema,
             createInput(entities),
           ),
         ).toMatchSnapshot();
@@ -408,9 +396,9 @@ describe.each([
         const shape = new schema.Object({
           data: new schema.Object({ estimates: new schema.Values(Estimate) }),
         });
-        const { result, entities } = normalize(response, shape);
+        const { result, entities } = normalize(shape, response);
         expect(
-          denormalize(result, shape, createInput(entities)),
+          denormalize(shape, result, createInput(entities)),
         ).toMatchSnapshot();
       });
     },

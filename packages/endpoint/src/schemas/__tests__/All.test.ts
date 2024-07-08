@@ -22,7 +22,7 @@ describe.each([[]])(`${schema.All.name} normalization (%s)`, () => {
     class User extends IDEntity {}
     const sch = new schema.All(User);
     function normalizeBad() {
-      normalize('abc', sch);
+      normalize(sch, 'abc');
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
@@ -31,17 +31,17 @@ describe.each([[]])(`${schema.All.name} normalization (%s)`, () => {
     class User extends IDEntity {}
     const sch = new schema.All(User);
     function normalizeBad() {
-      normalize('[{"id":5}]', sch);
+      normalize(sch, '[{"id":5}]');
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
 
   test('normalizes Objects using their values', () => {
     class User extends IDEntity {}
-    const { result, entities } = normalize(
-      { foo: { id: '1' }, bar: { id: '2' } },
-      new schema.All(User),
-    );
+    const { result, entities } = normalize(new schema.All(User), {
+      foo: { id: '1' },
+      bar: { id: '2' },
+    });
     expect(result).toBeUndefined();
     expect(entities).toMatchSnapshot();
   });
@@ -51,7 +51,7 @@ describe.each([[]])(`${schema.All.name} normalization (%s)`, () => {
     test('normalizes a single entity', () => {
       const listSchema = new schema.All(Cats);
       expect(
-        normalize([{ id: '1' }, { id: '2' }], listSchema).entities,
+        normalize(listSchema, [{ id: '1' }, { id: '2' }]).entities,
       ).toMatchSnapshot();
     });
 
@@ -66,15 +66,12 @@ describe.each([[]])(`${schema.All.name} normalization (%s)`, () => {
         inferSchemaFn,
       );
 
-      const { result, entities } = normalize(
-        [
-          { type: 'Cat', id: '123' },
-          { type: 'people', id: '123' },
-          { id: '789', name: 'fido' },
-          { type: 'Cat', id: '456' },
-        ],
-        listSchema,
-      );
+      const { result, entities } = normalize(listSchema, [
+        { type: 'Cat', id: '123' },
+        { type: 'people', id: '123' },
+        { id: '789', name: 'fido' },
+        { type: 'Cat', id: '456' },
+      ]);
       expect(result).toBeUndefined();
       expect(entities).toMatchSnapshot();
       expect(inferSchemaFn.mock.calls).toMatchSnapshot();
@@ -84,7 +81,7 @@ describe.each([[]])(`${schema.All.name} normalization (%s)`, () => {
       class User extends IDEntity {}
       const users = new schema.All(User);
       expect(
-        normalize({ foo: { id: '1' }, bar: { id: '2' } }, users).entities,
+        normalize(users, { foo: { id: '1' }, bar: { id: '2' } }).entities,
       ).toMatchSnapshot();
     });
 
@@ -92,7 +89,7 @@ describe.each([[]])(`${schema.All.name} normalization (%s)`, () => {
       class User extends IDEntity {}
       const users = new schema.All(User);
       expect(
-        normalize([undefined, { id: '123' }, null], users).entities,
+        normalize(users, [undefined, { id: '123' }, null]).entities,
       ).toMatchSnapshot();
     });
   });
@@ -118,7 +115,7 @@ describe.each([
       };
       const sch = new schema.All(Cat);
       expect(
-        new MemoCache().query('', sch, [], createInput(entities), {}),
+        new MemoCache().query(sch, [], createInput(entities), {}),
       ).toMatchSnapshot();
     });
 
@@ -132,7 +129,7 @@ describe.each([
         },
       };
       expect(
-        new MemoCache().query('', catSchema, [], createInput(entities), {}),
+        new MemoCache().query(catSchema, [], createInput(entities), {}),
       ).toMatchSnapshot();
     });
 
@@ -146,7 +143,6 @@ describe.each([
         },
       };
       const value = new MemoCache().query(
-        '',
         catSchema,
         [],
         createInput(entities),
@@ -170,7 +166,6 @@ describe.each([
         },
       };
       const value = new MemoCache().query(
-        '',
         catSchema,
         [],
         createInput(entities) as any,
@@ -194,11 +189,11 @@ describe.each([
         },
       };
       const memo = new MemoCache();
-      const value = memo.query('', catSchema, [], entities, {});
+      const value = memo.query(catSchema, [], entities, {});
 
       expect(createOutput(value).results?.length).toBe(2);
       expect(createOutput(value).results).toMatchSnapshot();
-      const value2 = memo.query('', catSchema, [], entities, {});
+      const value2 = memo.query(catSchema, [], entities, {});
       expect(createOutput(value).results[0]).toBe(
         createOutput(value2).results[0],
       );
@@ -211,7 +206,7 @@ describe.each([
           3: { id: '3', name: 'Jelico' },
         },
       };
-      const value3 = memo.query('', catSchema, [], entities, {});
+      const value3 = memo.query(catSchema, [], entities, {});
       expect(createOutput(value3).results?.length).toBe(3);
       expect(createOutput(value3).results).toMatchSnapshot();
       expect(createOutput(value).results[0]).toBe(
@@ -234,7 +229,6 @@ describe.each([
       };
 
       const value = new MemoCache().query(
-        '',
         catSchema,
         [],
         createInput(entities),
@@ -270,7 +264,6 @@ describe.each([
         },
       };
       const value = new MemoCache().query(
-        '',
         listSchema,
         [],
         createInput(entities),
@@ -293,7 +286,7 @@ describe.each([
           },
         },
       };
-      expect(denormalize('123', Taco, createInput(entities))).toMatchSnapshot();
+      expect(denormalize(Taco, '123', createInput(entities))).toMatchSnapshot();
     });
 
     test('denormalizes multiple entities', () => {
@@ -334,7 +327,6 @@ describe.each([
         },
       };
       const value = new MemoCache().query(
-        '',
         listSchema,
         [],
         createInput(entities) as any,

@@ -77,5 +77,5 @@ class Post extends IDEntity {
 const data = {
   /* ...*/
 };
-const normalizedData = normalize(data, Post);
+const normalizedData = normalize(Post, data);
 console.log(normalizedData);

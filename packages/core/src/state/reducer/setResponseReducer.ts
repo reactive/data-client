@@ -42,13 +42,10 @@ export function setResponseReducer(
       payload = action.payload;
     }
     const { result, entities, indexes, entityMeta } = normalize(
-      payload,
       action.endpoint.schema,
-      action.meta.args as any,
-      state.entities,
-      state.indexes,
-      state.entityMeta,
+      payload,
       action.meta,
+      state,
     );
     const endpoints: Record<string, unknown> = {
       ...state.endpoints,

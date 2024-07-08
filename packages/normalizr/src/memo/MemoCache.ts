@@ -25,8 +25,8 @@ export default class MemoCache {
 
   /** Compute denormalized form maintaining referential equality for same inputs */
   denormalize<S extends Schema>(
-    input: unknown,
     schema: S | undefined,
+    input: unknown,
     entities: any,
     args: readonly any[] = [],
   ): {
@@ -50,14 +50,13 @@ export default class MemoCache {
       getEntity,
       new GlobalCache(getEntity, this.entities, this.endpoints),
       args,
-    )(input, schema);
+    )(schema, input);
   }
 
   /** Compute denormalized form maintaining referential equality for same inputs */
   query<S extends Schema>(
-    argsKey: string,
     schema: S,
-    args: any[],
+    args: readonly any[],
     entities:
       | Record<string, Record<string, object>>
       | {
@@ -68,21 +67,22 @@ export default class MemoCache {
       | {
           getIn(k: string[]): any;
         },
+    // NOTE: different orders can result in cache busting here; but since it's just a perf penalty we will allow for now
+    argsKey: string = JSON.stringify(args),
   ): DenormalizeNullable<S> | undefined {
-    const input = this.buildQueryKey(argsKey, schema, args, entities, indexes);
+    const input = this.buildQueryKey(schema, args, entities, indexes, argsKey);
 
     if (!input) {
       return;
     }
 
-    const { data } = this.denormalize(input, schema, entities, args);
+    const { data } = this.denormalize(schema, input, entities, args);
     return typeof data === 'symbol' ? undefined : (data as any);
   }
 
   buildQueryKey<S extends Schema>(
-    argsKey: string,
     schema: S,
-    args: any[],
+    args: readonly any[],
     entities:
       | Record<string, Record<string, object>>
       | {
@@ -93,6 +93,8 @@ export default class MemoCache {
       | {
           getIn(k: string[]): any;
         },
+    // NOTE: different orders can result in cache busting here; but since it's just a perf penalty we will allow for now
+    argsKey: string = JSON.stringify(args),
   ): NormalizeNullable<S> {
     // This is redundant for buildQueryKey checks, but that was is used for recursion so we still need the checks there
     // TODO: If we make each recursive call include cache lookups, we combine these checks together
@@ -169,7 +171,7 @@ export function createGetEntity(
   if (entityIsImmutable) {
     return (...args) => entities.getIn(args)?.toJS?.();
   } else {
-    return (entityKey: string, pk?: string): any =>
+    return (entityKey: string | symbol, pk?: string): any =>
       pk ? entities[entityKey]?.[pk] : entities[entityKey];
   }
 }
