@@ -31,7 +31,7 @@ export const getPullRequests =
         repo,
       })
       .then(response => {
-        const data = normalize(response.data, [schema.PullRequest]);
+        const data = normalize([schema.PullRequest], response.data);
         dispatch(addEntities(data.entities));
         return response;
       })
@@ -41,4 +41,4 @@ export const getPullRequests =
   };
 
 export const selectHydrated = (state, id) =>
-  denormalize(id, PullRequest, state);
+  denormalize(PullRequest, id, state);

@@ -31,7 +31,7 @@ export const getCommits =
         repo,
       })
       .then(response => {
-        const data = normalize(response.data, [schema.Commit]);
+        const data = normalize([schema.Commit], response.data);
         dispatch(addEntities(data.entities));
         return response;
       })
@@ -40,4 +40,4 @@ export const getCommits =
       });
   };
 
-export const selectHydrated = (state, id) => denormalize(id, Commit, state);
+export const selectHydrated = (state, id) => denormalize(Commit, id, state);

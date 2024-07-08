@@ -31,7 +31,7 @@ export const getIssues =
         repo,
       })
       .then(response => {
-        const data = normalize(response.data, [schema.Issue]);
+        const data = normalize([schema.Issue], response.data);
         dispatch(addEntities(data.entities));
         return response;
       })
@@ -40,4 +40,4 @@ export const getIssues =
       });
   };
 
-export const selectHydrated = (state, id) => denormalize(id, Issue, state);
+export const selectHydrated = (state, id) => denormalize(Issue, id, state);
