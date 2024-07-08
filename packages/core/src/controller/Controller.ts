@@ -251,7 +251,7 @@ export default class Controller<
   };
 
   /**
-   * Resolves an inflight fetch. `fetchedAt` should `fetch`'s `createdAt`
+   * Resolves an inflight fetch.
    * @see https://dataclient.io/docs/api/Controller#resolve
    */
   resolve = <

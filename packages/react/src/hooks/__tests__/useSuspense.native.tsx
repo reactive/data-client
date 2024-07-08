@@ -65,7 +65,7 @@ async function testDispatchFetch(
   let i = 0;
   for (const call of dispatch.mock.calls as any) {
     expect(call[0].type).toBe(actionTypes.FETCH_TYPE);
-    delete call[0]?.meta?.createdAt;
+    delete call[0]?.meta?.fetchedAt;
     delete call[0]?.meta?.promise;
     expect(call[0]).toMatchSnapshot();
     const action: FetchAction = call[0] as any;

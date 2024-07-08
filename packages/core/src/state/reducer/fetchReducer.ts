@@ -12,7 +12,7 @@ export function fetchReducer(state: State<unknown>, action: FetchAction) {
   if (action.endpoint.getOptimisticResponse && action.endpoint.sideEffect) {
     setAction = createOptimistic(action.endpoint, {
       args: action.meta.args,
-      fetchedAt: action.meta.createdAt,
+      fetchedAt: action.meta.fetchedAt,
     });
   } else {
     // If 'fetch' action reaches the reducer there are no middlewares installed to handle it

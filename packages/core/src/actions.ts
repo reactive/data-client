@@ -80,7 +80,7 @@ export interface FetchMeta<A extends readonly any[] = readonly any[]> {
   resolve: (value?: any | PromiseLike<any>) => void;
   reject: (reason?: any) => void;
   promise: PromiseLike<any>;
-  createdAt: number;
+  fetchedAt: number;
 }
 
 export interface FetchAction<E extends EndpointAndUpdate<E> = EndpointDefault> {

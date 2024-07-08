@@ -154,7 +154,7 @@ export default class NetworkManager implements Manager {
    */
   protected handleFetch(action: FetchAction) {
     const fetch = action.payload;
-    const { key, resolve, reject, createdAt } = action.meta;
+    const { key, resolve, reject, fetchedAt } = action.meta;
     const throttle = !action.endpoint.sideEffect;
 
     const deferedFetch = () => {
@@ -178,7 +178,7 @@ export default class NetworkManager implements Manager {
         promise = resolvePromise(promise);
       }
       promise = promise
-        .then(data => {
+        .then(response => {
           let lastReset = this.getLastReset();
 
           /* istanbul ignore else */
@@ -190,23 +190,23 @@ export default class NetworkManager implements Manager {
           }
 
           // don't update state with promises started before last clear
-          if (createdAt >= lastReset) {
+          if (fetchedAt >= lastReset) {
             this.controller.resolve(action.endpoint, {
               args: action.meta.args,
-              response: data,
-              fetchedAt: createdAt,
+              response,
+              fetchedAt,
             });
           }
-          return data;
+          return response;
         })
         .catch(error => {
           const lastReset = this.getLastReset();
           // don't update state with promises started before last clear
-          if (createdAt >= lastReset) {
+          if (fetchedAt >= lastReset) {
             this.controller.resolve(action.endpoint, {
               args: action.meta.args,
               response: error,
-              fetchedAt: createdAt,
+              fetchedAt,
               error: true,
             });
           }
@@ -216,7 +216,7 @@ export default class NetworkManager implements Manager {
     };
 
     if (throttle) {
-      return this.throttle(key, deferedFetch, createdAt)
+      return this.throttle(key, deferedFetch, fetchedAt)
         .then(data => resolve(data))
         .catch(error => reject(error));
     } else {
@@ -267,7 +267,7 @@ export default class NetworkManager implements Manager {
   protected throttle(
     key: string,
     fetch: () => Promise<any>,
-    createdAt: number,
+    fetchedAt: number,
   ) {
     const lastReset = this.getLastReset();
     // we're already fetching so reuse the promise
@@ -280,7 +280,7 @@ export default class NetworkManager implements Manager {
       this.resolvers[key] = resolve;
       this.rejectors[key] = reject;
     });
-    this.fetchedAt[key] = createdAt;
+    this.fetchedAt[key] = fetchedAt;
 
     this.idleCallback(
       () => {

@@ -25,7 +25,7 @@ export default function createFetch<
     resolve,
     reject,
     promise,
-    createdAt: Date.now(),
+    fetchedAt: Date.now(),
   };
 
   return {
