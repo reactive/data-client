@@ -81,8 +81,6 @@ export interface FetchMeta<A extends readonly any[] = readonly any[]> {
   reject: (reason?: any) => void;
   promise: PromiseLike<any>;
   createdAt: number;
-  // indicates whether network manager processed it
-  nm?: boolean;
 }
 
 export interface FetchAction<E extends EndpointAndUpdate<E> = EndpointDefault> {

@@ -13,7 +13,6 @@ exports[`PollingSubscription fresh data should call after period 1`] = `
     "meta": {
       "args": [],
       "key": "test.com",
-      "nm": false,
       "promise": Promise {},
       "reject": [Function],
       "resolve": [Function],
@@ -31,7 +30,6 @@ exports[`PollingSubscription fresh data should call after period 2`] = `
     "meta": {
       "args": [],
       "key": "test.com",
-      "nm": false,
       "promise": Promise {},
       "reject": [Function],
       "resolve": [Function],
