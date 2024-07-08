@@ -22,7 +22,6 @@ export default function createFetch<
   const meta: FetchMeta<typeof args> = {
     args,
     key,
-    throttle: !endpoint.sideEffect,
     resolve,
     reject,
     promise,

@@ -320,7 +320,6 @@ type SetResponseAction<E extends EndpointAndUpdate<E> = EndpointDefault> = SetRe
 interface FetchMeta<A extends readonly any[] = readonly any[]> {
     args: A;
     key: string;
-    throttle: boolean;
     resolve: (value?: any | PromiseLike<any>) => void;
     reject: (reason?: any) => void;
     promise: PromiseLike<any>;
@@ -658,7 +657,7 @@ declare class NetworkManager implements Manager {
      * Will then start a promise for a key and potentially start the network
      * fetch.
      *
-     * Uses throttle only when instructed by action meta. This is valuable
+     * Uses throttle endpoints without sideEffects. This is valuable
      * for ensures mutation requests always go through.
      */
     protected handleFetch(action: FetchAction): Promise<any>;

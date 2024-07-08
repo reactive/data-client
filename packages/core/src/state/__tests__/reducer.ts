@@ -608,7 +608,6 @@ describe('reducer', () => {
         meta: {
           args: [{ id: 5 }],
           key: ArticleResource.get.url({ id: 5 }),
-          throttle: true,
           reject: (v: any) => null,
           resolve: (v: any) => null,
           promise: new Promise((v: any) => null),
