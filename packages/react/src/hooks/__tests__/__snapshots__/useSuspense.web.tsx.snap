@@ -121,7 +121,6 @@ exports[`useSuspense() should dispatch an action that fetches 1`] = `
     "nm": false,
     "reject": [Function],
     "resolve": [Function],
-    "throttle": true,
   },
   "payload": [Function],
   "type": "rdc/fetch",

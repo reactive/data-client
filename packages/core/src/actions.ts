@@ -77,7 +77,6 @@ export type SetResponseAction<
 export interface FetchMeta<A extends readonly any[] = readonly any[]> {
   args: A;
   key: string;
-  throttle: boolean;
   resolve: (value?: any | PromiseLike<any>) => void;
   reject: (reason?: any) => void;
   promise: PromiseLike<any>;

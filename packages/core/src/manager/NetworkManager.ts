@@ -149,12 +149,13 @@ export default class NetworkManager implements Manager {
    * Will then start a promise for a key and potentially start the network
    * fetch.
    *
-   * Uses throttle only when instructed by action meta. This is valuable
+   * Uses throttle endpoints without sideEffects. This is valuable
    * for ensures mutation requests always go through.
    */
   protected handleFetch(action: FetchAction) {
     const fetch = action.payload;
-    const { key, throttle, resolve, reject, createdAt } = action.meta;
+    const { key, resolve, reject, createdAt } = action.meta;
+    const throttle = !action.endpoint.sideEffect;
 
     const deferedFetch = () => {
       let promise = fetch();
