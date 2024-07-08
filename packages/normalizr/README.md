@@ -127,7 +127,7 @@ class Article extends Entity {
 import { normalize } from '@data-client/normalizr';
 
 const args = [{ id: '123' }];
-const normalizedData = normalize(originalData, Article, args);
+const normalizedData = normalize(Article, originalData, args);
 ```
 
 Now, `normalizedData` will create a single serializable source of truth for all entities:

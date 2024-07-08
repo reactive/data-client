@@ -9,12 +9,12 @@
   - [Union](#uniondefinition-schemaattribute)
   - [Values](#valuesdefinition-schemaattribute)
 
-## `normalize(data, schema)`
+## `normalize(schema, data)`
 
 Normalizes input data per the schema definition provided.
 
-- `data`: **required** Input JSON (or plain JS object) data that needs normalization.
 - `schema`: **required** A schema definition
+- `data`: **required** Input JSON (or plain JS object) data that needs normalization.
 
 ### Usage
 
@@ -23,9 +23,10 @@ import { schema } from '@data-client/endpoint';
 import { normalize } from '@data-client/normalizr';
 
 const myData = { users: [{ id: 1 }, { id: 2 }] };
-const user = new schema.Entity('users');
-const mySchema = { users: [user] };
-const normalizedData = normalize(myData, mySchema);
+class User { id = 0 }
+const userSchema = new schema.Entity(User);
+const mySchema = { users: [userSchema] };
+const normalizedData = normalize(mySchema, myData);
 ```
 
 ### Output
@@ -34,7 +35,7 @@ const normalizedData = normalize(myData, mySchema);
 {
   result: { users: [ 1, 2 ] },
   entities: {
-    users: {
+    User: {
       '1': { id: 1 },
       '2': { id: 2 }
     }
@@ -42,11 +43,9 @@ const normalizedData = normalize(myData, mySchema);
 }
 ```
 
-## `denormalize(schema, input, entities): [denormalized, foundAllEntities]`
+## `denormalize(schema, input, entities)`
 
 Denormalizes an input based on schema and provided entities from a plain object or Immutable data. The reverse of `normalize`.
-
-_Special Note:_ Be careful with denormalization. Prematurely reverting your data to large, nested objects could cause performance impacts in React (and other) applications.
 
 If your schema and data have recursive references, only the first instance of an entity will be given. Subsequent references will be returned as the `id` provided.
 
@@ -60,17 +59,18 @@ If your schema and data have recursive references, only the first instance of an
 import { schema } from '@data-client/endpoint';
 import { denormalize } from '@data-client/normalizr';
 
-const user = new schema.Entity('users');
-const mySchema = { users: [user] };
-const entities = { users: { '1': { id: 1 }, '2': { id: 2 } } };
-const denormalizedData = denormalize({ users: [1, 2] }, mySchema, entities);
+class User { id = 0 }
+const userSchema = new schema.Entity(User);
+const mySchema = { users: [userSchema] };
+const entities = { User: { '1': { id: 1 }, '2': { id: 2 } } };
+const denormalizedData = denormalize(mySchema, { users: [1, 2] }, entities);
 ```
 
 ### Output
 
 ```js
 {
-  users: [{ id: 1 }, { id: 2 }];
+  users: [User { id: 1 }, User { id: 2 }];
 }
 ```
 
@@ -100,13 +100,13 @@ To describe a simple array of a singular entity type:
 import { schema } from '@data-client/endpoint';
 
 const data = [{ id: '123', name: 'Jim' }, { id: '456', name: 'Jane' }];
-const userSchema = new schema.Entity('users');
+const userSchema = new schema.Entity(class User {id='';name='';});
 
 const userListSchema = new schema.Array(userSchema);
 // or use shorthand syntax:
 const userListSchema = [userSchema];
 
-const normalizedData = normalize(data, userListSchema);
+const normalizedData = normalize(userListSchema, data);
 ```
 
 #### Output
@@ -114,7 +114,7 @@ const normalizedData = normalize(data, userListSchema);
 ```js
 {
   entities: {
-    users: {
+    User: {
       '123': { id: '123', name: 'Jim' },
       '456': { id: '456', name: 'Jane' }
     }
@@ -134,8 +134,8 @@ import { schema } from '@data-client/endpoint';
 
 const data = [{ id: 1, type: 'admin' }, { id: 2, type: 'user' }];
 
-const userSchema = new schema.Entity('users');
-const adminSchema = new schema.Entity('admins');
+const userSchema = new schema.Entity(class User {id='';type='user';});
+const adminSchema = new schema.Entity(class Admin {id='';type='admin';});
 const myArray = new schema.Array(
   {
     admins: adminSchema,
@@ -144,7 +144,7 @@ const myArray = new schema.Array(
   (input, parent, key) => `${input.type}s`
 );
 
-const normalizedData = normalize(data, myArray);
+const normalizedData = normalize(myArray, data);
 ```
 
 #### Output
@@ -152,8 +152,8 @@ const normalizedData = normalize(data, myArray);
 ```js
 {
   entities: {
-    admins: { '1': { id: 1, type: 'admin' } },
-    users: { '2': { id: 2, type: 'user' } }
+    Admin: { '1': { id: 1, type: 'admin' } },
+    User: { '2': { id: 2, type: 'user' } }
   },
   result: [
     { id: 1, schema: 'admins' },
