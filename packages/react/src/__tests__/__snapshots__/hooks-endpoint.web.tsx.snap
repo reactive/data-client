@@ -45,7 +45,6 @@ exports[`useController.fetch should dispatch an action that fetches a create 1`]
     "reject": [Function],
     "resolve": [Function],
   },
-  "payload": [Function],
   "type": "rdc/fetch",
 }
 `;
@@ -66,7 +65,6 @@ exports[`useController.fetch should dispatch an action that fetches a full updat
     "reject": [Function],
     "resolve": [Function],
   },
-  "payload": [Function],
   "type": "rdc/fetch",
 }
 `;
@@ -87,7 +85,6 @@ exports[`useController.fetch should dispatch an action that fetches a partial up
     "reject": [Function],
     "resolve": [Function],
   },
-  "payload": [Function],
   "type": "rdc/fetch",
 }
 `;
@@ -105,7 +102,6 @@ exports[`useController.fetch should dispatch an action with updater in the meta 
     "reject": [Function],
     "resolve": [Function],
   },
-  "payload": [Function],
   "type": "rdc/fetch",
 }
 `;
@@ -123,7 +119,6 @@ exports[`useController.fetch should refresh get details 1`] = `
     "reject": [Function],
     "resolve": [Function],
   },
-  "payload": [Function],
   "type": "rdc/fetch",
 }
 `;

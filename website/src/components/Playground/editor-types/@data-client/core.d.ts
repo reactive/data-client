@@ -306,14 +306,14 @@ interface SetResponseActionSuccess<E extends EndpointAndUpdate<E> = EndpointDefa
     type: typeof SET_RESPONSE_TYPE;
     endpoint: E;
     meta: SetResponseMeta;
-    payload: ResolveType<E>;
+    response: ResolveType<E>;
     error?: false;
 }
 interface SetResponseActionError<E extends EndpointAndUpdate<E> = EndpointDefault> {
     type: typeof SET_RESPONSE_TYPE;
     endpoint: E;
     meta: SetResponseMeta;
-    payload: UnknownError;
+    response: UnknownError;
     error: true;
 }
 type SetResponseAction<E extends EndpointAndUpdate<E> = EndpointDefault> = SetResponseActionSuccess<E> | SetResponseActionError<E>;
@@ -323,14 +323,12 @@ interface FetchMeta<A extends readonly any[] = readonly any[]> {
     resolve: (value?: any | PromiseLike<any>) => void;
     reject: (reason?: any) => void;
     promise: PromiseLike<any>;
-    createdAt: number;
-    nm?: boolean;
+    fetchedAt: number;
 }
 interface FetchAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
     type: typeof FETCH_TYPE;
     endpoint: E;
     meta: FetchMeta<readonly [...Parameters<E>]>;
-    payload: () => ReturnType<E>;
 }
 interface OptimisticAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
     type: typeof OPTIMISTIC_TYPE;
@@ -524,7 +522,7 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
         update?: EndpointUpdateFunction<E>;
     }>(endpoint: E, ...rest: readonly [...Parameters<E>, Error]) => Promise<void>;
     /**
-     * Resolves an inflight fetch. `fetchedAt` should `fetch`'s `createdAt`
+     * Resolves an inflight fetch.
      * @see https://dataclient.io/docs/api/Controller#resolve
      */
     resolve: <E extends EndpointInterface & {
@@ -684,7 +682,7 @@ declare class NetworkManager implements Manager {
      * This ensures promises are resolved only once their data is processed
      * by the reducer.
      */
-    protected throttle(key: string, fetch: () => Promise<any>, createdAt: number): Promise<any>;
+    protected throttle(key: string, fetch: () => Promise<any>, fetchedAt: number): Promise<any>;
     /** Calls the callback when client is not 'busy' with high priority interaction tasks
      *
      * Override for platform-specific implementations

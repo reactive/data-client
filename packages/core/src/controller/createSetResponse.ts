@@ -59,19 +59,19 @@ export default function createSetResponse<
   if (process.env.NODE_ENV === 'development' && expiryLength < 0) {
     throw new Error('Negative expiry length are not allowed.');
   }
-  const now = Date.now();
+  const date = Date.now();
   const meta: SetResponseMeta = {
     args: args.map(ensurePojo),
-    fetchedAt: fetchedAt ?? now,
-    date: now,
-    expiresAt: now + expiryLength,
+    fetchedAt: fetchedAt ?? date,
+    date,
+    expiresAt: date + expiryLength,
     key: endpoint.key(...args),
   };
 
   const action: SetResponseAction<E> = {
     type: SET_RESPONSE_TYPE,
-    payload: response,
-    endpoint: endpoint,
+    response,
+    endpoint,
     meta,
   };
   if (error) (action as any).error = true;

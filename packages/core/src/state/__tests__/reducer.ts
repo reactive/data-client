@@ -34,10 +34,10 @@ describe('reducer', () => {
 
   describe('singles', () => {
     const id = 20;
-    const payload = { id, title: 'hi', content: 'this is the content' };
+    const response = { id, title: 'hi', content: 'this is the content' };
     const action: SetResponseAction = {
       type: SET_RESPONSE_TYPE,
-      payload,
+      response,
       endpoint: ArticleResource.get,
       meta: {
         args: [{ id }],
@@ -47,9 +47,9 @@ describe('reducer', () => {
         fetchedAt: 5000000000,
       },
     };
-    const partialResultAction = {
+    const partialResultAction: SetResponseAction = {
       ...action,
-      payload: { id, title: 'hello' },
+      response: { id, title: 'hello' },
     };
     const iniState = initialState;
     let newState = initialState;
@@ -59,7 +59,7 @@ describe('reducer', () => {
     });
     it('should overwrite existing entity', () => {
       const getEntity = (state: any): Article =>
-        state.entities[Article.key][`${Article.pk(action.payload)}`];
+        state.entities[Article.key][`${Article.pk(action.response)}`];
       const prevEntity = getEntity(newState);
       expect(prevEntity).toBeDefined();
       const nextState = reducer(newState, action);
@@ -69,7 +69,7 @@ describe('reducer', () => {
     });
     it('should merge partial entity with existing entity', () => {
       const getEntity = (state: any): Article =>
-        state.entities[Article.key][`${Article.pk(action.payload)}`];
+        state.entities[Article.key][`${Article.pk(action.response)}`];
       const prevEntity = getEntity(newState);
       expect(prevEntity).toBeDefined();
       const nextState = reducer(newState, partialResultAction);
@@ -78,16 +78,17 @@ describe('reducer', () => {
       expect(nextEntity).toBeDefined();
 
       expect(nextEntity.title).not.toBe(prevEntity.title);
-      expect(nextEntity.title).toBe(partialResultAction.payload.title);
+      expect(nextEntity.title).toBe(partialResultAction.response.title);
 
       expect(nextEntity.content).toBe(prevEntity.content);
       expect(nextEntity.content).not.toBe(undefined);
 
       expect(
-        nextState.entityMeta[Article.key][`${Article.pk(action.payload)}`],
+        nextState.entityMeta[Article.key][`${Article.pk(action.response)}`],
       ).toBeDefined();
       expect(
-        nextState.entityMeta[Article.key][`${Article.pk(action.payload)}`].date,
+        nextState.entityMeta[Article.key][`${Article.pk(action.response)}`]
+          .date,
       ).toBe(action.meta.date);
     });
 
@@ -101,7 +102,7 @@ describe('reducer', () => {
         },
       };
       const getMeta = (state: any): { expiresAt: number } =>
-        state.entityMeta[Article.key][`${Article.pk(action.payload)}`];
+        state.entityMeta[Article.key][`${Article.pk(action.response)}`];
       const prevMeta = getMeta(newState);
       expect(prevMeta).toBeDefined();
       const nextState = reducer(newState, localAction);
@@ -122,9 +123,9 @@ describe('reducer', () => {
         },
       };
       const getMeta = (state: any): { date: number } =>
-        state.entityMeta[Article.key][`${Article.pk(action.payload)}`];
+        state.entityMeta[Article.key][`${Article.pk(action.response)}`];
       const getEntity = (state: any): Article =>
-        state.entities[Article.key][`${Article.pk(action.payload)}`];
+        state.entities[Article.key][`${Article.pk(action.response)}`];
       const prevEntity = getEntity(newState);
       const prevMeta = getMeta(newState);
       expect(prevMeta).toBeDefined();
@@ -181,9 +182,9 @@ describe('reducer', () => {
         },
       };
       const getMeta = (state: any): { date: number; expiresAt: number } =>
-        state.entityMeta[ExpiresSoon.key][`${ExpiresSoon.pk(action.payload)}`];
+        state.entityMeta[ExpiresSoon.key][`${ExpiresSoon.pk(action.response)}`];
       const getEntity = (state: any): ExpiresSoon =>
-        state.entities[ExpiresSoon.key][`${ExpiresSoon.pk(action.payload)}`];
+        state.entities[ExpiresSoon.key][`${ExpiresSoon.pk(action.response)}`];
 
       const prevEntity = getEntity(newState);
       const prevMeta = getMeta(newState);
@@ -317,14 +318,14 @@ describe('reducer', () => {
 
   it('mutate should never change endpoints', () => {
     const id = 20;
-    const payload = { id, title: 'hi', content: 'this is the content' };
+    const response = { id, title: 'hi', content: 'this is the content' };
     const action: SetResponseAction = {
       type: SET_RESPONSE_TYPE,
-      payload,
+      response,
       endpoint: ArticleResource.get,
       meta: {
         args: [{ id }],
-        key: ArticleResource.get.key(payload),
+        key: ArticleResource.get.key(response),
         date: 0,
         fetchedAt: 0,
         expiresAt: 1000000000000,
@@ -332,7 +333,7 @@ describe('reducer', () => {
     };
     const iniState = {
       ...initialState,
-      endpoints: { abc: '5', [ArticleResource.get.key(payload)]: `${id}` },
+      endpoints: { abc: '5', [ArticleResource.get.key(response)]: `${id}` },
     };
     const newState = reducer(iniState, action);
     expect(newState.endpoints).toStrictEqual(iniState.endpoints);
@@ -341,7 +342,7 @@ describe('reducer', () => {
     const id = 20;
     const action: SetResponseAction = {
       type: SET_RESPONSE_TYPE,
-      payload: { id },
+      response: { id },
       endpoint: ArticleResource.delete,
       meta: {
         args: [{ id }],
@@ -530,7 +531,7 @@ describe('reducer', () => {
     const error = new Error('hi');
     const action: SetResponseAction = {
       type: SET_RESPONSE_TYPE,
-      payload: error,
+      response: error,
       endpoint: ArticleResource.get,
       meta: {
         args: [{ id }],
@@ -550,7 +551,7 @@ describe('reducer', () => {
     const error = new Error('hi');
     const action: SetResponseAction = {
       type: SET_RESPONSE_TYPE,
-      payload: error,
+      response: error,
       endpoint: ArticleResource.get,
       meta: {
         args: [{ id }],
@@ -571,7 +572,7 @@ describe('reducer', () => {
     const error = new Error('hi');
     const action: SetResponseAction = {
       type: SET_RESPONSE_TYPE,
-      payload: error,
+      response: error,
       endpoint: ArticleResource.delete,
       meta: {
         args: [{ id }],
@@ -603,7 +604,6 @@ describe('reducer', () => {
     try {
       const action: FetchAction = {
         type: FETCH_TYPE,
-        payload: () => new Promise<any>(() => null),
         endpoint: ArticleResource.get,
         meta: {
           args: [{ id: 5 }],
