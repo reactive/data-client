@@ -5,7 +5,7 @@ import { ReactElement, StrictMode } from 'react';
 
 import { useSuspense } from '../../hooks';
 import AsyncBoundary from '../AsyncBoundary';
-import CacheProvider from '../DataProvider';
+import DataProvider from '../DataProvider';
 
 describe('<AsyncBoundary />', () => {
   function onError(e: any) {
@@ -35,11 +35,11 @@ describe('<AsyncBoundary />', () => {
     }
     const tree = (
       <StrictMode>
-        <CacheProvider>
+        <DataProvider>
           <AsyncBoundary fallback="loading">
             <Data />
           </AsyncBoundary>
-        </CacheProvider>
+        </DataProvider>
       </StrictMode>
     );
     const { getByText } = render(tree);

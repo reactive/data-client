@@ -15,18 +15,18 @@ export function setResponseReducer(
   controller: Controller,
 ) {
   if (action.error) {
-    return reduceError(state, action, action.payload);
+    return reduceError(state, action, action.response);
   }
   try {
-    let payload: any;
-    // for true set's payload is contained in action
+    let response: any;
+    // for true set's response is contained in action
     if (action.type === OPTIMISTIC_TYPE) {
       // this should never happen
       /* istanbul ignore if */
       if (!action.endpoint.getOptimisticResponse) return state;
       try {
         // compute optimistic response based on current state
-        payload = action.endpoint.getOptimisticResponse.call(
+        response = action.endpoint.getOptimisticResponse.call(
           action.endpoint,
           controller.snapshot(state, action.meta.fetchedAt),
           ...action.meta.args,
@@ -39,11 +39,11 @@ export function setResponseReducer(
         throw e;
       }
     } else {
-      payload = action.payload;
+      response = action.response;
     }
     const { result, entities, indexes, entityMeta } = normalize(
       action.endpoint.schema,
-      payload,
+      response,
       action.meta,
       state,
     );
@@ -92,7 +92,7 @@ export function setResponseReducer(
         undefined,
         2,
       )}\n\nError:\n${error.message}`;
-      if ('payload' in action) error.payload = action.payload;
+      if ('response' in action) error.response = action.response;
       error.status = 400;
     }
 

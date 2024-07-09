@@ -40,7 +40,7 @@ async function testDispatchFetch(
     delete call[0]?.meta?.promise;
     expect(call[0]).toMatchSnapshot();
     const action = call[0];
-    const res = await action.payload();
+    const res = await action.endpoint(...action.meta.args);
     expect(res).toEqual(payloads[i]);
     i++;
   }

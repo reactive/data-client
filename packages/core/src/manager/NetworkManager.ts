@@ -153,12 +153,11 @@ export default class NetworkManager implements Manager {
    * for ensures mutation requests always go through.
    */
   protected handleFetch(action: FetchAction) {
-    const fetch = action.payload;
     const { key, resolve, reject, fetchedAt } = action.meta;
     const throttle = !action.endpoint.sideEffect;
 
     const deferedFetch = () => {
-      let promise = fetch();
+      let promise = action.endpoint(...action.meta.args);
       const resolvePromise = (
         promise: Promise<string | number | object | null>,
       ) =>
@@ -237,7 +236,7 @@ export default class NetworkManager implements Manager {
       } else {
         promiseHandler = this.resolvers[action.meta.key];
       }
-      promiseHandler(action.payload);
+      promiseHandler(action.response);
       // since we're resolved we no longer need to keep track of this promise
       this.clear(action.meta.key);
     }

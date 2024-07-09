@@ -16,11 +16,11 @@ import React, { useContext, Suspense, StrictMode } from 'react';
 import { ControllerContext, StateContext } from '../../context';
 import { useController, useSuspense } from '../../hooks';
 import { payload } from '../../test-fixtures';
-import CacheProvider, { getDefaultManagers } from '../DataProvider';
+import DataProvider, { getDefaultManagers } from '../DataProvider';
 
 const { SET_RESPONSE_TYPE } = actionTypes;
 
-describe('<CacheProvider />', () => {
+describe('<DataProvider />', () => {
   let warnspy: jest.SpyInstance;
   let debugspy: jest.SpyInstance;
   beforeEach(() => {
@@ -56,9 +56,9 @@ describe('<CacheProvider />', () => {
       return <div>{article.title}</div>;
     };
     const tree = (
-      <CacheProvider>
+      <DataProvider>
         <Component />
-      </CacheProvider>
+      </DataProvider>
     );
     const { getByText } = render(tree);
     const msg = getByText('Uncaught Suspense.');
@@ -74,11 +74,11 @@ describe('<CacheProvider />', () => {
     };
     const tree = (
       <StrictMode>
-        <CacheProvider>
+        <DataProvider>
           <Suspense fallback="loading">
             <Component />
           </Suspense>
-        </CacheProvider>
+        </DataProvider>
       </StrictMode>
     );
     const { getByText } = render(tree);
@@ -96,21 +96,21 @@ describe('<CacheProvider />', () => {
       return null;
     }
     const chil = <DispatchTester />;
-    const tree = <CacheProvider>{chil}</CacheProvider>;
+    const tree = <DataProvider>{chil}</DataProvider>;
     const { rerender } = render(tree);
     expect(dispatch).toBeDefined();
     let curDisp = dispatch;
     rerender(tree);
     expect(curDisp).toBe(dispatch);
     expect(count).toBe(1);
-    rerender(<CacheProvider>{chil}</CacheProvider>);
+    rerender(<DataProvider>{chil}</DataProvider>);
     expect(curDisp).toBe(dispatch);
     expect(count).toBe(1);
     const managers: any[] = [new NetworkManager()];
-    rerender(<CacheProvider managers={managers}>{chil}</CacheProvider>);
+    rerender(<DataProvider managers={managers}>{chil}</DataProvider>);
     expect(count).toBe(1);
     curDisp = dispatch;
-    rerender(<CacheProvider managers={managers}>{chil}</CacheProvider>);
+    rerender(<DataProvider managers={managers}>{chil}</DataProvider>);
     expect(curDisp).toBe(dispatch);
     expect(count).toBe(1);
     rerender(
@@ -133,13 +133,13 @@ describe('<CacheProvider />', () => {
       return null;
     }
     const chil = <ContextTester />;
-    const tree = <CacheProvider>{chil}</CacheProvider>;
+    const tree = <DataProvider>{chil}</DataProvider>;
     render(tree);
     expect(dispatch).toBeDefined();
     expect(state).toBeDefined();
     const action: SetResponseAction = {
       type: SET_RESPONSE_TYPE,
-      payload: { id: 5, title: 'hi', content: 'more things here' },
+      response: { id: 5, title: 'hi', content: 'more things here' },
       endpoint: CoolerArticleResource.get,
       meta: {
         args: [{ id: 5 }],
@@ -198,11 +198,11 @@ describe('<CacheProvider />', () => {
       return <div>{article.title}</div>;
     };
     const tree = (
-      <CacheProvider managers={managers}>
+      <DataProvider managers={managers}>
         <Suspense fallback="loading">
           <Component />
         </Suspense>
-      </CacheProvider>
+      </DataProvider>
     );
     const { getByText, unmount } = render(tree);
     const msg = getByText('loading');

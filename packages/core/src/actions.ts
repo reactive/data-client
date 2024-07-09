@@ -57,7 +57,7 @@ export interface SetResponseActionSuccess<
   type: typeof SET_RESPONSE_TYPE;
   endpoint: E;
   meta: SetResponseMeta;
-  payload: ResolveType<E>;
+  response: ResolveType<E>;
   error?: false;
 }
 export interface SetResponseActionError<
@@ -66,7 +66,7 @@ export interface SetResponseActionError<
   type: typeof SET_RESPONSE_TYPE;
   endpoint: E;
   meta: SetResponseMeta;
-  payload: UnknownError;
+  response: UnknownError;
   error: true;
 }
 export type SetResponseAction<
@@ -87,7 +87,6 @@ export interface FetchAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
   type: typeof FETCH_TYPE;
   endpoint: E;
   meta: FetchMeta<readonly [...Parameters<E>]>;
-  payload: () => ReturnType<E>;
 }
 
 /* OPTIMISTIC */

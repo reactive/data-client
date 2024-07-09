@@ -18,7 +18,7 @@ export default class LogoutManager implements Manager {
       if (
         action.type === SET_RESPONSE_TYPE &&
         action.error &&
-        this.shouldLogout(action.payload)
+        this.shouldLogout(action.response)
       ) {
         this.handleLogout(controller);
       }

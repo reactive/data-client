@@ -13,7 +13,6 @@ exports[`useDLE should dispatch singles 1`] = `
     "reject": [Function],
     "resolve": [Function],
   },
-  "payload": [Function],
   "type": "rdc/fetch",
 }
 `;
@@ -31,7 +30,6 @@ exports[`useDLE should dispatch with fetch shape defined dataExpiryLength 1`] = 
     "reject": [Function],
     "resolve": [Function],
   },
-  "payload": [Function],
   "type": "rdc/fetch",
 }
 `;
@@ -49,7 +47,6 @@ exports[`useDLE should dispatch with fetch shape defined errorExpiryLength 1`] =
     "reject": [Function],
     "resolve": [Function],
   },
-  "payload": [Function],
   "type": "rdc/fetch",
 }
 `;
@@ -67,7 +64,6 @@ exports[`useDLE should dispatch with resource defined dataExpiryLength 1`] = `
     "reject": [Function],
     "resolve": [Function],
   },
-  "payload": [Function],
   "type": "rdc/fetch",
 }
 `;

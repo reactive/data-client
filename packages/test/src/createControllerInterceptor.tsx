@@ -60,7 +60,7 @@ export function createControllerInterceptor<T>(
             },
           };
         }
-        replacedAction.payload = () =>
+        const fetch = () =>
           new Promise((resolve, reject) => {
             if (fixture !== undefined) {
               // delayCollapse determines when the fixture function is 'collapsed' (aka 'run')
@@ -90,6 +90,15 @@ export function createControllerInterceptor<T>(
               }
             }
           });
+        if (typeof (replacedAction.endpoint as any).extend === 'function') {
+          replacedAction.endpoint = (replacedAction.endpoint as any).extend({
+            fetch,
+          });
+        } else {
+          // TODO: full testing of this
+          replacedAction.endpoint = fetch as any;
+          (replacedAction.endpoint as any).__proto__ = action.endpoint;
+        }
 
         return controller.dispatch(replacedAction);
       }

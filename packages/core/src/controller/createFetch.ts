@@ -30,7 +30,6 @@ export default function createFetch<
 
   return {
     type: FETCH_TYPE,
-    payload: () => endpoint(...args) as any,
     meta,
     endpoint,
   };
