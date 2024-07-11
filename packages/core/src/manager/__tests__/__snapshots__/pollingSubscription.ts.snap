@@ -9,10 +9,10 @@ exports[`PollingSubscription fresh data cleanup() should not run even if interva
 exports[`PollingSubscription fresh data should call after period 1`] = `
 [
   {
+    "args": [],
     "endpoint": [Function],
+    "key": "test.com",
     "meta": {
-      "args": [],
-      "key": "test.com",
       "promise": Promise {},
       "reject": [Function],
       "resolve": [Function],
@@ -25,10 +25,10 @@ exports[`PollingSubscription fresh data should call after period 1`] = `
 exports[`PollingSubscription fresh data should call after period 2`] = `
 [
   {
+    "args": [],
     "endpoint": [Function],
+    "key": "test.com",
     "meta": {
-      "args": [],
-      "key": "test.com",
       "promise": Promise {},
       "reject": [Function],
       "resolve": [Function],

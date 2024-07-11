@@ -1,5 +1,5 @@
 import * as _data_client_core from '@data-client/core';
-import { NetworkManager, Manager, State, Controller, EndpointInterface as EndpointInterface$1, FetchFunction as FetchFunction$1, Schema as Schema$1, ResolveType as ResolveType$1, Denormalize as Denormalize$1, DenormalizeNullable as DenormalizeNullable$1, Queryable as Queryable$1, NI, SchemaArgs, NetworkError as NetworkError$1, UnknownError as UnknownError$1, ErrorTypes as ErrorTypes$2, __INTERNAL__, createReducer, applyManager } from '@data-client/core';
+import { NetworkManager, Manager, State, Controller, EndpointInterface as EndpointInterface$1, FetchFunction as FetchFunction$1, Schema as Schema$1, ResolveType as ResolveType$1, Denormalize as Denormalize$1, DenormalizeNullable as DenormalizeNullable$1, Queryable as Queryable$1, NI, SchemaArgs, NetworkError as NetworkError$1, UnknownError as UnknownError$1, ErrorTypes as ErrorTypes$2, __INTERNAL__, createReducer, applyManager, actions } from '@data-client/core';
 export { AbstractInstanceType, ActionTypes, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, Normalize, NormalizeNullable, PK, PollingSubscription, ResetAction, ResolveType, Schema, SetAction, SetResponseAction, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@data-client/core';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import React, { JSX, Context } from 'react';
@@ -403,6 +403,7 @@ declare const internal_d_INVALID: typeof INVALID;
 declare const internal_d_MemoCache: typeof MemoCache;
 declare const internal_d_createReducer: typeof createReducer;
 declare const internal_d_applyManager: typeof applyManager;
+declare const internal_d_actions: typeof actions;
 declare const internal_d_useCacheState: typeof useCacheState;
 declare namespace internal_d {
   export {
@@ -411,6 +412,7 @@ declare namespace internal_d {
     internal_d_MemoCache as MemoCache,
     internal_d_createReducer as createReducer,
     internal_d_applyManager as applyManager,
+    internal_d_actions as actions,
     internal_d_useCacheState as useCacheState,
   };
 }

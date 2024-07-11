@@ -39,9 +39,7 @@ export type {
   DataClientDispatch,
   GenericDispatch,
 } from './controller/Controller.js';
-export { default as createFetch } from './controller/createFetch.js';
-export { default as createSet } from './controller/createSet.js';
-export { default as createSetResponse } from './controller/createSetResponse.js';
+export * as actions from './controller/actions/index.js';
 
 export * from './controller/types.js';
 export * as actionTypes from './actionTypes.js';

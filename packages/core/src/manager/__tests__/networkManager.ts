@@ -2,8 +2,8 @@ import { Endpoint } from '@data-client/endpoint';
 import { Article, ArticleResource } from '__tests__/new';
 
 import { SET_RESPONSE_TYPE } from '../../actionTypes';
+import { createFetch } from '../../controller/actions';
 import Controller from '../../controller/Controller';
-import createFetch from '../../controller/createFetch';
 import NetworkManager from '../../manager/NetworkManager';
 import { initialState } from '../../state/reducer/createReducer';
 import { Middleware, SetResponseAction } from '../../types';
@@ -155,7 +155,7 @@ describe('NetworkManager', () => {
       middleware(API)(next)(fetchResolveAction);
 
       const response = await fetchResolveAction.endpoint(
-        ...fetchResolveAction.meta.args,
+        ...fetchResolveAction.args,
       );
 
       // mutations resolve before dispatch, so we must wait for next tick to see set
@@ -165,9 +165,10 @@ describe('NetworkManager', () => {
         type: SET_RESPONSE_TYPE,
         endpoint: fetchResolveAction.endpoint,
         response,
+        args: fetchResolveAction.args,
+        key: fetchResolveAction.key,
+        error: expect.anything(),
         meta: {
-          args: fetchResolveAction.meta.args,
-          key: fetchResolveAction.meta.key,
           date: expect.any(Number),
           expiresAt: expect.any(Number),
           fetchedAt: expect.any(Number),
@@ -190,7 +191,7 @@ describe('NetworkManager', () => {
       middleware(API)(next)(fetchSetWithUpdatersAction);
 
       const response = await fetchSetWithUpdatersAction.endpoint(
-        ...fetchSetWithUpdatersAction.meta.args,
+        ...fetchSetWithUpdatersAction.args,
       );
 
       // mutations resolve before dispatch, so we must wait for next tick to see set
@@ -200,9 +201,10 @@ describe('NetworkManager', () => {
         type: SET_RESPONSE_TYPE,
         endpoint: fetchSetWithUpdatersAction.endpoint,
         response,
+        args: fetchSetWithUpdatersAction.args,
+        key: fetchSetWithUpdatersAction.key,
+        error: expect.anything(),
         meta: {
-          args: fetchSetWithUpdatersAction.meta.args,
-          key: fetchSetWithUpdatersAction.meta.key,
           date: expect.any(Number),
           expiresAt: expect.any(Number),
           fetchedAt: expect.any(Number),
@@ -225,7 +227,7 @@ describe('NetworkManager', () => {
       middleware(API)(next)(fetchRpcWithUpdatersAction);
 
       const response = await fetchRpcWithUpdatersAction.endpoint(
-        ...fetchRpcWithUpdatersAction.meta.args,
+        ...fetchRpcWithUpdatersAction.args,
       );
 
       // mutations resolve before dispatch, so we must wait for next tick to see set
@@ -235,9 +237,10 @@ describe('NetworkManager', () => {
         type: SET_RESPONSE_TYPE,
         endpoint: fetchRpcWithUpdatersAction.endpoint,
         response,
+        args: fetchRpcWithUpdatersAction.args,
+        key: fetchRpcWithUpdatersAction.key,
+        error: expect.anything(),
         meta: {
-          args: fetchRpcWithUpdatersAction.meta.args,
-          key: fetchRpcWithUpdatersAction.meta.key,
           date: expect.any(Number),
           expiresAt: expect.any(Number),
           fetchedAt: expect.any(Number),
@@ -260,7 +263,7 @@ describe('NetworkManager', () => {
       middleware(API)(next)(fetchRpcWithUpdatersAndOptimisticAction);
 
       const response = await fetchRpcWithUpdatersAndOptimisticAction.endpoint(
-        ...fetchRpcWithUpdatersAndOptimisticAction.meta.args,
+        ...fetchRpcWithUpdatersAndOptimisticAction.args,
       );
 
       expect(next).toHaveBeenCalled();
@@ -270,9 +273,10 @@ describe('NetworkManager', () => {
         type: SET_RESPONSE_TYPE,
         endpoint: fetchRpcWithUpdatersAndOptimisticAction.endpoint,
         response,
+        args: fetchRpcWithUpdatersAndOptimisticAction.args,
+        key: fetchRpcWithUpdatersAndOptimisticAction.key,
+        error: expect.anything(),
         meta: {
-          args: fetchRpcWithUpdatersAndOptimisticAction.meta.args,
-          key: fetchRpcWithUpdatersAndOptimisticAction.meta.key,
           date: expect.any(Number),
           expiresAt: expect.any(Number),
           fetchedAt: expect.any(Number),
@@ -294,7 +298,7 @@ describe('NetworkManager', () => {
         endpoint: detailEndpoint.extend({ dataExpiryLength: 314 }),
       });
 
-      await fetchResolveAction.endpoint(...fetchResolveAction.meta.args);
+      await fetchResolveAction.endpoint(...fetchResolveAction.args);
 
       expect(dispatch).toHaveBeenCalled();
       const { meta } = dispatch.mock.calls[0][0];
@@ -315,7 +319,7 @@ describe('NetworkManager', () => {
         endpoint: detailEndpoint.extend({ dataExpiryLength: undefined }),
       });
 
-      await fetchResolveAction.endpoint(...fetchResolveAction.meta.args);
+      await fetchResolveAction.endpoint(...fetchResolveAction.args);
 
       expect(dispatch).toHaveBeenCalled();
       const { meta } = dispatch.mock.calls[0][0];
@@ -339,8 +343,8 @@ describe('NetworkManager', () => {
         expect(dispatch).toHaveBeenCalledWith({
           type: SET_RESPONSE_TYPE,
           response: error,
+          key: fetchRejectAction.key,
           meta: {
-            key: fetchRejectAction.meta.key,
             date: expect.any(Number),
             expiresAt: expect.any(Number),
           },

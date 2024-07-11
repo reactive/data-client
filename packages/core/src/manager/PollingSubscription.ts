@@ -34,8 +34,8 @@ export default class PollingSubscription implements Subscription {
       throw new Error('frequency needed for polling subscription');
     this.endpoint = action.endpoint;
     this.frequency = action.endpoint.pollFrequency;
-    this.args = action.meta.args;
-    this.key = action.meta.key;
+    this.args = action.args;
+    this.key = action.key;
     this.frequencyHistogram.set(this.frequency, 1);
     this.controller = controller;
     this.connectionListener =

@@ -40,7 +40,7 @@ async function testDispatchFetch(
     delete call[0]?.meta?.promise;
     expect(call[0]).toMatchSnapshot();
     const action = call[0];
-    const res = await action.endpoint(...action.meta.args);
+    const res = await action.endpoint(...action.args);
     expect(res).toEqual(payloads[i]);
     i++;
   }
@@ -244,9 +244,7 @@ describe('useController().invalidate', () => {
     invalidate(PaginatedArticleResource.getList);
     expect(dispatch).toHaveBeenCalledWith({
       type: INVALIDATE_TYPE,
-      meta: {
-        key: PaginatedArticleResource.getList.key(),
-      },
+      key: PaginatedArticleResource.getList.key(),
     });
   });
   it('should return the same === function each time', () => {

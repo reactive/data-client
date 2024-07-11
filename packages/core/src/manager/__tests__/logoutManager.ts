@@ -2,7 +2,7 @@ import { CoolerArticleResource } from '__tests__/new';
 
 import { Controller, initialState } from '../..';
 import { FETCH_TYPE, RESET_TYPE } from '../../actionTypes';
-import createSetResponse from '../../controller/createSetResponse';
+import { createSetResponse } from '../../controller/actions';
 import LogoutManager from '../LogoutManager.js';
 
 function onError(e: any) {

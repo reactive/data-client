@@ -61,7 +61,7 @@ export default class StreamManager implements Manager {
             )
               break;
             if ('channel' in action.endpoint) {
-              this.subscribe(action.meta.args[0]?.product_id);
+              this.subscribe(action.args[0]?.product_id);
               // consume subscription if we use it
               return Promise.resolve();
             }
@@ -79,7 +79,7 @@ export default class StreamManager implements Manager {
               this.send(
                 JSON.stringify({
                   type: 'unsubscribe',
-                  product_ids: [action.meta.args[0]?.product_id],
+                  product_ids: [action.args[0]?.product_id],
                   channels: [action.endpoint.channel],
                 }),
               );

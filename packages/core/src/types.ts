@@ -12,6 +12,8 @@ import type {
 } from './actions.js';
 import type { Dispatch, Middleware, MiddlewareAPI } from './middlewareTypes.js';
 
+export * from './actions.js';
+
 export type { AbstractInstanceType, UpdateFunction };
 
 export type PK = string;
@@ -27,9 +29,9 @@ export interface State<T> {
   readonly meta: {
     readonly [key: string]: {
       readonly date: number;
-      readonly error?: ErrorTypes;
       readonly expiresAt: number;
       readonly prevExpiresAt?: number;
+      readonly error?: ErrorTypes;
       readonly invalidated?: boolean;
       readonly errorPolicy?: 'hard' | 'soft' | undefined;
     };
@@ -37,17 +39,15 @@ export interface State<T> {
   readonly entityMeta: {
     readonly [entityKey: string]: {
       readonly [pk: string]: {
+        readonly fetchedAt: number;
         readonly date: number;
         readonly expiresAt: number;
-        readonly fetchedAt: number;
       };
     };
   };
   readonly optimistic: (SetResponseAction | OptimisticAction)[];
   readonly lastReset: number;
 }
-
-export * from './actions.js';
 
 export interface Manager<Actions = ActionTypes> {
   getMiddleware(): Middleware<Actions>;

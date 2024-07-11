@@ -20,17 +20,19 @@ import {
 } from '@data-client/normalizr';
 
 import AbortOptimistic from './AbortOptimistic.js';
-import createExpireAll from './createExpireAll.js';
-import createFetch from './createFetch.js';
-import createInvalidate from './createInvalidate.js';
-import createInvalidateAll from './createInvalidateAll.js';
-import createReset from './createReset.js';
-import createSet from './createSet.js';
-import createSetResponse from './createSetResponse.js';
 import {
   createUnsubscription,
   createSubscription,
-} from './createSubscription.js';
+} from './actions/createSubscription.js';
+import {
+  createExpireAll,
+  createFetch,
+  createInvalidate,
+  createInvalidateAll,
+  createReset,
+  createSet,
+  createSetResponse,
+} from './actions/index.js';
 import ensurePojo from './ensurePojo.js';
 import type { EndpointUpdateFunction } from './types.js';
 import { initialState } from '../state/reducer/createReducer.js';

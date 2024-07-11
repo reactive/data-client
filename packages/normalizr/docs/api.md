@@ -9,12 +9,13 @@
   - [Union](#uniondefinition-schemaattribute)
   - [Values](#valuesdefinition-schemaattribute)
 
-## `normalize(schema, data)`
+## `normalize(schema, data, args?, prevState?, meta?)`
 
 Normalizes input data per the schema definition provided.
 
 - `schema`: **required** A schema definition
 - `data`: **required** Input JSON (or plain JS object) data that needs normalization.
+- `args`: Array of args to use in lookups for mutable/querable types like Entity and Collection
 
 ### Usage
 
@@ -213,7 +214,7 @@ const tweet = new schema.Entity(
   }
 );
 
-const normalizedData = normalize(data, tweet);
+const normalizedData = normalize(tweet, data);
 ```
 
 #### Output
@@ -242,7 +243,7 @@ const patronsSchema = new schema.Entity('patrons', undefined, {
   idAttribute: (value) => (value.guest_id ? `${value.id}-${value.guest_id}` : value.id)
 });
 
-normalize(data, [patronsSchema]);
+normalize([patronsSchema], data);
 ```
 
 #### Output
@@ -281,7 +282,7 @@ const responseSchema = new schema.Object({ users: new schema.Array(user) });
 // or shorthand
 const responseSchema = { users: new schema.Array(user) };
 
-const normalizedData = normalize(data, responseSchema);
+const normalizedData = normalize(responseSchema, data);
 ```
 
 #### Output
@@ -327,7 +328,7 @@ const unionSchema = new schema.Union(
   'type'
 );
 
-const normalizedData = normalize(data, { owner: unionSchema });
+const normalizedData = normalize({ owner: unionSchema }, data);
 ```
 
 #### Output
@@ -364,7 +365,7 @@ const data = { firstThing: { id: 1 }, secondThing: { id: 2 } };
 const item = new schema.Entity('items');
 const valuesSchema = new schema.Values(item);
 
-const normalizedData = normalize(data, valuesSchema);
+const normalizedData = normalize(valuesSchema, data);
 ```
 
 #### Output
@@ -402,7 +403,7 @@ const valuesSchema = new schema.Values(
   (input, parent, key) => `${input.type}s`
 );
 
-const normalizedData = normalize(data, valuesSchema);
+const normalizedData = normalize(valuesSchema, data);
 ```
 
 #### Output

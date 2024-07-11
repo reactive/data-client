@@ -110,14 +110,14 @@ First three members: []]
 
 exports[`useSuspense() should dispatch an action that fetches 1`] = `
 {
+  "args": [
+    {
+      "id": 5,
+    },
+  ],
   "endpoint": [Function],
+  "key": "GET http://test.com/article-cooler/5",
   "meta": {
-    "args": [
-      {
-        "id": 5,
-      },
-    ],
-    "key": "GET http://test.com/article-cooler/5",
     "reject": [Function],
     "resolve": [Function],
   },

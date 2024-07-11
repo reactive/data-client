@@ -39,9 +39,9 @@ describe('reducer', () => {
       type: SET_RESPONSE_TYPE,
       response,
       endpoint: ArticleResource.get,
+      args: [{ id }],
+      key: ArticleResource.get.url({ id }),
       meta: {
-        args: [{ id }],
-        key: ArticleResource.get.url({ id }),
         date: 5000000000,
         expiresAt: 5000500000,
         fetchedAt: 5000000000,
@@ -221,8 +221,8 @@ describe('reducer', () => {
       type: SET_TYPE,
       value,
       schema: Counter,
+      args: [{ id }],
       meta: {
-        args: [{ id }],
         date: 0,
         fetchedAt: 0,
         expiresAt: 1000000000000,
@@ -251,8 +251,8 @@ describe('reducer', () => {
       type: SET_TYPE,
       value,
       schema: Counter,
+      args: [{ id }],
       meta: {
-        args: [{ id }],
         date: 0,
         fetchedAt: 0,
         expiresAt: 1000000000000,
@@ -279,8 +279,8 @@ describe('reducer', () => {
       type: SET_TYPE,
       value,
       schema: Article,
+      args: [{ id }],
       meta: {
-        args: [{ id }],
         date: 0,
         fetchedAt: 0,
         expiresAt: 1000000000000,
@@ -301,8 +301,8 @@ describe('reducer', () => {
       type: SET_TYPE,
       value,
       schema: Article,
+      args: [{ id }],
       meta: {
-        args: [{ id }],
         date: 0,
         fetchedAt: 0,
         expiresAt: 1000000000000,
@@ -323,9 +323,9 @@ describe('reducer', () => {
       type: SET_RESPONSE_TYPE,
       response,
       endpoint: ArticleResource.get,
+      args: [{ id }],
+      key: ArticleResource.get.key(response),
       meta: {
-        args: [{ id }],
-        key: ArticleResource.get.key(response),
         date: 0,
         fetchedAt: 0,
         expiresAt: 1000000000000,
@@ -344,9 +344,9 @@ describe('reducer', () => {
       type: SET_RESPONSE_TYPE,
       response: { id },
       endpoint: ArticleResource.delete,
+      args: [{ id }],
+      key: ArticleResource.delete.key({ id }),
       meta: {
-        args: [{ id }],
-        key: ArticleResource.delete.key({ id }),
         fetchedAt: 0,
         date: 0,
         expiresAt: 0,
@@ -492,9 +492,7 @@ describe('reducer', () => {
     const id = 20;
     const action: InvalidateAction = {
       type: INVALIDATE_TYPE,
-      meta: {
-        key: id.toString(),
-      },
+      key: id.toString(),
     };
     const iniState: any = {
       ...initialState,
@@ -533,9 +531,9 @@ describe('reducer', () => {
       type: SET_RESPONSE_TYPE,
       response: error,
       endpoint: ArticleResource.get,
+      args: [{ id }],
+      key: ArticleResource.get.key({ id }),
       meta: {
-        args: [{ id }],
-        key: ArticleResource.get.key({ id }),
         fetchedAt: 5000000000,
         date: 5000000000,
         expiresAt: 5000500000,
@@ -553,9 +551,9 @@ describe('reducer', () => {
       type: SET_RESPONSE_TYPE,
       response: error,
       endpoint: ArticleResource.get,
+      args: [{ id }],
+      key: ArticleResource.get.key({ id }),
       meta: {
-        args: [{ id }],
-        key: ArticleResource.get.key({ id }),
         fetchedAt: 0,
         date: 0,
         expiresAt: 10000000000000000000,
@@ -574,9 +572,9 @@ describe('reducer', () => {
       type: SET_RESPONSE_TYPE,
       response: error,
       endpoint: ArticleResource.delete,
+      args: [{ id }],
+      key: ArticleResource.delete.key({ id }),
       meta: {
-        args: [{ id }],
-        key: ArticleResource.delete.key({ id }),
         fetchedAt: 0,
         date: 0,
         expiresAt: 0,
@@ -605,9 +603,9 @@ describe('reducer', () => {
       const action: FetchAction = {
         type: FETCH_TYPE,
         endpoint: ArticleResource.get,
+        args: [{ id: 5 }],
+        key: ArticleResource.get.url({ id: 5 }),
         meta: {
-          args: [{ id: 5 }],
-          key: ArticleResource.get.url({ id: 5 }),
           reject: (v: any) => null,
           resolve: (v: any) => null,
           promise: new Promise((v: any) => null),

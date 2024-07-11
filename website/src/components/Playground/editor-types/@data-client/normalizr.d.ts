@@ -165,20 +165,19 @@ interface StoreData<E> {
     entityMeta: {
         readonly [entityKey: string]: {
             readonly [pk: string]: {
+                readonly fetchedAt: number;
                 readonly date: number;
                 readonly expiresAt: number;
-                readonly fetchedAt: number;
             };
         };
     };
 }
 interface NormalizeMeta {
-    expiresAt?: number;
-    date?: number;
-    fetchedAt?: number;
-    args?: readonly any[];
+    expiresAt: number;
+    date: number;
+    fetchedAt: number;
 }
-declare const normalize: <S extends Schema = Schema, E extends Record<string, Record<string, any> | undefined> = Record<string, Record<string, any>>, R = NormalizeNullable<S>>(schema: S | undefined, input: any, { date, expiresAt, fetchedAt, args, }?: NormalizeMeta, { entities, indexes, entityMeta }?: StoreData<E>) => NormalizedSchema<E, R>;
+declare const normalize: <S extends Schema = Schema, E extends Record<string, Record<string, any> | undefined> = Record<string, Record<string, any>>, R = NormalizeNullable<S>>(schema: S | undefined, input: any, args?: readonly any[], { entities, indexes, entityMeta }?: StoreData<E>, meta?: NormalizeMeta) => NormalizedSchema<E, R>;
 
 interface EntityCache {
     [key: string]: {

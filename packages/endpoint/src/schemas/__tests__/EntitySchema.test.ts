@@ -348,7 +348,7 @@ describe(`${schema.Entity.name} normalization`, () => {
     const secondEntities = normalize(
       MyEntity,
       { id: '1', title: 'second' },
-      {},
+      [],
       { entities, entityMeta, indexes: {} },
     ).entities;
     expect(entities.MyEntity['1']).toBeDefined();

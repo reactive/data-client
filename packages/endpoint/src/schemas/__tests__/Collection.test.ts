@@ -104,7 +104,7 @@ describe(`${schema.Collection.name} normalization`, () => {
     const state = normalize(
       userTodos,
       [{ id: '5', title: 'finish collections' }],
-      { args: [{ userId: '1' }] },
+      [{ userId: '1' }],
     );
     expect(state).toMatchSnapshot();
     //const a: string[] | undefined = state.result;
@@ -116,7 +116,7 @@ describe(`${schema.Collection.name} normalization`, () => {
     const state = normalize(
       new schema.Collection(new schema.Array(Todo)),
       [{ id: '5', title: 'finish collections' }],
-      { args: [{ userId: '1' }] },
+      [{ userId: '1' }],
     );
     expect(state).toMatchSnapshot();
     //const a: string[] | undefined = state.result;
@@ -182,7 +182,7 @@ describe(`${schema.Collection.name} normalization`, () => {
     const state = normalize(
       User.schema.todos.push,
       [{ id: '10', title: 'create new items' }],
-      { args: [{ userId: '1' }] },
+      [{ userId: '1' }],
       init,
     );
     expect(state).toMatchSnapshot();
@@ -195,7 +195,7 @@ describe(`${schema.Collection.name} normalization`, () => {
       ...normalize(
         initializingSchema,
         [{ id: '10', title: 'create new items' }],
-        { args: [{ userId: '1' }] },
+        [{ userId: '1' }],
         initialState,
       ),
     };
@@ -204,7 +204,7 @@ describe(`${schema.Collection.name} normalization`, () => {
       ...normalize(
         initializingSchema,
         [{ id: '10', title: 'create new items' }],
-        { args: [{ userId: '1', ignoredMe: '5' }] },
+        [{ userId: '1', ignoredMe: '5' }],
         state,
       ),
     };
@@ -213,7 +213,7 @@ describe(`${schema.Collection.name} normalization`, () => {
       ...normalize(
         initializingSchema,
         [{ id: '20', title: 'second user' }],
-        { args: [{ userId: '2' }] },
+        [{ userId: '2' }],
         state,
       ),
     };
@@ -225,7 +225,7 @@ describe(`${schema.Collection.name} normalization`, () => {
           { id: '10', title: 'create new items' },
           { id: '20', title: 'the ignored one' },
         ],
-        { args: [{}] },
+        [{}],
         state,
       ),
     };
@@ -244,7 +244,7 @@ describe(`${schema.Collection.name} normalization`, () => {
         ...normalize(
           sch.push,
           [{ id: '30', title: 'pushed to the end' }],
-          { args: [{ userId: '1' }] },
+          [{ userId: '1' }],
           state,
         ),
       };
@@ -425,7 +425,7 @@ describe(`${schema.Collection.name} denormalization`, () => {
       const pushedState = normalize(
         User.schema.todos.push,
         [{ id: '10', title: 'create new items' }],
-        { args: [{ userId: '1' }] },
+        [{ userId: '1' }],
         normalizeNested,
       );
       const todos = memo.denormalize(
@@ -452,7 +452,7 @@ describe(`${schema.Collection.name} denormalization`, () => {
       const unshiftState = normalize(
         User.schema.todos.unshift,
         [{ id: '2', title: 'from the start' }],
-        { args: [{ userId: '1' }] },
+        [{ userId: '1' }],
         normalizeNested,
       );
       const todos = memo.denormalize(

@@ -4,7 +4,7 @@ class BaseEntity extends Entity {
   id = 0;
 
   pk() {
-    return `${this.id}`;
+    return this.id;
   }
 }
 

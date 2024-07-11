@@ -1,11 +1,12 @@
 import type { EndpointInterface, ResolveType } from '@data-client/normalizr';
 
-import ensurePojo from './ensurePojo.js';
-import { EndpointUpdateFunction } from './types.js';
-import { SET_RESPONSE_TYPE } from '../actionTypes.js';
-import type { SetResponseAction, SetResponseMeta } from '../types.js';
+import { createMeta } from './createMeta.js';
+import { SET_RESPONSE_TYPE } from '../../actionTypes.js';
+import type { SetResponseAction } from '../../types.js';
+import ensurePojo from '../ensurePojo.js';
+import { EndpointUpdateFunction } from '../types.js';
 
-export default function createSetResponse<
+export function createSetResponse<
   E extends EndpointInterface & {
     update?: EndpointUpdateFunction<E>;
   },
@@ -19,7 +20,7 @@ export default function createSetResponse<
   },
 ): SetResponseAction<E>;
 
-export default function createSetResponse<
+export function createSetResponse<
   E extends EndpointInterface & {
     update?: EndpointUpdateFunction<E>;
   },
@@ -33,7 +34,7 @@ export default function createSetResponse<
   },
 ): SetResponseAction<E>;
 
-export default function createSetResponse<
+export function createSetResponse<
   E extends EndpointInterface & {
     update?: EndpointUpdateFunction<E>;
   },
@@ -59,21 +60,14 @@ export default function createSetResponse<
   if (process.env.NODE_ENV === 'development' && expiryLength < 0) {
     throw new Error('Negative expiry length are not allowed.');
   }
-  const date = Date.now();
-  const meta: SetResponseMeta = {
-    args: args.map(ensurePojo),
-    fetchedAt: fetchedAt ?? date,
-    date,
-    expiresAt: date + expiryLength,
-    key: endpoint.key(...args),
-  };
 
-  const action: SetResponseAction<E> = {
+  return {
     type: SET_RESPONSE_TYPE,
-    response,
     endpoint,
-    meta,
+    response,
+    args: args.map(ensurePojo),
+    key: endpoint.key(...args),
+    meta: createMeta(expiryLength, fetchedAt),
+    error,
   };
-  if (error) (action as any).error = true;
-  return action;
 }

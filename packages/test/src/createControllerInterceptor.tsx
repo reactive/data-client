@@ -14,7 +14,7 @@ export function createControllerInterceptor<T>(
   const dispatchInterceptor = function (action: ActionTypes) {
     if (action.type === actionTypes.FETCH_TYPE) {
       // eslint-disable-next-line prefer-const
-      let { key, args } = action.meta;
+      let { key, args } = action;
       let fixture: Fixture | Interceptor | undefined;
       if (Object.hasOwn(fixtureMap, key)) {
         fixture = fixtureMap[key];
@@ -124,7 +124,7 @@ export function createControllerInterceptor<T>(
         );
       }
     } else if (action.type === actionTypes.SUBSCRIBE_TYPE) {
-      const { key } = action.meta;
+      const { key } = action;
       if (Object.hasOwn(fixtureMap, key)) {
         return Promise.resolve();
       }

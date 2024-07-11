@@ -79,7 +79,7 @@ export default class SubscriptionManager<S extends SubscriptionConstructable>
    *
    */
   protected handleSubscribe(action: SubscribeAction) {
-    const key = action.meta.key;
+    const key = action.key;
 
     if (key in this.subscriptions) {
       const frequency = action.endpoint.pollFrequency;
@@ -96,7 +96,7 @@ export default class SubscriptionManager<S extends SubscriptionConstructable>
    *
    */
   protected handleUnsubscribe(action: UnsubscribeAction) {
-    const key = action.meta.key;
+    const key = action.key;
 
     /* istanbul ignore else */
     if (key in this.subscriptions) {

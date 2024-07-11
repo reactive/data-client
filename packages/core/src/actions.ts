@@ -28,98 +28,98 @@ type EndpointDefault = EndpointInterface & {
   update?: EndpointUpdateFunction<EndpointInterface>;
 };
 
-/* SET */
-export interface SetMeta {
-  args: readonly any[];
-  fetchedAt: number;
-  date: number;
-  expiresAt: number;
+/** General meta-data for operators */
+export interface ActionMeta {
+  readonly fetchedAt: number;
+  readonly date: number;
+  readonly expiresAt: number;
 }
 
+/** Action for Controller.set() */
 export interface SetAction<S extends Queryable = any> {
   type: typeof SET_TYPE;
   schema: S;
-  meta: SetMeta;
+  args: readonly any[];
+  meta: ActionMeta;
   value: {} | ((previousValue: Denormalize<S>) => {});
 }
 
 /* setResponse */
-export interface SetResponseMeta {
-  args: readonly any[];
-  key: string;
-  fetchedAt: number;
-  date: number;
-  expiresAt: number;
-}
-export interface SetResponseActionSuccess<
+export interface SetResponseActionBase<
   E extends EndpointAndUpdate<E> = EndpointDefault,
 > {
   type: typeof SET_RESPONSE_TYPE;
   endpoint: E;
-  meta: SetResponseMeta;
+  args: readonly any[];
+  key: string;
+  meta: ActionMeta;
+}
+export interface SetResponseActionSuccess<
+  E extends EndpointAndUpdate<E> = EndpointDefault,
+> extends SetResponseActionBase<E> {
   response: ResolveType<E>;
   error?: false;
 }
 export interface SetResponseActionError<
   E extends EndpointAndUpdate<E> = EndpointDefault,
-> {
-  type: typeof SET_RESPONSE_TYPE;
-  endpoint: E;
-  meta: SetResponseMeta;
+> extends SetResponseActionBase<E> {
   response: UnknownError;
   error: true;
 }
+/** Action for Controller.setResponse() */
 export type SetResponseAction<
   E extends EndpointAndUpdate<E> = EndpointDefault,
 > = SetResponseActionSuccess<E> | SetResponseActionError<E>;
 
 /* FETCH */
-export interface FetchMeta<A extends readonly any[] = readonly any[]> {
-  args: A;
-  key: string;
+export interface FetchMeta {
+  fetchedAt: number;
   resolve: (value?: any | PromiseLike<any>) => void;
   reject: (reason?: any) => void;
   promise: PromiseLike<any>;
-  fetchedAt: number;
 }
 
+/** Action for Controller.fetch() */
 export interface FetchAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
   type: typeof FETCH_TYPE;
   endpoint: E;
-  meta: FetchMeta<readonly [...Parameters<E>]>;
+  args: readonly [...Parameters<E>];
+  key: string;
+  meta: FetchMeta;
 }
 
 /* OPTIMISTIC */
+/** Action for Endpoint.getOptimisticResponse() */
 export interface OptimisticAction<
   E extends EndpointAndUpdate<E> = EndpointDefault,
 > {
   type: typeof OPTIMISTIC_TYPE;
   endpoint: E;
-  meta: SetResponseMeta;
+  args: readonly any[];
+  key: string;
+  meta: ActionMeta;
   error?: false;
 }
 
 /* SUBSCRIBE */
+/** Action for Controller.subscribe() */
 export interface SubscribeAction<
   E extends EndpointAndUpdate<E> = EndpointDefault,
 > {
   type: typeof SUBSCRIBE_TYPE;
   endpoint: E;
-  meta: {
-    args: readonly any[];
-    key: string;
-  };
+  args: readonly any[];
+  key: string;
 }
 
+/** Action for Controller.unsubscribe() */
 export interface UnsubscribeAction<
   E extends EndpointAndUpdate<E> = EndpointDefault,
 > {
   type: typeof UNSUBSCRIBE_TYPE;
   endpoint: E;
-  meta: {
-    args: readonly any[];
-    key: string;
-  };
+  args: readonly any[];
+  key: string;
 }
 
 /* EXPIRY */
@@ -136,9 +136,7 @@ export interface InvalidateAllAction {
 
 export interface InvalidateAction {
   type: typeof INVALIDATE_TYPE;
-  meta: {
-    key: string;
-  };
+  key: string;
 }
 
 /* RESET */

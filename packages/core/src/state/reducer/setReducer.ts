@@ -10,11 +10,7 @@ export function setReducer(
 ) {
   let value: any;
   if (typeof action.value === 'function') {
-    const previousValue = controller.get(
-      action.schema,
-      ...action.meta.args,
-      state,
-    );
+    const previousValue = controller.get(action.schema, ...action.args, state);
     if (previousValue === undefined) return state;
     value = action.value(previousValue);
   } else {
@@ -24,8 +20,9 @@ export function setReducer(
     const { entities, indexes, entityMeta } = normalize(
       action.schema,
       value,
-      action.meta,
+      action.args,
       state,
+      action.meta,
     );
     return {
       entities,
