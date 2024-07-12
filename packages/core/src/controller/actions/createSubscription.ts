@@ -1,7 +1,7 @@
 import type { EndpointInterface } from '@data-client/normalizr';
 
-import { SUBSCRIBE_TYPE, UNSUBSCRIBE_TYPE } from '../actionTypes.js';
-import type { SubscribeAction, UnsubscribeAction } from '../types.js';
+import { SUBSCRIBE_TYPE, UNSUBSCRIBE_TYPE } from '../../actionTypes.js';
+import type { SubscribeAction, UnsubscribeAction } from '../../types.js';
 
 export function createSubscription<E extends EndpointInterface>(
   endpoint: E,
@@ -10,10 +10,8 @@ export function createSubscription<E extends EndpointInterface>(
   return {
     type: SUBSCRIBE_TYPE,
     endpoint,
-    meta: {
-      args,
-      key: endpoint.key(...args),
-    },
+    args,
+    key: endpoint.key(...args),
   };
 }
 
@@ -24,9 +22,7 @@ export function createUnsubscription<E extends EndpointInterface>(
   return {
     type: UNSUBSCRIBE_TYPE,
     endpoint,
-    meta: {
-      args,
-      key: endpoint.key(...args),
-    },
+    args,
+    key: endpoint.key(...args),
   };
 }

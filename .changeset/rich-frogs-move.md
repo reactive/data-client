@@ -8,8 +8,9 @@ Change normalize() interface
 function normalize(
   schema,
   input,
-  { date, expiresAt, fetchedAt, args },
+  args,
   { entities, indexes, entityMeta },
+  { date, expiresAt, fetchedAt },
 );
 ```
 
@@ -19,8 +20,9 @@ function normalize(
 const { result, entities, indexes, entityMeta } = normalize(
   action.endpoint.schema,
   payload,
-  action.meta,
+  action.args,
   state,
+  action.meta,
 );
 ```
 

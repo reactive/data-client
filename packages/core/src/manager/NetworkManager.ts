@@ -1,6 +1,6 @@
 import { SET_RESPONSE_TYPE, FETCH_TYPE, RESET_TYPE } from '../actionTypes.js';
+import { createSetResponse } from '../controller/actions/index.js';
 import Controller from '../controller/Controller.js';
-import createSetResponse from '../controller/createSetResponse.js';
 import type {
   FetchAction,
   Manager,
@@ -62,15 +62,14 @@ export default class NetworkManager implements Manager {
             case SET_RESPONSE_TYPE:
               // only set after new state is computed
               return next(action).then(() => {
-                if (action.meta.key in this.fetched) {
+                if (action.key in this.fetched) {
                   // Note: meta *must* be set by reducer so this should be safe
-                  const error =
-                    controller.getState().meta[action.meta.key]?.error;
+                  const error = controller.getState().meta[action.key]?.error;
                   // processing errors result in state meta having error, so we should reject the promise
                   if (error) {
                     this.handleSet(
                       createSetResponse(action.endpoint, {
-                        args: action.meta.args,
+                        args: action.args,
                         response: error,
                         fetchedAt: action.meta.fetchedAt,
                         error: true,
@@ -103,7 +102,7 @@ export default class NetworkManager implements Manager {
   /** Used by DevtoolsManager to determine whether to log an action */
   skipLogging(action: ActionTypes) {
     /* istanbul ignore next */
-    return action.type === FETCH_TYPE && action.meta.key in this.fetched;
+    return action.type === FETCH_TYPE && action.key in this.fetched;
   }
 
   /** On mount */
@@ -153,11 +152,11 @@ export default class NetworkManager implements Manager {
    * for ensures mutation requests always go through.
    */
   protected handleFetch(action: FetchAction) {
-    const { key, resolve, reject, fetchedAt } = action.meta;
+    const { resolve, reject, fetchedAt } = action.meta;
     const throttle = !action.endpoint.sideEffect;
 
     const deferedFetch = () => {
-      let promise = action.endpoint(...action.meta.args);
+      let promise = action.endpoint(...action.args);
       const resolvePromise = (
         promise: Promise<string | number | object | null>,
       ) =>
@@ -191,7 +190,7 @@ export default class NetworkManager implements Manager {
           // don't update state with promises started before last clear
           if (fetchedAt >= lastReset) {
             this.controller.resolve(action.endpoint, {
-              args: action.meta.args,
+              args: action.args,
               response,
               fetchedAt,
             });
@@ -203,7 +202,7 @@ export default class NetworkManager implements Manager {
           // don't update state with promises started before last clear
           if (fetchedAt >= lastReset) {
             this.controller.resolve(action.endpoint, {
-              args: action.meta.args,
+              args: action.args,
               response: error,
               fetchedAt,
               error: true,
@@ -215,7 +214,7 @@ export default class NetworkManager implements Manager {
     };
 
     if (throttle) {
-      return this.throttle(key, deferedFetch, fetchedAt)
+      return this.throttle(action.key, deferedFetch, fetchedAt)
         .then(data => resolve(data))
         .catch(error => reject(error));
     } else {
@@ -229,16 +228,16 @@ export default class NetworkManager implements Manager {
    */
   protected handleSet(action: SetResponseAction) {
     // this can still turn out to be untrue since this is async
-    if (action.meta.key in this.fetched) {
+    if (action.key in this.fetched) {
       let promiseHandler: (value?: any) => void;
       if (action.error) {
-        promiseHandler = this.rejectors[action.meta.key];
+        promiseHandler = this.rejectors[action.key];
       } else {
-        promiseHandler = this.resolvers[action.meta.key];
+        promiseHandler = this.resolvers[action.key];
       }
       promiseHandler(action.response);
       // since we're resolved we no longer need to keep track of this promise
-      this.clear(action.meta.key);
+      this.clear(action.key);
     }
   }
 

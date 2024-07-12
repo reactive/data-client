@@ -17,7 +17,7 @@ describe('normalizer() merging', () => {
       const { result, entities } = normalize(
         Article,
         { id, title: 'hello' },
-        {},
+        [],
         { entities: first, entityMeta: firstEM, indexes: {} },
       );
 
@@ -52,7 +52,7 @@ describe('normalizer() merging', () => {
       const { entities } = normalize(
         Article,
         { id, title: 'hi', content: 'this is the content' },
-        {},
+        [],
         { entities: entitiesA, indexes: {}, entityMeta: {} },
       );
 
@@ -69,12 +69,11 @@ describe('normalizer() merging', () => {
         content: 'this is the content',
       });
 
-      const { result, entities } = normalize(
-        Article,
-        { id, title: null },
-        {},
-        { entities: first, entityMeta: firstEM, indexes: {} },
-      );
+      const { result, entities } = normalize(Article, { id, title: null }, [], {
+        entities: first,
+        entityMeta: firstEM,
+        indexes: {},
+      });
 
       const merged = denormalize(Article, result, entities);
       expect(merged).toBeInstanceOf(Article);
@@ -95,12 +94,11 @@ describe('normalizer() merging', () => {
         content: 'this is the content',
       });
 
-      normalize(
-        Article,
-        { id, title: 'hello' },
-        {},
-        { entities: first, indexes: {}, entityMeta: {} },
-      );
+      normalize(Article, { id, title: 'hello' }, [], {
+        entities: first,
+        indexes: {},
+        entityMeta: {},
+      });
 
       const merged = denormalize(Article, id, first);
       expect(merged).toBeInstanceOf(Article);
@@ -120,14 +118,11 @@ describe('normalizer() merging', () => {
       });
 
       const nested = { id, title: 'hello' };
-      const { entities } = normalize(
-        Article,
-        nested,
-        {
-          args: [],
-        },
-        { entities: first, indexes: {}, entityMeta: {} },
-      );
+      const { entities } = normalize(Article, nested, [], {
+        entities: first,
+        indexes: {},
+        entityMeta: {},
+      });
 
       expect(entities).toMatchInlineSnapshot(`
         {

@@ -57,11 +57,9 @@ describe('SubscriptionManager', () => {
         : () => Promise.resolve(response);
       return {
         type: SUBSCRIBE_TYPE,
-        endpoint: PollingArticleResource.get,
-        meta: {
-          key: PollingArticleResource.get.key({ id: response.id }),
-          args: [{ id: response.id }],
-        },
+        endpoint: PollingArticleResource.get.extend({ fetch }),
+        args: [{ id: response.id }],
+        key: PollingArticleResource.get.key({ id: response.id }),
       };
     }
     function createUnsubscribeAction(
@@ -70,10 +68,8 @@ describe('SubscriptionManager', () => {
       return {
         type: UNSUBSCRIBE_TYPE,
         endpoint: PollingArticleResource.get,
-        meta: {
-          key: PollingArticleResource.get.key({ id: response.id }),
-          args: [{ id: response.id }],
-        },
+        key: PollingArticleResource.get.key({ id: response.id }),
+        args: [{ id: response.id }],
       };
     }
 
@@ -93,14 +89,14 @@ describe('SubscriptionManager', () => {
       middleware(API)(next)(action);
 
       expect(next).not.toHaveBeenCalled();
-      expect((manager as any).subscriptions[action.meta.key]).toBeDefined();
+      expect((manager as any).subscriptions[action.key]).toBeDefined();
     });
     it('subscribe should add a subscription (no frequency)', () => {
       const action = createSubscribeAction({ id: 597 });
       middleware(API)(next)(action);
 
       expect(next).not.toHaveBeenCalled();
-      expect((manager as any).subscriptions[action.meta.key]).toBeDefined();
+      expect((manager as any).subscriptions[action.key]).toBeDefined();
     });
 
     it('subscribe with same should call subscription.add', () => {
@@ -108,20 +104,20 @@ describe('SubscriptionManager', () => {
       middleware(API)(next)(action);
 
       expect(
-        (manager as any).subscriptions[action.meta.key].add.mock.calls.length,
+        (manager as any).subscriptions[action.key].add.mock.calls.length,
       ).toBe(1);
       middleware(API)(next)(action);
       expect(
-        (manager as any).subscriptions[action.meta.key].add.mock.calls.length,
+        (manager as any).subscriptions[action.key].add.mock.calls.length,
       ).toBe(2);
     });
     it('subscribe with another should create another', () => {
       const action = createSubscribeAction({ id: 7, title: 'four cakes' });
       middleware(API)(next)(action);
 
-      expect((manager as any).subscriptions[action.meta.key]).toBeDefined();
+      expect((manager as any).subscriptions[action.key]).toBeDefined();
       expect(
-        (manager as any).subscriptions[action.meta.key].add.mock.calls.length,
+        (manager as any).subscriptions[action.key].add.mock.calls.length,
       ).toBe(0);
     });
     it('subscribe with another should not call previous', () => {
@@ -134,13 +130,13 @@ describe('SubscriptionManager', () => {
 
     it('unsubscribe should delete when remove returns true', () => {
       const action = createUnsubscribeAction({ id: 7, title: 'four cakes' });
-      (manager as any).subscriptions[action.meta.key].remove.mockImplementation(
+      (manager as any).subscriptions[action.key].remove.mockImplementation(
         () => true,
       );
 
       middleware(API)(next)(action);
 
-      expect((manager as any).subscriptions[action.meta.key]).not.toBeDefined();
+      expect((manager as any).subscriptions[action.key]).not.toBeDefined();
     });
 
     it('unsubscribe should delete when remove returns true (no frequency)', () => {
@@ -149,27 +145,26 @@ describe('SubscriptionManager', () => {
       );
 
       const action = createUnsubscribeAction({ id: 50, title: 'four cakes' });
-      (manager as any).subscriptions[action.meta.key].remove.mockImplementation(
+      (manager as any).subscriptions[action.key].remove.mockImplementation(
         () => true,
       );
 
       middleware(API)(next)(action);
 
-      expect((manager as any).subscriptions[action.meta.key]).not.toBeDefined();
+      expect((manager as any).subscriptions[action.key]).not.toBeDefined();
     });
 
     it('unsubscribe should not delete when remove returns false', () => {
       const action = createUnsubscribeAction({ id: 5, title: 'four cakes' });
-      (manager as any).subscriptions[action.meta.key].remove.mockImplementation(
+      (manager as any).subscriptions[action.key].remove.mockImplementation(
         () => false,
       );
 
       middleware(API)(next)(action);
 
-      expect((manager as any).subscriptions[action.meta.key]).toBeDefined();
+      expect((manager as any).subscriptions[action.key]).toBeDefined();
       expect(
-        (manager as any).subscriptions[action.meta.key].remove.mock.calls
-          .length,
+        (manager as any).subscriptions[action.key].remove.mock.calls.length,
       ).toBe(1);
     });
 
@@ -181,7 +176,7 @@ describe('SubscriptionManager', () => {
 
       middleware(API)(next)(action);
 
-      expect((manager as any).subscriptions[action.meta.key]).not.toBeDefined();
+      expect((manager as any).subscriptions[action.key]).not.toBeDefined();
 
       expect(spy.mock.calls[0]).toMatchInlineSnapshot(`
         [

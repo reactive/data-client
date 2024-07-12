@@ -283,74 +283,73 @@ type EndpointAndUpdate<E extends EndpointInterface> = EndpointInterface & {
 type EndpointDefault = EndpointInterface & {
     update?: EndpointUpdateFunction<EndpointInterface>;
 };
-interface SetMeta {
-    args: readonly any[];
-    fetchedAt: number;
-    date: number;
-    expiresAt: number;
+/** General meta-data for operators */
+interface ActionMeta {
+    readonly fetchedAt: number;
+    readonly date: number;
+    readonly expiresAt: number;
 }
+/** Action for Controller.set() */
 interface SetAction<S extends Queryable = any> {
     type: typeof SET_TYPE;
     schema: S;
-    meta: SetMeta;
+    args: readonly any[];
+    meta: ActionMeta;
     value: {} | ((previousValue: Denormalize<S>) => {});
 }
-interface SetResponseMeta {
-    args: readonly any[];
-    key: string;
-    fetchedAt: number;
-    date: number;
-    expiresAt: number;
-}
-interface SetResponseActionSuccess<E extends EndpointAndUpdate<E> = EndpointDefault> {
+interface SetResponseActionBase<E extends EndpointAndUpdate<E> = EndpointDefault> {
     type: typeof SET_RESPONSE_TYPE;
     endpoint: E;
-    meta: SetResponseMeta;
+    args: readonly any[];
+    key: string;
+    meta: ActionMeta;
+}
+interface SetResponseActionSuccess<E extends EndpointAndUpdate<E> = EndpointDefault> extends SetResponseActionBase<E> {
     response: ResolveType<E>;
     error?: false;
 }
-interface SetResponseActionError<E extends EndpointAndUpdate<E> = EndpointDefault> {
-    type: typeof SET_RESPONSE_TYPE;
-    endpoint: E;
-    meta: SetResponseMeta;
+interface SetResponseActionError<E extends EndpointAndUpdate<E> = EndpointDefault> extends SetResponseActionBase<E> {
     response: UnknownError;
     error: true;
 }
+/** Action for Controller.setResponse() */
 type SetResponseAction<E extends EndpointAndUpdate<E> = EndpointDefault> = SetResponseActionSuccess<E> | SetResponseActionError<E>;
-interface FetchMeta<A extends readonly any[] = readonly any[]> {
-    args: A;
-    key: string;
+interface FetchMeta {
+    fetchedAt: number;
     resolve: (value?: any | PromiseLike<any>) => void;
     reject: (reason?: any) => void;
     promise: PromiseLike<any>;
-    fetchedAt: number;
 }
+/** Action for Controller.fetch() */
 interface FetchAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
     type: typeof FETCH_TYPE;
     endpoint: E;
-    meta: FetchMeta<readonly [...Parameters<E>]>;
+    args: readonly [...Parameters<E>];
+    key: string;
+    meta: FetchMeta;
 }
+/** Action for Endpoint.getOptimisticResponse() */
 interface OptimisticAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
     type: typeof OPTIMISTIC_TYPE;
     endpoint: E;
-    meta: SetResponseMeta;
+    args: readonly any[];
+    key: string;
+    meta: ActionMeta;
     error?: false;
 }
+/** Action for Controller.subscribe() */
 interface SubscribeAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
     type: typeof SUBSCRIBE_TYPE;
     endpoint: E;
-    meta: {
-        args: readonly any[];
-        key: string;
-    };
+    args: readonly any[];
+    key: string;
 }
+/** Action for Controller.unsubscribe() */
 interface UnsubscribeAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
     type: typeof UNSUBSCRIBE_TYPE;
     endpoint: E;
-    meta: {
-        args: readonly any[];
-        key: string;
-    };
+    args: readonly any[];
+    key: string;
 }
 interface ExpireAllAction {
     type: typeof EXPIREALL_TYPE;
@@ -362,9 +361,7 @@ interface InvalidateAllAction {
 }
 interface InvalidateAction {
     type: typeof INVALIDATE_TYPE;
-    meta: {
-        key: string;
-    };
+    key: string;
 }
 interface ResetAction {
     type: typeof RESET_TYPE;
@@ -403,9 +400,9 @@ interface State<T> {
     readonly meta: {
         readonly [key: string]: {
             readonly date: number;
-            readonly error?: ErrorTypes;
             readonly expiresAt: number;
             readonly prevExpiresAt?: number;
+            readonly error?: ErrorTypes;
             readonly invalidated?: boolean;
             readonly errorPolicy?: 'hard' | 'soft' | undefined;
         };
@@ -413,16 +410,15 @@ interface State<T> {
     readonly entityMeta: {
         readonly [entityKey: string]: {
             readonly [pk: string]: {
+                readonly fetchedAt: number;
                 readonly date: number;
                 readonly expiresAt: number;
-                readonly fetchedAt: number;
             };
         };
     };
     readonly optimistic: (SetResponseAction | OptimisticAction)[];
     readonly lastReset: number;
 }
-
 interface Manager<Actions = ActionTypes> {
     getMiddleware(): Middleware$2<Actions>;
     cleanup(): void;
@@ -697,20 +693,12 @@ interface MiddlewareAPI<R extends Reducer<any, any> = Reducer<any, any>> {
 }
 type Middleware$1 = <R extends Reducer<any, any>>({ dispatch, }: MiddlewareAPI<R>) => (next: Dispatch$1<R>) => Dispatch$1<R>;
 
-/**
- * Requesting a fetch to begin
- */
-declare function createFetch<E extends EndpointInterface & {
-    update?: EndpointUpdateFunction<E>;
-}>(endpoint: E, { args }: {
+declare function createSubscription<E extends EndpointInterface>(endpoint: E, { args }: {
     args: readonly [...Parameters<E>];
-}): FetchAction<E>;
-
-declare function createSet<S extends Queryable>(schema: S, { args, fetchedAt, value, }: {
-    args: readonly [...SchemaArgs<S>];
-    value: {} | ((previousValue: Denormalize<S>) => {});
-    fetchedAt?: number;
-}): SetAction<S>;
+}): SubscribeAction<E>;
+declare function createUnsubscription<E extends EndpointInterface>(endpoint: E, { args }: {
+    args: readonly [...Parameters<E>];
+}): UnsubscribeAction<E>;
 
 declare function createSetResponse<E extends EndpointInterface & {
     update?: EndpointUpdateFunction<E>;
@@ -728,6 +716,66 @@ declare function createSetResponse<E extends EndpointInterface & {
     fetchedAt?: number;
     error?: false;
 }): SetResponseAction<E>;
+
+declare function createSet<S extends Queryable>(schema: S, { args, fetchedAt, value, }: {
+    args: readonly [...SchemaArgs<S>];
+    value: {} | ((previousValue: Denormalize<S>) => {});
+    fetchedAt?: number;
+}): SetAction<S>;
+
+declare function createReset(): ResetAction;
+
+declare function createOptimistic<E extends EndpointInterface & {
+    update?: EndpointUpdateFunction<E>;
+}>(endpoint: E, args: readonly [...Parameters<E>], fetchedAt: number): OptimisticAction<E>;
+
+declare function createMeta(expiryLength: number, fetchedAt?: number): ActionMeta;
+
+declare function createInvalidateAll(testKey: (key: string) => boolean): InvalidateAllAction;
+
+declare function createInvalidate<E extends EndpointInterface>(endpoint: E, { args }: {
+    args: readonly [...Parameters<E>];
+}): InvalidateAction;
+
+/**
+ * Requesting a fetch to begin
+ */
+declare function createFetch<E extends EndpointInterface & {
+    update?: EndpointUpdateFunction<E>;
+}>(endpoint: E, { args }: {
+    args: readonly [...Parameters<E>];
+}): FetchAction<E>;
+
+declare function createExpireAll(testKey: (key: string) => boolean): ExpireAllAction;
+
+//# sourceMappingURL=index.d.ts.map
+
+declare const index_d_createSubscription: typeof createSubscription;
+declare const index_d_createUnsubscription: typeof createUnsubscription;
+declare const index_d_createSetResponse: typeof createSetResponse;
+declare const index_d_createSet: typeof createSet;
+declare const index_d_createReset: typeof createReset;
+declare const index_d_createOptimistic: typeof createOptimistic;
+declare const index_d_createMeta: typeof createMeta;
+declare const index_d_createInvalidateAll: typeof createInvalidateAll;
+declare const index_d_createInvalidate: typeof createInvalidate;
+declare const index_d_createFetch: typeof createFetch;
+declare const index_d_createExpireAll: typeof createExpireAll;
+declare namespace index_d {
+  export {
+    index_d_createSubscription as createSubscription,
+    index_d_createUnsubscription as createUnsubscription,
+    index_d_createSetResponse as createSetResponse,
+    index_d_createSet as createSet,
+    index_d_createReset as createReset,
+    index_d_createOptimistic as createOptimistic,
+    index_d_createMeta as createMeta,
+    index_d_createInvalidateAll as createInvalidateAll,
+    index_d_createInvalidate as createInvalidate,
+    index_d_createFetch as createFetch,
+    index_d_createExpireAll as createExpireAll,
+  };
+}
 
 interface ConnectionListener {
     isOnline: () => boolean;
@@ -1077,4 +1125,4 @@ declare class DevToolsManager implements Manager {
     getMiddleware(): Middleware;
 }
 
-export { AbstractInstanceType, ActionTypes, ConnectionListener, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch$1 as Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityInterface, ErrorTypes, ExpireAllAction, ExpiryStatus, FetchAction, FetchFunction, FetchMeta, GCAction, GenericDispatch, InvalidateAction, InvalidateAllAction, LogoutManager, Manager, Middleware$2 as Middleware, MiddlewareAPI$1 as MiddlewareAPI, NI, NetworkError, NetworkManager, Normalize, NormalizeNullable, OptimisticAction, PK, PollingSubscription, Queryable, ResetAction, ResetError, ResolveType, ResultEntry, Schema, SchemaArgs, SetAction, SetMeta, SetResponseAction, SetResponseActionError, SetResponseActionSuccess, SetResponseMeta, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, applyManager, createFetch, createReducer, createSet, createSetResponse, initialState };
+export { AbstractInstanceType, ActionMeta, ActionTypes, ConnectionListener, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch$1 as Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityInterface, ErrorTypes, ExpireAllAction, ExpiryStatus, FetchAction, FetchFunction, FetchMeta, GCAction, GenericDispatch, InvalidateAction, InvalidateAllAction, LogoutManager, Manager, Middleware$2 as Middleware, MiddlewareAPI$1 as MiddlewareAPI, NI, NetworkError, NetworkManager, Normalize, NormalizeNullable, OptimisticAction, PK, PollingSubscription, Queryable, ResetAction, ResetError, ResolveType, ResultEntry, Schema, SchemaArgs, SetAction, SetResponseAction, SetResponseActionBase, SetResponseActionError, SetResponseActionSuccess, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, index_d as actions, applyManager, createReducer, initialState };

@@ -4,7 +4,7 @@ class BaseEntity extends Entity {
   id = 0;
 
   pk() {
-    return `${this.id}`;
+    return this.id;
   }
 }
 
@@ -34,7 +34,7 @@ class Comment extends BaseEntity {
     commenter: User,
   };
 
-  static process(value, parent, key) {
+  static process(value, parent) {
     return { ...value, post: parent.id };
   }
 }

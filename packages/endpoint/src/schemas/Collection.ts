@@ -200,11 +200,11 @@ export default class CollectionSchema<
 
   mergeMetaWithStore(
     existingMeta: {
-      expiresAt: number;
-      date: number;
       fetchedAt: number;
+      date: number;
+      expiresAt: number;
     },
-    incomingMeta: { expiresAt: number; date: number; fetchedAt: number },
+    incomingMeta: { fetchedAt: number; date: number; expiresAt: number },
     existing: any,
     incoming: any,
   ) {

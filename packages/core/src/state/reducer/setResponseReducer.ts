@@ -29,7 +29,7 @@ export function setResponseReducer(
         response = action.endpoint.getOptimisticResponse.call(
           action.endpoint,
           controller.snapshot(state, action.meta.fetchedAt),
-          ...action.meta.args,
+          ...action.args,
         );
       } catch (e: any) {
         // AbortOptimistic means 'do nothing', otherwise we count the exception as endpoint failure
@@ -44,16 +44,17 @@ export function setResponseReducer(
     const { result, entities, indexes, entityMeta } = normalize(
       action.endpoint.schema,
       response,
-      action.meta,
+      action.args,
       state,
+      action.meta,
     );
     const endpoints: Record<string, unknown> = {
       ...state.endpoints,
-      [action.meta.key]: result,
+      [action.key]: result,
     };
     try {
       if (action.endpoint.update) {
-        const updaters = action.endpoint.update(result, ...action.meta.args);
+        const updaters = action.endpoint.update(result, ...action.args);
         Object.keys(updaters).forEach(key => {
           endpoints[key] = updaters[key](endpoints[key]);
         });
@@ -62,7 +63,7 @@ export function setResponseReducer(
       // integrity of this state update is still guaranteed
     } catch (error) {
       console.error(
-        `The following error occured during Endpoint.update() for ${action.meta.key}`,
+        `The following error occured during Endpoint.update() for ${action.key}`,
       );
       console.error(error);
     }
@@ -73,10 +74,10 @@ export function setResponseReducer(
       entityMeta,
       meta: {
         ...state.meta,
-        [action.meta.key]: {
+        [action.key]: {
           date: action.meta.date,
           expiresAt: action.meta.expiresAt,
-          prevExpiresAt: state.meta[action.meta.key]?.expiresAt,
+          prevExpiresAt: state.meta[action.key]?.expiresAt,
         },
       },
       optimistic: filterOptimistic(state, action),
@@ -86,7 +87,7 @@ export function setResponseReducer(
   } catch (error: any) {
     if (typeof error === 'object') {
       error.message = `Error processing ${
-        action.meta.key
+        action.key
       }\n\nFull Schema: ${JSON.stringify(
         action.endpoint.schema,
         undefined,
@@ -123,7 +124,7 @@ function reduceError(
     ...state,
     meta: {
       ...state.meta,
-      [action.meta.key]: {
+      [action.key]: {
         date: action.meta.date,
         error,
         expiresAt: action.meta.expiresAt,
@@ -140,7 +141,7 @@ function filterOptimistic(
 ) {
   return state.optimistic.filter(
     optimisticAction =>
-      optimisticAction.meta.key !== resolvingAction.meta.key ||
+      optimisticAction.key !== resolvingAction.key ||
       (optimisticAction.type === OPTIMISTIC_TYPE ?
         optimisticAction.meta.fetchedAt !== resolvingAction.meta.fetchedAt
       : optimisticAction.meta.date > resolvingAction.meta.date),

@@ -141,9 +141,9 @@ describe('<DataProvider />', () => {
       type: SET_RESPONSE_TYPE,
       response: { id: 5, title: 'hi', content: 'more things here' },
       endpoint: CoolerArticleResource.get,
+      args: [{ id: 5 }],
+      key: CoolerArticleResource.get.key({ id: 5 }),
       meta: {
-        args: [{ id: 5 }],
-        key: CoolerArticleResource.get.key({ id: 5 }),
         fetchedAt: 50,
         date: 50,
         expiresAt: 55,

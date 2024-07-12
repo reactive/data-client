@@ -80,7 +80,7 @@ const addEntities =
         };
       };
     },
-    actionMeta: { expiresAt: number; date: number; fetchedAt: number },
+    actionMeta: { fetchedAt: number; date: number; expiresAt: number },
   ) =>
   (schema: EntityInterface, processedEntity: any, id: string) => {
     const schemaKey = schema.key;
@@ -213,9 +213,9 @@ interface StoreData<E> {
   entityMeta: {
     readonly [entityKey: string]: {
       readonly [pk: string]: {
+        readonly fetchedAt: number;
         readonly date: number;
         readonly expiresAt: number;
-        readonly fetchedAt: number;
       };
     };
   };
@@ -226,10 +226,9 @@ const emptyStore: StoreData<any> = {
   entityMeta: {},
 };
 interface NormalizeMeta {
-  expiresAt?: number;
-  date?: number;
-  fetchedAt?: number;
-  args?: readonly any[];
+  expiresAt: number;
+  date: number;
+  fetchedAt: number;
 }
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const normalize = <
@@ -242,13 +241,9 @@ export const normalize = <
 >(
   schema: S | undefined,
   input: any,
-  {
-    date = Date.now(),
-    expiresAt = Infinity,
-    fetchedAt = 0,
-    args = [],
-  }: NormalizeMeta = {},
+  args: readonly any[] = [],
   { entities, indexes, entityMeta }: StoreData<E> = emptyStore,
+  meta: NormalizeMeta = { fetchedAt: 0, date: Date.now(), expiresAt: Infinity },
 ): NormalizedSchema<E, R> => {
   // no schema means we don't process at all
   if (schema === undefined || schema === null)
@@ -321,7 +316,7 @@ See https://dataclient.io/rest/api/RestEndpoint#parseResponse for more informati
     ret.entities,
     ret.indexes,
     ret.entityMeta,
-    { expiresAt, date, fetchedAt },
+    meta,
   );
 
   const visit = getVisit(addEntity, createGetEntity(entities));

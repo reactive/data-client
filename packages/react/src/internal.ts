@@ -1,6 +1,6 @@
 import { __INTERNAL__ } from '@data-client/core';
 
-export { createReducer, applyManager } from '@data-client/core';
+export { createReducer, applyManager, actions } from '@data-client/core';
 
 export { default as useCacheState } from './hooks/useCacheState.js';
 

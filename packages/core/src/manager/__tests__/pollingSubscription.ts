@@ -2,7 +2,7 @@ import { Endpoint } from '@data-client/endpoint';
 import { Article, PollingArticleResource } from '__tests__/new';
 
 import Controller from '../../controller/Controller';
-import { createSubscription } from '../../controller/createSubscription';
+import { createSubscription } from '../../controller/actions/createSubscription';
 import { initialState } from '../../state/reducer/createReducer';
 import ConnectionListener from '../ConnectionListener';
 import DefaultConnectionListener from '../DefaultConnectionListener';

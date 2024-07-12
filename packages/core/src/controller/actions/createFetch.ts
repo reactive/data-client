@@ -1,36 +1,35 @@
 import type { EndpointInterface, NI } from '@data-client/normalizr';
 
-import { EndpointUpdateFunction } from './types.js';
-import { FETCH_TYPE } from '../actionTypes.js';
-import type { FetchAction, FetchMeta } from '../types.js';
+import { FETCH_TYPE } from '../../actionTypes.js';
+import type { FetchAction, FetchMeta } from '../../types.js';
+import { EndpointUpdateFunction } from '../types.js';
 
 /**
  * Requesting a fetch to begin
  */
-export default function createFetch<
+export function createFetch<
   E extends EndpointInterface & { update?: EndpointUpdateFunction<E> },
 >(
   endpoint: E,
   { args }: { args: readonly [...Parameters<E>] },
 ): FetchAction<E> {
-  const key = endpoint.key(...args);
   let resolve: (value?: any | PromiseLike<any>) => void = 0 as any;
   let reject: (reason?: any) => void = 0 as any;
   const promise = new Promise<any>((a, b) => {
     [resolve, reject] = [a, b];
   });
-  const meta: FetchMeta<typeof args> = {
-    args,
-    key,
+  const meta: FetchMeta = {
+    fetchedAt: Date.now(),
     resolve,
     reject,
     promise,
-    fetchedAt: Date.now(),
   };
 
   return {
     type: FETCH_TYPE,
-    meta,
     endpoint,
+    args,
+    key: endpoint.key(...args),
+    meta,
   };
 }

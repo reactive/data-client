@@ -22,7 +22,7 @@ export function invalidateReducer(
     meta[key] = itemMeta;
   };
   if (action.type === INVALIDATE_TYPE) {
-    invalidateKey(action.meta.key);
+    invalidateKey(action.key);
   } else {
     Object.keys(endpoints).forEach(key => {
       if (action.testKey(key)) {
