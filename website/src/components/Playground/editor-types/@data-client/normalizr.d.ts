@@ -159,6 +159,7 @@ interface Dep<Path, K = object> {
     entity: K;
 }
 
+declare const normalize: <S extends Schema = Schema, E extends Record<string, Record<string, any> | undefined> = Record<string, Record<string, any>>, R = NormalizeNullable<S>>(schema: S | undefined, input: any, args?: readonly any[], { entities, indexes, entityMeta }?: StoreData<E>, meta?: NormalizeMeta) => NormalizedSchema<E, R>;
 interface StoreData<E> {
     entities: Readonly<E>;
     indexes: Readonly<NormalizedIndex>;
@@ -177,7 +178,6 @@ interface NormalizeMeta {
     date: number;
     fetchedAt: number;
 }
-declare const normalize: <S extends Schema = Schema, E extends Record<string, Record<string, any> | undefined> = Record<string, Record<string, any>>, R = NormalizeNullable<S>>(schema: S | undefined, input: any, args?: readonly any[], { entities, indexes, entityMeta }?: StoreData<E>, meta?: NormalizeMeta) => NormalizedSchema<E, R>;
 
 interface EntityCache {
     [key: string]: {
