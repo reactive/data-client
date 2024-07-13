@@ -1,7 +1,7 @@
 import { NetworkManager } from '@data-client/core';
 import { InteractionManager } from 'react-native';
 
-export default class NativeNetworkManager extends NetworkManager {
+export default class NativeIdlingNetworkManager extends NetworkManager {
   /** Calls the callback when client is not 'busy' with high priority interaction tasks
    *
    * Override for platform-specific implementations

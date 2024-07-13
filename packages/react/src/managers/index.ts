@@ -4,5 +4,6 @@ export {
   SubscriptionManager,
   DefaultConnectionListener,
   LogoutManager,
+  NetworkManager,
 } from '@data-client/core';
-export { default as NetworkManager } from './NetworkManager.js';
+export { default as IdlingNetworkManager } from './NetworkManager.js';
