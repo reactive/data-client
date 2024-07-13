@@ -1,5 +1,251 @@
 # @data-client/core
 
+## 0.14.0
+
+### Minor Changes
+
+- [#3141](https://github.com/reactive/data-client/pull/3141) [`d225595`](https://github.com/reactive/data-client/commit/d2255959489b71cfdfcaf4be72fd272231d392f1) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: setResponseAction.payload -> setResponseAction.response
+
+  This only affects those writing custom [Managers](https://dataclient.io/docs/concepts/managers) that
+  inspect `SET_RESPONSE_TYPE` `action.payload`.
+
+  #### Before
+
+  ```ts
+  import {
+    SET_RESPONSE_TYPE,
+    type Manager,
+    type Middleware,
+  } from '@data-client/react';
+
+  export default class MyManager implements Manager {
+    getMiddleware = (): Middleware => controller => next => async action => {
+      switch (action.type) {
+        case SET_RESPONSE_TYPE:
+          console.log('Resolved with value', action.payload);
+          return next(action);
+        default:
+          return next(action);
+      }
+    };
+
+    cleanup() {}
+  }
+  ```
+
+  #### After
+
+  ```ts
+  import {
+    SET_RESPONSE_TYPE,
+    type Manager,
+    type Middleware,
+  } from '@data-client/react';
+
+  export default class MyManager implements Manager {
+    getMiddleware = (): Middleware => controller => next => async action => {
+      switch (action.type) {
+        case SET_RESPONSE_TYPE:
+          console.log('Resolved with value', action.response);
+          return next(action);
+        default:
+          return next(action);
+      }
+    };
+
+    cleanup() {}
+  }
+  ```
+
+- [`96f7eb0`](https://github.com/reactive/data-client/commit/96f7eb0c97db75bd0ec663d0fb0db8cf3ee808d5) Thanks [@ntucker](https://github.com/ntucker)! - Renamed FETCH action.meta.createdAt to fetchedAt to be consistent with other actions like
+  SET_RESPONSE.
+
+  BREAKING CHANGE: fetchAction.meta.createdAt -> fetchAction.meta.fetchedAt
+
+- [#3138](https://github.com/reactive/data-client/pull/3138) [`ee509fb`](https://github.com/reactive/data-client/commit/ee509fb9c7681f060521f358f76b55ca0cb600ec) Thanks [@ntucker](https://github.com/ntucker)! - Remove throttle from FETCH_TYPE action
+
+  BREAKING CHANGE: action.meta.throttle -> !action.endpoint.sideEffect
+
+- [#3143](https://github.com/reactive/data-client/pull/3143) [`f4cf8a4`](https://github.com/reactive/data-client/commit/f4cf8a4df3dfe852d98058abd06178f751ae8716) Thanks [@ntucker](https://github.com/ntucker)! - action.meta.args -> action.args
+
+- [#3143](https://github.com/reactive/data-client/pull/3143) [`f4cf8a4`](https://github.com/reactive/data-client/commit/f4cf8a4df3dfe852d98058abd06178f751ae8716) Thanks [@ntucker](https://github.com/ntucker)! - Add `actions` export
+
+  `actions` is a namespace for all action creators. It is typically
+  preferred to use [Controller's](https://dataclient.io/docs/api/Controller) type-safe dispatch methods, as
+  members of this namespace could have breaking changes in a minor release.
+
+  ```ts
+  import { actions, type Manager, type Middleware } from '@data-client/core';
+
+  export default class MyManager implements Manager {
+    getMiddleware = (): Middleware => controller => next => {
+      const todo = { id: '5', title: 'my first todo' };
+
+      // These do the same thing
+      controller.dispatch(
+        actions.createSet(Todo, { args: [{ id: todo.id }], value: todo }),
+      );
+      // This is simpler; type-enforced; and will only change in major versions
+      controller.set(Todo, { id: todo.id }, todo);
+
+      return async action => next(action);
+    };
+
+    cleanup() {}
+  }
+  ```
+
+  BREAKING CHANGE: Removed `createFetch`, `createSet`, `createSetResponse` from export. Use action.createFetch instead.
+
+- [#3141](https://github.com/reactive/data-client/pull/3141) [`d225595`](https://github.com/reactive/data-client/commit/d2255959489b71cfdfcaf4be72fd272231d392f1) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: remove fetchAction.payload
+
+  This only affects those writing custom [Managers](https://dataclient.io/docs/concepts/managers) that
+  inspect `FETCH_TYPE` `action.fetch`.
+
+  #### Before
+
+  ```ts
+  import {
+    FETCH_TYPE,
+    type Manager,
+    type Middleware,
+  } from '@data-client/react';
+
+  export default class MyManager implements Manager {
+    getMiddleware = (): Middleware => controller => next => async action => {
+      switch (action.type) {
+        case FETCH_TYPE:
+          // consume fetch, and print the resolution
+          action.fetch().then(response => console.log(response));
+        default:
+          return next(action);
+      }
+    };
+
+    cleanup() {}
+  }
+  ```
+
+  #### After
+
+  ```ts
+  import {
+    FETCH_TYPE,
+    type Manager,
+    type Middleware,
+  } from '@data-client/react';
+
+  export default class MyManager implements Manager {
+    getMiddleware = (): Middleware => controller => next => async action => {
+      switch (action.type) {
+        case FETCH_TYPE:
+          // consume fetch, and print the resolution
+          action
+            .endpoint(...action.meta.args)
+            .fetch()
+            .then(response => console.log(response));
+        default:
+          return next(action);
+      }
+    };
+
+    cleanup() {}
+  }
+  ```
+
+- [#3143](https://github.com/reactive/data-client/pull/3143) [`f4cf8a4`](https://github.com/reactive/data-client/commit/f4cf8a4df3dfe852d98058abd06178f751ae8716) Thanks [@ntucker](https://github.com/ntucker)! - action.meta.key -> action.key
+
+- [#3139](https://github.com/reactive/data-client/pull/3139) [`9df0f7c`](https://github.com/reactive/data-client/commit/9df0f7c670c919d956312d2535c298d2553f5840) Thanks [@ntucker](https://github.com/ntucker)! - Get rid of fetch action.meta.nm. This is not used anywhere.
+
+### Patch Changes
+
+- [`3ffa454`](https://github.com/reactive/data-client/commit/3ffa454def38b35a23520444f80b307732a8a89b) Thanks [@ntucker](https://github.com/ntucker)! - internal: Simplify fetchReducer code
+
+- [#3134](https://github.com/reactive/data-client/pull/3134) [`2ad1811`](https://github.com/reactive/data-client/commit/2ad1811149cdc419f6462ace08efdb7766195b36) Thanks [@ntucker](https://github.com/ntucker)! - Change Schema.normalize `visit()` interface; removing non-contextual arguments.
+
+  ```ts
+  /** Visits next data + schema while recurisvely normalizing */
+  export interface Visit {
+    (schema: any, value: any, parent: any, key: any, args: readonly any[]): any;
+    creating?: boolean;
+  }
+  ```
+
+  This results in a 10% normalize performance boost.
+
+  ```ts title="Before"
+  processedEntity[key] = visit(
+    processedEntity[key],
+    processedEntity,
+    key,
+    this.schema[key],
+    addEntity,
+    visitedEntities,
+    storeEntities,
+    args,
+  );
+  ```
+
+  ```ts title="After"
+  processedEntity[key] = visit(
+    this.schema[key],
+    processedEntity[key],
+    processedEntity,
+    key,
+    args,
+  );
+  ```
+
+  The information needed from these arguments are provided by [closing](<https://en.wikipedia.org/wiki/Closure_(computer_programming)>) `visit()` around them.
+
+- [#3134](https://github.com/reactive/data-client/pull/3134) [`2ad1811`](https://github.com/reactive/data-client/commit/2ad1811149cdc419f6462ace08efdb7766195b36) Thanks [@ntucker](https://github.com/ntucker)! - Change Schema.normalize interface from direct data access, to using functions like `getEntity`
+
+  ```ts
+  interface SchemaSimple {
+    normalize(
+      input: any,
+      parent: any,
+      key: any,
+      args: any[],
+      visit: (
+        schema: any,
+        value: any,
+        parent: any,
+        key: any,
+        args: readonly any[],
+      ) => any,
+      addEntity: (...args: any) => any,
+      getEntity: (...args: any) => any,
+      checkLoop: (...args: any) => any,
+    ): any;
+  }
+  ```
+
+  We also add `checkLoop()`, which moves some logic in [Entity](https://dataclient.io/rest/api/Entity)
+  to the core normalize algorithm.
+
+  ```ts
+  /** Returns true if a circular reference is found */
+  export interface CheckLoop {
+    (entityKey: string, pk: string, input: object): boolean;
+  }
+  ```
+
+- [#3134](https://github.com/reactive/data-client/pull/3134) [`2ad1811`](https://github.com/reactive/data-client/commit/2ad1811149cdc419f6462ace08efdb7766195b36) Thanks [@ntucker](https://github.com/ntucker)! - Change Schema.denormalize `unvisit` to have [schema](https://dataclient.io/rest/api/schema) argument first.
+
+  ```ts
+  interface SchemaSimple {
+    denormalize(
+      input: {},
+      args: readonly any[],
+      unvisit: (schema: any, input: any) => any,
+    ): T;
+  }
+  ```
+
+- Updated dependencies [[`2ad1811`](https://github.com/reactive/data-client/commit/2ad1811149cdc419f6462ace08efdb7766195b36), [`2ad1811`](https://github.com/reactive/data-client/commit/2ad1811149cdc419f6462ace08efdb7766195b36), [`2ad1811`](https://github.com/reactive/data-client/commit/2ad1811149cdc419f6462ace08efdb7766195b36), [`2ad1811`](https://github.com/reactive/data-client/commit/2ad1811149cdc419f6462ace08efdb7766195b36), [`2ad1811`](https://github.com/reactive/data-client/commit/2ad1811149cdc419f6462ace08efdb7766195b36), [`2ad1811`](https://github.com/reactive/data-client/commit/2ad1811149cdc419f6462ace08efdb7766195b36)]:
+  - @data-client/normalizr@0.14.0
+
 ## 0.13.5
 
 ### Patch Changes

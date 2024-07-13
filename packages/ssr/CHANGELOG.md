@@ -1,5 +1,11 @@
 # @data-client/ssr
 
+## 0.12.14
+
+### Patch Changes
+
+- [#3134](https://github.com/reactive/data-client/pull/3134) [`2ad1811`](https://github.com/reactive/data-client/commit/2ad1811149cdc419f6462ace08efdb7766195b36) Thanks [@ntucker](https://github.com/ntucker)! - Expand peerdep support range to include ^0.14.0
+
 ## 0.12.13
 
 ### Patch Changes

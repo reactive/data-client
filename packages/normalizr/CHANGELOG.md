@@ -1,5 +1,137 @@
 # Change Log
 
+## 0.14.0
+
+### Minor Changes
+
+- [#3134](https://github.com/reactive/data-client/pull/3134) [`2ad1811`](https://github.com/reactive/data-client/commit/2ad1811149cdc419f6462ace08efdb7766195b36) Thanks [@ntucker](https://github.com/ntucker)! - Change Schema.normalize `visit()` interface; removing non-contextual arguments.
+
+  ```ts
+  /** Visits next data + schema while recurisvely normalizing */
+  export interface Visit {
+    (schema: any, value: any, parent: any, key: any, args: readonly any[]): any;
+    creating?: boolean;
+  }
+  ```
+
+  This results in a 10% normalize performance boost.
+
+  ```ts title="Before"
+  processedEntity[key] = visit(
+    processedEntity[key],
+    processedEntity,
+    key,
+    this.schema[key],
+    addEntity,
+    visitedEntities,
+    storeEntities,
+    args,
+  );
+  ```
+
+  ```ts title="After"
+  processedEntity[key] = visit(
+    this.schema[key],
+    processedEntity[key],
+    processedEntity,
+    key,
+    args,
+  );
+  ```
+
+  The information needed from these arguments are provided by [closing](<https://en.wikipedia.org/wiki/Closure_(computer_programming)>) `visit()` around them.
+
+- [#3134](https://github.com/reactive/data-client/pull/3134) [`2ad1811`](https://github.com/reactive/data-client/commit/2ad1811149cdc419f6462ace08efdb7766195b36) Thanks [@ntucker](https://github.com/ntucker)! - Change Schema.normalize interface from direct data access, to using functions like `getEntity`
+
+  ```ts
+  interface SchemaSimple {
+    normalize(
+      input: any,
+      parent: any,
+      key: any,
+      args: any[],
+      visit: (
+        schema: any,
+        value: any,
+        parent: any,
+        key: any,
+        args: readonly any[],
+      ) => any,
+      addEntity: (...args: any) => any,
+      getEntity: (...args: any) => any,
+      checkLoop: (...args: any) => any,
+    ): any;
+  }
+  ```
+
+  We also add `checkLoop()`, which moves some logic in [Entity](https://dataclient.io/rest/api/Entity)
+  to the core normalize algorithm.
+
+  ```ts
+  /** Returns true if a circular reference is found */
+  export interface CheckLoop {
+    (entityKey: string, pk: string, input: object): boolean;
+  }
+  ```
+
+- [#3134](https://github.com/reactive/data-client/pull/3134) [`2ad1811`](https://github.com/reactive/data-client/commit/2ad1811149cdc419f6462ace08efdb7766195b36) Thanks [@ntucker](https://github.com/ntucker)! - Change Schema.denormalize `unvisit` to have [schema](https://dataclient.io/rest/api/schema) argument first.
+
+  ```ts
+  interface SchemaSimple {
+    denormalize(
+      input: {},
+      args: readonly any[],
+      unvisit: (schema: any, input: any) => any,
+    ): T;
+  }
+  ```
+
+- [#3134](https://github.com/reactive/data-client/pull/3134) [`2ad1811`](https://github.com/reactive/data-client/commit/2ad1811149cdc419f6462ace08efdb7766195b36) Thanks [@ntucker](https://github.com/ntucker)! - Change normalize() interface
+
+  ```ts
+  function normalize(
+    schema,
+    input,
+    args,
+    { entities, indexes, entityMeta },
+    { date, expiresAt, fetchedAt },
+  );
+  ```
+
+  #### Usage
+
+  ```ts
+  const { result, entities, indexes, entityMeta } = normalize(
+    action.endpoint.schema,
+    payload,
+    action.args,
+    state,
+    action.meta,
+  );
+  ```
+
+- [#3134](https://github.com/reactive/data-client/pull/3134) [`2ad1811`](https://github.com/reactive/data-client/commit/2ad1811149cdc419f6462ace08efdb7766195b36) Thanks [@ntucker](https://github.com/ntucker)! - Change denormalize() interface
+
+  ```ts
+  function denormalize(schema, input, entities, args);
+  ```
+
+  #### Usage
+
+  ```ts
+  const value = denormalize(endpoint.schema, input, state.entities, args);
+  ```
+
+- [#3134](https://github.com/reactive/data-client/pull/3134) [`2ad1811`](https://github.com/reactive/data-client/commit/2ad1811149cdc419f6462ace08efdb7766195b36) Thanks [@ntucker](https://github.com/ntucker)! - Change MemoCache methods interface
+
+  ```ts
+  class MemoCache {
+    denormalize(schema, input, entities, args): { data; paths };
+    query(schema, args, entities, indexes): data;
+    buildQueryKey(schema, args, entities, indexes): normalized;
+  }
+  ```
+
 ## 0.12.3
 
 ### Patch Changes
@@ -295,7 +427,7 @@
     pk(): string {
       return `${this.trade_id}`;
     }
-    static key = "Ticker";
+    static key = 'Ticker';
 
     static schema = {
       price: Number,
@@ -315,7 +447,7 @@
     pk(): string {
       return `${this.trade_id}`;
     }
-    static key = "Ticker";
+    static key = 'Ticker';
 
     static schema = {
       price: Number,
