@@ -3170,19 +3170,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@data-client/core@npm:^0.13.5, @data-client/core@workspace:^, @data-client/core@workspace:packages/core":
+"@data-client/core@npm:^0.14.0, @data-client/core@workspace:^, @data-client/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@data-client/core@workspace:packages/core"
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
-    "@data-client/normalizr": "npm:^0.12.3"
+    "@data-client/normalizr": "npm:^0.14.0"
     "@types/node": "npm:^20.0.0"
     flux-standard-action: "npm:^2.1.1"
   languageName: unknown
   linkType: soft
 
-"@data-client/endpoint@npm:^0.13.4, @data-client/endpoint@workspace:*, @data-client/endpoint@workspace:^, @data-client/endpoint@workspace:packages/endpoint":
+"@data-client/endpoint@npm:^0.14.0, @data-client/endpoint@workspace:*, @data-client/endpoint@workspace:^, @data-client/endpoint@workspace:packages/endpoint":
   version: 0.0.0-use.local
   resolution: "@data-client/endpoint@workspace:packages/endpoint"
   dependencies:
@@ -3199,18 +3199,18 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
-    "@data-client/endpoint": "npm:^0.13.4"
+    "@data-client/endpoint": "npm:^0.14.0"
     "@types/node": "npm:^20.0.0"
   languageName: unknown
   linkType: soft
 
-"@data-client/img@npm:^0.13.4, @data-client/img@workspace:packages/img":
+"@data-client/img@npm:^0.14.0, @data-client/img@workspace:packages/img":
   version: 0.0.0-use.local
   resolution: "@data-client/img@workspace:packages/img"
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
-    "@data-client/endpoint": "npm:^0.13.4"
+    "@data-client/endpoint": "npm:^0.14.0"
     "@data-client/react": "workspace:*"
     "@types/node": "npm:^20.0.0"
     "@types/react": "npm:^18.0.30"
@@ -3224,7 +3224,16 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/normalizr@npm:^0.12.3, @data-client/normalizr@workspace:*, @data-client/normalizr@workspace:^, @data-client/normalizr@workspace:packages/normalizr":
+"@data-client/normalizr@npm:^0.12.3":
+  version: 0.12.3
+  resolution: "@data-client/normalizr@npm:0.12.3"
+  dependencies:
+    "@babel/runtime": "npm:^7.17.0"
+  checksum: 10c0/4eb5b24d69160b42f321d4479de54b053ead5845795d49ebf20b10726fc2846326710c6d5fb2a40aa285ca33cbc4f762987ded55e8c4e0ffefe36f2fc024de29
+  languageName: node
+  linkType: hard
+
+"@data-client/normalizr@npm:^0.14.0, @data-client/normalizr@workspace:*, @data-client/normalizr@workspace:^, @data-client/normalizr@workspace:packages/normalizr":
   version: 0.0.0-use.local
   resolution: "@data-client/normalizr@workspace:packages/normalizr"
   dependencies:
@@ -3235,13 +3244,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/react@npm:^0.13.4, @data-client/react@workspace:*, @data-client/react@workspace:^, @data-client/react@workspace:packages/react":
+"@data-client/react@npm:^0.14.0, @data-client/react@workspace:*, @data-client/react@workspace:^, @data-client/react@workspace:packages/react":
   version: 0.0.0-use.local
   resolution: "@data-client/react@workspace:packages/react"
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
-    "@data-client/core": "npm:^0.13.5"
+    "@data-client/core": "npm:^0.14.0"
     "@data-client/use-enhanced-reducer": "npm:^0.1.10"
     "@react-navigation/native": "npm:^6.1.6"
     "@types/node": "npm:^20.0.0"
@@ -3277,13 +3286,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@data-client/rest@npm:^0.13.4, @data-client/rest@workspace:*, @data-client/rest@workspace:packages/rest":
+"@data-client/rest@npm:^0.14.0, @data-client/rest@workspace:*, @data-client/rest@workspace:packages/rest":
   version: 0.0.0-use.local
   resolution: "@data-client/rest@workspace:packages/rest"
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
-    "@data-client/endpoint": "npm:^0.13.4"
+    "@data-client/endpoint": "npm:^0.14.0"
     "@types/node": "npm:^20.0.0"
     path-to-regexp: "npm:^6.2.1"
   languageName: unknown
@@ -10489,9 +10498,9 @@ __metadata:
     "@anansi/webpack-config": "npm:^19.0.0"
     "@babel/core": "npm:^7.22.15"
     "@babel/runtime": "npm:^7.22.15"
-    "@data-client/img": "npm:^0.13.4"
-    "@data-client/react": "npm:^0.13.4"
-    "@data-client/rest": "npm:^0.13.4"
+    "@data-client/img": "npm:^0.14.0"
+    "@data-client/react": "npm:^0.14.0"
+    "@data-client/rest": "npm:^0.14.0"
     "@linaria/babel-preset": "npm:*"
     "@linaria/core": "npm:*"
     "@linaria/react": "npm:*"

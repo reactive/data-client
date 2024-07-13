@@ -1,5 +1,122 @@
 # @data-client/test
 
+## 0.14.0
+
+### Patch Changes
+
+- [#3141](https://github.com/reactive/data-client/pull/3141) [`d225595`](https://github.com/reactive/data-client/commit/d2255959489b71cfdfcaf4be72fd272231d392f1) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: setResponseAction.payload -> setResponseAction.response
+
+  This only affects those writing custom [Managers](https://dataclient.io/docs/concepts/managers) that
+  inspect `SET_RESPONSE_TYPE` `action.payload`.
+
+  #### Before
+
+  ```ts
+  import {
+    SET_RESPONSE_TYPE,
+    type Manager,
+    type Middleware,
+  } from '@data-client/react';
+
+  export default class MyManager implements Manager {
+    getMiddleware = (): Middleware => controller => next => async action => {
+      switch (action.type) {
+        case SET_RESPONSE_TYPE:
+          console.log('Resolved with value', action.payload);
+          return next(action);
+        default:
+          return next(action);
+      }
+    };
+
+    cleanup() {}
+  }
+  ```
+
+  #### After
+
+  ```ts
+  import {
+    SET_RESPONSE_TYPE,
+    type Manager,
+    type Middleware,
+  } from '@data-client/react';
+
+  export default class MyManager implements Manager {
+    getMiddleware = (): Middleware => controller => next => async action => {
+      switch (action.type) {
+        case SET_RESPONSE_TYPE:
+          console.log('Resolved with value', action.response);
+          return next(action);
+        default:
+          return next(action);
+      }
+    };
+
+    cleanup() {}
+  }
+  ```
+
+- [#3141](https://github.com/reactive/data-client/pull/3141) [`d225595`](https://github.com/reactive/data-client/commit/d2255959489b71cfdfcaf4be72fd272231d392f1) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: remove fetchAction.payload
+
+  This only affects those writing custom [Managers](https://dataclient.io/docs/concepts/managers) that
+  inspect `FETCH_TYPE` `action.fetch`.
+
+  #### Before
+
+  ```ts
+  import {
+    FETCH_TYPE,
+    type Manager,
+    type Middleware,
+  } from '@data-client/react';
+
+  export default class MyManager implements Manager {
+    getMiddleware = (): Middleware => controller => next => async action => {
+      switch (action.type) {
+        case FETCH_TYPE:
+          // consume fetch, and print the resolution
+          action.fetch().then(response => console.log(response));
+        default:
+          return next(action);
+      }
+    };
+
+    cleanup() {}
+  }
+  ```
+
+  #### After
+
+  ```ts
+  import {
+    FETCH_TYPE,
+    type Manager,
+    type Middleware,
+  } from '@data-client/react';
+
+  export default class MyManager implements Manager {
+    getMiddleware = (): Middleware => controller => next => async action => {
+      switch (action.type) {
+        case FETCH_TYPE:
+          // consume fetch, and print the resolution
+          action
+            .endpoint(...action.meta.args)
+            .fetch()
+            .then(response => console.log(response));
+        default:
+          return next(action);
+      }
+    };
+
+    cleanup() {}
+  }
+  ```
+
+- [#3134](https://github.com/reactive/data-client/pull/3134) [`2ad1811`](https://github.com/reactive/data-client/commit/2ad1811149cdc419f6462ace08efdb7766195b36) Thanks [@ntucker](https://github.com/ntucker)! - Expand peerdep support range to include ^0.14.0
+
+- [`39471f5`](https://github.com/reactive/data-client/commit/39471f5e2a76e4bb4ee401020875ffa324f3eaf2) Thanks [@ntucker](https://github.com/ntucker)! - Add missing types export to @data-client/test/browser
+
 ## 0.13.0
 
 ### Patch Changes

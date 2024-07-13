@@ -1,6 +1,6 @@
 {
   "name": "@data-client/core",
-  "version": "0.13.5",
+  "version": "0.14.0",
   "description": "High performance mutable data framework.",
   "sideEffects": false,
   "main": "dist/index.js",
@@ -121,7 +121,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.17.0",
-    "@data-client/normalizr": "^0.12.3",
+    "@data-client/normalizr": "^0.14.0",
     "flux-standard-action": "^2.1.1"
   },
   "devDependencies": {

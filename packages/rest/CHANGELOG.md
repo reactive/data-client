@@ -1,5 +1,96 @@
 # @data-client/rest
 
+## 0.14.0
+
+### Minor Changes
+
+- [#3134](https://github.com/reactive/data-client/pull/3134) [`2ad1811`](https://github.com/reactive/data-client/commit/2ad1811149cdc419f6462ace08efdb7766195b36) Thanks [@ntucker](https://github.com/ntucker)! - Change Schema.normalize `visit()` interface; removing non-contextual arguments.
+
+  ```ts
+  /** Visits next data + schema while recurisvely normalizing */
+  export interface Visit {
+    (schema: any, value: any, parent: any, key: any, args: readonly any[]): any;
+    creating?: boolean;
+  }
+  ```
+
+  This results in a 10% normalize performance boost.
+
+  ```ts title="Before"
+  processedEntity[key] = visit(
+    processedEntity[key],
+    processedEntity,
+    key,
+    this.schema[key],
+    addEntity,
+    visitedEntities,
+    storeEntities,
+    args,
+  );
+  ```
+
+  ```ts title="After"
+  processedEntity[key] = visit(
+    this.schema[key],
+    processedEntity[key],
+    processedEntity,
+    key,
+    args,
+  );
+  ```
+
+  The information needed from these arguments are provided by [closing](<https://en.wikipedia.org/wiki/Closure_(computer_programming)>) `visit()` around them.
+
+- [#3134](https://github.com/reactive/data-client/pull/3134) [`2ad1811`](https://github.com/reactive/data-client/commit/2ad1811149cdc419f6462ace08efdb7766195b36) Thanks [@ntucker](https://github.com/ntucker)! - Change Schema.normalize interface from direct data access, to using functions like `getEntity`
+
+  ```ts
+  interface SchemaSimple {
+    normalize(
+      input: any,
+      parent: any,
+      key: any,
+      args: any[],
+      visit: (
+        schema: any,
+        value: any,
+        parent: any,
+        key: any,
+        args: readonly any[],
+      ) => any,
+      addEntity: (...args: any) => any,
+      getEntity: (...args: any) => any,
+      checkLoop: (...args: any) => any,
+    ): any;
+  }
+  ```
+
+  We also add `checkLoop()`, which moves some logic in [Entity](https://dataclient.io/rest/api/Entity)
+  to the core normalize algorithm.
+
+  ```ts
+  /** Returns true if a circular reference is found */
+  export interface CheckLoop {
+    (entityKey: string, pk: string, input: object): boolean;
+  }
+  ```
+
+- [#3134](https://github.com/reactive/data-client/pull/3134) [`2ad1811`](https://github.com/reactive/data-client/commit/2ad1811149cdc419f6462ace08efdb7766195b36) Thanks [@ntucker](https://github.com/ntucker)! - Change Schema.denormalize `unvisit` to have [schema](https://dataclient.io/rest/api/schema) argument first.
+
+  ```ts
+  interface SchemaSimple {
+    denormalize(
+      input: {},
+      args: readonly any[],
+      unvisit: (schema: any, input: any) => any,
+    ): T;
+  }
+  ```
+
+### Patch Changes
+
+- Updated dependencies [[`2ad1811`](https://github.com/reactive/data-client/commit/2ad1811149cdc419f6462ace08efdb7766195b36), [`2ad1811`](https://github.com/reactive/data-client/commit/2ad1811149cdc419f6462ace08efdb7766195b36), [`2ad1811`](https://github.com/reactive/data-client/commit/2ad1811149cdc419f6462ace08efdb7766195b36), [`7bd322d`](https://github.com/reactive/data-client/commit/7bd322d585b0893561b3ffb3c5ad47b2764c18bd)]:
+  - @data-client/endpoint@0.14.0
+
 ## 0.13.4
 
 ### Patch Changes
