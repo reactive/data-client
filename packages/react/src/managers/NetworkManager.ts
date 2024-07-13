@@ -1,9 +1,9 @@
 import { NetworkManager } from '@data-client/core';
 
-export default class WebNetworkManager extends NetworkManager {
+export default class WebIdlingNetworkManager extends NetworkManager {
   static {
     if (typeof requestIdleCallback === 'function') {
-      WebNetworkManager.prototype.idleCallback = (...args) =>
+      WebIdlingNetworkManager.prototype.idleCallback = (...args) =>
         requestIdleCallback(...args);
     }
   }
