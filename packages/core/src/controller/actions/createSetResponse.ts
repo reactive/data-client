@@ -54,8 +54,8 @@ export function createSetResponse<
 ): SetResponseAction<E> {
   const expiryLength: number =
     error ?
-      endpoint.errorExpiryLength ?? 1000
-    : endpoint.dataExpiryLength ?? 60000;
+      (endpoint.errorExpiryLength ?? 1000)
+    : (endpoint.dataExpiryLength ?? 60000);
   /* istanbul ignore next */
   if (process.env.NODE_ENV === 'development' && expiryLength < 0) {
     throw new Error('Negative expiry length are not allowed.');
