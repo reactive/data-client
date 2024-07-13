@@ -271,14 +271,14 @@ __metadata:
   linkType: hard
 
 "@anansi/cli@npm:^3.0.15":
-  version: 3.1.30
-  resolution: "@anansi/cli@npm:3.1.30"
+  version: 3.1.31
+  resolution: "@anansi/cli@npm:3.1.31"
   dependencies:
-    "@anansi/generator-js": "npm:^12.4.11"
+    "@anansi/generator-js": "npm:^12.4.12"
     binary-version-check: "npm:^6.1.0"
     chalk: "npm:^4.1.2"
     commander: "npm:^12.1.0"
-    execa: "npm:^9.2.0"
+    execa: "npm:^9.3.0"
     import-meta-resolve: "npm:^4.1.0"
     latest-version: "npm:^9.0.0"
     yo: "npm:^5.0.0"
@@ -289,7 +289,7 @@ __metadata:
       optional: true
   bin:
     anansi: ./run.mjs
-  checksum: 10c0/da3a4369581c9035b3755414495f9ea4ef8955c25cda260266676dfe592644d6464c998c5d63cf6b1097c4be51350e7adc6b484730430c621f9cd85ceb387d83
+  checksum: 10c0/48f37477622a7fa22a35d2f7cb5a9964e259c555061edc2a3ecbef1d8ad0d1a92773972b7e67103f10609f107a3b3a0f71724ee64abc199b9776e53e29527263
   languageName: node
   linkType: hard
 
@@ -371,9 +371,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/generator-js@npm:^12.4.11":
-  version: 12.4.11
-  resolution: "@anansi/generator-js@npm:12.4.11"
+"@anansi/generator-js@npm:^12.4.12":
+  version: 12.4.12
+  resolution: "@anansi/generator-js@npm:12.4.12"
   dependencies:
     "@babel/runtime": "npm:^7.17.0"
     "@types/inquirer": "npm:^9.0.7"
@@ -381,7 +381,7 @@ __metadata:
     chalk: "npm:^4.1.2"
     core-js: "npm:^3.21.0"
     ejs: "npm:^3.1.10"
-    execa: "npm:^9.2.0"
+    execa: "npm:^9.3.0"
     gulp-filter: "npm:^9.0.1"
     gulp-prettier: "npm:^6.0.0"
     import-meta-resolve: "npm:^4.1.0"
@@ -389,8 +389,8 @@ __metadata:
     mem-fs-editor: "npm:^11.0.1"
     pacote: "npm:^18.0.6"
     shelobsay: "npm:^2.0.0"
-    yeoman-generator: "npm:^7.3.1"
-  checksum: 10c0/a45aa6ae1cca1bfa994880236607619a850515ae214ba3562fa17e5464aab802dcc28b04fc00f1cd11ff90286fe1ac5e6413635eeb67ae1b231d6318075f0422
+    yeoman-generator: "npm:^7.3.2"
+  checksum: 10c0/a02d39a807df5663c4c3cbed0d1b25bea61aa7c97fdab74f5e1482b1998146ffb08cd392b9b55c686f63f6118aff943236d850bb67fd2f5249100c84339f760c
   languageName: node
   linkType: hard
 
@@ -13966,9 +13966,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"execa@npm:^9.2.0":
-  version: 9.2.0
-  resolution: "execa@npm:9.2.0"
+"execa@npm:^9.3.0":
+  version: 9.3.0
+  resolution: "execa@npm:9.3.0"
   dependencies:
     "@sindresorhus/merge-streams": "npm:^4.0.0"
     cross-spawn: "npm:^7.0.3"
@@ -13982,7 +13982,7 @@ __metadata:
     signal-exit: "npm:^4.1.0"
     strip-final-newline: "npm:^4.0.0"
     yoctocolors: "npm:^2.0.0"
-  checksum: 10c0/339e69bd01bfdc032122ef18d412ccda4386c7752b864607c2e8683a1531b4aab436744aeacee548e1be239adb2b52888da64ffd761e7e22f56f8f14cf66e4a7
+  checksum: 10c0/99ae08e7fb9172d25c453c2a9c414b54c7689e72f68263f6da7bc94c7011720dc8129cc64c2e3be44fb0c6ae8e37a08d346a61dbcfe9f1e79ad24364da2c48ce
   languageName: node
   linkType: hard
 
@@ -30643,9 +30643,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yeoman-generator@npm:^7.3.1":
-  version: 7.3.1
-  resolution: "yeoman-generator@npm:7.3.1"
+"yeoman-generator@npm:^7.3.2":
+  version: 7.3.2
+  resolution: "yeoman-generator@npm:7.3.2"
   dependencies:
     "@types/lodash-es": "npm:^4.17.9"
     "@types/node": "npm:^18.18.5"
@@ -30671,7 +30671,7 @@ __metadata:
   peerDependenciesMeta:
     yeoman-environment:
       optional: true
-  checksum: 10c0/643a2815f68a1b09db456db0cd62c80c2aff48d86326ffce51c75bba099859a58695392109974f16c71da741afd61b1d6b575d53f16f97eae2123db5eb6e8178
+  checksum: 10c0/34018bbd3b6cf232ad6ece07c8c7781035da8e4242732d611baedd3f11d0316a19e7cd28c30e8088666d199ff33429d6f900901dc7e8deaed468c25cd91ba8cb
   languageName: node
   linkType: hard
 
