@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/reactive/data-client/tree/master.svg?style=shield)](https://circleci.com/gh/reactive/data-client)
 [![Coverage Status](https://img.shields.io/codecov/c/gh/reactive/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/reactive/data-client?branch=master)
-[![Percentage of issues still open](https://isitmaintained.com/badge/open/reactive/data-client.svg)](https://github.com/reactive/data-client/issues "Percentage of issues still open")
+[![Percentage of issues still open](https://isitmaintained.com/badge/open/reactive/data-client.svg)](https://github.com/reactive/data-client/issues 'Percentage of issues still open')
 [![bundle size](https://img.shields.io/bundlephobia/minzip/@data-client/react?style=flat-square)](https://bundlephobia.com/result?p=@data-client/react)
 [![npm version](https://img.shields.io/npm/v/@data-client/react.svg?style=flat-square)](https://www.npmjs.com/package/@data-client/react)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
@@ -98,13 +98,21 @@ return (
 ```tsx
 const ctrl = useController();
 return (
-  <CreateProfileForm
-    onSubmit={data => ctrl.fetch(UserResource.getList.push, { id }, data)}
-  />
-  <ProfileForm
-    onSubmit={data => ctrl.fetch(UserResource.update, { id }, data)}
-  />
-  <button onClick={() => ctrl.fetch(UserResource.delete, { id })}>Delete</button>
+  <>
+    <CreateArticleForm
+      onSubmit={article =>
+        ctrl.fetch(ArticleResource.getList.push, { id }, article)
+      }
+    />
+    <ProfileForm
+      onSubmit={user =>
+        ctrl.fetch(UserResource.update, { id: article.author.id }, user)
+      }
+    />
+    <button onClick={() => ctrl.fetch(ArticleResource.delete, { id })}>
+      Delete
+    </button>
+  </>
 );
 ```
 
@@ -123,7 +131,9 @@ ctrl.expireAll(ArticleResource.getList);
 ctrl.invalidate(ArticleResource.get, { id });
 ctrl.invalidateAll(ArticleResource.getList);
 ctrl.setResponse(ArticleResource.get, { id }, articleData);
-ctrl.fetch(ArticleResource.get, { id });
+ctrl.set(Article, { id }, articleData);
+ctrl.fetchIfStale(ArticleResource.get, { id });
+ctrl.fetch(ArticleResource.update, { id }, articleData);
 ```
 
 ### [Programmatic queries](https://dataclient.io/rest/api/Query)
@@ -211,7 +221,7 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://da
 - [x] 💰 [Normalized](https://dataclient.io/docs/concepts/normalization) caching
 - [x] 💥 Tiny bundle footprint
 - [x] 🛑 Automatic overfetching elimination
-- [x] ✨ [Optimistic updates](https://dataclient.io/rest/guides/optimistic-updates)
+- [x] ✨ Fast [optimistic updates](https://dataclient.io/rest/guides/optimistic-updates)
 - [x] 🧘 [Flexible](https://dataclient.io/docs/getting-started/resource) to fit any API design (one size fits all)
 - [x] 🔧 [Debugging and inspection](https://dataclient.io/docs/guides/debugging) via browser extension
 - [x] 🌳 Tree-shakable (only use what you need)
@@ -219,6 +229,7 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://da
 - [x] ♻️ Optional [redux integration](https://dataclient.io/docs/guides/redux)
 - [x] 📙 [Storybook mocking](https://dataclient.io/docs/guides/storybook)
 - [x] 📱 [React Native](https://facebook.github.io/react-native/) support
+- [x] 📱 [Expo](https://dataclient.io/docs/getting-started/installation) support
 - [x] ⚛️ [NextJS](https://dataclient.io/docs/guides/ssr#nextjs) support
 - [x] 🚯 [Declarative cache lifetime policy](https://dataclient.io/docs/concepts/expiry-policy)
 - [x] 🧅 [Composable middlewares](https://dataclient.io/docs/api/Manager)
