@@ -58,7 +58,7 @@ export default class MemoCache {
     schema: S,
     args: readonly any[],
     entities:
-      | Record<string, Record<string, object>>
+      | Record<string, Record<string, any> | undefined>
       | {
           getIn(k: string[]): any;
         },
@@ -84,7 +84,7 @@ export default class MemoCache {
     schema: S,
     args: readonly any[],
     entities:
-      | Record<string, Record<string, object>>
+      | Record<string, Record<string, any> | undefined>
       | {
           getIn(k: string[]): any;
         },

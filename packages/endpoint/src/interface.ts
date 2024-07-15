@@ -90,6 +90,7 @@ export interface EntityInterface<T = any> extends SchemaSimple {
 export interface PolymorphicInterface<T = any, Args extends any[] = any[]>
   extends SchemaSimple<T, Args> {
   readonly schema: any;
+  schemaKey(): string;
   // this is not an actual member, but is needed for the recursive NormalizeNullable<> type algo
   _normalizeNullable(): any;
   // this is not an actual member, but is needed for the recursive DenormalizeNullable<> type algo

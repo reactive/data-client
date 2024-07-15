@@ -1,5 +1,5 @@
 // eslint-env jest
-import { initialState } from '@data-client/core';
+import { initialState, State } from '@data-client/core';
 import { normalize, denormalize, MemoCache } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 import { Record } from 'immutable';
@@ -7,6 +7,7 @@ import { Record } from 'immutable';
 import SimpleMemoCache from './denormalize';
 import { PolymorphicInterface } from '../..';
 import { schema } from '../..';
+import PolymorphicSchema from '../Polymorphic';
 
 let dateSpy: jest.SpyInstance;
 beforeAll(() => {
@@ -47,6 +48,54 @@ const userTodos = new schema.Collection(new schema.Array(Todo), {
   argsKey: ({ userId }: { userId: string }) => ({
     userId,
   }),
+});
+
+test('key works with custom schema', () => {
+  class CustomArray extends PolymorphicSchema {
+    declare schema: any;
+    normalize(
+      input: any,
+      parent: any,
+      key: any,
+      args: any[],
+      visit: any,
+      addEntity: any,
+      getEntity: any,
+      checkLoop: any,
+    ): any {
+      return input.map((value, index) =>
+        this.normalizeValue(value, parent, key, args, visit),
+      );
+    }
+
+    denormalize(
+      input: any,
+      args: any[],
+      unvisit: (schema: any, input: any) => any,
+    ) {
+      return input.map ?
+          input.map((entityOrId: any) =>
+            this.denormalizeValue(entityOrId, unvisit),
+          )
+        : input;
+    }
+
+    queryKey(
+      args: unknown,
+      queryKey: unknown,
+      getEntity: unknown,
+      getIndex: unknown,
+    ): any {
+      return undefined;
+    }
+
+    _normalizeNullable(): any {}
+
+    _denormalizeNullable(): any {}
+  }
+
+  const collection = new schema.Collection(new CustomArray(Todo));
+  expect(collection.key).toBe('Collection:Todo');
 });
 
 describe(`${schema.Collection.name} normalization`, () => {
@@ -133,10 +182,67 @@ describe(`${schema.Collection.name} normalization`, () => {
     expect(state).toMatchSnapshot();
   });
 
+  describe('polymorphism', () => {
+    class User extends IDEntity {
+      type = 'users';
+    }
+    class Group extends IDEntity {
+      type = 'groups';
+    }
+    const collection = new schema.Collection(
+      new schema.Array(
+        {
+          users: User,
+          groups: Group,
+        },
+        'type',
+      ),
+    );
+    const collectionUnion = new schema.Collection([
+      new schema.Union(
+        {
+          users: User,
+          groups: Group,
+        },
+        'type',
+      ),
+    ]);
+
+    test('generates polymorphic key', () => {
+      expect(collection.key).toBe('[User;Group]');
+      expect(collectionUnion.key).toBe('[User;Group]');
+    });
+
+    test('works with polymorphic members', () => {
+      const { entities, result } = normalize(
+        collection,
+        [
+          { id: '1', type: 'users' },
+          { id: '2', type: 'groups' },
+        ],
+        [{ fakeFilter: false }],
+      );
+      expect(result).toMatchSnapshot();
+      expect(entities).toMatchSnapshot();
+    });
+    test('works with Union members', () => {
+      const { entities, result } = normalize(
+        collectionUnion,
+        [
+          { id: '1', type: 'users' },
+          { id: '2', type: 'groups' },
+        ],
+        [{ fakeFilter: false }],
+      );
+      expect(result).toMatchSnapshot();
+      expect(entities).toMatchSnapshot();
+    });
+  });
+
   test('normalizes push onto the end', () => {
     const init = {
       entities: {
-        'COLLECT:ArraySchema(Todo)': {
+        [User.schema.todos.key]: {
           '{"userId":"1"}': ['5'],
         },
         Todo: {
@@ -154,7 +260,7 @@ describe(`${schema.Collection.name} normalization`, () => {
         },
       },
       entityMeta: {
-        'COLLECT:ArraySchema(Todo)': {
+        [User.schema.todos.key]: {
           '{"userId":"1"}': {
             date: 1557831718135,
             expiresAt: Infinity,
@@ -177,7 +283,6 @@ describe(`${schema.Collection.name} normalization`, () => {
         },
       },
       indexes: {},
-      result: '1',
     };
     const state = normalize(
       User.schema.todos.push,
@@ -344,7 +449,7 @@ describe(`${schema.Collection.name} normalization`, () => {
 describe(`${schema.Collection.name} denormalization`, () => {
   const normalizeNested = {
     entities: {
-      'COLLECT:ArraySchema(Todo)': {
+      [userTodos.key]: {
         '{"userId":"1"}': ['5'],
       },
       Todo: {
@@ -362,7 +467,7 @@ describe(`${schema.Collection.name} denormalization`, () => {
       },
     },
     entityMeta: {
-      'COLLECT:ArraySchema(Todo)': {
+      [userTodos.key]: {
         '{"userId":"1"}': {
           date: 1557831718135,
           expiresAt: Infinity,

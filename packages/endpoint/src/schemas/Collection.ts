@@ -84,10 +84,7 @@ export default class CollectionSchema<
         this.argsKey = params => ({ ...params });
       }
     }
-    // this assumes the definition of Array/Values is Entity
-    this.key = `COLLECT:${this.schema.constructor.name}(${
-      (this.schema.schema as any).key
-    })`;
+    this.key = keyFromSchema(this.schema);
     if ((options as any)?.nonFilterArgumentKeys) {
       const { nonFilterArgumentKeys } = options as {
         nonFilterArgumentKeys: ((key: string) => boolean) | string[] | RegExp;
@@ -357,9 +354,18 @@ function denormalize(
       (this.schema.denormalize(input, args, unvisit) as any)
     : (this.schema.denormalize([input], args, unvisit)[0] as any);
 }
-
 /**
  * We call schema.denormalize and schema.normalize directly
  * instead of visit/unvisit as we are not operating on new data
  * so the additional checks in those methods are redundant
  */
+
+function keyFromSchema(schema: PolymorphicInterface) {
+  if (schema instanceof ArraySchema) {
+    // this assumes the definition of Array/Values is Entity
+    return `[${schema.schemaKey()}]`;
+  } else if (schema instanceof Values) {
+    return `{${schema.schemaKey()}}`;
+  }
+  return `Collection:${schema.schemaKey()}`;
+}
