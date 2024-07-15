@@ -2,7 +2,12 @@ import { addEntities } from './addEntities.js';
 import { getVisit } from './getVisit.js';
 import type { Schema, NormalizedIndex } from '../interface.js';
 import { createGetEntity } from '../memo/MemoCache.js';
-import type { NormalizeNullable, NormalizedSchema } from '../types.js';
+import type {
+  NormalizeMeta,
+  NormalizeNullable,
+  NormalizedSchema,
+  StoreData,
+} from '../types.js';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const normalize = <
@@ -109,23 +114,3 @@ const emptyStore: StoreData<any> = {
   indexes: {},
   entityMeta: {},
 };
-
-interface StoreData<E> {
-  entities: Readonly<E>;
-  indexes: Readonly<NormalizedIndex>;
-  entityMeta: {
-    readonly [entityKey: string]: {
-      readonly [pk: string]: {
-        readonly fetchedAt: number;
-        readonly date: number;
-        readonly expiresAt: number;
-      };
-    };
-  };
-}
-
-interface NormalizeMeta {
-  expiresAt: number;
-  date: number;
-  fetchedAt: number;
-}

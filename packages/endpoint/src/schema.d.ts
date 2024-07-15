@@ -65,6 +65,7 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
 
   define(definition: Schema): void;
   readonly isSingleSchema: S extends EntityMap ? false : true;
+  schemaKey(): string;
   readonly schema: S;
   normalize(
     input: any,
@@ -122,7 +123,9 @@ export class All<
 
   define(definition: Schema): void;
   readonly isSingleSchema: S extends EntityMap ? false : true;
+  schemaKey(): string;
   readonly schema: S;
+  schemaKey(): string;
   normalize(
     input: any,
     parent: any,
@@ -260,6 +263,7 @@ export interface UnionInstance<
   define(definition: Schema): void;
   inferSchema: SchemaAttributeFunction<Choices[keyof Choices]>;
   getSchemaAttribute: SchemaFunction<keyof Choices>;
+  schemaKey(): string;
   readonly schema: Choices;
   normalize(
     input: any,
@@ -327,6 +331,7 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
 
   define(definition: Schema): void;
   readonly isSingleSchema: Choices extends EntityMap ? false : true;
+  schemaKey(): string;
   inferSchema: SchemaAttributeFunction<
     Choices extends EntityMap ? Choices[keyof Choices] : Choices
   >;

@@ -105,20 +105,37 @@ export type NormalizeNullable<S> =
   : S extends { [K: string]: any } ? NormalizedNullableObject<S>
   : S;
 
-export type NormalizedSchema<E, R> = {
+export type NormalizedSchema<
+  E extends Record<string, Record<string, any> | undefined>,
+  R,
+> = {
   entities: E;
   result: R;
   indexes: NormalizedIndex;
-  entityMeta: {
-    readonly [entityKey: string]: {
-      readonly [pk: string]: {
-        readonly date: number;
-        readonly expiresAt: number;
-        readonly fetchedAt: number;
-      };
-    };
+  entityMeta: EntitiesToMeta<E>;
+};
+
+export interface StoreData<
+  E extends Record<string, Record<string, any> | undefined>,
+> {
+  entities: Readonly<E>;
+  indexes: Readonly<NormalizedIndex>;
+  entityMeta: EntitiesToMeta<E>;
+}
+
+export type EntitiesToMeta<
+  E extends Record<string, Record<string, any> | undefined>,
+> = {
+  readonly [entityKey in keyof E]: {
+    readonly [pk in keyof E[entityKey]]: NormalizeMeta;
   };
 };
+
+export interface NormalizeMeta {
+  expiresAt: number;
+  date: number;
+  fetchedAt: number;
+}
 
 export type EntityMap<T = any> = Record<string, EntityInterface<T>>;
 

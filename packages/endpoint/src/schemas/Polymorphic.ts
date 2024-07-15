@@ -45,6 +45,13 @@ export default class PolymorphicSchema {
     return this.schema[attr];
   }
 
+  schemaKey(): string {
+    if (this.isSingleSchema) {
+      return this.schema.key;
+    }
+    return Object.values(this.schema).join(';');
+  }
+
   normalizeValue(value: any, parent: any, key: any, args: any[], visit: Visit) {
     if (!value) return value;
     const schema = this.inferSchema(value, parent, key);
