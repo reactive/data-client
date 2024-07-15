@@ -1,5 +1,13 @@
 # normalizr-relationships
 
+## 0.1.37
+
+### Patch Changes
+
+- Updated dependencies [[`428d618`](https://github.com/reactive/data-client/commit/428d618ce057d4eef23592a64ec9d1c6fb82f43f), [`428d618`](https://github.com/reactive/data-client/commit/428d618ce057d4eef23592a64ec9d1c6fb82f43f), [`428d618`](https://github.com/reactive/data-client/commit/428d618ce057d4eef23592a64ec9d1c6fb82f43f), [`428d618`](https://github.com/reactive/data-client/commit/428d618ce057d4eef23592a64ec9d1c6fb82f43f)]:
+  - @data-client/endpoint@0.14.1
+  - @data-client/normalizr@0.14.1
+
 ## 0.1.36
 
 ### Patch Changes
