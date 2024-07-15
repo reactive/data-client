@@ -1,5 +1,7 @@
 ---
 '@data-client/endpoint': patch
+'@data-client/rest': patch
+'@data-client/graphql': patch
 ---
 
 Collections now work with polymorhpic schemas like Union
