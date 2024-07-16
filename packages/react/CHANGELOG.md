@@ -1,5 +1,14 @@
 # @data-client/react
 
+## 0.14.1
+
+### Patch Changes
+
+- [`7427519`](https://github.com/reactive/data-client/commit/742751933f799c77b12cec7f8a7e4582db4cd779) Thanks [@ntucker](https://github.com/ntucker)! - Update README
+
+- Updated dependencies [[`7427519`](https://github.com/reactive/data-client/commit/742751933f799c77b12cec7f8a7e4582db4cd779)]:
+  - @data-client/core@0.14.1
+
 ## 0.14.0
 
 ### Minor Changes

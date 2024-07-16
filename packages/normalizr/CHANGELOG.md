@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.14.1
+
+### Patch Changes
+
+- [#3151](https://github.com/reactive/data-client/pull/3151) [`428d618`](https://github.com/reactive/data-client/commit/428d618ce057d4eef23592a64ec9d1c6fb82f43f) Thanks [@ntucker](https://github.com/ntucker)! - Make normalize and memo arguments accept more valid types
+
 ## 0.14.0
 
 ### Minor Changes
