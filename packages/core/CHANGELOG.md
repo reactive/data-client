@@ -1,5 +1,28 @@
 # @data-client/core
 
+## 0.14.2
+
+### Patch Changes
+
+- [`597a1b2`](https://github.com/reactive/data-client/commit/597a1b228c81940bdbaf15900ab1e624be3f520e) Thanks [@ntucker](https://github.com/ntucker)! - Disable devtools dispatch feature as it is not usable
+
+- [`d8666bf`](https://github.com/reactive/data-client/commit/d8666bf9e059a24b35c8f22b7525ce55c23c84f3) Thanks [@ntucker](https://github.com/ntucker)! - Minor store creation optimizations
+
+- [`597a1b2`](https://github.com/reactive/data-client/commit/597a1b228c81940bdbaf15900ab1e624be3f520e) Thanks [@ntucker](https://github.com/ntucker)! - fix: Devtools correctly logs fetch actions
+
+  We inspect fetches against inflight to see if they are throttled;
+  However, we previously did this after we sent the action to NetworkManager, which
+  meant it would also skip logging any throttlable fetches - even if they were not throttled.
+
+- [`d84b43c`](https://github.com/reactive/data-client/commit/d84b43cf728d714da7182f2c19b39f49e0ec0366) Thanks [@ntucker](https://github.com/ntucker)! - Move NetworkManager missing detection to initialization (applyManager())
+
+- [`06df291`](https://github.com/reactive/data-client/commit/06df291a1f1d91afa331310dfb8319bc8d1a3ba8) Thanks [@ntucker](https://github.com/ntucker)! - Reorder action members for easier debuggability
+
+  - `key` at top - easiest to read 'subject'
+  - `response` or `value` after - 'object' being set
+
+- [`597a1b2`](https://github.com/reactive/data-client/commit/597a1b228c81940bdbaf15900ab1e624be3f520e) Thanks [@ntucker](https://github.com/ntucker)! - Improve typing for devtools options
+
 ## 0.14.1
 
 ### Patch Changes
