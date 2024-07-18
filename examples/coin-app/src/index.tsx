@@ -12,9 +12,10 @@ import {
   getDefaultManagers,
   DevToolsManager,
   NetworkManager,
+  actionTypes,
 } from '@data-client/react';
 import StreamManager from 'resources/StreamManager';
-import { getTicker } from 'resources/Ticker';
+import { Ticker } from 'resources/Ticker';
 
 import App from './App';
 import { createRouter } from './routing';
@@ -32,7 +33,7 @@ const spouts = JSONSpout()(
         return [
           new StreamManager(
             () => new WebSocket('wss://ws-feed.exchange.coinbase.com'),
-            { ticker: getTicker },
+            { ticker: Ticker },
           ),
           ...getManagers(),
         ];
@@ -59,12 +60,11 @@ function getManagers() {
         {
           // double latency to help with high frequency updates
           latency: 1000,
-          // don't use replacer because it is way too slow for our fast updating
-          serialize: {
-            options: undefined,
-          },
+          // skip websocket updates as these are too spammy
+          predicate: (state, action) =>
+            action.type !== actionTypes.SET_TYPE || action.schema !== Ticker,
         },
-        networkManager?.skipLogging?.bind?.(networkManager),
+        networkManager && (action => networkManager.skipLogging(action)),
       ),
     );
   }
