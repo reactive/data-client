@@ -1,4 +1,7 @@
-type Action = any;
+import { ActionTypes } from '../actions.js';
+import { State } from '../types.js';
+
+type Action = ActionTypes;
 type ActionCreator<T> = any;
 
 // taken from https://github.com/reduxjs/redux-devtools/blob/main/packages/redux-devtools-extension/src/index.ts
@@ -78,7 +81,7 @@ export interface EnhancerOptions {
   /**
    * function which takes `state` object and index as arguments, and should return `state` object back.
    */
-  stateSanitizer?: <S>(state: S, index: number) => S;
+  stateSanitizer?: <S extends State<unknown>>(state: S, index: number) => S;
   /**
    * *string or array of strings as regex* - actions types to be hidden / shown in the monitors (while passed to the reducers).
    * If `actionsWhitelist` specified, `actionsBlacklist` is ignored.
@@ -105,7 +108,10 @@ export interface EnhancerOptions {
    * called for every action before sending, takes `state` and `action` object, and returns `true` in case it allows sending the current data to the monitor.
    * Use it as a more advanced version of `actionsDenylist`/`actionsAllowlist` parameters.
    */
-  predicate?: <S, A extends Action>(state: S, action: A) => boolean;
+  predicate?: <S extends State<unknown>, A extends Action>(
+    state: S,
+    action: A,
+  ) => boolean;
   /**
    * if specified as `false`, it will not record the changes till clicking on `Start recording` button.
    * Available only for Redux enhancer, for others use `autoPause`.

@@ -37,6 +37,18 @@ if (process.env.NODE_ENV !== 'production') {
   DEFAULT_CONFIG = {
     name: `Data Client: ${globalThis.document?.title}`,
     autoPause: true,
+    features: {
+      pause: true, // start/pause recording of dispatched actions
+      lock: true, // lock/unlock dispatching actions and side effects
+      persist: false, // persist states on page reloading
+      export: true, // export history of actions in a file
+      import: 'custom', // import history of actions from a file
+      jump: true, // jump back and forth (time travelling)
+      skip: true, // skip (cancel) actions
+      reorder: true, // drag and drop actions in the history list
+      dispatch: false, // dispatch custom actions or action creators
+      test: false, // generate tests for the selected actions
+    },
     actionSanitizer: (action: ActionTypes) => {
       if (!('endpoint' in action)) return action;
       return {
@@ -131,6 +143,7 @@ export default class DevToolsManager implements Manager {
         const reducer = createReducer(controller as any);
         let state = controller.getState();
         return next => action => {
+          const shouldSkip = skipLogging?.(action);
           const ret = next(action);
           if (this.started) {
             // we track state changes here since getState() will only update after a batch commit
@@ -139,7 +152,7 @@ export default class DevToolsManager implements Manager {
             state = controller.getState();
           }
           ret.then(() => {
-            if (skipLogging?.(action)) return;
+            if (shouldSkip) return;
             this.handleAction(action, state.optimistic.reduce(reducer, state));
           });
           return ret;
