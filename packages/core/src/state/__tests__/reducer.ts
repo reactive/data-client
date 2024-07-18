@@ -595,7 +595,7 @@ describe('reducer', () => {
     const newState = reducer(iniState, action);
     expect(newState.entities).toBe(iniState.entities);
   });
-  it('rdc/fetch should console.warn()', () => {
+  it('rdc/fetch should not console.warn()', () => {
     const warnspy = jest
       .spyOn(global.console, 'warn')
       .mockImplementation(() => {});
@@ -618,7 +618,8 @@ describe('reducer', () => {
       };
       const newState = reducer(iniState, action);
       expect(newState).toBe(iniState);
-      expect(warnspy.mock.calls.length).toBe(2);
+      // moved warns to applyManager() vv
+      expect(warnspy.mock.calls.length).toBe(0);
     } finally {
       warnspy.mockRestore();
     }

@@ -1,3 +1,4 @@
+import NetworkManager from './NetworkManager.js';
 import type Controller from '../controller/Controller.js';
 import type { Reducer, Dispatch, ReducerState } from '../middlewareTypes.js';
 import { Manager } from '../types.js';
@@ -6,6 +7,16 @@ export default function applyManager(
   managers: Manager[],
   controller: Controller,
 ): Middleware[] {
+  /* istanbul ignore next */
+  if (
+    process.env.NODE_ENV !== 'production' &&
+    !managers.find(mgr => mgr instanceof NetworkManager)
+  ) {
+    console.warn('NetworkManager not found; this is a required manager.');
+    console.warn(
+      'See https://dataclient.io/docs/guides/redux for hooking up redux',
+    );
+  }
   return managers.map((manager, i) => {
     const middleware = manager.getMiddleware();
     return ({ dispatch, getState }) => {
