@@ -11,6 +11,7 @@
     "downlevel-dts",
     "immutable",
     "@types/lodash",
+    "cimg/node",
     "nock"
   ],
   "timezone": "America/Chicago",
