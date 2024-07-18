@@ -13,7 +13,7 @@
     "@babel/core": "^7.24.7",
     "@data-client/react": "^0.14.0",
     "@data-client/rest": "^0.14.0",
-    "@types/node": "20.14.10",
+    "@types/node": "20.14.11",
     "@types/react": "npm:types-react@rc",
     "@types/react-dom": "npm:types-react-dom@rc",
     "clsx": "^2.1.1",
