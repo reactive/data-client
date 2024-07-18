@@ -6,11 +6,13 @@ export default function applyManager(
   managers: Manager[],
   controller: Controller,
 ): Middleware[] {
-  return managers.map(manager => {
+  return managers.map((manager, i) => {
     const middleware = manager.getMiddleware();
     return ({ dispatch, getState }) => {
-      (controller as any).dispatch = dispatch;
-      (controller as any).getState = getState;
+      if (i === 0) {
+        (controller as any).dispatch = dispatch;
+        (controller as any).getState = getState;
+      }
       // controller is a superset of the middleware API
       return middleware(controller as Controller<any>);
     };

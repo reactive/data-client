@@ -31,11 +31,8 @@ function DataStore({
 }: StoreProps) {
   const masterReducer = useMemo(() => createReducer(controller), [controller]);
 
-  const [state, dispatch] = useEnhancedReducer(
-    masterReducer,
-    initialState,
-    middlewares,
-  );
+  // we don't need `dispatch` here, since applyManager() assigns the dispatch to controller
+  const [state] = useEnhancedReducer(masterReducer, initialState, middlewares);
 
   const optimisticState = useMemo(
     () => state.optimistic.reduce(masterReducer, state),
