@@ -21,8 +21,8 @@ export function createUnsubscription<E extends EndpointInterface>(
 ): UnsubscribeAction<E> {
   return {
     type: UNSUBSCRIBE_TYPE,
+    key: endpoint.key(...args),
     endpoint,
     args,
-    key: endpoint.key(...args),
   };
 }

@@ -23,8 +23,8 @@ export function createSet<S extends Queryable>(
 ): SetAction<S> {
   return {
     type: SET_TYPE,
-    schema,
     value,
+    schema,
     args: args.map(ensurePojo) as SchemaArgs<S>,
     meta: createMeta(60000, fetchedAt),
   };

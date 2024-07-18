@@ -27,9 +27,9 @@ export function createFetch<
 
   return {
     type: FETCH_TYPE,
+    key: endpoint.key(...args),
     endpoint,
     args,
-    key: endpoint.key(...args),
     meta,
   };
 }
