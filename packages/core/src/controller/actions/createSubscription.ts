@@ -22,7 +22,7 @@ export function createUnsubscription<E extends EndpointInterface>(
   return {
     type: UNSUBSCRIBE_TYPE,
     key: endpoint.key(...args),
-    endpoint,
     args,
+    endpoint,
   };
 }

@@ -24,8 +24,8 @@ export function createSet<S extends Queryable>(
   return {
     type: SET_TYPE,
     value,
-    schema,
     args: args.map(ensurePojo) as SchemaArgs<S>,
+    schema,
     meta: createMeta(60000, fetchedAt),
   };
 }

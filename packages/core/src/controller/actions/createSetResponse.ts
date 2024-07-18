@@ -65,8 +65,8 @@ export function createSetResponse<
     type: SET_RESPONSE_TYPE,
     key: endpoint.key(...args),
     response,
-    endpoint,
     args: args.map(ensurePojo),
+    endpoint,
     meta: createMeta(expiryLength, fetchedAt),
     error,
   };

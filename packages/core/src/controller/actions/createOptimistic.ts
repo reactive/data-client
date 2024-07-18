@@ -25,8 +25,8 @@ export function createOptimistic<
   return {
     type: OPTIMISTIC_TYPE,
     key: endpoint.key(...args),
-    endpoint,
     args,
+    endpoint,
     meta: createMeta(endpoint.dataExpiryLength ?? 60000, fetchedAt),
   };
 }
