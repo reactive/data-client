@@ -16,11 +16,11 @@ For [REST](https://dataclient.io/rest), [GraphQL](https://dataclient.io/graphql)
 
 **[📖Read The Docs](https://dataclient.io/docs)** &nbsp;|&nbsp; [🏁Getting Started](https://dataclient.io/docs/getting-started/installation)
 
-🎮 Demos &nbsp;|&nbsp;
+🎮 **Demos** &nbsp;|&nbsp;
 [Todo](https://stackblitz.com/github/reactive/data-client/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx) &nbsp;|&nbsp;
 [Github](https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx) &nbsp;|&nbsp;
 [NextJS SSR](https://stackblitz.com/github/reactive/data-client/tree/master/examples/nextjs?file=components%2Ftodo%2FTodoList.tsx) &nbsp;|&nbsp;
-[Websocket Stream](https://stackblitz.com/github/reactive/coin-app/tree/master?file=src%2Fresources%2FStreamManager.ts,src%2Fapp%2FCurrencyList.tsx)
+[Websockets+SSR](https://coin-app-lake.vercel.app)
 
 </div>
 
@@ -245,6 +245,7 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://da
 - Todo: [![GitHub](https://badgen.net/badge/icon/github?icon=github&label)](https://github.com/reactive/data-client/tree/master/examples/todo-app) | [![Sandbox](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/reactive/data-client/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx)
 - Github: [![GitHub](https://badgen.net/badge/icon/github?icon=github&label)](https://github.com/reactive/data-client/tree/master/examples/github-app) | [![Sandbox](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx)
 - NextJS: [![GitHub](https://badgen.net/badge/icon/github?icon=github&label)](https://github.com/reactive/data-client/tree/master/examples/nextjs) | [![Sandbox](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/reactive/data-client/tree/master/examples/nextjs?file=components%2Ftodo%2FTodoList.tsx)
+- Websockets: [![GitHub](https://badgen.net/badge/icon/github?icon=github&label)](https://github.com/reactive/coin-app) | [![Sandbox](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/reactive/coin-app/tree/master?file=src%2Fresources%2FStreamManager.ts,src%2Fapp%2FCurrencyList.tsx) | [![Website](https://badgen.net/badge/icon/production?icon=vercel&label)](https://coin-app-lake.vercel.app)
 
 ## API
 
