@@ -95,7 +95,7 @@ test('key works with custom schema', () => {
   }
 
   const collection = new schema.Collection(new CustomArray(Todo));
-  expect(collection.key).toBe('Collection:Todo');
+  expect(collection.key).toBe('(Todo)');
 });
 
 describe(`${schema.Collection.name} normalization`, () => {

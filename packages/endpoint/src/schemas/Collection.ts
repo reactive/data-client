@@ -367,5 +367,5 @@ function keyFromSchema(schema: PolymorphicInterface) {
   } else if (schema instanceof Values) {
     return `{${schema.schemaKey()}}`;
   }
-  return `Collection:${schema.schemaKey()}`;
+  return `(${schema.schemaKey()})`;
 }
