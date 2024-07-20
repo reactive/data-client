@@ -100,7 +100,7 @@ export class User extends Entity {
   }
   static key = 'User';
 }
-export const UserResource = createResource({
+export const UserResource = resource({
   path: '/users/:id',
   schema: User,
 });

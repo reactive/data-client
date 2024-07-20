@@ -304,6 +304,10 @@ const config: Config = {
             from: ['/docs/api/NetworkErrorBoundary'],
           },
           {
+            to: '/rest/api/resource',
+            from: ['/rest/api/createResource', '/rest/api/Resource'],
+          },
+          {
             to: '/docs/api/makeRenderDataClient',
             from: [
               '/docs/api/makeExternalCacheProvider',

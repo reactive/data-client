@@ -18,7 +18,7 @@ import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
 # Define Resources
 
-[Resources](/rest/api/createResource) are a collection of `methods` for a given `data model`.
+[Resources](/rest/api/resource) are a collection of `methods` for a given `data model`.
 
 [Entities](/rest/api/Entity) and [Schemas](/rest/api/schema) declaratively define the [_data model_](../concepts/normalization.md).
 [Endpoints](/rest/api/Endpoint) are the [_methods_](<https://en.wikipedia.org/wiki/Method_(computer_programming)>) on
@@ -36,12 +36,12 @@ values={[
 
   <PkgInstall pkgs="@data-client/rest" />
 
-[createResource()](/rest/api/createResource) constructs a namespace of [RestEndpoints](/rest/api/RestEndpoint)
+[resource()](/rest/api/resource) constructs a namespace of [RestEndpoints](/rest/api/RestEndpoint)
 
 <TypeScriptEditor row={false}>
 
 ```typescript title="TodoResource"
-import { Entity, createResource } from '@data-client/rest';
+import { Entity, resource } from '@data-client/rest';
 
 export class Todo extends Entity {
   id = 0;
@@ -55,7 +55,7 @@ export class Todo extends Entity {
   static key = 'Todo';
 }
 
-export const TodoResource = createResource({
+export const TodoResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   schema: Todo,

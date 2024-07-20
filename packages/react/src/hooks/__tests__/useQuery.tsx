@@ -1,6 +1,6 @@
 import { schema } from '@data-client/endpoint';
 import { CacheProvider } from '@data-client/react';
-import { createResource } from '@data-client/rest';
+import { resource } from '@data-client/rest';
 import {
   ArticleWithSlug,
   ArticleSlugResource,
@@ -186,7 +186,7 @@ describe('useQuery()', () => {
       }),
     });
 
-    const UserResource = createResource({ schema: User, path: '/users/:id' });
+    const UserResource = resource({ schema: User, path: '/users/:id' });
 
     const initialFixtures = [
       {
@@ -228,7 +228,7 @@ describe('useQuery()', () => {
   });
 
   it('should work with unions', async () => {
-    const UnionResource = createResource({
+    const UnionResource = resource({
       path: '/union/:id',
       schema: UnionSchema,
     });
@@ -271,7 +271,7 @@ describe('useQuery()', () => {
     const prevWarn = global.console.warn;
     global.console.warn = jest.fn();
 
-    const UnionResource = createResource({
+    const UnionResource = resource({
       path: '/union/:id',
       schema: UnionSchema,
     });

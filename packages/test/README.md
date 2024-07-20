@@ -20,7 +20,7 @@
 <summary><b>Resource</b></summary>
 
 ```typescript
-import { createResource, Entity } from '@data-client/rest';
+import { resource, Entity } from '@data-client/rest';
 
 export default class Article extends Entity {
   id = '';
@@ -32,7 +32,7 @@ export default class Article extends Entity {
     return this.id?.toString();
   }
 }
-export const ArticleResource = createResource({
+export const ArticleResource = resource({
   urlRoot: 'http://test.com',
   path: '/article/:id',
   schema: Article,

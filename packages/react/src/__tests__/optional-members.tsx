@@ -1,4 +1,4 @@
-import { createResource, Entity } from '@data-client/rest';
+import { resource, Entity } from '@data-client/rest';
 
 import { useSuspense, useCache, CacheProvider } from '../';
 import { Fixture, FixtureEndpoint, makeRenderDataClient } from '../../../test';
@@ -23,7 +23,7 @@ export class Some extends Entity {
     things: [Nested],
   };
 }
-const SomeResource = createResource({ path: '/some/:id', schema: Some });
+const SomeResource = resource({ path: '/some/:id', schema: Some });
 
 const fixture: FixtureEndpoint = {
   endpoint: SomeResource.getList,

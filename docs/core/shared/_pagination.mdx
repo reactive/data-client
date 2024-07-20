@@ -26,7 +26,7 @@ export class User extends Entity {
 ```
 
 ```ts title="Post" {22,24} collapsed
-import { Entity, createResource } from '@data-client/rest';
+import { Entity, resource } from '@data-client/rest';
 import { User } from './User';
 
 export class Post extends Entity {
@@ -44,7 +44,7 @@ export class Post extends Entity {
     author: User,
   };
 }
-export const PostResource = createResource({
+export const PostResource = resource({
   path: '/posts/:id',
   schema: Post,
   paginationField: 'cursor',

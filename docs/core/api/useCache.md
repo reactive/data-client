@@ -31,7 +31,7 @@ delay: 500,
 ]} row>
 
 ```ts title="UserResource" collapsed
-import { Entity, createResource } from '@data-client/rest';
+import { Entity, resource } from '@data-client/rest';
 
 export class User extends Entity {
   id = '';
@@ -42,7 +42,7 @@ export class User extends Entity {
   }
   static key = 'User';
 }
-export const UserResource = createResource({
+export const UserResource = resource({
   path: '/users/:id',
   schema: User,
 }).extend('current', {
@@ -115,7 +115,7 @@ more information about type handling
 
 | Expiry Status | Returns      | Conditions                                                                                                                                                                   |
 | ------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Invalid       | `undefined`  | not in store, [deletion](/rest/api/createResource#delete), [invalidation](./Controller.md#invalidate), [invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) |
+| Invalid       | `undefined`  | not in store, [deletion](/rest/api/resource#delete), [invalidation](./Controller.md#invalidate), [invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) |
 | Stale         | denormalized | (first-render, arg change) & [expiry &lt; now](../concepts/expiry-policy.md)                                                                                                 |
 | Valid         | denormalized | fetch completion                                                                                                                                                             |
 |               | `undefined`  | `null` used as second argument                                                                                                                                               |

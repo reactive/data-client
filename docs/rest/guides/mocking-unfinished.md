@@ -12,7 +12,7 @@ you won't need to make major changes to your code.
 <HooksPlayground>
 
 ```typescript title="api/Rating"
-import { Entity, createResource } from '@data-client/rest';
+import { Entity, resource } from '@data-client/rest';
 
 export class Rating extends Entity {
   id = '';
@@ -30,7 +30,7 @@ export class Rating extends Entity {
   };
 }
 
-export const RatingResource = createResource({
+export const RatingResource = resource({
   path: '/ratings/:id',
   schema: Rating,
 }).extend({

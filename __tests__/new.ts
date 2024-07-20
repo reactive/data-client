@@ -1,7 +1,7 @@
 import {
   schema,
   Endpoint,
-  createResource,
+  resource,
   RestEndpoint,
   Schema,
   Entity,
@@ -78,7 +78,7 @@ export class VisEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
     return super.getRequestInit(body);
   }
 }
-const VisSettingsResourceBase = createResource({
+const VisSettingsResourceBase = resource({
   path: 'http\\://test.com/vis-settings/:id',
   schema: VisSettings,
   Endpoint: VisEndpoint,
@@ -114,7 +114,7 @@ export const VisSettingsResource = {
     },
   }),
 };
-const VisSettingsResourceBaseFromMixin = createResource({
+const VisSettingsResourceBaseFromMixin = resource({
   path: 'http\\://test.com/vis-settings/:id',
   schema: VisSettingsFromMixin,
   Endpoint: VisEndpoint,
@@ -167,7 +167,7 @@ export class User extends Entity {
     return this.id?.toString();
   }
 }
-export const UserResource = createResource({
+export const UserResource = resource({
   path: 'http\\://test.com/user/:id',
   schema: User,
 });
@@ -207,15 +207,15 @@ export class ArticleFromMixin extends schema.Entity(ArticleData, {
 class ArticleEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {}
 
 interface ArticleGenerics {
-  /** @see https://dataclient.io/rest/api/createResource#path */
+  /** @see https://dataclient.io/rest/api/resource#path */
   readonly path?: string;
-  /** @see https://dataclient.io/rest/api/createResource#schema */
+  /** @see https://dataclient.io/rest/api/resource#schema */
   readonly schema: Schema;
   /** Only used for types */
-  /** @see https://dataclient.io/rest/api/createResource#body */
+  /** @see https://dataclient.io/rest/api/resource#body */
   readonly body?: any;
   /** Only used for types */
-  /** @see https://dataclient.io/rest/api/createResource#searchParams */
+  /** @see https://dataclient.io/rest/api/resource#searchParams */
   readonly searchParams?: any;
 }
 function createArticleResource<O extends ArticleGenerics>({
@@ -237,7 +237,7 @@ function createArticleResource<O extends ArticleGenerics>({
   > extends Endpoint<O> {
     urlPrefix = `http://test.com/${urlRoot}`;
   }
-  const resource = createResource({
+  const BaseResource = resource({
     path: '/:id',
     schema,
     Endpoint: EndpointUrlRootOverride,
@@ -256,7 +256,7 @@ function createArticleResource<O extends ArticleGenerics>({
       }),
     }));
   if (!optimistic) {
-    return (resource as any).extend({
+    return (BaseResource as any).extend({
       partialUpdate: {
         getOptimisticResponse: (snap, params, body) => ({
           id: params.id,
@@ -268,7 +268,7 @@ function createArticleResource<O extends ArticleGenerics>({
       },
     });
   }
-  return resource as any;
+  return BaseResource as any;
 }
 export const ArticleResource = createArticleResource({ schema: Article });
 export const ArticleSlugResource = createArticleResource({
@@ -277,7 +277,7 @@ export const ArticleSlugResource = createArticleResource({
 
 export const AuthContext = createContext('');
 
-const ContextAuthdArticleResourceBase = createResource({
+const ContextAuthdArticleResourceBase = resource({
   path: 'http\\://test.com/article/:id',
   schema: Article,
 });
@@ -527,7 +527,7 @@ export const CoolerArticleDetail = new Endpoint(
 export class IndexedUser extends User {
   static readonly indexes = ['username'];
 }
-export const IndexedUserResource = createResource({
+export const IndexedUserResource = resource({
   path: 'http\\://test.com/user/:id',
   schema: IndexedUser,
 });
@@ -642,7 +642,7 @@ export const UnionSchema = new schema.Union(
   },
   'type',
 );
-const UnionResourceBase = createResource({
+const UnionResourceBase = resource({
   path: '/union/:id',
   schema: UnionSchema,
 });

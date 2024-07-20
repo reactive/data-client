@@ -67,13 +67,13 @@ class Article extends Entity {
 ### Create [collection of API Endpoints](https://dataclient.io/docs/getting-started/resource)
 
 ```typescript
-const UserResource = createResource({
+const UserResource = resource({
   path: '/users/:id',
   schema: User,
   optimistic: true,
 });
 
-const ArticleResource = createResource({
+const ArticleResource = resource({
   path: '/articles/:id',
   schema: Article,
   searchParams: {} as { author?: string },

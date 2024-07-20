@@ -24,14 +24,14 @@ Reactive Data Client uses your schema definitions to understand how to normalize
 an `entity table` and `result table`. Of course, this means that there is only ever one copy
 of a given `entity`. Aside from providing consistency when using different response endpoints,
 this means that by providing an accurate schema definition, Reactive Data Client can automatically keep
-all data uses consistent and fresh. The default update endpoints [Resource.update](/rest/api/createResource#update) and
-[Resource.partialUpdate](/rest/api/createResource#partialupdate) both do this automatically. [Read more about defining other
+all data uses consistent and fresh. The default update endpoints [Resource.update](/rest/api/resource#update) and
+[Resource.partialUpdate](/rest/api/resource#partialupdate) both do this automatically. [Read more about defining other
 update endpoints](/rest/guides/side-effects)
 
 ## Delete
 
 Reactive Data Client automatically deletes entity entries [schema.Invalidate](/rest/api/Invalidate) is used.
-[Resource.delete](/rest/api/createResource#delete)
+[Resource.delete](/rest/api/resource#delete)
 provides such an endpoint.
 
 ## Create

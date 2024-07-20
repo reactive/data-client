@@ -61,7 +61,7 @@ export class User extends Entity {
     return this.id;
   }
 }
-export const UserResource = createResource({
+export const UserResource = resource({
   path: '/users/:id',
   schema: User,
 });
@@ -115,7 +115,7 @@ export class User extends Entity {
     return `${this.id}`;
   }
 }
-export const UserResource = createResource({
+export const UserResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/users/:id',
   schema: User,
@@ -137,7 +137,7 @@ export class Todo extends Entity {
     userId: User,
   };
 }
-export const TodoResource = createResource({
+export const TodoResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   schema: Todo,
@@ -192,7 +192,7 @@ export class User extends Entity {
     return `${this.id}`;
   }
 }
-export const UserResource = createResource({
+export const UserResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/users/:id',
   schema: User,
@@ -214,7 +214,7 @@ export class Todo extends Entity {
     userId: User,
   };
 }
-export const TodoResource = createResource({
+export const TodoResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   schema: Todo,

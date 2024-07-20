@@ -37,9 +37,9 @@ It automatically handles REST concepts like JSON serialization, consolidated err
 
 ## Resources
 
-Simplify related CRUD endpoints with [Resources](https://dataclient.io/rest/api/createResource)
+Simplify related CRUD endpoints with [Resources](https://dataclient.io/rest/api/resource)
 
-[Resources](https://dataclient.io/rest/api/createResource) are a collection of `methods` for a given `data model`.
+[Resources](https://dataclient.io/rest/api/resource) are a collection of `methods` for a given `data model`.
 
 [Entities](https://dataclient.io/rest/api/Entity) and [Schemas](https://dataclient.io/concepts/normalization) declaratively define the _data model_.
 [RestEndpoints](https://dataclient.io/rest/api/RestEndpoint) are the [_methods_](<https://en.wikipedia.org/wiki/Method_(computer_programming)>) on
@@ -55,7 +55,7 @@ class Todo extends Entity {
     return `${this.id}`;
   }
 }
-const TodoResource = createResource({
+const TodoResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   searchParams: {} as { userId?: string | number },
@@ -64,7 +64,7 @@ const TodoResource = createResource({
 });
 ```
 
-One Resource defines [seven endpoints](https://dataclient.io/rest/api/createResource#members):
+One Resource defines [seven endpoints](https://dataclient.io/rest/api/resource#members):
 
 ```typescript
 // GET https://jsonplaceholder.typicode.com/todos/5
@@ -145,7 +145,7 @@ supports inferring argument types from the path templates.
 
 - Networking definition
   - [Endpoints](https://dataclient.io/rest/api/Endpoint): [RestEndpoint](https://dataclient.io/rest/api/RestEndpoint)
-  - [Resources](https://dataclient.io/docs/getting-started/resource): [createResource()](https://dataclient.io/rest/api/createResource), [hookifyResource()](https://dataclient.io/rest/api/hookifyResource)
+  - [Resources](https://dataclient.io/docs/getting-started/resource): [resource()](https://dataclient.io/rest/api/resource), [hookifyResource()](https://dataclient.io/rest/api/hookifyResource)
 - [Data model](https://dataclient.io/docs/concepts/normalization)
   - [Entity](https://dataclient.io/rest/api/Entity), [schema.Entity](https://dataclient.io/rest/api/schema.Entity) mixin
   - [Object](https://dataclient.io/rest/api/Object)

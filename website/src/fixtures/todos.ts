@@ -1,4 +1,4 @@
-import { Entity, schema, createResource } from '@data-client/rest';
+import { Entity, schema, resource } from '@data-client/rest';
 import { v4 as uuid } from 'uuid';
 
 export class Todo extends Entity {
@@ -12,7 +12,7 @@ export class Todo extends Entity {
 
   static key = 'Todo';
 }
-export const TodoResource = createResource({
+export const TodoResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   searchParams: {} as { userId?: string | number } | undefined,
@@ -46,7 +46,7 @@ export class User extends Entity {
     }),
   };
 }
-export const UserResource = createResource({
+export const UserResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/users/:id',
   schema: User,

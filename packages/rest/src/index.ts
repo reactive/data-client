@@ -22,7 +22,8 @@ export type {
 } from './RestEndpoint.js';
 export type { RestEndpoint as IRestEndpoint } from './RestEndpointTypes.js';
 export { getUrlBase, getUrlTokens } from './RestHelpers.js';
-export { default as createResource } from './createResource.js';
+export { default as resource } from './resource.js';
+export { default as createResource } from './resource.js';
 export type { Resource } from './resourceTypes.js';
 export type { ResourceOptions, ResourceGenerics } from './resourceTypes.js';
 export type {

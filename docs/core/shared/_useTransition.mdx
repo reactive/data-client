@@ -7,7 +7,7 @@ import {
 <HooksPlayground fixtures={postFixtures} getInitialInterceptorData={getInitialInterceptorData} row>
 
 ```ts title="PostResource" collapsed
-import { Entity, createResource } from '@data-client/rest';
+import { Entity, resource } from '@data-client/rest';
 
 export class Post extends Entity {
   id = 0;
@@ -25,7 +25,7 @@ export class Post extends Entity {
     return `//loremflickr.com/96/72/kitten,cat?lock=${this.id % 16}`;
   }
 }
-export const PostResource = createResource({
+export const PostResource = resource({
   path: '/posts/:id',
   schema: Post,
 });

@@ -3,7 +3,7 @@ import { Entity, schema } from '@data-client/endpoint';
 import { useController, useSuspense } from '@data-client/react';
 import { User } from '__tests__/new';
 
-import createResource from '../src/createResource';
+import resource from '../src/resource';
 import RestEndpoint, { GetEndpoint, MutateEndpoint } from '../src/RestEndpoint';
 
 it('RestEndpoint construct and extend with typed options', () => {
@@ -87,7 +87,7 @@ it('should customize resources', () => {
     }
   }
 
-  const TodoResource = createResource({
+  const TodoResource = resource({
     path: '/todos/:id',
     schema: Todo,
   });

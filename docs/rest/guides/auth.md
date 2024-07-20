@@ -32,7 +32,7 @@ export default class AuthdEndpoint<
 ```
 
 ```ts title="MyResource" collapsed
-import { createResource, Entity } from '@data-client/rest';
+import { resource, Entity } from '@data-client/rest';
 import AuthdEndpoint from './AuthdEndpoint';
 
 class MyEntity extends Entity {
@@ -43,7 +43,7 @@ class MyEntity extends Entity {
   }
 }
 
-export const MyResource = createResource({
+export const MyResource = resource({
   path: '/my/:id',
   schema: MyEntity,
   Endpoint: AuthdEndpoint,
@@ -114,7 +114,7 @@ export default function Auth() {
 ```
 
 ```ts title="MyResource" collapsed
-import { createResource, Entity } from '@data-client/rest';
+import { resource, Entity } from '@data-client/rest';
 import AuthdEndpoint from './AuthdEndpoint';
 
 class MyEntity extends Entity {
@@ -125,7 +125,7 @@ class MyEntity extends Entity {
   }
 }
 
-export const MyResource = createResource({
+export const MyResource = resource({
   path: '/my/:id',
   schema: MyEntity,
   Endpoint: AuthdEndpoint,
@@ -190,7 +190,7 @@ export default function Auth() {
 ```
 
 ```ts title="MyResource" collapsed
-import { createResource, Entity } from '@data-client/rest';
+import { resource, Entity } from '@data-client/rest';
 import AuthdEndpoint from './AuthdEndpoint';
 
 class MyEntity extends Entity {
@@ -201,7 +201,7 @@ class MyEntity extends Entity {
   }
 }
 
-export const MyResource = createResource({
+export const MyResource = resource({
   path: '/my/:id',
   schema: MyEntity,
   Endpoint: AuthdEndpoint,
@@ -265,7 +265,7 @@ export default function Auth() {
 ```
 
 ```ts title="MyResource" collapsed
-import { createResource, Entity } from '@data-client/rest';
+import { resource, Entity } from '@data-client/rest';
 import AuthdEndpoint from './AuthdEndpoint';
 
 class MyEntity extends Entity {
@@ -276,7 +276,7 @@ class MyEntity extends Entity {
   }
 }
 
-export const MyResource = createResource({
+export const MyResource = resource({
   path: '/my/:id',
   schema: MyEntity,
   Endpoint: AuthdEndpoint,
@@ -310,16 +310,16 @@ values={[
 ]}>
 <TabItem value="resource">
 
-We can transform any [Resource](../api/createResource.md) into one that uses hooks to create endpoints
+We can transform any [Resource](../api/resource.md) into one that uses hooks to create endpoints
 by using [hookifyResource](../api/hookifyResource.md)
 
 ```ts title="api/Post.ts"
-import { createResource, hookifyResource } from '@data-client/rest';
+import { resource, hookifyResource } from '@data-client/rest';
 
 // Post defined here
 
 export const PostResource = hookifyResource(
-  createResource({ path: '/posts/:id', schema: Post }),
+  resource({ path: '/posts/:id', schema: Post }),
   function useInit(): RequestInit {
     const accessToken = useAuthContext();
     return {

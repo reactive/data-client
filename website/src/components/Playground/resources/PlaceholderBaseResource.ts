@@ -1,6 +1,6 @@
 import {
   Entity,
-  createResource,
+  resource,
   RestEndpoint,
   Schema,
 } from '@data-client/rest';
@@ -24,7 +24,7 @@ export function createPlaceholderResource<U extends string, S extends Schema>({
   readonly schema: S;
   readonly Endpoint?: typeof RestEndpoint;
 }) {
-  const base = createResource({ path, schema, Endpoint });
+  const base = resource({ path, schema, Endpoint });
   const partialUpdate = base.partialUpdate.extend({
     fetch: async function (...args: any) {
       // body only contains what we're changing, but we can find the id in params

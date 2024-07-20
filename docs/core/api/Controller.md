@@ -257,7 +257,7 @@ To refresh while continuing to display stale data - [Controller.fetch](#fetch).
 
 Use [schema.Invalidate](/rest/api/Invalidate) to invalidate every endpoint that contains a given entity.
 
-For REST try using [Resource.delete](/rest/api/createResource#delete)
+For REST try using [Resource.delete](/rest/api/resource#delete)
 
 ```ts
 // deletes MyResource(5)

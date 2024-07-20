@@ -117,7 +117,7 @@ export default class Post extends Entity {
 
 ```typescript title="Resource" {9}
 import Post from './Post';
-export const PostResource = createResource({
+export const PostResource = resource({
   schema: Post,
   path: '/posts/:id',
 }).extend('deleteMany', {
@@ -164,7 +164,7 @@ export default class Post extends Entity {
 
 ```typescript title="Resource" {10-13}
 import Post from './Post';
-export const PostResource = createResource({
+export const PostResource = resource({
   schema: Post,
   path: '/posts/:id',
 }).extend('deleteMany', {

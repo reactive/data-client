@@ -26,7 +26,7 @@ which guarantees data like [await](https://developer.mozilla.org/en-US/docs/Web/
 <HooksPlayground defaultOpen="n" row fixtures={postFixtures}>
 
 ```ts title="Resources" collapsed
-import { Entity, createResource } from '@data-client/rest';
+import { Entity, resource } from '@data-client/rest';
 
 export class User extends Entity {
   id = 0;
@@ -45,7 +45,7 @@ export class User extends Entity {
   }
   static key = 'User';
 }
-export const UserResource = createResource({
+export const UserResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/users/:id',
   schema: User,
@@ -66,7 +66,7 @@ export class Post extends Entity {
     author: User,
   };
 }
-export const PostResource = createResource({
+export const PostResource = resource({
   path: '/posts/:id',
   schema: Post,
   paginationField: 'page',
@@ -314,7 +314,7 @@ For these cases, or compatibility with some component libraries, [useDLE()](../a
 <HooksPlayground fixtures={listFixtures} row>
 
 ```typescript title="ProfileResource" collapsed
-import { Entity, createResource } from '@data-client/rest';
+import { Entity, resource } from '@data-client/rest';
 
 export class Profile extends Entity {
   id: number | undefined = undefined;
@@ -328,7 +328,7 @@ export class Profile extends Entity {
   static key = 'Profile';
 }
 
-export const ProfileResource = createResource({
+export const ProfileResource = resource({
   path: '/profiles/:id',
   schema: Profile,
 });

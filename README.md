@@ -70,13 +70,13 @@ class Article extends Entity {
 ### Create [collection of API Endpoints](https://dataclient.io/docs/getting-started/resource)
 
 ```typescript
-const UserResource = createResource({
+const UserResource = resource({
   path: '/users/:id',
   schema: User,
   optimistic: true,
 });
 
-const ArticleResource = createResource({
+const ArticleResource = resource({
   path: '/articles/:id',
   schema: Article,
   searchParams: {} as { author?: string },
@@ -276,7 +276,7 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://da
 
 - Networking definition
   - [Endpoints](https://dataclient.io/rest/api/Endpoint): [RestEndpoint](https://dataclient.io/rest/api/RestEndpoint), [GQLEndpoint](https://dataclient.io/graphql/api/GQLEndpoint)
-  - [Resources](https://dataclient.io/docs/getting-started/resource): [createResource()](https://dataclient.io/rest/api/createResource), [hookifyResource()](https://dataclient.io/rest/api/hookifyResource)
+  - [Resources](https://dataclient.io/docs/getting-started/resource): [resource()](https://dataclient.io/rest/api/resource), [hookifyResource()](https://dataclient.io/rest/api/hookifyResource)
 - [Data model](https://dataclient.io/docs/concepts/normalization)
   - [Entity](https://dataclient.io/rest/api/Entity), [schema.Entity](https://dataclient.io/rest/api/schema.Entity) mixin, [GQLEntity](https://dataclient.io/graphql/api/GQLEntity)
   - [Object](https://dataclient.io/rest/api/Object)

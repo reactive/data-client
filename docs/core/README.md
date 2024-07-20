@@ -336,10 +336,10 @@ At this point we've defined `todoDetail`, `todoList` and `todoUpdate`. You might
 that these endpoint definitions share some logic and information. For this reason Reactive Data Client
 encourages extracting shared logic among endpoints.
 
-[Resources](/rest/api/createResource) are collections of endpoints that operate on the same data.
+[Resources](/rest/api/resource) are collections of endpoints that operate on the same data.
 
 ```typescript
-import { Entity, createResource } from '@data-client/rest';
+import { Entity, resource } from '@data-client/rest';
 
 class Todo extends Entity {
   id = 0;
@@ -352,7 +352,7 @@ class Todo extends Entity {
   }
 }
 
-const TodoResource = createResource({
+const TodoResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   schema: Todo,

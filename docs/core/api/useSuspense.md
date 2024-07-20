@@ -44,7 +44,7 @@ values={[
 <HooksPlayground fixtures={detailFixtures} row>
 
 ```typescript title="ProfileResource" collapsed
-import { Entity, createResource } from '@data-client/rest';
+import { Entity, resource } from '@data-client/rest';
 
 export class Profile extends Entity {
   id: number | undefined = undefined;
@@ -58,7 +58,7 @@ export class Profile extends Entity {
   static key = 'Profile';
 }
 
-export const ProfileResource = createResource({
+export const ProfileResource = resource({
   path: '/profiles/:id',
   schema: Profile,
 });
@@ -139,7 +139,7 @@ Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by
 
 | Expiry Status | Fetch           | Suspend | Error             | Conditions                                                                                                                                                                   |
 | ------------- | --------------- | ------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Invalid       | yes<sup>1</sup> | yes     | no                | not in store, [deletion](/rest/api/createResource#delete), [invalidation](./Controller.md#invalidate), [invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) |
+| Invalid       | yes<sup>1</sup> | yes     | no                | not in store, [deletion](/rest/api/resource#delete), [invalidation](./Controller.md#invalidate), [invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) |
 | Stale         | yes<sup>1</sup> | no      | no                | (first-render, arg change) & [expiry &lt; now](../concepts/expiry-policy.md)                                                                                                 |
 | Valid         | no              | no      | maybe<sup>2</sup> | fetch completion                                                                                                                                                             |
 |               | no              | no      | no                | `null` used as second argument                                                                                                                                               |
@@ -196,7 +196,7 @@ function useSuspense<
 <HooksPlayground fixtures={listFixtures} row>
 
 ```typescript title="ProfileResource" collapsed
-import { Entity, createResource } from '@data-client/rest';
+import { Entity, resource } from '@data-client/rest';
 
 export class Profile extends Entity {
   id: number | undefined = undefined;
@@ -210,7 +210,7 @@ export class Profile extends Entity {
   static key = 'Profile';
 }
 
-export const ProfileResource = createResource({
+export const ProfileResource = resource({
   path: '/profiles/:id',
   schema: Profile,
 });
@@ -268,7 +268,7 @@ function PostWithAuthor() {
 <TypeScriptEditor row={false}>
 
 ```ts title="Resources" collapsed
-import { Entity, createResource } from '@data-client/rest';
+import { Entity, resource } from '@data-client/rest';
 
 export class Post extends Entity {
   id = 0;
@@ -281,7 +281,7 @@ export class Post extends Entity {
   }
   static key = 'Post';
 }
-export const PostResource = createResource({
+export const PostResource = resource({
   path: '/posts/:id',
   schema: Post,
 });
@@ -303,7 +303,7 @@ export class User extends Entity {
   }
   static key = 'User';
 }
-export const UserResource = createResource({
+export const UserResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/users/:id',
   schema: User,

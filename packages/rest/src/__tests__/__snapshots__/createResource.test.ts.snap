@@ -1,16 +1,16 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`createResource() UserResource.delete should work with  1`] = `"not found"`;
+exports[`resource() UserResource.delete should work with  1`] = `"not found"`;
 
-exports[`createResource() UserResource.delete should work with {"id": 5} 1`] = `"not found"`;
+exports[`resource() UserResource.delete should work with {"id": 5} 1`] = `"not found"`;
 
-exports[`createResource() should not allow paths without at least one argument 1`] = `"Resource path requires at least one :parameter"`;
+exports[`resource() should not allow paths without at least one argument 1`] = `"Resource path requires at least one :parameter"`;
 
-exports[`createResource() warnings should warn when mis-capitalizing options 1`] = `
+exports[`resource() warnings should warn when mis-capitalizing options 1`] = `
 [
   [
     "You passed 'endpoint' option; did you mean to use Endpoint?
-https://dataclient.io/rest/api/createResource#endpoint
+https://dataclient.io/rest/api/resource#endpoint
 This parameter must be capitalized.
 
 This warning will not show in production.",
@@ -18,11 +18,11 @@ This warning will not show in production.",
 ]
 `;
 
-exports[`createResource() warnings should warn when mis-capitalizing options 2`] = `
+exports[`resource() warnings should warn when mis-capitalizing options 2`] = `
 [
   [
     "You passed 'collection' option; did you mean to use Collection?
-https://dataclient.io/rest/api/createResource#collection
+https://dataclient.io/rest/api/resource#collection
 This parameter must be capitalized.
 
 This warning will not show in production.",

@@ -87,7 +87,7 @@ object.
 
 :::tip
 
-Entities are bound to Endpoints using [createResource.schema](./createResource.md#schema) or
+Entities are bound to Endpoints using [resource.schema](./resource.md#schema) or
 [RestEndpoint.schema](./RestEndpoint.md#schema)
 
 :::
@@ -581,7 +581,7 @@ export class User extends Entity {
   // highlight-next-line
   static indexes = ['username' as const];
 }
-export const UserResource = createResource({
+export const UserResource = resource({
   path: '/user/:id',
   schema: User,
 });
