@@ -30,4 +30,33 @@
     "titleBar.inactiveBackground": "#003a67",
     "titleBar.inactiveForeground": "#84b8df"
   },
+  "files.exclude": {
+    "**/.yarn": true,
+    "**/.tsbuildinfo": true,
+    "website/.docusaurus": true
+  },
+  "search.exclude": {
+    "**/.next": true,
+    "**/.yarnrc.yml": true,
+    "**/build": true,
+    "**/CHANGELOG.md": true,
+    ".changeset": true,
+    "**/package-lock.json": true,
+    "packages/*/ts*": true,
+    "**/dist": true,
+    "**/dist-server": true,
+    "packages/**/index.d.ts": true,
+    "packages/*/lib": true,
+    "packages/*/legacy": true,
+    "yarn.lock": true,
+    "**/versioned_docs": true,
+    "**/*_versioned_docs": true,
+    "**/v8.log": true,
+    "website/src/components/Playground/editor-types": true
+  },
+  "files.readonlyExclude": {
+    "**/.next": true,
+    "**/v8.log": true,
+    "website/src/components/Playground/editor-types": true
+  },
 }
