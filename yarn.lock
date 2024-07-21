@@ -3182,7 +3182,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/endpoint@npm:^0.14.1, @data-client/endpoint@workspace:*, @data-client/endpoint@workspace:^, @data-client/endpoint@workspace:packages/endpoint":
+"@data-client/endpoint@npm:^0.14.1, @data-client/endpoint@npm:^0.14.3, @data-client/endpoint@workspace:*, @data-client/endpoint@workspace:^, @data-client/endpoint@workspace:packages/endpoint":
   version: 0.0.0-use.local
   resolution: "@data-client/endpoint@workspace:packages/endpoint"
   dependencies:
@@ -3199,7 +3199,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
-    "@data-client/endpoint": "npm:^0.14.1"
+    "@data-client/endpoint": "npm:^0.14.3"
     "@types/node": "npm:^20.0.0"
   languageName: unknown
   linkType: soft
@@ -3292,7 +3292,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
-    "@data-client/endpoint": "npm:^0.14.1"
+    "@data-client/endpoint": "npm:^0.14.3"
     "@types/node": "npm:^20.0.0"
     path-to-regexp: "npm:^6.2.1"
   languageName: unknown

@@ -1,6 +1,6 @@
 {
   "name": "@data-client/graphql",
-  "version": "0.14.1",
+  "version": "0.14.3",
   "description": "Endpoints for GraphQL APIs",
   "homepage": "https://dataclient.io/docs/graphql",
   "repository": {
@@ -105,7 +105,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime": "^7.17.0",
-    "@data-client/endpoint": "^0.14.1"
+    "@data-client/endpoint": "^0.14.3"
   },
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",
