@@ -1,5 +1,24 @@
 # @data-client/rest
 
+## 0.14.3
+
+### Patch Changes
+
+- [`501cb82`](https://github.com/reactive/data-client/commit/501cb82c999030fd269b40eb760ae0dda568c569) Thanks [@ntucker](https://github.com/ntucker)! - Remove name in toJSON() for Entities
+
+- [`501cb82`](https://github.com/reactive/data-client/commit/501cb82c999030fd269b40eb760ae0dda568c569) Thanks [@ntucker](https://github.com/ntucker)! - Add toString() to Collection
+
+- [`3058a8a`](https://github.com/reactive/data-client/commit/3058a8a7738eeea0a197c9ba2db2e8ee51e2fca3) Thanks [@ntucker](https://github.com/ntucker)! - Collection non-known (not Array/Values) key format improvement
+
+  Now wraps in parens `()`: "(Todo)"
+
+- [#3158](https://github.com/reactive/data-client/pull/3158) [`34e2e51`](https://github.com/reactive/data-client/commit/34e2e51e89908649f1297c23a71cdafecf1d3b6f) Thanks [@ntucker](https://github.com/ntucker)! - createResource() -> [resource()](https://dataclient.io/rest/api/resource)
+
+  Note: `createResource` is still exported (it is the same)
+
+- Updated dependencies [[`501cb82`](https://github.com/reactive/data-client/commit/501cb82c999030fd269b40eb760ae0dda568c569), [`501cb82`](https://github.com/reactive/data-client/commit/501cb82c999030fd269b40eb760ae0dda568c569), [`3058a8a`](https://github.com/reactive/data-client/commit/3058a8a7738eeea0a197c9ba2db2e8ee51e2fca3)]:
+  - @data-client/endpoint@0.14.3
+
 ## 0.14.1
 
 ### Patch Changes
