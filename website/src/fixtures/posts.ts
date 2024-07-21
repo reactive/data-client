@@ -150,7 +150,15 @@ export const postFixtures = [
                 (post as any).author = user;
                 return user;
               })
-              .catch(e => {})
+              .catch(e => {
+                // fallback in case of failure
+                const user = {
+                  id: post.author,
+                  name: 'Leanne Graham',
+                };
+                (post as any).author = user;
+                return user;
+              })
           : Promise.resolve({}),
         ),
       );
