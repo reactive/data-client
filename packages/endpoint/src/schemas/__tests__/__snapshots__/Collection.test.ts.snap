@@ -318,13 +318,11 @@ exports[`CollectionSchema normalization should throw a custom error if data load
 "Unexpected input given to normalize. Expected type to be "object", found "string".
 
           Schema: {
-  "name": "Collection(Todo)",
+  "key": "[Todo]",
   "schema": {
-    "name": "Todo",
-    "schema": {},
-    "key": "Todo"
-  },
-  "key": "[Todo]"
+    "key": "Todo",
+    "schema": {}
+  }
 }
           Input: "abc""
 `;
@@ -333,13 +331,11 @@ exports[`CollectionSchema normalization should throw a custom error if data load
 "Unexpected input given to normalize. Expected type to be "object", found "null".
 
           Schema: {
-  "name": "Collection(Todo)",
+  "key": "[Todo]",
   "schema": {
-    "name": "Todo",
-    "schema": {},
-    "key": "Todo"
-  },
-  "key": "[Todo]"
+    "key": "Todo",
+    "schema": {}
+  }
 }
           Input: "null""
 `;

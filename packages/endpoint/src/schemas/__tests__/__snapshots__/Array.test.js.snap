@@ -446,9 +446,8 @@ See https://dataclient.io/rest/api/RestEndpoint#parseResponse for more informati
 
   Schema: [
   {
-    "name": "User",
-    "schema": {},
-    "key": "User"
+    "key": "User",
+    "schema": {}
   }
 ]
   Input: "[{"id":5}]""
@@ -459,9 +458,8 @@ exports[`ArraySchema normalization (plain) Object should throw a custom error if
 
           Schema: [
   {
-    "name": "User",
-    "schema": {},
-    "key": "User"
+    "key": "User",
+    "schema": {}
   }
 ]
           Input: "abc""
@@ -913,9 +911,8 @@ See https://dataclient.io/rest/api/RestEndpoint#parseResponse for more informati
 
   Schema: [
   {
-    "name": "User",
-    "schema": {},
-    "key": "User"
+    "key": "User",
+    "schema": {}
   }
 ]
   Input: "[{"id":5}]""
@@ -926,9 +923,8 @@ exports[`ArraySchema normalization (schema) Object should throw a custom error i
 
           Schema: [
   {
-    "name": "User",
-    "schema": {},
-    "key": "User"
+    "key": "User",
+    "schema": {}
   }
 ]
           Input: "abc""

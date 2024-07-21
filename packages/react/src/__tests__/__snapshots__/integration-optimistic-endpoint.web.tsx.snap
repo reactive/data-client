@@ -4,9 +4,8 @@ exports[`CacheProvider Optimistic Updates race conditions should error when user
 [Error: Error processing toggle [5]
 
 Full Schema: {
-  "name": "Toggle",
-  "schema": {},
-  "key": "Toggle"
+  "key": "Toggle",
+  "schema": {}
 }
 
 Error:
@@ -17,9 +16,8 @@ exports[`ExternalDataProvider Optimistic Updates race conditions should error wh
 [Error: Error processing toggle [5]
 
 Full Schema: {
-  "name": "Toggle",
-  "schema": {},
-  "key": "Toggle"
+  "key": "Toggle",
+  "schema": {}
 }
 
 Error:

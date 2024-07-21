@@ -561,9 +561,8 @@ exports[`EntitySchema normalization should throw a custom error if data loads wi
 
           Schema: {
   "data": {
-    "name": "EntityMixin",
-    "schema": {},
-    "key": "MyData"
+    "key": "MyData",
+    "schema": {}
   }
 }
           Input: "hibho""

@@ -196,15 +196,13 @@ exports[`DataProvider useSuspense() should throw errors on malformed response 1`
 [Error: Error processing GET http://test.com/article-cooler/878
 
 Full Schema: {
-  "name": "CoolerArticle",
+  "key": "CoolerArticle",
   "schema": {
     "author": {
-      "name": "User",
-      "schema": {},
-      "key": "User"
+      "key": "User",
+      "schema": {}
     }
-  },
-  "key": "CoolerArticle"
+  }
 }
 
 Error:
@@ -417,15 +415,13 @@ exports[`ExternalDataProvider useSuspense() should throw errors on malformed res
 [Error: Error processing GET http://test.com/article-cooler/878
 
 Full Schema: {
-  "name": "CoolerArticle",
+  "key": "CoolerArticle",
   "schema": {
     "author": {
-      "name": "User",
-      "schema": {},
-      "key": "User"
+      "key": "User",
+      "schema": {}
     }
-  },
-  "key": "CoolerArticle"
+  }
 }
 
 Error:

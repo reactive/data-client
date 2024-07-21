@@ -4,15 +4,13 @@ exports[`useSuspense() errors should throw error when response is {} when expect
 [Error: Error processing GET http://test.com/article-cooler/400
 
 Full Schema: {
-  "name": "CoolerArticle",
+  "key": "CoolerArticle",
   "schema": {
     "author": {
-      "name": "User",
-      "schema": {},
-      "key": "User"
+      "key": "User",
+      "schema": {}
     }
-  },
-  "key": "CoolerArticle"
+  }
 }
 
 Error:
@@ -31,15 +29,13 @@ exports[`useSuspense() errors should throw error when response is array when exp
 [Error: Error processing GET http://test.com/article-cooler/400
 
 Full Schema: {
-  "name": "CoolerArticle",
+  "key": "CoolerArticle",
   "schema": {
     "author": {
-      "name": "User",
-      "schema": {},
-      "key": "User"
+      "key": "User",
+      "schema": {}
     }
-  },
-  "key": "CoolerArticle"
+  }
 }
 
 Error:
@@ -58,15 +54,13 @@ exports[`useSuspense() errors should throw error when response is number when ex
 [Error: Error processing GET http://test.com/article-cooler/400
 
 Full Schema: {
-  "name": "CoolerArticle",
+  "key": "CoolerArticle",
   "schema": {
     "author": {
-      "name": "User",
-      "schema": {},
-      "key": "User"
+      "key": "User",
+      "schema": {}
     }
-  },
-  "key": "CoolerArticle"
+  }
 }
 
 Error:
@@ -85,15 +79,13 @@ exports[`useSuspense() errors should throw error when response is string when ex
 [Error: Error processing GET http://test.com/article-cooler/400
 
 Full Schema: {
-  "name": "CoolerArticle",
+  "key": "CoolerArticle",
   "schema": {
     "author": {
-      "name": "User",
-      "schema": {},
-      "key": "User"
+      "key": "User",
+      "schema": {}
     }
-  },
-  "key": "CoolerArticle"
+  }
 }
 
 Error:

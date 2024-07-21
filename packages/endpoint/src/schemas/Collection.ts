@@ -121,11 +121,14 @@ export default class CollectionSchema<
     return this.schema.schema;
   }
 
+  toString() {
+    return this.key;
+  }
+
   toJSON() {
     return {
-      name: `Collection(${this.schema.schema.name})`,
-      schema: this.schema.schema.toJSON(),
       key: this.key,
+      schema: this.schema.schema.toJSON(),
     };
   }
 

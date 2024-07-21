@@ -284,9 +284,8 @@ See https://dataclient.io/rest/api/RestEndpoint#parseResponse for more informati
 
   Schema: [
   {
-    "name": "User",
-    "schema": {},
-    "key": "User"
+    "key": "User",
+    "schema": {}
   }
 ]
   Input: "[{"id":5}]""
@@ -297,9 +296,8 @@ exports[`AllSchema normalization (%s) should throw a custom error if data loads 
 
           Schema: [
   {
-    "name": "User",
-    "schema": {},
-    "key": "User"
+    "key": "User",
+    "schema": {}
   }
 ]
           Input: "abc""

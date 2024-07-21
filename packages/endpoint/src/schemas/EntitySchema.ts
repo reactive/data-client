@@ -28,9 +28,8 @@ export default function EntitySchema<TBase extends Constructor>(
 
     static toJSON() {
       return {
-        name: this.name,
-        schema: this.schema,
         key: this.key,
+        schema: this.schema,
       };
     }
 
