@@ -6,7 +6,7 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 import {RestEndpoint} from '@data-client/rest';
 import Grid from '@site/src/components/Grid';
 
-Sometimes you have a [list endpoint](../api/createResource.md#getlist) whose entities only include
+Sometimes you have a [list endpoint](../api/resource.md#getlist) whose entities only include
 a subset of fields needed to summarize.
 
 <Grid>
@@ -68,7 +68,7 @@ delay: 150,
 
 ```typescript title="api/Article" {12,24}
 import { validateRequired } from '@data-client/rest';
-import { Entity, createResource, schema } from '@data-client/rest';
+import { Entity, resource, schema } from '@data-client/rest';
 
 export class ArticleSummary extends Entity {
   id = '';
@@ -94,7 +94,7 @@ export class Article extends ArticleSummary {
   }
 }
 
-export const ArticleResource = createResource({
+export const ArticleResource = resource({
   path: '/article/:id',
   schema: Article,
 }).extend({
@@ -206,7 +206,7 @@ class ArticleMeta extends Entity {
   };
 }
 
-const ArticleResource = createResource({
+const ArticleResource = resource({
   path: '/article/:id',
   schema: Article,
 }).extend({

@@ -81,7 +81,7 @@ module.exports = {
         },
         {
           type: 'doc',
-          id: 'api/createResource',
+          id: 'api/resource',
         },
         {
           type: 'doc',

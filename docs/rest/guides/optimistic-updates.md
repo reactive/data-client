@@ -22,12 +22,12 @@ handles these for you.
 
 ## Resources
 
-[createResource()](../api/createResource.md) can be configured by setting [optimistic: true](../api/createResource.md#optimistic).
+[resource()](../api/resource.md) can be configured by setting [optimistic: true](../api/resource.md#optimistic).
 
 <HooksPlayground defaultOpen="n" row fixtures={todoFixtures}>
 
 ```ts title="TodoResource" {18}
-import { Entity, createResource } from '@data-client/rest';
+import { Entity, resource } from '@data-client/rest';
 
 export class Todo extends Entity {
   id = 0;
@@ -39,7 +39,7 @@ export class Todo extends Entity {
   }
   static key = 'Todo';
 }
-export const TodoResource = createResource({
+export const TodoResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   searchParams: {} as { userId?: string | number } | undefined,
@@ -194,7 +194,7 @@ function optimisticDelete(snap: SnapshotInterface, params: any) {
 
 In case you do not want all endpoints to be optimistic, or if you have unusual API designs,
 you can set [getOptimisticResponse()](../api/RestEndpoint.md#getoptimisticresponse) using
-[Resource.extend()](../api/createResource.md#extend)
+[Resource.extend()](../api/resource.md#extend)
 
 ## Optimistic Transforms
 

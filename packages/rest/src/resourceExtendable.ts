@@ -27,7 +27,7 @@ export interface Extendable<
 > {
   /** Allows customizing individual endpoints
    *
-   * @see https://dataclient.io/rest/api/createResource#extend
+   * @see https://dataclient.io/rest/api/resource#extend
    */
   extend<
     R extends {

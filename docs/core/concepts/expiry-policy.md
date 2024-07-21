@@ -147,7 +147,7 @@ Long cache lifetime
 import {
   RestEndpoint,
   RestGenerics,
-  createResource,
+  resource,
 } from '@data-client/rest';
 
 // We can now use LongLivingEndpoint to create endpoints that will be cached for one hour
@@ -157,7 +157,7 @@ class LongLivingEndpoint<
   dataExpiryLength = 60 * 60 * 1000; // one hour
 }
 
-const LongLivingResource = createResource({
+const LongLivingResource = resource({
   path: '/:id',
   Endpoint: LongLivingEndpoint,
 });
@@ -169,7 +169,7 @@ Never retry on error
 import {
   RestEndpoint,
   RestGenerics,
-  createResource,
+  resource,
 } from '@data-client/rest';
 
 // We can now use NoRetryEndpoint to create endpoints that will be cached for one hour
@@ -179,7 +179,7 @@ class NoRetryEndpoint<
   errorExpiryLength = Infinity;
 }
 
-const NoRetryResource = createResource({
+const NoRetryResource = resource({
   path: '/:id',
   Endpoint: NoRetryEndpoint,
 });

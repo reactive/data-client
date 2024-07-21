@@ -11,10 +11,10 @@ import {
 import { makeRenderDataClient, act } from '@data-client/test';
 import nock, { ReplyHeaders } from 'nock';
 
-import createResource from '../createResource';
+import resource from '../resource';
 import RestEndpoint, { RestGenerics } from '../RestEndpoint';
 
-describe('createResource()', () => {
+describe('resource()', () => {
   const renderDataClient: ReturnType<typeof makeRenderDataClient> =
     makeRenderDataClient(CacheProvider);
   let mynock: nock.Scope;
@@ -44,7 +44,7 @@ describe('createResource()', () => {
     additional = 5;
   }
 
-  const UserResource = createResource({
+  const UserResource = resource({
     path: 'http\\://test.com/groups/:group/users/:id',
     schema: User,
     Endpoint: MyEndpoint,
@@ -81,7 +81,7 @@ describe('createResource()', () => {
   });
 
   it('can override endpoint options', async () => {
-    const UserResourceBase = createResource({
+    const UserResourceBase = resource({
       path: 'http\\://test.com/groups/:group/users/:id',
       schema: User,
     });
@@ -212,7 +212,7 @@ describe('createResource()', () => {
   });
 
   it('can override endpoint options', async () => {
-    const UserResourceBase = createResource({
+    const UserResourceBase = resource({
       path: 'http\\://test.com/groups/:group/users/:id',
       schema: User,
       paginationField: 'cursor',
@@ -360,7 +360,7 @@ describe('createResource()', () => {
   });
 
   it('can override with no generics', async () => {
-    const UserResource = createResource({
+    const UserResource = resource({
       path: 'http\\://test.com/groups/:group/users/:id',
       schema: User,
       paginationField: 'cursor',
@@ -377,7 +377,7 @@ describe('createResource()', () => {
   });
 
   it('can override resource endpoints (function form)', async () => {
-    const UserResource = createResource({
+    const UserResource = resource({
       path: 'http\\://test.com/groups/:group/users/:id',
       schema: User,
       paginationField: 'cursor',
@@ -538,7 +538,7 @@ describe('createResource()', () => {
     }
 
     expect(() =>
-      createResource({
+      resource({
         // TODO(see path types): @ts-expect-error
         path: '/todos/',
         schema: Todo,
@@ -843,7 +843,7 @@ describe('createResource()', () => {
       { post: FeedPost, link: FeedLink },
       'type',
     );
-    const FeedResource = createResource({
+    const FeedResource = resource({
       path: 'http\\://test.com/feed/:id',
       schema: FeedUnion,
       Endpoint: MyEndpoint,
@@ -1019,7 +1019,7 @@ describe('createResource()', () => {
   });
 
   it('UserResource.getList.push.extends() should work with zero urlParams', async () => {
-    const UserResource = createResource({
+    const UserResource = resource({
       path: 'http\\://test.com/users/:id',
       schema: User,
       Endpoint: MyEndpoint,
@@ -1072,7 +1072,7 @@ describe('createResource()', () => {
       ...body,
       id: 5,
     }));
-    const UserResource = createResource({
+    const UserResource = resource({
       path: '/users/:id',
       schema: User,
       optimistic: true,
@@ -1127,7 +1127,7 @@ describe('createResource()', () => {
       }
     }
 
-    const TodoResource = createResource({
+    const TodoResource = resource({
       path: '/todos/:id',
       schema: Todo,
       optimistic: true,
@@ -1159,7 +1159,7 @@ describe('createResource()', () => {
     });
 
     it('should warn when mis-capitalizing options', () => {
-      createResource({
+      resource({
         path: 'http\\://test.com/users/:id',
         schema: User,
         endpoint: MyEndpoint,
@@ -1179,7 +1179,7 @@ describe('createResource()', () => {
           return key === 'orderBy';
         }
       }
-      createResource({
+      resource({
         path: 'http\\://test.com/users/:id',
         schema: User,
         collection: MyCollection,

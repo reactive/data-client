@@ -19,31 +19,31 @@ import RestEndpoint, {
 
 /** The typed (generic) options for a Resource
  *
- * @see https://dataclient.io/rest/api/createResource#function-inheritance-patterns
+ * @see https://dataclient.io/rest/api/resource#function-inheritance-patterns
  */
 export interface ResourceGenerics {
-  /** @see https://dataclient.io/rest/api/createResource#path */
+  /** @see https://dataclient.io/rest/api/resource#path */
   readonly path: ResourcePath;
-  /** @see https://dataclient.io/rest/api/createResource#schema */
+  /** @see https://dataclient.io/rest/api/resource#schema */
   readonly schema: Schema;
   /** Only used for types */
-  /** @see https://dataclient.io/rest/api/createResource#body */
+  /** @see https://dataclient.io/rest/api/resource#body */
   readonly body?: any;
   /** Only used for types */
-  /** @see https://dataclient.io/rest/api/createResource#searchParams */
+  /** @see https://dataclient.io/rest/api/resource#searchParams */
   readonly searchParams?: any;
-  /** @see https://dataclient.io/rest/api/createResource#paginationfield */
+  /** @see https://dataclient.io/rest/api/resource#paginationfield */
   readonly paginationField?: string;
 }
-/** The untyped options for createResource() */
+/** The untyped options for resource() */
 export interface ResourceOptions {
-  /** @see https://dataclient.io/rest/api/createResource#endpoint */
+  /** @see https://dataclient.io/rest/api/resource#endpoint */
   Endpoint?: typeof RestEndpoint;
-  /** @see https://dataclient.io/rest/api/createResource#collection */
+  /** @see https://dataclient.io/rest/api/resource#collection */
   Collection?: typeof Collection;
-  /** @see https://dataclient.io/rest/api/createResource#optimistic */
+  /** @see https://dataclient.io/rest/api/resource#optimistic */
   optimistic?: boolean;
-  /** @see https://dataclient.io/rest/api/createResource#urlprefix */
+  /** @see https://dataclient.io/rest/api/resource#urlprefix */
   urlPrefix?: string;
   requestInit?: RequestInit;
   getHeaders?(headers: HeadersInit): Promise<HeadersInit> | HeadersInit;
@@ -63,19 +63,19 @@ export interface ResourceOptions {
 }
 
 /** Resources are a collection of methods for a given data model.
- * @see https://dataclient.io/rest/api/createResource
+ * @see https://dataclient.io/rest/api/resource
  */
 export interface Resource<
   O extends ResourceGenerics = { path: ResourcePath; schema: any },
 > extends Extendable<O> {
   /** Get one item (GET)
    *
-   * @see https://dataclient.io/rest/api/createResource#get
+   * @see https://dataclient.io/rest/api/resource#get
    */
   get: GetEndpoint<{ path: O['path']; schema: O['schema'] }>;
   /** Get an Array of items (GET)
    *
-   * @see https://dataclient.io/rest/api/createResource#getlist
+   * @see https://dataclient.io/rest/api/resource#getlist
    */
   getList: 'searchParams' extends keyof O ?
     GetEndpoint<
@@ -129,7 +129,7 @@ export interface Resource<
     }>;
   /** Update an item (PUT)
    *
-   * @see https://dataclient.io/rest/api/createResource#update
+   * @see https://dataclient.io/rest/api/resource#update
    */
   update: 'body' extends keyof O ?
     MutateEndpoint<{
@@ -144,7 +144,7 @@ export interface Resource<
     }>;
   /** Update an item (PATCH)
    *
-   * @see https://dataclient.io/rest/api/createResource#partialupdate
+   * @see https://dataclient.io/rest/api/resource#partialupdate
    */
   partialUpdate: 'body' extends keyof O ?
     MutateEndpoint<{
@@ -159,7 +159,7 @@ export interface Resource<
     }>;
   /** Delete an item (DELETE)
    *
-   * @see https://dataclient.io/rest/api/createResource#delete
+   * @see https://dataclient.io/rest/api/resource#delete
    */
   delete: RestTypeNoBody<
     PathArgs<O['path']>,

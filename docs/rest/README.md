@@ -22,7 +22,7 @@ When using TypeScript (optional), version 4.0 or above is required.
 
 ## Define the API
 
-[Resources](./api/createResource.md) are a collection of `methods` for a given `data model`. [Entities](./api/Entity.md) and [Schemas](./api/schema.md) are the declarative _data model_.
+[Resources](./api/resource.md) are a collection of `methods` for a given `data model`. [Entities](./api/Entity.md) and [Schemas](./api/schema.md) are the declarative _data model_.
 [RestEndpoint](./api/RestEndpoint.md) are the [_methods_](<https://en.wikipedia.org/wiki/Method_(computer_programming)>) on
 that data.
 
@@ -50,7 +50,7 @@ export class User extends Entity {
 ```
 
 ```typescript title="Article"
-import { Entity, createResource } from '@data-client/rest';
+import { Entity, resource } from '@data-client/rest';
 import { User } from './User';
 
 export class Article extends Entity {
@@ -73,7 +73,7 @@ export class Article extends Entity {
   static key = 'Article';
 }
 
-export const ArticleResource = createResource({
+export const ArticleResource = resource({
   urlPrefix: 'http://test.com',
   path: '/article/:id',
   searchParams: {} as { userId?: string } | undefined,
@@ -100,7 +100,7 @@ export class UserEntity extends schema.Entity(User) {}
 ```
 
 ```typescript title="Article"
-import { schema, createResource } from '@data-client/rest';
+import { schema, resource } from '@data-client/rest';
 import { UserEntity } from './User';
 
 export class Article {
@@ -120,7 +120,7 @@ export class ArticleEntity extends schema.Entity(Article, {
   key: 'Article',
 }) {}
 
-export const ArticleResource = createResource({
+export const ArticleResource = resource({
   urlPrefix: 'http://test.com',
   path: '/article/:id',
   searchParams: {} as { userId?: string } | undefined,
@@ -230,7 +230,7 @@ export default function NewArticleForm() {
 }
 ```
 
-[getList.push](api/createResource.md#push) then takes any `keyable` body to send as the payload and then returns a promise that
+[getList.push](api/resource.md#push) then takes any `keyable` body to send as the payload and then returns a promise that
 resolves to the new Resource created by the API. It will automatically be added in the cache for any consumers to display.
 
 </TabItem>
@@ -258,7 +258,7 @@ export default function UpdateArticleForm({ id }: { id: number }) {
 }
 ```
 
-[update](api/createResource.md#update) then takes any `keyable` body to send as the payload and then returns a promise that
+[update](api/resource.md#update) then takes any `keyable` body to send as the payload and then returns a promise that
 then takes any `keyable` body to send as the payload and then returns a promise that
 resolves to the new Resource created by the API. It will automatically be added in the cache for any consumers to display.
 

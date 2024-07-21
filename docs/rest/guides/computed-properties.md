@@ -106,7 +106,7 @@ export class User extends Entity {
     return this.id;
   }
 }
-export const UserResource = createResource({
+export const UserResource = resource({
   path: '/users/:id',
   schema: User,
 });

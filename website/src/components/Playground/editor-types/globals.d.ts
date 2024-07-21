@@ -1567,7 +1567,7 @@ interface Extendable<O extends ResourceGenerics = {
 }> {
     /** Allows customizing individual endpoints
      *
-     * @see https://dataclient.io/rest/api/createResource#extend
+     * @see https://dataclient.io/rest/api/resource#extend
      */
     extend<R extends {
         [K in ExtendKey]: RestInstanceBase;
@@ -1583,31 +1583,31 @@ interface Extendable<O extends ResourceGenerics = {
 
 /** The typed (generic) options for a Resource
  *
- * @see https://dataclient.io/rest/api/createResource#function-inheritance-patterns
+ * @see https://dataclient.io/rest/api/resource#function-inheritance-patterns
  */
 interface ResourceGenerics {
-    /** @see https://dataclient.io/rest/api/createResource#path */
+    /** @see https://dataclient.io/rest/api/resource#path */
     readonly path: ResourcePath;
-    /** @see https://dataclient.io/rest/api/createResource#schema */
+    /** @see https://dataclient.io/rest/api/resource#schema */
     readonly schema: Schema;
     /** Only used for types */
-    /** @see https://dataclient.io/rest/api/createResource#body */
+    /** @see https://dataclient.io/rest/api/resource#body */
     readonly body?: any;
     /** Only used for types */
-    /** @see https://dataclient.io/rest/api/createResource#searchParams */
+    /** @see https://dataclient.io/rest/api/resource#searchParams */
     readonly searchParams?: any;
-    /** @see https://dataclient.io/rest/api/createResource#paginationfield */
+    /** @see https://dataclient.io/rest/api/resource#paginationfield */
     readonly paginationField?: string;
 }
-/** The untyped options for createResource() */
+/** The untyped options for resource() */
 interface ResourceOptions {
-    /** @see https://dataclient.io/rest/api/createResource#endpoint */
+    /** @see https://dataclient.io/rest/api/resource#endpoint */
     Endpoint?: typeof RestEndpoint;
-    /** @see https://dataclient.io/rest/api/createResource#collection */
+    /** @see https://dataclient.io/rest/api/resource#collection */
     Collection?: typeof Collection;
-    /** @see https://dataclient.io/rest/api/createResource#optimistic */
+    /** @see https://dataclient.io/rest/api/resource#optimistic */
     optimistic?: boolean;
-    /** @see https://dataclient.io/rest/api/createResource#urlprefix */
+    /** @see https://dataclient.io/rest/api/resource#urlprefix */
     urlPrefix?: string;
     requestInit?: RequestInit;
     getHeaders?(headers: HeadersInit): Promise<HeadersInit> | HeadersInit;
@@ -1626,7 +1626,7 @@ interface ResourceOptions {
     errorPolicy?(error: any): 'hard' | 'soft' | undefined;
 }
 /** Resources are a collection of methods for a given data model.
- * @see https://dataclient.io/rest/api/createResource
+ * @see https://dataclient.io/rest/api/resource
  */
 interface Resource<O extends ResourceGenerics = {
     path: ResourcePath;
@@ -1634,7 +1634,7 @@ interface Resource<O extends ResourceGenerics = {
 }> extends Extendable<O> {
     /** Get one item (GET)
      *
-     * @see https://dataclient.io/rest/api/createResource#get
+     * @see https://dataclient.io/rest/api/resource#get
      */
     get: GetEndpoint<{
         path: O['path'];
@@ -1642,7 +1642,7 @@ interface Resource<O extends ResourceGenerics = {
     }>;
     /** Get an Array of items (GET)
      *
-     * @see https://dataclient.io/rest/api/createResource#getlist
+     * @see https://dataclient.io/rest/api/resource#getlist
      */
     getList: 'searchParams' extends keyof O ? GetEndpoint<{
         path: ShortenPath<O['path']>;
@@ -1675,7 +1675,7 @@ interface Resource<O extends ResourceGenerics = {
     }>;
     /** Update an item (PUT)
      *
-     * @see https://dataclient.io/rest/api/createResource#update
+     * @see https://dataclient.io/rest/api/resource#update
      */
     update: 'body' extends keyof O ? MutateEndpoint<{
         path: O['path'];
@@ -1688,7 +1688,7 @@ interface Resource<O extends ResourceGenerics = {
     }>;
     /** Update an item (PATCH)
      *
-     * @see https://dataclient.io/rest/api/createResource#partialupdate
+     * @see https://dataclient.io/rest/api/resource#partialupdate
      */
     partialUpdate: 'body' extends keyof O ? MutateEndpoint<{
         path: O['path'];
@@ -1701,7 +1701,7 @@ interface Resource<O extends ResourceGenerics = {
     }>;
     /** Delete an item (DELETE)
      *
-     * @see https://dataclient.io/rest/api/createResource#delete
+     * @see https://dataclient.io/rest/api/resource#delete
      */
     delete: RestTypeNoBody<PathArgs<O['path']>, O['schema'] extends EntityInterface & {
         process: any;
@@ -1719,9 +1719,9 @@ interface ResourceInterface {
 
 /** Creates collection of Endpoints for common operations on a given data/schema.
  *
- * @see https://dataclient.io/rest/api/createResource
+ * @see https://dataclient.io/rest/api/resource
  */
-declare function createResource<O extends ResourceGenerics>({ path, schema, Endpoint, Collection, optimistic, paginationField, ...extraOptions }: Readonly<O> & ResourceOptions): Resource<O>;
+declare function resource<O extends ResourceGenerics>({ path, schema, Endpoint, Collection, optimistic, paginationField, ...extraOptions }: Readonly<O> & ResourceOptions): Resource<O>;
 
 interface HookableEndpointInterface extends EndpointInterface {
     extend(...args: any): HookableEndpointInterface;
@@ -1922,4 +1922,4 @@ declare function useController(): Controller;
 declare function useLive<E extends EndpointInterface$1<FetchFunction$1, Schema$1 | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>]): E['schema'] extends undefined | null ? ResolveType$1<E> : Denormalize$1<E['schema']>;
 declare function useLive<E extends EndpointInterface$1<FetchFunction$1, Schema$1 | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): E['schema'] extends undefined | null ? ResolveType$1<E> | undefined : DenormalizeNullable$1<E['schema']>;
 
-export { AbstractInstanceType, AddEndpoint, Array$1 as Array, _default as AsyncBoundary, Collection, CustomResource, DataProvider, DefaultArgs, Defaults, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, EndpointToFunction, Entity, ErrorTypes$1 as ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, ExtendedResource, FetchFunction, FetchGet, FetchMutate, FromFallBack, GetEndpoint, HookResource, HookableEndpointInterface, INVALID, RestEndpoint$1 as IRestEndpoint, Invalidate, KeyofEndpointInstance, KeyofRestEndpoint, KeysToArgs, MethodToSide, MutateEndpoint, NI, NetworkError, ErrorBoundary as NetworkErrorBoundary, Normalize, NormalizeNullable, OptionsToFunction, PaginationEndpoint, PaginationFieldEndpoint, ParamFetchNoBody, ParamFetchWithBody, ParamToArgs, PartialRestGenerics, PathArgs, PathArgsAndSearch, PathKeys, PolymorphicInterface, Queryable, ReadEndpoint, ResolveType, Resource, ResourceEndpointExtensions, ResourceExtension, ResourceGenerics, ResourceOptions, RestEndpoint, RestEndpointConstructor, RestEndpointConstructorOptions, RestEndpointExtendOptions, RestEndpointOptions, RestExtendedEndpoint, RestFetch, RestGenerics, RestInstance, RestInstanceBase, RestType, RestTypeNoBody, RestTypeWithBody, Schema, SchemaArgs, SchemaClass, SchemaSimple, ShortenPath, SnapshotInterface, UnknownError, createResource, getUrlBase, getUrlTokens, hookifyResource, schema_d as schema, useCache, useController, useDLE, useError, useFetch, useLive, useQuery, useSubscription, useSuspense, validateRequired };
+export { AbstractInstanceType, AddEndpoint, Array$1 as Array, _default as AsyncBoundary, Collection, CustomResource, DataProvider, DefaultArgs, Defaults, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, EndpointToFunction, Entity, ErrorTypes$1 as ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, ExtendedResource, FetchFunction, FetchGet, FetchMutate, FromFallBack, GetEndpoint, HookResource, HookableEndpointInterface, INVALID, RestEndpoint$1 as IRestEndpoint, Invalidate, KeyofEndpointInstance, KeyofRestEndpoint, KeysToArgs, MethodToSide, MutateEndpoint, NI, NetworkError, ErrorBoundary as NetworkErrorBoundary, Normalize, NormalizeNullable, OptionsToFunction, PaginationEndpoint, PaginationFieldEndpoint, ParamFetchNoBody, ParamFetchWithBody, ParamToArgs, PartialRestGenerics, PathArgs, PathArgsAndSearch, PathKeys, PolymorphicInterface, Queryable, ReadEndpoint, ResolveType, Resource, ResourceEndpointExtensions, ResourceExtension, ResourceGenerics, ResourceOptions, RestEndpoint, RestEndpointConstructor, RestEndpointConstructorOptions, RestEndpointExtendOptions, RestEndpointOptions, RestExtendedEndpoint, RestFetch, RestGenerics, RestInstance, RestInstanceBase, RestType, RestTypeNoBody, RestTypeWithBody, Schema, SchemaArgs, SchemaClass, SchemaSimple, ShortenPath, SnapshotInterface, UnknownError, resource as createResource, getUrlBase, getUrlTokens, hookifyResource, resource, schema_d as schema, useCache, useController, useDLE, useError, useFetch, useLive, useQuery, useSubscription, useSuspense, validateRequired };

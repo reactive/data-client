@@ -11,7 +11,7 @@ export type {
   EndpointExtendOptions,
 } from './endpoint.js';
 export * as schema from './schema.js';
-// Without this we get 'cannot be named without a reference to' for createResource()....why is this?
+// Without this we get 'cannot be named without a reference to' for resource()....why is this?
 // Clue 1) It only happens with types mentioned in return types of other types
 export type { Array, Invalidate, Collection, DefaultArgs } from './schema.js';
 export { default as Entity } from './schemas/Entity.js';

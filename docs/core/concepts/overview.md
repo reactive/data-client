@@ -14,7 +14,7 @@ import Link from '@docusaurus/Link';
 | :----------------------------------: | --------------------------------------------- |
 |    [Endpoint](/rest/api/Endpoint)    | Async methods                                 |
 |     [Schema](./normalization.md)     | Declarative Data model                        |
-| [Resource](/rest/api/createResource) | Collection of methods for a given data model. |
+| [Resource](/rest/api/resource) | Collection of methods for a given data model. |
 
 ### Endpoint Conditions
 

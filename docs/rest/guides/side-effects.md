@@ -74,9 +74,9 @@ To handle this, we just need to update the `schema` to include the custom
 endpoint.
 
 ```typescript title="api/TradeResource.ts"
-import { createResource } from '@data-client/rest';
+import { resource } from '@data-client/rest';
 
-export const TradeResource = createResource({
+export const TradeResource = resource({
   path: '/trade/:id',
   schema: Trade,
 }).extend(Base => ({
@@ -89,7 +89,7 @@ export const TradeResource = createResource({
 }));
 ```
 
-Now if when we use the [getList.push](../api/createResource.md#push) Endpoint generator method,
+Now if when we use the [getList.push](../api/resource.md#push) Endpoint generator method,
 we will be happy knowing both the trade and account information will
 be updated in the cache after the `POST` request is complete.
 

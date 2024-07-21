@@ -1,7 +1,7 @@
 import { CacheProvider } from '@data-client/react';
 import { DataProvider as ExternalDataProvider } from '@data-client/react/redux';
 import { schema, RestEndpoint, PolymorphicInterface } from '@data-client/rest';
-import { createResource } from '@data-client/rest';
+import { resource } from '@data-client/rest';
 import {
   IDEntity,
   Article,
@@ -43,17 +43,17 @@ class User extends IDEntity {
   };
 }
 
-const UserResource = createResource({
+const UserResource = resource({
   path: '/users/:id',
   schema: User,
 });
-const TodoResource = createResource({
+const TodoResource = resource({
   path: '/todos/:id',
   searchParams: {} as { userId?: string } | undefined,
   schema: Todo,
 });
 // for nesting test
-const BaseArticleResource = createResource({
+const BaseArticleResource = resource({
   urlPrefix: 'http://test.com',
   path: '/article/:id',
   schema: Article,
@@ -73,7 +73,7 @@ const ArticleResource = {
   }),
 };
 // for pagination test
-const ArticlePaginatedResource = createResource({
+const ArticlePaginatedResource = resource({
   urlPrefix: 'http://test.com',
   path: '/article/:id',
   searchParams: {} as { userId?: number; extra?: undefined } | undefined,
@@ -86,23 +86,23 @@ const ArticlePaginatedResource = createResource({
   },
 });
 
-const UnionResource = createResource({
+const UnionResource = resource({
   path: '/union/:id',
   schema: UnionSchema,
 });
 
-const UserResourceLegacy = createResource({
+const UserResourceLegacy = resource({
   path: '/users/:id',
   schema: User,
   Endpoint: RestEndpoint as any,
 });
-const TodoResourceLegacy = createResource({
+const TodoResourceLegacy = resource({
   path: '/todos/:id',
   searchParams: {} as { userId?: string } | undefined,
   schema: Todo,
   Endpoint: RestEndpoint as any,
 });
-const BaseArticleResourceLegacy = createResource({
+const BaseArticleResourceLegacy = resource({
   urlPrefix: 'http://test.com',
   path: '/article/:id',
   schema: Article,
@@ -370,7 +370,7 @@ describe.each([
         return key === 'sorted';
       }
     }
-    const TodoResource = createResource({
+    const TodoResource = resource({
       path: '/todos/:id',
       searchParams: {} as { userId?: string; sorted?: boolean } | undefined,
       schema: Todo,

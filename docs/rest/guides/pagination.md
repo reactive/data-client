@@ -16,15 +16,15 @@ import PaginationDemo from '../../core/shared/\_pagination.mdx';
 ## Expanding Lists
 
 In case you want to append results to your existing list, rather than move to another page
-[Resource.getList.getPage](../api/createResource.md#getpage) can be used as long as [paginationField](../api/createResource.md#paginationfield) was provided.
+[Resource.getList.getPage](../api/resource.md#getpage) can be used as long as [paginationField](../api/resource.md#paginationfield) was provided.
 
 <PaginationDemo />
 
-Don't forget to define our [Resource's](../api/createResource.md) [paginationField](../api/createResource.md#paginationfield) and
-correct [schema](../api/createResource.md#schema)!
+Don't forget to define our [Resource's](../api/resource.md) [paginationField](../api/resource.md#paginationfield) and
+correct [schema](../api/resource.md#schema)!
 
 ```ts title="Post"
-export const PostResource = createResource({
+export const PostResource = resource({
   path: '/posts/:id',
   schema: Post,
   // highlight-next-line
@@ -46,7 +46,7 @@ Scroll to the bottom of the preview to click _"Load more"_ to append the next pa
 
 Here we explore a real world example using [cosmos validators list](https://rest.cosmos.directory/stargaze/cosmos/staking/v1beta1/validators).
 
-Since validators only have one Endpoint, we use [RestEndpoint](../api/RestEndpoint.md) instead of [createResource](../api/createResource.md). By using [Collections](../api/Collection.md) and [paginationField](../api/RestEndpoint.md#paginationfield), we can call [RestEndpoint.getPage](../api/RestEndpoint.md#getpage)
+Since validators only have one Endpoint, we use [RestEndpoint](../api/RestEndpoint.md) instead of [resource](../api/resource.md). By using [Collections](../api/Collection.md) and [paginationField](../api/RestEndpoint.md#paginationfield), we can call [RestEndpoint.getPage](../api/RestEndpoint.md#getpage)
 to append the next page of validators to our list.
 
 <HooksPlayground defaultOpen="n" row>
@@ -195,7 +195,7 @@ function NewsList() {
 
 In some cases the pagination tokens will be embeded in HTTP headers, rather than part of the payload. In this
 case you'll need to customize the [parseResponse()](api/RestEndpoint.md#parseResponse) function
-for [getList](api/createResource.md#getlist) so the pagination headers are included fetch object.
+for [getList](api/resource.md#getlist) so the pagination headers are included fetch object.
 
 We show the custom `getList` below. All other parts of the above example remain the same.
 
@@ -204,7 +204,7 @@ Pagination token is stored in the header `link` for this example.
 ```typescript
 import { Resource } from '@data-client/rest';
 
-export const ArticleResource = createResource({
+export const ArticleResource = resource({
   path: '/articles/:id',
   schema: Article,
 }).extend(Base => ({
@@ -255,11 +255,11 @@ export class PagingEndpoint<
 ```
 
 ```ts title="api/My.ts"
-import { createResource, Entity } from '@data-client/rest';
+import { resource, Entity } from '@data-client/rest';
 
 import { PagingEndpoint } from './PagingEndpoint';
 
-export const MyResource = createResource({
+export const MyResource = resource({
   path: '/stuff/:id',
   schema: MyEntity,
   Endpoint: PagingEndpoint,

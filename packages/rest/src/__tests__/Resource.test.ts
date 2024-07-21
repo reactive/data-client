@@ -5,7 +5,7 @@ import { CacheProvider } from '@data-client/react';
 import nock from 'nock';
 
 import { makeRenderDataClient } from '../../../test';
-import createResource from '../createResource';
+import resource from '../resource';
 import { ResourcePath } from '../pathTypes';
 import RestEndpoint from '../RestEndpoint';
 import {
@@ -30,7 +30,7 @@ export class User extends Entity {
     return this.id?.toString();
   }
 }
-export const UserResource = createResource({
+export const UserResource = resource({
   path: 'http\\://test.com/user/:id',
   schema: User,
 });
@@ -58,7 +58,7 @@ function createPaginatableResource<U extends ResourcePath, S extends Schema>({
   readonly schema: S;
   readonly Endpoint?: typeof RestEndpoint;
 }) {
-  const baseResource = createResource({ path, schema, Endpoint });
+  const baseResource = resource({ path, schema, Endpoint });
   const getList = baseResource.getList.extend({
     path: 'http\\://test.com/article-paginated',
     schema: {
@@ -82,7 +82,7 @@ export class UrlArticle extends PaginatedArticle {
   readonly url: string = 'happy.com';
 }
 
-describe('createResource()', () => {
+describe('resource()', () => {
   const renderDataClient: ReturnType<typeof makeRenderDataClient> =
     makeRenderDataClient(CacheProvider);
   let mynock: nock.Scope;
@@ -142,7 +142,7 @@ describe('createResource()', () => {
   });
 
   it('should handle multiarg urls', () => {
-    const MyUserResource = createResource({
+    const MyUserResource = resource({
       path: 'http\\://test.com/groups/:group/users/:id',
       schema: User,
     });
@@ -261,7 +261,7 @@ describe('createResource()', () => {
         return this.id;
       }
     }
-    const ComplexResource = createResource({
+    const ComplexResource = resource({
       path: '/complex-thing/:id',
       schema: ComplexEntity,
     });

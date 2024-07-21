@@ -1,4 +1,4 @@
-import { Entity, createResource, RestEndpoint } from '@data-client/rest';
+import { Entity, resource, RestEndpoint } from '@data-client/rest';
 
 export class Profile extends Entity {
   id: number | undefined = undefined;
@@ -13,7 +13,7 @@ export class Profile extends Entity {
   static key = 'Profile';
 }
 
-export const ProfileResource = createResource({
+export const ProfileResource = resource({
   path: '/profiles/:id',
   schema: Profile,
 });

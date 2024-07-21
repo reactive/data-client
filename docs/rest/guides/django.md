@@ -60,7 +60,7 @@ export default class DjangoEndpoint<
 ```
 
 ```ts title="MyResource" collapsed {15}
-import { createResource, Entity } from '@data-client/rest';
+import { resource, Entity } from '@data-client/rest';
 import DjangoEndpoint from './DjangoEndpoint';
 
 class MyEntity extends Entity {
@@ -71,7 +71,7 @@ class MyEntity extends Entity {
   }
 }
 
-export const MyResource = createResource({
+export const MyResource = resource({
   path: '/my/:id',
   schema: MyEntity,
   Endpoint: DjangoEndpoint,

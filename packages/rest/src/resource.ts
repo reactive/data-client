@@ -19,9 +19,9 @@ const { Invalidate, Collection: BaseCollection } = schema;
 
 /** Creates collection of Endpoints for common operations on a given data/schema.
  *
- * @see https://dataclient.io/rest/api/createResource
+ * @see https://dataclient.io/rest/api/resource
  */
-export default function createResource<O extends ResourceGenerics>({
+export default function resource<O extends ResourceGenerics>({
   path,
   schema,
   Endpoint = RestEndpoint,
@@ -44,7 +44,7 @@ export default function createResource<O extends ResourceGenerics>({
     ) {
       console.warn(
         `You passed 'endpoint' option; did you mean to use Endpoint?
-https://dataclient.io/rest/api/createResource#endpoint
+https://dataclient.io/rest/api/resource#endpoint
 This parameter must be capitalized.
 
 This warning will not show in production.`,
@@ -63,7 +63,7 @@ This warning will not show in production.`,
     ) {
       console.warn(
         `You passed 'collection' option; did you mean to use Collection?
-https://dataclient.io/rest/api/createResource#collection
+https://dataclient.io/rest/api/resource#collection
 This parameter must be capitalized.
 
 This warning will not show in production.`,

@@ -1,4 +1,4 @@
-import { Entity, createResource } from '@data-client/rest';
+import { Entity, resource } from '@data-client/rest';
 
 export class Post extends Entity {
   id = 0;
@@ -9,7 +9,7 @@ export class Post extends Entity {
     return `${this.id}`;
   }
 }
-export const PostResource = createResource({
+export const PostResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/posts/:id',
   schema: Post,
@@ -33,7 +33,7 @@ export class User extends Entity {
     return `${this.id}`;
   }
 }
-export const UserResource = createResource({
+export const UserResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/users/:id',
   schema: User,

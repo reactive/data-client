@@ -37,7 +37,7 @@ function MasterPost({ id }: { id: number }) {
 
 | Expiry Status | Fetch           | Returns     | Conditions                                                                                            |
 | ------------- | --------------- | ----------- | ----------------------------------------------------------------------------------------------------- |
-| Invalid       | yes<sup>1</sup> | Promise     | not in store, [deletion](/rest/api/createResource#delete), [invalidation](./Controller.md#invalidate) |
+| Invalid       | yes<sup>1</sup> | Promise     | not in store, [deletion](/rest/api/resource#delete), [invalidation](./Controller.md#invalidate) |
 | Stale         | yes<sup>1</sup> | Promise     | (first-render, arg change) & [expiry &lt; now](../concepts/expiry-policy.md)                          |
 | Valid         | no              | `undefined` | fetch completion                                                                                      |
 |               | no              | `undefined` | `null` used as second argument                                                                        |

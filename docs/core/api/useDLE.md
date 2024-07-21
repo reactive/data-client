@@ -26,7 +26,7 @@ In case you cannot use [suspense](../getting-started/data-dependency.md#async-fa
 <HooksPlayground fixtures={listFixtures} row>
 
 ```typescript title="ProfileResource" collapsed
-import { Entity, createResource } from '@data-client/rest';
+import { Entity, resource } from '@data-client/rest';
 
 export class Profile extends Entity {
   id: number | undefined = undefined;
@@ -40,7 +40,7 @@ export class Profile extends Entity {
   static key = 'Profile';
 }
 
-export const ProfileResource = createResource({
+export const ProfileResource = resource({
   path: '/profiles/:id',
   schema: Profile,
 });
@@ -77,7 +77,7 @@ render(<ProfileList />);
 
 | Expiry Status | Fetch           | Data         | Loading | Error             | Conditions                                                                                                                                                                   |
 | ------------- | --------------- | ------------ | ------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Invalid       | yes<sup>1</sup> | `undefined`  | true    | false             | not in store, [deletion](/rest/api/createResource#delete), [invalidation](./Controller.md#invalidate), [invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) |
+| Invalid       | yes<sup>1</sup> | `undefined`  | true    | false             | not in store, [deletion](/rest/api/resource#delete), [invalidation](./Controller.md#invalidate), [invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) |
 | Stale         | yes<sup>1</sup> | denormalized | false   | false             | (first-render, arg change) & [expiry &lt; now](../concepts/expiry-policy.md)                                                                                                 |
 | Valid         | no              | denormalized | false   | maybe<sup>2</sup> | fetch completion                                                                                                                                                             |
 |               | no              | `undefined`  | false   | false             | `null` used as second argument                                                                                                                                               |
@@ -140,7 +140,7 @@ function useDLE<
 <HooksPlayground fixtures={detailFixtures} row>
 
 ```typescript title="ProfileResource" collapsed
-import { Entity, createResource } from '@data-client/rest';
+import { Entity, resource } from '@data-client/rest';
 
 export class Profile extends Entity {
   id: number | undefined = undefined;
@@ -154,7 +154,7 @@ export class Profile extends Entity {
   static key = 'Profile';
 }
 
-export const ProfileResource = createResource({
+export const ProfileResource = resource({
   path: '/profiles/:id',
   schema: Profile,
 });
@@ -194,7 +194,7 @@ render(<ProfileDetail />);
 <TypeScriptEditor row={false}>
 
 ```ts title="Resources" collapsed
-import { Entity, createResource } from '@data-client/rest';
+import { Entity, resource } from '@data-client/rest';
 
 export class Post extends Entity {
   id = 0;
@@ -207,7 +207,7 @@ export class Post extends Entity {
   }
   static key = 'Post';
 }
-export const PostResource = createResource({
+export const PostResource = resource({
   path: '/posts/:id',
   schema: Post,
 });
@@ -229,7 +229,7 @@ export class User extends Entity {
   }
   static key = 'User';
 }
-export const UserResource = createResource({
+export const UserResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/users/:id',
   schema: User,

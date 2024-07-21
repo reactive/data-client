@@ -14,7 +14,7 @@ some media fetches as well to take advantage of suspense and [concurrent mode su
 
 ## Storing ArrayBuffer
 
-[Resource](/rest/api/createResource) and [Entity](/rest/api/Entity) should not be used in this case, since they both represent
+[Resource](/rest/api/resource) and [Entity](/rest/api/Entity) should not be used in this case, since they both represent
 string -> value map structures. Instead, we'll define our own simple [Endpoint](/rest/api/Endpoint).
 
 ```typescript

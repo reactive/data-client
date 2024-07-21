@@ -28,7 +28,7 @@ Using our [Create, Update, and Delete](/docs/concepts/atomic-mutations) endpoint
 <HooksPlayground defaultOpen="n" row fixtures={todoFixtures}>
 
 ```ts title="TodoResource" collapsed
-import { Entity, createResource } from '@data-client/rest';
+import { Entity, resource } from '@data-client/rest';
 
 export class Todo extends Entity {
   id = 0;
@@ -40,7 +40,7 @@ export class Todo extends Entity {
   }
   static key = 'Todo';
 }
-export const TodoResource = createResource({
+export const TodoResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   searchParams: {} as { userId?: string | number } | undefined,

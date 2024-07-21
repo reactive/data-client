@@ -32,13 +32,13 @@ export class Post extends Entity {
 }
 ```
 
-```ts title="PostResource" {15-22}
-import { createResource } from '@data-client/rest';
+```ts title="PostResource" {14-21}
+import { resource } from '@data-client/rest';
 import { Post } from './Post';
 
 export { Post };
 
-export const PostResource = createResource({
+export const PostResource = resource({
   path: '/posts/:id',
   searchParams: {} as { userId?: string | number } | undefined,
   schema: Post,

@@ -1,7 +1,7 @@
 ---
-id: createResource
-title: createResource() - TypeScript definition for REST API resources
-sidebar_label: createResource
+id: resource
+title: resource() - TypeScript definition for REST API resources
+sidebar_label: resource
 description: Resources are a collection of RestEndpoints that operate on a common data by sharing a schema
 ---
 
@@ -15,7 +15,7 @@ import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import DeleteProcess from './\_DeleteProcess.mdx';
 
-# createResource
+# Resource
 
 `Resources` are a collection of [RestEndpoints](./RestEndpoint.md) that operate on a common
 data by sharing a [schema](./schema.md)
@@ -33,7 +33,7 @@ export class Todo extends Entity {
   static key = 'Todo';
 }
 
-const TodoResource = createResource({
+const TodoResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   schema: Todo,
@@ -82,7 +82,7 @@ Passed to [RestEndpoint.path](./RestEndpoint.md#path) for single item [](#member
 Create ([getList.push](#push)/[getList.unshift](#unshift)) and [getList](#getlist) remove the last argument.
 
 ```ts
-const PostResource = createResource({
+const PostResource = resource({
   schema: Post,
   path: '/:group/posts/:id',
 });
@@ -139,7 +139,7 @@ export default class AuthdEndpoint<
     };
   }
 }
-const TodoResource = createResource({
+const TodoResource = resource({
   path: '/todos/:id',
   schema: Todo,
   // highlight-next-line
@@ -152,7 +152,7 @@ const TodoResource = createResource({
 [Collection Class](./Collection.md) used to construct [getList](#getlist) schema.
 
 ```ts
-import { schema, createResource } from '@data-client/rest';
+import { schema, resource } from '@data-client/rest';
 
 class MyCollection<
   S extends any[] | PolymorphicInterface = any,
@@ -164,7 +164,7 @@ class MyCollection<
     return key === 'orderBy';
   }
 }
-const TodoResource = createResource({
+const TodoResource = resource({
   path: '/todos/:id',
   searchParams: {} as { userId?: string; orderBy?: string } | undefined,
   schema: Todo,
@@ -182,7 +182,7 @@ These provide the standard [CRUD](https://en.wikipedia.org/wiki/Create,_read,_up
 new endpoints](#extend-new) based to match your API.
 
 ```ts
-const PostResource = createResource({
+const PostResource = resource({
   schema: Post,
   path: '/:group/posts/:id',
   searchParams: {} as { author?: string },
@@ -221,7 +221,7 @@ export default class Post extends Entity {
 
 ```typescript title="Resource"
 import Post from './Post';
-export const PostResource = createResource({
+export const PostResource = resource({
   schema: Post,
   path: '/:group/posts/:id',
   searchParams: {} as { author?: string },
@@ -266,7 +266,7 @@ export default class Post extends Entity {
 
 ```typescript title="Resource"
 import Post from './Post';
-export const PostResource = createResource({
+export const PostResource = resource({
   schema: Post,
   path: '/:group/posts/:id',
   searchParams: {} as { author?: string },
@@ -293,8 +293,8 @@ PostResource.getList({
 
 <!-- prettier-ignore-start -->
 ```ts
-createResource({ path: '/:first/:second' }).getList.path === '/:first';
-createResource({ path: '/:first' }).getList.path === '/';
+resource({ path: '/:first/:second' }).getList.path === '/:first';
+resource({ path: '/:first' }).getList.path === '/';
 ```
 <!-- prettier-ignore-end -->
 
@@ -321,7 +321,7 @@ export default class Post extends Entity {
 
 ```typescript title="Resource"
 import Post from './Post';
-export const PostResource = createResource({
+export const PostResource = resource({
   schema: Post,
   path: '/:group/posts/:id',
   searchParams: {} as { author?: string },
@@ -368,7 +368,7 @@ export default class Post extends Entity {
 
 ```typescript title="Resource"
 import Post from './Post';
-export const PostResource = createResource({
+export const PostResource = resource({
   schema: Post,
   path: '/:group/posts/:id',
   searchParams: {} as { author?: string },
@@ -417,7 +417,7 @@ export default class Post extends Entity {
 
 ```typescript title="Resource"
 import Post from './Post';
-export const PostResource = createResource({
+export const PostResource = resource({
   schema: Post,
   path: '/:group/posts/:id',
   searchParams: {} as { author?: string },
@@ -468,7 +468,7 @@ export default class Post extends Entity {
 
 ```typescript title="Resource"
 import Post from './Post';
-export const PostResource = createResource({
+export const PostResource = resource({
   schema: Post,
   path: '/:group/posts/:id',
   searchParams: {} as { author?: string },
@@ -514,7 +514,7 @@ export default class Post extends Entity {
 
 ```typescript title="Resource"
 import Post from './Post';
-export const PostResource = createResource({
+export const PostResource = resource({
   schema: Post,
   path: '/:group/posts/:id',
   searchParams: {} as { author?: string },
@@ -560,7 +560,7 @@ export default class Post extends Entity {
 
 ```typescript title="Resource"
 import Post from './Post';
-export const PostResource = createResource({
+export const PostResource = resource({
   schema: Post,
   path: '/:group/posts/:id',
   searchParams: {} as { author?: string },
@@ -600,14 +600,14 @@ This allows [schema.Invalidate](./Invalidate.md) to remove the entity from the [
 
 ### extend() {#extend}
 
-`createResource` builds a great starting point, but often endpoints need to be [further customized](./RestEndpoint.md#typing).
+`resource` builds a great starting point, but often endpoints need to be [further customized](./RestEndpoint.md#typing).
 
 `extend()` is polymorphic with three forms:
 
 #### Batch extension of known members {#extend-override}
 
 ```ts
-export const CommentResource = createResource({
+export const CommentResource = resource({
   path: '/repos/:owner/:repo/issues/comments/:id',
   schema: Comment,
 }).extend({
@@ -631,7 +631,7 @@ export const UserResource = createGithubResource({
 #### Function form (to get BaseResource/super) {#extend-function}
 
 ```ts
-export const IssueResource= createResource({
+export const IssueResource= resource({
   path: '/repos/:owner/:repo/issues/:number',
   schema: Issue,
   pollFrequency: 60000,
@@ -657,12 +657,12 @@ export const IssueResource= createResource({
 
 ## Function Inheritance Patterns
 
-To reuse code around `Resource` design, you can create your own function that calls createResource().
+To reuse code around `Resource` design, you can create your own function that calls resource().
 This has similar effects as class-based inheritance.
 
 ```typescript
 import {
-  createResource,
+  resource,
   RestEndpoint,
   type EndpointExtraOptions,
   type RestGenerics,
@@ -686,7 +686,7 @@ export function createMyResource<O extends ResourceGenerics = any>({
   Endpoint = AuthdEndpoint,
   ...extraOptions
 }: Readonly<O> & ResourceOptions) {
-  return createResource({
+  return resource({
     Endpoint,
     schema,
     ...extraOptions,
