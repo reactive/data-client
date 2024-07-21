@@ -1,7 +1,7 @@
 import { HeartOutlined } from '@ant-design/icons';
 import { Temporal } from '@js-temporal/polyfill';
 
-import { createGithubResource, GithubEntity } from './Base';
+import { githubResource, GithubEntity } from './Base';
 import PreviewEndpoint from './PreviewEndpoint';
 import { User } from './User';
 
@@ -24,7 +24,7 @@ export class Reaction extends GithubEntity {
   };
 }
 
-export const ReactionResource = createGithubResource({
+export const ReactionResource = githubResource({
   path: '/repos/:owner/:repo/issues/:number/reactions/:id',
   schema: Reaction,
   Endpoint: PreviewEndpoint,

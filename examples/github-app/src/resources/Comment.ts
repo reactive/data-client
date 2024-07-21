@@ -1,6 +1,6 @@
 import { Temporal } from '@js-temporal/polyfill';
 
-import { GithubEntity, createGithubResource } from './Base';
+import { GithubEntity, githubResource } from './Base';
 import { User } from './User';
 
 export class Comment extends GithubEntity {
@@ -28,7 +28,7 @@ export class Comment extends GithubEntity {
     updatedAt: Temporal.Instant.from,
   };
 }
-export const CommentResource = createGithubResource({
+export const CommentResource = githubResource({
   path: '/repos/:owner/:repo/issues/comments/:id',
   schema: Comment,
   optimistic: true,

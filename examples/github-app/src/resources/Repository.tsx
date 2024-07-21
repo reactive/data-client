@@ -1,6 +1,6 @@
 import { Temporal } from '@js-temporal/polyfill';
 
-import { GithubEntity, createGithubResource, GithubGqlEndpoint } from './Base';
+import { GithubEntity, githubResource, GithubGqlEndpoint } from './Base';
 
 export class Repository extends GithubEntity {
   readonly name: string = '';
@@ -63,7 +63,7 @@ export class GqlRepository extends Repository {
   }
 }
 
-export const RepositoryResource = createGithubResource({
+export const RepositoryResource = githubResource({
   path: '/repos/:owner/:repo',
   schema: Repository,
 }).extend((base) => ({

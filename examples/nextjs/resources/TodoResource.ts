@@ -1,7 +1,7 @@
 import { schema } from '@data-client/rest';
 
 import {
-  createPlaceholderResource,
+  placeholderResource,
   PlaceholderEntity,
 } from './PlaceholderBaseResource';
 
@@ -13,7 +13,7 @@ export class Todo extends PlaceholderEntity {
   static key = 'Todo';
 }
 
-export const TodoResource = createPlaceholderResource({
+export const TodoResource = placeholderResource({
   path: '/todos/:id',
   schema: Todo,
   optimistic: true,

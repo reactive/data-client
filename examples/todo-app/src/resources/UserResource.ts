@@ -1,5 +1,5 @@
 import {
-  createPlaceholderResource,
+  placeholderResource,
   PlaceholderEntity,
 } from './PlaceholderBaseResource';
 
@@ -35,7 +35,7 @@ export class User extends PlaceholderEntity {
   static key = 'User';
 }
 
-export const UserResource = createPlaceholderResource({
+export const UserResource = placeholderResource({
   path: '/users/:id',
   schema: User,
 });

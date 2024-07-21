@@ -11,7 +11,7 @@ import {
   RestGenerics,
   RestEndpoint,
   Resource,
-  createResource,
+  resource,
   ResourceGenerics,
   ResourceOptions,
   PaginationFieldEndpoint,
@@ -90,10 +90,10 @@ export class GithubEndpoint<
   }
 }
 
-export function createGithubResource<O extends ResourceGenerics>(
+export function githubResource<O extends ResourceGenerics>(
   options: Readonly<O> & ResourceOptions,
 ): GithubResource<O> {
-  const baseResource = createResource({
+  const baseResource = resource({
     Endpoint: GithubEndpoint,
     paginationField: 'page',
     ...options,

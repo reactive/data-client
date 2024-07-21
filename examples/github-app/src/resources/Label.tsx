@@ -1,4 +1,4 @@
-import { GithubEntity, createGithubResource } from './Base';
+import { GithubEntity, githubResource } from './Base';
 import PreviewEndpoint from './PreviewEndpoint';
 
 export class Label extends GithubEntity {
@@ -12,7 +12,7 @@ export class Label extends GithubEntity {
     return this.id?.toString();
   }
 }
-export const LabelResource = createGithubResource({
+export const LabelResource = githubResource({
   path: '/repos/:owner/:repo/labels/:name',
   schema: Label,
   Endpoint: PreviewEndpoint,

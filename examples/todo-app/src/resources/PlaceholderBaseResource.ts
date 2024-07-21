@@ -1,6 +1,6 @@
 import { Entity } from '@data-client/rest';
 import {
-  createResource,
+  resource,
   ResourceGenerics,
   ResourceOptions,
   Resource,
@@ -17,10 +17,10 @@ export abstract class PlaceholderEntity extends Entity {
 }
 
 /** Common patterns in the https://jsonplaceholder.typicode.com API */
-export function createPlaceholderResource<O extends ResourceGenerics = any>(
+export function placeholderResource<O extends ResourceGenerics = any>(
   options: Readonly<O> & ResourceOptions,
 ): Resource<O> {
-  return createResource({
+  return resource({
     ...options,
     urlPrefix: 'https://jsonplaceholder.typicode.com',
     // hour expiry time since we want to keep our example mutations and the api itself never actually changes

@@ -8,7 +8,7 @@ import {
 import { schema } from '@data-client/rest';
 import { Temporal } from '@js-temporal/polyfill';
 
-import { createGithubResource, GithubEntity } from './Base';
+import { githubResource, GithubEntity } from './Base';
 import { Issue } from './Issue';
 import PreviewEndpoint from './PreviewEndpoint';
 import { Pull } from './Pull';
@@ -80,7 +80,7 @@ export class IssuesEvent extends Event {
   };
 }
 
-export const EventResource = createGithubResource({
+export const EventResource = githubResource({
   path: '/users/:login/events/public/:id',
   schema: new schema.Union(
     {

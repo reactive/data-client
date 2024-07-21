@@ -1,6 +1,6 @@
 import { Temporal } from '@js-temporal/polyfill';
 
-import { GithubEntity, createGithubResource } from './Base';
+import { GithubEntity, githubResource } from './Base';
 import { Label } from './Label';
 import { stateToIcon } from './stateToIcon';
 import { User } from './User';
@@ -51,7 +51,7 @@ export class Pull extends GithubEntity {
   static key = 'Pull';
 }
 
-export const PullResource = createGithubResource({
+export const PullResource = githubResource({
   path: '/repos/:owner/:repo/pulls/:number',
   schema: Pull,
   pollFrequency: 60000,

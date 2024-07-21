@@ -1,4 +1,4 @@
-import { Entity, createResource, schema } from '@data-client/rest';
+import { Entity, resource, schema } from '@data-client/rest';
 
 import { iconTable } from './cryptoIconTable';
 import { Stats } from './Stats';
@@ -57,7 +57,7 @@ export class Currency extends Entity {
   };
 }
 
-export const CurrencyResource = createResource({
+export const CurrencyResource = resource({
   urlPrefix: 'https://api.exchange.coinbase.com',
   path: '/currencies/:id',
   schema: Currency,

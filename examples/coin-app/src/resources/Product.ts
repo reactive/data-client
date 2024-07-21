@@ -1,4 +1,4 @@
-import { Entity, createResource, schema } from '@data-client/rest';
+import { Entity, resource, schema } from '@data-client/rest';
 
 import { Stats } from './Stats';
 
@@ -25,7 +25,7 @@ export class Product extends Entity {
   }
 }
 
-export const ProductResource = createResource({
+export const ProductResource = resource({
   urlPrefix: 'https://api.exchange.coinbase.com',
   path: '/products/:id',
   schema: Product,
