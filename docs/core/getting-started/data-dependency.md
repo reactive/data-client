@@ -173,7 +173,7 @@ function LoadMore() {
   const [nextPage, isPending] = useLoading(
     () => ctrl.fetch(PostResource.getList.getPage, { page: 2 }),
   );
-  if (posts?.length % 3 !== 0) return null;
+  if (!posts || posts.length % 3 !== 0) return null;
   return (
     <center>
       <button onClick={nextPage}>{isPending ? "..." : 'Load more'}</button>
