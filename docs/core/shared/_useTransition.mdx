@@ -11,13 +11,13 @@ import { Entity, createResource } from '@data-client/rest';
 
 export class Post extends Entity {
   id = 0;
-  userId = 0;
+  author = 0;
   title = '';
   body = '';
   votes = 0;
 
   pk() {
-    return this.id?.toString();
+    return this.id;
   }
   static key = 'Post';
 

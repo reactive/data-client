@@ -28,22 +28,6 @@ which guarantees data like [await](https://developer.mozilla.org/en-US/docs/Web/
 ```ts title="Resources" collapsed
 import { Entity, createResource } from '@data-client/rest';
 
-export class Post extends Entity {
-  id = 0;
-  userId = 0;
-  title = '';
-  body = '';
-
-  pk() {
-    return this.id?.toString();
-  }
-  static key = 'Post';
-}
-export const PostResource = createResource({
-  path: '/posts/:id',
-  schema: Post,
-});
-
 export class User extends Entity {
   id = 0;
   name = '';
@@ -57,7 +41,7 @@ export class User extends Entity {
   }
 
   pk() {
-    return `${this.id}`;
+    return this.id;
   }
   static key = 'User';
 }
@@ -66,22 +50,42 @@ export const UserResource = createResource({
   path: '/users/:id',
   schema: User,
 });
+
+export class Post extends Entity {
+  id = 0;
+  author = User.fromJS();
+  title = '';
+  body = '';
+
+  pk() {
+    return this.id;
+  }
+  static key = 'Post';
+
+  static schema = {
+    author: User,
+  };
+}
+export const PostResource = createResource({
+  path: '/posts/:id',
+  schema: Post,
+  paginationField: 'page',
+});
 ```
 
-```tsx title="PostDetail" {5-6} collapsed
+```tsx title="PostDetail" {5} collapsed
 import { useSuspense } from '@data-client/react';
-import { UserResource, PostResource } from './Resources';
+import { PostResource } from './Resources';
 
 export default function PostDetail({ setRoute, id }) {
   const post = useSuspense(PostResource.get, { id });
-  const author = useSuspense(UserResource.get, { id: post.userId });
   return (
     <div>
       <header>
         <div className="listItem spaced">
           <div className="author">
-            <Avatar src={author.profileImage} />
-            <small>{author.name}</small>
+            <Avatar src={post.author.profileImage} />
+            <small>{post.author.name}</small>
           </div>
           <h4>{post.title}</h4>
         </div>
@@ -101,15 +105,13 @@ export default function PostDetail({ setRoute, id }) {
 }
 ```
 
-```tsx title="PostItem" {5} collapsed
-import { useSuspense } from '@data-client/react';
-import { UserResource, type Post } from './Resources';
+```tsx title="PostItem" collapsed
+import { type Post } from './Resources';
 
 export default function PostItem({ post, setRoute }: Props) {
-  const author = useSuspense(UserResource.get, { id: post.userId });
   return (
     <div className="listItem spaced">
-      <Avatar src={author.profileImage} />
+      <Avatar src={post.author.profileImage} />
       <div>
         <h4>
           <a
@@ -122,7 +124,7 @@ export default function PostItem({ post, setRoute }: Props) {
             {post.title}
           </a>
         </h4>
-        <small>by {author.name}</small>
+        <small>by {post.author.name}</small>
       </div>
     </div>
   );
@@ -152,6 +154,8 @@ export default function PostList({ setRoute }) {
 ```
 
 ```tsx title="Navigation" collapsed
+import { useController, useLoading } from '@data-client/react';
+import { PostResource } from './Resources';
 import PostList from './PostList';
 import PostDetail from './PostDetail';
 
@@ -160,7 +164,21 @@ function Navigation() {
   if (route.startsWith('detail'))
     return <PostDetail setRoute={setRoute} id={route.split('/')[1]} />;
 
-  return <PostList setRoute={setRoute} />;
+  return <><PostList setRoute={setRoute} /><LoadMore /></>;
+}
+
+function LoadMore() {
+  const ctrl = useController();
+  const posts = useQuery(PostResource.getList.schema);
+  const [nextPage, isPending] = useLoading(
+    () => ctrl.fetch(PostResource.getList.getPage, { page: 2 }),
+  );
+  if (posts?.length % 3 !== 0) return null;
+  return (
+    <center>
+      <button onClick={nextPage}>{isPending ? "..." : 'Load more'}</button>
+    </center>
+  )
 }
 render(<Navigation />);
 ```

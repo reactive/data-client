@@ -4,19 +4,27 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 <HooksPlayground fixtures={postFixtures} getInitialInterceptorData={() => ({votes: {}})} row defaultTab={props.defaultTab}>
 
 ```ts title="Post" collapsed
-import { Entity } from '@data-client/rest';
+import { Entity, schema } from '@data-client/rest';
 
 export class Post extends Entity {
   id = 0;
-  userId = 0;
+  author = { id: 0 };
   title = '';
   body = '';
   votes = 0;
 
   pk() {
-    return this.id?.toString();
+    return this.id;
   }
   static key = 'Post';
+
+  static schema = {
+    author: schema.Entity(
+      class User {
+        id = 0;
+      },
+    ),
+  };
 
   get img() {
     return `//loremflickr.com/96/72/kitten,cat?lock=${this.id % 16}`;
@@ -24,7 +32,7 @@ export class Post extends Entity {
 }
 ```
 
-```ts title="PostResource" {14-21}
+```ts title="PostResource" {15-22}
 import { createResource } from '@data-client/rest';
 import { Post } from './Post';
 
@@ -32,6 +40,7 @@ export { Post };
 
 export const PostResource = createResource({
   path: '/posts/:id',
+  searchParams: {} as { userId?: string | number } | undefined,
   schema: Post,
 }).extend('vote', {
   path: '/posts/:id/vote',
@@ -76,7 +85,9 @@ export default function PostItem({ post }: Props) {
     </div>
   );
 }
-interface Props { post: Post }
+interface Props {
+  post: Post;
+}
 ```
 
 ```tsx title="TotalVotes" collapsed {15}
@@ -88,7 +99,7 @@ const queryTotalVotes = new schema.Query(
   new schema.All(Post),
   (posts, { userId } = {}) => {
     if (userId !== undefined)
-      posts = posts.filter(post => post.userId === userId);
+      posts = posts.filter(post => post.author.id === userId);
     return posts.reduce((total, post) => total + post.votes, 0);
   },
 );
@@ -101,7 +112,9 @@ export default function TotalVotes({ userId }: Props) {
     </center>
   );
 }
-interface Props { userId: number }
+interface Props {
+  userId: number;
+}
 ```
 
 ```tsx title="PostList" collapsed

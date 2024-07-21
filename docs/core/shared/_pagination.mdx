@@ -19,7 +19,7 @@ export class User extends Entity {
   }
 
   pk() {
-    return `${this.id}`;
+    return this.id;
   }
   static key = 'User';
 }
@@ -36,7 +36,7 @@ export class Post extends Entity {
   body = '';
 
   pk() {
-    return this.id?.toString();
+    return this.id;
   }
   static key = 'Post';
 
