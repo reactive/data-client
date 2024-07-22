@@ -1,24 +1,12 @@
 ---
 title: Debugging and Inspection
 sidebar_label: Debugging
+image: /img/devtool-action.png
 ---
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
-
-<abbr title="Reactive Data Client">Data Client</abbr> uses the [flux store](https://facebookarchive.github.io/flux/docs/in-depth-overview/) pattern, making debugging
-straightforward as each change is traceable and descriptive.
-
-<ThemedImage
-  alt="FLUX"
-  sources={{
-    light: useBaseUrl('/img/flux.png'),
-    dark: useBaseUrl('/img/flux-dark.png'),
-  }}
-/>
-
-> [More about control flow](../api/Manager#control-flow)
 
 ## Installation
 
@@ -27,19 +15,24 @@ Add the browser extension for
 or
 [firefox extension](https://addons.mozilla.org/en-US/firefox/addon/reduxdevtools/)
 
-[DevToolsManager](../api/DevToolsManager) makes this work. This is part of the [default managers](../api/DataProvider.md) for [DataProvider](../api/DataProvider.md)
-in dev mode. If you have custom managers, you'll need to ensure DevToolsManager is included.
-
 ## Open dev tools
 
-<span style={{float:'right',marginLeft:'10px',width:'190px'}}>
+<span style={{float:'right',marginLeft:'10px',width:'190px',textAlign:'center'}}>
 ![redux-devtools browser button](/img/devtools-browser-button.png)
+<span style={{display:'inline-block',width:'40px',height:'40px'}}>
+![reactive data client button](/img/client-logo.svg)
+</span>
 </span>
 
-After installing and running your site, a new icon should appear in your location bar
+After installing and loading your [site in dev-mode](https://webpack.js.org/guides/development/), you either
+click the <abbr title="Reactive Data Client">Data Client</abbr> logo (default bottom-right of window) or the
+redux-devtool logo in the location bar.
 
 Clicking that will open the inspector, which allows you to observe dispatched actions,
 their effect on the store's state as well as current store state.
+
+The <abbr title="Reactive Data Client">Data Client</abbr> logo only appears in dev-mode. However, its
+location can be moved or completely disabled by setting the [devButton DataProvider prop](../api/DataProvider.md#devbutton).
 
 ![browser-devtools](/img/devtool-action.png 'Reactive Data Client devtools')
 
@@ -54,9 +47,24 @@ This can be changed with [skipLogging](../api/DevToolsManager.md#skiplogging) op
 
 :::
 
+## Control flow
+
+<abbr title="Reactive Data Client">Data Client</abbr> uses the [flux store](https://facebookarchive.github.io/flux/docs/in-depth-overview/) pattern, making debugging
+straightforward as each change is traceable and descriptive.
+
+<ThemedImage
+  alt="FLUX"
+  sources={{
+    light: useBaseUrl('/img/flux.png'),
+    dark: useBaseUrl('/img/flux-dark.png'),
+  }}
+/>
+
+> [More about control flow](../api/Manager#control-flow)
+
 ## State Inspection
 
-Whens [schema](/rest/api/schema)s are used, responses are [normalized](../concepts/normalization.md) into `entities`
+Whens [schemas](/rest/api/schema) are used, responses are [normalized](../concepts/normalization.md) into `entities`
 and `endpoints` tables. This enables automatic performance advantages over simpler key-value fetch caches; especially
 beneficial with dynamic (changing) data. This also eliminates data-inconsistency bugs.
 
