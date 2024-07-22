@@ -32,107 +32,43 @@ in dev mode. If you have custom managers, you'll need to ensure DevToolsManager 
 
 ## Open dev tools
 
-<span style={{float:'right',marginLeft:'10px'}}>
-![redux-devtools button](/img/redux-devtools.png)
+<span style={{float:'right',marginLeft:'10px',width:'190px'}}>
+![redux-devtools browser button](/img/devtools-browser-button.png)
 </span>
 
 After installing and running your site, a new icon should appear in your location bar
 
 Clicking that will open the inspector, which allows you to observe dispatched actions,
-their effect on the cache state as well as current cache state.
+their effect on the store's state as well as current store state.
 
 ![browser-devtools](/img/devtool-action.png 'Reactive Data Client devtools')
 
 The [Controller](../api/Controller.md) dispatches actions, making that page useful for understanding
-what actions you see. Here we observe the most common actions of [fetch](../api/Controller.md#fetch)
-and [set](../api/Controller.md#setResponse).
+what actions you see. Here we observe common actions of [fetch](../api/Controller.md#fetch)
+and [setResponse](../api/Controller.md#setResponse).
 
 :::note
 
-By default the devtool integration will filter [fetch](../api/Controller.md#fetch) actions initiated
-by hooks to reduce spam. This can be changed with [skipLogging](../api/DevToolsManager.md#skiplogging) option.
+By default the devtool integration will filter duplicate [fetch](../api/Controller.md#fetch) actions.
+This can be changed with [skipLogging](../api/DevToolsManager.md#skiplogging) option.
 
 :::
 
 ## State Inspection
 
-If [schema](/rest/api/schema)s are used, API responses are split into two pieces - entities, and results. This
-is known as [normalization](../concepts/normalization.md), which ensures consistency
-and alows allows for automatic as well as novel performances optimizations, especially
-key if the data ever changes or is repeated.
-
-<Tabs
-defaultValue="State"
-values={[
-{ label: 'State', value: 'State' },
-{ label: 'Response', value: 'Response' },
-{ label: 'Endpoint', value: 'Endpoint' },
-{ label: 'Entity', value: 'Entity' },
-{ label: 'React', value: 'React' },
-]}>
-<TabItem value="State">
-
-![Entities cache](/img/entities.png 'Entities cache')
-
-</TabItem>
-<TabItem value="Response">
-
-```json
-[
-  { "id": 1, "title": "this is an entity" },
-  { "id": 2, "title": "this is the second entity" }
-]
-```
-
-</TabItem>
-<TabItem value="Endpoint">
-
-```typescript
-const getPresentations = new Endpoint(
-  () => fetch(`/presentations`).then(res => res.json()),
-  { schema: new schema.Collection([Presentation]) },
-);
-```
-
-</TabItem>
-<TabItem value="Entity">
-
-```typescript
-class Presentation extends Entity {
-  id = '';
-  title = '';
-
-  pk() {
-    return this.id;
-  }
-  static key = 'presentation';
-}
-```
-
-</TabItem>
-<TabItem value="React">
-
-```tsx
-export function PresentationsPage() {
-  const presentation = useSuspense(getPresentations);
-  return presentation.map(presentation => (
-    <div key={presentation.pk()}>{presentation.title}</div>
-  ));
-}
-```
-
-</TabItem>
-</Tabs>
-
-Once [normalized](../concepts/normalization.md), these [entities](/rest/api/Entity) and results are merged with the larger cache. Click on the 'state'
-tab in devtools to see the entire state. This can be useful to determine exactly where data is. There is
-also a 'meta' section of the cache for information like when the request took place (useful for [TTL](../concepts/expiry-policy.md)).
+Whens [schema](/rest/api/schema)s are used, responses are [normalized](../concepts/normalization.md) into `entities`
+and `endpoints` tables. This enables automatic performance advantages over simpler key-value fetch caches; especially
+beneficial with dynamic (changing) data. This also eliminates data-inconsistency bugs.
 
 ![Dev tools state inspector](/img/devtool-state.png 'Reactive Data Client devtools state inspector')
 
+Click on the **'state'**
+tab in devtools to see the store's entire state. This can be useful to determine exactly where data is. There is
+also a 'meta' section of the cache for information like when the request took place (useful for [TTL](../concepts/expiry-policy.md)).
+
 ## State Diff
 
-For monitoring a particular fetch response, it might be more useful to see how the cache state updates.
+For monitoring a particular fetch response, it might be more useful to see how the store updates.
 Click on the 'Diff' tab to see what changed.
 
 ![Dev tools diff inspector](/img/devtool-diff.png 'Reactive Data Client devtools diff')

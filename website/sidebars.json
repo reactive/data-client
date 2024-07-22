@@ -24,6 +24,10 @@
         {
           "type": "doc",
           "id": "getting-started/mutations"
+        },
+        {
+          "type": "doc",
+          "id": "guides/debugging"
         }
       ]
     },
@@ -66,10 +70,7 @@
       "type": "category",
       "label": "Tooling",
       "items": [
-        {
-          "type": "doc",
-          "id": "guides/debugging"
-        },
+
         {
           "type": "doc",
           "id": "guides/storybook"
