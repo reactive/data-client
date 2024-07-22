@@ -134,7 +134,7 @@ describe('NetworkManager', () => {
     let NM: NetworkManager;
     let middleware: Middleware;
     beforeEach(() => {
-      NM = new NetworkManager(42, 7);
+      NM = new NetworkManager({ dataExpiryLength: 42, errorExpiryLength: 7 });
       middleware = NM.getMiddleware();
     });
     afterEach(() => {

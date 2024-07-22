@@ -259,9 +259,11 @@ const getPosts = new RestEndpoint({
   path: '/:group/posts',
   searchParams: {} as { orderBy?: string; author?: string },
   schema: new schema.Collection([Post], {
+    // highlight-start
     nonFilterArgumentKeys(key) {
       return key === 'orderBy';
     },
+    // highlight-end
   }),
 });
 ```
@@ -273,6 +275,7 @@ const getPosts = new RestEndpoint({
   path: '/:group/posts',
   searchParams: {} as { orderBy?: string; author?: string },
   schema: new schema.Collection([Post], {
+    // highlight-next-line
     nonFilterArgumentKeys: /orderBy/,
   }),
 });
@@ -283,6 +286,7 @@ const getPosts = new RestEndpoint({
   path: '/:group/posts',
   searchParams: {} as { orderBy?: string; author?: string },
   schema: new schema.Collection([Post], {
+    // highlight-next-line
     nonFilterArgumentKeys: ['orderBy'],
   }),
 });

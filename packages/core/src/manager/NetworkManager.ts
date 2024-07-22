@@ -38,7 +38,7 @@ export default class NetworkManager implements Manager {
   protected controller: Controller = new Controller();
   declare cleanupDate?: number;
 
-  constructor(dataExpiryLength = 60000, errorExpiryLength = 1000) {
+  constructor({ dataExpiryLength = 60000, errorExpiryLength = 1000 } = {}) {
     this.dataExpiryLength = dataExpiryLength;
     this.errorExpiryLength = errorExpiryLength;
 

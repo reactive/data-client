@@ -60,7 +60,7 @@ straightforward as each change is traceable and descriptive.
   }}
 />
 
-> [More about control flow](../api/Manager#control-flow)
+> [More about control flow](../concepts/managers.md)
 
 ## State Inspection
 
