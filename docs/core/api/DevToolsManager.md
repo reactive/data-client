@@ -27,7 +27,7 @@ browser to get started.
 [Arguments](https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md)
 to send to redux devtools.
 
-For example, we can enable the `trace` option to help track down where actions are dispatched from.
+For example, we can enable the [trace](https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md#trace) option to help track down where actions are dispatched from.
 
 ```tsx title="index.tsx"
 import {
@@ -37,19 +37,10 @@ import {
 } from '@data-client/react';
 import ReactDOM from 'react-dom';
 
-const managers =
-  process.env.NODE_ENV !== 'production'
-    ? [
-        // highlight-start
-        new DevToolsManager({
-          trace: true,
-        }),
-        // highlight-end
-        ...getDefaultManagers().filter(
-          manager => manager.constructor.name !== 'DevToolsManager',
-        ),
-      ]
-    : getDefaultManagers();
+const managers = getDefaultManagers({
+  // highlight-next-line
+  devToolsManager: { trace: true },
+});
 
 ReactDOM.createRoot(document.body).render(
   <DataProvider managers={managers}>

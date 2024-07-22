@@ -6,4 +6,4 @@ export {
   LogoutManager,
   NetworkManager,
 } from '@data-client/core';
-export { default as IdlingNetworkManager } from './NetworkManager.js';
+export { default as IdlingNetworkManager } from './IdlingNetworkManager.js';

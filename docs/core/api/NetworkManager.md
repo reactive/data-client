@@ -16,7 +16,7 @@ it is able to dedupe identical requests if they are made using the throttle flag
 
 ## Members
 
-### constructor(dataExpiryLength = 60000, errorExpiryLength = 1000) {#constructor}
+### constructor(\{ dataExpiryLength = 60000, errorExpiryLength = 1000 }) {#constructor}
 
 Arguments represent the default time (in miliseconds) before a resource is considered 'stale'.
 

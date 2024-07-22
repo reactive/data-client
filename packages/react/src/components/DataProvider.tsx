@@ -3,9 +3,6 @@ import {
   initialState as defaultState,
   Controller as DataController,
   applyManager,
-  SubscriptionManager,
-  PollingSubscription,
-  DevToolsManager,
 } from '@data-client/core';
 import type { State, Manager } from '@data-client/core';
 import React, { useMemo, useRef } from 'react';
@@ -13,10 +10,11 @@ import type { JSX } from 'react';
 
 import DataStore from './DataStore.js';
 import type { DevToolsPosition } from './DevToolsButton.js';
+import { getDefaultManagers } from './getDefaultManagers.js';
 import { SSR } from './LegacyReact.js';
 import { renderDevButton } from './renderDevButton.js';
 import { ControllerContext } from '../context.js';
-import { NetworkManager } from '../managers/index.js';
+import { DevToolsManager } from '../managers/index.js';
 
 export interface ProviderProps {
   children: React.ReactNode;
@@ -89,26 +87,3 @@ See https://dataclient.io/docs/guides/ssr.`,
     </ControllerContext.Provider>
   );
 }
-
-/* istanbul ignore next */
-let getDefaultManagers = () =>
-  [
-    new NetworkManager(),
-    new SubscriptionManager(PollingSubscription),
-  ] as Manager[];
-
-/* istanbul ignore else */
-if (process.env.NODE_ENV !== 'production') {
-  getDefaultManagers = () => {
-    const networkManager = new NetworkManager();
-    return [
-      new DevToolsManager(
-        undefined,
-        networkManager.skipLogging.bind(networkManager),
-      ),
-      networkManager,
-      new SubscriptionManager(PollingSubscription),
-    ] as Manager[];
-  };
-}
-export { getDefaultManagers };

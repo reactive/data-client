@@ -4,11 +4,11 @@ describe('RequestIdleCallback', () => {
     (global as any).requestIdleCallback = undefined;
     jest.resetModules();
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { NetworkManager } = await import('..');
+    const { IdlingNetworkManager } = await import('..');
     const fn = jest.fn();
     jest.useFakeTimers();
     // @ts-expect-error
-    new NetworkManager().idleCallback(fn, {});
+    new IdlingNetworkManager().idleCallback(fn, {});
     jest.runAllTimers();
     expect(fn).toHaveBeenCalled();
     (global as any).requestIdleCallback = requestIdle;
@@ -18,11 +18,11 @@ describe('RequestIdleCallback', () => {
   it('should run through requestIdleCallback', async () => {
     jest.resetModules();
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { NetworkManager } = await import('..');
+    const { IdlingNetworkManager } = await import('..');
     const fn = jest.fn();
     jest.useFakeTimers();
     // @ts-expect-error
-    new NetworkManager().idleCallback(fn, {});
+    new IdlingNetworkManager().idleCallback(fn, {});
     jest.runAllTimers();
     expect(fn).toHaveBeenCalled();
     jest.useRealTimers();

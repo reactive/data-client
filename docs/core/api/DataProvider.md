@@ -73,9 +73,9 @@ be useful for testing, or rehydrating the cache state when using server side ren
 
 ### managers?: Manager[] {#managers}
 
-List of [Manager](./Manager.md#provided-managers)s use. This is the main extensibility point of the provider.
+List of [Manager](./Manager.md)s use. This is the main extensibility point of the provider.
 
-`getDefaultManagers()` can be used to extend the default managers.
+[getDefaultManagers()](./getDefaultManagers.md) can be used to extend the default managers.
 
 Default Production:
 

@@ -633,7 +633,10 @@ declare class NetworkManager implements Manager {
     protected middleware: Middleware$2;
     protected controller: Controller;
     cleanupDate?: number;
-    constructor(dataExpiryLength?: number, errorExpiryLength?: number);
+    constructor({ dataExpiryLength, errorExpiryLength }?: {
+        dataExpiryLength?: number | undefined;
+        errorExpiryLength?: number | undefined;
+    });
     /** Used by DevtoolsManager to determine whether to log an action */
     skipLogging(action: ActionTypes): boolean;
     /** On mount */
@@ -807,7 +810,7 @@ interface SubscriptionConstructable {
  *
  * @see https://dataclient.io/docs/api/SubscriptionManager
  */
-declare class SubscriptionManager<S extends SubscriptionConstructable> implements Manager<Actions> {
+declare class SubscriptionManager<S extends SubscriptionConstructable = SubscriptionConstructable> implements Manager<Actions> {
     protected subscriptions: {
         [key: string]: InstanceType<S>;
     };
