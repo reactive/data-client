@@ -66,8 +66,8 @@ export default function createReducer(controller: Controller): ReducerType {
 
 export const initialState: State<unknown> = {
   entities: {},
-  indexes: {},
   endpoints: {},
+  indexes: {},
   meta: {},
   entityMeta: {},
   optimistic: [],

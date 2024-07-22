@@ -69,9 +69,8 @@ export function setResponseReducer(
     }
     return {
       entities,
-      indexes,
       endpoints,
-      entityMeta,
+      indexes,
       meta: {
         ...state.meta,
         [action.key]: {
@@ -80,6 +79,7 @@ export function setResponseReducer(
           prevExpiresAt: state.meta[action.key]?.expiresAt,
         },
       },
+      entityMeta,
       optimistic: filterOptimistic(state, action),
       lastReset: state.lastReset,
     };

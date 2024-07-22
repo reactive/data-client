@@ -22,10 +22,10 @@ export interface State<T> {
   readonly entities: {
     readonly [entityKey: string]: { readonly [pk: string]: T } | undefined;
   };
-  readonly indexes: NormalizedIndex;
   readonly endpoints: {
     readonly [key: string]: unknown | PK[] | PK | undefined;
   };
+  readonly indexes: NormalizedIndex;
   readonly meta: {
     readonly [key: string]: {
       readonly date: number;

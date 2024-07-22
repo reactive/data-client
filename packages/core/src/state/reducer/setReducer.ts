@@ -26,10 +26,10 @@ export function setReducer(
     );
     return {
       entities,
-      indexes,
       endpoints: state.endpoints,
-      entityMeta,
+      indexes,
       meta: state.meta,
+      entityMeta,
       optimistic: state.optimistic,
       lastReset: state.lastReset,
     };
