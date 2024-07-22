@@ -229,7 +229,7 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://da
 - [x] 🛑 Automatic overfetching elimination
 - [x] ✨ Fast [optimistic updates](https://dataclient.io/rest/guides/optimistic-updates)
 - [x] 🧘 [Flexible](https://dataclient.io/docs/getting-started/resource) to fit any API design (one size fits all)
-- [x] 🔧 [Debugging and inspection](https://dataclient.io/docs/guides/debugging) via browser extension
+- [x] 🔧 [Debugging and inspection](https://dataclient.io/docs/getting-started/debugging) via browser extension
 - [x] 🌳 Tree-shakable (only use what you need)
 - [x] 🔁 [Subscriptions](https://dataclient.io/docs/api/useSubscription)
 - [x] ♻️ Optional [redux integration](https://dataclient.io/docs/guides/redux)

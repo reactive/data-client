@@ -16,7 +16,7 @@ import StackBlitz from '@site/src/components/StackBlitz';
 # Managers and Middleware
 
 Reactive Data Client uses the [flux store](https://facebookarchive.github.io/flux/docs/in-depth-overview/) pattern, which is
-characterized by an easy to [understand and debug](../guides/debugging.md) the store's [undirectional data flow](<https://en.wikipedia.org/wiki/Unidirectional_Data_Flow_(computer_science)>). State updates are performed by a [reducer function](https://github.com/reactive/data-client/blob/master/packages/core/src/state/reducer/createReducer.ts#L19).
+characterized by an easy to [understand and debug](../getting-started/debugging.md) the store's [undirectional data flow](<https://en.wikipedia.org/wiki/Unidirectional_Data_Flow_(computer_science)>). State updates are performed by a [reducer function](https://github.com/reactive/data-client/blob/master/packages/core/src/state/reducer/createReducer.ts#L19).
 
 <ThemedImage
   alt="Manager flux flow"
@@ -42,7 +42,7 @@ They can also be customized to change core behaviors.
 | ---------------------------------------------------- | ------------------------------------------------------------------------------------ |
 | [NetworkManager](../api/NetworkManager.md)           | Turns fetch dispatches into network calls                                            |
 | [SubscriptionManager](../api/SubscriptionManager.md) | Handles polling [subscriptions](../getting-started/data-dependency.md#subscriptions) |
-| [DevToolsManager](../api/DevToolsManager.md)         | Enables [debugging](../guides/debugging.md)                                          |
+| [DevToolsManager](../api/DevToolsManager.md)         | Enables [debugging](../getting-started/debugging.md)                                          |
 | Extra managers                                       |
 | [LogoutManager](../api/LogoutManager.md)             | Handles HTTP `401` (or other logout conditions)                                      |
 

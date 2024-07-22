@@ -60,7 +60,7 @@ export default class Invalidate<
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Or use debugging tools: https://dataclient.io/docs/getting-started/debugging
   Learn more about schemas: https://dataclient.io/docs/api/schema
 
   Invalidate(Entity): Invalidate(${this._entity.key})

@@ -8,7 +8,7 @@
   why you expected it.
 * Include any relevant stack traces or debugging output.
 * Ensure you captured relevant [network inspector](https://developer.chrome.com/docs/devtools/network/) screenshots
-* Ensure [Browser Devtools](https://dataclient.io/docs/guides/debugging) screenshots or state and action dumps
+* Ensure [Browser Devtools](https://dataclient.io/docs/getting-started/debugging) screenshots or state and action dumps
 
 ## Feature Requests
 

@@ -33,7 +33,10 @@ export default function DevToolsButton({
       <style>{`.rdc-devtool-btn {text-align:center;}.rdc-devtool-btn > div {visibility:hidden;text-align:center;}.rdc-devtool-btn:hover > div {visibility:visible;}.rdc-devtool-btn a {text-decoration:none;}`}</style>
       <div>
         DevTools{' '}
-        <a href="https://dataclient.io/docs/guides/debugging" target="__blank">
+        <a
+          href="https://dataclient.io/docs/getting-started/debugging"
+          target="__blank"
+        >
           ℹ️
         </a>
       </div>

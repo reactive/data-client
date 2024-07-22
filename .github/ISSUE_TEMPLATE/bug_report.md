@@ -34,7 +34,7 @@ A clear and concise description of what you expected to happen.
 Include anything that could be related:
 - Console errors and warnings
 - [Network inspector](https://developer.chrome.com/docs/devtools/network/) screenshots
-- [Browser Devtools](https://dataclient.io/docs/guides/debugging) screenshots or state and action dumps
+- [Browser Devtools](https://dataclient.io/docs/getting-started/debugging) screenshots or state and action dumps
 
 **Minimum reproducable example or test case**
 For many cases reproducing the bug is fairly straightforward. However, if

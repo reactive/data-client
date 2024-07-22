@@ -89,7 +89,7 @@ export default abstract class Entity extends EntitySchema(EmptyBase) {
 
 This is likely due to a malformed response.
 Try inspecting the network response or fetch() return value.
-Or use debugging tools: https://dataclient.io/docs/guides/debugging
+Or use debugging tools: https://dataclient.io/docs/getting-started/debugging
 Learn more about schemas: https://dataclient.io/docs/api/schema
 If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
 

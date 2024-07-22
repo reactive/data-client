@@ -502,7 +502,7 @@ Add the Redux DevTools for
 or
 [firefox extension](https://addons.mozilla.org/en-US/firefox/addon/reduxdevtools/)
 
-Click the icon to open the [inspector](./guides/debugging.md), which allows you to observe dispatched actions,
+Click the icon to open the [inspector](./getting-started/debugging.md), which allows you to observe dispatched actions,
 their effect on the cache state as well as current cache state.
 
 ## Mock data

@@ -240,7 +240,7 @@ export default function EntitySchema<TBase extends Constructor>(
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Or use debugging tools: https://dataclient.io/docs/getting-started/debugging
   Learn more about primary keys: https://dataclient.io/rest/api/Entity#pk
 
   Entity: ${this.key}

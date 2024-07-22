@@ -342,6 +342,10 @@ const config: Config = {
             to: '/docs/api/ExternalDataProvider',
             from: ['/docs/api/ExternalCacheProvider'],
           },
+          {
+            to: '/docs/getting-started/debugging',
+            from: ['/docs/guides/debugging'],
+          },
           ...gqlRedirects,
         ],
       },

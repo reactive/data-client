@@ -95,4 +95,4 @@ ReactDOM.createRoot(document.body).render(
 
 ## More info
 
-Using this Manager allows in browser [debugging and store inspection](../guides/debugging).
+Using this Manager allows in browser [debugging and store inspection](../getting-started/debugging.md).

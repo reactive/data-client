@@ -494,7 +494,7 @@ exports[`EntitySchema normalization should error if no matching keys are found 1
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Or use debugging tools: https://dataclient.io/docs/getting-started/debugging
   Learn more about primary keys: https://dataclient.io/rest/api/Entity#pk
 
   Entity: MyEntity
@@ -533,7 +533,7 @@ exports[`EntitySchema normalization should throw a custom error if data does not
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Or use debugging tools: https://dataclient.io/docs/getting-started/debugging
   Learn more about primary keys: https://dataclient.io/rest/api/Entity#pk
 
   Entity: MyData
@@ -548,7 +548,7 @@ exports[`EntitySchema normalization should throw a custom error if data loads wi
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Or use debugging tools: https://dataclient.io/docs/getting-started/debugging
   Learn more about primary keys: https://dataclient.io/rest/api/Entity#pk
 
   Entity: MyData
@@ -573,7 +573,7 @@ exports[`EntitySchema normalization should throw a custom error loads with array
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Or use debugging tools: https://dataclient.io/docs/getting-started/debugging
   Learn more about primary keys: https://dataclient.io/rest/api/Entity#pk
 
   Entity: MyData

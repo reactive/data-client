@@ -385,13 +385,13 @@ per update.
 ## Store Inspection (debugging)
 
 [DevTools browser extension](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en)
-can be installed to inspect and [debug the store](../guides/debugging.md).
+can be installed to inspect and [debug the store](../getting-started/debugging.md).
 
 ![browser-devtools](/img/devtool-state.png 'Reactive Data Client devtools')
 
 <center>
 
-<Link className="button button--secondary" to="../guides/debugging">Data Client Debugging Guide »</Link>
+<Link className="button button--secondary" to="../getting-started/debugging">Data Client Debugging Guide »</Link>
 
 </center>
 

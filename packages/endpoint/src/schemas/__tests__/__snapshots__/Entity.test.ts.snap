@@ -506,7 +506,7 @@ exports[`Entity normalization should throw a custom error if data does not inclu
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Or use debugging tools: https://dataclient.io/docs/getting-started/debugging
   Learn more about primary keys: https://dataclient.io/rest/api/Entity#pk
 
   Entity: MyEntity
@@ -521,7 +521,7 @@ exports[`Entity normalization should throw a custom error if data does not inclu
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Or use debugging tools: https://dataclient.io/docs/getting-started/debugging
   Learn more about primary keys: https://dataclient.io/rest/api/Entity#pk
 
   Entity: MyEntity
@@ -536,7 +536,7 @@ exports[`Entity normalization should throw a custom error if data loads with no 
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://dataclient.io/docs/guides/debugging
+  Or use debugging tools: https://dataclient.io/docs/getting-started/debugging
   Learn more about primary keys: https://dataclient.io/rest/api/Entity#pk
 
   Entity: MyEntity
@@ -561,7 +561,7 @@ exports[`Entity normalization should throw a custom error loads with array 1`] =
 
 This is likely due to a malformed response.
 Try inspecting the network response or fetch() return value.
-Or use debugging tools: https://dataclient.io/docs/guides/debugging
+Or use debugging tools: https://dataclient.io/docs/getting-started/debugging
 Learn more about schemas: https://dataclient.io/docs/api/schema
 If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
 
@@ -588,7 +588,7 @@ exports[`Entity normalization should warn when automaticValidation === "warn" 1`
 
 This is likely due to a malformed response.
 Try inspecting the network response or fetch() return value.
-Or use debugging tools: https://dataclient.io/docs/guides/debugging
+Or use debugging tools: https://dataclient.io/docs/getting-started/debugging
 Learn more about schemas: https://dataclient.io/docs/api/schema
 If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
 
