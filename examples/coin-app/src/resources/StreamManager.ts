@@ -1,5 +1,5 @@
-import type { Manager, Middleware } from '@data-client/react';
-import { ActionTypes, Controller, actionTypes } from '@data-client/react';
+import type { Manager, Middleware, ActionTypes } from '@data-client/react';
+import { Controller, actionTypes } from '@data-client/react';
 import type { Entity } from '@data-client/rest';
 
 /** Updates crypto data using Coinbase websocket stream

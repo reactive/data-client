@@ -1,7 +1,7 @@
 /* eslint-disable no-inner-declarations */
 import type { DevToolsConfig } from './devtoolsTypes.js';
 import type { Middleware } from './LogoutManager.js';
-import { Controller, EndpointInterface } from '../index.js';
+import type { Controller, EndpointInterface } from '../index.js';
 import createReducer from '../state/reducer/createReducer.js';
 import type { Manager, State, ActionTypes } from '../types.js';
 
@@ -137,7 +137,7 @@ export default class DevToolsManager implements Manager {
 
     /* istanbul ignore if */
     /* istanbul ignore next */
-    if (this.devTools) {
+    if (process.env.NODE_ENV !== 'production' && this.devTools) {
       this.middleware = controller => {
         this.controller = controller;
         const reducer = createReducer(controller as any);

@@ -374,19 +374,23 @@ interface GCAction {
 }
 type ActionTypes = FetchAction | OptimisticAction | SetAction | SetResponseAction | SubscribeAction | UnsubscribeAction | InvalidateAction | InvalidateAllAction | ExpireAllAction | ResetAction | GCAction;
 
-type RHDispatch<Actions = any> = (value: Actions) => Promise<void>;
-interface MiddlewareAPI$1<R extends DataClientReducer = DataClientReducer> extends Controller<RHDispatch<ActionTypes>> {
+type ClientDispatch<Actions = ActionTypes> = (value: Actions) => Promise<void>;
+interface MiddlewareAPI$1 extends Controller<ClientDispatch<ActionTypes>> {
 }
-interface MiddlewareController<Actions = ActionTypes> extends Controller<RHDispatch<Actions>> {
+interface MiddlewareController<Actions = ActionTypes> extends Controller<ClientDispatch<Actions>> {
 }
-type Middleware$2<Actions = any> = <C extends MiddlewareController<Actions>>(controller: C) => (next: C['dispatch']) => C['dispatch'];
-type DataClientReducer = (prevState: State<unknown>, action: ActionTypes) => State<unknown>;
+/** @see https://dataclient.io/docs/api/Manager#getmiddleware */
+type Middleware$2<Actions = ActionTypes> = <C extends MiddlewareController<Actions>>(controller: C) => (next: C['dispatch']) => C['dispatch'];
 type Dispatch$1<R extends Reducer<any, any>> = (action: ReducerAction<R>) => Promise<void>;
 type Reducer<S, A> = (prevState: S, action: A) => S;
 type ReducerState<R extends Reducer<any, any>> = R extends Reducer<infer S, any> ? S : never;
 type ReducerAction<R extends Reducer<any, any>> = R extends Reducer<any, infer A> ? A : never;
 
 type PK = string;
+/** Normalized state for Reactive Data Client
+ *
+ * @see https://dataclient.io/docs/concepts/normalization
+ */
 interface State<T> {
     readonly entities: {
         readonly [entityKey: string]: {
@@ -419,9 +423,18 @@ interface State<T> {
     readonly optimistic: (SetResponseAction | OptimisticAction)[];
     readonly lastReset: number;
 }
+/** Singletons that handle global side-effects
+ *
+ * Kind of like useEffect() for the central data store
+ *
+ * @see https://dataclient.io/docs/api/Manager
+ */
 interface Manager<Actions = ActionTypes> {
+    /** @see https://dataclient.io/docs/api/Manager#getmiddleware */
     getMiddleware(): Middleware$2<Actions>;
+    /** @see https://dataclient.io/docs/api/Manager#cleanup */
     cleanup(): void;
+    /** @see https://dataclient.io/docs/api/Manager#init */
     init?: (state: State<any>) => void;
 }
 

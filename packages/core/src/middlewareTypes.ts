@@ -1,14 +1,16 @@
 import type Controller from './controller/Controller.js';
-import { ActionTypes, State } from './types.js';
+import type { ActionTypes, State } from './types.js';
 
-type RHDispatch<Actions = any> = (value: Actions) => Promise<void>;
+type ClientDispatch<Actions = ActionTypes> = (value: Actions) => Promise<void>;
 
-export interface MiddlewareAPI<R extends DataClientReducer = DataClientReducer>
-  extends Controller<RHDispatch<ActionTypes>> {}
+export interface MiddlewareAPI
+  extends Controller<ClientDispatch<ActionTypes>> {}
+
 export interface MiddlewareController<Actions = ActionTypes>
-  extends Controller<RHDispatch<Actions>> {}
+  extends Controller<ClientDispatch<Actions>> {}
 
-export type Middleware<Actions = any> = <
+/** @see https://dataclient.io/docs/api/Manager#getmiddleware */
+export type Middleware<Actions = ActionTypes> = <
   C extends MiddlewareController<Actions>,
 >(
   controller: C,

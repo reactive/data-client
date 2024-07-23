@@ -18,6 +18,10 @@ export type { AbstractInstanceType, UpdateFunction };
 
 export type PK = string;
 
+/** Normalized state for Reactive Data Client
+ *
+ * @see https://dataclient.io/docs/concepts/normalization
+ */
 export interface State<T> {
   readonly entities: {
     readonly [entityKey: string]: { readonly [pk: string]: T } | undefined;
@@ -49,9 +53,18 @@ export interface State<T> {
   readonly lastReset: number;
 }
 
+/** Singletons that handle global side-effects
+ *
+ * Kind of like useEffect() for the central data store
+ *
+ * @see https://dataclient.io/docs/api/Manager
+ */
 export interface Manager<Actions = ActionTypes> {
+  /** @see https://dataclient.io/docs/api/Manager#getmiddleware */
   getMiddleware(): Middleware<Actions>;
+  /** @see https://dataclient.io/docs/api/Manager#cleanup */
   cleanup(): void;
+  /** @see https://dataclient.io/docs/api/Manager#init */
   init?: (state: State<any>) => void;
 }
 
