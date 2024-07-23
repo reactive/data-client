@@ -1,5 +1,31 @@
 # @data-client/core
 
+## 0.14.4
+
+### Patch Changes
+
+- [#3161](https://github.com/reactive/data-client/pull/3161) [`b932dca`](https://github.com/reactive/data-client/commit/b932dca45a4fcf60c00db8da509162f253065769) Thanks [@ntucker](https://github.com/ntucker)! - Add jsdocs to IdlingNetworkManager
+
+- [`e4751d9`](https://github.com/reactive/data-client/commit/e4751d9cd0ee26567d7632ea4707ca181901ff89) Thanks [@ntucker](https://github.com/ntucker)! - NetworkManager constructor uses keyword args
+
+  #### Before
+
+  ```ts
+  new NetworkManager(42, 7);
+  ```
+
+  #### After
+
+  ```ts
+  new NetworkManager({ dataExpiryLength: 42, errorExpiryLength: 7 });
+  ```
+
+- [`09ad848`](https://github.com/reactive/data-client/commit/09ad848879db55bb441d93336dd7442d3f484d49) Thanks [@ntucker](https://github.com/ntucker)! - state.endpoints moved above indexes
+
+  `entites` and `endpoints` are the most commonly inspected
+  parts of state when debugging, so it is better to have endpoints
+  above indexes.
+
 ## 0.14.2
 
 ### Patch Changes

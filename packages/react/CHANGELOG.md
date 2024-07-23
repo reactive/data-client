@@ -1,5 +1,63 @@
 # @data-client/react
 
+## 0.14.4
+
+### Patch Changes
+
+- [#3161](https://github.com/reactive/data-client/pull/3161) [`b932dca`](https://github.com/reactive/data-client/commit/b932dca45a4fcf60c00db8da509162f253065769) Thanks [@ntucker](https://github.com/ntucker)! - Add jsdocs to IdlingNetworkManager
+
+- [`e4751d9`](https://github.com/reactive/data-client/commit/e4751d9cd0ee26567d7632ea4707ca181901ff89) Thanks [@ntucker](https://github.com/ntucker)! - NetworkManager constructor uses keyword args
+
+  #### Before
+
+  ```ts
+  new NetworkManager(42, 7);
+  ```
+
+  #### After
+
+  ```ts
+  new NetworkManager({ dataExpiryLength: 42, errorExpiryLength: 7 });
+  ```
+
+- [`0adad92`](https://github.com/reactive/data-client/commit/0adad9209265c388eb6d334afe681610bccfb877) Thanks [@ntucker](https://github.com/ntucker)! - Update debugging link
+
+- [`09ad848`](https://github.com/reactive/data-client/commit/09ad848879db55bb441d93336dd7442d3f484d49) Thanks [@ntucker](https://github.com/ntucker)! - state.endpoints moved above indexes
+
+  `entites` and `endpoints` are the most commonly inspected
+  parts of state when debugging, so it is better to have endpoints
+  above indexes.
+
+- [#3161](https://github.com/reactive/data-client/pull/3161) [`b932dca`](https://github.com/reactive/data-client/commit/b932dca45a4fcf60c00db8da509162f253065769) Thanks [@ntucker](https://github.com/ntucker)! - Add configuration to [getDefaultManagers()](https://dataclient.io/docs/api/getDefaultManagers)
+
+  ```ts
+  // completely remove DevToolsManager
+  const managers = getDefaultManagers({ devToolsManager: null });
+  ```
+
+  ```ts
+  // easier configuration
+  const managers = getDefaultManagers({
+    devToolsManager: {
+      // double latency to help with high frequency updates
+      latency: 1000,
+      // skip websocket updates as these are too spammy
+      predicate: (state, action) =>
+        action.type !== actionTypes.SET_TYPE || action.schema !== Ticker,
+    },
+  });
+  ```
+
+  ```ts
+  // passing instance allows us to use custom classes as well
+  const managers = getDefaultManagers({
+    networkManager: new CustomNetworkManager(),
+  });
+  ```
+
+- Updated dependencies [[`b932dca`](https://github.com/reactive/data-client/commit/b932dca45a4fcf60c00db8da509162f253065769), [`e4751d9`](https://github.com/reactive/data-client/commit/e4751d9cd0ee26567d7632ea4707ca181901ff89), [`09ad848`](https://github.com/reactive/data-client/commit/09ad848879db55bb441d93336dd7442d3f484d49)]:
+  - @data-client/core@0.14.4
+
 ## 0.14.2
 
 ### Patch Changes

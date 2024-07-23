@@ -1,5 +1,14 @@
 # @data-client/graphql
 
+## 0.14.4
+
+### Patch Changes
+
+- [`0adad92`](https://github.com/reactive/data-client/commit/0adad9209265c388eb6d334afe681610bccfb877) Thanks [@ntucker](https://github.com/ntucker)! - Update debugging link
+
+- Updated dependencies [[`0adad92`](https://github.com/reactive/data-client/commit/0adad9209265c388eb6d334afe681610bccfb877)]:
+  - @data-client/endpoint@0.14.4
+
 ## 0.14.3
 
 ### Patch Changes
