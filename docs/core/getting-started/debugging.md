@@ -97,19 +97,10 @@ import {
 } from '@data-client/react';
 import ReactDOM from 'react-dom';
 
-const managers =
-  process.env.NODE_ENV !== 'production'
-    ? [
-        // highlight-start
-        new DevToolsManager({
-          trace: true,
-        }),
-        // highlight-end
-        ...getDefaultManagers().filter(
-          manager => manager.constructor.name !== 'DevToolsManager',
-        ),
-      ]
-    : getDefaultManagers();
+const managers = getDefaultManagers({
+  // highlight-next-line
+  devToolsManager: { trace: true },
+});
 
 ReactDOM.createRoot(document.body).render(
   <DataProvider managers={managers}>

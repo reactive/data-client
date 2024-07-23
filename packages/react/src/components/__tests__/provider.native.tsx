@@ -2,7 +2,6 @@
 import {
   NetworkManager,
   actionTypes,
-  SubscriptionManager,
   Controller,
   SetResponseAction,
 } from '@data-client/core';
@@ -15,7 +14,7 @@ import { Text } from 'react-native';
 import { ControllerContext, StateContext } from '../../context';
 import { useController, useSuspense } from '../../hooks';
 import { payload } from '../../test-fixtures';
-import DataProvider, { getDefaultManagers } from '../DataProvider';
+import DataProvider from '../DataProvider';
 
 const { SET_RESPONSE_TYPE } = actionTypes;
 
@@ -155,12 +154,5 @@ describe('<DataProvider />', () => {
     });
     expect(count).toBe(2);
     expect(state).toMatchSnapshot();
-  });
-
-  it('should have SubscriptionManager in default managers', () => {
-    const subManagers = getDefaultManagers().filter(
-      manager => manager instanceof SubscriptionManager,
-    );
-    expect(subManagers.length).toBe(1);
   });
 });

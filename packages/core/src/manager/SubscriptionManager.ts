@@ -32,8 +32,9 @@ export interface SubscriptionConstructable {
  *
  * @see https://dataclient.io/docs/api/SubscriptionManager
  */
-export default class SubscriptionManager<S extends SubscriptionConstructable>
-  implements Manager<Actions>
+export default class SubscriptionManager<
+  S extends SubscriptionConstructable = SubscriptionConstructable,
+> implements Manager<Actions>
 {
   protected subscriptions: {
     [key: string]: InstanceType<S>;

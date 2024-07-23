@@ -14,14 +14,14 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 # Manager
 
-Managers are singletons that orchestrate the complex asynchronous behavior of `Reactive Data Client`.
-Several managers are provided by `Reactive Data Client` and used by default; however there is nothing
+`Managers` are singletons that orchestrate the complex asynchronous behavior of <abbr title="Reactive Data Client">Data Client</abbr>.
+Several managers are provided by <abbr title="Reactive Data Client">Data Client</abbr> and used by default; however there is nothing
 stopping other compatible managers to be built that expand the functionality. We encourage
 PRs or complimentary libraries!
 
 While managers often have complex internal state and methods - the exposed interface is quite simple.
 Because of this, it is encouraged to keep any supporting state or methods marked at protected by
-typescript. Managers have three exposed pieces - the constructor to build initial state and
+typescript. `Managers` have three exposed pieces - the constructor to build initial state and
 take any parameters; a simple cleanup() method to tear down any dangling pieces like setIntervals()
 or unresolved Promises; and finally getMiddleware() - providing the mechanism to hook into
 the flux data flow.

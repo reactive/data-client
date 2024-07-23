@@ -1,5 +1,6 @@
 import BackupLoading from './BackupLoading.js';
-import DataProvider, { getDefaultManagers } from './DataProvider.js';
+import DataProvider from './DataProvider.js';
+import { getDefaultManagers } from './getDefaultManagers.js';
 import UniversalSuspense from './UniversalSuspense.js';
 export type { ProviderProps } from './DataProvider.js';
 export type { DevToolsPosition } from './DevToolsButton.js';

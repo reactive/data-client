@@ -1,9 +1,10 @@
 import * as _data_client_core from '@data-client/core';
-import { NetworkManager, Manager, State, Controller, EndpointInterface as EndpointInterface$1, FetchFunction as FetchFunction$1, Schema as Schema$1, ResolveType as ResolveType$1, Denormalize as Denormalize$1, DenormalizeNullable as DenormalizeNullable$1, Queryable as Queryable$1, NI, SchemaArgs, NetworkError as NetworkError$1, UnknownError as UnknownError$1, ErrorTypes as ErrorTypes$2, __INTERNAL__, createReducer, applyManager, actions } from '@data-client/core';
+import { NetworkManager, Manager, State, Controller, DevToolsManager, DevToolsConfig, SubscriptionManager, EndpointInterface as EndpointInterface$1, FetchFunction as FetchFunction$1, Schema as Schema$1, ResolveType as ResolveType$1, Denormalize as Denormalize$1, DenormalizeNullable as DenormalizeNullable$1, Queryable as Queryable$1, NI, SchemaArgs, NetworkError as NetworkError$1, UnknownError as UnknownError$1, ErrorTypes as ErrorTypes$2, __INTERNAL__, createReducer, applyManager, actions } from '@data-client/core';
 export { AbstractInstanceType, ActionTypes, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, ResetAction, ResolveType, Schema, SetAction, SetResponseAction, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@data-client/core';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import React, { JSX, Context } from 'react';
 
+/** Can help prevent stuttering by waiting for idle for sideEffect free fetches */
 declare class WebIdlingNetworkManager extends NetworkManager {
 }
 
@@ -30,7 +31,23 @@ interface Props$1 {
  * @see https://dataclient.io/docs/api/DataProvider
  */
 declare function DataProvider({ children, managers, initialState, Controller, devButton, }: Props$1): JSX.Element;
-declare let getDefaultManagers: () => Manager[];
+
+/** Returns the default Managers used by DataProvider.
+ *
+ * @see https://dataclient.io/docs/api/getDefaultManagers
+ */
+declare let getDefaultManagers: ({ devToolsManager, networkManager, subscriptionManager, }?: GetManagersOptions) => Manager[];
+
+type GetManagersOptions = {
+    devToolsManager?: DevToolsManager | DevToolsConfig | null;
+    networkManager?: NetworkManager | ConstructorArgs<typeof NetworkManager>;
+    subscriptionManager?: SubscriptionManager | ConstructorArgs<typeof SubscriptionManager> | null;
+};
+type ConstructorArgs<T extends {
+    new (...args: any): any;
+}> = T extends {
+    new (options: infer O): any;
+} ? O : never;
 
 /** Suspense but compatible with 18 SSR, 17, 16 and native */
 declare const UniversalSuspense: React.FunctionComponent<{

@@ -126,4 +126,4 @@ with `event.data`.
 
 ### Coin App
 
-<StackBlitz app="coin-app" file="src/index.tsx,src/resources/Ticker.ts,src/pages/AssetDetail/AssetPrice.tsx,src/resources/StreamManager.ts" height="600" />
+<StackBlitz app="coin-app" file="src/getManagers.tsx,src/resources/Ticker.ts,src/pages/AssetDetail/AssetPrice.tsx,src/resources/StreamManager.ts" height="600" />
