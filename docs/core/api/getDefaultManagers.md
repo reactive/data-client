@@ -125,4 +125,4 @@ Here we disable every manager except [NetworkManager](./NetworkManager.md).
 New prices are streamed in many times a second; to reduce devtool spam, we set it
 to ignore [SET](./Controller.md#set) actions for `Ticker`.
 
-<StackBlitz app="coin-app" file="src/index.tsx,src/resources/StreamManager.ts,src/getManagers.ts" height="600" />
+<StackBlitz app="coin-app" file="src/index.tsx,src/resources/StreamManager.ts,src/getManagers.ts" height="580" />

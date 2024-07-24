@@ -10,7 +10,7 @@
 
 Define your [async methods](https://dataclient.io/docs/getting-started/resource). Use them [synchronously in React](https://dataclient.io/docs/getting-started/data-dependency). [Instantly mutate](https://dataclient.io/docs/getting-started/mutations) the data and automatically update all usages.
 
-For [REST](https://dataclient.io/rest), [GraphQL](https://dataclient.io/graphql), [Websockets+SSE](https://dataclient.io/docs/api/Manager#data-stream) and [more](https://dataclient.io/docs/guides/img-media)
+For [REST](https://dataclient.io/rest), [GraphQL](https://dataclient.io/graphql), [Websockets+SSE](https://dataclient.io/docs/concepts/managers#data-stream) and [more](https://dataclient.io/docs/guides/img-media)
 
 <div align="center">
 

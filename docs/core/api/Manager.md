@@ -7,6 +7,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
 <head>
   <meta name="docsearch:pagerank" content="20"/>
@@ -14,24 +15,21 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 # Manager
 
-`Managers` are singletons that orchestrate the complex asynchronous behavior of <abbr title="Reactive Data Client">Data Client</abbr>.
-Several managers are provided by <abbr title="Reactive Data Client">Data Client</abbr> and used by default; however there is nothing
-stopping other compatible managers to be built that expand the functionality. We encourage
-PRs or complimentary libraries!
+`Managers` are singletons that handle global side-effects. Kind of like `useEffect()` for the central data
+store.
 
-While managers often have complex internal state and methods - the exposed interface is quite simple.
-Because of this, it is encouraged to keep any supporting state or methods marked at protected by
-typescript. `Managers` have three exposed pieces - the constructor to build initial state and
-take any parameters; a simple cleanup() method to tear down any dangling pieces like setIntervals()
-or unresolved Promises; and finally getMiddleware() - providing the mechanism to hook into
-the flux data flow.
+The default managers orchestrate the complex asynchronous behavior that <abbr title="Reactive Data Client">Data Client</abbr>
+provides out of the box. These can easily be configured with [getDefaultManagers()](./getDefaultManagers.md), and
+extended with your own custom `Managers`.
+
+Managers must implement [getMiddleware()](#getmiddleware), which hooks them into the central store's
+[control flow](#control-flow). Additionally, [cleanup()](#cleanup) and [init()](#init) hook into the
+store's lifecycle for setup/teardown behaviors.
 
 ```typescript
 type Dispatch = (action: ActionTypes) => Promise<void>;
 
-type Middleware = <R extends React.Reducer<State<unknown>, ActionTypes>>(
-  controller: Controller,
-) => (next: Dispatch<R>) => Dispatch<R>;
+type Middleware = (controller: Controller) => (next: Dispatch) => Dispatch;
 
 interface Manager {
   getMiddleware(): Middleware;
@@ -40,7 +38,9 @@ interface Manager {
 }
 ```
 
-## getMiddleware()
+## Lifecycle
+
+### getMiddleware()
 
 getMiddleware() returns a function that very similar to a [redux middleware](https://redux.js.org/advanced/middleware).
 The only differences is that the `next()` function returns a `Promise`. This promise resolves when the reducer update is
@@ -54,26 +54,19 @@ ensure they can consume a promise. Conversely, redux middleware must be changed 
 Middlewares will intercept actions that are dispatched and then potentially dispatch their own actions as well.
 To read more about middlewares, see the [redux documentation](https://redux.js.org/advanced/middleware).
 
-## cleanup()
+### cleanup()
 
 Provides any cleanup of dangling resources after manager is no longer in use.
 
-## init()
+### init()
 
 Called with initial state after provider is mounted. Can be useful to run setup at start that
 relies on state actually existing.
 
-## Provided managers
-
-- [NetworkManager](../api/NetworkManager.md)
-- [SubscriptionManager](../api/SubscriptionManager.md)
-- [DevToolsManager](../api/DevToolsManager.md)
-- [LogoutManager](../api/LogoutManager.md)
-
-## Adding managers to Reactive Data Client
+## Adding managers to Reactive Data Client {#adding}
 
 Use the [managers](../api/DataProvider.md#managers) prop of [DataProvider](../api/DataProvider.md). Be
-sure to hoist to module level or wrap in a useMemo() to ensure they are not recreated. Managers
+sure to hoist to _module level_ or wrap in a _useMemo()_ to ensure they are not recreated. Managers
 have internal state, so it is important to not constantly recreate them.
 
 <Tabs
@@ -215,8 +208,8 @@ export default function RootLayout() {
 
 ## Control flow
 
-Managers live in the DataProvider centralized store. They orchestrate complex control flows by interfacing
-via intercepting and dispatching actions, as well as reading the internal state.
+Managers integrate with the DataProvider store with their lifecycles and middleware. They orchestrate complex control
+flows by interfacing via intercepting and dispatching actions, as well as reading the internal state.
 
 <ThemedImage
 alt="Manager flux flow"
@@ -226,75 +219,130 @@ sources={{
   }}
 />
 
-### Middleware logging
+The job of `middleware` is to dispatch actions, respond to actions, or both.
 
-```typescript
+### Dispatching Actions
+
+[Controller](./Controller.md) provides type-safe action dispatchers.
+
+<TypeScriptEditor>
+
+```ts title="CurrentTime" collapsed
+import { Entity } from '@data-client/endpoint';
+
+export default class CurrentTime extends Entity {
+  id = 0;
+  time = 0;
+  pk() {
+    return this.id;
+  }
+}
+```
+
+```ts title="TimeManager"
 import type { Manager, Middleware } from '@data-client/core';
+import CurrentTime from './CurrentTime';
+
+export default class TimeManager implements Manager {
+  protected declare intervalID?: ReturnType<typeof setInterval>;
+
+  getMiddleware = (): Middleware => controller => {
+    this.intervalID = setInterval(() => {
+      controller.set(CurrentTime, { id: 1 }, { id: 1, time: Date.now() });
+    }, 1000);
+
+    return next => async action => next(action);
+  };
+
+  cleanup() {
+    clearInterval(this.intervalID);
+  }
+}
+```
+
+</TypeScriptEditor>
+
+### Reading and Consuming Actions
+
+`actionTypes` includes all constants to distinguish between different actions.
+
+<TypeScriptEditor>
+
+```ts
+import type { Manager, Middleware } from '@data-client/react';
+import { actionTypes } from '@data-client/react';
 
 export default class LoggingManager implements Manager {
   getMiddleware = (): Middleware => controller => next => async action => {
-    console.log('before', action, controller.getState());
-    await next(action);
-    console.log('after', action, controller.getState());
+    switch (action.type) {
+      case actionTypes.SET_RESPONSE_TYPE:
+        if (action.endpoint.sideEffect) {
+          console.info(
+            `${action.endpoint.name} ${JSON.stringify(action.response)}`,
+          );
+          // wait for state update to be committed to React
+          await next(action);
+          // get the data from the store, which may be merged with existing state
+          const { data } = controller.getResponse(
+            action.endpoint,
+            ...action.args,
+            controller.getState(),
+          );
+          console.info(`${action.endpoint.name} ${JSON.stringify(data)}`);
+          return;
+        }
+      default:
+        return next(action);
+    }
   };
 
   cleanup() {}
 }
 ```
 
-### Middleware data stream (push-based) {#data-stream}
+</TypeScriptEditor>
 
-Adding a manager to process data pushed from the server by [websockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)
-or [Server Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events) ensures
-we can maintain fresh data when the data updates are independent of user action. For example, a trading app's
-price, or a real-time collaborative editor.
+In conditional blocks, the action [type narrows](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#working-with-union-types),
+encouraging safe access to its members.
 
-```typescript
-import type { Manager, Middleware } from '@data-client/core';
-import type { EndpointInterface } from '@data-client/endpoint';
+In case we want to 'handle' a certain `action`, we can 'consume' it by not calling next.
 
-export default class StreamManager implements Manager {
-  protected declare middleware: Middleware;
-  protected declare evtSource: WebSocket | EventSource;
-  protected declare endpoints: Record<string, EndpointInterface>;
+<TypeScriptEditor>
 
-  constructor(
-    evtSource: WebSocket | EventSource,
-    endpoints: Record<string, EndpointInterface>,
-  ) {
-    this.evtSource = evtSource;
-    this.endpoints = endpoints;
+```ts
+import type { Manager, Middleware } from '@data-client/react';
+import { actionTypes } from '@data-client/react';
 
-    // highlight-start
-    this.middleware = controller => {
-      this.evtSource.onmessage = event => {
-        try {
-          const msg = JSON.parse(event.data);
-          if (msg.type in this.endpoints)
-            controller.setResponse(
-              this.endpoints[msg.type],
-              ...msg.args,
-              msg.data,
-            );
-        } catch (e) {
-          console.error('Failed to handle message');
-          console.error(e);
+export default class CustomSubsManager implements Manager {
+  getMiddleware = (): Middleware => controller => next => async action => {
+    switch (action.type) {
+      case actionTypes.SUBSCRIBE_TYPE:
+      case actionTypes.UNSUBSCRIBE_TYPE:
+        const { schema } = action.endpoint;
+        // only process registered entities
+        if (schema && isEntity(schema) && schema.key in this.entities) {
+          if (action.type === actionTypes.SUBSCRIBE_TYPE) {
+            this.subscribe(schema.key, action.args[0]?.product_id);
+          } else {
+            this.unsubscribe(schema.key, action.args[0]?.product_id);
+          }
+
+          // consume subscription if we use it
+          return Promise.resolve();
         }
-      };
-      return next => async action => next(action);
-    };
-    // highlight-end
-  }
+      default:
+        return next(action);
+    }
+  };
 
-  cleanup() {
-    this.evtSource.close();
-  }
-
-  getMiddleware() {
-    return this.middleware;
-  }
+  cleanup() {}
 }
 ```
 
-[Controller.setResponse()](../api/Controller.md#setResponse) updates the Reactive Data Client store
-with `event.data`.
+</TypeScriptEditor>
+
+By `return Promise.resolve();` instead of calling `next(action)`, we prevent managers listed
+after this one from seeing that action.
+
+Types: `FETCH_TYPE`, `SET_TYPE`, `SET_RESPONSE_TYPE`, `RESET_TYPE`, `SUBSCRIBE_TYPE`,
+`UNSUBSCRIBE_TYPE`, `INVALIDATE_TYPE`, `INVALIDATEALL_TYPE`, `EXPIREALL_TYPE`

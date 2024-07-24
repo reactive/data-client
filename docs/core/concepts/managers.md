@@ -75,20 +75,21 @@ we can maintain fresh data when the data updates are independent of user action.
 price, or a real-time collaborative editor.
 
 ```typescript
-import type { Manager, Middleware } from '@data-client/core';
-import type { EndpointInterface } from '@data-client/endpoint';
+import type { Manager, Middleware, ActionTypes } from '@data-client/react';
+import { Controller, actionTypes } from '@data-client/react';
+import type { Entity } from '@data-client/rest';
 
 export default class StreamManager implements Manager {
   protected declare middleware: Middleware;
   protected declare evtSource: WebSocket | EventSource;
-  protected declare endpoints: Record<string, EndpointInterface>;
+  protected declare entities: Record<string, typeof Entity>;
 
   constructor(
     evtSource: WebSocket | EventSource,
-    endpoints: Record<string, EndpointInterface>,
+    entities: Record<string, EntityInterface>,
   ) {
     this.evtSource = evtSource;
-    this.endpoints = endpoints;
+    this.entities = entities;
 
     // highlight-start
     this.middleware = controller => {
@@ -96,8 +97,8 @@ export default class StreamManager implements Manager {
         try {
           const msg = JSON.parse(event.data);
           if (msg.type in this.endpoints)
-            controller.setResponse(
-              this.endpoints[msg.type],
+            controller.set(
+              this.entities[msg.type],
               ...msg.args,
               msg.data,
             );
@@ -121,8 +122,8 @@ export default class StreamManager implements Manager {
 }
 ```
 
-[Controller.setResponse()](../api/Controller.md#setResponse) updates the Reactive Data Client store
-with `event.data`.
+[Controller.set()](../api/Controller.md#set) allows directly updating [Querable Schemas](/rest/api/schema#queryable)
+directly with `event.data`.
 
 ### Coin App
 

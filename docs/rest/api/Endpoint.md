@@ -135,7 +135,7 @@ const getTodoOriginal = (id: number): Promise<Todo> =>
 export const getTodo = new Endpoint(getTodoOriginal);
 ```
 
-```ts title="React"
+```tsx title="React"
 import { getTodo } from './api';
 
 function TodoDetail() {

@@ -21,7 +21,7 @@ import Link from '@docusaurus/Link';
 # The Reactive Data Client
 
 Reactive Data Client provides safe and performant [client access](./api/useSuspense.md) and [mutation](./api/Controller.md#fetch) over [remote data protocols](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/).
-Both pull/fetch ([REST](/rest) and [GraphQL](/graphql)) and push/stream ([WebSockets or Server Sent Events](./api/Manager.md#data-stream)) can be used simultaneously.
+Both pull/fetch ([REST](/rest) and [GraphQL](/graphql)) and push/stream ([WebSockets or Server Sent Events](./concepts/managers.md#data-stream)) can be used simultaneously.
 
 It has similar goals
 to [Relational Databases](https://en.wikipedia.org/wiki/Relational_database)
@@ -56,7 +56,7 @@ By _decoupling_ endpoint definitions from their usage, we are able to reuse them
 - Reuse across different **[platforms](./getting-started/installation.md)** like React Native, React web, or even beyond React in Angular, Svelte, Vue, or Node
 - Published as **packages** independent of their consumption
 
-Endpoints are extensible and composable, with protocol implementations ([REST](/rest), [GraphQL](/graphql), [Websockets+SSE](./api/Manager.md#data-stream), [Img/binary](./guides/img-media.md))
+Endpoints are extensible and composable, with protocol implementations ([REST](/rest), [GraphQL](/graphql), [Websockets+SSE](./concepts/managers.md#data-stream), [Img/binary](./guides/img-media.md))
 to get started quickly, extend, and share common patterns.
 
 <ProtocolTabs>
@@ -435,7 +435,7 @@ Sometimes data change is initiated remotely - either due to other users on the s
 
 However, for data that changes frequently (like exchange price tickers, or live conversations) sometimes push-based
 protocols are used like Websockets or Server Sent Events. Reactive Data Client has a [powerful middleware layer called Managers](./api/Manager.md),
-which can be used to [initiate data updates](./api/Manager.md#data-stream) when receiving new data pushed from the server.
+which can be used to [initiate data updates](./concepts/managers.md#data-stream) when receiving new data pushed from the server.
 
 <details>
 <summary><b>StreamManager</b></summary>
