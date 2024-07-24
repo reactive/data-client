@@ -12,6 +12,7 @@ export type {
   Schema,
   EndpointInterface,
   EntityInterface,
+  SchemaClass,
   ResolveType,
   DenormalizeNullable,
   Denormalize,

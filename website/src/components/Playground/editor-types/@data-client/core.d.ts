@@ -14,6 +14,10 @@ interface SchemaSimple<T = any, Args extends any[] = any[]> {
     denormalize(input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any): T;
     queryKey(args: Args, queryKey: (...args: any) => any, getEntity: GetEntity, getIndex: GetIndex): any;
 }
+interface SchemaClass<T = any, N = T | undefined, Args extends any[] = any[]> extends SchemaSimple<T, Args> {
+    _normalizeNullable(): any;
+    _denormalizeNullable(): N;
+}
 interface EntityInterface<T = any> extends SchemaSimple {
     createIfValid(props: any): any;
     pk(params: any, parent?: any, key?: string, args?: readonly any[]): string | number | undefined;
@@ -1141,4 +1145,4 @@ declare class DevToolsManager implements Manager {
     getMiddleware(): Middleware;
 }
 
-export { AbstractInstanceType, ActionMeta, ActionTypes, ConnectionListener, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch$1 as Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityInterface, ErrorTypes, ExpireAllAction, ExpiryStatus, FetchAction, FetchFunction, FetchMeta, GCAction, GenericDispatch, InvalidateAction, InvalidateAllAction, LogoutManager, Manager, Middleware$2 as Middleware, MiddlewareAPI$1 as MiddlewareAPI, NI, NetworkError, NetworkManager, Normalize, NormalizeNullable, OptimisticAction, PK, PollingSubscription, Queryable, ResetAction, ResetError, ResolveType, ResultEntry, Schema, SchemaArgs, SetAction, SetResponseAction, SetResponseActionBase, SetResponseActionError, SetResponseActionSuccess, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, index_d as actions, applyManager, createReducer, initialState };
+export { AbstractInstanceType, ActionMeta, ActionTypes, ConnectionListener, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch$1 as Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityInterface, ErrorTypes, ExpireAllAction, ExpiryStatus, FetchAction, FetchFunction, FetchMeta, GCAction, GenericDispatch, InvalidateAction, InvalidateAllAction, LogoutManager, Manager, Middleware$2 as Middleware, MiddlewareAPI$1 as MiddlewareAPI, NI, NetworkError, NetworkManager, Normalize, NormalizeNullable, OptimisticAction, PK, PollingSubscription, Queryable, ResetAction, ResetError, ResolveType, ResultEntry, Schema, SchemaArgs, SchemaClass, SetAction, SetResponseAction, SetResponseActionBase, SetResponseActionError, SetResponseActionSuccess, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, index_d as actions, applyManager, createReducer, initialState };

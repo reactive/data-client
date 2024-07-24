@@ -309,11 +309,23 @@ In case we want to 'handle' a certain `action`, we can 'consume' it by not calli
 
 <TypeScriptEditor>
 
-```ts
-import type { Manager, Middleware } from '@data-client/react';
+```ts title="isEntity" collapsed
+import type { Schema, EntityInterface } from '@data-client/core';
+
+export default function isEntity(schema: Schema): schema is EntityInterface {
+  return schema !== null && (schema as any).pk !== undefined;
+}
+```
+
+
+```ts title="SubsManager"
+import type { Manager, Middleware, EntityInterface } from '@data-client/react';
 import { actionTypes } from '@data-client/react';
+import isEntity from './isEntity';
 
 export default class CustomSubsManager implements Manager {
+  protected declare entities: Record<string, EntityInterface>;
+
   getMiddleware = (): Middleware => controller => next => async action => {
     switch (action.type) {
       case actionTypes.SUBSCRIBE_TYPE:
@@ -336,6 +348,9 @@ export default class CustomSubsManager implements Manager {
   };
 
   cleanup() {}
+
+  subscribe(channel: string, product_id: string) {}
+  unsubscribe(channel: string, product_id: string) {}
 }
 ```
 
