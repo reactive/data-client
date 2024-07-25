@@ -33,18 +33,17 @@ describe('NetworkManager', () => {
     expect(hacked.getHacked()).toEqual(initialState);
   });
 
-  describe('getMiddleware()', () => {
+  describe('middleware', () => {
     it('should return the same value every call', () => {
-      const a = manager.getMiddleware();
-      expect(a).toBe(manager.getMiddleware());
-      expect(a).toBe(manager.getMiddleware());
+      const a = manager.middleware;
+      expect(a).toBe(manager.middleware);
     });
     it('should return the different value for a different instance', () => {
-      const a = manager.getMiddleware();
+      const a = manager.middleware;
       const manager2 = new NetworkManager();
-      const a2 = manager2.getMiddleware();
+      const a2 = manager2.middleware;
       expect(a).not.toBe(a2);
-      expect(a2).toBe(manager2.getMiddleware());
+      expect(a2).toBe(manager2.middleware);
       manager2.cleanup();
     });
   });
@@ -132,10 +131,8 @@ describe('NetworkManager', () => {
     (fetchRejectAction.meta.promise as any).catch((e: unknown) => {});
 
     let NM: NetworkManager;
-    let middleware: Middleware;
     beforeEach(() => {
       NM = new NetworkManager({ dataExpiryLength: 42, errorExpiryLength: 7 });
-      middleware = NM.getMiddleware();
     });
     afterEach(() => {
       NM.cleanup();
@@ -152,7 +149,7 @@ describe('NetworkManager', () => {
         },
       );
 
-      middleware(API)(next)(fetchResolveAction);
+      NM.middleware(API)(next)(fetchResolveAction);
 
       const response = await fetchResolveAction.endpoint(
         ...fetchResolveAction.args,
@@ -188,7 +185,7 @@ describe('NetworkManager', () => {
         },
       );
 
-      middleware(API)(next)(fetchSetWithUpdatersAction);
+      NM.middleware(API)(next)(fetchSetWithUpdatersAction);
 
       const response = await fetchSetWithUpdatersAction.endpoint(
         ...fetchSetWithUpdatersAction.args,
@@ -224,7 +221,7 @@ describe('NetworkManager', () => {
         },
       );
 
-      middleware(API)(next)(fetchRpcWithUpdatersAction);
+      NM.middleware(API)(next)(fetchRpcWithUpdatersAction);
 
       const response = await fetchRpcWithUpdatersAction.endpoint(
         ...fetchRpcWithUpdatersAction.args,
@@ -260,7 +257,7 @@ describe('NetworkManager', () => {
         },
       );
 
-      middleware(API)(next)(fetchRpcWithUpdatersAndOptimisticAction);
+      NM.middleware(API)(next)(fetchRpcWithUpdatersAndOptimisticAction);
 
       const response = await fetchRpcWithUpdatersAndOptimisticAction.endpoint(
         ...fetchRpcWithUpdatersAndOptimisticAction.args,
@@ -293,7 +290,7 @@ describe('NetworkManager', () => {
         },
       );
 
-      middleware(API)(() => Promise.resolve())({
+      NM.middleware(API)(() => Promise.resolve())({
         ...fetchResolveAction,
         endpoint: detailEndpoint.extend({ dataExpiryLength: 314 }),
       });
@@ -314,7 +311,7 @@ describe('NetworkManager', () => {
         },
       );
 
-      middleware(API)(() => Promise.resolve())({
+      NM.middleware(API)(() => Promise.resolve())({
         ...fetchResolveAction,
         endpoint: detailEndpoint.extend({ dataExpiryLength: undefined }),
       });
@@ -337,7 +334,7 @@ describe('NetworkManager', () => {
       );
 
       try {
-        await middleware(API)(next)(fetchRejectAction);
+        await NM.middleware(API)(next)(fetchRejectAction);
       } catch (error) {
         expect(next).not.toHaveBeenCalled();
         expect(dispatch).toHaveBeenCalledWith({
@@ -363,7 +360,7 @@ describe('NetworkManager', () => {
       );
 
       try {
-        await middleware(API)(() => Promise.resolve())({
+        await NM.middleware(API)(() => Promise.resolve())({
           ...fetchRejectAction,
           meta: {
             ...fetchRejectAction.meta,
@@ -386,7 +383,7 @@ describe('NetworkManager', () => {
       );
 
       try {
-        await middleware(API)(() => Promise.resolve())({
+        await NM.middleware(API)(() => Promise.resolve())({
           ...fetchRejectAction,
           meta: {
             ...fetchRejectAction.meta,

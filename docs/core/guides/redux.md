@@ -110,7 +110,7 @@ You should only use ONE provider; nested another provider will override the prev
 
 :::info Note
 
-Because `Reactive Data Client` [manager middlewares](../api/Manager.md#getmiddleware) return promises,
+Because `Reactive Data Client` [manager middlewares](../api/Manager.md#middleware) return promises,
 all redux middlewares are placed after the [Managers](../concepts/managers.md).
 
 If you need a middlware to run before the managers, you will need to wrap it in a [manager](../api/Manager.md).

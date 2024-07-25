@@ -455,28 +455,28 @@ export default class StreamManager implements Manager {
   ) {
     this.evtSource = evtSource;
     this.endpoints = endpoints;
-
-    this.middleware = controller => {
-      this.evtSource.onmessage = event => {
-        try {
-          const msg = JSON.parse(event.data);
-          if (msg.type in this.endpoints)
-            controller.setResponse(this.endpoints[msg.type], ...msg.args, msg.data);
-        } catch (e) {
-          console.error('Failed to handle message');
-          console.error(e);
-        }
-      };
-      return next => async action => next(action);
-    };
   }
+
+  middleware: Middleware = controller => {
+    this.evtSource.onmessage = event => {
+      try {
+        const msg = JSON.parse(event.data);
+        if (msg.type in this.endpoints)
+          controller.setResponse(
+            this.endpoints[msg.type],
+            ...msg.args,
+            msg.data,
+          );
+      } catch (e) {
+        console.error('Failed to handle message');
+        console.error(e);
+      }
+    };
+    return next => async action => next(action);
+  };
 
   cleanup() {
     this.evtSource.close();
-  }
-
-  getMiddleware() {
-    return this.middleware;
   }
 }
 ```
@@ -581,10 +581,10 @@ const currentTimeInterceptor: Interceptor = {
     path: '/api/currentTime/:id',
   }),
   response({ id }) {
-    return ({
+    return {
       id,
       updatedAt: new Date().toISOString(),
-    });
+    };
   },
   delay: () => 150,
 };
@@ -621,15 +621,15 @@ const incrementInterceptor: Interceptor = {
 ## Demo
 
 <Tabs
-  defaultValue="todo"
-  values={[
-    { label: 'Todo', value: 'todo' },
-    { label: 'GitHub', value: 'github' },
-    { label: 'NextJS SSR', value: 'nextjs' },
-  ]}
-  groupId="Demos"
->
-  <TabItem value="todo">
+defaultValue="todo"
+values={[
+{ label: 'Todo', value: 'todo' },
+{ label: 'GitHub', value: 'github' },
+{ label: 'NextJS SSR', value: 'nextjs' },
+]}
+groupId="Demos"
+
+>   <TabItem value="todo">
 
 <iframe
   loading="lazy"
@@ -651,7 +651,7 @@ const incrementInterceptor: Interceptor = {
 
 [![Explore on GitHub](https://badgen.net/badge/icon/github?icon=github&label)](https://github.com/reactive/data-client/tree/master/examples/github-app)
 </TabItem>
-  <TabItem value="nextjs">
+<TabItem value="nextjs">
 
 <iframe
   loading="lazy"

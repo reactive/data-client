@@ -21,11 +21,10 @@ describe('LogoutManager', () => {
   const manager = new LogoutManager();
   const getState = () => initialState;
 
-  describe('getMiddleware()', () => {
+  describe('middleware', () => {
     it('should return the same value every call', () => {
-      const a = manager.getMiddleware();
-      expect(a).toBe(manager.getMiddleware());
-      expect(a).toBe(manager.getMiddleware());
+      const a = manager.middleware;
+      expect(a).toBe(manager.middleware);
     });
   });
 
@@ -33,7 +32,6 @@ describe('LogoutManager', () => {
     afterEach(() => {
       jest.useRealTimers();
     });
-    const middleware = manager.getMiddleware();
     const next = jest.fn();
     const dispatch = jest.fn(action => Promise.resolve());
     const controller = new Controller({ dispatch, getState });
@@ -48,7 +46,7 @@ describe('LogoutManager', () => {
         args: [{ id: 5 }],
         response: { id: 5, title: 'hi' },
       });
-      await middleware(API)(next)(action);
+      await manager.middleware(API)(next)(action);
 
       expect(dispatch.mock.calls.length).toBe(0);
     });
@@ -60,7 +58,7 @@ describe('LogoutManager', () => {
         response: error,
         error: true,
       });
-      await middleware(API)(next)(action);
+      await manager.middleware(API)(next)(action);
 
       expect(dispatch.mock.calls.length).toBe(0);
     });
@@ -72,7 +70,7 @@ describe('LogoutManager', () => {
         response: error,
         error: true,
       });
-      await middleware(API)(next)(action);
+      await manager.middleware(API)(next)(action);
 
       expect(dispatch.mock.calls.length).toBe(1);
       expect(dispatch.mock.calls[0][0]?.type).toBe(RESET_TYPE);
@@ -85,7 +83,7 @@ describe('LogoutManager', () => {
           return error.status === 403;
         },
         handleLogout,
-      }).getMiddleware();
+      }).middleware;
       const error: any = new Error('network failed');
       error.status = 403;
       const action = createSetResponse(CoolerArticleResource.get, {
@@ -102,7 +100,7 @@ describe('LogoutManager', () => {
       const action = { type: FETCH_TYPE };
       next.mockReset();
 
-      await middleware(API)(next)(action as any);
+      await manager.middleware(API)(next)(action as any);
 
       expect(next.mock.calls.length).toBe(1);
     });

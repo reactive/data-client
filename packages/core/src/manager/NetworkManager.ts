@@ -34,76 +34,68 @@ export default class NetworkManager implements Manager {
   protected fetchedAt: { [k: string]: number } = {};
   declare readonly dataExpiryLength: number;
   declare readonly errorExpiryLength: number;
-  protected declare middleware: Middleware;
   protected controller: Controller = new Controller();
   declare cleanupDate?: number;
 
   constructor({ dataExpiryLength = 60000, errorExpiryLength = 1000 } = {}) {
     this.dataExpiryLength = dataExpiryLength;
     this.errorExpiryLength = errorExpiryLength;
+  }
 
-    this.middleware = <C extends MiddlewareAPI>(controller: C) => {
-      this.controller = controller;
-      return (next: C['dispatch']): C['dispatch'] =>
-        (action): Promise<void> => {
-          switch (action.type) {
-            case FETCH_TYPE:
-              this.handleFetch(action);
-              // This is the only case that causes any state change
-              // It's important to intercept other fetches as we don't want to trigger reducers during
-              // render - so we need to stop 'readonly' fetches which can be triggered in render
-              if (
-                action.endpoint.getOptimisticResponse !== undefined &&
-                action.endpoint.sideEffect
-              ) {
-                return next(action);
-              }
-              return Promise.resolve();
-            case SET_RESPONSE_TYPE:
-              // only set after new state is computed
-              return next(action).then(() => {
-                if (action.key in this.fetched) {
-                  // Note: meta *must* be set by reducer so this should be safe
-                  const error = controller.getState().meta[action.key]?.error;
-                  // processing errors result in state meta having error, so we should reject the promise
-                  if (error) {
-                    this.handleSet(
-                      createSetResponse(action.endpoint, {
-                        args: action.args,
-                        response: error,
-                        fetchedAt: action.meta.fetchedAt,
-                        error: true,
-                      }),
-                    );
-                  } else {
-                    this.handleSet(action);
-                  }
-                }
-              });
-            case RESET_TYPE: {
-              const rejectors = { ...this.rejectors };
-
-              this.clearAll();
-              return next(action).then(() => {
-                // there could be external listeners to the promise
-                // this must happen after commit so our own rejector knows not to dispatch an error based on this
-                for (const k in rejectors) {
-                  rejectors[k](new ResetError());
-                }
-              });
-            }
-            default:
-              return next(action);
+  middleware: Middleware = controller => {
+    this.controller = controller;
+    return next => action => {
+      switch (action.type) {
+        case FETCH_TYPE:
+          this.handleFetch(action);
+          // This is the only case that causes any state change
+          // It's important to intercept other fetches as we don't want to trigger reducers during
+          // render - so we need to stop 'readonly' fetches which can be triggered in render
+          if (
+            action.endpoint.getOptimisticResponse !== undefined &&
+            action.endpoint.sideEffect
+          ) {
+            return next(action);
           }
-        };
-    };
-  }
+          return Promise.resolve();
+        case SET_RESPONSE_TYPE:
+          // only set after new state is computed
+          return next(action).then(() => {
+            if (action.key in this.fetched) {
+              // Note: meta *must* be set by reducer so this should be safe
+              const error = controller.getState().meta[action.key]?.error;
+              // processing errors result in state meta having error, so we should reject the promise
+              if (error) {
+                this.handleSet(
+                  createSetResponse(action.endpoint, {
+                    args: action.args,
+                    response: error,
+                    fetchedAt: action.meta.fetchedAt,
+                    error: true,
+                  }),
+                );
+              } else {
+                this.handleSet(action);
+              }
+            }
+          });
+        case RESET_TYPE: {
+          const rejectors = { ...this.rejectors };
 
-  /** Used by DevtoolsManager to determine whether to log an action */
-  skipLogging(action: ActionTypes) {
-    /* istanbul ignore next */
-    return action.type === FETCH_TYPE && action.key in this.fetched;
-  }
+          this.clearAll();
+          return next(action).then(() => {
+            // there could be external listeners to the promise
+            // this must happen after commit so our own rejector knows not to dispatch an error based on this
+            for (const k in rejectors) {
+              rejectors[k](new ResetError());
+            }
+          });
+        }
+        default:
+          return next(action);
+      }
+    };
+  };
 
   /** On mount */
   init() {
@@ -115,6 +107,12 @@ export default class NetworkManager implements Manager {
     // ensure no dispatches after unmount
     // this must be reversible (done in init) so useEffect() remains symmetric
     this.cleanupDate = Date.now();
+  }
+
+  /** Used by DevtoolsManager to determine whether to log an action */
+  skipLogging(action: ActionTypes) {
+    /* istanbul ignore next */
+    return action.type === FETCH_TYPE && action.key in this.fetched;
   }
 
   allSettled() {
@@ -239,17 +237,6 @@ export default class NetworkManager implements Manager {
       // since we're resolved we no longer need to keep track of this promise
       this.clear(action.key);
     }
-  }
-
-  /** Attaches NetworkManager to store
-   *
-   * Intercepts 'rdc/fetch' actions to start requests.
-   *
-   * Resolve/rejects a request when matching 'rdc/set' event
-   * is seen.
-   */
-  getMiddleware() {
-    return this.middleware;
   }
 
   /** Ensures only one request for a given key is in flight at any time

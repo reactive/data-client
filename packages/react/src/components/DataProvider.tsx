@@ -5,7 +5,7 @@ import {
   applyManager,
 } from '@data-client/core';
 import type { State, Manager } from '@data-client/core';
-import React, { useMemo, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import type { JSX } from 'react';
 
 import DataStore from './DataStore.js';
@@ -59,8 +59,19 @@ See https://dataclient.io/docs/guides/ssr.`,
   const managersRef: React.MutableRefObject<Manager[]> = useRef<any>(managers);
   if (!managersRef.current) managersRef.current = getDefaultManagers();
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const memodManagers = useMemo(() => managersRef.current, managersRef.current);
+  // run in a useEffect in DataStore
+  const mgrEffect = useCallback(() => {
+    managersRef.current.forEach(manager => {
+      manager.init?.(initialState);
+    });
+    return () => {
+      managersRef.current.forEach(manager => {
+        manager.cleanup();
+      });
+    };
+    // we don't support initialState changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, managersRef.current);
 
   // Makes manager middleware compatible with redux-style middleware (by a wrapper enhancement to provide controller API)
   const middlewares = useMemo(
@@ -76,7 +87,7 @@ See https://dataclient.io/docs/guides/ssr.`,
   return (
     <ControllerContext.Provider value={controllerRef.current}>
       <DataStore
-        managers={memodManagers}
+        mgrEffect={mgrEffect}
         middlewares={middlewares}
         initialState={initialState}
         controller={controllerRef.current}

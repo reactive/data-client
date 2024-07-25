@@ -1,7 +1,7 @@
 /* eslint-disable no-inner-declarations */
 import type { DevToolsConfig } from './devtoolsTypes.js';
-import type { Middleware } from './LogoutManager.js';
 import type { Controller, EndpointInterface } from '../index.js';
+import type { Middleware } from '../middlewareTypes.js';
 import createReducer from '../state/reducer/createReducer.js';
 import type { Manager, State, ActionTypes } from '../types.js';
 
@@ -89,11 +89,12 @@ if (process.env.NODE_ENV !== 'production') {
  * @see https://dataclient.io/docs/api/DevToolsManager
  */
 export default class DevToolsManager implements Manager {
-  protected declare middleware: Middleware;
+  declare middleware: Middleware;
   protected declare devTools: undefined | any;
   protected started = false;
   protected actions: [ActionTypes, State<unknown>][] = [];
   protected declare controller: Controller;
+  declare skipLogging?: (action: ActionTypes) => boolean;
   maxBufferLength = 100;
 
   constructor(
@@ -110,7 +111,56 @@ export default class DevToolsManager implements Manager {
       });
     // we cut it in half so we should double so we don't lose
     if (config?.maxAge) this.maxBufferLength = config.maxAge * 2;
+    if (skipLogging) this.skipLogging = skipLogging;
+  }
+
+  static {
+    /* istanbul ignore if */
+    /* istanbul ignore next */
+    if (process.env.NODE_ENV !== 'production') {
+      this.prototype.middleware = function (controller) {
+        if (!this.devTools) return next => action => next(action);
+        this.controller = controller;
+        const reducer = createReducer(controller as any);
+        let state = controller.getState();
+        return next => action => {
+          const shouldSkip = this.skipLogging?.(action);
+          const ret = next(action);
+          if (this.started) {
+            // we track state changes here since getState() will only update after a batch commit
+            state = reducer(state, action);
+          } else {
+            state = controller.getState();
+          }
+          ret.then(() => {
+            if (shouldSkip) return;
+            this.handleAction(action, state.optimistic.reduce(reducer, state));
+          });
+          return ret;
+        };
+      };
+    } else {
+      this.prototype.middleware = () => next => action => next(action);
+    }
+  }
+
+  handleAction(action: any, state: any) {
+    if (this.started) {
+      this.devTools.send(action, state);
+    } else {
+      // avoid this getting too big in case this is long running
+      // we cut in half so we aren't constantly reallocating
+      if (this.actions.length > this.maxBufferLength)
+        this.actions = this.actions.slice(this.maxBufferLength / 2);
+      // queue actions
+      this.actions.push([action, state]);
+    }
+  }
+
+  /** Called when initial state is ready */
+  init(state: State<any>) {
     if (process.env.NODE_ENV !== 'production' && this.devTools) {
+      this.devTools.init(state);
       this.devTools.subscribe((msg: any) => {
         switch (msg.type) {
           case 'START':
@@ -134,61 +184,8 @@ export default class DevToolsManager implements Manager {
         }
       });
     }
-
-    /* istanbul ignore if */
-    /* istanbul ignore next */
-    if (process.env.NODE_ENV !== 'production' && this.devTools) {
-      this.middleware = controller => {
-        this.controller = controller;
-        const reducer = createReducer(controller as any);
-        let state = controller.getState();
-        return next => action => {
-          const shouldSkip = skipLogging?.(action);
-          const ret = next(action);
-          if (this.started) {
-            // we track state changes here since getState() will only update after a batch commit
-            state = reducer(state, action);
-          } else {
-            state = controller.getState();
-          }
-          ret.then(() => {
-            if (shouldSkip) return;
-            this.handleAction(action, state.optimistic.reduce(reducer, state));
-          });
-          return ret;
-        };
-      };
-    } else {
-      this.middleware = () => next => action => next(action);
-    }
-  }
-
-  handleAction(action: any, state: any) {
-    if (this.started) {
-      this.devTools.send(action, state);
-    } else {
-      // avoid this getting too big in case this is long running
-      // we cut in half so we aren't constantly reallocating
-      if (this.actions.length > this.maxBufferLength)
-        this.actions = this.actions.slice(this.maxBufferLength / 2);
-      // queue actions
-      this.actions.push([action, state]);
-    }
-  }
-
-  /** Called when initial state is ready */
-  init(state: State<any>) {
-    /* istanbul ignore if */
-    if (this.devTools) this.devTools.init(state);
   }
 
   /** Ensures all subscriptions are cleaned up. */
   cleanup() {}
-
-  /** Attaches Manager to store
-   *
-   */
-  getMiddleware() {
-    return this.middleware;
-  }
 }

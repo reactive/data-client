@@ -158,23 +158,16 @@ describe('<DataProvider />', () => {
 
   it('should ignore dispatches after unmount', async () => {
     class InjectorManager implements Manager {
-      protected declare middleware: Middleware;
       declare controller: Controller;
-
-      constructor() {
-        this.middleware = controller => {
-          this.controller = controller;
-          return next => async action => {
-            await next(action);
-          };
-        };
-      }
 
       cleanup() {}
 
-      getMiddleware() {
-        return this.middleware;
-      }
+      middleware: Middleware = controller => {
+        this.controller = controller;
+        return next => async action => {
+          await next(action);
+        };
+      };
     }
     const injector = new InjectorManager();
     const managers = [injector, ...getDefaultManagers()];

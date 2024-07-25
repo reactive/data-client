@@ -1,9 +1,8 @@
 import Controller from '../../controller/Controller';
-import { Middleware } from '../../middlewareTypes';
 import { ActionTypes } from '../../types';
 import NetworkManager from '../NetworkManager';
 
-const middleware: Middleware = new NetworkManager().getMiddleware();
+const netMgr = new NetworkManager();
 it('middlewares should compose with non-data-client middlewares', () => {
   type AnotherAction = {
     type: 'BOB';
@@ -30,7 +29,7 @@ it('middlewares should compose with non-data-client middlewares', () => {
       counter++;
     };
 
-  const [a, b] = [middleware(API), nonRHMiddleware(API)];
+  const [a, b] = [netMgr.middleware(API), nonRHMiddleware(API)];
   const dispA = a(b(dispatch));
   const dispB = b(a(dispatch));
   expect(dispatch.mock.calls.length).toBe(0);

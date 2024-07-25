@@ -6,7 +6,7 @@ title: TypeScript Types
 
 ```typescript
 interface Manager<Actions = ActionTypes> {
-  getMiddleware(): Middleware<Actions>;
+  middleware: Middleware<Actions>;
   cleanup(): void;
   init?: (state: State<any>) => void;
 }

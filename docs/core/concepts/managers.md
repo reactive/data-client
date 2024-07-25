@@ -19,8 +19,8 @@ Reactive Data Client uses the [flux store](https://facebookarchive.github.io/flu
 characterized by an easy to [understand and debug](../getting-started/debugging.md) the store's [undirectional data flow](<https://en.wikipedia.org/wiki/Unidirectional_Data_Flow_(computer_science)>). State updates are performed by a [reducer function](https://github.com/reactive/data-client/blob/master/packages/core/src/state/reducer/createReducer.ts#L19).
 
 <ThemedImage
-  alt="Manager flux flow"
-  sources={{
+alt="Manager flux flow"
+sources={{
     light: useBaseUrl('/img/flux-full.png'),
     dark: useBaseUrl('/img/flux-full-dark.png'),
   }}
@@ -37,12 +37,11 @@ will keep only actively rendered resources updated.
 This makes [Managers](../api/Manager.md) the best way to integrate additional side-effects like metrics and monitoring.
 They can also be customized to change core behaviors.
 
-
-| Default managers                                     | |
+| Default managers                                     |                                                                                      |
 | ---------------------------------------------------- | ------------------------------------------------------------------------------------ |
 | [NetworkManager](../api/NetworkManager.md)           | Turns fetch dispatches into network calls                                            |
 | [SubscriptionManager](../api/SubscriptionManager.md) | Handles polling [subscriptions](../getting-started/data-dependency.md#subscriptions) |
-| [DevToolsManager](../api/DevToolsManager.md)         | Enables [debugging](../getting-started/debugging.md)                                          |
+| [DevToolsManager](../api/DevToolsManager.md)         | Enables [debugging](../getting-started/debugging.md)                                 |
 | Extra managers                                       |
 | [LogoutManager](../api/LogoutManager.md)             | Handles HTTP `401` (or other logout conditions)                                      |
 
@@ -57,7 +56,7 @@ its [Controller](../api/Controller.md)
 import type { Manager, Middleware } from '@data-client/core';
 
 export default class LoggingManager implements Manager {
-  getMiddleware = (): Middleware => controller => next => async action => {
+  middleware: Middleware => controller => next => async action => {
     console.log('before', action, controller.getState());
     await next(action);
     console.log('after', action, controller.getState());
@@ -80,7 +79,6 @@ import { Controller, actionTypes } from '@data-client/react';
 import type { Entity } from '@data-client/rest';
 
 export default class StreamManager implements Manager {
-  protected declare middleware: Middleware;
   protected declare evtSource: WebSocket | EventSource;
   protected declare entities: Record<string, typeof Entity>;
 
@@ -90,34 +88,26 @@ export default class StreamManager implements Manager {
   ) {
     this.evtSource = evtSource;
     this.entities = entities;
-
-    // highlight-start
-    this.middleware = controller => {
-      this.evtSource.onmessage = event => {
-        try {
-          const msg = JSON.parse(event.data);
-          if (msg.type in this.endpoints)
-            controller.set(
-              this.entities[msg.type],
-              ...msg.args,
-              msg.data,
-            );
-        } catch (e) {
-          console.error('Failed to handle message');
-          console.error(e);
-        }
-      };
-      return next => async action => next(action);
-    };
-    // highlight-end
   }
+
+  // highlight-start
+  middleware: Middleware = controller => {
+    this.evtSource.onmessage = event => {
+      try {
+        const msg = JSON.parse(event.data);
+        if (msg.type in this.endpoints)
+          controller.set(this.entities[msg.type], ...msg.args, msg.data);
+      } catch (e) {
+        console.error('Failed to handle message');
+        console.error(e);
+      }
+    };
+    return next => async action => next(action);
+  };
+  // highlight-end
 
   cleanup() {
     this.evtSource.close();
-  }
-
-  getMiddleware() {
-    return this.middleware;
   }
 }
 ```

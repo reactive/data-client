@@ -20,9 +20,9 @@ and retrieval performance.
 
 `Controller` is provided:
 
-  - [Managers](./Manager.md) as the first argument in [Manager.getMiddleware()](./Manager.md#getmiddleware)
-  - React with [useController()](./useController.md)
-  - [Unit testing hooks](../guides/unit-testing-hooks.md) with [renderDataClient()](./makeRenderDataClient.md#controller)
+- [Managers](./Manager.md) as the first argument in [Manager.middleware](./Manager.md#middleware)
+- React with [useController()](./useController.md)
+- [Unit testing hooks](../guides/unit-testing-hooks.md) with [renderDataClient()](./makeRenderDataClient.md#controller)
 
 ```ts
 class Controller {
@@ -366,7 +366,11 @@ function UserName() {
 Updates any [Queryable](/rest/api/schema#queryable) [Schema](/rest/api/schema#schema-overview).
 
 ```ts
-ctrl.set(Todo, { id: '5' }, { id: '5', title: 'tell me friends how great Data Client is' });
+ctrl.set(
+  Todo,
+  { id: '5' },
+  { id: '5', title: 'tell me friends how great Data Client is' },
+);
 ```
 
 Functions can be used in the value when derived data is used. This [prevents race conditions](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state).
@@ -546,31 +550,24 @@ import type { Manager, Middleware, actionTypes } from '@data-client/core';
 import type { EndpointInterface } from '@data-client/endpoint';
 
 export default class MyManager implements Manager {
-  protected declare middleware: Middleware;
-  constructor() {
-    this.middleware = controller => {
-      return next => async action => {
-        if (action.type === actionTypes.FETCH_TYPE) {
-          console.log('The existing response of the requested fetch');
-          console.log(
-            controller.getResponse(
-              action.endpoint,
-              ...(action.meta.args as Parameters<typeof action.endpoint>),
-              controller.getState(),
-            ).data,
-          );
-        }
-        next(action);
-      };
+  middleware: Middleware = controller => {
+    return next => async action => {
+      if (action.type === actionTypes.FETCH_TYPE) {
+        console.log('The existing response of the requested fetch');
+        console.log(
+          controller.getResponse(
+            action.endpoint,
+            ...(action.meta.args as Parameters<typeof action.endpoint>),
+            controller.getState(),
+          ).data,
+        );
+      }
+      next(action);
     };
-  }
+  };
 
   cleanup() {
     this.websocket.close();
-  }
-
-  getMiddleware<T extends StreamManager>(this: T) {
-    return this.middleware;
   }
 }
 ```

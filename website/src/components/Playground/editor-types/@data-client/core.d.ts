@@ -378,17 +378,13 @@ interface GCAction {
 }
 type ActionTypes = FetchAction | OptimisticAction | SetAction | SetResponseAction | SubscribeAction | UnsubscribeAction | InvalidateAction | InvalidateAllAction | ExpireAllAction | ResetAction | GCAction;
 
-type ClientDispatch<Actions = ActionTypes> = (value: Actions) => Promise<void>;
-interface MiddlewareAPI$1 extends Controller<ClientDispatch<ActionTypes>> {
+type Dispatch<Actions = ActionTypes> = (value: Actions) => Promise<void>;
+interface MiddlewareAPI extends Controller<Dispatch<ActionTypes>> {
 }
-interface MiddlewareController<Actions = ActionTypes> extends Controller<ClientDispatch<Actions>> {
+interface MiddlewareController<Actions = ActionTypes> extends Controller<Dispatch<Actions>> {
 }
-/** @see https://dataclient.io/docs/api/Manager#getmiddleware */
-type Middleware$2<Actions = ActionTypes> = <C extends MiddlewareController<Actions>>(controller: C) => (next: C['dispatch']) => C['dispatch'];
-type Dispatch$1<R extends Reducer<any, any>> = (action: ReducerAction<R>) => Promise<void>;
-type Reducer<S, A> = (prevState: S, action: A) => S;
-type ReducerState<R extends Reducer<any, any>> = R extends Reducer<infer S, any> ? S : never;
-type ReducerAction<R extends Reducer<any, any>> = R extends Reducer<any, infer A> ? A : never;
+/** @see https://dataclient.io/docs/api/Manager#middleware */
+type Middleware<Actions = ActionTypes> = <C extends MiddlewareController<Actions>>(controller: C) => (next: C['dispatch']) => C['dispatch'];
 
 type PK = string;
 /** Normalized state for Reactive Data Client
@@ -435,7 +431,9 @@ interface State<T> {
  */
 interface Manager<Actions = ActionTypes> {
     /** @see https://dataclient.io/docs/api/Manager#getmiddleware */
-    getMiddleware(): Middleware$2<Actions>;
+    getMiddleware?(): Middleware<Actions>;
+    /** @see https://dataclient.io/docs/api/Manager#middleware */
+    middleware?: Middleware<Actions>;
     /** @see https://dataclient.io/docs/api/Manager#cleanup */
     cleanup(): void;
     /** @see https://dataclient.io/docs/api/Manager#init */
@@ -647,19 +645,19 @@ declare class NetworkManager implements Manager {
     };
     readonly dataExpiryLength: number;
     readonly errorExpiryLength: number;
-    protected middleware: Middleware$2;
     protected controller: Controller;
     cleanupDate?: number;
     constructor({ dataExpiryLength, errorExpiryLength }?: {
         dataExpiryLength?: number | undefined;
         errorExpiryLength?: number | undefined;
     });
-    /** Used by DevtoolsManager to determine whether to log an action */
-    skipLogging(action: ActionTypes): boolean;
+    middleware: Middleware;
     /** On mount */
     init(): void;
     /** Ensures all promises are completed by rejecting remaining. */
     cleanup(): void;
+    /** Used by DevtoolsManager to determine whether to log an action */
+    skipLogging(action: ActionTypes): boolean;
     allSettled(): Promise<PromiseSettledResult<any>[]> | undefined;
     /** Clear all promise state */
     protected clearAll(): void;
@@ -680,14 +678,6 @@ declare class NetworkManager implements Manager {
      * Will resolve the promise associated with set key.
      */
     protected handleSet(action: SetResponseAction): void;
-    /** Attaches NetworkManager to store
-     *
-     * Intercepts 'rdc/fetch' actions to start requests.
-     *
-     * Resolve/rejects a request when matching 'rdc/set' event
-     * is seen.
-     */
-    getMiddleware(): Middleware$2;
     /** Ensures only one request for a given key is in flight at any time
      *
      * Uses key to either retrieve in-flight promise, or if not
@@ -706,12 +696,16 @@ declare class NetworkManager implements Manager {
     protected idleCallback(callback: (...args: any[]) => void, options?: IdleRequestOptions): void;
 }
 
-declare function applyManager(managers: Manager[], controller: Controller): Middleware$1[];
-interface MiddlewareAPI<R extends Reducer<any, any> = Reducer<any, any>> {
+declare function applyManager(managers: Manager[], controller: Controller): ReduxMiddleware[];
+interface ReduxMiddlewareAPI<R extends Reducer<any, any> = Reducer<any, any>> {
     getState: () => ReducerState<R>;
-    dispatch: Dispatch$1<R>;
+    dispatch: ReactDispatch<R>;
 }
-type Middleware$1 = <R extends Reducer<any, any>>({ dispatch, }: MiddlewareAPI<R>) => (next: Dispatch$1<R>) => Dispatch$1<R>;
+type ReduxMiddleware = <R extends Reducer<any, any>>({ dispatch, }: ReduxMiddlewareAPI<R>) => (next: ReactDispatch<R>) => ReactDispatch<R>;
+type ReactDispatch<R extends Reducer<any, any>> = (action: ReducerAction<R>) => Promise<void>;
+type Reducer<S, A> = (prevState: S, action: A) => S;
+type ReducerState<R extends Reducer<any, any>> = R extends Reducer<infer S, any> ? S : never;
+type ReducerAction<R extends Reducer<any, any>> = R extends Reducer<any, infer A> ? A : never;
 
 declare function createSubscription<E extends EndpointInterface>(endpoint: E, { args }: {
     args: readonly [...Parameters<E>];
@@ -832,9 +826,9 @@ declare class SubscriptionManager<S extends SubscriptionConstructable = Subscrip
         [key: string]: InstanceType<S>;
     };
     protected readonly Subscription: S;
-    protected middleware: Middleware$2;
     protected controller: Controller;
     constructor(Subscription: S);
+    middleware: Middleware;
     /** Ensures all subscriptions are cleaned up. */
     cleanup(): void;
     /** Called when middleware intercepts 'rdc/subscribe' action.
@@ -845,15 +839,6 @@ declare class SubscriptionManager<S extends SubscriptionConstructable = Subscrip
      *
      */
     protected handleUnsubscribe(action: UnsubscribeAction): void;
-    /** Attaches Manager to store
-     *
-     * Intercepts 'rdc/subscribe'/'rest-hordc/ribe' to register resources that
-     * need to be kept up to date.
-     *
-     * Will possibly dispatch 'rdc/fetch' or 'rest-hordc/' to keep resources fresh
-     *
-     */
-    getMiddleware(): Middleware$2;
 }
 
 /**
@@ -1100,26 +1085,6 @@ interface DevToolsConfig extends EnhancerOptions {
     type?: string;
 }
 
-/** Handling network unauthorized indicators like HTTP 401
- *
- * @see https://dataclient.io/docs/api/LogoutManager
- */
-declare class LogoutManager implements Manager {
-    protected middleware: Middleware;
-    constructor({ handleLogout, shouldLogout }?: Props);
-    cleanup(): void;
-    getMiddleware(): Middleware;
-    protected shouldLogout(error: UnknownError): boolean;
-    handleLogout(controller: Controller<Dispatch>): void;
-}
-type Dispatch = (value: ActionTypes) => Promise<void>;
-type Middleware = <C extends Controller<Dispatch>>(controller: C) => (next: C['dispatch']) => C['dispatch'];
-type HandleLogout = (controller: Controller<Dispatch>) => void;
-interface Props {
-    handleLogout?: HandleLogout;
-    shouldLogout?: (error: UnknownError) => boolean;
-}
-
 /** Integrates with https://github.com/reduxjs/redux-devtools
  *
  * Options: https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md
@@ -1127,11 +1092,12 @@ interface Props {
  * @see https://dataclient.io/docs/api/DevToolsManager
  */
 declare class DevToolsManager implements Manager {
-    protected middleware: Middleware;
+    middleware: Middleware;
     protected devTools: undefined | any;
     protected started: boolean;
     protected actions: [ActionTypes, State<unknown>][];
     protected controller: Controller;
+    skipLogging?: (action: ActionTypes) => boolean;
     maxBufferLength: number;
     constructor(config?: DevToolsConfig, skipLogging?: (action: ActionTypes) => boolean);
     handleAction(action: any, state: any): void;
@@ -1139,10 +1105,23 @@ declare class DevToolsManager implements Manager {
     init(state: State<any>): void;
     /** Ensures all subscriptions are cleaned up. */
     cleanup(): void;
-    /** Attaches Manager to store
-     *
-     */
-    getMiddleware(): Middleware;
 }
 
-export { AbstractInstanceType, ActionMeta, ActionTypes, ConnectionListener, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch$1 as Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityInterface, ErrorTypes, ExpireAllAction, ExpiryStatus, FetchAction, FetchFunction, FetchMeta, GCAction, GenericDispatch, InvalidateAction, InvalidateAllAction, LogoutManager, Manager, Middleware$2 as Middleware, MiddlewareAPI$1 as MiddlewareAPI, NI, NetworkError, NetworkManager, Normalize, NormalizeNullable, OptimisticAction, PK, PollingSubscription, Queryable, ResetAction, ResetError, ResolveType, ResultEntry, Schema, SchemaArgs, SchemaClass, SetAction, SetResponseAction, SetResponseActionBase, SetResponseActionError, SetResponseActionSuccess, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, index_d as actions, applyManager, createReducer, initialState };
+/** Handling network unauthorized indicators like HTTP 401
+ *
+ * @see https://dataclient.io/docs/api/LogoutManager
+ */
+declare class LogoutManager implements Manager {
+    constructor({ handleLogout, shouldLogout }?: Props);
+    middleware: Middleware;
+    cleanup(): void;
+    protected shouldLogout(error: UnknownError): boolean;
+    handleLogout(controller: Controller): void;
+}
+type HandleLogout = (controller: Controller) => void;
+interface Props {
+    handleLogout?: HandleLogout;
+    shouldLogout?: (error: UnknownError) => boolean;
+}
+
+export { AbstractInstanceType, ActionMeta, ActionTypes, ConnectionListener, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityInterface, ErrorTypes, ExpireAllAction, ExpiryStatus, FetchAction, FetchFunction, FetchMeta, GCAction, GenericDispatch, InvalidateAction, InvalidateAllAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NI, NetworkError, NetworkManager, Normalize, NormalizeNullable, OptimisticAction, PK, PollingSubscription, Queryable, ResetAction, ResetError, ResolveType, ResultEntry, Schema, SchemaArgs, SchemaClass, SetAction, SetResponseAction, SetResponseActionBase, SetResponseActionError, SetResponseActionSuccess, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, index_d as actions, applyManager, createReducer, initialState };
