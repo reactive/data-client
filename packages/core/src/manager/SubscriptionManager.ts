@@ -41,33 +41,31 @@ export default class SubscriptionManager<
   } = {};
 
   protected declare readonly Subscription: S;
-  protected declare middleware: Middleware;
   protected controller: Controller = new Controller();
 
   constructor(Subscription: S) {
     this.Subscription = Subscription;
-
-    this.middleware = <C extends MiddlewareAPI>(controller: C) => {
-      this.controller = controller;
-      return (next: C['dispatch']): C['dispatch'] =>
-        action => {
-          switch (action.type) {
-            case SUBSCRIBE_TYPE:
-              try {
-                this.handleSubscribe(action);
-              } catch (e) {
-                console.error(e);
-              }
-              return Promise.resolve();
-            case UNSUBSCRIBE_TYPE:
-              this.handleUnsubscribe(action);
-              return Promise.resolve();
-            default:
-              return next(action);
-          }
-        };
-    };
   }
+
+  middleware: Middleware = controller => {
+    this.controller = controller;
+    return next => action => {
+      switch (action.type) {
+        case SUBSCRIBE_TYPE:
+          try {
+            this.handleSubscribe(action);
+          } catch (e) {
+            console.error(e);
+          }
+          return Promise.resolve();
+        case UNSUBSCRIBE_TYPE:
+          this.handleUnsubscribe(action);
+          return Promise.resolve();
+        default:
+          return next(action);
+      }
+    };
+  };
 
   /** Ensures all subscriptions are cleaned up. */
   cleanup() {
@@ -109,17 +107,5 @@ export default class SubscriptionManager<
     } else if (process.env.NODE_ENV !== 'production') {
       console.error(`Mismatched unsubscribe: ${key} is not subscribed`);
     }
-  }
-
-  /** Attaches Manager to store
-   *
-   * Intercepts 'rdc/subscribe'/'rest-hordc/ribe' to register resources that
-   * need to be kept up to date.
-   *
-   * Will possibly dispatch 'rdc/fetch' or 'rest-hordc/' to keep resources fresh
-   *
-   */
-  getMiddleware() {
-    return this.middleware;
   }
 }

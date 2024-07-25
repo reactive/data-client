@@ -4,7 +4,7 @@
 import type { State, Manager } from '@data-client/core';
 import { createReducer, Controller } from '@data-client/core';
 import useEnhancedReducer from '@data-client/use-enhanced-reducer';
-import type { Middleware } from '@data-client/use-enhanced-reducer';
+import type { Middleware as GenericMiddleware } from '@data-client/use-enhanced-reducer';
 import React, { useEffect, useMemo, memo } from 'react';
 
 import BackupLoading from './BackupLoading.js';
@@ -13,8 +13,8 @@ import { StateContext } from '../context.js';
 
 interface StoreProps {
   children: React.ReactNode;
-  managers: Manager[];
-  middlewares: Middleware[];
+  mgrEffect: () => void;
+  middlewares: GenericMiddleware[];
   initialState: State<unknown>;
   controller: Controller;
 }
@@ -24,7 +24,7 @@ interface StoreProps {
  */
 function DataStore({
   children,
-  managers,
+  mgrEffect,
   middlewares,
   initialState,
   controller,
@@ -39,19 +39,8 @@ function DataStore({
     [masterReducer, state],
   );
 
-  // if we change out the manager we need to make sure it has no hanging async
-  useEffect(() => {
-    for (let i = 0; i < managers.length; ++i) {
-      managers[i].init?.(state);
-    }
-    return () => {
-      for (let i = 0; i < managers.length; ++i) {
-        managers[i].cleanup();
-      }
-    };
-    // we're ignoring state here, because it shouldn't trigger inits
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [managers]);
+  // only run once everything is prepared
+  useEffect(mgrEffect, [mgrEffect]);
 
   return (
     <StateContext.Provider value={optimisticState}>

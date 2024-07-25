@@ -27,11 +27,10 @@ describe('SubscriptionManager', () => {
   const manager = new SubscriptionManager(TestSubscription);
   const getState = () => initialState;
 
-  describe('getMiddleware()', () => {
+  describe('middleware', () => {
     it('should return the same value every call', () => {
-      const a = manager.getMiddleware();
-      expect(a).toBe(manager.getMiddleware());
-      expect(a).toBe(manager.getMiddleware());
+      const a = manager.middleware;
+      expect(a).toBe(manager.middleware);
     });
   });
 
@@ -74,7 +73,6 @@ describe('SubscriptionManager', () => {
     }
 
     const manager = new SubscriptionManager(TestSubscription);
-    const middleware = manager.getMiddleware();
     const next = jest.fn();
     const dispatch = () => Promise.resolve();
     const controller = new Controller({ dispatch, getState });
@@ -86,14 +84,14 @@ describe('SubscriptionManager', () => {
     );
     it('subscribe should add a subscription', () => {
       const action = createSubscribeAction({ id: 5 });
-      middleware(API)(next)(action);
+      manager.middleware(API)(next)(action);
 
       expect(next).not.toHaveBeenCalled();
       expect((manager as any).subscriptions[action.key]).toBeDefined();
     });
     it('subscribe should add a subscription (no frequency)', () => {
       const action = createSubscribeAction({ id: 597 });
-      middleware(API)(next)(action);
+      manager.middleware(API)(next)(action);
 
       expect(next).not.toHaveBeenCalled();
       expect((manager as any).subscriptions[action.key]).toBeDefined();
@@ -101,19 +99,19 @@ describe('SubscriptionManager', () => {
 
     it('subscribe with same should call subscription.add', () => {
       const action = createSubscribeAction({ id: 5, title: 'four' });
-      middleware(API)(next)(action);
+      manager.middleware(API)(next)(action);
 
       expect(
         (manager as any).subscriptions[action.key].add.mock.calls.length,
       ).toBe(1);
-      middleware(API)(next)(action);
+      manager.middleware(API)(next)(action);
       expect(
         (manager as any).subscriptions[action.key].add.mock.calls.length,
       ).toBe(2);
     });
     it('subscribe with another should create another', () => {
       const action = createSubscribeAction({ id: 7, title: 'four cakes' });
-      middleware(API)(next)(action);
+      manager.middleware(API)(next)(action);
 
       expect((manager as any).subscriptions[action.key]).toBeDefined();
       expect(
@@ -134,13 +132,13 @@ describe('SubscriptionManager', () => {
         () => true,
       );
 
-      middleware(API)(next)(action);
+      manager.middleware(API)(next)(action);
 
       expect((manager as any).subscriptions[action.key]).not.toBeDefined();
     });
 
     it('unsubscribe should delete when remove returns true (no frequency)', () => {
-      middleware(API)(next)(
+      manager.middleware(API)(next)(
         createSubscribeAction({ id: 50, title: 'four cakes' }),
       );
 
@@ -149,7 +147,7 @@ describe('SubscriptionManager', () => {
         () => true,
       );
 
-      middleware(API)(next)(action);
+      manager.middleware(API)(next)(action);
 
       expect((manager as any).subscriptions[action.key]).not.toBeDefined();
     });
@@ -160,7 +158,7 @@ describe('SubscriptionManager', () => {
         () => false,
       );
 
-      middleware(API)(next)(action);
+      manager.middleware(API)(next)(action);
 
       expect((manager as any).subscriptions[action.key]).toBeDefined();
       expect(
@@ -174,7 +172,7 @@ describe('SubscriptionManager', () => {
 
       const action = createUnsubscribeAction({ id: 25 });
 
-      middleware(API)(next)(action);
+      manager.middleware(API)(next)(action);
 
       expect((manager as any).subscriptions[action.key]).not.toBeDefined();
 
@@ -190,7 +188,7 @@ describe('SubscriptionManager', () => {
       const action = { type: SET_RESPONSE_TYPE };
       next.mockReset();
 
-      middleware(API)(next)(action as any);
+      manager.middleware(API)(next)(action as any);
 
       expect(next.mock.calls.length).toBe(1);
     });

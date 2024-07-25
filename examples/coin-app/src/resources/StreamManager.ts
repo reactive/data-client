@@ -7,93 +7,96 @@ import type { Entity } from '@data-client/rest';
  * https://docs.cloud.coinbase.com/advanced-trade-api/docs/ws-overview
  */
 export default class StreamManager implements Manager {
-  protected declare middleware: Middleware<ActionTypes>;
   protected declare evtSource: WebSocket; // | EventSource;
+  protected declare createEventSource: () => WebSocket; // | EventSource;
   protected declare entities: Record<string, typeof Entity>;
   protected msgQueue: (string | ArrayBufferLike | Blob | ArrayBufferView)[] =
     [];
 
   protected product_ids: string[] = [];
   private attempts = 0;
-  protected declare connect: () => void;
+  protected declare controller: Controller;
 
   constructor(
     evtSource: () => WebSocket, // | EventSource,
     entities: Record<string, typeof Entity>,
   ) {
     this.entities = entities;
-
-    this.middleware = controller => {
-      this.connect = () => {
-        this.evtSource = evtSource();
-        this.evtSource.onmessage = event => {
-          try {
-            const msg = JSON.parse(event.data);
-            this.handleMessage(controller, msg);
-          } catch (e) {
-            console.error('Failed to handle message');
-            console.error(e);
-          }
-        };
-        this.evtSource.onopen = () => {
-          console.info('WebSocket connected');
-          // Reset reconnection attempts after a successful connection
-          this.attempts = 0;
-        };
-        this.evtSource.onclose = () => {
-          console.info('WebSocket disconnected');
-          this.reconnect();
-        };
-        this.evtSource.onerror = error => {
-          console.error('WebSocket error:', error);
-          // Ensures that the onclose handler gets triggered for reconnection
-          this.evtSource.close();
-        };
-      };
-      return next => async action => {
-        switch (action.type) {
-          case actionTypes.SUBSCRIBE_TYPE:
-            // only process registered endpoints
-            if (
-              !Object.values(this.entities).find(
-                // @ts-expect-error
-                entity => entity.key === action.endpoint.schema?.key,
-              )
-            )
-              break;
-            if ('channel' in action.endpoint) {
-              this.subscribe(action.args[0]?.product_id);
-              // consume subscription if we use it
-              return Promise.resolve();
-            }
-
-            return next(action);
-          case actionTypes.UNSUBSCRIBE_TYPE:
-            // only process registered endpoints
-            if (
-              !Object.values(this.entities).find(
-                // @ts-expect-error
-                entity => entity.key === action.endpoint.schema?.key,
-              )
-            )
-              break;
-            if ('channel' in action.endpoint) {
-              this.send(
-                JSON.stringify({
-                  type: 'unsubscribe',
-                  product_ids: [action.args[0]?.product_id],
-                  channels: [action.endpoint.channel],
-                }),
-              );
-              return Promise.resolve();
-            }
-            return next(action);
-          default:
-            return next(action);
-        }
-      };
-    };
+    this.createEventSource = evtSource;
   }
+
+  middleware: Middleware = controller => {
+    this.controller = controller;
+    return next => async action => {
+      switch (action.type) {
+        case actionTypes.SUBSCRIBE_TYPE:
+          // only process registered endpoints
+          if (
+            !Object.values(this.entities).find(
+              // @ts-expect-error
+              entity => entity.key === action.endpoint.schema?.key,
+            )
+          )
+            break;
+          if ('channel' in action.endpoint) {
+            this.subscribe(action.args[0]?.product_id);
+            // consume subscription if we use it
+            return Promise.resolve();
+          }
+
+          return next(action);
+        case actionTypes.UNSUBSCRIBE_TYPE:
+          // only process registered endpoints
+          if (
+            !Object.values(this.entities).find(
+              // @ts-expect-error
+              entity => entity.key === action.endpoint.schema?.key,
+            )
+          )
+            break;
+          if ('channel' in action.endpoint) {
+            this.send(
+              JSON.stringify({
+                type: 'unsubscribe',
+                product_ids: [action.args[0]?.product_id],
+                channels: [action.endpoint.channel],
+              }),
+            );
+            return Promise.resolve();
+          }
+          return next(action);
+        default:
+          return next(action);
+      }
+    };
+  };
+
+  connect = () => {
+    this.evtSource = this.createEventSource();
+    this.evtSource.onmessage = event => {
+      try {
+        const msg = JSON.parse(event.data);
+        this.handleMessage(this.controller, msg);
+      } catch (e) {
+        console.error('Failed to handle message');
+        console.error(e);
+      }
+    };
+    this.evtSource.onopen = () => {
+      console.info('WebSocket connected');
+      // Reset reconnection attempts after a successful connection
+      this.attempts = 0;
+    };
+    this.evtSource.onclose = () => {
+      console.info('WebSocket disconnected');
+      this.reconnect();
+    };
+    this.evtSource.onerror = error => {
+      console.error('WebSocket error:', error);
+      // Ensures that the onclose handler gets triggered for reconnection
+      this.evtSource.close();
+    };
+  };
 
   send(data: string | ArrayBufferLike | Blob | ArrayBufferView): void {
     if (this.evtSource.readyState === this.evtSource.OPEN) {

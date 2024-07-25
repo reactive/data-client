@@ -1,12 +1,11 @@
 import NetworkManager from './NetworkManager.js';
 import type Controller from '../controller/Controller.js';
-import type { Reducer, Dispatch, ReducerState } from '../middlewareTypes.js';
 import { Manager } from '../types.js';
 
 export default function applyManager(
   managers: Manager[],
   controller: Controller,
-): Middleware[] {
+): ReduxMiddleware[] {
   /* istanbul ignore next */
   if (
     process.env.NODE_ENV !== 'production' &&
@@ -18,25 +17,38 @@ export default function applyManager(
     );
   }
   return managers.map((manager, i) => {
-    const middleware = manager.getMiddleware();
+    if (!manager.middleware) manager.middleware = manager.getMiddleware?.();
     return ({ dispatch, getState }) => {
       if (i === 0) {
         (controller as any).dispatch = dispatch;
         (controller as any).getState = getState;
       }
       // controller is a superset of the middleware API
-      return middleware(controller as Controller<any>);
+      return (manager as Manager & { middleware: ReduxMiddleware }).middleware(
+        controller as Controller<any>,
+      );
     };
   });
 }
 
 /* These should be compatible with redux */
-export interface MiddlewareAPI<
+export interface ReduxMiddlewareAPI<
   R extends Reducer<any, any> = Reducer<any, any>,
 > {
   getState: () => ReducerState<R>;
-  dispatch: Dispatch<R>;
+  dispatch: ReactDispatch<R>;
 }
-export type Middleware = <R extends Reducer<any, any>>({
+export type ReduxMiddleware = <R extends Reducer<any, any>>({
   dispatch,
-}: MiddlewareAPI<R>) => (next: Dispatch<R>) => Dispatch<R>;
+}: ReduxMiddlewareAPI<R>) => (next: ReactDispatch<R>) => ReactDispatch<R>;
+
+/* The next are types from React; but we don't want dependencies on it */
+export type ReactDispatch<R extends Reducer<any, any>> = (
+  action: ReducerAction<R>,
+) => Promise<void>;
+
+export type Reducer<S, A> = (prevState: S, action: A) => S;
+export type ReducerState<R extends Reducer<any, any>> =
+  R extends Reducer<infer S, any> ? S : never;
+export type ReducerAction<R extends Reducer<any, any>> =
+  R extends Reducer<any, infer A> ? A : never;

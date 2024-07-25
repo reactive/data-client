@@ -22,7 +22,7 @@ The default managers orchestrate the complex asynchronous behavior that <abbr ti
 provides out of the box. These can easily be configured with [getDefaultManagers()](./getDefaultManagers.md), and
 extended with your own custom `Managers`.
 
-Managers must implement [getMiddleware()](#getmiddleware), which hooks them into the central store's
+Managers must implement [middleware](#middleware), which hooks them into the central store's
 [control flow](#control-flow). Additionally, [cleanup()](#cleanup) and [init()](#init) hook into the
 store's lifecycle for setup/teardown behaviors.
 
@@ -32,7 +32,7 @@ type Dispatch = (action: ActionTypes) => Promise<void>;
 type Middleware = (controller: Controller) => (next: Dispatch) => Dispatch;
 
 interface Manager {
-  getMiddleware(): Middleware;
+  middleware: Middleware;
   cleanup(): void;
   init?: (state: State<any>) => void;
 }
@@ -40,9 +40,9 @@ interface Manager {
 
 ## Lifecycle
 
-### getMiddleware()
+### middleware
 
-getMiddleware() returns a function that very similar to a [redux middleware](https://redux.js.org/advanced/middleware).
+`middleware` is very similar to a [redux middleware](https://redux.js.org/advanced/middleware).
 The only differences is that the `next()` function returns a `Promise`. This promise resolves when the reducer update is
 [committed](https://indepth.dev/inside-fiber-in-depth-overview-of-the-new-reconciliation-algorithm-in-react/#general-algorithm)
 when using &lt;DataProvider /\>. This is necessary since the commit phase is asynchronously scheduled. This enables building
@@ -246,7 +246,7 @@ import CurrentTime from './CurrentTime';
 export default class TimeManager implements Manager {
   protected declare intervalID?: ReturnType<typeof setInterval>;
 
-  getMiddleware = (): Middleware => controller => {
+  middleware: Middleware => controller => {
     this.intervalID = setInterval(() => {
       controller.set(CurrentTime, { id: 1 }, { id: 1, time: Date.now() });
     }, 1000);
@@ -273,7 +273,7 @@ import type { Manager, Middleware } from '@data-client/react';
 import { actionTypes } from '@data-client/react';
 
 export default class LoggingManager implements Manager {
-  getMiddleware = (): Middleware => controller => next => async action => {
+  middleware: Middleware => controller => next => async action => {
     switch (action.type) {
       case actionTypes.SET_RESPONSE_TYPE:
         if (action.endpoint.sideEffect) {
@@ -326,7 +326,7 @@ import isEntity from './isEntity';
 export default class CustomSubsManager implements Manager {
   protected declare entities: Record<string, EntityInterface>;
 
-  getMiddleware = (): Middleware => controller => next => async action => {
+  middleware: Middleware => controller => next => async action => {
     switch (action.type) {
       case actionTypes.SUBSCRIBE_TYPE:
       case actionTypes.UNSUBSCRIBE_TYPE:
