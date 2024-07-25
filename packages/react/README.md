@@ -169,6 +169,28 @@ class LoggingManager implements Manager {
 }
 ```
 
+```ts
+class TickerStream implements Manager {
+  middleware: Middleware = controller => {
+    this.handleMsg = msg => {
+      controller.set(Ticker, { id: msg.id }, msg);
+    }
+    return next => action => next(action);
+  }
+
+  init() {
+    this.websocket = new WebSocket('wss://ws-feed.myexchange.com');
+    this.websocket.onmessage = event => {
+      const msg = JSON.parse(event.data);
+      this.handleMsg(msg);
+    }
+  }
+  cleanup() {
+    this.websocket.close();
+  }
+}
+```
+
 ### [Integrated data mocking](https://dataclient.io/docs/api/Fixtures)
 
 ```tsx
