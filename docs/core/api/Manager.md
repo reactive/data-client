@@ -246,7 +246,7 @@ import CurrentTime from './CurrentTime';
 export default class TimeManager implements Manager {
   protected declare intervalID?: ReturnType<typeof setInterval>;
 
-  middleware: Middleware => controller => {
+  middleware: Middleware = controller => {
     this.intervalID = setInterval(() => {
       controller.set(CurrentTime, { id: 1 }, { id: 1, time: Date.now() });
     }, 1000);
@@ -273,7 +273,7 @@ import type { Manager, Middleware } from '@data-client/react';
 import { actionTypes } from '@data-client/react';
 
 export default class LoggingManager implements Manager {
-  middleware: Middleware => controller => next => async action => {
+  middleware: Middleware = controller => next => async action => {
     switch (action.type) {
       case actionTypes.SET_RESPONSE_TYPE:
         if (action.endpoint.sideEffect) {
@@ -326,7 +326,7 @@ import isEntity from './isEntity';
 export default class CustomSubsManager implements Manager {
   protected declare entities: Record<string, EntityInterface>;
 
-  middleware: Middleware => controller => next => async action => {
+  middleware: Middleware = controller => next => async action => {
     switch (action.type) {
       case actionTypes.SUBSCRIBE_TYPE:
       case actionTypes.UNSUBSCRIBE_TYPE:

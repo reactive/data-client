@@ -56,7 +56,7 @@ its [Controller](../api/Controller.md)
 import type { Manager, Middleware } from '@data-client/core';
 
 export default class LoggingManager implements Manager {
-  middleware: Middleware => controller => next => async action => {
+  middleware: Middleware = controller => next => async action => {
     console.log('before', action, controller.getState());
     await next(action);
     console.log('after', action, controller.getState());

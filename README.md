@@ -162,7 +162,7 @@ const totalVotesForUser = useQuery(queryTotalVotes, { userId });
 
 ```ts
 class LoggingManager implements Manager {
-  middleware: Middleware => controller => next => async action => {
+  middleware: Middleware = controller => next => async action => {
     console.log('before', action, controller.getState());
     await next(action);
     console.log('after', action, controller.getState());
