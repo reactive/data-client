@@ -15,6 +15,10 @@ import StackBlitz from '@site/src/components/StackBlitz';
 
 # Managers and Middleware
 
+<!-- global useEffect - centralized orchestration (talk about the problem we're solving - global side effects) -->
+
+<!-- controller.set -> dispatch(createSet()) -> DevToolsManager -> NetworkManager -> SubManager -> reducer -> state -->
+
 Reactive Data Client uses the [flux store](https://facebookarchive.github.io/flux/docs/in-depth-overview/) pattern, which is
 characterized by an easy to [understand and debug](../getting-started/debugging.md) the store's [undirectional data flow](<https://en.wikipedia.org/wiki/Unidirectional_Data_Flow_(computer_science)>). State updates are performed by a [reducer function](https://github.com/reactive/data-client/blob/master/packages/core/src/state/reducer/createReducer.ts#L19).
 
@@ -117,4 +121,4 @@ directly with `event.data`.
 
 ### Coin App
 
-<StackBlitz app="coin-app" file="src/getManagers.tsx,src/resources/Ticker.ts,src/pages/AssetDetail/AssetPrice.tsx,src/resources/StreamManager.ts" height="600" />
+<StackBlitz app="coin-app" file="src/getManagers.ts,src/resources/Ticker.ts,src/pages/AssetDetail/AssetPrice.tsx,src/resources/StreamManager.ts" height="600" />

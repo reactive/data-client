@@ -23,7 +23,7 @@ Performance compared to normalizr package (higher is better):
 
 |                     | no cache | with cache |
 | ------------------- | -------- | ---------- |
-| normalize (long)    | 119%     | 119%       |
+| normalize (long)    | 121%     | 121%       |
 | denormalize (long)  | 158%     | 1,262%      |
 | denormalize (short) | 676%     | 2,367%     |
 

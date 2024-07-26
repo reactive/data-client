@@ -54,14 +54,14 @@ ensure they can consume a promise. Conversely, redux middleware must be changed 
 Middlewares will intercept actions that are dispatched and then potentially dispatch their own actions as well.
 To read more about middlewares, see the [redux documentation](https://redux.js.org/advanced/middleware).
 
-### cleanup()
-
-Provides any cleanup of dangling resources after manager is no longer in use.
-
-### init()
+### init(state)
 
 Called with initial state after provider is mounted. Can be useful to run setup at start that
 relies on state actually existing.
+
+### cleanup()
+
+Provides any cleanup of dangling resources after manager is no longer in use.
 
 ## Adding managers to Reactive Data Client {#adding}
 
