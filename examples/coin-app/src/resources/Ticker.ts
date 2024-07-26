@@ -6,12 +6,11 @@ export class Ticker extends Entity {
   trade_id = 0;
   price = 0;
   time = new Date(0);
-  // last_size = '0';
-  // best_bid = '0';
-  // best_ask = '0';
-  // volume_24h = '';
-  // volume_30d = '';
   open_24h = 0;
+
+  get gain_24() {
+    return (this.price - this.open_24h) / this.open_24h;
+  }
 
   pk(): string {
     return this.product_id;

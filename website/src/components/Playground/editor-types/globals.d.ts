@@ -22,6 +22,14 @@ type EntityFields<U> = {
 type AbstractInstanceType<T> = T extends new (...args: any) => infer U ? U : T extends {
     prototype: infer U;
 } ? U : never;
+type NormalizedEntity<T> = T extends ({
+    prototype: infer U;
+    schema: infer S;
+}) ? {
+    [K in Exclude<keyof U, keyof S>]: U[K];
+} & {
+    [K in keyof S]: string;
+} : never;
 type DenormalizeObject<S extends Record<string, any>> = {
     [K in keyof S]: S[K] extends Schema ? Denormalize<S[K]> : S[K];
 };
@@ -69,8 +77,13 @@ interface EntityMap<T = any> {
     readonly [k: string]: EntityInterface<T>;
 }
 type SchemaArgs<S extends Schema> = S extends EntityInterface<infer U> ? [EntityFields<U>] : S extends ({
-    queryKey(args: infer Args, queryKey: (...args: any) => any, getEntity: any, getIndex: any): any;
-}) ? Args : never;
+    queryKey(args: infer Args, ...rest: any): any;
+}) ? Args : S extends {
+    [K: string]: any;
+} ? ObjectArgs<S> : never;
+type ObjectArgs<S extends Record<string, any>> = {
+    [K in keyof S]: S[K] extends Schema ? SchemaArgs<S[K]> : never;
+}[keyof S];
 
 interface SnapshotInterface {
     readonly fetchedAt: number;
@@ -135,22 +148,22 @@ interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
 type Schema = null | string | {
     [K: string]: any;
 } | Schema[] | SchemaSimple | Serializable;
-interface Queryable {
-    queryKey(args: readonly any[], queryKey: (...args: any) => any, getEntity: GetEntity, getIndex: GetIndex): {};
+interface Queryable<Args extends readonly any[] = readonly any[]> {
+    queryKey(args: Args, queryKey: (...args: any) => any, getEntity: GetEntity, getIndex: GetIndex): {};
 }
 type Serializable<T extends {
     toJSON(): string;
 } = {
     toJSON(): string;
 }> = (value: any) => T;
-interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
+interface SchemaSimple<T = any, Args extends readonly any[] = any> {
     normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, addEntity: (...args: any) => any, getEntity: (...args: any) => any, checkLoop: (...args: any) => any): any;
     denormalize(input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any): T;
     queryKey(args: Args, queryKey: (...args: any) => any, getEntity: GetEntity, getIndex: GetIndex): any;
 }
-interface SchemaClass<T = any, N = T | undefined, Args extends any[] = any[]> extends SchemaSimple<T, Args> {
+interface SchemaClass<T = any, Args extends readonly any[] = any> extends SchemaSimple<T, Args> {
     _normalizeNullable(): any;
-    _denormalizeNullable(): N;
+    _denormalizeNullable(): any;
 }
 interface EntityInterface<T = any> extends SchemaSimple {
     createIfValid(props: any): any;
@@ -482,7 +495,9 @@ declare class Invalidate<E extends EntityInterface & {
  *
  * @see https://dataclient.io/rest/api/Query
  */
-declare class Query<S extends Queryable, P extends (entries: Denormalize<S>, ...args: any) => any> implements SchemaSimple<ReturnType<P> | undefined, ProcessParameters<P, S>> {
+declare class Query<S extends Queryable | {
+    [k: string]: Queryable;
+}, P extends (entries: Denormalize<S>, ...args: any) => any> implements SchemaSimple<ReturnType<P> | undefined, ProcessParameters<P, S>> {
     schema: S;
     process: P;
     /**
@@ -497,7 +512,9 @@ declare class Query<S extends Queryable, P extends (entries: Denormalize<S>, ...
     _denormalizeNullable: (input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any) => ReturnType<P> | undefined;
     _normalizeNullable: () => NormalizeNullable<S>;
 }
-type ProcessParameters<P, S extends Queryable> = P extends (entries: any, ...args: infer Par) => any ? Par extends [] ? SchemaArgs<S> : Par & SchemaArgs<S> : SchemaArgs<S>;
+type ProcessParameters<P, S extends Queryable | {
+    [k: string]: Queryable;
+}> = P extends (entries: any, ...args: infer Par) => any ? Par extends [] ? SchemaArgs<S> : Par & SchemaArgs<S> : SchemaArgs<S>;
 
 type CollectionOptions<Args extends any[] = DefaultArgs, Parent = any> = ({
     /** Defines lookups for Collections nested in other schemas.
@@ -751,7 +768,7 @@ declare class All<
  * Represents objects with statically known members
  * @see https://dataclient.io/rest/api/Object
  */
-declare class Object$1<O extends Record<string, any> = Record<string, Schema>>
+declare class Object$1<O extends Record<string, any> = Record<string, any>>
   implements SchemaClass
 {
   /**
@@ -783,7 +800,7 @@ declare class Object$1<O extends Record<string, any> = Record<string, Schema>>
   ): DenormalizeObject<O>;
 
   queryKey(
-    args: readonly any[],
+    args: ObjectArgs<O>,
     queryKey: (...args: any) => any,
     getEntity: GetEntity,
     getIndex: GetIndex,
@@ -1024,9 +1041,11 @@ type schema_d_Invalidate<E extends EntityInterface & {
     process: any;
 }> = Invalidate<E>;
 declare const schema_d_Invalidate: typeof Invalidate;
-type schema_d_Query<S extends Queryable, P extends (entries: Denormalize<S>, ...args: any) => any> = Query<S, P>;
+type schema_d_Query<S extends Queryable | {
+    [k: string]: Queryable;
+}, P extends (entries: Denormalize<S>, ...args: any) => any> = Query<S, P>;
 declare const schema_d_Query: typeof Query;
-type schema_d_SchemaClass<T = any, N = T | undefined, Args extends any[] = any[]> = SchemaClass<T, N, Args>;
+type schema_d_SchemaClass<T = any, Args extends readonly any[] = any> = SchemaClass<T, Args>;
 type schema_d_All<S extends EntityMap | EntityInterface = EntityMap | EntityInterface> = All<S>;
 declare const schema_d_All: typeof All;
 type schema_d_UnionConstructor = UnionConstructor;
@@ -1922,4 +1941,4 @@ declare function useController(): Controller;
 declare function useLive<E extends EndpointInterface$1<FetchFunction$1, Schema$1 | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>]): E['schema'] extends undefined | null ? ResolveType$1<E> : Denormalize$1<E['schema']>;
 declare function useLive<E extends EndpointInterface$1<FetchFunction$1, Schema$1 | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): E['schema'] extends undefined | null ? ResolveType$1<E> | undefined : DenormalizeNullable$1<E['schema']>;
 
-export { AbstractInstanceType, AddEndpoint, Array$1 as Array, _default as AsyncBoundary, Collection, CustomResource, DataProvider, DefaultArgs, Defaults, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, EndpointToFunction, Entity, ErrorTypes$1 as ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, ExtendedResource, FetchFunction, FetchGet, FetchMutate, FromFallBack, GetEndpoint, HookResource, HookableEndpointInterface, INVALID, RestEndpoint$1 as IRestEndpoint, Invalidate, KeyofEndpointInstance, KeyofRestEndpoint, KeysToArgs, MethodToSide, MutateEndpoint, NI, NetworkError, ErrorBoundary as NetworkErrorBoundary, Normalize, NormalizeNullable, OptionsToFunction, PaginationEndpoint, PaginationFieldEndpoint, ParamFetchNoBody, ParamFetchWithBody, ParamToArgs, PartialRestGenerics, PathArgs, PathArgsAndSearch, PathKeys, PolymorphicInterface, Queryable, ReadEndpoint, ResolveType, Resource, ResourceEndpointExtensions, ResourceExtension, ResourceGenerics, ResourceOptions, RestEndpoint, RestEndpointConstructor, RestEndpointConstructorOptions, RestEndpointExtendOptions, RestEndpointOptions, RestExtendedEndpoint, RestFetch, RestGenerics, RestInstance, RestInstanceBase, RestType, RestTypeNoBody, RestTypeWithBody, Schema, SchemaArgs, SchemaClass, SchemaSimple, ShortenPath, SnapshotInterface, UnknownError, resource as createResource, getUrlBase, getUrlTokens, hookifyResource, resource, schema_d as schema, useCache, useController, useDLE, useError, useFetch, useLive, useQuery, useSubscription, useSuspense, validateRequired };
+export { AbstractInstanceType, AddEndpoint, Array$1 as Array, _default as AsyncBoundary, Collection, CustomResource, DataProvider, DefaultArgs, Defaults, Denormalize, DenormalizeNullable, DenormalizeNullableObject, DenormalizeObject, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, EndpointToFunction, Entity, EntityFields, EntityMap, ErrorTypes$1 as ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, ExtendedResource, FetchFunction, FetchGet, FetchMutate, FromFallBack, GetEndpoint, HookResource, HookableEndpointInterface, INVALID, RestEndpoint$1 as IRestEndpoint, Invalidate, KeyofEndpointInstance, KeyofRestEndpoint, KeysToArgs, MethodToSide, MutateEndpoint, NI, NetworkError, ErrorBoundary as NetworkErrorBoundary, Normalize, NormalizeNullable, NormalizeObject, NormalizedEntity, NormalizedNullableObject, ObjectArgs, OptionsToFunction, PaginationEndpoint, PaginationFieldEndpoint, ParamFetchNoBody, ParamFetchWithBody, ParamToArgs, PartialRestGenerics, PathArgs, PathArgsAndSearch, PathKeys, PolymorphicInterface, Queryable, ReadEndpoint, RecordClass, ResolveType, Resource, ResourceEndpointExtensions, ResourceExtension, ResourceGenerics, ResourceOptions, RestEndpoint, RestEndpointConstructor, RestEndpointConstructorOptions, RestEndpointExtendOptions, RestEndpointOptions, RestExtendedEndpoint, RestFetch, RestGenerics, RestInstance, RestInstanceBase, RestType, RestTypeNoBody, RestTypeWithBody, Schema, SchemaArgs, SchemaClass, SchemaSimple, ShortenPath, SnapshotInterface, UnknownError, resource as createResource, getUrlBase, getUrlTokens, hookifyResource, resource, schema_d as schema, useCache, useController, useDLE, useError, useFetch, useLive, useQuery, useSubscription, useSuspense, validateRequired };

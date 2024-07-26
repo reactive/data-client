@@ -12,7 +12,7 @@ import type { Denormalize, NormalizeNullable, SchemaArgs } from '../normal.js';
  * @see https://dataclient.io/rest/api/Query
  */
 export default class Query<
-  S extends Queryable,
+  S extends Queryable | { [k: string]: Queryable },
   P extends (entries: Denormalize<S>, ...args: any) => any,
 > implements SchemaSimple<ReturnType<P> | undefined, ProcessParameters<P, S>>
 {
@@ -61,7 +61,7 @@ export default class Query<
   declare _normalizeNullable: () => NormalizeNullable<S>;
 }
 
-type ProcessParameters<P, S extends Queryable> =
+type ProcessParameters<P, S extends Queryable | { [k: string]: Queryable }> =
   P extends (entries: any, ...args: infer Par) => any ?
     Par extends [] ?
       SchemaArgs<S>

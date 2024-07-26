@@ -11,6 +11,7 @@ export type {
   EndpointInterface,
   EntityInterface,
   Queryable,
+  SchemaArgs,
   Schema,
   SchemaClass,
   DenormalizeNullable,

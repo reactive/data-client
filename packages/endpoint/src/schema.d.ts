@@ -18,6 +18,7 @@ import type {
   NormalizeObject,
   NormalizedNullableObject,
   EntityMap,
+  ObjectArgs,
 } from './normal.js';
 import { EntityFields } from './schemas/EntityFields.js';
 import type {
@@ -164,7 +165,7 @@ export class All<
  * Represents objects with statically known members
  * @see https://dataclient.io/rest/api/Object
  */
-export class Object<O extends Record<string, any> = Record<string, Schema>>
+export class Object<O extends Record<string, any> = Record<string, any>>
   implements SchemaClass
 {
   /**
@@ -196,7 +197,7 @@ export class Object<O extends Record<string, any> = Record<string, Schema>>
   ): DenormalizeObject<O>;
 
   queryKey(
-    args: readonly any[],
+    args: ObjectArgs<O>,
     queryKey: (...args: any) => any,
     getEntity: GetEntity,
     getIndex: GetIndex,

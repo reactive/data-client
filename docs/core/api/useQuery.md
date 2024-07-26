@@ -66,7 +66,7 @@ interface Queryable {
     getIndex: GetIndex,
     // Must be non-void
   ): {};
-};
+}
 ```
 
 ## Examples
@@ -147,4 +147,13 @@ render(<UsersPage />);
 
 [Queries](/rest/api/Query) can also be used to compute aggregates
 
-<StackBlitz app="todo-app" file="src/resources/TodoResource.ts,src/pages/Home/TodoStats.tsx" />
+<StackBlitz app="todo-app" file="src/resources/TodoResource.ts,src/pages/Home/TodoStats.tsx" height="420" />
+
+### Data fallbacks
+
+In this case `Ticker` is constantly updated from a websocket stream. However, there is no bulk/list
+fetch for `Ticker` - making it inefficient for getting the prices on a list view.
+
+So in this case we can fetch a list of `Stats` as a fallback since it has price data as well.
+
+<StackBlitz app="coin-app" file="src/pages/Home/CurrencyList.tsx,src/resources/fallbackQueries.ts,src/pages/Home/AssetPrice.tsx" />

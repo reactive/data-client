@@ -1,5 +1,5 @@
-import { useCache, useSubscription } from '@data-client/react';
-import { StatsResource } from 'resources/Stats';
+import { useQuery, useSubscription } from '@data-client/react';
+import { queryPrice } from 'resources/fallbackQueries';
 import { getTicker } from 'resources/Ticker';
 
 import { formatPrice } from '../../components/formatPrice';
@@ -16,9 +16,5 @@ interface Props {
 
 function useLivePrice(product_id: string) {
   useSubscription(getTicker, { product_id });
-  const ticker = useCache(getTicker, { product_id });
-  const stats = useCache(StatsResource.get, { id: product_id });
-  // fallback to stats, as we can load those in a bulk fetch for SSR
-  // it would be preferable to simply provide bulk fetch of ticker to simplify code here
-  return ticker?.price ?? stats?.last;
+  return useQuery(queryPrice, { product_id });
 }

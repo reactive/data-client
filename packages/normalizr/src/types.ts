@@ -1,11 +1,10 @@
-import { EntityFields } from './EntityFields.js';
 import type {
   Schema,
   Serializable,
   EntityInterface,
   NormalizedIndex,
-  Queryable,
 } from './interface.js';
+export * from './schemaArgs.js';
 
 export interface EntityPath {
   key: string;
@@ -138,18 +137,3 @@ export interface NormalizeMeta {
 }
 
 export type EntityMap<T = any> = Record<string, EntityInterface<T>>;
-
-export type SchemaArgs<S extends Queryable> =
-  S extends EntityInterface<infer U> ? [EntityFields<U>]
-  : S extends (
-    {
-      queryKey(
-        args: infer Args,
-        queryKey: (...args: any) => any,
-        getEntity: any,
-        getIndex: any,
-      ): any;
-    }
-  ) ?
-    Args
-  : never;
