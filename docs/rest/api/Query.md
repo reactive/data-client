@@ -270,3 +270,14 @@ render(<TodosPage />);
 ```
 
 </HooksPlayground>
+
+### Fallback joins
+
+import StackBlitz from '@site/src/components/StackBlitz';
+
+In this case `Ticker` is constantly updated from a websocket stream. However, there is no bulk/list
+fetch for `Ticker` - making it inefficient for getting the prices on a list view.
+
+So in this case we can fetch a list of `Stats` as a fallback since it has price data as well.
+
+<StackBlitz app="coin-app" file="src/pages/Home/CurrencyList.tsx,src/pages/Home/AssetPrice.tsx,src/resources/fallbackQueries.ts" />

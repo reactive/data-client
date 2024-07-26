@@ -7,7 +7,7 @@
 '@data-client/rest': patch
 ---
 
-Query can take Object Schemas
+[Query](https://dataclient.io/rest/api/Query) can take [Object Schemas](https://dataclient.io/rest/api/Object)
 
 This enables joining arbitrary objects (whose pk works with the same arguments.)
 
