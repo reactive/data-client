@@ -70,6 +70,15 @@ type EntityFields<U> = {
     readonly [K in keyof U as U[K] extends (...args: any) => any ? never : K]?: U[K] extends number ? U[K] | string : U[K] extends string ? U[K] | number : U[K];
 };
 
+type SchemaArgs<S extends Schema> = S extends EntityInterface<infer U> ? [EntityFields<U>] : S extends ({
+    queryKey(args: infer Args, ...rest: any): any;
+}) ? Args : S extends {
+    [K: string]: any;
+} ? ObjectArgs<S> : never;
+type ObjectArgs<S extends Record<string, any>> = {
+    [K in keyof S]: S[K] extends Schema ? SchemaArgs<S[K]> : never;
+}[keyof S];
+
 interface EntityPath {
     key: string;
     pk: string;
@@ -139,14 +148,6 @@ interface NormalizeMeta {
     date: number;
     fetchedAt: number;
 }
-type SchemaArgs<S extends Schema> = S extends EntityInterface<infer U> ? [EntityFields<U>] : S extends ({
-    queryKey(args: infer Args, ...rest: any): any;
-}) ? Args : S extends {
-    [K: string]: any;
-} ? ObjectArgs<S> : never;
-type ObjectArgs<S extends Record<string, any>> = {
-    [K in keyof S]: S[K] extends Schema ? SchemaArgs<S[K]> : never;
-}[keyof S];
 
 declare function denormalize<S extends Schema>(schema: S | undefined, input: any, entities: any, args?: readonly any[]): DenormalizeNullable<S> | symbol;
 
