@@ -10,9 +10,9 @@ export type Schema =
   | SchemaSimple
   | Serializable;
 
-export interface Queryable {
+export interface Queryable<Args extends readonly any[] = readonly any[]> {
   queryKey(
-    args: readonly any[],
+    args: Args,
     queryKey: (...args: any) => any,
     getEntity: GetEntity,
     getIndex: GetIndex,
@@ -24,7 +24,7 @@ export type Serializable<
   T extends { toJSON(): string } = { toJSON(): string },
 > = (value: any) => T;
 
-export interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
+export interface SchemaSimple<T = any, Args extends readonly any[] = any> {
   normalize(
     input: any,
     parent: any,
@@ -48,15 +48,12 @@ export interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
   ): any;
 }
 
-export interface SchemaClass<
-  T = any,
-  N = T | undefined,
-  Args extends any[] = any[],
-> extends SchemaSimple<T, Args> {
+export interface SchemaClass<T = any, Args extends readonly any[] = any>
+  extends SchemaSimple<T, Args> {
   // this is not an actual member, but is needed for the recursive NormalizeNullable<> type algo
   _normalizeNullable(): any;
   // this is not an actual member, but is needed for the recursive DenormalizeNullable<> type algo
-  _denormalizeNullable(): N;
+  _denormalizeNullable(): any;
 }
 
 export interface EntityInterface<T = any> extends SchemaSimple {

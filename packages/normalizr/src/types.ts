@@ -139,17 +139,17 @@ export interface NormalizeMeta {
 
 export type EntityMap<T = any> = Record<string, EntityInterface<T>>;
 
-export type SchemaArgs<S extends Queryable> =
+export type SchemaArgs<S extends Schema> =
   S extends EntityInterface<infer U> ? [EntityFields<U>]
   : S extends (
     {
-      queryKey(
-        args: infer Args,
-        queryKey: (...args: any) => any,
-        getEntity: any,
-        getIndex: any,
-      ): any;
+      queryKey(args: infer Args, ...rest: any): any;
     }
   ) ?
     Args
+  : S extends { [K: string]: any } ? ObjectArgs<S>
   : never;
+
+export type ObjectArgs<S extends Record<string, any>> = {
+  [K in keyof S]: S[K] extends Schema ? SchemaArgs<S[K]> : never;
+}[keyof S];

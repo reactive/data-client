@@ -29,6 +29,7 @@ export type {
   PolymorphicInterface,
   Queryable,
 } from './interface.js';
+export type { EntityFields } from './schemas/EntityFields.js';
 export type {
   AbstractInstanceType,
   Normalize,
@@ -36,6 +37,14 @@ export type {
   Denormalize,
   DenormalizeNullable,
   SchemaArgs,
+  ObjectArgs,
+  EntityMap,
+  RecordClass,
+  NormalizedNullableObject,
+  NormalizeObject,
+  NormalizedEntity,
+  DenormalizeObject,
+  DenormalizeNullableObject,
 } from './normal.js';
 export type {
   EndpointExtraOptions,
