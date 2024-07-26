@@ -65,11 +65,12 @@ export default function useCache<
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expiresAt, controller, key, forceFetch, state.lastReset]);
 
-  const wouldSuspend = expiryStatus !== ExpiryStatus.Valid && expired;
+  // fully "valid" data will not suspend/loading even if it is not fresh
+  const loading = expiryStatus !== ExpiryStatus.Valid && expired;
 
   return useMemo(() => {
     // if useSuspense() would suspend, don't include entities from cache
-    if (wouldSuspend) {
+    if (loading) {
       if (!endpoint.schema) return undefined;
       return controller.getResponse(endpoint, ...args, {
         ...state,
@@ -80,6 +81,6 @@ export default function useCache<
     // key substitutes args + endpoint
     // we only need cacheResults, as entities are not used in this case
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, controller, data, wouldSuspend, cacheResults]);
+  }, [key, controller, data, loading, cacheResults]);
   /*********************** end block *****************************/
 }

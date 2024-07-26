@@ -74,8 +74,6 @@ export default function useSuspense<
     key,
   ]);
 
-  const error = controller.getError(endpoint, ...args, state);
-
   // If we are hard invalid we must fetch regardless of triggering or staleness
   const forceFetch = expiryStatus === ExpiryStatus.Invalid;
 
@@ -97,6 +95,8 @@ export default function useSuspense<
   if (expiryStatus !== ExpiryStatus.Valid && maybePromise) {
     throw maybePromise;
   }
+
+  const error = controller.getError(endpoint, ...args, state);
 
   if (error) throw error;
 

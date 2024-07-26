@@ -40,10 +40,10 @@ export interface State<T> {
   readonly entities: {
     readonly [entityKey: string]: { readonly [pk: string]: T } | undefined;
   };
-  readonly indexes: NormalizedIndex;
   readonly endpoints: {
     readonly [key: string]: unknown | PK[] | PK | undefined;
   };
+  readonly indexes: NormalizedIndex;
   readonly meta: {
     readonly [key: string]: {
       readonly date: number;
@@ -116,7 +116,7 @@ const RealApp = (
 
 <img src="/img/client-logo.svg" style={{float:'right',width:'40px'}} />
 
-In development, a small button will appear that gives easy access to browser devtools if
+In development, a small button will appear that gives easy access to [browser devtools](../getting-started/debugging.md) if
 installed. This option configures where it shows up, or if null will disable it altogether.
 
 `'bottom-right' | 'bottom-left' | 'top-right'| 'top-left' | null` = `'bottom-right'`
