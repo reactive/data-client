@@ -1,5 +1,13 @@
 # normalizr-github-example
 
+## 0.1.40
+
+### Patch Changes
+
+- Updated dependencies [[`3fa9eb9`](https://github.com/reactive/data-client/commit/3fa9eb907d8760171da065168796b87e802d6666)]:
+  - @data-client/normalizr@0.14.6
+  - @data-client/endpoint@0.14.6
+
 ## 0.1.39
 
 ### Patch Changes
