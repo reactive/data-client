@@ -14,12 +14,6 @@ import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
 <PkgTabs pkgs="@data-client/rest" />
 
-:::tip TypeScript 4
-
-When using TypeScript (optional), version 4.0 or above is required.
-
-:::
-
 ## Define the API
 
 [Resources](./api/resource.md) are a collection of `methods` for a given `data model`. [Entities](./api/Entity.md) and [Schemas](./api/schema.md) are the declarative _data model_.
@@ -294,3 +288,9 @@ Feel free to use whichever one you prefer.
 
 [Mutations](/docs/getting-started/mutations) automatically updates _all_ usages without the need for
 additional requests.
+
+:::tip TypeScript 4
+
+When using TypeScript (optional), version 4.0 or above is required.
+
+:::
