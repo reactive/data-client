@@ -1,5 +1,36 @@
 # Change Log
 
+## 0.14.6
+
+### Patch Changes
+
+- [#3165](https://github.com/reactive/data-client/pull/3165) [`3fa9eb9`](https://github.com/reactive/data-client/commit/3fa9eb907d8760171da065168796b87e802d6666) Thanks [@ntucker](https://github.com/ntucker)! - [Query](https://dataclient.io/rest/api/Query) can take [Object Schemas](https://dataclient.io/rest/api/Object)
+
+  This enables joining arbitrary objects (whose pk works with the same arguments.)
+
+  ```ts
+  class Ticker extends Entity {
+    product_id = '';
+    price = 0;
+
+    pk(): string {
+      return this.product_id;
+    }
+  }
+  class Stats extends Entity {
+    product_id = '';
+    last = 0;
+
+    pk(): string {
+      return this.product_id;
+    }
+  }
+  const queryPrice = new schema.Query(
+    { ticker: Ticker, stats: Stats },
+    ({ ticker, stats }) => ticker?.price ?? stats?.last,
+  );
+  ```
+
 ## 0.14.1
 
 ### Patch Changes
