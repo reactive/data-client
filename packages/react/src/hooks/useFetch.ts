@@ -80,7 +80,7 @@ export default function useFetch<
     return controller.fetch(endpoint, ...(args as Parameters<E>));
     // we need to check against serialized params, since params can change frequently
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expiresAt, controller, key, forceFetch, state.lastReset]);
+  }, [expiresAt, key, forceFetch, state.lastReset]);
 
   return maybePromise;
 }

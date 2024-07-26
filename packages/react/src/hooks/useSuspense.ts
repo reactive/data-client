@@ -89,7 +89,7 @@ export default function useSuspense<
     );
     // we need to check against serialized params, since params can change frequently
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expiresAt, controller, key, forceFetch, state.lastReset]);
+  }, [expiresAt, key, forceFetch, state.lastReset]);
 
   // fully "valid" data will not suspend even if it is not fresh
   if (expiryStatus !== ExpiryStatus.Valid && maybePromise) {

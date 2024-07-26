@@ -133,7 +133,7 @@ export default function useDLE<
     // key substitutes args + endpoint
     // we only need cacheResults, as entities are not used in this case
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, controller, data, loading, cacheResults]);
+  }, [key, data, loading, cacheResults]);
 
   const error = controller.getError(endpoint, ...args, state);
 
