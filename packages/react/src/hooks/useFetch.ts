@@ -72,7 +72,7 @@ export default function useFetch<
   // If we are hard invalid we must fetch regardless of triggering or staleness
   const forceFetch = expiryStatus === ExpiryStatus.Invalid;
 
-  const maybePromise = useMemo(() => {
+  return useMemo(() => {
     // null params mean don't do anything
     if ((Date.now() <= expiresAt && !forceFetch) || !key) return;
 
@@ -81,6 +81,4 @@ export default function useFetch<
     // we need to check against serialized params, since params can change frequently
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expiresAt, key, forceFetch, state.lastReset]);
-
-  return maybePromise;
 }

@@ -8,7 +8,7 @@ import type {
 import { useMemo } from 'react';
 
 import useCacheState from './useCacheState.js';
-import useController from '../hooks/useController.js';
+import useController from './useController.js';
 
 /**
  * Query the store.
