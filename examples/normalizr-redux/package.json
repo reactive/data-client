@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "@babel/core": "7.24.9",
-    "@babel/node": "7.24.8",
+    "@babel/node": "7.25.0",
     "@data-client/normalizr": "workspace:*",
     "@octokit/rest": "19.0.13",
     "@types/babel__core": "^7",
