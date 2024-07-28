@@ -263,18 +263,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/browserslist-config@npm:1.5.0, @anansi/browserslist-config@npm:^1.4.2, @anansi/browserslist-config@npm:^1.4.3":
-  version: 1.5.0
-  resolution: "@anansi/browserslist-config@npm:1.5.0"
-  checksum: 10c0/1ef39d3ac0599da18f6c1c242ecc969f5720f70e6448b8e14d59aa3f0046ec121964c01d9efddd5fd6f50d9c849b9a27ba2e7f839936419ddc859d25a22206f8
+"@anansi/browserslist-config@npm:1.5.1, @anansi/browserslist-config@npm:^1.4.2, @anansi/browserslist-config@npm:^1.4.3":
+  version: 1.5.1
+  resolution: "@anansi/browserslist-config@npm:1.5.1"
+  checksum: 10c0/f873005302362d333ea1021fbf23bab31d10ee3cab53ccb618b6234fc612790c3dda79c52c556be71d2cb4dde75389dfb60a2eae61eaf4a20b9dbf7cb1d90469
   languageName: node
   linkType: hard
 
 "@anansi/cli@npm:^3.0.15":
-  version: 3.1.32
-  resolution: "@anansi/cli@npm:3.1.32"
+  version: 3.1.33
+  resolution: "@anansi/cli@npm:3.1.33"
   dependencies:
-    "@anansi/generator-js": "npm:^12.4.12"
+    "@anansi/generator-js": "npm:^12.4.13"
     binary-version-check: "npm:^6.1.0"
     chalk: "npm:^4.1.2"
     commander: "npm:^12.1.0"
@@ -289,20 +289,20 @@ __metadata:
       optional: true
   bin:
     anansi: ./run.mjs
-  checksum: 10c0/a18fc4b6e6d2e40937b22ca5d45a72396398f6f05cb612fd5285e6a4746e56ce879de3a2d837b397aa9703e868a71702ed34d16192b4550a2230ee8bab68482a
+  checksum: 10c0/0a45561efad9aedaebd540c496dda12ac1b886f6bb03e29dd90f054b1b053fde5385db449282009455a12ad72d7dcfb9b9c79d2834439eb1822edfb57f893618
   languageName: node
   linkType: hard
 
 "@anansi/core@npm:^0.20.0":
-  version: 0.20.2
-  resolution: "@anansi/core@npm:0.20.2"
+  version: 0.20.3
+  resolution: "@anansi/core@npm:0.20.3"
   dependencies:
-    "@anansi/router": "npm:^0.10.2"
+    "@anansi/router": "npm:^0.10.3"
     "@babel/runtime": "npm:^7.17.0"
     chalk: "npm:^4.1.2"
     compression: "npm:^1.7.4"
     cross-fetch: "npm:^4.0.0"
-    enhanced-resolve: "npm:^5.17.0"
+    enhanced-resolve: "npm:^5.17.1"
     express: "npm:^4.19.2"
     fs-require: "npm:^1.6.0"
     history: "npm:^5.3.0"
@@ -334,7 +334,7 @@ __metadata:
   bin:
     serve-anansi: ./lib/scripts/serve.js
     start-anansi: ./lib/scripts/startDevserver.js
-  checksum: 10c0/5d03c5213c496978703d70fb26028b1e2cf7a9e8f7631de3a03528e5951f8a806dc3915c1b230c1473b9086fd0a13fe3df420e6df0078c7566d2ac37455144cb
+  checksum: 10c0/87ddbde008f0379872d3ae6e4a101e5795b70a30a011c145d71432a915f7430987091684f443b96696fe2d0af69de5c2f89a4b056a474f6457f8e8fb1109a9f5
   languageName: node
   linkType: hard
 
@@ -371,9 +371,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/generator-js@npm:^12.4.12":
-  version: 12.4.12
-  resolution: "@anansi/generator-js@npm:12.4.12"
+"@anansi/generator-js@npm:^12.4.13":
+  version: 12.4.13
+  resolution: "@anansi/generator-js@npm:12.4.13"
   dependencies:
     "@babel/runtime": "npm:^7.17.0"
     "@types/inquirer": "npm:^9.0.7"
@@ -390,7 +390,7 @@ __metadata:
     pacote: "npm:^18.0.6"
     shelobsay: "npm:^2.0.0"
     yeoman-generator: "npm:^7.3.2"
-  checksum: 10c0/a02d39a807df5663c4c3cbed0d1b25bea61aa7c97fdab74f5e1482b1998146ffb08cd392b9b55c686f63f6118aff943236d850bb67fd2f5249100c84339f760c
+  checksum: 10c0/46a107fb176d78d3653e212a0e78df7a40681b438320de9d199a304db9b37d3a9a94afd2e673fadf05cafdaca86d84cd0e143cd20a5a44065360e49dcafaea47
   languageName: node
   linkType: hard
 
@@ -424,12 +424,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/router@npm:^0.10.0, @anansi/router@npm:^0.10.2":
-  version: 0.10.2
-  resolution: "@anansi/router@npm:0.10.2"
+"@anansi/router@npm:^0.10.0, @anansi/router@npm:^0.10.3":
+  version: 0.10.3
+  resolution: "@anansi/router@npm:0.10.3"
   dependencies:
     "@babel/runtime": "npm:^7.17.0"
-    "@pojo-router/core": "npm:^0.9.0"
+    "@pojo-router/core": "npm:^0.9.1"
     history: "npm:^5.3.0"
     nano-memoize: "npm:^3.0.16"
   peerDependencies:
@@ -438,7 +438,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/6ddfc35688b9b833c1d058f94af0262b67162fdf2cc38091f490a43eb7738e242fdcad5c379234abb1c1cbe9585d3d05ad39c4189be3dba7f55dcae64626819d
+  checksum: 10c0/28557723460e8e0cd3aee12095039804e65a06e63a28c97a259691a59b317a840770a74546d58d382cb8e23d825f52f43add07d0223559a399552b749e66e5ca
   languageName: node
   linkType: hard
 
@@ -5500,9 +5500,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pojo-router/core@npm:^0.9.0":
-  version: 0.9.0
-  resolution: "@pojo-router/core@npm:0.9.0"
+"@pojo-router/core@npm:^0.9.1":
+  version: 0.9.1
+  resolution: "@pojo-router/core@npm:0.9.1"
   dependencies:
     "@babel/runtime": "npm:^7.17.0"
     history: "npm:5.3.0"
@@ -5513,7 +5513,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/c5896df56e32c9b4e483fd7486594ae3d563291fc7822222469ebb1c4a32d3a4f0685f11c9a1fbf6e73a947a115743ecdb5681dc72d91632e44bcf56b6b3aa4e
+  checksum: 10c0/342b3884b3a012e0f3b0c59facc2e47926f3536404913ae3d75711fed58c5e854770667ad73746946069c0d85c58ed7545165d400c560d2fbfca77c624dc9e7b
   languageName: node
   linkType: hard
 
@@ -7206,12 +7206,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:20.14.12, @types/node@npm:^20.0.0, @types/node@npm:^20.8.3":
-  version: 20.14.12
-  resolution: "@types/node@npm:20.14.12"
+"@types/node@npm:*":
+  version: 22.0.0
+  resolution: "@types/node@npm:22.0.0"
+  dependencies:
+    undici-types: "npm:~6.11.1"
+  checksum: 10c0/af26a8ec7266c857b0ced75dc3a93c6b65280d1fa40d1b4488c814d30831c5c752489c99ecb5698daec1376145b1a9ddd08350882dc2e07769917a5f22a460bc
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:20.14.13, @types/node@npm:^20.0.0, @types/node@npm:^20.8.3":
+  version: 20.14.13
+  resolution: "@types/node@npm:20.14.13"
   dependencies:
     undici-types: "npm:~5.26.4"
-  checksum: 10c0/59bc5fa11fdd23fd517f859063118f54a1ab53d3399ef63c926f8902429d7453abc0db22ef4b0a6110026b6ab81b6472fee894e1d235c24b01a0b3e10cfae0bb
+  checksum: 10c0/10bb3ece675308742301c652ab8c6cb88b1ebddebed22316103c58f94fe7eff131edd5f679e487c19077fadb6b5e6b1ad9a60a2cee2869aa1f20452b9761d570
   languageName: node
   linkType: hard
 
@@ -13055,13 +13064,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"enhanced-resolve@npm:^5.12.0, enhanced-resolve@npm:^5.17.0, enhanced-resolve@npm:^5.7.0":
-  version: 5.17.0
-  resolution: "enhanced-resolve@npm:5.17.0"
+"enhanced-resolve@npm:^5.12.0, enhanced-resolve@npm:^5.17.0, enhanced-resolve@npm:^5.17.1, enhanced-resolve@npm:^5.7.0":
+  version: 5.17.1
+  resolution: "enhanced-resolve@npm:5.17.1"
   dependencies:
     graceful-fs: "npm:^4.2.4"
     tapable: "npm:^2.2.0"
-  checksum: 10c0/90065e58e4fd08e77ba47f827eaa17d60c335e01e4859f6e644bb3b8d0e32b203d33894aee92adfa5121fa262f912b48bdf0d0475e98b4a0a1132eea1169ad37
+  checksum: 10c0/81a0515675eca17efdba2cf5bad87abc91a528fc1191aad50e275e74f045b41506167d420099022da7181c8d787170ea41e4a11a0b10b7a16f6237daecb15370
   languageName: node
   linkType: hard
 
@@ -24740,7 +24749,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "rdc-website@workspace:website"
   dependencies:
-    "@anansi/browserslist-config": "npm:1.5.0"
+    "@anansi/browserslist-config": "npm:1.5.1"
     "@anansi/webpack-config": "npm:19.0.11"
     "@data-client/endpoint": "workspace:*"
     "@data-client/graphql": "workspace:*"
@@ -26275,7 +26284,7 @@ __metadata:
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
     "@anansi/babel-preset": "npm:6.0.1"
-    "@anansi/browserslist-config": "npm:1.5.0"
+    "@anansi/browserslist-config": "npm:1.5.1"
     "@anansi/eslint-plugin": "npm:0.17.14"
     "@anansi/jest-preset": "npm:0.11.5"
     "@babel/cli": "npm:7.24.8"
@@ -26293,7 +26302,7 @@ __metadata:
     "@testing-library/react-hooks": "npm:8.0.1"
     "@testing-library/react-native": "npm:12.5.2"
     "@types/jest": "npm:29.5.12"
-    "@types/node": "npm:20.14.12"
+    "@types/node": "npm:20.14.13"
     "@types/react": "npm:18.3.3"
     "@typescript-eslint/eslint-plugin": "npm:7.17.0"
     "@typescript-eslint/parser": "npm:7.17.0"
@@ -28945,6 +28954,13 @@ __metadata:
   version: 5.26.5
   resolution: "undici-types@npm:5.26.5"
   checksum: 10c0/bb673d7876c2d411b6eb6c560e0c571eef4a01c1c19925175d16e3a30c4c428181fb8d7ae802a261f283e4166a0ac435e2f505743aa9e45d893f9a3df017b501
+  languageName: node
+  linkType: hard
+
+"undici-types@npm:~6.11.1":
+  version: 6.11.1
+  resolution: "undici-types@npm:6.11.1"
+  checksum: 10c0/d8f5739a8e6c779d72336c82deb49c56d5ac9f9f6e0eb2e8dd4d3f6929ae9db7cde370d2e46516fe6cad04ea53e790c5e16c4c75eed7cd0f9bd31b0763bb2fa3
   languageName: node
   linkType: hard
 
