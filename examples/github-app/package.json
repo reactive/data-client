@@ -26,7 +26,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@anansi/babel-preset": "6.0.1",
-    "@anansi/browserslist-config": "1.5.0",
+    "@anansi/browserslist-config": "1.5.1",
     "@anansi/webpack-config": "19.0.11",
     "@babel/core": "7.24.9",
     "@linaria/babel-preset": "5.0.4",
@@ -47,7 +47,7 @@
     "webpack-dev-server": "5.0.4"
   },
   "dependencies": {
-    "@anansi/router": "0.10.2",
+    "@anansi/router": "0.10.3",
     "@ant-design/icons": "^5.0.0",
     "@data-client/graphql": "^0.14.0",
     "@data-client/react": "^0.14.0",
