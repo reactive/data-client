@@ -52,21 +52,23 @@ export default function useCache<
     key,
   ]);
 
+  // If we are hard invalid we must fetch regardless of triggering or staleness
   const forceFetch = expiryStatus === ExpiryStatus.Invalid;
 
   /*********** This block is to ensure results are only filled when they would not suspend **************/
-  // This computation reflects the behavior of useResource/useRetrive
+  // This computation reflects the behavior of useSuspense/useFetch
   // It only changes the value when expiry or params change.
   // This way, random unrelated re-renders don't cause the concept of expiry
   // to change
   const expired = useMemo(() => {
-    return !((Date.now() <= expiresAt && !forceFetch) || !key);
+    return (Date.now() > expiresAt || forceFetch) && key;
     // we need to check against serialized params, since params can change frequently
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expiresAt, key, forceFetch, state.lastReset]);
 
   // fully "valid" data will not suspend/loading even if it is not fresh
   const loading = expiryStatus !== ExpiryStatus.Valid && expired;
+  /****************************************************************************************************/
 
   return useMemo(() => {
     // if useSuspense() would suspend, don't include entities from cache
