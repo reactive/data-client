@@ -1,5 +1,15 @@
 # @data-client/react
 
+## 0.14.7
+
+### Patch Changes
+
+- [`aa4dac5`](https://github.com/reactive/data-client/commit/aa4dac53f184ffe7f4cdd07b5e856b6c92d44d5c) Thanks [@ntucker](https://github.com/ntucker)! - useCache() logic simplification (no real change)
+
+- [`0fac3ce`](https://github.com/reactive/data-client/commit/0fac3ceb7d90c00437a00c7cc9622a821f815ef0) Thanks [@ntucker](https://github.com/ntucker)! - useDLE() deps list more specific to avoid extraneous re-computation
+
+- [`8f827cf`](https://github.com/reactive/data-client/commit/8f827cf64d4938f8c04b75cfaef9740ce7228244) Thanks [@ntucker](https://github.com/ntucker)! - Don't refetch if controller changes (should never happen)
+
 ## 0.14.6
 
 ### Patch Changes
