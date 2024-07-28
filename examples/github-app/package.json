@@ -25,9 +25,9 @@
   "private": true,
   "license": "Apache-2.0",
   "devDependencies": {
-    "@anansi/babel-preset": "6.0.1",
+    "@anansi/babel-preset": "6.0.2",
     "@anansi/browserslist-config": "1.5.1",
-    "@anansi/webpack-config": "19.0.11",
+    "@anansi/webpack-config": "19.1.0",
     "@babel/core": "7.24.9",
     "@linaria/babel-preset": "5.0.4",
     "@linaria/core": "6.2.0",
