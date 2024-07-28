@@ -338,12 +338,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/eslint-plugin@npm:0.17.13":
-  version: 0.17.13
-  resolution: "@anansi/eslint-plugin@npm:0.17.13"
+"@anansi/eslint-plugin@npm:0.17.14":
+  version: 0.17.14
+  resolution: "@anansi/eslint-plugin@npm:0.17.14"
   dependencies:
-    "@babel/eslint-parser": "npm:^7.24.8"
-    "@typescript-eslint/parser": "npm:^7.16.0"
+    "@babel/eslint-parser": "npm:^7.25.0"
+    "@typescript-eslint/parser": "npm:^7.17.0"
     eslint-config-prettier: "npm:^9.1.0"
     eslint-import-resolver-typescript: "npm:^3.6.1"
     eslint-import-resolver-webpack: "npm:^0.13.8"
@@ -367,7 +367,7 @@ __metadata:
       optional: true
     webpack:
       optional: true
-  checksum: 10c0/f51bbc2f3bf5ed7dcf54ee6ec48312bce974cf23df8fcea4dcf2b05b51128d739f110b91bc72a62de46e61ef2a9f5c8ac6f4b781b9a98f9dfbe420333b4c3ba6
+  checksum: 10c0/537a08ef4c96a5a1fa52c52383687c209c72326af79c71d1369105d608213579383726e1388ee27789ec2fec6c82241b908bfde94b0f1d0afb68defd03fc1148
   languageName: node
   linkType: hard
 
@@ -394,21 +394,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/jest-preset@npm:0.11.4":
-  version: 0.11.4
-  resolution: "@anansi/jest-preset@npm:0.11.4"
+"@anansi/jest-preset@npm:0.11.5":
+  version: 0.11.5
+  resolution: "@anansi/jest-preset@npm:0.11.5"
   dependencies:
-    "@anansi/ts-utils": "npm:^0.3.6"
+    "@anansi/ts-utils": "npm:^0.3.7"
     "@types/babel__core": "npm:^7.20.5"
     babel-jest: "npm:^29.7.0"
     core-js: "npm:^3.21.0"
     cross-fetch: "npm:^4.0.0"
-    identity-obj-proxy: "npm:^3.0.0"
     jest-pnp-resolver: "npm:^1.2.3"
     mitt: "npm:^3.0.1"
     node-fetch: "npm:^3.3.2"
-    semver: "npm:^7.6.2"
-    ts-jest: "npm:^29.2.2"
+    semver: "npm:^7.6.3"
+    ts-jest: "npm:^29.2.3"
     whatwg-fetch: "npm:^3.0.0"
   peerDependencies:
     "@babel/core": ^7.0.0
@@ -421,7 +420,7 @@ __metadata:
       optional: true
     react:
       optional: true
-  checksum: 10c0/973a53a298146977333b46039585d59da480137d31b4cb9f6a66d373b7878c131593f5efba7049b6836c6e748fbc6699ec43f75e21177c53f8a898fffc3b71ca
+  checksum: 10c0/cf51d317be2f4278533a606bb9c1f61ba00f7dd43c282305e33642fa4447c46698bd049b72a76c4ed4d5e2658d160e621b4812782012cae78f223a01dac46367
   languageName: node
   linkType: hard
 
@@ -443,12 +442,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/ts-utils@npm:^0.3.6":
-  version: 0.3.6
-  resolution: "@anansi/ts-utils@npm:0.3.6"
+"@anansi/ts-utils@npm:^0.3.6, @anansi/ts-utils@npm:^0.3.7":
+  version: 0.3.7
+  resolution: "@anansi/ts-utils@npm:0.3.7"
   peerDependencies:
     typescript: ^3.0.0 || ^4.0.0 || ^5.0.0
-  checksum: 10c0/fe65f57a828b0316e796d3e8e81fd3fe994d3cd1bb49b144fa261a873ad3f73f64302b97859248c9da34c81ae7e4f631b046706dbd3b49ba2321ec1a3e7c5cdc
+  checksum: 10c0/19fc1c7d43aab4cdd08c6e78d79c392089652518ef6a8197a54e6f4112c8f34e2a917a3db5d712cc48dabdbe038e6433b63e9ae1dcbf4e99152c0081e3bfe690
   languageName: node
   linkType: hard
 
@@ -625,9 +624,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/eslint-parser@npm:^7.24.8":
-  version: 7.24.8
-  resolution: "@babel/eslint-parser@npm:7.24.8"
+"@babel/eslint-parser@npm:^7.25.0":
+  version: 7.25.0
+  resolution: "@babel/eslint-parser@npm:7.25.0"
   dependencies:
     "@nicolo-ribaudo/eslint-scope-5-internals": "npm:5.1.1-v1"
     eslint-visitor-keys: "npm:^2.1.0"
@@ -635,7 +634,7 @@ __metadata:
   peerDependencies:
     "@babel/core": ^7.11.0
     eslint: ^7.5.0 || ^8.0.0 || ^9.0.0
-  checksum: 10c0/fb9a164768ffc941057ac587c1cb059450854a608b55865dfc430a1ac0222115039a5932e5b2559ac887335e5eee5f4e6bc5aca049c94f198a388f2ce0732aa5
+  checksum: 10c0/a8c6b78c26e0596ef53ceddb3d00cfe45b93c879adada3ee5203e3960110a528015e8b36769b299ce8fd640060b54e622faabc00424850978b4693e190482428
   languageName: node
   linkType: hard
 
@@ -7566,7 +7565,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/parser@npm:7.17.0, @typescript-eslint/parser@npm:^7.16.0":
+"@typescript-eslint/parser@npm:7.17.0, @typescript-eslint/parser@npm:^7.17.0":
   version: 7.17.0
   resolution: "@typescript-eslint/parser@npm:7.17.0"
   dependencies:
@@ -12938,7 +12937,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ejs@npm:^3.0.0, ejs@npm:^3.1.10":
+"ejs@npm:^3.1.10":
   version: 3.1.10
   resolution: "ejs@npm:3.1.10"
   dependencies:
@@ -15502,13 +15501,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"harmony-reflect@npm:^1.4.6":
-  version: 1.6.2
-  resolution: "harmony-reflect@npm:1.6.2"
-  checksum: 10c0/fa5b251fbeff0e2d925f0bfb5ffe39e0627639e998c453562d6a39e41789c15499649dc022178c807cf99bfb97e7b974bbbc031ba82078a26be7b098b9bc2b1a
-  languageName: node
-  linkType: hard
-
 "has-ansi@npm:^2.0.0":
   version: 2.0.0
   resolution: "has-ansi@npm:2.0.0"
@@ -16305,15 +16297,6 @@ __metadata:
   peerDependencies:
     postcss: ^8.1.0
   checksum: 10c0/39c92936fabd23169c8611d2b5cc39e39d10b19b0d223352f20a7579f75b39d5f786114a6b8fc62bee8c5fed59ba9e0d38f7219a4db383e324fb3061664b043d
-  languageName: node
-  linkType: hard
-
-"identity-obj-proxy@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "identity-obj-proxy@npm:3.0.0"
-  dependencies:
-    harmony-reflect: "npm:^1.4.6"
-  checksum: 10c0/a3fc4de0042d7b45bf8652d5596c80b42139d8625c9cd6a8834e29e1b6dce8fccabd1228e08744b78677a19ceed7201a32fed8ca3dc3e4852e8fee24360a6cfc
   languageName: node
   linkType: hard
 
@@ -26293,8 +26276,8 @@ __metadata:
   dependencies:
     "@anansi/babel-preset": "npm:6.0.1"
     "@anansi/browserslist-config": "npm:1.5.0"
-    "@anansi/eslint-plugin": "npm:0.17.13"
-    "@anansi/jest-preset": "npm:0.11.4"
+    "@anansi/eslint-plugin": "npm:0.17.14"
+    "@anansi/jest-preset": "npm:0.11.5"
     "@babel/cli": "npm:7.24.8"
     "@babel/core": "npm:7.24.9"
     "@babel/node": "npm:7.24.8"
@@ -26693,12 +26676,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"semver@npm:^7.0.0, semver@npm:^7.1.1, semver@npm:^7.3.2, semver@npm:^7.3.4, semver@npm:^7.3.5, semver@npm:^7.3.7, semver@npm:^7.5.2, semver@npm:^7.5.3, semver@npm:^7.5.4, semver@npm:^7.6.0, semver@npm:^7.6.2":
-  version: 7.6.2
-  resolution: "semver@npm:7.6.2"
+"semver@npm:^7.0.0, semver@npm:^7.1.1, semver@npm:^7.3.2, semver@npm:^7.3.4, semver@npm:^7.3.5, semver@npm:^7.3.7, semver@npm:^7.5.2, semver@npm:^7.5.3, semver@npm:^7.5.4, semver@npm:^7.6.0, semver@npm:^7.6.2, semver@npm:^7.6.3":
+  version: 7.6.3
+  resolution: "semver@npm:7.6.3"
   bin:
     semver: bin/semver.js
-  checksum: 10c0/97d3441e97ace8be4b1976433d1c32658f6afaff09f143e52c593bae7eef33de19e3e369c88bd985ce1042c6f441c80c6803078d1de2a9988080b66684cbb30c
+  checksum: 10c0/88f33e148b210c153873cb08cfe1e281d518aaa9a666d4d148add6560db5cd3c582f3a08ccb91f38d5f379ead256da9931234ed122057f40bb5766e65e58adaf
   languageName: node
   linkType: hard
 
@@ -28548,12 +28531,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-jest@npm:^29.2.2":
-  version: 29.2.2
-  resolution: "ts-jest@npm:29.2.2"
+"ts-jest@npm:^29.2.3":
+  version: 29.2.3
+  resolution: "ts-jest@npm:29.2.3"
   dependencies:
     bs-logger: "npm:0.x"
-    ejs: "npm:^3.0.0"
+    ejs: "npm:^3.1.10"
     fast-json-stable-stringify: "npm:2.x"
     jest-util: "npm:^29.0.0"
     json5: "npm:^2.2.3"
@@ -28581,7 +28564,7 @@ __metadata:
       optional: true
   bin:
     ts-jest: cli.js
-  checksum: 10c0/833afe98f6aef7c46abbfb6bc84ce2431bcd82d614380e54ccd73cfc4c7c015ecdf058ad53edc48d575816b35c3db044de5fe1a579336a75f9a8c6651b6f7b50
+  checksum: 10c0/3be57a9f0e9cf0d0de235f5543dc1f2a33da4380bf46e660f79d050a15a6e7bab71a7a80ba9559761ce1203248b40d0f9386c19356718165575f32192e32140e
   languageName: node
   linkType: hard
 
