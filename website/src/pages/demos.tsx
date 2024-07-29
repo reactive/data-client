@@ -112,7 +112,7 @@ export default function DemoList() {
               {
                 embed: '1',
                 file: [
-                  'src/resources/StreamManager.ts,src/resources/Ticker.ts,src/pages/Home/AssetPrice.tsx',
+                  'src/resources/StreamManager.ts,src/resources/Ticker.ts,src/resources/fallbackQueries.ts,src/pages/Home/AssetPrice.tsx',
                 ],
                 hideDevTools: '1',
                 hideNavigation: '1',
