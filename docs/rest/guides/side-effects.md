@@ -73,7 +73,7 @@ created.
 To handle this, we just need to update the `schema` to include the custom
 endpoint.
 
-```typescript title="api/TradeResource.ts"
+```typescript title="resources/TradeResource.ts"
 import { resource } from '@data-client/rest';
 
 export const TradeResource = resource({

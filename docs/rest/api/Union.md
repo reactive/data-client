@@ -49,7 +49,7 @@ delay: 150,
 },
 ]}>
 
-```typescript title="api/Feed.ts"
+```typescript title="api/Feed"
 abstract class FeedItem extends Entity {
   id = 0;
   declare type: 'link' | 'post';
@@ -81,7 +81,7 @@ const feed = new RestEndpoint({
 });
 ```
 
-```tsx title="FeedList.tsx" collapsed
+```tsx title="FeedList" collapsed
 function FeedList() {
   const feedItems = useSuspense(feed);
   return (

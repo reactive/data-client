@@ -289,7 +289,7 @@ export const getPosts = new RestEndpoint({
 });
 ```
 
-```tsx title="ArticleList" {12  }
+```tsx title="ArticleList" {12}
 import { useDLE } from '@data-client/react';
 import { getPosts } from './api/Post';
 

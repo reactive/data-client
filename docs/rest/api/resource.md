@@ -22,7 +22,7 @@ data by sharing a [schema](./schema.md)
 
 ## Usage
 
-```ts title="api/TodoResource.ts"
+```ts title="resources/Todo.ts"
 export class Todo extends Entity {
   id = '';
   title = '';

@@ -313,7 +313,7 @@ values={[
 We can transform any [Resource](../api/resource.md) into one that uses hooks to create endpoints
 by using [hookifyResource](../api/hookifyResource.md)
 
-```ts title="api/Post.ts"
+```ts title="resources/Post.ts"
 import { resource, hookifyResource } from '@data-client/rest';
 
 // Post defined here
@@ -335,7 +335,7 @@ Then we can get the endpoints as hooks in our React Components
 
 ```tsx
 import { useSuspense } from '@data-client/react';
-import { PostResource } from 'api/Post';
+import { PostResource } from 'resources/Post';
 
 function PostDetail({ id }) {
   const post = useSuspense(PostResource.useGet(), { id });

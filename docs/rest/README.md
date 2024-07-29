@@ -204,7 +204,7 @@ values={[
 ]}>
 <TabItem value="Create">
 
-```tsx title="article.tsx"
+```tsx title="NewArticleForm.tsx"
 import { useController } from '@data-client/react';
 import { ArticleResource } from 'api/article';
 
@@ -230,7 +230,7 @@ resolves to the new Resource created by the API. It will automatically be added 
 </TabItem>
 <TabItem value="Update">
 
-```tsx title="article.tsx"
+```tsx title="UpdateArticleForm.tsx"
 import { useController } from '@data-client/react';
 import { ArticleResource } from 'api/article';
 
@@ -259,7 +259,7 @@ resolves to the new Resource created by the API. It will automatically be added 
 </TabItem>
 <TabItem value="Delete">
 
-```tsx title="article.tsx"
+```tsx title="ArticleWithDelete.tsx"
 import { useController } from '@data-client/react';
 import { Article, ArticleResource } from 'api/article';
 

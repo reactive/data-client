@@ -52,7 +52,7 @@ delay: 150,
 },
 ]}>
 
-```ts title="api/User" collapsed
+```ts title="resources/User" collapsed
 export class User extends Entity {
   id = '';
   name = '';
@@ -70,7 +70,7 @@ export const UserResource = resource({
 ```tsx title="UsersPage"
 import { schema } from '@data-client/rest';
 import { useQuery, useFetch } from '@data-client/react';
-import { UserResource, User } from './api/User';
+import { UserResource, User } from './resources/User';
 
 const getUserCount = new schema.Query(
   new schema.All(User),
@@ -105,7 +105,7 @@ the relationship in [Entity.schema](./Entity.md#schema)
 
 <HooksPlayground>
 
-```ts title="api/User.ts" collapsed
+```ts title="resources/User" collapsed
 export class User extends Entity {
   id = 0;
   name = '';
@@ -122,7 +122,7 @@ export const UserResource = resource({
 });
 ```
 
-```ts title="api/Todo.ts" collapsed
+```ts title="resources/Todo" collapsed
 import { User } from './User';
 
 export class Todo extends Entity {
@@ -144,11 +144,11 @@ export const TodoResource = resource({
 });
 ```
 
-```tsx title="TodoJoined.tsx"
+```tsx title="TodoJoined"
 import { schema } from '@data-client/rest';
 import { useQuery, useFetch } from '@data-client/react';
-import { TodoResource, Todo } from './api/Todo';
-import { UserResource, User } from './api/User';
+import { TodoResource, Todo } from './resources/Todo';
+import { UserResource, User } from './resources/User';
 
 const todosWithUser = new schema.Query(
   new schema.All(Todo),
@@ -182,7 +182,7 @@ render(<TodosPage />);
 
 <HooksPlayground>
 
-```ts title="api/User.ts" collapsed
+```ts title="resources/User" collapsed
 export class User extends Entity {
   id = 0;
   name = '';
@@ -199,7 +199,7 @@ export const UserResource = resource({
 });
 ```
 
-```ts title="api/Todo.ts" collapsed
+```ts title="resources/Todo" collapsed
 import { User } from './User';
 
 export class Todo extends Entity {
@@ -222,11 +222,11 @@ export const TodoResource = resource({
 });
 ```
 
-```tsx title="TodoJoined.tsx"
+```tsx title="TodoJoined"
 import { schema } from '@data-client/rest';
 import { useQuery, useFetch } from '@data-client/react';
-import { TodoResource, Todo } from './api/Todo';
-import { UserResource } from './api/User';
+import { TodoResource, Todo } from './resources/Todo';
+import { UserResource } from './resources/User';
 
 const groupTodoByUser = new schema.Query(
   TodoResource.getList.schema,

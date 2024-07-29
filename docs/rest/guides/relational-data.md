@@ -94,7 +94,7 @@ delay: 150,
 },
 ]}>
 
-```typescript title="api/Post"
+```typescript title="resources/Post"
 import { Entity } from '@data-client/rest';
 
 export class User extends Entity {
@@ -143,7 +143,7 @@ export const PostResource = resource({
 ```
 
 ```tsx title="PostPage" collapsed
-import { PostResource } from './api/Post';
+import { PostResource } from './resources/Post';
 
 function PostPage() {
   const posts = useSuspense(PostResource.getList);
@@ -186,7 +186,7 @@ the relationship in [Entity.schema](../api/Entity.md#schema)
 
 <HooksPlayground>
 
-```ts title="api/User.ts" collapsed
+```ts title="resources/User" collapsed
 export class User extends Entity {
   id = 0;
   name = '';
@@ -203,7 +203,7 @@ export const UserResource = resource({
 });
 ```
 
-```ts title="api/Todo.ts" collapsed
+```ts title="resources/Todo" collapsed
 import { User } from './User';
 
 export class Todo extends Entity {
@@ -225,9 +225,9 @@ export const TodoResource = resource({
 });
 ```
 
-```tsx title="TodoJoined.tsx"
-import { TodoResource } from './api/Todo';
-import { UserResource } from './api/User';
+```tsx title="TodoJoined"
+import { TodoResource } from './resources/Todo';
+import { UserResource } from './resources/User';
 
 
 function TodosPage() {
@@ -335,7 +335,7 @@ delay: 150,
 },
 ]}>
 
-```typescript title="api/Post"
+```typescript title="resources/Post"
 import { Entity } from '@data-client/rest';
 
 export class User extends Entity {
@@ -425,7 +425,7 @@ export const UserResource = resource({
 ```
 
 ```tsx title="UserPage" collapsed
-import { UserResource } from './api/Post';
+import { UserResource } from './resources/Post';
 
 export default function UserPage({ setRoute, id }) {
   const user = useSuspense(UserResource.get, { id });
@@ -459,7 +459,7 @@ export default function UserPage({ setRoute, id }) {
 ```
 
 ```tsx title="PostPage" collapsed
-import { PostResource } from './api/Post';
+import { PostResource } from './resources/Post';
 
 export default function PostPage({ setRoute }) {
   const posts = useSuspense(PostResource.getList);
@@ -520,7 +520,7 @@ render(<Navigation />);
 Because circular imports and circular class definitions are not allowed, sometimes it
 will be necessary to define the [schema][3] after the [Entities][1] definition.
 
-```typescript title="api/Post.ts"
+```typescript title="resources/Post"
 import { Entity } from '@data-client/rest';
 import { User } from './User';
 
@@ -548,7 +548,7 @@ User.schema = {
 // highlight-end
 ```
 
-```typescript title="api/User.ts"
+```typescript title="resources/User"
 import { Entity } from '@data-client/rest';
 import type { Post } from './Post';
 // we can only import the type else we break javascript imports

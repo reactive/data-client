@@ -97,7 +97,7 @@ delay: 150,
 },
 ]}>
 
-```ts title="api/User" collapsed
+```ts title="resources/User" collapsed
 export class User extends Entity {
   id = '';
   name = '';
@@ -115,7 +115,7 @@ export const UserResource = resource({
 ```tsx title="UsersPage"
 import { schema } from '@data-client/rest';
 import { useQuery, useSuspense } from '@data-client/react';
-import { UserResource, User } from './api/User';
+import { UserResource, User } from './resources/User';
 
 const getUserCount = new schema.Query(
   new schema.All(User),
@@ -131,7 +131,7 @@ function UsersPage() {
   const userCount = useQuery(getUserCount);
   const adminCount = useQuery(getUserCount, { isAdmin: true });
   // this should never happen since we suspense but typescript does not know that
-  if (userCount === undefined) return;
+  if (userCount === undefined) return null;
   return (
     <div>
       <div>Total users: {userCount}</div>

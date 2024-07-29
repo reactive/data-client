@@ -66,7 +66,7 @@ delay: 150,
 },
 ]} row>
 
-```typescript title="api/Article" {12,24}
+```typescript title="resources/Article" {12,24}
 import { validateRequired } from '@data-client/rest';
 import { Entity, resource, schema } from '@data-client/rest';
 
@@ -105,7 +105,7 @@ export const ArticleResource = resource({
 ```
 
 ```tsx title="ArticleDetail" collapsed
-import { ArticleResource } from './api/Article';
+import { ArticleResource } from './resources/Article';
 
 function ArticleDetail({ id, onHome }: Props) {
   const article = useSuspense(ArticleResource.get, { id });
@@ -166,7 +166,7 @@ render(<ArticleList />);
 It's often better to move expensive data into another entity to simplify conditional
 logic.
 
-```typescript title="api/Article.ts"
+```typescript title="resources/Article.ts"
 class ArticleSummary extends Entity {
   id = '';
   title = '';

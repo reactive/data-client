@@ -11,7 +11,7 @@ you won't need to make major changes to your code.
 
 <HooksPlayground>
 
-```typescript title="api/Rating"
+```typescript title="resources/Rating"
 import { Entity, resource } from '@data-client/rest';
 
 export class Rating extends Entity {
@@ -51,7 +51,7 @@ export const RatingResource = resource({
 ```
 
 ```tsx title="Demo" collapsed
-import { RatingResource } from './api/Rating';
+import { RatingResource } from './resources/Rating';
 
 function Demo() {
   const ratings = useSuspense(RatingResource.getList);

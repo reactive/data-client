@@ -232,7 +232,7 @@ export const ArticleResource = resource({
 If much of your API share a similar pagination, you might
 try a custom Endpoint class that shares this logic.
 
-```ts title="api/PagingEndpoint.ts"
+```ts title="resources/PagingEndpoint.ts"
 import { RestEndpoint, type RestGenerics } from '@data-client/rest';
 
 export class PagingEndpoint<
@@ -254,7 +254,7 @@ export class PagingEndpoint<
 }
 ```
 
-```ts title="api/My.ts"
+```ts title="resources/MyResource.ts"
 import { resource, Entity } from '@data-client/rest';
 
 import { PagingEndpoint } from './PagingEndpoint';

@@ -2,7 +2,7 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 
 <HooksPlayground row>
 
-```tsx title="api/Todo" collapsed
+```tsx title="resources/Todo" collapsed
 export class Todo extends Entity {
   id = 0;
   userId = 0;
@@ -22,7 +22,7 @@ export const TodoResource = resource({
 
 ```tsx title="TodoDetail" {5}
 import { useSuspense, useCancelling } from '@data-client/react';
-import { TodoResource } from './api/Todo';
+import { TodoResource } from './resources/Todo';
 
 export default function TodoDetail({ id }: { id: number }) {
   const todo = useSuspense(useCancelling(TodoResource.get, { id }), {

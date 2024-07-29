@@ -24,7 +24,7 @@ TypeScript >=4.3 is required for generative types to work correctly.
 
 <TypeScriptEditor row={false}>
 
-```ts title="api/ArticleResource.ts"
+```ts title="resources/Article"
 import React from 'react';
 import { resource, hookifyResource, Entity } from '@data-client/rest';
 
@@ -57,8 +57,8 @@ export const ArticleResource = hookifyResource(
 );
 ```
 
-```tsx title="ArticleDetail.tsx"
-import { ArticleResource } from './api/ArticleResource';
+```tsx title="ArticleDetail"
+import { ArticleResource } from './resources/Article';
 
 function ArticleDetail({ id }) {
   const article = useSuspense(ArticleResource.useGet(), { id });

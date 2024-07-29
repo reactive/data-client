@@ -23,7 +23,7 @@ When using the default [polling subscriptions](./PollingSubscription), frequency
 
 ## Usage
 
-```typescript title="api/Price.ts"
+```typescript title="api/Price"
 import { Resource, Entity } from '@data-client/rest';
 
 export class Price extends Entity {
@@ -44,7 +44,7 @@ export const getPrice = new RestEndpont({
 });
 ```
 
-```tsx title="MasterPrice.tsx"
+```tsx title="MasterPrice"
 import { useSuspense, useSubscription } from '@data-client/react';
 import { getPrice } from 'api/Price';
 

@@ -78,7 +78,7 @@ delay: 150,
 },
 ]}>
 
-```tsx title="api/Price.ts"
+```tsx title="api/Price"
 import BigNumber from 'bignumber.js';
 
 export class ExchangePrice extends Entity {
@@ -101,7 +101,7 @@ export const getPrice = new RestEndpoint({
 });
 ```
 
-```tsx title="PricePage.tsx"
+```tsx title="PricePage"
 import { getPrice } from './api/Price';
 
 function PricePage() {

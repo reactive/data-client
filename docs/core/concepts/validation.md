@@ -43,7 +43,7 @@ delay: 150,
 },
 ]}>
 
-```typescript title="api/Article.ts"
+```typescript title="api/Article"
 export class Article extends Entity {
   readonly id: string = '';
   readonly title: string = '';
@@ -64,7 +64,7 @@ export const getArticle = new RestEndpoint({
 });
 ```
 
-```tsx title="ArticlePage.tsx" collapsed
+```tsx title="ArticlePage" collapsed
 import { getArticle } from './api/Article';
 
 function ArticlePage({ id }: { id: string }) {
@@ -102,7 +102,7 @@ delay: 150,
 },
 ]}>
 
-```tsx title="api/Article.ts"
+```tsx title="api/Article"
 export class Article extends Entity {
   readonly id: string = '';
   readonly title: string = '';
@@ -127,7 +127,7 @@ export const getArticle = new RestEndpoint({
 });
 ```
 
-```tsx title="ArticlePage.tsx" collapsed
+```tsx title="ArticlePage" collapsed
 import { getArticle } from './api/Article';
 
 function ArticlePage({ id }: { id: string }) {
@@ -181,7 +181,7 @@ delay: 150,
 },
 ]}>
 
-```typescript title="api/Article.ts"
+```typescript title="api/Article"
 export class ArticlePreview extends Entity {
   readonly id: string = '';
   readonly title: string = '';
@@ -215,7 +215,7 @@ export const getArticle = new RestEndpoint({
 });
 ```
 
-```tsx title="ArticleDetail.tsx" collapsed
+```tsx title="ArticleDetail" collapsed
 import { getArticle, getArticleList } from './api/Article';
 
 function ArticleDetail({ id, onHome }: { id: string; onHome: () => void }) {
