@@ -1,5 +1,11 @@
 # @data-client/core
 
+## 0.14.8
+
+### Patch Changes
+
+- [`bad1fb9`](https://github.com/reactive/data-client/commit/bad1fb909f8d60f19450bbf40df00d90e03a61c2) Thanks [@ntucker](https://github.com/ntucker)! - Update package description
+
 ## 0.14.6
 
 ### Patch Changes
