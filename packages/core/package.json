@@ -1,7 +1,7 @@
 {
   "name": "@data-client/core",
   "version": "0.14.6",
-  "description": "High performance mutable data framework.",
+  "description": "Async State Management without the Management. REST, GraphQL, SSE, Websockets, Fetch",
   "sideEffects": false,
   "main": "dist/index.js",
   "react-native": "legacy/index.js",
