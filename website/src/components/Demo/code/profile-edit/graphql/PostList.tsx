@@ -7,7 +7,7 @@ function PostList() {
   const { posts } = useSuspense(PostResource.getList, { userId });
   return (
     <div>
-      <ProfileEdit userId={userId} />
+      <ProfileEdit id={userId} />
       <br />
       <br />
       {posts.map(post => (

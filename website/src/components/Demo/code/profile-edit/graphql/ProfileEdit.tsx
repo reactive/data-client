@@ -1,13 +1,11 @@
 import { UserResource } from './resources';
 
-export default function ProfileEdit({ userId }: { userId: number }) {
-  const { user } = useSuspense(UserResource.get, { id: userId });
+export default function ProfileEdit({ id }: { id: number }) {
+  const { user } = useSuspense(UserResource.get, { id });
   const controller = useController();
-  const handleChange = ({ currentTarget: { value } }) =>
-    controller.fetch(UserResource.update, {
-      id: userId,
-      name: value,
-    });
+  const handleChange = ({ currentTarget: { value: name } }) =>
+    controller.fetch(UserResource.update, { id, name });
+
   return (
     <label>
       Name:{' '}
