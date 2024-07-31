@@ -9,6 +9,7 @@ function PostList() {
     <div>
       <ProfileEdit userId={userId} />
       <br />
+      <br />
       {posts.map(post => (
         <PostItem key={post.pk()} post={post} />
       ))}

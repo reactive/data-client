@@ -4,13 +4,11 @@ export class Ticker extends Entity {
   product_id = '';
   trade_id = 0;
   price = 0;
-  size = '0';
+  size = 0;
   time = Temporal.Instant.fromEpochSeconds(0);
-  bid = '0';
-  ask = '0';
   volume = '';
 
-  pk(): string {
+  pk() {
     return this.product_id;
   }
 
@@ -18,6 +16,7 @@ export class Ticker extends Entity {
 
   static schema = {
     price: Number,
+    size: Number,
     time: Temporal.Instant.from,
   };
 }

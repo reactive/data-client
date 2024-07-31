@@ -6,7 +6,7 @@ export class Todo extends Entity {
   title = '';
   completed = false;
   pk() {
-    return `${this.id}`;
+    return this.id;
   }
 }
 export const TodoResource = resource({
@@ -30,7 +30,7 @@ export class User extends Entity {
   }
 
   pk() {
-    return `${this.id}`;
+    return this.id;
   }
 
   static schema = {

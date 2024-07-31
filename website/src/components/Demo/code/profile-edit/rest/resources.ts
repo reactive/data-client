@@ -6,7 +6,7 @@ export class Post extends Entity {
   title = '';
   body = '';
   pk() {
-    return `${this.id}`;
+    return this.id;
   }
 }
 export const PostResource = resource({
@@ -30,7 +30,7 @@ export class User extends Entity {
   }
 
   pk() {
-    return `${this.id}`;
+    return this.id;
   }
 }
 export const UserResource = resource({

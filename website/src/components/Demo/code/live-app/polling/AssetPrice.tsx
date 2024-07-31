@@ -1,6 +1,6 @@
 import { getTicker } from './resources';
 
-export default function AssetPrice({ symbol }: Props) {
+export default function AssetPrice({ symbol }: { symbol: string }) {
   const productId = `${symbol}-USD`;
   const ticker = useLive(getTicker, { productId });
   return (
@@ -11,8 +11,4 @@ export default function AssetPrice({ symbol }: Props) {
       </td>
     </tr>
   );
-}
-
-interface Props {
-  symbol: string;
 }
