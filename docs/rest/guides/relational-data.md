@@ -189,11 +189,12 @@ the relationship in [Entity.schema](../api/Entity.md#schema)
 ```ts title="resources/User" collapsed
 export class User extends Entity {
   id = 0;
+  username = '';
   name = '';
   email = '';
   website = '';
   pk() {
-    return `${this.id}`;
+    return this.id;
   }
 }
 export const UserResource = resource({
@@ -208,15 +209,19 @@ import { User } from './User';
 
 export class Todo extends Entity {
   id = 0;
-  userId = User.fromJS({});
+  userId = 0;
+  user? = User.fromJS({});
   title = '';
   completed = false;
   pk() {
-    return `${this.id}`;
+    return this.id;
   }
   static schema = {
-    userId: User,
+    user: User,
   };
+  static process(value) {
+    return { ...value, user: value.userId };
+  }
 }
 export const TodoResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
@@ -229,15 +234,14 @@ export const TodoResource = resource({
 import { TodoResource } from './resources/Todo';
 import { UserResource } from './resources/User';
 
-
 function TodosPage() {
   useFetch(UserResource.getList);
   const todos = useSuspense(TodoResource.getList);
   return (
     <div>
-      {todos.slice(17,24).map(todo => (
+      {todos.slice(17, 24).map(todo => (
         <div key={todo.pk()}>
-          {todo.title} by <small>{todo.userId?.name}</small>
+          {todo.title} by <small>{todo.user?.name}</small>
         </div>
       ))}
     </div>
@@ -353,7 +357,10 @@ export class User extends Entity {
       ...existing,
       ...incoming,
       posts: [...(existing.posts || []), ...(incoming.posts || [])],
-      comments: [...(existing.comments || []), ...(incoming.comments || [])],
+      comments: [
+        ...(existing.comments || []),
+        ...(incoming.comments || []),
+      ],
     };
   }
 
@@ -482,8 +489,13 @@ export default function PostPage({ setRoute }) {
                 {comment.content}{' '}
                 <small>
                   <cite
-                    onClick={() => setRoute(`user/${comment.commenter.id}`)}
-                    style={{ cursor: 'pointer', textDecoration: 'underline' }}
+                    onClick={() =>
+                      setRoute(`user/${comment.commenter.id}`)
+                    }
+                    style={{
+                      cursor: 'pointer',
+                      textDecoration: 'underline',
+                    }}
                   >
                     {comment.commenter.name}
                     {comment.commenter === post.author ? ' [OP]' : ''}
