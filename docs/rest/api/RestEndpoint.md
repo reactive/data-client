@@ -563,9 +563,34 @@ must also contain a [Collection](./Collection.md).
 
 Prepends this to the compiled [path](#path)
 
+#### Inheritance defaults
+
+```typescript
+export class MyEndpoint<
+  O extends RestGenerics = any,
+> extends RestEndpoint<O> {
+  // this allows us to override the prefix in production environments, with a dev fallback
+  urlPrefix = process.env.API_SERVER ?? 'http://localhost:8000';
+}
+```
+
+[Learn more about inheritance patterns](#inheritance) for RestEndpoint
+
+#### Instance overrides
+
+```typescript
+export const getTicker = new RestEndpoint({
+  urlPrefix: 'https://api.exchange.coinbase.com',
+  path: '/products/:product_id/ticker',
+  schema: Ticker,
+});
+```
+
+#### Dynamic prefix
+
 :::tip
 
-For a dynamic prefix, try overriding the url() method:
+For a dynamic prefix, try overriding the url() method instead:
 
 ```ts
 const getTodo = new RestEndpoint({

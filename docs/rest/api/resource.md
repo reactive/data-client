@@ -657,8 +657,9 @@ export const IssueResource= resource({
 
 ## Function Inheritance Patterns
 
-To reuse code around `Resource` design, you can create your own function that calls resource().
-This has similar effects as class-based inheritance.
+To reuse code related to `Resource` definitions, you can create your own function that calls resource().
+This has similar effects as class-based inheritance, with the added benefit of allowing for complete
+typing overrides.
 
 ```typescript
 import {
@@ -673,6 +674,8 @@ import {
 export class AuthdEndpoint<
   O extends RestGenerics = any,
 > extends RestEndpoint<O> {
+  urlPrefix = process.env.API_SERVER ?? 'http://localhost:8000';
+
   async getRequestInit(body: any): Promise<RequestInit> {
     return {
       ...(await super.getRequestInit(body)),
@@ -681,7 +684,7 @@ export class AuthdEndpoint<
   }
 }
 
-export function createMyResource<O extends ResourceGenerics = any>({
+export function myResource<O extends ResourceGenerics = any>({
   schema,
   Endpoint = AuthdEndpoint,
   ...extraOptions
