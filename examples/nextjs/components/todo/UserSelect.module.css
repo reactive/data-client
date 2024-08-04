@@ -1,15 +1,11 @@
 .userLink {
   display: inline-block;
-  text-decoration: none;
   margin: 0 7px;
   color: blue;
 
 }
 .userLink.active {
   color: red;
-}
-.userLink:hover {
-  text-decoration: underline;
 }
 
 .wrap {
