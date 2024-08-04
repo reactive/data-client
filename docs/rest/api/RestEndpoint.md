@@ -695,15 +695,22 @@ async function getAuthToken() {
 
 ### fetchResponse(input, init): Promise {#fetchResponse}
 
-Performs the [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) call
+Performs the [fetch(input, init)](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) call. When
+[response.ok](https://developer.mozilla.org/en-US/docs/Web/API/Response/ok) is not `true` (like 404),
+will throw a NetworkError.
 
 ### parseResponse(response): Promise {#parseResponse}
 
-Takes the [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) and parses via .text() or .json()
+Takes the [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) and parses via [.text()](https://developer.mozilla.org/en-US/docs/Web/API/Response/text) or [.json()](https://developer.mozilla.org/en-US/docs/Web/API/Response/json) depending
+on ['content-type' header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type) having 'json' (e.g., `application/json`).
+
+If `status` is 204, resolves as `null`.
+
+Override this to handle other response types like [arrayBuffer](https://developer.mozilla.org/en-US/docs/Web/API/Response/arrayBuffer)
 
 ### process(value, ...args): any {#process}
 
-Perform any transforms with the parsed result. Defaults to identity function.
+Perform any transforms with the parsed result. Defaults to identity function (do nothing).
 
 :::tip
 
