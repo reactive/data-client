@@ -3169,7 +3169,7 @@ __metadata:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
     "@data-client/normalizr": "npm:^0.14.6"
-    "@types/node": "npm:^20.0.0"
+    "@types/node": "npm:^22.0.0"
     flux-standard-action: "npm:^2.1.1"
   languageName: unknown
   linkType: soft
@@ -3181,7 +3181,7 @@ __metadata:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
     "@js-temporal/polyfill": "npm:^0.4.4"
-    "@types/node": "npm:^20.0.0"
+    "@types/node": "npm:^22.0.0"
   languageName: unknown
   linkType: soft
 
@@ -3192,7 +3192,7 @@ __metadata:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
     "@data-client/endpoint": "npm:^0.14.6"
-    "@types/node": "npm:^20.0.0"
+    "@types/node": "npm:^22.0.0"
   languageName: unknown
   linkType: soft
 
@@ -3204,7 +3204,7 @@ __metadata:
     "@babel/runtime": "npm:^7.17.0"
     "@data-client/endpoint": "npm:^0.14.6"
     "@data-client/react": "workspace:*"
-    "@types/node": "npm:^20.0.0"
+    "@types/node": "npm:^22.0.0"
     "@types/react": "npm:^18.0.30"
   peerDependencies:
     "@data-client/react": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0 || ^0.5.0 || ^0.7.0 || ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^0.14.0
@@ -3231,7 +3231,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
-    "@types/node": "npm:^20.0.0"
+    "@types/node": "npm:^22.0.0"
     immutable: "npm:4.2.2"
   languageName: unknown
   linkType: soft
@@ -3245,7 +3245,7 @@ __metadata:
     "@data-client/core": "npm:^0.14.8"
     "@data-client/use-enhanced-reducer": "npm:^0.1.10"
     "@react-navigation/native": "npm:^6.1.6"
-    "@types/node": "npm:^20.0.0"
+    "@types/node": "npm:^22.0.0"
     "@types/react": "npm:^18.0.30"
     react-native: "npm:^0.74.0"
   peerDependencies:
@@ -3285,7 +3285,7 @@ __metadata:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
     "@data-client/endpoint": "npm:^0.14.6"
-    "@types/node": "npm:^20.0.0"
+    "@types/node": "npm:^22.0.0"
     path-to-regexp: "npm:^6.2.1"
   languageName: unknown
   linkType: soft
@@ -3298,7 +3298,7 @@ __metadata:
     "@babel/runtime": "npm:^7.17.0"
     "@data-client/react": "workspace:*"
     "@data-client/redux": "npm:^0.13.0"
-    "@types/node": "npm:^20.0.0"
+    "@types/node": "npm:^22.0.0"
     "@types/react": "npm:^18.0.30"
     "@types/react-dom": "npm:^18.0.11"
     next: "npm:^14.0.0"
@@ -3330,7 +3330,7 @@ __metadata:
     "@testing-library/react": "npm:^16.0.0"
     "@testing-library/react-native": "npm:^12.0.1"
     "@types/jest": "npm:^29.5.0"
-    "@types/node": "npm:^20.0.0"
+    "@types/node": "npm:^22.0.0"
     "@types/react": "npm:^18.0.30"
     "@types/react-dom": "npm:^18.0.11"
     "@types/react-test-renderer": "npm:^18"
@@ -3368,7 +3368,7 @@ __metadata:
   resolution: "@data-client/use-enhanced-reducer@workspace:packages/use-enhanced-reducer"
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
-    "@types/node": "npm:^20.0.0"
+    "@types/node": "npm:^22.0.0"
     "@types/react": "npm:^18.0.30"
   peerDependencies:
     "@types/react": ^16.14.0 || ^17.0.0 || ^18.0.0-0 || ^18.0.0 || ^19.0.0-0 || ^19.0.0
@@ -7208,21 +7208,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*":
-  version: 22.0.0
-  resolution: "@types/node@npm:22.0.0"
+"@types/node@npm:*, @types/node@npm:22.1.0, @types/node@npm:^22.0.0":
+  version: 22.1.0
+  resolution: "@types/node@npm:22.1.0"
   dependencies:
-    undici-types: "npm:~6.11.1"
-  checksum: 10c0/af26a8ec7266c857b0ced75dc3a93c6b65280d1fa40d1b4488c814d30831c5c752489c99ecb5698daec1376145b1a9ddd08350882dc2e07769917a5f22a460bc
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:20.14.13, @types/node@npm:^20.0.0, @types/node@npm:^20.8.3":
-  version: 20.14.13
-  resolution: "@types/node@npm:20.14.13"
-  dependencies:
-    undici-types: "npm:~5.26.4"
-  checksum: 10c0/10bb3ece675308742301c652ab8c6cb88b1ebddebed22316103c58f94fe7eff131edd5f679e487c19077fadb6b5e6b1ad9a60a2cee2869aa1f20452b9761d570
+    undici-types: "npm:~6.13.0"
+  checksum: 10c0/553dafcb842b889c036d43b390d464e8ffcf3ca455ddd5b1a1ef98396381eafbeb0c112a15cc6bf9662b72bc25fc45efc4b6f604760e1e84c410f1b7936c488b
   languageName: node
   linkType: hard
 
@@ -7253,6 +7244,15 @@ __metadata:
   dependencies:
     undici-types: "npm:~5.26.4"
   checksum: 10c0/eaacbbcb376748bddaf6cd04569ebf3f0069a1b6f821db4f85ef9f60c2c63608ddcaf3e67a3c44e1cd8111a26e9da7c83d54ae7c41dd21e7b35cbab9436bfe1e
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^20.8.3":
+  version: 20.14.13
+  resolution: "@types/node@npm:20.14.13"
+  dependencies:
+    undici-types: "npm:~5.26.4"
+  checksum: 10c0/10bb3ece675308742301c652ab8c6cb88b1ebddebed22316103c58f94fe7eff131edd5f679e487c19077fadb6b5e6b1ad9a60a2cee2869aa1f20452b9761d570
   languageName: node
   linkType: hard
 
@@ -26445,7 +26445,7 @@ __metadata:
     "@testing-library/react-hooks": "npm:8.0.1"
     "@testing-library/react-native": "npm:12.5.2"
     "@types/jest": "npm:29.5.12"
-    "@types/node": "npm:20.14.13"
+    "@types/node": "npm:22.1.0"
     "@types/react": "npm:18.3.3"
     "@typescript-eslint/eslint-plugin": "npm:7.17.0"
     "@typescript-eslint/parser": "npm:7.17.0"
@@ -29113,10 +29113,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici-types@npm:~6.11.1":
-  version: 6.11.1
-  resolution: "undici-types@npm:6.11.1"
-  checksum: 10c0/d8f5739a8e6c779d72336c82deb49c56d5ac9f9f6e0eb2e8dd4d3f6929ae9db7cde370d2e46516fe6cad04ea53e790c5e16c4c75eed7cd0f9bd31b0763bb2fa3
+"undici-types@npm:~6.13.0":
+  version: 6.13.0
+  resolution: "undici-types@npm:6.13.0"
+  checksum: 10c0/2de55181f569c77a4f08063f8bf2722fcbb6ea312a26a9e927bd1f5ea5cf3a281c5ddf23155061db083e0a25838f54813543ff13b0ac34d230d5c1205ead66c1
   languageName: node
   linkType: hard
 
