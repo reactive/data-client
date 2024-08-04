@@ -29,7 +29,7 @@ export const routes: Route<Controller>[] = [
       await Promise.allSettled([
         controller.fetchIfStale(getTicker, { product_id }),
         controller.fetchIfStale(CurrencyResource.get, { id }),
-        controller.fetchIfStale(StatsResource.get, { id: product_id }),
+        controller.fetchIfStale(StatsResource.get, { product_id }),
       ]);
     },
   },

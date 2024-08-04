@@ -24,7 +24,7 @@ export default function AssetDetail({ id }: { id: string }) {
       </header>
       <AssetChart product_id={`${currency.id}-USD`} />
       <StatSection>
-        <Stats id={`${currency.id}-USD`} />
+        <Stats product_id={`${currency.id}-USD`} />
       </StatSection>
     </>
   );

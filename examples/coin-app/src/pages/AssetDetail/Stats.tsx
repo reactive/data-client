@@ -3,8 +3,8 @@ import { StatsResource } from 'resources/Stats';
 
 import { formatPrice, formatLargePrice } from '../../components/formatPrice';
 
-export default function Stats({ id }: { id: string }) {
-  const stats = useSuspense(StatsResource.get, { id });
+export default function Stats({ product_id }: { product_id: string }) {
+  const stats = useSuspense(StatsResource.get, { product_id });
   return (
     <table>
       <tbody>
