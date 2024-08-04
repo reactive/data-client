@@ -72,7 +72,7 @@ import { schema } from '@data-client/rest';
 import { useQuery, useFetch } from '@data-client/react';
 import { UserResource, User } from './resources/User';
 
-const getUserCount = new schema.Query(
+const countUsers = new schema.Query(
   new schema.All(User),
   (entries, { isAdmin } = {}) => {
     if (isAdmin !== undefined)
@@ -83,8 +83,8 @@ const getUserCount = new schema.Query(
 
 function UsersPage() {
   useFetch(UserResource.getList);
-  const userCount = useQuery(getUserCount);
-  const adminCount = useQuery(getUserCount, { isAdmin: true });
+  const userCount = useQuery(countUsers);
+  const adminCount = useQuery(countUsers, { isAdmin: true });
   if (userCount === undefined) return <div>No users in cache yet</div>;
   return (
     <div>
@@ -181,18 +181,13 @@ interface Props {
 ```tsx title="TodoJoined"
 import { schema } from '@data-client/rest';
 import { useQuery, useFetch } from '@data-client/react';
-import { TodoResource, Todo } from './resources/Todo';
+import { TodoResource } from './resources/Todo';
 import { UserResource } from './resources/User';
 import TodoByUser from './TodoByUser';
 
 const groupTodoByUser = new schema.Query(
   TodoResource.getList.schema,
-  todos => {
-    return Object.groupBy(todos, todo => todo.userId) as Record<
-      number,
-      Todo[]
-    >;
-  },
+  todos => Object.groupBy(todos, todo => todo.userId),
 );
 
 function TodosPage() {
@@ -213,7 +208,6 @@ function TodosPage() {
     </div>
   );
 }
-
 render(<TodosPage />);
 ```
 
