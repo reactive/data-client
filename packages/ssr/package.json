@@ -135,7 +135,7 @@
     "@anansi/browserslist-config": "^1.4.2",
     "@data-client/react": "workspace:*",
     "@data-client/redux": "^0.13.0",
-    "@types/node": "^20.0.0",
+    "@types/node": "^22.0.0",
     "@types/react": "^18.0.30",
     "@types/react-dom": "^18.0.11",
     "next": "^14.0.0",

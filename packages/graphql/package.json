@@ -109,6 +109,6 @@
   },
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",
-    "@types/node": "^20.0.0"
+    "@types/node": "^22.0.0"
   }
 }
