@@ -27,7 +27,7 @@ export default function TodoLayout({
 
       <p>
         This is because Reactive Data Client's store is initialized and{' '}
-        <a href="https://dataclient.io/docs/concepts/normalization">
+        <a href="https://dataclient.io/docs/concepts/normalization?utm_source=demos&utm_medium=default-template&utm_campaign=demos" target="_blank">
           normalized
         </a>
       </p>

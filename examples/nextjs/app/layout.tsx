@@ -13,8 +13,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <body>
         <DataProvider>
           <h1 className={styles.title}>
-            Welcome to <a href="https://nextjs.org">Next.js!</a> with{' '}
-            <a href="https://dataclient.io">Reactive Data Client</a>
+            Welcome to <a href="https://nextjs.org" target="_blank">Next.js!</a> with{' '}
+            <a href="https://dataclient.io" target="_blank">Reactive Data Client</a>
           </h1>
           <div className={styles.container}>
             <main className={styles.main}>
@@ -23,17 +23,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
             <footer className={styles.footer}>
               <a
-                href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
+                href="https://dataclient.io?utm_source=demos&utm_medium=default-template&utm_campaign=demos"
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 Powered by{' '}
                 <span className={styles.logo}>
                   <Image
-                    src="/vercel.svg"
-                    alt="Vercel Logo"
-                    width={72}
-                    height={16}
+                    src="/data_client.svg"
+                    alt="Reactive Data Client Logo"
+                    width={72*2}
+                    height={32}
                   />
                 </span>
               </a>
