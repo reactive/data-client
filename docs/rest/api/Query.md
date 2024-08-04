@@ -105,11 +105,12 @@ render(<UsersPage />);
 ```ts title="resources/User" collapsed
 export class User extends Entity {
   id = 0;
+  username = '';
   name = '';
   email = '';
   website = '';
   pk() {
-    return `${this.id}`;
+    return this.id;
   }
 }
 export const UserResource = resource({
@@ -124,15 +125,19 @@ import { User } from './User';
 
 export class Todo extends Entity {
   id = 0;
-  userId = User.fromJS({});
+  userId = 0;
+  user? = User.fromJS({});
   title = '';
   completed = false;
   pk() {
-    return `${this.id}`;
+    return this.id;
   }
   static schema = {
-    userId: User,
+    user: User,
   };
+  static process(input) {
+    return { ...input, user: input.userId };
+  }
 }
 export const TodoResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
@@ -142,17 +147,49 @@ export const TodoResource = resource({
 });
 ```
 
+```tsx title="TodoByUser" collapsed
+import { useQuery } from '@data-client/react';
+import { User } from './resources/User';
+import type { Todo } from './resources/Todo';
+
+export default function TodoByUser({ userId, todos }: Props) {
+  const user = useQuery(User, { id: userId });
+  // don't bother if no user is loaded yet
+  if (!user) return null;
+  return (
+    <div>
+      <h3>
+        {user.name} has {tasksRemaining(todos)} tasks left
+      </h3>
+      {todos.slice(0, 3).map(todo => (
+        <div key={todo.pk()}>
+          {todo.title} by {todo.user === user ? todo.user.name : ''}
+        </div>
+      ))}
+    </div>
+  );
+}
+function tasksRemaining(todos: Todo[]) {
+  return todos.filter(({ completed }) => !completed).length;
+}
+interface Props {
+  userId: string;
+  todos: Todo[];
+}
+```
+
 ```tsx title="TodoJoined"
 import { schema } from '@data-client/rest';
 import { useQuery, useFetch } from '@data-client/react';
 import { TodoResource, Todo } from './resources/Todo';
 import { UserResource } from './resources/User';
+import TodoByUser from './TodoByUser';
 
 const groupTodoByUser = new schema.Query(
   TodoResource.getList.schema,
   todos => {
-    return Object.groupBy(todos, todo => todo?.userId?.username) as Record<
-      string,
+    return Object.groupBy(todos, todo => todo.userId) as Record<
+      number,
       Todo[]
     >;
   },
@@ -162,30 +199,21 @@ function TodosPage() {
   useFetch(UserResource.getList);
   useSuspense(TodoResource.getList);
   useSuspense(UserResource.getList);
-  const todoByUser = useQuery(groupTodoByUser);
-  if (!todoByUser) return <div>Todos not found</div>;
+  const todosByUser = useQuery(groupTodoByUser);
+  if (!todosByUser) return <div>Todos not found</div>;
   return (
     <div>
-      {Object.keys(todoByUser).map(username => (
-        <div key={username}>
-          <h3>
-            {username} has {tasksRemaining(todoByUser[username])} tasks
-            left
-          </h3>
-          {todoByUser[username].slice(0, 3).map(todo => (
-            <div key={todo.pk()}>
-              {todo.title} by {todo?.userId?.name}
-            </div>
-          ))}
-        </div>
+      {Object.keys(todosByUser).map(userId => (
+        <TodoByUser
+          key={userId}
+          userId={userId}
+          todos={todosByUser[userId]}
+        />
       ))}
     </div>
   );
 }
 
-function tasksRemaining(todos: Todo[]) {
-  return todos.filter(({ completed }) => !completed).length;
-}
 render(<TodosPage />);
 ```
 
