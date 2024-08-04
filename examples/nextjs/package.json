@@ -20,6 +20,7 @@
     "next": "canary",
     "react": "rc",
     "react-dom": "rc",
+    "tunnel-agent": "^0.6.0",
     "typescript": "^5.4.5"
   },
   "overrides": {
