@@ -20,6 +20,7 @@
     "next": "canary",
     "react": "rc",
     "react-dom": "rc",
+    "tar-fs": "^3.0.6",
     "tunnel-agent": "^0.6.0",
     "typescript": "^5.4.5"
   },
