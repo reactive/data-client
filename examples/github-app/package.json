@@ -25,10 +25,10 @@
   "private": true,
   "license": "Apache-2.0",
   "devDependencies": {
-    "@anansi/babel-preset": "6.0.2",
+    "@anansi/babel-preset": "6.0.3",
     "@anansi/browserslist-config": "1.5.1",
     "@anansi/webpack-config": "19.1.0",
-    "@babel/core": "7.24.9",
+    "@babel/core": "7.25.2",
     "@linaria/babel-preset": "5.0.4",
     "@linaria/core": "6.2.0",
     "@linaria/react": "6.2.1",
