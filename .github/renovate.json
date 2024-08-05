@@ -1,4 +1,4 @@
-{
+  {
   "extends": ["group:allNonMajor", "group:monorepos"],
   "assigneesFromCodeOwners": true,
   "commitMessagePrefix": "pkg: ",
@@ -101,13 +101,30 @@
     {
       "groupSlug": "validation",
       "groupName": "validation packages",
-      "matchUpdateTypes": ["major", "minor", "patch"],
+      "matchUpdateTypes": ["minor", "patch"],
       "matchPackageNames": [
         "@anansi/eslint-plugin",
         "prettier",
         "eslint-plugin-prettier",
+        "@typescript-eslint/parser",
         "@typescript-eslint/eslint-plugin"
       ]
+    },
+    {
+      "matchPackageNames": [
+        "@typescript-eslint/parser",
+        "@typescript-eslint/eslint-plugin"
+      ],
+      "matchUpdateTypes": ["major"],
+      "groupSlug": "typescript-eslint"
+    },
+    {
+      "matchPackageNames": [
+        "prettier",
+        "eslint-plugin-prettier"
+      ],
+      "matchUpdateTypes": ["major"],
+      "groupSlug": "prettier"
     },
     {
       "extends": ["monorepo:commitlint"],
