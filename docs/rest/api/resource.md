@@ -1,6 +1,6 @@
 ---
 id: resource
-title: resource() - TypeScript definition for REST API resources
+title: Define TypeScript REST API Resources at Scale
 sidebar_label: resource
 description: Resources are a collection of RestEndpoints that operate on a common data by sharing a schema
 ---
