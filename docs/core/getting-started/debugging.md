@@ -52,13 +52,16 @@ This can be changed with [skipLogging](../api/DevToolsManager.md#skiplogging) op
 <abbr title="Reactive Data Client">Data Client</abbr> uses the [flux store](https://facebookarchive.github.io/flux/docs/in-depth-overview/) pattern, making debugging
 straightforward as each change is traceable and descriptive.
 
+<div style={{textAlign:'center'}}>
 <ThemedImage
   alt="FLUX"
   sources={{
-    light: useBaseUrl('/img/flux.png'),
-    dark: useBaseUrl('/img/flux-dark.png'),
+    light: useBaseUrl('/img/diagrams/flux-simple.png'),
+    dark: useBaseUrl('/img/diagrams/flux-simple-dark.png'),
   }}
+  style={{maxHeight:"260px"}}
 />
+</div>
 
 > [More about control flow](../concepts/managers.md)
 
