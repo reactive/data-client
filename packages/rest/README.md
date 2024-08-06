@@ -130,6 +130,14 @@ const allRemainingTodos = useQuery(queryRemainingTodos);
 const firstUserRemainingTodos = useQuery(queryRemainingTodos, { userId: 1 });
 ```
 
+```typescript
+const groupTodoByUser = new schema.Query(
+  TodoResource.getList.schema,
+  todos => Object.groupBy(todos, todo => todo.userId),
+);
+const todosByUser = useQuery(groupTodoByUser);
+```
+
 ### TypeScript requirements
 
 TypeScript is optional, but will only work with 4.0 or above. 4.1 is needed for stronger types as it

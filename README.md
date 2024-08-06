@@ -146,18 +146,22 @@ ctrl.fetch(ArticleResource.update, { id }, articleData);
 
 ### [Programmatic queries](https://dataclient.io/rest/api/Query)
 
-```tsx
+```typescript
 const queryTotalVotes = new schema.Query(
-  new schema.All(Post),
-  (posts, { userId } = {}) => {
-    if (userId !== undefined)
-      posts = posts.filter(post => post.userId === userId);
-    return posts.reduce((total, post) => total + post.votes, 0);
-  },
+  new schema.Collection([BlogPost]),
+  posts => posts.reduce((total, post) => total + post.votes, 0),
 );
 
 const totalVotes = useQuery(queryTotalVotes);
 const totalVotesForUser = useQuery(queryTotalVotes, { userId });
+```
+
+```typescript
+const groupTodoByUser = new schema.Query(
+  TodoResource.getList.schema,
+  todos => Object.groupBy(todos, todo => todo.userId),
+);
+const todosByUser = useQuery(groupTodoByUser);
 ```
 
 ### [Powerful Middlewares](https://dataclient.io/docs/concepts/managers)
@@ -179,16 +183,16 @@ class TickerStream implements Manager {
   middleware: Middleware = controller => {
     this.handleMsg = msg => {
       controller.set(Ticker, { id: msg.id }, msg);
-    }
+    };
     return next => action => next(action);
-  }
+  };
 
   init() {
     this.websocket = new WebSocket('wss://ws-feed.myexchange.com');
     this.websocket.onmessage = event => {
       const msg = JSON.parse(event.data);
       this.handleMsg(msg);
-    }
+    };
   }
   cleanup() {
     this.websocket.close();
