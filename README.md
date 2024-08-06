@@ -1,4 +1,11 @@
-<a href="https://dataclient.io" target="_blank" rel="noopener"><img src="https://github.com/reactive/data-client/raw/master/packages/react/data_client_logo_and_text.svg?sanitize=true" alt="Reactive Data Client" style="max-width: 100%;"></a>
+<a href="https://dataclient.io" target="_blank" rel="noopener">
+<picture style="max-width: 100%;">
+  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/reactive/data-client/raw/master/website/static/img/client_logo_and_text-border--dark.png?sanitize=true">
+  <img alt="Reactive Data Client" src="https://github.com/reactive/data-client/raw/master/website/static/img/client_logo_and_text-border--light.png?sanitize=true">
+</picture>
+</a>
+
+
 
 [![CircleCI](https://circleci.com/gh/reactive/data-client/tree/master.svg?style=shield)](https://circleci.com/gh/reactive/data-client)
 [![Coverage Status](https://img.shields.io/codecov/c/gh/reactive/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/reactive/data-client?branch=master)
