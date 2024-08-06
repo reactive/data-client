@@ -1,8 +1,8 @@
 <div align="center">
 <a href="https://dataclient.io" target="_blank" rel="noopener">
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/reactive/data-client/raw/master/website/static/img/client_logo_and_text-border--dark.png?sanitize=true">
-  <img alt="Reactive Data Client" src="https://github.com/reactive/data-client/raw/master/website/static/img/client_logo_and_text-border--light.png?sanitize=true">
+  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/reactive/data-client/raw/master/website/static/img/client_logo_and_text-border-small--dark.png?sanitize=true">
+  <img alt="Reactive Data Client" src="https://github.com/reactive/data-client/raw/master/website/static/img/client_logo_and_text-border-small--light.png?sanitize=true">
 </picture>
 </a>
 
