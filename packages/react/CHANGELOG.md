@@ -1,5 +1,13 @@
 # @data-client/react
 
+## 0.14.9
+
+### Patch Changes
+
+- [`c263931`](https://github.com/reactive/data-client/commit/c26393176518550a16a2e71aea55a8379f30385e) Thanks [@ntucker](https://github.com/ntucker)! - Update README
+
+- [`688c7c6`](https://github.com/reactive/data-client/commit/688c7c67bc6dda329389cb66f9635b88cc51dce3) Thanks [@ntucker](https://github.com/ntucker)! - Use light-mode README header image since npm only has light-mode
+
 ## 0.14.8
 
 ### Patch Changes

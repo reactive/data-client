@@ -1,5 +1,16 @@
 # @data-client/rest
 
+## 0.14.9
+
+### Patch Changes
+
+- [`c263931`](https://github.com/reactive/data-client/commit/c26393176518550a16a2e71aea55a8379f30385e) Thanks [@ntucker](https://github.com/ntucker)! - Update README
+
+- [`366c609`](https://github.com/reactive/data-client/commit/366c609dbda9707f8ecfaef5020c67dd1c7e262b) Thanks [@ntucker](https://github.com/ntucker)! - Make NetworkError messages include more useful information
+
+  Add URL so it's clear _what_ is causing issues when response is
+  not 'ok'
+
 ## 0.14.8
 
 ### Patch Changes

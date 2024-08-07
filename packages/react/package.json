@@ -1,6 +1,6 @@
 {
   "name": "@data-client/react",
-  "version": "0.14.8",
+  "version": "0.14.9",
   "description": "Async State Management without the Management. REST, GraphQL, SSE, Websockets, Fetch",
   "homepage": "https://dataclient.io",
   "repository": {
