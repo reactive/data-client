@@ -1,4 +1,19 @@
-# [![Reactive Data Client](./data_client_logo_and_text.svg?sanitize=true)](https://dataclient.io)
+<h1>
+<div align="center">
+<a href="https://dataclient.io" target="_blank" rel="noopener">
+  <img alt="Reactive Data Client" src="./data_client_logo_and_text.svg?sanitize=true">
+</a>
+</div>
+</h1>
+
+The scalable way to build applications with [dynamic data](https://dataclient.io/docs/getting-started/mutations).
+
+[Declarative resouce definitons](https://dataclient.io/docs/getting-started/resource) for [REST](https://dataclient.io/rest), [GraphQL](https://dataclient.io/graphql), [Websockets+SSE](https://dataclient.io/docs/concepts/managers#data-stream) and [more](https://dataclient.io/rest/api/Endpoint)
+<br/>[Performant rendering](https://dataclient.io/docs/getting-started/data-dependency) in React, NextJS, React Native, ExpoGo
+
+Schema driven. Zero updater functions.
+
+<div align="center">
 
 [![CircleCI](https://circleci.com/gh/reactive/data-client/tree/master.svg?style=shield)](https://circleci.com/gh/reactive/data-client)
 [![Coverage Status](https://img.shields.io/codecov/c/gh/reactive/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/reactive/data-client?branch=master)
@@ -8,15 +23,7 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![Chat](https://img.shields.io/discord/768254430381735967.svg?style=flat-square&colorB=758ED3)](https://discord.gg/35nb8Mz)
 
-Define your [async methods](https://dataclient.io/docs/getting-started/resource). Use them [synchronously in React](https://dataclient.io/docs/getting-started/data-dependency). [Instantly mutate](https://dataclient.io/docs/getting-started/mutations) the data and automatically update all usages.
-
-For [REST](https://dataclient.io/rest), [GraphQL](https://dataclient.io/graphql), [Websockets+SSE](https://dataclient.io/docs/concepts/managers#data-stream) and [more](https://dataclient.io/docs/guides/img-media)
-
-<div align="center">
-
-**[📖Read The Docs](https://dataclient.io/docs)** &nbsp;|&nbsp; [🏁Getting Started](https://dataclient.io/docs/getting-started/installation)
-
-🎮 **Demos** &nbsp;|&nbsp;
+**[📖Read The Docs](https://dataclient.io/docs)** &nbsp;|&nbsp; [🏁Getting Started](https://dataclient.io/docs/getting-started/installation) <br/>🎮 **Demos:** &nbsp;
 [Todo](https://stackblitz.com/github/reactive/data-client/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx) &nbsp;|&nbsp;
 [Github](https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx) &nbsp;|&nbsp;
 [NextJS SSR](https://stackblitz.com/github/reactive/data-client/tree/master/examples/nextjs?file=components%2Ftodo%2FTodoList.tsx) &nbsp;|&nbsp;

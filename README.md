@@ -25,7 +25,7 @@ Schema driven. Zero updater functions.
 [Todo](https://stackblitz.com/github/reactive/data-client/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx) &nbsp;|&nbsp;
 [Github Social](https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx) &nbsp;|&nbsp;
 [NextJS SSR](https://stackblitz.com/github/reactive/data-client/tree/master/examples/nextjs?file=components%2Ftodo%2FTodoList.tsx) &nbsp;|&nbsp;
-[Coin Price Websockets](https://stackblitz.com/github/reactive/coin-app/tree/master?file=src%2Fresources%2FStreamManager.ts,src%2Fapp%2FCurrencyList.tsx)
+[Websockets+SSR](https://stackblitz.com/github/reactive/coin-app/tree/master?file=src%2Fresources%2FStreamManager.ts,src%2Fapp%2FCurrencyList.tsx)
 
 </div>
 
