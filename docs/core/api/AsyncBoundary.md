@@ -37,7 +37,7 @@ export default function MyPage() {
 }
 
 function SuspendingComponent() {
-  const data = useSuspense(MyEndpoint);
+  const data = useSuspense(getMyThing);
 
   return <div>{data.text}</div>;
 }

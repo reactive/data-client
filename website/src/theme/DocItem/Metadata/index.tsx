@@ -1,5 +1,5 @@
 import Head from '@docusaurus/Head';
-import { useDoc } from '@docusaurus/theme-common/internal';
+import { useDoc } from '@docusaurus/plugin-content-docs/client';
 import type { WrapperProps } from '@docusaurus/types';
 import type MetadataType from '@theme/DocItem/Metadata';
 import Metadata from '@theme-original/DocItem/Metadata';

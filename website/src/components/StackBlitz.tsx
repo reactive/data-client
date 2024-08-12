@@ -6,6 +6,7 @@ import { useHasIntersected } from './useHasIntersected';
 
 export default function StackBlitz({
   app,
+  repo = 'data-client',
   width = '100%',
   height = '500',
   hidedevtools = '1',
@@ -28,7 +29,11 @@ export default function StackBlitz({
     ctl,
     initialpath,
   }).toString();
-  const src = `https://stackblitz.com/github/reactive/data-client/tree/master/examples/${app}?${params}`;
+  const src =
+    app ?
+      `https://stackblitz.com/github/reactive/${repo}/tree/master/examples/${app}?${params}`
+    : `https://stackblitz.com/github/reactive/${repo}/tree/master?${params}`;
+
   const [frameRef, hasIntersected] = useHasIntersected<HTMLIFrameElement>();
 
   /* This was causing CORS issues....we probably don't need anymore since we have the

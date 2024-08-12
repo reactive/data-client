@@ -6,6 +6,7 @@ description: Fetch without the data rendering. Prevent fetch waterfalls by prefe
 
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
+import StackBlitz from '@site/src/components/StackBlitz';
 
 <head>
   <meta name="docsearch:pagerank" content="10"/>
@@ -80,3 +81,11 @@ function useFetch<
 ```
 
 </GenericsTabs>
+
+## Examples
+
+### NextJS Preload
+
+To prevent fetch waterfalls in NextJS, sometimes you might need to add [preloads](https://nextjs.org/docs/app/building-your-application/data-fetching/patterns#preloading-data) to top level routes.
+
+<StackBlitz repo="coin-app" file="src/app/[id]/page.tsx" initialpath="/BTC" view="editor" height="700" />

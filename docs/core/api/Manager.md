@@ -54,7 +54,7 @@ ensure they can consume a promise. Conversely, redux middleware must be changed 
 Middlewares will intercept actions that are dispatched and then potentially dispatch their own actions as well.
 To read more about middlewares, see the [redux documentation](https://redux.js.org/advanced/middleware).
 
-### init(state)
+### init(state) {#init}
 
 Called with initial state after provider is mounted. Can be useful to run setup at start that
 relies on state actually existing.
@@ -291,6 +291,7 @@ export default class LoggingManager implements Manager {
           console.info(`${action.endpoint.name} ${JSON.stringify(data)}`);
           return;
         }
+      // actions must be explicitly passed to next middleware
       default:
         return next(action);
     }

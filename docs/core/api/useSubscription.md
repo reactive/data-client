@@ -27,8 +27,8 @@ When using the default [polling subscriptions](./PollingSubscription), frequency
 import { Resource, Entity } from '@data-client/rest';
 
 export class Price extends Entity {
-  readonly symbol: string | undefined = undefined;
-  readonly price: string = '0.0';
+  symbol = '';
+  price = '0.0';
   // ...
 
   pk() {
@@ -97,10 +97,9 @@ import { getPrice } from 'api/Price';
 
 function MasterPrice({ symbol }: { symbol: string }) {
   const price = useSuspense(getPrice, { symbol });
-  const ref = useRef();
-  const onScreen = useOnScreen(ref);
+  const [ref, entry] = useIntersectionObserver();
   // null params means don't subscribe
-  useSubscription(getPrice, onScreen ? null : { symbol });
+  useSubscription(getPrice, entry?.isIntersecting ? null : { symbol });
 
   return (
     <div ref={ref}>{price.value.toLocaleString('en', { currency: 'USD' })}</div>
@@ -108,10 +107,10 @@ function MasterPrice({ symbol }: { symbol: string }) {
 }
 ```
 
-Using the last argument `active` we control whether the subscription is active or not
-based on whether the element rendered is [visible on screen](https://usehooks.com/useOnScreen/).
+When `null` is send as the second argument, the subscription is deactivated. Of course,
+if other components are still subscribed the data updates will still be active.
 
-[useOnScreen()](https://usehooks.com/useOnScreen/) uses [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API), which is very performant. [useRef](https://react.dev/reference/react/useRef) allows
+[useIntersectionObserver()](https://usehooks.com/useintersectionobserver) uses [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API), which is very performant. [ref](https://react.dev/reference/react/useRef) allows
 us to access the [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model).
 
 ### Crypto prices (websockets)

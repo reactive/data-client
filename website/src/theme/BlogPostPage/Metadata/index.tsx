@@ -1,5 +1,5 @@
 import Head from '@docusaurus/Head';
-import { useBlogPost } from '@docusaurus/theme-common/internal';
+import { useBlogPost } from '@docusaurus/plugin-content-blog/client';
 import type { WrapperProps } from '@docusaurus/types';
 import type MetadataType from '@theme/BlogPostPage/Metadata';
 import Metadata from '@theme-original/BlogPostPage/Metadata';

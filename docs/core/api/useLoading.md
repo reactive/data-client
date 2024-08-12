@@ -10,7 +10,7 @@ import StackBlitz from '@site/src/components/StackBlitz';
 
 # useLoading()
 
-Helps track loading state of imperative async functions.
+Helps track loading and error state of imperative async functions.
 
 :::tip
 
@@ -21,6 +21,9 @@ Helps track loading state of imperative async functions.
 ## Usage
 
 <UseLoading />
+
+Like [useCallback](https://react.dev/reference/react/useCallback), takes a dependency list to
+ensure referential consistency of the function.
 
 ## Eslint
 
