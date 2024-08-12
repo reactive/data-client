@@ -14,6 +14,13 @@ export default function PkgInstall({ pkgs, dev = false, global }) {
         {pkgs}
       </CodeBlock>
     );
+  } else if (relevantTabGroupChoice === 'pnmp') {
+    return (
+      <CodeBlock className="language-bash">
+        pnpm add{global ? ' -g' : ''}
+        {dev ? ' -D' : ''} {pkgs}
+      </CodeBlock>
+    );
   }
   return (
     <CodeBlock className="language-bash">

@@ -11,6 +11,7 @@ export default function PkgTabs({ pkgs, dev = false }) {
       values={[
         { label: 'NPM', value: 'npm' },
         { label: 'Yarn', value: 'yarn' },
+        { label: 'pnpm', value: 'pnpm' },
         { label: 'esm.sh', value: 'esm' },
       ]}
     >
@@ -23,6 +24,11 @@ export default function PkgTabs({ pkgs, dev = false }) {
       <TabItem value="npm">
         <CodeBlock className="language-bash">
           npm install --save{dev ? 'Dev ' : ''} {pkgs}
+        </CodeBlock>
+      </TabItem>
+      <TabItem value="pnpm">
+        <CodeBlock className="language-bash">
+          pnpm add{dev ? ' -D' : ''} {pkgs}
         </CodeBlock>
       </TabItem>
       <TabItem value="esm">
