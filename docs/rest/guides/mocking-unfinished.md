@@ -20,9 +20,6 @@ export class Rating extends Entity {
   author = '';
   date = Temporal.Instant.fromEpochSeconds(0);
 
-  pk() {
-    return this.id;
-  }
   static key = 'Rating';
 
   static schema = {

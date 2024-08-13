@@ -35,9 +35,7 @@ export class Todo extends Entity {
   userId = 0;
   title = '';
   completed = false;
-  pk() {
-    return `${this.id}`;
-  }
+
   static key = 'Todo';
 }
 export const TodoResource = resource({

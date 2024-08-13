@@ -39,16 +39,16 @@ export default function EntitySchema<TBase extends Constructor>(
     /**
      * A unique identifier for each Entity
      *
+     * @see https://dataclient.io/rest/api/Entity#pk
      * @param [parent] When normalizing, the object which included the entity
      * @param [key] When normalizing, the key where this entity was found
      * @param [args] ...args sent to Endpoint
-     * @see https://dataclient.io/docs/api/schema.Entity#pk
      */
-    abstract pk(
+    declare pk: (
       parent?: any,
       key?: string,
       args?: readonly any[],
-    ): string | number | undefined;
+    ) => string | number | undefined;
 
     /** Returns the globally unique identifier for the static Entity */
     declare static key: string;
@@ -60,7 +60,7 @@ export default function EntitySchema<TBase extends Constructor>(
     /**
      * A unique identifier for each Entity
      *
-     * @see https://dataclient.io/docs/api/schema.Entity#pk
+     * @see https://dataclient.io/rest/api/Entity#pk
      * @param [value] POJO of the entity or subset used
      * @param [parent] When normalizing, the object which included the entity
      * @param [key] When normalizing, the key where this entity was found
@@ -78,7 +78,7 @@ export default function EntitySchema<TBase extends Constructor>(
 
     /** Return true to merge incoming data; false keeps existing entity
      *
-     * @see https://dataclient.io/docs/api/schema.Entity#shouldUpdate
+     * @see https://dataclient.io/rest/api/Entity#shouldUpdate
      */
     static shouldUpdate(
       existingMeta: { date: number; fetchedAt: number },
@@ -91,7 +91,7 @@ export default function EntitySchema<TBase extends Constructor>(
 
     /** Determines the order of incoming entity vs entity already in store\
      *
-     * @see https://dataclient.io/docs/api/schema.Entity#shouldReorder
+     * @see https://dataclient.io/rest/api/Entity#shouldReorder
      * @returns true if incoming entity should be first argument of merge()
      */
     static shouldReorder(
@@ -105,7 +105,7 @@ export default function EntitySchema<TBase extends Constructor>(
 
     /** Creates new instance copying over defined values of arguments
      *
-     * @see https://dataclient.io/docs/api/schema.Entity#merge
+     * @see https://dataclient.io/rest/api/Entity#merge
      */
     static merge(existing: any, incoming: any) {
       return {
@@ -116,7 +116,7 @@ export default function EntitySchema<TBase extends Constructor>(
 
     /** Run when an existing entity is found in the store
      *
-     * @see https://dataclient.io/docs/api/schema.Entity#mergeWithStore
+     * @see https://dataclient.io/rest/api/Entity#mergeWithStore
      */
     static mergeWithStore(
       existingMeta: {
@@ -152,7 +152,7 @@ export default function EntitySchema<TBase extends Constructor>(
 
     /** Run when an existing entity is found in the store
      *
-     * @see https://dataclient.io/docs/api/schema.Entity#mergeMetaWithStore
+     * @see https://dataclient.io/rest/api/Entity#mergeMetaWithStore
      */
     static mergeMetaWithStore(
       existingMeta: {
@@ -190,8 +190,8 @@ export default function EntitySchema<TBase extends Constructor>(
 
     /** Called when denormalizing an entity to create an instance when 'valid'
      *
+     * @see https://dataclient.io/rest/api/Entity#createIfValid
      * @param [props] Plain Object of properties to assign.
-     * @see https://dataclient.io/docs/api/schema.Entity#createIfValid
      */
     static createIfValid<T extends typeof EntityMixin>(
       this: T,
@@ -206,7 +206,7 @@ export default function EntitySchema<TBase extends Constructor>(
 
     /** Do any transformations when first receiving input
      *
-     * @see https://dataclient.io/docs/api/schema.Entity#process
+     * @see https://dataclient.io/rest/api/Entity#process
      */
     static process(
       input: any,
@@ -235,12 +235,22 @@ export default function EntitySchema<TBase extends Constructor>(
         id = `MISS-${Math.random()}`;
         // 'creates' conceptually should allow missing PK to make optimistic creates easy
         if (process.env.NODE_ENV !== 'production' && !visit.creating) {
+          let why: string;
+          if (
+            !('pk' in options) &&
+            EntityMixin.prototype.pk === this.prototype.pk &&
+            !('id' in processedEntity)
+          ) {
+            why = `'id' missing but needed for default pk(). Try defining pk() for your Entity.`;
+          } else {
+            why = `This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://dataclient.io/docs/getting-started/debugging`;
+          }
           const error = new Error(
             `Missing usable primary key when normalizing response.
 
-  This is likely due to a malformed response.
-  Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://dataclient.io/docs/getting-started/debugging
+  ${why}
   Learn more about primary keys: https://dataclient.io/rest/api/Entity#pk
 
   Entity: ${this.key}

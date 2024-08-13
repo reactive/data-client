@@ -36,9 +36,6 @@ export class Article extends Entity {
   author: number | null = null;
   contributors: number[] = [];
 
-  pk() {
-    return this.id?.toString();
-  }
   static key = 'Article';
 }
 export const ArticleResource = resource({

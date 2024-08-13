@@ -7,9 +7,6 @@ describe('Controller.get()', () => {
   class Tacos extends Entity {
     type = '';
     id = '';
-    pk() {
-      return this.id;
-    }
   }
   const TacoList = new schema.Collection([Tacos]);
   const entities = {
@@ -53,10 +50,6 @@ describe('Controller.get()', () => {
     class User extends Entity {
       id = '';
       username = '';
-
-      pk() {
-        return this.id;
-      }
 
       static indexes = ['username'] as const;
     }
@@ -223,9 +216,6 @@ describe('Controller.get()', () => {
   it('Union based on args', () => {
     class IDEntity extends Entity {
       id: string = '';
-      pk() {
-        return this.id;
-      }
     }
     class User extends IDEntity {
       type = 'user';

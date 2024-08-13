@@ -33,11 +33,7 @@ describe(`${schema.Object.name} normalization`, () => {
   });
 
   test('filters out undefined and null values', () => {
-    class User extends Entity {
-      pk() {
-        return this.id;
-      }
-    }
+    class User extends Entity {}
     const users = new schema.Object({ foo: User, bar: User, baz: User });
     const oldenv = process.env.NODE_ENV;
     process.env.NODE_ENV = 'production';

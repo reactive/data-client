@@ -91,7 +91,6 @@ function useSubscription<
 ### Only subscribe while element is visible
 
 ```tsx title="MasterPrice.tsx"
-import { useRef } from 'react';
 import { useSuspense, useSubscription } from '@data-client/react';
 import { getPrice } from 'api/Price';
 

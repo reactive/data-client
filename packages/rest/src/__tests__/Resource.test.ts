@@ -5,8 +5,8 @@ import { CacheProvider } from '@data-client/react';
 import nock from 'nock';
 
 import { makeRenderDataClient } from '../../../test';
-import resource from '../resource';
 import { ResourcePath } from '../pathTypes';
+import resource from '../resource';
 import RestEndpoint from '../RestEndpoint';
 import {
   payload,
@@ -25,10 +25,6 @@ export class User extends Entity {
   readonly username: string = '';
   readonly email: string = '';
   readonly isAdmin: boolean = false;
-
-  pk() {
-    return this.id?.toString();
-  }
 }
 export const UserResource = resource({
   path: 'http\\://test.com/user/:id',
@@ -40,10 +36,6 @@ export class PaginatedArticle extends Entity {
   readonly content: string = '';
   readonly author: number | null = null;
   readonly tags: string[] = [];
-
-  pk() {
-    return this.id?.toString();
-  }
 
   static schema = {
     author: User,

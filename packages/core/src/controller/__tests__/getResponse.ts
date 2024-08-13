@@ -10,9 +10,6 @@ describe('Controller.getResponse()', () => {
     class Tacos extends Entity {
       type = '';
       id = '';
-      pk() {
-        return this.id;
-      }
     }
     const ep = new Endpoint(() => Promise.resolve(), {
       key() {
@@ -129,9 +126,6 @@ describe('Controller.getResponse()', () => {
     class Tacos extends Entity {
       type = '';
       id = '';
-      pk() {
-        return this.id;
-      }
     }
     const ep = new Endpoint(({ id }: { id: string }) => Promise.resolve(), {
       key({ id }) {

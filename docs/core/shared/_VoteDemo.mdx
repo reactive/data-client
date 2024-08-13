@@ -13,9 +13,6 @@ export class Post extends Entity {
   body = '';
   votes = 0;
 
-  pk() {
-    return this.id;
-  }
   static key = 'Post';
 
   static schema = {

@@ -51,9 +51,6 @@ class Todo extends Entity {
   userId = 0;
   title = '';
   completed = false;
-  pk() {
-    return `${this.id}`;
-  }
 }
 const TodoResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
@@ -136,7 +133,7 @@ const groupTodoByUser = new schema.Query(
   todos => Object.groupBy(todos, todo => todo.userId),
 );
 const todosByUser = useQuery(groupTodoByUser);
-```
+```\
 
 ### TypeScript requirements
 

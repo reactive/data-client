@@ -26,10 +26,6 @@ export class User extends Entity {
   readonly username: string = '';
   readonly email: string = '';
   readonly isAdmin: boolean = false;
-
-  pk() {
-    return this.id?.toString();
-  }
 }
 const getUser = new RestEndpoint({
   path: 'http\\://test.com/user/:id',
@@ -44,10 +40,6 @@ export class PaginatedArticle extends Entity {
   readonly content: string = '';
   readonly author: number | null = null;
   readonly tags: string[] = [];
-
-  pk() {
-    return this.id?.toString();
-  }
 
   static schema = {
     author: User,
@@ -804,10 +796,6 @@ describe('RestEndpoint', () => {
         readonly username2: string = '';
         readonly email: string = '';
         readonly isAdmin: boolean = false;
-
-        pk() {
-          return this.id?.toString();
-        }
       }
 
       const getUserBase = new MyEndpoint({

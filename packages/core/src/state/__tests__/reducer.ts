@@ -211,9 +211,6 @@ describe('reducer', () => {
     class Counter extends Entity {
       id = 0;
       counter = 0;
-      pk() {
-        return this.id;
-      }
 
       static key = 'Counter';
     }
@@ -241,9 +238,6 @@ describe('reducer', () => {
     class Counter extends Entity {
       id = 0;
       counter = 0;
-      pk() {
-        return this.id;
-      }
 
       static key = 'Counter';
     }

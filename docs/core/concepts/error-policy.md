@@ -49,9 +49,6 @@ delay: () => 150,
 export class TimedEntity extends Entity {
   id = '';
   updatedAt = Temporal.Instant.fromEpochSeconds(0);
-  pk() {
-    return this.id;
-  }
 
   static schema = {
     updatedAt: Temporal.Instant.from,

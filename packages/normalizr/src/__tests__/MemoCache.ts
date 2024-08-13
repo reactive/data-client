@@ -634,7 +634,7 @@ describe('MemoCache', () => {
           {},
         ),
       ).toEqual({
-        data: { article: '5' },
+        data: { article: 5 },
       });
     });
 
@@ -785,7 +785,7 @@ describe('MemoCache', () => {
         ),
       ).toEqual({
         pagination: { next: '', previous: '' },
-        data: '5',
+        data: 5,
       });
     });
 

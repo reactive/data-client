@@ -507,9 +507,6 @@ describe.each([true, false])(`Endpoint (CSP %s)`, mockCSP => {
       const url = ({ id }: { id: string }) => `/users/${id}`;
       class User extends Entity {
         readonly id: string = '';
-        pk() {
-          return this.id;
-        }
       }
       const UserDetail = new Endpoint(
         function ({ id }: { id: string }) {

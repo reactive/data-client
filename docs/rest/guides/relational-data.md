@@ -100,20 +100,12 @@ import { Entity } from '@data-client/rest';
 export class User extends Entity {
   id = '';
   name = '';
-
-  pk() {
-    return this.id;
-  }
 }
 
 export class Comment extends Entity {
   id = '';
   content = '';
   commenter = User.fromJS();
-
-  pk() {
-    return this.id;
-  }
 
   static schema = {
     commenter: User,
@@ -125,10 +117,6 @@ export class Post extends Entity {
   title = '';
   author = User.fromJS();
   comments: Comment[] = [];
-
-  pk() {
-    return this.id;
-  }
 
   static schema = {
     author: User,
@@ -193,9 +181,6 @@ export class User extends Entity {
   name = '';
   email = '';
   website = '';
-  pk() {
-    return this.id;
-  }
 }
 export const UserResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
@@ -213,9 +198,6 @@ export class Todo extends Entity {
   user? = User.fromJS({});
   title = '';
   completed = false;
-  pk() {
-    return this.id;
-  }
   static schema = {
     user: User,
   };
@@ -348,10 +330,6 @@ export class User extends Entity {
   posts: Post[] = [];
   comments: Comment[] = [];
 
-  pk() {
-    return this.id;
-  }
-
   static merge(existing, incoming) {
     return {
       ...existing,
@@ -382,10 +360,6 @@ export class Comment extends Entity {
   commenter = User.fromJS();
   post = Post.fromJS();
 
-  pk() {
-    return this.id;
-  }
-
   static schema: Record<string, Schema> = {
     commenter: User,
   };
@@ -399,10 +373,6 @@ export class Post extends Entity {
   title = '';
   author = User.fromJS();
   comments: Comment[] = [];
-
-  pk() {
-    return this.id;
-  }
 
   static schema = {
     author: User,
@@ -541,10 +511,6 @@ export class Post extends Entity {
   title = '';
   author = User.fromJS();
 
-  pk() {
-    return this.id;
-  }
-
   static schema = {
     author: User,
   };
@@ -571,10 +537,6 @@ export class User extends Entity {
   name = '';
   posts: Post[] = [];
   createdAt = Temporal.Instant.fromEpochSeconds(0);
-
-  pk() {
-    return this.id;
-  }
 
   static schema: Record<string, Schema | Date> = {
     createdAt: Temporal.Instant.from,

@@ -45,9 +45,7 @@ Menu {
 
 exports[`Entity denormalization denormalizes deep entities 2`] = `
 Menu {
-  "food": Food {
-    "id": undefined,
-  },
+  "food": Food {},
   "id": "2",
 }
 `;
@@ -236,6 +234,19 @@ exports[`Entity normalization mergeStrategy defaults to plain merging 1`] = `
     "1",
   ],
 }
+`;
+
+exports[`Entity normalization normalize throws error when id missing with no pk 1`] = `
+"Missing usable primary key when normalizing response.
+
+  'id' missing but needed for default pk(). Try defining pk() for your Entity.
+  Learn more about primary keys: https://dataclient.io/rest/api/Entity#pk
+
+  Entity: MyEntity
+  Value (processed): {
+  "slug": "1"
+}
+"
 `;
 
 exports[`Entity normalization normalizes already processed entities 1`] = `

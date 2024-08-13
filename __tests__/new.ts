@@ -162,10 +162,6 @@ export class User extends Entity {
   readonly username: string = '';
   readonly email: string = '';
   readonly isAdmin: boolean = false;
-
-  pk() {
-    return this.id?.toString();
-  }
 }
 export const UserResource = resource({
   path: 'http\\://test.com/user/:id',
@@ -178,10 +174,6 @@ export class Article extends Entity {
   readonly content: string = '';
   readonly author: User | null = null;
   readonly tags: string[] = [];
-
-  pk() {
-    return this.id?.toString();
-  }
 
   static schema = {
     author: User,
@@ -621,10 +613,6 @@ export abstract class UnionBase extends Entity {
   readonly id: string = '';
   readonly body: string = '';
   readonly type: string = '';
-
-  pk() {
-    return this.id;
-  }
 }
 export class FirstUnion extends UnionBase {
   readonly type = 'first';

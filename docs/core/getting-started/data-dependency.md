@@ -40,9 +40,6 @@ export class User extends Entity {
     return `https://i.pravatar.cc/64?img=${this.id + 4}`;
   }
 
-  pk() {
-    return this.id;
-  }
   static key = 'User';
 }
 export const UserResource = resource({
@@ -57,9 +54,6 @@ export class Post extends Entity {
   title = '';
   body = '';
 
-  pk() {
-    return this.id;
-  }
   static key = 'Post';
 
   static schema = {
@@ -322,9 +316,6 @@ export class Profile extends Entity {
   fullName = '';
   bio = '';
 
-  pk() {
-    return this.id?.toString();
-  }
   static key = 'Profile';
 }
 

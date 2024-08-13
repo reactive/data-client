@@ -26,7 +26,7 @@ handles these for you.
 
 <HooksPlayground defaultOpen="n" row fixtures={todoFixtures}>
 
-```ts title="TodoResource" {18}
+```ts title="TodoResource" {16}
 import { Entity, resource } from '@data-client/rest';
 
 export class Todo extends Entity {
@@ -34,9 +34,7 @@ export class Todo extends Entity {
   userId = 0;
   title = '';
   completed = false;
-  pk() {
-    return `${this.id}`;
-  }
+
   static key = 'Todo';
 }
 export const TodoResource = resource({
