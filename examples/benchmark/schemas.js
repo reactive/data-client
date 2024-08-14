@@ -8,17 +8,9 @@ export class BuildTypeDescription extends Entity {
   paused = false;
   projectId = 'OpenSourceProjects_AbsaOSS_Commons';
 
-  pk() {
-    return this.id;
-  }
-
   static key = 'BuildTypeDescription';
 }
 export class BuildTypeDescriptionEmpty extends Entity {
-  pk() {
-    return this.id;
-  }
-
   static key = 'BuildTypeDescription';
 }
 export const BuildTypeDescriptionEntity = schema.Entity(
@@ -46,10 +38,6 @@ export class ProjectWithBuildTypesDescription extends Entity {
     buildType: [],
   };
 
-  pk() {
-    return this.id;
-  }
-
   static schema = {
     buildTypes: { buildType: [BuildTypeDescription] },
   };
@@ -57,10 +45,6 @@ export class ProjectWithBuildTypesDescription extends Entity {
   static key = 'ProjectWithBuildTypesDescription';
 }
 export class ProjectWithBuildTypesDescriptionEmpty extends Entity {
-  pk() {
-    return this.id;
-  }
-
   static schema = {
     buildTypes: { buildType: [BuildTypeDescriptionEmpty] },
   };
@@ -108,10 +92,6 @@ export const ProjectQuerySorted = new schema.Query(
 );
 
 class BuildTypeDescriptionSimpleMerge extends Entity {
-  pk() {
-    return this.id;
-  }
-
   static merge(existing, incoming) {
     return incoming;
   }
@@ -120,10 +100,6 @@ class BuildTypeDescriptionSimpleMerge extends Entity {
 }
 
 export class ProjectWithBuildTypesDescriptionSimpleMerge extends Entity {
-  pk() {
-    return this.id;
-  }
-
   static schema = {
     buildTypes: { buildType: [BuildTypeDescriptionSimpleMerge] },
   };
