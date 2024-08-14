@@ -233,10 +233,8 @@ import { Entity } from '@data-client/normalizr';
 import { Endpoint } from '@data-client/endpoint';
 
 class User extends Entity {
-  readonly id: string = '';
-  readonly username: string = '';
-
-  pk() { return this.id;}
+  id = '';
+  username = '';
 }
 
 const getUser = new Endpoint(
@@ -291,10 +289,8 @@ import { Endpoint } from '@data-client/endpoint';
 import { Entity } from '@data-client/react';
 
 class User extends Entity {
-  readonly id: string = '';
-  readonly username: string = '';
-
-  pk() { return this.id; }
+  id = '';
+  username = '';
 }
 
 const UserDetail = new Endpoint(
@@ -311,10 +307,8 @@ import { Endpoint } from '@data-client/endpoint';
 import { Entity } from '@data-client/react';
 
 class User extends Entity {
-  readonly id: string = '';
-  readonly username: string = '';
-
-  pk() { return this.id; }
+  id = '';
+  username = '';
 }
 
 const UserList = new Endpoint(

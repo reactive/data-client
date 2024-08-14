@@ -129,10 +129,36 @@ interface Props {
 }
 ```
 
-```tsx title="ValidatorList" {12-16}
+```tsx title="LoadMore" {8-11}
+import { useController, useLoading } from '@data-client/react';
+import { getValidators } from './Validator';
+
+export default function LoadMore({ next_key, limit }) {
+  const ctrl = useController();
+  const [handleLoadMore, isPending] = useLoading(
+    () =>
+      ctrl.fetch(getValidators.getPage, {
+        'pagination.limit': limit,
+        'pagination.key': next_key,
+      }),
+    [next_key, limit],
+  );
+  if (!next_key) return null;
+  return (
+    <center>
+      <button onClick={handleLoadMore} disabled={isPending}>
+        {isPending ? '...' : 'Load more'}
+      </button>
+    </center>
+  );
+}
+```
+
+```tsx title="ValidatorList" collapsed
 import { useSuspense } from '@data-client/react';
 import ValidatorItem from './ValidatorItem';
 import { getValidators } from './Validator';
+import LoadMore from './LoadMore';
 
 const PAGE_LIMIT = '3';
 
@@ -140,23 +166,13 @@ export default function ValidatorList() {
   const { validators, pagination } = useSuspense(getValidators, {
     'pagination.limit': PAGE_LIMIT,
   });
-  const ctrl = useController();
-  const handleLoadMore = () =>
-    ctrl.fetch(getValidators.getPage, {
-      'pagination.limit': PAGE_LIMIT,
-      'pagination.key': pagination.next_key,
-    });
 
   return (
     <div>
       {validators.map(validator => (
         <ValidatorItem key={validator.pk()} validator={validator} />
       ))}
-      {pagination.next_key ? (
-        <center>
-          <button onClick={handleLoadMore}>Load more</button>
-        </center>
-      ) : null}
+      <LoadMore next_key={pagination.next_key} limit={PAGE_LIMIT} />
     </div>
   );
 }

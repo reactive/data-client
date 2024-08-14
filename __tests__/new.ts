@@ -18,16 +18,6 @@ import React, { createContext, useContext } from 'react';
 /** Represents data with primary key being from 'id' field. */
 export class IDEntity extends Entity {
   readonly id: string | number | undefined = undefined;
-
-  /**
-   * A unique identifier for each Entity
-   *
-   * @param [parent] When normalizing, the object which included the entity
-   * @param [key] When normalizing, the key where this entity was found
-   */
-  pk(parent?: any, key?: string): string | undefined {
-    return `${this.id}`;
-  }
 }
 
 class Vis {
@@ -42,10 +32,6 @@ export class VisSettings extends Entity implements Vis {
   readonly visType: 'graph' | 'line' = 'graph';
   readonly numCols: number = 0;
   readonly updatedAt: number = 0;
-
-  pk() {
-    return `${this.id}`;
-  }
 
   static shouldUpdate(
     existingMeta: { date: number },
@@ -162,10 +148,6 @@ export class User extends Entity {
   readonly username: string = '';
   readonly email: string = '';
   readonly isAdmin: boolean = false;
-
-  pk() {
-    return this.id?.toString();
-  }
 }
 export const UserResource = resource({
   path: 'http\\://test.com/user/:id',
@@ -178,10 +160,6 @@ export class Article extends Entity {
   readonly content: string = '';
   readonly author: User | null = null;
   readonly tags: string[] = [];
-
-  pk() {
-    return this.id?.toString();
-  }
 
   static schema = {
     author: User,
@@ -621,10 +599,6 @@ export abstract class UnionBase extends Entity {
   readonly id: string = '';
   readonly body: string = '';
   readonly type: string = '';
-
-  pk() {
-    return this.id;
-  }
 }
 export class FirstUnion extends UnionBase {
   readonly type = 'first';

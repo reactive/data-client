@@ -1113,15 +1113,6 @@ declare const Entity_base: IEntityClass<abstract new (...args: any[]) => {
  * @see https://dataclient.io/rest/api/Entity
  */
 declare abstract class Entity extends Entity_base {
-    /**
-     * A unique identifier for each Entity
-     *
-     * @param [parent] When normalizing, the object which included the entity
-     * @param [key] When normalizing, the key where this entity was found
-     * @param [args] ...args sent to Endpoint
-     * @see https://dataclient.io/rest/api/Entity#pk
-     */
-    abstract pk(parent?: any, key?: string, args?: readonly any[]): string | number | undefined;
     /** Control how automatic schema validation is handled
      *
      * `undefined`: Defaults - throw error in worst offense
@@ -1133,13 +1124,14 @@ declare abstract class Entity extends Entity_base {
     protected static automaticValidation?: 'warn' | 'silent';
     /** Factory method to convert from Plain JS Objects.
      *
-     * @param [props] Plain Object of properties to assign.
      * @see https://dataclient.io/rest/api/Entity#fromJS
+     * @param [props] Plain Object of properties to assign.
      */
     static fromJS: <T extends typeof Entity>(this: T, props?: Partial<AbstractInstanceType<T>>) => AbstractInstanceType<T>;
     /**
      * A unique identifier for each Entity
      *
+     * @see https://dataclient.io/rest/api/Entity#pk
      * @param [value] POJO of the entity or subset used
      * @param [parent] When normalizing, the object which included the entity
      * @param [key] When normalizing, the key where this entity was found
@@ -1163,7 +1155,6 @@ type NI<T> = NoInfer<T>;
 
 declare class GQLEntity extends Entity {
     readonly id: string;
-    pk(): string;
 }
 
 interface GQLOptions<Variables, S extends Schema | undefined = Schema | undefined, M extends boolean | undefined = boolean | undefined> extends EndpointOptions<(v: Variables) => Promise<any>, S, M> {

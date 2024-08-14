@@ -74,9 +74,6 @@ export class ArticleSummary extends Entity {
   id = '';
   title = '';
 
-  pk() {
-    return this.id;
-  }
   // this ensures `Article` maps to the same entity
   static key = 'Article';
 
@@ -178,9 +175,6 @@ class ArticleSummary extends Entity {
     meta: ArticleMeta,
   };
 
-  pk() {
-    return this.id;
-  }
   // this ensures `Article` maps to the same entity
   // highlight-next-line
   static key = 'Article';

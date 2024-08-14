@@ -5,9 +5,6 @@ export class Todo extends Entity {
   userId = 0;
   title = '';
   completed = false;
-  pk() {
-    return this.id;
-  }
 }
 export const TodoResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
@@ -27,10 +24,6 @@ export class User extends Entity {
 
   get profileImage() {
     return `https://i.pravatar.cc/64?img=${this.id + 4}`;
-  }
-
-  pk() {
-    return this.id;
   }
 
   static schema = {

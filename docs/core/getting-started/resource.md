@@ -49,9 +49,6 @@ export class Todo extends Entity {
   title = '';
   completed = false;
 
-  pk() {
-    return `${this.id}`;
-  }
   static key = 'Todo';
 }
 

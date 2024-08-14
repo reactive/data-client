@@ -38,9 +38,6 @@ import AuthdEndpoint from './AuthdEndpoint';
 class MyEntity extends Entity {
   id = '';
   title = '';
-  pk() {
-    return this.id;
-  }
 }
 
 export const MyResource = resource({
@@ -120,9 +117,6 @@ import AuthdEndpoint from './AuthdEndpoint';
 class MyEntity extends Entity {
   id = '';
   title = '';
-  pk() {
-    return this.id;
-  }
 }
 
 export const MyResource = resource({

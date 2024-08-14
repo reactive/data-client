@@ -40,6 +40,8 @@ export class User extends Entity {
   pk() {
     return this.id;
   }
+
+  static key = 'User';
 }
 ```
 
@@ -59,12 +61,12 @@ export class Article extends Entity {
     return this.id;
   }
 
+  static key = 'Article';
+
   static schema = {
     author: User,
     createdAt: Temporal.Instant.from,
   };
-
-  static key = 'Article';
 }
 
 export const ArticleResource = resource({
@@ -263,14 +265,20 @@ resolves to the new Resource created by the API. It will automatically be added 
 import { useController } from '@data-client/react';
 import { Article, ArticleResource } from 'api/article';
 
-export default function ArticleWithDelete({ article }: { article: Article }) {
+export default function ArticleWithDelete({
+  article,
+}: {
+  article: Article;
+}) {
   const ctrl = useController();
   return (
     <article>
       <h2>{article.title}</h2>
       <div>{article.content}</div>
       <button
-        onClick={() => ctrl.fetch(ArticleResource.delete, { id: article.id })}
+        onClick={() =>
+          ctrl.fetch(ArticleResource.delete, { id: article.id })
+        }
       >
         Delete
       </button>

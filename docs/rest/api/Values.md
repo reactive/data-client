@@ -51,10 +51,7 @@ delay: 150,
 
 ```tsx title="ItemPage.tsx"
 export class Item extends Entity {
-  readonly id: number = 0;
-  pk() {
-    return `${this.id}`;
-  }
+  id = 0;
 }
 export const getItems = new RestEndpoint({
   path: '/items',
@@ -95,11 +92,8 @@ delay: 150,
 
 ```tsx title="api/Feed"
 export abstract class FeedItem extends Entity {
-  readonly id: number = 0;
+  id = 0;
   declare readonly type: 'link' | 'post';
-  pk() {
-    return `${this.id}`;
-  }
 }
 export class Link extends FeedItem {
   readonly type = 'link' as const;
@@ -172,11 +166,8 @@ delay: 150,
 
 ```typescript title="api/Feed"
 export abstract class FeedItem extends Entity {
-  readonly id: number = 0;
+  id = 0;
   declare readonly type: 'link' | 'post';
-  pk() {
-    return `${this.id}`;
-  }
 }
 export class Link extends FeedItem {
   readonly type = 'link' as const;

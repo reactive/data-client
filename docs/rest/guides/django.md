@@ -66,9 +66,6 @@ import DjangoEndpoint from './DjangoEndpoint';
 class MyEntity extends Entity {
   id = '';
   title = '';
-  pk() {
-    return this.id;
-  }
 }
 
 export const MyResource = resource({

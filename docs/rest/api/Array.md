@@ -109,9 +109,6 @@ delay: 150,
 export abstract class FeedItem extends Entity {
   readonly id: number = 0;
   declare readonly type: 'link' | 'post';
-  pk() {
-    return `${this.id}`;
-  }
 }
 export class Link extends FeedItem {
   readonly type = 'link' as const;
@@ -183,9 +180,6 @@ delay: 150,
 export abstract class FeedItem extends Entity {
   readonly id: number = 0;
   declare readonly type: 'link' | 'post';
-  pk() {
-    return `${this.id}`;
-  }
 }
 export class Link extends FeedItem {
   readonly type = 'link' as const;

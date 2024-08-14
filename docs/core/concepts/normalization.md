@@ -90,10 +90,7 @@ class Presentation extends Entity {
   id = '';
   title = '';
 
-  pk() {
-    return this.id;
-  }
-  static key = 'presentation';
+  static key = 'Presentation';
 }
 ```
 
@@ -303,9 +300,6 @@ class Todo extends Entity {
   title = '';
   completed = false;
 
-  pk() {
-    return `${this.id}`;
-  }
   static key = 'Todo';
 
   // highlight-start
@@ -319,9 +313,6 @@ class User extends Entity {
   id = 0;
   username = '';
 
-  pk() {
-    return `${this.id}`;
-  }
   static key = 'User';
 }
 ```
@@ -362,9 +353,6 @@ class Todo extends Entity {
   // highlight-next-line
   dueDate = Temporal.Instant.fromEpochSeconds(0);
 
-  pk() {
-    return `${this.id}`;
-  }
   static key = 'Todo';
 
   static schema = {

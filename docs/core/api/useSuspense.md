@@ -52,9 +52,6 @@ export class Profile extends Entity {
   fullName = '';
   bio = '';
 
-  pk() {
-    return this.id?.toString();
-  }
   static key = 'Profile';
 }
 
@@ -204,9 +201,6 @@ export class Profile extends Entity {
   fullName = '';
   bio = '';
 
-  pk() {
-    return this.id?.toString();
-  }
   static key = 'Profile';
 }
 
@@ -276,9 +270,6 @@ export class Post extends Entity {
   title = '';
   body = '';
 
-  pk() {
-    return this.id?.toString();
-  }
   static key = 'Post';
 }
 export const PostResource = resource({
@@ -298,9 +289,6 @@ export class User extends Entity {
     return `https://i.pravatar.cc/64?img=${this.id + 4}`;
   }
 
-  pk() {
-    return `${this.id}`;
-  }
   static key = 'User';
 }
 export const UserResource = resource({
@@ -336,15 +324,12 @@ When entities are stored in [nested structures](/rest/guides/relational-data#nes
 
 <TypeScriptEditor row={false}>
 
-```typescript title="api/Post" {15-19}
+```typescript title="api/Post" {12-16}
 export class PaginatedPost extends Entity {
   id = '';
   title = '';
   content = '';
 
-  pk() {
-    return this.id;
-  }
   static key = 'PaginatedPost';
 }
 

@@ -761,10 +761,6 @@ describe.each([
       class Toggle extends Entity {
         readonly id: number = 0;
         readonly visible: boolean = true;
-
-        pk() {
-          return `${this.id}`;
-        }
       }
       const getbool = new Endpoint(
         (id: number): Promise<{ id: number; visible: boolean }> =>

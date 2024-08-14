@@ -34,9 +34,6 @@ class ArticleEntity extends Entity {
   readonly title: string = '';
   readonly author: string = '';
   readonly content: string = '';
-  pk() {
-    return this.id;
-  }
 }
 
 class WithOptional extends Entity {
@@ -44,10 +41,6 @@ class WithOptional extends Entity {
   readonly article: ArticleEntity | null = null;
   readonly requiredArticle = ArticleEntity.fromJS();
   readonly nextPage: string = '';
-
-  pk() {
-    return this.id;
-  }
 
   static schema = {
     article: ArticleEntity,
@@ -65,13 +58,20 @@ describe(`${Entity.name} normalization`, () => {
   );
 
   test('normalizes an entity', () => {
-    class MyEntity extends IDEntity {}
+    class MyEntity extends Entity {}
     expect(normalize(MyEntity, { id: '1' })).toMatchSnapshot();
   });
 
+  test('normalize throws error when id missing with no pk', () => {
+    class MyEntity extends Entity {}
+    expect(() =>
+      normalize(MyEntity, { slug: '1' }),
+    ).toThrowErrorMatchingSnapshot();
+  });
+
   test('normalizes already processed entities', () => {
-    class MyEntity extends IDEntity {}
-    class Nested extends IDEntity {
+    class MyEntity extends Entity {}
+    class Nested extends Entity {
       title = '';
       nest = MyEntity.fromJS();
       static schema = {
@@ -88,7 +88,7 @@ describe(`${Entity.name} normalization`, () => {
   });
 
   test('normalizes does not change value when shouldUpdate() returns false', () => {
-    class MyEntity extends IDEntity {
+    class MyEntity extends Entity {
       id = '';
       title = '';
       static shouldUpdate() {
@@ -384,9 +384,6 @@ describe(`${Entity.name} normalization`, () => {
       const makeSchema = () =>
         class extends Entity {
           readonly id: number = 0;
-          pk() {
-            return `${this.id}`;
-          }
         };
       expect(() => makeSchema().key).toThrow();
     });
@@ -607,9 +604,9 @@ describe(`${Entity.name} denormalization`, () => {
     expect(denormalize(Tacos, '1', fromJS(entities))).toMatchSnapshot();
   });
 
-  class Food extends IDEntity {}
-  class Menu extends IDEntity {
-    readonly food: Food = Food.fromJS();
+  class Food extends Entity {}
+  class Menu extends Entity {
+    food: Food = Food.fromJS();
 
     static schema = { food: Food };
   }

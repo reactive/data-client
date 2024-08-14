@@ -9,16 +9,13 @@ import {
 ```ts title="getPosts" {20-27}
 import { Entity, RestEndpoint } from '@data-client/rest';
 
-class Post extends Entity {
+export class Post extends Entity {
   id = '';
   title = '';
   group = '';
   author = '';
-
-  pk() {
-    return this.id;
-  }
 }
+
 export const getPosts = new RestEndpoint({
   path: '/:group/posts',
   searchParams: {} as { orderBy?: string; author?: string },

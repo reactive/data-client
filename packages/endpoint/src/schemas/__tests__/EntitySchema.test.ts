@@ -146,6 +146,9 @@ describe(`${schema.Entity.name} construction`, () => {
       expect(MyEntity.pk({ username: 'bob' })).toBeUndefined();
       // @ts-expect-error
       expect(MyEntity.fromJS({ username: 'bob' }).pk()).toBeUndefined();
+      expect(() =>
+        normalize(MyEntity, { username: 'bob' }),
+      ).toThrowErrorMatchingSnapshot();
     });
     it('should use id field if no pk specified', () => {
       class MyData {

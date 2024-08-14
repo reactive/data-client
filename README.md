@@ -45,10 +45,6 @@ For more details, see [the Installation docs page](https://dataclient.io/docs/ge
 class User extends Entity {
   id = '';
   username = '';
-
-  pk() {
-    return this.id;
-  }
 }
 
 class Article extends Entity {
@@ -57,10 +53,6 @@ class Article extends Entity {
   body = '';
   author = User.fromJS();
   createdAt = Temporal.Instant.fromEpochSeconds(0);
-
-  pk() {
-    return this.id;
-  }
 
   static schema = {
     author: User,

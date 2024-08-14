@@ -95,9 +95,7 @@ export class User extends Entity {
   id = '';
   name = '';
   isAdmin = false;
-  pk() {
-    return this.id;
-  }
+
   static key = 'User';
 }
 export const UserResource = resource({

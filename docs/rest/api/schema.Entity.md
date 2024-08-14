@@ -94,7 +94,7 @@ Specifies the [Entity.schema](./Entity.md#schema)
 
 ## Methods
 
-`schema.Entity` mixin has the same [methods as the Entity](./Entity.md#methods) class.
+`schema.Entity` mixin has the same [methods as the Entity](./Entity.md#lifecycle) class.
 
 ## const vs class
 

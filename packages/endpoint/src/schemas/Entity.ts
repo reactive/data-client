@@ -16,20 +16,6 @@ const EmptyBase = class {} as any as abstract new (...args: any[]) => {
  * @see https://dataclient.io/rest/api/Entity
  */
 export default abstract class Entity extends EntitySchema(EmptyBase) {
-  /**
-   * A unique identifier for each Entity
-   *
-   * @param [parent] When normalizing, the object which included the entity
-   * @param [key] When normalizing, the key where this entity was found
-   * @param [args] ...args sent to Endpoint
-   * @see https://dataclient.io/rest/api/Entity#pk
-   */
-  abstract pk(
-    parent?: any,
-    key?: string,
-    args?: readonly any[],
-  ): string | number | undefined;
-
   /** Control how automatic schema validation is handled
    *
    * `undefined`: Defaults - throw error in worst offense
@@ -42,8 +28,8 @@ export default abstract class Entity extends EntitySchema(EmptyBase) {
 
   /** Factory method to convert from Plain JS Objects.
    *
-   * @param [props] Plain Object of properties to assign.
    * @see https://dataclient.io/rest/api/Entity#fromJS
+   * @param [props] Plain Object of properties to assign.
    */
   declare static fromJS: <T extends typeof Entity>(
     this: T,
@@ -54,6 +40,7 @@ export default abstract class Entity extends EntitySchema(EmptyBase) {
   /**
    * A unique identifier for each Entity
    *
+   * @see https://dataclient.io/rest/api/Entity#pk
    * @param [value] POJO of the entity or subset used
    * @param [parent] When normalizing, the object which included the entity
    * @param [key] When normalizing, the key where this entity was found
@@ -112,19 +99,4 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     args: readonly any[],
     unvisit: (schema: any, input: any) => any,
   ) => AbstractInstanceType<T>;
-}
-
-if (process.env.NODE_ENV !== 'production') {
-  /* istanbul ignore else */
-  const superFrom = Entity.fromJS;
-  // for those not using TypeScript this is a good catch to ensure they are defining
-  // the abstract members
-  Entity.fromJS = function fromJS<T extends typeof Entity>(
-    this: T,
-    props?: Partial<AbstractInstanceType<T>>,
-  ): AbstractInstanceType<T> {
-    if ((this as any).prototype.pk === Entity.prototype.pk)
-      throw new Error('cannot construct on abstract types');
-    return superFrom.call(this, props) as any;
-  };
 }

@@ -160,7 +160,7 @@ export class Todo extends Entity {
   completed = false;
 
   pk() {
-    return `${this.id}`;
+    return this.id;
   }
 }
 ```
@@ -346,10 +346,6 @@ class Todo extends Entity {
   userId = 0;
   title = '';
   completed = false;
-
-  pk() {
-    return `${this.id}`;
-  }
 }
 
 const TodoResource = resource({

@@ -45,12 +45,8 @@ delay: 150,
 
 ```typescript title="api/Article"
 export class Article extends Entity {
-  readonly id: string = '';
-  readonly title: string = '';
-
-  pk() {
-    return this.id;
-  }
+  id = '';
+  title = '';
 
   static validate(processedEntity) {
     if (!Object.hasOwn(processedEntity, 'title')) return 'missing title field';
@@ -79,7 +75,7 @@ render(<ArticlePage id="2" />);
 
 ### All fields check
 
-Here's a recipe for checking that every defined field is present.
+[validateRequired()](/rest/api/validateRequired) can be used to check if all defined fields are present.
 
 <HooksPlayground fixtures={[
 {
@@ -104,20 +100,11 @@ delay: 150,
 
 ```tsx title="api/Article"
 export class Article extends Entity {
-  readonly id: string = '';
-  readonly title: string = '';
-
-  pk() {
-    return this.id;
-  }
+  id = '';
+  title = '';
 
   static validate(processedEntity) {
-    if (
-      !Object.keys(this.defaults).every(key =>
-        Object.hasOwn(processedEntity, key),
-      )
-    )
-      return 'a field is missing';
+    return validateRequired(processedEntity, this.defaults);
   }
 }
 
@@ -183,12 +170,9 @@ delay: 150,
 
 ```typescript title="api/Article"
 export class ArticlePreview extends Entity {
-  readonly id: string = '';
-  readonly title: string = '';
+  id = '';
+  title = '';
 
-  pk() {
-    return this.id;
-  }
   static key = 'Article';
 }
 export const getArticleList = new RestEndpoint({
@@ -197,8 +181,8 @@ export const getArticleList = new RestEndpoint({
 });
 
 export class ArticleFull extends ArticlePreview {
-  readonly content: string = '';
-  readonly createdAt = Temporal.Instant.fromEpochSeconds(0);
+  content = '';
+  createdAt = Temporal.Instant.fromEpochSeconds(0);
 
   static schema = {
     createdAt: Temporal.Instant.from,

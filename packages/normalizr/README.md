@@ -90,18 +90,10 @@ import { schema, Entity } from '@data-client/endpoint';
 import { Temporal } from '@js-temporal/polyfill';
 
 // Define a users schema
-class User extends Entity {
-  pk() {
-    return this.id;
-  }
-}
+class User extends Entity {}
 
 // Define your comments schema
 class Comment extends Entity {
-  pk() {
-    return this.id;
-  }
-
   static schema = {
     commenter: User,
     createdAt: Temporal.Instant.from,
@@ -110,10 +102,6 @@ class Comment extends Entity {
 
 // Define your article
 class Article extends Entity {
-  pk() {
-    return this.id;
-  }
-
   static schema = {
     author: User,
     comments: [Comment],
