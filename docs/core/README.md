@@ -100,7 +100,6 @@ export default function TodoDetail({ id }: { id: number }) {
 
   return <div>{todo.title}</div>;
 }
-render(<TodoDetail id={1} />);
 ```
 
 No more prop drilling, or cumbersome external state management. Reactive Data Client guarantees global referential equality,
@@ -134,7 +133,7 @@ cases in React 16 and 17
 
 ## Mutations
 
-Mutations present another case of reuse - this time of our data. This case is even more critical
+[Mutations](./getting-started/mutations.md) present another case of reuse - this time of our data. This case is even more critical
 because it can not just lead to code bloat, but data ingrity, tearing, and general application jankiness.
 
 When we call our mutation method/endpoint, we need to ensure **all** uses of that data are updated.
@@ -158,10 +157,6 @@ export class Todo extends Entity {
   id = 0;
   title = '';
   completed = false;
-
-  pk() {
-    return this.id;
-  }
 }
 ```
 
@@ -196,11 +191,8 @@ export const getTodo = new RestEndpoint({
   schema: Todo,
 });
 
-export const updateTodo = new RestEndpoint({
-  urlPrefix: 'https://jsonplaceholder.typicode.com',
-  path: '/todos/:id',
+export const updateTodo = getTodo.extend({
   method: 'PUT',
-  schema: Todo,
 });
 ```
 
@@ -250,7 +242,7 @@ import { useController } from '@data-client/react';
 function ArticleEdit() {
   const ctrl = useController();
   // highlight-next-line
-  const handleSubmit = data => ctrl.fetch(todoUpdate, { id }, data);
+  const handleSubmit = data => ctrl.fetch(updateTodo, { id }, data);
   return <ArticleForm onSubmit={handleSubmit} />;
 }
 ```
@@ -267,7 +259,7 @@ function ArticleEdit() {
   const ctrl = useController();
   // highlight-next-line
   const [handleSubmit, loading, error] = useLoading(
-    data => ctrl.fetch(todoUpdate, { id }, data),
+    data => ctrl.fetch(updateTodo, { id }, data),
     [ctrl],
   );
   return <ArticleForm onSubmit={handleSubmit} loading={loading} />;
@@ -284,7 +276,7 @@ function ArticleEdit() {
   const ctrl = useController();
   const [loading, startTransition] = useTransition();
   const handleSubmit = data =>
-    startTransition(() => ctrl.fetch(todoUpdate, { id }, data));
+    startTransition(() => ctrl.fetch(updateTodo, { id }, data));
   return <ArticleForm onSubmit={handleSubmit} loading={loading} />;
 }
 ```
@@ -299,12 +291,12 @@ the Entities. By placing inside a list, Reactive Data Client knows to expect a r
 where each item of the list is the entity specified.
 
 ```typescript {6}
-import { RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, schema } from '@data-client/rest';
 
 export const getTodoList = new RestEndpoint({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos',
-  schema: [Todo],
+  schema: new schema.Collection([Todo]),
 });
 ```
 
@@ -369,20 +361,18 @@ const todo = useSuspense(TodoResource.get, { id: 5 });
 const todos = useSuspense(TodoResource.getList);
 
 // mutate
-// POST https://jsonplaceholder.typicode.com/todos
 const ctrl = useController();
+
+// POST https://jsonplaceholder.typicode.com/todos
 ctrl.fetch(TodoResource.getList.push, { title: 'my todo' });
 
 // PUT https://jsonplaceholder.typicode.com/todos/5
-const ctrl = useController();
 ctrl.fetch(TodoResource.update, { id: 5 }, { title: 'my todo' });
 
 // PATCH https://jsonplaceholder.typicode.com/todos/5
-const ctrl = useController();
 ctrl.fetch(TodoResource.partialUpdate, { id: 5 }, { title: 'my todo' });
 
 // DELETE https://jsonplaceholder.typicode.com/todos/5
-const ctrl = useController();
 ctrl.fetch(TodoResource.delete, { id: 5 });
 ```
 
