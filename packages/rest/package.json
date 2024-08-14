@@ -1,6 +1,6 @@
 {
   "name": "@data-client/rest",
-  "version": "0.14.9",
+  "version": "0.14.10",
   "description": "Quickly define typed REST resources and endpoints",
   "homepage": "https://dataclient.io/rest",
   "repository": {
@@ -131,7 +131,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime": "^7.17.0",
-    "@data-client/endpoint": "^0.14.6",
+    "@data-client/endpoint": "^0.14.10",
     "path-to-regexp": "^6.2.1"
   },
   "devDependencies": {
