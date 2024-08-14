@@ -170,12 +170,9 @@ delay: 150,
 
 ```typescript title="api/Article"
 export class ArticlePreview extends Entity {
-  readonly id: string = '';
-  readonly title: string = '';
+  id = '';
+  title = '';
 
-  pk() {
-    return this.id;
-  }
   static key = 'Article';
 }
 export const getArticleList = new RestEndpoint({
@@ -184,8 +181,8 @@ export const getArticleList = new RestEndpoint({
 });
 
 export class ArticleFull extends ArticlePreview {
-  readonly content: string = '';
-  readonly createdAt = Temporal.Instant.fromEpochSeconds(0);
+  content = '';
+  createdAt = Temporal.Instant.fromEpochSeconds(0);
 
   static schema = {
     createdAt: Temporal.Instant.from,

@@ -27,10 +27,6 @@ export default class Article extends Entity {
   content = '';
   author: number | null = null;
   contributors: number[] = [];
-
-  pk() {
-    return this.id?.toString();
-  }
 }
 export const ArticleResource = resource({
   urlRoot: 'http://test.com',

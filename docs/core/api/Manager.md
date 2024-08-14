@@ -233,9 +233,6 @@ import { Entity } from '@data-client/endpoint';
 export default class CurrentTime extends Entity {
   id = 0;
   time = 0;
-  pk() {
-    return this.id;
-  }
 }
 ```
 

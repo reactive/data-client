@@ -26,8 +26,8 @@ const gql = new GQLEndpoint('https://nosy-baritone.glitch.me');
 
 ```typescript
 class User extends GQLEntity {
-  readonly name: string = '';
-  readonly email: string = '';
+  name = '';
+  email = '';
 }
 ```
 

@@ -178,13 +178,11 @@ import { Entity } from '@data-client/normalizr';
 import { Endpoint } from '@data-client/endpoint';
 
 class User extends Entity {
-  readonly id: string = '';
-  readonly username: string = '';
-
-  pk() { return this.id;}
+  id = '';
+  username = '';
 }
 
-const UserDetail = new Endpoint(
+const getUser = new Endpoint(
     ({ id }) ⇒ fetch(`/users/${id}`),
     { schema: User }
 );
@@ -210,10 +208,9 @@ import { Entity } from '@data-client/normalizr';
 import { Index } from '@data-client/endpoint';
 
 class User extends Entity {
-  readonly id: string = '';
-  readonly username: string = '';
+  id = '';
+  username = '';\
 
-  pk() { return this.id;}
   static indexes = ['username'] as const;
 }
 

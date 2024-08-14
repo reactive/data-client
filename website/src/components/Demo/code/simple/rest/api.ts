@@ -3,9 +3,6 @@ export class Todo extends Entity {
   userId = 0;
   title = '';
   completed = false;
-  pk() {
-    return `${this.id}`;
-  }
 }
 export const TodoResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',

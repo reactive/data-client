@@ -384,9 +384,6 @@ describe(`${Entity.name} normalization`, () => {
       const makeSchema = () =>
         class extends Entity {
           readonly id: number = 0;
-          pk() {
-            return `${this.id}`;
-          }
         };
       expect(() => makeSchema().key).toThrow();
     });
