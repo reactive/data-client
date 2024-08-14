@@ -27,9 +27,7 @@ export class Todo extends Entity {
   id = '';
   title = '';
   completed = false;
-  pk() {
-    return this.id;
-  }
+
   static key = 'Todo';
 }
 
@@ -213,9 +211,6 @@ export default class Post extends Entity {
   title = '';
   group = '';
   author = '';
-  pk() {
-    return this.id;
-  }
 }
 ```
 
@@ -258,9 +253,6 @@ export default class Post extends Entity {
   title = '';
   group = '';
   author = '';
-  pk() {
-    return this.id;
-  }
 }
 ```
 
@@ -313,9 +305,6 @@ export default class Post extends Entity {
   title = '';
   group = '';
   author = '';
-  pk() {
-    return this.id;
-  }
 }
 ```
 
@@ -360,9 +349,6 @@ export default class Post extends Entity {
   title = '';
   group = '';
   author = '';
-  pk() {
-    return this.id;
-  }
 }
 ```
 
@@ -409,9 +395,6 @@ export default class Post extends Entity {
   title = '';
   group = '';
   author = '';
-  pk() {
-    return this.id;
-  }
 }
 ```
 
@@ -460,9 +443,6 @@ export default class Post extends Entity {
   title = '';
   group = '';
   author = '';
-  pk() {
-    return this.id;
-  }
 }
 ```
 
@@ -506,9 +486,6 @@ export default class Post extends Entity {
   title = '';
   group = '';
   author = '';
-  pk() {
-    return this.id;
-  }
 }
 ```
 
@@ -552,9 +529,6 @@ export default class Post extends Entity {
   title = '';
   group = '';
   author = '';
-  pk() {
-    return this.id;
-  }
 }
 ```
 

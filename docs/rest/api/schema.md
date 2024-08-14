@@ -50,20 +50,12 @@ import { Temporal } from '@js-temporal/polyfill';
 class User extends Entity {
   id = '';
   name = '';
-
-  pk() {
-    return this.id;
-  }
 }
 
 class Comment extends Entity {
   id = '';
   createdAt = Temporal.Instant.fromEpochSeconds(0);
   commenter = User.fromJS();
-
-  pk() {
-    return this.id;
-  }
 
   static schema = {
     commenter: User,
@@ -77,10 +69,6 @@ class Article extends Entity {
   author = User.fromJS();
   comments: Comment[] = [];
 
-  pk() {
-    return this.id;
-  }
-
   static schema = {
     author: User,
     comments: [Comment],
@@ -92,17 +80,9 @@ class Article extends Entity {
 import { schema, Entity } from '@data-client/endpoint';
 import { Temporal } from '@js-temporal/polyfill';
 
-class User extends Entity {
-  pk() {
-    return this.id;
-  }
-}
+class User extends Entity { }
 
 class Comment extends Entity {
-  pk() {
-    return this.id;
-  }
-
   static schema = {
     commenter: User,
     createdAt: Temporal.Instant.from,
@@ -110,10 +90,6 @@ class Comment extends Entity {
 }
 
 class Article extends Entity {
-  pk() {
-    return this.id;
-  }
-
   static schema = {
     author: User,
     comments: [Comment],

@@ -32,10 +32,6 @@ class Article extends Entity {
   id = '';
   title = '';
   content = '';
-
-  pk() {
-    return this.id;
-  }
 }
 const AuthContext = React.createContext('');
 
