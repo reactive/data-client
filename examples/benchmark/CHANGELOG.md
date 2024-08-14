@@ -1,5 +1,14 @@
 # example-benchmark
 
+## 0.4.61
+
+### Patch Changes
+
+- Updated dependencies [[`cde7121`](https://github.com/reactive/data-client/commit/cde71212706a46bbfd13dd76e8cfc478b22fe2ab), [`cde7121`](https://github.com/reactive/data-client/commit/cde71212706a46bbfd13dd76e8cfc478b22fe2ab)]:
+  - @data-client/endpoint@0.14.10
+  - @data-client/normalizr@0.14.10
+  - @data-client/core@0.14.10
+
 ## 0.4.60
 
 ### Patch Changes

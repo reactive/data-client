@@ -1,5 +1,14 @@
 # @data-client/core
 
+## 0.14.10
+
+### Patch Changes
+
+- [#3188](https://github.com/reactive/data-client/pull/3188) [`cde7121`](https://github.com/reactive/data-client/commit/cde71212706a46bbfd13dd76e8cfc478b22fe2ab) Thanks [@ntucker](https://github.com/ntucker)! - Update README to remove Entity.pk() when it is default ('id')
+
+- Updated dependencies [[`cde7121`](https://github.com/reactive/data-client/commit/cde71212706a46bbfd13dd76e8cfc478b22fe2ab)]:
+  - @data-client/normalizr@0.14.10
+
 ## 0.14.8
 
 ### Patch Changes
