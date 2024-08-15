@@ -152,6 +152,7 @@ export interface GCAction {
   endpoints: string[];
 }
 
+/** @see https://dataclient.io/docs/api/Actions */
 export type ActionTypes =
   | FetchAction
   | OptimisticAction

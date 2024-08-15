@@ -43,6 +43,7 @@ export type {
 export * as actions from './controller/actions/index.js';
 
 export * from './controller/types.js';
+/** @see https://dataclient.io/docs/api/Actions */
 export * as actionTypes from './actionTypes.js';
 /* istanbul ignore next */
 export * from './types.js';

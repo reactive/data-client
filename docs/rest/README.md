@@ -37,10 +37,6 @@ export class User extends Entity {
   id = '';
   username = '';
 
-  pk() {
-    return this.id;
-  }
-
   static key = 'User';
 }
 ```
@@ -50,7 +46,7 @@ import { Entity, resource } from '@data-client/rest';
 import { User } from './User';
 
 export class Article extends Entity {
-  id = '';
+  slug = '';
   title = '';
   content = '';
   author = User.fromJS();
@@ -58,7 +54,7 @@ export class Article extends Entity {
   createdAt = Temporal.Instant.fromEpochSeconds(0);
 
   pk() {
-    return this.id;
+    return this.slug;
   }
 
   static key = 'Article';
@@ -71,7 +67,7 @@ export class Article extends Entity {
 
 export const ArticleResource = resource({
   urlPrefix: 'http://test.com',
-  path: '/article/:id',
+  path: '/article/:slug',
   searchParams: {} as { userId?: string } | undefined,
   schema: Article,
   paginationField: 'page',
@@ -100,7 +96,7 @@ import { schema, resource } from '@data-client/rest';
 import { UserEntity } from './User';
 
 export class Article {
-  id = '';
+  slug = '';
   title = '';
   content = '';
   author = UserEntity.fromJS();
@@ -114,11 +110,12 @@ export class ArticleEntity extends schema.Entity(Article, {
     createdAt: Temporal.Instant.from,
   },
   key: 'Article',
+  pk: 'slug',
 }) {}
 
 export const ArticleResource = resource({
   urlPrefix: 'http://test.com',
-  path: '/article/:id',
+  path: '/article/:slug',
   searchParams: {} as { userId?: string } | undefined,
   schema: ArticleEntity,
   paginationField: 'page',
@@ -138,11 +135,11 @@ is one of the core design choices that enable such high safety and performance c
 [static schema](./api/Entity.md#schema) lets us specify declarative transformations like auto [field deserialization](./guides/network-transform.md#deserializing-fields) with `createdAt` and [nesting the author field](./guides/relational-data.md).
 
 [Urls are constructed](./api/RestEndpoint.md#url) by combining the urlPrefix with [path templating](https://www.npmjs.com/package/path-to-regexp).
-TypeScript enforces the arguments specified with a prefixed colon like `:id` in this example.
+TypeScript enforces the arguments specified with a prefixed colon like `:slug` in this example.
 
 ```ts
-// GET http://test.com/article/5
-ArticleResource.get({ id: 5 });
+// GET http://test.com/article/use-reactive-data-client
+ArticleResource.get({ slug: 'use-reactive-data-client' });
 ```
 
 ## Bind the data with Suspense
@@ -159,8 +156,8 @@ values={[
 import { useSuspense } from '@data-client/react';
 import { ArticleResource } from 'api/article';
 
-export default function ArticleDetail({ id }: { id: number }) {
-  const article = useSuspense(ArticleResource.get, { id });
+export default function ArticleDetail({ slug }: { slug: string }) {
+  const article = useSuspense(ArticleResource.get, { slug });
   return (
     <article>
       <h2>{article.title}</h2>
@@ -236,13 +233,13 @@ resolves to the new Resource created by the API. It will automatically be added 
 import { useController } from '@data-client/react';
 import { ArticleResource } from 'api/article';
 
-export default function UpdateArticleForm({ id }: { id: number }) {
-  const article = useSuspense(ArticleResource.get, { id });
+export default function UpdateArticleForm({ slug }: { slug: string }) {
+  const article = useSuspense(ArticleResource.get, { slug });
   const ctrl = useController();
   return (
     <Form
       onSubmit={e =>
-        ctrl.fetch(ArticleResource.update, { id }, new FormData(e.target))
+        ctrl.fetch(ArticleResource.update, { slug }, new FormData(e.target))
       }
       initialValues={article}
     >
@@ -277,7 +274,7 @@ export default function ArticleWithDelete({
       <div>{article.content}</div>
       <button
         onClick={() =>
-          ctrl.fetch(ArticleResource.delete, { id: article.id })
+          ctrl.fetch(ArticleResource.delete, { slug: article.slug })
         }
       >
         Delete

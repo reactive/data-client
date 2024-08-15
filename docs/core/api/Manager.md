@@ -51,7 +51,7 @@ managers that perform work after the DOM is updated and also with the newly comp
 Since redux is fully synchronous, an adapter must be placed in front of Reactive Data Client style middleware to
 ensure they can consume a promise. Conversely, redux middleware must be changed to pass through promises.
 
-Middlewares will intercept actions that are dispatched and then potentially dispatch their own actions as well.
+Middlewares will [intercept actions](#reading-and-consuming-actions) that are dispatched and then potentially [dispatch their own actions](#dispatching-actions) as well.
 To read more about middlewares, see the [redux documentation](https://redux.js.org/advanced/middleware).
 
 ### init(state) {#init}
@@ -209,7 +209,7 @@ export default function RootLayout() {
 ## Control flow
 
 Managers integrate with the DataProvider store with their lifecycles and middleware. They orchestrate complex control
-flows by interfacing via intercepting and dispatching actions, as well as reading the internal state.
+flows by interfacing via intercepting and dispatching [actions](./Actions.md), as well as reading the internal state.
 
 <ThemedImage
 alt="Manager flux flow"
@@ -219,7 +219,7 @@ sources={{
   }}
 />
 
-The job of `middleware` is to dispatch actions, respond to actions, or both.
+The job of `middleware` is to dispatch actions, respond to [actions](./Actions.md), or both.
 
 ### Dispatching Actions
 
@@ -261,7 +261,7 @@ export default class TimeManager implements Manager {
 
 ### Reading and Consuming Actions
 
-`actionTypes` includes all constants to distinguish between different actions.
+`actionTypes` includes all constants to distinguish between different [actions](./Actions.md).
 
 <TypeScriptEditor>
 
@@ -303,7 +303,7 @@ export default class LoggingManager implements Manager {
 In conditional blocks, the action [type narrows](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#working-with-union-types),
 encouraging safe access to its members.
 
-In case we want to 'handle' a certain `action`, we can 'consume' it by not calling next.
+In case we want to 'handle' a certain [action](./Actions.md), we can 'consume' it by not calling next.
 
 <TypeScriptEditor>
 
@@ -355,142 +355,7 @@ export default class CustomSubsManager implements Manager {
 </TypeScriptEditor>
 
 By `return Promise.resolve();` instead of calling `next(action)`, we prevent managers listed
-after this one from seeing that action.
+after this one from seeing that [action](./Actions.md).
 
 Types: `FETCH_TYPE`, `SET_TYPE`, `SET_RESPONSE_TYPE`, `RESET_TYPE`, `SUBSCRIBE_TYPE`,
 `UNSUBSCRIBE_TYPE`, `INVALIDATE_TYPE`, `INVALIDATEALL_TYPE`, `EXPIREALL_TYPE`
-
-## Actions
-
-Many actions use the same meta information:
-
-```ts
-interface ActionMeta {
-  readonly fetchedAt: number;
-  readonly date: number;
-  readonly expiresAt: number;
-}
-```
-
-### FETCH
-
-```ts
-interface FetchMeta {
-  fetchedAt: number;
-  resolve: (value?: any | PromiseLike<any>) => void;
-  reject: (reason?: any) => void;
-  promise: PromiseLike<any>;
-}
-
-interface FetchAction {
-  type: typeof FETCH_TYPE;
-  endpoint: Endpoint;
-  args: readonly [...Parameters<Endpoint>];
-  key: string;
-  meta: FetchMeta;
-}
-```
-
-Comes from [Controller.fetch()](./Controller.md#fetch), [Controller.fetchIfStale()](./Controller.md#fetchIfStale),
-[useSuspense()](./useSuspense.md), [useDLE()](./useDLE.md), [useLive()](./useLive.md), [useFetch()](./useFetch.md)
-
-### SET
-
-```ts
-interface SetAction {
-  type: typeof SET_TYPE;
-  schema: Queryable;
-  args: readonly any[];
-  meta: ActionMeta;
-  value: {} | ((previousValue: Denormalize<Queryable>) => {});
-}
-```
-
-Comes from [Controller.set()](./Controller.md#set)
-
-### SET_RESPONSE
-
-```ts
-interface SetResponseAction {
-  type: typeof SET_RESPONSE_TYPE;
-  endpoint: Endpoint;
-  args: readonly any[];
-  key: string;
-  meta: ActionMeta;
-  response: ResolveType<Endpoint> | Error;
-  error: boolean;
-}
-```
-
-Comes from [Controller.setResponse()](./Controller.md#setResponse), [NetworkManager](./NetworkManager.md)
-
-### RESET
-
-```ts
-interface ResetAction {
-  type: typeof RESET_TYPE;
-  date: number;
-}
-```
-
-Comes from [Controller.resetEntireStore()](./Controller.md#resetEntireStore)
-
-### SUBSCRIBE
-
-```ts
-interface SubscribeAction {
-  type: typeof SUBSCRIBE_TYPE;
-  endpoint: Endpoint;
-  args: readonly any[];
-  key: string;
-}
-```
-
-Comes from [Controller.subscribe()](./Controller.md#subscribe), [useSubscription()](./useSubscription.md), [useLive()](./useLive.md)
-
-### UNSUBSCRIBE
-
-```ts
-interface UnsubscribeAction {
-  type: typeof UNSUBSCRIBE_TYPE;
-  endpoint: Endpoint;
-  args: readonly any[];
-  key: string;
-}
-```
-
-Comes from [Controller.unsubscribe()](./Controller.md#unsubscribe), [useSubscription()](./useSubscription.md), [useLive()](./useLive.md)
-
-### INVALIDATE
-
-```ts
-interface InvalidateAction {
-  type: typeof INVALIDATE_TYPE;
-  key: string;
-}
-```
-
-Comes from [Controller.invalidate()](./Controller.md#invalidate)
-
-### INVALIDATEALL
-
-```ts
-interface InvalidateAllAction {
-  type: typeof INVALIDATEALL_TYPE;
-  testKey: (key: string) => boolean;
-}
-```
-
-Comes from [Controller.invalidateAll()](./Controller.md#invalidateAll)
-
-### EXPIREALL
-
-```ts
-interface ExpireAllAction {
-  type: typeof EXPIREALL_TYPE;
-  testKey: (key: string) => boolean;
-}
-```
-
-Comes from [Controller.expireAll()](./Controller.md#expireAll)
-

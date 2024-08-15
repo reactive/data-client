@@ -114,7 +114,7 @@ us to access the [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document
 
 ### Crypto prices (websockets)
 
-We implemented our own `StreamManager` to handle our custom websocket protocol. Here we listen to the subcribe/unsubcribe
-actions sent by `useSubscription` to ensure we only listen to updates for components that are rendered.
+We implemented our own `StreamManager` to handle our custom websocket protocol. Here we listen to the [subcribe/unsubcribe
+actions](./Actions.md#subscribe) sent by `useSubscription` to ensure we only listen to updates for components that are rendered.
 
 <StackBlitz app="coin-app" file="src/resources/StreamManager.ts,src/resources/Ticker.ts,src/pages/Home/AssetPrice.tsx" height="600" />

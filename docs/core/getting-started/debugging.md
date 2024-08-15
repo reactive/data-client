@@ -89,7 +89,7 @@ Here we toggled the 'completed' status of a todo using an [optimistic update](/r
 ## Action Tracing
 
 Tracing is not enabled by default as it is very computationally expensive. However, it can be very useful
-in tracking down where actions are dispatched from. Customize [DevToolsManager](../api/DevToolsManager.md)
+in tracking down where [actions](../api/Actions.md) are dispatched from. Customize [DevToolsManager](../api/DevToolsManager.md)
 by setting the trace option to `true` with [getDefaultManagers](../api/getDefaultManagers.md):
 
 ```tsx title="index.tsx"

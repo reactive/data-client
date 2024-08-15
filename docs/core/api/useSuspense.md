@@ -373,6 +373,9 @@ means immediate user interactivity with **zero** client-side fetches on first lo
 
 <StackBlitz app="nextjs" file="resources/TodoResource.ts,components/todo/TodoList.tsx" />
 
+Usage in components is identical, which means you can easily share components between SSR and non-SSR
+applications, as well as migrate to <abbr title="Server Side Render">SSR</abbr> without needing data-client code changes.
+
 ### Concurrent Mode
 
 In React 18 navigating with `startTransition` allows [AsyncBoundaries](./AsyncBoundary.md) to
