@@ -127,7 +127,7 @@ declare function useSuspense<E extends EndpointInterface$1<FetchFunction$1, Sche
 declare function useSuspense<E extends EndpointInterface$1<FetchFunction$1, Schema$1 | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): E['schema'] extends undefined | null ? ResolveType$1<E> | undefined : DenormalizeNullable$1<E['schema']>;
 
 /**
- * Access a response if it is available.
+ * Read an Endpoint's response if it is ready.
  *
  * `useCache` guarantees referential equality globally.
  * @see https://dataclient.io/docs/api/useCache
@@ -150,7 +150,7 @@ type ErrorTypes$1 = NetworkError$1 | UnknownError$1;
 declare function useError<E extends Pick<EndpointInterface$1, 'key'>>(endpoint: E, ...args: readonly [...Parameters<E['key']>] | readonly [null]): ErrorTypes$1 | undefined;
 
 /**
- * Request a resource if it is not in cache.
+ * Fetch an Endpoint if it is not in cache or stale.
  * @see https://dataclient.io/docs/api/useFetch
  */
 declare function useFetch<E extends EndpointInterface$1<FetchFunction$1, Schema$1 | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>]): E['schema'] extends undefined | null ? ReturnType<E> : Promise<Denormalize$1<E['schema']>>;
@@ -189,7 +189,7 @@ type AsyncReturn<E> = {
     error: ErrorTypes$2;
 };
 /**
- * Use async date with { data, loading, error } (DLE)
+ * Use async data with { data, loading, error } (DLE)
  * @see https://dataclient.io/docs/api/useDLE
  */
 declare function useDLE<E extends EndpointInterface$1<FetchFunction$1, Schema$1 | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>]): E['schema'] extends undefined | null ? AsyncReturn<E> : SchemaReturn<E['schema']>;

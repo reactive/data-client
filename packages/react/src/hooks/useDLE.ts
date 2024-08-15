@@ -33,7 +33,7 @@ type AsyncReturn<E> =
   | { data: undefined; loading: false; error: ErrorTypes };
 
 /**
- * Use async date with { data, loading, error } (DLE)
+ * Use async data with { data, loading, error } (DLE)
  * @see https://dataclient.io/docs/api/useDLE
  */
 export default function useDLE<

@@ -12,7 +12,7 @@ import useCacheState from './useCacheState.js';
 import useController from '../hooks/useController.js';
 
 /**
- * Request a resource if it is not in cache.
+ * Fetch an Endpoint if it is not in cache or stale.
  * @see https://dataclient.io/docs/api/useFetch
  */
 export default function useFetch<

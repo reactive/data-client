@@ -14,7 +14,7 @@ import useCacheState from './useCacheState.js';
 import useController from '../hooks/useController.js';
 
 /**
- * Access a response if it is available.
+ * Read an Endpoint's response if it is ready.
  *
  * `useCache` guarantees referential equality globally.
  * @see https://dataclient.io/docs/api/useCache

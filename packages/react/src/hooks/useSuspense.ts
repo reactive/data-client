@@ -7,7 +7,6 @@ import type {
   FetchFunction,
   DenormalizeNullable,
   ResolveType,
-  NI,
 } from '@data-client/core';
 import { useMemo } from 'react';
 

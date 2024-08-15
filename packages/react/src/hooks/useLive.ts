@@ -7,7 +7,6 @@ import {
   FetchFunction,
   ResolveType,
   DenormalizeNullable,
-  NI,
 } from '@data-client/core';
 
 import useSubscription from './useSubscription.js';
