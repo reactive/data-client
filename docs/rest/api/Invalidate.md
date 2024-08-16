@@ -44,9 +44,6 @@ import { Entity, RestEndpoint } from '@data-client/rest';
 class User extends Entity {
   id = '';
   name = '';
-  pk() {
-    return this.id;
-  }
 }
 export const getUsers = new RestEndpoint({
   path: '/users',
@@ -109,9 +106,6 @@ export default class Post extends Entity {
   id = '';
   title = '';
   author = '';
-  pk() {
-    return this.id;
-  }
 }
 ```
 
@@ -156,9 +150,6 @@ export default class Post extends Entity {
   id = '';
   title = '';
   author = '';
-  pk() {
-    return this.id;
-  }
 }
 ```
 

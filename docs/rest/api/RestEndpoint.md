@@ -147,9 +147,6 @@ export class Todo extends Entity {
   id = '';
   title = '';
   completed = false;
-  pk() {
-    return this.id;
-  }
 }
 
 export const getTodo = new RestEndpoint({
@@ -174,9 +171,7 @@ export class Comment extends Entity {
   title = '';
   body = '';
   postId = '';
-  pk() {
-    return this.id;
-  }
+
   static key = 'Comment';
 }
 ```
@@ -215,9 +210,7 @@ export class Todo extends Entity {
   id = '';
   title = '';
   completed = false;
-  pk() {
-    return this.id;
-  }
+
   static key = 'Todo';
 }
 ```
@@ -786,12 +779,8 @@ async (id: string) => {
 import { Entity, RestEndpoint } from '@data-client/rest';
 
 class User extends Entity {
-  readonly id: string = '';
-  readonly username: string = '';
-
-  pk() {
-    return this.id;
-  }
+  id = '';
+  username = '';
 }
 
 const getUser = new RestEndpoint({

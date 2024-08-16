@@ -49,9 +49,6 @@ delay: 150,
 export class User extends Entity {
   id = '';
   name = '';
-  pk() {
-    return this.id;
-  }
 }
 export const createUser = new RestEndpoint({
   path: '/users',

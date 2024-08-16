@@ -66,9 +66,6 @@ export class Todo extends Entity {
   title = '';
   completed = false;
 
-  pk() {
-    return this.id;
-  }
   static key = 'Todo';
 }
 
@@ -88,9 +85,6 @@ export class User extends Entity {
   email = '';
   todos: Todo[] = [];
 
-  pk() {
-    return this.id;
-  }
   static key = 'User';
   static schema = {
     todos: new schema.Collection([Todo], {
@@ -220,9 +214,6 @@ class Todo extends Entity {
   title = '';
   completed = false;
 
-  pk() {
-    return this.id;
-  }
   static key = 'Todo';
 }
 
@@ -233,9 +224,6 @@ class User extends Entity {
   email = '';
   todos: Todo[] = [];
 
-  pk() {
-    return this.id;
-  }
   static key = 'User';
   static schema = {
     todos: new schema.Collection([Todo], {
@@ -307,10 +295,6 @@ class Post extends Entity {
   title = '';
   group = '';
   author = '';
-
-  pk() {
-    return this.id;
-  }
 }
 export const getPosts = new RestEndpoint({
   path: '/:group/posts',

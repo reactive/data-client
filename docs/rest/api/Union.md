@@ -53,9 +53,6 @@ delay: 150,
 abstract class FeedItem extends Entity {
   id = 0;
   declare type: 'link' | 'post';
-  pk() {
-    return this.id;
-  }
 }
 class Link extends FeedItem {
   type = 'link' as const;

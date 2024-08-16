@@ -27,10 +27,6 @@ class SummaryAnalysis extends Entity {
   readonly createdAt = Temporal.Instant.fromEpochSeconds(0);
   readonly meanValue: number = 0;
   readonly title: string = '';
-
-  pk() {
-    return this.id;
-  }
 }
 
 class FullAnalysis extends SummaryAnalysis {

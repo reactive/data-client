@@ -57,9 +57,6 @@ export class User extends Entity {
   id = '';
   name = '';
   isAdmin = false;
-  pk() {
-    return this.id;
-  }
 }
 export const UserResource = resource({
   path: '/users/:id',
@@ -109,9 +106,6 @@ export class User extends Entity {
   name = '';
   email = '';
   website = '';
-  pk() {
-    return this.id;
-  }
 }
 export const UserResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
@@ -129,9 +123,7 @@ export class Todo extends Entity {
   user? = User.fromJS({});
   title = '';
   completed = false;
-  pk() {
-    return this.id;
-  }
+
   static schema = {
     user: User,
   };
