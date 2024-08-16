@@ -133,7 +133,7 @@ const groupTodoByUser = new schema.Query(
   todos => Object.groupBy(todos, todo => todo.userId),
 );
 const todosByUser = useQuery(groupTodoByUser);
-```\
+```
 
 ### TypeScript requirements
 
