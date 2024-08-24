@@ -15,7 +15,7 @@ import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
 # Manager
 
-`Managers` are singletons that handle global side-effects. Kind of like `useEffect()` for the central data
+`Managers` are singletons that handle global side-effects. Kind of like [useEffect()](https://react.dev/reference/react/useEffect) for the central data
 store.
 
 The default managers orchestrate the complex asynchronous behavior that <abbr title="Reactive Data Client">Data Client</abbr>

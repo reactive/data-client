@@ -54,6 +54,8 @@ MyResource.get({ id: 1 });
 
 </EndpointPlayground>
 
+See [Django Integration](./django.md) for an example that also includes [CSRF protection](https://docs.djangoproject.com/en/5.0/howto/csrf/#using-csrf-protection-with-ajax).
+
 ## Access Tokens or JWT
 
 <Tabs

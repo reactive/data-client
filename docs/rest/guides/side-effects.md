@@ -6,7 +6,7 @@ When mutations update more than one resource, it may be tempting to simply
 [expire all](/docs/api/Controller#expireAll) the other resources.
 
 However, we can still achieve the high performance atomic mutations if we
-simply bundle *all* updated resources in the mutation response, we can
+simply bundle _all_ updated resources in the mutation response, we can
 avoid this slow networking cascade.
 
 <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '15px'}}>
@@ -27,6 +27,7 @@ sequenceDiagram
     Note over Client,Server: Lookup Account
     Server->>Client: Account
 ```
+
 </div>
 <div>
 <h4 style={{textAlign: 'center'}}><img src="https://dataclient.io/img/client-logo.svg" width="20" height="20" style={{marginBottom: '-4px',marginRight: '4px'}} /> Response Bundling</h4>
@@ -40,6 +41,7 @@ sequenceDiagram
     Note over Client,Server: Backend performs trade
     Server->>Client: Trade + Account
 ```
+
 </div>
 
 </div>
@@ -73,8 +75,17 @@ created.
 To handle this, we just need to update the `schema` to include the custom
 endpoint.
 
-```typescript title="resources/TradeResource.ts"
-import { resource } from '@data-client/rest';
+```typescript title="resources/Trade.ts"
+import { resource, Entity } from '@data-client/rest';
+import { Account } from './Account';
+
+export class Trade extends Entity {
+  id = 0;
+  user = 0;
+  amount = '0';
+  coin = '';
+  created_at = '';
+}
 
 export const TradeResource = resource({
   path: '/trade/:id',
@@ -96,7 +107,8 @@ be updated in the cache after the `POST` request is complete.
 ```typescript title="CreateTrade.tsx"
 export default function CreateTrade() {
   const ctrl = useController();
-  const handleSubmit = payload => ctrl.fetch(TradeResource.create, payload);
+  const handleSubmit = payload =>
+    ctrl.fetch(TradeResource.create, payload);
   //...
 }
 ```

@@ -26,9 +26,6 @@ class User extends Entity {
   }
   // highlight-end
 
-  pk() {
-    return this.id;
-  }
   static key = 'User';
 }
 ```
@@ -63,9 +60,6 @@ class User extends Entity {
   createdAt = Temporal.Instant.fromEpochSeconds(0);
   lifetimeBlinkCount = BigNumber(0);
 
-  pk() {
-    return this.id;
-  }
   static key = 'User';
 
   // highlight-start
@@ -102,9 +96,6 @@ export class User extends Entity {
   id = '';
   name = '';
   isAdmin = false;
-  pk() {
-    return this.id;
-  }
 }
 export const UserResource = resource({
   path: '/users/:id',
