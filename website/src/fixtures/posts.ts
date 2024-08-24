@@ -13,10 +13,6 @@ export class User extends Entity {
     return `https://i.pravatar.cc/64?img=${this.id + 4}`;
   }
 
-  pk() {
-    return this.id;
-  }
-
   static key = 'User';
 }
 export const UserResource = resource({
@@ -31,10 +27,6 @@ export class Post extends Entity {
   title = '';
   body = '';
   votes = 0;
-
-  pk() {
-    return this.id;
-  }
 
   static key = 'Post';
 
@@ -117,7 +109,7 @@ export const postFixtures = [
   {
     endpoint: PostResource.get,
     async response({ id }) {
-      const author = UserResource.get({ id: entities[id].author });
+      const author = await UserResource.get({ id: entities[id].author });
       return {
         id,
         votes: 0,
