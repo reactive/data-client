@@ -1,6 +1,7 @@
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import { DiffEditor as BaseDiffEditor } from '@monaco-editor/react';
 import clsx from 'clsx';
+import { type editor } from 'monaco-editor';
 import { useMemo } from 'react';
 
 import { extensionToMonacoLanguage } from './Playground/extensionToMonacoLanguage';
@@ -70,7 +71,7 @@ export type DiffMonacoProps = {
   }[];
 };
 
-const DIFF_OPTIONS = {
+const DIFF_OPTIONS: editor.IDiffEditorConstructionOptions = {
   ...options,
   renderSideBySide: true,
   renderOverviewRuler: false,
@@ -80,4 +81,5 @@ const DIFF_OPTIONS = {
   useInlineViewWhenSpaceIsLimited: false,
   enableSplitViewResizing: false,
   readOnly: true,
+  compactMode: true,
 };

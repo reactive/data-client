@@ -9,14 +9,13 @@ sidebar_label: Render Data
 
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import { postFixtures } from '@site/src/fixtures/posts';
 import { detailFixtures, listFixtures } from '@site/src/fixtures/profiles';
 import UseLive from '../shared/\_useLive.mdx';
+import AsyncBoundaryExamples from '../shared/\_AsyncBoundary.mdx';
 
 # Rendering Asynchronous Data
 
@@ -208,86 +207,7 @@ us to make error/loading disjoint from data usage.
 Instead we place [&lt;AsyncBoundary /\>](../api/AsyncBoundary.md) to handling loading and error conditions at or above navigational boundaries like **pages,
 routes, or [modals](https://www.appcues.com/blog/modal-dialog-windows)**.
 
-<Tabs
-defaultValue="web"
-groupId="platform"
-values={[
-{ label: 'React Router', value: 'web' },
-{ label: 'NextJS', value: 'nextjs' },
-{ label: 'Expo', value: 'expo' },
-]}>
-
-<TabItem value="web">
-
-```tsx {9,11} title="Dashboard.tsx"
-import { AsyncBoundary } from '@data-client/react';
-import { Outlet } from 'react-router';
-
-export default function Dashboard() {
-  return (
-    <div>
-      <h1>Dashboard</h1>
-      <section>
-        <AsyncBoundary>
-          <Outlet />
-        </AsyncBoundary>
-      </section>
-    </div>
-  );
-}
-```
-
-</TabItem>
-<TabItem value="nextjs">
-
-```tsx {12} title="app/dashboard/layout.tsx"
-import { AsyncBoundary } from '@data-client/react';
-
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <h1>Dashboard</h1>
-      <section>
-        <AsyncBoundary>{children}</AsyncBoundary>
-      </section>
-    </div>
-  );
-}
-```
-
-</TabItem>
-<TabItem value="expo">
-
-```tsx {15,17} title="app/dashboard/_layout.tsx"
-import { AsyncBoundary } from '@data-client/react';
-import { Slot } from 'expo-router';
-
-export default function DashboardLayout() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/my-logo.png')}
-          style={styles.logo}
-        />
-      }
-    >
-      <AsyncBoundary>
-        <Slot />
-      </AsyncBoundary>
-    </ParallaxScrollView>
-  );
-}
-```
-
-</TabItem>
-
-</Tabs>
+<AsyncBoundaryExamples />
 
 React 18's [useTransition](https://react.dev/reference/react/useTransition) and [Server Side Rendering](../guides/ssr.md)
 powered routers or navigation means never seeing a loading fallback again. In React 16 and 17 fallbacks can be centralized

@@ -8,6 +8,9 @@ description: Handles loading and error conditions of Suspense.
   <meta name="docsearch:pagerank" content="20"/>
 </head>
 
+import AsyncBoundaryExamples from '../shared/\_AsyncBoundary.mdx';
+
+
 # &lt;AsyncBoundary />
 
 Handles loading and error conditions of Suspense.
@@ -24,18 +27,13 @@ Learn more about boundary placement by learning how to [co-locate data dependenc
 
 Place `AsyncBoundary` [at or above navigational boundaries](../getting-started/data-dependency.md#boundaries) like **pages, routes, or modals**.
 
-```tsx
-import React from 'react';
-import { AsyncBoundary } from '@data-client/react';
+<AsyncBoundaryExamples />
 
-export default function MyPage() {
-  return (
-    <AsyncBoundary>
-      <SuspendingComponent />
-    </AsyncBoundary>
-  );
-}
+Then [useSuspense()](./useSuspense.md) in the components that render the data. Any errors or loading state
+from *any* descendant of the `<AsyncBoundary />` will be rendered at the `<AsyncBoundary />`. This consolidation
+of fallback UI improves performance and usability.
 
+```ts
 function SuspendingComponent() {
   const data = useSuspense(getMyThing);
 
