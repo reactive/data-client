@@ -1,5 +1,16 @@
 # @data-client/rest
 
+## 0.14.11
+
+### Patch Changes
+
+- [`87a65ba`](https://github.com/reactive/data-client/commit/87a65ba8b5f266a299ac3d9c78b6605deee5f4e2) Thanks [@ntucker](https://github.com/ntucker)! - Fix Entity types for TS 4.0 and below
+
+- [`a436050`](https://github.com/reactive/data-client/commit/a43605035d3791ad73393ce229ed85c8e8f2cb88) Thanks [@ntucker](https://github.com/ntucker)! - Fix README markup
+
+- Updated dependencies [[`87a65ba`](https://github.com/reactive/data-client/commit/87a65ba8b5f266a299ac3d9c78b6605deee5f4e2)]:
+  - @data-client/endpoint@0.14.11
+
 ## 0.14.10
 
 ### Patch Changes
