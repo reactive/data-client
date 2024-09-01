@@ -1,5 +1,11 @@
 # @data-client/endpoint
 
+## 0.14.11
+
+### Patch Changes
+
+- [`87a65ba`](https://github.com/reactive/data-client/commit/87a65ba8b5f266a299ac3d9c78b6605deee5f4e2) Thanks [@ntucker](https://github.com/ntucker)! - Fix Entity types for TS 4.0 and below
+
 ## 0.14.10
 
 ### Patch Changes

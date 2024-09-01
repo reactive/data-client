@@ -1,5 +1,11 @@
 # @data-client/react
 
+## 0.14.11
+
+### Patch Changes
+
+- [`709cc7b`](https://github.com/reactive/data-client/commit/709cc7b8df7e85a85842452f11e3d91b705dc7f1) Thanks [@ntucker](https://github.com/ntucker)! - Update hooks docstrings
+
 ## 0.14.10
 
 ### Patch Changes
