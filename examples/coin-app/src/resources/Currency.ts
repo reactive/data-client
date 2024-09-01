@@ -36,10 +36,6 @@ export class Currency extends Entity {
     return iconTable[this.id]?.img_url;
   }
 
-  pk(): string {
-    return this.id;
-  }
-
   static key = 'Currency';
 
   static process(

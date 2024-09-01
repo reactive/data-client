@@ -1,16 +1,8 @@
 import { schema, Entity } from '@data-client/endpoint';
 
-class BaseEntity extends Entity {
-  id = 0;
+export class User extends Entity {}
 
-  pk() {
-    return this.id;
-  }
-}
-
-export class User extends BaseEntity {}
-
-export class Commit extends BaseEntity {
+export class Commit extends Entity {
   sha = '';
 
   static schema = {
@@ -23,15 +15,15 @@ export class Commit extends BaseEntity {
   }
 }
 
-export class Label extends BaseEntity {}
+export class Label extends Entity {}
 
-export class Milestone extends BaseEntity {
+export class Milestone extends Entity {
   static schema = {
     creator: User,
   };
 }
 
-export class Issue extends BaseEntity {
+export class Issue extends Entity {
   static schema = {
     assignee: User,
     assignees: [User],
@@ -41,7 +33,7 @@ export class Issue extends BaseEntity {
   };
 }
 
-export class PullRequest extends BaseEntity {
+export class PullRequest extends Entity {
   static schema = {
     assignee: User,
     assignees: [User],

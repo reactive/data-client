@@ -1,14 +1,6 @@
 import { Entity } from '@data-client/endpoint';
 
-class BaseEntity extends Entity {
-  id = 0;
-
-  pk() {
-    return this.id;
-  }
-}
-
-class User extends BaseEntity {
+class User extends Entity {
   static process(value, parent, key) {
     switch (key) {
       case 'author':
@@ -29,7 +21,7 @@ class User extends BaseEntity {
     };
   }
 }
-class Comment extends BaseEntity {
+class Comment extends Entity {
   static schema = {
     commenter: User,
   };
@@ -39,7 +31,7 @@ class Comment extends BaseEntity {
   }
 }
 
-class Post extends BaseEntity {
+class Post extends Entity {
   static schema = {
     author: User,
     comments: [Comment],

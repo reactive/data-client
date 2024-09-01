@@ -7,10 +7,6 @@ export class Label extends GithubEntity {
   readonly description: string = '';
   readonly color: string = '000000';
   readonly default: boolean = false;
-
-  pk() {
-    return this.id?.toString();
-  }
 }
 export const LabelResource = githubResource({
   path: '/repos/:owner/:repo/labels/:name',

@@ -6,10 +6,6 @@ class Post extends Entity {
   title = '';
   group = '';
   author = '';
-
-  pk() {
-    return this.id;
-  }
 }
 export const getPosts = new RestEndpoint({
   path: '/:group/posts',

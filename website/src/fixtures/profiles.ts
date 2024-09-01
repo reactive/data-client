@@ -1,14 +1,10 @@
-import { Entity, resource, RestEndpoint } from '@data-client/rest';
+import { Entity, resource } from '@data-client/rest';
 
 export class Profile extends Entity {
   id: number | undefined = undefined;
   img = '';
   fullName = '';
   bio = '';
-
-  pk() {
-    return this.id?.toString();
-  }
 
   static key = 'Profile';
 }

@@ -7,12 +7,8 @@ import {
 } from '@data-client/rest';
 
 export abstract class PlaceholderEntity extends Entity {
-  id = 0;
-
   // all Resources of `jsonplaceholder` use an id for the primary key
-  pk() {
-    return `${this.id}`;
-  }
+  id = 0;
 }
 
 /** Common patterns in the https://jsonplaceholder.typicode.com API */

@@ -11,10 +11,6 @@ export class Product extends Entity {
   trading_disabled = false;
   stats = Stats.fromJS();
 
-  pk(): string {
-    return this.id;
-  }
-
   static key = 'Product';
   static schema = {
     stats: Stats,

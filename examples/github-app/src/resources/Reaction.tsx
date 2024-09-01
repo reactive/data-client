@@ -14,10 +14,6 @@ export class Reaction extends GithubEntity {
     return contentToIcon[this.content];
   }
 
-  pk() {
-    return this.id?.toString();
-  }
-
   static schema = {
     user: User,
     createdAt: Temporal.Instant.from,

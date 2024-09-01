@@ -94,10 +94,6 @@ class User extends Entity {
   id = '';
   username = '';
 
-  pk() {
-    return this.id;
-  }
-
   // highlight-next-line
   static key = 'User';
 }

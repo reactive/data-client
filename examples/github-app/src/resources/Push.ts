@@ -10,7 +10,7 @@ export class Push extends GithubEntity {
   commits: Commit[] = [];
 
   pk() {
-    return `${this.pushId}`;
+    return this.pushId;
   }
 }
 

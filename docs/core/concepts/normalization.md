@@ -29,10 +29,6 @@ class Todo extends Entity {
   readonly userId: number = 0;
   readonly title: string = '';
   readonly completed: boolean = false;
-
-  pk() {
-    return `${this.id}`;
-  }
 }
 ```
 
@@ -40,9 +36,6 @@ class Todo extends Entity {
 import { Entity } from '@data-client/endpoint';
 
 class Todo extends Entity {
-  pk() {
-    return `${this.id}`;
-  }
 }
 ```
 
