@@ -9,7 +9,7 @@ export default function DemoList() {
   return (
     <Layout
       title="React Suspense Demos"
-      description="Reactive Data Client Suspense Demos"
+      description="Examples demonstrating high performance scalable applications using REST, GraphQL and Websockets"
     >
       <Tabs
         defaultValue="todo"

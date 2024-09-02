@@ -382,6 +382,7 @@ interface GCAction {
     entities: [string, string][];
     endpoints: string[];
 }
+/** @see https://dataclient.io/docs/api/Actions */
 type ActionTypes = FetchAction | OptimisticAction | SetAction | SetResponseAction | SubscribeAction | UnsubscribeAction | InvalidateAction | InvalidateAllAction | ExpireAllAction | ResetAction | GCAction;
 
 type Dispatch<Actions = ActionTypes> = (value: Actions) => Promise<void>;
