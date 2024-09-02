@@ -59,7 +59,7 @@ delay: 150,
 },
 ]}>
 
-```ts title="api/Todo" {15} collapsed
+```ts title="api/Todo" {13} collapsed
 export class Todo extends Entity {
   id = '';
   userId = 0;
@@ -71,11 +71,12 @@ export class Todo extends Entity {
 
 export const getTodos = new RestEndpoint({
   path: '/todos',
+  searchParams: {} as { userId?: string },
   schema: new schema.Collection([Todo]),
 });
 ```
 
-```ts title="api/User" {15-19} collapsed
+```ts title="api/User" {12-16} collapsed
 import { Todo } from './Todo';
 
 export class User extends Entity {
@@ -287,7 +288,7 @@ when `push` is called.
 
 <HooksPlayground fixtures={postFixtures} getInitialInterceptorData={getInitialInterceptorData} row>
 
-```ts title="getPosts" {17}
+```ts title="getPosts" {14}
 import { Entity, RestEndpoint } from '@data-client/rest';
 
 class Post extends Entity {
@@ -313,7 +314,7 @@ export const getPosts = new RestEndpoint({
 });
 ```
 
-```ts title="PostListLayout" collapsed
+```tsx title="PostListLayout" collapsed
 import { useLoading } from '@data-client/react';
 
 export default function PostListLayout({
@@ -359,7 +360,7 @@ export default function PostListLayout({
 }
 ```
 
-```ts title="PostList" collapsed
+```tsx title="PostList" collapsed
 import { useSuspense, useController } from '@data-client/react';
 import { getPosts } from './getPosts';
 import PostListLayout from './PostListLayout';
