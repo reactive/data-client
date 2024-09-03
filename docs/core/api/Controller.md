@@ -48,7 +48,9 @@ class Controller {
 }
 ```
 
-## fetch(endpoint, ...args) {#fetch}
+## Action Dispatchers
+
+### fetch(endpoint, ...args) {#fetch}
 
 Fetches the endpoint with given args, updating the Reactive Data Client cache with
 the response or error upon completion.
@@ -143,22 +145,22 @@ post.pk();
 
 :::
 
-### Endpoint.sideEffect
+#### Endpoint.sideEffect
 
 [sideEffect](/rest/api/Endpoint#sideeffect) changes the behavior
 
-#### true
+##### true
 
 - Resolves _before_ [committing](https://react.dev/learn/render-and-commit#step-3-react-commits-changes-to-the-dom) Reactive Data Client cache updates.
 - Each call will always cause a new fetch.
 
-#### undefined
+##### undefined
 
 - Resolves _after_ [committing](https://react.dev/learn/render-and-commit#step-3-react-commits-changes-to-the-dom) Reactive Data Client cache updates.
 - Identical requests are deduplicated globally; allowing only one inflight request at a time.
   - To ensure a _new_ request is started, make sure to abort any existing inflight requests.
 
-## fetchIfStale(endpoint, ...args) {#fetchIfStale}
+### fetchIfStale(endpoint, ...args) {#fetchIfStale}
 
 Fetches only if endpoint is considered '[stale](../concepts/expiry-policy.md#stale)'.
 
@@ -190,7 +192,7 @@ An [example](https://stackblitz.com/github/reactive/data-client/tree/master/exam
 
 <StackBlitz app="github-app" file="src/routing/routes.tsx" view="editor" />
 
-## expireAll(\{ testKey }) {#expireAll}
+### expireAll(\{ testKey }) {#expireAll}
 
 Sets all responses' [expiry status](../concepts/expiry-policy.md) matching `testKey` to [Stale](../concepts/expiry-policy.md#stale).
 
@@ -228,7 +230,7 @@ better to [include mutation sideeffects in the mutation response](/rest/guides/s
 
 :::
 
-## invalidate(endpoint, ...args) {#invalidate}
+### invalidate(endpoint, ...args) {#invalidate}
 
 Forces refetching and suspense on [useSuspense](./useSuspense.md) with the same Endpoint
 and parameters.
@@ -268,7 +270,7 @@ controller.setResponse(MyResource.delete, { id: '5' }, { id: '5' });
 
 :::
 
-## invalidateAll(\{ testKey }) {#invalidateAll}
+### invalidateAll(\{ testKey }) {#invalidateAll}
 
 [Invalidates](../concepts/expiry-policy#invalid) all [endpoint keys](/rest/api/RestEndpoint#key) matching `testKey`.
 
@@ -333,7 +335,7 @@ ReactDOM.createRoot(document.body).render(
 );
 ```
 
-## resetEntireStore() {#resetEntireStore}
+### resetEntireStore() {#resetEntireStore}
 
 Resets/clears the entire Reactive Data Client cache. All inflight requests will not resolve.
 
@@ -361,7 +363,7 @@ function UserName() {
 }
 ```
 
-## set(queryable, ...args, value) {#set}
+### set(queryable, ...args, value) {#set}
 
 Updates any [Queryable](/rest/api/schema#queryable) [Schema](/rest/api/schema#schema-overview).
 
@@ -380,7 +382,7 @@ const id = '2';
 ctrl.set(Article, { id }, article => ({ id, votes: article.votes + 1 }));
 ```
 
-## setResponse(endpoint, ...args, response) {#setResponse}
+### setResponse(endpoint, ...args, response) {#setResponse}
 
 Stores `response` in cache for given [Endpoint](/rest/api/Endpoint) and args.
 
@@ -408,11 +410,11 @@ useEffect(() => {
 This shows a proof of concept in React; however a [Manager websockets implementation](../concepts/managers.md#data-stream)
 would be much more robust.
 
-## setError(endpoint, ...args, error) {#setError}
+### setError(endpoint, ...args, error) {#setError}
 
 Stores the result of [Endpoint](/rest/api/Endpoint) and args as the error provided.
 
-## resolve(endpoint, \{ args, response, fetchedAt, error }) {#resolve}
+### resolve(endpoint, \{ args, response, fetchedAt, error }) {#resolve}
 
 Resolves a specific fetch, storing the `response` in cache.
 
@@ -422,7 +424,7 @@ This means the corresponding optimistic update will no longer be applies.
 This is used in [NetworkManager](./NetworkManager.md), and should be used when
 processing fetch requests.
 
-## subscribe(endpoint, ...args) {#subscribe}
+### subscribe(endpoint, ...args) {#subscribe}
 
 Marks a new subscription to a given [Endpoint](/rest/api/Endpoint). This should increment the subscription.
 
@@ -440,18 +442,20 @@ useEffect(() => {
 }, [controller, key]);
 ```
 
-## unsubscribe(endpoint, ...args) {#unsubscribe}
+### unsubscribe(endpoint, ...args) {#unsubscribe}
 
 Marks completion of subscription to a given [Endpoint](/rest/api/Endpoint). This should
 decrement the subscription and if the count reaches 0, more updates won't be received automatically.
 
 [useSubscription](./useSubscription.md) and [useLive](./useLive.md) call this on unmount.
 
-## get(schema, ...args, state) {#get}
+## Data Access
+
+### get(schema, ...args, state) {#get}
 
 Looks up any [Queryable](/rest/api/schema#queryable) [Schema](/rest/api/schema#schema-overview) in `state`.
 
-### Example
+#### Example
 
 This is used in [useQuery](./useQuery.md) and can be used in
 [Managers](./Manager.md) to safely access the store.
@@ -477,7 +481,7 @@ function useQuery<S extends Queryable>(
 }
 ```
 
-## getResponse(endpoint, ...args, state) {#getResponse}
+### getResponse(endpoint, ...args, state) {#getResponse}
 
 ```ts title="returns"
 {
@@ -489,11 +493,11 @@ function useQuery<S extends Queryable>(
 
 Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
 
-### data
+#### data
 
 The denormalize response data. Guarantees global referential stability for all members.
 
-### expiryStatus
+#### expiryStatus
 
 ```ts
 export enum ExpiryStatus {
@@ -503,26 +507,26 @@ export enum ExpiryStatus {
 }
 ```
 
-#### Valid
+##### Valid
 
 - Will never suspend.
 - Might fetch if data is stale
 
-#### InvalidIfStale
+##### InvalidIfStale
 
 - Will suspend if data is stale.
 - Might fetch if data is stale
 
-#### Invalid
+##### Invalid
 
 - Will always suspend
 - Will always fetch
 
-### expiresAt
+#### expiresAt
 
 A number representing time when it expires. Compare to Date.now().
 
-### Example
+#### Example
 
 This is used in [useCache](./useCache.md), [useSuspense](./useSuspense.md) and can be used in
 [Managers](./Manager.md) to lookup a response with the state provided.
@@ -572,15 +576,15 @@ export default class MyManager implements Manager {
 }
 ```
 
-## getError(endpoint, ...args, state) {#getError}
+### getError(endpoint, ...args, state) {#getError}
 
 Gets the error, if any, for a given endpoint. Returns undefined for no errors.
 
-## snapshot(state, fetchedAt) {#snapshot}
+### snapshot(state, fetchedAt) {#snapshot}
 
 Returns a [Snapshot](./Snapshot.md).
 
-## getState() {#getState}
+### getState() {#getState}
 
 Gets the internal state of Reactive Data Client that has _already been [committed](https://react.dev/learn/render-and-commit#step-3-react-commits-changes-to-the-dom)_.
 

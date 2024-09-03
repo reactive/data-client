@@ -276,18 +276,77 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://da
 
 - Rendering: [useSuspense()](https://dataclient.io/docs/api/useSuspense), [useLive()](https://dataclient.io/docs/api/useLive), [useCache()](https://dataclient.io/docs/api/useCache), [useDLE()](https://dataclient.io/docs/api/useDLE), [useQuery()](https://dataclient.io/docs/api/useQuery)
 - Event handling: [useController()](https://dataclient.io/docs/api/useController) returns [Controller](https://dataclient.io/docs/api/Controller)
-  - [ctrl.fetch](https://dataclient.io/docs/api/Controller#fetch)
-  - [ctrl.fetchIfStale](https://dataclient.io/docs/api/Controller#fetchIfStale)
-  - [ctrl.expireAll](https://dataclient.io/docs/api/Controller#expireAll)
-  - [ctrl.invalidate](https://dataclient.io/docs/api/Controller#invalidate)
-  - [ctrl.invalidateAll](https://dataclient.io/docs/api/Controller#invalidateAll)
-  - [ctrl.resetEntireStore](https://dataclient.io/docs/api/Controller#resetEntireStore)
-  - [ctrl.set](https://dataclient.io/docs/api/Controller#set)
-  - [ctrl.setResponse](https://dataclient.io/docs/api/Controller#setResponse)
-  - [ctrl.setError](https://dataclient.io/docs/api/Controller#setError)
-  - [ctrl.resolve](https://dataclient.io/docs/api/Controller#resolve)
-  - [ctrl.subscribe](https://dataclient.io/docs/api/Controller#subscribe)
-  - [ctrl.unsubscribe](https://dataclient.io/docs/api/Controller#unsubscribe)
+  <table>
+  <thead>
+  <tr>
+  <th>Method</th>
+  <th>Subject</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <th colSpan="2" align="center">Fetch</th>
+  </tr>
+  <tr>
+  <td><a href="https://dataclient.io/docs/api/Controller#fetch">ctrl.fetch</a></td>
+  <td>Endpoint + Args</td>
+  </tr>
+  <tr>
+  <td><a href="https://dataclient.io/docs/api/Controller#fetchIfStale">ctrl.fetchIfStale</a></td>
+  <td>Endpoint + Args</td>
+  </tr>
+  <tr>
+  <th colSpan="2" align="center">Expiry</th>
+  </tr>
+  <tr>
+  <td><a href="https://dataclient.io/docs/api/Controller#expireAll">ctrl.expireAll</a></td>
+  <td>Endpoint</td>
+  </tr>
+  <tr>
+  <td><a href="https://dataclient.io/docs/api/Controller#invalidate">ctrl.invalidate</a></td>
+  <td>Endpoint + Args</td>
+  </tr>
+  <tr>
+  <td><a href="https://dataclient.io/docs/api/Controller#invalidateAll">ctrl.invalidateAll</a></td>
+  <td>Endpoint</td>
+  </tr>
+  <tr>
+  <td><a href="https://dataclient.io/docs/api/Controller#resetEntireStore">ctrl.resetEntireStore</a></td>
+  <td>Everything</td>
+  </tr>
+  <tr>
+  <th colSpan="2" align="center">Set</th>
+  </tr>
+  <tr>
+  <td><a href="https://dataclient.io/docs/api/Controller#set">ctrl.set</a></td>
+  <td>Schema + Args</td>
+  </tr>
+  <tr>
+  <td><a href="https://dataclient.io/docs/api/Controller#setResponse">ctrl.setResponse</a></td>
+  <td>Endpoint + Args</td>
+  </tr>
+  <tr>
+  <td><a href="https://dataclient.io/docs/api/Controller#setError">ctrl.setError</a></td>
+  <td>Endpoint + Args</td>
+  </tr>
+  <tr>
+  <td><a href="https://dataclient.io/docs/api/Controller#resolve">ctrl.resolve</a></td>
+  <td>Endpoint + Args</td>
+  </tr>
+  <tr>
+  <th colSpan="2" align="center">Subscription</th>
+  </tr>
+  <tr>
+  <td><a href="https://dataclient.io/docs/api/Controller#subscribe">ctrl.subscribe</a></td>
+  <td>Endpoint + Args</td>
+  </tr>
+  <tr>
+  <td><a href="https://dataclient.io/docs/api/Controller#unsubscribe">ctrl.unsubscribe</a></td>
+  <td>Endpoint + Args</td>
+  </tr>
+  </tbody>
+  </table>
+
 - Components: [&lt;DataProvider/>](https://dataclient.io/docs/api/DataProvider), [&lt;AsyncBoundary/>](https://dataclient.io/docs/api/AsyncBoundary), [&lt;ErrorBoundary/>](https://dataclient.io/docs/api/ErrorBoundary), [&lt;MockResolver/>](https://dataclient.io/docs/api/MockResolver)
 - Data Mocking: [Fixture](https://dataclient.io/docs/api/Fixtures#successfixture), [Interceptor](https://dataclient.io/docs/api/Fixtures#interceptor), [renderDataClient()](https://dataclient.io/docs/api/makeRenderDataClient)
 - Middleware: [LogoutManager](https://dataclient.io/docs/api/LogoutManager), [NetworkManager](https://dataclient.io/docs/api/NetworkManager), [SubscriptionManager](https://dataclient.io/docs/api/SubscriptionManager), [PollingSubscription](https://dataclient.io/docs/api/PollingSubscription), [DevToolsManager](https://dataclient.io/docs/api/DevToolsManager)
