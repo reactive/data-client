@@ -189,20 +189,20 @@ export const UserResource = resource({
 });
 ```
 
-```ts title="resources/Todo" collapsed
+```ts title="resources/Todo"
 import { User } from './User';
 
 export class Todo extends Entity {
   id = 0;
   userId = 0;
-  user? = User.fromJS({});
+  user? = User.fromJS();
   title = '';
   completed = false;
   static schema = {
     user: User,
   };
-  static process(value) {
-    return { ...value, user: value.userId };
+  static process(todo) {
+    return { ...todo, user: todo.userId };
   }
 }
 export const TodoResource = resource({
@@ -212,7 +212,7 @@ export const TodoResource = resource({
 });
 ```
 
-```tsx title="TodoJoined"
+```tsx title="TodoJoined" collapsed
 import { TodoResource } from './resources/Todo';
 import { UserResource } from './resources/User';
 
