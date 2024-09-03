@@ -1,5 +1,5 @@
 ---
-title: schema.Collection - Entities of Arrays or Values
+title: schema.Collection - Mutable Lists and Maps
 sidebar_label: schema.Collection
 ---
 
@@ -13,10 +13,10 @@ import { postFixtures,getInitialInterceptorData } from '@site/src/fixtures/posts
 
 # schema.Collection
 
-`Collections` are entities but for [Arrays](./Array.md) or [Values](./Values.md).
+`Collections` define mutable [Lists (Array)](./Array.md) or [Maps (Values)](./Values.md).
 
-This makes them well suited at handling mutations. You can add to [Array](./Array.md) `Collections` with [.push](#push) or [.unshift](#unshift) and
-[Values](./Values.md) `Collections` with [.assign](#assign).
+This means they can grow and shrink. You can add to `Collection(Array)` with [.push](#push) or [.unshift](#unshift) and
+`Collections(Values)` with [.assign](#assign).
 
 [RestEndpoint](./RestEndpoint.md) provides [.push](./RestEndpoint.md#push), [.unshift](./RestEndpoint.md#unshift), [.assign](./RestEndpoint.md#assign)
 and [.getPage](./RestEndpoint.md#getpage)/ [.paginated()](./RestEndpoint.md#paginated) extenders when using `Collections`

@@ -1,6 +1,7 @@
 ---
 title: Thinking in Schemas
 sidebar_label: Schema
+description: Declarative TypeScript data definitions. Mutable dynamic data applications without state management code.
 ---
 
 import LanguageTabs from '@site/src/components/LanguageTabs';

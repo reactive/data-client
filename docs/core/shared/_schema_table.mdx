@@ -1,11 +1,75 @@
-| Schema                             | Description                                                                  | Data Type                                                                                                                                                                                            | Mutable | [Queryable](/rest/api/schema#queryable) | Of A      |
-| ---------------------------------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | --------- | --------- |
-| [Entity](/rest/api/Entity)         | single _unique_ object                                                       | [Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)                                                                                                    | ✅      | ✅        |           |
-| [Object](/rest/api/Object)         | statically known keys                                                        | [Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)                                                                                                    | 🛑      | 🛑        |           |
-| [Array](/rest/api/Array)           | lists of any size                                                            | [Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)                                                                                                      | 🛑      | 🛑        |           |
-| [Values](/rest/api/Values)         | maps of any size                                                             | [Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)                                                                                                    | 🛑      | 🛑        |           |
-| [All](/rest/api/All)               | list of all entities of a kind                                               | [Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)                                                                                                      | 🛑      | ✅        |           |
-| [Collection](/rest/api/Collection) | enables adding new items                                                     | [Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) or [Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array) | ✅      | ✅        |           |
-| [Query](/rest/api/Query)           | memoized custom transforms                                                   | any                                                                                                                                                                                                  | ✅/🛑      | ✅        | Queryable |
-| [Union](/rest/api/Union)           | one of many different types (`A \| B`)                                       | Polymorphic [Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)                                                                                        | ✅      | ✅        | Entity    |
-| [Invalidate](/rest/api/Invalidate) | [remove an entity](../concepts/expiry-policy.md#any-endpoint-with-an-entity) | [Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)                                                                                                    | ✅      | 🛑        | Entity    |
+<table>
+<thead>
+<tr>
+<th>Data Type</th>
+<th>Mutable</th>
+<th>Schema</th>
+<th>Description</th>
+<th>[Queryable](/rest/api/schema#queryable)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td rowSpan={4}><a href="https://en.wikipedia.org/wiki/Object_(computer_science)">Object</a></td>
+<td align="center">✅</td>
+<td>[Entity](/rest/api/Entity)</td>
+<td>single <em>unique</em> object</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td align="center">✅</td>
+<td>[Union(Entity)](/rest/api/Union)</td>
+<td>polymorphic objects (<code>A | B</code>)</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td align="center">🛑</td>
+<td>[Object](/rest/api/Object)</td>
+<td>statically known keys</td>
+<td align="center">🛑</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td>[Invalidate(Entity)](/rest/api/Invalidate)</td>
+<td>[delete an entity](../concepts/expiry-policy.md#invalidate-entity)</td>
+<td align="center">🛑</td>
+</tr>
+<tr>
+<td rowSpan={3}><a href="https://en.wikipedia.org/wiki/List_(abstract_data_type)">List</a></td>
+<td align="center">✅</td>
+<td>[Collection(Array)](/rest/api/Collection)</td>
+<td>growable lists</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td align="center">🛑</td>
+<td>[Array](/rest/api/Array)</td>
+<td>immutable lists</td>
+<td align="center">🛑</td>
+</tr>
+<tr>
+<td align="center">✅</td>
+<td>[All](/rest/api/All)</td>
+<td>list of all entities of a kind</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td rowSpan={2}><a href="https://en.wikipedia.org/wiki/Associative_array">Map</a></td>
+<td align="center">✅</td>
+<td>[Collection(Values)](/rest/api/Collection)</td>
+<td>growable maps</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td align="center">🛑</td>
+<td>[Values](/rest/api/Values)</td>
+<td>immutable maps</td>
+<td align="center">🛑</td>
+</tr>
+<tr>
+<td>any</td>
+<td align="center"></td>
+<td>[Query(Queryable)](/rest/api/Query)</td>
+<td>memoized custom transforms</td>
+<td align="center">✅</td>
+</tr>
+</tbody></table>

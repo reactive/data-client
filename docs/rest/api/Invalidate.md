@@ -10,7 +10,7 @@ import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 # schema.Invalidate
 
 Describes entities to be marked as [INVALID](/docs/concepts/expiry-policy#invalid). This removes items from a
-collection, or [forces suspense](/docs/concepts/expiry-policy#any-endpoint-with-an-entity) for endpoints where the entity is required. 
+collection, or [forces suspense](/docs/concepts/expiry-policy#invalidate-entity) for endpoints where the entity is required. 
 
 Constructor:
 
