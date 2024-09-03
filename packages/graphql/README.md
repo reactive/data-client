@@ -93,14 +93,84 @@ return <ReviewForm onSubmit={data => controller.fetch(createReview, data)} />;
 
 ## API
 
-- Networking definition
+#### Networking definition
   - [Endpoints](https://dataclient.io/rest/api/Endpoint): [GQLEndpoint](https://dataclient.io/graphql/api/GQLEndpoint)
-- [Data model](https://dataclient.io/docs/concepts/normalization)
-  - [Entity](https://dataclient.io/rest/api/Entity), [schema.Entity](https://dataclient.io/rest/api/schema.Entity) mixin, [GQLEntity](https://dataclient.io/graphql/api/GQLEntity)
-  - [Object](https://dataclient.io/rest/api/Object)
-  - [Array](https://dataclient.io/rest/api/Array)
-  - [Values](https://dataclient.io/rest/api/Values)
-  - [All](https://dataclient.io/rest/api/All)
-  - [Collection](https://dataclient.io/rest/api/Collection)
-  - [Union](https://dataclient.io/rest/api/Union)
-  - [Invalidate](https://dataclient.io/rest/api/Invalidate)
+
+<table>
+<caption>
+<a href="https://dataclient.io/docs/concepts/normalization">Data model</a>
+</caption>
+<thead>
+<tr>
+<th>Data Type</th>
+<th>Mutable</th>
+<th>Schema</th>
+<th>Description</th>
+<th><a href="https://dataclient.io/rest/api/schema#queryable">Queryable</a></th>
+</tr>
+</thead>
+<tbody><tr>
+<td rowSpan="4"><a href="https://en.wikipedia.org/wiki/Object_(computer_science)">Object</a></td>
+<td align="center">✅</td>
+<td><a href="https://dataclient.io/rest/api/Entity">Entity</a>, <a href="https://dataclient.io/rest/api/schema.Entity">schema.Entity</a> mixin, <a href="https://dataclient.io/graphql/api/GQLEntity">GQLEntity</a></td>
+<td>single <em>unique</em> object</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td align="center">✅</td>
+<td><a href="https://dataclient.io/rest/api/Union">Union(Entity)</a></td>
+<td>polymorphic objects (<code>A | B</code>)</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td align="center">🛑</td>
+<td><a href="https://dataclient.io/rest/api/Object">Object</a></td>
+<td>statically known keys</td>
+<td align="center">🛑</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td><a href="https://dataclient.io/rest/api/Invalidate">Invalidate(Entity)</a></td>
+<td><a href="https://dataclient.io/docs/concepts/expiry-policy#invalidate-entity">delete an entity</a></td>
+<td align="center">🛑</td>
+</tr>
+<tr>
+<td rowSpan="3"><a href="https://en.wikipedia.org/wiki/List_(abstract_data_type)">List</a></td>
+<td align="center">✅</td>
+<td><a href="https://dataclient.io/rest/api/Collection">Collection(Array)</a></td>
+<td>growable lists</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td align="center">🛑</td>
+<td><a href="https://dataclient.io/rest/api/Array">Array</a></td>
+<td>immutable lists</td>
+<td align="center">🛑</td>
+</tr>
+<tr>
+<td align="center">✅</td>
+<td><a href="https://dataclient.io/rest/api/All">All</a></td>
+<td>list of all entities of a kind</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td rowSpan="2"><a href="https://en.wikipedia.org/wiki/Associative_array">Map</a></td>
+<td align="center">✅</td>
+<td><a href="https://dataclient.io/rest/api/Collection">Collection(Values)</a></td>
+<td>growable maps</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td align="center">🛑</td>
+<td><a href="https://dataclient.io/rest/api/Values">Values</a></td>
+<td>immutable maps</td>
+<td align="center">🛑</td>
+</tr>
+<tr>
+<td>any</td>
+<td align="center"></td>
+<td><a href="https://dataclient.io/rest/api/Query">Query(Queryable)</a></td>
+<td>memoized custom transforms</td>
+<td align="center">✅</td>
+</tr>
+</tbody></table>
