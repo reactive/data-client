@@ -519,10 +519,10 @@ const config: Config = {
               label: 'Ideas',
               href: 'https://github.com/reactive/data-client/discussions/categories/ideas',
             },
-            {
-              label: 'Stack Overflow',
-              href: 'http://stackoverflow.com/questions/tagged/data-client',
-            },
+            // {
+            //   label: 'Stack Overflow',
+            //   href: 'http://stackoverflow.com/questions/tagged/data-client',
+            // },
             // {
             //   label: 'Showcase',
             //   href: 'https://github.com/reactive/data-client/discussions/2422',
@@ -551,6 +551,10 @@ const config: Config = {
             {
               label: 'Demo (NextJS)',
               to: 'https://stackblitz.com/github/reactive/data-client/tree/master/examples/nextjs?file=components%2Ftodo%2FTodoList.tsx',
+            },
+            {
+              label: 'NPM',
+              to: 'https://www.npmjs.com/package/@data-client/react',
             },
             /*{
               html: `<iframe
