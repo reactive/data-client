@@ -282,9 +282,6 @@ interface ExtendableEndpointConstructor {
 }
 type RemoveArray<Orig extends any[], Rem extends any[]> = Rem extends [any, ...infer RestRem] ? Orig extends [any, ...infer RestOrig] ? RemoveArray<RestOrig, RestRem> : never : Orig;
 
-/* eslint-disable @typescript-eslint/ban-types */
-
-
 declare let Endpoint: EndpointConstructor;
 
 
@@ -1530,9 +1527,6 @@ type MutateEndpoint<O extends {
     method: 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 }>;
 
-/* eslint-disable @typescript-eslint/ban-types */
-
-
 /** Simplifies endpoint definitions that follow REST patterns
  *
  * @see https://dataclient.io/rest/api/RestEndpoint
@@ -1755,4 +1749,4 @@ declare class NetworkError extends Error {
     constructor(response: Response);
 }
 
-export { AbstractInstanceType, AddEndpoint, Array$1 as Array, Collection, CustomResource, DefaultArgs, Defaults, Denormalize, DenormalizeNullable, DenormalizeNullableObject, DenormalizeObject, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, EndpointToFunction, Entity, EntityFields, EntityMap, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, ExtendedResource, FetchFunction, FetchGet, FetchMutate, FromFallBack, GetEndpoint, HookResource, HookableEndpointInterface, INVALID, RestEndpoint$1 as IRestEndpoint, Invalidate, KeyofEndpointInstance, KeyofRestEndpoint, KeysToArgs, MethodToSide, MutateEndpoint, NI, NetworkError, Normalize, NormalizeNullable, NormalizeObject, NormalizedEntity, NormalizedNullableObject, ObjectArgs, OptionsToFunction, PaginationEndpoint, PaginationFieldEndpoint, ParamFetchNoBody, ParamFetchWithBody, ParamToArgs, PartialRestGenerics, PathArgs, PathArgsAndSearch, PathKeys, PolymorphicInterface, Queryable, ReadEndpoint, RecordClass, ResolveType, Resource, ResourceEndpointExtensions, ResourceExtension, ResourceGenerics, ResourceOptions, RestEndpoint, RestEndpointConstructor, RestEndpointConstructorOptions, RestEndpointExtendOptions, RestEndpointOptions, RestExtendedEndpoint, RestFetch, RestGenerics, RestInstance, RestInstanceBase, RestType, RestTypeNoBody, RestTypeWithBody, Schema, SchemaArgs, SchemaClass, SchemaSimple, ShortenPath, SnapshotInterface, UnknownError, resource as createResource, getUrlBase, getUrlTokens, hookifyResource, resource, schema_d as schema, validateRequired };
+export { AbstractInstanceType, AddEndpoint, Array$1 as Array, Collection, CustomResource, DefaultArgs, Defaults, Denormalize, DenormalizeNullable, DenormalizeNullableObject, DenormalizeObject, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, EndpointToFunction, Entity, EntityFields, EntityMap, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, ExtendedResource, FetchFunction, FetchGet, FetchMutate, FromFallBack, GetEndpoint, HookResource, HookableEndpointInterface, INVALID, RestEndpoint$1 as IRestEndpoint, Invalidate, KeyofEndpointInstance, KeyofRestEndpoint, KeysToArgs, MethodToSide, MutateEndpoint, NI, NetworkError, Normalize, NormalizeNullable, NormalizeObject, NormalizedEntity, NormalizedNullableObject, ObjectArgs, OptionsToFunction, PaginationEndpoint, PaginationFieldEndpoint, ParamFetchNoBody, ParamFetchWithBody, ParamToArgs, PartialRestGenerics, PathArgs, PathArgsAndSearch, PathKeys, PolymorphicInterface, Queryable, ReadEndpoint, RecordClass, ResolveType, Resource, ResourceEndpointExtensions, ResourceExtension, ResourceGenerics, ResourceInterface, ResourceOptions, RestEndpoint, RestEndpointConstructor, RestEndpointConstructorOptions, RestEndpointExtendOptions, RestEndpointOptions, RestExtendedEndpoint, RestFetch, RestGenerics, RestInstance, RestInstanceBase, RestType, RestTypeNoBody, RestTypeWithBody, Schema, SchemaArgs, SchemaClass, SchemaSimple, ShortenPath, SnapshotInterface, UnknownError, resource as createResource, getUrlBase, getUrlTokens, hookifyResource, resource, schema_d as schema, validateRequired };

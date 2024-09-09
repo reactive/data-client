@@ -13,16 +13,20 @@ import VoteDemo from '../shared/\_VoteDemo.mdx';
 
 # useQuery()
 
-Query the store.
+Data rendering without the fetch.
 
-Renders any [Queryable Schema](/rest/api/schema#queryable) like [Entity](/rest/api/Entity), [All](/rest/api/All), [Collection](/rest/api/Collection), [Query](/rest/api/Query),
-and [Union](/rest/api/Union) from the store.
+Access any [Queryable Schema](/rest/api/schema#queryable)'s store value; like [Entity](/rest/api/Entity), [All](/rest/api/All), [Collection](/rest/api/Collection), [Query](/rest/api/Query),
+and [Union](/rest/api/Union). If the value does not exist, returns `undefined`.
+
+`useQuery()` is reactive to data [mutations](../getting-started/mutations.md); rerendering only when necessary. Returns `undefined`
+when data is [Invalid](../concepts/expiry-policy#invalid).
+
+:::tip
 
 [Queries](/rest/api/Query) are a great companion to efficiently render aggregate computations like those that use [groupBy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/groupBy#browser_compatibility),
 [map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map), [reduce](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce), and [filter](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter).
 
-`useQuery()` is reactive to data [mutations](../getting-started/mutations.md); rerendering only when necessary. Returns `undefined`
-when data is [Invalid](../concepts/expiry-policy#invalid).
+:::
 
 ## Usage
 

@@ -284,9 +284,6 @@ interface ExtendableEndpointConstructor {
 }
 type RemoveArray<Orig extends any[], Rem extends any[]> = Rem extends [any, ...infer RestRem] ? Orig extends [any, ...infer RestOrig] ? RemoveArray<RestOrig, RestRem> : never : Orig;
 
-/* eslint-disable @typescript-eslint/ban-types */
-
-
 declare let Endpoint: EndpointConstructor;
 
 
