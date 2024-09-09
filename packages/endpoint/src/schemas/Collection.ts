@@ -287,7 +287,7 @@ function CreateAdder<C extends CollectionSchema<any, any>, P extends any[]>(
   const properties: PropertyDescriptorMap = {
     merge: { value: merge },
     normalize: { value: normalizeCreate },
-    infer: { value: inferCreate },
+    queryKey: { value: queryKeyCreate },
   };
   if (collection.schema instanceof ArraySchema) {
     properties.createIfValid = { value: createIfValid };
@@ -299,7 +299,7 @@ function CreateAdder<C extends CollectionSchema<any, any>, P extends any[]>(
   return Object.create(collection, properties);
 }
 
-function inferCreate() {}
+function queryKeyCreate() {}
 
 function normalizeCreate(
   this: CollectionSchema<any, any>,
