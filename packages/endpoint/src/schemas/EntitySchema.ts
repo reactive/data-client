@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { Constructor, EntityOptions } from './EntityTypes.js';
 import type {
   Schema,
@@ -378,8 +377,6 @@ export default function EntitySchema<TBase extends Constructor>(
       enumerable: true,
     });
   } else if (!('key' in Base)) {
-    // this allows assignment in strict-mode
-    // eslint-disable-next-line no-inner-declarations
     function set(this: any, value: string) {
       Object.defineProperty(this, 'key', {
         value,

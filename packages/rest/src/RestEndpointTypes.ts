@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
 import type {
   EndpointExtraOptions,
   EndpointInstanceInterface,
@@ -529,7 +528,6 @@ export type RestType<
     searchParams?: any;
     paginationField?: string;
   } = { path: string; paginationField: string },
-  // eslint-disable-next-line @typescript-eslint/ban-types
 > = IfTypeScriptLooseNull<
   RestInstance<RestFetch<UrlParams, Body, R>, S, M, O>,
   Body extends {} ? RestTypeWithBody<UrlParams, S, M, Body, R, O>
@@ -564,7 +562,6 @@ export type RestTypeNoBody<
 /** Simple parameters, and body fetch functions */
 export type RestFetch<
   UrlParams,
-  // eslint-disable-next-line @typescript-eslint/ban-types
   Body = {},
   Resolve = any,
 > = IfTypeScriptLooseNull<
@@ -615,10 +612,7 @@ export type FromFallBack<K extends keyof E, O, E> =
   K extends keyof O ? O[K] : E[K];
 
 export type FetchMutate<
-  A extends readonly any[] =  // eslint-disable-next-line @typescript-eslint/ban-types
-    | [any, {}]
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    | [{}],
+  A extends readonly any[] = [any, {}] | [{}],
   R = any,
 > = (this: RestInstance, ...args: A) => Promise<R>;
 

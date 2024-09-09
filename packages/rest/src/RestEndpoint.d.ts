@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
 import type { RestEndpointConstructor } from './RestEndpointTypes.js';
 export * from './RestEndpointTypes.js';
 

@@ -59,7 +59,7 @@ export default function ExternalDataProvider<S>({
   const isMounted = useRef(true);
   useEffect(() => {
     isMounted.current = true;
-    () => {
+    return () => {
       isMounted.current = false;
     };
   }, []);
