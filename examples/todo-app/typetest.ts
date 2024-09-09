@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import { useQuery, useController, useSuspense } from '@data-client/react';
 
 import {

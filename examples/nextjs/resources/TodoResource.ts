@@ -22,5 +22,5 @@ export const TodoResource = placeholderResource({
 
 export const queryRemainingTodos = new schema.Query(
   TodoResource.getList.schema,
-  (entries) => entries.filter((todo) => !todo.completed).length,
+  entries => entries.filter(todo => !todo.completed).length,
 );

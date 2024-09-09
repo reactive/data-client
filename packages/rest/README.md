@@ -77,10 +77,16 @@ const userOneTodos = await TodoResource.getList({ userId: 1 });
 const newTodo = await TodoResource.getList.push({ title: 'my todo' });
 
 // POST https://jsonplaceholder.typicode.com/todos?userId=1
-const newUserOneTodo = await TodoResource.getList.push({ userId: 1 }, { title: 'my todo' });
+const newUserOneTodo = await TodoResource.getList.push(
+  { userId: 1 },
+  { title: 'my todo' },
+);
 
 // GET https://jsonplaceholder.typicode.com/todos?userId=1&page=2
-const nextPageOfTodos = await TodoResource.getList.getPage({ userId: 1, page: 2 });
+const nextPageOfTodos = await TodoResource.getList.getPage({
+  userId: 1,
+  page: 2,
+});
 
 // PUT https://jsonplaceholder.typicode.com/todos/5
 todo5 = await TodoResource.update({ id: 5 }, { title: 'my todo' });
@@ -108,10 +114,11 @@ const todoList = useSuspense(TodoResource.getList);
 ```typescript
 const ctrl = useController();
 const updateTodo = data => ctrl.fetch(TodoResource.update, { id }, data);
-const partialUpdateTodo= data =>
+const partialUpdateTodo = data =>
   ctrl.fetch(TodoResource.partialUpdate, { id }, data);
 const addTodoToEnd = data => ctrl.fetch(TodoResource.getList.push, data);
-const addTodoToBeginning = data => ctrl.fetch(TodoResource.getList.unshift, data);
+const addTodoToBeginning = data =>
+  ctrl.fetch(TodoResource.getList.unshift, data);
 const deleteTodo = data => ctrl.fetch(TodoResource.delete, { id });
 ```
 
@@ -120,7 +127,7 @@ const deleteTodo = data => ctrl.fetch(TodoResource.delete, { id });
 ```tsx
 const queryRemainingTodos = new schema.Query(
   TodoResource.getList.schema,
-  (entries) => entries.filter((todo) => !todo.completed).length,
+  entries => entries.filter(todo => !todo.completed).length,
 );
 
 const allRemainingTodos = useQuery(queryRemainingTodos);
@@ -145,12 +152,12 @@ supports inferring argument types from the path templates.
 - [Backbone Model](https://backbonejs.org/#Model)
 - [ImmutableJS Record](https://immutable-js.github.io/immutable-js/docs/#/Record)
 
-
 ## API
 
 #### Networking definition
-  - [Endpoints](https://dataclient.io/rest/api/Endpoint): [RestEndpoint](https://dataclient.io/rest/api/RestEndpoint)
-  - [Resources](https://dataclient.io/docs/getting-started/resource): [resource()](https://dataclient.io/rest/api/resource), [hookifyResource()](https://dataclient.io/rest/api/hookifyResource)
+
+- [Endpoints](https://dataclient.io/rest/api/Endpoint): [RestEndpoint](https://dataclient.io/rest/api/RestEndpoint)
+- [Resources](https://dataclient.io/docs/getting-started/resource): [resource()](https://dataclient.io/rest/api/resource), [hookifyResource()](https://dataclient.io/rest/api/hookifyResource)
 
 <table>
 <caption>

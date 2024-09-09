@@ -87,18 +87,14 @@ interface Props {
 }
 ```
 
-```tsx title="TotalVotes" collapsed {15}
+```tsx title="TotalVotes" collapsed {11}
 import { schema } from '@data-client/rest';
 import { useQuery } from '@data-client/react';
-import { Post } from './PostResource';
+import { PostResource } from './PostResource';
 
 const queryTotalVotes = new schema.Query(
-  new schema.All(Post),
-  (posts, { userId } = {}) => {
-    if (userId !== undefined)
-      posts = posts.filter(post => post.author.id === userId);
-    return posts.reduce((total, post) => total + post.votes, 0);
-  },
+  PostResource.getList.schema,
+  posts => posts.reduce((total, post) => total + post.votes, 0),
 );
 
 export default function TotalVotes({ userId }: Props) {
