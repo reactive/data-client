@@ -396,9 +396,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/jest-preset@npm:0.11.7":
-  version: 0.11.7
-  resolution: "@anansi/jest-preset@npm:0.11.7"
+"@anansi/jest-preset@npm:0.11.8":
+  version: 0.11.8
+  resolution: "@anansi/jest-preset@npm:0.11.8"
   dependencies:
     "@anansi/ts-utils": "npm:^0.3.7"
     "@types/babel__core": "npm:^7.20.5"
@@ -422,7 +422,7 @@ __metadata:
       optional: true
     react:
       optional: true
-  checksum: 10c0/395ef3b28faa8a8c376f2d02763d05795f283e9c56f22b0a3311dc069dec92880dd0b3c737a394b9498904aca8034f206cf16cad8227e1e976430175cdb4ff5c
+  checksum: 10c0/0881eb3232a56d8afdbed2bef5761a57ac10ae3538ac82822e1a258c6f5f8d1ec5d2207399de4e873b1b55ae4b7bd1d25b5d2b55583b1ed0f3f6ec212f86321e
   languageName: node
   linkType: hard
 
@@ -3999,14 +3999,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/js@npm:9.9.1":
-  version: 9.9.1
-  resolution: "@eslint/js@npm:9.9.1"
-  checksum: 10c0/a3a91de2ce78469f7c4eee78c1eba77360706e1d0fa0ace2e19102079bcf237b851217c85ea501dc92c4c3719d60d9df966977abc8554d4c38e3638c1f53dcb2
-  languageName: node
-  linkType: hard
-
-"@eslint/js@npm:^9.10.0":
+"@eslint/js@npm:9.10.0, @eslint/js@npm:^9.10.0":
   version: 9.10.0
   resolution: "@eslint/js@npm:9.10.0"
   checksum: 10c0/2ac45a002dc1ccf25be46ea61001ada8d77248d1313ab4e53f3735e5ae00738a757874e41f62ad6fbd49df7dffeece66e5f53ff0d7b78a99ce4c68e8fea66753
@@ -4017,6 +4010,15 @@ __metadata:
   version: 2.1.4
   resolution: "@eslint/object-schema@npm:2.1.4"
   checksum: 10c0/e9885532ea70e483fb007bf1275968b05bb15ebaa506d98560c41a41220d33d342e19023d5f2939fed6eb59676c1bda5c847c284b4b55fce521d282004da4dda
+  languageName: node
+  linkType: hard
+
+"@eslint/plugin-kit@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "@eslint/plugin-kit@npm:0.1.0"
+  dependencies:
+    levn: "npm:^0.4.1"
+  checksum: 10c0/fae97cd4efc1c32501c286abba1b5409848ce8c989e1ca6a5bb057a304a2cd721e6e957f6bc35ce95cfd0871e822ed42df3c759fecdad72c30e70802e26f83c7
   languageName: node
   linkType: hard
 
@@ -6347,9 +6349,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react-native@npm:12.5.3, @testing-library/react-native@npm:^12.0.1":
-  version: 12.5.3
-  resolution: "@testing-library/react-native@npm:12.5.3"
+"@testing-library/react-native@npm:12.6.1, @testing-library/react-native@npm:^12.0.1":
+  version: 12.6.1
+  resolution: "@testing-library/react-native@npm:12.6.1"
   dependencies:
     jest-matcher-utils: "npm:^29.7.0"
     pretty-format: "npm:^29.7.0"
@@ -6362,13 +6364,13 @@ __metadata:
   peerDependenciesMeta:
     jest:
       optional: true
-  checksum: 10c0/6e404bfee5677dfa54405f30e91a24fccb50cc6cf98d0e296ae4ebccb71641a1a1dcefc2ffaa9c3c05eacf2b39c99431f6099ed0227696de4ec914768aa70279
+  checksum: 10c0/e028e39ca4ad6915c3a9699f479aff582328e252243009d313264dbb1eac8f4b7721b786ea0aed59b17939c8639e0addd18e08ee628900ff65a30b41c6ba0919
   languageName: node
   linkType: hard
 
-"@testing-library/react@npm:16.0.0, @testing-library/react@npm:^16.0.0":
-  version: 16.0.0
-  resolution: "@testing-library/react@npm:16.0.0"
+"@testing-library/react@npm:16.0.1, @testing-library/react@npm:^16.0.0":
+  version: 16.0.1
+  resolution: "@testing-library/react@npm:16.0.1"
   dependencies:
     "@babel/runtime": "npm:^7.12.5"
   peerDependencies:
@@ -6382,7 +6384,7 @@ __metadata:
       optional: true
     "@types/react-dom":
       optional: true
-  checksum: 10c0/297f97bf4722dad05f11d9cafd47d387dbdb096fea4b79b876c7466460f0f2e345b55b81b3e37fc81ed8185c528cb53dd8455ca1b6b019b229edf6c796f11c9f
+  checksum: 10c0/67d05dec5ad5a2e6f92b6a3234af785435c7bb62bdbf12f3bfc89c9bca0c871a189e88c4ba023ed4cea504704c87c6ac7e86e24a3962df6c521ae89b62f48ff7
   languageName: node
   linkType: hard
 
@@ -13661,15 +13663,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:9.9.1":
-  version: 9.9.1
-  resolution: "eslint@npm:9.9.1"
+"eslint@npm:9.10.0":
+  version: 9.10.0
+  resolution: "eslint@npm:9.10.0"
   dependencies:
     "@eslint-community/eslint-utils": "npm:^4.2.0"
     "@eslint-community/regexpp": "npm:^4.11.0"
     "@eslint/config-array": "npm:^0.18.0"
     "@eslint/eslintrc": "npm:^3.1.0"
-    "@eslint/js": "npm:9.9.1"
+    "@eslint/js": "npm:9.10.0"
+    "@eslint/plugin-kit": "npm:^0.1.0"
     "@humanwhocodes/module-importer": "npm:^1.0.1"
     "@humanwhocodes/retry": "npm:^0.3.0"
     "@nodelib/fs.walk": "npm:^1.2.8"
@@ -13692,7 +13695,6 @@ __metadata:
     is-glob: "npm:^4.0.0"
     is-path-inside: "npm:^3.0.3"
     json-stable-stringify-without-jsonify: "npm:^1.0.1"
-    levn: "npm:^0.4.1"
     lodash.merge: "npm:^4.6.2"
     minimatch: "npm:^3.1.2"
     natural-compare: "npm:^1.4.0"
@@ -13706,7 +13708,7 @@ __metadata:
       optional: true
   bin:
     eslint: bin/eslint.js
-  checksum: 10c0/5e71efda7c0a14ee95436d5cdfed04ee61dfb1d89d7a32b50a424de2e680af82849628ea6581950c2e0726491f786a3cfd0032ce013c1c5093786e475cfdfb33
+  checksum: 10c0/7357f3995b15043eea83c8c0ab16c385ce3f28925c1b11cfcd6b2ede8faab3d91ede84a68173dd5f6e3e176e177984e6218de58b7b8388e53e2881f1ec07c836
   languageName: node
   linkType: hard
 
@@ -26416,7 +26418,7 @@ __metadata:
     "@anansi/babel-preset": "npm:6.0.5"
     "@anansi/browserslist-config": "npm:1.5.1"
     "@anansi/eslint-plugin": "npm:1.0.5"
-    "@anansi/jest-preset": "npm:0.11.7"
+    "@anansi/jest-preset": "npm:0.11.8"
     "@babel/cli": "npm:7.25.6"
     "@babel/core": "npm:7.25.2"
     "@babel/node": "npm:7.25.0"
@@ -26428,9 +26430,9 @@ __metadata:
     "@js-temporal/polyfill": "npm:^0.4.4"
     "@react-navigation/native": "npm:^6.0.13"
     "@react-navigation/native-stack": "npm:^6.9.1"
-    "@testing-library/react": "npm:16.0.0"
+    "@testing-library/react": "npm:16.0.1"
     "@testing-library/react-hooks": "npm:8.0.1"
-    "@testing-library/react-native": "npm:12.5.3"
+    "@testing-library/react-native": "npm:12.6.1"
     "@types/jest": "npm:29.5.12"
     "@types/node": "npm:22.5.1"
     "@types/react": "npm:18.3.4"
@@ -26443,7 +26445,7 @@ __metadata:
     cpy-cli: "npm:5.0.0"
     cross-fetch: "npm:^4.0.0"
     downlevel-dts: "npm:^0.10.0"
-    eslint: "npm:9.9.1"
+    eslint: "npm:9.10.0"
     globals: "npm:^15.9.0"
     ignore-styles: "npm:^5.0.1"
     jest: "npm:29.7.0"
