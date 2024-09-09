@@ -405,15 +405,16 @@ const config: Config = {
       hideOnScroll: true,
       items: [
         {
-          to: 'docs',
-          label: 'Docs',
+          type: 'doc',
           position: 'left',
+          docId: 'introduction',
+          label: 'Docs',
         },
         {
-          to: 'docs/api/useSuspense',
-          label: 'Hooks',
+          type: 'docSidebar',
           position: 'left',
-          activeBasePath: '/donotuse',
+          sidebarId: 'api',
+          label: 'API',
         },
         {
           to: 'rest',

@@ -2,7 +2,7 @@
   "docs": [
     {
       "type": "doc",
-      "id": "README"
+      "id": "introduction"
     },
     {
       "type": "category",
@@ -70,7 +70,6 @@
       "type": "category",
       "label": "Tooling",
       "items": [
-
         {
           "type": "doc",
           "id": "guides/storybook"
@@ -136,163 +135,156 @@
           ]
         }
       ]
+    }
+  ],
+  "api": [
+    {
+      "type": "category",
+      "label": "Hooks",
+      "items": [
+        {
+          "type": "doc",
+          "id": "api/useSuspense"
+        },
+        {
+          "type": "doc",
+          "id": "api/useController"
+        },
+        {
+          "type": "doc",
+          "id": "api/useCache"
+        },
+        {
+          "type": "doc",
+          "id": "api/useQuery"
+        },
+        {
+          "type": "doc",
+          "id": "api/useLive"
+        },
+        {
+          "type": "doc",
+          "id": "api/useSubscription"
+        },
+        {
+          "type": "doc",
+          "id": "api/useFetch"
+        },
+        {
+          "type": "doc",
+          "id": "api/useDLE"
+        },
+        {
+          "type": "doc",
+          "id": "api/useError"
+        },
+        {
+          "type": "doc",
+          "id": "api/useLoading"
+        },
+        {
+          "type": "doc",
+          "id": "api/useDebounce"
+        },
+        {
+          "type": "doc",
+          "id": "api/useCancelling"
+        }
+      ]
+    },
+    {
+      "type": "doc",
+      "id": "api/Controller"
+    },
+    {
+      "type": "doc",
+      "id": "api/Snapshot"
     },
     {
       "type": "category",
-      "label": "API",
+      "label": "Components",
       "items": [
-
         {
           "type": "doc",
-          "id": "api/Controller"
-        },
-        {
-          "type": "doc",
-          "id": "api/Snapshot"
-        },
-        {
-          "type": "category",
-          "label": "Hooks",
-          "items": [
-
-            {
-              "type": "doc",
-              "id": "api/useSuspense"
-            },
-            {
-              "type": "doc",
-              "id": "api/useController"
-            },
-            {
-              "type": "doc",
-              "id": "api/useCache"
-            },
-            {
-              "type": "doc",
-              "id": "api/useQuery"
-            },
-            {
-              "type": "doc",
-              "id": "api/useLive"
-            },
-            {
-              "type": "doc",
-              "id": "api/useSubscription"
-            },
-            {
-              "type": "doc",
-              "id": "api/useFetch"
-            },
-            {
-              "type": "doc",
-              "id": "api/useDLE"
-            },
-            {
-              "type": "doc",
-              "id": "api/useError"
-            },
-            {
-              "type": "doc",
-              "id": "api/useLoading"
-            },
-            {
-              "type": "doc",
-              "id": "api/useDebounce"
-            },
-            {
-              "type": "doc",
-              "id": "api/useCancelling"
-            }
-          ]
-        },
-        {
-          "type": "category",
-          "label": "Components",
-          "items": [
-            {
-              "type": "doc",
-              "id": "api/DataProvider"
-            },
-            {
-              "type": "doc",
-              "id": "api/ExternalDataProvider"
-            },
-            {
-              "type": "doc",
-              "id": "api/AsyncBoundary"
-            },
-            {
-              "type": "doc",
-              "id": "api/ErrorBoundary"
-            }
-          ]
-        },
-        {
-          "type": "category",
-          "label": "Managers",
-          "items": [
-            {
-              "type": "doc",
-              "id": "api/Manager"
-            },
-            {
-              "type": "doc",
-              "id": "api/Actions"
-            },
-            {
-              "type": "doc",
-              "id": "api/getDefaultManagers"
-            },
-            {
-              "type": "doc",
-              "id": "api/NetworkManager"
-            },
-            {
-              "type": "doc",
-              "id": "api/SubscriptionManager"
-            },
-            {
-              "type": "doc",
-              "id": "api/PollingSubscription"
-            },
-            {
-              "type": "doc",
-              "id": "api/DevToolsManager"
-            },
-            {
-              "type": "doc",
-              "id": "api/LogoutManager"
-            }
-          ]
-        },
-        {
-          "type": "category",
-          "label": "Testing",
-          "items": [
-            {
-              "type": "doc",
-              "id": "api/Fixtures"
-            },
-            {
-              "type": "doc",
-              "id": "api/MockResolver"
-            },
-            {
-              "type": "doc",
-              "id": "api/makeRenderDataClient"
-            },
-            {
-              "type": "doc",
-              "id": "api/mockInitialState"
-            }
-          ]
+          "id": "api/DataProvider"
         },
         {
           "type": "doc",
-          "id": "api/types"
+          "id": "api/ExternalDataProvider"
+        },
+        {
+          "type": "doc",
+          "id": "api/AsyncBoundary"
+        },
+        {
+          "type": "doc",
+          "id": "api/ErrorBoundary"
         }
       ]
+    },
+    {
+      "type": "category",
+      "label": "Managers",
+      "items": [
+        {
+          "type": "doc",
+          "id": "api/Manager"
+        },
+        {
+          "type": "doc",
+          "id": "api/Actions"
+        },
+        {
+          "type": "doc",
+          "id": "api/getDefaultManagers"
+        },
+        {
+          "type": "doc",
+          "id": "api/NetworkManager"
+        },
+        {
+          "type": "doc",
+          "id": "api/SubscriptionManager"
+        },
+        {
+          "type": "doc",
+          "id": "api/PollingSubscription"
+        },
+        {
+          "type": "doc",
+          "id": "api/DevToolsManager"
+        },
+        {
+          "type": "doc",
+          "id": "api/LogoutManager"
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Testing",
+      "items": [
+        {
+          "type": "doc",
+          "id": "api/Fixtures"
+        },
+        {
+          "type": "doc",
+          "id": "api/MockResolver"
+        },
+        {
+          "type": "doc",
+          "id": "api/makeRenderDataClient"
+        },
+        {
+          "type": "doc",
+          "id": "api/mockInitialState"
+        }
+      ]
+    },
+    {
+      "type": "doc",
+      "id": "api/types"
     }
-
   ]
 }

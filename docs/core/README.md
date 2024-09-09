@@ -3,6 +3,7 @@ title: Introducing the Reactive Data Client
 sidebar_label: Introduction
 description: Building delightful dynamic applications with NextJS, Expo, React Native and more.
 slug: /
+id: introduction
 ---
 
 import ThemedImage from '@theme/ThemedImage';
