@@ -204,9 +204,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/babel-preset@npm:6.0.4, @anansi/babel-preset@npm:^6.0.0":
-  version: 6.0.4
-  resolution: "@anansi/babel-preset@npm:6.0.4"
+"@anansi/babel-preset@npm:6.0.5, @anansi/babel-preset@npm:^6.0.0":
+  version: 6.0.5
+  resolution: "@anansi/babel-preset@npm:6.0.5"
   dependencies:
     "@anansi/ts-utils": "npm:^0.3.7"
     "@babel/plugin-proposal-decorators": "npm:^7.24.7"
@@ -259,7 +259,7 @@ __metadata:
       optional: true
     typescript:
       optional: true
-  checksum: 10c0/910138e151669a2e419751783975930d753ab2a80365558dc8217642f990c06edf9428335dda7941c486ed778a26bab28c245684093a87e59306b5ef6b8c287b
+  checksum: 10c0/23fa7be2696cba99b62f06e5ef57d703516becc49dfe6970adae9b40a8123eeaae155b791e4eac3631da1bca209e28daaea38343dd75770ab8f3512bcda50af8
   languageName: node
   linkType: hard
 
@@ -453,9 +453,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:20.0.1, @anansi/webpack-config@npm:^20.0.0":
-  version: 20.0.1
-  resolution: "@anansi/webpack-config@npm:20.0.1"
+"@anansi/webpack-config@npm:20.0.2, @anansi/webpack-config@npm:^20.0.0":
+  version: 20.0.2
+  resolution: "@anansi/webpack-config@npm:20.0.2"
   dependencies:
     "@babel/runtime": "npm:^7.17.2"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.15"
@@ -490,7 +490,7 @@ __metadata:
     os-browserify: "npm:^0.3.0"
     path: "npm:^0.12.7"
     path-browserify: "npm:^1.0.1"
-    postcss: "npm:^8.4.41"
+    postcss: "npm:^8.4.45"
     postcss-loader: "npm:^8.1.1"
     postcss-preset-env: "npm:^10.0.2"
     process: "npm:^0.11.10"
@@ -556,17 +556,17 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: 10c0/7c36227ce4ce86dd8a3c482b80cf5c8cefa7f56bb073feefb6512703f9a421b5a630c398b3ce4183f00b7a28fdbb6a707ff3701be6b11e61b93501ba47e433d7
+  checksum: 10c0/d753c2fa7f54b3dd713efcd261f017a983d51a6c10f630397c91db8413c5d01dd4ec9f888204bb357d903820855f5ceced8fa3179d7c5d0a18739413437e702f
   languageName: node
   linkType: hard
 
-"@babel/cli@npm:7.24.8":
-  version: 7.24.8
-  resolution: "@babel/cli@npm:7.24.8"
+"@babel/cli@npm:7.25.6":
+  version: 7.25.6
+  resolution: "@babel/cli@npm:7.25.6"
   dependencies:
     "@jridgewell/trace-mapping": "npm:^0.3.25"
     "@nicolo-ribaudo/chokidar-2": "npm:2.1.8-no-fsevents.3"
-    chokidar: "npm:^3.4.0"
+    chokidar: "npm:^3.6.0"
     commander: "npm:^6.2.0"
     convert-source-map: "npm:^2.0.0"
     fs-readdir-recursive: "npm:^1.1.0"
@@ -583,7 +583,7 @@ __metadata:
   bin:
     babel: ./bin/babel.js
     babel-external-helpers: ./bin/babel-external-helpers.js
-  checksum: 10c0/b7f464ccb00db60aed63d71e980df823900d20c740bc2d9eb36c3abd4b3e2402cc438818382344085ef6603aeea2e6ee19af8f0ecb934966eccf077b87af7c7c
+  checksum: 10c0/861d3c2ed6c47b25a322c2f6127f56783d8d333fc2d02d3815f86301fe1102eca5f61b8a5c8610a6a2872d1ccfce24fd6d4a91f4f73536e43b8e2f28f9dcf5ed
   languageName: node
   linkType: hard
 
@@ -3964,14 +3964,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint-community/regexpp@npm:^4.10.0":
-  version: 4.10.0
-  resolution: "@eslint-community/regexpp@npm:4.10.0"
-  checksum: 10c0/c5f60ef1f1ea7649fa7af0e80a5a79f64b55a8a8fa5086de4727eb4c86c652aedee407a9c143b8995d2c0b2d75c1222bec9ba5d73dbfc1f314550554f0979ef4
-  languageName: node
-  linkType: hard
-
-"@eslint-community/regexpp@npm:^4.11.0":
+"@eslint-community/regexpp@npm:^4.10.0, @eslint-community/regexpp@npm:^4.11.0":
   version: 4.11.0
   resolution: "@eslint-community/regexpp@npm:4.11.0"
   checksum: 10c0/0f6328869b2741e2794da4ad80beac55cba7de2d3b44f796a60955b0586212ec75e6b0253291fd4aad2100ad471d1480d8895f2b54f1605439ba4c875e05e523
@@ -8176,16 +8169,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"acorn@npm:^8.0.0, acorn@npm:^8.0.4, acorn@npm:^8.4.1, acorn@npm:^8.7.1, acorn@npm:^8.8.2":
-  version: 8.10.0
-  resolution: "acorn@npm:8.10.0"
-  bin:
-    acorn: bin/acorn
-  checksum: 10c0/deaeebfbea6e40f6c0e1070e9b0e16e76ba484de54cbd735914d1d41d19169a450de8630b7a3a0c4e271a3b0c0b075a3427ad1a40d8a69f8747c0e8cb02ee3e2
-  languageName: node
-  linkType: hard
-
-"acorn@npm:^8.12.0":
+"acorn@npm:^8.0.0, acorn@npm:^8.0.4, acorn@npm:^8.12.0, acorn@npm:^8.4.1, acorn@npm:^8.7.1, acorn@npm:^8.8.2":
   version: 8.12.1
   resolution: "acorn@npm:8.12.1"
   bin:
@@ -10155,7 +10139,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chokidar@npm:>=3.0.0 <4.0.0, chokidar@npm:^3.4.0, chokidar@npm:^3.4.2, chokidar@npm:^3.5.3, chokidar@npm:^3.6.0":
+"chokidar@npm:>=3.0.0 <4.0.0, chokidar@npm:^3.4.2, chokidar@npm:^3.5.3, chokidar@npm:^3.6.0":
   version: 3.6.0
   resolution: "chokidar@npm:3.6.0"
   dependencies:
@@ -18536,16 +18520,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"keyv@npm:^4.0.0, keyv@npm:^4.5.3":
-  version: 4.5.3
-  resolution: "keyv@npm:4.5.3"
-  dependencies:
-    json-buffer: "npm:3.0.1"
-  checksum: 10c0/7d3fc0469962bdff75ce92402b216a23d146e0caad011424947b32b95ffc4b91df12b1206026e6e945e7f80b3729a3109c0c3984f23038d738d355491179dd79
-  languageName: node
-  linkType: hard
-
-"keyv@npm:^4.5.4":
+"keyv@npm:^4.0.0, keyv@npm:^4.5.3, keyv@npm:^4.5.4":
   version: 4.5.4
   resolution: "keyv@npm:4.5.4"
   dependencies:
@@ -24339,14 +24314,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.4.21, postcss@npm:^8.4.24, postcss@npm:^8.4.26, postcss@npm:^8.4.33, postcss@npm:^8.4.38, postcss@npm:^8.4.41":
-  version: 8.4.41
-  resolution: "postcss@npm:8.4.41"
+"postcss@npm:^8.4.21, postcss@npm:^8.4.24, postcss@npm:^8.4.26, postcss@npm:^8.4.33, postcss@npm:^8.4.38, postcss@npm:^8.4.45":
+  version: 8.4.45
+  resolution: "postcss@npm:8.4.45"
   dependencies:
     nanoid: "npm:^3.3.7"
     picocolors: "npm:^1.0.1"
     source-map-js: "npm:^1.2.0"
-  checksum: 10c0/c1828fc59e7ec1a3bf52b3a42f615dba53c67960ed82a81df6441b485fe43c20aba7f4e7c55425762fd99c594ecabbaaba8cf5b30fd79dfec5b52a9f63a2d690
+  checksum: 10c0/ad6f8b9b1157d678560373696109745ab97a947d449f8a997acac41c7f1e4c0f3ca4b092d6df1387f430f2c9a319987b1780dbdc27e35800a88cde9b606c1e8f
   languageName: node
   linkType: hard
 
@@ -24885,7 +24860,7 @@ __metadata:
   resolution: "rdc-website@workspace:website"
   dependencies:
     "@anansi/browserslist-config": "npm:1.5.1"
-    "@anansi/webpack-config": "npm:20.0.1"
+    "@anansi/webpack-config": "npm:20.0.2"
     "@data-client/endpoint": "workspace:*"
     "@data-client/graphql": "workspace:*"
     "@data-client/react": "workspace:*"
@@ -26438,11 +26413,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    "@anansi/babel-preset": "npm:6.0.4"
+    "@anansi/babel-preset": "npm:6.0.5"
     "@anansi/browserslist-config": "npm:1.5.1"
     "@anansi/eslint-plugin": "npm:1.0.5"
     "@anansi/jest-preset": "npm:0.11.7"
-    "@babel/cli": "npm:7.24.8"
+    "@babel/cli": "npm:7.25.6"
     "@babel/core": "npm:7.25.2"
     "@babel/node": "npm:7.25.0"
     "@babel/preset-flow": "npm:^7.18.6"
