@@ -10,7 +10,7 @@
   "scripts": {
     "changeset:version": "run changeset version && YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install",
     "changeset:publish": "run build && run changeset publish",
-    "lint": "eslint --ext .ts,.tsx,.js",
+    "lint": "eslint",
     "format": "eslint --fix \"packages/*/src/**/*.{js,ts,tsx,cts}\"",
     "clean:types": "rimraf packages/*/*.tsbuildinfo",
     "build": "yarn build:types && yarn workspaces foreach -Wptiv --no-private run build",
@@ -47,7 +47,7 @@
   "devDependencies": {
     "@anansi/babel-preset": "6.0.4",
     "@anansi/browserslist-config": "1.5.1",
-    "@anansi/eslint-plugin": "0.17.16",
+    "@anansi/eslint-plugin": "1.0.5",
     "@anansi/jest-preset": "0.11.7",
     "@babel/cli": "7.24.8",
     "@babel/core": "7.25.2",
@@ -66,8 +66,6 @@
     "@types/jest": "29.5.12",
     "@types/node": "22.5.1",
     "@types/react": "18.3.4",
-    "@typescript-eslint/eslint-plugin": "7.18.0",
-    "@typescript-eslint/parser": "7.18.0",
     "babel-plugin-module-resolver": "5.0.2",
     "benchmark": "^2.1.4",
     "conventional-changelog-anansi": "^0.2.0",
@@ -77,12 +75,8 @@
     "cpy-cli": "5.0.0",
     "cross-fetch": "^4.0.0",
     "downlevel-dts": "^0.10.0",
-    "eslint": "8.57.0",
-    "eslint-plugin-babel": "^5.3.1",
-    "eslint-plugin-import": "2.29.1",
-    "eslint-plugin-prettier": "5.2.1",
-    "eslint-plugin-react": "7.35.0",
-    "eslint-plugin-react-hooks": "4.6.2",
+    "eslint": "9.9.1",
+    "globals": "^15.9.0",
     "ignore-styles": "^5.0.1",
     "jest": "29.7.0",
     "jest-environment-jsdom": "29.7.0",
@@ -123,29 +117,5 @@
     "singleQuote": true,
     "arrowParens": "avoid",
     "experimentalTernaries": true
-  },
-  "eslintConfig": {
-    "extends": [
-      "plugin:@anansi/typescript"
-    ],
-    "rules": {
-      "@typescript-eslint/no-empty-function": "warn"
-    },
-    "settings": {
-      "import/resolver": {
-        "node": {}
-      }
-    },
-    "globals": {
-      "process": "writable"
-    },
-    "ignorePatterns": [
-      "**/lib*/*",
-      "**/dist*/*",
-      "packages/*/native/*",
-      "**/node_modules*/*",
-      "node_modules/*",
-      "**/src-*-types/*"
-    ]
   }
 }

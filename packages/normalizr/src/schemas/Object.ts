@@ -28,7 +28,6 @@ export const normalize = (
 
 export const denormalize = (
   schema: any,
-  // eslint-disable-next-line @typescript-eslint/ban-types
   input: {},
   args: readonly any[],
   unvisit: any,

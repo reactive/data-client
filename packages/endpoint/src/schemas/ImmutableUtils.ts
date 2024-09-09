@@ -10,7 +10,6 @@
  * @param  {any} object
  * @return {bool}
  */
-// eslint-disable-next-line @typescript-eslint/ban-types
 export function isImmutable(object: {}): object is {
   get(k: string): any;
   [k: string]: any;

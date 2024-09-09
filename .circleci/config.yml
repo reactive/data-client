@@ -7,7 +7,7 @@ jobs:
   setup:
     docker: &docker
       # specify the version you desire here
-      - image: cimg/node:22.4
+      - image: cimg/node:22.7
     resource_class: large
     steps:
       - checkout:
@@ -48,6 +48,7 @@ jobs:
             - project/jest.config.js
             - project/tsconfig-base.json
             - project/tsconfig.json
+            - project/eslint.config.mjs
             - project/yarn.lock
             - project/tsconfig.test.json
             - project/package.json
@@ -61,7 +62,7 @@ jobs:
           at: ~/
       - run:
           command: |
-            yarn lint packages/*/src
+            yarn lint --quiet packages/*/src
 
   typecheck:
     docker: *docker
