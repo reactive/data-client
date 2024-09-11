@@ -12,7 +12,7 @@ import versions from './versions.json';
 const isDev = process.env.NODE_ENV === 'development';
 
 const config: Config = {
-  title: 'Reactive Data Client',
+  title: 'Data Client',
   tagline: 'Async State Management without the Management',
   url: 'https://dataclient.io',
   baseUrl: '/',

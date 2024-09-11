@@ -13,6 +13,21 @@ queryable:
   description: 'Queryable Schemas allow store access without an endpoint'
   permalink: /queryable
 
+nextjs:
+  label: 'NextJS'
+  description: 'NextJS is an SSR and SSG framework for ReactJS'
+  permalink: /nextjs
+
+expogo:
+  label: 'ExpoGo'
+  description: 'ExpoGo is a React Native framework'
+  permalink: /expogo
+
+native:
+  label: 'React Native'
+  description: 'React Native enables React applications for iOS and Android'
+  permalink: /react-native
+
 rest:
   label: 'REST'
   description: 'Representational state transfer: HTTP based APIs'

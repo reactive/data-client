@@ -52,8 +52,8 @@ Alternatively [integrate state with redux](../guides/redux.md)
 
 <TabItem value="nextjs">
 
-<p style={{textAlign: 'center'}}>
-<Link className="button button--primary" to="../guides/ssr#nextjs">Full NextJS Guide</Link>
+<p style={{ textAlign: 'center' }}>
+  <Link className="button button--primary" to="../guides/ssr#nextjs">Full NextJS Guide</Link>
 </p>
 
 ```tsx title="app/layout.tsx"
@@ -65,10 +65,7 @@ export default function RootLayout({ children }) {
     <html>
       <body>
         // highlight-next-line
-        <DataProvider>
-          {children}
-          // highlight-next-line
-        </DataProvider>
+        <DataProvider>{children}</DataProvider>
       </body>
     </html>
   );
@@ -86,7 +83,7 @@ export default function RootLayout() {
   return (
     // highlight-start
     <DataProvider>
-    // highlight-end
+      // highlight-end
       <Stack>
         <Stack.Screen name="index" />
       </Stack>
