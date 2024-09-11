@@ -132,7 +132,7 @@
   "dependencies": {
     "@babel/runtime": "^7.17.0",
     "@data-client/endpoint": "^0.14.12",
-    "path-to-regexp": "^8.0.0"
+    "path-to-regexp": "^8.1.0"
   },
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",

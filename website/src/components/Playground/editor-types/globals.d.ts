@@ -1,4 +1,4 @@
-import { PathFunction } from 'path-to-regexp';
+import { PathFunction, ParamData } from 'path-to-regexp';
 import { Manager, State, Controller, EndpointInterface as EndpointInterface$1, FetchFunction as FetchFunction$1, Schema as Schema$1, ResolveType as ResolveType$1, Denormalize as Denormalize$1, DenormalizeNullable as DenormalizeNullable$1, Queryable as Queryable$1, NI as NI$1, SchemaArgs as SchemaArgs$1, NetworkError as NetworkError$2, UnknownError as UnknownError$1, ErrorTypes as ErrorTypes$2 } from '@data-client/core';
 export { Manager } from '@data-client/core';
 import React, { JSX } from 'react';
@@ -1537,7 +1537,7 @@ type MutateEndpoint<O extends {
  */
 declare let RestEndpoint: RestEndpointConstructor;
 
-declare function getUrlBase(path: string): PathFunction;
+declare function getUrlBase(path: string): PathFunction<ParamData>;
 declare function getUrlTokens(path: string): Set<string>;
 
 type ResourceExtension<R extends {

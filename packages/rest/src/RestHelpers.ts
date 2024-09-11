@@ -1,14 +1,11 @@
-import { compile, PathFunction, parse } from 'path-to-regexp';
+import { compile, PathFunction, parse, Token, ParamData } from 'path-to-regexp';
 
 import { ShortenPath } from './pathTypes.js';
 
 const urlBaseCache: Record<string, PathFunction<object>> = Object.create(null);
-export function getUrlBase(path: string): PathFunction {
+export function getUrlBase(path: string): PathFunction<ParamData> {
   if (!(path in urlBaseCache)) {
-    urlBaseCache[path] = compile(path, {
-      encode: encodeURIComponent,
-      validate: false,
-    });
+    urlBaseCache[path] = compile(path);
   }
   return urlBaseCache[path];
 }
@@ -16,11 +13,24 @@ export function getUrlBase(path: string): PathFunction {
 const urlTokensCache: Record<string, Set<string>> = Object.create(null);
 export function getUrlTokens(path: string): Set<string> {
   if (!(path in urlTokensCache)) {
-    urlTokensCache[path] = new Set(
-      parse(path).map(t => (typeof t === 'string' ? t : `${t['name']}`)),
-    );
+    urlTokensCache[path] = tokenMap(parse(path).tokens);
   }
   return urlTokensCache[path];
+}
+
+function tokenMap(tokens: Token[]): Set<string> {
+  const tokenNames = new Set<string>();
+  tokens.forEach(token => {
+    switch (token.type) {
+      case 'param':
+      case 'wildcard':
+        tokenNames.add(token.name);
+        break;
+      case 'group':
+        return tokenNames.union(tokenMap(token.tokens));
+    }
+  });
+  return tokenNames;
 }
 
 const proto = Object.prototype;

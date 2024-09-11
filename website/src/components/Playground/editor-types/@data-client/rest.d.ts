@@ -1,4 +1,4 @@
-import { PathFunction } from 'path-to-regexp';
+import { PathFunction, ParamData } from 'path-to-regexp';
 
 interface NetworkError$1 extends Error {
     status: number;
@@ -1533,7 +1533,7 @@ type MutateEndpoint<O extends {
  */
 declare let RestEndpoint: RestEndpointConstructor;
 
-declare function getUrlBase(path: string): PathFunction;
+declare function getUrlBase(path: string): PathFunction<ParamData>;
 declare function getUrlTokens(path: string): Set<string>;
 
 type ResourceExtension<R extends {
