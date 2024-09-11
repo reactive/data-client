@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.14.12
+
+### Patch Changes
+
+- [`3b337e7`](https://github.com/reactive/data-client/commit/3b337e74e3f22f2fe48f6eb37084bbf58859bbe1) Thanks [@ntucker](https://github.com/ntucker)! - Add schema table to README
+
 ## 0.14.10
 
 ### Patch Changes
