@@ -1,5 +1,16 @@
 # @data-client/graphql
 
+## 0.14.12
+
+### Patch Changes
+
+- [`3b337e7`](https://github.com/reactive/data-client/commit/3b337e74e3f22f2fe48f6eb37084bbf58859bbe1) Thanks [@ntucker](https://github.com/ntucker)! - Add schema table to README
+
+- [`11d4ccf`](https://github.com/reactive/data-client/commit/11d4ccfb4c630c25b847bf59ca1028eed8c2369e) Thanks [@ntucker](https://github.com/ntucker)! - Fix: Collection adders (push/unshift) should _not_ be Queryable
+
+- Updated dependencies [[`3b337e7`](https://github.com/reactive/data-client/commit/3b337e74e3f22f2fe48f6eb37084bbf58859bbe1), [`11d4ccf`](https://github.com/reactive/data-client/commit/11d4ccfb4c630c25b847bf59ca1028eed8c2369e)]:
+  - @data-client/endpoint@0.14.12
+
 ## 0.14.11
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @data-client/react
 
+## 0.14.12
+
+### Patch Changes
+
+- [#3202](https://github.com/reactive/data-client/pull/3202) [`1ce07be`](https://github.com/reactive/data-client/commit/1ce07be35f52dc51f3d3ee8ff1db5f0ebb15d058) Thanks [@renovate](https://github.com/apps/renovate)! - fix: ExternalDataProvider correctly tracks unmounting
+
 ## 0.14.11
 
 ### Patch Changes
