@@ -73,10 +73,10 @@ import { RestEndpoint } from '@data-client/rest';
   // @ts-expect-error
   () => noSearch(5);
 };
-// path: '/todos/:id?'
+// path: '/todos{/:id}'
 () => {
   const optionalUndefSearch = new RestEndpoint({
-    path: '/todos/:id?',
+    path: '/todos{/:id}',
     searchParams: {} as
       | {
           userId?: string | number;
@@ -84,23 +84,23 @@ import { RestEndpoint } from '@data-client/rest';
       | undefined,
   });
   const optionalSearch = new RestEndpoint({
-    path: '/todos/:id?',
+    path: '/todos{/:id}',
     searchParams: {} as {
       userId?: string | number;
     },
   });
   const undef = new RestEndpoint({
-    path: '/todos/:id?',
+    path: '/todos{/:id}',
     searchParams: undefined,
   });
   const requiredSearch = new RestEndpoint({
-    path: '/todos/:id?',
+    path: '/todos{/:id}',
     searchParams: {} as {
       userId: string | number;
     },
   });
   const noSearch = new RestEndpoint({
-    path: '/todos/:id?',
+    path: '/todos{/:id}',
   });
   () => optionalUndefSearch();
   () => optionalUndefSearch({});

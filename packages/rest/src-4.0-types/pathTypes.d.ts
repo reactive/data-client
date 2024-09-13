@@ -11,7 +11,7 @@ export declare type KeysToArgs<Key extends string> = {
 };
 export declare type PathArgsAndSearch<S extends string> =
   PathKeys<S> extends never
-    ? Record<string, number | string> | undefined
+    ? Record<string, number | string | boolean> | undefined
     : {
         [K in PathKeys<S>]: string | number;
       } & Record<string, number | string>;

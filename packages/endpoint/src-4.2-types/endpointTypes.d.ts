@@ -10,7 +10,7 @@ import type {
 export interface EndpointOptions<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = undefined,
-  M extends boolean | undefined = undefined,
+  M extends boolean | undefined = false,
 > extends EndpointExtraOptions<F> {
   key?: (...args: Parameters<F>) => string;
   sideEffect?: M;

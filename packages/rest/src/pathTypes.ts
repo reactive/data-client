@@ -1,8 +1,8 @@
+type CleanKey<S extends string> = S extends `"${infer K}"` ? K : S;
 type OnlyOptional<S extends string> =
-  S extends `${infer K}}?` ? K
-  : S extends `${infer K}?` ? K
-  : never;
-type OnlyRequired<S extends string> = S extends `${string}?` ? never : S;
+  S extends `${infer K}}` ? CleanKey<K> : never;
+type OnlyRequired<S extends string> =
+  S extends `${string}}` ? never : CleanKey<S>;
 
 /** Parameters for a given path */
 export type PathArgs<S extends string> =
@@ -14,18 +14,18 @@ export type PathArgs<S extends string> =
 /** Computes the union of keys for a path string */
 export type PathKeys<S extends string> =
   string extends S ? string
-  : S extends `${infer A}\\${':' | '?' | '+' | '*' | '{' | '}'}${infer B}` ?
+  : S extends `${infer A}\\${':' | '*' | '}'}${infer B}` ?
     PathKeys<A> | PathKeys<B>
   : PathSplits<S>;
 
 type PathSplits<S extends string> =
   S extends (
-    `${string}:${infer K}${'/' | ',' | '%' | '&' | '+' | '*' | '{'}${infer R}`
+    `${string}${':' | '*'}${infer K}${'/' | '\\' | '%' | '&' | '*' | '{' | ';' | ',' | '!' | '@'}${infer R}`
   ) ?
-    PathSplits<`:${K}`> | PathSplits<R>
-  : S extends `${string}:${infer K}:${infer R}` ?
-    PathSplits<`:${K}`> | PathSplits<`:${R}`>
-  : S extends `${string}:${infer K}` ? K
+    PathSplits<`${':' | '*'}${K}`> | PathSplits<R>
+  : S extends `${string}${':' | '*'}${infer K}${':' | '*'}${infer R}` ?
+    PathSplits<`${':' | '*'}${K}`> | PathSplits<`${':' | '*'}${R}`>
+  : S extends `${string}${':' | '*'}${infer K}` ? K
   : never;
 
 export type KeysToArgs<Key extends string> = {

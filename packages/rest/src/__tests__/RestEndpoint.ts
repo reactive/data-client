@@ -237,9 +237,9 @@ describe('RestEndpoint', () => {
   });
 
   it('only optional path means the arg is not required', () => {
-    const ep = new RestEndpoint({ path: '/users/:id?/:group?' });
+    const ep = new RestEndpoint({ path: '/users{/:id}{/:group}' });
     const epbody = new RestEndpoint({
-      path: '/users/:id?/:group?',
+      path: '/users{/:id}{/:group}',
       body: { title: '' },
       method: 'POST',
     });
