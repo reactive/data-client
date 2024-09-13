@@ -1,5 +1,11 @@
 # @data-client/rest
 
+## 0.14.13
+
+### Patch Changes
+
+- [#3215](https://github.com/reactive/data-client/pull/3215) [`e74f7dc`](https://github.com/reactive/data-client/commit/e74f7dc0750fdf32e455bf2c36eff119afba6476) Thanks [@renovate](https://github.com/apps/renovate)! - Update path-to-regexp for [CVE-2024-45296](https://redirect.github.com/pillarjs/path-to-regexp/security/advisories/GHSA-9wv6-86v2-598j)
+
 ## 0.14.12
 
 ### Patch Changes
