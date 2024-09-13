@@ -129,13 +129,13 @@ return price.value;
 
 ```tsx
 const ctrl = useController();
+await ctrl.fetch(ArticleResource.update, { id }, articleData);
+await ctrl.fetchIfStale(ArticleResource.get, { id });
 ctrl.expireAll(ArticleResource.getList);
 ctrl.invalidate(ArticleResource.get, { id });
 ctrl.invalidateAll(ArticleResource.getList);
 ctrl.setResponse(ArticleResource.get, { id }, articleData);
 ctrl.set(Article, { id }, articleData);
-ctrl.fetchIfStale(ArticleResource.get, { id });
-ctrl.fetch(ArticleResource.update, { id }, articleData);
 ```
 
 ### [Programmatic queries](https://dataclient.io/rest/api/Query)

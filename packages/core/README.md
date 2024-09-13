@@ -1,4 +1,10 @@
-# [![Reactive Data Client](./data_client_logo_and_text.svg?sanitize=true)](https://dataclient.io)
+<h1>
+<div align="center">
+<a href="https://dataclient.io" target="_blank" rel="noopener">
+  <img alt="Reactive Data Client" src="./data_client_logo_and_text.svg?sanitize=true">
+</a>
+</div>
+</h1>
 
 [![CircleCI](https://circleci.com/gh/reactive/data-client/tree/master.svg?style=shield)](https://circleci.com/gh/reactive/data-client)
 [![Coverage Status](https://img.shields.io/codecov/c/gh/reactive/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/reactive/data-client?branch=master)
