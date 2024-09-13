@@ -312,6 +312,7 @@ const config: Config = {
             from: [
               '/docs/api/makeExternalCacheProvider',
               '/docs/api/makeCacheProvider',
+              '/docs/api/makeRenderRestHook',
             ],
           },
           {
