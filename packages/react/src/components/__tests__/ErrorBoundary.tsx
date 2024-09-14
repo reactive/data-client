@@ -20,7 +20,7 @@ describe('<ErrorBoundary />', () => {
   it('should render children with no error', () => {
     const tree = <ErrorBoundary>hi</ErrorBoundary>;
     const { getByText } = render(tree);
-    expect(getByText(/hi/i)).toBeDefined();
+    expect(getByText(/hi/i)).not.toBeNull();
   });
   it('should catch non-network errors', () => {
     const originalError = console.error;
