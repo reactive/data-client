@@ -485,14 +485,14 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      */
     fetch: <E extends EndpointInterface & {
         update?: EndpointUpdateFunction<E>;
-    }>(endpoint: E, ...args_0: Parameters<E>) => E["schema"] extends undefined | null ? ReturnType<E> : Promise<Denormalize<E["schema"]>>;
+    }>(endpoint: E, ...args: Parameters<E>) => E["schema"] extends undefined | null ? ReturnType<E> : Promise<Denormalize<E["schema"]>>;
     /**
      * Fetches only if endpoint is considered 'stale'; otherwise returns undefined
      * @see https://dataclient.io/docs/api/Controller#fetchIfStale
      */
     fetchIfStale: <E extends EndpointInterface & {
         update?: EndpointUpdateFunction<E>;
-    }>(endpoint: E, ...args_0: Parameters<E>) => E["schema"] extends undefined | null ? ReturnType<E> | ResolveType<E> : Promise<Denormalize<E["schema"]>> | Denormalize<E["schema"]>;
+    }>(endpoint: E, ...args: Parameters<E>) => E["schema"] extends undefined | null ? ReturnType<E> | ResolveType<E> : Promise<Denormalize<E["schema"]>> | Denormalize<E["schema"]>;
     /**
      * Forces refetching and suspense on useSuspense with the same Endpoint and parameters.
      * @see https://dataclient.io/docs/api/Controller#invalidate

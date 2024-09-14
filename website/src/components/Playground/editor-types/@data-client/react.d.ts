@@ -225,8 +225,8 @@ declare function useLive<E extends EndpointInterface$1<FetchFunction$1, Schema$1
  * @param updatable Whether to update at all
  * @example
  ```
- const debouncedFilter = useDebounced(filter, 200);
- const list = useSuspense(ListShape, { filter });
+ const debouncedFilter = useDebounce(filter, 200);
+ const list = useSuspense(getThings, { filter: debouncedFilter });
  ```
  */
 declare function useDebounce<T>(value: T, delay: number, updatable?: boolean): T;

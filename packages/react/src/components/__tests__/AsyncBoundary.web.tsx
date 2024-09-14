@@ -23,7 +23,7 @@ describe('<AsyncBoundary />', () => {
   it('should render children with no error', () => {
     const tree = <AsyncBoundary>hi</AsyncBoundary>;
     const { getByText } = render(tree);
-    expect(getByText(/hi/i)).toBeDefined();
+    expect(getByText(/hi/i)).not.toBeNull();
   });
   it('should render fallback when suspending', () => {
     const getThing = new Endpoint(() => Promise.resolve('data'), {
@@ -43,7 +43,7 @@ describe('<AsyncBoundary />', () => {
       </StrictMode>
     );
     const { getByText } = render(tree);
-    expect(getByText(/loading/i)).toBeDefined();
+    expect(getByText(/loading/i)).not.toBeNull();
   });
   it('should catch non-network errors', () => {
     const originalError = console.error;
@@ -60,7 +60,7 @@ describe('<AsyncBoundary />', () => {
       </AsyncBoundary>
     );
     const { getByText, queryByText, container } = render(tree);
-    expect(getByText(/you failed/i)).toBeDefined();
+    expect(getByText(/you failed/i)).not.toBeNull();
     console.error = originalError;
     expect(renderCount).toBeLessThan(10);
   });
@@ -80,7 +80,7 @@ describe('<AsyncBoundary />', () => {
       </AsyncBoundary>
     );
     const { getByText, queryByText } = render(tree);
-    expect(getByText(/500/i)).toBeDefined();
+    expect(getByText(/500/i)).not.toBeNull();
     expect(queryByText(/hi/i)).toBe(null);
   });
   it('should render response.statusText using default fallback', () => {
@@ -98,7 +98,7 @@ describe('<AsyncBoundary />', () => {
       </AsyncBoundary>
     );
     const { getByText, queryByText } = render(tree);
-    expect(getByText(/my status text/i)).toBeDefined();
+    expect(getByText(/my status text/i)).not.toBeNull();
     expect(queryByText(/hi/i)).toBe(null);
   });
 });

@@ -81,19 +81,21 @@ function IssueList({ q, owner, repo }) {
 export default React.memo(IssueList) as typeof IssueList;
 ```
 
-```tsx title="SearchIssues" {7}
-import { useDebounce, AsyncBoundary } from '@data-client/react';
+```tsx title="SearchIssues" {8}
+import { AsyncBoundary } from '@data-client/react';
+import { useDebounce } from '@data-client/react/next';
 import IssueList from './IssueList';
 
 export default function SearchIssues() {
   const [query, setQuery] = React.useState('');
   const handleChange = e => setQuery(e.currentTarget.value);
-  const debouncedQuery = useDebounce(query, 200);
+  const [debouncedQuery, isPending] = useDebounce(query, 200);
   return (
     <div>
       <label>
         Query:{' '}
         <input type="text" value={query} onChange={handleChange} />
+        {isPending ? '...' : ''}
       </label>
       <AsyncBoundary fallback={<div>searching...</div>}>
         <IssueList q={debouncedQuery} owner="facebook" repo="react" />

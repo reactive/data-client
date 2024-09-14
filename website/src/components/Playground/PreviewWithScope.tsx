@@ -1,5 +1,6 @@
 import * as graphql from '@data-client/graphql';
 import * as rhReact from '@data-client/react';
+import * as rhReactNext from '@data-client/react/next';
 import * as rest from '@data-client/rest';
 import type { Fixture, Interceptor } from '@data-client/test';
 import { Temporal, Intl as PolyIntl } from '@js-temporal/polyfill';
@@ -36,6 +37,7 @@ const Intl = {
 
 const scope = {
   ...rhReact,
+  ...rhReactNext,
   ...rest,
   ...graphql,
   uuid,

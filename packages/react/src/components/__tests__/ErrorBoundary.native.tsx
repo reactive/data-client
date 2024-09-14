@@ -25,7 +25,7 @@ describe('<ErrorBoundary />', () => {
       </ErrorBoundary>
     );
     const { getByText } = render(tree);
-    expect(getByText(/hi/i)).toBeDefined();
+    expect(getByText(/hi/i)).not.toBeNull();
   });
   it('should catch non-network errors', () => {
     const originalError = console.error;
@@ -42,7 +42,7 @@ describe('<ErrorBoundary />', () => {
       </ErrorBoundary>
     );
     const { getByText } = render(tree);
-    expect(getByText(/you failed/i)).toBeDefined();
+    expect(getByText(/you failed/i)).not.toBeNull();
     console.error = originalError;
     expect(renderCount).toBeLessThan(10);
   });
@@ -62,7 +62,7 @@ describe('<ErrorBoundary />', () => {
       </ErrorBoundary>
     );
     const { getByText, queryByText } = render(tree);
-    expect(getByText(/my status text/i)).toBeDefined();
+    expect(getByText(/my status text/i)).not.toBeNull();
     expect(queryByText(/hi/i)).toBe(null);
   });
   it('should reset error when handler is called from fallback component', async () => {
@@ -95,13 +95,13 @@ describe('<ErrorBoundary />', () => {
       </ErrorBoundary>
     );
     const { getByText, queryByText } = render(tree);
-    expect(getByText(/my status text/i)).toBeDefined();
+    expect(getByText(/my status text/i)).not.toBeNull();
     const resetButton = queryByText('Clear Error');
     expect(resetButton).not.toBeNull();
     if (!resetButton) return;
     shouldThrow = false;
     fireEvent.press(resetButton);
     expect(queryByText(/my status text/i)).toBe(null);
-    expect(getByText(/hi/i)).toBeDefined();
+    expect(getByText(/hi/i)).not.toBeNull();
   });
 });
