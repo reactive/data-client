@@ -8,9 +8,10 @@ export default function ProfileEdit({ id }: { id: number }) {
     controller.fetch(UserResource.partialUpdate, { id }, { name });
 
   return (
-    <label>
-      Name:{' '}
-      <input type="text" value={user.name} onChange={handleChange} />
-    </label>
+    <TextInput
+      label="Name"
+      value={user.name}
+      onChange={handleChange}
+    />
   );
 }

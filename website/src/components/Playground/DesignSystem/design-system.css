@@ -4,17 +4,18 @@
   align-items: center;
   width: 100%;
   padding: 0.5em;
-  background-color: white;
-  border: 1px solid #ccc;
+  background-color: var(--ifm-color-emphasis-0);
+  border: 1px solid var(--ifm-color-emphasis-400);
   border-radius: 4px;
   position: relative;
+  font-size: 14px;
 }
 
 /* The slot element (left side) */
-.rt-TextFieldSlot {
+.rt-SearchIcon {
   display: flex;
   align-items: center;
-  color: #666;
+  color: var(--ifm-color-emphasis-700);
 }
 
 /* The input element inside the text field */
@@ -22,23 +23,23 @@
   flex: 1;
   border: none;
   outline: none;
-  font-size: 1em;
-  color: #333;
+  color: var(--ifm-color-content);
   background: transparent;
+  font-size: 14px;
 }
 
 /* Spinner container (right side) */
 .rt-TextFieldSpinner {
   display: flex;
   align-items: center;
-  color: #666;
+  color: var(--ifm-color-emphasis-700);
 }
 
 /* Spinner styles */
 .rt-Spinner {
   width: 16px;
   height: 16px;
-  border: 2px solid #ccc;
+  border: 2px solid var(--ifm-color-emphasis-400);
   border-top-color: #007AFF;
   border-radius: 50%;
   animation: rt-spin 1s linear infinite;
@@ -56,10 +57,10 @@
   position: absolute;
   top: -0.75em;
   left: 0.75em;
-  background-color: white;
+  background-color: var(--ifm-color-emphasis-0);
   padding: 0 0.25em;
-  font-size: 0.75em;
-  color: #666;
+  font-size: 0.70rem;
+  color: var(--ifm-color-emphasis-700);
   pointer-events: none;
 }
 
@@ -71,4 +72,12 @@
 
 .rt-TextFieldRoot:focus-within {
   border-color: #007AFF;
+}
+
+
+.large.rt-TextFieldRoot {
+  font-size: 16px;
+}
+.large .rt-TextFieldInput {
+  font-size: 16px;
 }

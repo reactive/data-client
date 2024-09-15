@@ -109,7 +109,10 @@ export default function SearchIssues() {
         onChange={handleChange}
         autoFocus
         loading={isPending}
-      />
+        large
+      >
+        <SearchIcon />
+      </TextInput>
       <AsyncBoundary>
         <IssueList query={debouncedQuery} owner="facebook" repo="react" />
       </AsyncBoundary>

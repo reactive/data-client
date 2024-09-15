@@ -54,13 +54,8 @@ export default function PostForm({ onSubmit, loading, error }) {
   };
   return (
     <form onSubmit={handleSubmit}>
-      <label>
-        Title:
-        <br />
-        <input type="text" name="title" defaultValue="My New Post"
+      <TextInput label="Title" name="title" defaultValue="My New Post"
           required />
-      </label>
-      <br />
       <label>
         Body:
         <br />
