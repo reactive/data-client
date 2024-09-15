@@ -265,7 +265,8 @@ if (
         declare function CancelButton(props: { onClick?: () => void }):JSX.Element;
         declare function Avatar(props: { src: string }):JSX.Element;
         declare function Formatted({ downColor, formatter, formatterFn, timeout, transition, transitionLength, upColor, value, stylePrefix, }: NumberProps):JSX.Element
-        declare function ResetableErrorBoundary(props: { children: JSX.ReactChild }):JSX.Element;
+        declare function ResetableErrorBoundary(props: { children: React.ReactNode }):JSX.Element;
+        declare function TextInput(props:React.InputHTMLAttributes<HTMLInputElement> & { label?: React.ReactNode; loading?: boolean }):JSX.Element;
         declare function randomFloatInRange(min: number, max: number, decimals?: number): number;
         declare interface NumberProps {
           /**

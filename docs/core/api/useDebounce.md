@@ -13,6 +13,13 @@ Delays updating the parameters by [debouncing](https://css-tricks.com/debouncing
 
 Useful to avoid spamming network requests when parameters might change quickly (like a typeahead field).
 
+:::tip React 18+
+
+When loading new data, the [AsyncBoundary](./AsyncBoundary.md) will continue rendering the previous data until it is ready.
+`isPending` will be true while loading.
+
+:::
+
 ## Usage
 
 <HooksPlayground row>
@@ -95,12 +102,15 @@ export default function SearchIssues() {
   const [debouncedQuery, isPending] = useDebounce(query, 200);
   return (
     <div>
-      <label>
-        Query:{' '}
-        <input type="text" value={query} onChange={handleChange} />
-        {isPending ? '...' : ''}
-      </label>
-      <AsyncBoundary fallback={<div>searching...</div>}>
+      <TextInput
+        placeholder="Search react issues"
+        label="Search"
+        value={query}
+        onChange={handleChange}
+        autoFocus
+        loading={isPending}
+      />
+      <AsyncBoundary>
         <IssueList query={debouncedQuery} owner="facebook" repo="react" />
       </AsyncBoundary>
     </div>

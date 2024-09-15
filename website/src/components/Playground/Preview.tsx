@@ -71,7 +71,7 @@ function Preview<T>({
         getInitialInterceptorData={getInitialInterceptorData}
       >
         <div
-          className={clsx(styles.playgroundPreview, {
+          className={clsx('playground-preview', styles.playgroundPreview, {
             [styles.hidden]: hiddenResult,
           })}
         >

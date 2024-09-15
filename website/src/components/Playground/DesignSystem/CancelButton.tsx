@@ -13,18 +13,17 @@ export function CancelButton({ onClick }: { onClick?: () => void }) {
         style={{ cursor: onClick ? 'pointer' : 'default' }}
         onClick={onClick}
       >
-        {onClick ? (
+        {onClick ?
           <img
             src="/img/cancel.png"
             width="16"
             height="16"
             style={{ marginBottom: '-3px' }}
           />
-        ) : (
-          <div style={{ width: '16px', height: '16px', marginBottom: '-3px' }}>
+        : <div style={{ width: '16px', height: '16px', marginBottom: '-3px' }}>
             &nbsp;
           </div>
-        )}
+        }
       </span>
     </div>
   );

@@ -1,7 +1,7 @@
 import type { Fixture, Interceptor } from '@data-client/test';
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import CodeBlock from '@theme/CodeBlock';
-import React, { memo, type ReactElement } from 'react';
+import { memo, type ReactElement } from 'react';
 
 import styles from './styles.module.css';
 

@@ -1,0 +1,74 @@
+/* Root container for the text field */
+.rt-TextFieldRoot {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.5em;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  position: relative;
+}
+
+/* The slot element (left side) */
+.rt-TextFieldSlot {
+  display: flex;
+  align-items: center;
+  color: #666;
+}
+
+/* The input element inside the text field */
+.rt-TextFieldInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 1em;
+  color: #333;
+  background: transparent;
+}
+
+/* Spinner container (right side) */
+.rt-TextFieldSpinner {
+  display: flex;
+  align-items: center;
+  color: #666;
+}
+
+/* Spinner styles */
+.rt-Spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ccc;
+  border-top-color: #007AFF;
+  border-radius: 50%;
+  animation: rt-spin 1s linear infinite;
+}
+
+/* Spinner animation */
+@keyframes rt-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Placeholder or label styling */
+.rt-TextFieldLabel {
+  position: absolute;
+  top: -0.75em;
+  left: 0.75em;
+  background-color: white;
+  padding: 0 0.25em;
+  font-size: 0.75em;
+  color: #666;
+  pointer-events: none;
+}
+
+/* Focus state for the text field */
+.rt-TextFieldInput:focus + .rt-TextFieldLabel,
+.rt-TextFieldInput:not(:placeholder-shown) + .rt-TextFieldLabel {
+  color: #007AFF;
+}
+
+.rt-TextFieldRoot:focus-within {
+  border-color: #007AFF;
+}
