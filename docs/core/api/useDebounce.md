@@ -50,7 +50,9 @@ export class Issue extends Entity {
 
 export const issueQuery = new RestEndpoint({
   urlPrefix: 'https://api.github.com',
-  path: '/search/issues\\?q=:q?%20repo\\::owner/:repo&page=:page?',
+  path: '/search/issues',
+  searchParams: {} as { q: string },
+  paginationField: 'page',
   schema: {
     incomplete_results: false,
     items: new schema.Collection([Issue]),
@@ -63,8 +65,9 @@ export const issueQuery = new RestEndpoint({
 import { useSuspense } from '@data-client/react';
 import { issueQuery } from './IssueQuery';
 
-function IssueList({ q, owner, repo }) {
-  const response = useSuspense(issueQuery, { q, owner, repo });
+function IssueList({ query, owner, repo }) {
+  const q = `${query} repo:${owner}/${repo}`;
+  const response = useSuspense(issueQuery, { q });
   return (
     <div>
       <small>{response.total_count} results</small>
@@ -98,7 +101,7 @@ export default function SearchIssues() {
         {isPending ? '...' : ''}
       </label>
       <AsyncBoundary fallback={<div>searching...</div>}>
-        <IssueList q={debouncedQuery} owner="facebook" repo="react" />
+        <IssueList query={debouncedQuery} owner="facebook" repo="react" />
       </AsyncBoundary>
     </div>
   );
@@ -111,9 +114,5 @@ render(<SearchIssues />);
 ## Types
 
 ```typescript
-function useDebounce<T>(
-  value: T,
-  delay: number,
-  updatable?: boolean,
-): T;
+function useDebounce<T>(value: T, delay: number, updatable?: boolean): T;
 ```
