@@ -1,5 +1,20 @@
 # @data-client/react
 
+## 0.14.14
+
+### Patch Changes
+
+- [#3220](https://github.com/reactive/data-client/pull/3220) [`13f02d3`](https://github.com/reactive/data-client/commit/13f02d3cf546cc43ca3fb04656859f33e4cf3274) Thanks [@ntucker](https://github.com/ntucker)! - New [useDebounce()](https://dataclient.io/docs/api/useDebounce) in /next that integrates useTransition()
+
+  ```ts
+  import { useDebounce } from '@data-client/react/next';
+  const [debouncedQuery, isPending] = useDebounce(query, 100);
+  ```
+
+  - Returns tuple - to include isPending
+  - Any Suspense triggered due to value change will continue showing
+    the previous contents until it is finished loading.
+
 ## 0.14.12
 
 ### Patch Changes
