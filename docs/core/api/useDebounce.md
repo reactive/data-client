@@ -108,7 +108,7 @@ export default function SearchIssues() {
         onChange={handleChange}
         loading={isPending}
         autoFocus
-        large
+        size="large"
       >
         <SearchIcon />
       </TextInput>

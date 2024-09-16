@@ -15,9 +15,10 @@ html[data-theme='dark'] .playground-preview {
   border: 1px solid var(--ifm-color-emphasis-400);
   border-radius: 4px;
   position: relative;
-  font-size: 14px;
 }
-html[data-theme='dark'] .rt-TextFieldRoot {
+html[data-theme='dark'] .rt-TextFieldRoot,
+html[data-theme='dark'] .small.rt-TextFieldRoot:hover,
+html[data-theme='dark'] .small.rt-TextFieldRoot:focus-within {
   background-color: var(--ifm-color-emphasis-100);
 }
 
@@ -35,7 +36,6 @@ html[data-theme='dark'] .rt-TextFieldRoot {
   outline: none;
   color: var(--ifm-color-content);
   background: transparent;
-  font-size: 14px;
 }
 
 /* Spinner container (right side) */
@@ -90,4 +90,38 @@ html[data-theme='dark'] .rt-TextFieldRoot {
 }
 .large .rt-TextFieldInput {
   font-size: 16px;
+}
+.medium.rt-TextFieldRoot {
+  font-size: 14px;
+}
+.medium .rt-TextFieldInput {
+  font-size: 14px;
+}
+.small.rt-TextFieldRoot {
+  display: inline-flex;
+  border: 1px solid transparent;       /* Transparent borders on all sides */
+  border-bottom-color: var(--ifm-color-emphasis-500);           /* Visible bottom border */
+  background: none;
+  outline: none;
+  padding: 5px;                        /* Consistent padding */
+  height: 30px;                        /* Fixed height to prevent shifting */
+  box-sizing: border-box;              /* Include padding and border in element's size */
+  transition: all 0.2s ease-in-out;    /* Quick animation for transitions */
+  border-radius: 0;
+}
+html[data-theme='dark'] .small.rt-TextFieldRoot {
+  background: none;
+}
+.small.rt-TextFieldRoot:hover,
+.small.rt-TextFieldRoot:focus-within {
+  background-color: var(--ifm-color-emphasis-0);
+  border-color: var(--ifm-color-emphasis-400);                  /* Make all borders visible */
+  border-radius: 4px;
+}
+.small.rt-TextFieldRoot:focus-within {
+  border-color: var(--ifm-color-formfield-active);                  /* Make all borders visible */
+}
+
+.listItem .rt-TextFieldRoot {
+  width: calc(100% - 21px);
 }

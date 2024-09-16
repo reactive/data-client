@@ -2,19 +2,25 @@ import classnames from 'clsx';
 import React, { type InputHTMLAttributes } from 'react';
 
 export function TextInput({
-  loading = false,
   label,
   children,
-  large = false,
+  loading = false,
+  size = 'medium',
   ...props
-}: InputHTMLAttributes<HTMLInputElement> & {
+}: Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> & {
   children?: React.ReactNode;
   label?: React.ReactNode;
   loading?: boolean;
-  large?: boolean;
+  size?: 'large' | 'medium' | 'small';
 }) {
   return (
-    <div className={classnames('rt-TextFieldRoot', { large })}>
+    <span
+      className={classnames('rt-TextFieldRoot', {
+        large: size === 'large',
+        medium: size === 'medium',
+        small: size === 'small',
+      })}
+    >
       {children}
       <input spellCheck="false" className="rt-TextFieldInput" {...props} />
       {label ?
@@ -25,6 +31,6 @@ export function TextInput({
           <div className="rt-Spinner"></div>
         </div>
       : null}
-    </div>
+    </span>
   );
 }
