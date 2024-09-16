@@ -50,7 +50,7 @@ import { ProfileResource } from './ProfileResource';
 function ProfileList(): JSX.Element {
   const { data, loading, error } = useDLE(ProfileResource.getList);
   if (error) return <div>Error {`${error.status}`}</div>;
-  if (loading || !data) return <>loading...</>;
+  if (loading || !data) return <Loading/>;
   return (
     <div>
       {data.map(profile => (
@@ -165,7 +165,7 @@ function ProfileDetail(): JSX.Element {
     error,
   } = useDLE(ProfileResource.get, { id: 1 });
   if (error) return <div>Error {`${error.status}`}</div>;
-  if (loading || !profile) return <>loading...</>;
+  if (loading || !profile) return <Loading/>;
   return (
     <div className="listItem">
       <Avatar src={profile.avatar} />
@@ -230,7 +230,7 @@ import { PostResource, UserResource } from './Resources';
 export default function PostWithAuthor({ id }: { id: string }) {
   const postDLE = useDLE(PostResource.get, { id });
   if (postDLE.error) return <div>Error {`${postDLE.error.status}`}</div>;
-  if (postDLE.loading || !postDLE.data) return <>loading...</>;
+  if (postDLE.loading || !postDLE.data) return <Loading/>;
   const authorDLE = useDLE(
     UserResource.get,
     postDLE.data.userId
@@ -240,7 +240,7 @@ export default function PostWithAuthor({ id }: { id: string }) {
       : null,
   );
   if (authorDLE.error) return <div>Error {`${authorDLE.error.status}`}</div>;
-  if (authorDLE.loading || !authorDLE.data) return <>loading...</>;
+  if (authorDLE.loading || !authorDLE.data) return <Loading/>;
 
   return <div>{authorDLE.data.username}</div>
 }
@@ -281,7 +281,7 @@ import { getPosts } from './api/Post';
 export default function ArticleList({ page }: { page: string }) {
   const { data, loading, error } = useDLE(getPosts, { page });
   if (error) return <div>Error {`${error.status}`}</div>;
-  if (loading || !data) return <>loading...</>;
+  if (loading || !data) return <Loading/>;
   const { results: posts, nextPage, lastPage } = data;
   return (
     <div>

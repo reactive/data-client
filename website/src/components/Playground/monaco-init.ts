@@ -267,7 +267,9 @@ if (
         declare function Formatted({ downColor, formatter, formatterFn, timeout, transition, transitionLength, upColor, value, stylePrefix, }: NumberProps):JSX.Element
         declare function ResetableErrorBoundary(props: { children: React.ReactNode }):JSX.Element;
         declare function TextInput(props:Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> & { label?: React.ReactNode; loading?: boolean; size?: 'large' | 'medium' | 'small'; }):JSX.Element;
+        declare function TextArea(props:InputHTMLAttributes<HTMLTextAreaElement> & { label?: React.ReactNode;}):JSX.Element;
         declare function SearchIcon():JSX.Element;
+        declare function Loading():JSX.Element;
         declare function randomFloatInRange(min: number, max: number, decimals?: number): number;
         declare interface NumberProps {
           /**

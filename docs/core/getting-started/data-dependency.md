@@ -252,7 +252,7 @@ import { ProfileResource } from './ProfileResource';
 function ProfileList(): JSX.Element {
   const { data, loading, error } = useDLE(ProfileResource.getList);
   if (error) return <div>Error {`${error.status}`}</div>;
-  if (loading || !data) return <>loading...</>;
+  if (loading || !data) return <Loading/>;
   return (
     <div>
       {data.map(profile => (

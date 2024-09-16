@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="128 224 744 611" style="enable-background:new 0 0 1000 1000;" xml:space="preserve">
+  <style type="text/css">
+    .st0 { fill: #3E96DB; }
+
+    /* Fade-in animation for the entire SVG */
+    svg {
+      animation: fadeIn 2s ease-in-out forwards;
+      opacity: 0;
+    }
+
+    /* Bounce animation for the circles */
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-30px);
+      }
+    }
+
+    /* Fade-in animation */
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* Apply bounce animation with different delays */
+    .circle-1 {
+      animation: bounce 2s infinite ease-in-out;
+      transform-origin: center;
+    }
+
+    .circle-2 {
+      animation: bounce 2s infinite ease-in-out 0.5s;
+      transform-origin: center;
+    }
+
+    .circle-3 {
+      animation: bounce 2s infinite ease-in-out 1s;
+      transform-origin: center;
+    }
+  </style>
+
+  <g>
+    <path class="st0" d="M624.91,603.39c-65.19,163.18-200.95,262.34-303.24,221.47c-5.56-2.22-10.89-4.8-16.01-7.74
+      c93.63,23.35,205.58-55.38,257.33-184.93c55-137.67,21.15-280.6-75.58-319.25c-57.31-22.89-123.84-4.06-179.97,43.73
+      c71.08-101.69,170.8-154.49,250.29-122.74C660.02,274.8,690.1,440.21,624.91,603.39z"/>
+    <path class="st0" d="M447.15,736.08c-202.22-64.83-342.49-191.2-313.3-282.24c1.59-4.95,3.64-9.67,6.14-14.2
+      c-10.31,83.84,101.8,187.93,262.34,239.4c170.61,54.7,331.29,29.24,358.89-56.86c16.35-51.01-17.66-111.86-83.57-164.35
+      c131.53,67.95,211.18,160.04,188.49,230.79C836.96,779.66,649.37,800.91,447.15,736.08z"/>
+    <path class="st0" d="M286.25,539.88C396.78,459.25,515.81,434.24,552.11,484c1.97,2.7,3.65,5.57,5.06,8.59
+      c-39.72-37.2-136.46-18.38-224.21,45.63c-93.25,68.02-141.01,161.32-106.68,208.37c20.34,27.88,64.92,33.28,117.27,18.91
+      c-85.31,42.65-163.48,49.14-191.68,10.47C115.56,726.21,175.73,620.51,286.25,539.88z"/>
+    
+    <!-- Animated circles with bounce effect -->
+    <circle class="st0 circle-1" cx="438.64" cy="583.87" r="35.29"/>
+    <circle class="st0 circle-2" cx="232.95" cy="458.41" r="35.29"/>
+    <circle class="st0 circle-3" cx="752.98" cy="386.6" r="35.29"/>
+  </g>
+</svg>

@@ -121,7 +121,7 @@ export default function NewTodo({ userId }: { userId?: string }) {
   };
 
   return (
-    <div>
+    <div className="listItem nogap">
       <TextInput size="small" onKeyDown={handlePress} />
       <label>
         <input

@@ -1,5 +1,8 @@
 import HooksPlayground from '@site/src/components/HooksPlayground';
-import { postFixtures,getInitialInterceptorData } from '@site/src/fixtures/posts';
+import {
+  postFixtures,
+  getInitialInterceptorData,
+} from '@site/src/fixtures/posts';
 
 <HooksPlayground fixtures={postFixtures} getInitialInterceptorData={getInitialInterceptorData} row>
 
@@ -54,18 +57,18 @@ export default function PostForm({ onSubmit, loading, error }) {
   };
   return (
     <form onSubmit={handleSubmit}>
-      <TextInput label="Title" name="title" defaultValue="My New Post"
-          required />
-      <label>
-        Body:
-        <br />
-        <textarea name="body" rows={12} required>
-          After clicking 'save', the button will be disabled until
-          the POST is completed. Upon completion the newly created
-          post is displayed immediately as Reactive Data Client is
-          able to use the fetch response to populate the store.
-        </textarea>
-      </label>
+      <TextInput
+        label="Title"
+        name="title"
+        defaultValue="My New Post"
+        required
+      />
+      <TextArea name="body" rows={12} label="Body" required>
+        After clicking 'save', the button will be disabled until the POST
+        is completed. Upon completion the newly created post is displayed
+        immediately as Reactive Data Client is able to use the fetch
+        response to populate the store.
+      </TextArea>
       {error ? (
         <div className="alert alert--danger">{error.message}</div>
       ) : null}
@@ -93,8 +96,9 @@ export default function PostCreate({ navigateToPost }) {
     },
     [ctrl],
   );
-  return <PostForm onSubmit={handleSubmit} loading={loading}
-    error={error} />;
+  return (
+    <PostForm onSubmit={handleSubmit} loading={loading} error={error} />
+  );
 }
 ```
 
