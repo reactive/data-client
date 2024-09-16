@@ -1,3 +1,10 @@
+html[data-theme='light'] .playground-preview {
+  --ifm-color-formfield-active: var(--ifm-link-color);
+}
+html[data-theme='dark'] .playground-preview {
+  --ifm-color-formfield-active: var(--ifm-link-color);
+}
+
 /* Root container for the text field */
 .rt-TextFieldRoot {
   display: flex;
@@ -9,6 +16,9 @@
   border-radius: 4px;
   position: relative;
   font-size: 14px;
+}
+html[data-theme='dark'] .rt-TextFieldRoot {
+  background-color: var(--ifm-color-emphasis-100);
 }
 
 /* The slot element (left side) */
@@ -40,7 +50,7 @@
   width: 16px;
   height: 16px;
   border: 2px solid var(--ifm-color-emphasis-400);
-  border-top-color: #007AFF;
+  border-top-color: var(--ifm-color-formfield-active);
   border-radius: 50%;
   animation: rt-spin 1s linear infinite;
 }
@@ -67,11 +77,11 @@
 /* Focus state for the text field */
 .rt-TextFieldInput:focus + .rt-TextFieldLabel,
 .rt-TextFieldInput:not(:placeholder-shown) + .rt-TextFieldLabel {
-  color: #007AFF;
+  color: var(--ifm-color-formfield-active);
 }
 
 .rt-TextFieldRoot:focus-within {
-  border-color: #007AFF;
+  border-color: var(--ifm-color-formfield-active);
 }
 
 

@@ -104,11 +104,10 @@ export default function SearchIssues() {
     <div>
       <TextInput
         placeholder="Search react issues"
-        label="Search"
         value={query}
         onChange={handleChange}
-        autoFocus
         loading={isPending}
+        autoFocus
         large
       >
         <SearchIcon />
