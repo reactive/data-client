@@ -9,7 +9,7 @@ export function CancelButton({ onClick }: { onClick?: () => void }) {
         textAlign: 'right',
       }}
     >
-      <span
+      <div
         style={{ cursor: onClick ? 'pointer' : 'default' }}
         onClick={onClick}
       >
@@ -24,7 +24,7 @@ export function CancelButton({ onClick }: { onClick?: () => void }) {
             &nbsp;
           </div>
         }
-      </span>
+      </div>
     </div>
   );
 }

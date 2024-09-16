@@ -110,6 +110,7 @@ html[data-theme='dark'] .small.rt-TextFieldRoot:focus-within {
   transition: all 0.2s ease-in-out;    /* Quick animation for transitions */
   border-radius: 0;
   margin-bottom:0;
+  margin-top:-4px;
 }
 html[data-theme='dark'] .small.rt-TextFieldRoot {
   background: none;
@@ -155,7 +156,7 @@ html[data-theme='dark'] .small.rt-TextFieldRoot {
   resize: vertical; /* Allow vertical resizing */
   min-height: 4em; /* Set a minimum height */
   box-sizing: border-box;
-  margin-bottom: -8px;
+  margin-bottom: -4px;
 }
 
 

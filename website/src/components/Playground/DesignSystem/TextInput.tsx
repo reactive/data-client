@@ -22,7 +22,7 @@ export function TextInput({
       })}
     >
       {children}
-      <input spellCheck="false" className="rt-TextFieldInput" {...props} />
+      <input className="rt-TextFieldInput" {...props} />
       {label ?
         <label className="rt-TextFieldLabel">{label}</label>
       : null}

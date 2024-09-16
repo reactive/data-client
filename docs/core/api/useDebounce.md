@@ -76,8 +76,10 @@ function IssueList({ query, owner, repo }) {
   const q = `${query} repo:${owner}/${repo}`;
   const response = useSuspense(issueQuery, { q });
   return (
-    <div>
-      <small>{response.total_count} results</small>
+    <>
+      <small style={{ display: 'block' }}>
+        {response.total_count} results
+      </small>
       {response.items.slice(0, 5).map(issue => (
         <div key={issue.pk()}>
           <a href={issue.html_url} target="_blank">
@@ -85,7 +87,7 @@ function IssueList({ query, owner, repo }) {
           </a>
         </div>
       ))}
-    </div>
+    </>
   );
 }
 export default React.memo(IssueList) as typeof IssueList;
@@ -103,6 +105,7 @@ export default function SearchIssues() {
   return (
     <div>
       <TextInput
+        spellCheck="false"
         placeholder="Search react issues"
         value={query}
         onChange={handleChange}
