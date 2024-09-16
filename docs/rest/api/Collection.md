@@ -122,7 +122,7 @@ export default function NewTodo({ userId }: { userId?: string }) {
 
   return (
     <div>
-      <input type="text" onKeyDown={handlePress} />
+      <TextInput size="small" onKeyDown={handlePress} />
       <label>
         <input
           type="checkbox"
@@ -352,7 +352,7 @@ export default function PostListLayout({
           <input type="radio" value="clara" name="author" />
           Clara
         </label>
-        <input type="text" defaultValue="New Post" name="title" />
+        <TextInput defaultValue="New Post" name="title" label="Title" />
         <button type="submit">{loading ? 'loading...' : 'Push'}</button>
       </form>
     </div>

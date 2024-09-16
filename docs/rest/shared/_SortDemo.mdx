@@ -57,12 +57,7 @@ export default function NewPost({ author }: Props) {
     }
   });
 
-  return (
-    <div>
-      <input type="text" onKeyDown={handlePress} />
-      {loading ? ' ...' : ''}
-    </div>
-  );
+  return <TextInput onKeyDown={handlePress} loading={loading} placeholder="Post title" />;
 }
 interface Props {
   author: string;

@@ -98,7 +98,7 @@ export default function CreateTodo({ userId }: { userId: number }) {
     <div className="listItem nogap">
       <label>
         <input type="checkbox" name="new" checked={false} disabled />
-        <input type="text" onKeyDown={handleKeyDown} />
+        <TextInput size="small" onKeyDown={handleKeyDown} />
       </label>
       <CancelButton />
     </div>
