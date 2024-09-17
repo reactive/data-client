@@ -29,7 +29,6 @@ const getImage: EndpointInstance<
     key(this: EndpointInstance, { src }: { src: string }) {
       return `GET ${src}`;
     },
-    schema: '',
   },
 );
 export default getImage;
