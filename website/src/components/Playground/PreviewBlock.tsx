@@ -12,7 +12,6 @@ export default function PreviewBlock() {
       <Boundary fallback={<Loading />}>
         <LivePreview />
       </Boundary>
-      {/* <Loading /> */}
       <LiveError className={styles.playgroundError} />
     </>
   );

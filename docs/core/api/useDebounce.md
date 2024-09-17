@@ -103,7 +103,7 @@ export default function SearchIssues() {
   const handleChange = e => setQuery(e.currentTarget.value);
   const [debouncedQuery, isPending] = useDebounce(query, 200);
   return (
-    <div>
+    <>
       <TextInput
         spellCheck="false"
         placeholder="Search react issues"
@@ -115,10 +115,10 @@ export default function SearchIssues() {
       >
         <SearchIcon />
       </TextInput>
-      <AsyncBoundary>
+      <AsyncBoundary fallback={<Loading />}>
         <IssueList query={debouncedQuery} owner="facebook" repo="react" />
       </AsyncBoundary>
-    </div>
+    </>
   );
 }
 render(<SearchIssues />);
