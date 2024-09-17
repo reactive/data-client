@@ -1,5 +1,11 @@
 # @data-client/img
 
+## 0.14.15
+
+### Patch Changes
+
+- [`ec23566`](https://github.com/reactive/data-client/commit/ec235662e1f4626404b88583a220f177075a2e7e) Thanks [@ntucker](https://github.com/ntucker)! - Fix <Img/> correctly suspends
+
 ## 0.14.0
 
 ### Patch Changes
