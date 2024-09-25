@@ -3213,7 +3213,7 @@ __metadata:
     "@babel/runtime": "npm:^7.17.0"
     "@data-client/endpoint": "npm:^0.14.12"
     "@types/node": "npm:^22.0.0"
-    path-to-regexp: "npm:^6.3.0"
+    path-to-regexp: "npm:^7.0.0"
   languageName: unknown
   linkType: soft
 
@@ -23019,6 +23019,13 @@ __metadata:
   version: 6.3.0
   resolution: "path-to-regexp@npm:6.3.0"
   checksum: 10c0/73b67f4638b41cde56254e6354e46ae3a2ebc08279583f6af3d96fe4664fc75788f74ed0d18ca44fa4a98491b69434f9eee73b97bb5314bd1b5adb700f5c18d6
+  languageName: node
+  linkType: hard
+
+"path-to-regexp@npm:^7.0.0":
+  version: 7.2.0
+  resolution: "path-to-regexp@npm:7.2.0"
+  checksum: 10c0/764613c3d7b7fdaf8e6984302a61ce8862ba0b0f5767f71f464e6bd8c6b9800bc1275031b2a57ee5e0d6bf531b17c8a8ea2dd94a5d4d76834e5a11fa9511a636
   languageName: node
   linkType: hard
 
