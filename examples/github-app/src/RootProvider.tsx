@@ -5,11 +5,12 @@ import {
   getDefaultManagers,
   ProviderProps,
 } from '@data-client/react';
-import { AuthdProvider } from 'navigation/authdContext';
 import type { ReactNode } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import type { FallbackProps } from 'react-error-boundary';
-import { unAuth } from 'resources/Auth';
+
+import { AuthdProvider } from '@/navigation/authdContext';
+import { unAuth } from '@/resources/Auth';
 
 import Boundary from './Boundary';
 import { Router } from './routing';

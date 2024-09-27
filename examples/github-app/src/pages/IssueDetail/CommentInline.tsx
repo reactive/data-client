@@ -4,14 +4,15 @@ import { useCache, useController } from '@data-client/react';
 import { Intl } from '@js-temporal/polyfill';
 import { css } from '@linaria/core';
 import { Card, Avatar, Button, Tag, Popover } from 'antd';
-import FlexRow from 'components/FlexRow';
 import React, { memo, useCallback, useState } from 'react';
 import Markdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
 import remarkRemoveComments from 'remark-remove-comments';
-import { CommentResource, Comment } from 'resources/Comment';
-import { UserResource } from 'resources/User';
+
+import FlexRow from '@/components/FlexRow';
+import { CommentResource, Comment } from '@/resources/Comment';
+import { UserResource } from '@/resources/User';
 
 import CommentForm from './CommentForm';
 

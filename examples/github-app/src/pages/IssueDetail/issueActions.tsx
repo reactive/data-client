@@ -1,9 +1,10 @@
 import { Popover } from 'antd';
-import Labels from 'components/Labels';
 import { groupBy } from 'lodash';
 import React from 'react';
-import { type Issue } from 'resources/Issue';
-import { contentToIcon, type Reaction } from 'resources/Reaction';
+
+import Labels from '@/components/Labels';
+import { type Issue } from '@/resources/Issue';
+import { contentToIcon, type Reaction } from '@/resources/Reaction';
 
 import { CreateReaction } from './CreateReaction';
 import { ReactionSpan } from './ReactionSpan';

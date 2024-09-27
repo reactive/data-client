@@ -3,9 +3,10 @@ import { useCache, useController } from '@data-client/react';
 import { css } from '@linaria/core';
 import { Card, Avatar } from 'antd';
 import { memo, useCallback } from 'react';
-import { CommentResource } from 'resources/Comment';
-import { Issue } from 'resources/Issue';
-import UserResource from 'resources/User';
+
+import { CommentResource } from '@/resources/Comment';
+import { Issue } from '@/resources/Issue';
+import UserResource from '@/resources/User';
 
 import CommentForm from './CommentForm';
 

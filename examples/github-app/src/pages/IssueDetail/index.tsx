@@ -2,17 +2,18 @@ import { Link } from '@anansi/router';
 import { useSuspense, useCache, useDLE } from '@data-client/react';
 import { Card, Avatar } from 'antd';
 import { Tag } from 'antd';
-import Boundary from 'Boundary';
-import FlexRow from 'components/FlexRow';
 import React, { useMemo, memo } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import Markdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
 import remarkRemoveComments from 'remark-remove-comments';
-import { IssueResource } from 'resources/Issue';
-import { ReactionResource } from 'resources/Reaction';
-import UserResource from 'resources/User';
+
+import Boundary from '@/Boundary';
+import FlexRow from '@/components/FlexRow';
+import { IssueResource } from '@/resources/Issue';
+import { ReactionResource } from '@/resources/Reaction';
+import UserResource from '@/resources/User';
 
 import CommentsList, { CardLoading } from './CommentsList';
 import CreateComment from './CreateComment';

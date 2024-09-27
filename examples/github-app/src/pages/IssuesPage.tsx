@@ -1,7 +1,8 @@
 import { Link, useLocationSearch } from '@anansi/router';
 import { HomeOutlined } from '@ant-design/icons';
 import { Breadcrumb } from 'antd';
-import { Issue } from 'resources/Issue';
+
+import { Issue } from '@/resources/Issue';
 
 import IssueList from './IssueList';
 

@@ -1,6 +1,7 @@
 import { useController, useLoading } from '@data-client/react';
 import { Button } from 'antd';
-import { IssueResource } from 'resources/Issue';
+
+import { IssueResource } from '@/resources/Issue';
 
 export default function NextPage({ q, page }: Props) {
   const ctrl = useController();

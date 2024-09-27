@@ -1,11 +1,12 @@
 import { getImage } from '@data-client/img';
 import { Controller } from '@data-client/react';
-import CommentResource from 'resources/Comment';
-import { EventResource } from 'resources/Event';
-import IssueResource from 'resources/Issue';
-import ReactionResource from 'resources/Reaction';
-import RepositoryResource from 'resources/Repository';
-import UserResource from 'resources/User';
+
+import CommentResource from '@/resources/Comment';
+import { EventResource } from '@/resources/Event';
+import IssueResource from '@/resources/Issue';
+import ReactionResource from '@/resources/Reaction';
+import RepositoryResource from '@/resources/Repository';
+import UserResource from '@/resources/User';
 
 import { lazyPage } from './lazyPage';
 

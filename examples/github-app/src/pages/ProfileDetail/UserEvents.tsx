@@ -5,6 +5,7 @@ import { Intl } from '@js-temporal/polyfill';
 import { Timeline, Typography, Divider } from 'antd';
 import { groupBy } from 'lodash';
 import { useMemo } from 'react';
+
 import {
   EventResource,
   typeToIcon,
@@ -13,8 +14,8 @@ import {
   IssuesEvent,
   PushEvent,
   PullRequestReviewEvent,
-} from 'resources/Event';
-import { User } from 'resources/User';
+} from '@/resources/Event';
+import { User } from '@/resources/User';
 
 import FlexRow from '../../components/FlexRow';
 

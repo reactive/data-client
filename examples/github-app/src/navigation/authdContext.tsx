@@ -1,7 +1,8 @@
 import { useController } from '@data-client/react';
 import React, { createContext, useCallback, useMemo } from 'react';
-import { setAuth, unAuth } from 'resources/Auth';
-import UserResource from 'resources/User';
+
+import { setAuth, unAuth } from '@/resources/Auth';
+import UserResource from '@/resources/User';
 
 export const authdContext = createContext({
   login(data: { login: string; token: string }): void {

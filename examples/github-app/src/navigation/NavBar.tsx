@@ -3,7 +3,8 @@ import { AsyncBoundary, useCache, useSuspense } from '@data-client/react';
 import { Layout, Menu, Spin, Affix, MenuProps } from 'antd';
 import { Avatar } from 'antd';
 import { memo, useContext, useMemo, useState } from 'react';
-import UserResource from 'resources/User';
+
+import UserResource from '@/resources/User';
 
 import { authdContext } from './authdContext';
 import LoginModal from './LoginModal';

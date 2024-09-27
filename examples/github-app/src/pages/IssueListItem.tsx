@@ -1,9 +1,10 @@
 import { Link } from '@anansi/router';
 import { List, Avatar, Skeleton } from 'antd';
-import { humanTime } from 'components/human';
-import Labels from 'components/Labels';
 import { memo } from 'react';
-import { Issue } from 'resources/Issue';
+
+import { humanTime } from '@/components/human';
+import Labels from '@/components/Labels';
+import { Issue } from '@/resources/Issue';
 
 function IssueListItem({ issue }: { issue: Issue }) {
   const actions = [];

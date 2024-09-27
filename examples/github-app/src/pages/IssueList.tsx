@@ -2,7 +2,8 @@ import { useSuspense } from '@data-client/react';
 import { List } from 'antd';
 import parseLink from 'parse-link-header';
 import { memo } from 'react';
-import { Issue, IssueResource } from 'resources/Issue';
+
+import { Issue, IssueResource } from '@/resources/Issue';
 
 import IssueListItem from './IssueListItem';
 import NextPage from './NextPage';

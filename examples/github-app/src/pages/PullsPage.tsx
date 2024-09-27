@@ -1,5 +1,6 @@
 import { useLocationSearch } from '@anansi/router';
-import { Issue } from 'resources/Issue';
+
+import { Issue } from '@/resources/Issue';
 
 import IssueList from './IssueList';
 

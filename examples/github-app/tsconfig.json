@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "outDir": "./dist",
-    "baseUrl": "./src",
+    "baseUrl": "./",
     "target": "esnext",
     "module": "esnext",
     "lib": ["dom", "esnext"],
@@ -17,7 +17,8 @@
 
     "types": ["@anansi/webpack-config/types","./src/types/remark-remove-comments"],
     "paths": {
-      "resources/*": ["resources/*"]
+      "@/*": ["./src/*"],
+      "@/resources/*": ["./src/resources/*"]
     },
     "noEmit": true
   },
