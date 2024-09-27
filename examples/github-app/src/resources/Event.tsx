@@ -16,12 +16,12 @@ import { Push } from './Push';
 import { Review } from './Review';
 
 export class Event extends GithubEntity {
-  readonly type: EventType = 'WatchEvent';
-  readonly actor: Record<string, any> = {};
-  readonly repo: { id: number; name: string; url: string } = {} as any;
-  readonly payload: Record<string, any> = {};
-  readonly public: boolean = true;
-  readonly createdAt = Temporal.Instant.fromEpochSeconds(0);
+  type: EventType = 'WatchEvent';
+  actor: Record<string, any> = {};
+  repo: { id: number; name: string; url: string } = {} as any;
+  payload: Record<string, unknown> = {};
+  public = true;
+  createdAt = Temporal.Instant.fromEpochSeconds(0);
 
   get icon() {
     return typeToIcon[this.type];
@@ -34,7 +34,7 @@ export class Event extends GithubEntity {
 export class PullRequestEvent extends Event {
   readonly type = 'PullRequestEvent';
 
-  declare readonly payload: {
+  declare payload: {
     action: 'closed' | 'opened';
     number: number;
     pullRequest: Pull;
@@ -47,7 +47,7 @@ export class PullRequestEvent extends Event {
 }
 export class PullRequestReviewEvent extends Event {
   readonly type = 'PullRequestReviewEvent';
-  declare readonly payload: {
+  declare payload: {
     action: 'created';
     pullRequest: Pull;
     review: Review;

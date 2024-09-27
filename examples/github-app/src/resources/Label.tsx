@@ -2,11 +2,11 @@ import { GithubEntity, githubResource } from './Base';
 import PreviewEndpoint from './PreviewEndpoint';
 
 export class Label extends GithubEntity {
-  readonly nodeId: string = '';
-  readonly name: string = '';
-  readonly description: string = '';
-  readonly color: string = '000000';
-  readonly default: boolean = false;
+  nodeId = '';
+  name = '';
+  description = '';
+  color = '000000';
+  default = false;
 }
 export const LabelResource = githubResource({
   path: '/repos/:owner/:repo/labels/:name',

@@ -12,14 +12,17 @@ import { lazyPage } from './lazyPage';
 export const routes = [
   {
     name: 'Home',
-    component: lazyPage('IssueList'),
+    component: lazyPage('IssuesPage'),
     owner: 'facebook',
     repo: 'react',
     resolveData: async (
       controller: Controller,
       { owner, repo }: { owner: string; repo: string },
+      search: URLSearchParams,
     ) => {
-      controller.fetchIfStale(IssueResource.search, { owner, repo });
+      const query = `${search?.get('query') || 'is:open'} is:issue`;
+      const q = `${query} repo:${owner}/${repo}`;
+      controller.fetchIfStale(IssueResource.search, { q });
     },
   },
   {
@@ -28,12 +31,11 @@ export const routes = [
     resolveData: async (
       controller: Controller,
       { owner, repo }: { owner: string; repo: string },
-      searchParams: URLSearchParams,
+      search: URLSearchParams,
     ) => {
-      const q = searchParams?.get('q') || 'is:pr is:open';
+      const query = `${search?.get('query') || 'is:open'} is:pr`;
+      const q = `${query} repo:${owner}/${repo}`;
       await controller.fetchIfStale(IssueResource.search, {
-        owner,
-        repo,
         q,
       });
     },
@@ -45,12 +47,11 @@ export const routes = [
     resolveData: async (
       controller: Controller,
       { owner, repo }: { owner: string; repo: string },
-      searchParams: URLSearchParams,
+      search: URLSearchParams,
     ) => {
-      const q = searchParams?.get('q') || 'is:issue is:open';
+      const query = `${search?.get('query') || 'is:open'} is:issue`;
+      const q = `${query} repo:${owner}/${repo}`;
       await controller.fetchIfStale(IssueResource.search, {
-        owner,
-        repo,
         q,
       });
     },

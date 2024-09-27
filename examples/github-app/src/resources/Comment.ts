@@ -4,13 +4,13 @@ import { GithubEntity, githubResource } from './Base';
 import { User } from './User';
 
 export class Comment extends GithubEntity {
-  readonly issueUrl: string = '';
-  readonly htmlUrl: string = '';
-  readonly body: string = '';
-  readonly user: User = User.fromJS();
-  readonly createdAt = Temporal.Instant.fromEpochSeconds(0);
-  readonly updatedAt = Temporal.Instant.fromEpochSeconds(0);
-  readonly authorAssociation: string = 'NONE';
+  issueUrl = '';
+  htmlUrl = '';
+  body = '';
+  user = User.fromJS();
+  createdAt = Temporal.Instant.fromEpochSeconds(0);
+  updatedAt = Temporal.Instant.fromEpochSeconds(0);
+  authorAssociation = 'NONE';
 
   get owner() {
     const pieces = this.issueUrl.split('/issues')[0].split('/');

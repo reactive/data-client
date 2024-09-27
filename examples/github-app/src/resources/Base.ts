@@ -16,7 +16,8 @@ import { getAuth } from './Auth';
 const HOST = 'https://api.github.com';
 
 export class GithubEntity extends Entity {
-  readonly id: number = -1;
+  // -1 is not valid, so this indicates it was not initialized
+  id = -1;
 }
 
 export const GithubGqlEndpoint = new GQLEndpoint(

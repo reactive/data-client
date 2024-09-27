@@ -2,9 +2,10 @@ import { Link } from '@anansi/router';
 import { List, Avatar, Skeleton } from 'antd';
 import { humanTime } from 'components/human';
 import Labels from 'components/Labels';
+import { memo } from 'react';
 import { Issue } from 'resources/Issue';
 
-export default function IssueListItem({ issue }: { issue: Issue }) {
+function IssueListItem({ issue }: { issue: Issue }) {
   const actions = [];
   if (issue.comments) {
     actions.push(
@@ -54,3 +55,4 @@ export default function IssueListItem({ issue }: { issue: Issue }) {
     </List.Item>
   );
 }
+export default memo(IssueListItem);

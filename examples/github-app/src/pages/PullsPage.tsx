@@ -5,15 +5,10 @@ import IssueList from './IssueList';
 
 export default function PullsPage({ owner, repo }: Props) {
   const search = useLocationSearch();
-  const q = search?.get('q') || 'is:pr is:open';
+  const query = `${search?.get('query') || 'is:open'} is:pr`;
 
-  return <IssueList owner={owner} repo={repo} q={q} />;
+  return <IssueList owner={owner} repo={repo} query={query} />;
 }
-type Props = { owner: string; repo: string } & (
-  | {
-      page: number;
-    }
-  | {
-      state?: Issue['state'];
-    }
-);
+type Props = { owner: string; repo: string } & {
+  state?: Issue['state'];
+};

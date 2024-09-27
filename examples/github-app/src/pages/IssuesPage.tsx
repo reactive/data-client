@@ -7,11 +7,10 @@ import IssueList from './IssueList';
 
 export default function IssuePage({ owner, repo }: Props) {
   const search = useLocationSearch();
-  const q = search?.get('q') || 'is:issue is:open';
+  const query = `${search?.get('query') || 'is:open'} is:issue`;
 
   return (
     <>
-      {' '}
       <Breadcrumb
         itemRender={(route, params, routes, paths) =>
           route.href ? <Link name="Home">{route.title}</Link> : route.title
@@ -40,15 +39,10 @@ export default function IssuePage({ owner, repo }: Props) {
           },
         ]}
       />
-      <IssueList owner={owner} repo={repo} q={q} />
+      <IssueList owner={owner} repo={repo} query={query} />
     </>
   );
 }
-type Props = { owner: string; repo: string } & (
-  | {
-      page: number;
-    }
-  | {
-      state?: Issue['state'];
-    }
-);
+type Props = { owner: string; repo: string } & {
+  state?: Issue['state'];
+};
