@@ -1104,7 +1104,7 @@ declare const Entity_base: IEntityClass<abstract new (...args: any[]) => {
     pk(parent?: any, key?: string, args?: readonly any[]): string | number | undefined;
 });
 /**
- * Represents data that should be deduped by specifying a primary key.
+ * Entity defines a single (globally) unique object.
  * @see https://dataclient.io/rest/api/Entity
  */
 declare abstract class Entity extends Entity_base {

@@ -10,7 +10,7 @@ const EmptyBase = class {} as any as abstract new (...args: any[]) => {
 };
 
 /**
- * Represents data that should be deduped by specifying a primary key.
+ * Entity defines a single (globally) unique object.
  * @see https://dataclient.io/rest/api/Entity
  */
 export default abstract class Entity extends EntityMixin(EmptyBase) {

@@ -6,5 +6,5 @@ export { default as All } from './schemas/All.js';
 export { default as Object } from './schemas/Object.js';
 export { default as Invalidate } from './schemas/Invalidate.js';
 export { default as Collection } from './schemas/Collection.js';
-export { default as Entity } from './schemas/EntitySchema.js';
+export { default as Entity } from './schemas/EntityMixin.js';
 export { default as Query } from './schemas/Query.js';

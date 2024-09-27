@@ -9,7 +9,7 @@ import type {
 import { AbstractInstanceType } from '../normal.js';
 
 /**
- * Represents data that should be deduped by specifying a primary key.
+ * Entity defines a single (globally) unique object.
  * @see https://dataclient.io/rest/api/schema.Entity
  */
 export default function EntityMixin<TBase extends Constructor>(
@@ -17,7 +17,7 @@ export default function EntityMixin<TBase extends Constructor>(
   options: EntityOptions<InstanceType<TBase>> = {},
 ) {
   /**
-   * Represents data that should be deduped by specifying a primary key.
+   * Entity defines a single (globally) unique object.
    * @see https://dataclient.io/rest/api/Entity
    */
   abstract class EntityMixin extends Base {
