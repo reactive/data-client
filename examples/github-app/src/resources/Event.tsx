@@ -4,6 +4,7 @@ import {
   ExclamationCircleOutlined,
   EyeOutlined,
   PullRequestOutlined,
+  ForkOutlined,
 } from '@ant-design/icons';
 import { schema } from '@data-client/rest';
 import { Temporal } from '@js-temporal/polyfill';
@@ -87,6 +88,7 @@ export const EventResource = githubResource({
       PullRequestEvent,
       IssuesEvent,
       PushEvent,
+      ForkEvent: Event,
       PullRequestReviewEvent,
       IssueCommentEvent: Event,
       PullRequestReviewCommentEvent: Event,
@@ -105,6 +107,7 @@ export const EventResource = githubResource({
 export const typeToIcon: Record<Event['type'], JSX.Element> = {
   PullRequestEvent: <PullRequestOutlined />,
   PushEvent: <CloudUploadOutlined />,
+  ForkEvent: <ForkOutlined />,
   WatchEvent: <EyeOutlined />,
   IssueCommentEvent: <CommentOutlined />,
   PullRequestReviewEvent: <EyeOutlined />,
@@ -114,6 +117,7 @@ export const typeToIcon: Record<Event['type'], JSX.Element> = {
 type EventType =
   | 'WatchEvent'
   | 'PushEvent'
+  | 'ForkEvent'
   | 'IssuesEvent'
   | 'IssueCommentEvent'
   | 'CreateEvent'
