@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-
 import { AbstractInstanceType } from '../normal.js';
-import { Entity as EntitySchema } from '../schema.js';
+import { Entity as EntityMixin } from '../schema.js';
 
 const EmptyBase = class {} as any as abstract new (...args: any[]) => {
   pk(
@@ -15,7 +13,7 @@ const EmptyBase = class {} as any as abstract new (...args: any[]) => {
  * Represents data that should be deduped by specifying a primary key.
  * @see https://dataclient.io/rest/api/Entity
  */
-export default abstract class Entity extends EntitySchema(EmptyBase) {
+export default abstract class Entity extends EntityMixin(EmptyBase) {
   /** Control how automatic schema validation is handled
    *
    * `undefined`: Defaults - throw error in worst offense

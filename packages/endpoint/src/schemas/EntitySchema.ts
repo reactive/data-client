@@ -12,7 +12,7 @@ import { AbstractInstanceType } from '../normal.js';
  * Represents data that should be deduped by specifying a primary key.
  * @see https://dataclient.io/rest/api/schema.Entity
  */
-export default function EntitySchema<TBase extends Constructor>(
+export default function EntityMixin<TBase extends Constructor>(
   Base: TBase,
   options: EntityOptions<InstanceType<TBase>> = {},
 ) {

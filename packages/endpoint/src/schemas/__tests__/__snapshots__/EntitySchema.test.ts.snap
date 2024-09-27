@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`EntitySchema construction pk should fail with no id and pk unspecified 1`] = `
+exports[`EntityMixin construction pk should fail with no id and pk unspecified 1`] = `
 "Missing usable primary key when normalizing response.
 
   'id' missing but needed for default pk(). Try defining pk() for your Entity.
@@ -13,7 +13,7 @@ exports[`EntitySchema construction pk should fail with no id and pk unspecified 
 "
 `;
 
-exports[`EntitySchema denormalization can denormalize already partially denormalized data 1`] = `
+exports[`EntityMixin denormalization can denormalize already partially denormalized data 1`] = `
 Menu {
   "food": Food {
     "id": "1",
@@ -22,7 +22,7 @@ Menu {
 }
 `;
 
-exports[`EntitySchema denormalization can denormalize already partially denormalized data 2`] = `
+exports[`EntityMixin denormalization can denormalize already partially denormalized data 2`] = `
 Menu {
   "food": Food {
     "id": "1",
@@ -31,7 +31,7 @@ Menu {
 }
 `;
 
-exports[`EntitySchema denormalization denormalizes an entity 1`] = `
+exports[`EntityMixin denormalization denormalizes an entity 1`] = `
 Tacos {
   "alias": undefined,
   "id": "1",
@@ -39,7 +39,7 @@ Tacos {
 }
 `;
 
-exports[`EntitySchema denormalization denormalizes an entity 2`] = `
+exports[`EntityMixin denormalization denormalizes an entity 2`] = `
 Tacos {
   "alias": undefined,
   "id": "1",
@@ -47,7 +47,7 @@ Tacos {
 }
 `;
 
-exports[`EntitySchema denormalization denormalizes deep entities 1`] = `
+exports[`EntityMixin denormalization denormalizes deep entities 1`] = `
 Menu {
   "food": Food {
     "id": "1",
@@ -56,7 +56,7 @@ Menu {
 }
 `;
 
-exports[`EntitySchema denormalization denormalizes deep entities 2`] = `
+exports[`EntityMixin denormalization denormalizes deep entities 2`] = `
 Menu {
   "food": Food {
     "id": "",
@@ -65,7 +65,7 @@ Menu {
 }
 `;
 
-exports[`EntitySchema denormalization denormalizes deep entities with records 1`] = `
+exports[`EntityMixin denormalization denormalizes deep entities with records 1`] = `
 Menu {
   "food": Food {
     "id": "1",
@@ -74,7 +74,7 @@ Menu {
 }
 `;
 
-exports[`EntitySchema denormalization denormalizes deep entities with records 2`] = `
+exports[`EntityMixin denormalization denormalizes deep entities with records 2`] = `
 Menu {
   "food": Food {
     "id": "1",
@@ -83,47 +83,47 @@ Menu {
 }
 `;
 
-exports[`EntitySchema denormalization denormalizes deep entities with records 3`] = `
+exports[`EntityMixin denormalization denormalizes deep entities with records 3`] = `
 Menu {
   "food": null,
   "id": "2",
 }
 `;
 
-exports[`EntitySchema denormalization denormalizes deep entities with records 4`] = `
+exports[`EntityMixin denormalization denormalizes deep entities with records 4`] = `
 Menu {
   "food": null,
   "id": "2",
 }
 `;
 
-exports[`EntitySchema denormalization denormalizes to undefined for deleted data 1`] = `Symbol(INVALID)`;
+exports[`EntityMixin denormalization denormalizes to undefined for deleted data 1`] = `Symbol(INVALID)`;
 
-exports[`EntitySchema denormalization denormalizes to undefined for deleted data 2`] = `Symbol(INVALID)`;
+exports[`EntityMixin denormalization denormalizes to undefined for deleted data 2`] = `Symbol(INVALID)`;
 
-exports[`EntitySchema denormalization denormalizes to undefined for deleted data 3`] = `Symbol(INVALID)`;
+exports[`EntityMixin denormalization denormalizes to undefined for deleted data 3`] = `Symbol(INVALID)`;
 
-exports[`EntitySchema denormalization denormalizes to undefined for deleted data 4`] = `Symbol(INVALID)`;
+exports[`EntityMixin denormalization denormalizes to undefined for deleted data 4`] = `Symbol(INVALID)`;
 
-exports[`EntitySchema denormalization denormalizes to undefined for missing data 1`] = `
+exports[`EntityMixin denormalization denormalizes to undefined for missing data 1`] = `
 Menu {
   "food": undefined,
   "id": "1",
 }
 `;
 
-exports[`EntitySchema denormalization denormalizes to undefined for missing data 2`] = `
+exports[`EntityMixin denormalization denormalizes to undefined for missing data 2`] = `
 Menu {
   "food": undefined,
   "id": "1",
 }
 `;
 
-exports[`EntitySchema denormalization denormalizes to undefined for missing data 3`] = `undefined`;
+exports[`EntityMixin denormalization denormalizes to undefined for missing data 3`] = `undefined`;
 
-exports[`EntitySchema denormalization denormalizes to undefined for missing data 4`] = `undefined`;
+exports[`EntityMixin denormalization denormalizes to undefined for missing data 4`] = `undefined`;
 
-exports[`EntitySchema denormalization nesting denormalizes recursive dependencies 1`] = `
+exports[`EntityMixin denormalization nesting denormalizes recursive dependencies 1`] = `
 Report {
   "draftedBy": User {
     "id": "456",
@@ -144,7 +144,7 @@ Report {
 }
 `;
 
-exports[`EntitySchema denormalization nesting denormalizes recursive dependencies 2`] = `
+exports[`EntityMixin denormalization nesting denormalizes recursive dependencies 2`] = `
 Report {
   "draftedBy": User {
     "id": "456",
@@ -165,7 +165,7 @@ Report {
 }
 `;
 
-exports[`EntitySchema denormalization nesting denormalizes recursive dependencies 3`] = `
+exports[`EntityMixin denormalization nesting denormalizes recursive dependencies 3`] = `
 User {
   "id": "456",
   "reports": [
@@ -180,7 +180,7 @@ User {
 }
 `;
 
-exports[`EntitySchema denormalization nesting denormalizes recursive dependencies 4`] = `
+exports[`EntityMixin denormalization nesting denormalizes recursive dependencies 4`] = `
 User {
   "id": "456",
   "reports": Immutable.List [
@@ -195,7 +195,7 @@ User {
 }
 `;
 
-exports[`EntitySchema normalization mergeStrategy can use a custom merging strategy 1`] = `
+exports[`EntityMixin normalization mergeStrategy can use a custom merging strategy 1`] = `
 {
   "entities": {
     "MergeTaco": {
@@ -223,7 +223,7 @@ exports[`EntitySchema normalization mergeStrategy can use a custom merging strat
 }
 `;
 
-exports[`EntitySchema normalization mergeStrategy defaults to plain merging 1`] = `
+exports[`EntityMixin normalization mergeStrategy defaults to plain merging 1`] = `
 {
   "entities": {
     "Tacos": {
@@ -251,7 +251,7 @@ exports[`EntitySchema normalization mergeStrategy defaults to plain merging 1`] 
 }
 `;
 
-exports[`EntitySchema normalization normalizes already processed entities 1`] = `
+exports[`EntityMixin normalization normalizes already processed entities 1`] = `
 {
   "entities": {},
   "entityMeta": {},
@@ -262,7 +262,7 @@ exports[`EntitySchema normalization normalizes already processed entities 1`] = 
 }
 `;
 
-exports[`EntitySchema normalization normalizes already processed entities 2`] = `
+exports[`EntityMixin normalization normalizes already processed entities 2`] = `
 {
   "entities": {},
   "entityMeta": {},
@@ -273,7 +273,7 @@ exports[`EntitySchema normalization normalizes already processed entities 2`] = 
 }
 `;
 
-exports[`EntitySchema normalization normalizes already processed entities 3`] = `
+exports[`EntityMixin normalization normalizes already processed entities 3`] = `
 {
   "entities": {
     "Nested": {
@@ -298,7 +298,7 @@ exports[`EntitySchema normalization normalizes already processed entities 3`] = 
 }
 `;
 
-exports[`EntitySchema normalization normalizes an entity 1`] = `
+exports[`EntityMixin normalization normalizes an entity 1`] = `
 {
   "entities": {
     "MyEntity": {
@@ -321,7 +321,7 @@ exports[`EntitySchema normalization normalizes an entity 1`] = `
 }
 `;
 
-exports[`EntitySchema normalization pk() can build the entity's ID from the parent object 1`] = `
+exports[`EntityMixin normalization pk() can build the entity's ID from the parent object 1`] = `
 {
   "entities": {
     "User": {
@@ -348,7 +348,7 @@ exports[`EntitySchema normalization pk() can build the entity's ID from the pare
 }
 `;
 
-exports[`EntitySchema normalization pk() can normalize entity IDs based on their object key 1`] = `
+exports[`EntityMixin normalization pk() can normalize entity IDs based on their object key 1`] = `
 {
   "entities": {
     "User": {
@@ -388,7 +388,7 @@ exports[`EntitySchema normalization pk() can normalize entity IDs based on their
 }
 `;
 
-exports[`EntitySchema normalization pk() can use a custom pk() string 1`] = `
+exports[`EntityMixin normalization pk() can use a custom pk() string 1`] = `
 {
   "entities": {
     "User": {
@@ -412,7 +412,7 @@ exports[`EntitySchema normalization pk() can use a custom pk() string 1`] = `
 }
 `;
 
-exports[`EntitySchema normalization process can use a custom processing strategy 1`] = `
+exports[`EntityMixin normalization process can use a custom processing strategy 1`] = `
 ProcessTaco {
   "alias": undefined,
   "id": "1",
@@ -421,7 +421,7 @@ ProcessTaco {
 }
 `;
 
-exports[`EntitySchema normalization process can use information from the parent in the process strategy 1`] = `
+exports[`EntityMixin normalization process can use information from the parent in the process strategy 1`] = `
 EntityMixin {
   "child": ChildEntity {
     "content": "child",
@@ -434,7 +434,7 @@ EntityMixin {
 }
 `;
 
-exports[`EntitySchema normalization process schema denormalization is run before and passed to the schema denormalization EntriesEntity 1`] = `
+exports[`EntityMixin normalization process schema denormalization is run before and passed to the schema denormalization EntriesEntity 1`] = `
 EntriesEntity {
   "data": {
     "attachment": AttachmentsEntity {
@@ -446,7 +446,7 @@ EntriesEntity {
 }
 `;
 
-exports[`EntitySchema normalization process schema denormalization is run before and passed to the schema denormalization EntriesEntity2 1`] = `
+exports[`EntityMixin normalization process schema denormalization is run before and passed to the schema denormalization EntriesEntity2 1`] = `
 EntriesEntity2 {
   "data": {
     "attachment": AttachmentsEntity {
@@ -458,7 +458,7 @@ EntriesEntity2 {
 }
 `;
 
-exports[`EntitySchema normalization should allow many unexpected as long as none are missing 1`] = `
+exports[`EntityMixin normalization should allow many unexpected as long as none are missing 1`] = `
 {
   "entities": {
     "MyEntity": {
@@ -502,7 +502,7 @@ exports[`EntitySchema normalization should allow many unexpected as long as none
 }
 `;
 
-exports[`EntitySchema normalization should error if no matching keys are found 1`] = `
+exports[`EntityMixin normalization should error if no matching keys are found 1`] = `
 "Missing usable primary key when normalizing response.
 
   This is likely due to a malformed response.
@@ -517,7 +517,7 @@ exports[`EntitySchema normalization should error if no matching keys are found 1
 "
 `;
 
-exports[`EntitySchema normalization should not throw if schema key is missing from Entity 1`] = `
+exports[`EntityMixin normalization should not throw if schema key is missing from Entity 1`] = `
 {
   "entities": {
     "MyData": {
@@ -541,7 +541,7 @@ exports[`EntitySchema normalization should not throw if schema key is missing fr
 }
 `;
 
-exports[`EntitySchema normalization should throw a custom error if data does not include pk 1`] = `
+exports[`EntityMixin normalization should throw a custom error if data does not include pk 1`] = `
 "Missing usable primary key when normalizing response.
 
   This is likely due to a malformed response.
@@ -556,7 +556,7 @@ exports[`EntitySchema normalization should throw a custom error if data does not
 "
 `;
 
-exports[`EntitySchema normalization should throw a custom error if data loads with no matching props 1`] = `
+exports[`EntityMixin normalization should throw a custom error if data loads with no matching props 1`] = `
 "Missing usable primary key when normalizing response.
 
   This is likely due to a malformed response.
@@ -569,7 +569,7 @@ exports[`EntitySchema normalization should throw a custom error if data loads wi
 "
 `;
 
-exports[`EntitySchema normalization should throw a custom error if data loads with string 1`] = `
+exports[`EntityMixin normalization should throw a custom error if data loads with string 1`] = `
 "Unexpected input given to normalize. Expected type to be "object", found "string".
 
           Schema: {
@@ -581,7 +581,7 @@ exports[`EntitySchema normalization should throw a custom error if data loads wi
           Input: "hibho""
 `;
 
-exports[`EntitySchema normalization should throw a custom error loads with array 1`] = `
+exports[`EntityMixin normalization should throw a custom error loads with array 1`] = `
 "Missing usable primary key when normalizing response.
 
   This is likely due to a malformed response.
