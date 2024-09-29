@@ -1,13 +1,12 @@
+import { useLoading } from '@data-client/react';
 import { Button, Checkbox, Form, Input } from 'antd';
 
 export default function LoginForm({
   onFinish,
 }: {
-  onFinish: (values: any) => void;
+  onFinish: (values: any) => Promise<void>;
 }) {
-  const onFinishFailed = (errorInfo: any) => {
-    console.log('Failed:', errorInfo);
-  };
+  const [handleFinish, loading, error] = useLoading(onFinish, [onFinish]);
 
   return (
     <Form
@@ -15,14 +14,18 @@ export default function LoginForm({
       labelCol={{ span: 6 }}
       wrapperCol={{ span: 16 }}
       initialValues={{ remember: true }}
-      onFinish={onFinish}
-      onFinishFailed={onFinishFailed}
-      autoComplete="off"
+      onFinish={handleFinish}
     >
       <Form.Item
         label="Username"
         name="login"
         rules={[{ required: true, message: 'Please input your username!' }]}
+        validateStatus={error ? 'error' : ''}
+        help={
+          (error as any)?.status === 401
+            ? 'Username and token were not valid'
+            : ''
+        }
       >
         <Input autoFocus />
       </Form.Item>
@@ -44,7 +47,7 @@ export default function LoginForm({
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-        <Button type="primary" htmlType="submit">
+        <Button type="primary" htmlType="submit" disabled={loading}>
           Submit
         </Button>
       </Form.Item>
