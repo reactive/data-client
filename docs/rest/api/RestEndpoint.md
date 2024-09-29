@@ -766,7 +766,9 @@ async (id: string) => {
 
 :::
 
-## schema?: Schema {#schema}
+## Endpoint Lifecycle
+
+### schema?: Schema {#schema}
 
 [Declarative data lifecycle](./schema.md)
 
@@ -789,15 +791,7 @@ const getUser = new RestEndpoint({
 });
 ```
 
-## Endpoint Life-Cycles
-
-These are inherited from [Endpoint](./Endpoint.md#lifecycle)
-
-import EndpointLifecycle from './_EndpointLifecycle.mdx';
-
-<EndpointLifecycle />
-
-## key(urlParams): string {#key}
+### key(urlParams): string {#key}
 
 Serializes the parameters. This is used to build a lookup key in global stores.
 
@@ -807,14 +801,18 @@ Default:
 `${this.method} ${this.url(urlParams)}`;
 ```
 
-## testKey(key): boolean {#testKey}
+### testKey(key): boolean {#testKey}
 
 Returns `true` if the provided (fetch) [key](#key) matches this endpoint.
 
 This is used for mock interceptors with with [&lt;MockResolver /&gt;](/docs/api/MockResolver),
 [Controller.expireAll()](/docs/api/Controller#expireAll), and [Controller.invalidateAll()](/docs/api/Controller#invalidateAll).
 
-## extend(options): Endpoint {#extend}
+import EndpointLifecycle from './_EndpointLifecycle.mdx';
+
+<EndpointLifecycle />
+
+## extend(options): RestEndpoint {#extend}
 
 Can be used to further customize the endpoint definition
 
@@ -881,7 +879,7 @@ return (
 
 See [pagination guide](guides/pagination.md) for more info.
 
-### paginated(paginationfield): Endpoint {#paginated}
+### paginated(paginationfield) {#paginated}
 
 Creates a new endpoint with an extra `paginationfield` string that will be used to find the specific
 page, to append to this endpoint. See [Infinite Scrolling Pagination](guides/pagination.md#infinite-scrolling) for more info.
@@ -892,7 +890,7 @@ const getNextPage = getList.paginated('cursor');
 
 Schema must also contain a [Collection](./Collection.md)
 
-### paginated(removeCursor): Endpoint {#paginated-function}
+### paginated(removeCursor) {#paginated-function}
 
 ```typescript
 function paginated<E, A extends any[]>(
@@ -920,7 +918,7 @@ Schema must also contain a [Collection](./Collection.md)
 Make sure you use `RestGenerics` to keep types working.
 
 ```ts
-import { RestEndpoint, RestGenerics } from '@data-client/rest';
+import { RestEndpoint, type RestGenerics } from '@data-client/rest';
 
 class GithubEndpoint<
   O extends RestGenerics = any,

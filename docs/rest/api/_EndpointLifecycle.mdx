@@ -35,9 +35,9 @@ that useSuspense() will suspend when data is stale even if it already exists in 
 Frequency in millisecond to poll at. Requires using [useSubscription()](/docs/api/useSubscription) or
 [useLive()](/docs/api/useLive) to have an effect.
 
-### getOptimisticResponse: (snap, ...args) => fakePayload {#getoptimisticresponse}
+### getOptimisticResponse: (snap, ...args) => expectedResponse {#getoptimisticresponse}
 
-When provided, any fetches with this endpoint will behave as though the `fakePayload` return value
+When provided, any fetches with this endpoint will behave as though the `expectedResponse` return value
 from this function was a succesful network response. When the actual fetch completes (regardless
 of failure or success), the optimistic update will be replaced with the actual network response.
 

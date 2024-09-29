@@ -192,13 +192,13 @@ you intend on using that method.
 
 :::
 
-## testKey(key): boolean {#testKey}
+### testKey(key): boolean {#testKey}
 
 Returns `true` if the provided (fetch) [key](#key) matches this endpoint.
 
 This is used for mock interceptors with with [&lt;MockResolver /&gt;](/docs/api/MockResolver)
 
-## name: string {#name}
+### name: string {#name}
 
 Used in [key](#key) to distinguish endpoints. Should be globally unique.
 
@@ -213,13 +213,13 @@ In these cases you can override `name` or disable function mangling.
 
 :::
 
-## sideEffect: boolean {#sideeffect}
+### sideEffect: boolean {#sideeffect}
 
 Used to indicate endpoint might have side-effects (non-idempotent). This restricts it
 from being used with [useSuspense()](/docs/api/useSuspense) or [useFetch()](/docs/api/useFetch) as those can hit the
 endpoint an unpredictable number of times.
 
-## schema: Schema {#schema}
+### schema: Schema {#schema}
 
 Declarative definition of how to [process responses](./schema)
 
@@ -243,13 +243,11 @@ const getUser = new Endpoint(
 );
 ```
 
-## EndpointExtraOptions
-
 import EndpointLifecycle from './_EndpointLifecycle.mdx';
 
 <EndpointLifecycle />
 
-## extend(EndpointOptions): Endpoint {#extend}
+### extend(options): Endpoint {#extend}
 
 Can be used to further customize the endpoint definition
 

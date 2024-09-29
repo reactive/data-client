@@ -15,7 +15,7 @@ import StackBlitz from '@site/src/components/StackBlitz';
 
 Server Side Rendering (SSR) can improve the first-load performance of your application. Reactive Data
 Client takes this one step further by pre-populating the data store. Unlike other SSR methodologies,
-Reactive Data Client becomes interactive the moment the page is visible, making [data mutations](https://dataclient.io/docs/getting-started/mutations) instantaneous. Additionally there is no need for additional data fetches that increase server
+Reactive Data Client becomes interactive the moment the page is visible, making [data mutations](../getting-started/mutations.md) instantaneous. Additionally there is no need for additional data fetches that increase server
 load and slow client hydration, potentially causing application stutters.
 
 ## NextJS SSR {#nextjs}
@@ -54,27 +54,30 @@ export default function RootLayout({ children }) {
 
 To keep your data fresh and performant, you can use client components and [useSuspense()](../api/useSuspense.md)
 
-```tsx title="app/todos/page.tsx"
+```tsx title="app/todos/[userId]/page.tsx"
 'use client';
 import { useSuspense } from '@data-client/react';
 import { TodoResource } from '../../resources/Todo';
 
-export default function InteractivePage() {
-  const todos = useSuspense(TodoResource.getList);
+export default function InteractivePage({ params }: { params: { userId: number } }) {
+  const todos = useSuspense(TodoResource.getList, params);
   return <TodoList todos={todos} />;
 }
 ```
+
+Note that this is identical to how you would write components without SSR. This makes
+makes the components usable across platforms.
 
 #### Server Components
 
 However, if your data never changes, you can slightly decrease the javascript bundle sent, by
 using a server component. Simply `await` the endpoint:
 
-```tsx title="app/todos/page.tsx"
+```tsx title="app/todos/[userId]/page.tsx"
 import { TodoResource } from '../../resources/Todo';
 
-export default async function StaticPage() {
-  const todos = await TodoResource.getList();
+export default async function StaticPage({ params }: { params: { userId: number } }) {
+  const todos = await TodoResource.getList(params);
   return <TodoList todos={todos} />;
 }
 ```
