@@ -1,7 +1,7 @@
-import styles from 'styles/Home.module.css';
-import AssetPrice from 'components/AssetPrice';
+import AssetPrice from '@/components/AssetPrice';
+import styles from '@/styles/Home.module.css';
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-dynamic';
 
 export default function Crypto() {
   return (

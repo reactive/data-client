@@ -1,9 +1,9 @@
 import { AsyncBoundary } from '@data-client/react';
 import { DataProvider } from '@data-client/react/nextjs';
 import Image from 'next/image';
-import 'styles/globals.css';
 
-import styles from 'styles/Home.module.css';
+import '@/styles/globals.css';
+import styles from '@/styles/Home.module.css';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -14,8 +14,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <body>
         <DataProvider>
           <h1 className={styles.title}>
-            Welcome to <a href="https://nextjs.org" target="_blank">Next.js</a> with{' '}
-            <a href="https://dataclient.io" target="_blank">Reactive Data Client</a>!
+            Welcome to{' '}
+            <a href="https://nextjs.org" target="_blank" rel="noreferrer">
+              Next.js
+            </a>{' '}
+            with{' '}
+            <a href="https://dataclient.io" target="_blank" rel="noreferrer">
+              Reactive Data Client
+            </a>
+            !
           </h1>
           <div>
             <main className={styles.main}>
@@ -33,7 +40,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   <Image
                     src="/data_client.svg"
                     alt="Reactive Data Client Logo"
-                    width={72*2}
+                    width={72 * 2}
                     height={32}
                   />
                 </span>

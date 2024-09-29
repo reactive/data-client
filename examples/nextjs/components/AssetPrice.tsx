@@ -1,10 +1,12 @@
 'use client';
 import { useLive } from '@data-client/react';
+
+import { getTicker } from '@/resources/Ticker';
+
 import { Formatted } from './Formatted';
-import { getTicker } from 'resources/Ticker';
 
 export default function AssetPrice({ symbol }: Props) {
-  const product_id = `${symbol}-USD`
+  const product_id = `${symbol}-USD`;
   // Learn more about Reactive Data Client: https://dataclient.io/docs
   const ticker = useLive(getTicker, { product_id });
   return (

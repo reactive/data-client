@@ -1,6 +1,7 @@
 import { useController } from '@data-client/react';
 import { memo } from 'react';
-import { TodoResource, Todo } from 'resources/TodoResource';
+
+import { TodoResource, Todo } from '@/resources/TodoResource';
 
 function TodoListItem({ todo }: { todo: Todo }) {
   const ctrl = useController();
@@ -17,14 +18,16 @@ function TodoListItem({ todo }: { todo: Todo }) {
     });
 
   return (
-    <div style={{textAlign:'left'}}>
+    <div style={{ textAlign: 'left' }}>
       <label>
         <input
           type="checkbox"
           checked={todo.completed}
           onChange={handleToggle}
         />
-        {todo.completed ? <s>{todo.title}</s> : todo.title}
+        {todo.completed ?
+          <s>{todo.title}</s>
+        : todo.title}
       </label>
       <span
         style={{ cursor: 'pointer', marginLeft: '.5em' }}

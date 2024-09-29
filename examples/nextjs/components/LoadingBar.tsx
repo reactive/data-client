@@ -1,5 +1,6 @@
 'use client';
 import { useRef, useEffect } from 'react';
+
 import styles from './LoadingBar.module.css';
 
 const LoadingBar = ({

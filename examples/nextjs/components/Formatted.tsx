@@ -1,12 +1,12 @@
 'use client';
-import clsx from "clsx";
-import React from "react";
+import clsx from 'clsx';
+import React from 'react';
 
-import { formatters, Formatter } from "./formatters";
+import { formatters, Formatter } from './formatters';
 
 export enum FlashDirection {
-  Down = "down",
-  Up = "up",
+  Down = 'down',
+  Up = 'up',
 }
 
 export interface Props {
@@ -17,7 +17,7 @@ export interface Props {
   /**
    * One of the built in formatters.
    */
-  formatter?: "currency" | "percentage" | "number";
+  formatter?: 'currency' | 'percentage' | 'number';
   /**
    * Pass your own formatter function.
    */
@@ -71,24 +71,24 @@ export interface Props {
  * add your own unique styles.
  */
 export const Formatted = ({
-  downColor = "#d43215",
+  downColor = '#d43215',
   formatter,
   formatterFn,
   timeout = 300,
   transition,
   transitionLength = 300,
-  upColor = "#00d865",
+  upColor = '#00d865',
   value,
-  stylePrefix = "rvf_Flash",
+  stylePrefix = 'rvf_Flash',
 }: Props) => {
   const ref = React.useRef<number>(value);
   const [flash, setFlash] = React.useState<FlashDirection | null>(null);
   const style = {
     transition:
       transition || `background-color ${transitionLength}ms ease-in-out`,
-    ...(flash
-      ? { backgroundColor: flash === FlashDirection.Up ? upColor : downColor }
-      : null),
+    ...(flash ?
+      { backgroundColor: flash === FlashDirection.Up ? upColor : downColor }
+    : null),
   };
   const cls = clsx(stylePrefix, {
     [`${stylePrefix}--flashing`]: flash != null,

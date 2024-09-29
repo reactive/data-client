@@ -1,9 +1,11 @@
 'use client';
 import { useSuspense } from '@data-client/react';
-import { UserResource } from 'resources/UserResource';
-import Link from 'next/link';
-import styles from './UserSelect.module.css';
 import clsx from 'clsx';
+import Link from 'next/link';
+
+import { UserResource } from '@/resources/UserResource';
+
+import styles from './UserSelect.module.css';
 
 export default function UserSelection({ userId }: { userId?: number }) {
   const users = useSuspense(UserResource.getList).slice(0, 7);

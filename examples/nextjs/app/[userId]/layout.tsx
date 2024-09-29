@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import UserSelection from 'components/todo/UserSelection';
+
+import UserSelection from '@/components/todo/UserSelection';
 
 export default function TodoLayout({
   children,
@@ -26,8 +27,12 @@ export default function TodoLayout({
       </p>
 
       <p>
-        This is because Reactive Data Client's store is initialized and{' '}
-        <a href="https://dataclient.io/docs/concepts/normalization?utm_source=demos&utm_medium=default-template&utm_campaign=demos" target="_blank">
+        This is because Reactive Data Client&apos;s store is initialized and{' '}
+        <a
+          href="https://dataclient.io/docs/concepts/normalization?utm_source=demos&utm_medium=default-template&utm_campaign=demos"
+          target="_blank"
+          rel="noreferrer"
+        >
           normalized
         </a>
       </p>
