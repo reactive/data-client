@@ -96,7 +96,7 @@ export interface CollectionInterface<
 
   /** Run when an existing Collection is found in the store
    *
-   * @see https://dataclient.io/docs/api/schema.Entity#mergeWithStore
+   * @see https://dataclient.io/docs/api/Collection#mergeWithStore
    */
   mergeWithStore(
     existingMeta: {

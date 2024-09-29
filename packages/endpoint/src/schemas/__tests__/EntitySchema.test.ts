@@ -5,12 +5,12 @@ import { Temporal } from '@js-temporal/polyfill';
 import { fromJS, Record } from 'immutable';
 
 import SimpleMemoCache from './denormalize';
-import { schema } from '../..';
+import { schema, EntityMixin } from '../..';
 
 let dateSpy: jest.SpyInstance;
 beforeAll(() => {
   dateSpy = jest
-    // eslint-disable-next-line no-undef
+
     .spyOn(global.Date, 'now')
     .mockImplementation(() => new Date('2019-05-14T11:01:58.135Z').valueOf());
 });
@@ -26,7 +26,7 @@ class TacoData {
   name = '';
   alias: string | undefined = undefined;
 }
-class Tacos extends schema.Entity(TacoData) {}
+class Tacos extends EntityMixin(TacoData) {}
 
 class ArticleData {
   readonly id: string = '';
@@ -34,7 +34,7 @@ class ArticleData {
   readonly author: string = '';
   readonly content: string = '';
 }
-class ArticleEntity extends schema.Entity(ArticleData) {}
+class ArticleEntity extends EntityMixin(ArticleData) {}
 
 class OptionalData {
   readonly id: string = '';
@@ -42,7 +42,7 @@ class OptionalData {
   readonly requiredArticle = ArticleEntity.fromJS();
   readonly nextPage: string = '';
 }
-class WithOptional extends schema.Entity(OptionalData, {
+class WithOptional extends EntityMixin(OptionalData, {
   schema: {
     article: ArticleEntity,
     requiredArticle: ArticleEntity,
@@ -63,7 +63,7 @@ describe(`${schema.Entity.name} construction`, () => {
           return this.username;
         }
       }
-      const MyEntity = schema.Entity(MyData);
+      const MyEntity = EntityMixin(MyData);
       expect(MyEntity.pk({ username: 'bob' })).toBe('bob');
       const entity = MyEntity.fromJS({ username: 'bob' });
       expect(entity.pk()).toBe('bob');
@@ -78,7 +78,7 @@ describe(`${schema.Entity.name} construction`, () => {
           return this.username;
         }
       }
-      class MyEntity extends schema.Entity(MyData) {
+      class MyEntity extends EntityMixin(MyData) {
         pk() {
           return this.title;
         }
@@ -91,7 +91,7 @@ describe(`${schema.Entity.name} construction`, () => {
         username = '';
         title = '';
       }
-      class MyEntity extends schema.Entity(MyData, { pk: 'username' }) {
+      class MyEntity extends EntityMixin(MyData, { pk: 'username' }) {
         pk() {
           return this.title;
         }
@@ -104,7 +104,7 @@ describe(`${schema.Entity.name} construction`, () => {
         username = '';
         title = '';
       }
-      class MyEntity extends schema.Entity(MyData, { pk: 'username' }) {}
+      class MyEntity extends EntityMixin(MyData, { pk: 'username' }) {}
       expect(MyEntity.pk({ username: 'bob' })).toBe('bob');
       expect(MyEntity.fromJS({ username: 'bob' }).pk()).toBe('bob');
     });
@@ -113,7 +113,7 @@ describe(`${schema.Entity.name} construction`, () => {
         username = '';
         title = '';
       }
-      class MyEntity extends schema.Entity(MyData, {
+      class MyEntity extends EntityMixin(MyData, {
         pk(v) {
           //@ts-expect-error
           v.sdlfkjsd;
@@ -129,7 +129,7 @@ describe(`${schema.Entity.name} construction`, () => {
         title = '';
       }
       // @ts-expect-error
-      class MyEntity extends schema.Entity(MyData, { pk: 'id' }) {}
+      class MyEntity extends EntityMixin(MyData, { pk: 'id' }) {}
       // @ts-expect-error
       expect(MyEntity.pk({ username: 'bob' })).toBeUndefined();
       // @ts-expect-error
@@ -141,7 +141,7 @@ describe(`${schema.Entity.name} construction`, () => {
         title = '';
       }
       // @ts-expect-error
-      class MyEntity extends schema.Entity(MyData) {}
+      class MyEntity extends EntityMixin(MyData) {}
       // @ts-expect-error
       expect(MyEntity.pk({ username: 'bob' })).toBeUndefined();
       // @ts-expect-error
@@ -156,7 +156,7 @@ describe(`${schema.Entity.name} construction`, () => {
         username = '';
         title = '';
       }
-      class MyEntity extends schema.Entity(MyData) {}
+      class MyEntity extends EntityMixin(MyData) {}
       expect(MyEntity.pk({ id: '5' })).toBe('5');
       expect(MyEntity.fromJS({ id: '5' }).pk()).toBe('5');
     });
@@ -168,11 +168,11 @@ describe(`${schema.Entity.name} construction`, () => {
         username = '';
         title = '';
       }
-      const MyEntity = schema.Entity(MyData);
+      const MyEntity = EntityMixin(MyData);
       expect(MyEntity.key).toBe('MyData');
     });
     it('should error with no discernable name', () => {
-      const MyEntity = schema.Entity(
+      const MyEntity = EntityMixin(
         class {
           id = '';
           username = '';
@@ -190,7 +190,7 @@ describe(`${schema.Entity.name} construction`, () => {
         username = '';
         title = '';
       }
-      class MyEntity extends schema.Entity(MyData) {}
+      class MyEntity extends EntityMixin(MyData) {}
       expect(MyEntity.key).toBe('MyEntity');
     });
     it('should use key in options', () => {
@@ -199,9 +199,9 @@ describe(`${schema.Entity.name} construction`, () => {
         username = '';
         title = '';
       }
-      const MyEntity = schema.Entity(MyData, { key: 'MYKEY' });
+      const MyEntity = EntityMixin(MyData, { key: 'MYKEY' });
       expect(MyEntity.key).toBe('MYKEY');
-      class MyEntity2 extends schema.Entity(MyData, { key: 'MYKEY' }) {}
+      class MyEntity2 extends EntityMixin(MyData, { key: 'MYKEY' }) {}
       expect(MyEntity2.key).toBe('MYKEY');
     });
     it('should use static key in base class', () => {
@@ -212,7 +212,7 @@ describe(`${schema.Entity.name} construction`, () => {
 
         static key = 'MYKEY';
       }
-      const MyEntity = schema.Entity(MyData);
+      const MyEntity = EntityMixin(MyData);
       expect(MyEntity.key).toBe('MYKEY');
     });
     it('should have options.key override base class', () => {
@@ -223,7 +223,7 @@ describe(`${schema.Entity.name} construction`, () => {
 
         static key = 'MYKEY';
       }
-      const MyEntity = schema.Entity(MyData, { key: 'OVERRIDE' });
+      const MyEntity = EntityMixin(MyData, { key: 'OVERRIDE' });
       expect(MyEntity.key).toBe('OVERRIDE');
     });
     it('static key in Entity should override options', () => {
@@ -232,7 +232,7 @@ describe(`${schema.Entity.name} construction`, () => {
         username = '';
         title = '';
       }
-      class MyEntity extends schema.Entity(MyData, { key: 'OPTIONSKEY' }) {
+      class MyEntity extends EntityMixin(MyData, { key: 'OPTIONSKEY' }) {
         static key = 'STATICKEY';
       }
       expect(MyEntity.key).toBe('STATICKEY');
@@ -246,7 +246,7 @@ describe(`${schema.Entity.name} construction`, () => {
         title = '';
         createdAt = Temporal.Instant.fromEpochSeconds(0);
       }
-      class MyEntity extends schema.Entity(MyData, {
+      class MyEntity extends EntityMixin(MyData, {
         schema: { createdAt: Temporal.Instant.from },
       }) {}
       expect(MyEntity.schema).toEqual({ createdAt: Temporal.Instant.from });
@@ -261,7 +261,7 @@ describe(`${schema.Entity.name} construction`, () => {
           user: Temporal.Instant.from,
         };
       }
-      class MyEntity extends schema.Entity(MyData, {
+      class MyEntity extends EntityMixin(MyData, {
         schema: { createdAt: Temporal.Instant.from },
       }) {}
       expect(MyEntity.schema).toEqual({ createdAt: Temporal.Instant.from });
@@ -276,7 +276,7 @@ describe(`${schema.Entity.name} construction`, () => {
           createdAt: Temporal.Instant.from,
         };
       }
-      class MyEntity extends schema.Entity(MyData) {}
+      class MyEntity extends EntityMixin(MyData) {}
       expect(MyEntity.schema).toEqual({ createdAt: Temporal.Instant.from });
     });
     it('static schema in Entity should override options', () => {
@@ -286,7 +286,7 @@ describe(`${schema.Entity.name} construction`, () => {
         title = '';
         createdAt = Temporal.Instant.fromEpochSeconds(0);
       }
-      class MyEntity extends schema.Entity(MyData, {
+      class MyEntity extends EntityMixin(MyData, {
         schema: { createdAt: Temporal.Instant.from },
       }) {
         static schema = {
@@ -308,18 +308,18 @@ describe(`${schema.Entity.name} normalization`, () => {
   );
 
   test('normalizes an entity', () => {
-    class MyEntity extends schema.Entity(IDData) {}
+    class MyEntity extends EntityMixin(IDData) {}
     expect(normalize(MyEntity, { id: '1' })).toMatchSnapshot();
   });
 
   test('normalizes already processed entities', () => {
-    class MyEntity extends schema.Entity(IDData) {}
+    class MyEntity extends EntityMixin(IDData) {}
     class MyData {
       id = '';
       title = '';
       nest = MyEntity.fromJS();
     }
-    class Nested extends schema.Entity(MyData, {
+    class Nested extends EntityMixin(MyData, {
       schema: {
         nest: MyEntity,
       },
@@ -339,7 +339,7 @@ describe(`${schema.Entity.name} normalization`, () => {
       id = '';
       title = '';
     }
-    class MyEntity extends schema.Entity(MyData) {
+    class MyEntity extends EntityMixin(MyData) {
       static shouldUpdate() {
         return false;
       }
@@ -363,7 +363,7 @@ describe(`${schema.Entity.name} normalization`, () => {
       name = '';
       secondthing = '';
     }
-    const MyEntity = schema.Entity(MyData, { pk: 'name' });
+    const MyEntity = EntityMixin(MyData, { pk: 'name' });
 
     function normalizeBad() {
       normalize(MyEntity, { secondthing: 'hi' });
@@ -371,7 +371,7 @@ describe(`${schema.Entity.name} normalization`, () => {
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
 
     // @ts-expect-error
-    schema.Entity(MyData, { pk: 'sdfasd' });
+    EntityMixin(MyData, { pk: 'sdfasd' });
   });
 
   it('should not throw if schema key is missing from Entity', () => {
@@ -380,7 +380,7 @@ describe(`${schema.Entity.name} normalization`, () => {
       secondthing = '';
     }
     // @ts-expect-error
-    const MyEntity = schema.Entity(MyData, {
+    const MyEntity = EntityMixin(MyData, {
       pk: 'name',
       schema: {
         blarb: Temporal.Instant.from,
@@ -398,7 +398,7 @@ describe(`${schema.Entity.name} normalization`, () => {
       readonly secondthing: string = '';
       readonly blarb: Date | undefined = undefined;
     }
-    class MyEntity extends schema.Entity(MyData, {
+    class MyEntity extends EntityMixin(MyData, {
       pk: 'name',
       schema: {
         blarb: Temporal.Instant.from,
@@ -436,7 +436,7 @@ describe(`${schema.Entity.name} normalization`, () => {
       name = '';
       secondthing = '';
     }
-    const MyEntity = schema.Entity(MyData, { pk: 'name' });
+    const MyEntity = EntityMixin(MyData, { pk: 'name' });
     function normalizeBad() {
       normalize(MyEntity, {});
     }
@@ -448,7 +448,7 @@ describe(`${schema.Entity.name} normalization`, () => {
       name = '';
       secondthing = '';
     }
-    const MyEntity = schema.Entity(MyData, { pk: 'name' });
+    const MyEntity = EntityMixin(MyData, { pk: 'name' });
     function normalizeBad() {
       normalize(MyEntity, [
         { name: 'hi', secondthing: 'ho' },
@@ -464,7 +464,7 @@ describe(`${schema.Entity.name} normalization`, () => {
       readonly name: string = '';
     }
     // @ts-expect-error
-    class MyEntity extends schema.Entity(MyData, { pk: 'e' }) {}
+    class MyEntity extends EntityMixin(MyData, { pk: 'e' }) {}
 
     expect(() =>
       normalize(MyEntity, {
@@ -478,7 +478,7 @@ describe(`${schema.Entity.name} normalization`, () => {
       readonly name: string = '';
       readonly a: string = '';
     }
-    class MyEntity extends schema.Entity(MyData, { pk: 'name' }) {}
+    class MyEntity extends EntityMixin(MyData, { pk: 'name' }) {}
 
     expect(
       normalize(MyEntity, {
@@ -524,7 +524,7 @@ describe(`${schema.Entity.name} normalization`, () => {
         return 'another2';
       }
     }
-    class MyEntity extends schema.Entity(MyData, { pk: 'name' }) {}
+    class MyEntity extends EntityMixin(MyData, { pk: 'name' }) {}
     function normalizeBad() {
       normalize(MyEntity, { name: 'bob' });
     }
@@ -541,7 +541,7 @@ describe(`${schema.Entity.name} normalization`, () => {
         return this.name;
       }
     }
-    const MyEntity = schema.Entity(MyData);
+    const MyEntity = EntityMixin(MyData);
     function normalizeBad() {
       normalize({ data: MyEntity }, 'hibho');
     }
@@ -554,7 +554,7 @@ describe(`${schema.Entity.name} normalization`, () => {
         id = '';
       }
       // @ts-expect-error
-      class MyEntity extends schema.Entity(MyData) {
+      class MyEntity extends EntityMixin(MyData) {
         static get key() {
           return 42;
         }
@@ -568,7 +568,7 @@ describe(`${schema.Entity.name} normalization`, () => {
         readonly idStr: string = '';
         readonly name: string = '';
       }
-      const UserEntity = schema.Entity(User, { pk: 'idStr' });
+      const UserEntity = EntityMixin(User, { pk: 'idStr' });
       expect(
         normalize(UserEntity, { idStr: '134351', name: 'Kathy' }),
       ).toMatchSnapshot();
@@ -578,7 +578,7 @@ describe(`${schema.Entity.name} normalization`, () => {
       class User {
         readonly name: string = '';
       }
-      const UserEntity = schema.Entity(User, {
+      const UserEntity = EntityMixin(User, {
         pk(value, parent, key) {
           return key;
         },
@@ -602,7 +602,7 @@ describe(`${schema.Entity.name} normalization`, () => {
         readonly id: string = '';
         readonly name: string = '';
       }
-      const UserEntity = schema.Entity(User, {
+      const UserEntity = EntityMixin(User, {
         pk(value, parent, key) {
           return `${parent.name}-${key}-${value.id}`;
         },
@@ -683,7 +683,7 @@ describe(`${schema.Entity.name} normalization`, () => {
         readonly parentId: string = '';
         readonly parentKey: string = '';
       }
-      class ChildEntity extends schema.Entity(Child) {
+      class ChildEntity extends EntityMixin(Child) {
         static process(input: any, parent: any, key: string | undefined): any {
           return {
             ...input,
@@ -697,7 +697,7 @@ describe(`${schema.Entity.name} normalization`, () => {
         readonly content: string = '';
         readonly child: ChildEntity = ChildEntity.fromJS({});
       }
-      const ParentEntity = schema.Entity(Parent, {
+      const ParentEntity = EntityMixin(Parent, {
         schema: { child: ChildEntity },
       });
 
@@ -714,7 +714,7 @@ describe(`${schema.Entity.name} normalization`, () => {
     });
 
     describe('schema denormalization', () => {
-      class AttachmentsEntity extends schema.Entity(
+      class AttachmentsEntity extends EntityMixin(
         class {
           id = '';
         },
@@ -725,7 +725,7 @@ describe(`${schema.Entity.name} normalization`, () => {
         readonly type: string = '';
         data = { attachment: undefined };
       }
-      class EntriesEntity extends schema.Entity(Entries) {
+      class EntriesEntity extends EntityMixin(Entries) {
         static schema = {
           data: { attachment: AttachmentsEntity },
         };
@@ -737,7 +737,7 @@ describe(`${schema.Entity.name} normalization`, () => {
           };
         }
       }
-      class EntriesEntity2 extends schema.Entity(Entries, {
+      class EntriesEntity2 extends EntityMixin(Entries, {
         schema: {
           data: { attachment: AttachmentsEntity },
         },
@@ -777,7 +777,7 @@ describe(`${schema.Entity.name} denormalization`, () => {
     expect(denormalize(Tacos, '1', fromJS(entities))).toMatchSnapshot();
   });
 
-  class Food extends schema.Entity(
+  class Food extends EntityMixin(
     class {
       id = '';
     },
@@ -786,7 +786,7 @@ describe(`${schema.Entity.name} denormalization`, () => {
     id = '';
     readonly food: Food = Food.fromJS();
   }
-  class Menu extends schema.Entity(MenuData, { schema: { food: Food } }) {}
+  class Menu extends EntityMixin(MenuData, { schema: { food: Food } }) {}
 
   test('denormalizes deep entities', () => {
     const entities = {
@@ -870,7 +870,7 @@ describe(`${schema.Entity.name} denormalization`, () => {
       readonly secondthing: string = '';
       readonly blarb: Date | undefined = undefined;
     }
-    class MyEntity extends schema.Entity(MyData, {
+    class MyEntity extends EntityMixin(MyData, {
       pk: 'name',
       schema: { blarb: Temporal.Instant.from },
     }) {}
@@ -894,7 +894,7 @@ describe(`${schema.Entity.name} denormalization`, () => {
       readonly secondthing: string = '';
       readonly blarb: Date | null = null;
     }
-    class MyEntity extends schema.Entity(MyData, {
+    class MyEntity extends EntityMixin(MyData, {
       pk: 'name',
       schema: { blarb: Temporal.Instant.from },
     }) {}
@@ -976,14 +976,14 @@ describe(`${schema.Entity.name} denormalization`, () => {
       readonly role = '';
       readonly reports: Report[] = [];
     }
-    class User extends schema.Entity(UserData) {}
+    class User extends EntityMixin(UserData) {}
     class ReportData {
       id = '';
       readonly title: string = '';
       readonly draftedBy: User = User.fromJS();
       readonly publishedBy: User = User.fromJS();
     }
-    class Report extends schema.Entity(ReportData, {
+    class Report extends EntityMixin(ReportData, {
       schema: {
         draftedBy: User,
         publishedBy: User,
@@ -997,7 +997,7 @@ describe(`${schema.Entity.name} denormalization`, () => {
       readonly body: string = '';
       readonly author: User = User.fromJS();
     }
-    class Comment extends schema.Entity(CommentData, {
+    class Comment extends EntityMixin(CommentData, {
       schema: { author: User },
     }) {}
 
@@ -1290,7 +1290,7 @@ describe(`${schema.Entity.name} denormalization`, () => {
 
 describe('Entity.defaults', () => {
   it('should work with inheritance', () => {
-    abstract class DefaultsEntity extends schema.Entity(
+    abstract class DefaultsEntity extends EntityMixin(
       class {
         id = '';
       },

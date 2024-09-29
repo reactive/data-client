@@ -139,7 +139,7 @@ export const TodoResource = {
   <PkgInstall pkgs="@data-client/endpoint" />
 
 Pre-existing TypeScript definitions can be used in <abbr title="Reactive Data Client">Data Client</abbr> with
-[Endpoint](/rest/api/Endpoint) and [schema.Entity](/rest/api/schema.Entity).
+[Endpoint](/rest/api/Endpoint) and [EntityMixin](/rest/api/EntityMixin).
 
 <TypeScriptEditor row={false}>
 
@@ -187,7 +187,7 @@ export const deleteTodo = (body: Partial<Todo>) =>
 ```
 
 ```typescript title="TodoResource"
-import { schema, Endpoint } from '@data-client/endpoint';
+import { schema, EntityMixin, Endpoint } from '@data-client/endpoint';
 import {
   Todo,
   getTodo,
@@ -198,7 +198,7 @@ import {
   deleteTodo,
 } from './existing/Todo';
 
-export const TodoEntity = schema.Entity(Todo, { key: 'Todo' });
+export const TodoEntity = EntityMixin(Todo, { key: 'Todo' });
 
 export const TodoResource = {
   get: new Endpoint(getTodo, { schema: TodoEntity }),
@@ -289,5 +289,5 @@ To aid in defining `Resources`, composable and extensible protocol specific help
 [Image/binary](../guides/img-media.md), [Websockets+SSE](../concepts/managers.md#data-stream).
 
 To use existing API definitions, or define your own protocol specific helpers, use
-[Endpoint](/rest/api/Endpoint) and [schema.Entity](/rest/api/schema.Entity) from [@data-client/endpoint](https://www.npmjs.com/package/@data-client/endpoint).
+[Endpoint](/rest/api/Endpoint) and [EntityMixin](/rest/api/EntityMixin) from [@data-client/endpoint](https://www.npmjs.com/package/@data-client/endpoint).
 [See `Async/Promise` tab above]

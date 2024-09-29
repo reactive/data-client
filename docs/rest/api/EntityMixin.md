@@ -1,6 +1,6 @@
 ---
-title: schema.Entity - Entity mixin
-sidebar_label: schema.Entity
+title: EntityMixin - Declarative unique objects for pre-existing classes
+sidebar_label: EntityMixin
 ---
 
 <head>
@@ -12,16 +12,16 @@ import LanguageTabs from '@site/src/components/LanguageTabs';
 import { RestEndpoint } from '@data-client/rest';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
-# schema.Entity
+# EntityMixin
 
 `Entity` defines a single _unique_ object.
 
-If you already have classes for your data-types, `schema.Entity` mixin may be for you.
+If you already have classes for your data-types, `EntityMixin` mixin may be for you.
 
 <TypeScriptEditor>
 
 ```typescript {10}
-import { schema } from '@data-client/rest';
+import { EntityMixin } from '@data-client/rest';
 
 export class Article {
   id = '';
@@ -30,7 +30,7 @@ export class Article {
   tags: string[] = [];
 }
 
-export class ArticleEntity extends schema.Entity(Article) {}
+export class ArticleEntity extends EntityMixin(Article) {}
 ```
 
 </TypeScriptEditor>
@@ -48,7 +48,7 @@ class User {
   username = '';
   createdAt = Temporal.Instant.fromEpochSeconds(0);
 }
-class UserEntity extends schema.Entity(User, {
+class UserEntity extends EntityMixin(User, {
   pk: 'username',
   key: 'User',
   schema: { createdAt: Temporal.Instant.from },
@@ -75,7 +75,7 @@ class Thread {
   slug = '';
   content = '';
 }
-class ThreadEntity extends schema.Entity(Thread, {
+class ThreadEntity extends EntityMixin(Thread, {
   pk(value) {
     return [value.forum, value.slug].join(',');
   },
@@ -94,7 +94,7 @@ Specifies the [Entity.schema](./Entity.md#schema)
 
 ## Methods
 
-`schema.Entity` mixin has the same [methods as the Entity](./Entity.md#lifecycle) class.
+`EntityMixin` mixin has the same [methods as the Entity](./Entity.md#lifecycle) class.
 
 ## const vs class
 
@@ -118,8 +118,8 @@ export class Article {
   tags: string[] = [];
 }
 
-export class ArticleEntity extends schema.Entity(Article) {}
-export const ArticleEntity2 = schema.Entity(Article);
+export class ArticleEntity extends EntityMixin(Article) {}
+export const ArticleEntity2 = EntityMixin(Article);
 
 const article: ArticleEntity = ArticleEntity.fromJS();
 const articleFails: ArticleEntity2 = ArticleEntity2.fromJS();

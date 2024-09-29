@@ -1,4 +1,3 @@
-import { Constructor, EntityOptions } from './EntityTypes.js';
 import type {
   Schema,
   GetIndex,
@@ -7,11 +6,37 @@ import type {
   Visit,
 } from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
+import type {
+  IEntityClass,
+  IEntityInstance,
+  EntityOptions,
+  RequiredPKOptions,
+  IDClass,
+  Constructor,
+  PKClass,
+} from './EntityTypes.js';
 
 /**
- * Entity defines a single (globally) unique object.
- * @see https://dataclient.io/rest/api/schema.Entity
+ * Turns any class into an Entity.
+ * @see https://dataclient.io/rest/api/EntityMixin
  */
+export default function EntityMixin<TBase extends PKClass>(
+  Base: TBase,
+  opt?: EntityOptions<InstanceType<TBase>>,
+): IEntityClass<TBase> & TBase;
+
+// id is in Instance, so we default to that as pk
+export default function EntityMixin<TBase extends IDClass>(
+  Base: TBase,
+  opt?: EntityOptions<InstanceType<TBase>>,
+): IEntityClass<TBase> & TBase & (new (...args: any[]) => IEntityInstance);
+
+// pk was specified in options, so we don't need to redefine
+export default function EntityMixin<TBase extends Constructor>(
+  Base: TBase,
+  opt: RequiredPKOptions<InstanceType<TBase>>,
+): IEntityClass<TBase> & TBase & (new (...args: any[]) => IEntityInstance);
+
 export default function EntityMixin<TBase extends Constructor>(
   Base: TBase,
   options: EntityOptions<InstanceType<TBase>> = {},

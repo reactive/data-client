@@ -373,7 +373,7 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://da
 <tbody><tr>
 <td rowSpan="4"><a href="https://en.wikipedia.org/wiki/Object_(computer_science)">Object</a></td>
 <td align="center">✅</td>
-<td><a href="https://dataclient.io/rest/api/Entity">Entity</a>, <a href="https://dataclient.io/rest/api/schema.Entity">schema.Entity</a> mixin</td>
+<td><a href="https://dataclient.io/rest/api/Entity">Entity</a>, <a href="https://dataclient.io/rest/api/EntityMixin">EntityMixin</a></td>
 <td>single <em>unique</em> object</td>
 <td align="center">✅</td>
 </tr>

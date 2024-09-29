@@ -21,15 +21,10 @@ import type {
   ObjectArgs,
 } from './normal.js';
 import { EntityFields } from './schemas/EntityFields.js';
-import type {
-  IEntityClass,
-  IEntityInstance,
-  EntityOptions,
-  RequiredPKOptions,
-  IDClass,
-  Constructor,
-  PKClass,
-} from './schemas/EntityTypes.js';
+import {
+  default as EntityMixin,
+  default as Entity,
+} from './schemas/EntityMixin.js';
 import { default as Invalidate } from './schemas/Invalidate.js';
 import { default as Query } from './schemas/Query.js';
 import type {
@@ -40,7 +35,7 @@ import type {
   UnionResult,
 } from './schemaTypes.js';
 
-export { EntityMap, Invalidate, Query };
+export { EntityMap, Invalidate, Query, EntityMixin, Entity };
 
 export type { SchemaClass };
 
@@ -410,35 +405,3 @@ export declare class Collection<
   Args extends any[] = DefaultArgs,
   Parent = any,
 > extends CollectionRoot<S, Args, Parent> {}
-
-/**
- * Entity defines a single (globally) unique object.
- * @see https://dataclient.io/rest/api/schema.Entity
- */
-export function Entity<TBase extends PKClass>(
-  Base: TBase,
-  opt?: EntityOptions<InstanceType<TBase>>,
-): IEntityClass<TBase> & TBase;
-
-// id is in Instance, so we default to that as pk
-export function Entity<TBase extends IDClass>(
-  Base: TBase,
-  opt?: EntityOptions<InstanceType<TBase>>,
-): IEntityClass<TBase> & TBase & (new (...args: any[]) => IEntityInstance);
-
-// pk was specified in options, so we don't need to redefine
-export function Entity<TBase extends Constructor>(
-  Base: TBase,
-  opt: RequiredPKOptions<InstanceType<TBase>>,
-): IEntityClass<TBase> & TBase & (new (...args: any[]) => IEntityInstance);
-
-/* TODO: figure out how to make abstract class mixins work. until then we will require PK in options
-export function Entity<TBase extends Constructor>(
-  Base: TBase,
-  opt?: EntityOptions<keyof InstanceType<TBase>>,
-): (abstract new (...args: any[]) => {
-  pk(parent?: any, key?: string): string | number | undefined;
-}) &
-  IEntityClass<TBase> &
-  TBase;
-*/

@@ -48,7 +48,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
   ): string | number | undefined;
   /** Return true to merge incoming data; false keeps existing entity
    *
-   * @see https://dataclient.io/docs/api/schema.Entity#shouldUpdate
+   * @see https://dataclient.io/docs/api/Entity#shouldUpdate
    */
   shouldUpdate(
     existingMeta: {
@@ -64,7 +64,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
   ): boolean;
   /** Determines the order of incoming entity vs entity already in store
    *
-   * @see https://dataclient.io/docs/api/schema.Entity#shouldReorder
+   * @see https://dataclient.io/docs/api/Entity#shouldReorder
    * @returns true if incoming entity should be first argument of merge()
    */
   shouldReorder(
@@ -81,12 +81,12 @@ export interface IEntityClass<TBase extends Constructor = any> {
   ): boolean;
   /** Creates new instance copying over defined values of arguments
    *
-   * @see https://dataclient.io/docs/api/schema.Entity#merge
+   * @see https://dataclient.io/docs/api/Entity#merge
    */
   merge(existing: any, incoming: any): any;
   /** Run when an existing entity is found in the store
    *
-   * @see https://dataclient.io/docs/api/schema.Entity#mergeWithStore
+   * @see https://dataclient.io/docs/api/Entity#mergeWithStore
    */
   mergeWithStore(
     existingMeta: {
@@ -102,7 +102,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
   ): any;
   /** Run when an existing entity is found in the store
    *
-   * @see https://dataclient.io/docs/api/schema.Entity#mergeMetaWithStore
+   * @see https://dataclient.io/docs/api/Entity#mergeMetaWithStore
    */
   mergeMetaWithStore(
     existingMeta: {

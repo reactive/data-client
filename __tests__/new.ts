@@ -1,3 +1,6 @@
+import { Temporal } from '@js-temporal/polyfill';
+import React, { createContext, useContext } from 'react';
+
 import {
   schema,
   Endpoint,
@@ -5,6 +8,7 @@ import {
   RestEndpoint,
   Schema,
   Entity,
+  EntityMixin,
   RestGenerics,
   hookifyResource,
   RestType,
@@ -12,8 +16,6 @@ import {
   Resource,
   ResourceOptions,
 } from '@data-client/rest';
-import { Temporal } from '@js-temporal/polyfill';
-import React, { createContext, useContext } from 'react';
 
 /** Represents data with primary key being from 'id' field. */
 export class IDEntity extends Entity {
@@ -44,7 +46,7 @@ export class VisSettings extends Entity implements Vis {
 
   static key = 'VisSettings';
 }
-export class VisSettingsFromMixin extends schema.Entity(Vis) {
+export class VisSettingsFromMixin extends EntityMixin(Vis) {
   static cmpIncoming(
     existingMeta: { date: number; fetchedAt: number },
     incomingMeta: { date: number; fetchedAt: number },
@@ -179,7 +181,7 @@ class ArticleData {
   readonly author: User | null = null;
   readonly tags: string[] = [];
 }
-export class ArticleFromMixin extends schema.Entity(ArticleData, {
+export class ArticleFromMixin extends EntityMixin(ArticleData, {
   schema: { author: User },
 }) {}
 class ArticleEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {}
