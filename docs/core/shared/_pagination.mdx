@@ -1,7 +1,7 @@
 import { postPaginatedFixtures } from '@site/src/fixtures/posts';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
-<HooksPlayground defaultOpen="n" row fixtures={postPaginatedFixtures}>
+<HooksPlayground defaultOpen="n" row fixtures={postPaginatedFixtures} defaultTab={props.defaultTab}>
 
 ```ts title="User" collapsed
 import { Entity } from '@data-client/rest';
@@ -73,26 +73,40 @@ interface Props {
 }
 ```
 
-```tsx title="PostList" {9}
+```tsx title="LoadMore" {7}
+import { useController, useLoading } from '@data-client/react';
+import { PostResource } from './Post';
+
+export default function LoadMore({ cursor }: { cursor: string }) {
+  const ctrl = useController();
+  const [loadPage, isPending] = useLoading(
+    () => ctrl.fetch(PostResource.getList.getPage, { cursor }),
+    [cursor],
+  );
+  return (
+    <center>
+      <button onClick={loadPage} disabled={isPending}>
+        {isPending ? '...' : 'Load more'}
+      </button>
+    </center>
+  );
+}
+```
+
+```tsx title="PostList" {7} collapsed
 import { useSuspense } from '@data-client/react';
 import PostItem from './PostItem';
+import LoadMore from './LoadMore';
 import { PostResource } from './Post';
 
 export default function PostList() {
   const { posts, cursor } = useSuspense(PostResource.getList);
-  const ctrl = useController();
-  const handlePageLoad = () =>
-    ctrl.fetch(PostResource.getList.getPage, { cursor });
   return (
     <div>
       {posts.map(post => (
         <PostItem key={post.pk()} post={post} />
       ))}
-      {cursor ? (
-        <center>
-          <button onClick={handlePageLoad}>Load more</button>
-        </center>
-      ) : null}
+      {cursor ? <LoadMore cursor={cursor} /> : null}
     </div>
   );
 }

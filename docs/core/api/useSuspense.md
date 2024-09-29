@@ -239,7 +239,7 @@ render(<ProfileList />);
 
 Reactive [pagination](/rest/guides/pagination) is achieved with [mutable schemas](/rest/api/Collection)
 
-<PaginationDemo />
+<PaginationDemo defaultTab="PostList" />
 
 ### Sequential
 

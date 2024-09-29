@@ -57,7 +57,7 @@ To keep your data fresh and performant, you can use client components and [useSu
 ```tsx title="app/todos/[userId]/page.tsx"
 'use client';
 import { useSuspense } from '@data-client/react';
-import { TodoResource } from '../../resources/Todo';
+import { TodoResource } from '@/resources/Todo';
 
 export default function InteractivePage({ params }: { params: { userId: number } }) {
   const todos = useSuspense(TodoResource.getList, params);
@@ -74,7 +74,7 @@ However, if your data never changes, you can slightly decrease the javascript bu
 using a server component. Simply `await` the endpoint:
 
 ```tsx title="app/todos/[userId]/page.tsx"
-import { TodoResource } from '../../resources/Todo';
+import { TodoResource } from '@/resources/Todo';
 
 export default async function StaticPage({ params }: { params: { userId: number } }) {
   const todos = await TodoResource.getList(params);

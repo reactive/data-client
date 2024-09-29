@@ -234,6 +234,9 @@ export const postPaginatedFixtures = [
         cursor: cursor + 1,
       };
     },
+    delay: (...args) => {
+      return args?.[0]?.cursor ? 200 : 0;
+    },
   },
 ];
 

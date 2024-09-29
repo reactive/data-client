@@ -157,21 +157,26 @@ function Navigation() {
   if (route.startsWith('detail'))
     return <PostDetail setRoute={setRoute} id={route.split('/')[1]} />;
 
-  return <><PostList setRoute={setRoute} /><LoadMore /></>;
+  return (
+    <>
+      <PostList setRoute={setRoute} />
+      <LoadMore />
+    </>
+  );
 }
 
 function LoadMore() {
   const ctrl = useController();
   const posts = useQuery(PostResource.getList.schema);
-  const [nextPage, isPending] = useLoading(
-    () => ctrl.fetch(PostResource.getList.getPage, { page: 2 }),
+  const [nextPage, isPending] = useLoading(() =>
+    ctrl.fetch(PostResource.getList.getPage, { page: 2 }),
   );
   if (!posts || posts.length % 3 !== 0) return null;
   return (
     <center>
-      <button onClick={nextPage}>{isPending ? "..." : 'Load more'}</button>
+      <button onClick={nextPage}>{isPending ? '...' : 'Load more'}</button>
     </center>
-  )
+  );
 }
 render(<Navigation />);
 ```
@@ -252,7 +257,7 @@ import { ProfileResource } from './ProfileResource';
 function ProfileList(): JSX.Element {
   const { data, loading, error } = useDLE(ProfileResource.getList);
   if (error) return <div>Error {`${error.status}`}</div>;
-  if (loading || !data) return <Loading/>;
+  if (loading || !data) return <Loading />;
   return (
     <div>
       {data.map(profile => (

@@ -5,7 +5,7 @@ import { IssueResource } from '@/resources/Issue';
 
 export default function NextPage({ q, page }: Props) {
   const ctrl = useController();
-  const [loadMore, loading] = useLoading(() =>
+  const [loadMore, isPending] = useLoading(() =>
     ctrl.fetch(IssueResource.search.getPage, {
       page,
       q,
@@ -13,7 +13,7 @@ export default function NextPage({ q, page }: Props) {
   );
   return (
     <div style={{ textAlign: 'center', marginTop: 12 }}>
-      {loading ? 'loading...' : <Button onClick={loadMore}>Load more</Button>}
+      {isPending ? 'loading...' : <Button onClick={loadMore}>Load more</Button>}
     </div>
   );
 }

@@ -14,7 +14,7 @@ import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
 <PkgTabs pkgs="@data-client/rest" />
 
-## Define the API
+## Define the Resources
 
 [Resources](./api/resource.md) are a collection of `methods` for a given `data model`. [Entities](./api/Entity.md) and [Schemas](./api/schema.md) are the declarative _data model_.
 [RestEndpoint](./api/RestEndpoint.md) are the [_methods_](<https://en.wikipedia.org/wiki/Method_(computer_programming)>) on
@@ -142,19 +142,20 @@ TypeScript enforces the arguments specified with a prefixed colon like `:slug` i
 ArticleResource.get({ slug: 'use-reactive-data-client' });
 ```
 
-## Bind the data with Suspense
+## Render the data
 
 <Tabs
 defaultValue="Single"
 values={[
 { label: 'Single', value: 'Single' },
 { label: 'List', value: 'List' },
+{ label: 'Server Component', value: 'server' },
 ]}>
 <TabItem value="Single">
 
 ```tsx
 import { useSuspense } from '@data-client/react';
-import { ArticleResource } from 'api/article';
+import { ArticleResource } from '@/resources/Article';
 
 export default function ArticleDetail({ slug }: { slug: string }) {
   const article = useSuspense(ArticleResource.get, { slug });
@@ -167,16 +168,22 @@ export default function ArticleDetail({ slug }: { slug: string }) {
 }
 ```
 
+:::info
+
+[useSuspense()](/docs/api/useSuspense) acts like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await), ensuring the data is available before returning. [Learn how to be declare your data dependencies](/docs/getting-started/data-dependency)
+
+:::
+
 </TabItem>
 <TabItem value="List">
 
 ```tsx
 import { useSuspense } from '@data-client/react';
-import { ArticleResource } from 'api/article';
+import { ArticleResource } from '@/resources/Article';
 import ArticleSummary from './ArticleSummary';
 
-export default function ArticleList() {
-  const articles = useSuspense(ArticleResource.getList);
+export default function ArticleList({ userId }: { userId?: number }) {
+  const articles = useSuspense(ArticleResource.getList, { userId });
   return (
     <section>
       {articles.map(article => (
@@ -187,10 +194,40 @@ export default function ArticleList() {
 }
 ```
 
-</TabItem>
-</Tabs>
+:::info
 
 [useSuspense()](/docs/api/useSuspense) acts like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await), ensuring the data is available before returning. [Learn how to be declare your data dependencies](/docs/getting-started/data-dependency)
+
+:::
+
+</TabItem>
+<TabItem value="server">
+
+```tsx title="app/articles/[userId]/page.tsx"
+import { useSuspense } from '@data-client/react';
+import { ArticleResource } from '@/resources/Article';
+import ArticleSummary from './ArticleSummary';
+
+export default async function ArticleList({ params }: { params: { userId: number } }) {
+  const articles = await ArticleResource.getList(params);
+  return (
+    <section>
+      {articles.map(article => (
+        <ArticleSummary key={article.pk()} article={article} />
+      ))}
+    </section>
+  );
+}
+```
+
+:::warning
+
+[Server Components](/docs/guides/ssr#server-components) makes the data static and un-mutable.
+
+:::
+
+</TabItem>
+</Tabs>
 
 ## Mutate the data
 
@@ -205,7 +242,7 @@ values={[
 
 ```tsx title="NewArticleForm.tsx"
 import { useController } from '@data-client/react';
-import { ArticleResource } from 'api/article';
+import { ArticleResource } from '@/resources/Article';
 
 export default function NewArticleForm() {
   const ctrl = useController();
@@ -231,7 +268,7 @@ resolves to the new Resource created by the API. It will automatically be added 
 
 ```tsx title="UpdateArticleForm.tsx"
 import { useController } from '@data-client/react';
-import { ArticleResource } from 'api/article';
+import { ArticleResource } from '@/resources/Article';
 
 export default function UpdateArticleForm({ slug }: { slug: string }) {
   const article = useSuspense(ArticleResource.get, { slug });
@@ -260,7 +297,7 @@ resolves to the new Resource created by the API. It will automatically be added 
 
 ```tsx title="ArticleWithDelete.tsx"
 import { useController } from '@data-client/react';
-import { Article, ArticleResource } from 'api/article';
+import { Article, ArticleResource } from '@/resources/Article';
 
 export default function ArticleWithDelete({
   article,
