@@ -411,10 +411,9 @@ export declare class Collection<
   Parent = any,
 > extends CollectionRoot<S, Args, Parent> {}
 
-// id is in Instance, so we default to that as pk
 /**
- * Represents data that should be deduped by specifying a primary key.
- * @see https://dataclient.io/docs/api/schema.Entity
+ * Entity defines a single (globally) unique object.
+ * @see https://dataclient.io/rest/api/schema.Entity
  */
 export function Entity<TBase extends PKClass>(
   Base: TBase,
