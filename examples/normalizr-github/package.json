@@ -14,8 +14,8 @@
     "@data-client/normalizr": "workspace:^"
   },
   "devDependencies": {
-    "@babel/core": "7.25.2",
-    "@babel/node": "7.25.0",
+    "@babel/core": "7.25.7",
+    "@babel/node": "7.25.7",
     "@types/babel__core": "^7",
     "rollup": "2.79.2",
     "rollup-plugin-babel": "^4.4.0",
