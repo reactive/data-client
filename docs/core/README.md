@@ -154,8 +154,8 @@ prevents 'data tearing' jank and improves performance.
 import { Entity } from '@data-client/rest';
 
 export class Todo extends Entity {
-  userId = 0;
   id = 0;
+  userId = 0;
   title = '';
   completed = false;
 }
@@ -166,7 +166,6 @@ import { GQLEntity } from '@data-client/graphql';
 
 export class Todo extends GQLEntity {
   userId = 0;
-  id = 0;
   title = '';
   completed = false;
 }
@@ -183,18 +182,20 @@ data integrity as well as TypeScript definitions.
 
 <ProtocolTabs>
 
-```ts {6,13}
+```ts {6}
 import { RestEndpoint } from '@data-client/rest';
 
-export const getTodo = new RestEndpoint({
+const get = new RestEndpoint({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   schema: Todo,
 });
 
-export const updateTodo = getTodo.extend({
+const update = getTodo.extend({
   method: 'PUT',
 });
+
+export const TodoResource = { get, update };
 ```
 
 ```ts {14,25}
@@ -202,7 +203,7 @@ import { GQLEndpoint } from '@data-client/graphql';
 
 const gql = new GQLEndpoint('/');
 
-export const getTodo = gql.query(
+const get = gql.query(
   `query GetTodo($id: ID!) {
     todo(id: $id) {
       id
@@ -214,7 +215,7 @@ export const getTodo = gql.query(
   { todo: Todo },
 );
 
-export const updateTodo = gql.mutation(
+const update = gql.mutation(
   `mutation UpdateTodo($todo: Todo!) {
     updateTodo(todo: $todo) {
       id
@@ -224,6 +225,8 @@ export const updateTodo = gql.mutation(
   }`,
   { updateTodo: Todo },
 );
+
+export const TodoResource = { get, update };
 ```
 
 </ProtocolTabs>
@@ -237,16 +240,31 @@ Just like `setState()`, we must make React aware of the any mutations so it can 
 
 We can [useController](./api/useController.md) to access it in React components.
 
+<ProtocolTabs>
+
 ```tsx
 import { useController } from '@data-client/react';
 
 function ArticleEdit() {
   const ctrl = useController();
   // highlight-next-line
-  const handleSubmit = data => ctrl.fetch(updateTodo, { id }, data);
+  const handleSubmit = data => ctrl.fetch(TodoResource.update, { id }, data);
   return <ArticleForm onSubmit={handleSubmit} />;
 }
 ```
+
+```tsx
+import { useController } from '@data-client/react';
+
+function ArticleEdit() {
+  const ctrl = useController();
+  // highlight-next-line
+  const handleSubmit = data => ctrl.fetch(TodoResource.update, { id, ...data });
+  return <ArticleForm onSubmit={handleSubmit} />;
+}
+```
+
+</ProtocolTabs>
 
 <details>
 <summary><b>Tracking imperative loading/error state</b></summary>
@@ -260,24 +278,9 @@ function ArticleEdit() {
   const ctrl = useController();
   // highlight-next-line
   const [handleSubmit, loading, error] = useLoading(
-    data => ctrl.fetch(updateTodo, { id }, data),
+    data => ctrl.fetch(TodoResource.update, { id }, data),
     [ctrl],
   );
-  return <ArticleForm onSubmit={handleSubmit} loading={loading} />;
-}
-```
-
-React 18 version with [useTransition](https://react.dev/reference/react/useTransition)
-
-```tsx
-import { useTransition } from 'react';
-import { useController } from '@data-client/react';
-
-function ArticleEdit() {
-  const ctrl = useController();
-  const [loading, startTransition] = useTransition();
-  const handleSubmit = data =>
-    startTransition(() => ctrl.fetch(updateTodo, { id }, data));
   return <ArticleForm onSubmit={handleSubmit} loading={loading} />;
 }
 ```
@@ -286,19 +289,25 @@ function ArticleEdit() {
 
 ### More data modeling
 
-What if our entity is not the top level item? Here we define the `todoList`
-endpoint with `[Todo]` as its schema. [Schemas](./concepts/normalization.md#schema) tell Reactive Data Client _where_ to find
+What if our entity is not the top level item? Here we define the `getList`
+endpoint with [new schema.Collection([Todo])](/rest/api/Collection) as its schema. [Schemas](./concepts/normalization.md#schema) tell Reactive Data Client _where_ to find
 the Entities. By placing inside a list, Reactive Data Client knows to expect a response
 where each item of the list is the entity specified.
 
 ```typescript {6}
 import { RestEndpoint, schema } from '@data-client/rest';
 
-export const getTodoList = new RestEndpoint({
+// get and update definitions omitted
+
+const getList = new RestEndpoint({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos',
   schema: new schema.Collection([Todo]),
+  searchParams: {} as { userId?: string | number } | undefined,
+  paginationField: 'page',
 });
+
+export default TodoResource = { getList, get, update };
 ```
 
 [Schemas](./concepts/normalization.md) also automatically infer and enforce the response type, ensuring
@@ -308,7 +317,7 @@ the variable `todos` will be typed precisely.
 import { useSuspense } from '@data-client/react';
 
 export default function TodoList() {
-  const todos = useSuspense(getTodoList);
+  const todos = useSuspense(TodoResource.getList);
 
   return (
     <div>
@@ -320,12 +329,12 @@ export default function TodoList() {
 }
 ```
 
-Now we've used our data model in three cases - `getTodo`, `getTodoList` and `updateTodo`. Data consistency
+Now we've used our data model in three cases - `TodoResource.get`, `TodoResource.getList` and `TodoResource.update`. Data consistency
 (as well as referential equality) will be guaranteed between the endpoints, even after mutations occur.
 
 ### Organizing Endpoints
 
-At this point we've defined `todoDetail`, `todoList` and `todoUpdate`. You might have noticed
+At this point we've defined `TodoResource.get`, `TodoResource.getList` and `TodoResource.update`. You might have noticed
 that these endpoint definitions share some logic and information. For this reason Reactive Data Client
 encourages extracting shared logic among endpoints.
 
@@ -345,10 +354,12 @@ const TodoResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   schema: Todo,
+  searchParams: {} as { userId?: string | number } | undefined,
+  paginationField: 'page',
 });
 ```
 
-[Introduction to Resource](/rest)
+[Introduction to Resource](./getting-started/resource.md)
 
 <details>
 <summary><b>Resource Endpoints</b></summary>
@@ -361,11 +372,20 @@ const todo = useSuspense(TodoResource.get, { id: 5 });
 // GET https://jsonplaceholder.typicode.com/todos
 const todos = useSuspense(TodoResource.getList);
 
+// GET https://jsonplaceholder.typicode.com/todos?userId=1
+const todos = useSuspense(TodoResource.getList, { userId: 1 });
+
 // mutate
 const ctrl = useController();
 
+// GET https://jsonplaceholder.typicode.com/todos?userId=1
+ctrl.fetch(TodoResource.getList.getPage, { userId: 1, page: 2 });
+
 // POST https://jsonplaceholder.typicode.com/todos
 ctrl.fetch(TodoResource.getList.push, { title: 'my todo' });
+
+// POST https://jsonplaceholder.typicode.com/todos?userId=1
+ctrl.fetch(TodoResource.getList.push, { userId: 1 }, { title: 'my todo' });
 
 // PUT https://jsonplaceholder.typicode.com/todos/5
 ctrl.fetch(TodoResource.update, { id: 5 }, { title: 'my todo' });
@@ -395,7 +415,7 @@ we'll need to specify _how_.
 value, as well as the fetch arguments, we return the _expected_ fetch response.
 
 ```typescript
-export const updateTodo = new RestEndpoint({
+const update = new RestEndpoint({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   method: 'PUT',
@@ -428,20 +448,20 @@ which can be used to [initiate data updates](./concepts/managers.md#data-stream)
 <summary><b>StreamManager</b></summary>
 
 ```typescript
-import type { Manager, Middleware } from '@data-client/core';
-import type { EndpointInterface } from '@data-client/endpoint';
+import type { Manager, Middleware, ActionTypes } from '@data-client/react';
+import { Controller, actionTypes } from '@data-client/react';
+import type { EntityInterface } from '@data-client/rest';
 
 export default class StreamManager implements Manager {
-  protected declare middleware: Middleware;
   protected declare evtSource: WebSocket | EventSource;
-  protected declare endpoints: Record<string, EndpointInterface>;
+  protected declare entities: Record<string, typeof EntityInterface>;
 
   constructor(
     evtSource: WebSocket | EventSource,
-    endpoints: Record<string, EndpointInterface>,
+    entities: Record<string, EntityInterface>,
   ) {
     this.evtSource = evtSource;
-    this.endpoints = endpoints;
+    this.entities = entities;
   }
 
   middleware: Middleware = controller => {
@@ -449,11 +469,7 @@ export default class StreamManager implements Manager {
       try {
         const msg = JSON.parse(event.data);
         if (msg.type in this.endpoints)
-          controller.setResponse(
-            this.endpoints[msg.type],
-            ...msg.args,
-            msg.data,
-          );
+          controller.set(this.entities[msg.type], ...msg.args, msg.data);
       } catch (e) {
         console.error('Failed to handle message');
         console.error(e);
