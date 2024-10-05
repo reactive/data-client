@@ -208,9 +208,9 @@ describe('RestEndpoint', () => {
   });
 
   it('only optional path means the arg is not required', () => {
-    const ep = new RestEndpoint({ path: '/users/:id?/:group?' });
+    const ep = new RestEndpoint({ path: '/users{/:id}{/:group}' });
     const epbody = new RestEndpoint({
-      path: '/users/:id?/:group?',
+      path: '/users{/:id}{/:group}',
       body: { title: '' },
       method: 'POST',
     });
@@ -1369,7 +1369,6 @@ describe('RestEndpoint.fetch()', () => {
     expect(error).toBeDefined();
     expect(error.status).toBe(500);
 
-    // eslint-disable-next-line require-atomic-updates
     console.error = oldError;
   });
 

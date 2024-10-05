@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Entity, schema } from '@data-client/endpoint';
 import { useController, useSuspense } from '@data-client/react';
 import { User } from '__tests__/new';
@@ -197,7 +196,7 @@ it('should precisely type function arguments', () => {
   // path: '/todos/:id?'
   () => {
     const optionalUndefSearch = new RestEndpoint({
-      path: '/todos/:id?',
+      path: '/todos{/:id}',
       searchParams: {} as
         | {
             userId?: string | number;
@@ -205,23 +204,23 @@ it('should precisely type function arguments', () => {
         | undefined,
     });
     const optionalSearch = new RestEndpoint({
-      path: '/todos/:id?',
+      path: '/todos{/:id}',
       searchParams: {} as {
         userId?: string | number;
       },
     });
     const undef = new RestEndpoint({
-      path: '/todos/:id?',
+      path: '/todos{/:id}',
       searchParams: undefined,
     });
     const requiredSearch = new RestEndpoint({
-      path: '/todos/:id?',
+      path: '/todos{/:id}',
       searchParams: {} as {
         userId: string | number;
       },
     });
     const noSearch = new RestEndpoint({
-      path: '/todos/:id?',
+      path: '/todos{/:id}',
     });
     () => optionalUndefSearch();
     () => optionalUndefSearch({});
@@ -573,35 +572,19 @@ it('should handle more open ended type definitions', () => {
 
 () => {
   const getThing = new RestEndpoint({
-    path: '/:id*:bob',
+    path: '{/*id}:bob',
   });
 
   getThing({ id: 5, bob: 'hi' });
   // @ts-expect-error
   getThing({ id: 'hi' });
-  // @ts-expect-error
   getThing({ bob: 'hi' });
   // @ts-expect-error
   getThing(5);
 };
 () => {
   const getThing = new RestEndpoint({
-    path: '/:id+:bob',
-  });
-
-  getThing({ id: 5, bob: 'hi' });
-  // @ts-expect-error
-  getThing({ 'id+': 5, bob: 'hi' });
-  // @ts-expect-error
-  getThing({ id: 'hi' });
-  // @ts-expect-error
-  getThing({ bob: 'hi' });
-  // @ts-expect-error
-  getThing(5);
-};
-() => {
-  const getThing = new RestEndpoint({
-    path: '/:id\\+:bob',
+    path: '/*id:bob',
   });
 
   getThing({ id: 5, bob: 'hi' });
@@ -616,7 +599,22 @@ it('should handle more open ended type definitions', () => {
 };
 () => {
   const getThing = new RestEndpoint({
-    path: '/:id:bob+',
+    path: '/:id\\,:bob',
+  });
+
+  getThing({ id: 5, bob: 'hi' });
+  // @ts-expect-error
+  getThing({ 'id+': 5, bob: 'hi' });
+  // @ts-expect-error
+  getThing({ id: 'hi' });
+  // @ts-expect-error
+  getThing({ bob: 'hi' });
+  // @ts-expect-error
+  getThing(5);
+};
+() => {
+  const getThing = new RestEndpoint({
+    path: '/:id/*bob',
   });
 
   getThing({ id: 5, bob: 'hi' });
@@ -631,7 +629,7 @@ it('should handle more open ended type definitions', () => {
 };
 () => {
   const getThing = new RestEndpoint({
-    path: '/:foo/(.*)',
+    path: '/:foo/(.)',
   });
 
   getThing({ foo: 'hi' });
@@ -644,7 +642,7 @@ it('should handle more open ended type definitions', () => {
 };
 () => {
   const getThing = new RestEndpoint({
-    path: '/:attr1?{-:attr2}?{-:attr3}?',
+    path: '{/:attr1}{-:attr2}{-:attr3}',
   });
 
   getThing({ attr1: 'hi' });
