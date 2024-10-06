@@ -4,7 +4,7 @@
 
 <div align="center">
 
-**[🏁Guides](https://dataclient.io/docs/guides/storybook)** &nbsp;|&nbsp; [🏁API Reference](https://dataclient.io/docs/api/makeRenderDataClient)
+**[🏁Guides](https://dataclient.io/docs/guides/storybook)** &nbsp;|&nbsp; [🏁API Reference](https://dataclient.io/docs/api/Fixtures)
 
 </div>
 
@@ -111,13 +111,11 @@ export const FullArticleList = ({ result }) => (
 
 ```typescript
 import { DataProvider } from '@data-client/react';
-import { makeRenderDataClient } from '@data-client/test';
+import { renderDataHook } from '@data-client/test';
 import options from './fixtures';
 
-const renderDataClient = makeRenderDataClient(DataProvider);
-
 it('should resolve list', async () => {
-  const { result } = renderDataClient(
+  const { result } = renderDataHook(
     () => {
       return useSuspense(ArticleResource.getList, {
         maxResults: 10,
@@ -131,7 +129,7 @@ it('should resolve list', async () => {
 });
 
 it('should throw errors on bad network', async () => {
-  const { result } = renderDataClient(
+  const { result } = renderDataHook(
     () => {
       return useSuspense(ArticleResource.getList, {
         maxResults: 10,

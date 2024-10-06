@@ -308,8 +308,9 @@ const config: Config = {
             from: ['/rest/api/createResource', '/rest/api/Resource'],
           },
           {
-            to: '/docs/api/makeRenderDataClient',
+            to: '/docs/api/makeRenderDataHook',
             from: [
+              '/docs/api/makeRenderDataClient',
               '/docs/api/makeExternalCacheProvider',
               '/docs/api/makeCacheProvider',
               '/docs/api/makeRenderRestHook',

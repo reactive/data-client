@@ -240,7 +240,7 @@ This enables their use in these additional cases:
   - [Managers](/docs/concepts/managers)
   - React with [useController()](/docs/api/useController)
   - [RestEndpoint.getOptimisticResponse](./RestEndpoint.md#getoptimisticresponse)
-  - [Unit testing hooks](/docs/guides/unit-testing-hooks) with [renderDataClient()](/docs/api/makeRenderDataClient#renderdataclient)
+  - [Unit testing hooks](/docs/guides/unit-testing-hooks) with [renderDataHook()](/docs/api/renderDataHook)
 - [memo.query()](#memoquery)
 - Improve performance of [useSuspense](/docs/api/useSuspense), [useDLE](/docs/api/useDLE) by rendering before endpoint resolution
 
