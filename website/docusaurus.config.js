@@ -359,10 +359,10 @@ module.exports = {
       // Open Graph and Twitter card images.
       ogImage: 'img/rest_hooks_logo.png',
       twitterImage: 'img/rest_hooks_logo.png',
-      // announcementBar: {
-      //   id: 'announcementBar-4', // Increment on change
-      //   content: `Rest Hooks is now <a target="_blank" rel="noopener" href="https://dataclient.io">Reactive Data Client</a>.`,
-      // },
+      announcementBar: {
+        id: 'announcementBar-4', // Increment on change
+        content: `Rest Hooks is now <a target="_blank" rel="noopener" href="https://dataclient.io">Reactive Data Client</a>.`,
+      },
       navbar: {
         title: 'Rest Hooks',
         logo: {

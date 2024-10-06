@@ -21,18 +21,18 @@ become as simple as import renaming.
 | @rest-hooks/react                                                                         | @data-client/react | @rest-hooks/rest compatibility |
 | ----------------------------------------------------------------------------------------- | ------------------ | ------------------------------ |
 | [7.4](https://www.npmjs.com/package/@rest-hooks/react/v/7.4.3)                            | 0.1                | 3.1, 4.1, 5.2.1, 6.0+          |
-| [8.0](https://github.com/reactive/data-client/releases/tag/%40rest-hooks%2Freact%408.0.0) | 0.2                | 5.2.1, 6.0+                    |
-| [8.1](https://github.com/reactive/data-client/releases/tag/%40rest-hooks%2Freact%408.1.0) | 0.3                | 5.2.1, 6.0+                    |
-| [8.2](https://github.com/reactive/data-client/releases/tag/%40rest-hooks%2Freact%408.2.0) | 0.4                | 5.2.1, 6.0+                    |
+| [8.0](https://github.com/reactive/data-client/releases/tag/%40rest-hooks%2Freact%408.0.0) | [0.2](https://github.com/reactive/data-client/releases/tag/%40data-client%2Freact%400.2.0)                | 5.2.1, 6.0+                    |
+| [8.1](https://github.com/reactive/data-client/releases/tag/%40rest-hooks%2Freact%408.1.0) | [0.3](https://github.com/reactive/data-client/releases/tag/%40data-client%2Freact%400.3.0)                | 5.2.1, 6.0+                    |
+| [8.2](https://github.com/reactive/data-client/releases/tag/%40rest-hooks%2Freact%408.2.0) | [0.4](https://github.com/reactive/data-client/releases/tag/%40data-client%2Freact%400.4.0)                | 5.2.1, 6.0+                    |
 
 | @rest-hooks/rest                                                                         | @data-client/rest | @rest-hooks/react compatibility     |
 | ---------------------------------------------------------------------------------------- | ----------------- | ----------------------------------- |
 | [6.7](https://www.npmjs.com/package/@rest-hooks/rest/v/6.7.2)                            | 0.1               | rest-hooks@5+, @rest-hooks/react@\* |
-| [7.0](https://github.com/reactive/data-client/releases/tag/%40rest-hooks%2Frest%407.0.0) | 0.2               | @rest-hooks/react@\*                |
-| [7.1](https://github.com/reactive/data-client/releases/tag/%40rest-hooks%2Frest%407.1.0) | 0.4               | @rest-hooks/react@\*                |
-| [7.2](https://github.com/reactive/data-client/releases/tag/%40rest-hooks%2Frest%407.2.0) | 0.5               | @rest-hooks/react@\*                |
-| [7.3](https://github.com/reactive/data-client/releases/tag/%40rest-hooks%2Frest%407.3.0) | 0.6               | @rest-hooks/react@\*                |
-| [7.4](https://github.com/reactive/data-client/releases/tag/%40rest-hooks%2Frest%407.4.0) | 0.7               | @rest-hooks/react@\*                |
+| [7.0](https://github.com/reactive/data-client/releases/tag/%40rest-hooks%2Frest%407.0.0) | [0.2](https://github.com/reactive/data-client/releases/tag/%40data-client%2Frest%400.2.0)               | @rest-hooks/react@\*                |
+| [7.1](https://github.com/reactive/data-client/releases/tag/%40rest-hooks%2Frest%407.1.0) | [0.4](https://github.com/reactive/data-client/releases/tag/%40data-client%2Frest%400.4.0)               | @rest-hooks/react@\*                |
+| [7.2](https://github.com/reactive/data-client/releases/tag/%40rest-hooks%2Frest%407.2.0) | [0.5](https://github.com/reactive/data-client/releases/tag/%40data-client%2Frest%400.5.0)               | @rest-hooks/react@\*                |
+| [7.3](https://github.com/reactive/data-client/releases/tag/%40rest-hooks%2Frest%407.3.0) | [0.6](https://github.com/reactive/data-client/releases/tag/%40data-client%2Frest%400.6.0)               | @rest-hooks/react@\*                |
+| [7.4](https://github.com/reactive/data-client/releases/tag/%40rest-hooks%2Frest%407.4.0) | [0.7](https://github.com/reactive/data-client/releases/tag/%40data-client%2Frest%400.7.0)               | @rest-hooks/react@\*                |
 
 <!--truncate-->
 
