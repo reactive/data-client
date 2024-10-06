@@ -16,6 +16,12 @@ import {RestEndpoint} from '@rest-hooks/rest';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import StackBlitz from '@site/src/components/StackBlitz';
 
+:::caution New Version
+
+Data Client's [useSuspense()](https://dataclient.io/docs/api/useSuspense) is more feature-rich and performant.
+
+:::
+
 High performance async data rendering without overfetching.
 
 `useSuspense()` [suspends](../getting-started/data-dependency#async-fallbacks) rendering until the data is available. This is much like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await)ing an [async](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function) function. This avoids the complexity of handling loading and error conditions in your components by

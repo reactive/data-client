@@ -474,10 +474,6 @@ module.exports = {
                 href: 'https://discord.gg/35nb8Mz',
               },
               {
-                label: 'Stack Overflow',
-                href: 'http://stackoverflow.com/questions/tagged/rest-hooks',
-              },
-              {
                 label: 'Twitter',
                 href: 'https://twitter.com/RestHooks',
               },
@@ -490,6 +486,10 @@ module.exports = {
           {
             title: 'More',
             items: [
+              {
+                label: 'Reactive Data Client',
+                to: 'https://dataclient.io',
+              },
               {
                 label: 'Blog',
                 to: '/blog',

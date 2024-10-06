@@ -5,6 +5,12 @@ title: Mocking data for Storybook
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
+:::caution New Version
+
+Data Client's [Storybook Mocking](https://dataclient.io/docs/guides/storybook) is more feature-rich and performant.
+
+:::
+
 [Storybook](https://storybook.js.org/) is a great utility to do isolated development and
 testing, potentially speeding up development time greatly.
 
