@@ -171,7 +171,9 @@ const TodoResource = resource({
 });
 ```
 
-### [EndpointExtraOptions](./RestEndpoint.md#endpoint-life-cycles)
+### [EndpointExtraOptions](./RestEndpoint.md#dataexpirylength)
+
+dataExpiryLength, errorExpiryLength, errorPolicy, invalidIfStale, pollFrequency
 
 ## Members
 

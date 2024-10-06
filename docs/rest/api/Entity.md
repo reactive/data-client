@@ -147,6 +147,19 @@ pk() {
 }
 ```
 
+In case you have 
+
+```typescript
+const get = new RestEndpoint({
+  path: '/options',
+  schema: OptionsEntity,
+});
+export const OptionsResource = {
+  get,
+  partialUpdate: get.extend({ method: 'PATCH' }),
+}
+```
+
 ### static key: string {#key}
 
 This defines the key for the Entity kind, rather than an instance. This needs to be a globally

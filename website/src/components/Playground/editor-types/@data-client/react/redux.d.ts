@@ -150,7 +150,7 @@ type ReducersMapObject<S = any, A extends {
 
 type DevToolsPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
 
-/** For usage with https://dataclient.io/docs/api/makeRenderDataClient */
+/** For usage with https://dataclient.io/docs/api/makeRenderDataHook */
 declare function ExternalDataProvider$1({ children, managers, initialState, Controller, devButton, }: Props$1): react_jsx_runtime.JSX.Element;
 interface Props$1 {
     children: React.ReactNode;

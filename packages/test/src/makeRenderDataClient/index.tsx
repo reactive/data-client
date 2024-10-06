@@ -17,8 +17,9 @@ import mockInitialState from '../mockState.js';
 
 export type { RenderHookOptions } from './renderHook.cjs';
 
+/** @see https://dataclient.io/docs/api/makeRenderDataHook */
 export default function makeRenderDataClient(
-  Provider: React.ComponentType<ProviderProps>,
+  Provider: React.ComponentType<DataProviderProps>,
 ) {
   /** Wraps dispatches that are typically called declaratively in act() */
   class ActController extends Controller<any> {
@@ -42,7 +43,7 @@ export default function makeRenderDataClient(
     }
   }
 
-  const renderDataClient: RenderDataClient = (<P, R, T = any>(
+  const renderDataClient: RenderDataHook = (<P, R, T = any>(
     callback: (props: P) => R,
     options?: {
       initialProps?: P;
@@ -153,7 +154,7 @@ export default function makeRenderDataClient(
   renderDataClient.allSettled = () => Promise.allSettled([]);
   return renderDataClient;
 }
-interface ProviderProps {
+export interface DataProviderProps {
   children: React.ReactNode;
   managers: Manager[];
   initialState: State<unknown>;
@@ -161,7 +162,7 @@ interface ProviderProps {
   devButton: any;
 }
 
-type RenderDataClient = (<P, R>(
+export type RenderDataHook = (<P, R>(
   callback: (props: P) => R,
   options?: {
     initialProps?: P;

@@ -11,7 +11,7 @@ import ExternalCacheProvider from './ExternalDataProvider.js';
 import { prepareStore } from './prepareStore.js';
 import { DevToolsPosition } from '../../components/DevToolsButton.js';
 
-/** For usage with https://dataclient.io/docs/api/makeRenderDataClient */
+/** For usage with https://dataclient.io/docs/api/makeRenderDataHook */
 export default function ExternalDataProvider({
   children,
   managers,

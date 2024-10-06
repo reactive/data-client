@@ -274,11 +274,15 @@
         },
         {
           "type": "doc",
-          "id": "api/makeRenderDataClient"
+          "id": "api/renderDataHook"
         },
         {
           "type": "doc",
           "id": "api/mockInitialState"
+        },
+        {
+          "type": "doc",
+          "id": "api/makeRenderDataHook"
         }
       ]
     },
