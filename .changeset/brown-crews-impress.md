@@ -2,7 +2,7 @@
 '@data-client/test': patch
 ---
 
-Add renderDataHook() export
+Add [renderDataHook()](https://dataclient.io/docs/api/renderDataHook) export
 
 This can be used instead of `makeRenderDataHook(DataProvider)`
 
