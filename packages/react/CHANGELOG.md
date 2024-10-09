@@ -1,5 +1,11 @@
 # @data-client/react
 
+## 0.14.16
+
+### Patch Changes
+
+- [#3238](https://github.com/reactive/data-client/pull/3238) [`28b702d`](https://github.com/reactive/data-client/commit/28b702d39d90cb36c93fe32d00548f2aea9dc58d) Thanks [@ntucker](https://github.com/ntucker)! - Update test docs link
+
 ## 0.14.14
 
 ### Patch Changes

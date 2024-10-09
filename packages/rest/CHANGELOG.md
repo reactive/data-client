@@ -1,5 +1,14 @@
 # @data-client/rest
 
+## 0.14.16
+
+### Patch Changes
+
+- [`4580e62`](https://github.com/reactive/data-client/commit/4580e628764ab43de3e4607f8584bc6cb4173021) Thanks [@ntucker](https://github.com/ntucker)! - Update docstring for EntityMixin
+
+- Updated dependencies [[`4580e62`](https://github.com/reactive/data-client/commit/4580e628764ab43de3e4607f8584bc6cb4173021), [`1f7b191`](https://github.com/reactive/data-client/commit/1f7b1913e9301230d9fdae23baba9e3c582e005c)]:
+  - @data-client/endpoint@0.14.16
+
 ## 0.14.13
 
 ### Patch Changes
