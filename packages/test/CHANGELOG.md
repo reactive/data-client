@@ -1,5 +1,36 @@
 # @data-client/test
 
+## 0.14.16
+
+### Patch Changes
+
+- [#3238](https://github.com/reactive/data-client/pull/3238) [`28b702d`](https://github.com/reactive/data-client/commit/28b702d39d90cb36c93fe32d00548f2aea9dc58d) Thanks [@ntucker](https://github.com/ntucker)! - Add [renderDataHook()](https://dataclient.io/docs/api/renderDataHook) export
+
+  This can be used instead of `makeRenderDataHook(DataProvider)`
+
+  ```ts
+  import { renderDataHook } from '@data-client/test';
+
+  const { result, waitFor } = renderDataHook(
+    () => {
+      return useSuspense(ArticleResource.get, { id: 5 });
+    },
+    {
+      initialFixtures: [
+        {
+          endpoint: ArticleResource.get,
+          args: [{ id: 5 }],
+          response,
+        },
+      ],
+    },
+  );
+  ```
+
+- [#3238](https://github.com/reactive/data-client/pull/3238) [`28b702d`](https://github.com/reactive/data-client/commit/28b702d39d90cb36c93fe32d00548f2aea9dc58d) Thanks [@ntucker](https://github.com/ntucker)! - Update test docs link
+
+- [#3238](https://github.com/reactive/data-client/pull/3238) [`28b702d`](https://github.com/reactive/data-client/commit/28b702d39d90cb36c93fe32d00548f2aea9dc58d) Thanks [@ntucker](https://github.com/ntucker)! - makeRenderDataClient() -> [makeRenderDataHook()](https://dataclient.io/docs/api/makeRenderDataHook) (but keep the old name still)
+
 ## 0.14.10
 
 ### Patch Changes
