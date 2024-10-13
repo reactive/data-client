@@ -95,7 +95,7 @@ Entities are bound to Endpoints using [resource.schema](./resource.md#schema) or
 
 :::tip
 
-If you already have your classes defined, [EntityMixin](./EntityMixin.md) mixin can also be
+If you already have your classes defined, [EntityMixin](./EntityMixin.md) can also be
 used to make Entities.
 
 :::

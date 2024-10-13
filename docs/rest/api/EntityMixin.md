@@ -16,7 +16,7 @@ import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
 `Entity` defines a single _unique_ object.
 
-If you already have classes for your data-types, `EntityMixin` mixin may be for you.
+If you already have classes for your data-types, `EntityMixin` may be for you.
 
 <TypeScriptEditor>
 
@@ -94,7 +94,7 @@ Specifies the [Entity.schema](./Entity.md#schema)
 
 ## Methods
 
-`EntityMixin` mixin has the same [methods as the Entity](./Entity.md#lifecycle) class.
+`EntityMixin` has the same [methods as the Entity](./Entity.md#lifecycle) class.
 
 ## const vs class
 

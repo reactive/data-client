@@ -274,7 +274,7 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://da
 
 ### Reactive Applications
 
-- Rendering: [useSuspense()](https://dataclient.io/docs/api/useSuspense), [useLive()](https://dataclient.io/docs/api/useLive), [useCache()](https://dataclient.io/docs/api/useCache), [useDLE()](https://dataclient.io/docs/api/useDLE), [useQuery()](https://dataclient.io/docs/api/useQuery)
+- Rendering: [useSuspense()](https://dataclient.io/docs/api/useSuspense), [useLive()](https://dataclient.io/docs/api/useLive), [useCache()](https://dataclient.io/docs/api/useCache), [useDLE()](https://dataclient.io/docs/api/useDLE), [useQuery()](https://dataclient.io/docs/api/useQuery), [useLoading()](https://dataclient.io/docs/api/useLoading), [useDebounce()](https://dataclient.io/docs/api/useDebounce), [useCancelling()](https://dataclient.io/docs/api/useCancelling)
 - Event handling: [useController()](https://dataclient.io/docs/api/useController) returns [Controller](https://dataclient.io/docs/api/Controller)
   <table>
   <thead>
