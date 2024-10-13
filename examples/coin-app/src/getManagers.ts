@@ -14,7 +14,7 @@ export default function getManagers() {
         latency: 1000,
         // skip websocket updates as these are too spammy
         predicate: (state, action) =>
-          action.type !== actionTypes.SET_TYPE || action.schema !== Ticker,
+          action.type !== actionTypes.SET || action.schema !== Ticker,
       },
     }),
   ];

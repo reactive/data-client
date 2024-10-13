@@ -29,7 +29,7 @@ export default class StreamManager implements Manager {
     this.controller = controller;
     return next => async action => {
       switch (action.type) {
-        case actionTypes.SUBSCRIBE_TYPE:
+        case actionTypes.SUBSCRIBE:
           // only process registered endpoints
           if (
             !Object.values(this.entities).find(
@@ -45,7 +45,7 @@ export default class StreamManager implements Manager {
           }
 
           return next(action);
-        case actionTypes.UNSUBSCRIBE_TYPE:
+        case actionTypes.UNSUBSCRIBE:
           // only process registered endpoints
           if (
             !Object.values(this.entities).find(
