@@ -229,10 +229,8 @@ describe.each([
       rerender({ id: null });
     }
     expect(fakeDispatch.mock.calls.length).toBe(2);
-    expect(fakeDispatch.mock.calls[0][0].type).toBe(actionTypes.SUBSCRIBE_TYPE);
-    expect(fakeDispatch.mock.calls[1][0].type).toBe(
-      actionTypes.UNSUBSCRIBE_TYPE,
-    );
+    expect(fakeDispatch.mock.calls[0][0].type).toBe(actionTypes.SUBSCRIBE);
+    expect(fakeDispatch.mock.calls[1][0].type).toBe(actionTypes.UNSUBSCRIBE);
     expect(fakeDispatch.mock.calls[1][0].key).toBe(
       fakeDispatch.mock.calls[0][0].key,
     );

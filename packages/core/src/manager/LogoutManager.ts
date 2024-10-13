@@ -1,4 +1,4 @@
-import { SET_RESPONSE_TYPE } from '../actionTypes.js';
+import { SET_RESPONSE } from '../actionTypes.js';
 import type Controller from '../controller/Controller.js';
 import { UnknownError } from '../index.js';
 import type { Manager, Middleware } from '../types.js';
@@ -16,7 +16,7 @@ export default class LogoutManager implements Manager {
   middleware: Middleware = controller => next => async action => {
     await next(action);
     if (
-      action.type === SET_RESPONSE_TYPE &&
+      action.type === SET_RESPONSE &&
       action.error &&
       this.shouldLogout(action.response)
     ) {

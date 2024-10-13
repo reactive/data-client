@@ -4,15 +4,15 @@ import { invalidateReducer } from './invalidateReducer.js';
 import { setReducer } from './setReducer.js';
 import { setResponseReducer } from './setResponseReducer.js';
 import {
-  SET_TYPE,
-  INVALIDATE_TYPE,
-  RESET_TYPE,
-  FETCH_TYPE,
-  GC_TYPE,
-  OPTIMISTIC_TYPE,
-  INVALIDATEALL_TYPE,
-  EXPIREALL_TYPE,
-  SET_RESPONSE_TYPE,
+  SET,
+  INVALIDATE,
+  RESET,
+  FETCH,
+  GC,
+  OPTIMISTIC,
+  INVALIDATEALL,
+  EXPIREALL,
+  SET_RESPONSE,
 } from '../../actionTypes.js';
 import type Controller from '../../controller/Controller.js';
 import type { ActionTypes, State } from '../../types.js';
@@ -24,7 +24,7 @@ export default function createReducer(controller: Controller): ReducerType {
   ): State<unknown> {
     if (!state) state = initialState;
     switch (action.type) {
-      case GC_TYPE:
+      case GC:
         // inline deletes are fine as these should have 0 refcounts
         action.entities.forEach(([key, pk]) => {
           delete (state as any).entities[key]?.[pk];
@@ -35,25 +35,25 @@ export default function createReducer(controller: Controller): ReducerType {
           delete (state as any).meta[fetchKey];
         });
         return state;
-      case FETCH_TYPE:
+      case FETCH:
         return fetchReducer(state, action);
 
-      case OPTIMISTIC_TYPE:
+      case OPTIMISTIC:
       // eslint-disable-next-line no-fallthrough
-      case SET_RESPONSE_TYPE:
+      case SET_RESPONSE:
         return setResponseReducer(state, action, controller);
 
-      case SET_TYPE:
+      case SET:
         return setReducer(state, action, controller);
 
-      case INVALIDATEALL_TYPE:
-      case INVALIDATE_TYPE:
+      case INVALIDATEALL:
+      case INVALIDATE:
         return invalidateReducer(state, action);
 
-      case EXPIREALL_TYPE:
+      case EXPIREALL:
         return expireReducer(state, action);
 
-      case RESET_TYPE:
+      case RESET:
         return { ...initialState, lastReset: action.date };
 
       default:

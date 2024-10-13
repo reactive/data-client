@@ -1,6 +1,6 @@
 import { normalize } from '@data-client/normalizr';
 
-import { OPTIMISTIC_TYPE } from '../../actionTypes.js';
+import { OPTIMISTIC } from '../../actionTypes.js';
 import AbortOptimistic from '../../controller/AbortOptimistic.js';
 import type Controller from '../../controller/Controller.js';
 import type {
@@ -20,7 +20,7 @@ export function setResponseReducer(
   try {
     let response: any;
     // for true set's response is contained in action
-    if (action.type === OPTIMISTIC_TYPE) {
+    if (action.type === OPTIMISTIC) {
       // this should never happen
       /* istanbul ignore if */
       if (!action.endpoint.getOptimisticResponse) return state;
@@ -142,7 +142,7 @@ function filterOptimistic(
   return state.optimistic.filter(
     optimisticAction =>
       optimisticAction.key !== resolvingAction.key ||
-      (optimisticAction.type === OPTIMISTIC_TYPE ?
+      (optimisticAction.type === OPTIMISTIC ?
         optimisticAction.meta.fetchedAt !== resolvingAction.meta.fetchedAt
       : optimisticAction.meta.date > resolvingAction.meta.date),
   );

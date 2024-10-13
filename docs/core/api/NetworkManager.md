@@ -50,7 +50,7 @@ Default:
 
 ```ts
 skipLogging(action: ActionTypes) {
-  return action.type === FETCH_TYPE && action.meta.key in this.fetched;
+  return action.type === FETCH && action.meta.key in this.fetched;
 }
 ```
 

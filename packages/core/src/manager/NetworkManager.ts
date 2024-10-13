@@ -1,4 +1,4 @@
-import { SET_RESPONSE_TYPE, FETCH_TYPE, RESET_TYPE } from '../actionTypes.js';
+import { SET_RESPONSE, FETCH, RESET } from '../actionTypes.js';
 import { createSetResponse } from '../controller/actions/index.js';
 import Controller from '../controller/Controller.js';
 import type {
@@ -46,7 +46,7 @@ export default class NetworkManager implements Manager {
     this.controller = controller;
     return next => action => {
       switch (action.type) {
-        case FETCH_TYPE:
+        case FETCH:
           this.handleFetch(action);
           // This is the only case that causes any state change
           // It's important to intercept other fetches as we don't want to trigger reducers during
@@ -58,7 +58,7 @@ export default class NetworkManager implements Manager {
             return next(action);
           }
           return Promise.resolve();
-        case SET_RESPONSE_TYPE:
+        case SET_RESPONSE:
           // only set after new state is computed
           return next(action).then(() => {
             if (action.key in this.fetched) {
@@ -79,7 +79,7 @@ export default class NetworkManager implements Manager {
               }
             }
           });
-        case RESET_TYPE: {
+        case RESET: {
           const rejectors = { ...this.rejectors };
 
           this.clearAll();
@@ -112,7 +112,7 @@ export default class NetworkManager implements Manager {
   /** Used by DevtoolsManager to determine whether to log an action */
   skipLogging(action: ActionTypes) {
     /* istanbul ignore next */
-    return action.type === FETCH_TYPE && action.key in this.fetched;
+    return action.type === FETCH && action.key in this.fetched;
   }
 
   allSettled() {

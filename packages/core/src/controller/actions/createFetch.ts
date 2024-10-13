@@ -1,6 +1,6 @@
 import type { EndpointInterface, NI } from '@data-client/normalizr';
 
-import { FETCH_TYPE } from '../../actionTypes.js';
+import { FETCH } from '../../actionTypes.js';
 import type { FetchAction, FetchMeta } from '../../types.js';
 import { EndpointUpdateFunction } from '../types.js';
 
@@ -26,7 +26,7 @@ export function createFetch<
   };
 
   return {
-    type: FETCH_TYPE,
+    type: FETCH,
     key: endpoint.key(...args),
     args,
     endpoint,

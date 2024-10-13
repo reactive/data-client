@@ -1,4 +1,4 @@
-import { SUBSCRIBE_TYPE, UNSUBSCRIBE_TYPE } from '../actionTypes.js';
+import { SUBSCRIBE, UNSUBSCRIBE } from '../actionTypes.js';
 import Controller from '../controller/Controller.js';
 import type {
   Manager,
@@ -51,14 +51,14 @@ export default class SubscriptionManager<
     this.controller = controller;
     return next => action => {
       switch (action.type) {
-        case SUBSCRIBE_TYPE:
+        case SUBSCRIBE:
           try {
             this.handleSubscribe(action);
           } catch (e) {
             console.error(e);
           }
           return Promise.resolve();
-        case UNSUBSCRIBE_TYPE:
+        case UNSUBSCRIBE:
           this.handleUnsubscribe(action);
           return Promise.resolve();
         default:

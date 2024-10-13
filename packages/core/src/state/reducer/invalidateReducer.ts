@@ -1,4 +1,4 @@
-import { INVALIDATE_TYPE } from '../../actionTypes.js';
+import { INVALIDATE } from '../../actionTypes.js';
 import type {
   State,
   InvalidateAllAction,
@@ -21,7 +21,7 @@ export function invalidateReducer(
     delete itemMeta.error;
     meta[key] = itemMeta;
   };
-  if (action.type === INVALIDATE_TYPE) {
+  if (action.type === INVALIDATE) {
     invalidateKey(action.key);
   } else {
     Object.keys(endpoints).forEach(key => {

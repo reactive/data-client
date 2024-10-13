@@ -16,7 +16,7 @@ import { useController, useSuspense } from '../../hooks';
 import { payload } from '../../test-fixtures';
 import DataProvider from '../DataProvider';
 
-const { SET_RESPONSE_TYPE } = actionTypes;
+const { SET_RESPONSE } = actionTypes;
 
 describe('<DataProvider />', () => {
   let warnspy: jest.SpyInstance;
@@ -138,7 +138,7 @@ describe('<DataProvider />', () => {
     expect(dispatch).toBeDefined();
     expect(state).toBeDefined();
     const action: SetResponseAction = {
-      type: SET_RESPONSE_TYPE,
+      type: SET_RESPONSE,
       response: { id: 5, title: 'hi', content: 'more things here' },
       endpoint: CoolerArticleResource.get,
       args: [{ id: 5 }],

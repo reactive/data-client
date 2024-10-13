@@ -3,12 +3,12 @@ import { ArticleResource, Article, PaginatedArticle } from '__tests__/new';
 
 import { Controller } from '../..';
 import {
-  INVALIDATE_TYPE,
-  FETCH_TYPE,
-  RESET_TYPE,
-  GC_TYPE,
-  SET_RESPONSE_TYPE,
-  SET_TYPE,
+  INVALIDATE,
+  FETCH,
+  RESET,
+  GC,
+  SET_RESPONSE,
+  SET,
 } from '../../actionTypes';
 import {
   State,
@@ -36,7 +36,7 @@ describe('reducer', () => {
     const id = 20;
     const response = { id, title: 'hi', content: 'this is the content' };
     const action: SetResponseAction = {
-      type: SET_RESPONSE_TYPE,
+      type: SET_RESPONSE,
       response,
       endpoint: ArticleResource.get,
       args: [{ id }],
@@ -215,7 +215,7 @@ describe('reducer', () => {
       static key = 'Counter';
     }
     const action: SetAction = {
-      type: SET_TYPE,
+      type: SET,
       value,
       schema: Counter,
       args: [{ id }],
@@ -242,7 +242,7 @@ describe('reducer', () => {
       static key = 'Counter';
     }
     const action: SetAction = {
-      type: SET_TYPE,
+      type: SET,
       value,
       schema: Counter,
       args: [{ id }],
@@ -270,7 +270,7 @@ describe('reducer', () => {
     const id = 20;
     const value = { id, title: 'hi', content: 'this is the content' };
     const action: SetAction = {
-      type: SET_TYPE,
+      type: SET,
       value,
       schema: Article,
       args: [{ id }],
@@ -292,7 +292,7 @@ describe('reducer', () => {
     const id = 20;
     const value = { id, title: 'hi', content: 'this is the content' };
     const action: SetAction = {
-      type: SET_TYPE,
+      type: SET,
       value,
       schema: Article,
       args: [{ id }],
@@ -314,7 +314,7 @@ describe('reducer', () => {
     const id = 20;
     const response = { id, title: 'hi', content: 'this is the content' };
     const action: SetResponseAction = {
-      type: SET_RESPONSE_TYPE,
+      type: SET_RESPONSE,
       response,
       endpoint: ArticleResource.get,
       args: [{ id }],
@@ -335,7 +335,7 @@ describe('reducer', () => {
   it('purge should delete entities', () => {
     const id = 20;
     const action: SetResponseAction = {
-      type: SET_RESPONSE_TYPE,
+      type: SET_RESPONSE,
       response: { id },
       endpoint: ArticleResource.delete,
       args: [{ id }],
@@ -485,7 +485,7 @@ describe('reducer', () => {
   it('invalidates resources correctly', () => {
     const id = 20;
     const action: InvalidateAction = {
-      type: INVALIDATE_TYPE,
+      type: INVALIDATE,
       key: id.toString(),
     };
     const iniState: any = {
@@ -522,7 +522,7 @@ describe('reducer', () => {
     const id = 20;
     const error = new Error('hi');
     const action: SetResponseAction = {
-      type: SET_RESPONSE_TYPE,
+      type: SET_RESPONSE,
       response: error,
       endpoint: ArticleResource.get,
       args: [{ id }],
@@ -542,7 +542,7 @@ describe('reducer', () => {
     const id = 20;
     const error = new Error('hi');
     const action: SetResponseAction = {
-      type: SET_RESPONSE_TYPE,
+      type: SET_RESPONSE,
       response: error,
       endpoint: ArticleResource.get,
       args: [{ id }],
@@ -563,7 +563,7 @@ describe('reducer', () => {
     const id = 20;
     const error = new Error('hi');
     const action: SetResponseAction = {
-      type: SET_RESPONSE_TYPE,
+      type: SET_RESPONSE,
       response: error,
       endpoint: ArticleResource.delete,
       args: [{ id }],
@@ -595,7 +595,7 @@ describe('reducer', () => {
       .mockImplementation(() => {});
     try {
       const action: FetchAction = {
-        type: FETCH_TYPE,
+        type: FETCH,
         endpoint: ArticleResource.get,
         args: [{ id: 5 }],
         key: ArticleResource.get.url({ id: 5 }),
@@ -640,7 +640,7 @@ describe('reducer', () => {
 
     it('reset should delete all entries', () => {
       const action: ResetAction = {
-        type: RESET_TYPE,
+        type: RESET,
         date: Date.now(),
       };
       const iniState: any = {
@@ -697,7 +697,7 @@ describe('reducer', () => {
 
     it('empty targets should do nothing', () => {
       const action: GCAction = {
-        type: GC_TYPE,
+        type: GC,
         entities: [],
         endpoints: [],
       };
@@ -710,7 +710,7 @@ describe('reducer', () => {
 
     it('empty deleting entities should work', () => {
       const action: GCAction = {
-        type: GC_TYPE,
+        type: GC,
         entities: [
           [Article.key, '10'],
           [Article.key, '250'],
@@ -729,7 +729,7 @@ describe('reducer', () => {
 
     it('empty deleting nonexistant things should passthrough', () => {
       const action: GCAction = {
-        type: GC_TYPE,
+        type: GC,
         entities: [
           [Article.key, '100000000'],
           ['sillythings', '10'],

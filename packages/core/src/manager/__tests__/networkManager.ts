@@ -1,7 +1,7 @@
 import { Endpoint } from '@data-client/endpoint';
 import { Article, ArticleResource } from '__tests__/new';
 
-import { SET_RESPONSE_TYPE } from '../../actionTypes';
+import { SET_RESPONSE } from '../../actionTypes';
 import { createFetch } from '../../controller/actions';
 import Controller from '../../controller/Controller';
 import NetworkManager from '../../manager/NetworkManager';
@@ -159,7 +159,7 @@ describe('NetworkManager', () => {
       await new Promise(resolve => setTimeout(resolve, 0));
 
       const action: SetResponseAction = {
-        type: SET_RESPONSE_TYPE,
+        type: SET_RESPONSE,
         endpoint: fetchResolveAction.endpoint,
         response,
         args: fetchResolveAction.args,
@@ -195,7 +195,7 @@ describe('NetworkManager', () => {
       await new Promise(resolve => setTimeout(resolve, 0));
 
       const action: SetResponseAction = {
-        type: SET_RESPONSE_TYPE,
+        type: SET_RESPONSE,
         endpoint: fetchSetWithUpdatersAction.endpoint,
         response,
         args: fetchSetWithUpdatersAction.args,
@@ -231,7 +231,7 @@ describe('NetworkManager', () => {
       await new Promise(resolve => setTimeout(resolve, 0));
 
       const action: SetResponseAction = {
-        type: SET_RESPONSE_TYPE,
+        type: SET_RESPONSE,
         endpoint: fetchRpcWithUpdatersAction.endpoint,
         response,
         args: fetchRpcWithUpdatersAction.args,
@@ -267,7 +267,7 @@ describe('NetworkManager', () => {
       // mutations resolve before dispatch, so we must wait for next tick to see set
       await new Promise(resolve => setTimeout(resolve, 0));
       expect(dispatch).toHaveBeenCalledWith({
-        type: SET_RESPONSE_TYPE,
+        type: SET_RESPONSE,
         endpoint: fetchRpcWithUpdatersAndOptimisticAction.endpoint,
         response,
         args: fetchRpcWithUpdatersAndOptimisticAction.args,
@@ -338,7 +338,7 @@ describe('NetworkManager', () => {
       } catch (error) {
         expect(next).not.toHaveBeenCalled();
         expect(dispatch).toHaveBeenCalledWith({
-          type: SET_RESPONSE_TYPE,
+          type: SET_RESPONSE,
           response: error,
           key: fetchRejectAction.key,
           meta: {

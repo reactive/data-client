@@ -272,7 +272,7 @@ import { actionTypes } from '@data-client/react';
 export default class LoggingManager implements Manager {
   middleware: Middleware = controller => next => async action => {
     switch (action.type) {
-      case actionTypes.SET_RESPONSE_TYPE:
+      case actionTypes.SET_RESPONSE:
         if (action.endpoint.sideEffect) {
           console.info(
             `${action.endpoint.name} ${JSON.stringify(action.response)}`,
@@ -326,12 +326,12 @@ export default class CustomSubsManager implements Manager {
 
   middleware: Middleware = controller => next => async action => {
     switch (action.type) {
-      case actionTypes.SUBSCRIBE_TYPE:
-      case actionTypes.UNSUBSCRIBE_TYPE:
+      case actionTypes.SUBSCRIBE:
+      case actionTypes.UNSUBSCRIBE:
         const { schema } = action.endpoint;
         // only process registered entities
         if (schema && isEntity(schema) && schema.key in this.entities) {
-          if (action.type === actionTypes.SUBSCRIBE_TYPE) {
+          if (action.type === actionTypes.SUBSCRIBE) {
             this.subscribe(schema.key, action.args[0]?.product_id);
           } else {
             this.unsubscribe(schema.key, action.args[0]?.product_id);
@@ -357,5 +357,5 @@ export default class CustomSubsManager implements Manager {
 By `return Promise.resolve();` instead of calling `next(action)`, we prevent managers listed
 after this one from seeing that [action](./Actions.md).
 
-Types: `FETCH_TYPE`, `SET_TYPE`, `SET_RESPONSE_TYPE`, `RESET_TYPE`, `SUBSCRIBE_TYPE`,
-`UNSUBSCRIBE_TYPE`, `INVALIDATE_TYPE`, `INVALIDATEALL_TYPE`, `EXPIREALL_TYPE`
+Types: `FETCH`, `SET`, `SET_RESPONSE`, `RESET`, `SUBSCRIBE`,
+`UNSUBSCRIBE`, `INVALIDATE`, `INVALIDATEALL`, `EXPIREALL`
