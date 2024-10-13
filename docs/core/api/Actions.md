@@ -30,7 +30,7 @@ interface FetchMeta {
 }
 
 interface FetchAction {
-  type: typeof FETCH_TYPE;
+  type: typeof actionTypes.FETCH;
   endpoint: Endpoint;
   args: readonly [...Parameters<Endpoint>];
   key: string;
@@ -45,7 +45,7 @@ Comes from [Controller.fetch()](./Controller.md#fetch), [Controller.fetchIfStale
 
 ```ts
 interface SetAction {
-  type: typeof SET_TYPE;
+  type: typeof actionTypes.SET;
   schema: Queryable;
   args: readonly any[];
   meta: ActionMeta;
@@ -59,7 +59,7 @@ Comes from [Controller.set()](./Controller.md#set)
 
 ```ts
 interface SetResponseAction {
-  type: typeof SET_RESPONSE_TYPE;
+  type: typeof actionTypes.SET_RESPONSE;
   endpoint: Endpoint;
   args: readonly any[];
   key: string;
@@ -75,7 +75,7 @@ Comes from [Controller.setResponse()](./Controller.md#setResponse), [NetworkMana
 
 ```ts
 interface ResetAction {
-  type: typeof RESET_TYPE;
+  type: typeof actionTypes.RESET;
   date: number;
 }
 ```
@@ -86,7 +86,7 @@ Comes from [Controller.resetEntireStore()](./Controller.md#resetEntireStore)
 
 ```ts
 interface SubscribeAction {
-  type: typeof SUBSCRIBE_TYPE;
+  type: typeof actionTypes.SUBSCRIBE;
   endpoint: Endpoint;
   args: readonly any[];
   key: string;
@@ -99,7 +99,7 @@ Comes from [Controller.subscribe()](./Controller.md#subscribe), [useSubscription
 
 ```ts
 interface UnsubscribeAction {
-  type: typeof UNSUBSCRIBE_TYPE;
+  type: typeof actionTypes.UNSUBSCRIBE;
   endpoint: Endpoint;
   args: readonly any[];
   key: string;
@@ -112,7 +112,7 @@ Comes from [Controller.unsubscribe()](./Controller.md#unsubscribe), [useSubscrip
 
 ```ts
 interface InvalidateAction {
-  type: typeof INVALIDATE_TYPE;
+  type: typeof actionTypes.INVALIDATE;
   key: string;
 }
 ```
@@ -123,7 +123,7 @@ Comes from [Controller.invalidate()](./Controller.md#invalidate)
 
 ```ts
 interface InvalidateAllAction {
-  type: typeof INVALIDATEALL_TYPE;
+  type: typeof actionTypes.INVALIDATEALL;
   testKey: (key: string) => boolean;
 }
 ```
@@ -134,7 +134,7 @@ Comes from [Controller.invalidateAll()](./Controller.md#invalidateAll)
 
 ```ts
 interface ExpireAllAction {
-  type: typeof EXPIREALL_TYPE;
+  type: typeof actionTypes.EXPIREALL;
   testKey: (key: string) => boolean;
 }
 ```

@@ -17,7 +17,7 @@ import { ControllerContext, StateContext } from '../context';
 import { useController, useSuspense } from '../hooks';
 import { articlesPages, createPayload, payload } from '../test-fixtures';
 
-const { INVALIDATE_TYPE, RESET_TYPE } = actionTypes;
+const { INVALIDATE, RESET } = actionTypes;
 
 async function testDispatchFetch(
   Component: React.FunctionComponent<any>,
@@ -243,7 +243,7 @@ describe('useController().invalidate', () => {
     );
     invalidate(PaginatedArticleResource.getList);
     expect(dispatch).toHaveBeenCalledWith({
-      type: INVALIDATE_TYPE,
+      type: INVALIDATE,
       key: PaginatedArticleResource.getList.key(),
     });
   });
@@ -286,7 +286,7 @@ describe('useController().reset', () => {
     );
     await act(reset);
     expect(dispatch).toHaveBeenCalledWith({
-      type: RESET_TYPE,
+      type: RESET,
       date: Date.now(),
     });
   });

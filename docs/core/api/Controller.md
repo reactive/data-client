@@ -556,7 +556,7 @@ import type { EndpointInterface } from '@data-client/endpoint';
 export default class MyManager implements Manager {
   middleware: Middleware = controller => {
     return next => async action => {
-      if (action.type === actionTypes.FETCH_TYPE) {
+      if (action.type === actionTypes.FETCH) {
         console.log('The existing response of the requested fetch');
         console.log(
           controller.getResponse(

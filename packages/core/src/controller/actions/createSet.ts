@@ -5,7 +5,7 @@ import type {
 } from '@data-client/normalizr';
 
 import { createMeta } from './createMeta.js';
-import { SET_TYPE } from '../../actionTypes.js';
+import { SET } from '../../actionTypes.js';
 import type { SetAction } from '../../types.js';
 import ensurePojo from '../ensurePojo.js';
 
@@ -22,7 +22,7 @@ export function createSet<S extends Queryable>(
   },
 ): SetAction<S> {
   return {
-    type: SET_TYPE,
+    type: SET,
     value,
     args: args.map(ensurePojo) as SchemaArgs<S>,
     schema,

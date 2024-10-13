@@ -78,8 +78,7 @@ we can maintain fresh data when the data updates are independent of user action.
 price, or a real-time collaborative editor.
 
 ```typescript
-import type { Manager, Middleware, ActionTypes } from '@data-client/react';
-import { Controller, actionTypes } from '@data-client/react';
+import { type Manager, type Middleware, Controller } from '@data-client/react';
 import type { Entity } from '@data-client/rest';
 
 export default class StreamManager implements Manager {

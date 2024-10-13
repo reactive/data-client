@@ -4,7 +4,7 @@ import { actionTypes, Controller, initialState } from '../..';
 import { SubscribeAction, UnsubscribeAction } from '../../types';
 import SubscriptionManager, { Subscription } from '../SubscriptionManager.js';
 
-const { UNSUBSCRIBE_TYPE, SUBSCRIBE_TYPE, SET_RESPONSE_TYPE } = actionTypes;
+const { UNSUBSCRIBE, SUBSCRIBE, SET_RESPONSE } = actionTypes;
 
 function onError(e: any) {
   e.preventDefault();
@@ -55,7 +55,7 @@ describe('SubscriptionManager', () => {
           () => Promise.reject(new Error('Failed'))
         : () => Promise.resolve(response);
       return {
-        type: SUBSCRIBE_TYPE,
+        type: SUBSCRIBE,
         endpoint: PollingArticleResource.get.extend({ fetch }),
         args: [{ id: response.id }],
         key: PollingArticleResource.get.key({ id: response.id }),
@@ -65,7 +65,7 @@ describe('SubscriptionManager', () => {
       response: Record<string, any>,
     ): UnsubscribeAction {
       return {
-        type: UNSUBSCRIBE_TYPE,
+        type: UNSUBSCRIBE,
         endpoint: PollingArticleResource.get,
         key: PollingArticleResource.get.key({ id: response.id }),
         args: [{ id: response.id }],
@@ -185,7 +185,7 @@ describe('SubscriptionManager', () => {
     });
 
     it('should let other actions pass through', () => {
-      const action = { type: SET_RESPONSE_TYPE };
+      const action = { type: SET_RESPONSE };
       next.mockReset();
 
       manager.middleware(API)(next)(action as any);

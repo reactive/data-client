@@ -1,7 +1,7 @@
 import type { EndpointInterface, ResolveType } from '@data-client/normalizr';
 
 import { createMeta } from './createMeta.js';
-import { SET_RESPONSE_TYPE } from '../../actionTypes.js';
+import { SET_RESPONSE } from '../../actionTypes.js';
 import type { SetResponseAction } from '../../types.js';
 import ensurePojo from '../ensurePojo.js';
 import { EndpointUpdateFunction } from '../types.js';
@@ -62,7 +62,7 @@ export function createSetResponse<
   }
 
   return {
-    type: SET_RESPONSE_TYPE,
+    type: SET_RESPONSE,
     key: endpoint.key(...args),
     response,
     args: args.map(ensurePojo),

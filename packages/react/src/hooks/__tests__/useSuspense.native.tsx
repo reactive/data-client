@@ -64,7 +64,7 @@ async function testDispatchFetch(
   expect(dispatch.mock.calls.length).toBe(payloads.length);
   let i = 0;
   for (const call of dispatch.mock.calls as any) {
-    expect(call[0].type).toBe(actionTypes.FETCH_TYPE);
+    expect(call[0].type).toBe(actionTypes.FETCH);
     delete call[0]?.meta?.fetchedAt;
     delete call[0]?.meta?.promise;
     expect(call[0]).toMatchSnapshot();

@@ -7,17 +7,17 @@ import type {
 } from '@data-client/normalizr';
 
 import type {
-  SET_TYPE,
-  RESET_TYPE,
-  FETCH_TYPE,
-  SUBSCRIBE_TYPE,
-  UNSUBSCRIBE_TYPE,
-  INVALIDATE_TYPE,
-  GC_TYPE,
-  OPTIMISTIC_TYPE,
-  INVALIDATEALL_TYPE,
-  EXPIREALL_TYPE,
-  SET_RESPONSE_TYPE,
+  SET,
+  RESET,
+  FETCH,
+  SUBSCRIBE,
+  UNSUBSCRIBE,
+  INVALIDATE,
+  GC,
+  OPTIMISTIC,
+  INVALIDATEALL,
+  EXPIREALL,
+  SET_RESPONSE,
 } from './actionTypes.js';
 import type { EndpointUpdateFunction } from './controller/types.js';
 
@@ -37,7 +37,7 @@ export interface ActionMeta {
 
 /** Action for Controller.set() */
 export interface SetAction<S extends Queryable = any> {
-  type: typeof SET_TYPE;
+  type: typeof SET;
   schema: S;
   args: readonly any[];
   meta: ActionMeta;
@@ -48,7 +48,7 @@ export interface SetAction<S extends Queryable = any> {
 export interface SetResponseActionBase<
   E extends EndpointAndUpdate<E> = EndpointDefault,
 > {
-  type: typeof SET_RESPONSE_TYPE;
+  type: typeof SET_RESPONSE;
   endpoint: E;
   args: readonly any[];
   key: string;
@@ -81,7 +81,7 @@ export interface FetchMeta {
 
 /** Action for Controller.fetch() */
 export interface FetchAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
-  type: typeof FETCH_TYPE;
+  type: typeof FETCH;
   endpoint: E;
   args: readonly [...Parameters<E>];
   key: string;
@@ -93,7 +93,7 @@ export interface FetchAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
 export interface OptimisticAction<
   E extends EndpointAndUpdate<E> = EndpointDefault,
 > {
-  type: typeof OPTIMISTIC_TYPE;
+  type: typeof OPTIMISTIC;
   endpoint: E;
   args: readonly any[];
   key: string;
@@ -106,7 +106,7 @@ export interface OptimisticAction<
 export interface SubscribeAction<
   E extends EndpointAndUpdate<E> = EndpointDefault,
 > {
-  type: typeof SUBSCRIBE_TYPE;
+  type: typeof SUBSCRIBE;
   endpoint: E;
   args: readonly any[];
   key: string;
@@ -116,7 +116,7 @@ export interface SubscribeAction<
 export interface UnsubscribeAction<
   E extends EndpointAndUpdate<E> = EndpointDefault,
 > {
-  type: typeof UNSUBSCRIBE_TYPE;
+  type: typeof UNSUBSCRIBE;
   endpoint: E;
   args: readonly any[];
   key: string;
@@ -124,30 +124,30 @@ export interface UnsubscribeAction<
 
 /* EXPIRY */
 export interface ExpireAllAction {
-  type: typeof EXPIREALL_TYPE;
+  type: typeof EXPIREALL;
   testKey: (key: string) => boolean;
 }
 
 /* INVALIDATE */
 export interface InvalidateAllAction {
-  type: typeof INVALIDATEALL_TYPE;
+  type: typeof INVALIDATEALL;
   testKey: (key: string) => boolean;
 }
 
 export interface InvalidateAction {
-  type: typeof INVALIDATE_TYPE;
+  type: typeof INVALIDATE;
   key: string;
 }
 
 /* RESET */
 export interface ResetAction {
-  type: typeof RESET_TYPE;
+  type: typeof RESET;
   date: number;
 }
 
 /* GC */
 export interface GCAction {
-  type: typeof GC_TYPE;
+  type: typeof GC;
   entities: [string, string][];
   endpoints: string[];
 }

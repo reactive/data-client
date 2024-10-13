@@ -1,7 +1,7 @@
 import { CoolerArticleResource } from '__tests__/new';
 
 import { Controller, initialState } from '../..';
-import { FETCH_TYPE, RESET_TYPE } from '../../actionTypes';
+import { FETCH, RESET } from '../../actionTypes';
 import { createSetResponse } from '../../controller/actions';
 import LogoutManager from '../LogoutManager.js';
 
@@ -73,7 +73,7 @@ describe('LogoutManager', () => {
       await manager.middleware(API)(next)(action);
 
       expect(dispatch.mock.calls.length).toBe(1);
-      expect(dispatch.mock.calls[0][0]?.type).toBe(RESET_TYPE);
+      expect(dispatch.mock.calls[0][0]?.type).toBe(RESET);
     });
 
     it('should call custom handleLogout', async () => {
@@ -97,7 +97,7 @@ describe('LogoutManager', () => {
     });
 
     it('should let other actions pass through', async () => {
-      const action = { type: FETCH_TYPE };
+      const action = { type: FETCH };
       next.mockReset();
 
       await manager.middleware(API)(next)(action as any);
