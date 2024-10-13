@@ -1,4 +1,4 @@
-import { PathFunction } from 'path-to-regexp';
+import { PathFunction, ParamData } from 'path-to-regexp';
 
 interface NetworkError$1 extends Error {
     status: number;
@@ -1155,13 +1155,13 @@ type ExtractCollection<S extends Schema | undefined> = S extends ({
     [K: string]: Schema;
 } ? ExtractObject<S> : never;
 
-type OnlyOptional<S extends string> = S extends `${infer K}}?` ? K : S extends `${infer K}?` ? K : never;
-type OnlyRequired<S extends string> = S extends `${string}?` ? never : S;
+type OnlyOptional<S extends string> = S extends `${infer K}}` ? K : never;
+type OnlyRequired<S extends string> = S extends `${string}}` ? never : S;
 /** Parameters for a given path */
 type PathArgs<S extends string> = PathKeys<S> extends never ? unknown : KeysToArgs<PathKeys<S>>;
 /** Computes the union of keys for a path string */
-type PathKeys<S extends string> = string extends S ? string : S extends `${infer A}\\${':' | '?' | '+' | '*' | '{' | '}'}${infer B}` ? PathKeys<A> | PathKeys<B> : PathSplits<S>;
-type PathSplits<S extends string> = S extends (`${string}:${infer K}${'/' | ',' | '%' | '&' | '+' | '*' | '{'}${infer R}`) ? PathSplits<`:${K}`> | PathSplits<R> : S extends `${string}:${infer K}:${infer R}` ? PathSplits<`:${K}`> | PathSplits<`:${R}`> : S extends `${string}:${infer K}` ? K : never;
+type PathKeys<S extends string> = string extends S ? string : S extends `${infer A}\\${':' | '*' | '}'}${infer B}` ? PathKeys<A> | PathKeys<B> : PathSplits<S>;
+type PathSplits<S extends string> = S extends (`${string}${':' | '*'}${infer K}${'/' | '\\' | '%' | '&' | '*' | '{' | ';' | ',' | '!' | '@'}${infer R}`) ? PathSplits<`${':' | '*'}${K}`> | PathSplits<R> : S extends `${string}${':' | '*'}${infer K}${':' | '*'}${infer R}` ? PathSplits<`${':' | '*'}${K}`> | PathSplits<`${':' | '*'}${R}`> : S extends `${string}${':' | '*'}${infer K}` ? K : never;
 type KeysToArgs<Key extends string> = {
     [K in Key as OnlyOptional<K>]?: string | number;
 } & (OnlyRequired<Key> extends never ? unknown : {
@@ -1525,7 +1525,7 @@ type MutateEndpoint<O extends {
  */
 declare let RestEndpoint: RestEndpointConstructor;
 
-declare function getUrlBase(path: string): PathFunction;
+declare function getUrlBase(path: string): PathFunction<ParamData>;
 declare function getUrlTokens(path: string): Set<string>;
 
 type ResourceExtension<R extends {

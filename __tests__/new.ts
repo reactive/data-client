@@ -360,14 +360,14 @@ const CoolerArticleResourceBase = createArticleResource({
 export const CoolerArticleResource = {
   ...CoolerArticleResourceBase,
   get: CoolerArticleResourceBase.get.extend({
-    path: '/:id?/:title?',
+    path: '{/:id}{/:title}',
   }),
 };
 export const OptimisticArticleResource = createArticleResource({
   schema: CoolerArticle,
   urlRoot: 'article-cooler',
   optimistic: true,
-}).extend('get', { path: '/:id?/:title?' });
+}).extend('get', { path: '{/:id}{/:title}' });
 
 const CoolerArticleResourceFromMixinBase = createArticleResource({
   schema: ArticleFromMixin,
@@ -376,7 +376,7 @@ const CoolerArticleResourceFromMixinBase = createArticleResource({
 export const CoolerArticleResourceFromMixin = {
   ...CoolerArticleResourceFromMixinBase,
   get: CoolerArticleResourceFromMixinBase.get.extend({
-    path: '/:id?/:title?',
+    path: '{/:id}{/:title}',
   }),
 };
 
