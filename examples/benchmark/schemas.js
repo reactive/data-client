@@ -1,4 +1,4 @@
-import { Entity, schema } from './dist/index.js';
+import { Entity, EntityMixin, schema } from './dist/index.js';
 
 export class BuildTypeDescription extends Entity {
   id = '';
@@ -13,7 +13,7 @@ export class BuildTypeDescription extends Entity {
 export class BuildTypeDescriptionEmpty extends Entity {
   static key = 'BuildTypeDescription';
 }
-export const BuildTypeDescriptionEntity = schema.Entity(
+export const BuildTypeDescriptionEntity = EntityMixin(
   class {
     id = '';
     internalId = 'bt17590';
@@ -51,7 +51,7 @@ export class ProjectWithBuildTypesDescriptionEmpty extends Entity {
 
   static key = 'ProjectWithBuildTypesDescription';
 }
-export const ProjectWithBuildTypesDescriptionEntity = schema.Entity(
+export const ProjectWithBuildTypesDescriptionEntity = EntityMixin(
   class {
     id = '';
     internalId = 'project3239';

@@ -82,17 +82,17 @@ export const ArticleResource = resource({
 <TypeScriptEditor>
 
 ```typescript title="User" collapsed
-import { schema } from '@data-client/rest';
+import { EntityMixin } from '@data-client/rest';
 
 export class User {
   id = '';
   username = '';
 }
-export class UserEntity extends schema.Entity(User) {}
+export class UserEntity extends EntityMixin(User) {}
 ```
 
 ```typescript title="Article"
-import { schema, resource } from '@data-client/rest';
+import { EntityMixin, resource } from '@data-client/rest';
 import { UserEntity } from './User';
 
 export class Article {
@@ -104,7 +104,7 @@ export class Article {
   createdAt = Temporal.Instant.fromEpochSeconds(0);
 }
 
-export class ArticleEntity extends schema.Entity(Article, {
+export class ArticleEntity extends EntityMixin(Article, {
   schema: {
     author: UserEntity,
     createdAt: Temporal.Instant.from,

@@ -289,6 +289,10 @@ declare let Endpoint: EndpointConstructor;
 
 declare let ExtendableEndpoint: ExtendableEndpointConstructor;
 
+/**
+ * Entity defines a single (globally) unique object.
+ * @see https://dataclient.io/rest/api/EntityMixin
+ */
 interface IEntityClass<TBase extends Constructor = any> {
     toJSON(): {
         name: string;
@@ -326,7 +330,7 @@ interface IEntityClass<TBase extends Constructor = any> {
     pk<T extends (abstract new (...args: any[]) => IEntityInstance & InstanceType<TBase>) & IEntityClass & TBase>(this: T, value: Partial<AbstractInstanceType<T>>, parent?: any, key?: string, args?: any[]): string | number | undefined;
     /** Return true to merge incoming data; false keeps existing entity
      *
-     * @see https://dataclient.io/docs/api/schema.Entity#shouldUpdate
+     * @see https://dataclient.io/docs/api/Entity#shouldUpdate
      */
     shouldUpdate(existingMeta: {
         date: number;
@@ -337,7 +341,7 @@ interface IEntityClass<TBase extends Constructor = any> {
     }, existing: any, incoming: any): boolean;
     /** Determines the order of incoming entity vs entity already in store
      *
-     * @see https://dataclient.io/docs/api/schema.Entity#shouldReorder
+     * @see https://dataclient.io/docs/api/Entity#shouldReorder
      * @returns true if incoming entity should be first argument of merge()
      */
     shouldReorder(existingMeta: {
@@ -349,12 +353,12 @@ interface IEntityClass<TBase extends Constructor = any> {
     }, existing: any, incoming: any): boolean;
     /** Creates new instance copying over defined values of arguments
      *
-     * @see https://dataclient.io/docs/api/schema.Entity#merge
+     * @see https://dataclient.io/docs/api/Entity#merge
      */
     merge(existing: any, incoming: any): any;
     /** Run when an existing entity is found in the store
      *
-     * @see https://dataclient.io/docs/api/schema.Entity#mergeWithStore
+     * @see https://dataclient.io/docs/api/Entity#mergeWithStore
      */
     mergeWithStore(existingMeta: {
         date: number;
@@ -365,7 +369,7 @@ interface IEntityClass<TBase extends Constructor = any> {
     }, existing: any, incoming: any): any;
     /** Run when an existing entity is found in the store
      *
-     * @see https://dataclient.io/docs/api/schema.Entity#mergeMetaWithStore
+     * @see https://dataclient.io/docs/api/Entity#mergeMetaWithStore
      */
     mergeMetaWithStore(existingMeta: {
         expiresAt: number;
@@ -441,6 +445,14 @@ type EntityOptions<TInstance extends {}> = {
 interface RequiredPKOptions<TInstance extends {}> extends EntityOptions<TInstance> {
     readonly pk: ((value: TInstance, parent?: any, key?: string) => string | number | undefined) | keyof TInstance;
 }
+
+/**
+ * Turns any class into an Entity.
+ * @see https://dataclient.io/rest/api/EntityMixin
+ */
+declare function EntityMixin<TBase extends PKClass>(Base: TBase, opt?: EntityOptions<InstanceType<TBase>>): IEntityClass<TBase> & TBase;
+declare function EntityMixin<TBase extends IDClass>(Base: TBase, opt?: EntityOptions<InstanceType<TBase>>): IEntityClass<TBase> & TBase & (new (...args: any[]) => IEntityInstance);
+declare function EntityMixin<TBase extends Constructor>(Base: TBase, opt: RequiredPKOptions<InstanceType<TBase>>): IEntityClass<TBase> & TBase & (new (...args: any[]) => IEntityInstance);
 
 /**
  * Marks entity as Invalid.
@@ -582,7 +594,7 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
     }, existing: any, incoming: any): boolean;
     /** Run when an existing Collection is found in the store
      *
-     * @see https://dataclient.io/docs/api/schema.Entity#mergeWithStore
+     * @see https://dataclient.io/docs/api/Collection#mergeWithStore
      */
     mergeWithStore(existingMeta: {
         date: number;
@@ -1010,27 +1022,6 @@ declare class Collection<
   Parent = any,
 > extends CollectionRoot<S, Args, Parent> {}
 
-/**
- * Entity defines a single (globally) unique object.
- * @see https://dataclient.io/rest/api/schema.Entity
- */
-declare function Entity$1<TBase extends PKClass>(
-  Base: TBase,
-  opt?: EntityOptions<InstanceType<TBase>>,
-): IEntityClass<TBase> & TBase;
-
-// id is in Instance, so we default to that as pk
-declare function Entity$1<TBase extends IDClass>(
-  Base: TBase,
-  opt?: EntityOptions<InstanceType<TBase>>,
-): IEntityClass<TBase> & TBase & (new (...args: any[]) => IEntityInstance);
-
-// pk was specified in options, so we don't need to redefine
-declare function Entity$1<TBase extends Constructor>(
-  Base: TBase,
-  opt: RequiredPKOptions<InstanceType<TBase>>,
-): IEntityClass<TBase> & TBase & (new (...args: any[]) => IEntityInstance);
-
 type schema_d_EntityMap<T = any> = EntityMap<T>;
 type schema_d_Invalidate<E extends EntityInterface & {
     process: any;
@@ -1040,6 +1031,7 @@ type schema_d_Query<S extends Queryable | {
     [k: string]: Queryable;
 }, P extends (entries: Denormalize<S>, ...args: any) => any> = Query<S, P>;
 declare const schema_d_Query: typeof Query;
+declare const schema_d_EntityMixin: typeof EntityMixin;
 type schema_d_SchemaClass<T = any, Args extends readonly any[] = any> = SchemaClass<T, Args>;
 type schema_d_All<S extends EntityMap | EntityInterface = EntityMap | EntityInterface> = All<S>;
 declare const schema_d_All: typeof All;
@@ -1073,6 +1065,8 @@ declare namespace schema_d {
     schema_d_EntityMap as EntityMap,
     schema_d_Invalidate as Invalidate,
     schema_d_Query as Query,
+    schema_d_EntityMixin as EntityMixin,
+    EntityMixin as Entity,
     schema_d_SchemaClass as SchemaClass,
     Array$1 as Array,
     schema_d_All as All,
@@ -1085,7 +1079,6 @@ declare namespace schema_d {
     schema_d_CollectionArrayAdder as CollectionArrayAdder,
     schema_d_CollectionRoot as CollectionRoot,
     schema_d_Collection as Collection,
-    Entity$1 as Entity,
     schema_d_EntityInterface as EntityInterface,
     schema_d_CollectionInterface as CollectionInterface,
     schema_d_CollectionFromSchema as CollectionFromSchema,
@@ -1190,4 +1183,4 @@ interface GQLError {
     path: (string | number)[];
 }
 
-export { AbstractInstanceType, Array$1 as Array, Collection, DefaultArgs, Denormalize, DenormalizeNullable, DenormalizeNullableObject, DenormalizeObject, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, EndpointToFunction, Entity, EntityFields, EntityMap, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, GQLEndpoint, GQLEntity, GQLError, GQLNetworkError, GQLOptions, INVALID, Invalidate, KeyofEndpointInstance, MutateEndpoint, NI, NetworkError, Normalize, NormalizeNullable, NormalizeObject, NormalizedEntity, NormalizedNullableObject, ObjectArgs, PolymorphicInterface, Queryable, ReadEndpoint, RecordClass, ResolveType, Schema, SchemaArgs, SchemaClass, SchemaSimple, SnapshotInterface, UnknownError, schema_d as schema, validateRequired };
+export { AbstractInstanceType, Array$1 as Array, Collection, DefaultArgs, Denormalize, DenormalizeNullable, DenormalizeNullableObject, DenormalizeObject, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, EndpointToFunction, Entity, EntityFields, EntityMap, EntityMixin, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, GQLEndpoint, GQLEntity, GQLError, GQLNetworkError, GQLOptions, INVALID, Invalidate, KeyofEndpointInstance, MutateEndpoint, NI, NetworkError, Normalize, NormalizeNullable, NormalizeObject, NormalizedEntity, NormalizedNullableObject, ObjectArgs, PolymorphicInterface, Queryable, ReadEndpoint, RecordClass, ResolveType, Schema, SchemaArgs, SchemaClass, SchemaSimple, SnapshotInterface, UnknownError, schema_d as schema, validateRequired };

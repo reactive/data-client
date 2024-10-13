@@ -16,7 +16,7 @@ export class Post extends Entity {
   static key = 'Post';
 
   static schema = {
-    author: schema.Entity(
+    author: EntityMixin(
       class User {
         id = 0;
       },

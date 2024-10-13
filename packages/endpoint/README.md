@@ -42,10 +42,10 @@ export const updateTodo = (id: string, body: Partial<Todo>) =>
 ### 2) Turn them into Resources
 
 ```typescript
-import { schema, Endpoint } from '@data-client/endpoint';
+import { EntityMixin, Endpoint } from '@data-client/endpoint';
 import { Todo, getTodoList, updateTodo } from './existing';
 
-export const TodoEntity = schema.Entity(Todo, { key: 'Todo' });
+export const TodoEntity = EntityMixin(Todo, { key: 'Todo' });
 
 export const TodoResource = {
   get: new Endpoint(getTodo, {
@@ -221,7 +221,7 @@ Networking definition: [Endpoints](https://dataclient.io/rest/api/Endpoint)
 <tbody><tr>
 <td rowSpan="4"><a href="https://en.wikipedia.org/wiki/Object_(computer_science)">Object</a></td>
 <td align="center">✅</td>
-<td><a href="https://dataclient.io/rest/api/Entity">Entity</a>, <a href="https://dataclient.io/rest/api/schema.Entity">schema.Entity</a> mixin</td>
+<td><a href="https://dataclient.io/rest/api/Entity">Entity</a>, <a href="https://dataclient.io/rest/api/EntityMixin">EntityMixin</a></td>
 <td>single <em>unique</em> object</td>
 <td align="center">✅</td>
 </tr>

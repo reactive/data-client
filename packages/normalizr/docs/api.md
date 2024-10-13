@@ -25,7 +25,7 @@ import { normalize } from '@data-client/normalizr';
 
 const myData = { users: [{ id: 1 }, { id: 2 }] };
 class User { id = 0 }
-const userSchema = new schema.Entity(User);
+const userSchema = new schema.EntityMixin(User);
 const mySchema = { users: [userSchema] };
 const normalizedData = normalize(mySchema, myData);
 ```
@@ -61,7 +61,7 @@ import { schema } from '@data-client/endpoint';
 import { denormalize } from '@data-client/normalizr';
 
 class User { id = 0 }
-const userSchema = new schema.Entity(User);
+const userSchema = new schema.EntityMixin(User);
 const mySchema = { users: [userSchema] };
 const entities = { User: { '1': { id: 1 }, '2': { id: 2 } } };
 const denormalizedData = denormalize(mySchema, { users: [1, 2] }, entities);
@@ -179,7 +179,7 @@ To describe a simple array of a singular entity type:
 import { schema } from '@data-client/endpoint';
 
 const data = [{ id: '123', name: 'Jim' }, { id: '456', name: 'Jane' }];
-const userSchema = new schema.Entity(class User {id='';name='';});
+const userSchema = new schema.EntityMixin(class User {id='';name='';});
 
 const userListSchema = new schema.Array(userSchema);
 // or use shorthand syntax:
@@ -213,8 +213,8 @@ import { schema } from '@data-client/endpoint';
 
 const data = [{ id: 1, type: 'admin' }, { id: 2, type: 'user' }];
 
-const userSchema = new schema.Entity(class User {id='';type='user';});
-const adminSchema = new schema.Entity(class Admin {id='';type='admin';});
+const userSchema = new schema.EntityMixin(class User {id='';type='user';});
+const adminSchema = new schema.EntityMixin(class Admin {id='';type='admin';});
 const myArray = new schema.Array(
   {
     admins: adminSchema,

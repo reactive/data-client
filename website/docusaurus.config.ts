@@ -348,6 +348,10 @@ const config: Config = {
             to: '/docs/getting-started/debugging',
             from: ['/docs/guides/debugging'],
           },
+          {
+            to: '/rest/api/EntityMixin',
+            from: ['/rest/api/schema.Entity'],
+          },
           ...gqlRedirects,
         ],
       },
