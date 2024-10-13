@@ -105,6 +105,15 @@ export default function Home() {
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="402" />
         <meta name="twitter:card" content="summary_large_image" />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'WebSite',
+            name: 'Data Client',
+            alternateName: ['Reactive Data Client', 'RDC'],
+            url: 'https://dataclient.io',
+          })}
+        </script>
       </Head>
       <HomepageHeader />
       <main>
