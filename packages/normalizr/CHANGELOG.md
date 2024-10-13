@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.14.16
+
+### Patch Changes
+
+- [#3243](https://github.com/reactive/data-client/pull/3243) [`43a955c`](https://github.com/reactive/data-client/commit/43a955c18684b4e0f5c1d79b2504e8ad2910816b) Thanks [@ntucker](https://github.com/ntucker)! - Update README to link to [EntityMixin](https://dataclient.io/rest/api/EntityMixin)
+
 ## 0.14.12
 
 ### Patch Changes
