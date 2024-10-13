@@ -1,6 +1,6 @@
 {
   "name": "@data-client/react",
-  "version": "0.14.14",
+  "version": "0.14.16",
   "description": "Async State Management without the Management. REST, GraphQL, SSE, Websockets, Fetch",
   "homepage": "https://dataclient.io",
   "repository": {
@@ -169,7 +169,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime": "^7.17.0",
-    "@data-client/core": "^0.14.10",
+    "@data-client/core": "^0.14.16",
     "@data-client/use-enhanced-reducer": "^0.1.10"
   },
   "peerDependencies": {

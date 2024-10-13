@@ -1,5 +1,56 @@
 # @data-client/core
 
+## 0.14.16
+
+### Patch Changes
+
+- [#3244](https://github.com/reactive/data-client/pull/3244) [`109c922`](https://github.com/reactive/data-client/commit/109c922919ef401dee3c3c34d705819271f9e140) Thanks [@ntucker](https://github.com/ntucker)! - Add [actionTypes](https://dataclient.io/docs/api/Actions) without \_TYPE suffix
+
+  (Not breaking - we keep the old actionTypes name as well.)
+
+  ```ts title="Before"
+  import type { Manager, Middleware } from '@data-client/react';
+  import { actionTypes } from '@data-client/react';
+
+  export default class LoggingManager implements Manager {
+    middleware: Middleware = controller => next => async action => {
+      switch (action.type) {
+        case actionTypes.SET_RESPONSE_TYPE:
+          console.info(
+            `${action.endpoint.name} ${JSON.stringify(action.response)}`,
+          );
+        default:
+          return next(action);
+      }
+    };
+
+    cleanup() {}
+  }
+  ```
+
+  ```ts title="After"
+  import type { Manager, Middleware } from '@data-client/react';
+  import { actionTypes } from '@data-client/react';
+
+  export default class LoggingManager implements Manager {
+    middleware: Middleware = controller => next => async action => {
+      switch (action.type) {
+        case actionTypes.SET_RESPONSE:
+          console.info(
+            `${action.endpoint.name} ${JSON.stringify(action.response)}`,
+          );
+        default:
+          return next(action);
+      }
+    };
+
+    cleanup() {}
+  }
+  ```
+
+- Updated dependencies [[`43a955c`](https://github.com/reactive/data-client/commit/43a955c18684b4e0f5c1d79b2504e8ad2910816b)]:
+  - @data-client/normalizr@0.14.16
+
 ## 0.14.13
 
 ### Patch Changes

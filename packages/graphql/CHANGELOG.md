@@ -1,5 +1,31 @@
 # @data-client/graphql
 
+## 0.14.16
+
+### Patch Changes
+
+- [`4580e62`](https://github.com/reactive/data-client/commit/4580e628764ab43de3e4607f8584bc6cb4173021) Thanks [@ntucker](https://github.com/ntucker)! - Update docstring for EntityMixin
+
+- [#3243](https://github.com/reactive/data-client/pull/3243) [`43a955c`](https://github.com/reactive/data-client/commit/43a955c18684b4e0f5c1d79b2504e8ad2910816b) Thanks [@ntucker](https://github.com/ntucker)! - `schema.Entity` -> [EntityMixin](https://dataclient.io/rest/api/EntityMixin)
+
+  ```ts
+  import { EntityMixin } from '@data-client/rest';
+
+  export class Article {
+    id = '';
+    title = '';
+    content = '';
+    tags: string[] = [];
+  }
+
+  export class ArticleEntity extends EntityMixin(Article) {}
+  ```
+
+  We keep `schema.Entity` for legacy, and add schema.EntityMixin and [EntityMixin](https://dataclient.io/rest/api/EntityMixin) as direct export
+
+- Updated dependencies [[`4580e62`](https://github.com/reactive/data-client/commit/4580e628764ab43de3e4607f8584bc6cb4173021), [`1f7b191`](https://github.com/reactive/data-client/commit/1f7b1913e9301230d9fdae23baba9e3c582e005c), [`43a955c`](https://github.com/reactive/data-client/commit/43a955c18684b4e0f5c1d79b2504e8ad2910816b)]:
+  - @data-client/endpoint@0.14.16
+
 ## 0.14.12
 
 ### Patch Changes

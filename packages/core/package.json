@@ -1,6 +1,6 @@
 {
   "name": "@data-client/core",
-  "version": "0.14.13",
+  "version": "0.14.16",
   "description": "Async State Management without the Management. REST, GraphQL, SSE, Websockets, Fetch",
   "sideEffects": false,
   "main": "dist/index.js",
@@ -121,7 +121,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.17.0",
-    "@data-client/normalizr": "^0.14.10",
+    "@data-client/normalizr": "^0.14.16",
     "flux-standard-action": "^2.1.1"
   },
   "devDependencies": {
