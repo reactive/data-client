@@ -271,10 +271,10 @@ __metadata:
   linkType: hard
 
 "@anansi/cli@npm:^3.0.15":
-  version: 3.1.45
-  resolution: "@anansi/cli@npm:3.1.45"
+  version: 3.1.46
+  resolution: "@anansi/cli@npm:3.1.46"
   dependencies:
-    "@anansi/generator-js": "npm:^12.6.4"
+    "@anansi/generator-js": "npm:^12.6.5"
     binary-version-check: "npm:^6.1.0"
     chalk: "npm:^4.1.2"
     commander: "npm:^12.1.0"
@@ -289,7 +289,7 @@ __metadata:
       optional: true
   bin:
     anansi: ./run.mjs
-  checksum: 10c0/dddffdbfbf3620648d06f8ae65a83e4ae8520a1e26f235a4d4d68a0dbdc051f5b0b0f46a7228ff31db458469c8cdd4fdeec8b34befc0a7fd5fe58895ecd30105
+  checksum: 10c0/316d888040d6300b012c0a7e51ae0944f5186dc338e3117959645865d58a3406b64ffc1f00b6a0428518912bce81c8e68ced157df9a0d46a324645effe63efff
   languageName: node
   linkType: hard
 
@@ -373,9 +373,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/generator-js@npm:^12.6.4":
-  version: 12.6.4
-  resolution: "@anansi/generator-js@npm:12.6.4"
+"@anansi/generator-js@npm:^12.6.5":
+  version: 12.6.5
+  resolution: "@anansi/generator-js@npm:12.6.5"
   dependencies:
     "@babel/runtime": "npm:^7.17.0"
     "@types/inquirer": "npm:^9.0.7"
@@ -392,7 +392,7 @@ __metadata:
     pacote: "npm:^18.0.6"
     shelobsay: "npm:^2.0.0"
     yeoman-generator: "npm:^7.3.2"
-  checksum: 10c0/7cf488cdd1852b9ff1473f53b44c67be00a54085530c018d92fc01aa9b7b19b41f118e4c44d23faab47ae8e039f819ffd0f958457f7a0c14d982dcbfe89b9855
+  checksum: 10c0/66d62924b30cf2104b670802290fcad2cedbf1780f7bd5fcb1e9d890e2ab8162634f7c2a0827bfd7ed50feead84bd5afe7ec16b8657aeebd6a9739419a43f54e
   languageName: node
   linkType: hard
 
@@ -7164,11 +7164,11 @@ __metadata:
   linkType: hard
 
 "@types/react-dom@npm:*, @types/react-dom@npm:^18.0.11, @types/react-dom@npm:^18.2.7":
-  version: 18.3.0
-  resolution: "@types/react-dom@npm:18.3.0"
+  version: 18.3.1
+  resolution: "@types/react-dom@npm:18.3.1"
   dependencies:
     "@types/react": "npm:*"
-  checksum: 10c0/6c90d2ed72c5a0e440d2c75d99287e4b5df3e7b011838cdc03ae5cd518ab52164d86990e73246b9d812eaf02ec351d74e3b4f5bd325bf341e13bf980392fd53b
+  checksum: 10c0/8b416551c60bb6bd8ec10e198c957910cfb271bc3922463040b0d57cf4739cdcd24b13224f8d68f10318926e1ec3cd69af0af79f0291b599a992f8c80d47f1eb
   languageName: node
   linkType: hard
 
