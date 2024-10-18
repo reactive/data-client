@@ -1,5 +1,12 @@
 # normalizr-relationships
 
+## 0.1.45
+
+### Patch Changes
+
+- Updated dependencies [[`25be07f`](https://github.com/reactive/data-client/commit/25be07f51c501003330d758993542bee3bd804e1)]:
+  - @data-client/normalizr@0.14.17
+
 ## 0.1.44
 
 ### Patch Changes
