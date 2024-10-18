@@ -101,7 +101,7 @@ export default function Home() {
     <Layout description="The scalable way to build applications with dynamic data. REST, GraphQL, Websockets+SSE with React, NextJS, React Native, ExpoGo">
       <PageMetadata image={image} />
       <Head>
-        <title>The Reactive Data Client</title>
+        <title>Reactive Data Client</title>
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="402" />
         <meta name="twitter:card" content="summary_large_image" />
@@ -110,7 +110,7 @@ export default function Home() {
             '@context': 'https://schema.org',
             '@type': 'WebSite',
             name: 'Data Client',
-            alternateName: ['Reactive Data Client', 'RDC'],
+            alternateName: ['Reactive Data Client', 'DataClient', 'RDC'],
             url: 'https://dataclient.io',
           })}
         </script>
