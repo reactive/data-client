@@ -6,8 +6,11 @@ export default function AssetPrice({ symbol }: { symbol: string }) {
   return (
     <tr>
       <th>{symbol}</th>
-      <td>
-        <Formatted value={ticker.price} formatter="currency" />
+      <td align="right">
+        <NumberFlow
+          value={ticker.price}
+          format={{ style: 'currency', currency: 'USD' }}
+        />
       </td>
     </tr>
   );

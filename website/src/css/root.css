@@ -68,4 +68,5 @@ html {
 table {
   display: table;
   width: 100%;
+  font-variant-numeric: tabular-nums;
 }

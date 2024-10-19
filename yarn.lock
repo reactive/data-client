@@ -5132,6 +5132,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@number-flow/react@npm:^0.2.1":
+  version: 0.2.1
+  resolution: "@number-flow/react@npm:0.2.1"
+  dependencies:
+    esm-env: "npm:^1.0.0"
+    number-flow: "npm:0.3.0"
+  peerDependencies:
+    react: ^18 || ^19.0.0-rc-915b914b3a-20240515
+    react-dom: ^18
+  checksum: 10c0/ab8cfb6802416d65a21cafda06be171ef07b712829067c8d1da9a85b232076e8c5033981da25085c2de39a6a1ac4d377c72fc40fddde06c13b90750b6c0bdda8
+  languageName: node
+  linkType: hard
+
 "@octokit/auth-token@npm:^2.4.4":
   version: 2.5.0
   resolution: "@octokit/auth-token@npm:2.5.0"
@@ -13792,6 +13805,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"esm-env@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "esm-env@npm:1.0.0"
+  checksum: 10c0/6ea0001410224ebc18de4a83ce97dbdca6abc83ea4bbe91625aa3aead70793bb98dfa089f38e2cc5c13b7b025668d0649d5e25f2f9e8cca0f4aa3ad3406870d0
+  languageName: node
+  linkType: hard
+
 "espree@npm:^10.0.1, espree@npm:^10.2.0":
   version: 10.2.0
   resolution: "espree@npm:10.2.0"
@@ -22187,6 +22207,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"number-flow@npm:0.3.0":
+  version: 0.3.0
+  resolution: "number-flow@npm:0.3.0"
+  dependencies:
+    esm-env: "npm:^1.0.0"
+  checksum: 10c0/bee143652fefea2a006fb228558d478169e93b9b39106da84c68c5b48c90a0d791974b92ae7deb8d1c0d64e5ad9dcba48b9472c3838aa2e86ae7a2a293c5d98f
+  languageName: node
+  linkType: hard
+
 "number-is-nan@npm:^1.0.0":
   version: 1.0.1
   resolution: "number-is-nan@npm:1.0.1"
@@ -25171,6 +25200,7 @@ __metadata:
     "@docusaurus/theme-mermaid": "npm:^3.0.1"
     "@js-temporal/polyfill": "npm:^0.4.4"
     "@monaco-editor/react": "npm:^4.4.6"
+    "@number-flow/react": "npm:^0.2.1"
     "@tsconfig/docusaurus": "npm:^2.0.0"
     "@types/react": "npm:18.3.11"
     "@types/react-dom": "npm:^18.2.7"

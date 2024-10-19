@@ -52,6 +52,7 @@ if (
           monaco.languages.typescript.ModuleResolutionKind.NodeJs,
         allowSyntheticDefaultImports: true,
         skipLibCheck: true,
+        skipDefaultLibCheck: true,
         noImplicitAny: false,
       });
       // TODO: load theme from docusaurus config so we eliminate DRY violation
@@ -215,6 +216,9 @@ if (
         /* webpackChunkName: 'bignumberDTS', webpackPreload: true */ '!!raw-loader?esModule=false!./editor-types/bignumber.d.ts'
       ),
       import(
+        /* webpackChunkName: 'bignumberDTS', webpackPreload: true */ '!!raw-loader?esModule=false!./editor-types/@number-flow/react.d.ts'
+      ),
+      import(
         /* webpackChunkName: 'temporalDTS', webpackPreload: true */ '!!raw-loader?esModule=false!./editor-types/temporal.d.ts'
       ),
       import(
@@ -235,10 +239,18 @@ if (
     ]).then(([mPromise, ...settles]) => {
       if (mPromise.status !== 'fulfilled' || !mPromise.value) return;
       const monaco = mPromise.value;
-      const [react, bignumber, temporal, uuid, qs, globals, ...rhLibs] =
-        settles.map(result =>
-          result.status === 'fulfilled' ? result.value.default : '',
-        );
+      const [
+        react,
+        bignumber,
+        numberFlow,
+        temporal,
+        uuid,
+        qs,
+        globals,
+        ...rhLibs
+      ] = settles.map(result =>
+        result.status === 'fulfilled' ? result.value.default : '',
+      );
 
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
         `declare module "react/jsx-runtime" {
@@ -319,6 +331,10 @@ if (
         'file:///node_modules/bignumber.js/index.d.ts',
       );
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
+        `declare module "@number-flow/react" { ${numberFlow} };`,
+        'file:///node_modules/@number-flow/react/index.d.ts',
+      );
+      monaco.languages.typescript.typescriptDefaults.addExtraLib(
         `declare module "@js-temporal/polyfill" { ${temporal} }`,
         'file:///node_modules/@js-temporal/polyfill/index.d.ts',
       );
@@ -332,6 +348,9 @@ if (
       );
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
         `declare globals { ${react} }`,
+      );
+      monaco.languages.typescript.typescriptDefaults.addExtraLib(
+        `declare globals { export { default as NumberFlow } from '@number-flow/react'; }`,
       );
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
         `declare globals { export { Temporal, DateTimeFormat } from '@js-temporal/polyfill'; }`,

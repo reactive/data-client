@@ -14,6 +14,7 @@
     "@babel/core": "^7.24.7",
     "@data-client/react": "^0.14.0",
     "@data-client/rest": "^0.14.0",
+    "@number-flow/react": "^0.2.1",
     "@types/node": "22.7.7",
     "@types/react": "npm:types-react@rc",
     "@types/react-dom": "npm:types-react-dom@rc",

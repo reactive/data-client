@@ -1,6 +1,6 @@
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
-<HooksPlayground row>
+<HooksPlayground row defaultTab={props.defaultTab}>
 
 ```typescript title="Ticker" {32} collapsed
 import { Entity, RestEndpoint } from '@data-client/rest';
@@ -47,7 +47,10 @@ function AssetPrice({ productId }: Props) {
   return (
     <center>
       {productId}{' '}
-      <Formatted value={ticker.price} formatter="currency" />
+      <NumberFlow
+        value={ticker.price}
+        format={{ style: 'currency', currency: 'USD' }}
+      />
     </center>
   );
 }

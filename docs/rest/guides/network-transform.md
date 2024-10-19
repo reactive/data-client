@@ -249,7 +249,10 @@ function AssetPrice({ productId }: Props) {
   return (
     <center>
       {productId}{' '}
-      <Formatted value={ticker.price} formatter="currency" />
+      <NumberFlow
+        value={ticker.price}
+        format={{ style: 'currency', currency: 'USD' }}
+      />
     </center>
   );
 }

@@ -1,9 +1,8 @@
 'use client';
 import { useLive } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
 
 import { getTicker } from '@/resources/Ticker';
-
-import { Formatted } from './Formatted';
 
 export default function AssetPrice({ symbol }: Props) {
   const product_id = `${symbol}-USD`;
@@ -11,7 +10,11 @@ export default function AssetPrice({ symbol }: Props) {
   const ticker = useLive(getTicker, { product_id });
   return (
     <span>
-      {symbol} <Formatted value={ticker.price} formatter="currency" />
+      {symbol}{' '}
+      <NumberFlow
+        value={ticker.price}
+        format={{ style: 'currency', currency: 'USD' }}
+      />
     </span>
   );
 }
