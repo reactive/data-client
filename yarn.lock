@@ -5133,15 +5133,15 @@ __metadata:
   linkType: hard
 
 "@number-flow/react@npm:^0.2.1":
-  version: 0.2.1
-  resolution: "@number-flow/react@npm:0.2.1"
+  version: 0.2.3
+  resolution: "@number-flow/react@npm:0.2.3"
   dependencies:
     esm-env: "npm:^1.0.0"
-    number-flow: "npm:0.3.0"
+    number-flow: "npm:0.3.2"
   peerDependencies:
     react: ^18 || ^19.0.0-rc-915b914b3a-20240515
     react-dom: ^18
-  checksum: 10c0/ab8cfb6802416d65a21cafda06be171ef07b712829067c8d1da9a85b232076e8c5033981da25085c2de39a6a1ac4d377c72fc40fddde06c13b90750b6c0bdda8
+  checksum: 10c0/d6d38016e47d23de231a9d8e322327ab792a4b5846362ecea9f7f8a336729df60abd0c52c44224562650d61e8be640e10886016392f2975f6829dc9e88c25411
   languageName: node
   linkType: hard
 
@@ -7245,12 +7245,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:22.7.7, @types/node@npm:>=18, @types/node@npm:>=18.18.5, @types/node@npm:^22.0.0":
-  version: 22.7.7
-  resolution: "@types/node@npm:22.7.7"
+"@types/node@npm:*, @types/node@npm:22.7.8, @types/node@npm:>=18, @types/node@npm:>=18.18.5, @types/node@npm:^22.0.0":
+  version: 22.7.8
+  resolution: "@types/node@npm:22.7.8"
   dependencies:
     undici-types: "npm:~6.19.2"
-  checksum: 10c0/07268a1e990ad9d9b1865092881317ea679a46eb6706d83a8874eec75fdddae6cfd6452e4e68b651561183e2a8f8548276f3155744bc402c2545978c19b70d65
+  checksum: 10c0/3d3b3a2ec5a57ca4fd37b34dce415620993ca5f87cea2c728ffe73aa31446dbfe19c53171c478447bd7d78011ef4845a46ab2f0dc38e699cc75b3d100a60c690
   languageName: node
   linkType: hard
 
@@ -22181,12 +22181,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"number-flow@npm:0.3.0":
-  version: 0.3.0
-  resolution: "number-flow@npm:0.3.0"
+"number-flow@npm:0.3.2":
+  version: 0.3.2
+  resolution: "number-flow@npm:0.3.2"
   dependencies:
     esm-env: "npm:^1.0.0"
-  checksum: 10c0/bee143652fefea2a006fb228558d478169e93b9b39106da84c68c5b48c90a0d791974b92ae7deb8d1c0d64e5ad9dcba48b9472c3838aa2e86ae7a2a293c5d98f
+  checksum: 10c0/f9b762e84d1c1301ed8c988b7fd9d267561383d260cdc26f1fd6210be33163a54f1c47b46356fbd7bf60ddf90e55b24fa5df8bc9b89d52591cc39e4e2bb81aeb
   languageName: node
   linkType: hard
 
@@ -26750,7 +26750,7 @@ __metadata:
     "@testing-library/react-hooks": "npm:8.0.1"
     "@testing-library/react-native": "npm:12.7.2"
     "@types/jest": "npm:29.5.13"
-    "@types/node": "npm:22.7.7"
+    "@types/node": "npm:22.7.8"
     "@types/react": "npm:18.3.11"
     babel-plugin-module-resolver: "npm:5.0.2"
     benchmark: "npm:^2.1.4"
