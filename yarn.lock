@@ -11142,15 +11142,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cose-base@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "cose-base@npm:2.2.0"
-  dependencies:
-    layout-base: "npm:^2.0.0"
-  checksum: 10c0/14b9f8100ac322a00777ffb1daeb3321af368bbc9cabe3103943361273baee2003202ffe38e4ab770960b600214224e9c196195a78d589521540aa694df7cdec
-  languageName: node
-  linkType: hard
-
 "cosmiconfig@npm:^5.0.5":
   version: 5.2.1
   resolution: "cosmiconfig@npm:5.2.1"
@@ -11848,24 +11839,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cytoscape-fcose@npm:^2.1.0":
-  version: 2.2.0
-  resolution: "cytoscape-fcose@npm:2.2.0"
-  dependencies:
-    cose-base: "npm:^2.2.0"
-  peerDependencies:
-    cytoscape: ^3.2.0
-  checksum: 10c0/ce472c9f85b9057e75c5685396f8e1f2468895e71b184913e05ad56dcf3092618fe59a1054f29cb0995051ba8ebe566ad0dd49a58d62845145624bd60cd44917
-  languageName: node
-  linkType: hard
-
-"cytoscape@npm:^3.23.0":
-  version: 3.26.0
-  resolution: "cytoscape@npm:3.26.0"
-  dependencies:
-    heap: "npm:^0.2.6"
-    lodash: "npm:^4.17.21"
-  checksum: 10c0/d63ec3674396bc3f4444e4fc9692277577c4407ac3d4e6f3cea08149b88d4d692667b0273f1789bb007fae8cda2e9079c106d0595ba48f7c9fb9a3703fbb776b
+"cytoscape@npm:^3.28.1":
+  version: 3.30.2
+  resolution: "cytoscape@npm:3.30.2"
+  checksum: 10c0/a8b095969900600b58fff823db73d69ec3f22fc9993c10f0739d8551c1dad881d67e1f7771e33b80f72b40f717861e5fa917846ed304f0a31eb3c8aef8dd433f
   languageName: node
   linkType: hard
 
@@ -12901,7 +12878,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dompurify@npm:^3.0.5":
+"dompurify@npm:^3.0.5 <3.1.7":
   version: 3.1.6
   resolution: "dompurify@npm:3.1.6"
   checksum: 10c0/3de1cca187c78d3d8cb4134fc2985b644d6a81f6b4e024c77cfb04c1c2f38544ccf7b0ea37a48ce22fcca64594170ed7c22252574c75b801c44345cdd7b06c64
@@ -13072,10 +13049,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"elkjs@npm:^0.8.2":
-  version: 0.8.2
-  resolution: "elkjs@npm:0.8.2"
-  checksum: 10c0/550b48a44143f6d1ac12482b301670a92ac6a685b2f6a0089ee0b66a4037b800890c507b60afd572851d3208e92ff2ed7cc30785e78acb196b422c3abfd20d6f
+"elkjs@npm:^0.9.0":
+  version: 0.9.3
+  resolution: "elkjs@npm:0.9.3"
+  checksum: 10c0/caf544ff4fce8442d1d3dd6dface176c9b2fe26fc1e34f56122828e6eef7d2d7fe70d3202f9f3ecf0feb6287d4c8430949f483e63e450a7454bb39ccffab3808
   languageName: node
   linkType: hard
 
@@ -15930,13 +15907,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"heap@npm:^0.2.6":
-  version: 0.2.7
-  resolution: "heap@npm:0.2.7"
-  checksum: 10c0/341c5d51ae13dc8346c371a8a69c57c972fcb9a3233090d3dd5ba29d483d6b5b4e75492443cbfeacd46608bb30e6680f646ffb7a6205900221735587d07a79b6
-  languageName: node
-  linkType: hard
-
 "hermes-estree@npm:0.18.2":
   version: 0.18.2
   resolution: "hermes-estree@npm:0.18.2"
@@ -18644,6 +18614,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"katex@npm:^0.16.9":
+  version: 0.16.11
+  resolution: "katex@npm:0.16.11"
+  dependencies:
+    commander: "npm:^8.3.0"
+  bin:
+    katex: cli.js
+  checksum: 10c0/be405d45d7228bbfeecd491e0f74d9da0066b5e7b457e3f1dc833de5b63f9e98e40d2ef6b46e1cbe577490a43338c043851da032c45aeec0cc03ad431ef6fd83
+  languageName: node
+  linkType: hard
+
 "keyv@npm:^3.0.0":
   version: 3.1.0
   resolution: "keyv@npm:3.1.0"
@@ -18763,13 +18744,6 @@ __metadata:
   version: 1.0.2
   resolution: "layout-base@npm:1.0.2"
   checksum: 10c0/2a55d0460fd9f6ed53d7e301b9eb3dea19bda03815d616a40665ce6dc75c1f4d62e1ca19a897da1cfaf6de1b91de59cd6f2f79ba1258f3d7fccc7d46ca7f3337
-  languageName: node
-  linkType: hard
-
-"layout-base@npm:^2.0.0":
-  version: 2.0.1
-  resolution: "layout-base@npm:2.0.1"
-  checksum: 10c0/a44df9ef3cbff9916a10f616635e22b5787c89fa62b2fec6f99e8e6ee512c7cebd22668ce32dab5a83c934ba0a309c51a678aa0b40d70853de6c357893c0a88b
   languageName: node
   linkType: hard
 
@@ -19856,21 +19830,21 @@ __metadata:
   linkType: hard
 
 "mermaid@npm:^10.4.0":
-  version: 10.6.1
-  resolution: "mermaid@npm:10.6.1"
+  version: 10.9.3
+  resolution: "mermaid@npm:10.9.3"
   dependencies:
     "@braintree/sanitize-url": "npm:^6.0.1"
     "@types/d3-scale": "npm:^4.0.3"
     "@types/d3-scale-chromatic": "npm:^3.0.0"
-    cytoscape: "npm:^3.23.0"
+    cytoscape: "npm:^3.28.1"
     cytoscape-cose-bilkent: "npm:^4.1.0"
-    cytoscape-fcose: "npm:^2.1.0"
     d3: "npm:^7.4.0"
     d3-sankey: "npm:^0.12.3"
     dagre-d3-es: "npm:7.0.10"
     dayjs: "npm:^1.11.7"
-    dompurify: "npm:^3.0.5"
-    elkjs: "npm:^0.8.2"
+    dompurify: "npm:^3.0.5 <3.1.7"
+    elkjs: "npm:^0.9.0"
+    katex: "npm:^0.16.9"
     khroma: "npm:^2.0.0"
     lodash-es: "npm:^4.17.21"
     mdast-util-from-markdown: "npm:^1.3.0"
@@ -19879,7 +19853,7 @@ __metadata:
     ts-dedent: "npm:^2.2.0"
     uuid: "npm:^9.0.0"
     web-worker: "npm:^1.2.0"
-  checksum: 10c0/d8e4e4d7a0244da8f19d40b758ed39abdfd426c31a96196b4de991758954561da6056f038e0b4781f94c51bbc6a2a115370238f62250a3e6ba52d067174d7417
+  checksum: 10c0/5f60222b34f4d27f18575f95a428e80135f0bbb3c1aade8de65e8d6c30a4f28a22f0547fcdb01d9bfcad95715631e8dc84017b7dd297bbb292ff3465dc887a16
   languageName: node
   linkType: hard
 
