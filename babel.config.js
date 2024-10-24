@@ -68,6 +68,7 @@ module.exports = function (api) {
       {
         test: /node_modules\/.+\.(m|c)?js$/,
         presets: ['@babel/preset-flow'],
+        plugins: ['babel-plugin-syntax-hermes-parser'],
       },
     ],
   };
