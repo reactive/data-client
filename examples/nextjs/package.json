@@ -16,18 +16,18 @@
     "@data-client/rest": "^0.14.0",
     "@number-flow/react": "^0.2.1",
     "@types/node": "22.7.9",
-    "@types/react": "npm:types-react@rc",
-    "@types/react-dom": "npm:types-react-dom@rc",
+    "@types/react": "npm:types-react@19.0.0-rc.1",
+    "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
     "clsx": "^2.1.1",
-    "next": "canary",
-    "react": "rc",
-    "react-dom": "rc",
+    "next": "15.0.1",
+    "react": "19.0.0-rc-69d4b800-20241021",
+    "react-dom": "19.0.0-rc-69d4b800-20241021",
     "tar-fs": "^3.0.6",
     "tunnel-agent": "^0.6.0",
     "typescript": "^5.4.5"
   },
   "overrides": {
-    "@types/react": "npm:types-react@rc",
-    "@types/react-dom": "npm:types-react-dom@rc"
+    "@types/react": "npm:types-react@19.0.0-rc.1",
+    "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1"
   }
 }

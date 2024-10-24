@@ -2,13 +2,13 @@ import Link from 'next/link';
 
 import UserSelection from '@/components/todo/UserSelection';
 
-export default function TodoLayout({
-  children,
-  params,
-}: {
+export default async function TodoLayout(props: {
   children: React.ReactNode;
-  params?: { userId: number };
+  params?: Promise<{ userId: number }>;
 }) {
+  const params = await props.params;
+  const { children } = props;
+
   return (
     <>
       <title>NextJS + Reactive Data Client = ❤️</title>

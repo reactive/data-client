@@ -151,10 +151,10 @@ post.pk();
 
 ##### true
 
-- Resolves _before_ [committing](https://react.dev/learn/render-and-commit#step-3-react-commits-changes-to-the-dom) Reactive Data Client cache updates.
+- Resolves _before_ [committing](https://react.dev/learn/render-and-commit#step-3-react-commits-changes-to-the-dom) Reactive Data Client cache updates. (React 16, 17)
 - Each call will always cause a new fetch.
 
-##### undefined
+##### false | undefined
 
 - Resolves _after_ [committing](https://react.dev/learn/render-and-commit#step-3-react-commits-changes-to-the-dom) Reactive Data Client cache updates.
 - Identical requests are deduplicated globally; allowing only one inflight request at a time.
