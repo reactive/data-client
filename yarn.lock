@@ -8959,6 +8959,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"babel-plugin-syntax-hermes-parser@npm:^0.25.0":
+  version: 0.25.0
+  resolution: "babel-plugin-syntax-hermes-parser@npm:0.25.0"
+  dependencies:
+    hermes-parser: "npm:0.25.0"
+  checksum: 10c0/a48dda493ca521438133fc347ae966ac76b538457f40f242234ef9fdd2ac874e0b1c8852bc2207100206830cae1c83d9fa50eb725f424201de3636f63808158e
+  languageName: node
+  linkType: hard
+
 "babel-plugin-transform-flow-enums@npm:^0.0.2":
   version: 0.0.2
   resolution: "babel-plugin-transform-flow-enums@npm:0.0.2"
@@ -15618,6 +15627,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"hermes-estree@npm:0.25.0":
+  version: 0.25.0
+  resolution: "hermes-estree@npm:0.25.0"
+  checksum: 10c0/fb92269e9437150aead3b2a3a6d5f9c2373f2821c46b60ec4fe3c94cfa32ede40c0f77d95fc1af1636b3653f281d710fdee61cbf1c78737cf09e2b3294cfa6e2
+  languageName: node
+  linkType: hard
+
 "hermes-parser@npm:0.23.1":
   version: 0.23.1
   resolution: "hermes-parser@npm:0.23.1"
@@ -15633,6 +15649,15 @@ __metadata:
   dependencies:
     hermes-estree: "npm:0.24.0"
   checksum: 10c0/7159497a425cef0e6259f5db01480110c031e86772c6ff0ef73664be94448c3f004a10ef1ec8ff32faf6a069b69f1c15f7007ff9c520b212f9a31410832285f7
+  languageName: node
+  linkType: hard
+
+"hermes-parser@npm:0.25.0":
+  version: 0.25.0
+  resolution: "hermes-parser@npm:0.25.0"
+  dependencies:
+    hermes-estree: "npm:0.25.0"
+  checksum: 10c0/56a2cb0a77da806d08a2b84f6ccaf9d2084410c44b6633bfe7c0d9314b56efe4377a96dc1b963f95f9f9f2bd799653a378f99c1b292a7d1c0fff6089ac5a5427
   languageName: node
   linkType: hard
 
@@ -26394,6 +26419,7 @@ __metadata:
     "@types/node": "npm:22.7.9"
     "@types/react": "npm:18.3.12"
     babel-plugin-module-resolver: "npm:5.0.2"
+    babel-plugin-syntax-hermes-parser: "npm:^0.25.0"
     benchmark: "npm:^2.1.4"
     conventional-changelog-anansi: "npm:^0.2.0"
     copyfiles: "npm:^2.4.1"
