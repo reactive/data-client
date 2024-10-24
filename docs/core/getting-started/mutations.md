@@ -18,7 +18,7 @@ import VoteDemo from '../shared/\_VoteDemo.mdx';
 
 # Data mutations
 
-Using our [Create, Update, and Delete](/docs/concepts/atomic-mutations) endpoints with
+Using our [Create, Update, and Delete](/docs/concepts/acid#atomicity) endpoints with
 [Controller.fetch()](../api/Controller.md#fetch) reactively updates _all_ appropriate components atomically (at the same time).
 
 [useController()](../api/useController.md) gives components access to this global supercharged [setState()](https://react.dev/reference/react/useState#setstate).

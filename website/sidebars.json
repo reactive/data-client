@@ -58,7 +58,7 @@
         },
         {
           "type": "doc",
-          "id": "concepts/atomic-mutations"
+          "id": "concepts/acid"
         },
         {
           "type": "doc",

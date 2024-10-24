@@ -22,7 +22,7 @@ const Demo = props => (
           </p>
           <p>
             This updates <strong>all</strong> usages{' '}
-            <Link to="/docs/concepts/atomic-mutations">
+            <Link to="/docs/concepts/acid#atomicity">
               <em>atomically</em> and <em>immediately</em>
             </Link>{' '}
             with zero additional fetches. Reactive Data Client automatically
