@@ -1,5 +1,7 @@
 import TodoList from '@/components/todo/TodoList';
 
-export default function TodoPage({ params }: { params: { userId: number } }) {
-  return <TodoList {...params} />;
+export default async function TodoPage(props: {
+  params: Promise<{ userId: number }>;
+}) {
+  return <TodoList {...await props.params} />;
 }
