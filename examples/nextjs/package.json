@@ -17,7 +17,7 @@
     "@number-flow/react": "^0.2.1",
     "@types/node": "22.7.9",
     "@types/react": "npm:types-react@19.0.0-rc.1",
-    "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
+    "@types/react-dom": "npm:types-react-dom@19.0.0",
     "clsx": "^2.1.1",
     "next": "15.0.1",
     "react": "19.0.0-rc-69d4b800-20241021",
@@ -28,6 +28,6 @@
   },
   "overrides": {
     "@types/react": "npm:types-react@19.0.0-rc.1",
-    "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1"
+    "@types/react-dom": "npm:types-react-dom@19.0.0"
   }
 }
