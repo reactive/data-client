@@ -5298,14 +5298,14 @@ __metadata:
   linkType: hard
 
 "@number-flow/react@npm:^0.2.1":
-  version: 0.2.5
-  resolution: "@number-flow/react@npm:0.2.5"
+  version: 0.2.6
+  resolution: "@number-flow/react@npm:0.2.6"
   dependencies:
-    number-flow: "npm:0.3.3"
+    number-flow: "npm:0.3.4"
   peerDependencies:
     react: ^18 || ^19.0.0-rc-915b914b3a-20240515
     react-dom: ^18
-  checksum: 10c0/6d276569d99cc8965d4148dc026433008e720bfa3e72ae8a3ec6eb688d68a924b6e61363895578d77e5e4d00243acb0358c408b63f407db76c138cd86bba9499
+  checksum: 10c0/15b6e6228307c80a791f814a3fa9d9f45a8b67d7f238abe50b3461591fdea2c8c860f883bab258d024cf04de640e50347a777febeb0c278352cb584e30a1b849
   languageName: node
   linkType: hard
 
@@ -7245,12 +7245,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:22.7.9, @types/node@npm:>=18, @types/node@npm:>=18.18.5, @types/node@npm:^22.0.0":
-  version: 22.7.9
-  resolution: "@types/node@npm:22.7.9"
+"@types/node@npm:*, @types/node@npm:22.8.1, @types/node@npm:>=18, @types/node@npm:>=18.18.5, @types/node@npm:^22.0.0":
+  version: 22.8.1
+  resolution: "@types/node@npm:22.8.1"
   dependencies:
-    undici-types: "npm:~6.19.2"
-  checksum: 10c0/2d1917702b9d9ede8e4d8151cd8b1af8bc147d543486474ffbe0742e38764ea73105939e6a767addf7a4c39e842e16eae762bff90617d7b7f9ee3fbbb2d23bfa
+    undici-types: "npm:~6.19.8"
+  checksum: 10c0/83550fdf72a7db5b55eceac3f4fb038844eaee20202bdd2297a8248370cfa08317bda1605b781a8043eda4f173b75e73632e652fc85509eb14dfef78fa17337f
   languageName: node
   linkType: hard
 
@@ -22062,10 +22062,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"number-flow@npm:0.3.3":
-  version: 0.3.3
-  resolution: "number-flow@npm:0.3.3"
-  checksum: 10c0/9a3c53c634ea290c34299e7225d33463e5b62443c13b1d321e0c6d42365fb3b59fb1e7cda0d0cde57f22614ffaaf3e0cfae77dfc2c67dc650ddb9e47d84bfa0c
+"number-flow@npm:0.3.4":
+  version: 0.3.4
+  resolution: "number-flow@npm:0.3.4"
+  checksum: 10c0/5c0ed22121d81054add5e0a29d84de7420c51de75293b904699e8458ff9f89cf2721a6a482e6230fc551706986221f528acce99e59dbef10dbf5a9ebccc22c41
   languageName: node
   linkType: hard
 
@@ -25281,25 +25281,25 @@ __metadata:
   linkType: hard
 
 "react-native-safe-area-context@npm:^4.4.1":
-  version: 4.11.1
-  resolution: "react-native-safe-area-context@npm:4.11.1"
+  version: 4.12.0
+  resolution: "react-native-safe-area-context@npm:4.12.0"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 10c0/58c5d19075134dc1b7b0aa53727d25b7d7399b05c7cfdc4af86bf038e08c5d04f2231b2d480cf811cc5140093388d7ed2d35d5514e8c2c184a432326361b9e36
+  checksum: 10c0/122e7e24de39371b107fcac7ecd6b62d41301a46c945c7a6b3a07c8b65d4cb9ebf58bf163bfecfd430b1bd8fdf61d4f319dac1812edd7986c00b7d2cc16da24c
   languageName: node
   linkType: hard
 
 "react-native-screens@npm:^3.18.2":
-  version: 3.34.1
-  resolution: "react-native-screens@npm:3.34.1"
+  version: 3.35.0
+  resolution: "react-native-screens@npm:3.35.0"
   dependencies:
     react-freeze: "npm:^1.0.0"
     warn-once: "npm:^0.1.0"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 10c0/ea049a29d2d493256acff1cfecc08cd5f30cf697a69a844ea56f81a7d2bf246574e69e1906f07b3157c46014a3a1ceb9aed786195c385af498cacc771df57e56
+  checksum: 10c0/51b4ae9a5432dc980d560ac07baaddda12a78f56f2106e0e9498f6b46d4928c26d8288c4818627903675cc8c4d3643f14358d3ae448a3de2cb962a16270c201d
   languageName: node
   linkType: hard
 
@@ -26613,7 +26613,7 @@ __metadata:
     "@testing-library/react-hooks": "npm:8.0.1"
     "@testing-library/react-native": "npm:12.8.0"
     "@types/jest": "npm:29.5.14"
-    "@types/node": "npm:22.7.9"
+    "@types/node": "npm:22.8.1"
     "@types/react": "npm:18.3.12"
     babel-plugin-module-resolver: "npm:5.0.2"
     babel-plugin-syntax-hermes-parser: "npm:^0.25.0"
@@ -29370,7 +29370,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici-types@npm:~6.19.2":
+"undici-types@npm:~6.19.8":
   version: 6.19.8
   resolution: "undici-types@npm:6.19.8"
   checksum: 10c0/078afa5990fba110f6824823ace86073b4638f1d5112ee26e790155f481f2a868cc3e0615505b6f4282bdf74a3d8caad715fd809e870c2bb0704e3ea6082f344
