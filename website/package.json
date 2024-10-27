@@ -46,7 +46,7 @@
     "@docusaurus/theme-mermaid": "^3.0.1",
     "@js-temporal/polyfill": "^0.4.4",
     "@monaco-editor/react": "^4.4.6",
-    "@number-flow/react": "^0.2.1",
+    "@number-flow/react": "^0.3.0",
     "bignumber.js": "9.1.2",
     "clsx": "2.1.1",
     "monaco-editor": "^0.52.0",

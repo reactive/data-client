@@ -5297,15 +5297,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@number-flow/react@npm:^0.2.1":
-  version: 0.2.6
-  resolution: "@number-flow/react@npm:0.2.6"
+"@number-flow/react@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "@number-flow/react@npm:0.3.0"
   dependencies:
-    number-flow: "npm:0.3.4"
+    number-flow: "npm:0.3.5"
   peerDependencies:
     react: ^18 || ^19.0.0-rc-915b914b3a-20240515
     react-dom: ^18
-  checksum: 10c0/15b6e6228307c80a791f814a3fa9d9f45a8b67d7f238abe50b3461591fdea2c8c860f883bab258d024cf04de640e50347a777febeb0c278352cb584e30a1b849
+  checksum: 10c0/0c92a79abd8de2f3c717980eab32c285fabf3e1129614508e8ea689be687042025fa5792ff1fcb2ca85876aac3c214b80d9a88eeafc87290373aa9e955bb4c7c
   languageName: node
   linkType: hard
 
@@ -22062,10 +22062,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"number-flow@npm:0.3.4":
-  version: 0.3.4
-  resolution: "number-flow@npm:0.3.4"
-  checksum: 10c0/5c0ed22121d81054add5e0a29d84de7420c51de75293b904699e8458ff9f89cf2721a6a482e6230fc551706986221f528acce99e59dbef10dbf5a9ebccc22c41
+"number-flow@npm:0.3.5":
+  version: 0.3.5
+  resolution: "number-flow@npm:0.3.5"
+  checksum: 10c0/dca20512e7df6372ed4a320dc576667bf222d50f5137ef945a0d685c1032c3e4efae1cf50cb3510da571f24cc14a27eaad7e9d9a7608a8989ad36246ccab19f0
   languageName: node
   linkType: hard
 
@@ -25045,7 +25045,7 @@ __metadata:
     "@docusaurus/theme-mermaid": "npm:^3.0.1"
     "@js-temporal/polyfill": "npm:^0.4.4"
     "@monaco-editor/react": "npm:^4.4.6"
-    "@number-flow/react": "npm:^0.2.1"
+    "@number-flow/react": "npm:^0.3.0"
     "@tsconfig/docusaurus": "npm:^2.0.0"
     "@types/react": "npm:18.3.12"
     "@types/react-dom": "npm:^18.2.7"
