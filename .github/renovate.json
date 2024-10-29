@@ -1,4 +1,4 @@
-  {
+{
   "extends": ["group:allNonMajor", "group:monorepos"],
   "assigneesFromCodeOwners": true,
   "commitMessagePrefix": "pkg: ",
@@ -44,14 +44,14 @@
       "groupName": "react"
     },
     {
-      "matchSourceUrlPrefixes": [
-        "https://github.com/webpack",
-        "https://github.com/callstack/linaria",
-        "https://github.com/Anber/wyw-in-js"
-      ],
       "matchUpdateTypes": ["major", "minor", "patch"],
       "groupSlug": "build",
-      "groupName": "build packages"
+      "groupName": "build packages",
+      "matchSourceUrls": [
+        "https://github.com/webpack{/,}**",
+        "https://github.com/callstack/linaria{/,}**",
+        "https://github.com/Anber/wyw-in-js{/,}**"
+      ]
     },
     {
       "matchPackageNames": ["@anansi/webpack-config"],
@@ -118,10 +118,7 @@
       "groupSlug": "typescript-eslint"
     },
     {
-      "matchPackageNames": [
-        "prettier",
-        "eslint-plugin-prettier"
-      ],
+      "matchPackageNames": ["prettier", "eslint-plugin-prettier"],
       "matchUpdateTypes": ["major"],
       "groupSlug": "prettier"
     },
@@ -132,7 +129,12 @@
       "groupName": "validation packages"
     },
     {
-      "matchPackageNames": ["react-markdown", "rehype-highlight", "remark-gfm", "remark-remove-comments"],
+      "matchPackageNames": [
+        "react-markdown",
+        "rehype-highlight",
+        "remark-gfm",
+        "remark-remove-comments"
+      ],
       "matchUpdateTypes": ["major"],
       "groupSlug": "markdown",
       "groupName": "markdown packages"
