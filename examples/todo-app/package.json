@@ -46,7 +46,7 @@
     "@data-client/rest": "^0.14.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "uuid": "^10.0.0"
+    "uuid": "^11.0.0"
   },
   "packageManager": "yarn@4.5.1"
 }
