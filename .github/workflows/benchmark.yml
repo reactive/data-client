@@ -30,7 +30,7 @@ jobs:
         fetch-depth: 1
     - uses: actions/setup-node@v4
       with:
-        node-version: '22.4.1'
+        node-version: '22'
         cache: 'yarn'
     - name: Install packages
       run: |
