@@ -5450,14 +5450,14 @@ __metadata:
   linkType: hard
 
 "@number-flow/react@npm:^0.3.0":
-  version: 0.3.2
-  resolution: "@number-flow/react@npm:0.3.2"
+  version: 0.3.3
+  resolution: "@number-flow/react@npm:0.3.3"
   dependencies:
-    number-flow: "npm:0.3.7"
+    number-flow: "npm:0.3.8"
   peerDependencies:
     react: ^18 || ^19.0.0-rc-915b914b3a-20240515
     react-dom: ^18
-  checksum: 10c0/5ebd507056d23ea9c7d46229ccfd1154d55a9c69468a66973b0739659ba978f4c4abe112b72ca9c38ae7061a8176c75ed62432e38290e13a906e30af36bf5176
+  checksum: 10c0/67442e424aa6d1d62158d8a9e1d8ef4b742bbc8c8964d81676a16566bbe6c762e53df753cfd6bf4cdae39a1ce38cf81e7e852d5471e8410d900595b5b49a5742
   languageName: node
   linkType: hard
 
@@ -22151,10 +22151,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"number-flow@npm:0.3.7":
-  version: 0.3.7
-  resolution: "number-flow@npm:0.3.7"
-  checksum: 10c0/741aa683369a92b2364f2b0e87d19df87c770b5e1dee3c837cd48aac9bdb08af498de192bb7b48d19c8ae5955588df9ce3b65451e1bea47be641322a41629398
+"number-flow@npm:0.3.8":
+  version: 0.3.8
+  resolution: "number-flow@npm:0.3.8"
+  checksum: 10c0/4833116d989480b40e62b85d8e0946f412842f16e0469f5dba976728c3e3c511e506716251565e0bc4c741a7de059385e90393d1e4176b834f581285428b3a57
   languageName: node
   linkType: hard
 
