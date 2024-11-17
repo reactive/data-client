@@ -138,6 +138,14 @@
       "matchUpdateTypes": ["major"],
       "groupSlug": "markdown",
       "groupName": "markdown packages"
+    },
+    {
+      "matchPackageNames": [
+        "react-native-screens"
+      ],
+      "matchUpdateTypes": ["major", "minor", "patch"],
+      "groupSlug": "react-navigation-monorepo",
+      "groupName": "react-navigation monorepo"
     }
   ]
 }
