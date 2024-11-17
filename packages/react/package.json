@@ -173,7 +173,7 @@
     "@data-client/use-enhanced-reducer": "^0.1.10"
   },
   "peerDependencies": {
-    "@react-navigation/native": "^6.0.0",
+    "@react-navigation/native": "^6.0.0 || ^7.0.0",
     "@types/react": "^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0-0 || ^19.0.0",
     "react": "^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0-0 || ^19.0.0"
   },
@@ -187,7 +187,7 @@
   },
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",
-    "@react-navigation/native": "^6.1.6",
+    "@react-navigation/native": "^7.0.0",
     "@types/node": "^22.0.0",
     "@types/react": "^18.0.30",
     "react-native": "^0.76.0"
