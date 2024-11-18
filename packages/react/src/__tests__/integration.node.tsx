@@ -2,6 +2,8 @@ import { DataProvider as ExternalDataProvider } from '@data-client/react/redux';
 import { CoolerArticleDetail } from '__tests__/new';
 
 // relative imports to avoid circular dependency in tsconfig references
+import React from 'react';
+
 import { makeRenderDataClient, act } from '../../../test';
 import { useCache, useSuspense } from '../hooks';
 import { useController } from '../hooks';
@@ -42,7 +44,10 @@ describe('SSR', () => {
   });
 
   it('should resolve useSuspense()', async () => {
-    const { result, waitForNextUpdate } = renderDataClient(
+    // React 19 does not support SSR hook testing
+    if (Number(React.version.substring(0, 3)) >= 19) return;
+
+    const { result, waitFor } = renderDataClient(
       () => {
         return useSuspense(CoolerArticleDetail, payload);
       },
@@ -57,7 +62,7 @@ describe('SSR', () => {
       },
     );
     expect(result.current).toBeUndefined();
-    await waitForNextUpdate();
+    await waitFor(() => expect(result.current).toBeDefined());
     expect(result.current.title).toBe(payload.title);
     // @ts-expect-error
     expect(result.current.lafsjlfd).toBeUndefined();

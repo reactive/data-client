@@ -1,13 +1,9 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 /**
  * Provides an abstraction over react 17 and 18 compatible libraries
  */
-import type {
-  Queries,
-  waitForOptions,
-  RenderHookOptions,
-} from '@testing-library/react';
+import type { Queries, waitForOptions } from '@testing-library/react';
 
+import type { RenderHookOptions } from './renderHookOptions.js';
 import { USE18 } from './use18.cjs';
 
 export const renderHook: RenderHook =
@@ -30,7 +26,7 @@ export const act: ActType =
     require('./render18HookWrapped.js').act
   : (require('@testing-library/react-hooks').act as any);
 
-export type { RenderHookOptions } from '@testing-library/react';
+export type { RenderHookOptions };
 
 type RenderHook = <
   Result,

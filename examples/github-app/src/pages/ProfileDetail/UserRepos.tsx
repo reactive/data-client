@@ -2,7 +2,7 @@ import { Link } from '@anansi/router';
 import { ForkOutlined, StarOutlined } from '@ant-design/icons';
 import { useCache, useSuspense } from '@data-client/react';
 import { List, Space, Typography } from 'antd';
-import React from 'react';
+import React, { type JSX } from 'react';
 
 import RepositoryResource, { Repository } from '@/resources/Repository';
 import { UserResource, User } from '@/resources/User';

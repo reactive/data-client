@@ -434,7 +434,9 @@ declare namespace internal_d {
   };
 }
 
+type ReducerAction<R extends React.Reducer<any, any>> = R extends React.Reducer<any, infer A> ? A : never;
+
 /** Turns a dispatch function into one that resolves once its been commited */
-declare function usePromisifiedDispatch<R extends React.Reducer<any, any>>(dispatch: React.Dispatch<React.ReducerAction<R>>, state: React.ReducerState<R>): (action: React.ReducerAction<R>) => Promise<void>;
+declare function usePromisifiedDispatch<R extends React.Reducer<any, any>>(dispatch: React.Dispatch<ReducerAction<R>>, state: React.ReducerState<R>): (action: ReducerAction<R>) => Promise<void>;
 
 export { _default as AsyncBoundary, BackupLoading, DataProvider as CacheProvider, ControllerContext, DataProvider, DevToolsPosition, ErrorBoundary, WebIdlingNetworkManager as IdlingNetworkManager, ErrorBoundary as NetworkErrorBoundary, ProviderProps, StateContext, Store, StoreContext, UniversalSuspense, internal_d as __INTERNAL__, getDefaultManagers, useCache, useCancelling, useController, useDLE, useDebounce, useError, useFetch, useLive, useLoading, usePromisifiedDispatch, useQuery, useSubscription, useSuspense };

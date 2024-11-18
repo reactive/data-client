@@ -1,15 +1,14 @@
 'use client';
 import React, { useRef, useCallback, useEffect } from 'react';
 
+import type { ReducerAction } from './ReducerAction.js';
+
 type PromiseHolder = { promise: Promise<void>; resolve: () => void };
 
 /** Turns a dispatch function into one that resolves once its been commited */
 export default function usePromisifiedDispatch<
   R extends React.Reducer<any, any>,
->(
-  dispatch: React.Dispatch<React.ReducerAction<R>>,
-  state: React.ReducerState<R>,
-) {
+>(dispatch: React.Dispatch<ReducerAction<R>>, state: React.ReducerState<R>) {
   const dispatchPromiseRef = useRef<null | PromiseHolder>(null);
   useEffect(() => {
     if (dispatchPromiseRef.current) {
@@ -19,7 +18,7 @@ export default function usePromisifiedDispatch<
   }, [state]);
 
   return useCallback(
-    (action: React.ReducerAction<R>) => {
+    (action: ReducerAction<R>) => {
       if (!dispatchPromiseRef.current) {
         dispatchPromiseRef.current = NewPromiseHolder();
       }

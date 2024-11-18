@@ -138,7 +138,7 @@ describe.each([
     rerender({ active: true });
     expect((result.current as any).title).toBe('fiver');
     // not gonna try too hard to get the rest of this test working
-    if (React.version.startsWith('18')) {
+    if (Number(React.version.substring(0, 3)) >= 18) {
       jest.advanceTimersByTime(frequency);
       await waitFor(() => expect(lastCall.isDone()).toBeTruthy());
       act(() => {

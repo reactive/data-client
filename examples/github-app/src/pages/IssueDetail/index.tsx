@@ -2,7 +2,7 @@ import { Link } from '@anansi/router';
 import { useSuspense, useCache, useDLE } from '@data-client/react';
 import { Card, Avatar } from 'antd';
 import { Tag } from 'antd';
-import React, { useMemo, memo } from 'react';
+import React, { useMemo, memo, type JSX } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import Markdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';

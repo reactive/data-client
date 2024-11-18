@@ -8,6 +8,7 @@
     "jsx": "preserve",
     "declaration": true,
     "strict": true,
+    "noImplicitAny": false,
     "moduleResolution": "node",
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
