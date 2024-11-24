@@ -1,6 +1,12 @@
 import { CacheProvider } from '@data-client/react';
 import { DataProvider as ExternalDataProvider } from '@data-client/react/redux';
-import { schema, RestEndpoint, PolymorphicInterface } from '@data-client/rest';
+import {
+  schema,
+  RestEndpoint,
+  PolymorphicInterface,
+  RestGenerics,
+  Entity,
+} from '@data-client/rest';
 import { resource } from '@data-client/rest';
 import {
   IDEntity,
@@ -10,6 +16,7 @@ import {
   SecondUnion,
 } from '__tests__/new';
 import nock from 'nock';
+import qs from 'qs';
 
 import { makeRenderDataClient, act } from '../../../test';
 import { useSuspense } from '../hooks';
@@ -18,6 +25,12 @@ import {
   paginatedSecondPage,
   valuesFixture,
 } from '../test-fixtures';
+
+class QSEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
+  searchToString(searchParams: any) {
+    return qs.stringify(searchParams);
+  }
+}
 
 class Todo extends IDEntity {
   userId = 0;
@@ -605,6 +618,64 @@ describe.each([
         expect(result.current.results.map(({ id }) => id)).toEqual([
           5, 3, 7, 8,
         ]);
+      });
+
+      it('should update on get for nested args change', async () => {
+        const filtersA = {
+          search: {
+            type: 'Coupon',
+          },
+        };
+        const filtersB = {
+          search: {
+            type: 'Cashback',
+          },
+        };
+        class Offer extends Entity {
+          id = '';
+          text = '';
+        }
+        const OfferResource = resource({
+          Endpoint: QSEndpoint,
+          schema: Offer,
+          searchParams: filtersA,
+          path: '/offers/:id',
+          paginationField: 'page',
+        });
+
+        const { result, rerender } = renderDataClient(
+          ({ filters }) => {
+            return useSuspense(OfferResource.getList, filters);
+          },
+          {
+            initialProps: { filters: filtersA },
+            initialFixtures: [
+              {
+                endpoint: OfferResource.getList,
+                args: [filtersA],
+                response: [
+                  { id: '5', text: 'hi' },
+                  { id: '2', text: 'next' },
+                ],
+              },
+              {
+                endpoint: OfferResource.getList,
+                args: [filtersB],
+                response: [
+                  { id: '10', text: 'second' },
+                  { id: '11', text: 'page' },
+                ],
+              },
+            ],
+          },
+        );
+        expect(result.current).toMatchSnapshot();
+        console.log(result.current);
+        const firstResult = result.current;
+        rerender({ filters: filtersB });
+        console.log(result.current);
+        expect(result.current).not.toEqual(firstResult);
+        expect(result.current).toMatchSnapshot();
       });
 
       it('should update on get for a paginated resource with searchParams', async () => {

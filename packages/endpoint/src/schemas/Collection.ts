@@ -136,7 +136,7 @@ export default class CollectionSchema<
     const obj =
       this.argsKey ? this.argsKey(...args) : this.nestKey(parent, key);
     for (const key in obj) {
-      if (typeof obj[key] !== 'string' && obj[key] !== undefined)
+      if (['number', 'boolean'].includes(typeof obj[key]))
         obj[key] = `${obj[key]}`;
     }
     return consistentSerialize(obj);
