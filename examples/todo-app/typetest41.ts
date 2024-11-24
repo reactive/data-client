@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 // this lets us validate the published/built types
 import { RestEndpoint } from '@data-client/rest';
 

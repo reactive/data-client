@@ -1,5 +1,7 @@
 import React from 'react';
 
+import type { ReducerAction } from './ReducerAction.js';
+
 export interface MiddlewareAPI<
   R extends React.Reducer<any, any> = React.Reducer<any, any>,
 > {
@@ -8,7 +10,7 @@ export interface MiddlewareAPI<
 }
 
 export type Dispatch<R extends React.Reducer<any, any>> = (
-  action: React.ReducerAction<R>,
+  action: ReducerAction<R>,
 ) => Promise<void>;
 
 export type Middleware = <R extends React.Reducer<any, any>>({

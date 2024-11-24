@@ -181,7 +181,9 @@ declare function ExternalDataProvider<S>({ children, store, selector, controller
 declare const mapMiddleware: <M extends Middleware[]>(selector: (state: any) => State<unknown>) => (...middlewares: Middleware[]) => M;
 //# sourceMappingURL=mapMiddleware.d.ts.map
 
-declare const PromiseifyMiddleware: <R extends React.Reducer<any, any>>(_: unknown) => (next: Dispatch$1<R>) => (action: React.ReducerAction<R>) => Promise<void>;
+declare const PromiseifyMiddleware: <R extends React.Reducer<any, any>>(_: unknown) => (next: Dispatch$1<R>) => (action: ReducerAction<R>) => Promise<void>;
+
+type ReducerAction<R extends React.Reducer<any, any>> = R extends React.Reducer<any, infer A> ? A : never;
 //# sourceMappingURL=PromiseifyMiddleware.d.ts.map
 
 export { ExternalDataProvider$1 as DataProvider, ExternalDataProvider, Middleware, PromiseifyMiddleware, Reducer, mapMiddleware, prepareStore };

@@ -7,6 +7,7 @@ import React, {
   useCallback,
 } from 'react';
 
+import { ReducerAction } from './ReducerAction.js';
 import { Middleware, Dispatch } from './types.js';
 import usePromisifiedDispatch from './usePromisifiedDispatch.js';
 
@@ -28,7 +29,7 @@ export default function useEnhancedReducer<R extends React.Reducer<any, any>>(
   middlewares: Middleware[],
 ): [
   React.ReducerState<R>,
-  (value: React.ReducerAction<R>) => Promise<any>,
+  (value: ReducerAction<R>) => Promise<any>,
   () => React.ReducerState<R>,
 ] {
   const stateRef = useRef(startingState);
@@ -50,7 +51,7 @@ export default function useEnhancedReducer<R extends React.Reducer<any, any>>(
     // closure here around dispatch allows us to change it after middleware is constructed
     const middlewareAPI = {
       getState,
-      dispatch: (action: React.ReducerAction<R>) =>
+      dispatch: (action: ReducerAction<R>) =>
         protectedDispatchRef.current(action),
     };
     const chain = middlewares.map(middleware => middleware(middlewareAPI));

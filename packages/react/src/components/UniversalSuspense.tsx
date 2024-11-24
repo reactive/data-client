@@ -11,10 +11,7 @@ const UniversalSuspense: React.FunctionComponent<{
 }> =
   /* istanbul ignore if */
   LegacyReact && SSR ?
-    /* istanbul ignore next  */ ({ children }) => children as JSX.Element
+    /* istanbul ignore next  */ ({ children = null }) => children as JSX.Element
   : Suspense;
 
-if (LegacyReact && SSR) {
-  UniversalSuspense.defaultProps = { children: null };
-}
 export default UniversalSuspense;

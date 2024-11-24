@@ -15,7 +15,7 @@ export default function useCancelling<
     extend: (o: { signal?: AbortSignal }) => any;
   },
 >(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): E {
-  const abortRef = useRef<AbortController>();
+  const abortRef = useRef<AbortController>(undefined);
 
   // send abort signal anytime the params change
   // if fetch is already completed signal goes nowhere
