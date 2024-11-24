@@ -1,7 +1,7 @@
 // eslint-env jest
-import { initialState, State } from '@data-client/core';
+import { initialState } from '@data-client/core';
 import { normalize, denormalize, MemoCache } from '@data-client/normalizr';
-import { IDEntity } from '__tests__/new';
+import { ArticleResource, IDEntity } from '__tests__/new';
 import { Record } from 'immutable';
 
 import SimpleMemoCache from './denormalize';
@@ -12,7 +12,7 @@ import PolymorphicSchema from '../Polymorphic';
 let dateSpy: jest.SpyInstance;
 beforeAll(() => {
   dateSpy = jest
-    // eslint-disable-next-line no-undef
+
     .spyOn(global.Date, 'now')
     .mockImplementation(() => new Date('2019-05-14T11:01:58.135Z').valueOf());
 });
@@ -669,5 +669,24 @@ describe(`${schema.Collection.name} denormalization`, () => {
       {},
     );
     expect(queryKey).toBeUndefined();
+  });
+
+  it('pk should serialize differently with nested args', () => {
+    const filtersA = {
+      search: {
+        type: 'Coupon',
+      },
+    };
+    const filtersB = {
+      search: {
+        type: 'Cashback',
+      },
+    };
+
+    expect(
+      ArticleResource.getList.schema.pk([], undefined, '', [filtersA]),
+    ).not.toEqual(
+      ArticleResource.getList.schema.pk([], undefined, '', [filtersB]),
+    );
   });
 });

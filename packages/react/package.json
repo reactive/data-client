@@ -189,7 +189,9 @@
     "@anansi/browserslist-config": "^1.4.2",
     "@react-navigation/native": "^7.0.0",
     "@types/node": "^22.0.0",
+    "@types/qs": "^6",
     "@types/react": "^18.0.30",
+    "qs": "^6.13.1",
     "react-native": "^0.76.0"
   }
 }

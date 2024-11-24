@@ -200,6 +200,32 @@ exports[`CacheProvider RestEndpoint/current should update on get for a paginated
 }
 `;
 
+exports[`CacheProvider RestEndpoint/current should update on get for nested args change 1`] = `
+[
+  Offer {
+    "id": "5",
+    "text": "hi",
+  },
+  Offer {
+    "id": "2",
+    "text": "next",
+  },
+]
+`;
+
+exports[`CacheProvider RestEndpoint/current should update on get for nested args change 2`] = `
+[
+  Offer {
+    "id": "10",
+    "text": "second",
+  },
+  Offer {
+    "id": "11",
+    "text": "page",
+  },
+]
+`;
+
 exports[`CacheProvider RestEndpoint/next endpoint.assign should add to schema.Values Collections 1`] = `
 Article {
   "author": null,
@@ -398,6 +424,32 @@ exports[`CacheProvider RestEndpoint/next should update on get for a paginated re
     },
   ],
 }
+`;
+
+exports[`CacheProvider RestEndpoint/next should update on get for nested args change 1`] = `
+[
+  Offer {
+    "id": "5",
+    "text": "hi",
+  },
+  Offer {
+    "id": "2",
+    "text": "next",
+  },
+]
+`;
+
+exports[`CacheProvider RestEndpoint/next should update on get for nested args change 2`] = `
+[
+  Offer {
+    "id": "10",
+    "text": "second",
+  },
+  Offer {
+    "id": "11",
+    "text": "page",
+  },
+]
 `;
 
 exports[`CacheProvider pagination should ignore undefined values 1`] = `
@@ -759,6 +811,32 @@ exports[`ExternalDataProvider RestEndpoint/current should update on get for a pa
 }
 `;
 
+exports[`ExternalDataProvider RestEndpoint/current should update on get for nested args change 1`] = `
+[
+  Offer {
+    "id": "5",
+    "text": "hi",
+  },
+  Offer {
+    "id": "2",
+    "text": "next",
+  },
+]
+`;
+
+exports[`ExternalDataProvider RestEndpoint/current should update on get for nested args change 2`] = `
+[
+  Offer {
+    "id": "10",
+    "text": "second",
+  },
+  Offer {
+    "id": "11",
+    "text": "page",
+  },
+]
+`;
+
 exports[`ExternalDataProvider RestEndpoint/next endpoint.assign should add to schema.Values Collections 1`] = `
 Article {
   "author": null,
@@ -957,6 +1035,32 @@ exports[`ExternalDataProvider RestEndpoint/next should update on get for a pagin
     },
   ],
 }
+`;
+
+exports[`ExternalDataProvider RestEndpoint/next should update on get for nested args change 1`] = `
+[
+  Offer {
+    "id": "5",
+    "text": "hi",
+  },
+  Offer {
+    "id": "2",
+    "text": "next",
+  },
+]
+`;
+
+exports[`ExternalDataProvider RestEndpoint/next should update on get for nested args change 2`] = `
+[
+  Offer {
+    "id": "10",
+    "text": "second",
+  },
+  Offer {
+    "id": "11",
+    "text": "page",
+  },
+]
 `;
 
 exports[`ExternalDataProvider pagination should ignore undefined values 1`] = `
