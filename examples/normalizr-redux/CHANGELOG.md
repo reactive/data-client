@@ -1,5 +1,12 @@
 # normalizr-redux-example
 
+## 0.1.43
+
+### Patch Changes
+
+- Updated dependencies [[`99cd041`](https://github.com/reactive/data-client/commit/99cd04152532e13d8fb092ea800d381391d5aacd)]:
+  - @data-client/endpoint@0.14.17
+
 ## 0.1.42
 
 ### Patch Changes

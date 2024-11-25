@@ -1,5 +1,11 @@
 # @data-client/ssr
 
+## 0.12.15
+
+### Patch Changes
+
+- [`4095003`](https://github.com/reactive/data-client/commit/4095003f40f4f6436a790d108ee13bcae1a2cdfa) Thanks [@ntucker](https://github.com/ntucker)! - Improve compatibility with React 19
+
 ## 0.12.14
 
 ### Patch Changes
