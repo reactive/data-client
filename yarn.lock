@@ -5452,15 +5452,15 @@ __metadata:
   linkType: hard
 
 "@number-flow/react@npm:^0.4.0":
-  version: 0.4.0
-  resolution: "@number-flow/react@npm:0.4.0"
+  version: 0.4.1
+  resolution: "@number-flow/react@npm:0.4.1"
   dependencies:
     esm-env: "npm:^1.1.4"
     number-flow: "npm:0.4.0"
   peerDependencies:
     react: ^18 || ^19.0.0-rc-915b914b3a-20240515
     react-dom: ^18
-  checksum: 10c0/417db031578fb1e3c1b9e00c9e862ff0255c95140199335a8efb583600479c9c0083f832663b18a2037bb73ee2bfdfd3602e45f465021fc77edcb12ac32967e0
+  checksum: 10c0/ae614249361822e176227adfba5debc11ab27d0028498f472a0c5f8b4bafedfed33bb34ce4c7673bd36e35728cbd9ac72fb6b1bc5f6870b636fadf9b7e1a3dae
   languageName: node
   linkType: hard
 
