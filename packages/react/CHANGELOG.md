@@ -1,5 +1,16 @@
 # @data-client/react
 
+## 0.14.17
+
+### Patch Changes
+
+- [`25be07f`](https://github.com/reactive/data-client/commit/25be07f51c501003330d758993542bee3bd804e1) Thanks [@ntucker](https://github.com/ntucker)! - Update README to not say 'mixin' twice
+
+- [`4095003`](https://github.com/reactive/data-client/commit/4095003f40f4f6436a790d108ee13bcae1a2cdfa) Thanks [@ntucker](https://github.com/ntucker)! - Improve compatibility with React 19
+
+- Updated dependencies [[`4095003`](https://github.com/reactive/data-client/commit/4095003f40f4f6436a790d108ee13bcae1a2cdfa)]:
+  - @data-client/use-enhanced-reducer@0.1.11
+
 ## 0.14.16
 
 ### Patch Changes

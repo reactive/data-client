@@ -1,5 +1,18 @@
 # @data-client/graphql
 
+## 0.14.17
+
+### Patch Changes
+
+- [#3281](https://github.com/reactive/data-client/pull/3281) [`99cd041`](https://github.com/reactive/data-client/commit/99cd04152532e13d8fb092ea800d381391d5aacd) Thanks [@ntucker](https://github.com/ntucker)! - Collections work with nested args
+
+  This fixes [integration with qs library](https://dataclient.io/rest/api/RestEndpoint#using-qs-library) and more complex search parameters.
+
+- [`25be07f`](https://github.com/reactive/data-client/commit/25be07f51c501003330d758993542bee3bd804e1) Thanks [@ntucker](https://github.com/ntucker)! - Update README to not say 'mixin' twice
+
+- Updated dependencies [[`99cd041`](https://github.com/reactive/data-client/commit/99cd04152532e13d8fb092ea800d381391d5aacd)]:
+  - @data-client/endpoint@0.14.17
+
 ## 0.14.16
 
 ### Patch Changes
