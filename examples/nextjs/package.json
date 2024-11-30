@@ -15,7 +15,7 @@
     "@data-client/react": "^0.14.0",
     "@data-client/rest": "^0.14.0",
     "@number-flow/react": "^0.4.0",
-    "@types/node": "22.9.3",
+    "@types/node": "22.10.1",
     "@types/react": "npm:types-react@19.0.0-rc.1",
     "@types/react-dom": "npm:types-react-dom@19.0.0",
     "clsx": "^2.1.1",

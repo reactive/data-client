@@ -271,10 +271,10 @@ __metadata:
   linkType: hard
 
 "@anansi/cli@npm:^3.0.15":
-  version: 3.1.49
-  resolution: "@anansi/cli@npm:3.1.49"
+  version: 3.1.50
+  resolution: "@anansi/cli@npm:3.1.50"
   dependencies:
-    "@anansi/generator-js": "npm:^12.6.7"
+    "@anansi/generator-js": "npm:^12.6.8"
     binary-version-check: "npm:^6.1.0"
     chalk: "npm:^4.1.2"
     commander: "npm:^12.1.0"
@@ -289,15 +289,15 @@ __metadata:
       optional: true
   bin:
     anansi: ./run.mjs
-  checksum: 10c0/7d258a2af13544b8e79f655107b2dfa2d17be353ca703d550c8d78a3072930712e0a69fe0948bc916da7ccad189fe08e318e04980ee36d16523eb568d436d3e8
+  checksum: 10c0/96c34d7cb8c5a1fcdddfd31b9cc82e2cdf3c8147d8dc9d25c7217f5708abbddbfd6eb0ecc5e309a1da2d3d23b5a61a2f334d04289fa4142568e74ccf46831e98
   languageName: node
   linkType: hard
 
 "@anansi/core@npm:^0.20.0":
-  version: 0.20.11
-  resolution: "@anansi/core@npm:0.20.11"
+  version: 0.20.12
+  resolution: "@anansi/core@npm:0.20.12"
   dependencies:
-    "@anansi/router": "npm:^0.10.8"
+    "@anansi/router": "npm:^0.10.9"
     "@babel/runtime": "npm:^7.17.0"
     chalk: "npm:^4.1.2"
     compression: "npm:^1.7.5"
@@ -334,7 +334,7 @@ __metadata:
   bin:
     serve-anansi: ./lib/scripts/serve.js
     start-anansi: ./lib/scripts/startDevserver.js
-  checksum: 10c0/7c9fc6b57ca93cd7db4ea81fd64c4eb9c8aa34546777169ebea980cfafab774fc6946013f050d271947e4a7db8f324644600b349524ae1182a6cc161d8541a01
+  checksum: 10c0/3faf19bb865c6f3595473c7808f5437d7f660d741e987e7284e3ed31ef679e784713d4263a2f578c1c21a5400ebf7f2c4b5bb1a19f232a4e51f519e1ad048ce8
   languageName: node
   linkType: hard
 
@@ -373,9 +373,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/generator-js@npm:^12.6.7":
-  version: 12.6.7
-  resolution: "@anansi/generator-js@npm:12.6.7"
+"@anansi/generator-js@npm:^12.6.8":
+  version: 12.6.8
+  resolution: "@anansi/generator-js@npm:12.6.8"
   dependencies:
     "@babel/runtime": "npm:^7.17.0"
     "@types/inquirer": "npm:^9.0.7"
@@ -389,10 +389,10 @@ __metadata:
     import-meta-resolve: "npm:^4.1.0"
     mem-fs: "npm:^4.1.1"
     mem-fs-editor: "npm:^11.1.3"
-    pacote: "npm:^20.0.0"
+    pacote: "npm:^21.0.0"
     shelobsay: "npm:^2.0.0"
     yeoman-generator: "npm:^7.3.3"
-  checksum: 10c0/60a581503869980fdbb020b330facff9f4fcff3814750dee2e069a809d7a5c97487448ad45f4aa7c68688d84114f5c9d6ff89fe75193469e5b1fd2e11d668cb1
+  checksum: 10c0/420b5db4a3091a9fa7b7d65866356bb9a9219ff134c8b13d1ef216d351703e24407f2bbb367365c15ce26ee5ddfed433a53bdf90f79ec326d56bcd71cc391e9f
   languageName: node
   linkType: hard
 
@@ -426,12 +426,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/router@npm:^0.10.0, @anansi/router@npm:^0.10.8":
-  version: 0.10.8
-  resolution: "@anansi/router@npm:0.10.8"
+"@anansi/router@npm:^0.10.0, @anansi/router@npm:^0.10.9":
+  version: 0.10.9
+  resolution: "@anansi/router@npm:0.10.9"
   dependencies:
     "@babel/runtime": "npm:^7.17.0"
-    "@pojo-router/core": "npm:^0.10.1"
+    "@pojo-router/core": "npm:^0.10.2"
     history: "npm:^5.3.0"
     nano-memoize: "npm:^3.0.16"
   peerDependencies:
@@ -440,7 +440,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/780008479855347d0a76d014147c6c1eb3ae1804d1c58c58eea577149e3a2b3afa383f91d10fb3ec07cd002fd6eb3d749b0294358cfbc1bfaf9b8c6f63a1edaa
+  checksum: 10c0/e9e7530aaf001168c879dd4fa996ade27de26dd64109da94ebe374f5e590535fa9d36d87b7879a74b84053486d4492d7636bb23e3245c38bf4fc2973f11a1d54
   languageName: node
   linkType: hard
 
@@ -5822,9 +5822,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pojo-router/core@npm:^0.10.1":
-  version: 0.10.1
-  resolution: "@pojo-router/core@npm:0.10.1"
+"@pojo-router/core@npm:^0.10.2":
+  version: 0.10.2
+  resolution: "@pojo-router/core@npm:0.10.2"
   dependencies:
     "@babel/runtime": "npm:^7.17.0"
     history: "npm:5.3.0"
@@ -5835,7 +5835,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/c8296e54e2d7634924a71712b56a6b72607bc29619233b5c35890bf67dafb611dc22b9193f87bf9ad8f4d557a01d6e1999815b8b3a3dbc247eda04194369bb1b
+  checksum: 10c0/95099e4489f71c958ae4eb4736937a139c7149eb7bf4528ee3a6724821909acb6993de1a7eb922e280329934ba7002f9e5f2d1dbb3ae2b0152f7dd8c5994f3cf
   languageName: node
   linkType: hard
 
@@ -7429,12 +7429,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:22.9.3, @types/node@npm:>=18, @types/node@npm:>=18.18.5, @types/node@npm:^22.0.0":
-  version: 22.9.3
-  resolution: "@types/node@npm:22.9.3"
+"@types/node@npm:*, @types/node@npm:22.10.1, @types/node@npm:>=18, @types/node@npm:>=18.18.5, @types/node@npm:^22.0.0":
+  version: 22.10.1
+  resolution: "@types/node@npm:22.10.1"
   dependencies:
-    undici-types: "npm:~6.19.8"
-  checksum: 10c0/954ec72bf29436ea62425a9563914a9c1e93f97b18194acd51d74d13998a701977547ed2985ed3a0e97211b785436d28377116e5f613bfcf3182d9bd81d784dc
+    undici-types: "npm:~6.20.0"
+  checksum: 10c0/0fbb6d29fa35d807f0223a4db709c598ac08d66820240a2cd6a8a69b8f0bc921d65b339d850a666b43b4e779f967e6ed6cf6f0fca3575e08241e6b900364c234
   languageName: node
   linkType: hard
 
@@ -7446,9 +7446,9 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:^16.18.28, @types/node@npm:^16.18.31":
-  version: 16.18.119
-  resolution: "@types/node@npm:16.18.119"
-  checksum: 10c0/d4bfd72982325f0421adc1115ec5dd0b92af2163526217d43151a32cf37c7219eebbf0913a18bb613a9628b83e543f66f7d18251ec23dad92418e87d3d8dafee
+  version: 16.18.121
+  resolution: "@types/node@npm:16.18.121"
+  checksum: 10c0/1ca7159e7d8ec1f49ae19f4c9eed10228f8e275a06597449696460fa11bf8d888f7b1c28b387e74b15953d409800e82c33b34fb41dcce3c698b262a5e59262bd
   languageName: node
   linkType: hard
 
@@ -21874,6 +21874,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"npm-packlist@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "npm-packlist@npm:10.0.0"
+  dependencies:
+    ignore-walk: "npm:^7.0.0"
+  checksum: 10c0/be8cb82c4f9b6fdfba2e3379c538949d3ea7aeb303436db013aaccd8ad1ff49d9f894d7fa4684f9d3016b7944dcc3f0bfc8c3d10c535fa7cd29314a8aad4b80f
+  languageName: node
+  linkType: hard
+
 "npm-packlist@npm:^2.1.4":
   version: 2.1.4
   resolution: "npm-packlist@npm:2.1.4"
@@ -21894,15 +21903,6 @@ __metadata:
   dependencies:
     ignore-walk: "npm:^6.0.0"
   checksum: 10c0/0085e64695f10c8d377d9f2f8eaecb06ee41881bfc2e6f1996578b016fc62f873cc76ad90796d3b41712a5252d2795ecb374954846346ab5d2636b1c2bc65aa2
-  languageName: node
-  linkType: hard
-
-"npm-packlist@npm:^9.0.0":
-  version: 9.0.0
-  resolution: "npm-packlist@npm:9.0.0"
-  dependencies:
-    ignore-walk: "npm:^7.0.0"
-  checksum: 10c0/3eb9e877fff81ed1f97b86a387a13a7d0136a26c4c21d8fab7e49be653e71d604ba63091ec80e3a0b1d1fd879639eab91ddda1a8df45d7631795b83911f2f9b8
   languageName: node
   linkType: hard
 
@@ -22925,9 +22925,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pacote@npm:^20.0.0":
-  version: 20.0.0
-  resolution: "pacote@npm:20.0.0"
+"pacote@npm:^21.0.0":
+  version: 21.0.0
+  resolution: "pacote@npm:21.0.0"
   dependencies:
     "@npmcli/git": "npm:^6.0.0"
     "@npmcli/installed-package-contents": "npm:^3.0.0"
@@ -22938,7 +22938,7 @@ __metadata:
     fs-minipass: "npm:^3.0.0"
     minipass: "npm:^7.0.2"
     npm-package-arg: "npm:^12.0.0"
-    npm-packlist: "npm:^9.0.0"
+    npm-packlist: "npm:^10.0.0"
     npm-pick-manifest: "npm:^10.0.0"
     npm-registry-fetch: "npm:^18.0.0"
     proc-log: "npm:^5.0.0"
@@ -22948,7 +22948,7 @@ __metadata:
     tar: "npm:^6.1.11"
   bin:
     pacote: bin/index.js
-  checksum: 10c0/435c385446ecc81b1eb1584f4fa3cb102e630a22877f39b5c1a92eddfeaf222bd027b205e32632be2801e3bcbe525165cdffb5ceca5c13bbc81f8132fe1ba49e
+  checksum: 10c0/406eabb2185f87526f07b2b7540a96c91f07c8782f9d1651ef022844f021922ee1507161c43dd16616ab3f15a2d13a1bfe217bfd79731020c725373c4e713022
   languageName: node
   linkType: hard
 
@@ -26724,7 +26724,7 @@ __metadata:
     "@testing-library/react-hooks": "npm:8.0.1"
     "@testing-library/react-native": "npm:12.8.1"
     "@types/jest": "npm:29.5.14"
-    "@types/node": "npm:22.9.3"
+    "@types/node": "npm:22.10.1"
     "@types/react": "npm:types-react@19.0.0-rc.1"
     "@types/react-dom": "npm:types-react-dom@19.0.0"
     babel-plugin-module-resolver: "npm:5.0.2"
@@ -29500,10 +29500,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici-types@npm:~6.19.8":
-  version: 6.19.8
-  resolution: "undici-types@npm:6.19.8"
-  checksum: 10c0/078afa5990fba110f6824823ace86073b4638f1d5112ee26e790155f481f2a868cc3e0615505b6f4282bdf74a3d8caad715fd809e870c2bb0704e3ea6082f344
+"undici-types@npm:~6.20.0":
+  version: 6.20.0
+  resolution: "undici-types@npm:6.20.0"
+  checksum: 10c0/68e659a98898d6a836a9a59e6adf14a5d799707f5ea629433e025ac90d239f75e408e2e5ff086afc3cace26f8b26ee52155293564593fbb4a2f666af57fc59bf
   languageName: node
   linkType: hard
 
