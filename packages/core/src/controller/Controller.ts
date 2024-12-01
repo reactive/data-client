@@ -464,7 +464,7 @@ export default class Controller<
     }
 
     // second argument is false if any entities are missing
-    // eslint-disable-next-line prefer-const
+
     const { data, paths } = this.memo.denormalize(
       schema,
       input,

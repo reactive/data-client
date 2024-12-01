@@ -171,7 +171,7 @@ describe('useFetch', () => {
     rerender();
     await result.current;
     expect(fetchMock).toHaveBeenCalledTimes(0);
-    // eslint-disable-next-line require-atomic-updates
+
     time += 610000000;
     rerender();
     await result.current;

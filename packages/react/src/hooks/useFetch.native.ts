@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { DenormalizeNullable, ExpiryStatus, NI } from '@data-client/core';
 import {
   EndpointInterface,

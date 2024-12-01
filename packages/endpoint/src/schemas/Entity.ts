@@ -22,7 +22,7 @@ export default abstract class Entity extends EntityMixin(EmptyBase) {
    *
    * Note: this only applies to non-nested members.
    */
-  protected declare static automaticValidation?: 'warn' | 'silent';
+  declare protected static automaticValidation?: 'warn' | 'silent';
 
   /** Factory method to convert from Plain JS Objects.
    *

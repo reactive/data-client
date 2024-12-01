@@ -42,7 +42,7 @@ export default function createPersistedStore(managers?: Manager[]) {
 
   const initPromise: Promise<State<any>> = (async () => {
     let firstRender = true;
-    // eslint-disable-next-line no-constant-condition
+
     while (true) {
       const inFlightFetches = networkManager.allSettled();
       if (inFlightFetches) {

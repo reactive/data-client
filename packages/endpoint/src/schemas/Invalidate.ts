@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import type { EntityInterface, SchemaSimple } from '../interface.js';
 import type { AbstractInstanceType } from '../normal.js';
 import { INVALID } from '../special.js';
@@ -16,7 +15,7 @@ export default class Invalidate<
   },
 > implements SchemaSimple
 {
-  protected declare _entity: E;
+  declare protected _entity: E;
 
   /**
    * Marks entity as Invalid.

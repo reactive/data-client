@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import React, { useContext } from 'react';
 
 const useUniversal: <T>(context: React.Context<T>) => T =

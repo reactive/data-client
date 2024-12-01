@@ -11,13 +11,13 @@ export default class GlobalCache implements Cache {
   private cycleIndex = -1;
   private localCache: Record<string, Record<string, any>> = {};
 
-  private declare getCache: (
+  declare private getCache: (
     pk: string,
     schema: EntityInterface,
   ) => WeakDependencyMap<EntityPath, object, any>;
 
-  private declare _getEntity: GetEntity;
-  private declare resultCache: EndpointsCache;
+  declare private _getEntity: GetEntity;
+  declare private resultCache: EndpointsCache;
 
   constructor(
     getEntity: GetEntity,

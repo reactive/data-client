@@ -2,7 +2,7 @@ import { isImmutable } from './ImmutableUtils.js';
 import { Visit } from '../interface.js';
 
 export default class PolymorphicSchema {
-  private declare _schemaAttribute: any;
+  declare private _schemaAttribute: any;
   protected schema: any;
 
   constructor(

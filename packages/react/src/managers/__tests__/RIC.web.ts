@@ -3,7 +3,7 @@ describe('RequestIdleCallback', () => {
     const requestIdle = (global as any).requestIdleCallback;
     (global as any).requestIdleCallback = undefined;
     jest.resetModules();
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+
     const { IdlingNetworkManager } = await import('..');
     const fn = jest.fn();
     jest.useFakeTimers();
@@ -17,7 +17,7 @@ describe('RequestIdleCallback', () => {
 
   it('should run through requestIdleCallback', async () => {
     jest.resetModules();
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+
     const { IdlingNetworkManager } = await import('..');
     const fn = jest.fn();
     jest.useFakeTimers();

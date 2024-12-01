@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import type { NetworkError, UnknownError } from '@data-client/core';
 import { EndpointInterface } from '@data-client/core';
 
