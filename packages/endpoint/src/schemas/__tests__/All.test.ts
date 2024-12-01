@@ -9,7 +9,7 @@ import { INVALID } from '../../special';
 let dateSpy: jest.SpyInstance<number, []>;
 beforeAll(() => {
   dateSpy = jest
-    // eslint-disable-next-line no-undef
+
     .spyOn(global.Date, 'now')
     .mockImplementation(() => new Date('2019-05-14T11:01:58.135Z').valueOf());
 });

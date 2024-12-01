@@ -9,7 +9,6 @@ import type {
   StoreData,
 } from '../types.js';
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const normalize = <
   S extends Schema = Schema,
   E extends Record<string, Record<string, any> | undefined> = Record<

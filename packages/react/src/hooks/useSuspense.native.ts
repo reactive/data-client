@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { ExpiryStatus } from '@data-client/core';
 import type {
   EndpointInterface,

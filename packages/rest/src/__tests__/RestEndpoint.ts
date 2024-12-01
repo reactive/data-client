@@ -1369,7 +1369,6 @@ describe('RestEndpoint.fetch()', () => {
     expect(error).toBeDefined();
     expect(error.status).toBe(500);
 
-    // eslint-disable-next-line require-atomic-updates
     console.error = oldError;
   });
 

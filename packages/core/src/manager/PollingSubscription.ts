@@ -14,16 +14,16 @@ import type { SubscribeAction } from '../types.js';
  * @see https://dataclient.io/docs/api/PollingSubscription
  */
 export default class PollingSubscription implements Subscription {
-  protected declare readonly endpoint: EndpointInterface;
-  protected declare readonly args: readonly any[];
-  protected declare readonly key: string;
-  protected declare frequency: number;
+  declare protected readonly endpoint: EndpointInterface;
+  declare protected readonly args: readonly any[];
+  declare protected readonly key: string;
+  declare protected frequency: number;
   protected frequencyHistogram: Map<number, number> = new Map();
-  protected declare controller: Controller;
-  protected declare intervalId?: ReturnType<typeof setInterval>;
-  protected declare lastIntervalId?: ReturnType<typeof setInterval>;
-  protected declare startId?: ReturnType<typeof setTimeout>;
-  private declare connectionListener: ConnectionListener;
+  declare protected controller: Controller;
+  declare protected intervalId?: ReturnType<typeof setInterval>;
+  declare protected lastIntervalId?: ReturnType<typeof setInterval>;
+  declare protected startId?: ReturnType<typeof setTimeout>;
+  declare private connectionListener: ConnectionListener;
 
   constructor(
     action: Omit<SubscribeAction, 'type'>,

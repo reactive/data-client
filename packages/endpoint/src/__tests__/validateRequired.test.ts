@@ -9,7 +9,7 @@ import validateRequired from '../validateRequired';
 let dateSpy: jest.SpyInstance;
 beforeAll(() => {
   dateSpy = jest
-    // eslint-disable-next-line no-undef
+
     .spyOn(global.Date, 'now')
     .mockImplementation(() => new Date('2019-05-14T11:01:58.135Z').valueOf());
 });

@@ -7,7 +7,7 @@ import Entity from '../schemas/Entity';
 describe.each([true, false])(`Endpoint (CSP %s)`, mockCSP => {
   jest.resetModules();
   jest.mock('../CSP', () => ({ CSP: mockCSP }));
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+
   const Endpoint: typeof TEndpoint = require('../endpoint').default;
   afterAll(() => {
     jest.clearAllMocks();

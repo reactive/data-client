@@ -33,8 +33,6 @@ export default function useSubscription<
       return () => {
         controller.unsubscribe(endpoint, ...cleanedArgs);
       };
-
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     },
     [controller, key],
     true,

@@ -40,7 +40,7 @@ export default class SubscriptionManager<
     [key: string]: InstanceType<S>;
   } = {};
 
-  protected declare readonly Subscription: S;
+  declare protected readonly Subscription: S;
   protected controller: Controller = new Controller();
 
   constructor(Subscription: S) {

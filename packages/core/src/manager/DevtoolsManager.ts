@@ -1,4 +1,3 @@
-/* eslint-disable no-inner-declarations */
 import type { DevToolsConfig } from './devtoolsTypes.js';
 import type { Controller, EndpointInterface } from '../index.js';
 import type { Middleware } from '../middlewareTypes.js';
@@ -90,10 +89,10 @@ if (process.env.NODE_ENV !== 'production') {
  */
 export default class DevToolsManager implements Manager {
   declare middleware: Middleware;
-  protected declare devTools: undefined | any;
+  declare protected devTools: undefined | any;
   protected started = false;
   protected actions: [ActionTypes, State<unknown>][] = [];
-  protected declare controller: Controller;
+  declare protected controller: Controller;
   declare skipLogging?: (action: ActionTypes) => boolean;
   maxBufferLength = 100;
 

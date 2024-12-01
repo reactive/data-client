@@ -36,7 +36,7 @@ export default class ErrorBoundary<E extends Error> extends React.Component<
     return { error };
   }
 
-  private declare unsubscribe: undefined | (() => void);
+  declare private unsubscribe: undefined | (() => void);
   state: ErrorState<E> = {};
 
   componentDidMount() {

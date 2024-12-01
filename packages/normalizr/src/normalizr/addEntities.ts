@@ -107,7 +107,6 @@ function handleIndexes(
     if (index in entity) {
       indexMap[entity[index]] = id;
     } /* istanbul ignore next */ else if (
-      // eslint-disable-next-line no-undef
       process.env.NODE_ENV !== 'production'
     ) {
       console.warn(`Index not found in entity. Indexes must be top-level members of your entity.

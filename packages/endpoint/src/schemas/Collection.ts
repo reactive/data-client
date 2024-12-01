@@ -24,9 +24,9 @@ export default class CollectionSchema<
   Args extends any[] = DefaultArgs,
   Parent = any,
 > {
-  protected declare nestKey: (parent: any, key: string) => Record<string, any>;
+  declare protected nestKey: (parent: any, key: string) => Record<string, any>;
 
-  protected declare argsKey?: (...args: any) => Record<string, any>;
+  declare protected argsKey?: (...args: any) => Record<string, any>;
 
   declare readonly schema: S;
 

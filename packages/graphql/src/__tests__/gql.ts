@@ -231,7 +231,6 @@ describe('GQLEndpoint', () => {
     expect(error).toBeDefined();
     expect(error.status).toBe(400);
 
-    // eslint-disable-next-line require-atomic-updates
     console.error = oldError;
   });
 });
