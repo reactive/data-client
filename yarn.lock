@@ -5452,15 +5452,15 @@ __metadata:
   linkType: hard
 
 "@number-flow/react@npm:^0.4.0":
-  version: 0.4.1
-  resolution: "@number-flow/react@npm:0.4.1"
+  version: 0.4.2
+  resolution: "@number-flow/react@npm:0.4.2"
   dependencies:
     esm-env: "npm:^1.1.4"
-    number-flow: "npm:0.4.0"
+    number-flow: "npm:0.4.1"
   peerDependencies:
     react: ^18 || ^19.0.0-rc-915b914b3a-20240515
     react-dom: ^18
-  checksum: 10c0/ae614249361822e176227adfba5debc11ab27d0028498f472a0c5f8b4bafedfed33bb34ce4c7673bd36e35728cbd9ac72fb6b1bc5f6870b636fadf9b7e1a3dae
+  checksum: 10c0/6e3649ef387b193afdb616f47170edc46d2fff07bcd93ce632433444deba88c0c36eef1d683b01d0e5352f76a85ff6404cd4068349fe2832d55adff223c53718
   languageName: node
   linkType: hard
 
@@ -7545,11 +7545,11 @@ __metadata:
   linkType: hard
 
 "@types/react-test-renderer@npm:^18":
-  version: 18.3.0
-  resolution: "@types/react-test-renderer@npm:18.3.0"
+  version: 18.3.1
+  resolution: "@types/react-test-renderer@npm:18.3.1"
   dependencies:
-    "@types/react": "npm:*"
-  checksum: 10c0/3c9748be52e8e659e7adf91dea6939486463264e6f633bf21c4cb116de18af7bef0595568a1e588160420b2f65289473075dda1cb417c2875df8cf7a09f5d913
+    "@types/react": "npm:^18"
+  checksum: 10c0/9fc8467ff1a3f14be6cc3498a75fc788d2c92c0fffa7bf21269ed5d9d82db9195bf2178ddc42ea16a0836995c1b77601c6be8abb27bd1864668c418c6d0e5a3b
   languageName: node
   linkType: hard
 
@@ -15466,9 +15466,9 @@ __metadata:
   linkType: hard
 
 "globals@npm:^15.12.0, globals@npm:^15.9.0":
-  version: 15.12.0
-  resolution: "globals@npm:15.12.0"
-  checksum: 10c0/f34e0a1845b694f45188331742af9f488b07ba7440a06e9d2039fce0386fbbfc24afdbb9846ebdccd4092d03644e43081c49eb27b30f4b88e43af156e1c1dc34
+  version: 15.13.0
+  resolution: "globals@npm:15.13.0"
+  checksum: 10c0/640365115ca5f81d91e6a7667f4935021705e61a1a5a76a6ec5c3a5cdf6e53f165af7f9db59b7deb65cf2e1f83d03ac8d6660d0b14c569c831a9b6483eeef585
   languageName: node
   linkType: hard
 
@@ -22127,12 +22127,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"number-flow@npm:0.4.0":
-  version: 0.4.0
-  resolution: "number-flow@npm:0.4.0"
+"number-flow@npm:0.4.1":
+  version: 0.4.1
+  resolution: "number-flow@npm:0.4.1"
   dependencies:
     esm-env: "npm:^1.1.4"
-  checksum: 10c0/6d59b99ea8afb675a557489311ed1e944aa91343c417f552c3e0cafc5f762c616397490ec2a508672ff8a3acfcc68359b56add1e6df9d8f9ca933baa3cf7ea85
+  checksum: 10c0/a359fce5e6d28ab918e0b40ddb86e713a320edf790b716205f304f9ef97704785f9fdf2f6187c6e354fdfb7b2eb772640fbbcfe1fb50744a1dbe341bc79c8ae2
   languageName: node
   linkType: hard
 
@@ -25160,7 +25160,7 @@ __metadata:
     "@monaco-editor/react": "npm:^4.4.6"
     "@number-flow/react": "npm:^0.4.0"
     "@tsconfig/docusaurus": "npm:^2.0.0"
-    "@types/react": "npm:18.3.12"
+    "@types/react": "npm:18.3.14"
     "@types/react-dom": "npm:^18.2.7"
     "@types/react-helmet": "npm:^6.1.5"
     "@types/react-router-dom": "npm:^5.3.3"
