@@ -136,10 +136,10 @@
     "@data-client/react": "workspace:*",
     "@data-client/redux": "^0.13.0",
     "@types/node": "^22.0.0",
-    "@types/react": "^18.0.30",
-    "@types/react-dom": "^18.0.11",
+    "@types/react": "19.0.0",
+    "@types/react-dom": "19.0.0",
     "next": "^15.0.0",
-    "react-dom": "^19.0.0-rc.1",
+    "react-dom": "^19.0.0",
     "redux": "^5.0.0"
   }
 }
