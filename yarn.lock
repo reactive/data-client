@@ -25236,13 +25236,13 @@ __metadata:
   linkType: hard
 
 "react-dom@npm:^19.0.0-rc.1":
-  version: 19.0.0-rc-fb9a90fa48-20240614
-  resolution: "react-dom@npm:19.0.0-rc-fb9a90fa48-20240614"
+  version: 19.0.0
+  resolution: "react-dom@npm:19.0.0"
   dependencies:
-    scheduler: "npm:0.25.0-rc-fb9a90fa48-20240614"
+    scheduler: "npm:^0.25.0"
   peerDependencies:
-    react: 19.0.0-rc-fb9a90fa48-20240614
-  checksum: 10c0/ab4f49752f71fcf3de910af463d3ec4f2ea17777dbd854df7f08987b1ae4d91e5b59a1f5998063f68c7db3af06e9cb67f26a57f0e78bb71c28884ef5029edf0d
+    react: ^19.0.0
+  checksum: 10c0/a36ce7ab507b237ae2759c984cdaad4af4096d8199fb65b3815c16825e5cfeb7293da790a3fc2184b52bfba7ba3ff31c058c01947aff6fd1a3701632aabaa6a9
   languageName: node
   linkType: hard
 
@@ -25312,13 +25312,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-is@npm:19.0.0-rc-fb9a90fa48-20240614":
-  version: 19.0.0-rc-fb9a90fa48-20240614
-  resolution: "react-is@npm:19.0.0-rc-fb9a90fa48-20240614"
-  checksum: 10c0/73f4cd91d535788a60834690a303e4c02d3f55a63f34cfc4587cac8c132369aad849c614179cafd9840005614e56809c20c2d9f722aa630502d1b6db15e98c89
-  languageName: node
-  linkType: hard
-
 "react-is@npm:^16.13.1, react-is@npm:^16.6.0, react-is@npm:^16.7.0":
   version: 16.13.1
   resolution: "react-is@npm:16.13.1"
@@ -25337,6 +25330,13 @@ __metadata:
   version: 18.3.1
   resolution: "react-is@npm:18.3.1"
   checksum: 10c0/f2f1e60010c683479e74c63f96b09fb41603527cd131a9959e2aee1e5a8b0caf270b365e5ca77d4a6b18aae659b60a86150bb3979073528877029b35aecd2072
+  languageName: node
+  linkType: hard
+
+"react-is@npm:^19.0.0":
+  version: 19.0.0
+  resolution: "react-is@npm:19.0.0"
+  checksum: 10c0/d1be8e8500cf04f76df71942a21ef3a71266397a383d7ec8885f35190df818d35c65efd35aed7be47a89ad99aaff2c52e0c4e39e8930844a6b997622e50625a8
   languageName: node
   linkType: hard
 
@@ -25476,7 +25476,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-refresh@npm:*, react-refresh@npm:^0.14.0":
+"react-refresh@npm:*":
+  version: 0.16.0
+  resolution: "react-refresh@npm:0.16.0"
+  checksum: 10c0/122525dbd7a44140757f46b8b93df6a349126e64b270809a8f082809662be5837a97310e56df2cfc7dac98b8adfaaafa570ec579c8b269c374e6928394307c68
+  languageName: node
+  linkType: hard
+
+"react-refresh@npm:^0.14.0":
   version: 0.14.2
   resolution: "react-refresh@npm:0.14.2"
   checksum: 10c0/875b72ef56b147a131e33f2abd6ec059d1989854b3ff438898e4f9310bfcc73acff709445b7ba843318a953cb9424bcc2c05af2b3d80011cee28f25aef3e2ebb
@@ -25532,21 +25539,21 @@ __metadata:
   linkType: hard
 
 "react-test-renderer@npm:^19.0.0-rc.1":
-  version: 19.0.0-rc-fb9a90fa48-20240614
-  resolution: "react-test-renderer@npm:19.0.0-rc-fb9a90fa48-20240614"
+  version: 19.0.0
+  resolution: "react-test-renderer@npm:19.0.0"
   dependencies:
-    react-is: "npm:19.0.0-rc-fb9a90fa48-20240614"
-    scheduler: "npm:0.25.0-rc-fb9a90fa48-20240614"
+    react-is: "npm:^19.0.0"
+    scheduler: "npm:^0.25.0"
   peerDependencies:
-    react: 19.0.0-rc-fb9a90fa48-20240614
-  checksum: 10c0/895375555035375dbcdce354abcf673c5a07884f3aac5960385a2380ee04a1ef6d90607501bc222757c46bca6a9a85889137c6b23c090afc56066eaaa6ba8881
+    react: ^19.0.0
+  checksum: 10c0/67c34dae4d3a60b9306d2b5cb6db436376ef20c651aaf092644298e3ffb92cd3c7b0da2017e7f1395bf2de8b42429874a5a63e8cc3c21febbab31b0309e41862
   languageName: node
   linkType: hard
 
 "react@npm:^19.0.0-rc.1":
-  version: 19.0.0-rc-fb9a90fa48-20240614
-  resolution: "react@npm:19.0.0-rc-fb9a90fa48-20240614"
-  checksum: 10c0/99c3d3398d46c8c704c0deb04160f5a7c9cf2ff785a777fb0f1a4d0c91ade044c4d50cd52e008b4c45623eaa8f4d18a80272444df4972a2cc696bf35ef3e59b0
+  version: 19.0.0
+  resolution: "react@npm:19.0.0"
+  checksum: 10c0/9cad8f103e8e3a16d15cb18a0d8115d8bd9f9e1ce3420310aea381eb42aa0a4f812cf047bb5441349257a05fba8a291515691e3cb51267279b2d2c3253f38471
   languageName: node
   linkType: hard
 
@@ -26974,10 +26981,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"scheduler@npm:0.25.0-rc-fb9a90fa48-20240614":
-  version: 0.25.0-rc-fb9a90fa48-20240614
-  resolution: "scheduler@npm:0.25.0-rc-fb9a90fa48-20240614"
-  checksum: 10c0/efd80573e35479d0e47e864ba5747579be2a8b20cfb61f32bcb17a8b945711d2337dd7f92ac6373f3128ed20a8915624dc82fda6b7f761aab352692a6445d411
+"scheduler@npm:^0.25.0":
+  version: 0.25.0
+  resolution: "scheduler@npm:0.25.0"
+  checksum: 10c0/a4bb1da406b613ce72c1299db43759526058fdcc413999c3c3e0db8956df7633acf395cb20eb2303b6a65d658d66b6585d344460abaee8080b4aa931f10eaafe
   languageName: node
   linkType: hard
 
