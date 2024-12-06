@@ -25,9 +25,9 @@
   "private": true,
   "license": "Apache-2.0",
   "devDependencies": {
-    "@anansi/babel-preset": "6.0.9",
+    "@anansi/babel-preset": "6.0.10",
     "@anansi/browserslist-config": "1.5.1",
-    "@anansi/webpack-config": "20.0.11",
+    "@anansi/webpack-config": "20.0.12",
     "@babel/core": "7.26.0",
     "@linaria/babel-preset": "5.0.4",
     "@linaria/core": "6.2.0",
@@ -37,7 +37,7 @@
     "@types/react-dom": "19.0.0",
     "@types/uuid": "^10.0.0",
     "react-refresh": "0.16.0",
-    "webpack": "5.96.1",
+    "webpack": "5.97.1",
     "webpack-cli": "5.1.4",
     "webpack-dev-server": "5.1.0"
   },
