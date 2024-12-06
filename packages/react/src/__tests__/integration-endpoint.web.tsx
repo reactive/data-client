@@ -491,7 +491,8 @@ describe.each([
       let data = result.current;
       expect(data).toBeInstanceOf(ArticleResource.get.schema);
       expect(data.title).toBe(temppayload.title);
-      expect(throws.length).toBe(1);
+      // react 19 suspends twice
+      expect(throws.length).toBeGreaterThanOrEqual(1);
 
       mynock
         .persist()
@@ -544,7 +545,8 @@ describe.each([
     let [data, { invalidate }] = result.current;
     expect(data).toBeInstanceOf(CoolerArticle);
     expect(data.title).toBe(temppayload.title);
-    expect(throws.length).toBe(1);
+    // react 19 suspends twice
+    expect(throws.length).toBeGreaterThanOrEqual(1);
 
     mynock
       .persist()
@@ -553,7 +555,8 @@ describe.each([
     act(() => {
       invalidate(CoolerArticleResource.get, { id: temppayload.id });
     });
-    expect(throws.length).toBe(2);
+    // react 19 suspends twice
+    expect(throws.length).toBeGreaterThanOrEqual(2);
     await waitForNextUpdate();
     [data, { invalidate }] = result.current;
     expect(data).toBeInstanceOf(CoolerArticle);

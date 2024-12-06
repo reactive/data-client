@@ -117,7 +117,8 @@ describe('expireAll', () => {
     act(() => {
       controller.expireAll(CoolerArticleResource.get);
     });
-    expect(throws.length).toBe(1);
+    // react 19 throws twice
+    expect(throws.length).toBeGreaterThanOrEqual(1);
   });
 
   it('should *not* suspend when invalidIfStale is false', () => {

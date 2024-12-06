@@ -89,10 +89,12 @@ jobs:
             YARN_ENABLE_GLOBAL_CACHE=false yarn remove @react-navigation/native @react-navigation/native-stack react-native-screens
             YARN_ENABLE_GLOBAL_CACHE=false yarn workspace @data-client/react remove @react-navigation/native
             YARN_ENABLE_GLOBAL_CACHE=false yarn add --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >> @testing-library/react@^12.0.0 @testing-library/react-hooks @react-navigation/native@^6.0.0  @react-navigation/native-stack@^6.0.0 react-native-screens@^3.0.0
+            YARN_ENABLE_GLOBAL_CACHE=false yarn workspaces foreach -W --include @data-client/img --include @data-client/react --include @data-client/ssr --include @data-client/test --include @data-client/use-enhanced-reducer add --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
             YARN_ENABLE_GLOBAL_CACHE=false yarn workspace @data-client/react add @react-navigation/native@^6.0.0
             YARN_ENABLE_GLOBAL_CACHE=false yarn workspace @data-client/test add @testing-library/react@^12.0.0
             elif [ "<< parameters.react-version >>" == "^18" ]; then
             YARN_ENABLE_GLOBAL_CACHE=false yarn add --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
+            YARN_ENABLE_GLOBAL_CACHE=false yarn workspaces foreach -W --include @data-client/img --include @data-client/react --include @data-client/ssr --include @data-client/test --include @data-client/use-enhanced-reducer add --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
             fi
       - run:
           command: |
