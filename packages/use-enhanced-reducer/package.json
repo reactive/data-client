@@ -88,6 +88,6 @@
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",
     "@types/node": "^22.0.0",
-    "@types/react": "19.0.0"
+    "@types/react": "19.0.1"
   }
 }
