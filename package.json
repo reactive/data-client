@@ -91,7 +91,7 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-native": "0.76.4",
-    "react-native-safe-area-context": "^4.14.0",
+    "react-native-safe-area-context": "^5.0.0",
     "react-native-screens": "^4.1.0",
     "react-test-renderer": "^19.0.0",
     "rimraf": "^6.0.0",
