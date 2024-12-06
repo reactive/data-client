@@ -291,19 +291,22 @@ describe.each([
     const [data, fetch] = result.current;
     expect(data).toBeInstanceOf(CoolerArticle);
     expect(data?.title).toBe(temppayload.title);
-    expect(throws.length).toBe(1);
+    // react 19 suspends twice
+    expect(throws.length).toBeGreaterThanOrEqual(1);
 
     mynock
       .persist()
       .get(`/article-cooler/${temppayload.id}`)
       .reply(200, { ...temppayload, title: 'othertitle' });
 
-    expect(throws.length).toBe(1);
+    // react 19 suspends twice
+    expect(throws.length).toBeGreaterThanOrEqual(1);
     await act(async () => {
       await fetch(FutureArticleResource.delete, temppayload.id);
       rerender({ id: null });
     });
-    expect(throws.length).toBe(1);
+    // react 19 suspends twice
+    expect(throws.length).toBeGreaterThanOrEqual(1);
     expect(result.current[0]).toBe(null);
   });
 

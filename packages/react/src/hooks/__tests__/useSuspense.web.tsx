@@ -64,9 +64,14 @@ async function testDispatchFetch(
   );
   render(tree);
   expect(dispatch).toHaveBeenCalled();
-  expect(dispatch.mock.calls.length).toBe(payloads.length);
+  // react 19 suspends twice
+  expect(dispatch.mock.calls.length).toBeGreaterThanOrEqual(payloads.length);
   let i = 0;
   for (const call of dispatch.mock.calls as any) {
+    // react 19, skip every other
+    if (Number(React.version.substring(0, 3)) >= 19 && i % 2 === 1) {
+      continue;
+    }
     expect(call[0].type).toBe(actionTypes.FETCH);
     delete call[0]?.meta?.fetchedAt;
     delete call[0]?.meta?.promise;

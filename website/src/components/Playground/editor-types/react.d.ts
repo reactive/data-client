@@ -137,8 +137,6 @@ declare namespace React {
         | (new(props: P) => Component<any, any>);
 
     /**
-     * A readonly ref container where {@link current} cannot be mutated.
-     *
      * Created by {@link createRef}, or {@link useRef} when passed `null`.
      *
      * @template T The type of the ref's value.
@@ -779,6 +777,12 @@ declare namespace React {
 
         /** A fallback react tree to show when a Suspense child (like React.lazy) suspends */
         fallback?: ReactNode;
+
+        /**
+         * A name for this Suspense boundary for instrumentation purposes.
+         * The name will help identify this boundary in React DevTools.
+         */
+        name?: string | undefined;
     }
 
     /**
@@ -914,7 +918,7 @@ declare namespace React {
 
         /**
          * Ignored by React.
-         * @deprecated Only kept in types for backwards compatibility. Will be removed in a futre major release.
+         * @deprecated Only kept in types for backwards compatibility. Will be removed in a future major release.
          */
         static propTypes?: any;
 
@@ -1035,7 +1039,7 @@ declare namespace React {
         (props: P): ReactNode;
         /**
          * Ignored by React.
-         * @deprecated Only kept in types for backwards compatibility. Will be removed in a futre major release.
+         * @deprecated Only kept in types for backwards compatibility. Will be removed in a future major release.
          */
         propTypes?: any;
         /**
@@ -1096,7 +1100,7 @@ declare namespace React {
         displayName?: string | undefined;
         /**
          * Ignored by React.
-         * @deprecated Only kept in types for backwards compatibility. Will be removed in a futre major release.
+         * @deprecated Only kept in types for backwards compatibility. Will be removed in a future major release.
          */
         propTypes?: any;
     }
@@ -1112,7 +1116,7 @@ declare namespace React {
         new(props: P): Component<P, S>;
         /**
          * Ignored by React.
-         * @deprecated Only kept in types for backwards compatibility. Will be removed in a futre major release.
+         * @deprecated Only kept in types for backwards compatibility. Will be removed in a future major release.
          */
         propTypes?: any;
         contextType?: Context<any> | undefined;
@@ -1335,7 +1339,7 @@ declare namespace React {
     interface ForwardRefExoticComponent<P> extends NamedExoticComponent<P> {
         /**
          * Ignored by React.
-         * @deprecated Only kept in types for backwards compatibility. Will be removed in a futre major release.
+         * @deprecated Only kept in types for backwards compatibility. Will be removed in a future major release.
          */
         propTypes?: any;
     }
@@ -1368,7 +1372,7 @@ declare namespace React {
      * ```
      */
     function forwardRef<T, P = {}>(
-        render: ForwardRefRenderFunction<T, P>,
+        render: ForwardRefRenderFunction<T, PropsWithoutRef<P>>,
     ): ForwardRefExoticComponent<PropsWithoutRef<P> & RefAttributes<T>>;
 
     /**
@@ -1786,7 +1790,7 @@ declare namespace React {
      */
     // A specific function type would not trigger implicit any.
     // See https://github.com/DefinitelyTyped/DefinitelyTyped/issues/52873#issuecomment-845806435 for a comparison between `Function` and more specific types.
-    // eslint-disable-next-line @typescript-eslint/ban-types
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
     function useCallback<T extends Function>(callback: T, deps: DependencyList): T;
     /**
      * `useMemo` will only recompute the memoized value when one of the `deps` has changed.
@@ -1926,6 +1930,9 @@ declare namespace React {
         initialState: Awaited<State>,
         permalink?: string,
     ): [state: Awaited<State>, dispatch: (payload: Payload) => void, isPending: boolean];
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+    export function cache<CachedFunction extends Function>(fn: CachedFunction): CachedFunction;
 
     //
     // Event System
@@ -2197,9 +2204,9 @@ declare namespace React {
         // Keyboard Events
         onKeyDown?: KeyboardEventHandler<T> | undefined;
         onKeyDownCapture?: KeyboardEventHandler<T> | undefined;
-        /** @deprecated */
+        /** @deprecated Use `onKeyUp` or `onKeyDown` instead */
         onKeyPress?: KeyboardEventHandler<T> | undefined;
-        /** @deprecated */
+        /** @deprecated Use `onKeyUpCapture` or `onKeyDownCapture` instead */
         onKeyPressCapture?: KeyboardEventHandler<T> | undefined;
         onKeyUp?: KeyboardEventHandler<T> | undefined;
         onKeyUpCapture?: KeyboardEventHandler<T> | undefined;
@@ -2672,12 +2679,14 @@ declare namespace React {
 
         // Standard HTML Attributes
         accessKey?: string | undefined;
+        autoCapitalize?: "off" | "none" | "on" | "sentences" | "words" | "characters" | undefined | (string & {});
         autoFocus?: boolean | undefined;
         className?: string | undefined;
         contentEditable?: Booleanish | "inherit" | "plaintext-only" | undefined;
         contextMenu?: string | undefined;
         dir?: string | undefined;
         draggable?: Booleanish | undefined;
+        enterKeyHint?: "enter" | "done" | "go" | "next" | "previous" | "search" | "send" | undefined;
         hidden?: boolean | undefined;
         id?: string | undefined;
         lang?: string | undefined;
@@ -2709,7 +2718,6 @@ declare namespace React {
         vocab?: string | undefined;
 
         // Non-standard Attributes
-        autoCapitalize?: string | undefined;
         autoCorrect?: string | undefined;
         autoSave?: string | undefined;
         color?: string | undefined;
@@ -2758,7 +2766,7 @@ declare namespace React {
         action?:
             | string
             | undefined
-            | ((formData: FormData) => void)
+            | ((formData: FormData) => void | Promise<void>)
             | DO_NOT_USE_OR_YOU_WILL_BE_FIRED_EXPERIMENTAL_FORM_ACTIONS[
                 keyof DO_NOT_USE_OR_YOU_WILL_BE_FIRED_EXPERIMENTAL_FORM_ACTIONS
             ];
@@ -2793,7 +2801,7 @@ declare namespace React {
         formAction?:
             | string
             | undefined
-            | ((formData: FormData) => void)
+            | ((formData: FormData) => void | Promise<void>)
             | DO_NOT_USE_OR_YOU_WILL_BE_FIRED_EXPERIMENTAL_FORM_ACTIONS[
                 keyof DO_NOT_USE_OR_YOU_WILL_BE_FIRED_EXPERIMENTAL_FORM_ACTIONS
             ];
@@ -2926,7 +2934,7 @@ declare namespace React {
         form?: string | undefined;
         formAction?:
             | string
-            | ((formData: FormData) => void)
+            | ((formData: FormData) => void | Promise<void>)
             | DO_NOT_USE_OR_YOU_WILL_BE_FIRED_EXPERIMENTAL_FORM_ACTIONS[
                 keyof DO_NOT_USE_OR_YOU_WILL_BE_FIRED_EXPERIMENTAL_FORM_ACTIONS
             ]
@@ -2992,7 +3000,7 @@ declare namespace React {
         action?:
             | string
             | undefined
-            | ((formData: FormData) => void)
+            | ((formData: FormData) => void | Promise<void>)
             | DO_NOT_USE_OR_YOU_WILL_BE_FIRED_EXPERIMENTAL_FORM_ACTIONS[
                 keyof DO_NOT_USE_OR_YOU_WILL_BE_FIRED_EXPERIMENTAL_FORM_ACTIONS
             ];
@@ -3145,11 +3153,10 @@ declare namespace React {
         capture?: boolean | "user" | "environment" | undefined; // https://www.w3.org/TR/html-media-capture/#the-capture-attribute
         checked?: boolean | undefined;
         disabled?: boolean | undefined;
-        enterKeyHint?: "enter" | "done" | "go" | "next" | "previous" | "search" | "send" | undefined;
         form?: string | undefined;
         formAction?:
             | string
-            | ((formData: FormData) => void)
+            | ((formData: FormData) => void | Promise<void>)
             | DO_NOT_USE_OR_YOU_WILL_BE_FIRED_EXPERIMENTAL_FORM_ACTIONS[
                 keyof DO_NOT_USE_OR_YOU_WILL_BE_FIRED_EXPERIMENTAL_FORM_ACTIONS
             ]
@@ -3212,6 +3219,9 @@ declare namespace React {
         sizes?: string | undefined;
         type?: string | undefined;
         charSet?: string | undefined;
+
+        // React props
+        precedence?: string | undefined;
     }
 
     interface MapHTMLAttributes<T> extends HTMLAttributes<T> {
@@ -3346,6 +3356,10 @@ declare namespace React {
         media?: string | undefined;
         scoped?: boolean | undefined;
         type?: string | undefined;
+
+        // React props
+        href?: string | undefined;
+        precedence?: string | undefined;
     }
 
     interface TableHTMLAttributes<T> extends HTMLAttributes<T> {

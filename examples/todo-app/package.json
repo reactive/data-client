@@ -33,10 +33,10 @@
     "@linaria/core": "6.2.0",
     "@linaria/react": "6.2.1",
     "@linaria/shaker": "5.0.3",
-    "@types/react": "npm:types-react@19.0.0-rc.1",
-    "@types/react-dom": "npm:types-react-dom@19.0.0",
+    "@types/react": "19.0.0",
+    "@types/react-dom": "19.0.0",
     "@types/uuid": "^10.0.0",
-    "react-refresh": "0.14.2",
+    "react-refresh": "0.16.0",
     "webpack": "5.96.1",
     "webpack-cli": "5.1.4",
     "webpack-dev-server": "5.1.0"
@@ -45,8 +45,8 @@
     "@data-client/endpoint": "^0.14.0",
     "@data-client/react": "^0.14.0",
     "@data-client/rest": "^0.14.0",
-    "react": "19.0.0-rc.1",
-    "react-dom": "19.0.0-rc.1",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
     "uuid": "^11.0.0"
   },
   "packageManager": "yarn@4.5.3"

@@ -51,12 +51,11 @@ See https://dataclient.io/docs/guides/ssr.`,
     );
   }
   // contents of this component expected to be relatively stable
-  const controllerRef: React.MutableRefObject<DataController> =
-    useRef<any>(undefined);
+  const controllerRef: React.RefObject<DataController> = useRef<any>(undefined);
   if (!controllerRef.current) controllerRef.current = new Controller();
   //TODO: bind all methods so destructuring works
 
-  const managersRef: React.MutableRefObject<Manager[]> = useRef<any>(managers);
+  const managersRef: React.RefObject<Manager[]> = useRef<any>(managers);
   if (!managersRef.current) managersRef.current = getDefaultManagers();
 
   // run in a useEffect in DataStore
