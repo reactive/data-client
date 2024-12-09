@@ -204,9 +204,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/babel-preset@npm:6.0.10, @anansi/babel-preset@npm:^6.0.0":
-  version: 6.0.10
-  resolution: "@anansi/babel-preset@npm:6.0.10"
+"@anansi/babel-preset@npm:6.0.11, @anansi/babel-preset@npm:^6.0.0":
+  version: 6.0.11
+  resolution: "@anansi/babel-preset@npm:6.0.11"
   dependencies:
     "@anansi/ts-utils": "npm:^0.3.7"
     "@babel/plugin-proposal-decorators": "npm:^7.25.9"
@@ -259,7 +259,7 @@ __metadata:
       optional: true
     typescript:
       optional: true
-  checksum: 10c0/a36870379fa3e31d30ee50ba8a331075dd77d74099e3431d872b8f2115e75f0ea89e1196f22e4616cdb405354303da348c4de42bac61f7f13fbfa2c7e8bf7cf4
+  checksum: 10c0/51436cd32d059588c2704b7cd080af54dd1e9020d6983ac7cd18a7a237a645f9057a5047e5d029983ed564dc70218bef07b8cf8e85855b49e31da11fefc470d3
   languageName: node
   linkType: hard
 
@@ -453,9 +453,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:20.0.12, @anansi/webpack-config@npm:^20.0.0":
-  version: 20.0.12
-  resolution: "@anansi/webpack-config@npm:20.0.12"
+"@anansi/webpack-config@npm:20.0.13, @anansi/webpack-config@npm:^20.0.0":
+  version: 20.0.13
+  resolution: "@anansi/webpack-config@npm:20.0.13"
   dependencies:
     "@babel/runtime": "npm:^7.17.2"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.15"
@@ -556,7 +556,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: 10c0/b2dafb9d26890af291ad81c44f0ffe8944a9c322356083490b2532c9ef1f7e595502ba3d02534aaf4320e257d0ae7a662f6e16ea242167792729084a7248b2d6
+  checksum: 10c0/cd501c23e93729dab4091367bd1b289fe30a58254d02cdcc6723ba3ebc244965e4f22b1e143814625d0dd6eae88785b988fc9a8c90014441e4f08c41c2d33b04
   languageName: node
   linkType: hard
 
@@ -25148,7 +25148,7 @@ __metadata:
   resolution: "rdc-website@workspace:website"
   dependencies:
     "@anansi/browserslist-config": "npm:1.5.1"
-    "@anansi/webpack-config": "npm:20.0.12"
+    "@anansi/webpack-config": "npm:20.0.13"
     "@data-client/endpoint": "workspace:*"
     "@data-client/graphql": "workspace:*"
     "@data-client/react": "workspace:*"
@@ -26717,7 +26717,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    "@anansi/babel-preset": "npm:6.0.10"
+    "@anansi/babel-preset": "npm:6.0.11"
     "@anansi/browserslist-config": "npm:1.5.1"
     "@anansi/eslint-plugin": "npm:1.0.19"
     "@anansi/jest-preset": "npm:0.11.8"
