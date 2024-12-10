@@ -137,7 +137,7 @@
     "@data-client/redux": "^0.13.0",
     "@types/node": "^22.0.0",
     "@types/react": "19.0.1",
-    "@types/react-dom": "19.0.1",
+    "@types/react-dom": "19.0.2",
     "next": "^15.0.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
