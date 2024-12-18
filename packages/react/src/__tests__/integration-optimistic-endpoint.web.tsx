@@ -462,6 +462,9 @@ describe.each([
           ],
         },
       );
+      await act(async () => {
+        await new Promise(resolve => setTimeout(resolve, 0));
+      });
 
       const fetches: Promise<any>[] = [];
       const resolves: ((v: any) => void)[] = [];
@@ -493,7 +496,7 @@ describe.each([
         }),
       );
       await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 0));
+        await new Promise(resolve => setTimeout(resolve, 1));
       });
 
       // second optimistic
@@ -607,6 +610,9 @@ describe.each([
           ],
         },
       );
+      await act(async () => {
+        await new Promise(resolve => setTimeout(resolve, 1));
+      });
 
       const fetches: Promise<any>[] = [];
       const resolves: ((v: any) => void)[] = [];
