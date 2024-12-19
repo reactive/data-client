@@ -19,7 +19,7 @@
     "@types/react": "19.0.2",
     "@types/react-dom": "19.0.2",
     "clsx": "^2.1.1",
-    "next": "15.1.1",
+    "next": "15.1.2",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "tar-fs": "^3.0.6",
