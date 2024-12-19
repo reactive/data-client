@@ -13,6 +13,9 @@
     "build:profile": "webpack --mode=production --env profile",
     "test:pkg": "webpack --env check=nobuild"
   },
+  "engines": {
+    "node": ">=18.0"
+  },
   "stackblitz": {
     "startCommand": "npm start"
   },

@@ -16,6 +16,9 @@
   "stackblitz": {
     "startCommand": "npm start"
   },
+  "engines": {
+    "node": ">=18.0"
+  },
   "browserslist": "extends @anansi/browserslist-config",
   "keywords": [
     "anansi"

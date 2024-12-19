@@ -9,6 +9,9 @@
     "start": "next start",
     "lint": "yarn g:lint"
   },
+  "engines": {
+    "node": ">=18.0"
+  },
   "dependencies": {
     "@anansi/babel-preset": "^6.0.0",
     "@babel/core": "^7.24.7",

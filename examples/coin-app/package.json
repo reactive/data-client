@@ -16,6 +16,9 @@
     "test:pkg": "webpack --env check=nobuild",
     "postinstall": "rm -rf node_modules/.cache"
   },
+  "engines": {
+    "node": ">=18.0"
+  },
   "browserslist": "extends @anansi/browserslist-config",
   "keywords": [
     "anansi"
