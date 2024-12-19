@@ -86,7 +86,7 @@
     "@anansi/browserslist-config": "^1.4.2",
     "@data-client/react": "workspace:*",
     "@types/node": "^22.0.0",
-    "@types/react": "19.0.1",
+    "@types/react": "19.0.2",
     "react": "19.0.0"
   }
 }

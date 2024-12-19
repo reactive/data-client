@@ -190,7 +190,7 @@
     "@react-navigation/native": "^7.0.0",
     "@types/node": "^22.0.0",
     "@types/qs": "^6",
-    "@types/react": "19.0.1",
+    "@types/react": "19.0.2",
     "qs": "^6.13.1",
     "react": "19.0.0",
     "react-native": "^0.76.0"
