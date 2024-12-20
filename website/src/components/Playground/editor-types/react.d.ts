@@ -132,7 +132,7 @@ declare namespace React {
     type JSXElementConstructor<P> =
         | ((
             props: P,
-        ) => ReactNode)
+        ) => ReactNode | Promise<ReactNode>)
         // constructor signature must match React.Component
         | (new(props: P) => Component<any, any>);
 
@@ -1036,7 +1036,7 @@ declare namespace React {
      * ```
      */
     interface FunctionComponent<P = {}> {
-        (props: P): ReactNode;
+        (props: P): ReactNode | Promise<ReactNode>;
         /**
          * Ignored by React.
          * @deprecated Only kept in types for backwards compatibility. Will be removed in a future major release.
@@ -1835,10 +1835,11 @@ declare namespace React {
      * A good example of this is a text input.
      *
      * @param value The value that is going to be deferred
+     * @param initialValue A value to use during the initial render of a component. If this option is omitted, `useDeferredValue` will not defer during the initial render, because there’s no previous version of `value` that it can render instead.
      *
      * @see {@link https://react.dev/reference/react/useDeferredValue}
      */
-    export function useDeferredValue<T>(value: T): T;
+    export function useDeferredValue<T>(value: T, initialValue?: T): T;
 
     /**
      * Allows components to avoid undesirable loading states by waiting for content to load

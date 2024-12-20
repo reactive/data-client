@@ -1,7 +1,7 @@
 import { Endpoint, Entity } from '@data-client/endpoint';
 import { CacheProvider } from '@data-client/react';
 import { DataProvider as ExternalDataProvider } from '@data-client/react/redux';
-import { jest } from '@jest/globals';
+import { afterEach, jest } from '@jest/globals';
 import {
   OptimisticArticleResource,
   ArticleResourceWithOtherListUrl,
@@ -17,7 +17,7 @@ import { useContext } from 'react';
 
 import { makeRenderDataClient, act } from '../../../test';
 import { StateContext } from '../context';
-import { useCache, useController, useSuspense } from '../hooks';
+import { useCache, useSuspense } from '../hooks';
 import { useError } from '../hooks';
 import {
   payload,
@@ -446,6 +446,7 @@ describe.each([
     });
 
     it('should clear only earlier optimistic updates when a promise resolves', async () => {
+      jest.useFakeTimers({ legacyFakeTimers: false });
       const params = { id: payload.id };
       const { result, controller } = renderDataClient(
         () => {
@@ -462,9 +463,7 @@ describe.each([
           ],
         },
       );
-      await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 0));
-      });
+      jest.advanceTimersByTime(23);
 
       const fetches: Promise<any>[] = [];
       const resolves: ((v: any) => void)[] = [];
@@ -495,9 +494,7 @@ describe.each([
           content: 'firstoptimistic',
         }),
       );
-      await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 1));
-      });
+      jest.advanceTimersByTime(23);
 
       // second optimistic
       act(() => {
@@ -524,9 +521,7 @@ describe.each([
           content: 'firstoptimistic',
         }),
       );
-      await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 0));
-      });
+      jest.advanceTimersByTime(23);
 
       // third optimistic
       act(() => {
@@ -556,9 +551,7 @@ describe.each([
       );
 
       // resolve second request while first is in flight
-      act(() => {
-        setTimeout(() => resolves[1]({ ...payload, title: 'second' }), 1);
-      });
+      resolves[1]({ ...payload, title: 'second' });
       await act(() => fetches[1]);
 
       // first and second optimistic should be cleared with only third optimistic left to be layerd
@@ -573,16 +566,10 @@ describe.each([
 
       // resolve the first fetch; but the second fetch happened after so we use it first since this is default 'first fetchedAt' behavior
       // this can be solved by either canceling requests or having server send the total order
-      act(() => {
-        setTimeout(
-          () =>
-            resolves[0]({
-              ...payload,
-              title: 'first',
-              content: 'first',
-            }),
-          1,
-        );
+      resolves[0]({
+        ...payload,
+        title: 'first',
+        content: 'first',
       });
       await act(() => fetches[0]);
       expect(result.current.article).toEqual(
@@ -592,9 +579,12 @@ describe.each([
           tags: ['thirdoptimistic'],
         }),
       );
+      jest.useRealTimers();
+      await renderDataClient.allSettled();
     });
 
     it('should clear optimistic when server response resolves in order', async () => {
+      jest.useFakeTimers({ legacyFakeTimers: false });
       const params = { id: payload.id };
       const { result, controller } = renderDataClient(
         () => {
@@ -610,9 +600,7 @@ describe.each([
           ],
         },
       );
-      await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 1));
-      });
+      jest.advanceTimersByTime(23);
 
       const fetches: Promise<any>[] = [];
       const resolves: ((v: any) => void)[] = [];
@@ -643,9 +631,7 @@ describe.each([
           content: 'firstoptimistic',
         }),
       );
-      await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 0));
-      });
+      jest.advanceTimersByTime(23);
 
       // second optimistic
       act(() => {
@@ -672,9 +658,7 @@ describe.each([
           content: 'firstoptimistic',
         }),
       );
-      await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 0));
-      });
+      jest.advanceTimersByTime(23);
 
       // third optimistic
       act(() => {
@@ -702,11 +686,10 @@ describe.each([
           tags: ['thirdoptimistic'],
         }),
       );
+      jest.advanceTimersByTime(23);
 
       // resolve first request
-      act(() => {
-        setTimeout(() => resolves[0]({ ...payload, content: 'first' }), 0);
-      });
+      resolves[0]({ ...payload, content: 'first' });
       await act(() => fetches[0]);
 
       // replace optimistic with response
@@ -725,7 +708,7 @@ describe.each([
         title: 'second',
         content: 'first',
       });
-      await act(() => fetches[0]);
+      await act(() => fetches[1]);
       expect(result.current).toEqual(
         CoolerArticle.fromJS({
           ...payload,
@@ -742,7 +725,7 @@ describe.each([
         content: 'first',
         tags: ['third'],
       });
-      await act(() => fetches[0]);
+      await act(() => fetches[2]);
       expect(result.current).toEqual(
         CoolerArticle.fromJS({
           ...payload,
@@ -751,6 +734,8 @@ describe.each([
           tags: ['third'],
         }),
       );
+      jest.useRealTimers();
+      await renderDataClient.allSettled();
     });
 
     describe('race conditions', () => {
@@ -1033,11 +1018,16 @@ describe.each([
       });
 
       describe('with timestamps', () => {
+        beforeEach(() => {
+          jest.useFakeTimers({ legacyFakeTimers: false });
+        });
+        afterEach(() => {
+          jest.useRealTimers();
+        });
+        afterEach;
         it.each([VisSettingsResource, VisSettingsResourceFromMixin])(
           'should handle out of order server responses (%#)',
           async VisResource => {
-            jest.useFakeTimers({ legacyFakeTimers: false });
-
             const initVis = {
               id: 5,
               visType: 'graph',
@@ -1166,7 +1156,6 @@ describe.each([
             expect(result.current.vis).toEqual(finalObject);
 
             fetchSpy.mockClear();
-            jest.useRealTimers();
             await renderDataClient.allSettled();
           },
         );
