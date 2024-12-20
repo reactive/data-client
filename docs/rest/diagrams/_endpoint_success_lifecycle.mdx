@@ -8,24 +8,26 @@ flowchart LR
   subgraph managers
     NetworkManager-->endpoint("endpoint(...args)")
     endpoint--resolves-->Controller.resolve
-    Controller.resolve("Controller.resolve(response)")-->dispatchR("dispatch(SET)")
+    Controller.resolve("Controller.resolve(response)")-->dispatchR("dispatch(SET_RESPONSE)")
   end
   managers--FETCH-->reducer:FETCH
   Controller.fetch--FETCH-->managers
   subgraph reducer:FETCH
-    optimistic("Endpoint.?getOptimisticResponse()")-->SET
-    subgraph SET
+    optimistic("Endpoint.?getOptimisticResponse()")-->SET_RESPONSE
+    subgraph SET_RESPONSE
       normalize(normalize)-->update("Endpoint.update()")
     end
   end
-  subgraph reducer:SET
+  subgraph reducer:SET_RESPONSE
     direction LR
     normalize2(normalize)-->update2("Endpoint.update()")
   end
-  managers--SET-->reducer:SET
+  managers--SET_RESPONSE-->reducer:SET_RESPONSE
   click key "/rest/api/Endpoint#key"
   click NetworkManager "/docs/api/NetworkManager"
   click optimistic "/rest/api/Endpoint#getoptimisticresponse"
   click update "/rest/api/Endpoint#update"
   click update2 "/rest/api/Endpoint#update"
+  click dispatch "/docs/api/Actions#fetch"
+  click dispatchR "/docs/api/Actions#set_response"
 ```

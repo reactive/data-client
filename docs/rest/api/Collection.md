@@ -408,16 +408,16 @@ This is used by these creation schemas to determine which collections to add to.
 Default:
 
 ```ts
-const defaultFilter =
-  (urlParams: Record<string, any>, body?: Record<string, any>) =>
-  (collectionKey: Record<string, string>) =>
+createCollectionFilter(...args: Args) {
+  return (collectionKey: Record<string, string>) =>
     Object.entries(collectionKey).every(
       ([key, value]) =>
-        key.startsWith('order') ||
-        // double equals lets us compare non-strings and strings
-        urlParams[key] == value ||
-        body?.[key] == value,
+        this.nonFilterArgumentKeys(key) ||
+        // strings are canonical form. See pk() above for value transformation
+        `${args[0][key]}` === value ||
+        `${args[1]?.[key]}` === value,
     );
+}
 ```
 
 ## Methods

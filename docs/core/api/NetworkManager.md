@@ -14,6 +14,20 @@ it is able to dedupe identical requests if they are made using the throttle flag
 
 :::
 
+## Lifecycle
+
+### Success
+
+import SuccessLifecycle from '../../rest/diagrams/\_endpoint_success_lifecycle.mdx';
+
+<SuccessLifecycle/>
+
+### Error
+
+import ErrorLifecycle from '../../rest/diagrams/\_endpoint_error_lifecycle.mdx';
+
+<ErrorLifecycle/>
+
 ## Members
 
 ### constructor(\{ dataExpiryLength = 60000, errorExpiryLength = 1000 }) {#constructor}

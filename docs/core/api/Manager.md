@@ -357,5 +357,6 @@ export default class CustomSubsManager implements Manager {
 By `return Promise.resolve();` instead of calling `next(action)`, we prevent managers listed
 after this one from seeing that [action](./Actions.md).
 
-Types: `FETCH`, `SET`, `SET_RESPONSE`, `RESET`, `SUBSCRIBE`,
-`UNSUBSCRIBE`, `INVALIDATE`, `INVALIDATEALL`, `EXPIREALL`
+Types: [`FETCH`](./Actions.md#fetch), [`SET`](./Actions.md#set), [`SET_RESPONSE`](./Actions.md#set_response),
+[`RESET`](./Actions.md#reset), [`SUBSCRIBE`](./Actions.md#subscribe), [`UNSUBSCRIBE`](./Actions.md#unsubscribe),
+[`INVALIDATE`](./Actions.md#invalidate), [`INVALIDATEALL`](./Actions.md#invalidateall), [`EXPIREALL`](./Actions.md#expireall)

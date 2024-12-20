@@ -294,7 +294,7 @@
 - [#3141](https://github.com/reactive/data-client/pull/3141) [`d225595`](https://github.com/reactive/data-client/commit/d2255959489b71cfdfcaf4be72fd272231d392f1) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: setResponseAction.payload -> setResponseAction.response
 
   This only affects those writing custom [Managers](https://dataclient.io/docs/concepts/managers) that
-  inspect `SET_RESPONSE_TYPE` `action.payload`.
+  handle [SET_RESPONSE](/docs/api/Actions#set_response).
 
   #### Before
 
@@ -386,7 +386,7 @@
 - [#3141](https://github.com/reactive/data-client/pull/3141) [`d225595`](https://github.com/reactive/data-client/commit/d2255959489b71cfdfcaf4be72fd272231d392f1) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: remove fetchAction.payload
 
   This only affects those writing custom [Managers](https://dataclient.io/docs/concepts/managers) that
-  inspect `FETCH_TYPE` `action.fetch`.
+  handle [FETCH](/docs/api/Actions#fetch).
 
   #### Before
 
@@ -402,7 +402,7 @@
       switch (action.type) {
         case FETCH_TYPE:
           // consume fetch, and print the resolution
-          action.fetch().then(response => console.log(response));
+          action.payload().then(response => console.log(response));
         default:
           return next(action);
       }
@@ -428,7 +428,6 @@
           // consume fetch, and print the resolution
           action
             .endpoint(...action.meta.args)
-            .fetch()
             .then(response => console.log(response));
         default:
           return next(action);
