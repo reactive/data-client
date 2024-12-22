@@ -9,9 +9,9 @@ export function createSubscription<E extends EndpointInterface>(
 ): SubscribeAction<E> {
   return {
     type: SUBSCRIBE,
-    endpoint,
-    args,
     key: endpoint.key(...args),
+    args,
+    endpoint,
   };
 }
 
