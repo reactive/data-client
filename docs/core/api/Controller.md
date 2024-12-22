@@ -497,7 +497,7 @@ Gets the (globally referentially stable) response for a given endpoint/args pair
 
 The denormalize response data. Guarantees global referential stability for all members.
 
-#### expiryStatus
+#### [expiryStatus](../concepts/expiry-policy.md#expiry-status)
 
 ```ts
 export enum ExpiryStatus {
