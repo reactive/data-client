@@ -84,6 +84,7 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
+          name: Installing React Version
           command: |
             if [ "<< parameters.react-version >>" == "^17.0.0" ]; then
             YARN_ENABLE_GLOBAL_CACHE=false yarn remove @react-navigation/native @react-navigation/native-stack react-native-screens
@@ -97,9 +98,10 @@ jobs:
             YARN_ENABLE_GLOBAL_CACHE=false yarn workspaces foreach -W --include @data-client/img --include @data-client/react --include @data-client/ssr --include @data-client/test --include @data-client/use-enhanced-reducer add --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
             fi
       - run:
+          name: Running Jest
           command: |
             if [ "<< parameters.react-version >>" == "^17.0.0" ]; then
-              yarn test:ci --maxWorkers=3 --selectProjects ReactDOM ReactNative --testPathPattern packages/react packages/use-enhanced-reducer packages/img
+              ANANSI_JEST_TYPECHECK=false yarn test:ci --maxWorkers=3 --selectProjects ReactDOM ReactNative --testPathPattern packages/react packages/use-enhanced-reducer packages/img
             elif [ "<< parameters.react-version >>" == "^18" ]; then
               curl -Os https://uploader.codecov.io/latest/linux/codecov;
               chmod +x codecov;
