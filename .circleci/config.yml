@@ -3,11 +3,26 @@
 # Check https://circleci.com/docs/2.0/language-javascript/ for more details
 #
 version: 2.1
+executors:
+  node:
+    docker: &docker
+      - image: cimg/node:22.12
+    environment:
+      # the whole CI is reset each time anyway, so only track local cache
+      YARN_ENABLE_GLOBAL_CACHE: false
+      YARN_ENABLE_MIRROR: false
+
+      # Don't waste io
+      YARN_ENABLE_PROGRESS_BARS: false
+      YARN_ENABLE_INLINE_BUILDS: true
+      # Don't revalidate
+      YARN_ENABLE_SCRIPTS: false
+      # Keep install cache
+      YARN_ENABLE_IMMUTABLE_INSTALLS: true
+
 jobs:
   setup:
-    docker: &docker
-      # specify the version you desire here
-      - image: cimg/node:22.12
+    executor: node
     resource_class: large
     steps:
       - checkout:
@@ -18,44 +33,42 @@ jobs:
             npm pkg set 'workspaces[]'='examples/*'
       - restore_cache:
           keys:
-            - v12-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}
+            - v13-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}-{{ checksum "examples/todo-app/package.json" }}
             # fallback to using the latest cache if no exact match is found
-            - v12-dependencies-
+            - v13-dependencies-
       - run:
           name: yarn install
           command: |
-            sudo corepack enable
-            YARN_ENABLE_GLOBAL_CACHE=false YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn workspace todo-app add @data-client/endpoint@workspace:^ @data-client/react@workspace:^ @data-client/rest@workspace:^
-            YARN_ENABLE_GLOBAL_CACHE=false YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn workspace github-app add @data-client/graphql@workspace:^ @data-client/react@workspace:^ @data-client/rest@workspace:^
-            YARN_ENABLE_GLOBAL_CACHE=false YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install
+            yarn up @data-client/endpoint@workspace:^ @data-client/react@workspace:^ @data-client/rest@workspace:^
       - save_cache:
           paths:
             - .yarn/cache
             - .yarn/install-state.gz
-          key: v12-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}
+          key: v13-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}-{{ checksum "examples/todo-app/package.json" }}
       - run: yarn run ci:build:types
       - run: yarn run ci:build
       - persist_to_workspace:
           root: ~/
           paths:
             # explicitly list so we can ignore some directories that are not needed
-            - project/packages
+            - project/.yarn
+            - project/__tests__
             - project/examples
             - project/node_modules
-            - project/__tests__
+            - project/packages
             - project/scripts
+            - project/.yarnrc.yml
             - project/babel.config.js
+            - project/eslint.config.mjs
             - project/jest.config.js
+            - project/package.json
             - project/tsconfig-base.json
             - project/tsconfig.json
-            - project/eslint.config.mjs
-            - project/yarn.lock
             - project/tsconfig.test.json
-            - project/package.json
-            - project/.yarnrc.yml
-            - project/.yarn
+            - project/yarn.lock
+
   lint:
-    docker: *docker
+    executor: node
     resource_class: medium+
     steps:
       - attach_workspace:
@@ -65,7 +78,7 @@ jobs:
             yarn lint --quiet packages/*/src
 
   typecheck:
-    docker: *docker
+    executor: node
     resource_class: small
     steps:
       - attach_workspace:
@@ -78,7 +91,7 @@ jobs:
     parameters:
       react-version:
         type: string
-    docker: *docker
+    executor: node
     resource_class: large
     steps:
       - attach_workspace:
@@ -87,15 +100,15 @@ jobs:
           name: Installing React Version
           command: |
             if [ "<< parameters.react-version >>" == "^17.0.0" ]; then
-            YARN_ENABLE_GLOBAL_CACHE=false yarn remove @react-navigation/native @react-navigation/native-stack react-native-screens
-            YARN_ENABLE_GLOBAL_CACHE=false yarn workspace @data-client/react remove @react-navigation/native
-            YARN_ENABLE_GLOBAL_CACHE=false yarn add --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >> @testing-library/react@^12.0.0 @testing-library/react-hooks @react-navigation/native@^6.0.0  @react-navigation/native-stack@^6.0.0 react-native-screens@^3.0.0
-            YARN_ENABLE_GLOBAL_CACHE=false yarn workspaces foreach -W --include @data-client/img --include @data-client/react --include @data-client/ssr --include @data-client/test --include @data-client/use-enhanced-reducer add --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
-            YARN_ENABLE_GLOBAL_CACHE=false yarn workspace @data-client/react add @react-navigation/native@^6.0.0
-            YARN_ENABLE_GLOBAL_CACHE=false yarn workspace @data-client/test add @testing-library/react@^12.0.0
+            yarn remove @react-navigation/native @react-navigation/native-stack react-native-screens
+            yarn workspace @data-client/react remove @react-navigation/native
+            yarn add --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >> @testing-library/react@^12.0.0 @testing-library/react-hooks @react-navigation/native@^6.0.0  @react-navigation/native-stack@^6.0.0 react-native-screens@^3.0.0
+            yarn workspaces foreach -W --include @data-client/img --include @data-client/react --include @data-client/ssr --include @data-client/test --include @data-client/use-enhanced-reducer add --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
+            yarn workspace @data-client/react add @react-navigation/native@^6.0.0
+            yarn workspace @data-client/test add @testing-library/react@^12.0.0
             elif [ "<< parameters.react-version >>" == "^18" ]; then
-            YARN_ENABLE_GLOBAL_CACHE=false yarn add --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
-            YARN_ENABLE_GLOBAL_CACHE=false yarn workspaces foreach -W --include @data-client/img --include @data-client/react --include @data-client/ssr --include @data-client/test --include @data-client/use-enhanced-reducer add --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
+            yarn add --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
+            yarn workspaces foreach -W --include @data-client/img --include @data-client/react --include @data-client/ssr --include @data-client/test --include @data-client/use-enhanced-reducer add --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
             fi
       - run:
           name: Running Jest
@@ -133,7 +146,7 @@ jobs:
             ANANSI_JEST_TYPECHECK=false npm test --ci --maxWorkers=2 --selectProjects Node
 
   non-app-examples:
-    docker: *docker
+    executor: node
     resource_class: small
     steps:
       - attach_workspace:
@@ -147,24 +160,25 @@ jobs:
     parameters:
       typescript-version:
         type: string
-    docker: *docker
+    executor: node
     steps:
       - attach_workspace:
           at: ~/
       - run:
+          name: Install TypeScript Version
           command: |
             if [ "<< parameters.typescript-version >>" != "latest" ]; then
-              YARN_ENABLE_GLOBAL_CACHE=false yarn add --dev typescript@~<< parameters.typescript-version >>
+              yarn add --dev typescript@~<< parameters.typescript-version >>
             fi
             if [[ "<< parameters.typescript-version >>" == "4.0" || \
             "<< parameters.typescript-version >>" == "4.1" || \
             "<< parameters.typescript-version >>" == "4.3" ]]; then
               sed -i '/"@types\/react":/d' package.json
               sed -i '/"@types\/react-dom":/d' package.json
-              YARN_ENABLE_GLOBAL_CACHE=false yarn workspaces foreach -Rt --from github-app --from todo-app add -DE @types/react@ts<< parameters.typescript-version >>
+              yarn workspaces foreach -Rt --from github-app --from todo-app add -DE @types/react@ts<< parameters.typescript-version >>
             fi
       - run:
-          name: typecheck
+          name: Run Typecheck
           command: |
             if [ "<< parameters.typescript-version >>" == "latest" ] || [ "<< parameters.typescript-version >>" == "5.3" ] || [ "<< parameters.typescript-version >>" == "4.8" ]; then
             yarn run tsc --project examples/todo-app/tsconfig.json
@@ -177,12 +191,12 @@ jobs:
             fi
 
   esmodule-loosenulltypes:
-    docker: *docker
+    executor: node
     steps:
       - attach_workspace:
           at: ~/
       - run:
-          name: typecheck
+          name: Run Typecheck
           command: |
             yarn run tsc --project examples/todo-app/tsconfig.json --strictNullChecks false
             yarn run tsc --project examples/github-app/tsconfig.json --strictNullChecks false
@@ -191,19 +205,19 @@ jobs:
             yarn run tsc --project examples/todo-app/tsconfig.typetest41.json --strictNullChecks false
 
   esmodule-exactOptionalPropertyTypes:
-    docker: *docker
+    executor: node
     steps:
       - attach_workspace:
           at: ~/
       - run:
-          name: typecheck
+          name: Run Typecheck
           command: |
             yarn run tsc --project examples/todo-app/tsconfig.typetest.json --exactOptionalPropertyTypes true
             yarn run tsc --project examples/github-app/tsconfig.typetest.json --exactOptionalPropertyTypes true
             yarn run tsc --project examples/todo-app/tsconfig.typetest41.json --exactOptionalPropertyTypes true
 
   validate-esmodule-browser-build:
-    docker: *docker
+    executor: node
     steps:
       - attach_workspace:
           at: ~/
