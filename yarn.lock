@@ -21795,14 +21795,6 @@ __metadata:
     "@data-client/normalizr": "workspace:^"
     "@types/babel__core": "npm:^7"
     mockdate: "npm:^3.0.5"
-    rollup: "npm:2.79.2"
-    rollup-plugin-babel: "npm:^4.4.0"
-    rollup-plugin-commonjs: "npm:^10.1.0"
-    rollup-plugin-filesize: "npm:^9.1.2"
-    rollup-plugin-json: "npm:^4.0.0"
-    rollup-plugin-node-resolve: "npm:^5.2.0"
-    rollup-plugin-replace: "npm:^2.2.0"
-    rollup-plugin-terser: "npm:^7.0.2"
   languageName: unknown
   linkType: soft
 

@@ -28,7 +28,7 @@ jobs:
       - checkout:
           depth: 1
       - run:
-          name: examples use local packages
+          name: Add examples/* to yarn workspace
           command: |
             npm pkg set 'workspaces[]'='examples/*'
       - restore_cache:
@@ -46,7 +46,7 @@ jobs:
             - .yarn/install-state.gz
           key: v13-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}-{{ checksum "examples/todo-app/package.json" }}
       - run: yarn run ci:build:types
-      - run: yarn run ci:build
+      - run: yarn run ci:build-test-lib
       - persist_to_workspace:
           root: ~/
           paths:
@@ -69,7 +69,7 @@ jobs:
 
   lint:
     executor: node
-    resource_class: medium+
+    resource_class: medium
     steps:
       - attach_workspace:
           at: ~/
@@ -127,6 +127,7 @@ jobs:
     parameters:
       node-version:
         type: string
+    executor: node
     docker:
       - image: cimg/node:<< parameters.node-version >>
     steps:
@@ -140,16 +141,20 @@ jobs:
           command: |
             ANANSI_JEST_TYPECHECK=false npm test --ci --maxWorkers=2 --selectProjects Node
 
-  non-app-examples:
+  setup-esmodule-types:
     executor: node
-    resource_class: small
+    resource_class: large
     steps:
       - attach_workspace:
           at: ~/
       - run:
-          command: |
-            cd examples/normalizr-relationships
-            yarn run start
+          name: Build Legacy Types
+          command: yarn run ci:build:legacy-types
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            # explicitly list so we can ignore some directories that are not needed
+            - project/packages/*/ts*
 
   esmodule-types:
     parameters:
@@ -162,30 +167,26 @@ jobs:
       - run:
           name: Install TypeScript Version
           command: |
-            if [ "<< parameters.typescript-version >>" != "latest" ]; then
-              yarn up typescript@~<< parameters.typescript-version >>
-            fi
+            yarn up typescript@~<< parameters.typescript-version >>
             if [[ "<< parameters.typescript-version >>" == "4.0" || \
             "<< parameters.typescript-version >>" == "4.1" || \
             "<< parameters.typescript-version >>" == "4.3" ]]; then
-              sed -i '/"@types\/react":/d' package.json
-              sed -i '/"@types\/react-dom":/d' package.json
               yarn up @types/react@ts<< parameters.typescript-version >>
             fi
       - run:
           name: Run Typecheck
           command: |
-            if [ "<< parameters.typescript-version >>" == "latest" ] || [ "<< parameters.typescript-version >>" == "5.3" ] || [ "<< parameters.typescript-version >>" == "4.8" ]; then
+            if [ "<< parameters.typescript-version >>" == "5.3" ] || [ "<< parameters.typescript-version >>" == "4.8" ]; then
             yarn run tsc --project examples/todo-app/tsconfig.json
             yarn run tsc --project examples/github-app/tsconfig.json
             fi
-            yarn run tsc --project examples/todo-app/tsconfig.typetest.json
-            yarn run tsc --project examples/github-app/tsconfig.typetest.json
             if [ "<< parameters.typescript-version >>" != "4.0" ]; then
             yarn run tsc --project examples/todo-app/tsconfig.typetest41.json
             fi
+            yarn run tsc --project examples/todo-app/tsconfig.typetest.json
+            yarn run tsc --project examples/github-app/tsconfig.typetest.json
 
-  esmodule-loosenulltypes:
+  esmodule-types-latest:
     executor: node
     steps:
       - attach_workspace:
@@ -193,20 +194,16 @@ jobs:
       - run:
           name: Run Typecheck
           command: |
+            yarn run tsc --project examples/todo-app/tsconfig.json
+            yarn run tsc --project examples/github-app/tsconfig.json
+            yarn run tsc --project examples/todo-app/tsconfig.typetest.json
+            yarn run tsc --project examples/github-app/tsconfig.typetest.json
+            yarn run tsc --project examples/todo-app/tsconfig.typetest41.json
             yarn run tsc --project examples/todo-app/tsconfig.json --strictNullChecks false
             yarn run tsc --project examples/github-app/tsconfig.json --strictNullChecks false
             yarn run tsc --project examples/todo-app/tsconfig.typetest.json --strictNullChecks false
             yarn run tsc --project examples/github-app/tsconfig.typetest.json --strictNullChecks false
             yarn run tsc --project examples/todo-app/tsconfig.typetest41.json --strictNullChecks false
-
-  esmodule-exactOptionalPropertyTypes:
-    executor: node
-    steps:
-      - attach_workspace:
-          at: ~/
-      - run:
-          name: Run Typecheck
-          command: |
             yarn run tsc --project examples/todo-app/tsconfig.typetest.json --exactOptionalPropertyTypes true
             yarn run tsc --project examples/github-app/tsconfig.typetest.json --exactOptionalPropertyTypes true
             yarn run tsc --project examples/todo-app/tsconfig.typetest41.json --exactOptionalPropertyTypes true
@@ -216,10 +213,15 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/
+      - run: yarn run ci:build:esmodule
       - run:
           command: |
             cd examples/todo-app
             npm run build:browser -- --env readable
+      - run:
+          command: |
+            cd examples/normalizr-relationships
+            yarn run start
 
 workflows:
   version: 2
@@ -244,10 +246,13 @@ workflows:
       - typecheck:
           requires:
             - setup
-      - non-app-examples:
+      - validate-esmodule-browser-build:
           requires:
             - setup
-      - validate-esmodule-browser-build:
+      - esmodule-types-latest:
+          requires:
+            - setup
+      - setup-esmodule-types:
           requires:
             - setup
       - esmodule-types:
@@ -258,12 +263,6 @@ workflows:
               # 4.1 is min version for rest package working well
               # 4.3
               # 4.7 (but its broken so we do 4.8) lets you apply a generic type to a function type to see its return value
-              typescript-version: ["4.0", "4.1", "4.3", "4.8", "5.3", "latest"]
+              typescript-version: ["4.0", "4.1", "4.3", "4.8", "5.3"]
           requires:
-            - setup
-      - esmodule-loosenulltypes:
-          requires:
-            - setup
-      - esmodule-exactOptionalPropertyTypes:
-          requires:
-            - setup
+            - setup-esmodule-types
