@@ -100,15 +100,10 @@ jobs:
           name: Installing React Version
           command: |
             if [ "<< parameters.react-version >>" == "^17.0.0" ]; then
-            yarn remove @react-navigation/native @react-navigation/native-stack react-native-screens
-            yarn workspace @data-client/react remove @react-navigation/native
-            yarn add --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >> @testing-library/react@^12.0.0 @testing-library/react-hooks @react-navigation/native@^6.0.0  @react-navigation/native-stack@^6.0.0 react-native-screens@^3.0.0
-            yarn workspaces foreach -W --include @data-client/img --include @data-client/react --include @data-client/ssr --include @data-client/test --include @data-client/use-enhanced-reducer add --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
-            yarn workspace @data-client/react add @react-navigation/native@^6.0.0
-            yarn workspace @data-client/test add @testing-library/react@^12.0.0
+            yarn up react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >> @react-navigation/native@^6.0.0 @react-navigation/native-stack@^6.0.0 react-native-screens@^3.0.0 @testing-library/react@^12.0.0
+            yarn add --dev @testing-library/react-hooks 
             elif [ "<< parameters.react-version >>" == "^18" ]; then
-            yarn add --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
-            yarn workspaces foreach -W --include @data-client/img --include @data-client/react --include @data-client/ssr --include @data-client/test --include @data-client/use-enhanced-reducer add --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
+            yarn up react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
             fi
       - run:
           name: Running Jest
@@ -168,14 +163,14 @@ jobs:
           name: Install TypeScript Version
           command: |
             if [ "<< parameters.typescript-version >>" != "latest" ]; then
-              yarn add --dev typescript@~<< parameters.typescript-version >>
+              yarn up typescript@~<< parameters.typescript-version >>
             fi
             if [[ "<< parameters.typescript-version >>" == "4.0" || \
             "<< parameters.typescript-version >>" == "4.1" || \
             "<< parameters.typescript-version >>" == "4.3" ]]; then
               sed -i '/"@types\/react":/d' package.json
               sed -i '/"@types\/react-dom":/d' package.json
-              yarn workspaces foreach -Rt --from github-app --from todo-app add -DE @types/react@ts<< parameters.typescript-version >>
+              yarn up @types/react@ts<< parameters.typescript-version >>
             fi
       - run:
           name: Run Typecheck
