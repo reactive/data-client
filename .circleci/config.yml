@@ -30,12 +30,14 @@ jobs:
       - run:
           name: Add examples/* to yarn workspace
           command: |
-            npm pkg set 'workspaces[]'='examples/*'
+            npm pkg delete workspaces[4]
+            npm pkg set 'workspaces[]'='examples/todo-app'
+            npm pkg set 'workspaces[]'='examples/github-app'
       - restore_cache:
           keys:
-            - v13-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}-{{ checksum "examples/todo-app/package.json" }}
+            - v14-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}-{{ checksum "examples/todo-app/package.json" }}
             # fallback to using the latest cache if no exact match is found
-            - v13-dependencies-
+            - v14-dependencies-
       - run:
           name: yarn install
           command: |
@@ -44,7 +46,7 @@ jobs:
           paths:
             - .yarn/cache
             - .yarn/install-state.gz
-          key: v13-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}-{{ checksum "examples/todo-app/package.json" }}
+          key: v14-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}-{{ checksum "examples/todo-app/package.json" }}
       - run: yarn run ci:build:types
       - run: yarn run ci:build-test-lib
       - persist_to_workspace:
