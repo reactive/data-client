@@ -45,6 +45,7 @@
     "@docusaurus/theme-live-codeblock": "^3.0.1",
     "@docusaurus/theme-mermaid": "^3.0.1",
     "@js-temporal/polyfill": "^0.4.4",
+    "@mdx-js/react": "^3.1.0",
     "@monaco-editor/react": "^4.4.6",
     "@number-flow/react": "^0.4.0",
     "bignumber.js": "9.1.2",

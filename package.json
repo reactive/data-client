@@ -17,6 +17,7 @@
     "build:bundle": "yarn workspaces foreach -Wptiv --no-private run build:bundle",
     "build:clean": "yarn workspaces foreach -Wpti --no-private run build:clean",
     "build:types": "yarn build:copy:ambient && tsc --build && yarn workspaces foreach -Wpti --no-private run build:legacy-types",
+    "ci:build": "yarn ci:build:types && yarn workspaces foreach -Wptiv --no-private run build:lib",
     "ci:build:types": "yarn build:copy:ambient && tsc --build",
     "ci:build:legacy-types": "yarn workspaces foreach -WptivR -j 10 --from @data-client/react --from @data-client/rest --from @data-client/graphql run build:legacy-types",
     "ci:build-test-lib": "yarn workspace @data-client/test run build:lib && yarn workspace @data-client/test run build:bundle",
