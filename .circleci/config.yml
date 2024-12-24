@@ -31,8 +31,12 @@ jobs:
           name: Add examples/* to yarn workspace
           command: |
             npm pkg delete workspaces[4]
+            npm pkg delete workspaces[3]
+            npm pkg delete workspaces[2]
+            npm pkg delete workspaces[1]
             npm pkg set 'workspaces[]'='examples/todo-app'
             npm pkg set 'workspaces[]'='examples/github-app'
+            npm pkg set 'workspaces[]'='examples/normalizr-relationships'
       - restore_cache:
           keys:
             - v14-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}-{{ checksum "examples/todo-app/package.json" }}
@@ -55,7 +59,9 @@ jobs:
             # explicitly list so we can ignore some directories that are not needed
             - project/.yarn
             - project/__tests__
-            - project/examples
+            - project/examples/todo-app
+            - project/examples/github-app
+            - project/examples/normalizr-relationships
             - project/node_modules
             - project/packages
             - project/scripts
