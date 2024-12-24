@@ -39,9 +39,9 @@ jobs:
             npm pkg set 'workspaces[]'='examples/normalizr-relationships'
       - restore_cache:
           keys:
-            - v14-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}-{{ checksum "examples/todo-app/package.json" }}
+            - v15-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}-{{ checksum "examples/todo-app/package.json" }}
             # fallback to using the latest cache if no exact match is found
-            - v14-dependencies-
+            - v15-dependencies-
       - run:
           name: yarn install
           command: |
@@ -50,7 +50,7 @@ jobs:
           paths:
             - .yarn/cache
             - .yarn/install-state.gz
-          key: v14-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}-{{ checksum "examples/todo-app/package.json" }}
+          key: v15-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}-{{ checksum "examples/todo-app/package.json" }}
       - run: yarn run ci:build:types
       - run: yarn run ci:build-test-lib
       - persist_to_workspace:
@@ -62,10 +62,11 @@ jobs:
             - project/examples/todo-app
             - project/examples/github-app
             - project/examples/normalizr-relationships
-            - project/node_modules
             - project/packages
             - project/scripts
             - project/.yarnrc.yml
+            - project/.pnp.cjs
+            - project/.pnp.loader.mjs
             - project/babel.config.js
             - project/eslint.config.mjs
             - project/jest.config.js
@@ -108,9 +109,10 @@ jobs:
           command: |
             if [ "<< parameters.react-version >>" == "^17.0.0" ]; then
             yarn up react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >> @react-navigation/native@^6.0.0 @react-navigation/native-stack@^6.0.0 react-native-screens@^3.0.0 @testing-library/react@^12.0.0
-            yarn add --dev @testing-library/react-hooks 
+            yarn workspace @data-client/test add --dev @testing-library/react-hooks 
             elif [ "<< parameters.react-version >>" == "^18" ]; then
             yarn up react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
+            yarn workspace @data-client/test add --dev @testing-library/react-hooks 
             fi
       - run:
           name: Running Jest
@@ -127,7 +129,7 @@ jobs:
                 ./codecov < ./lcov.info || true;
               fi
             else
-              yarn test:ci --maxWorkers=4 --selectProjects Node ReactDOM --testPathPattern packages/react packages/use-enhanced-reducer packages/img
+              yarn test:ci --maxWorkers=4 --selectProjects ReactDOM --testPathPattern packages/react packages/use-enhanced-reducer packages/img
             fi
 
   node_matrix:
@@ -144,9 +146,15 @@ jobs:
           command: |
             node --version
       - run:
+          name: Install testing packages compatible with Node
+          command: |
+            yarn workspace @data-client/react add --dev @testing-library/react-hooks
+            yarn workspace @data-client/test add --dev @testing-library/react-hooks
+            yarn up react@18 react-dom@18 react-test-renderer@18
+      - run:
           # we must use npm because yarn 4 isn't compatible with legacy node versions
           command: |
-            ANANSI_JEST_TYPECHECK=false npm test --ci --maxWorkers=2 --selectProjects Node
+            ANANSI_JEST_TYPECHECK=false yarn test --ci --maxWorkers=2 --selectProjects Node
 
   setup-esmodule-types:
     executor: node
@@ -224,7 +232,7 @@ jobs:
       - run:
           command: |
             cd examples/todo-app
-            npm run build:browser -- --env readable
+            yarn run build:browser --env readable
       - run:
           command: |
             cd examples/normalizr-relationships
@@ -244,7 +252,7 @@ workflows:
       - node_matrix:
           matrix:
             parameters:
-              node-version: ["14.21", "16.19", "18.18", "20.12.2"]
+              node-version: ["18.18", "20.12.2"]
           requires:
             - setup
       - lint:

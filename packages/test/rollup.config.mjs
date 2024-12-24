@@ -1,9 +1,6 @@
-import babel from 'rollup-plugin-babel';
-import banner from 'rollup-plugin-banner2';
-import commonjs from 'rollup-plugin-commonjs';
-import resolve from 'rollup-plugin-node-resolve';
+import {babel, banner, commonjs, resolve} from 'rollup-plugins';
 
-import pkg from './package.json';
+import pkg from './package.json' with { type: 'json' };
 
 const dependencies = Object.keys(pkg.dependencies)
   .concat(Object.keys(pkg.peerDependencies))

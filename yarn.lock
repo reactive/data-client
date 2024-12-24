@@ -3107,15 +3107,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@data-client/core@npm:^0.14.16, @data-client/core@workspace:^, @data-client/core@workspace:packages/core":
+"@data-client/core@npm:^0.14.16, @data-client/core@workspace:*, @data-client/core@workspace:^, @data-client/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@data-client/core@workspace:packages/core"
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
+    "@data-client/endpoint": "workspace:*"
     "@data-client/normalizr": "npm:^0.14.16"
+    "@types/jest": "npm:^29.5.14"
     "@types/node": "npm:^22.0.0"
     flux-standard-action: "npm:^2.1.1"
+    rollup-plugins: "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -3125,8 +3128,14 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
+    "@data-client/core": "workspace:*"
+    "@data-client/normalizr": "workspace:*"
     "@js-temporal/polyfill": "npm:^0.4.4"
+    "@types/jest": "npm:^29.5.14"
     "@types/node": "npm:^22.0.0"
+    immutable: "npm:4.2.2"
+    nock: "npm:^13.5.6"
+    rollup-plugins: "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -3137,7 +3146,10 @@ __metadata:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
     "@data-client/endpoint": "npm:^0.14.17"
+    "@types/jest": "npm:^29.5.14"
     "@types/node": "npm:^22.0.0"
+    nock: "npm:^13.5.6"
+    rollup-plugins: "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -3149,9 +3161,12 @@ __metadata:
     "@babel/runtime": "npm:^7.17.0"
     "@data-client/endpoint": "npm:^0.14.17"
     "@data-client/react": "workspace:*"
+    "@testing-library/react": "npm:^16.1.0"
+    "@types/jest": "npm:^29.5.14"
     "@types/node": "npm:^22.0.0"
     "@types/react": "npm:19.0.2"
-    react: "npm:19.0.0"
+    react: "npm:^19.0.0"
+    rollup-plugins: "workspace:*"
   peerDependencies:
     "@data-client/react": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0 || ^0.5.0 || ^0.7.0 || ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^0.14.0
     "@types/react": ^16.14.0 || ^17.0.0 || ^18.0.0-0 || ^19.0.0
@@ -3177,8 +3192,12 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
+    "@data-client/endpoint": "workspace:*"
+    "@js-temporal/polyfill": "npm:^0.4.4"
+    "@types/jest": "npm:^29.5.14"
     "@types/node": "npm:^22.0.0"
     immutable: "npm:4.2.2"
+    rollup-plugins: "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -3189,14 +3208,31 @@ __metadata:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
     "@data-client/core": "npm:^0.14.16"
+    "@data-client/rest": "workspace:*"
+    "@data-client/test": "workspace:*"
     "@data-client/use-enhanced-reducer": "npm:^0.1.11"
+    "@jest/globals": "npm:^29.7.0"
+    "@js-temporal/polyfill": "npm:^0.4.4"
     "@react-navigation/native": "npm:^7.0.0"
+    "@react-navigation/native-stack": "npm:^7.2.0"
+    "@testing-library/dom": "npm:^10.4.0"
+    "@testing-library/react": "npm:^16.1.0"
+    "@testing-library/react-native": "npm:^12.9.0"
+    "@types/jest": "npm:^29.5.14"
     "@types/node": "npm:^22.0.0"
     "@types/qs": "npm:^6"
     "@types/react": "npm:19.0.2"
+    "@types/react-dom": "npm:*"
+    jest-mock: "npm:^29.7.0"
+    nock: "npm:^13.5.6"
     qs: "npm:^6.13.1"
     react: "npm:19.0.0"
-    react-native: "npm:^0.76.0"
+    react-dom: "npm:^19.0.0"
+    react-native: "npm:0.76.5"
+    react-native-safe-area-context: "npm:^5.0.0"
+    react-native-screens: "npm:^4.1.0"
+    react-test-renderer: "npm:^19.0.0"
+    rollup-plugins: "workspace:*"
   peerDependencies:
     "@react-navigation/native": ^6.0.0 || ^7.0.0
     "@types/react": ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0-0 || ^19.0.0
@@ -3234,8 +3270,13 @@ __metadata:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.17.0"
     "@data-client/endpoint": "npm:^0.14.17"
+    "@data-client/react": "workspace:*"
+    "@data-client/test": "workspace:*"
+    "@types/jest": "npm:^29.5.14"
     "@types/node": "npm:^22.0.0"
+    nock: "npm:^13.5.6"
     path-to-regexp: "npm:^6.3.0"
+    rollup-plugins: "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -3254,6 +3295,7 @@ __metadata:
     react: "npm:19.0.0"
     react-dom: "npm:19.0.0"
     redux: "npm:^5.0.0"
+    rollup-plugins: "workspace:*"
   peerDependencies:
     "@data-client/react": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0 || ^0.5.0 || ^0.7.0 || ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^0.14.0
     "@data-client/redux": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0 || ^0.5.0 || ^0.7.0 || ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^0.14.0
@@ -3287,6 +3329,9 @@ __metadata:
     jest: "npm:^29.5.0"
     react: "npm:19.0.0"
     react-dom: "npm:19.0.0"
+    react-native: "npm:*"
+    react-test-renderer: "npm:*"
+    rollup-plugins: "workspace:*"
   peerDependencies:
     "@data-client/react": ^0.12.15 || ^0.13.0 || ^0.14.0
     "@testing-library/react-hooks": ^8.0.0
@@ -3320,8 +3365,11 @@ __metadata:
   resolution: "@data-client/use-enhanced-reducer@workspace:packages/use-enhanced-reducer"
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
+    "@types/jest": "npm:^29.5.14"
     "@types/node": "npm:^22.0.0"
     "@types/react": "npm:19.0.2"
+    react: "npm:^19.0.0"
+    rollup-plugins: "workspace:*"
   peerDependencies:
     "@types/react": ^16.14.0 || ^17.0.0 || ^18.0.0-0 || ^18.0.0 || ^19.0.0-0 || ^19.0.0
     react: ^16.14.0 || ^17.0.0 || ^18.0.0-0 || ^18.0.0 || ^19.0.0-0 || ^19.0.0
@@ -6288,7 +6336,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-navigation/native-stack@npm:^7.0.0":
+"@react-navigation/native-stack@npm:^7.0.0, @react-navigation/native-stack@npm:^7.2.0":
   version: 7.2.0
   resolution: "@react-navigation/native-stack@npm:7.2.0"
   dependencies:
@@ -6788,7 +6836,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react-native@npm:12.9.0, @testing-library/react-native@npm:^12.0.1":
+"@testing-library/react-native@npm:12.9.0, @testing-library/react-native@npm:^12.0.1, @testing-library/react-native@npm:^12.9.0":
   version: 12.9.0
   resolution: "@testing-library/react-native@npm:12.9.0"
   dependencies:
@@ -6807,7 +6855,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react@npm:16.1.0, @testing-library/react@npm:^16.0.0":
+"@testing-library/react@npm:16.1.0, @testing-library/react@npm:^16.0.0, @testing-library/react@npm:^16.1.0":
   version: 16.1.0
   resolution: "@testing-library/react@npm:16.1.0"
   dependencies:
@@ -7516,7 +7564,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:29.5.14, @types/jest@npm:^29.5.0":
+"@types/jest@npm:29.5.14, @types/jest@npm:^29.5.0, @types/jest@npm:^29.5.14":
   version: 29.5.14
   resolution: "@types/jest@npm:29.5.14"
   dependencies:
@@ -11026,7 +11074,7 @@ __metadata:
     react: "npm:^19.0.0"
     react-dom: "npm:^19.0.0"
     react-refresh: "npm:*"
-    typescript: "npm:5.7"
+    typescript: "npm:5.7.2"
     webpack: "npm:*"
     webpack-cli: "npm:*"
   languageName: unknown
@@ -13568,7 +13616,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"enhanced-resolve@npm:^5.15.0, enhanced-resolve@npm:^5.17.1, enhanced-resolve@npm:^5.18.0, enhanced-resolve@npm:^5.7.0":
+"enhanced-resolve@npm:^5.15.0, enhanced-resolve@npm:^5.17.1, enhanced-resolve@npm:^5.7.0":
+  version: 5.17.1
+  resolution: "enhanced-resolve@npm:5.17.1"
+  dependencies:
+    graceful-fs: "npm:^4.2.4"
+    tapable: "npm:^2.2.0"
+  checksum: 10c0/81a0515675eca17efdba2cf5bad87abc91a528fc1191aad50e275e74f045b41506167d420099022da7181c8d787170ea41e4a11a0b10b7a16f6237daecb15370
+  languageName: node
+  linkType: hard
+
+"enhanced-resolve@npm:^5.18.0":
   version: 5.18.0
   resolution: "enhanced-resolve@npm:5.18.0"
   dependencies:
@@ -17910,7 +17968,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"is-typed-array@npm:^1.1.13, is-typed-array@npm:^1.1.14, is-typed-array@npm:^1.1.15, is-typed-array@npm:^1.1.3":
+"is-typed-array@npm:^1.1.13, is-typed-array@npm:^1.1.3":
+  version: 1.1.13
+  resolution: "is-typed-array@npm:1.1.13"
+  dependencies:
+    which-typed-array: "npm:^1.1.14"
+  checksum: 10c0/fa5cb97d4a80e52c2cc8ed3778e39f175a1a2ae4ddf3adae3187d69586a1fd57cfa0b095db31f66aa90331e9e3da79184cea9c6abdcd1abc722dc3c3edd51cca
+  languageName: node
+  linkType: hard
+
+"is-typed-array@npm:^1.1.14, is-typed-array@npm:^1.1.15":
   version: 1.1.15
   resolution: "is-typed-array@npm:1.1.15"
   dependencies:
@@ -21712,6 +21779,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nock@npm:^13.5.6":
+  version: 13.5.6
+  resolution: "nock@npm:13.5.6"
+  dependencies:
+    debug: "npm:^4.1.0"
+    json-stringify-safe: "npm:^5.0.1"
+    propagate: "npm:^2.0.0"
+  checksum: 10c0/94249a294176a6e521bbb763c214de4aa6b6ab63dff1e299aaaf455886a465d38906891d7f24570d94a43b1e376c239c54d89ff7697124bc57ef188006acc25e
+  languageName: node
+  linkType: hard
+
 "node-abort-controller@npm:^3.1.1":
   version: 3.1.1
   resolution: "node-abort-controller@npm:3.1.1"
@@ -25472,7 +25550,7 @@ __metadata:
     react-json-tree: "npm:0.19.0"
     react-live: "npm:^4.0.0"
     serve: "npm:14.2.4"
-    typescript: "npm:5.7"
+    typescript: "npm:5.7.2"
     uuid: "npm:^11.0.0"
     webpack: "npm:^5.76.0"
   languageName: unknown
@@ -25719,7 +25797,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native@npm:0.76.5, react-native@npm:^0.76.0":
+"react-native@npm:*, react-native@npm:0.76.5":
   version: 0.76.5
   resolution: "react-native@npm:0.76.5"
   dependencies:
@@ -25835,7 +25913,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-test-renderer@npm:^19.0.0":
+"react-test-renderer@npm:*, react-test-renderer@npm:^19.0.0":
   version: 19.0.0
   resolution: "react-test-renderer@npm:19.0.0"
   dependencies:
@@ -26974,6 +27052,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"rollup-plugins@workspace:*, rollup-plugins@workspace:scripts/rollup-plugins":
+  version: 0.0.0-use.local
+  resolution: "rollup-plugins@workspace:scripts/rollup-plugins"
+  dependencies:
+    rollup-plugin-babel: "npm:^4.4.0"
+    rollup-plugin-banner2: "npm:^1.2.2"
+    rollup-plugin-commonjs: "npm:^10.1.0"
+    rollup-plugin-dts: "npm:^5.0.0"
+    rollup-plugin-filesize: "npm:^9.1.2"
+    rollup-plugin-json: "npm:^4.0.0"
+    rollup-plugin-node-resolve: "npm:^5.2.0"
+    rollup-plugin-replace: "npm:^2.2.0"
+    rollup-plugin-terser: "npm:^7.0.2"
+    rollup-plugins: "workspace:*"
+  languageName: unknown
+  linkType: soft
+
 "rollup-pluginutils@npm:^2.5.0, rollup-pluginutils@npm:^2.6.0, rollup-pluginutils@npm:^2.8.1":
   version: 2.8.2
   resolution: "rollup-pluginutils@npm:2.8.2"
@@ -27073,7 +27168,7 @@ __metadata:
     rollup-plugin-replace: "npm:^2.2.0"
     rollup-plugin-terser: "npm:^7.0.2"
     ts-node: "npm:10.9.2"
-    typescript: "npm:5.7"
+    typescript: "npm:5.7.2"
     whatwg-fetch: "npm:3.0.0"
   languageName: unknown
   linkType: soft
@@ -29800,7 +29895,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:5.7":
+"typescript@npm:5.7.2":
   version: 5.7.2
   resolution: "typescript@npm:5.7.2"
   bin:
@@ -29820,7 +29915,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A5.7#optional!builtin<compat/typescript>":
+"typescript@patch:typescript@npm%3A5.7.2#optional!builtin<compat/typescript>":
   version: 5.7.2
   resolution: "typescript@patch:typescript@npm%3A5.7.2#optional!builtin<compat/typescript>::version=5.7.2&hash=5786d5"
   bin:
@@ -31114,6 +31209,19 @@ __metadata:
     find-up: "npm:^6.3.0"
     micromatch: "npm:^4.0.5"
   checksum: 10c0/11862ec569991f2f8450a04f0503a7a7047c2aa18e44b8870d87665ddd68e4160fa3727cf375b0f0335420ad9ca792fca1b90c8e88355e72bb24eb97d3347dca
+  languageName: node
+  linkType: hard
+
+"which-typed-array@npm:^1.1.14":
+  version: 1.1.15
+  resolution: "which-typed-array@npm:1.1.15"
+  dependencies:
+    available-typed-arrays: "npm:^1.0.7"
+    call-bind: "npm:^1.0.7"
+    for-each: "npm:^0.3.3"
+    gopd: "npm:^1.0.1"
+    has-tostringtag: "npm:^1.0.2"
+  checksum: 10c0/4465d5348c044032032251be54d8988270e69c6b7154f8fcb2a47ff706fe36f7624b3a24246b8d9089435a8f4ec48c1c1025c5d6b499456b9e5eff4f48212983
   languageName: node
   linkType: hard
 

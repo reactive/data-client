@@ -15,4 +15,4 @@ cp ./packages/react/ssr.d.ts ./website/src/components/Playground/editor-types/@d
 cp ./packages/react/redux.d.ts ./website/src/components/Playground/editor-types/@data-client/react/redux.d.ts
 cp ./node_modules/@types/react/index.d.ts ./website/src/components/Playground/editor-types/react.d.ts
 rm ./website/src/components/Playground/editor-types/globals.d.ts
-yarn run rollup --config ./scripts/globals.rollup.config.js
+yarn run rollup --config ./scripts/rollup-plugins/globals.rollup.config.js

@@ -1,5 +1,5 @@
 {
-  "eslint.nodePath": "node_modules",
+  "eslint.nodePath": ".yarn/sdks",
   "typescript.format.enable": true,
   "typescript.validate.enable": true,
   "[javascript]": {
@@ -18,7 +18,7 @@
     "typescriptreact"
   ],
   "eslint.format.enable": true,
-  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.tsdk": ".yarn/sdks/typescript/lib",
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
@@ -52,11 +52,15 @@
     "**/versioned_docs": true,
     "**/*_versioned_docs": true,
     "**/v8.log": true,
-    "website/src/components/Playground/editor-types": true
+    "website/src/components/Playground/editor-types": true,
+    "**/.yarn": true,
+    "**/.pnp.*": true
   },
   "files.readonlyExclude": {
     "**/.next": true,
     "**/v8.log": true,
     "website/src/components/Playground/editor-types": true
   },
+  "prettier.prettierPath": ".yarn/sdks/prettier/index.cjs",
+  "typescript.enablePromptUseWorkspaceTsdk": true
 }
