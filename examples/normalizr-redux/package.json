@@ -18,7 +18,7 @@
     "@data-client/normalizr": "workspace:*",
     "@octokit/rest": "21.0.2",
     "@types/babel__core": "^7",
-    "inquirer": "^8.1.1",
+    "inquirer": "^12.0.0",
     "redux": "5.0.1",
     "redux-thunk": "^2.3.0",
     "rollup": "2.79.2",
