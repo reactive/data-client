@@ -1,5 +1,11 @@
 # @data-client/core
 
+## 0.14.18
+
+### Patch Changes
+
+- [`3906fc2`](https://github.com/reactive/data-client/commit/3906fc2fec2b958a44d718934919b524e851f298) Thanks [@ntucker](https://github.com/ntucker)! - SUBSCRIBE action field ordering consistent with other actions
+
 ## 0.14.16
 
 ### Patch Changes
