@@ -4,5 +4,5 @@
     "sourceMap": true,
     "noImplicitAny": false   // this is for normalizr
   },
-  "include": ["packages/*/src", "__tests__"]
+  "include": ["packages/*/src", "packages/*/typescript-tests", "__tests__"]
 }
