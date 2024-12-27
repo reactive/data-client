@@ -87,13 +87,12 @@ jobs:
 
   typecheck:
     executor: node
-    resource_class: small
     steps:
       - attach_workspace:
           at: ~/
       - run:
           command: |
-            yarn workspaces foreach -A --include @data-client/endpoint --include @data-client/rest run typecheck
+            yarn run tsc --project tsconfig.test.json --noEmit
 
   unit_tests:
     parameters:
@@ -117,7 +116,7 @@ jobs:
           name: Running Jest
           command: |
             if [ "<< parameters.react-version >>" == "^17.0.0" ]; then
-              ANANSI_JEST_TYPECHECK=false yarn test:ci --maxWorkers=3 --selectProjects ReactDOM ReactNative --testPathPattern packages/react packages/use-enhanced-reducer packages/img
+              yarn test:ci --maxWorkers=3 --selectProjects ReactDOM ReactNative --testPathPattern packages/react packages/use-enhanced-reducer packages/img
             elif [ "<< parameters.react-version >>" == "^18" ]; then
               curl -Os https://uploader.codecov.io/latest/linux/codecov;
               chmod +x codecov;
