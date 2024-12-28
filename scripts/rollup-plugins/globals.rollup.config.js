@@ -1,4 +1,4 @@
-import { typeConfig } from './rollup-utils';
+import { typeConfig } from './rollup-utils.js';
 
 export default [
   {

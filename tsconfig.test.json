@@ -1,6 +1,9 @@
 {
   "extends": "./tsconfig-base",
   "compilerOptions": {
+    "outDir": "tsbuildinfo",
+    "composite": false,
+    "noEmit": true,
     "sourceMap": true,
     "noImplicitAny": false   // this is for normalizr
   },

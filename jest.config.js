@@ -91,21 +91,21 @@ const projects = [
     displayName: 'ReactNative',
     testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.native\\.(j|t)sx?$',
     testEnvironment:
-      '<rootDir>/node_modules/react-native/jest/react-native-env.js',
+      require.resolve('react-native/jest/react-native-env.js'),
     transformIgnorePatterns: [
       'node_modules\\/(?!(((jest-)?react-native)|@react-native(-community)?|react-navigation))', //from RN preset
       '<rootDir>/.*__tests__/[^/]+\\.(web|node)\\.(j|t)sx?$',
       '<rootDir>/scripts',
     ],
     setupFiles: [
-      '<rootDir>/node_modules/react-native/jest/setup.js', //from RN preset
+      require.resolve('react-native/jest/setup.js'), //from RN preset
       '<rootDir>/scripts/testSetupNative.js',
     ],
     transform: {
       //'^.+\\.js$': '<rootDir>/node_modules/react-native/jest/preprocessor.js', //setup.js needs to be transformed, but preprocessor screws everything else up
       ...baseConfig.transform,
       '^.+\\.(bmp|gif|jpg|jpeg|mp4|png|psd|svg|webp)$':
-        '<rootDir>/node_modules/react-native/jest/assetFileTransformer.js', //from RN preset
+        require.resolve('react-native/jest/assetFileTransformer.js'), //from RN preset
     },
     haste: {
       //from RN preset

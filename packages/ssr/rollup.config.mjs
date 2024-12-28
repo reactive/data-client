@@ -1,17 +1,12 @@
-import babel from 'rollup-plugin-babel';
-import commonjs from 'rollup-plugin-commonjs';
-import filesize from 'rollup-plugin-filesize';
-import json from 'rollup-plugin-json';
-import resolve from 'rollup-plugin-node-resolve';
-import replace from 'rollup-plugin-replace';
-import { terser } from 'rollup-plugin-terser';
+import { babel, banner, commonjs, filesize, json, resolve, replace, terser } from 'rollup-plugins';
 
-import pkg from './package.json';
-import { typeConfig } from '../../scripts/rollup-utils';
+import pkg from './package.json' with { type: 'json' };
 
-const dependencies = Object.keys(pkg.dependencies).filter(
-  dep => !['@babel/runtime'].includes(dep),
-);
+const dependencies = Object.keys(pkg.dependencies)
+  .concat(Object.keys(pkg.peerDependencies))
+  .concat(['@data-client/core', 'data-client'])
+  .filter(dep => !['@babel/runtime'].includes(dep));
+const peers = Object.keys(pkg.peerDependencies);
 
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node'];
 const nativeExtensions = ['.native.ts', ...extensions];
@@ -25,7 +20,20 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
   // browser-friendly UMD build
   configs.push({
     input: 'lib/index.js',
-    output: [{ file: pkg.unpkg, format: 'umd', name: 'GraphQL' }],
+    external: id => peers.some(dep => dep === id || id.startsWith(dep)),
+    output: [
+      {
+        file: pkg.unpkg,
+        format: 'umd',
+        name: 'RDC.SSR',
+        globals: {
+          '@data-client/react': 'RDC',
+          '@data-client/redux': 'RDC.Redux',
+          redux: 'Redux',
+          react: 'React',
+        },
+      },
+    ],
     plugins: [
       babel({
         exclude: ['node_modules/**', '/**__tests__/**'],
@@ -41,7 +49,6 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
       filesize({ showBrotliSize: true }),
     ],
   });
-  configs.push(typeConfig);
 } else {
   // node-friendly commonjs build
   configs.push({
@@ -58,6 +65,8 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
       replace({ 'process.env.CJS': 'true' }),
       resolve({ extensions: nativeExtensions }),
       commonjs({ extensions: nativeExtensions }),
+      // for nextjs 13 compatibility in node https://nextjs.org/docs/app/building-your-application/rendering
+      banner(() => "'use client';\n"),
     ],
   });
 }

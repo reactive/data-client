@@ -187,12 +187,29 @@
   },
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",
+    "@data-client/rest": "workspace:*",
+    "@data-client/test": "workspace:*",
+    "@jest/globals": "^29.7.0",
+    "@js-temporal/polyfill": "^0.4.4",
     "@react-navigation/native": "^7.0.0",
+    "@react-navigation/native-stack": "^7.2.0",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/react-native": "^12.9.0",
+    "@types/jest": "^29.5.14",
     "@types/node": "^22.0.0",
     "@types/qs": "^6",
     "@types/react": "19.0.2",
+    "@types/react-dom": "*",
+    "jest-mock": "^29.7.0",
+    "nock": "13.3.1",
     "qs": "^6.13.1",
     "react": "19.0.0",
-    "react-native": "^0.76.0"
+    "react-dom": "^19.0.0",
+    "react-native": "0.76.5",
+    "react-native-safe-area-context": "^5.0.0",
+    "react-native-screens": "^4.1.0",
+    "react-test-renderer": "^19.0.0",
+    "rollup-plugins": "workspace:*"
   }
 }
