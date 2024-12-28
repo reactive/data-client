@@ -1551,7 +1551,7 @@ interface CustomResource<R extends ResourceInterface, O extends ResourceGenerics
     delete: unknown extends Delete ? R['delete'] : PartialRestGenerics extends Delete ? R['delete'] : RestExtendedEndpoint<Delete, R['delete']>;
 }
 type ExtendedResource<R extends ResourceInterface, T extends Record<string, EndpointInterface>> = Omit<R, keyof T> & T;
-interface ResourceEndpointExtensions<R extends ResourceInterface, Get extends PartialRestGenerics = any, GetList extends PartialRestGenerics = any, Update extends PartialRestGenerics = any, PartialUpdate extends PartialRestGenerics = any, Delete extends PartialRestGenerics = any> {
+interface ResourceEndpointExtensions<R extends ResourceInterface, Get extends PartialRestGenerics = {}, GetList extends PartialRestGenerics = {}, Update extends PartialRestGenerics = {}, PartialUpdate extends PartialRestGenerics = {}, Delete extends PartialRestGenerics = {}> {
     readonly get?: RestEndpointOptions<unknown extends Get ? EndpointToFunction<R['get']> : OptionsToFunction<Get, R['get'], EndpointToFunction<R['get']>>, R['get']['schema']> & Readonly<Get>;
     readonly getList?: RestEndpointOptions<unknown extends GetList ? EndpointToFunction<R['getList']> : OptionsToFunction<GetList, R['getList'], EndpointToFunction<R['getList']>>, R['getList']['schema']> & Readonly<GetList>;
     readonly update?: RestEndpointOptions<unknown extends Update ? EndpointToFunction<R['update']> : OptionsToFunction<Update, R['update'], EndpointToFunction<R['update']>>, R['update']['schema']> & Readonly<Update>;
@@ -1575,7 +1575,7 @@ interface Extendable<O extends ResourceGenerics = {
     }, const ExtendKey extends string, ExtendOptions extends PartialRestGenerics | {}>(this: R, key: ExtendKey, options: Readonly<RestEndpointExtendOptions<ExtendOptions, R['get'], EndpointToFunction<R['get']>> & ExtendOptions>): R & {
         [key in ExtendKey]: RestExtendedEndpoint<ExtendOptions, R['get']>;
     };
-    extend<R extends ResourceInterface, Get extends PartialRestGenerics = any, GetList extends PartialRestGenerics = any, Update extends PartialRestGenerics = any, PartialUpdate extends PartialRestGenerics = any, Delete extends PartialRestGenerics = any>(this: R, options: ResourceEndpointExtensions<R, Get, GetList, Update, PartialUpdate, Delete>): CustomResource<R, O, Get, GetList, Update, PartialUpdate, Delete>;
+    extend<R extends ResourceInterface, Get extends PartialRestGenerics = {}, GetList extends PartialRestGenerics = {}, Update extends PartialRestGenerics = {}, PartialUpdate extends PartialRestGenerics = {}, Delete extends PartialRestGenerics = {}>(this: R, options: ResourceEndpointExtensions<R, Get, GetList, Update, PartialUpdate, Delete>): CustomResource<R, O, Get, GetList, Update, PartialUpdate, Delete>;
     extend<R extends ResourceInterface, T extends Record<string, EndpointInterface>>(this: R, extender: (baseResource: R) => T): ExtendedResource<R, T>;
 }
 

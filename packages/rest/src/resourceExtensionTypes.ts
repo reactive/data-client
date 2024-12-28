@@ -59,11 +59,11 @@ export type ExtendedResource<
 
 export interface ResourceEndpointExtensions<
   R extends ResourceInterface,
-  Get extends PartialRestGenerics = any,
-  GetList extends PartialRestGenerics = any,
-  Update extends PartialRestGenerics = any,
-  PartialUpdate extends PartialRestGenerics = any,
-  Delete extends PartialRestGenerics = any,
+  Get extends PartialRestGenerics = {},
+  GetList extends PartialRestGenerics = {},
+  Update extends PartialRestGenerics = {},
+  PartialUpdate extends PartialRestGenerics = {},
+  Delete extends PartialRestGenerics = {},
 > {
   readonly get?: RestEndpointOptions<
     unknown extends Get ? EndpointToFunction<R['get']>
