@@ -1,5 +1,19 @@
 # @data-client/react
 
+## 0.14.18
+
+### Patch Changes
+
+- [`3906fc2`](https://github.com/reactive/data-client/commit/3906fc2fec2b958a44d718934919b524e851f298) Thanks [@ntucker](https://github.com/ntucker)! - SUBSCRIBE action field ordering consistent with other actions
+
+- [`19d4669`](https://github.com/reactive/data-client/commit/19d46699fa9c50ab56b1f4e2c5bafc390ffe6331) Thanks [@ntucker](https://github.com/ntucker)! - Fix pnp compatibility
+
+  Change import from @data-client/normalizr -> @data-client/core
+  as `core` is explicit dependency
+
+- Updated dependencies [[`3906fc2`](https://github.com/reactive/data-client/commit/3906fc2fec2b958a44d718934919b524e851f298)]:
+  - @data-client/core@0.14.18
+
 ## 0.14.17
 
 ### Patch Changes
