@@ -157,7 +157,7 @@
     "build:js:node": "BROWSERSLIST_ENV=node12 yarn g:rollup",
     "build:js:browser": "BROWSERSLIST_ENV=legacy yarn g:rollup",
     "build:bundle": "yarn g:runs build:js:\\* && echo '{\"type\":\"commonjs\"}' > dist/package.json",
-    "build:clean": "yarn g:clean ./index.d.ts",
+    "build:clean": "yarn g:clean index.d.ts next.d.ts native",
     "build:legacy-types": "yarn g:downtypes lib ts3.4",
     "build": "run build:lib && run build:legacy:lib && run build:native:lib && run build:bundle",
     "dev": "run build:lib -w",

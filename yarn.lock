@@ -3182,7 +3182,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/react@npm:^0.14.0, @data-client/react@workspace:*, @data-client/react@workspace:^, @data-client/react@workspace:packages/react":
+"@data-client/react@npm:^0.14.0, @data-client/react@workspace:*, @data-client/react@workspace:packages/react":
   version: 0.0.0-use.local
   resolution: "@data-client/react@workspace:packages/react"
   dependencies:
@@ -3269,7 +3269,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/test@workspace:*, @data-client/test@workspace:^, @data-client/test@workspace:packages/test":
+"@data-client/test@workspace:*, @data-client/test@workspace:packages/test":
   version: 0.0.0-use.local
   resolution: "@data-client/test@workspace:packages/test"
   dependencies:
@@ -27021,8 +27021,9 @@ __metadata:
     "@babel/preset-flow": "npm:^7.18.6"
     "@changesets/changelog-github": "npm:^0.5.0"
     "@changesets/cli": "npm:^2.26.1"
-    "@data-client/react": "workspace:^"
-    "@data-client/test": "workspace:^"
+    "@data-client/react": "workspace:*"
+    "@data-client/rest": "workspace:*"
+    "@data-client/test": "workspace:*"
     "@js-temporal/polyfill": "npm:^0.4.4"
     "@react-navigation/native": "npm:^7.0.0"
     "@react-navigation/native-stack": "npm:^7.0.0"

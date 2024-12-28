@@ -1,6 +1,6 @@
 import { DataProvider } from '@data-client/react';
-import { getByTestId, render, waitFor } from '@testing-library/react';
-import React, { Suspense } from 'react';
+import { render, waitFor } from '@testing-library/react';
+import { Suspense } from 'react';
 
 import { Img } from '..';
 

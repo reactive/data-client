@@ -1,4 +1,4 @@
-import type { EndpointInterface } from '@data-client/normalizr';
+import type { EndpointInterface } from '@data-client/core';
 import { useMemo, useRef } from 'react';
 
 /**

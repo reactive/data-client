@@ -1,7 +1,6 @@
-import { schema, Entity } from '@data-client/endpoint';
-import { Endpoint } from '@data-client/endpoint';
 import { DataProvider } from '@data-client/react';
 import { DataProvider as ExternalDataProvider } from '@data-client/react/redux';
+import { schema, Entity, Endpoint } from '@data-client/rest';
 import {
   CoolerArticleResource,
   EditorArticleResource,

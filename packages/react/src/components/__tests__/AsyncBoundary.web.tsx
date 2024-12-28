@@ -1,5 +1,4 @@
-import { Endpoint } from '@data-client/endpoint';
-import { NetworkError } from '@data-client/rest';
+import { NetworkError, Endpoint } from '@data-client/rest';
 import { render } from '@testing-library/react';
 import { ReactElement, StrictMode } from 'react';
 

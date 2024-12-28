@@ -1,4 +1,4 @@
-import { Entity, schema } from '@data-client/endpoint';
+import { Entity, schema } from '@data-client/rest';
 
 export enum SequenceType {
   TemporalCatDiff = 'temporal_cat_diff',
