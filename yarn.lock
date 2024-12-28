@@ -3134,7 +3134,7 @@ __metadata:
     "@types/jest": "npm:^29.5.14"
     "@types/node": "npm:^22.0.0"
     immutable: "npm:4.2.2"
-    nock: "npm:^13.5.6"
+    nock: "npm:13.3.1"
     rollup-plugins: "workspace:*"
   languageName: unknown
   linkType: soft
@@ -3148,7 +3148,7 @@ __metadata:
     "@data-client/endpoint": "npm:^0.14.17"
     "@types/jest": "npm:^29.5.14"
     "@types/node": "npm:^22.0.0"
-    nock: "npm:^13.5.6"
+    nock: "npm:13.3.1"
     rollup-plugins: "workspace:*"
   languageName: unknown
   linkType: soft
@@ -3224,7 +3224,7 @@ __metadata:
     "@types/react": "npm:19.0.2"
     "@types/react-dom": "npm:*"
     jest-mock: "npm:^29.7.0"
-    nock: "npm:^13.5.6"
+    nock: "npm:13.3.1"
     qs: "npm:^6.13.1"
     react: "npm:19.0.0"
     react-dom: "npm:^19.0.0"
@@ -3274,7 +3274,7 @@ __metadata:
     "@data-client/test": "workspace:*"
     "@types/jest": "npm:^29.5.14"
     "@types/node": "npm:^22.0.0"
-    nock: "npm:^13.5.6"
+    nock: "npm:13.3.1"
     path-to-regexp: "npm:^6.3.0"
     rollup-plugins: "workspace:*"
   languageName: unknown
@@ -21776,17 +21776,6 @@ __metadata:
     lodash: "npm:^4.17.21"
     propagate: "npm:^2.0.0"
   checksum: 10c0/748cb727ff34569dabee9254d04251db89424670781d601ee0fa7caa29693f98d409bfb72636ccdb984e12e2e88cfce9ec802e506abdf5f8972b969bf0f763af
-  languageName: node
-  linkType: hard
-
-"nock@npm:^13.5.6":
-  version: 13.5.6
-  resolution: "nock@npm:13.5.6"
-  dependencies:
-    debug: "npm:^4.1.0"
-    json-stringify-safe: "npm:^5.0.1"
-    propagate: "npm:^2.0.0"
-  checksum: 10c0/94249a294176a6e521bbb763c214de4aa6b6ab63dff1e299aaaf455886a465d38906891d7f24570d94a43b1e376c239c54d89ff7697124bc57ef188006acc25e
   languageName: node
   linkType: hard
 

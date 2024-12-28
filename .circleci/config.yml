@@ -39,9 +39,9 @@ jobs:
             npm pkg set 'workspaces[]'='examples/normalizr-relationships'
       - restore_cache:
           keys:
-            - v15-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}-{{ checksum "examples/todo-app/package.json" }}
+            - v14-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}-{{ checksum "examples/todo-app/package.json" }}
             # fallback to using the latest cache if no exact match is found
-            - v15-dependencies-
+            - v14-dependencies-
       - run:
           name: yarn install
           command: |
@@ -50,7 +50,7 @@ jobs:
           paths:
             - .yarn/cache
             - .yarn/install-state.gz
-          key: v15-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}-{{ checksum "examples/todo-app/package.json" }}
+          key: v14-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}-{{ checksum "examples/todo-app/package.json" }}
       - run: yarn run ci:build:types
       - run: yarn run ci:build-test-lib
       - persist_to_workspace:
@@ -62,11 +62,10 @@ jobs:
             - project/examples/todo-app
             - project/examples/github-app
             - project/examples/normalizr-relationships
+            - project/node_modules
             - project/packages
             - project/scripts
             - project/.yarnrc.yml
-            - project/.pnp.cjs
-            - project/.pnp.loader.mjs
             - project/babel.config.js
             - project/eslint.config.mjs
             - project/jest.config.js
