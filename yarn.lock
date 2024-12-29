@@ -271,8 +271,8 @@ __metadata:
   linkType: hard
 
 "@anansi/cli@npm:^3.0.15":
-  version: 3.1.55
-  resolution: "@anansi/cli@npm:3.1.55"
+  version: 3.1.56
+  resolution: "@anansi/cli@npm:3.1.56"
   dependencies:
     "@anansi/generator-js": "npm:^12.6.10"
     binary-version-check: "npm:^6.1.0"
@@ -289,19 +289,19 @@ __metadata:
       optional: true
   bin:
     anansi: ./run.mjs
-  checksum: 10c0/6994e635c0373a57b3dfdd6cc9034c41165cd22d3ad298d54e54ba49116c95a47318862b5d6df564efefbff79711f9c3c1c81fce58c52f1cfbece5261999650a
+  checksum: 10c0/52ffdd1856c40419a1cdb719a50b495a17b11adcc4ebbabba9d1a4672c5a763b7e02d2b8b9d6200b03938c08970b05642d576f6e1833c9731c2442a61c947c1b
   languageName: node
   linkType: hard
 
 "@anansi/core@npm:^0.20.0":
-  version: 0.20.15
-  resolution: "@anansi/core@npm:0.20.15"
+  version: 0.20.16
+  resolution: "@anansi/core@npm:0.20.16"
   dependencies:
     "@anansi/router": "npm:^0.10.10"
     "@babel/runtime": "npm:^7.17.0"
     chalk: "npm:^4.1.2"
     compression: "npm:^1.7.5"
-    cross-fetch: "npm:^4.0.0"
+    cross-fetch: "npm:^4.1.0"
     enhanced-resolve: "npm:^5.18.0"
     express: "npm:^4.21.2"
     fs-require: "npm:^1.6.0"
@@ -319,8 +319,8 @@ __metadata:
     "@data-client/react": ^0.12.15 || ^0.13.0 || ^0.14.0
     "@types/react": "*"
     "@types/react-dom": "*"
-    react: ^18.0.0 || ^19.0.0-0
-    react-dom: ^18.0.0 || ^19.0.0-0
+    react: ^18.0.0 || ^19.0.0
+    react-dom: ^18.0.0 || ^19.0.0
     webpack: ^5.60.0
   peerDependenciesMeta:
     "@ant-design/cssinjs":
@@ -334,7 +334,7 @@ __metadata:
   bin:
     serve-anansi: ./lib/scripts/serve.js
     start-anansi: ./lib/scripts/startDevserver.js
-  checksum: 10c0/703ff03916c7c6ce752ae65c3d205d0d8771f2d9972501c4fef258bc6cc07234f8e6b2408fbe46efd14e8ed24fb9b0f09e3fd26026162014d037a7e533b50a16
+  checksum: 10c0/99c8302d7424e545672668641d0b71a3f2e51016ab5a157b92242feabce659c854ac35abc6f4bb658c380133fc51545cbc5dc2432e7a662ddaac1124b884c825
   languageName: node
   linkType: hard
 
@@ -11805,7 +11805,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cross-fetch@npm:^4.0.0":
+"cross-fetch@npm:^4.0.0, cross-fetch@npm:^4.1.0":
   version: 4.1.0
   resolution: "cross-fetch@npm:4.1.0"
   dependencies:
