@@ -10,7 +10,6 @@
     { "path": "./packages/core/tsconfig.compile.json" },
     { "path": "./packages/react/tsconfig.compile.json" },
     { "path": "./packages/img/tsconfig.compile.json" },
-    { "path": "./packages/ssr/tsconfig.compile.json" },
     { "path": "./packages/test/tsconfig.compile.json" },
   ]
 }
