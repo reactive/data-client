@@ -67,5 +67,5 @@
     "remark-remove-comments": "^1.0.1",
     "uuid": "^11.0.0"
   },
-  "packageManager": "yarn@4.5.3"
+  "packageManager": "yarn@4.6.0"
 }
