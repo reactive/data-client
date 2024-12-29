@@ -550,7 +550,7 @@ type CollectionOptions<Args extends any[] = DefaultArgs, Parent = any> = ({
     nonFilterArgumentKeys?: ((key: string) => boolean) | string[] | RegExp;
 });
 
-type CollectionArrayAdder$1<S extends PolymorphicInterface> = S extends ({
+type CollectionArrayAdder<S extends PolymorphicInterface> = S extends ({
     denormalize(...args: any): any[];
     schema: infer T;
 }) ? T : never;
@@ -628,11 +628,11 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
     /** Schema to place at the *end* of this Collection
      * @see https://dataclient.io/rest/api/Collection#push
      */
-    push: CollectionArrayAdder$1<S>;
+    push: CollectionArrayAdder<S>;
     /** Schema to place at the *beginning* of this Collection
      * @see https://dataclient.io/rest/api/Collection#unshift
      */
-    unshift: CollectionArrayAdder$1<S>;
+    unshift: CollectionArrayAdder<S>;
     /** Schema to merge with a Values Collection
      * @see https://dataclient.io/rest/api/Collection#assign
      */
@@ -997,19 +997,6 @@ declare class Values<Choices extends Schema = any> implements SchemaClass {
   ): undefined;
 }
 
-type CollectionArrayAdder<S extends PolymorphicInterface> =
-  S extends (
-    {
-      // ensure we are an array type
-      denormalize(...args: any): any[];
-      // get what we are an array of
-      schema: infer T;
-    }
-  ) ?
-    // TODO: eventually we want to allow singular or list and infer the return based on arguments
-    T
-  : never;
-
 declare let CollectionRoot: CollectionConstructor;
 
 /**
@@ -1046,11 +1033,11 @@ type schema_d_Union<Choices extends EntityMap, SchemaAttribute extends
 declare const schema_d_Union: typeof Union;
 type schema_d_Values<Choices extends Schema = any> = Values<Choices>;
 declare const schema_d_Values: typeof Values;
-type schema_d_CollectionArrayAdder<S extends PolymorphicInterface> = CollectionArrayAdder<S>;
 declare const schema_d_CollectionRoot: typeof CollectionRoot;
 type schema_d_Collection<S extends any[] | PolymorphicInterface = any, Args extends any[] = DefaultArgs, Parent = any> = Collection<S, Args, Parent>;
 declare const schema_d_Collection: typeof Collection;
 type schema_d_EntityInterface<T = any> = EntityInterface<T>;
+type schema_d_CollectionArrayAdder<S extends PolymorphicInterface> = CollectionArrayAdder<S>;
 type schema_d_CollectionInterface<S extends PolymorphicInterface = any, Args extends any[] = any[], Parent = any> = CollectionInterface<S, Args, Parent>;
 type schema_d_CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Args extends any[] = DefaultArgs, Parent = any> = CollectionFromSchema<S, Args, Parent>;
 type schema_d_CollectionConstructor = CollectionConstructor;
@@ -1076,10 +1063,10 @@ declare namespace schema_d {
     schema_d_UnionRoot as UnionRoot,
     schema_d_Union as Union,
     schema_d_Values as Values,
-    schema_d_CollectionArrayAdder as CollectionArrayAdder,
     schema_d_CollectionRoot as CollectionRoot,
     schema_d_Collection as Collection,
     schema_d_EntityInterface as EntityInterface,
+    schema_d_CollectionArrayAdder as CollectionArrayAdder,
     schema_d_CollectionInterface as CollectionInterface,
     schema_d_CollectionFromSchema as CollectionFromSchema,
     schema_d_CollectionConstructor as CollectionConstructor,

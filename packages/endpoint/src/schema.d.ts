@@ -381,19 +381,6 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
   ): undefined;
 }
 
-export type CollectionArrayAdder<S extends PolymorphicInterface> =
-  S extends (
-    {
-      // ensure we are an array type
-      denormalize(...args: any): any[];
-      // get what we are an array of
-      schema: infer T;
-    }
-  ) ?
-    // TODO: eventually we want to allow singular or list and infer the return based on arguments
-    T
-  : never;
-
 export declare let CollectionRoot: CollectionConstructor;
 
 /**
