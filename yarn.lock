@@ -397,16 +397,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/jest-preset@npm:0.11.9":
-  version: 0.11.9
-  resolution: "@anansi/jest-preset@npm:0.11.9"
+"@anansi/jest-preset@npm:0.11.10":
+  version: 0.11.10
+  resolution: "@anansi/jest-preset@npm:0.11.10"
   dependencies:
     "@anansi/ts-utils": "npm:^0.3.7"
     "@babel/runtime": "npm:^7.26.0"
     "@types/babel__core": "npm:^7.20.5"
     babel-jest: "npm:^29.7.0"
     core-js: "npm:^3.21.0"
-    cross-fetch: "npm:^4.0.0"
+    cross-fetch: "npm:^4.1.0"
     jest-pnp-resolver: "npm:^1.2.3"
     mitt: "npm:^3.0.1"
     node-fetch: "npm:^3.3.2"
@@ -424,7 +424,7 @@ __metadata:
       optional: true
     react:
       optional: true
-  checksum: 10c0/1873b0ba6f7e65e53d3f1fa97a2c95f88dd3137b94a7081ca7d0da63835cdc3be13a78787c8ba76ae1f2375da62bbbea8776017961ac0fb8f42a3ef6f0e9d93d
+  checksum: 10c0/4e67e025c220e8870aa03c2969784c225fece259d8cd79e15f734960c60e56c954b4ced26da86cb3e4713c9926199b1f847af13fdf5270759032b6d32aebbd97
   languageName: node
   linkType: hard
 
@@ -26652,7 +26652,7 @@ __metadata:
     "@anansi/babel-preset": "npm:6.0.12"
     "@anansi/browserslist-config": "npm:1.5.1"
     "@anansi/eslint-plugin": "npm:1.0.23"
-    "@anansi/jest-preset": "npm:0.11.9"
+    "@anansi/jest-preset": "npm:0.11.10"
     "@babel/cli": "npm:7.26.4"
     "@babel/core": "npm:7.26.0"
     "@babel/node": "npm:7.26.0"
