@@ -3207,7 +3207,7 @@ __metadata:
     "@react-navigation/native-stack": "npm:^7.2.0"
     "@testing-library/dom": "npm:^10.4.0"
     "@testing-library/react": "npm:^16.1.0"
-    "@testing-library/react-native": "npm:^12.9.0"
+    "@testing-library/react-native": "npm:^13.0.0"
     "@types/jest": "npm:^29.5.14"
     "@types/node": "npm:^22.0.0"
     "@types/qs": "npm:^6"
@@ -3261,7 +3261,7 @@ __metadata:
     "@data-client/react": "workspace:*"
     "@testing-library/dom": "npm:^10.1.0"
     "@testing-library/react": "npm:^16.0.0"
-    "@testing-library/react-native": "npm:^12.0.1"
+    "@testing-library/react-native": "npm:^13.0.0"
     "@types/jest": "npm:^29.5.0"
     "@types/node": "npm:^22.0.0"
     "@types/react": "npm:19.0.2"
@@ -6532,22 +6532,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react-native@npm:12.9.0, @testing-library/react-native@npm:^12.0.1, @testing-library/react-native@npm:^12.9.0":
-  version: 12.9.0
-  resolution: "@testing-library/react-native@npm:12.9.0"
+"@testing-library/react-native@npm:13.0.0, @testing-library/react-native@npm:^13.0.0":
+  version: 13.0.0
+  resolution: "@testing-library/react-native@npm:13.0.0"
   dependencies:
     jest-matcher-utils: "npm:^29.7.0"
     pretty-format: "npm:^29.7.0"
     redent: "npm:^3.0.0"
   peerDependencies:
-    jest: ">=28.0.0"
-    react: ">=16.8.0"
-    react-native: ">=0.59"
-    react-test-renderer: ">=16.8.0"
+    jest: ">=29.0.0"
+    react: ">=18.2.0"
+    react-native: ">=0.71"
+    react-test-renderer: ">=18.2.0"
   peerDependenciesMeta:
     jest:
       optional: true
-  checksum: 10c0/d29a2c9a4f1318a8fbf7d53927e42c34bd3bc00c46ba7e4010828c927a2b504cbaa3284deba7780fa467b6b1b2d5ce1a4a2ab9f2d1d08d7a1740dc5b2242df21
+  checksum: 10c0/3d3ded3534842d79ec8ab9722e36c4e20fc77ec62704ed77071a045a11b751004487284313dd5408d759815725b24a7a74d7ef6ab1d517f0a54424f80cd07fb8
   languageName: node
   linkType: hard
 
@@ -26695,7 +26695,7 @@ __metadata:
     "@testing-library/dom": "npm:^10.4.0"
     "@testing-library/react": "npm:16.1.0"
     "@testing-library/react-hooks": "npm:8.0.1"
-    "@testing-library/react-native": "npm:12.9.0"
+    "@testing-library/react-native": "npm:13.0.0"
     "@types/jest": "npm:29.5.14"
     "@types/node": "npm:22.10.2"
     "@types/react": "npm:19.0.2"
