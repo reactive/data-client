@@ -1,5 +1,11 @@
 # @data-client/test
 
+## 0.14.19
+
+### Patch Changes
+
+- [`060d8e1`](https://github.com/reactive/data-client/commit/060d8e19beb3eedab58a77764fd5f755b70e4946) Thanks [@ntucker](https://github.com/ntucker)! - Update @testing-library/react-native to v13
+
 ## 0.14.17
 
 ### Patch Changes
