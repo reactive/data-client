@@ -114,7 +114,7 @@
     "@babel/runtime": "^7.17.0",
     "@testing-library/dom": "^10.1.0",
     "@testing-library/react": "^16.0.0",
-    "@testing-library/react-native": "^12.0.1"
+    "@testing-library/react-native": "^13.0.0"
   },
   "peerDependencies": {
     "@data-client/react": "^0.12.15 || ^0.13.0 || ^0.14.0",
