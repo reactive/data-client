@@ -1,5 +1,14 @@
 # @data-client/rest
 
+## 0.14.19
+
+### Patch Changes
+
+- [`cb4fb92`](https://github.com/reactive/data-client/commit/cb4fb922e305502ba8ab99c99b6012e753a87a3a) Thanks [@ntucker](https://github.com/ntucker)! - Remove typing redundancy
+
+- Updated dependencies [[`cb4fb92`](https://github.com/reactive/data-client/commit/cb4fb922e305502ba8ab99c99b6012e753a87a3a)]:
+  - @data-client/endpoint@0.14.19
+
 ## 0.14.18
 
 ### Patch Changes

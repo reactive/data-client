@@ -1,6 +1,6 @@
 {
   "name": "normalizr-redux-example",
-  "version": "0.1.43",
+  "version": "0.1.44",
   "description": "And example of using Normalizr with Redux",
   "main": "index.js",
   "author": "Paul Armstrong",
