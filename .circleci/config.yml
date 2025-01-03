@@ -106,7 +106,7 @@ jobs:
       - run:
           name: Installing React Version
           command: |
-            if [ "<< parameters.react-version >>" == "^17.0.0" ]; then
+            if [ "<< parameters.react-version >>" == "^17" ]; then
             yarn up react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >> @react-navigation/native@^6.0.0 @react-navigation/native-stack@^6.0.0 react-native-screens@^3.0.0 @testing-library/react@^12.0.0
             yarn workspace @data-client/test add --dev @testing-library/react-hooks 
             elif [ "<< parameters.react-version >>" == "^18" ]; then
@@ -116,8 +116,8 @@ jobs:
       - run:
           name: Running Jest
           command: |
-            if [ "<< parameters.react-version >>" == "^17.0.0" ]; then
-              yarn test:ci --maxWorkers=3 --selectProjects ReactDOM ReactNative --testPathPattern packages/react packages/use-enhanced-reducer packages/img
+            if [ "<< parameters.react-version >>" == "^17" ]; then
+              yarn test:ci --maxWorkers=3 --selectProjects ReactDOM --testPathPattern packages/react packages/use-enhanced-reducer packages/img
             elif [ "<< parameters.react-version >>" == "^18" ]; then
               curl -Os https://uploader.codecov.io/latest/linux/codecov;
               chmod +x codecov;
@@ -149,7 +149,7 @@ jobs:
           command: |
             yarn workspace @data-client/react add --dev @testing-library/react-hooks
             yarn workspace @data-client/test add --dev @testing-library/react-hooks
-            yarn up react@18 react-dom@18 react-test-renderer@18
+            yarn up react@^18 react-dom@^18 react-test-renderer@^18
       - run:
           # we must use npm because yarn 4 isn't compatible with legacy node versions
           command: |
@@ -245,7 +245,7 @@ workflows:
       - unit_tests:
           matrix:
             parameters:
-              react-version: ["^17.0.0", "^18", "latest"]
+              react-version: ["^17", "^18", "latest"]
           requires:
             - setup
       - node_matrix:
