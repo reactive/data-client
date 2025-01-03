@@ -145,8 +145,6 @@ function useCache<
 
 ## Examples
 
-<StackBlitz app="todo-app" file="src/resources/TodoResource.ts,src/pages/Home/TodoStats.tsx" />
-
 ### Github Navbar login/logout
 
 Our current user only exists when we are authenticated. Thus we can `useCache(UserResource.current)`
