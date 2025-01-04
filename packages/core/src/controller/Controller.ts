@@ -35,7 +35,7 @@ import {
 } from './actions/index.js';
 import ensurePojo from './ensurePojo.js';
 import type { EndpointUpdateFunction } from './types.js';
-import GCPolicy from '../manager/GCPolicy.js';
+import type { GCInterface } from '../state/GCPolicy.js';
 import { initialState } from '../state/reducer/createReducer.js';
 import selectMeta from '../state/selectMeta.js';
 import type { ActionTypes, State } from '../types.js';
@@ -47,6 +47,7 @@ interface ConstructorProps<D extends GenericDispatch = DataClientDispatch> {
   dispatch?: D;
   getState?: () => State<unknown>;
   memo?: Pick<MemoCache, 'denormalize' | 'query' | 'buildQueryKey'>;
+  gcPolicy?: GCInterface;
 }
 
 const unsetDispatch = (action: unknown): Promise<void> => {
@@ -93,17 +94,18 @@ export default class Controller<
   /**
    * Handles garbage collection
    */
-  declare readonly gcPolicy: GCPolicy;
+  declare readonly gcPolicy: GCInterface;
 
   constructor({
     dispatch = unsetDispatch as any,
     getState = unsetState,
     memo = new MemoCache(),
+    gcPolicy = { createCountRef: () => () => () => undefined },
   }: ConstructorProps<D> = {}) {
     this.dispatch = dispatch;
     this.getState = getState;
     this.memo = memo;
-    this.gcPolicy = new GCPolicy(this);
+    this.gcPolicy = gcPolicy;
   }
 
   /*************** Action Dispatchers ***************/

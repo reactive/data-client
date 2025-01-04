@@ -12,14 +12,14 @@ import { prepareStore } from './prepareStore.js';
 import { DevToolsPosition } from '../../components/DevToolsButton.js';
 
 /** For usage with https://dataclient.io/docs/api/makeRenderDataHook */
-export default function ExternalDataProvider({
+export default function TestExternalDataProvider({
   children,
   managers,
   initialState,
   Controller,
   devButton = 'bottom-right',
 }: Props) {
-  const { selector, store, controller } = useMemo(
+  const { selector, store, controller, gcPolicy } = useMemo(
     () => prepareStore(initialState, managers, Controller),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [Controller, ...managers],
@@ -31,10 +31,12 @@ export default function ExternalDataProvider({
     for (let i = 0; i < managers.length; ++i) {
       managers[i].init?.(selector(store.getState()));
     }
+    gcPolicy.init(controller);
     return () => {
       for (let i = 0; i < managers.length; ++i) {
         managers[i].cleanup();
       }
+      gcPolicy.cleanup();
     };
     // we're ignoring state here, because it shouldn't trigger inits
     // eslint-disable-next-line react-hooks/exhaustive-deps

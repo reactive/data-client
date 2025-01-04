@@ -3,9 +3,11 @@ import type { EntityPath } from '@data-client/normalizr';
 import { GC } from '../actionTypes.js';
 import Controller from '../controller/Controller.js';
 
-export default class GCPolicy {
-  protected endpointCount: Record<string, number> = {};
-  protected entityCount: Record<string, Record<string, number>> = {};
+export class GCPolicy implements GCInterface {
+  protected endpointCount: Record<string, number> = Object.create(null);
+  protected entityCount: Record<string, Record<string, number>> =
+    Object.create(null);
+
   protected endpoints = new Set<string>();
   protected entities: EntityPath[] = [];
   declare protected intervalId: ReturnType<typeof setInterval>;
@@ -13,22 +15,35 @@ export default class GCPolicy {
   declare protected options: GCOptions;
 
   constructor(
-    controller: Controller,
     // every 5 min
     { intervalMS = 60 * 1000 * 5 }: GCOptions = {},
   ) {
-    this.controller = controller;
     this.options = { intervalMS };
   }
 
+  init(controller: Controller) {
+    this.controller = controller;
+
+    this.intervalId = setInterval(() => {
+      if (typeof requestIdleCallback === 'function') {
+        requestIdleCallback(() => this.runSweep(), { timeout: 1000 });
+      } else {
+        this.runSweep();
+      }
+    }, this.options.intervalMS);
+  }
+
+  cleanup() {
+    clearInterval(this.intervalId);
+  }
+
   createCountRef({ key, paths = [] }: { key: string; paths?: EntityPath[] }) {
-    if (!ENV_DYNAMIC) return () => () => undefined;
     // increment
     return () => {
       this.endpointCount[key]++;
       paths.forEach(path => {
-        if (!(path.key in this.endpointCount)) {
-          this.entityCount[path.key] = {};
+        if (!(path.key in this.entityCount)) {
+          this.entityCount[path.key] = Object.create(null);
         }
         this.entityCount[path.key][path.pk]++;
       });
@@ -38,32 +53,18 @@ export default class GCPolicy {
         if (this.endpointCount[key]-- <= 0) {
           // queue for cleanup
           this.endpoints.add(key);
-          this.entities.concat(...paths);
         }
         paths.forEach(path => {
           if (!(path.key in this.endpointCount)) {
             return;
           }
-          this.entityCount[path.key][path.pk]--;
+          if (this.entityCount[path.key][path.pk]-- <= 0) {
+            // queue for cleanup
+            this.entities.concat(...paths);
+          }
         });
       };
     };
-  }
-
-  init() {
-    // don't run this in nodejs env
-    if (ENV_DYNAMIC)
-      this.intervalId = setInterval(() => {
-        if (typeof requestIdleCallback === 'function') {
-          requestIdleCallback(() => this.runSweep(), { timeout: 1000 });
-        } else {
-          this.runSweep();
-        }
-      }, this.options.intervalMS);
-  }
-
-  cleanup() {
-    clearInterval(this.intervalId);
   }
 
   protected runSweep() {
@@ -94,6 +95,9 @@ export default class GCPolicy {
 export interface GCOptions {
   intervalMS?: number;
 }
-
-const ENV_DYNAMIC =
-  typeof navigator !== 'undefined' || typeof window !== 'undefined';
+export interface CreateCountRef {
+  ({ key, paths }: { key: string; paths?: EntityPath[] }): () => () => void;
+}
+export interface GCInterface {
+  createCountRef: CreateCountRef;
+}

@@ -17,7 +17,7 @@ import {
 import nock from 'nock';
 
 // relative imports to avoid circular dependency in tsconfig references
-import { makeRenderDataClient, act } from '../../../test';
+import { makeRenderDataHook, act } from '../../../test';
 import {
   useCache,
   useController,
@@ -50,7 +50,7 @@ describe.each([
   ['ExternalDataProvider', ExternalDataProvider],
 ] as const)(`%s`, (_, makeProvider) => {
   // TODO: add nested resource test case that has multiple partials to test merge functionality
-  let renderDataClient: ReturnType<typeof makeRenderDataClient>;
+  let renderDataHook: ReturnType<typeof makeRenderDataHook>;
   let mynock: nock.Scope;
 
   beforeEach(() => {
@@ -100,7 +100,7 @@ describe.each([
   });
 
   beforeEach(() => {
-    renderDataClient = makeRenderDataClient(makeProvider);
+    renderDataHook = makeRenderDataHook(makeProvider);
   });
 
   describe('Endpoint', () => {
@@ -112,8 +112,9 @@ describe.each([
     });
 
     it('should resolve useSuspense()', async () => {
-      const { result, waitForNextUpdate } = renderDataClient(() => {
-        return useSuspense(CoolerArticleDetail, payload);
+      const { result, waitForNextUpdate } = renderDataHook(() => {
+        const a = useSuspense(CoolerArticleDetail, payload);
+        return a;
       });
       expect(result.current).toBeUndefined();
       await waitForNextUpdate();
@@ -126,7 +127,7 @@ describe.each([
       'should resolve useSuspense() with Interceptors',
       async ArticleResource => {
         nock.cleanAll();
-        const { result, waitFor, controller } = renderDataClient(
+        const { result, waitFor, controller } = renderDataHook(
           () => {
             return useSuspense(ArticleResource.get, { id: 'abc123' });
           },
@@ -159,7 +160,7 @@ describe.each([
     );
 
     it('should maintain global referential equality', async () => {
-      const { result, waitForNextUpdate } = renderDataClient(() => {
+      const { result, waitForNextUpdate } = renderDataHook(() => {
         return [
           useSuspense(CoolerArticleDetail, payload),
           useCache(CoolerArticleDetail, payload),
@@ -177,7 +178,7 @@ describe.each([
         signal: abort.signal,
       });
 
-      const { result, waitForNextUpdate } = renderDataClient(() => {
+      const { result, waitForNextUpdate } = renderDataHook(() => {
         return {
           data: useSuspense(AbortableArticle, { id: payload.id }),
           fetch: useController().fetch,
@@ -206,7 +207,7 @@ describe.each([
     });
 
     it('should resolve useSuspense()', async () => {
-      const { result, waitForNextUpdate } = renderDataClient(() => {
+      const { result, waitForNextUpdate } = renderDataHook(() => {
         return useSuspense(CoolerArticleResource.get, { id: payload.id });
       });
       expect(result.current).toBeUndefined();
@@ -225,7 +226,7 @@ describe.each([
       path: `${CoolerArticleResource.getList.path}/values` as const,
     });
 
-    const { result, waitForNextUpdate } = renderDataClient(() => {
+    const { result, waitForNextUpdate } = renderDataHook(() => {
       return useSuspense(GetValues);
     });
     expect(result.current).toBeUndefined();
@@ -244,7 +245,7 @@ describe.each([
     });
     const allArticles = new schema.All(CoolerArticle);
 
-    const { result, waitForNextUpdate } = renderDataClient(() => {
+    const { result, waitForNextUpdate } = renderDataHook(() => {
       useFetch(getList);
       return useQuery(allArticles);
     });
@@ -268,14 +269,13 @@ describe.each([
       },
     );
 
-    const { result, waitForNextUpdate, rerender, controller } =
-      renderDataClient(
-        ({ tags }: { tags: string }) => {
-          useFetch(CoolerArticleResource.getList);
-          return useQuery(queryArticle, { tags });
-        },
-        { initialProps: { tags: 'a' } },
-      );
+    const { result, waitForNextUpdate, rerender, controller } = renderDataHook(
+      ({ tags }: { tags: string }) => {
+        useFetch(CoolerArticleResource.getList);
+        return useQuery(queryArticle, { tags });
+      },
+      { initialProps: { tags: 'a' } },
+    );
     expect(result.current).toBeUndefined();
     await waitForNextUpdate();
     expect(result.current).toBeDefined();
@@ -322,7 +322,7 @@ describe.each([
       schema: queryArticle,
     });
 
-    const { result, waitForNextUpdate, controller } = renderDataClient(
+    const { result, waitForNextUpdate, controller } = renderDataHook(
       ({ tags }: { tags: string }) => {
         return useSuspense(getList, { tags });
       },
@@ -385,7 +385,7 @@ describe.each([
       ],
     });
 
-    const { result } = renderDataClient(
+    const { result } = renderDataHook(
       () => {
         return useSuspense(unionEndpoint, {});
       },
@@ -431,7 +431,7 @@ describe.each([
       { id: '5', body: 'hi', type: 'another' },
       { id: '5', body: 'hi' },
     ];
-    const { result } = renderDataClient(
+    const { result } = renderDataHook(
       () => {
         return useSuspense(UnionResource.getList);
       },
@@ -470,8 +470,8 @@ describe.each([
         .delete(`/article-cooler/${temppayload.id}`)
         .reply(204, '');
       const throws: Promise<any>[] = [];
-      const { result, waitForNextUpdate, waitFor, controller } =
-        renderDataClient(() => {
+      const { result, waitForNextUpdate, waitFor, controller } = renderDataHook(
+        () => {
           try {
             return useSuspense(ArticleResource.get, {
               id: temppayload.id,
@@ -484,7 +484,8 @@ describe.each([
             }
             throw e;
           }
-        });
+        },
+      );
       expect(result.current).toBeUndefined();
       await waitForNextUpdate();
       let data = result.current;
@@ -522,7 +523,7 @@ describe.each([
       .delete(`/article-cooler/${temppayload.id}`)
       .reply(204, '');
     const throws: Promise<any>[] = [];
-    const { result, waitForNextUpdate } = renderDataClient(() => {
+    const { result, waitForNextUpdate } = renderDataHook(() => {
       try {
         return [
           useSuspense(CoolerArticleResource.get, {
@@ -563,7 +564,7 @@ describe.each([
   });
 
   it('should throw when retrieving an empty string', async () => {
-    const { result } = renderDataClient(() => {
+    const { result } = renderDataHook(() => {
       return useController().fetch;
     });
 
@@ -576,7 +577,7 @@ describe.each([
     ['CoolerArticleResource', CoolerArticleResource.delete],
     ['ArticleResource', ArticleResource.delete],
   ] as const)(`should not throw on delete [%s]`, async (_, endpoint) => {
-    const { result } = renderDataClient(() => {
+    const { result } = renderDataHook(() => {
       return useController().fetch;
     });
     await expect(
@@ -585,7 +586,7 @@ describe.each([
   });
 
   it('useSuspense() should throw errors on bad network', async () => {
-    const { result, waitForNextUpdate } = renderDataClient(() => {
+    const { result, waitForNextUpdate } = renderDataHook(() => {
       return useSuspense(CoolerArticleResource.get, {
         title: '0',
       });
@@ -614,7 +615,7 @@ describe.each([
   });*/
 
   it('useSuspense() should throw 500 errors', async () => {
-    const { result, waitForNextUpdate } = renderDataClient(() => {
+    const { result, waitForNextUpdate } = renderDataHook(() => {
       return useSuspense(TypedArticleResource.get, {
         id: 500,
       });
@@ -626,7 +627,7 @@ describe.each([
   });
 
   it('useSuspense() should not throw 500 if data already available', async () => {
-    const { result, waitForNextUpdate } = renderDataClient(
+    const { result, waitForNextUpdate } = renderDataHook(
       () => {
         return [
           useSuspense(TypedArticleResource.get, {
@@ -686,7 +687,7 @@ describe.each([
   it('useSuspense() should throw errors on malformed response', async () => {
     const response = [1];
     mynock.get(`/article-cooler/${878}`).reply(200, response);
-    const { result, waitForNextUpdate } = renderDataClient(() => {
+    const { result, waitForNextUpdate } = renderDataHook(() => {
       return useSuspense(CoolerArticleResource.get, {
         id: 878,
       });
@@ -731,7 +732,7 @@ describe.each([
     `should not suspend with no params to useSuspense() [%s]`,
     (_, endpoint) => {
       let article: any;
-      const { result } = renderDataClient(() => {
+      const { result } = renderDataHook(() => {
         article = useSuspense(endpoint, null);
         return 'done';
       });
@@ -741,7 +742,7 @@ describe.each([
   );
 
   it('should update on create (legacy)', async () => {
-    const { result, waitForNextUpdate, controller } = renderDataClient(() => {
+    const { result, waitForNextUpdate, controller } = renderDataHook(() => {
       const articles = useSuspense(
         CoolerArticleResource.getList.extend({ schema: [CoolerArticle] }),
       );
@@ -767,7 +768,7 @@ describe.each([
   });
 
   it('should update on create', async () => {
-    const { result, waitForNextUpdate, controller } = renderDataClient(() => {
+    const { result, waitForNextUpdate, controller } = renderDataHook(() => {
       const articles = useSuspense(CoolerArticleResource.getList);
       return { articles };
     });
@@ -790,7 +791,7 @@ describe.each([
           }),
         }),
       });
-    const { result, waitForNextUpdate, controller } = renderDataClient(() => {
+    const { result, waitForNextUpdate, controller } = renderDataHook(() => {
       const articles = useSuspense(getArticles);
       return articles;
     });
@@ -816,7 +817,7 @@ describe.each([
     mynock.get(`/article-paginated`).reply(200, paginatedFirstPage);
     mynock.get(`/article-paginated?cursor=2`).reply(200, paginatedSecondPage);
 
-    const { result, waitForNextUpdate } = renderDataClient(() => {
+    const { result, waitForNextUpdate } = renderDataHook(() => {
       const { results: articles } = useSuspense(
         PaginatedArticleResource.getList,
       );
@@ -840,7 +841,7 @@ describe.each([
   });
   describe("a parent resource endpoint returns an attribute NOT in its own schema but used in a child's schemas", () => {
     it('should not error when fetching the child entity from cache', async () => {
-      const { result, waitForNextUpdate } = renderDataClient(() => {
+      const { result, waitForNextUpdate } = renderDataHook(() => {
         // CoolerArticleResource does NOT have editor in its schema, but return editor from the server
         const articleWithoutEditorSchema = useSuspense(
           CoolerArticleResource.get,

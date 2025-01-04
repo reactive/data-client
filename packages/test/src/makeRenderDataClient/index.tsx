@@ -18,7 +18,7 @@ import mockInitialState from '../mockState.js';
 export type { RenderHookOptions } from './renderHook.cjs';
 
 /** @see https://dataclient.io/docs/api/makeRenderDataHook */
-export default function makeRenderDataClient(
+export default function makeRenderDataHook(
   Provider: React.ComponentType<DataProviderProps>,
 ) {
   /** Wraps dispatches that are typically called declaratively in act() */

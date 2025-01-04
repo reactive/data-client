@@ -3,6 +3,7 @@ import {
   initialState as defaultState,
   Controller as DataController,
   applyManager,
+  GCPolicy,
 } from '@data-client/core';
 import type { State, Manager } from '@data-client/core';
 import React, { useCallback, useMemo, useRef } from 'react';
@@ -50,9 +51,13 @@ export default function DataProvider({
 See https://dataclient.io/docs/guides/ssr.`,
     );
   }
+  const gcRef: React.RefObject<GCPolicy> = useRef<any>(undefined);
+  if (!gcRef.current) gcRef.current = new GCPolicy();
+
   // contents of this component expected to be relatively stable
   const controllerRef: React.RefObject<DataController> = useRef<any>(undefined);
-  if (!controllerRef.current) controllerRef.current = new Controller();
+  if (!controllerRef.current)
+    controllerRef.current = new Controller({ gcPolicy: gcRef.current });
   //TODO: bind all methods so destructuring works
 
   const managersRef: React.RefObject<Manager[]> = useRef<any>(managers);
@@ -63,12 +68,12 @@ See https://dataclient.io/docs/guides/ssr.`,
     managersRef.current.forEach(manager => {
       manager.init?.(initialState);
     });
-    controllerRef.current.gcPolicy.init();
+    gcRef.current.init(controllerRef.current);
     return () => {
       managersRef.current.forEach(manager => {
         manager.cleanup();
       });
-      controllerRef.current.gcPolicy.cleanup();
+      gcRef.current.cleanup();
     };
     // we don't support initialState changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
