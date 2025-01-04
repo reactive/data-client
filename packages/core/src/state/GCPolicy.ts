@@ -4,12 +4,11 @@ import { GC } from '../actionTypes.js';
 import Controller from '../controller/Controller.js';
 
 export class GCPolicy implements GCInterface {
-  protected endpointCount: Record<string, number> = Object.create(null);
-  protected entityCount: Record<string, Record<string, number>> =
-    Object.create(null);
-
+  protected endpointCount = new Map<string, number>();
+  protected entityCount = new Map<string, Map<string, number>>();
   protected endpointsQ = new Set<string>();
   protected entitiesQ: EntityPath[] = [];
+
   declare protected intervalId: ReturnType<typeof setInterval>;
   declare protected controller: Controller;
   declare protected options: GCOptions;
@@ -28,6 +27,13 @@ export class GCPolicy implements GCInterface {
       if (typeof requestIdleCallback === 'function') {
         requestIdleCallback(() => this.runSweep(), { timeout: 1000 });
       } else {
+        /* TODO: React native
+          import { InteractionManager } from 'react-native';
+          InteractionManager.runAfterInteractions(callback);
+          if (options?.timeout) {
+            InteractionManager.setDeadline(options.timeout);
+          }
+        */
         this.runSweep();
       }
     }, this.options.intervalMS);
@@ -40,27 +46,36 @@ export class GCPolicy implements GCInterface {
   createCountRef({ key, paths = [] }: { key: string; paths?: EntityPath[] }) {
     // increment
     return () => {
-      this.endpointCount[key]++;
+      this.endpointCount.set(key, (this.endpointCount.get(key) ?? 0) + 1);
       paths.forEach(path => {
-        if (!(path.key in this.entityCount)) {
-          this.entityCount[path.key] = Object.create(null);
+        if (!this.entityCount.has(path.key)) {
+          this.entityCount.set(path.key, new Map<string, number>());
         }
-        this.entityCount[path.key][path.pk]++;
+        const instanceCount = this.entityCount.get(path.key)!;
+        instanceCount.set(path.pk, (instanceCount.get(path.pk) ?? 0) + 1);
       });
 
       // decrement
       return () => {
-        if (this.endpointCount[key]-- <= 0) {
+        const currentCount = this.endpointCount.get(key) ?? 0;
+        if (currentCount <= 1) {
+          this.endpointCount.delete(key);
           // queue for cleanup
           this.endpointsQ.add(key);
+        } else {
+          this.endpointCount.set(key, currentCount - 1);
         }
         paths.forEach(path => {
-          if (!(path.key in this.endpointCount)) {
+          if (!this.entityCount.has(path.key)) {
             return;
           }
-          if (this.entityCount[path.key][path.pk]-- <= 0) {
+          const instanceCount = this.entityCount.get(path.key)!;
+          if (instanceCount.get(path.pk)! <= 1) {
+            instanceCount.delete(path.pk);
             // queue for cleanup
-            this.entitiesQ.concat(...paths);
+            this.entitiesQ.push(path);
+          } else {
+            instanceCount.set(path.pk, instanceCount.get(path.pk)! - 1);
           }
         });
       };
@@ -76,9 +91,8 @@ export class GCPolicy implements GCInterface {
     const nextEndpointsQ = new Set<string>();
     for (const key of this.endpointsQ) {
       const expiresAt = state.meta[key]?.expiresAt ?? 0;
-      if (expiresAt > now && this.endpointCount[key] <= 0) {
+      if (expiresAt < now && !this.endpointCount.has(key)) {
         endpoints.push(key);
-        delete this.endpointCount[key];
       } else {
         nextEndpointsQ.add(key);
       }
@@ -88,20 +102,17 @@ export class GCPolicy implements GCInterface {
     const nextEntitiesQ: EntityPath[] = [];
     for (const path of this.entitiesQ) {
       const expiresAt = state.entityMeta[path.key]?.[path.pk]?.expiresAt ?? 0;
-      if (expiresAt > now && this.entityCount[path.key][path.pk]) {
+      if (expiresAt < now && !this.entityCount.get(path.key)?.has(path.pk)) {
         entities.push(path);
-        delete this.entityCount[path.key][path.pk];
       } else {
         nextEntitiesQ.push(path);
       }
     }
     this.entitiesQ = nextEntitiesQ;
 
-    this.controller.dispatch({
-      type: GC,
-      entities,
-      endpoints,
-    });
+    if (entities.length || endpoints.length) {
+      this.controller.dispatch({ type: GC, entities, endpoints });
+    }
   }
 }
 
