@@ -14,6 +14,7 @@ import { InteractionManager } from 'react-native';
 import useCacheState from './useCacheState.js';
 import useController from './useController.js';
 import useFocusEffect from './useFocusEffect.native.js';
+import { useUniveralEffect } from './useUniversalEffect.js';
 
 type SchemaReturn<S extends Schema | undefined> =
   | {
@@ -81,7 +82,7 @@ export default function useDLE<
 
   // Compute denormalized value
   // eslint-disable-next-line prefer-const
-  let { data, expiryStatus, expiresAt } = useMemo(() => {
+  let { data, expiryStatus, expiresAt, countRef } = useMemo(() => {
     return controller.getResponse(endpoint, ...args, state);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -135,6 +136,8 @@ export default function useDLE<
   }, [key, data, loading, cacheResults]);
 
   const error = controller.getError(endpoint, ...args, state);
+
+  useUniveralEffect(countRef, [data]);
 
   return {
     data,

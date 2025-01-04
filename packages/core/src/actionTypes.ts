@@ -9,6 +9,7 @@ export const INVALIDATE = 'rdc/invalidate' as const;
 export const INVALIDATEALL = 'rdc/invalidateall' as const;
 export const EXPIREALL = 'rdc/expireall' as const;
 export const GC = 'rdc/gc' as const;
+export const REF = 'rdc/ref' as const;
 
 export const FETCH_TYPE = FETCH;
 export const SET_TYPE = SET;

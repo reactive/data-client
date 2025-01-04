@@ -1,6 +1,7 @@
 import type {
   Denormalize,
   EndpointInterface,
+  EntityPath,
   Queryable,
   ResolveType,
   UnknownError,
@@ -18,6 +19,7 @@ import type {
   INVALIDATEALL,
   EXPIREALL,
   SET_RESPONSE,
+  REF,
 } from './actionTypes.js';
 import type { EndpointUpdateFunction } from './controller/types.js';
 
@@ -148,8 +150,15 @@ export interface ResetAction {
 /* GC */
 export interface GCAction {
   type: typeof GC;
-  entities: [string, string][];
+  entities: EntityPath[];
   endpoints: string[];
+}
+/* ref counting */
+export interface RefAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
+  type: typeof REF;
+  key: string;
+  paths: EntityPath[];
+  incr: boolean;
 }
 
 /** @see https://dataclient.io/docs/api/Actions */
@@ -164,4 +173,5 @@ export type ActionTypes =
   | InvalidateAllAction
   | ExpireAllAction
   | ResetAction
-  | GCAction;
+  | GCAction
+  | RefAction;

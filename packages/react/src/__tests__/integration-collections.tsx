@@ -670,10 +670,8 @@ describe.each([
           },
         );
         expect(result.current).toMatchSnapshot();
-        console.log(result.current);
         const firstResult = result.current;
         rerender({ filters: filtersB });
-        console.log(result.current);
         expect(result.current).not.toEqual(firstResult);
         expect(result.current).toMatchSnapshot();
       });

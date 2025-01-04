@@ -2,7 +2,6 @@ import { SUBSCRIBE, UNSUBSCRIBE } from '../actionTypes.js';
 import Controller from '../controller/Controller.js';
 import type {
   Manager,
-  MiddlewareAPI,
   Middleware,
   UnsubscribeAction,
   SubscribeAction,
