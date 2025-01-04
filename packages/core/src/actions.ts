@@ -19,7 +19,6 @@ import type {
   INVALIDATEALL,
   EXPIREALL,
   SET_RESPONSE,
-  REF,
 } from './actionTypes.js';
 import type { EndpointUpdateFunction } from './controller/types.js';
 
@@ -153,13 +152,6 @@ export interface GCAction {
   entities: EntityPath[];
   endpoints: string[];
 }
-/* ref counting */
-export interface RefAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
-  type: typeof REF;
-  key: string;
-  paths: EntityPath[];
-  incr: boolean;
-}
 
 /** @see https://dataclient.io/docs/api/Actions */
 export type ActionTypes =
@@ -173,5 +165,4 @@ export type ActionTypes =
   | InvalidateAllAction
   | ExpireAllAction
   | ResetAction
-  | GCAction
-  | RefAction;
+  | GCAction;

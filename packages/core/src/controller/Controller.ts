@@ -35,10 +35,10 @@ import {
 } from './actions/index.js';
 import ensurePojo from './ensurePojo.js';
 import type { EndpointUpdateFunction } from './types.js';
+import GCPolicy from '../manager/GCPolicy.js';
 import { initialState } from '../state/reducer/createReducer.js';
 import selectMeta from '../state/selectMeta.js';
 import type { ActionTypes, State } from '../types.js';
-import { createCountRef } from './actions/createCountRef.js';
 
 export type GenericDispatch = (value: any) => Promise<void>;
 export type DataClientDispatch = (value: ActionTypes) => Promise<void>;
@@ -90,6 +90,11 @@ export default class Controller<
     'denormalize' | 'query' | 'buildQueryKey'
   >;
 
+  /**
+   * Handles garbage collection
+   */
+  declare readonly gcPolicy: GCPolicy;
+
   constructor({
     dispatch = unsetDispatch as any,
     getState = unsetState,
@@ -98,6 +103,7 @@ export default class Controller<
     this.dispatch = dispatch;
     this.getState = getState;
     this.memo = memo;
+    this.gcPolicy = new GCPolicy(this);
   }
 
   /*************** Action Dispatchers ***************/
@@ -466,7 +472,7 @@ export default class Controller<
           : cacheEndpoints && !endpoint.invalidIfStale ? ExpiryStatus.Valid
           : ExpiryStatus.InvalidIfStale,
         expiresAt: expiresAt || 0,
-        countRef: createCountRef(this.dispatch, { key }),
+        countRef: this.gcPolicy.createCountRef({ key }),
       };
     }
 
@@ -547,7 +553,7 @@ export default class Controller<
       data,
       expiryStatus,
       expiresAt,
-      countRef: createCountRef(this.dispatch, { key, paths }),
+      countRef: this.gcPolicy.createCountRef({ key, paths }),
     };
   }
 }

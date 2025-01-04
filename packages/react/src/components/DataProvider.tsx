@@ -63,10 +63,12 @@ See https://dataclient.io/docs/guides/ssr.`,
     managersRef.current.forEach(manager => {
       manager.init?.(initialState);
     });
+    controllerRef.current.gcPolicy.init();
     return () => {
       managersRef.current.forEach(manager => {
         manager.cleanup();
       });
+      controllerRef.current.gcPolicy.cleanup();
     };
     // we don't support initialState changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
