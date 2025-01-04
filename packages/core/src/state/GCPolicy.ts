@@ -8,8 +8,8 @@ export class GCPolicy implements GCInterface {
   protected entityCount: Record<string, Record<string, number>> =
     Object.create(null);
 
-  protected endpoints = new Set<string>();
-  protected entities: EntityPath[] = [];
+  protected endpointsQ = new Set<string>();
+  protected entitiesQ: EntityPath[] = [];
   declare protected intervalId: ReturnType<typeof setInterval>;
   declare protected controller: Controller;
   declare protected options: GCOptions;
@@ -52,7 +52,7 @@ export class GCPolicy implements GCInterface {
       return () => {
         if (this.endpointCount[key]-- <= 0) {
           // queue for cleanup
-          this.endpoints.add(key);
+          this.endpointsQ.add(key);
         }
         paths.forEach(path => {
           if (!(path.key in this.endpointCount)) {
@@ -60,7 +60,7 @@ export class GCPolicy implements GCInterface {
           }
           if (this.entityCount[path.key][path.pk]-- <= 0) {
             // queue for cleanup
-            this.entities.concat(...paths);
+            this.entitiesQ.concat(...paths);
           }
         });
       };
@@ -72,18 +72,31 @@ export class GCPolicy implements GCInterface {
     const entities: EntityPath[] = [];
     const endpoints: string[] = [];
     const now = Date.now();
-    for (const key of this.endpoints) {
+
+    const nextEndpointsQ = new Set<string>();
+    for (const key of this.endpointsQ) {
       const expiresAt = state.meta[key]?.expiresAt ?? 0;
-      if (expiresAt > now) {
+      if (expiresAt > now && this.endpointCount[key] <= 0) {
         endpoints.push(key);
+        delete this.endpointCount[key];
+      } else {
+        nextEndpointsQ.add(key);
       }
     }
-    for (const path of this.entities) {
+    this.endpointsQ = nextEndpointsQ;
+
+    const nextEntitiesQ: EntityPath[] = [];
+    for (const path of this.entitiesQ) {
       const expiresAt = state.entityMeta[path.key]?.[path.pk]?.expiresAt ?? 0;
-      if (expiresAt > now) {
+      if (expiresAt > now && this.entityCount[path.key][path.pk]) {
         entities.push(path);
+        delete this.entityCount[path.key][path.pk];
+      } else {
+        nextEntitiesQ.push(path);
       }
     }
+    this.entitiesQ = nextEntitiesQ;
+
     this.controller.dispatch({
       type: GC,
       entities,
