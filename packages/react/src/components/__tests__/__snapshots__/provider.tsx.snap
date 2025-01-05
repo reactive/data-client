@@ -18,7 +18,7 @@ exports[`<DataProvider /> should change state 1`] = `
     "CoolerArticle": {
       "5": {
         "date": 50,
-        "expiresAt": 55,
+        "expiresAt": 60050,
         "fetchedAt": 50,
       },
     },
@@ -28,7 +28,7 @@ exports[`<DataProvider /> should change state 1`] = `
   "meta": {
     "GET http://test.com/article-cooler/5": {
       "date": 50,
-      "expiresAt": 55,
+      "expiresAt": 60050,
       "prevExpiresAt": undefined,
     },
   },

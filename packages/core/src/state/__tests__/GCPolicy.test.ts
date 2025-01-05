@@ -64,6 +64,35 @@ describe('GCPolicy', () => {
     });
   });
 
+  it('should dispatch GC action once no ref counts and is expired with extra decrements', () => {
+    const key = 'testEndpoint';
+    const paths: EntityPath[] = [{ key: 'testEntity', pk: '1' }];
+    const state = {
+      meta: { testEndpoint: { expiresAt: Date.now() - 1000 } },
+      entityMeta: { testEntity: { '1': { expiresAt: Date.now() - 1000 } } },
+    };
+    (controller.getState as jest.Mock).mockReturnValue(state);
+
+    const countRef = gcPolicy.createCountRef({ key, paths });
+
+    const decrement = countRef();
+    countRef(); // Increment again
+    gcPolicy['runSweep']();
+    expect(controller.dispatch).not.toHaveBeenCalled();
+    decrement();
+    gcPolicy['runSweep']();
+    expect(controller.dispatch).not.toHaveBeenCalled();
+    decrement(); // Decrement twice
+    decrement(); // Decrement extra time
+
+    gcPolicy['runSweep']();
+    expect(controller.dispatch).toHaveBeenCalledWith({
+      type: GC,
+      entities: [{ key: 'testEntity', pk: '1' }],
+      endpoints: ['testEndpoint'],
+    });
+  });
+
   it('should dispatch GC action once no ref counts and no expiry state', () => {
     const key = 'testEndpoint';
     const paths: EntityPath[] = [{ key: 'testEntity', pk: '1' }];

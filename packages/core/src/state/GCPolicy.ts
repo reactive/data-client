@@ -57,25 +57,30 @@ export class GCPolicy implements GCInterface {
 
       // decrement
       return () => {
-        const currentCount = this.endpointCount.get(key) ?? 0;
-        if (currentCount <= 1) {
-          this.endpointCount.delete(key);
-          // queue for cleanup
-          this.endpointsQ.add(key);
-        } else {
-          this.endpointCount.set(key, currentCount - 1);
+        const currentCount = this.endpointCount.get(key)!;
+        if (currentCount !== undefined) {
+          if (currentCount <= 1) {
+            this.endpointCount.delete(key);
+            // queue for cleanup
+            this.endpointsQ.add(key);
+          } else {
+            this.endpointCount.set(key, currentCount - 1);
+          }
         }
         paths.forEach(path => {
           if (!this.entityCount.has(path.key)) {
             return;
           }
           const instanceCount = this.entityCount.get(path.key)!;
-          if (instanceCount.get(path.pk)! <= 1) {
-            instanceCount.delete(path.pk);
-            // queue for cleanup
-            this.entitiesQ.push(path);
-          } else {
-            instanceCount.set(path.pk, instanceCount.get(path.pk)! - 1);
+          const entityCount = instanceCount.get(path.pk)!;
+          if (entityCount !== undefined) {
+            if (entityCount <= 1) {
+              instanceCount.delete(path.pk);
+              // queue for cleanup
+              this.entitiesQ.push(path);
+            } else {
+              instanceCount.set(path.pk, entityCount - 1);
+            }
           }
         });
       };
