@@ -47,7 +47,7 @@
     "@js-temporal/polyfill": "^0.4.4",
     "@mdx-js/react": "^3.1.0",
     "@monaco-editor/react": "^4.4.6",
-    "@number-flow/react": "^0.4.0",
+    "@number-flow/react": "^0.5.0",
     "bignumber.js": "9.1.2",
     "clsx": "2.1.1",
     "monaco-editor": "^0.52.0",
