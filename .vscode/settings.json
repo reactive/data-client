@@ -48,6 +48,7 @@
     "packages/**/index.d.ts": true,
     "packages/*/lib": true,
     "packages/*/legacy": true,
+    "packages/*/native": true,
     "yarn.lock": true,
     "**/versioned_docs": true,
     "**/*_versioned_docs": true,

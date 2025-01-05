@@ -75,11 +75,11 @@ const TestComponent = () => {
 
 test('switch between list and detail view', async () => {
   jest.useFakeTimers();
-  mockGetList.mockResolvedValue([
+  mockGetList.mockReturnValue([
     { id: 1, title: 'Article 1', content: 'Content 1' },
     { id: 2, title: 'Article 2', content: 'Content 2' },
   ]);
-  mockGet.mockResolvedValue({
+  mockGet.mockReturnValue({
     id: 1,
     title: 'Article 1',
     content: 'Content 1',

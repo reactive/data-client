@@ -24,18 +24,7 @@ export class GCPolicy implements GCInterface {
     this.controller = controller;
 
     this.intervalId = setInterval(() => {
-      if (typeof requestIdleCallback === 'function') {
-        requestIdleCallback(() => this.runSweep(), { timeout: 1000 });
-      } else {
-        /* TODO: React native
-          import { InteractionManager } from 'react-native';
-          InteractionManager.runAfterInteractions(callback);
-          if (options?.timeout) {
-            InteractionManager.setDeadline(options.timeout);
-          }
-        */
-        this.runSweep();
-      }
+      this.idleCallback(() => this.runSweep(), { timeout: 1000 });
     }, this.options.intervalMS);
   }
 
@@ -117,6 +106,21 @@ export class GCPolicy implements GCInterface {
 
     if (entities.length || endpoints.length) {
       this.controller.dispatch({ type: GC, entities, endpoints });
+    }
+  }
+
+  /** Calls the callback when client is not 'busy' with high priority interaction tasks
+   *
+   * Override for platform-specific implementations
+   */
+  protected idleCallback(
+    callback: (...args: any[]) => void,
+    options?: IdleRequestOptions,
+  ) {
+    if (typeof requestIdleCallback === 'function') {
+      requestIdleCallback(callback, options);
+    } else {
+      callback();
     }
   }
 }

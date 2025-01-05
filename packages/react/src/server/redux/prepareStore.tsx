@@ -5,7 +5,6 @@ import {
   ActionTypes,
   createReducer,
   applyManager,
-  GCPolicy,
   GCInterface,
 } from '@data-client/core';
 
@@ -15,6 +14,7 @@ import { default as PromiseifyMiddleware } from './PromiseifyMiddleware.js';
 import { createStore, applyMiddleware } from './redux.js';
 import type { Reducer, Middleware } from './redux.js';
 import type { Store } from '../../context.js';
+import GCPolicy from '../../state/GCPolicy.js';
 
 export function prepareStore<
   R extends ReducersMapObject<any, ActionTypes> = {},

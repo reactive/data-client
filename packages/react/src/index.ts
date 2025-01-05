@@ -3,12 +3,7 @@ Object.hasOwn =
   /* istanbul ignore next */ function hasOwn(it, key) {
     return Object.prototype.hasOwnProperty.call(it, key);
   };
-export {
-  Controller,
-  ExpiryStatus,
-  actionTypes,
-  GCPolicy,
-} from '@data-client/core';
+export { Controller, ExpiryStatus, actionTypes } from '@data-client/core';
 export type {
   EndpointExtraOptions,
   FetchFunction,
@@ -49,6 +44,7 @@ export type {
   DataClientDispatch,
   GenericDispatch,
 } from '@data-client/core';
+export { default as GCPolicy } from './state/GCPolicy.js';
 export * from './managers/index.js';
 export * from './components/index.js';
 export * from './hooks/index.js';

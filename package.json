@@ -67,6 +67,7 @@
     "@react-navigation/native-stack": "^7.0.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/jest-native": "^5.4.3",
     "@testing-library/react": "16.1.0",
     "@testing-library/react-hooks": "8.0.1",
     "@testing-library/react-native": "13.0.0",

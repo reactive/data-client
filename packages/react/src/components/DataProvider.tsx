@@ -3,7 +3,6 @@ import {
   initialState as defaultState,
   Controller as DataController,
   applyManager,
-  GCPolicy,
   initManager,
 } from '@data-client/core';
 import type { State, Manager, GCInterface } from '@data-client/core';
@@ -17,6 +16,7 @@ import { SSR } from './LegacyReact.js';
 import { renderDevButton } from './renderDevButton.js';
 import { ControllerContext } from '../context.js';
 import { DevToolsManager } from '../managers/index.js';
+import GCPolicy from '../state/GCPolicy.js';
 
 export interface ProviderProps {
   children: React.ReactNode;
