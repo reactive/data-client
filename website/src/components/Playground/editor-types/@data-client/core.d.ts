@@ -248,6 +248,43 @@ type EndpointUpdateFunction<Source extends EndpointInterface, Updaters extends R
     [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K];
 };
 
+declare class GCPolicy implements GCInterface {
+    protected endpointCount: Map<string, number>;
+    protected entityCount: Map<string, Map<string, number>>;
+    protected endpointsQ: Set<string>;
+    protected entitiesQ: EntityPath[];
+    protected intervalId: ReturnType<typeof setInterval>;
+    protected controller: Controller;
+    protected options: GCOptions;
+    constructor({ intervalMS }?: GCOptions);
+    init(controller: Controller): void;
+    cleanup(): void;
+    createCountRef({ key, paths }: {
+        key: string;
+        paths?: EntityPath[];
+    }): () => () => void;
+    protected runSweep(): void;
+}
+declare class ImmortalGCPolicy implements GCInterface {
+    init(): void;
+    cleanup(): void;
+    createCountRef(): () => () => undefined;
+}
+interface GCOptions {
+    intervalMS?: number;
+}
+interface CreateCountRef {
+    ({ key, paths }: {
+        key: string;
+        paths?: EntityPath[];
+    }): () => () => void;
+}
+interface GCInterface {
+    createCountRef: CreateCountRef;
+    init(controller: Controller): void;
+    cleanup(): void;
+}
+
 declare const FETCH: "rdc/fetch";
 declare const SET: "rdc/set";
 declare const SET_RESPONSE: "rdc/setresponse";
@@ -412,7 +449,7 @@ interface ResetAction {
 }
 interface GCAction {
     type: typeof GC;
-    entities: [string, string][];
+    entities: EntityPath[];
     endpoints: string[];
 }
 /** @see https://dataclient.io/docs/api/Actions */
@@ -486,6 +523,7 @@ interface ConstructorProps<D extends GenericDispatch = DataClientDispatch> {
     dispatch?: D;
     getState?: () => State<unknown>;
     memo?: Pick<MemoCache, 'denormalize' | 'query' | 'buildQueryKey'>;
+    gcPolicy?: GCInterface;
 }
 /**
  * Imperative control of Reactive Data Client store
@@ -510,7 +548,11 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      * Singleton to maintain referential equality between calls
      */
     readonly memo: Pick<MemoCache, 'denormalize' | 'query' | 'buildQueryKey'>;
-    constructor({ dispatch, getState, memo, }?: ConstructorProps<D>);
+    /**
+     * Handles garbage collection
+     */
+    readonly gcPolicy: GCInterface;
+    constructor({ dispatch, getState, memo, gcPolicy, }?: ConstructorProps<D>);
     /*************** Action Dispatchers ***************/
     /**
      * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
@@ -619,6 +661,7 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
         data: DenormalizeNullable<E['schema']>;
         expiryStatus: ExpiryStatus;
         expiresAt: number;
+        countRef: () => () => void;
     };
     getResponse<E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>>(endpoint: E, ...rest: readonly [
         ...(readonly [...Parameters<E['key']>] | readonly [null]),
@@ -627,6 +670,7 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
         data: DenormalizeNullable<E['schema']>;
         expiryStatus: ExpiryStatus;
         expiresAt: number;
+        countRef: () => () => void;
     };
     /**
      * Queries the store for a Querable schema
@@ -746,6 +790,8 @@ type ReactDispatch<R extends Reducer<any, any>> = (action: ReducerAction<R>) => 
 type Reducer<S, A> = (prevState: S, action: A) => S;
 type ReducerState<R extends Reducer<any, any>> = R extends Reducer<infer S, any> ? S : never;
 type ReducerAction<R extends Reducer<any, any>> = R extends Reducer<any, infer A> ? A : never;
+
+declare function initManager(managers: Manager[], controller: Controller, initialState: State<unknown>): () => () => void;
 
 declare function createSubscription<E extends EndpointInterface>(endpoint: E, { args }: {
     args: readonly [...Parameters<E>];
@@ -1164,4 +1210,4 @@ interface Props {
     shouldLogout?: (error: UnknownError) => boolean;
 }
 
-export { AbstractInstanceType, ActionMeta, ActionTypes, ConnectionListener, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityInterface, ErrorTypes, ExpireAllAction, ExpiryStatus, FetchAction, FetchFunction, FetchMeta, GCAction, GenericDispatch, InvalidateAction, InvalidateAllAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NI, NetworkError, NetworkManager, Normalize, NormalizeNullable, OptimisticAction, PK, PollingSubscription, Queryable, ResetAction, ResetError, ResolveType, ResultEntry, Schema, SchemaArgs, SchemaClass, SetAction, SetResponseAction, SetResponseActionBase, SetResponseActionError, SetResponseActionSuccess, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, index_d as actions, applyManager, createReducer, initialState };
+export { AbstractInstanceType, ActionMeta, ActionTypes, ConnectionListener, Controller, CreateCountRef, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityInterface, ErrorTypes, ExpireAllAction, ExpiryStatus, FetchAction, FetchFunction, FetchMeta, GCAction, GCInterface, GCOptions, GCPolicy, GenericDispatch, ImmortalGCPolicy, InvalidateAction, InvalidateAllAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NI, NetworkError, NetworkManager, Normalize, NormalizeNullable, OptimisticAction, PK, PollingSubscription, Queryable, ResetAction, ResetError, ResolveType, ResultEntry, Schema, SchemaArgs, SchemaClass, SetAction, SetResponseAction, SetResponseActionBase, SetResponseActionError, SetResponseActionSuccess, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, index_d as actions, applyManager, createReducer, initManager, initialState };

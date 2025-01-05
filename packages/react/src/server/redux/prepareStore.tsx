@@ -6,6 +6,7 @@ import {
   createReducer,
   applyManager,
   GCPolicy,
+  GCInterface,
 } from '@data-client/core';
 
 import { combineReducers } from './combineReducers.js';
@@ -23,9 +24,9 @@ export function prepareStore<
   Ctrl: typeof Controller,
   reducers: R = {} as any,
   middlewares: Middleware[] = [] as any,
+  gcPolicy: GCInterface = new GCPolicy(),
 ) {
   const selector = (s: { dataclient: State<unknown> }) => s.dataclient;
-  const gcPolicy = new GCPolicy();
   const controller = new Ctrl({ gcPolicy });
   const reducer = createReducer(controller);
   const store: Store<
@@ -41,7 +42,7 @@ export function prepareStore<
       ...middlewares,
     ),
   ) as any;
-  return { selector, store, controller, gcPolicy };
+  return { selector, store, controller };
 }
 
 // Extension of the DeepPartial type defined by Redux which handles unknown

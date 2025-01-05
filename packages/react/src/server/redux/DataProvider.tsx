@@ -1,6 +1,8 @@
 'use client';
 import {
   DevToolsManager,
+  GCInterface,
+  initManager,
   type Controller,
   type Manager,
   type State,
@@ -17,30 +19,23 @@ export default function TestExternalDataProvider({
   managers,
   initialState,
   Controller,
+  gcPolicy,
   devButton = 'bottom-right',
 }: Props) {
-  const { selector, store, controller, gcPolicy } = useMemo(
-    () => prepareStore(initialState, managers, Controller),
+  const { selector, store, controller } = useMemo(
+    () => prepareStore(initialState, managers, Controller, {}, [], gcPolicy),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [Controller, ...managers],
   );
 
   // this is not handled in ExternalCacheProvider as it doesn't
   // own its managers. Since we are owning them here, we should ensure it happens
-  useEffect(() => {
-    for (let i = 0; i < managers.length; ++i) {
-      managers[i].init?.(selector(store.getState()));
-    }
-    gcPolicy.init(controller);
-    return () => {
-      for (let i = 0; i < managers.length; ++i) {
-        managers[i].cleanup();
-      }
-      gcPolicy.cleanup();
-    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(
+    initManager(managers, controller, selector(store.getState())),
     // we're ignoring state here, because it shouldn't trigger inits
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [...managers]);
+    managers,
+  );
 
   // only include if they have devtools integrated
   const hasDevManager = !!managers.find(
@@ -65,5 +60,6 @@ interface Props {
   managers: Manager[];
   initialState: State<unknown>;
   Controller: typeof Controller;
+  gcPolicy?: GCInterface;
   devButton?: DevToolsPosition | null | undefined;
 }

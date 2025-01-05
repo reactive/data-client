@@ -36,6 +36,7 @@ import {
 import ensurePojo from './ensurePojo.js';
 import type { EndpointUpdateFunction } from './types.js';
 import type { GCInterface } from '../state/GCPolicy.js';
+import { ImmortalGCPolicy } from '../state/GCPolicy.js';
 import { initialState } from '../state/reducer/createReducer.js';
 import selectMeta from '../state/selectMeta.js';
 import type { ActionTypes, State } from '../types.js';
@@ -100,7 +101,7 @@ export default class Controller<
     dispatch = unsetDispatch as any,
     getState = unsetState,
     memo = new MemoCache(),
-    gcPolicy = { createCountRef: () => () => () => undefined },
+    gcPolicy = new ImmortalGCPolicy(),
   }: ConstructorProps<D> = {}) {
     this.dispatch = dispatch;
     this.getState = getState;

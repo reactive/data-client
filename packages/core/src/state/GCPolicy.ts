@@ -116,6 +116,16 @@ export class GCPolicy implements GCInterface {
   }
 }
 
+export class ImmortalGCPolicy implements GCInterface {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  init() {}
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  cleanup() {}
+  createCountRef() {
+    return () => () => undefined;
+  }
+}
+
 export interface GCOptions {
   intervalMS?: number;
 }
@@ -124,4 +134,6 @@ export interface CreateCountRef {
 }
 export interface GCInterface {
   createCountRef: CreateCountRef;
+  init(controller: Controller): void;
+  cleanup(): void;
 }

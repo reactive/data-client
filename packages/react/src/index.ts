@@ -3,7 +3,12 @@ Object.hasOwn =
   /* istanbul ignore next */ function hasOwn(it, key) {
     return Object.prototype.hasOwnProperty.call(it, key);
   };
-export { Controller, ExpiryStatus, actionTypes } from '@data-client/core';
+export {
+  Controller,
+  ExpiryStatus,
+  actionTypes,
+  GCPolicy,
+} from '@data-client/core';
 export type {
   EndpointExtraOptions,
   FetchFunction,
@@ -37,6 +42,9 @@ export type {
   Middleware,
   MiddlewareAPI,
   Manager,
+  GCInterface,
+  GCOptions,
+  CreateCountRef,
   // used in Controller generic
   DataClientDispatch,
   GenericDispatch,
