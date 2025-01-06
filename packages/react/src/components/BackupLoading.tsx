@@ -9,7 +9,7 @@ export default function BackupLoading() {
     useMemo(() => {
       console.warn(
         `Uncaught suspense.
-Make sure to add your own Suspense boundaries: https://dataclient.io/docs/getting-started/data-dependency#async-fallbacks`,
+Make sure to add your own Suspense boundaries: https://dataclient.io/docs/getting-started/data-dependency#boundaries`,
       );
     }, []);
 
@@ -17,7 +17,7 @@ Make sure to add your own Suspense boundaries: https://dataclient.io/docs/gettin
       <>
         <span>Uncaught Suspense.</span>
         Try
-        <a href="https://dataclient.io/docs/getting-started/data-dependency#async-fallbacks">
+        <a href="https://dataclient.io/docs/getting-started/data-dependency#boundaries">
           adding a suspense boundary
         </a>
       </>

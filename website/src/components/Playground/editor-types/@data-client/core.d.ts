@@ -264,6 +264,11 @@ declare class GCPolicy implements GCInterface {
         paths?: EntityPath[];
     }): () => () => void;
     protected runSweep(): void;
+    /** Calls the callback when client is not 'busy' with high priority interaction tasks
+     *
+     * Override for platform-specific implementations
+     */
+    protected idleCallback(callback: (...args: any[]) => void, options?: IdleRequestOptions): void;
 }
 declare class ImmortalGCPolicy implements GCInterface {
     init(): void;

@@ -10,7 +10,7 @@ export default function BackupLoadingNative() {
     useEffect(() => {
       console.warn(
         `Uncaught suspense.
-Make sure to add your own Suspense boundaries: https://dataclient.io/docs/getting-started/data-dependency#async-fallbacks`,
+Make sure to add your own Suspense boundaries: https://dataclient.io/docs/getting-started/data-dependency#boundaries`,
       );
     }, []);
 
@@ -23,7 +23,7 @@ Make sure to add your own Suspense boundaries: https://dataclient.io/docs/gettin
             style={{ color: 'blue' }}
             onPress={() =>
               Linking.openURL(
-                'https://dataclient.io/docs/getting-started/data-dependency#async-fallbacks',
+                'https://dataclient.io/docs/getting-started/data-dependency#boundaries',
               )
             }
           >
