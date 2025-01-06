@@ -14,6 +14,7 @@ import { InteractionManager } from 'react-native';
 import useCacheState from './useCacheState.js';
 import useController from './useController.js';
 import useFocusEffect from './useFocusEffect.native.js';
+import { useUniveralEffect } from './useUniversalEffect.js';
 
 /**
  * Ensure an endpoint is available.
@@ -63,7 +64,7 @@ export default function useSuspense<
   const meta = state.meta[key];
 
   // Compute denormalized value
-  const { data, expiryStatus, expiresAt } = useMemo(() => {
+  const { data, expiryStatus, expiresAt, countRef } = useMemo(() => {
     return controller.getResponse(endpoint, ...args, state);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -111,6 +112,8 @@ export default function useSuspense<
 
     return () => task.cancel();
   }, []);
+
+  useUniveralEffect(countRef, [data]);
 
   return data;
 }

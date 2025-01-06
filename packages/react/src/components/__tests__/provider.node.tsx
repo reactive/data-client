@@ -4,7 +4,7 @@ import { renderToString } from 'react-dom/server';
 
 import DataProvider from '../DataProvider';
 
-describe('<BackupBoundary />', () => {
+describe('<DataProvider />', () => {
   let warnspy: jest.SpyInstance;
   beforeEach(() => {
     warnspy = jest.spyOn(global.console, 'warn').mockImplementation(() => {});

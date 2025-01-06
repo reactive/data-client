@@ -37,10 +37,14 @@ export type {
   Middleware,
   MiddlewareAPI,
   Manager,
+  GCInterface,
+  GCOptions,
+  CreateCountRef,
   // used in Controller generic
   DataClientDispatch,
   GenericDispatch,
 } from '@data-client/core';
+export { default as GCPolicy } from './state/GCPolicy.js';
 export * from './managers/index.js';
 export * from './components/index.js';
 export * from './hooks/index.js';

@@ -1,6 +1,6 @@
 import * as _data_client_core from '@data-client/core';
-import { NetworkManager, Manager, State, Controller, DevToolsManager, DevToolsConfig, SubscriptionManager, EndpointInterface, FetchFunction, Schema, ResolveType, Denormalize, DenormalizeNullable, Queryable, NI, SchemaArgs, NetworkError, UnknownError, ErrorTypes as ErrorTypes$1, __INTERNAL__, createReducer, applyManager, actions } from '@data-client/core';
-export { AbstractInstanceType, ActionTypes, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, EntityInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, Queryable, ResetAction, ResolveType, Schema, SchemaArgs, SchemaClass, SetAction, SetResponseAction, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@data-client/core';
+import { NetworkManager, Manager, State, Controller, GCInterface, DevToolsManager, DevToolsConfig, SubscriptionManager, EndpointInterface, FetchFunction, Schema, ResolveType, Denormalize, DenormalizeNullable, Queryable, NI, SchemaArgs, NetworkError, UnknownError, ErrorTypes as ErrorTypes$1, __INTERNAL__, createReducer, applyManager, actions } from '@data-client/core';
+export { AbstractInstanceType, ActionTypes, Controller, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, EntityInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, GCInterface, GCOptions, GCPolicy, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, Queryable, ResetAction, ResolveType, Schema, SchemaArgs, SchemaClass, SetAction, SetResponseAction, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@data-client/core';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import React, { JSX, Context } from 'react';
 
@@ -17,20 +17,14 @@ interface ProviderProps {
     managers?: Manager[];
     initialState?: State<unknown>;
     Controller?: typeof Controller;
-    devButton?: DevToolsPosition | null | undefined;
-}
-interface Props$1 {
-    children: React.ReactNode;
-    managers?: Manager[];
-    initialState?: State<unknown>;
-    Controller?: typeof Controller;
+    gcPolicy?: GCInterface;
     devButton?: DevToolsPosition | null | undefined;
 }
 /**
  * Manages state, providing all context needed to use the hooks.
  * @see https://dataclient.io/docs/api/DataProvider
  */
-declare function DataProvider({ children, managers, initialState, Controller, devButton, }: Props$1): JSX.Element;
+declare function DataProvider({ children, managers, gcPolicy, initialState, Controller, devButton, }: ProviderProps): JSX.Element;
 
 /** Returns the default Managers used by DataProvider.
  *

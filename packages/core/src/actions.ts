@@ -1,6 +1,7 @@
 import type {
   Denormalize,
   EndpointInterface,
+  EntityPath,
   Queryable,
   ResolveType,
   UnknownError,
@@ -148,7 +149,7 @@ export interface ResetAction {
 /* GC */
 export interface GCAction {
   type: typeof GC;
-  entities: [string, string][];
+  entities: EntityPath[];
   endpoints: string[];
 }
 

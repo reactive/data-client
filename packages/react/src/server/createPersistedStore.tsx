@@ -7,6 +7,7 @@ import {
   initialState,
   createReducer,
   applyManager,
+  initManager,
 } from '@data-client/core';
 import { useSyncExternalStore } from 'react';
 
@@ -36,7 +37,7 @@ export default function createPersistedStore(
     PromiseifyMiddleware,
   );
   const store = createStore(reducer, initialState as any, enhancer);
-  managers.forEach(manager => manager.init?.(store.getState()));
+  initManager(managers, controller, store.getState())();
 
   const selector = (state: any) => state;
 

@@ -35,6 +35,8 @@ import {
 } from './actions/index.js';
 import ensurePojo from './ensurePojo.js';
 import type { EndpointUpdateFunction } from './types.js';
+import type { GCInterface } from '../state/GCPolicy.js';
+import { ImmortalGCPolicy } from '../state/GCPolicy.js';
 import { initialState } from '../state/reducer/createReducer.js';
 import selectMeta from '../state/selectMeta.js';
 import type { ActionTypes, State } from '../types.js';
@@ -46,6 +48,7 @@ interface ConstructorProps<D extends GenericDispatch = DataClientDispatch> {
   dispatch?: D;
   getState?: () => State<unknown>;
   memo?: Pick<MemoCache, 'denormalize' | 'query' | 'buildQueryKey'>;
+  gcPolicy?: GCInterface;
 }
 
 const unsetDispatch = (action: unknown): Promise<void> => {
@@ -89,14 +92,21 @@ export default class Controller<
     'denormalize' | 'query' | 'buildQueryKey'
   >;
 
+  /**
+   * Handles garbage collection
+   */
+  declare readonly gcPolicy: GCInterface;
+
   constructor({
     dispatch = unsetDispatch as any,
     getState = unsetState,
     memo = new MemoCache(),
+    gcPolicy = new ImmortalGCPolicy(),
   }: ConstructorProps<D> = {}) {
     this.dispatch = dispatch;
     this.getState = getState;
     this.memo = memo;
+    this.gcPolicy = gcPolicy;
   }
 
   /*************** Action Dispatchers ***************/
@@ -389,6 +399,7 @@ export default class Controller<
     data: DenormalizeNullable<E['schema']>;
     expiryStatus: ExpiryStatus;
     expiresAt: number;
+    countRef: () => () => void;
   };
 
   getResponse<
@@ -403,6 +414,7 @@ export default class Controller<
     data: DenormalizeNullable<E['schema']>;
     expiryStatus: ExpiryStatus;
     expiresAt: number;
+    countRef: () => () => void;
   };
 
   getResponse(
@@ -412,6 +424,7 @@ export default class Controller<
     data: unknown;
     expiryStatus: ExpiryStatus;
     expiresAt: number;
+    countRef: () => () => void;
   } {
     const state = rest[rest.length - 1] as State<unknown>;
     // this is typescript generics breaking
@@ -446,12 +459,14 @@ export default class Controller<
         data: input as any,
         expiryStatus: ExpiryStatus.Valid,
         expiresAt: Infinity,
+        countRef: () => () => undefined,
       };
     }
 
     let isInvalid = false;
     if (shouldQuery) {
       isInvalid = !validateQueryKey(input);
+      // endpoint without entities
     } else if (!schema || !schemaHasEntity(schema)) {
       return {
         data: cacheEndpoints,
@@ -460,6 +475,7 @@ export default class Controller<
           : cacheEndpoints && !endpoint.invalidIfStale ? ExpiryStatus.Valid
           : ExpiryStatus.InvalidIfStale,
         expiresAt: expiresAt || 0,
+        countRef: this.gcPolicy.createCountRef({ key }),
       };
     }
 
@@ -477,6 +493,7 @@ export default class Controller<
 
     return this.getSchemaResponse(
       data,
+      key,
       paths,
       state.entityMeta,
       expiresAt,
@@ -507,6 +524,7 @@ export default class Controller<
 
   private getSchemaResponse<T>(
     data: T,
+    key: string,
     paths: EntityPath[],
     entityMeta: State<unknown>['entityMeta'],
     expiresAt: number,
@@ -516,6 +534,7 @@ export default class Controller<
     data: T;
     expiryStatus: ExpiryStatus;
     expiresAt: number;
+    countRef: () => () => void;
   } {
     const invalidDenormalize = typeof data === 'symbol';
 
@@ -533,7 +552,12 @@ export default class Controller<
       : invalidDenormalize || invalidIfStale ? ExpiryStatus.InvalidIfStale
       : ExpiryStatus.Valid;
 
-    return { data, expiryStatus, expiresAt };
+    return {
+      data,
+      expiryStatus,
+      expiresAt,
+      countRef: this.gcPolicy.createCountRef({ key, paths }),
+    };
   }
 }
 

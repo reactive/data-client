@@ -1,5 +1,5 @@
 import { PathFunction } from 'path-to-regexp';
-import { Manager, State, Controller, EndpointInterface as EndpointInterface$1, FetchFunction as FetchFunction$1, Schema as Schema$1, ResolveType as ResolveType$1, Denormalize as Denormalize$1, DenormalizeNullable as DenormalizeNullable$1, Queryable as Queryable$1, NI as NI$1, SchemaArgs as SchemaArgs$1, NetworkError as NetworkError$2, UnknownError as UnknownError$1, ErrorTypes as ErrorTypes$2 } from '@data-client/core';
+import { Manager, State, Controller, GCInterface, EndpointInterface as EndpointInterface$1, FetchFunction as FetchFunction$1, Schema as Schema$1, ResolveType as ResolveType$1, Denormalize as Denormalize$1, DenormalizeNullable as DenormalizeNullable$1, Queryable as Queryable$1, NI as NI$1, SchemaArgs as SchemaArgs$1, NetworkError as NetworkError$2, UnknownError as UnknownError$1, ErrorTypes as ErrorTypes$2 } from '@data-client/core';
 export { Manager } from '@data-client/core';
 import React, { JSX } from 'react';
 import * as react_jsx_runtime from 'react/jsx-runtime';
@@ -1734,18 +1734,19 @@ declare class NetworkError extends Error {
 
 type DevToolsPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
 
-interface Props$1 {
+interface ProviderProps {
     children: React.ReactNode;
     managers?: Manager[];
     initialState?: State<unknown>;
     Controller?: typeof Controller;
+    gcPolicy?: GCInterface;
     devButton?: DevToolsPosition | null | undefined;
 }
 /**
  * Manages state, providing all context needed to use the hooks.
  * @see https://dataclient.io/docs/api/DataProvider
  */
-declare function DataProvider({ children, managers, initialState, Controller, devButton, }: Props$1): JSX.Element;
+declare function DataProvider({ children, managers, gcPolicy, initialState, Controller, devButton, }: ProviderProps): JSX.Element;
 
 interface ErrorBoundaryProps<E extends Error> {
     children: React.ReactNode;

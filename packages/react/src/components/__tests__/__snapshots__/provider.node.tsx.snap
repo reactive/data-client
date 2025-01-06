@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<BackupBoundary /> should warn users about SSR with DataProvider 1`] = `
+exports[`<DataProvider /> should warn users about SSR with DataProvider 1`] = `
 [
   "DataProvider from @data-client/react does not update while doing SSR.
 See https://dataclient.io/docs/guides/ssr.",

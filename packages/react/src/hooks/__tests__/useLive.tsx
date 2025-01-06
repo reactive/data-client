@@ -95,6 +95,7 @@ describe.each([
   afterEach(() => {
     renderDataClient.cleanup();
     nock.cleanAll();
+    jest.clearAllTimers();
     jest.useRealTimers();
   });
 
@@ -147,6 +148,7 @@ describe.each([
       jest.useRealTimers();
       await renderDataClient.allSettled();
 
+      expect(result.error).toBeUndefined();
       expect((result.current as any).title).toBe('fiver');
     }
   });

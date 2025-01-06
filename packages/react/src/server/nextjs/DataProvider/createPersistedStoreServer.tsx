@@ -7,6 +7,7 @@ import {
   initialState,
   applyManager,
   DevToolsManager,
+  initManager,
 } from '@data-client/core';
 import type { ComponentProps } from 'react';
 
@@ -38,7 +39,7 @@ export default function createPersistedStore(managers?: Manager[]) {
     initialState as any,
     enhancer,
   );
-  managers.forEach(manager => manager.init?.(getState()));
+  initManager(managers, controller, getState())();
 
   const initPromise: Promise<State<any>> = (async () => {
     let firstRender = true;

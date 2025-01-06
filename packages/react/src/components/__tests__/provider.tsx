@@ -1,11 +1,9 @@
 // eslint-env jest
 import {
   NetworkManager,
-  actionTypes,
   Manager,
   Middleware,
   Controller,
-  SetResponseAction,
 } from '@data-client/core';
 import { act, render } from '@testing-library/react';
 import { CoolerArticleResource } from '__tests__/new';
@@ -17,8 +15,6 @@ import { useController, useSuspense } from '../../hooks';
 import { payload } from '../../test-fixtures';
 import DataProvider from '../DataProvider';
 import { getDefaultManagers } from '../getDefaultManagers';
-
-const { SET_RESPONSE } = actionTypes;
 
 describe('<DataProvider />', () => {
   let warnspy: jest.SpyInstance;
@@ -123,11 +119,14 @@ describe('<DataProvider />', () => {
     expect(curDisp).not.toBe(dispatch);
     expect(count).toBe(2);
   });
+
   it('should change state', () => {
-    let dispatch: any, state;
+    jest.useFakeTimers({ now: 50 });
+    let ctrl: Controller | undefined = undefined;
+    let state;
     let count = 0;
     function ContextTester() {
-      dispatch = useController().dispatch;
+      ctrl = useController();
       state = useContext(StateContext);
       count++;
       return null;
@@ -135,25 +134,18 @@ describe('<DataProvider />', () => {
     const chil = <ContextTester />;
     const tree = <DataProvider>{chil}</DataProvider>;
     render(tree);
-    expect(dispatch).toBeDefined();
+    expect(ctrl).toBeDefined();
     expect(state).toBeDefined();
-    const action: SetResponseAction = {
-      type: SET_RESPONSE,
-      response: { id: 5, title: 'hi', content: 'more things here' },
-      endpoint: CoolerArticleResource.get,
-      args: [{ id: 5 }],
-      key: CoolerArticleResource.get.key({ id: 5 }),
-      meta: {
-        fetchedAt: 50,
-        date: 50,
-        expiresAt: 55,
-      },
-    };
     act(() => {
-      dispatch(action);
+      ctrl?.setResponse(
+        CoolerArticleResource.get,
+        { id: 5 },
+        { id: 5, title: 'hi', content: 'more things here' },
+      );
     });
     expect(count).toBe(2);
     expect(state).toMatchSnapshot();
+    jest.useRealTimers();
   });
 
   it('should ignore dispatches after unmount', async () => {

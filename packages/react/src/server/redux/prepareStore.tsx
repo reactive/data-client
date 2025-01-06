@@ -5,6 +5,7 @@ import {
   ActionTypes,
   createReducer,
   applyManager,
+  GCInterface,
 } from '@data-client/core';
 
 import { combineReducers } from './combineReducers.js';
@@ -13,6 +14,7 @@ import { default as PromiseifyMiddleware } from './PromiseifyMiddleware.js';
 import { createStore, applyMiddleware } from './redux.js';
 import type { Reducer, Middleware } from './redux.js';
 import type { Store } from '../../context.js';
+import GCPolicy from '../../state/GCPolicy.js';
 
 export function prepareStore<
   R extends ReducersMapObject<any, ActionTypes> = {},
@@ -22,9 +24,10 @@ export function prepareStore<
   Ctrl: typeof Controller,
   reducers: R = {} as any,
   middlewares: Middleware[] = [] as any,
+  gcPolicy: GCInterface = new GCPolicy(),
 ) {
   const selector = (s: { dataclient: State<unknown> }) => s.dataclient;
-  const controller = new Ctrl();
+  const controller = new Ctrl({ gcPolicy });
   const reducer = createReducer(controller);
   const store: Store<
     StateFromReducersMapObject<R> & { dataclient: State<unknown> }

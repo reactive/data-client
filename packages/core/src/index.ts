@@ -29,11 +29,13 @@ export {
   default as NetworkManager,
   ResetError,
 } from './manager/NetworkManager.js';
+export * from './state/GCPolicy.js';
 export {
   default as createReducer,
   initialState,
 } from './state/reducer/createReducer.js';
 export { default as applyManager } from './manager/applyManager.js';
+export { default as initManager } from './manager/initManager.js';
 
 export { default as Controller } from './controller/Controller.js';
 export type {

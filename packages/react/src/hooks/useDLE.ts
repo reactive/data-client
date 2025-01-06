@@ -12,6 +12,7 @@ import { useMemo } from 'react';
 
 import useCacheState from './useCacheState.js';
 import useController from './useController.js';
+import { useUniveralEffect } from './useUniversalEffect.js';
 
 type SchemaReturn<S extends Schema | undefined> =
   | {
@@ -79,7 +80,7 @@ export default function useDLE<
 
   // Compute denormalized value
   // eslint-disable-next-line prefer-const
-  let { data, expiryStatus, expiresAt } = useMemo(() => {
+  let { data, expiryStatus, expiresAt, countRef } = useMemo(() => {
     return controller.getResponse(endpoint, ...args, state);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -122,6 +123,8 @@ export default function useDLE<
   }, [key, data, loading, cacheResults]);
 
   const error = controller.getError(endpoint, ...args, state);
+
+  useUniveralEffect(countRef, [data]);
 
   return {
     data,
