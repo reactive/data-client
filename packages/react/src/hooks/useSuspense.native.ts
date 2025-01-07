@@ -8,13 +8,12 @@ import type {
   ResolveType,
   NI,
 } from '@data-client/core';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { InteractionManager } from 'react-native';
 
 import useCacheState from './useCacheState.js';
 import useController from './useController.js';
 import useFocusEffect from './useFocusEffect.native.js';
-import { useUniveralEffect } from './useUniversalEffect.js';
 
 /**
  * Ensure an endpoint is available.
@@ -113,7 +112,8 @@ export default function useSuspense<
     return () => task.cancel();
   }, []);
 
-  useUniveralEffect(countRef, [data]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(countRef, [data]);
 
   return data;
 }

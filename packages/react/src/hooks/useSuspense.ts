@@ -7,11 +7,10 @@ import type {
   DenormalizeNullable,
   ResolveType,
 } from '@data-client/core';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import useCacheState from './useCacheState.js';
 import useController from './useController.js';
-import { useUniveralEffect } from './useUniversalEffect.js';
 
 /**
  * Ensure an endpoint is available.
@@ -99,7 +98,8 @@ export default function useSuspense<
 
   if (error) throw error;
 
-  useUniveralEffect(countRef, [data]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(countRef, [data]);
 
   return data;
 }

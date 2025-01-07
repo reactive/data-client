@@ -7,7 +7,7 @@ import type {
   NI,
 } from '@data-client/core';
 import { ExpiryStatus } from '@data-client/core';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import useCacheState from './useCacheState.js';
 import useController from '../hooks/useController.js';
@@ -39,7 +39,7 @@ export default function useCache<
   const meta = state.meta[key];
 
   // Compute denormalized value
-  const { data, expiryStatus, expiresAt } = useMemo(() => {
+  const { data, expiryStatus, expiresAt, countRef } = useMemo(() => {
     return controller.getResponse(endpoint, ...args, state);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -68,6 +68,9 @@ export default function useCache<
   // fully "valid" data will not suspend/loading even if it is not fresh
   const loading = expiryStatus !== ExpiryStatus.Valid && expired;
   /****************************************************************************************************/
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(countRef, [data]);
 
   return useMemo(() => {
     // if useSuspense() would suspend, don't include entities from cache

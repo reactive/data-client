@@ -8,11 +8,10 @@ import type {
   ResolveType,
 } from '@data-client/core';
 import { ExpiryStatus } from '@data-client/core';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import useCacheState from './useCacheState.js';
 import useController from './useController.js';
-import { useUniveralEffect } from './useUniversalEffect.js';
 
 type SchemaReturn<S extends Schema | undefined> =
   | {
@@ -124,7 +123,8 @@ export default function useDLE<
 
   const error = controller.getError(endpoint, ...args, state);
 
-  useUniveralEffect(countRef, [data]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(countRef, [data]);
 
   return {
     data,
