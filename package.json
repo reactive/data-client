@@ -97,7 +97,7 @@
     "prettier": "3.4.2",
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "react-native": "0.76.6",
+    "react-native": "0.77.0",
     "react-native-safe-area-context": "^5.0.0",
     "react-native-screens": "^4.1.0",
     "react-test-renderer": "^19.0.0",
