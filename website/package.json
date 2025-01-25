@@ -21,7 +21,7 @@
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^3.0.1",
     "@tsconfig/docusaurus": "^2.0.0",
-    "@types/react": "19.0.7",
+    "@types/react": "19.0.8",
     "@types/react-dom": "19.0.3",
     "@types/react-helmet": "^6.1.5",
     "@types/react-router-dom": "^5.3.3",
@@ -31,7 +31,7 @@
     "webpack": "^5.76.0"
   },
   "dependencies": {
-    "@anansi/browserslist-config": "1.5.1",
+    "@anansi/browserslist-config": "1.6.0",
     "@anansi/webpack-config": "20.0.16",
     "@data-client/endpoint": "workspace:*",
     "@data-client/graphql": "workspace:*",
