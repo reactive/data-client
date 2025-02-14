@@ -378,7 +378,7 @@ applications, as well as migrate to <abbr title="Server Side Render">SSR</abbr> 
 
 ### Concurrent Mode
 
-In React 18 navigating with `startTransition` allows [AsyncBoundaries](./AsyncBoundary.md) to
+In React 18 navigating with [startTransition](https://react.dev/reference/react/useTransition#starttransition) allows [AsyncBoundaries](./AsyncBoundary.md) to
 continue showing the previous screen while the new data loads. Combined with
 [streaming server side rendering](../guides/ssr.md), this eliminates the need to flash annoying
 loading indicators - improving the user experience.
