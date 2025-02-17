@@ -1,10 +1,10 @@
-import {babel, banner, commonjs, resolve} from 'rollup-plugins';
+import { babel, banner, commonjs, resolve } from 'rollup-plugins';
 
 import pkg from './package.json' with { type: 'json' };
 
 const dependencies = Object.keys(pkg.dependencies)
   .concat(Object.keys(pkg.peerDependencies))
-  .filter(dep => !['@data-client/normalizr', '@babel/runtime'].includes(dep));
+  .filter(dep => !['@data-client/normalizr'].includes(dep));
 
 const extensions = [
   '.js',
@@ -38,7 +38,7 @@ export default [
         exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
         rootMode: 'upward',
         extensions,
-        runtimeHelpers: true,
+        babelHelpers: 'runtime',
       }),
       resolve({ extensions }),
       commonjs({
@@ -61,7 +61,7 @@ export default [
         exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
         rootMode: 'upward',
         extensions,
-        runtimeHelpers: true,
+        babelHelpers: 'runtime',
       }),
       resolve({ extensions }),
       commonjs({ extensions }),

@@ -693,7 +693,6 @@ export {
   ActionFromReducer,
   ActionFromReducersMapObject,
   AnyAction,
-  Dispatch,
   Middleware,
   MiddlewareAPI,
   Observable,

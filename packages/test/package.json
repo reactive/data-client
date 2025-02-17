@@ -111,10 +111,11 @@
   "funding": "https://github.com/sponsors/ntucker",
   "license": "Apache-2.0",
   "dependencies": {
-    "@babel/runtime": "^7.17.0",
+    "@babel/runtime-corejs3": "^7.26.0",
     "@testing-library/dom": "^10.1.0",
     "@testing-library/react": "^16.0.0",
-    "@testing-library/react-native": "^13.0.0"
+    "@testing-library/react-native": "^13.0.0",
+    "core-js-pure": "^3.40.0"
   },
   "peerDependencies": {
     "@data-client/react": "^0.12.15 || ^0.13.0 || ^0.14.0",

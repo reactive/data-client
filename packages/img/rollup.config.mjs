@@ -1,24 +1,32 @@
-import { babel, commonjs, filesize, json, resolve, replace, terser } from 'rollup-plugins';
+import {
+  babel,
+  commonjs,
+  banner,
+  filesize,
+  json,
+  resolve,
+  replace,
+  terser,
+} from 'rollup-plugins';
 
 import pkg from './package.json' with { type: 'json' };
 
 const dependencies = Object.keys(pkg.dependencies)
   .concat(Object.keys(pkg.peerDependencies))
-  .filter(dep => !['@babel/runtime'].includes(dep));
+  .filter(dep => ![].includes(dep));
 const peers = Object.keys(pkg.peerDependencies);
 
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node'];
 const nativeExtensions = ['.native.ts', ...extensions];
 process.env.NODE_ENV = 'production';
-process.env.BROWSERSLIST_ENV = 'legacy';
 
 function isExternal(id) {
   return dependencies.some(dep => dep === id || id.startsWith(dep));
 }
-
-export default [
+const configs = [];
+if (process.env.BROWSERSLIST_ENV !== 'node16') {
   // browser-friendly UMD build
-  {
+  configs.push({
     input: 'lib/index.js',
     external: id => peers.some(dep => dep === id || id.startsWith(dep)),
     output: [
@@ -28,6 +36,7 @@ export default [
         name: 'Img',
         globals: {
           '@data-client/react': 'RDC',
+          react: 'React',
         },
       },
     ],
@@ -36,31 +45,39 @@ export default [
         exclude: ['node_modules/**', '/**__tests__/**'],
         extensions,
         rootMode: 'upward',
-        runtimeHelpers: true,
+        babelHelpers: 'runtime',
+        caller: { polyfillMethod: false },
       }),
-      replace({ 'process.env.NODE_ENV': JSON.stringify('production') }),
+      replace({
+        'process.env.NODE_ENV': JSON.stringify('production'),
+        preventAssignment: true,
+      }),
       resolve({ extensions }),
       commonjs({ extensions }),
       json(),
       terser({}),
       filesize({ showBrotliSize: true }),
     ],
-  },
+  });
+} else {
   // node-friendly commonjs build
-  {
+  configs.push({
     input: 'lib/index.js',
     external: isExternal,
-    output: [{ file: pkg.main, format: 'cjs' }],
+    output: [{ file: pkg.main, format: 'cjs', inlineDynamicImports: true }],
     plugins: [
       babel({
         exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
         extensions: nativeExtensions,
         rootMode: 'upward',
-        runtimeHelpers: true,
+        babelHelpers: 'runtime',
       }),
-      replace({ 'process.env.CJS': 'true' }),
+      replace({ 'process.env.CJS': 'true', preventAssignment: true }),
       resolve({ extensions: nativeExtensions }),
       commonjs({ extensions: nativeExtensions }),
+      // for nextjs 13 compatibility in node https://nextjs.org/docs/app/building-your-application/rendering
+      banner(() => "'use client';\n"),
     ],
-  },
-];
+  });
+}
+export default configs;

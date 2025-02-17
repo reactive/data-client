@@ -92,5 +92,9 @@
     "@types/react": "19.0.8",
     "react": "^19.0.0",
     "rollup-plugins": "workspace:*"
+  },
+  "dependencies": {
+    "@babel/runtime-corejs3": "^7.26.7",
+    "core-js-pure": "^3.40.0"
   }
 }

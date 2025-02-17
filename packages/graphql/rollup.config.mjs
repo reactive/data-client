@@ -1,9 +1,19 @@
-import { babel, commonjs, filesize, json, resolve, replace, terser, typeConfig, typeConfigNext } from 'rollup-plugins';
+import {
+  babel,
+  commonjs,
+  filesize,
+  json,
+  resolve,
+  replace,
+  terser,
+  typeConfig,
+  typeConfigNext,
+} from 'rollup-plugins';
 
 import pkg from './package.json' with { type: 'json' };
 
 const dependencies = Object.keys(pkg.dependencies).filter(
-  dep => !['@babel/runtime'].includes(dep),
+  dep => ![].includes(dep),
 );
 
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node'];
@@ -24,9 +34,13 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
         exclude: ['node_modules/**', '/**__tests__/**'],
         extensions,
         rootMode: 'upward',
-        runtimeHelpers: true,
+        babelHelpers: 'runtime',
+        caller: { polyfillMethod: false },
       }),
-      replace({ 'process.env.NODE_ENV': JSON.stringify('production') }),
+      replace({
+        'process.env.NODE_ENV': JSON.stringify('production'),
+        preventAssignment: true,
+      }),
       resolve({ extensions }),
       commonjs({ extensions }),
       json(),
@@ -46,9 +60,9 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
         exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
         extensions: nativeExtensions,
         rootMode: 'upward',
-        runtimeHelpers: true,
+        babelHelpers: 'runtime',
       }),
-      replace({ 'process.env.CJS': 'true' }),
+      replace({ 'process.env.CJS': 'true', preventAssignment: true }),
       resolve({ extensions: nativeExtensions }),
       commonjs({ extensions: nativeExtensions }),
     ],

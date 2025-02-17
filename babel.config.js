@@ -3,7 +3,9 @@ const fs = require('fs');
 const path = require('path');
 
 module.exports = function (api) {
-  api.cache.using(() => process.env.NODE_ENV);
+  api.cache.using(
+    () => process.env.NODE_ENV + process.env.BROWSERSLIST_ENV + '0',
+  );
   return {
     presets: [
       [

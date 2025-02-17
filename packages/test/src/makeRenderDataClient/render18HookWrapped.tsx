@@ -3,7 +3,7 @@
  */
 import { ErrorBoundary } from '@data-client/react';
 import type { Queries, waitForOptions } from '@testing-library/react';
-import React, { Suspense } from 'react';
+import { Suspense } from 'react';
 
 import { act, waitFor, renderHook, RenderHookOptions } from './render18Hook.js';
 

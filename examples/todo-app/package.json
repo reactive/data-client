@@ -28,10 +28,10 @@
   "private": true,
   "license": "Apache-2.0",
   "devDependencies": {
-    "@anansi/babel-preset": "6.0.12",
+    "@anansi/babel-preset": "6.1.6",
     "@anansi/browserslist-config": "1.6.0",
-    "@anansi/webpack-config": "20.0.16",
-    "@babel/core": "7.26.0",
+    "@anansi/webpack-config": "20.0.19",
+    "@babel/core": "7.26.9",
     "@linaria/babel-preset": "5.0.4",
     "@linaria/core": "6.2.0",
     "@linaria/react": "6.2.1",
@@ -40,14 +40,16 @@
     "@types/react-dom": "19.0.3",
     "@types/uuid": "^10.0.0",
     "react-refresh": "0.16.0",
-    "webpack": "5.97.1",
+    "webpack": "5.98.0",
     "webpack-cli": "6.0.1",
     "webpack-dev-server": "5.2.0"
   },
   "dependencies": {
+    "@babel/runtime-corejs3": "^7.26.7",
     "@data-client/endpoint": "^0.14.0",
     "@data-client/react": "^0.14.0",
     "@data-client/rest": "^0.14.0",
+    "core-js": "^3.40.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "uuid": "^11.0.0"

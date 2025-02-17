@@ -104,8 +104,9 @@
   "funding": "https://github.com/sponsors/ntucker",
   "license": "Apache-2.0",
   "dependencies": {
-    "@babel/runtime": "^7.17.0",
-    "@data-client/endpoint": "^0.14.17"
+    "@babel/runtime-corejs3": "^7.26.0",
+    "@data-client/endpoint": "^0.14.17",
+    "core-js-pure": "^3.40.0"
   },
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",

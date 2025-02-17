@@ -1,13 +1,21 @@
-import { babel, banner, commonjs, filesize, json, resolve, replace, terser, typeConfig, typeConfigNext } from 'rollup-plugins';
+import {
+  babel,
+  banner,
+  commonjs,
+  filesize,
+  json,
+  resolve,
+  replace,
+  terser,
+  typeConfig,
+  typeConfigNext,
+} from 'rollup-plugins';
 
 import pkg from './package.json' with { type: 'json' };
 
 const dependencies = Object.keys(pkg.dependencies)
   .concat(Object.keys(pkg.peerDependencies))
-  .filter(
-    dep =>
-      !['@data-client/use-enhanced-reducer', '@babel/runtime'].includes(dep),
-  );
+  .filter(dep => !['@data-client/use-enhanced-reducer'].includes(dep));
 const peers = Object.keys(pkg.peerDependencies);
 
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node', '.jsx'];
@@ -35,6 +43,9 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
         format: 'umd',
         name: 'RDC',
         inlineDynamicImports: true,
+        globals: {
+          react: 'React',
+        },
       },
     ],
     plugins: [
@@ -42,9 +53,13 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
         exclude: ['node_modules/**', '/**__tests__/**'],
         extensions,
         rootMode: 'upward',
-        runtimeHelpers: true,
+        babelHelpers: 'runtime',
+        caller: { polyfillMethod: false },
       }),
-      replace({ 'process.env.NODE_ENV': JSON.stringify('production') }),
+      replace({
+        'process.env.NODE_ENV': JSON.stringify('production'),
+        preventAssignment: true,
+      }),
       resolve({ extensions }),
       commonjs({ extensions }),
       json(),
@@ -89,9 +104,9 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
           exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
           extensions: nativeExtensions,
           rootMode: 'upward',
-          runtimeHelpers: true,
+          babelHelpers: 'runtime',
         }),
-        replace({ 'process.env.CJS': 'true' }),
+        replace({ 'process.env.CJS': 'true', preventAssignment: true }),
         resolve({ extensions: nativeExtensions }),
         commonjs({ extensions: nativeExtensions }),
         // for nextjs 13 compatibility in node https://nextjs.org/docs/app/building-your-application/rendering

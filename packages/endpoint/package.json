@@ -131,7 +131,8 @@
     "url": "https://github.com/reactive/data-client/issues"
   },
   "dependencies": {
-    "@babel/runtime": "^7.17.0"
+    "@babel/runtime-corejs3": "^7.26.0",
+    "core-js-pure": "^3.40.0"
   },
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",

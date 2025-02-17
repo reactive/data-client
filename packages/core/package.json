@@ -120,8 +120,9 @@
     "url": "https://github.com/reactive/data-client/issues"
   },
   "dependencies": {
-    "@babel/runtime": "^7.17.0",
+    "@babel/runtime-corejs3": "^7.26.0",
     "@data-client/normalizr": "^0.14.16",
+    "core-js-pure": "^3.40.0",
     "flux-standard-action": "^2.1.1"
   },
   "devDependencies": {

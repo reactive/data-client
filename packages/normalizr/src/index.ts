@@ -1,8 +1,3 @@
-Object.hasOwn =
-  Object.hasOwn ||
-  /* istanbul ignore next */ function hasOwn(it, key) {
-    return Object.prototype.hasOwnProperty.call(it, key);
-  };
 import { denormalize } from './denormalize/denormalize.js';
 import { isEntity } from './isEntity.js';
 import WeakDependencyMap from './memo/WeakDependencyMap.js';

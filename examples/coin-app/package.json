@@ -24,7 +24,7 @@
     "anansi"
   ],
   "devDependencies": {
-    "@anansi/babel-preset": "^6.0.0",
+    "@anansi/babel-preset": "^6.1.6",
     "@anansi/browserslist-config": "^1.4.3",
     "@anansi/webpack-config": "^20.0.0",
     "@babel/core": "^7.22.15",
@@ -44,10 +44,11 @@
     "@anansi/cli": "^3.0.15",
     "@anansi/core": "^0.20.0",
     "@anansi/router": "^0.10.0",
-    "@babel/runtime": "^7.22.15",
+    "@babel/runtime-corejs3": "^7.26.7",
     "@data-client/img": "^0.14.0",
     "@data-client/react": "^0.14.0",
     "@data-client/rest": "^0.14.0",
+    "core-js": "^3.40.0",
     "d3": "^7.9.0",
     "history": "*",
     "react": "^19.0.0",
