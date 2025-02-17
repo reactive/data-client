@@ -221,9 +221,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/babel-preset@npm:6.1.6, @anansi/babel-preset@npm:^6.1.6":
-  version: 6.1.6
-  resolution: "@anansi/babel-preset@npm:6.1.6"
+"@anansi/babel-preset@npm:6.1.7, @anansi/babel-preset@npm:^6.1.6":
+  version: 6.1.7
+  resolution: "@anansi/babel-preset@npm:6.1.7"
   dependencies:
     "@anansi/ts-utils": "npm:^0.3.7"
     "@babel/plugin-proposal-decorators": "npm:^7.25.9"
@@ -280,7 +280,7 @@ __metadata:
       optional: true
     typescript:
       optional: true
-  checksum: 10c0/5d6a161e5765048d0d1201ef472ebe4dae01ff0431147d114c7b471b65cc13512c6dc4ea8c3f4e86c4cba6f040e55bc8d0c4885e5be5b765d9ee260e314a5264
+  checksum: 10c0/a9591fa2c32ac5f84ebd4067fad75babc5175bc792c0a2556ebf9235f8fed32bb429273690a03c27461d1da672b7d19979ceda1d7a52d4eec8bef79f32a814ba
   languageName: node
   linkType: hard
 
@@ -478,9 +478,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:20.0.19, @anansi/webpack-config@npm:^20.0.0":
-  version: 20.0.19
-  resolution: "@anansi/webpack-config@npm:20.0.19"
+"@anansi/webpack-config@npm:20.0.20, @anansi/webpack-config@npm:^20.0.0":
+  version: 20.0.20
+  resolution: "@anansi/webpack-config@npm:20.0.20"
   dependencies:
     "@babel/runtime-corejs3": "npm:^7.26.0"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.15"
@@ -524,7 +524,7 @@ __metadata:
     react-dev-utils: "npm:^12.0.1"
     react-error-overlay: "npm:6.0.9"
     readable-stream: "npm:^4.7.0"
-    sass-loader: "npm:^16.0.4"
+    sass-loader: "npm:^16.0.5"
     sass-resources-loader: "npm:^2.2.5"
     semver: "npm:^7.7.1"
     stream-browserify: "npm:^3.0.0"
@@ -581,7 +581,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: 10c0/673132f9a36c0a2affc66157d218dd25577902ca8e7c84861409f6af644f4cb041d8bf31228afcb4bcddb84bc0b549f8acd92a9badeeca11e27c323f65316589
+  checksum: 10c0/6a25a4782018894488df2b7337ebdbdb506022d8982ed2a171ba3c16dc71ffd72221f153becb4cfe9330e54ddc596d9f094d6883676db5fd8fd9c1ec9feab04b
   languageName: node
   linkType: hard
 
@@ -25277,7 +25277,7 @@ __metadata:
   resolution: "rdc-website@workspace:website"
   dependencies:
     "@anansi/browserslist-config": "npm:1.6.0"
-    "@anansi/webpack-config": "npm:20.0.19"
+    "@anansi/webpack-config": "npm:20.0.20"
     "@data-client/endpoint": "workspace:*"
     "@data-client/graphql": "workspace:*"
     "@data-client/react": "workspace:*"
@@ -26844,7 +26844,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    "@anansi/babel-preset": "npm:6.1.6"
+    "@anansi/babel-preset": "npm:6.1.7"
     "@anansi/browserslist-config": "npm:1.6.0"
     "@anansi/eslint-plugin": "npm:1.0.26"
     "@anansi/jest-preset": "npm:0.11.12"
@@ -27026,9 +27026,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sass-loader@npm:^16.0.4":
-  version: 16.0.4
-  resolution: "sass-loader@npm:16.0.4"
+"sass-loader@npm:^16.0.5":
+  version: 16.0.5
+  resolution: "sass-loader@npm:16.0.5"
   dependencies:
     neo-async: "npm:^2.6.2"
   peerDependencies:
@@ -27048,7 +27048,7 @@ __metadata:
       optional: true
     webpack:
       optional: true
-  checksum: 10c0/d57c5fa35620e9022cfa3e5d49f3f9b3e54fb8b2fa9d021c10fe26c8c2f77103e038b6540eb20123a6f73aef23d2beb04033d3b7772588ca3f3c0ba2a4ee40ac
+  checksum: 10c0/216422b7b9e6e3f22739dc96887d883d2415f188d5c47631fd28c80608b5fae71167b26d0c74a1e917614e4d494fa73b1190ad5ca2f587c1afee84dc1d30f003
   languageName: node
   linkType: hard
 
