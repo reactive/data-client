@@ -7,6 +7,7 @@ import {
   resolve,
   replace,
   terser,
+  onwarn,
 } from 'rollup-plugins';
 
 import pkg from './package.json' with { type: 'json' };
@@ -40,6 +41,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node16') {
         },
       },
     ],
+    onwarn,
     plugins: [
       babel({
         exclude: ['node_modules/**', '/**__tests__/**'],
@@ -65,6 +67,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node16') {
     input: 'lib/index.js',
     external: isExternal,
     output: [{ file: pkg.main, format: 'cjs', inlineDynamicImports: true }],
+    onwarn,
     plugins: [
       babel({
         exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],

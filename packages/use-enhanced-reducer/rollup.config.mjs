@@ -7,6 +7,7 @@ import {
   resolve,
   replace,
   terser,
+  onwarn,
 } from 'rollup-plugins';
 
 import pkg from './package.json' with { type: 'json' };
@@ -44,6 +45,7 @@ export default [
         },
       },
     ],
+    onwarn,
     plugins: [
       babel({
         exclude: ['node_modules/**', '**/__tests__/**'],
@@ -68,6 +70,7 @@ export default [
     input: 'lib/index.js',
     external: isExternal,
     output: [{ file: pkg.main, format: 'cjs' }],
+    onwarn,
     plugins: [
       babel({
         exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],

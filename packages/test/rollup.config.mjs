@@ -1,4 +1,4 @@
-import { babel, banner, commonjs, resolve } from 'rollup-plugins';
+import { babel, banner, commonjs, resolve, onwarn } from 'rollup-plugins';
 
 import pkg from './package.json' with { type: 'json' };
 
@@ -33,6 +33,7 @@ export default [
     input: 'lib/index.js',
     external: id => id === '..' || isExternal(id),
     output: [{ file: nativeOrNormalPath(pkg.main), format: 'cjs' }],
+    onwarn,
     plugins: [
       babel({
         exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
@@ -56,6 +57,7 @@ export default [
         format: 'cjs',
       },
     ],
+    onwarn,
     plugins: [
       babel({
         exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],

@@ -9,6 +9,7 @@ import {
   terser,
   typeConfig,
   typeConfigNext,
+  onwarn,
 } from 'rollup-plugins';
 
 import pkg from './package.json' with { type: 'json' };
@@ -48,6 +49,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
         },
       },
     ],
+    onwarn,
     plugins: [
       babel({
         exclude: ['node_modules/**', '/**__tests__/**'],
@@ -99,6 +101,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
       input,
       external: isExternal,
       output: [{ file: output, format: 'cjs', inlineDynamicImports: true }],
+      onwarn,
       plugins: [
         babel({
           exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],

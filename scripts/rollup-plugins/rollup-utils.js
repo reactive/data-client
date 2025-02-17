@@ -25,8 +25,19 @@ export const esnextConfig = {
   input: '../../node_modules/typescript/lib/lib.es2022.array.d.ts',
   output: [{ file: 'lib.esnext.d.ts', format: 'es' }],
   external: id => {
-    console.log(id);
     return false;
   },
   plugins: [dts({ respectExternal: true })],
 };
+
+export function onwarn(warning, warn) {
+  // Suppress "use client" warnings
+  if (
+    warning.message.includes(
+      'Module level directives cause errors when bundled, "use client" in',
+    )
+  ) {
+    return;
+  }
+  warn(warning);
+}
