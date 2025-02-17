@@ -419,9 +419,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/jest-preset@npm:0.11.12":
-  version: 0.11.12
-  resolution: "@anansi/jest-preset@npm:0.11.12"
+"@anansi/jest-preset@npm:0.11.13":
+  version: 0.11.13
+  resolution: "@anansi/jest-preset@npm:0.11.13"
   dependencies:
     "@anansi/ts-utils": "npm:^0.3.7"
     "@babel/runtime-corejs3": "npm:^7.26.0"
@@ -446,7 +446,7 @@ __metadata:
       optional: true
     react:
       optional: true
-  checksum: 10c0/49b925a03aee2897b904bb4c9979dc719d065b1dcf0c64cc74fc1c3b201f7456da1c0d34cbfc20967405c6fa1b681b291bbcdd66d73983e956fce73a8dfe3419
+  checksum: 10c0/6019ea73ad5817167b5d8516a7469266b434ede6a78e4d2293121158bfc482cce36c1cfa7ad1c70fec27e0cca2b30f5e96fdc99932c8b572fe9f26a91ce21151
   languageName: node
   linkType: hard
 
@@ -26822,7 +26822,7 @@ __metadata:
     "@anansi/babel-preset": "npm:6.1.7"
     "@anansi/browserslist-config": "npm:1.6.0"
     "@anansi/eslint-plugin": "npm:1.0.26"
-    "@anansi/jest-preset": "npm:0.11.12"
+    "@anansi/jest-preset": "npm:0.11.13"
     "@babel/cli": "npm:7.26.4"
     "@babel/core": "npm:7.26.9"
     "@babel/node": "npm:7.26.0"
@@ -28772,21 +28772,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"terser@npm:^5.10.0, terser@npm:^5.15.0, terser@npm:^5.15.1, terser@npm:^5.31.1, terser@npm:^5.6.0":
-  version: 5.37.0
-  resolution: "terser@npm:5.37.0"
-  dependencies:
-    "@jridgewell/source-map": "npm:^0.3.3"
-    acorn: "npm:^8.8.2"
-    commander: "npm:^2.20.0"
-    source-map-support: "npm:~0.5.20"
-  bin:
-    terser: bin/terser
-  checksum: 10c0/ff0dc79b0a0da821e7f5bf7a047eab6d04e70e88b62339a0f1d71117db3310e255f5c00738fa3b391f56c3571f800a00047720261ba04ced0241c1f9922199f4
-  languageName: node
-  linkType: hard
-
-"terser@npm:^5.17.4":
+"terser@npm:^5.10.0, terser@npm:^5.15.0, terser@npm:^5.15.1, terser@npm:^5.17.4, terser@npm:^5.31.1, terser@npm:^5.6.0":
   version: 5.39.0
   resolution: "terser@npm:5.39.0"
   dependencies:
