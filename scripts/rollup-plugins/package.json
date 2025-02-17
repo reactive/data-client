@@ -15,10 +15,10 @@
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.0",
     "@rollup/plugin-replace": "^6.0.2",
+    "@rollup/plugin-terser": "^0.4.4",
     "rollup-plugin-banner2": "^1.3.1",
     "rollup-plugin-dts": "^6.1.1",
-    "rollup-plugin-filesize": "^10.0.0",
-    "rollup-plugin-terser": "^7.0.2"
+    "rollup-plugin-filesize": "^10.0.0"
   },
   "devDependencies": {
     "rollup-plugins": "workspace:*"

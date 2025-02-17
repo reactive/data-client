@@ -5,6 +5,6 @@ export { nodeResolve as resolve } from '@rollup/plugin-node-resolve';
 export { default as filesize } from 'rollup-plugin-filesize';
 export { default as json } from '@rollup/plugin-json';
 export { default as replace } from '@rollup/plugin-replace';
-export { terser } from 'rollup-plugin-terser';
+export { default as terser } from '@rollup/plugin-terser';
 export { default as dts } from 'rollup-plugin-dts';
 export * from './rollup-utils.js';
