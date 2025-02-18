@@ -36,7 +36,7 @@ const configs = [];
 if (process.env.BROWSERSLIST_ENV !== 'node12') {
   // browser-friendly UMD build
   configs.push({
-    input: 'lib/index.js',
+    input: 'src/index.ts',
     external: id => peers.some(dep => dep === id || id.startsWith(dep)),
     output: [
       {
@@ -89,11 +89,11 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
 } else {
   // node-friendly commonjs build
   [
-    { input: 'lib/index.js', output: pkg.main },
-    { input: 'lib/next/index.js', output: 'dist/next.js' },
-    { input: 'lib/server/index.js', output: 'dist/server/index.js' },
+    { input: 'src/index.ts', output: pkg.main },
+    { input: 'src/next/index.ts', output: 'dist/next.js' },
+    { input: 'src/server/index.ts', output: 'dist/server/index.js' },
     {
-      input: 'lib/server/redux/index.js',
+      input: 'src/server/redux/index.ts',
       output: 'dist/server/redux/index.js',
     },
   ].forEach(({ input, output }) => {

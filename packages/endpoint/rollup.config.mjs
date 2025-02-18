@@ -8,6 +8,7 @@ import {
   replace,
   terser,
   onwarn,
+  resolveTsAsJs,
 } from 'rollup-plugins';
 
 import pkg from './package.json' with { type: 'json' };
@@ -58,7 +59,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
 } else {
   // node-friendly commonjs build
   configs.push({
-    input: 'lib/index.js',
+    input: 'src/index.ts',
     external: isExternal,
     output: [{ file: pkg.main, format: 'cjs' }],
     onwarn,
@@ -71,6 +72,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
       }),
       replace({ 'process.env.CJS': 'true', preventAssignment: true }),
       resolve({ extensions: nativeExtensions }),
+      resolveTsAsJs,
       commonjs({ extensions: nativeExtensions }),
     ],
   });

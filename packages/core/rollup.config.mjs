@@ -29,7 +29,7 @@ const configs = [];
 if (process.env.BROWSERSLIST_ENV !== 'node12') {
   // browser-friendly UMD build
   configs.push({
-    input: 'lib/index.js',
+    input: 'src/index.ts',
     output: [{ file: pkg.unpkg, format: 'umd', name: 'RDC.Core' }],
     onwarn,
     plugins: [
@@ -56,8 +56,8 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
 } else {
   // node-friendly commonjs build
   [
-    { input: 'lib/index.js', output: pkg.main },
-    { input: 'lib/next/index.js', output: 'dist/next.js' },
+    { input: 'src/index.ts', output: pkg.main },
+    { input: 'src/next/index.ts', output: 'dist/next.js' },
   ].forEach(({ input, output }) => {
     configs.push({
       input,
