@@ -28,7 +28,7 @@ const configs = [];
 if (process.env.BROWSERSLIST_ENV !== 'node16') {
   // browser-friendly UMD build
   configs.push({
-    input: 'lib/index.js',
+    input: 'src/index.ts',
     external: id => peers.some(dep => dep === id || id.startsWith(dep)),
     output: [
       {
@@ -64,7 +64,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node16') {
 } else {
   // node-friendly commonjs build
   configs.push({
-    input: 'lib/index.js',
+    input: 'src/index.ts',
     external: isExternal,
     output: [{ file: pkg.main, format: 'cjs', inlineDynamicImports: true }],
     onwarn,

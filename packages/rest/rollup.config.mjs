@@ -9,6 +9,7 @@ import {
   typeConfig,
   typeConfigNext,
   onwarn,
+  resolveTsAsJs,
 } from 'rollup-plugins';
 
 import pkg from './package.json' with { type: 'json' };
@@ -30,7 +31,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
   //TODO: this needs to use src/index.ts so it doesn't include the wrong polyfills
   // browser-friendly UMD build
   configs.push({
-    input: 'lib/index.js',
+    input: 'src/index.ts',
     output: [{ file: pkg.unpkg, format: 'umd', name: 'Rest' }],
     onwarn,
     plugins: [
@@ -46,6 +47,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
         preventAssignment: true,
       }),
       resolve({ extensions }),
+      resolveTsAsJs,
       commonjs({ extensions }),
       json(),
       terser(),
@@ -57,8 +59,8 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
 } else {
   // node-friendly commonjs build
   [
-    { input: 'lib/index.js', output: pkg.main },
-    { input: 'lib/next/index.js', output: 'dist/next.js' },
+    { input: 'src/index.ts', output: pkg.main },
+    { input: 'src/next/index.ts', output: 'dist/next.js' },
   ].forEach(({ input, output }) => {
     configs.push({
       input,
@@ -77,6 +79,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
           preventAssignment: true,
         }),
         resolve({ extensions: nativeExtensions }),
+        resolveTsAsJs,
         commonjs({ extensions: nativeExtensions }),
       ],
     });

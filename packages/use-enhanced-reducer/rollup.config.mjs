@@ -33,7 +33,7 @@ function isExternal(id) {
 export default [
   // browser-friendly UMD build
   {
-    input: 'lib/index.js',
+    input: 'src/index.ts',
     external: isExternal,
     output: [
       {
@@ -67,7 +67,7 @@ export default [
   },
   // node-friendly commonjs build
   {
-    input: 'lib/index.js',
+    input: 'src/index.ts',
     external: isExternal,
     output: [{ file: pkg.main, format: 'cjs' }],
     onwarn,

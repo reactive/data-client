@@ -27,7 +27,7 @@ const configs = [];
 if (process.env.BROWSERSLIST_ENV !== 'node12') {
   // browser-friendly UMD build
   configs.push({
-    input: 'lib/index.js',
+    input: 'src/index.ts',
     output: [{ file: pkg.unpkg, format: 'umd', name: 'GraphQL' }],
     onwarn,
     plugins: [
@@ -53,7 +53,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
 } else {
   // node-friendly commonjs build
   configs.push({
-    input: 'lib/index.js',
+    input: 'src/index.ts',
     external: isExternal,
     output: [{ file: pkg.main, format: 'cjs' }],
     onwarn,

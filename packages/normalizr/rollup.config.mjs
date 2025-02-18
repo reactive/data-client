@@ -33,7 +33,7 @@ const configs = [];
 if (process.env.BROWSERSLIST_ENV !== 'node12') {
   if (process.env.NODE_ENV === 'production') {
     configs.push({
-      input: 'lib/index.js',
+      input: 'src/index.ts',
       output: [{ file: `${destBase}.es${destExtension}`, format: 'es' }],
       external: id => id === '..' || isExternal(id),
       onwarn,
@@ -94,7 +94,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
 } else {
   // node-friendly commonjs build
   configs.push({
-    input: 'lib/index.js',
+    input: 'src/index.ts',
     output: [{ file: `${destBase}${destExtension}`, format: 'cjs' }],
     external: id => id === '..' || isExternal(id),
     onwarn,

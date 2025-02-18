@@ -30,7 +30,7 @@ function nativeOrNormalPath(path) {
 export default [
   // test utils commonjs build
   {
-    input: 'lib/index.js',
+    input: 'src/index.ts',
     external: id => id === '..' || isExternal(id),
     output: [{ file: nativeOrNormalPath(pkg.main), format: 'cjs' }],
     onwarn,
@@ -49,7 +49,7 @@ export default [
     ],
   },
   {
-    input: 'lib/makeRenderDataClient/render18HookWrapped.js',
+    input: 'src/makeRenderDataClient/render18HookWrapped.tsx',
     external: id => id === '..' || isExternal(id),
     output: [
       {

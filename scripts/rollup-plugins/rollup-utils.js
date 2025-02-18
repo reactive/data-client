@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import dts from 'rollup-plugin-dts';
 
 function isExternalTypes(id) {
@@ -41,3 +43,17 @@ export function onwarn(warning, warn) {
   }
   warn(warning);
 }
+
+export const resolveTsAsJs = {
+  name: 'resolve-ts-as-js',
+  resolveId(source, importer) {
+    if (source.endsWith('.js')) {
+      const tsFile = source.replace(/\.js$/, '.ts');
+      const fullPath = path.resolve(path.dirname(importer), tsFile);
+      if (fs.existsSync(fullPath)) {
+        return fullPath;
+      }
+    }
+    return null;
+  },
+};
