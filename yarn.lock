@@ -221,9 +221,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/babel-preset@npm:6.1.7, @anansi/babel-preset@npm:^6.1.6":
-  version: 6.1.7
-  resolution: "@anansi/babel-preset@npm:6.1.7"
+"@anansi/babel-preset@npm:6.1.8, @anansi/babel-preset@npm:^6.1.6":
+  version: 6.1.8
+  resolution: "@anansi/babel-preset@npm:6.1.8"
   dependencies:
     "@anansi/ts-utils": "npm:^0.3.7"
     "@babel/plugin-proposal-decorators": "npm:^7.25.9"
@@ -280,7 +280,7 @@ __metadata:
       optional: true
     typescript:
       optional: true
-  checksum: 10c0/a9591fa2c32ac5f84ebd4067fad75babc5175bc792c0a2556ebf9235f8fed32bb429273690a03c27461d1da672b7d19979ceda1d7a52d4eec8bef79f32a814ba
+  checksum: 10c0/fb9fb2b4d3f01836d54795e9f758e57f490053829a0345b203ca56632618f955517339eecfc1578ed5986d56956a9c060bdde7d94f913a63dbe0449a09915909
   languageName: node
   linkType: hard
 
@@ -26819,7 +26819,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    "@anansi/babel-preset": "npm:6.1.7"
+    "@anansi/babel-preset": "npm:6.1.8"
     "@anansi/browserslist-config": "npm:1.6.0"
     "@anansi/eslint-plugin": "npm:1.0.26"
     "@anansi/jest-preset": "npm:0.11.13"
