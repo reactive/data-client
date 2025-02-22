@@ -35,16 +35,19 @@ import {
 } from './actions/index.js';
 import ensurePojo from './ensurePojo.js';
 import type { EndpointUpdateFunction } from './types.js';
+import { ReduxMiddlewareAPI } from '../manager/applyManager.js';
 import type { GCInterface } from '../state/GCPolicy.js';
 import { ImmortalGCPolicy } from '../state/GCPolicy.js';
 import { initialState } from '../state/reducer/createReducer.js';
 import selectMeta from '../state/selectMeta.js';
-import type { ActionTypes, State } from '../types.js';
+import type { ActionTypes, Dispatch, State } from '../types.js';
 
 export type GenericDispatch = (value: any) => Promise<void>;
 export type DataClientDispatch = (value: ActionTypes) => Promise<void>;
 
-interface ConstructorProps<D extends GenericDispatch = DataClientDispatch> {
+export interface ControllerConstructorProps<
+  D extends GenericDispatch = DataClientDispatch,
+> {
   dispatch?: D;
   getState?: () => State<unknown>;
   memo?: Pick<MemoCache, 'denormalize' | 'query' | 'buildQueryKey'>;
@@ -68,6 +71,7 @@ const unsetState = (): State<unknown> => {
  * @see https://dataclient.io/docs/api/Controller
  */
 export default class Controller<
+  // NOTE: We template on entire dispatch, so we can be contravariant on ActionTypes
   D extends GenericDispatch = DataClientDispatch,
 > {
   /**
@@ -75,7 +79,7 @@ export default class Controller<
    *
    * @see https://dataclient.io/docs/api/Controller#dispatch
    */
-  declare readonly dispatch: D;
+  declare protected _dispatch: D;
   /**
    * Gets the latest state snapshot that is fully committed.
    *
@@ -83,7 +87,7 @@ export default class Controller<
    * This should *not* be used to render; instead useSuspense() or useCache()
    * @see https://dataclient.io/docs/api/Controller#getState
    */
-  declare readonly getState: () => State<unknown>;
+  declare getState: () => State<unknown>;
   /**
    * Singleton to maintain referential equality between calls
    */
@@ -102,11 +106,33 @@ export default class Controller<
     getState = unsetState,
     memo = new MemoCache(),
     gcPolicy = new ImmortalGCPolicy(),
-  }: ConstructorProps<D> = {}) {
-    this.dispatch = dispatch;
+  }: ControllerConstructorProps<D> = {}) {
+    this._dispatch = dispatch;
     this.getState = getState;
     this.memo = memo;
     this.gcPolicy = gcPolicy;
+  }
+
+  // TODO: drop when drop support for destructuring (0.14 and below)
+  set dispatch(dispatch: D) {
+    /* istanbul ignore next */
+    this._dispatch = dispatch;
+  }
+
+  // TODO: drop when drop support for destructuring (0.14 and below)
+  get dispatch(): D {
+    return this._dispatch;
+  }
+
+  bindMiddleware({
+    dispatch,
+    getState,
+  }: {
+    dispatch: D;
+    getState: ReduxMiddlewareAPI['getState'];
+  }) {
+    this._dispatch = dispatch;
+    this.getState = getState;
   }
 
   /*************** Action Dispatchers ***************/

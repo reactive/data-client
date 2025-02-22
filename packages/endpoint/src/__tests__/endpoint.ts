@@ -1,6 +1,6 @@
 import nock from 'nock';
 
-import type { default as TEndpoint, EndpointInstance } from '../endpoint';
+import type { default as TEndpoint } from '../endpoint';
 import { EndpointInterface } from '../interface';
 import Entity from '../schemas/Entity';
 

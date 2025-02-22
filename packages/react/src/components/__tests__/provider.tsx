@@ -85,8 +85,10 @@ describe('<DataProvider />', () => {
 
   it('should not change dispatch function on re-render', () => {
     let dispatch;
+    let controller;
     let count = 0;
     function DispatchTester() {
+      controller = useController();
       dispatch = useController().dispatch;
       count++;
       return null;
@@ -96,6 +98,7 @@ describe('<DataProvider />', () => {
     const { rerender } = render(tree);
     expect(dispatch).toBeDefined();
     let curDisp = dispatch;
+    let curController = controller;
     rerender(tree);
     expect(curDisp).toBe(dispatch);
     expect(count).toBe(1);
@@ -106,6 +109,7 @@ describe('<DataProvider />', () => {
     rerender(<DataProvider managers={managers}>{chil}</DataProvider>);
     expect(count).toBe(1);
     curDisp = dispatch;
+    curController = controller;
     rerender(<DataProvider managers={managers}>{chil}</DataProvider>);
     expect(curDisp).toBe(dispatch);
     expect(count).toBe(1);
@@ -116,7 +120,7 @@ describe('<DataProvider />', () => {
         {chil}
       </ControllerContext.Provider>,
     );
-    expect(curDisp).not.toBe(dispatch);
+    expect(curController).not.toBe(controller);
     expect(count).toBe(2);
   });
 

@@ -18,14 +18,13 @@ export default function applyManager(
   }
   return managers.map((manager, i) => {
     if (!manager.middleware) manager.middleware = manager.getMiddleware?.();
-    return ({ dispatch, getState }) => {
+    return (api: ReduxMiddlewareAPI) => {
       if (i === 0) {
-        (controller as any).dispatch = dispatch;
-        (controller as any).getState = getState;
+        controller.bindMiddleware(api);
       }
       // controller is a superset of the middleware API
       return (manager as Manager & { middleware: ReduxMiddleware }).middleware(
-        controller as Controller<any>,
+        controller as any,
       );
     };
   });

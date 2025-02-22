@@ -3,16 +3,13 @@ import { ControllerContext, useController } from '@data-client/react';
 import { useMemo } from 'react';
 import React from 'react';
 
-import { createControllerInterceptor } from './createControllerInterceptor.js';
-import { createFixtureMap } from './createFixtureMap.js';
-import type { Fixture, Interceptor } from './fixtureTypes.js';
+import { MockController } from './MockController.js';
+import { MockProps } from './mockTypes.js';
 
-type Props<T> = {
+export interface MockResolverProps<T> extends MockProps<T> {
   children: React.ReactNode;
-  readonly fixtures: (Fixture | Interceptor<T>)[];
   silenceMissing?: boolean;
-  getInitialInterceptorData?: () => T;
-};
+}
 
 /** Can be used to mock responses based on fixtures provided.
  *
@@ -24,32 +21,25 @@ export default function MockResolver<T = any>({
   children,
   fixtures,
   getInitialInterceptorData = () => ({}) as any,
-  silenceMissing = false,
-}: Props<T>) {
+}: MockResolverProps<T>) {
   const controller = useController();
 
-  const [fixtureMap, interceptors] = useMemo(
-    () => createFixtureMap(fixtures),
-    [fixtures],
-  );
-
-  const controllerInterceptor = useMemo(
-    () =>
-      createControllerInterceptor(
-        controller,
-        fixtureMap,
-        interceptors,
-        getInitialInterceptorData,
-        silenceMissing,
-      ),
-    [
-      interceptors,
-      controller,
-      fixtureMap,
-      silenceMissing,
-      getInitialInterceptorData,
-    ],
-  );
+  const controllerInterceptor = useMemo(() => {
+    const MockedController = MockController(
+      controller.constructor as any,
+      fixtures ?
+        {
+          fixtures,
+          getInitialInterceptorData,
+        }
+      : {},
+    );
+    const controllerInterceptor = new MockedController({
+      ...controller,
+      dispatch: controller['_dispatch'] ?? controller.dispatch,
+    });
+    return controllerInterceptor;
+  }, [controller, fixtures, getInitialInterceptorData]);
 
   return (
     <ControllerContext.Provider value={controllerInterceptor}>

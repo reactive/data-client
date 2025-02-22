@@ -55,14 +55,15 @@ describe('Controller', () => {
         },
       };
       const getState = () => state;
+      const dispatch = jest.fn(() => Promise.resolve());
       const controller = new Controller({
-        dispatch: jest.fn(() => Promise.resolve()),
+        dispatch,
         getState,
       });
       const article = await controller.fetchIfStale(CoolerArticleResource.get, {
         id: payload.id,
       });
-      expect(controller.dispatch.mock.calls.length).toBe(0);
+      expect(dispatch.mock.calls.length).toBe(0);
       expect(article.title).toBe(payload.title);
     });
     it('should fetch if result stale', () => {
@@ -92,15 +93,16 @@ describe('Controller', () => {
         },
       };
       const getState = () => state;
+      const dispatch = jest.fn(() => Promise.resolve());
       const controller = new Controller({
-        dispatch: jest.fn(() => Promise.resolve()),
+        dispatch,
         getState,
       });
       controller.fetchIfStale(CoolerArticleResource.get, {
         id: payload.id,
       });
 
-      expect(controller.dispatch.mock.calls.length).toBe(1);
+      expect(dispatch.mock.calls.length).toBe(1);
     });
   });
 });
