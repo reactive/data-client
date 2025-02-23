@@ -119,6 +119,8 @@ jobs:
             if [ "<< parameters.react-version >>" == "^17" ]; then
               yarn test:ci --maxWorkers=3 --selectProjects ReactDOM --testPathPattern packages/react packages/use-enhanced-reducer packages/img
             elif [ "<< parameters.react-version >>" == "^18" ]; then
+              yarn test:ci --maxWorkers=4 --selectProjects ReactDOM --testPathPattern packages/react packages/use-enhanced-reducer packages/img
+            else
               curl -Os https://uploader.codecov.io/latest/linux/codecov;
               chmod +x codecov;
               yarn run test:coverage --ci --maxWorkers=3 --coverageReporters=text-lcov > ./lcov.info;
@@ -127,8 +129,6 @@ jobs:
               else
                 ./codecov < ./lcov.info || true;
               fi
-            else
-              yarn test:ci --maxWorkers=4 --selectProjects ReactDOM --testPathPattern packages/react packages/use-enhanced-reducer packages/img
             fi
 
   node_matrix:
