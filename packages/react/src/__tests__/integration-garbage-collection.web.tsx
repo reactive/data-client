@@ -6,7 +6,7 @@ import {
 } from '@data-client/react';
 import { MockResolver } from '@data-client/test';
 import { render, screen, act } from '@testing-library/react';
-import { ArticleResource } from '__tests__/new';
+import { Article, ArticleResource } from '__tests__/new';
 import '@testing-library/jest-dom';
 import { useState } from 'react';
 
@@ -14,8 +14,13 @@ const mockGetList = jest.fn();
 const mockGet = jest.fn();
 const GC_INTERVAL = 5000;
 
-const ListView = ({ onSelect }: { onSelect: (id: number) => void }) => {
-  const articles = useSuspense(ArticleResource.getList);
+const ArticleList = ({
+  articles,
+  onSelect,
+}: {
+  articles: Article[];
+  onSelect: (id: number) => void;
+}) => {
   return (
     <div>
       {articles.map(article => (
@@ -26,18 +31,30 @@ const ListView = ({ onSelect }: { onSelect: (id: number) => void }) => {
     </div>
   );
 };
+const ArticleDetail = ({ article }: { article: Article }) => {
+  return (
+    <div>
+      <h3>{article.title}</h3>
+      <p>{article.content}</p>
+    </div>
+  );
+};
+
+const ListView = ({ onSelect }: { onSelect: (id: number) => void }) => {
+  const articles = useSuspense(ArticleResource.getList);
+  return <ArticleList articles={articles} onSelect={onSelect} />;
+};
 
 const DetailView = ({ id }: { id: number }) => {
   const article = useSuspense(ArticleResource.get, { id });
   const [toggle, setToggle] = useState(false);
 
   return (
-    <div>
-      <h3>{article.title}</h3>
-      <p>{article.content}</p>
+    <>
+      <ArticleDetail article={article} />{' '}
       <button onClick={() => setToggle(!toggle)}>Toggle Re-render</button>
       {toggle && <div>Toggle state: {toggle.toString()}</div>}
-    </div>
+    </>
   );
 };
 

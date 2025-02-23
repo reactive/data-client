@@ -5,115 +5,113 @@ import {
   NetworkManager,
   PollingSubscription,
   Controller,
+  GenericDispatch,
+  DataClientDispatch,
 } from '@data-client/react';
 import React, { memo, Suspense } from 'react';
 
-import { renderHook, act, RenderHookResult } from './renderHook.cjs';
-import { createControllerInterceptor } from '../createControllerInterceptor.js';
-import { createFixtureMap } from '../createFixtureMap.js';
-import { Interceptor, Fixture, FixtureEndpoint } from '../fixtureTypes.js';
-import MockResolver from '../MockResolver.js';
+import {
+  renderHook,
+  act,
+  RenderHookResult,
+  type RenderHookOptions,
+} from './renderHook.cjs';
+import { Interceptor, Fixture } from '../fixtureTypes.js';
+import { MockController } from '../MockController.js';
 import mockInitialState from '../mockState.js';
-
-export type { RenderHookOptions } from './renderHook.cjs';
+import { MockProps } from '../mockTypes.js';
 
 /** @see https://dataclient.io/docs/api/makeRenderDataHook */
 export default function makeRenderDataHook(
   Provider: React.ComponentType<DataProviderProps>,
 ) {
-  /** Wraps dispatches that are typically called declaratively in act() */
-  class ActController extends Controller<any> {
-    constructor(...args: any) {
-      super(...args);
-      const { setResponse, resolve } = this;
-      this.setResponse = (...args) => {
-        let promise: any;
-        act(() => {
-          promise = setResponse.call(this, ...args);
-        });
-        return promise;
-      };
-      this.resolve = (...args) => {
-        let promise: any;
-        act(() => {
-          promise = resolve.call(this, ...args);
-        });
-        return promise;
-      };
-    }
-  }
-
   const renderDataClient: RenderDataHook = (<P, R, T = any>(
     callback: (props: P) => R,
-    options?: {
+    {
+      initialFixtures,
+      resolverFixtures,
+      getInitialInterceptorData = () => ({}) as any,
+      ...options
+    }: {
       initialProps?: P;
       initialFixtures?: Fixture[];
       resolverFixtures?: (Fixture | Interceptor<T>)[];
       getInitialInterceptorData?: () => T;
       wrapper?: React.ComponentType<React.PropsWithChildren<P>>;
-    },
+    } & Omit<RenderHookOptions<P>, 'initialProps' | 'wrapper'> = {} as any,
   ): RenderHookResult<R, P> & { controller: Controller } => {
+    /** Wraps dispatches that are typically called declaratively in act() */
+    class ActController<
+      D extends GenericDispatch = DataClientDispatch,
+      T = {},
+    > extends MockController(
+      Controller,
+      resolverFixtures ?
+        {
+          fixtures: resolverFixtures,
+          getInitialInterceptorData,
+        }
+      : {},
+    )<D> {
+      constructor(
+        options: MockProps<T> & ConstructorParameters<typeof Controller<D>>[0],
+      ) {
+        super(options);
+        const { setResponse, resolve } = this;
+        this.setResponse = (...args) => {
+          let promise: any;
+          act(() => {
+            promise = setResponse.call(this, ...args);
+          });
+          return promise;
+        };
+        this.resolve = (...args) => {
+          let promise: any;
+          act(() => {
+            promise = resolve.call(this, ...args);
+          });
+          return promise;
+        };
+      }
+    }
+
     // we want fresh manager state in each instance
-    const managers = [
-      new NetworkManager(),
-      new SubscriptionManager(PollingSubscription),
-    ];
+    const nm = new NetworkManager();
+    const sm = new SubscriptionManager(PollingSubscription);
+    const managers = [nm, sm];
+    // this pattern is dangerous if renderDataClient is shared between tests
+    // TODO: move to return value
     renderDataClient.cleanup = () => {
-      (managers[0] as any).cleanupDate = Infinity;
-      Object.values(
-        (managers[0] as any).rejectors as Record<string, any>,
-      ).forEach(rej => {
+      nm.cleanupDate = Infinity;
+      Object.values(nm['rejectors'] as Record<string, any>).forEach(rej => {
         rej();
       });
-      (managers[0] as any).clearAll();
+      nm['clearAll']();
       managers.forEach(manager => manager.cleanup());
     };
     renderDataClient.allSettled = () => {
-      return (managers[0] as NetworkManager).allSettled();
+      return nm.allSettled();
     };
 
-    const initialState: State<unknown> = mockInitialState(
-      options?.initialFixtures,
+    const initialState: State<unknown> = mockInitialState(initialFixtures);
+
+    const ProviderWithResolver: React.ComponentType<any> = memo(
+      function ProviderWithResolver({ children }: React.PropsWithChildren<P>) {
+        return (
+          <Provider
+            initialState={initialState}
+            Controller={ActController}
+            managers={managers}
+            devButton={null}
+          >
+            {children}
+          </Provider>
+        );
+      },
     );
 
-    // TODO: controller provided to middleware should be same as useController() - so pull out the mockresolver stuff and don't actually
-    // use the component here
-    const ProviderWithResolver: React.ComponentType<any> =
-      options?.resolverFixtures?.length ?
-        memo(function ProviderWithResolver({
-          children,
-        }: React.PropsWithChildren<P>) {
-          return (
-            <Provider
-              initialState={initialState}
-              Controller={ActController}
-              managers={managers}
-              devButton={null}
-            >
-              <MockResolver
-                fixtures={options.resolverFixtures as FixtureEndpoint[]}
-              >
-                {children}
-              </MockResolver>
-            </Provider>
-          );
-        })
-      : memo(function ProviderWithResolver({
-          children,
-        }: React.PropsWithChildren<P>) {
-          return (
-            <Provider
-              initialState={initialState}
-              Controller={ActController}
-              managers={managers}
-              devButton={null}
-            >
-              {children}
-            </Provider>
-          );
-        });
-
-    const Wrapper = options?.wrapper;
+    const Wrapper: React.ComponentType<React.PropsWithChildren<P>> | undefined =
+      options?.wrapper;
     const ProviderWithWrapper =
       Wrapper ?
         function ProviderWrapped(props: React.PropsWithChildren<P>) {
@@ -138,16 +136,7 @@ export default function makeRenderDataHook(
       ...options,
       wrapper,
     });
-    const [fixtureMap, interceptors] = createFixtureMap(
-      options?.resolverFixtures,
-    );
-    ret.controller = createControllerInterceptor(
-      (managers[0] as any).controller,
-      fixtureMap,
-      interceptors,
-      options?.getInitialInterceptorData ?? (() => ({})),
-      !options?.resolverFixtures?.length,
-    );
+    ret.controller = nm['controller'];
     return ret;
   }) as any;
   renderDataClient.cleanup = () => {};
@@ -158,7 +147,7 @@ export interface DataProviderProps {
   children: React.ReactNode;
   managers: Manager[];
   initialState: State<unknown>;
-  Controller: typeof Controller;
+  Controller: typeof Controller<any>;
   devButton: any;
 }
 
@@ -169,7 +158,7 @@ export type RenderDataHook = (<P, R>(
     initialFixtures?: readonly Fixture[];
     readonly resolverFixtures?: readonly (Fixture | Interceptor)[];
     wrapper?: React.ComponentType<React.PropsWithChildren<P>>;
-  },
+  } & Omit<RenderHookOptions<P>, 'initialProps' | 'wrapper'>,
 ) => RenderHookResult<R, P> & {
   controller: Controller;
 }) & {
