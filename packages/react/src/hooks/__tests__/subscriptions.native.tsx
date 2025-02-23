@@ -7,18 +7,10 @@ import {
   ArticleResource,
   Article,
 } from '__tests__/new';
-import nock from 'nock';
 
 import { makeRenderDataClient } from '../../../../test';
 import { ControllerContext } from '../../context';
 import useSubscription from '../useSubscription';
-
-function jsonNock() {
-  return nock(/.*/).defaultReplyHeaders({
-    'Access-Control-Allow-Origin': '*',
-    'Content-Type': 'application/json',
-  });
-}
 
 describe.each([
   ['CacheProvider', CacheProvider],
@@ -43,6 +35,7 @@ describe.each([
       content: string;
       tags: string[];
     },
+    responseMock: jest.Mock,
     waitFor: <T>(callback: () => Promise<T> | T, options?: any) => Promise<T>,
   ) {
     // should be null to start
@@ -55,16 +48,12 @@ describe.each([
     expect(result.current).toBeInstanceOf(Article);
     expect(result.current).toEqual(Article.fromJS(articlePayload));
     // should update again after frequency
-    const fiverNock = jsonNock()
-      .get(`/article/${articlePayload.id}`)
-      .reply(200, { ...articlePayload, title: 'fiver' });
+    responseMock.mockReturnValue({ ...articlePayload, title: 'fiver' });
 
     jest.advanceTimersByTime(frequency);
 
-    await waitFor(() => expect(fiverNock.isDone()).toBeTruthy());
-    jest.useRealTimers();
     await renderDataClient.allSettled();
-    expect((result.current as any).title).toBe('fiver');
+    await waitFor(() => expect((result.current as any).title).toBe('fiver'));
   }
 
   function onError(e: any) {
@@ -85,34 +74,19 @@ describe.each([
   });
 
   beforeEach(() => {
-    nock(/.*/)
-      .persist()
-      .defaultReplyHeaders({
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json',
-      })
-      .options(/.*/)
-      .reply(200);
-
-    jsonNock()
-      .get(`/article-cooler/${articlePayload.id}`)
-      .reply(200, articlePayload)
-      .get(`/article/${articlePayload.id}`)
-      .reply(200, articlePayload);
     renderDataClient = makeRenderDataClient(makeProvider);
   });
   afterEach(() => {
     renderDataClient.cleanup();
-    nock.cleanAll();
     jest.useRealTimers();
   });
 
   it('useSubscription() + useCache()', async () => {
-    jest.useFakeTimers({
-      legacyFakeTimers: true,
-    });
+    jest.useFakeTimers();
     const frequency = PollingArticleResource.get.pollFrequency as number;
     expect(frequency).toBeDefined();
+
+    const responseMock = jest.fn(({ id }) => articlePayload);
 
     const { result, rerender, waitFor } = renderDataClient(
       ({ active }) => {
@@ -122,30 +96,47 @@ describe.each([
         );
         return useCache(PollingArticleResource.get, { id: articlePayload.id });
       },
-      { initialProps: { active: true } },
+      {
+        initialProps: { active: true },
+        resolverFixtures: [
+          {
+            endpoint: PollingArticleResource.get,
+            response: responseMock,
+          },
+        ],
+      },
     );
 
-    await validateSubscription(result, frequency, articlePayload, waitFor);
-
+    await validateSubscription(
+      result,
+      frequency,
+      articlePayload,
+      responseMock,
+      waitFor,
+    );
     // should not update if active is false
+    responseMock.mockReturnValue({ ...articlePayload, title: 'sixer' });
+
     rerender({ active: false });
-    jsonNock()
-      .get(`/article/${articlePayload.id}`)
-      .reply(200, { ...articlePayload, title: 'sixer' });
     jest.advanceTimersByTime(frequency);
     expect((result.current as any).title).toBe('fiver');
 
     // errors should not fail when data already exists
-    nock.cleanAll();
-    jsonNock()
-      .get(`/article/${articlePayload.id}`)
-      .reply(403, () => {
-        return { message: 'you fail' };
-      });
+    responseMock.mockImplementation(({ id }) => {
+      const error: any = new Error('you fail');
+      error.status = 403;
+      throw error;
+    });
+    const fetchCount = responseMock.mock.calls.length;
     rerender({ active: true });
     jest.advanceTimersByTime(frequency);
-    expect((result.current as any).title).toBe('fiver');
+    await waitFor(() =>
+      expect(responseMock.mock.calls.length > fetchCount).toBeTruthy(),
+    );
     jest.useRealTimers();
+    await renderDataClient.allSettled();
+
+    expect((result.current as any).title).toBe('fiver');
   });
 
   it('should console.error() with no frequency specified', async () => {
@@ -163,20 +154,37 @@ describe.each([
   });
 
   it('useSubscription() without active arg', async () => {
-    jest.useFakeTimers({
-      legacyFakeTimers: true,
-    });
+    jest.useFakeTimers();
     const frequency = PollingArticleResource.get.pollFrequency as number;
     expect(frequency).toBeDefined();
     expect(PollingArticleResource.anotherGet.pollFrequency).toBeDefined();
 
-    const { result, waitFor } = renderDataClient(() => {
-      useSubscription(PollingArticleResource.get, { id: articlePayload.id });
-      return useCache(PollingArticleResource.get, { id: articlePayload.id });
-    });
+    const responseMock = jest.fn(({ id }) => articlePayload);
 
-    await validateSubscription(result, frequency, articlePayload, waitFor);
+    const { result, waitFor } = renderDataClient(
+      () => {
+        useSubscription(PollingArticleResource.get, { id: articlePayload.id });
+        return useCache(PollingArticleResource.get, { id: articlePayload.id });
+      },
+      {
+        resolverFixtures: [
+          {
+            endpoint: PollingArticleResource.get,
+            response: responseMock,
+          },
+        ],
+      },
+    );
+
+    await validateSubscription(
+      result,
+      frequency,
+      articlePayload,
+      responseMock,
+      waitFor,
+    );
     await renderDataClient.allSettled();
+    jest.useRealTimers();
   });
 
   it('useSubscription() should dispatch data-client/subscribe only once even with rerender', async () => {

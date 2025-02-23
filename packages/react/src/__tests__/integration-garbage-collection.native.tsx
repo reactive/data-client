@@ -8,7 +8,6 @@ import { MockResolver } from '@data-client/test';
 import { render, screen, act, fireEvent } from '@testing-library/react-native';
 import { ArticleResource } from '__tests__/new';
 import { useState } from 'react';
-import '@testing-library/jest-native';
 import {
   View,
   Text,
@@ -89,17 +88,24 @@ const TestComponent = () => {
 describe('Integration Garbage Collection React Native', () => {
   it('should render list view and detail view correctly', async () => {
     jest.useFakeTimers();
-    mockGetList.mockResolvedValue([
+
+    mockGetList.mockReturnValue([
       { id: 1, title: 'Article 1', content: 'Content 1' },
       { id: 2, title: 'Article 2', content: 'Content 2' },
     ]);
-    mockGet.mockResolvedValue({
+    mockGet.mockReturnValue({
       id: 1,
       title: 'Article 1',
       content: 'Content 1',
     });
 
     render(<TestComponent />);
+
+    await act(async () => {
+      jest.advanceTimersByTime(1000);
+      InteractionManager.setDeadline(0);
+      await jest.runOnlyPendingTimersAsync();
+    });
 
     // Initial render, should show list view
     expect(await screen.findByText('Article 1')).toBeTruthy();
@@ -132,11 +138,15 @@ describe('Integration Garbage Collection React Native', () => {
     });
 
     // Jest time pass to expiry
-    act(() => {
+    await act(async () => {
       jest.advanceTimersByTime(
-        ArticleResource.getList.dataExpiryLength ?? 60000,
+        Math.max(
+          ArticleResource.getList.dataExpiryLength ?? 60000,
+          GC_INTERVAL,
+        ),
       );
       InteractionManager.setDeadline(0);
+      await jest.runOnlyPendingTimersAsync();
     });
 
     expect(await screen.findByText('Content 1')).toBeTruthy();
@@ -154,6 +164,7 @@ describe('Integration Garbage Collection React Native', () => {
     });
 
     expect(screen.getByText('Loading...')).toBeTruthy();
+    await jest.runOnlyPendingTimersAsync();
     jest.useRealTimers();
   });
 });
