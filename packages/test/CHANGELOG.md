@@ -1,5 +1,21 @@
 # @data-client/test
 
+## 0.14.19
+
+### Patch Changes
+
+- [`060d8e1`](https://github.com/reactive/data-client/commit/060d8e19beb3eedab58a77764fd5f755b70e4946) Thanks [@ntucker](https://github.com/ntucker)! - Update @testing-library/react-native to v13
+
+- [#3365](https://github.com/reactive/data-client/pull/3365) [`66e7336`](https://github.com/reactive/data-client/commit/66e7336bab0f6768d93c76882188894d36f84f88) Thanks [@ntucker](https://github.com/ntucker)! - fix: Interceptors work on manager-dispatched actions.
+
+  For example, renderHook now can use resolverFixtures to resolve fetches for subscriptions.
+  This was not possible before as SubscriptionManager's dispatches would not be intercepted with the
+  previous implementation.
+
+- [#3371](https://github.com/reactive/data-client/pull/3371) [`679d76a`](https://github.com/reactive/data-client/commit/679d76a36234dcf5993c0358f94d7e1db0505cc6) Thanks [@ntucker](https://github.com/ntucker)! - Add react-native entry to package.json exports
+
+- [#3353](https://github.com/reactive/data-client/pull/3353) [`165afed`](https://github.com/reactive/data-client/commit/165afed083c0c63e9356bc8d1ee30dee8b916ed6) Thanks [@renovate](https://github.com/apps/renovate)! - Polyfills no longer pollute global scope
+
 ## 0.14.17
 
 ### Patch Changes

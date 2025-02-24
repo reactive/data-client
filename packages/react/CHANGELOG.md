@@ -1,5 +1,94 @@
 # @data-client/react
 
+## 0.14.19
+
+### Patch Changes
+
+- [#3343](https://github.com/reactive/data-client/pull/3343) [`1df829e`](https://github.com/reactive/data-client/commit/1df829e0a005f5973d59669aaf0a226250346a40) Thanks [@ntucker](https://github.com/ntucker)! - Add gcPolicy option to [DataProvider](https://dataclient.io/docs/api/DataProvider) and [prepareStore](https://dataclient.io/docs/guides/redux)
+
+  ```tsx
+  // run GC sweep every 10min
+  <DataProvider gcPolicy={new GCPolicy({ intervalMS: 60 * 1000 * 10 })}>
+    {children}
+  </DataProvider>
+  ```
+
+  ```ts
+  const { store, selector, controller } = prepareStore(
+    initialState,
+    managers,
+    Controller,
+    otherReducers,
+    extraMiddlewares,
+    gcPolicy: new GCPolicy({ intervalMS: 60 * 1000 * 10 }),
+  );
+  ```
+
+  To maintain existing behavior, use `ImmortalGCPolicy`:
+
+  ```tsx
+  import { ImmortalGCPolicy, DataProvider } from '@data-client/react';
+
+  <DataProvider gcPolicy={new ImmortalGCPolicy()}>{children}</DataProvider>;
+  ```
+
+- [#3343](https://github.com/reactive/data-client/pull/3343) [`1df829e`](https://github.com/reactive/data-client/commit/1df829e0a005f5973d59669aaf0a226250346a40) Thanks [@ntucker](https://github.com/ntucker)! - Add GCPolicy to control Garbage Collection of data in the store.
+
+  This can be configured with constructor options, or custom GCPolicies implemented by extending
+  or simply building your own. Use `ImmortalGCPolicy` to never GC (to maintain existing behavior).
+
+  ### constructor
+
+  #### intervalMS = 60 \* 1000 \* 5
+
+  How long between low priority GC sweeps.
+
+  Longer values may result in more memory usage, but less performance impact.
+
+  #### expiryMultiplier = 2
+
+  Used in the default `hasExpired` policy.
+
+  Represents how many 'stale' lifetimes data should persist before being
+  garbage collected.
+
+  #### expiresAt
+
+  ```typescript
+  expiresAt({
+      fetchedAt,
+      expiresAt,
+  }: {
+    expiresAt: number;
+    date: number;
+    fetchedAt: number;
+  }): number {
+    return (
+      Math.max(
+        (expiresAt - fetchedAt) * this.options.expiryMultiplier,
+        120000,
+      ) + fetchedAt
+    );
+  }
+  ```
+
+  Indicates at what timestamp it is acceptable to remove unused data from the store.
+
+  Data not currently rendered in any components is considered unused. However, unused
+  data may be used again in the future (as a cache).
+
+  This results in a tradeoff between memory usage and cache hit rate (and thus performance).
+
+- [#3371](https://github.com/reactive/data-client/pull/3371) [`679d76a`](https://github.com/reactive/data-client/commit/679d76a36234dcf5993c0358f94d7e1db0505cc6) Thanks [@ntucker](https://github.com/ntucker)! - Add react-native entry to package.json exports
+
+- [`12bb010`](https://github.com/reactive/data-client/commit/12bb01084fa21f4c9e83d8daaa9b4c64e205546d) Thanks [@ntucker](https://github.com/ntucker)! - Update async boundary link in BackupLoading component
+
+- [#3353](https://github.com/reactive/data-client/pull/3353) [`165afed`](https://github.com/reactive/data-client/commit/165afed083c0c63e9356bc8d1ee30dee8b916ed6) Thanks [@renovate](https://github.com/apps/renovate)! - Polyfills no longer pollute global scope
+
+- Updated dependencies [[`1df829e`](https://github.com/reactive/data-client/commit/1df829e0a005f5973d59669aaf0a226250346a40), [`f796b6c`](https://github.com/reactive/data-client/commit/f796b6cbd33cce1f258bd5e95a7d6b1d51365f2f), [`f796b6c`](https://github.com/reactive/data-client/commit/f796b6cbd33cce1f258bd5e95a7d6b1d51365f2f), [`66e7336`](https://github.com/reactive/data-client/commit/66e7336bab0f6768d93c76882188894d36f84f88), [`1df829e`](https://github.com/reactive/data-client/commit/1df829e0a005f5973d59669aaf0a226250346a40), [`679d76a`](https://github.com/reactive/data-client/commit/679d76a36234dcf5993c0358f94d7e1db0505cc6), [`165afed`](https://github.com/reactive/data-client/commit/165afed083c0c63e9356bc8d1ee30dee8b916ed6)]:
+  - @data-client/core@0.14.19
+  - @data-client/use-enhanced-reducer@0.1.12
+
 ## 0.14.18
 
 ### Patch Changes

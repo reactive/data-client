@@ -1,6 +1,6 @@
 {
   "name": "@data-client/img",
-  "version": "0.14.15",
+  "version": "0.14.19",
   "description": "Suspenseful images",
   "homepage": "https://dataclient.io/docs/guides/img-media#just-images",
   "repository": {
@@ -75,7 +75,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime-corejs3": "^7.26.0",
-    "@data-client/endpoint": "^0.14.17",
+    "@data-client/endpoint": "^0.14.19",
     "core-js-pure": "^3.40.0"
   },
   "peerDependencies": {

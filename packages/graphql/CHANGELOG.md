@@ -1,5 +1,16 @@
 # @data-client/graphql
 
+## 0.14.19
+
+### Patch Changes
+
+- [#3371](https://github.com/reactive/data-client/pull/3371) [`679d76a`](https://github.com/reactive/data-client/commit/679d76a36234dcf5993c0358f94d7e1db0505cc6) Thanks [@ntucker](https://github.com/ntucker)! - Add react-native entry to package.json exports
+
+- [#3353](https://github.com/reactive/data-client/pull/3353) [`165afed`](https://github.com/reactive/data-client/commit/165afed083c0c63e9356bc8d1ee30dee8b916ed6) Thanks [@renovate](https://github.com/apps/renovate)! - Polyfills no longer pollute global scope
+
+- Updated dependencies [[`cb4fb92`](https://github.com/reactive/data-client/commit/cb4fb922e305502ba8ab99c99b6012e753a87a3a), [`679d76a`](https://github.com/reactive/data-client/commit/679d76a36234dcf5993c0358f94d7e1db0505cc6), [`165afed`](https://github.com/reactive/data-client/commit/165afed083c0c63e9356bc8d1ee30dee8b916ed6)]:
+  - @data-client/endpoint@0.14.19
+
 ## 0.14.17
 
 ### Patch Changes

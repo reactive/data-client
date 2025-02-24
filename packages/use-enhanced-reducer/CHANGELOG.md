@@ -1,5 +1,11 @@
 # @data-client/use-enhanced-reducer
 
+## 0.1.12
+
+### Patch Changes
+
+- [#3353](https://github.com/reactive/data-client/pull/3353) [`165afed`](https://github.com/reactive/data-client/commit/165afed083c0c63e9356bc8d1ee30dee8b916ed6) Thanks [@renovate](https://github.com/apps/renovate)! - Polyfills no longer pollute global scope
+
 ## 0.1.11
 
 ### Patch Changes
