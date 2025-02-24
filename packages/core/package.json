@@ -37,11 +37,15 @@
       "module": "./lib/index.js",
       "import": "./node.mjs",
       "require": "./dist/index.js",
+      "browser": "./lib/index.js",
+      "react-native": "./lib/index.js",
       "default": "./lib/index.js"
     },
     "./next": {
       "types": "./lib/next/index.d.ts",
       "require": "./dist/next.js",
+      "browser": "./lib/next/index.js",
+      "react-native": "./lib/next/index.js",
       "default": "./lib/next/index.js"
     },
     "./package.json": "./package.json"

@@ -68,6 +68,8 @@
       "module": "./lib/index.js",
       "import": "./node.mjs",
       "require": "./dist/normalizr.js",
+      "browser": "./lib/index.js",
+      "react-native": "./lib/index.js",
       "default": "./lib/index.js"
     },
     "./package.json": "./package.json"

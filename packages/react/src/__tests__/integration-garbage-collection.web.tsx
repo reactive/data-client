@@ -90,67 +90,71 @@ const TestComponent = () => {
   );
 };
 
-test('switch between list and detail view', async () => {
-  jest.useFakeTimers();
-  mockGetList.mockReturnValue([
-    { id: 1, title: 'Article 1', content: 'Content 1' },
-    { id: 2, title: 'Article 2', content: 'Content 2' },
-  ]);
-  mockGet.mockReturnValue({
-    id: 1,
-    title: 'Article 1',
-    content: 'Content 1',
+describe('Integration Garbage Collection Web', () => {
+  it('should render list view and detail view correctly', async () => {
+    jest.useFakeTimers();
+    mockGetList.mockReturnValue([
+      { id: 1, title: 'Article 1', content: 'Content 1' },
+      { id: 2, title: 'Article 2', content: 'Content 2' },
+    ]);
+    mockGet.mockReturnValue({
+      id: 1,
+      title: 'Article 1',
+      content: 'Content 1',
+    });
+
+    render(<TestComponent />);
+
+    // Initial render, should show list view
+    expect(await screen.findByText('Article 1')).toBeInTheDocument();
+
+    // Switch to detail view
+    act(() => {
+      screen.getByText('Article 1').click();
+    });
+
+    // Detail view should render
+    expect(await screen.findByText('Content 1')).toBeInTheDocument();
+
+    // Jest time pass to trigger sweep but not expired
+    act(() => {
+      jest.advanceTimersByTime(GC_INTERVAL);
+    });
+
+    // Switch back to list view
+    act(() => {
+      screen.getByText('Home').click();
+    });
+
+    // List view should instantly render
+    expect(await screen.findByText('Article 1')).toBeInTheDocument();
+
+    // Switch back to detail view
+    act(() => {
+      screen.getByText('Article 1').click();
+    });
+
+    // Jest time pass to expiry
+    act(() => {
+      jest.advanceTimersByTime(
+        ArticleResource.getList.dataExpiryLength ?? 60000,
+      );
+    });
+    expect(await screen.findByText('Content 1')).toBeInTheDocument();
+
+    // Re-render detail view to make sure it still renders
+    act(() => {
+      screen.getByText('Toggle Re-render').click();
+    });
+    expect(await screen.findByText('Toggle state: true')).toBeInTheDocument();
+    expect(await screen.findByText('Content 1')).toBeInTheDocument();
+
+    // Visit list view and see suspense fallback
+    act(() => {
+      screen.getByText('Home').click();
+    });
+
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    jest.useRealTimers();
   });
-
-  render(<TestComponent />);
-
-  // Initial render, should show list view
-  expect(await screen.findByText('Article 1')).toBeInTheDocument();
-
-  // Switch to detail view
-  act(() => {
-    screen.getByText('Article 1').click();
-  });
-
-  // Detail view should render
-  expect(await screen.findByText('Content 1')).toBeInTheDocument();
-
-  // Jest time pass to trigger sweep but not expired
-  act(() => {
-    jest.advanceTimersByTime(GC_INTERVAL);
-  });
-
-  // Switch back to list view
-  act(() => {
-    screen.getByText('Home').click();
-  });
-
-  // List view should instantly render
-  expect(await screen.findByText('Article 1')).toBeInTheDocument();
-
-  // Switch back to detail view
-  act(() => {
-    screen.getByText('Article 1').click();
-  });
-
-  // Jest time pass to expiry
-  act(() => {
-    jest.advanceTimersByTime(ArticleResource.getList.dataExpiryLength ?? 60000);
-  });
-  expect(await screen.findByText('Content 1')).toBeInTheDocument();
-
-  // Re-render detail view to make sure it still renders
-  act(() => {
-    screen.getByText('Toggle Re-render').click();
-  });
-  expect(await screen.findByText('Toggle state: true')).toBeInTheDocument();
-  expect(await screen.findByText('Content 1')).toBeInTheDocument();
-
-  // Visit list view and see suspense fallback
-  act(() => {
-    screen.getByText('Home').click();
-  });
-
-  expect(screen.getByText('Loading...')).toBeInTheDocument();
-  jest.useRealTimers();
 });
