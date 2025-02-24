@@ -118,3 +118,10 @@ Tacos {
   "type": "foo",
 }
 `;
+
+exports[`Snapshot.getQueryMeta() query Entity based on pk 1`] = `
+Tacos {
+  "id": "1",
+  "type": "foo",
+}
+`;

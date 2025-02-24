@@ -20,6 +20,21 @@ export interface SnapshotInterface {
     expiresAt: number;
   };
 
+  /**
+   * Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
+   * @see https://dataclient.io/docs/api/Snapshot#getResponseMeta
+   */
+  getResponseMeta<
+    E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>,
+  >(
+    endpoint: E,
+    ...args: readonly any[]
+  ): {
+    data: DenormalizeNullable<E['schema']>;
+    expiryStatus: ExpiryStatusInterface;
+    expiresAt: number;
+  };
+
   /** @see https://dataclient.io/docs/api/Snapshot#getError */
   getError: <
     E extends Pick<EndpointInterface, 'key'>,
@@ -34,6 +49,18 @@ export interface SnapshotInterface {
    * @see https://dataclient.io/docs/api/Snapshot#get
    */
   get<S extends Queryable>(schema: S, ...args: readonly any[]): any;
+
+  /**
+   * Queries the store for a Querable schema; providing related metadata
+   * @see https://dataclient.io/docs/api/Snapshot#getQueryMeta
+   */
+  getQueryMeta<S extends Queryable>(
+    schema: S,
+    ...args: readonly any[]
+  ): {
+    data: any;
+    countRef: () => () => void;
+  };
 
   readonly fetchedAt: number;
   readonly abort: Error;

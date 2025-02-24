@@ -372,7 +372,7 @@ export default class Controller<
    * Gets a snapshot (https://dataclient.io/docs/api/Snapshot)
    * @see https://dataclient.io/docs/api/Controller#snapshot
    */
-  snapshot = (state: State<unknown>, fetchedAt?: number): SnapshotInterface => {
+  snapshot = (state: State<unknown>, fetchedAt?: number): Snapshot<unknown> => {
     return new Snapshot(this, state, fetchedAt);
   };
 
@@ -444,6 +444,50 @@ export default class Controller<
   };
 
   getResponse(
+    endpoint: EndpointInterface,
+    ...rest: readonly [...unknown[], State<unknown>]
+  ): {
+    data: unknown;
+    expiryStatus: ExpiryStatus;
+    expiresAt: number;
+    countRef: () => () => void;
+  } {
+    // TODO: breaking: only return data
+    return this.getResponseMeta(endpoint, ...rest);
+  }
+
+  /**
+   * Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
+   * @see https://dataclient.io/docs/api/Controller#getResponseMeta
+   */
+  getResponseMeta<E extends EndpointInterface>(
+    endpoint: E,
+    ...rest:
+      | readonly [null, State<unknown>]
+      | readonly [...Parameters<E>, State<unknown>]
+  ): {
+    data: DenormalizeNullable<E['schema']>;
+    expiryStatus: ExpiryStatus;
+    expiresAt: number;
+    countRef: () => () => void;
+  };
+
+  getResponseMeta<
+    E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>,
+  >(
+    endpoint: E,
+    ...rest: readonly [
+      ...(readonly [...Parameters<E['key']>] | readonly [null]),
+      State<unknown>,
+    ]
+  ): {
+    data: DenormalizeNullable<E['schema']>;
+    expiryStatus: ExpiryStatus;
+    expiresAt: number;
+    countRef: () => () => void;
+  };
+
+  getResponseMeta(
     endpoint: EndpointInterface,
     ...rest: readonly [...unknown[], State<unknown>]
   ): {
@@ -546,6 +590,52 @@ export default class Controller<
       .map(ensurePojo) as SchemaArgs<S>;
 
     return this.memo.query(schema, args, state.entities as any, state.indexes);
+  }
+
+  /**
+   * Queries the store for a Querable schema; providing related metadata
+   * @see https://dataclient.io/docs/api/Controller#getQueryMeta
+   */
+  getQueryMeta<S extends Queryable>(
+    schema: S,
+    ...rest: readonly [
+      ...SchemaArgs<S>,
+      Pick<State<unknown>, 'entities' | 'entityMeta'>,
+    ]
+  ): {
+    data: DenormalizeNullable<S> | undefined;
+    countRef: () => () => void;
+  } {
+    const state = rest[rest.length - 1] as State<any>;
+    // this is typescript generics breaking
+    const args: any = rest
+      .slice(0, rest.length - 1)
+      .map(ensurePojo) as SchemaArgs<S>;
+
+    // TODO: breaking: Switch back to this.memo.query(schema, args, state.entities as any, state.indexes) to do
+    // this logic
+    const input = this.memo.buildQueryKey(
+      schema,
+      args,
+      state.entities as any,
+      state.indexes,
+      JSON.stringify(args),
+    );
+
+    if (!input) {
+      return { data: undefined, countRef: () => () => undefined };
+    }
+
+    const { data, paths } = this.memo.denormalize(
+      schema,
+      input,
+      state.entities,
+      args,
+    );
+    return {
+      data: typeof data === 'symbol' ? undefined : (data as any),
+      countRef: this.gcPolicy.createCountRef({ paths }),
+    };
   }
 
   private getSchemaResponse<T>(
@@ -689,6 +779,49 @@ class Snapshot<T = unknown> implements SnapshotInterface {
     return this.controller.getResponse(endpoint, ...args, this.state);
   }
 
+  /** @see https://dataclient.io/docs/api/Snapshot#getResponseMeta */
+  getResponseMeta<E extends EndpointInterface>(
+    endpoint: E,
+    ...args: readonly [null]
+  ): {
+    data: DenormalizeNullable<E['schema']>;
+    expiryStatus: ExpiryStatus;
+    expiresAt: number;
+  };
+
+  getResponseMeta<E extends EndpointInterface>(
+    endpoint: E,
+    ...args: readonly [...Parameters<E>]
+  ): {
+    data: DenormalizeNullable<E['schema']>;
+    expiryStatus: ExpiryStatus;
+    expiresAt: number;
+  };
+
+  getResponseMeta<
+    E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>,
+  >(
+    endpoint: E,
+    ...args: readonly [...Parameters<E['key']>] | readonly [null]
+  ): {
+    data: DenormalizeNullable<E['schema']>;
+    expiryStatus: ExpiryStatus;
+    expiresAt: number;
+  };
+
+  getResponseMeta<
+    E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>,
+  >(
+    endpoint: E,
+    ...args: readonly [...Parameters<E['key']>] | readonly [null]
+  ): {
+    data: DenormalizeNullable<E['schema']>;
+    expiryStatus: ExpiryStatus;
+    expiresAt: number;
+  } {
+    return this.controller.getResponseMeta(endpoint, ...args, this.state);
+  }
+
   /** @see https://dataclient.io/docs/api/Snapshot#getError */
   getError<E extends EndpointInterface>(
     endpoint: E,
@@ -716,5 +849,19 @@ class Snapshot<T = unknown> implements SnapshotInterface {
     ...args: SchemaArgs<S>
   ): DenormalizeNullable<S> | undefined {
     return this.controller.get(schema, ...args, this.state);
+  }
+
+  /**
+   * Queries the store for a Querable schema; providing related metadata
+   * @see https://dataclient.io/docs/api/Snapshot#getQueryMeta
+   */
+  getQueryMeta<S extends Queryable>(
+    schema: S,
+    ...args: SchemaArgs<S>
+  ): {
+    data: DenormalizeNullable<S> | undefined;
+    countRef: () => () => void;
+  } {
+    return this.controller.getQueryMeta(schema, ...args, this.state);
   }
 }
