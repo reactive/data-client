@@ -10,7 +10,7 @@ or simply building your own. Use `ImmortalGCPolicy` to never GC (to maintain exi
 
 ### constructor
 
-#### intervalMS = 60 * 1000 * 5
+#### intervalMS = 60 \* 1000 \* 5
 
 How long between low priority GC sweeps.
 

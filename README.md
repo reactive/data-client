@@ -409,7 +409,7 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://da
 <td align="center">🛑</td>
 </tr>
 <tr>
-<td align="center">✅</td>
+<td align="center"> </td>
 <td><a href="https://dataclient.io/rest/api/All">All</a></td>
 <td>list of all entities of a kind</td>
 <td align="center">✅</td>

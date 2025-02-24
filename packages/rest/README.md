@@ -211,7 +211,7 @@ supports inferring argument types from the path templates.
 <td align="center">🛑</td>
 </tr>
 <tr>
-<td align="center">✅</td>
+<td align="center"> </td>
 <td><a href="https://dataclient.io/rest/api/All">All</a></td>
 <td>list of all entities of a kind</td>
 <td align="center">✅</td>
