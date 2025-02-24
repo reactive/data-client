@@ -29,7 +29,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@anansi/babel-preset": "6.1.8",
-    "@anansi/browserslist-config": "1.6.0",
+    "@anansi/browserslist-config": "1.7.0",
     "@anansi/webpack-config": "20.0.20",
     "@babel/core": "7.26.9",
     "@linaria/babel-preset": "5.0.4",
@@ -56,7 +56,7 @@
     "@data-client/react": "^0.14.0",
     "@data-client/rest": "^0.14.0",
     "@js-temporal/polyfill": "^0.4.4",
-    "antd": "5.24.1",
+    "antd": "5.24.2",
     "core-js": "^3.40.0",
     "history": "^5.3.0",
     "parse-link-header": "^2.0.0",
