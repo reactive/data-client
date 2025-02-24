@@ -220,7 +220,7 @@ describe('GCPolicy', () => {
 
   it('should support custom hasExpired', () => {
     jest.useFakeTimers();
-    gcPolicy = new GCPolicy({ hasExpired: () => true });
+    gcPolicy = new GCPolicy({ expiresAt: () => 0 });
     gcPolicy.init(controller);
     const key = 'testEndpoint';
     const paths: EntityPath[] = [{ key: 'testEntity', pk: '1' }];

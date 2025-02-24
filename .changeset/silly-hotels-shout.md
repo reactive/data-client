@@ -20,7 +20,7 @@ const { store, selector, controller } = prepareStore(
 );
 ```
 
-Use `ImmortalGCPolicy` to never GC (to maintain existing behavior):
+To maintain existing behavior, use `ImmortalGCPolicy`:
 
 ```tsx
 import { ImmortalGCPolicy, DataProvider } from '@data-client/react';

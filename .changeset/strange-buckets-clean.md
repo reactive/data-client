@@ -23,27 +23,29 @@ Used in the default `hasExpired` policy.
 Represents how many 'stale' lifetimes data should persist before being
 garbage collected.
 
-#### hasExpired
+#### expiresAt
 
 ```typescript
-protected hasExpired({
-  fetchedAt,
-  expiresAt,
-  now,
+expiresAt({
+    fetchedAt,
+    expiresAt,
 }: {
   expiresAt: number;
   date: number;
   fetchedAt: number;
-  now: number;
-}): boolean {
+}): number {
   return (
     Math.max(
       (expiresAt - fetchedAt) * this.options.expiryMultiplier,
       120000,
-    ) +
-      fetchedAt <
-    now
+    ) + fetchedAt
   );
 }
 ```
 
+Indicates at what timestamp it is acceptable to remove unused data from the store.
+
+Data not currently rendered in any components is considered unused. However, unused
+data may be used again in the future (as a cache).
+
+This results in a tradeoff between memory usage and cache hit rate (and thus performance).
