@@ -1,5 +1,6 @@
 import type { EntityPath } from '@data-client/normalizr';
 import { jest } from '@jest/globals';
+import { has } from 'benchmark';
 
 import { GC } from '../../actionTypes';
 import Controller from '../../controller/Controller';
@@ -40,8 +41,22 @@ describe('GCPolicy', () => {
     const key = 'testEndpoint';
     const paths: EntityPath[] = [{ key: 'testEntity', pk: '1' }];
     const state = {
-      meta: { testEndpoint: { expiresAt: Date.now() - 1000 } },
-      entityMeta: { testEntity: { '1': { expiresAt: Date.now() - 1000 } } },
+      meta: {
+        testEndpoint: {
+          date: 0,
+          fetchedAt: 0,
+          expiresAt: 0,
+        },
+      },
+      entityMeta: {
+        testEntity: {
+          '1': {
+            date: 0,
+            fetchedAt: 0,
+            expiresAt: 0,
+          },
+        },
+      },
     };
     (controller.getState as jest.Mock).mockReturnValue(state);
 
@@ -68,8 +83,22 @@ describe('GCPolicy', () => {
     const key = 'testEndpoint';
     const paths: EntityPath[] = [{ key: 'testEntity', pk: '1' }];
     const state = {
-      meta: { testEndpoint: { expiresAt: Date.now() - 1000 } },
-      entityMeta: { testEntity: { '1': { expiresAt: Date.now() - 1000 } } },
+      meta: {
+        testEndpoint: {
+          date: 0,
+          fetchedAt: 0,
+          expiresAt: 0,
+        },
+      },
+      entityMeta: {
+        testEntity: {
+          '1': {
+            date: 0,
+            fetchedAt: 0,
+            expiresAt: 0,
+          },
+        },
+      },
     };
     (controller.getState as jest.Mock).mockReturnValue(state);
 
@@ -127,8 +156,22 @@ describe('GCPolicy', () => {
     const paths: EntityPath[] = [{ key: 'testEntity', pk: '1' }];
     const futureTime = Date.now() + 1000;
     const state = {
-      meta: { testEndpoint: { expiresAt: futureTime } },
-      entityMeta: { testEntity: { '1': { expiresAt: futureTime } } },
+      meta: {
+        testEndpoint: {
+          date: futureTime - 100,
+          fetchAt: futureTime - 100,
+          expiresAt: futureTime,
+        },
+      },
+      entityMeta: {
+        testEntity: {
+          '1': {
+            date: futureTime - 100,
+            fetchAt: futureTime - 100,
+            expiresAt: futureTime,
+          },
+        },
+      },
     };
     (controller.getState as jest.Mock).mockReturnValue(state);
 
@@ -146,8 +189,22 @@ describe('GCPolicy', () => {
     // Fast forward time to past the futureTime
     jest.advanceTimersByTime(2000);
     (controller.getState as jest.Mock).mockReturnValue({
-      meta: { testEndpoint: { expiresAt: Date.now() - 1000 } },
-      entityMeta: { testEntity: { '1': { expiresAt: Date.now() - 1000 } } },
+      meta: {
+        testEndpoint: {
+          date: 0,
+          fetchedAt: 0,
+          expiresAt: 0,
+        },
+      },
+      entityMeta: {
+        testEntity: {
+          '1': {
+            date: 0,
+            fetchedAt: 0,
+            expiresAt: 0,
+          },
+        },
+      },
     });
 
     gcPolicy['runSweep']();
@@ -159,5 +216,43 @@ describe('GCPolicy', () => {
     });
 
     jest.useRealTimers();
+  });
+
+  it('should support custom hasExpired', () => {
+    jest.useFakeTimers();
+    gcPolicy = new GCPolicy({ expiresAt: () => 0 });
+    gcPolicy.init(controller);
+    const key = 'testEndpoint';
+    const paths: EntityPath[] = [{ key: 'testEntity', pk: '1' }];
+    const futureTime = Date.now() + 1000;
+    const state = {
+      meta: {
+        testEndpoint: {
+          date: futureTime - 100,
+          fetchAt: futureTime - 100,
+          expiresAt: futureTime,
+        },
+      },
+      entityMeta: {
+        testEntity: {
+          '1': {
+            date: futureTime - 100,
+            fetchAt: futureTime - 100,
+            expiresAt: futureTime,
+          },
+        },
+      },
+    };
+    (controller.getState as jest.Mock).mockReturnValue(state);
+
+    const countRef = gcPolicy.createCountRef({ key, paths });
+
+    const decrement = countRef();
+    countRef(); // Increment again
+    decrement();
+    decrement(); // Decrement twice
+
+    gcPolicy['runSweep']();
+    expect(controller.dispatch).toHaveBeenCalled();
   });
 });

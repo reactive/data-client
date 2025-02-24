@@ -11,13 +11,21 @@ export class GCPolicy implements GCInterface {
 
   declare protected intervalId: ReturnType<typeof setInterval>;
   declare protected controller: Controller;
-  declare protected options: GCOptions;
+  declare protected options: Required<Omit<GCOptions, 'expiresAt'>>;
 
-  constructor(
+  constructor({
     // every 5 min
-    { intervalMS = 60 * 1000 * 5 }: GCOptions = {},
-  ) {
-    this.options = { intervalMS };
+    intervalMS = 60 * 1000 * 5,
+    expiryMultiplier = 2,
+    expiresAt,
+  }: GCOptions = {}) {
+    if (expiresAt) {
+      this.expiresAt = expiresAt.bind(this);
+    }
+    this.options = {
+      intervalMS,
+      expiryMultiplier,
+    };
   }
 
   init(controller: Controller) {
@@ -79,6 +87,22 @@ export class GCPolicy implements GCInterface {
     };
   }
 
+  protected expiresAt({
+    fetchedAt,
+    expiresAt,
+  }: {
+    expiresAt: number;
+    date: number;
+    fetchedAt: number;
+  }): number {
+    return (
+      Math.max(
+        (expiresAt - fetchedAt) * this.options.expiryMultiplier,
+        120000,
+      ) + fetchedAt
+    );
+  }
+
   protected runSweep() {
     const state = this.controller.getState();
     const entities: EntityPath[] = [];
@@ -87,8 +111,16 @@ export class GCPolicy implements GCInterface {
 
     const nextEndpointsQ = new Set<string>();
     for (const key of this.endpointsQ) {
-      const expiresAt = state.meta[key]?.expiresAt ?? 0;
-      if (expiresAt < now && !this.endpointCount.has(key)) {
+      if (
+        !this.endpointCount.has(key) &&
+        this.expiresAt(
+          state.meta[key] ?? {
+            fetchedAt: 0,
+            date: 0,
+            expiresAt: 0,
+          },
+        ) < now
+      ) {
         endpoints.push(key);
       } else {
         nextEndpointsQ.add(key);
@@ -98,8 +130,16 @@ export class GCPolicy implements GCInterface {
 
     const nextEntitiesQ: EntityPath[] = [];
     for (const path of this.entitiesQ) {
-      const expiresAt = state.entityMeta[path.key]?.[path.pk]?.expiresAt ?? 0;
-      if (expiresAt < now && !this.entityCount.get(path.key)?.has(path.pk)) {
+      if (
+        !this.entityCount.get(path.key)?.has(path.pk) &&
+        this.expiresAt(
+          state.entityMeta[path.key]?.[path.pk] ?? {
+            fetchedAt: 0,
+            date: 0,
+            expiresAt: 0,
+          },
+        ) < now
+      ) {
         entities.push(path);
       } else {
         nextEntitiesQ.push(path);
@@ -140,6 +180,12 @@ export class ImmortalGCPolicy implements GCInterface {
 
 export interface GCOptions {
   intervalMS?: number;
+  expiryMultiplier?: number;
+  expiresAt?: (meta: {
+    expiresAt: number;
+    date: number;
+    fetchedAt: number;
+  }) => number;
 }
 export interface CreateCountRef {
   ({ key, paths }: { key?: string; paths?: EntityPath[] }): () => () => void;

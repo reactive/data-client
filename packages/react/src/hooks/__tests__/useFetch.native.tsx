@@ -208,6 +208,7 @@ describe('useFetch', () => {
       meta: {
         [fetchKey]: {
           date: 0,
+          fetchedAt: 0,
           expiresAt: 0,
         },
       },

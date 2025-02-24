@@ -29,6 +29,7 @@ exports[`<DataProvider /> should change state 1`] = `
     "GET http://test.com/article-cooler/5": {
       "date": 50,
       "expiresAt": 60050,
+      "fetchedAt": 50,
       "prevExpiresAt": undefined,
     },
   },

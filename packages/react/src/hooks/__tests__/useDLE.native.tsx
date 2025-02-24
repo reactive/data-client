@@ -222,6 +222,7 @@ describe('useDLE', () => {
       meta: {
         [fetchKey]: {
           date: 0,
+          fetchedAt: 0,
           expiresAt: 0,
         },
       },
@@ -312,6 +313,7 @@ describe('useDLE', () => {
       meta: {
         [fetchKey]: {
           date: 0,
+          fetchedAt: 0,
           expiresAt: 0,
         },
       },
