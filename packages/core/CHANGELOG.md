@@ -1,5 +1,74 @@
 # @data-client/core
 
+## 0.14.19
+
+### Patch Changes
+
+- [#3343](https://github.com/reactive/data-client/pull/3343) [`1df829e`](https://github.com/reactive/data-client/commit/1df829e0a005f5973d59669aaf0a226250346a40) Thanks [@ntucker](https://github.com/ntucker)! - Add initManager()
+
+- [#3373](https://github.com/reactive/data-client/pull/3373) [`f796b6c`](https://github.com/reactive/data-client/commit/f796b6cbd33cce1f258bd5e95a7d6b1d51365f2f) Thanks [@ntucker](https://github.com/ntucker)! - Add Controller.getQueryMeta and Controller.getResponseMeta
+
+- [#3373](https://github.com/reactive/data-client/pull/3373) [`f796b6c`](https://github.com/reactive/data-client/commit/f796b6cbd33cce1f258bd5e95a7d6b1d51365f2f) Thanks [@ntucker](https://github.com/ntucker)! - Controller.snapshot() methods have stronger argument typing
+
+- [#3365](https://github.com/reactive/data-client/pull/3365) [`66e7336`](https://github.com/reactive/data-client/commit/66e7336bab0f6768d93c76882188894d36f84f88) Thanks [@ntucker](https://github.com/ntucker)! - internal: Controller.bindMiddleware() to be used in applyMiddleware.
+
+  This API is not intended to be used elsewhere, but will become the standard interface between
+  Controller's and applyMiddleware.
+
+- [#3343](https://github.com/reactive/data-client/pull/3343) [`1df829e`](https://github.com/reactive/data-client/commit/1df829e0a005f5973d59669aaf0a226250346a40) Thanks [@ntucker](https://github.com/ntucker)! - Add GCPolicy to control Garbage Collection of data in the store.
+
+  This can be configured with constructor options, or custom GCPolicies implemented by extending
+  or simply building your own. Use `ImmortalGCPolicy` to never GC (to maintain existing behavior).
+
+  ### constructor
+
+  #### intervalMS = 60 \* 1000 \* 5
+
+  How long between low priority GC sweeps.
+
+  Longer values may result in more memory usage, but less performance impact.
+
+  #### expiryMultiplier = 2
+
+  Used in the default `hasExpired` policy.
+
+  Represents how many 'stale' lifetimes data should persist before being
+  garbage collected.
+
+  #### expiresAt
+
+  ```typescript
+  expiresAt({
+      fetchedAt,
+      expiresAt,
+  }: {
+    expiresAt: number;
+    date: number;
+    fetchedAt: number;
+  }): number {
+    return (
+      Math.max(
+        (expiresAt - fetchedAt) * this.options.expiryMultiplier,
+        120000,
+      ) + fetchedAt
+    );
+  }
+  ```
+
+  Indicates at what timestamp it is acceptable to remove unused data from the store.
+
+  Data not currently rendered in any components is considered unused. However, unused
+  data may be used again in the future (as a cache).
+
+  This results in a tradeoff between memory usage and cache hit rate (and thus performance).
+
+- [#3371](https://github.com/reactive/data-client/pull/3371) [`679d76a`](https://github.com/reactive/data-client/commit/679d76a36234dcf5993c0358f94d7e1db0505cc6) Thanks [@ntucker](https://github.com/ntucker)! - Add react-native entry to package.json exports
+
+- [#3353](https://github.com/reactive/data-client/pull/3353) [`165afed`](https://github.com/reactive/data-client/commit/165afed083c0c63e9356bc8d1ee30dee8b916ed6) Thanks [@renovate](https://github.com/apps/renovate)! - Polyfills no longer pollute global scope
+
+- Updated dependencies [[`679d76a`](https://github.com/reactive/data-client/commit/679d76a36234dcf5993c0358f94d7e1db0505cc6), [`165afed`](https://github.com/reactive/data-client/commit/165afed083c0c63e9356bc8d1ee30dee8b916ed6)]:
+  - @data-client/normalizr@0.14.19
+
 ## 0.14.18
 
 ### Patch Changes
