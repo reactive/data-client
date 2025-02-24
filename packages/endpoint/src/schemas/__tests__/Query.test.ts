@@ -76,7 +76,7 @@ describe.each([
           },
         });
         const users: DenormalizeNullable<typeof sortedUsers> | symbol =
-          new MemoCache().query(sortedUsers, [], state);
+          new MemoCache().query(sortedUsers, [], state).data;
         expect(users).not.toEqual(expect.any(Symbol));
         if (typeof users === 'symbol') return;
         expect(users && users[0].name).toBe('Zeta');
@@ -101,7 +101,7 @@ describe.each([
           },
         });
         expect(
-          new MemoCache().query(sortedUsers, [{ asc: true }], state),
+          new MemoCache().query(sortedUsers, [{ asc: true }], state).data,
         ).toMatchSnapshot();
       });
 
@@ -115,9 +115,9 @@ describe.each([
             },
           },
         };
-        const data = new MemoCache().query(sortedUsers, [], state);
+        const { data } = new MemoCache().query(sortedUsers, [], state);
 
-        expect(createOutput(data)).toEqual(undefined);
+        expect(createOutput(data)).not.toEqual(expect.any(Array));
       });
 
       test('denormalize aggregates', () => {
@@ -152,7 +152,7 @@ describe.each([
         });
         const totalCount:
           | DenormalizeNullable<typeof userCountByAdmin>
-          | symbol = new MemoCache().query(userCountByAdmin, [], state);
+          | symbol = new MemoCache().query(userCountByAdmin, [], state).data;
 
         expect(totalCount).toBe(4);
         const nonAdminCount:
@@ -161,7 +161,7 @@ describe.each([
           userCountByAdmin,
           [{ isAdmin: false }],
           state,
-        );
+        ).data;
         expect(nonAdminCount).toBe(3);
         const adminCount:
           | DenormalizeNullable<typeof userCountByAdmin>
@@ -169,7 +169,7 @@ describe.each([
           userCountByAdmin,
           [{ isAdmin: true }],
           state,
-        );
+        ).data;
         expect(adminCount).toBe(1);
         if (typeof totalCount === 'symbol') return;
 
@@ -209,7 +209,7 @@ describe('top level schema', () => {
         },
       },
     };
-    const users = new MemoCache().query(sortedUsers, [], state);
+    const users = new MemoCache().query(sortedUsers, [], state).data;
     expect(users).not.toEqual(expect.any(Symbol));
     if (typeof users === 'symbol') return;
     expect(users && users[0].name).toBe('Zeta');
@@ -228,7 +228,7 @@ describe('top level schema', () => {
         },
       },
     };
-    const users = new MemoCache().query(sortedUsers, [], state);
+    const users = new MemoCache().query(sortedUsers, [], state).data;
     expect(users).toBeUndefined();
   });
 
@@ -243,8 +243,8 @@ describe('top level schema', () => {
         return sorted.reverse();
       },
     );
-    const users = new MemoCache().query(allSortedUsers, [], initialState);
-    expect(users).toBeUndefined();
+    const users = new MemoCache().query(allSortedUsers, [], initialState).data;
+    expect(users).toEqual(expect.any(Symbol));
   });
 
   test('works with nested schemas', () => {
@@ -258,8 +258,8 @@ describe('top level schema', () => {
         return sorted.reverse();
       },
     );
-    const users = new MemoCache().query(allSortedUsers, [], initialState);
-    expect(users).toBeUndefined();
+    const users = new MemoCache().query(allSortedUsers, [], initialState).data;
+    expect(users).toEqual(expect.any(Symbol));
   });
 
   test('denormalizes should not be found when no entities are present', () => {
@@ -273,7 +273,7 @@ describe('top level schema', () => {
       },
     };
 
-    const value = new MemoCache().query(sortedUsers, [], state);
+    const value = new MemoCache().query(sortedUsers, [], state).data;
 
     expect(value).toEqual(undefined);
   });

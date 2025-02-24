@@ -204,14 +204,13 @@ const memo = new MemoCache();
 
 const { data, paths } = memo.denormalize(schema, input, state.entities, args);
 
-const data = memo.query(schema, args, state.entities, state.indexes);
+({ data, paths } = memo.query(schema, args, state));
 
 function query(schema, args, state, key) {
   const queryKey = memo.buildQueryKey(
     schema,
     args,
-    state.entities,
-    state.indexes,
+    state,
     key,
   );
   const { data } = this.denormalize(schema, queryKey, state.entities, args);

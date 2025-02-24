@@ -9,10 +9,18 @@ Cat {
 `;
 
 exports[`MemoCache query (direct) works with pk 1`] = `
-Cat {
-  "id": "1",
-  "name": "Milo",
-  "username": "m",
+{
+  "data": Cat {
+    "id": "1",
+    "name": "Milo",
+    "username": "m",
+  },
+  "paths": [
+    {
+      "key": "Cat",
+      "pk": "1",
+    },
+  ],
 }
 `;
 
@@ -25,10 +33,18 @@ Cat {
 `;
 
 exports[`MemoCache query (immutable) works with pk 1`] = `
-Cat {
-  "id": "1",
-  "name": "Milo",
-  "username": "m",
+{
+  "data": Cat {
+    "id": "1",
+    "name": "Milo",
+    "username": "m",
+  },
+  "paths": [
+    {
+      "key": "Cat",
+      "pk": "1",
+    },
+  ],
 }
 `;
 

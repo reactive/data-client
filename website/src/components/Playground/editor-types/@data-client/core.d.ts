@@ -224,17 +224,20 @@ declare class MemoCache {
         paths: EntityPath[];
     };
     /** Compute denormalized form maintaining referential equality for same inputs */
-    query<S extends Schema>(schema: S, args: readonly any[], entities: Record<string, Record<string, any> | undefined> | {
-        getIn(k: string[]): any;
-    }, indexes: NormalizedIndex | {
-        getIn(k: string[]): any;
-    }, argsKey?: string): DenormalizeNullable<S> | undefined;
-    buildQueryKey<S extends Schema>(schema: S, args: readonly any[], entities: Record<string, Record<string, any> | undefined> | {
-        getIn(k: string[]): any;
-    }, indexes: NormalizedIndex | {
-        getIn(k: string[]): any;
-    }, argsKey?: string): NormalizeNullable<S>;
+    query<S extends Schema>(schema: S, args: readonly any[], state: StateInterface, argsKey?: string): {
+        data: DenormalizeNullable<S> | symbol;
+        paths: EntityPath[];
+    };
+    buildQueryKey<S extends Schema>(schema: S, args: readonly any[], state: StateInterface, argsKey?: string): NormalizeNullable<S>;
 }
+type StateInterface = {
+    entities: Record<string, Record<string, any> | undefined> | {
+        getIn(k: string[]): any;
+    };
+    indexes: NormalizedIndex | {
+        getIn(k: string[]): any;
+    };
+};
 
 /** https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-4.html#the-noinfer-utility-type */
 type NI<T> = NoInfer<T>;

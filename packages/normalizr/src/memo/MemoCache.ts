@@ -71,15 +71,17 @@ export default class MemoCache {
     state: StateInterface,
     // NOTE: different orders can result in cache busting here; but since it's just a perf penalty we will allow for now
     argsKey: string = JSON.stringify(args),
-  ): DenormalizeNullable<S> | undefined {
+  ): {
+    data: DenormalizeNullable<S> | symbol;
+    paths: EntityPath[];
+  } {
     const input = this.buildQueryKey(schema, args, state, argsKey);
 
     if (!input) {
-      return;
+      return { data: undefined as any, paths: [] };
     }
 
-    const { data } = this.denormalize(schema, input, state.entities, args);
-    return typeof data === 'symbol' ? undefined : (data as any);
+    return this.denormalize(schema, input, state.entities, args);
   }
 
   buildQueryKey<S extends Schema>(

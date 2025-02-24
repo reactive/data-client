@@ -222,8 +222,7 @@ is an Array of paths of all entities included in the result.
 const data = memo.query(
   Article,
   args,
-  normalizedData.entities,
-  normalizedData.indexes,
+  normalizedData,
 );
 ```
 
