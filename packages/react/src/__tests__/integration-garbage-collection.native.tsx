@@ -141,7 +141,7 @@ describe('Integration Garbage Collection React Native', () => {
     await act(async () => {
       jest.advanceTimersByTime(
         Math.max(
-          ArticleResource.getList.dataExpiryLength ?? 60000 + GC_INTERVAL,
+          (ArticleResource.getList.dataExpiryLength ?? 60000) * 2,
           GC_INTERVAL,
         ),
       );

@@ -33,6 +33,7 @@ export interface State<T> {
   readonly meta: {
     readonly [key: string]: {
       readonly date: number;
+      readonly fetchedAt: number;
       readonly expiresAt: number;
       readonly prevExpiresAt?: number;
       readonly error?: ErrorTypes;

@@ -217,6 +217,7 @@ describe('useSuspense()', () => {
       meta: {
         [fetchKey]: {
           date: 0,
+          fetchedAt: 0,
           expiresAt: 0,
         },
       },
@@ -302,6 +303,7 @@ describe('useSuspense()', () => {
       meta: {
         [fetchKey]: {
           date: Infinity,
+          fetchedAt: Infinity,
           expiresAt: Infinity,
         },
       },
@@ -332,6 +334,7 @@ describe('useSuspense()', () => {
       meta: {
         [fetchKey]: {
           date: 0,
+          fetchedAt: 0,
           expiresAt: 0,
         },
       },
@@ -365,6 +368,7 @@ describe('useSuspense()', () => {
       meta: {
         [fetchKey]: {
           date: 0,
+          fetchedAt: 0,
           expiresAt: 0,
         },
       },

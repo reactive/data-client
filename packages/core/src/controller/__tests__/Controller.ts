@@ -50,6 +50,7 @@ describe('Controller', () => {
         meta: {
           [fetchKey]: {
             date: Date.now(),
+            fetchedAt: Date.now(),
             expiresAt: Date.now() + 10000,
           },
         },
@@ -88,6 +89,7 @@ describe('Controller', () => {
         meta: {
           [fetchKey]: {
             date: 0,
+            fetchedAt: 0,
             expiresAt: 0,
           },
         },

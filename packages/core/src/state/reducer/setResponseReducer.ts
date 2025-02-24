@@ -75,6 +75,7 @@ export function setResponseReducer(
         ...state.meta,
         [action.key]: {
           date: action.meta.date,
+          fetchedAt: action.meta.fetchedAt,
           expiresAt: action.meta.expiresAt,
           prevExpiresAt: state.meta[action.key]?.expiresAt,
         },
@@ -126,8 +127,9 @@ function reduceError(
       ...state.meta,
       [action.key]: {
         date: action.meta.date,
-        error,
+        fetchedAt: action.meta.fetchedAt,
         expiresAt: action.meta.expiresAt,
+        error,
         errorPolicy: action.endpoint.errorPolicy?.(error),
       },
     },

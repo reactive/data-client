@@ -2,6 +2,7 @@ import type { EntityPath } from '@data-client/normalizr';
 
 import { GC } from '../actionTypes.js';
 import Controller from '../controller/Controller.js';
+import { State } from '../index.js';
 
 export class GCPolicy implements GCInterface {
   protected endpointCount = new Map<string, number>();
@@ -11,13 +12,21 @@ export class GCPolicy implements GCInterface {
 
   declare protected intervalId: ReturnType<typeof setInterval>;
   declare protected controller: Controller;
-  declare protected options: GCOptions;
+  declare protected options: Required<Omit<GCOptions, 'hasExpired'>>;
 
-  constructor(
+  constructor({
     // every 5 min
-    { intervalMS = 60 * 1000 * 5 }: GCOptions = {},
-  ) {
-    this.options = { intervalMS };
+    intervalMS = 60 * 1000 * 5,
+    expiryMultiplier = 2,
+    hasExpired,
+  }: GCOptions = {}) {
+    if (hasExpired) {
+      this.hasExpired = hasExpired.bind(this);
+    }
+    this.options = {
+      intervalMS,
+      expiryMultiplier,
+    };
   }
 
   init(controller: Controller) {
@@ -79,6 +88,26 @@ export class GCPolicy implements GCInterface {
     };
   }
 
+  protected hasExpired({
+    fetchedAt,
+    expiresAt,
+    now,
+  }: {
+    expiresAt: number;
+    date: number;
+    fetchedAt: number;
+    now: number;
+  }): boolean {
+    return (
+      Math.max(
+        (expiresAt - fetchedAt) * this.options.expiryMultiplier,
+        120000,
+      ) +
+        fetchedAt <
+      now
+    );
+  }
+
   protected runSweep() {
     const state = this.controller.getState();
     const entities: EntityPath[] = [];
@@ -87,8 +116,10 @@ export class GCPolicy implements GCInterface {
 
     const nextEndpointsQ = new Set<string>();
     for (const key of this.endpointsQ) {
-      const expiresAt = state.meta[key]?.expiresAt ?? 0;
-      if (expiresAt < now && !this.endpointCount.has(key)) {
+      if (
+        !this.endpointCount.has(key) &&
+        this.hasExpired(buildHasExpiredMeta(state.meta[key], now))
+      ) {
         endpoints.push(key);
       } else {
         nextEndpointsQ.add(key);
@@ -98,8 +129,12 @@ export class GCPolicy implements GCInterface {
 
     const nextEntitiesQ: EntityPath[] = [];
     for (const path of this.entitiesQ) {
-      const expiresAt = state.entityMeta[path.key]?.[path.pk]?.expiresAt ?? 0;
-      if (expiresAt < now && !this.entityCount.get(path.key)?.has(path.pk)) {
+      if (
+        !this.entityCount.get(path.key)?.has(path.pk) &&
+        this.hasExpired(
+          buildHasExpiredMeta(state.entityMeta[path.key]?.[path.pk], now),
+        )
+      ) {
         entities.push(path);
       } else {
         nextEntitiesQ.push(path);
@@ -138,8 +173,28 @@ export class ImmortalGCPolicy implements GCInterface {
   }
 }
 
+function buildHasExpiredMeta(
+  {
+    fetchedAt = 0,
+    date = 0,
+    expiresAt = fetchedAt,
+  }: Partial<State<unknown>['entityMeta'][string][string]> = {},
+  now: number,
+) {
+  return {
+    fetchedAt,
+    date,
+    expiresAt,
+    now,
+  };
+}
+
 export interface GCOptions {
   intervalMS?: number;
+  expiryMultiplier?: number;
+  hasExpired?: (
+    meta: State<unknown>['entityMeta'][string][string] & { now: number },
+  ) => boolean;
 }
 export interface CreateCountRef {
   ({ key, paths }: { key?: string; paths?: EntityPath[] }): () => () => void;
