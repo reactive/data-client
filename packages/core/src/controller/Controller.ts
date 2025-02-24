@@ -372,7 +372,7 @@ export default class Controller<
    * Gets a snapshot (https://dataclient.io/docs/api/Snapshot)
    * @see https://dataclient.io/docs/api/Controller#snapshot
    */
-  snapshot = (state: State<unknown>, fetchedAt?: number): SnapshotInterface => {
+  snapshot = (state: State<unknown>, fetchedAt?: number): Snapshot<unknown> => {
     return new Snapshot(this, state, fetchedAt);
   };
 

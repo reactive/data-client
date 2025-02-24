@@ -292,5 +292,12 @@ describe('Snapshot.getQueryMeta()', () => {
     expect(taco2).not.toEqual(taco);
     // should maintain referential equality
     expect(taco).toBe(snapshot.getQueryMeta(Tacos, { id: '1' }).data);
+
+    // @ts-expect-error
+    () => snapshot.getQueryMeta(Tacos, { id: { bob: 5 } });
+    // @ts-expect-error
+    expect(snapshot.getQueryMeta(Tacos, 5).data).toBeUndefined();
+    // @ts-expect-error
+    () => snapshot.getQueryMeta(Tacos, { doesnotexist: 5 });
   });
 });
