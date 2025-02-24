@@ -4,7 +4,7 @@ import type {
   Queryable,
   SchemaArgs,
 } from '@data-client/core';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import useCacheState from './useCacheState.js';
 import useController from './useController.js';
@@ -27,8 +27,13 @@ export default function useQuery<S extends Queryable>(
 
   // even though controller.get() is memoized, its memoization is more complex than
   // this so we layer it up to improve rerenders
-  return useMemo(() => {
-    return controller.get(schema, ...args, state);
+  const { data, countRef } = useMemo(() => {
+    return controller.getQueryMeta(schema, ...args, state);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.indexes, state.entities, key]);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(countRef, [data]);
+
+  return data;
 }

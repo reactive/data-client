@@ -3,24 +3,24 @@ import { Entity, schema } from '@data-client/endpoint';
 import { initialState } from '../../state/reducer/createReducer';
 import Controller from '../Controller';
 
-describe('Controller.get()', () => {
-  class Tacos extends Entity {
-    type = '';
-    id = '';
-  }
-  const TacoList = new schema.Collection([Tacos]);
-  const entities = {
-    Tacos: {
-      1: { id: '1', type: 'foo' },
-      2: { id: '2', type: 'bar' },
-    },
-    [TacoList.key]: {
-      [TacoList.pk(undefined, undefined, '', [{ type: 'foo' }])]: ['1'],
-      [TacoList.pk(undefined, undefined, '', [{ type: 'bar' }])]: ['2'],
-      [TacoList.pk(undefined, undefined, '', [])]: ['1', '2'],
-    },
-  };
+class Tacos extends Entity {
+  type = '';
+  id = '';
+}
+const TacoList = new schema.Collection([Tacos]);
+const entities = {
+  Tacos: {
+    1: { id: '1', type: 'foo' },
+    2: { id: '2', type: 'bar' },
+  },
+  [TacoList.key]: {
+    [TacoList.pk(undefined, undefined, '', [{ type: 'foo' }])]: ['1'],
+    [TacoList.pk(undefined, undefined, '', [{ type: 'bar' }])]: ['2'],
+    [TacoList.pk(undefined, undefined, '', [])]: ['1', '2'],
+  },
+};
 
+describe('Controller.get()', () => {
   it('query Entity based on pk', () => {
     const controller = new Controller();
     const state = {
@@ -271,5 +271,26 @@ describe('Controller.get()', () => {
     () => controller.get(queryPerson, { doesnotexist: 5 }, state);
     // @ts-expect-error
     () => controller.get(queryPerson, { id: '1', doesnotexist: 5 }, state);
+  });
+});
+
+describe('Snapshot.getQueryMeta()', () => {
+  it('query Entity based on pk', () => {
+    const controller = new Controller();
+    const state = {
+      ...initialState,
+      entities,
+    };
+    const snapshot = controller.snapshot(state);
+    const taco = snapshot.getQueryMeta(Tacos, { id: '1' }).data;
+    expect(taco).toBeDefined();
+    expect(taco).toBeInstanceOf(Tacos);
+    expect(taco).toMatchSnapshot();
+    const taco2 = snapshot.getQueryMeta(Tacos, { id: '2' }).data;
+    expect(taco2).toBeDefined();
+    expect(taco2).toBeInstanceOf(Tacos);
+    expect(taco2).not.toEqual(taco);
+    // should maintain referential equality
+    expect(taco).toBe(snapshot.getQueryMeta(Tacos, { id: '1' }).data);
   });
 });

@@ -32,10 +32,11 @@ export class GCPolicy implements GCInterface {
     clearInterval(this.intervalId);
   }
 
-  createCountRef({ key, paths = [] }: { key: string; paths?: EntityPath[] }) {
+  createCountRef({ key, paths = [] }: { key?: string; paths?: EntityPath[] }) {
     // increment
     return () => {
-      this.endpointCount.set(key, (this.endpointCount.get(key) ?? 0) + 1);
+      if (key)
+        this.endpointCount.set(key, (this.endpointCount.get(key) ?? 0) + 1);
       paths.forEach(path => {
         if (!this.entityCount.has(path.key)) {
           this.entityCount.set(path.key, new Map<string, number>());
@@ -46,14 +47,16 @@ export class GCPolicy implements GCInterface {
 
       // decrement
       return () => {
-        const currentCount = this.endpointCount.get(key)!;
-        if (currentCount !== undefined) {
-          if (currentCount <= 1) {
-            this.endpointCount.delete(key);
-            // queue for cleanup
-            this.endpointsQ.add(key);
-          } else {
-            this.endpointCount.set(key, currentCount - 1);
+        if (key) {
+          const currentCount = this.endpointCount.get(key)!;
+          if (currentCount !== undefined) {
+            if (currentCount <= 1) {
+              this.endpointCount.delete(key);
+              // queue for cleanup
+              this.endpointsQ.add(key);
+            } else {
+              this.endpointCount.set(key, currentCount - 1);
+            }
           }
         }
         paths.forEach(path => {
@@ -139,7 +142,7 @@ export interface GCOptions {
   intervalMS?: number;
 }
 export interface CreateCountRef {
-  ({ key, paths }: { key: string; paths?: EntityPath[] }): () => () => void;
+  ({ key, paths }: { key?: string; paths?: EntityPath[] }): () => () => void;
 }
 export interface GCInterface {
   createCountRef: CreateCountRef;

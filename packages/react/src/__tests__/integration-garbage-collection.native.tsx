@@ -86,7 +86,7 @@ const TestComponent = () => {
 
 // Test cases
 describe('Integration Garbage Collection React Native', () => {
-  it('should render list view and detail view correctly', async () => {
+  it('should count properly with useSuspense', async () => {
     jest.useFakeTimers();
 
     mockGetList.mockReturnValue([
@@ -141,7 +141,7 @@ describe('Integration Garbage Collection React Native', () => {
     await act(async () => {
       jest.advanceTimersByTime(
         Math.max(
-          ArticleResource.getList.dataExpiryLength ?? 60000,
+          ArticleResource.getList.dataExpiryLength ?? 60000 + GC_INTERVAL,
           GC_INTERVAL,
         ),
       );

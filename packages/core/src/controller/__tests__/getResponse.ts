@@ -174,3 +174,49 @@ describe('Controller.getResponse()', () => {
     expect(second.expiresAt).toBe(expiresAt);
   });
 });
+
+describe('Snapshot.getResponseMeta()', () => {
+  it('denormalizes schema with extra members but not set', () => {
+    const controller = new Contoller();
+    class Tacos extends Entity {
+      type = '';
+      id = '';
+    }
+    const ep = new Endpoint(() => Promise.resolve(), {
+      key() {
+        return 'mytest';
+      },
+      schema: {
+        data: [Tacos],
+        extra: '',
+        page: {
+          first: null,
+          second: undefined,
+          third: 0,
+          complex: { complex: true, next: false },
+        },
+      },
+    });
+    const entities = {
+      Tacos: {
+        1: { id: '1', type: 'foo' },
+        2: { id: '2', type: 'bar' },
+      },
+    };
+
+    const state = {
+      ...initialState,
+      entities,
+      endpoints: {
+        [ep.key()]: {
+          data: ['1', '2'],
+        },
+      },
+    };
+    const { data, expiryStatus } = controller
+      .snapshot(state)
+      .getResponseMeta(ep);
+    expect(expiryStatus).toBe(ExpiryStatus.Valid);
+    expect(data).toMatchSnapshot();
+  });
+});
