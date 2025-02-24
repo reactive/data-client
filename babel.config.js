@@ -4,7 +4,11 @@ const path = require('path');
 
 module.exports = function (api) {
   api.cache.using(
-    () => process.env.NODE_ENV + process.env.BROWSERSLIST_ENV + '0',
+    () =>
+      process.env.NODE_ENV +
+      process.env.BROWSERSLIST_ENV +
+      process.env.COMPILE_TARGET +
+      '0',
   );
   return {
     presets: [
