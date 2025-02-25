@@ -284,10 +284,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/browserslist-config@npm:1.7.0, @anansi/browserslist-config@npm:^1.4.2, @anansi/browserslist-config@npm:^1.4.3":
-  version: 1.7.0
-  resolution: "@anansi/browserslist-config@npm:1.7.0"
-  checksum: 10c0/0f316bf5211c89a9c06005240de06ed133b5ec94ce4fa6f77886be93f522fffe923735d21b6b3532f40e57f24291ae37949d7bf24c97dc3770ee408cf6611614
+"@anansi/browserslist-config@npm:1.7.1, @anansi/browserslist-config@npm:^1.4.2, @anansi/browserslist-config@npm:^1.4.3":
+  version: 1.7.1
+  resolution: "@anansi/browserslist-config@npm:1.7.1"
+  checksum: 10c0/9ac98852549503183a9665e1e447948f310efa5da3c44d53bd9fc836d967e93ce112435a64050d6424a3e57ec7f3dfcedc0f3039387a0529b7d4b1d3e83e0883
   languageName: node
   linkType: hard
 
@@ -25232,7 +25232,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "rdc-website@workspace:website"
   dependencies:
-    "@anansi/browserslist-config": "npm:1.7.0"
+    "@anansi/browserslist-config": "npm:1.7.1"
     "@anansi/webpack-config": "npm:20.0.20"
     "@data-client/endpoint": "workspace:*"
     "@data-client/graphql": "workspace:*"
@@ -26786,7 +26786,7 @@ __metadata:
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
     "@anansi/babel-preset": "npm:6.1.8"
-    "@anansi/browserslist-config": "npm:1.7.0"
+    "@anansi/browserslist-config": "npm:1.7.1"
     "@anansi/eslint-plugin": "npm:1.0.28"
     "@anansi/jest-preset": "npm:0.11.14"
     "@babel/cli": "npm:7.26.4"
