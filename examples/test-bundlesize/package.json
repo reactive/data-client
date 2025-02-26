@@ -1,0 +1,52 @@
+{
+  "name": "test-bundlesize",
+  "version": "0.1.0",
+  "packageManager": "yarn@4.6.0",
+  "description": "Testing Bundled Size",
+  "scripts": {
+    "lint": "eslint src --ext .ts,.tsx",
+    "format": "npm run lint --fix",
+    "test:type": "tsc",
+    "start": "anansi serve --dev ./src/index.tsx",
+    "start:server": "anansi serve ./dist-server/App.js -a",
+    "build": "webpack --mode=production",
+    "build:server": "webpack --mode=production --target=node --env entrypath=index.server.tsx",
+    "build:analyze": "BABEL_DISABLE_CACHE=1 BROWSERSLIST_ENV='modern' webpack --mode=production --env analyze",
+    "build:sizecompare": "BABEL_DISABLE_CACHE=1 BROWSERSLIST_ENV='modern' webpack --mode=production --env nohash",
+    "build:profile": "webpack --mode=production --env profile",
+    "test:pkg": "webpack --env check=nobuild",
+    "postinstall": "rm -rf node_modules/.cache"
+  },
+  "engines": {
+    "node": ">=18.0"
+  },
+  "browserslist": "extends @anansi/browserslist-config",
+  "keywords": [
+    "anansi"
+  ],
+  "devDependencies": {
+    "@anansi/babel-preset": "6.2.1",
+    "@anansi/browserslist-config": "^1.4.3",
+    "@anansi/webpack-config": "^20.0.0",
+    "@babel/core": "^7.22.15",
+    "@types/react": "*",
+    "@types/react-dom": "*",
+    "react-refresh": "*",
+    "typescript": "5.7.3",
+    "webpack": "*",
+    "webpack-cli": "*"
+  },
+  "dependencies": {
+    "@babel/runtime-corejs3": "^7.26.7",
+    "@data-client/img": "^0.14.0",
+    "@data-client/react": "^0.14.0",
+    "@data-client/rest": "^0.14.0",
+    "core-js": "^3.40.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "private": true,
+  "license": "MIT"
+}

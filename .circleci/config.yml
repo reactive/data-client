@@ -30,6 +30,7 @@ jobs:
       - run:
           name: Add examples/* to yarn workspace
           command: |
+            npm pkg delete workspaces[5]
             npm pkg delete workspaces[4]
             npm pkg delete workspaces[3]
             npm pkg delete workspaces[2]
