@@ -1,5 +1,14 @@
 # @data-client/core
 
+## 0.14.20
+
+### Patch Changes
+
+- [`c3514c6`](https://github.com/reactive/data-client/commit/c3514c6afa2cd76dafa02adcfad6f6481a34b5de) Thanks [@ntucker](https://github.com/ntucker)! - Remove unnecessary polyfills in build
+
+- Updated dependencies [[`c3514c6`](https://github.com/reactive/data-client/commit/c3514c6afa2cd76dafa02adcfad6f6481a34b5de)]:
+  - @data-client/normalizr@0.14.20
+
 ## 0.14.19
 
 ### Patch Changes
