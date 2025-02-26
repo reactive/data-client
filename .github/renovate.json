@@ -70,6 +70,7 @@
       "matchUpdateTypes": ["major", "minor", "patch"],
       "matchPackageNames": [
         "@anansi/babel-preset",
+        "@anansi/browserslist-config",
         "@babel/runtime",
         "@babel/runtime-corejs3",
         "core-js",
