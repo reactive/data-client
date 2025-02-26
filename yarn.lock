@@ -28742,6 +28742,30 @@ __metadata:
   languageName: node
   linkType: hard
 
+"test-bundlesize@workspace:examples/test-bundlesize":
+  version: 0.0.0-use.local
+  resolution: "test-bundlesize@workspace:examples/test-bundlesize"
+  dependencies:
+    "@anansi/babel-preset": "npm:6.2.1"
+    "@anansi/browserslist-config": "npm:^1.4.3"
+    "@anansi/webpack-config": "npm:^20.0.0"
+    "@babel/core": "npm:^7.22.15"
+    "@babel/runtime-corejs3": "npm:^7.26.7"
+    "@data-client/img": "npm:^0.14.0"
+    "@data-client/react": "npm:^0.14.0"
+    "@data-client/rest": "npm:^0.14.0"
+    "@types/react": "npm:*"
+    "@types/react-dom": "npm:*"
+    core-js: "npm:^3.40.0"
+    react: "npm:^19.0.0"
+    react-dom: "npm:^19.0.0"
+    react-refresh: "npm:*"
+    typescript: "npm:5.7.3"
+    webpack: "npm:*"
+    webpack-cli: "npm:*"
+  languageName: unknown
+  linkType: soft
+
 "test-exclude@npm:^6.0.0":
   version: 6.0.0
   resolution: "test-exclude@npm:6.0.0"
