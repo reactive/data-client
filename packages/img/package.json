@@ -59,7 +59,7 @@
     "README.md"
   ],
   "scripts": {
-    "build:lib": "NODE_ENV=production BROWSERSLIST_ENV=2019 yarn g:babel --out-dir lib",
+    "build:lib": "NODE_ENV=production BROWSERSLIST_ENV='2019' POLYFILL_TARGETS='chrome>88,safari>14' yarn g:babel --out-dir lib",
     "build:js:node": "BROWSERSLIST_ENV=node16 yarn g:rollup",
     "build:js:browser": "BROWSERSLIST_ENV=legacy yarn g:rollup",
     "build:bundle": "yarn g:runs build:js:\\* && echo '{\"type\":\"commonjs\"}' > dist/package.json",

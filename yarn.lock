@@ -221,9 +221,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/babel-preset@npm:6.2.0, @anansi/babel-preset@npm:^6.1.6":
-  version: 6.2.0
-  resolution: "@anansi/babel-preset@npm:6.2.0"
+"@anansi/babel-preset@npm:6.2.1":
+  version: 6.2.1
+  resolution: "@anansi/babel-preset@npm:6.2.1"
   dependencies:
     "@anansi/ts-utils": "npm:^0.3.7"
     "@babel/plugin-proposal-decorators": "npm:^7.25.9"
@@ -280,7 +280,7 @@ __metadata:
       optional: true
     typescript:
       optional: true
-  checksum: 10c0/05c54bb96445f6747b8325e4c1d8a771d9f941a0b6d05e02e9dada04cd6939bb2f39f2eed6b74f64c05d39419ee7b8fa1029979b92aa1e6edb61f0184042402b
+  checksum: 10c0/a0cb2317f014c8056f5277d75fec54f85feb4d7f03a9b94cbee53d5c37f83abba34464e4b4d8fe95d5e2ff953d20d62e7d81ef595d44edf0e434e306fbe5bcc3
   languageName: node
   linkType: hard
 
@@ -10980,7 +10980,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "coinbase-lite@workspace:examples/coin-app"
   dependencies:
-    "@anansi/babel-preset": "npm:^6.1.6"
+    "@anansi/babel-preset": "npm:6.2.1"
     "@anansi/browserslist-config": "npm:^1.4.3"
     "@anansi/cli": "npm:^3.0.15"
     "@anansi/core": "npm:^0.20.0"
@@ -26785,7 +26785,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    "@anansi/babel-preset": "npm:6.2.0"
+    "@anansi/babel-preset": "npm:6.2.1"
     "@anansi/browserslist-config": "npm:1.7.2"
     "@anansi/eslint-plugin": "npm:1.0.28"
     "@anansi/jest-preset": "npm:0.11.14"

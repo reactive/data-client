@@ -8,6 +8,7 @@ module.exports = function (api) {
       process.env.NODE_ENV +
       process.env.BROWSERSLIST_ENV +
       process.env.COMPILE_TARGET +
+      process.env.POLYFILL_TARGETS +
       '0',
   );
   return {
