@@ -1,6 +1,6 @@
 {
   "name": "@data-client/use-enhanced-reducer",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "Add powerful orchestration to hooks-based Flux stores",
   "homepage": "https://github.com/reactive/data-client/tree/master/packages/use-enhanced-reducer#readme",
   "repository": {
