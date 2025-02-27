@@ -16,7 +16,10 @@ import pkg from './package.json' with { type: 'json' };
 
 const dependencies = Object.keys(pkg.dependencies)
   .concat(Object.keys(pkg.peerDependencies))
-  .filter(dep => !['@data-client/use-enhanced-reducer'].includes(dep));
+  .filter(
+    dep =>
+      !['@data-client/use-enhanced-reducer', '@babel/runtime'].includes(dep),
+  );
 const peers = Object.keys(pkg.peerDependencies);
 
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node', '.jsx'];

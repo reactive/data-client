@@ -4,7 +4,7 @@ import pkg from './package.json' with { type: 'json' };
 
 const dependencies = Object.keys(pkg.dependencies)
   .concat(Object.keys(pkg.peerDependencies))
-  .filter(dep => !['@data-client/normalizr'].includes(dep));
+  .filter(dep => !['@data-client/normalizr', '@babel/runtime'].includes(dep));
 
 const extensions = [
   '.js',
