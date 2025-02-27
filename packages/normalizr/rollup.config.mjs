@@ -10,7 +10,9 @@ import {
 
 import pkg from './package.json' with { type: 'json' };
 
-const dependencies = Object.keys(pkg.dependencies);
+const dependencies = Object.keys(pkg.dependencies).filter(
+  dep => !['@babel/runtime'].includes(dep),
+);
 
 const name = 'normalizr';
 

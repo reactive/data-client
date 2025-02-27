@@ -14,7 +14,7 @@ import {
 import pkg from './package.json' with { type: 'json' };
 
 const dependencies = Object.keys(pkg.dependencies).filter(
-  dep => ![].includes(dep),
+  dep => !['@babel/runtime'].includes(dep),
 );
 
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node'];

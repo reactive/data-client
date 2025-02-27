@@ -14,7 +14,7 @@ import pkg from './package.json' with { type: 'json' };
 
 const dependencies = Object.keys(pkg.dependencies)
   .concat(Object.keys(pkg.peerDependencies))
-  .filter(dep => ![].includes(dep));
+  .filter(dep => !['@babel/runtime'].includes(dep));
 
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node'];
 process.env.NODE_ENV = 'production';
