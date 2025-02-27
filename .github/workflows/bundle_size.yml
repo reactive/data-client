@@ -8,7 +8,15 @@ on:
       - 'packages/**'
       - 'yarn.lock'
       - 'examples/test-bundlesize/**'
-
+      - '.github/workflows/bundle_size.yml'
+  push:
+    branches:
+      - master
+    paths:
+      - 'packages/**'
+      - 'yarn.lock'
+      - 'examples/test-bundlesize/**'
+      - '.github/workflows/bundle_size.yml'
 jobs:
   build:
 
@@ -17,7 +25,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        fetch-depth: 1
+        fetch-depth: 2
     - uses: actions/setup-node@v4
       with:
         node-version: '22'
@@ -31,16 +39,12 @@ jobs:
         # npm pkg delete workspaces[3]
         # npm pkg delete workspaces[1]
         corepack enable
-        yarn install
-    - name: Build packages
-      run: |
-        yarn workspaces foreach -Wptiv --no-private run build:lib
     - name: compressed-size-action
       uses: preactjs/compressed-size-action@v2
       continue-on-error: true
       with:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
-        build-script: "build:sizecompare"
+        build-script: "ci:build:bundlesize"
         pattern: "examples/test-bundlesize/dist/**/*.{js,json}"
         exclude: "{examples/test-bundlesize/dist/manifest.json,**/*.LICENSE.txt,**/*.map,**/node_modules/**}"
         minimum-change-threshold: 8

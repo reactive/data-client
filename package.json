@@ -24,7 +24,7 @@
     "ci:build:legacy-types": "yarn workspaces foreach -WptivR -j 10 --from @data-client/react --from @data-client/rest --from @data-client/graphql run build:legacy-types",
     "ci:build-test-lib": "yarn workspace @data-client/test run build:lib && yarn workspace @data-client/test run build:bundle",
     "ci:build:esmodule": "yarn workspaces foreach -WptivR --from @data-client/react --from @data-client/rest --from @data-client/graphql run build:lib && yarn workspace @data-client/normalizr run build:js:node && yarn workspace @data-client/endpoint run build:js:node",
-    "ci:build:bundlesize": "yarn workspace test-bundlesize run build:sizecompare",
+    "ci:build:bundlesize": "yarn workspaces foreach -Wptiv --no-private run build:lib && yarn workspace test-bundlesize run build:sizecompare",
     "build:copy:ambient": "mkdirp ./packages/endpoint/lib && copyfiles --flat ./packages/endpoint/src/schema.d.ts ./packages/endpoint/lib/ && copyfiles --flat ./packages/endpoint/src/endpoint.d.ts ./packages/endpoint/lib/ && mkdirp ./packages/rest/lib && copyfiles --flat ./packages/rest/src/RestEndpoint.d.ts ./packages/rest/lib && copyfiles --flat ./packages/rest/src/next/RestEndpoint.d.ts ./packages/rest/lib/next && mkdirp ./packages/react/lib && copyfiles --flat ./packages/react/src/server/redux/redux.d.ts ./packages/react/lib/server/redux",
     "copy:websitetypes": "./scripts/copywebsitetypes.sh",
     "test": "NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules run jest",
