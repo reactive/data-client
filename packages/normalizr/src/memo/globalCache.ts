@@ -7,9 +7,9 @@ import type { EntityPath } from '../types.js';
 
 export default class GlobalCache implements Cache {
   private dependencies: Dep<EntityPath>[] = [];
-  private cycleCache: Record<string, Record<string, number>> = {};
+  private cycleCache: Map<string, Map<string, number>> = new Map();
   private cycleIndex = -1;
-  private localCache: Record<string, Record<string, any>> = {};
+  private localCache: Map<string, Map<string, any>> = new Map();
 
   declare private getCache: (
     pk: string,
@@ -33,12 +33,12 @@ export default class GlobalCache implements Cache {
     pk: string,
     schema: EntityInterface,
     entity: any,
-    computeValue: (localCacheKey: Record<string, any>) => void,
+    computeValue: (localCacheKey: Map<string, any>) => void,
   ): object | undefined | symbol {
     const key = schema.key;
     const { localCacheKey, cycleCacheKey } = this.getCacheKey(key);
 
-    if (!localCacheKey[pk]) {
+    if (!localCacheKey.get(pk)) {
       const globalCache: WeakDependencyMap<
         EntityPath,
         object,
@@ -48,7 +48,7 @@ export default class GlobalCache implements Cache {
       // TODO: what if this just returned the deps - then we don't need to store them
 
       if (cachePath) {
-        localCacheKey[pk] = cacheValue.value;
+        localCacheKey.set(pk, cacheValue.value);
         // TODO: can we store the cache values instead of tracking *all* their sources?
         // this is only used for setting endpoints cache correctly. if we got this far we will def need to set as we would have already tried getting it
         this.dependencies.push(...cacheValue.dependencies);
@@ -57,14 +57,14 @@ export default class GlobalCache implements Cache {
       // if we don't find in denormalize cache then do full denormalize
       else {
         const trackingIndex = this.dependencies.length;
-        cycleCacheKey[pk] = trackingIndex;
+        cycleCacheKey.set(pk, trackingIndex);
         this.dependencies.push({ entity, path: { key, pk } });
 
         /** NON-GLOBAL_CACHE CODE */
         computeValue(localCacheKey);
         /** /END NON-GLOBAL_CACHE CODE */
 
-        delete cycleCacheKey[pk];
+        cycleCacheKey.delete(pk);
         // if in cycle, use the start of the cycle to track all deps
         // otherwise, we use our own trackingIndex
         const localKey = this.dependencies.slice(
@@ -72,7 +72,7 @@ export default class GlobalCache implements Cache {
         );
         const cacheValue: EntityCacheValue = {
           dependencies: localKey,
-          value: localCacheKey[pk],
+          value: localCacheKey.get(pk),
         };
         globalCache.set(localKey, cacheValue);
 
@@ -83,25 +83,25 @@ export default class GlobalCache implements Cache {
       }
     } else {
       // cycle detected
-      if (pk in cycleCacheKey) {
-        this.cycleIndex = cycleCacheKey[pk];
+      if (cycleCacheKey.has(pk)) {
+        this.cycleIndex = cycleCacheKey.get(pk)!;
       } else {
         // with no cycle, globalCacheEntry will have already been set
         this.dependencies.push({ entity, path: { key, pk } });
       }
     }
-    return localCacheKey[pk];
+    return localCacheKey.get(pk);
   }
 
   private getCacheKey(key: string) {
-    if (!(key in this.localCache)) {
-      this.localCache[key] = Object.create(null);
+    if (!this.localCache.has(key)) {
+      this.localCache.set(key, new Map());
     }
-    if (!(key in this.cycleCache)) {
-      this.cycleCache[key] = Object.create(null);
+    if (!this.cycleCache.has(key)) {
+      this.cycleCache.set(key, new Map());
     }
-    const localCacheKey = this.localCache[key];
-    const cycleCacheKey = this.cycleCache[key];
+    const localCacheKey = this.localCache.get(key)!;
+    const cycleCacheKey = this.cycleCache.get(key)!;
     return { localCacheKey, cycleCacheKey };
   }
 
@@ -150,22 +150,31 @@ const getEntityCaches = (entityCache: EntityCache) => {
     // TODO: this should be based on a public interface
     const entityInstance: EntityInterface = (schema.cacheWith as any) ?? schema;
 
-    if (!(key in entityCache)) {
-      entityCache[key] = Object.create(null);
+    if (!entityCache.has(key)) {
+      entityCache.set(key, new Map());
     }
-    const entityCacheKey = entityCache[key];
-    if (!entityCacheKey[pk])
-      entityCacheKey[pk] = new WeakMap<
-        EntityInterface,
-        WeakDependencyMap<EntityPath, object, any>
-      >();
+    const entityCacheKey = entityCache.get(key)!;
+    if (!entityCacheKey.get(pk))
+      entityCacheKey.set(
+        pk,
+        new WeakMap<
+          EntityInterface,
+          WeakDependencyMap<EntityPath, object, any>
+        >(),
+      );
 
-    let wem: WeakDependencyMap<EntityPath, object, any> = entityCacheKey[
-      pk
-    ].get(entityInstance) as any;
+    const entityCachePk = entityCacheKey.get(pk) as WeakMap<
+      EntityInterface<any>,
+      WeakDependencyMap<EntityPath, object, any>
+    >;
+    let wem = entityCachePk.get(entityInstance) as WeakDependencyMap<
+      EntityPath,
+      object,
+      any
+    >;
     if (!wem) {
       wem = new WeakDependencyMap<EntityPath, object, any>();
-      entityCacheKey[pk].set(entityInstance, wem);
+      entityCachePk.set(entityInstance, wem);
     }
 
     return wem;
