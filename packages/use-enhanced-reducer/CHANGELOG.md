@@ -1,5 +1,11 @@
 # @data-client/use-enhanced-reducer
 
+## 0.1.14
+
+### Patch Changes
+
+- [#3384](https://github.com/reactive/data-client/pull/3384) [`24ad679`](https://github.com/reactive/data-client/commit/24ad679f58c7eb0d0e6917790b4ebb5ee234e1d3) Thanks [@ntucker](https://github.com/ntucker)! - Reduce bundle sizes by 30% by removing unneeded polyfills
+
 ## 0.1.13
 
 ### Patch Changes
