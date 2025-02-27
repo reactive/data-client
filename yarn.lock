@@ -3963,6 +3963,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@egjs/hammerjs@npm:^2.0.17":
+  version: 2.0.17
+  resolution: "@egjs/hammerjs@npm:2.0.17"
+  dependencies:
+    "@types/hammerjs": "npm:^2.0.36"
+  checksum: 10c0/dbedc15a0e633f887c08394bd636faf6a3abd05726dc0909a0e01209d5860a752d9eca5e512da623aecfabe665f49f1d035de3103eb2f9022c5cea692f9cc9be
+  languageName: node
+  linkType: hard
+
 "@emotion/is-prop-valid@npm:^1.2.0":
   version: 1.2.1
   resolution: "@emotion/is-prop-valid@npm:1.2.1"
@@ -6792,13 +6801,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react-native@npm:13.0.1, @testing-library/react-native@npm:^13.0.0":
-  version: 13.0.1
-  resolution: "@testing-library/react-native@npm:13.0.1"
+"@testing-library/react-native@npm:13.1.0, @testing-library/react-native@npm:^13.0.0":
+  version: 13.1.0
+  resolution: "@testing-library/react-native@npm:13.1.0"
   dependencies:
     chalk: "npm:^4.1.2"
     jest-matcher-utils: "npm:^29.7.0"
     pretty-format: "npm:^29.7.0"
+    react-native-gesture-handler: "npm:^2.23.1"
     redent: "npm:^3.0.0"
   peerDependencies:
     jest: ">=29.0.0"
@@ -6808,7 +6818,7 @@ __metadata:
   peerDependenciesMeta:
     jest:
       optional: true
-  checksum: 10c0/c73848832bc1b724ac6ef188f0e4bf77ec1cb0589a5245d449bed3e384048ced818a27340635eabeb6cb5f323225b8d37fca6377925b4be28923a9a23779296f
+  checksum: 10c0/b7b1502f8926cc293b993624f6e5bee010c36dad7c9d2e297aee2120f5f629f3c089c6f6a7770cb194f97c34ac53c953ef32aac69a69046827edf9877c4dc380
   languageName: node
   linkType: hard
 
@@ -7440,6 +7450,13 @@ __metadata:
   version: 0.0.12
   resolution: "@types/gtag.js@npm:0.0.12"
   checksum: 10c0/fee8f4c6e627301b89ab616c9e219bd53fa6ea1ffd1d0a8021e21363f0bdb2cf7eb1a5bcda0c6f1502186379bc7784ec29c932e21634f4e07f9e7a8c56887400
+  languageName: node
+  linkType: hard
+
+"@types/hammerjs@npm:^2.0.36":
+  version: 2.0.46
+  resolution: "@types/hammerjs@npm:2.0.46"
+  checksum: 10c0/f3c1cb20dc2f0523f7b8c76065078544d50d8ae9b0edc1f62fed657210ed814266ff2dfa835d2c157a075991001eec3b64c88bf92e3e6e895c0db78d05711d06
   languageName: node
   linkType: hard
 
@@ -16341,7 +16358,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hoist-non-react-statics@npm:^3.1.0":
+"hoist-non-react-statics@npm:^3.1.0, hoist-non-react-statics@npm:^3.3.0":
   version: 3.3.2
   resolution: "hoist-non-react-statics@npm:3.3.2"
   dependencies:
@@ -25488,6 +25505,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-gesture-handler@npm:^2.23.1":
+  version: 2.24.0
+  resolution: "react-native-gesture-handler@npm:2.24.0"
+  dependencies:
+    "@egjs/hammerjs": "npm:^2.0.17"
+    hoist-non-react-statics: "npm:^3.3.0"
+    invariant: "npm:^2.2.4"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 10c0/eb2c5cb53690ae5de1482370a156cbd775f6b3054540cd47310ec4712df83a280fe7b6259f372eec4c14a6d7f70ab18f1919a9fe63beaca9ceae126edbe32298
+  languageName: node
+  linkType: hard
+
 "react-native-safe-area-context@npm:^5.0.0":
   version: 5.2.0
   resolution: "react-native-safe-area-context@npm:5.2.0"
@@ -26803,7 +26834,7 @@ __metadata:
     "@testing-library/jest-dom": "npm:^6.6.3"
     "@testing-library/react": "npm:16.2.0"
     "@testing-library/react-hooks": "npm:8.0.1"
-    "@testing-library/react-native": "npm:13.0.1"
+    "@testing-library/react-native": "npm:13.1.0"
     "@types/jest": "npm:29.5.14"
     "@types/node": "npm:22.13.5"
     "@types/react": "npm:19.0.10"

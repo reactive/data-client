@@ -71,7 +71,7 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "16.2.0",
     "@testing-library/react-hooks": "8.0.1",
-    "@testing-library/react-native": "13.0.1",
+    "@testing-library/react-native": "13.1.0",
     "@types/jest": "29.5.14",
     "@types/node": "22.13.5",
     "@types/react": "19.0.10",
