@@ -36,7 +36,7 @@
     "@types/react": "*",
     "@types/react-dom": "*",
     "react-refresh": "*",
-    "typescript": "5.7.3",
+    "typescript": "5.8.2",
     "webpack": "*",
     "webpack-cli": "*"
   },

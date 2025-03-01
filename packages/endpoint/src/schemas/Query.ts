@@ -35,7 +35,8 @@ export default class Query<
 
   denormalize(input: {}, args: any, unvisit: any): ReturnType<P> {
     const value = unvisit(this.schema, input);
-    return typeof value === 'symbol' ? value : this.process(value, ...args);
+    return (
+      typeof value === 'symbol' ? value : this.process(value, ...args)) as any;
   }
 
   queryKey(
