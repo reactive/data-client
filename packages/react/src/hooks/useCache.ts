@@ -40,7 +40,7 @@ export default function useCache<
 
   // Compute denormalized value
   const { data, expiryStatus, expiresAt, countRef } = useMemo(() => {
-    return controller.getResponse(endpoint, ...args, state);
+    return controller.getResponseMeta(endpoint, ...args, state);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     cacheResults,
@@ -76,7 +76,8 @@ export default function useCache<
     // if useSuspense() would suspend, don't include entities from cache
     if (loading) {
       if (!endpoint.schema) return undefined;
-      return controller.getResponse(endpoint, ...args, {
+      // TODO: use getResponse() once it just returns data
+      return controller.getResponseMeta(endpoint, ...args, {
         ...state,
         entities: {},
       }).data as any;
