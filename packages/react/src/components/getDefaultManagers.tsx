@@ -58,9 +58,9 @@ function constructManager<
   M extends { new (...args: any): Manager },
   O extends InstanceType<M> | ConstructorArgs<M>,
 >(Mgr: M, optionOrInstance: O): InstanceType<M> {
-  return optionOrInstance instanceof Mgr ? optionOrInstance : (
-      (new Mgr(optionOrInstance) as any)
-    );
+  return optionOrInstance instanceof Mgr ?
+      (optionOrInstance as any)
+    : (new Mgr(optionOrInstance) as any);
 }
 
 export type GetManagersOptions = {
