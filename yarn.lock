@@ -3082,7 +3082,7 @@ __metadata:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.20.0"
     "@data-client/endpoint": "workspace:*"
-    "@data-client/normalizr": "npm:^0.14.21"
+    "@data-client/normalizr": "npm:^0.14.22"
     "@types/jest": "npm:^29.5.14"
     "@types/node": "npm:^22.0.0"
     flux-standard-action: "npm:^2.1.1"
@@ -3145,7 +3145,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/normalizr@npm:^0.14.21, @data-client/normalizr@workspace:*, @data-client/normalizr@workspace:^, @data-client/normalizr@workspace:packages/normalizr":
+"@data-client/normalizr@npm:^0.14.22, @data-client/normalizr@workspace:*, @data-client/normalizr@workspace:^, @data-client/normalizr@workspace:packages/normalizr":
   version: 0.0.0-use.local
   resolution: "@data-client/normalizr@workspace:packages/normalizr"
   dependencies:
