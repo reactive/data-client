@@ -391,8 +391,8 @@ and up to 20x performance even after [mutation operations](../getting-started/mu
 xychart-beta
     title "Denormalize Single Entity"
     x-axis [normalizr, "Data Client", "Data Client (cached)"]
-    y-axis "Operations per second" 0 --> 4875500
-    bar [218500, 1079500, 4875500]
+    y-axis "Operations per second" 0 --> 5618500
+    bar [212500, 1288500, 5618500]
 ```
 
 ```mermaid
@@ -400,7 +400,7 @@ xychart-beta
     title "Denormalize Large List"
     x-axis [normalizr, "Data Client", "Data Client (cached)"]
     y-axis "Operations per second" 0 --> 12962
-    bar [1165, 1807, 13168]
+    bar [1151, 1807, 13182]
 ```
 
 </Grid>
