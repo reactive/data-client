@@ -1,5 +1,13 @@
 # example-benchmark
 
+## 0.4.71
+
+### Patch Changes
+
+- Updated dependencies [[`32cccdb`](https://github.com/reactive/data-client/commit/32cccdb921cd8d7643b641a9e8872aa89782a94a)]:
+  - @data-client/normalizr@0.14.22
+  - @data-client/endpoint@0.14.21
+
 ## 0.4.70
 
 ### Patch Changes
