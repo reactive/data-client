@@ -297,7 +297,6 @@ describe('useQuery()', () => {
         resolverFixtures: [
           {
             endpoint: UnionResource.getList.push,
-            args: [],
             response(body) {
               return body;
             },
