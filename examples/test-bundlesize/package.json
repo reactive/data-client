@@ -1,7 +1,7 @@
 {
   "name": "test-bundlesize",
   "version": "0.1.0",
-  "packageManager": "yarn@4.6.0",
+  "packageManager": "yarn@4.7.0",
   "description": "Testing Bundled Size",
   "scripts": {
     "lint": "eslint src --ext .ts,.tsx",
