@@ -80,8 +80,8 @@ See https://dataclient.io/rest/api/RestEndpoint#parseResponse for more informati
     }
   }
 
-  const newEntities: E = {} as any;
-  const newIndexes: NormalizedIndex = {} as any;
+  const newEntities = new Map<string, Map<string, any>>();
+  const newIndexes = new Map<string, Map<string, any>>();
   const ret: NormalizedSchema<E, R> = {
     result: '' as any,
     entities: { ...entities },

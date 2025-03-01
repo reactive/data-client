@@ -3,8 +3,8 @@ import type { EntityInterface } from '../interface.js';
 
 export const addEntities =
   (
-    newEntities: Record<string, any>,
-    newIndexes: Record<string, any>,
+    newEntities: Map<string, Map<string, any>>,
+    newIndexes: Map<string, Map<string, any>>,
     entitiesCopy: Record<string, any>,
     indexesCopy: Record<string, any>,
     entityMetaCopy: {
@@ -21,19 +21,17 @@ export const addEntities =
   (schema: EntityInterface, processedEntity: any, id: string) => {
     const schemaKey = schema.key;
     // first time we come across this type of entity
-    if (!(schemaKey in newEntities)) {
-      newEntities[schemaKey] = {};
+    if (!newEntities.has(schemaKey)) {
+      newEntities.set(schemaKey, new Map());
       // we will be editing these, so we need to clone them first
       entitiesCopy[schemaKey] = { ...entitiesCopy[schemaKey] };
       entityMetaCopy[schemaKey] = { ...entityMetaCopy[schemaKey] };
     }
 
-    const existingEntity = newEntities[schemaKey][id];
+    const newEntitiesKey = newEntities.get(schemaKey) as Map<string, any>;
+    const existingEntity = newEntitiesKey.get(id);
     if (existingEntity) {
-      newEntities[schemaKey][id] = schema.merge(
-        existingEntity,
-        processedEntity,
-      );
+      newEntitiesKey.set(id, schema.merge(existingEntity, processedEntity));
     } else {
       const inStoreEntity = entitiesCopy[schemaKey][id];
       let inStoreMeta: {
@@ -43,11 +41,14 @@ export const addEntities =
       };
       // this case we already have this entity in store
       if (inStoreEntity && (inStoreMeta = entityMetaCopy[schemaKey][id])) {
-        newEntities[schemaKey][id] = schema.mergeWithStore(
-          inStoreMeta,
-          actionMeta,
-          inStoreEntity,
-          processedEntity,
+        newEntitiesKey.set(
+          id,
+          schema.mergeWithStore(
+            inStoreMeta,
+            actionMeta,
+            inStoreEntity,
+            processedEntity,
+          ),
         );
         entityMetaCopy[schemaKey][id] = schema.mergeMetaWithStore(
           inStoreMeta,
@@ -56,43 +57,43 @@ export const addEntities =
           processedEntity,
         );
       } else {
-        newEntities[schemaKey][id] = processedEntity;
+        newEntitiesKey.set(id, processedEntity);
         entityMetaCopy[schemaKey][id] = actionMeta;
       }
     }
 
     // update index
     if (schema.indexes) {
-      if (!(schemaKey in newIndexes)) {
-        newIndexes[schemaKey] = {};
+      if (!newIndexes.has(schemaKey)) {
+        newIndexes.set(schemaKey, new Map());
         indexesCopy[schemaKey] = { ...indexesCopy[schemaKey] };
       }
       handleIndexes(
         id,
         schema.indexes,
-        newIndexes[schemaKey],
+        newIndexes.get(schemaKey) as Map<string, any>,
         indexesCopy[schemaKey],
-        newEntities[schemaKey][id],
+        newEntitiesKey.get(id),
         entitiesCopy[schemaKey],
       );
     }
     // set this after index updates so we know what indexes to remove from
-    entitiesCopy[schemaKey][id] = newEntities[schemaKey][id];
+    entitiesCopy[schemaKey][id] = newEntitiesKey.get(id);
   };
 
 function handleIndexes(
   id: string,
   schemaIndexes: string[],
-  indexes: Record<string, any>,
+  indexes: Map<string, any>,
   storeIndexes: Record<string, any>,
   entity: any,
   storeEntities: Record<string, any>,
 ) {
   for (const index of schemaIndexes) {
-    if (!(index in indexes)) {
-      storeIndexes[index] = indexes[index] = {};
+    if (!indexes.has(index)) {
+      indexes.set(index, (storeIndexes[index] = {}));
     }
-    const indexMap = indexes[index];
+    const indexMap = indexes.get(index);
     if (storeEntities[id]) {
       delete indexMap[storeEntities[id][index]];
     }
