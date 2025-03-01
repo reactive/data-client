@@ -889,6 +889,12 @@ declare class ResetError extends Error {
     name: string;
     constructor();
 }
+interface FetchingMeta {
+    promise: Promise<any>;
+    resolve: (value?: any) => void;
+    reject: (value?: any) => void;
+    fetchedAt: number;
+}
 /** Handles all async network dispatches
  *
  * Dedupes concurrent requests by keeping track of all fetches in flight
@@ -899,18 +905,7 @@ declare class ResetError extends Error {
  * @see https://dataclient.io/docs/api/NetworkManager
  */
 declare class NetworkManager implements Manager {
-    protected fetched: {
-        [k: string]: Promise<any>;
-    };
-    protected resolvers: {
-        [k: string]: (value?: any) => void;
-    };
-    protected rejectors: {
-        [k: string]: (value?: any) => void;
-    };
-    protected fetchedAt: {
-        [k: string]: number;
-    };
+    protected fetching: Map<string, FetchingMeta>;
     readonly dataExpiryLength: number;
     readonly errorExpiryLength: number;
     protected controller: Controller;
@@ -1371,4 +1366,4 @@ interface Props {
     shouldLogout?: (error: UnknownError) => boolean;
 }
 
-export { type AbstractInstanceType, type ActionMeta, type ActionTypes, type ConnectionListener, Controller, type CreateCountRef, type DataClientDispatch, DefaultConnectionListener, type Denormalize, type DenormalizeNullable, type DevToolsConfig, DevToolsManager, type Dispatch, type EndpointExtraOptions, type EndpointInterface, type EndpointUpdateFunction, type EntityInterface, type ErrorTypes, type ExpireAllAction, ExpiryStatus, type FetchAction, type FetchFunction, type FetchMeta, type GCAction, type GCInterface, type GCOptions, GCPolicy, type GenericDispatch, type INormalizeDelegate, type IQueryDelegate, ImmortalGCPolicy, type InvalidateAction, type InvalidateAllAction, LogoutManager, type Manager, type Mergeable, type Middleware, type MiddlewareAPI, type NI, type NetworkError, NetworkManager, type Normalize, type NormalizeNullable, type OptimisticAction, type PK, PollingSubscription, type Queryable, type ResetAction, ResetError, type ResolveType, type ResultEntry, type Schema, type SchemaArgs, type SchemaClass, type SetAction, type SetResponseAction, type SetResponseActionBase, type SetResponseActionError, type SetResponseActionSuccess, type State, type SubscribeAction, SubscriptionManager, type UnknownError, type UnsubscribeAction, type UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, index_d as actions, applyManager, createReducer, initManager, initialState };
+export { type AbstractInstanceType, type ActionMeta, type ActionTypes, type ConnectionListener, Controller, type CreateCountRef, type DataClientDispatch, DefaultConnectionListener, type Denormalize, type DenormalizeNullable, type DevToolsConfig, DevToolsManager, type Dispatch, type EndpointExtraOptions, type EndpointInterface, type EndpointUpdateFunction, type EntityInterface, type ErrorTypes, type ExpireAllAction, ExpiryStatus, type FetchAction, type FetchFunction, type FetchMeta, type FetchingMeta, type GCAction, type GCInterface, type GCOptions, GCPolicy, type GenericDispatch, type INormalizeDelegate, type IQueryDelegate, ImmortalGCPolicy, type InvalidateAction, type InvalidateAllAction, LogoutManager, type Manager, type Mergeable, type Middleware, type MiddlewareAPI, type NI, type NetworkError, NetworkManager, type Normalize, type NormalizeNullable, type OptimisticAction, type PK, PollingSubscription, type Queryable, type ResetAction, ResetError, type ResolveType, type ResultEntry, type Schema, type SchemaArgs, type SchemaClass, type SetAction, type SetResponseAction, type SetResponseActionBase, type SetResponseActionError, type SetResponseActionSuccess, type State, type SubscribeAction, SubscriptionManager, type UnknownError, type UnsubscribeAction, type UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, index_d as actions, applyManager, createReducer, initManager, initialState };
