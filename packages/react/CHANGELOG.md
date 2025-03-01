@@ -1,5 +1,14 @@
 # @data-client/react
 
+## 0.14.24
+
+### Patch Changes
+
+- [`d41f658`](https://github.com/reactive/data-client/commit/d41f6582478f9392bcbcbcc1213f7a2d9646e9c4) Thanks [@ntucker](https://github.com/ntucker)! - Improve performance by using Map() instead of Object for unbounded keys [#3390](https://github.com/reactive/data-client/pull/3390)
+
+- Updated dependencies [[`d41f658`](https://github.com/reactive/data-client/commit/d41f6582478f9392bcbcbcc1213f7a2d9646e9c4)]:
+  - @data-client/core@0.14.24
+
 ## 0.14.23
 
 ### Patch Changes

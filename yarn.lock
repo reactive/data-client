@@ -3075,7 +3075,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@data-client/core@npm:^0.14.23, @data-client/core@workspace:*, @data-client/core@workspace:^, @data-client/core@workspace:packages/core":
+"@data-client/core@npm:^0.14.24, @data-client/core@workspace:*, @data-client/core@workspace:^, @data-client/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@data-client/core@workspace:packages/core"
   dependencies:
@@ -3166,7 +3166,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.20.0"
-    "@data-client/core": "npm:^0.14.23"
+    "@data-client/core": "npm:^0.14.24"
     "@data-client/rest": "workspace:*"
     "@data-client/test": "workspace:*"
     "@data-client/use-enhanced-reducer": "npm:^0.1.14"
