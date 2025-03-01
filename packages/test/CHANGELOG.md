@@ -1,5 +1,30 @@
 # @data-client/test
 
+## 0.14.22
+
+### Patch Changes
+
+- [#3390](https://github.com/reactive/data-client/pull/3390) [`32cccdb`](https://github.com/reactive/data-client/commit/32cccdb921cd8d7643b641a9e8872aa89782a94a) Thanks [@ntucker](https://github.com/ntucker)! - Improve performance by using Map() instead of Object for unbounded keys
+
+- [#3390](https://github.com/reactive/data-client/pull/3390) [`32cccdb`](https://github.com/reactive/data-client/commit/32cccdb921cd8d7643b641a9e8872aa89782a94a) Thanks [@ntucker](https://github.com/ntucker)! - Interceptors that have args specified will still work, and warn about args.
+
+  Example:
+
+  ```typescript
+  {
+    endpoint: TodoResource.getList.push,
+    args: [{ userId: '5' }, {}],
+    response({ userId }, body) {
+      return { id: Math.random(), userId, ...ensurePojo(body) };
+    },
+  }
+  ```
+
+  This is clearly an interceptor, but args were accidentally specified. Before
+  this would make it not register, and TypeScript couldn't detect the issue.
+
+  Now this is treated as an interceptor (args ignored); and there is a console warning
+
 ## 0.14.21
 
 ### Patch Changes

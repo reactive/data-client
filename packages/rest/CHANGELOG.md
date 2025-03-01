@@ -1,5 +1,11 @@
 # @data-client/rest
 
+## 0.14.22
+
+### Patch Changes
+
+- [#3390](https://github.com/reactive/data-client/pull/3390) [`32cccdb`](https://github.com/reactive/data-client/commit/32cccdb921cd8d7643b641a9e8872aa89782a94a) Thanks [@ntucker](https://github.com/ntucker)! - Improve performance by using Map() instead of Object for unbounded keys
+
 ## 0.14.21
 
 ### Patch Changes
