@@ -57,7 +57,7 @@ export default function useFetch<
 
   // Compute denormalized value
   const { expiryStatus, expiresAt } = useMemo(() => {
-    return controller.getResponse(endpoint, ...args, state);
+    return controller.getResponseMeta(endpoint, ...args, state);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     cacheResults,
