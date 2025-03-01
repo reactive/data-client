@@ -28,10 +28,10 @@ export class ResetError extends Error {
  * @see https://dataclient.io/docs/api/NetworkManager
  */
 export default class NetworkManager implements Manager {
-  protected fetched: Map<string, Promise<any>> = new Map();
-  protected resolvers: Map<string, (value?: any) => void> = new Map();
-  protected rejectors: Map<string, (value?: any) => void> = new Map();
-  protected fetchedAt: Map<string, number> = new Map();
+  protected fetched: { [k: string]: Promise<any> } = Object.create(null);
+  protected resolvers: { [k: string]: (value?: any) => void } = {};
+  protected rejectors: { [k: string]: (value?: any) => void } = {};
+  protected fetchedAt: { [k: string]: number } = {};
   declare readonly dataExpiryLength: number;
   declare readonly errorExpiryLength: number;
   protected controller: Controller = new Controller();
@@ -61,7 +61,7 @@ export default class NetworkManager implements Manager {
         case SET_RESPONSE:
           // only set after new state is computed
           return next(action).then(() => {
-            if (this.fetched.has(action.key)) {
+            if (action.key in this.fetched) {
               // Note: meta *must* be set by reducer so this should be safe
               const error = controller.getState().meta[action.key]?.error;
               // processing errors result in state meta having error, so we should reject the promise
@@ -80,14 +80,14 @@ export default class NetworkManager implements Manager {
             }
           });
         case RESET: {
-          const rejectors = new Map(this.rejectors);
+          const rejectors = { ...this.rejectors };
 
           this.clearAll();
           return next(action).then(() => {
             // there could be external listeners to the promise
             // this must happen after commit so our own rejector knows not to dispatch an error based on this
-            for (const rejector of rejectors.values()) {
-              rejector(new ResetError());
+            for (const k in rejectors) {
+              rejectors[k](new ResetError());
             }
           });
         }
@@ -112,11 +112,12 @@ export default class NetworkManager implements Manager {
   /** Used by DevtoolsManager to determine whether to log an action */
   skipLogging(action: ActionTypes) {
     /* istanbul ignore next */
-    return action.type === FETCH && this.fetched.has(action.key);
+    return action.type === FETCH && action.key in this.fetched;
   }
 
   allSettled() {
-    if (this.fetched.size) return Promise.allSettled(this.fetched.values());
+    const fetches = Object.values(this.fetched);
+    if (fetches.length) return Promise.allSettled(fetches);
   }
 
   /** Clear all promise state */
@@ -128,13 +129,11 @@ export default class NetworkManager implements Manager {
 
   /** Clear promise state for a given key */
   protected clear(key: string) {
-    if (this.fetched.has(key)) {
-      (this.fetched.get(key) as Promise<any>).catch(() => {});
-    }
-    this.resolvers.delete(key);
-    this.rejectors.delete(key);
-    this.fetched.delete(key);
-    this.fetchedAt.delete(key);
+    this.fetched[key].catch(() => {});
+    delete this.resolvers[key];
+    delete this.rejectors[key];
+    delete this.fetched[key];
+    delete this.fetchedAt[key];
   }
 
   protected getLastReset() {
@@ -227,16 +226,12 @@ export default class NetworkManager implements Manager {
    */
   protected handleSet(action: SetResponseAction) {
     // this can still turn out to be untrue since this is async
-    if (this.fetched.has(action.key)) {
+    if (action.key in this.fetched) {
       let promiseHandler: (value?: any) => void;
       if (action.error) {
-        promiseHandler = this.rejectors.get(action.key) as (
-          value?: any,
-        ) => void;
+        promiseHandler = this.rejectors[action.key];
       } else {
-        promiseHandler = this.resolvers.get(action.key) as (
-          value?: any,
-        ) => void;
+        promiseHandler = this.resolvers[action.key];
       }
       promiseHandler(action.response);
       // since we're resolved we no longer need to keep track of this promise
@@ -258,25 +253,19 @@ export default class NetworkManager implements Manager {
     key: string,
     fetch: () => Promise<any>,
     fetchedAt: number,
-  ): Promise<any> {
+  ) {
     const lastReset = this.getLastReset();
     // we're already fetching so reuse the promise
     // fetches after reset do not count
-    if (
-      this.fetched.has(key) &&
-      (this.fetchedAt.get(key) as number) > lastReset
-    ) {
-      return this.fetched.get(key) as Promise<any>;
+    if (key in this.fetched && this.fetchedAt[key] > lastReset) {
+      return this.fetched[key];
     }
 
-    this.fetched.set(
-      key,
-      new Promise((resolve, reject) => {
-        this.resolvers.set(key, resolve);
-        this.rejectors.set(key, reject);
-      }),
-    );
-    this.fetchedAt.set(key, fetchedAt);
+    this.fetched[key] = new Promise((resolve, reject) => {
+      this.resolvers[key] = resolve;
+      this.rejectors[key] = reject;
+    });
+    this.fetchedAt[key] = fetchedAt;
 
     this.idleCallback(
       () => {
@@ -288,7 +277,7 @@ export default class NetworkManager implements Manager {
       { timeout: 500 },
     );
 
-    return this.fetched.get(key) as Promise<any>;
+    return this.fetched[key];
   }
 
   /** Calls the callback when client is not 'busy' with high priority interaction tasks
