@@ -1,5 +1,11 @@
 # @data-client/core
 
+## 0.14.23
+
+### Patch Changes
+
+- [`9bf7e7a`](https://github.com/reactive/data-client/commit/9bf7e7ab783eda767dd9f17bbf65c4b85c05d522) Thanks [@ntucker](https://github.com/ntucker)! - Improve performance by using Map() instead of Object for unbounded keys [#3390](https://github.com/reactive/data-client/pull/3390)
+
 ## 0.14.21
 
 ### Patch Changes
