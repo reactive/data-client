@@ -6,7 +6,7 @@ export default interface Cache {
     pk: string,
     schema: EntityInterface,
     entity: any,
-    computeValue: (localCacheKey: Record<string, any>) => void,
+    computeValue: (localCacheKey: Map<string, any>) => void,
   ): object | undefined | symbol;
   getResults(
     input: any,

@@ -1,8 +1,3 @@
-Object.hasOwn =
-  Object.hasOwn ||
-  /* istanbul ignore next */ function hasOwn(it, key) {
-    return Object.prototype.hasOwnProperty.call(it, key);
-  };
 import {
   actionTypes,
   Controller,
@@ -33,7 +28,7 @@ export function MockController<TBase extends typeof Controller, T>(
     // TODO: drop when drop support for destructuring (0.14 and below)
     declare protected _dispatch: D;
 
-    fixtureMap: Record<string, Fixture> = fixtureMap;
+    fixtureMap: Map<string, Fixture> = fixtureMap;
     interceptors: Interceptor<any>[] = interceptors;
     interceptorData: T = getInitialInterceptorData();
 
@@ -62,8 +57,8 @@ export function MockController<TBase extends typeof Controller, T>(
           // eslint-disable-next-line prefer-const
           let { key, args } = action;
           let fixture: Fixture | Interceptor | undefined;
-          if (Object.hasOwn(this.fixtureMap, key)) {
-            fixture = this.fixtureMap[key];
+          if (this.fixtureMap.has(key)) {
+            fixture = this.fixtureMap.get(key) as Fixture;
             if (!args) args = fixture.args;
             // exact matches take priority; now test ComputedFixture
           } else {

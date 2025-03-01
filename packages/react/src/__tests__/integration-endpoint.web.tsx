@@ -517,48 +517,53 @@ describe.each([
       ...payload,
       id: 1234,
     };
-    mynock
-      .get(`/article-cooler/${temppayload.id}`)
-      .reply(200, temppayload)
-      .delete(`/article-cooler/${temppayload.id}`)
-      .reply(204, '');
-    const throws: Promise<any>[] = [];
-    const { result, waitForNextUpdate } = renderDataHook(() => {
-      try {
-        return [
-          useSuspense(CoolerArticleResource.get, {
-            id: temppayload.id,
-          }),
-          useController(),
-        ] as const;
-      } catch (e: any) {
-        if (typeof e.then === 'function') {
-          if (e !== throws[throws.length - 1]) {
-            throws.push(e);
-          }
-        }
-        throw e;
-      }
+    const getMockFn = jest.fn(function ({ id }) {
+      return temppayload;
     });
+    const throws: Promise<any>[] = [];
+    const { result, waitForNextUpdate, controller } = renderDataHook(
+      () => {
+        try {
+          return useSuspense(CoolerArticleResource.get, {
+            id: temppayload.id,
+          });
+        } catch (e: any) {
+          if (typeof e.then === 'function') {
+            if (e !== throws[throws.length - 1]) {
+              throws.push(e);
+            }
+          }
+          throw e;
+        }
+      },
+      {
+        resolverFixtures: [
+          {
+            endpoint: CoolerArticleResource.get,
+            response: getMockFn,
+          },
+        ],
+      },
+    );
     expect(result.current).toBeUndefined();
     await waitForNextUpdate();
-    let [data, { invalidate }] = result.current;
+    let data = result.current;
     expect(data).toBeInstanceOf(CoolerArticle);
     expect(data.title).toBe(temppayload.title);
     // react 19 suspends twice
     expect(throws.length).toBeGreaterThanOrEqual(1);
 
-    mynock
-      .persist()
-      .get(`/article-cooler/${temppayload.id}`)
-      .reply(200, { ...temppayload, title: 'othertitle' });
+    getMockFn.mockImplementation(() => ({
+      ...temppayload,
+      title: 'othertitle',
+    }));
     act(() => {
-      invalidate(CoolerArticleResource.get, { id: temppayload.id });
+      controller.invalidate(CoolerArticleResource.get, { id: temppayload.id });
     });
     // react 19 suspends twice
     expect(throws.length).toBeGreaterThanOrEqual(2);
     await waitForNextUpdate();
-    [data, { invalidate }] = result.current;
+    data = result.current;
     expect(data).toBeInstanceOf(CoolerArticle);
     expect(data.title).toBe('othertitle');
   });

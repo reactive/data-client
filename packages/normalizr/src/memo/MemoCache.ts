@@ -17,11 +17,11 @@ import type {
 /** Singleton to store the memoization cache for denormalization methods */
 export default class MemoCache {
   /** Cache for every entity based on its dependencies and its own input */
-  protected entities: EntityCache = {};
+  protected entities: EntityCache = new Map();
   /** Caches the final denormalized form based on input, entities */
   protected endpoints: EndpointsCache = new WeakDependencyMap<EntityPath>();
   /** Caches the queryKey based on schema, args, and any used entities or indexes */
-  protected queryKeys: Record<string, WeakDependencyMap<QueryPath>> = {};
+  protected queryKeys: Map<string, WeakDependencyMap<QueryPath>> = new Map();
 
   /** Compute denormalized form maintaining referential equality for same inputs */
   denormalize<S extends Schema>(
@@ -107,10 +107,14 @@ export default class MemoCache {
       return schema as any;
 
     // cache lookup: argsKey -> schema -> ...touched indexes or entities
-    if (!this.queryKeys[argsKey]) {
-      this.queryKeys[argsKey] = new WeakDependencyMap<QueryPath>();
+    if (!this.queryKeys.get(argsKey)) {
+      this.queryKeys.set(argsKey, new WeakDependencyMap<QueryPath>());
     }
-    const queryCache = this.queryKeys[argsKey];
+    const queryCache = this.queryKeys.get(argsKey) as WeakDependencyMap<
+      QueryPath,
+      object,
+      any
+    >;
     const getEntity = createGetEntity(entities);
     const getIndex = createGetIndex(indexes);
     // eslint-disable-next-line prefer-const

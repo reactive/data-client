@@ -3,24 +3,24 @@ import type { EntityInterface } from '../interface.js';
 import type { EntityPath } from '../types.js';
 
 export default class LocalCache implements Cache {
-  private localCache: Record<string, Record<string, any>> = {};
+  private localCache = new Map<string, Map<string, any>>();
 
   getEntity(
     pk: string,
     schema: EntityInterface,
     entity: any,
-    computeValue: (localCacheKey: Record<string, any>) => void,
+    computeValue: (localCacheKey: Map<string, any>) => void,
   ): object | undefined | symbol {
     const key = schema.key;
-    if (!(key in this.localCache)) {
-      this.localCache[key] = Object.create(null);
+    if (!this.localCache.has(key)) {
+      this.localCache.set(key, new Map<string, any>());
     }
-    const localCacheKey = this.localCache[key];
+    const localCacheKey = this.localCache.get(key) as Map<string, any>;
 
-    if (!localCacheKey[pk]) {
+    if (!localCacheKey.get(pk)) {
       computeValue(localCacheKey);
     }
-    return localCacheKey[pk];
+    return localCacheKey.get(pk);
   }
 
   getResults(

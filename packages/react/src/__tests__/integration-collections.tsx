@@ -190,7 +190,6 @@ describe.each([
         resolverFixtures: [
           {
             endpoint: UnionResource.getList.push,
-            args: [],
             response(body) {
               return body;
             },
@@ -517,7 +516,6 @@ describe.each([
             resolverFixtures: [
               {
                 endpoint: TodoResource.getList.push,
-                args: [{ userId: '5' }, {}],
                 response({ userId }, body) {
                   return { id: Math.random(), userId, ...ensurePojo(body) };
                 },

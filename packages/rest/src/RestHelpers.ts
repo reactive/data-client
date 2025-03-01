@@ -2,25 +2,31 @@ import { compile, PathFunction, parse } from 'path-to-regexp';
 
 import { ShortenPath } from './pathTypes.js';
 
-const urlBaseCache: Record<string, PathFunction<object>> = Object.create(null);
+const urlBaseCache: Map<string, PathFunction<object>> = new Map();
 export function getUrlBase(path: string): PathFunction {
-  if (!(path in urlBaseCache)) {
-    urlBaseCache[path] = compile(path, {
-      encode: encodeURIComponent,
-      validate: false,
-    });
-  }
-  return urlBaseCache[path];
-}
-
-const urlTokensCache: Record<string, Set<string>> = Object.create(null);
-export function getUrlTokens(path: string): Set<string> {
-  if (!(path in urlTokensCache)) {
-    urlTokensCache[path] = new Set(
-      parse(path).map(t => (typeof t === 'string' ? t : `${t['name']}`)),
+  if (!urlBaseCache.has(path)) {
+    urlBaseCache.set(
+      path,
+      compile(path, {
+        encode: encodeURIComponent,
+        validate: false,
+      }),
     );
   }
-  return urlTokensCache[path];
+  return urlBaseCache.get(path) as PathFunction;
+}
+
+const urlTokensCache: Map<string, Set<string>> = new Map();
+export function getUrlTokens(path: string): Set<string> {
+  if (!urlTokensCache.has(path)) {
+    urlTokensCache.set(
+      path,
+      new Set(
+        parse(path).map(t => (typeof t === 'string' ? t : `${t['name']}`)),
+      ),
+    );
+  }
+  return urlTokensCache.get(path) as Set<string>;
 }
 
 const proto = Object.prototype;

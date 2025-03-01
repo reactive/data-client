@@ -35,7 +35,7 @@ function unvisitEntity(
     // we're actually using this call to ensure we update the cache if a nested schema changes from `undefined`
     // this is because cache.getEntity adds this key,pk as a dependency of anything it is nested under
     return cache.getEntity(entityOrId, schema, UNDEF, localCacheKey => {
-      localCacheKey[entityOrId] = undefined;
+      localCacheKey.set(entityOrId, undefined);
     });
   }
 
@@ -71,12 +71,12 @@ function unvisitEntity(
 }
 
 function noCacheGetEntity(
-  computeValue: (localCacheKey: Record<string, any>) => void,
+  computeValue: (localCacheKey: Map<string, any>) => void,
 ): object | undefined | symbol {
-  const localCacheKey = {};
+  const localCacheKey = new Map<string, any>();
   computeValue(localCacheKey);
 
-  return localCacheKey[''];
+  return localCacheKey.get('');
 }
 
 function unvisitEntityObject(
@@ -84,20 +84,21 @@ function unvisitEntityObject(
   schema: EntityInterface<any>,
   unvisit: (schema: any, input: any) => any,
   pk: string,
-  localCacheKey: Record<string, any>,
+  localCacheKey: Map<string, any>,
   args: readonly any[],
 ): void {
-  const entityCopy = (localCacheKey[pk] =
+  const entityCopy =
     isImmutable(entity) ?
       schema.createIfValid(entity.toObject())
-    : schema.createIfValid(entity));
+    : schema.createIfValid(entity);
+  localCacheKey.set(pk, entityCopy);
 
   if (entityCopy === undefined) {
     // undefined indicates we should suspense (perhaps failed validation)
-    localCacheKey[pk] = INVALID;
+    localCacheKey.set(pk, INVALID);
   } else {
     if (typeof schema.denormalize === 'function') {
-      localCacheKey[pk] = schema.denormalize(entityCopy, args, unvisit);
+      localCacheKey.set(pk, schema.denormalize(entityCopy, args, unvisit));
     }
   }
 }
