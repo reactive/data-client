@@ -1,6 +1,6 @@
 {
   "name": "@data-client/core",
-  "version": "0.14.21",
+  "version": "0.14.23",
   "description": "Async State Management without the Management. REST, GraphQL, SSE, Websockets, Fetch",
   "sideEffects": false,
   "main": "dist/index.js",
