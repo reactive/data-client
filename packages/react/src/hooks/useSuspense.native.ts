@@ -64,7 +64,7 @@ export default function useSuspense<
 
   // Compute denormalized value
   const { data, expiryStatus, expiresAt, countRef } = useMemo(() => {
-    return controller.getResponse(endpoint, ...args, state);
+    return controller.getResponseMeta(endpoint, ...args, state);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     cacheResults,
