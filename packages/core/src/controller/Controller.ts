@@ -589,7 +589,13 @@ export default class Controller<
       .slice(0, rest.length - 1)
       .map(ensurePojo) as SchemaArgs<S>;
 
-    return this.memo.query(schema, args, state.entities as any, state.indexes);
+    const { data } = this.memo.query(
+      schema,
+      args,
+      state.entities as any,
+      state.indexes,
+    );
+    return typeof data === 'symbol' ? undefined : (data as any);
   }
 
   /**
