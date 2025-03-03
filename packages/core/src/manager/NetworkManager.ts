@@ -5,7 +5,6 @@ import type {
   FetchAction,
   Manager,
   ActionTypes,
-  MiddlewareAPI,
   Middleware,
   SetResponseAction,
 } from '../types.js';
@@ -18,6 +17,13 @@ export class ResetError extends Error {
   }
 }
 
+export interface FetchingMeta {
+  promise: Promise<any>;
+  resolve: (value?: any) => void;
+  reject: (value?: any) => void;
+  fetchedAt: number;
+}
+
 /** Handles all async network dispatches
  *
  * Dedupes concurrent requests by keeping track of all fetches in flight
@@ -28,10 +34,7 @@ export class ResetError extends Error {
  * @see https://dataclient.io/docs/api/NetworkManager
  */
 export default class NetworkManager implements Manager {
-  protected fetched: { [k: string]: Promise<any> } = Object.create(null);
-  protected resolvers: { [k: string]: (value?: any) => void } = {};
-  protected rejectors: { [k: string]: (value?: any) => void } = {};
-  protected fetchedAt: { [k: string]: number } = {};
+  protected fetching: Map<string, FetchingMeta> = new Map();
   declare readonly dataExpiryLength: number;
   declare readonly errorExpiryLength: number;
   protected controller: Controller = new Controller();
@@ -61,7 +64,7 @@ export default class NetworkManager implements Manager {
         case SET_RESPONSE:
           // only set after new state is computed
           return next(action).then(() => {
-            if (action.key in this.fetched) {
+            if (this.fetching.has(action.key)) {
               // Note: meta *must* be set by reducer so this should be safe
               const error = controller.getState().meta[action.key]?.error;
               // processing errors result in state meta having error, so we should reject the promise
@@ -80,14 +83,18 @@ export default class NetworkManager implements Manager {
             }
           });
         case RESET: {
-          const rejectors = { ...this.rejectors };
+          // take snapshot of rejectors at this point in time
+          // we must use Array.from since iteration does not freeze state at this point in time
+          const rejectors = Array.from(
+            this.fetching.values().map(({ reject }) => reject),
+          );
 
           this.clearAll();
           return next(action).then(() => {
             // there could be external listeners to the promise
             // this must happen after commit so our own rejector knows not to dispatch an error based on this
-            for (const k in rejectors) {
-              rejectors[k](new ResetError());
+            for (const rejector of rejectors) {
+              rejector(new ResetError());
             }
           });
         }
@@ -112,28 +119,29 @@ export default class NetworkManager implements Manager {
   /** Used by DevtoolsManager to determine whether to log an action */
   skipLogging(action: ActionTypes) {
     /* istanbul ignore next */
-    return action.type === FETCH && action.key in this.fetched;
+    return action.type === FETCH && this.fetching.has(action.key);
   }
 
   allSettled() {
-    const fetches = Object.values(this.fetched);
-    if (fetches.length) return Promise.allSettled(fetches);
+    if (this.fetching.size)
+      return Promise.allSettled(
+        this.fetching.values().map(({ promise }) => promise),
+      );
   }
 
   /** Clear all promise state */
   protected clearAll() {
-    for (const k in this.rejectors) {
+    for (const k of this.fetching.keys()) {
       this.clear(k);
     }
   }
 
   /** Clear promise state for a given key */
   protected clear(key: string) {
-    this.fetched[key].catch(() => {});
-    delete this.resolvers[key];
-    delete this.rejectors[key];
-    delete this.fetched[key];
-    delete this.fetchedAt[key];
+    if (this.fetching.has(key)) {
+      (this.fetching.get(key) as FetchingMeta).promise.catch(() => {});
+      this.fetching.delete(key);
+    }
   }
 
   protected getLastReset() {
@@ -226,14 +234,14 @@ export default class NetworkManager implements Manager {
    */
   protected handleSet(action: SetResponseAction) {
     // this can still turn out to be untrue since this is async
-    if (action.key in this.fetched) {
-      let promiseHandler: (value?: any) => void;
+    if (this.fetching.has(action.key)) {
+      const fetchMeta = this.fetching.get(action.key) as FetchingMeta;
       if (action.error) {
-        promiseHandler = this.rejectors[action.key];
+        fetchMeta.reject(action.response);
       } else {
-        promiseHandler = this.resolvers[action.key];
+        fetchMeta.resolve(action.response);
       }
-      promiseHandler(action.response);
+
       // since we're resolved we no longer need to keep track of this promise
       this.clear(action.key);
     }
@@ -253,31 +261,54 @@ export default class NetworkManager implements Manager {
     key: string,
     fetch: () => Promise<any>,
     fetchedAt: number,
-  ) {
+  ): Promise<any> {
     const lastReset = this.getLastReset();
+    let fetchMeta: FetchingMeta;
+
     // we're already fetching so reuse the promise
     // fetches after reset do not count
-    if (key in this.fetched && this.fetchedAt[key] > lastReset) {
-      return this.fetched[key];
+    if (
+      !this.fetching.has(key) ||
+      (fetchMeta = this.fetching.get(key) as FetchingMeta).fetchedAt <=
+        lastReset
+    ) {
+      const promiseHandlers: {
+        resolve?: (value: any) => void;
+        reject?: (value: any) => void;
+      } = {};
+      fetchMeta = {
+        promise: new Promise((resolve, reject) => {
+          promiseHandlers.resolve = resolve;
+          promiseHandlers.reject = reject;
+        }),
+        resolve(value) {
+          // if this is called before the promise callback runs it might not be set yet
+          if (promiseHandlers.resolve) return promiseHandlers.resolve(value);
+          // this should be safe (no infinite recursion), since our new Promise is not conditional
+          setTimeout(fetchMeta.resolve, 0);
+        },
+        reject(value) {
+          // if this is called before the promise callback runs it might not be set yet
+          if (promiseHandlers.reject) return promiseHandlers.reject(value);
+          // this should be safe (no infinite recursion), since our new Promise is not conditional
+          setTimeout(fetchMeta.reject, 0);
+        },
+        fetchedAt,
+      } as FetchingMeta;
+      this.fetching.set(key, fetchMeta);
+
+      this.idleCallback(
+        () => {
+          // since our real promise is resolved via the wrapReducer(),
+          // we should just stop all errors here.
+          // TODO: decouple this from useFetcher() (that's what's dispatching the error the resolves in here)
+          fetch().catch(() => null);
+        },
+        { timeout: 500 },
+      );
     }
 
-    this.fetched[key] = new Promise((resolve, reject) => {
-      this.resolvers[key] = resolve;
-      this.rejectors[key] = reject;
-    });
-    this.fetchedAt[key] = fetchedAt;
-
-    this.idleCallback(
-      () => {
-        // since our real promise is resolved via the wrapReducer(),
-        // we should just stop all errors here.
-        // TODO: decouple this from useFetcher() (that's what's dispatching the error the resolves in here)
-        fetch().catch(() => null);
-      },
-      { timeout: 500 },
-    );
-
-    return this.fetched[key];
+    return fetchMeta.promise;
   }
 
   /** Calls the callback when client is not 'busy' with high priority interaction tasks
