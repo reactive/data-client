@@ -63,7 +63,7 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-error-boundary": "^5.0.0",
-    "react-markdown": "10.0.0",
+    "react-markdown": "10.0.1",
     "rehype-highlight": "7.0.2",
     "remark-gfm": "^4.0.0",
     "remark-remove-comments": "^1.0.1",
