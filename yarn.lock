@@ -292,8 +292,8 @@ __metadata:
   linkType: hard
 
 "@anansi/cli@npm:^3.0.15":
-  version: 3.1.62
-  resolution: "@anansi/cli@npm:3.1.62"
+  version: 3.1.63
+  resolution: "@anansi/cli@npm:3.1.63"
   dependencies:
     "@anansi/generator-js": "npm:^12.6.14"
     binary-version-check: "npm:^6.1.0"
@@ -310,13 +310,13 @@ __metadata:
       optional: true
   bin:
     anansi: ./run.mjs
-  checksum: 10c0/d7e92247960a08fbaa48d011a4ad3ff055f6e8748f91cdf66d2aebe6d8a04998996b7ea2a4561dd8e5905d6c2aed0958f2e3a9d10610d1c529ccdf0e0b9f4637
+  checksum: 10c0/aec096a8fd8ae5e6706e93f6be27c9c6168d31f495bf4c3cdef89703acbf27de34b9b0ee55156c7f141d3f4e1be0e13143f9d33213983a63eb82d3a122632f7d
   languageName: node
   linkType: hard
 
 "@anansi/core@npm:^0.20.0":
-  version: 0.20.21
-  resolution: "@anansi/core@npm:0.20.21"
+  version: 0.20.22
+  resolution: "@anansi/core@npm:0.20.22"
   dependencies:
     "@anansi/router": "npm:^0.10.12"
     "@babel/runtime-corejs3": "npm:^7.26.0"
@@ -356,7 +356,7 @@ __metadata:
   bin:
     serve-anansi: ./lib/scripts/serve.js
     start-anansi: ./lib/scripts/startDevserver.js
-  checksum: 10c0/7f5e5bbd4dca7c558087c2666caf29edb3affb2bc4b995561353d2c2f0153099fa7dd40d11fe5d6fea50e081d007822028b59f58c7617695a56c74f0c1dab8bc
+  checksum: 10c0/86b4ba92b4c51db00e9c93b886ec520bd640921ab227451f7c45cc47e52ca3c7cf8a33d9988d77975bca715b7b1e1803bccaf07af812e55995fae88a343f3a63
   languageName: node
   linkType: hard
 
