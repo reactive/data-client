@@ -5373,15 +5373,15 @@ __metadata:
   linkType: hard
 
 "@number-flow/react@npm:^0.5.0":
-  version: 0.5.5
-  resolution: "@number-flow/react@npm:0.5.5"
+  version: 0.5.7
+  resolution: "@number-flow/react@npm:0.5.7"
   dependencies:
     esm-env: "npm:^1.1.4"
-    number-flow: "npm:0.5.3"
+    number-flow: "npm:0.5.5"
   peerDependencies:
     react: ^18 || ^19
     react-dom: ^18 || ^19
-  checksum: 10c0/9fc6c46bef1a75e15fd3752fd58edab05bc76e971ce4a34c6eeb2aefffa58b18f6f590f822ceb9b1e66cc9922d844d112d286148b0ceb5435af9d22eed228aea
+  checksum: 10c0/86ab9e619998d7ddc986ba1f1bfe9c8b6903809faa2f57fa5fe4d9bd93b5f5da76934bb998c4f962fe89ebf25647e6273ba9fefd5457454e126ff5bb170df13b
   languageName: node
   linkType: hard
 
@@ -22224,12 +22224,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"number-flow@npm:0.5.3":
-  version: 0.5.3
-  resolution: "number-flow@npm:0.5.3"
+"number-flow@npm:0.5.5":
+  version: 0.5.5
+  resolution: "number-flow@npm:0.5.5"
   dependencies:
     esm-env: "npm:^1.1.4"
-  checksum: 10c0/1c52b64a5dc12198998ef3671fa73c0e61ebc06ab9ff5574c67b2f712d3e839a9dc98e0b919c12be56c0585dd3625a1439b8708cfa8a32cee9d6ab23e732723c
+  checksum: 10c0/0aeae12cfa8b0625d98f85a2160ce6cc22ee262cd08faa0333cd42635f5075cf1c3732a0c3b5727ef177e8bb3c85982da916fdcf240e3ea997c7fb820d67232a
   languageName: node
   linkType: hard
 
