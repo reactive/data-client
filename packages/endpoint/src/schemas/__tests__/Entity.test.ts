@@ -590,6 +590,39 @@ describe(`${Entity.name} normalization`, () => {
       expect(final?.type).toEqual('message');
       expect(final).toMatchSnapshot();
     });
+
+    test('when undefined is returned, INVALIDate the entity', () => {
+      class ProcessTaco extends Tacos {
+        readonly slug: string = '';
+        static process(input: any, parent: any, key: string | undefined): any {
+          if (input.id === 'DELETE') return undefined;
+          return {
+            ...input,
+            slug: `thing-${(input as unknown as ProcessTaco).id}`,
+          };
+        }
+      }
+      let { entities, result } = normalize(ProcessTaco, {
+        id: 'DELETE',
+        name: 'foo',
+      });
+      let final = new SimpleMemoCache().denormalize(
+        ProcessTaco,
+        result,
+        entities,
+      );
+      expect(final).toEqual(expect.any(Symbol));
+
+      // still work in normal cases
+      ({ entities, result } = normalize(ProcessTaco, {
+        id: '1',
+        name: 'foo',
+      }));
+      final = new SimpleMemoCache().denormalize(ProcessTaco, result, entities);
+      expect(final).not.toEqual(expect.any(Symbol));
+      if (typeof final === 'symbol') return;
+      expect(final?.slug).toEqual('thing-1');
+    });
   });
 });
 
