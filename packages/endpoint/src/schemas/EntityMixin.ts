@@ -6,6 +6,7 @@ import type {
   Visit,
 } from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
+import { INVALID } from '../special.js';
 import type {
   IEntityClass,
   IEntityInstance,
@@ -252,7 +253,13 @@ export default function EntityMixin<TBase extends Constructor>(
       checkLoop: CheckLoop,
     ): any {
       const processedEntity = this.process(input, parent, key, args);
-      let id = this.pk(processedEntity, parent, key, args);
+      let id: string | number | undefined;
+      if (typeof processedEntity === 'undefined') {
+        id = this.pk(input, parent, key, args);
+        addEntity(this, INVALID, id);
+        return id;
+      }
+      id = this.pk(processedEntity, parent, key, args);
       if (id === undefined || id === '' || id === 'undefined') {
         // create a random id if a valid one cannot be computed
         // this is useful for optimistic creates that don't need real ids - just something to hold their place
