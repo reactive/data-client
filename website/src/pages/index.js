@@ -98,7 +98,7 @@ function HomepageEnder() {
 export default function Home() {
   const image = useBaseUrl('img/social/data_client_logo_card.png');
   return (
-    <Layout description="The scalable way to build applications with dynamic data. REST, GraphQL, Websockets+SSE with React, NextJS, React Native, ExpoGo">
+    <Layout description="The scalable way to build applications with dynamic data. REST, GraphQL, Websockets+SSE with React, NextJS, React Native, Expo">
       <PageMetadata image={image} />
       <Head>
         <title>Reactive Data Client</title>

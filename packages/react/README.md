@@ -9,7 +9,7 @@
 The scalable way to build applications with [dynamic data](https://dataclient.io/docs/getting-started/mutations).
 
 [Declarative resouce definitons](https://dataclient.io/docs/getting-started/resource) for [REST](https://dataclient.io/rest), [GraphQL](https://dataclient.io/graphql), [Websockets+SSE](https://dataclient.io/docs/concepts/managers#data-stream) and [more](https://dataclient.io/rest/api/Endpoint)
-<br/>[Performant rendering](https://dataclient.io/docs/getting-started/data-dependency) in React, NextJS, React Native, ExpoGo
+<br/>[Performant rendering](https://dataclient.io/docs/getting-started/data-dependency) in [React](https://react.dev/), [NextJS](https://nextjs.org/), [React Native](https://reactnative.dev/), [Expo](https://expo.dev/)
 
 Schema driven. Zero updater functions.
 
