@@ -1,7 +1,7 @@
 import { denormalize } from './denormalize/denormalize.js';
 import { isEntity } from './isEntity.js';
 import WeakDependencyMap from './memo/WeakDependencyMap.js';
-import { normalize } from './normalizr/normalize.js';
+import { normalize } from './normalize/normalize.js';
 
 export { default as MemoCache } from './memo/MemoCache.js';
 export type {

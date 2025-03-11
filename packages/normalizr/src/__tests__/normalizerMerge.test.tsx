@@ -2,7 +2,7 @@ import { schema } from '@data-client/endpoint';
 import { Article, IDEntity } from '__tests__/new';
 
 import { denormalize } from '../denormalize/denormalize';
-import { normalize } from '../normalizr/normalize';
+import { normalize } from '../normalize/normalize';
 
 describe('normalizer() merging', () => {
   describe('with instance.constructor.merge()', () => {
