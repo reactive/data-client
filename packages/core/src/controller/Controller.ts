@@ -172,7 +172,7 @@ export default class Controller<
     ...args: readonly [...Parameters<E>]
   ): E['schema'] extends undefined | null ? ReturnType<E> | ResolveType<E>
   : Promise<Denormalize<E['schema']>> | Denormalize<E['schema']> => {
-    const { data, expiresAt, expiryStatus } = this.getResponse(
+    const { data, expiresAt, expiryStatus } = this.getResponseMeta(
       endpoint,
       ...args,
       this.getState(),

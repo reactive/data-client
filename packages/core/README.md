@@ -43,7 +43,7 @@ function useSuspense(endpoint, ...args)
 
   // Compute denormalized value
   const { data, expiryStatus, expiresAt } = useMemo(() => {
-    return controller.getResponse(endpoint, ...args, state);
+    return controller.getResponseMeta(endpoint, ...args, state);
   }, [
     cacheResults,
     state.indexes,
