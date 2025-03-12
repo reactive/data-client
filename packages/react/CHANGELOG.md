@@ -1,5 +1,15 @@
 # @data-client/react
 
+## 0.14.25
+
+### Patch Changes
+
+- [#3398](https://github.com/reactive/data-client/pull/3398) [`d716159`](https://github.com/reactive/data-client/commit/d716159634a067790cd330c4a8c1660fe5f92973) Thanks [@ntucker](https://github.com/ntucker)! - Use controller.getResponseMeta() in hooks
+
+  No behavior change, just anticipating API updates to controller
+
+- [`d6eab29`](https://github.com/reactive/data-client/commit/d6eab2993c3da86d06753cbb50caebc5e19309e2) Thanks [@ntucker](https://github.com/ntucker)! - docs: Add links to platforms
+
 ## 0.14.24
 
 ### Patch Changes

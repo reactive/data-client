@@ -3090,7 +3090,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/endpoint@npm:^0.14.21, @data-client/endpoint@workspace:*, @data-client/endpoint@workspace:^, @data-client/endpoint@workspace:packages/endpoint":
+"@data-client/endpoint@npm:^0.14.25, @data-client/endpoint@workspace:*, @data-client/endpoint@workspace:^, @data-client/endpoint@workspace:packages/endpoint":
   version: 0.0.0-use.local
   resolution: "@data-client/endpoint@workspace:packages/endpoint"
   dependencies:
@@ -3113,7 +3113,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.20.0"
-    "@data-client/endpoint": "npm:^0.14.21"
+    "@data-client/endpoint": "npm:^0.14.25"
     "@types/jest": "npm:^29.5.14"
     "@types/node": "npm:^22.0.0"
     nock: "npm:13.3.1"
@@ -3127,7 +3127,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.20.0"
-    "@data-client/endpoint": "npm:^0.14.21"
+    "@data-client/endpoint": "npm:^0.14.25"
     "@data-client/react": "workspace:*"
     "@testing-library/react": "npm:^16.1.0"
     "@types/jest": "npm:^29.5.14"
@@ -3210,7 +3210,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.20.0"
-    "@data-client/endpoint": "npm:^0.14.21"
+    "@data-client/endpoint": "npm:^0.14.25"
     "@data-client/react": "workspace:*"
     "@data-client/test": "workspace:*"
     "@types/jest": "npm:^29.5.14"
