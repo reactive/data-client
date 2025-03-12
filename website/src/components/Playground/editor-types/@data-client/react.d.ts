@@ -1,5 +1,5 @@
 import * as _data_client_core from '@data-client/core';
-import { NetworkManager, Manager, State, Controller, GCInterface, DevToolsManager, DevToolsConfig, SubscriptionManager, EndpointInterface, FetchFunction, Schema, ResolveType, Denormalize, DenormalizeNullable, Queryable, NI, SchemaArgs, NetworkError, UnknownError, ErrorTypes as ErrorTypes$1, __INTERNAL__, createReducer, applyManager, initManager, actions } from '@data-client/core';
+import { NetworkManager, Manager, State, Controller, GCInterface, DevToolsManager, DevToolsConfig, SubscriptionManager, EndpointInterface, FetchFunction, Schema, ResolveType, Denormalize, DenormalizeNullable, Queryable, NI, SchemaArgs, NetworkError, UnknownError, ErrorTypes as ErrorTypes$1, __INTERNAL__, actions, applyManager, createReducer, initManager } from '@data-client/core';
 export { AbstractInstanceType, ActionTypes, Controller, CreateCountRef, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, EntityInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, GCInterface, GCOptions, GCPolicy, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, Queryable, ResetAction, ResolveType, Schema, SchemaArgs, SchemaClass, SetAction, SetResponseAction, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@data-client/core';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import React, { JSX, Context } from 'react';
@@ -276,25 +276,16 @@ declare const initialState: _data_client_core.State<unknown>;
 declare const INVALID: symbol;
 declare const MemoCache: typeof __INTERNAL__.MemoCache;
 
-declare const internal_d_initialState: typeof initialState;
 declare const internal_d_INVALID: typeof INVALID;
 declare const internal_d_MemoCache: typeof MemoCache;
-declare const internal_d_createReducer: typeof createReducer;
-declare const internal_d_applyManager: typeof applyManager;
-declare const internal_d_initManager: typeof initManager;
 declare const internal_d_actions: typeof actions;
+declare const internal_d_applyManager: typeof applyManager;
+declare const internal_d_createReducer: typeof createReducer;
+declare const internal_d_initManager: typeof initManager;
+declare const internal_d_initialState: typeof initialState;
 declare const internal_d_useCacheState: typeof useCacheState;
 declare namespace internal_d {
-  export {
-    internal_d_initialState as initialState,
-    internal_d_INVALID as INVALID,
-    internal_d_MemoCache as MemoCache,
-    internal_d_createReducer as createReducer,
-    internal_d_applyManager as applyManager,
-    internal_d_initManager as initManager,
-    internal_d_actions as actions,
-    internal_d_useCacheState as useCacheState,
-  };
+  export { internal_d_INVALID as INVALID, internal_d_MemoCache as MemoCache, internal_d_actions as actions, internal_d_applyManager as applyManager, internal_d_createReducer as createReducer, internal_d_initManager as initManager, internal_d_initialState as initialState, internal_d_useCacheState as useCacheState };
 }
 
 type ReducerAction<R extends React.Reducer<any, any>> = R extends React.Reducer<any, infer A> ? A : never;
@@ -302,4 +293,4 @@ type ReducerAction<R extends React.Reducer<any, any>> = R extends React.Reducer<
 /** Turns a dispatch function into one that resolves once its been commited */
 declare function usePromisifiedDispatch<R extends React.Reducer<any, any>>(dispatch: React.Dispatch<ReducerAction<R>>, state: React.ReducerState<R>): (action: ReducerAction<R>) => Promise<void>;
 
-export { _default as AsyncBoundary, BackupLoading, DataProvider as CacheProvider, ControllerContext, DataProvider, DevToolsPosition, ErrorBoundary, WebIdlingNetworkManager as IdlingNetworkManager, ErrorBoundary as NetworkErrorBoundary, ProviderProps, StateContext, Store, StoreContext, UniversalSuspense, internal_d as __INTERNAL__, getDefaultManagers, useCache, useCancelling, useController, useDLE, useDebounce, useError, useFetch, useLive, useLoading, usePromisifiedDispatch, useQuery, useSubscription, useSuspense };
+export { _default as AsyncBoundary, BackupLoading, DataProvider as CacheProvider, ControllerContext, DataProvider, type DevToolsPosition, ErrorBoundary, WebIdlingNetworkManager as IdlingNetworkManager, ErrorBoundary as NetworkErrorBoundary, type ProviderProps, StateContext, type Store, StoreContext, UniversalSuspense, internal_d as __INTERNAL__, getDefaultManagers, useCache, useCancelling, useController, useDLE, useDebounce, useError, useFetch, useLive, useLoading, usePromisifiedDispatch, useQuery, useSubscription, useSuspense };

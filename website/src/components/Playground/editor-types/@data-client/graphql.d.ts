@@ -1009,74 +1009,46 @@ declare class Collection<
   Parent = any,
 > extends CollectionRoot<S, Args, Parent> {}
 
+type schema_d_All<S extends EntityMap | EntityInterface = EntityMap | EntityInterface> = All<S>;
+declare const schema_d_All: typeof All;
+type schema_d_Collection<S extends any[] | PolymorphicInterface = any, Args extends any[] = DefaultArgs, Parent = any> = Collection<S, Args, Parent>;
+declare const schema_d_Collection: typeof Collection;
+type schema_d_CollectionArrayAdder<S extends PolymorphicInterface> = CollectionArrayAdder<S>;
+type schema_d_CollectionConstructor = CollectionConstructor;
+type schema_d_CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Args extends any[] = DefaultArgs, Parent = any> = CollectionFromSchema<S, Args, Parent>;
+type schema_d_CollectionInterface<S extends PolymorphicInterface = any, Args extends any[] = any[], Parent = any> = CollectionInterface<S, Args, Parent>;
+declare const schema_d_CollectionRoot: typeof CollectionRoot;
+type schema_d_DefaultArgs = DefaultArgs;
+type schema_d_EntityInterface<T = any> = EntityInterface<T>;
 type schema_d_EntityMap<T = any> = EntityMap<T>;
+declare const schema_d_EntityMixin: typeof EntityMixin;
 type schema_d_Invalidate<E extends EntityInterface & {
     process: any;
 }> = Invalidate<E>;
 declare const schema_d_Invalidate: typeof Invalidate;
+type schema_d_MergeFunction = MergeFunction;
 type schema_d_Query<S extends Queryable | {
     [k: string]: Queryable;
 }, P extends (entries: Denormalize<S>, ...args: any) => any> = Query<S, P>;
 declare const schema_d_Query: typeof Query;
-declare const schema_d_EntityMixin: typeof EntityMixin;
+type schema_d_SchemaAttributeFunction<S extends Schema> = SchemaAttributeFunction<S>;
 type schema_d_SchemaClass<T = any, Args extends readonly any[] = any> = SchemaClass<T, Args>;
-type schema_d_All<S extends EntityMap | EntityInterface = EntityMap | EntityInterface> = All<S>;
-declare const schema_d_All: typeof All;
-type schema_d_UnionConstructor = UnionConstructor;
-type schema_d_UnionInstance<Choices extends EntityMap = any, Args extends EntityFields<
-    AbstractInstanceType<Choices[keyof Choices]>
-  > = EntityFields<AbstractInstanceType<Choices[keyof Choices]>>> = UnionInstance<Choices, Args>;
-declare const schema_d_UnionRoot: typeof UnionRoot;
+type schema_d_SchemaFunction<K = string, Args = any> = SchemaFunction<K, Args>;
+type schema_d_StrategyFunction<T> = StrategyFunction<T>;
 type schema_d_Union<Choices extends EntityMap, SchemaAttribute extends
     | keyof AbstractInstanceType<Choices[keyof Choices]>
     | SchemaFunction<keyof Choices>> = Union<Choices, SchemaAttribute>;
 declare const schema_d_Union: typeof Union;
+type schema_d_UnionConstructor = UnionConstructor;
+type schema_d_UnionInstance<Choices extends EntityMap = any, Args extends EntityFields<
+    AbstractInstanceType<Choices[keyof Choices]>
+  > = EntityFields<AbstractInstanceType<Choices[keyof Choices]>>> = UnionInstance<Choices, Args>;
+type schema_d_UnionResult<Choices extends EntityMap> = UnionResult<Choices>;
+declare const schema_d_UnionRoot: typeof UnionRoot;
 type schema_d_Values<Choices extends Schema = any> = Values<Choices>;
 declare const schema_d_Values: typeof Values;
-declare const schema_d_CollectionRoot: typeof CollectionRoot;
-type schema_d_Collection<S extends any[] | PolymorphicInterface = any, Args extends any[] = DefaultArgs, Parent = any> = Collection<S, Args, Parent>;
-declare const schema_d_Collection: typeof Collection;
-type schema_d_EntityInterface<T = any> = EntityInterface<T>;
-type schema_d_CollectionArrayAdder<S extends PolymorphicInterface> = CollectionArrayAdder<S>;
-type schema_d_CollectionInterface<S extends PolymorphicInterface = any, Args extends any[] = any[], Parent = any> = CollectionInterface<S, Args, Parent>;
-type schema_d_CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Args extends any[] = DefaultArgs, Parent = any> = CollectionFromSchema<S, Args, Parent>;
-type schema_d_CollectionConstructor = CollectionConstructor;
-type schema_d_StrategyFunction<T> = StrategyFunction<T>;
-type schema_d_SchemaFunction<K = string, Args = any> = SchemaFunction<K, Args>;
-type schema_d_MergeFunction = MergeFunction;
-type schema_d_SchemaAttributeFunction<S extends Schema> = SchemaAttributeFunction<S>;
-type schema_d_UnionResult<Choices extends EntityMap> = UnionResult<Choices>;
-type schema_d_DefaultArgs = DefaultArgs;
 declare namespace schema_d {
-  export {
-    schema_d_EntityMap as EntityMap,
-    schema_d_Invalidate as Invalidate,
-    schema_d_Query as Query,
-    schema_d_EntityMixin as EntityMixin,
-    EntityMixin as Entity,
-    schema_d_SchemaClass as SchemaClass,
-    Array$1 as Array,
-    schema_d_All as All,
-    Object$1 as Object,
-    schema_d_UnionConstructor as UnionConstructor,
-    schema_d_UnionInstance as UnionInstance,
-    schema_d_UnionRoot as UnionRoot,
-    schema_d_Union as Union,
-    schema_d_Values as Values,
-    schema_d_CollectionRoot as CollectionRoot,
-    schema_d_Collection as Collection,
-    schema_d_EntityInterface as EntityInterface,
-    schema_d_CollectionArrayAdder as CollectionArrayAdder,
-    schema_d_CollectionInterface as CollectionInterface,
-    schema_d_CollectionFromSchema as CollectionFromSchema,
-    schema_d_CollectionConstructor as CollectionConstructor,
-    schema_d_StrategyFunction as StrategyFunction,
-    schema_d_SchemaFunction as SchemaFunction,
-    schema_d_MergeFunction as MergeFunction,
-    schema_d_SchemaAttributeFunction as SchemaAttributeFunction,
-    schema_d_UnionResult as UnionResult,
-    schema_d_DefaultArgs as DefaultArgs,
-  };
+  export { schema_d_All as All, Array$1 as Array, schema_d_Collection as Collection, type schema_d_CollectionArrayAdder as CollectionArrayAdder, type schema_d_CollectionConstructor as CollectionConstructor, type schema_d_CollectionFromSchema as CollectionFromSchema, type schema_d_CollectionInterface as CollectionInterface, schema_d_CollectionRoot as CollectionRoot, type schema_d_DefaultArgs as DefaultArgs, EntityMixin as Entity, type schema_d_EntityInterface as EntityInterface, type schema_d_EntityMap as EntityMap, schema_d_EntityMixin as EntityMixin, schema_d_Invalidate as Invalidate, type schema_d_MergeFunction as MergeFunction, Object$1 as Object, schema_d_Query as Query, type schema_d_SchemaAttributeFunction as SchemaAttributeFunction, type schema_d_SchemaClass as SchemaClass, type schema_d_SchemaFunction as SchemaFunction, type schema_d_StrategyFunction as StrategyFunction, schema_d_Union as Union, type schema_d_UnionConstructor as UnionConstructor, type schema_d_UnionInstance as UnionInstance, type schema_d_UnionResult as UnionResult, schema_d_UnionRoot as UnionRoot, schema_d_Values as Values };
 }
 
 declare const Entity_base: IEntityClass<abstract new (...args: any[]) => {
@@ -1170,4 +1142,4 @@ interface GQLError {
     path: (string | number)[];
 }
 
-export { AbstractInstanceType, Array$1 as Array, Collection, DefaultArgs, Denormalize, DenormalizeNullable, DenormalizeNullableObject, DenormalizeObject, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, EndpointToFunction, Entity, EntityFields, EntityMap, EntityMixin, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, GQLEndpoint, GQLEntity, GQLError, GQLNetworkError, GQLOptions, INVALID, Invalidate, KeyofEndpointInstance, MutateEndpoint, NI, NetworkError, Normalize, NormalizeNullable, NormalizeObject, NormalizedEntity, NormalizedNullableObject, ObjectArgs, PolymorphicInterface, Queryable, ReadEndpoint, RecordClass, ResolveType, Schema, SchemaArgs, SchemaClass, SchemaSimple, SnapshotInterface, UnknownError, schema_d as schema, validateRequired };
+export { type AbstractInstanceType, Array$1 as Array, Collection, type DefaultArgs, type Denormalize, type DenormalizeNullable, type DenormalizeNullableObject, type DenormalizeObject, Endpoint, type EndpointExtendOptions, type EndpointExtraOptions, type EndpointInstance, type EndpointInstanceInterface, type EndpointInterface, type EndpointOptions, type EndpointParam, type EndpointToFunction, Entity, type EntityFields, type EntityMap, EntityMixin, type ErrorTypes, type ExpiryStatusInterface, ExtendableEndpoint, type FetchFunction, GQLEndpoint, GQLEntity, type GQLError, GQLNetworkError, type GQLOptions, INVALID, Invalidate, type KeyofEndpointInstance, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeObject, type NormalizedEntity, type NormalizedNullableObject, type ObjectArgs, type PolymorphicInterface, type Queryable, type ReadEndpoint, type RecordClass, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type SnapshotInterface, type UnknownError, schema_d as schema, validateRequired };

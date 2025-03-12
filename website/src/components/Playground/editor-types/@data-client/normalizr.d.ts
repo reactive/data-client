@@ -174,10 +174,7 @@ interface Dep<Path, K = object> {
 
 declare const normalize: <S extends Schema = Schema, E extends Record<string, Record<string, any> | undefined> = Record<string, Record<string, any>>, R = NormalizeNullable<S>>(schema: S | undefined, input: any, args?: readonly any[], { entities, indexes, entityMeta }?: StoreData<E>, meta?: NormalizeMeta) => NormalizedSchema<E, R>;
 
-interface EntityCache {
-    [key: string]: {
-        [pk: string]: WeakMap<EntityInterface, WeakDependencyMap<EntityPath, object, any>>;
-    };
+interface EntityCache extends Map<string, Map<string, WeakMap<EntityInterface, WeakDependencyMap<EntityPath, object, any>>>> {
 }
 type EndpointsCache = WeakDependencyMap<EntityPath, object, any>;
 
@@ -188,7 +185,7 @@ declare class MemoCache {
     /** Caches the final denormalized form based on input, entities */
     protected endpoints: EndpointsCache;
     /** Caches the queryKey based on schema, args, and any used entities or indexes */
-    protected queryKeys: Record<string, WeakDependencyMap<QueryPath>>;
+    protected queryKeys: Map<string, WeakDependencyMap<QueryPath>>;
     /** Compute denormalized form maintaining referential equality for same inputs */
     denormalize<S extends Schema>(schema: S | undefined, input: unknown, entities: any, args?: readonly any[]): {
         data: DenormalizeNullable<S> | symbol;
@@ -256,6 +253,15 @@ interface SnapshotInterface {
         expiryStatus: ExpiryStatusInterface;
         expiresAt: number;
     };
+    /**
+     * Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
+     * @see https://dataclient.io/docs/api/Snapshot#getResponseMeta
+     */
+    getResponseMeta<E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>>(endpoint: E, ...args: readonly any[]): {
+        data: DenormalizeNullable<E['schema']>;
+        expiryStatus: ExpiryStatusInterface;
+        expiresAt: number;
+    };
     /** @see https://dataclient.io/docs/api/Snapshot#getError */
     getError: <E extends Pick<EndpointInterface, 'key'>, Args extends readonly [...Parameters<E['key']>]>(endpoint: E, ...args: Args) => ErrorTypes | undefined;
     /**
@@ -263,6 +269,14 @@ interface SnapshotInterface {
      * @see https://dataclient.io/docs/api/Snapshot#get
      */
     get<S extends Queryable>(schema: S, ...args: readonly any[]): any;
+    /**
+     * Queries the store for a Querable schema; providing related metadata
+     * @see https://dataclient.io/docs/api/Snapshot#getQueryMeta
+     */
+    getQueryMeta<S extends Queryable>(schema: S, ...args: readonly any[]): {
+        data: any;
+        countRef: () => () => void;
+    };
     readonly fetchedAt: number;
     readonly abort: Error;
 }
@@ -309,4 +323,4 @@ declare const INVALID: unique symbol;
 
 declare function validateQueryKey(queryKey: unknown): boolean;
 
-export { AbstractInstanceType, ArrayElement, CheckLoop, Denormalize, DenormalizeNullable, EndpointExtraOptions, EndpointInterface, EntityInterface, EntityPath, EntityTable, ErrorTypes, ExpiryStatus, ExpiryStatusInterface, FetchFunction, GetEntity, GetIndex, INVALID, IndexInterface, IndexParams, InferReturn, MemoCache, MutateEndpoint, NI, NetworkError, Normalize, NormalizeNullable, NormalizeReturnType, NormalizedIndex, NormalizedSchema, OptimisticUpdateParams, Queryable, ReadEndpoint, ResolveType, Schema, SchemaArgs, SchemaClass, SchemaSimple, Serializable, SnapshotInterface, UnknownError, UpdateFunction, Visit, WeakDependencyMap, denormalize, isEntity, normalize, validateQueryKey };
+export { type AbstractInstanceType, type ArrayElement, type CheckLoop, type Denormalize, type DenormalizeNullable, type EndpointExtraOptions, type EndpointInterface, type EntityInterface, type EntityPath, type EntityTable, type ErrorTypes, ExpiryStatus, type ExpiryStatusInterface, type FetchFunction, type GetEntity, type GetIndex, INVALID, type IndexInterface, type IndexParams, type InferReturn, MemoCache, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeReturnType, type NormalizedIndex, type NormalizedSchema, type OptimisticUpdateParams, type Queryable, type ReadEndpoint, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SnapshotInterface, type UnknownError, type UpdateFunction, type Visit, WeakDependencyMap, denormalize, isEntity, normalize, validateQueryKey };

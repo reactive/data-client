@@ -187,4 +187,4 @@ declare const PromiseifyMiddleware: <R extends React.Reducer<any, any>>(_: unkno
 type ReducerAction<R extends React.Reducer<any, any>> = R extends React.Reducer<any, infer A> ? A : never;
 //# sourceMappingURL=PromiseifyMiddleware.d.ts.map
 
-export { TestExternalDataProvider as DataProvider, ExternalDataProvider, Middleware, PromiseifyMiddleware, Reducer, mapMiddleware, prepareStore };
+export { TestExternalDataProvider as DataProvider, ExternalDataProvider, type Middleware, PromiseifyMiddleware, type Reducer, mapMiddleware, prepareStore };

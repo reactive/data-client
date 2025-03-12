@@ -134,10 +134,7 @@ interface Dep<Path, K = object> {
     entity: K;
 }
 
-interface EntityCache {
-    [key: string]: {
-        [pk: string]: WeakMap<EntityInterface, WeakDependencyMap<EntityPath, object, any>>;
-    };
+interface EntityCache extends Map<string, Map<string, WeakMap<EntityInterface, WeakDependencyMap<EntityPath, object, any>>>> {
 }
 type EndpointsCache = WeakDependencyMap<EntityPath, object, any>;
 
@@ -148,7 +145,7 @@ declare class MemoCache {
     /** Caches the final denormalized form based on input, entities */
     protected endpoints: EndpointsCache;
     /** Caches the queryKey based on schema, args, and any used entities or indexes */
-    protected queryKeys: Record<string, WeakDependencyMap<QueryPath>>;
+    protected queryKeys: Map<string, WeakDependencyMap<QueryPath>>;
     /** Compute denormalized form maintaining referential equality for same inputs */
     denormalize<S extends Schema>(schema: S | undefined, input: unknown, entities: any, args?: readonly any[]): {
         data: DenormalizeNullable<S> | symbol;
@@ -203,6 +200,15 @@ interface SnapshotInterface {
         expiryStatus: ExpiryStatusInterface;
         expiresAt: number;
     };
+    /**
+     * Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
+     * @see https://dataclient.io/docs/api/Snapshot#getResponseMeta
+     */
+    getResponseMeta<E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>>(endpoint: E, ...args: readonly any[]): {
+        data: DenormalizeNullable<E['schema']>;
+        expiryStatus: ExpiryStatusInterface;
+        expiresAt: number;
+    };
     /** @see https://dataclient.io/docs/api/Snapshot#getError */
     getError: <E extends Pick<EndpointInterface, 'key'>, Args extends readonly [...Parameters<E['key']>]>(endpoint: E, ...args: Args) => ErrorTypes | undefined;
     /**
@@ -210,6 +216,14 @@ interface SnapshotInterface {
      * @see https://dataclient.io/docs/api/Snapshot#get
      */
     get<S extends Queryable>(schema: S, ...args: readonly any[]): any;
+    /**
+     * Queries the store for a Querable schema; providing related metadata
+     * @see https://dataclient.io/docs/api/Snapshot#getQueryMeta
+     */
+    getQueryMeta<S extends Queryable>(schema: S, ...args: readonly any[]): {
+        data: any;
+        countRef: () => () => void;
+    };
     readonly fetchedAt: number;
     readonly abort: Error;
 }
@@ -243,52 +257,13 @@ type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Pr
 
 declare const INVALID: unique symbol;
 
+declare class AbortOptimistic extends Error {
+}
+
 type ResultEntry<E extends EndpointInterface> = E['schema'] extends undefined | null ? ResolveType<E> : Normalize<E['schema']>;
 type EndpointUpdateFunction<Source extends EndpointInterface, Updaters extends Record<string, any> = Record<string, any>> = (source: ResultEntry<Source>, ...args: any) => {
     [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K];
 };
-
-declare class GCPolicy implements GCInterface {
-    protected endpointCount: Map<string, number>;
-    protected entityCount: Map<string, Map<string, number>>;
-    protected endpointsQ: Set<string>;
-    protected entitiesQ: EntityPath[];
-    protected intervalId: ReturnType<typeof setInterval>;
-    protected controller: Controller;
-    protected options: GCOptions;
-    constructor({ intervalMS }?: GCOptions);
-    init(controller: Controller): void;
-    cleanup(): void;
-    createCountRef({ key, paths }: {
-        key: string;
-        paths?: EntityPath[];
-    }): () => () => void;
-    protected runSweep(): void;
-    /** Calls the callback when client is not 'busy' with high priority interaction tasks
-     *
-     * Override for platform-specific implementations
-     */
-    protected idleCallback(callback: (...args: any[]) => void, options?: IdleRequestOptions): void;
-}
-declare class ImmortalGCPolicy implements GCInterface {
-    init(): void;
-    cleanup(): void;
-    createCountRef(): () => () => undefined;
-}
-interface GCOptions {
-    intervalMS?: number;
-}
-interface CreateCountRef {
-    ({ key, paths }: {
-        key: string;
-        paths?: EntityPath[];
-    }): () => () => void;
-}
-interface GCInterface {
-    createCountRef: CreateCountRef;
-    init(controller: Controller): void;
-    cleanup(): void;
-}
 
 declare const FETCH: "rdc/fetch";
 declare const SET: "rdc/set";
@@ -313,53 +288,30 @@ declare const INVALIDATEALL_TYPE: "rdc/invalidateall";
 declare const EXPIREALL_TYPE: "rdc/expireall";
 declare const GC_TYPE: "rdc/gc";
 
+declare const actionTypes_d_EXPIREALL: typeof EXPIREALL;
+declare const actionTypes_d_EXPIREALL_TYPE: typeof EXPIREALL_TYPE;
 declare const actionTypes_d_FETCH: typeof FETCH;
-declare const actionTypes_d_SET: typeof SET;
-declare const actionTypes_d_SET_RESPONSE: typeof SET_RESPONSE;
-declare const actionTypes_d_OPTIMISTIC: typeof OPTIMISTIC;
-declare const actionTypes_d_RESET: typeof RESET;
-declare const actionTypes_d_SUBSCRIBE: typeof SUBSCRIBE;
-declare const actionTypes_d_UNSUBSCRIBE: typeof UNSUBSCRIBE;
+declare const actionTypes_d_FETCH_TYPE: typeof FETCH_TYPE;
+declare const actionTypes_d_GC: typeof GC;
+declare const actionTypes_d_GC_TYPE: typeof GC_TYPE;
 declare const actionTypes_d_INVALIDATE: typeof INVALIDATE;
 declare const actionTypes_d_INVALIDATEALL: typeof INVALIDATEALL;
-declare const actionTypes_d_EXPIREALL: typeof EXPIREALL;
-declare const actionTypes_d_GC: typeof GC;
-declare const actionTypes_d_FETCH_TYPE: typeof FETCH_TYPE;
-declare const actionTypes_d_SET_TYPE: typeof SET_TYPE;
-declare const actionTypes_d_SET_RESPONSE_TYPE: typeof SET_RESPONSE_TYPE;
-declare const actionTypes_d_OPTIMISTIC_TYPE: typeof OPTIMISTIC_TYPE;
-declare const actionTypes_d_RESET_TYPE: typeof RESET_TYPE;
-declare const actionTypes_d_SUBSCRIBE_TYPE: typeof SUBSCRIBE_TYPE;
-declare const actionTypes_d_UNSUBSCRIBE_TYPE: typeof UNSUBSCRIBE_TYPE;
-declare const actionTypes_d_INVALIDATE_TYPE: typeof INVALIDATE_TYPE;
 declare const actionTypes_d_INVALIDATEALL_TYPE: typeof INVALIDATEALL_TYPE;
-declare const actionTypes_d_EXPIREALL_TYPE: typeof EXPIREALL_TYPE;
-declare const actionTypes_d_GC_TYPE: typeof GC_TYPE;
+declare const actionTypes_d_INVALIDATE_TYPE: typeof INVALIDATE_TYPE;
+declare const actionTypes_d_OPTIMISTIC: typeof OPTIMISTIC;
+declare const actionTypes_d_OPTIMISTIC_TYPE: typeof OPTIMISTIC_TYPE;
+declare const actionTypes_d_RESET: typeof RESET;
+declare const actionTypes_d_RESET_TYPE: typeof RESET_TYPE;
+declare const actionTypes_d_SET: typeof SET;
+declare const actionTypes_d_SET_RESPONSE: typeof SET_RESPONSE;
+declare const actionTypes_d_SET_RESPONSE_TYPE: typeof SET_RESPONSE_TYPE;
+declare const actionTypes_d_SET_TYPE: typeof SET_TYPE;
+declare const actionTypes_d_SUBSCRIBE: typeof SUBSCRIBE;
+declare const actionTypes_d_SUBSCRIBE_TYPE: typeof SUBSCRIBE_TYPE;
+declare const actionTypes_d_UNSUBSCRIBE: typeof UNSUBSCRIBE;
+declare const actionTypes_d_UNSUBSCRIBE_TYPE: typeof UNSUBSCRIBE_TYPE;
 declare namespace actionTypes_d {
-  export {
-    actionTypes_d_FETCH as FETCH,
-    actionTypes_d_SET as SET,
-    actionTypes_d_SET_RESPONSE as SET_RESPONSE,
-    actionTypes_d_OPTIMISTIC as OPTIMISTIC,
-    actionTypes_d_RESET as RESET,
-    actionTypes_d_SUBSCRIBE as SUBSCRIBE,
-    actionTypes_d_UNSUBSCRIBE as UNSUBSCRIBE,
-    actionTypes_d_INVALIDATE as INVALIDATE,
-    actionTypes_d_INVALIDATEALL as INVALIDATEALL,
-    actionTypes_d_EXPIREALL as EXPIREALL,
-    actionTypes_d_GC as GC,
-    actionTypes_d_FETCH_TYPE as FETCH_TYPE,
-    actionTypes_d_SET_TYPE as SET_TYPE,
-    actionTypes_d_SET_RESPONSE_TYPE as SET_RESPONSE_TYPE,
-    actionTypes_d_OPTIMISTIC_TYPE as OPTIMISTIC_TYPE,
-    actionTypes_d_RESET_TYPE as RESET_TYPE,
-    actionTypes_d_SUBSCRIBE_TYPE as SUBSCRIBE_TYPE,
-    actionTypes_d_UNSUBSCRIBE_TYPE as UNSUBSCRIBE_TYPE,
-    actionTypes_d_INVALIDATE_TYPE as INVALIDATE_TYPE,
-    actionTypes_d_INVALIDATEALL_TYPE as INVALIDATEALL_TYPE,
-    actionTypes_d_EXPIREALL_TYPE as EXPIREALL_TYPE,
-    actionTypes_d_GC_TYPE as GC_TYPE,
-  };
+  export { actionTypes_d_EXPIREALL as EXPIREALL, actionTypes_d_EXPIREALL_TYPE as EXPIREALL_TYPE, actionTypes_d_FETCH as FETCH, actionTypes_d_FETCH_TYPE as FETCH_TYPE, actionTypes_d_GC as GC, actionTypes_d_GC_TYPE as GC_TYPE, actionTypes_d_INVALIDATE as INVALIDATE, actionTypes_d_INVALIDATEALL as INVALIDATEALL, actionTypes_d_INVALIDATEALL_TYPE as INVALIDATEALL_TYPE, actionTypes_d_INVALIDATE_TYPE as INVALIDATE_TYPE, actionTypes_d_OPTIMISTIC as OPTIMISTIC, actionTypes_d_OPTIMISTIC_TYPE as OPTIMISTIC_TYPE, actionTypes_d_RESET as RESET, actionTypes_d_RESET_TYPE as RESET_TYPE, actionTypes_d_SET as SET, actionTypes_d_SET_RESPONSE as SET_RESPONSE, actionTypes_d_SET_RESPONSE_TYPE as SET_RESPONSE_TYPE, actionTypes_d_SET_TYPE as SET_TYPE, actionTypes_d_SUBSCRIBE as SUBSCRIBE, actionTypes_d_SUBSCRIBE_TYPE as SUBSCRIBE_TYPE, actionTypes_d_UNSUBSCRIBE as UNSUBSCRIBE, actionTypes_d_UNSUBSCRIBE_TYPE as UNSUBSCRIBE_TYPE };
 }
 
 type EndpointAndUpdate<E extends EndpointInterface> = EndpointInterface & {
@@ -486,6 +438,7 @@ interface State<T> {
     readonly meta: {
         readonly [key: string]: {
             readonly date: number;
+            readonly fetchedAt: number;
             readonly expiresAt: number;
             readonly prevExpiresAt?: number;
             readonly error?: ErrorTypes;
@@ -522,9 +475,73 @@ interface Manager<Actions = ActionTypes> {
     init?: (state: State<any>) => void;
 }
 
+declare function applyManager(managers: Manager[], controller: Controller): ReduxMiddleware[];
+interface ReduxMiddlewareAPI<R extends Reducer<any, any> = Reducer<any, any>> {
+    getState: () => ReducerState<R>;
+    dispatch: ReactDispatch<R>;
+}
+type ReduxMiddleware = <R extends Reducer<any, any>>({ dispatch, }: ReduxMiddlewareAPI<R>) => (next: ReactDispatch<R>) => ReactDispatch<R>;
+type ReactDispatch<R extends Reducer<any, any>> = (action: ReducerAction<R>) => Promise<void>;
+type Reducer<S, A> = (prevState: S, action: A) => S;
+type ReducerState<R extends Reducer<any, any>> = R extends Reducer<infer S, any> ? S : never;
+type ReducerAction<R extends Reducer<any, any>> = R extends Reducer<any, infer A> ? A : never;
+
+declare class GCPolicy implements GCInterface {
+    protected endpointCount: Map<string, number>;
+    protected entityCount: Map<string, Map<string, number>>;
+    protected endpointsQ: Set<string>;
+    protected entitiesQ: EntityPath[];
+    protected intervalId: ReturnType<typeof setInterval>;
+    protected controller: Controller;
+    protected options: Required<Omit<GCOptions, 'expiresAt'>>;
+    constructor({ intervalMS, expiryMultiplier, expiresAt, }?: GCOptions);
+    init(controller: Controller): void;
+    cleanup(): void;
+    createCountRef({ key, paths }: {
+        key?: string;
+        paths?: EntityPath[];
+    }): () => () => void;
+    protected expiresAt({ fetchedAt, expiresAt, }: {
+        expiresAt: number;
+        date: number;
+        fetchedAt: number;
+    }): number;
+    protected runSweep(): void;
+    /** Calls the callback when client is not 'busy' with high priority interaction tasks
+     *
+     * Override for platform-specific implementations
+     */
+    protected idleCallback(callback: (...args: any[]) => void, options?: IdleRequestOptions): void;
+}
+declare class ImmortalGCPolicy implements GCInterface {
+    init(): void;
+    cleanup(): void;
+    createCountRef(): () => () => undefined;
+}
+interface GCOptions {
+    intervalMS?: number;
+    expiryMultiplier?: number;
+    expiresAt?: (meta: {
+        expiresAt: number;
+        date: number;
+        fetchedAt: number;
+    }) => number;
+}
+interface CreateCountRef {
+    ({ key, paths }: {
+        key?: string;
+        paths?: EntityPath[];
+    }): () => () => void;
+}
+interface GCInterface {
+    createCountRef: CreateCountRef;
+    init(controller: Controller): void;
+    cleanup(): void;
+}
+
 type GenericDispatch = (value: any) => Promise<void>;
 type DataClientDispatch = (value: ActionTypes) => Promise<void>;
-interface ConstructorProps<D extends GenericDispatch = DataClientDispatch> {
+interface ControllerConstructorProps<D extends GenericDispatch = DataClientDispatch> {
     dispatch?: D;
     getState?: () => State<unknown>;
     memo?: Pick<MemoCache, 'denormalize' | 'query' | 'buildQueryKey'>;
@@ -540,7 +557,7 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      *
      * @see https://dataclient.io/docs/api/Controller#dispatch
      */
-    readonly dispatch: D;
+    protected _dispatch: D;
     /**
      * Gets the latest state snapshot that is fully committed.
      *
@@ -548,7 +565,7 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      * This should *not* be used to render; instead useSuspense() or useCache()
      * @see https://dataclient.io/docs/api/Controller#getState
      */
-    readonly getState: () => State<unknown>;
+    getState: () => State<unknown>;
     /**
      * Singleton to maintain referential equality between calls
      */
@@ -557,7 +574,13 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      * Handles garbage collection
      */
     readonly gcPolicy: GCInterface;
-    constructor({ dispatch, getState, memo, gcPolicy, }?: ConstructorProps<D>);
+    constructor({ dispatch, getState, memo, gcPolicy, }?: ControllerConstructorProps<D>);
+    set dispatch(dispatch: D);
+    get dispatch(): D;
+    bindMiddleware({ dispatch, getState, }: {
+        dispatch: D;
+        getState: ReduxMiddlewareAPI['getState'];
+    }): void;
     /*************** Action Dispatchers ***************/
     /**
      * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
@@ -565,14 +588,14 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      */
     fetch: <E extends EndpointInterface & {
         update?: EndpointUpdateFunction<E>;
-    }>(endpoint: E, ...args: Parameters<E>) => E["schema"] extends undefined | null ? ReturnType<E> : Promise<Denormalize<E["schema"]>>;
+    }>(endpoint: E, ...args: readonly [...Parameters<E>]) => E["schema"] extends undefined | null ? ReturnType<E> : Promise<Denormalize<E["schema"]>>;
     /**
      * Fetches only if endpoint is considered 'stale'; otherwise returns undefined
      * @see https://dataclient.io/docs/api/Controller#fetchIfStale
      */
     fetchIfStale: <E extends EndpointInterface & {
         update?: EndpointUpdateFunction<E>;
-    }>(endpoint: E, ...args: Parameters<E>) => E["schema"] extends undefined | null ? ReturnType<E> | ResolveType<E> : Promise<Denormalize<E["schema"]>> | Denormalize<E["schema"]>;
+    }>(endpoint: E, ...args: readonly [...Parameters<E>]) => E["schema"] extends undefined | null ? ReturnType<E> | ResolveType<E> : Promise<Denormalize<E["schema"]>> | Denormalize<E["schema"]>;
     /**
      * Forces refetching and suspense on useSuspense with the same Endpoint and parameters.
      * @see https://dataclient.io/docs/api/Controller#invalidate
@@ -651,7 +674,7 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      * Gets a snapshot (https://dataclient.io/docs/api/Snapshot)
      * @see https://dataclient.io/docs/api/Controller#snapshot
      */
-    snapshot: (state: State<unknown>, fetchedAt?: number) => SnapshotInterface;
+    snapshot: (state: State<unknown>, fetchedAt?: number) => Snapshot<unknown>;
     /**
      * Gets the error, if any, for a given endpoint. Returns undefined for no errors.
      * @see https://dataclient.io/docs/api/Controller#getError
@@ -678,6 +701,25 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
         countRef: () => () => void;
     };
     /**
+     * Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
+     * @see https://dataclient.io/docs/api/Controller#getResponseMeta
+     */
+    getResponseMeta<E extends EndpointInterface>(endpoint: E, ...rest: readonly [null, State<unknown>] | readonly [...Parameters<E>, State<unknown>]): {
+        data: DenormalizeNullable<E['schema']>;
+        expiryStatus: ExpiryStatus;
+        expiresAt: number;
+        countRef: () => () => void;
+    };
+    getResponseMeta<E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>>(endpoint: E, ...rest: readonly [
+        ...(readonly [...Parameters<E['key']>] | readonly [null]),
+        State<unknown>
+    ]): {
+        data: DenormalizeNullable<E['schema']>;
+        expiryStatus: ExpiryStatus;
+        expiresAt: number;
+        countRef: () => () => void;
+    };
+    /**
      * Queries the store for a Querable schema
      * @see https://dataclient.io/docs/api/Controller#get
      */
@@ -685,7 +727,76 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
         ...SchemaArgs<S>,
         Pick<State<unknown>, 'entities' | 'entityMeta'>
     ]): DenormalizeNullable<S> | undefined;
+    /**
+     * Queries the store for a Querable schema; providing related metadata
+     * @see https://dataclient.io/docs/api/Controller#getQueryMeta
+     */
+    getQueryMeta<S extends Queryable>(schema: S, ...rest: readonly [
+        ...SchemaArgs<S>,
+        Pick<State<unknown>, 'entities' | 'entityMeta'>
+    ]): {
+        data: DenormalizeNullable<S> | undefined;
+        countRef: () => () => void;
+    };
     private getSchemaResponse;
+}
+
+declare class Snapshot<T = unknown> implements SnapshotInterface {
+    static readonly abort: AbortOptimistic;
+    private state;
+    private controller;
+    readonly fetchedAt: number;
+    readonly abort: AbortOptimistic;
+    constructor(controller: Controller, state: State<T>, fetchedAt?: number);
+    /*************** Data Access ***************/
+    /** @see https://dataclient.io/docs/api/Snapshot#getResponse */
+    getResponse<E extends EndpointInterface>(endpoint: E, ...args: readonly [null]): {
+        data: DenormalizeNullable<E['schema']>;
+        expiryStatus: ExpiryStatus;
+        expiresAt: number;
+    };
+    getResponse<E extends EndpointInterface>(endpoint: E, ...args: readonly [...Parameters<E>]): {
+        data: DenormalizeNullable<E['schema']>;
+        expiryStatus: ExpiryStatus;
+        expiresAt: number;
+    };
+    getResponse<E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>>(endpoint: E, ...args: readonly [...Parameters<E['key']>] | readonly [null]): {
+        data: DenormalizeNullable<E['schema']>;
+        expiryStatus: ExpiryStatus;
+        expiresAt: number;
+    };
+    /** @see https://dataclient.io/docs/api/Snapshot#getResponseMeta */
+    getResponseMeta<E extends EndpointInterface>(endpoint: E, ...args: readonly [null]): {
+        data: DenormalizeNullable<E['schema']>;
+        expiryStatus: ExpiryStatus;
+        expiresAt: number;
+    };
+    getResponseMeta<E extends EndpointInterface>(endpoint: E, ...args: readonly [...Parameters<E>]): {
+        data: DenormalizeNullable<E['schema']>;
+        expiryStatus: ExpiryStatus;
+        expiresAt: number;
+    };
+    getResponseMeta<E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>>(endpoint: E, ...args: readonly [...Parameters<E['key']>] | readonly [null]): {
+        data: DenormalizeNullable<E['schema']>;
+        expiryStatus: ExpiryStatus;
+        expiresAt: number;
+    };
+    /** @see https://dataclient.io/docs/api/Snapshot#getError */
+    getError<E extends EndpointInterface>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): ErrorTypes | undefined;
+    getError<E extends Pick<EndpointInterface, 'key'>>(endpoint: E, ...args: readonly [...Parameters<E['key']>] | readonly [null]): ErrorTypes | undefined;
+    /**
+     * Retrieved memoized value for any Querable schema
+     * @see https://dataclient.io/docs/api/Snapshot#get
+     */
+    get<S extends Queryable>(schema: S, ...args: SchemaArgs<S>): DenormalizeNullable<S> | undefined;
+    /**
+     * Queries the store for a Querable schema; providing related metadata
+     * @see https://dataclient.io/docs/api/Snapshot#getQueryMeta
+     */
+    getQueryMeta<S extends Queryable>(schema: S, ...args: SchemaArgs<S>): {
+        data: DenormalizeNullable<S> | undefined;
+        countRef: () => () => void;
+    };
 }
 
 declare function createReducer(controller: Controller): ReducerType;
@@ -694,16 +805,12 @@ type ReducerType = (state: State<unknown> | undefined, action: ActionTypes) => S
 
 //# sourceMappingURL=internal.d.ts.map
 
+declare const internal_d_INVALID: typeof INVALID;
 type internal_d_MemoCache = MemoCache;
 declare const internal_d_MemoCache: typeof MemoCache;
-declare const internal_d_INVALID: typeof INVALID;
 declare const internal_d_initialState: typeof initialState;
 declare namespace internal_d {
-  export {
-    internal_d_MemoCache as MemoCache,
-    internal_d_INVALID as INVALID,
-    internal_d_initialState as initialState,
-  };
+  export { internal_d_INVALID as INVALID, internal_d_MemoCache as MemoCache, internal_d_initialState as initialState };
 }
 
 declare class ResetError extends Error {
@@ -785,17 +892,6 @@ declare class NetworkManager implements Manager {
     protected idleCallback(callback: (...args: any[]) => void, options?: IdleRequestOptions): void;
 }
 
-declare function applyManager(managers: Manager[], controller: Controller): ReduxMiddleware[];
-interface ReduxMiddlewareAPI<R extends Reducer<any, any> = Reducer<any, any>> {
-    getState: () => ReducerState<R>;
-    dispatch: ReactDispatch<R>;
-}
-type ReduxMiddleware = <R extends Reducer<any, any>>({ dispatch, }: ReduxMiddlewareAPI<R>) => (next: ReactDispatch<R>) => ReactDispatch<R>;
-type ReactDispatch<R extends Reducer<any, any>> = (action: ReducerAction<R>) => Promise<void>;
-type Reducer<S, A> = (prevState: S, action: A) => S;
-type ReducerState<R extends Reducer<any, any>> = R extends Reducer<infer S, any> ? S : never;
-type ReducerAction<R extends Reducer<any, any>> = R extends Reducer<any, infer A> ? A : never;
-
 declare function initManager(managers: Manager[], controller: Controller, initialState: State<unknown>): () => () => void;
 
 declare function createSubscription<E extends EndpointInterface>(endpoint: E, { args }: {
@@ -855,31 +951,19 @@ declare function createExpireAll(testKey: (key: string) => boolean): ExpireAllAc
 
 //# sourceMappingURL=index.d.ts.map
 
+declare const index_d_createExpireAll: typeof createExpireAll;
+declare const index_d_createFetch: typeof createFetch;
+declare const index_d_createInvalidate: typeof createInvalidate;
+declare const index_d_createInvalidateAll: typeof createInvalidateAll;
+declare const index_d_createMeta: typeof createMeta;
+declare const index_d_createOptimistic: typeof createOptimistic;
+declare const index_d_createReset: typeof createReset;
+declare const index_d_createSet: typeof createSet;
+declare const index_d_createSetResponse: typeof createSetResponse;
 declare const index_d_createSubscription: typeof createSubscription;
 declare const index_d_createUnsubscription: typeof createUnsubscription;
-declare const index_d_createSetResponse: typeof createSetResponse;
-declare const index_d_createSet: typeof createSet;
-declare const index_d_createReset: typeof createReset;
-declare const index_d_createOptimistic: typeof createOptimistic;
-declare const index_d_createMeta: typeof createMeta;
-declare const index_d_createInvalidateAll: typeof createInvalidateAll;
-declare const index_d_createInvalidate: typeof createInvalidate;
-declare const index_d_createFetch: typeof createFetch;
-declare const index_d_createExpireAll: typeof createExpireAll;
 declare namespace index_d {
-  export {
-    index_d_createSubscription as createSubscription,
-    index_d_createUnsubscription as createUnsubscription,
-    index_d_createSetResponse as createSetResponse,
-    index_d_createSet as createSet,
-    index_d_createReset as createReset,
-    index_d_createOptimistic as createOptimistic,
-    index_d_createMeta as createMeta,
-    index_d_createInvalidateAll as createInvalidateAll,
-    index_d_createInvalidate as createInvalidate,
-    index_d_createFetch as createFetch,
-    index_d_createExpireAll as createExpireAll,
-  };
+  export { index_d_createExpireAll as createExpireAll, index_d_createFetch as createFetch, index_d_createInvalidate as createInvalidate, index_d_createInvalidateAll as createInvalidateAll, index_d_createMeta as createMeta, index_d_createOptimistic as createOptimistic, index_d_createReset as createReset, index_d_createSet as createSet, index_d_createSetResponse as createSetResponse, index_d_createSubscription as createSubscription, index_d_createUnsubscription as createUnsubscription };
 }
 
 interface ConnectionListener {
@@ -1215,4 +1299,4 @@ interface Props {
     shouldLogout?: (error: UnknownError) => boolean;
 }
 
-export { AbstractInstanceType, ActionMeta, ActionTypes, ConnectionListener, Controller, CreateCountRef, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityInterface, ErrorTypes, ExpireAllAction, ExpiryStatus, FetchAction, FetchFunction, FetchMeta, GCAction, GCInterface, GCOptions, GCPolicy, GenericDispatch, ImmortalGCPolicy, InvalidateAction, InvalidateAllAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NI, NetworkError, NetworkManager, Normalize, NormalizeNullable, OptimisticAction, PK, PollingSubscription, Queryable, ResetAction, ResetError, ResolveType, ResultEntry, Schema, SchemaArgs, SchemaClass, SetAction, SetResponseAction, SetResponseActionBase, SetResponseActionError, SetResponseActionSuccess, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, index_d as actions, applyManager, createReducer, initManager, initialState };
+export { type AbstractInstanceType, type ActionMeta, type ActionTypes, type ConnectionListener, Controller, type CreateCountRef, type DataClientDispatch, DefaultConnectionListener, type Denormalize, type DenormalizeNullable, type DevToolsConfig, DevToolsManager, type Dispatch, type EndpointExtraOptions, type EndpointInterface, type EndpointUpdateFunction, type EntityInterface, type ErrorTypes, type ExpireAllAction, ExpiryStatus, type FetchAction, type FetchFunction, type FetchMeta, type GCAction, type GCInterface, type GCOptions, GCPolicy, type GenericDispatch, ImmortalGCPolicy, type InvalidateAction, type InvalidateAllAction, LogoutManager, type Manager, type Middleware, type MiddlewareAPI, type NI, type NetworkError, NetworkManager, type Normalize, type NormalizeNullable, type OptimisticAction, type PK, PollingSubscription, type Queryable, type ResetAction, ResetError, type ResolveType, type ResultEntry, type Schema, type SchemaArgs, type SchemaClass, type SetAction, type SetResponseAction, type SetResponseActionBase, type SetResponseActionError, type SetResponseActionSuccess, type State, type SubscribeAction, SubscriptionManager, type UnknownError, type UnsubscribeAction, type UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, index_d as actions, applyManager, createReducer, initManager, initialState };
