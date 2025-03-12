@@ -15,7 +15,7 @@
   "dependencies": {
     "@anansi/babel-preset": "^6.1.6",
     "@babel/core": "^7.24.7",
-    "@babel/runtime-corejs3": "^7.26.7",
+    "@babel/runtime-corejs3": "^7.26.10",
     "@data-client/react": "^0.14.0",
     "@data-client/rest": "^0.14.0",
     "@number-flow/react": "^0.5.0",
