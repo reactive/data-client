@@ -1,5 +1,41 @@
 # @data-client/graphql
 
+## 0.14.25
+
+### Patch Changes
+
+- [#3417](https://github.com/reactive/data-client/pull/3417) [`a6af54c`](https://github.com/reactive/data-client/commit/a6af54c1bc2193de47c96938df74b243cb82bfe6) Thanks [@ntucker](https://github.com/ntucker)! - Update getOptimisticResponse snapshot types to include getResponseMeta
+
+- [#3407](https://github.com/reactive/data-client/pull/3407) [`d84899d`](https://github.com/reactive/data-client/commit/d84899de4fb784375ab7a34fff6fe23a2ed98037) Thanks [@ntucker](https://github.com/ntucker)! - Support dynamic invalidation/deletes
+
+  Returning `undefined` from [Entity.process](https://dataclient.io/rest/api/Entity#process)
+  will cause the [Entity](https://dataclient.io/rest/api/Entity) to be [invalidated](https://dataclient.io/docs/concepts/expiry-policy#invalidate-entity).
+  This this allows us to invalidate dynamically; based on the particular response data.
+
+  ```ts
+  class PriceLevel extends Entity {
+    price = 0;
+    amount = 0;
+
+    pk() {
+      return this.price;
+    }
+
+    static process(
+      input: [number, number],
+      parent: any,
+      key: string | undefined,
+    ): any {
+      const [price, amount] = input;
+      if (amount === 0) return undefined;
+      return { price, amount };
+    }
+  }
+  ```
+
+- Updated dependencies [[`a6af54c`](https://github.com/reactive/data-client/commit/a6af54c1bc2193de47c96938df74b243cb82bfe6), [`d84899d`](https://github.com/reactive/data-client/commit/d84899de4fb784375ab7a34fff6fe23a2ed98037)]:
+  - @data-client/endpoint@0.14.25
+
 ## 0.14.21
 
 ### Patch Changes
