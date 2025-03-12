@@ -660,3 +660,30 @@ render(<ShowTime />);
 [Controller.fetch()](../api/Controller.md#fetch) lets us update the server and store.
 We can use [Controller.setResponse()](../api/Controller.md#setResponse) for cases where we
 simply want to change the local store without updating the server.
+
+#### Conditional Invalidation based on data
+
+If `invalidation` should happen only sometimes, based on the response data, we can 
+return `undefined` from [Entity.process](/rest/api/Entity#process).
+
+```ts
+class PriceLevel extends Entity {
+  price = 0;
+  amount = 0;
+
+  pk() {
+    return this.price;
+  }
+
+  static process(
+    input: [number, number],
+    parent: any,
+    key: string | undefined,
+  ): any {
+    const [price, amount] = input;
+    // highlight-next-line
+    if (amount === 0) return undefined;
+    return { price, amount };
+  }
+}
+```

@@ -413,8 +413,8 @@ class Stream extends Entity {
 
 #### Dynamic Invalidation
 
-Returning `undefined` from [Entity.process](https://dataclient.io/rest/api/Entity#process)
-will cause the [Entity](https://dataclient.io/rest/api/Entity) to be [invalidated](https://dataclient.io/docs/concepts/expiry-policy#invalidate-entity).
+Returning `undefined` from [Entity.process](#process)
+will cause the `Entity` to be [invalidated](/docs/concepts/expiry-policy#invalidate-entity).
 This this allows us to invalidate dynamically; based on the particular response data.
 
 ```ts
