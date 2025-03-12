@@ -36,7 +36,7 @@ const queryInfer = queryMemo.buildQueryKey(
 
 let githubState = normalize(User, userData);
 
-const date = Date.now()
+const date = Date.now();
 const actionMeta = {
   fetchedAt: date,
   date,
@@ -55,8 +55,10 @@ export default function addNormlizrSuite(suite) {
   let curState = initialState;
   return suite
     .add('normalizeLong', () => {
-      normalize(ProjectSchema, data, [], curState, actionMeta);
-      curState = { ...initialState, entities: {}, endpoints: {} };
+      normalize(ProjectSchema, data, [], initialState, actionMeta);
+    })
+    .add('normalizeLong with merge', () => {
+      curState = normalize(ProjectSchema, data, [], curState, actionMeta);
     })
     .add('infer All', () => {
       return new MemoCache().buildQueryKey(
