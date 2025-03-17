@@ -221,9 +221,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/babel-preset@npm:6.2.2":
-  version: 6.2.2
-  resolution: "@anansi/babel-preset@npm:6.2.2"
+"@anansi/babel-preset@npm:6.2.3":
+  version: 6.2.3
+  resolution: "@anansi/babel-preset@npm:6.2.3"
   dependencies:
     "@anansi/ts-utils": "npm:^0.3.7"
     "@babel/plugin-proposal-decorators": "npm:^7.25.9"
@@ -240,7 +240,7 @@ __metadata:
     babel-plugin-macros: "npm:^3.1.0"
     babel-plugin-module-resolver: "npm:^5.0.2"
     babel-plugin-polyfill-corejs3: "npm:^0.11.1"
-    babel-plugin-react-compiler: "npm:19.0.0-beta-e1e972c-20250221"
+    babel-plugin-react-compiler: "npm:19.0.0-beta-3229e95-20250315"
     babel-plugin-root-import: "npm:^6.6.0"
     babel-plugin-transform-import-meta: "npm:^2.3.2"
     babel-plugin-transform-react-remove-prop-types: "npm:^0.4.24"
@@ -280,7 +280,7 @@ __metadata:
       optional: true
     typescript:
       optional: true
-  checksum: 10c0/95485518ceec48e4fc4e7f9bdc59f81c761ec0ed28d6d2d99b6007d07309b7f4f14cb9b51b274acc3d00b2dabdebe666b4834b569da34346eae1ed3ab4f2ecb1
+  checksum: 10c0/57e7b63cdc93e52cf92fa3ce92f65ccaa03873ca9976182094df684270f9f0630c743052384fbc0f6bf71ee1dda1ee1920501dd9f77703d2e7ef8fbb88e03c2a
   languageName: node
   linkType: hard
 
@@ -478,9 +478,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:21.0.0, @anansi/webpack-config@npm:^21.0.0":
-  version: 21.0.0
-  resolution: "@anansi/webpack-config@npm:21.0.0"
+"@anansi/webpack-config@npm:21.0.1, @anansi/webpack-config@npm:^21.0.0":
+  version: 21.0.1
+  resolution: "@anansi/webpack-config@npm:21.0.1"
   dependencies:
     "@babel/runtime-corejs3": "npm:^7.26.0"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.15"
@@ -488,7 +488,7 @@ __metadata:
     "@types/sass-loader": "npm:^8.0.9"
     "@types/webpack-bundle-analyzer": "npm:^4.7.0"
     "@vue/preload-webpack-plugin": "npm:^2.0.0"
-    "@wyw-in-js/webpack-loader": "npm:^0.5.5"
+    "@wyw-in-js/webpack-loader": "npm:^0.6.0"
     assert: "npm:^2.1.0"
     autoprefixer: "npm:^10.4.21"
     babel-loader: "npm:^10.0.0"
@@ -581,7 +581,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: 10c0/ab198ae08f32f60c45edc1cde45e7fcc3c1b8620c220c97f587ff291b1b38f4e8a67c7bbbfb227ad252a450822a870192ab54295d4e92b5bf043c77d0c032253
+  checksum: 10c0/4aa1a61ec1281c15e0b9880420890cfcb95ac6a20ad354fb8f88bf6749921c8260ace7374680503bb5f67f405d7d0b569ca7b60ccead61105c8c55d568597c19
   languageName: node
   linkType: hard
 
@@ -2248,7 +2248,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/types@npm:^7.0.0, @babel/types@npm:^7.19.0, @babel/types@npm:^7.20.7, @babel/types@npm:^7.21.3, @babel/types@npm:^7.22.15, @babel/types@npm:^7.23.5, @babel/types@npm:^7.25.2, @babel/types@npm:^7.25.9, @babel/types@npm:^7.26.10, @babel/types@npm:^7.26.9, @babel/types@npm:^7.3.0, @babel/types@npm:^7.3.3, @babel/types@npm:^7.4.4":
+"@babel/types@npm:^7.0.0, @babel/types@npm:^7.20.7, @babel/types@npm:^7.21.3, @babel/types@npm:^7.22.15, @babel/types@npm:^7.23.5, @babel/types@npm:^7.25.2, @babel/types@npm:^7.25.9, @babel/types@npm:^7.26.0, @babel/types@npm:^7.26.10, @babel/types@npm:^7.26.9, @babel/types@npm:^7.3.0, @babel/types@npm:^7.3.3, @babel/types@npm:^7.4.4":
   version: 7.26.10
   resolution: "@babel/types@npm:7.26.10"
   dependencies:
@@ -4797,12 +4797,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@linaria/core@npm:*, @linaria/core@npm:^6.2.0":
-  version: 6.2.0
-  resolution: "@linaria/core@npm:6.2.0"
+"@linaria/core@npm:*, @linaria/core@npm:^6.3.0":
+  version: 6.3.0
+  resolution: "@linaria/core@npm:6.3.0"
   dependencies:
-    "@wyw-in-js/processor-utils": "npm:^0.5.3"
-  checksum: 10c0/4eb6083c0988f19aa3721e34bf14093dab8a0c6a784237ae4276a0b4e68bb82e91c594d7dd1d12173aaa2b38400a6bf5e0bd8b961a9ae05cdba854e2c566a134
+    "@wyw-in-js/processor-utils": "npm:^0.6.0"
+  checksum: 10c0/4a3c7a1b3ae486e27540bcafe377498c22770e4e2914084b495a6aae65b77611308505d11108d3d999bfd9e40e443f6deb3120dbabbdaa8fc922de1db320b515
   languageName: node
   linkType: hard
 
@@ -4828,20 +4828,20 @@ __metadata:
   linkType: hard
 
 "@linaria/react@npm:*":
-  version: 6.2.1
-  resolution: "@linaria/react@npm:6.2.1"
+  version: 6.3.0
+  resolution: "@linaria/react@npm:6.3.0"
   dependencies:
     "@emotion/is-prop-valid": "npm:^1.2.0"
-    "@linaria/core": "npm:^6.2.0"
-    "@wyw-in-js/processor-utils": "npm:^0.5.3"
-    "@wyw-in-js/shared": "npm:^0.5.3"
+    "@linaria/core": "npm:^6.3.0"
+    "@wyw-in-js/processor-utils": "npm:^0.6.0"
+    "@wyw-in-js/shared": "npm:^0.6.0"
     minimatch: "npm:^9.0.3"
     react-html-attributes: "npm:^1.4.6"
     resolve: "npm:^1.22.8"
     ts-invariant: "npm:^0.10.3"
   peerDependencies:
     react: ">=16"
-  checksum: 10c0/102480195bc6e5f41cf3da4c7181640cf617256fcdd48847238cdc7def30536f132f29f35530bd261cbf5580a87981f5a6f7717e791b73cc309552141a10d256
+  checksum: 10c0/e5a0aed9b7a7df78f6a3293a7de92d808eef196fb04c895a66197bb86f4e1b5ed69d94656a8b4cc472449fa92e67554cfb62754119e688f369b270cc58f366a0
   languageName: node
   linkType: hard
 
@@ -6023,135 +6023,135 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rollup/rollup-android-arm-eabi@npm:4.35.0":
-  version: 4.35.0
-  resolution: "@rollup/rollup-android-arm-eabi@npm:4.35.0"
+"@rollup/rollup-android-arm-eabi@npm:4.36.0":
+  version: 4.36.0
+  resolution: "@rollup/rollup-android-arm-eabi@npm:4.36.0"
   conditions: os=android & cpu=arm
   languageName: node
   linkType: hard
 
-"@rollup/rollup-android-arm64@npm:4.35.0":
-  version: 4.35.0
-  resolution: "@rollup/rollup-android-arm64@npm:4.35.0"
+"@rollup/rollup-android-arm64@npm:4.36.0":
+  version: 4.36.0
+  resolution: "@rollup/rollup-android-arm64@npm:4.36.0"
   conditions: os=android & cpu=arm64
   languageName: node
   linkType: hard
 
-"@rollup/rollup-darwin-arm64@npm:4.35.0":
-  version: 4.35.0
-  resolution: "@rollup/rollup-darwin-arm64@npm:4.35.0"
+"@rollup/rollup-darwin-arm64@npm:4.36.0":
+  version: 4.36.0
+  resolution: "@rollup/rollup-darwin-arm64@npm:4.36.0"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@rollup/rollup-darwin-x64@npm:4.35.0":
-  version: 4.35.0
-  resolution: "@rollup/rollup-darwin-x64@npm:4.35.0"
+"@rollup/rollup-darwin-x64@npm:4.36.0":
+  version: 4.36.0
+  resolution: "@rollup/rollup-darwin-x64@npm:4.36.0"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@rollup/rollup-freebsd-arm64@npm:4.35.0":
-  version: 4.35.0
-  resolution: "@rollup/rollup-freebsd-arm64@npm:4.35.0"
+"@rollup/rollup-freebsd-arm64@npm:4.36.0":
+  version: 4.36.0
+  resolution: "@rollup/rollup-freebsd-arm64@npm:4.36.0"
   conditions: os=freebsd & cpu=arm64
   languageName: node
   linkType: hard
 
-"@rollup/rollup-freebsd-x64@npm:4.35.0":
-  version: 4.35.0
-  resolution: "@rollup/rollup-freebsd-x64@npm:4.35.0"
+"@rollup/rollup-freebsd-x64@npm:4.36.0":
+  version: 4.36.0
+  resolution: "@rollup/rollup-freebsd-x64@npm:4.36.0"
   conditions: os=freebsd & cpu=x64
   languageName: node
   linkType: hard
 
-"@rollup/rollup-linux-arm-gnueabihf@npm:4.35.0":
-  version: 4.35.0
-  resolution: "@rollup/rollup-linux-arm-gnueabihf@npm:4.35.0"
+"@rollup/rollup-linux-arm-gnueabihf@npm:4.36.0":
+  version: 4.36.0
+  resolution: "@rollup/rollup-linux-arm-gnueabihf@npm:4.36.0"
   conditions: os=linux & cpu=arm & libc=glibc
   languageName: node
   linkType: hard
 
-"@rollup/rollup-linux-arm-musleabihf@npm:4.35.0":
-  version: 4.35.0
-  resolution: "@rollup/rollup-linux-arm-musleabihf@npm:4.35.0"
+"@rollup/rollup-linux-arm-musleabihf@npm:4.36.0":
+  version: 4.36.0
+  resolution: "@rollup/rollup-linux-arm-musleabihf@npm:4.36.0"
   conditions: os=linux & cpu=arm & libc=musl
   languageName: node
   linkType: hard
 
-"@rollup/rollup-linux-arm64-gnu@npm:4.35.0":
-  version: 4.35.0
-  resolution: "@rollup/rollup-linux-arm64-gnu@npm:4.35.0"
+"@rollup/rollup-linux-arm64-gnu@npm:4.36.0":
+  version: 4.36.0
+  resolution: "@rollup/rollup-linux-arm64-gnu@npm:4.36.0"
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@rollup/rollup-linux-arm64-musl@npm:4.35.0":
-  version: 4.35.0
-  resolution: "@rollup/rollup-linux-arm64-musl@npm:4.35.0"
+"@rollup/rollup-linux-arm64-musl@npm:4.36.0":
+  version: 4.36.0
+  resolution: "@rollup/rollup-linux-arm64-musl@npm:4.36.0"
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
 
-"@rollup/rollup-linux-loongarch64-gnu@npm:4.35.0":
-  version: 4.35.0
-  resolution: "@rollup/rollup-linux-loongarch64-gnu@npm:4.35.0"
+"@rollup/rollup-linux-loongarch64-gnu@npm:4.36.0":
+  version: 4.36.0
+  resolution: "@rollup/rollup-linux-loongarch64-gnu@npm:4.36.0"
   conditions: os=linux & cpu=loong64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@rollup/rollup-linux-powerpc64le-gnu@npm:4.35.0":
-  version: 4.35.0
-  resolution: "@rollup/rollup-linux-powerpc64le-gnu@npm:4.35.0"
+"@rollup/rollup-linux-powerpc64le-gnu@npm:4.36.0":
+  version: 4.36.0
+  resolution: "@rollup/rollup-linux-powerpc64le-gnu@npm:4.36.0"
   conditions: os=linux & cpu=ppc64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@rollup/rollup-linux-riscv64-gnu@npm:4.35.0":
-  version: 4.35.0
-  resolution: "@rollup/rollup-linux-riscv64-gnu@npm:4.35.0"
+"@rollup/rollup-linux-riscv64-gnu@npm:4.36.0":
+  version: 4.36.0
+  resolution: "@rollup/rollup-linux-riscv64-gnu@npm:4.36.0"
   conditions: os=linux & cpu=riscv64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@rollup/rollup-linux-s390x-gnu@npm:4.35.0":
-  version: 4.35.0
-  resolution: "@rollup/rollup-linux-s390x-gnu@npm:4.35.0"
+"@rollup/rollup-linux-s390x-gnu@npm:4.36.0":
+  version: 4.36.0
+  resolution: "@rollup/rollup-linux-s390x-gnu@npm:4.36.0"
   conditions: os=linux & cpu=s390x & libc=glibc
   languageName: node
   linkType: hard
 
-"@rollup/rollup-linux-x64-gnu@npm:4.35.0":
-  version: 4.35.0
-  resolution: "@rollup/rollup-linux-x64-gnu@npm:4.35.0"
+"@rollup/rollup-linux-x64-gnu@npm:4.36.0":
+  version: 4.36.0
+  resolution: "@rollup/rollup-linux-x64-gnu@npm:4.36.0"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@rollup/rollup-linux-x64-musl@npm:4.35.0":
-  version: 4.35.0
-  resolution: "@rollup/rollup-linux-x64-musl@npm:4.35.0"
+"@rollup/rollup-linux-x64-musl@npm:4.36.0":
+  version: 4.36.0
+  resolution: "@rollup/rollup-linux-x64-musl@npm:4.36.0"
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
 
-"@rollup/rollup-win32-arm64-msvc@npm:4.35.0":
-  version: 4.35.0
-  resolution: "@rollup/rollup-win32-arm64-msvc@npm:4.35.0"
+"@rollup/rollup-win32-arm64-msvc@npm:4.36.0":
+  version: 4.36.0
+  resolution: "@rollup/rollup-win32-arm64-msvc@npm:4.36.0"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@rollup/rollup-win32-ia32-msvc@npm:4.35.0":
-  version: 4.35.0
-  resolution: "@rollup/rollup-win32-ia32-msvc@npm:4.35.0"
+"@rollup/rollup-win32-ia32-msvc@npm:4.36.0":
+  version: 4.36.0
+  resolution: "@rollup/rollup-win32-ia32-msvc@npm:4.36.0"
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"@rollup/rollup-win32-x64-msvc@npm:4.35.0":
-  version: 4.35.0
-  resolution: "@rollup/rollup-win32-x64-msvc@npm:4.35.0"
+"@rollup/rollup-win32-x64-msvc@npm:4.36.0":
+  version: 4.36.0
+  resolution: "@rollup/rollup-win32-x64-msvc@npm:4.36.0"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
@@ -8186,30 +8186,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@wyw-in-js/processor-utils@npm:0.5.5, @wyw-in-js/processor-utils@npm:^0.5.3":
-  version: 0.5.5
-  resolution: "@wyw-in-js/processor-utils@npm:0.5.5"
+"@wyw-in-js/processor-utils@npm:0.6.0, @wyw-in-js/processor-utils@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "@wyw-in-js/processor-utils@npm:0.6.0"
   dependencies:
     "@babel/generator": "npm:^7.23.5"
-    "@wyw-in-js/shared": "npm:0.5.5"
-  checksum: 10c0/ad986739c3ee59267aa6b36738ce867604e8966fd2c143ac7bfc9e446fd529fa1ac0ccddcabe2e570b79501b241b45a5622088c0dd68d0ad90c90f1a38eaeed3
+    "@wyw-in-js/shared": "npm:0.6.0"
+  checksum: 10c0/e7338afb71aa1eccf7646447df9d20c2ac895dc1d5a5ad8c26931997fa31595ece5890e8ada39b3c1fda28439c7598de950980dded714dbe003b232f95d22d9e
   languageName: node
   linkType: hard
 
-"@wyw-in-js/shared@npm:0.5.5, @wyw-in-js/shared@npm:^0.5.3":
-  version: 0.5.5
-  resolution: "@wyw-in-js/shared@npm:0.5.5"
+"@wyw-in-js/shared@npm:0.6.0, @wyw-in-js/shared@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "@wyw-in-js/shared@npm:0.6.0"
   dependencies:
     debug: "npm:^4.3.4"
     find-up: "npm:^5.0.0"
     minimatch: "npm:^9.0.3"
-  checksum: 10c0/482fbf011bc8dd5c250f7934dfdb7789b0516f6c822580ae75072fe46adad2423a42994a6382a2f951d04dc79c36e587dc9cfe5a3094bb5fc422bc8c5d6f652d
+  checksum: 10c0/a7bab831ebdf9172c8b7a117525550b57c6b338bb6579f186b0f54a3cae5cde75dd245e375b93766fe1f1fc1d42f804353622594115727a2a8c4eb4de84aaaab
   languageName: node
   linkType: hard
 
-"@wyw-in-js/transform@npm:0.5.5":
-  version: 0.5.5
-  resolution: "@wyw-in-js/transform@npm:0.5.5"
+"@wyw-in-js/transform@npm:0.6.0":
+  version: 0.6.0
+  resolution: "@wyw-in-js/transform@npm:0.6.0"
   dependencies:
     "@babel/core": "npm:^7.23.5"
     "@babel/generator": "npm:^7.23.5"
@@ -8218,27 +8218,27 @@ __metadata:
     "@babel/template": "npm:^7.22.15"
     "@babel/traverse": "npm:^7.23.5"
     "@babel/types": "npm:^7.23.5"
-    "@wyw-in-js/processor-utils": "npm:0.5.5"
-    "@wyw-in-js/shared": "npm:0.5.5"
+    "@wyw-in-js/processor-utils": "npm:0.6.0"
+    "@wyw-in-js/shared": "npm:0.6.0"
     babel-merge: "npm:^3.0.0"
     cosmiconfig: "npm:^8.0.0"
     happy-dom: "npm:^15.11.0"
     source-map: "npm:^0.7.4"
     stylis: "npm:^4.3.0"
     ts-invariant: "npm:^0.10.3"
-  checksum: 10c0/9c62a7446dd164e17586dc16b95940c2af712c6ba9e0dc94e298b9e387525b36b71c4774b974307067f4d7ce5bd57ecb9512d8ad3f9096c41faaedd075510c34
+  checksum: 10c0/f94c1477effefee8116530f415e1442317144131d9032eb91e2d3ee7e765594e657aaf65defb71bcc249341147c253cf72190063a9d22a38b13cb80ab6d6eabd
   languageName: node
   linkType: hard
 
-"@wyw-in-js/webpack-loader@npm:^0.5.5":
-  version: 0.5.5
-  resolution: "@wyw-in-js/webpack-loader@npm:0.5.5"
+"@wyw-in-js/webpack-loader@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "@wyw-in-js/webpack-loader@npm:0.6.0"
   dependencies:
-    "@wyw-in-js/shared": "npm:0.5.5"
-    "@wyw-in-js/transform": "npm:0.5.5"
+    "@wyw-in-js/shared": "npm:0.6.0"
+    "@wyw-in-js/transform": "npm:0.6.0"
   peerDependencies:
     webpack: ^5.76.0
-  checksum: 10c0/655e2b4e00cc66e29a13cb3f2ab500cfeeadfbfdcca3bb4aa37d34b0b227db0fbe89d71c15a37fa270827a8b4ee2b478d70b99d0d5a21e49edebcce643f4793a
+  checksum: 10c0/f3226728194fd3a3f58df92535934a9fbf3d1e6c9daa876770c90548f402e9416acecd92dd120839d8891d52e541a82eeaec7e901f508bf910328c89567d6eda
   languageName: node
   linkType: hard
 
@@ -9350,12 +9350,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-plugin-react-compiler@npm:19.0.0-beta-e1e972c-20250221":
-  version: 19.0.0-beta-e1e972c-20250221
-  resolution: "babel-plugin-react-compiler@npm:19.0.0-beta-e1e972c-20250221"
+"babel-plugin-react-compiler@npm:19.0.0-beta-3229e95-20250315":
+  version: 19.0.0-beta-3229e95-20250315
+  resolution: "babel-plugin-react-compiler@npm:19.0.0-beta-3229e95-20250315"
   dependencies:
-    "@babel/types": "npm:^7.19.0"
-  checksum: 10c0/9a05a92fc27445c81b3d817258edde563e97975b765476178df29eafb99f3d62c9e1674e0e6bbec13fb0709c29bc464d99a83bd971b4b20f37c929e5866ebb5b
+    "@babel/types": "npm:^7.26.0"
+  checksum: 10c0/0f958aa5647b218d5ed3ecf7f97eb79eefd887722edce77d30abcc1db61acd2709a1c04446bae7c85722aba1928670b59b123d42f04b274cc6eca83448e75d1b
   languageName: node
   linkType: hard
 
@@ -10816,7 +10816,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "coinbase-lite@workspace:examples/coin-app"
   dependencies:
-    "@anansi/babel-preset": "npm:6.2.2"
+    "@anansi/babel-preset": "npm:6.2.3"
     "@anansi/browserslist-config": "npm:^1.4.3"
     "@anansi/cli": "npm:^3.0.15"
     "@anansi/core": "npm:^0.20.0"
@@ -25066,7 +25066,7 @@ __metadata:
   resolution: "rdc-website@workspace:website"
   dependencies:
     "@anansi/browserslist-config": "npm:1.7.2"
-    "@anansi/webpack-config": "npm:21.0.0"
+    "@anansi/webpack-config": "npm:21.0.1"
     "@data-client/endpoint": "workspace:*"
     "@data-client/graphql": "workspace:*"
     "@data-client/react": "workspace:*"
@@ -26532,29 +26532,29 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"rollup@npm:4.35.0":
-  version: 4.35.0
-  resolution: "rollup@npm:4.35.0"
+"rollup@npm:4.36.0":
+  version: 4.36.0
+  resolution: "rollup@npm:4.36.0"
   dependencies:
-    "@rollup/rollup-android-arm-eabi": "npm:4.35.0"
-    "@rollup/rollup-android-arm64": "npm:4.35.0"
-    "@rollup/rollup-darwin-arm64": "npm:4.35.0"
-    "@rollup/rollup-darwin-x64": "npm:4.35.0"
-    "@rollup/rollup-freebsd-arm64": "npm:4.35.0"
-    "@rollup/rollup-freebsd-x64": "npm:4.35.0"
-    "@rollup/rollup-linux-arm-gnueabihf": "npm:4.35.0"
-    "@rollup/rollup-linux-arm-musleabihf": "npm:4.35.0"
-    "@rollup/rollup-linux-arm64-gnu": "npm:4.35.0"
-    "@rollup/rollup-linux-arm64-musl": "npm:4.35.0"
-    "@rollup/rollup-linux-loongarch64-gnu": "npm:4.35.0"
-    "@rollup/rollup-linux-powerpc64le-gnu": "npm:4.35.0"
-    "@rollup/rollup-linux-riscv64-gnu": "npm:4.35.0"
-    "@rollup/rollup-linux-s390x-gnu": "npm:4.35.0"
-    "@rollup/rollup-linux-x64-gnu": "npm:4.35.0"
-    "@rollup/rollup-linux-x64-musl": "npm:4.35.0"
-    "@rollup/rollup-win32-arm64-msvc": "npm:4.35.0"
-    "@rollup/rollup-win32-ia32-msvc": "npm:4.35.0"
-    "@rollup/rollup-win32-x64-msvc": "npm:4.35.0"
+    "@rollup/rollup-android-arm-eabi": "npm:4.36.0"
+    "@rollup/rollup-android-arm64": "npm:4.36.0"
+    "@rollup/rollup-darwin-arm64": "npm:4.36.0"
+    "@rollup/rollup-darwin-x64": "npm:4.36.0"
+    "@rollup/rollup-freebsd-arm64": "npm:4.36.0"
+    "@rollup/rollup-freebsd-x64": "npm:4.36.0"
+    "@rollup/rollup-linux-arm-gnueabihf": "npm:4.36.0"
+    "@rollup/rollup-linux-arm-musleabihf": "npm:4.36.0"
+    "@rollup/rollup-linux-arm64-gnu": "npm:4.36.0"
+    "@rollup/rollup-linux-arm64-musl": "npm:4.36.0"
+    "@rollup/rollup-linux-loongarch64-gnu": "npm:4.36.0"
+    "@rollup/rollup-linux-powerpc64le-gnu": "npm:4.36.0"
+    "@rollup/rollup-linux-riscv64-gnu": "npm:4.36.0"
+    "@rollup/rollup-linux-s390x-gnu": "npm:4.36.0"
+    "@rollup/rollup-linux-x64-gnu": "npm:4.36.0"
+    "@rollup/rollup-linux-x64-musl": "npm:4.36.0"
+    "@rollup/rollup-win32-arm64-msvc": "npm:4.36.0"
+    "@rollup/rollup-win32-ia32-msvc": "npm:4.36.0"
+    "@rollup/rollup-win32-x64-msvc": "npm:4.36.0"
     "@types/estree": "npm:1.0.6"
     fsevents: "npm:~2.3.2"
   dependenciesMeta:
@@ -26600,7 +26600,7 @@ __metadata:
       optional: true
   bin:
     rollup: dist/bin/rollup
-  checksum: 10c0/5a04add5a48173b1d95deb5422a96833b7df91b14ccec462c048be48241a79ecee2c1b843511b91ca8b6124bdbae134ccfebe80d4222a93e98e73795d161d3cc
+  checksum: 10c0/52ad34ba18edb3613253ecbc7db5c8d6067ed103d8786051e96d42bcb383f7473bbda91b25297435b8a531fe308726cf1bb978456b9fcce044e4885510d73252
   languageName: node
   linkType: hard
 
@@ -26618,7 +26618,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    "@anansi/babel-preset": "npm:6.2.2"
+    "@anansi/babel-preset": "npm:6.2.3"
     "@anansi/browserslist-config": "npm:1.7.2"
     "@anansi/eslint-plugin": "npm:1.0.32"
     "@anansi/jest-preset": "npm:0.11.14"
@@ -26670,7 +26670,7 @@ __metadata:
     react-native-screens: "npm:^4.1.0"
     react-test-renderer: "npm:^19.0.0"
     rimraf: "npm:^6.0.0"
-    rollup: "npm:4.35.0"
+    rollup: "npm:4.36.0"
     ts-node: "npm:10.9.2"
     typescript: "npm:5.8.2"
     whatwg-fetch: "npm:3.0.0"
@@ -28579,7 +28579,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "test-bundlesize@workspace:examples/test-bundlesize"
   dependencies:
-    "@anansi/babel-preset": "npm:6.2.2"
+    "@anansi/babel-preset": "npm:6.2.3"
     "@anansi/browserslist-config": "npm:^1.4.3"
     "@anansi/webpack-config": "npm:^21.0.0"
     "@babel/core": "npm:^7.22.15"
