@@ -36,7 +36,7 @@ const queryInfer = queryMemo.buildQueryKey(
 
 let githubState = normalize(User, userData);
 
-const date = Date.now()
+const date = Date.now();
 const actionMeta = {
   fetchedAt: date,
   date,
@@ -48,9 +48,6 @@ export default function addNormlizrSuite(suite) {
   // prime the cache
   memo.denormalize(ProjectSchema, result, entities, []);
   memo.denormalize(ProjectQuery, queryState.result, queryState.entities, []);
-  %OptimizeFunctionOnNextCall(memo.denormalize);
-  %OptimizeFunctionOnNextCall(denormalize);
-  %OptimizeFunctionOnNextCall(normalize);
 
   let curState = initialState;
   return suite

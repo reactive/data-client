@@ -102,8 +102,6 @@ export default function addReducerSuite(suite) {
     githubReducer(githubState, action);
   };
 
-  %OptimizeFunctionOnNextCall(ProjectQuerySorted.schema.queryKey);
-
   return (
     suite
       .add('getResponse', () => {
