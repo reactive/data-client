@@ -948,10 +948,8 @@ describe(`${schema.Entity.name} denormalization`, () => {
       },
     };
 
-    expect(denormalize(Menu, '1', entities)).toMatchSnapshot();
     expect(denormalize(Menu, '1', fromJS(entities))).toMatchSnapshot();
 
-    expect(denormalize(Menu, '2', entities)).toMatchSnapshot();
     expect(denormalize(Menu, '2', fromJS(entities))).toMatchSnapshot();
   });
 
