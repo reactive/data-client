@@ -9,7 +9,6 @@
     "whatwg-fetch",
     "react-error-overlay",
     "downlevel-dts",
-    "immutable",
     "@types/lodash",
     "nock"
   ],
