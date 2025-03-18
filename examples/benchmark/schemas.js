@@ -9,6 +9,9 @@ export class BuildTypeDescription extends Entity {
   projectId = 'OpenSourceProjects_AbsaOSS_Commons';
 
   static key = 'BuildTypeDescription';
+  pk() {
+    return this.id;
+  }
 }
 export class BuildTypeDescriptionEmpty extends Entity {
   static key = 'BuildTypeDescription';
@@ -43,6 +46,9 @@ export class ProjectWithBuildTypesDescription extends Entity {
   };
 
   static key = 'ProjectWithBuildTypesDescription';
+  pk() {
+    return this.id;
+  }
 }
 export class ProjectWithBuildTypesDescriptionEmpty extends Entity {
   static schema = {
