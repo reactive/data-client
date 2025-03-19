@@ -10,7 +10,8 @@
     "react-error-overlay",
     "downlevel-dts",
     "@types/lodash",
-    "nock"
+    "nock",
+    "rollup-plugin-dts"
   ],
   "timezone": "America/Chicago",
   "postUpdateOptions": ["yarnDedupeHighest"],
