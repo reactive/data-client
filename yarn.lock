@@ -3075,14 +3075,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@data-client/core@npm:^0.14.24, @data-client/core@workspace:*, @data-client/core@workspace:^, @data-client/core@workspace:packages/core":
+"@data-client/core@npm:^1.0.0, @data-client/core@workspace:*, @data-client/core@workspace:^, @data-client/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@data-client/core@workspace:packages/core"
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.20.0"
     "@data-client/endpoint": "workspace:*"
-    "@data-client/normalizr": "npm:^0.14.22"
+    "@data-client/normalizr": "npm:^1.0.0"
     "@types/jest": "npm:^29.5.14"
     "@types/node": "npm:^22.0.0"
     flux-standard-action: "npm:^2.1.1"
@@ -3121,7 +3121,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/img@npm:^0.14.0, @data-client/img@workspace:packages/img":
+"@data-client/img@npm:^1.0.0, @data-client/img@workspace:packages/img":
   version: 0.0.0-use.local
   resolution: "@data-client/img@workspace:packages/img"
   dependencies:
@@ -3136,7 +3136,7 @@ __metadata:
     react: "npm:^19.0.0"
     rollup-plugins: "workspace:*"
   peerDependencies:
-    "@data-client/react": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0 || ^0.5.0 || ^0.7.0 || ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^0.14.0
+    "@data-client/react": ^1.0.0
     "@types/react": ^16.14.0 || ^17.0.0 || ^18.0.0-0 || ^19.0.0
     react: ^16.14.0 || ^17.0.0 || ^18.0.0-0 || ^19.0.0
   peerDependenciesMeta:
@@ -3145,7 +3145,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/normalizr@npm:^0.14.22, @data-client/normalizr@workspace:*, @data-client/normalizr@workspace:^, @data-client/normalizr@workspace:packages/normalizr":
+"@data-client/normalizr@npm:^1.0.0, @data-client/normalizr@workspace:*, @data-client/normalizr@workspace:^, @data-client/normalizr@workspace:packages/normalizr":
   version: 0.0.0-use.local
   resolution: "@data-client/normalizr@workspace:packages/normalizr"
   dependencies:
@@ -3160,13 +3160,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/react@npm:^0.14.0, @data-client/react@workspace:*, @data-client/react@workspace:packages/react":
+"@data-client/react@npm:^1.0.0, @data-client/react@workspace:*, @data-client/react@workspace:packages/react":
   version: 0.0.0-use.local
   resolution: "@data-client/react@workspace:packages/react"
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.20.0"
-    "@data-client/core": "npm:^0.14.24"
+    "@data-client/core": "npm:^1.0.0"
     "@data-client/rest": "workspace:*"
     "@data-client/test": "workspace:*"
     "@data-client/use-enhanced-reducer": "npm:^0.1.14"
@@ -3243,7 +3243,7 @@ __metadata:
     react-test-renderer: "npm:*"
     rollup-plugins: "workspace:*"
   peerDependencies:
-    "@data-client/react": ^0.12.15 || ^0.13.0 || ^0.14.0
+    "@data-client/react": ^1.0.0
     "@testing-library/react-hooks": ^8.0.0
     "@types/react": ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0-0 || ^19.0.0
     "@types/react-dom": "*"
@@ -10944,8 +10944,8 @@ __metadata:
     "@anansi/webpack-config": "npm:^21.0.0"
     "@babel/core": "npm:^7.22.15"
     "@babel/runtime-corejs3": "npm:^7.26.7"
-    "@data-client/img": "npm:^0.14.0"
-    "@data-client/react": "npm:^0.14.0"
+    "@data-client/img": "npm:^1.0.0"
+    "@data-client/react": "npm:^1.0.0"
     "@data-client/rest": "npm:^0.14.0"
     "@linaria/babel-preset": "npm:*"
     "@linaria/core": "npm:*"
@@ -28745,8 +28745,8 @@ __metadata:
     "@anansi/webpack-config": "npm:^21.0.0"
     "@babel/core": "npm:^7.22.15"
     "@babel/runtime-corejs3": "npm:^7.26.7"
-    "@data-client/img": "npm:^0.14.0"
-    "@data-client/react": "npm:^0.14.0"
+    "@data-client/img": "npm:^1.0.0"
+    "@data-client/react": "npm:^1.0.0"
     "@data-client/rest": "npm:^0.14.0"
     "@types/react": "npm:*"
     "@types/react-dom": "npm:*"
