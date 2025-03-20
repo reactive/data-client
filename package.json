@@ -74,7 +74,7 @@
     "@testing-library/react-native": "13.2.0",
     "@types/jest": "29.5.14",
     "@types/node": "22.13.10",
-    "@types/react": "19.0.11",
+    "@types/react": "19.0.12",
     "@types/react-dom": "19.0.4",
     "babel-plugin-module-resolver": "5.0.2",
     "babel-plugin-syntax-hermes-parser": "^0.26.0",
