@@ -61,22 +61,6 @@ Menu {
 
 exports[`Entity denormalization denormalizes deep entities with records 2`] = `
 Menu {
-  "food": Food {
-    "id": "1",
-  },
-  "id": "1",
-}
-`;
-
-exports[`Entity denormalization denormalizes deep entities with records 3`] = `
-Menu {
-  "food": null,
-  "id": "2",
-}
-`;
-
-exports[`Entity denormalization denormalizes deep entities with records 4`] = `
-Menu {
   "food": null,
   "id": "2",
 }
@@ -107,7 +91,7 @@ exports[`Entity denormalization denormalizes recursive dependencies 2`] = `
 Report {
   "draftedBy": User {
     "id": "456",
-    "reports": Immutable.List [
+    "reports": [
       [Circular],
     ],
     "role": "manager",
@@ -115,7 +99,7 @@ Report {
   "id": "123",
   "publishedBy": User {
     "id": "456",
-    "reports": Immutable.List [
+    "reports": [
       [Circular],
     ],
     "role": "manager",
@@ -142,7 +126,7 @@ User {
 exports[`Entity denormalization denormalizes recursive dependencies 4`] = `
 User {
   "id": "456",
-  "reports": Immutable.List [
+  "reports": [
     Report {
       "draftedBy": [Circular],
       "id": "123",

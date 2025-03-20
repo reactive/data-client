@@ -392,7 +392,7 @@ xychart-beta
     title "Denormalize Single Entity"
     x-axis [normalizr, "Data Client", "Data Client (cached)"]
     y-axis "Operations per second" 0 --> 5618500
-    bar [212500, 1288500, 5618500]
+    bar [212500, 1341000, 5618500]
 ```
 
 ```mermaid
@@ -400,7 +400,7 @@ xychart-beta
     title "Denormalize Large List"
     x-axis [normalizr, "Data Client", "Data Client (cached)"]
     y-axis "Operations per second" 0 --> 12962
-    bar [1151, 1807, 13182]
+    bar [1151, 1986, 13182]
 ```
 
 </Grid>

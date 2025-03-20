@@ -461,69 +461,69 @@ exports[`input (immutable) ValuesSchema denormalization (current) works on compl
   "data": {
     "estimates": {
       "BTC": Estimate {
-        "coinbase_fees": Immutable.Map {
+        "coinbase_fees": {
           "amount": "0.00002270",
           "currency": "BTC",
         },
         "confirmation_duration": 900,
-        "exchange": Immutable.Map {
-          "rate": "6820.07",
+        "exchange": {
+          "crypto": "BTC",
           "local": "USD",
-          "crypto": "BTC",
-        },
-        "exchange_to_proceeds": Immutable.Map {
           "rate": "6820.07",
-          "local": "EUR",
-          "crypto": "BTC",
         },
-        "fee": Immutable.Map {
+        "exchange_to_proceeds": {
+          "crypto": "BTC",
+          "local": "EUR",
+          "rate": "6820.07",
+        },
+        "fee": {
           "amount": "0.00002270",
           "currency": "BTC",
         },
-        "fee_per_kb": Immutable.Map {
+        "fee_per_kb": {
           "amount": "0.00016566",
           "currency": "BTC",
         },
-        "min_order_size": Immutable.Map {
+        "min_order_size": {
           "amount": "0.001",
           "currency": "BTC",
         },
         "priority": "fast",
-        "recipient_value": Immutable.Map {
+        "recipient_value": {
           "amount": "0.00054147",
           "currency": "BTC",
         },
       },
       "ETH": Estimate {
-        "coinbase_fees": Immutable.Map {
+        "coinbase_fees": {
           "amount": "0.00002270",
           "currency": "BTC",
         },
         "confirmation_duration": 900,
-        "exchange": Immutable.Map {
-          "rate": "197.07",
-          "local": "USD",
+        "exchange": {
           "crypto": "ETH",
+          "local": "USD",
+          "rate": "197.07",
         },
-        "exchange_to_proceeds": Immutable.Map {
-          "rate": "6820.07",
-          "local": "EUR",
+        "exchange_to_proceeds": {
           "crypto": "BTC",
+          "local": "EUR",
+          "rate": "6820.07",
         },
-        "fee": Immutable.Map {
+        "fee": {
           "amount": "0.03795",
           "currency": "ETH",
         },
-        "fee_per_kb": Immutable.Map {
+        "fee_per_kb": {
           "amount": "0.00086",
           "currency": "ETH",
         },
-        "min_order_size": Immutable.Map {
+        "min_order_size": {
           "amount": "0.001",
           "currency": "BTC",
         },
         "priority": "fast",
-        "recipient_value": Immutable.Map {
+        "recipient_value": {
           "amount": "2.53",
           "currency": "ETH",
         },

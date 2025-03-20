@@ -46,8 +46,6 @@ function mergeWithStore({ entities, result }, storeState) {
 
 let curState = state;
 export default function addNormlizrSuite(suite) {
-  %OptimizeFunctionOnNextCall(normalize);
-  %OptimizeFunctionOnNextCall(denormalize);
   return suite
     .add('normalizeLong', () => {
       return mergeWithStore(normalize(data, ProjectSchema), state);
@@ -63,7 +61,7 @@ export default function addNormlizrSuite(suite) {
     })
     .add('denormalizeShort donotcache 500x', () => {
       for (let i = 0; i < 500; ++i) {
-        const user = denormalize('gnoff', User, githubState.entities);
+        var user = denormalize('gnoff', User, githubState.entities);
         // legacy normalizr doesn't convert this for us, so we must do manually afterward.
         user.createdAt = new Date(user.createdAt);
         user.updatedAt = new Date(user.updatedAt);

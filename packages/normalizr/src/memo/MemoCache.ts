@@ -50,6 +50,7 @@ export default class MemoCache {
       getEntity,
       new GlobalCache(getEntity, this.entities, this.endpoints),
       args,
+      isImmutable(entities),
     )(schema, input);
   }
 

@@ -5,69 +5,108 @@ import { UNDEF } from './UNDEF.js';
 import type { EntityInterface } from '../interface.js';
 import { isEntity } from '../isEntity.js';
 import { denormalize as arrayDenormalize } from '../schemas/Array.js';
-import { isImmutable } from '../schemas/ImmutableUtils.js';
 import { denormalize as objectDenormalize } from '../schemas/Object.js';
 import type { EntityPath } from '../types.js';
 
-function unvisitEntity(
-  schema: EntityInterface,
-  entityOrId: Record<string, any> | string,
-  args: readonly any[],
-  unvisit: (schema: any, input: any) => any,
+const getUnvisitEntity = (
   getEntity: GetEntity,
   cache: Cache,
-): object | undefined | symbol {
-  const entity =
-    typeof entityOrId === 'object' ? entityOrId : (
-      getEntity({ key: schema.key, pk: entityOrId })
-    );
-  if (typeof entity === 'symbol' && typeof schema.denormalize === 'function') {
-    return schema.denormalize(entity, args, unvisit);
-  }
+  args: readonly any[],
+  isImmutable: boolean,
+  unvisit: (schema: any, input: any) => any,
+) => {
+  return function unvisitEntity(
+    schema: EntityInterface,
+    entityOrId: Record<string, any> | string,
+  ): object | undefined | symbol {
+    const inputIsId = typeof entityOrId !== 'object';
+    const entity =
+      inputIsId ? getEntity({ key: schema.key, pk: entityOrId }) : entityOrId;
+    if (typeof entity === 'symbol') {
+      return schema.denormalize(entity, args, unvisit);
+    }
 
-  if (
-    entity === undefined &&
-    typeof entityOrId !== 'object' &&
-    entityOrId !== '' &&
-    entityOrId !== 'undefined'
-  ) {
-    // we cannot perform lookups with `undefined`, so we use a special object to represent undefined
-    // we're actually using this call to ensure we update the cache if a nested schema changes from `undefined`
-    // this is because cache.getEntity adds this key,pk as a dependency of anything it is nested under
-    return cache.getEntity(entityOrId, schema, UNDEF, localCacheKey => {
-      localCacheKey.set(entityOrId, undefined);
-    });
-  }
+    if (
+      entity === undefined &&
+      inputIsId &&
+      // entityOrId cannot be undefined literal as this function wouldn't be called in that case
+      // however the blank strings can still occur
+      entityOrId !== '' &&
+      entityOrId !== 'undefined'
+    ) {
+      // we cannot perform WeakMap lookups with `undefined`, so we use a special object to represent undefined
+      // we're actually using this call to ensure we update the cache if a nested schema changes from `undefined`
+      // this is because cache.getEntity adds this key,pk as a dependency of anything it is nested under
+      return cache.getEntity(entityOrId, schema, UNDEF, localCacheKey => {
+        localCacheKey.set(entityOrId, undefined);
+      });
+    }
 
-  if (typeof entity !== 'object' || entity === null) {
-    return entity as any;
-  }
+    if (typeof entity !== 'object' || entity === null) {
+      return entity as any;
+    }
 
-  let pk: string =
-    typeof entityOrId !== 'object' ? entityOrId : (
-      (schema.pk(
-        isImmutable(entity) ? (entity as any).toJS() : entity,
-        undefined,
-        undefined,
+    const entityObject: object =
+      isImmutable && entityOrId !== entity ?
+        ((entity as any).toJS() as object)
+      : entity;
+
+    let pk: string | number | undefined =
+      inputIsId ? entityOrId : (
+        (schema.pk(entityObject, undefined, undefined, args) as any)
+      );
+
+    // if we can't generate a working pk we cannot do cache lookups properly,
+    // so simply denormalize without caching
+    if (pk === undefined || pk === '' || pk === 'undefined') {
+      return noCacheGetEntity(localCacheKey =>
+        unvisitEntityObject(
+          schema,
+          entityObject,
+          '',
+          localCacheKey,
+          args,
+          unvisit,
+        ),
+      );
+    }
+
+    // just an optimization to make all cache usages of pk monomorphic
+    if (typeof pk !== 'string') pk = `${pk}`;
+
+    // last function computes if it is not in any caches
+    return cache.getEntity(pk, schema, entityObject, localCacheKey =>
+      unvisitEntityObject(
+        schema,
+        entityObject,
+        pk,
+        localCacheKey,
         args,
-      ) as any)
+        unvisit,
+      ),
     );
+  };
+};
 
-  // if we can't generate a working pk we cannot do cache lookups properly,
-  // so simply denormalize without caching
-  if (pk === undefined || pk === '' || pk === 'undefined') {
-    return noCacheGetEntity(localCacheKey =>
-      unvisitEntityObject(entity, schema, unvisit, '', localCacheKey, args),
-    );
+function unvisitEntityObject(
+  schema: EntityInterface<any>,
+  entity: object,
+  pk: string,
+  localCacheKey: Map<string, any>,
+  args: readonly any[],
+  unvisit: (schema: any, input: any) => any,
+): void {
+  const entityCopy = schema.createIfValid(entity);
+
+  if (entityCopy === undefined) {
+    // undefined indicates we should suspense (perhaps failed validation)
+    localCacheKey.set(pk, INVALID);
+  } else {
+    // set before we recurse to prevent cycles causing infinite loops
+    localCacheKey.set(pk, entityCopy);
+    // we still need to set in case denormalize recursively finds INVALID
+    localCacheKey.set(pk, schema.denormalize(entityCopy, args, unvisit));
   }
-
-  // just an optimization to make all cache usages of pk monomorphic
-  if (typeof pk !== 'string') pk = `${pk}`;
-
-  // last function computes if it is not in any caches
-  return cache.getEntity(pk, schema, entity, localCacheKey =>
-    unvisitEntityObject(entity, schema, unvisit, pk, localCacheKey, args),
-  );
 }
 
 function noCacheGetEntity(
@@ -79,35 +118,20 @@ function noCacheGetEntity(
   return localCacheKey.get('');
 }
 
-function unvisitEntityObject(
-  entity: object,
-  schema: EntityInterface<any>,
-  unvisit: (schema: any, input: any) => any,
-  pk: string,
-  localCacheKey: Map<string, any>,
-  args: readonly any[],
-): void {
-  const entityCopy =
-    isImmutable(entity) ?
-      schema.createIfValid(entity.toObject())
-    : schema.createIfValid(entity);
-  localCacheKey.set(pk, entityCopy);
-
-  if (entityCopy === undefined) {
-    // undefined indicates we should suspense (perhaps failed validation)
-    localCacheKey.set(pk, INVALID);
-  } else {
-    if (typeof schema.denormalize === 'function') {
-      localCacheKey.set(pk, schema.denormalize(entityCopy, args, unvisit));
-    }
-  }
-}
-
 const getUnvisit = (
   getEntity: GetEntity,
   cache: Cache,
   args: readonly any[],
+  isImmutable: boolean,
 ) => {
+  // we don't inline this as making this function too big inhibits v8's JIT
+  const unvisitEntity = getUnvisitEntity(
+    getEntity,
+    cache,
+    args,
+    isImmutable,
+    unvisit,
+  );
   function unvisit(schema: any, input: any): any {
     if (!schema) return input;
 
@@ -129,7 +153,7 @@ const getUnvisit = (
       }
     } else {
       if (isEntity(schema)) {
-        return unvisitEntity(schema, input, args, unvisit, getEntity, cache);
+        return unvisitEntity(schema, input);
       }
 
       return schema.denormalize(input, args, unvisit);
