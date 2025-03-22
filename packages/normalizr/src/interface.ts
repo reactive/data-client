@@ -112,9 +112,5 @@ export interface GetEntity {
 /** Get PK using an Entity Index */
 export interface GetIndex {
   /** getIndex('User', 'username', 'ntucker') */
-  (
-    entityKey: string,
-    field: string,
-    value: string,
-  ): { readonly [indexKey: string]: string | undefined };
+  (entityKey: string, field: string, value: string): string | undefined;
 }

@@ -5,6 +5,7 @@ import { RestEndpoint } from '@data-client/rest';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
+import { SimpleMemoCache, fromJSEntities } from './denormalize';
 import { schema, DenormalizeNullable } from '../..';
 
 let dateSpy: jest.SpyInstance<number, []>;
@@ -27,7 +28,7 @@ describe.each([
   ['direct', <T>(data: T) => data, <T>(data: T) => data],
   [
     'immutable',
-    fromJS,
+    fromJSEntities,
     (v: any) => (typeof v?.toJS === 'function' ? v.toJS() : v),
   ],
 ])(`input (%s)`, (_, createInput, createOutput) => {

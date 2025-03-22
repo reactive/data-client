@@ -3,6 +3,7 @@ import { normalize, denormalize } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
+import { fromJSEntities } from './denormalize';
 import { schema } from '../../';
 
 let dateSpy;
@@ -137,9 +138,9 @@ describe.each([
 });
 
 describe.each([
-  ['direct', data => data],
-  ['immutable', fromJS],
-])(`input (%s)`, (_, createInput) => {
+  ['direct', data => data, data => data],
+  ['immutable', fromJS, fromJSEntities],
+])(`input (%s)`, (_, createInput, createEntities) => {
   test('denormalizes plain arrays with nothing inside', () => {
     class User extends IDEntity {}
     const entities = {
@@ -149,20 +150,20 @@ describe.each([
     };
     const sch = new schema.Object({ user: User, tacos: [] });
     expect(
-      denormalize(sch, { user: '1' }, createInput(entities)),
+      denormalize(sch, { user: '1' }, createEntities(entities)),
     ).toMatchSnapshot();
     expect(
-      denormalize(sch, createInput({ user: '1' }), createInput(entities)),
+      denormalize(sch, createInput({ user: '1' }), createEntities(entities)),
     ).toMatchSnapshot();
 
     expect(
-      denormalize(sch, { user: '1', tacos: [] }, createInput(entities)),
+      denormalize(sch, { user: '1', tacos: [] }, createEntities(entities)),
     ).toMatchSnapshot();
     expect(
       denormalize(
         sch,
         createInput({ user: '1', tacos: [] }),
-        createInput(entities),
+        createEntities(entities),
       ),
     ).toMatchSnapshot();
   });
@@ -180,7 +181,7 @@ describe.each([
         },
       };
       expect(
-        denormalize(createSchema(Cat), ['1', '2'], createInput(entities)),
+        denormalize(createSchema(Cat), ['1', '2'], createEntities(entities)),
       ).toMatchSnapshot();
     });
 
@@ -196,7 +197,7 @@ describe.each([
         denormalize(
           createSchema(Cat),
           { a: '1', b: '2' },
-          createInput(entities),
+          createEntities(entities),
         ),
       ).toMatchSnapshot();
     });
@@ -213,20 +214,20 @@ describe.each([
         tacos: createSchema({ next: '' }),
       });
       expect(
-        denormalize(sch, { user: '1' }, createInput(entities)),
+        denormalize(sch, { user: '1' }, createEntities(entities)),
       ).toMatchSnapshot();
       expect(
-        denormalize(sch, createInput({ user: '1' }), createInput(entities)),
+        denormalize(sch, createInput({ user: '1' }), createEntities(entities)),
       ).toMatchSnapshot();
 
       expect(
-        denormalize(sch, { user: '1', tacos: [] }, createInput(entities)),
+        denormalize(sch, { user: '1', tacos: [] }, createEntities(entities)),
       ).toMatchSnapshot();
       expect(
         denormalize(
           sch,
           createInput({ user: '1', tacos: [] }),
-          createInput(entities),
+          createEntities(entities),
         ),
       ).toMatchSnapshot();
     });
@@ -241,7 +242,11 @@ describe.each([
         },
       };
       expect(
-        denormalize(catSchema, { results: ['1', '2'] }, createInput(entities)),
+        denormalize(
+          catSchema,
+          { results: ['1', '2'] },
+          createEntities(entities),
+        ),
       ).toMatchSnapshot();
     });
 
@@ -260,13 +265,13 @@ describe.each([
       let value = denormalize(
         catSchema,
         { results: ['1', '2'] },
-        createInput(entities),
+        createEntities(entities),
       );
       expect(value).toMatchSnapshot();
       value = denormalize(
         catSchema,
         createInput({ results: ['1', '2'] }),
-        createInput(entities),
+        createEntities(entities),
       );
       expect(value).toMatchSnapshot();
     });
@@ -286,13 +291,13 @@ describe.each([
       let value = denormalize(
         catSchema,
         createInput({ results: ['1', undefined, '2', null] }),
-        createInput(entities),
+        createEntities(entities),
       );
       expect(value).toMatchSnapshot();
       value = denormalize(
         catSchema,
         { results: ['1', '2'] },
-        createInput(entities),
+        createEntities(entities),
       );
       expect(value).toMatchSnapshot();
     });
@@ -309,7 +314,7 @@ describe.each([
       let value = denormalize(
         catSchema,
         createInput({ results: undefined }),
-        createInput(entities),
+        createEntities(entities),
       );
       expect(value).toMatchSnapshot();
     });
@@ -325,7 +330,7 @@ describe.each([
       let value = denormalize(
         createSchema(new schema.Object({ data: Cat })),
         createInput([{ data: '1' }, { data: '2' }, { data: '3' }]),
-        createInput(entities),
+        createEntities(entities),
       );
       expect(value).toMatchSnapshot();
     });
@@ -344,7 +349,9 @@ describe.each([
         },
       };
 
-      expect(denormalize(Taco, '123', createInput(entities))).toMatchSnapshot();
+      expect(
+        denormalize(Taco, '123', createEntities(entities)),
+      ).toMatchSnapshot();
     });
 
     test('denormalizes multiple entities', () => {
@@ -392,7 +399,7 @@ describe.each([
       const value = denormalize(
         listSchema,
         createInput(input),
-        createInput(entities),
+        createEntities(entities),
       );
       expect(value).toMatchSnapshot();
     });

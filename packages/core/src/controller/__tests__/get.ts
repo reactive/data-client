@@ -1,6 +1,7 @@
 import { Entity, schema } from '@data-client/endpoint';
 
 import { initialState } from '../../state/reducer/createReducer';
+import { State } from '../../types';
 import Controller from '../Controller';
 
 class Tacos extends Entity {
@@ -46,37 +47,113 @@ describe('Controller.get()', () => {
     () => controller.get(Tacos, { doesnotexist: 5 }, state);
   });
 
-  it('query Entity based on index', () => {
+  describe('indexes', () => {
     class User extends Entity {
       id = '';
       username = '';
+      staff = false;
 
       static indexes = ['username'] as const;
     }
-
-    const controller = new Controller();
-    const state = {
-      ...initialState,
-      entities: {
-        User: {
-          '1': { id: '1', username: 'bob' },
-        },
-      },
-      indexes: {
-        User: {
-          username: {
-            bob: '1',
+    it('query Entity based on index', () => {
+      const controller = new Controller();
+      const state: State<unknown> = {
+        ...initialState,
+        entities: {
+          User: {
+            '1': { id: '1', username: 'bob' },
+            '2': { id: '2', username: 'george' },
           },
         },
-      },
-    };
+        indexes: {
+          User: {
+            username: {
+              bob: '1',
+              george: '2',
+            },
+          },
+        },
+      };
 
-    const bob = controller.get(User, { username: 'bob' }, state);
-    expect(bob).toBeDefined();
-    expect(bob).toBeInstanceOf(User);
-    expect(bob).toMatchSnapshot();
-    // should be same as id lookup
-    expect(bob).toBe(controller.get(User, { id: '1' }, state));
+      const bob = controller.get(User, { username: 'bob' }, state);
+      expect(bob).toBeDefined();
+      expect(bob).toBeInstanceOf(User);
+      expect(bob).toMatchSnapshot();
+      // stability
+      expect(controller.get(User, { username: 'bob' }, state)).toBe(bob);
+      // should be same as id lookup
+      expect(controller.get(User, { id: '1' }, state)).toBe(bob);
+      // update index
+      let nextState: State<unknown> = {
+        ...state,
+        entities: {
+          ...state.entities,
+          User: {
+            ...state.entities.User,
+            '1': { id: '1', username: 'george' },
+            '2': { id: '2', username: 'bob' },
+          },
+        },
+        indexes: {
+          ...state.indexes,
+          User: {
+            ...state.indexes.User,
+            username: {
+              ...state.indexes.User.username,
+              bob: '2',
+              george: '1',
+            },
+          },
+        },
+      };
+      expect(controller.get(User, { username: 'bob' }, nextState)).not.toBe(
+        bob,
+      );
+      nextState = {
+        ...state,
+        entities: {
+          ...state.entities,
+          User: {
+            ...state.entities.User,
+            '1': { id: '1', username: 'bob', staff: true },
+          },
+        },
+      };
+      // update entity keep index
+      const nextBob = controller.get(User, { username: 'bob' }, nextState);
+      expect(nextBob).not.toBe(bob);
+      expect(nextBob).toBeDefined();
+      expect(nextBob).toBeInstanceOf(User);
+      expect(nextBob?.staff).toBe(true);
+    });
+
+    it.only('query indexes after empty state', () => {
+      const controller = new Controller();
+      expect(
+        controller.get(User, { username: 'bob' }, initialState),
+      ).toBeUndefined();
+      const state: State<unknown> = {
+        ...initialState,
+        entities: {
+          User: {
+            '1': { id: '1', username: 'bob' },
+            '2': { id: '2', username: 'george' },
+          },
+        },
+        indexes: {
+          User: {
+            username: {
+              bob: '1',
+              george: '2',
+            },
+          },
+        },
+      };
+      const bob = controller.get(User, { username: 'bob' }, state);
+      expect(bob).toBeDefined();
+      expect(bob).toBeInstanceOf(User);
+      expect(bob).toMatchSnapshot();
+    });
   });
 
   it('query Collection based on args', () => {

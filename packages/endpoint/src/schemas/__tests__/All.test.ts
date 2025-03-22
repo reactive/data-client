@@ -4,6 +4,7 @@ import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
 import { schema } from '../..';
+import { fromJSEntities } from './denormalize';
 import { INVALID } from '../../special';
 
 let dateSpy: jest.SpyInstance<number, []>;
@@ -99,7 +100,7 @@ describe.each([
   ['direct', <T>(data: T) => data, <T>(data: T) => data],
   [
     'immutable',
-    fromJS,
+    fromJSEntities,
     (v: any) => (typeof v?.toJS === 'function' ? v.toJS() : v),
   ],
 ])(

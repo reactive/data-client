@@ -2,9 +2,8 @@
 import { normalize, denormalize } from '@data-client/normalizr';
 import { INVALID } from '@data-client/normalizr';
 import { Temporal } from '@js-temporal/polyfill';
-import { fromJS, Record } from 'immutable';
 
-import SimpleMemoCache from './denormalize';
+import { SimpleMemoCache, fromJSEntities } from './denormalize';
 import { schema, EntityMixin } from '../..';
 
 let dateSpy: jest.SpyInstance;
@@ -774,7 +773,7 @@ describe(`${schema.Entity.name} denormalization`, () => {
       },
     };
     expect(denormalize(Tacos, '1', entities)).toMatchSnapshot();
-    expect(denormalize(Tacos, '1', fromJS(entities))).toMatchSnapshot();
+    expect(denormalize(Tacos, '1', fromJSEntities(entities))).toMatchSnapshot();
   });
 
   class Food extends EntityMixin(
@@ -801,11 +800,11 @@ describe(`${schema.Entity.name} denormalization`, () => {
 
     const de1 = denormalize(Menu, '1', entities);
     expect(de1).toMatchSnapshot();
-    expect(denormalize(Menu, '1', fromJS(entities))).toEqual(de1);
+    expect(denormalize(Menu, '1', fromJSEntities(entities))).toEqual(de1);
 
     const de2 = denormalize(Menu, '2', entities);
     expect(de2).toMatchSnapshot();
-    expect(denormalize(Menu, '2', fromJS(entities))).toEqual(de2);
+    expect(denormalize(Menu, '2', fromJSEntities(entities))).toEqual(de2);
   });
 
   test('denormalizes deep entities while maintaining referential equality', () => {
@@ -842,7 +841,7 @@ describe(`${schema.Entity.name} denormalization`, () => {
       },
     };
     expect(denormalize(MyTacos, '1', entities)).toEqual(expect.any(Symbol));
-    expect(denormalize(MyTacos, '1', fromJS(entities))).toEqual(
+    expect(denormalize(MyTacos, '1', fromJSEntities(entities))).toEqual(
       expect.any(Symbol),
     );
   });
@@ -858,10 +857,10 @@ describe(`${schema.Entity.name} denormalization`, () => {
     };
 
     expect(denormalize(Menu, '1', entities)).toMatchSnapshot();
-    expect(denormalize(Menu, '1', fromJS(entities))).toMatchSnapshot();
+    expect(denormalize(Menu, '1', fromJSEntities(entities))).toMatchSnapshot();
 
     expect(denormalize(Menu, '2', entities)).toMatchSnapshot();
-    expect(denormalize(Menu, '2', fromJS(entities))).toMatchSnapshot();
+    expect(denormalize(Menu, '2', fromJSEntities(entities))).toMatchSnapshot();
   });
 
   it('should handle optional schema entries Entity', () => {
@@ -925,32 +924,10 @@ describe(`${schema.Entity.name} denormalization`, () => {
     };
 
     expect(denormalize(Menu, '1', entities)).toMatchSnapshot();
-    expect(denormalize(Menu, '1', fromJS(entities))).toMatchSnapshot();
+    expect(denormalize(Menu, '1', fromJSEntities(entities))).toMatchSnapshot();
 
     expect(denormalize(Menu, '2', entities)).toMatchSnapshot();
-    expect(denormalize(Menu, '2', fromJS(entities))).toMatchSnapshot();
-  });
-
-  test('denormalizes deep entities with records', () => {
-    const Food = Record<{ id: null | string }>({ id: null });
-    const MenuR = Record<{ id: null | string; food: null | string }>({
-      id: null,
-      food: null,
-    });
-
-    const entities = {
-      Menu: {
-        '1': new MenuR({ id: '1', food: '1' }),
-        '2': new MenuR({ id: '2' }),
-      },
-      Food: {
-        '1': new Food({ id: '1' }),
-      },
-    };
-
-    expect(denormalize(Menu, '1', fromJS(entities))).toMatchSnapshot();
-
-    expect(denormalize(Menu, '2', fromJS(entities))).toMatchSnapshot();
+    expect(denormalize(Menu, '2', fromJSEntities(entities))).toMatchSnapshot();
   });
 
   test('can denormalize already partially denormalized data', () => {
@@ -965,7 +942,7 @@ describe(`${schema.Entity.name} denormalization`, () => {
     };
 
     expect(denormalize(Menu, '1', entities)).toMatchSnapshot();
-    expect(denormalize(Menu, '1', fromJS(entities))).toMatchSnapshot();
+    expect(denormalize(Menu, '1', fromJSEntities(entities))).toMatchSnapshot();
   });
 
   describe('nesting', () => {
@@ -1019,10 +996,14 @@ describe(`${schema.Entity.name} denormalization`, () => {
       };
 
       expect(denormalize(Report, '123', entities)).toMatchSnapshot();
-      expect(denormalize(Report, '123', fromJS(entities))).toMatchSnapshot();
+      expect(
+        denormalize(Report, '123', fromJSEntities(entities)),
+      ).toMatchSnapshot();
 
       expect(denormalize(User, '456', entities)).toMatchSnapshot();
-      expect(denormalize(User, '456', fromJS(entities))).toMatchSnapshot();
+      expect(
+        denormalize(User, '456', fromJSEntities(entities)),
+      ).toMatchSnapshot();
     });
 
     test('denormalizes recursive entities with referential equality', () => {
