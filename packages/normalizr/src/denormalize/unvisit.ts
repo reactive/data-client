@@ -46,10 +46,7 @@ const getUnvisitEntity = (
       return entity as any;
     }
 
-    const entityObject: object =
-      isImmutable && entityOrId !== entity ?
-        ((entity as any).toJS() as object)
-      : entity;
+    const entityObject: object = entity;
 
     let pk: string | number | undefined =
       inputIsId ? entityOrId : (
