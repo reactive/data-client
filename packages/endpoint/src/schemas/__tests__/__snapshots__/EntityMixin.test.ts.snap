@@ -65,22 +65,6 @@ Menu {
 }
 `;
 
-exports[`EntityMixin denormalization denormalizes deep entities with records 1`] = `
-Menu {
-  "food": Food {
-    "id": "1",
-  },
-  "id": "1",
-}
-`;
-
-exports[`EntityMixin denormalization denormalizes deep entities with records 2`] = `
-Menu {
-  "food": null,
-  "id": "2",
-}
-`;
-
 exports[`EntityMixin denormalization denormalizes to undefined for deleted data 1`] = `Symbol(INVALID)`;
 
 exports[`EntityMixin denormalization denormalizes to undefined for deleted data 2`] = `Symbol(INVALID)`;

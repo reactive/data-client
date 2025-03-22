@@ -21,7 +21,6 @@ class Tacos extends IDEntity {
 let dateSpy;
 beforeAll(() => {
   dateSpy = jest
-
     .spyOn(global.Date, 'now')
     .mockImplementation(() => new Date('2019-05-14T11:01:58.135Z').valueOf());
 });
