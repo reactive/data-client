@@ -4,7 +4,7 @@ import { normalize, denormalize, MemoCache } from '@data-client/normalizr';
 import { ArticleResource, IDEntity } from '__tests__/new';
 import { Record } from 'immutable';
 
-import SimpleMemoCache from './denormalize';
+import { SimpleMemoCache } from './denormalize';
 import { PolymorphicInterface } from '../..';
 import { schema } from '../..';
 import PolymorphicSchema from '../Polymorphic';
@@ -12,7 +12,6 @@ import PolymorphicSchema from '../Polymorphic';
 let dateSpy: jest.SpyInstance;
 beforeAll(() => {
   dateSpy = jest
-
     .spyOn(global.Date, 'now')
     .mockImplementation(() => new Date('2019-05-14T11:01:58.135Z').valueOf());
 });
