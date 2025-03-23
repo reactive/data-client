@@ -4,7 +4,13 @@ import WeakDependencyMap, { Dep, GetDependency } from './WeakDependencyMap.js';
 import buildQueryKey from '../buildQueryKey.js';
 import { getEntities } from '../denormalize/getEntities.js';
 import getUnvisit from '../denormalize/unvisit.js';
-import type { EntityTable, NormalizedIndex, Schema } from '../interface.js';
+import type {
+  EntityTable,
+  GetEntity,
+  GetIndex,
+  NormalizedIndex,
+  Schema,
+} from '../interface.js';
 import { isImmutable } from '../schemas/ImmutableUtils.js';
 import type {
   DenormalizeNullable,
@@ -116,35 +122,80 @@ export default class MemoCache {
       object,
       any
     >;
-    const entityIsImmutable = isImmutable(entities);
-    const getEntity = createGetEntity(entities);
-    const getIndexDep = createGetIndexDep(indexes, entityIsImmutable);
+    const snap = new Snapshot(entities, indexes);
     // eslint-disable-next-line prefer-const
-    let [value, paths] = queryCache.get(
-      schema as any,
-      createDepLookup(getEntity, getIndexDep),
-    );
+    let [value, paths] = queryCache.get(schema as any, getDependency(snap));
 
     // paths undefined is the only way to truly tell nothing was found (the value could have actually been undefined)
     if (!paths) {
-      // first dep path is ignored
-      // we start with schema object, then lookup any 'touched' members and their paths
-      const dependencies: Dep<QueryPath>[] = [
-        { path: [''], entity: schema as any },
-      ];
+      const tracked = new TrackedSnapshot(snap, schema);
 
-      value = buildQueryKey(
-        schema,
-        args,
-        trackLookup(getEntity, dependencies),
-        createGetIndex(
-          trackLookup(getIndexDep, dependencies),
-          entityIsImmutable,
-        ),
-      );
-      queryCache.set(dependencies, value);
+      value = buildQueryKey(schema, args, tracked);
+      queryCache.set(tracked.dependencies, value);
     }
     return value;
+  }
+}
+
+const getDependency =
+  (snap: Snapshot) =>
+  (args: QueryPath): QueryPath | undefined =>
+    // ignore third arg so we only track
+    args.length === 3 ?
+      snap.getIndex(args[0], args[1])
+    : snap.getEntity(...(args as [any]));
+
+interface SnapshotInterface {
+  getEntity: GetEntity;
+  getIndex: GetIndex;
+}
+class Snapshot {
+  declare entities: EntityTable | ImmutableJSEntityTable;
+  declare indexes: NormalizedIndex | ImmutableJSEntityTable;
+
+  constructor(
+    entities: EntityTable | ImmutableJSEntityTable,
+    indexes: NormalizedIndex | ImmutableJSEntityTable,
+  ) {
+    this.entities = entities;
+    this.indexes = indexes;
+  }
+
+  getEntity(entityKey: string | symbol, pk?: string): any {
+    return pk ? this.entities[entityKey]?.[pk] : this.entities[entityKey];
+  }
+
+  getIndex(key: string, field: string) {
+    return this.indexes[key]?.[field];
+  }
+}
+class TrackedSnapshot implements SnapshotInterface {
+  declare private snap: Snapshot;
+  // first dep path is ignored
+  // we start with schema object, then lookup any 'touched' members and their paths
+  declare dependencies: Dep<QueryPath>[];
+
+  constructor(snap: Snapshot, schema: any) {
+    this.snap = snap;
+    this.dependencies = [{ path: [''], entity: schema }];
+  }
+
+  getIndex(...path: IndexPath): string | undefined {
+    const entity = this.snap.getIndex(path[0], path[1]);
+    this.dependencies.push({ path, entity });
+    return entity?.[path[2]];
+  }
+
+  getEntity(
+    entityKey: string | symbol,
+  ): { readonly [pk: string]: any } | undefined;
+
+  getEntity(entityKey: string | symbol, pk: string | number): any;
+
+  getEntity(...path: any): any {
+    const entity = this.snap.getEntity(...(path as [any]));
+    this.dependencies.push({ path, entity });
+    return entity;
   }
 }
 

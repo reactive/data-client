@@ -36,7 +36,7 @@ export const normalize = <
   if (
     input === null ||
     (typeof input !== schemaType &&
-      // we will allow a Delete schema to be a string or object
+      // we will allow a Invalidate schema to be a string or object
       !(
         (schema as any).key !== undefined &&
         (schema as any).pk === undefined &&
