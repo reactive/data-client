@@ -1,13 +1,15 @@
 import { INVALID } from '../denormalize/symbol.js';
 import type { EntityInterface } from '../interface.js';
 
-export const addEntities =
-  (
-    newEntities: Map<string, Map<string, any>>,
-    newIndexes: Map<string, Map<string, any>>,
-    entitiesCopy: Record<string, any>,
-    indexesCopy: Record<string, any>,
-    entityMetaCopy: {
+export const addEntities = (
+  {
+    entities,
+    indexes,
+    entityMeta,
+  }: {
+    entities: Record<string, any>;
+    indexes: Record<string, any>;
+    entityMeta: {
       [entityKey: string]: {
         [pk: string]: {
           date: number;
@@ -15,17 +17,20 @@ export const addEntities =
           fetchedAt: number;
         };
       };
-    },
-    actionMeta: { fetchedAt: number; date: number; expiresAt: number },
-  ) =>
-  (schema: EntityInterface, processedEntity: any, id: string) => {
+    };
+  },
+  actionMeta: { fetchedAt: number; date: number; expiresAt: number },
+) => {
+  const newEntities = new Map<string, Map<string, any>>();
+  const newIndexes = new Map<string, Map<string, any>>();
+  return (schema: EntityInterface, processedEntity: any, id: string) => {
     const schemaKey = schema.key;
     // first time we come across this type of entity
     if (!newEntities.has(schemaKey)) {
       newEntities.set(schemaKey, new Map());
       // we will be editing these, so we need to clone them first
-      entitiesCopy[schemaKey] = { ...entitiesCopy[schemaKey] };
-      entityMetaCopy[schemaKey] = { ...entityMetaCopy[schemaKey] };
+      entities[schemaKey] = { ...entities[schemaKey] };
+      entityMeta[schemaKey] = { ...entityMeta[schemaKey] };
     }
 
     const newEntitiesKey = newEntities.get(schemaKey) as Map<string, any>;
@@ -33,14 +38,14 @@ export const addEntities =
     if (existingEntity) {
       newEntitiesKey.set(id, schema.merge(existingEntity, processedEntity));
     } else {
-      const inStoreEntity = entitiesCopy[schemaKey][id];
+      const inStoreEntity = entities[schemaKey][id];
       let inStoreMeta: {
         date: number;
         expiresAt: number;
         fetchedAt: number;
       };
       // this case we already have this entity in store
-      if (inStoreEntity && (inStoreMeta = entityMetaCopy[schemaKey][id])) {
+      if (inStoreEntity && (inStoreMeta = entityMeta[schemaKey][id])) {
         newEntitiesKey.set(
           id,
           schema.mergeWithStore(
@@ -50,7 +55,7 @@ export const addEntities =
             processedEntity,
           ),
         );
-        entityMetaCopy[schemaKey][id] = schema.mergeMetaWithStore(
+        entityMeta[schemaKey][id] = schema.mergeMetaWithStore(
           inStoreMeta,
           actionMeta,
           inStoreEntity,
@@ -58,7 +63,7 @@ export const addEntities =
         );
       } else {
         newEntitiesKey.set(id, processedEntity);
-        entityMetaCopy[schemaKey][id] = actionMeta;
+        entityMeta[schemaKey][id] = actionMeta;
       }
     }
 
@@ -66,20 +71,21 @@ export const addEntities =
     if (schema.indexes) {
       if (!newIndexes.has(schemaKey)) {
         newIndexes.set(schemaKey, new Map());
-        indexesCopy[schemaKey] = { ...indexesCopy[schemaKey] };
+        indexes[schemaKey] = { ...indexes[schemaKey] };
       }
       handleIndexes(
         id,
         schema.indexes,
         newIndexes.get(schemaKey) as Map<string, any>,
-        indexesCopy[schemaKey],
+        indexes[schemaKey],
         newEntitiesKey.get(id),
-        entitiesCopy[schemaKey],
+        entities[schemaKey],
       );
     }
     // set this after index updates so we know what indexes to remove from
-    entitiesCopy[schemaKey][id] = newEntitiesKey.get(id);
+    entities[schemaKey][id] = newEntitiesKey.get(id);
   };
+};
 
 function handleIndexes(
   id: string,
