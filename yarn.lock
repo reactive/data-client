@@ -292,10 +292,10 @@ __metadata:
   linkType: hard
 
 "@anansi/cli@npm:^3.0.15":
-  version: 3.1.64
-  resolution: "@anansi/cli@npm:3.1.64"
+  version: 3.1.65
+  resolution: "@anansi/cli@npm:3.1.65"
   dependencies:
-    "@anansi/generator-js": "npm:^12.6.15"
+    "@anansi/generator-js": "npm:^12.6.16"
     binary-version-check: "npm:^6.1.0"
     chalk: "npm:^4.1.2"
     commander: "npm:^12.1.0"
@@ -310,13 +310,13 @@ __metadata:
       optional: true
   bin:
     anansi: ./run.mjs
-  checksum: 10c0/0ab64f0ea71c88f37c66a695b21150734611cb3571d3f8394d1d21ea120cb2b82158b4cefbd1738fdbc96c64f746ba76fa414aeb354e313a6cc0a5fb41dbc862
+  checksum: 10c0/41f3565f0d9d269d9db23437465f560cf27eadcfbba8db3c48487c1d074d9aacfa12cfc07b32a1321849d8f33a2e677095e3fb8467ee08abefc9724550ede56c
   languageName: node
   linkType: hard
 
 "@anansi/core@npm:^0.20.0":
-  version: 0.20.22
-  resolution: "@anansi/core@npm:0.20.22"
+  version: 0.20.23
+  resolution: "@anansi/core@npm:0.20.23"
   dependencies:
     "@anansi/router": "npm:^0.10.12"
     "@babel/runtime-corejs3": "npm:^7.26.0"
@@ -356,7 +356,7 @@ __metadata:
   bin:
     serve-anansi: ./lib/scripts/serve.js
     start-anansi: ./lib/scripts/startDevserver.js
-  checksum: 10c0/86b4ba92b4c51db00e9c93b886ec520bd640921ab227451f7c45cc47e52ca3c7cf8a33d9988d77975bca715b7b1e1803bccaf07af812e55995fae88a343f3a63
+  checksum: 10c0/b5469d011e51e02ec2dca870fcabe9afdb6ad1637cdde1258ba41015e86f07e000e968ca0fb91a2e6362ed4d7447f5fc732239c82f34124461babf827ad8368c
   languageName: node
   linkType: hard
 
@@ -396,9 +396,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/generator-js@npm:^12.6.15":
-  version: 12.6.15
-  resolution: "@anansi/generator-js@npm:12.6.15"
+"@anansi/generator-js@npm:^12.6.16":
+  version: 12.6.16
+  resolution: "@anansi/generator-js@npm:12.6.16"
   dependencies:
     "@babel/runtime-corejs3": "npm:^7.26.0"
     "@types/inquirer": "npm:^9.0.7"
@@ -414,8 +414,8 @@ __metadata:
     mem-fs-editor: "npm:^11.1.4"
     pacote: "npm:^21.0.0"
     shelobsay: "npm:^2.0.0"
-    yeoman-generator: "npm:^7.5.0"
-  checksum: 10c0/9eff3c088b7622fc666e23b2660a642079016dfe35b954021a066e34bb434d115efca0166190869c2a539d68fa49e7f265b8adcf614cb616e52f2f7290e49283
+    yeoman-generator: "npm:^7.5.1"
+  checksum: 10c0/317dadf0f317eff4eaa78013c212a31df19577260aa57ced87c8eb16e7d8631b1897b58309ca4be65924b436f5032bd4f6f59b3041434ae2c89c1c985682c4ff
   languageName: node
   linkType: hard
 
@@ -7546,12 +7546,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:22.13.10, @types/node@npm:>=18, @types/node@npm:^22.0.0":
-  version: 22.13.10
-  resolution: "@types/node@npm:22.13.10"
+"@types/node@npm:*, @types/node@npm:22.13.13, @types/node@npm:>=18, @types/node@npm:^22.0.0":
+  version: 22.13.13
+  resolution: "@types/node@npm:22.13.13"
   dependencies:
     undici-types: "npm:~6.20.0"
-  checksum: 10c0/a3865f9503d6f718002374f7b87efaadfae62faa499c1a33b12c527cfb9fd86f733e1a1b026b80c5a0e4a965701174bc3305595a7d36078aa1abcf09daa5dee9
+  checksum: 10c0/daf792ba5dcff1316abf4b33680f94b792f8d54d6ae495efc8929531e0ba1284a248d29aab117d2259f9280284d986ad5799b193b0516e2b926d713aab835f7d
   languageName: node
   linkType: hard
 
@@ -9497,12 +9497,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-plugin-syntax-hermes-parser@npm:^0.26.0":
-  version: 0.26.0
-  resolution: "babel-plugin-syntax-hermes-parser@npm:0.26.0"
+"babel-plugin-syntax-hermes-parser@npm:^0.27.0":
+  version: 0.27.0
+  resolution: "babel-plugin-syntax-hermes-parser@npm:0.27.0"
   dependencies:
-    hermes-parser: "npm:0.26.0"
-  checksum: 10c0/b93e74450b0e1a906d316697b49c477ddd790e9c62b8bd4de259b553eef1b33b98e0453b72a3ecec242cb3d61766c65eae7e874070e307ac91629d3b8951174a
+    hermes-parser: "npm:0.27.0"
+  checksum: 10c0/264e0c50b4d959a0372b8850efacc497b15fd74a4666ca5242258b4ede87d99d67ec4b7c5edce51fa10923edec205536e10f3431656e95f0731f012e1d7d667f
   languageName: node
   linkType: hard
 
@@ -16224,10 +16224,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hermes-estree@npm:0.26.0":
-  version: 0.26.0
-  resolution: "hermes-estree@npm:0.26.0"
-  checksum: 10c0/4bf734b0ae484f654724f114939d349b39afe81af0f255b2e15d0fecfe2fd122f36f0b65893e936336e1a4cc77e4124ca962d054a17519f33036e20706a5386d
+"hermes-estree@npm:0.27.0":
+  version: 0.27.0
+  resolution: "hermes-estree@npm:0.27.0"
+  checksum: 10c0/eeadc0066e6354ba5dff2854d55efde68419ec65fae6ba2be050053c1a344834cfd08fd482cf2779655f520840f1f4908fec9976e302e5e53303d5c377ec0060
   languageName: node
   linkType: hard
 
@@ -16249,12 +16249,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hermes-parser@npm:0.26.0":
-  version: 0.26.0
-  resolution: "hermes-parser@npm:0.26.0"
+"hermes-parser@npm:0.27.0":
+  version: 0.27.0
+  resolution: "hermes-parser@npm:0.27.0"
   dependencies:
-    hermes-estree: "npm:0.26.0"
-  checksum: 10c0/8c6340a52a10ac59ff7ab6c48a9cf09a3752d1707f8dc8962f8309da5edddf6e1dd1f403f01c85103908c74232368a8db9e076615adec925f781a0e918ec85f4
+    hermes-estree: "npm:0.27.0"
+  checksum: 10c0/737377ba9e08228fac116318cdf0eef08dffb99489498a406e4255afbd8aba788e7665cebc4f19e5b9e8b6207485c92c9be2bd65671ca103dfd2034d37355af9
   languageName: node
   linkType: hard
 
@@ -26759,11 +26759,11 @@ __metadata:
     "@testing-library/react-hooks": "npm:8.0.1"
     "@testing-library/react-native": "npm:13.2.0"
     "@types/jest": "npm:29.5.14"
-    "@types/node": "npm:22.13.10"
+    "@types/node": "npm:22.13.13"
     "@types/react": "npm:19.0.12"
     "@types/react-dom": "npm:19.0.4"
     babel-plugin-module-resolver: "npm:5.0.2"
-    babel-plugin-syntax-hermes-parser: "npm:^0.26.0"
+    babel-plugin-syntax-hermes-parser: "npm:^0.27.0"
     benchmark: "npm:^2.1.4"
     conventional-changelog-anansi: "npm:^0.2.0"
     copyfiles: "npm:^2.4.1"
@@ -31213,9 +31213,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yeoman-generator@npm:^7.5.0":
-  version: 7.5.0
-  resolution: "yeoman-generator@npm:7.5.0"
+"yeoman-generator@npm:^7.5.1":
+  version: 7.5.1
+  resolution: "yeoman-generator@npm:7.5.1"
   dependencies:
     "@types/lodash-es": "npm:^4.17.9"
     "@yeoman/namespace": "npm:^1.0.0"
@@ -31240,7 +31240,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/node":
       optional: true
-  checksum: 10c0/a6966d9b21446cfb872f0b73ea17ed3310818c166a0afe16fe8d51e4bc7997f228ab1d64836fb03a29304605fd6c95aa3a7aa6b393c4d4aba3511f5237c1116e
+  checksum: 10c0/b8e2c20caa872578cc89a8d7c445620a0b926f8ab443afb49e5e39387a780b367d322cb6d7c13d5cee1da1eeb1ae246a1c3d3799e47279f32e01aad6c6cc417e
   languageName: node
   linkType: hard
 
