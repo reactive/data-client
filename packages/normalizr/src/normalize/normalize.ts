@@ -1,6 +1,6 @@
 import { addEntities } from './addEntities.js';
 import { getVisit } from './getVisit.js';
-import type { Schema, NormalizedIndex } from '../interface.js';
+import type { Schema } from '../interface.js';
 import { createGetEntity } from '../memo/MemoCache.js';
 import type {
   NormalizeMeta,
@@ -80,22 +80,13 @@ See https://dataclient.io/rest/api/RestEndpoint#parseResponse for more informati
     }
   }
 
-  const newEntities = new Map<string, Map<string, any>>();
-  const newIndexes = new Map<string, Map<string, any>>();
   const ret: NormalizedSchema<E, R> = {
     result: '' as any,
     entities: { ...entities },
     indexes: { ...indexes },
     entityMeta: { ...entityMeta },
   };
-  const addEntity = addEntities(
-    newEntities,
-    newIndexes,
-    ret.entities,
-    ret.indexes,
-    ret.entityMeta,
-    meta,
-  );
+  const addEntity = addEntities(ret, meta);
 
   const visit = getVisit(addEntity, createGetEntity(entities));
   ret.result = visit(schema, input, input, undefined, args);
