@@ -1,5 +1,15 @@
 # Change Log
 
+## 1.0.0
+
+### Minor Changes
+
+- [#3421](https://github.com/reactive/data-client/pull/3421) [`246cde6`](https://github.com/reactive/data-client/commit/246cde6dbeca59eafd10e59d8cd05a6f232fb219) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: Denormalize always transforms immutablejs entities into the class
+
+  Previously using ImmutableJS structures when calling denormalize() would maintain
+  nested schemas as immutablejs structures still. Now everything is converted to normal JS.
+  This is how the types have always been specified.
+
 ## 0.14.22
 
 ### Patch Changes
