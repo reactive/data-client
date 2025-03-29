@@ -1,5 +1,5 @@
 import { isImmutable, denormalizeImmutable } from './ImmutableUtils.js';
-import { GetIndex, GetEntity, Visit } from '../interface.js';
+import { Visit } from '../interface.js';
 
 export const normalize = (
   schema: any,
@@ -52,18 +52,11 @@ export function denormalize(
 export function objectQueryKey(
   schema: any,
   args: readonly any[],
-  queryKey: (
-    schema: any,
-    args: any,
-    getEntity: GetEntity,
-    getIndex: GetIndex,
-  ) => any,
-  getEntity: GetEntity,
-  getIndex: GetIndex,
+  queryKey: (schema: any, args: any) => any,
 ) {
   const resultObject: any = {};
   Object.keys(schema).forEach(k => {
-    resultObject[k] = queryKey(schema[k], args, getEntity, getIndex);
+    resultObject[k] = queryKey(schema[k], args);
   });
   return resultObject;
 }
@@ -108,7 +101,7 @@ export default class ObjectSchema {
     return denormalize(this.schema, input, args, unvisit);
   }
 
-  queryKey(args: any, queryKey: any, getEntity: any, getIndex: any) {
-    return objectQueryKey(this.schema, args, queryKey, getEntity, getIndex);
+  queryKey(args: any, queryKey: any, snapshot: any) {
+    return objectQueryKey(this.schema, args, queryKey);
   }
 }

@@ -1,9 +1,9 @@
 import type {
   Schema,
-  GetIndex,
   GetEntity,
   CheckLoop,
   Visit,
+  QuerySnapshot,
 } from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
 import { INVALID } from '../special.js';
@@ -326,13 +326,12 @@ export default function EntityMixin<TBase extends Constructor>(
     static queryKey(
       args: readonly any[],
       queryKey: any,
-      getEntity: GetEntity,
-      getIndex: GetIndex,
+      snapshot: QuerySnapshot,
     ): any {
       if (!args[0]) return;
-      const id = queryKeyCandidate(this, args, getIndex);
+      const id = queryKeyCandidate(this, args, snapshot);
       // ensure this actually has entity or we shouldn't try to use it in our query
-      if (id && getEntity(this.key, id)) return id;
+      if (id && snapshot.getEntity(this.key, id)) return id;
     }
 
     static denormalize<T extends typeof EntityMixin>(
@@ -478,7 +477,7 @@ function throwValidationError(errorMessage: string | undefined) {
 function queryKeyCandidate(
   schema: any,
   args: readonly any[],
-  getIndex: GetIndex,
+  snapshot: QuerySnapshot,
 ) {
   if (['string', 'number'].includes(typeof args[0])) {
     return `${args[0]}`;
@@ -490,5 +489,5 @@ function queryKeyCandidate(
   const indexName = indexFromParams(args[0], schema.indexes);
   if (!indexName) return;
   const value = (args[0] as Record<string, any>)[indexName];
-  return getIndex(schema.key, indexName, value);
+  return snapshot.getIndex(schema.key, indexName, value);
 }

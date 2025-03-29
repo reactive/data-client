@@ -10,8 +10,7 @@ export interface Queryable<Args extends readonly any[] = readonly any[]> {
   queryKey(
     args: Args,
     queryKey: (...args: any) => any,
-    getEntity: GetEntity,
-    getIndex: GetIndex,
+    snapshot: QuerySnapshot,
     // Must be non-void
   ): {};
 }
@@ -39,8 +38,7 @@ export interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
   queryKey(
     args: Args,
     queryKey: (...args: any) => any,
-    getEntity: GetEntity,
-    getIndex: GetIndex,
+    snapshot: QuerySnapshot,
   ): any;
 }
 
@@ -114,3 +112,11 @@ export interface GetIndex {
   /** getIndex('User', 'username', 'ntucker') */
   (entityKey: string, field: string, value: string): string | undefined;
 }
+
+/** Accessors to the currently processing state */
+export interface QuerySnapshot {
+  getEntity: GetEntity;
+  getIndex: GetIndex;
+}
+
+/** Accessors to the currently processing state */

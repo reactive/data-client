@@ -20,9 +20,9 @@ export default class WeakDependencyMap<
     if (!curLink) return EMPTY;
     while (curLink.nextPath) {
       // we cannot perform lookups with `undefined`, so we use a special object to represent undefined
-      console.log('lookup', curLink.nextPath);
+      // console.log('lookup', curLink.nextPath);
       const nextDependency = getDependency(curLink.nextPath) ?? UNDEF;
-      console.log('next dep get', nextDependency);
+      // console.log('next dep get', nextDependency);
       curLink = curLink.next.get(nextDependency as any);
       if (!curLink) return EMPTY;
     }
@@ -34,7 +34,7 @@ export default class WeakDependencyMap<
     if (dependencies.length < 1) throw new KeySize();
     let curLink: Link<Path, K, V> = this as any;
     for (const { entity, path } of dependencies) {
-      console.log('set entity', entity);
+      // console.log('set entity', entity);
       let nextLink = curLink.next.get(entity);
       if (!nextLink) {
         nextLink = new Link<Path, K, V>();

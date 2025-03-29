@@ -56,9 +56,9 @@ describe('immutableJS', () => {
       id: '1',
       food: { id: '1', extra: 'hi' },
     });
-    console.log(v);
+    // console.log(v);
     const entities = state.mergeDeep(fromJS(v.entities));
-    console.log(entities.getIn(['Menu', '1']));
+    // console.log(entities.getIn(['Menu', '1']));
 
     // expect(denormalize(Menu, '1', entities)).toMatchSnapshot();
     // expect(denormalize(Menu, '1', fromJS(entities))).toMatchSnapshot();
