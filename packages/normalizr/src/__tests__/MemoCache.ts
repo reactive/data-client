@@ -9,7 +9,7 @@ import {
 } from '__tests__/new';
 
 import { fromJSEntities } from './immutable.test';
-import { GetEntity, GetIndex } from '../interface';
+import { GetEntity, GetIndex, QuerySnapshot } from '../interface';
 import MemoCache from '../memo/MemoCache';
 
 class IDEntity extends Entity {
@@ -922,12 +922,7 @@ describe('MemoCache', () => {
 
     describe('legacy schema', () => {
       class MyEntity extends CoolerArticle {
-        static queryKey(
-          args: any[],
-          queryKey: any,
-          getEntity: GetEntity,
-          getIndex: GetIndex,
-        ) {
+        static queryKey(args: any[], queryKey: any, snapshot: QuerySnapshot) {
           if (!args[0]) return;
           let id: undefined | number | string;
           if (['string', 'number'].includes(typeof args[0])) {
@@ -936,7 +931,7 @@ describe('MemoCache', () => {
             id = this.pk(args[0], undefined, '', args);
           }
           // Was able to infer the entity's primary key from params
-          if (id !== undefined && id !== '' && getEntity(this.key, id))
+          if (id !== undefined && id !== '' && snapshot.getEntity(this.key, id))
             return id;
         }
       }

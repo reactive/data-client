@@ -1,5 +1,5 @@
 import ArraySchema from './Array.js';
-import { EntityTable, GetEntity, Visit } from '../interface.js';
+import { QuerySnapshot, Visit } from '../interface.js';
 import { EntityInterface, EntityMap, SchemaFunction } from '../schema.js';
 import { INVALID } from '../special.js';
 
@@ -43,9 +43,9 @@ export default class AllSchema<
     );
   }
 
-  queryKey(args: any, queryKey: any, getEntity: GetEntity, getIndex: any): any {
+  queryKey(args: any, queryKey: any, snapshot: QuerySnapshot): any {
     if (this.isSingleSchema) {
-      const entitiesEntry = getEntity(this.schema.key);
+      const entitiesEntry = snapshot.getEntity(this.schema.key);
       // we must wait until there are entries for any 'All' query to be Valid
       if (entitiesEntry === undefined) return INVALID;
       return Object.values(entitiesEntry).map(
@@ -55,7 +55,7 @@ export default class AllSchema<
     let found = false;
     const list = Object.values(this.schema as Record<string, any>).flatMap(
       (schema: EntityInterface) => {
-        const entitiesEntry = getEntity(schema.key);
+        const entitiesEntry = snapshot.getEntity(schema.key);
         if (entitiesEntry === undefined) return [];
         found = true;
         return Object.values(entitiesEntry).map(entity => ({

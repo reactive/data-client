@@ -3,9 +3,9 @@ import type {
   EntityInterface,
   PolymorphicInterface,
   SchemaClass,
-  GetIndex,
   GetEntity,
   CheckLoop,
+  QuerySnapshot,
 } from './interface.js';
 import type {
   AbstractInstanceType,
@@ -91,8 +91,7 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
   queryKey(
     args: readonly any[],
     queryKey: (...args: any) => any,
-    getEntity: any,
-    getIndex: any,
+    snapshot: any,
   ): undefined;
 }
 
@@ -151,8 +150,7 @@ export class All<
     // TODO: hack for now to allow for variable arg combinations with Query
     args: [] | [unknown],
     queryKey: (...args: any) => any,
-    getEntity: GetEntity,
-    getIndex: GetIndex,
+    snapshot: QuerySnapshot,
   ): any;
 }
 
@@ -194,8 +192,7 @@ export class Object<O extends Record<string, any> = Record<string, any>>
   queryKey(
     args: ObjectArgs<O>,
     queryKey: (...args: any) => any,
-    getEntity: GetEntity,
-    getIndex: GetIndex,
+    snapshot: QuerySnapshot,
   ): any;
 }
 
@@ -287,8 +284,7 @@ export interface UnionInstance<
   queryKey(
     args: [Args],
     queryKey: (...args: any) => any,
-    getEntity: GetEntity,
-    getIndex: GetIndex,
+    snapshot: QuerySnapshot,
   ): { id: any; schema: string };
 }
 
@@ -376,8 +372,7 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
   queryKey(
     args: readonly any[],
     queryKey: (...args: any) => any,
-    getEntity: GetEntity,
-    getIndex: GetIndex,
+    snapshot: QuerySnapshot,
   ): undefined;
 }
 

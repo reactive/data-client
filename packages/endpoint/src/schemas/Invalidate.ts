@@ -103,12 +103,7 @@ export default class Invalidate<
 
   /** /End Normalize lifecycles **/
 
-  queryKey(
-    args: any,
-    queryKey: unknown,
-    getEntity: unknown,
-    getIndex: unknown,
-  ): undefined {
+  queryKey(args: any, queryKey: unknown, snapshot: unknown): undefined {
     return undefined;
   }
 

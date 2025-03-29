@@ -1,7 +1,7 @@
 import { addEntities } from './addEntities.js';
 import { getVisit } from './getVisit.js';
 import type { Schema } from '../interface.js';
-import { createGetEntity } from '../memo/MemoCache.js';
+import { SnapshotCore } from '../memo/queryCache.js';
 import type {
   NormalizeMeta,
   NormalizeNullable,
@@ -88,7 +88,10 @@ See https://dataclient.io/rest/api/RestEndpoint#parseResponse for more informati
   };
   const addEntity = addEntities(ret, meta);
 
-  const visit = getVisit(addEntity, createGetEntity(entities));
+  const snap = new SnapshotCore(entities, indexes);
+  const visit = getVisit(addEntity, (...args) =>
+    snap.getEntity(...(args as [any])),
+  );
   ret.result = visit(schema, input, input, undefined, args);
   return ret;
 };

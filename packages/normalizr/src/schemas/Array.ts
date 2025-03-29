@@ -51,12 +51,6 @@ export const denormalize = (
     : input;
 };
 
-export function queryKey(
-  schema: any,
-  args: any,
-  queryKey: any,
-  getEntity: any,
-  getIndex: any,
-) {
+export function queryKey(schema: any, args: any, queryKey: any, snapshot: any) {
   return undefined;
 }
