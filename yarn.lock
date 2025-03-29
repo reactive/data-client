@@ -292,8 +292,8 @@ __metadata:
   linkType: hard
 
 "@anansi/cli@npm:^3.0.15":
-  version: 3.1.65
-  resolution: "@anansi/cli@npm:3.1.65"
+  version: 3.1.66
+  resolution: "@anansi/cli@npm:3.1.66"
   dependencies:
     "@anansi/generator-js": "npm:^12.6.16"
     binary-version-check: "npm:^6.1.0"
@@ -310,15 +310,15 @@ __metadata:
       optional: true
   bin:
     anansi: ./run.mjs
-  checksum: 10c0/41f3565f0d9d269d9db23437465f560cf27eadcfbba8db3c48487c1d074d9aacfa12cfc07b32a1321849d8f33a2e677095e3fb8467ee08abefc9724550ede56c
+  checksum: 10c0/48eb0f4d849c2527c71d8e255825b3f6ca66150e29b6a4b3d7f999b14a8249738fa758a592e5788734c3dd168faee0928c0c24b8fa6d37d84bc6f2c396671945
   languageName: node
   linkType: hard
 
 "@anansi/core@npm:^0.20.0":
-  version: 0.20.23
-  resolution: "@anansi/core@npm:0.20.23"
+  version: 0.20.24
+  resolution: "@anansi/core@npm:0.20.24"
   dependencies:
-    "@anansi/router": "npm:^0.10.12"
+    "@anansi/router": "npm:^0.10.13"
     "@babel/runtime-corejs3": "npm:^7.26.0"
     chalk: "npm:^4.1.2"
     compression: "npm:^1.8.0"
@@ -334,7 +334,7 @@ __metadata:
     source-map-support: "npm:^0.5.21"
     tmp: "npm:^0.2.3"
     unionfs: "npm:^4.5.4"
-    webpack-dev-server: "npm:^5.2.0"
+    webpack-dev-server: "npm:^5.2.1"
     whatwg-fetch: "npm:^3.6.2"
   peerDependencies:
     "@ant-design/cssinjs": ^1.5.1
@@ -356,7 +356,7 @@ __metadata:
   bin:
     serve-anansi: ./lib/scripts/serve.js
     start-anansi: ./lib/scripts/startDevserver.js
-  checksum: 10c0/b5469d011e51e02ec2dca870fcabe9afdb6ad1637cdde1258ba41015e86f07e000e968ca0fb91a2e6362ed4d7447f5fc732239c82f34124461babf827ad8368c
+  checksum: 10c0/d67ba37510f29718d6ac9e10b16babb13f032a6d3dec1d9476c4675c420e3657efd5684864ce03736f70a613ecf9952fd4268b721d32ee061ff6683c7ae93a8a
   languageName: node
   linkType: hard
 
@@ -450,12 +450,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/router@npm:^0.10.0, @anansi/router@npm:^0.10.12":
-  version: 0.10.12
-  resolution: "@anansi/router@npm:0.10.12"
+"@anansi/router@npm:^0.10.0, @anansi/router@npm:^0.10.13":
+  version: 0.10.13
+  resolution: "@anansi/router@npm:0.10.13"
   dependencies:
     "@babel/runtime-corejs3": "npm:^7.26.0"
-    "@pojo-router/core": "npm:^0.10.5"
+    "@pojo-router/core": "npm:^0.10.6"
     core-js-pure: "npm:^3.40.0"
     history: "npm:^5.3.0"
     nano-memoize: "npm:^3.0.16"
@@ -465,7 +465,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/331b327e4475fcc4bf003919cf77644c8fba1aed6fa5d8f190032aad51fee7a2372b9ad70d674625cc8a23fadee610c4ec200190979747b88982c60cb8d414db
+  checksum: 10c0/b8a0dc127b8747f2752402e5c0aab18807ce26fb600006ef04746e8d08654257bff384136127b34e2097f9ed1c483b32abf6c89a9099b6a8075d66171db24606
   languageName: node
   linkType: hard
 
@@ -3098,7 +3098,7 @@ __metadata:
     "@babel/runtime": "npm:^7.20.0"
     "@data-client/core": "workspace:*"
     "@data-client/normalizr": "workspace:*"
-    "@js-temporal/polyfill": "npm:^0.4.4"
+    "@js-temporal/polyfill": "npm:^0.5.0"
     "@types/jest": "npm:^29.5.14"
     "@types/node": "npm:^22.0.0"
     immutable: "npm:5.1.1"
@@ -3152,7 +3152,7 @@ __metadata:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.20.0"
     "@data-client/endpoint": "workspace:*"
-    "@js-temporal/polyfill": "npm:^0.4.4"
+    "@js-temporal/polyfill": "npm:^0.5.0"
     "@types/jest": "npm:^29.5.14"
     "@types/node": "npm:^22.0.0"
     immutable: "npm:5.1.1"
@@ -3171,7 +3171,7 @@ __metadata:
     "@data-client/test": "workspace:*"
     "@data-client/use-enhanced-reducer": "npm:^0.1.14"
     "@jest/globals": "npm:^29.7.0"
-    "@js-temporal/polyfill": "npm:^0.4.4"
+    "@js-temporal/polyfill": "npm:^0.5.0"
     "@react-navigation/native": "npm:^7.0.0"
     "@react-navigation/native-stack": "npm:^7.2.0"
     "@testing-library/dom": "npm:^10.4.0"
@@ -4768,13 +4768,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@js-temporal/polyfill@npm:^0.4.4":
-  version: 0.4.4
-  resolution: "@js-temporal/polyfill@npm:0.4.4"
+"@js-temporal/polyfill@npm:^0.5.0":
+  version: 0.5.0
+  resolution: "@js-temporal/polyfill@npm:0.5.0"
   dependencies:
     jsbi: "npm:^4.3.0"
-    tslib: "npm:^2.4.1"
-  checksum: 10c0/9edd8431f38837235c7dc88c48bfb2235ca13ec24f22848cd3ca7ebfdb169a2cb9654e04a7efca1488d2b67b851d84013f0bfa8dc3df207bd496ad13560ec937
+  checksum: 10c0/132617cfc6f48be8d9c8ae8eca63abc41452a97989b768e4b49b3a5a280ac3cca3060c80134e3ec63c2f374d3127c3b91d82569f637f671eb2d98aaa8952dc9e
   languageName: node
   linkType: hard
 
@@ -5645,9 +5644,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pojo-router/core@npm:^0.10.5":
-  version: 0.10.5
-  resolution: "@pojo-router/core@npm:0.10.5"
+"@pojo-router/core@npm:^0.10.6":
+  version: 0.10.6
+  resolution: "@pojo-router/core@npm:0.10.6"
   dependencies:
     "@babel/runtime-corejs3": "npm:^7.26.0"
     core-js-pure: "npm:^3.40.0"
@@ -5659,7 +5658,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/22cd55c09f196a40df6fbd22dca488f1221831521dcfb624341b87b985c4797b22644e537705b126854664d9a4f1d63c7182fedbab50b72a9e2cd58c837623ee
+  checksum: 10c0/61882c411d643671a4eaa6225417888a57f7188d579aa0416b07ef55ed809402f2bed38148136d56accbc5937505305b67fbbe8e73fe7fc346e10cc3fa2893bb
   languageName: node
   linkType: hard
 
@@ -7286,15 +7285,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/express-serve-static-core@npm:*, @types/express-serve-static-core@npm:^4.17.33":
-  version: 4.17.35
-  resolution: "@types/express-serve-static-core@npm:4.17.35"
+"@types/express-serve-static-core@npm:*, @types/express-serve-static-core@npm:^4.17.21, @types/express-serve-static-core@npm:^4.17.33":
+  version: 4.19.6
+  resolution: "@types/express-serve-static-core@npm:4.19.6"
   dependencies:
     "@types/node": "npm:*"
     "@types/qs": "npm:*"
     "@types/range-parser": "npm:*"
     "@types/send": "npm:*"
-  checksum: 10c0/08db6ffff07b5d53d852bb0a078ea5ee6dc3eb581d8c8fdf0d65f48c641db2830658074c797844e618b0933ce4ca2ddd08191f9d79b12eb2ec3d66f8551716ec
+  checksum: 10c0/4281f4ead71723f376b3ddf64868ae26244d434d9906c101cf8d436d4b5c779d01bd046e4ea0ed1a394d3e402216fabfa22b1fa4dba501061cd7c81c54045983
   languageName: node
   linkType: hard
 
@@ -7553,12 +7552,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:22.13.13, @types/node@npm:>=18, @types/node@npm:^22.0.0":
-  version: 22.13.13
-  resolution: "@types/node@npm:22.13.13"
+"@types/node@npm:*, @types/node@npm:22.13.14, @types/node@npm:>=18, @types/node@npm:^22.0.0":
+  version: 22.13.14
+  resolution: "@types/node@npm:22.13.14"
   dependencies:
     undici-types: "npm:~6.20.0"
-  checksum: 10c0/daf792ba5dcff1316abf4b33680f94b792f8d54d6ae495efc8929531e0ba1284a248d29aab117d2259f9280284d986ad5799b193b0516e2b926d713aab835f7d
+  checksum: 10c0/fa2ab5b8277bfbcc86c42e46a3ea9871b0d559894cc9d955685d17178c9499f0b1bf03d1d1ea8d92ef2dda818988f4035acb8abf9dc15423a998fa56173ab804
   languageName: node
   linkType: hard
 
@@ -25210,7 +25209,7 @@ __metadata:
     "@docusaurus/preset-classic": "npm:^3.0.1"
     "@docusaurus/theme-live-codeblock": "npm:^3.0.1"
     "@docusaurus/theme-mermaid": "npm:^3.0.1"
-    "@js-temporal/polyfill": "npm:^0.4.4"
+    "@js-temporal/polyfill": "npm:^0.5.0"
     "@mdx-js/react": "npm:^3.1.0"
     "@monaco-editor/react": "npm:^4.4.6"
     "@number-flow/react": "npm:^0.5.0"
@@ -26765,7 +26764,7 @@ __metadata:
     "@data-client/react": "workspace:*"
     "@data-client/rest": "workspace:*"
     "@data-client/test": "workspace:*"
-    "@js-temporal/polyfill": "npm:^0.4.4"
+    "@js-temporal/polyfill": "npm:^0.5.0"
     "@react-navigation/native": "npm:^7.0.0"
     "@react-navigation/native-stack": "npm:^7.0.0"
     "@testing-library/dom": "npm:^10.4.0"
@@ -26774,7 +26773,7 @@ __metadata:
     "@testing-library/react-hooks": "npm:8.0.1"
     "@testing-library/react-native": "npm:13.2.0"
     "@types/jest": "npm:29.5.14"
-    "@types/node": "npm:22.13.13"
+    "@types/node": "npm:22.13.14"
     "@types/react": "npm:19.0.12"
     "@types/react-dom": "npm:19.0.4"
     babel-plugin-module-resolver: "npm:5.0.2"
@@ -29208,7 +29207,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.4.0, tslib@npm:^2.4.1, tslib@npm:^2.6.0, tslib@npm:^2.8.1":
+"tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.4.0, tslib@npm:^2.6.0, tslib@npm:^2.8.1":
   version: 2.8.1
   resolution: "tslib@npm:2.8.1"
   checksum: 10c0/9c4759110a19c53f992d9aae23aac5ced636e99887b51b9e61def52611732872ff7668757d4e4c61f19691e36f4da981cd9485e869b4a7408d689f6bf1f14e62
@@ -30511,13 +30510,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-dev-server@npm:^5.2.0":
-  version: 5.2.0
-  resolution: "webpack-dev-server@npm:5.2.0"
+"webpack-dev-server@npm:^5.2.1":
+  version: 5.2.1
+  resolution: "webpack-dev-server@npm:5.2.1"
   dependencies:
     "@types/bonjour": "npm:^3.5.13"
     "@types/connect-history-api-fallback": "npm:^1.5.4"
     "@types/express": "npm:^4.17.21"
+    "@types/express-serve-static-core": "npm:^4.17.21"
     "@types/serve-index": "npm:^1.9.4"
     "@types/serve-static": "npm:^1.15.5"
     "@types/sockjs": "npm:^0.3.36"
@@ -30551,7 +30551,7 @@ __metadata:
       optional: true
   bin:
     webpack-dev-server: bin/webpack-dev-server.js
-  checksum: 10c0/afb2e51945ac54ef3039e11e377241e1cb97a8d3f526f39f13c3fa924c530fb6063200c2c3ae4e33e6bcc110d4abed777c09ce18e2d261012853d81f3c5820ab
+  checksum: 10c0/22bcf2bcc7c72cd2065883ed4368fbcdf20078bc746b07689d10a0546ee99ea00bc50f0474112278ffd8598a5bc237df2bf7bb7f6dcda940a16b1eb91137efea
   languageName: node
   linkType: hard
 
