@@ -3,7 +3,7 @@ import { Schema, normalize } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
-import SimpleMemoCache from './denormalize';
+import { SimpleMemoCache, fromJSEntities } from './denormalize';
 import { schema } from '../..';
 import { INVALID } from '../../special';
 import Entity from '../Entity';
@@ -45,12 +45,10 @@ describe(`${schema.Invalidate.name} normalization`, () => {
     class User extends IDEntity {}
 
     expect(
-      new schema.Invalidate(User).queryKey(
-        [{ id: 5 }],
-        () => undefined,
-        () => undefined,
-        () => undefined,
-      ),
+      new schema.Invalidate(User).queryKey([{ id: 5 }], () => undefined, {
+        getEntity: () => undefined,
+        getIndex: () => undefined,
+      }),
     ).toBeUndefined();
   });
 
@@ -108,9 +106,9 @@ describe(`${schema.Invalidate.name} denormalization`, () => {
   });
 
   describe.each([
-    ['direct', <T>(data: T) => data],
-    ['immutable', fromJS],
-  ])(`input (%s)`, (_, createInput) => {
+    ['direct', <T>(data: T) => data, <T>(data: T) => data],
+    ['immutable', fromJS, fromJSEntities],
+  ])(`input (%s)`, (_, createInput, createEntities) => {
     describe.each([
       [
         'class',
@@ -141,7 +139,7 @@ describe(`${schema.Invalidate.name} denormalization`, () => {
             denormalize(
               createObject({ data: new schema.Invalidate(User) }),
               createInput({ data: '1' }),
-              createInput({
+              createEntities({
                 User: { '1': INVALID },
               }),
             ),
@@ -153,7 +151,7 @@ describe(`${schema.Invalidate.name} denormalization`, () => {
             denormalize(
               createArray(createObject({ data: new schema.Invalidate(User) })),
               createInput([{ data: '1' }]),
-              createInput({
+              createEntities({
                 User: { '1': INVALID },
               }),
             ),
@@ -162,7 +160,7 @@ describe(`${schema.Invalidate.name} denormalization`, () => {
             denormalize(
               createArray(createObject({ data: User })),
               createInput([{ data: '1' }]),
-              createInput({
+              createEntities({
                 User: { '1': INVALID },
               }),
             ),
@@ -174,7 +172,7 @@ describe(`${schema.Invalidate.name} denormalization`, () => {
             denormalize(
               createArray(createObject({ data: new schema.Invalidate(User) })),
               createInput([{ data: '1' }]),
-              createInput([{}]),
+              createEntities({}),
             ),
           ).toMatchSnapshot();
 
@@ -182,7 +180,7 @@ describe(`${schema.Invalidate.name} denormalization`, () => {
             denormalize(
               createArray(createObject({ data: User })),
               createInput([{ data: '1' }]),
-              createInput([{}]),
+              createEntities({}),
             ),
           ).toMatchSnapshot();
 
@@ -190,7 +188,7 @@ describe(`${schema.Invalidate.name} denormalization`, () => {
             denormalize(
               createObject({ data: User }),
               createInput({ data: '1' }),
-              createInput({}),
+              createEntities({}),
             ),
           ).toMatchSnapshot();
         });

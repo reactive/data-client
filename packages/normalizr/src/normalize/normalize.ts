@@ -1,7 +1,7 @@
 import { addEntities } from './addEntities.js';
 import { getVisit } from './getVisit.js';
 import type { Schema } from '../interface.js';
-import { createGetEntity } from '../memo/MemoCache.js';
+import { SnapshotCore } from '../memo/queryCache.js';
 import type {
   NormalizeMeta,
   NormalizeNullable,
@@ -36,7 +36,7 @@ export const normalize = <
   if (
     input === null ||
     (typeof input !== schemaType &&
-      // we will allow a Delete schema to be a string or object
+      // we will allow a Invalidate schema to be a string or object
       !(
         (schema as any).key !== undefined &&
         (schema as any).pk === undefined &&
@@ -88,7 +88,8 @@ See https://dataclient.io/rest/api/RestEndpoint#parseResponse for more informati
   };
   const addEntity = addEntities(ret, meta);
 
-  const visit = getVisit(addEntity, createGetEntity(entities));
+  const snap = new SnapshotCore(entities, indexes);
+  const visit = getVisit(addEntity, snap.getEntity);
   ret.result = visit(schema, input, input, undefined, args);
   return ret;
 };

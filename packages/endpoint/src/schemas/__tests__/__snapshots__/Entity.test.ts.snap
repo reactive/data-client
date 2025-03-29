@@ -50,22 +50,6 @@ Menu {
 }
 `;
 
-exports[`Entity denormalization denormalizes deep entities with records 1`] = `
-Menu {
-  "food": Food {
-    "id": "1",
-  },
-  "id": "1",
-}
-`;
-
-exports[`Entity denormalization denormalizes deep entities with records 2`] = `
-Menu {
-  "food": null,
-  "id": "2",
-}
-`;
-
 exports[`Entity denormalization denormalizes recursive dependencies 1`] = `
 Report {
   "draftedBy": User {

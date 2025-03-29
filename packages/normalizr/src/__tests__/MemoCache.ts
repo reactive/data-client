@@ -7,8 +7,8 @@ import {
   IndexedUser,
   FirstUnion,
 } from '__tests__/new';
-import { fromJS } from 'immutable';
 
+import { fromJSEntities } from './immutable.test';
 import { GetEntity, GetIndex } from '../interface';
 import MemoCache from '../memo/MemoCache';
 
@@ -1057,7 +1057,7 @@ describe('MemoCache', () => {
     ['direct', <T>(data: T) => data, <T>(data: T) => data],
     [
       'immutable',
-      fromJS,
+      fromJSEntities,
       (v: any) => (typeof v?.toJS === 'function' ? v.toJS() : v),
     ],
   ])(`query (%s)`, (_, createInput, createOutput) => {
