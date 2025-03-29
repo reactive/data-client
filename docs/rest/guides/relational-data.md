@@ -536,7 +536,7 @@ export class User extends Entity {
   id = '';
   name = '';
   posts: Post[] = [];
-  createdAt = Temporal.Instant.fromEpochSeconds(0);
+  createdAt = Temporal.Instant.fromEpochMilliseconds(0);
 
   static schema: Record<string, Schema | Date> = {
     createdAt: Temporal.Instant.from,

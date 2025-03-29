@@ -48,7 +48,7 @@ delay: () => 150,
 ```ts title="api/lastUpdated" collapsed
 export class TimedEntity extends Entity {
   id = '';
-  updatedAt = Temporal.Instant.fromEpochSeconds(0);
+  updatedAt = Temporal.Instant.fromEpochMilliseconds(0);
 
   static schema = {
     updatedAt: Temporal.Instant.from,

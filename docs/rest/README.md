@@ -51,7 +51,7 @@ export class Article extends Entity {
   content = '';
   author = User.fromJS();
   tags: string[] = [];
-  createdAt = Temporal.Instant.fromEpochSeconds(0);
+  createdAt = Temporal.Instant.fromEpochMilliseconds(0);
 
   pk() {
     return this.slug;
@@ -101,7 +101,7 @@ export class Article {
   content = '';
   author = UserEntity.fromJS();
   tags: string[] = [];
-  createdAt = Temporal.Instant.fromEpochSeconds(0);
+  createdAt = Temporal.Instant.fromEpochMilliseconds(0);
 }
 
 export class ArticleEntity extends EntityMixin(Article, {

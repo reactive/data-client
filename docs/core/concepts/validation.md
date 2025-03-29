@@ -182,7 +182,7 @@ export const getArticleList = new RestEndpoint({
 
 export class ArticleFull extends ArticlePreview {
   content = '';
-  createdAt = Temporal.Instant.fromEpochSeconds(0);
+  createdAt = Temporal.Instant.fromEpochMilliseconds(0);
 
   static schema = {
     createdAt: Temporal.Instant.from,

@@ -37,8 +37,8 @@ export class Issue extends Entity {
   state: 'open' | 'closed' = 'open';
   locked = false;
   comments = 0;
-  created_at = Temporal.Instant.fromEpochSeconds(0);
-  updated_at = Temporal.Instant.fromEpochSeconds(0);
+  created_at = Temporal.Instant.fromEpochMilliseconds(0);
+  updated_at = Temporal.Instant.fromEpochMilliseconds(0);
   closed_at: Temporal.Instant | null = null;
   authorAssociation = 'NONE';
   pullRequest: Record<string, any> | null = null;

@@ -69,10 +69,10 @@ export class Validator extends Entity {
     details: '',
   };
   unbonding_height = '0';
-  unbonding_time = Temporal.Instant.fromEpochSeconds(0);
+  unbonding_time = Temporal.Instant.fromEpochMilliseconds(0);
   comission = {
     commission_rates: { rate: 0, max_rate: 0, max_change_rate: 0 },
-    update_time: Temporal.Instant.fromEpochSeconds(0),
+    update_time: Temporal.Instant.fromEpochMilliseconds(0),
   };
   min_self_delegation = '0';
 

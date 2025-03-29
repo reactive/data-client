@@ -1,59 +1,48 @@
-import { NumberFlowLite, Value, Format } from 'number-flow';
+export * from 'number-flow/plugins';
 import * as React from 'react';
-export { Format, Trend, Value } from 'number-flow';
+import NumberFlowLite, { Value, Format, Props } from 'number-flow/lite';
+export { Format, NumberPartType, Trend, Value } from 'number-flow/lite';
 
-declare const OBSERVED_ATTRIBUTES: readonly ['parts'];
+declare const OBSERVED_ATTRIBUTES: readonly ["data", "digits"];
 type ObservedAttribute = (typeof OBSERVED_ATTRIBUTES)[number];
 declare class NumberFlowElement extends NumberFlowLite {
-  static observedAttributes: readonly ['parts'];
-  attributeChangedCallback(
-    attr: ObservedAttribute,
-    _oldValue: string,
-    newValue: string,
-  ): void;
+    static observedAttributes: readonly ["data", "digits"] | never[];
+    attributeChangedCallback(attr: ObservedAttribute, _oldValue: string, newValue: string): void;
 }
-type NumberFlowProps = React.HTMLAttributes<NumberFlowElement> & {
-  value: Value;
-  locales?: Intl.LocalesArgument;
-  format?: Format;
-  isolate?: boolean;
-  animated?: boolean;
-  respectMotionPreference?: boolean;
-  willChange?: boolean;
-  onAnimationsStart?: () => void;
-  onAnimationsFinish?: () => void;
-  trend?: (typeof NumberFlowElement)['prototype']['trend'];
-  opacityTiming?: (typeof NumberFlowElement)['prototype']['opacityTiming'];
-  transformTiming?: (typeof NumberFlowElement)['prototype']['transformTiming'];
-  spinTiming?: (typeof NumberFlowElement)['prototype']['spinTiming'];
+type BaseProps = React.HTMLAttributes<NumberFlowElement> & Partial<Props> & {
+    isolate?: boolean;
+    willChange?: boolean;
+    onAnimationsStart?: (e: CustomEvent<undefined>) => void;
+    onAnimationsFinish?: (e: CustomEvent<undefined>) => void;
 };
-declare const NumberFlow: (
-  options: React.HTMLAttributes<NumberFlowElement> & {
+type NumberFlowProps = BaseProps & {
     value: Value;
     locales?: Intl.LocalesArgument;
     format?: Format;
+    prefix?: string;
+    suffix?: string;
+};
+declare const NumberFlow: React.ForwardRefExoticComponent<React.HTMLAttributes<NumberFlowElement> & Partial<Props> & {
     isolate?: boolean;
-    animated?: boolean;
-    respectMotionPreference?: boolean;
     willChange?: boolean;
-    onAnimationsStart?: () => void;
-    onAnimationsFinish?: () => void;
-    trend?: (typeof NumberFlowElement)['prototype']['trend'];
-    opacityTiming?: (typeof NumberFlowElement)['prototype']['opacityTiming'];
-    transformTiming?: (typeof NumberFlowElement)['prototype']['transformTiming'];
-    spinTiming?: (typeof NumberFlowElement)['prototype']['spinTiming'];
-  } & React.RefAttributes<NumberFlowElement>,
-) => JSX.Element;
+    onAnimationsStart?: (e: CustomEvent<undefined>) => void;
+    onAnimationsFinish?: (e: CustomEvent<undefined>) => void;
+} & {
+    value: Value;
+    locales?: Intl.LocalesArgument;
+    format?: Format;
+    prefix?: string;
+    suffix?: string;
+} & React.RefAttributes<NumberFlowElement>>;
 
-declare function useCanAnimate({
-  respectMotionPreference,
-}?: {
-  respectMotionPreference?: boolean | undefined;
+declare function NumberFlowGroup({ children }: {
+    children: React.ReactNode;
+}): React.JSX.Element;
+
+declare const useIsSupported: () => boolean;
+declare const usePrefersReducedMotion: () => boolean;
+declare function useCanAnimate({ respectMotionPreference }?: {
+    respectMotionPreference?: boolean | undefined;
 }): boolean;
 
-export {
-  NumberFlowElement,
-  type NumberFlowProps,
-  NumberFlow as default,
-  useCanAnimate,
-};
+export { NumberFlowElement, NumberFlowGroup, type NumberFlowProps, NumberFlow as default, useCanAnimate, useIsSupported, usePrefersReducedMotion };

@@ -57,7 +57,7 @@ class User extends Entity {
   id = '';
   firstName = '';
   lastName = '';
-  createdAt = Temporal.Instant.fromEpochSeconds(0);
+  createdAt = Temporal.Instant.fromEpochMilliseconds(0);
   lifetimeBlinkCount = BigNumber(0);
 
   static key = 'User';

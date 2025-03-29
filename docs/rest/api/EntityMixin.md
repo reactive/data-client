@@ -46,7 +46,7 @@ these as static members of the final class.
 ```typescript
 class User {
   username = '';
-  createdAt = Temporal.Instant.fromEpochSeconds(0);
+  createdAt = Temporal.Instant.fromEpochMilliseconds(0);
 }
 class UserEntity extends EntityMixin(User, {
   pk: 'username',

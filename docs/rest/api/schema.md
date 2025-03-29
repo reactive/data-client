@@ -55,7 +55,7 @@ class User extends Entity {
 
 class Comment extends Entity {
   id = '';
-  createdAt = Temporal.Instant.fromEpochSeconds(0);
+  createdAt = Temporal.Instant.fromEpochMilliseconds(0);
   commenter = User.fromJS();
 
   static schema = {

@@ -18,8 +18,8 @@ export class Issue extends GithubEntity {
   state: 'open' | 'closed' = 'open';
   locked = false;
   comments = 0;
-  createdAt = Temporal.Instant.fromEpochSeconds(0);
-  updatedAt = Temporal.Instant.fromEpochSeconds(0);
+  createdAt = Temporal.Instant.fromEpochMilliseconds(0);
+  updatedAt = Temporal.Instant.fromEpochMilliseconds(0);
   closedAt: Date | null = null;
   labels: Label[] = [];
   authorAssociation = 'NONE';

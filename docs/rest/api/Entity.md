@@ -65,7 +65,7 @@ export class Article extends Entity {
   content = '';
   author = User.fromJS();
   tags: string[] = [];
-  createdAt = Temporal.Instant.fromEpochSeconds(0);
+  createdAt = Temporal.Instant.fromEpochMilliseconds(0);
 
   static key = 'Article';
   pk() {
@@ -227,7 +227,7 @@ import { User } from './User';
 export class Post extends Entity {
   id = '';
   author = User.fromJS();
-  createdAt = Temporal.Instant.fromEpochSeconds(0);
+  createdAt = Temporal.Instant.fromEpochMilliseconds(0);
   content = '';
   title = '';
 
@@ -278,7 +278,7 @@ considered 'optional'
 ```typescript
 class User extends Entity {
   friend: User | null = null; // this field is optional
-  lastUpdated = Temporal.Instant.fromEpochSeconds(0);
+  lastUpdated = Temporal.Instant.fromEpochMilliseconds(0);
 
   static schema = {
     friend: User,

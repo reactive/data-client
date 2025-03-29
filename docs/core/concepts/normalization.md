@@ -344,7 +344,7 @@ class Todo extends Entity {
   title = '';
   completed = false;
   // highlight-next-line
-  dueDate = Temporal.Instant.fromEpochSeconds(0);
+  dueDate = Temporal.Instant.fromEpochMilliseconds(0);
 
   static key = 'Todo';
 

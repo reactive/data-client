@@ -39,7 +39,7 @@ class Tacos extends IDEntity {
 class MyEntity extends Entity {
   readonly name: string = '';
   readonly secondthing: string = '';
-  blarb = Temporal.Instant.fromEpochSeconds(0);
+  blarb = Temporal.Instant.fromEpochMilliseconds(0);
   pk() {
     return this.name;
   }

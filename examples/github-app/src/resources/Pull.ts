@@ -19,8 +19,8 @@ export class Pull extends GithubEntity {
   body = '';
   labels: Label[] = [];
   activeLockReason = '';
-  createdAt = Temporal.Instant.fromEpochSeconds(0);
-  updatedAt = Temporal.Instant.fromEpochSeconds(0);
+  createdAt = Temporal.Instant.fromEpochMilliseconds(0);
+  updatedAt = Temporal.Instant.fromEpochMilliseconds(0);
   closedAt: Date | null = null;
   authorAssociation = 'OWNER';
   autoMerge: null | boolean = null;

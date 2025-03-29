@@ -8,7 +8,7 @@ import { User } from './User';
 export class Reaction extends GithubEntity {
   user = User.fromJS();
   content: ReactionType = '+1';
-  createdAt = Temporal.Instant.fromEpochSeconds(0);
+  createdAt = Temporal.Instant.fromEpochMilliseconds(0);
 
   get contentIcon() {
     return contentToIcon[this.content];

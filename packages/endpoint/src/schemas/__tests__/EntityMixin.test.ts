@@ -244,7 +244,7 @@ describe(`${schema.Entity.name} construction`, () => {
         id = '';
         username = '';
         title = '';
-        createdAt = Temporal.Instant.fromEpochSeconds(0);
+        createdAt = Temporal.Instant.fromEpochMilliseconds(0);
       }
       class MyEntity extends EntityMixin(MyData, {
         schema: { createdAt: Temporal.Instant.from },
@@ -256,7 +256,7 @@ describe(`${schema.Entity.name} construction`, () => {
         id = '';
         username = '';
         title = '';
-        createdAt = Temporal.Instant.fromEpochSeconds(0);
+        createdAt = Temporal.Instant.fromEpochMilliseconds(0);
         static schema = {
           user: Temporal.Instant.from,
         };
@@ -271,7 +271,7 @@ describe(`${schema.Entity.name} construction`, () => {
         id = '';
         username = '';
         title = '';
-        createdAt = Temporal.Instant.fromEpochSeconds(0);
+        createdAt = Temporal.Instant.fromEpochMilliseconds(0);
         static schema = {
           createdAt: Temporal.Instant.from,
         };
@@ -284,7 +284,7 @@ describe(`${schema.Entity.name} construction`, () => {
         id = '';
         username = '';
         title = '';
-        createdAt = Temporal.Instant.fromEpochSeconds(0);
+        createdAt = Temporal.Instant.fromEpochMilliseconds(0);
       }
       class MyEntity extends EntityMixin(MyData, {
         schema: { createdAt: Temporal.Instant.from },
@@ -1306,7 +1306,7 @@ describe('Entity.defaults', () => {
     }
     class UserEntity extends ID {
       username = '';
-      createdAt = Temporal.Instant.fromEpochSeconds(0);
+      createdAt = Temporal.Instant.fromEpochMilliseconds(0);
 
       static schema = {
         createdAt: Temporal.Instant.from,
