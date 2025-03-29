@@ -5,7 +5,7 @@ export class Ticker extends Entity {
   trade_id = 0;
   price = 0;
   size = 0;
-  time = Temporal.Instant.fromEpochSeconds(0);
+  time = Temporal.Instant.fromEpochMilliseconds(0);
   volume = '';
 
   pk() {

@@ -283,7 +283,7 @@ export const ContextAuthdArticleResource = hookifyResource(
 );
 
 export class ArticleTimed extends Article {
-  readonly createdAt = Temporal.Instant.fromEpochSeconds(0);
+  readonly createdAt = Temporal.Instant.fromEpochMilliseconds(0);
 
   static schema = {
     ...Article.schema,

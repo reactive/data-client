@@ -84,7 +84,7 @@ export class ArticleSummary extends Entity {
 
 export class Article extends ArticleSummary {
   content = '';
-  createdAt = Temporal.Instant.fromEpochSeconds(0);
+  createdAt = Temporal.Instant.fromEpochMilliseconds(0);
 
   static validate(processedEntity) {
     return validateRequired(processedEntity, this.defaults);
@@ -168,7 +168,7 @@ class ArticleSummary extends Entity {
   id = '';
   title = '';
   content = '';
-  createdAt = Temporal.Instant.fromEpochSeconds(0);
+  createdAt = Temporal.Instant.fromEpochMilliseconds(0);
 
   static schema = {
     createdAt: Temporal.Instant.from,

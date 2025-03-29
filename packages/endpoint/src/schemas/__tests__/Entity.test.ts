@@ -1167,7 +1167,7 @@ describe('Entity.defaults', () => {
     }
     class UserEntity extends ID {
       username = '';
-      createdAt = Temporal.Instant.fromEpochSeconds(0);
+      createdAt = Temporal.Instant.fromEpochMilliseconds(0);
 
       static schema = {
         createdAt: Temporal.Instant.from,

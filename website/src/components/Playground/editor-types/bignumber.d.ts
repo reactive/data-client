@@ -1,8 +1,43 @@
+// Type definitions for bignumber.js >=8.1.0
+// Project: https://github.com/MikeMcl/bignumber.js
+// Definitions by: Michael Mclaughlin <https://github.com/MikeMcl>
+// Definitions: https://github.com/MikeMcl/bignumber.js
+
+// Documentation: http://mikemcl.github.io/bignumber.js/
+//
+// Exports:
+//
+//   class     BigNumber (default export)
+//   type      BigNumber.Constructor
+//   type      BigNumber.ModuloMode
+//   type      BigNumber.RoundingMode
+//   type      BigNumber.Value
+//   interface BigNumber.Config
+//   interface BigNumber.Format
+//   interface BigNumber.Instance
+//
+// Example:
+//
+//   import {BigNumber} from "bignumber.js"
+//   //import BigNumber from "bignumber.js"
+//
+//   let rm: BigNumber.RoundingMode = BigNumber.ROUND_UP;
+//   let f: BigNumber.Format = { decimalSeparator: ',' };
+//   let c: BigNumber.Config = { DECIMAL_PLACES: 4, ROUNDING_MODE: rm, FORMAT: f };
+//   BigNumber.config(c);
+//
+//   let v: BigNumber.Value = '12345.6789';
+//   let b: BigNumber = new BigNumber(v);
+//
+// The use of compiler option `--strictNullChecks` is recommended.
+
 export default BigNumber;
 
 export namespace BigNumber {
+
   /** See `BigNumber.config` (alias `BigNumber.set`) and `BigNumber.clone`. */
   interface Config {
+
     /**
      * An integer, 0 to 1e+9. Default value: 20.
      *
@@ -246,6 +281,7 @@ export namespace BigNumber {
 
   /** See `FORMAT` and `toFormat`. */
   interface Format {
+
     /** The string to prepend. */
     prefix?: string;
 
@@ -272,6 +308,7 @@ export namespace BigNumber {
   }
 
   interface Instance {
+
     /** The coefficient of the value of this BigNumber, an array of base 1e14 integer numbers, or null. */
     readonly c: number[] | null;
 
@@ -291,6 +328,7 @@ export namespace BigNumber {
 }
 
 export declare class BigNumber implements BigNumber.Instance {
+
   /** Used internally to identify a BigNumber instance. */
   private readonly _isBigNumber: true;
 
@@ -480,10 +518,7 @@ export declare class BigNumber implements BigNumber.Instance {
    * @param [roundingMode] Rounding mode, integer, 0 to 8.
    */
   decimalPlaces(): number | null;
-  decimalPlaces(
-    decimalPlaces: number,
-    roundingMode?: BigNumber.RoundingMode,
-  ): BigNumber;
+  decimalPlaces(decimalPlaces: number, roundingMode?: BigNumber.RoundingMode): BigNumber;
 
   /**
    * Returns a BigNumber whose value is the value of this BigNumber rounded by rounding mode
@@ -1103,10 +1138,7 @@ export declare class BigNumber implements BigNumber.Instance {
    * @param significantDigits Significant digits, integer, 1 to 1e+9.
    * @param [roundingMode] Rounding mode, integer, 0 to 8.
    */
-  precision(
-    significantDigits: number,
-    roundingMode?: BigNumber.RoundingMode,
-  ): BigNumber;
+  precision(significantDigits: number, roundingMode?: BigNumber.RoundingMode): BigNumber;
 
   /**
    * Returns the number of significant digits of the value of this BigNumber,
@@ -1150,10 +1182,7 @@ export declare class BigNumber implements BigNumber.Instance {
    * @param significantDigits Significant digits, integer, 1 to 1e+9.
    * @param [roundingMode] Rounding mode, integer, 0 to 8.
    */
-  sd(
-    significantDigits: number,
-    roundingMode?: BigNumber.RoundingMode,
-  ): BigNumber;
+  sd(significantDigits: number, roundingMode?: BigNumber.RoundingMode): BigNumber;
 
   /**
    * Returns a BigNumber whose value is the value of this BigNumber shifted by `n` places.
@@ -1240,11 +1269,7 @@ export declare class BigNumber implements BigNumber.Instance {
    * @param [decimalPlaces] Decimal places, integer, 0 to 1e+9.
    * @param [roundingMode] Rounding mode, integer, 0 to 8.
    */
-  toExponential(
-    decimalPlaces: number,
-    roundingMode?: BigNumber.RoundingMode,
-  ): string;
-
+  toExponential(decimalPlaces: number, roundingMode?: BigNumber.RoundingMode): string;
   toExponential(): string;
 
   /**
@@ -1343,17 +1368,8 @@ export declare class BigNumber implements BigNumber.Instance {
    * @param [roundingMode] Rounding mode, integer, 0 to 8.
    * @param [format] Formatting options object. See `BigNumber.Format`.
    */
-  toFormat(
-    decimalPlaces: number,
-    roundingMode: BigNumber.RoundingMode,
-    format?: BigNumber.Format,
-  ): string;
-
-  toFormat(
-    decimalPlaces: number,
-    roundingMode?: BigNumber.RoundingMode,
-  ): string;
-
+  toFormat(decimalPlaces: number, roundingMode: BigNumber.RoundingMode, format?: BigNumber.Format): string;
+  toFormat(decimalPlaces: number, roundingMode?: BigNumber.RoundingMode): string;
   toFormat(decimalPlaces?: number): string;
   toFormat(decimalPlaces: number, format: BigNumber.Format): string;
   toFormat(format: BigNumber.Format): string;
@@ -1437,11 +1453,7 @@ export declare class BigNumber implements BigNumber.Instance {
    * @param [significantDigits] Significant digits, integer, 1 to 1e+9.
    * @param [roundingMode] Rounding mode, integer 0 to 8.
    */
-  toPrecision(
-    significantDigits: number,
-    roundingMode?: BigNumber.RoundingMode,
-  ): string;
-
+  toPrecision(significantDigits: number, roundingMode?: BigNumber.RoundingMode): string;
   toPrecision(): string;
 
   /**
@@ -1636,7 +1648,7 @@ export declare class BigNumber implements BigNumber.Instance {
    *
    * @param object The configuration object.
    */
-  static config(object: BigNumber.Config): BigNumber.Config;
+  static config(object?: BigNumber.Config): BigNumber.Config;
 
   /**
    * Returns `true` if `value` is a BigNumber instance, otherwise returns `false`.
@@ -1813,7 +1825,7 @@ export declare class BigNumber implements BigNumber.Instance {
    *
    * @param object The configuration object.
    */
-  static set(object: BigNumber.Config): BigNumber.Config;
+  static set(object?: BigNumber.Config): BigNumber.Config;
 }
 
 export function BigNumber(n: BigNumber.Value, base?: number): BigNumber;

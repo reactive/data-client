@@ -12,7 +12,7 @@ export class Review extends GithubEntity {
   pullRequestUrl = '';
 
   state = 'approved';
-  submittedAt = Temporal.Instant.fromEpochSeconds(0);
+  submittedAt = Temporal.Instant.fromEpochMilliseconds(0);
 
   static schema = {
     submittedAt: Temporal.Instant.from,

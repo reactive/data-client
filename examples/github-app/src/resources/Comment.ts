@@ -8,8 +8,8 @@ export class Comment extends GithubEntity {
   htmlUrl = '';
   body = '';
   user = User.fromJS();
-  createdAt = Temporal.Instant.fromEpochSeconds(0);
-  updatedAt = Temporal.Instant.fromEpochSeconds(0);
+  createdAt = Temporal.Instant.fromEpochMilliseconds(0);
+  updatedAt = Temporal.Instant.fromEpochMilliseconds(0);
   authorAssociation = 'NONE';
 
   get owner() {

@@ -26,9 +26,9 @@ export class Repository extends GithubEntity {
   archived = false;
   disabled = false;
   visibility: 'public' | 'private' = 'public';
-  pushedAt = Temporal.Instant.fromEpochSeconds(0);
-  createdAt = Temporal.Instant.fromEpochSeconds(0);
-  updatedAt = Temporal.Instant.fromEpochSeconds(0);
+  pushedAt = Temporal.Instant.fromEpochMilliseconds(0);
+  createdAt = Temporal.Instant.fromEpochMilliseconds(0);
+  updatedAt = Temporal.Instant.fromEpochMilliseconds(0);
   templateRepository: null = null;
   owner = { login: '' };
 

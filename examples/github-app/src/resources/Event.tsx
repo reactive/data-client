@@ -23,7 +23,7 @@ export class Event extends GithubEntity {
   repo: { id: number; name: string; url: string } = {} as any;
   payload: Record<string, unknown> = {};
   public = true;
-  createdAt = Temporal.Instant.fromEpochSeconds(0);
+  createdAt = Temporal.Instant.fromEpochMilliseconds(0);
 
   get icon() {
     return typeToIcon[this.type];

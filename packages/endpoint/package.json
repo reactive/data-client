@@ -139,7 +139,7 @@
     "@anansi/browserslist-config": "^1.4.2",
     "@data-client/core": "workspace:*",
     "@data-client/normalizr": "workspace:*",
-    "@js-temporal/polyfill": "^0.4.4",
+    "@js-temporal/polyfill": "^0.5.0",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.0.0",
     "immutable": "5.1.1",

@@ -191,7 +191,7 @@
     "@data-client/rest": "workspace:*",
     "@data-client/test": "workspace:*",
     "@jest/globals": "^29.7.0",
-    "@js-temporal/polyfill": "^0.4.4",
+    "@js-temporal/polyfill": "^0.5.0",
     "@react-navigation/native": "^7.0.0",
     "@react-navigation/native-stack": "^7.2.0",
     "@testing-library/dom": "^10.4.0",

@@ -18,7 +18,7 @@ export class Rating extends Entity {
   id = '';
   rating = 4.6;
   author = '';
-  date = Temporal.Instant.fromEpochSeconds(0);
+  date = Temporal.Instant.fromEpochMilliseconds(0);
 
   static key = 'Rating';
 

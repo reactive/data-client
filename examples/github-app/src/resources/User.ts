@@ -31,8 +31,8 @@ export class User extends GithubEntity {
   publicGists = 0;
   followers = 0;
   following = 0;
-  createdAt = Temporal.Instant.fromEpochSeconds(0);
-  updatedAt = Temporal.Instant.fromEpochSeconds(0);
+  createdAt = Temporal.Instant.fromEpochMilliseconds(0);
+  updatedAt = Temporal.Instant.fromEpochMilliseconds(0);
   privateGists = 0;
   totalPrivateRepos = 0;
   ownedPrivateRepos = 0;
