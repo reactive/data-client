@@ -1,4 +1,4 @@
-import type { Schema, GetEntity, GetIndex } from '../interface.js';
+import type { Schema, QuerySnapshot } from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
 
 /**
@@ -171,12 +171,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
    *
    * @see https://dataclient.io/rest/api/Entity#queryKey
    */
-  queryKey(
-    args: readonly any[],
-    queryKey: any,
-    getEntity: GetEntity,
-    getIndex: GetIndex,
-  ): any;
+  queryKey(args: readonly any[], queryKey: any, snapshot: QuerySnapshot): any;
   denormalize<
     T extends (abstract new (
       ...args: any[]

@@ -1,9 +1,4 @@
-import type {
-  GetIndex,
-  GetEntity,
-  Queryable,
-  SchemaSimple,
-} from '../interface.js';
+import type { Queryable, SchemaSimple } from '../interface.js';
 import type { Denormalize, NormalizeNullable, SchemaArgs } from '../normal.js';
 
 /**
@@ -41,16 +36,9 @@ export default class Query<
 
   queryKey(
     args: ProcessParameters<P, S>,
-    queryKey: (
-      schema: any,
-      args: any,
-      getEntity: GetEntity,
-      getIndex: GetIndex,
-    ) => any,
-    getEntity: GetEntity,
-    getIndex: GetIndex,
+    queryKey: (schema: any, args: any) => any,
   ) {
-    return queryKey(this.schema, args, getEntity, getIndex);
+    return queryKey(this.schema, args);
   }
 
   declare _denormalizeNullable: (
