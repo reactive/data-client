@@ -53,7 +53,7 @@
   "devDependencies": {
     "@anansi/babel-preset": "6.2.4",
     "@anansi/browserslist-config": "1.7.2",
-    "@anansi/eslint-plugin": "1.0.34",
+    "@anansi/eslint-plugin": "1.0.35",
     "@anansi/jest-preset": "0.11.15",
     "@babel/cli": "7.27.0",
     "@babel/core": "7.26.10",
