@@ -112,7 +112,9 @@ jobs:
             yarn workspace @data-client/test add --dev @testing-library/react-hooks 
             elif [ "<< parameters.react-version >>" == "^18" ]; then
             yarn up react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
-            yarn workspace @data-client/test add --dev @testing-library/react-hooks 
+            yarn workspace @data-client/test add --dev @testing-library/react-hooks
+            elif [ "<< parameters.react-version >>" == "native" ]; then
+            yarn up react@19.0.0 react-dom@19.0.0 react-test-renderer@19.0.0
             fi
       - run:
           name: Running Jest
@@ -121,10 +123,12 @@ jobs:
               yarn test:ci --maxWorkers=3 --selectProjects ReactDOM --testPathPattern packages/react packages/use-enhanced-reducer packages/img
             elif [ "<< parameters.react-version >>" == "^18" ]; then
               yarn test:ci --maxWorkers=4 --selectProjects ReactDOM --testPathPattern packages/react packages/use-enhanced-reducer packages/img
+            elif [ "<< parameters.react-version >>" == "native" ]; then
+              yarn test:ci --maxWorkers=4 --selectProjects ReactNative
             else
               curl -Os https://uploader.codecov.io/latest/linux/codecov;
               chmod +x codecov;
-              yarn run test:coverage --ci --maxWorkers=3 --coverageReporters=text-lcov > ./lcov.info;
+              yarn run test:coverage --ci --maxWorkers=3 --selectProjects ReactDOM Node --coverageReporters=text-lcov > ./lcov.info;
               if [ "$CODECOV_TOKEN" != "" ]; then
                 ./codecov -t ${CODECOV_TOKEN} < ./lcov.info || true;
               else
@@ -246,7 +250,7 @@ workflows:
       - unit_tests:
           matrix:
             parameters:
-              react-version: ["^17", "^18", "latest"]
+              react-version: ["^17", "^18", "native", "latest"]
           requires:
             - setup
       - node_matrix:
