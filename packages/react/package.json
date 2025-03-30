@@ -205,7 +205,7 @@
     "jest-mock": "^29.7.0",
     "nock": "13.3.1",
     "qs": "^6.13.1",
-    "react": "19.0.0",
+    "react": "19.1.0",
     "react-dom": "^19.0.0",
     "react-native": "0.78.1",
     "react-native-safe-area-context": "^5.0.0",
