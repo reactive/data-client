@@ -30,11 +30,17 @@ module.exports = (env, argv) => {
         name: 'polyfill',
         chunks: 'all',
       },
-      rdc: {
-        test: /packages/,
-        name: 'rdc',
+      rdcEndpoint: {
+        test: /packages[\\/](endpoint|rest|graphql)/,
+        name: 'rdcEndpoint',
         chunks: 'all',
         priority: 10000,
+      },
+      rdcClient: {
+        test: /packages/,
+        name: 'rdcClient',
+        chunks: 'all',
+        priority: 1000,
       },
     },
   };
