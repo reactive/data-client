@@ -10,7 +10,7 @@ export interface Queryable<Args extends readonly any[] = readonly any[]> {
   queryKey(
     args: Args,
     queryKey: (...args: any) => any,
-    snapshot: QuerySnapshot,
+    snapshot: { getEntity: any; getIndex: any },
     // Must be non-void
   ): {};
 }
@@ -26,9 +26,7 @@ export interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
     key: any,
     args: any[],
     visit: (...args: any) => any,
-    addEntity: (...args: any) => any,
-    getEntity: (...args: any) => any,
-    checkLoop: (...args: any) => any,
+    snapshot: { getEntity: any; addEntity: any },
   ): any;
   denormalize(
     input: {},
@@ -38,7 +36,7 @@ export interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
   queryKey(
     args: Args,
     queryKey: (...args: any) => any,
-    snapshot: QuerySnapshot,
+    snapshot: { getEntity: any; getIndex: any },
   ): any;
 }
 
@@ -54,9 +52,9 @@ export interface EntityInterface<T = any> extends SchemaSimple {
   createIfValid(props: any): any;
   pk(
     params: any,
-    parent?: any,
-    key?: string,
-    args?: readonly any[],
+    parent: any,
+    key: string | undefined,
+    args: readonly any[],
   ): string | number | undefined;
   readonly key: string;
   merge(existing: any, incoming: any): any;
@@ -74,8 +72,8 @@ export interface EntityInterface<T = any> extends SchemaSimple {
   ): any;
   indexes?: any;
   schema: Record<string, Schema>;
+  prototype?: T;
   cacheWith?: object;
-  prototype: T;
 }
 
 export interface NormalizedIndex {
@@ -113,10 +111,15 @@ export interface GetIndex {
   (entityKey: string, field: string, value: string): string | undefined;
 }
 
-/** Accessors to the currently processing state */
-export interface QuerySnapshot {
+/** Accessors to the currently processing state while building query */
+export interface IQueryDelegate {
   getEntity: GetEntity;
   getIndex: GetIndex;
 }
 
-/** Accessors to the currently processing state */
+/** Helpers during schema.normalize() */
+export interface INormalizeDelegate {
+  getEntity: GetEntity;
+  addEntity(schema: EntityInterface, processedEntity: any, id: string): void;
+  checkLoop(entityKey: string, pk: string, input: object): boolean;
+}

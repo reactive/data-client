@@ -2,8 +2,9 @@ import { consistentSerialize } from './consistentSerialize.js';
 import {
   CheckLoop,
   GetEntity,
+  INormalizeDelegate,
   PolymorphicInterface,
-  QuerySnapshot,
+  IQueryDelegate,
 } from '../interface.js';
 import { Values, Array as ArraySchema } from '../schema.js';
 import type { DefaultArgs } from '../schemaTypes.js';
@@ -155,9 +156,7 @@ export default class CollectionSchema<
     key: string,
     args: any[],
     visit: (...args: any) => any,
-    addEntity: (...args: any) => any,
-    getEntity: any,
-    checkLoop: any,
+    delegate: INormalizeDelegate,
   ): string {
     const normalizedValue = this.schema.normalize(
       input,
@@ -165,13 +164,11 @@ export default class CollectionSchema<
       key,
       args,
       visit,
-      addEntity,
-      getEntity,
-      checkLoop,
+      delegate,
     );
     const id = this.pk(normalizedValue, parent, key, args);
 
-    addEntity(this, normalizedValue, id);
+    delegate.addEntity(this, normalizedValue, id);
     return id;
   }
 
@@ -220,11 +217,11 @@ export default class CollectionSchema<
 
   // >>>>>>>>>>>>>>DENORMALIZE<<<<<<<<<<<<<<
 
-  queryKey(args: Args, queryKey: unknown, snapshot: QuerySnapshot): any {
+  queryKey(args: Args, queryKey: unknown, delegate: IQueryDelegate): any {
     if (this.argsKey) {
       const id = this.pk(undefined, undefined, '', args);
       // ensure this actually has entity or we shouldn't try to use it in our query
-      if (snapshot.getEntity(this.key, id)) return id;
+      if (delegate.getEntity(this.key, id)) return id;
     }
   }
 
@@ -308,9 +305,7 @@ function normalizeCreate(
   key: string,
   args: readonly any[],
   visit: ((...args: any) => any) & { creating?: boolean },
-  addEntity: (schema: any, processedEntity: any, id: string) => void,
-  getEntity: GetEntity,
-  checkLoop: CheckLoop,
+  delegate: INormalizeDelegate,
 ): any {
   if (process.env.NODE_ENV !== 'production') {
     // means 'this is a creation endpoint' - so real PKs are not required
@@ -326,18 +321,16 @@ function normalizeCreate(
     key,
     args,
     visit,
-    addEntity,
-    getEntity,
-    checkLoop,
+    delegate,
   );
   // parent is args when not nested
   const filterCollections = (this.createCollectionFilter as any)(...args);
   // add to any collections that match this
-  const entities = getEntity(this.key);
+  const entities = delegate.getEntity(this.key);
   if (entities)
     Object.keys(entities).forEach(collectionPk => {
       if (!filterCollections(JSON.parse(collectionPk))) return;
-      addEntity(this, normalizedValue, collectionPk);
+      delegate.addEntity(this, normalizedValue, collectionPk);
     });
   return normalizedValue as any;
 }

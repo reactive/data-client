@@ -66,9 +66,9 @@ const EMPTY = [undefined, undefined] as const;
 /** Link in a chain */
 class Link<Path, K extends object, V> {
   next = new WeakMap<K, Link<Path, K, V>>();
+  nextPath: Path | undefined = undefined;
   value: V | undefined = undefined;
   journey: Path[] = [];
-  nextPath: Path | undefined = undefined;
 }
 
 class KeySize extends Error {

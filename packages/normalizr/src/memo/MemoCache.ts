@@ -14,9 +14,9 @@ import type {
 import {
   getDependency,
   QueryPath,
-  SnapshotCore,
-  TrackedSnapshot,
-} from './queryCache.js';
+  BaseDelegate,
+  TrackingQueryDelegate,
+} from './Delegate.js';
 
 //TODO: make immutable distinction occur when initilizing MemoCache
 
@@ -124,7 +124,7 @@ export default class MemoCache {
     >;
 
     // TODO: remove casting when we split this to immutable vs plain implementations
-    const coreSnapshot = new SnapshotCore(entities as any, indexes as any);
+    const coreSnapshot = new BaseDelegate(entities as any, indexes as any);
     // eslint-disable-next-line prefer-const
     let [value, paths] = queryCache.get(
       schema as any,
@@ -133,7 +133,7 @@ export default class MemoCache {
 
     // paths undefined is the only way to truly tell nothing was found (the value could have actually been undefined)
     if (!paths) {
-      const tracked = new TrackedSnapshot(coreSnapshot, schema);
+      const tracked = new TrackingQueryDelegate(coreSnapshot, schema);
 
       value = buildQueryKey(tracked)(schema, args);
       queryCache.set(tracked.dependencies, value);

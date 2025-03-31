@@ -1,13 +1,12 @@
-import { addEntities } from './addEntities.js';
 import { getVisit } from './getVisit.js';
 import type { Schema } from '../interface.js';
-import { SnapshotCore } from '../memo/queryCache.js';
 import type {
   NormalizeMeta,
   NormalizeNullable,
   NormalizedSchema,
   StoreData,
 } from '../types.js';
+import { NormalizeDelegate } from './NormalizeDelegate.js';
 
 export const normalize = <
   S extends Schema = Schema,
@@ -86,12 +85,7 @@ See https://dataclient.io/rest/api/RestEndpoint#parseResponse for more informati
     indexes: { ...indexes },
     entityMeta: { ...entityMeta },
   };
-  const addEntity = addEntities(ret, meta);
-
-  const snap = new SnapshotCore(entities, indexes);
-  const visit = getVisit(addEntity, (...args) =>
-    snap.getEntity(...(args as [any])),
-  );
+  const visit = getVisit(new NormalizeDelegate(entities, indexes, ret, meta));
   ret.result = visit(schema, input, input, undefined, args);
   return ret;
 };

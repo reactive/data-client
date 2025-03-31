@@ -2,18 +2,18 @@ import { Dep } from './WeakDependencyMap.js';
 import type {
   EntityTable,
   NormalizedIndex,
-  QuerySnapshot,
+  IQueryDelegate,
 } from '../interface.js';
 
 export const getDependency =
-  (snap: SnapshotCoreBase) =>
+  (snap: IBaseDelegate) =>
   (args: QueryPath): QueryPath | undefined =>
     // ignore third arg so we only track
     args.length === 3 ?
       snap.getIndex(args[0], args[1])
     : snap.getEntity(...(args as [any]));
 
-export interface SnapshotCoreBase {
+export interface IBaseDelegate {
   entities: any;
   indexes: any;
 
@@ -21,7 +21,7 @@ export interface SnapshotCoreBase {
   getIndex(key: string, field: string): any;
 }
 
-export class SnapshotCore implements SnapshotCoreBase {
+export class BaseDelegate implements IBaseDelegate {
   declare entities: EntityTable;
   declare indexes: NormalizedIndex;
 
@@ -40,18 +40,19 @@ export class SnapshotCore implements SnapshotCoreBase {
     return pk ? this.entities[entityKey]?.[pk] : this.entities[entityKey];
   }
 
+  // this is different return value than QuerySnapshot
   getIndex(key: string, field: string) {
     return this.indexes[key]?.[field];
   }
 }
 
-export class TrackedSnapshot implements QuerySnapshot {
-  declare protected snap: SnapshotCoreBase;
+export class TrackingQueryDelegate implements IQueryDelegate {
+  declare protected snap: IBaseDelegate;
   // first dep path is ignored
   // we start with schema object, then lookup any 'touched' members and their paths
   declare dependencies: Dep<QueryPath>[];
 
-  constructor(snap: SnapshotCoreBase, schema: any) {
+  constructor(snap: IBaseDelegate, schema: any) {
     this.snap = snap;
     this.dependencies = [{ path: [''], entity: schema }];
   }

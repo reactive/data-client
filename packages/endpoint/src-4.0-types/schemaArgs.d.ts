@@ -1,6 +1,6 @@
-import type { Schema, EntityInterface } from './interface.js';
+import type { Schema } from './interface.js';
 import type { EntityFields } from './schemas/EntityFields.js';
-export type SchemaArgs<S extends Schema> = S extends EntityInterface<infer U> ? [EntityFields<U>] : S extends ({
+export type SchemaArgs<S extends Schema> = S extends { createIfValid: any; pk: any; key: string; prototype: infer U } ? [EntityFields<U>] : S extends ({
     queryKey(args: infer Args, ...rest: any): any;
 }) ? Args : S extends {
     [K: string]: any;

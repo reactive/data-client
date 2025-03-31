@@ -13,9 +13,7 @@ export default class ArraySchema extends PolymorphicSchema {
     key: any,
     args: any[],
     visit: Visit,
-    addEntity: any,
-    getEntity: any,
-    checkLoop: any,
+    snapshot: any,
   ): any {
     const values = getValues(input);
 

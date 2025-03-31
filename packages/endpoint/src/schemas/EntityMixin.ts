@@ -1,9 +1,8 @@
 import type {
   Schema,
-  GetEntity,
-  CheckLoop,
   Visit,
-  QuerySnapshot,
+  IQueryDelegate,
+  INormalizeDelegate,
 } from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
 import { INVALID } from '../special.js';
@@ -248,22 +247,18 @@ export default function EntityMixin<TBase extends Constructor>(
       key: string | undefined,
       args: readonly any[],
       visit: Visit,
-      addEntity: (...args: any) => any,
-      getEntity: GetEntity,
-      checkLoop: CheckLoop,
+      delegate: INormalizeDelegate,
     ): any {
       const processedEntity = this.process(input, parent, key, args);
       let id: string | number | undefined;
       if (typeof processedEntity === 'undefined') {
-        id = this.pk(input, parent, key, args);
-        addEntity(this, INVALID, id);
+        id = `${this.pk(input, parent, key, args)}`;
+        // TODO: add undefined id check
+        delegate.addEntity(this, INVALID, id);
         return id;
       }
       id = this.pk(processedEntity, parent, key, args);
       if (id === undefined || id === '' || id === 'undefined') {
-        // create a random id if a valid one cannot be computed
-        // this is useful for optimistic creates that don't need real ids - just something to hold their place
-        id = `MISS-${Math.random()}`;
         // 'creates' conceptually should allow missing PK to make optimistic creates easy
         if (process.env.NODE_ENV !== 'production' && !visit.creating) {
           let why: string;
@@ -293,12 +288,15 @@ export default function EntityMixin<TBase extends Constructor>(
           (error as any).status = 400;
           throw error;
         }
+        // create a random id if a valid one cannot be computed
+        // this is useful for optimistic creates that don't need real ids - just something to hold their place
+        id = `MISS-${Math.random()}`;
       } else {
         id = `${id}`;
       }
 
       /* Circular reference short-circuiter */
-      if (checkLoop(this.key, id, input)) return id;
+      if (delegate.checkLoop(this.key, id, input)) return id;
 
       const errorMessage = this.validate(processedEntity);
       throwValidationError(errorMessage);
@@ -315,7 +313,7 @@ export default function EntityMixin<TBase extends Constructor>(
         }
       });
 
-      addEntity(this, processedEntity, id);
+      delegate.addEntity(this, processedEntity, id);
       return id;
     }
 
@@ -326,12 +324,12 @@ export default function EntityMixin<TBase extends Constructor>(
     static queryKey(
       args: readonly any[],
       queryKey: any,
-      snapshot: QuerySnapshot,
+      delegate: IQueryDelegate,
     ): any {
       if (!args[0]) return;
-      const id = queryKeyCandidate(this, args, snapshot);
+      const id = queryKeyCandidate(this, args, delegate);
       // ensure this actually has entity or we shouldn't try to use it in our query
-      if (id && snapshot.getEntity(this.key, id)) return id;
+      if (id && delegate.getEntity(this.key, id)) return id;
     }
 
     static denormalize<T extends typeof EntityMixin>(
@@ -477,7 +475,7 @@ function throwValidationError(errorMessage: string | undefined) {
 function queryKeyCandidate(
   schema: any,
   args: readonly any[],
-  snapshot: QuerySnapshot,
+  delegate: IQueryDelegate,
 ) {
   if (['string', 'number'].includes(typeof args[0])) {
     return `${args[0]}`;
@@ -489,5 +487,5 @@ function queryKeyCandidate(
   const indexName = indexFromParams(args[0], schema.indexes);
   if (!indexName) return;
   const value = (args[0] as Record<string, any>)[indexName];
-  return snapshot.getIndex(schema.key, indexName, value);
+  return delegate.getIndex(schema.key, indexName, value);
 }

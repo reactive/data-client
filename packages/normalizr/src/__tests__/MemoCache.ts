@@ -9,7 +9,7 @@ import {
 } from '__tests__/new';
 
 import { fromJSEntities } from './immutable.test';
-import { GetEntity, GetIndex, QuerySnapshot } from '../interface';
+import { GetEntity, GetIndex, IQueryDelegate } from '../interface';
 import MemoCache from '../memo/MemoCache';
 
 class IDEntity extends Entity {
@@ -922,7 +922,7 @@ describe('MemoCache', () => {
 
     describe('legacy schema', () => {
       class MyEntity extends CoolerArticle {
-        static queryKey(args: any[], queryKey: any, snapshot: QuerySnapshot) {
+        static queryKey(args: any[], queryKey: any, snapshot: IQueryDelegate) {
           if (!args[0]) return;
           let id: undefined | number | string;
           if (['string', 'number'].includes(typeof args[0])) {

@@ -1,10 +1,10 @@
-import { IndexPath, SnapshotCoreBase, TrackedSnapshot } from './queryCache.js';
+import { IndexPath, IBaseDelegate, TrackingQueryDelegate } from './Delegate.js';
 
 type ImmutableJSEntityTable = {
   getIn(k: string[]): { toJS(): any } | undefined;
 };
 
-export class SnapshotCoreImmutable implements SnapshotCoreBase {
+export class DelegateImmutable implements IBaseDelegate {
   declare entities: ImmutableJSEntityTable;
   declare indexes: ImmutableJSEntityTable;
 
@@ -25,7 +25,7 @@ export class SnapshotCoreImmutable implements SnapshotCoreBase {
   }
 }
 
-export class TrackedSnapshotImmutable extends TrackedSnapshot {
+export class TrackingQueryDelegateImmutable extends TrackingQueryDelegate {
   getIndex(...path: IndexPath): string | undefined {
     const entity = this.snap.getIndex(path[0], path[1]);
     this.dependencies.push({ path, entity });

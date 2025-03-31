@@ -1,5 +1,5 @@
 import ArraySchema from './Array.js';
-import { QuerySnapshot, Visit } from '../interface.js';
+import { IQueryDelegate, Visit } from '../interface.js';
 import { EntityInterface, EntityMap, SchemaFunction } from '../schema.js';
 import { INVALID } from '../special.js';
 
@@ -26,26 +26,15 @@ export default class AllSchema<
     key: any,
     args: any[],
     visit: Visit,
-    addEntity: any,
-    getEntity: any,
-    checkLoop: any,
+    snapshot: any,
   ): any {
     // we return undefined
-    super.normalize(
-      input,
-      parent,
-      key,
-      args,
-      visit,
-      addEntity,
-      getEntity,
-      checkLoop,
-    );
+    super.normalize(input, parent, key, args, visit, snapshot);
   }
 
-  queryKey(args: any, queryKey: any, snapshot: QuerySnapshot): any {
+  queryKey(args: any, queryKey: any, delegate: IQueryDelegate): any {
     if (this.isSingleSchema) {
-      const entitiesEntry = snapshot.getEntity(this.schema.key);
+      const entitiesEntry = delegate.getEntity(this.schema.key);
       // we must wait until there are entries for any 'All' query to be Valid
       if (entitiesEntry === undefined) return INVALID;
       return Object.values(entitiesEntry).map(
@@ -55,12 +44,12 @@ export default class AllSchema<
     let found = false;
     const list = Object.values(this.schema as Record<string, any>).flatMap(
       (schema: EntityInterface) => {
-        const entitiesEntry = snapshot.getEntity(schema.key);
+        const entitiesEntry = delegate.getEntity(schema.key);
         if (entitiesEntry === undefined) return [];
         found = true;
-        return Object.values(entitiesEntry).map(entity => ({
-          id: entity && schema.pk(entity),
-          schema: this.getSchemaAttribute(entity, undefined, undefined),
+        return Object.entries(entitiesEntry).map(([key, entity]) => ({
+          id: entity && schema.pk(entity, undefined, key, []),
+          schema: this.getSchemaAttribute(entity, undefined, key),
         }));
       },
     );
