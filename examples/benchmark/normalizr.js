@@ -84,6 +84,16 @@ export default function addNormlizrSuite(suite) {
         memo.denormalize(User, 'gnoff', githubState.entities, []);
       }
     })
+    .add('queryShort 500x withCache', () => {
+      for (let i = 0; i < 500; ++i) {
+        memo.query(
+          User,
+          [{ login: 'gnoff' }],
+          githubState.entities,
+          githubState.indexes,
+        );
+      }
+    })
     .add('denormalizeLong with mixin Entity', () => {
       return new MemoCache().denormalize(ProjectSchemaMixin, result, entities);
     })
