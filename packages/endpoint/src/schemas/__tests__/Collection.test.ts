@@ -58,9 +58,7 @@ test('key works with custom schema', () => {
       key: any,
       args: any[],
       visit: any,
-      addEntity: any,
-      getEntity: any,
-      checkLoop: any,
+      snapshot: any,
     ): any {
       return input.map((value, index) =>
         this.normalizeValue(value, parent, key, args, visit),
@@ -123,9 +121,7 @@ describe(`${schema.Collection.name} normalization`, () => {
         '',
         [],
         () => undefined,
-        () => undefined,
-        () => undefined,
-        () => false,
+        {} as any,
       );
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();

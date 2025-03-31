@@ -2,7 +2,10 @@ type Schema = null | string | {
     [K: string]: any;
 } | Schema[] | SchemaSimple | Serializable;
 interface Queryable<Args extends readonly any[] = readonly any[]> {
-    queryKey(args: Args, queryKey: (...args: any) => any, getEntity: GetEntity, getIndex: GetIndex): {};
+    queryKey(args: Args, queryKey: (...args: any) => any, snapshot: {
+        getEntity: any;
+        getIndex: any;
+    }): {};
 }
 type Serializable<T extends {
     toJSON(): string;
@@ -10,9 +13,15 @@ type Serializable<T extends {
     toJSON(): string;
 }> = (value: any) => T;
 interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
-    normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, addEntity: (...args: any) => any, getEntity: (...args: any) => any, checkLoop: (...args: any) => any): any;
+    normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, snapshot: {
+        getEntity: any;
+        addEntity: any;
+    }): any;
     denormalize(input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any): T;
-    queryKey(args: Args, queryKey: (...args: any) => any, getEntity: GetEntity, getIndex: GetIndex): any;
+    queryKey(args: Args, queryKey: (...args: any) => any, snapshot: {
+        getEntity: any;
+        getIndex: any;
+    }): any;
 }
 interface SchemaClass<T = any, Args extends readonly any[] = any[]> extends SchemaSimple<T, Args> {
     _normalizeNullable(): any;
@@ -20,15 +29,15 @@ interface SchemaClass<T = any, Args extends readonly any[] = any[]> extends Sche
 }
 interface EntityInterface<T = any> extends SchemaSimple {
     createIfValid(props: any): any;
-    pk(params: any, parent?: any, key?: string, args?: readonly any[]): string | number | undefined;
+    pk(params: any, parent: any, key: string | undefined, args: readonly any[]): string | number | undefined;
     readonly key: string;
     merge(existing: any, incoming: any): any;
     mergeWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
     mergeMetaWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
     indexes?: any;
     schema: Record<string, Schema>;
+    prototype?: T;
     cacheWith?: object;
-    prototype: T;
 }
 interface NormalizedIndex {
     readonly [entityKey: string]: {
@@ -60,9 +69,18 @@ interface GetEntity {
 /** Get PK using an Entity Index */
 interface GetIndex {
     /** getIndex('User', 'username', 'ntucker') */
-    (entityKey: string, field: string, value: string): {
-        readonly [indexKey: string]: string | undefined;
-    };
+    (entityKey: string, field: string, value: string): string | undefined;
+}
+/** Accessors to the currently processing state while building query */
+interface IQueryDelegate {
+    getEntity: GetEntity;
+    getIndex: GetIndex;
+}
+/** Helpers during schema.normalize() */
+interface INormalizeDelegate {
+    getEntity: GetEntity;
+    addEntity(schema: EntityInterface, processedEntity: any, id: string): void;
+    checkLoop(entityKey: string, pk: string, input: object): boolean;
 }
 
 /** Attempts to infer reasonable input type to construct an Entity */
@@ -70,7 +88,14 @@ type EntityFields<U> = {
     readonly [K in keyof U as U[K] extends (...args: any) => any ? never : K]?: U[K] extends number ? U[K] | string : U[K] extends string ? U[K] | number : U[K];
 };
 
-type SchemaArgs<S extends Schema> = S extends EntityInterface<infer U> ? [EntityFields<U>] : S extends ({
+type SchemaArgs<S extends Schema> = S extends {
+    createIfValid: any;
+    pk: any;
+    key: string;
+    prototype: infer U;
+} ? [
+    EntityFields<U>
+] : S extends ({
     queryKey(args: infer Args, ...rest: any): any;
 }) ? Args : S extends {
     [K: string]: any;
@@ -107,22 +132,43 @@ interface RecordClass<T = any> extends NestedSchemaClass<T> {
 }
 type DenormalizeNullableNestedSchema<S extends NestedSchemaClass> = keyof S['schema'] extends never ? S['prototype'] : string extends keyof S['schema'] ? S['prototype'] : S['prototype'];
 type NormalizeReturnType<T> = T extends (...args: any) => infer R ? R : never;
-type Denormalize<S> = S extends EntityInterface<infer U> ? U : S extends RecordClass ? AbstractInstanceType<S> : S extends {
+type Denormalize<S> = S extends {
+    createIfValid: any;
+    pk: any;
+    key: string;
+    prototype: infer U;
+} ? U : S extends RecordClass ? AbstractInstanceType<S> : S extends {
     denormalize: (...args: any) => any;
 } ? ReturnType<S['denormalize']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Denormalize<F>[] : S extends {
     [K: string]: any;
 } ? DenormalizeObject<S> : S;
-type DenormalizeNullable<S> = S extends EntityInterface<any> ? DenormalizeNullableNestedSchema<S> | undefined : S extends RecordClass ? DenormalizeNullableNestedSchema<S> : S extends {
+type DenormalizeNullable<S> = S extends ({
+    createIfValid: any;
+    pk: any;
+    key: string;
+    prototype: any;
+    schema: any;
+}) ? DenormalizeNullableNestedSchema<S> | undefined : S extends RecordClass ? DenormalizeNullableNestedSchema<S> : S extends {
     _denormalizeNullable: (...args: any) => any;
 } ? ReturnType<S['_denormalizeNullable']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Denormalize<F>[] | undefined : S extends {
     [K: string]: any;
 } ? DenormalizeNullableObject<S> : S;
-type Normalize<S> = S extends EntityInterface ? string : S extends RecordClass ? NormalizeObject<S['schema']> : S extends {
+type Normalize<S> = S extends {
+    createIfValid: any;
+    pk: any;
+    key: string;
+    prototype: {};
+} ? string : S extends RecordClass ? NormalizeObject<S['schema']> : S extends {
     normalize: (...args: any) => any;
 } ? NormalizeReturnType<S['normalize']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Normalize<F>[] : S extends {
     [K: string]: any;
 } ? NormalizeObject<S> : S;
-type NormalizeNullable<S> = S extends EntityInterface ? string | undefined : S extends RecordClass ? NormalizedNullableObject<S['schema']> : S extends {
+type NormalizeNullable<S> = S extends {
+    createIfValid: any;
+    pk: any;
+    key: string;
+    prototype: {};
+} ? string | undefined : S extends RecordClass ? NormalizedNullableObject<S['schema']> : S extends {
     _normalizeNullable: (...args: any) => any;
 } ? NormalizeReturnType<S['_normalizeNullable']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Normalize<F>[] | undefined : S extends {
     [K: string]: any;
@@ -166,7 +212,7 @@ declare class WeakDependencyMap<Path, K extends object = object, V = any> {
     get(entity: K, getDependency: GetDependency<Path, K | symbol>): readonly [undefined, undefined] | readonly [V, Path[]];
     set(dependencies: Dep<Path, K>[], value: V): void;
 }
-type GetDependency<Path, K = object | symbol> = (lookup: Path) => K;
+type GetDependency<Path, K = object | symbol> = (lookup: Path) => K | undefined;
 interface Dep<Path, K = object> {
     path: Path;
     entity: K;
@@ -177,6 +223,10 @@ declare const normalize: <S extends Schema = Schema, E extends Record<string, Re
 interface EntityCache extends Map<string, Map<string, WeakMap<EntityInterface, WeakDependencyMap<EntityPath, object, any>>>> {
 }
 type EndpointsCache = WeakDependencyMap<EntityPath, object, any>;
+
+type IndexPath = [key: string, field: string, value: string];
+type EntitySchemaPath = [key: string] | [key: string, pk: string];
+type QueryPath = IndexPath | EntitySchemaPath;
 
 /** Singleton to store the memoization cache for denormalization methods */
 declare class MemoCache {
@@ -203,9 +253,6 @@ declare class MemoCache {
         getIn(k: string[]): any;
     }, argsKey?: string): NormalizeNullable<S>;
 }
-type IndexPath = [key: string, field: string, value: string];
-type EntitySchemaPath = [key: string] | [key: string, pk: string];
-type QueryPath = IndexPath | EntitySchemaPath;
 
 /** https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-4.html#the-noinfer-utility-type */
 type NI<T> = NoInfer<T>;
@@ -323,4 +370,4 @@ declare const INVALID: unique symbol;
 
 declare function validateQueryKey(queryKey: unknown): boolean;
 
-export { type AbstractInstanceType, type ArrayElement, type CheckLoop, type Denormalize, type DenormalizeNullable, type EndpointExtraOptions, type EndpointInterface, type EntityInterface, type EntityPath, type EntityTable, type ErrorTypes, ExpiryStatus, type ExpiryStatusInterface, type FetchFunction, type GetEntity, type GetIndex, INVALID, type IndexInterface, type IndexParams, type InferReturn, MemoCache, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeReturnType, type NormalizedIndex, type NormalizedSchema, type OptimisticUpdateParams, type Queryable, type ReadEndpoint, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SnapshotInterface, type UnknownError, type UpdateFunction, type Visit, WeakDependencyMap, denormalize, isEntity, normalize, validateQueryKey };
+export { type AbstractInstanceType, type ArrayElement, type CheckLoop, type Denormalize, type DenormalizeNullable, type EndpointExtraOptions, type EndpointInterface, type EntityInterface, type EntityPath, type EntityTable, type ErrorTypes, ExpiryStatus, type ExpiryStatusInterface, type FetchFunction, type GetEntity, type GetIndex, INVALID, type INormalizeDelegate, type IQueryDelegate, type IndexInterface, type IndexParams, type InferReturn, MemoCache, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeReturnType, type NormalizedIndex, type NormalizedSchema, type OptimisticUpdateParams, type Queryable, type ReadEndpoint, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SnapshotInterface, type UnknownError, type UpdateFunction, type Visit, WeakDependencyMap, denormalize, isEntity, normalize, validateQueryKey };

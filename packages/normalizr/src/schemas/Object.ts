@@ -9,9 +9,7 @@ export const normalize = (
   key: any,
   args: readonly any[],
   visit: Visit,
-  addEntity: any,
-  getEntity: any,
-  checkLoop: any,
+  snapshot: any,
 ) => {
   const object = { ...input };
   Object.keys(schema).forEach(key => {

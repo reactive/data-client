@@ -19,7 +19,14 @@ type EntityFields<U> = {
     readonly [K in keyof U as U[K] extends (...args: any) => any ? never : K]?: U[K] extends number ? U[K] | string : U[K] extends string ? U[K] | number : U[K];
 };
 
-type SchemaArgs<S extends Schema> = S extends EntityInterface<infer U> ? [EntityFields<U>] : S extends ({
+type SchemaArgs<S extends Schema> = S extends {
+    createIfValid: any;
+    pk: any;
+    key: string;
+    prototype: infer U;
+} ? [
+    EntityFields<U>
+] : S extends ({
     queryKey(args: infer Args, ...rest: any): any;
 }) ? Args : S extends {
     [K: string]: any;
@@ -62,22 +69,43 @@ type DenormalizeNullableNestedSchema<S extends NestedSchemaClass> = keyof S['sch
     [K in keyof S['schema']]: DenormalizeNullable<S['schema'][K]>;
 };
 type NormalizeReturnType<T> = T extends (...args: any) => infer R ? R : never;
-type Denormalize<S> = S extends EntityInterface<infer U> ? U : S extends RecordClass ? AbstractInstanceType<S> : S extends {
+type Denormalize<S> = S extends {
+    createIfValid: any;
+    pk: any;
+    key: string;
+    prototype: infer U;
+} ? U : S extends RecordClass ? AbstractInstanceType<S> : S extends {
     denormalize: (...args: any) => any;
 } ? ReturnType<S['denormalize']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Denormalize<F>[] : S extends {
     [K: string]: any;
 } ? DenormalizeObject<S> : S;
-type DenormalizeNullable<S> = S extends EntityInterface<any> ? DenormalizeNullableNestedSchema<S> | undefined : S extends RecordClass ? DenormalizeNullableNestedSchema<S> : S extends {
+type DenormalizeNullable<S> = S extends ({
+    createIfValid: any;
+    pk: any;
+    key: string;
+    prototype: any;
+    schema: any;
+}) ? DenormalizeNullableNestedSchema<S> | undefined : S extends RecordClass ? DenormalizeNullableNestedSchema<S> : S extends {
     _denormalizeNullable: (...args: any) => any;
 } ? ReturnType<S['_denormalizeNullable']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Denormalize<F>[] | undefined : S extends {
     [K: string]: any;
 } ? DenormalizeNullableObject<S> : S;
-type Normalize<S> = S extends EntityInterface ? string : S extends RecordClass ? NormalizeObject<S['schema']> : S extends {
+type Normalize<S> = S extends {
+    createIfValid: any;
+    pk: any;
+    key: string;
+    prototype: {};
+} ? string : S extends RecordClass ? NormalizeObject<S['schema']> : S extends {
     normalize: (...args: any) => any;
 } ? NormalizeReturnType<S['normalize']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Normalize<F>[] : S extends {
     [K: string]: any;
 } ? NormalizeObject<S> : S;
-type NormalizeNullable<S> = S extends EntityInterface ? string | undefined : S extends RecordClass ? NormalizedNullableObject<S['schema']> : S extends {
+type NormalizeNullable<S> = S extends {
+    createIfValid: any;
+    pk: any;
+    key: string;
+    prototype: {};
+} ? string | undefined : S extends RecordClass ? NormalizedNullableObject<S['schema']> : S extends {
     _normalizeNullable: (...args: any) => any;
 } ? NormalizeReturnType<S['_normalizeNullable']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Normalize<F>[] | undefined : S extends {
     [K: string]: any;
@@ -169,7 +197,10 @@ type Schema = null | string | {
     [K: string]: any;
 } | Schema[] | SchemaSimple | Serializable;
 interface Queryable<Args extends readonly any[] = readonly any[]> {
-    queryKey(args: Args, queryKey: (...args: any) => any, getEntity: GetEntity, getIndex: GetIndex): {};
+    queryKey(args: Args, queryKey: (...args: any) => any, snapshot: {
+        getEntity: any;
+        getIndex: any;
+    }): {};
 }
 type Serializable<T extends {
     toJSON(): string;
@@ -177,9 +208,15 @@ type Serializable<T extends {
     toJSON(): string;
 }> = (value: any) => T;
 interface SchemaSimple<T = any, Args extends readonly any[] = any> {
-    normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, addEntity: (...args: any) => any, getEntity: (...args: any) => any, checkLoop: (...args: any) => any): any;
+    normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, snapshot: {
+        getEntity: any;
+        addEntity: any;
+    }): any;
     denormalize(input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any): T;
-    queryKey(args: Args, queryKey: (...args: any) => any, getEntity: GetEntity, getIndex: GetIndex): any;
+    queryKey(args: Args, queryKey: (...args: any) => any, snapshot: {
+        getEntity: any;
+        getIndex: any;
+    }): any;
 }
 interface SchemaClass<T = any, Args extends readonly any[] = any> extends SchemaSimple<T, Args> {
     _normalizeNullable(): any;
@@ -187,14 +224,13 @@ interface SchemaClass<T = any, Args extends readonly any[] = any> extends Schema
 }
 interface EntityInterface<T = any> extends SchemaSimple {
     createIfValid(props: any): any;
-    pk(params: any, parent?: any, key?: string, args?: any[]): string | number | undefined;
+    pk(params: any, parent: any, key: string | undefined, args: any[]): string | number | undefined;
     readonly key: string;
     merge(existing: any, incoming: any): any;
     mergeWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
     mergeMetaWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
     indexes?: any;
-    schema: Record<string, Schema>;
-    prototype: T;
+    prototype?: T;
 }
 /** Represents Array or Values */
 interface PolymorphicInterface<T = any, Args extends any[] = any[]> extends SchemaSimple<T, Args> {
@@ -202,10 +238,6 @@ interface PolymorphicInterface<T = any, Args extends any[] = any[]> extends Sche
     schemaKey(): string;
     _normalizeNullable(): any;
     _denormalizeNullable(): any;
-}
-/** Returns true if a circular reference is found */
-interface CheckLoop {
-    (entityKey: string, pk: string, input: object): boolean;
 }
 /** Get Array of entities with map function applied */
 interface GetEntity {
@@ -217,9 +249,18 @@ interface GetEntity {
 /** Get PK using an Entity Index */
 interface GetIndex {
     /** getIndex('User', 'username', 'ntucker') */
-    (entityKey: string, field: string, value: string): {
-        readonly [indexKey: string]: string | undefined;
-    };
+    (entityKey: string, field: string, value: string): string | undefined;
+}
+/** Accessors to the currently processing state while building query */
+interface IQueryDelegate {
+    getEntity: GetEntity;
+    getIndex: GetIndex;
+}
+/** Helpers during schema.normalize() */
+interface INormalizeDelegate {
+    getEntity: GetEntity;
+    addEntity(schema: EntityInterface, processedEntity: any, id: string): void;
+    checkLoop(entityKey: string, pk: string, input: object): boolean;
 }
 /** Defines a networking endpoint */
 interface EndpointInterface<F extends FetchFunction = FetchFunction, S extends Schema | undefined = Schema | undefined, M extends boolean | undefined = boolean | undefined> extends EndpointExtraOptions<F> {
@@ -421,7 +462,10 @@ interface IEntityClass<TBase extends Constructor = any> {
      * @see https://dataclient.io/rest/api/Entity#process
      */
     process(input: any, parent: any, key: string | undefined, args: any[]): any;
-    normalize(input: any, parent: any, key: string | undefined, args: any[], visit: (...args: any) => any, addEntity: (...args: any) => any, getEntity: (...args: any) => any, checkLoop: (...args: any) => any): any;
+    normalize(input: any, parent: any, key: string | undefined, args: any[], visit: (...args: any) => any, snapshot: {
+        getEntity: any;
+        addEntity: any;
+    }): any;
     /** Do any transformations when first receiving input
      *
      * @see https://dataclient.io/rest/api/Entity#validate
@@ -431,7 +475,7 @@ interface IEntityClass<TBase extends Constructor = any> {
      *
      * @see https://dataclient.io/rest/api/Entity#queryKey
      */
-    queryKey(args: readonly any[], queryKey: any, getEntity: GetEntity, getIndex: GetIndex): any;
+    queryKey(args: readonly any[], queryKey: any, delegate: IQueryDelegate): any;
     denormalize<T extends (abstract new (...args: any[]) => IEntityInstance & InstanceType<TBase>) & IEntityClass & TBase>(this: T, input: any, args: readonly any[], unvisit: (schema: any, input: any) => any): AbstractInstanceType<T>;
     /** All instance defaults set */
     readonly defaults: any;
@@ -496,7 +540,7 @@ declare class Invalidate<E extends EntityInterface & {
     constructor(entity: E);
     get key(): string;
     /** Normalize lifecycles **/
-    normalize(input: any, parent: any, key: string | undefined, args: any[], visit: (...args: any) => any, addEntity: (...args: any) => any, getEntity: any, checkLoop: any): string | number | undefined;
+    normalize(input: any, parent: any, key: string | undefined, args: any[], visit: (...args: any) => any, delegate: INormalizeDelegate): string | number | undefined;
     merge(existing: any, incoming: any): any;
     mergeWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
     mergeMetaWithStore(existingMeta: {
@@ -513,7 +557,7 @@ declare class Invalidate<E extends EntityInterface & {
         fetchedAt: number;
     };
     /** /End Normalize lifecycles **/
-    queryKey(args: any, queryKey: unknown, getEntity: unknown, getIndex: unknown): undefined;
+    queryKey(args: any, queryKey: unknown, snapshot: unknown): undefined;
     denormalize(id: string, args: readonly any[], unvisit: (schema: any, input: any) => any): AbstractInstanceType<E>;
     _denormalizeNullable(): AbstractInstanceType<E> | undefined;
     _normalizeNullable(): string | undefined;
@@ -537,7 +581,7 @@ declare class Query<S extends Queryable | {
     constructor(schema: S, process: P);
     normalize(...args: any): any;
     denormalize(input: {}, args: any, unvisit: any): ReturnType<P>;
-    queryKey(args: ProcessParameters<P, S>, queryKey: (schema: any, args: any, getEntity: GetEntity, getIndex: GetIndex) => any, getEntity: GetEntity, getIndex: GetIndex): any;
+    queryKey(args: ProcessParameters<P, S>, queryKey: (schema: any, args: any) => any): any;
     _denormalizeNullable: (input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any) => ReturnType<P> | undefined;
     _normalizeNullable: () => NormalizeNullable<S>;
 }
@@ -595,7 +639,7 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
      * @see https://dataclient.io/docs/api/Collection#pk
      */
     pk(value: any, parent: any, key: string, args: any[]): string;
-    normalize(input: any, parent: Parent, key: string, args: any[], visit: (...args: any) => any, addEntity: (...args: any) => any, getEntity: GetEntity, checkLoop: CheckLoop): string;
+    normalize(input: any, parent: Parent, key: string, args: any[], visit: (...args: any) => any, delegate: INormalizeDelegate): string;
     /** Creates new instance copying over defined values of arguments
      *
      * @see https://dataclient.io/docs/api/Collection#merge
@@ -641,7 +685,7 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
      *
      * @see https://dataclient.io/rest/api/Collection#queryKey
      */
-    queryKey(args: Args, queryKey: unknown, getEntity: unknown, getIndex: unknown): any;
+    queryKey(args: Args, queryKey: unknown, snapshot: unknown): any;
     createIfValid: (value: any) => any | undefined;
     denormalize(input: any, args: readonly any[], unvisit: (schema: any, input: any) => any): ReturnType<S['denormalize']>;
     _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;
@@ -706,9 +750,7 @@ declare class Array$1<S extends Schema = Schema> implements SchemaClass {
     key: any,
     args: any[],
     visit: (...args: any) => any,
-    addEntity: (...args: any) => any,
-    getEntity: GetEntity,
-    checkLoop: CheckLoop,
+    delegate: INormalizeDelegate,
   ): (S extends EntityMap ? UnionResult<S> : Normalize<S>)[];
 
   _normalizeNullable():
@@ -728,8 +770,7 @@ declare class Array$1<S extends Schema = Schema> implements SchemaClass {
   queryKey(
     args: readonly any[],
     queryKey: (...args: any) => any,
-    getEntity: any,
-    getIndex: any,
+    snapshot: any,
   ): undefined;
 }
 
@@ -765,9 +806,7 @@ declare class All<
     key: any,
     args: any[],
     visit: (...args: any) => any,
-    addEntity: (...args: any) => any,
-    getEntity: GetEntity,
-    checkLoop: CheckLoop,
+    delegate: INormalizeDelegate,
   ): (S extends EntityMap ? UnionResult<S> : Normalize<S>)[];
 
   _normalizeNullable():
@@ -788,8 +827,7 @@ declare class All<
     // TODO: hack for now to allow for variable arg combinations with Query
     args: [] | [unknown],
     queryKey: (...args: any) => any,
-    getEntity: GetEntity,
-    getIndex: GetIndex,
+    delegate: IQueryDelegate,
   ): any;
 }
 
@@ -813,9 +851,7 @@ declare class Object$1<O extends Record<string, any> = Record<string, any>>
     key: any,
     args: any[],
     visit: (...args: any) => any,
-    addEntity: (...args: any) => any,
-    getEntity: GetEntity,
-    checkLoop: CheckLoop,
+    delegate: INormalizeDelegate,
   ): NormalizeObject<O>;
 
   _normalizeNullable(): NormalizedNullableObject<O>;
@@ -831,8 +867,7 @@ declare class Object$1<O extends Record<string, any> = Record<string, any>>
   queryKey(
     args: ObjectArgs<O>,
     queryKey: (...args: any) => any,
-    getEntity: GetEntity,
-    getIndex: GetIndex,
+    delegate: IQueryDelegate,
   ): any;
 }
 
@@ -904,9 +939,7 @@ interface UnionInstance<
     key: any,
     args: any[],
     visit: (...args: any) => any,
-    addEntity: (...args: any) => any,
-    getEntity: GetEntity,
-    checkLoop: CheckLoop,
+    delegate: INormalizeDelegate,
   ): UnionResult<Choices>;
 
   _normalizeNullable(): UnionResult<Choices> | undefined;
@@ -924,8 +957,7 @@ interface UnionInstance<
   queryKey(
     args: [Args],
     queryKey: (...args: any) => any,
-    getEntity: GetEntity,
-    getIndex: GetIndex,
+    delegate: IQueryDelegate,
   ): { id: any; schema: string };
 }
 
@@ -979,9 +1011,7 @@ declare class Values<Choices extends Schema = any> implements SchemaClass {
     key: any,
     args: any[],
     visit: (...args: any) => any,
-    addEntity: (...args: any) => any,
-    getEntity: GetEntity,
-    checkLoop: CheckLoop,
+    delegate: INormalizeDelegate,
   ): Record<
     string,
     Choices extends EntityMap ? UnionResult<Choices> : Normalize<Choices>
@@ -1013,8 +1043,7 @@ declare class Values<Choices extends Schema = any> implements SchemaClass {
   queryKey(
     args: readonly any[],
     queryKey: (...args: any) => any,
-    getEntity: GetEntity,
-    getIndex: GetIndex,
+    delegate: IQueryDelegate,
   ): undefined;
 }
 
@@ -1899,4 +1928,4 @@ declare function useController(): Controller;
 declare function useLive<E extends EndpointInterface$1<FetchFunction$1, Schema$1 | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>]): E['schema'] extends undefined | null ? ResolveType$1<E> : Denormalize$1<E['schema']>;
 declare function useLive<E extends EndpointInterface$1<FetchFunction$1, Schema$1 | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): E['schema'] extends undefined | null ? ResolveType$1<E> | undefined : DenormalizeNullable$1<E['schema']>;
 
-export { type AbstractInstanceType, type AddEndpoint, Array$1 as Array, _default as AsyncBoundary, Collection, type CustomResource, DataProvider, type DefaultArgs, type Defaults, type Denormalize, type DenormalizeNullable, type DenormalizeNullableObject, type DenormalizeObject, Endpoint, type EndpointExtendOptions, type EndpointExtraOptions, type EndpointInstance, type EndpointInstanceInterface, type EndpointInterface, type EndpointOptions, type EndpointParam, type EndpointToFunction, Entity, type EntityFields, type EntityMap, EntityMixin, type ErrorTypes$1 as ErrorTypes, type ExpiryStatusInterface, ExtendableEndpoint, type ExtendedResource, type FetchFunction, type FetchGet, type FetchMutate, type FromFallBack, type GetEndpoint, type HookResource, type HookableEndpointInterface, INVALID, type RestEndpoint$1 as IRestEndpoint, Invalidate, type KeyofEndpointInstance, type KeyofRestEndpoint, type KeysToArgs, type MethodToSide, type MutateEndpoint, type NI, NetworkError, ErrorBoundary as NetworkErrorBoundary, type Normalize, type NormalizeNullable, type NormalizeObject, type NormalizedEntity, type NormalizedNullableObject, type ObjectArgs, type OptionsToFunction, type PaginationEndpoint, type PaginationFieldEndpoint, type ParamFetchNoBody, type ParamFetchWithBody, type ParamToArgs, type PartialRestGenerics, type PathArgs, type PathArgsAndSearch, type PathKeys, type PolymorphicInterface, type Queryable, type ReadEndpoint, type RecordClass, type ResolveType, type Resource, type ResourceEndpointExtensions, type ResourceExtension, type ResourceGenerics, type ResourceInterface, type ResourceOptions, RestEndpoint, type RestEndpointConstructor, type RestEndpointConstructorOptions, type RestEndpointExtendOptions, type RestEndpointOptions, type RestExtendedEndpoint, type RestFetch, type RestGenerics, type RestInstance, type RestInstanceBase, type RestType, type RestTypeNoBody, type RestTypeWithBody, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type ShortenPath, type SnapshotInterface, type UnknownError, resource as createResource, getUrlBase, getUrlTokens, hookifyResource, resource, schema_d as schema, useCache, useController, useDLE, useError, useFetch, useLive, useQuery, useSubscription, useSuspense, validateRequired };
+export { type AbstractInstanceType, type AddEndpoint, Array$1 as Array, _default as AsyncBoundary, Collection, type CustomResource, DataProvider, type DefaultArgs, type Defaults, type Denormalize, type DenormalizeNullable, type DenormalizeNullableObject, type DenormalizeObject, Endpoint, type EndpointExtendOptions, type EndpointExtraOptions, type EndpointInstance, type EndpointInstanceInterface, type EndpointInterface, type EndpointOptions, type EndpointParam, type EndpointToFunction, Entity, type EntityFields, type EntityMap, EntityMixin, type ErrorTypes$1 as ErrorTypes, type ExpiryStatusInterface, ExtendableEndpoint, type ExtendedResource, type FetchFunction, type FetchGet, type FetchMutate, type FromFallBack, type GetEndpoint, type HookResource, type HookableEndpointInterface, INVALID, type RestEndpoint$1 as IRestEndpoint, Invalidate, type KeyofEndpointInstance, type KeyofRestEndpoint, type KeysToArgs, type MethodToSide, type MutateEndpoint, type NI, NetworkError, ErrorBoundary as NetworkErrorBoundary, type Normalize, type NormalizeNullable, type NormalizeObject, type NormalizedEntity, type NormalizedNullableObject, type ObjectArgs, type OptionsToFunction, type PaginationEndpoint, type PaginationFieldEndpoint, type ParamFetchNoBody, type ParamFetchWithBody, type ParamToArgs, type PartialRestGenerics, type PathArgs, type PathArgsAndSearch, type PathKeys, type PolymorphicInterface, type IQueryDelegate as QuerySnapshot, type Queryable, type ReadEndpoint, type RecordClass, type ResolveType, type Resource, type ResourceEndpointExtensions, type ResourceExtension, type ResourceGenerics, type ResourceInterface, type ResourceOptions, RestEndpoint, type RestEndpointConstructor, type RestEndpointConstructorOptions, type RestEndpointExtendOptions, type RestEndpointOptions, type RestExtendedEndpoint, type RestFetch, type RestGenerics, type RestInstance, type RestInstanceBase, type RestType, type RestTypeNoBody, type RestTypeWithBody, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type ShortenPath, type SnapshotInterface, type UnknownError, resource as createResource, getUrlBase, getUrlTokens, hookifyResource, resource, schema_d as schema, useCache, useController, useDLE, useError, useFetch, useLive, useQuery, useSubscription, useSuspense, validateRequired };

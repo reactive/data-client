@@ -8,9 +8,7 @@ export const normalize = (
   key: any,
   args: any[],
   visit: Visit,
-  addEntity: any,
-  getEntity: any,
-  checkLoop: any,
+  snapshot: any,
 ) => {
   const object = { ...input };
   Object.keys(schema).forEach(key => {
@@ -85,9 +83,7 @@ export default class ObjectSchema {
       key: any,
       args: any[],
       visit: any,
-      addEntity: any,
-      getEntity: any,
-      checkLoop: any,
+      snapshot: any,
     ]
   ) {
     return normalize(this.schema, ...args);

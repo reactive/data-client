@@ -22,7 +22,7 @@ export type {
   ReadEndpoint,
   MutateEndpoint,
   Schema,
-  QuerySnapshot,
+  IQueryDelegate as QuerySnapshot,
   SnapshotInterface,
   ExpiryStatusInterface,
   SchemaSimple,

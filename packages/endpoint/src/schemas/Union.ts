@@ -21,9 +21,7 @@ export default class UnionSchema extends PolymorphicSchema {
     key: any,
     args: any[],
     visit: Visit,
-    addEntity: any,
-    getEntity: any,
-    checkLoop: any,
+    snapshot: any,
   ) {
     return this.normalizeValue(input, parent, key, args, visit);
   }

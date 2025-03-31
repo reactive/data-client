@@ -1,4 +1,8 @@
-import type { EntityInterface, SchemaSimple } from '../interface.js';
+import type {
+  EntityInterface,
+  INormalizeDelegate,
+  SchemaSimple,
+} from '../interface.js';
 import type { AbstractInstanceType } from '../normal.js';
 import { INVALID } from '../special.js';
 
@@ -42,13 +46,11 @@ export default class Invalidate<
     key: string | undefined,
     args: any[],
     visit: (...args: any) => any,
-    addEntity: (...args: any) => any,
-    getEntity: any,
-    checkLoop: any,
+    delegate: INormalizeDelegate,
   ): string | number | undefined {
     // TODO: what's store needs to be a differing type from fromJS
     const processedEntity = this._entity.process(input, parent, key, args);
-    const id = this._entity.pk(processedEntity, parent, key, args);
+    const id = `${this._entity.pk(processedEntity, parent, key, args)}`;
 
     if (
       process.env.NODE_ENV !== 'production' &&
@@ -69,7 +71,7 @@ export default class Invalidate<
       (error as any).status = 400;
       throw error;
     }
-    addEntity(this, INVALID, id);
+    delegate.addEntity(this as any, INVALID, id);
     return id;
   }
 
