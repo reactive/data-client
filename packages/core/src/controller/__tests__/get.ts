@@ -127,7 +127,7 @@ describe('Controller.get()', () => {
       expect(nextBob?.staff).toBe(true);
     });
 
-    it.only('query indexes after empty state', () => {
+    it('query indexes after empty state', () => {
       const controller = new Controller();
       expect(
         controller.get(User, { username: 'bob' }, initialState),

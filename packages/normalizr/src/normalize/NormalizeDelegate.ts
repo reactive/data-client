@@ -1,8 +1,8 @@
 import {
-  EntityInterface,
   EntityTable,
   NormalizedIndex,
   INormalizeDelegate,
+  Mergeable,
 } from '../interface.js';
 import { getCheckLoop } from './getCheckLoop.js';
 import { INVALID } from '../denormalize/symbol.js';
@@ -54,7 +54,11 @@ export class NormalizeDelegate
     this.checkLoop = getCheckLoop();
   }
 
-  getInProgressEntity(key: string, pk: string) {
+  protected getNewEntity(key: string, pk: string) {
+    return this.getNewEntities(key).get(pk);
+  }
+
+  protected getNewEntities(key: string): Map<string, any> {
     // first time we come across this type of entity
     if (!this.newEntities.has(key)) {
       this.newEntities.set(key, new Map());
@@ -67,29 +71,75 @@ export class NormalizeDelegate
       };
     }
 
-    return (this.newEntities.get(key) as Map<string, any>).get(pk);
+    return this.newEntities.get(key) as Map<string, any>;
   }
 
-  addEntity(
-    schema: EntityInterface,
+  protected getNewIndexes(key: string): Map<string, any> {
+    if (!this.newIndexes.has(key)) {
+      this.newIndexes.set(key, new Map());
+      this.indexes[key] = { ...this.indexes[key] };
+    }
+    return this.newIndexes.get(key) as Map<string, any>;
+  }
+
+  /** Updates an entity using merge lifecycles when it has previously been set */
+  mergeEntity(
+    schema: Mergeable & { key: string; indexes?: any },
     pk: string,
-    entity: any,
-    meta?: { fetchedAt: number; date: number; expiresAt: number },
+    incomingEntity: any,
   ) {
     const key = schema.key;
-    const newEntitiesKey = this.newEntities.get(key) as Map<string, any>;
-    newEntitiesKey.set(pk, entity);
+
+    // default when this is completely new entity
+    let nextEntity = incomingEntity;
+    let nextMeta = this.meta;
+
+    // if we already processed this entity during this normalization (in another nested place)
+    let entity = this.getNewEntity(key, pk);
+    if (entity) {
+      nextEntity = schema.merge(entity, incomingEntity);
+    } else {
+      // if we find it in the store
+      entity = this.getEntity(key, pk);
+      if (entity) {
+        const meta = this.getMeta(key, pk);
+        nextEntity = schema.mergeWithStore(
+          meta,
+          nextMeta,
+          entity,
+          incomingEntity,
+        );
+        nextMeta = schema.mergeMetaWithStore(
+          meta,
+          nextMeta,
+          entity,
+          incomingEntity,
+        );
+      }
+    }
+
+    // once we have computed the merged values, set them
+    this.setEntity(schema, pk, nextEntity, nextMeta);
+  }
+
+  /** Sets an entity overwriting any previously set values */
+  setEntity(
+    schema: { key: string; indexes?: any },
+    pk: string,
+    entity: any,
+    meta: { fetchedAt: number; date: number; expiresAt: number } = this.meta,
+  ) {
+    const key = schema.key;
+    const newEntities = this.getNewEntities(key);
+    const updateMeta = !newEntities.has(pk);
+    newEntities.set(pk, entity);
 
     // update index
     if (schema.indexes) {
-      if (!this.newIndexes.has(key)) {
-        this.newIndexes.set(key, new Map());
-        this.indexes[key] = { ...this.indexes[key] };
-      }
       handleIndexes(
         pk,
         schema.indexes,
-        this.newIndexes.get(key) as Map<string, any>,
+        this.getNewIndexes(key),
         this.indexes[key],
         entity,
         this.entities[key] as any,
@@ -97,9 +147,21 @@ export class NormalizeDelegate
     }
 
     // set this after index updates so we know what indexes to remove from
-    (this.entities[key] as any)[pk] = entity;
+    this._setEntity(key, pk, entity);
 
-    if (meta) this.entityMeta[key][pk] = meta;
+    if (updateMeta) this._setMeta(key, pk, meta);
+  }
+
+  protected _setEntity(key: string, pk: string, entity: any) {
+    (this.entities[key] as any)[pk] = entity;
+  }
+
+  protected _setMeta(
+    key: string,
+    pk: string,
+    meta: { fetchedAt: number; date: number; expiresAt: number },
+  ) {
+    this.entityMeta[key][pk] = meta;
   }
 
   getMeta(key: string, pk: string) {

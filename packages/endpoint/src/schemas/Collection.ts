@@ -6,6 +6,7 @@ import {
 } from '../interface.js';
 import { Values, Array as ArraySchema } from '../schema.js';
 import type { DefaultArgs } from '../schemaTypes.js';
+import { Mergeable } from './Mergeable.js';
 
 const pushMerge = (existing: any, incoming: any) => {
   return [...existing, ...incoming];
@@ -27,7 +28,7 @@ export default class CollectionSchema<
   S extends PolymorphicInterface = any,
   Args extends any[] = DefaultArgs,
   Parent = any,
-> {
+> extends Mergeable {
   declare protected nestKey: (parent: any, key: string) => Record<string, any>;
 
   declare protected argsKey?: (...args: any) => Record<string, any>;
@@ -75,6 +76,7 @@ export default class CollectionSchema<
   }
 
   constructor(schema: S, options?: CollectionOptions<Args, Parent>) {
+    super();
     this.schema =
       Array.isArray(schema) ? (new ArraySchema(schema[0]) as any) : schema;
     if (!options) {
@@ -166,88 +168,13 @@ export default class CollectionSchema<
     );
     const id = this.pk(normalizedValue, parent, key, args);
 
-    this.addEntity(delegate, id, normalizedValue);
+    delegate.mergeEntity(this, id, normalizedValue);
     return id;
-  }
-
-  // TODO: Extract this into shared code between entity and collection
-  addEntity(delegate: INormalizeDelegate, pk: string, processedEntity: any) {
-    const key = this.key;
-    const existingEntity = delegate.getInProgressEntity(key, pk);
-    if (existingEntity) {
-      delegate.addEntity(this, pk, this.merge(existingEntity, processedEntity));
-    } else {
-      const inStoreEntity = delegate.getEntity(key, pk);
-      let inStoreMeta: {
-        date: number;
-        expiresAt: number;
-        fetchedAt: number;
-      };
-      // this case we already have this entity in store
-      if (inStoreEntity && (inStoreMeta = delegate.getMeta(key, pk))) {
-        delegate.addEntity(
-          this,
-          pk,
-          this.mergeWithStore(
-            inStoreMeta,
-            delegate.meta,
-            inStoreEntity,
-            processedEntity,
-          ),
-          this.mergeMetaWithStore(
-            inStoreMeta,
-            delegate.meta,
-            inStoreEntity,
-            processedEntity,
-          ),
-        );
-      } else {
-        delegate.addEntity(this, pk, processedEntity, delegate.meta);
-      }
-    }
   }
 
   // always replace
   merge(existing: any, incoming: any) {
     return incoming;
-  }
-
-  shouldReorder(
-    existingMeta: { date: number; fetchedAt: number },
-    incomingMeta: { date: number; fetchedAt: number },
-    existing: any,
-    incoming: any,
-  ) {
-    return incomingMeta.fetchedAt < existingMeta.fetchedAt;
-  }
-
-  mergeWithStore(
-    existingMeta: {
-      date: number;
-      fetchedAt: number;
-    },
-    incomingMeta: { date: number; fetchedAt: number },
-    existing: any,
-    incoming: any,
-  ) {
-    return this.shouldReorder(existingMeta, incomingMeta, existing, incoming) ?
-        this.merge(incoming, existing)
-      : this.merge(existing, incoming);
-  }
-
-  mergeMetaWithStore(
-    existingMeta: {
-      fetchedAt: number;
-      date: number;
-      expiresAt: number;
-    },
-    incomingMeta: { fetchedAt: number; date: number; expiresAt: number },
-    existing: any,
-    incoming: any,
-  ) {
-    return this.shouldReorder(existingMeta, incomingMeta, existing, incoming) ?
-        existingMeta
-      : incomingMeta;
   }
 
   // >>>>>>>>>>>>>>DENORMALIZE<<<<<<<<<<<<<<
@@ -365,7 +292,7 @@ function normalizeCreate(
   if (entities)
     Object.keys(entities).forEach(collectionPk => {
       if (!filterCollections(JSON.parse(collectionPk))) return;
-      this.addEntity(delegate, collectionPk, normalizedValue);
+      delegate.mergeEntity(this, collectionPk, normalizedValue);
     });
   return normalizedValue as any;
 }

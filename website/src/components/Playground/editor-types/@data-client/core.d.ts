@@ -15,7 +15,7 @@ type Serializable<T extends {
 interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
     normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, delegate: {
         getEntity: any;
-        addEntity: any;
+        setEntity: any;
     }): any;
     denormalize(input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any): T;
     queryKey(args: Args, unvisit: (...args: any) => any, delegate: {

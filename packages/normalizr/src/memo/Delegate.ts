@@ -4,14 +4,15 @@ import type {
   NormalizedIndex,
   IQueryDelegate,
 } from '../interface.js';
+import { QueryPath, IndexPath } from './types.js';
 
 export const getDependency =
-  (snap: IBaseDelegate) =>
+  (delegate: IBaseDelegate) =>
   (args: QueryPath): QueryPath | undefined =>
     // ignore third arg so we only track
     args.length === 3 ?
-      snap.getIndex(args[0], args[1])
-    : snap.getEntity(...(args as [any]));
+      delegate.getIndex(args[0], args[1])
+    : delegate.getEntity(...(args as [any]));
 
 export interface IBaseDelegate {
   entities: any;
@@ -79,7 +80,3 @@ export class TrackingQueryDelegate implements IQueryDelegate {
     return entity;
   }
 }
-
-export type IndexPath = [key: string, field: string, value: string];
-export type EntitySchemaPath = [key: string] | [key: string, pk: string];
-export type QueryPath = IndexPath | EntitySchemaPath;

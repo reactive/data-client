@@ -204,7 +204,7 @@ type Serializable<T extends {
 interface SchemaSimple<T = any, Args extends readonly any[] = any> {
     normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, delegate: {
         getEntity: any;
-        addEntity: any;
+        setEntity: any;
     }): any;
     denormalize(input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any): T;
     queryKey(args: Args, unvisit: (...args: any) => any, delegate: {
@@ -222,6 +222,11 @@ interface EntityInterface<T = any> extends SchemaSimple {
     readonly key: string;
     indexes?: any;
     prototype?: T;
+}
+interface Mergeable {
+    merge(existing: any, incoming: any): any;
+    mergeWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
+    mergeMetaWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
 }
 /** Represents Array or Values */
 interface PolymorphicInterface<T = any, Args extends any[] = any[]> extends SchemaSimple<T, Args> {
@@ -249,24 +254,30 @@ interface IQueryDelegate {
 }
 /** Helpers during schema.normalize() */
 interface INormalizeDelegate {
+    /** Action meta-data for this normalize call */
     readonly meta: {
         fetchedAt: number;
         date: number;
         expiresAt: number;
     };
+    /** Gets any previously normalized entity from store */
     getEntity: GetEntity;
-    getMeta(key: string, pk: string): {
-        date: number;
-        expiresAt: number;
-        fetchedAt: number;
-    };
-    getInProgressEntity(key: string, pk: string): any;
-    addEntity(schema: EntityInterface, pk: string, entity: any, meta?: {
+    /** Updates an entity using merge lifecycles when it has previously been set */
+    mergeEntity(schema: Mergeable & {
+        key: string;
+        indexes?: any;
+    }, pk: string, incomingEntity: any): void;
+    /** Sets an entity overwriting any previously set values */
+    setEntity(schema: {
+        key: string;
+        indexes?: any;
+    }, pk: string, entity: any, meta?: {
         fetchedAt: number;
         date: number;
         expiresAt: number;
     }): void;
-    checkLoop(entityKey: string, pk: string, input: object): boolean;
+    /** Returns true when we're in a cycle, so we should not continue recursing */
+    checkLoop(key: string, pk: string, input: object): boolean;
 }
 /** Defines a networking endpoint */
 interface EndpointInterface<F extends FetchFunction = FetchFunction, S extends Schema | undefined = Schema | undefined, M extends boolean | undefined = boolean | undefined> extends EndpointExtraOptions<F> {
@@ -474,7 +485,7 @@ interface IEntityClass<TBase extends Constructor = any> {
     process(input: any, parent: any, key: string | undefined, args: any[]): any;
     normalize(input: any, parent: any, key: string | undefined, args: any[], visit: (...args: any) => any, snapshot: {
         getEntity: any;
-        addEntity: any;
+        setEntity: any;
     }): any;
     /** Do any transformations when first receiving input
      *

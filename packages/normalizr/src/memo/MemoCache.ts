@@ -1,7 +1,10 @@
 import GlobalCache from './globalCache.js';
-import { EndpointsCache, EntityCache } from './types.js';
 import WeakDependencyMap from './WeakDependencyMap.js';
 import buildQueryKey from '../buildQueryKey.js';
+import {
+  DelegateImmutable,
+  TrackingQueryDelegateImmutable,
+} from './Delegate.immutable.js';
 import { getEntities } from '../denormalize/getEntities.js';
 import getUnvisit from '../denormalize/unvisit.js';
 import type { NormalizedIndex, Schema } from '../interface.js';
@@ -13,10 +16,11 @@ import type {
 } from '../types.js';
 import {
   getDependency,
-  QueryPath,
   BaseDelegate,
   TrackingQueryDelegate,
 } from './Delegate.js';
+import { EndpointsCache, EntityCache } from './types.js';
+import { QueryPath } from './types.js';
 
 //TODO: make immutable distinction occur when initilizing MemoCache
 
@@ -123,17 +127,25 @@ export default class MemoCache {
       any
     >;
 
+    const imm = isImmutable(entities);
+
     // TODO: remove casting when we split this to immutable vs plain implementations
-    const coreSnapshot = new BaseDelegate(entities as any, indexes as any);
+    const baseDelegate = new (imm ? DelegateImmutable : BaseDelegate)(
+      entities as any,
+      indexes as any,
+    );
     // eslint-disable-next-line prefer-const
     let [value, paths] = queryCache.get(
       schema as any,
-      getDependency(coreSnapshot),
+      getDependency(baseDelegate),
     );
 
     // paths undefined is the only way to truly tell nothing was found (the value could have actually been undefined)
     if (!paths) {
-      const tracked = new TrackingQueryDelegate(coreSnapshot, schema);
+      const tracked = new (
+        imm ?
+          TrackingQueryDelegateImmutable
+        : TrackingQueryDelegate)(baseDelegate, schema);
 
       value = buildQueryKey(tracked)(schema, args);
       queryCache.set(tracked.dependencies, value);

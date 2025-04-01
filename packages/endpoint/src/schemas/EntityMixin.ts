@@ -15,6 +15,7 @@ import type {
   Constructor,
   PKClass,
 } from './EntityTypes.js';
+import { Mergeable } from './Mergeable.js';
 
 /**
  * Turns any class into an Entity.
@@ -104,28 +105,14 @@ export default function EntityMixin<TBase extends Constructor>(
      *
      * @see https://dataclient.io/rest/api/Entity#shouldUpdate
      */
-    static shouldUpdate(
-      existingMeta: { date: number; fetchedAt: number },
-      incomingMeta: { date: number; fetchedAt: number },
-      existing: any,
-      incoming: any,
-    ) {
-      return true;
-    }
+    declare static shouldUpdate: typeof Mergeable.prototype.shouldUpdate;
 
     /** Determines the order of incoming entity vs entity already in store\
      *
      * @see https://dataclient.io/rest/api/Entity#shouldReorder
      * @returns true if incoming entity should be first argument of merge()
      */
-    static shouldReorder(
-      existingMeta: { date: number; fetchedAt: number },
-      incomingMeta: { date: number; fetchedAt: number },
-      existing: any,
-      incoming: any,
-    ) {
-      return incomingMeta.fetchedAt < existingMeta.fetchedAt;
-    }
+    declare static shouldReorder: typeof Mergeable.prototype.shouldReorder;
 
     /** Creates new instance copying over defined values of arguments
      *
@@ -142,58 +129,13 @@ export default function EntityMixin<TBase extends Constructor>(
      *
      * @see https://dataclient.io/rest/api/Entity#mergeWithStore
      */
-    static mergeWithStore(
-      existingMeta: {
-        date: number;
-        fetchedAt: number;
-      },
-      incomingMeta: { date: number; fetchedAt: number },
-      existing: any,
-      incoming: any,
-    ) {
-      const shouldUpdate = this.shouldUpdate(
-        existingMeta,
-        incomingMeta,
-        existing,
-        incoming,
-      );
-
-      if (shouldUpdate) {
-        // distinct types are not mergeable (like delete symbol), so just replace
-        if (typeof incoming !== typeof existing) {
-          return incoming;
-        } else {
-          return (
-              this.shouldReorder(existingMeta, incomingMeta, existing, incoming)
-            ) ?
-              this.merge(incoming, existing)
-            : this.merge(existing, incoming);
-        }
-      } else {
-        return existing;
-      }
-    }
+    declare static mergeWithStore: typeof Mergeable.prototype.mergeWithStore;
 
     /** Run when an existing entity is found in the store
      *
      * @see https://dataclient.io/rest/api/Entity#mergeMetaWithStore
      */
-    static mergeMetaWithStore(
-      existingMeta: {
-        fetchedAt: number;
-        date: number;
-        expiresAt: number;
-      },
-      incomingMeta: { fetchedAt: number; date: number; expiresAt: number },
-      existing: any,
-      incoming: any,
-    ) {
-      return (
-          this.shouldReorder(existingMeta, incomingMeta, existing, incoming)
-        ) ?
-          existingMeta
-        : incomingMeta;
-    }
+    declare static mergeMetaWithStore: typeof Mergeable.prototype.mergeMetaWithStore;
 
     /** Factory method to convert from Plain JS Objects.
      *
@@ -254,7 +196,9 @@ export default function EntityMixin<TBase extends Constructor>(
       if (typeof processedEntity === 'undefined') {
         id = `${this.pk(input, parent, key, args)}`;
         // TODO: add undefined id check
-        this.addEntity(delegate, id, INVALID);
+
+        // set directly: any queued updates are meaningless with delete
+        delegate.setEntity(this, id, INVALID);
         return id;
       }
       id = this.pk(processedEntity, parent, key, args);
@@ -313,52 +257,8 @@ export default function EntityMixin<TBase extends Constructor>(
         }
       });
 
-      this.addEntity(delegate, id, processedEntity);
+      delegate.mergeEntity(this, id, processedEntity);
       return id;
-    }
-
-    static addEntity(
-      delegate: INormalizeDelegate,
-      pk: string,
-      processedEntity: any,
-    ) {
-      const key = this.key;
-      const existingEntity = delegate.getInProgressEntity(key, pk);
-      if (existingEntity) {
-        delegate.addEntity(
-          this,
-          pk,
-          this.merge(existingEntity, processedEntity),
-        );
-      } else {
-        const inStoreEntity = delegate.getEntity(key, pk);
-        let inStoreMeta: {
-          date: number;
-          expiresAt: number;
-          fetchedAt: number;
-        };
-        // this case we already have this entity in store
-        if (inStoreEntity && (inStoreMeta = delegate.getMeta(key, pk))) {
-          delegate.addEntity(
-            this,
-            pk,
-            this.mergeWithStore(
-              inStoreMeta,
-              delegate.meta,
-              inStoreEntity,
-              processedEntity,
-            ),
-            this.mergeMetaWithStore(
-              inStoreMeta,
-              delegate.meta,
-              inStoreEntity,
-              processedEntity,
-            ),
-          );
-        } else {
-          delegate.addEntity(this, pk, processedEntity, delegate.meta);
-        }
-      }
     }
 
     static validate(processedEntity: any): string | undefined {
@@ -415,6 +315,13 @@ export default function EntityMixin<TBase extends Constructor>(
         });
       return (this as any).__defaults;
     }
+  }
+
+  // Apply Mergeable instance methods to static side of EntityMixin
+  for (const key of Object.getOwnPropertyNames(Mergeable.prototype)) {
+    if (key === 'constructor') continue;
+
+    (EntityMixin as any)[key] = (Mergeable as any).prototype[key];
   }
 
   const { pk, schema, key, ...staticProps } = options;
