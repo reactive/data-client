@@ -32,7 +32,7 @@ export default class AllSchema<
     super.normalize(input, parent, key, args, visit, snapshot);
   }
 
-  queryKey(args: any, queryKey: any, delegate: IQueryDelegate): any {
+  queryKey(args: any, unvisit: any, delegate: IQueryDelegate): any {
     if (this.isSingleSchema) {
       const entitiesEntry = delegate.getEntity(this.schema.key);
       // we must wait until there are entries for any 'All' query to be Valid

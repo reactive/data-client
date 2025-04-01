@@ -131,7 +131,7 @@ export interface CollectionInterface<
    *
    * @see https://dataclient.io/rest/api/Collection#queryKey
    */
-  queryKey(args: Args, queryKey: unknown, snapshot: unknown): any;
+  queryKey(args: Args, unvisit: unknown, delegate: unknown): any;
 
   createIfValid: (value: any) => any | undefined;
   denormalize(

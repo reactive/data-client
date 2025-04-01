@@ -13,8 +13,8 @@ export type Schema =
 export interface Queryable<Args extends readonly any[] = readonly any[]> {
   queryKey(
     args: Args,
-    queryKey: (...args: any) => any,
-    snapshot: { getEntity: any; getIndex: any },
+    unvisit: (...args: any) => any,
+    delegate: { getEntity: any; getIndex: any },
     // Must be non-void
   ): {};
 }
@@ -30,7 +30,7 @@ export interface SchemaSimple<T = any, Args extends readonly any[] = any> {
     key: any,
     args: any[],
     visit: (...args: any) => any,
-    snapshot: { getEntity: any; addEntity: any },
+    delegate: { getEntity: any; addEntity: any },
   ): any;
   denormalize(
     input: {},
@@ -39,8 +39,8 @@ export interface SchemaSimple<T = any, Args extends readonly any[] = any> {
   ): T;
   queryKey(
     args: Args,
-    queryKey: (...args: any) => any,
-    snapshot: { getEntity: any; getIndex: any },
+    unvisit: (...args: any) => any,
+    delegate: { getEntity: any; getIndex: any },
   ): any;
 }
 
@@ -61,19 +61,6 @@ export interface EntityInterface<T = any> extends SchemaSimple {
     args: any[],
   ): string | number | undefined;
   readonly key: string;
-  merge(existing: any, incoming: any): any;
-  mergeWithStore(
-    existingMeta: any,
-    incomingMeta: any,
-    existing: any,
-    incoming: any,
-  ): any;
-  mergeMetaWithStore(
-    existingMeta: any,
-    incomingMeta: any,
-    existing: any,
-    incoming: any,
-  ): any;
   indexes?: any;
   prototype?: T;
 }
@@ -133,8 +120,23 @@ export interface IQueryDelegate {
 
 /** Helpers during schema.normalize() */
 export interface INormalizeDelegate {
+  readonly meta: { fetchedAt: number; date: number; expiresAt: number };
   getEntity: GetEntity;
-  addEntity(schema: EntityInterface, processedEntity: any, id: string): void;
+  getMeta(
+    key: string,
+    pk: string,
+  ): {
+    date: number;
+    expiresAt: number;
+    fetchedAt: number;
+  };
+  getInProgressEntity(key: string, pk: string): any;
+  addEntity(
+    schema: EntityInterface,
+    pk: string,
+    entity: any,
+    meta?: { fetchedAt: number; date: number; expiresAt: number },
+  ): void;
   checkLoop(entityKey: string, pk: string, input: object): boolean;
 }
 

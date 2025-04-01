@@ -34,14 +34,14 @@ export default class UnionSchema extends PolymorphicSchema {
     return this.denormalizeValue(input, unvisit);
   }
 
-  queryKey(args: any, queryKey: (schema: any, args: any) => any) {
+  queryKey(args: any, unvisit: (schema: any, args: any) => any) {
     if (!args[0]) return;
     const schema = this.getSchemaAttribute(args[0], undefined, '');
     const discriminatedSchema = this.schema[schema];
 
     // Was unable to infer the entity's schema from params
     if (discriminatedSchema === undefined) return;
-    const id = queryKey(discriminatedSchema, args);
+    const id = unvisit(discriminatedSchema, args);
     if (id === undefined) return;
     return { id, schema };
   }

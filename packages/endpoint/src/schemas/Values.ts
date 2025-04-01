@@ -43,7 +43,7 @@ export default class ValuesSchema extends PolymorphicSchema {
     }, {});
   }
 
-  queryKey(args: any, queryKey: unknown, snapshot: unknown) {
+  queryKey(args: any, unvisit: unknown, delegate: unknown) {
     return undefined;
   }
 }

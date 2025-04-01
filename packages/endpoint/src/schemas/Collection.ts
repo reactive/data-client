@@ -1,7 +1,5 @@
 import { consistentSerialize } from './consistentSerialize.js';
 import {
-  CheckLoop,
-  GetEntity,
   INormalizeDelegate,
   PolymorphicInterface,
   IQueryDelegate,
@@ -168,8 +166,45 @@ export default class CollectionSchema<
     );
     const id = this.pk(normalizedValue, parent, key, args);
 
-    delegate.addEntity(this, normalizedValue, id);
+    this.addEntity(delegate, id, normalizedValue);
     return id;
+  }
+
+  // TODO: Extract this into shared code between entity and collection
+  addEntity(delegate: INormalizeDelegate, pk: string, processedEntity: any) {
+    const key = this.key;
+    const existingEntity = delegate.getInProgressEntity(key, pk);
+    if (existingEntity) {
+      delegate.addEntity(this, pk, this.merge(existingEntity, processedEntity));
+    } else {
+      const inStoreEntity = delegate.getEntity(key, pk);
+      let inStoreMeta: {
+        date: number;
+        expiresAt: number;
+        fetchedAt: number;
+      };
+      // this case we already have this entity in store
+      if (inStoreEntity && (inStoreMeta = delegate.getMeta(key, pk))) {
+        delegate.addEntity(
+          this,
+          pk,
+          this.mergeWithStore(
+            inStoreMeta,
+            delegate.meta,
+            inStoreEntity,
+            processedEntity,
+          ),
+          this.mergeMetaWithStore(
+            inStoreMeta,
+            delegate.meta,
+            inStoreEntity,
+            processedEntity,
+          ),
+        );
+      } else {
+        delegate.addEntity(this, pk, processedEntity, delegate.meta);
+      }
+    }
   }
 
   // always replace
@@ -217,7 +252,7 @@ export default class CollectionSchema<
 
   // >>>>>>>>>>>>>>DENORMALIZE<<<<<<<<<<<<<<
 
-  queryKey(args: Args, queryKey: unknown, delegate: IQueryDelegate): any {
+  queryKey(args: Args, unvisit: unknown, delegate: IQueryDelegate): any {
     if (this.argsKey) {
       const id = this.pk(undefined, undefined, '', args);
       // ensure this actually has entity or we shouldn't try to use it in our query
@@ -330,7 +365,7 @@ function normalizeCreate(
   if (entities)
     Object.keys(entities).forEach(collectionPk => {
       if (!filterCollections(JSON.parse(collectionPk))) return;
-      delegate.addEntity(this, normalizedValue, collectionPk);
+      this.addEntity(delegate, collectionPk, normalizedValue);
     });
   return normalizedValue as any;
 }

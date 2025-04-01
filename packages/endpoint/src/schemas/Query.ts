@@ -36,9 +36,9 @@ export default class Query<
 
   queryKey(
     args: ProcessParameters<P, S>,
-    queryKey: (schema: any, args: any) => any,
+    unvisit: (schema: any, args: any) => any,
   ) {
-    return queryKey(this.schema, args);
+    return unvisit(this.schema, args);
   }
 
   declare _denormalizeNullable: (
