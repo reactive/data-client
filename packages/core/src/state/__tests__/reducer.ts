@@ -259,6 +259,11 @@ describe('reducer', () => {
           [id]: { id, counter: 5 },
         },
       },
+      entityMeta: {
+        [Counter.key]: {
+          [id]: { date: 0, fetchedAt: 0, expiresAt: 0 },
+        },
+      },
     };
     const newState = reducer(state, action);
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

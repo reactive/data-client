@@ -15,7 +15,7 @@ type Serializable<T extends {
 interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
     normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, delegate: {
         getEntity: any;
-        addEntity: any;
+        setEntity: any;
     }): any;
     denormalize(input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any): T;
     queryKey(args: Args, unvisit: (...args: any) => any, delegate: {
@@ -35,6 +35,11 @@ interface EntityInterface<T = any> extends SchemaSimple {
     schema: Record<string, Schema>;
     prototype?: T;
     cacheWith?: object;
+}
+interface Mergeable {
+    merge(existing: any, incoming: any): any;
+    mergeWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
+    mergeMetaWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
 }
 interface NormalizedIndex {
     readonly [entityKey: string]: {
@@ -75,24 +80,30 @@ interface IQueryDelegate {
 }
 /** Helpers during schema.normalize() */
 interface INormalizeDelegate {
+    /** Action meta-data for this normalize call */
     readonly meta: {
         fetchedAt: number;
         date: number;
         expiresAt: number;
     };
+    /** Gets any previously normalized entity from store */
     getEntity: GetEntity;
-    getMeta(key: string, pk: string): {
-        date: number;
-        expiresAt: number;
-        fetchedAt: number;
-    };
-    getInProgressEntity(key: string, pk: string): any;
-    addEntity(schema: EntityInterface, pk: string, entity: any, meta?: {
+    /** Updates an entity using merge lifecycles when it has previously been set */
+    mergeEntity(schema: Mergeable & {
+        key: string;
+        indexes?: any;
+    }, pk: string, incomingEntity: any): void;
+    /** Sets an entity overwriting any previously set values */
+    setEntity(schema: {
+        key: string;
+        indexes?: any;
+    }, pk: string, entity: any, meta?: {
         fetchedAt: number;
         date: number;
         expiresAt: number;
     }): void;
-    checkLoop(entityKey: string, pk: string, input: object): boolean;
+    /** Returns true when we're in a cycle, so we should not continue recursing */
+    checkLoop(key: string, pk: string, input: object): boolean;
 }
 
 /** Attempts to infer reasonable input type to construct an Entity */
@@ -382,4 +393,4 @@ declare const INVALID: unique symbol;
 
 declare function validateQueryKey(queryKey: unknown): boolean;
 
-export { type AbstractInstanceType, type ArrayElement, type CheckLoop, type Denormalize, type DenormalizeNullable, type EndpointExtraOptions, type EndpointInterface, type EntityInterface, type EntityPath, type EntityTable, type ErrorTypes, ExpiryStatus, type ExpiryStatusInterface, type FetchFunction, type GetEntity, type GetIndex, INVALID, type INormalizeDelegate, type IQueryDelegate, type IndexInterface, type IndexParams, type InferReturn, MemoCache, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeReturnType, type NormalizedIndex, type NormalizedSchema, type OptimisticUpdateParams, type Queryable, type ReadEndpoint, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SnapshotInterface, type UnknownError, type UpdateFunction, type Visit, WeakDependencyMap, denormalize, isEntity, normalize, validateQueryKey };
+export { type AbstractInstanceType, type ArrayElement, type CheckLoop, type Denormalize, type DenormalizeNullable, type EndpointExtraOptions, type EndpointInterface, type EntityInterface, type EntityPath, type EntityTable, type ErrorTypes, ExpiryStatus, type ExpiryStatusInterface, type FetchFunction, type GetEntity, type GetIndex, INVALID, type INormalizeDelegate, type IQueryDelegate, type IndexInterface, type IndexParams, type InferReturn, MemoCache, type Mergeable, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeReturnType, type NormalizedIndex, type NormalizedSchema, type OptimisticUpdateParams, type Queryable, type ReadEndpoint, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SnapshotInterface, type UnknownError, type UpdateFunction, type Visit, WeakDependencyMap, denormalize, isEntity, normalize, validateQueryKey };

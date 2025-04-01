@@ -49,11 +49,11 @@ export default class Invalidate<
   ): string | number | undefined {
     // TODO: what's store needs to be a differing type from fromJS
     const processedEntity = this._entity.process(input, parent, key, args);
-    const id = `${this._entity.pk(processedEntity, parent, key, args)}`;
+    const pk = `${this._entity.pk(processedEntity, parent, key, args)}`;
 
     if (
       process.env.NODE_ENV !== 'production' &&
-      (id === undefined || id === '' || id === 'undefined')
+      (pk === undefined || pk === '' || pk === 'undefined')
     ) {
       const error = new Error(
         `Missing usable primary key when normalizing response.
@@ -71,11 +71,9 @@ export default class Invalidate<
       throw error;
     }
     // any queued updates are meaningless with delete, so we should just set it
-    if (delegate.getInProgressEntity(this.key, id))
-      // don't update meta when we have already processed this entity
-      delegate.addEntity(this as any, id, INVALID);
-    else delegate.addEntity(this as any, id, INVALID, delegate.meta);
-    return id;
+    // and creates will have a different pk
+    delegate.setEntity(this as any, pk, INVALID);
+    return pk;
   }
 
   queryKey(args: any, unvisit: unknown, delegate: unknown): undefined {

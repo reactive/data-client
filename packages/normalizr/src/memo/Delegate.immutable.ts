@@ -1,7 +1,9 @@
-import { IndexPath, IBaseDelegate, TrackingQueryDelegate } from './Delegate.js';
+import { IBaseDelegate, TrackingQueryDelegate } from './Delegate.js';
+import { IndexPath } from './types.js';
 
 type ImmutableJSEntityTable = {
-  getIn(k: string[]): { toJS(): any } | undefined;
+  getIn(k: [key: string, pk: string]): { toJS(): any } | undefined;
+  setIn(k: [key: string, pk: string], value: any);
 };
 
 export class DelegateImmutable implements IBaseDelegate {

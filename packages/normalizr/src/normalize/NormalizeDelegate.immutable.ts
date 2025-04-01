@@ -6,21 +6,35 @@ import {
 } from '../interface.js';
 import { getCheckLoop } from './getCheckLoop.js';
 import { INVALID } from '../denormalize/symbol.js';
-import { BaseDelegate } from '../memo/Delegate.js';
+import { DelegateImmutable } from '../memo/Delegate.immutable.js';
 
-export class NormalizeDelegate
-  extends BaseDelegate
-  implements INormalizeDelegate
-{
-  declare readonly entityMeta: {
-    [entityKey: string]: {
-      [pk: string]: {
+type ImmutableJSEntityTable = {
+  getIn(k: [key: string, pk: string]): { toJS(): any } | undefined;
+  setIn(k: [key: string, pk: string], value: any);
+};
+type ImmutableJSMeta = {
+  getIn(k: [key: string, pk: string]):
+    | {
         date: number;
         expiresAt: number;
         fetchedAt: number;
-      };
-    };
-  };
+      }
+    | undefined;
+  setIn(
+    k: [key: string, pk: string],
+    value: {
+      date: number;
+      expiresAt: number;
+      fetchedAt: number;
+    },
+  );
+};
+
+export class NormalizeDelegate
+  extends DelegateImmutable
+  implements INormalizeDelegate
+{
+  declare readonly entityMeta: ImmutableJSMeta;
 
   declare readonly meta: { fetchedAt: number; date: number; expiresAt: number };
   declare checkLoop: (entityKey: string, pk: string, input: object) => boolean;
@@ -34,17 +48,9 @@ export class NormalizeDelegate
       indexes,
       entityMeta,
     }: {
-      entities: EntityTable;
-      indexes: NormalizedIndex;
-      entityMeta: {
-        [entityKey: string]: {
-          [pk: string]: {
-            date: number;
-            expiresAt: number;
-            fetchedAt: number;
-          };
-        };
-      };
+      entities: ImmutableJSEntityTable;
+      indexes: ImmutableJSEntityTable;
+      entityMeta: ImmutableJSMeta;
     },
     actionMeta: { fetchedAt: number; date: number; expiresAt: number },
   ) {
@@ -54,21 +60,14 @@ export class NormalizeDelegate
     this.checkLoop = getCheckLoop();
   }
 
-  protected getNewEntity(key: string, pk: string) {
-    return this.getNewEntities(key).get(pk);
-  }
+  // getNewEntity(key: string, pk: string) {
+  //   return this.getNewEntities(key).get(pk);
+  // }
 
   protected getNewEntities(key: string): Map<string, any> {
     // first time we come across this type of entity
     if (!this.newEntities.has(key)) {
       this.newEntities.set(key, new Map());
-      // we will be editing these, so we need to clone them first
-      this.entities[key] = {
-        ...this.entities[key],
-      };
-      this.entityMeta[key] = {
-        ...this.entityMeta[key],
-      };
     }
 
     return this.newEntities.get(key) as Map<string, any>;
@@ -77,50 +76,49 @@ export class NormalizeDelegate
   protected getNewIndexes(key: string): Map<string, any> {
     if (!this.newIndexes.has(key)) {
       this.newIndexes.set(key, new Map());
-      this.indexes[key] = { ...this.indexes[key] };
     }
     return this.newIndexes.get(key) as Map<string, any>;
   }
 
-  /** Updates an entity using merge lifecycles when it has previously been set */
-  mergeEntity(
-    schema: Mergeable & { key: string; indexes?: any },
-    pk: string,
-    incomingEntity: any,
-  ) {
-    const key = schema.key;
+  // /** Updates an entity using merge lifecycles when it has previously been set */
+  // mergeEntity(
+  //   schema: Mergeable & { key: string; indexes?: any },
+  //   pk: string,
+  //   incomingEntity: any,
+  // ) {
+  //   const key = schema.key;
 
-    // default when this is completely new entity
-    let nextEntity = incomingEntity;
-    let nextMeta = this.meta;
+  //   // default when this is completely new entity
+  //   let nextEntity = incomingEntity;
+  //   let nextMeta = this.meta;
 
-    // if we already processed this entity during this normalization (in another nested place)
-    let entity = this.getNewEntity(key, pk);
-    if (entity) {
-      nextEntity = schema.merge(entity, incomingEntity);
-    } else {
-      // if we find it in the store
-      entity = this.getEntity(key, pk);
-      if (entity) {
-        const meta = this.getMeta(key, pk);
-        nextEntity = schema.mergeWithStore(
-          meta,
-          nextMeta,
-          entity,
-          incomingEntity,
-        );
-        nextMeta = schema.mergeMetaWithStore(
-          meta,
-          nextMeta,
-          entity,
-          incomingEntity,
-        );
-      }
-    }
+  //   // if we already processed this entity during this normalization (in another nested place)
+  //   let entity = this.getNewEntity(key, pk);
+  //   if (entity) {
+  //     nextEntity = schema.merge(entity, incomingEntity);
+  //   } else {
+  //     // if we find it in the store
+  //     entity = this.getEntity(key, pk);
+  //     if (entity) {
+  //       const meta = this.getMeta(key, pk);
+  //       nextEntity = schema.mergeWithStore(
+  //         meta,
+  //         nextMeta,
+  //         entity,
+  //         incomingEntity,
+  //       );
+  //       nextMeta = schema.mergeMetaWithStore(
+  //         meta,
+  //         nextMeta,
+  //         entity,
+  //         incomingEntity,
+  //       );
+  //     }
+  //   }
 
-    // once we have computed the merged values, set them
-    this.setEntity(schema, pk, nextEntity, nextMeta);
-  }
+  //   // once we have computed the merged values, set them
+  //   this.setEntity(schema, pk, nextEntity, nextMeta);
+  // }
 
   /** Sets an entity overwriting any previously set values */
   setEntity(
@@ -147,13 +145,13 @@ export class NormalizeDelegate
     }
 
     // set this after index updates so we know what indexes to remove from
-    this._setEntity(key, pk, entity);
+    (this.entities[key] as any)[pk] = entity;
 
-    if (updateMeta) this._setMeta(key, pk, meta);
+    if (updateMeta) this.entityMeta[key][pk] = meta;
   }
 
   protected _setEntity(key: string, pk: string, entity: any) {
-    (this.entities[key] as any)[pk] = entity;
+    this.entities.setIn([key, pk], entity);
   }
 
   protected _setMeta(
@@ -161,11 +159,11 @@ export class NormalizeDelegate
     pk: string,
     meta: { fetchedAt: number; date: number; expiresAt: number },
   ) {
-    this.entityMeta[key][pk] = meta;
+    this.entityMeta.setIn([key, pk], meta);
   }
 
   getMeta(key: string, pk: string) {
-    return this.entityMeta[key][pk];
+    return this.entityMeta.getIn([key, pk]);
   }
 }
 

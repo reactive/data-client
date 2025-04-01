@@ -30,7 +30,7 @@ export interface SchemaSimple<T = any, Args extends readonly any[] = any> {
     key: any,
     args: any[],
     visit: (...args: any) => any,
-    delegate: { getEntity: any; addEntity: any },
+    delegate: { getEntity: any; setEntity: any },
   ): any;
   denormalize(
     input: {},
@@ -63,6 +63,22 @@ export interface EntityInterface<T = any> extends SchemaSimple {
   readonly key: string;
   indexes?: any;
   prototype?: T;
+}
+
+export interface Mergeable {
+  merge(existing: any, incoming: any): any;
+  mergeWithStore(
+    existingMeta: any,
+    incomingMeta: any,
+    existing: any,
+    incoming: any,
+  ): any;
+  mergeMetaWithStore(
+    existingMeta: any,
+    incomingMeta: any,
+    existing: any,
+    incoming: any,
+  ): any;
 }
 
 /** Represents Array or Values */
@@ -120,24 +136,25 @@ export interface IQueryDelegate {
 
 /** Helpers during schema.normalize() */
 export interface INormalizeDelegate {
+  /** Action meta-data for this normalize call */
   readonly meta: { fetchedAt: number; date: number; expiresAt: number };
+  /** Gets any previously normalized entity from store */
   getEntity: GetEntity;
-  getMeta(
-    key: string,
+  /** Updates an entity using merge lifecycles when it has previously been set */
+  mergeEntity(
+    schema: Mergeable & { key: string; indexes?: any },
     pk: string,
-  ): {
-    date: number;
-    expiresAt: number;
-    fetchedAt: number;
-  };
-  getInProgressEntity(key: string, pk: string): any;
-  addEntity(
-    schema: EntityInterface,
+    incomingEntity: any,
+  ): void;
+  /** Sets an entity overwriting any previously set values */
+  setEntity(
+    schema: { key: string; indexes?: any },
     pk: string,
     entity: any,
     meta?: { fetchedAt: number; date: number; expiresAt: number },
   ): void;
-  checkLoop(entityKey: string, pk: string, input: object): boolean;
+  /** Returns true when we're in a cycle, so we should not continue recursing */
+  checkLoop(key: string, pk: string, input: object): boolean;
 }
 
 /** Defines a networking endpoint */
