@@ -922,7 +922,7 @@ describe('MemoCache', () => {
 
     describe('legacy schema', () => {
       class MyEntity extends CoolerArticle {
-        static queryKey(args: any[], queryKey: any, snapshot: IQueryDelegate) {
+        static queryKey(args: any[], unvisit: any, snapshot: IQueryDelegate) {
           if (!args[0]) return;
           let id: undefined | number | string;
           if (['string', 'number'].includes(typeof args[0])) {

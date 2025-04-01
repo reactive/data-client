@@ -39,7 +39,6 @@ export default class Invalidate<
     return this._entity.key;
   }
 
-  /** Normalize lifecycles **/
   normalize(
     input: any,
     parent: any,
@@ -71,41 +70,15 @@ export default class Invalidate<
       (error as any).status = 400;
       throw error;
     }
-    delegate.addEntity(this as any, INVALID, id);
+    // any queued updates are meaningless with delete, so we should just set it
+    if (delegate.getInProgressEntity(this.key, id))
+      // don't update meta when we have already processed this entity
+      delegate.addEntity(this as any, id, INVALID);
+    else delegate.addEntity(this as any, id, INVALID, delegate.meta);
     return id;
   }
 
-  /* istanbul ignore next */
-  merge(existing: any, incoming: any) {
-    return incoming;
-  }
-
-  mergeWithStore(
-    existingMeta: any,
-    incomingMeta: any,
-    existing: any,
-    incoming: any,
-  ) {
-    // any queued updates are meaningless with delete, so we should just set it
-    return this.merge(existing, incoming);
-  }
-
-  mergeMetaWithStore(
-    existingMeta: {
-      expiresAt: number;
-      date: number;
-      fetchedAt: number;
-    },
-    incomingMeta: { expiresAt: number; date: number; fetchedAt: number },
-    existing: any,
-    incoming: any,
-  ) {
-    return incomingMeta;
-  }
-
-  /** /End Normalize lifecycles **/
-
-  queryKey(args: any, queryKey: unknown, snapshot: unknown): undefined {
+  queryKey(args: any, unvisit: unknown, delegate: unknown): undefined {
     return undefined;
   }
 

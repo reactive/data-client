@@ -254,7 +254,7 @@ export default function EntityMixin<TBase extends Constructor>(
       if (typeof processedEntity === 'undefined') {
         id = `${this.pk(input, parent, key, args)}`;
         // TODO: add undefined id check
-        delegate.addEntity(this, INVALID, id);
+        this.addEntity(delegate, id, INVALID);
         return id;
       }
       id = this.pk(processedEntity, parent, key, args);
@@ -313,8 +313,52 @@ export default function EntityMixin<TBase extends Constructor>(
         }
       });
 
-      delegate.addEntity(this, processedEntity, id);
+      this.addEntity(delegate, id, processedEntity);
       return id;
+    }
+
+    static addEntity(
+      delegate: INormalizeDelegate,
+      pk: string,
+      processedEntity: any,
+    ) {
+      const key = this.key;
+      const existingEntity = delegate.getInProgressEntity(key, pk);
+      if (existingEntity) {
+        delegate.addEntity(
+          this,
+          pk,
+          this.merge(existingEntity, processedEntity),
+        );
+      } else {
+        const inStoreEntity = delegate.getEntity(key, pk);
+        let inStoreMeta: {
+          date: number;
+          expiresAt: number;
+          fetchedAt: number;
+        };
+        // this case we already have this entity in store
+        if (inStoreEntity && (inStoreMeta = delegate.getMeta(key, pk))) {
+          delegate.addEntity(
+            this,
+            pk,
+            this.mergeWithStore(
+              inStoreMeta,
+              delegate.meta,
+              inStoreEntity,
+              processedEntity,
+            ),
+            this.mergeMetaWithStore(
+              inStoreMeta,
+              delegate.meta,
+              inStoreEntity,
+              processedEntity,
+            ),
+          );
+        } else {
+          delegate.addEntity(this, pk, processedEntity, delegate.meta);
+        }
+      }
     }
 
     static validate(processedEntity: any): string | undefined {
@@ -323,7 +367,7 @@ export default function EntityMixin<TBase extends Constructor>(
 
     static queryKey(
       args: readonly any[],
-      queryKey: any,
+      unvisit: any,
       delegate: IQueryDelegate,
     ): any {
       if (!args[0]) return;

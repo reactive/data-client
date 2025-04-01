@@ -51,12 +51,12 @@ export const denormalize = (
 export function queryKey(
   schema: any,
   args: readonly any[],
-  queryKey: any,
-  snapshot: any,
+  unvisit: any,
+  delegate: any,
 ) {
   const resultObject: any = {};
   for (const k of Object.keys(schema)) {
-    resultObject[k] = queryKey(schema[k], args, snapshot);
+    resultObject[k] = unvisit(schema[k], args, delegate);
   }
   return resultObject;
 }

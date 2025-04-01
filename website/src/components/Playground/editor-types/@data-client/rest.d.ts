@@ -193,7 +193,7 @@ type Schema = null | string | {
     [K: string]: any;
 } | Schema[] | SchemaSimple | Serializable;
 interface Queryable<Args extends readonly any[] = readonly any[]> {
-    queryKey(args: Args, queryKey: (...args: any) => any, snapshot: {
+    queryKey(args: Args, unvisit: (...args: any) => any, delegate: {
         getEntity: any;
         getIndex: any;
     }): {};
@@ -204,12 +204,12 @@ type Serializable<T extends {
     toJSON(): string;
 }> = (value: any) => T;
 interface SchemaSimple<T = any, Args extends readonly any[] = any> {
-    normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, snapshot: {
+    normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, delegate: {
         getEntity: any;
         addEntity: any;
     }): any;
     denormalize(input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any): T;
-    queryKey(args: Args, queryKey: (...args: any) => any, snapshot: {
+    queryKey(args: Args, unvisit: (...args: any) => any, delegate: {
         getEntity: any;
         getIndex: any;
     }): any;
@@ -222,9 +222,6 @@ interface EntityInterface<T = any> extends SchemaSimple {
     createIfValid(props: any): any;
     pk(params: any, parent: any, key: string | undefined, args: any[]): string | number | undefined;
     readonly key: string;
-    merge(existing: any, incoming: any): any;
-    mergeWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
-    mergeMetaWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
     indexes?: any;
     prototype?: T;
 }
@@ -254,8 +251,23 @@ interface IQueryDelegate {
 }
 /** Helpers during schema.normalize() */
 interface INormalizeDelegate {
+    readonly meta: {
+        fetchedAt: number;
+        date: number;
+        expiresAt: number;
+    };
     getEntity: GetEntity;
-    addEntity(schema: EntityInterface, processedEntity: any, id: string): void;
+    getMeta(key: string, pk: string): {
+        date: number;
+        expiresAt: number;
+        fetchedAt: number;
+    };
+    getInProgressEntity(key: string, pk: string): any;
+    addEntity(schema: EntityInterface, pk: string, entity: any, meta?: {
+        fetchedAt: number;
+        date: number;
+        expiresAt: number;
+    }): void;
     checkLoop(entityKey: string, pk: string, input: object): boolean;
 }
 /** Defines a networking endpoint */
@@ -471,7 +483,7 @@ interface IEntityClass<TBase extends Constructor = any> {
      *
      * @see https://dataclient.io/rest/api/Entity#queryKey
      */
-    queryKey(args: readonly any[], queryKey: any, delegate: IQueryDelegate): any;
+    queryKey(args: readonly any[], unvisit: any, delegate: IQueryDelegate): any;
     denormalize<T extends (abstract new (...args: any[]) => IEntityInstance & InstanceType<TBase>) & IEntityClass & TBase>(this: T, input: any, args: readonly any[], unvisit: (schema: any, input: any) => any): AbstractInstanceType<T>;
     /** All instance defaults set */
     readonly defaults: any;
@@ -535,25 +547,8 @@ declare class Invalidate<E extends EntityInterface & {
      */
     constructor(entity: E);
     get key(): string;
-    /** Normalize lifecycles **/
     normalize(input: any, parent: any, key: string | undefined, args: any[], visit: (...args: any) => any, delegate: INormalizeDelegate): string | number | undefined;
-    merge(existing: any, incoming: any): any;
-    mergeWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
-    mergeMetaWithStore(existingMeta: {
-        expiresAt: number;
-        date: number;
-        fetchedAt: number;
-    }, incomingMeta: {
-        expiresAt: number;
-        date: number;
-        fetchedAt: number;
-    }, existing: any, incoming: any): {
-        expiresAt: number;
-        date: number;
-        fetchedAt: number;
-    };
-    /** /End Normalize lifecycles **/
-    queryKey(args: any, queryKey: unknown, snapshot: unknown): undefined;
+    queryKey(args: any, unvisit: unknown, delegate: unknown): undefined;
     denormalize(id: string, args: readonly any[], unvisit: (schema: any, input: any) => any): AbstractInstanceType<E>;
     _denormalizeNullable(): AbstractInstanceType<E> | undefined;
     _normalizeNullable(): string | undefined;
@@ -577,7 +572,7 @@ declare class Query<S extends Queryable | {
     constructor(schema: S, process: P);
     normalize(...args: any): any;
     denormalize(input: {}, args: any, unvisit: any): ReturnType<P>;
-    queryKey(args: ProcessParameters<P, S>, queryKey: (schema: any, args: any) => any): any;
+    queryKey(args: ProcessParameters<P, S>, unvisit: (schema: any, args: any) => any): any;
     _denormalizeNullable: (input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any) => ReturnType<P> | undefined;
     _normalizeNullable: () => NormalizeNullable<S>;
 }
@@ -681,7 +676,7 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
      *
      * @see https://dataclient.io/rest/api/Collection#queryKey
      */
-    queryKey(args: Args, queryKey: unknown, snapshot: unknown): any;
+    queryKey(args: Args, unvisit: unknown, delegate: unknown): any;
     createIfValid: (value: any) => any | undefined;
     denormalize(input: any, args: readonly any[], unvisit: (schema: any, input: any) => any): ReturnType<S['denormalize']>;
     _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;
@@ -765,8 +760,8 @@ declare class Array$1<S extends Schema = Schema> implements SchemaClass {
 
   queryKey(
     args: readonly any[],
-    queryKey: (...args: any) => any,
-    snapshot: any,
+    unvisit: (...args: any) => any,
+    delegate: any,
   ): undefined;
 }
 
@@ -822,7 +817,7 @@ declare class All<
   queryKey(
     // TODO: hack for now to allow for variable arg combinations with Query
     args: [] | [unknown],
-    queryKey: (...args: any) => any,
+    unvisit: (...args: any) => any,
     delegate: IQueryDelegate,
   ): any;
 }
@@ -862,7 +857,7 @@ declare class Object$1<O extends Record<string, any> = Record<string, any>>
 
   queryKey(
     args: ObjectArgs<O>,
-    queryKey: (...args: any) => any,
+    unvisit: (...args: any) => any,
     delegate: IQueryDelegate,
   ): any;
 }
@@ -952,7 +947,7 @@ interface UnionInstance<
 
   queryKey(
     args: [Args],
-    queryKey: (...args: any) => any,
+    unvisit: (...args: any) => any,
     delegate: IQueryDelegate,
   ): { id: any; schema: string };
 }
@@ -1038,7 +1033,7 @@ declare class Values<Choices extends Schema = any> implements SchemaClass {
 
   queryKey(
     args: readonly any[],
-    queryKey: (...args: any) => any,
+    unvisit: (...args: any) => any,
     delegate: IQueryDelegate,
   ): undefined;
 }

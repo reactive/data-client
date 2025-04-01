@@ -85,7 +85,7 @@ See https://dataclient.io/rest/api/RestEndpoint#parseResponse for more informati
     indexes: { ...indexes },
     entityMeta: { ...entityMeta },
   };
-  const visit = getVisit(new NormalizeDelegate(entities, indexes, ret, meta));
+  const visit = getVisit(new NormalizeDelegate(ret, meta));
   ret.result = visit(schema, input, input, undefined, args);
   return ret;
 };

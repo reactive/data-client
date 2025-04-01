@@ -169,7 +169,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
    *
    * @see https://dataclient.io/rest/api/Entity#queryKey
    */
-  queryKey(args: readonly any[], queryKey: any, delegate: IQueryDelegate): any;
+  queryKey(args: readonly any[], unvisit: any, delegate: IQueryDelegate): any;
   denormalize<
     T extends (abstract new (
       ...args: any[]

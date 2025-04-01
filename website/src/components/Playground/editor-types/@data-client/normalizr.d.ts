@@ -2,7 +2,7 @@ type Schema = null | string | {
     [K: string]: any;
 } | Schema[] | SchemaSimple | Serializable;
 interface Queryable<Args extends readonly any[] = readonly any[]> {
-    queryKey(args: Args, queryKey: (...args: any) => any, snapshot: {
+    queryKey(args: Args, unvisit: (...args: any) => any, delegate: {
         getEntity: any;
         getIndex: any;
     }): {};
@@ -13,12 +13,12 @@ type Serializable<T extends {
     toJSON(): string;
 }> = (value: any) => T;
 interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
-    normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, snapshot: {
+    normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, delegate: {
         getEntity: any;
         addEntity: any;
     }): any;
     denormalize(input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any): T;
-    queryKey(args: Args, queryKey: (...args: any) => any, snapshot: {
+    queryKey(args: Args, unvisit: (...args: any) => any, delegate: {
         getEntity: any;
         getIndex: any;
     }): any;
@@ -31,9 +31,6 @@ interface EntityInterface<T = any> extends SchemaSimple {
     createIfValid(props: any): any;
     pk(params: any, parent: any, key: string | undefined, args: readonly any[]): string | number | undefined;
     readonly key: string;
-    merge(existing: any, incoming: any): any;
-    mergeWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
-    mergeMetaWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
     indexes?: any;
     schema: Record<string, Schema>;
     prototype?: T;
@@ -78,8 +75,23 @@ interface IQueryDelegate {
 }
 /** Helpers during schema.normalize() */
 interface INormalizeDelegate {
+    readonly meta: {
+        fetchedAt: number;
+        date: number;
+        expiresAt: number;
+    };
     getEntity: GetEntity;
-    addEntity(schema: EntityInterface, processedEntity: any, id: string): void;
+    getMeta(key: string, pk: string): {
+        date: number;
+        expiresAt: number;
+        fetchedAt: number;
+    };
+    getInProgressEntity(key: string, pk: string): any;
+    addEntity(schema: EntityInterface, pk: string, entity: any, meta?: {
+        fetchedAt: number;
+        date: number;
+        expiresAt: number;
+    }): void;
     checkLoop(entityKey: string, pk: string, input: object): boolean;
 }
 

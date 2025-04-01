@@ -77,7 +77,7 @@ test('key works with custom schema', () => {
         : input;
     }
 
-    queryKey(args: unknown, queryKey: unknown, snapshot: unknown): any {
+    queryKey(args: unknown, unvisit: unknown, delegate: unknown): any {
       return undefined;
     }
 

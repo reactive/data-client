@@ -1,5 +1,5 @@
 // we just removed instances of 'abstract new'
-import type { Schema, SnapshotInterface } from '../interface.js';
+import type { Schema, IQueryDelegate } from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
 export interface IEntityClass<TBase extends Constructor = any> {
   toJSON(): {
@@ -171,8 +171,8 @@ export interface IEntityClass<TBase extends Constructor = any> {
    */
   queryKey(
     args: readonly any[],
-    queryKey: any,
-    snapshot: SnapshotInterface,
+    unvisit: any,
+    delegate: IQueryDelegate,
   ): any;
   denormalize<
     T extends (new (...args: any[]) => IEntityInstance & InstanceType<TBase>) &

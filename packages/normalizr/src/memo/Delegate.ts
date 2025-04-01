@@ -23,7 +23,11 @@ export interface IBaseDelegate {
 
 export class BaseDelegate implements IBaseDelegate {
   declare entities: EntityTable;
-  declare indexes: NormalizedIndex;
+  declare indexes: {
+    [entityKey: string]: {
+      [indexName: string]: { [lookup: string]: string };
+    };
+  };
 
   constructor(entities: EntityTable, indexes: NormalizedIndex) {
     this.entities = entities;

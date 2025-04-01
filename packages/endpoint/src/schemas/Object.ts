@@ -50,11 +50,11 @@ export function denormalize(
 export function objectQueryKey(
   schema: any,
   args: readonly any[],
-  queryKey: (schema: any, args: any) => any,
+  unvisit: (schema: any, args: any) => any,
 ) {
   const resultObject: any = {};
   Object.keys(schema).forEach(k => {
-    resultObject[k] = queryKey(schema[k], args);
+    resultObject[k] = unvisit(schema[k], args);
   });
   return resultObject;
 }
@@ -97,7 +97,7 @@ export default class ObjectSchema {
     return denormalize(this.schema, input, args, unvisit);
   }
 
-  queryKey(args: any, queryKey: any, snapshot: any) {
-    return objectQueryKey(this.schema, args, queryKey);
+  queryKey(args: any, unvisit: any, delegate: any) {
+    return objectQueryKey(this.schema, args, unvisit);
   }
 }

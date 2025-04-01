@@ -87,8 +87,8 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
 
   queryKey(
     args: readonly any[],
-    queryKey: (...args: any) => any,
-    snapshot: any,
+    unvisit: (...args: any) => any,
+    delegate: any,
   ): undefined;
 }
 
@@ -144,7 +144,7 @@ export class All<
   queryKey(
     // TODO: hack for now to allow for variable arg combinations with Query
     args: [] | [unknown],
-    queryKey: (...args: any) => any,
+    unvisit: (...args: any) => any,
     delegate: IQueryDelegate,
   ): any;
 }
@@ -184,7 +184,7 @@ export class Object<O extends Record<string, any> = Record<string, any>>
 
   queryKey(
     args: ObjectArgs<O>,
-    queryKey: (...args: any) => any,
+    unvisit: (...args: any) => any,
     delegate: IQueryDelegate,
   ): any;
 }
@@ -274,7 +274,7 @@ export interface UnionInstance<
 
   queryKey(
     args: [Args],
-    queryKey: (...args: any) => any,
+    unvisit: (...args: any) => any,
     delegate: IQueryDelegate,
   ): { id: any; schema: string };
 }
@@ -360,7 +360,7 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
 
   queryKey(
     args: readonly any[],
-    queryKey: (...args: any) => any,
+    unvisit: (...args: any) => any,
     delegate: IQueryDelegate,
   ): undefined;
 }
