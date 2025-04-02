@@ -21,8 +21,8 @@
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^3.0.1",
     "@tsconfig/docusaurus": "^2.0.0",
-    "@types/react": "19.0.12",
-    "@types/react-dom": "19.0.4",
+    "@types/react": "19.1.0",
+    "@types/react-dom": "19.1.1",
     "@types/react-helmet": "^6.1.5",
     "@types/react-router-dom": "^5.3.3",
     "@types/uuid": "^10.0.0",
