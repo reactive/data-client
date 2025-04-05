@@ -1,7 +1,12 @@
 import { consistentSerialize } from './consistentSerialize.js';
-import { CheckLoop, GetEntity, PolymorphicInterface } from '../interface.js';
+import {
+  INormalizeDelegate,
+  PolymorphicInterface,
+  IQueryDelegate,
+} from '../interface.js';
 import { Values, Array as ArraySchema } from '../schema.js';
-import type { DefaultArgs, EntityInterface } from '../schemaTypes.js';
+import type { DefaultArgs } from '../schemaTypes.js';
+import { Mergeable } from './Mergeable.js';
 
 const pushMerge = (existing: any, incoming: any) => {
   return [...existing, ...incoming];
@@ -23,7 +28,7 @@ export default class CollectionSchema<
   S extends PolymorphicInterface = any,
   Args extends any[] = DefaultArgs,
   Parent = any,
-> {
+> extends Mergeable {
   declare protected nestKey: (parent: any, key: string) => Record<string, any>;
 
   declare protected argsKey?: (...args: any) => Record<string, any>;
@@ -71,6 +76,7 @@ export default class CollectionSchema<
   }
 
   constructor(schema: S, options?: CollectionOptions<Args, Parent>) {
+    super();
     this.schema =
       Array.isArray(schema) ? (new ArraySchema(schema[0]) as any) : schema;
     if (!options) {
@@ -150,9 +156,7 @@ export default class CollectionSchema<
     key: string,
     args: any[],
     visit: (...args: any) => any,
-    addEntity: (...args: any) => any,
-    getEntity: any,
-    checkLoop: any,
+    delegate: INormalizeDelegate,
   ): string {
     const normalizedValue = this.schema.normalize(
       input,
@@ -160,13 +164,11 @@ export default class CollectionSchema<
       key,
       args,
       visit,
-      addEntity,
-      getEntity,
-      checkLoop,
+      delegate,
     );
     const id = this.pk(normalizedValue, parent, key, args);
 
-    addEntity(this, normalizedValue, id);
+    delegate.mergeEntity(this, id, normalizedValue);
     return id;
   }
 
@@ -175,56 +177,13 @@ export default class CollectionSchema<
     return incoming;
   }
 
-  shouldReorder(
-    existingMeta: { date: number; fetchedAt: number },
-    incomingMeta: { date: number; fetchedAt: number },
-    existing: any,
-    incoming: any,
-  ) {
-    return incomingMeta.fetchedAt < existingMeta.fetchedAt;
-  }
-
-  mergeWithStore(
-    existingMeta: {
-      date: number;
-      fetchedAt: number;
-    },
-    incomingMeta: { date: number; fetchedAt: number },
-    existing: any,
-    incoming: any,
-  ) {
-    return this.shouldReorder(existingMeta, incomingMeta, existing, incoming) ?
-        this.merge(incoming, existing)
-      : this.merge(existing, incoming);
-  }
-
-  mergeMetaWithStore(
-    existingMeta: {
-      fetchedAt: number;
-      date: number;
-      expiresAt: number;
-    },
-    incomingMeta: { fetchedAt: number; date: number; expiresAt: number },
-    existing: any,
-    incoming: any,
-  ) {
-    return this.shouldReorder(existingMeta, incomingMeta, existing, incoming) ?
-        existingMeta
-      : incomingMeta;
-  }
-
   // >>>>>>>>>>>>>>DENORMALIZE<<<<<<<<<<<<<<
 
-  queryKey(
-    args: Args,
-    queryKey: unknown,
-    getEntity: GetEntity,
-    getIndex: unknown,
-  ): any {
+  queryKey(args: Args, unvisit: unknown, delegate: IQueryDelegate): any {
     if (this.argsKey) {
       const id = this.pk(undefined, undefined, '', args);
       // ensure this actually has entity or we shouldn't try to use it in our query
-      if (getEntity(this.key, id)) return id;
+      if (delegate.getEntity(this.key, id)) return id;
     }
   }
 
@@ -308,9 +267,7 @@ function normalizeCreate(
   key: string,
   args: readonly any[],
   visit: ((...args: any) => any) & { creating?: boolean },
-  addEntity: (schema: any, processedEntity: any, id: string) => void,
-  getEntity: GetEntity,
-  checkLoop: CheckLoop,
+  delegate: INormalizeDelegate,
 ): any {
   if (process.env.NODE_ENV !== 'production') {
     // means 'this is a creation endpoint' - so real PKs are not required
@@ -326,18 +283,16 @@ function normalizeCreate(
     key,
     args,
     visit,
-    addEntity,
-    getEntity,
-    checkLoop,
+    delegate,
   );
   // parent is args when not nested
   const filterCollections = (this.createCollectionFilter as any)(...args);
   // add to any collections that match this
-  const entities = getEntity(this.key);
+  const entities = delegate.getEntity(this.key);
   if (entities)
     Object.keys(entities).forEach(collectionPk => {
       if (!filterCollections(JSON.parse(collectionPk))) return;
-      addEntity(this, normalizedValue, collectionPk);
+      delegate.mergeEntity(this, collectionPk, normalizedValue);
     });
   return normalizedValue as any;
 }

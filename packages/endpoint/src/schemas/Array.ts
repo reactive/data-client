@@ -13,9 +13,7 @@ export default class ArraySchema extends PolymorphicSchema {
     key: any,
     args: any[],
     visit: Visit,
-    addEntity: any,
-    getEntity: any,
-    checkLoop: any,
+    snapshot: any,
   ): any {
     const values = getValues(input);
 
@@ -36,12 +34,7 @@ export default class ArraySchema extends PolymorphicSchema {
       : input;
   }
 
-  queryKey(
-    args: unknown,
-    queryKey: unknown,
-    getEntity: unknown,
-    getIndex: unknown,
-  ): any {
+  queryKey(args: unknown, unvisit: unknown, delegate: unknown): any {
     return undefined;
   }
 

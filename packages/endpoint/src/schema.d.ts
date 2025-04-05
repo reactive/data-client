@@ -3,9 +3,8 @@ import type {
   EntityInterface,
   PolymorphicInterface,
   SchemaClass,
-  GetIndex,
-  GetEntity,
-  CheckLoop,
+  IQueryDelegate,
+  INormalizeDelegate,
 } from './interface.js';
 import type {
   AbstractInstanceType,
@@ -69,9 +68,7 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
     key: any,
     args: any[],
     visit: (...args: any) => any,
-    addEntity: (...args: any) => any,
-    getEntity: GetEntity,
-    checkLoop: CheckLoop,
+    delegate: INormalizeDelegate,
   ): (S extends EntityMap ? UnionResult<S> : Normalize<S>)[];
 
   _normalizeNullable():
@@ -90,9 +87,8 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
 
   queryKey(
     args: readonly any[],
-    queryKey: (...args: any) => any,
-    getEntity: any,
-    getIndex: any,
+    unvisit: (...args: any) => any,
+    delegate: any,
   ): undefined;
 }
 
@@ -128,9 +124,7 @@ export class All<
     key: any,
     args: any[],
     visit: (...args: any) => any,
-    addEntity: (...args: any) => any,
-    getEntity: GetEntity,
-    checkLoop: CheckLoop,
+    delegate: INormalizeDelegate,
   ): (S extends EntityMap ? UnionResult<S> : Normalize<S>)[];
 
   _normalizeNullable():
@@ -150,9 +144,8 @@ export class All<
   queryKey(
     // TODO: hack for now to allow for variable arg combinations with Query
     args: [] | [unknown],
-    queryKey: (...args: any) => any,
-    getEntity: GetEntity,
-    getIndex: GetIndex,
+    unvisit: (...args: any) => any,
+    delegate: IQueryDelegate,
   ): any;
 }
 
@@ -176,9 +169,7 @@ export class Object<O extends Record<string, any> = Record<string, any>>
     key: any,
     args: any[],
     visit: (...args: any) => any,
-    addEntity: (...args: any) => any,
-    getEntity: GetEntity,
-    checkLoop: CheckLoop,
+    delegate: INormalizeDelegate,
   ): NormalizeObject<O>;
 
   _normalizeNullable(): NormalizedNullableObject<O>;
@@ -193,9 +184,8 @@ export class Object<O extends Record<string, any> = Record<string, any>>
 
   queryKey(
     args: ObjectArgs<O>,
-    queryKey: (...args: any) => any,
-    getEntity: GetEntity,
-    getIndex: GetIndex,
+    unvisit: (...args: any) => any,
+    delegate: IQueryDelegate,
   ): any;
 }
 
@@ -267,9 +257,7 @@ export interface UnionInstance<
     key: any,
     args: any[],
     visit: (...args: any) => any,
-    addEntity: (...args: any) => any,
-    getEntity: GetEntity,
-    checkLoop: CheckLoop,
+    delegate: INormalizeDelegate,
   ): UnionResult<Choices>;
 
   _normalizeNullable(): UnionResult<Choices> | undefined;
@@ -286,9 +274,8 @@ export interface UnionInstance<
 
   queryKey(
     args: [Args],
-    queryKey: (...args: any) => any,
-    getEntity: GetEntity,
-    getIndex: GetIndex,
+    unvisit: (...args: any) => any,
+    delegate: IQueryDelegate,
   ): { id: any; schema: string };
 }
 
@@ -342,9 +329,7 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
     key: any,
     args: any[],
     visit: (...args: any) => any,
-    addEntity: (...args: any) => any,
-    getEntity: GetEntity,
-    checkLoop: CheckLoop,
+    delegate: INormalizeDelegate,
   ): Record<
     string,
     Choices extends EntityMap ? UnionResult<Choices> : Normalize<Choices>
@@ -375,9 +360,8 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
 
   queryKey(
     args: readonly any[],
-    queryKey: (...args: any) => any,
-    getEntity: GetEntity,
-    getIndex: GetIndex,
+    unvisit: (...args: any) => any,
+    delegate: IQueryDelegate,
   ): undefined;
 }
 

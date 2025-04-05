@@ -12,9 +12,7 @@ export default class ValuesSchema extends PolymorphicSchema {
     key: any,
     args: any[],
     visit: Visit,
-    addEntity: any,
-    getEntity: any,
-    checkLoop: any,
+    snapshot: any,
   ) {
     return Object.keys(input).reduce((output, key, index) => {
       const value = input[key];
@@ -45,12 +43,7 @@ export default class ValuesSchema extends PolymorphicSchema {
     }, {});
   }
 
-  queryKey(
-    args: any,
-    queryKey: unknown,
-    getEntity: unknown,
-    getIndex: unknown,
-  ) {
+  queryKey(args: any, unvisit: unknown, delegate: unknown) {
     return undefined;
   }
 }

@@ -3,7 +3,7 @@ import { normalize } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
-import SimpleMemoCache from './denormalize';
+import { SimpleMemoCache, fromJSEntities } from './denormalize';
 import { schema } from '../../';
 import { INVALID } from '../../special';
 import Entity from '../Entity';
@@ -197,7 +197,7 @@ describe(`${schema.Values.name} normalization`, () => {
 
 describe.each([
   ['direct', data => data],
-  ['immutable', fromJS],
+  ['immutable', fromJSEntities],
 ])(`input (%s)`, (_, createInput) => {
   describe.each([['current', new SimpleMemoCache().denormalize]])(
     `${schema.Values.name} denormalization (%s)`,

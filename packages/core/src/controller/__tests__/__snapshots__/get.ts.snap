@@ -53,6 +53,22 @@ Group {
 }
 `;
 
+exports[`Controller.get() indexes query Entity based on index 1`] = `
+User {
+  "id": "1",
+  "staff": false,
+  "username": "bob",
+}
+`;
+
+exports[`Controller.get() indexes query indexes after empty state 1`] = `
+User {
+  "id": "1",
+  "staff": false,
+  "username": "bob",
+}
+`;
+
 exports[`Controller.get() query All should get all entities 1`] = `
 [
   Tacos {
@@ -103,13 +119,6 @@ exports[`Controller.get() query Collection based on args 2`] = `
     "type": "bar",
   },
 ]
-`;
-
-exports[`Controller.get() query Entity based on index 1`] = `
-User {
-  "id": "1",
-  "username": "bob",
-}
 `;
 
 exports[`Controller.get() query Entity based on pk 1`] = `

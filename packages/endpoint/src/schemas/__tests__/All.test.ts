@@ -1,10 +1,14 @@
 // eslint-env jest
 import { normalize, MemoCache, denormalize } from '@data-client/normalizr';
+import { __INTERNAL__ } from '@data-client/react';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
 import { schema } from '../..';
+import { fromJSState } from './denormalize';
 import { INVALID } from '../../special';
+
+const { initialState } = __INTERNAL__;
 
 let dateSpy: jest.SpyInstance<number, []>;
 beforeAll(() => {
@@ -99,7 +103,7 @@ describe.each([
   ['direct', <T>(data: T) => data, <T>(data: T) => data],
   [
     'immutable',
-    fromJS,
+    fromJSState,
     (v: any) => (typeof v?.toJS === 'function' ? v.toJS() : v),
   ],
 ])(
@@ -115,7 +119,11 @@ describe.each([
       };
       const sch = new schema.All(Cat);
       expect(
-        new MemoCache().query(sch, [], createInput(entities), {}),
+        new MemoCache().query(
+          sch,
+          [],
+          createInput({ entities: entities, indexes: {} }),
+        ),
       ).toMatchSnapshot();
     });
 
@@ -129,7 +137,11 @@ describe.each([
         },
       };
       expect(
-        new MemoCache().query(catSchema, [], createInput(entities), {}),
+        new MemoCache().query(
+          catSchema,
+          [],
+          createInput({ entities: entities, indexes: {} }),
+        ),
       ).toMatchSnapshot();
     });
 
@@ -145,8 +157,7 @@ describe.each([
       const value = new MemoCache().query(
         catSchema,
         [],
-        createInput(entities),
-        {},
+        createInput({ entities: entities, indexes: {} }),
       );
       expect(value).not.toEqual(expect.any(Symbol));
       if (typeof value === 'symbol' || value === undefined) return;
@@ -168,8 +179,7 @@ describe.each([
       const value = new MemoCache().query(
         catSchema,
         [],
-        createInput(entities) as any,
-        {},
+        createInput({ entities: entities, indexes: {} }),
       );
       expect(value).not.toEqual(expect.any(Symbol));
       if (typeof value === 'symbol' || value === undefined) return;
@@ -189,11 +199,17 @@ describe.each([
         },
       };
       const memo = new MemoCache();
-      const value = memo.query(catSchema, [], entities, {});
+      const value = memo.query(catSchema, [], {
+        entities: entities,
+        indexes: {},
+      });
 
       expect(createOutput(value).results?.length).toBe(2);
       expect(createOutput(value).results).toMatchSnapshot();
-      const value2 = memo.query(catSchema, [], entities, {});
+      const value2 = memo.query(catSchema, [], {
+        entities: entities,
+        indexes: {},
+      });
       expect(createOutput(value).results[0]).toBe(
         createOutput(value2).results[0],
       );
@@ -206,7 +222,10 @@ describe.each([
           3: { id: '3', name: 'Jelico' },
         },
       };
-      const value3 = memo.query(catSchema, [], entities, {});
+      const value3 = memo.query(catSchema, [], {
+        entities: entities,
+        indexes: {},
+      });
       expect(createOutput(value3).results?.length).toBe(3);
       expect(createOutput(value3).results).toMatchSnapshot();
       expect(createOutput(value).results[0]).toBe(
@@ -231,8 +250,7 @@ describe.each([
       const value = new MemoCache().query(
         catSchema,
         [],
-        createInput(entities),
-        {},
+        createInput({ entities: entities, indexes: {} }),
       );
 
       expect(createOutput(value)).toBeUndefined();
@@ -266,8 +284,7 @@ describe.each([
       const value = new MemoCache().query(
         listSchema,
         [],
-        createInput(entities),
-        {},
+        createInput({ entities: entities, indexes: {} }),
       );
 
       expect(createOutput(value)).toBeUndefined();
@@ -278,15 +295,20 @@ describe.each([
       class Taco extends IDEntity {
         static schema = { fillings: new schema.All(Filling) };
       }
-      const entities = {
-        Taco: {
-          123: {
-            id: '123',
-            fillings: null,
+      const state = {
+        ...initialState,
+        entities: {
+          Taco: {
+            123: {
+              id: '123',
+              fillings: null,
+            },
           },
         },
       };
-      expect(denormalize(Taco, '123', createInput(entities))).toMatchSnapshot();
+      expect(
+        denormalize(Taco, '123', createInput(state).entities),
+      ).toMatchSnapshot();
     });
 
     test('denormalizes multiple entities', () => {
@@ -329,8 +351,7 @@ describe.each([
       const value = new MemoCache().query(
         listSchema,
         [],
-        createInput(entities) as any,
-        {},
+        createInput({ entities: entities, indexes: {} }),
       );
       expect(value).not.toEqual(expect.any(Symbol));
       if (typeof value === 'symbol') return;

@@ -48,12 +48,18 @@ describe('normalizer() merging', () => {
           }),
         },
       };
+      const entitiesMetaA = {
+        [Article.key]: {
+          [id]: { date: 0, fetchedAt: 0, expiresAt: 0 },
+          [42]: { date: 0, fetchedAt: 0, expiresAt: 0 },
+        },
+      };
 
       const { entities } = normalize(
         Article,
         { id, title: 'hi', content: 'this is the content' },
         [],
-        { entities: entitiesA, indexes: {}, entityMeta: {} },
+        { entities: entitiesA, indexes: {}, entityMeta: entitiesMetaA },
       );
 
       expect(entities[Article.key][42]).toBe(entitiesA[Article.key][42]);
@@ -88,7 +94,7 @@ describe('normalizer() merging', () => {
 
     it('should not augment source objects', () => {
       const id = 20;
-      const { entities: first } = normalize(Article, {
+      const { entities: first, entityMeta: firstMeta } = normalize(Article, {
         id,
         title: 'hi',
         content: 'this is the content',
@@ -97,7 +103,7 @@ describe('normalizer() merging', () => {
       normalize(Article, { id, title: 'hello' }, [], {
         entities: first,
         indexes: {},
-        entityMeta: {},
+        entityMeta: firstMeta,
       });
 
       const merged = denormalize(Article, id, first);
@@ -113,15 +119,18 @@ describe('normalizer() merging', () => {
 
     it('should still clone even when overwriting', () => {
       const id = 20;
-      const { entities: first } = normalize(new schema.Invalidate(Article), {
-        id,
-      });
+      const { entities: first, entityMeta: firstMeta } = normalize(
+        new schema.Invalidate(Article),
+        {
+          id,
+        },
+      );
 
       const nested = { id, title: 'hello' };
       const { entities } = normalize(Article, nested, [], {
         entities: first,
         indexes: {},
-        entityMeta: {},
+        entityMeta: firstMeta,
       });
 
       expect(entities).toMatchInlineSnapshot(`

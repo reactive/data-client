@@ -164,7 +164,7 @@ const getEntityCaches = (entityCache: EntityCache) => {
       );
 
     const entityCachePk = entityCacheKey.get(pk) as WeakMap<
-      EntityInterface<any>,
+      EntityInterface,
       WeakDependencyMap<EntityPath, object, any>
     >;
     let wem = entityCachePk.get(entityInstance) as WeakDependencyMap<

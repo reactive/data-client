@@ -1,17 +1,8 @@
-import { getCheckLoop } from './getCheckLoop.js';
-import type { EntityInterface, GetEntity } from '../interface.js';
+import type { INormalizeDelegate } from '../interface.js';
 import { normalize as arrayNormalize } from '../schemas/Array.js';
 import { normalize as objectNormalize } from '../schemas/Object.js';
 
-export const getVisit = (
-  addEntity: (
-    schema: EntityInterface,
-    processedEntity: any,
-    id: string,
-  ) => void,
-  getEntity: GetEntity,
-) => {
-  const checkLoop = getCheckLoop();
+export const getVisit = (delegate: INormalizeDelegate) => {
   const visit = (
     schema: any,
     value: any,
@@ -28,32 +19,13 @@ export const getVisit = (
         if (schema.pk) return `${value}`;
         return value;
       }
-      return schema.normalize(
-        value,
-        parent,
-        key,
-        args,
-        visit,
-        addEntity,
-        getEntity,
-        checkLoop,
-      );
+      return schema.normalize(value, parent, key, args, visit, delegate);
     }
 
     if (typeof value !== 'object' || typeof schema !== 'object') return value;
 
     const method = Array.isArray(schema) ? arrayNormalize : objectNormalize;
-    return method(
-      schema,
-      value,
-      parent,
-      key,
-      args,
-      visit,
-      addEntity,
-      getEntity,
-      checkLoop,
-    );
+    return method(schema, value, parent, key, args, visit, delegate);
   };
   return visit;
 };

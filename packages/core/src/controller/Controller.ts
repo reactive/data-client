@@ -514,13 +514,7 @@ export default class Controller<
     const input =
       shouldQuery ?
         // nothing in endpoints cache, so try querying if we have a schema to do so
-        this.memo.buildQueryKey(
-          schema,
-          args,
-          state.entities as any,
-          state.indexes,
-          key,
-        )
+        this.memo.buildQueryKey(schema, args, state, key)
       : cacheEndpoints;
 
     if (!isActive) {
@@ -558,18 +552,24 @@ export default class Controller<
       args,
     ) as { data: any; paths: EntityPath[] };
 
-    // note: isInvalid can only be true if shouldQuery is true
-    if (!expiresAt && isInvalid) expiresAt = 1;
+    if (!expiresAt) {
+      // note: isInvalid can only be true if shouldQuery is true
+      if (isInvalid) expiresAt = 1;
+      else
+        // fallback to entity expiry time
+        expiresAt = entityExpiresAt(paths, state.entityMeta);
+    }
 
-    return this.getSchemaResponse(
+    return {
       data,
-      key,
-      paths,
-      state.entityMeta,
+      expiryStatus: this.getExpiryStatus(
+        typeof data === 'symbol',
+        endpoint.invalidIfStale || isInvalid,
+        meta,
+      ),
       expiresAt,
-      endpoint.invalidIfStale || isInvalid,
-      meta,
-    );
+      countRef: this.gcPolicy.createCountRef({ key, paths }),
+    };
   }
 
   /**
@@ -589,7 +589,7 @@ export default class Controller<
       .slice(0, rest.length - 1)
       .map(ensurePojo) as SchemaArgs<S>;
 
-    return this.memo.query(schema, args, state.entities as any, state.indexes);
+    return this.memo.query(schema, args, state);
   }
 
   /**
@@ -617,8 +617,7 @@ export default class Controller<
     const input = this.memo.buildQueryKey(
       schema,
       args,
-      state.entities as any,
-      state.indexes,
+      state,
       JSON.stringify(args),
     );
 
@@ -638,42 +637,20 @@ export default class Controller<
     };
   }
 
-  private getSchemaResponse<T>(
-    data: T,
-    key: string,
-    paths: EntityPath[],
-    entityMeta: State<unknown>['entityMeta'],
-    expiresAt: number,
+  private getExpiryStatus(
+    invalidDenormalize: boolean,
     invalidIfStale: boolean,
     meta: { error?: unknown; invalidated?: unknown } = {},
-  ): {
-    data: T;
-    expiryStatus: ExpiryStatus;
-    expiresAt: number;
-    countRef: () => () => void;
-  } {
-    const invalidDenormalize = typeof data === 'symbol';
-
-    // fallback to entity expiry time
-    if (!expiresAt) {
-      expiresAt = entityExpiresAt(paths, entityMeta);
-    }
-
+  ) {
     // https://dataclient.io/docs/concepts/expiry-policy#expiry-status
     // we don't track the difference between stale or fresh because that is tied to triggering
     // conditions
-    const expiryStatus =
+    return (
       meta?.invalidated || (invalidDenormalize && !meta?.error) ?
         ExpiryStatus.Invalid
       : invalidDenormalize || invalidIfStale ? ExpiryStatus.InvalidIfStale
-      : ExpiryStatus.Valid;
-
-    return {
-      data,
-      expiryStatus,
-      expiresAt,
-      countRef: this.gcPolicy.createCountRef({ key, paths }),
-    };
+      : ExpiryStatus.Valid
+    );
   }
 }
 

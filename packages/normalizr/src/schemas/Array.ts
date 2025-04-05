@@ -26,9 +26,7 @@ export const normalize = (
   key: any,
   args: readonly any[],
   visit: Visit,
-  addEntity: any,
-  getEntity: any,
-  checkLoop: any,
+  delegate: any,
 ) => {
   schema = validateSchema(schema);
 
@@ -51,12 +49,6 @@ export const denormalize = (
     : input;
 };
 
-export function queryKey(
-  schema: any,
-  args: any,
-  queryKey: any,
-  getEntity: any,
-  getIndex: any,
-) {
+export function queryKey(schema: any, args: any, unvisit: any, delegate: any) {
   return undefined;
 }

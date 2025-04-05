@@ -4,7 +4,7 @@ import { IDEntity } from '__tests__/new';
 import { waterfallSchema } from '__tests__/UnionSchema';
 import { fromJS } from 'immutable';
 
-import SimpleMemoCache from './denormalize';
+import { SimpleMemoCache, fromJSEntities } from './denormalize';
 import { schema } from '../../';
 
 let dateSpy;
@@ -269,9 +269,9 @@ const entities = {
   },
 };
 describe.each([
-  ['direct', data => data],
-  ['immutable', fromJS],
-])(`input (%s)`, (_, createInput) => {
+  ['direct', data => data, data => data],
+  ['immutable', fromJS, fromJSEntities],
+])(`input (%s)`, (_, createInput, createEntities) => {
   describe.each([['current', new SimpleMemoCache().denormalize]])(
     `${schema.Union.name} denormalization (%s)`,
     (_, denormalize) => {
@@ -288,7 +288,7 @@ describe.each([
           denormalize(
             union,
             createInput({ id: '1', schema: 'users' }),
-            createInput(entities),
+            createEntities(entities),
           ),
         ).toMatchSnapshot();
 
@@ -296,7 +296,7 @@ describe.each([
           denormalize(
             union,
             createInput({ id: '2', schema: 'groups' }),
-            createInput(entities),
+            createEntities(entities),
           ),
         ).toMatchSnapshot();
       });
@@ -316,7 +316,7 @@ describe.each([
           denormalize(
             union,
             createInput({ id: '1', schema: 'users' }),
-            createInput(entities),
+            createEntities(entities),
           ),
         ).toMatchSnapshot();
 
@@ -324,7 +324,7 @@ describe.each([
           denormalize(
             union,
             createInput({ id: '2', schema: 'groups' }),
-            createInput(entities),
+            createEntities(entities),
           ),
         ).toMatchSnapshot();
       });
@@ -345,7 +345,11 @@ describe.each([
         );
 
         expect(
-          denormalize(union, createInput({ id: '1' }), createInput(entities)),
+          denormalize(
+            union,
+            createInput({ id: '1' }),
+            createEntities(entities),
+          ),
         ).toMatchSnapshot();
         expect(warnSpy.mock.calls).toMatchSnapshot();
       });
@@ -366,7 +370,7 @@ describe.each([
         );
 
         expect(
-          denormalize(union, '1', createInput(entities)),
+          denormalize(union, '1', createEntities(entities)),
         ).toMatchSnapshot();
         expect(warnSpy.mock.calls).toMatchSnapshot();
       });
@@ -386,7 +390,7 @@ describe.each([
           },
         );
 
-        expect(denormalize(union, null, createInput(entities))).toBeNull();
+        expect(denormalize(union, null, createEntities(entities))).toBeNull();
       });
 
       test('returns the original value when undefined is given', () => {
@@ -405,7 +409,7 @@ describe.each([
         );
 
         expect(
-          denormalize(union, undefined, createInput(entities)),
+          denormalize(union, undefined, createEntities(entities)),
         ).toBeUndefined();
       });
     },
