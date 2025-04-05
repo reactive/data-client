@@ -617,12 +617,10 @@ describe(`${schema.Collection.name} denormalization`, () => {
 
   it('should buildQueryKey with matching args', () => {
     const memo = new MemoCache();
-    const queryKey = memo.buildQueryKey(
-      userTodos,
-      [{ userId: '1' }],
-      normalizeNested.entities,
-      {},
-    );
+    const queryKey = memo.buildQueryKey(userTodos, [{ userId: '1' }], {
+      entities: normalizeNested.entities,
+      indexes: {},
+    });
     expect(queryKey).toBeDefined();
     // now ensure our queryKey is usable
     const results = denormalize(userTodos, queryKey, normalizeNested.entities);
@@ -641,23 +639,19 @@ describe(`${schema.Collection.name} denormalization`, () => {
 
   it('should buildQueryKey undefined when not in cache', () => {
     const memo = new MemoCache();
-    const queryKey = memo.buildQueryKey(
-      userTodos,
-      [{ userId: '100' }],
-      normalizeNested.entities,
-      {},
-    );
+    const queryKey = memo.buildQueryKey(userTodos, [{ userId: '100' }], {
+      entities: normalizeNested.entities,
+      indexes: {},
+    });
     expect(queryKey).toBeUndefined();
   });
 
   it('should buildQueryKey undefined with nested Collection', () => {
     const memo = new MemoCache();
-    const queryKey = memo.buildQueryKey(
-      User.schema.todos,
-      [{ userId: '1' }],
-      normalizeNested.entities,
-      {},
-    );
+    const queryKey = memo.buildQueryKey(User.schema.todos, [{ userId: '1' }], {
+      entities: normalizeNested.entities,
+      indexes: {},
+    });
     expect(queryKey).toBeUndefined();
   });
 

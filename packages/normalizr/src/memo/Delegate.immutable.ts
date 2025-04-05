@@ -10,16 +10,22 @@ export class DelegateImmutable implements IBaseDelegate {
   declare entities: ImmutableJSEntityTable;
   declare indexes: ImmutableJSEntityTable;
 
-  constructor(
-    entities: ImmutableJSEntityTable,
-    indexes: ImmutableJSEntityTable,
-  ) {
+  constructor({
+    entities,
+    indexes,
+  }: {
+    entities: ImmutableJSEntityTable;
+    indexes: ImmutableJSEntityTable;
+  }) {
     this.entities = entities;
     this.indexes = indexes;
   }
 
   getEntity(...args: [entityKey: string, pk?: string]): any {
-    return this.entities.getIn(args as any);
+    // TODO: Don't make consumer depend on this going toJS()
+    return args.length === 1 ?
+        this.entities.getIn(args as any)?.toJS()
+      : this.entities.getIn(args as any);
   }
 
   getIndex(key: string, field: string) {

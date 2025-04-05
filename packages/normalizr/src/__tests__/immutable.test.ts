@@ -4,13 +4,24 @@ import { fromJS, Record, Map } from 'immutable';
 
 import { normalize } from '..';
 import { denormalize } from '../denormalize/denormalize';
-import { INVALID } from '../denormalize/symbol';
-import MemoCached from '../memo/MemoCache';
 
 export function fromJSEntities(entities: {
   [k: string]: { [k: string]: any };
 }) {
   return Map(entities).map(v => Map(v));
+}
+export function fromJSState(state: {
+  entities: {
+    [k: string]: { [k: string]: any };
+  };
+  indexes: {
+    [k: string]: { [k: string]: { [field: string]: string } };
+  };
+}) {
+  return {
+    entities: fromJSEntities(state.entities),
+    indexes: fromJS(state.indexes),
+  };
 }
 
 class IDEntity extends Entity {
