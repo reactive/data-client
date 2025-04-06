@@ -20,16 +20,9 @@ export default class AllSchema<
     super(definition, schemaAttribute as any);
   }
 
-  normalize(
-    input: any,
-    parent: any,
-    key: any,
-    args: any[],
-    visit: Visit,
-    snapshot: any,
-  ): any {
-    // we return undefined
-    super.normalize(input, parent, key, args, visit, snapshot);
+  normalize(input: any, parent: any, key: any, args: any[], visit: Visit): any {
+    // we return undefined so we always 'query'
+    super.normalize(input, parent, key, args, visit);
   }
 
   queryKey(args: any, unvisit: any, delegate: IQueryDelegate): any {

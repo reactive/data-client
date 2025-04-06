@@ -33,7 +33,7 @@ interface EntityInterface<T = any> extends SchemaSimple {
     readonly key: string;
     indexes?: any;
     schema: Record<string, Schema>;
-    prototype?: T;
+    prototype: T;
     cacheWith?: object;
 }
 interface Mergeable {
@@ -246,7 +246,6 @@ declare const normalize: <S extends Schema = Schema, E extends Record<string, Re
 interface EntityCache extends Map<string, Map<string, WeakMap<EntityInterface, WeakDependencyMap<EntityPath, object, any>>>> {
 }
 type EndpointsCache = WeakDependencyMap<EntityPath, object, any>;
-
 type IndexPath = [key: string, field: string, value: string];
 type EntitySchemaPath = [key: string] | [key: string, pk: string];
 type QueryPath = IndexPath | EntitySchemaPath;

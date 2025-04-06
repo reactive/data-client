@@ -8,7 +8,6 @@ export const normalize = (
   key: any,
   args: any[],
   visit: Visit,
-  snapshot: any,
 ) => {
   const object = { ...input };
   Object.keys(schema).forEach(key => {
@@ -83,7 +82,7 @@ export default class ObjectSchema {
       key: any,
       args: any[],
       visit: any,
-      snapshot: any,
+      // delegate: any,
     ]
   ) {
     return normalize(this.schema, ...args);
@@ -97,7 +96,7 @@ export default class ObjectSchema {
     return denormalize(this.schema, input, args, unvisit);
   }
 
-  queryKey(args: any, unvisit: any, delegate: any) {
+  queryKey(args: any, unvisit: any) {
     return objectQueryKey(this.schema, args, unvisit);
   }
 }

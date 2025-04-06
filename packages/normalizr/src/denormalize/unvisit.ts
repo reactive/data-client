@@ -46,25 +46,16 @@ const getUnvisitEntity = (
       return entity as any;
     }
 
-    const entityObject: object = entity;
-
     let pk: string | number | undefined =
       inputIsId ? entityOrId : (
-        (schema.pk(entityObject, undefined, undefined, args) as any)
+        (schema.pk(entity, undefined, undefined, args) as any)
       );
 
     // if we can't generate a working pk we cannot do cache lookups properly,
     // so simply denormalize without caching
     if (pk === undefined || pk === '' || pk === 'undefined') {
       return noCacheGetEntity(localCacheKey =>
-        unvisitEntityObject(
-          schema,
-          entityObject,
-          '',
-          localCacheKey,
-          args,
-          unvisit,
-        ),
+        unvisitEntityObject(schema, entity, '', localCacheKey, args, unvisit),
       );
     }
 
@@ -72,15 +63,8 @@ const getUnvisitEntity = (
     if (typeof pk !== 'string') pk = `${pk}`;
 
     // last function computes if it is not in any caches
-    return cache.getEntity(pk, schema, entityObject, localCacheKey =>
-      unvisitEntityObject(
-        schema,
-        entityObject,
-        pk,
-        localCacheKey,
-        args,
-        unvisit,
-      ),
+    return cache.getEntity(pk, schema, entity, localCacheKey =>
+      unvisitEntityObject(schema, entity, pk, localCacheKey, args, unvisit),
     );
   };
 };

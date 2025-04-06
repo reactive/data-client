@@ -30,7 +30,7 @@ export default class Invalidate<
    */
   constructor(entity: E) {
     if (process.env.NODE_ENV !== 'production' && !entity) {
-      throw new Error('Expected option "entity" not found on DeleteSchema.');
+      throw new Error('Invalidate schema requires "entity" option.');
     }
     this._entity = entity;
   }
@@ -46,10 +46,10 @@ export default class Invalidate<
     args: any[],
     visit: (...args: any) => any,
     delegate: INormalizeDelegate,
-  ): string | number | undefined {
+  ): string {
     // TODO: what's store needs to be a differing type from fromJS
     const processedEntity = this._entity.process(input, parent, key, args);
-    const pk = `${this._entity.pk(processedEntity, parent, key, args)}`;
+    let pk = this._entity.pk(processedEntity, parent, key, args);
 
     if (
       process.env.NODE_ENV !== 'production' &&
@@ -70,6 +70,8 @@ export default class Invalidate<
       (error as any).status = 400;
       throw error;
     }
+    pk = `${pk}`; // ensure pk is a string
+
     // any queued updates are meaningless with delete, so we should just set it
     // and creates will have a different pk
     delegate.setEntity(this as any, pk, INVALID);

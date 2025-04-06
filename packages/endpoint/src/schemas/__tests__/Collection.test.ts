@@ -621,7 +621,7 @@ describe(`${schema.Collection.name} denormalization`, () => {
       userTodos,
       [{ userId: '1' }],
       normalizeNested.entities,
-      {},
+      normalizeNested.indexes,
     );
     expect(queryKey).toBeDefined();
     // now ensure our queryKey is usable
@@ -645,7 +645,7 @@ describe(`${schema.Collection.name} denormalization`, () => {
       userTodos,
       [{ userId: '100' }],
       normalizeNested.entities,
-      {},
+      normalizeNested.indexes,
     );
     expect(queryKey).toBeUndefined();
   });
@@ -656,7 +656,7 @@ describe(`${schema.Collection.name} denormalization`, () => {
       User.schema.todos,
       [{ userId: '1' }],
       normalizeNested.entities,
-      {},
+      normalizeNested.indexes,
     );
     expect(queryKey).toBeUndefined();
   });

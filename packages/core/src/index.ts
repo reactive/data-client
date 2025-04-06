@@ -16,6 +16,9 @@ export type {
   EndpointExtraOptions,
   Queryable,
   SchemaArgs,
+  Mergeable,
+  IQueryDelegate,
+  INormalizeDelegate,
   NI,
 } from '@data-client/normalizr';
 export { ExpiryStatus } from '@data-client/normalizr';

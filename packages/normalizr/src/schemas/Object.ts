@@ -9,7 +9,6 @@ export const normalize = (
   key: any,
   args: readonly any[],
   visit: Visit,
-  snapshot: any,
 ) => {
   const object = { ...input };
   Object.keys(schema).forEach(key => {

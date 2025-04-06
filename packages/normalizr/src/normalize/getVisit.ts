@@ -25,7 +25,7 @@ export const getVisit = (delegate: INormalizeDelegate) => {
     if (typeof value !== 'object' || typeof schema !== 'object') return value;
 
     const method = Array.isArray(schema) ? arrayNormalize : objectNormalize;
-    return method(schema, value, parent, key, args, visit, delegate);
+    return method(schema, value, parent, key, args, visit);
   };
   return visit;
 };

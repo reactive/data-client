@@ -158,7 +158,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
     key: string | undefined,
     args: any[],
     visit: (...args: any) => any,
-    snapshot: { addEntity:any;getEntity:any; }
+    delegate: { addEntity:any; getEntity:any; }
   ): any;
   /** Do any transformations when first receiving input
    *

@@ -26,7 +26,6 @@ export const normalize = (
   key: any,
   args: readonly any[],
   visit: Visit,
-  delegate: any,
 ) => {
   schema = validateSchema(schema);
 
@@ -34,7 +33,7 @@ export const normalize = (
 
   // Special case: Arrays pass *their* parent on to their children, since there
   // is not any special information that can be gathered from themselves directly
-  return values.map((value, index) => visit(schema, value, parent, key, args));
+  return values.map(value => visit(schema, value, parent, key, args));
 };
 
 export const denormalize = (
@@ -49,6 +48,6 @@ export const denormalize = (
     : input;
 };
 
-export function queryKey(schema: any, args: any, unvisit: any, delegate: any) {
+export function queryKey() {
   return undefined;
 }

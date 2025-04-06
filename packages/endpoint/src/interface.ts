@@ -62,7 +62,7 @@ export interface EntityInterface<T = any> extends SchemaSimple {
   ): string | number | undefined;
   readonly key: string;
   indexes?: any;
-  prototype?: T;
+  prototype: T;
 }
 
 export interface Mergeable {

@@ -59,7 +59,7 @@ export interface EntityInterface<T = any> extends SchemaSimple {
   readonly key: string;
   indexes?: any;
   schema: Record<string, Schema>;
-  prototype?: T;
+  prototype: T;
   cacheWith?: object;
 }
 

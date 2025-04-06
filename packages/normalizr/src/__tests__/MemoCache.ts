@@ -8,8 +8,8 @@ import {
   FirstUnion,
 } from '__tests__/new';
 
-import { fromJSEntities } from './immutable.test';
-import { GetEntity, GetIndex, IQueryDelegate } from '../interface';
+import { fromJSState } from './immutable.test';
+import { IQueryDelegate } from '../interface';
 import MemoCache from '../memo/MemoCache';
 
 class IDEntity extends Entity {
@@ -1052,7 +1052,7 @@ describe('MemoCache', () => {
     ['direct', <T>(data: T) => data, <T>(data: T) => data],
     [
       'immutable',
-      fromJSEntities,
+      fromJSState,
       (v: any) => (typeof v?.toJS === 'function' ? v.toJS() : v),
     ],
   ])(`query (%s)`, (_, createInput, createOutput) => {
@@ -1062,24 +1062,27 @@ describe('MemoCache', () => {
       username = '';
       static indexes = ['username' as const];
     }
-    const entities = {
-      Cat: {
-        '1': { id: '1', name: 'Milo', username: 'm' },
-        '2': { id: '2', name: 'Jake', username: 'j' },
+    const state = createInput({
+      entities: {
+        Cat: {
+          1: { id: '1', name: 'Milo', username: 'm' },
+          2: { id: '2', name: 'Jake', username: 'j' },
+          3: { id: '3', name: 'Zeta', username: 'z' },
+        },
       },
-    };
-    const indexes = {
-      Cat: {
-        username: { m: '1', j: '2' },
+      indexes: {
+        Cat: {
+          username: { m: '1', j: '2', z: '3' },
+        },
       },
-    };
+    });
 
     test('works with indexes', () => {
       const m = new MemoCache().query(
         Cat,
         [{ username: 'm' }],
-        createInput(entities),
-        createInput(indexes),
+        state.entities,
+        state.indexes,
       );
       expect(m).toBeDefined();
       expect(m).toMatchSnapshot();
@@ -1087,8 +1090,8 @@ describe('MemoCache', () => {
         new MemoCache().query(
           Cat,
           [{ username: 'doesnotexist' }],
-          createInput(entities),
-          createInput(indexes),
+          state.entities,
+          state.indexes,
         ),
       ).toBeUndefined();
     });
@@ -1097,8 +1100,8 @@ describe('MemoCache', () => {
       const m = new MemoCache().query(
         Cat,
         [{ id: '1' }],
-        createInput(entities),
-        createInput(indexes),
+        state.entities,
+        state.indexes,
       );
       expect(m).toBeDefined();
       expect(m).toMatchSnapshot();
@@ -1106,8 +1109,8 @@ describe('MemoCache', () => {
         new MemoCache().query(
           Cat,
           [{ id: 'doesnotexist' }],
-          createInput(entities),
-          createInput(indexes),
+          state.entities,
+          state.indexes,
         ),
       ).toBeUndefined();
     });

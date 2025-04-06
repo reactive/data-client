@@ -7,17 +7,10 @@ import { Visit } from '../interface.js';
  * @see https://dataclient.io/rest/api/Array
  */
 export default class ArraySchema extends PolymorphicSchema {
-  normalize(
-    input: any,
-    parent: any,
-    key: any,
-    args: any[],
-    visit: Visit,
-    snapshot: any,
-  ): any {
+  normalize(input: any, parent: any, key: any, args: any[], visit: Visit): any {
     const values = getValues(input);
 
-    return values.map((value, index) =>
+    return values.map(value =>
       this.normalizeValue(value, parent, key, args, visit),
     );
   }
@@ -34,7 +27,7 @@ export default class ArraySchema extends PolymorphicSchema {
       : input;
   }
 
-  queryKey(args: unknown, unvisit: unknown, delegate: unknown): any {
+  queryKey(args: any, unvisit: any, delegate: any): undefined {
     return undefined;
   }
 

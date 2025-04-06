@@ -587,7 +587,7 @@ export default class Controller<
     schema: S,
     ...rest: readonly [
       ...SchemaArgs<S>,
-      Pick<State<unknown>, 'entities' | 'entityMeta'>,
+      Pick<State<unknown>, 'entities' | 'indexes'>,
     ]
   ): DenormalizeNullable<S> | undefined {
     const state = rest[rest.length - 1] as State<any>;
@@ -607,7 +607,7 @@ export default class Controller<
     schema: S,
     ...rest: readonly [
       ...SchemaArgs<S>,
-      Pick<State<unknown>, 'entities' | 'entityMeta'>,
+      Pick<State<unknown>, 'entities' | 'indexes'>,
     ]
   ): {
     data: DenormalizeNullable<S> | undefined;

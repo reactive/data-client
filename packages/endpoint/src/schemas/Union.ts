@@ -15,14 +15,7 @@ export default class UnionSchema extends PolymorphicSchema {
     super(definition, schemaAttribute);
   }
 
-  normalize(
-    input: any,
-    parent: any,
-    key: any,
-    args: any[],
-    visit: Visit,
-    snapshot: any,
-  ) {
+  normalize(input: any, parent: any, key: any, args: any[], visit: Visit) {
     return this.normalizeValue(input, parent, key, args, visit);
   }
 

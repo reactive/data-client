@@ -221,7 +221,7 @@ interface EntityInterface<T = any> extends SchemaSimple {
     pk(params: any, parent: any, key: string | undefined, args: any[]): string | number | undefined;
     readonly key: string;
     indexes?: any;
-    prototype?: T;
+    prototype: T;
 }
 interface Mergeable {
     merge(existing: any, incoming: any): any;
@@ -560,7 +560,7 @@ declare class Invalidate<E extends EntityInterface & {
      */
     constructor(entity: E);
     get key(): string;
-    normalize(input: any, parent: any, key: string | undefined, args: any[], visit: (...args: any) => any, delegate: INormalizeDelegate): string | number | undefined;
+    normalize(input: any, parent: any, key: string | undefined, args: any[], visit: (...args: any) => any, delegate: INormalizeDelegate): string;
     queryKey(args: any, unvisit: unknown, delegate: unknown): undefined;
     denormalize(id: string, args: readonly any[], unvisit: (schema: any, input: any) => any): AbstractInstanceType<E>;
     _denormalizeNullable(): AbstractInstanceType<E> | undefined;
@@ -1155,4 +1155,4 @@ declare const INVALID: unique symbol;
 /** https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-4.html#the-noinfer-utility-type */
 type NI<T> = NoInfer<T>;
 
-export { type AbstractInstanceType, Array$1 as Array, Collection, type DefaultArgs, type Denormalize, type DenormalizeNullable, type DenormalizeNullableObject, type DenormalizeObject, Endpoint, type EndpointExtendOptions, type EndpointExtraOptions, type EndpointInstance, type EndpointInstanceInterface, type EndpointInterface, type EndpointOptions, type EndpointParam, type EndpointToFunction, Entity, type EntityFields, type EntityMap, EntityMixin, type ErrorTypes, type ExpiryStatusInterface, ExtendableEndpoint, type FetchFunction, INVALID, Invalidate, type KeyofEndpointInstance, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeObject, type NormalizedEntity, type NormalizedNullableObject, type ObjectArgs, type PolymorphicInterface, type IQueryDelegate as QuerySnapshot, type Queryable, type ReadEndpoint, type RecordClass, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type SnapshotInterface, type UnknownError, schema_d as schema, validateRequired };
+export { type AbstractInstanceType, Array$1 as Array, Collection, type DefaultArgs, type Denormalize, type DenormalizeNullable, type DenormalizeNullableObject, type DenormalizeObject, Endpoint, type EndpointExtendOptions, type EndpointExtraOptions, type EndpointInstance, type EndpointInstanceInterface, type EndpointInterface, type EndpointOptions, type EndpointParam, type EndpointToFunction, Entity, type EntityFields, type EntityMap, EntityMixin, type ErrorTypes, type ExpiryStatusInterface, ExtendableEndpoint, type FetchFunction, INVALID, type INormalizeDelegate, type IQueryDelegate, Invalidate, type KeyofEndpointInstance, type Mergeable, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeObject, type NormalizedEntity, type NormalizedNullableObject, type ObjectArgs, type PolymorphicInterface, type Queryable, type ReadEndpoint, type RecordClass, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type SnapshotInterface, type UnknownError, schema_d as schema, validateRequired };

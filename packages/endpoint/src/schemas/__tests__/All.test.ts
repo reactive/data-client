@@ -1,10 +1,10 @@
 // eslint-env jest
+import { initialState, State, Controller } from '@data-client/core';
 import { normalize, MemoCache, denormalize } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
-import { fromJS } from 'immutable';
 
 import { schema } from '../..';
-import { fromJSEntities } from './denormalize';
+import { fromJSState } from './denormalize';
 import { INVALID } from '../../special';
 
 let dateSpy: jest.SpyInstance<number, []>;
@@ -100,7 +100,7 @@ describe.each([
   ['direct', <T>(data: T) => data, <T>(data: T) => data],
   [
     'immutable',
-    fromJSEntities,
+    fromJSState,
     (v: any) => (typeof v?.toJS === 'function' ? v.toJS() : v),
   ],
 ])(
@@ -108,46 +108,55 @@ describe.each([
   (_, createInput, createOutput) => {
     test('denormalizes a single entity', () => {
       class Cat extends IDEntity {}
-      const entities = {
-        Cat: {
-          1: { id: '1', name: 'Milo' },
-          2: { id: '2', name: 'Jake' },
+      const state: State<unknown> = createInput({
+        ...initialState,
+        entities: {
+          Cat: {
+            1: { id: '1', name: 'Milo' },
+            2: { id: '2', name: 'Jake' },
+          },
         },
-      };
+        indexes: {},
+      }) as any;
       const sch = new schema.All(Cat);
-      expect(
-        new MemoCache().query(sch, [], createInput(entities), {}),
-      ).toMatchSnapshot();
+      expect(new Controller().get(sch, state)).toMatchSnapshot();
     });
 
     test('denormalizes nested in object', () => {
       class Cat extends IDEntity {}
       const catSchema = { results: new schema.All(Cat) };
-      const entities = {
-        Cat: {
-          1: { id: '1', name: 'Milo' },
-          2: { id: '2', name: 'Jake' },
+      const state = createInput({
+        entities: {
+          Cat: {
+            1: { id: '1', name: 'Milo' },
+            2: { id: '2', name: 'Jake' },
+          },
         },
-      };
+        indexes: {},
+      });
+      // use memocache because we don't support 'object' schemas in controller yet
       expect(
-        new MemoCache().query(catSchema, [], createInput(entities), {}),
+        new MemoCache().query(catSchema, [], state.entities, state.indexes),
       ).toMatchSnapshot();
     });
 
     test('denormalizes nested in object with primitive', () => {
       class Cat extends IDEntity {}
       const catSchema = { results: new schema.All(Cat), nextPage: '' };
-      const entities = {
-        Cat: {
-          1: { id: '1', name: 'Milo' },
-          2: { id: '2', name: 'Jake' },
+      const state = createInput({
+        entities: {
+          Cat: {
+            1: { id: '1', name: 'Milo' },
+            2: { id: '2', name: 'Jake' },
+          },
         },
-      };
+        indexes: {},
+      });
       const value = new MemoCache().query(
         catSchema,
         [],
-        createInput(entities),
-        {},
+        state.entities,
+        state.indexes,
       );
       expect(value).not.toEqual(expect.any(Symbol));
       if (typeof value === 'symbol' || value === undefined) return;
@@ -158,19 +167,22 @@ describe.each([
     test('denormalizes removes undefined or INVALID entities', () => {
       class Cat extends IDEntity {}
       const catSchema = { results: new schema.All(Cat), nextPage: '' };
-      const entities = {
-        Cat: {
-          1: { id: '1', name: 'Milo' },
-          2: { id: '2', name: 'Jake' },
-          3: undefined,
-          4: INVALID,
+      const state = createInput({
+        entities: {
+          Cat: {
+            1: { id: '1', name: 'Milo' },
+            2: { id: '2', name: 'Jake' },
+            3: undefined,
+            4: INVALID,
+          },
         },
-      };
+        indexes: {},
+      });
       const value = new MemoCache().query(
         catSchema,
         [],
-        createInput(entities) as any,
-        {},
+        state.entities,
+        state.indexes,
       );
       expect(value).not.toEqual(expect.any(Symbol));
       if (typeof value === 'symbol' || value === undefined) return;
@@ -183,31 +195,38 @@ describe.each([
       class Cat extends IDEntity {}
       (Cat as any).defaults;
       const catSchema = { results: new schema.All(Cat), nextPage: '' };
-      let entities: Record<string, Record<string, object>> = {
-        Cat: {
-          1: { id: '1', name: 'Milo' },
-          2: { id: '2', name: 'Jake' },
+      let state: State<unknown> = {
+        ...initialState,
+        entities: {
+          Cat: {
+            1: { id: '1', name: 'Milo' },
+            2: { id: '2', name: 'Jake' },
+          },
         },
+        indexes: {},
       };
       const memo = new MemoCache();
-      const value = memo.query(catSchema, [], entities, {});
+      const value = memo.query(catSchema, [], state.entities, state.indexes);
 
       expect(createOutput(value).results?.length).toBe(2);
       expect(createOutput(value).results).toMatchSnapshot();
-      const value2 = memo.query(catSchema, [], entities, {});
+      const value2 = memo.query(catSchema, [], state.entities, state.indexes);
       expect(createOutput(value).results[0]).toBe(
         createOutput(value2).results[0],
       );
       expect(value).toBe(value2);
 
-      entities = {
-        ...entities,
-        Cat: {
-          ...entities.Cat,
-          3: { id: '3', name: 'Jelico' },
+      state = {
+        ...state,
+        entities: {
+          ...state.entities,
+          Cat: {
+            ...state.entities.Cat,
+            3: { id: '3', name: 'Jelico' },
+          },
         },
       };
-      const value3 = memo.query(catSchema, [], entities, {});
+      const value3 = memo.query(catSchema, [], state.entities, state.indexes);
       expect(createOutput(value3).results?.length).toBe(3);
       expect(createOutput(value3).results).toMatchSnapshot();
       expect(createOutput(value).results[0]).toBe(
@@ -222,20 +241,21 @@ describe.each([
     test('denormalizes should be invalid when no entities are present', () => {
       class Cat extends IDEntity {}
       const catSchema = { results: new schema.All(Cat) };
-      const entities = {
-        DOG: {
-          1: { id: '1', name: 'Milo' },
-          2: { id: '2', name: 'Jake' },
+      const state = createInput({
+        entities: {
+          DOG: {
+            1: { id: '1', name: 'Milo' },
+            2: { id: '2', name: 'Jake' },
+          },
         },
-      };
-
+        indexes: {},
+      });
       const value = new MemoCache().query(
         catSchema,
         [],
-        createInput(entities),
-        {},
+        state.entities,
+        state.indexes,
       );
-
       expect(createOutput(value)).toBeUndefined();
     });
 
@@ -258,19 +278,21 @@ describe.each([
         input => input.type || 'dogs',
       );
 
-      const entities = {
-        DOG: {
-          1: { id: '1', name: 'Milo' },
-          2: { id: '2', name: 'Jake' },
+      const state = createInput({
+        entities: {
+          DOG: {
+            1: { id: '1', name: 'Milo' },
+            2: { id: '2', name: 'Jake' },
+          },
         },
-      };
+        indexes: {},
+      });
       const value = new MemoCache().query(
         listSchema,
         [],
-        createInput(entities),
-        {},
+        state.entities,
+        state.indexes,
       );
-
       expect(createOutput(value)).toBeUndefined();
     });
 
@@ -279,15 +301,18 @@ describe.each([
       class Taco extends IDEntity {
         static schema = { fillings: new schema.All(Filling) };
       }
-      const entities = {
-        Taco: {
-          123: {
-            id: '123',
-            fillings: null,
+      const state = createInput({
+        ...initialState,
+        entities: {
+          Taco: {
+            123: {
+              id: '123',
+              fillings: null,
+            },
           },
         },
-      };
-      expect(denormalize(Taco, '123', createInput(entities))).toMatchSnapshot();
+      });
+      expect(denormalize(Taco, '123', state.entities)).toMatchSnapshot();
     });
 
     test('denormalizes multiple entities', () => {
@@ -309,29 +334,32 @@ describe.each([
         input => input.type || 'dogs',
       );
 
-      const entities = {
-        Cat: {
-          123: {
-            id: '123',
-            type: 'Cat',
+      const state = createInput({
+        entities: {
+          Cat: {
+            123: {
+              id: '123',
+              type: 'Cat',
+            },
+            456: {
+              id: '456',
+              type: 'Cat',
+            },
           },
-          456: {
-            id: '456',
-            type: 'Cat',
+          Person: {
+            123: {
+              id: '123',
+              type: 'people',
+            },
           },
         },
-        Person: {
-          123: {
-            id: '123',
-            type: 'people',
-          },
-        },
-      };
+        indexes: {},
+      });
       const value = new MemoCache().query(
         listSchema,
         [],
-        createInput(entities) as any,
-        {},
+        state.entities,
+        state.indexes,
       );
       expect(value).not.toEqual(expect.any(Symbol));
       if (typeof value === 'symbol') return;

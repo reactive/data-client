@@ -33,8 +33,13 @@ interface EntityInterface<T = any> extends SchemaSimple {
     readonly key: string;
     indexes?: any;
     schema: Record<string, Schema>;
-    prototype?: T;
+    prototype: T;
     cacheWith?: object;
+}
+interface Mergeable {
+    merge(existing: any, incoming: any): any;
+    mergeWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
+    mergeMetaWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
 }
 interface NormalizedIndex {
     readonly [entityKey: string]: {
@@ -42,6 +47,50 @@ interface NormalizedIndex {
             readonly [lookup: string]: string;
         };
     };
+}
+/** Get Array of entities with map function applied */
+interface GetEntity {
+    (entityKey: string | symbol): {
+        readonly [pk: string]: any;
+    } | undefined;
+    (entityKey: string | symbol, pk: string | number): any;
+}
+/** Get PK using an Entity Index */
+interface GetIndex {
+    /** getIndex('User', 'username', 'ntucker') */
+    (entityKey: string, field: string, value: string): string | undefined;
+}
+/** Accessors to the currently processing state while building query */
+interface IQueryDelegate {
+    getEntity: GetEntity;
+    getIndex: GetIndex;
+}
+/** Helpers during schema.normalize() */
+interface INormalizeDelegate {
+    /** Action meta-data for this normalize call */
+    readonly meta: {
+        fetchedAt: number;
+        date: number;
+        expiresAt: number;
+    };
+    /** Gets any previously normalized entity from store */
+    getEntity: GetEntity;
+    /** Updates an entity using merge lifecycles when it has previously been set */
+    mergeEntity(schema: Mergeable & {
+        key: string;
+        indexes?: any;
+    }, pk: string, incomingEntity: any): void;
+    /** Sets an entity overwriting any previously set values */
+    setEntity(schema: {
+        key: string;
+        indexes?: any;
+    }, pk: string, entity: any, meta?: {
+        fetchedAt: number;
+        date: number;
+        expiresAt: number;
+    }): void;
+    /** Returns true when we're in a cycle, so we should not continue recursing */
+    checkLoop(key: string, pk: string, input: object): boolean;
 }
 
 /** Attempts to infer reasonable input type to construct an Entity */
@@ -157,7 +206,6 @@ interface Dep<Path, K = object> {
 interface EntityCache extends Map<string, Map<string, WeakMap<EntityInterface, WeakDependencyMap<EntityPath, object, any>>>> {
 }
 type EndpointsCache = WeakDependencyMap<EntityPath, object, any>;
-
 type IndexPath = [key: string, field: string, value: string];
 type EntitySchemaPath = [key: string] | [key: string, pk: string];
 type QueryPath = IndexPath | EntitySchemaPath;
@@ -746,7 +794,7 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      */
     get<S extends Queryable>(schema: S, ...rest: readonly [
         ...SchemaArgs<S>,
-        Pick<State<unknown>, 'entities' | 'entityMeta'>
+        Pick<State<unknown>, 'entities' | 'indexes'>
     ]): DenormalizeNullable<S> | undefined;
     /**
      * Queries the store for a Querable schema; providing related metadata
@@ -754,12 +802,12 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      */
     getQueryMeta<S extends Queryable>(schema: S, ...rest: readonly [
         ...SchemaArgs<S>,
-        Pick<State<unknown>, 'entities' | 'entityMeta'>
+        Pick<State<unknown>, 'entities' | 'indexes'>
     ]): {
         data: DenormalizeNullable<S> | undefined;
         countRef: () => () => void;
     };
-    private getSchemaResponse;
+    private getExpiryStatus;
 }
 
 declare class Snapshot<T = unknown> implements SnapshotInterface {
@@ -1320,4 +1368,4 @@ interface Props {
     shouldLogout?: (error: UnknownError) => boolean;
 }
 
-export { type AbstractInstanceType, type ActionMeta, type ActionTypes, type ConnectionListener, Controller, type CreateCountRef, type DataClientDispatch, DefaultConnectionListener, type Denormalize, type DenormalizeNullable, type DevToolsConfig, DevToolsManager, type Dispatch, type EndpointExtraOptions, type EndpointInterface, type EndpointUpdateFunction, type EntityInterface, type ErrorTypes, type ExpireAllAction, ExpiryStatus, type FetchAction, type FetchFunction, type FetchMeta, type GCAction, type GCInterface, type GCOptions, GCPolicy, type GenericDispatch, ImmortalGCPolicy, type InvalidateAction, type InvalidateAllAction, LogoutManager, type Manager, type Middleware, type MiddlewareAPI, type NI, type NetworkError, NetworkManager, type Normalize, type NormalizeNullable, type OptimisticAction, type PK, PollingSubscription, type Queryable, type ResetAction, ResetError, type ResolveType, type ResultEntry, type Schema, type SchemaArgs, type SchemaClass, type SetAction, type SetResponseAction, type SetResponseActionBase, type SetResponseActionError, type SetResponseActionSuccess, type State, type SubscribeAction, SubscriptionManager, type UnknownError, type UnsubscribeAction, type UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, index_d as actions, applyManager, createReducer, initManager, initialState };
+export { type AbstractInstanceType, type ActionMeta, type ActionTypes, type ConnectionListener, Controller, type CreateCountRef, type DataClientDispatch, DefaultConnectionListener, type Denormalize, type DenormalizeNullable, type DevToolsConfig, DevToolsManager, type Dispatch, type EndpointExtraOptions, type EndpointInterface, type EndpointUpdateFunction, type EntityInterface, type ErrorTypes, type ExpireAllAction, ExpiryStatus, type FetchAction, type FetchFunction, type FetchMeta, type GCAction, type GCInterface, type GCOptions, GCPolicy, type GenericDispatch, type INormalizeDelegate, type IQueryDelegate, ImmortalGCPolicy, type InvalidateAction, type InvalidateAllAction, LogoutManager, type Manager, type Mergeable, type Middleware, type MiddlewareAPI, type NI, type NetworkError, NetworkManager, type Normalize, type NormalizeNullable, type OptimisticAction, type PK, PollingSubscription, type Queryable, type ResetAction, ResetError, type ResolveType, type ResultEntry, type Schema, type SchemaArgs, type SchemaClass, type SetAction, type SetResponseAction, type SetResponseActionBase, type SetResponseActionError, type SetResponseActionSuccess, type State, type SubscribeAction, SubscriptionManager, type UnknownError, type UnsubscribeAction, type UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, index_d as actions, applyManager, createReducer, initManager, initialState };
