@@ -5,6 +5,7 @@ import type {
   SchemaClass,
   IQueryDelegate,
   INormalizeDelegate,
+  SchemaSimple,
 } from './interface.js';
 import type {
   AbstractInstanceType,
@@ -24,7 +25,6 @@ import {
   default as EntityMixin,
   default as Entity,
 } from './schemas/EntityMixin.js';
-import { default as Invalidate } from './schemas/Invalidate.js';
 import { default as Query } from './schemas/Query.js';
 import type {
   CollectionConstructor,
@@ -34,13 +34,55 @@ import type {
   UnionResult,
 } from './schemaTypes.js';
 
-export { EntityMap, Invalidate, Query, EntityMixin, Entity };
+export { EntityMap, Query, EntityMixin, Entity };
 
 export type { SchemaClass };
 
 export { EntityInterface } from './interface.js';
 
 export * from './schemaTypes.js';
+
+/**
+ * Marks entity as Invalid.
+ *
+ * This triggers suspense for all endpoints requiring it.
+ * Optional (like variable sized Array and Values) will simply remove the item.
+ * @see https://dataclient.io/rest/api/Invalidate
+ */
+export class Invalidate<
+  E extends EntityInterface & {
+    process: any;
+  },
+> implements SchemaSimple
+{
+  /**
+   * Marks entity as Invalid.
+   *
+   * This triggers suspense for all endpoints requiring it.
+   * Optional (like variable sized Array and Values) will simply remove the item.
+   * @see https://dataclient.io/rest/api/Invalidate
+   */
+  constructor(entity: E);
+  key: string;
+  normalize(
+    input: any,
+    parent: any,
+    key: string | undefined,
+    args: any[],
+    visit: (...args: any) => any,
+    delegate: INormalizeDelegate,
+  ): string;
+
+  queryKey(args: any, unvisit: unknown, delegate: unknown): undefined;
+  denormalize(
+    id: string,
+    args: readonly any[],
+    unvisit: (schema: any, input: any) => any,
+  ): AbstractInstanceType<E>;
+
+  _denormalizeNullable(): AbstractInstanceType<E> | undefined;
+  _normalizeNullable(): string | undefined;
+}
 
 /**
  * Represents arrays
