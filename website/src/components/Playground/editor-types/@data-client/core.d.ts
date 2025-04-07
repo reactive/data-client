@@ -807,7 +807,7 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
         data: DenormalizeNullable<S> | undefined;
         countRef: () => () => void;
     };
-    private getExpiryStatus;
+    private getSchemaResponse;
 }
 
 declare class Snapshot<T = unknown> implements SnapshotInterface {
