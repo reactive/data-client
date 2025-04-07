@@ -84,10 +84,10 @@ describe('reducer', () => {
       expect(nextEntity.content).not.toBe(undefined);
 
       expect(
-        nextState.entityMeta[Article.key][`${Article.pk(action.response)}`],
+        nextState.entitiesMeta[Article.key][`${Article.pk(action.response)}`],
       ).toBeDefined();
       expect(
-        nextState.entityMeta[Article.key][`${Article.pk(action.response)}`]
+        nextState.entitiesMeta[Article.key][`${Article.pk(action.response)}`]
           .date,
       ).toBe(action.meta.date);
     });
@@ -102,7 +102,7 @@ describe('reducer', () => {
         },
       };
       const getMeta = (state: any): { expiresAt: number } =>
-        state.entityMeta[Article.key][`${Article.pk(action.response)}`];
+        state.entitiesMeta[Article.key][`${Article.pk(action.response)}`];
       const prevMeta = getMeta(newState);
       expect(prevMeta).toBeDefined();
       const nextState = reducer(newState, localAction);
@@ -123,7 +123,7 @@ describe('reducer', () => {
         },
       };
       const getMeta = (state: any): { date: number } =>
-        state.entityMeta[Article.key][`${Article.pk(action.response)}`];
+        state.entitiesMeta[Article.key][`${Article.pk(action.response)}`];
       const getEntity = (state: any): Article =>
         state.entities[Article.key][`${Article.pk(action.response)}`];
       const prevEntity = getEntity(newState);
@@ -182,7 +182,9 @@ describe('reducer', () => {
         },
       };
       const getMeta = (state: any): { date: number; expiresAt: number } =>
-        state.entityMeta[ExpiresSoon.key][`${ExpiresSoon.pk(action.response)}`];
+        state.entitiesMeta[ExpiresSoon.key][
+          `${ExpiresSoon.pk(action.response)}`
+        ];
       const getEntity = (state: any): ExpiresSoon =>
         state.entities[ExpiresSoon.key][`${ExpiresSoon.pk(action.response)}`];
 
@@ -259,7 +261,7 @@ describe('reducer', () => {
           [id]: { id, counter: 5 },
         },
       },
-      entityMeta: {
+      entitiesMeta: {
         [Counter.key]: {
           [id]: { date: 0, fetchedAt: 0, expiresAt: 0 },
         },
@@ -688,7 +690,7 @@ describe('reducer', () => {
           },
           '5': undefined,
         },
-        entityMeta: {
+        entitiesMeta: {
           [Article.key]: {
             '10': { date: 0, expiresAt: 10000, fetchedAt: 0 },
             '20': { date: 0, expiresAt: 10000, fetchedAt: 0 },
@@ -726,7 +728,7 @@ describe('reducer', () => {
       const newState = reducer(iniState, action);
       expect(newState).toBe(iniState);
       expect(Object.keys(newState.entities[Article.key] ?? {}).length).toBe(2);
-      expect(Object.keys(newState.entityMeta[Article.key] ?? {}).length).toBe(
+      expect(Object.keys(newState.entitiesMeta[Article.key] ?? {}).length).toBe(
         2,
       );
       expect(Object.keys(newState.endpoints).length).toBe(0);

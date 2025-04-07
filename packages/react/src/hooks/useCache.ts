@@ -46,7 +46,7 @@ export default function useCache<
     cacheResults,
     state.indexes,
     state.entities,
-    state.entityMeta,
+    state.entitiesMeta,
     meta,
     key,
   ]);

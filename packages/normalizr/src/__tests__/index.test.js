@@ -80,7 +80,7 @@ describe('normalize', () => {
     expect(normalize(mySchema, 'bob')).toMatchInlineSnapshot(`
       {
         "entities": {},
-        "entityMeta": {},
+        "entitiesMeta": {},
         "indexes": {},
         "result": "bob",
       }

@@ -107,7 +107,7 @@ Immutable.Map {
 exports[`Invalidate normalization normalizes already processed entities 1`] = `
 {
   "entities": {},
-  "entityMeta": {},
+  "entitiesMeta": {},
   "indexes": {},
   "result": "1",
 }
@@ -116,7 +116,7 @@ exports[`Invalidate normalization normalizes already processed entities 1`] = `
 exports[`Invalidate normalization normalizes already processed entities 2`] = `
 {
   "entities": {},
-  "entityMeta": {},
+  "entitiesMeta": {},
   "indexes": {},
   "result": [
     "1",
@@ -132,7 +132,7 @@ exports[`Invalidate normalization normalizes an object 1`] = `
       "1": Symbol(INVALID),
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "User": {
       "1": {
         "date": 1557831718135,

@@ -14,7 +14,7 @@ exports[`<DataProvider /> should change state 1`] = `
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "CoolerArticle": {
       "5": {
         "date": 50,

@@ -54,7 +54,7 @@ export interface State<T> {
       readonly errorPolicy?: 'hard' | 'soft' | undefined;
     };
   };
-  readonly entityMeta: {
+  readonly entitiesMeta: {
     readonly [entityKey: string]: {
       readonly [pk: string]: {
         readonly date: number;

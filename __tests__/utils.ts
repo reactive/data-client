@@ -25,12 +25,12 @@ export function mockEventHandlers() {
 export function createEntityMeta(
   entities: Record<string, Record<string, any>>,
 ) {
-  const entityMeta: any = {};
+  const entitiesMeta: any = {};
   for (const k in entities) {
-    entityMeta[k] = {};
+    entitiesMeta[k] = {};
     for (const pk in entities[k]) {
-      entityMeta[k][pk] = { date: 0, expiresAt: 0 };
+      entitiesMeta[k][pk] = { date: 0, expiresAt: 0 };
     }
   }
-  return entityMeta;
+  return entitiesMeta;
 }

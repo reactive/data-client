@@ -28,7 +28,7 @@ export default function createReducer(controller: Controller): ReducerType {
         // inline deletes are fine as these should have 0 refcounts
         action.entities.forEach(({ key, pk }) => {
           delete (state as any).entities[key]?.[pk];
-          delete (state as any).entityMeta[key]?.[pk];
+          delete (state as any).entitiesMeta[key]?.[pk];
         });
         action.endpoints.forEach(fetchKey => {
           delete (state as any).endpoints[fetchKey];
@@ -69,7 +69,7 @@ export const initialState: State<unknown> = {
   endpoints: {},
   indexes: {},
   meta: {},
-  entityMeta: {},
+  entitiesMeta: {},
   optimistic: [],
   lastReset: 0,
 };

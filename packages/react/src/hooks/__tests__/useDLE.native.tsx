@@ -215,7 +215,7 @@ describe('useDLE', () => {
     const state = {
       ...initialState,
       entities,
-      entityMeta: createEntityMeta(entities),
+      entitiesMeta: createEntityMeta(entities),
       results: {
         [fetchKey]: result,
       },
@@ -309,7 +309,7 @@ describe('useDLE', () => {
       results: {
         [fetchKey]: payload,
       },
-      entityMeta: {},
+      entitiesMeta: {},
       meta: {
         [fetchKey]: {
           date: 0,

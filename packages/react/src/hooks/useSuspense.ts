@@ -67,7 +67,7 @@ export default function useSuspense<
     cacheResults,
     state.indexes,
     state.entities,
-    state.entityMeta,
+    state.entitiesMeta,
     meta,
     key,
   ]);

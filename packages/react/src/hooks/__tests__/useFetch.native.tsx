@@ -201,7 +201,7 @@ describe('useFetch', () => {
     const state = {
       ...initialState,
       entities,
-      entityMeta: createEntityMeta(entities),
+      entitiesMeta: createEntityMeta(entities),
       results: {
         [fetchKey]: result,
       },

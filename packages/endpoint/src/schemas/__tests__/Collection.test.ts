@@ -249,7 +249,7 @@ describe(`${schema.Collection.name} normalization`, () => {
           },
         },
       },
-      entityMeta: {
+      entitiesMeta: {
         [User.schema.todos.key]: {
           '{"userId":"1"}': {
             date: 1557831718135,
@@ -456,7 +456,7 @@ describe(`${schema.Collection.name} denormalization`, () => {
         },
       },
     },
-    entityMeta: {
+    entitiesMeta: {
       [userTodos.key]: {
         '{"userId":"1"}': {
           date: 1557831718135,

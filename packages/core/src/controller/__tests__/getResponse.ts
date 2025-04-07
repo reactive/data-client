@@ -152,7 +152,7 @@ describe('Controller.getResponse()', () => {
     const state = {
       ...initialState,
       entities,
-      entityMeta: {
+      entitiesMeta: {
         Tacos: {
           1: { date: 1000000, expiresAt: 1100000, fetchedAt: 1000000 },
           2: { date: 2000000, expiresAt: 2100000, fetchedAt: 2000000 },

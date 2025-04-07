@@ -48,7 +48,7 @@ function useSuspense(endpoint, ...args)
     cacheResults,
     state.indexes,
     state.entities,
-    state.entityMeta,
+    state.entitiesMeta,
     meta,
     key,
   ]);

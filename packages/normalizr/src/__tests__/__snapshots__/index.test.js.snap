@@ -401,7 +401,7 @@ exports[`normalize can use fully custom entity classes 1`] = `
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "Children": {
       "4": {
         "date": 1557831718135,
@@ -446,7 +446,7 @@ exports[`normalize handles number ids when nesting 1`] = `
 exports[`normalize ignores null values 1`] = `
 {
   "entities": {},
-  "entityMeta": {},
+  "entitiesMeta": {},
   "indexes": {},
   "result": [
     null,
@@ -457,7 +457,7 @@ exports[`normalize ignores null values 1`] = `
 exports[`normalize ignores null values 2`] = `
 {
   "entities": {},
-  "entityMeta": {},
+  "entitiesMeta": {},
   "indexes": {},
   "result": [
     undefined,
@@ -468,7 +468,7 @@ exports[`normalize ignores null values 2`] = `
 exports[`normalize ignores null values 3`] = `
 {
   "entities": {},
-  "entityMeta": {},
+  "entitiesMeta": {},
   "indexes": {},
   "result": [
     false,
@@ -490,7 +490,7 @@ exports[`normalize normalizes entities 1`] = `
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "Tacos": {
       "1": {
         "date": 1557831718135,
@@ -524,7 +524,7 @@ exports[`normalize normalizes entities with circular references 1`] = `
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "User": {
       "123": {
         "date": 1557831718135,
@@ -572,7 +572,7 @@ exports[`normalize normalizes nested entities 1`] = `
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "Article": {
       "123": {
         "date": 1557831718135,
@@ -619,7 +619,7 @@ exports[`normalize normalizes schema with extra members 1`] = `
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "Tacos": {
       "1": {
         "date": 1557831718135,
@@ -669,7 +669,7 @@ exports[`normalize normalizes schema with extra members but not set 1`] = `
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "Tacos": {
       "1": {
         "date": 1557831718135,
@@ -707,7 +707,7 @@ exports[`normalize normalizes schema with indexes 1`] = `
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "MyTaco": {
       "1": {
         "date": 1557831718135,
@@ -754,7 +754,7 @@ exports[`normalize normalizes warns on schemas with unfound indexes 1`] = `
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "MyTaco": {
       "1": {
         "date": 1557831718135,
@@ -794,7 +794,7 @@ exports[`normalize passes over pre-normalized values 1`] = `
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "Article": {
       "123": {
         "date": 1557831718135,
@@ -811,7 +811,7 @@ exports[`normalize passes over pre-normalized values 1`] = `
 exports[`normalize passes over pre-normalized values 2`] = `
 {
   "entities": {},
-  "entityMeta": {},
+  "entitiesMeta": {},
   "indexes": {},
   "result": {
     "user": "1",
@@ -833,7 +833,7 @@ exports[`normalize uses the non-normalized input when getting the ID for an enti
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "Recommendations": {
       "456": {
         "date": 1557831718135,

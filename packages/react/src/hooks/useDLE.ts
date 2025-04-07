@@ -86,7 +86,7 @@ export default function useDLE<
     cacheResults,
     state.indexes,
     state.entities,
-    state.entityMeta,
+    state.entitiesMeta,
     meta,
     key,
   ]);

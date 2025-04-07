@@ -114,7 +114,7 @@ export type NormalizedSchema<
   entities: E;
   result: R;
   indexes: NormalizedIndex;
-  entityMeta: EntitiesToMeta<E>;
+  entitiesMeta: EntitiesToMeta<E>;
 };
 
 export interface StoreData<
@@ -122,7 +122,7 @@ export interface StoreData<
 > {
   entities: Readonly<E>;
   indexes: Readonly<NormalizedIndex>;
-  entityMeta: EntitiesToMeta<E>;
+  entitiesMeta: EntitiesToMeta<E>;
 }
 
 export type EntitiesToMeta<
