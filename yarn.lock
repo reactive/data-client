@@ -5860,11 +5860,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-navigation/core@npm:^7.8.0":
-  version: 7.8.0
-  resolution: "@react-navigation/core@npm:7.8.0"
+"@react-navigation/core@npm:^7.8.4":
+  version: 7.8.4
+  resolution: "@react-navigation/core@npm:7.8.4"
   dependencies:
-    "@react-navigation/routers": "npm:^7.3.2"
+    "@react-navigation/routers": "npm:^7.3.4"
     escape-string-regexp: "npm:^4.0.0"
     nanoid: "npm:3.3.8"
     query-string: "npm:^7.1.3"
@@ -5873,49 +5873,49 @@ __metadata:
     use-sync-external-store: "npm:^1.2.2"
   peerDependencies:
     react: ">= 18.2.0"
-  checksum: 10c0/5b3a227630461448f812536683702034f21f0ea319d8e8e00c6250cd29452d586a4108f0c75980d11bb6b81f5e800b0b331b0801d81722b91e93c9aacae6c4c4
+  checksum: 10c0/08ede5b56de5077b168f57007e5e883571d7289d9939e4a087dd0c628c2777311682727b7c2940275955e43e40acadebb713bdba4e13d2184bcee652f8a82988
   languageName: node
   linkType: hard
 
-"@react-navigation/elements@npm:^2.3.3":
-  version: 2.3.3
-  resolution: "@react-navigation/elements@npm:2.3.3"
+"@react-navigation/elements@npm:^2.3.7":
+  version: 2.3.7
+  resolution: "@react-navigation/elements@npm:2.3.7"
   dependencies:
     color: "npm:^4.2.3"
   peerDependencies:
     "@react-native-masked-view/masked-view": ">= 0.2.0"
-    "@react-navigation/native": ^7.1.1
+    "@react-navigation/native": ^7.1.5
     react: ">= 18.2.0"
     react-native: "*"
     react-native-safe-area-context: ">= 4.0.0"
   peerDependenciesMeta:
     "@react-native-masked-view/masked-view":
       optional: true
-  checksum: 10c0/793ccb262a1a375f0814798a5530071a846e6bd52c14381a44a6078b568e8d495f52bf45e948dbc50bb2603ec08f22dc2aaaf8e00aacc30a410516a4d15e2964
+  checksum: 10c0/4257f13a6bc30fd448035e992609f30e0c3c78b3cdab3ccbbd59c398d787a9004bfbbbd592ecb0985747a8aeb6e4593118eaad8a0a99b913c39be8d334412430
   languageName: node
   linkType: hard
 
 "@react-navigation/native-stack@npm:^7.0.0, @react-navigation/native-stack@npm:^7.2.0":
-  version: 7.3.5
-  resolution: "@react-navigation/native-stack@npm:7.3.5"
+  version: 7.3.9
+  resolution: "@react-navigation/native-stack@npm:7.3.9"
   dependencies:
-    "@react-navigation/elements": "npm:^2.3.3"
+    "@react-navigation/elements": "npm:^2.3.7"
     warn-once: "npm:^0.1.1"
   peerDependencies:
-    "@react-navigation/native": ^7.1.1
+    "@react-navigation/native": ^7.1.5
     react: ">= 18.2.0"
     react-native: "*"
     react-native-safe-area-context: ">= 4.0.0"
     react-native-screens: ">= 4.0.0"
-  checksum: 10c0/f5a8bdbbe0d654e65c601bb6168fd5fcb61747dc180e42e994fde798fbc93ee514e46feb4ffcd4dab3d1ddf05ea7389a9be7e08e16d500333c56bb95eb9c2fc7
+  checksum: 10c0/36b56125097b3e25708b1b04a3cc5df67d26d92069c45e45a800722d464ec3ed0a41d18073305f63440ecca50e42d05ab29c8c6719aa6e1b64a3e37cdef21e7e
   languageName: node
   linkType: hard
 
 "@react-navigation/native@npm:^7.0.0":
-  version: 7.1.1
-  resolution: "@react-navigation/native@npm:7.1.1"
+  version: 7.1.5
+  resolution: "@react-navigation/native@npm:7.1.5"
   dependencies:
-    "@react-navigation/core": "npm:^7.8.0"
+    "@react-navigation/core": "npm:^7.8.4"
     escape-string-regexp: "npm:^4.0.0"
     fast-deep-equal: "npm:^3.1.3"
     nanoid: "npm:3.3.8"
@@ -5923,16 +5923,16 @@ __metadata:
   peerDependencies:
     react: ">= 18.2.0"
     react-native: "*"
-  checksum: 10c0/79e359f5d3f3c5692177a1ed1d4e040049b0c51fc289df68a90d5e6d81dcd86d6733a277536ee7a1ca1d5d66c5420643aa058673d24cec59d42190dc77f57162
+  checksum: 10c0/854106e26cd82688e730c099861577a0f28d972ad6cfc6a514b63ec5a262740be86de8c0d338ce9eb8689a185014019008d91ab966cc13fd7c78961d692e39ff
   languageName: node
   linkType: hard
 
-"@react-navigation/routers@npm:^7.3.2":
-  version: 7.3.2
-  resolution: "@react-navigation/routers@npm:7.3.2"
+"@react-navigation/routers@npm:^7.3.4":
+  version: 7.3.4
+  resolution: "@react-navigation/routers@npm:7.3.4"
   dependencies:
     nanoid: "npm:3.3.8"
-  checksum: 10c0/c27a450ac7192e490808c5aa61c74b84e9c23c66f0ae97e73b78a8dc43c53e77ca9c8ea1e8b59c64994f104c6bee7ca9cedb45709b94ba3c843e85ea46390ec0
+  checksum: 10c0/a72bbfd0106a274f539cb675fb8d4901b7ed212f25a99e9323daa248d696000c01cfea875522da86dd98c591afa8cab1ed1a0800a57a2a290b81d81ac2c27d7d
   languageName: node
   linkType: hard
 
