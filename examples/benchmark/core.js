@@ -13,7 +13,7 @@ import {
   ProjectSchema,
   ProjectSchemaSimpleMerge,
   ProjectWithBuildTypesDescriptionSimpleMerge,
-  ProjectQuerySorted,
+  getSortedProjects,
   User,
   ProjectSchemaCollection,
 } from './schemas.js';
@@ -132,9 +132,6 @@ export default function addReducerSuite(suite) {
           );
         }
       })
-      .add('getResponse Query-sorted', () => {
-        return controller.get(ProjectQuerySorted, cachedState);
-      })
       .add('getResponse Collection', () => {
         return controllerCollection.getResponse(
           getProjectCollection,
@@ -146,6 +143,9 @@ export default function addReducerSuite(suite) {
           ProjectSchemaCollection.project,
           collectionState,
         );
+      })
+      .add('get Query-sorted', () => {
+        return controller.get(getSortedProjects, cachedState);
       })
       .add('setLong', () => {
         return controller.setResponse(getProject, data);

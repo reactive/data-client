@@ -10,8 +10,8 @@ import {
 import { printStatus } from './printStatus.js';
 import {
   ProjectSchema,
-  ProjectQuery,
-  ProjectQuerySorted,
+  AllProjects,
+  getSortedProjects,
   ProjectWithBuildTypesDescription,
   ProjectSchemaMixin,
   User,
@@ -19,16 +19,16 @@ import {
 import userData from './user.json' with { type: 'json' };
 
 const { result, entities } = normalize(ProjectSchema, data);
-const queryState = normalize(ProjectQuery, data);
+const queryState = normalize(AllProjects, data);
 const queryMemo = new MemoCache();
 queryState.result = queryMemo.buildQueryKey(
-  ProjectQuery,
+  AllProjects,
   [],
   queryState.entities,
   queryState.indexes,
 );
 const queryInfer = queryMemo.buildQueryKey(
-  ProjectQuerySorted,
+  getSortedProjects,
   [],
   queryState.entities,
   queryState.indexes,
@@ -47,7 +47,7 @@ export default function addNormlizrSuite(suite) {
   const memo = new MemoCache();
   // prime the cache
   memo.denormalize(ProjectSchema, result, entities, []);
-  memo.denormalize(ProjectQuery, queryState.result, queryState.entities, []);
+  memo.denormalize(AllProjects, queryState.result, queryState.entities, []);
 
   let curState = initialState;
   return suite
@@ -57,7 +57,7 @@ export default function addNormlizrSuite(suite) {
     })
     .add('infer All', () => {
       return new MemoCache().buildQueryKey(
-        ProjectQuery,
+        AllProjects,
         [],
         queryState.entities,
         queryState.indexes,
@@ -102,7 +102,7 @@ export default function addNormlizrSuite(suite) {
     })
     .add('denormalizeLong All withCache', () => {
       return memo.denormalize(
-        ProjectQuery,
+        AllProjects,
         queryState.result,
         queryState.entities,
         [],
@@ -110,7 +110,7 @@ export default function addNormlizrSuite(suite) {
     })
     .add('denormalizeLong Query-sorted withCache', () => {
       return memo.denormalize(
-        ProjectQuerySorted,
+        getSortedProjects,
         queryInfer,
         queryState.entities,
         [],

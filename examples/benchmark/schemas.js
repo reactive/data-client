@@ -87,10 +87,10 @@ export const ProjectSchemaMixin = {
   project: [ProjectWithBuildTypesDescriptionEntity],
 };
 
-export const ProjectQuery = {
+export const AllProjects = {
   project: new schema.All(ProjectWithBuildTypesDescription),
 };
-export const ProjectQuerySorted = new schema.Query(
+export const getSortedProjects = new schema.Query(
   new schema.All(ProjectWithBuildTypesDescription),
   entries => {
     return [...entries].sort((a, b) => a.name.localeCompare(b.name));
