@@ -30,7 +30,13 @@ export class BaseDelegate implements IBaseDelegate {
     };
   };
 
-  constructor(entities: EntityTable, indexes: NormalizedIndex) {
+  constructor({
+    entities,
+    indexes,
+  }: {
+    entities: EntityTable;
+    indexes: NormalizedIndex;
+  }) {
     this.entities = entities;
     this.indexes = indexes;
   }

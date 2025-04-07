@@ -29,11 +29,7 @@ export class NormalizeDelegate
   protected newIndexes = new Map<string, Map<string, any>>();
 
   constructor(
-    {
-      entities,
-      indexes,
-      entitiesMeta,
-    }: {
+    state: {
       entities: EntityTable;
       indexes: NormalizedIndex;
       entitiesMeta: {
@@ -48,8 +44,8 @@ export class NormalizeDelegate
     },
     actionMeta: { fetchedAt: number; date: number; expiresAt: number },
   ) {
-    super(entities, indexes);
-    this.entitiesMeta = entitiesMeta;
+    super(state);
+    this.entitiesMeta = state.entitiesMeta;
     this.meta = actionMeta;
     this.checkLoop = getCheckLoop();
   }

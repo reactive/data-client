@@ -76,7 +76,7 @@ describe.each([
           },
         });
         const users: DenormalizeNullable<typeof sortedUsers> | symbol =
-          new MemoCache().query(sortedUsers, [], state.entities, state.indexes);
+          new MemoCache().query(sortedUsers, [], state);
         expect(users).not.toEqual(expect.any(Symbol));
         if (typeof users === 'symbol') return;
         expect(users && users[0].name).toBe('Zeta');
@@ -101,12 +101,7 @@ describe.each([
           },
         });
         expect(
-          new MemoCache().query(
-            sortedUsers,
-            [{ asc: true }],
-            state.entities,
-            state.indexes,
-          ),
+          new MemoCache().query(sortedUsers, [{ asc: true }], state),
         ).toMatchSnapshot();
       });
 
@@ -120,12 +115,7 @@ describe.each([
             },
           },
         };
-        const data = new MemoCache().query(
-          sortedUsers,
-          [],
-          state.entities,
-          state.indexes,
-        );
+        const data = new MemoCache().query(sortedUsers, [], state);
 
         expect(createOutput(data)).toEqual(undefined);
       });
@@ -162,12 +152,7 @@ describe.each([
         });
         const totalCount:
           | DenormalizeNullable<typeof userCountByAdmin>
-          | symbol = new MemoCache().query(
-          userCountByAdmin,
-          [],
-          state.entities,
-          state.indexes,
-        );
+          | symbol = new MemoCache().query(userCountByAdmin, [], state);
 
         expect(totalCount).toBe(4);
         const nonAdminCount:
@@ -175,8 +160,7 @@ describe.each([
           | symbol = new MemoCache().query(
           userCountByAdmin,
           [{ isAdmin: false }],
-          state.entities,
-          state.indexes,
+          state,
         );
         expect(nonAdminCount).toBe(3);
         const adminCount:
@@ -184,8 +168,7 @@ describe.each([
           | symbol = new MemoCache().query(
           userCountByAdmin,
           [{ isAdmin: true }],
-          state.entities,
-          state.indexes,
+          state,
         );
         expect(adminCount).toBe(1);
         if (typeof totalCount === 'symbol') return;
@@ -226,12 +209,7 @@ describe('top level schema', () => {
         },
       },
     };
-    const users = new MemoCache().query(
-      sortedUsers,
-      [],
-      state.entities,
-      state.indexes,
-    );
+    const users = new MemoCache().query(sortedUsers, [], state);
     expect(users).not.toEqual(expect.any(Symbol));
     if (typeof users === 'symbol') return;
     expect(users && users[0].name).toBe('Zeta');
@@ -250,12 +228,7 @@ describe('top level schema', () => {
         },
       },
     };
-    const users = new MemoCache().query(
-      sortedUsers,
-      [],
-      state.entities,
-      state.indexes,
-    );
+    const users = new MemoCache().query(sortedUsers, [], state);
     expect(users).toBeUndefined();
   });
 
@@ -270,12 +243,7 @@ describe('top level schema', () => {
         return sorted.reverse();
       },
     );
-    const users = new MemoCache().query(
-      allSortedUsers,
-      [],
-      initialState.entities,
-      initialState.indexes,
-    );
+    const users = new MemoCache().query(allSortedUsers, [], initialState);
     expect(users).toBeUndefined();
   });
 
@@ -290,12 +258,7 @@ describe('top level schema', () => {
         return sorted.reverse();
       },
     );
-    const users = new MemoCache().query(
-      allSortedUsers,
-      [],
-      initialState.entities,
-      initialState.indexes,
-    );
+    const users = new MemoCache().query(allSortedUsers, [], initialState);
     expect(users).toBeUndefined();
   });
 
@@ -310,12 +273,7 @@ describe('top level schema', () => {
       },
     };
 
-    const value = new MemoCache().query(
-      sortedUsers,
-      [],
-      state.entities,
-      state.indexes,
-    );
+    const value = new MemoCache().query(sortedUsers, [], state);
 
     expect(value).toEqual(undefined);
   });

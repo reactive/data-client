@@ -625,14 +625,12 @@ describe('MemoCache', () => {
         }),
       });
       expect(
-        new MemoCache().buildQueryKey(
-          schema,
-          [{ id: 5 }],
-          {
+        new MemoCache().buildQueryKey(schema, [{ id: 5 }], {
+          entities: {
             [CoolerArticle.key]: { '5': {} },
           },
-          {},
-        ),
+          indexes: {},
+        }),
       ).toEqual({
         data: { article: 5 },
       });
@@ -645,14 +643,12 @@ describe('MemoCache', () => {
         }),
       });
       expect(
-        new MemoCache().buildQueryKey(
-          schema,
-          [5],
-          {
+        new MemoCache().buildQueryKey(schema, [5], {
+          entities: {
             [CoolerArticle.key]: { '5': {} },
           },
-          {},
-        ),
+          indexes: {},
+        }),
       ).toEqual({
         data: { article: '5' },
       });
@@ -665,14 +661,12 @@ describe('MemoCache', () => {
         }),
       });
       expect(
-        new MemoCache().buildQueryKey(
-          schema,
-          ['5'],
-          {
+        new MemoCache().buildQueryKey(schema, ['5'], {
+          entities: {
             [CoolerArticle.key]: { '5': {} },
           },
-          {},
-        ),
+          indexes: {},
+        }),
       ).toEqual({
         data: { article: '5' },
       });
@@ -683,14 +677,12 @@ describe('MemoCache', () => {
         data: new schemas.Array(CoolerArticle),
       };
       expect(
-        new MemoCache().buildQueryKey(
-          schema,
-          [{ id: 5 }],
-          {
+        new MemoCache().buildQueryKey(schema, [{ id: 5 }], {
+          entities: {
             [CoolerArticle.key]: { '5': {} },
           },
-          {},
-        ),
+          indexes: {},
+        }),
       ).toStrictEqual({
         data: undefined,
       });
@@ -699,14 +691,12 @@ describe('MemoCache', () => {
         data: [CoolerArticle],
       };
       expect(
-        new MemoCache().buildQueryKey(
-          schema2,
-          [{ id: 5 }],
-          {
+        new MemoCache().buildQueryKey(schema2, [{ id: 5 }], {
+          entities: {
             [CoolerArticle.key]: { '5': {} },
           },
-          {},
-        ),
+          indexes: {},
+        }),
       ).toStrictEqual({
         data: undefined,
       });
@@ -717,14 +707,12 @@ describe('MemoCache', () => {
         data: new schemas.Values(CoolerArticle),
       };
       expect(
-        new MemoCache().buildQueryKey(
-          schema,
-          [{ id: 5 }],
-          {
+        new MemoCache().buildQueryKey(schema, [{ id: 5 }], {
+          entities: {
             [CoolerArticle.key]: { '5': {} },
           },
-          {},
-        ),
+          indexes: {},
+        }),
       ).toStrictEqual({
         data: undefined,
       });
@@ -733,32 +721,28 @@ describe('MemoCache', () => {
     it('should be undefined with Union and type', () => {
       const schema = UnionResource.get.schema;
       expect(
-        new MemoCache().buildQueryKey(
-          schema,
-          [{ id: 5 }],
-          {
+        new MemoCache().buildQueryKey(schema, [{ id: 5 }], {
+          entities: {
             [CoolerArticle.key]: {
               '5': {},
             },
           },
-          {},
-        ),
+          indexes: {},
+        }),
       ).toBe(undefined);
     });
 
     it('should work with Union', () => {
       const schema = UnionResource.get.schema;
       expect(
-        new MemoCache().buildQueryKey(
-          schema,
-          [{ id: 5, type: 'first' }],
-          {
+        new MemoCache().buildQueryKey(schema, [{ id: 5, type: 'first' }], {
+          entities: {
             [FirstUnion.key]: {
               '5': {},
             },
           },
-          {},
-        ),
+          indexes: {},
+        }),
       ).toMatchInlineSnapshot(`
         {
           "id": 5,
@@ -773,16 +757,14 @@ describe('MemoCache', () => {
         data: CoolerArticle,
       };
       expect(
-        new MemoCache().buildQueryKey(
-          schema,
-          [{ id: 5 }],
-          {
+        new MemoCache().buildQueryKey(schema, [{ id: 5 }], {
+          entities: {
             [CoolerArticle.key]: {
               '5': {},
             },
           },
-          {},
-        ),
+          indexes: {},
+        }),
       ).toEqual({
         pagination: { next: '', previous: '' },
         data: 5,
@@ -795,22 +777,20 @@ describe('MemoCache', () => {
         data: IndexedUser,
       };
       expect(
-        new MemoCache().buildQueryKey(
-          schema,
-          [{ username: 'bob' }],
-          {
+        new MemoCache().buildQueryKey(schema, [{ username: 'bob' }], {
+          entities: {
             [IndexedUser.key]: {
               '5': {},
             },
           },
-          {
+          indexes: {
             [IndexedUser.key]: {
               username: {
                 bob: '5',
               },
             },
           },
-        ),
+        }),
       ).toEqual({
         pagination: { next: '', previous: '' },
         data: '5',
@@ -820,14 +800,16 @@ describe('MemoCache', () => {
           schema,
           [{ username: 'bob', mary: 'five' }],
           {
-            [IndexedUser.key]: {
-              '5': {},
+            entities: {
+              [IndexedUser.key]: {
+                '5': {},
+              },
             },
-          },
-          {
-            [IndexedUser.key]: {
-              username: {
-                bob: '5',
+            indexes: {
+              [IndexedUser.key]: {
+                username: {
+                  bob: '5',
+                },
               },
             },
           },
@@ -844,43 +826,39 @@ describe('MemoCache', () => {
         data: IndexedUser,
       };
       expect(
-        new MemoCache().buildQueryKey(
-          schema,
-          [{ username: 'bob' }],
-          {
+        new MemoCache().buildQueryKey(schema, [{ username: 'bob' }], {
+          entities: {
             [IndexedUser.key]: {
               '5': {},
             },
           },
-          {
+          indexes: {
             [IndexedUser.key]: {
               username: {
                 charles: '5',
               },
             },
           },
-        ),
+        }),
       ).toEqual({
         pagination: { next: '', previous: '' },
         data: undefined,
       });
       expect(
-        new MemoCache().buildQueryKey(
-          schema,
-          [{ hover: 'bob' }],
-          {
+        new MemoCache().buildQueryKey(schema, [{ hover: 'bob' }], {
+          entities: {
             [IndexedUser.key]: {
               '5': {},
             },
           },
-          {
+          indexes: {
             [IndexedUser.key]: {
               username: {
                 charles: '5',
               },
             },
           },
-        ),
+        }),
       ).toEqual({
         pagination: { next: '', previous: '' },
         data: undefined,
@@ -893,27 +871,19 @@ describe('MemoCache', () => {
         data: IndexedUser,
       };
       expect(
-        new MemoCache().buildQueryKey(
-          schema,
-          [{ username: 'bob' }],
-          {
-            [IndexedUser.key]: { '5': {} },
-          },
-          {},
-        ),
+        new MemoCache().buildQueryKey(schema, [{ username: 'bob' }], {
+          entities: { [IndexedUser.key]: { '5': {} } },
+          indexes: {},
+        }),
       ).toEqual({
         pagination: { next: '', previous: '' },
         data: undefined,
       });
       expect(
-        new MemoCache().buildQueryKey(
-          schema,
-          [{ hover: 'bob' }],
-          {
-            [IndexedUser.key]: { '5': {} },
-          },
-          {},
-        ),
+        new MemoCache().buildQueryKey(schema, [{ hover: 'bob' }], {
+          entities: { [IndexedUser.key]: { '5': {} } },
+          indexes: {},
+        }),
       ).toEqual({
         pagination: { next: '', previous: '' },
         data: undefined,
@@ -943,14 +913,12 @@ describe('MemoCache', () => {
           }),
         });
         expect(
-          new MemoCache().buildQueryKey(
-            schema,
-            ['5'],
-            {
+          new MemoCache().buildQueryKey(schema, ['5'], {
+            entities: {
               [MyEntity.key]: { '5': {} },
             },
-            {},
-          ),
+            indexes: {},
+          }),
         ).toEqual({
           data: { article: '5' },
         });
@@ -963,16 +931,16 @@ describe('MemoCache', () => {
           }),
         });
         const memo = new MemoCache();
-        expect(memo.buildQueryKey(schema, ['5'], {}, {})).toEqual({
+        expect(
+          memo.buildQueryKey(schema, ['5'], { entities: {}, indexes: {} }),
+        ).toEqual({
           data: { article: undefined },
         });
         expect(
-          memo.buildQueryKey(
-            schema,
-            ['5'],
-            { [MyEntity.key]: { '5': { id: '5', title: 'hi' } } },
-            {},
-          ),
+          memo.buildQueryKey(schema, ['5'], {
+            entities: { [MyEntity.key]: { '5': { id: '5', title: 'hi' } } },
+            indexes: {},
+          }),
         ).toEqual({
           data: { article: '5' },
         });
@@ -989,59 +957,51 @@ describe('MemoCache', () => {
           entities: { [MyEntity.key]: {} },
           indexes: {},
         };
-        const first = memo.buildQueryKey(
-          schema,
-          ['5'],
-          state.entities,
-          state.indexes,
-        );
+        const first = memo.buildQueryKey(schema, ['5'], state);
         it('should maintain referential equality', () => {
-          expect(
-            memo.buildQueryKey(schema, ['5'], state.entities, state.indexes),
-          ).toBe(first);
+          expect(memo.buildQueryKey(schema, ['5'], state)).toBe(first);
         });
         it('should not change on index update if not used', () => {
           expect(
-            memo.buildQueryKey(schema, ['5'], state.entities, {
-              [MyEntity.key]: {},
+            memo.buildQueryKey(schema, ['5'], {
+              ...state,
+              indexes: {
+                [MyEntity.key]: {},
+              },
             }),
           ).toBe(first);
         });
         it('should be new when entity is updated', () => {
-          const withEntity = memo.buildQueryKey(
-            schema,
-            ['5'],
-            { [MyEntity.key]: { '5': { id: '5', title: 'hi' } } },
-            state.indexes,
-          );
+          const withEntity = memo.buildQueryKey(schema, ['5'], {
+            entities: {
+              [MyEntity.key]: { '5': { id: '5', title: 'hi' } },
+            },
+            indexes: state.indexes,
+          });
           expect(withEntity).not.toBe(first);
           expect(withEntity.data).toEqual({ article: '5' });
         });
         it('should be the same if other entities are updated', () => {
-          const withEntity = memo.buildQueryKey(
-            schema,
-            ['5'],
-            {
+          const withEntity = memo.buildQueryKey(schema, ['5'], {
+            entities: {
               ...state.entities,
               ['another']: { '5': { id: '5', title: 'hi' } },
             },
-            state.indexes,
-          );
+            indexes: state.indexes,
+          });
           expect(withEntity).toBe(first);
         });
         it('should be the same if other entities of the same type are updated', () => {
-          const withEntity = memo.buildQueryKey(
-            schema,
-            ['5'],
-            {
+          const withEntity = memo.buildQueryKey(schema, ['5'], {
+            entities: {
               ...state.entities,
               [MyEntity.key]: {
                 ...state.entities[MyEntity.key],
                 '500': { id: '500', title: 'second title' },
               },
             },
-            state.indexes,
-          );
+            indexes: state.indexes,
+          });
           expect(withEntity).toBe(first);
         });
       });
@@ -1078,40 +1038,20 @@ describe('MemoCache', () => {
     });
 
     test('works with indexes', () => {
-      const m = new MemoCache().query(
-        Cat,
-        [{ username: 'm' }],
-        state.entities,
-        state.indexes,
-      );
+      const m = new MemoCache().query(Cat, [{ username: 'm' }], state);
       expect(m).toBeDefined();
       expect(m).toMatchSnapshot();
       expect(
-        new MemoCache().query(
-          Cat,
-          [{ username: 'doesnotexist' }],
-          state.entities,
-          state.indexes,
-        ),
+        new MemoCache().query(Cat, [{ username: 'doesnotexist' }], state),
       ).toBeUndefined();
     });
 
     test('works with pk', () => {
-      const m = new MemoCache().query(
-        Cat,
-        [{ id: '1' }],
-        state.entities,
-        state.indexes,
-      );
+      const m = new MemoCache().query(Cat, [{ id: '1' }], state);
       expect(m).toBeDefined();
       expect(m).toMatchSnapshot();
       expect(
-        new MemoCache().query(
-          Cat,
-          [{ id: 'doesnotexist' }],
-          state.entities,
-          state.indexes,
-        ),
+        new MemoCache().query(Cat, [{ id: 'doesnotexist' }], state),
       ).toBeUndefined();
     });
   });

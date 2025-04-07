@@ -620,8 +620,7 @@ describe(`${schema.Collection.name} denormalization`, () => {
     const queryKey = memo.buildQueryKey(
       userTodos,
       [{ userId: '1' }],
-      normalizeNested.entities,
-      normalizeNested.indexes,
+      normalizeNested,
     );
     expect(queryKey).toBeDefined();
     // now ensure our queryKey is usable
@@ -644,8 +643,7 @@ describe(`${schema.Collection.name} denormalization`, () => {
     const queryKey = memo.buildQueryKey(
       userTodos,
       [{ userId: '100' }],
-      normalizeNested.entities,
-      normalizeNested.indexes,
+      normalizeNested,
     );
     expect(queryKey).toBeUndefined();
   });
@@ -655,8 +653,7 @@ describe(`${schema.Collection.name} denormalization`, () => {
     const queryKey = memo.buildQueryKey(
       User.schema.todos,
       [{ userId: '1' }],
-      normalizeNested.entities,
-      normalizeNested.indexes,
+      normalizeNested,
     );
     expect(queryKey).toBeUndefined();
   });
