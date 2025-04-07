@@ -589,7 +589,8 @@ export default class Controller<
       .slice(0, rest.length - 1)
       .map(ensurePojo) as SchemaArgs<S>;
 
-    return this.memo.query(schema, args, state);
+    const { data } = this.memo.query(schema, args, state);
+    return typeof data === 'symbol' ? undefined : (data as any);
   }
 
   /**
@@ -612,27 +613,10 @@ export default class Controller<
       .slice(0, rest.length - 1)
       .map(ensurePojo) as SchemaArgs<S>;
 
-    // TODO: breaking: Switch back to this.memo.query(schema, args, state.entities as any, state.indexes) to do
-    // this logic
-    const input = this.memo.buildQueryKey(
-      schema,
-      args,
-      state,
-      JSON.stringify(args),
-    );
+    const { data, paths } = this.memo.query(schema, args, state);
 
-    if (!input) {
-      return { data: undefined, countRef: () => () => undefined };
-    }
-
-    const { data, paths } = this.memo.denormalize(
-      schema,
-      input,
-      state.entities,
-      args,
-    );
     return {
-      data: typeof data === 'symbol' ? undefined : (data as any),
+      data: typeof data === 'symbol' ? undefined : data,
       countRef: this.gcPolicy.createCountRef({ paths }),
     };
   }

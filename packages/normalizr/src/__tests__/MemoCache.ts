@@ -1038,11 +1038,11 @@ describe('MemoCache', () => {
     });
 
     test('works with indexes', () => {
-      const m = new MemoCache().query(Cat, [{ username: 'm' }], state);
+      const m = new MemoCache().query(Cat, [{ username: 'm' }], state).data;
       expect(m).toBeDefined();
       expect(m).toMatchSnapshot();
       expect(
-        new MemoCache().query(Cat, [{ username: 'doesnotexist' }], state),
+        new MemoCache().query(Cat, [{ username: 'doesnotexist' }], state).data,
       ).toBeUndefined();
     });
 
@@ -1051,7 +1051,7 @@ describe('MemoCache', () => {
       expect(m).toBeDefined();
       expect(m).toMatchSnapshot();
       expect(
-        new MemoCache().query(Cat, [{ id: 'doesnotexist' }], state),
+        new MemoCache().query(Cat, [{ id: 'doesnotexist' }], state).data,
       ).toBeUndefined();
     });
   });
