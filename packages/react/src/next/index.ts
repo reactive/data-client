@@ -1,1 +1,1 @@
-export { default as useDebounce } from './useDebounce.js';
+export { default as useDebounce } from '../hooks/useDebounce.js';

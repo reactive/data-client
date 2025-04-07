@@ -16,15 +16,15 @@ describe('useDebounce()', () => {
       },
       { initialProps: { value: 'initial' } },
     );
-    expect(result.current).toBe('initial');
+    expect(result.current).toEqual(['initial', false]);
     jest.advanceTimersByTime(10);
     rerender({ value: 'next' });
     rerender({ value: 'third' });
-    expect(result.current).toBe('initial');
+    expect(result.current).toEqual(['initial', false]);
     act(() => {
       jest.advanceTimersByTime(100);
     });
-    expect(result.current).toBe('third');
+    expect(result.current).toEqual(['third', false]);
   });
 
   it('should never update when updatable is false', () => {
@@ -34,20 +34,20 @@ describe('useDebounce()', () => {
       },
       { initialProps: { value: 'initial', updatable: false } },
     );
-    expect(result.current).toBe('initial');
+    expect(result.current).toEqual(['initial', false]);
     jest.advanceTimersByTime(10);
     rerender({ value: 'next', updatable: false });
     act(() => {
       jest.advanceTimersByTime(100);
     });
-    expect(result.current).toBe('initial');
+    expect(result.current).toEqual(['initial', false]);
     rerender({ value: 'third', updatable: true });
-    expect(result.current).toBe('initial');
+    expect(result.current).toEqual(['initial', false]);
     jest.advanceTimersByTime(10);
-    expect(result.current).toBe('initial');
+    expect(result.current).toEqual(['initial', false]);
     act(() => {
       jest.advanceTimersByTime(100);
     });
-    expect(result.current).toBe('third');
+    expect(result.current).toEqual(['third', false]);
   });
 });

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 
 /**
  * Keeps value updated after delay time
@@ -9,27 +9,33 @@ import { useEffect, useState } from 'react';
  * @param updatable Whether to update at all
  * @example
  ```
- const debouncedFilter = useDebounce(filter, 200);
- const list = useSuspense(getThings, { filter: debouncedFilter });
+ const [debouncedQuery, isPending] = useDebounce(query, 200);
+ const list = useSuspense(getThings, { query: debouncedQuery });
  ```
  */
 export default function useDebounce<T>(
   value: T,
   delay: number,
   updatable = true,
-) {
+): [T, boolean] {
   const [debouncedValue, setDebouncedValue] = useState(value);
+  const [isPending, startTransition] = useTran();
 
   useEffect(() => {
     if (!updatable) return;
 
     const handler = setTimeout(() => {
-      setDebouncedValue(value);
+      startTransition(() => setDebouncedValue(value));
     }, delay);
     return () => {
       clearTimeout(handler);
     };
   }, [value, delay, updatable]);
 
-  return debouncedValue;
+  return [debouncedValue, isPending];
 }
+
+// compatibility with older react versions
+const useTran =
+  useTransition ?? /* istanbul ignore next */ (() => [false, identityRun]);
+const identityRun = (fun: (...args: any) => any) => fun();
