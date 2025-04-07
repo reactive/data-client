@@ -514,13 +514,7 @@ export default class Controller<
     const input =
       shouldQuery ?
         // nothing in endpoints cache, so try querying if we have a schema to do so
-        this.memo.buildQueryKey(
-          schema,
-          args,
-          state.entities as any,
-          state.indexes,
-          key,
-        )
+        this.memo.buildQueryKey(schema, args, state, key)
       : cacheEndpoints;
 
     if (!isActive) {
@@ -595,7 +589,7 @@ export default class Controller<
       .slice(0, rest.length - 1)
       .map(ensurePojo) as SchemaArgs<S>;
 
-    return this.memo.query(schema, args, state.entities as any, state.indexes);
+    return this.memo.query(schema, args, state);
   }
 
   /**
@@ -623,8 +617,7 @@ export default class Controller<
     const input = this.memo.buildQueryKey(
       schema,
       args,
-      state.entities as any,
-      state.indexes,
+      state,
       JSON.stringify(args),
     );
 

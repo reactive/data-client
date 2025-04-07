@@ -21,18 +21,8 @@ import userData from './user.json' with { type: 'json' };
 const { result, entities } = normalize(ProjectSchema, data);
 const queryState = normalize(AllProjects, data);
 const queryMemo = new MemoCache();
-queryState.result = queryMemo.buildQueryKey(
-  AllProjects,
-  [],
-  queryState.entities,
-  queryState.indexes,
-);
-const queryInfer = queryMemo.buildQueryKey(
-  getSortedProjects,
-  [],
-  queryState.entities,
-  queryState.indexes,
-);
+queryState.result = queryMemo.buildQueryKey(AllProjects, [], queryState);
+const queryInfer = queryMemo.buildQueryKey(getSortedProjects, [], queryState);
 
 let githubState = normalize(User, userData);
 
@@ -56,12 +46,7 @@ export default function addNormlizrSuite(suite) {
       curState = { ...initialState, entities: {}, endpoints: {} };
     })
     .add('infer All', () => {
-      return new MemoCache().buildQueryKey(
-        AllProjects,
-        [],
-        queryState.entities,
-        queryState.indexes,
-      );
+      return new MemoCache().buildQueryKey(AllProjects, [], queryState);
     })
     .add('denormalizeLong', () => {
       return new MemoCache().denormalize(ProjectSchema, result, entities);
@@ -86,12 +71,7 @@ export default function addNormlizrSuite(suite) {
     })
     .add('queryShort 500x withCache', () => {
       for (let i = 0; i < 500; ++i) {
-        memo.query(
-          User,
-          [{ login: 'gnoff' }],
-          githubState.entities,
-          githubState.indexes,
-        );
+        memo.query(User, [{ login: 'gnoff' }], githubState);
       }
     })
     .add('denormalizeLong with mixin Entity', () => {

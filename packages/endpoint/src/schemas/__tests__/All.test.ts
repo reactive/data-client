@@ -135,9 +135,7 @@ describe.each([
         indexes: {},
       });
       // use memocache because we don't support 'object' schemas in controller yet
-      expect(
-        new MemoCache().query(catSchema, [], state.entities, state.indexes),
-      ).toMatchSnapshot();
+      expect(new MemoCache().query(catSchema, [], state)).toMatchSnapshot();
     });
 
     test('denormalizes nested in object with primitive', () => {
@@ -152,12 +150,7 @@ describe.each([
         },
         indexes: {},
       });
-      const value = new MemoCache().query(
-        catSchema,
-        [],
-        state.entities,
-        state.indexes,
-      );
+      const value = new MemoCache().query(catSchema, [], state);
       expect(value).not.toEqual(expect.any(Symbol));
       if (typeof value === 'symbol' || value === undefined) return;
       expect(createOutput(value.results)).toMatchSnapshot();
@@ -178,12 +171,7 @@ describe.each([
         },
         indexes: {},
       });
-      const value = new MemoCache().query(
-        catSchema,
-        [],
-        state.entities,
-        state.indexes,
-      );
+      const value = new MemoCache().query(catSchema, [], state);
       expect(value).not.toEqual(expect.any(Symbol));
       if (typeof value === 'symbol' || value === undefined) return;
       expect(createOutput(value.results).length).toBe(2);
@@ -206,11 +194,11 @@ describe.each([
         indexes: {},
       };
       const memo = new MemoCache();
-      const value = memo.query(catSchema, [], state.entities, state.indexes);
+      const value = memo.query(catSchema, [], state);
 
       expect(createOutput(value).results?.length).toBe(2);
       expect(createOutput(value).results).toMatchSnapshot();
-      const value2 = memo.query(catSchema, [], state.entities, state.indexes);
+      const value2 = memo.query(catSchema, [], state);
       expect(createOutput(value).results[0]).toBe(
         createOutput(value2).results[0],
       );
@@ -226,7 +214,7 @@ describe.each([
           },
         },
       };
-      const value3 = memo.query(catSchema, [], state.entities, state.indexes);
+      const value3 = memo.query(catSchema, [], state);
       expect(createOutput(value3).results?.length).toBe(3);
       expect(createOutput(value3).results).toMatchSnapshot();
       expect(createOutput(value).results[0]).toBe(
@@ -250,12 +238,7 @@ describe.each([
         },
         indexes: {},
       });
-      const value = new MemoCache().query(
-        catSchema,
-        [],
-        state.entities,
-        state.indexes,
-      );
+      const value = new MemoCache().query(catSchema, [], state);
       expect(createOutput(value)).toBeUndefined();
     });
 
@@ -287,12 +270,7 @@ describe.each([
         },
         indexes: {},
       });
-      const value = new MemoCache().query(
-        listSchema,
-        [],
-        state.entities,
-        state.indexes,
-      );
+      const value = new MemoCache().query(listSchema, [], state);
       expect(createOutput(value)).toBeUndefined();
     });
 
@@ -355,12 +333,7 @@ describe.each([
         },
         indexes: {},
       });
-      const value = new MemoCache().query(
-        listSchema,
-        [],
-        state.entities,
-        state.indexes,
-      );
+      const value = new MemoCache().query(listSchema, [], state);
       expect(value).not.toEqual(expect.any(Symbol));
       if (typeof value === 'symbol') return;
       expect(value).toMatchSnapshot();

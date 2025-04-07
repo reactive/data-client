@@ -10,10 +10,13 @@ export class DelegateImmutable implements IBaseDelegate {
   declare entities: ImmutableJSEntityTable;
   declare indexes: ImmutableJSEntityTable;
 
-  constructor(
-    entities: ImmutableJSEntityTable,
-    indexes: ImmutableJSEntityTable,
-  ) {
+  constructor({
+    entities,
+    indexes,
+  }: {
+    entities: ImmutableJSEntityTable;
+    indexes: ImmutableJSEntityTable;
+  }) {
     this.entities = entities;
     this.indexes = indexes;
   }

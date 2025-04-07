@@ -68,42 +68,24 @@ export default class MemoCache {
   query<S extends Schema>(
     schema: S,
     args: readonly any[],
-    entities:
-      | Record<string, Record<string, any> | undefined>
-      | {
-          getIn(k: string[]): any;
-        },
-    indexes:
-      | NormalizedIndex
-      | {
-          getIn(k: string[]): any;
-        },
+    state: StateInterface,
     // NOTE: different orders can result in cache busting here; but since it's just a perf penalty we will allow for now
     argsKey: string = JSON.stringify(args),
   ): DenormalizeNullable<S> | undefined {
-    const input = this.buildQueryKey(schema, args, entities, indexes, argsKey);
+    const input = this.buildQueryKey(schema, args, state, argsKey);
 
     if (!input) {
       return;
     }
 
-    const { data } = this.denormalize(schema, input, entities, args);
+    const { data } = this.denormalize(schema, input, state.entities, args);
     return typeof data === 'symbol' ? undefined : (data as any);
   }
 
   buildQueryKey<S extends Schema>(
     schema: S,
     args: readonly any[],
-    entities:
-      | Record<string, Record<string, any> | undefined>
-      | {
-          getIn(k: string[]): any;
-        },
-    indexes:
-      | NormalizedIndex
-      | {
-          getIn(k: string[]): any;
-        },
+    state: StateInterface,
     // NOTE: different orders can result in cache busting here; but since it's just a perf penalty we will allow for now
     argsKey: string = JSON.stringify(args),
   ): NormalizeNullable<S> {
@@ -127,12 +109,11 @@ export default class MemoCache {
       any
     >;
 
-    const imm = isImmutable(entities);
+    const imm = isImmutable(state.entities);
 
     // TODO: remove casting when we split this to immutable vs plain implementations
     const baseDelegate = new (imm ? DelegateImmutable : BaseDelegate)(
-      entities as any,
-      indexes as any,
+      state as any,
     );
     // eslint-disable-next-line prefer-const
     let [value, paths] = queryCache.get(
@@ -153,3 +134,16 @@ export default class MemoCache {
     return value;
   }
 }
+
+type StateInterface = {
+  entities:
+    | Record<string, Record<string, any> | undefined>
+    | {
+        getIn(k: string[]): any;
+      };
+  indexes:
+    | NormalizedIndex
+    | {
+        getIn(k: string[]): any;
+      };
+};
