@@ -66,6 +66,7 @@ export interface EntityInterface<T = any> extends SchemaSimple {
 }
 
 export interface Mergeable {
+  key: string;
   merge(existing: any, incoming: any): any;
   mergeWithStore(
     existingMeta: any,
@@ -142,7 +143,7 @@ export interface INormalizeDelegate {
   getEntity: GetEntity;
   /** Updates an entity using merge lifecycles when it has previously been set */
   mergeEntity(
-    schema: Mergeable & { key: string; indexes?: any },
+    schema: Mergeable & { indexes?: any },
     pk: string,
     incomingEntity: any,
   ): void;

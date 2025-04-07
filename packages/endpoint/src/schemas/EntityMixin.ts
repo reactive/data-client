@@ -3,6 +3,7 @@ import type {
   Visit,
   IQueryDelegate,
   INormalizeDelegate,
+  Mergeable,
 } from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
 import { INVALID } from '../special.js';
@@ -15,7 +16,6 @@ import type {
   Constructor,
   PKClass,
 } from './EntityTypes.js';
-import { Mergeable } from './Mergeable.js';
 
 /**
  * Turns any class into an Entity.
@@ -105,14 +105,28 @@ export default function EntityMixin<TBase extends Constructor>(
      *
      * @see https://dataclient.io/rest/api/Entity#shouldUpdate
      */
-    declare static shouldUpdate: typeof Mergeable.prototype.shouldUpdate;
+    static shouldUpdate(
+      existingMeta: { date: number; fetchedAt: number },
+      incomingMeta: { date: number; fetchedAt: number },
+      existing: any,
+      incoming: any,
+    ) {
+      return true;
+    }
 
     /** Determines the order of incoming entity vs entity already in store\
      *
      * @see https://dataclient.io/rest/api/Entity#shouldReorder
      * @returns true if incoming entity should be first argument of merge()
      */
-    declare static shouldReorder: typeof Mergeable.prototype.shouldReorder;
+    static shouldReorder(
+      existingMeta: { date: number; fetchedAt: number },
+      incomingMeta: { date: number; fetchedAt: number },
+      existing: any,
+      incoming: any,
+    ) {
+      return incomingMeta.fetchedAt < existingMeta.fetchedAt;
+    }
 
     /** Creates new instance copying over defined values of arguments
      *
@@ -129,13 +143,58 @@ export default function EntityMixin<TBase extends Constructor>(
      *
      * @see https://dataclient.io/rest/api/Entity#mergeWithStore
      */
-    declare static mergeWithStore: typeof Mergeable.prototype.mergeWithStore;
+    static mergeWithStore(
+      existingMeta: {
+        date: number;
+        fetchedAt: number;
+      },
+      incomingMeta: { date: number; fetchedAt: number },
+      existing: any,
+      incoming: any,
+    ) {
+      const shouldUpdate = this.shouldUpdate(
+        existingMeta,
+        incomingMeta,
+        existing,
+        incoming,
+      );
+
+      if (shouldUpdate) {
+        // distinct types are not mergeable (like delete symbol), so just replace
+        if (typeof incoming !== typeof existing) {
+          return incoming;
+        } else {
+          return (
+              this.shouldReorder(existingMeta, incomingMeta, existing, incoming)
+            ) ?
+              this.merge(incoming, existing)
+            : this.merge(existing, incoming);
+        }
+      } else {
+        return existing;
+      }
+    }
 
     /** Run when an existing entity is found in the store
      *
      * @see https://dataclient.io/rest/api/Entity#mergeMetaWithStore
      */
-    declare static mergeMetaWithStore: typeof Mergeable.prototype.mergeMetaWithStore;
+    static mergeMetaWithStore(
+      existingMeta: {
+        fetchedAt: number;
+        date: number;
+        expiresAt: number;
+      },
+      incomingMeta: { fetchedAt: number; date: number; expiresAt: number },
+      existing: any,
+      incoming: any,
+    ) {
+      return (
+          this.shouldReorder(existingMeta, incomingMeta, existing, incoming)
+        ) ?
+          existingMeta
+        : incomingMeta;
+    }
 
     /** Factory method to convert from Plain JS Objects.
      *
@@ -315,13 +374,6 @@ export default function EntityMixin<TBase extends Constructor>(
         });
       return (this as any).__defaults;
     }
-  }
-
-  // Apply Mergeable instance methods to static side of EntityMixin
-  for (const key of Object.getOwnPropertyNames(Mergeable.prototype)) {
-    if (key === 'constructor') continue;
-
-    (EntityMixin as any)[key] = (Mergeable as any).prototype[key];
   }
 
   const { pk, schema, key, ...staticProps } = options;

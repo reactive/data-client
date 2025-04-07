@@ -37,6 +37,7 @@ interface EntityInterface<T = any> extends SchemaSimple {
     cacheWith?: object;
 }
 interface Mergeable {
+    key: string;
     merge(existing: any, incoming: any): any;
     mergeWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
     mergeMetaWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
@@ -90,7 +91,6 @@ interface INormalizeDelegate {
     getEntity: GetEntity;
     /** Updates an entity using merge lifecycles when it has previously been set */
     mergeEntity(schema: Mergeable & {
-        key: string;
         indexes?: any;
     }, pk: string, incomingEntity: any): void;
     /** Sets an entity overwriting any previously set values */

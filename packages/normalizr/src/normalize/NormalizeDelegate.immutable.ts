@@ -82,7 +82,7 @@
 
 //   // /** Updates an entity using merge lifecycles when it has previously been set */
 //   // mergeEntity(
-//   //   schema: Mergeable & { key: string; indexes?: any },
+//   //   schema: Mergeable & { indexes?: any },
 //   //   pk: string,
 //   //   incomingEntity: any,
 //   // ) {
