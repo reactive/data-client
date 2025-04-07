@@ -83,9 +83,7 @@ export default function makeRenderDataHook(
     // TODO: move to return value
     renderDataClient.cleanup = () => {
       nm.cleanupDate = Infinity;
-      Object.values(nm['rejectors'] as Record<string, any>).forEach(rej => {
-        rej();
-      });
+      nm['fetching'].forEach(({ reject }) => reject());
       nm['clearAll']();
       managers.forEach(manager => manager.cleanup());
     };

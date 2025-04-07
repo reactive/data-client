@@ -26,6 +26,7 @@ export {
   default as NetworkManager,
   ResetError,
 } from './manager/NetworkManager.js';
+export type { FetchingMeta } from './manager/NetworkManager.js';
 export * from './state/GCPolicy.js';
 export {
   default as createReducer,
