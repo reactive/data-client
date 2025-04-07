@@ -343,7 +343,7 @@ describe(`${schema.Entity.name} normalization`, () => {
         return false;
       }
     }
-    const { entities, entityMeta } = normalize(MyEntity, {
+    const { entities, entitiesMeta } = normalize(MyEntity, {
       id: '1',
       title: 'hi',
     });
@@ -351,7 +351,7 @@ describe(`${schema.Entity.name} normalization`, () => {
       MyEntity,
       { id: '1', title: 'second' },
       [],
-      { entities, entityMeta, indexes: {} },
+      { entities, entitiesMeta, indexes: {} },
     ).entities;
     expect(entities.MyEntity['1']).toBeDefined();
     expect(entities.MyEntity['1']).toBe(secondEntities.MyEntity['1']);
@@ -415,7 +415,7 @@ describe(`${schema.Entity.name} normalization`, () => {
             },
           },
         },
-        "entityMeta": {
+        "entitiesMeta": {
           "MyEntity": {
             "bob": {
               "date": 1557831718135,

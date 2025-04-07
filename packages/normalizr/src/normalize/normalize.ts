@@ -19,7 +19,7 @@ export const normalize = <
   schema: S | undefined,
   input: any,
   args: readonly any[] = [],
-  { entities, indexes, entityMeta }: StoreData<E> = emptyStore,
+  { entities, indexes, entitiesMeta }: StoreData<E> = emptyStore,
   meta: NormalizeMeta = { fetchedAt: 0, date: Date.now(), expiresAt: Infinity },
 ): NormalizedSchema<E, R> => {
   // no schema means we don't process at all
@@ -28,7 +28,7 @@ export const normalize = <
       result: input,
       entities,
       indexes,
-      entityMeta,
+      entitiesMeta,
     };
 
   const schemaType = expectedSchemaType(schema);
@@ -83,7 +83,7 @@ See https://dataclient.io/rest/api/RestEndpoint#parseResponse for more informati
     result: '' as any,
     entities: { ...entities },
     indexes: { ...indexes },
-    entityMeta: { ...entityMeta },
+    entitiesMeta: { ...entitiesMeta },
   };
   const visit = getVisit(new NormalizeDelegate(ret, meta));
   ret.result = visit(schema, input, input, undefined, args);
@@ -99,5 +99,5 @@ function expectedSchemaType(schema: Schema) {
 const emptyStore: StoreData<any> = {
   entities: {},
   indexes: {},
-  entityMeta: {},
+  entitiesMeta: {},
 };

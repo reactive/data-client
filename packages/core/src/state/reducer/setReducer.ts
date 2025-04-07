@@ -17,7 +17,7 @@ export function setReducer(
     value = action.value;
   }
   try {
-    const { entities, indexes, entityMeta } = normalize(
+    const { entities, indexes, entitiesMeta } = normalize(
       action.schema,
       value,
       action.args,
@@ -29,7 +29,7 @@ export function setReducer(
       endpoints: state.endpoints,
       indexes,
       meta: state.meta,
-      entityMeta,
+      entitiesMeta,
       optimistic: state.optimistic,
       lastReset: state.lastReset,
     };

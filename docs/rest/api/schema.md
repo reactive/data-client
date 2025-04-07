@@ -142,7 +142,7 @@ Now, `normalizedData` will create a single serializable source of truth for all 
   },
   // contents excluded for brevity
   indexes,
-  entityMeta,
+  entitiesMeta,
 }
 ```
 

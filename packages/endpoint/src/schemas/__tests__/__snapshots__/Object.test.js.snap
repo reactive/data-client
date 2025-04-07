@@ -165,7 +165,7 @@ exports[`ObjectSchema normalization filters out undefined and null values 1`] = 
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "User": {
       "1": {
         "date": 1557831718135,
@@ -190,7 +190,7 @@ exports[`ObjectSchema normalization normalizes an object 1`] = `
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "User": {
       "1": {
         "date": 1557831718135,
@@ -215,7 +215,7 @@ exports[`ObjectSchema normalization normalizes plain objects as shorthand for Ob
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "User": {
       "1": {
         "date": 1557831718135,
@@ -240,7 +240,7 @@ exports[`ObjectSchema normalization should deserialize Date 1`] = `
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "User": {
       "5": {
         "date": 1557831718135,
@@ -267,7 +267,7 @@ exports[`ObjectSchema normalization should pass over when Date not provided 1`] 
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "User": {
       "5": {
         "date": 1557831718135,

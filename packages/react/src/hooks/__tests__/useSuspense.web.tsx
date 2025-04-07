@@ -204,7 +204,7 @@ describe('useSuspense()', () => {
     const state = {
       ...initialState,
       entities,
-      entityMeta: createEntityMeta(entities),
+      entitiesMeta: createEntityMeta(entities),
       results: {
         [fetchKey]: result,
       },
@@ -241,7 +241,7 @@ describe('useSuspense()', () => {
       results: {
         [fetchKey]: result,
       },
-      entityMeta: createEntityMeta(entities),
+      entitiesMeta: createEntityMeta(entities),
       meta: {
         [fetchKey]: {
           date: Infinity,
@@ -273,7 +273,7 @@ describe('useSuspense()', () => {
       results: {
         [fetchKey]: result,
       },
-      entityMeta: createEntityMeta(entities),
+      entitiesMeta: createEntityMeta(entities),
       meta: {
         [fetchKey]: {
           date: 0,
@@ -307,7 +307,7 @@ describe('useSuspense()', () => {
       results: {
         [fetchKey]: payload,
       },
-      entityMeta: {},
+      entitiesMeta: {},
       meta: {
         [fetchKey]: {
           date: 0,

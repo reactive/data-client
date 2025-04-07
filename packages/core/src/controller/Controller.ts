@@ -563,7 +563,7 @@ export default class Controller<
       // note: isInvalid can only be true if shouldQuery is true
       if (isInvalid) expiresAt = 1;
       // fallback to entity expiry time
-      else expiresAt = entityExpiresAt(paths, state.entityMeta);
+      else expiresAt = entityExpiresAt(paths, state.entitiesMeta);
     }
 
     return {
@@ -664,7 +664,7 @@ export default class Controller<
 // earliest expiry dictates age
 function entityExpiresAt(
   paths: EntityPath[],
-  entityMeta: {
+  entitiesMeta: {
     readonly [entityKey: string]: {
       readonly [pk: string]: {
         readonly date: number;
@@ -676,7 +676,7 @@ function entityExpiresAt(
 ) {
   let expiresAt = Infinity;
   for (const { pk, key } of paths) {
-    const entityExpiry = entityMeta[key]?.[pk]?.expiresAt;
+    const entityExpiry = entitiesMeta[key]?.[pk]?.expiresAt;
     // expiresAt will always resolve to false with any comparison
     if (entityExpiry < expiresAt) expiresAt = entityExpiry;
   }

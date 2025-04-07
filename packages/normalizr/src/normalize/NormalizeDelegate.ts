@@ -12,7 +12,7 @@ export class NormalizeDelegate
   extends BaseDelegate
   implements INormalizeDelegate
 {
-  declare readonly entityMeta: {
+  declare readonly entitiesMeta: {
     [entityKey: string]: {
       [pk: string]: {
         date: number;
@@ -32,11 +32,11 @@ export class NormalizeDelegate
     {
       entities,
       indexes,
-      entityMeta,
+      entitiesMeta,
     }: {
       entities: EntityTable;
       indexes: NormalizedIndex;
-      entityMeta: {
+      entitiesMeta: {
         [entityKey: string]: {
           [pk: string]: {
             date: number;
@@ -49,7 +49,7 @@ export class NormalizeDelegate
     actionMeta: { fetchedAt: number; date: number; expiresAt: number },
   ) {
     super(entities, indexes);
-    this.entityMeta = entityMeta;
+    this.entitiesMeta = entitiesMeta;
     this.meta = actionMeta;
     this.checkLoop = getCheckLoop();
   }
@@ -66,8 +66,8 @@ export class NormalizeDelegate
       this.entities[key] = {
         ...this.entities[key],
       };
-      this.entityMeta[key] = {
-        ...this.entityMeta[key],
+      this.entitiesMeta[key] = {
+        ...this.entitiesMeta[key],
       };
     }
 
@@ -161,11 +161,11 @@ export class NormalizeDelegate
     pk: string,
     meta: { fetchedAt: number; date: number; expiresAt: number },
   ) {
-    this.entityMeta[key][pk] = meta;
+    this.entitiesMeta[key][pk] = meta;
   }
 
   getMeta(key: string, pk: string) {
-    return this.entityMeta[key][pk];
+    return this.entitiesMeta[key][pk];
   }
 }
 

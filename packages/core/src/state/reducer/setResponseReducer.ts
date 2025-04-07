@@ -41,7 +41,7 @@ export function setResponseReducer(
     } else {
       response = action.response;
     }
-    const { result, entities, indexes, entityMeta } = normalize(
+    const { result, entities, indexes, entitiesMeta } = normalize(
       action.endpoint.schema,
       response,
       action.args,
@@ -80,7 +80,7 @@ export function setResponseReducer(
           prevExpiresAt: state.meta[action.key]?.expiresAt,
         },
       },
-      entityMeta,
+      entitiesMeta,
       optimistic: filterOptimistic(state, action),
       lastReset: state.lastReset,
     };

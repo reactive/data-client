@@ -81,7 +81,7 @@
     "1",
     "2"
   ],
-  "entityMeta": {
+  "entitiesMeta": {
     "User": {
       "123": {
         "expiresAt": null,

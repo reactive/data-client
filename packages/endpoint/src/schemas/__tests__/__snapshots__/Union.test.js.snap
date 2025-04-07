@@ -10,7 +10,7 @@ exports[`UnionSchema normalization normalizes an array of multiple entities usin
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "User": {
       "1": {
         "date": 1557831718135,
@@ -37,7 +37,7 @@ exports[`UnionSchema normalization normalizes an array of multiple entities usin
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "Group": {
       "2": {
         "date": 1557831718135,
@@ -57,7 +57,7 @@ exports[`UnionSchema normalization normalizes an array of multiple entities usin
 exports[`UnionSchema normalization normalizes an array of multiple entities using a function to infer the schemaAttribute 3`] = `
 {
   "entities": {},
-  "entityMeta": {},
+  "entitiesMeta": {},
   "indexes": {},
   "result": {
     "id": "3",
@@ -90,7 +90,7 @@ exports[`UnionSchema normalization normalizes an object using string schemaAttri
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "User": {
       "1": {
         "date": 1557831718135,
@@ -117,7 +117,7 @@ exports[`UnionSchema normalization normalizes an object using string schemaAttri
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "Group": {
       "2": {
         "date": 1557831718135,
@@ -307,7 +307,7 @@ exports[`complex case works with undefined 1`] = `
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "ContinuousSequence": {
       "22": {
         "date": 1557831718135,

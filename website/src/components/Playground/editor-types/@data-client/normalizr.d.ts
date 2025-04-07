@@ -200,12 +200,12 @@ type NormalizedSchema<E extends Record<string, Record<string, any> | undefined>,
     entities: E;
     result: R;
     indexes: NormalizedIndex;
-    entityMeta: EntitiesToMeta<E>;
+    entitiesMeta: EntitiesToMeta<E>;
 };
 interface StoreData<E extends Record<string, Record<string, any> | undefined>> {
     entities: Readonly<E>;
     indexes: Readonly<NormalizedIndex>;
-    entityMeta: EntitiesToMeta<E>;
+    entitiesMeta: EntitiesToMeta<E>;
 }
 type EntitiesToMeta<E extends Record<string, Record<string, any> | undefined>> = {
     readonly [entityKey in keyof E]: {
@@ -241,7 +241,7 @@ interface Dep<Path, K = object> {
     entity: K;
 }
 
-declare const normalize: <S extends Schema = Schema, E extends Record<string, Record<string, any> | undefined> = Record<string, Record<string, any>>, R = NormalizeNullable<S>>(schema: S | undefined, input: any, args?: readonly any[], { entities, indexes, entityMeta }?: StoreData<E>, meta?: NormalizeMeta) => NormalizedSchema<E, R>;
+declare const normalize: <S extends Schema = Schema, E extends Record<string, Record<string, any> | undefined> = Record<string, Record<string, any>>, R = NormalizeNullable<S>>(schema: S | undefined, input: any, args?: readonly any[], { entities, indexes, entitiesMeta }?: StoreData<E>, meta?: NormalizeMeta) => NormalizedSchema<E, R>;
 
 interface EntityCache extends Map<string, Map<string, WeakMap<EntityInterface, WeakDependencyMap<EntityPath, object, any>>>> {
 }

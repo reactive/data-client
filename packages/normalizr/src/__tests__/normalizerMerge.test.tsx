@@ -8,7 +8,7 @@ describe('normalizer() merging', () => {
   describe('with instance.constructor.merge()', () => {
     it('should merge two Resource instances', () => {
       const id = 20;
-      const { entities: first, entityMeta: firstEM } = normalize(Article, {
+      const { entities: first, entitiesMeta: firstEM } = normalize(Article, {
         id,
         title: 'hi',
         content: 'this is the content',
@@ -18,7 +18,7 @@ describe('normalizer() merging', () => {
         Article,
         { id, title: 'hello' },
         [],
-        { entities: first, entityMeta: firstEM, indexes: {} },
+        { entities: first, entitiesMeta: firstEM, indexes: {} },
       );
 
       const merged = denormalize(Article, result, entities);
@@ -59,7 +59,7 @@ describe('normalizer() merging', () => {
         Article,
         { id, title: 'hi', content: 'this is the content' },
         [],
-        { entities: entitiesA, indexes: {}, entityMeta: entitiesMetaA },
+        { entities: entitiesA, indexes: {}, entitiesMeta: entitiesMetaA },
       );
 
       expect(entities[Article.key][42]).toBe(entitiesA[Article.key][42]);
@@ -69,7 +69,7 @@ describe('normalizer() merging', () => {
   describe('basics', function () {
     it('should assign `null` values', () => {
       const id = 20;
-      const { entities: first, entityMeta: firstEM } = normalize(Article, {
+      const { entities: first, entitiesMeta: firstEM } = normalize(Article, {
         id,
         title: 'hi',
         content: 'this is the content',
@@ -77,7 +77,7 @@ describe('normalizer() merging', () => {
 
       const { result, entities } = normalize(Article, { id, title: null }, [], {
         entities: first,
-        entityMeta: firstEM,
+        entitiesMeta: firstEM,
         indexes: {},
       });
 
@@ -94,7 +94,7 @@ describe('normalizer() merging', () => {
 
     it('should not augment source objects', () => {
       const id = 20;
-      const { entities: first, entityMeta: firstMeta } = normalize(Article, {
+      const { entities: first, entitiesMeta: firstMeta } = normalize(Article, {
         id,
         title: 'hi',
         content: 'this is the content',
@@ -103,7 +103,7 @@ describe('normalizer() merging', () => {
       normalize(Article, { id, title: 'hello' }, [], {
         entities: first,
         indexes: {},
-        entityMeta: firstMeta,
+        entitiesMeta: firstMeta,
       });
 
       const merged = denormalize(Article, id, first);
@@ -119,7 +119,7 @@ describe('normalizer() merging', () => {
 
     it('should still clone even when overwriting', () => {
       const id = 20;
-      const { entities: first, entityMeta: firstMeta } = normalize(
+      const { entities: first, entitiesMeta: firstMeta } = normalize(
         new schema.Invalidate(Article),
         {
           id,
@@ -130,7 +130,7 @@ describe('normalizer() merging', () => {
       const { entities } = normalize(Article, nested, [], {
         entities: first,
         indexes: {},
-        entityMeta: firstMeta,
+        entitiesMeta: firstMeta,
       });
 
       expect(entities).toMatchInlineSnapshot(`

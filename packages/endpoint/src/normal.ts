@@ -106,7 +106,7 @@ export type NormalizedSchema<E, R> = {
   entities: E;
   result: R;
   indexes: NormalizedIndex;
-  entityMeta: {
+  entitiesMeta: {
     readonly [entityKey: string]: {
       readonly [pk: string]: {
         readonly date: number;

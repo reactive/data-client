@@ -48,7 +48,7 @@ describe('GCPolicy', () => {
           expiresAt: 0,
         },
       },
-      entityMeta: {
+      entitiesMeta: {
         testEntity: {
           '1': {
             date: 0,
@@ -90,7 +90,7 @@ describe('GCPolicy', () => {
           expiresAt: 0,
         },
       },
-      entityMeta: {
+      entitiesMeta: {
         testEntity: {
           '1': {
             date: 0,
@@ -127,7 +127,7 @@ describe('GCPolicy', () => {
     const paths: EntityPath[] = [{ key: 'testEntity', pk: '1' }];
     const state = {
       meta: {},
-      entityMeta: {},
+      entitiesMeta: {},
     };
     (controller.getState as jest.Mock).mockReturnValue(state);
 
@@ -163,7 +163,7 @@ describe('GCPolicy', () => {
           expiresAt: futureTime,
         },
       },
-      entityMeta: {
+      entitiesMeta: {
         testEntity: {
           '1': {
             date: futureTime - 100,
@@ -196,7 +196,7 @@ describe('GCPolicy', () => {
           expiresAt: 0,
         },
       },
-      entityMeta: {
+      entitiesMeta: {
         testEntity: {
           '1': {
             date: 0,
@@ -233,7 +233,7 @@ describe('GCPolicy', () => {
           expiresAt: futureTime,
         },
       },
-      entityMeta: {
+      entitiesMeta: {
         testEntity: {
           '1': {
             date: futureTime - 100,

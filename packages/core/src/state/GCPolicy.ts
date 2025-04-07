@@ -133,7 +133,7 @@ export class GCPolicy implements GCInterface {
       if (
         !this.entityCount.get(path.key)?.has(path.pk) &&
         this.expiresAt(
-          state.entityMeta[path.key]?.[path.pk] ?? {
+          state.entitiesMeta[path.key]?.[path.pk] ?? {
             fetchedAt: 0,
             date: 0,
             expiresAt: 0,

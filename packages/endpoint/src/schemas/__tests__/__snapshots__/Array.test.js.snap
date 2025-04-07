@@ -9,7 +9,7 @@ exports[`ArraySchema normalization (plain) Class does not filter out undefined a
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "User": {
       "123": {
         "date": 1557831718135,
@@ -39,7 +39,7 @@ exports[`ArraySchema normalization (plain) Class normalizes Objects using their 
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "User": {
       "1": {
         "date": 1557831718135,
@@ -73,7 +73,7 @@ exports[`ArraySchema normalization (plain) Class normalizes a single entity 1`] 
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "Cats": {
       "1": {
         "date": 1557831718135,
@@ -115,7 +115,7 @@ exports[`ArraySchema normalization (plain) Class normalizes multiple entities 1`
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "Cats": {
       "123": {
         "date": 1557831718135,
@@ -375,7 +375,7 @@ exports[`ArraySchema normalization (plain) Object normalizes Objects using their
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "User": {
       "1": {
         "date": 1557831718135,
@@ -416,7 +416,7 @@ exports[`ArraySchema normalization (plain) Object passes its parent to its child
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "Child": {
       "4": {
         "date": 1557831718135,
@@ -474,7 +474,7 @@ exports[`ArraySchema normalization (schema) Class does not filter out undefined 
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "User": {
       "123": {
         "date": 1557831718135,
@@ -504,7 +504,7 @@ exports[`ArraySchema normalization (schema) Class normalizes Objects using their
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "User": {
       "1": {
         "date": 1557831718135,
@@ -538,7 +538,7 @@ exports[`ArraySchema normalization (schema) Class normalizes a single entity 1`]
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "Cats": {
       "1": {
         "date": 1557831718135,
@@ -580,7 +580,7 @@ exports[`ArraySchema normalization (schema) Class normalizes multiple entities 1
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "Cats": {
       "123": {
         "date": 1557831718135,
@@ -840,7 +840,7 @@ exports[`ArraySchema normalization (schema) Object normalizes Objects using thei
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "User": {
       "1": {
         "date": 1557831718135,
@@ -881,7 +881,7 @@ exports[`ArraySchema normalization (schema) Object passes its parent to its chil
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "Child": {
       "4": {
         "date": 1557831718135,
@@ -1122,7 +1122,7 @@ exports[`input (direct) ArraySchema denormalization (class) does not assume mapp
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "Cat": {
       "1": {
         "date": 1557831718135,
@@ -1349,7 +1349,7 @@ exports[`input (direct) ArraySchema denormalization (object, direct) does not as
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "Cat": {
       "1": {
         "date": 1557831718135,
@@ -1614,7 +1614,7 @@ exports[`input (immutable) ArraySchema denormalization (class) does not assume m
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "Cat": {
       "1": {
         "date": 1557831718135,
@@ -1841,7 +1841,7 @@ exports[`input (immutable) ArraySchema denormalization (object, direct) does not
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "Cat": {
       "1": {
         "date": 1557831718135,
@@ -1926,7 +1926,7 @@ exports[`normalizes plain arrays as shorthand for ArraySchema 1`] = `
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "User": {
       "1": {
         "date": 1557831718135,

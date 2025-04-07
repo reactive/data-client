@@ -46,7 +46,7 @@ describe('Controller', () => {
         endpoints: {
           [fetchKey]: result,
         },
-        entityMeta: createEntityMeta(entities),
+        entitiesMeta: createEntityMeta(entities),
         meta: {
           [fetchKey]: {
             date: Date.now(),
@@ -85,7 +85,7 @@ describe('Controller', () => {
         endpoints: {
           [fetchKey]: result,
         },
-        entityMeta: createEntityMeta(entities),
+        entitiesMeta: createEntityMeta(entities),
         meta: {
           [fetchKey]: {
             date: 0,

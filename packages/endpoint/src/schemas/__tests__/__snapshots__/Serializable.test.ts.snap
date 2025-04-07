@@ -41,7 +41,7 @@ exports[`Serializable normalization normalizes date and custom as passthrough 1`
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "User": {
       "1": {
         "date": 1557831718135,
@@ -61,4 +61,4 @@ exports[`Serializable normalization normalizes date and custom as passthrough 1`
 }
 `;
 
-exports[`Serializable normalization normalizes date and custom as passthrough 2`] = `"{"result":{"user":"1","anotherItem":{"thing":500},"time":"2020-06-07T02:00:15+0000"},"entities":{"User":{"1":{"id":"1","name":"Nacho","createdAt":"2020-06-07T02:00:15+0000"}}},"indexes":{},"entityMeta":{"User":{"1":{"fetchedAt":0,"date":1557831718135,"expiresAt":null}}}}"`;
+exports[`Serializable normalization normalizes date and custom as passthrough 2`] = `"{"result":{"user":"1","anotherItem":{"thing":500},"time":"2020-06-07T02:00:15+0000"},"entities":{"User":{"1":{"id":"1","name":"Nacho","createdAt":"2020-06-07T02:00:15+0000"}}},"indexes":{},"entitiesMeta":{"User":{"1":{"fetchedAt":0,"date":1557831718135,"expiresAt":null}}}}"`;

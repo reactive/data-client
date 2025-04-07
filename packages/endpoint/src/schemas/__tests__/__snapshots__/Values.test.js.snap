@@ -16,7 +16,7 @@ exports[`ValuesSchema normalization can use a function to determine the schema w
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "Cat": {
       "1": {
         "date": 1557831718135,
@@ -74,7 +74,7 @@ exports[`ValuesSchema normalization filters out null and undefined values 1`] = 
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "Cat": {
       "1": {
         "date": 1557831718135,
@@ -109,7 +109,7 @@ exports[`ValuesSchema normalization normalizes the values of an object with the 
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "Cat": {
       "1": {
         "date": 1557831718135,
@@ -153,7 +153,7 @@ exports[`ValuesSchema normalization normalizes without schemaAttribute 1`] = `
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "MyEntity": {
       "1": {
         "date": 1557831718135,
@@ -249,7 +249,7 @@ exports[`ValuesSchema normalization works on complex object 1`] = `
       },
     },
   },
-  "entityMeta": {
+  "entitiesMeta": {
     "Estimate": {
       "BTC": {
         "date": 1557831718135,
