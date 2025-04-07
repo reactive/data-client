@@ -7,6 +7,7 @@ const generateConfig = makeConfig({
   serverDir: 'dist',
   babelLoader: {
     rootMode: 'upward',
+    cacheDirectory: false,
   },
 });
 
