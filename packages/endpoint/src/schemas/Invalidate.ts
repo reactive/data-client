@@ -1,4 +1,8 @@
-import type { EntityInterface, SchemaSimple } from '../interface.js';
+import type {
+  EntityInterface,
+  INormalizeDelegate,
+  SchemaSimple,
+} from '../interface.js';
 import type { AbstractInstanceType } from '../normal.js';
 import { INVALID } from '../special.js';
 
@@ -26,7 +30,7 @@ export default class Invalidate<
    */
   constructor(entity: E) {
     if (process.env.NODE_ENV !== 'production' && !entity) {
-      throw new Error('Expected option "entity" not found on DeleteSchema.');
+      throw new Error('Invalidate schema requires "entity" option.');
     }
     this._entity = entity;
   }
@@ -35,24 +39,21 @@ export default class Invalidate<
     return this._entity.key;
   }
 
-  /** Normalize lifecycles **/
   normalize(
     input: any,
     parent: any,
     key: string | undefined,
     args: any[],
     visit: (...args: any) => any,
-    addEntity: (...args: any) => any,
-    getEntity: any,
-    checkLoop: any,
-  ): string | number | undefined {
+    delegate: INormalizeDelegate,
+  ): string {
     // TODO: what's store needs to be a differing type from fromJS
     const processedEntity = this._entity.process(input, parent, key, args);
-    const id = this._entity.pk(processedEntity, parent, key, args);
+    let pk = this._entity.pk(processedEntity, parent, key, args);
 
     if (
       process.env.NODE_ENV !== 'production' &&
-      (id === undefined || id === '' || id === 'undefined')
+      (pk === undefined || pk === '' || pk === 'undefined')
     ) {
       const error = new Error(
         `Missing usable primary key when normalizing response.
@@ -69,46 +70,15 @@ export default class Invalidate<
       (error as any).status = 400;
       throw error;
     }
-    addEntity(this, INVALID, id);
-    return id;
-  }
+    pk = `${pk}`; // ensure pk is a string
 
-  /* istanbul ignore next */
-  merge(existing: any, incoming: any) {
-    return incoming;
-  }
-
-  mergeWithStore(
-    existingMeta: any,
-    incomingMeta: any,
-    existing: any,
-    incoming: any,
-  ) {
     // any queued updates are meaningless with delete, so we should just set it
-    return this.merge(existing, incoming);
+    // and creates will have a different pk
+    delegate.setEntity(this as any, pk, INVALID);
+    return pk;
   }
 
-  mergeMetaWithStore(
-    existingMeta: {
-      expiresAt: number;
-      date: number;
-      fetchedAt: number;
-    },
-    incomingMeta: { expiresAt: number; date: number; fetchedAt: number },
-    existing: any,
-    incoming: any,
-  ) {
-    return incomingMeta;
-  }
-
-  /** /End Normalize lifecycles **/
-
-  queryKey(
-    args: any,
-    queryKey: unknown,
-    getEntity: unknown,
-    getIndex: unknown,
-  ): undefined {
+  queryKey(args: any, unvisit: unknown, delegate: unknown): undefined {
     return undefined;
   }
 

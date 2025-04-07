@@ -1,5 +1,5 @@
 import ArraySchema from './Array.js';
-import { EntityTable, GetEntity, Visit } from '../interface.js';
+import { IQueryDelegate, Visit } from '../interface.js';
 import { EntityInterface, EntityMap, SchemaFunction } from '../schema.js';
 import { INVALID } from '../special.js';
 
@@ -20,32 +20,14 @@ export default class AllSchema<
     super(definition, schemaAttribute as any);
   }
 
-  normalize(
-    input: any,
-    parent: any,
-    key: any,
-    args: any[],
-    visit: Visit,
-    addEntity: any,
-    getEntity: any,
-    checkLoop: any,
-  ): any {
-    // we return undefined
-    super.normalize(
-      input,
-      parent,
-      key,
-      args,
-      visit,
-      addEntity,
-      getEntity,
-      checkLoop,
-    );
+  normalize(input: any, parent: any, key: any, args: any[], visit: Visit): any {
+    // we return undefined so we always 'query'
+    super.normalize(input, parent, key, args, visit);
   }
 
-  queryKey(args: any, queryKey: any, getEntity: GetEntity, getIndex: any): any {
+  queryKey(args: any, unvisit: any, delegate: IQueryDelegate): any {
     if (this.isSingleSchema) {
-      const entitiesEntry = getEntity(this.schema.key);
+      const entitiesEntry = delegate.getEntity(this.schema.key);
       // we must wait until there are entries for any 'All' query to be Valid
       if (entitiesEntry === undefined) return INVALID;
       return Object.values(entitiesEntry).map(
@@ -55,12 +37,12 @@ export default class AllSchema<
     let found = false;
     const list = Object.values(this.schema as Record<string, any>).flatMap(
       (schema: EntityInterface) => {
-        const entitiesEntry = getEntity(schema.key);
+        const entitiesEntry = delegate.getEntity(schema.key);
         if (entitiesEntry === undefined) return [];
         found = true;
-        return Object.values(entitiesEntry).map(entity => ({
-          id: entity && schema.pk(entity),
-          schema: this.getSchemaAttribute(entity, undefined, undefined),
+        return Object.entries(entitiesEntry).map(([key, entity]) => ({
+          id: entity && schema.pk(entity, undefined, key, []),
+          schema: this.getSchemaAttribute(entity, undefined, key),
         }));
       },
     );

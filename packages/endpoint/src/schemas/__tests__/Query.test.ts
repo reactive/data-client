@@ -1,11 +1,13 @@
 // eslint-env jest
 import { MemoCache } from '@data-client/normalizr';
-import { useQuery, useSuspense } from '@data-client/react';
+import { useQuery, useSuspense, __INTERNAL__ } from '@data-client/react';
 import { RestEndpoint } from '@data-client/rest';
 import { IDEntity } from '__tests__/new';
-import { fromJS } from 'immutable';
 
+import { fromJSState } from './denormalize';
 import { schema, DenormalizeNullable } from '../..';
+
+const { initialState } = __INTERNAL__;
 
 let dateSpy: jest.SpyInstance<number, []>;
 beforeAll(() => {
@@ -27,7 +29,7 @@ describe.each([
   ['direct', <T>(data: T) => data, <T>(data: T) => data],
   [
     'immutable',
-    fromJS,
+    fromJSState,
     (v: any) => (typeof v?.toJS === 'function' ? v.toJS() : v),
   ],
 ])(`input (%s)`, (_, createInput, createOutput) => {
@@ -58,21 +60,23 @@ describe.each([
       );
 
       test('denormalize sorts', () => {
-        const entities = {
-          User: {
-            1: { id: '1', name: 'Milo' },
-            2: { id: '2', name: 'Jake' },
-            3: { id: '3', name: 'Zeta' },
-            4: { id: '4', name: 'Alpha' },
+        const state = createInput({
+          ...initialState,
+          entities: {
+            User: {
+              1: { id: '1', name: 'Milo' },
+              2: { id: '2', name: 'Jake' },
+              3: { id: '3', name: 'Zeta' },
+              4: { id: '4', name: 'Alpha' },
+            },
+            [new schema.Collection([User]).key]: {
+              [new schema.Collection([User]).pk(undefined, undefined, '', [])]:
+                [1, 2, 3, 4],
+            },
           },
-          [new schema.Collection([User]).key]: {
-            [new schema.Collection([User]).pk(undefined, undefined, '', [])]: [
-              1, 2, 3, 4,
-            ],
-          },
-        };
+        });
         const users: DenormalizeNullable<typeof sortedUsers> | symbol =
-          new MemoCache().query(sortedUsers, [], createInput(entities), {});
+          new MemoCache().query(sortedUsers, [], state.entities, state.indexes);
         expect(users).not.toEqual(expect.any(Symbol));
         if (typeof users === 'symbol') return;
         expect(users && users[0].name).toBe('Zeta');
@@ -80,37 +84,48 @@ describe.each([
       });
 
       test('denormalize sorts with arg', () => {
-        const entities = {
-          User: {
-            1: { id: '1', name: 'Milo' },
-            2: { id: '2', name: 'Jake' },
-            3: { id: '3', name: 'Zeta' },
-            4: { id: '4', name: 'Alpha' },
+        const state = createInput({
+          ...initialState,
+          entities: {
+            User: {
+              1: { id: '1', name: 'Milo' },
+              2: { id: '2', name: 'Jake' },
+              3: { id: '3', name: 'Zeta' },
+              4: { id: '4', name: 'Alpha' },
+            },
+            [new schema.Collection([User]).key]: {
+              [new schema.Collection([User]).pk(undefined, undefined, '', [
+                { asc: true },
+              ])]: [1, 2, 3, 4],
+            },
           },
-          [new schema.Collection([User]).key]: {
-            [new schema.Collection([User]).pk(undefined, undefined, '', [
-              { asc: true },
-            ])]: [1, 2, 3, 4],
-          },
-        };
+        });
         expect(
           new MemoCache().query(
             sortedUsers,
             [{ asc: true }],
-            createInput(entities),
-            {},
+            state.entities,
+            state.indexes,
           ),
         ).toMatchSnapshot();
       });
 
       test('denormalizes should not be found when no entities are present', () => {
-        const entities = {
-          DOG: {
-            1: { id: '1', name: 'Milo' },
-            2: { id: '2', name: 'Jake' },
+        const state = {
+          ...initialState,
+          entities: {
+            DOG: {
+              1: { id: '1', name: 'Milo' },
+              2: { id: '2', name: 'Jake' },
+            },
           },
         };
-        const data = new MemoCache().query(sortedUsers, [], entities, {});
+        const data = new MemoCache().query(
+          sortedUsers,
+          [],
+          state.entities,
+          state.indexes,
+        );
 
         expect(createOutput(data)).toEqual(undefined);
       });
@@ -124,32 +139,34 @@ describe.each([
             return results.filter(user => user.isAdmin === isAdmin).length;
           },
         );
-        const entities = {
-          User: {
-            1: { id: '1', name: 'Milo' },
-            2: { id: '2', name: 'Jake', isAdmin: true },
-            3: { id: '3', name: 'Zeta' },
-            4: { id: '4', name: 'Alpha' },
+        const state = createInput({
+          ...initialState,
+          entities: {
+            User: {
+              1: { id: '1', name: 'Milo' },
+              2: { id: '2', name: 'Jake', isAdmin: true },
+              3: { id: '3', name: 'Zeta' },
+              4: { id: '4', name: 'Alpha' },
+            },
+            [new schema.Collection([User]).key]: {
+              [new schema.Collection([User]).pk(undefined, undefined, '', [])]:
+                [1, 2, 3, 4],
+              [new schema.Collection([User]).pk(undefined, undefined, '', [
+                { isAdmin: false },
+              ])]: [1, 3, 4],
+              [new schema.Collection([User]).pk(undefined, undefined, '', [
+                { isAdmin: true },
+              ])]: [2],
+            },
           },
-          [new schema.Collection([User]).key]: {
-            [new schema.Collection([User]).pk(undefined, undefined, '', [])]: [
-              1, 2, 3, 4,
-            ],
-            [new schema.Collection([User]).pk(undefined, undefined, '', [
-              { isAdmin: false },
-            ])]: [1, 3, 4],
-            [new schema.Collection([User]).pk(undefined, undefined, '', [
-              { isAdmin: true },
-            ])]: [2],
-          },
-        };
+        });
         const totalCount:
           | DenormalizeNullable<typeof userCountByAdmin>
           | symbol = new MemoCache().query(
           userCountByAdmin,
           [],
-          createInput(entities),
-          {},
+          state.entities,
+          state.indexes,
         );
 
         expect(totalCount).toBe(4);
@@ -158,8 +175,8 @@ describe.each([
           | symbol = new MemoCache().query(
           userCountByAdmin,
           [{ isAdmin: false }],
-          createInput(entities),
-          {},
+          state.entities,
+          state.indexes,
         );
         expect(nonAdminCount).toBe(3);
         const adminCount:
@@ -167,8 +184,8 @@ describe.each([
           | symbol = new MemoCache().query(
           userCountByAdmin,
           [{ isAdmin: true }],
-          createInput(entities),
-          {},
+          state.entities,
+          state.indexes,
         );
         expect(adminCount).toBe(1);
         if (typeof totalCount === 'symbol') return;
@@ -193,18 +210,28 @@ describe('top level schema', () => {
   );
 
   test('denormalize sorts', () => {
-    const entities = {
-      User: {
-        1: { id: '1', name: 'Milo' },
-        2: { id: '2', name: 'Jake' },
-        3: { id: '3', name: 'Zeta' },
-        4: { id: '4', name: 'Alpha' },
-      },
-      [new schema.Collection([User]).key]: {
-        [new schema.Collection([User]).pk({}, undefined, '', [])]: [1, 2, 3, 4],
+    const state = {
+      ...initialState,
+      entities: {
+        User: {
+          1: { id: '1', name: 'Milo' },
+          2: { id: '2', name: 'Jake' },
+          3: { id: '3', name: 'Zeta' },
+          4: { id: '4', name: 'Alpha' },
+        },
+        [new schema.Collection([User]).key]: {
+          [new schema.Collection([User]).pk({}, undefined, '', [])]: [
+            1, 2, 3, 4,
+          ],
+        },
       },
     };
-    const users = new MemoCache().query(sortedUsers, [], entities, {});
+    const users = new MemoCache().query(
+      sortedUsers,
+      [],
+      state.entities,
+      state.indexes,
+    );
     expect(users).not.toEqual(expect.any(Symbol));
     if (typeof users === 'symbol') return;
     expect(users && users[0].name).toBe('Zeta');
@@ -212,15 +239,23 @@ describe('top level schema', () => {
   });
 
   test('works if base entity suspends', () => {
-    const entities = {
-      User: {
-        1: { id: '1', name: 'Milo' },
-        2: { id: '2', name: 'Jake' },
-        3: { id: '3', name: 'Zeta' },
-        4: { id: '4', name: 'Alpha' },
+    const state = {
+      ...initialState,
+      entities: {
+        User: {
+          1: { id: '1', name: 'Milo' },
+          2: { id: '2', name: 'Jake' },
+          3: { id: '3', name: 'Zeta' },
+          4: { id: '4', name: 'Alpha' },
+        },
       },
     };
-    const users = new MemoCache().query(sortedUsers, [], entities, {});
+    const users = new MemoCache().query(
+      sortedUsers,
+      [],
+      state.entities,
+      state.indexes,
+    );
     expect(users).toBeUndefined();
   });
 
@@ -235,7 +270,12 @@ describe('top level schema', () => {
         return sorted.reverse();
       },
     );
-    const users = new MemoCache().query(allSortedUsers, [], {}, {});
+    const users = new MemoCache().query(
+      allSortedUsers,
+      [],
+      initialState.entities,
+      initialState.indexes,
+    );
     expect(users).toBeUndefined();
   });
 
@@ -250,19 +290,32 @@ describe('top level schema', () => {
         return sorted.reverse();
       },
     );
-    const users = new MemoCache().query(allSortedUsers, [], {}, {});
+    const users = new MemoCache().query(
+      allSortedUsers,
+      [],
+      initialState.entities,
+      initialState.indexes,
+    );
     expect(users).toBeUndefined();
   });
 
   test('denormalizes should not be found when no entities are present', () => {
-    const entities = {
-      DOG: {
-        1: { id: '1', name: 'Milo' },
-        2: { id: '2', name: 'Jake' },
+    const state = {
+      ...initialState,
+      entities: {
+        DOG: {
+          1: { id: '1', name: 'Milo' },
+          2: { id: '2', name: 'Jake' },
+        },
       },
     };
 
-    const value = new MemoCache().query(sortedUsers, [], entities, {});
+    const value = new MemoCache().query(
+      sortedUsers,
+      [],
+      state.entities,
+      state.indexes,
+    );
 
     expect(value).toEqual(undefined);
   });

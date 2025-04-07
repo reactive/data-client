@@ -1,6 +1,13 @@
 import type { EntityFields } from './EntityFields.js';
-import type { Schema, EntityInterface } from './interface.js';
-export type SchemaArgs<S extends Schema> = S extends EntityInterface<infer U> ? [EntityFields<U>] : S extends ({
+import type { Schema } from './interface.js';
+export type SchemaArgs<S extends Schema> = S extends {
+    createIfValid: any;
+    pk: any;
+    key: string;
+    prototype: infer U;
+} ? [
+    EntityFields<U>
+] : S extends ({
     queryKey(args: infer Args, ...rest: any): any;
 }) ? Args : S extends {
     [K: string]: any;
@@ -10,4 +17,3 @@ export type ObjectArgs<S extends Record<string, any>> = {
         queryKey(args: infer Args, ...rest: any): any;
     }) ? Args : never;
 }[keyof S];
-//# sourceMappingURL=schemaArgs.d.ts.map

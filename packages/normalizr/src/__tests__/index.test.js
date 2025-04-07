@@ -21,7 +21,6 @@ class Tacos extends IDEntity {
 let dateSpy;
 beforeAll(() => {
   dateSpy = jest
-
     .spyOn(global.Date, 'now')
     .mockImplementation(() => new Date('2019-05-14T11:01:58.135Z').valueOf());
 });
@@ -330,22 +329,13 @@ describe('normalize', () => {
         return this.uuid;
       }
 
-      static normalize(
-        input,
-        parent,
-        key,
-        args,
-        visit,
-        addEntity,
-        getEntity,
-        checkLoop,
-      ) {
+      static normalize(input, parent, key, args, visit, delegate) {
         const entity = { ...input };
         Object.keys(this.schema).forEach(key => {
           const schema = this.schema[key];
           entity[key] = visit(schema, input[key], input, key, args);
         });
-        addEntity(this, entity, this.pk(entity));
+        delegate.mergeEntity(this, this.pk(entity), entity);
         return {
           uuid: this.pk(entity),
           schema: this.key,

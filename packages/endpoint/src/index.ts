@@ -22,12 +22,15 @@ export type {
   ReadEndpoint,
   MutateEndpoint,
   Schema,
+  IQueryDelegate,
+  INormalizeDelegate,
   SnapshotInterface,
   ExpiryStatusInterface,
   SchemaSimple,
   SchemaClass,
   PolymorphicInterface,
   Queryable,
+  Mergeable,
 } from './interface.js';
 export type { EntityFields } from './schemas/EntityFields.js';
 export type {

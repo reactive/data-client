@@ -7,9 +7,9 @@ import {
   IndexedUser,
   FirstUnion,
 } from '__tests__/new';
-import { fromJS } from 'immutable';
 
-import { GetEntity, GetIndex } from '../interface';
+import { fromJSState } from './immutable.test';
+import { IQueryDelegate } from '../interface';
 import MemoCache from '../memo/MemoCache';
 
 class IDEntity extends Entity {
@@ -922,12 +922,7 @@ describe('MemoCache', () => {
 
     describe('legacy schema', () => {
       class MyEntity extends CoolerArticle {
-        static queryKey(
-          args: any[],
-          queryKey: any,
-          getEntity: GetEntity,
-          getIndex: GetIndex,
-        ) {
+        static queryKey(args: any[], unvisit: any, snapshot: IQueryDelegate) {
           if (!args[0]) return;
           let id: undefined | number | string;
           if (['string', 'number'].includes(typeof args[0])) {
@@ -936,7 +931,7 @@ describe('MemoCache', () => {
             id = this.pk(args[0], undefined, '', args);
           }
           // Was able to infer the entity's primary key from params
-          if (id !== undefined && id !== '' && getEntity(this.key, id))
+          if (id !== undefined && id !== '' && snapshot.getEntity(this.key, id))
             return id;
         }
       }
@@ -1057,7 +1052,7 @@ describe('MemoCache', () => {
     ['direct', <T>(data: T) => data, <T>(data: T) => data],
     [
       'immutable',
-      fromJS,
+      fromJSState,
       (v: any) => (typeof v?.toJS === 'function' ? v.toJS() : v),
     ],
   ])(`query (%s)`, (_, createInput, createOutput) => {
@@ -1067,24 +1062,27 @@ describe('MemoCache', () => {
       username = '';
       static indexes = ['username' as const];
     }
-    const entities = {
-      Cat: {
-        '1': { id: '1', name: 'Milo', username: 'm' },
-        '2': { id: '2', name: 'Jake', username: 'j' },
+    const state = createInput({
+      entities: {
+        Cat: {
+          1: { id: '1', name: 'Milo', username: 'm' },
+          2: { id: '2', name: 'Jake', username: 'j' },
+          3: { id: '3', name: 'Zeta', username: 'z' },
+        },
       },
-    };
-    const indexes = {
-      Cat: {
-        username: { m: '1', j: '2' },
+      indexes: {
+        Cat: {
+          username: { m: '1', j: '2', z: '3' },
+        },
       },
-    };
+    });
 
     test('works with indexes', () => {
       const m = new MemoCache().query(
         Cat,
         [{ username: 'm' }],
-        createInput(entities),
-        createInput(indexes),
+        state.entities,
+        state.indexes,
       );
       expect(m).toBeDefined();
       expect(m).toMatchSnapshot();
@@ -1092,8 +1090,8 @@ describe('MemoCache', () => {
         new MemoCache().query(
           Cat,
           [{ username: 'doesnotexist' }],
-          createInput(entities),
-          createInput(indexes),
+          state.entities,
+          state.indexes,
         ),
       ).toBeUndefined();
     });
@@ -1102,8 +1100,8 @@ describe('MemoCache', () => {
       const m = new MemoCache().query(
         Cat,
         [{ id: '1' }],
-        createInput(entities),
-        createInput(indexes),
+        state.entities,
+        state.indexes,
       );
       expect(m).toBeDefined();
       expect(m).toMatchSnapshot();
@@ -1111,8 +1109,8 @@ describe('MemoCache', () => {
         new MemoCache().query(
           Cat,
           [{ id: 'doesnotexist' }],
-          createInput(entities),
-          createInput(indexes),
+          state.entities,
+          state.indexes,
         ),
       ).toBeUndefined();
     });

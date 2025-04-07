@@ -3,8 +3,7 @@ import type {
   SchemaSimple,
   Schema,
   PolymorphicInterface,
-  GetEntity,
-  CheckLoop,
+  INormalizeDelegate,
 } from './interface.js';
 import type { EntityMap } from './normal.js';
 import { CollectionOptions } from './schemas/Collection.js';
@@ -65,9 +64,7 @@ export interface CollectionInterface<
     key: string,
     args: any[],
     visit: (...args: any) => any,
-    addEntity: (...args: any) => any,
-    getEntity: GetEntity,
-    checkLoop: CheckLoop,
+    delegate: INormalizeDelegate,
   ): string;
 
   /** Creates new instance copying over defined values of arguments
@@ -134,12 +131,7 @@ export interface CollectionInterface<
    *
    * @see https://dataclient.io/rest/api/Collection#queryKey
    */
-  queryKey(
-    args: Args,
-    queryKey: unknown,
-    getEntity: unknown,
-    getIndex: unknown,
-  ): any;
+  queryKey(args: Args, unvisit: unknown, delegate: unknown): any;
 
   createIfValid: (value: any) => any | undefined;
   denormalize(

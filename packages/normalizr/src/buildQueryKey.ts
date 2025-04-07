@@ -1,4 +1,4 @@
-import type { Schema, SchemaSimple, GetIndex, GetEntity } from './interface.js';
+import type { Schema, SchemaSimple, IQueryDelegate } from './interface.js';
 import { queryKey as arrayQuery } from './schemas/Array.js';
 import { queryKey as objectQuery } from './schemas/Object.js';
 import type { NormalizeNullable } from './types.js';
@@ -7,25 +7,25 @@ import type { NormalizeNullable } from './types.js';
  * Build the result parameter to denormalize from schema alone.
  * Tries to compute the entity ids from params.
  */
-export default function buildQueryKey<S extends Schema>(
-  schema: S,
-  args: readonly any[],
-  getEntity: GetEntity,
-  getIndex: GetIndex,
-): NormalizeNullable<S> {
-  // schema classes
-  if (canQuery(schema)) {
-    return schema.queryKey(args as any[], buildQueryKey, getEntity, getIndex);
-  }
+export default function buildQueryKey(delegate: IQueryDelegate) {
+  return function queryKey<S extends Schema>(
+    schema: S,
+    args: readonly any[],
+  ): NormalizeNullable<S> {
+    // schema classes
+    if (canQuery(schema)) {
+      return schema.queryKey(args as any[], queryKey, delegate);
+    }
 
-  // plain case
-  if (typeof schema === 'object' && schema) {
-    const method = Array.isArray(schema) ? arrayQuery : objectQuery;
-    return method(schema, args, buildQueryKey, getEntity, getIndex);
-  }
+    // plain case
+    if (typeof schema === 'object' && schema) {
+      const method = Array.isArray(schema) ? arrayQuery : objectQuery;
+      return method(schema, args, queryKey, delegate);
+    }
 
-  // fallback for things like null or undefined
-  return schema as any;
+    // fallback for things like null or undefined
+    return schema as any;
+  };
 }
 
 export function canQuery(

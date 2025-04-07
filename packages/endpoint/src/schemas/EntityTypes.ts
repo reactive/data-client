@@ -1,4 +1,4 @@
-import type { Schema, GetEntity, GetIndex } from '../interface.js';
+import type { Schema, IQueryDelegate } from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
 
 /**
@@ -158,9 +158,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
     key: string | undefined,
     args: any[],
     visit: (...args: any) => any,
-    addEntity: (...args: any) => any,
-    getEntity: (...args: any) => any,
-    checkLoop: (...args: any) => any,
+    snapshot: { getEntity: any; setEntity: any },
   ): any;
   /** Do any transformations when first receiving input
    *
@@ -171,12 +169,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
    *
    * @see https://dataclient.io/rest/api/Entity#queryKey
    */
-  queryKey(
-    args: readonly any[],
-    queryKey: any,
-    getEntity: GetEntity,
-    getIndex: GetIndex,
-  ): any;
+  queryKey(args: readonly any[], unvisit: any, delegate: IQueryDelegate): any;
   denormalize<
     T extends (abstract new (
       ...args: any[]

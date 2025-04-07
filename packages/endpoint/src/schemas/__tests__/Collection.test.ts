@@ -4,7 +4,7 @@ import { normalize, denormalize, MemoCache } from '@data-client/normalizr';
 import { ArticleResource, IDEntity } from '__tests__/new';
 import { Record } from 'immutable';
 
-import SimpleMemoCache from './denormalize';
+import { SimpleMemoCache } from './denormalize';
 import { PolymorphicInterface } from '../..';
 import { schema } from '../..';
 import PolymorphicSchema from '../Polymorphic';
@@ -12,7 +12,6 @@ import PolymorphicSchema from '../Polymorphic';
 let dateSpy: jest.SpyInstance;
 beforeAll(() => {
   dateSpy = jest
-
     .spyOn(global.Date, 'now')
     .mockImplementation(() => new Date('2019-05-14T11:01:58.135Z').valueOf());
 });
@@ -59,9 +58,7 @@ test('key works with custom schema', () => {
       key: any,
       args: any[],
       visit: any,
-      addEntity: any,
-      getEntity: any,
-      checkLoop: any,
+      snapshot: any,
     ): any {
       return input.map((value, index) =>
         this.normalizeValue(value, parent, key, args, visit),
@@ -80,12 +77,7 @@ test('key works with custom schema', () => {
         : input;
     }
 
-    queryKey(
-      args: unknown,
-      queryKey: unknown,
-      getEntity: unknown,
-      getIndex: unknown,
-    ): any {
+    queryKey(args: unknown, unvisit: unknown, delegate: unknown): any {
       return undefined;
     }
 
@@ -129,9 +121,7 @@ describe(`${schema.Collection.name} normalization`, () => {
         '',
         [],
         () => undefined,
-        () => undefined,
-        () => undefined,
-        () => false,
+        {} as any,
       );
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
@@ -631,7 +621,7 @@ describe(`${schema.Collection.name} denormalization`, () => {
       userTodos,
       [{ userId: '1' }],
       normalizeNested.entities,
-      {},
+      normalizeNested.indexes,
     );
     expect(queryKey).toBeDefined();
     // now ensure our queryKey is usable
@@ -655,7 +645,7 @@ describe(`${schema.Collection.name} denormalization`, () => {
       userTodos,
       [{ userId: '100' }],
       normalizeNested.entities,
-      {},
+      normalizeNested.indexes,
     );
     expect(queryKey).toBeUndefined();
   });
@@ -666,7 +656,7 @@ describe(`${schema.Collection.name} denormalization`, () => {
       User.schema.todos,
       [{ userId: '1' }],
       normalizeNested.entities,
-      {},
+      normalizeNested.indexes,
     );
     expect(queryKey).toBeUndefined();
   });

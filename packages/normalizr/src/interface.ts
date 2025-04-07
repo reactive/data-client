@@ -9,9 +9,8 @@ export type Schema =
 export interface Queryable<Args extends readonly any[] = readonly any[]> {
   queryKey(
     args: Args,
-    queryKey: (...args: any) => any,
-    getEntity: GetEntity,
-    getIndex: GetIndex,
+    unvisit: (...args: any) => any,
+    delegate: { getEntity: any; getIndex: any },
     // Must be non-void
   ): {};
 }
@@ -27,9 +26,7 @@ export interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
     key: any,
     args: any[],
     visit: (...args: any) => any,
-    addEntity: (...args: any) => any,
-    getEntity: (...args: any) => any,
-    checkLoop: (...args: any) => any,
+    delegate: { getEntity: any; setEntity: any },
   ): any;
   denormalize(
     input: {},
@@ -38,9 +35,8 @@ export interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
   ): T;
   queryKey(
     args: Args,
-    queryKey: (...args: any) => any,
-    getEntity: GetEntity,
-    getIndex: GetIndex,
+    unvisit: (...args: any) => any,
+    delegate: { getEntity: any; getIndex: any },
   ): any;
 }
 
@@ -56,11 +52,19 @@ export interface EntityInterface<T = any> extends SchemaSimple {
   createIfValid(props: any): any;
   pk(
     params: any,
-    parent?: any,
-    key?: string,
-    args?: readonly any[],
+    parent: any,
+    key: string | undefined,
+    args: readonly any[],
   ): string | number | undefined;
   readonly key: string;
+  indexes?: any;
+  schema: Record<string, Schema>;
+  prototype: T;
+  cacheWith?: object;
+}
+
+export interface Mergeable {
+  key: string;
   merge(existing: any, incoming: any): any;
   mergeWithStore(
     existingMeta: any,
@@ -74,10 +78,6 @@ export interface EntityInterface<T = any> extends SchemaSimple {
     existing: any,
     incoming: any,
   ): any;
-  indexes?: any;
-  schema: Record<string, Schema>;
-  cacheWith?: object;
-  prototype: T;
 }
 
 export interface NormalizedIndex {
@@ -112,9 +112,34 @@ export interface GetEntity {
 /** Get PK using an Entity Index */
 export interface GetIndex {
   /** getIndex('User', 'username', 'ntucker') */
-  (
-    entityKey: string,
-    field: string,
-    value: string,
-  ): { readonly [indexKey: string]: string | undefined };
+  (entityKey: string, field: string, value: string): string | undefined;
+}
+
+/** Accessors to the currently processing state while building query */
+export interface IQueryDelegate {
+  getEntity: GetEntity;
+  getIndex: GetIndex;
+}
+
+/** Helpers during schema.normalize() */
+export interface INormalizeDelegate {
+  /** Action meta-data for this normalize call */
+  readonly meta: { fetchedAt: number; date: number; expiresAt: number };
+  /** Gets any previously normalized entity from store */
+  getEntity: GetEntity;
+  /** Updates an entity using merge lifecycles when it has previously been set */
+  mergeEntity(
+    schema: Mergeable & { indexes?: any },
+    pk: string,
+    incomingEntity: any,
+  ): void;
+  /** Sets an entity overwriting any previously set values */
+  setEntity(
+    schema: { key: string; indexes?: any },
+    pk: string,
+    entity: any,
+    meta?: { fetchedAt: number; date: number; expiresAt: number },
+  ): void;
+  /** Returns true when we're in a cycle, so we should not continue recursing */
+  checkLoop(key: string, pk: string, input: object): boolean;
 }

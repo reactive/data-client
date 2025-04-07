@@ -20,8 +20,8 @@ export default class WeakDependencyMap<
     if (!curLink) return EMPTY;
     while (curLink.nextPath) {
       // we cannot perform lookups with `undefined`, so we use a special object to represent undefined
-      const nextEntity = getDependency(curLink.nextPath) ?? UNDEF;
-      curLink = curLink.next.get(nextEntity as any);
+      const nextDependency = getDependency(curLink.nextPath) ?? UNDEF;
+      curLink = curLink.next.get(nextDependency as any);
       if (!curLink) return EMPTY;
     }
     // curLink exists, but has no path - so must have a value
@@ -31,7 +31,7 @@ export default class WeakDependencyMap<
   set(dependencies: Dep<Path, K>[], value: V) {
     if (dependencies.length < 1) throw new KeySize();
     let curLink: Link<Path, K, V> = this as any;
-    for (const { entity, path } of dependencies) {
+    for (const { path, entity } of dependencies) {
       let nextLink = curLink.next.get(entity);
       if (!nextLink) {
         nextLink = new Link<Path, K, V>();
@@ -49,7 +49,9 @@ export default class WeakDependencyMap<
   }
 }
 
-export type GetDependency<Path, K = object | symbol> = (lookup: Path) => K;
+export type GetDependency<Path, K = object | symbol> = (
+  lookup: Path,
+) => K | undefined;
 
 export interface Dep<Path, K = object> {
   path: Path;
@@ -61,9 +63,9 @@ const EMPTY = [undefined, undefined] as const;
 /** Link in a chain */
 class Link<Path, K extends object, V> {
   next = new WeakMap<K, Link<Path, K, V>>();
+  nextPath: Path | undefined = undefined;
   value: V | undefined = undefined;
   journey: Path[] = [];
-  nextPath: Path | undefined = undefined;
 }
 
 class KeySize extends Error {

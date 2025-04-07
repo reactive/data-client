@@ -9,9 +9,6 @@ export const normalize = (
   key: any,
   args: readonly any[],
   visit: Visit,
-  addEntity: any,
-  getEntity: any,
-  checkLoop: any,
 ) => {
   const object = { ...input };
   Object.keys(schema).forEach(key => {
@@ -53,13 +50,12 @@ export const denormalize = (
 export function queryKey(
   schema: any,
   args: readonly any[],
-  queryKey: any,
-  getEntity: any,
-  getIndex: any,
+  unvisit: any,
+  delegate: any,
 ) {
   const resultObject: any = {};
   for (const k of Object.keys(schema)) {
-    resultObject[k] = queryKey(schema[k], args, getEntity, getIndex);
+    resultObject[k] = unvisit(schema[k], args, delegate);
   }
   return resultObject;
 }

@@ -2,7 +2,10 @@ type Schema = null | string | {
     [K: string]: any;
 } | Schema[] | SchemaSimple | Serializable;
 interface Queryable<Args extends readonly any[] = readonly any[]> {
-    queryKey(args: Args, queryKey: (...args: any) => any, getEntity: GetEntity, getIndex: GetIndex): {};
+    queryKey(args: Args, unvisit: (...args: any) => any, delegate: {
+        getEntity: any;
+        getIndex: any;
+    }): {};
 }
 type Serializable<T extends {
     toJSON(): string;
@@ -10,9 +13,15 @@ type Serializable<T extends {
     toJSON(): string;
 }> = (value: any) => T;
 interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
-    normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, addEntity: (...args: any) => any, getEntity: (...args: any) => any, checkLoop: (...args: any) => any): any;
+    normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, delegate: {
+        getEntity: any;
+        setEntity: any;
+    }): any;
     denormalize(input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any): T;
-    queryKey(args: Args, queryKey: (...args: any) => any, getEntity: GetEntity, getIndex: GetIndex): any;
+    queryKey(args: Args, unvisit: (...args: any) => any, delegate: {
+        getEntity: any;
+        getIndex: any;
+    }): any;
 }
 interface SchemaClass<T = any, Args extends readonly any[] = any[]> extends SchemaSimple<T, Args> {
     _normalizeNullable(): any;
@@ -20,15 +29,18 @@ interface SchemaClass<T = any, Args extends readonly any[] = any[]> extends Sche
 }
 interface EntityInterface<T = any> extends SchemaSimple {
     createIfValid(props: any): any;
-    pk(params: any, parent?: any, key?: string, args?: readonly any[]): string | number | undefined;
+    pk(params: any, parent: any, key: string | undefined, args: readonly any[]): string | number | undefined;
     readonly key: string;
+    indexes?: any;
+    schema: Record<string, Schema>;
+    prototype: T;
+    cacheWith?: object;
+}
+interface Mergeable {
+    key: string;
     merge(existing: any, incoming: any): any;
     mergeWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
     mergeMetaWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
-    indexes?: any;
-    schema: Record<string, Schema>;
-    cacheWith?: object;
-    prototype: T;
 }
 interface NormalizedIndex {
     readonly [entityKey: string]: {
@@ -47,9 +59,38 @@ interface GetEntity {
 /** Get PK using an Entity Index */
 interface GetIndex {
     /** getIndex('User', 'username', 'ntucker') */
-    (entityKey: string, field: string, value: string): {
-        readonly [indexKey: string]: string | undefined;
+    (entityKey: string, field: string, value: string): string | undefined;
+}
+/** Accessors to the currently processing state while building query */
+interface IQueryDelegate {
+    getEntity: GetEntity;
+    getIndex: GetIndex;
+}
+/** Helpers during schema.normalize() */
+interface INormalizeDelegate {
+    /** Action meta-data for this normalize call */
+    readonly meta: {
+        fetchedAt: number;
+        date: number;
+        expiresAt: number;
     };
+    /** Gets any previously normalized entity from store */
+    getEntity: GetEntity;
+    /** Updates an entity using merge lifecycles when it has previously been set */
+    mergeEntity(schema: Mergeable & {
+        indexes?: any;
+    }, pk: string, incomingEntity: any): void;
+    /** Sets an entity overwriting any previously set values */
+    setEntity(schema: {
+        key: string;
+        indexes?: any;
+    }, pk: string, entity: any, meta?: {
+        fetchedAt: number;
+        date: number;
+        expiresAt: number;
+    }): void;
+    /** Returns true when we're in a cycle, so we should not continue recursing */
+    checkLoop(key: string, pk: string, input: object): boolean;
 }
 
 /** Attempts to infer reasonable input type to construct an Entity */
@@ -57,7 +98,14 @@ type EntityFields<U> = {
     readonly [K in keyof U as U[K] extends (...args: any) => any ? never : K]?: U[K] extends number ? U[K] | string : U[K] extends string ? U[K] | number : U[K];
 };
 
-type SchemaArgs<S extends Schema> = S extends EntityInterface<infer U> ? [EntityFields<U>] : S extends ({
+type SchemaArgs<S extends Schema> = S extends {
+    createIfValid: any;
+    pk: any;
+    key: string;
+    prototype: infer U;
+} ? [
+    EntityFields<U>
+] : S extends ({
     queryKey(args: infer Args, ...rest: any): any;
 }) ? Args : S extends {
     [K: string]: any;
@@ -94,22 +142,43 @@ interface RecordClass<T = any> extends NestedSchemaClass<T> {
 }
 type DenormalizeNullableNestedSchema<S extends NestedSchemaClass> = keyof S['schema'] extends never ? S['prototype'] : string extends keyof S['schema'] ? S['prototype'] : S['prototype'];
 type NormalizeReturnType<T> = T extends (...args: any) => infer R ? R : never;
-type Denormalize<S> = S extends EntityInterface<infer U> ? U : S extends RecordClass ? AbstractInstanceType<S> : S extends {
+type Denormalize<S> = S extends {
+    createIfValid: any;
+    pk: any;
+    key: string;
+    prototype: infer U;
+} ? U : S extends RecordClass ? AbstractInstanceType<S> : S extends {
     denormalize: (...args: any) => any;
 } ? ReturnType<S['denormalize']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Denormalize<F>[] : S extends {
     [K: string]: any;
 } ? DenormalizeObject<S> : S;
-type DenormalizeNullable<S> = S extends EntityInterface<any> ? DenormalizeNullableNestedSchema<S> | undefined : S extends RecordClass ? DenormalizeNullableNestedSchema<S> : S extends {
+type DenormalizeNullable<S> = S extends ({
+    createIfValid: any;
+    pk: any;
+    key: string;
+    prototype: any;
+    schema: any;
+}) ? DenormalizeNullableNestedSchema<S> | undefined : S extends RecordClass ? DenormalizeNullableNestedSchema<S> : S extends {
     _denormalizeNullable: (...args: any) => any;
 } ? ReturnType<S['_denormalizeNullable']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Denormalize<F>[] | undefined : S extends {
     [K: string]: any;
 } ? DenormalizeNullableObject<S> : S;
-type Normalize<S> = S extends EntityInterface ? string : S extends RecordClass ? NormalizeObject<S['schema']> : S extends {
+type Normalize<S> = S extends {
+    createIfValid: any;
+    pk: any;
+    key: string;
+    prototype: {};
+} ? string : S extends RecordClass ? NormalizeObject<S['schema']> : S extends {
     normalize: (...args: any) => any;
 } ? NormalizeReturnType<S['normalize']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Normalize<F>[] : S extends {
     [K: string]: any;
 } ? NormalizeObject<S> : S;
-type NormalizeNullable<S> = S extends EntityInterface ? string | undefined : S extends RecordClass ? NormalizedNullableObject<S['schema']> : S extends {
+type NormalizeNullable<S> = S extends {
+    createIfValid: any;
+    pk: any;
+    key: string;
+    prototype: {};
+} ? string | undefined : S extends RecordClass ? NormalizedNullableObject<S['schema']> : S extends {
     _normalizeNullable: (...args: any) => any;
 } ? NormalizeReturnType<S['_normalizeNullable']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Normalize<F>[] | undefined : S extends {
     [K: string]: any;
@@ -128,7 +197,7 @@ declare class WeakDependencyMap<Path, K extends object = object, V = any> {
     get(entity: K, getDependency: GetDependency<Path, K | symbol>): readonly [undefined, undefined] | readonly [V, Path[]];
     set(dependencies: Dep<Path, K>[], value: V): void;
 }
-type GetDependency<Path, K = object | symbol> = (lookup: Path) => K;
+type GetDependency<Path, K = object | symbol> = (lookup: Path) => K | undefined;
 interface Dep<Path, K = object> {
     path: Path;
     entity: K;
@@ -137,6 +206,9 @@ interface Dep<Path, K = object> {
 interface EntityCache extends Map<string, Map<string, WeakMap<EntityInterface, WeakDependencyMap<EntityPath, object, any>>>> {
 }
 type EndpointsCache = WeakDependencyMap<EntityPath, object, any>;
+type IndexPath = [key: string, field: string, value: string];
+type EntitySchemaPath = [key: string] | [key: string, pk: string];
+type QueryPath = IndexPath | EntitySchemaPath;
 
 /** Singleton to store the memoization cache for denormalization methods */
 declare class MemoCache {
@@ -163,9 +235,6 @@ declare class MemoCache {
         getIn(k: string[]): any;
     }, argsKey?: string): NormalizeNullable<S>;
 }
-type IndexPath = [key: string, field: string, value: string];
-type EntitySchemaPath = [key: string] | [key: string, pk: string];
-type QueryPath = IndexPath | EntitySchemaPath;
 
 /** https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-4.html#the-noinfer-utility-type */
 type NI<T> = NoInfer<T>;
@@ -725,7 +794,7 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      */
     get<S extends Queryable>(schema: S, ...rest: readonly [
         ...SchemaArgs<S>,
-        Pick<State<unknown>, 'entities' | 'entityMeta'>
+        Pick<State<unknown>, 'entities' | 'indexes'>
     ]): DenormalizeNullable<S> | undefined;
     /**
      * Queries the store for a Querable schema; providing related metadata
@@ -733,7 +802,7 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      */
     getQueryMeta<S extends Queryable>(schema: S, ...rest: readonly [
         ...SchemaArgs<S>,
-        Pick<State<unknown>, 'entities' | 'entityMeta'>
+        Pick<State<unknown>, 'entities' | 'indexes'>
     ]): {
         data: DenormalizeNullable<S> | undefined;
         countRef: () => () => void;
@@ -1299,4 +1368,4 @@ interface Props {
     shouldLogout?: (error: UnknownError) => boolean;
 }
 
-export { type AbstractInstanceType, type ActionMeta, type ActionTypes, type ConnectionListener, Controller, type CreateCountRef, type DataClientDispatch, DefaultConnectionListener, type Denormalize, type DenormalizeNullable, type DevToolsConfig, DevToolsManager, type Dispatch, type EndpointExtraOptions, type EndpointInterface, type EndpointUpdateFunction, type EntityInterface, type ErrorTypes, type ExpireAllAction, ExpiryStatus, type FetchAction, type FetchFunction, type FetchMeta, type GCAction, type GCInterface, type GCOptions, GCPolicy, type GenericDispatch, ImmortalGCPolicy, type InvalidateAction, type InvalidateAllAction, LogoutManager, type Manager, type Middleware, type MiddlewareAPI, type NI, type NetworkError, NetworkManager, type Normalize, type NormalizeNullable, type OptimisticAction, type PK, PollingSubscription, type Queryable, type ResetAction, ResetError, type ResolveType, type ResultEntry, type Schema, type SchemaArgs, type SchemaClass, type SetAction, type SetResponseAction, type SetResponseActionBase, type SetResponseActionError, type SetResponseActionSuccess, type State, type SubscribeAction, SubscriptionManager, type UnknownError, type UnsubscribeAction, type UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, index_d as actions, applyManager, createReducer, initManager, initialState };
+export { type AbstractInstanceType, type ActionMeta, type ActionTypes, type ConnectionListener, Controller, type CreateCountRef, type DataClientDispatch, DefaultConnectionListener, type Denormalize, type DenormalizeNullable, type DevToolsConfig, DevToolsManager, type Dispatch, type EndpointExtraOptions, type EndpointInterface, type EndpointUpdateFunction, type EntityInterface, type ErrorTypes, type ExpireAllAction, ExpiryStatus, type FetchAction, type FetchFunction, type FetchMeta, type GCAction, type GCInterface, type GCOptions, GCPolicy, type GenericDispatch, type INormalizeDelegate, type IQueryDelegate, ImmortalGCPolicy, type InvalidateAction, type InvalidateAllAction, LogoutManager, type Manager, type Mergeable, type Middleware, type MiddlewareAPI, type NI, type NetworkError, NetworkManager, type Normalize, type NormalizeNullable, type OptimisticAction, type PK, PollingSubscription, type Queryable, type ResetAction, ResetError, type ResolveType, type ResultEntry, type Schema, type SchemaArgs, type SchemaClass, type SetAction, type SetResponseAction, type SetResponseActionBase, type SetResponseActionError, type SetResponseActionSuccess, type State, type SubscribeAction, SubscriptionManager, type UnknownError, type UnsubscribeAction, type UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, index_d as actions, applyManager, createReducer, initManager, initialState };

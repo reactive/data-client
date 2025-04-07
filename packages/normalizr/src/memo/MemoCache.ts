@@ -1,16 +1,26 @@
 import GlobalCache from './globalCache.js';
-import { EndpointsCache, EntityCache } from './types.js';
-import WeakDependencyMap, { Dep, GetDependency } from './WeakDependencyMap.js';
+import WeakDependencyMap from './WeakDependencyMap.js';
 import buildQueryKey from '../buildQueryKey.js';
+import {
+  DelegateImmutable,
+  TrackingQueryDelegateImmutable,
+} from './Delegate.immutable.js';
 import { getEntities } from '../denormalize/getEntities.js';
 import getUnvisit from '../denormalize/unvisit.js';
-import type { EntityTable, NormalizedIndex, Schema } from '../interface.js';
+import type { NormalizedIndex, Schema } from '../interface.js';
 import { isImmutable } from '../schemas/ImmutableUtils.js';
 import type {
   DenormalizeNullable,
   EntityPath,
   NormalizeNullable,
 } from '../types.js';
+import {
+  getDependency,
+  BaseDelegate,
+  TrackingQueryDelegate,
+} from './Delegate.js';
+import { EndpointsCache, EntityCache } from './types.js';
+import { QueryPath } from './types.js';
 
 //TODO: make immutable distinction occur when initilizing MemoCache
 
@@ -116,96 +126,30 @@ export default class MemoCache {
       object,
       any
     >;
-    const getEntity = createGetEntity(entities);
-    const getIndex = createGetIndex(indexes);
+
+    const imm = isImmutable(entities);
+
+    // TODO: remove casting when we split this to immutable vs plain implementations
+    const baseDelegate = new (imm ? DelegateImmutable : BaseDelegate)(
+      entities as any,
+      indexes as any,
+    );
     // eslint-disable-next-line prefer-const
     let [value, paths] = queryCache.get(
       schema as any,
-      createDepLookup(getEntity, getIndex),
+      getDependency(baseDelegate),
     );
 
     // paths undefined is the only way to truly tell nothing was found (the value could have actually been undefined)
     if (!paths) {
-      // first dep path is ignored
-      // we start with schema object, then lookup any 'touched' members and their paths
-      const dependencies: Dep<QueryPath>[] = [
-        { path: [''], entity: schema as any },
-      ];
+      const tracked = new (
+        imm ?
+          TrackingQueryDelegateImmutable
+        : TrackingQueryDelegate)(baseDelegate, schema);
 
-      value = buildQueryKey(
-        schema,
-        args,
-        trackLookup(getEntity, dependencies),
-        trackLookup(getIndex, dependencies),
-      );
-      queryCache.set(dependencies, value);
+      value = buildQueryKey(tracked)(schema, args);
+      queryCache.set(tracked.dependencies, value);
     }
     return value;
-  }
-}
-
-type IndexPath = [key: string, field: string, value: string];
-type EntitySchemaPath = [key: string] | [key: string, pk: string];
-type QueryPath = IndexPath | EntitySchemaPath;
-
-function createDepLookup(getEntity, getIndex): GetDependency<QueryPath> {
-  return (args: QueryPath) => {
-    return args.length === 3 ? getIndex(...args) : getEntity(...args);
-  };
-}
-
-function trackLookup<D extends any[], FD extends D>(
-  lookup: (...args: FD) => any,
-  dependencies: Dep<D>[],
-) {
-  return ((...args: Parameters<typeof lookup>) => {
-    const entity = lookup(...args);
-    dependencies.push({ path: args, entity });
-    return entity;
-  }) as any;
-}
-
-export function createGetEntity(
-  entities:
-    | EntityTable
-    | {
-        getIn(k: string[]): { toJS(): any } | undefined;
-      },
-) {
-  const entityIsImmutable = isImmutable(entities);
-  if (entityIsImmutable) {
-    return (...args) => entities.getIn(args)?.toJS?.();
-  } else {
-    return (entityKey: string | symbol, pk?: string): any =>
-      pk ? entities[entityKey]?.[pk] : entities[entityKey];
-  }
-}
-
-export function createGetIndex(
-  indexes:
-    | NormalizedIndex
-    | {
-        getIn(k: string[]): any;
-      },
-) {
-  const entityIsImmutable = isImmutable(indexes);
-  if (entityIsImmutable) {
-    return (
-      key: string,
-      field: string,
-      value: string,
-    ): { readonly [indexKey: string]: string | undefined } =>
-      indexes.getIn([key, field])?.toJS?.();
-  } else {
-    return (
-      key: string,
-      field: string,
-      value: string,
-    ): { readonly [indexKey: string]: string | undefined } => {
-      if (indexes[key]) {
-        return indexes[key][field];
-      }
-      return {};
-    };
   }
 }
