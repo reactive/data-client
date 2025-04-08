@@ -1,5 +1,5 @@
 import { CacheProvider } from '@data-client/react';
-import { FixtureEndpoint } from '@data-client/test/mockState';
+import { FixtureEndpoint } from '@data-client/test';
 import { FutureArticleResource, GetPhoto } from '__tests__/new';
 import nock from 'nock';
 import { useEffect } from 'react';

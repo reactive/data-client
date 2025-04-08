@@ -1,6 +1,6 @@
 import { CacheProvider } from '@data-client/react';
 import { makeRenderDataClient, renderHook, act } from '@data-client/test';
-import { FixtureEndpoint } from '@data-client/test/mockState';
+import { FixtureEndpoint } from '@data-client/test';
 import { CoolerArticleResource, GetPhoto } from '__tests__/new';
 import nock from 'nock';
 import { useEffect } from 'react';
