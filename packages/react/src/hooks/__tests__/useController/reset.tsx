@@ -1,7 +1,7 @@
 import { CacheProvider } from '@data-client/react';
 import { makeRenderDataClient, renderHook } from '@data-client/test';
 import { act } from '@data-client/test';
-import { FixtureEndpoint } from '@data-client/test/mockState';
+import { FixtureEndpoint } from '@data-client/test';
 import { waitFor } from '@testing-library/react';
 import { CoolerArticleDetail, FutureArticleResource } from '__tests__/new';
 import nock from 'nock';
