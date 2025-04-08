@@ -1,7 +1,6 @@
 import ArraySchema from './Array.js';
 import { IQueryDelegate, Visit } from '../interface.js';
 import { EntityInterface, EntityMap, SchemaFunction } from '../schema.js';
-import { INVALID } from '../special.js';
 
 /**
  * Retrieves all entities in cache
@@ -29,7 +28,7 @@ export default class AllSchema<
     if (this.isSingleSchema) {
       const entitiesEntry = delegate.getEntity(this.schema.key);
       // we must wait until there are entries for any 'All' query to be Valid
-      if (entitiesEntry === undefined) return INVALID;
+      if (entitiesEntry === undefined) return delegate.INVALID;
       return Object.values(entitiesEntry).map(
         entity => entity && this.schema.pk(entity),
       );
@@ -47,7 +46,7 @@ export default class AllSchema<
       },
     );
     // we need at least one table entry of the Union for this to count as Valid.
-    if (!found) return INVALID;
+    if (!found) return delegate.INVALID;
     return list;
   }
 }

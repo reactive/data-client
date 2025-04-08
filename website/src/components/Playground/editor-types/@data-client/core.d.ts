@@ -65,6 +65,8 @@ interface GetIndex {
 interface IQueryDelegate {
     getEntity: GetEntity;
     getIndex: GetIndex;
+    /** Return to consider results invalid */
+    INVALID: symbol;
 }
 /** Helpers during schema.normalize() */
 interface INormalizeDelegate {
@@ -89,6 +91,11 @@ interface INormalizeDelegate {
         date: number;
         expiresAt: number;
     }): void;
+    /** Invalidates an entity, potentially triggering suspense */
+    invalidate(schema: {
+        key: string;
+        indexes?: any;
+    }, pk: string): void;
     /** Returns true when we're in a cycle, so we should not continue recursing */
     checkLoop(key: string, pk: string, input: object): boolean;
 }

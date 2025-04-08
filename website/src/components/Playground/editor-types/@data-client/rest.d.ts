@@ -254,6 +254,8 @@ interface GetIndex {
 interface IQueryDelegate {
     getEntity: GetEntity;
     getIndex: GetIndex;
+    /** Return to consider results invalid */
+    INVALID: symbol;
 }
 /** Helpers during schema.normalize() */
 interface INormalizeDelegate {
@@ -278,6 +280,11 @@ interface INormalizeDelegate {
         date: number;
         expiresAt: number;
     }): void;
+    /** Invalidates an entity, potentially triggering suspense */
+    invalidate(schema: {
+        key: string;
+        indexes?: any;
+    }, pk: string): void;
     /** Returns true when we're in a cycle, so we should not continue recursing */
     checkLoop(key: string, pk: string, input: object): boolean;
 }
@@ -1148,8 +1155,6 @@ declare abstract class Entity extends Entity_base {
 
 declare function validateRequired(processedEntity: any, requiredDefaults: Record<string, unknown>): string | undefined;
 
-declare const INVALID: unique symbol;
-
 /** https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-4.html#the-noinfer-utility-type */
 type NI<T> = NoInfer<T>;
 
@@ -1754,4 +1759,4 @@ declare class NetworkError extends Error {
     constructor(response: Response);
 }
 
-export { type AbstractInstanceType, type AddEndpoint, Array$1 as Array, Collection, type CustomResource, type DefaultArgs, type Defaults, type Denormalize, type DenormalizeNullable, type DenormalizeNullableObject, type DenormalizeObject, Endpoint, type EndpointExtendOptions, type EndpointExtraOptions, type EndpointInstance, type EndpointInstanceInterface, type EndpointInterface, type EndpointOptions, type EndpointParam, type EndpointToFunction, Entity, type EntityFields, type EntityMap, EntityMixin, type ErrorTypes, type ExpiryStatusInterface, ExtendableEndpoint, type ExtendedResource, type FetchFunction, type FetchGet, type FetchMutate, type FromFallBack, type GetEndpoint, type HookResource, type HookableEndpointInterface, INVALID, type INormalizeDelegate, type IQueryDelegate, type RestEndpoint$1 as IRestEndpoint, Invalidate, type KeyofEndpointInstance, type KeyofRestEndpoint, type KeysToArgs, type Mergeable, type MethodToSide, type MutateEndpoint, type NI, NetworkError, type Normalize, type NormalizeNullable, type NormalizeObject, type NormalizedEntity, type NormalizedNullableObject, type ObjectArgs, type OptionsToFunction, type PaginationEndpoint, type PaginationFieldEndpoint, type ParamFetchNoBody, type ParamFetchWithBody, type ParamToArgs, type PartialRestGenerics, type PathArgs, type PathArgsAndSearch, type PathKeys, type PolymorphicInterface, type Queryable, type ReadEndpoint, type RecordClass, type ResolveType, type Resource, type ResourceEndpointExtensions, type ResourceExtension, type ResourceGenerics, type ResourceInterface, type ResourceOptions, RestEndpoint, type RestEndpointConstructor, type RestEndpointConstructorOptions, type RestEndpointExtendOptions, type RestEndpointOptions, type RestExtendedEndpoint, type RestFetch, type RestGenerics, type RestInstance, type RestInstanceBase, type RestType, type RestTypeNoBody, type RestTypeWithBody, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type ShortenPath, type SnapshotInterface, type UnknownError, resource as createResource, getUrlBase, getUrlTokens, hookifyResource, resource, schema_d as schema, validateRequired };
+export { type AbstractInstanceType, type AddEndpoint, Array$1 as Array, Collection, type CustomResource, type DefaultArgs, type Defaults, type Denormalize, type DenormalizeNullable, type DenormalizeNullableObject, type DenormalizeObject, Endpoint, type EndpointExtendOptions, type EndpointExtraOptions, type EndpointInstance, type EndpointInstanceInterface, type EndpointInterface, type EndpointOptions, type EndpointParam, type EndpointToFunction, Entity, type EntityFields, type EntityMap, EntityMixin, type ErrorTypes, type ExpiryStatusInterface, ExtendableEndpoint, type ExtendedResource, type FetchFunction, type FetchGet, type FetchMutate, type FromFallBack, type GetEndpoint, type HookResource, type HookableEndpointInterface, type INormalizeDelegate, type IQueryDelegate, type RestEndpoint$1 as IRestEndpoint, Invalidate, type KeyofEndpointInstance, type KeyofRestEndpoint, type KeysToArgs, type Mergeable, type MethodToSide, type MutateEndpoint, type NI, NetworkError, type Normalize, type NormalizeNullable, type NormalizeObject, type NormalizedEntity, type NormalizedNullableObject, type ObjectArgs, type OptionsToFunction, type PaginationEndpoint, type PaginationFieldEndpoint, type ParamFetchNoBody, type ParamFetchWithBody, type ParamToArgs, type PartialRestGenerics, type PathArgs, type PathArgsAndSearch, type PathKeys, type PolymorphicInterface, type Queryable, type ReadEndpoint, type RecordClass, type ResolveType, type Resource, type ResourceEndpointExtensions, type ResourceExtension, type ResourceGenerics, type ResourceInterface, type ResourceOptions, RestEndpoint, type RestEndpointConstructor, type RestEndpointConstructorOptions, type RestEndpointExtendOptions, type RestEndpointOptions, type RestExtendedEndpoint, type RestFetch, type RestGenerics, type RestInstance, type RestInstanceBase, type RestType, type RestTypeNoBody, type RestTypeWithBody, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type ShortenPath, type SnapshotInterface, type UnknownError, resource as createResource, getUrlBase, getUrlTokens, hookifyResource, resource, schema_d as schema, validateRequired };

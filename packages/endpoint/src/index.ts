@@ -16,7 +16,6 @@ export type { Array, Invalidate, Collection, DefaultArgs } from './schema.js';
 export { default as Entity } from './schemas/Entity.js';
 export { default as EntityMixin } from './schemas/EntityMixin.js';
 export { default as validateRequired } from './validateRequired.js';
-export { INVALID } from './special.js';
 export type {
   EndpointInterface,
   ReadEndpoint,

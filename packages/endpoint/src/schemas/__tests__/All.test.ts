@@ -1,11 +1,15 @@
 // eslint-env jest
 import { initialState, State, Controller } from '@data-client/core';
-import { normalize, MemoCache, denormalize } from '@data-client/normalizr';
+import {
+  normalize,
+  MemoCache,
+  denormalize,
+  INVALID,
+} from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 
 import { schema } from '../..';
 import { fromJSState } from './denormalize';
-import { INVALID } from '../../special';
 
 let dateSpy: jest.SpyInstance<number, []>;
 beforeAll(() => {

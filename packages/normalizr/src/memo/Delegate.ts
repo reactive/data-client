@@ -5,6 +5,7 @@ import type {
   IQueryDelegate,
 } from '../interface.js';
 import { QueryPath, IndexPath } from './types.js';
+import { INVALID } from '../denormalize/symbol.js';
 
 export const getDependency =
   (delegate: IBaseDelegate) =>
@@ -58,10 +59,11 @@ export class BaseDelegate implements IBaseDelegate {
 }
 
 export class TrackingQueryDelegate implements IQueryDelegate {
+  readonly INVALID = INVALID;
   declare protected snap: IBaseDelegate;
   // first dep path is ignored
   // we start with schema object, then lookup any 'touched' members and their paths
-  declare dependencies: Dep<QueryPath>[];
+  declare readonly dependencies: Dep<QueryPath>[];
 
   constructor(snap: IBaseDelegate, schema: any) {
     this.snap = snap;
