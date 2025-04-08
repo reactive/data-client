@@ -191,6 +191,8 @@ type NormalizeNullable<S> = S extends {
     [K: string]: any;
 } ? NormalizedNullableObject<S> : S;
 
+declare const INVALID: unique symbol;
+
 /** Maps a (ordered) list of dependencies to a value.
  *
  * Useful as a memoization cache for flat/normalized stores.
@@ -227,12 +229,12 @@ declare class MemoCache {
     protected queryKeys: Map<string, WeakDependencyMap<QueryPath>>;
     /** Compute denormalized form maintaining referential equality for same inputs */
     denormalize<S extends Schema>(schema: S | undefined, input: unknown, entities: any, args?: readonly any[]): {
-        data: DenormalizeNullable<S> | symbol;
+        data: DenormalizeNullable<S> | typeof INVALID;
         paths: EntityPath[];
     };
     /** Compute denormalized form maintaining referential equality for same inputs */
     query<S extends Schema>(schema: S, args: readonly any[], state: StateInterface, argsKey?: string): {
-        data: DenormalizeNullable<S> | symbol;
+        data: DenormalizeNullable<S> | typeof INVALID;
         paths: EntityPath[];
     };
     buildQueryKey<S extends Schema>(schema: S, args: readonly any[], state: StateInterface, argsKey?: string): NormalizeNullable<S>;
@@ -333,8 +335,6 @@ interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
 type UpdateFunction<SourceSchema extends Schema | undefined, DestSchema extends Schema> = (sourceResults: Normalize<SourceSchema>, destResults: Normalize<DestSchema> | undefined) => Normalize<DestSchema>;
 
 type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Promise<R>;
-
-declare const INVALID: unique symbol;
 
 declare class AbortOptimistic extends Error {
 }

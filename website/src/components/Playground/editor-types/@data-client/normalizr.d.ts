@@ -225,7 +225,9 @@ interface NormalizeMeta {
     fetchedAt: number;
 }
 
-declare function denormalize<S extends Schema>(schema: S | undefined, input: any, entities: any, args?: readonly any[]): DenormalizeNullable<S> | symbol;
+declare const INVALID: unique symbol;
+
+declare function denormalize<S extends Schema>(schema: S | undefined, input: any, entities: any, args?: readonly any[]): DenormalizeNullable<S> | typeof INVALID;
 
 declare function isEntity(schema: Schema): schema is EntityInterface;
 
@@ -267,12 +269,12 @@ declare class MemoCache {
     protected queryKeys: Map<string, WeakDependencyMap<QueryPath>>;
     /** Compute denormalized form maintaining referential equality for same inputs */
     denormalize<S extends Schema>(schema: S | undefined, input: unknown, entities: any, args?: readonly any[]): {
-        data: DenormalizeNullable<S> | symbol;
+        data: DenormalizeNullable<S> | typeof INVALID;
         paths: EntityPath[];
     };
     /** Compute denormalized form maintaining referential equality for same inputs */
     query<S extends Schema>(schema: S, args: readonly any[], state: StateInterface, argsKey?: string): {
-        data: DenormalizeNullable<S> | symbol;
+        data: DenormalizeNullable<S> | typeof INVALID;
         paths: EntityPath[];
     };
     buildQueryKey<S extends Schema>(schema: S, args: readonly any[], state: StateInterface, argsKey?: string): NormalizeNullable<S>;
@@ -397,8 +399,6 @@ interface MutateEndpoint<F extends FetchFunction = FetchFunction, S extends Sche
 type ReadEndpoint<F extends FetchFunction = FetchFunction, S extends Schema | undefined = Schema | undefined> = EndpointInterface<F, S, undefined | false>;
 
 type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Promise<R>;
-
-declare const INVALID: unique symbol;
 
 declare function validateQueryKey(queryKey: unknown): boolean;
 

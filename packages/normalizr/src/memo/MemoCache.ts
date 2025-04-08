@@ -21,6 +21,7 @@ import {
 } from './Delegate.js';
 import { EndpointsCache, EntityCache } from './types.js';
 import { QueryPath } from './types.js';
+import type { INVALID } from '../denormalize/symbol.js';
 
 //TODO: make immutable distinction occur when initilizing MemoCache
 
@@ -40,7 +41,7 @@ export default class MemoCache {
     entities: any,
     args: readonly any[] = [],
   ): {
-    data: DenormalizeNullable<S> | symbol;
+    data: DenormalizeNullable<S> | typeof INVALID;
     paths: EntityPath[];
   } {
     // we already vary based on input, so we don't need endpointKey? TODO: verify
@@ -72,7 +73,7 @@ export default class MemoCache {
     // NOTE: different orders can result in cache busting here; but since it's just a perf penalty we will allow for now
     argsKey: string = JSON.stringify(args),
   ): {
-    data: DenormalizeNullable<S> | symbol;
+    data: DenormalizeNullable<S> | typeof INVALID;
     paths: EntityPath[];
   } {
     const input = this.buildQueryKey(schema, args, state, argsKey);

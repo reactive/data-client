@@ -1,6 +1,7 @@
 import type Cache from './cache.js';
 import type { EntityInterface } from '../interface.js';
 import type { EntityPath } from '../types.js';
+import type { INVALID } from './symbol.js';
 
 export default class LocalCache implements Cache {
   private localCache = new Map<string, Map<string, any>>();
@@ -10,7 +11,7 @@ export default class LocalCache implements Cache {
     schema: EntityInterface,
     entity: any,
     computeValue: (localCacheKey: Map<string, any>) => void,
-  ): object | undefined | symbol {
+  ): object | undefined | typeof INVALID {
     const key = schema.key;
     if (!this.localCache.has(key)) {
       this.localCache.set(key, new Map<string, any>());

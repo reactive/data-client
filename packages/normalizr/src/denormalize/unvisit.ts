@@ -18,7 +18,7 @@ const getUnvisitEntity = (
   return function unvisitEntity(
     schema: EntityInterface,
     entityOrId: Record<string, any> | string,
-  ): object | undefined | symbol {
+  ): object | undefined | typeof INVALID {
     const inputIsId = typeof entityOrId !== 'object';
     const entity =
       inputIsId ? getEntity({ key: schema.key, pk: entityOrId }) : entityOrId;
@@ -92,7 +92,7 @@ function unvisitEntityObject(
 
 function noCacheGetEntity(
   computeValue: (localCacheKey: Map<string, any>) => void,
-): object | undefined | symbol {
+): object | undefined | typeof INVALID {
   const localCacheKey = new Map<string, any>();
   computeValue(localCacheKey);
 
