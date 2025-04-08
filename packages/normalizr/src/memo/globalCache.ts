@@ -2,6 +2,7 @@ import { EndpointsCache, EntityCache } from './types.js';
 import WeakDependencyMap, { type Dep } from './WeakDependencyMap.js';
 import type Cache from '../denormalize/cache.js';
 import type { GetEntity } from '../denormalize/getEntities.js';
+import type { INVALID } from '../denormalize/symbol.js';
 import type { EntityInterface } from '../interface.js';
 import type { EntityPath } from '../types.js';
 
@@ -34,7 +35,7 @@ export default class GlobalCache implements Cache {
     schema: EntityInterface,
     entity: any,
     computeValue: (localCacheKey: Map<string, any>) => void,
-  ): object | undefined | symbol {
+  ): object | undefined | typeof INVALID {
     const key = schema.key;
     const { localCacheKey, cycleCacheKey } = this.getCacheKey(key);
 
@@ -140,7 +141,7 @@ export default class GlobalCache implements Cache {
 
 interface EntityCacheValue {
   dependencies: Dep<EntityPath>[];
-  value: object | symbol | undefined;
+  value: object | typeof INVALID | undefined;
 }
 
 const getEntityCaches = (entityCache: EntityCache) => {
