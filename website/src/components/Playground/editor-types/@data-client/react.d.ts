@@ -219,11 +219,11 @@ declare function useLive<E extends EndpointInterface<FetchFunction, Schema | und
  * @param updatable Whether to update at all
  * @example
  ```
- const debouncedFilter = useDebounce(filter, 200);
- const list = useSuspense(getThings, { filter: debouncedFilter });
+ const [debouncedQuery, isPending] = useDebounce(query, 200);
+ const list = useSuspense(getThings, { query: debouncedQuery });
  ```
  */
-declare function useDebounce<T>(value: T, delay: number, updatable?: boolean): T;
+declare function useDebounce<T>(value: T, delay: number, updatable?: boolean): [T, boolean];
 
 /**
  * Builds an Endpoint that cancels fetch everytime params change

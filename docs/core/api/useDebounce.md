@@ -95,7 +95,7 @@ export default React.memo(IssueList) as typeof IssueList;
 
 ```tsx title="SearchIssues" {8}
 import { AsyncBoundary } from '@data-client/react';
-import { useDebounce } from '@data-client/react/next';
+import { useDebounce } from '@data-client/react';
 import IssueList from './IssueList';
 
 export default function SearchIssues() {

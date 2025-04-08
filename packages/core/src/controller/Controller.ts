@@ -590,7 +590,7 @@ export default class Controller<
       .map(ensurePojo) as SchemaArgs<S>;
 
     const { data } = this.memo.query(schema, args, state);
-    return typeof data === 'symbol' ? undefined : (data as any);
+    return typeof data === 'symbol' ? undefined : data;
   }
 
   /**
