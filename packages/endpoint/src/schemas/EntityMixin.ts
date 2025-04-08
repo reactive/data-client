@@ -3,10 +3,8 @@ import type {
   Visit,
   IQueryDelegate,
   INormalizeDelegate,
-  Mergeable,
 } from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
-import { INVALID } from '../special.js';
 import type {
   IEntityClass,
   IEntityInstance,
@@ -256,8 +254,7 @@ export default function EntityMixin<TBase extends Constructor>(
         id = `${this.pk(input, parent, key, args)}`;
         // TODO: add undefined id check
 
-        // set directly: any queued updates are meaningless with delete
-        delegate.setEntity(this, id, INVALID);
+        delegate.invalidate(this, id);
         return id;
       }
       id = this.pk(processedEntity, parent, key, args);

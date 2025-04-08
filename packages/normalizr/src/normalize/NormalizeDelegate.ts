@@ -148,6 +148,12 @@ export class NormalizeDelegate
     if (updateMeta) this._setMeta(key, pk, meta);
   }
 
+  /** Invalidates an entity, potentially triggering suspense */
+  invalidate(schema: { key: string; indexes?: any }, pk: string) {
+    // set directly: any queued updates are meaningless with delete
+    this.setEntity(schema, pk, INVALID);
+  }
+
   protected _setEntity(key: string, pk: string, entity: any) {
     (this.entities[key] as any)[pk] = entity;
   }

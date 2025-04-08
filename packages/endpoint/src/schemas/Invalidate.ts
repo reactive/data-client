@@ -4,7 +4,6 @@ import type {
   SchemaSimple,
 } from '../interface.js';
 import type { AbstractInstanceType } from '../normal.js';
-import { INVALID } from '../special.js';
 
 /**
  * Marks entity as Invalid.
@@ -74,7 +73,7 @@ export default class Invalidate<
 
     // any queued updates are meaningless with delete, so we should just set it
     // and creates will have a different pk
-    delegate.setEntity(this as any, pk, INVALID);
+    delegate.invalidate(this as any, pk);
     return pk;
   }
 

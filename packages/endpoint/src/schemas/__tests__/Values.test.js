@@ -1,11 +1,9 @@
 // eslint-env jest
-import { normalize } from '@data-client/normalizr';
+import { normalize, INVALID } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
-import { fromJS } from 'immutable';
 
 import { SimpleMemoCache, fromJSEntities } from './denormalize';
 import { schema } from '../../';
-import { INVALID } from '../../special';
 import Entity from '../Entity';
 
 let dateSpy;

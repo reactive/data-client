@@ -1,4 +1,5 @@
-import { INVALID, Entity } from '@data-client/endpoint';
+import { Entity } from '@data-client/endpoint';
+import { INVALID } from '@data-client/normalizr';
 import { ArticleResource, Article, PaginatedArticle } from '__tests__/new';
 
 import { Controller } from '../..';
