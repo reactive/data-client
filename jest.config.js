@@ -91,7 +91,7 @@ const projects = [
     testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.native\\.(j|t)sx?$',
     testEnvironment: require.resolve('react-native/jest/react-native-env.js'),
     transformIgnorePatterns: [
-      'node_modules\\/(?!(((jest-)?react-native)|@react-native(-community)?|react-navigation))', //from RN preset
+      'node_modules\\/(?!(((jest-)?react-native)|@react-native(-community)?|@react-navigation))', //from RN preset
       '<rootDir>/.*__tests__/[^/]+\\.(web|node)\\.(j|t)sx?$',
       '<rootDir>/scripts',
     ],
