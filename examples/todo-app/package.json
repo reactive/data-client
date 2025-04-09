@@ -40,7 +40,7 @@
     "@types/react-dom": "19.1.1",
     "@types/uuid": "^10.0.0",
     "react-refresh": "0.17.0",
-    "webpack": "5.99.0",
+    "webpack": "5.99.5",
     "webpack-cli": "6.0.1",
     "webpack-dev-server": "5.2.1"
   },
