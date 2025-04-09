@@ -9523,7 +9523,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"benchmark@npm:^2.1.4":
+"benchmark@npm:2.1.4, benchmark@npm:^2.1.4":
   version: 2.1.4
   resolution: "benchmark@npm:2.1.4"
   dependencies:
@@ -14198,7 +14198,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "example-benchmark@workspace:examples/benchmark"
   dependencies:
-    "@anansi/webpack-config": "npm:^21.0.0"
+    "@anansi/webpack-config": "npm:21.0.2"
     "@babel/core": "npm:7.26.10"
     "@babel/node": "npm:7.26.0"
     "@data-client/core": "workspace:^"
@@ -14207,10 +14207,10 @@ __metadata:
     "@types/babel__core": "npm:^7"
     "@types/benchmark": "npm:2.1.5"
     "@types/react": "npm:19.1.0"
-    benchmark: "npm:^2.1.4"
-    normalizr: "npm:^3.6.2"
-    react: "npm:^19.0.0"
-    webpack: "npm:^5.76.2"
+    benchmark: "npm:2.1.4"
+    normalizr: "npm:3.6.2"
+    react: "npm:19.1.0"
+    webpack: "npm:5.99.5"
     webpack-cli: "npm:^6.0.0"
   languageName: unknown
   linkType: soft
@@ -21666,7 +21666,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"normalizr@npm:^3.6.2":
+"normalizr@npm:3.6.2":
   version: 3.6.2
   resolution: "normalizr@npm:3.6.2"
   checksum: 10c0/43074b0aed2709fcc96638a3dc377edc9b76ac072d22a0608a3adf1b045df0e964e92beaf1c4011c07539a12c77e72e913a70fc940ba5528b352232049f5c908
@@ -30438,7 +30438,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack@npm:*, webpack@npm:^5, webpack@npm:^5.76.0, webpack@npm:^5.76.2, webpack@npm:^5.88.1, webpack@npm:^5.95.0":
+"webpack@npm:*, webpack@npm:5.99.5, webpack@npm:^5, webpack@npm:^5.76.0, webpack@npm:^5.88.1, webpack@npm:^5.95.0":
   version: 5.99.5
   resolution: "webpack@npm:5.99.5"
   dependencies:
