@@ -1,5 +1,6 @@
 // eslint-env jest
-import { MemoCache } from '@data-client/normalizr';
+import { MemoCache, BaseDelegate } from '@data-client/normalizr';
+import { DelegateImmutable } from '@data-client/normalizr/immutable';
 import { useQuery, useSuspense, __INTERNAL__ } from '@data-client/react';
 import { RestEndpoint } from '@data-client/rest';
 import { IDEntity } from '__tests__/new';
@@ -26,13 +27,14 @@ class User extends IDEntity {
 }
 
 describe.each([
-  ['direct', <T>(data: T) => data, <T>(data: T) => data],
+  ['direct', <T>(data: T) => data, <T>(data: T) => data, BaseDelegate],
   [
     'immutable',
     fromJSState,
     (v: any) => (typeof v?.toJS === 'function' ? v.toJS() : v),
+    DelegateImmutable,
   ],
-])(`input (%s)`, (_, createInput, createOutput) => {
+])(`input (%s)`, (_, createInput, createOutput, Delegate) => {
   const SCHEMA_CASES = [
     ['All', new schema.Object({ results: new schema.All(User) })],
     [
@@ -76,7 +78,7 @@ describe.each([
           },
         });
         const users: DenormalizeNullable<typeof sortedUsers> | symbol =
-          new MemoCache().query(sortedUsers, [], state).data;
+          new MemoCache(Delegate).query(sortedUsers, [], state).data;
         expect(users).not.toEqual(expect.any(Symbol));
         if (typeof users === 'symbol') return;
         expect(users && users[0].name).toBe('Zeta');
@@ -101,12 +103,13 @@ describe.each([
           },
         });
         expect(
-          new MemoCache().query(sortedUsers, [{ asc: true }], state).data,
+          new MemoCache(Delegate).query(sortedUsers, [{ asc: true }], state)
+            .data,
         ).toMatchSnapshot();
       });
 
       test('denormalizes should not be found when no entities are present', () => {
-        const state = {
+        const state = createInput({
           ...initialState,
           entities: {
             DOG: {
@@ -114,8 +117,8 @@ describe.each([
               2: { id: '2', name: 'Jake' },
             },
           },
-        };
-        const { data } = new MemoCache().query(sortedUsers, [], state);
+        });
+        const { data } = new MemoCache(Delegate).query(sortedUsers, [], state);
 
         expect(createOutput(data)).not.toEqual(expect.any(Array));
       });
@@ -152,12 +155,16 @@ describe.each([
         });
         const totalCount:
           | DenormalizeNullable<typeof userCountByAdmin>
-          | symbol = new MemoCache().query(userCountByAdmin, [], state).data;
+          | symbol = new MemoCache(Delegate).query(
+          userCountByAdmin,
+          [],
+          state,
+        ).data;
 
         expect(totalCount).toBe(4);
         const nonAdminCount:
           | DenormalizeNullable<typeof userCountByAdmin>
-          | symbol = new MemoCache().query(
+          | symbol = new MemoCache(Delegate).query(
           userCountByAdmin,
           [{ isAdmin: false }],
           state,
@@ -165,7 +172,7 @@ describe.each([
         expect(nonAdminCount).toBe(3);
         const adminCount:
           | DenormalizeNullable<typeof userCountByAdmin>
-          | symbol = new MemoCache().query(
+          | symbol = new MemoCache(Delegate).query(
           userCountByAdmin,
           [{ isAdmin: true }],
           state,
