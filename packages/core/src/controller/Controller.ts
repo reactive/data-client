@@ -544,8 +544,6 @@ export default class Controller<
       };
     }
 
-    // second argument is false if any entities are missing
-
     const { data, paths } = this.memo.denormalize(
       schema,
       input,

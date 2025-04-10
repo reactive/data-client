@@ -1,4 +1,5 @@
-import { IBaseDelegate, TrackingQueryDelegate } from './Delegate.js';
+import { IBaseDelegate } from '../interface.js';
+import { TrackingQueryDelegate } from './Delegate.js';
 import { IndexPath } from './types.js';
 
 type ImmutableJSEntityTable = {
@@ -30,6 +31,10 @@ export class DelegateImmutable implements IBaseDelegate {
 
   getIndex(key: string, field: string) {
     return this.indexes.getIn([key, field]);
+  }
+
+  tracked(schema: any) {
+    return new TrackingQueryDelegateImmutable(this, schema);
   }
 }
 

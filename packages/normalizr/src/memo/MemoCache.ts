@@ -1,29 +1,21 @@
 import GlobalCache from './globalCache.js';
 import WeakDependencyMap from './WeakDependencyMap.js';
 import buildQueryKey from '../buildQueryKey.js';
-import {
-  DelegateImmutable,
-  TrackingQueryDelegateImmutable,
-} from './Delegate.immutable.js';
 import { getEntities } from '../denormalize/getEntities.js';
 import getUnvisit from '../denormalize/unvisit.js';
-import type { NormalizedIndex, Schema } from '../interface.js';
+import type { IBaseDelegate, NormalizedIndex, Schema } from '../interface.js';
 import { isImmutable } from '../schemas/ImmutableUtils.js';
 import type {
   DenormalizeNullable,
   EntityPath,
   NormalizeNullable,
 } from '../types.js';
-import {
-  getDependency,
-  BaseDelegate,
-  TrackingQueryDelegate,
-} from './Delegate.js';
+import { getDependency, BaseDelegate } from './Delegate.js';
 import { EndpointsCache, EntityCache } from './types.js';
 import { QueryPath } from './types.js';
 import type { INVALID } from '../denormalize/symbol.js';
 
-//TODO: make immutable distinction occur when initilizing MemoCache
+type DelegateClass = new (v: { entities: any; indexes: any }) => IBaseDelegate;
 
 /** Singleton to store the memoization cache for denormalization methods */
 export default class MemoCache {
@@ -33,6 +25,11 @@ export default class MemoCache {
   protected endpoints: EndpointsCache = new WeakDependencyMap<EntityPath>();
   /** Caches the queryKey based on schema, args, and any used entities or indexes */
   protected queryKeys: Map<string, WeakDependencyMap<QueryPath>> = new Map();
+  declare protected Delegate: DelegateClass;
+
+  constructor(Delegate: DelegateClass = BaseDelegate) {
+    this.Delegate = Delegate;
+  }
 
   /** Compute denormalized form maintaining referential equality for same inputs */
   denormalize<S extends Schema>(
@@ -61,7 +58,6 @@ export default class MemoCache {
       getEntity,
       new GlobalCache(getEntity, this.entities, this.endpoints),
       args,
-      isImmutable(entities),
     )(schema, input);
   }
 
@@ -112,12 +108,7 @@ export default class MemoCache {
       any
     >;
 
-    const imm = isImmutable(state.entities);
-
-    // TODO: remove casting when we split this to immutable vs plain implementations
-    const baseDelegate = new (imm ? DelegateImmutable : BaseDelegate)(
-      state as any,
-    );
+    const baseDelegate = new this.Delegate(state);
     // eslint-disable-next-line prefer-const
     let [value, paths] = queryCache.get(
       schema as any,
@@ -126,10 +117,7 @@ export default class MemoCache {
 
     // paths undefined is the only way to truly tell nothing was found (the value could have actually been undefined)
     if (!paths) {
-      const tracked = new (
-        imm ?
-          TrackingQueryDelegateImmutable
-        : TrackingQueryDelegate)(baseDelegate, schema);
+      const tracked = baseDelegate.tracked(schema);
 
       value = buildQueryKey(tracked)(schema, args);
       queryCache.set(tracked.dependencies, value);
