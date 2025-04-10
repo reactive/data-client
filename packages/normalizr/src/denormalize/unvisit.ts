@@ -12,7 +12,6 @@ const getUnvisitEntity = (
   getEntity: GetEntity,
   cache: Cache,
   args: readonly any[],
-  isImmutable: boolean,
   unvisit: (schema: any, input: any) => any,
 ) => {
   return function unvisitEntity(
@@ -103,16 +102,9 @@ const getUnvisit = (
   getEntity: GetEntity,
   cache: Cache,
   args: readonly any[],
-  isImmutable: boolean,
 ) => {
   // we don't inline this as making this function too big inhibits v8's JIT
-  const unvisitEntity = getUnvisitEntity(
-    getEntity,
-    cache,
-    args,
-    isImmutable,
-    unvisit,
-  );
+  const unvisitEntity = getUnvisitEntity(getEntity, cache, args, unvisit);
   function unvisit(schema: any, input: any): any {
     if (!schema) return input;
 

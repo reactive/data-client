@@ -3,6 +3,7 @@ import type {
   EntityTable,
   NormalizedIndex,
   IQueryDelegate,
+  IBaseDelegate,
 } from '../interface.js';
 import { QueryPath, IndexPath } from './types.js';
 import { INVALID } from '../denormalize/symbol.js';
@@ -14,14 +15,6 @@ export const getDependency =
     args.length === 3 ?
       delegate.getIndex(args[0], args[1])
     : delegate.getEntity(...(args as [any]));
-
-export interface IBaseDelegate {
-  entities: any;
-  indexes: any;
-
-  getEntity(entityKey: string | symbol, pk?: string): any;
-  getIndex(key: string, field: string): any;
-}
 
 export class BaseDelegate implements IBaseDelegate {
   declare entities: EntityTable;
@@ -55,6 +48,10 @@ export class BaseDelegate implements IBaseDelegate {
   // this is different return value than QuerySnapshot
   getIndex(key: string, field: string) {
     return this.indexes[key]?.[field];
+  }
+
+  tracked(schema: any) {
+    return new TrackingQueryDelegate(this, schema);
   }
 }
 
