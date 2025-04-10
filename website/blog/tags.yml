@@ -18,10 +18,10 @@ nextjs:
   description: 'NextJS is an SSR and SSG framework for ReactJS'
   permalink: /nextjs
 
-expogo:
-  label: 'ExpoGo'
-  description: 'ExpoGo is a React Native framework'
-  permalink: /expogo
+expo:
+  label: 'Expo'
+  description: 'Expo (and ExpoGo) is a React Native framework'
+  permalink: /expo
 
 native:
   label: 'React Native'

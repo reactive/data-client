@@ -83,7 +83,7 @@ const projects = [
     testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.node\\.(j|t)sx?$',
   },
   {
-    // RN preset at https://github.com/facebook/react-native/blob/main/jest-preset.js
+    // RN preset at https://github.com/facebook/react-native/blob/main/packages/react-native/jest-preset.js
     ...baseConfig,
     rootDir: __dirname,
     roots: packages.map(pkgName => `<rootDir>/packages/${pkgName}/src`),

@@ -17,6 +17,7 @@ flowchart BT
       pk---validate("Entity.validate()")
       process-->validate
       validate---normNest("normalize(this.schema)")
+      normNest-->mergeEntity("delegate.mergeEntity()")
     end
     Entity.normalize--processedEntity-->INSTORE
     subgraph INSTORE["Found In Store"]
