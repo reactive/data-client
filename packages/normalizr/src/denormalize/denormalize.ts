@@ -2,7 +2,6 @@ import { getEntities } from './getEntities.js';
 import LocalCache from './localCache.js';
 import getUnvisit from './unvisit.js';
 import type { Schema } from '../interface.js';
-import { isImmutable } from '../schemas/ImmutableUtils.js';
 import type { DenormalizeNullable } from '../types.js';
 import type { INVALID } from './symbol.js';
 
@@ -21,6 +20,5 @@ export function denormalize<S extends Schema>(
     getEntities(entities),
     new LocalCache(),
     args,
-    isImmutable(entities),
   )(schema, input).data;
 }

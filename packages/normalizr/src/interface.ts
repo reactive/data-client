@@ -1,3 +1,6 @@
+import type { QueryPath } from './memo/types.js';
+import type { Dep } from './memo/WeakDependencyMap.js';
+
 export type Schema =
   | null
   | string
@@ -121,6 +124,17 @@ export interface IQueryDelegate {
   getIndex: GetIndex;
   /** Return to consider results invalid */
   INVALID: symbol;
+}
+
+export interface IBaseDelegate {
+  entities: any;
+  indexes: any;
+
+  getEntity(entityKey: string | symbol, pk?: string): any;
+  getIndex(key: string, field: string): any;
+  tracked(
+    schema: any,
+  ): IQueryDelegate & { readonly dependencies: Dep<QueryPath>[] };
 }
 
 /** Helpers during schema.normalize() */

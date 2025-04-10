@@ -10,6 +10,8 @@ import {
 
 import { fromJSState } from './immutable.test';
 import { IQueryDelegate } from '../interface';
+import { BaseDelegate } from '../memo/Delegate';
+import { DelegateImmutable } from '../memo/Delegate.immutable';
 import MemoCache from '../memo/MemoCache';
 
 class IDEntity extends Entity {
@@ -1009,13 +1011,9 @@ describe('MemoCache', () => {
   });
 
   describe.each([
-    ['direct', <T>(data: T) => data, <T>(data: T) => data],
-    [
-      'immutable',
-      fromJSState,
-      (v: any) => (typeof v?.toJS === 'function' ? v.toJS() : v),
-    ],
-  ])(`query (%s)`, (_, createInput, createOutput) => {
+    ['direct', <T>(data: T) => data, BaseDelegate],
+    ['immutable', fromJSState, DelegateImmutable],
+  ])(`query (%s)`, (_, createInput, Delegate) => {
     class Cat extends IDEntity {
       id = '0';
       name = '';
@@ -1038,20 +1036,29 @@ describe('MemoCache', () => {
     });
 
     test('works with indexes', () => {
-      const m = new MemoCache().query(Cat, [{ username: 'm' }], state).data;
+      const m = new MemoCache(Delegate).query(
+        Cat,
+        [{ username: 'm' }],
+        state,
+      ).data;
       expect(m).toBeDefined();
       expect(m).toMatchSnapshot();
       expect(
-        new MemoCache().query(Cat, [{ username: 'doesnotexist' }], state).data,
+        new MemoCache(Delegate).query(
+          Cat,
+          [{ username: 'doesnotexist' }],
+          state,
+        ).data,
       ).toBeUndefined();
     });
 
     test('works with pk', () => {
-      const m = new MemoCache().query(Cat, [{ id: '1' }], state);
+      const m = new MemoCache(Delegate).query(Cat, [{ id: '1' }], state);
       expect(m).toBeDefined();
       expect(m).toMatchSnapshot();
       expect(
-        new MemoCache().query(Cat, [{ id: 'doesnotexist' }], state).data,
+        new MemoCache(Delegate).query(Cat, [{ id: 'doesnotexist' }], state)
+          .data,
       ).toBeUndefined();
     });
   });
