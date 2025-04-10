@@ -39,7 +39,7 @@
     "@types/lodash": "4.14.192",
     "@types/parse-link-header": "^2.0.0",
     "@types/react": "19.1.0",
-    "@types/react-dom": "19.1.1",
+    "@types/react-dom": "19.1.2",
     "@types/uuid": "^10.0.0",
     "react-refresh": "0.17.0",
     "serve": "14.2.4",
