@@ -16,10 +16,10 @@ exports[`MemoCache query (direct) works with pk 1`] = `
     "username": "m",
   },
   "paths": [
-    {
-      "key": "Cat",
-      "pk": "1",
-    },
+    [
+      "Cat",
+      "1",
+    ],
   ],
 }
 `;
@@ -40,10 +40,10 @@ exports[`MemoCache query (immutable) works with pk 1`] = `
     "username": "m",
   },
   "paths": [
-    {
-      "key": "Cat",
-      "pk": "1",
-    },
+    [
+      "Cat",
+      "1",
+    ],
   ],
 }
 `;

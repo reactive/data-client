@@ -221,7 +221,7 @@ export default class CollectionSchema<
     if (this.argsKey) {
       const pk = this.pk(undefined, undefined, '', args);
       // ensure this actually has entity or we shouldn't try to use it in our query
-      if (delegate.getEntity({ key: this.key, pk })) return pk;
+      if (delegate.getEntity(this.key, pk)) return pk;
     }
   }
 
@@ -326,7 +326,7 @@ function normalizeCreate(
   // parent is args when not nested
   const filterCollections = (this.createCollectionFilter as any)(...args);
   // add to any collections that match this
-  const entities = delegate.getEntities({ key: this.key });
+  const entities = delegate.getEntities(this.key);
   if (entities)
     Object.keys(entities).forEach(collectionPk => {
       if (!filterCollections(JSON.parse(collectionPk))) return;

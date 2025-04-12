@@ -26,7 +26,7 @@ export default class AllSchema<
 
   queryKey(args: any, unvisit: any, delegate: IQueryDelegate): any {
     if (this.isSingleSchema) {
-      const entitiesEntry = delegate.getEntities({ key: this.schema.key });
+      const entitiesEntry = delegate.getEntities(this.schema.key);
       // we must wait until there are entries for any 'All' query to be Valid
       if (entitiesEntry === undefined) return delegate.INVALID;
       return Object.values(entitiesEntry).map(
@@ -36,7 +36,7 @@ export default class AllSchema<
     let found = false;
     const list = Object.values(this.schema as Record<string, any>).flatMap(
       (schema: EntityInterface) => {
-        const entitiesEntry = delegate.getEntities({ key: schema.key });
+        const entitiesEntry = delegate.getEntities(schema.key);
         if (entitiesEntry === undefined) return [];
         found = true;
         return Object.entries(entitiesEntry).map(([key, entity]) => ({
