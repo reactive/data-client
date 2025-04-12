@@ -1,5 +1,5 @@
 // eslint-env jest
-import { MemoCache, BaseDelegate } from '@data-client/normalizr';
+import { MemoCache, Delegate } from '@data-client/normalizr';
 import { DelegateImmutable } from '@data-client/normalizr/immutable';
 import { useQuery, useSuspense, __INTERNAL__ } from '@data-client/react';
 import { RestEndpoint } from '@data-client/rest';
@@ -27,14 +27,14 @@ class User extends IDEntity {
 }
 
 describe.each([
-  ['direct', <T>(data: T) => data, <T>(data: T) => data, BaseDelegate],
+  ['direct', <T>(data: T) => data, <T>(data: T) => data, Delegate],
   [
     'immutable',
     fromJSState,
     (v: any) => (typeof v?.toJS === 'function' ? v.toJS() : v),
     DelegateImmutable,
   ],
-])(`input (%s)`, (_, createInput, createOutput, Delegate) => {
+])(`input (%s)`, (_, createInput, createOutput, MyDelegate) => {
   const SCHEMA_CASES = [
     ['All', new schema.Object({ results: new schema.All(User) })],
     [
@@ -78,7 +78,7 @@ describe.each([
           },
         });
         const users: DenormalizeNullable<typeof sortedUsers> | symbol =
-          new MemoCache(Delegate).query(sortedUsers, [], state).data;
+          new MemoCache(MyDelegate).query(sortedUsers, [], state).data;
         expect(users).not.toEqual(expect.any(Symbol));
         if (typeof users === 'symbol') return;
         expect(users && users[0].name).toBe('Zeta');
@@ -103,7 +103,7 @@ describe.each([
           },
         });
         expect(
-          new MemoCache(Delegate).query(sortedUsers, [{ asc: true }], state)
+          new MemoCache(MyDelegate).query(sortedUsers, [{ asc: true }], state)
             .data,
         ).toMatchSnapshot();
       });
@@ -118,7 +118,11 @@ describe.each([
             },
           },
         });
-        const { data } = new MemoCache(Delegate).query(sortedUsers, [], state);
+        const { data } = new MemoCache(MyDelegate).query(
+          sortedUsers,
+          [],
+          state,
+        );
 
         expect(createOutput(data)).not.toEqual(expect.any(Array));
       });
@@ -155,7 +159,7 @@ describe.each([
         });
         const totalCount:
           | DenormalizeNullable<typeof userCountByAdmin>
-          | symbol = new MemoCache(Delegate).query(
+          | symbol = new MemoCache(MyDelegate).query(
           userCountByAdmin,
           [],
           state,
@@ -164,7 +168,7 @@ describe.each([
         expect(totalCount).toBe(4);
         const nonAdminCount:
           | DenormalizeNullable<typeof userCountByAdmin>
-          | symbol = new MemoCache(Delegate).query(
+          | symbol = new MemoCache(MyDelegate).query(
           userCountByAdmin,
           [{ isAdmin: false }],
           state,
@@ -172,7 +176,7 @@ describe.each([
         expect(nonAdminCount).toBe(3);
         const adminCount:
           | DenormalizeNullable<typeof userCountByAdmin>
-          | symbol = new MemoCache(Delegate).query(
+          | symbol = new MemoCache(MyDelegate).query(
           userCountByAdmin,
           [{ isAdmin: true }],
           state,

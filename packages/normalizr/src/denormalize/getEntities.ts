@@ -1,6 +1,6 @@
-import { GetDependency } from '../memo/WeakDependencyMap.js';
+import type { EntityPath } from '../interface.js';
+import type { GetDependency } from '../memo/WeakDependencyMap.js';
 import { isImmutable } from '../schemas/ImmutableUtils.js';
-import { EntityPath } from '../types.js';
 
 export function getEntities<K extends object>(
   state: State<K>,
