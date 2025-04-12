@@ -2,11 +2,10 @@ import type Cache from './cache.js';
 import { type GetEntity } from './getEntities.js';
 import { INVALID } from './symbol.js';
 import { UNDEF } from './UNDEF.js';
-import type { EntityInterface } from '../interface.js';
+import type { EntityInterface, EntityPath } from '../interface.js';
 import { isEntity } from '../isEntity.js';
 import { denormalize as arrayDenormalize } from '../schemas/Array.js';
 import { denormalize as objectDenormalize } from '../schemas/Object.js';
-import type { EntityPath } from '../types.js';
 
 const getUnvisitEntity = (
   getEntity: GetEntity,

@@ -10,7 +10,7 @@ import {
 
 import { fromJSState } from './immutable.test';
 import { IQueryDelegate } from '../interface';
-import { BaseDelegate } from '../memo/Delegate';
+import { PlainDelegate } from '../memo/Delegate';
 import { DelegateImmutable } from '../memo/Delegate.immutable';
 import MemoCache from '../memo/MemoCache';
 
@@ -894,17 +894,21 @@ describe('MemoCache', () => {
 
     describe('legacy schema', () => {
       class MyEntity extends CoolerArticle {
-        static queryKey(args: any[], unvisit: any, snapshot: IQueryDelegate) {
+        static queryKey(args: any[], unvisit: any, delegate: IQueryDelegate) {
           if (!args[0]) return;
-          let id: undefined | number | string;
+          let pk: any;
           if (['string', 'number'].includes(typeof args[0])) {
-            id = `${args[0]}`;
+            pk = `${args[0]}`;
           } else {
-            id = this.pk(args[0], undefined, '', args);
+            pk = this.pk(args[0], undefined, '', args);
           }
           // Was able to infer the entity's primary key from params
-          if (id !== undefined && id !== '' && snapshot.getEntity(this.key, id))
-            return id;
+          if (
+            pk !== undefined &&
+            pk !== '' &&
+            delegate.getEntity({ key: this.key, pk })
+          )
+            return pk;
         }
       }
 
@@ -1011,7 +1015,7 @@ describe('MemoCache', () => {
   });
 
   describe.each([
-    ['direct', <T>(data: T) => data, BaseDelegate],
+    ['direct', <T>(data: T) => data, PlainDelegate],
     ['immutable', fromJSState, DelegateImmutable],
   ])(`query (%s)`, (_, createInput, Delegate) => {
     class Cat extends IDEntity {

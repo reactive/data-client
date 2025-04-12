@@ -1,20 +1,135 @@
-/** Maps a (ordered) list of dependencies to a value.
- *
- * Useful as a memoization cache for flat/normalized stores.
- *
- * All dependencies are only weakly referenced, allowing automatic garbage collection
- * when any dependencies are no longer used.
- */
-declare class WeakDependencyMap<Path, K extends object = object, V = any> {
-    private readonly next;
-    private nextPath;
-    get(entity: K, getDependency: GetDependency<Path, K | symbol>): readonly [undefined, undefined] | readonly [V, Path[]];
-    set(dependencies: Dep<Path, K>[], value: V): void;
+type Schema = null | string | {
+    [K: string]: any;
+} | Schema[] | SchemaSimple | Serializable;
+interface Queryable<Args extends readonly any[] = readonly any[]> {
+    queryKey(args: Args, unvisit: (...args: any) => any, delegate: {
+        getEntity: any;
+        getIndex: any;
+    }): {};
 }
-type GetDependency<Path, K = object | symbol> = (lookup: Path) => K | undefined;
-interface Dep<Path, K = object> {
-    path: Path;
-    entity: K;
+type Serializable<T extends {
+    toJSON(): string;
+} = {
+    toJSON(): string;
+}> = (value: any) => T;
+interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
+    normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, delegate: {
+        getEntity: any;
+        setEntity: any;
+    }): any;
+    denormalize(input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any): T;
+    queryKey(args: Args, unvisit: (...args: any) => any, delegate: {
+        getEntity: any;
+        getIndex: any;
+    }): any;
+}
+interface SchemaClass<T = any, Args extends readonly any[] = any[]> extends SchemaSimple<T, Args> {
+    _normalizeNullable(): any;
+    _denormalizeNullable(): any;
+}
+interface EntityInterface<T = any> extends SchemaSimple {
+    createIfValid(props: any): any;
+    pk(params: any, parent: any, key: string | undefined, args: readonly any[]): string | number | undefined;
+    readonly key: string;
+    indexes?: any;
+    schema: Record<string, Schema>;
+    prototype: T;
+    cacheWith?: object;
+}
+interface Mergeable {
+    key: string;
+    merge(existing: any, incoming: any): any;
+    mergeWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
+    mergeMetaWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
+}
+interface NormalizedIndex {
+    readonly [entityKey: string]: {
+        readonly [indexName: string]: {
+            readonly [lookup: string]: string;
+        };
+    };
+}
+interface EntityTable {
+    [entityKey: string]: {
+        [pk: string]: unknown;
+    } | undefined;
+}
+/** Visits next data + schema while recurisvely normalizing */
+interface Visit {
+    (schema: any, value: any, parent: any, key: any, args: readonly any[]): any;
+}
+interface EntityPath {
+    key: string;
+    pk: string;
+}
+interface IndexPath {
+    key: string;
+    field: string;
+    value: string;
+}
+interface EntitiesPath {
+    key: string;
+}
+type QueryPath = IndexPath | EntityPath | EntitiesPath;
+/** Returns true if a circular reference is found */
+interface CheckLoop {
+    (entityKey: string, pk: string, input: object): boolean;
+}
+/** Get all normalized entities of one type from store */
+interface GetEntities {
+    (path: EntitiesPath): {
+        readonly [pk: string]: any;
+    } | undefined;
+}
+/** Get normalized Entity from store */
+interface GetEntity {
+    (path: EntityPath): any;
+}
+/** Get PK using an Entity Index */
+interface GetIndex {
+    /** getIndex('User', 'username', 'ntucker') */
+    (path: IndexPath): string | undefined;
+}
+/** Accessors to the currently processing state while building query */
+interface IQueryDelegate {
+    getEntities: GetEntities;
+    getEntity: GetEntity;
+    getIndex: GetIndex;
+    /** Return to consider results invalid */
+    INVALID: symbol;
+}
+/** Helpers during schema.normalize() */
+interface INormalizeDelegate {
+    /** Action meta-data for this normalize call */
+    readonly meta: {
+        fetchedAt: number;
+        date: number;
+        expiresAt: number;
+    };
+    /** Get all normalized entities of one type from store */
+    getEntities: GetEntities;
+    /** Gets any previously normalized entity from store */
+    getEntity: GetEntity;
+    /** Updates an entity using merge lifecycles when it has previously been set */
+    mergeEntity(schema: Mergeable & {
+        indexes?: any;
+    }, pk: string, incomingEntity: any): void;
+    /** Sets an entity overwriting any previously set values */
+    setEntity(schema: {
+        key: string;
+        indexes?: any;
+    }, pk: string, entity: any, meta?: {
+        fetchedAt: number;
+        date: number;
+        expiresAt: number;
+    }): void;
+    /** Invalidates an entity, potentially triggering suspense */
+    invalidate(schema: {
+        key: string;
+        indexes?: any;
+    }, pk: string): void;
+    /** Returns true when we're in a cycle, so we should not continue recursing */
+    checkLoop(key: string, pk: string, input: object): boolean;
 }
 
 /** Attempts to infer reasonable input type to construct an Entity */
@@ -38,10 +153,6 @@ type ObjectArgs<S extends Record<string, any>> = {
     [K in keyof S]: S[K] extends Schema ? SchemaArgs<S[K]> : never;
 }[keyof S];
 
-interface EntityPath {
-    key: string;
-    pk: string;
-}
 type AbstractInstanceType<T> = T extends new (...args: any) => infer U ? U : T extends {
     prototype: infer U;
 } ? U : never;
@@ -129,149 +240,56 @@ interface NormalizeMeta {
     fetchedAt: number;
 }
 
-interface EntityCache extends Map<string, Map<string, WeakMap<EntityInterface, WeakDependencyMap<EntityPath, object, any>>>> {
-}
-type EndpointsCache = WeakDependencyMap<EntityPath, object, any>;
-type IndexPath = [key: string, field: string, value: string];
-type EntitySchemaPath = [key: string] | [key: string, pk: string];
-type QueryPath = IndexPath | EntitySchemaPath;
-
-type Schema = null | string | {
-    [K: string]: any;
-} | Schema[] | SchemaSimple | Serializable;
-interface Queryable<Args extends readonly any[] = readonly any[]> {
-    queryKey(args: Args, unvisit: (...args: any) => any, delegate: {
-        getEntity: any;
-        getIndex: any;
-    }): {};
-}
-type Serializable<T extends {
-    toJSON(): string;
-} = {
-    toJSON(): string;
-}> = (value: any) => T;
-interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
-    normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, delegate: {
-        getEntity: any;
-        setEntity: any;
-    }): any;
-    denormalize(input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any): T;
-    queryKey(args: Args, unvisit: (...args: any) => any, delegate: {
-        getEntity: any;
-        getIndex: any;
-    }): any;
-}
-interface SchemaClass<T = any, Args extends readonly any[] = any[]> extends SchemaSimple<T, Args> {
-    _normalizeNullable(): any;
-    _denormalizeNullable(): any;
-}
-interface EntityInterface<T = any> extends SchemaSimple {
-    createIfValid(props: any): any;
-    pk(params: any, parent: any, key: string | undefined, args: readonly any[]): string | number | undefined;
-    readonly key: string;
-    indexes?: any;
-    schema: Record<string, Schema>;
-    prototype: T;
-    cacheWith?: object;
-}
-interface Mergeable {
-    key: string;
-    merge(existing: any, incoming: any): any;
-    mergeWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
-    mergeMetaWithStore(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
-}
-interface NormalizedIndex {
-    readonly [entityKey: string]: {
-        readonly [indexName: string]: {
-            readonly [lookup: string]: string;
-        };
-    };
-}
-interface EntityTable {
-    [entityKey: string]: {
-        [pk: string]: unknown;
-    } | undefined;
-}
-/** Visits next data + schema while recurisvely normalizing */
-interface Visit {
-    (schema: any, value: any, parent: any, key: any, args: readonly any[]): any;
-}
-/** Returns true if a circular reference is found */
-interface CheckLoop {
-    (entityKey: string, pk: string, input: object): boolean;
-}
-/** Get Array of entities with map function applied */
-interface GetEntity {
-    (entityKey: string | symbol): {
-        readonly [pk: string]: any;
-    } | undefined;
-    (entityKey: string | symbol, pk: string | number): any;
-}
-/** Get PK using an Entity Index */
-interface GetIndex {
-    /** getIndex('User', 'username', 'ntucker') */
-    (entityKey: string, field: string, value: string): string | undefined;
-}
-/** Accessors to the currently processing state while building query */
-interface IQueryDelegate {
-    getEntity: GetEntity;
-    getIndex: GetIndex;
-    /** Return to consider results invalid */
-    INVALID: symbol;
-}
-interface IBaseDelegate {
-    entities: any;
-    indexes: any;
-    getEntity(entityKey: string | symbol, pk?: string): any;
-    getIndex(key: string, field: string): any;
-    tracked(schema: any): IQueryDelegate & {
-        readonly dependencies: Dep<QueryPath>[];
-    };
-}
-/** Helpers during schema.normalize() */
-interface INormalizeDelegate {
-    /** Action meta-data for this normalize call */
-    readonly meta: {
-        fetchedAt: number;
-        date: number;
-        expiresAt: number;
-    };
-    /** Gets any previously normalized entity from store */
-    getEntity: GetEntity;
-    /** Updates an entity using merge lifecycles when it has previously been set */
-    mergeEntity(schema: Mergeable & {
-        indexes?: any;
-    }, pk: string, incomingEntity: any): void;
-    /** Sets an entity overwriting any previously set values */
-    setEntity(schema: {
-        key: string;
-        indexes?: any;
-    }, pk: string, entity: any, meta?: {
-        fetchedAt: number;
-        date: number;
-        expiresAt: number;
-    }): void;
-    /** Invalidates an entity, potentially triggering suspense */
-    invalidate(schema: {
-        key: string;
-        indexes?: any;
-    }, pk: string): void;
-    /** Returns true when we're in a cycle, so we should not continue recursing */
-    checkLoop(key: string, pk: string, input: object): boolean;
-}
-
 declare const INVALID: unique symbol;
 
 declare function denormalize<S extends Schema>(schema: S | undefined, input: any, entities: any, args?: readonly any[]): DenormalizeNullable<S> | typeof INVALID;
 
 declare function isEntity(schema: Schema): schema is EntityInterface;
 
+/** Maps a (ordered) list of dependencies to a value.
+ *
+ * Useful as a memoization cache for flat/normalized stores.
+ *
+ * All dependencies are only weakly referenced, allowing automatic garbage collection
+ * when any dependencies are no longer used.
+ */
+declare class WeakDependencyMap<Path, K extends object = object, V = any> {
+    private readonly next;
+    private nextPath;
+    get(entity: K, getDependency: GetDependency<Path, K | symbol>): readonly [undefined, undefined] | readonly [V, Path[]];
+    set(dependencies: Dep<Path, K>[], value: V): void;
+}
+type GetDependency<Path, K = object | symbol> = (lookup: Path) => K | undefined;
+interface Dep<Path, K = object> {
+    path: Path;
+    entity: K | undefined;
+}
+
 declare const normalize: <S extends Schema = Schema, E extends Record<string, Record<string, any> | undefined> = Record<string, Record<string, any>>, R = NormalizeNullable<S>>(schema: S | undefined, input: any, args?: readonly any[], { entities, indexes, entitiesMeta }?: StoreData<E>, meta?: NormalizeMeta) => NormalizedSchema<E, R>;
+
+declare abstract class BaseDelegate {
+    entities: any;
+    indexes: any;
+    constructor({ entities, indexes }: {
+        entities: any;
+        indexes: any;
+    });
+    abstract getEntities(path: EntitiesPath): object | undefined;
+    abstract getEntity(path: EntityPath): object | undefined;
+    abstract getIndex(path: IndexPath): object | undefined;
+    abstract getIndexEnd(entity: any, value: string): string | undefined;
+    getDependency: (path: QueryPath) => object | undefined;
+    tracked(schema: any): [delegate: IQueryDelegate, dependencies: Dep<QueryPath>[]];
+}
+
+interface EntityCache extends Map<string, Map<string, WeakMap<EntityInterface, WeakDependencyMap<EntityPath, object, any>>>> {
+}
+type EndpointsCache = WeakDependencyMap<EntityPath, object, any>;
 
 type DelegateClass = new (v: {
     entities: any;
     indexes: any;
-}) => IBaseDelegate;
+}) => BaseDelegate;
 /** Singleton to store the memoization cache for denormalization methods */
 declare class MemoCache {
     /** Cache for every entity based on its dependencies and its own input */
@@ -281,7 +299,7 @@ declare class MemoCache {
     /** Caches the queryKey based on schema, args, and any used entities or indexes */
     protected queryKeys: Map<string, WeakDependencyMap<QueryPath>>;
     protected Delegate: DelegateClass;
-    constructor(Delegate?: DelegateClass);
+    constructor(D?: DelegateClass);
     /** Compute denormalized form maintaining referential equality for same inputs */
     denormalize<S extends Schema>(schema: S | undefined, input: unknown, entities: any, args?: readonly any[]): {
         data: DenormalizeNullable<S> | typeof INVALID;
@@ -303,7 +321,7 @@ type StateInterface = {
     };
 };
 
-declare class BaseDelegate implements IBaseDelegate {
+declare class Delegate extends BaseDelegate {
     entities: EntityTable;
     indexes: {
         [entityKey: string]: {
@@ -312,29 +330,14 @@ declare class BaseDelegate implements IBaseDelegate {
             };
         };
     };
-    constructor({ entities, indexes, }: {
+    constructor(state: {
         entities: EntityTable;
         indexes: NormalizedIndex;
     });
-    getEntity(entityKey: string | symbol): {
-        readonly [pk: string]: any;
-    } | undefined;
-    getEntity(entityKey: string | symbol, pk: string | number): any;
-    getIndex(key: string, field: string): {
-        [lookup: string]: string;
-    };
-    tracked(schema: any): TrackingQueryDelegate;
-}
-declare class TrackingQueryDelegate implements IQueryDelegate {
-    readonly INVALID: symbol;
-    protected snap: IBaseDelegate;
-    readonly dependencies: Dep<QueryPath>[];
-    constructor(snap: IBaseDelegate, schema: any);
-    getIndex(...path: IndexPath): string | undefined;
-    getEntity(entityKey: string | symbol): {
-        readonly [pk: string]: any;
-    } | undefined;
-    getEntity(entityKey: string | symbol, pk: string | number): any;
+    getEntities({ key }: EntitiesPath): any;
+    getEntity({ key, pk }: EntityPath): any;
+    getIndex({ key, field }: IndexPath): object | undefined;
+    getIndexEnd(entity: object | undefined, value: string): any;
 }
 
 /** https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-4.html#the-noinfer-utility-type */
@@ -451,4 +454,4 @@ type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Pr
 
 declare function validateQueryKey(queryKey: unknown): boolean;
 
-export { type AbstractInstanceType, type ArrayElement, BaseDelegate, type CheckLoop, type Denormalize, type DenormalizeNullable, type EndpointExtraOptions, type EndpointInterface, type EntityInterface, type EntityPath, type EntityTable, type ErrorTypes, ExpiryStatus, type ExpiryStatusInterface, type FetchFunction, type GetEntity, type GetIndex, type IBaseDelegate, INVALID, type INormalizeDelegate, type IQueryDelegate, type IndexInterface, type IndexParams, type InferReturn, MemoCache, type Mergeable, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeReturnType, type NormalizedIndex, type NormalizedSchema, type OptimisticUpdateParams, type Queryable, type ReadEndpoint, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SnapshotInterface, type UnknownError, type UpdateFunction, type Visit, WeakDependencyMap, denormalize, isEntity, normalize, validateQueryKey };
+export { type AbstractInstanceType, type ArrayElement, BaseDelegate, type CheckLoop, Delegate, type Denormalize, type DenormalizeNullable, type EndpointExtraOptions, type EndpointInterface, type EntitiesPath, type EntityInterface, type EntityPath, type EntityTable, type ErrorTypes, ExpiryStatus, type ExpiryStatusInterface, type FetchFunction, type GetEntities, type GetEntity, type GetIndex, INVALID, type INormalizeDelegate, type IQueryDelegate, type IndexInterface, type IndexParams, type IndexPath, type InferReturn, MemoCache, type Mergeable, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeReturnType, type NormalizedIndex, type NormalizedSchema, type OptimisticUpdateParams, type QueryPath, type Queryable, type ReadEndpoint, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SnapshotInterface, type UnknownError, type UpdateFunction, type Visit, WeakDependencyMap, denormalize, isEntity, normalize, validateQueryKey };

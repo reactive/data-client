@@ -1,21 +1,23 @@
 import GlobalCache from './globalCache.js';
 import WeakDependencyMap from './WeakDependencyMap.js';
 import buildQueryKey from '../buildQueryKey.js';
+import type { BaseDelegate } from './BaseDelegate.js';
+import { PlainDelegate } from './Delegate.js';
 import { getEntities } from '../denormalize/getEntities.js';
 import getUnvisit from '../denormalize/unvisit.js';
-import type { IBaseDelegate, NormalizedIndex, Schema } from '../interface.js';
-import { isImmutable } from '../schemas/ImmutableUtils.js';
 import type {
-  DenormalizeNullable,
   EntityPath,
-  NormalizeNullable,
-} from '../types.js';
-import { getDependency, BaseDelegate } from './Delegate.js';
+  NormalizedIndex,
+  QueryPath,
+  Schema,
+} from '../interface.js';
+import type { DenormalizeNullable, NormalizeNullable } from '../types.js';
 import { EndpointsCache, EntityCache } from './types.js';
-import { QueryPath } from './types.js';
 import type { INVALID } from '../denormalize/symbol.js';
 
-type DelegateClass = new (v: { entities: any; indexes: any }) => IBaseDelegate;
+type DelegateClass = new (v: { entities: any; indexes: any }) => BaseDelegate;
+
+// TODO: make MemoCache generic on the arguments sent to Delegate constructor
 
 /** Singleton to store the memoization cache for denormalization methods */
 export default class MemoCache {
@@ -27,8 +29,8 @@ export default class MemoCache {
   protected queryKeys: Map<string, WeakDependencyMap<QueryPath>> = new Map();
   declare protected Delegate: DelegateClass;
 
-  constructor(Delegate: DelegateClass = BaseDelegate) {
-    this.Delegate = Delegate;
+  constructor(D: DelegateClass = PlainDelegate) {
+    this.Delegate = D;
   }
 
   /** Compute denormalized form maintaining referential equality for same inputs */
@@ -112,15 +114,15 @@ export default class MemoCache {
     // eslint-disable-next-line prefer-const
     let [value, paths] = queryCache.get(
       schema as any,
-      getDependency(baseDelegate),
+      baseDelegate.getDependency,
     );
 
     // paths undefined is the only way to truly tell nothing was found (the value could have actually been undefined)
     if (!paths) {
-      const tracked = baseDelegate.tracked(schema);
+      const [delegate, dependencies] = baseDelegate.tracked(schema);
 
-      value = buildQueryKey(tracked)(schema, args);
-      queryCache.set(tracked.dependencies, value);
+      value = buildQueryKey(delegate)(schema, args);
+      queryCache.set(dependencies, value);
     }
     return value;
   }

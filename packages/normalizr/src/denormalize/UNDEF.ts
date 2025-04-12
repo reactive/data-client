@@ -1,1 +1,1 @@
-export const UNDEF = {};
+export const UNDEF = {} as any;

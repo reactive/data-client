@@ -327,9 +327,9 @@ export default function EntityMixin<TBase extends Constructor>(
       delegate: IQueryDelegate,
     ): any {
       if (!args[0]) return;
-      const id = queryKeyCandidate(this, args, delegate);
+      const pk = queryKeyCandidate(this, args, delegate);
       // ensure this actually has entity or we shouldn't try to use it in our query
-      if (id && delegate.getEntity(this.key, id)) return id;
+      if (pk && delegate.getEntity({ key: this.key, pk })) return pk;
     }
 
     static denormalize<T extends typeof EntityMixin>(
@@ -484,8 +484,8 @@ function queryKeyCandidate(
   // Was able to infer the entity's primary key from params
   if (id !== undefined && id !== '') return id;
   // now attempt lookup in indexes
-  const indexName = indexFromParams(args[0], schema.indexes);
-  if (!indexName) return;
-  const value = (args[0] as Record<string, any>)[indexName];
-  return delegate.getIndex(schema.key, indexName, value);
+  const field = indexFromParams(args[0], schema.indexes);
+  if (!field) return;
+  const value = (args[0] as Record<string, any>)[field];
+  return delegate.getIndex({ key: schema.key, field, value });
 }
