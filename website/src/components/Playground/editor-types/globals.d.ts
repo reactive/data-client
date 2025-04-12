@@ -259,36 +259,27 @@ interface Visit {
     (schema: any, value: any, parent: any, key: any, args: readonly any[]): any;
     creating?: boolean;
 }
-interface EntityPath {
-    key: string;
-    pk: string;
-}
-interface IndexPath {
-    key: string;
-    field: string;
-    value: string;
-}
-interface EntitiesPath {
-    key: string;
-}
+type EntityPath = [key: string, pk: string];
+type IndexPath = [key: string, index: string, value: string];
+type EntitiesPath = [key: string];
 /** Returns true if a circular reference is found */
 interface CheckLoop {
     (entityKey: string, pk: string, input: object): boolean;
 }
 /** Get all normalized entities of one type from store */
 interface GetEntities {
-    (path: EntitiesPath): {
+    (...path: EntitiesPath): {
         readonly [pk: string]: any;
     } | undefined;
 }
 /** Get normalized Entity from store */
 interface GetEntity {
-    (path: EntityPath): any;
+    (...path: EntityPath): any;
 }
 /** Get PK using an Entity Index */
 interface GetIndex {
     /** getIndex('User', 'username', 'ntucker') */
-    (path: IndexPath): string | undefined;
+    (...path: IndexPath): string | undefined;
 }
 /** Accessors to the currently processing state while building query */
 interface IQueryDelegate {

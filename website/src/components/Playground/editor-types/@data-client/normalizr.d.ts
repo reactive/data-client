@@ -58,18 +58,9 @@ interface EntityTable {
 interface Visit {
     (schema: any, value: any, parent: any, key: any, args: readonly any[]): any;
 }
-interface EntityPath {
-    key: string;
-    pk: string;
-}
-interface IndexPath {
-    key: string;
-    field: string;
-    value: string;
-}
-interface EntitiesPath {
-    key: string;
-}
+type EntityPath = [key: string, pk: string];
+type IndexPath = [key: string, index: string, value: string];
+type EntitiesPath = [key: string];
 type QueryPath = IndexPath | EntityPath | EntitiesPath;
 /** Returns true if a circular reference is found */
 interface CheckLoop {
@@ -77,18 +68,18 @@ interface CheckLoop {
 }
 /** Get all normalized entities of one type from store */
 interface GetEntities {
-    (path: EntitiesPath): {
+    (...path: EntitiesPath): {
         readonly [pk: string]: any;
     } | undefined;
 }
 /** Get normalized Entity from store */
 interface GetEntity {
-    (path: EntityPath): any;
+    (...path: EntityPath): any;
 }
 /** Get PK using an Entity Index */
 interface GetIndex {
     /** getIndex('User', 'username', 'ntucker') */
-    (path: IndexPath): string | undefined;
+    (...path: IndexPath): string | undefined;
 }
 /** Accessors to the currently processing state while building query */
 interface IQueryDelegate {
@@ -274,9 +265,9 @@ declare abstract class BaseDelegate {
         entities: any;
         indexes: any;
     });
-    abstract getEntities(path: EntitiesPath): object | undefined;
-    abstract getEntity(path: EntityPath): object | undefined;
-    abstract getIndex(path: IndexPath): object | undefined;
+    abstract getEntities(...path: EntitiesPath): object | undefined;
+    abstract getEntity(...path: EntityPath): object | undefined;
+    abstract getIndex(...path: IndexPath): object | undefined;
     abstract getIndexEnd(entity: any, value: string): string | undefined;
     getDependency: (path: QueryPath) => object | undefined;
     tracked(schema: any): [delegate: IQueryDelegate, dependencies: Dep<QueryPath>[]];
@@ -321,7 +312,7 @@ type StateInterface = {
     };
 };
 
-declare class Delegate extends BaseDelegate {
+declare class PlainDelegate extends BaseDelegate {
     entities: EntityTable;
     indexes: {
         [entityKey: string]: {
@@ -334,9 +325,9 @@ declare class Delegate extends BaseDelegate {
         entities: EntityTable;
         indexes: NormalizedIndex;
     });
-    getEntities({ key }: EntitiesPath): any;
-    getEntity({ key, pk }: EntityPath): any;
-    getIndex({ key, field }: IndexPath): object | undefined;
+    getEntities(key: string): any;
+    getEntity(key: string, pk: string): any;
+    getIndex(key: string, field: string): object | undefined;
     getIndexEnd(entity: object | undefined, value: string): any;
 }
 
@@ -454,4 +445,4 @@ type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Pr
 
 declare function validateQueryKey(queryKey: unknown): boolean;
 
-export { type AbstractInstanceType, type ArrayElement, BaseDelegate, type CheckLoop, Delegate, type Denormalize, type DenormalizeNullable, type EndpointExtraOptions, type EndpointInterface, type EntitiesPath, type EntityInterface, type EntityPath, type EntityTable, type ErrorTypes, ExpiryStatus, type ExpiryStatusInterface, type FetchFunction, type GetEntities, type GetEntity, type GetIndex, INVALID, type INormalizeDelegate, type IQueryDelegate, type IndexInterface, type IndexParams, type IndexPath, type InferReturn, MemoCache, type Mergeable, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeReturnType, type NormalizedIndex, type NormalizedSchema, type OptimisticUpdateParams, type QueryPath, type Queryable, type ReadEndpoint, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SnapshotInterface, type UnknownError, type UpdateFunction, type Visit, WeakDependencyMap, denormalize, isEntity, normalize, validateQueryKey };
+export { type AbstractInstanceType, type ArrayElement, BaseDelegate, type CheckLoop, PlainDelegate as Delegate, type Denormalize, type DenormalizeNullable, type EndpointExtraOptions, type EndpointInterface, type EntitiesPath, type EntityInterface, type EntityPath, type EntityTable, type ErrorTypes, ExpiryStatus, type ExpiryStatusInterface, type FetchFunction, type GetEntities, type GetEntity, type GetIndex, INVALID, type INormalizeDelegate, type IQueryDelegate, type IndexInterface, type IndexParams, type IndexPath, type InferReturn, MemoCache, type Mergeable, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeReturnType, type NormalizedIndex, type NormalizedSchema, type OptimisticUpdateParams, type QueryPath, type Queryable, type ReadEndpoint, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SnapshotInterface, type UnknownError, type UpdateFunction, type Visit, WeakDependencyMap, denormalize, isEntity, normalize, validateQueryKey };
