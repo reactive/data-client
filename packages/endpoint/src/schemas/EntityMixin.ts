@@ -329,7 +329,7 @@ export default function EntityMixin<TBase extends Constructor>(
       if (!args[0]) return;
       const pk = queryKeyCandidate(this, args, delegate);
       // ensure this actually has entity or we shouldn't try to use it in our query
-      if (pk && delegate.getEntity({ key: this.key, pk })) return pk;
+      if (pk && delegate.getEntity(this.key, pk)) return pk;
     }
 
     static denormalize<T extends typeof EntityMixin>(
@@ -487,5 +487,5 @@ function queryKeyCandidate(
   const field = indexFromParams(args[0], schema.indexes);
   if (!field) return;
   const value = (args[0] as Record<string, any>)[field];
-  return delegate.getIndex({ key: schema.key, field, value });
+  return delegate.getIndex(schema.key, field, value);
 }

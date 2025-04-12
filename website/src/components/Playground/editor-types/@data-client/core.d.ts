@@ -49,33 +49,24 @@ interface NormalizedIndex {
         };
     };
 }
-interface EntityPath {
-    key: string;
-    pk: string;
-}
-interface IndexPath {
-    key: string;
-    field: string;
-    value: string;
-}
-interface EntitiesPath {
-    key: string;
-}
+type EntityPath = [key: string, pk: string];
+type IndexPath = [key: string, index: string, value: string];
+type EntitiesPath = [key: string];
 type QueryPath = IndexPath | EntityPath | EntitiesPath;
 /** Get all normalized entities of one type from store */
 interface GetEntities {
-    (path: EntitiesPath): {
+    (...path: EntitiesPath): {
         readonly [pk: string]: any;
     } | undefined;
 }
 /** Get normalized Entity from store */
 interface GetEntity {
-    (path: EntityPath): any;
+    (...path: EntityPath): any;
 }
 /** Get PK using an Entity Index */
 interface GetIndex {
     /** getIndex('User', 'username', 'ntucker') */
-    (path: IndexPath): string | undefined;
+    (...path: IndexPath): string | undefined;
 }
 /** Accessors to the currently processing state while building query */
 interface IQueryDelegate {
@@ -234,9 +225,9 @@ declare abstract class BaseDelegate {
         entities: any;
         indexes: any;
     });
-    abstract getEntities(path: EntitiesPath): object | undefined;
-    abstract getEntity(path: EntityPath): object | undefined;
-    abstract getIndex(path: IndexPath): object | undefined;
+    abstract getEntities(...path: EntitiesPath): object | undefined;
+    abstract getEntity(...path: EntityPath): object | undefined;
+    abstract getIndex(...path: IndexPath): object | undefined;
     abstract getIndexEnd(entity: any, value: string): string | undefined;
     getDependency: (path: QueryPath) => object | undefined;
     tracked(schema: any): [delegate: IQueryDelegate, dependencies: Dep<QueryPath>[]];

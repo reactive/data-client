@@ -26,7 +26,7 @@ export default function createReducer(controller: Controller): ReducerType {
     switch (action.type) {
       case GC:
         // inline deletes are fine as these should have 0 refcounts
-        action.entities.forEach(({ key, pk }) => {
+        action.entities.forEach(([key, pk]) => {
           delete (state as any).entities[key]?.[pk];
           delete (state as any).entitiesMeta[key]?.[pk];
         });
