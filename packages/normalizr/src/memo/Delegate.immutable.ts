@@ -18,16 +18,16 @@ export class DelegateImmutable extends BaseDelegate {
     super(state);
   }
 
-  getEntities({ key }: EntitiesPath): any {
+  getEntities(key: string): any {
     return this.entities.get(key)?.toJS();
   }
 
-  getEntity({ key, pk }: EntityPath): any {
-    return this.entities.getIn([key, pk]);
+  getEntity(...path: EntityPath): any {
+    return this.entities.getIn(path);
   }
 
   // this is different return value than QuerySnapshot
-  getIndex({ key, field }: IndexPath): object | undefined {
+  getIndex(key: string, field: string): object | undefined {
     return this.indexes.getIn([key, field]);
   }
 

@@ -1,10 +1,4 @@
-import type {
-  EntityTable,
-  NormalizedIndex,
-  EntityPath,
-  IndexPath,
-  EntitiesPath,
-} from '../interface.js';
+import type { EntityTable, NormalizedIndex } from '../interface.js';
 import { BaseDelegate } from './BaseDelegate.js';
 
 export class PlainDelegate extends BaseDelegate {
@@ -19,16 +13,16 @@ export class PlainDelegate extends BaseDelegate {
     super(state);
   }
 
-  getEntities({ key }: EntitiesPath): any {
+  getEntities(key: string): any {
     return this.entities[key];
   }
 
-  getEntity({ key, pk }: EntityPath): any {
+  getEntity(key: string, pk: string): any {
     return this.entities[key]?.[pk];
   }
 
   // this is different return value than QuerySnapshot
-  getIndex({ key, field }: IndexPath): object | undefined {
+  getIndex(key: string, field: string): object | undefined {
     return this.indexes[key]?.[field];
   }
 

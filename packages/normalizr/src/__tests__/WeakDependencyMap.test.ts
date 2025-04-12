@@ -20,9 +20,9 @@ describe('WeakDependencyMap', () => {
     },
   };
   const getEntity = getEntities(state);
-  const depA = { path: { key: 'A', pk: '1' }, entity: a };
-  const depB = { path: { key: 'B', pk: '2' }, entity: b };
-  const depC = { path: { key: 'C', pk: '3' }, entity: c };
+  const depA = { path: ['A', '1'] as EntityPath, entity: a };
+  const depB = { path: ['B', '2'] as EntityPath, entity: b };
+  const depC = { path: ['C', '3'] as EntityPath, entity: c };
 
   it('should construct', () => {
     const wem = new WeakDependencyMap<EntityPath>();

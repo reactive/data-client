@@ -903,11 +903,7 @@ describe('MemoCache', () => {
             pk = this.pk(args[0], undefined, '', args);
           }
           // Was able to infer the entity's primary key from params
-          if (
-            pk !== undefined &&
-            pk !== '' &&
-            delegate.getEntity({ key: this.key, pk })
-          )
+          if (pk !== undefined && pk !== '' && delegate.getEntity(this.key, pk))
             return pk;
         }
       }
