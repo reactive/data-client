@@ -96,7 +96,7 @@ export class NormalizeDelegate
       nextEntity = schema.merge(entity, incomingEntity);
     } else {
       // if we find it in the store
-      entity = this.getEntity({ key, pk });
+      entity = this.getEntity(key, pk);
       if (entity) {
         const meta = this.getMeta(key, pk);
         nextEntity = schema.mergeWithStore(

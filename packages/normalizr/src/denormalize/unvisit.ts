@@ -18,8 +18,7 @@ const getUnvisitEntity = (
     entityOrId: Record<string, any> | string,
   ): object | undefined | typeof INVALID {
     const inputIsId = typeof entityOrId !== 'object';
-    const entity =
-      inputIsId ? getEntity({ key: schema.key, pk: entityOrId }) : entityOrId;
+    const entity = inputIsId ? getEntity([schema.key, entityOrId]) : entityOrId;
     if (typeof entity === 'symbol') {
       return schema.denormalize(entity, args, unvisit);
     }

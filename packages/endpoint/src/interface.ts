@@ -113,18 +113,9 @@ export interface Visit {
   creating?: boolean;
 }
 
-export interface EntityPath {
-  key: string;
-  pk: string;
-}
-export interface IndexPath {
-  key: string;
-  field: string;
-  value: string;
-}
-export interface EntitiesPath {
-  key: string;
-}
+export type EntityPath = [key: string, pk: string];
+export type IndexPath = [key: string, index: string, value: string];
+export type EntitiesPath = [key: string];
 
 /** Returns true if a circular reference is found */
 export interface CheckLoop {
@@ -133,16 +124,16 @@ export interface CheckLoop {
 
 /** Get all normalized entities of one type from store */
 export interface GetEntities {
-  (path: EntitiesPath): { readonly [pk: string]: any } | undefined;
+  (...path: EntitiesPath): { readonly [pk: string]: any } | undefined;
 }
 /** Get normalized Entity from store */
 export interface GetEntity {
-  (path: EntityPath): any;
+  (...path: EntityPath): any;
 }
 /** Get PK using an Entity Index */
 export interface GetIndex {
   /** getIndex('User', 'username', 'ntucker') */
-  (path: IndexPath): string | undefined;
+  (...path: IndexPath): string | undefined;
 }
 
 /** Accessors to the currently processing state while building query */
