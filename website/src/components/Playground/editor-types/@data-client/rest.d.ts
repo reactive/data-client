@@ -238,20 +238,57 @@ interface PolymorphicInterface<T = any, Args extends any[] = any[]> extends Sche
     _normalizeNullable(): any;
     _denormalizeNullable(): any;
 }
-/** Get Array of entities with map function applied */
-interface GetEntity {
-    (entityKey: string | symbol): {
+interface NormalizedIndex {
+    readonly [entityKey: string]: {
+        readonly [indexName: string]: {
+            readonly [lookup: string]: string;
+        };
+    };
+}
+interface EntityTable {
+    [entityKey: string]: {
+        [pk: string]: unknown;
+    } | undefined;
+}
+/** Visits next data + schema while recurisvely normalizing */
+interface Visit {
+    (schema: any, value: any, parent: any, key: any, args: readonly any[]): any;
+    creating?: boolean;
+}
+interface EntityPath {
+    key: string;
+    pk: string;
+}
+interface IndexPath {
+    key: string;
+    field: string;
+    value: string;
+}
+interface EntitiesPath {
+    key: string;
+}
+/** Returns true if a circular reference is found */
+interface CheckLoop {
+    (entityKey: string, pk: string, input: object): boolean;
+}
+/** Get all normalized entities of one type from store */
+interface GetEntities {
+    (path: EntitiesPath): {
         readonly [pk: string]: any;
     } | undefined;
-    (entityKey: string | symbol, pk: string | number): any;
+}
+/** Get normalized Entity from store */
+interface GetEntity {
+    (path: EntityPath): any;
 }
 /** Get PK using an Entity Index */
 interface GetIndex {
     /** getIndex('User', 'username', 'ntucker') */
-    (entityKey: string, field: string, value: string): string | undefined;
+    (path: IndexPath): string | undefined;
 }
 /** Accessors to the currently processing state while building query */
 interface IQueryDelegate {
+    getEntities: GetEntities;
     getEntity: GetEntity;
     getIndex: GetIndex;
     /** Return to consider results invalid */
@@ -265,6 +302,8 @@ interface INormalizeDelegate {
         date: number;
         expiresAt: number;
     };
+    /** Get all normalized entities of one type from store */
+    getEntities: GetEntities;
     /** Gets any previously normalized entity from store */
     getEntity: GetEntity;
     /** Updates an entity using merge lifecycles when it has previously been set */
@@ -1759,4 +1798,4 @@ declare class NetworkError extends Error {
     constructor(response: Response);
 }
 
-export { type AbstractInstanceType, type AddEndpoint, Array$1 as Array, Collection, type CustomResource, type DefaultArgs, type Defaults, type Denormalize, type DenormalizeNullable, type DenormalizeNullableObject, type DenormalizeObject, Endpoint, type EndpointExtendOptions, type EndpointExtraOptions, type EndpointInstance, type EndpointInstanceInterface, type EndpointInterface, type EndpointOptions, type EndpointParam, type EndpointToFunction, Entity, type EntityFields, type EntityMap, EntityMixin, type ErrorTypes, type ExpiryStatusInterface, ExtendableEndpoint, type ExtendedResource, type FetchFunction, type FetchGet, type FetchMutate, type FromFallBack, type GetEndpoint, type HookResource, type HookableEndpointInterface, type INormalizeDelegate, type IQueryDelegate, type RestEndpoint$1 as IRestEndpoint, Invalidate, type KeyofEndpointInstance, type KeyofRestEndpoint, type KeysToArgs, type Mergeable, type MethodToSide, type MutateEndpoint, type NI, NetworkError, type Normalize, type NormalizeNullable, type NormalizeObject, type NormalizedEntity, type NormalizedNullableObject, type ObjectArgs, type OptionsToFunction, type PaginationEndpoint, type PaginationFieldEndpoint, type ParamFetchNoBody, type ParamFetchWithBody, type ParamToArgs, type PartialRestGenerics, type PathArgs, type PathArgsAndSearch, type PathKeys, type PolymorphicInterface, type Queryable, type ReadEndpoint, type RecordClass, type ResolveType, type Resource, type ResourceEndpointExtensions, type ResourceExtension, type ResourceGenerics, type ResourceInterface, type ResourceOptions, RestEndpoint, type RestEndpointConstructor, type RestEndpointConstructorOptions, type RestEndpointExtendOptions, type RestEndpointOptions, type RestExtendedEndpoint, type RestFetch, type RestGenerics, type RestInstance, type RestInstanceBase, type RestType, type RestTypeNoBody, type RestTypeWithBody, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type ShortenPath, type SnapshotInterface, type UnknownError, resource as createResource, getUrlBase, getUrlTokens, hookifyResource, resource, schema_d as schema, validateRequired };
+export { type AbstractInstanceType, type AddEndpoint, Array$1 as Array, type CheckLoop, Collection, type CustomResource, type DefaultArgs, type Defaults, type Denormalize, type DenormalizeNullable, type DenormalizeNullableObject, type DenormalizeObject, Endpoint, type EndpointExtendOptions, type EndpointExtraOptions, type EndpointInstance, type EndpointInstanceInterface, type EndpointInterface, type EndpointOptions, type EndpointParam, type EndpointToFunction, type EntitiesPath, Entity, type EntityFields, type EntityInterface, type EntityMap, EntityMixin, type EntityPath, type EntityTable, type ErrorTypes, type ExpiryStatusInterface, ExtendableEndpoint, type ExtendedResource, type FetchFunction, type FetchGet, type FetchMutate, type FromFallBack, type GetEndpoint, type GetEntities, type GetEntity, type GetIndex, type HookResource, type HookableEndpointInterface, type INormalizeDelegate, type IQueryDelegate, type RestEndpoint$1 as IRestEndpoint, type IndexPath, Invalidate, type KeyofEndpointInstance, type KeyofRestEndpoint, type KeysToArgs, type Mergeable, type MethodToSide, type MutateEndpoint, type NI, NetworkError, type Normalize, type NormalizeNullable, type NormalizeObject, type NormalizedEntity, type NormalizedIndex, type NormalizedNullableObject, type ObjectArgs, type OptionsToFunction, type PaginationEndpoint, type PaginationFieldEndpoint, type ParamFetchNoBody, type ParamFetchWithBody, type ParamToArgs, type PartialRestGenerics, type PathArgs, type PathArgsAndSearch, type PathKeys, type PolymorphicInterface, type Queryable, type ReadEndpoint, type RecordClass, type ResolveType, type Resource, type ResourceEndpointExtensions, type ResourceExtension, type ResourceGenerics, type ResourceInterface, type ResourceOptions, RestEndpoint, type RestEndpointConstructor, type RestEndpointConstructorOptions, type RestEndpointExtendOptions, type RestEndpointOptions, type RestExtendedEndpoint, type RestFetch, type RestGenerics, type RestInstance, type RestInstanceBase, type RestType, type RestTypeNoBody, type RestTypeWithBody, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type ShortenPath, type SnapshotInterface, type UnknownError, type Visit, resource as createResource, getUrlBase, getUrlTokens, hookifyResource, resource, schema_d as schema, validateRequired };

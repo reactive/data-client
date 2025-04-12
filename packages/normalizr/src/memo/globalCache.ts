@@ -3,8 +3,7 @@ import WeakDependencyMap, { type Dep } from './WeakDependencyMap.js';
 import type Cache from '../denormalize/cache.js';
 import type { GetEntity } from '../denormalize/getEntities.js';
 import type { INVALID } from '../denormalize/symbol.js';
-import type { EntityInterface } from '../interface.js';
-import type { EntityPath } from '../types.js';
+import type { EntityInterface, EntityPath } from '../interface.js';
 
 export default class GlobalCache implements Cache {
   private dependencies: Dep<EntityPath>[] = [];
