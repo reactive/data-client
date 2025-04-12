@@ -32,7 +32,7 @@ export default class WeakDependencyMap<
     if (dependencies.length < 1) throw new KeySize();
     let curLink: Link<Path, K, V> = this as any;
     for (const { path, entity } of dependencies) {
-      let nextLink = curLink.next.get(entity);
+      let nextLink = curLink.next.get(entity as K);
       if (!nextLink) {
         nextLink = new Link<Path, K, V>();
         // void members are represented as a symbol so we can lookup
@@ -55,7 +55,7 @@ export type GetDependency<Path, K = object | symbol> = (
 
 export interface Dep<Path, K = object> {
   path: Path;
-  entity: K;
+  entity: K | undefined;
 }
 
 const EMPTY = [undefined, undefined] as const;
