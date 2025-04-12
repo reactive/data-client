@@ -5,7 +5,7 @@ import {
   MemoCache,
   denormalize,
   INVALID,
-  BaseDelegate,
+  Delegate,
 } from '@data-client/normalizr';
 import { DelegateImmutable } from '@data-client/normalizr/immutable';
 import { IDEntity } from '__tests__/new';
@@ -103,7 +103,7 @@ describe.each([[]])(`${schema.All.name} normalization (%s)`, () => {
 });
 
 describe.each([
-  ['direct', <T>(data: T) => data, <T>(data: T) => data, BaseDelegate],
+  ['direct', <T>(data: T) => data, <T>(data: T) => data, Delegate],
   [
     'immutable',
     fromJSState,
@@ -112,7 +112,7 @@ describe.each([
   ],
 ])(
   `${schema.Array.name} denormalization (%s)`,
-  (_, createInput, createOutput, Delegate) => {
+  (_, createInput, createOutput, MyDelegate) => {
     test('denormalizes a single entity', () => {
       class Cat extends IDEntity {}
       const state: State<unknown> = createInput({
@@ -127,7 +127,7 @@ describe.each([
       }) as any;
       const sch = new schema.All(Cat);
       expect(
-        new Controller({ memo: new MemoCache(Delegate) }).get(sch, state),
+        new Controller({ memo: new MemoCache(MyDelegate) }).get(sch, state),
       ).toMatchSnapshot();
     });
 
@@ -145,7 +145,7 @@ describe.each([
       });
       // use memocache because we don't support 'object' schemas in controller yet
       expect(
-        new MemoCache(Delegate).query(catSchema, [], state).data,
+        new MemoCache(MyDelegate).query(catSchema, [], state).data,
       ).toMatchSnapshot();
     });
 
@@ -161,7 +161,7 @@ describe.each([
         },
         indexes: {},
       });
-      const value = new MemoCache(Delegate).query(catSchema, [], state).data;
+      const value = new MemoCache(MyDelegate).query(catSchema, [], state).data;
       expect(value).not.toEqual(expect.any(Symbol));
       if (typeof value === 'symbol' || value === undefined) return;
       expect(createOutput(value.results)).toMatchSnapshot();
@@ -182,7 +182,7 @@ describe.each([
         },
         indexes: {},
       });
-      const value = new MemoCache(Delegate).query(catSchema, [], state).data;
+      const value = new MemoCache(MyDelegate).query(catSchema, [], state).data;
       expect(value).not.toEqual(expect.any(Symbol));
       if (typeof value === 'symbol' || value === undefined) return;
       expect(createOutput(value.results).length).toBe(2);
@@ -249,7 +249,7 @@ describe.each([
         },
         indexes: {},
       });
-      const value = new MemoCache(Delegate).query(catSchema, [], state).data;
+      const value = new MemoCache(MyDelegate).query(catSchema, [], state).data;
       expect(createOutput(value)).toEqual(expect.any(Symbol));
     });
 
@@ -281,7 +281,7 @@ describe.each([
         },
         indexes: {},
       });
-      const value = new MemoCache(Delegate).query(listSchema, [], state).data;
+      const value = new MemoCache(MyDelegate).query(listSchema, [], state).data;
       expect(createOutput(value)).toEqual(expect.any(Symbol));
     });
 
@@ -344,7 +344,7 @@ describe.each([
         },
         indexes: {},
       });
-      const value = new MemoCache(Delegate).query(listSchema, [], state).data;
+      const value = new MemoCache(MyDelegate).query(listSchema, [], state).data;
       expect(value).not.toEqual(expect.any(Symbol));
       if (typeof value === 'symbol') return;
       expect(value).toMatchSnapshot();

@@ -1,47 +1,40 @@
-import { IBaseDelegate } from '../interface.js';
-import { TrackingQueryDelegate } from './Delegate.js';
-import { IndexPath } from './types.js';
+import type { EntitiesPath, EntityPath, IndexPath } from '../interface.js';
+import { BaseDelegate } from './BaseDelegate.js';
 
 type ImmutableJSEntityTable = {
+  get(key: string): { toJS(): any } | undefined;
   getIn(k: [key: string, pk: string]): { toJS(): any } | undefined;
   setIn(k: [key: string, pk: string], value: any);
 };
 
-export class DelegateImmutable implements IBaseDelegate {
+export class DelegateImmutable extends BaseDelegate {
   declare entities: ImmutableJSEntityTable;
   declare indexes: ImmutableJSEntityTable;
 
-  constructor({
-    entities,
-    indexes,
-  }: {
+  constructor(state: {
     entities: ImmutableJSEntityTable;
     indexes: ImmutableJSEntityTable;
   }) {
-    this.entities = entities;
-    this.indexes = indexes;
+    super(state);
   }
 
-  getEntity(...args: [entityKey: string, pk?: string]): any {
-    // TODO: Don't make consumer depend on this going toJS()
-    return args.length === 1 ?
-        this.entities.getIn(args as any)?.toJS()
-      : this.entities.getIn(args as any);
+  getEntities({ key }: EntitiesPath): any {
+    return this.entities.get(key)?.toJS();
   }
 
-  getIndex(key: string, field: string) {
+  getEntity({ key, pk }: EntityPath): any {
+    return this.entities.getIn([key, pk]);
+  }
+
+  // this is different return value than QuerySnapshot
+  getIndex({ key, field }: IndexPath): object | undefined {
     return this.indexes.getIn([key, field]);
   }
 
-  tracked(schema: any) {
-    return new TrackingQueryDelegateImmutable(this, schema);
-  }
-}
-
-export class TrackingQueryDelegateImmutable extends TrackingQueryDelegate {
-  getIndex(...path: IndexPath): string | undefined {
-    const entity = this.snap.getIndex(path[0], path[1]);
-    this.dependencies.push({ path, entity });
-    return entity?.get?.(path[2]);
+  getIndexEnd(
+    entity: { get(k: string): string | undefined } | undefined,
+    value: string,
+  ) {
+    return entity?.get?.(value);
   }
 }
