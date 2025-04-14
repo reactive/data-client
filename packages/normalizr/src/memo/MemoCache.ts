@@ -114,7 +114,7 @@ export default class MemoCache {
     // eslint-disable-next-line prefer-const
     let [value, paths] = queryCache.get(
       schema as any,
-      baseDelegate.getDependency,
+      baseDelegate.getDependency.bind(baseDelegate),
     );
 
     // paths undefined is the only way to truly tell nothing was found (the value could have actually been undefined)
