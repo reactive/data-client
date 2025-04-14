@@ -46,7 +46,7 @@ export class GCPolicy implements GCInterface {
       if (key)
         this.endpointCount.set(key, (this.endpointCount.get(key) ?? 0) + 1);
       paths.forEach(path => {
-        const [key, pk] = path;
+        const { key, pk } = path;
         if (!this.entityCount.has(key)) {
           this.entityCount.set(key, new Map<string, number>());
         }
@@ -69,7 +69,7 @@ export class GCPolicy implements GCInterface {
           }
         }
         paths.forEach(path => {
-          const [key, pk] = path;
+          const { key, pk } = path;
           if (!this.entityCount.has(key)) {
             return;
           }
@@ -133,9 +133,9 @@ export class GCPolicy implements GCInterface {
     const nextEntitiesQ: EntityPath[] = [];
     for (const path of this.entitiesQ) {
       if (
-        !this.entityCount.get(path[0])?.has(path[1]) &&
+        !this.entityCount.get(path.key)?.has(path.pk) &&
         this.expiresAt(
-          state.entitiesMeta[path[0]]?.[path[1]] ?? {
+          state.entitiesMeta[path.key]?.[path.pk] ?? {
             fetchedAt: 0,
             date: 0,
             expiresAt: 0,

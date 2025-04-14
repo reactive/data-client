@@ -22,7 +22,7 @@ export class DelegateImmutable extends BaseDelegate {
     return this.entities.get(key)?.toJS();
   }
 
-  getEntity(...path: EntityPath): any {
+  getEntity(...path: [key: string, pk: string]): any {
     return this.entities.getIn(path);
   }
 
