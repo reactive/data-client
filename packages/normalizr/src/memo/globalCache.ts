@@ -58,7 +58,7 @@ export default class GlobalCache implements Cache {
       else {
         const trackingIndex = this.dependencies.length;
         cycleCacheKey.set(pk, trackingIndex);
-        this.dependencies.push({ path: [key, pk], entity });
+        this.dependencies.push({ path: { key, pk }, entity });
 
         /** NON-GLOBAL_CACHE CODE */
         computeValue(localCacheKey);
@@ -87,7 +87,7 @@ export default class GlobalCache implements Cache {
         this.cycleIndex = cycleCacheKey.get(pk)!;
       } else {
         // with no cycle, globalCacheEntry will have already been set
-        this.dependencies.push({ path: [key, pk], entity });
+        this.dependencies.push({ path: { key, pk }, entity });
       }
     }
     return localCacheKey.get(pk);
@@ -125,7 +125,7 @@ export default class GlobalCache implements Cache {
       // we want to do this before we add our 'input' entry
       paths = this.paths();
       // for the first entry, `path` is ignored so empty members is fine
-      this.dependencies.unshift({ path: ['', ''], entity: input });
+      this.dependencies.unshift({ path: { key: '', pk: '' }, entity: input });
       this.resultCache.set(this.dependencies, data);
     } else {
       paths.shift();

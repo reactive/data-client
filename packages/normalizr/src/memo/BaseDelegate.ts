@@ -1,7 +1,6 @@
 import type { Dep } from './WeakDependencyMap.js';
 import { INVALID } from '../denormalize/symbol.js';
 import type {
-  EntityPath,
   QueryPath,
   IndexPath,
   EntitiesPath,
@@ -18,7 +17,7 @@ export abstract class BaseDelegate {
   }
 
   abstract getEntities(...path: EntitiesPath): object | undefined;
-  abstract getEntity(...path: EntityPath): object | undefined;
+  abstract getEntity(key: string, pk: string): object | undefined;
   abstract getIndex(...path: IndexPath): object | undefined;
   abstract getIndexEnd(entity: any, value: string): string | undefined;
 
@@ -38,7 +37,7 @@ export abstract class BaseDelegate {
         dependencies.push({ path, entity });
         return base.getIndexEnd(entity, path[2]);
       },
-      getEntity(...path: EntityPath) {
+      getEntity(...path: [key: string, pk: string]) {
         const entity = base.getEntity(...path);
         dependencies.push({ path, entity });
         return entity;
