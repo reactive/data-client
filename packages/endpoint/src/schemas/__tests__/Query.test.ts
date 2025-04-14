@@ -1,5 +1,5 @@
 // eslint-env jest
-import { MemoCache, Delegate } from '@data-client/normalizr';
+import { MemoCache, PlainDelegate } from '@data-client/normalizr';
 import { DelegateImmutable } from '@data-client/normalizr/immutable';
 import { useQuery, useSuspense, __INTERNAL__ } from '@data-client/react';
 import { RestEndpoint } from '@data-client/rest';
@@ -27,7 +27,7 @@ class User extends IDEntity {
 }
 
 describe.each([
-  ['direct', <T>(data: T) => data, <T>(data: T) => data, Delegate],
+  ['direct', <T>(data: T) => data, <T>(data: T) => data, PlainDelegate],
   [
     'immutable',
     fromJSState,

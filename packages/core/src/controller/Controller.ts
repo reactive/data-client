@@ -650,7 +650,7 @@ function entityExpiresAt(
   },
 ) {
   let expiresAt = Infinity;
-  for (const [key, pk] of paths) {
+  for (const { key, pk } of paths) {
     const entityExpiry = entitiesMeta[key]?.[pk]?.expiresAt;
     // expiresAt will always resolve to false with any comparison
     if (entityExpiry < expiresAt) expiresAt = entityExpiry;

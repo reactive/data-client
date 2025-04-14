@@ -720,8 +720,8 @@ describe('reducer', () => {
       const action: GCAction = {
         type: GC,
         entities: [
-          [Article.key, '10'],
-          [Article.key, '250'],
+          { key: Article.key, pk: '10' },
+          { key: Article.key, pk: '250' },
         ],
         endpoints: ['abc'],
       };
@@ -739,8 +739,8 @@ describe('reducer', () => {
       const action: GCAction = {
         type: GC,
         entities: [
-          [Article.key, '100000000'],
-          ['sillythings', '10'],
+          { key: Article.key, pk: '100000000' },
+          { key: 'sillythings', pk: '10' },
         ],
         endpoints: [],
       };

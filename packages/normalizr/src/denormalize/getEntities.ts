@@ -8,9 +8,9 @@ export function getEntities<K extends object>(
   const entityIsImmutable = isImmutable(state);
 
   if (entityIsImmutable) {
-    return (path: EntityPath) => state.getIn(path);
+    return ({ key, pk }: EntityPath) => state.getIn([key, pk]);
   } else {
-    return ([key, pk]: EntityPath) => state[key]?.[pk];
+    return ({ key, pk }: EntityPath) => state[key]?.[pk];
   }
 }
 

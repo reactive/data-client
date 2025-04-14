@@ -5,7 +5,7 @@ import {
   MemoCache,
   denormalize,
   INVALID,
-  Delegate,
+  PlainDelegate,
 } from '@data-client/normalizr';
 import { DelegateImmutable } from '@data-client/normalizr/immutable';
 import { IDEntity } from '__tests__/new';
@@ -103,7 +103,7 @@ describe.each([[]])(`${schema.All.name} normalization (%s)`, () => {
 });
 
 describe.each([
-  ['direct', <T>(data: T) => data, <T>(data: T) => data, Delegate],
+  ['direct', <T>(data: T) => data, <T>(data: T) => data, PlainDelegate],
   [
     'immutable',
     fromJSState,

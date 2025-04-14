@@ -25,7 +25,7 @@ describe('GCPolicy', () => {
 
   it('should increment and decrement endpoint and entity counts', () => {
     const key = 'testEndpoint';
-    const paths: EntityPath[] = [['testEntity', '1']];
+    const paths: EntityPath[] = [{ key: 'testEntity', pk: '1' }];
     const countRef = gcPolicy.createCountRef({ key, paths });
 
     const decrement = countRef();
@@ -39,7 +39,7 @@ describe('GCPolicy', () => {
 
   it('should dispatch GC action once no ref counts and is expired', () => {
     const key = 'testEndpoint';
-    const paths: EntityPath[] = [['testEntity', '1']];
+    const paths: EntityPath[] = [{ key: 'testEntity', pk: '1' }];
     const state = {
       meta: {
         testEndpoint: {
@@ -74,14 +74,14 @@ describe('GCPolicy', () => {
     gcPolicy['runSweep']();
     expect(controller.dispatch).toHaveBeenCalledWith({
       type: GC,
-      entities: [['testEntity', '1']],
+      entities: [{ key: 'testEntity', pk: '1' }],
       endpoints: ['testEndpoint'],
     });
   });
 
   it('should dispatch GC action once no ref counts and is expired with extra decrements', () => {
     const key = 'testEndpoint';
-    const paths: EntityPath[] = [['testEntity', '1']];
+    const paths: EntityPath[] = [{ key: 'testEntity', pk: '1' }];
     const state = {
       meta: {
         testEndpoint: {
@@ -117,14 +117,14 @@ describe('GCPolicy', () => {
     gcPolicy['runSweep']();
     expect(controller.dispatch).toHaveBeenCalledWith({
       type: GC,
-      entities: [['testEntity', '1']],
+      entities: [{ key: 'testEntity', pk: '1' }],
       endpoints: ['testEndpoint'],
     });
   });
 
   it('should dispatch GC action once no ref counts and no expiry state', () => {
     const key = 'testEndpoint';
-    const paths: EntityPath[] = [['testEntity', '1']];
+    const paths: EntityPath[] = [{ key: 'testEntity', pk: '1' }];
     const state = {
       meta: {},
       entitiesMeta: {},
@@ -145,7 +145,7 @@ describe('GCPolicy', () => {
     gcPolicy['runSweep']();
     expect(controller.dispatch).toHaveBeenCalledWith({
       type: GC,
-      entities: [['testEntity', '1']],
+      entities: [{ key: 'testEntity', pk: '1' }],
       endpoints: ['testEndpoint'],
     });
   });
@@ -153,7 +153,7 @@ describe('GCPolicy', () => {
   it('should not dispatch GC action if expiresAt has not passed, but dispatch later when it has', () => {
     jest.useFakeTimers();
     const key = 'testEndpoint';
-    const paths: EntityPath[] = [['testEntity', '1']];
+    const paths: EntityPath[] = [{ key: 'testEntity', pk: '1' }];
     const futureTime = Date.now() + 1000;
     const state = {
       meta: {
@@ -211,7 +211,7 @@ describe('GCPolicy', () => {
 
     expect(controller.dispatch).toHaveBeenCalledWith({
       type: GC,
-      entities: [['testEntity', '1']],
+      entities: [{ key: 'testEntity', pk: '1' }],
       endpoints: ['testEndpoint'],
     });
 
@@ -223,7 +223,7 @@ describe('GCPolicy', () => {
     gcPolicy = new GCPolicy({ expiresAt: () => 0 });
     gcPolicy.init(controller);
     const key = 'testEndpoint';
-    const paths: EntityPath[] = [['testEntity', '1']];
+    const paths: EntityPath[] = [{ key: 'testEntity', pk: '1' }];
     const futureTime = Date.now() + 1000;
     const state = {
       meta: {

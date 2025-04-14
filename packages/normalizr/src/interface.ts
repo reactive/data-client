@@ -99,10 +99,15 @@ export interface Visit {
   (schema: any, value: any, parent: any, key: any, args: readonly any[]): any;
 }
 
-export type EntityPath = [key: string, pk: string];
+/** Used in denormalize. Lookup to find an entity in the store table */
+export interface EntityPath {
+  key: string;
+  pk: string;
+}
+
 export type IndexPath = [key: string, index: string, value: string];
 export type EntitiesPath = [key: string];
-export type QueryPath = IndexPath | EntityPath | EntitiesPath;
+export type QueryPath = IndexPath | [key: string, pk: string] | EntitiesPath;
 
 /** Returns true if a circular reference is found */
 export interface CheckLoop {
@@ -111,11 +116,11 @@ export interface CheckLoop {
 
 /** Get all normalized entities of one type from store */
 export interface GetEntities {
-  (...path: EntitiesPath): { readonly [pk: string]: any } | undefined;
+  (key: string): { readonly [pk: string]: any } | undefined;
 }
 /** Get normalized Entity from store */
 export interface GetEntity {
-  (...path: EntityPath): any;
+  (key: string, pk: string): any;
 }
 /** Get PK using an Entity Index */
 export interface GetIndex {
