@@ -22,8 +22,11 @@ export abstract class BaseDelegate {
   abstract getIndex(...path: IndexPath): object | undefined;
   abstract getIndexEnd(entity: any, value: string): string | undefined;
 
-  getDependency = (path: QueryPath): object | undefined =>
-    this[['', 'getEntities', 'getEntity', 'getIndex'][path.length]](...path);
+  getDependency(path: QueryPath): object | undefined {
+    return this[['', 'getEntities', 'getEntity', 'getIndex'][path.length]](
+      ...path,
+    );
+  }
 
   tracked(
     schema: any,
