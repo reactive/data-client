@@ -229,7 +229,6 @@ declare abstract class BaseDelegate {
     abstract getEntity(...path: EntityPath): object | undefined;
     abstract getIndex(...path: IndexPath): object | undefined;
     abstract getIndexEnd(entity: any, value: string): string | undefined;
-    getDependency: (path: QueryPath) => object | undefined;
     tracked(schema: any): [delegate: IQueryDelegate, dependencies: Dep<QueryPath>[]];
 }
 

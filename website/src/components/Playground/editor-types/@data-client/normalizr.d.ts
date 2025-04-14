@@ -269,7 +269,6 @@ declare abstract class BaseDelegate {
     abstract getEntity(...path: EntityPath): object | undefined;
     abstract getIndex(...path: IndexPath): object | undefined;
     abstract getIndexEnd(entity: any, value: string): string | undefined;
-    getDependency: (path: QueryPath) => object | undefined;
     tracked(schema: any): [delegate: IQueryDelegate, dependencies: Dep<QueryPath>[]];
 }
 
@@ -445,4 +444,4 @@ type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Pr
 
 declare function validateQueryKey(queryKey: unknown): boolean;
 
-export { type AbstractInstanceType, type ArrayElement, BaseDelegate, type CheckLoop, PlainDelegate as Delegate, type Denormalize, type DenormalizeNullable, type EndpointExtraOptions, type EndpointInterface, type EntitiesPath, type EntityInterface, type EntityPath, type EntityTable, type ErrorTypes, ExpiryStatus, type ExpiryStatusInterface, type FetchFunction, type GetEntities, type GetEntity, type GetIndex, INVALID, type INormalizeDelegate, type IQueryDelegate, type IndexInterface, type IndexParams, type IndexPath, type InferReturn, MemoCache, type Mergeable, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeReturnType, type NormalizedIndex, type NormalizedSchema, type OptimisticUpdateParams, type QueryPath, type Queryable, type ReadEndpoint, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SnapshotInterface, type UnknownError, type UpdateFunction, type Visit, WeakDependencyMap, denormalize, isEntity, normalize, validateQueryKey };
+export { type AbstractInstanceType, type ArrayElement, BaseDelegate, type CheckLoop, type Denormalize, type DenormalizeNullable, type EndpointExtraOptions, type EndpointInterface, type EntitiesPath, type EntityInterface, type EntityPath, type EntityTable, type ErrorTypes, ExpiryStatus, type ExpiryStatusInterface, type FetchFunction, type GetEntities, type GetEntity, type GetIndex, INVALID, type INormalizeDelegate, type IQueryDelegate, type IndexInterface, type IndexParams, type IndexPath, type InferReturn, MemoCache, type Mergeable, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeReturnType, type NormalizedIndex, type NormalizedSchema, type OptimisticUpdateParams, PlainDelegate, type QueryPath, type Queryable, type ReadEndpoint, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SnapshotInterface, type UnknownError, type UpdateFunction, type Visit, WeakDependencyMap, denormalize, isEntity, normalize, validateQueryKey };
