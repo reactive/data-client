@@ -1,7 +1,7 @@
 import GlobalCache from './globalCache.js';
 import WeakDependencyMap from './WeakDependencyMap.js';
 import buildQueryKey from '../buildQueryKey.js';
-import type { BaseDelegate } from './BaseDelegate.js';
+import { getDependency, type BaseDelegate } from './BaseDelegate.js';
 import { PlainDelegate } from './Delegate.js';
 import { getEntities } from '../denormalize/getEntities.js';
 import getUnvisit from '../denormalize/unvisit.js';
@@ -114,7 +114,7 @@ export default class MemoCache {
     // eslint-disable-next-line prefer-const
     let [value, paths] = queryCache.get(
       schema as any,
-      baseDelegate.getDependency.bind(baseDelegate),
+      getDependency(baseDelegate),
     );
 
     // paths undefined is the only way to truly tell nothing was found (the value could have actually been undefined)

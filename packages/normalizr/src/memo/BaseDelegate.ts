@@ -8,6 +8,13 @@ import type {
   IQueryDelegate,
 } from '../interface.js';
 
+export const getDependency =
+  (delegate: BaseDelegate) =>
+  (path: QueryPath): object | undefined =>
+    delegate[['', 'getEntities', 'getEntity', 'getIndex'][path.length]](
+      ...path,
+    );
+
 export abstract class BaseDelegate {
   declare entities: any;
   declare indexes: any;
@@ -21,12 +28,6 @@ export abstract class BaseDelegate {
   abstract getEntity(...path: EntityPath): object | undefined;
   abstract getIndex(...path: IndexPath): object | undefined;
   abstract getIndexEnd(entity: any, value: string): string | undefined;
-
-  getDependency(path: QueryPath): object | undefined {
-    return this[['', 'getEntities', 'getEntity', 'getIndex'][path.length]](
-      ...path,
-    );
-  }
 
   tracked(
     schema: any,
