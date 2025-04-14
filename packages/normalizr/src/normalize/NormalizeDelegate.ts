@@ -8,8 +8,41 @@ import { getCheckLoop } from './getCheckLoop.js';
 import { INVALID } from '../denormalize/symbol.js';
 import { PlainDelegate } from '../memo/Delegate.js';
 
+class BaseDelegate {
+  declare entities: EntityTable;
+  declare indexes: {
+    [entityKey: string]: {
+      [indexName: string]: { [lookup: string]: string };
+    };
+  };
+
+  constructor({
+    entities,
+    indexes,
+  }: {
+    entities: EntityTable;
+    indexes: NormalizedIndex;
+  }) {
+    this.entities = entities;
+    this.indexes = indexes;
+  }
+
+  getEntities(key: string): any {
+    return this.entities[key];
+  }
+
+  getEntity(key: string, pk: any): any {
+    return this.entities[key]?.[pk];
+  }
+
+  // this is different return value than QuerySnapshot
+  getIndex(key: string, field: string) {
+    return this.indexes[key]?.[field];
+  }
+}
+
 export class NormalizeDelegate
-  extends PlainDelegate
+  extends BaseDelegate
   implements INormalizeDelegate
 {
   declare readonly entitiesMeta: {
