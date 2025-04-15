@@ -58,23 +58,27 @@ interface EntityTable {
 interface Visit {
     (schema: any, value: any, parent: any, key: any, args: readonly any[]): any;
 }
-type EntityPath = [key: string, pk: string];
+/** Used in denormalize. Lookup to find an entity in the store table */
+interface EntityPath {
+    key: string;
+    pk: string;
+}
 type IndexPath = [key: string, index: string, value: string];
 type EntitiesPath = [key: string];
-type QueryPath = IndexPath | EntityPath | EntitiesPath;
+type QueryPath = IndexPath | [key: string, pk: string] | EntitiesPath;
 /** Returns true if a circular reference is found */
 interface CheckLoop {
     (entityKey: string, pk: string, input: object): boolean;
 }
 /** Get all normalized entities of one type from store */
 interface GetEntities {
-    (...path: EntitiesPath): {
+    (key: string): {
         readonly [pk: string]: any;
     } | undefined;
 }
 /** Get normalized Entity from store */
 interface GetEntity {
-    (...path: EntityPath): any;
+    (key: string, pk: string): any;
 }
 /** Get PK using an Entity Index */
 interface GetIndex {
@@ -266,15 +270,15 @@ declare abstract class BaseDelegate {
         indexes: any;
     });
     abstract getEntities(...path: EntitiesPath): object | undefined;
-    abstract getEntity(...path: EntityPath): object | undefined;
+    abstract getEntity(key: string, pk: string): object | undefined;
     abstract getIndex(...path: IndexPath): object | undefined;
     abstract getIndexEnd(entity: any, value: string): string | undefined;
     tracked(schema: any): [delegate: IQueryDelegate, dependencies: Dep<QueryPath>[]];
 }
 
-interface EntityCache extends Map<string, Map<string, WeakMap<EntityInterface, WeakDependencyMap<EntityPath, object, any>>>> {
-}
 type EndpointsCache = WeakDependencyMap<EntityPath, object, any>;
+
+type GetEntityCache = (pk: string, schema: EntityInterface) => WeakDependencyMap<EntityPath, object, any>;
 
 type DelegateClass = new (v: {
     entities: any;
@@ -283,7 +287,7 @@ type DelegateClass = new (v: {
 /** Singleton to store the memoization cache for denormalization methods */
 declare class MemoCache {
     /** Cache for every entity based on its dependencies and its own input */
-    protected entities: EntityCache;
+    protected _getCache: GetEntityCache;
     /** Caches the final denormalized form based on input, entities */
     protected endpoints: EndpointsCache;
     /** Caches the queryKey based on schema, args, and any used entities or indexes */
