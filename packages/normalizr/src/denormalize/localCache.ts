@@ -15,7 +15,7 @@ export default class LocalCache implements Cache {
     if (!this.localCache.has(key)) {
       this.localCache.set(key, new Map<string, any>());
     }
-    const localCacheKey = this.localCache.get(key) as Map<string, any>;
+    const localCacheKey = this.localCache.get(key)!;
 
     if (!localCacheKey.get(pk)) {
       computeValue(localCacheKey);
