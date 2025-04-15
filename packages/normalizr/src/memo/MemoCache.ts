@@ -3,6 +3,7 @@ import WeakDependencyMap from './WeakDependencyMap.js';
 import buildQueryKey from '../buildQueryKey.js';
 import { getDependency, type BaseDelegate } from './BaseDelegate.js';
 import { PlainDelegate } from './Delegate.js';
+import { GetEntityCache, getEntityCaches } from './entitiesCache.js';
 import { getEntities } from '../denormalize/getEntities.js';
 import getUnvisit from '../denormalize/unvisit.js';
 import type {
@@ -12,7 +13,7 @@ import type {
   Schema,
 } from '../interface.js';
 import type { DenormalizeNullable, NormalizeNullable } from '../types.js';
-import { EndpointsCache, EntityCache } from './types.js';
+import { EndpointsCache } from './types.js';
 import type { INVALID } from '../denormalize/symbol.js';
 
 type DelegateClass = new (v: { entities: any; indexes: any }) => BaseDelegate;
@@ -22,15 +23,17 @@ type DelegateClass = new (v: { entities: any; indexes: any }) => BaseDelegate;
 /** Singleton to store the memoization cache for denormalization methods */
 export default class MemoCache {
   /** Cache for every entity based on its dependencies and its own input */
-  protected entities: EntityCache = new Map();
+  declare protected _getCache: GetEntityCache;
   /** Caches the final denormalized form based on input, entities */
   protected endpoints: EndpointsCache = new WeakDependencyMap<EntityPath>();
   /** Caches the queryKey based on schema, args, and any used entities or indexes */
   protected queryKeys: Map<string, WeakDependencyMap<QueryPath>> = new Map();
+
   declare protected Delegate: DelegateClass;
 
   constructor(D: DelegateClass = PlainDelegate) {
     this.Delegate = D;
+    this._getCache = getEntityCaches(new Map());
   }
 
   /** Compute denormalized form maintaining referential equality for same inputs */
@@ -58,7 +61,7 @@ export default class MemoCache {
 
     return getUnvisit(
       getEntity,
-      new GlobalCache(getEntity, this.entities, this.endpoints),
+      new GlobalCache(getEntity, this._getCache, this.endpoints),
       args,
     )(schema, input);
   }
