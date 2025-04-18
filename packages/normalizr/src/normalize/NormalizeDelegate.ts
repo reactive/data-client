@@ -6,10 +6,10 @@ import {
 } from '../interface.js';
 import { getCheckLoop } from './getCheckLoop.js';
 import { INVALID } from '../denormalize/symbol.js';
-import { BaseDelegate } from '../memo/Delegate.js';
+import { PlainDelegate } from '../memo/Delegate.js';
 
 export class NormalizeDelegate
-  extends BaseDelegate
+  extends PlainDelegate
   implements INormalizeDelegate
 {
   declare readonly entitiesMeta: {
