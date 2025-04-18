@@ -54,5 +54,5 @@
     "react-dom": "19.1.0",
     "uuid": "^11.0.0"
   },
-  "packageManager": "yarn@4.9.0"
+  "packageManager": "yarn@4.9.1"
 }
