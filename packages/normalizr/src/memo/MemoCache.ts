@@ -1,10 +1,10 @@
 import GlobalCache from './globalCache.js';
 import WeakDependencyMap from './WeakDependencyMap.js';
 import buildQueryKey from '../buildQueryKey.js';
-import { getDependency, type BaseDelegate } from './BaseDelegate.js';
-import { PlainDelegate } from './Delegate.js';
 import { GetEntityCache, getEntityCaches } from './entitiesCache.js';
-import { getEntities } from '../denormalize/getEntities.js';
+import { MemoPolicy } from './Policy.js';
+import type { BaseDelegate } from '../delegate/BaseDelegate.js';
+import type { INVALID } from '../denormalize/symbol.js';
 import getUnvisit from '../denormalize/unvisit.js';
 import type {
   EntityPath,
@@ -13,10 +13,7 @@ import type {
   Schema,
 } from '../interface.js';
 import type { DenormalizeNullable, NormalizeNullable } from '../types.js';
-import { EndpointsCache } from './types.js';
-import type { INVALID } from '../denormalize/symbol.js';
-
-type DelegateClass = new (v: { entities: any; indexes: any }) => BaseDelegate;
+import type { IMemoPolicy, EndpointsCache } from './types.js';
 
 // TODO: make MemoCache generic on the arguments sent to Delegate constructor
 
@@ -29,10 +26,10 @@ export default class MemoCache {
   /** Caches the queryKey based on schema, args, and any used entities or indexes */
   protected queryKeys: Map<string, WeakDependencyMap<QueryPath>> = new Map();
 
-  declare protected Delegate: DelegateClass;
+  declare protected policy: IMemoPolicy;
 
-  constructor(D: DelegateClass = PlainDelegate) {
-    this.Delegate = D;
+  constructor(policy: IMemoPolicy = MemoPolicy) {
+    this.policy = policy;
     this._getCache = getEntityCaches(new Map());
   }
 
@@ -57,7 +54,7 @@ export default class MemoCache {
     if (input === undefined) {
       return { data: undefined as any, paths: [] };
     }
-    const getEntity = getEntities(entities);
+    const getEntity = this.policy.getEntities(entities);
 
     return getUnvisit(
       getEntity,
@@ -113,7 +110,7 @@ export default class MemoCache {
       any
     >;
 
-    const baseDelegate = new this.Delegate(state);
+    const baseDelegate = new this.policy.QueryDelegate(state);
     // eslint-disable-next-line prefer-const
     let [value, paths] = queryCache.get(
       schema as any,
@@ -143,3 +140,10 @@ type StateInterface = {
         getIn(k: string[]): any;
       };
 };
+
+const getDependency =
+  (delegate: BaseDelegate) =>
+  (path: QueryPath): object | undefined =>
+    delegate[['', 'getEntities', 'getEntity', 'getIndex'][path.length]](
+      ...path,
+    );

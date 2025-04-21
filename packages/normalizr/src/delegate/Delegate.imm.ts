@@ -1,13 +1,13 @@
-import type { EntitiesPath, EntityPath, IndexPath } from '../interface.js';
 import { BaseDelegate } from './BaseDelegate.js';
 
-type ImmutableJSEntityTable = {
+export type ImmutableJSEntityTable = {
   get(key: string): { toJS(): any } | undefined;
   getIn(k: [key: string, pk: string]): { toJS(): any } | undefined;
   setIn(k: [key: string, pk: string], value: any);
 };
 
-export class DelegateImmutable extends BaseDelegate {
+/** Basic ImmutableJS state interfaces for normalize side */
+export class ImmDelegate extends BaseDelegate {
   declare entities: ImmutableJSEntityTable;
   declare indexes: ImmutableJSEntityTable;
 

@@ -1,10 +1,10 @@
+import type { GetEntityCache } from './entitiesCache.js';
 import { EndpointsCache } from './types.js';
 import WeakDependencyMap, { type Dep } from './WeakDependencyMap.js';
 import type Cache from '../denormalize/cache.js';
-import type { GetEntity } from '../denormalize/getEntities.js';
 import type { INVALID } from '../denormalize/symbol.js';
 import type { EntityInterface, EntityPath } from '../interface.js';
-import type { GetEntityCache } from './entitiesCache.js';
+import type { DenormGetEntity } from './types.js';
 
 export default class GlobalCache implements Cache {
   private dependencies: Dep<EntityPath>[] = [];
@@ -14,11 +14,11 @@ export default class GlobalCache implements Cache {
 
   declare private _getCache: GetEntityCache;
 
-  declare private _getEntity: GetEntity;
+  declare private _getEntity: DenormGetEntity;
   declare private _resultCache: EndpointsCache;
 
   constructor(
-    getEntity: GetEntity,
+    getEntity: DenormGetEntity,
     getCache: GetEntityCache,
     resultCache: EndpointsCache,
   ) {

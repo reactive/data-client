@@ -72,9 +72,9 @@
       "react-native": "./lib/index.js",
       "default": "./lib/index.js"
     },
-    "./immutable": {
-      "types": "./lib/immutable.d.ts",
-      "default": "./lib/immutable.js"
+    "./imm": {
+      "types": "./lib/imm.d.ts",
+      "default": "./lib/imm.js"
     },
     "./package.json": "./package.json"
   },

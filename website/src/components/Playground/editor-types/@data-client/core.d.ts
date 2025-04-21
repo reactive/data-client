@@ -222,6 +222,7 @@ interface Dep<Path, K = object> {
     entity: K | undefined;
 }
 
+/** Basic state interfaces for normalize side */
 declare abstract class BaseDelegate {
     entities: any;
     indexes: any;
@@ -237,13 +238,17 @@ declare abstract class BaseDelegate {
 }
 
 type EndpointsCache = WeakDependencyMap<EntityPath, object, any>;
+type DenormGetEntity = GetDependency<EntityPath>;
+interface IMemoPolicy {
+    QueryDelegate: new (v: {
+        entities: any;
+        indexes: any;
+    }) => BaseDelegate;
+    getEntities(entities: any): DenormGetEntity;
+}
 
 type GetEntityCache = (pk: string, schema: EntityInterface) => WeakDependencyMap<EntityPath, object, any>;
 
-type DelegateClass = new (v: {
-    entities: any;
-    indexes: any;
-}) => BaseDelegate;
 /** Singleton to store the memoization cache for denormalization methods */
 declare class MemoCache {
     /** Cache for every entity based on its dependencies and its own input */
@@ -252,8 +257,8 @@ declare class MemoCache {
     protected endpoints: EndpointsCache;
     /** Caches the queryKey based on schema, args, and any used entities or indexes */
     protected queryKeys: Map<string, WeakDependencyMap<QueryPath>>;
-    protected Delegate: DelegateClass;
-    constructor(D?: DelegateClass);
+    protected policy: IMemoPolicy;
+    constructor(policy?: IMemoPolicy);
     /** Compute denormalized form maintaining referential equality for same inputs */
     denormalize<S extends Schema>(schema: S | undefined, input: unknown, entities: any, args?: readonly any[]): {
         data: DenormalizeNullable<S> | typeof INVALID;

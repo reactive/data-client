@@ -3,11 +3,14 @@ import { initialState, State, Controller } from '@data-client/core';
 import {
   normalize,
   MemoCache,
-  denormalize,
+  denormalize as plainDenormalize,
   INVALID,
-  PlainDelegate,
+  MemoPolicy as PojoDelegate,
 } from '@data-client/normalizr';
-import { DelegateImmutable } from '@data-client/normalizr/immutable';
+import {
+  MemoPolicy as ImmDelegate,
+  denormalize as immDenormalize,
+} from '@data-client/normalizr/imm';
 import { IDEntity } from '__tests__/new';
 
 import { schema } from '../..';
@@ -103,16 +106,23 @@ describe.each([[]])(`${schema.All.name} normalization (%s)`, () => {
 });
 
 describe.each([
-  ['direct', <T>(data: T) => data, <T>(data: T) => data, PlainDelegate],
+  [
+    'direct',
+    <T>(data: T) => data,
+    <T>(data: T) => data,
+    PojoDelegate,
+    plainDenormalize,
+  ],
   [
     'immutable',
     fromJSState,
     (v: any) => (typeof v?.toJS === 'function' ? v.toJS() : v),
-    DelegateImmutable,
+    ImmDelegate,
+    immDenormalize,
   ],
 ])(
   `${schema.Array.name} denormalization (%s)`,
-  (_, createInput, createOutput, MyDelegate) => {
+  (_, createInput, createOutput, MyDelegate, denormalize) => {
     test('denormalizes a single entity', () => {
       class Cat extends IDEntity {}
       const state: State<unknown> = createInput({

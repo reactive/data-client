@@ -10,9 +10,9 @@ import {
 
 import { fromJSState } from './immutable.test';
 import { IQueryDelegate } from '../interface';
-import { PlainDelegate } from '../memo/Delegate';
-import { DelegateImmutable } from '../memo/Delegate.immutable';
 import MemoCache from '../memo/MemoCache';
+import { MemoPolicy as POJOPolicy } from '../memo/Policy';
+import { MemoPolicy as ImmPolicy } from '../memo/Policy.imm';
 
 class IDEntity extends Entity {
   id = '';
@@ -1011,8 +1011,8 @@ describe('MemoCache', () => {
   });
 
   describe.each([
-    ['direct', <T>(data: T) => data, PlainDelegate],
-    ['immutable', fromJSState, DelegateImmutable],
+    ['direct', <T>(data: T) => data, POJOPolicy],
+    ['immutable', fromJSState, ImmPolicy],
   ])(`query (%s)`, (_, createInput, Delegate) => {
     class Cat extends IDEntity {
       id = '0';

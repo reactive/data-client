@@ -1,7 +1,8 @@
 import type { EntityTable, NormalizedIndex } from '../interface.js';
 import { BaseDelegate } from './BaseDelegate.js';
 
-export class PlainDelegate extends BaseDelegate {
+/** Basic POJO state interfaces for normalize side */
+export class POJODelegate extends BaseDelegate {
   declare entities: EntityTable;
   declare indexes: {
     [entityKey: string]: {

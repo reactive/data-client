@@ -1,6 +1,6 @@
 // eslint-env jest
-import { MemoCache, PlainDelegate } from '@data-client/normalizr';
-import { DelegateImmutable } from '@data-client/normalizr/immutable';
+import { MemoCache, MemoPolicy as PojoPolicy } from '@data-client/normalizr';
+import { MemoPolicy as ImmPolicy } from '@data-client/normalizr/imm';
 import { useQuery, useSuspense, __INTERNAL__ } from '@data-client/react';
 import { RestEndpoint } from '@data-client/rest';
 import { IDEntity } from '__tests__/new';
@@ -27,12 +27,12 @@ class User extends IDEntity {
 }
 
 describe.each([
-  ['direct', <T>(data: T) => data, <T>(data: T) => data, PlainDelegate],
+  ['direct', <T>(data: T) => data, <T>(data: T) => data, PojoPolicy],
   [
     'immutable',
     fromJSState,
     (v: any) => (typeof v?.toJS === 'function' ? v.toJS() : v),
-    DelegateImmutable,
+    ImmPolicy,
   ],
 ])(`input (%s)`, (_, createInput, createOutput, MyDelegate) => {
   const SCHEMA_CASES = [

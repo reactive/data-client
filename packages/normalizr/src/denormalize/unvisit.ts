@@ -1,14 +1,14 @@
 import type Cache from './cache.js';
-import { type GetEntity } from './getEntities.js';
 import { INVALID } from './symbol.js';
 import { UNDEF } from './UNDEF.js';
 import type { EntityInterface, EntityPath } from '../interface.js';
 import { isEntity } from '../isEntity.js';
+import type { DenormGetEntity } from '../memo/types.js';
 import { denormalize as arrayDenormalize } from '../schemas/Array.js';
 import { denormalize as objectDenormalize } from '../schemas/Object.js';
 
 const getUnvisitEntity = (
-  getEntity: GetEntity,
+  getEntity: DenormGetEntity,
   cache: Cache,
   args: readonly any[],
   unvisit: (schema: any, input: any) => any,
@@ -98,7 +98,7 @@ function noCacheGetEntity(
 }
 
 const getUnvisit = (
-  getEntity: GetEntity,
+  getEntity: DenormGetEntity,
   cache: Cache,
   args: readonly any[],
 ) => {

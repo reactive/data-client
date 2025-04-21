@@ -1,4 +1,3 @@
-import type { Dep } from './WeakDependencyMap.js';
 import { INVALID } from '../denormalize/symbol.js';
 import type {
   QueryPath,
@@ -6,14 +5,9 @@ import type {
   EntitiesPath,
   IQueryDelegate,
 } from '../interface.js';
+import type { Dep } from '../memo/WeakDependencyMap.js';
 
-export const getDependency =
-  (delegate: BaseDelegate) =>
-  (path: QueryPath): object | undefined =>
-    delegate[['', 'getEntities', 'getEntity', 'getIndex'][path.length]](
-      ...path,
-    );
-
+/** Basic state interfaces for normalize side */
 export abstract class BaseDelegate {
   declare entities: any;
   declare indexes: any;

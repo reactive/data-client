@@ -1,16 +1,21 @@
 // eslint-env jest
-import { INVALID, Schema, normalize } from '@data-client/normalizr';
+import {
+  INVALID,
+  Schema,
+  normalize,
+  MemoPolicy as POJOPolicy,
+} from '@data-client/normalizr';
+import { MemoPolicy as ImmPolicy } from '@data-client/normalizr/imm';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
-import { SimpleMemoCache, fromJSEntities } from './denormalize';
+import SimpleMemoCache, { fromJSEntities } from './denormalize';
 import { schema } from '../..';
 import Entity from '../Entity';
 
 let dateSpy: jest.SpyInstance;
 beforeAll(() => {
   dateSpy = jest
-
     .spyOn(global.Date, 'now')
     .mockImplementation(() => new Date('2019-05-14T11:01:58.135Z').valueOf());
 });
@@ -92,7 +97,7 @@ describe(`${schema.Invalidate.name} denormalization`, () => {
   };
 
   test('denormalizes an object in the same manner as the Entity', () => {
-    const user = new SimpleMemoCache().denormalize(
+    const user = new SimpleMemoCache(POJOPolicy).denormalize(
       new schema.Invalidate(User),
       '1',
       entities,
@@ -102,24 +107,35 @@ describe(`${schema.Invalidate.name} denormalization`, () => {
     expect(user).toBeDefined();
     expect(user).toBeInstanceOf(User);
     expect(user?.username).toBe('Janey');
+    // Immutable version
+    const userImm = new SimpleMemoCache(ImmPolicy).denormalize(
+      new schema.Invalidate(User),
+      '1',
+      fromJSEntities(entities),
+    );
+    expect(userImm).not.toEqual(expect.any(Symbol));
+    if (typeof userImm === 'symbol') return;
+    expect(userImm).toBeDefined();
+    expect(userImm).toBeInstanceOf(User);
+    expect(userImm?.username).toBe('Janey');
   });
 
   describe.each([
-    ['direct', <T>(data: T) => data, <T>(data: T) => data],
-    ['immutable', fromJS, fromJSEntities],
-  ])(`input (%s)`, (_, createInput, createEntities) => {
+    ['direct', <T>(data: T) => data, <T>(data: T) => data, POJOPolicy],
+    ['immutable', fromJS, fromJSEntities, ImmPolicy],
+  ])(`input (%s)`, (_, createInput, createEntities, Delegate) => {
     describe.each([
       [
         'class',
         <T extends Schema>(sch: T) => new schema.Array(sch),
         <T extends Record<string, any>>(sch: T) => new schema.Object(sch),
-        new SimpleMemoCache().denormalize,
+        new SimpleMemoCache(Delegate).denormalize,
       ],
       [
         'object, direct',
         <T extends Schema>(sch: T) => [sch],
         <T extends Record<string, any>>(sch: T) => sch,
-        new SimpleMemoCache().denormalize,
+        new SimpleMemoCache(Delegate).denormalize,
       ],
     ])(
       `schema construction (%s)`,
