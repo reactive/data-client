@@ -1,4 +1,4 @@
-import type { EntitiesPath, EntityPath, IndexPath } from '../interface.js';
+import type { EntityPath } from '../interface.js';
 import { BaseDelegate } from './BaseDelegate.js';
 
 type ImmutableJSEntityTable = {
@@ -36,5 +36,10 @@ export class DelegateImmutable extends BaseDelegate {
     value: string,
   ) {
     return entity?.get?.(value);
+  }
+
+  static forDenorm(entities: { getIn(path: [string, string]): unknown }) {
+    return ({ key, pk }: EntityPath): symbol | object | undefined =>
+      entities.getIn([key, pk]) as any;
   }
 }

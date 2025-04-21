@@ -4,7 +4,7 @@ import buildQueryKey from '../buildQueryKey.js';
 import { getDependency, type BaseDelegate } from './BaseDelegate.js';
 import { PlainDelegate } from './Delegate.js';
 import { GetEntityCache, getEntityCaches } from './entitiesCache.js';
-import { getEntities } from '../denormalize/getEntities.js';
+import type { GetEntity } from '../denormalize/getEntities.js';
 import getUnvisit from '../denormalize/unvisit.js';
 import type {
   EntityPath,
@@ -29,9 +29,15 @@ export default class MemoCache {
   /** Caches the queryKey based on schema, args, and any used entities or indexes */
   protected queryKeys: Map<string, WeakDependencyMap<QueryPath>> = new Map();
 
-  declare protected Delegate: DelegateClass;
+  declare protected Delegate: DelegateClass & {
+    forDenorm(entities: any): GetEntity;
+  };
 
-  constructor(D: DelegateClass = PlainDelegate) {
+  constructor(
+    D: DelegateClass & {
+      forDenorm(entities: any): GetEntity;
+    } = PlainDelegate,
+  ) {
     this.Delegate = D;
     this._getCache = getEntityCaches(new Map());
   }
@@ -57,7 +63,7 @@ export default class MemoCache {
     if (input === undefined) {
       return { data: undefined as any, paths: [] };
     }
-    const getEntity = getEntities(entities);
+    const getEntity = this.Delegate.forDenorm(entities);
 
     return getUnvisit(
       getEntity,
