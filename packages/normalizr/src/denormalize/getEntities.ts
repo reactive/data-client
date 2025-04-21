@@ -1,16 +1,18 @@
+import { DelegateImmutable } from '../immutable.js';
 import type { EntityPath } from '../interface.js';
+import { PlainDelegate } from '../memo/Delegate.js';
 import type { GetDependency } from '../memo/WeakDependencyMap.js';
 import { isImmutable } from '../schemas/ImmutableUtils.js';
 
 export function getEntities<K extends object>(
   state: State<K>,
-): GetDependency<EntityPath, K> {
+): GetDependency<EntityPath, K | symbol> {
   const entityIsImmutable = isImmutable(state);
 
   if (entityIsImmutable) {
-    return ({ key, pk }: EntityPath) => state.getIn([key, pk]);
+    return DelegateImmutable.forDenorm(state as any) as any;
   } else {
-    return ({ key, pk }: EntityPath) => state[key]?.[pk];
+    return PlainDelegate.forDenorm(state as any) as any;
   }
 }
 

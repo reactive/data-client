@@ -1,4 +1,4 @@
-import type { EntityTable, NormalizedIndex } from '../interface.js';
+import type { EntityPath, EntityTable, NormalizedIndex } from '../interface.js';
 import { BaseDelegate } from './BaseDelegate.js';
 
 export class PlainDelegate extends BaseDelegate {
@@ -28,5 +28,10 @@ export class PlainDelegate extends BaseDelegate {
 
   getIndexEnd(entity: object | undefined, value: string) {
     return entity?.[value];
+  }
+
+  static forDenorm(entities: EntityTable) {
+    return ({ key, pk }: EntityPath): symbol | object | undefined =>
+      entities[key]?.[pk] as any;
   }
 }

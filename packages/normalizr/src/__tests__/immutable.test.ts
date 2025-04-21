@@ -2,7 +2,7 @@
 import { Entity, schema } from '@data-client/endpoint';
 import { fromJS, Record, Map } from 'immutable';
 
-import { normalize } from '..';
+import { normalize } from '../';
 import { denormalize } from '../denormalize/denormalize';
 
 export function fromJSEntities(entities: {
