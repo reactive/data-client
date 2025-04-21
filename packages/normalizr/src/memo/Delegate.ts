@@ -1,4 +1,4 @@
-import type { EntityTable, NormalizedIndex } from '../interface.js';
+import type { EntityPath, EntityTable, NormalizedIndex } from '../interface.js';
 import { BaseDelegate } from './BaseDelegate.js';
 
 export class PlainDelegate extends BaseDelegate {
@@ -30,3 +30,11 @@ export class PlainDelegate extends BaseDelegate {
     return entity?.[value];
   }
 }
+
+export const Delegate = {
+  normalize: PlainDelegate,
+  denormalize(entities: EntityTable) {
+    return ({ key, pk }: EntityPath): symbol | object | undefined =>
+      entities[key]?.[pk] as any;
+  },
+};

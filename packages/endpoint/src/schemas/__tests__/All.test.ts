@@ -5,9 +5,9 @@ import {
   MemoCache,
   denormalize,
   INVALID,
-  PlainDelegate,
+  Delegate as PlainDelegate,
 } from '@data-client/normalizr';
-import { DelegateImmutable } from '@data-client/normalizr/immutable';
+import { Delegate as DelegateImmutable } from '@data-client/normalizr/immutable';
 import { IDEntity } from '__tests__/new';
 
 import { schema } from '../..';

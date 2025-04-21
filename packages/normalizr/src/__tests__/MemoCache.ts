@@ -10,8 +10,8 @@ import {
 
 import { fromJSState } from './immutable.test';
 import { IQueryDelegate } from '../interface';
-import { PlainDelegate } from '../memo/Delegate';
-import { DelegateImmutable } from '../memo/Delegate.immutable';
+import { Delegate as PlainDelegate } from '../memo/Delegate';
+import { Delegate as DelegateImmutable } from '../memo/Delegate.immutable';
 import MemoCache from '../memo/MemoCache';
 
 class IDEntity extends Entity {

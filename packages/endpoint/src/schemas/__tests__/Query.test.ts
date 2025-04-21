@@ -1,6 +1,6 @@
 // eslint-env jest
-import { MemoCache, PlainDelegate } from '@data-client/normalizr';
-import { DelegateImmutable } from '@data-client/normalizr/immutable';
+import { MemoCache, Delegate as PlainDelegate } from '@data-client/normalizr';
+import { Delegate as DelegateImmutable } from '@data-client/normalizr/immutable';
 import { useQuery, useSuspense, __INTERNAL__ } from '@data-client/react';
 import { RestEndpoint } from '@data-client/rest';
 import { IDEntity } from '__tests__/new';

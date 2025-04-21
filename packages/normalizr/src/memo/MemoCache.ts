@@ -2,9 +2,9 @@ import GlobalCache from './globalCache.js';
 import WeakDependencyMap from './WeakDependencyMap.js';
 import buildQueryKey from '../buildQueryKey.js';
 import { getDependency, type BaseDelegate } from './BaseDelegate.js';
-import { PlainDelegate } from './Delegate.js';
+import { Delegate } from './Delegate.js';
 import { GetEntityCache, getEntityCaches } from './entitiesCache.js';
-import { getEntities } from '../denormalize/getEntities.js';
+import type { GetEntity } from '../denormalize/getEntities.js';
 import getUnvisit from '../denormalize/unvisit.js';
 import type {
   EntityPath,
@@ -16,7 +16,10 @@ import type { DenormalizeNullable, NormalizeNullable } from '../types.js';
 import { EndpointsCache } from './types.js';
 import type { INVALID } from '../denormalize/symbol.js';
 
-type DelegateClass = new (v: { entities: any; indexes: any }) => BaseDelegate;
+type DelegateClass = {
+  normalize: new (v: { entities: any; indexes: any }) => BaseDelegate;
+  denormalize(entities: any): GetEntity;
+};
 
 // TODO: make MemoCache generic on the arguments sent to Delegate constructor
 
@@ -31,7 +34,7 @@ export default class MemoCache {
 
   declare protected Delegate: DelegateClass;
 
-  constructor(D: DelegateClass = PlainDelegate) {
+  constructor(D: DelegateClass = Delegate) {
     this.Delegate = D;
     this._getCache = getEntityCaches(new Map());
   }
@@ -57,7 +60,7 @@ export default class MemoCache {
     if (input === undefined) {
       return { data: undefined as any, paths: [] };
     }
-    const getEntity = getEntities(entities);
+    const getEntity = this.Delegate.denormalize(entities);
 
     return getUnvisit(
       getEntity,
@@ -113,7 +116,7 @@ export default class MemoCache {
       any
     >;
 
-    const baseDelegate = new this.Delegate(state);
+    const baseDelegate = new this.Delegate.normalize(state);
     // eslint-disable-next-line prefer-const
     let [value, paths] = queryCache.get(
       schema as any,
