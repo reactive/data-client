@@ -1,6 +1,6 @@
 {
   "name": "@data-client/endpoint",
-  "version": "0.14.25",
+  "version": "0.14.26",
   "description": "Declarative Network Interface Definitions",
   "homepage": "https://dataclient.io/docs/guides/custom-protocol",
   "keywords": [

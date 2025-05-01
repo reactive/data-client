@@ -1,5 +1,11 @@
 # @data-client/endpoint
 
+## 0.14.26
+
+### Patch Changes
+
+- [#3483](https://github.com/reactive/data-client/pull/3483) [`c6e56c6`](https://github.com/reactive/data-client/commit/c6e56c69b16da967b3b4f3f95bccb3c936d195c1) Thanks [@Tomaszal](https://github.com/Tomaszal)! - fix: export types needed for EntityMixin
+
 ## 0.14.25
 
 ### Patch Changes
