@@ -1574,7 +1574,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-transform-modules-commonjs@npm:^7.22.15, @babel/plugin-transform-modules-commonjs@npm:^7.23.3, @babel/plugin-transform-modules-commonjs@npm:^7.25.9, @babel/plugin-transform-modules-commonjs@npm:^7.27.1":
+"@babel/plugin-transform-modules-commonjs@npm:7.27.1, @babel/plugin-transform-modules-commonjs@npm:^7.22.15, @babel/plugin-transform-modules-commonjs@npm:^7.23.3, @babel/plugin-transform-modules-commonjs@npm:^7.25.9, @babel/plugin-transform-modules-commonjs@npm:^7.27.1":
   version: 7.27.1
   resolution: "@babel/plugin-transform-modules-commonjs@npm:7.27.1"
   dependencies:
@@ -26572,6 +26572,7 @@ __metadata:
     "@babel/cli": "npm:7.27.1"
     "@babel/core": "npm:7.27.1"
     "@babel/node": "npm:7.27.1"
+    "@babel/plugin-transform-modules-commonjs": "npm:7.27.1"
     "@babel/preset-flow": "npm:^7.18.6"
     "@changesets/changelog-github": "npm:^0.5.0"
     "@changesets/cli": "npm:^2.26.1"

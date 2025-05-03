@@ -76,7 +76,11 @@ module.exports = function (api) {
       {
         test: /node_modules\/.+\.(m|c)?js$/,
         presets: ['@babel/preset-flow'],
-        plugins: ['babel-plugin-syntax-hermes-parser'],
+        plugins: [
+          'babel-plugin-syntax-hermes-parser',
+          // react-navigation now publishes only in ESM; but jest still requires commonjs
+          '@babel/plugin-transform-modules-commonjs',
+        ],
       },
     ],
   };
