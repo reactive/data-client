@@ -544,8 +544,6 @@ export default class Controller<
       };
     }
 
-    // second argument is false if any entities are missing
-
     const { data, paths } = this.memo.denormalize(
       schema,
       input,
@@ -652,7 +650,7 @@ function entityExpiresAt(
   },
 ) {
   let expiresAt = Infinity;
-  for (const { pk, key } of paths) {
+  for (const { key, pk } of paths) {
     const entityExpiry = entitiesMeta[key]?.[pk]?.expiresAt;
     // expiresAt will always resolve to false with any comparison
     if (entityExpiry < expiresAt) expiresAt = entityExpiry;

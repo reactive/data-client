@@ -1,8 +1,9 @@
 import { Temporal } from '@js-temporal/polyfill';
 
 import { getEntities } from '../denormalize/getEntities';
+import { EntityPath } from '../interface';
+import { PlainDelegate } from '../memo/Delegate';
 import WeakDependencyMap from '../memo/WeakDependencyMap';
-import { EntityPath } from '../types';
 
 describe('WeakDependencyMap', () => {
   const a = { hi: '5' };
@@ -19,7 +20,7 @@ describe('WeakDependencyMap', () => {
       '3': c,
     },
   };
-  const getEntity = getEntities(state);
+  const getEntity = PlainDelegate.forDenorm(state);
   const depA = { path: { key: 'A', pk: '1' }, entity: a };
   const depB = { path: { key: 'B', pk: '2' }, entity: b };
   const depC = { path: { key: 'C', pk: '3' }, entity: c };

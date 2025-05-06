@@ -3,7 +3,7 @@ import getUnvisit from './unvisit.js';
 import type { Schema } from '../interface.js';
 import type { DenormalizeNullable } from '../types.js';
 import type { INVALID } from './symbol.js';
-import { PlainDelegate } from '../memo/Delegate.js';
+import { DelegateImmutable } from '../memo/Delegate.immutable.js';
 
 export function denormalize<S extends Schema>(
   schema: S | undefined,
@@ -17,7 +17,7 @@ export function denormalize<S extends Schema>(
   }
 
   return getUnvisit(
-    PlainDelegate.forDenorm(entities),
+    DelegateImmutable.forDenorm(entities),
     new LocalCache(),
     args,
   )(schema, input).data;

@@ -1,5 +1,5 @@
 import { schema } from '@data-client/endpoint';
-import { Article, IDEntity } from '__tests__/new';
+import { Article } from '__tests__/new';
 
 import { denormalize } from '../denormalize/denormalize';
 import { normalize } from '../normalize/normalize';
