@@ -54,6 +54,15 @@
       "webRoot": "${workspaceFolder}/website",
       "preLaunchTask": "website: start",
       "sourceMaps": true
+    },
+    {
+      "type": "msedge",
+      "request": "launch",
+      "name": "Launch Edge",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}/website",
+      "preLaunchTask": "website: start",
+      "sourceMaps": true
     }
   ]
 }
