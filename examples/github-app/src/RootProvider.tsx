@@ -5,9 +5,8 @@ import {
   getDefaultManagers,
   ProviderProps,
 } from '@data-client/react';
+import { ErrorBoundary } from '@data-client/react';
 import type { ReactNode } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
-import type { FallbackProps } from 'react-error-boundary';
 
 import { AuthdProvider } from '@/navigation/authdContext';
 import { unAuth } from '@/resources/Auth';
@@ -27,11 +26,11 @@ const managers = [
 
 export default function RootProvider({ children, ...rest }: Props) {
   return (
-    <ErrorBoundary FallbackComponent={ErrorFallback}>
+    <ErrorBoundary fallbackComponent={ErrorFallback}>
       <DataProvider {...rest} managers={managers}>
         <Router>
           <AuthdProvider>
-            <ErrorBoundary FallbackComponent={ErrorFallback}>
+            <ErrorBoundary fallbackComponent={ErrorFallback}>
               <Boundary>{children}</Boundary>
             </ErrorBoundary>
           </AuthdProvider>
@@ -43,7 +42,14 @@ export default function RootProvider({ children, ...rest }: Props) {
 
 type Props = { children: ReactNode } & ProviderProps;
 
-function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
+function ErrorFallback({
+  error,
+  resetErrorBoundary,
+}: {
+  error: Error;
+  resetErrorBoundary: () => void;
+  className?: string;
+}) {
   return (
     <div role="alert">
       <p>Something went wrong:</p>

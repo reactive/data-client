@@ -1,9 +1,9 @@
 import { Link } from '@anansi/router';
 import { useSuspense, useCache, useDLE } from '@data-client/react';
+import { ErrorBoundary } from '@data-client/react';
 import { Card, Avatar } from 'antd';
 import { Tag } from 'antd';
 import React, { useMemo, memo, type JSX } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
 import Markdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
@@ -53,7 +53,7 @@ function IssueDetail({ number, repo, owner }: Props) {
           }
           description={
             <ErrorBoundary
-              fallbackRender={({ error }) => <div>{error.message}</div>}
+              fallbackComponent={({ error }) => <div>{error.message}</div>}
             >
               <Markdown
                 remarkPlugins={[remarkRemoveComments, remarkGfm]}
