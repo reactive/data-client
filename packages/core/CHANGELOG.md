@@ -1,5 +1,111 @@
 # @data-client/core
 
+## 0.15.0
+
+### Minor Changes
+
+- [#3449](https://github.com/reactive/data-client/pull/3449) [`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: schema.normalize(...args, addEntity, getEntity, checkLoop) -> schema.normalize(...args, delegate)
+
+  We consolidate all 'callback' functions during recursion calls into a single 'delegate' argument.
+
+  ```ts
+  /** Helpers during schema.normalize() */
+  export interface INormalizeDelegate {
+    /** Action meta-data for this normalize call */
+    readonly meta: { fetchedAt: number; date: number; expiresAt: number };
+    /** Gets any previously normalized entity from store */
+    getEntity: GetEntity;
+    /** Updates an entity using merge lifecycles when it has previously been set */
+    mergeEntity(
+      schema: Mergeable & { indexes?: any },
+      pk: string,
+      incomingEntity: any,
+    ): void;
+    /** Sets an entity overwriting any previously set values */
+    setEntity(
+      schema: { key: string; indexes?: any },
+      pk: string,
+      entity: any,
+      meta?: { fetchedAt: number; date: number; expiresAt: number },
+    ): void;
+    /** Returns true when we're in a cycle, so we should not continue recursing */
+    checkLoop(key: string, pk: string, input: object): boolean;
+  }
+  ```
+
+  #### Before
+
+  ```ts
+  addEntity(this, processedEntity, id);
+  ```
+
+  #### After
+
+  ```ts
+  delegate.mergeEntity(this, id, processedEntity);
+  ```
+
+- [#3451](https://github.com/reactive/data-client/pull/3451) [`4939456`](https://github.com/reactive/data-client/commit/4939456598c213ee81c1abef476a1aaccd19f82d) Thanks [@ntucker](https://github.com/ntucker)! - state.entityMeta -> state.entitiesMeta
+
+- [#3394](https://github.com/reactive/data-client/pull/3394) [`d44d36a`](https://github.com/reactive/data-client/commit/d44d36a7de0a18817486c4f723bf2f0e86ac9677) Thanks [@ntucker](https://github.com/ntucker)! - Change NetworkManager bookkeeping data structure for inflight fetches
+
+  BREAKING CHANGE: NetworkManager.fetched, NetworkManager.rejectors, NetworkManager.resolvers, NetworkManager.fetchedAt
+  -> NetworkManager.fetching
+
+  #### Before
+
+  ```ts
+  if (action.key in this.fetched)
+  ```
+
+  #### After
+
+  ```ts
+  if (this.fetching.has(action.key))
+  ```
+
+- [#3449](https://github.com/reactive/data-client/pull/3449) [`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: schema.queryKey(args, queryKey, getEntity, getIndex) -> schema.queryKey(args, unvisit, delegate)
+  BREAKING CHANGE: delegate.getIndex() returns the index directly, rather than object.
+
+  We consolidate all 'callback' functions during recursion calls into a single 'delegate' argument.
+
+  Our recursive call is renamed from queryKey to unvisit, and does not require the last two arguments.
+
+  ```ts
+  /** Accessors to the currently processing state while building query */
+  export interface IQueryDelegate {
+    getEntity: GetEntity;
+    getIndex: GetIndex;
+  }
+  ```
+
+  #### Before
+
+  ```ts
+  queryKey(args, queryKey, getEntity, getIndex) {
+    getIndex(schema.key, indexName, value)[value];
+    getEntity(this.key, id);
+    return queryKey(this.schema, args, getEntity, getIndex);
+  }
+  ```
+
+  #### After
+
+  ```ts
+  queryKey(args, unvisit, delegate) {
+    delegate.getIndex(schema.key, indexName, value);
+    delegate.getEntity(this.key, id);
+    return unvisit(this.schema, args);
+  }
+  ```
+
+### Patch Changes
+
+- [#3449](https://github.com/reactive/data-client/pull/3449) [`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7) Thanks [@ntucker](https://github.com/ntucker)! - Fix controller.get and controller.getQueryMeta 'state' argument types
+
+- Updated dependencies [[`246cde6`](https://github.com/reactive/data-client/commit/246cde6dbeca59eafd10e59d8cd05a6f232fb219), [`939a4b0`](https://github.com/reactive/data-client/commit/939a4b01127ea1df9b4653931593487e4b0c23a2), [`939a4b0`](https://github.com/reactive/data-client/commit/939a4b01127ea1df9b4653931593487e4b0c23a2), [`66e1906`](https://github.com/reactive/data-client/commit/66e19064d21225c70639f3b4799e54c259ce6905), [`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7), [`4939456`](https://github.com/reactive/data-client/commit/4939456598c213ee81c1abef476a1aaccd19f82d), [`25b153a`](https://github.com/reactive/data-client/commit/25b153a9d80db1bcd17ab5558dfa13b333f112b8), [`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7)]:
+  - @data-client/normalizr@0.15.0
+
 ## 0.14.24
 
 ### Patch Changes
