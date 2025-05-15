@@ -142,7 +142,7 @@
     "@js-temporal/polyfill": "^0.5.0",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.0.0",
-    "immutable": "5.1.1",
+    "immutable": "5.1.2",
     "nock": "13.3.1",
     "rollup-plugins": "workspace:*"
   }
