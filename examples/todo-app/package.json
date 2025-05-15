@@ -30,7 +30,7 @@
   "devDependencies": {
     "@anansi/babel-preset": "6.2.9",
     "@anansi/browserslist-config": "1.7.2",
-    "@anansi/webpack-config": "21.0.5",
+    "@anansi/webpack-config": "21.0.6",
     "@babel/core": "7.27.1",
     "@linaria/babel-preset": "5.0.4",
     "@linaria/core": "6.3.0",
