@@ -292,8 +292,8 @@ __metadata:
   linkType: hard
 
 "@anansi/cli@npm:^3.0.15":
-  version: 3.1.71
-  resolution: "@anansi/cli@npm:3.1.71"
+  version: 3.1.72
+  resolution: "@anansi/cli@npm:3.1.72"
   dependencies:
     "@anansi/generator-js": "npm:^12.6.19"
     binary-version-check: "npm:^6.1.0"
@@ -310,15 +310,15 @@ __metadata:
       optional: true
   bin:
     anansi: ./run.mjs
-  checksum: 10c0/264521674d0d7e46d2543b73d636bba283d8e67c639665615e99e52005d8222f8a7a4f94e064ee475e66db81ccecd9f828a080edb153dd6dfbe788b31f350f23
+  checksum: 10c0/fcb7e6fa6abde63cd3a4e46100ce9a762d59326ddb522f76fd733ccdab175d8d78ac51487a05b5453e8730e40e5813f50115a5c57464ca3506cc8185f52964ad
   languageName: node
   linkType: hard
 
 "@anansi/core@npm:^0.20.0":
-  version: 0.20.29
-  resolution: "@anansi/core@npm:0.20.29"
+  version: 0.20.30
+  resolution: "@anansi/core@npm:0.20.30"
   dependencies:
-    "@anansi/router": "npm:^0.10.13"
+    "@anansi/router": "npm:^0.10.14"
     "@babel/runtime-corejs3": "npm:^7.26.0"
     chalk: "npm:^4.1.2"
     compression: "npm:^1.8.0"
@@ -356,7 +356,7 @@ __metadata:
   bin:
     serve-anansi: ./lib/scripts/serve.js
     start-anansi: ./lib/scripts/startDevserver.js
-  checksum: 10c0/2a489bd1fa70d3f13a9be203de1e83d2585e04ee897aedc6e6b06161a1db469a7c77520b2d3b16cbcccde858f00c201f57642918f56000ed912b0c99192de31c
+  checksum: 10c0/08cbd4b8dc5e94ac761d583cf781b5ebffe3b291f5a897940e6323cd63276882e1bdf6049065907daf3f01a677748fbe9294298b0c022a440bab4dcff2f6504f
   languageName: node
   linkType: hard
 
@@ -450,12 +450,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/router@npm:^0.10.0, @anansi/router@npm:^0.10.13":
-  version: 0.10.13
-  resolution: "@anansi/router@npm:0.10.13"
+"@anansi/router@npm:^0.10.0, @anansi/router@npm:^0.10.14":
+  version: 0.10.14
+  resolution: "@anansi/router@npm:0.10.14"
   dependencies:
     "@babel/runtime-corejs3": "npm:^7.26.0"
-    "@pojo-router/core": "npm:^0.10.6"
+    "@pojo-router/core": "npm:^0.10.7"
     core-js-pure: "npm:^3.40.0"
     history: "npm:^5.3.0"
     nano-memoize: "npm:^3.0.16"
@@ -465,7 +465,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/b8a0dc127b8747f2752402e5c0aab18807ce26fb600006ef04746e8d08654257bff384136127b34e2097f9ed1c483b32abf6c89a9099b6a8075d66171db24606
+  checksum: 10c0/2907ef20e69bdf4577c1e7ff51fbc21718e9ba1583f73c751b669f90fbd043c94f5ed25a63d15b7706038c69f8cbd0fd9ca804debd9b7567857a38884ebcc4e8
   languageName: node
   linkType: hard
 
@@ -5629,9 +5629,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pojo-router/core@npm:^0.10.6":
-  version: 0.10.6
-  resolution: "@pojo-router/core@npm:0.10.6"
+"@pojo-router/core@npm:^0.10.7":
+  version: 0.10.7
+  resolution: "@pojo-router/core@npm:0.10.7"
   dependencies:
     "@babel/runtime-corejs3": "npm:^7.26.0"
     core-js-pure: "npm:^3.40.0"
@@ -5643,7 +5643,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/61882c411d643671a4eaa6225417888a57f7188d579aa0416b07ef55ed809402f2bed38148136d56accbc5937505305b67fbbe8e73fe7fc346e10cc3fa2893bb
+  checksum: 10c0/73f76034d848b0b22b48ee6c3aff9a3a44387685f524be285ef03581e847d921f8b649807c99bfcebf97cde5960fe6f9063715e04cf861a1d65b16f5bd7eeda6
   languageName: node
   linkType: hard
 
