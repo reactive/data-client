@@ -474,6 +474,12 @@ const config: Config = {
           className: 'header-discord-link',
           'aria-label': 'Discord chat support',
         },
+        {
+          href: 'https://chatgpt.com/g/g-682609591fe48191a6850901521b4e4b-typescript-rest-codegen',
+          position: 'right',
+          className: 'header-gpt-link',
+          'aria-label': 'Codegeneration with ChatGPT',
+        },
       ],
     },
     footer: {
