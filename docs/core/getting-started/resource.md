@@ -15,6 +15,7 @@ import LanguageTabs from '@site/src/components/LanguageTabs';
 import ProtocolTabs from '@site/src/components/ProtocolTabs';
 import PkgInstall from '@site/src/components/PkgInstall';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
+import Link from '@docusaurus/Link';
 
 # Define Resources
 
@@ -34,7 +35,26 @@ values={[
 ]}>
 <TabItem value="rest">
 
-  <PkgInstall pkgs="@data-client/rest" />
+<PkgInstall pkgs="@data-client/rest" />
+
+<p>
+<center>
+<Link className="button button--secondary button--sm" to="https://chatgpt.com/g/g-682609591fe48191a6850901521b4e4b-typescript-rest-codegen"><img src="/img/gpt.svg" alt="Codegen GPT" style={{
+          height: '1em',              // Match font size
+          verticalAlign: '-0.125em',  // Fine-tune: try -0.125em or 'middle'
+          display: 'inline',          // Inline with text
+        }}
+/> Codegen</Link>&nbsp;
+<Link className="button button--secondary button--sm" to="https://github.com/reactive/data-client/blob/master/.github/instructions/rest.instructions.md"><img src="/img/copilot.svg" alt="Github Copilot" style={{
+          height: '1em',              // Match font size
+          verticalAlign: '-0.125em',  // Fine-tune: try -0.125em or 'middle'
+          display: 'inline',          // Inline with text
+        }}
+/> Instructions</Link>
+</center>
+</p>
+
+
 
 [resource()](/rest/api/resource) constructs a namespace of [RestEndpoints](/rest/api/RestEndpoint)
 
@@ -84,10 +104,10 @@ TodoResource.delete({ id: 5 });
 
 </TypeScriptEditor>
 
-  </TabItem>
-  <TabItem value="gql">
+</TabItem>
+<TabItem value="gql">
 
-  <PkgInstall pkgs="@data-client/graphql" />
+<PkgInstall pkgs="@data-client/graphql" />
 
 [GQLEndpoint](/graphql/api/GQLEndpoint) helps quickly defined [queries](/graphql/api/GQLEndpoint#query) and [mutations](/graphql/api/GQLEndpoint#mutate)
 
@@ -133,10 +153,10 @@ export const TodoResource = {
 
 </TypeScriptEditor>
 
-  </TabItem>
-  <TabItem value="other">
+</TabItem>
+<TabItem value="other">
 
-  <PkgInstall pkgs="@data-client/endpoint" />
+<PkgInstall pkgs="@data-client/endpoint" />
 
 Pre-existing TypeScript definitions can be used in <abbr title="Reactive Data Client">Data Client</abbr> with
 [Endpoint](/rest/api/Endpoint) and [EntityMixin](/rest/api/EntityMixin).
@@ -226,7 +246,7 @@ export const TodoResource = {
 
 </TypeScriptEditor>
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
 <!--

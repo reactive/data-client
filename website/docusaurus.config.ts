@@ -569,6 +569,10 @@ const config: Config = {
               label: 'NPM',
               to: 'https://www.npmjs.com/package/@data-client/react',
             },
+            {
+              label: 'Codgen REST APIs',
+              to: 'https://chatgpt.com/g/g-682609591fe48191a6850901521b4e4b-typescript-rest-codegen',
+            },
             /*{
               html: `<iframe
               src="https://ghbtns.com/github-btn.html?user=reactive&amp;repo=data-client&amp;type=star&amp;count=true&amp;size=small"
