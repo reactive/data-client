@@ -668,5 +668,11 @@ groupId="Demos"
 </Tabs>
 
 <p style={{textAlign: 'center'}}>
-<Link className="button button--secondary" to="/demos">More Demos</Link>
+<Link className="button button--secondary" to="/demos">More Demos</Link>&nbsp;
+<Link className="button button--secondary" to="https://chatgpt.com/g/g-682609591fe48191a6850901521b4e4b-typescript-rest-codegen"><img src="/img/gpt.svg" alt="Codegen GPT" style={{
+          height: '1em',              // Match font size
+          verticalAlign: '-0.125em',  // Fine-tune: try -0.125em or 'middle'
+          display: 'inline',          // Inline with text
+        }}
+/> Codegen</Link>
 </p>

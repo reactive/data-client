@@ -570,7 +570,7 @@ const config: Config = {
               to: 'https://www.npmjs.com/package/@data-client/react',
             },
             {
-              label: 'Codgen REST APIs',
+              label: 'REST Codegen',
               to: 'https://chatgpt.com/g/g-682609591fe48191a6850901521b4e4b-typescript-rest-codegen',
             },
             /*{
