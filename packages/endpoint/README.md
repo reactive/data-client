@@ -11,7 +11,7 @@ Declarative, strongly typed, reusable network definitions for networking librari
 
 <div align="center">
 
-**[📖Read The Docs](https://dataclient.io/docs/guides/custom-protocol) &nbsp;|&nbsp; [🤖Codgen GPT](https://chatgpt.com/g/g-682609591fe48191a6850901521b4e4b-typescript-rest-codegen)**
+**[📖Read The Docs](https://dataclient.io/docs/guides/custom-protocol) &nbsp;|&nbsp; [🤖Codegen](https://chatgpt.com/g/g-682609591fe48191a6850901521b4e4b-typescript-rest-codegen)**
 
 </div>
 

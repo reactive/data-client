@@ -11,7 +11,7 @@
 
 <div align="center">
 
-**[📖Read The Docs](https://dataclient.io/rest)** &nbsp;|&nbsp; [🤖Codgen GPT](https://chatgpt.com/g/g-682609591fe48191a6850901521b4e4b-typescript-rest-codegen) &nbsp;|&nbsp; [🎮Todo Demo](https://stackblitz.com/github/reactive/data-client/tree/master/examples/todo-app?file=src%2Fresources%2FTodoResource.ts) &nbsp;|&nbsp; [🎮Github Demo](https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?file=src%2Fresources%2FIssue.tsx)
+**[📖Read The Docs](https://dataclient.io/rest)** &nbsp;|&nbsp; [🤖Codegen](https://chatgpt.com/g/g-682609591fe48191a6850901521b4e4b-typescript-rest-codegen) &nbsp;|&nbsp; [🎮Todo Demo](https://stackblitz.com/github/reactive/data-client/tree/master/examples/todo-app?file=src%2Fresources%2FTodoResource.ts) &nbsp;|&nbsp; [🎮Github Demo](https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?file=src%2Fresources%2FIssue.tsx)
 
 </div>
 
