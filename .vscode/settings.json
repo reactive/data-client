@@ -60,4 +60,9 @@
     "**/v8.log": true,
     "website/src/components/Playground/editor-types": true
   },
+  "github.copilot.chat.testGeneration.instructions": [
+    {
+      "file": ".github/instructions/test.instructions.md"
+    }
+  ],
 }

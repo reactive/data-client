@@ -79,7 +79,6 @@ export default function TodoItem({ todo }: { todo: Todo }) {
 ```
 
 ```tsx title="CreateTodo" collapsed
-import { v4 as uuid } from 'uuid';
 import { useController } from '@data-client/react';
 import { TodoResource } from './TodoResource';
 
@@ -311,7 +310,7 @@ export const getCount = new RestEndpoint({
 ```
 
 ```ts title="increment" {9-15,21}
-import { getCount, CountEntity } from './count';
+import { CountEntity } from './count';
 
 export const increment = new RestEndpoint({
   path: '/api/count/increment',

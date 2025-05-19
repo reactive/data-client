@@ -1,0 +1,3 @@
+- Use [@data-client/rest guide](.github/instructions/rest.instructions.md) for REST API definitions.
+- Use [@data-client/react guide](.github/instructions/react.instructions.md) for React.
+- Use [@data-client/test guide](.github/instructions/test.instructions.md) when writing tests.

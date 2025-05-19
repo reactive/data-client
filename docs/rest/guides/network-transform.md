@@ -79,7 +79,7 @@ delay: 150,
 ]}>
 
 ```tsx title="api/Price"
-import BigNumber from 'bignumber.js';
+import { BigNumber } from 'bignumber.js';
 
 export class ExchangePrice extends Entity {
   exchangePair = '';
