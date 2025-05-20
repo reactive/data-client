@@ -604,9 +604,9 @@ describe.each([
     () => useSuspense(TypedArticleResource.get, { title: '0' });
   });
 
-  /*it('useResource() should throw errors on bad network (multiarg)', async () => {
+  /*it('useSuspense() should throw errors on bad network (multiarg)', async () => {
     const { result, waitForNextUpdate } = renderDataClient(() => {
-      return useResource([
+      return useSuspense([
         CoolerArticleResource.get,
         {
           title: '0',
@@ -705,9 +705,9 @@ describe.each([
   });
 
   /* TODO: when we have parallel patterns for useSuspense
-  it('should resolve parallel useResource() request', async () => {
+  it('should resolve parallel useSuspense() request', async () => {
     const { result, waitForNextUpdate } = renderDataClient(() => {
-      return useResource(
+      return useSuspense(
         [
           CoolerArticleResource.get,
           {

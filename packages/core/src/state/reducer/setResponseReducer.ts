@@ -115,7 +115,7 @@ function reduceError(
   if (error.name === 'AbortError') {
     // In case we abort simply undo the optimistic update and act like no fetch even occured
     // We still want those watching promises from fetch directly to observed the abort, but we don't want to
-    // Trigger errors in this case. This means theoretically improperly built abortes useResource() could suspend forever.
+    // Trigger errors in this case. This means theoretically improperly built aborts useSuspense() could suspend forever.
     return {
       ...state,
       optimistic: filterOptimistic(state, action),
