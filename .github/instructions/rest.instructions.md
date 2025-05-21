@@ -75,6 +75,7 @@ export class Todo extends Entity {
   completed = false;
 
   static key = 'Todo';
+  // optional
   static schema = {
     user: User,
   }

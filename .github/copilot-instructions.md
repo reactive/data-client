@@ -1,3 +1,4 @@
 - Use [@data-client/rest guide](.github/instructions/rest.instructions.md) for REST API definitions.
 - Use [@data-client/react guide](.github/instructions/react.instructions.md) for React.
 - Use [@data-client/test guide](.github/instructions/test.instructions.md) when writing tests.
+- If you are not sure about file content or codebase structure pertaining to the user’s request, use your tools to read files and gather the relevant information: do NOT guess or make up an answer.
