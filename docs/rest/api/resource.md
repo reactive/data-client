@@ -427,7 +427,7 @@ PostResource.getList.getPage({
 |      path       | removeLastArg([path](#path))                        |
 |  searchParams   | [searchParams](#searchparams)                       |
 | paginationField | [paginationField](#paginationfield)                 |
-|     schema      | [getList.schema.addWith](./RestEndpoint.md#getpage) |
+|     schema      | [getList.schema.addWith](./Collection.md#addWith) |
 
 args: `PathToArgs(shortenPath(path)) & searchParams & \{ [paginationField]: string | number \}`
 
