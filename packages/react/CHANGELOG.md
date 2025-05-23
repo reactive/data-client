@@ -1,5 +1,129 @@
 # @data-client/react
 
+## 0.15.0
+
+### Minor Changes
+
+- [#3459](https://github.com/reactive/data-client/pull/3459) [`997ca20`](https://github.com/reactive/data-client/commit/997ca209d36e8503ab7684bccc6ddc29d179a0b5) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: useDebounce() returns [val, isPending]
+
+  This was previously exported in `@data-client/react/next` to make migrations easy. This will
+  still be available there.
+
+  #### Before
+
+  ```ts
+  import { useDebounce } from '@data-client/react';
+  const debouncedQuery = useDebounce(query, 100);
+  ```
+
+  #### After
+
+  ```ts
+  import { useDebounce } from '@data-client/react';
+  const [debouncedQuery] = useDebounce(query, 100);
+  ```
+
+  #### Before
+
+  ```ts
+  import { useDebounce } from '@data-client/react/next';
+  const [debouncedQuery, isPending] = useDebounce(query, 100);
+  ```
+
+  #### After
+
+  ```ts
+  import { useDebounce } from '@data-client/react';
+  const [debouncedQuery, isPending] = useDebounce(query, 100);
+  ```
+
+- [#3449](https://github.com/reactive/data-client/pull/3449) [`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: schema.normalize(...args, addEntity, getEntity, checkLoop) -> schema.normalize(...args, delegate)
+
+  We consolidate all 'callback' functions during recursion calls into a single 'delegate' argument.
+
+  ```ts
+  /** Helpers during schema.normalize() */
+  export interface INormalizeDelegate {
+    /** Action meta-data for this normalize call */
+    readonly meta: { fetchedAt: number; date: number; expiresAt: number };
+    /** Gets any previously normalized entity from store */
+    getEntity: GetEntity;
+    /** Updates an entity using merge lifecycles when it has previously been set */
+    mergeEntity(
+      schema: Mergeable & { indexes?: any },
+      pk: string,
+      incomingEntity: any,
+    ): void;
+    /** Sets an entity overwriting any previously set values */
+    setEntity(
+      schema: { key: string; indexes?: any },
+      pk: string,
+      entity: any,
+      meta?: { fetchedAt: number; date: number; expiresAt: number },
+    ): void;
+    /** Returns true when we're in a cycle, so we should not continue recursing */
+    checkLoop(key: string, pk: string, input: object): boolean;
+  }
+  ```
+
+  #### Before
+
+  ```ts
+  addEntity(this, processedEntity, id);
+  ```
+
+  #### After
+
+  ```ts
+  delegate.mergeEntity(this, id, processedEntity);
+  ```
+
+- [#3451](https://github.com/reactive/data-client/pull/3451) [`4939456`](https://github.com/reactive/data-client/commit/4939456598c213ee81c1abef476a1aaccd19f82d) Thanks [@ntucker](https://github.com/ntucker)! - state.entityMeta -> state.entitiesMeta
+
+- [#3449](https://github.com/reactive/data-client/pull/3449) [`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: schema.queryKey(args, queryKey, getEntity, getIndex) -> schema.queryKey(args, unvisit, delegate)
+  BREAKING CHANGE: delegate.getIndex() returns the index directly, rather than object.
+
+  We consolidate all 'callback' functions during recursion calls into a single 'delegate' argument.
+
+  Our recursive call is renamed from queryKey to unvisit, and does not require the last two arguments.
+
+  ```ts
+  /** Accessors to the currently processing state while building query */
+  export interface IQueryDelegate {
+    getEntity: GetEntity;
+    getIndex: GetIndex;
+  }
+  ```
+
+  #### Before
+
+  ```ts
+  queryKey(args, queryKey, getEntity, getIndex) {
+    getIndex(schema.key, indexName, value)[value];
+    getEntity(this.key, id);
+    return queryKey(this.schema, args, getEntity, getIndex);
+  }
+  ```
+
+  #### After
+
+  ```ts
+  queryKey(args, unvisit, delegate) {
+    delegate.getIndex(schema.key, indexName, value);
+    delegate.getEntity(this.key, id);
+    return unvisit(this.schema, args);
+  }
+  ```
+
+### Patch Changes
+
+- [#3449](https://github.com/reactive/data-client/pull/3449) [`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7) Thanks [@ntucker](https://github.com/ntucker)! - Fix controller.get and controller.getQueryMeta 'state' argument types
+
+- [`35552c7`](https://github.com/reactive/data-client/commit/35552c716e3b688d69212654f9f95a05ea26a7f8) Thanks [@ntucker](https://github.com/ntucker)! - Include GPT link badge in readme
+
+- Updated dependencies [[`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7), [`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7), [`4939456`](https://github.com/reactive/data-client/commit/4939456598c213ee81c1abef476a1aaccd19f82d), [`d44d36a`](https://github.com/reactive/data-client/commit/d44d36a7de0a18817486c4f723bf2f0e86ac9677), [`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7)]:
+  - @data-client/core@0.15.0
+
 ## 0.14.25
 
 ### Patch Changes
