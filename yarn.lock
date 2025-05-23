@@ -3183,7 +3183,7 @@ __metadata:
     "@types/jest": "npm:^29.5.14"
     "@types/node": "npm:^22.0.0"
     nock: "npm:13.3.1"
-    path-to-regexp: "npm:^6.3.0"
+    path-to-regexp: "npm:^8.0.0"
     rollup-plugins: "workspace:*"
   languageName: unknown
   linkType: soft
