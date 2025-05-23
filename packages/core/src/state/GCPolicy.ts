@@ -46,11 +46,12 @@ export class GCPolicy implements GCInterface {
       if (key)
         this.endpointCount.set(key, (this.endpointCount.get(key) ?? 0) + 1);
       paths.forEach(path => {
-        if (!this.entityCount.has(path.key)) {
-          this.entityCount.set(path.key, new Map<string, number>());
+        const { key, pk } = path;
+        if (!this.entityCount.has(key)) {
+          this.entityCount.set(key, new Map<string, number>());
         }
-        const instanceCount = this.entityCount.get(path.key)!;
-        instanceCount.set(path.pk, (instanceCount.get(path.pk) ?? 0) + 1);
+        const instanceCount = this.entityCount.get(key)!;
+        instanceCount.set(pk, (instanceCount.get(pk) ?? 0) + 1);
       });
 
       // decrement
@@ -68,18 +69,19 @@ export class GCPolicy implements GCInterface {
           }
         }
         paths.forEach(path => {
-          if (!this.entityCount.has(path.key)) {
+          const { key, pk } = path;
+          if (!this.entityCount.has(key)) {
             return;
           }
-          const instanceCount = this.entityCount.get(path.key)!;
-          const entityCount = instanceCount.get(path.pk)!;
+          const instanceCount = this.entityCount.get(key)!;
+          const entityCount = instanceCount.get(pk)!;
           if (entityCount !== undefined) {
             if (entityCount <= 1) {
-              instanceCount.delete(path.pk);
+              instanceCount.delete(pk);
               // queue for cleanup
               this.entitiesQ.push(path);
             } else {
-              instanceCount.set(path.pk, entityCount - 1);
+              instanceCount.set(pk, entityCount - 1);
             }
           }
         });
