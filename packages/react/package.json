@@ -200,7 +200,7 @@
     "@types/jest": "^29.5.14",
     "@types/node": "^22.0.0",
     "@types/qs": "^6",
-    "@types/react": "19.1.4",
+    "@types/react": "19.1.6",
     "@types/react-dom": "*",
     "jest-mock": "^29.7.0",
     "nock": "13.3.1",
