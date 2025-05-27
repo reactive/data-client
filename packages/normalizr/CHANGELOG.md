@@ -1,5 +1,186 @@
 # Change Log
 
+## 0.15.0
+
+### Minor Changes
+
+- [#3421](https://github.com/reactive/data-client/pull/3421) [`246cde6`](https://github.com/reactive/data-client/commit/246cde6dbeca59eafd10e59d8cd05a6f232fb219) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: Denormalize always transforms immutablejs entities into the class
+
+  Previously using ImmutableJS structures when calling denormalize() would maintain
+  nested schemas as immutablejs structures still. Now everything is converted to normal JS.
+  This is how the types have always been specified.
+
+- [#3461](https://github.com/reactive/data-client/pull/3461) [`939a4b0`](https://github.com/reactive/data-client/commit/939a4b01127ea1df9b4653931593487e4b0c23a2) Thanks [@ntucker](https://github.com/ntucker)! - Add delegate.INVALID to queryKey
+
+  This is used in schema.All.queryKey().
+
+  #### Before
+
+  ```ts
+  queryKey(args: any, unvisit: any, delegate: IQueryDelegate): any {
+    if (!found) return INVALID;
+  }
+  ```
+
+  #### After
+
+  ```ts
+  queryKey(args: any, unvisit: any, delegate: IQueryDelegate): any {
+    if (!found) return delegate.INVALID;
+  }
+  ```
+
+- [#3461](https://github.com/reactive/data-client/pull/3461) [`939a4b0`](https://github.com/reactive/data-client/commit/939a4b01127ea1df9b4653931593487e4b0c23a2) Thanks [@ntucker](https://github.com/ntucker)! - Add delegate.invalidate() to normalization
+
+  #### Before
+
+  ```ts
+  normalize(
+    input: any,
+    parent: any,
+    key: string | undefined,
+    args: any[],
+    visit: (...args: any) => any,
+    delegate: INormalizeDelegate,
+  ): string {
+    delegate.setEntity(this as any, pk, INVALID);
+  }
+  ```
+
+  #### After
+
+  ```ts
+  normalize(
+    input: any,
+    parent: any,
+    key: string | undefined,
+    args: any[],
+    visit: (...args: any) => any,
+    delegate: INormalizeDelegate,
+  ): string {
+    delegate.invalidate(this as any, pk);
+  }
+  ```
+
+- [#3454](https://github.com/reactive/data-client/pull/3454) [`66e1906`](https://github.com/reactive/data-client/commit/66e19064d21225c70639f3b4799e54c259ce6905) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: MemoCache.query() and MemoCache.buildQueryKey() take state as one argument
+
+  #### Before
+
+  ```ts
+  this.memo.buildQueryKey(schema, args, state.entities, state.indexes, key);
+  ```
+
+  #### After
+
+  ```ts
+  this.memo.buildQueryKey(schema, args, state, key);
+  ```
+
+  #### Before
+
+  ```ts
+  this.memo.query(schema, args, state.entities, state.indexes);
+  ```
+
+  #### After
+
+  ```ts
+  this.memo.query(schema, args, state);
+  ```
+
+- [#3449](https://github.com/reactive/data-client/pull/3449) [`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: schema.normalize(...args, addEntity, getEntity, checkLoop) -> schema.normalize(...args, delegate)
+
+  We consolidate all 'callback' functions during recursion calls into a single 'delegate' argument.
+
+  ```ts
+  /** Helpers during schema.normalize() */
+  export interface INormalizeDelegate {
+    /** Action meta-data for this normalize call */
+    readonly meta: { fetchedAt: number; date: number; expiresAt: number };
+    /** Gets any previously normalized entity from store */
+    getEntity: GetEntity;
+    /** Updates an entity using merge lifecycles when it has previously been set */
+    mergeEntity(
+      schema: Mergeable & { indexes?: any },
+      pk: string,
+      incomingEntity: any,
+    ): void;
+    /** Sets an entity overwriting any previously set values */
+    setEntity(
+      schema: { key: string; indexes?: any },
+      pk: string,
+      entity: any,
+      meta?: { fetchedAt: number; date: number; expiresAt: number },
+    ): void;
+    /** Returns true when we're in a cycle, so we should not continue recursing */
+    checkLoop(key: string, pk: string, input: object): boolean;
+  }
+  ```
+
+  #### Before
+
+  ```ts
+  addEntity(this, processedEntity, id);
+  ```
+
+  #### After
+
+  ```ts
+  delegate.mergeEntity(this, id, processedEntity);
+  ```
+
+- [#3451](https://github.com/reactive/data-client/pull/3451) [`4939456`](https://github.com/reactive/data-client/commit/4939456598c213ee81c1abef476a1aaccd19f82d) Thanks [@ntucker](https://github.com/ntucker)! - state.entityMeta -> state.entitiesMeta
+
+- [#3372](https://github.com/reactive/data-client/pull/3372) [`25b153a`](https://github.com/reactive/data-client/commit/25b153a9d80db1bcd17ab5558dfa13b333f112b8) Thanks [@ntucker](https://github.com/ntucker)! - MemoCache.query returns `{ data, paths }` just like denormalize. `data` could be INVALID
+
+  #### Before
+
+  ```ts
+  return this.memo.query(schema, args, state);
+  ```
+
+  #### After
+
+  ```ts
+  const { data } = this.memo.query(schema, args, state);
+  return typeof data === 'symbol' ? undefined : (data as any);
+  ```
+
+- [#3449](https://github.com/reactive/data-client/pull/3449) [`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: schema.queryKey(args, queryKey, getEntity, getIndex) -> schema.queryKey(args, unvisit, delegate)
+  BREAKING CHANGE: delegate.getIndex() returns the index directly, rather than object.
+
+  We consolidate all 'callback' functions during recursion calls into a single 'delegate' argument.
+
+  Our recursive call is renamed from queryKey to unvisit, and does not require the last two arguments.
+
+  ```ts
+  /** Accessors to the currently processing state while building query */
+  export interface IQueryDelegate {
+    getEntity: GetEntity;
+    getIndex: GetIndex;
+  }
+  ```
+
+  #### Before
+
+  ```ts
+  queryKey(args, queryKey, getEntity, getIndex) {
+    getIndex(schema.key, indexName, value)[value];
+    getEntity(this.key, id);
+    return queryKey(this.schema, args, getEntity, getIndex);
+  }
+  ```
+
+  #### After
+
+  ```ts
+  queryKey(args, unvisit, delegate) {
+    delegate.getIndex(schema.key, indexName, value);
+    delegate.getEntity(this.key, id);
+    return unvisit(this.schema, args);
+  }
+  ```
+
 ## 0.14.22
 
 ### Patch Changes
