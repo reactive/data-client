@@ -1,5 +1,150 @@
 # @data-client/rest
 
+## 0.15.0
+
+### Minor Changes
+
+- [#3461](https://github.com/reactive/data-client/pull/3461) [`939a4b0`](https://github.com/reactive/data-client/commit/939a4b01127ea1df9b4653931593487e4b0c23a2) Thanks [@ntucker](https://github.com/ntucker)! - Add delegate.INVALID to queryKey
+
+  This is used in schema.All.queryKey().
+
+  #### Before
+
+  ```ts
+  queryKey(args: any, unvisit: any, delegate: IQueryDelegate): any {
+    if (!found) return INVALID;
+  }
+  ```
+
+  #### After
+
+  ```ts
+  queryKey(args: any, unvisit: any, delegate: IQueryDelegate): any {
+    if (!found) return delegate.INVALID;
+  }
+  ```
+
+- [#3461](https://github.com/reactive/data-client/pull/3461) [`939a4b0`](https://github.com/reactive/data-client/commit/939a4b01127ea1df9b4653931593487e4b0c23a2) Thanks [@ntucker](https://github.com/ntucker)! - Add delegate.invalidate() to normalization
+
+  #### Before
+
+  ```ts
+  normalize(
+    input: any,
+    parent: any,
+    key: string | undefined,
+    args: any[],
+    visit: (...args: any) => any,
+    delegate: INormalizeDelegate,
+  ): string {
+    delegate.setEntity(this as any, pk, INVALID);
+  }
+  ```
+
+  #### After
+
+  ```ts
+  normalize(
+    input: any,
+    parent: any,
+    key: string | undefined,
+    args: any[],
+    visit: (...args: any) => any,
+    delegate: INormalizeDelegate,
+  ): string {
+    delegate.invalidate(this as any, pk);
+  }
+  ```
+
+- [#3449](https://github.com/reactive/data-client/pull/3449) [`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: schema.normalize(...args, addEntity, getEntity, checkLoop) -> schema.normalize(...args, delegate)
+
+  We consolidate all 'callback' functions during recursion calls into a single 'delegate' argument.
+
+  ```ts
+  /** Helpers during schema.normalize() */
+  export interface INormalizeDelegate {
+    /** Action meta-data for this normalize call */
+    readonly meta: { fetchedAt: number; date: number; expiresAt: number };
+    /** Gets any previously normalized entity from store */
+    getEntity: GetEntity;
+    /** Updates an entity using merge lifecycles when it has previously been set */
+    mergeEntity(
+      schema: Mergeable & { indexes?: any },
+      pk: string,
+      incomingEntity: any,
+    ): void;
+    /** Sets an entity overwriting any previously set values */
+    setEntity(
+      schema: { key: string; indexes?: any },
+      pk: string,
+      entity: any,
+      meta?: { fetchedAt: number; date: number; expiresAt: number },
+    ): void;
+    /** Returns true when we're in a cycle, so we should not continue recursing */
+    checkLoop(key: string, pk: string, input: object): boolean;
+  }
+  ```
+
+  #### Before
+
+  ```ts
+  addEntity(this, processedEntity, id);
+  ```
+
+  #### After
+
+  ```ts
+  delegate.mergeEntity(this, id, processedEntity);
+  ```
+
+- [#3461](https://github.com/reactive/data-client/pull/3461) [`939a4b0`](https://github.com/reactive/data-client/commit/939a4b01127ea1df9b4653931593487e4b0c23a2) Thanks [@ntucker](https://github.com/ntucker)! - Remove `INVALID` symbol export
+
+  Schemas can use delegate.invalidate() in normalize() or return delegate.INVALID in queryKey().
+
+- [#3449](https://github.com/reactive/data-client/pull/3449) [`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: schema.queryKey(args, queryKey, getEntity, getIndex) -> schema.queryKey(args, unvisit, delegate)
+  BREAKING CHANGE: delegate.getIndex() returns the index directly, rather than object.
+
+  We consolidate all 'callback' functions during recursion calls into a single 'delegate' argument.
+
+  Our recursive call is renamed from queryKey to unvisit, and does not require the last two arguments.
+
+  ```ts
+  /** Accessors to the currently processing state while building query */
+  export interface IQueryDelegate {
+    getEntity: GetEntity;
+    getIndex: GetIndex;
+  }
+  ```
+
+  #### Before
+
+  ```ts
+  queryKey(args, queryKey, getEntity, getIndex) {
+    getIndex(schema.key, indexName, value)[value];
+    getEntity(this.key, id);
+    return queryKey(this.schema, args, getEntity, getIndex);
+  }
+  ```
+
+  #### After
+
+  ```ts
+  queryKey(args, unvisit, delegate) {
+    delegate.getIndex(schema.key, indexName, value);
+    delegate.getEntity(this.key, id);
+    return unvisit(this.schema, args);
+  }
+  ```
+
+### Patch Changes
+
+- [#3449](https://github.com/reactive/data-client/pull/3449) [`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7) Thanks [@ntucker](https://github.com/ntucker)! - Fix: ensure string id in Entity set when process returns undefined (meaning INVALID)
+
+- [`35552c7`](https://github.com/reactive/data-client/commit/35552c716e3b688d69212654f9f95a05ea26a7f8) Thanks [@ntucker](https://github.com/ntucker)! - Include GPT link badge in readme
+
+- Updated dependencies [[`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7), [`939a4b0`](https://github.com/reactive/data-client/commit/939a4b01127ea1df9b4653931593487e4b0c23a2), [`939a4b0`](https://github.com/reactive/data-client/commit/939a4b01127ea1df9b4653931593487e4b0c23a2), [`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7), [`bab907c`](https://github.com/reactive/data-client/commit/bab907ce824c0f7da961d74c9fb8b64ce7c95141), [`939a4b0`](https://github.com/reactive/data-client/commit/939a4b01127ea1df9b4653931593487e4b0c23a2), [`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7), [`35552c7`](https://github.com/reactive/data-client/commit/35552c716e3b688d69212654f9f95a05ea26a7f8)]:
+  - @data-client/endpoint@0.15.0
+
 ## 0.14.25
 
 ### Patch Changes
