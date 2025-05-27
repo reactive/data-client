@@ -14,7 +14,7 @@
     "@data-client/normalizr": "workspace:^"
   },
   "devDependencies": {
-    "@babel/core": "7.27.1",
+    "@babel/core": "7.27.3",
     "@babel/node": "7.27.1",
     "@types/babel__core": "^7"
   }
