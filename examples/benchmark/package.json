@@ -30,7 +30,7 @@
     "@babel/node": "7.27.1",
     "@types/babel__core": "^7",
     "@types/benchmark": "2.1.5",
-    "@types/react": "19.1.4",
+    "@types/react": "19.1.6",
     "webpack": "5.99.9",
     "webpack-cli": "^6.0.0"
   }
