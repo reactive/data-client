@@ -4,11 +4,12 @@ import WeakDependencyMap from './memo/WeakDependencyMap.js';
 import { normalize } from './normalize/normalize.js';
 
 export { default as MemoCache } from './memo/MemoCache.js';
+export { BaseDelegate } from './memo/BaseDelegate.js';
+export { Delegate, PlainDelegate } from './memo/Delegate.js';
 export type {
   AbstractInstanceType,
   NormalizeReturnType,
   NormalizedSchema,
-  EntityPath,
   Denormalize,
   DenormalizeNullable,
   Normalize,

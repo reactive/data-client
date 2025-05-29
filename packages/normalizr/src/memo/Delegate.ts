@@ -1,29 +1,7 @@
-import { Dep } from './WeakDependencyMap.js';
-import type {
-  EntityTable,
-  NormalizedIndex,
-  IQueryDelegate,
-} from '../interface.js';
-import { QueryPath, IndexPath } from './types.js';
-import { INVALID } from '../denormalize/symbol.js';
+import type { EntityPath, EntityTable, NormalizedIndex } from '../interface.js';
+import { BaseDelegate } from './BaseDelegate.js';
 
-export const getDependency =
-  (delegate: IBaseDelegate) =>
-  (args: QueryPath): QueryPath | undefined =>
-    // ignore third arg so we only track
-    args.length === 3 ?
-      delegate.getIndex(args[0], args[1])
-    : delegate.getEntity(...(args as [any]));
-
-export interface IBaseDelegate {
-  entities: any;
-  indexes: any;
-
-  getEntity(entityKey: string | symbol, pk?: string): any;
-  getIndex(key: string, field: string): any;
-}
-
-export class BaseDelegate implements IBaseDelegate {
+export class PlainDelegate extends BaseDelegate {
   declare entities: EntityTable;
   declare indexes: {
     [entityKey: string]: {
@@ -31,60 +9,32 @@ export class BaseDelegate implements IBaseDelegate {
     };
   };
 
-  constructor({
-    entities,
-    indexes,
-  }: {
-    entities: EntityTable;
-    indexes: NormalizedIndex;
-  }) {
-    this.entities = entities;
-    this.indexes = indexes;
+  constructor(state: { entities: EntityTable; indexes: NormalizedIndex }) {
+    super(state);
   }
 
-  getEntity(
-    entityKey: string | symbol,
-  ): { readonly [pk: string]: any } | undefined;
+  getEntities(key: string): any {
+    return this.entities[key];
+  }
 
-  getEntity(entityKey: string | symbol, pk: string | number): any;
-
-  getEntity(entityKey: string, pk?: any): any {
-    return pk ? this.entities[entityKey]?.[pk] : this.entities[entityKey];
+  getEntity(key: string, pk: string): any {
+    return this.entities[key]?.[pk];
   }
 
   // this is different return value than QuerySnapshot
-  getIndex(key: string, field: string) {
+  getIndex(key: string, field: string): object | undefined {
     return this.indexes[key]?.[field];
   }
-}
 
-export class TrackingQueryDelegate implements IQueryDelegate {
-  readonly INVALID = INVALID;
-  declare protected snap: IBaseDelegate;
-  // first dep path is ignored
-  // we start with schema object, then lookup any 'touched' members and their paths
-  declare readonly dependencies: Dep<QueryPath>[];
-
-  constructor(snap: IBaseDelegate, schema: any) {
-    this.snap = snap;
-    this.dependencies = [{ path: [''], entity: schema }];
-  }
-
-  getIndex(...path: IndexPath): string | undefined {
-    const entity = this.snap.getIndex(path[0], path[1]);
-    this.dependencies.push({ path, entity });
-    return entity?.[path[2]];
-  }
-
-  getEntity(
-    entityKey: string | symbol,
-  ): { readonly [pk: string]: any } | undefined;
-
-  getEntity(entityKey: string | symbol, pk: string | number): any;
-
-  getEntity(...path: any): any {
-    const entity = this.snap.getEntity(...(path as [any]));
-    this.dependencies.push({ path, entity });
-    return entity;
+  getIndexEnd(entity: object | undefined, value: string) {
+    return entity?.[value];
   }
 }
+
+export const Delegate = {
+  normalize: PlainDelegate,
+  denormalize(entities: EntityTable) {
+    return ({ key, pk }: EntityPath): symbol | object | undefined =>
+      entities[key]?.[pk] as any;
+  },
+};
