@@ -5,11 +5,12 @@ import {
   Mergeable,
 } from '../interface.js';
 import { getCheckLoop } from './getCheckLoop.js';
+import { POJODelegate } from '../delegate/Delegate.js';
 import { INVALID } from '../denormalize/symbol.js';
-import { BaseDelegate } from '../memo/Delegate.js';
 
+/** Full normalize() logic for POJO state */
 export class NormalizeDelegate
-  extends BaseDelegate
+  extends POJODelegate
   implements INormalizeDelegate
 {
   declare readonly entitiesMeta: {

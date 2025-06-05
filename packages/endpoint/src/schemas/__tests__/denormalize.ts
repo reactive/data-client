@@ -3,11 +3,17 @@ import {
   Schema,
   Denormalize,
   DenormalizeNullable,
+  IMemoPolicy,
+  MemoPolicy,
 } from '@data-client/normalizr';
 import { fromJS, Map } from 'immutable';
 
 export class SimpleMemoCache {
   private memo = new MemoCache();
+
+  constructor(D: IMemoPolicy = MemoPolicy) {
+    this.memo = new MemoCache(D);
+  }
 
   denormalize = <S extends Schema>(
     schema: S | undefined,

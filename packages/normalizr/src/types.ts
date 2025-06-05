@@ -6,11 +6,6 @@ import type {
 } from './interface.js';
 export * from './schemaArgs.js';
 
-export interface EntityPath {
-  key: string;
-  pk: string;
-}
-
 // TypeScript <4.2 InstanceType<> does not work on abstract classes
 export type AbstractInstanceType<T> =
   T extends new (...args: any) => infer U ? U

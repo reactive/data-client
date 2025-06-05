@@ -58,24 +58,36 @@ interface EntityTable {
 interface Visit {
     (schema: any, value: any, parent: any, key: any, args: readonly any[]): any;
 }
+/** Used in denormalize. Lookup to find an entity in the store table */
+interface EntityPath {
+    key: string;
+    pk: string;
+}
+type IndexPath = [key: string, index: string, value: string];
+type EntitiesPath = [key: string];
+type QueryPath = IndexPath | [key: string, pk: string] | EntitiesPath;
 /** Returns true if a circular reference is found */
 interface CheckLoop {
     (entityKey: string, pk: string, input: object): boolean;
 }
-/** Get Array of entities with map function applied */
-interface GetEntity {
-    (entityKey: string | symbol): {
+/** Get all normalized entities of one type from store */
+interface GetEntities {
+    (key: string): {
         readonly [pk: string]: any;
     } | undefined;
-    (entityKey: string | symbol, pk: string | number): any;
+}
+/** Get normalized Entity from store */
+interface GetEntity {
+    (key: string, pk: string): any;
 }
 /** Get PK using an Entity Index */
 interface GetIndex {
     /** getIndex('User', 'username', 'ntucker') */
-    (entityKey: string, field: string, value: string): string | undefined;
+    (...path: IndexPath): string | undefined;
 }
 /** Accessors to the currently processing state while building query */
 interface IQueryDelegate {
+    getEntities: GetEntities;
     getEntity: GetEntity;
     getIndex: GetIndex;
     /** Return to consider results invalid */
@@ -89,6 +101,8 @@ interface INormalizeDelegate {
         date: number;
         expiresAt: number;
     };
+    /** Get all normalized entities of one type from store */
+    getEntities: GetEntities;
     /** Gets any previously normalized entity from store */
     getEntity: GetEntity;
     /** Updates an entity using merge lifecycles when it has previously been set */
@@ -134,10 +148,6 @@ type ObjectArgs<S extends Record<string, any>> = {
     [K in keyof S]: S[K] extends Schema ? SchemaArgs<S[K]> : never;
 }[keyof S];
 
-interface EntityPath {
-    key: string;
-    pk: string;
-}
 type AbstractInstanceType<T> = T extends new (...args: any) => infer U ? U : T extends {
     prototype: infer U;
 } ? U : never;
@@ -247,26 +257,50 @@ declare class WeakDependencyMap<Path, K extends object = object, V = any> {
 type GetDependency<Path, K = object | symbol> = (lookup: Path) => K | undefined;
 interface Dep<Path, K = object> {
     path: Path;
-    entity: K;
+    entity: K | undefined;
 }
 
 declare const normalize: <S extends Schema = Schema, E extends Record<string, Record<string, any> | undefined> = Record<string, Record<string, any>>, R = NormalizeNullable<S>>(schema: S | undefined, input: any, args?: readonly any[], { entities, indexes, entitiesMeta }?: StoreData<E>, meta?: NormalizeMeta) => NormalizedSchema<E, R>;
 
+/** Basic state interfaces for normalize side */
+declare abstract class BaseDelegate {
+    entities: any;
+    indexes: any;
+    constructor({ entities, indexes }: {
+        entities: any;
+        indexes: any;
+    });
+    abstract getEntities(...path: EntitiesPath): object | undefined;
+    abstract getEntity(key: string, pk: string): object | undefined;
+    abstract getIndex(...path: IndexPath): object | undefined;
+    abstract getIndexEnd(entity: any, value: string): string | undefined;
+    tracked(schema: any): [delegate: IQueryDelegate, dependencies: Dep<QueryPath>[]];
+}
+
 interface EntityCache extends Map<string, Map<string, WeakMap<EntityInterface, WeakDependencyMap<EntityPath, object, any>>>> {
 }
 type EndpointsCache = WeakDependencyMap<EntityPath, object, any>;
-type IndexPath = [key: string, field: string, value: string];
-type EntitySchemaPath = [key: string] | [key: string, pk: string];
-type QueryPath = IndexPath | EntitySchemaPath;
+type DenormGetEntity = GetDependency<EntityPath>;
+interface IMemoPolicy {
+    QueryDelegate: new (v: {
+        entities: any;
+        indexes: any;
+    }) => BaseDelegate;
+    getEntities(entities: any): DenormGetEntity;
+}
+
+type GetEntityCache = (pk: string, schema: EntityInterface) => WeakDependencyMap<EntityPath, object, any>;
 
 /** Singleton to store the memoization cache for denormalization methods */
 declare class MemoCache {
     /** Cache for every entity based on its dependencies and its own input */
-    protected entities: EntityCache;
+    protected _getCache: GetEntityCache;
     /** Caches the final denormalized form based on input, entities */
     protected endpoints: EndpointsCache;
     /** Caches the queryKey based on schema, args, and any used entities or indexes */
     protected queryKeys: Map<string, WeakDependencyMap<QueryPath>>;
+    protected policy: IMemoPolicy;
+    constructor(policy?: IMemoPolicy);
     /** Compute denormalized form maintaining referential equality for same inputs */
     denormalize<S extends Schema>(schema: S | undefined, input: unknown, entities: any, args?: readonly any[]): {
         data: DenormalizeNullable<S> | typeof INVALID;
@@ -286,6 +320,32 @@ type StateInterface = {
     indexes: NormalizedIndex | {
         getIn(k: string[]): any;
     };
+};
+
+/** Basic POJO state interfaces for normalize side */
+declare class POJODelegate extends BaseDelegate {
+    entities: EntityTable;
+    indexes: {
+        [entityKey: string]: {
+            [indexName: string]: {
+                [lookup: string]: string;
+            };
+        };
+    };
+    constructor(state: {
+        entities: EntityTable;
+        indexes: NormalizedIndex;
+    });
+    getEntities(key: string): any;
+    getEntity(key: string, pk: string): any;
+    getIndex(key: string, field: string): object | undefined;
+    getIndexEnd(entity: object | undefined, value: string): any;
+}
+
+/** Handles POJO state for MemoCache methods */
+declare const MemoPolicy: {
+    QueryDelegate: typeof POJODelegate;
+    getEntities(entities: EntityTable): DenormGetEntity;
 };
 
 /** https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-4.html#the-noinfer-utility-type */
@@ -402,4 +462,4 @@ type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Pr
 
 declare function validateQueryKey(queryKey: unknown): boolean;
 
-export { type AbstractInstanceType, type ArrayElement, type CheckLoop, type Denormalize, type DenormalizeNullable, type EndpointExtraOptions, type EndpointInterface, type EntityInterface, type EntityPath, type EntityTable, type ErrorTypes, ExpiryStatus, type ExpiryStatusInterface, type FetchFunction, type GetEntity, type GetIndex, INVALID, type INormalizeDelegate, type IQueryDelegate, type IndexInterface, type IndexParams, type InferReturn, MemoCache, type Mergeable, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeReturnType, type NormalizedIndex, type NormalizedSchema, type OptimisticUpdateParams, type Queryable, type ReadEndpoint, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SnapshotInterface, type UnknownError, type UpdateFunction, type Visit, WeakDependencyMap, denormalize, isEntity, normalize, validateQueryKey };
+export { type AbstractInstanceType, type ArrayElement, BaseDelegate, type CheckLoop, type DenormGetEntity, type Denormalize, type DenormalizeNullable, type EndpointExtraOptions, type EndpointInterface, type EndpointsCache, type EntitiesPath, type EntityCache, type EntityInterface, type EntityPath, type EntityTable, type ErrorTypes, ExpiryStatus, type ExpiryStatusInterface, type FetchFunction, type GetEntities, type GetEntity, type GetIndex, type IMemoPolicy, INVALID, type INormalizeDelegate, type IQueryDelegate, type IndexInterface, type IndexParams, type IndexPath, type InferReturn, MemoCache, MemoPolicy, type Mergeable, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeReturnType, type NormalizedIndex, type NormalizedSchema, type OptimisticUpdateParams, type QueryPath, type Queryable, type ReadEndpoint, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SnapshotInterface, type UnknownError, type UpdateFunction, type Visit, WeakDependencyMap, denormalize, isEntity, normalize, validateQueryKey };

@@ -1,5 +1,10 @@
 // eslint-env jest
-import { normalize, INVALID } from '@data-client/normalizr';
+import {
+  normalize,
+  INVALID,
+  MemoPolicy as PojoPolicy,
+} from '@data-client/normalizr';
+import { MemoPolicy as ImmPolicy } from '@data-client/normalizr/imm';
 import { IDEntity } from '__tests__/new';
 
 import { SimpleMemoCache, fromJSEntities } from './denormalize';
@@ -194,10 +199,10 @@ describe(`${schema.Values.name} normalization`, () => {
 });
 
 describe.each([
-  ['direct', data => data],
-  ['immutable', fromJSEntities],
-])(`input (%s)`, (_, createInput) => {
-  describe.each([['current', new SimpleMemoCache().denormalize]])(
+  ['direct', data => data, PojoPolicy],
+  ['immutable', fromJSEntities, ImmPolicy],
+])(`input (%s)`, (_, createInput, Delegate) => {
+  describe.each([['current', new SimpleMemoCache(Delegate).denormalize]])(
     `${schema.Values.name} denormalization (%s)`,
     (_, denormalize) => {
       test('denormalizes without schemaAttribute', () => {

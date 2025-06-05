@@ -5,15 +5,13 @@ export function getCheckLoop() {
     if (!visitedEntities.has(entityKey)) {
       visitedEntities.set(entityKey, new Map<string, object[]>());
     }
-    // we have to tell typescript this can't be undefined (due to line above)
-    const entitiesOneType: Map<string, object[]> = visitedEntities.get(
-      entityKey,
-    ) as Map<string, object[]>;
+    const entitiesOneType = visitedEntities.get(entityKey)!;
 
     if (!entitiesOneType.has(pk)) {
       entitiesOneType.set(pk, []);
     }
-    const visitedEntityList = entitiesOneType.get(pk) as object[];
+    const visitedEntityList = entitiesOneType.get(pk)!;
+
     if (visitedEntityList.some((entity: any) => entity === input)) {
       return true;
     }

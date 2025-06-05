@@ -72,6 +72,10 @@
       "react-native": "./lib/index.js",
       "default": "./lib/index.js"
     },
+    "./imm": {
+      "types": "./lib/imm.d.ts",
+      "default": "./lib/imm.js"
+    },
     "./package.json": "./package.json"
   },
   "type": "module",

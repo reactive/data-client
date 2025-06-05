@@ -1,5 +1,7 @@
 // eslint-env jest
 import { normalize } from '@data-client/normalizr';
+import { denormalize as plainDenormalize } from '@data-client/normalizr';
+import { denormalize as immDenormalize } from '@data-client/normalizr/imm';
 import { IDEntity } from '__tests__/new';
 import { waterfallSchema } from '__tests__/UnionSchema';
 import { fromJS } from 'immutable';
@@ -269,10 +271,10 @@ const entities = {
   },
 };
 describe.each([
-  ['direct', data => data, data => data],
-  ['immutable', fromJS, fromJSEntities],
-])(`input (%s)`, (_, createInput, createEntities) => {
-  describe.each([['current', new SimpleMemoCache().denormalize]])(
+  ['direct', plainDenormalize, data => data, data => data],
+  ['immutable', immDenormalize, fromJS, fromJSEntities],
+])(`input (%s)`, (_, denormalize, createInput, createEntities) => {
+  describe.each([['current', denormalize]])(
     `${schema.Union.name} denormalization (%s)`,
     (_, denormalize) => {
       test('denormalizes an object using string schemaAttribute', () => {

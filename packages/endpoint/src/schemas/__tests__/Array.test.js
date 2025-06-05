@@ -1,5 +1,9 @@
 // eslint-env jest
-import { normalize, denormalize } from '@data-client/normalizr';
+import {
+  normalize,
+  denormalize as plainDenormalize,
+} from '@data-client/normalizr';
+import { denormalize as immDenormalize } from '@data-client/normalizr/imm';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
@@ -138,9 +142,9 @@ describe.each([
 });
 
 describe.each([
-  ['direct', data => data, data => data],
-  ['immutable', fromJS, fromJSEntities],
-])(`input (%s)`, (_, createInput, createEntities) => {
+  ['direct', data => data, data => data, plainDenormalize],
+  ['immutable', fromJS, fromJSEntities, immDenormalize],
+])(`input (%s)`, (_, createInput, createEntities, denormalize) => {
   test('denormalizes plain arrays with nothing inside', () => {
     class User extends IDEntity {}
     const entities = {
@@ -155,7 +159,6 @@ describe.each([
     expect(
       denormalize(sch, createInput({ user: '1' }), createEntities(entities)),
     ).toMatchSnapshot();
-
     expect(
       denormalize(sch, { user: '1', tacos: [] }, createEntities(entities)),
     ).toMatchSnapshot();
@@ -416,9 +419,9 @@ describe.each([
       ];
       const output = normalize(catList, input);
       expect(output).toMatchSnapshot();
-      expect(denormalize(catList, output.result, output.entities)).toEqual(
-        input,
-      );
+      expect(
+        denormalize(catList, output.result, createEntities(output.entities)),
+      ).toEqual(input);
     });
   });
 });

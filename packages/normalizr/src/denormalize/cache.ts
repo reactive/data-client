@@ -1,5 +1,4 @@
-import type { EntityInterface } from '../interface.js';
-import { EntityPath } from '../types.js';
+import type { EntityInterface, EntityPath } from '../interface.js';
 import type { INVALID } from './symbol.js';
 
 export default interface Cache {

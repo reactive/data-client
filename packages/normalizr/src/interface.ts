@@ -99,24 +99,38 @@ export interface Visit {
   (schema: any, value: any, parent: any, key: any, args: readonly any[]): any;
 }
 
+/** Used in denormalize. Lookup to find an entity in the store table */
+export interface EntityPath {
+  key: string;
+  pk: string;
+}
+
+export type IndexPath = [key: string, index: string, value: string];
+export type EntitiesPath = [key: string];
+export type QueryPath = IndexPath | [key: string, pk: string] | EntitiesPath;
+
 /** Returns true if a circular reference is found */
 export interface CheckLoop {
   (entityKey: string, pk: string, input: object): boolean;
 }
 
-/** Get Array of entities with map function applied */
+/** Get all normalized entities of one type from store */
+export interface GetEntities {
+  (key: string): { readonly [pk: string]: any } | undefined;
+}
+/** Get normalized Entity from store */
 export interface GetEntity {
-  (entityKey: string | symbol): { readonly [pk: string]: any } | undefined;
-  (entityKey: string | symbol, pk: string | number): any;
+  (key: string, pk: string): any;
 }
 /** Get PK using an Entity Index */
 export interface GetIndex {
   /** getIndex('User', 'username', 'ntucker') */
-  (entityKey: string, field: string, value: string): string | undefined;
+  (...path: IndexPath): string | undefined;
 }
 
 /** Accessors to the currently processing state while building query */
 export interface IQueryDelegate {
+  getEntities: GetEntities;
   getEntity: GetEntity;
   getIndex: GetIndex;
   /** Return to consider results invalid */
@@ -127,6 +141,8 @@ export interface IQueryDelegate {
 export interface INormalizeDelegate {
   /** Action meta-data for this normalize call */
   readonly meta: { fetchedAt: number; date: number; expiresAt: number };
+  /** Get all normalized entities of one type from store */
+  getEntities: GetEntities;
   /** Gets any previously normalized entity from store */
   getEntity: GetEntity;
   /** Updates an entity using merge lifecycles when it has previously been set */

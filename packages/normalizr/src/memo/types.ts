@@ -1,6 +1,6 @@
-import WeakDependencyMap from './WeakDependencyMap.js';
-import { EntityInterface } from '../interface.js';
-import { EntityPath } from '../types.js';
+import WeakDependencyMap, { GetDependency } from './WeakDependencyMap.js';
+import type { BaseDelegate } from '../delegate/BaseDelegate.js';
+import type { EntityInterface, EntityPath } from '../interface.js';
 
 export interface EntityCache
   extends Map<
@@ -13,6 +13,9 @@ export interface EntityCache
 
 export type EndpointsCache = WeakDependencyMap<EntityPath, object, any>;
 
-export type IndexPath = [key: string, field: string, value: string];
-export type EntitySchemaPath = [key: string] | [key: string, pk: string];
-export type QueryPath = IndexPath | EntitySchemaPath;
+export type DenormGetEntity = GetDependency<EntityPath>;
+
+export interface IMemoPolicy {
+  QueryDelegate: new (v: { entities: any; indexes: any }) => BaseDelegate;
+  getEntities(entities: any): DenormGetEntity;
+}

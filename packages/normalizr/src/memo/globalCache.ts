@@ -1,10 +1,10 @@
-import { EndpointsCache, EntityCache } from './types.js';
+import type { GetEntityCache } from './entitiesCache.js';
+import { EndpointsCache } from './types.js';
 import WeakDependencyMap, { type Dep } from './WeakDependencyMap.js';
 import type Cache from '../denormalize/cache.js';
-import type { GetEntity } from '../denormalize/getEntities.js';
 import type { INVALID } from '../denormalize/symbol.js';
-import type { EntityInterface } from '../interface.js';
-import type { EntityPath } from '../types.js';
+import type { EntityInterface, EntityPath } from '../interface.js';
+import type { DenormGetEntity } from './types.js';
 
 export default class GlobalCache implements Cache {
   private dependencies: Dep<EntityPath>[] = [];
@@ -12,22 +12,19 @@ export default class GlobalCache implements Cache {
   private cycleIndex = -1;
   private localCache: Map<string, Map<string, any>> = new Map();
 
-  declare private getCache: (
-    pk: string,
-    schema: EntityInterface,
-  ) => WeakDependencyMap<EntityPath, object, any>;
+  declare private _getCache: GetEntityCache;
 
-  declare private _getEntity: GetEntity;
-  declare private resultCache: EndpointsCache;
+  declare private _getEntity: DenormGetEntity;
+  declare private _resultCache: EndpointsCache;
 
   constructor(
-    getEntity: GetEntity,
-    entityCache: EntityCache,
+    getEntity: DenormGetEntity,
+    getCache: GetEntityCache,
     resultCache: EndpointsCache,
   ) {
     this._getEntity = getEntity;
-    this.getCache = getEntityCaches(entityCache);
-    this.resultCache = resultCache;
+    this._getCache = getCache;
+    this._resultCache = resultCache;
   }
 
   getEntity(
@@ -44,7 +41,7 @@ export default class GlobalCache implements Cache {
         EntityPath,
         object,
         EntityCacheValue
-      > = this.getCache(pk, schema);
+      > = this._getCache(pk, schema);
       const [cacheValue, cachePath] = globalCache.get(entity, this._getEntity);
       // TODO: what if this just returned the deps - then we don't need to store them
 
@@ -119,7 +116,7 @@ export default class GlobalCache implements Cache {
       return { data: computeValue(), paths: this.paths() };
     }
 
-    let [data, paths] = this.resultCache.get(input, this._getEntity);
+    let [data, paths] = this._resultCache.get(input, this._getEntity);
 
     if (paths === undefined) {
       data = computeValue();
@@ -127,7 +124,7 @@ export default class GlobalCache implements Cache {
       paths = this.paths();
       // for the first entry, `path` is ignored so empty members is fine
       this.dependencies.unshift({ path: { key: '', pk: '' }, entity: input });
-      this.resultCache.set(this.dependencies, data);
+      this._resultCache.set(this.dependencies, data);
     } else {
       paths.shift();
     }
@@ -143,41 +140,3 @@ interface EntityCacheValue {
   dependencies: Dep<EntityPath>[];
   value: object | typeof INVALID | undefined;
 }
-
-const getEntityCaches = (entityCache: EntityCache) => {
-  return (pk: string, schema: EntityInterface) => {
-    const key = schema.key;
-    // collections should use the entities they collect over
-    // TODO: this should be based on a public interface
-    const entityInstance: EntityInterface = (schema.cacheWith as any) ?? schema;
-
-    if (!entityCache.has(key)) {
-      entityCache.set(key, new Map());
-    }
-    const entityCacheKey = entityCache.get(key)!;
-    if (!entityCacheKey.get(pk))
-      entityCacheKey.set(
-        pk,
-        new WeakMap<
-          EntityInterface,
-          WeakDependencyMap<EntityPath, object, any>
-        >(),
-      );
-
-    const entityCachePk = entityCacheKey.get(pk) as WeakMap<
-      EntityInterface,
-      WeakDependencyMap<EntityPath, object, any>
-    >;
-    let wem = entityCachePk.get(entityInstance) as WeakDependencyMap<
-      EntityPath,
-      object,
-      any
-    >;
-    if (!wem) {
-      wem = new WeakDependencyMap<EntityPath, object, any>();
-      entityCachePk.set(entityInstance, wem);
-    }
-
-    return wem;
-  };
-};

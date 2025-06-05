@@ -17,21 +17,7 @@ export { default as Entity } from './schemas/Entity.js';
 export { default as EntityMixin } from './schemas/EntityMixin.js';
 export type { IEntityClass, IEntityInstance } from './schemas/EntityTypes.js';
 export { default as validateRequired } from './validateRequired.js';
-export type {
-  EndpointInterface,
-  ReadEndpoint,
-  MutateEndpoint,
-  Schema,
-  IQueryDelegate,
-  INormalizeDelegate,
-  SnapshotInterface,
-  ExpiryStatusInterface,
-  SchemaSimple,
-  SchemaClass,
-  PolymorphicInterface,
-  Queryable,
-  Mergeable,
-} from './interface.js';
+export * from './interface.js';
 export type { EntityFields } from './schemas/EntityFields.js';
 export type {
   AbstractInstanceType,

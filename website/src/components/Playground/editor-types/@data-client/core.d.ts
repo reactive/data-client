@@ -49,20 +49,32 @@ interface NormalizedIndex {
         };
     };
 }
-/** Get Array of entities with map function applied */
-interface GetEntity {
-    (entityKey: string | symbol): {
+/** Used in denormalize. Lookup to find an entity in the store table */
+interface EntityPath {
+    key: string;
+    pk: string;
+}
+type IndexPath = [key: string, index: string, value: string];
+type EntitiesPath = [key: string];
+type QueryPath = IndexPath | [key: string, pk: string] | EntitiesPath;
+/** Get all normalized entities of one type from store */
+interface GetEntities {
+    (key: string): {
         readonly [pk: string]: any;
     } | undefined;
-    (entityKey: string | symbol, pk: string | number): any;
+}
+/** Get normalized Entity from store */
+interface GetEntity {
+    (key: string, pk: string): any;
 }
 /** Get PK using an Entity Index */
 interface GetIndex {
     /** getIndex('User', 'username', 'ntucker') */
-    (entityKey: string, field: string, value: string): string | undefined;
+    (...path: IndexPath): string | undefined;
 }
 /** Accessors to the currently processing state while building query */
 interface IQueryDelegate {
+    getEntities: GetEntities;
     getEntity: GetEntity;
     getIndex: GetIndex;
     /** Return to consider results invalid */
@@ -76,6 +88,8 @@ interface INormalizeDelegate {
         date: number;
         expiresAt: number;
     };
+    /** Get all normalized entities of one type from store */
+    getEntities: GetEntities;
     /** Gets any previously normalized entity from store */
     getEntity: GetEntity;
     /** Updates an entity using merge lifecycles when it has previously been set */
@@ -121,10 +135,6 @@ type ObjectArgs<S extends Record<string, any>> = {
     [K in keyof S]: S[K] extends Schema ? SchemaArgs<S[K]> : never;
 }[keyof S];
 
-interface EntityPath {
-    key: string;
-    pk: string;
-}
 type AbstractInstanceType<T> = T extends new (...args: any) => infer U ? U : T extends {
     prototype: infer U;
 } ? U : never;
@@ -209,24 +219,46 @@ declare class WeakDependencyMap<Path, K extends object = object, V = any> {
 type GetDependency<Path, K = object | symbol> = (lookup: Path) => K | undefined;
 interface Dep<Path, K = object> {
     path: Path;
-    entity: K;
+    entity: K | undefined;
 }
 
-interface EntityCache extends Map<string, Map<string, WeakMap<EntityInterface, WeakDependencyMap<EntityPath, object, any>>>> {
+/** Basic state interfaces for normalize side */
+declare abstract class BaseDelegate {
+    entities: any;
+    indexes: any;
+    constructor({ entities, indexes }: {
+        entities: any;
+        indexes: any;
+    });
+    abstract getEntities(...path: EntitiesPath): object | undefined;
+    abstract getEntity(key: string, pk: string): object | undefined;
+    abstract getIndex(...path: IndexPath): object | undefined;
+    abstract getIndexEnd(entity: any, value: string): string | undefined;
+    tracked(schema: any): [delegate: IQueryDelegate, dependencies: Dep<QueryPath>[]];
 }
+
 type EndpointsCache = WeakDependencyMap<EntityPath, object, any>;
-type IndexPath = [key: string, field: string, value: string];
-type EntitySchemaPath = [key: string] | [key: string, pk: string];
-type QueryPath = IndexPath | EntitySchemaPath;
+type DenormGetEntity = GetDependency<EntityPath>;
+interface IMemoPolicy {
+    QueryDelegate: new (v: {
+        entities: any;
+        indexes: any;
+    }) => BaseDelegate;
+    getEntities(entities: any): DenormGetEntity;
+}
+
+type GetEntityCache = (pk: string, schema: EntityInterface) => WeakDependencyMap<EntityPath, object, any>;
 
 /** Singleton to store the memoization cache for denormalization methods */
 declare class MemoCache {
     /** Cache for every entity based on its dependencies and its own input */
-    protected entities: EntityCache;
+    protected _getCache: GetEntityCache;
     /** Caches the final denormalized form based on input, entities */
     protected endpoints: EndpointsCache;
     /** Caches the queryKey based on schema, args, and any used entities or indexes */
     protected queryKeys: Map<string, WeakDependencyMap<QueryPath>>;
+    protected policy: IMemoPolicy;
+    constructor(policy?: IMemoPolicy);
     /** Compute denormalized form maintaining referential equality for same inputs */
     denormalize<S extends Schema>(schema: S | undefined, input: unknown, entities: any, args?: readonly any[]): {
         data: DenormalizeNullable<S> | typeof INVALID;
