@@ -391,8 +391,8 @@ and up to 20x performance even after [mutation operations](../getting-started/mu
 xychart-beta
     title "Denormalize Single Entity"
     x-axis [normalizr, "Data Client", "Data Client (cached)"]
-    y-axis "Operations per second" 0 --> 5618500
-    bar [212500, 1341000, 5618500]
+    y-axis "Operations per second" 0 --> 6348905
+    bar [212500, 1341000, 6348905]
 ```
 
 ```mermaid

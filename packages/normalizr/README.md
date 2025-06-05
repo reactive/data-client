@@ -314,7 +314,7 @@ Available from [@data-client/endpoint](https://www.npmjs.com/package/@data-clien
 | ------------------- | -------- | ---------- |
 | normalize (long)    | 120%     | 120%       |
 | denormalize (long)  | 158%     | 1,250%     |
-| denormalize (short) | 676%     | 2,650%     |
+| denormalize (short) | 676%     | 2,990%     |
 
 [View benchmark](https://github.com/reactive/data-client/blob/master/examples/benchmark)
 

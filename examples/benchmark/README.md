@@ -25,7 +25,7 @@ Performance compared to normalizr package (higher is better):
 | ------------------- | -------- | ---------- |
 | normalize (long)    | 120%     | 120%       |
 | denormalize (long)  | 158%     | 1,250%     |
-| denormalize (short) | 676%     | 2,650%     |
+| denormalize (short) | 676%     | 2,990%     |
 
 [Comparison done on a Ryzen 7950x; Ubuntu; Node 22.14.0]
 
