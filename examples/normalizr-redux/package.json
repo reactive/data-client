@@ -13,7 +13,7 @@
     "node": ">=18.0"
   },
   "devDependencies": {
-    "@babel/core": "7.27.3",
+    "@babel/core": "7.27.4",
     "@babel/node": "7.27.1",
     "@octokit/rest": "21.1.1",
     "@types/babel__core": "^7",
