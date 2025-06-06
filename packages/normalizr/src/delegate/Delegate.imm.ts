@@ -1,7 +1,16 @@
 import { BaseDelegate } from './BaseDelegate.js';
+import { INVALID } from '../denormalize/symbol.js';
 
 export type ImmutableJSEntityTable = {
-  get(key: string): { toJS(): any } | undefined;
+  get(key: string):
+    | {
+        forEach(
+          sideEffect: (value: any, key: string, iter: any) => unknown,
+          context?: unknown,
+        ): number;
+        keySeq(): { toArray(): string[] };
+      }
+    | undefined;
   getIn(k: [key: string, pk: string]): { toJS(): any } | undefined;
   setIn(k: [key: string, pk: string], value: any);
 };
@@ -18,8 +27,34 @@ export class ImmDelegate extends BaseDelegate {
     super(state);
   }
 
-  getEntities(key: string): any {
-    return this.entities.get(key)?.toJS();
+  forEntities(
+    key: string,
+    callbackfn: (value: [string, unknown]) => void,
+  ): boolean {
+    const entities = this.getEntities(key);
+    if (!entities) return false;
+    entities.forEach((entity: any, pk: string) => {
+      callbackfn([pk, entity]);
+    });
+    return true;
+  }
+
+  getEntityKeys(key: string): string[] | symbol {
+    const entities = this.getEntities(key);
+    if (entities === undefined) return INVALID;
+    return entities.keySeq().toArray();
+  }
+
+  protected getEntities(key: string):
+    | {
+        forEach(
+          sideEffect: (value: any, key: string, iter: any) => unknown,
+          context?: unknown,
+        ): number;
+        keySeq(): { toArray(): string[] };
+      }
+    | undefined {
+    return this.entities.get(key);
   }
 
   getEntity(...path: [key: string, pk: string]): any {

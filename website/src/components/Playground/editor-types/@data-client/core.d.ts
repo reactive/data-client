@@ -57,11 +57,13 @@ interface EntityPath {
 type IndexPath = [key: string, index: string, value: string];
 type EntitiesPath = [key: string];
 type QueryPath = IndexPath | [key: string, pk: string] | EntitiesPath;
-/** Get all normalized entities of one type from store */
-interface GetEntities {
-    (key: string): {
-        readonly [pk: string]: any;
-    } | undefined;
+/** Return all entity PKs for a given entity key or INVALID if no entity entries */
+interface GetEntityKeys {
+    (key: string): string[] | symbol;
+}
+/** Loop over all entities of a given key */
+interface ForEntities {
+    (key: string, callbackfn: (value: [string, unknown]) => void): boolean;
 }
 /** Get normalized Entity from store */
 interface GetEntity {
@@ -74,8 +76,13 @@ interface GetIndex {
 }
 /** Accessors to the currently processing state while building query */
 interface IQueryDelegate {
-    getEntities: GetEntities;
+    /** Return all entity PKs for a given entity key or INVALID if no entity entries */
+    getEntityKeys: GetEntityKeys;
+    /** Loop over all entities of a given key */
+    forEntities: ForEntities;
+    /** Gets any previously normalized entity from store */
     getEntity: GetEntity;
+    /** Get PK using an Entity Index */
     getIndex: GetIndex;
     /** Return to consider results invalid */
     INVALID: symbol;
@@ -88,8 +95,10 @@ interface INormalizeDelegate {
         date: number;
         expiresAt: number;
     };
-    /** Get all normalized entities of one type from store */
-    getEntities: GetEntities;
+    /** Return all entity PKs for a given entity key or INVALID if no entity entries */
+    getEntityKeys: GetEntityKeys;
+    /** Loop over all entities of a given key */
+    forEntities: ForEntities;
     /** Gets any previously normalized entity from store */
     getEntity: GetEntity;
     /** Updates an entity using merge lifecycles when it has previously been set */
@@ -230,7 +239,9 @@ declare abstract class BaseDelegate {
         entities: any;
         indexes: any;
     });
-    abstract getEntities(...path: EntitiesPath): object | undefined;
+    abstract forEntities(key: string, callbackfn: (value: [string, unknown]) => void): boolean;
+    protected abstract getEntities(key: string): object | undefined;
+    abstract getEntityKeys(key: string): string[] | symbol;
     abstract getEntity(key: string, pk: string): object | undefined;
     abstract getIndex(...path: IndexPath): object | undefined;
     abstract getIndexEnd(entity: any, value: string): string | undefined;

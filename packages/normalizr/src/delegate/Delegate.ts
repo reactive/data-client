@@ -1,3 +1,4 @@
+import { INVALID } from '../denormalize/symbol.js';
 import type { EntityTable, NormalizedIndex } from '../interface.js';
 import { BaseDelegate } from './BaseDelegate.js';
 
@@ -14,7 +15,27 @@ export class POJODelegate extends BaseDelegate {
     super(state);
   }
 
-  getEntities(key: string): any {
+  forEntities(
+    key: string,
+    callbackfn: (
+      value: [string, unknown],
+      index: number,
+      array: [string, unknown][],
+    ) => void,
+  ): boolean {
+    const entities = this.getEntities(key);
+    if (entities === undefined) return false;
+    Object.entries(entities).forEach(callbackfn);
+    return true;
+  }
+
+  getEntityKeys(key: string): string[] | symbol {
+    const entities = this.getEntities(key);
+    if (entities === undefined) return INVALID;
+    return Object.keys(entities);
+  }
+
+  protected getEntities(key: string): object | undefined {
     return this.entities[key];
   }
 

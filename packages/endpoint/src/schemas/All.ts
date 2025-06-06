@@ -26,23 +26,23 @@ export default class AllSchema<
 
   queryKey(args: any, unvisit: any, delegate: IQueryDelegate): any {
     if (this.isSingleSchema) {
-      const entitiesEntry = delegate.getEntities(this.schema.key);
-      // we must wait until there are entries for any 'All' query to be Valid
-      if (entitiesEntry === undefined) return delegate.INVALID;
-      return Object.values(entitiesEntry).map(
-        entity => entity && this.schema.pk(entity),
-      );
+      return delegate.getEntityKeys(this.schema.key);
     }
     let found = false;
     const list = Object.values(this.schema as Record<string, any>).flatMap(
       (schema: EntityInterface) => {
-        const entitiesEntry = delegate.getEntities(schema.key);
-        if (entitiesEntry === undefined) return [];
-        found = true;
-        return Object.entries(entitiesEntry).map(([key, entity]) => ({
-          id: entity && schema.pk(entity, undefined, key, []),
-          schema: this.getSchemaAttribute(entity, undefined, key),
-        }));
+        const entities: any[] = [];
+        if (
+          delegate.forEntities(schema.key, ([pk, entity]) => {
+            if (!entity) return;
+            entities.push({
+              id: schema.pk(entity, undefined, pk, []),
+              schema: this.getSchemaAttribute(entity, undefined, pk),
+            });
+          })
+        )
+          found = true;
+        return entities;
       },
     );
     // we need at least one table entry of the Union for this to count as Valid.

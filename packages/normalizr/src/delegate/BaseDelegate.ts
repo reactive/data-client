@@ -17,7 +17,15 @@ export abstract class BaseDelegate {
     this.indexes = indexes;
   }
 
-  abstract getEntities(...path: EntitiesPath): object | undefined;
+  abstract forEntities(
+    key: string,
+    callbackfn: (value: [string, unknown]) => void,
+  ): boolean;
+
+  // we must expose the entities object to track in our WeakDependencyMap
+  // however, this should not be part of the public API
+  protected abstract getEntities(key: string): object | undefined;
+  abstract getEntityKeys(key: string): string[] | symbol;
   abstract getEntity(key: string, pk: string): object | undefined;
   abstract getIndex(...path: IndexPath): object | undefined;
   abstract getIndexEnd(entity: any, value: string): string | undefined;
@@ -40,10 +48,19 @@ export abstract class BaseDelegate {
         dependencies.push({ path, entity });
         return entity;
       },
-      getEntities(...path: EntitiesPath) {
-        const entity = base.getEntities(...path);
-        dependencies.push({ path, entity });
-        return entity;
+      forEntities(
+        key: string,
+        callbackfn: (value: [string, any]) => void,
+      ): boolean {
+        const entity = base.getEntities(key);
+        // always push even if entity is undefined
+        dependencies.push({ path: [key], entity });
+        return base.forEntities(key, callbackfn);
+      },
+      getEntityKeys(key: string): string[] | symbol {
+        const entity = base.getEntities(key);
+        dependencies.push({ path: [key], entity });
+        return base.getEntityKeys(key);
       },
     };
     return [delegate, dependencies];
