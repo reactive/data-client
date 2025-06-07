@@ -71,7 +71,7 @@ export default function addNormlizrSuite(suite) {
         memo.query(User, [{ login: 'gnoff' }], githubState);
       }
     })
-    .add('infer All', () => {
+    .add('buildQueryKey All', () => {
       return new MemoCache().buildQueryKey(AllProjects, [], queryState);
     })
     .add('query All withCache', () => {
