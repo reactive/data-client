@@ -6,8 +6,9 @@ import {
 import { denormalize as immDenormalize } from '@data-client/normalizr/imm';
 import { Temporal } from '@js-temporal/polyfill';
 import { IDEntity } from '__tests__/new';
-import { fromJS, Map } from 'immutable';
+import { fromJS } from 'immutable';
 
+import { fromJSEntities } from './denormalize';
 import { schema } from '../../';
 import Entity from '../Entity';
 
@@ -21,10 +22,6 @@ beforeAll(() => {
 afterAll(() => {
   dateSpy.mockRestore();
 });
-
-function fromJSEntities(entities) {
-  return Map(entities).map(v => Map(v));
-}
 
 describe(`${schema.Object.name} normalization`, () => {
   test('normalizes an object', () => {

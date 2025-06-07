@@ -1,7 +1,8 @@
 import { BaseDelegate } from './BaseDelegate.js';
+import { EntitiesInterface } from '../interface.js';
 
 export type ImmutableJSEntityTable = {
-  get(key: string): { toJS(): any } | undefined;
+  get(key: string): EntitiesInterface | undefined;
   getIn(k: [key: string, pk: string]): { toJS(): any } | undefined;
   setIn(k: [key: string, pk: string], value: any);
 };
@@ -18,8 +19,14 @@ export class ImmDelegate extends BaseDelegate {
     super(state);
   }
 
-  getEntities(key: string): any {
-    return this.entities.get(key)?.toJS();
+  // we must expose the entities object to track in our WeakDependencyMap
+  // however, this should not be part of the public API
+  protected getEntitiesObject(key: string): object | undefined {
+    return this.entities.get(key);
+  }
+
+  getEntities(key: string): EntitiesInterface | undefined {
+    return this.entities.get(key);
   }
 
   getEntity(...path: [key: string, pk: string]): any {

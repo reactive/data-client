@@ -127,10 +127,12 @@ export interface CheckLoop {
   (entityKey: string, pk: string, input: object): boolean;
 }
 
-/** Get all normalized entities of one type from store */
-export interface GetEntities {
-  (key: string): { readonly [pk: string]: any } | undefined;
+/** Interface specification for entities state accessor */
+export interface EntitiesInterface {
+  keys(): IterableIterator<string>;
+  entries(): IterableIterator<[string, any]>;
 }
+
 /** Get normalized Entity from store */
 export interface GetEntity {
   (key: string, pk: string): any;
@@ -143,8 +145,11 @@ export interface GetIndex {
 
 /** Accessors to the currently processing state while building query */
 export interface IQueryDelegate {
-  getEntities: GetEntities;
+  /** Get all entities for a given schema key */
+  getEntities(key: string): EntitiesInterface | undefined;
+  /** Gets any previously normalized entity from store */
   getEntity: GetEntity;
+  /** Get PK using an Entity Index */
   getIndex: GetIndex;
   /** Return to consider results invalid */
   INVALID: symbol;
@@ -154,8 +159,8 @@ export interface IQueryDelegate {
 export interface INormalizeDelegate {
   /** Action meta-data for this normalize call */
   readonly meta: { fetchedAt: number; date: number; expiresAt: number };
-  /** Get all normalized entities of one type from store */
-  getEntities: GetEntities;
+  /** Get all entities for a given schema key */
+  getEntities(key: string): EntitiesInterface | undefined;
   /** Gets any previously normalized entity from store */
   getEntity: GetEntity;
   /** Updates an entity using merge lifecycles when it has previously been set */

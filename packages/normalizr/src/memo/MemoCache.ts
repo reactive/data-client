@@ -3,7 +3,7 @@ import WeakDependencyMap from './WeakDependencyMap.js';
 import buildQueryKey from '../buildQueryKey.js';
 import { GetEntityCache, getEntityCaches } from './entitiesCache.js';
 import { MemoPolicy } from './Policy.js';
-import type { BaseDelegate } from '../delegate/BaseDelegate.js';
+import { getDependency } from '../delegate/BaseDelegate.js';
 import type { INVALID } from '../denormalize/symbol.js';
 import getUnvisit from '../denormalize/unvisit.js';
 import type {
@@ -140,10 +140,3 @@ type StateInterface = {
         getIn(k: string[]): any;
       };
 };
-
-const getDependency =
-  (delegate: BaseDelegate) =>
-  (path: QueryPath): object | undefined =>
-    delegate[['', 'getEntities', 'getEntity', 'getIndex'][path.length]](
-      ...path,
-    );

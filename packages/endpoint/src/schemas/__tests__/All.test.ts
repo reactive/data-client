@@ -200,21 +200,65 @@ describe.each([
       expect(createOutput(value)).toMatchSnapshot();
     });
 
+    test('denormalizes removes undefined or INVALID entities with polymorphism', () => {
+      class Cat extends IDEntity {
+        readonly type = 'Cat';
+      }
+      class Dog extends IDEntity {
+        readonly type = 'dogs';
+      }
+      class Person extends IDEntity {
+        readonly type = 'people';
+      }
+      const listSchema = new schema.All(
+        {
+          Cat: Cat,
+          dogs: Dog,
+          people: Person,
+        },
+        input => input.type || 'dogs',
+      );
+
+      const state = createInput({
+        entities: {
+          Cat: {
+            '1': { id: '1', name: 'Milo', type: 'Cat' },
+            '2': { id: '2', name: 'Jake', type: 'Cat' },
+            '3': undefined,
+            '4': INVALID,
+          },
+          Dog: {
+            '1': { id: '1', name: 'Rex', type: 'dogs' },
+            '2': INVALID,
+          },
+          Person: {
+            '1': { id: '1', name: 'Alice', type: 'people' },
+            '2': undefined,
+          },
+        },
+        indexes: {},
+      });
+      const value = new MemoCache(MyDelegate).query(listSchema, [], state).data;
+      expect(value).not.toEqual(expect.any(Symbol));
+      if (typeof value === 'symbol' || value === undefined) return;
+      expect(createOutput(value).length).toBe(4);
+      expect(createOutput(value)).toMatchSnapshot();
+    });
+
     test('denormalize maintains referential equality until entities are added', () => {
       class Cat extends IDEntity {}
       (Cat as any).defaults;
       const catSchema = { results: new schema.All(Cat), nextPage: '' };
-      let state: State<unknown> = {
+      let state: State<unknown> = createInput({
         ...initialState,
         entities: {
           Cat: {
-            1: { id: '1', name: 'Milo' },
-            2: { id: '2', name: 'Jake' },
+            '1': { id: '1', name: 'Milo' },
+            '2': { id: '2', name: 'Jake' },
           },
         },
-        indexes: {},
-      };
-      const memo = new MemoCache();
+      }) as any;
+      const memo = new MemoCache(MyDelegate);
       const value = memo.query(catSchema, [], state).data;
 
       expect(createOutput(value).results?.length).toBe(2);
@@ -225,16 +269,27 @@ describe.each([
       );
       expect(value).toBe(value2);
 
-      state = {
-        ...state,
-        entities: {
-          ...state.entities,
-          Cat: {
-            ...state.entities.Cat,
-            3: { id: '3', name: 'Jelico' },
+      if (ImmDelegate === MyDelegate) {
+        state = {
+          ...state,
+          entities: (state.entities as any).setIn(['Cat', '3'], {
+            id: '3',
+            name: 'Jelico',
+          }),
+        } as any;
+      } else {
+        state = {
+          ...state,
+          entities: {
+            ...state.entities,
+            Cat: {
+              ...state.entities.Cat,
+              '3': { id: '3', name: 'Jelico' },
+            },
           },
-        },
-      };
+        } as any;
+      }
+
       const value3 = memo.query(catSchema, [], state).data;
       expect(createOutput(value3).results?.length).toBe(3);
       expect(createOutput(value3).results).toMatchSnapshot();

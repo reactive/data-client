@@ -270,11 +270,10 @@ type EntitiesPath = [key: string];
 interface CheckLoop {
     (entityKey: string, pk: string, input: object): boolean;
 }
-/** Get all normalized entities of one type from store */
-interface GetEntities {
-    (key: string): {
-        readonly [pk: string]: any;
-    } | undefined;
+/** Interface specification for entities state accessor */
+interface EntitiesInterface {
+    keys(): IterableIterator<string>;
+    entries(): IterableIterator<[string, any]>;
 }
 /** Get normalized Entity from store */
 interface GetEntity {
@@ -287,8 +286,11 @@ interface GetIndex {
 }
 /** Accessors to the currently processing state while building query */
 interface IQueryDelegate {
-    getEntities: GetEntities;
+    /** Get all entities for a given schema key */
+    getEntities(key: string): EntitiesInterface | undefined;
+    /** Gets any previously normalized entity from store */
     getEntity: GetEntity;
+    /** Get PK using an Entity Index */
     getIndex: GetIndex;
     /** Return to consider results invalid */
     INVALID: symbol;
@@ -301,8 +303,8 @@ interface INormalizeDelegate {
         date: number;
         expiresAt: number;
     };
-    /** Get all normalized entities of one type from store */
-    getEntities: GetEntities;
+    /** Get all entities for a given schema key */
+    getEntities(key: string): EntitiesInterface | undefined;
     /** Gets any previously normalized entity from store */
     getEntity: GetEntity;
     /** Updates an entity using merge lifecycles when it has previously been set */
@@ -1973,4 +1975,4 @@ declare function useController(): Controller;
 declare function useLive<E extends EndpointInterface$1<FetchFunction$1, Schema$1 | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>]): E['schema'] extends undefined | null ? ResolveType$1<E> : Denormalize$1<E['schema']>;
 declare function useLive<E extends EndpointInterface$1<FetchFunction$1, Schema$1 | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): E['schema'] extends undefined | null ? ResolveType$1<E> | undefined : DenormalizeNullable$1<E['schema']>;
 
-export { type AbstractInstanceType, type AddEndpoint, Array$1 as Array, _default as AsyncBoundary, type CheckLoop, Collection, type CustomResource, DataProvider, type DefaultArgs, type Defaults, type Denormalize, type DenormalizeNullable, type DenormalizeNullableObject, type DenormalizeObject, Endpoint, type EndpointExtendOptions, type EndpointExtraOptions, type EndpointInstance, type EndpointInstanceInterface, type EndpointInterface, type EndpointOptions, type EndpointParam, type EndpointToFunction, type EntitiesPath, Entity, type EntityFields, type EntityInterface, type EntityMap, EntityMixin, type EntityPath, type EntityTable, type ErrorTypes$1 as ErrorTypes, type ExpiryStatusInterface, ExtendableEndpoint, type ExtendedResource, type FetchFunction, type FetchGet, type FetchMutate, type FromFallBack, type GetEndpoint, type GetEntities, type GetEntity, type GetIndex, type HookResource, type HookableEndpointInterface, type IEntityClass, type IEntityInstance, type INormalizeDelegate, type IQueryDelegate, type RestEndpoint$1 as IRestEndpoint, type IndexPath, Invalidate, type KeyofEndpointInstance, type KeyofRestEndpoint, type KeysToArgs, type Mergeable, type MethodToSide, type MutateEndpoint, type NI, NetworkError, ErrorBoundary as NetworkErrorBoundary, type Normalize, type NormalizeNullable, type NormalizeObject, type NormalizedEntity, type NormalizedIndex, type NormalizedNullableObject, type ObjectArgs, type OptionsToFunction, type PaginationEndpoint, type PaginationFieldEndpoint, type ParamFetchNoBody, type ParamFetchWithBody, type ParamToArgs, type PartialRestGenerics, type PathArgs, type PathArgsAndSearch, type PathKeys, type PolymorphicInterface, type Queryable, type ReadEndpoint, type RecordClass, type ResolveType, type Resource, type ResourceEndpointExtensions, type ResourceExtension, type ResourceGenerics, type ResourceInterface, type ResourceOptions, RestEndpoint, type RestEndpointConstructor, type RestEndpointConstructorOptions, type RestEndpointExtendOptions, type RestEndpointOptions, type RestExtendedEndpoint, type RestFetch, type RestGenerics, type RestInstance, type RestInstanceBase, type RestType, type RestTypeNoBody, type RestTypeWithBody, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type ShortenPath, type SnapshotInterface, type UnknownError, type Visit, resource as createResource, getUrlBase, getUrlTokens, hookifyResource, resource, schema_d as schema, useCache, useController, useDLE, useError, useFetch, useLive, useQuery, useSubscription, useSuspense, validateRequired };
+export { type AbstractInstanceType, type AddEndpoint, Array$1 as Array, _default as AsyncBoundary, type CheckLoop, Collection, type CustomResource, DataProvider, type DefaultArgs, type Defaults, type Denormalize, type DenormalizeNullable, type DenormalizeNullableObject, type DenormalizeObject, Endpoint, type EndpointExtendOptions, type EndpointExtraOptions, type EndpointInstance, type EndpointInstanceInterface, type EndpointInterface, type EndpointOptions, type EndpointParam, type EndpointToFunction, type EntitiesInterface, type EntitiesPath, Entity, type EntityFields, type EntityInterface, type EntityMap, EntityMixin, type EntityPath, type EntityTable, type ErrorTypes$1 as ErrorTypes, type ExpiryStatusInterface, ExtendableEndpoint, type ExtendedResource, type FetchFunction, type FetchGet, type FetchMutate, type FromFallBack, type GetEndpoint, type GetEntity, type GetIndex, type HookResource, type HookableEndpointInterface, type IEntityClass, type IEntityInstance, type INormalizeDelegate, type IQueryDelegate, type RestEndpoint$1 as IRestEndpoint, type IndexPath, Invalidate, type KeyofEndpointInstance, type KeyofRestEndpoint, type KeysToArgs, type Mergeable, type MethodToSide, type MutateEndpoint, type NI, NetworkError, ErrorBoundary as NetworkErrorBoundary, type Normalize, type NormalizeNullable, type NormalizeObject, type NormalizedEntity, type NormalizedIndex, type NormalizedNullableObject, type ObjectArgs, type OptionsToFunction, type PaginationEndpoint, type PaginationFieldEndpoint, type ParamFetchNoBody, type ParamFetchWithBody, type ParamToArgs, type PartialRestGenerics, type PathArgs, type PathArgsAndSearch, type PathKeys, type PolymorphicInterface, type Queryable, type ReadEndpoint, type RecordClass, type ResolveType, type Resource, type ResourceEndpointExtensions, type ResourceExtension, type ResourceGenerics, type ResourceInterface, type ResourceOptions, RestEndpoint, type RestEndpointConstructor, type RestEndpointConstructorOptions, type RestEndpointExtendOptions, type RestEndpointOptions, type RestExtendedEndpoint, type RestFetch, type RestGenerics, type RestInstance, type RestInstanceBase, type RestType, type RestTypeNoBody, type RestTypeWithBody, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type ShortenPath, type SnapshotInterface, type UnknownError, type Visit, resource as createResource, getUrlBase, getUrlTokens, hookifyResource, resource, schema_d as schema, useCache, useController, useDLE, useError, useFetch, useLive, useQuery, useSubscription, useSuspense, validateRequired };

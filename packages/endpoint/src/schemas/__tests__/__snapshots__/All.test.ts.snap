@@ -436,6 +436,31 @@ exports[`ArraySchema denormalization (direct) denormalizes removes undefined or 
 }
 `;
 
+exports[`ArraySchema denormalization (direct) denormalizes removes undefined or INVALID entities with polymorphism 1`] = `
+[
+  Cat {
+    "id": "1",
+    "name": "Milo",
+    "type": "Cat",
+  },
+  Cat {
+    "id": "2",
+    "name": "Jake",
+    "type": "Cat",
+  },
+  Dog {
+    "id": "1",
+    "name": "Rex",
+    "type": "dogs",
+  },
+  Person {
+    "id": "1",
+    "name": "Alice",
+    "type": "people",
+  },
+]
+`;
+
 exports[`ArraySchema denormalization (direct) returns the input value if is null 1`] = `
 Taco {
   "fillings": null,
@@ -574,6 +599,31 @@ exports[`ArraySchema denormalization (immutable) denormalizes removes undefined 
     },
   ],
 }
+`;
+
+exports[`ArraySchema denormalization (immutable) denormalizes removes undefined or INVALID entities with polymorphism 1`] = `
+[
+  Cat {
+    "id": "1",
+    "name": "Milo",
+    "type": "Cat",
+  },
+  Cat {
+    "id": "2",
+    "name": "Jake",
+    "type": "Cat",
+  },
+  Dog {
+    "id": "1",
+    "name": "Rex",
+    "type": "dogs",
+  },
+  Person {
+    "id": "1",
+    "name": "Alice",
+    "type": "people",
+  },
+]
 `;
 
 exports[`ArraySchema denormalization (immutable) returns the input value if is null 1`] = `

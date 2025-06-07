@@ -57,11 +57,10 @@ interface EntityPath {
 type IndexPath = [key: string, index: string, value: string];
 type EntitiesPath = [key: string];
 type QueryPath = IndexPath | [key: string, pk: string] | EntitiesPath;
-/** Get all normalized entities of one type from store */
-interface GetEntities {
-    (key: string): {
-        readonly [pk: string]: any;
-    } | undefined;
+/** Interface specification for entities state accessor */
+interface EntitiesInterface {
+    keys(): IterableIterator<string>;
+    entries(): IterableIterator<[string, any]>;
 }
 /** Get normalized Entity from store */
 interface GetEntity {
@@ -74,8 +73,11 @@ interface GetIndex {
 }
 /** Accessors to the currently processing state while building query */
 interface IQueryDelegate {
-    getEntities: GetEntities;
+    /** Get all entities for a given schema key */
+    getEntities(key: string): EntitiesInterface | undefined;
+    /** Gets any previously normalized entity from store */
     getEntity: GetEntity;
+    /** Get PK using an Entity Index */
     getIndex: GetIndex;
     /** Return to consider results invalid */
     INVALID: symbol;
@@ -88,8 +90,8 @@ interface INormalizeDelegate {
         date: number;
         expiresAt: number;
     };
-    /** Get all normalized entities of one type from store */
-    getEntities: GetEntities;
+    /** Get all entities for a given schema key */
+    getEntities(key: string): EntitiesInterface | undefined;
     /** Gets any previously normalized entity from store */
     getEntity: GetEntity;
     /** Updates an entity using merge lifecycles when it has previously been set */
@@ -230,10 +232,11 @@ declare abstract class BaseDelegate {
         entities: any;
         indexes: any;
     });
-    abstract getEntities(...path: EntitiesPath): object | undefined;
+    abstract getEntities(key: string): EntitiesInterface | undefined;
     abstract getEntity(key: string, pk: string): object | undefined;
     abstract getIndex(...path: IndexPath): object | undefined;
     abstract getIndexEnd(entity: any, value: string): string | undefined;
+    protected abstract getEntitiesObject(key: string): object | undefined;
     tracked(schema: any): [delegate: IQueryDelegate, dependencies: Dep<QueryPath>[]];
 }
 

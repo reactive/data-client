@@ -328,10 +328,10 @@ function normalizeCreate(
   // add to any collections that match this
   const entities = delegate.getEntities(this.key);
   if (entities)
-    Object.keys(entities).forEach(collectionPk => {
-      if (!filterCollections(JSON.parse(collectionPk))) return;
-      delegate.mergeEntity(this, collectionPk, normalizedValue);
-    });
+    for (const collectionKey of entities.keys()) {
+      if (!filterCollections(JSON.parse(collectionKey))) continue;
+      delegate.mergeEntity(this, collectionKey, normalizedValue);
+    }
   return normalizedValue as any;
 }
 
