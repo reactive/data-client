@@ -1,5 +1,8 @@
-import { INVALID } from '../denormalize/symbol.js';
-import type { EntityTable, NormalizedIndex } from '../interface.js';
+import type {
+  EntitiesInterface,
+  EntityTable,
+  NormalizedIndex,
+} from '../interface.js';
 import { BaseDelegate } from './BaseDelegate.js';
 
 /** Basic POJO state interfaces for normalize side */
@@ -15,28 +18,23 @@ export class POJODelegate extends BaseDelegate {
     super(state);
   }
 
-  forEntities(
-    key: string,
-    callbackfn: (
-      value: [string, unknown],
-      index: number,
-      array: [string, unknown][],
-    ) => void,
-  ): boolean {
-    const entities = this.getEntities(key);
-    if (entities === undefined) return false;
-    Object.entries(entities).forEach(callbackfn);
-    return true;
-  }
-
-  getEntityKeys(key: string): string[] | symbol {
-    const entities = this.getEntities(key);
-    if (entities === undefined) return INVALID;
-    return Object.keys(entities);
-  }
-
-  protected getEntities(key: string): object | undefined {
+  // we must expose the entities object to track in our WeakDependencyMap
+  // however, this should not be part of the public API
+  protected getEntitiesObject(key: string): object | undefined {
     return this.entities[key];
+  }
+
+  getEntities(key: string): EntitiesInterface | undefined {
+    const entities = this.entities[key];
+    if (entities === undefined) return undefined;
+    return {
+      keys(): IterableIterator<string> {
+        return Object.keys(entities) as any;
+      },
+      entries(): IterableIterator<[string, any]> {
+        return Object.entries(entities) as any;
+      },
+    };
   }
 
   getEntity(key: string, pk: string): any {

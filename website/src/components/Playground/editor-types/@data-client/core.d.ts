@@ -57,13 +57,10 @@ interface EntityPath {
 type IndexPath = [key: string, index: string, value: string];
 type EntitiesPath = [key: string];
 type QueryPath = IndexPath | [key: string, pk: string] | EntitiesPath;
-/** Return all entity PKs for a given entity key or INVALID if no entity entries */
-interface GetEntityKeys {
-    (key: string): string[] | symbol;
-}
-/** Loop over all entities of a given key */
-interface ForEntities {
-    (key: string, callbackfn: (value: [string, unknown]) => void): boolean;
+/** Interface specification for entities state accessor */
+interface EntitiesInterface {
+    keys(): IterableIterator<string>;
+    entries(): IterableIterator<[string, any]>;
 }
 /** Get normalized Entity from store */
 interface GetEntity {
@@ -76,10 +73,8 @@ interface GetIndex {
 }
 /** Accessors to the currently processing state while building query */
 interface IQueryDelegate {
-    /** Return all entity PKs for a given entity key or INVALID if no entity entries */
-    getEntityKeys: GetEntityKeys;
-    /** Loop over all entities of a given key */
-    forEntities: ForEntities;
+    /** Get all entities for a given schema key */
+    getEntities(key: string): EntitiesInterface | undefined;
     /** Gets any previously normalized entity from store */
     getEntity: GetEntity;
     /** Get PK using an Entity Index */
@@ -95,10 +90,8 @@ interface INormalizeDelegate {
         date: number;
         expiresAt: number;
     };
-    /** Return all entity PKs for a given entity key or INVALID if no entity entries */
-    getEntityKeys: GetEntityKeys;
-    /** Loop over all entities of a given key */
-    forEntities: ForEntities;
+    /** Get all entities for a given schema key */
+    getEntities(key: string): EntitiesInterface | undefined;
     /** Gets any previously normalized entity from store */
     getEntity: GetEntity;
     /** Updates an entity using merge lifecycles when it has previously been set */
@@ -239,12 +232,11 @@ declare abstract class BaseDelegate {
         entities: any;
         indexes: any;
     });
-    abstract forEntities(key: string, callbackfn: (value: [string, unknown]) => void): boolean;
-    protected abstract getEntities(key: string): object | undefined;
-    abstract getEntityKeys(key: string): string[] | symbol;
+    abstract getEntities(key: string): EntitiesInterface | undefined;
     abstract getEntity(key: string, pk: string): object | undefined;
     abstract getIndex(...path: IndexPath): object | undefined;
     abstract getIndexEnd(entity: any, value: string): string | undefined;
+    protected abstract getEntitiesObject(key: string): object | undefined;
     tracked(schema: any): [delegate: IQueryDelegate, dependencies: Dep<QueryPath>[]];
 }
 

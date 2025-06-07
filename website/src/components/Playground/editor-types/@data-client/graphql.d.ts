@@ -264,13 +264,10 @@ type EntitiesPath = [key: string];
 interface CheckLoop {
     (entityKey: string, pk: string, input: object): boolean;
 }
-/** Return all entity PKs for a given entity key or INVALID if no entity entries */
-interface GetEntityKeys {
-    (key: string): string[] | symbol;
-}
-/** Loop over all entities of a given key */
-interface ForEntities {
-    (key: string, callbackfn: (value: [string, unknown]) => void): boolean;
+/** Interface specification for entities state accessor */
+interface EntitiesInterface {
+    keys(): IterableIterator<string>;
+    entries(): IterableIterator<[string, any]>;
 }
 /** Get normalized Entity from store */
 interface GetEntity {
@@ -283,10 +280,8 @@ interface GetIndex {
 }
 /** Accessors to the currently processing state while building query */
 interface IQueryDelegate {
-    /** Return all entity PKs for a given entity key or INVALID if no entity entries */
-    getEntityKeys: GetEntityKeys;
-    /** Loop over all entities of a given key */
-    forEntities: ForEntities;
+    /** Get all entities for a given schema key */
+    getEntities(key: string): EntitiesInterface | undefined;
     /** Gets any previously normalized entity from store */
     getEntity: GetEntity;
     /** Get PK using an Entity Index */
@@ -302,10 +297,8 @@ interface INormalizeDelegate {
         date: number;
         expiresAt: number;
     };
-    /** Return all entity PKs for a given entity key or INVALID if no entity entries */
-    getEntityKeys: GetEntityKeys;
-    /** Loop over all entities of a given key */
-    forEntities: ForEntities;
+    /** Get all entities for a given schema key */
+    getEntities(key: string): EntitiesInterface | undefined;
     /** Gets any previously normalized entity from store */
     getEntity: GetEntity;
     /** Updates an entity using merge lifecycles when it has previously been set */
@@ -1244,4 +1237,4 @@ interface GQLError {
     path: (string | number)[];
 }
 
-export { type AbstractInstanceType, Array$1 as Array, type CheckLoop, Collection, type DefaultArgs, type Denormalize, type DenormalizeNullable, type DenormalizeNullableObject, type DenormalizeObject, Endpoint, type EndpointExtendOptions, type EndpointExtraOptions, type EndpointInstance, type EndpointInstanceInterface, type EndpointInterface, type EndpointOptions, type EndpointParam, type EndpointToFunction, type EntitiesPath, Entity, type EntityFields, type EntityInterface, type EntityMap, EntityMixin, type EntityPath, type EntityTable, type ErrorTypes, type ExpiryStatusInterface, ExtendableEndpoint, type FetchFunction, type ForEntities, GQLEndpoint, GQLEntity, type GQLError, GQLNetworkError, type GQLOptions, type GetEntity, type GetEntityKeys, type GetIndex, type IEntityClass, type IEntityInstance, type INormalizeDelegate, type IQueryDelegate, type IndexPath, Invalidate, type KeyofEndpointInstance, type Mergeable, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeObject, type NormalizedEntity, type NormalizedIndex, type NormalizedNullableObject, type ObjectArgs, type PolymorphicInterface, type Queryable, type ReadEndpoint, type RecordClass, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SnapshotInterface, type UnknownError, type Visit, schema_d as schema, validateRequired };
+export { type AbstractInstanceType, Array$1 as Array, type CheckLoop, Collection, type DefaultArgs, type Denormalize, type DenormalizeNullable, type DenormalizeNullableObject, type DenormalizeObject, Endpoint, type EndpointExtendOptions, type EndpointExtraOptions, type EndpointInstance, type EndpointInstanceInterface, type EndpointInterface, type EndpointOptions, type EndpointParam, type EndpointToFunction, type EntitiesInterface, type EntitiesPath, Entity, type EntityFields, type EntityInterface, type EntityMap, EntityMixin, type EntityPath, type EntityTable, type ErrorTypes, type ExpiryStatusInterface, ExtendableEndpoint, type FetchFunction, GQLEndpoint, GQLEntity, type GQLError, GQLNetworkError, type GQLOptions, type GetEntity, type GetIndex, type IEntityClass, type IEntityInstance, type INormalizeDelegate, type IQueryDelegate, type IndexPath, Invalidate, type KeyofEndpointInstance, type Mergeable, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeObject, type NormalizedEntity, type NormalizedIndex, type NormalizedNullableObject, type ObjectArgs, type PolymorphicInterface, type Queryable, type ReadEndpoint, type RecordClass, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SnapshotInterface, type UnknownError, type Visit, schema_d as schema, validateRequired };

@@ -1,16 +1,8 @@
 import { BaseDelegate } from './BaseDelegate.js';
-import { INVALID } from '../denormalize/symbol.js';
+import { EntitiesInterface } from '../interface.js';
 
 export type ImmutableJSEntityTable = {
-  get(key: string):
-    | {
-        forEach(
-          sideEffect: (value: any, key: string, iter: any) => unknown,
-          context?: unknown,
-        ): number;
-        keySeq(): { toArray(): string[] };
-      }
-    | undefined;
+  get(key: string): EntitiesInterface | undefined;
   getIn(k: [key: string, pk: string]): { toJS(): any } | undefined;
   setIn(k: [key: string, pk: string], value: any);
 };
@@ -27,33 +19,13 @@ export class ImmDelegate extends BaseDelegate {
     super(state);
   }
 
-  forEntities(
-    key: string,
-    callbackfn: (value: [string, unknown]) => void,
-  ): boolean {
-    const entities = this.getEntities(key);
-    if (!entities) return false;
-    entities.forEach((entity: any, pk: string) => {
-      callbackfn([pk, entity]);
-    });
-    return true;
+  // we must expose the entities object to track in our WeakDependencyMap
+  // however, this should not be part of the public API
+  protected getEntitiesObject(key: string): object | undefined {
+    return this.entities.get(key);
   }
 
-  getEntityKeys(key: string): string[] | symbol {
-    const entities = this.getEntities(key);
-    if (entities === undefined) return INVALID;
-    return entities.keySeq().toArray();
-  }
-
-  protected getEntities(key: string):
-    | {
-        forEach(
-          sideEffect: (value: any, key: string, iter: any) => unknown,
-          context?: unknown,
-        ): number;
-        keySeq(): { toArray(): string[] };
-      }
-    | undefined {
+  getEntities(key: string): EntitiesInterface | undefined {
     return this.entities.get(key);
   }
 

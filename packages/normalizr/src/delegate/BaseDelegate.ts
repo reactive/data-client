@@ -2,8 +2,8 @@ import { INVALID } from '../denormalize/symbol.js';
 import type {
   QueryPath,
   IndexPath,
-  EntitiesPath,
   IQueryDelegate,
+  EntitiesInterface,
 } from '../interface.js';
 import type { Dep } from '../memo/WeakDependencyMap.js';
 
@@ -17,19 +17,15 @@ export abstract class BaseDelegate {
     this.indexes = indexes;
   }
 
-  abstract forEntities(
-    key: string,
-    callbackfn: (value: [string, unknown]) => void,
-  ): boolean;
-
-  // we must expose the entities object to track in our WeakDependencyMap
-  // however, this should not be part of the public API
-  protected abstract getEntities(key: string): object | undefined;
-  abstract getEntityKeys(key: string): string[] | symbol;
+  abstract getEntities(key: string): EntitiesInterface | undefined;
   abstract getEntity(key: string, pk: string): object | undefined;
   abstract getIndex(...path: IndexPath): object | undefined;
   abstract getIndexEnd(entity: any, value: string): string | undefined;
+  // we must expose the entities object to track in our WeakDependencyMap
+  // however, this should not be part of the public API
+  protected abstract getEntitiesObject(key: string): object | undefined;
 
+  // only used in buildQueryKey
   tracked(
     schema: any,
   ): [delegate: IQueryDelegate, dependencies: Dep<QueryPath>[]] {
@@ -48,21 +44,19 @@ export abstract class BaseDelegate {
         dependencies.push({ path, entity });
         return entity;
       },
-      forEntities(
-        key: string,
-        callbackfn: (value: [string, any]) => void,
-      ): boolean {
-        const entity = base.getEntities(key);
-        // always push even if entity is undefined
+      getEntities(key: string): EntitiesInterface | undefined {
+        const entity = base.getEntitiesObject(key);
         dependencies.push({ path: [key], entity });
-        return base.forEntities(key, callbackfn);
-      },
-      getEntityKeys(key: string): string[] | symbol {
-        const entity = base.getEntities(key);
-        dependencies.push({ path: [key], entity });
-        return base.getEntityKeys(key);
+        return base.getEntities(key);
       },
     };
     return [delegate, dependencies];
   }
 }
+
+export const getDependency =
+  (delegate: BaseDelegate) =>
+  (path: QueryPath): object | undefined =>
+    delegate[['', 'getEntitiesObject', 'getEntity', 'getIndex'][path.length]](
+      ...path,
+    );

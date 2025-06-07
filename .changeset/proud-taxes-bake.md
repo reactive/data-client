@@ -3,9 +3,21 @@
 '@data-client/endpoint': minor
 ---
 
-delegate.getEntity(key) -> delegate.forEntities(key, cb)
+delegate.getEntity(key) -> delegate.getEntities(this.key)
 
+Return value is a restricted interface with keys() and entries() iterator methods.
 This applies to both schema.queryKey and schema.normalize method delegates.
+
+```ts
+const entities = delegate.getEntities(key);
+
+// foreach on keys
+for (const key of entities.keys()) {}
+// Object.keys() (convert to array)
+return [...entities.keys()];
+// foreach on full entry
+for (const [key, entity] of entities.entries()) {}
+```
 
 #### Before
 
@@ -21,8 +33,10 @@ if (entities)
 #### After
 
 ```ts
-delegate.forEntities(this.key, ([collectionKey]) => {
-  if (!filterCollections(JSON.parse(collectionKey))) return;
-  delegate.mergeEntity(this, collectionKey, normalizedValue);
-});
+const entities = delegate.getEntities(this.key);
+if (entities)
+  for (const collectionKey of entities.keys()) {
+    if (!filterCollections(JSON.parse(collectionKey))) continue;
+    delegate.mergeEntity(this, collectionKey, normalizedValue);
+  }
 ```

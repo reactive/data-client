@@ -326,13 +326,12 @@ function normalizeCreate(
   // parent is args when not nested
   const filterCollections = (this.createCollectionFilter as any)(...args);
   // add to any collections that match this
-  const keys = delegate.getEntityKeys(this.key);
-  if (typeof keys !== 'symbol') {
-    keys.forEach(collectionKey => {
-      if (!filterCollections(JSON.parse(collectionKey))) return;
+  const entities = delegate.getEntities(this.key);
+  if (entities)
+    for (const collectionKey of entities.keys()) {
+      if (!filterCollections(JSON.parse(collectionKey))) continue;
       delegate.mergeEntity(this, collectionKey, normalizedValue);
-    });
-  }
+    }
   return normalizedValue as any;
 }
 

@@ -1,6 +1,11 @@
 import ArraySchema from './Array.js';
 import { IQueryDelegate, Visit } from '../interface.js';
-import { EntityInterface, EntityMap, SchemaFunction } from '../schema.js';
+import {
+  Entity,
+  EntityInterface,
+  EntityMap,
+  SchemaFunction,
+} from '../schema.js';
 
 /**
  * Retrieves all entities in cache
@@ -26,23 +31,25 @@ export default class AllSchema<
 
   queryKey(args: any, unvisit: any, delegate: IQueryDelegate): any {
     if (this.isSingleSchema) {
-      return delegate.getEntityKeys(this.schema.key);
+      const entities = delegate.getEntities(this.schema.key);
+      if (!entities) return delegate.INVALID;
+      return [...entities.keys()];
     }
     let found = false;
     const list = Object.values(this.schema as Record<string, any>).flatMap(
       (schema: EntityInterface) => {
-        const entities: any[] = [];
-        if (
-          delegate.forEntities(schema.key, ([pk, entity]) => {
-            if (!entity) return;
-            entities.push({
-              id: schema.pk(entity, undefined, pk, []),
-              schema: this.getSchemaAttribute(entity, undefined, pk),
-            });
-          })
-        )
-          found = true;
-        return entities;
+        const entities = delegate.getEntities(schema.key);
+        if (!entities) return [];
+        found = true;
+        const normEntities: any[] = [];
+        for (const [key, entity] of entities.entries()) {
+          if (!entity || typeof entity === 'symbol') continue;
+          normEntities.push({
+            id: schema.pk(entity, undefined, key, []),
+            schema: this.getSchemaAttribute(entity, undefined, key),
+          });
+        }
+        return normEntities;
       },
     );
     // we need at least one table entry of the Union for this to count as Valid.

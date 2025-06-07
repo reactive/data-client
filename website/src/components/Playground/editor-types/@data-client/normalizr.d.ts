@@ -70,13 +70,10 @@ type QueryPath = IndexPath | [key: string, pk: string] | EntitiesPath;
 interface CheckLoop {
     (entityKey: string, pk: string, input: object): boolean;
 }
-/** Return all entity PKs for a given entity key or INVALID if no entity entries */
-interface GetEntityKeys {
-    (key: string): string[] | symbol;
-}
-/** Loop over all entities of a given key */
-interface ForEntities {
-    (key: string, callbackfn: (value: [string, unknown]) => void): boolean;
+/** Interface specification for entities state accessor */
+interface EntitiesInterface {
+    keys(): IterableIterator<string>;
+    entries(): IterableIterator<[string, any]>;
 }
 /** Get normalized Entity from store */
 interface GetEntity {
@@ -89,10 +86,8 @@ interface GetIndex {
 }
 /** Accessors to the currently processing state while building query */
 interface IQueryDelegate {
-    /** Return all entity PKs for a given entity key or INVALID if no entity entries */
-    getEntityKeys: GetEntityKeys;
-    /** Loop over all entities of a given key */
-    forEntities: ForEntities;
+    /** Get all entities for a given schema key */
+    getEntities(key: string): EntitiesInterface | undefined;
     /** Gets any previously normalized entity from store */
     getEntity: GetEntity;
     /** Get PK using an Entity Index */
@@ -108,10 +103,8 @@ interface INormalizeDelegate {
         date: number;
         expiresAt: number;
     };
-    /** Return all entity PKs for a given entity key or INVALID if no entity entries */
-    getEntityKeys: GetEntityKeys;
-    /** Loop over all entities of a given key */
-    forEntities: ForEntities;
+    /** Get all entities for a given schema key */
+    getEntities(key: string): EntitiesInterface | undefined;
     /** Gets any previously normalized entity from store */
     getEntity: GetEntity;
     /** Updates an entity using merge lifecycles when it has previously been set */
@@ -279,12 +272,11 @@ declare abstract class BaseDelegate {
         entities: any;
         indexes: any;
     });
-    abstract forEntities(key: string, callbackfn: (value: [string, unknown]) => void): boolean;
-    protected abstract getEntities(key: string): object | undefined;
-    abstract getEntityKeys(key: string): string[] | symbol;
+    abstract getEntities(key: string): EntitiesInterface | undefined;
     abstract getEntity(key: string, pk: string): object | undefined;
     abstract getIndex(...path: IndexPath): object | undefined;
     abstract getIndexEnd(entity: any, value: string): string | undefined;
+    protected abstract getEntitiesObject(key: string): object | undefined;
     tracked(schema: any): [delegate: IQueryDelegate, dependencies: Dep<QueryPath>[]];
 }
 
@@ -347,9 +339,8 @@ declare class POJODelegate extends BaseDelegate {
         entities: EntityTable;
         indexes: NormalizedIndex;
     });
-    forEntities(key: string, callbackfn: (value: [string, unknown], index: number, array: [string, unknown][]) => void): boolean;
-    getEntityKeys(key: string): string[] | symbol;
-    protected getEntities(key: string): object | undefined;
+    protected getEntitiesObject(key: string): object | undefined;
+    getEntities(key: string): EntitiesInterface | undefined;
     getEntity(key: string, pk: string): any;
     getIndex(key: string, field: string): object | undefined;
     getIndexEnd(entity: object | undefined, value: string): any;
@@ -475,4 +466,4 @@ type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Pr
 
 declare function validateQueryKey(queryKey: unknown): boolean;
 
-export { type AbstractInstanceType, type ArrayElement, BaseDelegate, type CheckLoop, type DenormGetEntity, type Denormalize, type DenormalizeNullable, type EndpointExtraOptions, type EndpointInterface, type EndpointsCache, type EntitiesPath, type EntityCache, type EntityInterface, type EntityPath, type EntityTable, type ErrorTypes, ExpiryStatus, type ExpiryStatusInterface, type FetchFunction, type ForEntities, type GetEntity, type GetEntityKeys, type GetIndex, type IMemoPolicy, INVALID, type INormalizeDelegate, type IQueryDelegate, type IndexInterface, type IndexParams, type IndexPath, type InferReturn, MemoCache, MemoPolicy, type Mergeable, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeReturnType, type NormalizedIndex, type NormalizedSchema, type OptimisticUpdateParams, type QueryPath, type Queryable, type ReadEndpoint, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SnapshotInterface, type UnknownError, type UpdateFunction, type Visit, WeakDependencyMap, denormalize, isEntity, normalize, validateQueryKey };
+export { type AbstractInstanceType, type ArrayElement, BaseDelegate, type CheckLoop, type DenormGetEntity, type Denormalize, type DenormalizeNullable, type EndpointExtraOptions, type EndpointInterface, type EndpointsCache, type EntitiesInterface, type EntitiesPath, type EntityCache, type EntityInterface, type EntityPath, type EntityTable, type ErrorTypes, ExpiryStatus, type ExpiryStatusInterface, type FetchFunction, type GetEntity, type GetIndex, type IMemoPolicy, INVALID, type INormalizeDelegate, type IQueryDelegate, type IndexInterface, type IndexParams, type IndexPath, type InferReturn, MemoCache, MemoPolicy, type Mergeable, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeReturnType, type NormalizedIndex, type NormalizedSchema, type OptimisticUpdateParams, type QueryPath, type Queryable, type ReadEndpoint, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SnapshotInterface, type UnknownError, type UpdateFunction, type Visit, WeakDependencyMap, denormalize, isEntity, normalize, validateQueryKey };
