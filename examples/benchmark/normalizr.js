@@ -45,9 +45,6 @@ export default function addNormlizrSuite(suite) {
       normalize(ProjectSchema, data, [], curState, actionMeta);
       curState = { ...initialState, entities: {}, endpoints: {} };
     })
-    .add('infer All', () => {
-      return new MemoCache().buildQueryKey(AllProjects, [], queryState);
-    })
     .add('denormalizeLong', () => {
       return new MemoCache().denormalize(ProjectSchema, result, entities);
     })
@@ -73,6 +70,12 @@ export default function addNormlizrSuite(suite) {
       for (let i = 0; i < 500; ++i) {
         memo.query(User, [{ login: 'gnoff' }], githubState);
       }
+    })
+    .add('infer All', () => {
+      return new MemoCache().buildQueryKey(AllProjects, [], queryState);
+    })
+    .add('query All withCache', () => {
+      return memo.query(AllProjects, [], queryState);
     })
     .add('denormalizeLong with mixin Entity', () => {
       return new MemoCache().denormalize(ProjectSchemaMixin, result, entities);
