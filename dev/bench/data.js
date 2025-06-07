@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1749307737264,
+  "lastUpdate": 1749308649463,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -8151,7 +8151,7 @@ window.BENCHMARK_DATA = {
             "extra": "78 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7160,
             "range": "±0.30%",
             "unit": "ops/sec",
@@ -8224,7 +8224,7 @@ window.BENCHMARK_DATA = {
             "extra": "73 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4753,
             "range": "±0.96%",
             "unit": "ops/sec",
@@ -8297,7 +8297,7 @@ window.BENCHMARK_DATA = {
             "extra": "63 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4653,
             "range": "±0.62%",
             "unit": "ops/sec",
@@ -8370,7 +8370,7 @@ window.BENCHMARK_DATA = {
             "extra": "72 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5618,
             "range": "±0.27%",
             "unit": "ops/sec",
@@ -8443,7 +8443,7 @@ window.BENCHMARK_DATA = {
             "extra": "80 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7227,
             "range": "±0.31%",
             "unit": "ops/sec",
@@ -8516,7 +8516,7 @@ window.BENCHMARK_DATA = {
             "extra": "67 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4645,
             "range": "±0.83%",
             "unit": "ops/sec",
@@ -8603,7 +8603,7 @@ window.BENCHMARK_DATA = {
             "extra": "78 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9169,
             "range": "±0.25%",
             "unit": "ops/sec",
@@ -8690,7 +8690,7 @@ window.BENCHMARK_DATA = {
             "extra": "76 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5564,
             "range": "±0.21%",
             "unit": "ops/sec",
@@ -8777,7 +8777,7 @@ window.BENCHMARK_DATA = {
             "extra": "79 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5560,
             "range": "±0.25%",
             "unit": "ops/sec",
@@ -8864,7 +8864,7 @@ window.BENCHMARK_DATA = {
             "extra": "75 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7095,
             "range": "±0.29%",
             "unit": "ops/sec",
@@ -8951,7 +8951,7 @@ window.BENCHMARK_DATA = {
             "extra": "76 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7112,
             "range": "±0.33%",
             "unit": "ops/sec",
@@ -9038,7 +9038,7 @@ window.BENCHMARK_DATA = {
             "extra": "72 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7193,
             "range": "±0.37%",
             "unit": "ops/sec",
@@ -9125,7 +9125,7 @@ window.BENCHMARK_DATA = {
             "extra": "70 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4439,
             "range": "±1.94%",
             "unit": "ops/sec",
@@ -9212,7 +9212,7 @@ window.BENCHMARK_DATA = {
             "extra": "72 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4704,
             "range": "±1.25%",
             "unit": "ops/sec",
@@ -9299,7 +9299,7 @@ window.BENCHMARK_DATA = {
             "extra": "73 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4649,
             "range": "±0.27%",
             "unit": "ops/sec",
@@ -9386,7 +9386,7 @@ window.BENCHMARK_DATA = {
             "extra": "66 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4425,
             "range": "±0.74%",
             "unit": "ops/sec",
@@ -9473,7 +9473,7 @@ window.BENCHMARK_DATA = {
             "extra": "78 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5505,
             "range": "±0.28%",
             "unit": "ops/sec",
@@ -9560,7 +9560,7 @@ window.BENCHMARK_DATA = {
             "extra": "74 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5576,
             "range": "±0.25%",
             "unit": "ops/sec",
@@ -9647,7 +9647,7 @@ window.BENCHMARK_DATA = {
             "extra": "72 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7152,
             "range": "±0.29%",
             "unit": "ops/sec",
@@ -9734,7 +9734,7 @@ window.BENCHMARK_DATA = {
             "extra": "81 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7307,
             "range": "±0.27%",
             "unit": "ops/sec",
@@ -9821,7 +9821,7 @@ window.BENCHMARK_DATA = {
             "extra": "72 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5584,
             "range": "±0.25%",
             "unit": "ops/sec",
@@ -9908,7 +9908,7 @@ window.BENCHMARK_DATA = {
             "extra": "71 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5586,
             "range": "±0.16%",
             "unit": "ops/sec",
@@ -9995,7 +9995,7 @@ window.BENCHMARK_DATA = {
             "extra": "72 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5559,
             "range": "±0.22%",
             "unit": "ops/sec",
@@ -10082,7 +10082,7 @@ window.BENCHMARK_DATA = {
             "extra": "77 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7246,
             "range": "±0.38%",
             "unit": "ops/sec",
@@ -10169,7 +10169,7 @@ window.BENCHMARK_DATA = {
             "extra": "72 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5558,
             "range": "±0.36%",
             "unit": "ops/sec",
@@ -10256,7 +10256,7 @@ window.BENCHMARK_DATA = {
             "extra": "70 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7221,
             "range": "±0.63%",
             "unit": "ops/sec",
@@ -10343,7 +10343,7 @@ window.BENCHMARK_DATA = {
             "extra": "77 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5626,
             "range": "±0.24%",
             "unit": "ops/sec",
@@ -10430,7 +10430,7 @@ window.BENCHMARK_DATA = {
             "extra": "80 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7306,
             "range": "±0.32%",
             "unit": "ops/sec",
@@ -10517,7 +10517,7 @@ window.BENCHMARK_DATA = {
             "extra": "70 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5563,
             "range": "±0.26%",
             "unit": "ops/sec",
@@ -10604,7 +10604,7 @@ window.BENCHMARK_DATA = {
             "extra": "71 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7041,
             "range": "±0.33%",
             "unit": "ops/sec",
@@ -10691,7 +10691,7 @@ window.BENCHMARK_DATA = {
             "extra": "72 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7246,
             "range": "±0.44%",
             "unit": "ops/sec",
@@ -10778,7 +10778,7 @@ window.BENCHMARK_DATA = {
             "extra": "77 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7368,
             "range": "±0.36%",
             "unit": "ops/sec",
@@ -10865,7 +10865,7 @@ window.BENCHMARK_DATA = {
             "extra": "78 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7244,
             "range": "±0.36%",
             "unit": "ops/sec",
@@ -10952,7 +10952,7 @@ window.BENCHMARK_DATA = {
             "extra": "71 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7262,
             "range": "±0.30%",
             "unit": "ops/sec",
@@ -11039,7 +11039,7 @@ window.BENCHMARK_DATA = {
             "extra": "71 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4960,
             "range": "±0.96%",
             "unit": "ops/sec",
@@ -11126,7 +11126,7 @@ window.BENCHMARK_DATA = {
             "extra": "72 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7268,
             "range": "±0.43%",
             "unit": "ops/sec",
@@ -11213,7 +11213,7 @@ window.BENCHMARK_DATA = {
             "extra": "71 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7310,
             "range": "±0.29%",
             "unit": "ops/sec",
@@ -11300,7 +11300,7 @@ window.BENCHMARK_DATA = {
             "extra": "80 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5671,
             "range": "±0.25%",
             "unit": "ops/sec",
@@ -11387,7 +11387,7 @@ window.BENCHMARK_DATA = {
             "extra": "78 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7175,
             "range": "±0.30%",
             "unit": "ops/sec",
@@ -11474,7 +11474,7 @@ window.BENCHMARK_DATA = {
             "extra": "73 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7138,
             "range": "±0.39%",
             "unit": "ops/sec",
@@ -11561,7 +11561,7 @@ window.BENCHMARK_DATA = {
             "extra": "76 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5609,
             "range": "±0.25%",
             "unit": "ops/sec",
@@ -11648,7 +11648,7 @@ window.BENCHMARK_DATA = {
             "extra": "66 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4749,
             "range": "±1.14%",
             "unit": "ops/sec",
@@ -11735,7 +11735,7 @@ window.BENCHMARK_DATA = {
             "extra": "82 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4486,
             "range": "±1.45%",
             "unit": "ops/sec",
@@ -11789,13 +11789,6 @@ window.BENCHMARK_DATA = {
             "range": "±0.88%",
             "unit": "ops/sec",
             "extra": "73 samples"
-          },
-          {
-            "name": "setLongWithSimpleMerge",
-            "value": 254,
-            "range": "±1.20%",
-            "unit": "ops/sec",
-            "extra": "84 samples"
           }
         ]
       },
@@ -11829,7 +11822,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7181,
             "range": "±0.33%",
             "unit": "ops/sec",
@@ -11883,13 +11876,6 @@ window.BENCHMARK_DATA = {
             "range": "±0.29%",
             "unit": "ops/sec",
             "extra": "78 samples"
-          },
-          {
-            "name": "setLongWithSimpleMerge",
-            "value": 388,
-            "range": "±0.65%",
-            "unit": "ops/sec",
-            "extra": "89 samples"
           }
         ]
       },
@@ -11923,7 +11909,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7187,
             "range": "±0.32%",
             "unit": "ops/sec",
@@ -11977,13 +11963,6 @@ window.BENCHMARK_DATA = {
             "range": "±0.42%",
             "unit": "ops/sec",
             "extra": "83 samples"
-          },
-          {
-            "name": "setLongWithSimpleMerge",
-            "value": 389,
-            "range": "±0.49%",
-            "unit": "ops/sec",
-            "extra": "89 samples"
           }
         ]
       },
@@ -12017,7 +11996,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7111,
             "range": "±0.37%",
             "unit": "ops/sec",
@@ -12071,13 +12050,6 @@ window.BENCHMARK_DATA = {
             "range": "±1.09%",
             "unit": "ops/sec",
             "extra": "84 samples"
-          },
-          {
-            "name": "setLongWithSimpleMerge",
-            "value": 377,
-            "range": "±0.82%",
-            "unit": "ops/sec",
-            "extra": "90 samples"
           }
         ]
       },
@@ -12111,7 +12083,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7159,
             "range": "±0.29%",
             "unit": "ops/sec",
@@ -12165,13 +12137,6 @@ window.BENCHMARK_DATA = {
             "range": "±0.27%",
             "unit": "ops/sec",
             "extra": "77 samples"
-          },
-          {
-            "name": "setLongWithSimpleMerge",
-            "value": 379,
-            "range": "±0.64%",
-            "unit": "ops/sec",
-            "extra": "90 samples"
           }
         ]
       },
@@ -12205,7 +12170,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7184,
             "range": "±0.24%",
             "unit": "ops/sec",
@@ -12259,13 +12224,6 @@ window.BENCHMARK_DATA = {
             "range": "±0.30%",
             "unit": "ops/sec",
             "extra": "79 samples"
-          },
-          {
-            "name": "setLongWithSimpleMerge",
-            "value": 408,
-            "range": "±0.30%",
-            "unit": "ops/sec",
-            "extra": "93 samples"
           }
         ]
       },
@@ -12299,7 +12257,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7194,
             "range": "±0.32%",
             "unit": "ops/sec",
@@ -12353,13 +12311,6 @@ window.BENCHMARK_DATA = {
             "range": "±0.73%",
             "unit": "ops/sec",
             "extra": "82 samples"
-          },
-          {
-            "name": "setLongWithSimpleMerge",
-            "value": 389,
-            "range": "±0.73%",
-            "unit": "ops/sec",
-            "extra": "89 samples"
           }
         ]
       },
@@ -12393,7 +12344,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5677,
             "range": "±0.26%",
             "unit": "ops/sec",
@@ -12454,13 +12405,6 @@ window.BENCHMARK_DATA = {
             "range": "±0.77%",
             "unit": "ops/sec",
             "extra": "74 samples"
-          },
-          {
-            "name": "setLongWithSimpleMerge",
-            "value": 246,
-            "range": "±0.22%",
-            "unit": "ops/sec",
-            "extra": "88 samples"
           }
         ]
       },
@@ -12494,7 +12438,7 @@ window.BENCHMARK_DATA = {
             "extra": "88 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5682,
             "range": "±0.37%",
             "unit": "ops/sec",
@@ -12595,7 +12539,7 @@ window.BENCHMARK_DATA = {
             "extra": "84 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4746,
             "range": "±0.44%",
             "unit": "ops/sec",
@@ -12696,7 +12640,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5660,
             "range": "±0.23%",
             "unit": "ops/sec",
@@ -12797,7 +12741,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5688,
             "range": "±0.27%",
             "unit": "ops/sec",
@@ -12898,7 +12842,7 @@ window.BENCHMARK_DATA = {
             "extra": "88 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4802,
             "range": "±0.44%",
             "unit": "ops/sec",
@@ -12999,7 +12943,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5668,
             "range": "±0.37%",
             "unit": "ops/sec",
@@ -13100,7 +13044,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7122,
             "range": "±0.30%",
             "unit": "ops/sec",
@@ -13201,7 +13145,7 @@ window.BENCHMARK_DATA = {
             "extra": "88 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7083,
             "range": "±0.77%",
             "unit": "ops/sec",
@@ -13302,7 +13246,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5820,
             "range": "±0.30%",
             "unit": "ops/sec",
@@ -13403,7 +13347,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7056,
             "range": "±0.35%",
             "unit": "ops/sec",
@@ -13504,7 +13448,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4798,
             "range": "±0.46%",
             "unit": "ops/sec",
@@ -13605,7 +13549,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5657,
             "range": "±0.24%",
             "unit": "ops/sec",
@@ -13713,7 +13657,7 @@ window.BENCHMARK_DATA = {
             "extra": "77 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4429,
             "range": "±1.76%",
             "unit": "ops/sec",
@@ -13821,7 +13765,7 @@ window.BENCHMARK_DATA = {
             "extra": "84 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7222,
             "range": "±0.35%",
             "unit": "ops/sec",
@@ -13929,7 +13873,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5819,
             "range": "±0.29%",
             "unit": "ops/sec",
@@ -14044,7 +13988,7 @@ window.BENCHMARK_DATA = {
             "extra": "80 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4993,
             "range": "±0.66%",
             "unit": "ops/sec",
@@ -14159,7 +14103,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7182,
             "range": "±0.31%",
             "unit": "ops/sec",
@@ -14274,7 +14218,7 @@ window.BENCHMARK_DATA = {
             "extra": "81 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4742,
             "range": "±0.76%",
             "unit": "ops/sec",
@@ -14389,7 +14333,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7198,
             "range": "±0.31%",
             "unit": "ops/sec",
@@ -14504,7 +14448,7 @@ window.BENCHMARK_DATA = {
             "extra": "76 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5062,
             "range": "±1.34%",
             "unit": "ops/sec",
@@ -14619,7 +14563,7 @@ window.BENCHMARK_DATA = {
             "extra": "83 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4465,
             "range": "±0.78%",
             "unit": "ops/sec",
@@ -14734,7 +14678,7 @@ window.BENCHMARK_DATA = {
             "extra": "83 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5907,
             "range": "±0.40%",
             "unit": "ops/sec",
@@ -14849,7 +14793,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7166,
             "range": "±0.24%",
             "unit": "ops/sec",
@@ -14964,7 +14908,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7214,
             "range": "±0.58%",
             "unit": "ops/sec",
@@ -15086,7 +15030,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5982,
             "range": "±0.27%",
             "unit": "ops/sec",
@@ -15208,7 +15152,7 @@ window.BENCHMARK_DATA = {
             "extra": "84 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5913,
             "range": "±0.33%",
             "unit": "ops/sec",
@@ -15330,7 +15274,7 @@ window.BENCHMARK_DATA = {
             "extra": "84 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5910,
             "range": "±0.37%",
             "unit": "ops/sec",
@@ -15452,7 +15396,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7287,
             "range": "±0.31%",
             "unit": "ops/sec",
@@ -15574,7 +15518,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7240,
             "range": "±0.77%",
             "unit": "ops/sec",
@@ -15696,7 +15640,7 @@ window.BENCHMARK_DATA = {
             "extra": "78 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4380,
             "range": "±1.31%",
             "unit": "ops/sec",
@@ -15818,7 +15762,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5961,
             "range": "±0.34%",
             "unit": "ops/sec",
@@ -15940,7 +15884,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7185,
             "range": "±0.38%",
             "unit": "ops/sec",
@@ -16062,7 +16006,7 @@ window.BENCHMARK_DATA = {
             "extra": "84 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5287,
             "range": "±0.93%",
             "unit": "ops/sec",
@@ -16184,7 +16128,7 @@ window.BENCHMARK_DATA = {
             "extra": "80 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4797,
             "range": "±1.30%",
             "unit": "ops/sec",
@@ -16306,7 +16250,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7257,
             "range": "±0.35%",
             "unit": "ops/sec",
@@ -16428,7 +16372,7 @@ window.BENCHMARK_DATA = {
             "extra": "79 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4865,
             "range": "±1.00%",
             "unit": "ops/sec",
@@ -16550,7 +16494,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7261,
             "range": "±0.28%",
             "unit": "ops/sec",
@@ -16672,7 +16616,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4935,
             "range": "±0.55%",
             "unit": "ops/sec",
@@ -16794,7 +16738,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5904,
             "range": "±0.34%",
             "unit": "ops/sec",
@@ -16916,7 +16860,7 @@ window.BENCHMARK_DATA = {
             "extra": "88 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5540,
             "range": "±0.43%",
             "unit": "ops/sec",
@@ -17038,7 +16982,7 @@ window.BENCHMARK_DATA = {
             "extra": "74 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5215,
             "range": "±1.24%",
             "unit": "ops/sec",
@@ -17160,7 +17104,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7301,
             "range": "±0.27%",
             "unit": "ops/sec",
@@ -17282,7 +17226,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5595,
             "range": "±0.24%",
             "unit": "ops/sec",
@@ -17404,7 +17348,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7286,
             "range": "±0.23%",
             "unit": "ops/sec",
@@ -17526,7 +17470,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7264,
             "range": "±0.32%",
             "unit": "ops/sec",
@@ -17648,7 +17592,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7326,
             "range": "±0.27%",
             "unit": "ops/sec",
@@ -17770,7 +17714,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7314,
             "range": "±0.32%",
             "unit": "ops/sec",
@@ -17892,7 +17836,7 @@ window.BENCHMARK_DATA = {
             "extra": "82 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5466,
             "range": "±0.35%",
             "unit": "ops/sec",
@@ -18014,7 +17958,7 @@ window.BENCHMARK_DATA = {
             "extra": "88 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5541,
             "range": "±0.31%",
             "unit": "ops/sec",
@@ -18136,7 +18080,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5491,
             "range": "±0.41%",
             "unit": "ops/sec",
@@ -18258,7 +18202,7 @@ window.BENCHMARK_DATA = {
             "extra": "80 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4834,
             "range": "±1.31%",
             "unit": "ops/sec",
@@ -18380,7 +18324,7 @@ window.BENCHMARK_DATA = {
             "extra": "81 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4745,
             "range": "±1.22%",
             "unit": "ops/sec",
@@ -18502,7 +18446,7 @@ window.BENCHMARK_DATA = {
             "extra": "88 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7233,
             "range": "±0.64%",
             "unit": "ops/sec",
@@ -18624,7 +18568,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5540,
             "range": "±0.30%",
             "unit": "ops/sec",
@@ -18746,7 +18690,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7276,
             "range": "±0.43%",
             "unit": "ops/sec",
@@ -18868,7 +18812,7 @@ window.BENCHMARK_DATA = {
             "extra": "77 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4827,
             "range": "±1.52%",
             "unit": "ops/sec",
@@ -18990,7 +18934,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7151,
             "range": "±0.30%",
             "unit": "ops/sec",
@@ -19112,7 +19056,7 @@ window.BENCHMARK_DATA = {
             "extra": "78 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4925,
             "range": "±2.10%",
             "unit": "ops/sec",
@@ -19234,7 +19178,7 @@ window.BENCHMARK_DATA = {
             "extra": "82 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4895,
             "range": "±0.82%",
             "unit": "ops/sec",
@@ -19356,7 +19300,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5582,
             "range": "±0.41%",
             "unit": "ops/sec",
@@ -19478,7 +19422,7 @@ window.BENCHMARK_DATA = {
             "extra": "81 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4794,
             "range": "±1.11%",
             "unit": "ops/sec",
@@ -19600,7 +19544,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7447,
             "range": "±0.28%",
             "unit": "ops/sec",
@@ -19743,7 +19687,7 @@ window.BENCHMARK_DATA = {
             "extra": "83 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5571,
             "range": "±0.34%",
             "unit": "ops/sec",
@@ -19886,7 +19830,7 @@ window.BENCHMARK_DATA = {
             "extra": "83 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4502,
             "range": "±0.98%",
             "unit": "ops/sec",
@@ -20029,7 +19973,7 @@ window.BENCHMARK_DATA = {
             "extra": "81 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4723,
             "range": "±1.03%",
             "unit": "ops/sec",
@@ -20172,7 +20116,7 @@ window.BENCHMARK_DATA = {
             "extra": "79 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4925,
             "range": "±1.15%",
             "unit": "ops/sec",
@@ -20315,7 +20259,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7229,
             "range": "±0.37%",
             "unit": "ops/sec",
@@ -20458,7 +20402,7 @@ window.BENCHMARK_DATA = {
             "extra": "77 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4618,
             "range": "±1.05%",
             "unit": "ops/sec",
@@ -20601,7 +20545,7 @@ window.BENCHMARK_DATA = {
             "extra": "79 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4565,
             "range": "±1.07%",
             "unit": "ops/sec",
@@ -20744,7 +20688,7 @@ window.BENCHMARK_DATA = {
             "extra": "79 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4723,
             "range": "±0.97%",
             "unit": "ops/sec",
@@ -20887,7 +20831,7 @@ window.BENCHMARK_DATA = {
             "extra": "84 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4520,
             "range": "±1.13%",
             "unit": "ops/sec",
@@ -21030,7 +20974,7 @@ window.BENCHMARK_DATA = {
             "extra": "88 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7313,
             "range": "±0.47%",
             "unit": "ops/sec",
@@ -21173,7 +21117,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7212,
             "range": "±0.30%",
             "unit": "ops/sec",
@@ -21316,7 +21260,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5529,
             "range": "±0.54%",
             "unit": "ops/sec",
@@ -21459,7 +21403,7 @@ window.BENCHMARK_DATA = {
             "extra": "84 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7205,
             "range": "±0.28%",
             "unit": "ops/sec",
@@ -21602,7 +21546,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7254,
             "range": "±0.48%",
             "unit": "ops/sec",
@@ -21745,7 +21689,7 @@ window.BENCHMARK_DATA = {
             "extra": "76 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4376,
             "range": "±1.10%",
             "unit": "ops/sec",
@@ -21888,7 +21832,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5498,
             "range": "±0.43%",
             "unit": "ops/sec",
@@ -22031,7 +21975,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7218,
             "range": "±0.37%",
             "unit": "ops/sec",
@@ -22174,7 +22118,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5494,
             "range": "±0.31%",
             "unit": "ops/sec",
@@ -22324,7 +22268,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4618,
             "range": "±0.38%",
             "unit": "ops/sec",
@@ -22481,7 +22425,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7182,
             "range": "±0.32%",
             "unit": "ops/sec",
@@ -22638,7 +22582,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5511,
             "range": "±0.24%",
             "unit": "ops/sec",
@@ -22795,7 +22739,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7181,
             "range": "±0.35%",
             "unit": "ops/sec",
@@ -22952,7 +22896,7 @@ window.BENCHMARK_DATA = {
             "extra": "80 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4510,
             "range": "±0.97%",
             "unit": "ops/sec",
@@ -23109,7 +23053,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7311,
             "range": "±0.30%",
             "unit": "ops/sec",
@@ -23266,7 +23210,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7377,
             "range": "±0.31%",
             "unit": "ops/sec",
@@ -23423,7 +23367,7 @@ window.BENCHMARK_DATA = {
             "extra": "83 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4781,
             "range": "±0.40%",
             "unit": "ops/sec",
@@ -23580,7 +23524,7 @@ window.BENCHMARK_DATA = {
             "extra": "88 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7302,
             "range": "±0.33%",
             "unit": "ops/sec",
@@ -23737,7 +23681,7 @@ window.BENCHMARK_DATA = {
             "extra": "81 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7220,
             "range": "±0.34%",
             "unit": "ops/sec",
@@ -23894,7 +23838,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5739,
             "range": "±0.29%",
             "unit": "ops/sec",
@@ -24051,7 +23995,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5862,
             "range": "±0.29%",
             "unit": "ops/sec",
@@ -24208,7 +24152,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5717,
             "range": "±0.27%",
             "unit": "ops/sec",
@@ -24365,7 +24309,7 @@ window.BENCHMARK_DATA = {
             "extra": "84 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4788,
             "range": "±0.52%",
             "unit": "ops/sec",
@@ -24522,7 +24466,7 @@ window.BENCHMARK_DATA = {
             "extra": "80 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4683,
             "range": "±1.08%",
             "unit": "ops/sec",
@@ -24679,7 +24623,7 @@ window.BENCHMARK_DATA = {
             "extra": "75 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4509,
             "range": "±1.08%",
             "unit": "ops/sec",
@@ -24836,7 +24780,7 @@ window.BENCHMARK_DATA = {
             "extra": "80 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4850,
             "range": "±0.52%",
             "unit": "ops/sec",
@@ -24993,7 +24937,7 @@ window.BENCHMARK_DATA = {
             "extra": "88 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5776,
             "range": "±0.24%",
             "unit": "ops/sec",
@@ -25150,7 +25094,7 @@ window.BENCHMARK_DATA = {
             "extra": "75 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5889,
             "range": "±0.47%",
             "unit": "ops/sec",
@@ -25307,7 +25251,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5778,
             "range": "±0.49%",
             "unit": "ops/sec",
@@ -25464,7 +25408,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7247,
             "range": "±0.62%",
             "unit": "ops/sec",
@@ -25621,7 +25565,7 @@ window.BENCHMARK_DATA = {
             "extra": "88 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7308,
             "range": "±0.33%",
             "unit": "ops/sec",
@@ -25778,7 +25722,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7215,
             "range": "±0.39%",
             "unit": "ops/sec",
@@ -25935,7 +25879,7 @@ window.BENCHMARK_DATA = {
             "extra": "79 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4292,
             "range": "±1.74%",
             "unit": "ops/sec",
@@ -26092,7 +26036,7 @@ window.BENCHMARK_DATA = {
             "extra": "88 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5726,
             "range": "±0.31%",
             "unit": "ops/sec",
@@ -26249,7 +26193,7 @@ window.BENCHMARK_DATA = {
             "extra": "80 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4974,
             "range": "±1.16%",
             "unit": "ops/sec",
@@ -26406,7 +26350,7 @@ window.BENCHMARK_DATA = {
             "extra": "88 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7260,
             "range": "±0.40%",
             "unit": "ops/sec",
@@ -26563,7 +26507,7 @@ window.BENCHMARK_DATA = {
             "extra": "84 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5666,
             "range": "±0.63%",
             "unit": "ops/sec",
@@ -26720,7 +26664,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5684,
             "range": "±0.46%",
             "unit": "ops/sec",
@@ -26877,7 +26821,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7278,
             "range": "±0.36%",
             "unit": "ops/sec",
@@ -27034,7 +26978,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5766,
             "range": "±0.28%",
             "unit": "ops/sec",
@@ -27191,7 +27135,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5772,
             "range": "±0.27%",
             "unit": "ops/sec",
@@ -27348,7 +27292,7 @@ window.BENCHMARK_DATA = {
             "extra": "77 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5110,
             "range": "±1.31%",
             "unit": "ops/sec",
@@ -27505,7 +27449,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 6571,
             "range": "±0.30%",
             "unit": "ops/sec",
@@ -27662,7 +27606,7 @@ window.BENCHMARK_DATA = {
             "extra": "80 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4873,
             "range": "±0.38%",
             "unit": "ops/sec",
@@ -27819,7 +27763,7 @@ window.BENCHMARK_DATA = {
             "extra": "82 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5114,
             "range": "±1.33%",
             "unit": "ops/sec",
@@ -27976,7 +27920,7 @@ window.BENCHMARK_DATA = {
             "extra": "75 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4498,
             "range": "±1.21%",
             "unit": "ops/sec",
@@ -28133,7 +28077,7 @@ window.BENCHMARK_DATA = {
             "extra": "79 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7196,
             "range": "±0.39%",
             "unit": "ops/sec",
@@ -28297,7 +28241,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5626,
             "range": "±0.28%",
             "unit": "ops/sec",
@@ -28461,7 +28405,7 @@ window.BENCHMARK_DATA = {
             "extra": "82 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4287,
             "range": "±1.09%",
             "unit": "ops/sec",
@@ -28625,7 +28569,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7238,
             "range": "±0.33%",
             "unit": "ops/sec",
@@ -28789,7 +28733,7 @@ window.BENCHMARK_DATA = {
             "extra": "84 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4655,
             "range": "±0.46%",
             "unit": "ops/sec",
@@ -28953,7 +28897,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7246,
             "range": "±0.55%",
             "unit": "ops/sec",
@@ -29117,7 +29061,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 6974,
             "range": "±0.22%",
             "unit": "ops/sec",
@@ -29281,7 +29225,7 @@ window.BENCHMARK_DATA = {
             "extra": "81 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7044,
             "range": "±0.39%",
             "unit": "ops/sec",
@@ -29445,7 +29389,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5464,
             "range": "±0.35%",
             "unit": "ops/sec",
@@ -29609,7 +29553,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5491,
             "range": "±0.41%",
             "unit": "ops/sec",
@@ -29773,7 +29717,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5433,
             "range": "±0.31%",
             "unit": "ops/sec",
@@ -29937,7 +29881,7 @@ window.BENCHMARK_DATA = {
             "extra": "76 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5431,
             "range": "±0.77%",
             "unit": "ops/sec",
@@ -30101,7 +30045,7 @@ window.BENCHMARK_DATA = {
             "extra": "76 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4642,
             "range": "±0.38%",
             "unit": "ops/sec",
@@ -30265,7 +30209,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 6987,
             "range": "±0.57%",
             "unit": "ops/sec",
@@ -30429,7 +30373,7 @@ window.BENCHMARK_DATA = {
             "extra": "81 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4572,
             "range": "±1.01%",
             "unit": "ops/sec",
@@ -30593,7 +30537,7 @@ window.BENCHMARK_DATA = {
             "extra": "83 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7087,
             "range": "±0.35%",
             "unit": "ops/sec",
@@ -30757,7 +30701,7 @@ window.BENCHMARK_DATA = {
             "extra": "82 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4586,
             "range": "±0.28%",
             "unit": "ops/sec",
@@ -30921,7 +30865,7 @@ window.BENCHMARK_DATA = {
             "extra": "77 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7074,
             "range": "±0.38%",
             "unit": "ops/sec",
@@ -31085,7 +31029,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5469,
             "range": "±0.29%",
             "unit": "ops/sec",
@@ -31249,7 +31193,7 @@ window.BENCHMARK_DATA = {
             "extra": "84 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4798,
             "range": "±0.88%",
             "unit": "ops/sec",
@@ -31413,7 +31357,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7157,
             "range": "±0.34%",
             "unit": "ops/sec",
@@ -31577,7 +31521,7 @@ window.BENCHMARK_DATA = {
             "extra": "74 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4458,
             "range": "±1.66%",
             "unit": "ops/sec",
@@ -31741,7 +31685,7 @@ window.BENCHMARK_DATA = {
             "extra": "80 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4585,
             "range": "±0.57%",
             "unit": "ops/sec",
@@ -31905,7 +31849,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5500,
             "range": "±0.33%",
             "unit": "ops/sec",
@@ -32069,7 +32013,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5516,
             "range": "±0.36%",
             "unit": "ops/sec",
@@ -32233,7 +32177,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5532,
             "range": "±0.38%",
             "unit": "ops/sec",
@@ -32397,7 +32341,7 @@ window.BENCHMARK_DATA = {
             "extra": "77 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7186,
             "range": "±0.34%",
             "unit": "ops/sec",
@@ -32561,7 +32505,7 @@ window.BENCHMARK_DATA = {
             "extra": "76 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5623,
             "range": "±0.37%",
             "unit": "ops/sec",
@@ -32725,7 +32669,7 @@ window.BENCHMARK_DATA = {
             "extra": "84 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5516,
             "range": "±0.32%",
             "unit": "ops/sec",
@@ -32889,7 +32833,7 @@ window.BENCHMARK_DATA = {
             "extra": "81 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4869,
             "range": "±0.56%",
             "unit": "ops/sec",
@@ -33053,7 +32997,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5543,
             "range": "±0.48%",
             "unit": "ops/sec",
@@ -33217,7 +33161,7 @@ window.BENCHMARK_DATA = {
             "extra": "77 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4450,
             "range": "±1.50%",
             "unit": "ops/sec",
@@ -33381,7 +33325,7 @@ window.BENCHMARK_DATA = {
             "extra": "84 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7180,
             "range": "±0.48%",
             "unit": "ops/sec",
@@ -33545,7 +33489,7 @@ window.BENCHMARK_DATA = {
             "extra": "77 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5803,
             "range": "±1.93%",
             "unit": "ops/sec",
@@ -33709,7 +33653,7 @@ window.BENCHMARK_DATA = {
             "extra": "78 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4620,
             "range": "±1.46%",
             "unit": "ops/sec",
@@ -33873,7 +33817,7 @@ window.BENCHMARK_DATA = {
             "extra": "77 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4399,
             "range": "±1.21%",
             "unit": "ops/sec",
@@ -34037,7 +33981,7 @@ window.BENCHMARK_DATA = {
             "extra": "78 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5455,
             "range": "±0.35%",
             "unit": "ops/sec",
@@ -34201,7 +34145,7 @@ window.BENCHMARK_DATA = {
             "extra": "80 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4388,
             "range": "±1.49%",
             "unit": "ops/sec",
@@ -34365,7 +34309,7 @@ window.BENCHMARK_DATA = {
             "extra": "83 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4614,
             "range": "±0.43%",
             "unit": "ops/sec",
@@ -34529,7 +34473,7 @@ window.BENCHMARK_DATA = {
             "extra": "80 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7181,
             "range": "±0.32%",
             "unit": "ops/sec",
@@ -34693,7 +34637,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7099,
             "range": "±0.35%",
             "unit": "ops/sec",
@@ -34857,7 +34801,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7271,
             "range": "±0.36%",
             "unit": "ops/sec",
@@ -35021,7 +34965,7 @@ window.BENCHMARK_DATA = {
             "extra": "84 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5536,
             "range": "±0.27%",
             "unit": "ops/sec",
@@ -35185,7 +35129,7 @@ window.BENCHMARK_DATA = {
             "extra": "77 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4610,
             "range": "±0.72%",
             "unit": "ops/sec",
@@ -35349,7 +35293,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7182,
             "range": "±0.40%",
             "unit": "ops/sec",
@@ -35513,7 +35457,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5558,
             "range": "±0.33%",
             "unit": "ops/sec",
@@ -35677,7 +35621,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5561,
             "range": "±0.38%",
             "unit": "ops/sec",
@@ -35841,7 +35785,7 @@ window.BENCHMARK_DATA = {
             "extra": "78 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4189,
             "range": "±1.40%",
             "unit": "ops/sec",
@@ -36005,7 +35949,7 @@ window.BENCHMARK_DATA = {
             "extra": "80 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4489,
             "range": "±0.98%",
             "unit": "ops/sec",
@@ -36169,7 +36113,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7230,
             "range": "±0.48%",
             "unit": "ops/sec",
@@ -36333,7 +36277,7 @@ window.BENCHMARK_DATA = {
             "extra": "83 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4541,
             "range": "±0.60%",
             "unit": "ops/sec",
@@ -36497,7 +36441,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7177,
             "range": "±0.56%",
             "unit": "ops/sec",
@@ -36661,7 +36605,7 @@ window.BENCHMARK_DATA = {
             "extra": "77 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5455,
             "range": "±0.69%",
             "unit": "ops/sec",
@@ -36825,7 +36769,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5372,
             "range": "±0.31%",
             "unit": "ops/sec",
@@ -36989,7 +36933,7 @@ window.BENCHMARK_DATA = {
             "extra": "78 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5522,
             "range": "±0.39%",
             "unit": "ops/sec",
@@ -37153,7 +37097,7 @@ window.BENCHMARK_DATA = {
             "extra": "79 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4210,
             "range": "±1.37%",
             "unit": "ops/sec",
@@ -37317,7 +37261,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7165,
             "range": "±0.35%",
             "unit": "ops/sec",
@@ -37481,7 +37425,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5628,
             "range": "±0.39%",
             "unit": "ops/sec",
@@ -37645,7 +37589,7 @@ window.BENCHMARK_DATA = {
             "extra": "80 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4505,
             "range": "±1.35%",
             "unit": "ops/sec",
@@ -37809,7 +37753,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7157,
             "range": "±0.40%",
             "unit": "ops/sec",
@@ -37973,7 +37917,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7191,
             "range": "±0.39%",
             "unit": "ops/sec",
@@ -38137,7 +38081,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4925,
             "range": "±0.92%",
             "unit": "ops/sec",
@@ -38301,7 +38245,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7170,
             "range": "±0.42%",
             "unit": "ops/sec",
@@ -38465,7 +38409,7 @@ window.BENCHMARK_DATA = {
             "extra": "70 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4468,
             "range": "±0.79%",
             "unit": "ops/sec",
@@ -38629,7 +38573,7 @@ window.BENCHMARK_DATA = {
             "extra": "81 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4544,
             "range": "±0.31%",
             "unit": "ops/sec",
@@ -38793,7 +38737,7 @@ window.BENCHMARK_DATA = {
             "extra": "82 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4664,
             "range": "±0.74%",
             "unit": "ops/sec",
@@ -38957,7 +38901,7 @@ window.BENCHMARK_DATA = {
             "extra": "80 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4334,
             "range": "±1.07%",
             "unit": "ops/sec",
@@ -39121,7 +39065,7 @@ window.BENCHMARK_DATA = {
             "extra": "73 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5121,
             "range": "±1.22%",
             "unit": "ops/sec",
@@ -39285,7 +39229,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5427,
             "range": "±0.23%",
             "unit": "ops/sec",
@@ -39449,7 +39393,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7037,
             "range": "±0.16%",
             "unit": "ops/sec",
@@ -39613,7 +39557,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5643,
             "range": "±0.31%",
             "unit": "ops/sec",
@@ -39777,7 +39721,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5049,
             "range": "±0.36%",
             "unit": "ops/sec",
@@ -39941,7 +39885,7 @@ window.BENCHMARK_DATA = {
             "extra": "77 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4844,
             "range": "±1.35%",
             "unit": "ops/sec",
@@ -40105,7 +40049,7 @@ window.BENCHMARK_DATA = {
             "extra": "82 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4587,
             "range": "±0.30%",
             "unit": "ops/sec",
@@ -40269,7 +40213,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7272,
             "range": "±0.43%",
             "unit": "ops/sec",
@@ -40433,7 +40377,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5394,
             "range": "±0.30%",
             "unit": "ops/sec",
@@ -40597,7 +40541,7 @@ window.BENCHMARK_DATA = {
             "extra": "82 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4650,
             "range": "±0.55%",
             "unit": "ops/sec",
@@ -40761,7 +40705,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7102,
             "range": "±0.74%",
             "unit": "ops/sec",
@@ -40925,7 +40869,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5424,
             "range": "±0.24%",
             "unit": "ops/sec",
@@ -41089,7 +41033,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5539,
             "range": "±0.34%",
             "unit": "ops/sec",
@@ -41253,7 +41197,7 @@ window.BENCHMARK_DATA = {
             "extra": "82 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4525,
             "range": "±0.52%",
             "unit": "ops/sec",
@@ -41417,7 +41361,7 @@ window.BENCHMARK_DATA = {
             "extra": "78 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4845,
             "range": "±1.07%",
             "unit": "ops/sec",
@@ -41581,7 +41525,7 @@ window.BENCHMARK_DATA = {
             "extra": "82 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4751,
             "range": "±0.72%",
             "unit": "ops/sec",
@@ -41745,7 +41689,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7315,
             "range": "±0.36%",
             "unit": "ops/sec",
@@ -41909,7 +41853,7 @@ window.BENCHMARK_DATA = {
             "extra": "77 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4562,
             "range": "±0.99%",
             "unit": "ops/sec",
@@ -42073,7 +42017,7 @@ window.BENCHMARK_DATA = {
             "extra": "84 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5493,
             "range": "±0.38%",
             "unit": "ops/sec",
@@ -42237,7 +42181,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7244,
             "range": "±0.30%",
             "unit": "ops/sec",
@@ -42401,7 +42345,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7250,
             "range": "±0.41%",
             "unit": "ops/sec",
@@ -42565,7 +42509,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7273,
             "range": "±0.32%",
             "unit": "ops/sec",
@@ -42729,7 +42673,7 @@ window.BENCHMARK_DATA = {
             "extra": "77 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4394,
             "range": "±1.85%",
             "unit": "ops/sec",
@@ -42893,7 +42837,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7198,
             "range": "±0.21%",
             "unit": "ops/sec",
@@ -43057,7 +43001,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5388,
             "range": "±0.40%",
             "unit": "ops/sec",
@@ -43221,7 +43165,7 @@ window.BENCHMARK_DATA = {
             "extra": "84 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5410,
             "range": "±0.22%",
             "unit": "ops/sec",
@@ -43385,7 +43329,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4538,
             "range": "±0.39%",
             "unit": "ops/sec",
@@ -43549,7 +43493,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7002,
             "range": "±0.57%",
             "unit": "ops/sec",
@@ -43713,7 +43657,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5412,
             "range": "±0.23%",
             "unit": "ops/sec",
@@ -43877,7 +43821,7 @@ window.BENCHMARK_DATA = {
             "extra": "74 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4179,
             "range": "±1.21%",
             "unit": "ops/sec",
@@ -44041,7 +43985,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7260,
             "range": "±0.38%",
             "unit": "ops/sec",
@@ -44205,7 +44149,7 @@ window.BENCHMARK_DATA = {
             "extra": "79 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4595,
             "range": "±1.33%",
             "unit": "ops/sec",
@@ -44369,7 +44313,7 @@ window.BENCHMARK_DATA = {
             "extra": "78 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4824,
             "range": "±1.86%",
             "unit": "ops/sec",
@@ -44533,7 +44477,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5551,
             "range": "±0.35%",
             "unit": "ops/sec",
@@ -44697,7 +44641,7 @@ window.BENCHMARK_DATA = {
             "extra": "77 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 4619,
             "range": "±0.82%",
             "unit": "ops/sec",
@@ -44861,7 +44805,7 @@ window.BENCHMARK_DATA = {
             "extra": "84 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5526,
             "range": "±0.39%",
             "unit": "ops/sec",
@@ -45025,7 +44969,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7138,
             "range": "±0.33%",
             "unit": "ops/sec",
@@ -45189,7 +45133,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5424,
             "range": "±0.44%",
             "unit": "ops/sec",
@@ -45353,7 +45297,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9170,
             "range": "±1.81%",
             "unit": "ops/sec",
@@ -45517,7 +45461,7 @@ window.BENCHMARK_DATA = {
             "extra": "84 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9301,
             "range": "±0.98%",
             "unit": "ops/sec",
@@ -45681,7 +45625,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7132,
             "range": "±0.39%",
             "unit": "ops/sec",
@@ -45845,7 +45789,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 5524,
             "range": "±0.50%",
             "unit": "ops/sec",
@@ -46009,7 +45953,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9091,
             "range": "±0.40%",
             "unit": "ops/sec",
@@ -46173,7 +46117,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9229,
             "range": "±1.07%",
             "unit": "ops/sec",
@@ -46337,7 +46281,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8662,
             "range": "±2.43%",
             "unit": "ops/sec",
@@ -46501,7 +46445,7 @@ window.BENCHMARK_DATA = {
             "extra": "81 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8902,
             "range": "±2.13%",
             "unit": "ops/sec",
@@ -46665,7 +46609,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8908,
             "range": "±1.18%",
             "unit": "ops/sec",
@@ -46829,7 +46773,7 @@ window.BENCHMARK_DATA = {
             "extra": "84 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8959,
             "range": "±1.54%",
             "unit": "ops/sec",
@@ -46993,7 +46937,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8768,
             "range": "±1.94%",
             "unit": "ops/sec",
@@ -47157,7 +47101,7 @@ window.BENCHMARK_DATA = {
             "extra": "84 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8706,
             "range": "±1.65%",
             "unit": "ops/sec",
@@ -47321,7 +47265,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8806,
             "range": "±2.04%",
             "unit": "ops/sec",
@@ -47485,7 +47429,7 @@ window.BENCHMARK_DATA = {
             "extra": "83 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9027,
             "range": "±1.90%",
             "unit": "ops/sec",
@@ -47649,7 +47593,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9279,
             "range": "±1.39%",
             "unit": "ops/sec",
@@ -47813,7 +47757,7 @@ window.BENCHMARK_DATA = {
             "extra": "84 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8554,
             "range": "±1.51%",
             "unit": "ops/sec",
@@ -47977,7 +47921,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8938,
             "range": "±1.16%",
             "unit": "ops/sec",
@@ -48141,7 +48085,7 @@ window.BENCHMARK_DATA = {
             "extra": "83 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9174,
             "range": "±0.86%",
             "unit": "ops/sec",
@@ -48305,7 +48249,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9076,
             "range": "±1.65%",
             "unit": "ops/sec",
@@ -48469,7 +48413,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8985,
             "range": "±1.96%",
             "unit": "ops/sec",
@@ -48633,7 +48577,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9079,
             "range": "±1.03%",
             "unit": "ops/sec",
@@ -48797,7 +48741,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9120,
             "range": "±1.86%",
             "unit": "ops/sec",
@@ -48968,7 +48912,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9226,
             "range": "±2.11%",
             "unit": "ops/sec",
@@ -49139,7 +49083,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9443,
             "range": "±0.77%",
             "unit": "ops/sec",
@@ -49310,7 +49254,7 @@ window.BENCHMARK_DATA = {
             "extra": "83 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9333,
             "range": "±0.78%",
             "unit": "ops/sec",
@@ -49481,7 +49425,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9086,
             "range": "±2.23%",
             "unit": "ops/sec",
@@ -49652,7 +49596,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9289,
             "range": "±1.16%",
             "unit": "ops/sec",
@@ -49823,7 +49767,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8574,
             "range": "±2.55%",
             "unit": "ops/sec",
@@ -49994,7 +49938,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9223,
             "range": "±2.11%",
             "unit": "ops/sec",
@@ -50165,7 +50109,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9364,
             "range": "±1.39%",
             "unit": "ops/sec",
@@ -50336,7 +50280,7 @@ window.BENCHMARK_DATA = {
             "extra": "84 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8956,
             "range": "±2.03%",
             "unit": "ops/sec",
@@ -50507,7 +50451,7 @@ window.BENCHMARK_DATA = {
             "extra": "88 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9895,
             "range": "±0.31%",
             "unit": "ops/sec",
@@ -50678,7 +50622,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9578,
             "range": "±1.88%",
             "unit": "ops/sec",
@@ -50849,7 +50793,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9619,
             "range": "±1.44%",
             "unit": "ops/sec",
@@ -51020,7 +50964,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9395,
             "range": "±2.10%",
             "unit": "ops/sec",
@@ -51191,7 +51135,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9629,
             "range": "±1.67%",
             "unit": "ops/sec",
@@ -51362,7 +51306,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9527,
             "range": "±1.20%",
             "unit": "ops/sec",
@@ -51533,7 +51477,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9429,
             "range": "±0.35%",
             "unit": "ops/sec",
@@ -51704,7 +51648,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9406,
             "range": "±0.23%",
             "unit": "ops/sec",
@@ -51875,7 +51819,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9306,
             "range": "±1.58%",
             "unit": "ops/sec",
@@ -52046,7 +51990,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9403,
             "range": "±1.80%",
             "unit": "ops/sec",
@@ -52217,7 +52161,7 @@ window.BENCHMARK_DATA = {
             "extra": "88 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8992,
             "range": "±1.71%",
             "unit": "ops/sec",
@@ -52395,7 +52339,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9393,
             "range": "±1.10%",
             "unit": "ops/sec",
@@ -52573,7 +52517,7 @@ window.BENCHMARK_DATA = {
             "extra": "88 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9385,
             "range": "±1.11%",
             "unit": "ops/sec",
@@ -52751,7 +52695,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9215,
             "range": "±0.88%",
             "unit": "ops/sec",
@@ -52929,7 +52873,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9151,
             "range": "±1.17%",
             "unit": "ops/sec",
@@ -53107,7 +53051,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9410,
             "range": "±0.34%",
             "unit": "ops/sec",
@@ -53285,7 +53229,7 @@ window.BENCHMARK_DATA = {
             "extra": "88 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9055,
             "range": "±1.63%",
             "unit": "ops/sec",
@@ -53463,7 +53407,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9205,
             "range": "±1.62%",
             "unit": "ops/sec",
@@ -53641,7 +53585,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9394,
             "range": "±1.15%",
             "unit": "ops/sec",
@@ -53819,7 +53763,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9244,
             "range": "±0.62%",
             "unit": "ops/sec",
@@ -53997,7 +53941,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9111,
             "range": "±2.10%",
             "unit": "ops/sec",
@@ -54175,7 +54119,7 @@ window.BENCHMARK_DATA = {
             "extra": "88 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9279,
             "range": "±0.28%",
             "unit": "ops/sec",
@@ -54353,7 +54297,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9297,
             "range": "±0.82%",
             "unit": "ops/sec",
@@ -54531,7 +54475,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9310,
             "range": "±1.74%",
             "unit": "ops/sec",
@@ -54709,7 +54653,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9361,
             "range": "±0.58%",
             "unit": "ops/sec",
@@ -54894,7 +54838,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9255,
             "range": "±1.38%",
             "unit": "ops/sec",
@@ -55023,7 +54967,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9198,
             "range": "±0.72%",
             "unit": "ops/sec",
@@ -55208,7 +55152,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9477,
             "range": "±0.72%",
             "unit": "ops/sec",
@@ -55393,7 +55337,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9260,
             "range": "±1.47%",
             "unit": "ops/sec",
@@ -55578,7 +55522,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8941,
             "range": "±2.00%",
             "unit": "ops/sec",
@@ -55763,7 +55707,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8885,
             "range": "±2.02%",
             "unit": "ops/sec",
@@ -55948,7 +55892,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9095,
             "range": "±1.50%",
             "unit": "ops/sec",
@@ -56133,7 +56077,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9206,
             "range": "±1.97%",
             "unit": "ops/sec",
@@ -56325,7 +56269,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9658,
             "range": "±2.05%",
             "unit": "ops/sec",
@@ -56517,7 +56461,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9748,
             "range": "±0.43%",
             "unit": "ops/sec",
@@ -56709,7 +56653,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9300,
             "range": "±1.66%",
             "unit": "ops/sec",
@@ -56901,7 +56845,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9126,
             "range": "±1.99%",
             "unit": "ops/sec",
@@ -57093,7 +57037,7 @@ window.BENCHMARK_DATA = {
             "extra": "95 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9639,
             "range": "±0.45%",
             "unit": "ops/sec",
@@ -57285,7 +57229,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9378,
             "range": "±1.89%",
             "unit": "ops/sec",
@@ -57477,7 +57421,7 @@ window.BENCHMARK_DATA = {
             "extra": "84 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9315,
             "range": "±1.86%",
             "unit": "ops/sec",
@@ -57669,7 +57613,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9379,
             "range": "±2.43%",
             "unit": "ops/sec",
@@ -57861,7 +57805,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9583,
             "range": "±1.35%",
             "unit": "ops/sec",
@@ -58053,7 +57997,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9679,
             "range": "±0.56%",
             "unit": "ops/sec",
@@ -58245,7 +58189,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9416,
             "range": "±1.66%",
             "unit": "ops/sec",
@@ -58437,7 +58381,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9438,
             "range": "±0.62%",
             "unit": "ops/sec",
@@ -58629,7 +58573,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9476,
             "range": "±1.92%",
             "unit": "ops/sec",
@@ -58821,7 +58765,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9603,
             "range": "±0.54%",
             "unit": "ops/sec",
@@ -59013,7 +58957,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9387,
             "range": "±1.47%",
             "unit": "ops/sec",
@@ -59205,7 +59149,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9752,
             "range": "±0.40%",
             "unit": "ops/sec",
@@ -59397,7 +59341,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9674,
             "range": "±0.60%",
             "unit": "ops/sec",
@@ -59589,7 +59533,7 @@ window.BENCHMARK_DATA = {
             "extra": "88 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9752,
             "range": "±0.54%",
             "unit": "ops/sec",
@@ -59781,7 +59725,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9584,
             "range": "±1.03%",
             "unit": "ops/sec",
@@ -59973,7 +59917,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9808,
             "range": "±0.52%",
             "unit": "ops/sec",
@@ -60165,7 +60109,7 @@ window.BENCHMARK_DATA = {
             "extra": "85 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9537,
             "range": "±0.63%",
             "unit": "ops/sec",
@@ -60357,7 +60301,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9597,
             "range": "±0.93%",
             "unit": "ops/sec",
@@ -60549,7 +60493,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 7935,
             "range": "±1.11%",
             "unit": "ops/sec",
@@ -60741,7 +60685,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9659,
             "range": "±0.62%",
             "unit": "ops/sec",
@@ -60933,7 +60877,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9411,
             "range": "±1.66%",
             "unit": "ops/sec",
@@ -61125,7 +61069,7 @@ window.BENCHMARK_DATA = {
             "extra": "88 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9651,
             "range": "±0.48%",
             "unit": "ops/sec",
@@ -61317,7 +61261,7 @@ window.BENCHMARK_DATA = {
             "extra": "88 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9448,
             "range": "±1.39%",
             "unit": "ops/sec",
@@ -61509,7 +61453,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9243,
             "range": "±1.89%",
             "unit": "ops/sec",
@@ -61701,7 +61645,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9657,
             "range": "±0.48%",
             "unit": "ops/sec",
@@ -61893,7 +61837,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9425,
             "range": "±1.75%",
             "unit": "ops/sec",
@@ -62085,7 +62029,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9775,
             "range": "±0.56%",
             "unit": "ops/sec",
@@ -62277,7 +62221,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9585,
             "range": "±0.68%",
             "unit": "ops/sec",
@@ -62469,7 +62413,7 @@ window.BENCHMARK_DATA = {
             "extra": "88 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9500,
             "range": "±1.31%",
             "unit": "ops/sec",
@@ -62661,7 +62605,7 @@ window.BENCHMARK_DATA = {
             "extra": "86 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9596,
             "range": "±1.02%",
             "unit": "ops/sec",
@@ -62853,7 +62797,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9883,
             "range": "±0.33%",
             "unit": "ops/sec",
@@ -63045,7 +62989,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9720,
             "range": "±0.64%",
             "unit": "ops/sec",
@@ -63237,7 +63181,7 @@ window.BENCHMARK_DATA = {
             "extra": "88 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9900,
             "range": "±0.33%",
             "unit": "ops/sec",
@@ -63429,7 +63373,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9807,
             "range": "±0.63%",
             "unit": "ops/sec",
@@ -63621,7 +63565,7 @@ window.BENCHMARK_DATA = {
             "extra": "88 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9422,
             "range": "±1.52%",
             "unit": "ops/sec",
@@ -63813,7 +63757,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9579,
             "range": "±0.27%",
             "unit": "ops/sec",
@@ -64005,7 +63949,7 @@ window.BENCHMARK_DATA = {
             "extra": "88 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9550,
             "range": "±0.52%",
             "unit": "ops/sec",
@@ -64197,7 +64141,7 @@ window.BENCHMARK_DATA = {
             "extra": "88 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9608,
             "range": "±0.49%",
             "unit": "ops/sec",
@@ -64389,7 +64333,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9561,
             "range": "±0.67%",
             "unit": "ops/sec",
@@ -64581,7 +64525,7 @@ window.BENCHMARK_DATA = {
             "extra": "84 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9209,
             "range": "±1.80%",
             "unit": "ops/sec",
@@ -64773,7 +64717,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9232,
             "range": "±2.10%",
             "unit": "ops/sec",
@@ -64965,7 +64909,7 @@ window.BENCHMARK_DATA = {
             "extra": "84 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9516,
             "range": "±0.76%",
             "unit": "ops/sec",
@@ -65157,7 +65101,7 @@ window.BENCHMARK_DATA = {
             "extra": "87 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9576,
             "range": "±1.57%",
             "unit": "ops/sec",
@@ -65349,7 +65293,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9677,
             "range": "±0.57%",
             "unit": "ops/sec",
@@ -65541,7 +65485,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9523,
             "range": "±1.42%",
             "unit": "ops/sec",
@@ -65733,7 +65677,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9610,
             "range": "±0.98%",
             "unit": "ops/sec",
@@ -65925,7 +65869,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9517,
             "range": "±2.16%",
             "unit": "ops/sec",
@@ -66117,7 +66061,7 @@ window.BENCHMARK_DATA = {
             "extra": "88 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9392,
             "range": "±2.09%",
             "unit": "ops/sec",
@@ -66309,7 +66253,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9576,
             "range": "±1.56%",
             "unit": "ops/sec",
@@ -66501,7 +66445,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9310,
             "range": "±1.63%",
             "unit": "ops/sec",
@@ -66693,7 +66637,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9510,
             "range": "±1.52%",
             "unit": "ops/sec",
@@ -66885,7 +66829,7 @@ window.BENCHMARK_DATA = {
             "extra": "95 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9539,
             "range": "±1.63%",
             "unit": "ops/sec",
@@ -67077,7 +67021,7 @@ window.BENCHMARK_DATA = {
             "extra": "95 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9615,
             "range": "±0.49%",
             "unit": "ops/sec",
@@ -67269,7 +67213,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9749,
             "range": "±0.41%",
             "unit": "ops/sec",
@@ -67461,7 +67405,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9920,
             "range": "±0.53%",
             "unit": "ops/sec",
@@ -67653,7 +67597,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9217,
             "range": "±1.84%",
             "unit": "ops/sec",
@@ -67845,7 +67789,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9685,
             "range": "±0.37%",
             "unit": "ops/sec",
@@ -68037,7 +67981,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9651,
             "range": "±0.43%",
             "unit": "ops/sec",
@@ -68229,7 +68173,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9300,
             "range": "±1.85%",
             "unit": "ops/sec",
@@ -68421,7 +68365,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9562,
             "range": "±0.43%",
             "unit": "ops/sec",
@@ -68613,7 +68557,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9333,
             "range": "±1.30%",
             "unit": "ops/sec",
@@ -68805,7 +68749,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9650,
             "range": "±1.00%",
             "unit": "ops/sec",
@@ -68997,7 +68941,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9595,
             "range": "±0.98%",
             "unit": "ops/sec",
@@ -69189,7 +69133,7 @@ window.BENCHMARK_DATA = {
             "extra": "95 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9688,
             "range": "±0.62%",
             "unit": "ops/sec",
@@ -69381,7 +69325,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9406,
             "range": "±2.01%",
             "unit": "ops/sec",
@@ -69573,7 +69517,7 @@ window.BENCHMARK_DATA = {
             "extra": "95 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9433,
             "range": "±2.10%",
             "unit": "ops/sec",
@@ -69765,7 +69709,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9457,
             "range": "±2.66%",
             "unit": "ops/sec",
@@ -69957,7 +69901,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9693,
             "range": "±0.62%",
             "unit": "ops/sec",
@@ -70149,7 +70093,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9542,
             "range": "±1.73%",
             "unit": "ops/sec",
@@ -70341,7 +70285,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9388,
             "range": "±2.06%",
             "unit": "ops/sec",
@@ -70533,7 +70477,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9598,
             "range": "±0.70%",
             "unit": "ops/sec",
@@ -70725,7 +70669,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9400,
             "range": "±1.04%",
             "unit": "ops/sec",
@@ -70917,7 +70861,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9422,
             "range": "±0.72%",
             "unit": "ops/sec",
@@ -71109,7 +71053,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9797,
             "range": "±0.53%",
             "unit": "ops/sec",
@@ -71301,7 +71245,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9740,
             "range": "±0.36%",
             "unit": "ops/sec",
@@ -71493,7 +71437,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9732,
             "range": "±0.81%",
             "unit": "ops/sec",
@@ -71685,7 +71629,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9353,
             "range": "±2.56%",
             "unit": "ops/sec",
@@ -71877,7 +71821,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9356,
             "range": "±2.03%",
             "unit": "ops/sec",
@@ -72069,7 +72013,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9634,
             "range": "±0.28%",
             "unit": "ops/sec",
@@ -72261,7 +72205,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9508,
             "range": "±2.06%",
             "unit": "ops/sec",
@@ -72453,7 +72397,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9514,
             "range": "±2.24%",
             "unit": "ops/sec",
@@ -72645,7 +72589,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9676,
             "range": "±0.54%",
             "unit": "ops/sec",
@@ -72837,7 +72781,7 @@ window.BENCHMARK_DATA = {
             "extra": "95 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9659,
             "range": "±0.63%",
             "unit": "ops/sec",
@@ -73029,7 +72973,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9699,
             "range": "±0.65%",
             "unit": "ops/sec",
@@ -73221,7 +73165,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9573,
             "range": "±0.61%",
             "unit": "ops/sec",
@@ -73413,7 +73357,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9498,
             "range": "±0.34%",
             "unit": "ops/sec",
@@ -73605,7 +73549,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9369,
             "range": "±0.72%",
             "unit": "ops/sec",
@@ -73797,7 +73741,7 @@ window.BENCHMARK_DATA = {
             "extra": "95 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9576,
             "range": "±0.55%",
             "unit": "ops/sec",
@@ -73989,7 +73933,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9235,
             "range": "±2.66%",
             "unit": "ops/sec",
@@ -74181,7 +74125,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9636,
             "range": "±0.39%",
             "unit": "ops/sec",
@@ -74373,7 +74317,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9542,
             "range": "±0.69%",
             "unit": "ops/sec",
@@ -74565,7 +74509,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9608,
             "range": "±0.31%",
             "unit": "ops/sec",
@@ -74757,7 +74701,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9377,
             "range": "±1.32%",
             "unit": "ops/sec",
@@ -74949,7 +74893,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9186,
             "range": "±1.60%",
             "unit": "ops/sec",
@@ -75141,7 +75085,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9385,
             "range": "±0.65%",
             "unit": "ops/sec",
@@ -75333,7 +75277,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9201,
             "range": "±1.63%",
             "unit": "ops/sec",
@@ -75525,7 +75469,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9269,
             "range": "±0.62%",
             "unit": "ops/sec",
@@ -75717,7 +75661,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9319,
             "range": "±0.56%",
             "unit": "ops/sec",
@@ -75909,7 +75853,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9244,
             "range": "±1.42%",
             "unit": "ops/sec",
@@ -76101,7 +76045,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9167,
             "range": "±2.03%",
             "unit": "ops/sec",
@@ -76293,7 +76237,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9138,
             "range": "±1.54%",
             "unit": "ops/sec",
@@ -76485,7 +76429,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9285,
             "range": "±0.32%",
             "unit": "ops/sec",
@@ -76677,7 +76621,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9477,
             "range": "±0.87%",
             "unit": "ops/sec",
@@ -76869,7 +76813,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9309,
             "range": "±0.48%",
             "unit": "ops/sec",
@@ -77061,7 +77005,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9577,
             "range": "±0.56%",
             "unit": "ops/sec",
@@ -77253,7 +77197,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9221,
             "range": "±1.74%",
             "unit": "ops/sec",
@@ -77445,7 +77389,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9198,
             "range": "±2.11%",
             "unit": "ops/sec",
@@ -77637,7 +77581,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9627,
             "range": "±0.48%",
             "unit": "ops/sec",
@@ -77829,7 +77773,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9504,
             "range": "±0.54%",
             "unit": "ops/sec",
@@ -78021,7 +77965,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9369,
             "range": "±0.42%",
             "unit": "ops/sec",
@@ -78213,7 +78157,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9381,
             "range": "±0.35%",
             "unit": "ops/sec",
@@ -78405,7 +78349,7 @@ window.BENCHMARK_DATA = {
             "extra": "95 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9169,
             "range": "±0.54%",
             "unit": "ops/sec",
@@ -78597,7 +78541,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9162,
             "range": "±0.52%",
             "unit": "ops/sec",
@@ -78789,7 +78733,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9195,
             "range": "±0.31%",
             "unit": "ops/sec",
@@ -78981,7 +78925,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9000,
             "range": "±1.39%",
             "unit": "ops/sec",
@@ -79173,7 +79117,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9087,
             "range": "±0.42%",
             "unit": "ops/sec",
@@ -79365,7 +79309,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9054,
             "range": "±1.41%",
             "unit": "ops/sec",
@@ -79557,7 +79501,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9049,
             "range": "±0.57%",
             "unit": "ops/sec",
@@ -79749,7 +79693,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9064,
             "range": "±0.50%",
             "unit": "ops/sec",
@@ -79941,7 +79885,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9253,
             "range": "±0.53%",
             "unit": "ops/sec",
@@ -80133,7 +80077,7 @@ window.BENCHMARK_DATA = {
             "extra": "95 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9228,
             "range": "±0.42%",
             "unit": "ops/sec",
@@ -80325,7 +80269,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9075,
             "range": "±0.48%",
             "unit": "ops/sec",
@@ -80517,7 +80461,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8891,
             "range": "±1.36%",
             "unit": "ops/sec",
@@ -80709,7 +80653,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8783,
             "range": "±1.41%",
             "unit": "ops/sec",
@@ -80901,7 +80845,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8731,
             "range": "±1.80%",
             "unit": "ops/sec",
@@ -81093,7 +81037,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8743,
             "range": "±2.06%",
             "unit": "ops/sec",
@@ -81285,7 +81229,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8629,
             "range": "±1.79%",
             "unit": "ops/sec",
@@ -81477,7 +81421,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8613,
             "range": "±2.42%",
             "unit": "ops/sec",
@@ -81669,7 +81613,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8694,
             "range": "±1.32%",
             "unit": "ops/sec",
@@ -81861,7 +81805,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9082,
             "range": "±1.38%",
             "unit": "ops/sec",
@@ -82053,7 +81997,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8963,
             "range": "±1.33%",
             "unit": "ops/sec",
@@ -82245,7 +82189,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8754,
             "range": "±1.39%",
             "unit": "ops/sec",
@@ -82437,7 +82381,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8517,
             "range": "±2.50%",
             "unit": "ops/sec",
@@ -82629,7 +82573,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8533,
             "range": "±1.79%",
             "unit": "ops/sec",
@@ -82821,7 +82765,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8699,
             "range": "±1.60%",
             "unit": "ops/sec",
@@ -83013,7 +82957,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8956,
             "range": "±1.36%",
             "unit": "ops/sec",
@@ -83205,7 +83149,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8283,
             "range": "±1.36%",
             "unit": "ops/sec",
@@ -83397,7 +83341,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8925,
             "range": "±0.53%",
             "unit": "ops/sec",
@@ -83589,7 +83533,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8682,
             "range": "±1.62%",
             "unit": "ops/sec",
@@ -83781,7 +83725,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8146,
             "range": "±1.79%",
             "unit": "ops/sec",
@@ -83973,7 +83917,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8892,
             "range": "±0.66%",
             "unit": "ops/sec",
@@ -84165,7 +84109,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8971,
             "range": "±1.18%",
             "unit": "ops/sec",
@@ -84357,7 +84301,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8987,
             "range": "±0.28%",
             "unit": "ops/sec",
@@ -84549,7 +84493,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9017,
             "range": "±1.27%",
             "unit": "ops/sec",
@@ -84741,7 +84685,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8836,
             "range": "±1.23%",
             "unit": "ops/sec",
@@ -84933,7 +84877,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8551,
             "range": "±1.55%",
             "unit": "ops/sec",
@@ -85125,7 +85069,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8929,
             "range": "±2.19%",
             "unit": "ops/sec",
@@ -85317,7 +85261,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9137,
             "range": "±1.35%",
             "unit": "ops/sec",
@@ -85509,7 +85453,7 @@ window.BENCHMARK_DATA = {
             "extra": "88 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8900,
             "range": "±1.04%",
             "unit": "ops/sec",
@@ -85701,7 +85645,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8900,
             "range": "±1.43%",
             "unit": "ops/sec",
@@ -85893,7 +85837,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8974,
             "range": "±1.14%",
             "unit": "ops/sec",
@@ -86085,7 +86029,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8847,
             "range": "±1.48%",
             "unit": "ops/sec",
@@ -86277,7 +86221,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8963,
             "range": "±1.66%",
             "unit": "ops/sec",
@@ -86469,7 +86413,7 @@ window.BENCHMARK_DATA = {
             "extra": "89 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9069,
             "range": "±1.29%",
             "unit": "ops/sec",
@@ -86661,7 +86605,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9016,
             "range": "±1.86%",
             "unit": "ops/sec",
@@ -86860,7 +86804,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8861,
             "range": "±1.29%",
             "unit": "ops/sec",
@@ -87059,7 +87003,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9031,
             "range": "±1.30%",
             "unit": "ops/sec",
@@ -87258,7 +87202,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8930,
             "range": "±1.07%",
             "unit": "ops/sec",
@@ -87457,7 +87401,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9209,
             "range": "±0.86%",
             "unit": "ops/sec",
@@ -87656,7 +87600,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9308,
             "range": "±1.12%",
             "unit": "ops/sec",
@@ -87855,7 +87799,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9212,
             "range": "±1.13%",
             "unit": "ops/sec",
@@ -88054,7 +87998,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9258,
             "range": "±1.36%",
             "unit": "ops/sec",
@@ -88253,7 +88197,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9493,
             "range": "±0.83%",
             "unit": "ops/sec",
@@ -88452,7 +88396,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8961,
             "range": "±1.54%",
             "unit": "ops/sec",
@@ -88651,7 +88595,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9366,
             "range": "±1.59%",
             "unit": "ops/sec",
@@ -88850,7 +88794,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9385,
             "range": "±0.90%",
             "unit": "ops/sec",
@@ -89049,7 +88993,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9247,
             "range": "±1.25%",
             "unit": "ops/sec",
@@ -89248,7 +89192,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9432,
             "range": "±0.83%",
             "unit": "ops/sec",
@@ -89447,7 +89391,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9218,
             "range": "±1.61%",
             "unit": "ops/sec",
@@ -89646,7 +89590,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9531,
             "range": "±0.96%",
             "unit": "ops/sec",
@@ -89845,7 +89789,7 @@ window.BENCHMARK_DATA = {
             "extra": "91 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 8964,
             "range": "±2.58%",
             "unit": "ops/sec",
@@ -90044,7 +89988,7 @@ window.BENCHMARK_DATA = {
             "extra": "90 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9093,
             "range": "±1.81%",
             "unit": "ops/sec",
@@ -90243,7 +90187,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9331,
             "range": "±2.53%",
             "unit": "ops/sec",
@@ -90442,7 +90386,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9164,
             "range": "±1.63%",
             "unit": "ops/sec",
@@ -90641,7 +90585,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9549,
             "range": "±1.61%",
             "unit": "ops/sec",
@@ -90840,7 +90784,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9999,
             "range": "±0.51%",
             "unit": "ops/sec",
@@ -91039,7 +90983,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9941,
             "range": "±0.40%",
             "unit": "ops/sec",
@@ -91238,7 +91182,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9880,
             "range": "±1.00%",
             "unit": "ops/sec",
@@ -91437,7 +91381,7 @@ window.BENCHMARK_DATA = {
             "extra": "94 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9814,
             "range": "±0.50%",
             "unit": "ops/sec",
@@ -91636,7 +91580,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 10013,
             "range": "±0.44%",
             "unit": "ops/sec",
@@ -91835,7 +91779,7 @@ window.BENCHMARK_DATA = {
             "extra": "93 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9545,
             "range": "±1.37%",
             "unit": "ops/sec",
@@ -92034,7 +91978,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9671,
             "range": "±1.67%",
             "unit": "ops/sec",
@@ -92233,7 +92177,7 @@ window.BENCHMARK_DATA = {
             "extra": "92 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9857,
             "range": "±1.17%",
             "unit": "ops/sec",
@@ -92474,7 +92418,7 @@ window.BENCHMARK_DATA = {
             "extra": "97 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 9936,
             "range": "±0.57%",
             "unit": "ops/sec",
@@ -92680,7 +92624,7 @@ window.BENCHMARK_DATA = {
             "extra": "99 samples"
           },
           {
-            "name": "infer All",
+            "name": "buildQueryKey All",
             "value": 54818,
             "range": "±0.43%",
             "unit": "ops/sec",
@@ -92811,6 +92755,212 @@ window.BENCHMARK_DATA = {
             "range": "±0.31%",
             "unit": "ops/sec",
             "extra": "97 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "distinct": true,
+          "id": "f3507274aa4d7392d740ec8aac9a7e70205c61a3",
+          "message": "internal: benchmark rename infer All -> buildQueryKey All",
+          "timestamp": "2025-06-07T16:00:48+01:00",
+          "tree_id": "4ca83cc5d11ef74d18d49ba42d1199c93d13f60a",
+          "url": "https://github.com/reactive/data-client/commit/f3507274aa4d7392d740ec8aac9a7e70205c61a3"
+        },
+        "date": 1749308647360,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 513,
+            "range": "±1.82%",
+            "unit": "ops/sec",
+            "extra": "89 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 274,
+            "range": "±3.50%",
+            "unit": "ops/sec",
+            "extra": "76 samples"
+          },
+          {
+            "name": "denormalizeLong donotcache",
+            "value": 1036,
+            "range": "±1.01%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeShort donotcache 500x",
+            "value": 1549,
+            "range": "±0.45%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeShort 500x",
+            "value": 824,
+            "range": "±1.99%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "denormalizeShort 500x withCache",
+            "value": 6514,
+            "range": "±0.28%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "queryShort 500x withCache",
+            "value": 2712,
+            "range": "±0.85%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "buildQueryKey All",
+            "value": 55796,
+            "range": "±0.34%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "query All withCache",
+            "value": 7917,
+            "range": "±0.34%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 267,
+            "range": "±3.70%",
+            "unit": "ops/sec",
+            "extra": "81 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 7515,
+            "range": "±0.30%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 7935,
+            "range": "±0.30%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 7976,
+            "range": "±0.35%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLongAndShort withEntityCacheOnly",
+            "value": 1765,
+            "range": "±0.34%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 5696,
+            "range": "±1.47%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "getResponse (null)",
+            "value": 6751024,
+            "range": "±0.54%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "getResponse (clear cache)",
+            "value": 268,
+            "range": "±2.26%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 3091,
+            "range": "±0.27%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 2370,
+            "range": "±0.22%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "getResponse Collection",
+            "value": 5490,
+            "range": "±1.23%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "get Collection",
+            "value": 5658,
+            "range": "±0.15%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "get Query-sorted",
+            "value": 6758,
+            "range": "±0.36%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 525,
+            "range": "±0.50%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 238,
+            "range": "±0.31%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 254,
+            "range": "±0.48%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          },
+          {
+            "name": "setSmallResponse 500x",
+            "value": 953,
+            "range": "±0.23%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
           }
         ]
       }
