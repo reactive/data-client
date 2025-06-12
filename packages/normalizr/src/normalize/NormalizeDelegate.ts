@@ -1,4 +1,4 @@
-import {
+import type {
   EntityTable,
   NormalizedIndex,
   INormalizeDelegate,
@@ -7,12 +7,22 @@ import {
 import { getCheckLoop } from './getCheckLoop.js';
 import { POJODelegate } from '../delegate/Delegate.js';
 import { INVALID } from '../denormalize/symbol.js';
+import { NormalizedSchema } from '../types.js';
 
 /** Full normalize() logic for POJO state */
 export class NormalizeDelegate
   extends POJODelegate
-  implements INormalizeDelegate
+  implements INormalizeDelegate, NormalizedSchema<EntityTable, any>
 {
+  // declare readonly normalized: NormalizedSchema<E, R>;
+  declare result: any;
+  declare readonly entities: EntityTable;
+  declare readonly indexes: {
+    [entityKey: string]: {
+      [indexName: string]: { [lookup: string]: string };
+    };
+  };
+
   declare readonly entitiesMeta: {
     [entityKey: string]: {
       [pk: string]: {
@@ -26,8 +36,10 @@ export class NormalizeDelegate
   declare readonly meta: { fetchedAt: number; date: number; expiresAt: number };
   declare checkLoop: (entityKey: string, pk: string, input: object) => boolean;
 
-  protected newEntities = new Map<string, Map<string, any>>();
-  protected newIndexes = new Map<string, Map<string, any>>();
+  protected new = {
+    entities: new Map<string, Map<string, any>>(),
+    indexes: new Map<string, Map<string, any>>(),
+  };
 
   constructor(
     state: {
@@ -46,7 +58,15 @@ export class NormalizeDelegate
     actionMeta: { fetchedAt: number; date: number; expiresAt: number },
   ) {
     super(state);
-    this.entitiesMeta = state.entitiesMeta;
+    // this.normalized = NormalizedSchema<E, R> = {
+    //   result: '' as any,
+    //   entities: { ...state.entities },
+    //   indexes: { ...state.indexes },
+    //   entitiesMeta: { ...state.entitiesMeta },
+    // };
+    this.entities = { ...state.entities };
+    this.indexes = { ...state.indexes };
+    this.entitiesMeta = { ...state.entitiesMeta };
     this.meta = actionMeta;
     this.checkLoop = getCheckLoop();
   }
@@ -57,8 +77,8 @@ export class NormalizeDelegate
 
   protected getNewEntities(key: string): Map<string, any> {
     // first time we come across this type of entity
-    if (!this.newEntities.has(key)) {
-      this.newEntities.set(key, new Map());
+    if (!this.new.entities.has(key)) {
+      this.new.entities.set(key, new Map());
       // we will be editing these, so we need to clone them first
       this.entities[key] = {
         ...this.entities[key],
@@ -68,15 +88,15 @@ export class NormalizeDelegate
       };
     }
 
-    return this.newEntities.get(key) as Map<string, any>;
+    return this.new.entities.get(key) as Map<string, any>;
   }
 
   protected getNewIndexes(key: string): Map<string, any> {
-    if (!this.newIndexes.has(key)) {
-      this.newIndexes.set(key, new Map());
+    if (!this.new.indexes.has(key)) {
+      this.new.indexes.set(key, new Map());
       this.indexes[key] = { ...this.indexes[key] };
     }
-    return this.newIndexes.get(key) as Map<string, any>;
+    return this.new.indexes.get(key) as Map<string, any>;
   }
 
   /** Updates an entity using merge lifecycles when it has previously been set */
