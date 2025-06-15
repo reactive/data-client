@@ -2,6 +2,7 @@
 import { initialState } from '@data-client/core';
 import { normalize, denormalize, MemoCache } from '@data-client/normalizr';
 import { ArticleResource, IDEntity } from '__tests__/new';
+import { Record } from 'immutable';
 
 import { SimpleMemoCache } from './denormalize';
 import { PolymorphicInterface } from '../..';

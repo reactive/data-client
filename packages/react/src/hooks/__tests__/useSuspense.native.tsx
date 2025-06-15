@@ -9,6 +9,7 @@ import { FetchAction } from '@data-client/core';
 import { Endpoint, FetchFunction, ReadEndpoint } from '@data-client/endpoint';
 import { normalize } from '@data-client/normalizr';
 import { makeRenderDataClient, mockInitialState } from '@data-client/test';
+import { jest } from '@jest/globals';
 import { Temporal } from '@js-temporal/polyfill';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
