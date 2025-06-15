@@ -23,9 +23,9 @@ let warnSpy;
 afterEach(() => {
   warnSpy.mockRestore();
 });
-beforeEach(() =>
-  (warnSpy = jest.spyOn(console, 'warn')).mockImplementation(() => {}),
-);
+beforeEach(() => {
+  (warnSpy = jest.spyOn(console, 'warn')).mockImplementation(() => {});
+});
 
 describe(`${schema.Union.name} normalization`, () => {
   test('throws if not given a schemaAttribute', () => {

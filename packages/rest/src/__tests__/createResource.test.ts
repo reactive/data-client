@@ -1150,7 +1150,7 @@ describe('resource()', () => {
   });
 
   describe('warnings', () => {
-    let warnSpy: jest.SpyInstance;
+    let warnSpy: jest.Spied<typeof console.warn>;
     afterEach(() => {
       warnSpy.mockRestore();
     });

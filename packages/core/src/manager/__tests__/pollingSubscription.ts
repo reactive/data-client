@@ -1,5 +1,5 @@
 import { Endpoint } from '@data-client/endpoint';
-import { Article, PollingArticleResource } from '__tests__/new';
+import { Article } from '__tests__/new';
 
 import { createSubscription } from '../../controller/actions/createSubscription';
 import Controller from '../../controller/Controller';
@@ -284,13 +284,13 @@ describe('PollingSubscription', () => {
     });
 
     describe('cleanup()', () => {
-      let warnSpy: jest.SpyInstance;
+      let warnSpy: jest.Spied<typeof console.warn>;
       afterEach(() => {
         warnSpy.mockRestore();
       });
-      beforeEach(() =>
-        (warnSpy = jest.spyOn(console, 'warn')).mockImplementation(() => {}),
-      );
+      beforeEach(() => {
+        (warnSpy = jest.spyOn(console, 'warn')).mockImplementation(() => {});
+      });
 
       it('should stop all timers', () => {
         dispatch.mockClear();

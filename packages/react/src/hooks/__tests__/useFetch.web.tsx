@@ -116,10 +116,10 @@ describe('useFetch', () => {
       initialState,
       dispatch,
     );
-    expect(dispatch).toBeCalledTimes(0);
+    expect(dispatch).toHaveBeenCalledTimes(0);
     params = payload;
     rerender();
-    expect(dispatch).toBeCalled();
+    expect(dispatch).toHaveBeenCalled();
   });
 
   it('should dispatch with resource defined dataExpiryLength', async () => {

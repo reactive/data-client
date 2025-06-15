@@ -36,7 +36,7 @@ import {
   editorPayload,
 } from '../test-fixtures';
 
-let errorspy: jest.SpyInstance;
+let errorspy: jest.Spied<any>;
 beforeEach(() => {
   errorspy = jest.spyOn(global.console, 'error').mockImplementation(() => {});
   jest.spyOn(global.console, 'warn').mockImplementation(() => {});
@@ -198,7 +198,7 @@ describe.each([
   });
 
   describe('renderDataClient()', () => {
-    let warnspy: jest.SpyInstance;
+    let warnspy: jest.Spied<any>;
     beforeEach(() => {
       warnspy = jest.spyOn(global.console, 'warn').mockImplementation(() => {});
     });
@@ -575,7 +575,7 @@ describe.each([
 
     await expect(
       result.current(CoolerArticleResource.get, { id: 666 }),
-    ).rejects.toThrowError('Unexpected end of JSON input');
+    ).rejects.toThrow('Unexpected end of JSON input');
   });
 
   it.each([

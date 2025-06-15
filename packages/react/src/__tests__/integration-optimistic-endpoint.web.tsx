@@ -1,7 +1,6 @@
 import { CacheProvider } from '@data-client/react';
 import { DataProvider as ExternalDataProvider } from '@data-client/react/redux';
 import { Endpoint, Entity } from '@data-client/rest';
-import { afterEach, jest } from '@jest/globals';
 import {
   OptimisticArticleResource,
   ArticleResourceWithOtherListUrl,
@@ -11,7 +10,6 @@ import {
   Article,
   VisSettingsResourceFromMixin,
 } from '__tests__/new';
-import { SpyInstance } from 'jest-mock';
 import nock from 'nock';
 import { useContext } from 'react';
 
@@ -739,7 +737,7 @@ describe.each([
     });
 
     describe('race conditions', () => {
-      let errorspy: SpyInstance<typeof global.console.error>;
+      let errorspy: jest.Spied<typeof global.console.error>;
       beforeEach(() => {
         errorspy = jest
           .spyOn(global.console, 'error')

@@ -17,8 +17,8 @@ import DataProvider from '../DataProvider';
 import { getDefaultManagers } from '../getDefaultManagers';
 
 describe('<DataProvider />', () => {
-  let warnspy: jest.SpyInstance;
-  let debugspy: jest.SpyInstance;
+  let warnspy: jest.Spied<any>;
+  let debugspy: jest.Spied<any>;
   beforeEach(() => {
     warnspy = jest.spyOn(global.console, 'warn').mockImplementation(() => {});
     debugspy = jest.spyOn(global.console, 'info').mockImplementation(() => {});

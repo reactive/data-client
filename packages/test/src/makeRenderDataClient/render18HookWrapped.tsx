@@ -99,19 +99,19 @@ export function render18Wrapper<
       value: async (options?: waitForOptions) => {
         const previousCurrent = ret.result.current;
         const isMockTimers =
-          typeof jest !== 'undefined' &&
+          typeof (globalThis as any).jest !== 'undefined' &&
           (setTimeout as any).clock != null &&
           typeof (setTimeout as any).clock.Date === 'function';
         if (isMockTimers) {
-          jest.runOnlyPendingTimers();
-          jest.useRealTimers();
+          (globalThis as any).jest.runOnlyPendingTimers();
+          (globalThis as any).jest.useRealTimers();
         }
         await waitFor(() => {
           if (!error && ret.result.current === previousCurrent) {
             throw new Error('timeout in waitForNextUpdate');
           }
         }, options);
-        if (isMockTimers) jest.useFakeTimers();
+        if (isMockTimers) (globalThis as any).jest.useFakeTimers();
       },
     },
   });

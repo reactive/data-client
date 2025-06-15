@@ -1,4 +1,3 @@
-// eslint-env jest
 import React, { version } from 'react';
 import { renderToString } from 'react-dom/server';
 
@@ -6,7 +5,7 @@ import BackupLoading from '../BackupLoading';
 import UniversalSuspense from '../UniversalSuspense';
 
 describe('<BackupBoundary />', () => {
-  let warnspy: jest.SpyInstance;
+  let warnspy: jest.Spied<any>;
   beforeEach(() => {
     warnspy = jest.spyOn(global.console, 'warn').mockImplementation(() => {});
   });

@@ -14,7 +14,6 @@ import {
   schema,
 } from '@data-client/endpoint';
 import { normalize } from '@data-client/normalizr';
-import { jest } from '@jest/globals';
 import { Temporal } from '@js-temporal/polyfill';
 import { render } from '@testing-library/react';
 import {
@@ -33,7 +32,6 @@ import {
   ArticleTimed,
 } from '__tests__/new';
 import { createEntityMeta } from '__tests__/utils';
-import { SpyInstance } from 'jest-mock';
 import nock from 'nock';
 import React, { Suspense } from 'react';
 
@@ -52,7 +50,7 @@ async function testDispatchFetch(
   Component: React.FunctionComponent<any>,
   payloads: any[],
 ) {
-  const dispatch = jest.fn<(value: ActionTypes) => Promise<void>>();
+  const dispatch = jest.fn((value: ActionTypes) => Promise.resolve());
   const controller = new Controller({ dispatch });
 
   const tree = (
@@ -193,7 +191,7 @@ describe('useSuspense()', () => {
       </StateContext.Provider>
     );
     const { getByText } = render(tree);
-    expect(fbmock).not.toBeCalled();
+    expect(fbmock).not.toHaveBeenCalled();
     const title = getByText(payload.title);
     expect(title).toBeDefined();
     expect(title.tagName).toBe('H3');
@@ -227,7 +225,7 @@ describe('useSuspense()', () => {
       </StateContext.Provider>
     );
     const { getByText } = render(tree);
-    expect(fbmock).not.toBeCalled();
+    expect(fbmock).not.toHaveBeenCalled();
     const title = getByText(payload.title);
     expect(title).toBeDefined();
     expect(title.tagName).toBe('H3');
@@ -259,7 +257,7 @@ describe('useSuspense()', () => {
       </StateContext.Provider>
     );
     const { getByText } = render(tree);
-    expect(fbmock).not.toBeCalled();
+    expect(fbmock).not.toHaveBeenCalled();
     const title = getByText(payload.title);
     expect(title).toBeDefined();
     expect(title.tagName).toBe('H3');
@@ -332,7 +330,7 @@ describe('useSuspense()', () => {
   });
 
   describe('errors', () => {
-    let errorspy: SpyInstance<typeof global.console.error>;
+    let errorspy: jest.Spied<typeof global.console.error>;
     beforeEach(() => {
       errorspy = jest
         .spyOn(global.console, 'error')

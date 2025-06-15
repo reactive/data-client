@@ -34,9 +34,9 @@ describe(`${schema.Values.name} normalization`, () => {
   afterEach(() => {
     warnSpy.mockRestore();
   });
-  beforeEach(() =>
-    (warnSpy = jest.spyOn(console, 'warn')).mockImplementation(() => {}),
-  );
+  beforeEach(() => {
+    (warnSpy = jest.spyOn(console, 'warn')).mockImplementation(() => {});
+  });
 
   test('normalizes without schemaAttribute', () => {
     class MyEntity extends IDEntity {

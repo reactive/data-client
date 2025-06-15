@@ -1,4 +1,5 @@
 // eslint-env jest
+import { jest, describe, beforeAll, afterAll, it, expect } from '@jest/globals';
 import { Temporal } from '@js-temporal/polyfill';
 import { IDEntity } from '__tests__/new';
 
@@ -6,7 +7,7 @@ import SimpleMemoCache from '../schemas/__tests__/denormalize';
 import Entity from '../schemas/Entity';
 import validateRequired from '../validateRequired';
 
-let dateSpy: jest.SpyInstance;
+let dateSpy: jest.Spied<any>;
 beforeAll(() => {
   dateSpy = jest
 

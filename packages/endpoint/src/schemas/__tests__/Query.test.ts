@@ -10,10 +10,9 @@ import { schema, DenormalizeNullable } from '../..';
 
 const { initialState } = __INTERNAL__;
 
-let dateSpy: jest.SpyInstance<number, []>;
+let dateSpy: jest.Spied<typeof global.Date.now>;
 beforeAll(() => {
   dateSpy = jest
-
     .spyOn(global.Date, 'now')
     .mockImplementation(() => new Date('2019-05-14T11:01:58.135Z').valueOf());
 });

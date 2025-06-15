@@ -103,7 +103,7 @@ describe.each([
     renderDataClient = makeRenderDataClient(makeProvider);
   });
 
-  let errorspy: jest.SpyInstance;
+  let errorspy: jest.Spied<any>;
   beforeEach(() => {
     errorspy = jest.spyOn(global.console, 'error').mockImplementation(() => {});
     jest.spyOn(global.console, 'warn').mockImplementation(() => {});
@@ -111,13 +111,13 @@ describe.each([
   afterEach(() => {
     errorspy.mockRestore();
   });
-  let warnSpy: jest.SpyInstance;
+  let warnSpy: jest.Spied<typeof console.warn>;
   afterEach(() => {
     warnSpy.mockRestore();
   });
-  beforeEach(() =>
-    (warnSpy = jest.spyOn(console, 'warn')).mockImplementation(() => {}),
-  );
+  beforeEach(() => {
+    (warnSpy = jest.spyOn(console, 'warn')).mockImplementation(() => {});
+  });
 
   it('should fetch', async () => {
     const { result } = renderDataClient(() => {

@@ -1,4 +1,3 @@
-// eslint-env jest
 import { normalize, INVALID } from '@data-client/normalizr';
 import { denormalize as plainDenormalize } from '@data-client/normalizr';
 import { denormalize as immDenormalize } from '@data-client/normalizr/imm';
@@ -10,7 +9,7 @@ import { AbstractInstanceType } from '../../';
 import { schema } from '../../';
 import Entity from '../Entity';
 
-let dateSpy: jest.SpyInstance;
+let dateSpy: jest.Spied<any>;
 beforeAll(() => {
   dateSpy = jest
 
@@ -49,13 +48,13 @@ class WithOptional extends Entity {
 }
 
 describe(`${Entity.name} normalization`, () => {
-  let warnSpy: jest.SpyInstance;
+  let warnSpy: jest.Spied<typeof console.warn>;
   afterEach(() => {
     warnSpy.mockRestore();
   });
-  beforeEach(() =>
-    (warnSpy = jest.spyOn(console, 'warn')).mockImplementation(() => {}),
-  );
+  beforeEach(() => {
+    (warnSpy = jest.spyOn(console, 'warn')).mockImplementation(() => {});
+  });
 
   test('normalizes an entity', () => {
     class MyEntity extends Entity {}

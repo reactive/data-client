@@ -7,7 +7,7 @@ import { Temporal } from '@js-temporal/polyfill';
 import { SimpleMemoCache, fromJSEntities } from './denormalize';
 import { schema, EntityMixin } from '../..';
 
-let dateSpy: jest.SpyInstance;
+let dateSpy: jest.Spied<any>;
 beforeAll(() => {
   dateSpy = jest
 
@@ -299,13 +299,13 @@ describe(`${schema.Entity.name} construction`, () => {
 });
 
 describe(`${schema.Entity.name} normalization`, () => {
-  let warnSpy: jest.SpyInstance;
+  let warnSpy: jest.Spied<typeof console.warn>;
   afterEach(() => {
     warnSpy.mockRestore();
   });
-  beforeEach(() =>
-    (warnSpy = jest.spyOn(console, 'warn')).mockImplementation(() => {}),
-  );
+  beforeEach(() => {
+    warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+  });
 
   test('normalizes an entity', () => {
     class MyEntity extends EntityMixin(IDData) {}

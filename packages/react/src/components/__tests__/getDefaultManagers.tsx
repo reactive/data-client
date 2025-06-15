@@ -1,4 +1,3 @@
-// eslint-env jest
 import {
   NetworkManager,
   SubscriptionManager,
@@ -8,8 +7,8 @@ import {
 import { getDefaultManagers } from '../getDefaultManagers';
 
 describe('getDefaultManagers()', () => {
-  let warnspy: jest.SpyInstance;
-  let debugspy: jest.SpyInstance;
+  let warnspy: jest.Spied<any>;
+  let debugspy: jest.Spied<any>;
   beforeEach(() => {
     warnspy = jest.spyOn(global.console, 'warn').mockImplementation(() => {});
     debugspy = jest.spyOn(global.console, 'info').mockImplementation(() => {});
@@ -19,13 +18,13 @@ describe('getDefaultManagers()', () => {
     debugspy.mockRestore();
   });
 
-  let errorSpy: jest.SpyInstance;
+  let errorSpy: jest.Spied<typeof console.error>;
   afterEach(() => {
     errorSpy.mockRestore();
   });
-  beforeEach(
-    () => (errorSpy = jest.spyOn(console, 'error').mockImplementation()),
-  );
+  beforeEach(() => {
+    errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {}); // Suppress console.error
+  });
   it('should have SubscriptionManager in default managers', () => {
     const subManagers = getDefaultManagers().find(
       manager => manager instanceof SubscriptionManager,
