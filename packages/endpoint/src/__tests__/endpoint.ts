@@ -79,13 +79,13 @@ describe.each([true, false])(`Endpoint (CSP %s)`, mockCSP => {
   });
 
   describe('Function', () => {
-    let errorSpy: jest.SpyInstance;
+    let errorSpy: jest.Spied<typeof console.error>;
     afterEach(() => {
       errorSpy.mockRestore();
     });
-    beforeEach(
-      () => (errorSpy = jest.spyOn(console, 'error').mockImplementation()),
-    );
+    beforeEach(() => {
+      errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {}); // Suppress console.error
+    });
 
     it('should work when called as function', async () => {
       const UserDetail = new Endpoint(fetchUsers);

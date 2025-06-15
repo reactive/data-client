@@ -126,10 +126,10 @@ describe('useFetch', () => {
       initialState,
       dispatch,
     );
-    expect(dispatch).toBeCalledTimes(0);
+    expect(dispatch).toHaveBeenCalledTimes(0);
     params = payload;
     rerender();
-    expect(dispatch).toBeCalled();
+    expect(dispatch).toHaveBeenCalled();
   });
 
   it('should dispatch with resource defined dataExpiryLength', async () => {
@@ -247,7 +247,7 @@ describe('useFetch', () => {
     it('should NOT suspend even when result is stale and options.invalidIfStale is false', () => {
       dispatch.mockClear();
       const { getByText, getByTestId } = render(tree);
-      expect(fbmock).not.toBeCalled();
+      expect(fbmock).not.toHaveBeenCalled();
       // still should revalidate
       expect(dispatch.mock.calls.length).toBe(1);
     });
@@ -256,7 +256,7 @@ describe('useFetch', () => {
       dispatch.mockClear();
 
       const { getByText, getByTestId } = render(tree);
-      expect(fbmock).not.toBeCalled();
+      expect(fbmock).not.toHaveBeenCalled();
       await new Promise(resolve =>
         InteractionManager.runAfterInteractions(() => {
           resolve(null);

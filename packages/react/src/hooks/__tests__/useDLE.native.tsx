@@ -143,10 +143,10 @@ describe('useDLE', () => {
       initialState,
       dispatch,
     );
-    expect(dispatch).toBeCalledTimes(0);
+    expect(dispatch).toHaveBeenCalledTimes(0);
     params = payload;
     rerender();
-    expect(dispatch).toBeCalled();
+    expect(dispatch).toHaveBeenCalled();
   });
 
   it('should dispatch with resource defined dataExpiryLength', async () => {
@@ -261,7 +261,7 @@ describe('useDLE', () => {
     it('should NOT enter loading state even when result is stale and options.invalidIfStale is false', () => {
       dispatch.mockClear();
       const { getByText, getByTestId } = render(tree);
-      expect(fbmock).not.toBeCalled();
+      expect(fbmock).not.toHaveBeenCalled();
       const title = getByText(payload.title);
       expect(title).toBeDefined();
       // still should revalidate
@@ -272,7 +272,7 @@ describe('useDLE', () => {
       dispatch.mockClear();
 
       const { getByText, getByTestId } = render(tree);
-      expect(fbmock).not.toBeCalled();
+      expect(fbmock).not.toHaveBeenCalled();
       await new Promise(resolve =>
         InteractionManager.runAfterInteractions(() => {
           resolve(null);

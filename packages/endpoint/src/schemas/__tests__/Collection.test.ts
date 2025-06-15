@@ -9,7 +9,7 @@ import { PolymorphicInterface } from '../..';
 import { schema } from '../..';
 import PolymorphicSchema from '../Polymorphic';
 
-let dateSpy: jest.SpyInstance;
+let dateSpy: jest.Spied<any>;
 beforeAll(() => {
   dateSpy = jest
     .spyOn(global.Date, 'now')
@@ -91,13 +91,13 @@ test('key works with custom schema', () => {
 });
 
 describe(`${schema.Collection.name} normalization`, () => {
-  let warnSpy: jest.SpyInstance;
+  let warnSpy: jest.Spied<typeof console.warn>;
   afterEach(() => {
     warnSpy.mockRestore();
   });
-  beforeEach(() =>
-    (warnSpy = jest.spyOn(console, 'warn')).mockImplementation(() => {}),
-  );
+  beforeEach(() => {
+    (warnSpy = jest.spyOn(console, 'warn')).mockImplementation(() => {});
+  });
 
   test('should throw a custom error if data loads with string unexpected value', () => {
     function normalizeBad() {

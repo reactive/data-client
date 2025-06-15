@@ -28,7 +28,6 @@ import {
   ArticleTimed,
 } from '__tests__/new';
 import { createEntityMeta } from '__tests__/utils';
-import { SpyInstance } from 'jest-mock';
 import nock from 'nock';
 import React, { Suspense } from 'react';
 import { Text, View } from 'react-native';
@@ -49,7 +48,7 @@ async function testDispatchFetch(
   Component: React.FunctionComponent<any>,
   payloads: any[],
 ) {
-  const dispatch = jest.fn<(value: ActionTypes) => Promise<void>>();
+  const dispatch = jest.fn((value: ActionTypes) => Promise.resolve());
   const controller = new Controller({ dispatch });
 
   const tree = (
@@ -200,7 +199,7 @@ describe('useSuspense()', () => {
       </StateContext.Provider>
     );
     const { getByText } = render(tree);
-    expect(fbmock).not.toBeCalled();
+    expect(fbmock).not.toHaveBeenCalled();
     const title = getByText(payload.title);
     expect(title).toBeDefined();
   });
@@ -256,7 +255,7 @@ describe('useSuspense()', () => {
     it('should NOT suspend even when result is stale and options.invalidIfStale is false', () => {
       dispatch.mockClear();
       const { getByText, getByTestId } = render(tree);
-      expect(fbmock).not.toBeCalled();
+      expect(fbmock).not.toHaveBeenCalled();
       const title = getByText(payload.title);
       expect(title).toBeDefined();
       // still should revalidate
@@ -267,7 +266,7 @@ describe('useSuspense()', () => {
       dispatch.mockClear();
 
       const { getByText, getByTestId } = render(tree);
-      expect(fbmock).not.toBeCalled();
+      expect(fbmock).not.toHaveBeenCalled();
       await new Promise(resolve =>
         InteractionManager.runAfterInteractions(() => {
           resolve(null);
@@ -317,7 +316,7 @@ describe('useSuspense()', () => {
       </StateContext.Provider>
     );
     const { getByText } = render(tree);
-    expect(fbmock).not.toBeCalled();
+    expect(fbmock).not.toHaveBeenCalled();
     const title = getByText(payload.title);
     expect(title).toBeDefined();
   });
@@ -389,7 +388,7 @@ describe('useSuspense()', () => {
   });
 
   describe('errors', () => {
-    let errorspy: SpyInstance<typeof global.console.error>;
+    let errorspy: jest.Spied<typeof global.console.error>;
     beforeEach(() => {
       errorspy = jest
         .spyOn(global.console, 'error')

@@ -72,13 +72,13 @@ describe('endpoint types', () => {
       nock.cleanAll();
     });
 
-    let errorSpy: jest.SpyInstance;
+    let errorSpy: jest.Spied<typeof console.error>;
     afterEach(() => {
       errorSpy.mockRestore();
     });
-    beforeEach(
-      () => (errorSpy = jest.spyOn(console, 'error').mockImplementation()),
-    );
+    beforeEach(() => {
+      errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {}); // Suppress console.error
+    });
 
     it('should pass with exact params', async () => {
       const { result, waitForNextUpdate } = renderDataClient(() => {

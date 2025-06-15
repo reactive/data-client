@@ -638,7 +638,7 @@ describe('reducer', () => {
     expect(newState).toBe(iniState);
   });
   describe('RESET', () => {
-    let warnspy: jest.SpyInstance;
+    let warnspy: jest.Spied<any>;
     beforeEach(() => {
       warnspy = jest.spyOn(global.console, 'warn').mockImplementation(() => {});
     });

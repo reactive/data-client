@@ -13,7 +13,7 @@ import SimpleMemoCache, { fromJSEntities } from './denormalize';
 import { schema } from '../..';
 import Entity from '../Entity';
 
-let dateSpy: jest.SpyInstance;
+let dateSpy: jest.Spied<any>;
 beforeAll(() => {
   dateSpy = jest
     .spyOn(global.Date, 'now')

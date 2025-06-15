@@ -5,7 +5,7 @@ import { renderToString } from 'react-dom/server';
 import DataProvider from '../DataProvider';
 
 describe('<DataProvider />', () => {
-  let warnspy: jest.SpyInstance;
+  let warnspy: jest.Spied<any>;
   beforeEach(() => {
     warnspy = jest.spyOn(global.console, 'warn').mockImplementation(() => {});
   });

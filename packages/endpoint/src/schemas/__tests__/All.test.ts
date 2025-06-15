@@ -1,4 +1,3 @@
-// eslint-env jest
 import { initialState, State, Controller } from '@data-client/core';
 import {
   normalize,
@@ -16,7 +15,7 @@ import { IDEntity } from '__tests__/new';
 import { schema } from '../..';
 import { fromJSState } from './denormalize';
 
-let dateSpy: jest.SpyInstance<number, []>;
+let dateSpy: jest.Spied<typeof Date.now>;
 beforeAll(() => {
   dateSpy = jest
 
