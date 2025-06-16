@@ -118,9 +118,9 @@ jobs:
           name: Running Jest
           command: |
             if [ "<< parameters.react-version >>" == "^17" ]; then
-              yarn test:ci --maxWorkers=3 --selectProjects ReactDOM --testPathPattern packages/react packages/use-enhanced-reducer packages/img
+              yarn test:ci --maxWorkers=3 --selectProjects ReactDOM --testPathPatterns packages/react packages/use-enhanced-reducer packages/img
             elif [ "<< parameters.react-version >>" == "^18" ]; then
-              yarn test:ci --maxWorkers=4 --selectProjects ReactDOM --testPathPattern packages/react packages/use-enhanced-reducer packages/img
+              yarn test:ci --maxWorkers=4 --selectProjects ReactDOM --testPathPatterns packages/react packages/use-enhanced-reducer packages/img
             elif [ "<< parameters.react-version >>" == "native" ]; then
               yarn test:ci --maxWorkers=4 --selectProjects ReactNative
             else

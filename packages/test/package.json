@@ -157,7 +157,7 @@
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",
     "@data-client/react": "workspace:*",
-    "@types/jest": "^29.5.0",
+    "@types/jest": "30.0.0",
     "@types/node": "^22.0.0",
     "@types/react": "19.1.8",
     "@types/react-dom": "19.1.6",
