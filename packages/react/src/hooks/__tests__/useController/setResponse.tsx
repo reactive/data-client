@@ -1,5 +1,5 @@
 import { CacheProvider } from '@data-client/react';
-import { FixtureEndpoint } from '@data-client/test';
+import { act, FixtureEndpoint } from '@data-client/test';
 import { CoolerArticle, FutureArticleResource } from '__tests__/new';
 import nock from 'nock';
 
@@ -116,7 +116,9 @@ describe('setResponse', () => {
     expect(result.current.data).toBeUndefined();
     const error = new Error('hi');
     const ep = FutureArticleResource.get;
-    await result.current.setError(ep, 5, error);
+    act(() => {
+      result.current.setError(ep, 5, error);
+    });
     expect(result.current.data).toBeUndefined();
     expect(result.current.err).toBeDefined();
     expect(result.current.err).toBe(error);

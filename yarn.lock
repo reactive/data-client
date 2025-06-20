@@ -21859,7 +21859,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-fetch@npm:^3.3.0, node-fetch@npm:^3.3.2":
+"node-fetch@npm:^3.3.2":
   version: 3.3.2
   resolution: "node-fetch@npm:3.3.2"
   dependencies:
@@ -27072,7 +27072,6 @@ __metadata:
     jest-environment-jsdom: "npm:^30.0.0"
     mkdirp: "npm:^3.0.0"
     nock: "npm:13.3.1"
-    node-fetch: "npm:^3.3.0"
     npm-run-all: "npm:^4.1.5"
     prettier: "npm:3.5.3"
     react: "npm:19.1.0"

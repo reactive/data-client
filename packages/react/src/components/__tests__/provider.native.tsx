@@ -5,9 +5,9 @@ import {
   Controller,
   SetResponseAction,
 } from '@data-client/core';
+import { MockResolver } from '@data-client/test';
 import { act, render, screen } from '@testing-library/react-native';
 import { CoolerArticleResource } from '__tests__/new';
-import nock from 'nock';
 import React, { useContext, Suspense } from 'react';
 import { Text } from 'react-native';
 
@@ -29,24 +29,6 @@ describe('<DataProvider />', () => {
       screen.unmount();
       // eslint-disable-next-line no-empty
     } catch (e) {}
-  });
-
-  beforeAll(() => {
-    nock(/.*/)
-      .persist()
-      .defaultReplyHeaders({
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Access-Token',
-        'Content-Type': 'application/json',
-      })
-      .options(/.*/)
-      .reply(200)
-      .get(`/article-cooler/${payload.id}`)
-      .reply(200, payload);
-  });
-
-  afterAll(() => {
-    nock.cleanAll();
   });
 
   it('should warn users about missing Suspense', () => {
@@ -73,9 +55,19 @@ describe('<DataProvider />', () => {
     };
     const tree = (
       <DataProvider>
-        <Suspense fallback={<Text>loading</Text>}>
-          <Component />
-        </Suspense>
+        <MockResolver
+          fixtures={[
+            {
+              endpoint: CoolerArticleResource.get,
+              args: [{ id: 5 }],
+              response: payload,
+            },
+          ]}
+        >
+          <Suspense fallback={<Text>loading</Text>}>
+            <Component />
+          </Suspense>
+        </MockResolver>
       </DataProvider>
     );
     const { getByText, unmount } = render(tree);

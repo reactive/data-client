@@ -257,7 +257,7 @@ export const ArticleSlugResource = createArticleResource({
 
 export const AuthContext = createContext('');
 
-const ContextAuthdArticleResourceBase = resource({
+export const ContextAuthdArticleResourceBase = resource({
   path: 'http\\://test.com/article/:id',
   schema: Article,
 });
