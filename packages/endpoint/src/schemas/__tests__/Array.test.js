@@ -94,6 +94,7 @@ describe.each([
 
   describe('Class', () => {
     class Cats extends IDEntity {}
+    class Dogs extends IDEntity {}
     test('normalizes a single entity', () => {
       const listSchema = createSchema(Cats);
       expect(
@@ -108,6 +109,7 @@ describe.each([
         {
           Cat: Cats,
           people: Person,
+          dogs: Dogs,
         },
         inferSchemaFn,
       );
@@ -121,6 +123,31 @@ describe.each([
         ]),
       ).toMatchSnapshot();
       expect(inferSchemaFn.mock.calls).toMatchSnapshot();
+    });
+
+    test('normalizes multiple entities warning when type is not found', () => {
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+      const inferSchemaFn = jest.fn(input => input.type || 'dogs');
+      class Person extends IDEntity {}
+      const listSchema = new schema.Array(
+        {
+          Cat: Cats,
+          people: Person,
+        },
+        inferSchemaFn,
+      );
+
+      expect(
+        normalize(listSchema, [
+          { type: 'Cat', id: '123' },
+          { type: 'people', id: '123' },
+          { type: 'not found', id: '789' },
+          { type: 'Cat', id: '456' },
+        ]),
+      ).toMatchSnapshot();
+      expect(inferSchemaFn.mock.calls).toMatchSnapshot();
+      expect(warnSpy.mock.calls).toMatchSnapshot();
+      warnSpy.mockRestore();
     });
 
     test('normalizes Objects using their values', () => {

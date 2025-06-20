@@ -394,6 +394,8 @@ describe('PollingSubscription', () => {
     });
 
     it('should not run when timeoutId is deleted after coming online', () => {
+      // Silence console.warn for this test
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
       const listener = new MockConnectionListener(false);
       const { dispatch, pollingSubscription } = createMocks(listener);
       expect(dispatch.mock.calls.length).toBe(0);
@@ -406,6 +408,8 @@ describe('PollingSubscription', () => {
       expect(dispatch.mock.calls.length).toBe(0);
       expect(listener.offlineHandlers.length).toBe(1);
       expect(listener.onlineHandlers.length).toBe(0);
+      expect(warnSpy.mock.calls.length).toBe(1);
+      warnSpy.mockRestore();
     });
 
     it('should stop dispatching when offline again', () => {

@@ -5,14 +5,17 @@ import { ReactElement } from 'react';
 import ErrorBoundary from '../ErrorBoundary';
 
 describe('<ErrorBoundary />', () => {
+  let errorSpy: jest.SpyInstance;
   function onError(e: any) {
     e.preventDefault();
   }
   beforeEach(() => {
+    errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     if (typeof addEventListener === 'function')
       addEventListener('error', onError);
   });
   afterEach(() => {
+    errorSpy.mockRestore();
     if (typeof removeEventListener === 'function')
       removeEventListener('error', onError);
   });
@@ -23,8 +26,6 @@ describe('<ErrorBoundary />', () => {
     expect(getByText(/hi/i)).not.toBeNull();
   });
   it('should catch non-network errors', () => {
-    const originalError = console.error;
-    console.error = jest.fn();
     let renderCount = 0;
     function Throw(): ReactElement {
       renderCount++;
@@ -38,7 +39,6 @@ describe('<ErrorBoundary />', () => {
     );
     const { getByText } = render(tree);
     expect(getByText(/you failed/i)).toBeDefined();
-    console.error = originalError;
     expect(renderCount).toBeLessThan(10);
   });
   it('should render error case when thrown', () => {

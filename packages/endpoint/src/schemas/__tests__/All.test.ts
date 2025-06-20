@@ -18,7 +18,6 @@ import { fromJSState } from './denormalize';
 let dateSpy: jest.Spied<typeof Date.now>;
 beforeAll(() => {
   dateSpy = jest
-
     .spyOn(global.Date, 'now')
     .mockImplementation(() => new Date('2019-05-14T11:01:58.135Z').valueOf());
 });
@@ -65,6 +64,7 @@ describe.each([[]])(`${schema.All.name} normalization (%s)`, () => {
     });
 
     test('normalizes multiple entities', () => {
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
       const inferSchemaFn = jest.fn(input => input.type || 'dogs');
       class Person extends IDEntity {}
       const listSchema = new schema.All(
@@ -84,6 +84,8 @@ describe.each([[]])(`${schema.All.name} normalization (%s)`, () => {
       expect(result).toBeUndefined();
       expect(entities).toMatchSnapshot();
       expect(inferSchemaFn.mock.calls).toMatchSnapshot();
+      expect(warnSpy.mock.calls).toMatchSnapshot();
+      warnSpy.mockRestore();
     });
 
     test('normalizes Objects using their values', () => {

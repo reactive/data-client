@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`useQuery() should retrieve a nested collection 1`] = `
 [
@@ -41,6 +41,21 @@ exports[`useQuery() should select Collections 1`] = `
     "tags": [],
     "title": "the next time",
   },
+]
+`;
+
+exports[`useQuery() should work with unions 1`] = `
+[
+  [
+    "Schema attribute "another" is not expected.
+Expected one of: "first", "second"
+
+Value: {
+  "id": "6",
+  "body": "hi",
+  "type": "another"
+}",
+  ],
 ]
 `;
 

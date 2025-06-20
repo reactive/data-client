@@ -150,6 +150,7 @@ describe('resetEntireStore', () => {
      *    promises still reject so external listeners know (abort signals do this as well)
      */
     it('should not set fetches that started before RESET', async () => {
+      const consoleSpy = jest.spyOn(console, 'log');
       const detail: FixtureEndpoint = {
         endpoint: CoolerArticleDetail,
         args: [{ id: 9999 }],
@@ -189,6 +190,16 @@ describe('resetEntireStore', () => {
 
       // should still not be resolved as we aren't useSuspense() and didn't manually fetch
       expect(result.current?.title).not.toEqual('latest and greatest title');
+
+      expect(consoleSpy.mock.calls).toMatchInlineSnapshot(`
+       [
+         [
+           "...",
+           [ResetError: Aborted due to RESET],
+         ],
+       ]
+      `);
+      consoleSpy.mockRestore();
     });
 
     /**
