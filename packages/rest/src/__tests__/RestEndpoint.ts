@@ -1341,10 +1341,7 @@ describe('RestEndpoint.fetch()', () => {
       error = e;
     }
     expect(error).toBeDefined();
-    // This is very weird, but we're forced to use node-fetch for react native
-    // node-fetch doesn't handle errors consistently with normal fetch implementations, so this won't work
-    // react-native itself should match this correctly however.
-    if (typeof window !== 'undefined') expect(error.status).toBe(400);
+    expect(error.status).toBe(400);
   });
 
   it('should throw if network is down', async () => {

@@ -41,11 +41,9 @@ describe.each([
       new schema.Object({ results: new schema.Collection([User]) }),
     ],
   ] as const;
-  if (_ === 'immutable') {
-    delete (SCHEMA_CASES as any)[1];
-  }
 
-  describe.each(SCHEMA_CASES)(
+  // TODO: once full immutable support is added, remove this
+  describe.each(_ === 'immutable' ? SCHEMA_CASES.slice(0, 1) : SCHEMA_CASES)(
     `${schema.Query.name} denormalization (%s schema)`,
     (_, usersSchema) => {
       const sortedUsers = new schema.Query(
@@ -80,7 +78,7 @@ describe.each([
           new MemoCache(MyDelegate).query(sortedUsers, [], state).data;
         expect(users).not.toEqual(expect.any(Symbol));
         if (typeof users === 'symbol') return;
-        expect(users && users[0].name).toBe('Zeta');
+        expect(users?.[0]?.name).toBe('Zeta');
         expect(users).toMatchSnapshot();
       });
 

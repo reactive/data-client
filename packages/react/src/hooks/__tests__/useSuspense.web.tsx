@@ -31,6 +31,7 @@ import {
   PaginatedArticle,
   FutureArticleResource,
   ArticleTimed,
+  ContextAuthdArticleResourceBase,
 } from '__tests__/new';
 import { createEntityMeta } from '__tests__/utils';
 import nock from 'nock';
@@ -589,26 +590,6 @@ describe('useSuspense()', () => {
   });
 
   describe('context authentication', () => {
-    beforeAll(() => {
-      const mynock = nock(/.*/)
-        .persist()
-        .defaultReplyHeaders({
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Headers': 'Access-Token',
-          'Content-Type': 'application/json',
-        })
-        .options(/.*/)
-        .reply(200);
-
-      mynock
-        .get(`/article/${payload.id}`)
-        .matchHeader('access-token', '')
-        .reply(200, { ...payload, title: 'unauthorized' })
-        .get(`/article/${payload.id}`)
-        .matchHeader('access-token', 'thepassword')
-        .reply(200, payload);
-    });
-
     it('should use latest context when making requests', async () => {
       const consoleSpy = jest.spyOn(console, 'error');
       const wrapper = ({
@@ -634,6 +615,17 @@ describe('useSuspense()', () => {
         {
           wrapper,
           initialProps: { authToken: '' },
+          resolverFixtures: [
+            {
+              endpoint: ContextAuthdArticleResourceBase.get,
+              fetchResponse(input, init) {
+                if ((init.headers as any)?.['Access-Token'] === 'thepassword') {
+                  return payload;
+                }
+                return { ...payload, title: 'unauthorized' };
+              },
+            },
+          ],
         },
       );
       // undefined means it threw (suspended)

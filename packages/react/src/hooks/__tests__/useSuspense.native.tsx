@@ -8,7 +8,12 @@ import {
 import { FetchAction } from '@data-client/core';
 import { Endpoint, FetchFunction, ReadEndpoint } from '@data-client/endpoint';
 import { normalize } from '@data-client/normalizr';
-import { makeRenderDataClient, mockInitialState } from '@data-client/test';
+import {
+  Fixture,
+  makeRenderDataClient,
+  mockInitialState,
+  MockResolver,
+} from '@data-client/test';
 import { jest } from '@jest/globals';
 import { Temporal } from '@js-temporal/polyfill';
 import { NavigationContainer } from '@react-navigation/native';
@@ -26,6 +31,7 @@ import {
   PaginatedArticle,
   FutureArticleResource,
   ArticleTimed,
+  ContextAuthdArticleResourceBase,
 } from '__tests__/new';
 import { createEntityMeta } from '__tests__/utils';
 import nock from 'nock';
@@ -107,21 +113,18 @@ describe('useSuspense()', () => {
     payload: any,
     endpoint: ReadEndpoint<FetchFunction, any> = CoolerArticleResource.get,
   ) {
-    nock(/.*/)
-      .persist()
-      .defaultReplyHeaders({
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': '*',
-        'Content-Type': 'application/json',
-      })
-      .get(`/article-cooler/400`)
-      .reply(200, payload);
-
-    const { result, waitForNextUpdate } = renderDataClient(() => {
-      return useSuspense(endpoint, {
-        id: 400,
-      });
-    });
+    const { result, waitForNextUpdate } = renderDataClient(
+      () => {
+        return useSuspense(endpoint, {
+          id: 400,
+        });
+      },
+      {
+        resolverFixtures: [
+          { endpoint, args: [{ id: 400 }], response: payload },
+        ],
+      },
+    );
     expect(result.current).toBeUndefined();
     await waitForNextUpdate();
     expect(result.error).toBeDefined();
@@ -398,6 +401,19 @@ describe('useSuspense()', () => {
       errorspy.mockRestore();
     });
 
+    const fixtures: Fixture[] = [
+      {
+        endpoint: CoolerArticleResource.get,
+        args: [{ id: payload.id }],
+        response: payload,
+      },
+      {
+        endpoint: InvalidIfStaleArticleResource.get,
+        args: [{ id: payload.id }],
+        response: payload,
+      },
+    ];
+
     it('should console.error when lastReset is NaN', async () => {
       const state: State<unknown> = {
         ...initialState,
@@ -406,9 +422,11 @@ describe('useSuspense()', () => {
 
       const tree = (
         <CacheProvider initialState={state}>
-          <Suspense fallback={<Fallback />}>
-            <ArticleComponentTester />
-          </Suspense>
+          <MockResolver fixtures={fixtures}>
+            <Suspense fallback={<Fallback />}>
+              <ArticleComponentTester />
+            </Suspense>
+          </MockResolver>
         </CacheProvider>
       );
       const { findAllByText } = render(tree);
@@ -429,11 +447,29 @@ describe('useSuspense()', () => {
 
     // taken from integration
     it('should throw errors on bad network', async () => {
-      const { result, waitForNextUpdate } = renderDataClient(() => {
-        return useSuspense(CoolerArticleResource.get, {
-          id: '0',
-        });
-      });
+      const { result, waitForNextUpdate } = renderDataClient(
+        () => {
+          return useSuspense(CoolerArticleResource.get, {
+            id: '0',
+          });
+        },
+        {
+          resolverFixtures: [
+            {
+              endpoint: CoolerArticleResource.get,
+              args: [{ id: '0' }],
+              error: true,
+              response: {
+                status: 403,
+                statusText: 'Forbidden',
+                data: {
+                  message: 'You are not allowed to access this resource.',
+                },
+              },
+            },
+          ],
+        },
+      );
       expect(result.current).toBeUndefined();
       await waitForNextUpdate();
       expect(result.error).toBeDefined();
@@ -525,9 +561,20 @@ describe('useSuspense()', () => {
 
   it('should suspend with no params to useSuspense()', async () => {
     const List = CoolerArticleResource.getList;
-    const { result, waitForNextUpdate } = renderDataClient(() => {
-      return useSuspense(List);
-    });
+    const { result, waitForNextUpdate } = renderDataClient(
+      () => {
+        return useSuspense(List);
+      },
+      {
+        resolverFixtures: [
+          {
+            endpoint: List,
+            args: [],
+            response: nested,
+          },
+        ],
+      },
+    );
     expect(result.current).toBeUndefined();
     await waitForNextUpdate();
     expect(result.current.length).toEqual(nested.length);
@@ -540,9 +587,20 @@ describe('useSuspense()', () => {
 
   it('should read with id params Endpoint', async () => {
     const Detail = FutureArticleResource.get;
-    const { result, waitForNextUpdate } = renderDataClient(() => {
-      return useSuspense(Detail, 5);
-    });
+    const { result, waitForNextUpdate } = renderDataClient(
+      () => {
+        return useSuspense(Detail, 5);
+      },
+      {
+        resolverFixtures: [
+          {
+            endpoint: Detail,
+            args: [5],
+            response: payload,
+          },
+        ],
+      },
+    );
     expect(result.current).toBeUndefined();
     await waitForNextUpdate();
     expect(result.current).toEqual(CoolerArticle.fromJS(payload));
@@ -560,13 +618,20 @@ describe('useSuspense()', () => {
   it('should work with endpoints with no entities', async () => {
     const userId = '5';
     const response = { firstThing: '', someItems: [{ a: 5 }] };
-    nock(/.*/)
-      .defaultReplyHeaders({ 'access-control-allow-origin': '*' })
-      .get(`/users/${userId}/simple`)
-      .reply(200, response);
-    const { result, waitForNextUpdate } = renderDataClient(() => {
-      return useSuspense(GetNoEntities, { userId });
-    });
+    const { result, waitForNextUpdate } = renderDataClient(
+      () => {
+        return useSuspense(GetNoEntities, { userId });
+      },
+      {
+        resolverFixtures: [
+          {
+            endpoint: GetNoEntities,
+            args: [{ userId }],
+            response,
+          },
+        ],
+      },
+    );
     // undefined means it threw
     expect(result.current).toBeUndefined();
     await waitForNextUpdate();
@@ -574,9 +639,20 @@ describe('useSuspense()', () => {
   });
 
   it('should work with Serializable shapes', async () => {
-    const { result, waitForNextUpdate } = renderDataClient(() => {
-      return useSuspense(ArticleTimedResource.get, { id: payload.id });
-    });
+    const { result, waitForNextUpdate } = renderDataClient(
+      () => {
+        return useSuspense(ArticleTimedResource.get, { id: payload.id });
+      },
+      {
+        resolverFixtures: [
+          {
+            endpoint: ArticleTimedResource.get,
+            args: [{ id: payload.id }],
+            response: { ...payload, createdAt: '2020-06-07T02:00:15+0000' },
+          },
+        ],
+      },
+    );
     // undefined means it threw
     expect(result.current).toBeUndefined();
     await waitForNextUpdate();
@@ -612,26 +688,6 @@ describe('useSuspense()', () => {
   });
 
   describe('context authentication', () => {
-    beforeAll(() => {
-      const mynock = nock(/.*/)
-        .persist()
-        .defaultReplyHeaders({
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Headers': 'Access-Token',
-          'Content-Type': 'application/json',
-        })
-        .options(/.*/)
-        .reply(200);
-
-      mynock
-        .get(`/article/${payload.id}`)
-        .matchHeader('access-token', '')
-        .reply(200, { ...payload, title: 'unauthorized' })
-        .get(`/article/${payload.id}`)
-        .matchHeader('access-token', 'thepassword')
-        .reply(200, payload);
-    });
-
     it('should use latest context when making requests', async () => {
       const consoleSpy = jest.spyOn(console, 'error');
       const wrapper = ({
@@ -644,30 +700,44 @@ describe('useSuspense()', () => {
           {children}
         </AuthContext.Provider>
       );
-      const { result, waitForNextUpdate, rerender } = renderDataClient(
-        () => {
-          return {
-            data: useSuspense(ContextAuthdArticleResource.useGet(), {
-              id: payload.id,
-            }),
-            controller: useController(),
-            endpoint: ContextAuthdArticleResource.useGet(),
-          };
-        },
-        {
-          wrapper,
-          initialProps: { authToken: '' },
-        },
-      );
+      const { result, controller, waitForNextUpdate, rerender } =
+        renderDataClient(
+          () => {
+            return {
+              data: useSuspense(ContextAuthdArticleResource.useGet(), {
+                id: payload.id,
+              }),
+              endpoint: ContextAuthdArticleResource.useGet(),
+            };
+          },
+          {
+            wrapper,
+            initialProps: { authToken: '' },
+            resolverFixtures: [
+              {
+                endpoint: ContextAuthdArticleResourceBase.get,
+                fetchResponse(input, init) {
+                  if (
+                    (init.headers as any)?.['Access-Token'] === 'thepassword'
+                  ) {
+                    return payload;
+                  }
+                  return { ...payload, title: 'unauthorized' };
+                },
+              },
+            ],
+          },
+        );
       // undefined means it threw (suspended)
       expect(result.current).toBeUndefined();
       await waitForNextUpdate();
+      // should only happen if nock doesn't work
+      expect(result.error).toBeUndefined();
       expect(result.current.data.title).toBe('unauthorized');
       rerender({ authToken: 'thepassword' });
-      const data = await result.current.controller.fetch(
-        result.current.endpoint,
-        { id: payload.id },
-      );
+      const data = await controller.fetch(result.current.endpoint, {
+        id: payload.id,
+      });
       expect(data).toEqual(result.current.endpoint.schema.fromJS(payload));
       expect(result.current.data.title).toEqual(payload.title);
       // ensure we don't violate call-order changes

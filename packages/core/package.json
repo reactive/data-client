@@ -131,7 +131,7 @@
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",
     "@data-client/endpoint": "workspace:*",
-    "@types/jest": "^29.5.14",
+    "@types/jest": "30.0.0",
     "@types/node": "^22.0.0",
     "rollup-plugins": "workspace:*"
   }
