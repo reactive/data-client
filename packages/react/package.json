@@ -190,7 +190,7 @@
     "@anansi/browserslist-config": "^1.4.2",
     "@data-client/rest": "workspace:*",
     "@data-client/test": "workspace:*",
-    "@jest/globals": "^29.7.0",
+    "@jest/globals": "^30.0.0",
     "@js-temporal/polyfill": "^0.5.0",
     "@react-navigation/native": "^7.0.0",
     "@react-navigation/native-stack": "^7.2.0",
