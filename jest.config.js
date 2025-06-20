@@ -2,6 +2,9 @@ process.env.ANANSI_JEST_BABELCONFIG = 'babel.config.js';
 process.env.ANANSI_JEST_TSCONFIG = 'tsconfig.test.json';
 
 const baseConfig = {
+  testEnvironmentOptions: {
+    globalsCleanup: 'on',
+  },
   preset: '@anansi/jest-preset',
   moduleFileExtensions: [
     'ts',

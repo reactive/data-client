@@ -156,7 +156,7 @@ jobs:
       - run:
           # we must use npm because yarn 4 isn't compatible with legacy node versions
           command: |
-            ANANSI_JEST_TYPECHECK=false yarn test --ci --maxWorkers=2 --selectProjects Node
+            ANANSI_JEST_TYPECHECK=false yarn test --ci --selectProjects Node
 
   setup-esmodule-types:
     executor: node
