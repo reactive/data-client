@@ -210,18 +210,25 @@ describe('createEnhancedReducerHook', () => {
   });
 
   it('warns when dispatching during middleware setup', () => {
-    function dispatchingMiddleware({
-      dispatch,
-    }: {
-      dispatch: (...args: any) => any;
-    }) {
-      dispatch({ type: 'dispatch', payload: 5 });
-      return (next: (...args: any) => any) => (action: any) => next(action);
+    const consoleErrorSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+    try {
+      function dispatchingMiddleware({
+        dispatch,
+      }: {
+        dispatch: (...args: any) => any;
+      }) {
+        dispatch({ type: 'dispatch', payload: 5 });
+        return (next: (...args: any) => any) => (action: any) => next(action);
+      }
+      const { result } = renderHook(() => {
+        useEnhancedReducer(state => state, {}, [dispatchingMiddleware]);
+      });
+      expect(result.error).toBeDefined();
+      expect(result.error?.message).toMatchSnapshot();
+    } finally {
+      consoleErrorSpy.mockRestore();
     }
-    const { result } = renderHook(() => {
-      useEnhancedReducer(state => state, {}, [dispatchingMiddleware]);
-    });
-    expect(result.error).toBeDefined();
-    expect(result.error?.message).toMatchSnapshot();
   });
 });

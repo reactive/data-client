@@ -64,6 +64,7 @@ describe('<AsyncBoundary />', () => {
     expect(renderCount).toBeLessThan(10);
   });
   it('should render error case when thrown', () => {
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     function Throw(): ReactElement {
       throw new NetworkError(
         new Response('you failed', {
@@ -81,8 +82,10 @@ describe('<AsyncBoundary />', () => {
     const { getByText, queryByText } = render(tree);
     expect(getByText(/500/i)).not.toBeNull();
     expect(queryByText(/hi/i)).toBe(null);
+    errorSpy.mockRestore();
   });
   it('should render response.statusText using default fallback', () => {
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     function Throw(): ReactElement {
       const response = new Response('', {
         statusText: 'my status text',
@@ -99,5 +102,6 @@ describe('<AsyncBoundary />', () => {
     const { getByText, queryByText } = render(tree);
     expect(getByText(/my status text/i)).not.toBeNull();
     expect(queryByText(/hi/i)).toBe(null);
+    errorSpy.mockRestore();
   });
 });

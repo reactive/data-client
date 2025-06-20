@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`ArraySchema normalization (plain) Class does not filter out undefined and null normalized values 1`] = `
 {
@@ -108,6 +108,12 @@ exports[`ArraySchema normalization (plain) Class normalizes multiple entities 1`
         "type": "Cat",
       },
     },
+    "Dogs": {
+      "789": {
+        "id": "789",
+        "name": "fido",
+      },
+    },
     "Person": {
       "123": {
         "id": "123",
@@ -123,6 +129,13 @@ exports[`ArraySchema normalization (plain) Class normalizes multiple entities 1`
         "fetchedAt": 0,
       },
       "456": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+    "Dogs": {
+      "789": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
@@ -148,7 +161,7 @@ exports[`ArraySchema normalization (plain) Class normalizes multiple entities 1`
     },
     {
       "id": "789",
-      "name": "fido",
+      "schema": "dogs",
     },
     {
       "id": "456",
@@ -363,6 +376,288 @@ exports[`ArraySchema normalization (plain) Class normalizes multiple entities 2`
 ]
 `;
 
+exports[`ArraySchema normalization (plain) Class normalizes multiple entities warning when type is not found 1`] = `
+{
+  "entities": {
+    "Cats": {
+      "123": {
+        "id": "123",
+        "type": "Cat",
+      },
+      "456": {
+        "id": "456",
+        "type": "Cat",
+      },
+    },
+    "Person": {
+      "123": {
+        "id": "123",
+        "type": "people",
+      },
+    },
+  },
+  "entitiesMeta": {
+    "Cats": {
+      "123": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+      "456": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+    "Person": {
+      "123": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": [
+    {
+      "id": "123",
+      "schema": "Cat",
+    },
+    {
+      "id": "123",
+      "schema": "people",
+    },
+    {
+      "id": "789",
+      "type": "not found",
+    },
+    {
+      "id": "456",
+      "schema": "Cat",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema normalization (plain) Class normalizes multiple entities warning when type is not found 2`] = `
+[
+  [
+    {
+      "id": "123",
+      "type": "Cat",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "type": "not found",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "123",
+      "type": "Cat",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "type": "not found",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "123",
+      "type": "people",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "type": "not found",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "123",
+      "type": "people",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "type": "not found",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "789",
+      "type": "not found",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "type": "not found",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "789",
+      "type": "not found",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "type": "not found",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "456",
+      "type": "Cat",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "type": "not found",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "456",
+      "type": "Cat",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "type": "not found",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+]
+`;
+
+exports[`ArraySchema normalization (plain) Class normalizes multiple entities warning when type is not found 3`] = `
+[
+  [
+    "Schema attribute "not found" is not expected.
+Expected one of: "Cat", "people"
+
+Value: {
+  "type": "not found",
+  "id": "789"
+}",
+  ],
+]
+`;
+
 exports[`ArraySchema normalization (plain) Object normalizes Objects using their values 1`] = `
 {
   "entities": {
@@ -573,6 +868,12 @@ exports[`ArraySchema normalization (schema) Class normalizes multiple entities 1
         "type": "Cat",
       },
     },
+    "Dogs": {
+      "789": {
+        "id": "789",
+        "name": "fido",
+      },
+    },
     "Person": {
       "123": {
         "id": "123",
@@ -588,6 +889,13 @@ exports[`ArraySchema normalization (schema) Class normalizes multiple entities 1
         "fetchedAt": 0,
       },
       "456": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+    "Dogs": {
+      "789": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
@@ -613,7 +921,7 @@ exports[`ArraySchema normalization (schema) Class normalizes multiple entities 1
     },
     {
       "id": "789",
-      "name": "fido",
+      "schema": "dogs",
     },
     {
       "id": "456",
@@ -824,6 +1132,288 @@ exports[`ArraySchema normalization (schema) Class normalizes multiple entities 2
       },
     ],
     undefined,
+  ],
+]
+`;
+
+exports[`ArraySchema normalization (schema) Class normalizes multiple entities warning when type is not found 1`] = `
+{
+  "entities": {
+    "Cats": {
+      "123": {
+        "id": "123",
+        "type": "Cat",
+      },
+      "456": {
+        "id": "456",
+        "type": "Cat",
+      },
+    },
+    "Person": {
+      "123": {
+        "id": "123",
+        "type": "people",
+      },
+    },
+  },
+  "entitiesMeta": {
+    "Cats": {
+      "123": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+      "456": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+    "Person": {
+      "123": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": [
+    {
+      "id": "123",
+      "schema": "Cat",
+    },
+    {
+      "id": "123",
+      "schema": "people",
+    },
+    {
+      "id": "789",
+      "type": "not found",
+    },
+    {
+      "id": "456",
+      "schema": "Cat",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema normalization (schema) Class normalizes multiple entities warning when type is not found 2`] = `
+[
+  [
+    {
+      "id": "123",
+      "type": "Cat",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "type": "not found",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "123",
+      "type": "Cat",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "type": "not found",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "123",
+      "type": "people",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "type": "not found",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "123",
+      "type": "people",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "type": "not found",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "789",
+      "type": "not found",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "type": "not found",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "789",
+      "type": "not found",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "type": "not found",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "456",
+      "type": "Cat",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "type": "not found",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "456",
+      "type": "Cat",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "type": "not found",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+]
+`;
+
+exports[`ArraySchema normalization (schema) Class normalizes multiple entities warning when type is not found 3`] = `
+[
+  [
+    "Schema attribute "not found" is not expected.
+Expected one of: "Cat", "people"
+
+Value: {
+  "type": "not found",
+  "id": "789"
+}",
   ],
 ]
 `;

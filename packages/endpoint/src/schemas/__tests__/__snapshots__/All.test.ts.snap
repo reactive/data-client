@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`AllSchema normalization (%s) Class filters out undefined and null normalized values 1`] = `
 {
@@ -258,6 +258,20 @@ exports[`AllSchema normalization (%s) Class normalizes multiple entities 2`] = `
       },
     ],
     undefined,
+  ],
+]
+`;
+
+exports[`AllSchema normalization (%s) Class normalizes multiple entities 3`] = `
+[
+  [
+    "Schema attribute "dogs" is not expected.
+Expected one of: "Cat", "people"
+
+Value: {
+  "id": "789",
+  "name": "fido"
+}",
   ],
 ]
 `;

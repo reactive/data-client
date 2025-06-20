@@ -130,7 +130,6 @@ describe('useQuery()', () => {
     const resolverFixtures = [
       {
         endpoint: ArticleResource.getList.push,
-        args: [],
         response(body: any) {
           return body;
         },
@@ -228,6 +227,9 @@ describe('useQuery()', () => {
   });
 
   it('should work with unions', async () => {
+    const warnSpy = jest
+      .spyOn(global.console, 'warn')
+      .mockImplementation(() => {});
     const UnionResource = resource({
       path: '/union/:id',
       schema: UnionSchema,
@@ -251,7 +253,10 @@ describe('useQuery()', () => {
       },
     );
     expect(result.current).toBeDefined();
-    if (!result.current) return;
+    if (!result.current) {
+      warnSpy.mockRestore();
+      return;
+    }
     expect(result.current.type).toBe('first');
     expect(result.current).toBeInstanceOf(FirstUnion);
 
@@ -265,11 +270,15 @@ describe('useQuery()', () => {
     () => useQuery(UnionResource.get.schema, { doesnotexist: '5' });
     // @ts-expect-error
     () => useQuery(UnionResource.get.schema);
+
+    expect(warnSpy.mock.calls).toMatchSnapshot();
+    warnSpy.mockRestore();
   });
 
   it('should work with unions collections', async () => {
-    const prevWarn = global.console.warn;
-    global.console.warn = jest.fn();
+    const warnSpy = jest
+      .spyOn(global.console, 'warn')
+      .mockImplementation(() => {});
 
     const UnionResource = resource({
       path: '/union/:id',
@@ -310,7 +319,7 @@ describe('useQuery()', () => {
     expect(result.current[1]).toBeInstanceOf(FirstUnion);
     expect(result.current[2]).not.toBeInstanceOf(FirstUnion);
     expect(result.current[3]).not.toBeInstanceOf(FirstUnion);
-    expect((global.console.warn as jest.Mock).mock.calls).toMatchSnapshot();
+    expect(warnSpy.mock.calls).toMatchSnapshot();
 
     await act(async () => {
       await controller.fetch(UnionResource.getList.push, {
@@ -321,6 +330,6 @@ describe('useQuery()', () => {
     });
     expect(result.current[4]).toBeInstanceOf(SecondUnion);
     expect(result.current).toMatchSnapshot();
-    global.console.warn = prevWarn;
+    warnSpy.mockRestore();
   });
 });

@@ -118,15 +118,15 @@ jobs:
           name: Running Jest
           command: |
             if [ "<< parameters.react-version >>" == "^17" ]; then
-              yarn test:ci --maxWorkers=3 --selectProjects ReactDOM --testPathPatterns packages/react packages/use-enhanced-reducer packages/img
+              yarn test:ci --selectProjects ReactDOM --testPathPatterns packages/react packages/use-enhanced-reducer packages/img
             elif [ "<< parameters.react-version >>" == "^18" ]; then
-              yarn test:ci --maxWorkers=4 --selectProjects ReactDOM --testPathPatterns packages/react packages/use-enhanced-reducer packages/img
+              yarn test:ci --selectProjects ReactDOM --testPathPatterns packages/react packages/use-enhanced-reducer packages/img
             elif [ "<< parameters.react-version >>" == "native" ]; then
-              yarn test:ci --maxWorkers=4 --selectProjects ReactNative
+              yarn test:ci --selectProjects ReactNative
             else
               curl -Os https://uploader.codecov.io/latest/linux/codecov;
               chmod +x codecov;
-              yarn run test:coverage --ci --maxWorkers=3 --selectProjects ReactDOM Node --coverageReporters=text-lcov > ./lcov.info;
+              yarn run test:coverage --ci --selectProjects ReactDOM Node --coverageReporters=text-lcov > ./lcov.info;
               if [ "$CODECOV_TOKEN" != "" ]; then
                 ./codecov -t ${CODECOV_TOKEN} < ./lcov.info || true;
               else

@@ -48,6 +48,8 @@ describe('<ErrorBoundary />', () => {
   });
 
   it('should render response.statusText using default fallback', () => {
+    const originalError = console.error;
+    console.error = jest.fn();
     function Throw(): ReactElement {
       const response = new Response('', {
         statusText: 'my status text',
@@ -64,8 +66,11 @@ describe('<ErrorBoundary />', () => {
     const { getByText, queryByText } = render(tree);
     expect(getByText(/my status text/i)).not.toBeNull();
     expect(queryByText(/hi/i)).toBe(null);
+    console.error = originalError;
   });
   it('should reset error when handler is called from fallback component', async () => {
+    const originalError = console.error;
+    console.error = jest.fn();
     let shouldThrow = true;
     function Throw(): ReactElement {
       const response = new Response('', {
@@ -98,10 +103,14 @@ describe('<ErrorBoundary />', () => {
     expect(getByText(/my status text/i)).not.toBeNull();
     const resetButton = queryByText('Clear Error');
     expect(resetButton).not.toBeNull();
-    if (!resetButton) return;
+    if (!resetButton) {
+      console.error = originalError;
+      return;
+    }
     shouldThrow = false;
     fireEvent.press(resetButton);
     expect(queryByText(/my status text/i)).toBe(null);
     expect(getByText(/hi/i)).not.toBeNull();
+    console.error = originalError;
   });
 });
