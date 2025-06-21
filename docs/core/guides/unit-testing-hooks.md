@@ -38,7 +38,7 @@ to `renderDataHook()` will result in a completely fresh cache state as well as m
 
 :::
 
-### Polyfill fetch in node
+### Polyfill fetch in node &lt; 18
 
 Node doesn't come with fetch out of the box, so we need to be sure to polyfill it.
 
