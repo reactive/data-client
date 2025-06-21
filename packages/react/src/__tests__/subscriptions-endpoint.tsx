@@ -108,6 +108,7 @@ describe.each([
 
   it('useSubscription() + useCache()', async () => {
     jest.useFakeTimers({
+      // nock doesn't like modern timers for some reason
       legacyFakeTimers: true,
     });
     const frequency = PollingArticleResource.get.pollFrequency as number;
@@ -146,6 +147,8 @@ describe.each([
     act(() => {
       jest.runOnlyPendingTimers();
     });
+    // must be called before real timers or clearInterval won't work properly
+    renderDataClient.cleanup();
     jest.useRealTimers();
     await renderDataClient.allSettled();
 
@@ -168,6 +171,7 @@ describe.each([
 
   it('useSubscription() without active arg', async () => {
     jest.useFakeTimers({
+      // nock doesn't like modern timers for some reason
       legacyFakeTimers: true,
     });
     const frequency = PollingArticleResource.get.pollFrequency as number;
@@ -181,6 +185,9 @@ describe.each([
     });
 
     await validateSubscription(result, frequency, articlePayload, waitFor);
+    // must be called before real timers or clearInterval won't work properly
+    renderDataClient.cleanup();
+    jest.useRealTimers();
     await renderDataClient.allSettled();
   });
 
