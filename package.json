@@ -84,7 +84,6 @@
     "core-js": "^3.40.0",
     "coveralls": "^3.1.0",
     "cpy-cli": "5.0.0",
-    "cross-fetch": "^4.0.0",
     "downlevel-dts": "^0.10.0",
     "eslint": "9.29.0",
     "globals": "^16.0.0",
