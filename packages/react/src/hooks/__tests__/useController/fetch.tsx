@@ -250,9 +250,9 @@ describe.each([
       await result.current.fetch(endpoint, {
         id: 1,
       });
-    }),
-      // still keeps old list
-      expect(result.current.articles.map(({ id }) => id)).toEqual([5, 3]);
+    });
+    // still keeps old list
+    expect(result.current.articles.map(({ id }) => id)).toEqual([5, 3]);
 
     expect(errorspy.mock.calls[0]).toMatchSnapshot();
   });
