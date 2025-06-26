@@ -17,7 +17,7 @@ to represent the data expected.
 
 - `Entity` - represents a single unique object (denormalized)
 - `schema.Union(Entity)` - polymorphic objects (A | B)
-- `{[key:string]: Schema}` - immutable objects (lacking primary key)
+- `{[key:string]: Schema}` - immutable objects
 - `schema.Invalidate(Entity)` - to delete an Entity
 
 ### List
@@ -42,7 +42,6 @@ to represent the data expected.
 - Every `Entity` subclass **defines defaults** for _all_ non-optional serialised fields.
 - Override `pk()` only when the primary key ≠ `id`.
 - `pk()` return type is `number | string | undefined`
-- if `pk()` cannot be determined, use `{[key:string]: Schema}` schema instead
 - Always define nested Entities to be used in `static schema`
   - When designing APIs, prefer nesting entities
 - use `static schema` to deserialize
@@ -75,7 +74,6 @@ export class Todo extends Entity {
   completed = false;
 
   static key = 'Todo';
-  // optional
   static schema = {
     user: User,
   }
@@ -102,6 +100,11 @@ const todo = useSuspense(TodoResource.get, { id: 5 });
 const todoList = useSuspense(TodoResource.getList);
 // GET https://jsonplaceholder.typicode.com/todos?userId=1
 const todoListByUser = useSuspense(TodoResource.getList, { userId: 1 });
+// subscriptions
+const todo = useLive(TodoResource.get, { id: 5 });
+// without fetch
+const todo = useCache(TodoResource.get, { id: 5 });
+const todo = useQuery(Todo, { id: 5 });
 ```
 
 #### Mutations
@@ -124,6 +127,10 @@ const deleteTodo = id => ctrl.fetch(TodoResource.delete, { id });
 const getNextPage = (page) => ctrl.fetch(TodoResource.getList.getPage, { userId: 1, page })
 ```
 
+#### Type-safe imperative actions
+
+`Controller` is returned from `useController()`. It has: ctrl.fetch(), ctrl.fetchIfStale(), ctrl.expireAll(), ctrl.invalidate(), ctrl.invalidateAll(), ctrl.setResponse(), ctrl.set().
+
 #### Programmatic queries
 
 ```ts
@@ -131,6 +138,9 @@ const queryRemainingTodos = new schema.Query(
   TodoResource.getList.schema,
   entries => entries.filter(todo => !todo.completed).length,
 );
+
+const allRemainingTodos = useQuery(queryRemainingTodos);
+const firstUserRemainingTodos = useQuery(queryRemainingTodos, { userId: 1 });
 ```
 
 ```ts
@@ -138,9 +148,8 @@ const groupTodoByUser = new schema.Query(
   TodoResource.getList.schema,
   todos => Object.groupBy(todos, todo => todo.userId),
 );
+const todosByUser = useQuery(groupTodoByUser);
 ```
-
-For more detailed usage, refer to the [@data-client/react guide](.github/instructions/react.instructions.md).
 
 ---
 
@@ -160,6 +169,7 @@ export const getTicker = new RestEndpoint({
 - `path` params ▶️ 1st arg shape.  
 - `method` ≠ `GET` ⇒ 2nd arg = body (unless `body: undefined`).  
 - Provide `searchParams` / `body` _values_ purely for **type inference**.
+- Use `RestGenerics` when inheriting from `RestEndpoint`.
 
 ### getOptimisticResponse()
 
@@ -224,9 +234,13 @@ export const IssueResource = resource({
 
 ## 8. Best Practices & Notes
 
+- When asked to browse or navigate to a web address, actual visit the address
 - Always set up `schema` on every resource/entity/collection for normalization.
 - Prefer `RestEndpoint` over `resource` for defining single endpoints or when full CRUD endpoints don't exist
 - Normalize deeply nested or relational data by defining proper schemas.
+- `useDebounce(query, timeout);` when rendering async data based on user field inputs
+- `[handleSubmit, loading, error] = useLoading()` when tracking mutation loads like submitting an async form
+- Prefer smaller React components that do one thing.
 
 ## 9. Common Mistakes to Avoid
 
