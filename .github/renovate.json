@@ -90,7 +90,8 @@
       "matchPackageNames": [
         "@anansi/jest-preset",
         "@types/jsdom",
-        "jest-environment-jsdom"
+        "jest-environment-jsdom",
+        "@jest/globals"
       ],
       "matchUpdateTypes": ["major", "minor", "patch"],
       "groupSlug": "validation",
