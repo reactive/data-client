@@ -1,11 +1,13 @@
+import ArraySchema from './Array.js';
 import { consistentSerialize } from './consistentSerialize.js';
+import Values from './Values.js';
 import {
   INormalizeDelegate,
   PolymorphicInterface,
   IQueryDelegate,
   Mergeable,
 } from '../interface.js';
-import { Values, Array as ArraySchema } from '../schema.js';
+import type { Values as ValuesType, Array as ArrayType } from '../schema.js';
 import type { DefaultArgs } from '../schemaTypes.js';
 
 const pushMerge = (existing: any, incoming: any) => {
@@ -38,14 +40,13 @@ export default class CollectionSchema<
 
   declare readonly key: string;
 
-  declare push: S extends ArraySchema<any> ? CollectionSchema<S, Args, Parent>
+  declare push: S extends ArrayType<any> ? CollectionSchema<S, Args, Parent>
   : undefined;
 
-  declare unshift: S extends ArraySchema<any> ?
-    CollectionSchema<S, Args, Parent>
+  declare unshift: S extends ArrayType<any> ? CollectionSchema<S, Args, Parent>
   : undefined;
 
-  declare assign: S extends Values<any> ? CollectionSchema<S, Args, Parent>
+  declare assign: S extends ValuesType<any> ? CollectionSchema<S, Args, Parent>
   : undefined;
 
   addWith<P extends any[] = Args>(
