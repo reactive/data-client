@@ -3,26 +3,26 @@ applyTo: '**/*.ts*'
 ---
 # Guide: Using `@data-client/rest` for Resource Modeling
 
-This project uses `@data-client/rest` to define, fetch, normalize, and update RESTful resources and entities in React/TypeScript apps with type safety and automatic cache management.  
+This project uses [@data-client/rest](https://dataclient.io/rest) to define, fetch, normalize, and update RESTful resources and entities in React/TypeScript apps with type safety and automatic cache management.  
 **Always follow these patterns when generating code that interacts with remote APIs.**
 
 ---
 
 ## 1. Defining Schemas
 
-Define `schemas` to represent the JSON returned by an endpoint. Compose these
+Define [schemas](https://dataclient.io/rest/api/schema) to represent the JSON returned by an endpoint. Compose these
 to represent the data expected.
 
 ### Object
 
-- `Entity` - represents a single unique object (denormalized)
-- `schema.Union(Entity)` - polymorphic objects (A | B)
+- [Entity](https://dataclient.io/rest/api/Entity) - represents a single unique object (denormalized)
+- [schema.Union(Entity)](https://dataclient.io/rest/api/Union) - polymorphic objects (A | B)
 - `{[key:string]: Schema}` - immutable objects
 - `schema.Invalidate(Entity)` - to delete an Entity
 
 ### List
 
-- `schema.Collection([Entity])` - mutable/growable lists
+- [schema.Collection([Entity])](https://dataclient.io/rest/api/Collection) - mutable/growable lists
 - `[Entity]` - immutable lists
 - `schema.All(Entity)` - list all Entities of a kind
 
@@ -33,7 +33,7 @@ to represent the data expected.
 
 ### Programmatic
 
-- `schema.Query(Queryable)` - memoized programmatic selectors
+- [schema.Query(Queryable)](https://dataclient.io/rest/api/Query) - memoized programmatic selectors
 
 ---
 
@@ -42,21 +42,19 @@ to represent the data expected.
 - Every `Entity` subclass **defines defaults** for _all_ non-optional serialised fields.
 - Override `pk()` only when the primary key ≠ `id`.
 - `pk()` return type is `number | string | undefined`
-- Always define nested Entities to be used in `static schema`
+- `static schema` (optional) for nested schemas or deserilization functions
   - When designing APIs, prefer nesting entities
-- use `static schema` to deserialize
-  - must be a function (iso => new Date(iso))
 - always define `static key` as global registry for the Entity
-- Use `Entity.fromJS()` for defaults.  
+- Use [Entity.fromJS()](https://dataclient.io/rest/api/Entity#fromJS) for defaults.  
 
 ---
 
 ## 3. Resources (`resource()`)
 
-- `resource()` creates a collection of `RestEndpoints` to perform CRUD operations on a common object
+- [resource()](https://dataclient.io/rest/api/resource) creates a collection of `RestEndpoints` for CRUD operations on a common object
 - Required fields:
   - `path`: path‑to‑regexp template (typed!)
-  - `schema`: Declarative data shape for normalization (typically Entity or Union)
+  - `schema`: Declarative data shape for a **single** item (typically Entity or Union)
 - Optional:
   - `urlPrefix`: Host root, if not `/`
   - `searchParams`: Type for query parameters (TS generic) in MyResource.getList
@@ -72,10 +70,12 @@ export class Todo extends Entity {
   user = User.fromJS();
   title = '';
   completed = false;
+  createdAt = new Date();
 
   static key = 'Todo';
   static schema = {
     user: User,
+    createdAt: (iso: string) => new Date(iso),
   }
 }
 
@@ -91,7 +91,7 @@ export const TodoResource = resource({
 
 ### Usage
 
-#### Rendering
+#### [Rendering](https://dataclient.io/docs/getting-started/data-dependency)
 
 ```ts
 // GET https://jsonplaceholder.typicode.com/todos/5
@@ -100,14 +100,9 @@ const todo = useSuspense(TodoResource.get, { id: 5 });
 const todoList = useSuspense(TodoResource.getList);
 // GET https://jsonplaceholder.typicode.com/todos?userId=1
 const todoListByUser = useSuspense(TodoResource.getList, { userId: 1 });
-// subscriptions
-const todo = useLive(TodoResource.get, { id: 5 });
-// without fetch
-const todo = useCache(TodoResource.get, { id: 5 });
-const todo = useQuery(Todo, { id: 5 });
 ```
 
-#### Mutations
+#### [Mutations](https://dataclient.io/docs/getting-started/mutations)
 
 ```ts
 const ctrl = useController();
@@ -117,7 +112,7 @@ const updateTodo = todo => ctrl.fetch(TodoResource.update, { id }, todo);
 const partialUpdateTodo = todo =>
   ctrl.fetch(TodoResource.partialUpdate, { id }, todo);
 // POST https://jsonplaceholder.typicode.com/todos
-const addTodoToBeginning = todo =>
+const addTodoToStart = todo =>
   ctrl.fetch(TodoResource.getList.unshift, todo);
 // POST https://jsonplaceholder.typicode.com/todos?userId=1
 const addTodoToEnd = todo => ctrl.fetch(TodoResource.getList.push, { userId: 1 }, todo);
@@ -127,10 +122,6 @@ const deleteTodo = id => ctrl.fetch(TodoResource.delete, { id });
 const getNextPage = (page) => ctrl.fetch(TodoResource.getList.getPage, { userId: 1, page })
 ```
 
-#### Type-safe imperative actions
-
-`Controller` is returned from `useController()`. It has: ctrl.fetch(), ctrl.fetchIfStale(), ctrl.expireAll(), ctrl.invalidate(), ctrl.invalidateAll(), ctrl.setResponse(), ctrl.set().
-
 #### Programmatic queries
 
 ```ts
@@ -138,9 +129,6 @@ const queryRemainingTodos = new schema.Query(
   TodoResource.getList.schema,
   entries => entries.filter(todo => !todo.completed).length,
 );
-
-const allRemainingTodos = useQuery(queryRemainingTodos);
-const firstUserRemainingTodos = useQuery(queryRemainingTodos, { userId: 1 });
 ```
 
 ```ts
@@ -148,12 +136,13 @@ const groupTodoByUser = new schema.Query(
   TodoResource.getList.schema,
   todos => Object.groupBy(todos, todo => todo.userId),
 );
-const todosByUser = useQuery(groupTodoByUser);
 ```
+
+For more detailed usage, refer to the [@data-client/react guide](.github/instructions/react.instructions.md).
 
 ---
 
-## 4. Custom RestEndpoint patterns
+## 4. Custom [RestEndpoint](https://dataclient.io/rest/api/RestEndpoint) patterns
 
 ```ts
 /** Stand‑alone endpoint with custom typing */
@@ -166,10 +155,10 @@ export const getTicker = new RestEndpoint({
 ```
 
 **Typing tips**  
-- `path` params ▶️ 1st arg shape.  
-- `method` ≠ `GET` ⇒ 2nd arg = body (unless `body: undefined`).  
-- Provide `searchParams` / `body` _values_ purely for **type inference**.
-- Use `RestGenerics` when inheriting from `RestEndpoint`.
+- `path` path‑to‑regexp template for 1st arg
+- `method` ≠ `GET` ⇒ 2nd arg = body (unless `body: undefined`)
+- Provide `searchParams` / `body` _values_ purely for **type inference**
+- Use `RestGenerics` when inheriting from `RestEndpoint`
 
 ### getOptimisticResponse()
 
@@ -188,7 +177,7 @@ getOptimisticResponse(snap, { id }) {
 
 ## 5. **Union Types (Polymorphic Schemas)**
 
-To represent resources that can be multiple types (e.g., events), use `schema.Union` and a discriminator field.
+To define polymorphic resources (e.g., events), use [schema.Union](https://dataclient.io/rest/api/Union) and a discriminator field.
 
 ```typescript
 import { schema } from '@data-client/rest';
@@ -217,7 +206,7 @@ export const EventResource = resource({
 
 ## 7. **Extending Resources**
 
-Use `.extend()` to add custom endpoints or behaviors.
+Use `.extend()` to add or override endpoints.
 
 ```typescript
 export const IssueResource = resource({
@@ -235,17 +224,14 @@ export const IssueResource = resource({
 ## 8. Best Practices & Notes
 
 - When asked to browse or navigate to a web address, actual visit the address
-- Always set up `schema` on every resource/entity/collection for normalization.
-- Prefer `RestEndpoint` over `resource` for defining single endpoints or when full CRUD endpoints don't exist
-- Normalize deeply nested or relational data by defining proper schemas.
-- `useDebounce(query, timeout);` when rendering async data based on user field inputs
-- `[handleSubmit, loading, error] = useLoading()` when tracking mutation loads like submitting an async form
-- Prefer smaller React components that do one thing.
+- Always set up `schema` on every resource/entity/collection for normalization
+- Prefer `RestEndpoint` over `resource()` for defining single endpoints or when mutation endpoints don't exist
+- Normalize deeply nested or relational data by defining proper schemas
 
 ## 9. Common Mistakes to Avoid
 
-- Don’t forget to use `fromJS()` or assign default properties for class fields.
-- Don't use `resource` when mutation endpoints are not used or needed.
+- Don’t forget to use `fromJS()` or assign default properties for class fields
+- Don't use `resource()` when mutation endpoints are not used or needed
 
 # Official Documentation Links
 

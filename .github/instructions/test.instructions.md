@@ -4,6 +4,11 @@ applyTo: '**/__tests__/*.ts*'
 
 ## Unit testing hooks
 
+- Use [renderDataHook()](https://dataclient.io/docs/api/renderDataHook) to test hooks that use [@data-client/react](https://dataclient.io/docs) hooks.
+  - `renderDataHook()` inherits the options, and return values of `renderHook()` from [@testing-library/react](https://testing-library.com/docs/react-testing-library/api#renderhook).
+  - Additional options include, `initialFixtures`, `resolverFixtures`, `getInitialInterceptorData`
+  - Additional return values include `controller`, `cleanup()`, `allSettled()`
+
 ```ts
 import { renderDataHook } from '@data-client/test';
 
@@ -34,11 +39,11 @@ it('useSuspense() should render the response', async () => {
 });
 ```
 
-- use `initialFixtures` to set up the initial state of the store
-- use `resolverFixtures` to add interceptors to handle subsequent requests
+- use [initialFixtures](https://dataclient.io/docs/api/renderDataHook#optionsinitialfixtures) to set up the initial state of the store
+- use [resolverFixtures](https://dataclient.io/docs/api/renderDataHook#optionsresolverfixtures) to add interceptors to handle subsequent requests
   - use `getInitialInterceptorData` if `resolverFixtures` need to simulate changing server state
 
-## Fixtures and Interceptors
+## [Fixtures and Interceptors](https://dataclient.io/docs/api/Fixtures)
 
 ```ts
 interface SuccessFixture {
@@ -77,7 +82,7 @@ type Interceptor = ResponseInterceptor | FetchInterceptor;
 
 ## Best Practices & Notes
 
-- Use fixtures or interceptors when testing hooks or components.
+- Use [fixtures or interceptors](https://dataclient.io/docs/api/Fixtures) when testing hooks or components.
 - Use 'nock' when testing networking definitions.
 
 # Official Documentation Links
@@ -85,4 +90,4 @@ type Interceptor = ResponseInterceptor | FetchInterceptor;
 - [Fixtures and Interceptors](https://dataclient.io/docs/api/Fixtures)
 - [renderDataHook()](https://dataclient.io/docs/api/renderDataHook)
 
-**ALWAYS follow these patterns and refer to the official docs for edge cases. Prioritize code generation that is idiomatic, type-safe, and leverages automatic normalization/caching via schema definitions.**
+**ALWAYS follow these patterns and refer to the official docs for edge cases.**

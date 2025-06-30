@@ -1,6 +1,7 @@
 ---
 applyTo: '**/*.tsx'
 ---
+
 ## Rendering
 
 ```ts
@@ -10,12 +11,14 @@ const todo = useSuspense(TodoResource.get, { id: 5 });
 const todoList = useSuspense(TodoResource.getList);
 // GET https://jsonplaceholder.typicode.com/todos?userId=1
 const todoListByUser = useSuspense(TodoResource.getList, { userId: 1 });
-// subscriptions
+// subscriptions with polling, websockets or SSE
 const todo = useLive(TodoResource.get, { id: 5 });
 // without fetch
 const todo = useCache(TodoResource.get, { id: 5 });
 const todo = useQuery(Todo, { id: 5 });
 ```
+
+For API definitions (like TodoResource), refer to the [@data-client/rest guide](.github/instructions/rest.instructions.md).
 
 ## Mutations
 
@@ -63,7 +66,8 @@ return (
 
 ## Components
 
-Prefer using `AsyncBoundary` for error handling and loading states. Its props are `fallback`, `errorComponent`, and `errorClassName` and `listen`. It can be used to wrap any component that fetches data.
+Prefer using [AsyncBoundary](https://dataclient.io/docs/api/AsyncBoundary) for error handling and loading states.
+Its props are `fallback`, `errorComponent`, and `errorClassName` and `listen`. It can be used to wrap any component that fetches data.
 
 ```tsx
 <AsyncBoundary listen={history.listen}>
@@ -73,7 +77,8 @@ Prefer using `AsyncBoundary` for error handling and loading states. Its props ar
 
 ## Type-safe imperative actions
 
-`Controller` is returned from `useController()`. It has: ctrl.fetch(), ctrl.fetchIfStale(), ctrl.expireAll(), ctrl.invalidate(), ctrl.invalidateAll(), ctrl.setResponse(), ctrl.set().
+[Controller](https://dataclient.io/docs/api/Controller) is returned from `useController()`. It has:
+ctrl.fetch(), ctrl.fetchIfStale(), ctrl.expireAll(), ctrl.invalidate(), ctrl.invalidateAll(), ctrl.setResponse(), ctrl.set().
 
 ## Programmatic queries
 
@@ -99,7 +104,8 @@ const todosByUser = useQuery(groupTodoByUser);
 
 ## Managers
 
-Customer managers allow for global side effect handling. They interface with the store using `Controller`, and middleware is run in response to actions.
+Customer [managers](https://dataclient.io/docs/api/Manager) allow for global side effect handling.
+They interface with the store using `Controller`, and middleware is run in response to actions.
 
 ```ts
 import type { Manager, Middleware, EntityInterface } from '@data-client/react';
@@ -139,9 +145,9 @@ export default class CustomSubsManager implements Manager {
 
 ## Best Practices & Notes
 
-- `useDebounce(query, timeout);` when rendering async data based on user field inputs
-- `[handleSubmit, loading, error] = useLoading()` when tracking mutation loads like submitting an async form
-- Prefer smaller React components that do one thing.
+- [useDebounce(query, timeout)](https://dataclient.io/docs/api/useDebounce) when rendering async data based on user field inputs
+- [[handleSubmit, loading, error] = useLoading()](https://dataclient.io/docs/api/useLoading) when tracking async mutations
+- Prefer smaller React components that do one thing
 
 # Official Documentation Links
 
