@@ -104,44 +104,10 @@ const todosByUser = useQuery(groupTodoByUser);
 
 ## Managers
 
-Customer [managers](https://dataclient.io/docs/api/Manager) allow for global side effect handling.
-They interface with the store using `Controller`, and middleware is run in response to actions.
+Custom [Managers](https://dataclient.io/docs/api/Manager) allow for global side effect handling.
+This is useful for webosckets, SSE, logging, etc.
 
-```ts
-import type { Manager, Middleware, EntityInterface } from '@data-client/react';
-import { actionTypes } from '@data-client/react';
-import isEntity from './isEntity';
-
-export default class CustomSubsManager implements Manager {
-  protected declare entities: Record<string, EntityInterface>;
-
-  middleware: Middleware = controller => next => async action => {
-    switch (action.type) {
-      case actionTypes.SUBSCRIBE:
-      case actionTypes.UNSUBSCRIBE:
-        const { schema } = action.endpoint;
-        // only process registered entities
-        if (schema && isEntity(schema) && schema.key in this.entities) {
-          if (action.type === actionTypes.SUBSCRIBE) {
-            this.subscribe(schema.key, action.args[0]?.product_id);
-          } else {
-            this.unsubscribe(schema.key, action.args[0]?.product_id);
-          }
-
-          // consume subscription if we use it
-          return Promise.resolve();
-        }
-      default:
-        return next(action);
-    }
-  };
-
-  cleanup() {}
-
-  subscribe(channel: string, product_id: string) {}
-  unsubscribe(channel: string, product_id: string) {}
-}
-```
+For more detailed usage, refer to the [Manager Guide](.github/instructions/manager.instructions.md).
 
 ## Best Practices & Notes
 

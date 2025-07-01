@@ -1,4 +1,6 @@
 - Use [@data-client/rest guide](.github/instructions/rest.instructions.md) for REST API definitions.
 - Use [@data-client/react guide](.github/instructions/react.instructions.md) for React.
 - Use [@data-client/test guide](.github/instructions/test.instructions.md) when writing tests.
+- Use [@data-client/manager guide](.github/instructions/manager.instructions.md) when writing custom Managers for @data-client/react.
 - If you are not sure about file content or codebase structure pertaining to the user’s request, use your tools to read files and gather the relevant information: do NOT guess or make up an answer.
+- Place API definitions and custom managers in the 'resources' directory.

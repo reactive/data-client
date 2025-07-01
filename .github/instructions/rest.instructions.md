@@ -16,24 +16,24 @@ to represent the data expected.
 ### Object
 
 - [Entity](https://dataclient.io/rest/api/Entity) - represents a single unique object (denormalized)
-- [schema.Union(Entity)](https://dataclient.io/rest/api/Union) - polymorphic objects (A | B)
+- [new schema.Union(Entity)](https://dataclient.io/rest/api/Union) - polymorphic objects (A | B)
 - `{[key:string]: Schema}` - immutable objects
-- `schema.Invalidate(Entity)` - to delete an Entity
+- `new schema.Invalidate(Entity)` - to delete an Entity
 
 ### List
 
-- [schema.Collection([Entity])](https://dataclient.io/rest/api/Collection) - mutable/growable lists
+- [new schema.Collection([Entity])](https://dataclient.io/rest/api/Collection) - mutable/growable lists
 - `[Entity]` - immutable lists
-- `schema.All(Entity)` - list all Entities of a kind
+- `new schema.All(Entity)` - list all Entities of a kind
 
 ### Map
 
-- `schema.Collection(schema.Values(Entity))` - mutable/growable maps
-- `schema.Values(Entity)` - immutable maps
+- `new schema.Collection(schema.Values(Entity))` - mutable/growable maps
+- `new schema.Values(Entity)` - immutable maps
 
 ### Programmatic
 
-- [schema.Query(Queryable)](https://dataclient.io/rest/api/Query) - memoized programmatic selectors
+- [new schema.Query(Queryable)](https://dataclient.io/rest/api/Query) - memoized programmatic selectors
 
 ---
 
@@ -42,16 +42,15 @@ to represent the data expected.
 - Every `Entity` subclass **defines defaults** for _all_ non-optional serialised fields.
 - Override `pk()` only when the primary key ≠ `id`.
 - `pk()` return type is `number | string | undefined`
-- `static schema` (optional) for nested schemas or deserilization functions
+- Override `Entity.process(value, parent, key, args)` to insert fields based on args/url
+- `static schema` (optional) for nested schemas or deserialization functions
   - When designing APIs, prefer nesting entities
-- always define `static key` as global registry for the Entity
-- Use [Entity.fromJS()](https://dataclient.io/rest/api/Entity#fromJS) for defaults.  
 
 ---
 
 ## 3. Resources (`resource()`)
 
-- [resource()](https://dataclient.io/rest/api/resource) creates a collection of `RestEndpoints` for CRUD operations on a common object
+- [resource()](https://dataclient.io/rest/api/resource) creates a collection of [RestEndpoints](https://dataclient.io/rest/api/RestEndpoint) for CRUD operations on a common object
 - Required fields:
   - `path`: path‑to‑regexp template (typed!)
   - `schema`: Declarative data shape for a **single** item (typically Entity or Union)
