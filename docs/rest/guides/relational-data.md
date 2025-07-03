@@ -120,7 +120,11 @@ export class Post extends Entity {
 
   static schema = {
     author: User,
-    comments: [Comment],
+    comments: new schema.Collection([Comment], {
+      nestKey: (parent, key) => ({
+        postId: parent.id,
+      }),
+    }),
   };
 }
 

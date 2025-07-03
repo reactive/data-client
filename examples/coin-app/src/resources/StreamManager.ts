@@ -7,15 +7,15 @@ import type { Entity } from '@data-client/rest';
  * https://docs.cloud.coinbase.com/advanced-trade-api/docs/ws-overview
  */
 export default class StreamManager implements Manager {
-  protected declare evtSource: WebSocket; // | EventSource;
-  protected declare createEventSource: () => WebSocket; // | EventSource;
-  protected declare entities: Record<string, typeof Entity>;
+  declare protected evtSource: WebSocket; // | EventSource;
+  declare protected createEventSource: () => WebSocket; // | EventSource;
+  declare protected entities: Record<string, typeof Entity>;
   protected msgQueue: (string | ArrayBufferLike | Blob | ArrayBufferView)[] =
     [];
 
   protected product_ids: string[] = [];
   private attempts = 0;
-  protected declare controller: Controller;
+  declare protected controller: Controller;
 
   constructor(
     evtSource: () => WebSocket, // | EventSource,

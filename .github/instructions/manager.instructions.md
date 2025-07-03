@@ -70,7 +70,8 @@ export default class LoggingManager implements Manager {
 }
 ```
 
-`actionTypes`: FETCH, SET, SET_RESPONSE, RESET, SUBSCRIBE, UNSUBSCRIBE, INVALIDATE, INVALIDATEALL, EXPIREALL
+Always use `actionTypes` members to check action.type.
+`actionTypes` has: FETCH, SET, SET_RESPONSE, RESET, SUBSCRIBE, UNSUBSCRIBE, INVALIDATE, INVALIDATEALL, EXPIREALL
 
 [actions](https://dataclient.io/docs/api/Actions) docs details the action types and their payloads.
 
