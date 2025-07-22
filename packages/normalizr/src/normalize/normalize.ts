@@ -79,13 +79,16 @@ See https://dataclient.io/rest/api/RestEndpoint#parseResponse for more informati
     }
   }
 
+  // using cloned or original should not matter as merge checks against a Set to determine whether to merge or not
+  // however, we should still write a test to specifially test merge detection
+  // TODO: we need a test to validate that getEntities uses the old version of state and not the cloned one
   const delegate = new NormalizeDelegate(
     { entities, indexes, entitiesMeta },
     meta,
   );
   const visit = getVisit(delegate);
-  delegate.result = visit(schema, input, input, undefined, args);
-  return delegate as any;
+  delegate.result.result = visit(schema, input, input, undefined, args);
+  return delegate.result as any as NormalizedSchema<E, R>;
 };
 
 function expectedSchemaType(schema: Schema) {
