@@ -2,5 +2,8 @@
 - Use [@data-client/react guide](.github/instructions/react.instructions.md) for React.
 - Use [@data-client/test guide](.github/instructions/test.instructions.md) when writing tests.
 - Use [@data-client/manager guide](.github/instructions/manager.instructions.md) when writing custom Managers for @data-client/react.
+- Use markdown files in the [API docs](docs/core/api) directory to validate API usage.
+- Use markdown files in the [guides](docs/core/guides) directory to help with more specific use cases.
+- use markdown files in the [REST](docs/rest) directory to help building REST APIs.
 - If you are not sure about file content or codebase structure pertaining to the user’s request, use your tools to read files and gather the relevant information: do NOT guess or make up an answer.
 - Place API definitions and custom managers in the 'resources' directory.

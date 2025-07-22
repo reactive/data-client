@@ -87,7 +87,9 @@ type Interceptor = ResponseInterceptor | FetchInterceptor;
 
 # Official Documentation Links
 
-- [Fixtures and Interceptors](https://dataclient.io/docs/api/Fixtures)
-- [renderDataHook()](https://dataclient.io/docs/api/renderDataHook)
+- [Fixtures and Interceptors](https://dataclient.io/docs/api/Fixtures) or [Fixtures and Interceptors](docs/core/api/Fixtures.md)
+- [renderDataHook()](https://dataclient.io/docs/api/renderDataHook) or [renderDataHook()](docs/core/api/renderDataHook.md)
+- [MockResolver](docs/core/api/MockResolver.md)
+- [makeRenderDataHook()](docs/core/api/makeRenderDataHook.md)
 
 **ALWAYS follow these patterns and refer to the official docs for edge cases.**

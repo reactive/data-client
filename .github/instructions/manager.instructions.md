@@ -6,6 +6,11 @@ applyTo: '**/*.ts'
 [Managers](https://dataclient.io/docs/api/Manager) are singletons that handle global side-effects. Kind of like useEffect() for the central data store.
 They interface with the store using [Controller](https://dataclient.io/docs/api/Controller), and [redux middleware](https://redux.js.org/tutorials/fundamentals/part-4-store#middleware) is run in response to [actions](https://dataclient.io/docs/api/Actions).
 
+Use [Manager API docs](docs/core/api/Manager.md) to validate usage.
+
+Always use `actionTypes` when comparing action.type. Refer to [Action API docs](docs/core/api/Actions.md)
+for list of actions and their payloads.
+
 ## Dispatching actions
 
 [Controller](https://dataclient.io/docs/api/Controller) has dispatchers:
