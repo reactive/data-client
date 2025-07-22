@@ -75,7 +75,7 @@ controller.fetch(TodoResource.delete, { id: '5' });
 
 ### path
 
-Passed to [RestEndpoint.path](./RestEndpoint.md#path) for single item [](#members).
+Passed to [RestEndpoint.path](./RestEndpoint.md#path) for single item [endpoints](#members).
 
 Create ([getList.push](#push)/[getList.unshift](#unshift)) and [getList](#getlist) remove the last argument.
 
@@ -87,6 +87,8 @@ const PostResource = resource({
 
 // GET /react/posts/abc
 PostResource.get({ group: 'react', id: 'abc' });
+// PATCH /react/posts/abc
+PostResource.partialUpdate({ group: 'react', id: 'abc' }, { title: 'This new title' });
 // GET /react/posts
 PostResource.getList({ group: 'react' });
 ```

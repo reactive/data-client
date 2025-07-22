@@ -216,7 +216,7 @@ if (
         /* webpackChunkName: 'bignumberDTS', webpackPreload: true */ '!!raw-loader?esModule=false!./editor-types/bignumber.d.ts'
       ),
       import(
-        /* webpackChunkName: 'bignumberDTS', webpackPreload: true */ '!!raw-loader?esModule=false!./editor-types/@number-flow/react.d.ts'
+        /* webpackChunkName: 'numberflowDTS', webpackPreload: true */ '!!raw-loader?esModule=false!./editor-types/@number-flow/react.d.ts'
       ),
       import(
         /* webpackChunkName: 'temporalDTS', webpackPreload: true */ '!!raw-loader?esModule=false!./editor-types/temporal.d.ts'
