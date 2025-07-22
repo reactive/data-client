@@ -9,14 +9,6 @@ import type { Dep } from '../memo/WeakDependencyMap.js';
 
 /** Basic state interfaces for normalize side */
 export abstract class BaseDelegate {
-  declare entities: any;
-  declare indexes: any;
-
-  constructor({ entities, indexes }: { entities: any; indexes: any }) {
-    this.entities = entities;
-    this.indexes = indexes;
-  }
-
   abstract getEntities(key: string): EntitiesInterface | undefined;
   abstract getEntity(key: string, pk: string): object | undefined;
   abstract getIndex(...path: IndexPath): object | undefined;
