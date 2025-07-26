@@ -370,7 +370,9 @@ Updates any [Queryable](/rest/api/schema#queryable) [Schema](/rest/api/schema#sc
 ```ts
 ctrl.set(
   Todo,
+  // which Todo to update
   { id: '5' },
+  // merge this data into the Todo in the store
   { id: '5', title: 'tell me friends how great Data Client is' },
 );
 ```

@@ -615,10 +615,11 @@ import { useLoading } from '@data-client/react';
 import { TimedEntity } from './api/lastUpdated';
 import TimePage from './TimePage';
 
+const InvalidateTimedEntity = new schema.Invalidate(TimedEntity);
 export const deleteLastUpdated = new RestEndpoint({
   path: '/api/currentTime/:id',
   method: 'DELETE',
-  schema: new schema.Invalidate(TimedEntity),
+  schema: InvalidateTimedEntity,
 });
 
 function ShowTime() {
@@ -649,6 +650,17 @@ function ShowTime() {
       >
         Invalidate (without fetching DELETE)
       </button>
+      <button
+        onClick={() =>
+          ctrl.set(
+            InvalidateTimedEntity,
+            { id: '1' },
+            { id: '1' },
+          )
+        }
+      >
+        Invalidate Entity with ctrl.set
+      </button>
     </div>
   );
 }
@@ -658,8 +670,8 @@ render(<ShowTime />);
 </HooksPlayground>
 
 [Controller.fetch()](../api/Controller.md#fetch) lets us update the server and store.
-We can use [Controller.setResponse()](../api/Controller.md#setResponse) for cases where we
-simply want to change the local store without updating the server.
+We can use [Controller.setResponse()](../api/Controller.md#setResponse) or [Controller.set()](../api/Controller.md#set)
+when we want to change the local store directly.
 
 #### Conditional Invalidation based on data
 
