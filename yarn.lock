@@ -360,13 +360,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/eslint-plugin@npm:1.0.47":
-  version: 1.0.47
-  resolution: "@anansi/eslint-plugin@npm:1.0.47"
+"@anansi/eslint-plugin@npm:1.0.48":
+  version: 1.0.48
+  resolution: "@anansi/eslint-plugin@npm:1.0.48"
   dependencies:
     "@babel/eslint-parser": "npm:^7.28.0"
     "@babel/eslint-plugin": "npm:^7.27.1"
-    "@eslint/js": "npm:^9.31.0"
+    "@eslint/js": "npm:^9.32.0"
     "@typescript-eslint/parser": "npm:^8.38.0"
     eslint-config-prettier: "npm:^10.1.8"
     eslint-import-resolver-typescript: "npm:^4.4.4"
@@ -392,7 +392,7 @@ __metadata:
       optional: true
     webpack:
       optional: true
-  checksum: 10c0/f7aab779418f7fc4f464c22177faf03cf9ac0abf2a8fb720251ef4d0a859ffade165988e60df80ec9b313b07da3da0de77b5b9c9bfbbd22aad55605053ae3045
+  checksum: 10c0/8011e6911ef6f46c263042e310b8fd2fb39a29adcccb996e220a24e04d4bb48c2f25bd0406c92055d0b16f4e372004696f0b0ac5c10d765133e7ae5c3190f692
   languageName: node
   linkType: hard
 
@@ -4097,16 +4097,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/core@npm:^0.14.0":
-  version: 0.14.0
-  resolution: "@eslint/core@npm:0.14.0"
-  dependencies:
-    "@types/json-schema": "npm:^7.0.15"
-  checksum: 10c0/259f279445834ba2d2cbcc18e9d43202a4011fde22f29d5fb802181d66e0f6f0bd1f6b4b4b46663451f545d35134498231bd5e656e18d9034a457824b92b7741
-  languageName: node
-  linkType: hard
-
-"@eslint/core@npm:^0.15.0":
+"@eslint/core@npm:^0.15.0, @eslint/core@npm:^0.15.1":
   version: 0.15.1
   resolution: "@eslint/core@npm:0.15.1"
   dependencies:
@@ -4132,10 +4123,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/js@npm:9.31.0, @eslint/js@npm:^9.31.0":
-  version: 9.31.0
-  resolution: "@eslint/js@npm:9.31.0"
-  checksum: 10c0/f9d4c73d0fafe70679a418cbb25ab7ebcc8f1dba6c32456d6f8ba5a137d583ecff233cfe10f61f41d7d4d2220e94cff1f39fc7ed1fa3819d1888dee1cad678ea
+"@eslint/js@npm:9.32.0, @eslint/js@npm:^9.32.0":
+  version: 9.32.0
+  resolution: "@eslint/js@npm:9.32.0"
+  checksum: 10c0/f71e8f9146638d11fb15238279feff98801120a4d4130f1c587c4f09b024ff5ec01af1ba88e97ba6b7013488868898a668f77091300cc3d4394c7a8ed32d2667
   languageName: node
   linkType: hard
 
@@ -4146,13 +4137,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/plugin-kit@npm:^0.3.1":
-  version: 0.3.1
-  resolution: "@eslint/plugin-kit@npm:0.3.1"
+"@eslint/plugin-kit@npm:^0.3.4":
+  version: 0.3.4
+  resolution: "@eslint/plugin-kit@npm:0.3.4"
   dependencies:
-    "@eslint/core": "npm:^0.14.0"
+    "@eslint/core": "npm:^0.15.1"
     levn: "npm:^0.4.1"
-  checksum: 10c0/a75f0b5d38430318a551b83e27bee570747eb50beeb76b03f64b0e78c2c27ef3d284cfda3443134df028db3251719bc0850c105f778122f6ad762d5270ec8063
+  checksum: 10c0/64331ca100f62a0115d10419a28059d0f377e390192163b867b9019517433d5073d10b4ec21f754fa01faf832aceb34178745924baab2957486f8bf95fd628d2
   languageName: node
   linkType: hard
 
@@ -6763,33 +6754,33 @@ __metadata:
   linkType: hard
 
 "@testing-library/dom@npm:^10.1.0, @testing-library/dom@npm:^10.4.0":
-  version: 10.4.0
-  resolution: "@testing-library/dom@npm:10.4.0"
+  version: 10.4.1
+  resolution: "@testing-library/dom@npm:10.4.1"
   dependencies:
     "@babel/code-frame": "npm:^7.10.4"
     "@babel/runtime": "npm:^7.12.5"
     "@types/aria-query": "npm:^5.0.1"
     aria-query: "npm:5.3.0"
-    chalk: "npm:^4.1.0"
     dom-accessibility-api: "npm:^0.5.9"
     lz-string: "npm:^1.5.0"
+    picocolors: "npm:1.1.1"
     pretty-format: "npm:^27.0.2"
-  checksum: 10c0/0352487720ecd433400671e773df0b84b8268fb3fe8e527cdfd7c11b1365b398b4e0eddba6e7e0c85e8d615f48257753283fccec41f6b986fd6c85f15eb5f84f
+  checksum: 10c0/19ce048012d395ad0468b0dbcc4d0911f6f9e39464d7a8464a587b29707eed5482000dad728f5acc4ed314d2f4d54f34982999a114d2404f36d048278db815b1
   languageName: node
   linkType: hard
 
 "@testing-library/jest-dom@npm:^6.6.3":
-  version: 6.6.3
-  resolution: "@testing-library/jest-dom@npm:6.6.3"
+  version: 6.6.4
+  resolution: "@testing-library/jest-dom@npm:6.6.4"
   dependencies:
     "@adobe/css-tools": "npm:^4.4.0"
     aria-query: "npm:^5.0.0"
-    chalk: "npm:^3.0.0"
     css.escape: "npm:^1.5.1"
     dom-accessibility-api: "npm:^0.6.3"
     lodash: "npm:^4.17.21"
+    picocolors: "npm:^1.1.1"
     redent: "npm:^3.0.0"
-  checksum: 10c0/5566b6c0b7b0709bc244aec3aa3dc9e5f4663e8fb2b99d8cd456fc07279e59db6076cbf798f9d3099a98fca7ef4cd50e4e1f4c4dec5a60a8fad8d24a638a5bf6
+  checksum: 10c0/cb73adf4910f654f6cc61cfb9a551efdffa04ef423bc7fbfd67a6d8aa31c6c6dc6363fe9db23a35fc7cb32ff1390e6e1c77575c2fa70d8b028a943af32bc214c
   languageName: node
   linkType: hard
 
@@ -6815,13 +6806,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react-native@npm:13.2.0, @testing-library/react-native@npm:^13.0.0":
-  version: 13.2.0
-  resolution: "@testing-library/react-native@npm:13.2.0"
+"@testing-library/react-native@npm:13.2.1, @testing-library/react-native@npm:^13.0.0":
+  version: 13.2.1
+  resolution: "@testing-library/react-native@npm:13.2.1"
   dependencies:
     chalk: "npm:^4.1.2"
-    jest-matcher-utils: "npm:^29.7.0"
-    pretty-format: "npm:^29.7.0"
+    jest-matcher-utils: "npm:^30.0.2"
+    pretty-format: "npm:^30.0.2"
     redent: "npm:^3.0.0"
   peerDependencies:
     jest: ">=29.0.0"
@@ -6831,7 +6822,7 @@ __metadata:
   peerDependenciesMeta:
     jest:
       optional: true
-  checksum: 10c0/5ed8e09f82f45c057f12a716008f31abf934e6a3d84955540e2ab96d7534c82b9afdb0af050e986d8b63ae9dd8272f8a752c45ecb847a11e7549f30de3d84427
+  checksum: 10c0/573f68df59665e207aaadf068e9357dbe03318f766940d40cc11439671716eb35cb86529635993ff148ecdcb8679f4ac5c1d8eba19a908a9be19a2293eada8e3
   languageName: node
   linkType: hard
 
@@ -10688,16 +10679,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chalk@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "chalk@npm:3.0.0"
-  dependencies:
-    ansi-styles: "npm:^4.1.0"
-    supports-color: "npm:^7.1.0"
-  checksum: 10c0/ee650b0a065b3d7a6fda258e75d3a86fc8e4effa55871da730a9e42ccb035bf5fd203525e5a1ef45ec2582ecc4f65b47eb11357c526b84dd29a14fb162c414d2
-  languageName: node
-  linkType: hard
-
 "chalk@npm:^4.0.0, chalk@npm:^4.0.2, chalk@npm:^4.1.0, chalk@npm:^4.1.1, chalk@npm:^4.1.2":
   version: 4.1.2
   resolution: "chalk@npm:4.1.2"
@@ -13280,13 +13261,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"diff-sequences@npm:^29.6.3":
-  version: 29.6.3
-  resolution: "diff-sequences@npm:29.6.3"
-  checksum: 10c0/32e27ac7dbffdf2fb0eb5a84efd98a9ad084fbabd5ac9abb8757c6770d5320d2acd172830b28c4add29bb873d59420601dfc805ac4064330ce59b1adfd0593b2
-  languageName: node
-  linkType: hard
-
 "diff@npm:^4.0.1":
   version: 4.0.1
   resolution: "diff@npm:4.0.1"
@@ -14263,9 +14237,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:9.31.0":
-  version: 9.31.0
-  resolution: "eslint@npm:9.31.0"
+"eslint@npm:9.32.0":
+  version: 9.32.0
+  resolution: "eslint@npm:9.32.0"
   dependencies:
     "@eslint-community/eslint-utils": "npm:^4.2.0"
     "@eslint-community/regexpp": "npm:^4.12.1"
@@ -14273,8 +14247,8 @@ __metadata:
     "@eslint/config-helpers": "npm:^0.3.0"
     "@eslint/core": "npm:^0.15.0"
     "@eslint/eslintrc": "npm:^3.3.1"
-    "@eslint/js": "npm:9.31.0"
-    "@eslint/plugin-kit": "npm:^0.3.1"
+    "@eslint/js": "npm:9.32.0"
+    "@eslint/plugin-kit": "npm:^0.3.4"
     "@humanfs/node": "npm:^0.16.6"
     "@humanwhocodes/module-importer": "npm:^1.0.1"
     "@humanwhocodes/retry": "npm:^0.4.2"
@@ -14309,7 +14283,7 @@ __metadata:
       optional: true
   bin:
     eslint: bin/eslint.js
-  checksum: 10c0/3fd1cd5b38b907ecb3f5e7537ab91204efb38bc1ad0ca6e46fc4112f13b594272ff56e641b41580049bc333fbcb5b1b99ca9a542e8406e7da5e951068cbaec77
+  checksum: 10c0/e8a23924ec5f8b62e95483002ca25db74e25c23bd9c6d98a9f656ee32f820169bee3bfdf548ec728b16694f198b3db857d85a49210ee4a035242711d08fdc602
   languageName: node
   linkType: hard
 
@@ -18456,18 +18430,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-diff@npm:^29.7.0":
-  version: 29.7.0
-  resolution: "jest-diff@npm:29.7.0"
-  dependencies:
-    chalk: "npm:^4.0.0"
-    diff-sequences: "npm:^29.6.3"
-    jest-get-type: "npm:^29.6.3"
-    pretty-format: "npm:^29.7.0"
-  checksum: 10c0/89a4a7f182590f56f526443dde69acefb1f2f0c9e59253c61d319569856c4931eae66b8a3790c443f529267a0ddba5ba80431c585deed81827032b2b2a1fc999
-  languageName: node
-  linkType: hard
-
 "jest-docblock@npm:30.0.1":
   version: 30.0.1
   resolution: "jest-docblock@npm:30.0.1"
@@ -18599,7 +18561,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-matcher-utils@npm:30.0.5":
+"jest-matcher-utils@npm:30.0.5, jest-matcher-utils@npm:^30.0.2":
   version: 30.0.5
   resolution: "jest-matcher-utils@npm:30.0.5"
   dependencies:
@@ -18608,18 +18570,6 @@ __metadata:
     jest-diff: "npm:30.0.5"
     pretty-format: "npm:30.0.5"
   checksum: 10c0/231d891b29bfc218f2f5739c10873b6671426e31ad1c5538eed1531e62608fd3f60d32f41821332a6cf41f1614fd37361434c754fdd49c849b35ef2e5156c02e
-  languageName: node
-  linkType: hard
-
-"jest-matcher-utils@npm:^29.7.0":
-  version: 29.7.0
-  resolution: "jest-matcher-utils@npm:29.7.0"
-  dependencies:
-    chalk: "npm:^4.0.0"
-    jest-diff: "npm:^29.7.0"
-    jest-get-type: "npm:^29.6.3"
-    pretty-format: "npm:^29.7.0"
-  checksum: 10c0/0d0e70b28fa5c7d4dce701dc1f46ae0922102aadc24ed45d594dd9b7ae0a8a6ef8b216718d1ab79e451291217e05d4d49a82666e1a3cc2b428b75cd9c933244e
   languageName: node
   linkType: hard
 
@@ -23763,7 +23713,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"picocolors@npm:^1.0.0, picocolors@npm:^1.1.0, picocolors@npm:^1.1.1":
+"picocolors@npm:1.1.1, picocolors@npm:^1.0.0, picocolors@npm:^1.1.0, picocolors@npm:^1.1.1":
   version: 1.1.1
   resolution: "picocolors@npm:1.1.1"
   checksum: 10c0/e2e3e8170ab9d7c7421969adaa7e1b31434f789afb9b3f115f6b96d91945041ac3ceb02e9ec6fe6510ff036bcc0bf91e69a1772edc0b707e12b19c0f2d6bcf58
@@ -25145,7 +25095,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pretty-format@npm:30.0.5, pretty-format@npm:^30.0.0":
+"pretty-format@npm:30.0.5, pretty-format@npm:^30.0.0, pretty-format@npm:^30.0.2":
   version: 30.0.5
   resolution: "pretty-format@npm:30.0.5"
   dependencies:
@@ -27106,7 +27056,7 @@ __metadata:
   dependencies:
     "@anansi/babel-preset": "npm:6.2.13"
     "@anansi/browserslist-config": "npm:1.7.3"
-    "@anansi/eslint-plugin": "npm:1.0.47"
+    "@anansi/eslint-plugin": "npm:1.0.48"
     "@anansi/jest-preset": "npm:0.11.22"
     "@babel/cli": "npm:7.28.0"
     "@babel/core": "npm:7.28.0"
@@ -27124,7 +27074,7 @@ __metadata:
     "@testing-library/jest-dom": "npm:^6.6.3"
     "@testing-library/react": "npm:16.3.0"
     "@testing-library/react-hooks": "npm:8.0.1"
-    "@testing-library/react-native": "npm:13.2.0"
+    "@testing-library/react-native": "npm:13.2.1"
     "@types/jest": "npm:30.0.0"
     "@types/node": "npm:22.16.5"
     "@types/react": "npm:19.1.8"
@@ -27138,7 +27088,7 @@ __metadata:
     coveralls: "npm:^3.1.0"
     cpy-cli: "npm:5.0.0"
     downlevel-dts: "npm:^0.10.0"
-    eslint: "npm:9.31.0"
+    eslint: "npm:9.32.0"
     globals: "npm:^16.0.0"
     ignore-styles: "npm:^5.0.1"
     jest: "npm:^30.0.0"
