@@ -38,8 +38,8 @@
     "@linaria/shaker": "5.0.3",
     "@types/lodash": "4.14.192",
     "@types/parse-link-header": "^2.0.0",
-    "@types/react": "19.1.8",
-    "@types/react-dom": "19.1.6",
+    "@types/react": "19.1.9",
+    "@types/react-dom": "19.1.7",
     "@types/uuid": "^10.0.0",
     "react-refresh": "0.17.0",
     "serve": "14.2.4",
@@ -48,7 +48,7 @@
     "webpack-dev-server": "5.2.2"
   },
   "dependencies": {
-    "@anansi/router": "0.10.15",
+    "@anansi/router": "0.10.16",
     "@ant-design/icons": "^5.0.0",
     "@babel/runtime-corejs3": "^7.26.7",
     "@data-client/graphql": "^0.14.0",
@@ -56,7 +56,7 @@
     "@data-client/react": "^0.14.0",
     "@data-client/rest": "^0.14.0",
     "@js-temporal/polyfill": "^0.5.0",
-    "antd": "5.26.6",
+    "antd": "5.26.7",
     "core-js": "^3.40.0",
     "history": "^5.3.0",
     "parse-link-header": "^2.0.0",
