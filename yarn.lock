@@ -6806,9 +6806,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react-native@npm:13.2.1, @testing-library/react-native@npm:^13.0.0":
-  version: 13.2.1
-  resolution: "@testing-library/react-native@npm:13.2.1"
+"@testing-library/react-native@npm:13.2.2, @testing-library/react-native@npm:^13.0.0":
+  version: 13.2.2
+  resolution: "@testing-library/react-native@npm:13.2.2"
   dependencies:
     chalk: "npm:^4.1.2"
     jest-matcher-utils: "npm:^30.0.2"
@@ -6822,7 +6822,7 @@ __metadata:
   peerDependenciesMeta:
     jest:
       optional: true
-  checksum: 10c0/573f68df59665e207aaadf068e9357dbe03318f766940d40cc11439671716eb35cb86529635993ff148ecdcb8679f4ac5c1d8eba19a908a9be19a2293eada8e3
+  checksum: 10c0/dbe2a509c1c30d5fd616bce8831ffc7d3b6df819ab0ff24b23e66be7a8c510df29e94a4406b786b58c7bce668abcf44890a5b71aa791ce65a58795c0ab556c41
   languageName: node
   linkType: hard
 
@@ -27074,7 +27074,7 @@ __metadata:
     "@testing-library/jest-dom": "npm:^6.6.3"
     "@testing-library/react": "npm:16.3.0"
     "@testing-library/react-hooks": "npm:8.0.1"
-    "@testing-library/react-native": "npm:13.2.1"
+    "@testing-library/react-native": "npm:13.2.2"
     "@types/jest": "npm:30.0.0"
     "@types/node": "npm:22.16.5"
     "@types/react": "npm:19.1.8"
