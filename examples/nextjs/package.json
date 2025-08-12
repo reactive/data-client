@@ -20,7 +20,7 @@
     "@data-client/rest": "^0.14.0",
     "@number-flow/react": "^0.5.0",
     "@types/node": "22.17.1",
-    "@types/react": "19.1.9",
+    "@types/react": "19.1.10",
     "@types/react-dom": "19.1.7",
     "clsx": "^2.1.1",
     "core-js": "^3.40.0",
@@ -32,7 +32,7 @@
     "typescript": "^5.4.5"
   },
   "overrides": {
-    "@types/react": "19.1.9",
+    "@types/react": "19.1.10",
     "@types/react-dom": "19.1.7"
   }
 }
