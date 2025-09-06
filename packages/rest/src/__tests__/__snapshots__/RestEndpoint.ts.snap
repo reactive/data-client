@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`RestEndpoint getPage: should extend name of parent endpoint 1`] = `"http://test.com/article-paginated.getPage"`;
 

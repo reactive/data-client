@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`EntityMixin construction pk should fail with no id and pk unspecified 1`] = `
 "Missing usable primary key when normalizing response.

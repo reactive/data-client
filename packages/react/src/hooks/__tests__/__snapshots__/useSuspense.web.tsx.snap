@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`useSuspense() errors should throw error when response is {} when expecting entity 1`] = `
 [Error: Error processing GET http://test.com/article-cooler/400
