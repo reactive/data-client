@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`CacheProvider Optimistic Updates race conditions should error when user error happens 1`] = `
 [Error: Error processing toggle [5]
