@@ -50,8 +50,8 @@
     "@data-client/react": "^0.14.0",
     "@data-client/rest": "^0.14.0",
     "core-js": "^3.40.0",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
     "uuid": "^11.0.0"
   },
   "packageManager": "yarn@4.9.4"
