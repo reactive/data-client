@@ -1,9 +1,45 @@
-- Use [@data-client/rest guide](.github/instructions/rest.instructions.md) for REST API definitions.
-- Use [@data-client/react guide](.github/instructions/react.instructions.md) for React.
-- Use [@data-client/test guide](.github/instructions/test.instructions.md) when writing tests.
-- Use [@data-client/manager guide](.github/instructions/manager.instructions.md) when writing custom Managers for @data-client/react.
-- Use markdown files in the [API docs](docs/core/api) directory to validate API usage.
-- Use markdown files in the [guides](docs/core/guides) directory to help with more specific use cases.
-- use markdown files in the [REST](docs/rest) directory to help building REST APIs.
-- If you are not sure about file content or codebase structure pertaining to the user’s request, use your tools to read files and gather the relevant information: do NOT guess or make up an answer.
-- Place API definitions and custom managers in the 'resources' directory.
+## Reactive Data Client – AI contributor guide
+
+- Use [@data-client/rest guide](instructions/rest.instructions.md) for Resource/Endpoint modeling.
+- Use [@data-client/react guide](instructions/react.instructions.md) for React hooks/components and Managers.
+- Use [@data-client/test guide](instructions/test.instructions.md) for fixtures and hook testing.
+- Use [@data-client/manager guide](instructions/manager.instructions.md) to implement global side-effects.
+- Validate API usage with docs in `docs/core/api`, `docs/rest`, and focused guides in `docs/core/guides`.
+
+### Big picture
+- Monorepo managed by Yarn workspaces (`packages/*`, examples under `examples/*`, site in `website/`).
+- Core architecture:
+	- `packages/endpoint`: base Endpoint types; `packages/rest`: REST modeling (`resource()`, `RestEndpoint`).
+	- `packages/core`: framework-agnostic normalized store, actions, Controller, Managers.
+	- `packages/react`: React bindings (hooks like `useSuspense`, `useLive`, `useQuery`, `DataProvider`).
+	- `packages/normalizr`: schema/Entity/normalization; used by rest/core/react.
+
+### Developer workflows
+- Build all packages: `yarn build` (runs `tsc --build` + each workspace build). Clean with `yarn build:clean`.
+- Tests: `yarn test` (Jest projects: ReactDOM, Node, ReactNative). Coverage: `yarn test:coverage`.
+	- Node-only tests name with `.node.test.ts[x]`; RN tests with `.native.test.ts[x]` (see `jest.config.js`).
+- Lint/format: `yarn lint` and `yarn format`.
+- Website (docs) local dev: run the workspace task “website: start”.
+
+### Conventions and patterns
+- Define REST resources using `resource()` and Entities with default field values; prefer normalized schemas.
+	- Examples: `examples/nextjs/resources/TodoResource.ts`, `examples/github-app/src/resources/Issue.tsx`.
+- Place app-level API definitions and custom Managers in `src/resources/` within examples/apps (e.g., `examples/todo-app/src/resources/`).
+- Managers communicate via actions and the `Controller`; import `actionTypes` from `@data-client/react` for type checks.
+- Programmatic queries use `new schema.Query(...)` with a Resource’s schema; see `README.md` examples.
+
+### Integration details
+- Babel (`babel.config.js`) resolves relative `.js` imports to `.ts` in tests; when `COMPILE_TARGET=native`, it prefers `.native.*` files.
+- Jest maps `@data-client/*` imports to local `packages/*/src` during tests (`moduleNameMapper`).
+- TypeScript 5.9 project references are used; ambient `.d.ts` files are copied during build (`build:copy:ambient`).
+
+### Where to look first
+- High-level usage: root `README.md` and `packages/*/README.md` (react, rest, core) show canonical patterns.
+- REST patterns: `docs/rest/*`; Core/Controller/Managers: `docs/core/api/*`.
+- Example apps: `examples/todo-app`, `examples/github-app`, `examples/nextjs` demonstrate resources, hooks, mutations, and Managers.
+
+### Testing patterns
+- Prefer `renderDataHook()` from `@data-client/test` with `initialFixtures`/`resolverFixtures` for hook tests.
+- Use `nock` for low-level HTTP tests of endpoints. Keep tests under `packages/*/src/**/__tests__`.
+
+If anything here is unclear or missing (e.g., adding a new package, expanding CI/build), point it out and I’ll refine these instructions.
