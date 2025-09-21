@@ -46,6 +46,7 @@ const packages = [
   'graphql',
   'core',
   'react',
+  'vue',
   'normalizr',
   'use-enhanced-reducer',
   'img',
