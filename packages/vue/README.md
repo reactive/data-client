@@ -40,7 +40,7 @@ npm install --save @data-client/vue @data-client/rest @data-client/test
 
 For more details, see [the Installation docs page](https://dataclient.io/docs/getting-started/installation).
 
-## Planned Usage
+## Usage (alpha)
 
 ### Simple [TypeScript definition](https://dataclient.io/rest/api/Entity)
 
@@ -82,6 +82,23 @@ const ArticleResource = resource({
 });
 ```
 
+### Provide the Data Client
+
+Call `provideDataClient()` once in your root component's setup. This creates the controller, store, and managers, and provides them via Vue's provide/inject.
+
+```ts
+// App.vue (script setup)
+import { provideDataClient } from '@data-client/vue';
+
+provideDataClient({
+  // optional overrides
+  // managers: getDefaultManagers(),
+  // initialState,
+  // Controller,
+  // gcPolicy,
+});
+```
+
 ### One line [data binding](https://dataclient.io/docs/getting-started/data-dependency)
 
 ```vue
@@ -95,7 +112,6 @@ const ArticleResource = resource({
 </template>
 
 <script setup lang="ts">
-// Planned API - not yet implemented
 const props = defineProps<{ id: string }>();
 const article = useSuspense(ArticleResource.get, { id: props.id });
 </script>
@@ -113,7 +129,6 @@ const article = useSuspense(ArticleResource.get, { id: props.id });
 </template>
 
 <script setup lang="ts">
-// Planned API - not yet implemented
 const props = defineProps<{ id: string; article: Article }>();
 const ctrl = useController();
 
@@ -136,7 +151,6 @@ const handleDeleteArticle = () =>
 </template>
 
 <script setup lang="ts">
-// Planned API - not yet implemented
 const props = defineProps<{ symbol: string }>();
 const price = useLive(PriceResource.get, { symbol: props.symbol });
 </script>
@@ -145,7 +159,6 @@ const price = useLive(PriceResource.get, { symbol: props.symbol });
 ### [Type-safe Imperative Actions](https://dataclient.io/docs/api/Controller)
 
 ```typescript
-// Planned API - not yet implemented
 const ctrl = useController();
 await ctrl.fetch(ArticleResource.update, { id }, articleData);
 await ctrl.fetchIfStale(ArticleResource.get, { id });
@@ -164,7 +177,6 @@ const queryTotalVotes = new schema.Query(
   posts => posts.reduce((total, post) => total + post.votes, 0),
 );
 
-// Planned API - not yet implemented
 const totalVotes = useQuery(queryTotalVotes);
 const totalVotesForUser = useQuery(queryTotalVotes, { userId });
 ```
@@ -174,7 +186,6 @@ const groupTodoByUser = new schema.Query(
   TodoResource.getList.schema,
   todos => Object.groupBy(todos, todo => todo.userId),
 );
-// Planned API - not yet implemented
 const todosByUser = useQuery(groupTodoByUser);
 ```
 
@@ -300,5 +311,5 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://da
   - `ctrl.resolve`
   - `ctrl.subscribe`
   - `ctrl.unsubscribe`
-- Components: `<DataProvider/>`, `<AsyncBoundary/>`, `<ErrorBoundary/>`
+- Components: `<AsyncBoundary/>`, `<ErrorBoundary/>`
 - Middleware: `LogoutManager`, `NetworkManager`, `SubscriptionManager`, `PollingSubscription`, `DevToolsManager`

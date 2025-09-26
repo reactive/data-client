@@ -43,7 +43,6 @@ export type {
   GenericDispatch,
 } from '@data-client/core';
 
-// TODO: Add Vue-specific exports when implementation is ready
-// export * from './composables/index.js';
-// export * from './components/index.js';
-// export * from './stores/index.js';
+export * from './consumers/index.js';
+export * from './providers/index.js';
+export * from './managers/index.js';
