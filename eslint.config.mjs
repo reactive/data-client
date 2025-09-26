@@ -47,4 +47,14 @@ export default [
       'no-console': 'off',
     },
   },
+  // Disable React-specific rules for Vue package
+  {
+    files: ['packages/vue/**/*.?(m|c)ts?(x)', 'packages/vue/**/*.?(m|c)js?(x)'],
+    rules: {
+      'react-hooks/rules-of-hooks': 'off',
+      'react-hooks/exhaustive-deps': 'off',
+      'react/react-in-jsx-scope': 'off',
+      'react/jsx-uses-react': 'off',
+    },
+  },
 ];
