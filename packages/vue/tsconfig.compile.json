@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig",
+  "exclude": ["node_modules", "dist", "lib", "ts3.4", "src-legacy-types", "**/__tests__"]
+}
