@@ -1,6 +1,6 @@
 {
   "name": "@data-client/vue",
-  "version": "0.14.25",
+  "version": "0.0.2",
   "description": "Async State Management without the Management. REST, GraphQL, SSE, Websockets, Fetch",
   "homepage": "https://dataclient.io",
   "repository": {
@@ -113,15 +113,11 @@
   },
   "peerDependencies": {
     "@types/vue": "^3.0.0",
-    "pinia": "^2.0.0",
     "vue": "^3.0.0"
   },
   "peerDependenciesMeta": {
     "@types/vue": {
       "optional": true
-    },
-    "pinia": {
-      "optional": false
     }
   },
   "devDependencies": {
@@ -136,7 +132,6 @@
     "jest-environment-jsdom": "^30.0.0",
     "jest-mock": "^30.0.0",
     "nock": "13.3.1",
-    "pinia": "^2.2.0",
     "rollup-plugins": "workspace:*",
     "vue": "^3.4.0"
   }
