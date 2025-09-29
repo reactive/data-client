@@ -9,7 +9,7 @@
 The scalable way to build applications with [dynamic data](https://dataclient.io/docs/getting-started/mutations).
 
 [Declarative resouce definitons](https://dataclient.io/docs/getting-started/resource) for [REST](https://dataclient.io/rest), [GraphQL](https://dataclient.io/graphql), [Websockets+SSE](https://dataclient.io/docs/concepts/managers#data-stream) and [more](https://dataclient.io/rest/api/Endpoint)
-<br/>[Performant rendering](https://dataclient.io/docs/getting-started/data-dependency) in [Vue 3](https://vuejs.org/), [Nuxt](https://nuxt.com/)
+<br/>[Performant rendering](https://dataclient.io/docs/getting-started/data-dependency) in [Vue 3](https://vuejs.org/)
 
 Schema driven. Zero updater functions.
 
@@ -113,7 +113,7 @@ provideDataClient({
 
 <script setup lang="ts">
 const props = defineProps<{ id: string }>();
-const article = useSuspense(ArticleResource.get, { id: props.id });
+const article = await useSuspense(ArticleResource.get, { id: props.id });
 </script>
 ```
 
@@ -275,25 +275,23 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://da
 ## Planned Features
 
 - [x] ![TS](./typescript.svg?sanitize=true) Strong [Typescript](https://www.typescriptlang.org/) inference
-- [ ] 🔄 Vue 3 [Composition API](https://vuejs.org/guide/extras/composition-api-faq.html) composables
-- [ ] 🏪 [Pinia](https://pinia.vuejs.org/) store integration
-- [ ] 💦 [Server Side Rendering](https://nuxt.com/) with Nuxt
-- [ ] 🎣 [Declarative API](https://dataclient.io/docs/getting-started/data-dependency)
-- [ ] 📝 Composition over configuration
-- [ ] 💰 [Normalized](https://dataclient.io/docs/concepts/normalization) caching
-- [ ] 💥 Tiny bundle footprint
-- [ ] 🛑 Automatic overfetching elimination
-- [ ] ✨ Fast [optimistic updates](https://dataclient.io/rest/guides/optimistic-updates)
-- [ ] 🧘 [Flexible](https://dataclient.io/docs/getting-started/resource) to fit any API design (one size fits all)
-- [ ] 🔧 [Debugging and inspection](https://dataclient.io/docs/getting-started/debugging) via browser extension
-- [ ] 🌳 Tree-shakable (only use what you need)
-- [ ] 🔁 [Subscriptions](https://dataclient.io/docs/api/useSubscription)
-- [ ] 📙 [Storybook mocking](https://dataclient.io/docs/guides/storybook)
-- [ ] 🚯 [Declarative cache lifetime policy](https://dataclient.io/docs/concepts/expiry-policy)
-- [ ] 🧅 [Composable middlewares](https://dataclient.io/docs/api/Manager)
-- [ ] 💽 Global data consistency guarantees
-- [ ] 🏇 Automatic race condition elimination
-- [ ] 👯 Global referential equality guarantees
+- [x] 🔄 Vue 3 [Composition API](https://vuejs.org/guide/extras/composition-api-faq.html) composables
+- [x] 🎣 [Declarative API](https://dataclient.io/docs/getting-started/data-dependency)
+- [x] 📝 Composition over configuration
+- [x] 💰 [Normalized](https://dataclient.io/docs/concepts/normalization) caching
+- [x] 💥 Tiny bundle footprint
+- [x] 🛑 Automatic overfetching elimination
+- [x] ✨ Fast [optimistic updates](https://dataclient.io/rest/guides/optimistic-updates)
+- [x] 🧘 [Flexible](https://dataclient.io/docs/getting-started/resource) to fit any API design (one size fits all)
+- [x] 🔧 [Debugging and inspection](https://dataclient.io/docs/getting-started/debugging) via browser extension
+- [x] 🌳 Tree-shakable (only use what you need)
+- [x] 🔁 [Subscriptions](https://dataclient.io/docs/api/useSubscription)
+- [x] 📙 [Storybook mocking](https://dataclient.io/docs/guides/storybook)
+- [x] 🚯 [Declarative cache lifetime policy](https://dataclient.io/docs/concepts/expiry-policy)
+- [x] 🧅 [Composable middlewares](https://dataclient.io/docs/api/Manager)
+- [x] 💽 Global data consistency guarantees
+- [x] 🏇 Automatic race condition elimination
+- [x] 👯 Global referential equality guarantees
 
 ## Planned API
 

@@ -15,7 +15,7 @@ import {
   type ComputedRef,
 } from 'vue';
 
-import { injectController, injectState } from '../context.js';
+import { useController, injectState } from '../context.js';
 
 export default function useSuspense<
   E extends EndpointInterface<
@@ -58,7 +58,7 @@ export default async function useSuspense(
   ...args: any[]
 ): Promise<any> {
   const stateRef = injectState();
-  const controller = injectController();
+  const controller = useController();
 
   const key = args[0] !== null ? endpoint.key(...args) : '';
   const responseMeta = computed(() =>

@@ -13,7 +13,7 @@ export const ControllerKey: InjectionKey<Controller> = Symbol(
 export const FallbackStateRef: ShallowRef<State<unknown>> =
   shallowRef(initialState);
 
-export function injectController(): Controller {
+export function useController(): Controller {
   const ctrl = inject(ControllerKey, null);
   if (!ctrl) {
     if (process.env.NODE_ENV !== 'production') {

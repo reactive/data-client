@@ -5,7 +5,7 @@ import type {
 } from '@data-client/core';
 import { computed, unref, watch } from 'vue';
 
-import { injectController } from '../context.js';
+import { useController } from '../context.js';
 
 /**
  * Keeps a resource fresh by subscribing to updates.
@@ -19,7 +19,7 @@ export default function useSubscription<
     undefined | false
   >,
 >(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]) {
-  const controller = injectController();
+  const controller = useController();
 
   // Track top-level reactive args (Refs are unwrapped). This allows props/refs to trigger resubscribe.
   const resolvedArgs = computed(() => args.map(a => unref(a as any)) as any);
