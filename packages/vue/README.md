@@ -272,7 +272,7 @@ const fixtures = [
 
 For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://dataclient.io/docs/getting-started/installation)
 
-## Planned Features
+## Features
 
 - [x] ![TS](./typescript.svg?sanitize=true) Strong [Typescript](https://www.typescriptlang.org/) inference
 - [x] 🔄 Vue 3 [Composition API](https://vuejs.org/guide/extras/composition-api-faq.html) composables
@@ -293,7 +293,7 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://da
 - [x] 🏇 Automatic race condition elimination
 - [x] 👯 Global referential equality guarantees
 
-## Planned API
+## API
 
 - Rendering: `useSuspense()`, `useLive()`, `useCache()`, `useDLE()`, `useQuery()`, `useLoading()`, `useDebounce()`, `useCancelling()`
 - Event handling: `useController()` returns [Controller](https://dataclient.io/docs/api/Controller)
