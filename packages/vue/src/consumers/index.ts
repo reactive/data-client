@@ -4,4 +4,5 @@ export { default as useQuery } from './useQuery.js';
 export { default as useLive } from './useLive.js';
 export { default as useLoading } from './useLoading.js';
 export { default as useDebounce } from './useDebounce.js';
+export { default as useFetch } from './useFetch.js';
 export { useController as useController } from '../context.js';

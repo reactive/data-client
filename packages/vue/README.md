@@ -28,10 +28,6 @@ Schema driven. Zero updater functions.
 
 </div>
 
-## Status
-
-🚧 **Under Development** - This package is currently being developed and is not yet ready for production use.
-
 ## Installation
 
 ```bash

@@ -1,6 +1,3 @@
-// Vue Data Client - Coming Soon
-// This package will provide Vue 3 composables for @data-client/core
-
 export { Controller, ExpiryStatus, actionTypes } from '@data-client/core';
 export type {
   EndpointExtraOptions,
