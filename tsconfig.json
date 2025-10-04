@@ -9,6 +9,7 @@
     { "path": "./packages/graphql/tsconfig.compile.json" },
     { "path": "./packages/core/tsconfig.compile.json" },
     { "path": "./packages/react/tsconfig.compile.json" },
+    { "path": "./packages/vue/tsconfig.compile.json" },
     { "path": "./packages/img/tsconfig.compile.json" },
     { "path": "./packages/test/tsconfig.compile.json" },
   ]
