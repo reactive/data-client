@@ -33,7 +33,17 @@ export default class UnionSchema extends PolymorphicSchema {
     const discriminatedSchema = this.schema[schema];
 
     // Was unable to infer the entity's schema from params
-    if (discriminatedSchema === undefined) return;
+    if (discriminatedSchema === undefined) {
+      // In this case, we will try each schema until we find one that matches
+      for (const key in this.schema) {
+        const id = unvisit(this.schema[key], args);
+        if (id !== undefined) {
+          return { id, schema: key };
+        }
+      }
+      return;
+    }
+
     const id = unvisit(discriminatedSchema, args);
     if (id === undefined) return;
     return { id, schema };
