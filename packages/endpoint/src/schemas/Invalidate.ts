@@ -34,7 +34,7 @@ export default class Invalidate<
     this._entity = entity;
   }
 
-  get key() {
+  get key(): string {
     return this._entity.key;
   }
 
@@ -73,7 +73,7 @@ export default class Invalidate<
 
     // any queued updates are meaningless with delete, so we should just set it
     // and creates will have a different pk
-    delegate.invalidate(this as any, pk);
+    delegate.invalidate({ key: this._entity.key }, pk);
     return pk;
   }
 
@@ -86,6 +86,7 @@ export default class Invalidate<
     args: readonly any[],
     unvisit: (schema: any, input: any) => any,
   ): AbstractInstanceType<E> {
+    // TODO: is this really always going to be the full object - validate that calling fetch will give this even when input is a string
     return unvisit(this._entity, id) as any;
   }
 
