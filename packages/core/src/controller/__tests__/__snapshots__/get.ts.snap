@@ -53,6 +53,23 @@ Group {
 }
 `;
 
+exports[`Controller.get() Union based on args with function schemaAttribute 1`] = `
+User {
+  "id": "1",
+  "type": "users",
+  "username": "bob",
+}
+`;
+
+exports[`Controller.get() Union based on args with function schemaAttribute 2`] = `
+Group {
+  "groupname": "fast",
+  "id": "2",
+  "memberCount": 5,
+  "type": "groups",
+}
+`;
+
 exports[`Controller.get() indexes query Entity based on index 1`] = `
 User {
   "id": "1",

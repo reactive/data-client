@@ -295,11 +295,11 @@ describe('Controller.get()', () => {
       id: string = '';
     }
     class User extends IDEntity {
-      type = 'user';
+      type = 'users';
       username: string = '';
     }
     class Group extends IDEntity {
-      type = 'group';
+      type = 'groups';
       groupname: string = '';
       memberCount = 0;
     }
@@ -342,6 +342,70 @@ describe('Controller.get()', () => {
 
     // @ts-expect-error
     () => controller.get(queryPerson, { id: { bob: 5 } }, state);
+    // @ts-expect-error
+    expect(controller.get(queryPerson, 5, state)).toBeUndefined();
+    // @ts-expect-error
+    () => controller.get(queryPerson, { doesnotexist: 5 }, state);
+    // @ts-expect-error
+    () => controller.get(queryPerson, { id: '1', doesnotexist: 5 }, state);
+  });
+
+  it('Union based on args with function schemaAttribute', () => {
+    class IDEntity extends Entity {
+      id: string = '';
+    }
+    class User extends IDEntity {
+      type = 'user';
+      username: string = '';
+    }
+    class Group extends IDEntity {
+      type = 'group';
+      groupname: string = '';
+      memberCount = 0;
+    }
+    const queryPerson = new schema.Union(
+      {
+        users: User,
+        groups: Group,
+      },
+      (value: { type: 'users' | 'groups' }) => value.type,
+    );
+    const controller = new Controller();
+    const state = {
+      ...initialState,
+      entities: {
+        User: {
+          '1': { id: '1', type: 'users', username: 'bob' },
+        },
+        Group: {
+          '2': { id: '2', type: 'groups', groupname: 'fast', memberCount: 5 },
+        },
+      },
+    };
+    const user = controller.get(queryPerson, { id: '1', type: 'users' }, state);
+    expect(user).toBeDefined();
+    expect(user).toBeInstanceOf(User);
+    expect(user).toMatchSnapshot();
+    const group = controller.get(
+      queryPerson,
+      { id: '2', type: 'groups' },
+      state,
+    );
+    expect(group).toBeDefined();
+    expect(group).toBeInstanceOf(Group);
+    expect(group).toMatchSnapshot();
+
+    // should maintain referential equality
+    expect(user).toBe(
+      controller.get(queryPerson, { id: '1', type: 'users' }, state),
+    );
+
+    // these are the 'fallback case' where it cannot determine type discriminator, so just enumerates
+    () => controller.get(queryPerson, { id: '1' }, state);
+    // @ts-expect-error
+    () => controller.get(queryPerson, { id: '1', type: 'notrealtype' }, state);
+    // @ts-expect-error
+    () => controller.get(queryPerson, { id: { bob: 5 }, type: 'users' }, state);
     // @ts-expect-error
     expect(controller.get(queryPerson, 5, state)).toBeUndefined();
     // @ts-expect-error

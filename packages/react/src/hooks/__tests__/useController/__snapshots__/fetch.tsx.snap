@@ -28,7 +28,7 @@ Value: {
 }",
   ],
   [
-    "TypeError: Unable to infer schema for UnionSchema
+    "TypeError: Unable to determine schema for UnionSchema
 Value: {
   "id": "6",
   "body": "hi",
@@ -36,7 +36,7 @@ Value: {
 }.",
   ],
   [
-    "TypeError: Unable to infer schema for UnionSchema
+    "TypeError: Unable to determine schema for UnionSchema
 Value: {
   "id": "7",
   "body": "hi"
@@ -73,7 +73,7 @@ Value: {
 }",
   ],
   [
-    "TypeError: Unable to infer schema for UnionSchema
+    "TypeError: Unable to determine schema for UnionSchema
 Value: {
   "id": "6",
   "body": "hi",
@@ -81,7 +81,7 @@ Value: {
 }.",
   ],
   [
-    "TypeError: Unable to infer schema for UnionSchema
+    "TypeError: Unable to determine schema for UnionSchema
 Value: {
   "id": "7",
   "body": "hi"

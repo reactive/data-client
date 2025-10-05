@@ -73,6 +73,166 @@ describe(`${schema.Union.name} normalization`, () => {
   });
 });
 
+describe(`${schema.Union.name} buildQueryKey`, () => {
+  class User extends IDEntity {
+    static key = 'User';
+  }
+  class Group extends IDEntity {
+    static key = 'Group';
+  }
+
+  // Common schema definitions
+  const stringAttributeUnion = new schema.Union(
+    {
+      users: User,
+      groups: Group,
+    },
+    'type',
+  );
+
+  const functionAttributeUnion = new schema.Union(
+    {
+      users: User,
+      groups: Group,
+    },
+    input => {
+      return (
+        input.username ? 'users'
+        : input.groupname ? 'groups'
+        : undefined
+      );
+    },
+  );
+
+  test('buildQueryKey with discriminator in args', () => {
+    const memo = new SimpleMemoCache();
+
+    const state = {
+      entities: {
+        User: {
+          1: { id: '1', username: 'Janey', type: 'users' },
+        },
+        Group: {
+          2: { id: '2', groupname: 'People', type: 'groups' },
+        },
+      },
+      indexes: {},
+    };
+
+    // Fast case - args include type discriminator
+    const result1 = memo.memo.buildQueryKey(
+      stringAttributeUnion,
+      [{ id: '1', type: 'users' }],
+      state,
+    );
+    expect(result1).toEqual({ id: '1', schema: 'users' });
+
+    const result2 = memo.memo.buildQueryKey(
+      stringAttributeUnion,
+      [{ id: '2', type: 'groups' }],
+      state,
+    );
+    expect(result2).toEqual({ id: '2', schema: 'groups' });
+  });
+
+  test('buildQueryKey without discriminator - fallback case', () => {
+    const memo = new SimpleMemoCache();
+
+    const state = {
+      entities: {
+        User: {
+          1: { id: '1', username: 'Janey', type: 'users' },
+        },
+        Group: {
+          2: { id: '2', groupname: 'People', type: 'groups' },
+        },
+      },
+      indexes: {},
+    };
+
+    // Fallback case - args missing type discriminator, only {id}
+    // Should try every possible schema until it finds a match
+    const result1 = memo.memo.buildQueryKey(
+      stringAttributeUnion,
+      [{ id: '1' }],
+      state,
+    );
+    expect(result1).toEqual({ id: '1', schema: 'users' });
+
+    const result2 = memo.memo.buildQueryKey(
+      stringAttributeUnion,
+      [{ id: '2' }],
+      state,
+    );
+    expect(result2).toEqual({ id: '2', schema: 'groups' });
+  });
+
+  test('buildQueryKey with function schemaAttribute missing discriminator', () => {
+    const memo = new SimpleMemoCache();
+
+    const state = {
+      entities: {
+        User: {
+          1: { id: '1', username: 'Janey' },
+        },
+        Group: {
+          2: { id: '2', groupname: 'People' },
+        },
+      },
+      indexes: {},
+    };
+
+    // With function schemaAttribute, args missing username/groupname
+    // Should fallback to trying every schema
+    const result1 = memo.memo.buildQueryKey(
+      functionAttributeUnion,
+      [{ id: '1' }],
+      state,
+    );
+    expect(result1).toEqual({ id: '1', schema: 'users' });
+
+    const result2 = memo.memo.buildQueryKey(
+      functionAttributeUnion,
+      [{ id: '2' }],
+      state,
+    );
+    expect(result2).toEqual({ id: '2', schema: 'groups' });
+  });
+
+  test('buildQueryKey returns undefined when no entity found', () => {
+    const memo = new SimpleMemoCache();
+
+    const state = {
+      entities: {
+        User: {},
+        Group: {},
+      },
+      indexes: {},
+    };
+
+    // No entity exists with id '999'
+    const result = memo.memo.buildQueryKey(
+      stringAttributeUnion,
+      [{ id: '999' }],
+      state,
+    );
+    expect(result).toBeUndefined();
+  });
+
+  test('buildQueryKey returns undefined when no args provided', () => {
+    const memo = new SimpleMemoCache();
+
+    const state = {
+      entities: {},
+      indexes: {},
+    };
+
+    // No args provided
+    const result = memo.memo.buildQueryKey(stringAttributeUnion, [], state);
+    expect(result).toBeUndefined();
+  });
+});
+
 describe('complex case', () => {
   test('works with undefined', () => {
     const response = {

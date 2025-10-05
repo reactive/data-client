@@ -939,9 +939,9 @@ describe('resource()', () => {
         // @ts-expect-error
         useQuery(FeedUnion, { id: '5', typed: 'link' });
         // @ts-expect-error
-        useQuery(FeedUnion, { id: '5' });
-        // @ts-expect-error
         useQuery(FeedUnion, { id: '5', type: 'bob' });
+        // these are the 'fallback case' where it cannot determine type discriminator, so just enumerates
+        useQuery(FeedUnion, { id: '5' });
       };
 
       () =>

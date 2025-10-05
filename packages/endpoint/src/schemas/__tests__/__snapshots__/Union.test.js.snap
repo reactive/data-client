@@ -546,7 +546,7 @@ exports[`input (direct) UnionSchema denormalization (current) returns the origin
 exports[`input (direct) UnionSchema denormalization (current) returns the original value when no schema is given 2`] = `
 [
   [
-    "TypeError: Unable to infer schema for UnionSchema
+    "TypeError: Unable to determine schema for UnionSchema
 Value: {
   "id": "1"
 }.",
@@ -559,7 +559,7 @@ exports[`input (direct) UnionSchema denormalization (current) returns the origin
 exports[`input (direct) UnionSchema denormalization (current) returns the original value when string is given 2`] = `
 [
   [
-    "TypeError: Unable to infer schema for UnionSchema
+    "TypeError: Unable to determine schema for UnionSchema
 Value: "1".",
   ],
 ]
@@ -606,7 +606,7 @@ Immutable.Map {
 exports[`input (immutable) UnionSchema denormalization (current) returns the original value when no schema is given 2`] = `
 [
   [
-    "TypeError: Unable to infer schema for UnionSchema
+    "TypeError: Unable to determine schema for UnionSchema
 Value: {
   "id": "1"
 }.",
@@ -619,7 +619,7 @@ exports[`input (immutable) UnionSchema denormalization (current) returns the ori
 exports[`input (immutable) UnionSchema denormalization (current) returns the original value when string is given 2`] = `
 [
   [
-    "TypeError: Unable to infer schema for UnionSchema
+    "TypeError: Unable to determine schema for UnionSchema
 Value: "1".",
   ],
 ]

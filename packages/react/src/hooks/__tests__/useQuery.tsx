@@ -260,12 +260,12 @@ describe('useQuery()', () => {
     expect(result.current.type).toBe('first');
     expect(result.current).toBeInstanceOf(FirstUnion);
 
-    // @ts-expect-error
-    () => useQuery(UnionResource.get.schema, { type: 'notvalid' });
-    // @ts-expect-error
+    // these are the 'fallback case' where it cannot determine type discriminator, so just enumerates
     () => useQuery(UnionResource.get.schema, { id: '5' });
-    // @ts-expect-error
     () => useQuery(UnionResource.get.schema, { body: '5' });
+
+    // @ts-expect-error
+    () => useQuery(UnionResource.get.schema, { id: '5', type: 'notvalid' });
     // @ts-expect-error
     () => useQuery(UnionResource.get.schema, { doesnotexist: '5' });
     // @ts-expect-error

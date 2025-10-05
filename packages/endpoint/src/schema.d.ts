@@ -229,7 +229,7 @@ export interface UnionConstructor {
     schemaAttribute: SchemaAttribute,
   ): UnionInstance<
     Choices,
-    UnionSchemaToArgs<Choices, SchemaAttribute> &
+    Partial<UnionSchemaToArgs<Choices, SchemaAttribute>> &
       Partial<AbstractInstanceType<Choices[keyof Choices]>>
   >;
 
