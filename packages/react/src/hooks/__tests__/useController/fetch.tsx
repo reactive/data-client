@@ -333,6 +333,51 @@ describe.each([
     expect(warnSpy.mock.calls.length).toBe(0);
   });
 
+  it('should return denormalized value when schema is present (delete)', async () => {
+    const { controller } = renderDataClient(
+      () => {
+        return 'hi';
+      },
+      {
+        resolverFixtures: [
+          {
+            endpoint: CoolerArticleResource.delete,
+            args: [{ id: payload.id }],
+            response: payload,
+          },
+        ],
+      },
+    );
+    const ret = await controller.fetch(CoolerArticleResource.delete, {
+      id: payload.id,
+    });
+    expect(ret.content).toEqual(payload.content);
+    expect(ret).toBeInstanceOf(CoolerArticle);
+    expect(warnSpy.mock.calls.length).toBe(0);
+  });
+
+  it('should return denormalized value when schema is present (delete with string response)', async () => {
+    const { controller } = renderDataClient(
+      () => {
+        return 'hi';
+      },
+      {
+        resolverFixtures: [
+          {
+            endpoint: CoolerArticleResource.delete,
+            args: [{ id: payload.id }],
+            response: payload.id,
+          },
+        ],
+      },
+    );
+    const ret = await controller.fetch(CoolerArticleResource.delete, {
+      id: payload.id,
+    });
+    expect(ret).toEqual(payload.id);
+    expect(warnSpy.mock.calls.length).toBe(0);
+  });
+
   it('should return denormalized value when schema is present (unions)', async () => {
     const response = [
       null,

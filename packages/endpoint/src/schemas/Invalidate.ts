@@ -86,8 +86,8 @@ export default class Invalidate<
     args: readonly any[],
     unvisit: (schema: any, input: any) => any,
   ): AbstractInstanceType<E> {
-    // TODO: is this really always going to be the full object - validate that calling fetch will give this even when input is a string
-    return unvisit(this._entity, id) as any;
+    // TODO: this return type should offer string, but we need to figure out an ergonomic way to do this
+    return unvisit(this._entity, id) ?? id;
   }
 
   /* istanbul ignore next */
