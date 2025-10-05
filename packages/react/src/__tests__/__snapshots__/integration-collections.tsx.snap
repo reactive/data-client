@@ -567,7 +567,7 @@ Value: {
 }",
   ],
   [
-    "TypeError: Unable to infer schema for ArraySchema
+    "TypeError: Unable to determine schema for ArraySchema
 Value: {
   "id": "6",
   "body": "hi",
@@ -575,7 +575,7 @@ Value: {
 }.",
   ],
   [
-    "TypeError: Unable to infer schema for ArraySchema
+    "TypeError: Unable to determine schema for ArraySchema
 Value: {
   "id": "7",
   "body": "hi"
@@ -1178,7 +1178,7 @@ Value: {
 }",
   ],
   [
-    "TypeError: Unable to infer schema for ArraySchema
+    "TypeError: Unable to determine schema for ArraySchema
 Value: {
   "id": "6",
   "body": "hi",
@@ -1186,7 +1186,7 @@ Value: {
 }.",
   ],
   [
-    "TypeError: Unable to infer schema for ArraySchema
+    "TypeError: Unable to determine schema for ArraySchema
 Value: {
   "id": "7",
   "body": "hi"

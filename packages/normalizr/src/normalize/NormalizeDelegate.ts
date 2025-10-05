@@ -150,9 +150,9 @@ export class NormalizeDelegate
   }
 
   /** Invalidates an entity, potentially triggering suspense */
-  invalidate(schema: { key: string; indexes?: any }, pk: string) {
+  invalidate({ key }: { key: string }, pk: string) {
     // set directly: any queued updates are meaningless with delete
-    this.setEntity(schema, pk, INVALID);
+    this.setEntity({ key }, pk, INVALID);
   }
 
   protected _setEntity(key: string, pk: string, entity: any) {

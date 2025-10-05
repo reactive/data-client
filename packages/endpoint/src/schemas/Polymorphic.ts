@@ -103,7 +103,7 @@ Value: ${JSON.stringify(value, undefined, 2)}`,
       /* istanbul ignore else */
       if (process.env.NODE_ENV !== 'production' && value) {
         console.warn(
-          `TypeError: Unable to infer schema for ${this.constructor.name}
+          `TypeError: Unable to determine schema for ${this.constructor.name}
 Value: ${JSON.stringify(value, undefined, 2)}.`,
         );
       }
