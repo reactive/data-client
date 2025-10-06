@@ -1,6 +1,6 @@
 {
   "name": "@data-client/vue",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Async State Management without the Management. REST, GraphQL, SSE, Websockets, Fetch",
   "homepage": "https://dataclient.io",
   "repository": {
@@ -91,7 +91,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime": "^7.20.0",
-    "@data-client/core": "^0.14.24"
+    "@data-client/core": "^0.15.0-beta-0"
   },
   "peerDependencies": {
     "@types/vue": "^3.0.0",
