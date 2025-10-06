@@ -1,6 +1,6 @@
 {
   "name": "@data-client/graphql",
-  "version": "0.14.25",
+  "version": "0.15.0-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b",
   "description": "Quickly define typed GraphQL resources and endpoints",
   "homepage": "https://dataclient.io/docs/graphql",
   "repository": {
@@ -107,7 +107,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/runtime": "^7.20.0",
-    "@data-client/endpoint": "^0.14.25"
+    "@data-client/endpoint": "0.15.0-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b"
   },
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",
