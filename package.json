@@ -73,9 +73,9 @@
     "@testing-library/react-hooks": "8.0.1",
     "@testing-library/react-native": "13.3.3",
     "@types/jest": "30.0.0",
-    "@types/node": "22.18.1",
-    "@types/react": "19.1.12",
-    "@types/react-dom": "19.1.9",
+    "@types/node": "22.18.8",
+    "@types/react": "19.2.0",
+    "@types/react-dom": "19.2.0",
     "babel-plugin-module-resolver": "5.0.2",
     "babel-plugin-syntax-hermes-parser": "^0.32.0",
     "benchmark": "^2.1.4",
@@ -103,7 +103,7 @@
     "rimraf": "^6.0.0",
     "rollup": "4.52.3",
     "ts-node": "10.9.2",
-    "typescript": "5.9.2",
+    "typescript": "5.9.3",
     "whatwg-fetch": "3.0.0"
   },
   "resolutions": {
