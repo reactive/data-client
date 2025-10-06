@@ -12,6 +12,8 @@
   "scripts": {
     "changeset:version": "run changeset version && YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install",
     "changeset:publish": "run build && run changeset publish",
+    "changeset:version:beta": "run changeset version --snapshot beta && YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install",
+    "changeset:publish:beta": "run build && run changeset publish --tag beta",
     "lint": "eslint",
     "format": "eslint --fix \"packages/*/src/**/*.{js,ts,tsx,cts}\"",
     "clean:types": "rimraf packages/*/*.tsbuildinfo",

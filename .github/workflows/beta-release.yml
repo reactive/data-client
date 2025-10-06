@@ -1,0 +1,43 @@
+name: Beta Release
+
+on:
+  push:
+    branches:
+      - beta
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Beta tag (e.g., beta, alpha, rc)'
+        required: true
+        default: 'beta'
+        type: string
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  beta-release:
+    name: Beta Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: 'yarn'
+      - name: Install packages
+        run: |
+          corepack enable
+          yarn install --immutable
+
+      - name: Create Beta Release Pull Request or Publish to npm
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          version: yarn changeset:version:beta
+          publish: yarn changeset:publish:beta
+          commit: "internal: Publish beta version"
+          title: "Version Packages (Beta)"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
