@@ -1,5 +1,33 @@
 # @data-client/test
 
+## 0.15.0-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b
+
+### Minor Changes
+
+- [#3394](https://github.com/reactive/data-client/pull/3394) [`d44d36a`](https://github.com/reactive/data-client/commit/d44d36a7de0a18817486c4f723bf2f0e86ac9677) Thanks [@ntucker](https://github.com/ntucker)! - Change NetworkManager bookkeeping data structure for inflight fetches
+
+  BREAKING CHANGE: NetworkManager.fetched, NetworkManager.rejectors, NetworkManager.resolvers, NetworkManager.fetchedAt
+  -> NetworkManager.fetching
+
+  #### Before
+
+  ```ts
+  if (action.key in this.fetched)
+  ```
+
+  #### After
+
+  ```ts
+  if (this.fetching.has(action.key))
+  ```
+
+- [`769cb78`](https://github.com/reactive/data-client/commit/769cb78966aed032c90864c701dae2bac0cc1e4d) Thanks [@ntucker](https://github.com/ntucker)! - Support 0.15 of @data-client/react
+
+### Patch Changes
+
+- Updated dependencies [[`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7), [`997ca20`](https://github.com/reactive/data-client/commit/997ca209d36e8503ab7684bccc6ddc29d179a0b5), [`fcb7d7d`](https://github.com/reactive/data-client/commit/fcb7d7db8061c2a7e12632071ecb9c6ddd8d154f), [`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7), [`4939456`](https://github.com/reactive/data-client/commit/4939456598c213ee81c1abef476a1aaccd19f82d), [`4dde1d6`](https://github.com/reactive/data-client/commit/4dde1d616e38d59b645573b12bbaba2f9cac7895), [`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7), [`35552c7`](https://github.com/reactive/data-client/commit/35552c716e3b688d69212654f9f95a05ea26a7f8)]:
+  - @data-client/react@0.15.0-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b
+
 ## 0.14.22
 
 ### Patch Changes

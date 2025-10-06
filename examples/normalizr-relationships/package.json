@@ -1,6 +1,6 @@
 {
   "name": "normalizr-relationships",
-  "version": "0.1.50",
+  "version": "0.1.51-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b",
   "description": "And example of using Normalizr with relationships",
   "main": "index.js",
   "author": "Paul Armstrong",
