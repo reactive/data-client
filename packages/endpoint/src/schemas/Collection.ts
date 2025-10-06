@@ -19,6 +19,10 @@ const unshiftMerge = (existing: any, incoming: any) => {
 const valuesMerge = (existing: any, incoming: any) => {
   return { ...existing, ...incoming };
 };
+const removeMerge = (existing: Array<any>, incoming: any) => {
+  return existing.filter((item: any) => !incoming.includes(item));
+};
+
 const createArray = (value: any) => [...value];
 const createValue = (value: any) => ({ ...value });
 
@@ -47,6 +51,9 @@ export default class CollectionSchema<
   : undefined;
 
   declare assign: S extends ValuesType<any> ? CollectionSchema<S, Args, Parent>
+  : undefined;
+
+  declare remove: S extends ArrayType<any> ? CollectionSchema<S, Args, Parent>
   : undefined;
 
   addWith<P extends any[] = Args>(
@@ -118,6 +125,7 @@ export default class CollectionSchema<
       this.createIfValid = createArray;
       this.push = CreateAdder(this, pushMerge);
       this.unshift = CreateAdder(this, unshiftMerge);
+      this.remove = CreateAdder(this, removeMerge);
     } else if (schema instanceof Values) {
       this.createIfValid = createValue;
       this.assign = CreateAdder(this, valuesMerge);
