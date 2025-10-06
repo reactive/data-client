@@ -283,6 +283,195 @@ describe(`${schema.Collection.name} normalization`, () => {
     expect(state).toMatchSnapshot();
   });
 
+  test('normalizes remove from collection', () => {
+    const init = {
+      entities: {
+        [User.schema.todos.key]: {
+          '{"userId":"1"}': ['5', '6'],
+        },
+        Todo: {
+          '5': {
+            id: '5',
+            title: 'finish collections',
+          },
+          '6': {
+            id: '6',
+            title: 'another todo',
+          },
+        },
+        User: {
+          '1': {
+            id: '1',
+            todos: '{"userId":"1"}',
+            username: 'bob',
+          },
+        },
+      },
+      entitiesMeta: {
+        [User.schema.todos.key]: {
+          '{"userId":"1"}': {
+            date: 1557831718135,
+            expiresAt: Infinity,
+            fetchedAt: 0,
+          },
+        },
+        Todo: {
+          '5': {
+            date: 1557831718135,
+            expiresAt: Infinity,
+            fetchedAt: 0,
+          },
+          '6': {
+            date: 1557831718135,
+            expiresAt: Infinity,
+            fetchedAt: 0,
+          },
+        },
+        User: {
+          '1': {
+            date: 1557831718135,
+            expiresAt: Infinity,
+            fetchedAt: 0,
+          },
+        },
+      },
+      indexes: {},
+    };
+    const state = normalize(
+      User.schema.todos.remove,
+      { id: '5', title: 'finish collections' },
+      [{ userId: '1' }],
+      init,
+    );
+    expect(state).toMatchSnapshot();
+  });
+
+  test('normalizes remove from collection with multiple items', () => {
+    const init = {
+      entities: {
+        [User.schema.todos.key]: {
+          '{"userId":"1"}': ['5', '6', '7'],
+        },
+        Todo: {
+          '5': {
+            id: '5',
+            title: 'finish collections',
+          },
+          '6': {
+            id: '6',
+            title: 'another todo',
+          },
+          '7': {
+            id: '7',
+            title: 'third todo',
+          },
+        },
+        User: {
+          '1': {
+            id: '1',
+            todos: '{"userId":"1"}',
+            username: 'bob',
+          },
+        },
+      },
+      entitiesMeta: {
+        [User.schema.todos.key]: {
+          '{"userId":"1"}': {
+            date: 1557831718135,
+            expiresAt: Infinity,
+            fetchedAt: 0,
+          },
+        },
+        Todo: {
+          '5': {
+            date: 1557831718135,
+            expiresAt: Infinity,
+            fetchedAt: 0,
+          },
+          '6': {
+            date: 1557831718135,
+            expiresAt: Infinity,
+            fetchedAt: 0,
+          },
+          '7': {
+            date: 1557831718135,
+            expiresAt: Infinity,
+            fetchedAt: 0,
+          },
+        },
+        User: {
+          '1': {
+            date: 1557831718135,
+            expiresAt: Infinity,
+            fetchedAt: 0,
+          },
+        },
+      },
+      indexes: {},
+    };
+    const state = normalize(
+      User.schema.todos.remove,
+      { id: '6', title: 'another todo' },
+      [{ userId: '1' }],
+      init,
+    );
+    expect(state).toMatchSnapshot();
+  });
+
+  test('normalizes remove non-existent item from collection', () => {
+    const init = {
+      entities: {
+        [User.schema.todos.key]: {
+          '{"userId":"1"}': ['5'],
+        },
+        Todo: {
+          '5': {
+            id: '5',
+            title: 'finish collections',
+          },
+        },
+        User: {
+          '1': {
+            id: '1',
+            todos: '{"userId":"1"}',
+            username: 'bob',
+          },
+        },
+      },
+      entitiesMeta: {
+        [User.schema.todos.key]: {
+          '{"userId":"1"}': {
+            date: 1557831718135,
+            expiresAt: Infinity,
+            fetchedAt: 0,
+          },
+        },
+        Todo: {
+          '5': {
+            date: 1557831718135,
+            expiresAt: Infinity,
+            fetchedAt: 0,
+          },
+        },
+        User: {
+          '1': {
+            date: 1557831718135,
+            expiresAt: Infinity,
+            fetchedAt: 0,
+          },
+        },
+      },
+      indexes: {},
+    };
+    const state = normalize(
+      User.schema.todos.remove,
+      { id: '99', title: 'non-existent todo' }, // non-existent id
+      [{ userId: '1' }],
+      init,
+    );
+    expect(state).toMatchSnapshot();
+  });
+
   describe('push should add only to collections matching filterArgumentKeys', () => {
     const initializingSchema = new schema.Collection([Todo]);
     let state = {
@@ -432,6 +621,95 @@ describe(`${schema.Collection.name} normalization`, () => {
       }
       const sch = new MyCollection([Todo]);
       validate(sch);
+    });
+  });
+
+  describe('remove should remove only from collections matching filterArgumentKeys', () => {
+    const initializingSchema = new schema.Collection([Todo]);
+    let state = {
+      ...initialState,
+      ...normalize(
+        initializingSchema,
+        [{ id: '10', title: 'create new items' }],
+        [{ userId: '1' }],
+        initialState,
+      ),
+    };
+    state = {
+      ...state,
+      ...normalize(
+        initializingSchema,
+        [{ id: '20', title: 'second user' }],
+        [{ userId: '2' }],
+        state,
+      ),
+    };
+    state = {
+      ...state,
+      ...normalize(
+        initializingSchema,
+        [
+          { id: '10', title: 'create new items' },
+          { id: '20', title: 'the ignored one' },
+        ],
+        [{}],
+        state,
+      ),
+    };
+    function validateRemove(sch: schema.Collection<(typeof Todo)[]>) {
+      expect(
+        (
+          denormalize(
+            sch,
+            JSON.stringify({ userId: '1' }),
+            state.entities,
+          ) as any
+        )?.length,
+      ).toBe(1);
+      const testState = {
+        ...state,
+        ...normalize(
+          sch.remove,
+          { id: '10', title: 'create new items' },
+          [{ userId: '1' }],
+          state,
+        ),
+      };
+      function getResponse(...args: any) {
+        return denormalize(
+          sch,
+          sch.pk(undefined, undefined, '', args),
+          testState.entities,
+        ) as any;
+      }
+      const userOne = getResponse({ userId: '1' });
+      if (!userOne || typeof userOne === 'symbol')
+        throw new Error('should have a value');
+      expect(userOne.length).toBe(0);
+
+      expect(getResponse({}).length).toBe(1); // only '20' remains
+      expect(getResponse({ userId: '2' })?.length).toBe(1); // '20' remains
+    }
+
+    it('should work with function form', () => {
+      const sch = new schema.Collection([Todo], {
+        nonFilterArgumentKeys(key) {
+          return key.startsWith('ignored');
+        },
+      });
+      validateRemove(sch);
+    });
+    it('should work with RegExp form', () => {
+      const sch = new schema.Collection([Todo], {
+        nonFilterArgumentKeys: /ignored/,
+      });
+      validateRemove(sch);
+    });
+    it('should work with array form', () => {
+      const sch = new schema.Collection([Todo], {
+        nonFilterArgumentKeys: ['ignoredMe'],
+      });
+      validateRemove(sch);
     });
   });
 });
@@ -611,6 +889,52 @@ describe(`${schema.Collection.name} denormalization`, () => {
           "title": "from the start",
           "userId": 0,
         }
+      `);
+    });
+
+    test('remove updates cache', () => {
+      const removedState = normalize(
+        User.schema.todos.remove,
+        { id: '5', title: 'finish collections' },
+        [{ userId: '1' }],
+        normalizeNested,
+      );
+      const todos = memo.denormalize(
+        userTodos,
+        '{"userId":"1"}',
+        removedState.entities,
+        [{ userId: '1' }],
+      );
+      const user = memo.denormalize(
+        User,
+        normalizeNested.result,
+        removedState.entities,
+        [{ id: '1' }],
+      );
+      expect(user).toBeDefined();
+      expect(user).not.toEqual(expect.any(Symbol));
+      if (typeof user === 'symbol' || !user) return;
+      expect(user.todos.length).toBe(0);
+      expect(todos).toBe(user.todos);
+    });
+
+    test('denormalizes remove', () => {
+      const todos = memo.denormalize(
+        userTodos.remove,
+        { id: '5', title: 'finish collections' },
+        {},
+        [{ userId: '1' }],
+      );
+      expect(todos).toBeDefined();
+      expect(todos).not.toEqual(expect.any(Symbol));
+      if (typeof todos === 'symbol' || !todos) return;
+      expect(todos).toMatchInlineSnapshot(`
+       Todo {
+         "completed": false,
+         "id": "5",
+         "title": "finish collections",
+         "userId": 0,
+       }
       `);
     });
   });

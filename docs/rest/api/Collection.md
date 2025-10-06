@@ -430,6 +430,20 @@ A creation schema that places at the _end_ of this collection
 
 A creation schema that places at the _start_ of this collection
 
+### remove
+
+Remove item[s] from a collection by value.
+
+```ts
+ctrl.set(MyResource.getList.schema.remove, { id });
+```
+
+```ts
+const removeItem = MyResource.delete.extend({
+  schema: MyResource.getList.schema.remove
+})
+```
+
 ### assign
 
 A creation schema that [assigns](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign)

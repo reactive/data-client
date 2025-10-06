@@ -153,6 +153,11 @@ export interface CollectionInterface<
    */
   unshift: CollectionArrayAdder<S>;
 
+  /** Schema to remove (by value) from a Collection
+   * @see https://dataclient.io/rest/api/Collection#remove
+   */
+  remove: CollectionArrayAdder<S>;
+
   /** Schema to merge with a Values Collection
    * @see https://dataclient.io/rest/api/Collection#assign
    */
