@@ -143,7 +143,7 @@ export default class CollectionSchema<
   toJSON() {
     return {
       key: this.key,
-      schema: this.schema.schema.toJSON(),
+      schema: this.schema.schema,
     };
   }
 

@@ -227,6 +227,61 @@ describe(`${schema.Collection.name} normalization`, () => {
       expect(result).toMatchSnapshot();
       expect(entities).toMatchSnapshot();
     });
+
+    test('remove works with Union members', () => {
+      const init = {
+        entities: {
+          [collectionUnion.key]: {
+            '{"fakeFilter":false}': ['1', '2'],
+          },
+          User: {
+            '1': {
+              id: '1',
+              type: 'users',
+            },
+          },
+          Group: {
+            '2': {
+              id: '2',
+              type: 'groups',
+            },
+          },
+        },
+        entitiesMeta: {
+          [collectionUnion.key]: {
+            '{"fakeFilter":false}': {
+              date: 1557831718135,
+              expiresAt: Infinity,
+              fetchedAt: 0,
+            },
+          },
+          User: {
+            '1': {
+              date: 1557831718135,
+              expiresAt: Infinity,
+              fetchedAt: 0,
+            },
+          },
+          Group: {
+            '2': {
+              date: 1557831718135,
+              expiresAt: Infinity,
+              fetchedAt: 0,
+            },
+          },
+        },
+        indexes: {},
+      };
+      const state = normalize(
+        collectionUnion.remove,
+        { id: '1', type: 'users' },
+        [{ fakeFilter: false }],
+        init,
+      );
+      expect(
+        state.entities[collectionUnion.key]['{"fakeFilter":false}'],
+      ).toEqual(['2']);
+    });
   });
 
   test('normalizes push onto the end', () => {
@@ -343,7 +398,9 @@ describe(`${schema.Collection.name} normalization`, () => {
       [{ userId: '1' }],
       init,
     );
-    expect(state).toMatchSnapshot();
+    expect(state.entities[User.schema.todos.key]['{"userId":"1"}']).toEqual([
+      '6',
+    ]);
   });
 
   test('normalizes remove from collection with multiple items', () => {
@@ -415,7 +472,10 @@ describe(`${schema.Collection.name} normalization`, () => {
       [{ userId: '1' }],
       init,
     );
-    expect(state).toMatchSnapshot();
+    expect(state.entities[User.schema.todos.key]['{"userId":"1"}']).toEqual([
+      '5',
+      '7',
+    ]);
   });
 
   test('normalizes remove non-existent item from collection', () => {
@@ -469,7 +529,9 @@ describe(`${schema.Collection.name} normalization`, () => {
       [{ userId: '1' }],
       init,
     );
-    expect(state).toMatchSnapshot();
+    expect(state.entities[User.schema.todos.key]['{"userId":"1"}']).toEqual([
+      '5',
+    ]);
   });
 
   describe('push should add only to collections matching filterArgumentKeys', () => {
