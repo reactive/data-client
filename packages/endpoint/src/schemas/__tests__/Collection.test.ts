@@ -1,5 +1,5 @@
 // eslint-env jest
-import { initialState } from '@data-client/core';
+import { initialState, State } from '@data-client/core';
 import { normalize, denormalize, MemoCache } from '@data-client/normalizr';
 import { ArticleResource, IDEntity } from '__tests__/new';
 import { Record } from 'immutable';
@@ -227,6 +227,250 @@ describe(`${schema.Collection.name} normalization`, () => {
       expect(result).toMatchSnapshot();
       expect(entities).toMatchSnapshot();
     });
+
+    test('remove works with Union members', () => {
+      const collectionPK = collectionUnion.pk({}, {}, '', [
+        { completed: false },
+      ]);
+      const init: State<unknown> = {
+        ...initialState,
+        entities: {
+          [collectionUnion.key]: {
+            [collectionPK]: [
+              { id: '1', schema: 'users' },
+              { id: '2', schema: 'groups' },
+              { id: '3', schema: 'groups' },
+            ],
+          },
+          User: {
+            '1': {
+              id: '1',
+              type: 'users',
+            },
+          },
+          Group: {
+            '2': {
+              id: '2',
+              type: 'groups',
+            },
+            '3': {
+              id: '3',
+              type: 'groups',
+            },
+          },
+        },
+        entitiesMeta: {
+          [collectionUnion.key]: {
+            [collectionPK]: {
+              date: 1557831718135,
+              expiresAt: Infinity,
+              fetchedAt: 0,
+            },
+          },
+          User: {
+            '1': {
+              date: 1557831718135,
+              expiresAt: Infinity,
+              fetchedAt: 0,
+            },
+          },
+          Group: {
+            '2': {
+              date: 1557831718135,
+              expiresAt: Infinity,
+              fetchedAt: 0,
+            },
+            '3': {
+              date: 1557831718135,
+              expiresAt: Infinity,
+              fetchedAt: 0,
+            },
+          },
+        },
+        indexes: {},
+      };
+      const state = normalize(
+        collectionUnion.remove,
+        { id: '1', type: 'users' },
+        [{ completed: false }],
+        init,
+      );
+      expect(state.entities[collectionUnion.key]?.[collectionPK]).toEqual([
+        { id: '2', schema: 'groups' },
+        { id: '3', schema: 'groups' },
+      ]);
+    });
+
+    test('remove works updates the correct collections', () => {
+      const init = {
+        entities: {
+          [collectionUnion.key]: {
+            // Collection for userId: '1', completed: true
+            '{"userId":"1","completed":"true"}': [
+              { id: '1', schema: 'users' },
+              { id: '2', schema: 'groups' },
+            ],
+            // Collection for userId: '1', completed: false
+            '{"userId":"1","completed":"false"}': [
+              { id: '3', schema: 'users' },
+              { id: '4', schema: 'groups' },
+            ],
+            // Collection for userId: '1' (no completed filter)
+            '{"userId":"1"}': [
+              { id: '1', schema: 'users' },
+              { id: '3', schema: 'users' },
+            ],
+            // Collection for userId: '2'
+            '{"userId":"2"}': [{ id: '5', schema: 'users' }],
+            // Collection for userId: '1', completed: true, priority: high (additional arg)
+            '{"userId":"1","completed":"true","priority":"high"}': [
+              { id: '1', schema: 'users' },
+              { id: '2', schema: 'groups' },
+            ],
+            // Collection for userId: '1', completed: true, priority: low (additional arg)
+            '{"userId":"1","completed":"true","priority":"low"}': [
+              { id: '3', schema: 'users' },
+              { id: '4', schema: 'groups' },
+            ],
+          },
+          User: {
+            '1': {
+              id: '1',
+              type: 'users',
+              userId: '1',
+              completed: true,
+              priority: 'high',
+            },
+            '3': {
+              id: '3',
+              type: 'users',
+              userId: '1',
+              completed: false,
+              priority: 'low',
+            },
+            '5': {
+              id: '5',
+              type: 'users',
+              userId: '2',
+              completed: false,
+            },
+          },
+          Group: {
+            '2': {
+              id: '2',
+              type: 'groups',
+              userId: '1',
+              completed: true,
+              priority: 'high',
+            },
+            '4': {
+              id: '4',
+              type: 'groups',
+              userId: '1',
+              completed: false,
+              priority: 'low',
+            },
+          },
+        },
+        entitiesMeta: {
+          [collectionUnion.key]: {
+            '{"userId":"1","completed":"true"}': {
+              date: 1557831718135,
+              expiresAt: Infinity,
+              fetchedAt: 0,
+            },
+            '{"userId":"1","completed":"false"}': {
+              date: 1557831718135,
+              expiresAt: Infinity,
+              fetchedAt: 0,
+            },
+            '{"userId":"1"}': {
+              date: 1557831718135,
+              expiresAt: Infinity,
+              fetchedAt: 0,
+            },
+            '{"userId":"2"}': {
+              date: 1557831718135,
+              expiresAt: Infinity,
+              fetchedAt: 0,
+            },
+            '{"userId":"1","completed":"true","priority":"high"}': {
+              date: 1557831718135,
+              expiresAt: Infinity,
+              fetchedAt: 0,
+            },
+            '{"userId":"1","completed":"true","priority":"low"}': {
+              date: 1557831718135,
+              expiresAt: Infinity,
+              fetchedAt: 0,
+            },
+          },
+          User: {
+            '1': { date: 1557831718135, expiresAt: Infinity, fetchedAt: 0 },
+            '3': { date: 1557831718135, expiresAt: Infinity, fetchedAt: 0 },
+            '5': { date: 1557831718135, expiresAt: Infinity, fetchedAt: 0 },
+          },
+          Group: {
+            '2': { date: 1557831718135, expiresAt: Infinity, fetchedAt: 0 },
+            '4': { date: 1557831718135, expiresAt: Infinity, fetchedAt: 0 },
+          },
+        },
+        indexes: {},
+      };
+
+      // Remove a union member with userId: '1' and completed: true
+      // This should remove from collections that match userId: '1' and optionally have completed: true
+      const state = normalize(
+        collectionUnion.remove,
+        { id: '1', type: 'users' },
+        [{ userId: '1', completed: true }],
+        init,
+      );
+
+      // Should remove from collections that match the args:
+      // - '{"userId":"1","completed":"true"}' (exact match)
+      // - '{"userId":"1"}' (partial match - has userId: '1', missing completed)
+      // Should NOT remove from:
+      // - '{"userId":"1","completed":"false"}' (conflicting completed value)
+      // - '{"userId":"2"}' (different userId)
+      // - '{"userId":"1","completed":"true","priority":"high"}' (has additional priority arg)
+      // - '{"userId":"1","completed":"true","priority":"low"}' (has additional priority arg)
+      expect(
+        state.entities[collectionUnion.key][
+          '{"userId":"1","completed":"true"}'
+        ],
+      ).toEqual([{ id: '2', schema: 'groups' }]);
+      expect(
+        state.entities[collectionUnion.key][
+          '{"userId":"1","completed":"false"}'
+        ],
+      ).toEqual([
+        { id: '3', schema: 'users' },
+        { id: '4', schema: 'groups' },
+      ]);
+      expect(state.entities[collectionUnion.key]['{"userId":"1"}']).toEqual([
+        { id: '3', schema: 'users' },
+      ]);
+      expect(state.entities[collectionUnion.key]['{"userId":"2"}']).toEqual([
+        { id: '5', schema: 'users' },
+      ]);
+      expect(
+        state.entities[collectionUnion.key][
+          '{"userId":"1","completed":"true","priority":"high"}'
+        ],
+      ).toEqual([
+        { id: '1', schema: 'users' },
+        { id: '2', schema: 'groups' },
+      ]); // Should remain unchanged (has additional priority arg)
+      expect(
+        state.entities[collectionUnion.key][
+          '{"userId":"1","completed":"true","priority":"low"}'
+        ],
+      ).toEqual([
+        { id: '3', schema: 'users' },
+        { id: '4', schema: 'groups' },
+      ]); // Should remain unchanged (has additional priority arg)
+    });
   });
 
   test('normalizes push onto the end', () => {
@@ -343,7 +587,9 @@ describe(`${schema.Collection.name} normalization`, () => {
       [{ userId: '1' }],
       init,
     );
-    expect(state).toMatchSnapshot();
+    expect(state.entities[User.schema.todos.key]['{"userId":"1"}']).toEqual([
+      '6',
+    ]);
   });
 
   test('normalizes remove from collection with multiple items', () => {
@@ -415,7 +661,10 @@ describe(`${schema.Collection.name} normalization`, () => {
       [{ userId: '1' }],
       init,
     );
-    expect(state).toMatchSnapshot();
+    expect(state.entities[User.schema.todos.key]['{"userId":"1"}']).toEqual([
+      '5',
+      '7',
+    ]);
   });
 
   test('normalizes remove non-existent item from collection', () => {
@@ -469,7 +718,9 @@ describe(`${schema.Collection.name} normalization`, () => {
       [{ userId: '1' }],
       init,
     );
-    expect(state).toMatchSnapshot();
+    expect(state.entities[User.schema.todos.key]['{"userId":"1"}']).toEqual([
+      '5',
+    ]);
   });
 
   describe('push should add only to collections matching filterArgumentKeys', () => {
