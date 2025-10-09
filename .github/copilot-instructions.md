@@ -12,7 +12,8 @@
 	- `packages/endpoint`: base Endpoint types; `packages/rest`: REST modeling (`resource()`, `RestEndpoint`).
 	- `packages/core`: framework-agnostic normalized store, actions, Controller, Managers.
 	- `packages/react`: React bindings (hooks like `useSuspense`, `useLive`, `useQuery`, `DataProvider`).
-	- `packages/normalizr`: schema/Entity/normalization; used by rest/core/react.
+	- `packages/vue`: Vue 3 composables (`useSuspense`, `useQuery`, `useLive`, `provideDataClient`).
+	- `packages/normalizr`: schema/Entity/normalization; used by rest/core/react/vue.
 
 ### Developer workflows
 - Build all packages: `yarn build` (runs `tsc --build` + each workspace build). Clean with `yarn build:clean`.
@@ -34,12 +35,15 @@
 - TypeScript 5.9 project references are used; ambient `.d.ts` files are copied during build (`build:copy:ambient`).
 
 ### Where to look first
-- High-level usage: root `README.md` and `packages/*/README.md` (react, rest, core) show canonical patterns.
+- High-level usage: root `README.md` and `packages/*/README.md` (react, rest, core, vue) show canonical patterns.
 - REST patterns: `docs/rest/*`; Core/Controller/Managers: `docs/core/api/*`.
 - Example apps: `examples/todo-app`, `examples/github-app`, `examples/nextjs` demonstrate resources, hooks, mutations, and Managers.
+- Vue patterns: `packages/vue/src/consumers/` for composables, `packages/vue/src/__tests__/` for Vue-specific test patterns.
 
 ### Testing patterns
 - Prefer `renderDataHook()` from `@data-client/test` with `initialFixtures`/`resolverFixtures` for hook tests.
 - Use `nock` for low-level HTTP tests of endpoints. Keep tests under `packages/*/src/**/__tests__`.
+- Vue tests use `@vue/test-utils` with `mount()` and Vue's `Suspense` component for async rendering.
+- Test file naming: `.node.test.ts[x]` for Node-only, `.native.test.ts[x]` for React Native, `.web.ts` for browser tests.
 
 If anything here is unclear or missing (e.g., adding a new package, expanding CI/build), point it out and I’ll refine these instructions.
