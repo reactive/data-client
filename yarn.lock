@@ -5290,25 +5290,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@monaco-editor/loader@npm:^1.5.0":
-  version: 1.5.0
-  resolution: "@monaco-editor/loader@npm:1.5.0"
+"@monaco-editor/loader@npm:^1.6.0":
+  version: 1.6.0
+  resolution: "@monaco-editor/loader@npm:1.6.0"
   dependencies:
     state-local: "npm:^1.0.6"
-  checksum: 10c0/d8e1fd75fea113b4d91405784ed4db757df450c6e57a85e87728281e819a73a3ef9fe0cbb1dc1509456f1e895ad9c11e4748f80b68900cb6cf600170e14ce6ed
+  checksum: 10c0/c72ce19331ea4383ea1b8e0f70218c3ba5a4754215bc2538846a5f0086bb0684a387d2dcdfac7c52d57a2c7f2112a03b6c37469e758e0561ba1456a9a2636a16
   languageName: node
   linkType: hard
 
-"@monaco-editor/react@npm:^4.4.6":
-  version: 4.7.0
-  resolution: "@monaco-editor/react@npm:4.7.0"
+"@monaco-editor/react@npm:^4.8.0-rc.0":
+  version: 4.8.0-rc.1
+  resolution: "@monaco-editor/react@npm:4.8.0-rc.1"
   dependencies:
-    "@monaco-editor/loader": "npm:^1.5.0"
+    "@monaco-editor/loader": "npm:^1.6.0"
   peerDependencies:
     monaco-editor: ">= 0.25.0 < 1"
     react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
     react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-  checksum: 10c0/a4e91c6eda1a71f5fd23871bd801de435490ccbc43934d23cba65cefe2be7e9d02c9a57c4ef80fc9fe99e4d4deea51e5db19cb4e0ecf3f51818dda0eb9cdbf12
+  checksum: 10c0/43bd2901bfdfc284539da21afbad470cfc4f99b5e897a6fc581cd31ef0b23a22ebaff7ae758eaba92e182426aa7a6bfdbe4da7ea6b41cddc42741cd6c0a0d1a8
   languageName: node
   linkType: hard
 
@@ -25854,7 +25854,7 @@ __metadata:
     "@docusaurus/theme-mermaid": "npm:^3.0.1"
     "@js-temporal/polyfill": "npm:^0.5.0"
     "@mdx-js/react": "npm:^3.1.0"
-    "@monaco-editor/react": "npm:^4.4.6"
+    "@monaco-editor/react": "npm:^4.8.0-rc.0"
     "@number-flow/react": "npm:^0.5.0"
     "@tsconfig/docusaurus": "npm:^2.0.0"
     "@types/react": "npm:19.2.2"
