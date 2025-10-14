@@ -6124,45 +6124,45 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-navigation/elements@npm:^2.6.4":
-  version: 2.6.4
-  resolution: "@react-navigation/elements@npm:2.6.4"
+"@react-navigation/elements@npm:^2.6.5":
+  version: 2.6.5
+  resolution: "@react-navigation/elements@npm:2.6.5"
   dependencies:
     color: "npm:^4.2.3"
     use-latest-callback: "npm:^0.2.4"
     use-sync-external-store: "npm:^1.5.0"
   peerDependencies:
     "@react-native-masked-view/masked-view": ">= 0.2.0"
-    "@react-navigation/native": ^7.1.17
+    "@react-navigation/native": ^7.1.18
     react: ">= 18.2.0"
     react-native: "*"
     react-native-safe-area-context: ">= 4.0.0"
   peerDependenciesMeta:
     "@react-native-masked-view/masked-view":
       optional: true
-  checksum: 10c0/2726367b560c5325062978ed9fd7fccb32dac526131dac9c73a4e7df0aae15664ca240def6daa75acfc0d6bfc43c446754d3fbaa3524018306e2e005ee824ee1
+  checksum: 10c0/6b906747ba22d677a3ce5d2712d2d4784c06ef7ad1a3836d1f9b4f3ed21b3af71acdd2203e25eb9624e3039e59021f29508b0f77d8e3166302596fe55b4c6d37
   languageName: node
   linkType: hard
 
 "@react-navigation/native-stack@npm:^7.0.0, @react-navigation/native-stack@npm:^7.2.0":
-  version: 7.3.26
-  resolution: "@react-navigation/native-stack@npm:7.3.26"
+  version: 7.3.28
+  resolution: "@react-navigation/native-stack@npm:7.3.28"
   dependencies:
-    "@react-navigation/elements": "npm:^2.6.4"
+    "@react-navigation/elements": "npm:^2.6.5"
     warn-once: "npm:^0.1.1"
   peerDependencies:
-    "@react-navigation/native": ^7.1.17
+    "@react-navigation/native": ^7.1.18
     react: ">= 18.2.0"
     react-native: "*"
     react-native-safe-area-context: ">= 4.0.0"
     react-native-screens: ">= 4.0.0"
-  checksum: 10c0/edb8c9d4c26c1b4ead3ef8742813a5485b9629d7d7f3d41bb50b966e7efef91aa1002f3d0f5c5d2958d0c64826711324a91af24515d4ae0e6997deb73c13689e
+  checksum: 10c0/eab1a760128fed7665176cffdf76a64ce0c5eb488035afd16d1476b5347ec44005bd3197c0f11f5325a2ef512e3f06afbceebf0885ab5e5fa0adf501d12f5132
   languageName: node
   linkType: hard
 
 "@react-navigation/native@npm:^7.0.0":
-  version: 7.1.17
-  resolution: "@react-navigation/native@npm:7.1.17"
+  version: 7.1.18
+  resolution: "@react-navigation/native@npm:7.1.18"
   dependencies:
     "@react-navigation/core": "npm:^7.12.4"
     escape-string-regexp: "npm:^4.0.0"
@@ -6172,7 +6172,7 @@ __metadata:
   peerDependencies:
     react: ">= 18.2.0"
     react-native: "*"
-  checksum: 10c0/2f560a508cb10261ce70eca3b77940f69c0bfdb08b551117cce41ab12a3ed8f869b9cf5048bb6f0c40e39293398c26e2d393cdfcab38d1d7c45732021cd8b2be
+  checksum: 10c0/251a83fc21eab7278b79e8c335cf7c50e66b5a32f0ae6d377b38e8fca5551cb73fbb0372427af02e242fc116b39538f2bf41a6a59f51c77d5d34ac89b3f4817b
   languageName: node
   linkType: hard
 
