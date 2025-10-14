@@ -323,7 +323,6 @@ interface INormalizeDelegate {
     /** Invalidates an entity, potentially triggering suspense */
     invalidate(schema: {
         key: string;
-        indexes?: any;
     }, pk: string): void;
     /** Returns true when we're in a cycle, so we should not continue recursing */
     checkLoop(key: string, pk: string, input: object): boolean;
@@ -747,6 +746,10 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
      * @see https://dataclient.io/rest/api/Collection#unshift
      */
     unshift: CollectionArrayAdder<S>;
+    /** Schema to remove (by value) from a Collection
+     * @see https://dataclient.io/rest/api/Collection#remove
+     */
+    remove: CollectionArrayAdder<S>;
     /** Schema to merge with a Values Collection
      * @see https://dataclient.io/rest/api/Collection#assign
      */
@@ -960,7 +963,7 @@ interface UnionConstructor {
     schemaAttribute: SchemaAttribute,
   ): UnionInstance<
     Choices,
-    UnionSchemaToArgs<Choices, SchemaAttribute> &
+    Partial<UnionSchemaToArgs<Choices, SchemaAttribute>> &
       Partial<AbstractInstanceType<Choices[keyof Choices]>>
   >;
 
