@@ -5292,25 +5292,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@monaco-editor/loader@npm:^1.6.0":
-  version: 1.6.0
-  resolution: "@monaco-editor/loader@npm:1.6.0"
+"@monaco-editor/loader@npm:^1.6.1":
+  version: 1.6.1
+  resolution: "@monaco-editor/loader@npm:1.6.1"
   dependencies:
     state-local: "npm:^1.0.6"
-  checksum: 10c0/c72ce19331ea4383ea1b8e0f70218c3ba5a4754215bc2538846a5f0086bb0684a387d2dcdfac7c52d57a2c7f2112a03b6c37469e758e0561ba1456a9a2636a16
+  checksum: 10c0/88fed11f7e5892c2221b649328490512591b3eca432c9613c5a0b737d624b741fcc774197b119e681360454931a19de26b271ede567ddb226ab63f0d1ec67c89
   languageName: node
   linkType: hard
 
 "@monaco-editor/react@npm:^4.8.0-rc.0":
-  version: 4.8.0-rc.1
-  resolution: "@monaco-editor/react@npm:4.8.0-rc.1"
+  version: 4.8.0-rc.2
+  resolution: "@monaco-editor/react@npm:4.8.0-rc.2"
   dependencies:
-    "@monaco-editor/loader": "npm:^1.6.0"
+    "@monaco-editor/loader": "npm:^1.6.1"
   peerDependencies:
     monaco-editor: ">= 0.25.0 < 1"
     react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
     react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-  checksum: 10c0/43bd2901bfdfc284539da21afbad470cfc4f99b5e897a6fc581cd31ef0b23a22ebaff7ae758eaba92e182426aa7a6bfdbe4da7ea6b41cddc42741cd6c0a0d1a8
+  checksum: 10c0/09c8b1cc8d10d666fccb22968adfce702893ebf0abd119a378bc928818d7bc6bd0ca1049d28acdcae530d5d60e114ce4efa367d514a29ed2ebfd986265a11677
   languageName: node
   linkType: hard
 
