@@ -6,7 +6,7 @@ import type {
   FetchFunction,
   DenormalizeNullable,
 } from '@data-client/core';
-import { computed, watch } from 'vue';
+import { computed, watch, ref } from 'vue';
 
 import { useController, injectState } from '../context.js';
 
@@ -44,22 +44,27 @@ export default function useFetch(endpoint: any, ...args: any[]): any {
   const stateRef = injectState();
   const controller = useController();
 
-  const key: string = args[0] !== null ? endpoint.key(...args) : '';
-
-  // Compute response meta reactively so we can respond to store updates
-  const responseMeta = computed(() =>
-    key ? controller.getResponseMeta(endpoint, ...args, stateRef.value) : null,
+  // Compute a key that changes when args change (including reactive props)
+  const argsKey = computed(() =>
+    args[0] !== null ? endpoint.key(...args) : '',
   );
 
-  let lastPromise: Promise<any> | undefined = undefined;
+  // Compute response meta reactively so we can respond to store updates
+  const responseMeta = computed(() => {
+    return argsKey.value ?
+        controller.getResponseMeta(endpoint, ...args, stateRef.value)
+      : null;
+  });
+
+  const lastPromise = ref<Promise<any> | undefined>(undefined);
 
   const maybeFetch = () => {
-    if (!key) return;
+    if (args[0] === null) return;
     const meta = responseMeta.value;
     if (!meta) return;
     const forceFetch = meta.expiryStatus === ExpiryStatus.Invalid;
     if (Date.now() <= meta.expiresAt && !forceFetch) return;
-    lastPromise = controller.fetch(endpoint, ...(args as any));
+    lastPromise.value = controller.fetch(endpoint, ...(args as any));
   };
 
   // Trigger on initial call
@@ -69,7 +74,9 @@ export default function useFetch(endpoint: any, ...args: any[]): any {
   watch(
     () => {
       const m = responseMeta.value;
-      return m ? [m.expiresAt, m.expiryStatus, stateRef.value.lastReset] : key;
+      return m ?
+          [m.expiresAt, m.expiryStatus, stateRef.value.lastReset, argsKey.value]
+        : [argsKey.value];
     },
     () => {
       maybeFetch();

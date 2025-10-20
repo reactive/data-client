@@ -6,13 +6,7 @@ import {
   createReducer,
 } from '@data-client/core';
 import type { State, Manager, GCInterface } from '@data-client/core';
-import {
-  onMounted,
-  onUnmounted,
-  provide,
-  shallowRef,
-  type ShallowRef,
-} from 'vue';
+import { provide, shallowRef, type ShallowRef } from 'vue';
 
 import { ControllerKey, StateKey } from '../context.js';
 import { getDefaultManagers } from './getDefaultManagers.js';
@@ -28,13 +22,17 @@ export interface ProvidedDataClient {
   controller: InstanceType<typeof DataController>;
   /** Optimistic overlay state ref provided to consumers */
   stateRef: ShallowRef<State<unknown>>;
+  /** Start the provider (called on mount) */
+  start: () => void;
+  /** Stop the provider (called on unmount) */
+  stop: () => void;
 }
 
 /**
- * Provide/inject setup for @data-client/vue. Call inside setup() of your root component.
- * Mirrors React DataProvider but as a composable.
+ * Core provider logic that can be used by both composable and plugin.
+ * This function handles the actual setup of the data client without Vue-specific concerns.
  */
-export function provideDataClient(
+export function createDataClient(
   options: ProvideOptions = {},
 ): ProvidedDataClient {
   const { Controller = DataController, gcPolicy } = options;
@@ -100,27 +98,30 @@ export function provideDataClient(
     dispatch: (a: any) => outerDispatch(a),
   } as any);
 
-  // provide to children
+  // setup lifecycle management
+  let cleanup: void | (() => void);
+  const start = () => {
+    cleanup = mgrEffect();
+  };
+  const stop = () => {
+    if (cleanup) cleanup();
+  };
+
+  // provide to children using Vue's provide
   provide(StateKey, stateRef);
   provide(ControllerKey, controller as any);
 
-  // run managers after mount and cleanup on unmount
-  let cleanup: void | (() => void);
-  onMounted(() => {
-    cleanup = mgrEffect();
-  });
-  onUnmounted(() => {
-    if (cleanup) cleanup();
-  });
-
-  return { controller: controller as any, stateRef };
+  return {
+    controller: controller as any,
+    stateRef,
+    start,
+    stop,
+  };
 
   function computeOptimistic(state: State<unknown>): State<unknown> {
-    // mirror React’s optimistic overlay
+    // mirror React's optimistic overlay
     // reduce over pending optimistic actions to derive the effective state
     // reducer is stable from closure
     return state.optimistic.reduce(reducer as any, state);
   }
 }
-
-export default provideDataClient;

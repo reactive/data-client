@@ -1,2 +1,3 @@
 export { getDefaultManagers } from './getDefaultManagers.js';
-export { provideDataClient } from '../providers/provideDataClient.js';
+export { createDataClient } from './createDataClient.js';
+export { DataClientPlugin } from './DataClientPlugin.js';

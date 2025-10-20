@@ -60,32 +60,54 @@ export default async function useSuspense(
   const stateRef = injectState();
   const controller = useController();
 
-  const key = args[0] !== null ? endpoint.key(...args) : '';
-  const responseMeta = computed(() =>
-    controller.getResponseMeta(endpoint, ...args, stateRef.value),
+  // Compute a key that changes when args change (including reactive props)
+  const argsKey = computed(() =>
+    args[0] !== null ? endpoint.key(...args) : '',
   );
 
-  // If invalid or expired, perform fetch and await it to integrate with Vue Suspense
-  const isInvalid =
-    responseMeta.value.expiryStatus === ExpiryStatus.Invalid ||
-    Date.now() > responseMeta.value.expiresAt;
-  if (key && isInvalid) {
-    await controller.fetch(endpoint, ...(args as any));
-  }
+  // Compute response meta reactively so we can respond to store updates
+  const responseMeta = computed(() => {
+    return argsKey.value ?
+        controller.getResponseMeta(endpoint, ...args, stateRef.value)
+      : null;
+  });
 
-  const error = controller.getError(endpoint, ...args, stateRef.value);
-  if (error) throw error;
+  const maybeFetch = async () => {
+    const currentKey = argsKey.value;
+    if (!currentKey) return;
+    const meta = responseMeta.value;
+    if (!meta) return;
+    const forceFetch = meta.expiryStatus === ExpiryStatus.Invalid;
+    if (Date.now() <= meta.expiresAt && !forceFetch) return;
+    await controller.fetch(endpoint, ...(args as any));
+  };
+
+  // Trigger on initial call
+  await maybeFetch();
+
+  // Watch for changes to key, expiry, or store state that require refetch
+  watch(
+    () => {
+      const m = responseMeta.value;
+      return m ?
+          [m.expiresAt, m.expiryStatus, stateRef.value.lastReset, argsKey.value]
+        : [argsKey.value];
+    },
+    () => {
+      return maybeFetch();
+    },
+  );
 
   // Maintain GC refcounts on data mount/changes
   watch(
-    () => responseMeta.value.data,
+    () => responseMeta.value?.data,
     (_newVal, _oldVal, onCleanup) => {
-      const decrement = responseMeta.value.countRef();
-      onCleanup(() => decrement());
+      const decrement = responseMeta.value?.countRef();
+      onCleanup(() => decrement?.());
     },
     { immediate: true },
   );
 
   // Return readonly computed ref - Vue automatically unwraps in templates and reactive contexts
-  return readonly(computed(() => responseMeta.value.data));
+  return readonly(computed(() => responseMeta.value?.data));
 }

@@ -10,7 +10,7 @@ import {
   IDEntity,
 } from '../../../../__tests__/new';
 import useQuery from '../consumers/useQuery';
-import { provideDataClient } from '../providers/provideDataClient';
+import { createDataClient } from '../providers/createDataClient';
 
 // Inline fixtures (duplicated from React tests to avoid cross-project imports)
 const payloadSlug = {
@@ -52,8 +52,9 @@ describe('vue useQuery()', () => {
   const ProvideWrapper = defineComponent({
     name: 'ProvideWrapper',
     setup(_props, { slots, expose }) {
-      const { controller } = provideDataClient();
-      expose({ controller });
+      const provider = createDataClient();
+      provider.start();
+      expose({ controller: provider.controller });
       return () => (slots.default ? slots.default() : null);
     },
   });

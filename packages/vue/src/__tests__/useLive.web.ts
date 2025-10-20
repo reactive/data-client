@@ -12,7 +12,7 @@ const payload = {
   tags: ['a', 'best', 'react'],
 };
 import useLive from '../consumers/useLive';
-import { provideDataClient } from '../providers/provideDataClient';
+import { createDataClient } from '../providers/createDataClient';
 
 describe('vue useLive()', () => {
   async function flushUntil(
@@ -68,8 +68,9 @@ describe('vue useLive()', () => {
   const ProvideWrapper = defineComponent({
     name: 'ProvideWrapper',
     setup(_props, { slots, expose }) {
-      const { controller } = provideDataClient();
-      expose({ controller });
+      const provider = createDataClient();
+      provider.start();
+      expose({ controller: provider.controller });
       return () =>
         h(
           Suspense,

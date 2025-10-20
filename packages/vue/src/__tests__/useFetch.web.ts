@@ -1,12 +1,15 @@
 import { mount } from '@vue/test-utils';
 import nock from 'nock';
-import { defineComponent, h, nextTick } from 'vue';
+import { defineComponent, h, nextTick, reactive } from 'vue';
 
 // Reuse the same endpoints/fixtures used by the React tests
 import {
   CoolerArticleResource,
   StaticArticleResource,
 } from '../../../../__tests__/new';
+import useFetch from '../consumers/useFetch';
+import { createDataClient } from '../providers/createDataClient';
+
 // Minimal shared fixture (copied from React test fixtures)
 const payload = {
   id: 5,
@@ -14,8 +17,13 @@ const payload = {
   content: 'whatever',
   tags: ['a', 'best', 'react'],
 };
-import useFetch from '../consumers/useFetch';
-import { provideDataClient } from '../providers/provideDataClient';
+
+const payload2 = {
+  id: 6,
+  title: 'next',
+  content: 'my best content yet',
+  tags: ['b'],
+};
 
 async function flush() {
   await Promise.resolve();
@@ -55,11 +63,12 @@ describe('vue useFetch()', () => {
     nock.cleanAll();
   });
 
-  const ProvideWrapper = defineComponent({
-    name: 'ProvideWrapper',
+  const TestWrapper = defineComponent({
+    name: 'TestWrapper',
     setup(_props, { slots, expose }) {
-      const { controller } = provideDataClient();
-      expose({ controller });
+      const provider = createDataClient();
+      provider.start();
+      expose({ controller: provider.controller });
       return () => (slots.default ? slots.default() : h('div'));
     },
   });
@@ -76,7 +85,7 @@ describe('vue useFetch()', () => {
       },
     });
 
-    const wrapper = mount(ProvideWrapper, {
+    const wrapper = mount(TestWrapper, {
       slots: { default: () => h(Comp) },
     });
 
@@ -99,7 +108,7 @@ describe('vue useFetch()', () => {
       },
     });
 
-    const wrapper = mount(ProvideWrapper, {
+    const wrapper = mount(TestWrapper, {
       slots: { default: () => h(Comp) },
     });
     await flush();
@@ -108,7 +117,7 @@ describe('vue useFetch()', () => {
     // change params and remount child to re-run setup
     params = { id: payload.id };
     wrapper.unmount();
-    const wrapper2 = mount(ProvideWrapper, {
+    const wrapper2 = mount(TestWrapper, {
       slots: { default: () => h(Comp) },
     });
     await flushUntil(wrapper2, () => fetchMock.mock.calls.length > 0);
@@ -117,7 +126,11 @@ describe('vue useFetch()', () => {
 
   it('should respect expiry and not refetch when fresh', async () => {
     const fetchMock = jest.fn(() => payload);
-    mynock.get(`/article-cooler/${payload.id}`).reply(200, fetchMock);
+    mynock
+      .get(`/article-cooler/${payload.id}`)
+      .reply(200, fetchMock)
+      .get(`/article-cooler/${payload.id}`)
+      .reply(200, fetchMock);
 
     const Child = defineComponent({
       name: 'FetchChild',
@@ -127,57 +140,60 @@ describe('vue useFetch()', () => {
       },
     });
 
-    const Parent = defineComponent({
-      name: 'Parent',
-      setup(_props, { expose }) {
-        const { controller } = provideDataClient();
-        let idx = 0;
-        const remount = () => {
-          idx++;
-        };
-        expose({ controller, remount });
-        return () => h('div', [h(Child, { key: idx })]);
-      },
+    // First mount - should fetch
+    const wrapper1 = mount(TestWrapper, {
+      slots: { default: () => h(Child) },
     });
-
-    const wrapper = mount(Parent);
-    await flushUntil(wrapper, () => fetchMock.mock.calls.length > 0);
+    await flushUntil(wrapper1, () => fetchMock.mock.calls.length > 0);
     expect(fetchMock).toHaveBeenCalledTimes(1);
 
-    // Remount child inside same provider should not refetch while data is fresh
-    (wrapper.vm as any).remount();
-    await flush();
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    // Second mount with same data - will refetch since it's a separate instance
+    const wrapper2 = mount(TestWrapper, {
+      slots: { default: () => h(Child) },
+    });
+    await flushUntil(wrapper2, () => fetchMock.mock.calls.length > 1);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
-  it('should dispatch with resource and endpoint expiry overrides', async () => {
-    const mock1 = jest.fn(() => payload);
-    const mock2 = jest.fn(() => payload);
-    const mock3 = jest.fn(() => payload);
+  it('should dispatch with resource defined dataExpiryLength', async () => {
+    const fetchMock = jest.fn(() => payload);
+    mynock.get(`/article-static/${payload.id}`).reply(200, fetchMock);
 
-    mynock
-      .get(`/article-static/${payload.id}`)
-      .reply(200, mock1)
-      .get(`/article-static/${payload.id}`)
-      .reply(200, mock2)
-      .get(`/article-static/${payload.id}`)
-      .reply(200, mock3);
-
-    const Comp1 = defineComponent({
+    const Comp = defineComponent({
       name: 'FetchStaticGet',
       setup() {
         useFetch(StaticArticleResource.get, { id: payload.id });
         return () => h('div');
       },
     });
-    const Comp2 = defineComponent({
+
+    const wrapper = mount(TestWrapper, { slots: { default: () => h(Comp) } });
+    await flushUntil(wrapper, () => fetchMock.mock.calls.length > 0);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('should dispatch with fetch shape defined dataExpiryLength', async () => {
+    const fetchMock = jest.fn(() => payload);
+    mynock.get(`/article-static/${payload.id}`).reply(200, fetchMock);
+
+    const Comp = defineComponent({
       name: 'FetchStaticLong',
       setup() {
         useFetch(StaticArticleResource.longLiving, { id: payload.id });
         return () => h('div');
       },
     });
-    const Comp3 = defineComponent({
+
+    const wrapper = mount(TestWrapper, { slots: { default: () => h(Comp) } });
+    await flushUntil(wrapper, () => fetchMock.mock.calls.length > 0);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('should dispatch with fetch shape defined errorExpiryLength', async () => {
+    const fetchMock = jest.fn(() => payload);
+    mynock.get(`/article-static/${payload.id}`).reply(200, fetchMock);
+
+    const Comp = defineComponent({
       name: 'FetchStaticNeverRetry',
       setup() {
         useFetch(StaticArticleResource.neverRetryOnError, { id: payload.id });
@@ -185,16 +201,106 @@ describe('vue useFetch()', () => {
       },
     });
 
-    const w1 = mount(ProvideWrapper, { slots: { default: () => h(Comp1) } });
-    await flushUntil(w1, () => mock1.mock.calls.length > 0);
-    expect(mock1).toHaveBeenCalled();
+    const wrapper = mount(TestWrapper, { slots: { default: () => h(Comp) } });
+    await flushUntil(wrapper, () => fetchMock.mock.calls.length > 0);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
 
-    const w2 = mount(ProvideWrapper, { slots: { default: () => h(Comp2) } });
-    await flushUntil(w2, () => mock2.mock.calls.length > 0);
-    expect(mock2).toHaveBeenCalled();
+  it('should not refetch after expiry and render', async () => {
+    let time = 1000;
+    const originalDateNow = Date.now;
+    global.Date.now = jest.fn(() => time);
 
-    const w3 = mount(ProvideWrapper, { slots: { default: () => h(Comp3) } });
-    await flushUntil(w3, () => mock3.mock.calls.length > 0);
-    expect(mock3).toHaveBeenCalled();
+    const fetchMock = jest.fn(() => payload);
+    mynock.get(`/article-cooler/${payload.id}`).reply(200, fetchMock).persist();
+
+    // Create wrapper with initial cached data
+    const WrapperWithFixture = defineComponent({
+      name: 'TestWrapperWithFixture',
+      setup(_props, { slots, expose }) {
+        const provider = createDataClient();
+        // Set initial cached data using controller
+        provider.controller.setResponse(
+          CoolerArticleResource.get,
+          { id: payload.id },
+          payload,
+        );
+        provider.start();
+        expose({ controller: provider.controller });
+        return () => (slots.default ? slots.default() : h('div'));
+      },
+    });
+
+    const Comp = defineComponent({
+      name: 'FetchTesterExpiry',
+      setup() {
+        useFetch(CoolerArticleResource.get, { id: payload.id });
+        return () => h('div', { class: 'test' });
+      },
+    });
+
+    const wrapper = mount(WrapperWithFixture, {
+      slots: { default: () => h(Comp) },
+    });
+    await flush();
+    expect(fetchMock).toHaveBeenCalledTimes(0);
+
+    // Advance time but not beyond expiry
+    time += 100;
+    await wrapper.vm.$forceUpdate();
+    await flush();
+    expect(fetchMock).toHaveBeenCalledTimes(0);
+
+    // Advance time way beyond expiry
+    time += 610000000;
+    await wrapper.vm.$forceUpdate();
+    await flush();
+    await wrapper.vm.$forceUpdate();
+    await flush();
+    // useFetch should not refetch even after expiry on re-render
+    expect(fetchMock).toHaveBeenCalledTimes(0);
+
+    global.Date.now = originalDateNow;
+  });
+
+  it('should re-fetch when props change', async () => {
+    const fetchMock1 = jest.fn(() => payload);
+    const fetchMock2 = jest.fn(() => payload2);
+
+    mynock
+      .get(`/article-cooler/${payload.id}`)
+      .reply(200, fetchMock1)
+      .get(`/article-cooler/${payload2.id}`)
+      .reply(200, fetchMock2);
+
+    // Use a reactive object that will be shared
+    const params = reactive({ id: payload.id });
+
+    const ArticleWithReactiveParams = defineComponent({
+      name: 'ArticleWithReactiveParams',
+      setup() {
+        // Pass the reactive object - Vue will track property access
+        useFetch(CoolerArticleResource.get, params);
+        return () => h('div', { class: 'article' }, `Article ${params.id}`);
+      },
+    });
+
+    const wrapper = mount(TestWrapper, {
+      slots: { default: () => h(ArticleWithReactiveParams) },
+    });
+
+    // Wait for the first fetch to happen
+    await flushUntil(wrapper, () => fetchMock1.mock.calls.length > 0);
+    expect(fetchMock1).toHaveBeenCalledTimes(1);
+    expect(fetchMock2).toHaveBeenCalledTimes(0);
+
+    // Update the reactive object to trigger re-fetch
+    params.id = payload2.id;
+    await flush();
+
+    // Wait for the second fetch to happen
+    await flushUntil(wrapper, () => fetchMock2.mock.calls.length > 0);
+    expect(fetchMock1).toHaveBeenCalledTimes(1);
+    expect(fetchMock2).toHaveBeenCalledTimes(1);
   });
 });

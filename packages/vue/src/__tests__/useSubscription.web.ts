@@ -9,7 +9,7 @@ import {
 } from '../../../../__tests__/new';
 import useSubscription from '../consumers/useSubscription';
 import useSuspense from '../consumers/useSuspense';
-import { provideDataClient } from '../providers/provideDataClient';
+import { createDataClient } from '../providers/createDataClient';
 
 describe('vue useSubscription()', () => {
   const payload = {
@@ -63,8 +63,9 @@ describe('vue useSubscription()', () => {
   const ProvideWrapper = defineComponent({
     name: 'ProvideWrapper',
     setup(_props, { slots, expose }) {
-      const { controller } = provideDataClient();
-      expose({ controller });
+      const provider = createDataClient();
+      provider.start();
+      expose({ controller: provider.controller });
       return () =>
         h(
           Suspense,

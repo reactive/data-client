@@ -80,19 +80,25 @@ const ArticleResource = resource({
 
 ### Provide the Data Client
 
-Call `provideDataClient()` once in your root component's setup. This creates the controller, store, and managers, and provides them via Vue's provide/inject.
+Install the plugin globally in your main app file for automatic setup across your entire application:
 
 ```ts
-// App.vue (script setup)
-import { provideDataClient } from '@data-client/vue';
+// main.ts
+import { createApp } from 'vue';
+import { DataClientPlugin } from '@data-client/vue';
+import App from './App.vue';
 
-provideDataClient({
+const app = createApp(App);
+
+app.use(DataClientPlugin, {
   // optional overrides
   // managers: getDefaultManagers(),
   // initialState,
   // Controller,
   // gcPolicy,
 });
+
+app.mount('#app');
 ```
 
 ### One line [data binding](https://dataclient.io/docs/getting-started/data-dependency)

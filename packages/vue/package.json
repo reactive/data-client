@@ -1,6 +1,6 @@
 {
   "name": "@data-client/vue",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "description": "Async State Management without the Management. REST, GraphQL, SSE, Websockets, Fetch",
   "homepage": "https://dataclient.io",
   "repository": {
@@ -56,6 +56,13 @@
       "require": "./dist/index.js",
       "browser": "./lib/index.js",
       "default": "./lib/index.js"
+    },
+    "./test": {
+      "module": "./lib/test/index.js",
+      "import": "./node.mjs",
+      "require": "./dist/test/index.js",
+      "browser": "./lib/test/index.js",
+      "default": "./lib/test/index.js"
     },
     "./package.json": "./package.json"
   },
