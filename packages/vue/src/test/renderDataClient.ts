@@ -7,12 +7,21 @@ import {
   PollingSubscription,
 } from '@data-client/core';
 import { mount, type VueWrapper } from '@vue/test-utils';
-import { defineComponent, h, Suspense, ref, watch, nextTick } from 'vue';
+import {
+  defineComponent,
+  h,
+  Suspense,
+  ref,
+  watch,
+  nextTick,
+  inject,
+} from 'vue';
 
 import { Interceptor, Fixture } from './fixtureTypes.js';
 import MockController from './MockController.js';
 import mockInitialState from './mockState.js';
-import { createDataClient } from '../providers/createDataClient.js';
+import { ControllerKey } from '../context.js';
+import { DataClientPlugin } from '../providers/DataClientPlugin.js';
 
 export interface RenderDataClientOptions<P = any> {
   initialProps?: P;
@@ -75,33 +84,15 @@ export function renderDataClient<P = any>(
   const DataClientWrapper = defineComponent({
     name: 'DataClientWrapper',
     setup(_, { expose }) {
-      // Create the data client provider
-      const provider = createDataClient({
-        managers: finalManagers,
-        initialState: finalInitialState,
-        Controller: MockControllerClass,
-      });
-
-      // Set up fixtures in the controller
-      if (initialFixtures.length > 0) {
-        initialFixtures.forEach(fixture => {
-          provider.controller.setResponse(
-            fixture.endpoint,
-            ...fixture.args,
-            fixture.response,
-          );
-        });
-      }
-
-      // Start the provider
-      provider.start();
+      // Inject the controller provided by the plugin
+      const controller = inject(ControllerKey) as Controller;
 
       // Create a reactive props object that will be updated when setProps is called
       const componentProps = ref(initialProps || {});
 
       // Expose controller and props updater for testing
       expose({
-        controller: provider.controller,
+        controller,
         updateProps: (newProps: any) => {
           // Update the ref value to trigger reactivity
           componentProps.value = { ...newProps };
@@ -132,8 +123,21 @@ export function renderDataClient<P = any>(
     },
   });
 
-  // Mount the wrapper
-  const wrapper_instance = mount(DataClientWrapper);
+  // Mount the wrapper with DataClientPlugin
+  const wrapper_instance = mount(DataClientWrapper, {
+    global: {
+      plugins: [
+        [
+          DataClientPlugin,
+          {
+            managers: finalManagers,
+            initialState: finalInitialState,
+            Controller: MockControllerClass,
+          },
+        ],
+      ],
+    },
+  });
 
   // Get controller and updateProps from the wrapper
   const controller = (wrapper_instance.vm as any).controller;

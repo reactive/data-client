@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import nock from 'nock';
-import { defineComponent, h, nextTick, reactive } from 'vue';
+import { defineComponent, h, nextTick, reactive, inject } from 'vue';
 
 // Reuse the same endpoints/fixtures used by the React tests
 import {
@@ -8,7 +8,8 @@ import {
   StaticArticleResource,
 } from '../../../../__tests__/new';
 import useFetch from '../consumers/useFetch';
-import { createDataClient } from '../providers/createDataClient';
+import { ControllerKey } from '../context';
+import { DataClientPlugin } from '../providers/DataClientPlugin';
 
 // Minimal shared fixture (copied from React test fixtures)
 const payload = {
@@ -66,9 +67,8 @@ describe('vue useFetch()', () => {
   const TestWrapper = defineComponent({
     name: 'TestWrapper',
     setup(_props, { slots, expose }) {
-      const provider = createDataClient();
-      provider.start();
-      expose({ controller: provider.controller });
+      const controller = inject(ControllerKey);
+      expose({ controller });
       return () => (slots.default ? slots.default() : h('div'));
     },
   });
@@ -87,6 +87,9 @@ describe('vue useFetch()', () => {
 
     const wrapper = mount(TestWrapper, {
       slots: { default: () => h(Comp) },
+      global: {
+        plugins: [[DataClientPlugin]],
+      },
     });
 
     // Wait for the fetch to happen
@@ -110,6 +113,9 @@ describe('vue useFetch()', () => {
 
     const wrapper = mount(TestWrapper, {
       slots: { default: () => h(Comp) },
+      global: {
+        plugins: [[DataClientPlugin]],
+      },
     });
     await flush();
     expect(fetchMock).toHaveBeenCalledTimes(0);
@@ -119,6 +125,9 @@ describe('vue useFetch()', () => {
     wrapper.unmount();
     const wrapper2 = mount(TestWrapper, {
       slots: { default: () => h(Comp) },
+      global: {
+        plugins: [[DataClientPlugin]],
+      },
     });
     await flushUntil(wrapper2, () => fetchMock.mock.calls.length > 0);
     expect(fetchMock).toHaveBeenCalledTimes(1);
@@ -143,6 +152,9 @@ describe('vue useFetch()', () => {
     // First mount - should fetch
     const wrapper1 = mount(TestWrapper, {
       slots: { default: () => h(Child) },
+      global: {
+        plugins: [[DataClientPlugin]],
+      },
     });
     await flushUntil(wrapper1, () => fetchMock.mock.calls.length > 0);
     expect(fetchMock).toHaveBeenCalledTimes(1);
@@ -150,6 +162,9 @@ describe('vue useFetch()', () => {
     // Second mount with same data - will refetch since it's a separate instance
     const wrapper2 = mount(TestWrapper, {
       slots: { default: () => h(Child) },
+      global: {
+        plugins: [[DataClientPlugin]],
+      },
     });
     await flushUntil(wrapper2, () => fetchMock.mock.calls.length > 1);
     expect(fetchMock).toHaveBeenCalledTimes(2);
@@ -167,7 +182,12 @@ describe('vue useFetch()', () => {
       },
     });
 
-    const wrapper = mount(TestWrapper, { slots: { default: () => h(Comp) } });
+    const wrapper = mount(TestWrapper, {
+      slots: { default: () => h(Comp) },
+      global: {
+        plugins: [[DataClientPlugin]],
+      },
+    });
     await flushUntil(wrapper, () => fetchMock.mock.calls.length > 0);
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
@@ -184,7 +204,12 @@ describe('vue useFetch()', () => {
       },
     });
 
-    const wrapper = mount(TestWrapper, { slots: { default: () => h(Comp) } });
+    const wrapper = mount(TestWrapper, {
+      slots: { default: () => h(Comp) },
+      global: {
+        plugins: [[DataClientPlugin]],
+      },
+    });
     await flushUntil(wrapper, () => fetchMock.mock.calls.length > 0);
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
@@ -201,7 +226,12 @@ describe('vue useFetch()', () => {
       },
     });
 
-    const wrapper = mount(TestWrapper, { slots: { default: () => h(Comp) } });
+    const wrapper = mount(TestWrapper, {
+      slots: { default: () => h(Comp) },
+      global: {
+        plugins: [[DataClientPlugin]],
+      },
+    });
     await flushUntil(wrapper, () => fetchMock.mock.calls.length > 0);
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
@@ -218,15 +248,14 @@ describe('vue useFetch()', () => {
     const WrapperWithFixture = defineComponent({
       name: 'TestWrapperWithFixture',
       setup(_props, { slots, expose }) {
-        const provider = createDataClient();
+        const controller = inject(ControllerKey)!;
         // Set initial cached data using controller
-        provider.controller.setResponse(
+        controller.setResponse(
           CoolerArticleResource.get,
           { id: payload.id },
           payload,
         );
-        provider.start();
-        expose({ controller: provider.controller });
+        expose({ controller });
         return () => (slots.default ? slots.default() : h('div'));
       },
     });
@@ -241,6 +270,9 @@ describe('vue useFetch()', () => {
 
     const wrapper = mount(WrapperWithFixture, {
       slots: { default: () => h(Comp) },
+      global: {
+        plugins: [[DataClientPlugin]],
+      },
     });
     await flush();
     expect(fetchMock).toHaveBeenCalledTimes(0);
@@ -287,6 +319,9 @@ describe('vue useFetch()', () => {
 
     const wrapper = mount(TestWrapper, {
       slots: { default: () => h(ArticleWithReactiveParams) },
+      global: {
+        plugins: [[DataClientPlugin]],
+      },
     });
 
     // Wait for the first fetch to happen

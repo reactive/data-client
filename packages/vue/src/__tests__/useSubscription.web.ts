@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import nock from 'nock';
-import { defineComponent, h, nextTick, Suspense } from 'vue';
+import { defineComponent, h, nextTick, Suspense, inject } from 'vue';
 
 // Endpoints/entities from React subscriptions test
 import {
@@ -9,7 +9,8 @@ import {
 } from '../../../../__tests__/new';
 import useSubscription from '../consumers/useSubscription';
 import useSuspense from '../consumers/useSuspense';
-import { createDataClient } from '../providers/createDataClient';
+import { ControllerKey } from '../context';
+import { DataClientPlugin } from '../providers/DataClientPlugin';
 
 describe('vue useSubscription()', () => {
   const payload = {
@@ -63,9 +64,8 @@ describe('vue useSubscription()', () => {
   const ProvideWrapper = defineComponent({
     name: 'ProvideWrapper',
     setup(_props, { slots, expose }) {
-      const provider = createDataClient();
-      provider.start();
-      expose({ controller: provider.controller });
+      const controller = inject(ControllerKey);
+      expose({ controller });
       return () =>
         h(
           Suspense,
@@ -103,6 +103,9 @@ describe('vue useSubscription()', () => {
 
     const wrapper = mount(ProvideWrapper, {
       slots: { default: () => h(ArticleComp, { active: true }) },
+      global: {
+        plugins: [[DataClientPlugin]],
+      },
     });
 
     // Initially should render fallback while Suspense is pending
@@ -128,6 +131,9 @@ describe('vue useSubscription()', () => {
   });
 
   it('can subscribe to endpoint without pollFrequency (no-op) and render', async () => {
+    const oldError = console.error;
+    const spy = (console.error = jest.fn());
+
     // Minimal component that subscribes to non-polling endpoint
     const NoFreqComp = defineComponent({
       name: 'NoFreqComp',
@@ -144,9 +150,15 @@ describe('vue useSubscription()', () => {
 
     const wrapper = mount(ProvideWrapper, {
       slots: { default: () => h(NoFreqComp) },
+      global: {
+        plugins: [[DataClientPlugin]],
+      },
     });
 
     await flushUntil(wrapper, () => wrapper.text() !== '');
     expect(wrapper.text()).not.toEqual('');
+    expect(spy.mock.calls[0]).toMatchSnapshot();
+
+    console.error = oldError;
   });
 });

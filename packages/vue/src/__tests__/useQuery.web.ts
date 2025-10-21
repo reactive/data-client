@@ -1,7 +1,7 @@
 import { schema } from '@data-client/endpoint';
 import { resource } from '@data-client/rest';
 import { mount } from '@vue/test-utils';
-import { defineComponent, h, nextTick } from 'vue';
+import { defineComponent, h, nextTick, inject } from 'vue';
 
 import {
   ArticleWithSlug,
@@ -10,7 +10,8 @@ import {
   IDEntity,
 } from '../../../../__tests__/new';
 import useQuery from '../consumers/useQuery';
-import { createDataClient } from '../providers/createDataClient';
+import { ControllerKey } from '../context';
+import { DataClientPlugin } from '../providers/DataClientPlugin';
 
 // Inline fixtures (duplicated from React tests to avoid cross-project imports)
 const payloadSlug = {
@@ -52,9 +53,8 @@ describe('vue useQuery()', () => {
   const ProvideWrapper = defineComponent({
     name: 'ProvideWrapper',
     setup(_props, { slots, expose }) {
-      const provider = createDataClient();
-      provider.start();
-      expose({ controller: provider.controller });
+      const controller = inject(ControllerKey);
+      expose({ controller });
       return () => (slots.default ? slots.default() : null);
     },
   });
@@ -69,6 +69,9 @@ describe('vue useQuery()', () => {
 
     const wrapper = mount(ProvideWrapper, {
       slots: { default: () => h(Inner) },
+      global: {
+        plugins: [[DataClientPlugin]],
+      },
     });
     await flush();
     expect(wrapper.text()).toBe('');
@@ -91,6 +94,9 @@ describe('vue useQuery()', () => {
 
     const wrapper = mount(ProvideWrapper, {
       slots: { default: () => h(Inner) },
+      global: {
+        plugins: [[DataClientPlugin]],
+      },
     });
     const { controller }: any = wrapper.vm as any;
 
@@ -116,6 +122,9 @@ describe('vue useQuery()', () => {
 
     const wrapper = mount(ProvideWrapper, {
       slots: { default: () => h(ListComp) },
+      global: {
+        plugins: [[DataClientPlugin]],
+      },
     });
     const { controller }: any = wrapper.vm as any;
 
@@ -174,6 +183,9 @@ describe('vue useQuery()', () => {
 
     const wrapper = mount(ProvideWrapper, {
       slots: { default: () => h(Inner) },
+      global: {
+        plugins: [[DataClientPlugin]],
+      },
     });
     const { controller }: any = wrapper.vm as any;
 
@@ -199,6 +211,9 @@ describe('vue useQuery()', () => {
     });
     const wrapper = mount(ProvideWrapper, {
       slots: { default: () => h(Comp) },
+      global: {
+        plugins: [[DataClientPlugin]],
+      },
     });
     const { controller }: any = wrapper.vm as any;
     controller.setResponse(ArticleResource.getList, {}, []);

@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`vue useSubscription() can subscribe to endpoint without pollFrequency (no-op) and render 1`] = `
+[
+  [Error: frequency needed for polling subscription],
+]
+`;
