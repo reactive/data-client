@@ -20,7 +20,7 @@ import { createDataClient, type ProvideOptions } from './createDataClient.js';
  */
 export const DataClientPlugin = {
   install(app: App, options: ProvideOptions = {}) {
-    const provider = createDataClient(options);
+    const provider = createDataClient({ ...options, app });
 
     // Handle lifecycle in plugin mode
     if (app.mixin) {

@@ -6,7 +6,7 @@ import {
   createReducer,
 } from '@data-client/core';
 import type { State, Manager, GCInterface } from '@data-client/core';
-import { provide, shallowRef, type ShallowRef } from 'vue';
+import { provide, shallowRef, type ShallowRef, type App } from 'vue';
 
 import { ControllerKey, StateKey } from '../context.js';
 import { getDefaultManagers } from './getDefaultManagers.js';
@@ -16,6 +16,7 @@ export interface ProvideOptions {
   initialState?: State<unknown>;
   Controller?: typeof DataController;
   gcPolicy?: GCInterface;
+  app?: App;
 }
 
 export interface ProvidedDataClient {
@@ -35,7 +36,7 @@ export interface ProvidedDataClient {
 export function createDataClient(
   options: ProvideOptions = {},
 ): ProvidedDataClient {
-  const { Controller = DataController, gcPolicy } = options;
+  const { Controller = DataController, gcPolicy, app } = options;
 
   // stable singletons for this provider scope
   const controller = new Controller({ gcPolicy });
@@ -107,9 +108,16 @@ export function createDataClient(
     if (cleanup) cleanup();
   };
 
-  // provide to children using Vue's provide
-  provide(StateKey, stateRef);
-  provide(ControllerKey, controller as any);
+  // provide to children using Vue's provide or app.provide
+  if (app) {
+    // Plugin mode: use app.provide
+    app.provide(StateKey, stateRef);
+    app.provide(ControllerKey, controller as any);
+  } else {
+    // Composable mode: use provide (must be called within setup)
+    provide(StateKey, stateRef);
+    provide(ControllerKey, controller as any);
+  }
 
   return {
     controller: controller as any,
