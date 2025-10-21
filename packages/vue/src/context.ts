@@ -16,6 +16,7 @@ export const FallbackStateRef: ShallowRef<State<unknown>> =
 export function useController(): Controller {
   const ctrl = inject(ControllerKey, null);
   if (!ctrl) {
+    /* istanbul ignore else */
     if (process.env.NODE_ENV !== 'production') {
       console.error(
         'It appears you are trying to use Reactive Data Client (Vue) without a provider.\n' +
@@ -30,6 +31,7 @@ export function useController(): Controller {
 export function injectState(): ShallowRef<State<unknown>> {
   const state = inject(StateKey, null);
   if (!state) {
+    /* istanbul ignore else */
     if (process.env.NODE_ENV !== 'production') {
       console.error(
         'It appears you are trying to use Reactive Data Client (Vue) without a provider.\n' +

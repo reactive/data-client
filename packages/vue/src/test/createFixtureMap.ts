@@ -24,4 +24,3 @@ Treating as Interceptor`,
   }
   return [map, computed] as const;
 }
-

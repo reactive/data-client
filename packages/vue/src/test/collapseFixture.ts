@@ -19,4 +19,3 @@ export async function collapseFixture(
   }
   return { response, error };
 }
-

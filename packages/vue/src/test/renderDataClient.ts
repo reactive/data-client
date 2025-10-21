@@ -5,6 +5,7 @@ import {
   NetworkManager,
   SubscriptionManager,
   PollingSubscription,
+  type GCInterface,
 } from '@data-client/core';
 import { mount, type VueWrapper } from '@vue/test-utils';
 import {
@@ -30,6 +31,7 @@ export interface RenderDataClientOptions<P = any> {
   getInitialInterceptorData?: () => any;
   managers?: Manager[];
   initialState?: State<unknown>;
+  gcPolicy?: GCInterface;
   wrapper?: any;
 }
 
@@ -56,6 +58,7 @@ export function renderDataClient<P = any>(
     getInitialInterceptorData = () => ({}),
     managers,
     initialState,
+    gcPolicy,
     wrapper,
   } = options;
 
@@ -133,6 +136,7 @@ export function renderDataClient<P = any>(
             managers: finalManagers,
             initialState: finalInitialState,
             Controller: MockControllerClass,
+            gcPolicy,
           },
         ],
       ],
