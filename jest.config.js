@@ -4,6 +4,7 @@ process.env.ANANSI_JEST_TSCONFIG = 'tsconfig.test.json';
 const baseConfig = {
   testEnvironmentOptions: {
     globalsCleanup: 'on',
+    url: 'http://localhost',
   },
   preset: '@anansi/jest-preset',
   moduleFileExtensions: [
@@ -22,6 +23,7 @@ const baseConfig = {
     'node_modules',
     '/__tests__',
     'DevtoolsManager',
+    'packages/vue',
     'packages/test',
     'packages/graphql',
     'packages/rest/src/next',
@@ -30,9 +32,6 @@ const baseConfig = {
     'packages/react/src/server',
     'packages/react/src/components/DevToolsButton.tsx',
   ],
-  testEnvironmentOptions: {
-    url: 'http://localhost',
-  },
   /** TODO: Remove once we move to 'publishConfig' */
   moduleNameMapper: {
     '@data-client/react/redux$': ['<rootDir>/packages/react/src/server/redux'],
@@ -46,6 +45,7 @@ const packages = [
   'graphql',
   'core',
   'react',
+  'vue',
   'normalizr',
   'use-enhanced-reducer',
   'img',
