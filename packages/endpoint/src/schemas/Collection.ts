@@ -19,8 +19,29 @@ const unshiftMerge = (existing: any, incoming: any) => {
 const valuesMerge = (existing: any, incoming: any) => {
   return { ...existing, ...incoming };
 };
-const removeMerge = (existing: Array<any>, incoming: any) => {
-  return existing.filter((item: any) => !incoming.includes(item));
+const isShallowEqual = (
+  a: { id: string; schema: string } | string,
+  b: { id: string; schema: string } | string,
+): boolean => {
+  // TODO: make this extensible in the child's schema
+  // where they are both objects, they are equal if they have the same id and type
+  if (typeof a === 'object' && typeof b === 'object') {
+    return a.id === b.id && a.schema === b.schema;
+  }
+  // where they are both strings, they are equal if they are the same
+  return a === b;
+};
+
+const removeMerge = (
+  existing: Array<{ id: string; schema: string } | string>,
+  incoming: Array<{ id: string; schema: string } | string>,
+) => {
+  return existing.filter(
+    (item: { id: string; schema: string } | string) =>
+      !incoming.some((incomingItem: { id: string; schema: string } | string) =>
+        isShallowEqual(item, incomingItem),
+      ),
+  );
 };
 
 const createArray = (value: any) => [...value];
@@ -143,7 +164,7 @@ export default class CollectionSchema<
   toJSON() {
     return {
       key: this.key,
-      schema: this.schema.schema.toJSON(),
+      schema: this.schema.schema,
     };
   }
 

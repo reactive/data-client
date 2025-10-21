@@ -19,12 +19,12 @@
     "@data-client/react": "^0.14.0",
     "@data-client/rest": "^0.14.0",
     "@number-flow/react": "^0.5.0",
-    "@types/node": "22.18.8",
-    "@types/react": "19.2.0",
-    "@types/react-dom": "19.2.0",
+    "@types/node": "22.18.11",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
     "clsx": "^2.1.1",
     "core-js": "^3.40.0",
-    "next": "15.5.4",
+    "next": "15.5.6",
     "react": "19.1.1",
     "react-dom": "19.1.1",
     "tar-fs": "^3.0.6",
@@ -32,7 +32,7 @@
     "typescript": "^5.4.5"
   },
   "overrides": {
-    "@types/react": "19.2.0",
-    "@types/react-dom": "19.2.0"
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2"
   }
 }
