@@ -1,17 +1,18 @@
 import { schema } from '@data-client/endpoint';
 import { resource } from '@data-client/rest';
-import { mount } from '@vue/test-utils';
-import { defineComponent, h, nextTick, inject } from 'vue';
 
 import {
   ArticleWithSlug,
   ArticleSlugResource,
   ArticleResource,
+  Article,
   IDEntity,
+  UnionSchema,
+  FirstUnion,
+  SecondUnion,
 } from '../../../../__tests__/new';
 import useQuery from '../consumers/useQuery';
-import { ControllerKey } from '../context';
-import { DataClientPlugin } from '../providers/DataClientPlugin';
+import { renderDataComposable } from '../test/renderDataClient';
 
 // Inline fixtures (duplicated from React tests to avoid cross-project imports)
 const payloadSlug = {
@@ -21,6 +22,7 @@ const payloadSlug = {
   content: 'whatever',
   tags: ['a', 'best', 'react'],
 };
+
 const nested = [
   {
     id: 5,
@@ -45,113 +47,142 @@ const nested = [
 ];
 
 describe('vue useQuery()', () => {
-  async function flush() {
-    await Promise.resolve();
-    await nextTick();
-  }
-
-  const ProvideWrapper = defineComponent({
-    name: 'ProvideWrapper',
-    setup(_props, { slots, expose }) {
-      const controller = inject(ControllerKey);
-      expose({ controller });
-      return () => (slots.default ? slots.default() : null);
-    },
+  it('should be undefined with empty state', () => {
+    const { result } = renderDataComposable(() => {
+      return useQuery(ArticleWithSlug, { id: payloadSlug.id });
+    }, {});
+    // @ts-expect-error
+    result.current?.value?.doesnotexist;
+    expect(result.current?.value).toBe(undefined);
   });
 
-  it('returns undefined with empty state', async () => {
-    const Inner = defineComponent({
-      setup() {
-        const val = useQuery(ArticleWithSlug, { id: payloadSlug.id });
-        return () => h('div', (val.value as any)?.title || '');
-      },
-    });
-
-    const wrapper = mount(ProvideWrapper, {
-      slots: { default: () => h(Inner) },
-      global: {
-        plugins: [[DataClientPlugin]],
-      },
-    });
-    await flush();
-    expect(wrapper.text()).toBe('');
+  it('All should be undefined with empty state', () => {
+    const { result } = renderDataComposable(() => {
+      return useQuery(new schema.All(ArticleWithSlug));
+    }, {});
+    // @ts-expect-error
+    result.current?.value?.doesnotexist;
+    expect(result.current?.value).toBe(undefined);
   });
 
-  it('finds Entity by pk/slug after setResponse', async () => {
-    const Inner = defineComponent({
-      setup() {
-        const byId = useQuery(ArticleWithSlug, { id: payloadSlug.id });
-        const bySlug = useQuery(ArticleWithSlug, { slug: payloadSlug.slug });
-        return () =>
-          h(
-            'div',
-            `${(byId.value as any)?.title || ''}|${
-              (bySlug.value as any)?.title || ''
-            }`,
-          );
-      },
-    });
+  it('should fail on schema.Array', () => {
+    const { result } = renderDataComposable(() => {
+      // @ts-expect-error
+      return useQuery(new schema.Array(ArticleWithSlug));
+    }, {});
+    // @ts-expect-error
+    result.current?.value?.doesnotexist;
+    expect(result.current?.value).toBe(undefined);
+  });
 
-    const wrapper = mount(ProvideWrapper, {
-      slots: { default: () => h(Inner) },
-      global: {
-        plugins: [[DataClientPlugin]],
+  it('should find Entity by pk', async () => {
+    const { result } = renderDataComposable(
+      () => {
+        return useQuery(ArticleWithSlug, { id: payloadSlug.id });
       },
-    });
-    const { controller }: any = wrapper.vm as any;
-
-    // seed data via controller
-    controller.setResponse(
-      ArticleSlugResource.get,
-      { id: payloadSlug.id },
-      payloadSlug,
+      {
+        initialFixtures: [
+          {
+            endpoint: ArticleSlugResource.get,
+            args: [{ id: 5 }],
+            response: payloadSlug,
+          },
+        ],
+      },
     );
-    await flush();
+    expect(result.current?.value).toEqual(ArticleWithSlug.fromJS(payloadSlug));
 
-    expect(wrapper.text()).toContain(payloadSlug.title);
+    // @ts-expect-error
+    () => useQuery(ArticleWithSlug);
+    // @ts-expect-error
+    () => useQuery(ArticleWithSlug, 5, 10);
+    // @ts-expect-error
+    () => useQuery(ArticleWithSlug, 5);
+    // @ts-expect-error
+    () => useQuery(ArticleWithSlug, { id5: 5 });
+    // @ts-expect-error
+    () => useQuery(ArticleWithSlug, '5');
   });
 
-  it('selects Collections and updates when pushed', async () => {
-    const ListComp = defineComponent({
-      setup() {
-        const list = useQuery(ArticleResource.getList.schema);
-        return () =>
-          h('div', (list.value || []).map((a: any) => a.id).join(','));
+  it('should find Entity by slug', async () => {
+    const { result } = renderDataComposable(
+      () => {
+        return useQuery(ArticleWithSlug, { slug: payloadSlug.slug });
       },
-    });
-
-    const wrapper = mount(ProvideWrapper, {
-      slots: { default: () => h(ListComp) },
-      global: {
-        plugins: [[DataClientPlugin]],
+      {
+        initialFixtures: [
+          {
+            endpoint: ArticleSlugResource.get,
+            args: [{ id: 5 }],
+            response: payloadSlug,
+          },
+        ],
       },
-    });
-    const { controller }: any = wrapper.vm as any;
-
-    controller.setResponse(ArticleResource.getList, {}, nested);
-    await flush();
-    expect(wrapper.text().split(',').filter(Boolean).length).toBe(
-      nested.length,
     );
+    expect(result.current?.value).toEqual(ArticleWithSlug.fromJS(payloadSlug));
+  });
 
-    // Simulate push by setting new list value
-    const appended = nested.concat({
+  it('should select Collections', () => {
+    const initialFixtures = [
+      {
+        endpoint: ArticleResource.getList,
+        args: [],
+        response: nested,
+      },
+    ];
+    const { result } = renderDataComposable(
+      () => {
+        return useQuery(ArticleResource.getList.schema);
+      },
+      { initialFixtures },
+    );
+    expect(result.current?.value).toBeDefined();
+    if (!result.current?.value) return;
+    expect(result.current.value.length).toBe(nested.length);
+    expect(result.current.value[0]).toBeInstanceOf(Article);
+    expect(result.current.value).toMatchSnapshot();
+  });
+
+  it('should update Collections when pushed', async () => {
+    const initialFixtures = [
+      {
+        endpoint: ArticleResource.getList,
+        args: [],
+        response: nested,
+      },
+    ];
+    const resolverFixtures = [
+      {
+        endpoint: ArticleResource.getList.push,
+        response(body: any) {
+          return body;
+        },
+      },
+    ];
+    const { result, controller, waitForNextUpdate } = renderDataComposable(
+      () => {
+        return useQuery(ArticleResource.getList.schema, {});
+      },
+      { initialFixtures, resolverFixtures },
+    );
+    expect(result.current?.value).toBeDefined();
+    if (!result.current?.value) return;
+    expect(result.current.value.length).toBe(nested.length);
+    await controller.fetch(ArticleResource.getList.push, {
       id: 50,
-      title: 'new',
-      content: 'x',
-    } as any);
-    controller.setResponse(ArticleResource.getList, {}, appended);
-    await flush();
-    expect(wrapper.text().split(',').filter(Boolean).length).toBe(
-      nested.length + 1,
-    );
+      title: 'newly added',
+      content: 'this one is pushed',
+    });
+    await waitForNextUpdate();
+    expect(result.current.value.length).toBe(nested.length + 1);
   });
 
-  it('retrieves a nested collection (Collection of Array)', async () => {
+  it('should retrieve a nested collection', () => {
     class Todo extends IDEntity {
       userId = 0;
       title = '';
       completed = false;
+
       static key = 'Todo';
     }
 
@@ -160,64 +191,171 @@ describe('vue useQuery()', () => {
       username = '';
       email = '';
       todos: Todo[] = [];
+
       static key = 'User';
       static schema = {
         todos: new schema.Collection(new schema.Array(Todo), {
-          nestKey: (parent: any) => ({ userId: parent.id }),
+          nestKey: parent => ({
+            userId: parent.id,
+          }),
         }),
       };
     }
 
     const userTodos = new schema.Collection(new schema.Array(Todo), {
-      argsKey: ({ userId }: { userId: string }) => ({ userId }),
+      argsKey: ({ userId }: { userId: string }) => ({
+        userId,
+      }),
     });
 
     const UserResource = resource({ schema: User, path: '/users/:id' });
 
-    const Inner = defineComponent({
-      setup() {
-        const todos = useQuery(userTodos, { userId: '1' });
-        return () => h('div', (todos.value || []).length.toString());
-      },
-    });
-
-    const wrapper = mount(ProvideWrapper, {
-      slots: { default: () => h(Inner) },
-      global: {
-        plugins: [[DataClientPlugin]],
-      },
-    });
-    const { controller }: any = wrapper.vm as any;
-
-    controller.setResponse(
-      UserResource.get,
-      { id: '1' },
+    const initialFixtures = [
       {
-        id: '1',
-        todos: [{ id: '5', title: 'finish collections', userId: '1' }],
-        username: 'bob',
+        endpoint: UserResource.get,
+        args: [{ id: '1' }],
+        response: {
+          id: '1',
+          todos: [
+            {
+              id: '5',
+              title: 'finish collections',
+              userId: '1',
+            },
+          ],
+          username: 'bob',
+        },
       },
+    ];
+    const { result } = renderDataComposable(
+      () => {
+        return useQuery(userTodos, { userId: '1' });
+      },
+      { initialFixtures },
     );
-    await flush();
+    expect(result.current?.value).toBeDefined();
+    if (!result.current?.value) return;
+    expect(result.current.value.length).toBe(1);
+    expect(result.current.value[0]).toBeInstanceOf(Todo);
+    expect(result.current.value).toMatchSnapshot();
 
-    expect(wrapper.text()).toBe('1');
+    // @ts-expect-error
+    () => useQuery(userTodos, { userId: { hi: '5' } });
+    // @ts-expect-error
+    () => useQuery(userTodos, { userIdd: '1' });
+    // @ts-expect-error
+    () => useQuery(userTodos, { bob: '1' });
+    // @ts-expect-error
+    () => useQuery(userTodos);
   });
 
-  it('works with unions collections (sanity)', async () => {
-    // Keep this light: verify we can call useQuery on a list schema and get an array
-    const list = useQuery(ArticleResource.getList.schema);
-    const Comp = defineComponent({
-      setup: () => () => h('div', (list.value || []).length),
+  it('should work with unions', async () => {
+    const warnSpy = jest
+      .spyOn(global.console, 'warn')
+      .mockImplementation(() => {
+        // noop
+      });
+    const UnionResource = resource({
+      path: '/union/:id',
+      schema: UnionSchema,
     });
-    const wrapper = mount(ProvideWrapper, {
-      slots: { default: () => h(Comp) },
-      global: {
-        plugins: [[DataClientPlugin]],
+
+    const { result } = renderDataComposable(
+      () => {
+        return useQuery(UnionResource.get.schema, { id: '5', type: 'first' });
       },
+      {
+        initialFixtures: [
+          {
+            endpoint: UnionResource.getList,
+            args: [],
+            response: [
+              { id: '5', body: 'hi', type: 'first' },
+              { id: '6', body: 'hi', type: 'another' },
+            ],
+          },
+        ],
+      },
+    );
+    expect(result.current?.value).toBeDefined();
+    if (!result.current?.value) {
+      warnSpy.mockRestore();
+      return;
+    }
+    expect(result.current.value.type).toBe('first');
+    expect(result.current.value).toBeInstanceOf(FirstUnion);
+
+    // these are the 'fallback case' where it cannot determine type discriminator, so just enumerates
+    () => useQuery(UnionResource.get.schema, { id: '5' });
+    () => useQuery(UnionResource.get.schema, { body: '5' });
+
+    // @ts-expect-error
+    () => useQuery(UnionResource.get.schema, { id: '5', type: 'notvalid' });
+    // @ts-expect-error
+    () => useQuery(UnionResource.get.schema, { doesnotexist: '5' });
+    // @ts-expect-error
+    () => useQuery(UnionResource.get.schema);
+
+    expect(warnSpy.mock.calls).toMatchSnapshot();
+    warnSpy.mockRestore();
+  });
+
+  it('should work with unions collections', async () => {
+    const warnSpy = jest
+      .spyOn(global.console, 'warn')
+      .mockImplementation(() => {
+        // noop
+      });
+
+    const UnionResource = resource({
+      path: '/union/:id',
+      schema: UnionSchema,
     });
-    const { controller }: any = wrapper.vm as any;
-    controller.setResponse(ArticleResource.getList, {}, []);
-    await flush();
-    expect(wrapper.text()).toBe('0');
+
+    const { result, controller, waitForNextUpdate } = renderDataComposable(
+      () => {
+        return useQuery(UnionResource.getList.schema);
+      },
+      {
+        initialFixtures: [
+          {
+            endpoint: UnionResource.getList,
+            args: [],
+            response: [
+              undefined,
+              null,
+              { id: '5', body: 'hi', type: 'first' },
+              { id: '6', body: 'hi', type: 'another' },
+              { id: '7', body: 'hi' },
+            ],
+          },
+        ],
+        resolverFixtures: [
+          {
+            endpoint: UnionResource.getList.push,
+            response(body) {
+              return body;
+            },
+          },
+        ],
+      },
+    );
+    expect(result.current?.value).toBeDefined();
+    if (!result.current?.value) return;
+    expect(result.current.value[0]).toBeNull();
+    expect(result.current.value[1]).toBeInstanceOf(FirstUnion);
+    expect(result.current.value[2]).not.toBeInstanceOf(FirstUnion);
+    expect(result.current.value[3]).not.toBeInstanceOf(FirstUnion);
+    expect(warnSpy.mock.calls).toMatchSnapshot();
+
+    await controller.fetch(UnionResource.getList.push, {
+      body: 'hi',
+      type: 'second',
+      id: '100',
+    });
+    await waitForNextUpdate();
+    expect(result.current.value[4]).toBeInstanceOf(SecondUnion);
+    expect(result.current.value).toMatchSnapshot();
+    warnSpy.mockRestore();
   });
 });

@@ -1,43 +1,121 @@
-import type { EndpointInterface } from '@data-client/core';
+import type { EndpointInterface, ResolveType } from '@data-client/core';
 
-export interface FixtureEndpoint extends EndpointInterface {
-  key(...args: any[]): string;
+type Updater = (
+  result: any,
+  ...args: any
+) => Record<string, (...args: any) => any>;
+
+export interface SuccessFixtureEndpoint<
+  E extends EndpointInterface & { update?: Updater } = EndpointInterface,
+> {
+  readonly endpoint: E;
+  readonly args: Parameters<E>;
+  readonly response:
+    | ResolveType<E>
+    | ((...args: Parameters<E>) => ResolveType<E>);
+  readonly error?: false;
+  /** Number of miliseconds to wait before resolving */
+  readonly delay?: number;
+  /** Waits to run `response()` after `delay` time */
+  readonly delayCollapse?: boolean;
 }
 
-export interface SuccessFixtureEndpoint extends FixtureEndpoint {
-  (...args: any[]): Promise<any>;
+export interface ResponseInterceptor<
+  T = any,
+  E extends EndpointInterface & {
+    update?: Updater;
+    testKey(key: string): boolean;
+  } = EndpointInterface & { testKey(key: string): boolean },
+> {
+  readonly endpoint: E;
+  response(this: T, ...args: Parameters<E>): ResolveType<E>;
+  /** Number of miliseconds (or function that returns) to wait before resolving */
+  readonly delay?: number | ((...args: Parameters<E>) => number);
+  /** Waits to run `response()` after `delay` time */
+  readonly delayCollapse?: boolean;
+}
+export interface FetchInterceptor<
+  T = any,
+  E extends EndpointInterface & {
+    update?: Updater;
+    testKey(key: string): boolean;
+    fetchResponse(input: RequestInfo, init: RequestInit): Promise<Response>;
+    extend(options: any): any;
+  } = EndpointInterface & {
+    testKey(key: string): boolean;
+    fetchResponse(input: RequestInfo, init: RequestInit): Promise<Response>;
+    extend(options: any): any;
+  },
+> {
+  readonly endpoint: E;
+  fetchResponse(this: T, input: RequestInfo, init: RequestInit): ResolveType<E>;
+  /** Number of miliseconds (or function that returns) to wait before resolving */
+  readonly delay?: number | ((...args: Parameters<E>) => number);
+  /** Waits to run `response()` after `delay` time */
+  readonly delayCollapse?: boolean;
+}
+/** Interceptors match and compute dynamic responses based on args
+ *
+ * @see https://dataclient.io/docs/api/Fixtures#interceptor
+ */
+export type Interceptor<
+  T = any,
+  E extends EndpointInterface & {
+    update?: Updater;
+    testKey(key: string): boolean;
+    fetchResponse?(input: RequestInfo, init: RequestInit): Promise<Response>;
+    extend?(options: any): any;
+  } = EndpointInterface & {
+    testKey(key: string): boolean;
+    fetchResponse(input: RequestInfo, init: RequestInit): Promise<Response>;
+    extend(options: any): any;
+  },
+> =
+  | ResponseInterceptor<T, E>
+  | (E extends (
+      {
+        fetchResponse(input: RequestInfo, init: RequestInit): Promise<Response>;
+        extend(options: any): any;
+      }
+    ) ?
+      FetchInterceptor<T, E>
+    : never);
+
+export interface ErrorFixtureEndpoint<
+  E extends EndpointInterface & { update?: Updater } = EndpointInterface,
+> {
+  readonly endpoint: E;
+  readonly args: Parameters<E>;
+  readonly response: any;
+  readonly error: true;
+  /** Number of miliseconds to wait before resolving */
+  readonly delay?: number;
+  /** Waits to run `response()` after `delay` time */
+  readonly delayCollapse?: boolean;
 }
 
-export interface ErrorFixtureEndpoint extends FixtureEndpoint {
-  (...args: any[]): Promise<never>;
-}
+export type FixtureEndpoint<
+  E extends EndpointInterface & { update?: Updater } = EndpointInterface,
+> = SuccessFixtureEndpoint<E> | ErrorFixtureEndpoint<E>;
 
-export interface Fixture {
-  endpoint: FixtureEndpoint;
-  args: any[];
-  response: any;
-  error?: boolean;
-}
-
-export interface SuccessFixture extends Fixture {
-  endpoint: SuccessFixtureEndpoint;
-  error?: false;
-}
-
-export interface ErrorFixture extends Fixture {
-  endpoint: ErrorFixtureEndpoint;
-  error: true;
-  response: any;
-}
-
-export interface Interceptor<T = any> {
-  endpoint: FixtureEndpoint;
-  response: (request: {
-    body?: any;
-    headers?: Record<string, string>;
-    url: string;
-    method: string;
-    args: any[];
-  }) => T | Promise<T>;
-  error?: boolean;
-}
+/** Represents a successful response
+ *
+ * @see https://dataclient.io/docs/api/Fixtures#successfixture
+ */
+export type SuccessFixture<
+  E extends EndpointInterface & { update?: Updater } = EndpointInterface,
+> = SuccessFixtureEndpoint<E>;
+/** Represents a failed/errored response
+ *
+ * @see https://dataclient.io/docs/api/Fixtures#errorfixtures
+ */
+export type ErrorFixture<
+  E extends EndpointInterface & { update?: Updater } = EndpointInterface,
+> = ErrorFixtureEndpoint<E>;
+/** Represents a static response
+ *
+ * @see https://dataclient.io/docs/api/Fixtures
+ */
+export type Fixture<
+  E extends EndpointInterface & { update?: Updater } = EndpointInterface,
+> = FixtureEndpoint<E>;
