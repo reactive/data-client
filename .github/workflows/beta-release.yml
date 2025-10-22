@@ -30,6 +30,13 @@ jobs:
           corepack enable
           yarn install --immutable
 
+      - name: Configure Yarn npm authentication
+        run: |
+          yarn config set npmAuthToken "${NPM_TOKEN}"
+          yarn config set npmAlwaysAuth true
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: Create Beta Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@v1
@@ -40,4 +47,3 @@ jobs:
           title: "Version Packages (Beta)"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
