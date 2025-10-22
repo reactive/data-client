@@ -17,9 +17,9 @@
     "start:deopt": "NODE_ENV=production npx dexnode --out v8.log --redirect-code-traces-to=/tmp/codetrace --allow-natives-syntax ./index.js"
   },
   "dependencies": {
-    "@data-client/core": "workspace:^",
-    "@data-client/endpoint": "workspace:^",
-    "@data-client/normalizr": "workspace:^",
+    "@data-client/core": "workspace:*",
+    "@data-client/endpoint": "workspace:*",
+    "@data-client/normalizr": "workspace:*",
     "benchmark": "2.1.4",
     "normalizr": "3.6.2",
     "react": "19.1.1"
