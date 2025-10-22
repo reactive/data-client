@@ -15,8 +15,8 @@
     "@types/babel__core": "^7"
   },
   "dependencies": {
-    "@data-client/endpoint": "workspace:^",
-    "@data-client/normalizr": "workspace:^",
+    "@data-client/endpoint": "workspace:*",
+    "@data-client/normalizr": "workspace:*",
     "mockdate": "^3.0.5"
   }
 }

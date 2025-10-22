@@ -38,9 +38,9 @@
   },
   "dependencies": {
     "@babel/runtime-corejs3": "^7.26.7",
-    "@data-client/img": "^0.14.0",
-    "@data-client/react": "^0.14.0",
-    "@data-client/rest": "^0.14.0",
+    "@data-client/img": "workspace:*",
+    "@data-client/react": "workspace:*",
+    "@data-client/rest": "workspace:*",
     "core-js": "^3.40.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
