@@ -3186,17 +3186,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@data-client/core@npm:0.15.0-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b, @data-client/core@npm:^0.15.0-beta-0":
-  version: 0.15.0-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b
-  resolution: "@data-client/core@npm:0.15.0-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b"
-  dependencies:
-    "@babel/runtime": "npm:^7.20.0"
-    "@data-client/normalizr": "npm:0.15.0-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b"
-    flux-standard-action: "npm:^2.1.1"
-  checksum: 10c0/b0a9083b61e3404e199757233404eca51c5149d167490a9159af0ce81b15a58dd045d3777cbf0f0df43c2764d8897d5c71133b8be1ae434f81588b83863eeb65
-  languageName: node
-  linkType: hard
-
 "@data-client/core@workspace:*, @data-client/core@workspace:^, @data-client/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@data-client/core@workspace:packages/core"
@@ -3204,7 +3193,7 @@ __metadata:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.20.0"
     "@data-client/endpoint": "workspace:*"
-    "@data-client/normalizr": "npm:0.15.0-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b"
+    "@data-client/normalizr": "workspace:^"
     "@types/jest": "npm:30.0.0"
     "@types/node": "npm:^22.0.0"
     flux-standard-action: "npm:^2.1.1"
@@ -3212,7 +3201,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/endpoint@npm:0.15.0-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b, @data-client/endpoint@workspace:*, @data-client/endpoint@workspace:^, @data-client/endpoint@workspace:packages/endpoint":
+"@data-client/endpoint@workspace:*, @data-client/endpoint@workspace:^, @data-client/endpoint@workspace:packages/endpoint":
   version: 0.0.0-use.local
   resolution: "@data-client/endpoint@workspace:packages/endpoint"
   dependencies:
@@ -3235,7 +3224,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.20.0"
-    "@data-client/endpoint": "npm:0.15.0-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b"
+    "@data-client/endpoint": "workspace:^"
     "@types/jest": "npm:30.0.0"
     "@types/node": "npm:^22.0.0"
     nock: "npm:13.3.1"
@@ -3249,7 +3238,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.20.0"
-    "@data-client/endpoint": "npm:0.15.0-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b"
+    "@data-client/endpoint": "workspace:^"
     "@data-client/react": "workspace:*"
     "@testing-library/react": "npm:^16.1.0"
     "@types/jest": "npm:30.0.0"
@@ -3266,15 +3255,6 @@ __metadata:
       optional: true
   languageName: unknown
   linkType: soft
-
-"@data-client/normalizr@npm:0.15.0-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b":
-  version: 0.15.0-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b
-  resolution: "@data-client/normalizr@npm:0.15.0-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b"
-  dependencies:
-    "@babel/runtime": "npm:^7.20.0"
-  checksum: 10c0/e9cbd31b3376e9ed5d08b241af6a09351bc6878156ab0c52c23648b1716b7578aff2d6affef1df2ad1552d9c7912dd72053325c7b0db648ca63eec26a1fcb4bc
-  languageName: node
-  linkType: hard
 
 "@data-client/normalizr@workspace:*, @data-client/normalizr@workspace:^, @data-client/normalizr@workspace:packages/normalizr":
   version: 0.0.0-use.local
@@ -3297,10 +3277,10 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.20.0"
-    "@data-client/core": "npm:0.15.0-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b"
+    "@data-client/core": "workspace:^"
     "@data-client/rest": "workspace:*"
     "@data-client/test": "workspace:*"
-    "@data-client/use-enhanced-reducer": "npm:^0.1.14"
+    "@data-client/use-enhanced-reducer": "workspace:^"
     "@jest/globals": "npm:^30.0.0"
     "@js-temporal/polyfill": "npm:^0.5.0"
     "@react-navigation/native": "npm:^7.0.0"
@@ -3341,7 +3321,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.20.0"
-    "@data-client/endpoint": "npm:0.15.0-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b"
+    "@data-client/endpoint": "workspace:^"
     "@data-client/react": "workspace:*"
     "@data-client/test": "workspace:*"
     "@types/jest": "npm:30.0.0"
@@ -3401,7 +3381,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/use-enhanced-reducer@npm:^0.1.14, @data-client/use-enhanced-reducer@workspace:packages/use-enhanced-reducer":
+"@data-client/use-enhanced-reducer@workspace:^, @data-client/use-enhanced-reducer@workspace:packages/use-enhanced-reducer":
   version: 0.0.0-use.local
   resolution: "@data-client/use-enhanced-reducer@workspace:packages/use-enhanced-reducer"
   dependencies:
@@ -3427,7 +3407,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.20.0"
-    "@data-client/core": "npm:^0.15.0-beta-0"
+    "@data-client/core": "workspace:^"
     "@data-client/rest": "workspace:*"
     "@data-client/test": "workspace:*"
     "@jest/globals": "npm:^30.0.0"
