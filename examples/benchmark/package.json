@@ -1,6 +1,6 @@
 {
   "name": "example-benchmark",
-  "version": "0.4.75-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b",
+  "version": "0.4.75-beta-20251022010821-0e5f6bd2963b6deecb68b5febe71cdd3b10c801a",
   "description": "Benchmark for normalizr",
   "main": "index.js",
   "author": "Nathaniel Tucker",
