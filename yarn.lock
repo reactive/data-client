@@ -3247,7 +3247,7 @@ __metadata:
     react: "npm:^19.0.0"
     rollup-plugins: "workspace:*"
   peerDependencies:
-    "@data-client/react": 0.15.0-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b
+    "@data-client/react": 0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c
     "@types/react": ^16.14.0 || ^17.0.0 || ^18.0.0-0 || ^19.0.0
     react: ^16.14.0 || ^17.0.0 || ^18.0.0-0 || ^19.0.0
   peerDependenciesMeta:
@@ -3354,7 +3354,7 @@ __metadata:
     react-test-renderer: "npm:*"
     rollup-plugins: "workspace:*"
   peerDependencies:
-    "@data-client/react": 0.15.0-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b
+    "@data-client/react": 0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c
     "@testing-library/react-hooks": ^8.0.0
     "@types/react": ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0-0 || ^19.0.0
     "@types/react-dom": "*"

@@ -1,5 +1,11 @@
 # @data-client/core
 
+## 0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c
+
+### Patch Changes
+
+- [`a457d15`](https://github.com/reactive/data-client/commit/a457d1596871fb28f1a91f2531cc259db4d55a9c) Thanks [@ntucker](https://github.com/ntucker)! - Republish to fix dependency refernces
+
 ## 0.15.0-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b
 
 ### Minor Changes
