@@ -1,6 +1,6 @@
 {
   "name": "normalizr-github-example",
-  "version": "0.1.51-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b",
+  "version": "0.1.51-beta-20251022010821-0e5f6bd2963b6deecb68b5febe71cdd3b10c801a",
   "description": "And example of using Normalizr with github",
   "main": "index.js",
   "author": "Paul Armstrong",
