@@ -1,5 +1,11 @@
 # @data-client/vue
 
+## 0.2.0-beta-20251022032255-a53e40124932918db2a62f510619234c9fe473c2
+
+### Patch Changes
+
+- [`a53e401`](https://github.com/reactive/data-client/commit/a53e40124932918db2a62f510619234c9fe473c2) Thanks [@ntucker](https://github.com/ntucker)! - Just a test to validate publishing flow
+
 ## 0.2.0-beta-20251022010821-0e5f6bd2963b6deecb68b5febe71cdd3b10c801a
 
 ### Minor Changes
