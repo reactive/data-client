@@ -3,10 +3,7 @@ import { defineComponent, h, nextTick } from 'vue';
 
 import { CoolerArticleResource } from '../../../../__tests__/new';
 import useSuspense from '../consumers/useSuspense';
-import {
-  renderDataComposable,
-  renderDataClient,
-} from '../test/renderDataClient';
+import { renderDataComposable, renderDataClient } from '../test';
 
 // Minimal shared fixture (copied from React test fixtures)
 const payload = {

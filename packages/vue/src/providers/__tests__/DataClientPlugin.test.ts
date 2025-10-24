@@ -161,7 +161,7 @@ describe('DataClientPlugin', () => {
     wrapper.unmount();
   });
 
-  it('should call start on beforeMount lifecycle', () => {
+  it('should call start ONCE on app install (plugin lifecycle)', () => {
     const startSpy = jest.fn();
     const originalCreateDataClient =
       require('../createDataClient.js').createDataClient;
@@ -194,13 +194,14 @@ describe('DataClientPlugin', () => {
       },
     });
 
-    expect(startSpy).toHaveBeenCalled();
+    // Start should be called exactly once when plugin is installed
+    expect(startSpy).toHaveBeenCalledTimes(1);
 
     wrapper.unmount();
     jest.restoreAllMocks();
   });
 
-  it('should call stop on beforeUnmount lifecycle', () => {
+  it('should call stop ONCE on app unmount (plugin lifecycle)', () => {
     const stopSpy = jest.fn();
     const originalCreateDataClient =
       require('../createDataClient.js').createDataClient;
@@ -233,9 +234,13 @@ describe('DataClientPlugin', () => {
       },
     });
 
+    // Stop should not be called while app is running
     expect(stopSpy).not.toHaveBeenCalled();
+
     wrapper.unmount();
-    expect(stopSpy).toHaveBeenCalled();
+
+    // Stop should be called exactly once when app unmounts
+    expect(stopSpy).toHaveBeenCalledTimes(1);
 
     jest.restoreAllMocks();
   });
@@ -278,6 +283,193 @@ describe('DataClientPlugin', () => {
     wrapper.unmount();
   });
 
+  it('should NOT call start for each component mount - only once for app', () => {
+    const startSpy = jest.fn();
+    const originalCreateDataClient =
+      require('../createDataClient.js').createDataClient;
+
+    const mockCreateDataClient = jest.fn(options => {
+      const provider = originalCreateDataClient(options);
+      const originalStart = provider.start;
+      provider.start = () => {
+        startSpy();
+        originalStart();
+      };
+      return provider;
+    });
+
+    jest
+      .spyOn(require('../createDataClient.js'), 'createDataClient')
+      .mockImplementation(mockCreateDataClient as any);
+
+    const ComponentA = defineComponent({
+      name: 'ComponentA',
+      setup() {
+        const controller = inject(ControllerKey);
+        return () => h('div', { id: 'a' }, controller ? 'yes' : 'no');
+      },
+    });
+
+    const ComponentB = defineComponent({
+      name: 'ComponentB',
+      setup() {
+        const controller = inject(ControllerKey);
+        return () => h('div', { id: 'b' }, controller ? 'yes' : 'no');
+      },
+    });
+
+    const ComponentC = defineComponent({
+      name: 'ComponentC',
+      setup() {
+        const controller = inject(ControllerKey);
+        return () => h('div', { id: 'c' }, controller ? 'yes' : 'no');
+      },
+    });
+
+    const ParentComponent = defineComponent({
+      name: 'ParentComponent',
+      setup() {
+        return () => h('div', [h(ComponentA), h(ComponentB), h(ComponentC)]);
+      },
+    });
+
+    const wrapper = mount(ParentComponent, {
+      global: {
+        plugins: [[DataClientPlugin]],
+      },
+    });
+
+    // Verify all components mounted successfully
+    expect(wrapper.find('#a').text()).toBe('yes');
+    expect(wrapper.find('#b').text()).toBe('yes');
+    expect(wrapper.find('#c').text()).toBe('yes');
+
+    // Start should be called exactly ONCE despite 3 components mounting
+    expect(startSpy).toHaveBeenCalledTimes(1);
+
+    wrapper.unmount();
+    jest.restoreAllMocks();
+  });
+
+  it('should NOT call stop for individual component unmount - only on app unmount', () => {
+    const stopSpy = jest.fn();
+    const originalCreateDataClient =
+      require('../createDataClient.js').createDataClient;
+
+    const mockCreateDataClient = jest.fn(options => {
+      const provider = originalCreateDataClient(options);
+      const originalStop = provider.stop;
+      provider.stop = () => {
+        stopSpy();
+        originalStop();
+      };
+      return provider;
+    });
+
+    jest
+      .spyOn(require('../createDataClient.js'), 'createDataClient')
+      .mockImplementation(mockCreateDataClient as any);
+
+    const ComponentA = defineComponent({
+      name: 'ComponentA',
+      setup() {
+        const controller = inject(ControllerKey);
+        return () => h('div', { id: 'a' }, controller ? 'yes' : 'no');
+      },
+    });
+
+    const ComponentB = defineComponent({
+      name: 'ComponentB',
+      setup() {
+        const controller = inject(ControllerKey);
+        return () => h('div', { id: 'b' }, controller ? 'yes' : 'no');
+      },
+    });
+
+    const ComponentC = defineComponent({
+      name: 'ComponentC',
+      setup() {
+        const controller = inject(ControllerKey);
+        return () => h('div', { id: 'c' }, controller ? 'yes' : 'no');
+      },
+    });
+
+    const ParentComponent = defineComponent({
+      name: 'ParentComponent',
+      setup() {
+        return () => h('div', [h(ComponentA), h(ComponentB), h(ComponentC)]);
+      },
+    });
+
+    const wrapper = mount(ParentComponent, {
+      global: {
+        plugins: [[DataClientPlugin]],
+      },
+    });
+
+    // Verify all components mounted
+    expect(wrapper.find('#a').exists()).toBe(true);
+    expect(wrapper.find('#b').exists()).toBe(true);
+    expect(wrapper.find('#c').exists()).toBe(true);
+
+    // Stop should NOT be called while components are running
+    expect(stopSpy).not.toHaveBeenCalled();
+
+    wrapper.unmount();
+
+    // Stop should be called exactly ONCE when app unmounts
+    // (not once per component - only once for the app)
+    expect(stopSpy).toHaveBeenCalledTimes(1);
+
+    jest.restoreAllMocks();
+  });
+
+  it('should maintain same controller/state instance across all components', () => {
+    const controllers: any[] = [];
+    const states: any[] = [];
+
+    const createTestComponent = (name: string) =>
+      defineComponent({
+        name,
+        setup() {
+          const controller = inject(ControllerKey);
+          const state = inject(StateKey);
+          controllers.push(controller);
+          states.push(state);
+          return () => h('div', { id: name.toLowerCase() }, 'test');
+        },
+      });
+
+    const ComponentA = createTestComponent('ComponentA');
+    const ComponentB = createTestComponent('ComponentB');
+    const ComponentC = createTestComponent('ComponentC');
+
+    const ParentComponent = defineComponent({
+      name: 'ParentComponent',
+      setup() {
+        return () => h('div', [h(ComponentA), h(ComponentB), h(ComponentC)]);
+      },
+    });
+
+    const wrapper = mount(ParentComponent, {
+      global: {
+        plugins: [[DataClientPlugin]],
+      },
+    });
+
+    // All components should receive the SAME controller instance
+    expect(controllers.length).toBe(3);
+    expect(controllers[0]).toBe(controllers[1]);
+    expect(controllers[1]).toBe(controllers[2]);
+
+    // All components should receive the SAME state ref
+    expect(states.length).toBe(3);
+    expect(states[0]).toBe(states[1]);
+    expect(states[1]).toBe(states[2]);
+
+    wrapper.unmount();
+  });
+
   it('should provide reactive state', async () => {
     const TestComponent = defineComponent({
       name: 'TestComponent',
@@ -312,6 +504,10 @@ describe('DataClientPlugin', () => {
     const app = {
       mixin: jest.fn(),
       provide: jest.fn(),
+      config: {
+        globalProperties: {},
+      },
+      onUnmount: jest.fn(),
     } as any;
 
     const result = DataClientPlugin.install(app, {});
@@ -327,6 +523,10 @@ describe('DataClientPlugin', () => {
   it('should handle app without mixin method gracefully', () => {
     const app = {
       provide: jest.fn(),
+      config: {
+        globalProperties: {},
+      },
+      onUnmount: jest.fn(),
     } as any;
 
     expect(() => {

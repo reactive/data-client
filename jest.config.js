@@ -23,7 +23,7 @@ const baseConfig = {
     'node_modules',
     '/__tests__',
     'DevtoolsManager',
-    'packages/vue',
+    'packages/vue/src/test',
     'packages/test',
     'packages/graphql',
     'packages/rest/src/next',
