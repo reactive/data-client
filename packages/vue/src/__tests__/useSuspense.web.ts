@@ -1,9 +1,9 @@
 import nock from 'nock';
-import { defineComponent, h, nextTick } from 'vue';
+import { computed, defineComponent, h, nextTick, reactive } from 'vue';
 
 import { CoolerArticleResource } from '../../../../__tests__/new';
 import useSuspense from '../consumers/useSuspense';
-import { renderDataComposable, renderDataClient } from '../test';
+import { renderDataClient, mountDataClient } from '../test';
 
 // Minimal shared fixture (copied from React test fixtures)
 const payload = {
@@ -59,44 +59,45 @@ describe('vue useSuspense()', () => {
     nock.cleanAll();
   });
 
-  // No need for ProvideWrapper anymore since Suspense is integrated into renderDataClient
+  // No need for ProvideWrapper anymore since Suspense is integrated into mountDataClient
 
   it('suspends on empty store, then renders after fetch resolves', async () => {
-    const { result, waitForNextUpdate, cleanup } = renderDataComposable(() =>
+    const { result, waitForNextUpdate, cleanup } = renderDataClient(() =>
       useSuspense(CoolerArticleResource.get, { id: payload.id }),
     );
 
-    // Initially should be undefined while suspended (React-like interface)
+    // Initially should be undefined while suspended
     expect(result.current).toBeUndefined();
 
     // Wait for the composable to resolve
     await waitForNextUpdate();
 
-    // Now should have the actual data (useSuspense returns a Promise that resolves to ComputedRef)
+    // Now should have the Promise
     expect(result.current).toBeDefined();
     expect(result.current).toBeInstanceOf(Promise);
 
-    // Wait for the promise to resolve
-    const articleRef = await result.current;
-    expect(articleRef!.value.title).toBe(payload.title);
-    expect(articleRef!.value.content).toBe(payload.content);
+    // Await the promise once to get the reactive ComputedRef
+    const articleRef = await result.current!;
+    expect(articleRef.value.title).toBe(payload.title);
+    expect(articleRef.value.content).toBe(payload.content);
 
     cleanup();
   });
 
   it('re-renders when controller.setResponse() updates data', async () => {
-    const { result, controller, waitForNextUpdate, cleanup } =
-      renderDataComposable(() =>
-        useSuspense(CoolerArticleResource.get, { id: payload.id }),
-      );
+    const { result, controller, waitForNextUpdate, cleanup } = renderDataClient(
+      () => useSuspense(CoolerArticleResource.get, { id: payload.id }),
+    );
 
     // Wait for initial render
     await waitForNextUpdate();
 
+    // Await the promise once to get the reactive ComputedRef
+    const articleRef = await result.current!;
+
     // Verify initial values
-    const initialArticleRef = await result.current;
-    expect(initialArticleRef!.value.title).toBe(payload.title);
-    expect(initialArticleRef!.value.content).toBe(payload.content);
+    expect(articleRef.value.title).toBe(payload.title);
+    expect(articleRef.value.content).toBe(payload.content);
 
     // Update the store using controller.setResponse
     const newTitle = payload.title + ' updated';
@@ -107,29 +108,30 @@ describe('vue useSuspense()', () => {
       { ...payload, title: newTitle, content: newContent },
     );
 
-    // Wait for re-render
-    await waitForNextUpdate();
+    // Wait a tick for Vue reactivity to propagate
+    await nextTick();
 
-    const updatedArticleRef = await result.current;
-    expect(updatedArticleRef!.value.title).toBe(newTitle);
-    expect(updatedArticleRef!.value.content).toBe(newContent);
+    // The ComputedRef should now have updated values (it's reactive!)
+    expect(articleRef.value.title).toBe(newTitle);
+    expect(articleRef.value.content).toBe(newContent);
 
     cleanup();
   });
 
   it('re-renders when controller.fetch() mutates data', async () => {
-    const { result, controller, waitForNextUpdate, cleanup } =
-      renderDataComposable(() =>
-        useSuspense(CoolerArticleResource.get, { id: payload.id }),
-      );
+    const { result, controller, waitForNextUpdate, cleanup } = renderDataClient(
+      () => useSuspense(CoolerArticleResource.get, { id: payload.id }),
+    );
 
     // Wait for initial render
     await waitForNextUpdate();
 
+    // Await the promise once to get the reactive ComputedRef
+    const articleRef = await result.current!;
+
     // Verify initial values
-    const initialArticleRef = await result.current;
-    expect(initialArticleRef!.value.title).toBe(payload.title);
-    expect(initialArticleRef!.value.content).toBe(payload.content);
+    expect(articleRef.value.title).toBe(payload.title);
+    expect(articleRef.value.content).toBe(payload.content);
 
     // Mutate the data using controller.fetch with update endpoint
     const updatedTitle = payload.title + ' mutated';
@@ -141,18 +143,17 @@ describe('vue useSuspense()', () => {
       { title: updatedTitle, content: updatedContent },
     );
 
-    // Wait for re-render with new data
-    await waitForNextUpdate();
+    // Wait a tick for Vue reactivity to propagate
+    await nextTick();
 
-    const updatedArticleRef = await result.current;
-    expect(updatedArticleRef!.value.title).toBe(updatedTitle);
-    expect(updatedArticleRef!.value.content).toBe(updatedContent);
+    // The ComputedRef should now have updated values (it's reactive!)
+    expect(articleRef.value.title).toBe(updatedTitle);
+    expect(articleRef.value.content).toBe(updatedContent);
 
     cleanup();
   });
 
   it('should re-fetch when props change', async () => {
-    // Clean up persistent mocks to avoid conflicts
     nock.cleanAll();
 
     const fetchMock1 = jest.fn(() => payload);
@@ -180,22 +181,22 @@ describe('vue useSuspense()', () => {
           required: true,
         },
       },
-      async setup(props) {
-        const article = await useSuspense(CoolerArticleResource.get, {
-          id: props.id,
-        });
+      async setup(props: { id: number }) {
+        // Pass the reactive value - useSuspense will track changes via its internal computed
+        const article = await useSuspense(CoolerArticleResource.get, props);
 
         return () =>
           h('div', [
-            h('h3', (article as any).value.title),
-            h('p', (article as any).value.content),
+            h('h3', (article as any).value?.title),
+            h('p', (article as any).value?.content),
           ]);
       },
     });
 
-    // Use renderDataClient to properly set up the test environment
-    const { wrapper, cleanup } = renderDataClient(ArticleWithProps, {
-      initialProps: { id: payload.id },
+    // Use mountDataClient to properly set up the test environment
+    const props = reactive({ id: payload.id });
+    const { wrapper, cleanup } = mountDataClient(ArticleWithProps, {
+      props,
     });
 
     // Wait for initial render and verify data
@@ -206,7 +207,8 @@ describe('vue useSuspense()', () => {
     expect(fetchMock2).toHaveBeenCalledTimes(0);
 
     // Change the id prop - this should trigger re-suspense but currently doesn't
-    await wrapper.setProps({ id: payload2.id });
+    props.id = payload2.id;
+    await nextTick();
 
     // Wait for the new data to render
     await flushUntil(
@@ -222,6 +224,72 @@ describe('vue useSuspense()', () => {
     expect(wrapper.find('p').text()).toBe(payload2.content);
 
     cleanup();
+
+    // Restore the original nock interceptors from beforeAll
     nock.cleanAll();
+    nock(/.*/)
+      .persist()
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Access-Token',
+        'Content-Type': 'application/json',
+      })
+      .options(/.*/)
+      .reply(200)
+      .get(`/article-cooler/${payload.id}`)
+      .reply(200, payload)
+      .get(`/article-cooler/${payload2.id}`)
+      .reply(200, payload2)
+      .put(`/article-cooler/${payload.id}`)
+      .reply(200, (uri, requestBody: any) => ({
+        ...payload,
+        ...requestBody,
+      }));
+  });
+
+  it('should initially resolve, then when args are null should return undefined, then back to resolving', async () => {
+    const props = reactive({ id: payload.id as number | null });
+    const { result, allSettled, waitForNextUpdate, cleanup } = renderDataClient(
+      (props: { id: number | null }) =>
+        useSuspense(
+          CoolerArticleResource.get,
+          computed(() => (props.id !== null ? { id: props.id } : null)),
+        ),
+      { props },
+    );
+
+    // Wait for initial render
+    await waitForNextUpdate();
+
+    // Await the promise once to get the reactive ComputedRef
+    const articleRef = await result.current!;
+
+    expect(articleRef).toBeDefined();
+
+    // Verify initial values
+    expect(articleRef.value?.title).toBe(payload.title);
+    expect(articleRef.value?.content).toBe(payload.content);
+
+    // Change to null - the ComputedRef should reactively become undefined
+    props.id = null;
+    await nextTick();
+
+    // The same ComputedRef should now have undefined value
+    expect(articleRef.value).toBeUndefined();
+
+    // Change back to valid id - should resolve the new data
+    props.id = payload2.id;
+    await nextTick();
+
+    // Wait for the fetch to complete
+    await allSettled();
+    await nextTick();
+
+    // The ComputedRef should now have the new article data
+    expect(articleRef).toBeDefined();
+    expect(articleRef?.value?.title).toBe(payload2.title);
+    expect(articleRef.value?.content).toBe(payload2.content);
+
+    cleanup();
   });
 });

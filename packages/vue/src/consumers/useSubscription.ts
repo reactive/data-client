@@ -6,6 +6,7 @@ import type {
 import { computed, unref, watch } from 'vue';
 
 import { useController } from '../context.js';
+import type { MaybeRefsOrGettersNullable } from '../types.js';
 
 /**
  * Keeps a resource fresh by subscribing to updates.
@@ -18,7 +19,10 @@ export default function useSubscription<
     Schema | undefined,
     undefined | false
   >,
->(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]) {
+>(
+  endpoint: E,
+  ...args: MaybeRefsOrGettersNullable<Parameters<E>> | readonly [null]
+) {
   const controller = useController();
 
   // Track top-level reactive args (Refs are unwrapped). This allows props/refs to trigger resubscribe.

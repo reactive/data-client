@@ -10,6 +10,10 @@ import type { DeepReadonly, ComputedRef } from 'vue';
 
 import useSubscription from './useSubscription.js';
 import useSuspense from './useSuspense.js';
+import type {
+  MaybeRefsOrGetters,
+  MaybeRefsOrGettersNullable,
+} from '../types.js';
 
 /**
  * Ensure an endpoint is available. Keeps it fresh once it is.
@@ -27,7 +31,7 @@ export default function useLive<
   >,
 >(
   endpoint: E,
-  ...args: readonly [...Parameters<E>]
+  ...args: MaybeRefsOrGetters<Parameters<E>>
 ): Promise<
   DeepReadonly<
     ComputedRef<
@@ -45,7 +49,7 @@ export default function useLive<
   >,
 >(
   endpoint: E,
-  ...args: readonly [...Parameters<E>] | readonly [null]
+  ...args: MaybeRefsOrGettersNullable<Parameters<E>> | readonly [null]
 ): Promise<
   DeepReadonly<
     ComputedRef<

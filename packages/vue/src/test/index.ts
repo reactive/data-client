@@ -1,5 +1,5 @@
 export { default as MockController } from './MockController.js';
-export { renderDataClient, renderDataComposable } from './renderDataClient.js';
+export { mountDataClient, renderDataClient } from './renderDataClient.js';
 export type {
   RenderDataClientOptions,
   RenderDataClientResult,
