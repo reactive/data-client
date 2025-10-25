@@ -1,5 +1,6 @@
 import { schema } from '@data-client/endpoint';
 import { resource } from '@data-client/rest';
+import { reactive, computed } from 'vue';
 
 import {
   ArticleWithSlug,
@@ -12,7 +13,7 @@ import {
   SecondUnion,
 } from '../../../../__tests__/new';
 import useQuery from '../consumers/useQuery';
-import { renderDataComposable } from '../test';
+import { renderDataClient } from '../test';
 
 // Inline fixtures (duplicated from React tests to avoid cross-project imports)
 const payloadSlug = {
@@ -48,7 +49,7 @@ const nested = [
 
 describe('vue useQuery()', () => {
   it('should be undefined with empty state', () => {
-    const { result } = renderDataComposable(() => {
+    const { result } = renderDataClient(() => {
       return useQuery(ArticleWithSlug, { id: payloadSlug.id });
     }, {});
     // @ts-expect-error
@@ -57,7 +58,7 @@ describe('vue useQuery()', () => {
   });
 
   it('All should be undefined with empty state', () => {
-    const { result } = renderDataComposable(() => {
+    const { result } = renderDataClient(() => {
       return useQuery(new schema.All(ArticleWithSlug));
     }, {});
     // @ts-expect-error
@@ -66,7 +67,7 @@ describe('vue useQuery()', () => {
   });
 
   it('should fail on schema.Array', () => {
-    const { result } = renderDataComposable(() => {
+    const { result } = renderDataClient(() => {
       // @ts-expect-error
       return useQuery(new schema.Array(ArticleWithSlug));
     }, {});
@@ -76,7 +77,7 @@ describe('vue useQuery()', () => {
   });
 
   it('should find Entity by pk', async () => {
-    const { result } = renderDataComposable(
+    const { result } = renderDataClient(
       () => {
         return useQuery(ArticleWithSlug, { id: payloadSlug.id });
       },
@@ -105,7 +106,7 @@ describe('vue useQuery()', () => {
   });
 
   it('should find Entity by slug', async () => {
-    const { result } = renderDataComposable(
+    const { result } = renderDataClient(
       () => {
         return useQuery(ArticleWithSlug, { slug: payloadSlug.slug });
       },
@@ -130,7 +131,7 @@ describe('vue useQuery()', () => {
         response: nested,
       },
     ];
-    const { result } = renderDataComposable(
+    const { result } = renderDataClient(
       () => {
         return useQuery(ArticleResource.getList.schema);
       },
@@ -159,7 +160,7 @@ describe('vue useQuery()', () => {
         },
       },
     ];
-    const { result, controller, waitForNextUpdate } = renderDataComposable(
+    const { result, controller, waitForNextUpdate } = renderDataClient(
       () => {
         return useQuery(ArticleResource.getList.schema, {});
       },
@@ -227,7 +228,7 @@ describe('vue useQuery()', () => {
         },
       },
     ];
-    const { result } = renderDataComposable(
+    const { result } = renderDataClient(
       () => {
         return useQuery(userTodos, { userId: '1' });
       },
@@ -260,7 +261,7 @@ describe('vue useQuery()', () => {
       schema: UnionSchema,
     });
 
-    const { result } = renderDataComposable(
+    const { result } = renderDataClient(
       () => {
         return useQuery(UnionResource.get.schema, { id: '5', type: 'first' });
       },
@@ -312,7 +313,7 @@ describe('vue useQuery()', () => {
       schema: UnionSchema,
     });
 
-    const { result, controller, waitForNextUpdate } = renderDataComposable(
+    const { result, controller, waitForNextUpdate } = renderDataClient(
       () => {
         return useQuery(UnionResource.getList.schema);
       },
@@ -357,5 +358,290 @@ describe('vue useQuery()', () => {
     expect(result.current.value[4]).toBeInstanceOf(SecondUnion);
     expect(result.current.value).toMatchSnapshot();
     warnSpy.mockRestore();
+  });
+
+  describe('changing args', () => {
+    it('should update result when Entity args change', () => {
+      const payload1 = {
+        id: 1,
+        title: 'First Article',
+        slug: 'first-article',
+        content: 'content 1',
+        tags: ['tag1'],
+      };
+      const payload2 = {
+        id: 2,
+        title: 'Second Article',
+        slug: 'second-article',
+        content: 'content 2',
+        tags: ['tag2'],
+      };
+
+      const props = reactive({ id: 1 });
+      const { result } = renderDataClient(
+        () => {
+          return useQuery(
+            ArticleWithSlug,
+            computed(() => ({ id: props.id })),
+          );
+        },
+        {
+          initialFixtures: [
+            {
+              endpoint: ArticleSlugResource.get,
+              args: [{ id: 1 }],
+              response: payload1,
+            },
+            {
+              endpoint: ArticleSlugResource.get,
+              args: [{ id: 2 }],
+              response: payload2,
+            },
+          ],
+        },
+      );
+
+      expect(result.current?.value).toEqual(ArticleWithSlug.fromJS(payload1));
+      expect(result.current?.value?.id).toBe(1);
+      expect(result.current?.value?.title).toBe('First Article');
+
+      props.id = 2;
+      expect(result.current?.value).toEqual(ArticleWithSlug.fromJS(payload2));
+      expect(result.current?.value?.id).toBe(2);
+      expect(result.current?.value?.title).toBe('Second Article');
+    });
+
+    it('should update result when Entity args change from slug to id', () => {
+      const props = reactive({
+        id: 5 as number | undefined,
+        slug: undefined as string | undefined,
+      });
+      const { result } = renderDataClient(
+        () => {
+          return useQuery(
+            ArticleWithSlug,
+            computed(() => props as any),
+          );
+        },
+        {
+          initialFixtures: [
+            {
+              endpoint: ArticleSlugResource.get,
+              args: [{ id: 5 }],
+              response: payloadSlug,
+            },
+          ],
+        },
+      );
+
+      expect(result.current?.value).toEqual(
+        ArticleWithSlug.fromJS(payloadSlug),
+      );
+      expect(result.current?.value?.id).toBe(5);
+
+      props.id = undefined;
+      props.slug = payloadSlug.slug;
+      expect(result.current?.value).toEqual(
+        ArticleWithSlug.fromJS(payloadSlug),
+      );
+      expect(result.current?.value?.slug).toBe(payloadSlug.slug);
+    });
+
+    it('should return undefined when changing to non-existent entity', () => {
+      const payload1 = {
+        id: 1,
+        title: 'First Article',
+        slug: 'first-article',
+        content: 'content 1',
+        tags: ['tag1'],
+      };
+
+      const props = reactive({ id: 1 });
+      const { result } = renderDataClient(
+        () => {
+          return useQuery(
+            ArticleWithSlug,
+            computed(() => ({ id: props.id })),
+          );
+        },
+        {
+          initialFixtures: [
+            {
+              endpoint: ArticleSlugResource.get,
+              args: [{ id: 1 }],
+              response: payload1,
+            },
+          ],
+        },
+      );
+
+      expect(result.current?.value).toEqual(ArticleWithSlug.fromJS(payload1));
+      expect(result.current?.value?.id).toBe(1);
+
+      props.id = 999;
+      expect(result.current?.value).toBe(undefined);
+    });
+
+    it('should update nested collection when args change', () => {
+      class Todo extends IDEntity {
+        userId = 0;
+        title = '';
+        completed = false;
+
+        static key = 'Todo';
+      }
+
+      class User extends IDEntity {
+        name = '';
+        username = '';
+        email = '';
+        todos: Todo[] = [];
+
+        static key = 'User';
+        static schema = {
+          todos: new schema.Collection(new schema.Array(Todo), {
+            nestKey: parent => ({
+              userId: parent.id,
+            }),
+          }),
+        };
+      }
+
+      const userTodos = new schema.Collection(new schema.Array(Todo), {
+        argsKey: ({ userId }: { userId: string }) => ({
+          userId,
+        }),
+      });
+
+      const UserResource = resource({ schema: User, path: '/users/:id' });
+
+      const props = reactive({ userId: '1' });
+      const { result } = renderDataClient(
+        () => {
+          return useQuery(
+            userTodos,
+            computed(() => ({ userId: props.userId })),
+          );
+        },
+        {
+          initialFixtures: [
+            {
+              endpoint: UserResource.get,
+              args: [{ id: '1' }],
+              response: {
+                id: '1',
+                todos: [
+                  {
+                    id: '5',
+                    title: 'finish collections',
+                    userId: '1',
+                  },
+                  {
+                    id: '6',
+                    title: 'write tests',
+                    userId: '1',
+                  },
+                ],
+                username: 'bob',
+              },
+            },
+            {
+              endpoint: UserResource.get,
+              args: [{ id: '2' }],
+              response: {
+                id: '2',
+                todos: [
+                  {
+                    id: '7',
+                    title: 'review code',
+                    userId: '2',
+                  },
+                ],
+                username: 'alice',
+              },
+            },
+          ],
+        },
+      );
+
+      expect(result.current?.value).toBeDefined();
+      expect(result.current?.value?.length).toBe(2);
+      expect(result.current?.value?.[0]?.title).toBe('finish collections');
+      expect(result.current?.value?.[1]?.title).toBe('write tests');
+
+      props.userId = '2';
+      expect(result.current?.value).toBeDefined();
+      expect(result.current?.value?.length).toBe(1);
+      expect(result.current?.value?.[0]?.title).toBe('review code');
+    });
+
+    it('should return undefined when changing collection args to non-existent collection', () => {
+      class Todo extends IDEntity {
+        userId = 0;
+        title = '';
+        completed = false;
+
+        static key = 'Todo';
+      }
+
+      class User extends IDEntity {
+        name = '';
+        username = '';
+        email = '';
+        todos: Todo[] = [];
+
+        static key = 'User';
+        static schema = {
+          todos: new schema.Collection(new schema.Array(Todo), {
+            nestKey: parent => ({
+              userId: parent.id,
+            }),
+          }),
+        };
+      }
+
+      const userTodos = new schema.Collection(new schema.Array(Todo), {
+        argsKey: ({ userId }: { userId: string }) => ({
+          userId,
+        }),
+      });
+
+      const UserResource = resource({ schema: User, path: '/users/:id' });
+
+      const props = reactive({ userId: '1' });
+      const { result } = renderDataClient(
+        () => {
+          return useQuery(
+            userTodos,
+            computed(() => ({ userId: props.userId })),
+          );
+        },
+        {
+          initialFixtures: [
+            {
+              endpoint: UserResource.get,
+              args: [{ id: '1' }],
+              response: {
+                id: '1',
+                todos: [
+                  {
+                    id: '5',
+                    title: 'finish collections',
+                    userId: '1',
+                  },
+                ],
+                username: 'bob',
+              },
+            },
+          ],
+        },
+      );
+
+      expect(result.current?.value).toBeDefined();
+      expect(result.current?.value?.length).toBe(1);
+
+      props.userId = '999';
+      expect(result.current?.value).toBe(undefined);
+    });
   });
 });

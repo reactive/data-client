@@ -1,11 +1,11 @@
 import { VueWrapper } from '@vue/test-utils';
-import { defineComponent, h, nextTick } from 'vue';
+import { computed, defineComponent, h, nextTick, reactive } from 'vue';
 
 // Endpoints/entities from React subscriptions test
 import { PollingArticleResource } from '../../../../__tests__/new';
 import useSubscription from '../consumers/useSubscription';
 import useSuspense from '../consumers/useSuspense';
-import { renderDataComposable, renderDataClient } from '../test';
+import { renderDataClient, mountDataClient } from '../test';
 
 describe('vue useSubscription()', () => {
   async function flushUntilWithFakeTimers(
@@ -38,28 +38,26 @@ describe('vue useSubscription()', () => {
     expect(frequency).toBe(5000);
 
     const responseMock = jest.fn(() => payload);
+    const propsRef = reactive({ active: true });
 
-    const { result, waitForNextUpdate, allSettled, cleanup } =
-      renderDataComposable(
-        ({ active }: { active: boolean }) => {
-          useSubscription(
-            PollingArticleResource.get,
-            active ? { id: payload.id } : null,
-          );
-          return useSuspense(PollingArticleResource.get, {
-            id: payload.id,
-          });
-        },
-        {
-          initialProps: { active: true },
-          resolverFixtures: [
-            {
-              endpoint: PollingArticleResource.get,
-              response: responseMock,
-            },
-          ],
-        },
-      );
+    const { result, waitForNextUpdate, allSettled, cleanup } = renderDataClient(
+      ({ active }: { active: boolean }) => {
+        const args = computed(() => (active ? { id: payload.id } : null));
+        useSubscription(PollingArticleResource.get, args);
+        return useSuspense(PollingArticleResource.get, {
+          id: payload.id,
+        });
+      },
+      {
+        props: propsRef,
+        resolverFixtures: [
+          {
+            endpoint: PollingArticleResource.get,
+            response: responseMock,
+          },
+        ],
+      },
+    );
 
     // Wait for initial render
     jest.advanceTimersByTime(frequency);
@@ -98,44 +96,35 @@ describe('vue useSubscription()', () => {
     expect(frequency).toBe(5000);
 
     const responseMock = jest.fn(() => payload);
+    const propsRef = reactive({ active: true });
 
-    const TestComponent = defineComponent({
-      name: 'TestComponent',
-      props: {
-        active: {
-          type: Boolean,
-          default: true,
-        },
-      },
-      async setup(props) {
-        useSubscription(
-          PollingArticleResource.get,
-          props.active ? { id: payload.id } : null,
-        );
-        const article = await useSuspense(PollingArticleResource.get, {
+    const { result, waitForNextUpdate, allSettled, cleanup } = renderDataClient(
+      (props: { active: boolean }) => {
+        const args = computed(() => (props.active ? { id: payload.id } : null));
+        useSubscription(PollingArticleResource.get, args);
+        return useSuspense(PollingArticleResource.get, {
           id: payload.id,
         });
-        return () => h('div', [h('h3', article.value.title)]);
       },
-    });
-
-    const { wrapper, allSettled, cleanup } = renderDataClient(TestComponent, {
-      initialProps: { active: true },
-      resolverFixtures: [
-        {
-          endpoint: PollingArticleResource.get,
-          response: responseMock,
-        },
-      ],
-    });
+      {
+        props: propsRef,
+        resolverFixtures: [
+          {
+            endpoint: PollingArticleResource.get,
+            response: responseMock,
+          },
+        ],
+      },
+    );
 
     // Wait for initial render
     jest.advanceTimersByTime(frequency);
     await allSettled();
-    await flushUntilWithFakeTimers(wrapper, () => wrapper.find('h3').exists());
+    await waitForNextUpdate();
 
     // Verify initial values
-    expect(wrapper.find('h3').text()).toBe(payload.title);
+    const initialArticleRef = await result.current;
+    expect(initialArticleRef!.value!.title).toBe(payload.title);
     expect(responseMock).toHaveBeenCalledTimes(1);
 
     // Change the mock response
@@ -150,11 +139,12 @@ describe('vue useSubscription()', () => {
     await nextTick();
 
     // Verify the article was updated
-    expect(wrapper.find('h3').text()).toBe('after first poll');
+    const updatedArticleRef = await result.current;
+    expect(updatedArticleRef!.value!.title).toBe('after first poll');
     expect(responseMock).toHaveBeenCalledTimes(2);
 
     // Now unsubscribe by setting active to false
-    await wrapper.setProps({ active: false });
+    propsRef.active = false;
     await nextTick();
 
     // Change the mock response again
@@ -169,7 +159,8 @@ describe('vue useSubscription()', () => {
     await nextTick();
 
     // Verify the article was NOT updated (still has old value)
-    expect(wrapper.find('h3').text()).toBe('after first poll');
+    const finalArticleRef = await result.current;
+    expect(finalArticleRef!.value!.title).toBe('after first poll');
     // Should still be 2 calls, no new poll happened
     expect(responseMock).toHaveBeenCalledTimes(2);
 
@@ -222,8 +213,9 @@ describe('vue useSubscription()', () => {
       },
     });
 
-    const { wrapper, allSettled, cleanup } = renderDataClient(ParentComponent, {
-      initialProps: { showSubscriber: true },
+    const props = reactive({ showSubscriber: true });
+    const { wrapper, allSettled, cleanup } = mountDataClient(ParentComponent, {
+      props,
       resolverFixtures: [
         {
           endpoint: PollingArticleResource.get,
@@ -257,7 +249,7 @@ describe('vue useSubscription()', () => {
     expect(responseMock).toHaveBeenCalledTimes(2);
 
     // Now unmount the subscribing component by setting showSubscriber to false
-    await wrapper.setProps({ showSubscriber: false });
+    props.showSubscriber = false;
     await nextTick();
 
     // Change the mock response again

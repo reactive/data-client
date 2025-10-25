@@ -9,6 +9,7 @@ import type {
 } from '@data-client/core';
 import {
   computed,
+  unref,
   watch,
   readonly,
   type DeepReadonly,
@@ -16,6 +17,10 @@ import {
 } from 'vue';
 
 import { useController, injectState } from '../context.js';
+import type {
+  MaybeRefsOrGetters,
+  MaybeRefsOrGettersNullable,
+} from '../types.js';
 
 export default function useSuspense<
   E extends EndpointInterface<
@@ -25,7 +30,7 @@ export default function useSuspense<
   >,
 >(
   endpoint: E,
-  ...args: readonly [...Parameters<E>]
+  ...args: MaybeRefsOrGetters<Parameters<E>>
 ): Promise<
   DeepReadonly<
     ComputedRef<
@@ -43,7 +48,7 @@ export default function useSuspense<
   >,
 >(
   endpoint: E,
-  ...args: readonly [...Parameters<E>] | readonly [null]
+  ...args: MaybeRefsOrGettersNullable<Parameters<E>> | readonly [null]
 ): Promise<
   DeepReadonly<
     ComputedRef<
@@ -60,15 +65,22 @@ export default async function useSuspense(
   const stateRef = injectState();
   const controller = useController();
 
+  // Track top-level reactive args (Refs are unwrapped). This allows props/refs to trigger updates.
+  const resolvedArgs = computed(() => args.map(a => unref(a as any)) as any);
+
   // Compute a key that changes when args change (including reactive props)
   const argsKey = computed(() =>
-    args[0] !== null ? endpoint.key(...args) : '',
+    resolvedArgs.value[0] !== null ? endpoint.key(...resolvedArgs.value) : '',
   );
 
   // Compute response meta reactively so we can respond to store updates
   const responseMeta = computed(() => {
     return argsKey.value ?
-        controller.getResponseMeta(endpoint, ...args, stateRef.value)
+        controller.getResponseMeta(
+          endpoint,
+          ...resolvedArgs.value,
+          stateRef.value,
+        )
       : null;
   });
 
@@ -79,7 +91,7 @@ export default async function useSuspense(
     if (!meta) return;
     const forceFetch = meta.expiryStatus === ExpiryStatus.Invalid;
     if (Date.now() <= meta.expiresAt && !forceFetch) return;
-    await controller.fetch(endpoint, ...(args as any));
+    await controller.fetch(endpoint, ...resolvedArgs.value);
   };
 
   // Trigger on initial call
