@@ -200,9 +200,11 @@ export function renderDataComposable<P = any, R = any>(
   cleanup: () => void;
   allSettled: () => Promise<PromiseSettledResult<unknown>[]>;
   waitForNextUpdate: () => Promise<void>;
+  setProps: (props: Partial<P>) => Promise<void>;
 } {
   let resultRef: any;
   let resolveNextUpdate: (() => void) | null = null;
+  let composablePropsRef: any;
 
   const TestComponent = defineComponent({
     name: 'TestComposableComponent',
@@ -268,10 +270,21 @@ export function renderDataComposable<P = any, R = any>(
   // Wrap the component to accept composableProps
   const WrappedTestComponent = defineComponent({
     name: 'WrappedTestComponent',
-    setup() {
-      const composableProps = ref(options.initialProps || {});
+    setup(_, { expose }) {
+      composablePropsRef = ref(options.initialProps || {});
 
-      return () => h(TestComponent, { composableProps: composableProps.value });
+      // Expose the ref so we can update it from outside
+      expose({
+        updateComposableProps: (newProps: any) => {
+          composablePropsRef.value = {
+            ...composablePropsRef.value,
+            ...newProps,
+          };
+        },
+      });
+
+      return () =>
+        h(TestComponent, { composableProps: composablePropsRef.value });
     },
   });
 
@@ -301,6 +314,15 @@ export function renderDataComposable<P = any, R = any>(
     });
   };
 
+  const setProps = async (props: Partial<P>): Promise<void> => {
+    const updateComposableProps = (wrapper.vm as any).updateComposableProps;
+    if (updateComposableProps) {
+      updateComposableProps(props);
+      await nextTick();
+      await nextTick();
+    }
+  };
+
   return {
     result: {
       get current() {
@@ -312,5 +334,6 @@ export function renderDataComposable<P = any, R = any>(
     cleanup,
     allSettled,
     waitForNextUpdate,
+    setProps,
   };
 }

@@ -12,7 +12,7 @@ import {
   SecondUnion,
 } from '../../../../__tests__/new';
 import useQuery from '../consumers/useQuery';
-import { renderDataComposable } from '../test/renderDataClient';
+import { renderDataComposable } from '../test';
 
 // Inline fixtures (duplicated from React tests to avoid cross-project imports)
 const payloadSlug = {

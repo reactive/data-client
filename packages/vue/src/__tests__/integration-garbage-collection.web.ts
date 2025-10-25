@@ -4,10 +4,7 @@ import { defineComponent, h } from 'vue';
 import { Article, ArticleResource } from '../../../../__tests__/new';
 import useQuery from '../consumers/useQuery';
 import useSuspense from '../consumers/useSuspense';
-import {
-  renderDataComposable,
-  renderDataClient,
-} from '../test/renderDataClient';
+import { renderDataComposable, renderDataClient } from '../test';
 
 const GC_INTERVAL = 100; // Use short interval for faster tests
 
