@@ -1,5 +1,28 @@
 # @data-client/test
 
+## 0.15.0
+
+### Minor Changes
+
+- [#3394](https://github.com/reactive/data-client/pull/3394) [`d44d36a`](https://github.com/reactive/data-client/commit/d44d36a7de0a18817486c4f723bf2f0e86ac9677) Thanks [@ntucker](https://github.com/ntucker)! - Change NetworkManager bookkeeping data structure for inflight fetches
+
+  BREAKING CHANGE: NetworkManager.fetched, NetworkManager.rejectors, NetworkManager.resolvers, NetworkManager.fetchedAt
+  -> NetworkManager.fetching
+
+  #### Before
+
+  ```ts
+  if (action.key in this.fetched)
+  ```
+
+  #### After
+
+  ```ts
+  if (this.fetching.has(action.key))
+  ```
+
+- [`769cb78`](https://github.com/reactive/data-client/commit/769cb78966aed032c90864c701dae2bac0cc1e4d) Thanks [@ntucker](https://github.com/ntucker)! - Support 0.15 of @data-client/react
+
 ## 0.14.22
 
 ### Patch Changes

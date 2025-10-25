@@ -1,6 +1,6 @@
 {
   "name": "coinbase-lite",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "packageManager": "yarn@4.10.3",
   "description": "Coin App",
   "scripts": {
