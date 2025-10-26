@@ -1,5 +1,79 @@
 # @data-client/vue
 
+## 0.2.0-beta-20251026233651-4c1d5c9084df801287cc120cd7a9c77b9bbe96e0
+
+### Minor Changes
+
+- [`733091f`](https://github.com/reactive/data-client/commit/733091f09b503ef7bb7d435a1d86dd7cbcfd96bb) Thanks [@ntucker](https://github.com/ntucker)! - Never wrap renderDataCompose().result in ref. Just passthrough the return value directly. Always.
+
+  ### Before
+
+  ```ts
+  const { result, cleanup } = await renderDataCompose(() =>
+    useSuspense(CoolerArticleResource.get, { id: payload.id }),
+  );
+
+  const articleRef = await result.value;
+  expect(articleRef.value.title).toBe(payload.title);
+  expect(articleRef.value.content).toBe(payload.content);
+  ```
+
+  ### After
+
+  ```ts
+  const { result, cleanup } = await renderDataCompose(() =>
+    useSuspense(CoolerArticleResource.get, { id: payload.id }),
+  );
+
+  const articleRef = await result;
+  expect(articleRef.value.title).toBe(payload.title);
+  expect(articleRef.value.content).toBe(payload.content);
+  ```
+
+- [#3591](https://github.com/reactive/data-client/pull/3591) [`aecd59b`](https://github.com/reactive/data-client/commit/aecd59becae7fb722eee4bd5035f2a654e75d5d8) Thanks [@ntucker](https://github.com/ntucker)! - `renderDataCompose()` awaits until the composable runs
+
+  ### Before
+
+  ```ts
+  const { result, cleanup } = renderDataCompose(() =>
+    useCache(CoolerArticleResource.get, { id: payload.id }),
+  );
+
+  // Wait for initial render
+  await waitForNextUpdate();
+
+  expect(result.current).toBeDefined();
+  ```
+
+  ### After
+
+  ```ts
+  const { result, cleanup } = await renderDataCompose(() =>
+    useCache(CoolerArticleResource.get, { id: payload.id }),
+  );
+
+  expect(result.value).toBeDefined();
+  ```
+
+- [#3591](https://github.com/reactive/data-client/pull/3591) [`aecd59b`](https://github.com/reactive/data-client/commit/aecd59becae7fb722eee4bd5035f2a654e75d5d8) Thanks [@ntucker](https://github.com/ntucker)! - `renderDataCompose().result` is now simply passes the composable result if it's a ref, or wraps it as computable ref
+
+- [#3592](https://github.com/reactive/data-client/pull/3592) [`4c9465b`](https://github.com/reactive/data-client/commit/4c9465bdcb139d79ca7205925e93fc45d37f3281) Thanks [@ntucker](https://github.com/ntucker)! - Add useDLE()
+
+  ```ts
+  const { date, loading, error } = useDLE(
+    CoolerArticleResource.get,
+    computed(() => (props.id !== null ? { id: props.id } : null)),
+  );
+  ```
+
+### Patch Changes
+
+- [`d52fa38`](https://github.com/reactive/data-client/commit/d52fa38115950db8d3f3fde2d364c9f0ad8aaf65) Thanks [@ntucker](https://github.com/ntucker)! - Fixed race condition in useSuspense() where args change while initial suspense is not complete
+
+- [`eae4fe4`](https://github.com/reactive/data-client/commit/eae4fe4004ff506a020fac0ca7b322d7eda0aac2) Thanks [@ntucker](https://github.com/ntucker)! - renderDataClient -> renderDataCompose
+
+  This keeps naming conventions closer to the React version
+
 ## 0.2.0-beta-20251026024409-a1c466cfd7aac770879b584acaac40fa61d01b61
 
 ### Patch Changes
