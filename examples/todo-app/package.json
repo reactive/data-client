@@ -39,7 +39,7 @@
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
     "@types/uuid": "^10.0.0",
-    "react-refresh": "0.17.0",
+    "react-refresh": "0.18.0",
     "webpack": "5.102.1",
     "webpack-cli": "6.0.1",
     "webpack-dev-server": "5.2.2"
@@ -50,8 +50,8 @@
     "@data-client/react": "0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c",
     "@data-client/rest": "0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c",
     "core-js": "^3.40.0",
-    "react": "19.1.1",
-    "react-dom": "19.1.1",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
     "uuid": "^13.0.0"
   }
 }
