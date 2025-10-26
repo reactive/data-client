@@ -60,24 +60,18 @@ describe('vue useCache()', () => {
   });
 
   it('returns undefined on empty store (no fetch)', async () => {
-    const { result, waitForNextUpdate, cleanup } = renderDataCompose(() =>
+    const { result, cleanup } = await renderDataCompose(() =>
       useCache(CoolerArticleResource.get, { id: payload.id }),
     );
 
-    // Wait for initial render
-    await waitForNextUpdate();
-
-    // Unlike useSuspense, useCache should return a ComputedRef immediately
-    expect(result.current).toBeDefined();
-
     // The value should be undefined since we haven't fetched yet
-    expect(result.current!.value).toBeUndefined();
+    expect(result.value).toBeUndefined();
 
     cleanup();
   });
 
   it('returns data when already in cache', async () => {
-    const { result, waitForNextUpdate, cleanup } = renderDataCompose(
+    const { result, waitForNextUpdate, cleanup } = await renderDataCompose(
       () => useCache(CoolerArticleResource.get, { id: payload.id }),
       {
         initialFixtures: [
@@ -93,19 +87,17 @@ describe('vue useCache()', () => {
     // Wait for initial render
     await waitForNextUpdate();
 
-    const articleRef = result.current!;
-
     // The value should be the cached data
-    expect(articleRef.value).toBeDefined();
-    expect(articleRef.value!.title).toBe(payload.title);
-    expect(articleRef.value!.content).toBe(payload.content);
+    expect(result.value).toBeDefined();
+    expect(result.value?.title).toBe(payload.title);
+    expect(result.value?.content).toBe(payload.content);
 
     cleanup();
   });
 
   it('re-renders when controller.setResponse() updates data', async () => {
     const { result, controller, waitForNextUpdate, cleanup } =
-      renderDataCompose(
+      await renderDataCompose(
         () => useCache(CoolerArticleResource.get, { id: payload.id }),
         {
           initialFixtures: [
@@ -121,11 +113,9 @@ describe('vue useCache()', () => {
     // Wait for initial render
     await waitForNextUpdate();
 
-    const articleRef = result.current!;
-
     // Verify initial values
-    expect(articleRef.value!.title).toBe(payload.title);
-    expect(articleRef.value!.content).toBe(payload.content);
+    expect(result.value?.title).toBe(payload.title);
+    expect(result.value?.content).toBe(payload.content);
 
     // Update the store using controller.setResponse
     const newTitle = payload.title + ' updated';
@@ -140,15 +130,15 @@ describe('vue useCache()', () => {
     await nextTick();
 
     // The ComputedRef should now have updated values (it's reactive!)
-    expect(articleRef.value!.title).toBe(newTitle);
-    expect(articleRef.value!.content).toBe(newContent);
+    expect(result.value?.title).toBe(newTitle);
+    expect(result.value?.content).toBe(newContent);
 
     cleanup();
   });
 
   it('re-renders when controller.fetch() mutates data', async () => {
     const { result, controller, waitForNextUpdate, cleanup } =
-      renderDataCompose(
+      await renderDataCompose(
         () => useCache(CoolerArticleResource.get, { id: payload.id }),
         {
           initialFixtures: [
@@ -164,11 +154,9 @@ describe('vue useCache()', () => {
     // Wait for initial render
     await waitForNextUpdate();
 
-    const articleRef = result.current!;
-
     // Verify initial values
-    expect(articleRef.value!.title).toBe(payload.title);
-    expect(articleRef.value!.content).toBe(payload.content);
+    expect(result.value?.title).toBe(payload.title);
+    expect(result.value?.content).toBe(payload.content);
 
     // Mutate the data using controller.fetch with update endpoint
     const updatedTitle = payload.title + ' mutated';
@@ -184,8 +172,8 @@ describe('vue useCache()', () => {
     await nextTick();
 
     // The ComputedRef should now have updated values (it's reactive!)
-    expect(articleRef.value!.title).toBe(updatedTitle);
-    expect(articleRef.value!.content).toBe(updatedContent);
+    expect(result.value?.title).toBe(updatedTitle);
+    expect(result.value?.content).toBe(updatedContent);
 
     cleanup();
   });
@@ -297,7 +285,7 @@ describe('vue useCache()', () => {
 
   it('should handle null args by returning undefined', async () => {
     const props = reactive({ id: payload.id as number | null });
-    const { result, waitForNextUpdate, cleanup } = renderDataCompose(
+    const { result, waitForNextUpdate, cleanup } = await renderDataCompose(
       (props: { id: number | null }) =>
         useCache(
           CoolerArticleResource.get,
@@ -323,36 +311,34 @@ describe('vue useCache()', () => {
     // Wait for initial render
     await waitForNextUpdate();
 
-    const articleRef = result.current!;
-
-    expect(articleRef).toBeDefined();
+    expect(result.value).toBeDefined();
 
     // Verify initial values
-    expect(articleRef.value?.title).toBe(payload.title);
-    expect(articleRef.value?.content).toBe(payload.content);
+    expect(result.value?.title).toBe(payload.title);
+    expect(result.value?.content).toBe(payload.content);
 
     // Change to null - the ComputedRef should reactively become undefined
     props.id = null;
     await nextTick();
 
     // The same ComputedRef should now have undefined value
-    expect(articleRef.value).toBeUndefined();
+    expect(result.value).toBeUndefined();
 
     // Change back to valid id - should get cached data
     props.id = payload2.id;
     await nextTick();
 
     // The ComputedRef should now have the new article data
-    expect(articleRef).toBeDefined();
-    expect(articleRef?.value?.title).toBe(payload2.title);
-    expect(articleRef.value?.content).toBe(payload2.content);
+    expect(result.value).toBeDefined();
+    expect(result.value?.title).toBe(payload2.title);
+    expect(result.value?.content).toBe(payload2.content);
 
     cleanup();
   });
 
   it('returns undefined for stale data when invalidIfStale is true', async () => {
     const { result, controller, waitForNextUpdate, cleanup } =
-      renderDataCompose(
+      await renderDataCompose(
         () => useCache(CoolerArticleResource.get, { id: payload.id }),
         {
           initialFixtures: [
@@ -373,16 +359,14 @@ describe('vue useCache()', () => {
 
     await nextTick();
 
-    const articleRef = result.current!;
-
     // The value should be undefined since the data is invalid
-    expect(articleRef.value).toBeUndefined();
+    expect(result.value).toBeUndefined();
 
     cleanup();
   });
 
   it('returns cached data even if expired when expiryStatus is Valid', async () => {
-    const { result, waitForNextUpdate, cleanup } = renderDataCompose(
+    const { result, waitForNextUpdate, cleanup } = await renderDataCompose(
       () => useCache(CoolerArticleResource.get, { id: payload.id }),
       {
         initialFixtures: [
@@ -398,11 +382,9 @@ describe('vue useCache()', () => {
     // Wait for initial render
     await waitForNextUpdate();
 
-    const articleRef = result.current!;
-
     // Even though data might be expired, if it's Valid it should be returned
-    expect(articleRef.value).toBeDefined();
-    expect(articleRef.value!.title).toBe(payload.title);
+    expect(result.value).toBeDefined();
+    expect(result.value?.title).toBe(payload.title);
 
     cleanup();
   });

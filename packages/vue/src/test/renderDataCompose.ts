@@ -1,6 +1,15 @@
 import { type Controller } from '@data-client/core';
 import { type VueWrapper } from '@vue/test-utils';
-import { defineComponent, h, ref, watch, reactive } from 'vue';
+import {
+  defineComponent,
+  h,
+  ref,
+  watch,
+  reactive,
+  nextTick,
+  isRef,
+  type Ref,
+} from 'vue';
 
 import {
   mountDataClient,
@@ -14,22 +23,28 @@ import {
  * @param composable - The composable function to test
  * @param options - Configuration including optional reactive props ref, fixtures, managers, etc.
  */
-export function renderDataCompose<P = any, R = any>(
+export async function renderDataCompose<P = any, R = any>(
   composable: (props: P) => R,
   options: RenderDataClientOptions<P> = {},
-): {
-  result: { current: R | undefined };
+): Promise<{
+  result: R extends Ref<unknown> ? R : Ref<R>;
   wrapper: VueWrapper<any>;
   controller: Controller;
   cleanup: () => void;
   allSettled: () => Promise<PromiseSettledResult<unknown>[]>;
   waitForNextUpdate: () => Promise<void>;
-} {
+}> {
   // Extract props from options, or create empty ref if not provided
   const props = options.props || reactive({});
 
   let resultRef: any;
   let resolveNextUpdate: (() => void) | null = null;
+  let resolveComposableInit: (() => void) | null = null;
+
+  // Promise that resolves when the composable has been called
+  const composableInitialized = new Promise<void>(resolve => {
+    resolveComposableInit = resolve;
+  });
 
   const TestComponent = defineComponent({
     name: 'TestComposableComponent',
@@ -40,36 +55,36 @@ export function renderDataCompose<P = any, R = any>(
       },
     },
     setup(componentProps, { expose }) {
-      // Create the result ref inside the component
-      resultRef = ref<R | undefined>(undefined);
-
       // Call the composable once with reactive props - Vue's useSuspense will handle the async behavior
       const composableValue = composable(componentProps.composableProps as P);
 
-      // If composable returns a Promise, we're suspended - keep result as undefined initially
-      if (composableValue instanceof Promise) {
-        resultRef.value = undefined;
+      // Initialize resultRef with the composable value - only wrap in ref if not already reactive
+      resultRef =
+        isRef(composableValue) ? composableValue : ref<R>(composableValue);
 
-        // Wait for the Promise to resolve, then set the result to the Promise itself
+      // Signal that the composable has been initialized
+      if (resolveComposableInit) {
+        resolveComposableInit();
+        resolveComposableInit = null;
+      }
+
+      // If composable returns a Promise, wait for it to resolve before triggering update callbacks
+      if (composableValue instanceof Promise) {
         composableValue
           .then(() => {
-            resultRef.value = composableValue; // Set to the Promise, not the resolved value
             if (resolveNextUpdate) {
               resolveNextUpdate();
               resolveNextUpdate = null;
             }
           })
           .catch(() => {
-            // Even on error, we're no longer suspended
-            resultRef.value = undefined;
             if (resolveNextUpdate) {
               resolveNextUpdate();
               resolveNextUpdate = null;
             }
           });
       } else {
-        // If composable returns a value directly, we're not suspended
-        resultRef.value = composableValue;
+        // If composable returns a value directly, trigger update immediately
         if (resolveNextUpdate) {
           resolveNextUpdate();
           resolveNextUpdate = null;
@@ -77,8 +92,8 @@ export function renderDataCompose<P = any, R = any>(
       }
 
       // Watch for changes to the result
-      watch(resultRef, newValue => {
-        if (newValue !== undefined && resolveNextUpdate) {
+      watch(resultRef, () => {
+        if (resolveNextUpdate) {
           resolveNextUpdate();
           resolveNextUpdate = null;
         }
@@ -108,33 +123,31 @@ export function renderDataCompose<P = any, R = any>(
     options,
   );
 
-  const waitForNextUpdate = (): Promise<void> => {
-    return new Promise(resolve => {
-      // If result is already available, resolve immediately
-      if (resultRef.value !== undefined) {
-        resolve();
-        return;
-      }
+  // Wait for the composable to be initialized before returning
+  await composableInitialized;
+  // Give Vue's reactivity system time to process the initial values
+  await nextTick();
 
-      // Otherwise, wait for the result to be set
-      resolveNextUpdate = resolve;
+  const waitForNextUpdate = async (): Promise<void> => {
+    // For Promises (like useSuspense), wait for them to resolve
+    if (resultRef.value instanceof Promise) {
+      return new Promise(resolve => {
+        resolveNextUpdate = resolve;
+        setTimeout(() => {
+          if (resolveNextUpdate === resolve) {
+            resolveNextUpdate = null;
+            resolve();
+          }
+        }, 1000);
+      });
+    }
 
-      // Also set up a timeout to prevent hanging
-      setTimeout(() => {
-        if (resolveNextUpdate === resolve) {
-          resolveNextUpdate = null;
-          resolve();
-        }
-      }, 1000);
-    });
+    await allSettled();
+    await nextTick();
   };
 
   return {
-    result: {
-      get current() {
-        return resultRef?.value;
-      },
-    },
+    result: resultRef,
     wrapper,
     controller,
     cleanup,

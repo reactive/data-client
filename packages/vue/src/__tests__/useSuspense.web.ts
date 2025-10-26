@@ -62,22 +62,19 @@ describe('vue useSuspense()', () => {
   // No need for ProvideWrapper anymore since Suspense is integrated into mountDataClient
 
   it('suspends on empty store, then renders after fetch resolves', async () => {
-    const { result, waitForNextUpdate, cleanup } = renderDataCompose(() =>
+    const { result, waitForNextUpdate, cleanup } = await renderDataCompose(() =>
       useSuspense(CoolerArticleResource.get, { id: payload.id }),
     );
 
-    // Initially should be undefined while suspended
-    expect(result.current).toBeUndefined();
-
-    // Wait for the composable to resolve
+    // Wait for the composable to initialize (result.value will be a Promise during suspension)
     await waitForNextUpdate();
 
-    // Now should have the Promise
-    expect(result.current).toBeDefined();
-    expect(result.current).toBeInstanceOf(Promise);
+    // Should have the Promise (suspension in Vue 3 returns a Promise)
+    expect(result.value).toBeDefined();
+    expect(result.value).toBeInstanceOf(Promise);
 
     // Await the promise once to get the reactive ComputedRef
-    const articleRef = await result.current!;
+    const articleRef = await result.value;
     expect(articleRef.value.title).toBe(payload.title);
     expect(articleRef.value.content).toBe(payload.content);
 
@@ -86,7 +83,7 @@ describe('vue useSuspense()', () => {
 
   it('re-renders when controller.setResponse() updates data', async () => {
     const { result, controller, waitForNextUpdate, cleanup } =
-      renderDataCompose(() =>
+      await renderDataCompose(() =>
         useSuspense(CoolerArticleResource.get, { id: payload.id }),
       );
 
@@ -94,7 +91,7 @@ describe('vue useSuspense()', () => {
     await waitForNextUpdate();
 
     // Await the promise once to get the reactive ComputedRef
-    const articleRef = await result.current!;
+    const articleRef = await result.value;
 
     // Verify initial values
     expect(articleRef.value.title).toBe(payload.title);
@@ -121,7 +118,7 @@ describe('vue useSuspense()', () => {
 
   it('re-renders when controller.fetch() mutates data', async () => {
     const { result, controller, waitForNextUpdate, cleanup } =
-      renderDataCompose(() =>
+      await renderDataCompose(() =>
         useSuspense(CoolerArticleResource.get, { id: payload.id }),
       );
 
@@ -129,7 +126,7 @@ describe('vue useSuspense()', () => {
     await waitForNextUpdate();
 
     // Await the promise once to get the reactive ComputedRef
-    const articleRef = await result.current!;
+    const articleRef = await result.value;
 
     // Verify initial values
     expect(articleRef.value.title).toBe(payload.title);
@@ -252,7 +249,7 @@ describe('vue useSuspense()', () => {
   it('should initially resolve, then when args are null should return undefined, then back to resolving', async () => {
     const props = reactive({ id: payload.id as number | null });
     const { result, allSettled, waitForNextUpdate, cleanup } =
-      renderDataCompose(
+      await renderDataCompose(
         (props: { id: number | null }) =>
           useSuspense(
             CoolerArticleResource.get,
@@ -265,7 +262,7 @@ describe('vue useSuspense()', () => {
     await waitForNextUpdate();
 
     // Await the promise once to get the reactive ComputedRef
-    const articleRef = await result.current!;
+    const articleRef = await result.value;
 
     expect(articleRef).toBeDefined();
 

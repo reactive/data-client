@@ -48,36 +48,36 @@ const nested = [
 ];
 
 describe('vue useQuery()', () => {
-  it('should be undefined with empty state', () => {
-    const { result } = renderDataCompose(() => {
+  it('should be undefined with empty state', async () => {
+    const { result } = await renderDataCompose(() => {
       return useQuery(ArticleWithSlug, { id: payloadSlug.id });
     }, {});
     // @ts-expect-error
-    result.current?.value?.doesnotexist;
-    expect(result.current?.value).toBe(undefined);
+    result.value?.doesnotexist;
+    expect(result.value).toBe(undefined);
   });
 
-  it('All should be undefined with empty state', () => {
-    const { result } = renderDataCompose(() => {
+  it('All should be undefined with empty state', async () => {
+    const { result } = await renderDataCompose(() => {
       return useQuery(new schema.All(ArticleWithSlug));
     }, {});
     // @ts-expect-error
-    result.current?.value?.doesnotexist;
-    expect(result.current?.value).toBe(undefined);
+    result.value?.doesnotexist;
+    expect(result.value).toBe(undefined);
   });
 
-  it('should fail on schema.Array', () => {
-    const { result } = renderDataCompose(() => {
+  it('should fail on schema.Array', async () => {
+    const { result } = await renderDataCompose(() => {
       // @ts-expect-error
       return useQuery(new schema.Array(ArticleWithSlug));
     }, {});
     // @ts-expect-error
-    result.current?.value?.doesnotexist;
-    expect(result.current?.value).toBe(undefined);
+    result.value?.doesnotexist;
+    expect(result.value).toBe(undefined);
   });
 
   it('should find Entity by pk', async () => {
-    const { result } = renderDataCompose(
+    const { result } = await renderDataCompose(
       () => {
         return useQuery(ArticleWithSlug, { id: payloadSlug.id });
       },
@@ -91,7 +91,7 @@ describe('vue useQuery()', () => {
         ],
       },
     );
-    expect(result.current?.value).toEqual(ArticleWithSlug.fromJS(payloadSlug));
+    expect(result.value).toEqual(ArticleWithSlug.fromJS(payloadSlug));
 
     // @ts-expect-error
     () => useQuery(ArticleWithSlug);
@@ -106,7 +106,7 @@ describe('vue useQuery()', () => {
   });
 
   it('should find Entity by slug', async () => {
-    const { result } = renderDataCompose(
+    const { result } = await renderDataCompose(
       () => {
         return useQuery(ArticleWithSlug, { slug: payloadSlug.slug });
       },
@@ -120,10 +120,10 @@ describe('vue useQuery()', () => {
         ],
       },
     );
-    expect(result.current?.value).toEqual(ArticleWithSlug.fromJS(payloadSlug));
+    expect(result.value).toEqual(ArticleWithSlug.fromJS(payloadSlug));
   });
 
-  it('should select Collections', () => {
+  it('should select Collections', async () => {
     const initialFixtures = [
       {
         endpoint: ArticleResource.getList,
@@ -131,17 +131,17 @@ describe('vue useQuery()', () => {
         response: nested,
       },
     ];
-    const { result } = renderDataCompose(
+    const { result } = await renderDataCompose(
       () => {
         return useQuery(ArticleResource.getList.schema);
       },
       { initialFixtures },
     );
-    expect(result.current?.value).toBeDefined();
-    if (!result.current?.value) return;
-    expect(result.current.value.length).toBe(nested.length);
-    expect(result.current.value[0]).toBeInstanceOf(Article);
-    expect(result.current.value).toMatchSnapshot();
+    expect(result.value).toBeDefined();
+    if (!result.value) return;
+    expect(result.value.length).toBe(nested.length);
+    expect(result.value[0]).toBeInstanceOf(Article);
+    expect(result.value).toMatchSnapshot();
   });
 
   it('should update Collections when pushed', async () => {
@@ -160,25 +160,25 @@ describe('vue useQuery()', () => {
         },
       },
     ];
-    const { result, controller, waitForNextUpdate } = renderDataCompose(
+    const { result, controller, waitForNextUpdate } = await renderDataCompose(
       () => {
         return useQuery(ArticleResource.getList.schema, {});
       },
       { initialFixtures, resolverFixtures },
     );
-    expect(result.current?.value).toBeDefined();
-    if (!result.current?.value) return;
-    expect(result.current.value.length).toBe(nested.length);
+    expect(result.value).toBeDefined();
+    if (!result.value) return;
+    expect(result.value.length).toBe(nested.length);
     await controller.fetch(ArticleResource.getList.push, {
       id: 50,
       title: 'newly added',
       content: 'this one is pushed',
     });
     await waitForNextUpdate();
-    expect(result.current.value.length).toBe(nested.length + 1);
+    expect(result.value.length).toBe(nested.length + 1);
   });
 
-  it('should retrieve a nested collection', () => {
+  it('should retrieve a nested collection', async () => {
     class Todo extends IDEntity {
       userId = 0;
       title = '';
@@ -228,17 +228,17 @@ describe('vue useQuery()', () => {
         },
       },
     ];
-    const { result } = renderDataCompose(
+    const { result } = await renderDataCompose(
       () => {
         return useQuery(userTodos, { userId: '1' });
       },
       { initialFixtures },
     );
-    expect(result.current?.value).toBeDefined();
-    if (!result.current?.value) return;
-    expect(result.current.value.length).toBe(1);
-    expect(result.current.value[0]).toBeInstanceOf(Todo);
-    expect(result.current.value).toMatchSnapshot();
+    expect(result.value).toBeDefined();
+    if (!result.value) return;
+    expect(result.value.length).toBe(1);
+    expect(result.value[0]).toBeInstanceOf(Todo);
+    expect(result.value).toMatchSnapshot();
 
     // @ts-expect-error
     () => useQuery(userTodos, { userId: { hi: '5' } });
@@ -261,7 +261,7 @@ describe('vue useQuery()', () => {
       schema: UnionSchema,
     });
 
-    const { result } = renderDataCompose(
+    const { result } = await renderDataCompose(
       () => {
         return useQuery(UnionResource.get.schema, { id: '5', type: 'first' });
       },
@@ -278,13 +278,13 @@ describe('vue useQuery()', () => {
         ],
       },
     );
-    expect(result.current?.value).toBeDefined();
-    if (!result.current?.value) {
+    expect(result.value).toBeDefined();
+    if (!result.value) {
       warnSpy.mockRestore();
       return;
     }
-    expect(result.current.value.type).toBe('first');
-    expect(result.current.value).toBeInstanceOf(FirstUnion);
+    expect(result.value.type).toBe('first');
+    expect(result.value).toBeInstanceOf(FirstUnion);
 
     // these are the 'fallback case' where it cannot determine type discriminator, so just enumerates
     () => useQuery(UnionResource.get.schema, { id: '5' });
@@ -313,7 +313,7 @@ describe('vue useQuery()', () => {
       schema: UnionSchema,
     });
 
-    const { result, controller, waitForNextUpdate } = renderDataCompose(
+    const { result, controller, waitForNextUpdate } = await renderDataCompose(
       () => {
         return useQuery(UnionResource.getList.schema);
       },
@@ -341,12 +341,12 @@ describe('vue useQuery()', () => {
         ],
       },
     );
-    expect(result.current?.value).toBeDefined();
-    if (!result.current?.value) return;
-    expect(result.current.value[0]).toBeNull();
-    expect(result.current.value[1]).toBeInstanceOf(FirstUnion);
-    expect(result.current.value[2]).not.toBeInstanceOf(FirstUnion);
-    expect(result.current.value[3]).not.toBeInstanceOf(FirstUnion);
+    expect(result.value).toBeDefined();
+    if (!result.value) return;
+    expect(result.value[0]).toBeNull();
+    expect(result.value[1]).toBeInstanceOf(FirstUnion);
+    expect(result.value[2]).not.toBeInstanceOf(FirstUnion);
+    expect(result.value[3]).not.toBeInstanceOf(FirstUnion);
     expect(warnSpy.mock.calls).toMatchSnapshot();
 
     await controller.fetch(UnionResource.getList.push, {
@@ -355,13 +355,13 @@ describe('vue useQuery()', () => {
       id: '100',
     });
     await waitForNextUpdate();
-    expect(result.current.value[4]).toBeInstanceOf(SecondUnion);
-    expect(result.current.value).toMatchSnapshot();
+    expect(result.value[4]).toBeInstanceOf(SecondUnion);
+    expect(result.value).toMatchSnapshot();
     warnSpy.mockRestore();
   });
 
   describe('changing args', () => {
-    it('should update result when Entity args change', () => {
+    it('should update result when Entity args change', async () => {
       const payload1 = {
         id: 1,
         title: 'First Article',
@@ -378,7 +378,7 @@ describe('vue useQuery()', () => {
       };
 
       const props = reactive({ id: 1 });
-      const { result } = renderDataCompose(
+      const { result } = await renderDataCompose(
         () => {
           return useQuery(
             ArticleWithSlug,
@@ -401,22 +401,22 @@ describe('vue useQuery()', () => {
         },
       );
 
-      expect(result.current?.value).toEqual(ArticleWithSlug.fromJS(payload1));
-      expect(result.current?.value?.id).toBe(1);
-      expect(result.current?.value?.title).toBe('First Article');
+      expect(result.value).toEqual(ArticleWithSlug.fromJS(payload1));
+      expect(result.value?.id).toBe(1);
+      expect(result.value?.title).toBe('First Article');
 
       props.id = 2;
-      expect(result.current?.value).toEqual(ArticleWithSlug.fromJS(payload2));
-      expect(result.current?.value?.id).toBe(2);
-      expect(result.current?.value?.title).toBe('Second Article');
+      expect(result.value).toEqual(ArticleWithSlug.fromJS(payload2));
+      expect(result.value?.id).toBe(2);
+      expect(result.value?.title).toBe('Second Article');
     });
 
-    it('should update result when Entity args change from slug to id', () => {
+    it('should update result when Entity args change from slug to id', async () => {
       const props = reactive({
         id: 5 as number | undefined,
         slug: undefined as string | undefined,
       });
-      const { result } = renderDataCompose(
+      const { result } = await renderDataCompose(
         () => {
           return useQuery(
             ArticleWithSlug,
@@ -434,20 +434,16 @@ describe('vue useQuery()', () => {
         },
       );
 
-      expect(result.current?.value).toEqual(
-        ArticleWithSlug.fromJS(payloadSlug),
-      );
-      expect(result.current?.value?.id).toBe(5);
+      expect(result.value).toEqual(ArticleWithSlug.fromJS(payloadSlug));
+      expect(result.value?.id).toBe(5);
 
       props.id = undefined;
       props.slug = payloadSlug.slug;
-      expect(result.current?.value).toEqual(
-        ArticleWithSlug.fromJS(payloadSlug),
-      );
-      expect(result.current?.value?.slug).toBe(payloadSlug.slug);
+      expect(result.value).toEqual(ArticleWithSlug.fromJS(payloadSlug));
+      expect(result.value?.slug).toBe(payloadSlug.slug);
     });
 
-    it('should return undefined when changing to non-existent entity', () => {
+    it('should return undefined when changing to non-existent entity', async () => {
       const payload1 = {
         id: 1,
         title: 'First Article',
@@ -457,7 +453,7 @@ describe('vue useQuery()', () => {
       };
 
       const props = reactive({ id: 1 });
-      const { result } = renderDataCompose(
+      const { result } = await renderDataCompose(
         () => {
           return useQuery(
             ArticleWithSlug,
@@ -475,14 +471,14 @@ describe('vue useQuery()', () => {
         },
       );
 
-      expect(result.current?.value).toEqual(ArticleWithSlug.fromJS(payload1));
-      expect(result.current?.value?.id).toBe(1);
+      expect(result.value).toEqual(ArticleWithSlug.fromJS(payload1));
+      expect(result.value?.id).toBe(1);
 
       props.id = 999;
-      expect(result.current?.value).toBe(undefined);
+      expect(result.value).toBe(undefined);
     });
 
-    it('should update nested collection when args change', () => {
+    it('should update nested collection when args change', async () => {
       class Todo extends IDEntity {
         userId = 0;
         title = '';
@@ -516,7 +512,7 @@ describe('vue useQuery()', () => {
       const UserResource = resource({ schema: User, path: '/users/:id' });
 
       const props = reactive({ userId: '1' });
-      const { result } = renderDataCompose(
+      const { result } = await renderDataCompose(
         () => {
           return useQuery(
             userTodos,
@@ -564,18 +560,18 @@ describe('vue useQuery()', () => {
         },
       );
 
-      expect(result.current?.value).toBeDefined();
-      expect(result.current?.value?.length).toBe(2);
-      expect(result.current?.value?.[0]?.title).toBe('finish collections');
-      expect(result.current?.value?.[1]?.title).toBe('write tests');
+      expect(result.value).toBeDefined();
+      expect(result.value?.length).toBe(2);
+      expect((result.value?.[0] as any)?.title).toBe('finish collections');
+      expect((result.value?.[1] as any)?.title).toBe('write tests');
 
       props.userId = '2';
-      expect(result.current?.value).toBeDefined();
-      expect(result.current?.value?.length).toBe(1);
-      expect(result.current?.value?.[0]?.title).toBe('review code');
+      expect(result.value).toBeDefined();
+      expect(result.value?.length).toBe(1);
+      expect((result.value?.[0] as any)?.title).toBe('review code');
     });
 
-    it('should return undefined when changing collection args to non-existent collection', () => {
+    it('should return undefined when changing collection args to non-existent collection', async () => {
       class Todo extends IDEntity {
         userId = 0;
         title = '';
@@ -609,7 +605,7 @@ describe('vue useQuery()', () => {
       const UserResource = resource({ schema: User, path: '/users/:id' });
 
       const props = reactive({ userId: '1' });
-      const { result } = renderDataCompose(
+      const { result } = await renderDataCompose(
         () => {
           return useQuery(
             userTodos,
@@ -637,11 +633,11 @@ describe('vue useQuery()', () => {
         },
       );
 
-      expect(result.current?.value).toBeDefined();
-      expect(result.current?.value?.length).toBe(1);
+      expect(result.value).toBeDefined();
+      expect(result.value?.length).toBe(1);
 
       props.userId = '999';
-      expect(result.current?.value).toBe(undefined);
+      expect(result.value).toBe(undefined);
     });
   });
 });
