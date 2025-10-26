@@ -1,9 +1,10 @@
 export { default as MockController } from './MockController.js';
-export { mountDataClient, renderDataClient } from './renderDataClient.js';
+export { mountDataClient } from './mountDataClient.js';
+export { renderDataCompose } from './renderDataCompose.js';
 export type {
   RenderDataClientOptions,
   RenderDataClientResult,
-} from './renderDataClient.js';
+} from './mountDataClient.js';
 export type {
   FixtureEndpoint,
   SuccessFixtureEndpoint,

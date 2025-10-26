@@ -1,9 +1,9 @@
 import { ref, computed, watch, reactive, nextTick } from 'vue';
 
 import { CoolerArticleResource } from '../../../../../__tests__/new';
-import { renderDataClient } from '../renderDataClient';
+import { renderDataCompose } from '../renderDataCompose';
 
-describe('renderDataClient', () => {
+describe('renderDataCompose', () => {
   const payload = {
     id: 5,
     title: 'hi ho',
@@ -11,17 +11,10 @@ describe('renderDataClient', () => {
     tags: ['a', 'best', 'react'],
   };
 
-  // Helper to wait for result to be available
-  async function waitForResult(result: { current: any }, maxAttempts = 20) {
-    for (let i = 0; i < maxAttempts; i++) {
-      if (result.current !== undefined) {
-        await nextTick(); // One more tick to ensure reactivity is settled
-        return;
-      }
-      await nextTick();
-      await new Promise(resolve => setTimeout(resolve, 10));
-    }
-    throw new Error('Timeout waiting for result');
+  // Helper to ensure reactivity has settled
+  async function waitForResult() {
+    await nextTick();
+    await nextTick(); // One more tick to ensure reactivity is settled
   }
 
   describe('basic behaviors', () => {
@@ -31,14 +24,14 @@ describe('renderDataClient', () => {
         return { count };
       };
 
-      const { result, cleanup } = renderDataClient(composable);
+      const { result, cleanup } = await renderDataCompose(composable);
 
       // Wait for composable to execute and result to be available
-      await waitForResult(result);
+      await waitForResult();
 
-      expect(result.current).toBeDefined();
-      // Vue auto-unwraps refs in the return value
-      expect(result.current!.count).toBe(0);
+      expect(result).toBeDefined();
+      // Access the ref's value directly
+      expect(result.count.value).toBe(0);
 
       cleanup();
     });
@@ -48,7 +41,7 @@ describe('renderDataClient', () => {
         return { value: 'test' };
       };
 
-      const { controller, cleanup } = renderDataClient(composable);
+      const { controller, cleanup } = await renderDataCompose(composable);
 
       expect(controller).toBeDefined();
       expect(controller.fetch).toBeDefined();
@@ -66,13 +59,15 @@ describe('renderDataClient', () => {
       };
 
       const props = reactive({ message: 'Hello', count: 42 });
-      const { result, cleanup } = renderDataClient(composable, { props });
+      const { result, cleanup } = await renderDataCompose(composable, {
+        props,
+      });
 
       // Wait for composable to execute and result to be available
-      await waitForResult(result);
+      await waitForResult();
 
-      expect(result.current).toBeDefined();
-      expect(result.current!.message).toBe('Hello: 42');
+      expect(result).toBeDefined();
+      expect(result.message.value).toBe('Hello: 42');
 
       cleanup();
     });
@@ -84,13 +79,13 @@ describe('renderDataClient', () => {
         return { count, doubled };
       };
 
-      const { result, cleanup } = renderDataClient(composable);
+      const { result, cleanup } = await renderDataCompose(composable);
 
       // Wait for composable to execute and result to be available
-      await waitForResult(result);
+      await waitForResult();
 
-      expect(result.current!.count).toBe(10);
-      expect(result.current!.doubled).toBe(20);
+      expect(result.count.value).toBe(10);
+      expect(result.doubled.value).toBe(20);
 
       cleanup();
     });
@@ -100,7 +95,7 @@ describe('renderDataClient', () => {
         return { test: 'value' };
       };
 
-      const { controller, cleanup } = renderDataClient(composable, {
+      const { controller, cleanup } = await renderDataCompose(composable, {
         initialFixtures: [
           {
             endpoint: CoolerArticleResource.get,
@@ -121,7 +116,7 @@ describe('renderDataClient', () => {
         return { value: 'test' };
       };
 
-      const { wrapper, cleanup } = renderDataClient(composable);
+      const { wrapper, cleanup } = await renderDataCompose(composable);
 
       expect(wrapper.find('[data-testid="composable-result"]').exists()).toBe(
         true,
@@ -136,7 +131,7 @@ describe('renderDataClient', () => {
         return { value: 'test' };
       };
 
-      const { allSettled, cleanup } = renderDataClient(composable);
+      const { allSettled, cleanup } = await renderDataCompose(composable);
 
       const result = await allSettled();
 
@@ -154,19 +149,21 @@ describe('renderDataClient', () => {
       };
 
       const props = reactive({ value: 5 });
-      const { result, cleanup } = renderDataClient(composable, { props });
+      const { result, cleanup } = await renderDataCompose(composable, {
+        props,
+      });
 
       // Wait for composable to execute and result to be available
-      await waitForResult(result);
+      await waitForResult();
 
       // Initial computed value
-      expect(result.current!.doubled).toBe(10);
+      expect(result.doubled.value).toBe(10);
 
       // Change prop - computed should update
       props.value = 10;
       await nextTick();
 
-      expect(result.current!.doubled).toBe(20);
+      expect(result.doubled.value).toBe(20);
 
       cleanup();
     });
@@ -186,27 +183,29 @@ describe('renderDataClient', () => {
       };
 
       const props = reactive({ count: 1 });
-      const { result, cleanup } = renderDataClient(composable, { props });
+      const { result, cleanup } = await renderDataCompose(composable, {
+        props,
+      });
 
       // Wait for composable to execute and result to be available
-      await waitForResult(result);
+      await waitForResult();
 
       // Initial value
-      expect(result.current!.count).toBe(1);
+      expect(result.count.value).toBe(1);
       expect(watchSpy).not.toHaveBeenCalled(); // watch doesn't fire on initial setup
 
       // Change prop - watcher should fire
       props.count = 2;
       await nextTick();
 
-      expect(result.current!.count).toBe(2);
+      expect(result.count.value).toBe(2);
       expect(watchSpy).toHaveBeenCalledWith(2, 1);
 
       // Change again
       props.count = 5;
       await nextTick();
 
-      expect(result.current!.count).toBe(5);
+      expect(result.count.value).toBe(5);
       expect(watchSpy).toHaveBeenCalledWith(5, 2);
 
       cleanup();
@@ -226,28 +225,30 @@ describe('renderDataClient', () => {
         firstName: 'John',
         lastName: 'Doe',
       });
-      const { result, cleanup } = renderDataClient(composable, { props });
+      const { result, cleanup } = await renderDataCompose(composable, {
+        props,
+      });
 
       // Wait for composable to execute and result to be available
-      await waitForResult(result);
+      await waitForResult();
 
       // Initial computed values
-      expect(result.current!.fullName).toBe('John Doe');
-      expect(result.current!.initials).toBe('JD');
+      expect(result.fullName.value).toBe('John Doe');
+      expect(result.initials.value).toBe('JD');
 
       // Change first name
       props.firstName = 'Jane';
       await nextTick();
 
-      expect(result.current!.fullName).toBe('Jane Doe');
-      expect(result.current!.initials).toBe('JD');
+      expect(result.fullName.value).toBe('Jane Doe');
+      expect(result.initials.value).toBe('JD');
 
       // Change last name
       props.lastName = 'Smith';
       await nextTick();
 
-      expect(result.current!.fullName).toBe('Jane Smith');
-      expect(result.current!.initials).toBe('JS');
+      expect(result.fullName.value).toBe('Jane Smith');
+      expect(result.initials.value).toBe('JS');
 
       cleanup();
     });
@@ -262,23 +263,25 @@ describe('renderDataClient', () => {
       };
 
       const props = reactive({ value: 1 });
-      const { result, cleanup } = renderDataClient(composable, { props });
+      const { result, cleanup } = await renderDataCompose(composable, {
+        props,
+      });
 
       // Wait for composable to execute and result to be available
-      await waitForResult(result);
+      await waitForResult();
 
       // Initial values
-      expect(result.current!.doubled).toBe(2);
-      expect(result.current!.quadrupled).toBe(4);
-      expect(result.current!.octupled).toBe(8);
+      expect(result.doubled.value).toBe(2);
+      expect(result.quadrupled.value).toBe(4);
+      expect(result.octupled.value).toBe(8);
 
       // Change prop - all computed values should update
       props.value = 5;
       await nextTick();
 
-      expect(result.current!.doubled).toBe(10);
-      expect(result.current!.quadrupled).toBe(20);
-      expect(result.current!.octupled).toBe(40);
+      expect(result.doubled.value).toBe(10);
+      expect(result.quadrupled.value).toBe(20);
+      expect(result.octupled.value).toBe(40);
 
       cleanup();
     });
@@ -296,21 +299,23 @@ describe('renderDataClient', () => {
       const props = reactive({
         user: { name: 'Alice', age: 16 },
       });
-      const { result, cleanup } = renderDataClient(composable, { props });
+      const { result, cleanup } = await renderDataCompose(composable, {
+        props,
+      });
 
       // Wait for composable to execute and result to be available
-      await waitForResult(result);
+      await waitForResult();
 
       // Initial values
-      expect(result.current!.description).toBe('Alice is 16 years old');
-      expect(result.current!.isAdult).toBe(false);
+      expect(result.description.value).toBe('Alice is 16 years old');
+      expect(result.isAdult.value).toBe(false);
 
       // Update nested object
       props.user = { name: 'Bob', age: 25 };
       await nextTick();
 
-      expect(result.current!.description).toBe('Bob is 25 years old');
-      expect(result.current!.isAdult).toBe(true);
+      expect(result.description.value).toBe('Bob is 25 years old');
+      expect(result.isAdult.value).toBe(true);
 
       cleanup();
     });
@@ -327,23 +332,25 @@ describe('renderDataClient', () => {
       const props = reactive({
         items: ['apple', 'banana'],
       });
-      const { result, cleanup } = renderDataClient(composable, { props });
+      const { result, cleanup } = await renderDataCompose(composable, {
+        props,
+      });
 
       // Wait for composable to execute and result to be available
-      await waitForResult(result);
+      await waitForResult();
 
       // Initial values
-      expect(result.current!.itemCount).toBe(2);
-      expect(result.current!.firstItem).toBe('apple');
-      expect(result.current!.allItems).toBe('apple, banana');
+      expect(result.itemCount.value).toBe(2);
+      expect(result.firstItem.value).toBe('apple');
+      expect(result.allItems.value).toBe('apple, banana');
 
       // Update array
       props.items = ['orange', 'grape', 'melon'];
       await nextTick();
 
-      expect(result.current!.itemCount).toBe(3);
-      expect(result.current!.firstItem).toBe('orange');
-      expect(result.current!.allItems).toBe('orange, grape, melon');
+      expect(result.itemCount.value).toBe(3);
+      expect(result.firstItem.value).toBe('orange');
+      expect(result.allItems.value).toBe('orange, grape, melon');
 
       cleanup();
     });
@@ -364,10 +371,12 @@ describe('renderDataClient', () => {
       };
 
       const props = reactive({ value: 10 });
-      const { result, cleanup } = renderDataClient(composable, { props });
+      const { result, cleanup } = await renderDataCompose(composable, {
+        props,
+      });
 
       // Wait for composable to execute and result to be available
-      await waitForResult(result);
+      await waitForResult();
 
       // Immediate watcher should have fired on setup
       expect(watchSpy).toHaveBeenCalledWith(10);
@@ -377,7 +386,7 @@ describe('renderDataClient', () => {
       props.value = 20;
       await nextTick();
 
-      expect(result.current!.value).toBe(20);
+      expect(result.value.value).toBe(20);
       expect(watchSpy).toHaveBeenCalledWith(20);
       expect(watchSpy).toHaveBeenCalledTimes(2);
 
@@ -407,10 +416,12 @@ describe('renderDataClient', () => {
       };
 
       const props = reactive({ value: 5 });
-      const { result, cleanup } = renderDataClient(composable, { props });
+      const { result, cleanup } = await renderDataCompose(composable, {
+        props,
+      });
 
       // Wait for composable to execute and result to be available
-      await waitForResult(result);
+      await waitForResult();
 
       expect(watcher1Spy).not.toHaveBeenCalled();
       expect(watcher2Spy).not.toHaveBeenCalled();
@@ -419,7 +430,7 @@ describe('renderDataClient', () => {
       props.value = 10;
       await nextTick();
 
-      expect(result.current!.value).toBe(10);
+      expect(result.value.value).toBe(10);
       expect(watcher1Spy).toHaveBeenCalledWith(10);
       expect(watcher2Spy).toHaveBeenCalledWith(20);
 
@@ -439,31 +450,33 @@ describe('renderDataClient', () => {
       };
 
       const props = reactive({ enabled: true, value: 5 });
-      const { result, cleanup } = renderDataClient(composable, { props });
+      const { result, cleanup } = await renderDataCompose(composable, {
+        props,
+      });
 
       // Wait for composable to execute and result to be available
-      await waitForResult(result);
+      await waitForResult();
 
       // Initially enabled
-      expect(result.current!.result).toBe(10);
+      expect(result.result.value).toBe(10);
 
       // Disable
       props.enabled = false;
       await nextTick();
 
-      expect(result.current!.result).toBe(0);
+      expect(result.result.value).toBe(0);
 
       // Change value while disabled
       props.value = 100;
       await nextTick();
 
-      expect(result.current!.result).toBe(0);
+      expect(result.result.value).toBe(0);
 
       // Re-enable
       props.enabled = true;
       await nextTick();
 
-      expect(result.current!.result).toBe(200);
+      expect(result.result.value).toBe(200);
 
       cleanup();
     });
@@ -483,31 +496,33 @@ describe('renderDataClient', () => {
       };
 
       const props = reactive({ multiplier: 2 });
-      const { result, cleanup } = renderDataClient(composable, { props });
+      const { result, cleanup } = await renderDataCompose(composable, {
+        props,
+      });
 
       // Wait for composable to execute and result to be available
-      await waitForResult(result);
+      await waitForResult();
 
       // Initial
-      expect(result.current!.result).toBe(20); // 10 * 2
+      expect(result.result.value).toBe(20); // 10 * 2
 
       // Change prop
       props.multiplier = 3;
       await nextTick();
 
-      expect(result.current!.result).toBe(30); // 10 * 3
+      expect(result.result.value).toBe(30); // 10 * 3
 
       // Mutate internal ref
-      result.current!.updateBase(5);
+      result.updateBase(5);
       await nextTick();
 
-      expect(result.current!.result).toBe(15); // 5 * 3
+      expect(result.result.value).toBe(15); // 5 * 3
 
       // Change prop again
       props.multiplier = 4;
       await nextTick();
 
-      expect(result.current!.result).toBe(20); // 5 * 4
+      expect(result.result.value).toBe(20); // 5 * 4
 
       cleanup();
     });
@@ -532,34 +547,36 @@ describe('renderDataClient', () => {
       };
 
       const props = reactive({ trigger: false });
-      const { result, cleanup } = renderDataClient(composable, { props });
+      const { result, cleanup } = await renderDataCompose(composable, {
+        props,
+      });
 
       // Wait for composable to execute and result to be available
-      await waitForResult(result);
+      await waitForResult();
 
       // Initial state
-      expect(result.current!.counter).toBe(0);
+      expect(result.counter.value).toBe(0);
       expect(sideEffectSpy).not.toHaveBeenCalled();
 
       // Trigger side effect
       props.trigger = true;
       await nextTick();
 
-      expect(result.current!.counter).toBe(1);
+      expect(result.counter.value).toBe(1);
       expect(sideEffectSpy).toHaveBeenCalledWith(1);
 
       // Toggle back (no increment)
       props.trigger = false;
       await nextTick();
 
-      expect(result.current!.counter).toBe(1);
+      expect(result.counter.value).toBe(1);
       expect(sideEffectSpy).toHaveBeenCalledTimes(1);
 
       // Trigger again
       props.trigger = true;
       await nextTick();
 
-      expect(result.current!.counter).toBe(2);
+      expect(result.counter.value).toBe(2);
       expect(sideEffectSpy).toHaveBeenCalledWith(2);
       expect(sideEffectSpy).toHaveBeenCalledTimes(2);
 

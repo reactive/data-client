@@ -4,7 +4,7 @@ import UserSelection from '@/components/todo/UserSelection';
 
 export default async function TodoLayout(props: {
   children: React.ReactNode;
-  params?: Promise<{ userId: string }>;
+  params: Promise<{ userId: string }>;
 }) {
   const params = await props.params;
   const { children } = props;
@@ -17,9 +17,7 @@ export default async function TodoLayout(props: {
         content="NextJS integration with Reactive Data Client"
       />
 
-      <UserSelection
-        userId={params?.userId ? Number(params.userId) : undefined}
-      />
+      <UserSelection userId={Number(params.userId)} />
 
       {children}
 

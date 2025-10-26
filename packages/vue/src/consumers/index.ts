@@ -6,4 +6,5 @@ export { default as useLoading } from './useLoading.js';
 export { default as useDebounce } from './useDebounce.js';
 export { default as useFetch } from './useFetch.js';
 export { default as useCache } from './useCache.js';
+export { default as useDLE } from './useDLE.js';
 export { useController as useController } from '../context.js';

@@ -1,7 +1,7 @@
 import { defineComponent, h, computed, watch, reactive, nextTick } from 'vue';
 
 import { CoolerArticleResource } from '../../../../../__tests__/new';
-import { mountDataClient } from '../renderDataClient';
+import { mountDataClient } from '../mountDataClient';
 
 describe('mountDataClient', () => {
   const payload = {

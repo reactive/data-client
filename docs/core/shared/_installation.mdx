@@ -13,6 +13,7 @@ values={[
 { label: 'NextJS', value: 'nextjs' },
 { label: 'Expo', value: 'expo' },
 { label: 'Anansi', value: 'anansi' },
+{ label: 'Vue 3', value: 'vue' },
 ]}>
 
 <TabItem value="web">
@@ -106,6 +107,30 @@ npx @anansi/cli hatch my-project
 ```
 
 Anansi includes Reactive Data Client automatically.
+
+</TabItem>
+<TabItem value="vue">
+
+[Vue 3](https://vuejs.org/) is an alternative to React.
+
+<PkgInstall pkgs="@data-client/vue @data-client/rest" />
+
+```tsx title="main.ts"
+import { createApp } from 'vue';
+import { DataClientPlugin } from '@data-client/vue';
+
+const app = createApp(App);
+
+app.use(DataClientPlugin, {
+  // optional overrides
+  // managers: getDefaultManagers(),
+  // initialState,
+  // Controller,
+  // gcPolicy,
+});
+
+app.mount('#app');
+```
 
 </TabItem>
 </Tabs>

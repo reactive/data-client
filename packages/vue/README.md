@@ -36,7 +36,7 @@ npm install --save @data-client/vue @data-client/rest @data-client/test
 
 For more details, see [the Installation docs page](https://dataclient.io/docs/getting-started/installation).
 
-## Usage (alpha)
+## Usage
 
 ### Simple [TypeScript definition](https://dataclient.io/rest/api/Entity)
 
@@ -76,29 +76,6 @@ const ArticleResource = resource({
   optimistic: true,
   paginationField: 'cursor',
 });
-```
-
-### Provide the Data Client
-
-Install the plugin globally in your main app file for automatic setup across your entire application:
-
-```ts
-// main.ts
-import { createApp } from 'vue';
-import { DataClientPlugin } from '@data-client/vue';
-import App from './App.vue';
-
-const app = createApp(App);
-
-app.use(DataClientPlugin, {
-  // optional overrides
-  // managers: getDefaultManagers(),
-  // initialState,
-  // Controller,
-  // gcPolicy,
-});
-
-app.mount('#app');
 ```
 
 ### One line [data binding](https://dataclient.io/docs/getting-started/data-dependency)

@@ -1,9 +1,13 @@
+import { Endpoint } from '@data-client/endpoint';
 import nock from 'nock';
 import { computed, defineComponent, h, nextTick, reactive } from 'vue';
 
-import { CoolerArticleResource } from '../../../../__tests__/new';
+import {
+  CoolerArticleResource,
+  CoolerArticle,
+} from '../../../../__tests__/new';
 import useSuspense from '../consumers/useSuspense';
-import { renderDataClient, mountDataClient } from '../test';
+import { renderDataCompose, mountDataClient } from '../test';
 
 // Minimal shared fixture (copied from React test fixtures)
 const payload = {
@@ -62,22 +66,16 @@ describe('vue useSuspense()', () => {
   // No need for ProvideWrapper anymore since Suspense is integrated into mountDataClient
 
   it('suspends on empty store, then renders after fetch resolves', async () => {
-    const { result, waitForNextUpdate, cleanup } = renderDataClient(() =>
+    const { result, cleanup } = await renderDataCompose(() =>
       useSuspense(CoolerArticleResource.get, { id: payload.id }),
     );
 
-    // Initially should be undefined while suspended
-    expect(result.current).toBeUndefined();
-
-    // Wait for the composable to resolve
-    await waitForNextUpdate();
-
-    // Now should have the Promise
-    expect(result.current).toBeDefined();
-    expect(result.current).toBeInstanceOf(Promise);
+    // Should have the Promise (suspension in Vue 3 returns a Promise)
+    expect(result).toBeDefined();
+    expect(result).toBeInstanceOf(Promise);
 
     // Await the promise once to get the reactive ComputedRef
-    const articleRef = await result.current!;
+    const articleRef = await result;
     expect(articleRef.value.title).toBe(payload.title);
     expect(articleRef.value.content).toBe(payload.content);
 
@@ -85,15 +83,16 @@ describe('vue useSuspense()', () => {
   });
 
   it('re-renders when controller.setResponse() updates data', async () => {
-    const { result, controller, waitForNextUpdate, cleanup } = renderDataClient(
-      () => useSuspense(CoolerArticleResource.get, { id: payload.id }),
-    );
+    const { result, controller, waitForNextUpdate, cleanup } =
+      await renderDataCompose(() =>
+        useSuspense(CoolerArticleResource.get, { id: payload.id }),
+      );
 
     // Wait for initial render
     await waitForNextUpdate();
 
     // Await the promise once to get the reactive ComputedRef
-    const articleRef = await result.current!;
+    const articleRef = await result;
 
     // Verify initial values
     expect(articleRef.value.title).toBe(payload.title);
@@ -119,15 +118,16 @@ describe('vue useSuspense()', () => {
   });
 
   it('re-renders when controller.fetch() mutates data', async () => {
-    const { result, controller, waitForNextUpdate, cleanup } = renderDataClient(
-      () => useSuspense(CoolerArticleResource.get, { id: payload.id }),
-    );
+    const { result, controller, waitForNextUpdate, cleanup } =
+      await renderDataCompose(() =>
+        useSuspense(CoolerArticleResource.get, { id: payload.id }),
+      );
 
     // Wait for initial render
     await waitForNextUpdate();
 
     // Await the promise once to get the reactive ComputedRef
-    const articleRef = await result.current!;
+    const articleRef = await result;
 
     // Verify initial values
     expect(articleRef.value.title).toBe(payload.title);
@@ -249,20 +249,21 @@ describe('vue useSuspense()', () => {
 
   it('should initially resolve, then when args are null should return undefined, then back to resolving', async () => {
     const props = reactive({ id: payload.id as number | null });
-    const { result, allSettled, waitForNextUpdate, cleanup } = renderDataClient(
-      (props: { id: number | null }) =>
-        useSuspense(
-          CoolerArticleResource.get,
-          computed(() => (props.id !== null ? { id: props.id } : null)),
-        ),
-      { props },
-    );
+    const { result, allSettled, waitForNextUpdate, cleanup } =
+      await renderDataCompose(
+        (props: { id: number | null }) =>
+          useSuspense(
+            CoolerArticleResource.get,
+            computed(() => (props.id !== null ? { id: props.id } : null)),
+          ),
+        { props },
+      );
 
     // Wait for initial render
     await waitForNextUpdate();
 
     // Await the promise once to get the reactive ComputedRef
-    const articleRef = await result.current!;
+    const articleRef = await result;
 
     expect(articleRef).toBeDefined();
 
@@ -288,6 +289,66 @@ describe('vue useSuspense()', () => {
     // The ComputedRef should now have the new article data
     expect(articleRef).toBeDefined();
     expect(articleRef?.value?.title).toBe(payload2.title);
+    expect(articleRef.value?.content).toBe(payload2.content);
+
+    cleanup();
+  });
+
+  it('should initiate second fetch when props change even if first promise never resolves', async () => {
+    let fetchInitialCalled = false;
+    let fetchFinalCalled = false;
+    let resolveInitial: ((value: any) => void) | undefined;
+    let resolveFinal: ((value: any) => void) | undefined;
+
+    // Create custom endpoint with controllable promises
+    const ControlledEndpoint = new Endpoint(
+      ({ id }: { id: number }) => {
+        if (id === payload.id) {
+          fetchInitialCalled = true;
+          // Initial fetch - manually controlled
+          return new Promise(resolve => {
+            resolveInitial = resolve;
+          });
+        } else if (id === payload2.id) {
+          fetchFinalCalled = true;
+          // Final fetch - manually controlled
+          return new Promise(resolve => {
+            resolveFinal = resolve;
+          });
+        }
+        throw new Error(`Unexpected id: ${id}`);
+      },
+      { schema: CoolerArticle, name: 'ControlledEndpoint' },
+    );
+
+    const props = reactive({ id: payload.id });
+
+    // Start the composable (don't await yet since initial fetch needs manual resolution)
+    const setupPromise = renderDataCompose(
+      (props: { id: number }) =>
+        useSuspense(
+          ControlledEndpoint,
+          computed(() => ({ id: props.id })),
+        ),
+      { props },
+    );
+
+    // Wait for initial fetch to be called
+    expect(fetchInitialCalled).toBe(true);
+
+    props.id = payload2.id;
+    await nextTick();
+
+    resolveFinal?.(payload2);
+
+    // Resolve the initial fetch so renderDataCompose completes
+    resolveInitial?.(payload);
+
+    const { result, cleanup } = await setupPromise;
+    const articleRef = await result;
+
+    // The data should now be from the final fetch (payload2)
+    expect(articleRef.value?.title).toBe(payload2.title);
     expect(articleRef.value?.content).toBe(payload2.content);
 
     cleanup();

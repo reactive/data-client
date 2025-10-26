@@ -163,8 +163,8 @@
     "@types/react-dom": "19.2.2",
     "@types/react-test-renderer": "19.1.0",
     "jest": "^30.0.0",
-    "react": "19.1.1",
-    "react-dom": "19.1.1",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
     "react-native": "patch:react-native@npm:0.82.0-rc.0#~/.yarn/patches/react-native-npm-0.81.0-612367b09d.patch",
     "react-test-renderer": "*",
     "rollup-plugins": "workspace:*"
