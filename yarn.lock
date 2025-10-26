@@ -3186,6 +3186,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@data-client/core@npm:^0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c":
+  version: 0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c
+  resolution: "@data-client/core@npm:0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c"
+  dependencies:
+    "@babel/runtime": "npm:^7.20.0"
+    "@data-client/normalizr": "npm:^0.15.0-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b"
+    flux-standard-action: "npm:^2.1.1"
+  checksum: 10c0/e2ffcfbb76cc63b55b77ba47b4818d9d94bf6a614bfa9e402ad6cab56e810c789953e23795a5ad06a1cb8247cb00cb65648af26a862e45fd33668f916e2d700a
+  languageName: node
+  linkType: hard
+
 "@data-client/core@workspace:*, @data-client/core@workspace:^, @data-client/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@data-client/core@workspace:packages/core"
@@ -3200,6 +3211,15 @@ __metadata:
     rollup-plugins: "workspace:*"
   languageName: unknown
   linkType: soft
+
+"@data-client/endpoint@npm:^0.15.0-beta-20251022010821-0e5f6bd2963b6deecb68b5febe71cdd3b10c801a":
+  version: 0.15.0
+  resolution: "@data-client/endpoint@npm:0.15.0"
+  dependencies:
+    "@babel/runtime": "npm:^7.20.0"
+  checksum: 10c0/7d7c25b14b3d913b4a9e449ace8b77df81acbdd657d0cdfc9532f86d756c1aefec2475a2dfaf99d66bd0dcd32f72fe9332aa0aa9bb5a22782d3c00988229dfa8
+  languageName: node
+  linkType: hard
 
 "@data-client/endpoint@workspace:*, @data-client/endpoint@workspace:^, @data-client/endpoint@workspace:packages/endpoint":
   version: 0.0.0-use.local
@@ -3232,6 +3252,23 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@data-client/img@npm:0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c":
+  version: 0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c
+  resolution: "@data-client/img@npm:0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c"
+  dependencies:
+    "@babel/runtime": "npm:^7.20.0"
+    "@data-client/endpoint": "npm:^0.15.0-beta-20251022010821-0e5f6bd2963b6deecb68b5febe71cdd3b10c801a"
+  peerDependencies:
+    "@data-client/react": 0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c
+    "@types/react": ^16.14.0 || ^17.0.0 || ^18.0.0-0 || ^19.0.0
+    react: ^16.14.0 || ^17.0.0 || ^18.0.0-0 || ^19.0.0
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+  checksum: 10c0/00112ecd0d85a4a42338245d6dd5fc76684db4a6659792be175dd78f3c966142e90c48e71e4f3fb785854433a08469d95c3489d00b49f99decca204908acdd41
+  languageName: node
+  linkType: hard
+
 "@data-client/img@workspace:*, @data-client/img@workspace:packages/img":
   version: 0.0.0-use.local
   resolution: "@data-client/img@workspace:packages/img"
@@ -3256,6 +3293,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@data-client/normalizr@npm:^0.15.0-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b":
+  version: 0.15.0-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b
+  resolution: "@data-client/normalizr@npm:0.15.0-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b"
+  dependencies:
+    "@babel/runtime": "npm:^7.20.0"
+  checksum: 10c0/e9cbd31b3376e9ed5d08b241af6a09351bc6878156ab0c52c23648b1716b7578aff2d6affef1df2ad1552d9c7912dd72053325c7b0db648ca63eec26a1fcb4bc
+  languageName: node
+  linkType: hard
+
 "@data-client/normalizr@workspace:*, @data-client/normalizr@workspace:^, @data-client/normalizr@workspace:packages/normalizr":
   version: 0.0.0-use.local
   resolution: "@data-client/normalizr@workspace:packages/normalizr"
@@ -3270,6 +3316,26 @@ __metadata:
     rollup-plugins: "workspace:*"
   languageName: unknown
   linkType: soft
+
+"@data-client/react@npm:0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c":
+  version: 0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c
+  resolution: "@data-client/react@npm:0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c"
+  dependencies:
+    "@babel/runtime": "npm:^7.20.0"
+    "@data-client/core": "npm:^0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c"
+    "@data-client/use-enhanced-reducer": "npm:^0.1.14"
+  peerDependencies:
+    "@react-navigation/native": ^6.0.0 || ^7.0.0
+    "@types/react": ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0-0 || ^19.0.0
+    react: ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0-0 || ^19.0.0
+  peerDependenciesMeta:
+    "@react-navigation/native":
+      optional: true
+    "@types/react":
+      optional: true
+  checksum: 10c0/a9126397d8b1344efd1a6f6125d6cb1ec6078318bbc1cb712b6e19b56292519b1dda7bde9dd40acfa9b8f1c08987b6730b397e914d1afd40059505d47fd86eac
+  languageName: node
+  linkType: hard
 
 "@data-client/react@workspace:*, @data-client/react@workspace:packages/react":
   version: 0.0.0-use.local
@@ -3314,6 +3380,17 @@ __metadata:
       optional: true
   languageName: unknown
   linkType: soft
+
+"@data-client/rest@npm:0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c":
+  version: 0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c
+  resolution: "@data-client/rest@npm:0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c"
+  dependencies:
+    "@babel/runtime": "npm:^7.20.0"
+    "@data-client/endpoint": "npm:^0.15.0-beta-20251022010821-0e5f6bd2963b6deecb68b5febe71cdd3b10c801a"
+    path-to-regexp: "npm:^6.3.0"
+  checksum: 10c0/e8f7f1f6af8fa6f1c67b853588d0aabc5ef2c1fe25451048cc028ba66a3ae392b659353e7d4fc1ecf879ef21e6339d8f4f09515992727ddd2e4957ea387b1710
+  languageName: node
+  linkType: hard
 
 "@data-client/rest@workspace:*, @data-client/rest@workspace:packages/rest":
   version: 0.0.0-use.local
@@ -3381,7 +3458,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/use-enhanced-reducer@workspace:^, @data-client/use-enhanced-reducer@workspace:packages/use-enhanced-reducer":
+"@data-client/use-enhanced-reducer@npm:^0.1.14, @data-client/use-enhanced-reducer@workspace:^, @data-client/use-enhanced-reducer@workspace:packages/use-enhanced-reducer":
   version: 0.0.0-use.local
   resolution: "@data-client/use-enhanced-reducer@workspace:packages/use-enhanced-reducer"
   dependencies:
@@ -11542,9 +11619,9 @@ __metadata:
     "@anansi/webpack-config": "npm:^21.0.0"
     "@babel/core": "npm:^7.22.15"
     "@babel/runtime-corejs3": "npm:^7.26.7"
-    "@data-client/img": "workspace:*"
-    "@data-client/react": "workspace:*"
-    "@data-client/rest": "workspace:*"
+    "@data-client/img": "npm:0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c"
+    "@data-client/react": "npm:0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c"
+    "@data-client/rest": "npm:0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c"
     "@linaria/babel-preset": "npm:*"
     "@linaria/core": "npm:*"
     "@linaria/react": "npm:*"

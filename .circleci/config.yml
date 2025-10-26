@@ -46,7 +46,7 @@ jobs:
       - run:
           name: yarn install
           command: |
-            yarn up @data-client/endpoint@workspace:^ @data-client/react@workspace:^ @data-client/rest@workspace:^
+            yarn up @data-client/endpoint@workspace:^ @data-client/react@workspace:^ @data-client/rest@workspace:^ @data-client/img@workspace:^ @data-client/graphql@workspace:^
       - save_cache:
           paths:
             - .yarn/cache
