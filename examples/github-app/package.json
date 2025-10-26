@@ -51,10 +51,10 @@
     "@anansi/router": "0.10.17",
     "@ant-design/icons": "^5.0.0",
     "@babel/runtime-corejs3": "^7.26.7",
-    "@data-client/graphql": "^0.14.0",
-    "@data-client/img": "^0.14.15",
-    "@data-client/react": "^0.14.0",
-    "@data-client/rest": "^0.14.0",
+    "@data-client/graphql": "0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c",
+    "@data-client/img": "0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c",
+    "@data-client/react": "0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c",
+    "@data-client/rest": "0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c",
     "@js-temporal/polyfill": "^0.5.0",
     "antd": "5.27.5",
     "core-js": "^3.40.0",
@@ -67,6 +67,5 @@
     "remark-gfm": "^4.0.0",
     "remark-remove-comments": "^1.0.1",
     "uuid": "^11.0.0"
-  },
-  "packageManager": "yarn@4.10.3"
+  }
 }
