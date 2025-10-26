@@ -14,8 +14,9 @@ import {
   Suspense,
   ref,
   watch,
-  nextTick,
   inject,
+  Reactive,
+  reactive,
 } from 'vue';
 
 import { Interceptor, Fixture } from './fixtureTypes.js';
@@ -25,7 +26,7 @@ import { ControllerKey } from '../context.js';
 import { DataClientPlugin } from '../providers/DataClientPlugin.js';
 
 export interface RenderDataClientOptions<P = any> {
-  initialProps?: P;
+  props?: Reactive<P>;
   initialFixtures?: readonly Fixture[];
   resolverFixtures?: readonly (Fixture | Interceptor)[];
   getInitialInterceptorData?: () => any;
@@ -46,13 +47,15 @@ export interface RenderDataClientResult {
 /**
  * Renders a Vue component with DataClient provider for testing
  * Similar to renderDataClient from @data-client/test but for Vue
+ *
+ * @param component - The Vue component to test
+ * @param options - Configuration including optional reactive props ref, fixtures, managers, etc.
  */
-export function renderDataClient<P = any>(
+export function mountDataClient<P = any>(
   component: any,
   options: RenderDataClientOptions<P> = {},
 ): RenderDataClientResult {
   const {
-    initialProps,
     initialFixtures = [],
     resolverFixtures,
     getInitialInterceptorData = () => ({}),
@@ -61,6 +64,9 @@ export function renderDataClient<P = any>(
     gcPolicy,
     wrapper,
   } = options;
+
+  // Extract props from options, or create empty ref if not provided
+  const props = options.props || reactive({});
 
   // Create mock controller with fixtures
   const MockControllerClass = MockController(
@@ -90,28 +96,16 @@ export function renderDataClient<P = any>(
       // Inject the controller provided by the plugin
       const controller = inject(ControllerKey) as Controller;
 
-      // Create a reactive props object that will be updated when setProps is called
-      const componentProps = ref(initialProps || {});
-
-      // Expose controller and props updater for testing
+      // Expose controller for testing
       expose({
         controller,
-        updateProps: (newProps: any) => {
-          // Update the ref value to trigger reactivity
-          componentProps.value = { ...newProps };
-        },
       });
 
       return () => {
-        // Use key on the component to force re-mount when props change
-        // This ensures setup() is re-run with new props
-        const componentKey = JSON.stringify(componentProps.value);
         const innerComponent =
           wrapper ?
-            h(wrapper, { ...componentProps.value, key: componentKey }, () =>
-              h(component, { ...componentProps.value, key: componentKey }),
-            )
-          : h(component, { ...componentProps.value, key: componentKey });
+            h(wrapper, props as any, () => h(component, props as any))
+          : h(component, props as any);
 
         return h(
           Suspense,
@@ -143,17 +137,8 @@ export function renderDataClient<P = any>(
     },
   });
 
-  // Get controller and updateProps from the wrapper
+  // Get controller from the wrapper
   const controller = (wrapper_instance.vm as any).controller;
-  const updateProps = (wrapper_instance.vm as any).updateProps;
-
-  // Override setProps to trigger reactive updates
-  wrapper_instance.setProps = async (props: any) => {
-    updateProps(props);
-    await nextTick();
-    // Force a re-render by awaiting next tick again
-    await nextTick();
-  };
 
   // Cleanup function
   const cleanup = () => {
@@ -189,8 +174,11 @@ export function renderDataClient<P = any>(
 /**
  * Renders a Vue composable with DataClient provider for testing
  * Similar to renderDataHook from @data-client/test but for Vue composables
+ *
+ * @param composable - The composable function to test
+ * @param options - Configuration including optional reactive props ref, fixtures, managers, etc.
  */
-export function renderDataComposable<P = any, R = any>(
+export function renderDataClient<P = any, R = any>(
   composable: (props: P) => R,
   options: RenderDataClientOptions<P> = {},
 ): {
@@ -201,6 +189,9 @@ export function renderDataComposable<P = any, R = any>(
   allSettled: () => Promise<PromiseSettledResult<unknown>[]>;
   waitForNextUpdate: () => Promise<void>;
 } {
+  // Extract props from options, or create empty ref if not provided
+  const props = options.props || reactive({});
+
   let resultRef: any;
   let resolveNextUpdate: (() => void) | null = null;
 
@@ -209,15 +200,15 @@ export function renderDataComposable<P = any, R = any>(
     props: {
       composableProps: {
         type: Object,
-        default: () => ({}),
+        required: true,
       },
     },
-    setup(props, { expose }) {
+    setup(componentProps, { expose }) {
       // Create the result ref inside the component
       resultRef = ref<R | undefined>(undefined);
 
-      // Call the composable with reactive props - Vue's useSuspense will handle the async behavior
-      const composableValue = composable(props.composableProps as P);
+      // Call the composable once with reactive props - Vue's useSuspense will handle the async behavior
+      const composableValue = composable(componentProps.composableProps as P);
 
       // If composable returns a Promise, we're suspended - keep result as undefined initially
       if (composableValue instanceof Promise) {
@@ -265,17 +256,18 @@ export function renderDataComposable<P = any, R = any>(
     },
   });
 
-  // Wrap the component to accept composableProps
+  // Wrap the component to accept composableProps from the external ref
   const WrappedTestComponent = defineComponent({
     name: 'WrappedTestComponent',
     setup() {
-      const composableProps = ref(options.initialProps || {});
-
-      return () => h(TestComponent, { composableProps: composableProps.value });
+      return () =>
+        h(TestComponent, {
+          composableProps: props,
+        });
     },
   });
 
-  const { wrapper, controller, cleanup, allSettled } = renderDataClient(
+  const { wrapper, controller, cleanup, allSettled } = mountDataClient(
     WrappedTestComponent,
     options,
   );

@@ -4,10 +4,7 @@ import { defineComponent, h } from 'vue';
 import { Article, ArticleResource } from '../../../../__tests__/new';
 import useQuery from '../consumers/useQuery';
 import useSuspense from '../consumers/useSuspense';
-import {
-  renderDataComposable,
-  renderDataClient,
-} from '../test/renderDataClient';
+import { renderDataClient, mountDataClient } from '../test';
 
 const GC_INTERVAL = 100; // Use short interval for faster tests
 
@@ -20,7 +17,7 @@ describe('Integration Garbage Collection Web (Vue)', () => {
     expect(gcPolicy).toBeDefined();
   });
 
-  it('should accept gcPolicy option in renderDataClient', () => {
+  it('should accept gcPolicy option in mountDataClient', () => {
     const TestComp = defineComponent({
       name: 'TestComp',
       setup() {
@@ -33,7 +30,7 @@ describe('Integration Garbage Collection Web (Vue)', () => {
       expiryMultiplier: 2,
     });
 
-    const { wrapper, cleanup } = renderDataClient(TestComp, {
+    const { wrapper, cleanup } = mountDataClient(TestComp, {
       gcPolicy,
     });
 
@@ -48,7 +45,7 @@ describe('Integration Garbage Collection Web (Vue)', () => {
       content: 'Test Content',
     };
 
-    const { result, cleanup, waitForNextUpdate } = renderDataComposable(
+    const { result, cleanup, waitForNextUpdate } = renderDataClient(
       () => useSuspense(ArticleResource.get, { id: 1 }),
       {
         initialFixtures: [
@@ -80,7 +77,7 @@ describe('Integration Garbage Collection Web (Vue)', () => {
       { id: 2, title: 'Article 2', content: 'Content 2' },
     ];
 
-    const { result, cleanup } = renderDataComposable(
+    const { result, cleanup } = renderDataClient(
       () => useQuery(ArticleResource.getList.schema),
       {
         initialFixtures: [
@@ -119,7 +116,7 @@ describe('Integration Garbage Collection Web (Vue)', () => {
     });
 
     // Test with expiryMultiplier of 4
-    const { cleanup: cleanup1 } = renderDataClient(TestComp, {
+    const { cleanup: cleanup1 } = mountDataClient(TestComp, {
       initialFixtures: [
         {
           endpoint: ArticleResource.get,
@@ -136,7 +133,7 @@ describe('Integration Garbage Collection Web (Vue)', () => {
     cleanup1();
 
     // Test with expiryMultiplier of 2 (default in tests)
-    const { cleanup: cleanup2 } = renderDataClient(TestComp, {
+    const { cleanup: cleanup2 } = mountDataClient(TestComp, {
       initialFixtures: [
         {
           endpoint: ArticleResource.get,

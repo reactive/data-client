@@ -1,30 +1,15 @@
-import { mount } from '@vue/test-utils';
-import nock from 'nock';
-import { defineComponent, h, nextTick, Suspense, inject } from 'vue';
+import { VueWrapper } from '@vue/test-utils';
+import { computed, defineComponent, h, nextTick, reactive } from 'vue';
 
 // Endpoints/entities from React subscriptions test
-import {
-  PollingArticleResource,
-  ArticleResource,
-} from '../../../../__tests__/new';
+import { PollingArticleResource } from '../../../../__tests__/new';
 import useSubscription from '../consumers/useSubscription';
 import useSuspense from '../consumers/useSuspense';
-import { ControllerKey } from '../context';
-import { DataClientPlugin } from '../providers/DataClientPlugin';
+import { renderDataClient, mountDataClient } from '../test';
 
 describe('vue useSubscription()', () => {
-  const payload = {
-    id: 5,
-    title: 'hi ho',
-    content: 'whatever',
-    tags: ['a', 'best', 'react'],
-  };
-
-  // Mutable payload to simulate server-side updates with polling
-  let currentPollingPayload: typeof payload = { ...payload };
-
-  async function flushUntil(
-    wrapper: any,
+  async function flushUntilWithFakeTimers(
+    wrapper: VueWrapper<any>,
     predicate: () => boolean,
     tries = 100,
   ) {
@@ -32,133 +17,258 @@ describe('vue useSubscription()', () => {
       if (predicate()) return;
       await Promise.resolve();
       await nextTick();
-      await new Promise(resolve => setTimeout(resolve, 0));
+      // Don't use setTimeout with fake timers
     }
   }
 
-  beforeAll(() => {
-    // Global network stubs reused by tests
-    nock(/.*/)
-      .persist()
-      .defaultReplyHeaders({
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Access-Token',
-        'Content-Type': 'application/json',
-      })
-      .options(/.*/)
-      .reply(200)
-      // ArticleResource and PollingArticleResource both hit /article/:id
-      .get(`/article/${payload.id}`)
-      .reply(200, () => currentPollingPayload)
-      .put(`/article/${payload.id}`)
-      .reply(200, (uri, requestBody: any) => ({
-        ...currentPollingPayload,
-        ...requestBody,
-      }));
-  });
+  const payload = {
+    id: 5,
+    title: 'hi ho',
+    content: 'whatever',
+    tags: ['a', 'best', 'react'],
+  };
 
-  afterAll(() => {
-    nock.cleanAll();
-  });
-
-  const ProvideWrapper = defineComponent({
-    name: 'ProvideWrapper',
-    setup(_props, { slots, expose }) {
-      const controller = inject(ControllerKey);
-      expose({ controller });
-      return () =>
-        h(
-          Suspense,
-          {},
-          {
-            default: () => (slots.default ? slots.default() : null),
-            fallback: () => h('div', { class: 'fallback' }, 'Loading'),
-          },
-        );
-    },
-  });
-
-  const ArticleComp = defineComponent({
-    name: 'ArticleComp',
-    props: { active: { type: Boolean, default: true } },
-    async setup(props) {
-      // Subscribe BEFORE any await to preserve current instance for inject()
-      useSubscription(
-        PollingArticleResource.get,
-        props.active ? { id: payload.id } : (null as any),
-      );
-      const article = await useSuspense(PollingArticleResource.get, {
-        id: payload.id,
-      });
-      return () =>
-        h('div', [
-          h('h3', (article as any).value.title),
-          h('p', (article as any).value.content),
-        ]);
-    },
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   it('subscribes and re-renders on updates (simulated poll)', async () => {
-    currentPollingPayload = { ...payload };
+    jest.useFakeTimers();
+    const frequency = PollingArticleResource.get.pollFrequency as number;
+    expect(frequency).toBe(5000);
 
-    const wrapper = mount(ProvideWrapper, {
-      slots: { default: () => h(ArticleComp, { active: true }) },
-      global: {
-        plugins: [[DataClientPlugin]],
+    const responseMock = jest.fn(() => payload);
+    const propsRef = reactive({ active: true });
+
+    const { result, waitForNextUpdate, allSettled, cleanup } = renderDataClient(
+      ({ active }: { active: boolean }) => {
+        const args = computed(() => (active ? { id: payload.id } : null));
+        useSubscription(PollingArticleResource.get, args);
+        return useSuspense(PollingArticleResource.get, {
+          id: payload.id,
+        });
+      },
+      {
+        props: propsRef,
+        resolverFixtures: [
+          {
+            endpoint: PollingArticleResource.get,
+            response: responseMock,
+          },
+        ],
+      },
+    );
+
+    // Wait for initial render
+    jest.advanceTimersByTime(frequency);
+    await allSettled();
+    await waitForNextUpdate();
+
+    // Verify initial values
+    const initialArticleRef = await result.current;
+    expect(initialArticleRef!.value.title).toBe(payload.title);
+    expect(initialArticleRef!.value.content).toBe(payload.content);
+
+    // Change the mock response for the next poll
+    responseMock.mockReturnValue({
+      ...payload,
+      title: 'updated title',
+      content: 'updated content',
+    });
+
+    // Advance time to trigger another poll
+    jest.advanceTimersByTime(frequency);
+    await allSettled();
+    await nextTick();
+
+    // Verify the article was updated
+    const updatedArticleRef = await result.current;
+    expect(updatedArticleRef!.value.title).toBe('updated title');
+    expect(updatedArticleRef!.value.content).toBe('updated content');
+
+    jest.useRealTimers();
+    cleanup();
+  });
+
+  it('should not receive updates after unsubscribing by setting active to null', async () => {
+    jest.useFakeTimers();
+    const frequency = PollingArticleResource.get.pollFrequency as number;
+    expect(frequency).toBe(5000);
+
+    const responseMock = jest.fn(() => payload);
+    const propsRef = reactive({ active: true });
+
+    const { result, waitForNextUpdate, allSettled, cleanup } = renderDataClient(
+      (props: { active: boolean }) => {
+        const args = computed(() => (props.active ? { id: payload.id } : null));
+        useSubscription(PollingArticleResource.get, args);
+        return useSuspense(PollingArticleResource.get, {
+          id: payload.id,
+        });
+      },
+      {
+        props: propsRef,
+        resolverFixtures: [
+          {
+            endpoint: PollingArticleResource.get,
+            response: responseMock,
+          },
+        ],
+      },
+    );
+
+    // Wait for initial render
+    jest.advanceTimersByTime(frequency);
+    await allSettled();
+    await waitForNextUpdate();
+
+    // Verify initial values
+    const initialArticleRef = await result.current;
+    expect(initialArticleRef!.value!.title).toBe(payload.title);
+    expect(responseMock).toHaveBeenCalledTimes(1);
+
+    // Change the mock response
+    responseMock.mockReturnValue({
+      ...payload,
+      title: 'after first poll',
+    });
+
+    // Advance time to trigger another poll
+    jest.advanceTimersByTime(frequency);
+    await allSettled();
+    await nextTick();
+
+    // Verify the article was updated
+    const updatedArticleRef = await result.current;
+    expect(updatedArticleRef!.value!.title).toBe('after first poll');
+    expect(responseMock).toHaveBeenCalledTimes(2);
+
+    // Now unsubscribe by setting active to false
+    propsRef.active = false;
+    await nextTick();
+
+    // Change the mock response again
+    responseMock.mockReturnValue({
+      ...payload,
+      title: 'should not see this',
+    });
+
+    // Advance time - subscription should not trigger
+    jest.advanceTimersByTime(frequency);
+    await allSettled();
+    await nextTick();
+
+    // Verify the article was NOT updated (still has old value)
+    const finalArticleRef = await result.current;
+    expect(finalArticleRef!.value!.title).toBe('after first poll');
+    // Should still be 2 calls, no new poll happened
+    expect(responseMock).toHaveBeenCalledTimes(2);
+
+    jest.useRealTimers();
+    cleanup();
+  });
+
+  it('should unsubscribe when subscribed component unmounts', async () => {
+    jest.useFakeTimers();
+    const frequency = PollingArticleResource.get.pollFrequency as number;
+    expect(frequency).toBe(5000);
+
+    const responseMock = jest.fn(() => payload);
+
+    // Subscriber component that only subscribes
+    const SubscriberComponent = defineComponent({
+      name: 'SubscriberComponent',
+      setup() {
+        useSubscription(PollingArticleResource.get, { id: payload.id });
+        return () => h('div', 'Subscriber');
       },
     });
 
-    // Initially should render fallback while Suspense is pending
-    expect(wrapper.find('.fallback').exists()).toBe(true);
+    // Reader component that reads data with useSuspense
+    const ReaderComponent = defineComponent({
+      name: 'ReaderComponent',
+      async setup() {
+        const article = await useSuspense(PollingArticleResource.get, {
+          id: payload.id,
+        });
+        return () => h('div', [h('h3', article.value.title)]);
+      },
+    });
 
-    // Flush initial fetch
-    await flushUntil(wrapper, () => wrapper.find('h3').exists());
+    // Parent component that conditionally renders the subscriber
+    const ParentComponent = defineComponent({
+      name: 'ParentComponent',
+      props: {
+        showSubscriber: {
+          type: Boolean,
+          default: true,
+        },
+      },
+      setup(props) {
+        return () =>
+          h('div', [
+            props.showSubscriber ? h(SubscriberComponent) : null,
+            h(ReaderComponent),
+          ]);
+      },
+    });
+
+    const props = reactive({ showSubscriber: true });
+    const { wrapper, allSettled, cleanup } = mountDataClient(ParentComponent, {
+      props,
+      resolverFixtures: [
+        {
+          endpoint: PollingArticleResource.get,
+          response: responseMock,
+        },
+      ],
+    });
+
+    // Wait for initial render
+    jest.advanceTimersByTime(frequency);
+    await allSettled();
+    await flushUntilWithFakeTimers(wrapper, () => wrapper.find('h3').exists());
 
     // Verify initial values
     expect(wrapper.find('h3').text()).toBe(payload.title);
-    expect(wrapper.find('p').text()).toBe(payload.content);
+    expect(responseMock).toHaveBeenCalledTimes(1);
 
-    // Simulate a polling update by changing server payload and manually fetching
-    const updatedTitle = payload.title + ' fiver';
-    currentPollingPayload = { ...payload, title: updatedTitle } as any;
-    const exposed: any = wrapper.vm as any;
-    await exposed.controller.fetch(PollingArticleResource.get, {
-      id: payload.id,
+    // Change the mock response
+    responseMock.mockReturnValue({
+      ...payload,
+      title: 'first update',
     });
 
-    await flushUntil(wrapper, () => wrapper.find('h3').text() === updatedTitle);
-    expect(wrapper.find('h3').text()).toBe(updatedTitle);
-  });
+    // Advance time to trigger poll
+    jest.advanceTimersByTime(frequency);
+    await allSettled();
+    await nextTick();
 
-  it('can subscribe to endpoint without pollFrequency (no-op) and render', async () => {
-    const oldError = console.error;
-    const spy = (console.error = jest.fn());
+    // Verify the article was updated
+    expect(wrapper.find('h3').text()).toBe('first update');
+    expect(responseMock).toHaveBeenCalledTimes(2);
 
-    // Minimal component that subscribes to non-polling endpoint
-    const NoFreqComp = defineComponent({
-      name: 'NoFreqComp',
-      async setup() {
-        // Subscribe first (no poller attached)
-        useSubscription(ArticleResource.get, { id: payload.id } as any);
-        // Then resolve suspense for stable render
-        const article = await useSuspense(ArticleResource.get, {
-          id: payload.id,
-        });
-        return () => h('div', (article as any).value.title);
-      },
+    // Now unmount the subscribing component by setting showSubscriber to false
+    props.showSubscriber = false;
+    await nextTick();
+
+    // Change the mock response again
+    responseMock.mockReturnValue({
+      ...payload,
+      title: 'should not see this',
     });
 
-    const wrapper = mount(ProvideWrapper, {
-      slots: { default: () => h(NoFreqComp) },
-      global: {
-        plugins: [[DataClientPlugin]],
-      },
-    });
+    // Advance time - subscription should not trigger
+    jest.advanceTimersByTime(frequency);
+    await allSettled();
+    await nextTick();
 
-    await flushUntil(wrapper, () => wrapper.text() !== '');
-    expect(wrapper.text()).not.toEqual('');
-    expect(spy.mock.calls[0]).toMatchSnapshot();
+    // The reading component should still show old data since no subscription is active
+    expect(wrapper.find('h3').text()).toBe('first update');
+    // Should still be 2 calls, no new poll happened
+    expect(responseMock).toHaveBeenCalledTimes(2);
 
-    console.error = oldError;
+    jest.useRealTimers();
+    cleanup();
   });
 });

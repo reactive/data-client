@@ -53,9 +53,9 @@
     "extends @anansi/browserslist-config"
   ],
   "devDependencies": {
-    "@anansi/babel-preset": "6.2.14",
+    "@anansi/babel-preset": "6.2.15",
     "@anansi/browserslist-config": "1.7.3",
-    "@anansi/eslint-plugin": "1.0.52",
+    "@anansi/eslint-plugin": "1.0.53",
     "@anansi/jest-preset": "0.11.26",
     "@babel/cli": "7.28.3",
     "@babel/core": "7.28.4",
@@ -87,7 +87,7 @@
     "coveralls": "^3.1.0",
     "cpy-cli": "5.0.0",
     "downlevel-dts": "^0.10.0",
-    "eslint": "9.37.0",
+    "eslint": "9.38.0",
     "globals": "^16.0.0",
     "ignore-styles": "^5.0.1",
     "jest": "^30.0.0",
@@ -103,7 +103,7 @@
     "react-native-screens": "^4.1.0",
     "react-test-renderer": "^19.0.0",
     "rimraf": "^6.0.0",
-    "rollup": "4.52.4",
+    "rollup": "4.52.5",
     "ts-node": "10.9.2",
     "typescript": "5.9.3",
     "whatwg-fetch": "3.0.0"

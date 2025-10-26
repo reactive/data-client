@@ -1,5 +1,5 @@
 export { default as MockController } from './MockController.js';
-export { renderDataClient, renderDataComposable } from './renderDataClient.js';
+export { mountDataClient, renderDataClient } from './renderDataClient.js';
 export type {
   RenderDataClientOptions,
   RenderDataClientResult,
@@ -14,10 +14,3 @@ export type {
   Interceptor,
 } from './fixtureTypes.js';
 export { default as mockInitialState } from './mockState.js';
-
-// Re-export DataClientPlugin and createDataClient for testing
-export { DataClientPlugin, createDataClient } from '../providers/index.js';
-export type {
-  ProvideOptions,
-  ProvidedDataClient,
-} from '../providers/createDataClient.js';

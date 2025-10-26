@@ -13,7 +13,7 @@ npm install @data-client/vue
 ### Basic Component Testing
 
 ```typescript
-import { renderDataClient } from '@data-client/vue/test';
+import { mountDataClient } from '@data-client/vue/test';
 import { defineComponent, h } from 'vue';
 import { MyResource } from './resources';
 
@@ -23,7 +23,7 @@ const TestComponent = defineComponent({
   },
 });
 
-const { wrapper, controller, cleanup } = renderDataClient(TestComponent, {
+const { wrapper, controller, cleanup } = mountDataClient(TestComponent, {
   initialFixtures: [
     {
       endpoint: MyResource.get,
@@ -42,10 +42,10 @@ cleanup();
 
 ### Testing with Suspense (Automatic)
 
-Suspense is automatically integrated into `renderDataClient`. Your components will automatically suspend and show a fallback while data is loading:
+Suspense is automatically integrated into `mountDataClient`. Your components will automatically suspend and show a fallback while data is loading:
 
 ```typescript
-import { renderDataClient } from '@data-client/vue/test';
+import { mountDataClient } from '@data-client/vue/test';
 import { defineComponent, h } from 'vue';
 import { MyResource } from './resources';
 
@@ -56,7 +56,7 @@ const AsyncComponent = defineComponent({
   },
 });
 
-const { wrapper, controller, cleanup } = renderDataClient(AsyncComponent);
+const { wrapper, controller, cleanup } = mountDataClient(AsyncComponent);
 
 // Initially shows suspense fallback
 expect(wrapper.find('[data-testid="suspense-fallback"]').exists()).toBe(true);
@@ -73,15 +73,17 @@ cleanup();
 ### Composable Testing
 
 ```typescript
-import { renderDataComposable } from '@data-client/vue/test';
+import { renderDataClient } from '@data-client/vue/test';
+import { reactive } from 'vue';
 
-const useMyComposable = (id: number) => {
-  const data = useSuspense(MyResource.get, { id });
+const useMyComposable = (props: { id: number }) => {
+  const data = useSuspense(MyResource.get, { id: props.id });
   return { data, isLoading: false };
 };
 
-const { result, controller, cleanup, waitForNextUpdate } = renderDataComposable(useMyComposable, {
-  initialProps: { id: 1 },
+const props = reactive({ id: 1 });
+const { result, controller, cleanup, waitForNextUpdate } = renderDataClient(useMyComposable, {
+  props,
   initialFixtures: [
     {
       endpoint: MyResource.get,
@@ -104,13 +106,70 @@ expect(result.current).toBeInstanceOf(Promise);
 // Access the actual data
 const dataRef = await result.current;
 expect(dataRef.value).toBeDefined();
+
+// Update props reactively
+props.id = 2;
+
+cleanup();
+```
+
+### Testing with Reactive Props
+
+Components can receive reactive props that can be updated during tests:
+
+```typescript
+import { mountDataClient } from '@data-client/vue/test';
+import { defineComponent, h, reactive } from 'vue';
+import { MyResource } from './resources';
+
+const ArticleComponent = defineComponent({
+  props: {
+    id: {
+      type: Number,
+      required: true,
+    },
+  },
+  async setup(props) {
+    const article = await useSuspense(MyResource.get, { id: props.id });
+    return () => h('div', article.value.title);
+  },
+});
+
+// Create a reactive props ref
+const props = reactive({ id: 1 });
+
+const { wrapper, cleanup } = mountDataClient(ArticleComponent, {
+  props,
+  resolverFixtures: [
+    {
+      endpoint: MyResource.get,
+      response: (request) => ({
+        id: request.args[0].id,
+        title: `Article ${request.args[0].id}`,
+      }),
+    },
+  ],
+});
+
+// Wait for initial render
+await flushUntil(wrapper, () => wrapper.find('div').exists());
+expect(wrapper.text()).toBe('Article 1');
+
+// Update props reactively - component will re-render with new data
+props.id = 2;
+await nextTick();
+
+// Wait for new data to load
+await flushUntil(wrapper, () => wrapper.text() === 'Article 2');
+expect(wrapper.text()).toBe('Article 2');
+
 cleanup();
 ```
 
 ### Using Resolver Fixtures
 
 ```typescript
-const { wrapper, controller, cleanup } = renderDataClient(TestComponent, {
+const { wrapper, controller, cleanup } = mountDataClient(TestComponent, {
   resolverFixtures: [
     {
       endpoint: MyResource.get,
@@ -131,7 +190,7 @@ expect(result.name).toBe('Dynamic 123');
 
 ## API Reference
 
-### `renderDataClient(component, options)`
+### `mountDataClient(component, options)`
 
 Renders a Vue component with DataClient provider for testing.
 
@@ -146,7 +205,7 @@ Renders a Vue component with DataClient provider for testing.
 - `cleanup`: Function to clean up resources
 - `allSettled`: Function to wait for all pending promises
 
-### `renderDataComposable(composable, options)`
+### `renderDataClient(composable, options)`
 
 Renders a Vue composable with DataClient provider for testing.
 
@@ -166,12 +225,13 @@ Renders a Vue composable with DataClient provider for testing.
 
 ```typescript
 interface RenderDataClientOptions<P = any> {
-  initialProps?: P;                      // Initial props to pass to component
+  props?: Reactive<P>;                        // Reactive props ref to pass to component
   initialFixtures?: readonly Fixture[];  // Initial data fixtures
   resolverFixtures?: readonly (Fixture | Interceptor)[]; // Dynamic response fixtures
   getInitialInterceptorData?: () => any; // Initial data for interceptors
   managers?: Manager[];                  // Custom managers
   initialState?: State<unknown>;         // Custom initial state
+  gcPolicy?: GCInterface;                // Custom garbage collection policy
   wrapper?: any;                         // Custom wrapper component
 }
 ```
@@ -207,8 +267,9 @@ interface Interceptor {
 4. **Use resolver fixtures** for dynamic responses based on request parameters
 5. **Leverage the controller** for testing mutations and state updates
 6. **Suspense is automatic** - no need to manually wrap components in Suspense
-7. **Use initialProps** to pass props to your components during testing
+7. **Use reactive props** - Pass a `reactive` in the `props` option and set its members to change component props
 8. **Vue Suspense behavior** - Vue's `useSuspense` returns a Promise that suspends when data is missing, then resolves to a ComputedRef
+9. **Reactive props with async setup** - Components using async setup with `useSuspense` that depend on props should use `useFetch` + `watchEffect` for reactive behavior, or rely on non-async setup patterns. Async setup only runs once per component instance.
 
 ## Migration from Manual Setup
 
@@ -231,7 +292,7 @@ const wrapper = mount(MyComponent, {
 });
 
 // After
-const { wrapper, controller, cleanup } = renderDataClient(MyComponent, {
+const { wrapper, controller, cleanup } = mountDataClient(MyComponent, {
   initialFixtures: [
     {
       endpoint: MyResource.get,
