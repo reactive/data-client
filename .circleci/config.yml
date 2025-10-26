@@ -113,6 +113,8 @@ jobs:
             elif [ "<< parameters.react-version >>" == "^18" ]; then
             yarn up react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
             yarn workspace @data-client/test add --dev @testing-library/react-hooks
+            elif [ "<< parameters.react-version >>" == "native" ]; then
+            yarn up react@19.1.1 react-test-renderer@19.1.1
             fi
       - run:
           name: Running Jest
