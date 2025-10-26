@@ -57,7 +57,7 @@
     "react-json-tree": "0.20.0",
     "react-live": "^4.0.0",
     "typescript": "5.9.3",
-    "uuid": "^11.0.0"
+    "uuid": "^13.0.0"
   },
   "browserslist": [
     "extends @anansi/browserslist-config",
