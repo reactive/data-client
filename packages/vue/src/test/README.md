@@ -73,7 +73,7 @@ cleanup();
 ### Composable Testing
 
 ```typescript
-import { renderDataClient } from '@data-client/vue/test';
+import { renderDataCompose } from '@data-client/vue/test';
 import { reactive } from 'vue';
 
 const useMyComposable = (props: { id: number }) => {
@@ -82,7 +82,7 @@ const useMyComposable = (props: { id: number }) => {
 };
 
 const props = reactive({ id: 1 });
-const { result, controller, cleanup, waitForNextUpdate } = renderDataClient(useMyComposable, {
+const { result, controller, cleanup, waitForNextUpdate } = renderDataCompose(useMyComposable, {
   props,
   initialFixtures: [
     {
@@ -205,7 +205,7 @@ Renders a Vue component with DataClient provider for testing.
 - `cleanup`: Function to clean up resources
 - `allSettled`: Function to wait for all pending promises
 
-### `renderDataClient(composable, options)`
+### `renderDataCompose(composable, options)`
 
 Renders a Vue composable with DataClient provider for testing.
 

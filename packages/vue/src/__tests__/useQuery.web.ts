@@ -13,7 +13,7 @@ import {
   SecondUnion,
 } from '../../../../__tests__/new';
 import useQuery from '../consumers/useQuery';
-import { renderDataClient } from '../test';
+import { renderDataCompose } from '../test';
 
 // Inline fixtures (duplicated from React tests to avoid cross-project imports)
 const payloadSlug = {
@@ -49,7 +49,7 @@ const nested = [
 
 describe('vue useQuery()', () => {
   it('should be undefined with empty state', () => {
-    const { result } = renderDataClient(() => {
+    const { result } = renderDataCompose(() => {
       return useQuery(ArticleWithSlug, { id: payloadSlug.id });
     }, {});
     // @ts-expect-error
@@ -58,7 +58,7 @@ describe('vue useQuery()', () => {
   });
 
   it('All should be undefined with empty state', () => {
-    const { result } = renderDataClient(() => {
+    const { result } = renderDataCompose(() => {
       return useQuery(new schema.All(ArticleWithSlug));
     }, {});
     // @ts-expect-error
@@ -67,7 +67,7 @@ describe('vue useQuery()', () => {
   });
 
   it('should fail on schema.Array', () => {
-    const { result } = renderDataClient(() => {
+    const { result } = renderDataCompose(() => {
       // @ts-expect-error
       return useQuery(new schema.Array(ArticleWithSlug));
     }, {});
@@ -77,7 +77,7 @@ describe('vue useQuery()', () => {
   });
 
   it('should find Entity by pk', async () => {
-    const { result } = renderDataClient(
+    const { result } = renderDataCompose(
       () => {
         return useQuery(ArticleWithSlug, { id: payloadSlug.id });
       },
@@ -106,7 +106,7 @@ describe('vue useQuery()', () => {
   });
 
   it('should find Entity by slug', async () => {
-    const { result } = renderDataClient(
+    const { result } = renderDataCompose(
       () => {
         return useQuery(ArticleWithSlug, { slug: payloadSlug.slug });
       },
@@ -131,7 +131,7 @@ describe('vue useQuery()', () => {
         response: nested,
       },
     ];
-    const { result } = renderDataClient(
+    const { result } = renderDataCompose(
       () => {
         return useQuery(ArticleResource.getList.schema);
       },
@@ -160,7 +160,7 @@ describe('vue useQuery()', () => {
         },
       },
     ];
-    const { result, controller, waitForNextUpdate } = renderDataClient(
+    const { result, controller, waitForNextUpdate } = renderDataCompose(
       () => {
         return useQuery(ArticleResource.getList.schema, {});
       },
@@ -228,7 +228,7 @@ describe('vue useQuery()', () => {
         },
       },
     ];
-    const { result } = renderDataClient(
+    const { result } = renderDataCompose(
       () => {
         return useQuery(userTodos, { userId: '1' });
       },
@@ -261,7 +261,7 @@ describe('vue useQuery()', () => {
       schema: UnionSchema,
     });
 
-    const { result } = renderDataClient(
+    const { result } = renderDataCompose(
       () => {
         return useQuery(UnionResource.get.schema, { id: '5', type: 'first' });
       },
@@ -313,7 +313,7 @@ describe('vue useQuery()', () => {
       schema: UnionSchema,
     });
 
-    const { result, controller, waitForNextUpdate } = renderDataClient(
+    const { result, controller, waitForNextUpdate } = renderDataCompose(
       () => {
         return useQuery(UnionResource.getList.schema);
       },
@@ -378,7 +378,7 @@ describe('vue useQuery()', () => {
       };
 
       const props = reactive({ id: 1 });
-      const { result } = renderDataClient(
+      const { result } = renderDataCompose(
         () => {
           return useQuery(
             ArticleWithSlug,
@@ -416,7 +416,7 @@ describe('vue useQuery()', () => {
         id: 5 as number | undefined,
         slug: undefined as string | undefined,
       });
-      const { result } = renderDataClient(
+      const { result } = renderDataCompose(
         () => {
           return useQuery(
             ArticleWithSlug,
@@ -457,7 +457,7 @@ describe('vue useQuery()', () => {
       };
 
       const props = reactive({ id: 1 });
-      const { result } = renderDataClient(
+      const { result } = renderDataCompose(
         () => {
           return useQuery(
             ArticleWithSlug,
@@ -516,7 +516,7 @@ describe('vue useQuery()', () => {
       const UserResource = resource({ schema: User, path: '/users/:id' });
 
       const props = reactive({ userId: '1' });
-      const { result } = renderDataClient(
+      const { result } = renderDataCompose(
         () => {
           return useQuery(
             userTodos,
@@ -609,7 +609,7 @@ describe('vue useQuery()', () => {
       const UserResource = resource({ schema: User, path: '/users/:id' });
 
       const props = reactive({ userId: '1' });
-      const { result } = renderDataClient(
+      const { result } = renderDataCompose(
         () => {
           return useQuery(
             userTodos,

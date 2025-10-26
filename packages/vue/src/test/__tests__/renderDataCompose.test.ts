@@ -1,9 +1,9 @@
 import { ref, computed, watch, reactive, nextTick } from 'vue';
 
 import { CoolerArticleResource } from '../../../../../__tests__/new';
-import { renderDataClient } from '../renderDataClient';
+import { renderDataCompose } from '../renderDataCompose';
 
-describe('renderDataClient', () => {
+describe('renderDataCompose', () => {
   const payload = {
     id: 5,
     title: 'hi ho',
@@ -31,7 +31,7 @@ describe('renderDataClient', () => {
         return { count };
       };
 
-      const { result, cleanup } = renderDataClient(composable);
+      const { result, cleanup } = renderDataCompose(composable);
 
       // Wait for composable to execute and result to be available
       await waitForResult(result);
@@ -48,7 +48,7 @@ describe('renderDataClient', () => {
         return { value: 'test' };
       };
 
-      const { controller, cleanup } = renderDataClient(composable);
+      const { controller, cleanup } = renderDataCompose(composable);
 
       expect(controller).toBeDefined();
       expect(controller.fetch).toBeDefined();
@@ -66,7 +66,7 @@ describe('renderDataClient', () => {
       };
 
       const props = reactive({ message: 'Hello', count: 42 });
-      const { result, cleanup } = renderDataClient(composable, { props });
+      const { result, cleanup } = renderDataCompose(composable, { props });
 
       // Wait for composable to execute and result to be available
       await waitForResult(result);
@@ -84,7 +84,7 @@ describe('renderDataClient', () => {
         return { count, doubled };
       };
 
-      const { result, cleanup } = renderDataClient(composable);
+      const { result, cleanup } = renderDataCompose(composable);
 
       // Wait for composable to execute and result to be available
       await waitForResult(result);
@@ -100,7 +100,7 @@ describe('renderDataClient', () => {
         return { test: 'value' };
       };
 
-      const { controller, cleanup } = renderDataClient(composable, {
+      const { controller, cleanup } = renderDataCompose(composable, {
         initialFixtures: [
           {
             endpoint: CoolerArticleResource.get,
@@ -121,7 +121,7 @@ describe('renderDataClient', () => {
         return { value: 'test' };
       };
 
-      const { wrapper, cleanup } = renderDataClient(composable);
+      const { wrapper, cleanup } = renderDataCompose(composable);
 
       expect(wrapper.find('[data-testid="composable-result"]').exists()).toBe(
         true,
@@ -136,7 +136,7 @@ describe('renderDataClient', () => {
         return { value: 'test' };
       };
 
-      const { allSettled, cleanup } = renderDataClient(composable);
+      const { allSettled, cleanup } = renderDataCompose(composable);
 
       const result = await allSettled();
 
@@ -154,7 +154,7 @@ describe('renderDataClient', () => {
       };
 
       const props = reactive({ value: 5 });
-      const { result, cleanup } = renderDataClient(composable, { props });
+      const { result, cleanup } = renderDataCompose(composable, { props });
 
       // Wait for composable to execute and result to be available
       await waitForResult(result);
@@ -186,7 +186,7 @@ describe('renderDataClient', () => {
       };
 
       const props = reactive({ count: 1 });
-      const { result, cleanup } = renderDataClient(composable, { props });
+      const { result, cleanup } = renderDataCompose(composable, { props });
 
       // Wait for composable to execute and result to be available
       await waitForResult(result);
@@ -226,7 +226,7 @@ describe('renderDataClient', () => {
         firstName: 'John',
         lastName: 'Doe',
       });
-      const { result, cleanup } = renderDataClient(composable, { props });
+      const { result, cleanup } = renderDataCompose(composable, { props });
 
       // Wait for composable to execute and result to be available
       await waitForResult(result);
@@ -262,7 +262,7 @@ describe('renderDataClient', () => {
       };
 
       const props = reactive({ value: 1 });
-      const { result, cleanup } = renderDataClient(composable, { props });
+      const { result, cleanup } = renderDataCompose(composable, { props });
 
       // Wait for composable to execute and result to be available
       await waitForResult(result);
@@ -296,7 +296,7 @@ describe('renderDataClient', () => {
       const props = reactive({
         user: { name: 'Alice', age: 16 },
       });
-      const { result, cleanup } = renderDataClient(composable, { props });
+      const { result, cleanup } = renderDataCompose(composable, { props });
 
       // Wait for composable to execute and result to be available
       await waitForResult(result);
@@ -327,7 +327,7 @@ describe('renderDataClient', () => {
       const props = reactive({
         items: ['apple', 'banana'],
       });
-      const { result, cleanup } = renderDataClient(composable, { props });
+      const { result, cleanup } = renderDataCompose(composable, { props });
 
       // Wait for composable to execute and result to be available
       await waitForResult(result);
@@ -364,7 +364,7 @@ describe('renderDataClient', () => {
       };
 
       const props = reactive({ value: 10 });
-      const { result, cleanup } = renderDataClient(composable, { props });
+      const { result, cleanup } = renderDataCompose(composable, { props });
 
       // Wait for composable to execute and result to be available
       await waitForResult(result);
@@ -407,7 +407,7 @@ describe('renderDataClient', () => {
       };
 
       const props = reactive({ value: 5 });
-      const { result, cleanup } = renderDataClient(composable, { props });
+      const { result, cleanup } = renderDataCompose(composable, { props });
 
       // Wait for composable to execute and result to be available
       await waitForResult(result);
@@ -439,7 +439,7 @@ describe('renderDataClient', () => {
       };
 
       const props = reactive({ enabled: true, value: 5 });
-      const { result, cleanup } = renderDataClient(composable, { props });
+      const { result, cleanup } = renderDataCompose(composable, { props });
 
       // Wait for composable to execute and result to be available
       await waitForResult(result);
@@ -483,7 +483,7 @@ describe('renderDataClient', () => {
       };
 
       const props = reactive({ multiplier: 2 });
-      const { result, cleanup } = renderDataClient(composable, { props });
+      const { result, cleanup } = renderDataCompose(composable, { props });
 
       // Wait for composable to execute and result to be available
       await waitForResult(result);
@@ -532,7 +532,7 @@ describe('renderDataClient', () => {
       };
 
       const props = reactive({ trigger: false });
-      const { result, cleanup } = renderDataClient(composable, { props });
+      const { result, cleanup } = renderDataCompose(composable, { props });
 
       // Wait for composable to execute and result to be available
       await waitForResult(result);

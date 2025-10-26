@@ -3,7 +3,7 @@ import { computed, defineComponent, h, nextTick, reactive } from 'vue';
 
 import { CoolerArticleResource } from '../../../../__tests__/new';
 import useSuspense from '../consumers/useSuspense';
-import { renderDataClient, mountDataClient } from '../test';
+import { renderDataCompose, mountDataClient } from '../test';
 
 // Minimal shared fixture (copied from React test fixtures)
 const payload = {
@@ -62,7 +62,7 @@ describe('vue useSuspense()', () => {
   // No need for ProvideWrapper anymore since Suspense is integrated into mountDataClient
 
   it('suspends on empty store, then renders after fetch resolves', async () => {
-    const { result, waitForNextUpdate, cleanup } = renderDataClient(() =>
+    const { result, waitForNextUpdate, cleanup } = renderDataCompose(() =>
       useSuspense(CoolerArticleResource.get, { id: payload.id }),
     );
 
@@ -85,9 +85,10 @@ describe('vue useSuspense()', () => {
   });
 
   it('re-renders when controller.setResponse() updates data', async () => {
-    const { result, controller, waitForNextUpdate, cleanup } = renderDataClient(
-      () => useSuspense(CoolerArticleResource.get, { id: payload.id }),
-    );
+    const { result, controller, waitForNextUpdate, cleanup } =
+      renderDataCompose(() =>
+        useSuspense(CoolerArticleResource.get, { id: payload.id }),
+      );
 
     // Wait for initial render
     await waitForNextUpdate();
@@ -119,9 +120,10 @@ describe('vue useSuspense()', () => {
   });
 
   it('re-renders when controller.fetch() mutates data', async () => {
-    const { result, controller, waitForNextUpdate, cleanup } = renderDataClient(
-      () => useSuspense(CoolerArticleResource.get, { id: payload.id }),
-    );
+    const { result, controller, waitForNextUpdate, cleanup } =
+      renderDataCompose(() =>
+        useSuspense(CoolerArticleResource.get, { id: payload.id }),
+      );
 
     // Wait for initial render
     await waitForNextUpdate();
@@ -249,14 +251,15 @@ describe('vue useSuspense()', () => {
 
   it('should initially resolve, then when args are null should return undefined, then back to resolving', async () => {
     const props = reactive({ id: payload.id as number | null });
-    const { result, allSettled, waitForNextUpdate, cleanup } = renderDataClient(
-      (props: { id: number | null }) =>
-        useSuspense(
-          CoolerArticleResource.get,
-          computed(() => (props.id !== null ? { id: props.id } : null)),
-        ),
-      { props },
-    );
+    const { result, allSettled, waitForNextUpdate, cleanup } =
+      renderDataCompose(
+        (props: { id: number | null }) =>
+          useSuspense(
+            CoolerArticleResource.get,
+            computed(() => (props.id !== null ? { id: props.id } : null)),
+          ),
+        { props },
+      );
 
     // Wait for initial render
     await waitForNextUpdate();

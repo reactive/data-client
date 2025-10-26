@@ -5,7 +5,7 @@ import { computed, defineComponent, h, nextTick, reactive } from 'vue';
 import { PollingArticleResource } from '../../../../__tests__/new';
 import useSubscription from '../consumers/useSubscription';
 import useSuspense from '../consumers/useSuspense';
-import { renderDataClient, mountDataClient } from '../test';
+import { renderDataCompose, mountDataClient } from '../test';
 
 describe('vue useSubscription()', () => {
   async function flushUntilWithFakeTimers(
@@ -40,24 +40,25 @@ describe('vue useSubscription()', () => {
     const responseMock = jest.fn(() => payload);
     const propsRef = reactive({ active: true });
 
-    const { result, waitForNextUpdate, allSettled, cleanup } = renderDataClient(
-      ({ active }: { active: boolean }) => {
-        const args = computed(() => (active ? { id: payload.id } : null));
-        useSubscription(PollingArticleResource.get, args);
-        return useSuspense(PollingArticleResource.get, {
-          id: payload.id,
-        });
-      },
-      {
-        props: propsRef,
-        resolverFixtures: [
-          {
-            endpoint: PollingArticleResource.get,
-            response: responseMock,
-          },
-        ],
-      },
-    );
+    const { result, waitForNextUpdate, allSettled, cleanup } =
+      renderDataCompose(
+        ({ active }: { active: boolean }) => {
+          const args = computed(() => (active ? { id: payload.id } : null));
+          useSubscription(PollingArticleResource.get, args);
+          return useSuspense(PollingArticleResource.get, {
+            id: payload.id,
+          });
+        },
+        {
+          props: propsRef,
+          resolverFixtures: [
+            {
+              endpoint: PollingArticleResource.get,
+              response: responseMock,
+            },
+          ],
+        },
+      );
 
     // Wait for initial render
     jest.advanceTimersByTime(frequency);
@@ -98,24 +99,27 @@ describe('vue useSubscription()', () => {
     const responseMock = jest.fn(() => payload);
     const propsRef = reactive({ active: true });
 
-    const { result, waitForNextUpdate, allSettled, cleanup } = renderDataClient(
-      (props: { active: boolean }) => {
-        const args = computed(() => (props.active ? { id: payload.id } : null));
-        useSubscription(PollingArticleResource.get, args);
-        return useSuspense(PollingArticleResource.get, {
-          id: payload.id,
-        });
-      },
-      {
-        props: propsRef,
-        resolverFixtures: [
-          {
-            endpoint: PollingArticleResource.get,
-            response: responseMock,
-          },
-        ],
-      },
-    );
+    const { result, waitForNextUpdate, allSettled, cleanup } =
+      renderDataCompose(
+        (props: { active: boolean }) => {
+          const args = computed(() =>
+            props.active ? { id: payload.id } : null,
+          );
+          useSubscription(PollingArticleResource.get, args);
+          return useSuspense(PollingArticleResource.get, {
+            id: payload.id,
+          });
+        },
+        {
+          props: propsRef,
+          resolverFixtures: [
+            {
+              endpoint: PollingArticleResource.get,
+              response: responseMock,
+            },
+          ],
+        },
+      );
 
     // Wait for initial render
     jest.advanceTimersByTime(frequency);

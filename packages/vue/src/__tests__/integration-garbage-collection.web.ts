@@ -4,7 +4,7 @@ import { defineComponent, h } from 'vue';
 import { Article, ArticleResource } from '../../../../__tests__/new';
 import useQuery from '../consumers/useQuery';
 import useSuspense from '../consumers/useSuspense';
-import { renderDataClient, mountDataClient } from '../test';
+import { renderDataCompose, mountDataClient } from '../test';
 
 const GC_INTERVAL = 100; // Use short interval for faster tests
 
@@ -45,7 +45,7 @@ describe('Integration Garbage Collection Web (Vue)', () => {
       content: 'Test Content',
     };
 
-    const { result, cleanup, waitForNextUpdate } = renderDataClient(
+    const { result, cleanup, waitForNextUpdate } = renderDataCompose(
       () => useSuspense(ArticleResource.get, { id: 1 }),
       {
         initialFixtures: [
@@ -77,7 +77,7 @@ describe('Integration Garbage Collection Web (Vue)', () => {
       { id: 2, title: 'Article 2', content: 'Content 2' },
     ];
 
-    const { result, cleanup } = renderDataClient(
+    const { result, cleanup } = renderDataCompose(
       () => useQuery(ArticleResource.getList.schema),
       {
         initialFixtures: [

@@ -3,7 +3,7 @@ import { computed, defineComponent, h, nextTick, reactive } from 'vue';
 
 import { CoolerArticleResource } from '../../../../__tests__/new';
 import useCache from '../consumers/useCache';
-import { renderDataClient, mountDataClient } from '../test';
+import { renderDataCompose, mountDataClient } from '../test';
 
 // Minimal shared fixture (copied from React test fixtures)
 const payload = {
@@ -60,7 +60,7 @@ describe('vue useCache()', () => {
   });
 
   it('returns undefined on empty store (no fetch)', async () => {
-    const { result, waitForNextUpdate, cleanup } = renderDataClient(() =>
+    const { result, waitForNextUpdate, cleanup } = renderDataCompose(() =>
       useCache(CoolerArticleResource.get, { id: payload.id }),
     );
 
@@ -77,7 +77,7 @@ describe('vue useCache()', () => {
   });
 
   it('returns data when already in cache', async () => {
-    const { result, waitForNextUpdate, cleanup } = renderDataClient(
+    const { result, waitForNextUpdate, cleanup } = renderDataCompose(
       () => useCache(CoolerArticleResource.get, { id: payload.id }),
       {
         initialFixtures: [
@@ -104,18 +104,19 @@ describe('vue useCache()', () => {
   });
 
   it('re-renders when controller.setResponse() updates data', async () => {
-    const { result, controller, waitForNextUpdate, cleanup } = renderDataClient(
-      () => useCache(CoolerArticleResource.get, { id: payload.id }),
-      {
-        initialFixtures: [
-          {
-            endpoint: CoolerArticleResource.get,
-            args: [{ id: payload.id }],
-            response: payload,
-          },
-        ],
-      },
-    );
+    const { result, controller, waitForNextUpdate, cleanup } =
+      renderDataCompose(
+        () => useCache(CoolerArticleResource.get, { id: payload.id }),
+        {
+          initialFixtures: [
+            {
+              endpoint: CoolerArticleResource.get,
+              args: [{ id: payload.id }],
+              response: payload,
+            },
+          ],
+        },
+      );
 
     // Wait for initial render
     await waitForNextUpdate();
@@ -146,18 +147,19 @@ describe('vue useCache()', () => {
   });
 
   it('re-renders when controller.fetch() mutates data', async () => {
-    const { result, controller, waitForNextUpdate, cleanup } = renderDataClient(
-      () => useCache(CoolerArticleResource.get, { id: payload.id }),
-      {
-        initialFixtures: [
-          {
-            endpoint: CoolerArticleResource.get,
-            args: [{ id: payload.id }],
-            response: payload,
-          },
-        ],
-      },
-    );
+    const { result, controller, waitForNextUpdate, cleanup } =
+      renderDataCompose(
+        () => useCache(CoolerArticleResource.get, { id: payload.id }),
+        {
+          initialFixtures: [
+            {
+              endpoint: CoolerArticleResource.get,
+              args: [{ id: payload.id }],
+              response: payload,
+            },
+          ],
+        },
+      );
 
     // Wait for initial render
     await waitForNextUpdate();
@@ -295,7 +297,7 @@ describe('vue useCache()', () => {
 
   it('should handle null args by returning undefined', async () => {
     const props = reactive({ id: payload.id as number | null });
-    const { result, waitForNextUpdate, cleanup } = renderDataClient(
+    const { result, waitForNextUpdate, cleanup } = renderDataCompose(
       (props: { id: number | null }) =>
         useCache(
           CoolerArticleResource.get,
@@ -349,18 +351,19 @@ describe('vue useCache()', () => {
   });
 
   it('returns undefined for stale data when invalidIfStale is true', async () => {
-    const { result, controller, waitForNextUpdate, cleanup } = renderDataClient(
-      () => useCache(CoolerArticleResource.get, { id: payload.id }),
-      {
-        initialFixtures: [
-          {
-            endpoint: CoolerArticleResource.get,
-            args: [{ id: payload.id }],
-            response: payload,
-          },
-        ],
-      },
-    );
+    const { result, controller, waitForNextUpdate, cleanup } =
+      renderDataCompose(
+        () => useCache(CoolerArticleResource.get, { id: payload.id }),
+        {
+          initialFixtures: [
+            {
+              endpoint: CoolerArticleResource.get,
+              args: [{ id: payload.id }],
+              response: payload,
+            },
+          ],
+        },
+      );
 
     // Wait for initial render
     await waitForNextUpdate();
@@ -379,7 +382,7 @@ describe('vue useCache()', () => {
   });
 
   it('returns cached data even if expired when expiryStatus is Valid', async () => {
-    const { result, waitForNextUpdate, cleanup } = renderDataClient(
+    const { result, waitForNextUpdate, cleanup } = renderDataCompose(
       () => useCache(CoolerArticleResource.get, { id: payload.id }),
       {
         initialFixtures: [
