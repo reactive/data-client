@@ -45,7 +45,7 @@ describe('Integration Garbage Collection Web (Vue)', () => {
       content: 'Test Content',
     };
 
-    const { result, cleanup, waitForNextUpdate } = renderDataCompose(
+    const { result, cleanup, waitForNextUpdate } = await renderDataCompose(
       () => useSuspense(ArticleResource.get, { id: 1 }),
       {
         initialFixtures: [
@@ -64,20 +64,20 @@ describe('Integration Garbage Collection Web (Vue)', () => {
 
     await waitForNextUpdate();
 
-    const articleRef = await result.current;
+    const articleRef = await result.value;
     expect(articleRef?.value.title).toBe(articleData.title);
     expect(articleRef?.value.content).toBe(articleData.content);
 
     cleanup();
   });
 
-  it('should work with useQuery and GCPolicy', () => {
+  it('should work with useQuery and GCPolicy', async () => {
     const articleListData = [
       { id: 1, title: 'Article 1', content: 'Content 1' },
       { id: 2, title: 'Article 2', content: 'Content 2' },
     ];
 
-    const { result, cleanup } = renderDataCompose(
+    const { result, cleanup } = await renderDataCompose(
       () => useQuery(ArticleResource.getList.schema),
       {
         initialFixtures: [
@@ -94,9 +94,9 @@ describe('Integration Garbage Collection Web (Vue)', () => {
       },
     );
 
-    expect(result.current?.value).toBeDefined();
-    expect(result.current?.value?.length).toBe(2);
-    expect(result.current?.value?.[0]).toBeInstanceOf(Article);
+    expect(result.value).toBeDefined();
+    expect(result.value?.length).toBe(2);
+    expect(result.value?.[0]).toBeInstanceOf(Article);
 
     cleanup();
   });

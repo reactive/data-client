@@ -41,7 +41,7 @@ describe('vue useSubscription()', () => {
     const propsRef = reactive({ active: true });
 
     const { result, waitForNextUpdate, allSettled, cleanup } =
-      renderDataCompose(
+      await renderDataCompose(
         ({ active }: { active: boolean }) => {
           const args = computed(() => (active ? { id: payload.id } : null));
           useSubscription(PollingArticleResource.get, args);
@@ -66,7 +66,7 @@ describe('vue useSubscription()', () => {
     await waitForNextUpdate();
 
     // Verify initial values
-    const initialArticleRef = await result.current;
+    const initialArticleRef = await result.value;
     expect(initialArticleRef!.value.title).toBe(payload.title);
     expect(initialArticleRef!.value.content).toBe(payload.content);
 
@@ -83,7 +83,7 @@ describe('vue useSubscription()', () => {
     await nextTick();
 
     // Verify the article was updated
-    const updatedArticleRef = await result.current;
+    const updatedArticleRef = await result.value;
     expect(updatedArticleRef!.value.title).toBe('updated title');
     expect(updatedArticleRef!.value.content).toBe('updated content');
 
@@ -100,7 +100,7 @@ describe('vue useSubscription()', () => {
     const propsRef = reactive({ active: true });
 
     const { result, waitForNextUpdate, allSettled, cleanup } =
-      renderDataCompose(
+      await renderDataCompose(
         (props: { active: boolean }) => {
           const args = computed(() =>
             props.active ? { id: payload.id } : null,
@@ -127,7 +127,7 @@ describe('vue useSubscription()', () => {
     await waitForNextUpdate();
 
     // Verify initial values
-    const initialArticleRef = await result.current;
+    const initialArticleRef = await result.value;
     expect(initialArticleRef!.value!.title).toBe(payload.title);
     expect(responseMock).toHaveBeenCalledTimes(1);
 
@@ -143,7 +143,7 @@ describe('vue useSubscription()', () => {
     await nextTick();
 
     // Verify the article was updated
-    const updatedArticleRef = await result.current;
+    const updatedArticleRef = await result.value;
     expect(updatedArticleRef!.value!.title).toBe('after first poll');
     expect(responseMock).toHaveBeenCalledTimes(2);
 
@@ -163,7 +163,7 @@ describe('vue useSubscription()', () => {
     await nextTick();
 
     // Verify the article was NOT updated (still has old value)
-    const finalArticleRef = await result.current;
+    const finalArticleRef = await result.value;
     expect(finalArticleRef!.value!.title).toBe('after first poll');
     // Should still be 2 calls, no new poll happened
     expect(responseMock).toHaveBeenCalledTimes(2);
