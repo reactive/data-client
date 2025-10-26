@@ -75,20 +75,17 @@ export default async function useSuspense(
 
   // Compute response meta reactively so we can respond to store updates
   const responseMeta = computed(() => {
-    return argsKey.value ?
-        controller.getResponseMeta(
-          endpoint,
-          ...resolvedArgs.value,
-          stateRef.value,
-        )
-      : null;
+    return controller.getResponseMeta(
+      endpoint,
+      ...resolvedArgs.value,
+      stateRef.value,
+    );
   });
 
   const maybeFetch = async () => {
     const currentKey = argsKey.value;
     if (!currentKey) return;
     const meta = responseMeta.value;
-    if (!meta) return;
     const forceFetch = meta.expiryStatus === ExpiryStatus.Invalid;
     if (Date.now() <= meta.expiresAt && !forceFetch) return;
     await controller.fetch(endpoint, ...resolvedArgs.value);
@@ -101,9 +98,12 @@ export default async function useSuspense(
   watch(
     () => {
       const m = responseMeta.value;
-      return m ?
-          [m.expiresAt, m.expiryStatus, stateRef.value.lastReset, argsKey.value]
-        : [argsKey.value];
+      return [
+        m.expiresAt,
+        m.expiryStatus,
+        stateRef.value.lastReset,
+        argsKey.value,
+      ];
     },
     () => {
       return maybeFetch();
@@ -112,14 +112,14 @@ export default async function useSuspense(
 
   // Maintain GC refcounts on data mount/changes
   watch(
-    () => responseMeta.value?.data,
+    () => responseMeta.value.data,
     (_newVal, _oldVal, onCleanup) => {
-      const decrement = responseMeta.value?.countRef();
+      const decrement = responseMeta.value.countRef();
       onCleanup(() => decrement?.());
     },
     { immediate: true },
   );
 
   // Return readonly computed ref - Vue automatically unwraps in templates and reactive contexts
-  return readonly(computed(() => responseMeta.value?.data));
+  return readonly(computed(() => responseMeta.value.data));
 }
