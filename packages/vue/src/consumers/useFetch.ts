@@ -58,21 +58,18 @@ export default function useFetch(endpoint: any, ...args: any[]): any {
 
   // Compute response meta reactively so we can respond to store updates
   const responseMeta = computed(() => {
-    return argsKey.value ?
-        controller.getResponseMeta(
-          endpoint,
-          ...resolvedArgs.value,
-          stateRef.value,
-        )
-      : null;
+    return controller.getResponseMeta(
+      endpoint,
+      ...resolvedArgs.value,
+      stateRef.value,
+    );
   });
 
   const lastPromise = ref<Promise<any> | undefined>(undefined);
 
   const maybeFetch = () => {
-    if (resolvedArgs.value[0] === null) return;
+    if (!argsKey.value) return;
     const meta = responseMeta.value;
-    if (!meta) return;
     const forceFetch = meta.expiryStatus === ExpiryStatus.Invalid;
     if (Date.now() <= meta.expiresAt && !forceFetch) return;
     lastPromise.value = controller.fetch(endpoint, ...resolvedArgs.value);
@@ -85,9 +82,12 @@ export default function useFetch(endpoint: any, ...args: any[]): any {
   watch(
     () => {
       const m = responseMeta.value;
-      return m ?
-          [m.expiresAt, m.expiryStatus, stateRef.value.lastReset, argsKey.value]
-        : [argsKey.value];
+      return [
+        m.expiresAt,
+        m.expiryStatus,
+        stateRef.value.lastReset,
+        argsKey.value,
+      ];
     },
     () => {
       maybeFetch();
