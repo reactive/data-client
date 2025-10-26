@@ -91,9 +91,6 @@ export default async function useSuspense(
     await controller.fetch(endpoint, ...resolvedArgs.value);
   };
 
-  // Trigger on initial call
-  await maybeFetch();
-
   // Watch for changes to key, expiry, or store state that require refetch
   watch(
     () => {
@@ -119,6 +116,9 @@ export default async function useSuspense(
     },
     { immediate: true },
   );
+
+  // Trigger on initial call
+  await maybeFetch();
 
   // Return readonly computed ref - Vue automatically unwraps in templates and reactive contexts
   return readonly(computed(() => responseMeta.value.data));
