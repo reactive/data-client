@@ -97,15 +97,15 @@ describe('vue useDLE()', () => {
       },
     );
 
-    expect(result.value.data.value).toBe(undefined);
-    expect(result.value.error.value).toBe(undefined);
-    expect(result.value.loading.value).toBe(true);
+    expect(result.data.value).toBe(undefined);
+    expect(result.error.value).toBe(undefined);
+    expect(result.loading.value).toBe(true);
 
     await waitForNextUpdate();
 
-    expect(result.value.loading.value).toBe(false);
-    expect(result.value.error.value).toBeUndefined();
-    expect(result.value.data.value).toEqual(CoolerArticle.fromJS(payload));
+    expect(result.loading.value).toBe(false);
+    expect(result.error.value).toBeUndefined();
+    expect(result.data.value).toEqual(CoolerArticle.fromJS(payload));
 
     cleanup();
   });
@@ -119,15 +119,15 @@ describe('vue useDLE()', () => {
       },
     );
 
-    expect(result.value.data.value).toBe(undefined);
-    expect(result.value.error.value).toBe(undefined);
-    expect(result.value.loading.value).toBe(true);
+    expect(result.data.value).toBe(undefined);
+    expect(result.error.value).toBe(undefined);
+    expect(result.loading.value).toBe(true);
 
     await waitForNextUpdate();
 
-    expect(result.value.loading.value).toBe(false);
-    expect(result.value.error.value).toBeUndefined();
-    expect(result.value.data.value).toEqual(payload);
+    expect(result.loading.value).toBe(false);
+    expect(result.error.value).toBeUndefined();
+    expect(result.data.value).toEqual(payload);
 
     cleanup();
   });
@@ -139,15 +139,15 @@ describe('vue useDLE()', () => {
       },
     );
 
-    expect(result.value.data.value).toBe(undefined);
-    expect(result.value.error.value).toBe(undefined);
-    expect(result.value.loading.value).toBe(true);
+    expect(result.data.value).toBe(undefined);
+    expect(result.error.value).toBe(undefined);
+    expect(result.loading.value).toBe(true);
 
     await waitForNextUpdate();
 
-    expect(result.value.loading.value).toBe(false);
-    expect(result.value.error.value).toBeUndefined();
-    expect(result.value.data.value).toEqual(CoolerArticle.fromJS(payload));
+    expect(result.loading.value).toBe(false);
+    expect(result.error.value).toBeUndefined();
+    expect(result.data.value).toEqual(CoolerArticle.fromJS(payload));
 
     cleanup();
   });
@@ -180,15 +180,15 @@ describe('vue useDLE()', () => {
       },
     );
 
-    expect(result.value.data.value).toBe(undefined);
-    expect(result.value.error.value).toBe(undefined);
-    expect(result.value.loading.value).toBe(true);
+    expect(result.data.value).toBe(undefined);
+    expect(result.error.value).toBe(undefined);
+    expect(result.loading.value).toBe(true);
 
     await waitForNextUpdate();
 
-    expect(result.value.loading.value).toBe(false);
-    expect(result.value.error.value).toBeDefined();
-    expect((result.value.error.value as any).status).toBe(403);
+    expect(result.loading.value).toBe(false);
+    expect(result.error.value).toBeDefined();
+    expect((result.error.value as any).status).toBe(403);
 
     cleanup();
   });
@@ -200,19 +200,19 @@ describe('vue useDLE()', () => {
       },
     );
 
-    expect(result.value.data.value).toBeUndefined();
+    expect(result.data.value).toBeUndefined();
 
     await waitForNextUpdate();
 
     // type discrimination forces it to be resolved
     if (
-      !result.value.loading.value &&
-      result.value.error.value === undefined &&
-      result.value.data.value
+      !result.loading.value &&
+      result.error.value === undefined &&
+      result.data.value
     ) {
-      expect(result.value.data.value.title).toBe(payload.title);
+      expect(result.data.value.title).toBe(payload.title);
       // @ts-expect-error ensure this isn't "any"
-      result.value.data.value.doesnotexist;
+      result.data.value.doesnotexist;
     }
 
     cleanup();
@@ -228,16 +228,16 @@ describe('vue useDLE()', () => {
       },
     );
 
-    expect(result.value.data.value).toBeUndefined();
-    expect(result.value.error.value).toBeUndefined();
-    expect(result.value.loading.value).toBe(true);
+    expect(result.data.value).toBeUndefined();
+    expect(result.error.value).toBeUndefined();
+    expect(result.loading.value).toBe(true);
 
     await waitForNextUpdate();
 
-    expect(result.value.loading.value).toBe(false);
-    expect(result.value.error.value).toBeDefined();
-    if (result.value.error.value) {
-      expect((result.value.error.value as any).status).toBe(404);
+    expect(result.loading.value).toBe(false);
+    expect(result.error.value).toBeDefined();
+    if (result.error.value) {
+      expect((result.error.value as any).status).toBe(404);
     }
 
     cleanup();
@@ -255,28 +255,28 @@ describe('vue useDLE()', () => {
       { props },
     );
 
-    expect(result.value.data.value).toBe(undefined);
-    expect(result.value.error.value).toBe(undefined);
-    expect(result.value.loading.value).toBe(true);
+    expect(result.data.value).toBe(undefined);
+    expect(result.error.value).toBe(undefined);
+    expect(result.loading.value).toBe(true);
 
     await waitForNextUpdate();
 
-    expect(result.value.loading.value).toBe(false);
-    expect(result.value.error.value).toBeUndefined();
-    expect(result.value.data.value).toEqual(CoolerArticle.fromJS(payload));
+    expect(result.loading.value).toBe(false);
+    expect(result.error.value).toBeUndefined();
+    expect(result.data.value).toEqual(CoolerArticle.fromJS(payload));
 
     props.id = payload2.id;
     await nextTick();
 
-    expect(result.value.data.value).toBe(undefined);
-    expect(result.value.error.value).toBe(undefined);
-    expect(result.value.loading.value).toBe(true);
+    expect(result.data.value).toBe(undefined);
+    expect(result.error.value).toBe(undefined);
+    expect(result.loading.value).toBe(true);
 
     await waitForNextUpdate();
 
-    expect(result.value.loading.value).toBe(false);
-    expect(result.value.error.value).toBeUndefined();
-    expect(result.value.data.value).toEqual(CoolerArticle.fromJS(payload2));
+    expect(result.loading.value).toBe(false);
+    expect(result.error.value).toBeUndefined();
+    expect(result.data.value).toEqual(CoolerArticle.fromJS(payload2));
 
     cleanup();
   });
@@ -287,7 +287,7 @@ describe('vue useDLE()', () => {
     });
 
     await nextTick();
-    expect(result.value.loading.value).toBe(false);
+    expect(result.loading.value).toBe(false);
 
     cleanup();
   });
@@ -298,14 +298,13 @@ describe('vue useDLE()', () => {
     });
 
     await nextTick();
-    expect(result.value.loading.value).toBe(false);
-    expect(result.value.data.value.results).toBeUndefined();
-    expect(result.value.data.value.nextPage).toBe('');
+    expect(result.loading.value).toBe(false);
+    expect(result.data.value.results).toBeUndefined();
+    expect(result.data.value.nextPage).toBe('');
     // ensure this isn't 'any'
     // @ts-expect-error
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const _typeCheck: PaginatedArticleResource[] =
-      result.value.data.value.results;
+    const _typeCheck: PaginatedArticleResource[] = result.data.value.results;
 
     cleanup();
   });
@@ -326,22 +325,22 @@ describe('vue useDLE()', () => {
     );
 
     await waitForNextUpdate();
-    expect(result.value.data.value).toBeDefined();
+    expect(result.data.value).toBeDefined();
 
     Date.now = jest.fn(() => 999999999 * 3);
 
     props.id = null;
     await nextTick();
-    expect(result.value.data.value).toBeUndefined();
+    expect(result.data.value).toBeUndefined();
 
     props.id = payload.id;
     await nextTick();
-    expect(result.value.data.value).toBeUndefined();
-    expect(result.value.loading.value).toBe(true);
+    expect(result.data.value).toBeUndefined();
+    expect(result.loading.value).toBe(true);
 
     await waitForNextUpdate();
-    expect(result.value.data.value).toBeDefined();
-    expect(result.value.loading.value).toBe(false);
+    expect(result.data.value).toBeDefined();
+    expect(result.loading.value).toBe(false);
 
     global.Date.now = realDate;
     cleanup();
@@ -355,8 +354,8 @@ describe('vue useDLE()', () => {
 
     await waitForNextUpdate();
 
-    expect(result.value.data.value).toEqual(CoolerArticle.fromJS(payload));
-    expect(result.value.loading.value).toBe(false);
+    expect(result.data.value).toEqual(CoolerArticle.fromJS(payload));
+    expect(result.loading.value).toBe(false);
 
     // Update the store using controller.setResponse
     const newTitle = payload.title + ' updated';
@@ -371,9 +370,9 @@ describe('vue useDLE()', () => {
     await nextTick();
 
     // The ComputedRef should now have updated values (it's reactive!)
-    expect(result.value.data.value!.title).toBe(newTitle);
-    expect(result.value.data.value!.content).toBe(newContent);
-    expect(result.value.loading.value).toBe(false);
+    expect(result.data.value!.title).toBe(newTitle);
+    expect(result.data.value!.content).toBe(newContent);
+    expect(result.loading.value).toBe(false);
 
     cleanup();
   });
@@ -405,14 +404,14 @@ describe('vue useDLE()', () => {
     );
 
     await waitForNextUpdate();
-    expect(result.value.data.value?.title).toBe(payload.title);
+    expect(result.data.value?.title).toBe(payload.title);
 
     // Change props - result automatically updates
     props.id = payload2.id;
     await nextTick();
     await waitForNextUpdate();
 
-    expect(result.value.data.value?.title).toBe(payload2.title);
+    expect(result.data.value?.title).toBe(payload2.title);
 
     cleanup();
   });
@@ -438,14 +437,14 @@ describe('vue useDLE()', () => {
     );
 
     await waitForNextUpdate();
-    expect(result.value.data.value).toBeDefined();
-    expect(result.value.data.value?.title).toBe(payload.title);
+    expect(result.data.value).toBeDefined();
+    expect(result.data.value?.title).toBe(payload.title);
 
     // Set to null - becomes undefined
     props.id = null;
     await nextTick();
-    expect(result.value.data.value).toBeUndefined();
-    expect(result.value.loading.value).toBe(false);
+    expect(result.data.value).toBeUndefined();
+    expect(result.loading.value).toBe(false);
 
     cleanup();
   });
@@ -467,9 +466,9 @@ describe('vue useDLE()', () => {
     );
 
     // Should not be loading since data is valid (fixture provides fresh data)
-    expect(result.value.loading.value).toBe(false);
-    expect(result.value.data.value).toBeDefined();
-    expect(result.value.data.value?.title).toBe(payload.title);
+    expect(result.loading.value).toBe(false);
+    expect(result.data.value).toBeDefined();
+    expect(result.data.value?.title).toBe(payload.title);
 
     cleanup();
   });
@@ -490,8 +489,8 @@ describe('vue useDLE()', () => {
     );
 
     await waitForNextUpdate();
-    expect(result.value.data.value).toBeDefined();
-    expect(result.value.loading.value).toBe(false);
+    expect(result.data.value).toBeDefined();
+    expect(result.loading.value).toBe(false);
 
     // Advance time beyond expiry
     Date.now = jest.fn(() => 1000000 + 999999999);
@@ -501,7 +500,7 @@ describe('vue useDLE()', () => {
     await nextTick();
 
     // Should trigger new fetch for payload2 (and it will be stale)
-    expect(result.value.loading.value).toBe(true);
+    expect(result.loading.value).toBe(true);
 
     global.Date.now = realDate;
     cleanup();
@@ -517,8 +516,8 @@ describe('vue useDLE()', () => {
       });
 
     await waitForNextUpdate();
-    expect(result.value.data.value).toBeDefined();
-    expect(result.value.loading.value).toBe(false);
+    expect(result.data.value).toBeDefined();
+    expect(result.loading.value).toBe(false);
 
     // Invalidate to trigger forceFetch
     controller.invalidate(InvalidIfStaleArticleResource.get, {
@@ -528,12 +527,12 @@ describe('vue useDLE()', () => {
     await nextTick();
 
     // Should be loading due to invalidation (force fetch)
-    expect(result.value.loading.value).toBe(true);
+    expect(result.loading.value).toBe(true);
 
     await waitForNextUpdate();
 
-    expect(result.value.loading.value).toBe(false);
-    expect(result.value.data.value).toBeDefined();
+    expect(result.loading.value).toBe(false);
+    expect(result.data.value).toBeDefined();
 
     global.Date.now = realDate;
     cleanup();
@@ -551,20 +550,20 @@ describe('vue useDLE()', () => {
     );
 
     // Initially with null args
-    expect(result.value.loading.value).toBe(false);
-    expect(result.value.data.value).toBeUndefined();
+    expect(result.loading.value).toBe(false);
+    expect(result.data.value).toBeUndefined();
 
     // Switch to valid args
     props.id = payload.id;
     await nextTick();
 
-    expect(result.value.loading.value).toBe(true);
+    expect(result.loading.value).toBe(true);
 
     await waitForNextUpdate();
 
-    expect(result.value.loading.value).toBe(false);
-    expect(result.value.data.value).toBeDefined();
-    expect(result.value.data.value?.title).toBe(payload.title);
+    expect(result.loading.value).toBe(false);
+    expect(result.data.value).toBeDefined();
+    expect(result.data.value?.title).toBe(payload.title);
 
     cleanup();
   });
@@ -590,8 +589,8 @@ describe('vue useDLE()', () => {
     );
 
     // Data should be available and not loading (fixture provides fresh data)
-    expect(result.value.loading.value).toBe(false);
-    expect(result.value.data.value?.title).toBe(payload.title);
+    expect(result.loading.value).toBe(false);
+    expect(result.data.value?.title).toBe(payload.title);
 
     global.Date.now = realDate;
     cleanup();
@@ -614,9 +613,9 @@ describe('vue useDLE()', () => {
     );
 
     // With valid cached data, should not be loading
-    expect(result.value.loading.value).toBe(false);
-    expect(result.value.data.value?.title).toBe(payload.title);
-    expect(result.value.error.value).toBeUndefined();
+    expect(result.loading.value).toBe(false);
+    expect(result.data.value?.title).toBe(payload.title);
+    expect(result.error.value).toBeUndefined();
 
     cleanup();
   });
@@ -631,8 +630,8 @@ describe('vue useDLE()', () => {
       });
 
     await waitForNextUpdate();
-    expect(result.value.data.value).toBeDefined();
-    expect(result.value.loading.value).toBe(false);
+    expect(result.data.value).toBeDefined();
+    expect(result.loading.value).toBe(false);
 
     // Don't advance time, but invalidate (forceFetch = true, but Date.now() <= expiresAt)
     controller.invalidate(InvalidIfStaleArticleResource.get, {
@@ -641,7 +640,7 @@ describe('vue useDLE()', () => {
     await nextTick();
 
     // Should trigger loading due to forceFetch even though not expired by time
-    expect(result.value.loading.value).toBe(true);
+    expect(result.loading.value).toBe(true);
 
     global.Date.now = realDate;
     cleanup();
@@ -653,8 +652,8 @@ describe('vue useDLE()', () => {
     });
 
     // With null args, argsKey is empty, so not loading
-    expect(result.value.loading.value).toBe(false);
-    expect(result.value.data.value).toBeUndefined();
+    expect(result.loading.value).toBe(false);
+    expect(result.data.value).toBeUndefined();
 
     cleanup();
   });

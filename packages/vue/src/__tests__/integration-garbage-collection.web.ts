@@ -64,7 +64,7 @@ describe('Integration Garbage Collection Web (Vue)', () => {
 
     await waitForNextUpdate();
 
-    const articleRef = await result.value;
+    const articleRef = await result;
     expect(articleRef?.value.title).toBe(articleData.title);
     expect(articleRef?.value.content).toBe(articleData.content);
 

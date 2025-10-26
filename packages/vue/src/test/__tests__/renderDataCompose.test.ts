@@ -29,9 +29,9 @@ describe('renderDataCompose', () => {
       // Wait for composable to execute and result to be available
       await waitForResult();
 
-      expect(result.value).toBeDefined();
-      // Vue auto-unwraps refs in the return value
-      expect(result.value.count).toBe(0);
+      expect(result).toBeDefined();
+      // Access the ref's value directly
+      expect(result.count.value).toBe(0);
 
       cleanup();
     });
@@ -66,8 +66,8 @@ describe('renderDataCompose', () => {
       // Wait for composable to execute and result to be available
       await waitForResult();
 
-      expect(result.value).toBeDefined();
-      expect(result.value.message).toBe('Hello: 42');
+      expect(result).toBeDefined();
+      expect(result.message.value).toBe('Hello: 42');
 
       cleanup();
     });
@@ -84,8 +84,8 @@ describe('renderDataCompose', () => {
       // Wait for composable to execute and result to be available
       await waitForResult();
 
-      expect(result.value.count).toBe(10);
-      expect(result.value.doubled).toBe(20);
+      expect(result.count.value).toBe(10);
+      expect(result.doubled.value).toBe(20);
 
       cleanup();
     });
@@ -157,13 +157,13 @@ describe('renderDataCompose', () => {
       await waitForResult();
 
       // Initial computed value
-      expect(result.value.doubled).toBe(10);
+      expect(result.doubled.value).toBe(10);
 
       // Change prop - computed should update
       props.value = 10;
       await nextTick();
 
-      expect(result.value.doubled).toBe(20);
+      expect(result.doubled.value).toBe(20);
 
       cleanup();
     });
@@ -191,21 +191,21 @@ describe('renderDataCompose', () => {
       await waitForResult();
 
       // Initial value
-      expect(result.value.count).toBe(1);
+      expect(result.count.value).toBe(1);
       expect(watchSpy).not.toHaveBeenCalled(); // watch doesn't fire on initial setup
 
       // Change prop - watcher should fire
       props.count = 2;
       await nextTick();
 
-      expect(result.value.count).toBe(2);
+      expect(result.count.value).toBe(2);
       expect(watchSpy).toHaveBeenCalledWith(2, 1);
 
       // Change again
       props.count = 5;
       await nextTick();
 
-      expect(result.value.count).toBe(5);
+      expect(result.count.value).toBe(5);
       expect(watchSpy).toHaveBeenCalledWith(5, 2);
 
       cleanup();
@@ -233,22 +233,22 @@ describe('renderDataCompose', () => {
       await waitForResult();
 
       // Initial computed values
-      expect(result.value.fullName).toBe('John Doe');
-      expect(result.value.initials).toBe('JD');
+      expect(result.fullName.value).toBe('John Doe');
+      expect(result.initials.value).toBe('JD');
 
       // Change first name
       props.firstName = 'Jane';
       await nextTick();
 
-      expect(result.value.fullName).toBe('Jane Doe');
-      expect(result.value.initials).toBe('JD');
+      expect(result.fullName.value).toBe('Jane Doe');
+      expect(result.initials.value).toBe('JD');
 
       // Change last name
       props.lastName = 'Smith';
       await nextTick();
 
-      expect(result.value.fullName).toBe('Jane Smith');
-      expect(result.value.initials).toBe('JS');
+      expect(result.fullName.value).toBe('Jane Smith');
+      expect(result.initials.value).toBe('JS');
 
       cleanup();
     });
@@ -271,17 +271,17 @@ describe('renderDataCompose', () => {
       await waitForResult();
 
       // Initial values
-      expect(result.value.doubled).toBe(2);
-      expect(result.value.quadrupled).toBe(4);
-      expect(result.value.octupled).toBe(8);
+      expect(result.doubled.value).toBe(2);
+      expect(result.quadrupled.value).toBe(4);
+      expect(result.octupled.value).toBe(8);
 
       // Change prop - all computed values should update
       props.value = 5;
       await nextTick();
 
-      expect(result.value.doubled).toBe(10);
-      expect(result.value.quadrupled).toBe(20);
-      expect(result.value.octupled).toBe(40);
+      expect(result.doubled.value).toBe(10);
+      expect(result.quadrupled.value).toBe(20);
+      expect(result.octupled.value).toBe(40);
 
       cleanup();
     });
@@ -307,15 +307,15 @@ describe('renderDataCompose', () => {
       await waitForResult();
 
       // Initial values
-      expect(result.value.description).toBe('Alice is 16 years old');
-      expect(result.value.isAdult).toBe(false);
+      expect(result.description.value).toBe('Alice is 16 years old');
+      expect(result.isAdult.value).toBe(false);
 
       // Update nested object
       props.user = { name: 'Bob', age: 25 };
       await nextTick();
 
-      expect(result.value.description).toBe('Bob is 25 years old');
-      expect(result.value.isAdult).toBe(true);
+      expect(result.description.value).toBe('Bob is 25 years old');
+      expect(result.isAdult.value).toBe(true);
 
       cleanup();
     });
@@ -340,17 +340,17 @@ describe('renderDataCompose', () => {
       await waitForResult();
 
       // Initial values
-      expect(result.value.itemCount).toBe(2);
-      expect(result.value.firstItem).toBe('apple');
-      expect(result.value.allItems).toBe('apple, banana');
+      expect(result.itemCount.value).toBe(2);
+      expect(result.firstItem.value).toBe('apple');
+      expect(result.allItems.value).toBe('apple, banana');
 
       // Update array
       props.items = ['orange', 'grape', 'melon'];
       await nextTick();
 
-      expect(result.value.itemCount).toBe(3);
-      expect(result.value.firstItem).toBe('orange');
-      expect(result.value.allItems).toBe('orange, grape, melon');
+      expect(result.itemCount.value).toBe(3);
+      expect(result.firstItem.value).toBe('orange');
+      expect(result.allItems.value).toBe('orange, grape, melon');
 
       cleanup();
     });
@@ -458,25 +458,25 @@ describe('renderDataCompose', () => {
       await waitForResult();
 
       // Initially enabled
-      expect(result.value.result).toBe(10);
+      expect(result.result.value).toBe(10);
 
       // Disable
       props.enabled = false;
       await nextTick();
 
-      expect(result.value.result).toBe(0);
+      expect(result.result.value).toBe(0);
 
       // Change value while disabled
       props.value = 100;
       await nextTick();
 
-      expect(result.value.result).toBe(0);
+      expect(result.result.value).toBe(0);
 
       // Re-enable
       props.enabled = true;
       await nextTick();
 
-      expect(result.value.result).toBe(200);
+      expect(result.result.value).toBe(200);
 
       cleanup();
     });
@@ -504,25 +504,25 @@ describe('renderDataCompose', () => {
       await waitForResult();
 
       // Initial
-      expect(result.value.result).toBe(20); // 10 * 2
+      expect(result.result.value).toBe(20); // 10 * 2
 
       // Change prop
       props.multiplier = 3;
       await nextTick();
 
-      expect(result.value.result).toBe(30); // 10 * 3
+      expect(result.result.value).toBe(30); // 10 * 3
 
       // Mutate internal ref
-      result.value.updateBase(5);
+      result.updateBase(5);
       await nextTick();
 
-      expect(result.value.result).toBe(15); // 5 * 3
+      expect(result.result.value).toBe(15); // 5 * 3
 
       // Change prop again
       props.multiplier = 4;
       await nextTick();
 
-      expect(result.value.result).toBe(20); // 5 * 4
+      expect(result.result.value).toBe(20); // 5 * 4
 
       cleanup();
     });
@@ -555,28 +555,28 @@ describe('renderDataCompose', () => {
       await waitForResult();
 
       // Initial state
-      expect(result.value.counter).toBe(0);
+      expect(result.counter.value).toBe(0);
       expect(sideEffectSpy).not.toHaveBeenCalled();
 
       // Trigger side effect
       props.trigger = true;
       await nextTick();
 
-      expect(result.value.counter).toBe(1);
+      expect(result.counter.value).toBe(1);
       expect(sideEffectSpy).toHaveBeenCalledWith(1);
 
       // Toggle back (no increment)
       props.trigger = false;
       await nextTick();
 
-      expect(result.value.counter).toBe(1);
+      expect(result.counter.value).toBe(1);
       expect(sideEffectSpy).toHaveBeenCalledTimes(1);
 
       // Trigger again
       props.trigger = true;
       await nextTick();
 
-      expect(result.value.counter).toBe(2);
+      expect(result.counter.value).toBe(2);
       expect(sideEffectSpy).toHaveBeenCalledWith(2);
       expect(sideEffectSpy).toHaveBeenCalledTimes(2);
 

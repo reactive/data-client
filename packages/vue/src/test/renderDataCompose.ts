@@ -1,15 +1,6 @@
 import { type Controller } from '@data-client/core';
 import { type VueWrapper } from '@vue/test-utils';
-import {
-  defineComponent,
-  h,
-  ref,
-  watch,
-  reactive,
-  nextTick,
-  isRef,
-  type Ref,
-} from 'vue';
+import { defineComponent, h, watch, reactive, nextTick, isRef } from 'vue';
 
 import {
   mountDataClient,
@@ -27,7 +18,7 @@ export async function renderDataCompose<P = any, R = any>(
   composable: (props: P) => R,
   options: RenderDataClientOptions<P> = {},
 ): Promise<{
-  result: R extends Ref<unknown> ? R : Ref<R>;
+  result: R;
   wrapper: VueWrapper<any>;
   controller: Controller;
   cleanup: () => void;
@@ -58,9 +49,8 @@ export async function renderDataCompose<P = any, R = any>(
       // Call the composable once with reactive props - Vue's useSuspense will handle the async behavior
       const composableValue = composable(componentProps.composableProps as P);
 
-      // Initialize resultRef with the composable value - only wrap in ref if not already reactive
-      resultRef =
-        isRef(composableValue) ? composableValue : ref<R>(composableValue);
+      // Store the composable value directly without wrapping
+      resultRef = composableValue;
 
       // Signal that the composable has been initialized
       if (resolveComposableInit) {
@@ -91,16 +81,18 @@ export async function renderDataCompose<P = any, R = any>(
         }
       }
 
-      // Watch for changes to the result
-      watch(resultRef, () => {
-        if (resolveNextUpdate) {
-          resolveNextUpdate();
-          resolveNextUpdate = null;
-        }
-      });
+      // Watch for changes to the result if it's reactive
+      if (isRef(resultRef)) {
+        watch(resultRef, () => {
+          if (resolveNextUpdate) {
+            resolveNextUpdate();
+            resolveNextUpdate = null;
+          }
+        });
+      }
 
-      expose({ result: resultRef.value });
-      return { result: resultRef.value };
+      expose({ result: resultRef });
+      return { result: resultRef };
     },
     render() {
       return h('div', { 'data-testid': 'composable-result' });
@@ -130,7 +122,8 @@ export async function renderDataCompose<P = any, R = any>(
 
   const waitForNextUpdate = async (): Promise<void> => {
     // For Promises (like useSuspense), wait for them to resolve
-    if (resultRef.value instanceof Promise) {
+    const valueToCheck = isRef(resultRef) ? resultRef.value : resultRef;
+    if (valueToCheck instanceof Promise) {
       return new Promise(resolve => {
         resolveNextUpdate = resolve;
         setTimeout(() => {

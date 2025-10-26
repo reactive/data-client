@@ -62,19 +62,16 @@ describe('vue useSuspense()', () => {
   // No need for ProvideWrapper anymore since Suspense is integrated into mountDataClient
 
   it('suspends on empty store, then renders after fetch resolves', async () => {
-    const { result, waitForNextUpdate, cleanup } = await renderDataCompose(() =>
+    const { result, cleanup } = await renderDataCompose(() =>
       useSuspense(CoolerArticleResource.get, { id: payload.id }),
     );
 
-    // Wait for the composable to initialize (result.value will be a Promise during suspension)
-    await waitForNextUpdate();
-
     // Should have the Promise (suspension in Vue 3 returns a Promise)
-    expect(result.value).toBeDefined();
-    expect(result.value).toBeInstanceOf(Promise);
+    expect(result).toBeDefined();
+    expect(result).toBeInstanceOf(Promise);
 
     // Await the promise once to get the reactive ComputedRef
-    const articleRef = await result.value;
+    const articleRef = await result;
     expect(articleRef.value.title).toBe(payload.title);
     expect(articleRef.value.content).toBe(payload.content);
 
@@ -91,7 +88,7 @@ describe('vue useSuspense()', () => {
     await waitForNextUpdate();
 
     // Await the promise once to get the reactive ComputedRef
-    const articleRef = await result.value;
+    const articleRef = await result;
 
     // Verify initial values
     expect(articleRef.value.title).toBe(payload.title);
@@ -126,7 +123,7 @@ describe('vue useSuspense()', () => {
     await waitForNextUpdate();
 
     // Await the promise once to get the reactive ComputedRef
-    const articleRef = await result.value;
+    const articleRef = await result;
 
     // Verify initial values
     expect(articleRef.value.title).toBe(payload.title);
@@ -262,7 +259,7 @@ describe('vue useSuspense()', () => {
     await waitForNextUpdate();
 
     // Await the promise once to get the reactive ComputedRef
-    const articleRef = await result.value;
+    const articleRef = await result;
 
     expect(articleRef).toBeDefined();
 
