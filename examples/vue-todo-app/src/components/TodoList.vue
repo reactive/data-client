@@ -17,8 +17,9 @@
         @keyup.enter="handleAdd"
         placeholder="What needs to be done?"
         class="todo-input"
+        :disabled="isLoading"
       />
-      <button @click="handleAdd" class="add-btn">Add</button>
+      <button @click="handleAdd" class="add-btn" :disabled="isLoading">{{isLoading ? ' ... ' : 'Add'}}</button>
     </div>
 
     <Suspense>
@@ -35,7 +36,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
-import { useController } from '@data-client/vue';
+import { useController, useLoading } from '@data-client/vue';
 import { TodoResource } from '../resources/TodoResource';
 import TodoListContent from './TodoListContent.vue';
 import UserHeader from './UserHeader.vue';
@@ -46,7 +47,7 @@ const newTodoTitle = ref('');
 
 const userId = computed(() => Number(route.params.userId));
 
-const handleAdd = async () => {
+const [handleAdd, isLoading] = useLoading(async () => {
   if (!newTodoTitle.value.trim()) return;
   
   await ctrl.fetch(TodoResource.getList.unshift, { userId: userId.value }, {
@@ -56,7 +57,7 @@ const handleAdd = async () => {
   });
   
   newTodoTitle.value = '';
-};
+});
 </script>
 
 <style scoped>
