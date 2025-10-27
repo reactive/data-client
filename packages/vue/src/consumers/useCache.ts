@@ -17,7 +17,7 @@ import type {
 /**
  * Read an Endpoint's response if it is ready.
  *
- * `useCache` guarantees referential equality globally.
+ * `useCache` is globally memoized.
  * @see https://dataclient.io/docs/api/useCache
  */
 export default function useCache<

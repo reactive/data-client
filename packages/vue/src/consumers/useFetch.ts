@@ -16,8 +16,6 @@ import type {
 
 /**
  * Fetch an Endpoint if it is not in cache or stale.
- * Non-suspense; returns the fetch Promise when a request is issued, otherwise undefined.
- * Mirrors React useFetch semantics.
  * @see https://dataclient.io/docs/api/useFetch
  */
 export default function useFetch<

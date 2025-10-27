@@ -31,7 +31,7 @@ Schema driven. Zero updater functions.
 ## Installation
 
 ```bash
-npm install --save @data-client/vue @data-client/rest @data-client/test
+npm install --save @data-client/vue @data-client/rest
 ```
 
 For more details, see [the Installation docs page](https://dataclient.io/docs/getting-started/installation).
