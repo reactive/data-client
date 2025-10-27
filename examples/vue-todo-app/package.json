@@ -15,6 +15,7 @@
     "@data-client/vue": "^0.3.2",
     "@data-client/rest": "0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c",
     "vue": "^3.5.22",
+    "vue-router": "^4.6.3",
     "uuid": "^13.0.0"
   },
   "devDependencies": {

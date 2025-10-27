@@ -14,12 +14,17 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 import { useQuery, useSuspense } from '@data-client/vue';
 import { TodoResource, queryRemainingTodos } from '../resources/TodoResource';
 import TodoItem from './TodoItem.vue';
 
-const todos = await useSuspense(TodoResource.getList, { userId: 1 });
-const remaining = useQuery(queryRemainingTodos, { userId: 1 });
+const route = useRoute();
+const params = computed(() => ({ userId:Number(route.params.userId)}));
+
+const todos = await useSuspense(TodoResource.getList, params);
+const remaining = useQuery(queryRemainingTodos, params);
 </script>
 
 <style scoped>

@@ -1,11 +1,12 @@
 <template>
   <div id="app">
-    <TodoList />
+    <AppNavigation />
+    <router-view />
   </div>
 </template>
 
 <script setup lang="ts">
-import TodoList from './components/TodoList.vue';
+import AppNavigation from './components/AppNavigation.vue';
 </script>
 
 <style>
@@ -26,7 +27,9 @@ body {
 }
 
 #app {
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 </style>
 

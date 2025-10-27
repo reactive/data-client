@@ -1,8 +1,14 @@
 <template>
   <div class="todo-list">
     <div class="header">
-      <h1>📝 Vue Todo App</h1>
-      <p class="subtitle">Powered by @data-client/vue</p>
+      <Suspense>
+        <template #default>
+          <UserHeader />
+        </template>
+        <template #fallback>
+          <h1>📝 Todo App</h1>
+        </template>
+      </Suspense>
     </div>
 
     <div class="add-todo">
@@ -27,20 +33,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import { useController } from '@data-client/vue';
 import { TodoResource } from '../resources/TodoResource';
 import TodoListContent from './TodoListContent.vue';
+import UserHeader from './UserHeader.vue';
 
+const route = useRoute();
 const ctrl = useController();
 const newTodoTitle = ref('');
+
+const userId = computed(() => Number(route.params.userId));
 
 const handleAdd = async () => {
   if (!newTodoTitle.value.trim()) return;
   
-  await ctrl.fetch(TodoResource.getList.unshift, {userId: 1}, {
+  await ctrl.fetch(TodoResource.getList.unshift, { userId: userId.value }, {
     title: newTodoTitle.value,
-    userId: 1,
+    userId: userId.value,
     completed: false,
   });
   
@@ -51,17 +62,23 @@ const handleAdd = async () => {
 <style scoped>
 .todo-list {
   max-width: 600px;
-  margin: 40px auto;
+  margin: 20px auto;
   background: white;
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
+@media (max-width: 768px) {
+  .todo-list {
+    margin: 20px 12px;
+  }
+}
+
 .header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 32px 24px;
+  padding: 24px;
   text-align: center;
 }
 
