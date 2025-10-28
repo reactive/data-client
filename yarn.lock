@@ -402,11 +402,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/eslint-plugin@npm:1.0.53":
-  version: 1.0.53
-  resolution: "@anansi/eslint-plugin@npm:1.0.53"
+"@anansi/eslint-plugin@npm:1.0.54":
+  version: 1.0.54
+  resolution: "@anansi/eslint-plugin@npm:1.0.54"
   dependencies:
-    "@babel/eslint-parser": "npm:^7.28.4"
+    "@babel/eslint-parser": "npm:^7.28.5"
     "@babel/eslint-plugin": "npm:^7.27.1"
     "@eslint/js": "npm:^9.38.0"
     "@typescript-eslint/parser": "npm:^8.46.2"
@@ -434,7 +434,7 @@ __metadata:
       optional: true
     webpack:
       optional: true
-  checksum: 10c0/04bb584bf1e6d47af4ddd996467631156388f7eeb4eafd67ae9926c047736641d419be48c2c5677c2f98cbd317b181066831624711da38a5df99b21c7ce3d66f
+  checksum: 10c0/1a3832b1912804db659efdae5ba9daab3f08b1a5f9662860936c82047f7743429824bf8a134436d76c71c70c9825b0bd0887e5ec12a98977297e879c618d3ba5
   languageName: node
   linkType: hard
 
@@ -725,9 +725,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/eslint-parser@npm:^7.28.4":
-  version: 7.28.4
-  resolution: "@babel/eslint-parser@npm:7.28.4"
+"@babel/eslint-parser@npm:^7.28.5":
+  version: 7.28.5
+  resolution: "@babel/eslint-parser@npm:7.28.5"
   dependencies:
     "@nicolo-ribaudo/eslint-scope-5-internals": "npm:5.1.1-v1"
     eslint-visitor-keys: "npm:^2.1.0"
@@ -735,7 +735,7 @@ __metadata:
   peerDependencies:
     "@babel/core": ^7.11.0
     eslint: ^7.5.0 || ^8.0.0 || ^9.0.0
-  checksum: 10c0/a13822d4511bcd55652ee6230a7d9bc9b64ec3af9c6faea6289d818b88525c7c22061118adcbe549ba604919fa3a47b4222e5aaccd4e61d0dc418741364991d1
+  checksum: 10c0/4d13f765434b6be83ab3917f06ad712dedf0d5bfa80fe54cd6cea44adac6a0d2519020ad307d66b4490e46a435874829eac6a9fd3a9cad54d7616c47d288aaed
   languageName: node
   linkType: hard
 
@@ -27685,7 +27685,7 @@ __metadata:
   dependencies:
     "@anansi/babel-preset": "npm:6.2.16"
     "@anansi/browserslist-config": "npm:1.7.3"
-    "@anansi/eslint-plugin": "npm:1.0.53"
+    "@anansi/eslint-plugin": "npm:1.0.54"
     "@anansi/jest-preset": "npm:0.11.26"
     "@babel/cli": "npm:7.28.3"
     "@babel/core": "npm:7.28.5"
