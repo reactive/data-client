@@ -25,7 +25,7 @@ const LoadingBar = ({
           },
           {
             transform: `translateX(${-50}%)`,
-            offset: 0.2,
+            offset: 0.3,
           },
           {
             transform: `translateX(${0}%)`,
@@ -35,7 +35,8 @@ const LoadingBar = ({
         {
           duration: duration,
           iterations: 1,
-          easing: 'linear',
+          easing: 'ease-out',
+          fill: 'forwards',
         },
       );
     }, delay);
@@ -77,7 +78,7 @@ const LoadingBarInner = styled.div`
   left: -10px;
   height: 100%;
   width: 100%;
-  background-color: red;
+  background: linear-gradient(90deg, #facc15 0%, #fb923c 50%, #f87171 100%);
   transform-origin: left center;
-  box-shadow: 0px -3px 10px 5px rgba(255, 0, 0, 0.6);
+  box-shadow: 0px -3px 10px 5px rgba(239, 68, 68, 0.6);
 `;
