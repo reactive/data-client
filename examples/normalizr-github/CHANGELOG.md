@@ -1,5 +1,13 @@
 # normalizr-github-example
 
+## 0.1.51-beta-20251110013913-ef632c49a03da67187b6097fe8154893cd930d30
+
+### Patch Changes
+
+- Updated dependencies [[`ef632c4`](https://github.com/reactive/data-client/commit/ef632c49a03da67187b6097fe8154893cd930d30)]:
+  - @data-client/endpoint@0.15.1-beta-20251110013913-ef632c49a03da67187b6097fe8154893cd930d30
+  - @data-client/normalizr@0.15.0-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b
+
 ## 0.1.51-beta-20251022010821-0e5f6bd2963b6deecb68b5febe71cdd3b10c801a
 
 ### Patch Changes

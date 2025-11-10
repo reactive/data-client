@@ -1,5 +1,14 @@
 # example-benchmark
 
+## 0.4.75-beta-20251110013913-ef632c49a03da67187b6097fe8154893cd930d30
+
+### Patch Changes
+
+- Updated dependencies [[`ef632c4`](https://github.com/reactive/data-client/commit/ef632c49a03da67187b6097fe8154893cd930d30)]:
+  - @data-client/endpoint@0.15.1-beta-20251110013913-ef632c49a03da67187b6097fe8154893cd930d30
+  - @data-client/core@0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c
+  - @data-client/normalizr@0.15.0-beta-20251006024044-92bd01c4976f2921993b8c9f1e4dbb87af87ba7b
+
 ## 0.4.75-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c
 
 ### Patch Changes
