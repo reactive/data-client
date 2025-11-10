@@ -143,7 +143,7 @@
     "@data-client/react": "workspace:*",
     "@data-client/test": "workspace:*",
     "@types/jest": "30.0.0",
-    "@types/node": "^22.0.0",
+    "@types/node": "^24.0.0",
     "nock": "13.3.1",
     "rollup-plugins": "workspace:*"
   }

@@ -198,7 +198,7 @@
     "@testing-library/react": "^16.1.0",
     "@testing-library/react-native": "^13.0.0",
     "@types/jest": "30.0.0",
-    "@types/node": "^22.0.0",
+    "@types/node": "^24.0.0",
     "@types/qs": "^6",
     "@types/react": "19.2.2",
     "@types/react-dom": "*",

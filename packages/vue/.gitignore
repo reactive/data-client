@@ -1,6 +1,5 @@
 /lib
 /dist
-/ts3.4
 /index.d.ts
 node_modules
 .DS_Store

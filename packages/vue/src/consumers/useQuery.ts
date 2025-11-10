@@ -9,11 +9,9 @@ import { useController, injectState } from '../context.js';
 import type { MaybeRefsOrGetters } from '../types.js';
 
 /**
- * Query the store (non-suspense).
+ * Query the store.
  *
- * Returns a readonly computed ref of the query result. The value is undefined when
- * the result is not found or invalid.
- * Mirrors React's useQuery semantics using Vue reactivity.
+ * `useQuery` results are globally memoized.
  * @see https://dataclient.io/docs/api/useQuery
  */
 export default function useQuery<S extends Queryable>(

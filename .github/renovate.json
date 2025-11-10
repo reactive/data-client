@@ -39,6 +39,20 @@
       "groupSlug": "all-minor-patch"
     },
     {
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchPackageNames": [
+        "vue",
+        "vue-router",
+        "vue-tsc",
+        "@vue/test-utils",
+        "@types/vue",
+        "@vitejs/plugin-vue"
+      ],
+      "matchPackagePatterns": ["^@vue/"],
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-minor-patch"
+    },
+    {
       "extends": ["monorepo:react"],
       "matchUpdateTypes": ["major", "minor", "patch"],
       "groupName": "react"

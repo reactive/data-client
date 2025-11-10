@@ -22,6 +22,14 @@ import type {
   MaybeRefsOrGettersNullable,
 } from '../types.js';
 
+/**
+ * Ensure an endpoint is available.
+ * Suspends until it is.
+ *
+ * @see https://dataclient.io/docs/api/useSuspense
+ * @throws {Promise} If data is not yet available.
+ * @throws {NetworkError} If fetch fails.
+ */
 export default function useSuspense<
   E extends EndpointInterface<
     FetchFunction,

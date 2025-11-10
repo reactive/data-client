@@ -7,7 +7,10 @@ import {
 } from '@data-client/core';
 
 /* istanbul ignore next */
-/** Returns the default Managers used by DataProvider. */
+/** Returns the default Managers used by DataProvider.
+ *
+ * @see https://dataclient.io/docs/api/getDefaultManagers
+ */
 let getDefaultManagers: (options?: GetManagersOptions) => Manager[] = (
   options = {},
 ) => {

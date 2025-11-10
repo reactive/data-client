@@ -24,3 +24,7 @@ export const queryRemainingTodos = new schema.Query(
   TodoResource.getList.schema,
   (entries) => entries.filter((todo) => !todo.completed).length,
 );
+export const queryTotalTodos = new schema.Query(
+  TodoResource.getList.schema,
+  (entries) => entries.length,
+);

@@ -1,6 +1,6 @@
 {
   "name": "@data-client/vue",
-  "version": "0.2.0-beta-20251026233651-4c1d5c9084df801287cc120cd7a9c77b9bbe96e0",
+  "version": "0.3.1",
   "description": "Async State Management without the Management. REST, GraphQL, SSE, Websockets, Fetch",
   "homepage": "https://dataclient.io",
   "repository": {
@@ -68,13 +68,12 @@
   },
   "type": "module",
   "engines": {
-    "node": "^12.17 || ^13.7 || >=14"
+    "node": ">=14"
   },
   "files": [
     "src",
     "dist",
     "lib",
-    "ts3.4",
     "node.mjs",
     "LICENSE",
     "README.md",
@@ -87,7 +86,6 @@
     "build:js:browser": "BROWSERSLIST_ENV=legacy yarn g:rollup",
     "build:bundle": "yarn g:runs build:js:\\* && echo '{\"type\":\"commonjs\"}' > dist/package.json",
     "build:clean": "yarn g:clean index.d.ts",
-    "build:legacy-types": "yarn g:downtypes lib ts3.4",
     "build": "run build:lib && run build:bundle",
     "dev": "run build:lib -w",
     "prepare": "run build:lib",
@@ -102,10 +100,14 @@
   },
   "peerDependencies": {
     "@types/vue": "^3.0.0",
+    "@vue/test-utils": "^2.4.0",
     "vue": "^3.0.0"
   },
   "peerDependenciesMeta": {
     "@types/vue": {
+      "optional": true
+    },
+    "@vue/test-utils": {
       "optional": true
     }
   },
@@ -116,7 +118,7 @@
     "@jest/globals": "^30.0.0",
     "@js-temporal/polyfill": "^0.5.0",
     "@types/jest": "30.0.0",
-    "@types/node": "^22.0.0",
+    "@types/node": "^24.0.0",
     "@vue/test-utils": "^2.4.0",
     "jest-environment-jsdom": "^30.0.0",
     "jest-mock": "^30.0.0",
