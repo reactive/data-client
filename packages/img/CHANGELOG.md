@@ -1,5 +1,11 @@
 # @data-client/img
 
+## 0.15.1-beta-20251110151417-8913a49d898f6c7d69e1964d68f19daf68565bef
+
+### Patch Changes
+
+- [`8913a49`](https://github.com/reactive/data-client/commit/8913a49d898f6c7d69e1964d68f19daf68565bef) Thanks [@ntucker](https://github.com/ntucker)! - Bump version minor to replace bad publish
+
 ## 0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c
 
 ### Patch Changes
