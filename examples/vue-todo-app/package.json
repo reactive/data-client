@@ -11,6 +11,9 @@
   "stackblitz": {
     "startCommand": "npm run dev"
   },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "dependencies": {
     "@data-client/vue": "^0.3.2",
     "@data-client/rest": "0.15.1-beta-20251110013913-ef632c49a03da67187b6097fe8154893cd930d30",

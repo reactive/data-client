@@ -10,7 +10,7 @@
     "lint": "yarn g:lint"
   },
   "engines": {
-    "node": ">=18.0"
+    "node": ">=20.0.0"
   },
   "dependencies": {
     "@anansi/babel-preset": "^6.1.6",
