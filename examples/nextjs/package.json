@@ -12,6 +12,9 @@
   "engines": {
     "node": ">=20.0.0"
   },
+  "stackblitz": {
+    "startCommand": "npm run dev"
+  },
   "dependencies": {
     "@anansi/babel-preset": "^6.1.6",
     "@babel/core": "^7.24.7",
