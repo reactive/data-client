@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1762725997974,
+  "lastUpdate": 1763040997112,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -99139,6 +99139,212 @@ window.BENCHMARK_DATA = {
             "name": "setSmallResponse 500x",
             "value": 943,
             "range": "±0.43%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d86de119e1b58b95ae6ce9a3f70683bad24ef8e0",
+          "message": "pkg: Update all non-major dependencies (#3610)\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
+          "timestamp": "2025-11-13T13:29:52Z",
+          "tree_id": "931b8d24c18d6d7f886e4956e56e535a3bda7c75",
+          "url": "https://github.com/reactive/data-client/commit/d86de119e1b58b95ae6ce9a3f70683bad24ef8e0"
+        },
+        "date": 1763040994527,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 517,
+            "range": "±1.82%",
+            "unit": "ops/sec",
+            "extra": "89 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 284,
+            "range": "±2.18%",
+            "unit": "ops/sec",
+            "extra": "80 samples"
+          },
+          {
+            "name": "denormalizeLong donotcache",
+            "value": 1001,
+            "range": "±1.91%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "denormalizeShort donotcache 500x",
+            "value": 1599,
+            "range": "±0.14%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "denormalizeShort 500x",
+            "value": 835,
+            "range": "±2.02%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          },
+          {
+            "name": "denormalizeShort 500x withCache",
+            "value": 6203,
+            "range": "±0.13%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "queryShort 500x withCache",
+            "value": 2729,
+            "range": "±0.09%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "buildQueryKey All",
+            "value": 52661,
+            "range": "±0.30%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "query All withCache",
+            "value": 7114,
+            "range": "±0.78%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 276,
+            "range": "±2.09%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 6816,
+            "range": "±0.18%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 6933,
+            "range": "±0.38%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 7181,
+            "range": "±0.18%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLongAndShort withEntityCacheOnly",
+            "value": 1699,
+            "range": "±0.29%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 5618,
+            "range": "±1.17%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "getResponse (null)",
+            "value": 6810302,
+            "range": "±0.62%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "getResponse (clear cache)",
+            "value": 264,
+            "range": "±2.16%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 3058,
+            "range": "±0.14%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 2286,
+            "range": "±0.14%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "getResponse Collection",
+            "value": 5495,
+            "range": "±1.56%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "get Collection",
+            "value": 5819,
+            "range": "±0.29%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "get Query-sorted",
+            "value": 6602,
+            "range": "±0.32%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 528,
+            "range": "±0.44%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 246,
+            "range": "±0.18%",
+            "unit": "ops/sec",
+            "extra": "89 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 259,
+            "range": "±0.29%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "setSmallResponse 500x",
+            "value": 945,
+            "range": "±0.13%",
             "unit": "ops/sec",
             "extra": "97 samples"
           }
