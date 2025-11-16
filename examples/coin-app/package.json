@@ -24,11 +24,10 @@
     "anansi"
   ],
   "devDependencies": {
-    "@anansi/babel-preset": "6.2.18",
+    "@anansi/babel-preset": "6.2.19",
     "@anansi/browserslist-config": "^1.4.3",
-    "@anansi/webpack-config": "^21.0.0",
+    "@anansi/webpack-config": "21.1.1",
     "@babel/core": "^7.22.15",
-    "@linaria/babel-preset": "*",
     "@linaria/core": "*",
     "@linaria/react": "*",
     "@linaria/shaker": "*",

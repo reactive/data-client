@@ -263,9 +263,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/babel-preset@npm:6.2.18":
-  version: 6.2.18
-  resolution: "@anansi/babel-preset@npm:6.2.18"
+"@anansi/babel-preset@npm:6.2.19, @anansi/babel-preset@npm:^6.2.19":
+  version: 6.2.19
+  resolution: "@anansi/babel-preset@npm:6.2.19"
   dependencies:
     "@anansi/ts-utils": "npm:^0.3.8"
     "@babel/plugin-proposal-decorators": "npm:^7.28.0"
@@ -322,7 +322,7 @@ __metadata:
       optional: true
     typescript:
       optional: true
-  checksum: 10c0/6e9209da740d9bad2da57ff1d396bf96f1084b0de09344675eb95180688058ab2aa504a1a0a9d33ea01eeaf49e3de3536f9b0415d0cd3a45dcafa48174c55e86
+  checksum: 10c0/4f59aa9b5e89d0128b5400ad2307fd866ab9a0f9a546fcff4899141bd5b85cbe0ac40f532e669d9a99f2eb0629bd75446238e0a708440fe9ea68e6b6d30c263c
   languageName: node
   linkType: hard
 
@@ -520,7 +520,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:21.1.1, @anansi/webpack-config@npm:^21.0.0":
+"@anansi/webpack-config@npm:21.1.1":
   version: 21.1.1
   resolution: "@anansi/webpack-config@npm:21.1.1"
   dependencies:
@@ -5218,47 +5218,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@linaria/babel-preset@npm:*":
-  version: 5.0.4
-  resolution: "@linaria/babel-preset@npm:5.0.4"
-  dependencies:
-    "@babel/core": "npm:^7.22.15"
-    "@babel/generator": "npm:^7.22.15"
-    "@babel/helper-module-imports": "npm:^7.22.15"
-    "@babel/template": "npm:^7.22.15"
-    "@babel/traverse": "npm:^7.22.15"
-    "@babel/types": "npm:^7.22.15"
-    "@linaria/core": "npm:^5.0.2"
-    "@linaria/logger": "npm:^5.0.0"
-    "@linaria/shaker": "npm:^5.0.3"
-    "@linaria/tags": "npm:^5.0.2"
-    "@linaria/utils": "npm:^5.0.2"
-    cosmiconfig: "npm:^8.0.0"
-    happy-dom: "npm:10.8.0"
-    source-map: "npm:^0.7.3"
-    stylis: "npm:^3.5.4"
-    ts-invariant: "npm:^0.10.3"
-  checksum: 10c0/bf767714ca472b0d552174b44da90c94629ac412fab6dce6b583c33b58905f653d72f4af87c8f43d9a657ef1983efd12247d42e70c0a576e55ec44cf6cfdcca1
-  languageName: node
-  linkType: hard
-
 "@linaria/core@npm:*, @linaria/core@npm:^6.3.0":
   version: 6.3.0
   resolution: "@linaria/core@npm:6.3.0"
   dependencies:
     "@wyw-in-js/processor-utils": "npm:^0.6.0"
   checksum: 10c0/4a3c7a1b3ae486e27540bcafe377498c22770e4e2914084b495a6aae65b77611308505d11108d3d999bfd9e40e443f6deb3120dbabbdaa8fc922de1db320b515
-  languageName: node
-  linkType: hard
-
-"@linaria/core@npm:^5.0.2":
-  version: 5.0.2
-  resolution: "@linaria/core@npm:5.0.2"
-  dependencies:
-    "@linaria/logger": "npm:^5.0.0"
-    "@linaria/tags": "npm:^5.0.2"
-    "@linaria/utils": "npm:^5.0.2"
-  checksum: 10c0/d8dee16482eff9d71c350296047cabb37339b16585c5cd8ef33f667bb9cb945223f5081ea7dea19fee58bff084dbcaaced6c491ecaaefb5773b39551867f037e
   languageName: node
   linkType: hard
 
@@ -5290,7 +5255,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@linaria/shaker@npm:*, @linaria/shaker@npm:^5.0.3":
+"@linaria/shaker@npm:*":
   version: 5.0.3
   resolution: "@linaria/shaker@npm:5.0.3"
   dependencies:
@@ -5305,17 +5270,6 @@ __metadata:
     babel-plugin-transform-react-remove-prop-types: "npm:^0.4.24"
     ts-invariant: "npm:^0.10.3"
   checksum: 10c0/64050e0bbc47116a9a3e04625db9f457f6a65fe396a31c14d4e3f63cd55bbaeb3e61dd8c13407227906a2925b79733165a806c5821e3cf178eba60e79179fb1d
-  languageName: node
-  linkType: hard
-
-"@linaria/tags@npm:^5.0.2":
-  version: 5.0.2
-  resolution: "@linaria/tags@npm:5.0.2"
-  dependencies:
-    "@babel/generator": "npm:^7.22.15"
-    "@linaria/logger": "npm:^5.0.0"
-    "@linaria/utils": "npm:^5.0.2"
-  checksum: 10c0/83655267c939289478f4e44d7195ae0b916dd22aa6bc5a1f4bc13c24c726c7858a3c795b296b542ac0bff3dff4f8d50901b389c892b79043797dd17488ffb898
   languageName: node
   linkType: hard
 
@@ -11245,18 +11199,17 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "coinbase-lite@workspace:examples/coin-app"
   dependencies:
-    "@anansi/babel-preset": "npm:6.2.18"
+    "@anansi/babel-preset": "npm:6.2.19"
     "@anansi/browserslist-config": "npm:^1.4.3"
     "@anansi/cli": "npm:^3.0.15"
     "@anansi/core": "npm:^0.20.0"
     "@anansi/router": "npm:^0.10.0"
-    "@anansi/webpack-config": "npm:^21.0.0"
+    "@anansi/webpack-config": "npm:21.1.1"
     "@babel/core": "npm:^7.22.15"
     "@babel/runtime-corejs3": "npm:^7.26.7"
     "@data-client/img": "npm:0.15.1-beta-20251110151417-8913a49d898f6c7d69e1964d68f19daf68565bef"
     "@data-client/react": "npm:0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c"
     "@data-client/rest": "npm:0.15.1-beta-20251110013913-ef632c49a03da67187b6097fe8154893cd930d30"
-    "@linaria/babel-preset": "npm:*"
     "@linaria/core": "npm:*"
     "@linaria/react": "npm:*"
     "@linaria/shaker": "npm:*"
@@ -14456,7 +14409,7 @@ __metadata:
     normalizr: "npm:3.6.2"
     react: "npm:19.2.0"
     webpack: "npm:5.102.1"
-    webpack-cli: "npm:^6.0.0"
+    webpack-cli: "npm:6.0.1"
   languageName: unknown
   linkType: soft
 
@@ -15865,20 +15818,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"happy-dom@npm:10.8.0":
-  version: 10.8.0
-  resolution: "happy-dom@npm:10.8.0"
-  dependencies:
-    css.escape: "npm:^1.5.1"
-    entities: "npm:^4.5.0"
-    iconv-lite: "npm:^0.6.3"
-    webidl-conversions: "npm:^7.0.0"
-    whatwg-encoding: "npm:^2.0.0"
-    whatwg-mimetype: "npm:^3.0.0"
-  checksum: 10c0/5b1675d6c15817e730a977aba6be576e9456e58d0641b32c57514bbc4cc0ba4ff575d37fbe5635b996d9648d34616cd8e17fae1bde42f9954b3bc7a829145a27
-  languageName: node
-  linkType: hard
-
 "happy-dom@npm:^20.0.10":
   version: 20.0.10
   resolution: "happy-dom@npm:20.0.10"
@@ -16669,7 +16608,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"iconv-lite@npm:0.6, iconv-lite@npm:0.6.3, iconv-lite@npm:^0.6.2, iconv-lite@npm:^0.6.3":
+"iconv-lite@npm:0.6, iconv-lite@npm:0.6.3, iconv-lite@npm:^0.6.2":
   version: 0.6.3
   resolution: "iconv-lite@npm:0.6.3"
   dependencies:
@@ -26110,7 +26049,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    "@anansi/babel-preset": "npm:6.2.18"
+    "@anansi/babel-preset": "npm:^6.2.19"
     "@anansi/browserslist-config": "npm:1.7.3"
     "@anansi/eslint-plugin": "npm:1.0.56"
     "@anansi/jest-preset": "npm:0.11.26"
@@ -27773,13 +27712,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylis@npm:^3.5.4":
-  version: 3.5.4
-  resolution: "stylis@npm:3.5.4"
-  checksum: 10c0/5da2f4527d6f3b4877bd575dca068698ddc7882d0f4c3f69178f19328726a2b885e03d759ef82bb06e9bd1a5d47f1f2ce17cc5acbeee2435d42940a261ee11fd
-  languageName: node
-  linkType: hard
-
 "stylis@npm:^4.3.0, stylis@npm:^4.3.6":
   version: 4.3.6
   resolution: "stylis@npm:4.3.6"
@@ -28067,9 +27999,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "test-bundlesize@workspace:examples/test-bundlesize"
   dependencies:
-    "@anansi/babel-preset": "npm:6.2.18"
+    "@anansi/babel-preset": "npm:6.2.19"
     "@anansi/browserslist-config": "npm:^1.4.3"
-    "@anansi/webpack-config": "npm:^21.0.0"
+    "@anansi/webpack-config": "npm:21.1.1"
     "@babel/core": "npm:^7.22.15"
     "@babel/runtime-corejs3": "npm:^7.26.7"
     "@data-client/img": "workspace:*"
@@ -29695,7 +29627,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-cli@npm:*, webpack-cli@npm:^6.0.0":
+"webpack-cli@npm:*, webpack-cli@npm:6.0.1":
   version: 6.0.1
   resolution: "webpack-cli@npm:6.0.1"
   dependencies:
@@ -29913,15 +29845,6 @@ __metadata:
   version: 0.1.4
   resolution: "websocket-extensions@npm:0.1.4"
   checksum: 10c0/bbc8c233388a0eb8a40786ee2e30d35935cacbfe26ab188b3e020987e85d519c2009fe07cfc37b7f718b85afdba7e54654c9153e6697301f72561bfe429177e0
-  languageName: node
-  linkType: hard
-
-"whatwg-encoding@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "whatwg-encoding@npm:2.0.0"
-  dependencies:
-    iconv-lite: "npm:0.6.3"
-  checksum: 10c0/91b90a49f312dc751496fd23a7e68981e62f33afe938b97281ad766235c4872fc4e66319f925c5e9001502b3040dd25a33b02a9c693b73a4cbbfdc4ad10c3e3e
   languageName: node
   linkType: hard
 
