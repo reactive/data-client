@@ -24,6 +24,7 @@ describe('resource()', () => {
     readonly username: string = '';
     readonly email: string = '';
     readonly isAdmin: boolean = false;
+    readonly group: string = '';
 
     pk() {
       return this.id?.toString();
@@ -702,6 +703,112 @@ describe('resource()', () => {
         // @ts-expect-error
         { sdf: 'five' },
         { username: 'never' },
+      );
+  });
+
+  it('UserResource.getList.remove should work', async () => {
+    mynock
+      .patch(`/groups/five/users`)
+      .reply(200, (uri, body: any) => ({ ...body }));
+
+    const { result, controller } = renderDataClient(
+      () => {
+        return {
+          user2: useQuery(User, { id: 2 }),
+          groupFive: useCache(UserResource.getList, { group: 'five' }),
+        };
+      },
+      {
+        initialFixtures: [
+          {
+            endpoint: UserResource.getList,
+            args: [{ group: 'five' }],
+            response: [
+              {
+                id: 1,
+                username: 'user1',
+                email: 'user1@example.com',
+                group: 'five',
+              },
+              {
+                id: 2,
+                username: 'user2',
+                email: 'user2@example.com',
+                group: 'five',
+              },
+            ],
+          },
+        ],
+      },
+    );
+
+    expect(result.current.groupFive).toEqual([
+      User.fromJS({
+        id: 1,
+        username: 'user1',
+        email: 'user1@example.com',
+        group: 'five',
+      }),
+      User.fromJS({
+        id: 2,
+        username: 'user2',
+        email: 'user2@example.com',
+        group: 'five',
+      }),
+    ]);
+
+    // Verify the remove endpoint can be called and completes successfully
+    await act(async () => {
+      const response = await controller.fetch(
+        UserResource.getList.remove,
+        { group: 'five' },
+        {
+          id: 2,
+          username: 'user2',
+          email: 'user2@example.com',
+          group: 'newgroup',
+        },
+      );
+      expect(response.id).toEqual(2);
+    });
+
+    // should remove the user from the list
+    expect(result.current.groupFive).toEqual([
+      User.fromJS({
+        id: 1,
+        username: 'user1',
+        email: 'user1@example.com',
+        group: 'five',
+      }),
+    ]);
+
+    // should also update the removed entity with the body data
+    expect(result.current.user2?.group).toEqual('newgroup');
+
+    () =>
+      controller.fetch(
+        UserResource.getList.remove,
+        // @ts-expect-error
+        { id: 'five' },
+        { id: 1 },
+      );
+    // @ts-expect-error
+    () => controller.fetch(UserResource.getList.remove, { username: 'never' });
+    // @ts-expect-error
+    () => controller.fetch(UserResource.getList.remove, 1, 'hi');
+    () =>
+      controller.fetch(
+        UserResource.getList.remove,
+        { group: 'five' },
+        // @ts-expect-error
+        { sdf: 'never' },
+      );
+    () =>
+      controller.fetch(
+        UserResource.getList.remove,
+        // @ts-expect-error
+        { sdf: 'five' },
+        { id: 1 },
       );
   });
 

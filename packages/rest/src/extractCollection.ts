@@ -26,6 +26,7 @@ export type ExtractCollection<S extends Schema | undefined> =
       push: any;
       unshift: any;
       assign: any;
+      remove: any;
       schema: Schema;
     }
   ) ?

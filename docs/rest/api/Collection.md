@@ -15,10 +15,10 @@ import { postFixtures,getInitialInterceptorData } from '@site/src/fixtures/posts
 
 `Collections` define mutable [Lists (Array)](./Array.md) or [Maps (Values)](./Values.md).
 
-This means they can grow and shrink. You can add to `Collection(Array)` with [.push](#push) or [.unshift](#unshift) and
-`Collections(Values)` with [.assign](#assign).
+This means they can grow and shrink. You can add to `Collection(Array)` with [.push](#push) or [.unshift](#unshift),
+remove from `Collection(Array)` with [.remove](#remove), and add to `Collections(Values)` with [.assign](#assign).
 
-[RestEndpoint](./RestEndpoint.md) provides [.push](./RestEndpoint.md#push), [.unshift](./RestEndpoint.md#unshift), [.assign](./RestEndpoint.md#assign)
+[RestEndpoint](./RestEndpoint.md) provides [.push](./RestEndpoint.md#push), [.unshift](./RestEndpoint.md#unshift), [.assign](./RestEndpoint.md#assign), [.remove](./RestEndpoint.md#remove)
 and [.getPage](./RestEndpoint.md#getpage)/ [.paginated()](./RestEndpoint.md#paginated) extenders when using `Collections`
 
 ## Usage

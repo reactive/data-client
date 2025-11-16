@@ -185,6 +185,19 @@ export interface RestInstance<
       body: Record<string, OptionsToAdderBodyArgument<O>> | FormData;
     }
   >;
+  /** Remove item(s) (PATCH) from collection
+   * @see https://dataclient.io/rest/api/RestEndpoint#remove
+   */
+  remove: RemoveEndpoint<
+    F,
+    ExtractCollection<S>['remove'],
+    Exclude<O, 'body' | 'method'> & {
+      body:
+        | OptionsToAdderBodyArgument<O>
+        | OptionsToAdderBodyArgument<O>[]
+        | FormData;
+    }
+  >;
 }
 
 export type RestEndpointExtendOptions<
@@ -399,6 +412,28 @@ export type AddEndpoint<
   S,
   true,
   Omit<O, 'method'> & { method: 'POST' }
+>;
+export type RemoveEndpoint<
+  F extends FetchFunction = FetchFunction,
+  S extends Schema | undefined = any,
+  O extends {
+    path: string;
+    body: any;
+    searchParams?: any;
+  } = { path: string; body: any },
+> = RestInstanceBase<
+  RestFetch<
+    'searchParams' extends keyof O ?
+      O['searchParams'] extends undefined ?
+        PathArgs<Exclude<O['path'], undefined>>
+      : O['searchParams'] & PathArgs<Exclude<O['path'], undefined>>
+    : PathArgs<Exclude<O['path'], undefined>>,
+    O['body'],
+    ResolveType<F>
+  >,
+  S,
+  true,
+  Omit<O, 'method'> & { method: 'PATCH' }
 >;
 
 type OptionsBodyDefault<O extends RestGenerics> =

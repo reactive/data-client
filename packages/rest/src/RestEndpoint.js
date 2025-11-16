@@ -267,6 +267,14 @@ Response (first 300 characters): ${text.substring(0, 300)}`;
       name: this.name + '.create',
     });
   }
+
+  get remove() {
+    return this.extend({
+      method: 'PATCH',
+      schema: extractCollection(this.schema, s => s.remove),
+      name: this.name + '.remove',
+    });
+  }
 }
 
 const tryParse = input => {
