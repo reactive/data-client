@@ -333,7 +333,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/cli@npm:^3.0.15":
+"@anansi/cli@npm:3.1.86":
   version: 3.1.86
   resolution: "@anansi/cli@npm:3.1.86"
   dependencies:
@@ -356,7 +356,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/core@npm:^0.20.0":
+"@anansi/core@npm:0.20.42":
   version: 0.20.42
   resolution: "@anansi/core@npm:0.20.42"
   dependencies:
@@ -492,7 +492,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/router@npm:^0.10.0, @anansi/router@npm:^0.10.17":
+"@anansi/router@npm:0.10.17, @anansi/router@npm:^0.10.17":
   version: 0.10.17
   resolution: "@anansi/router@npm:0.10.17"
   dependencies:
@@ -2254,22 +2254,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime-corejs3@npm:^7.25.9, @babel/runtime-corejs3@npm:^7.26.0, @babel/runtime-corejs3@npm:^7.26.7":
-  version: 7.26.7
-  resolution: "@babel/runtime-corejs3@npm:7.26.7"
+"@babel/runtime-corejs3@npm:7.28.4, @babel/runtime-corejs3@npm:^7.25.9, @babel/runtime-corejs3@npm:^7.26.0, @babel/runtime-corejs3@npm:^7.26.7":
+  version: 7.28.4
+  resolution: "@babel/runtime-corejs3@npm:7.28.4"
   dependencies:
-    core-js-pure: "npm:^3.30.2"
-    regenerator-runtime: "npm:^0.14.0"
-  checksum: 10c0/399855ab2a1ef21364683a1a40a3280be71dbfee587c90fb57fce4508a783a846f925b7d5509bba3521674f44f76b4f8d31eb8a32e13dc333cdacd34c31f5119
+    core-js-pure: "npm:^3.43.0"
+  checksum: 10c0/0a7fe2d4e36d345acf090dd685b5c6ed55af3ead69a84e2cfca56631815dd757f3a362031b376cc746f63f0fd856e7a5280807833f7fa9a5b7f1febd97f8c0da
   languageName: node
   linkType: hard
 
 "@babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.10.3, @babel/runtime@npm:^7.12.13, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.13.8, @babel/runtime@npm:^7.20.0, @babel/runtime@npm:^7.25.0, @babel/runtime@npm:^7.25.9, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.7.6, @babel/runtime@npm:^7.8.4":
-  version: 7.26.9
-  resolution: "@babel/runtime@npm:7.26.9"
-  dependencies:
-    regenerator-runtime: "npm:^0.14.0"
-  checksum: 10c0/e8517131110a6ec3a7360881438b85060e49824e007f4a64b5dfa9192cf2bb5c01e84bfc109f02d822c7edb0db926928dd6b991e3ee460b483fb0fac43152d9b
+  version: 7.28.4
+  resolution: "@babel/runtime@npm:7.28.4"
+  checksum: 10c0/792ce7af9750fb9b93879cc9d1db175701c4689da890e6ced242ea0207c9da411ccf16dc04e689cc01158b28d7898c40d75598f4559109f761c12ce01e959bf7
   languageName: node
   linkType: hard
 
@@ -11086,13 +11083,13 @@ __metadata:
   resolution: "coinbase-lite@workspace:examples/coin-app"
   dependencies:
     "@anansi/babel-preset": "npm:6.2.19"
-    "@anansi/browserslist-config": "npm:^1.4.3"
-    "@anansi/cli": "npm:^3.0.15"
-    "@anansi/core": "npm:^0.20.0"
-    "@anansi/router": "npm:^0.10.0"
+    "@anansi/browserslist-config": "npm:1.7.3"
+    "@anansi/cli": "npm:3.1.86"
+    "@anansi/core": "npm:0.20.42"
+    "@anansi/router": "npm:0.10.17"
     "@anansi/webpack-config": "npm:21.1.1"
-    "@babel/core": "npm:^7.22.15"
-    "@babel/runtime-corejs3": "npm:^7.26.7"
+    "@babel/core": "npm:7.28.5"
+    "@babel/runtime-corejs3": "npm:7.28.4"
     "@data-client/img": "npm:0.15.1-beta-20251110151417-8913a49d898f6c7d69e1964d68f19daf68565bef"
     "@data-client/react": "npm:0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c"
     "@data-client/rest": "npm:0.15.1-beta-20251110013913-ef632c49a03da67187b6097fe8154893cd930d30"
@@ -11102,11 +11099,11 @@ __metadata:
     "@types/d3": "npm:^7"
     "@types/react": "npm:*"
     "@types/react-dom": "npm:*"
-    core-js: "npm:^3.40.0"
-    d3: "npm:^7.9.0"
+    core-js: "npm:3.46.0"
+    d3: "npm:7.9.0"
     history: "npm:*"
-    react: "npm:^19.0.0"
-    react-dom: "npm:^19.0.0"
+    react: "npm:19.2.0"
+    react-dom: "npm:19.2.0"
     react-refresh: "npm:*"
     typescript: "npm:5.9.3"
     webpack: "npm:*"
@@ -11552,14 +11549,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js-pure@npm:^3.23.3, core-js-pure@npm:^3.30.2, core-js-pure@npm:^3.40.0":
-  version: 3.40.0
-  resolution: "core-js-pure@npm:3.40.0"
-  checksum: 10c0/97590017216e2614e44bacc0b73159061b58e3ac86b61a3ed8cd78fc12bef604c5fb559a7a4d51ae5f2d1bd23ec57760ba6bf2802e802beb42d6bbce136acf52
+"core-js-pure@npm:^3.23.3, core-js-pure@npm:^3.40.0, core-js-pure@npm:^3.43.0":
+  version: 3.46.0
+  resolution: "core-js-pure@npm:3.46.0"
+  checksum: 10c0/8cf5016f92af5d23c6440649f46fc793ba0201e1687e696cee0341af8e8c6a2e9958b078f23af3a7440edf1ced63ce23a511f7b1357e4793c1101b907bf6ff87
   languageName: node
   linkType: hard
 
-"core-js@npm:^3.30.2, core-js@npm:^3.31.1, core-js@npm:^3.40.0":
+"core-js@npm:3.46.0, core-js@npm:^3.30.2, core-js@npm:^3.31.1, core-js@npm:^3.40.0":
   version: 3.46.0
   resolution: "core-js@npm:3.46.0"
   checksum: 10c0/12d559d39a58227881bc6c86c36d24dcfbe2d56e52dac42e35e8643278172596ab67f57ede98baf40b153ca1b830f37420ea32c3f7417c0c5a1fed46438ae187
@@ -12517,7 +12514,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"d3@npm:^7.9.0":
+"d3@npm:7.9.0, d3@npm:^7.9.0":
   version: 7.9.0
   resolution: "d3@npm:7.9.0"
   dependencies:
