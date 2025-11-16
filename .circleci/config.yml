@@ -20,6 +20,33 @@ executors:
       # Keep install cache
       YARN_ENABLE_IMMUTABLE_INSTALLS: true
 
+commands:
+  halt-unless-esmodule-relevant-change:
+    steps:
+      # Ensure we have a git checkout with history to diff against
+      - checkout
+      - run:
+          name: Skip job if only non-esmodule paths changed
+          command: |
+            # Determine changed files relative to main. Adjust base branch if different.
+            if [ "${CIRCLE_BRANCH}" = "main" ]; then
+              CHANGED_FILES="$(git diff --name-only HEAD~1...HEAD || true)"
+            else
+              git fetch origin main --depth=1 || true
+              CHANGED_FILES="$(git diff --name-only origin/main...HEAD || true)"
+            fi
+
+            echo "Changed files:"
+            echo "${CHANGED_FILES}"
+
+            if echo "${CHANGED_FILES}" | grep -Eq \
+              '^(\.circleci/config\.yml|yarn\.lock|examples/todo-app/|examples/github-app/|packages/)'; then
+              echo "Relevant changes detected; continuing job."
+            else
+              echo "No relevant esmodule-related changes; halting this job."
+              circleci-agent step halt
+            fi
+
 jobs:
   setup:
     executor: node
@@ -164,6 +191,7 @@ jobs:
     executor: node
     resource_class: large
     steps:
+      - halt-unless-esmodule-relevant-change
       - attach_workspace:
           at: ~/
       - run:
@@ -181,6 +209,7 @@ jobs:
         type: string
     executor: node
     steps:
+      - halt-unless-esmodule-relevant-change
       - attach_workspace:
           at: ~/
       - run:
@@ -208,6 +237,7 @@ jobs:
   esmodule-types-latest:
     executor: node
     steps:
+      - halt-unless-esmodule-relevant-change
       - attach_workspace:
           at: ~/
       - run:
@@ -230,6 +260,7 @@ jobs:
   validate-esmodule-browser-build:
     executor: node
     steps:
+      - halt-unless-esmodule-relevant-change
       - attach_workspace:
           at: ~/
       - run: yarn run ci:build:esmodule
