@@ -16,6 +16,9 @@
       "next": [
         "lib/next/index.d.ts"
       ],
+      "mock": [
+        "lib/mock/index.d.ts"
+      ],
       "*": [
         "lib/index.d.ts"
       ]
@@ -26,6 +29,9 @@
       ],
       "next": [
         "ts3.4/next/index.d.ts"
+      ],
+      "mock": [
+        "ts3.4/mock/index.d.ts"
       ],
       "*": [
         "ts3.4/index.d.ts"
@@ -47,6 +53,13 @@
       "browser": "./lib/next/index.js",
       "react-native": "./lib/next/index.js",
       "default": "./lib/next/index.js"
+    },
+    "./mock": {
+      "types": "./lib/mock/index.d.ts",
+      "require": "./lib/mock/index.js",
+      "browser": "./lib/mock/index.js",
+      "react-native": "./lib/mock/index.js",
+      "default": "./lib/mock/index.js"
     },
     "./package.json": "./package.json"
   },

@@ -17,18 +17,17 @@
     "postinstall": "rm -rf node_modules/.cache"
   },
   "engines": {
-    "node": ">=18.0"
+    "node": ">=20.0.0"
   },
   "browserslist": "extends @anansi/browserslist-config",
   "keywords": [
     "anansi"
   ],
   "devDependencies": {
-    "@anansi/babel-preset": "6.2.17",
-    "@anansi/browserslist-config": "^1.4.3",
-    "@anansi/webpack-config": "^21.0.0",
-    "@babel/core": "^7.22.15",
-    "@linaria/babel-preset": "*",
+    "@anansi/babel-preset": "6.2.19",
+    "@anansi/browserslist-config": "1.7.3",
+    "@anansi/webpack-config": "21.1.1",
+    "@babel/core": "7.28.5",
     "@linaria/core": "*",
     "@linaria/react": "*",
     "@linaria/shaker": "*",
@@ -41,18 +40,18 @@
     "webpack-cli": "*"
   },
   "dependencies": {
-    "@anansi/cli": "^3.0.15",
-    "@anansi/core": "^0.20.0",
-    "@anansi/router": "^0.10.0",
-    "@babel/runtime-corejs3": "^7.26.7",
-    "@data-client/img": "0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c",
+    "@anansi/cli": "3.1.86",
+    "@anansi/core": "0.20.42",
+    "@anansi/router": "0.10.17",
+    "@babel/runtime-corejs3": "7.28.4",
+    "@data-client/img": "0.15.1-beta-20251110151417-8913a49d898f6c7d69e1964d68f19daf68565bef",
     "@data-client/react": "0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c",
-    "@data-client/rest": "0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c",
-    "core-js": "^3.40.0",
-    "d3": "^7.9.0",
+    "@data-client/rest": "0.15.1-beta-20251110013913-ef632c49a03da67187b6097fe8154893cd930d30",
+    "core-js": "3.46.0",
+    "d3": "7.9.0",
     "history": "*",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
   },
   "main": "src/index.ts",
   "types": "src/index.ts",

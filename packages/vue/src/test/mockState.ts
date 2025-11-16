@@ -6,8 +6,7 @@ import {
   createReducer,
   __INTERNAL__,
 } from '@data-client/core';
-
-import type { Fixture } from './fixtureTypes.js';
+import type { Fixture } from '@data-client/core/mock';
 
 const { initialState } = __INTERNAL__;
 

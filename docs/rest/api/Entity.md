@@ -402,7 +402,7 @@ class Stream extends Entity {
   }
   static key = 'Stream';
 
-  process(value, parent, key, args) {
+  static process(value, parent, key, args) {
     // super.process creates a copy of value
     const processed = super.process(value, parent, key, args);
     processed.username = args[0]?.username;

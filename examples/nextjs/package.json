@@ -3,14 +3,17 @@
   "version": "0.1.10",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
     "prebuild": "next telemetry disable",
     "build": "next build",
     "start": "next start",
     "lint": "yarn g:lint"
   },
   "engines": {
-    "node": ">=18.0"
+    "node": ">=20.0.0"
+  },
+  "stackblitz": {
+    "startCommand": "npm run dev"
   },
   "dependencies": {
     "@anansi/babel-preset": "^6.1.6",
@@ -19,12 +22,12 @@
     "@data-client/react": "workspace:*",
     "@data-client/rest": "workspace:*",
     "@number-flow/react": "^0.5.0",
-    "@types/node": "24.9.1",
-    "@types/react": "19.2.2",
-    "@types/react-dom": "19.2.2",
+    "@types/node": "24.10.1",
+    "@types/react": "19.2.5",
+    "@types/react-dom": "19.2.3",
     "clsx": "^2.1.1",
     "core-js": "^3.40.0",
-    "next": "^15.0.0",
+    "next": "^16.0.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "tar-fs": "^3.0.6",
@@ -32,7 +35,7 @@
     "typescript": "^5.4.5"
   },
   "overrides": {
-    "@types/react": "19.2.2",
-    "@types/react-dom": "19.2.2"
+    "@types/react": "19.2.5",
+    "@types/react-dom": "19.2.3"
   }
 }

@@ -17,7 +17,7 @@
     "startCommand": "npm start"
   },
   "engines": {
-    "node": ">=18.0"
+    "node": ">=20.0.0"
   },
   "browserslist": "extends @anansi/browserslist-config",
   "keywords": [
@@ -28,9 +28,9 @@
   "private": true,
   "license": "Apache-2.0",
   "devDependencies": {
-    "@anansi/babel-preset": "6.2.17",
+    "@anansi/babel-preset": "6.2.19",
     "@anansi/browserslist-config": "1.7.3",
-    "@anansi/webpack-config": "21.1.0",
+    "@anansi/webpack-config": "21.1.1",
     "@babel/core": "7.28.5",
     "@linaria/babel-preset": "5.0.4",
     "@linaria/core": "6.3.0",
@@ -38,8 +38,8 @@
     "@linaria/shaker": "5.0.3",
     "@types/lodash": "4.14.192",
     "@types/parse-link-header": "^2.0.0",
-    "@types/react": "19.2.2",
-    "@types/react-dom": "19.2.2",
+    "@types/react": "19.2.5",
+    "@types/react-dom": "19.2.3",
     "@types/uuid": "^10.0.0",
     "react-refresh": "0.18.0",
     "serve": "14.2.5",
@@ -51,12 +51,12 @@
     "@anansi/router": "0.10.17",
     "@ant-design/icons": "^5.0.0",
     "@babel/runtime-corejs3": "^7.26.7",
-    "@data-client/graphql": "0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c",
+    "@data-client/graphql": "0.15.1-beta-20251110013913-ef632c49a03da67187b6097fe8154893cd930d30",
     "@data-client/img": "0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c",
     "@data-client/react": "0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c",
-    "@data-client/rest": "0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c",
+    "@data-client/rest": "0.15.1-beta-20251110013913-ef632c49a03da67187b6097fe8154893cd930d30",
     "@js-temporal/polyfill": "^0.5.0",
-    "antd": "5.27.5",
+    "antd": "5.28.1",
     "core-js": "^3.40.0",
     "history": "^5.3.0",
     "parse-link-header": "^2.0.0",

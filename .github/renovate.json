@@ -22,7 +22,13 @@
       "enabled": false
     },
     {
-      "matchPackageNames": ["@babel/runtime", "@babel/runtime-corejs3", "core-js", "core-js-pure", "core-js-compat"],
+      "matchPackageNames": [
+        "@babel/runtime",
+        "@babel/runtime-corejs3",
+        "core-js",
+        "core-js-pure",
+        "core-js-compat"
+      ],
       "matchDepTypes": ["dependencies"],
       "rangeStrategy": "replace"
     },
@@ -46,9 +52,9 @@
         "vue-tsc",
         "@vue/test-utils",
         "@types/vue",
-        "@vitejs/plugin-vue"
+        "@vitejs/plugin-vue",
+        "/^@vue//"
       ],
-      "matchPackagePatterns": ["^@vue/"],
       "groupName": "all non-major dependencies",
       "groupSlug": "all-minor-patch"
     },
@@ -160,9 +166,7 @@
       "groupName": "markdown packages"
     },
     {
-      "matchPackageNames": [
-        "react-native-screens"
-      ],
+      "matchPackageNames": ["react-native-screens"],
       "matchUpdateTypes": ["major", "minor", "patch"],
       "groupSlug": "react-navigation-monorepo",
       "groupName": "react-navigation monorepo"

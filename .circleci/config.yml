@@ -6,7 +6,7 @@ version: 2.1
 executors:
   node:
     docker: &docker
-      - image: cimg/node:24.10
+      - image: cimg/node:24.11
     environment:
       # the whole CI is reset each time anyway, so only track local cache
       YARN_ENABLE_GLOBAL_CACHE: false
@@ -19,6 +19,47 @@ executors:
       YARN_ENABLE_SCRIPTS: false
       # Keep install cache
       YARN_ENABLE_IMMUTABLE_INSTALLS: true
+
+commands:
+  halt-unless-esmodule-relevant-change:
+    steps:
+      # Ensure we have a git checkout with history to diff against
+      - checkout
+      - run:
+          name: Skip job if only non-esmodule paths changed
+          command: |
+            # Determine changed files relative to the default branch when available.
+            # Use CIRCLE_DEFAULT_BRANCH so this stays correct if the default branch changes.
+            BASE_BRANCH="${CIRCLE_DEFAULT_BRANCH:-master}"
+
+            # If we can't find origin/${BASE_BRANCH} (or previous commit), consider this run relevant.
+            if [ "${CIRCLE_BRANCH}" = "${BASE_BRANCH}" ]; then
+              if git rev-parse HEAD~1 >/dev/null 2>&1; then
+                CHANGED_FILES="$(git diff --name-only HEAD~1...HEAD || true)"
+              else
+                echo "No previous commit on ${BASE_BRANCH}; treating as relevant."
+                CHANGED_FILES=".circleci/config.yml"
+              fi
+            else
+              if git rev-parse --verify "origin/${BASE_BRANCH}" >/dev/null 2>&1; then
+                git fetch origin "${BASE_BRANCH}" --depth=1 || true
+                CHANGED_FILES="$(git diff --name-only "origin/${BASE_BRANCH}...HEAD" || true)"
+              else
+                echo "origin/${BASE_BRANCH} not found; treating as relevant."
+                CHANGED_FILES=".circleci/config.yml"
+              fi
+            fi
+
+            echo "Changed files:"
+            echo "${CHANGED_FILES}"
+
+            if echo "${CHANGED_FILES}" | grep -Eq \
+              '^(\.circleci/config\.yml|yarn\.lock|examples/todo-app/|examples/github-app/|packages/)'; then
+              echo "Relevant changes detected; continuing job."
+            else
+              echo "No relevant esmodule-related changes; halting this job."
+              circleci-agent step halt
+            fi
 
 jobs:
   setup:
@@ -164,6 +205,7 @@ jobs:
     executor: node
     resource_class: large
     steps:
+      - halt-unless-esmodule-relevant-change
       - attach_workspace:
           at: ~/
       - run:
@@ -181,6 +223,7 @@ jobs:
         type: string
     executor: node
     steps:
+      - halt-unless-esmodule-relevant-change
       - attach_workspace:
           at: ~/
       - run:
@@ -208,6 +251,7 @@ jobs:
   esmodule-types-latest:
     executor: node
     steps:
+      - halt-unless-esmodule-relevant-change
       - attach_workspace:
           at: ~/
       - run:
@@ -230,6 +274,7 @@ jobs:
   validate-esmodule-browser-build:
     executor: node
     steps:
+      - halt-unless-esmodule-relevant-change
       - attach_workspace:
           at: ~/
       - run: yarn run ci:build:esmodule

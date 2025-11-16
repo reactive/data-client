@@ -18,6 +18,7 @@ export default function DemoList() {
           { label: 'GitHub', value: 'github' },
           { label: 'NextJS SSR', value: 'nextjs' },
           { label: 'Live Coin Prices', value: 'coin-app' },
+          { label: 'Vue Todo', value: 'vue-todo-app' },
         ]}
         groupId="Demos"
       >
@@ -113,6 +114,25 @@ export default function DemoList() {
                 embed: '1',
                 file: [
                   'src/resources/StreamManager.ts,src/resources/Ticker.ts,src/resources/fallbackQueries.ts,src/pages/Home/AssetPrice.tsx',
+                ],
+                hideDevTools: '1',
+                hideNavigation: '1',
+                terminalHeight: '0',
+              },
+            )}`}
+            width="900"
+            height="700"
+            style={{ width: '100%', height: 'calc(100vh - 170px)' }}
+          ></iframe>
+        </TabItem>
+        <TabItem value="vue-todo-app">
+          <iframe
+            loading="lazy"
+            src={`https://stackblitz.com/github/reactive/data-client/tree/master/examples/vue-todo-app?${searchParams(
+              {
+                embed: '1',
+                file: [
+                  'src/resources/TodoResource.ts,src/resources/UserResource.ts,src/pages/UserTodos.vue,src/pages/UserList.vue',
                 ],
                 hideDevTools: '1',
                 hideNavigation: '1',

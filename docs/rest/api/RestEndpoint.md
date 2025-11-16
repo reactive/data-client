@@ -853,6 +853,23 @@ This is a convenience to add newly created Entities to a [Values](./Values.md) [
 When this `RestEndpoint`'s schema contains a [Collection](./Collection.md), this returned a new
 RestEndpoint with its parents properties, but with [method](#method): 'POST' and schema: [Collection.push](./Collection.md#assign)
 
+### remove
+
+This is a convenience to remove Entities from a [Collection](./Collection.md).
+
+When this `RestEndpoint`'s schema contains a [Collection](./Collection.md), this returns a new
+RestEndpoint with its parents properties, but with [method](#method): 'PATCH' and schema: [Collection.remove](./Collection.md#remove)
+
+```tsx
+const getTodos = new RestEndpoint({
+  path: '/todos',
+  schema: new schema.Collection([Todo]),
+});
+
+// Update Todo and remove from collection
+await ctrl.fetch(getTodos.remove, {}, { id: '123', title: 'Done' });
+```
+
 ### getPage
 
 An endpoint to retrieve the next page using [paginationField](#paginationfield) as the searchParameter key. Schema
