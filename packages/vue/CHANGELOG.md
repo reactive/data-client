@@ -1,5 +1,77 @@
 # @data-client/vue
 
+## 0.3.2-beta-20251116224907-3174fe59b114d2037762a6458f5576d23e483ba4
+
+### Patch Changes
+
+- [#3622](https://github.com/reactive/data-client/pull/3622) [`ad3964d`](https://github.com/reactive/data-client/commit/ad3964d65d245c459809f64afe17ebdf5fda5042) Thanks [@ntucker](https://github.com/ntucker)! - Add MockPlugin
+
+  Example usage:
+
+  ```ts
+  import { createApp } from 'vue';
+  import { DataClientPlugin } from '@data-client/vue';
+  import { MockPlugin } from '@data-client/vue/test';
+
+  const app = createApp(App);
+  app.use(DataClientPlugin);
+  app.use(MockPlugin, {
+    fixtures: [
+      {
+        endpoint: MyResource.get,
+        args: [{ id: 1 }],
+        response: { id: 1, name: 'Test' },
+      },
+    ],
+  });
+  app.mount('#app');
+  ```
+
+  Interceptors allow dynamic responses based on request arguments:
+
+  ```ts
+  app.use(MockPlugin, {
+    fixtures: [
+      {
+        endpoint: MyResource.get,
+        response: (...args) => {
+          const [{ id }] = args;
+          return {
+            id,
+            name: `Dynamic ${id}`,
+          };
+        },
+      },
+    ],
+  });
+  ```
+
+  Interceptors can also maintain state across calls:
+
+  ```ts
+  const interceptorData = { count: 0 };
+
+  app.use(MockPlugin, {
+    fixtures: [
+      {
+        endpoint: MyResource.get,
+        response: function (this: { count: number }, ...args) {
+          this.count++;
+          const [{ id }] = args;
+          return {
+            id,
+            name: `Call ${this.count}`,
+          };
+        },
+      },
+    ],
+    getInitialInterceptorData: () => interceptorData,
+  });
+  ```
+
+- Updated dependencies [[`ad3964d`](https://github.com/reactive/data-client/commit/ad3964d65d245c459809f64afe17ebdf5fda5042)]:
+  - @data-client/core@0.15.1-beta-20251116224907-3174fe59b114d2037762a6458f5576d23e483ba4
+
 ## 0.2.0-beta-20251026233651-4c1d5c9084df801287cc120cd7a9c77b9bbe96e0
 
 ### Minor Changes

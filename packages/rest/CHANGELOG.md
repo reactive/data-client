@@ -1,5 +1,41 @@
 # @data-client/rest
 
+## 0.15.1-beta-20251116224907-3174fe59b114d2037762a6458f5576d23e483ba4
+
+### Patch Changes
+
+- [#3623](https://github.com/reactive/data-client/pull/3623) [`8be3b17`](https://github.com/reactive/data-client/commit/8be3b1725707c4bcbf0fdd6e72ddd78d85fd125f) Thanks [@ntucker](https://github.com/ntucker)! - Add RestEndpoint.remove
+
+  Creates a PATCH endpoint that both removes an entity from a Collection and updates the entity with the provided body data.
+
+  ```ts
+  const getTodos = new RestEndpoint({
+    path: '/todos',
+    schema: new schema.Collection([Todo]),
+  });
+
+  // Removes Todo from collection AND updates it with new data
+  await ctrl.fetch(
+    getTodos.remove,
+    {},
+    { id: '123', title: 'Done', completed: true },
+  );
+  ```
+
+  ```ts
+  // Remove user from group list and update their group
+  await ctrl.fetch(
+    UserResource.getList.remove,
+    { group: 'five' },
+    { id: 2, username: 'user2', group: 'newgroup' },
+  );
+  // User is removed from the 'five' group list
+  // AND the user entity is updated with group: 'newgroup'
+  ```
+
+- Updated dependencies []:
+  - @data-client/endpoint@0.15.1-beta-20251110013913-ef632c49a03da67187b6097fe8154893cd930d30
+
 ## 0.15.1-beta-20251110013913-ef632c49a03da67187b6097fe8154893cd930d30
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # test-bundlesize
 
+## 0.1.1-beta-20251116224907-3174fe59b114d2037762a6458f5576d23e483ba4
+
+### Patch Changes
+
+- Updated dependencies [[`8be3b17`](https://github.com/reactive/data-client/commit/8be3b1725707c4bcbf0fdd6e72ddd78d85fd125f)]:
+  - @data-client/rest@0.15.1-beta-20251116224907-3174fe59b114d2037762a6458f5576d23e483ba4
+  - @data-client/react@0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c
+
 ## 0.1.1-beta-20251110151417-8913a49d898f6c7d69e1964d68f19daf68565bef
 
 ### Patch Changes
