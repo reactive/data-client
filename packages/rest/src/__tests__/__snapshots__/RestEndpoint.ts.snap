@@ -4,6 +4,8 @@ exports[`RestEndpoint getPage: should extend name of parent endpoint 1`] = `"htt
 
 exports[`RestEndpoint push: should extend name of parent endpoint 1`] = `"http://test.com/article-paginated.create"`;
 
+exports[`RestEndpoint remove: should extend name of parent endpoint 1`] = `"http://test.com/article-paginated.remove"`;
+
 exports[`RestEndpoint unshift: should extend name of parent endpoint 1`] = `"http://test.com/article-paginated.create"`;
 
 exports[`RestEndpoint.fetch() should reject if content-type does not exist with schema 1`] = `[NetworkError: Unexpected text response for schema CoolerArticle]`;

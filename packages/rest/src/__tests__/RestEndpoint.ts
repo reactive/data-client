@@ -360,6 +360,10 @@ describe('RestEndpoint', () => {
     expect(getArticleList3.unshift.name).toMatchSnapshot();
   });
 
+  it('remove: should extend name of parent endpoint', () => {
+    expect(getArticleList3.remove.name).toMatchSnapshot();
+  });
+
   // TODO: but we need a Values collection
   // it('assign: should extend name of parent endpoint', () => {
   //   expect(getArticleList3.assign.name).toMatchSnapshot();
@@ -1480,6 +1484,20 @@ describe('RestEndpoint.fetch()', () => {
       method: 'GET',
     });
     expect(noColletionEndpoint.push.schema).toBeFalsy();
+  });
+
+  it('without Collection in schema - endpoint.remove schema should be null', () => {
+    const noColletionEndpoint = new RestEndpoint({
+      urlPrefix: 'http://test.com/article-paginated/',
+      path: ':group',
+      name: 'get',
+      schema: {
+        nextPage: '',
+        data: { results: [PaginatedArticle] },
+      },
+      method: 'GET',
+    });
+    expect(noColletionEndpoint.remove.schema).toBeFalsy();
   });
 
   it('without Collection in schema - endpoint.getPage should throw', () => {
