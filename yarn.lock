@@ -3396,18 +3396,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/rest@npm:0.15.1-beta-20251110013913-ef632c49a03da67187b6097fe8154893cd930d30":
-  version: 0.15.1-beta-20251110013913-ef632c49a03da67187b6097fe8154893cd930d30
-  resolution: "@data-client/rest@npm:0.15.1-beta-20251110013913-ef632c49a03da67187b6097fe8154893cd930d30"
-  dependencies:
-    "@babel/runtime": "npm:^7.20.0"
-    "@data-client/endpoint": "npm:^0.15.1-beta-20251110013913-ef632c49a03da67187b6097fe8154893cd930d30"
-    path-to-regexp: "npm:^6.3.0"
-  checksum: 10c0/bfd4933d07435db6904e2d6f106889783fa03f01ef57d2383c681ee682077b760bc5b5b12b7629962732a18013f98b44ac1316c8928fc6a3e9ef54fd47ba14fa
-  languageName: node
-  linkType: hard
-
-"@data-client/rest@workspace:*, @data-client/rest@workspace:packages/rest":
+"@data-client/rest@npm:0.15.1-beta-20251116224907-3174fe59b114d2037762a6458f5576d23e483ba4, @data-client/rest@workspace:*, @data-client/rest@workspace:packages/rest":
   version: 0.0.0-use.local
   resolution: "@data-client/rest@workspace:packages/rest"
   dependencies:
@@ -11508,7 +11497,7 @@ __metadata:
     "@babel/runtime-corejs3": "npm:7.28.4"
     "@data-client/img": "npm:0.15.1-beta-20251110151417-8913a49d898f6c7d69e1964d68f19daf68565bef"
     "@data-client/react": "npm:0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c"
-    "@data-client/rest": "npm:0.15.1-beta-20251110013913-ef632c49a03da67187b6097fe8154893cd930d30"
+    "@data-client/rest": "npm:0.15.1-beta-20251116224907-3174fe59b114d2037762a6458f5576d23e483ba4"
     "@linaria/core": "npm:*"
     "@linaria/react": "npm:*"
     "@linaria/shaker": "npm:*"

@@ -1,6 +1,6 @@
 {
   "name": "@data-client/vue",
-  "version": "0.3.1",
+  "version": "0.3.2-beta-20251116224907-3174fe59b114d2037762a6458f5576d23e483ba4",
   "description": "Async State Management without the Management. REST, GraphQL, SSE, Websockets, Fetch",
   "homepage": "https://dataclient.io",
   "repository": {

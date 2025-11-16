@@ -1,5 +1,17 @@
 # @data-client/core
 
+## 0.15.1-beta-20251116224907-3174fe59b114d2037762a6458f5576d23e483ba4
+
+### Patch Changes
+
+- [#3622](https://github.com/reactive/data-client/pull/3622) [`ad3964d`](https://github.com/reactive/data-client/commit/ad3964d65d245c459809f64afe17ebdf5fda5042) Thanks [@ntucker](https://github.com/ntucker)! - Add @data-client/core/mock
+
+  New exports:
+  - `MockController` - Controller wrapper for mocking endpoints
+  - `collapseFixture` - Resolves fixture responses (handles function responses)
+  - `createFixtureMap` - Separates fixtures into static map and interceptors
+  - Types: `MockProps`, `Fixture`, `SuccessFixture`, `ErrorFixture`, `Interceptor`, `ResponseInterceptor`, `FetchInterceptor`, `FixtureEndpoint`, `SuccessFixtureEndpoint`, `ErrorFixtureEndpoint`
+
 ## 0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c
 
 ### Patch Changes

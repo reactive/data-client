@@ -1,6 +1,6 @@
 {
   "name": "test-bundlesize",
-  "version": "0.1.1-beta-20251110151417-8913a49d898f6c7d69e1964d68f19daf68565bef",
+  "version": "0.1.1-beta-20251116224907-3174fe59b114d2037762a6458f5576d23e483ba4",
   "packageManager": "yarn@4.11.0",
   "description": "Testing Bundled Size",
   "scripts": {
