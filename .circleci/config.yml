@@ -28,12 +28,26 @@ commands:
       - run:
           name: Skip job if only non-esmodule paths changed
           command: |
-            # Determine changed files relative to main. Adjust base branch if different.
-            if [ "${CIRCLE_BRANCH}" = "main" ]; then
-              CHANGED_FILES="$(git diff --name-only HEAD~1...HEAD || true)"
+            # Determine changed files relative to the default branch when available.
+            # Use CIRCLE_DEFAULT_BRANCH so this stays correct if the default branch changes.
+            BASE_BRANCH="${CIRCLE_DEFAULT_BRANCH:-master}"
+
+            # If we can't find origin/${BASE_BRANCH} (or previous commit), consider this run relevant.
+            if [ "${CIRCLE_BRANCH}" = "${BASE_BRANCH}" ]; then
+              if git rev-parse HEAD~1 >/dev/null 2>&1; then
+                CHANGED_FILES="$(git diff --name-only HEAD~1...HEAD || true)"
+              else
+                echo "No previous commit on ${BASE_BRANCH}; treating as relevant."
+                CHANGED_FILES=".circleci/config.yml"
+              fi
             else
-              git fetch origin main --depth=1 || true
-              CHANGED_FILES="$(git diff --name-only origin/main...HEAD || true)"
+              if git rev-parse --verify "origin/${BASE_BRANCH}" >/dev/null 2>&1; then
+                git fetch origin "${BASE_BRANCH}" --depth=1 || true
+                CHANGED_FILES="$(git diff --name-only "origin/${BASE_BRANCH}...HEAD" || true)"
+              else
+                echo "origin/${BASE_BRANCH} not found; treating as relevant."
+                CHANGED_FILES=".circleci/config.yml"
+              fi
             fi
 
             echo "Changed files:"
