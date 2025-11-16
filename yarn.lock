@@ -334,8 +334,8 @@ __metadata:
   linkType: hard
 
 "@anansi/cli@npm:^3.0.15":
-  version: 3.1.84
-  resolution: "@anansi/cli@npm:3.1.84"
+  version: 3.1.85
+  resolution: "@anansi/cli@npm:3.1.85"
   dependencies:
     "@anansi/generator-js": "npm:^12.6.28"
     binary-version-check: "npm:^6.1.0"
@@ -352,13 +352,13 @@ __metadata:
       optional: true
   bin:
     anansi: ./run.mjs
-  checksum: 10c0/9fad81459963ae6704893918f67d523ee7dcfa9700b9779d45eee340243cb8f1d3c133913fe477af8c1c1a865d282057819971cb34c4952072ab28a868a43925
+  checksum: 10c0/4d5499b728935f20633de5d0d423a9acb4411a3d4145510904095a8cece60dd9a25e4c00a712a7822b7f8729826c6d7bda6a34fc7c6e07f353ce2edc92392a2d
   languageName: node
   linkType: hard
 
 "@anansi/core@npm:^0.20.0":
-  version: 0.20.40
-  resolution: "@anansi/core@npm:0.20.40"
+  version: 0.20.41
+  resolution: "@anansi/core@npm:0.20.41"
   dependencies:
     "@anansi/router": "npm:^0.10.17"
     "@babel/runtime-corejs3": "npm:^7.26.0"
@@ -380,7 +380,7 @@ __metadata:
     whatwg-fetch: "npm:^3.6.2"
   peerDependencies:
     "@ant-design/cssinjs": ^1.5.1
-    "@data-client/react": ^0.12.15 || ^0.13.0 || ^0.14.0
+    "@data-client/react": ^0.12.15 || ^0.13.0 || ^0.14.0 || ^0.15.0
     "@types/react": "*"
     "@types/react-dom": "*"
     react: ^18.0.0 || ^19.0.0
@@ -398,7 +398,7 @@ __metadata:
   bin:
     serve-anansi: ./lib/scripts/serve.js
     start-anansi: ./lib/scripts/startDevserver.js
-  checksum: 10c0/8434fb9d8bac9f17fdc942715d63121aeea639f1b3dc6e78ff52823169105711f74309a4c793d79a56686462df0c541ce357b54bfbdeb75f449a6188913c634a
+  checksum: 10c0/c131faeec576c50594fe6025caf2de830174ae326cbb65ddce5d9e46891f59092086ed108f35c1e286c05edf84c6a4b5506a7df3f8650757054ced7ffac9b8a5
   languageName: node
   linkType: hard
 
