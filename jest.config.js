@@ -28,6 +28,7 @@ const baseConfig = {
     'packages/graphql',
     'packages/rest/src/next',
     'packages/core/src/next',
+    'packages/core/src/mock',
     'packages/react/src/next',
     'packages/react/src/server',
     'packages/react/src/components/DevToolsButton.tsx',

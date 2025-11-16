@@ -1,4 +1,4 @@
-import type { Fixture, ResponseInterceptor } from './fixtureTypes';
+import type { Fixture, ResponseInterceptor } from './fixtureTypes.js';
 
 export async function collapseFixture(
   fixture: Fixture | ResponseInterceptor,

@@ -1,6 +1,7 @@
-export { default as MockController } from './MockController.js';
+export { MockController } from '@data-client/core/mock';
 export { mountDataClient } from './mountDataClient.js';
 export { renderDataCompose } from './renderDataCompose.js';
+export { MockPlugin, type MockPluginOptions } from './MockPlugin.js';
 export type {
   RenderDataClientOptions,
   RenderDataClientResult,
@@ -13,5 +14,5 @@ export type {
   SuccessFixture,
   ErrorFixture,
   Interceptor,
-} from './fixtureTypes.js';
+} from '@data-client/core/mock';
 export { default as mockInitialState } from './mockState.js';

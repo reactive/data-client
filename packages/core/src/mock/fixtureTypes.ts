@@ -1,4 +1,4 @@
-import type { EndpointInterface, ResolveType } from '@data-client/core';
+import type { EndpointInterface, ResolveType } from '@data-client/endpoint';
 
 type Updater = (
   result: any,
