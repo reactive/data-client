@@ -3,23 +3,18 @@ import {
   Controller,
   DataClientDispatch,
   GenericDispatch,
-} from '@data-client/core';
+} from '../index.js';
+import { collapseFixture } from './collapseFixture.js';
+import { createFixtureMap } from './createFixtureMap.js';
+import type { Fixture, Interceptor } from './fixtureTypes.js';
+import { MockProps } from './mockTypes.js';
 
-import { collapseFixture } from './collapseFixture';
-import { createFixtureMap } from './createFixtureMap';
-import type { Fixture, Interceptor } from './fixtureTypes';
-
-export interface MockProps<T = any> {
-  fixtures?: (Fixture | Interceptor<T>)[];
-  getInitialInterceptorData?: () => T;
-}
-
-export default function MockController<TBase extends typeof Controller, T>(
+export function MockController<TBase extends typeof Controller, T>(
   Base: TBase,
   {
     fixtures = [],
     getInitialInterceptorData = () => ({}) as any,
-  }: MockProps<T> = {},
+  }: MockProps<T>,
 ): TBase {
   const [fixtureMap, interceptors] = createFixtureMap(fixtures);
 
@@ -63,11 +58,11 @@ export default function MockController<TBase extends typeof Controller, T>(
           let fixture: Fixture | Interceptor | undefined;
           if (this.fixtureMap.has(key)) {
             fixture = this.fixtureMap.get(key) as Fixture;
-            if (!args) args = (fixture as any).args;
+            if (!args) args = fixture.args;
             // exact matches take priority; now test ComputedFixture
           } else {
             for (const cfix of this.interceptors) {
-              if ((cfix.endpoint as any).testKey(key)) {
+              if (cfix.endpoint.testKey(key)) {
                 fixture = cfix;
                 break;
               }
@@ -79,15 +74,15 @@ export default function MockController<TBase extends typeof Controller, T>(
               ...action,
             };
             const delayMs =
-              typeof (fixture as any).delay === 'function' ?
-                (fixture as any).delay(...(args as any))
-              : ((fixture as any).delay ?? 0);
+              typeof fixture.delay === 'function' ?
+                fixture.delay(...(args as any))
+              : (fixture.delay ?? 0);
 
             if ('fetchResponse' in fixture) {
-              const { fetchResponse } = fixture as any;
+              const { fetchResponse } = fixture;
               fixture = {
                 endpoint: fixture.endpoint,
-                response(...args: any[]) {
+                response(...args) {
                   const endpoint = (action.endpoint as any).extend({
                     fetchResponse: (input: RequestInfo, init: RequestInit) => {
                       const ret = fetchResponse.call(this, input, init);
@@ -103,7 +98,7 @@ export default function MockController<TBase extends typeof Controller, T>(
                   });
                   return (endpoint as any)(...args);
                 },
-              } as any;
+              };
             }
             const fetch = async () => {
               if (!fixture) {
@@ -111,7 +106,7 @@ export default function MockController<TBase extends typeof Controller, T>(
               }
               // delayCollapse determines when the fixture function is 'collapsed' (aka 'run')
               // collapsed: https://en.wikipedia.org/wiki/Copenhagen_interpretation
-              if ((fixture as any).delayCollapse) {
+              if (fixture.delayCollapse) {
                 await new Promise(resolve => setTimeout(resolve, delayMs));
               }
               const result = await collapseFixture(
@@ -119,7 +114,7 @@ export default function MockController<TBase extends typeof Controller, T>(
                 args as any,
                 this.interceptorData,
               );
-              if (!(fixture as any).delayCollapse && delayMs) {
+              if (!fixture.delayCollapse && delayMs) {
                 await new Promise(resolve => setTimeout(resolve, delayMs));
               }
               if (result.error) {

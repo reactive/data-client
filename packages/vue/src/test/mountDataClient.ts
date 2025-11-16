@@ -7,6 +7,8 @@ import {
   PollingSubscription,
   type GCInterface,
 } from '@data-client/core';
+import type { Interceptor, Fixture } from '@data-client/core/mock';
+import { MockController } from '@data-client/core/mock';
 import { mount, type VueWrapper } from '@vue/test-utils';
 import {
   defineComponent,
@@ -17,8 +19,6 @@ import {
   reactive,
 } from 'vue';
 
-import { Interceptor, Fixture } from './fixtureTypes.js';
-import MockController from './MockController.js';
 import mockInitialState from './mockState.js';
 import { ControllerKey } from '../context.js';
 import { DataClientPlugin } from '../providers/DataClientPlugin.js';

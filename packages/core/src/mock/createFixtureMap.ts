@@ -1,4 +1,4 @@
-import type { Fixture, Interceptor } from './fixtureTypes';
+import type { Fixture, Interceptor } from './fixtureTypes.js';
 
 export function createFixtureMap(fixtures: (Fixture | Interceptor)[] = []) {
   const map: Map<string, Fixture> = new Map();
