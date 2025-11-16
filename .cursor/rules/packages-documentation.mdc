@@ -1,12 +1,10 @@
 ---
-description: Documentation requirements when making breaking changes or adding features to public library interfaces in packages
-globs: 'packages/**/*.ts', 'packages/**/*.tsx', 'packages/**/*.js', 'packages/**/*.jsx'
+description: Guidelines for writing and formatting documentation for public library interfaces in packages
 alwaysApply: false
 ---
+# Package Documentation Writing Guidelines
 
-# Package Documentation Requirements
-
-When making changes to public library interfaces in `/packages`, you **must** update the corresponding documentation in `/docs`.
+This guide covers how to write and format documentation for public library interfaces. For information on **when** documentation updates are required, see `.cursorrules`.
 
 ## Documentation Structure
 
@@ -20,37 +18,6 @@ Each package documentation has subdirectories:
 - `guides/` - How-to guides and tutorials
 - `concepts/` - Conceptual documentation
 - `getting-started/` - Getting started guides
-
-## When to Update Documentation
-
-### Breaking Changes
-
-**Breaking changes** include:
-- Removing public APIs (classes, functions, methods, hooks, composables)
-- Changing function/method signatures (parameter types, return types, required vs optional)
-- Changing class/interface properties (removing, renaming, changing types)
-- Changing default behavior that affects existing code
-- Deprecating APIs (should be documented with migration path)
-
-**Required actions:**
-1. Update the relevant API documentation file in `docs/{package}/api/`
-2. Add migration notes or deprecation warnings
-3. Update any guides or examples that use the changed API
-4. Update TypeScript types/examples in documentation
-
-### New Features
-
-**New features** include:
-- Adding new public APIs (classes, functions, methods, hooks, composables)
-- Adding new options/parameters to existing APIs
-- Adding new configuration options
-- New capabilities or behaviors
-
-**Required actions:**
-1. Create or update the relevant API documentation file in `docs/{package}/api/`
-2. Add usage examples
-3. Update relevant guides if the feature affects common workflows
-4. Add to getting-started guides if it's a major feature
 
 ## Documentation File Naming
 
