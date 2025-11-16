@@ -206,46 +206,50 @@ class TickerStream implements Manager {
 
 ### [Integrated data mocking](https://dataclient.io/docs/api/Fixtures)
 
-```vue
-<template>
-  <MockResolver :fixtures="fixtures">
-    <ArticleList :maxResults="10" />
-  </MockResolver>
-</template>
+```typescript
+import { createApp } from 'vue';
+import { DataClientPlugin } from '@data-client/vue';
+import { MockPlugin } from '@data-client/vue/test';
 
-<script setup lang="ts">
-// Planned API - not yet implemented
-const fixtures = [
-  {
-    endpoint: ArticleResource.getList,
-    args: [{ maxResults: 10 }] as const,
-    response: [
+const app = createApp(App);
+app.use(DataClientPlugin);
+if (process.env.NODE_ENV !== 'production') {
+  app.use(MockPlugin, {
+    fixtures: [
       {
-        id: '5',
-        title: 'first post',
-        body: 'have a merry christmas',
-        author: { id: '10', username: 'bob' },
-        createdAt: new Date(0).toISOString(),
+        endpoint: ArticleResource.getList,
+        args: [{ maxResults: 10 }] as const,
+        response: [
+          {
+            id: '5',
+            title: 'first post',
+            body: 'have a merry christmas',
+            author: { id: '10', username: 'bob' },
+            createdAt: new Date(0).toISOString(),
+          },
+          {
+            id: '532',
+            title: 'second post',
+            body: 'never again',
+            author: { id: '10', username: 'bob' },
+            createdAt: new Date(0).toISOString(),
+          },
+        ],
       },
       {
-        id: '532',
-        title: 'second post',
-        body: 'never again',
-        author: { id: '10', username: 'bob' },
-        createdAt: new Date(0).toISOString(),
+        endpoint: ArticleResource.update,
+        response: ({ id }, body) => ({
+          ...body,
+          id,
+        }),
       },
     ],
-  },
-  {
-    endpoint: ArticleResource.update,
-    response: ({ id }, body) => ({
-      ...body,
-      id,
-    }),
-  },
-];
-</script>
+  });
+}
+app.mount('#app');
 ```
+
+**Note:** `MockPlugin` must be installed after `DataClientPlugin` and before mounting the app.
 
 ### ...all typed ...fast ...and consistent
 
