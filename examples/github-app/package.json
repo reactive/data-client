@@ -54,7 +54,7 @@
     "@data-client/graphql": "0.15.1-beta-20251110013913-ef632c49a03da67187b6097fe8154893cd930d30",
     "@data-client/img": "0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c",
     "@data-client/react": "0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c",
-    "@data-client/rest": "0.15.1-beta-20251110013913-ef632c49a03da67187b6097fe8154893cd930d30",
+    "@data-client/rest": "0.15.1-beta-20251116224907-3174fe59b114d2037762a6458f5576d23e483ba4",
     "@js-temporal/polyfill": "^0.5.0",
     "antd": "5.28.1",
     "core-js": "^3.40.0",
