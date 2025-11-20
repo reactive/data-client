@@ -333,11 +333,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/cli@npm:3.1.86":
-  version: 3.1.86
-  resolution: "@anansi/cli@npm:3.1.86"
+"@anansi/cli@npm:3.1.87":
+  version: 3.1.87
+  resolution: "@anansi/cli@npm:3.1.87"
   dependencies:
-    "@anansi/generator-js": "npm:^12.6.28"
+    "@anansi/generator-js": "npm:^12.6.29"
     binary-version-check: "npm:^6.1.0"
     chalk: "npm:^4.1.2"
     commander: "npm:^12.1.0"
@@ -352,13 +352,13 @@ __metadata:
       optional: true
   bin:
     anansi: ./run.mjs
-  checksum: 10c0/ca148a1aea3a9b1804b408a2263619ed14614266de03f4fbe6e3797417eb20f6f04efd23c1925abbf429c3f024130a2f4ca06678579d17f17b5cdfa93e2d4f93
+  checksum: 10c0/8c8d51c9a6c2d3b738c62836d790d569a1ce5740d250cb3940aa61d7bb9b1423ae7b89fb0fa943c1ad530d69837a02b66015ed549f72cd79a903616967b6e7b7
   languageName: node
   linkType: hard
 
-"@anansi/core@npm:0.20.42":
-  version: 0.20.42
-  resolution: "@anansi/core@npm:0.20.42"
+"@anansi/core@npm:0.20.43":
+  version: 0.20.43
+  resolution: "@anansi/core@npm:0.20.43"
   dependencies:
     "@anansi/router": "npm:^0.10.17"
     "@babel/runtime-corejs3": "npm:^7.26.0"
@@ -398,7 +398,7 @@ __metadata:
   bin:
     serve-anansi: ./lib/scripts/serve.js
     start-anansi: ./lib/scripts/startDevserver.js
-  checksum: 10c0/bdabd1cc400b00bc70b064ce095004e2e6cb8a90c0780cd692f403b2dfdf70dd0e5a2e1b9685e8c6103811fa490f713d3b70c3106c2748f0ca26967cf7cb6216
+  checksum: 10c0/bcd90c74ec77e88f0f8fc19713232ddc35e54a76dca61174a2dfea23b7e5c4995b2a33b15749f46dc55cd53076227e1cdba2bfe6abda7713d89def6e6be6e1e7
   languageName: node
   linkType: hard
 
@@ -438,13 +438,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/generator-js@npm:^12.6.28":
-  version: 12.6.28
-  resolution: "@anansi/generator-js@npm:12.6.28"
+"@anansi/generator-js@npm:^12.6.29":
+  version: 12.6.29
+  resolution: "@anansi/generator-js@npm:12.6.29"
   dependencies:
     "@babel/runtime-corejs3": "npm:^7.26.0"
     "@types/inquirer": "npm:^9.0.9"
-    "@yeoman/types": "npm:^1.8.0"
+    "@yeoman/types": "npm:^1.9.1"
     chalk: "npm:^4.1.2"
     core-js-pure: "npm:^3.40.0"
     ejs: "npm:^3.1.10"
@@ -457,7 +457,7 @@ __metadata:
     pacote: "npm:^21.0.4"
     shelobsay: "npm:^2.0.0"
     yeoman-generator: "npm:^7.5.1"
-  checksum: 10c0/45a1fffb0746757162f054cceff3f0461a0e1e8ef4b2545c2a423a190f35737f16369bbd7976788ae10831d0a69383449cf5b03666c674ae9aa7d875f6e9cf6a
+  checksum: 10c0/9b090f0572a9ccc873f1623c49a0bfc17fa7669717fed83fd75e6060e7b58459fc1246653f6ddf9c8a2b08fe62c79954d6cc7206ee1fef925e71efad3aea6b1f
   languageName: node
   linkType: hard
 
@@ -3283,7 +3283,7 @@ __metadata:
     "@testing-library/react": "npm:^16.1.0"
     "@types/jest": "npm:30.0.0"
     "@types/node": "npm:^24.0.0"
-    "@types/react": "npm:19.2.5"
+    "@types/react": "npm:19.2.6"
     react: "npm:^19.0.0"
     rollup-plugins: "workspace:*"
   peerDependencies:
@@ -3360,7 +3360,7 @@ __metadata:
     "@types/jest": "npm:30.0.0"
     "@types/node": "npm:^24.0.0"
     "@types/qs": "npm:^6"
-    "@types/react": "npm:19.2.5"
+    "@types/react": "npm:19.2.6"
     "@types/react-dom": "npm:*"
     jest-mock: "npm:^30.0.0"
     nock: "npm:13.3.1"
@@ -3424,7 +3424,7 @@ __metadata:
     "@testing-library/react-native": "npm:^13.0.0"
     "@types/jest": "npm:30.0.0"
     "@types/node": "npm:^24.0.0"
-    "@types/react": "npm:19.2.5"
+    "@types/react": "npm:19.2.6"
     "@types/react-dom": "npm:19.2.3"
     "@types/react-test-renderer": "npm:19.1.0"
     jest: "npm:^30.0.0"
@@ -3469,7 +3469,7 @@ __metadata:
     "@babel/runtime": "npm:^7.20.0"
     "@types/jest": "npm:30.0.0"
     "@types/node": "npm:^24.0.0"
-    "@types/react": "npm:19.2.5"
+    "@types/react": "npm:19.2.6"
     react: "npm:^19.0.0"
     rollup-plugins: "workspace:*"
   peerDependencies:
@@ -7853,12 +7853,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:19.2.5":
-  version: 19.2.5
-  resolution: "@types/react@npm:19.2.5"
+"@types/react@npm:*, @types/react@npm:19.2.6":
+  version: 19.2.6
+  resolution: "@types/react@npm:19.2.6"
   dependencies:
-    csstype: "npm:^3.0.2"
-  checksum: 10c0/1f9a92c73a5ea5b167f59cd0b5b9460fde65bd22b63b6d23bfaace8ad38537df127c97657418b4912a7a03a66e6451e82a41b84718d638ec1c8e4f0515d94793
+    csstype: "npm:^3.2.2"
+  checksum: 10c0/23b1100f88662ce9f9e4fcca3a2b4ef9fff1ecde24ede2b2dcbd07731e48d6946fd7fd156cd133f5b25321694b0569cd9b8dd30b22c4e076d1cf4c8cdd9a75cb
   languageName: node
   linkType: hard
 
@@ -8819,12 +8819,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@yeoman/types@npm:^1.8.0":
-  version: 1.8.0
-  resolution: "@yeoman/types@npm:1.8.0"
+"@yeoman/types@npm:^1.8.0, @yeoman/types@npm:^1.9.1":
+  version: 1.9.1
+  resolution: "@yeoman/types@npm:1.9.1"
   peerDependencies:
     "@types/node": ">=16.18.26"
-    "@yeoman/adapter": ^1.6.0 || ^2.0.0-beta.0 || ^3.0.0
+    "@yeoman/adapter": ^1.6.0 || ^2.0.0-beta.0 || ^3.0.0 || ^4.0.0
     mem-fs: ^3.0.0 || ^4.0.0-beta.1
     mem-fs-editor: ^10.0.2 || >=10.0.2
   peerDependenciesMeta:
@@ -8834,7 +8834,7 @@ __metadata:
       optional: true
     mem-fs-editor:
       optional: true
-  checksum: 10c0/48d12a337eddfe804486505e971ff07624e4e170e12a845803edbe5edcfe0c204adcc55c9b3418cd770c16652c2813f6154fac9e2d7291ba7a2aa7fd9852f79a
+  checksum: 10c0/c3adce9e0e6372f99a9ec11187f69ae9d8f536c292831549b43bf9d8765bd239cae23575650251fdc17b56a54565f66ea8e76a627e3b76c654a57b814b931777
   languageName: node
   linkType: hard
 
@@ -11084,8 +11084,8 @@ __metadata:
   dependencies:
     "@anansi/babel-preset": "npm:6.2.19"
     "@anansi/browserslist-config": "npm:1.7.3"
-    "@anansi/cli": "npm:3.1.86"
-    "@anansi/core": "npm:0.20.42"
+    "@anansi/cli": "npm:3.1.87"
+    "@anansi/core": "npm:0.20.43"
     "@anansi/router": "npm:0.10.17"
     "@anansi/webpack-config": "npm:21.1.2"
     "@babel/core": "npm:7.28.5"
@@ -12163,10 +12163,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"csstype@npm:^3.0.2, csstype@npm:^3.1.3":
-  version: 3.1.3
-  resolution: "csstype@npm:3.1.3"
-  checksum: 10c0/80c089d6f7e0c5b2bd83cf0539ab41474198579584fa10d86d0cafe0642202343cbc119e076a0b1aece191989477081415d66c9fefbf3c957fc2fc4b7009f248
+"csstype@npm:^3.1.3, csstype@npm:^3.2.2":
+  version: 3.2.3
+  resolution: "csstype@npm:3.2.3"
+  checksum: 10c0/cd29c51e70fa822f1cecd8641a1445bed7063697469d35633b516e60fe8c1bde04b08f6c5b6022136bb669b64c63d4173af54864510fbb4ee23281801841a3ce
   languageName: node
   linkType: hard
 
@@ -14195,7 +14195,7 @@ __metadata:
     "@data-client/normalizr": "workspace:*"
     "@types/babel__core": "npm:^7"
     "@types/benchmark": "npm:2.1.5"
-    "@types/react": "npm:19.2.5"
+    "@types/react": "npm:19.2.6"
     benchmark: "npm:2.1.4"
     normalizr: "npm:3.6.2"
     react: "npm:19.2.0"
@@ -15247,6 +15247,17 @@ __metadata:
   bin:
     glob: dist/esm/bin.mjs
   checksum: 10c0/7d24457549ec2903920dfa3d8e76850e7c02aa709122f0164b240c712f5455c0b457e6f2a1eee39344c6148e39895be8094ae8cfef7ccc3296ed30bce250c661
+  languageName: node
+  linkType: hard
+
+"glob@npm:^13.0.0":
+  version: 13.0.0
+  resolution: "glob@npm:13.0.0"
+  dependencies:
+    minimatch: "npm:^10.1.1"
+    minipass: "npm:^7.1.2"
+    path-scurry: "npm:^2.0.0"
+  checksum: 10c0/8e2f5821f3f7c312dd102e23a15b80c79e0837a9872784293ba2e15ec73b3f3749a49a42a31bfcb4e52c84820a474e92331c2eebf18819d20308f5c33876630a
   languageName: node
   linkType: hard
 
@@ -20452,12 +20463,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimatch@npm:^10.0.3":
-  version: 10.0.3
-  resolution: "minimatch@npm:10.0.3"
+"minimatch@npm:^10.0.3, minimatch@npm:^10.1.1":
+  version: 10.1.1
+  resolution: "minimatch@npm:10.1.1"
   dependencies:
     "@isaacs/brace-expansion": "npm:^5.0.0"
-  checksum: 10c0/e43e4a905c5d70ac4cec8530ceaeccb9c544b1ba8ac45238e2a78121a01c17ff0c373346472d221872563204eabe929ad02669bb575cb1f0cc30facab369f70f
+  checksum: 10c0/c85d44821c71973d636091fddbfbffe62370f5ee3caf0241c5b60c18cd289e916200acb2361b7e987558cd06896d153e25d505db9fc1e43e6b4b6752e2702902
   languageName: node
   linkType: hard
 
@@ -24248,7 +24259,7 @@ __metadata:
     "@monaco-editor/react": "npm:^4.8.0-rc.0"
     "@number-flow/react": "npm:^0.5.0"
     "@tsconfig/docusaurus": "npm:^2.0.0"
-    "@types/react": "npm:19.2.5"
+    "@types/react": "npm:19.2.6"
     "@types/react-dom": "npm:19.2.3"
     "@types/react-helmet": "npm:^6.1.5"
     "@types/react-router-dom": "npm:^5.3.3"
@@ -25455,14 +25466,14 @@ __metadata:
   linkType: hard
 
 "rimraf@npm:^6.0.0":
-  version: 6.1.0
-  resolution: "rimraf@npm:6.1.0"
+  version: 6.1.2
+  resolution: "rimraf@npm:6.1.2"
   dependencies:
-    glob: "npm:^11.0.3"
+    glob: "npm:^13.0.0"
     package-json-from-dist: "npm:^1.0.1"
   bin:
     rimraf: dist/esm/bin.mjs
-  checksum: 10c0/19658c91a08e43cd5f930384410135a1194082d5e73e0863137bc02c03d684817e30848f734ef05ec84094fe5e3eb9ffd6814ecec65d8fc2e234f5c391ab42e0
+  checksum: 10c0/c11a6a6fad937ada03c12fe688860690df8296d7cd08dbe59e3cc087f44e43573ae26ecbe48e54cb7a6db745b8c81fe5a15b9359233cc21d52d9b5b3330fcc74
   languageName: node
   linkType: hard
 
@@ -25682,7 +25693,7 @@ __metadata:
     "@testing-library/react-native": "npm:13.3.3"
     "@types/jest": "npm:30.0.0"
     "@types/node": "npm:24.10.1"
-    "@types/react": "npm:19.2.5"
+    "@types/react": "npm:19.2.6"
     "@types/react-dom": "npm:19.2.3"
     babel-plugin-module-resolver: "npm:5.0.2"
     babel-plugin-syntax-hermes-parser: "npm:^0.32.0"
