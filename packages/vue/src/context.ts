@@ -19,8 +19,9 @@ export function useController(): Controller {
     /* istanbul ignore else */
     if (process.env.NODE_ENV !== 'production') {
       console.error(
-        'It appears you are trying to use Reactive Data Client (Vue) without a provider.\n' +
-          'Follow instructions: https://dataclient.io/docs/getting-started/installation#add-provider-at-top-level-component',
+        'Reactive Data Client (Vue) composables dependency injection failed. Either you are missing the DataClientPlugin or you are using composables outside of script setup.\n' +
+          'Adding DataClientPlugin: https://dataclient.io/docs/getting-started/installation#add-provider-at-top-level-component\n' +
+          'Comosables only work in script setup: https://vuejs.org/guide/reusability/composables.html#usage-restrictions',
       );
     }
     return new Controller();
@@ -34,8 +35,9 @@ export function injectState(): ShallowRef<State<unknown>> {
     /* istanbul ignore else */
     if (process.env.NODE_ENV !== 'production') {
       console.error(
-        'It appears you are trying to use Reactive Data Client (Vue) without a provider.\n' +
-          'Follow instructions: https://dataclient.io/docs/getting-started/installation#add-provider-at-top-level-component',
+        'Reactive Data Client (Vue) composables dependency injection failed. Either you are missing the DataClientPlugin or you are using composables outside of script setup.\n' +
+          'Adding DataClientPlugin: https://dataclient.io/docs/getting-started/installation#add-provider-at-top-level-component\n' +
+          'Comosables only work in script setup: https://vuejs.org/guide/reusability/composables.html#usage-restrictions',
       );
     }
     return FallbackStateRef;
