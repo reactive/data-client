@@ -1,0 +1,114 @@
+Use a wrapped `DocBreadcrumbs` theme component. That’s the smallest, most upgrade-friendly hook that’s used on every docs MDX page.
+
+### 1. Create your custom “right of breadcrumbs” component
+
+For example:
+
+`src/components/BreadcrumbRightControls.tsx`:
+
+```tsx
+import React from 'react';
+
+export default function BreadcrumbRightControls() {
+  // Replace with your real UI: framework selector, version dropdown, etc.
+  return (
+    <div>
+      {/* Example content */}
+      <button type="button">Do something</button>
+    </div>
+  );
+}
+```
+
+### 2. Swizzle `DocBreadcrumbs` with `--wrap`
+
+Docusaurus exposes docs breadcrumbs through the `@theme/DocBreadcrumbs` component, which is used inside the docs layout ([alanwang.site][1]). Swizzling with `--wrap` lets you enhance it without copying the whole implementation ([Docusaurus][2]).
+
+From your project root:
+
+```bash
+npx docusaurus swizzle @docusaurus/theme-classic DocBreadcrumbs -- --wrap
+# or: yarn swizzle @docusaurus/theme-classic DocBreadcrumbs --wrap
+# or: pnpm docusaurus swizzle @docusaurus/theme-classic DocBreadcrumbs -- --wrap
+```
+
+This creates:
+
+```text
+src/theme/DocBreadcrumbs/index.(js|tsx)
+```
+
+### 3. Implement the wrapper that adds your control on the right
+
+Replace the generated file with something like this (TypeScript version; JS is identical minus types):
+
+`src/theme/DocBreadcrumbs/index.tsx`:
+
+```tsx
+import React from 'react';
+import clsx from 'clsx';
+
+// Original theme implementation
+import DocBreadcrumbs from '@theme-original/DocBreadcrumbs';
+import type { Props } from '@theme/DocBreadcrumbs';
+
+// Your custom UI
+import BreadcrumbRightControls from '@site/src/components/BreadcrumbRightControls';
+
+// Optional CSS module for layout
+import styles from './styles.module.css';
+
+export default function DocBreadcrumbsWrapper(
+  props: Props,
+): JSX.Element | null {
+  const breadcrumbs = <DocBreadcrumbs {...props} />;
+
+  // If breadcrumbs are disabled (config/front matter), don't render anything
+  if (!breadcrumbs) {
+    return null;
+  }
+
+  return (
+    <div className={clsx(styles.wrapper)}>
+      <div className={styles.left}>{breadcrumbs}</div>
+      <div className={styles.right}>
+        <BreadcrumbRightControls />
+      </div>
+    </div>
+  );
+}
+```
+
+`src/theme/DocBreadcrumbs/styles.module.css`:
+
+```css
+.wrapper {
+  display: flex;
+  align-items: center;           /* baseline-ish alignment with default breadcrumbs */
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+/* Left side: native Docusaurus breadcrumbs */
+.left {
+  min-width: 0;                  /* keep ellipsis / wrapping sane */
+}
+
+/* Right side: your custom controls */
+.right {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+```
+
+Notes:
+
+* Using `@theme-original/DocBreadcrumbs` means you keep all the default markup and schema.org breadcrumb behavior while just wrapping it in a flex container ([Docusaurus][2]).
+* `DocBreadcrumbs` is only used on docs pages via `DocItem/Layout`, so this affects every MDX docs page and nothing else (no blog, no plain MDX pages) ([alanwang.site][1]).
+* The wrapper layout is independent of Docusaurus internals: if they change the internal breadcrumb markup, you still just receive whatever `DocBreadcrumbs` returns and render it on the left.
+
+That’s it: you’ve extended Docusaurus 3 with a single wrapped theme component, and your custom controls will appear aligned to the right of the breadcrumbs on every docs MDX page.
+
+[1]: https://www.alanwang.site/en/posts/blog-guides/docusaurus-comment "Adding Comment Functionality to Docusaurus | Alan Wang"
+[2]: https://docusaurus.io/docs/swizzling?utm_source=chatgpt.com "Swizzling"
