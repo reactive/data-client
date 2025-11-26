@@ -11,6 +11,7 @@ description: High performance async data rendering without overfetching. useSusp
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import GenericsTabs from '@site/src/components/GenericsTabs';
+import FrameworkTabs, { TabItem as FrameworkTabItem } from '@site/src/components/FrameworkTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import PaginationDemo from '../shared/\_pagination.mdx';
 import HooksPlayground from '@site/src/components/HooksPlayground';
@@ -40,6 +41,9 @@ values={[
 { label: 'Promise', value: 'other' },
 ]}>
 <TabItem value="rest">
+
+<FrameworkTabs>
+<FrameworkTabItem value="react">
 
 <HooksPlayground fixtures={detailFixtures} row>
 
@@ -81,6 +85,53 @@ render(<ProfileDetail />);
 ```
 
 </HooksPlayground>
+
+</FrameworkTabItem>
+<FrameworkTabItem value="vue">
+
+<TypeScriptEditor>
+
+```typescript title="ProfileResource" collapsed
+import { Entity, resource } from '@data-client/rest';
+
+export class Profile extends Entity {
+  id: number | undefined = undefined;
+  avatar = '';
+  fullName = '';
+  bio = '';
+
+  static key = 'Profile';
+}
+
+export const ProfileResource = resource({
+  path: '/profiles/:id',
+  schema: Profile,
+});
+```
+
+```html title="ProfileDetail.vue"
+<script setup lang="ts">
+import { useSuspense } from '@data-client/vue';
+import { ProfileResource } from './ProfileResource';
+
+const profile = await useSuspense(ProfileResource.get, { id: 1 });
+</script>
+
+<template>
+  <div class="listItem">
+    <Avatar :src="profile.avatar" />
+    <div>
+      <h4>{{ profile.fullName }}</h4>
+      <p>{{ profile.bio }}</p>
+    </div>
+  </div>
+</template>
+```
+
+</TypeScriptEditor>
+
+</FrameworkTabItem>
+</FrameworkTabs>
 
 </TabItem>
 <TabItem value="other">

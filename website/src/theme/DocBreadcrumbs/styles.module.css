@@ -1,0 +1,21 @@
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+/* Left side: native Docusaurus breadcrumbs */
+.left {
+  min-width: 0;
+  flex: 1;
+}
+
+/* Right side: framework selector */
+.right {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
