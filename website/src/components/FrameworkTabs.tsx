@@ -1,4 +1,4 @@
-import React, { Children, ReactElement, ReactNode, isValidElement } from 'react';
+import React, { Children, ReactNode, isValidElement } from 'react';
 
 import { useFrameworkStorage, Framework } from './FrameworkSelector';
 
@@ -42,16 +42,14 @@ export default function FrameworkTabs({
 
   for (const child of childArray) {
     if (isValidElement(child) && child.props.value === framework) {
-      return <>{child.props.children}</>;
+      // Key forces React to unmount/remount children when framework changes
+      // This ensures editors and other stateful components reset properly
+      return (
+        <React.Fragment key={framework}>{child.props.children}</React.Fragment>
+      );
     }
   }
 
-  // Fallback to first child if no match found
-  const firstChild = childArray[0];
-  if (isValidElement(firstChild)) {
-    return <>{(firstChild as ReactElement<TabItemProps>).props.children}</>;
-  }
-
+  // No matching tab found - render nothing
   return null;
 }
-
