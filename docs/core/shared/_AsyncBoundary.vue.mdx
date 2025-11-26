@@ -1,0 +1,34 @@
+Vue has built-in [Suspense](https://vuejs.org/guide/built-ins/suspense.html) for async components. Pair it with an error boundary for complete async handling:
+
+```html title="Dashboard.vue"
+<script setup lang="ts">
+  import { onErrorCaptured, ref } from 'vue';
+
+  const error = ref<Error | null>(null);
+
+  onErrorCaptured((err) => {
+    error.value = err;
+    return false;
+  });
+</script>
+
+<template>
+  <div>
+    <h1>Dashboard</h1>
+    <section>
+      <div v-if="error">Error: {{ error.message }}</div>
+      <!-- highlight-start -->
+      <Suspense v-else>
+        <template #default>
+          <RouterView />
+        </template>
+        <template #fallback>
+          <Loading />
+        </template>
+      </Suspense>
+      <!-- highlight-end -->
+    </section>
+  </div>
+</template>
+```
+

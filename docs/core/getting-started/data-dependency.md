@@ -203,8 +203,7 @@ bound components immediately upon [data change](./mutations.md). This is known a
 
 ## Loading and Error {#async-fallbacks}
 
-You might have noticed the return type shows the value is always there. [useSuspense()](../api/useSuspense.md) operates very much
-like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await). This enables
+You might have noticed the return type shows the value is always there. [useSuspense()](../api/useSuspense.md) operates very much like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await). This enables
 us to make error/loading disjoint from data usage.
 
 ### Async Boundaries {#boundaries}
@@ -214,7 +213,7 @@ routes, or [modals](https://www.appcues.com/blog/modal-dialog-windows)**.
 
 <AsyncBoundaryExamples />
 
-React 18's [useTransition](https://react.dev/reference/react/useTransition) and [Server Side Rendering](../guides/ssr.md)
+React 18+'s [useTransition](https://react.dev/reference/react/useTransition) and [Server Side Rendering](../guides/ssr.md)
 powered routers or navigation means never seeing a loading fallback again. In React 16 and 17 fallbacks can be centralized
 to eliminate redundant loading indicators while keeping components reusable.
 
@@ -278,7 +277,7 @@ render(<ProfileList />);
 </HooksPlayground>
 
 Since [useDLE](../api/useDLE.md) does not [useSuspense](../api/useSuspense.md), you won't be able to easily centrally
-orchestrate loading and error code. Additionally, React 18 features like [useTransition](https://react.dev/reference/react/useTransition),
+orchestrate loading and error code. Additionally, React 18+ features like [useTransition](https://react.dev/reference/react/useTransition),
 and [incrementally streaming SSR](../guides/ssr.md) won't work with components that use it.
 
 ## Conditional
