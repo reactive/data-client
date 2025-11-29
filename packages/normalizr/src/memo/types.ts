@@ -2,14 +2,13 @@ import WeakDependencyMap, { GetDependency } from './WeakDependencyMap.js';
 import type { BaseDelegate } from '../delegate/BaseDelegate.js';
 import type { EntityInterface, EntityPath } from '../interface.js';
 
-export interface EntityCache
-  extends Map<
+export interface EntityCache extends Map<
+  string,
+  Map<
     string,
-    Map<
-      string,
-      WeakMap<EntityInterface, WeakDependencyMap<EntityPath, object, any>>
-    >
-  > {}
+    WeakMap<EntityInterface, WeakDependencyMap<EntityPath, object, any>>
+  >
+> {}
 
 export type EndpointsCache = WeakDependencyMap<EntityPath, object, any>;
 

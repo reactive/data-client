@@ -552,31 +552,32 @@ export type RestEndpointConstructorOptions<O extends RestGenerics = any> =
  *
  * @see https://dataclient.io/rest/api/RestEndpoint
  */
-export interface RestEndpoint<O extends RestGenerics = any>
-  extends RestInstance<
-    RestFetch<
-      'searchParams' extends keyof O ?
-        O['searchParams'] extends undefined ?
-          PathArgs<O['path']>
-        : O['searchParams'] & PathArgs<O['path']>
-      : PathArgs<O['path']>,
-      OptionsToBodyArgument<
-        O,
-        'method' extends keyof O ? O['method']
-        : O extends { sideEffect: true } ? 'POST'
-        : 'GET'
-      >,
-      O['process'] extends {} ? ReturnType<O['process']>
-      : any /*Denormalize<O['schema']>*/
+export interface RestEndpoint<
+  O extends RestGenerics = any,
+> extends RestInstance<
+  RestFetch<
+    'searchParams' extends keyof O ?
+      O['searchParams'] extends undefined ?
+        PathArgs<O['path']>
+      : O['searchParams'] & PathArgs<O['path']>
+    : PathArgs<O['path']>,
+    OptionsToBodyArgument<
+      O,
+      'method' extends keyof O ? O['method']
+      : O extends { sideEffect: true } ? 'POST'
+      : 'GET'
     >,
-    'schema' extends keyof O ? O['schema'] : undefined,
-    'sideEffect' extends keyof O ? Extract<O['sideEffect'], undefined | true>
-    : MethodToSide<O['method']>,
-    'method' extends keyof O ? O
-    : O & {
-        method: O extends { sideEffect: true } ? 'POST' : 'GET';
-      }
-  > {}
+    O['process'] extends {} ? ReturnType<O['process']>
+    : any /*Denormalize<O['schema']>*/
+  >,
+  'schema' extends keyof O ? O['schema'] : undefined,
+  'sideEffect' extends keyof O ? Extract<O['sideEffect'], undefined | true>
+  : MethodToSide<O['method']>,
+  'method' extends keyof O ? O
+  : O & {
+      method: O extends { sideEffect: true } ? 'POST' : 'GET';
+    }
+> {}
 
 export interface RestEndpointConstructor {
   /** Simplifies endpoint definitions that follow REST patterns
