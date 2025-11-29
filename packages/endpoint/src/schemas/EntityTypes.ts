@@ -240,8 +240,9 @@ export type EntityOptions<TInstance extends {}> = {
   >]?: IEntityClass<abstract new (...args: any[]) => TInstance>[K];
 };
 
-export interface RequiredPKOptions<TInstance extends {}>
-  extends EntityOptions<TInstance> {
+export interface RequiredPKOptions<
+  TInstance extends {},
+> extends EntityOptions<TInstance> {
   readonly pk:
     | ((
         value: TInstance,

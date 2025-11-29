@@ -11,9 +11,8 @@ type Props<
 > = React.ComponentProps<C> & { component?: C };
 
 export default function Img<
-  C extends
-    | keyof JSX.IntrinsicElements
-    | React.JSXElementConstructor<any> = 'img',
+  C extends keyof JSX.IntrinsicElements | React.JSXElementConstructor<any> =
+    'img',
 >({ component = 'img', ...rest }: Props<C>): React.ReactElement {
   useSuspense(getImage, rest.src ? { src: rest.src } : null);
   return React.createElement(component, rest);

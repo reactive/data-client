@@ -55,8 +55,7 @@ export default class CollectionSchema<
   S extends PolymorphicInterface = any,
   Args extends any[] = DefaultArgs,
   Parent = any,
-> implements Mergeable
-{
+> implements Mergeable {
   declare protected nestKey: (parent: any, key: string) => Record<string, any>;
 
   declare protected argsKey?: (...args: any) => Record<string, any>;

@@ -16,8 +16,7 @@ export default class Invalidate<
   E extends EntityInterface & {
     process: any;
   },
-> implements SchemaSimple
-{
+> implements SchemaSimple {
   declare protected _entity: E;
 
   /**

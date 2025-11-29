@@ -33,8 +33,7 @@ export interface SubscriptionConstructable {
  */
 export default class SubscriptionManager<
   S extends SubscriptionConstructable = SubscriptionConstructable,
-> implements Manager<Actions>
-{
+> implements Manager<Actions> {
   protected subscriptions: {
     [key: string]: InstanceType<S>;
   } = {};
