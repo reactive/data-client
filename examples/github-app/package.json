@@ -38,7 +38,7 @@
     "@linaria/shaker": "5.0.3",
     "@types/lodash": "4.14.192",
     "@types/parse-link-header": "^2.0.0",
-    "@types/react": "19.2.6",
+    "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
     "@types/uuid": "^10.0.0",
     "react-refresh": "0.18.0",
@@ -48,7 +48,7 @@
     "webpack-dev-server": "5.2.2"
   },
   "dependencies": {
-    "@anansi/router": "0.10.17",
+    "@anansi/router": "0.10.18",
     "@ant-design/icons": "^5.0.0",
     "@babel/runtime-corejs3": "^7.26.7",
     "@data-client/graphql": "0.15.1-beta-20251110013913-ef632c49a03da67187b6097fe8154893cd930d30",
