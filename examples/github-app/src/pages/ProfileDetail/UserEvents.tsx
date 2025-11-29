@@ -37,7 +37,7 @@ function UserEvents({ user }: { user: User }) {
       timeline.length > 0 ? (
         <section>
           <Title level={5}>Contribution activity</Title>
-          <Divider orientation="left">
+          <Divider titlePlacement="left">
             {new Intl.DateTimeFormat(navigator.language, {
               month: 'long',
               year: 'numeric',
