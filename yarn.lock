@@ -23942,12 +23942,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:3.7.2, prettier@npm:^3.0.0":
-  version: 3.7.2
-  resolution: "prettier@npm:3.7.2"
+"prettier@npm:3.7.3, prettier@npm:^3.0.0":
+  version: 3.7.3
+  resolution: "prettier@npm:3.7.3"
   bin:
     prettier: bin/prettier.cjs
-  checksum: 10c0/df3d658df301face0918f8ecbd4354f32e1151d83a3a4720c7f252342baf631466568f708e0e57beea55bbc56415c40208adc76a91d5f1a88f3e743d0d775dc0
+  checksum: 10c0/ee86bb06121c74dadc54f30b6f99aff6288966d9b842ce501d6991e20d20c6ce2d45028651b3b0955ca6e5fa89c1bee1e72b6f810243a93cef8bc69737972ef7
   languageName: node
   linkType: hard
 
@@ -25840,7 +25840,7 @@ __metadata:
     mkdirp: "npm:^3.0.0"
     nock: "npm:13.3.1"
     npm-run-all: "npm:^4.1.5"
-    prettier: "npm:3.7.2"
+    prettier: "npm:3.7.3"
     react: "npm:19.2.0"
     react-dom: "npm:19.2.0"
     react-native: "patch:react-native@npm:0.82.0-rc.0#~/.yarn/patches/react-native-npm-0.81.0-612367b09d.patch"
