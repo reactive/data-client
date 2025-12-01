@@ -99,8 +99,7 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
  */
 export class All<
   S extends EntityMap | EntityInterface = EntityMap | EntityInterface,
-> implements SchemaClass
-{
+> implements SchemaClass {
   /**
    * Retrieves all entities in cache
    *
@@ -153,9 +152,9 @@ export class All<
  * Represents objects with statically known members
  * @see https://dataclient.io/rest/api/Object
  */
-export class Object<O extends Record<string, any> = Record<string, any>>
-  implements SchemaClass
-{
+export class Object<
+  O extends Record<string, any> = Record<string, any>,
+> implements SchemaClass {
   /**
    * Represents objects with statically known members
    * @see https://dataclient.io/rest/api/Object
@@ -242,9 +241,8 @@ export interface UnionConstructor {
  */
 export interface UnionInstance<
   Choices extends EntityMap = any,
-  Args extends EntityFields<
-    AbstractInstanceType<Choices[keyof Choices]>
-  > = EntityFields<AbstractInstanceType<Choices[keyof Choices]>>,
+  Args extends EntityFields<AbstractInstanceType<Choices[keyof Choices]>> =
+    EntityFields<AbstractInstanceType<Choices[keyof Choices]>>,
 > {
   define(definition: Schema): void;
   inferSchema: SchemaAttributeFunction<Choices[keyof Choices]>;

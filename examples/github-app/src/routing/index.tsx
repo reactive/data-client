@@ -1,25 +1,13 @@
-import { RouteProvider, RouteController } from '@anansi/router';
-import { useController } from '@data-client/react';
-import { createBrowserHistory } from 'history';
+import { RouteController } from '@anansi/router';
+import type { History } from 'history';
 
 import { routes, namedPaths } from './routes';
 
-const history = createBrowserHistory();
-
-export const router = new RouteController({
-  history,
-  namedPaths,
-  routes,
-  notFound: { component: () => <>Not Found</> },
-});
-
-export default router;
-
-export function Router({ children }: { children: React.ReactNode }) {
-  const controller = useController();
-  return (
-    <RouteProvider router={router} resolveWith={controller}>
-      {children}
-    </RouteProvider>
-  );
+export function createRouter(history: History) {
+  return new RouteController({
+    history,
+    namedPaths,
+    routes,
+    notFound: { component: () => <>Not Found</> },
+  });
 }

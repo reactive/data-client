@@ -40,8 +40,10 @@ export interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
   ): any;
 }
 
-export interface SchemaClass<T = any, Args extends readonly any[] = any[]>
-  extends SchemaSimple<T, Args> {
+export interface SchemaClass<
+  T = any,
+  Args extends readonly any[] = any[],
+> extends SchemaSimple<T, Args> {
   // this is not an actual member, but is needed for the recursive NormalizeNullable<> type algo
   _normalizeNullable(): any;
   // this is not an actual member, but is needed for the recursive DenormalizeNullable<> type algo

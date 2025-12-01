@@ -55,8 +55,8 @@
   "devDependencies": {
     "@anansi/babel-preset": "^6.2.19",
     "@anansi/browserslist-config": "1.7.3",
-    "@anansi/eslint-plugin": "1.0.56",
-    "@anansi/jest-preset": "0.11.26",
+    "@anansi/eslint-plugin": "1.0.58",
+    "@anansi/jest-preset": "0.11.27",
     "@babel/cli": "7.28.3",
     "@babel/core": "7.28.5",
     "@babel/node": "7.28.0",
@@ -76,7 +76,7 @@
     "@testing-library/react-native": "13.3.3",
     "@types/jest": "30.0.0",
     "@types/node": "24.10.1",
-    "@types/react": "19.2.5",
+    "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
     "babel-plugin-module-resolver": "5.0.2",
     "babel-plugin-syntax-hermes-parser": "^0.32.0",
@@ -91,7 +91,7 @@
     "mkdirp": "^3.0.0",
     "nock": "13.3.1",
     "npm-run-all": "^4.1.5",
-    "prettier": "3.6.2",
+    "prettier": "3.7.3",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-native": "patch:react-native@npm:0.82.0-rc.0#~/.yarn/patches/react-native-npm-0.81.0-612367b09d.patch",
@@ -99,7 +99,7 @@
     "react-native-screens": "^4.1.0",
     "react-test-renderer": "^19.0.0",
     "rimraf": "^6.0.0",
-    "rollup": "4.53.2",
+    "rollup": "4.53.3",
     "typescript": "5.9.3",
     "whatwg-fetch": "3.0.0"
   },
@@ -107,7 +107,7 @@
     "whatwg-fetch": "3.0.0",
     "downlevel-dts/typescript": "4.9.0-dev.20220903"
   },
-  "packageManager": "yarn@4.11.0",
+  "packageManager": "yarn@4.12.0",
   "prettier": {
     "printWidth": 80,
     "semi": true,

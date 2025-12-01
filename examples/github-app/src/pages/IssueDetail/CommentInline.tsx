@@ -1,3 +1,4 @@
+import { useNavigator } from '@anansi/core';
 import { Link, useRoutes } from '@anansi/router';
 import { EllipsisOutlined } from '@ant-design/icons';
 import { useCache, useController } from '@data-client/react';
@@ -19,6 +20,7 @@ import CommentForm from './CommentForm';
 const { Meta } = Card;
 
 function CommentInline({ comment }: { comment: Comment }) {
+  const { language } = useNavigator();
   const [editing, setEditing] = useState(false);
   return (
     <Card style={{ marginTop: 16 }} className={commentList}>
@@ -35,9 +37,7 @@ function CommentInline({ comment }: { comment: Comment }) {
                 {comment.user.login}
               </Link>{' '}
               commented on{' '}
-              {new Intl.DateTimeFormat(navigator.language).format(
-                comment.createdAt,
-              )}
+              {new Intl.DateTimeFormat(language).format(comment.createdAt)}
             </span>
             <CommentControls comment={comment} setEditing={setEditing} />
           </FlexRow>

@@ -9,8 +9,7 @@ import type { Denormalize, NormalizeNullable, SchemaArgs } from '../normal.js';
 export default class Query<
   S extends Queryable | { [k: string]: Queryable },
   P extends (entries: Denormalize<S>, ...args: any) => any,
-> implements SchemaSimple<ReturnType<P> | undefined, ProcessParameters<P, S>>
-{
+> implements SchemaSimple<ReturnType<P> | undefined, ProcessParameters<P, S>> {
   declare schema: S;
   declare process: P;
 

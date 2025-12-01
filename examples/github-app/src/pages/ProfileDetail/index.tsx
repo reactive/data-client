@@ -1,6 +1,7 @@
+import { useNavigator } from '@anansi/core';
 import { useSuspense } from '@data-client/react';
 import { Intl } from '@js-temporal/polyfill';
-import { Card, List, Layout, Typography } from 'antd';
+import { Card, Layout } from 'antd';
 import Markdown from 'react-markdown';
 
 import { UserResource } from '@/resources/User';
@@ -10,9 +11,9 @@ import UserRepositories from './UserRepos';
 
 const { Meta } = Card;
 const { Sider, Content } = Layout;
-const { Title } = Typography;
 
 export default function ProfileDetail({ login }: { login: string }) {
+  const { language } = useNavigator();
   const user = useSuspense(UserResource.get, { login });
 
   const list = [
@@ -20,7 +21,7 @@ export default function ProfileDetail({ login }: { login: string }) {
     user.location,
     user.email,
     user.blog,
-    new Intl.DateTimeFormat(navigator.language).format(user.createdAt),
+    new Intl.DateTimeFormat(language).format(user.createdAt),
   ].filter((item) => item);
 
   return (
@@ -39,10 +40,18 @@ export default function ProfileDetail({ login }: { login: string }) {
             description={
               <div>
                 <Markdown>{user.bio}</Markdown>
-                <List
-                  dataSource={list}
-                  renderItem={(item) => (
-                    <List.Item>
+                <div style={{ marginTop: 8 }}>
+                  {list.map((item, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        padding: '12px 0',
+                        borderBottom:
+                          index < list.length - 1
+                            ? '1px solid rgba(0, 0, 0, 0.06)'
+                            : 'none',
+                      }}
+                    >
                       {item.startsWith('http') ? (
                         <a href={item} target="_blank" rel="noreferrer">
                           {item}
@@ -50,9 +59,9 @@ export default function ProfileDetail({ login }: { login: string }) {
                       ) : (
                         item
                       )}
-                    </List.Item>
-                  )}
-                />
+                    </div>
+                  ))}
+                </div>
               </div>
             }
           />

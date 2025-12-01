@@ -376,21 +376,70 @@ export type PaginationEndpoint<
     searchParams: Omit<A[0], keyof PathArgs<E['path']>>;
   }
 >;
-export type PaginationFieldEndpoint<
+/** Merge pagination field C into body, making it required */
+type PaginationIntoBody<Body, C extends string> = Body & {
+  [K in C]: string | number | boolean;
+};
+
+/** Paginated searchParams type */
+type PaginatedSearchParams<
+  E extends { searchParams?: any; path?: string },
+  C extends string,
+> = {
+  [K in C]: string | number | boolean;
+} & E['searchParams'] &
+  PathArgs<Exclude<E['path'], undefined>>;
+
+/** searchParams version: pagination in searchParams, optional body support */
+type PaginationFieldInSearchParams<
   E extends FetchFunction & RestGenerics & { sideEffect?: boolean | undefined },
   C extends string,
 > = RestInstanceBase<
-  ParamFetchNoBody<
-    { [K in C]: string | number | boolean } & E['searchParams'] &
-      PathArgs<Exclude<E['path'], undefined>>,
+  // Union allows calling with just searchParams or with searchParams + body
+  | ParamFetchNoBody<PaginatedSearchParams<E, C>, ResolveType<E>>
+  | ParamFetchWithBody<
+      PaginatedSearchParams<E, C>,
+      NonNullable<E['body']>,
+      ResolveType<E>
+    >,
+  E['schema'],
+  E['sideEffect'],
+  Pick<E, 'path' | 'searchParams' | 'body'> & {
+    searchParams: {
+      [K in C]: string | number | boolean;
+    } & E['searchParams'];
+  }
+> & { paginationField: C };
+
+/** body version: pagination field is in body (body required) */
+type PaginationFieldInBody<
+  E extends FetchFunction & RestGenerics & { sideEffect?: boolean | undefined },
+  C extends string,
+> = RestInstanceBase<
+  ParamFetchWithBody<
+    E['searchParams'] & PathArgs<Exclude<E['path'], undefined>>,
+    PaginationIntoBody<E['body'], C>,
     ResolveType<E>
   >,
   E['schema'],
   E['sideEffect'],
-  Pick<E, 'path' | 'searchParams' | 'body'> & {
-    searchParams: { [K in C]: string | number | boolean } & E['searchParams'];
+  Pick<E, 'path' | 'searchParams'> & {
+    body: PaginationIntoBody<E['body'], C>;
   }
 > & { paginationField: C };
+
+/** Retrieves the next page of results by pagination field */
+export type PaginationFieldEndpoint<
+  E extends FetchFunction & RestGenerics & { sideEffect?: boolean | undefined },
+  C extends string,
+> =
+  // If body can be undefined or pagination field not in body, use searchParams
+  undefined extends E['body'] ? PaginationFieldInSearchParams<E, C>
+  : // If pagination field C is a key of body, merge into body
+  C extends keyof E['body'] ? PaginationFieldInBody<E, C>
+  : // Otherwise use searchParams
+    PaginationFieldInSearchParams<E, C>;
+
 export type AddEndpoint<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = any,
@@ -503,31 +552,32 @@ export type RestEndpointConstructorOptions<O extends RestGenerics = any> =
  *
  * @see https://dataclient.io/rest/api/RestEndpoint
  */
-export interface RestEndpoint<O extends RestGenerics = any>
-  extends RestInstance<
-    RestFetch<
-      'searchParams' extends keyof O ?
-        O['searchParams'] extends undefined ?
-          PathArgs<O['path']>
-        : O['searchParams'] & PathArgs<O['path']>
-      : PathArgs<O['path']>,
-      OptionsToBodyArgument<
-        O,
-        'method' extends keyof O ? O['method']
-        : O extends { sideEffect: true } ? 'POST'
-        : 'GET'
-      >,
-      O['process'] extends {} ? ReturnType<O['process']>
-      : any /*Denormalize<O['schema']>*/
+export interface RestEndpoint<
+  O extends RestGenerics = any,
+> extends RestInstance<
+  RestFetch<
+    'searchParams' extends keyof O ?
+      O['searchParams'] extends undefined ?
+        PathArgs<O['path']>
+      : O['searchParams'] & PathArgs<O['path']>
+    : PathArgs<O['path']>,
+    OptionsToBodyArgument<
+      O,
+      'method' extends keyof O ? O['method']
+      : O extends { sideEffect: true } ? 'POST'
+      : 'GET'
     >,
-    'schema' extends keyof O ? O['schema'] : undefined,
-    'sideEffect' extends keyof O ? Extract<O['sideEffect'], undefined | true>
-    : MethodToSide<O['method']>,
-    'method' extends keyof O ? O
-    : O & {
-        method: O extends { sideEffect: true } ? 'POST' : 'GET';
-      }
-  > {}
+    O['process'] extends {} ? ReturnType<O['process']>
+    : any /*Denormalize<O['schema']>*/
+  >,
+  'schema' extends keyof O ? O['schema'] : undefined,
+  'sideEffect' extends keyof O ? Extract<O['sideEffect'], undefined | true>
+  : MethodToSide<O['method']>,
+  'method' extends keyof O ? O
+  : O & {
+      method: O extends { sideEffect: true } ? 'POST' : 'GET';
+    }
+> {}
 
 export interface RestEndpointConstructor {
   /** Simplifies endpoint definitions that follow REST patterns

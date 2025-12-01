@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Entity, schema } from '@data-client/endpoint';
 import { useController, useSuspense } from '@data-client/react';
-import { User } from '__tests__/new';
+import { User, Article } from '__tests__/new';
 
 import resource from '../src/resource';
 import RestEndpoint, { GetEndpoint, MutateEndpoint } from '../src/RestEndpoint';
@@ -421,6 +420,172 @@ it('should precisely type function arguments', () => {
     () => noSearch({ userId: 'hi' });
     // @ts-expect-error
     () => noSearch(5);
+  };
+});
+
+it('should handle POST getter endpoints', () => {
+  () => {
+    const getUsers = new RestEndpoint({
+      path: '/users',
+      method: 'POST',
+      sideEffect: false,
+      body: {} as {
+        page?: number;
+        jsonrpc: string;
+        id: number;
+        method: string;
+        params: any[];
+      },
+      paginationField: 'page',
+      schema: new schema.Collection([User]),
+    });
+    getUsers({ jsonrpc: '2.0', id: 1, method: 'users.get', params: [] });
+    useSuspense(getUsers, {
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'users.get',
+      params: [],
+    });
+    // @ts-expect-error
+    getEth({ id: 1, method: 'users.get', params: [] });
+    // @ts-expect-error
+    useSuspense(getUsers, { id: 1, method: 'users.get', params: [] });
+
+    // getPage tests
+    getUsers.getPage({
+      page: 2,
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'users.get',
+      params: [],
+    });
+    getUsers.getPage({
+      // @ts-expect-error page is not a number | string
+      page: { bob: 'hi' },
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'users.get',
+      params: [],
+    });
+    getUsers.getPage({
+      // @ts-expect-error page is not a number | string
+      page: undefined,
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'users.get',
+      params: [],
+    });
+    // @ts-expect-error
+    getUsers.getPage({
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'users.get',
+      params: [],
+    });
+    // @ts-expect-error
+    getUsers.getPage({
+      page: 2,
+      id: 1,
+      method: 'users.get',
+      params: [],
+    });
+    getUsers.getPage(
+      { page: 2 },
+      // @ts-expect-error
+      { jsonrpc: '2.0', id: 1, method: 'users.get', params: [] },
+    );
+  };
+  () => {
+    const getArticles = new RestEndpoint({
+      path: '/articles',
+      method: 'POST',
+      sideEffect: false,
+      searchParams: {} as {
+        page_number?: number;
+        groupId?: string | number;
+      },
+      body: {} as
+        | {
+            authorId?: string | number;
+            createdAt?: string;
+          }
+        | undefined,
+      schema: new schema.Collection([Article]),
+      paginationField: 'page_number',
+    });
+    getArticles({ authorId: 1, createdAt: '2025-01-01' });
+    useSuspense(getArticles, { authorId: 1, createdAt: '2025-01-01' });
+    // @ts-expect-error
+    getArticles({ authorId: 1, createdAt: '2025-01-01', page: 2 });
+    // @ts-expect-error
+    useSuspense(getArticles, { authorId: 1, createdAt: '2025-01-01', page: 2 });
+    getArticles();
+    getArticles({ page_number: 2 });
+    getArticles({ page_number: 2 }, { authorId: 5 });
+
+    getArticles.getPage({ page_number: 2 });
+    getArticles.getPage({ page_number: 2, groupId: 5 });
+    getArticles.getPage({ page_number: 2 }, { authorId: 5 });
+    getArticles.getPage(
+      { page_number: 2 },
+      { authorId: 5, createdAt: '2025-01-01' },
+    );
+
+    // @ts-expect-error requires page_number
+    getArticles.getPage();
+    // @ts-expect-error requires page_number
+    getArticles.getPage({});
+    // @ts-expect-error requires page_number
+    getArticles.getPage({ groupId: 5 });
+    // @ts-expect-error page_number is not a valid search param
+    getArticles.getPage({ page: 5 });
+    // @ts-expect-error page is not page_number
+    getArticles.getPage({ page: 5 });
+    // @ts-expect-error adsdf is not a valid search param
+    getArticles.getPage({ page_number: 2, adsdf: 5 });
+  };
+  () => {
+    const getArticles = new RestEndpoint({
+      path: '/articles/:groupId?',
+      method: 'POST',
+      sideEffect: false,
+      body: {} as
+        | {
+            authorId?: string | number;
+            createdAt?: string;
+          }
+        | undefined,
+      schema: new schema.Collection([Article]),
+      paginationField: 'page_number',
+    });
+    getArticles({ authorId: 1, createdAt: '2025-01-01' });
+    useSuspense(getArticles, { authorId: 1, createdAt: '2025-01-01' });
+    // @ts-expect-error
+    getArticles({ authorId: 1, createdAt: '2025-01-01', page: 2 });
+    // @ts-expect-error
+    useSuspense(getArticles, { authorId: 1, createdAt: '2025-01-01', page: 2 });
+    getArticles();
+
+    getArticles.getPage({ page_number: 2 });
+    getArticles.getPage({ page_number: 2, groupId: 5 });
+    getArticles.getPage({ page_number: 2 }, { authorId: 5 });
+    getArticles.getPage(
+      { page_number: 2 },
+      { authorId: 5, createdAt: '2025-01-01' },
+    );
+
+    // @ts-expect-error requires page_number
+    getArticles.getPage();
+    // @ts-expect-error requires page_number
+    getArticles.getPage({});
+    // @ts-expect-error requires page_number
+    getArticles.getPage({ groupId: 5 });
+    // @ts-expect-error page_number is not a valid search param
+    getArticles.getPage({ page: 5 });
+    // @ts-expect-error page is not page_number
+    getArticles.getPage({ page: 5 });
+    // @ts-expect-error adsdf is not a valid search param
+    getArticles.getPage({ page_number: 2, adsdf: 5 });
   };
 });
 

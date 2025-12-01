@@ -1,12 +1,11 @@
 import { Temporal } from '@js-temporal/polyfill';
 
-const REL = new Intl.RelativeTimeFormat(navigator.language || 'en-US', {
-  localeMatcher: 'best fit',
-  numeric: 'auto',
-  style: 'long',
-});
-
-export function humanTime(date: Temporal.Instant) {
+export function humanTime(date: Temporal.Instant, language: string) {
+  const REL = new Intl.RelativeTimeFormat(language, {
+    localeMatcher: 'best fit',
+    numeric: 'auto',
+    style: 'long',
+  });
   const duration = date.until(Temporal.Now.instant(), {
     largestUnit: 'second',
   });

@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`context injectState should log error in development when state is not provided 1`] = `
+"Reactive Data Client (Vue) composables dependency injection failed. Either you are missing the DataClientPlugin or you are using composables outside of script setup.
+Adding DataClientPlugin: https://dataclient.io/docs/getting-started/installation#add-provider-at-top-level-component
+Comosables only work in script setup: https://vuejs.org/guide/reusability/composables.html#usage-restrictions"
+`;
+
+exports[`context useController should log error in development when controller is not provided 1`] = `
+"Reactive Data Client (Vue) composables dependency injection failed. Either you are missing the DataClientPlugin or you are using composables outside of script setup.
+Adding DataClientPlugin: https://dataclient.io/docs/getting-started/installation#add-provider-at-top-level-component
+Comosables only work in script setup: https://vuejs.org/guide/reusability/composables.html#usage-restrictions"
+`;

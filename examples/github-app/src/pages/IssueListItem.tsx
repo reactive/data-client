@@ -1,3 +1,4 @@
+import { useNavigator } from '@anansi/core';
 import { Link } from '@anansi/router';
 import { List, Avatar, Skeleton } from 'antd';
 import { memo } from 'react';
@@ -7,6 +8,7 @@ import Labels from '@/components/Labels';
 import { Issue } from '@/resources/Issue';
 
 function IssueListItem({ issue }: { issue: Issue }) {
+  const { language } = useNavigator();
   const actions = [];
   if (issue.comments) {
     actions.push(
@@ -45,7 +47,7 @@ function IssueListItem({ issue }: { issue: Issue }) {
               <a href={issue.htmlUrl} target="_blank" rel="noreferrer noopener">
                 #{issue.number}
               </a>{' '}
-              opened {humanTime(issue.createdAt)} by{' '}
+              opened {humanTime(issue.createdAt, language)} by{' '}
               <Link name="ProfileDetail" props={{ login: issue.user.login }}>
                 {issue.user.login}
               </Link>

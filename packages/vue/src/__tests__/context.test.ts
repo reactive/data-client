@@ -88,16 +88,7 @@ describe('context', () => {
 
       useController();
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.stringContaining(
-          'It appears you are trying to use Reactive Data Client (Vue) without a provider.',
-        ),
-      );
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.stringContaining(
-          'https://dataclient.io/docs/getting-started/installation',
-        ),
-      );
+      expect(consoleErrorSpy.mock.calls[0][0]).toMatchSnapshot();
     });
 
     it('should not log error in production when controller is not provided', () => {
@@ -146,11 +137,7 @@ describe('context', () => {
 
       injectState();
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.stringContaining(
-          'It appears you are trying to use Reactive Data Client (Vue) without a provider.',
-        ),
-      );
+      expect(consoleErrorSpy.mock.calls[0][0]).toMatchSnapshot();
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         expect.stringContaining(
           'https://dataclient.io/docs/getting-started/installation',
