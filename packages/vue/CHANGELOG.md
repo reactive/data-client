@@ -1,5 +1,13 @@
 # @data-client/vue
 
+## 0.3.2-beta-20251201012906-ff2853c5a0da93a503b2b606c8fc724625b79308
+
+### Patch Changes
+
+- [`1c945bb`](https://github.com/reactive/data-client/commit/1c945bbc4cd290a186914f16b9afd9e7501198ed) Thanks [@ntucker](https://github.com/ntucker)! - Update README with MockPlugin
+
+- [`b03fa99`](https://github.com/reactive/data-client/commit/b03fa99f1327e91ffad840b90d4ac5ef05a358d3) Thanks [@ntucker](https://github.com/ntucker)! - Improve dependency injection console message
+
 ## 0.3.2-beta-20251116224907-3174fe59b114d2037762a6458f5576d23e483ba4
 
 ### Patch Changes
