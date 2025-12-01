@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@data-client/vue": "^0.3.2",
-    "@data-client/rest": "0.15.1-beta-20251116224907-3174fe59b114d2037762a6458f5576d23e483ba4",
+    "@data-client/rest": "0.15.1-beta-20251201012906-ff2853c5a0da93a503b2b606c8fc724625b79308",
     "vue": "^3.5.22",
     "vue-router": "^4.6.3",
     "uuid": "^13.0.0"
