@@ -1,6 +1,6 @@
 {
   "name": "@data-client/rest",
-  "version": "0.15.1-beta-20251116224907-3174fe59b114d2037762a6458f5576d23e483ba4",
+  "version": "0.15.1-beta-20251201012906-ff2853c5a0da93a503b2b606c8fc724625b79308",
   "description": "Quickly define typed REST resources and endpoints",
   "homepage": "https://dataclient.io/rest",
   "repository": {

@@ -1,5 +1,22 @@
 # @data-client/rest
 
+## 0.15.1-beta-20251201012906-ff2853c5a0da93a503b2b606c8fc724625b79308
+
+### Patch Changes
+
+- [#3635](https://github.com/reactive/data-client/pull/3635) [`63ee107`](https://github.com/reactive/data-client/commit/63ee107be9d559e6ccbcb2f9c6fd7bf83165e551) Thanks [@ntucker](https://github.com/ntucker)! - Fix `getPage` types when paginationField is in body
+
+  ```ts
+  const ep = new RestEndpoint({
+    path: '/rpc',
+    method: 'POST',
+    body: {} as { page?: number; method: string },
+    paginationField: 'page',
+  });
+  // Before: ep.getPage({ page: 2 }, { method: 'get' }) ❌
+  // After:  ep.getPage({ page: 2, method: 'get' })     ✓
+  ```
+
 ## 0.15.1-beta-20251116224907-3174fe59b114d2037762a6458f5576d23e483ba4
 
 ### Patch Changes
