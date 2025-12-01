@@ -356,9 +356,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/core@npm:0.21.0":
-  version: 0.21.0
-  resolution: "@anansi/core@npm:0.21.0"
+"@anansi/core@npm:0.21.1":
+  version: 0.21.1
+  resolution: "@anansi/core@npm:0.21.1"
   dependencies:
     "@anansi/router": "npm:^0.10.19"
     "@babel/runtime-corejs3": "npm:^7.26.0"
@@ -398,7 +398,7 @@ __metadata:
   bin:
     serve-anansi: ./lib/scripts/serve.js
     start-anansi: ./lib/scripts/startDevserver.js
-  checksum: 10c0/d168e71ae83e9e39197a83cc5fe4220dce576a9da974128f92febe66f22fc2e551053ad7ccd823ac8befc9b5693f998bf3c750cf043b66d8cf123d6b493f0c80
+  checksum: 10c0/2506b0587109eb12ca18dc84301f30e82af77220b8d222d7342343a204cefe1982908b8d039b25ee27d4c4cd097d4164588d242a42ab6c938cd0494b2e4c191d
   languageName: node
   linkType: hard
 
@@ -11217,7 +11217,7 @@ __metadata:
     "@anansi/babel-preset": "npm:6.2.19"
     "@anansi/browserslist-config": "npm:1.7.3"
     "@anansi/cli": "npm:3.1.89"
-    "@anansi/core": "npm:0.21.0"
+    "@anansi/core": "npm:0.21.1"
     "@anansi/router": "npm:0.10.19"
     "@anansi/webpack-config": "npm:21.1.3"
     "@babel/core": "npm:7.28.5"
