@@ -1,14 +1,32 @@
-import ReactDOM from 'react-dom/client';
+import {
+  floodSpouts,
+  documentSpout,
+  dataClientSpout,
+  routerSpout,
+  JSONSpout,
+  appSpout,
+  antdSpout,
+  navigatorSpout,
+} from '@anansi/core';
+import { useController } from '@data-client/react';
 
-import App from './App';
-import RootProvider from './RootProvider';
+import app from '@/app';
+import { getManagers } from '@/app/RootProvider';
 
-const content = (
-  <RootProvider>
-    <App />
-  </RootProvider>
+import { createRouter } from './routing';
+
+const spouts = documentSpout({ title: 'Github App' })(
+  antdSpout()(
+    JSONSpout()(
+      navigatorSpout()(
+        dataClientSpout({ getManagers })(
+          routerSpout({ useResolveWith: useController, createRouter })(
+            appSpout(app),
+          ),
+        ),
+      ),
+    ),
+  ),
 );
 
-ReactDOM.createRoot(document.getElementById('react') || document.body).render(
-  content,
-);
+export default floodSpouts(spouts);

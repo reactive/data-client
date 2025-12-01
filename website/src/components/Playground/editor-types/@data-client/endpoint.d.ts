@@ -831,8 +831,7 @@ declare class Array$1<S extends Schema = Schema> implements SchemaClass {
  */
 declare class All<
   S extends EntityMap | EntityInterface = EntityMap | EntityInterface,
-> implements SchemaClass
-{
+> implements SchemaClass {
   /**
    * Retrieves all entities in cache
    *
@@ -885,9 +884,9 @@ declare class All<
  * Represents objects with statically known members
  * @see https://dataclient.io/rest/api/Object
  */
-declare class Object$1<O extends Record<string, any> = Record<string, any>>
-  implements SchemaClass
-{
+declare class Object$1<
+  O extends Record<string, any> = Record<string, any>,
+> implements SchemaClass {
   /**
    * Represents objects with statically known members
    * @see https://dataclient.io/rest/api/Object
@@ -974,9 +973,8 @@ interface UnionConstructor {
  */
 interface UnionInstance<
   Choices extends EntityMap = any,
-  Args extends EntityFields<
-    AbstractInstanceType<Choices[keyof Choices]>
-  > = EntityFields<AbstractInstanceType<Choices[keyof Choices]>>,
+  Args extends EntityFields<AbstractInstanceType<Choices[keyof Choices]>> =
+    EntityFields<AbstractInstanceType<Choices[keyof Choices]>>,
 > {
   define(definition: Schema): void;
   inferSchema: SchemaAttributeFunction<Choices[keyof Choices]>;
@@ -1140,9 +1138,8 @@ type schema_d_Union<Choices extends EntityMap, SchemaAttribute extends
     | SchemaFunction<keyof Choices>> = Union<Choices, SchemaAttribute>;
 declare const schema_d_Union: typeof Union;
 type schema_d_UnionConstructor = UnionConstructor;
-type schema_d_UnionInstance<Choices extends EntityMap = any, Args extends EntityFields<
-    AbstractInstanceType<Choices[keyof Choices]>
-  > = EntityFields<AbstractInstanceType<Choices[keyof Choices]>>> = UnionInstance<Choices, Args>;
+type schema_d_UnionInstance<Choices extends EntityMap = any, Args extends EntityFields<AbstractInstanceType<Choices[keyof Choices]>> =
+    EntityFields<AbstractInstanceType<Choices[keyof Choices]>>> = UnionInstance<Choices, Args>;
 type schema_d_UnionResult<Choices extends EntityMap> = UnionResult<Choices>;
 declare const schema_d_UnionRoot: typeof UnionRoot;
 type schema_d_Values<Choices extends Schema = any> = Values<Choices>;

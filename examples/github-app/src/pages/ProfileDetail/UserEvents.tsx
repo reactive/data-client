@@ -1,3 +1,4 @@
+import { useNavigator } from '@anansi/core';
 import { Link } from '@anansi/router';
 import { BranchesOutlined, PullRequestOutlined } from '@ant-design/icons';
 import { useSuspense } from '@data-client/react';
@@ -22,6 +23,7 @@ import FlexRow from '../../components/FlexRow';
 const { Title, Text } = Typography;
 
 function UserEvents({ user }: { user: User }) {
+  const { language } = useNavigator();
   const { results: events } = useSuspense(EventResource.getList, {
     login: user.login,
   });
@@ -38,22 +40,22 @@ function UserEvents({ user }: { user: User }) {
         <section>
           <Title level={5}>Contribution activity</Title>
           <Divider titlePlacement="left">
-            {new Intl.DateTimeFormat(navigator.language, {
+            {new Intl.DateTimeFormat(language, {
               month: 'long',
               year: 'numeric',
             }).format(events[0].createdAt)}
           </Divider>
 
-          <Timeline>
-            {timeline.map(([type, events]) => (
-              <Timeline.Item key={type} dot={typeToIcon[type]}>
-                <EventInTimeline type={type} events={events} />
-              </Timeline.Item>
-            ))}
-          </Timeline>
+          <Timeline
+            items={timeline.map(([type, events]) => ({
+              key: type,
+              icon: typeToIcon[type],
+              content: <EventInTimeline type={type} events={events} />,
+            }))}
+          />
         </section>
       ) : null,
-    [events, timeline],
+    [events, timeline, language],
   );
 }
 export default UserEvents;
@@ -71,6 +73,7 @@ function EventInTimeline({
   type: Event['type'];
   events: Event[];
 }) {
+  const { language } = useNavigator();
   switch (type) {
     case 'PushEvent':
       return (
@@ -102,7 +105,7 @@ function EventInTimeline({
       return (
         <>
           {type}{' '}
-          {new Intl.DateTimeFormat(navigator.language, {
+          {new Intl.DateTimeFormat(language, {
             month: 'short',
             day: 'numeric',
           }).format(events[0].createdAt)}
@@ -127,6 +130,7 @@ function PREvents({ events }: { events: PullRequestEvent[] }) {
 }
 
 function PRGrouped({ events }: { events: PullRequestEvent[] }) {
+  const { language } = useNavigator();
   const repo = events[0].repo;
   const [owner, repoName] = repo.name.split('/');
   return (
@@ -143,7 +147,7 @@ function PRGrouped({ events }: { events: PullRequestEvent[] }) {
               {event.payload.pullRequest.title}
             </span>
             <Text type="secondary">
-              {new Intl.DateTimeFormat(navigator.language, {
+              {new Intl.DateTimeFormat(language, {
                 month: 'short',
                 day: 'numeric',
               }).format(event.createdAt)}
