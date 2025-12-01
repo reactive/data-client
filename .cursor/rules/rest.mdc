@@ -1,5 +1,9 @@
 ---
-applyTo: '**/*.ts*'
+description: Modeling resources endpoints and schemas with @data-client/rest
+globs:
+  - '**/*.ts'
+  - '**/*.tsx'
+alwaysApply: false
 ---
 # Guide: Using `@data-client/rest` for Resource Modeling
 
@@ -34,6 +38,19 @@ to represent the data expected.
 ### Programmatic
 
 - [new schema.Query(Queryable)](https://dataclient.io/rest/api/Query) - memoized programmatic selectors
+  ```ts
+  const queryRemainingTodos = new schema.Query(
+    TodoResource.getList.schema,
+    entries => entries.filter(todo => !todo.completed).length,
+  );
+  ```
+
+  ```ts
+  const groupTodoByUser = new schema.Query(
+    TodoResource.getList.schema,
+    todos => Object.groupBy(todos, todo => todo.userId),
+  );
+  ```
 
 ---
 
@@ -121,23 +138,7 @@ const deleteTodo = id => ctrl.fetch(TodoResource.delete, { id });
 const getNextPage = (page) => ctrl.fetch(TodoResource.getList.getPage, { userId: 1, page })
 ```
 
-#### Programmatic queries
-
-```ts
-const queryRemainingTodos = new schema.Query(
-  TodoResource.getList.schema,
-  entries => entries.filter(todo => !todo.completed).length,
-);
-```
-
-```ts
-const groupTodoByUser = new schema.Query(
-  TodoResource.getList.schema,
-  todos => Object.groupBy(todos, todo => todo.userId),
-);
-```
-
-For more detailed usage, refer to the [@data-client/react guide](.github/instructions/react.instructions.md).
+For more detailed usage, see @.cursor/rules/react.mdc
 
 ---
 

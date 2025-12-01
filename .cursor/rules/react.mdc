@@ -1,7 +1,9 @@
 ---
-applyTo: '**/*.tsx'
+description: Usage patterns for @data-client/react hooks and components
+globs:
+  - '**/*.tsx'
+alwaysApply: false
 ---
-
 ## Rendering
 
 ```ts
@@ -18,7 +20,7 @@ const todo = useCache(TodoResource.get, { id: 5 });
 const todo = useQuery(Todo, { id: 5 });
 ```
 
-For API definitions (like TodoResource), refer to the [@data-client/rest guide](.github/instructions/rest.instructions.md).
+For API definitions (like TodoResource), see @.cursor/rules/rest.mdc
 
 ## Mutations
 
@@ -107,7 +109,7 @@ const todosByUser = useQuery(groupTodoByUser);
 Custom [Managers](https://dataclient.io/docs/api/Manager) allow for global side effect handling.
 This is useful for webosckets, SSE, logging, etc.
 
-For more detailed usage, refer to the [Manager Guide](.github/instructions/manager.instructions.md).
+For more detailed usage, see @.cursor/rules/manager.mdc
 
 ## Best Practices & Notes
 

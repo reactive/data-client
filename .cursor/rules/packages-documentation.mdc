@@ -4,7 +4,7 @@ alwaysApply: false
 ---
 # Package Documentation Writing Guidelines
 
-This guide covers how to write and format documentation for public library interfaces. For information on **when** documentation updates are required, see `.cursorrules`.
+This guide covers how to write and format documentation for public library interfaces. For information on **when** documentation updates are required, see @.cursor/rules/general-usage.mdc
 
 ## Documentation Structure
 
