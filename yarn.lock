@@ -333,15 +333,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/cli@npm:3.1.89":
-  version: 3.1.89
-  resolution: "@anansi/cli@npm:3.1.89"
+"@anansi/cli@npm:3.1.90":
+  version: 3.1.90
+  resolution: "@anansi/cli@npm:3.1.90"
   dependencies:
-    "@anansi/generator-js": "npm:^12.6.29"
+    "@anansi/generator-js": "npm:^12.6.30"
     binary-version-check: "npm:^6.1.0"
     chalk: "npm:^4.1.2"
     commander: "npm:^12.1.0"
-    execa: "npm:^9.6.0"
+    execa: "npm:^9.6.1"
     import-meta-resolve: "npm:^4.2.0"
     latest-version: "npm:^9.0.0"
     yo: "npm:^6.0.0"
@@ -352,13 +352,13 @@ __metadata:
       optional: true
   bin:
     anansi: ./run.mjs
-  checksum: 10c0/d97ccd1f817730ae7c3f29147d4f8e0d2256110a521534fa867ed10594f6a276f83bc934087cecb4812e13b0ccb69eff9a6e5bb7c78092e8c2b2d1de59fcab2f
+  checksum: 10c0/7fbe8fd2858a41379e11dd147fb6c2ba608bd5ca21ce0be12060cab0512de682c37b24363bb91aae77cecd3445db019f00e3646dc43db4e282dd93a6ea9e811d
   languageName: node
   linkType: hard
 
-"@anansi/core@npm:0.21.1":
-  version: 0.21.1
-  resolution: "@anansi/core@npm:0.21.1"
+"@anansi/core@npm:0.21.2":
+  version: 0.21.2
+  resolution: "@anansi/core@npm:0.21.2"
   dependencies:
     "@anansi/router": "npm:^0.10.19"
     "@babel/runtime-corejs3": "npm:^7.26.0"
@@ -367,7 +367,7 @@ __metadata:
     core-js-pure: "npm:^3.40.0"
     cross-fetch: "npm:^4.1.0"
     enhanced-resolve: "npm:^5.18.3"
-    express: "npm:^4.21.2"
+    express: "npm:^4.22.1"
     fs-require: "npm:^1.6.0"
     history: "npm:^5.3.0"
     http-proxy-middleware: "npm:^3.0.5"
@@ -398,7 +398,7 @@ __metadata:
   bin:
     serve-anansi: ./lib/scripts/serve.js
     start-anansi: ./lib/scripts/startDevserver.js
-  checksum: 10c0/2506b0587109eb12ca18dc84301f30e82af77220b8d222d7342343a204cefe1982908b8d039b25ee27d4c4cd097d4164588d242a42ab6c938cd0494b2e4c191d
+  checksum: 10c0/8c66ac07ab76de83c3bf15a603f643357e223b52bc187ce0544a6059fe53378cb4e7f2f30526a6cd70195a1364cc5114932678e8a7094b89a42f44a2823e076f
   languageName: node
   linkType: hard
 
@@ -438,9 +438,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/generator-js@npm:^12.6.29":
-  version: 12.6.29
-  resolution: "@anansi/generator-js@npm:12.6.29"
+"@anansi/generator-js@npm:^12.6.30":
+  version: 12.6.30
+  resolution: "@anansi/generator-js@npm:12.6.30"
   dependencies:
     "@babel/runtime-corejs3": "npm:^7.26.0"
     "@types/inquirer": "npm:^9.0.9"
@@ -448,7 +448,7 @@ __metadata:
     chalk: "npm:^4.1.2"
     core-js-pure: "npm:^3.40.0"
     ejs: "npm:^3.1.10"
-    execa: "npm:^9.6.0"
+    execa: "npm:^9.6.1"
     gulp-filter: "npm:^9.0.1"
     gulp-prettier: "npm:^6.0.0"
     import-meta-resolve: "npm:^4.2.0"
@@ -457,7 +457,7 @@ __metadata:
     pacote: "npm:^21.0.4"
     shelobsay: "npm:^2.0.0"
     yeoman-generator: "npm:^7.5.1"
-  checksum: 10c0/9b090f0572a9ccc873f1623c49a0bfc17fa7669717fed83fd75e6060e7b58459fc1246653f6ddf9c8a2b08fe62c79954d6cc7206ee1fef925e71efad3aea6b1f
+  checksum: 10c0/f646a18df69439fda2bcec7ec15f6162825758231dcfbabba47612187a44ed0b53dfc7571bd00686789647d141dd070a930d1e9905a812352778af6a674b5b18
   languageName: node
   linkType: hard
 
@@ -11216,8 +11216,8 @@ __metadata:
   dependencies:
     "@anansi/babel-preset": "npm:6.2.19"
     "@anansi/browserslist-config": "npm:1.7.3"
-    "@anansi/cli": "npm:3.1.89"
-    "@anansi/core": "npm:0.21.1"
+    "@anansi/cli": "npm:3.1.90"
+    "@anansi/core": "npm:0.21.2"
     "@anansi/router": "npm:0.10.19"
     "@anansi/webpack-config": "npm:21.1.3"
     "@babel/core": "npm:7.28.5"
@@ -14363,9 +14363,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"execa@npm:^9.6.0":
-  version: 9.6.0
-  resolution: "execa@npm:9.6.0"
+"execa@npm:^9.6.0, execa@npm:^9.6.1":
+  version: 9.6.1
+  resolution: "execa@npm:9.6.1"
   dependencies:
     "@sindresorhus/merge-streams": "npm:^4.0.0"
     cross-spawn: "npm:^7.0.6"
@@ -14379,7 +14379,7 @@ __metadata:
     signal-exit: "npm:^4.1.0"
     strip-final-newline: "npm:^4.0.0"
     yoctocolors: "npm:^2.1.1"
-  checksum: 10c0/2c44a33142f77d3a6a590a3b769b49b27029a76768593bac1f26fed4dd1330e9c189ee61eba6a8c990fb77e37286c68c7445472ebf24c22b31e9ff320e73d7ac
+  checksum: 10c0/636b36585306a3c8bc3a9d7b25d2d915fb06d8c9b9b02a804280d62562de3b34535affc1b7702b039320e0953daa6545a073f3c4b63fe974c1fe11336c56b467
   languageName: node
   linkType: hard
 
@@ -14420,7 +14420,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"express@npm:^4.21.2":
+"express@npm:^4.21.2, express@npm:^4.22.1":
   version: 4.22.1
   resolution: "express@npm:4.22.1"
   dependencies:
