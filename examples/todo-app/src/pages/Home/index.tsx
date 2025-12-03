@@ -62,6 +62,10 @@ const Header = styled.div`
     font-size: 32px;
     font-weight: 600;
   }
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const Subtitle = styled.p`

@@ -74,6 +74,10 @@ const [handleAdd, isLoading] = useLoading(async () => {
   .todo-list {
     margin: 20px 12px;
   }
+  
+  .header {
+    display: none;
+  }
 }
 
 .header {

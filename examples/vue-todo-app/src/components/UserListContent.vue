@@ -71,6 +71,10 @@ const users = await useSuspense(UserResource.getList);
     grid-template-columns: 1fr;
     gap: 12px;
   }
+
+  .header {
+    display: none;
+  }
 }
 
 .user-card {
