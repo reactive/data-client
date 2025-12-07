@@ -333,9 +333,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/cli@npm:3.1.90":
-  version: 3.1.90
-  resolution: "@anansi/cli@npm:3.1.90"
+"@anansi/cli@npm:3.1.91":
+  version: 3.1.91
+  resolution: "@anansi/cli@npm:3.1.91"
   dependencies:
     "@anansi/generator-js": "npm:^12.6.30"
     binary-version-check: "npm:^6.1.0"
@@ -346,21 +346,21 @@ __metadata:
     latest-version: "npm:^9.0.0"
     yo: "npm:^6.0.0"
   peerDependencies:
-    "@anansi/core": ^0.13.0 || ^0.14.0 || ^0.15.0 || ^0.16.0 || ^0.17.0 || ^0.18.0  || ^0.19.0 || ^0.20.0
+    "@anansi/core": ^0.13.0 || ^0.14.0 || ^0.15.0 || ^0.16.0 || ^0.17.0 || ^0.18.0  || ^0.19.0 || ^0.20.0 || ^0.21.0
   peerDependenciesMeta:
     "@anansi/core":
       optional: true
   bin:
     anansi: ./run.mjs
-  checksum: 10c0/7fbe8fd2858a41379e11dd147fb6c2ba608bd5ca21ce0be12060cab0512de682c37b24363bb91aae77cecd3445db019f00e3646dc43db4e282dd93a6ea9e811d
+  checksum: 10c0/fa34ff3a7ebcff326927671b86c6e33560811340b1223322ae2ad7258fe0e12963cb1268269a8d7ac14cea5c6a4c54eff21de2c804413394dc47b11093ac0320
   languageName: node
   linkType: hard
 
-"@anansi/core@npm:0.21.2":
-  version: 0.21.2
-  resolution: "@anansi/core@npm:0.21.2"
+"@anansi/core@npm:0.21.3":
+  version: 0.21.3
+  resolution: "@anansi/core@npm:0.21.3"
   dependencies:
-    "@anansi/router": "npm:^0.10.19"
+    "@anansi/router": "npm:^0.10.20"
     "@babel/runtime-corejs3": "npm:^7.26.0"
     chalk: "npm:^4.1.2"
     compression: "npm:^1.8.1"
@@ -398,7 +398,7 @@ __metadata:
   bin:
     serve-anansi: ./lib/scripts/serve.js
     start-anansi: ./lib/scripts/startDevserver.js
-  checksum: 10c0/8c66ac07ab76de83c3bf15a603f643357e223b52bc187ce0544a6059fe53378cb4e7f2f30526a6cd70195a1364cc5114932678e8a7094b89a42f44a2823e076f
+  checksum: 10c0/ce5c5906d4f3c1b08e48ee76ac295c2a392aa1ec7e25c80d5e43554f39c4ad459c3028d01a022ac2a60a1d84e04995359f6ca1f30f48788f65f178017b0339d6
   languageName: node
   linkType: hard
 
@@ -492,12 +492,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/router@npm:0.10.19, @anansi/router@npm:^0.10.19":
-  version: 0.10.19
-  resolution: "@anansi/router@npm:0.10.19"
+"@anansi/router@npm:0.10.20, @anansi/router@npm:^0.10.20":
+  version: 0.10.20
+  resolution: "@anansi/router@npm:0.10.20"
   dependencies:
     "@babel/runtime-corejs3": "npm:^7.26.0"
-    "@pojo-router/core": "npm:^0.10.12"
+    "@pojo-router/core": "npm:^0.10.13"
     core-js-pure: "npm:^3.40.0"
     history: "npm:^5.3.0"
     nano-memoize: "npm:^3.0.16"
@@ -507,7 +507,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/6f37536aacf5f3e8baf205dff8d21d9a9fff91b367f0668ee6447d3dffbdadac780ce7bbf2412c529b89814ae673effcbb700abcf2f00675b690df1d4204fb3c
+  checksum: 10c0/177b902772120efc66941409715bb676fbe6373719c62971c9a0171e77db4d1b8425e61d8091e98ccd98bf4bc599851c5d0b894da565f431e29885cedfba1dfe
   languageName: node
   linkType: hard
 
@@ -6135,9 +6135,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pojo-router/core@npm:^0.10.12":
-  version: 0.10.12
-  resolution: "@pojo-router/core@npm:0.10.12"
+"@pojo-router/core@npm:^0.10.13":
+  version: 0.10.13
+  resolution: "@pojo-router/core@npm:0.10.13"
   dependencies:
     "@babel/runtime-corejs3": "npm:^7.26.0"
     core-js-pure: "npm:^3.40.0"
@@ -6149,7 +6149,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/f80d28e52e9a28c729c8ce93c80483d22494c542b2bfc78d9f828ea0047fd27d1d7860852de9760855602b5230a2931cd04a6e2ee07104ad6d3e56782b94d60d
+  checksum: 10c0/e375a538b4cfe764d541bf768905339ac324e2d1c33f1bece03d68a278b067a036b048aa9f55d25273951460432e4b548361c48657a57192aeaa282eedf1ba03
   languageName: node
   linkType: hard
 
@@ -11240,9 +11240,9 @@ __metadata:
   dependencies:
     "@anansi/babel-preset": "npm:6.2.20"
     "@anansi/browserslist-config": "npm:1.7.3"
-    "@anansi/cli": "npm:3.1.90"
-    "@anansi/core": "npm:0.21.2"
-    "@anansi/router": "npm:0.10.19"
+    "@anansi/cli": "npm:3.1.91"
+    "@anansi/core": "npm:0.21.3"
+    "@anansi/router": "npm:0.10.20"
     "@anansi/webpack-config": "npm:21.1.4"
     "@babel/core": "npm:7.28.5"
     "@babel/runtime-corejs3": "npm:7.28.4"
