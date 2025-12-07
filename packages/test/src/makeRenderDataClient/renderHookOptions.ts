@@ -1,4 +1,4 @@
-import { queries } from '@testing-library/dom';
+import type { queries } from '@testing-library/dom';
 import type { Queries, RenderOptions } from '@testing-library/react';
 import * as ReactDOMClient from 'react-dom/client';
 
