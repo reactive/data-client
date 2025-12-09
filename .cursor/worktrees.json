@@ -1,0 +1,7 @@
+{
+  "setup-worktree": [
+    "yarn install",
+    "yarn build:types",
+    "yarn build:bundle"
+  ]
+}
