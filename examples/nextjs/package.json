@@ -3,7 +3,7 @@
   "version": "0.1.10",
   "private": true,
   "scripts": {
-    "dev": "next dev --webpack",
+    "dev": "next dev",
     "prebuild": "next telemetry disable",
     "build": "next build",
     "start": "next start",
@@ -27,7 +27,7 @@
     "@types/react-dom": "19.2.3",
     "clsx": "^2.1.1",
     "core-js": "^3.40.0",
-    "next": "^16.0.0",
+    "next": "15.4.10",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "tar-fs": "^3.0.6",

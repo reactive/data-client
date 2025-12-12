@@ -1,3 +1,4 @@
+import { AsyncBoundary } from '@data-client/react';
 import Link from 'next/link';
 
 import UserSelection from '@/components/todo/UserSelection';
@@ -19,7 +20,7 @@ export default async function TodoLayout(props: {
 
       <UserSelection userId={Number(params.userId)} />
 
-      {children}
+      <AsyncBoundary>{children}</AsyncBoundary>
 
       <p>
         No fetch requests took place on the client. The client is immediately
