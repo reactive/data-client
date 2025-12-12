@@ -32,7 +32,6 @@
     "@anansi/browserslist-config": "1.7.3",
     "@anansi/webpack-config": "21.1.4",
     "@babel/core": "7.28.5",
-    "@linaria/babel-preset": "5.0.4",
     "@linaria/core": "6.3.0",
     "@linaria/react": "6.3.0",
     "@linaria/shaker": "5.0.3",
