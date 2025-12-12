@@ -50,8 +50,8 @@
     "@data-client/react": "0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c",
     "@data-client/rest": "0.15.1-beta-20251201012906-ff2853c5a0da93a503b2b606c8fc724625b79308",
     "core-js": "^3.40.0",
-    "react": "19.2.1",
-    "react-dom": "19.2.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
     "uuid": "^13.0.0"
   }
 }
