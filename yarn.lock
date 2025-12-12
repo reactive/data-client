@@ -333,9 +333,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/cli@npm:3.1.91":
-  version: 3.1.91
-  resolution: "@anansi/cli@npm:3.1.91"
+"@anansi/cli@npm:3.1.92":
+  version: 3.1.92
+  resolution: "@anansi/cli@npm:3.1.92"
   dependencies:
     "@anansi/generator-js": "npm:^12.6.30"
     binary-version-check: "npm:^6.1.0"
@@ -352,21 +352,21 @@ __metadata:
       optional: true
   bin:
     anansi: ./run.mjs
-  checksum: 10c0/fa34ff3a7ebcff326927671b86c6e33560811340b1223322ae2ad7258fe0e12963cb1268269a8d7ac14cea5c6a4c54eff21de2c804413394dc47b11093ac0320
+  checksum: 10c0/073b6707acf1574f1b4ef10f22a4f43cca6543375f8e9b6f83e2eb2d0f7082882004384a1d324b682a75b2162966074370768639206269c7e5d74ff8b08146da
   languageName: node
   linkType: hard
 
-"@anansi/core@npm:0.21.3":
-  version: 0.21.3
-  resolution: "@anansi/core@npm:0.21.3"
+"@anansi/core@npm:0.21.4":
+  version: 0.21.4
+  resolution: "@anansi/core@npm:0.21.4"
   dependencies:
-    "@anansi/router": "npm:^0.10.20"
+    "@anansi/router": "npm:^0.10.21"
     "@babel/runtime-corejs3": "npm:^7.26.0"
     chalk: "npm:^4.1.2"
     compression: "npm:^1.8.1"
     core-js-pure: "npm:^3.40.0"
     cross-fetch: "npm:^4.1.0"
-    enhanced-resolve: "npm:^5.18.3"
+    enhanced-resolve: "npm:^5.18.4"
     express: "npm:^4.22.1"
     fs-require: "npm:^1.6.0"
     history: "npm:^5.3.0"
@@ -398,7 +398,7 @@ __metadata:
   bin:
     serve-anansi: ./lib/scripts/serve.js
     start-anansi: ./lib/scripts/startDevserver.js
-  checksum: 10c0/ce5c5906d4f3c1b08e48ee76ac295c2a392aa1ec7e25c80d5e43554f39c4ad459c3028d01a022ac2a60a1d84e04995359f6ca1f30f48788f65f178017b0339d6
+  checksum: 10c0/fee35dcdc0f707d8cfcf9d8e4b0d590aa9a902d42151a07ead3516dfd413b106d0589d569d56c87fff15e31ad39c4bb9a2dbf246cab3abd3246b20e92d4f4874
   languageName: node
   linkType: hard
 
@@ -492,12 +492,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/router@npm:0.10.20, @anansi/router@npm:^0.10.20":
-  version: 0.10.20
-  resolution: "@anansi/router@npm:0.10.20"
+"@anansi/router@npm:0.10.21, @anansi/router@npm:^0.10.21":
+  version: 0.10.21
+  resolution: "@anansi/router@npm:0.10.21"
   dependencies:
     "@babel/runtime-corejs3": "npm:^7.26.0"
-    "@pojo-router/core": "npm:^0.10.13"
+    "@pojo-router/core": "npm:^0.10.14"
     core-js-pure: "npm:^3.40.0"
     history: "npm:^5.3.0"
     nano-memoize: "npm:^3.0.16"
@@ -507,7 +507,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/177b902772120efc66941409715bb676fbe6373719c62971c9a0171e77db4d1b8425e61d8091e98ccd98bf4bc599851c5d0b894da565f431e29885cedfba1dfe
+  checksum: 10c0/df6d50e98c4d1298adbc52a37b3ce81e191e044a38fd2c5145390b092a544a342e760eb9a57f8bd14bf6df55610a6aa5413b8ddcc6c85de671384f4b8c350522
   languageName: node
   linkType: hard
 
@@ -6140,9 +6140,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pojo-router/core@npm:^0.10.13":
-  version: 0.10.13
-  resolution: "@pojo-router/core@npm:0.10.13"
+"@pojo-router/core@npm:^0.10.14":
+  version: 0.10.14
+  resolution: "@pojo-router/core@npm:0.10.14"
   dependencies:
     "@babel/runtime-corejs3": "npm:^7.26.0"
     core-js-pure: "npm:^3.40.0"
@@ -6154,7 +6154,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/e375a538b4cfe764d541bf768905339ac324e2d1c33f1bece03d68a278b067a036b048aa9f55d25273951460432e4b548361c48657a57192aeaa282eedf1ba03
+  checksum: 10c0/a74274b407c966755b7061f0b1349c2d089f566bac8a977b24dd70e910ba04361bde1237e0e82007673e29127ce9f6d64a25594a3059fc7e321099d84e08faee
   languageName: node
   linkType: hard
 
@@ -7880,12 +7880,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:24.10.2, @types/node@npm:>=18, @types/node@npm:>=18.19.0, @types/node@npm:^24.0.0":
-  version: 24.10.2
-  resolution: "@types/node@npm:24.10.2"
+"@types/node@npm:*, @types/node@npm:>=18, @types/node@npm:>=18.19.0":
+  version: 25.0.1
+  resolution: "@types/node@npm:25.0.1"
   dependencies:
     undici-types: "npm:~7.16.0"
-  checksum: 10c0/560c894e1a9bf7468718ceca8cd520361fd0d3fcc0b020c2f028fc722b28b5b56aecd16736a9b753d52a14837c066cf23480a8582ead59adc63a7e4333bc976c
+  checksum: 10c0/1d5ca9f240d0cf8e43d5281c0e6ee96fb22d37dc2e5ef52c6ca71de47957a6128e124990cedf5b14c03d0250737bd78ad370d93bcf1729a75ca4e54384fdd51a
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:24.10.3, @types/node@npm:^24.0.0":
+  version: 24.10.3
+  resolution: "@types/node@npm:24.10.3"
+  dependencies:
+    undici-types: "npm:~7.16.0"
+  checksum: 10c0/58ddaf9ce3dd9d3aa55f7dfacb7b8f16481ad64a47b99f1890fa3d4498d1958def78699838f422c0a81851d6be8b9de7ffc344435a60abcf02c0e2c085008b20
   languageName: node
   linkType: hard
 
@@ -11245,9 +11254,9 @@ __metadata:
   dependencies:
     "@anansi/babel-preset": "npm:6.2.20"
     "@anansi/browserslist-config": "npm:1.7.3"
-    "@anansi/cli": "npm:3.1.91"
-    "@anansi/core": "npm:0.21.3"
-    "@anansi/router": "npm:0.10.20"
+    "@anansi/cli": "npm:3.1.92"
+    "@anansi/core": "npm:0.21.4"
+    "@anansi/router": "npm:0.10.21"
     "@anansi/webpack-config": "npm:21.1.4"
     "@babel/core": "npm:7.28.5"
     "@babel/runtime-corejs3": "npm:7.28.4"
@@ -13531,13 +13540,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"enhanced-resolve@npm:^5.17.3, enhanced-resolve@npm:^5.18.3, enhanced-resolve@npm:^5.7.0":
-  version: 5.18.3
-  resolution: "enhanced-resolve@npm:5.18.3"
+"enhanced-resolve@npm:^5.17.3, enhanced-resolve@npm:^5.18.4, enhanced-resolve@npm:^5.7.0":
+  version: 5.18.4
+  resolution: "enhanced-resolve@npm:5.18.4"
   dependencies:
     graceful-fs: "npm:^4.2.4"
     tapable: "npm:^2.2.0"
-  checksum: 10c0/d413c23c2d494e4c1c9c9ac7d60b812083dc6d446699ed495e69c920988af0a3c66bf3f8d0e7a45cb1686c2d4c1df9f4e7352d973f5b56fe63d8d711dd0ccc54
+  checksum: 10c0/8f6d42c8a0787a746c493e724c9de5d091cfe8e3f871f2464e2f78a6c55fa1a3aaba495334f923c8ea3ac23e1472491f79feef6fc0fb46a75169cb447ffbe2dc
   languageName: node
   linkType: hard
 
@@ -25860,7 +25869,7 @@ __metadata:
     "@testing-library/react-hooks": "npm:8.0.1"
     "@testing-library/react-native": "npm:13.3.3"
     "@types/jest": "npm:30.0.0"
-    "@types/node": "npm:24.10.2"
+    "@types/node": "npm:24.10.3"
     "@types/react": "npm:19.2.7"
     "@types/react-dom": "npm:19.2.3"
     babel-plugin-module-resolver: "npm:5.0.2"
