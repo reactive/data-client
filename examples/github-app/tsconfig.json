@@ -8,7 +8,7 @@
     "jsx": "preserve", // this is just to make it work with older typescript versions in our tests
     "declaration": true,
     "strict": true,
-    "moduleResolution": "node",
+    "moduleResolution": "node", // this is just to make it work with older typescript versions in our tests
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
