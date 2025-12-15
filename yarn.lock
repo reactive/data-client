@@ -333,9 +333,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/cli@npm:3.1.93":
-  version: 3.1.93
-  resolution: "@anansi/cli@npm:3.1.93"
+"@anansi/cli@npm:3.1.94":
+  version: 3.1.94
+  resolution: "@anansi/cli@npm:3.1.94"
   dependencies:
     "@anansi/generator-js": "npm:^12.6.30"
     binary-version-check: "npm:^6.1.0"
@@ -352,13 +352,13 @@ __metadata:
       optional: true
   bin:
     anansi: ./run.mjs
-  checksum: 10c0/7076706fbbe374cf1d8ac7d6ab85303720497dcaa00a1960d90000ff2f90695157f4a22ac84a73b5668602dea117aabcf9959ea394f49d44aab28a1d4b51efee
+  checksum: 10c0/fe994e28d423b20db4e8d403b5b30bfb0b9e9fe51dbad33dde84c5eff7c67635559c10160bb6febaab6238109bf41e96c6ad786bd4c87c6342ca8aebea08dec7
   languageName: node
   linkType: hard
 
-"@anansi/core@npm:0.21.5":
-  version: 0.21.5
-  resolution: "@anansi/core@npm:0.21.5"
+"@anansi/core@npm:0.22.0":
+  version: 0.22.0
+  resolution: "@anansi/core@npm:0.22.0"
   dependencies:
     "@anansi/router": "npm:^0.10.21"
     "@babel/runtime-corejs3": "npm:^7.26.0"
@@ -398,7 +398,7 @@ __metadata:
   bin:
     serve-anansi: ./lib/scripts/serve.js
     start-anansi: ./lib/scripts/startDevserver.js
-  checksum: 10c0/8f1cab2a6f82c17406ebb6c0738d1aa40d0ce01e98c6779c4b7358a1f176c22768053759f8c26768f8d4ffbc3ee6ee0eb4c4ef4afd3e69a83c50b2883ae35252
+  checksum: 10c0/995d5cf6e32f81303d20e2a765074e9467f4ea0058996a1fc448a27eb4d1ad3672fd165578d15eb17df314cf2ac70fe57332b505085578b066b3a1a16854c952
   languageName: node
   linkType: hard
 
@@ -7881,20 +7881,20 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:*, @types/node@npm:>=18, @types/node@npm:>=18.19.0":
-  version: 25.0.1
-  resolution: "@types/node@npm:25.0.1"
+  version: 25.0.2
+  resolution: "@types/node@npm:25.0.2"
   dependencies:
     undici-types: "npm:~7.16.0"
-  checksum: 10c0/1d5ca9f240d0cf8e43d5281c0e6ee96fb22d37dc2e5ef52c6ca71de47957a6128e124990cedf5b14c03d0250737bd78ad370d93bcf1729a75ca4e54384fdd51a
+  checksum: 10c0/12c4044bf2e46ba3d313ddf6256ee3c88e336a62d129fe788eeab8ff2631b3df51eb31ade4cdc04552fbe51e285f0663c49b60c78acd31da2b9f2c86a84347e3
   languageName: node
   linkType: hard
 
-"@types/node@npm:24.10.3, @types/node@npm:^24.0.0":
-  version: 24.10.3
-  resolution: "@types/node@npm:24.10.3"
+"@types/node@npm:24.10.4, @types/node@npm:^24.0.0":
+  version: 24.10.4
+  resolution: "@types/node@npm:24.10.4"
   dependencies:
     undici-types: "npm:~7.16.0"
-  checksum: 10c0/58ddaf9ce3dd9d3aa55f7dfacb7b8f16481ad64a47b99f1890fa3d4498d1958def78699838f422c0a81851d6be8b9de7ffc344435a60abcf02c0e2c085008b20
+  checksum: 10c0/069639cb7233ee747df1897b5e784f6b6c5da765c96c94773c580aac888fa1a585048d2a6e95eb8302d89c7a9df75801c8b5a0b7d0221d4249059cf09a5f4228
   languageName: node
   linkType: hard
 
@@ -7913,11 +7913,11 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:^20.0.0":
-  version: 20.19.26
-  resolution: "@types/node@npm:20.19.26"
+  version: 20.19.27
+  resolution: "@types/node@npm:20.19.27"
   dependencies:
     undici-types: "npm:~6.21.0"
-  checksum: 10c0/68e7d92dd2b7bddff9dffabb9c740e655906ceac428dcf070915cdcae720579e4d72261c55ed7eccbfa907a75cbb1ff3a9148ea49878a07a72d5dd6c9e06d9d7
+  checksum: 10c0/7599c24d80465c1aa6e29b53581fc20ad8862ff33e6eef31d05c1c706868476ee57319c89b802ea972dd4d64ce86d18020aa5344f851fb59b730ea509a63300f
   languageName: node
   linkType: hard
 
@@ -11254,8 +11254,8 @@ __metadata:
   dependencies:
     "@anansi/babel-preset": "npm:6.2.20"
     "@anansi/browserslist-config": "npm:1.7.3"
-    "@anansi/cli": "npm:3.1.93"
-    "@anansi/core": "npm:0.21.5"
+    "@anansi/cli": "npm:3.1.94"
+    "@anansi/core": "npm:0.22.0"
     "@anansi/router": "npm:0.10.21"
     "@anansi/webpack-config": "npm:21.1.4"
     "@babel/core": "npm:7.28.5"
@@ -25869,7 +25869,7 @@ __metadata:
     "@testing-library/react-hooks": "npm:8.0.1"
     "@testing-library/react-native": "npm:13.3.3"
     "@types/jest": "npm:30.0.0"
-    "@types/node": "npm:24.10.3"
+    "@types/node": "npm:24.10.4"
     "@types/react": "npm:19.2.7"
     "@types/react-dom": "npm:19.2.3"
     babel-plugin-module-resolver: "npm:5.0.2"
