@@ -9,7 +9,7 @@
     "declaration": true,
     "strict": true,
     "noImplicitAny": false,
-    "moduleResolution": "node",
+    "moduleResolution": "node", // this is just to make it work with older typescript versions in our tests
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,

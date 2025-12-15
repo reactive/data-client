@@ -1,3 +1,7 @@
+// this is just to make it work with older typescript versions in our tests
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import { antdSpout } from '@anansi/core/antd';
 import {
   laySpouts,
   documentSpout,
@@ -6,7 +10,6 @@ import {
   routerSpout,
   JSONSpout,
   appSpout,
-  antdSpout,
   navigatorSpout,
 } from '@anansi/core/server';
 import { useController } from '@data-client/react';
@@ -24,6 +27,9 @@ const csPolicy = {
 };
 
 const spouts = prefetchSpout('controller')(
+  // this is just to make it work with older typescript versions in our tests
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   documentSpout({ title: 'Github App', lang: 'en', csPolicy })(
     antdSpout()(
       JSONSpout()(

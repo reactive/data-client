@@ -5,9 +5,12 @@ import {
   routerSpout,
   JSONSpout,
   appSpout,
-  antdSpout,
   navigatorSpout,
 } from '@anansi/core';
+// this is just to make it work with older typescript versions in our tests
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import { antdSpout } from '@anansi/core/antd';
 import { useController } from '@data-client/react';
 
 import app from '@/app';
