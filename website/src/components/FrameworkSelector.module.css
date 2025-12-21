@@ -1,0 +1,105 @@
+.container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.logo {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.chevron {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  appearance: none;
+  background-color: var(--ifm-background-surface-color);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--ifm-global-radius);
+  color: var(--ifm-font-color-base);
+  cursor: pointer;
+  font-family: var(--ifm-font-family-base);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.35rem 0.5rem 0.35rem 0.6rem;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.trigger:hover {
+  border-color: var(--ifm-color-primary);
+}
+
+.trigger:focus {
+  outline: none;
+  border-color: var(--ifm-color-primary);
+  box-shadow: 0 0 0 2px var(--ifm-color-primary-light);
+}
+
+.trigger[aria-expanded='true'] .chevron {
+  transform: rotate(180deg);
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 100;
+  min-width: 100%;
+  margin: 0;
+  padding: 0.25rem;
+  list-style: none;
+  background-color: var(--ifm-background-surface-color);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--ifm-global-radius);
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  border: none;
+  border-radius: calc(var(--ifm-global-radius) - 2px);
+  background: transparent;
+  color: var(--ifm-font-color-base);
+  font-family: var(--ifm-font-family-base);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.option:hover {
+  background-color: var(--ifm-color-emphasis-100);
+}
+
+.option.selected {
+  background-color: var(--ifm-color-primary-lightest);
+  color: var(--ifm-color-primary-darkest);
+}
+
+html[data-theme='dark'] .option.selected {
+  background-color: var(--ifm-color-primary-darkest);
+  color: var(--ifm-color-primary-lightest);
+}
+
+html[data-theme='dark'] .dropdown {
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.3),
+    0 2px 4px -2px rgb(0 0 0 / 0.3);
+}
