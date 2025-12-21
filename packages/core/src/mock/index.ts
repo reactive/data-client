@@ -13,3 +13,4 @@ export type {
 } from './fixtureTypes.js';
 export { collapseFixture } from './collapseFixture.js';
 export { createFixtureMap } from './createFixtureMap.js';
+export { default as mockInitialState } from './mockState.js';

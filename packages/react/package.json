@@ -78,6 +78,9 @@
       "redux": [
         "lib/server/redux/index.d.ts"
       ],
+      "mock": [
+        "lib/mock/index.d.ts"
+      ],
       "*": [
         "lib/index.d.ts"
       ]
@@ -94,6 +97,9 @@
       ],
       "redux": [
         "ts3.4/server/redux/index.d.ts"
+      ],
+      "mock": [
+        "ts3.4/mock/index.d.ts"
       ],
       "*": [
         "ts3.4/index.d.ts"
@@ -131,6 +137,10 @@
       "browser": "./lib/server/redux/index.js",
       "react-native": "./native/server/redux/index.js",
       "default": "./lib/server/redux/index.js"
+    },
+    "./mock": {
+      "types": "./lib/mock/index.d.ts",
+      "default": "./lib/mock/index.js"
     },
     "./package.json": "./package.json"
   },

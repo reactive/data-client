@@ -56,9 +56,6 @@
     },
     "./mock": {
       "types": "./lib/mock/index.d.ts",
-      "require": "./lib/mock/index.js",
-      "browser": "./lib/mock/index.js",
-      "react-native": "./lib/mock/index.js",
       "default": "./lib/mock/index.js"
     },
     "./package.json": "./package.json"
