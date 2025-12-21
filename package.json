@@ -99,7 +99,7 @@
     "react-native-screens": "^4.1.0",
     "react-test-renderer": "^19.0.0",
     "rimraf": "^6.0.0",
-    "rollup": "4.53.3",
+    "rollup": "4.54.0",
     "typescript": "5.9.3",
     "whatwg-fetch": "3.0.0"
   },
