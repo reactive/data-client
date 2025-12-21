@@ -34,6 +34,14 @@ If your idea requires design considerations, it's best to [start a discussion][4
 * Add tests for your feature. You should be able to look at other tests for
   examples. If you're unsure, don't hesitate to [open an issue][1] and ask!
 
+* Add a changeset for user-facing changes in published packages:
+  * Run `yarn changeset` from repo root (run it once per distinct change).
+  * Write **terse changelog text** (1–3 short lines); include only **minimal examples** if needed.
+  * For **breaking changes**, include a minimal migration example with:
+    * `#### before`
+    * `#### after`
+  * If multiple packages are affected in different ways, generate **separate changesets** for each respective change.
+
 * Submit your pull request!
 
 ## Support Requests
