@@ -28,6 +28,11 @@ native:
   description: 'React Native enables React applications for iOS and Android'
   permalink: /react-native
 
+vue:
+  label: 'Vue'
+  description: 'Vue is a rendering library'
+  permalink: /vue
+
 rest:
   label: 'REST'
   description: 'Representational state transfer: HTTP based APIs'
