@@ -2,33 +2,97 @@
 alwaysApply: true
 ---
 
+## Naming Convention
+
+Files: `YYYY-MM-DD-vX.Y-short-description.md`
+
+## Frontmatter
+
+- Title format: `vX.Y: Feature1, Feature2, Feature3` or `vX.Y Feature-focused Title`
+- Include `releases` tag plus relevant feature tags from [tags.yml](./tags.yml)
+- `draft: true` for unpublished/WIP posts
+
 ## Structure
 
-1. **Summary section** (before `<!--truncate-->`)
-   - Lead with most impactful changes
-   - Group related items into logical sections
-   - List breaking changes with links to migration sections
-   - Use bullet lists for quick scanning
+1. **Summary section** (before `<!-- truncate -->`)
+   - Lead with most impactful changes (new platforms, major features)
+   - Group related items using conceptual categories (see below)
+   - End with **Breaking Changes** as labeled section with anchor links to migration
+   - Use bullet lists and `<Link>` button to migration guide
+   - Include short code snippet if it demonstrates the key feature
 
-2. **`<!--truncate-->`** - Marks preview cutoff
+2. **`<!-- truncate -->`** - Marks preview cutoff
 
 3. **Detailed sections** (after truncate)
-   - Expand on summary items with examples
-   - Group related changes under shared headers
-   - End with Migration Guide for breaking changes
-   - Close with "Upgrade support" linking to Discord/GitHub issues
+   - Choose organizational strategy based on release scope:
+     - **By Category**: For platform/ecosystem releases (e.g., Platforms → API → Types → Migration)
+     - **By Concept**: For API-focused releases (e.g., Queryable → schema.Query → controller.get → useQuery)
+     - **By Package**: For multi-package coordinated changes (e.g., @data-client/react → @data-client/rest)
+   - Within each section: explanation → code example → PR/commit links
+   - End with Migration Guide, then "Upgrade support"
+
+## Conceptual Categories
+
+Align content with the repo's layered architecture:
+
+| Category | Package Layer | Examples |
+|----------|--------------|----------|
+| **Platforms/Environments** | Integration | NextJS, Expo, React Native, Vue, React versions |
+| **Hooks/Composables** | react, vue | useSuspense, useQuery, useLive, useCache |
+| **Controller Methods** | core | controller.fetch, controller.set, controller.get |
+| **Schema/Data Modeling** | normalizr, endpoint | Entity, Collection, Query, Queryable, Union |
+| **REST/Endpoint** | rest | Resource, RestEndpoint, path patterns |
+| **Performance** | core | Benchmarks, caching, memoization |
+| **Package Consolidation** | any | Subpath exports replacing separate packages |
+| **Internal/Low-level** | normalizr, core | State structure, normalization internals |
+| **Typing** | all | TypeScript improvements |
+| **Fixes** | all | Bug fixes |
+
+## Section Ordering
+
+**Summary (before truncate):**
+1. Platforms/major features (highest visibility)
+2. Package consolidations (import path changes)
+3. New APIs (hooks, controller methods)
+4. Other Improvements (bulleted list)
+5. Breaking Changes (with migration anchor links)
+
+**Details (after truncate):**
+1. Major features (with demos: `<StackBlitz>`, `<HooksPlayground>`)
+2. New/changed APIs (with `<TypeScriptEditor>` examples)
+3. Performance (with mermaid charts if benchmarked)
+4. Other improvements (grouped subsection)
+5. Migration guide
 
 ## Imports
 
-Place after frontmatter, before content:
+Place after frontmatter, before content. Only import what's used:
 
 ```tsx
+// Common
 import Link from '@docusaurus/Link';
-import DiffEditor from '@site/src/components/DiffEditor';
-import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
+
+// Migration/upgrade
 import PkgTabs from '@site/src/components/PkgTabs';
+import DiffEditor from '@site/src/components/DiffEditor';
+
+// Code examples
+import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
+
+// Demos
+import HooksPlayground from '@site/src/components/HooksPlayground';
 import StackBlitz from '@site/src/components/StackBlitz';
+import Embed from '@site/src/components/Embed';
+
+// Media
+import AutoPlayVideo from '@site/src/components/AutoPlayVideo';
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+// Layout
+import Grid from '@site/src/components/Grid';
 ```
+
+Note: Some imports (like `PkgTabs`) may appear after truncate if only used in Migration section.
 
 ## Code Examples
 
@@ -62,6 +126,14 @@ import StackBlitz from '@site/src/components/StackBlitz';
 As usual, if you have any troubles or questions, feel free to join our [![Chat](https://img.shields.io/discord/768254430381735967.svg?style=flat-square&colorB=758ED3)](https://discord.gg/wXGV27xm6t) or [file a bug](https://github.com/reactive/data-client/issues/new/choose)
 ```
 
-## Naming Convention
+## Component Usage Patterns
 
-Files: `YYYY-MM-DD-vX.Y-short-description.md`
+| Scenario | Component | Notes |
+|----------|-----------|-------|
+| Full interactive demo | `<HooksPlayground>` | For showcasing complete features with fixtures |
+| Embedded app demo | `<StackBlitz>` | For real app examples (todo-app, coin-app) |
+| Live coding demo | `<Embed>` | For deployed demos (vercel apps) |
+| Type-safe code example | `<TypeScriptEditor>` | Shows TS errors, collapsed sections with `collapsed` |
+| Before/After migration | `<DiffEditor>` | Two code blocks titled "Before" and "After" |
+| Performance comparison | Mermaid `xychart-beta` | Bar charts comparing versions/operations |
+| Video demo | `<AutoPlayVideo>` | For SSR/navigation demos |

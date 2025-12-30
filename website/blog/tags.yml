@@ -57,3 +57,13 @@ collection:
   label: 'Collections'
   description: 'Mutable Arrays or Values'
   permalink: /collection
+
+managers:
+  label: 'Managers'
+  description: 'Managers handle global side effects and middleware'
+  permalink: /managers
+
+performance:
+  label: 'Performance'
+  description: 'Performance improvements and optimizations'
+  permalink: /performance
