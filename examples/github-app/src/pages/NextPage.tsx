@@ -1,7 +1,23 @@
 import { useController, useLoading } from '@data-client/react';
-import { Button } from 'antd';
+import { Button, List, Skeleton } from 'antd';
 
 import { IssueResource } from '@/resources/Issue';
+
+function IssueListItemSkeleton() {
+  return (
+    <div style={{ paddingBottom: 16 }}>
+      <List.Item>
+        <Skeleton avatar title={false} active>
+          <List.Item.Meta
+            avatar={<Skeleton.Avatar active />}
+            title={<Skeleton.Input active style={{ width: 200 }} />}
+            description={<Skeleton.Input active style={{ width: 300 }} />}
+          />
+        </Skeleton>
+      </List.Item>
+    </div>
+  );
+}
 
 export default function NextPage({ q, page }: Props) {
   const ctrl = useController();
@@ -13,7 +29,11 @@ export default function NextPage({ q, page }: Props) {
   );
   return (
     <div style={{ textAlign: 'center', marginTop: 12 }}>
-      {isPending ? 'loading...' : <Button onClick={loadMore}>Load more</Button>}
+      {isPending ? (
+        <IssueListItemSkeleton />
+      ) : (
+        <Button onClick={loadMore}>Load more</Button>
+      )}
     </div>
   );
 }
