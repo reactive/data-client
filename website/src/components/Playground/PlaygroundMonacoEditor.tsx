@@ -7,7 +7,9 @@ import { LiveEditor } from 'react-live';
 import './monaco-init';
 
 import { extensionToMonacoLanguage } from './extensionToMonacoLanguage';
+import { isMobileOrBot } from './isMobileOrBot';
 import { largeOptions, options } from './monacoOptions';
+import PlaygroundLiveEditor from './PlaygroundLiveEditor';
 import useAutoHeight from './useAutoHeight';
 
 export default function PlaygroundMonacoEditor({
@@ -22,7 +24,18 @@ export default function PlaygroundMonacoEditor({
   isFocused = false,
   language = 'tsx',
   readOnly = false,
-  ...rest
+}: {
+  onChange: (value: string | undefined) => void;
+  code: string;
+  path?: string;
+  onFocus: (tabIndex: number) => void;
+  tabIndex: number;
+  highlights?: string;
+  autoFocus?: boolean;
+  large?: boolean;
+  isFocused?: boolean;
+  language?: string;
+  readOnly?: boolean;
 }) {
   const editorOptions = useMemo(
     () => ({ ...(large ? largeOptions : options), readOnly }),
@@ -43,14 +56,15 @@ export default function PlaygroundMonacoEditor({
     isFocused,
     lineHeight: editorOptions.lineHeight,
   });
+
   const handleMount = useCallback(
     (editor: Monaco.editor.ICodeEditor, monaco: typeof Monaco) => {
       // autofocus
       if (autoFocus) editor.focus();
       // autohighlight
-      const myhighlights = highlights && rangeParser(highlights);
+      const myhighlights = highlights ? rangeParser(highlights) : undefined;
 
-      if (highlights) {
+      if (myhighlights) {
         let selectionStartLineNumber = myhighlights[0];
         let positionLineNumber = selectionStartLineNumber;
         const selections: ISelection[] = [];
@@ -87,6 +101,13 @@ export default function PlaygroundMonacoEditor({
     },
     [],
   );
+
+  // Use lightweight editor for mobile/bots
+  // This runs inside BrowserOnly, so navigator is always defined
+  // Check must be after hooks to satisfy React's rules of hooks
+  if (isMobileOrBot()) {
+    return <PlaygroundLiveEditor onChange={onChange} code={code} />;
+  }
 
   return (
     <Editor

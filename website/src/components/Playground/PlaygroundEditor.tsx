@@ -1,7 +1,10 @@
 import PlaygroundLiveEditor from './PlaygroundLiveEditor';
 import PlaygroundMonacoEditor from './PlaygroundMonacoEditor';
-import usingMonaco from './usingMonaco';
 
-const PlaygroundEditor =
-  usingMonaco ? PlaygroundMonacoEditor : PlaygroundLiveEditor;
+// Always use Monaco editor wrapper - mobile/bot check happens inside
+// This avoids hydration mismatch from module-level navigator checks
+const PlaygroundEditor = PlaygroundMonacoEditor;
 export default PlaygroundEditor;
+
+// Re-export for use as fallback inside Monaco editor
+export { PlaygroundLiveEditor };

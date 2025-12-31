@@ -385,6 +385,8 @@ library, which has less features, but similar schema definitions.
 Memoization is done at every entity level - no matter how nested, ensuring global referential equality guarantees
 and up to 20x performance even after [mutation operations](../getting-started/mutations.md) like Create, Update and Delete.
 
+<center>
+
 <Grid>
 
 ```mermaid
@@ -404,8 +406,6 @@ xychart-beta
 ```
 
 </Grid>
-
-<center>
 
 [View benchmark](https://github.com/reactive/data-client/blob/master/examples/benchmark)
 

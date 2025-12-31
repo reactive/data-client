@@ -1,6 +1,6 @@
-import DiffEditorMonaco, { type DiffMonacoProps } from './DiffEditorMonaco';
-import usingMonaco from './Playground/usingMonaco';
+import DiffEditorMonaco from './DiffEditorMonaco';
 
-const DiffEditorChooser =
-  usingMonaco ? DiffEditorMonaco : ({ fallback }: DiffMonacoProps) => fallback;
+// Always use DiffEditorMonaco which handles SSR via <BrowserOnly>
+// The mobile/bot detection is handled inside DiffEditorMonaco
+const DiffEditorChooser = DiffEditorMonaco;
 export default DiffEditorChooser;

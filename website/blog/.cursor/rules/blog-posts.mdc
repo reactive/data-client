@@ -113,6 +113,7 @@ When documenting performance gains:
 3. **Link evidence** - Reference the PR implementing the optimization and relevant docs
 4. **Visualize with mermaid chart** - Use `xychart-beta` bar chart comparing operations:
 
+<div style={{maxWidth:'600px'}}>
 ```mermaid
 xychart-beta
     title "Performance vs vX.Y"
@@ -121,6 +122,7 @@ xychart-beta
     bar [new_values]
     bar [baseline_100s]
 ```
+</div>
 
 5. **Include benchmark links** - End with centered links to live benchmarks and source:
 
