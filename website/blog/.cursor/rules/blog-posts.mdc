@@ -104,6 +104,36 @@ Note: Some imports (like `PkgTabs`) may appear after truncate if only used in Mi
 
 **Embedded demos:** Use `<StackBlitz app="app-name" file="path/to/file.tsx" />`
 
+## Performance Improvements
+
+When documenting performance gains:
+
+1. **Lead with narrative context** - Briefly explain *what* was optimized (caching, code paths, algorithms)
+2. **Quantify with multipliers** - Use concrete metrics like "2x" or "16x improvement"
+3. **Link evidence** - Reference the PR implementing the optimization and relevant docs
+4. **Visualize with mermaid chart** - Use `xychart-beta` bar chart comparing operations:
+
+```mermaid
+xychart-beta
+    title "Performance vs vX.Y"
+    x-axis ["operation1", "operation2", "operation3"]
+    y-axis "Percentage gain" 0 --> MAX_VALUE
+    bar [new_values]
+    bar [baseline_100s]
+```
+
+5. **Include benchmark links** - End with centered links to live benchmarks and source:
+
+```md
+<center>
+
+[Benchmarks over time](https://reactive.github.io/data-client/dev/bench/) | [View benchmark](https://github.com/reactive/data-client/tree/master/examples/benchmark)
+
+</center>
+```
+
+Keep the baseline bar at 100 for each operation to show relative improvement clearly.
+
 ## Conventions
 
 - **Each change must include:** a link to the PR (or commit if no PR) and relevant doc links
