@@ -173,7 +173,7 @@
       "groupName": "react-navigation monorepo"
     },
     {
-      "matchPackageNames": ["node", "@types/node"],
+      "matchPackageNames": ["node", "@types/node", "cimg/node"],
       "matchUpdateTypes": ["major"],
       "groupName": "node",
       "groupSlug": "node"
