@@ -333,11 +333,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/cli@npm:3.1.95":
-  version: 3.1.95
-  resolution: "@anansi/cli@npm:3.1.95"
+"@anansi/cli@npm:3.1.96":
+  version: 3.1.96
+  resolution: "@anansi/cli@npm:3.1.96"
   dependencies:
-    "@anansi/generator-js": "npm:^12.6.30"
+    "@anansi/generator-js": "npm:^12.6.31"
     binary-version-check: "npm:^6.1.0"
     chalk: "npm:^4.1.2"
     commander: "npm:^12.1.0"
@@ -352,7 +352,7 @@ __metadata:
       optional: true
   bin:
     anansi: ./run.mjs
-  checksum: 10c0/e010dbe2b66b78a0619ce796ab05d83b91feaf36276f749fa93b3e835fa8a853b4364aa3e6e1d9d2ef53236d98ac1e959ab2848fc691b244ba383d4db7a0c77a
+  checksum: 10c0/c8cf3ff2fa9841a3089299964f0bfb17b6edeb9e3f317cc63f159400693fbd8be110497327ac4b742e649525eb70e30e0400d8cf64ef736a18293c740bfc40db
   languageName: node
   linkType: hard
 
@@ -438,9 +438,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/generator-js@npm:^12.6.30":
-  version: 12.6.30
-  resolution: "@anansi/generator-js@npm:12.6.30"
+"@anansi/generator-js@npm:^12.6.31":
+  version: 12.6.31
+  resolution: "@anansi/generator-js@npm:12.6.31"
   dependencies:
     "@babel/runtime-corejs3": "npm:^7.26.0"
     "@types/inquirer": "npm:^9.0.9"
@@ -457,7 +457,7 @@ __metadata:
     pacote: "npm:^21.0.4"
     shelobsay: "npm:^2.0.0"
     yeoman-generator: "npm:^7.5.1"
-  checksum: 10c0/f646a18df69439fda2bcec7ec15f6162825758231dcfbabba47612187a44ed0b53dfc7571bd00686789647d141dd070a930d1e9905a812352778af6a674b5b18
+  checksum: 10c0/80298eb4d9b3ae946dd9ead9ecc34c3aafa70861773a61d5c1d5451533f143f6c9b7a597c0486ff82d54df037f6f263d477e3a489189733f4848646f4cda8379
   languageName: node
   linkType: hard
 
@@ -9956,11 +9956,11 @@ __metadata:
   linkType: hard
 
 "babel-plugin-syntax-hermes-parser@npm:^0.33.0":
-  version: 0.33.0
-  resolution: "babel-plugin-syntax-hermes-parser@npm:0.33.0"
+  version: 0.33.2
+  resolution: "babel-plugin-syntax-hermes-parser@npm:0.33.2"
   dependencies:
-    hermes-parser: "npm:0.33.0"
-  checksum: 10c0/be8d03fe7827405db2e25cddd165eb048d3851f328cb7614604df3214c4f9af4ed3e64eb23a36f2659e36e6bfbb4a38fbb358d998411a1868d6a9a61744d1315
+    hermes-parser: "npm:0.33.2"
+  checksum: 10c0/e881f94fc77c497eb8ded7923018af41a8f64302e58c9b9dafc9a4ca81a36329ce24c3632f4cfb61900c632e4fbfb65e5859313ef12358b72505a96291f25db6
   languageName: node
   linkType: hard
 
@@ -11252,7 +11252,7 @@ __metadata:
   dependencies:
     "@anansi/babel-preset": "npm:6.2.20"
     "@anansi/browserslist-config": "npm:1.7.3"
-    "@anansi/cli": "npm:3.1.95"
+    "@anansi/cli": "npm:3.1.96"
     "@anansi/core": "npm:0.22.1"
     "@anansi/router": "npm:0.10.21"
     "@anansi/webpack-config": "npm:21.1.6"
@@ -16029,10 +16029,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hermes-estree@npm:0.33.0":
-  version: 0.33.0
-  resolution: "hermes-estree@npm:0.33.0"
-  checksum: 10c0/5f48edcabaada5de74e8c06f4c878503ce7b5377df9b9aced4c904cc3e67b63c67059ff12b38ffeb96f1c5eed49bf3bc160afc6072f409afa1ec317a5d60acc5
+"hermes-estree@npm:0.33.2":
+  version: 0.33.2
+  resolution: "hermes-estree@npm:0.33.2"
+  checksum: 10c0/5c1f71571d12447c6ddc4dbacb30593ad84cb0e4e8f0afdeed7b07bc7a79f24271deb25006a072aa52b6a72e0b885250242384364dec87226c39d2bbeac8c09c
   languageName: node
   linkType: hard
 
@@ -16054,12 +16054,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hermes-parser@npm:0.33.0":
-  version: 0.33.0
-  resolution: "hermes-parser@npm:0.33.0"
+"hermes-parser@npm:0.33.2":
+  version: 0.33.2
+  resolution: "hermes-parser@npm:0.33.2"
   dependencies:
-    hermes-estree: "npm:0.33.0"
-  checksum: 10c0/05d8825b6cef0d0b9b5ae43ea317648be4240f5588b38e6f9d320183d6c502669c80d96ab02dee69ef52433276c2953235e93f39a78868b52b7320c5ce90a0a6
+    hermes-estree: "npm:0.33.2"
+  checksum: 10c0/b2fcb04d06d0fafb3463193c9a1b0ca1ada96c4a81265d23959cc3b8cf89856e89463e45748757bb3b96d9cb1ea538a4ec9752a3d079608a259e055b51b3f95f
   languageName: node
   linkType: hard
 
@@ -24269,11 +24269,11 @@ __metadata:
   linkType: hard
 
 "qs@npm:^6.12.3, qs@npm:^6.13.1, qs@npm:~6.14.0":
-  version: 6.14.0
-  resolution: "qs@npm:6.14.0"
+  version: 6.14.1
+  resolution: "qs@npm:6.14.1"
   dependencies:
     side-channel: "npm:^1.1.0"
-  checksum: 10c0/8ea5d91bf34f440598ee389d4a7d95820e3b837d3fd9f433871f7924801becaa0cd3b3b4628d49a7784d06a8aea9bc4554d2b6d8d584e2d221dc06238a42909c
+  checksum: 10c0/0e3b22dc451f48ce5940cbbc7c7d9068d895074f8c969c0801ac15c1313d1859c4d738e46dc4da2f498f41a9ffd8c201bd9fb12df67799b827db94cc373d2613
   languageName: node
   linkType: hard
 
