@@ -21,6 +21,9 @@ const config: Config = {
   trailingSlash: false,
   markdown: {
     mermaid: true,
+    hooks: {
+      onBrokenMarkdownLinks: 'log',
+    },
   },
   headTags: [
     {
@@ -182,7 +185,6 @@ const config: Config = {
     repoUrl: 'https://github.com/reactive/data-client',
   },
   onBrokenLinks: 'log',
-  onBrokenMarkdownLinks: 'log',
   presets: [
     [
       '@docusaurus/preset-classic',
