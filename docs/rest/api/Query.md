@@ -24,7 +24,7 @@ the same high performance and referential equality guarantees expected of Reacti
 
 [Schema](./schema.md) used to retrieve/denormalize data from the Reactive Data Client cache.
 This accepts any [Queryable](/rest/api/schema#queryable) schema: [Entity](./Entity.md), [All](./All.md), [Collection](./Collection.md), [Query](./Query.md),
-and [Union](./Union.md).
+[Union](./Union.md), and [Object](./Object.md) schemas for joining multiple entities.
 
 ### process(entries, ...args) {#process}
 
@@ -201,6 +201,77 @@ function TodosPage() {
   );
 }
 render(<TodosPage />);
+```
+
+</HooksPlayground>
+
+### Object Schema Joins {#object-schema-joins}
+
+`Query` can take [Object Schemas](/rest/api/Object), enabling joins across multiple entity types. This allows you to combine data from different entities in a single query.
+
+<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+{
+endpoint: new RestEndpoint({path: '/tickers/:product_id'}),
+args: [{ product_id: 'BTC-USD' }],
+response: { product_id: 'BTC-USD', price: 45000 },
+delay: 150,
+},
+{
+endpoint: new RestEndpoint({path: '/stats/:product_id'}),
+args: [{ product_id: 'BTC-USD' }],
+response: { product_id: 'BTC-USD', last: 44950 },
+delay: 150,
+},
+]}>
+
+```ts title="resources/Ticker" collapsed
+export class Ticker extends Entity {
+  product_id = '';
+  price = 0;
+  pk() { return this.product_id; }
+}
+
+export const TickerResource = resource({
+  path: '/tickers/:product_id',
+  schema: Ticker,
+});
+```
+
+```ts title="resources/Stats" collapsed
+export class Stats extends Entity {
+  product_id = '';
+  last = 0;
+  pk() { return this.product_id; }
+}
+
+export const StatsResource = resource({
+  path: '/stats/:product_id',
+  schema: Stats,
+});
+```
+
+```tsx title="PriceDisplay"
+import { schema } from '@data-client/rest';
+import { useQuery, useFetch } from '@data-client/react';
+import { TickerResource, Ticker } from './resources/Ticker';
+import { StatsResource, Stats } from './resources/Stats';
+
+// Join Ticker and Stats by product_id
+const queryPrice = new schema.Query(
+  { ticker: Ticker, stats: Stats },
+  ({ ticker, stats }) => ticker?.price ?? stats?.last,
+);
+
+function PriceDisplay({ productId }: { productId: string }) {
+  useFetch(TickerResource.get, { product_id: productId });
+  useFetch(StatsResource.get, { product_id: productId });
+  const price = useQuery(queryPrice, { product_id: productId });
+  
+  if (price === undefined) return <div>Loading...</div>;
+  return <div>Price: ${price}</div>;
+}
+
+render(<PriceDisplay productId="BTC-USD" />);
 ```
 
 </HooksPlayground>
