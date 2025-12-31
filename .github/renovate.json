@@ -171,6 +171,12 @@
       "matchUpdateTypes": ["major", "minor", "patch"],
       "groupSlug": "react-navigation-monorepo",
       "groupName": "react-navigation monorepo"
+    },
+    {
+      "matchPackageNames": ["node", "@types/node"],
+      "matchUpdateTypes": ["major"],
+      "groupName": "node",
+      "groupSlug": "node"
     }
   ]
 }
