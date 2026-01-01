@@ -54,6 +54,10 @@ export default function DiffEditor({
                     height={height}
                     theme="prism"
                     loading={fallback}
+                    // Prevent "TextModel got disposed before DiffEditorWidget model got reset" error
+                    // by not letting @monaco-editor/react manage model disposal
+                    keepCurrentOriginalModel
+                    keepCurrentModifiedModel
                   />
                 </div>
               </div>
