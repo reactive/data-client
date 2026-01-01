@@ -25,7 +25,7 @@ export default function useAutoHeight({
       const CONTAINER_GUTTER = containerGutter;
 
       const el = editor.getContainerDomNode();
-      const codeContainer = el.getElementsByClassName('view-lines')[0];
+      const codeContainers = el.getElementsByClassName('view-lines');
 
       let prevLineCount = 0;
 
@@ -43,16 +43,18 @@ export default function useAutoHeight({
       editor.layout();
 
       updateHeightRef.current = () => {
+        // For diff editors, take max of both sides' line counts
+        const codeContainerCount = Math.max(
+          ...Array.from(codeContainers).map(c => c.childElementCount),
+        );
         const viewlinecount =
-          editor._modelData?.viewModel?.getLineCount?.() ??
-          codeContainer.childElementCount;
+          editor._modelData?.viewModel?.getLineCount?.() ?? codeContainerCount;
         const model = editor.getModel();
-        const modellinecount =
-          model ? getLineCount(model) : codeContainer.childElementCount;
+        const modellinecount = model ? getLineCount(model) : codeContainerCount;
         const lineCount =
           viewlinecount < modellinecount * 3 ? viewlinecount : modellinecount;
         const height = lineCount * LINE_HEIGHT + CONTAINER_GUTTER; // fold
-        prevLineCount = codeContainer.childElementCount;
+        prevLineCount = codeContainerCount;
 
         el.style.height = height + 'px';
         setHeight(height);
