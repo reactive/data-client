@@ -5,6 +5,7 @@ import { type editor } from 'monaco-editor';
 import { useMemo } from 'react';
 
 import { extensionToMonacoLanguage } from './Playground/extensionToMonacoLanguage';
+import './Playground/monaco-init';
 import { isMobileOrBot } from './Playground/isMobileOrBot';
 import { options } from './Playground/monacoOptions';
 import MonacoPreloads from './Playground/MonacoPreloads';
