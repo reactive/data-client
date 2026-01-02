@@ -18,13 +18,17 @@ export const MONACO_VERSION = pkg.version ?? '0.46.0';
 const monacoPreloads = [
   `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/editor/editor.main.js`,
   //`https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/editor/editor.main.css`, if we load this early the css doesn't work right
-  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/editor/editor.main.nls.js`,
-  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/basic-languages/typescript/typescript.js`,
-  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/language/typescript/tsMode.js`,
+  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/loader.js`,
+  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/nls.messages-loader.js`,
+  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/basic-languages/monaco.contribution.js`,
+  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/editor.api-CalNCsUg.js`,
+  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/workers-DcJshg-q.js`,
 ];
 const workerPreloads = [
-  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/base/worker/workerMain.js`,
-  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/language/typescript/tsWorker.js`,
+  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/typescript-DfOrAzoV.js`,
+  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/tsMode-CZz1Umrk.js`,
+  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/assets/ts.worker-CMbG-7ft.js`,
+  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/assets/editor.worker-Be8ye1pW.js`,
 ];
 
 const preloadScript = `
