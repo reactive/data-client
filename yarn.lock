@@ -263,9 +263,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/babel-preset@npm:6.2.20, @anansi/babel-preset@npm:^6.2.19":
-  version: 6.2.20
-  resolution: "@anansi/babel-preset@npm:6.2.20"
+"@anansi/babel-preset@npm:6.2.21, @anansi/babel-preset@npm:^6.2.19":
+  version: 6.2.21
+  resolution: "@anansi/babel-preset@npm:6.2.21"
   dependencies:
     "@anansi/ts-utils": "npm:^0.3.9"
     "@babel/plugin-proposal-decorators": "npm:^7.28.0"
@@ -322,14 +322,14 @@ __metadata:
       optional: true
     typescript:
       optional: true
-  checksum: 10c0/597355f4210a32adc2b0bec76e7a4cea251e44489f71ede1569871384c52c0751ed4d0bd927a887475cc1336313dd42e82b75affdfca0d1c1cb42eed619c27fe
+  checksum: 10c0/de19c6d27d654aad5be636597cc9e9f2a1abfc75b159a7d4d6a5969c0053e16697aaf19966f7455af907a3d1fca4bcae500ccb8486c19108982f084a2c4f3012
   languageName: node
   linkType: hard
 
-"@anansi/browserslist-config@npm:1.7.3, @anansi/browserslist-config@npm:^1.4.2, @anansi/browserslist-config@npm:^1.4.3":
-  version: 1.7.3
-  resolution: "@anansi/browserslist-config@npm:1.7.3"
-  checksum: 10c0/1aed5ea3a25f017d25af73f8c70e0f865a91ce83cf56b987b631b19de09dc3a059acdb4e46cae3cff62ffb5ad47c6e361834024c0b0285e57cb26dc1051edd10
+"@anansi/browserslist-config@npm:1.7.4, @anansi/browserslist-config@npm:^1.4.2, @anansi/browserslist-config@npm:^1.4.3":
+  version: 1.7.4
+  resolution: "@anansi/browserslist-config@npm:1.7.4"
+  checksum: 10c0/9c9eaa7c3b479e58b7dae1e1140a13a966169ac4bf4f0b680303b1bf3b79298f52e483732d196354d98e204de5ad77f1a2b29b61a0b602dc5925a239bb884000
   languageName: node
   linkType: hard
 
@@ -523,9 +523,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:21.1.7":
-  version: 21.1.7
-  resolution: "@anansi/webpack-config@npm:21.1.7"
+"@anansi/webpack-config@npm:21.1.8":
+  version: 21.1.8
+  resolution: "@anansi/webpack-config@npm:21.1.8"
   dependencies:
     "@babel/runtime-corejs3": "npm:^7.26.0"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.6.2"
@@ -626,7 +626,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: 10c0/ecd034796f205988a8ab1fef6ef0c863c883956dbb5593efa976536d8c07a0c5240d699859ee4ec01527bb4a43b74daa67a49a6eb74d034b0dcf98d66c634bcc
+  checksum: 10c0/0dd79ffbfcf70729e01d27333eb1cd42d3754270819b024fc9f4aee8091aa577a77b30c8b875afa3b7bff3d3fdae554211a7aeef08ef706978244a6f34e859d4
   languageName: node
   linkType: hard
 
@@ -11273,12 +11273,12 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "coinbase-lite@workspace:examples/coin-app"
   dependencies:
-    "@anansi/babel-preset": "npm:6.2.20"
-    "@anansi/browserslist-config": "npm:1.7.3"
+    "@anansi/babel-preset": "npm:6.2.21"
+    "@anansi/browserslist-config": "npm:1.7.4"
     "@anansi/cli": "npm:3.1.97"
     "@anansi/core": "npm:0.22.2"
     "@anansi/router": "npm:0.10.21"
-    "@anansi/webpack-config": "npm:21.1.7"
+    "@anansi/webpack-config": "npm:21.1.8"
     "@babel/core": "npm:7.28.5"
     "@babel/runtime-corejs3": "npm:7.28.4"
     "@data-client/img": "npm:0.15.1-beta-20251110151417-8913a49d898f6c7d69e1964d68f19daf68565bef"
@@ -14378,7 +14378,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "example-benchmark@workspace:examples/benchmark"
   dependencies:
-    "@anansi/webpack-config": "npm:21.1.7"
+    "@anansi/webpack-config": "npm:21.1.8"
     "@babel/core": "npm:7.28.5"
     "@babel/node": "npm:7.28.0"
     "@data-client/core": "workspace:*"
@@ -24433,8 +24433,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "rdc-website@workspace:website"
   dependencies:
-    "@anansi/browserslist-config": "npm:1.7.3"
-    "@anansi/webpack-config": "npm:21.1.7"
+    "@anansi/browserslist-config": "npm:1.7.4"
+    "@anansi/webpack-config": "npm:21.1.8"
     "@data-client/endpoint": "workspace:*"
     "@data-client/graphql": "workspace:*"
     "@data-client/react": "workspace:*"
@@ -25864,7 +25864,7 @@ __metadata:
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
     "@anansi/babel-preset": "npm:^6.2.19"
-    "@anansi/browserslist-config": "npm:1.7.3"
+    "@anansi/browserslist-config": "npm:1.7.4"
     "@anansi/eslint-plugin": "npm:1.0.62"
     "@anansi/jest-preset": "npm:0.11.29"
     "@babel/cli": "npm:7.28.3"
@@ -27816,9 +27816,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "test-bundlesize@workspace:examples/test-bundlesize"
   dependencies:
-    "@anansi/babel-preset": "npm:6.2.20"
+    "@anansi/babel-preset": "npm:6.2.21"
     "@anansi/browserslist-config": "npm:^1.4.3"
-    "@anansi/webpack-config": "npm:21.1.7"
+    "@anansi/webpack-config": "npm:21.1.8"
     "@babel/core": "npm:^7.22.15"
     "@babel/runtime-corejs3": "npm:^7.26.7"
     "@data-client/img": "workspace:*"
