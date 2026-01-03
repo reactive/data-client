@@ -2,10 +2,22 @@
 
 ### Usage
 
+To build (from root)
+
+```bash
+yarn build:benchmark
+```
+
 To run
 
 ```bash
 yarn start [suite-name]
+```
+
+or (from root)
+
+```bash
+yarn workspace example-benchmark start [suite-name]
 ```
 
 #### Suites
