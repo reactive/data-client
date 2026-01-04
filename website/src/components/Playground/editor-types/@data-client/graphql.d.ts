@@ -598,6 +598,12 @@ declare class PolymorphicSchema {
 type ProcessableEntity = EntityInterface & {
     process: any;
 };
+/** Structural type for hoistable polymorphic schemas like Union */
+type HoistablePolymorphic = {
+    readonly _hoistable: true;
+    schema: any;
+    getSchemaAttribute: (...args: any) => any;
+};
 /**
  * Marks entity as Invalid.
  *
@@ -605,7 +611,7 @@ type ProcessableEntity = EntityInterface & {
  * Optional (like variable sized Array and Values) will simply remove the item.
  * @see https://dataclient.io/rest/api/Invalidate
  */
-declare class Invalidate<E extends ProcessableEntity | Record<string, ProcessableEntity>> extends PolymorphicSchema {
+declare class Invalidate<E extends ProcessableEntity | Record<string, ProcessableEntity> | HoistablePolymorphic> extends PolymorphicSchema {
     /**
      * Marks entity as Invalid.
      *
@@ -613,7 +619,7 @@ declare class Invalidate<E extends ProcessableEntity | Record<string, Processabl
      * Optional (like variable sized Array and Values) will simply remove the item.
      * @see https://dataclient.io/rest/api/Invalidate
      */
-    constructor(entity: E, schemaAttribute?: E extends Record<string, ProcessableEntity> ? string | ((input: any, parent: any, key: any) => string) : undefined);
+    constructor(entity: E, schemaAttribute?: E extends HoistablePolymorphic ? undefined : E extends Record<string, ProcessableEntity> ? string | ((input: any, parent: any, key: any) => string) : undefined);
     get key(): string;
     normalize(input: any, parent: any, key: string | undefined, args: any[], visit: (...args: any) => any, delegate: INormalizeDelegate): string | {
         id: string;
@@ -995,6 +1001,7 @@ interface UnionInstance<
   Args extends EntityFields<AbstractInstanceType<Choices[keyof Choices]>> =
     EntityFields<AbstractInstanceType<Choices[keyof Choices]>>,
 > {
+  readonly _hoistable: true;
   define(definition: Schema): void;
   inferSchema: SchemaAttributeFunction<Choices[keyof Choices]>;
   getSchemaAttribute: SchemaFunction<keyof Choices>;
@@ -1139,7 +1146,7 @@ type schema_d_DefaultArgs = DefaultArgs;
 type schema_d_EntityInterface<T = any> = EntityInterface<T>;
 type schema_d_EntityMap<T = any> = EntityMap<T>;
 declare const schema_d_EntityMixin: typeof EntityMixin;
-type schema_d_Invalidate<E extends ProcessableEntity | Record<string, ProcessableEntity>> = Invalidate<E>;
+type schema_d_Invalidate<E extends ProcessableEntity | Record<string, ProcessableEntity> | HoistablePolymorphic> = Invalidate<E>;
 declare const schema_d_Invalidate: typeof Invalidate;
 type schema_d_MergeFunction = MergeFunction;
 type schema_d_Query<S extends Queryable | {

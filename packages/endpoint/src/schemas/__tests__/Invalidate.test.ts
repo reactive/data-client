@@ -156,6 +156,30 @@ describe(`${schema.Invalidate.name} normalization`, () => {
       expect(result.result).toEqual({ id: '1', type: 'unknown' });
       expect(result.entities).toEqual({});
     });
+
+    test('normalizes with Union instance argument', () => {
+      const myUnion = new schema.Union({ users: User, groups: Group }, 'type');
+      const invalidate = new schema.Invalidate(myUnion);
+
+      expect(
+        normalize(invalidate, { id: '1', type: 'users' }),
+      ).toMatchSnapshot();
+      expect(
+        normalize(invalidate, { id: '2', type: 'groups' }),
+      ).toMatchSnapshot();
+    });
+
+    test('normalizes array with Union instance argument', () => {
+      const myUnion = new schema.Union({ users: User, groups: Group }, 'type');
+      const invalidate = new schema.Invalidate(myUnion);
+
+      expect(
+        normalize(new schema.Array(invalidate), [
+          { id: '1', type: 'users' },
+          { id: '2', type: 'groups' },
+        ]),
+      ).toMatchSnapshot();
+    });
   });
 });
 
@@ -342,6 +366,52 @@ describe(`${schema.Invalidate.name} denormalization`, () => {
       );
       const user = new SimpleMemoCache(POJOPolicy).denormalize(
         invalidateUnion,
+        { id: '1', schema: 'users' },
+        {
+          UserDenorm: { '1': INVALID },
+          GroupDenorm: {},
+        },
+      );
+      expect(user).toEqual(expect.any(Symbol));
+    });
+
+    test('denormalizes with Union instance argument', () => {
+      const myUnion = new schema.Union(
+        { users: UserDenorm, groups: GroupDenorm },
+        'type',
+      );
+      const invalidate = new schema.Invalidate(myUnion);
+
+      const user = new SimpleMemoCache(POJOPolicy).denormalize(
+        invalidate,
+        { id: '1', schema: 'users' },
+        unionEntities,
+      );
+      expect(user).not.toEqual(expect.any(Symbol));
+      if (typeof user === 'symbol') return;
+      expect(user).toBeInstanceOf(UserDenorm);
+      expect((user as any).username).toBe('Alice');
+
+      const group = new SimpleMemoCache(POJOPolicy).denormalize(
+        invalidate,
+        { id: '2', schema: 'groups' },
+        unionEntities,
+      );
+      expect(group).not.toEqual(expect.any(Symbol));
+      if (typeof group === 'symbol') return;
+      expect(group).toBeInstanceOf(GroupDenorm);
+      expect((group as any).groupname).toBe('Admins');
+    });
+
+    test('denormalizes invalidated Union instance entity as symbol', () => {
+      const myUnion = new schema.Union(
+        { users: UserDenorm, groups: GroupDenorm },
+        'type',
+      );
+      const invalidate = new schema.Invalidate(myUnion);
+
+      const user = new SimpleMemoCache(POJOPolicy).denormalize(
+        invalidate,
         { id: '1', schema: 'users' },
         {
           UserDenorm: { '1': INVALID },

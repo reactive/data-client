@@ -244,6 +244,7 @@ export interface UnionInstance<
   Args extends EntityFields<AbstractInstanceType<Choices[keyof Choices]>> =
     EntityFields<AbstractInstanceType<Choices[keyof Choices]>>,
 > {
+  readonly _hoistable: true;
   define(definition: Schema): void;
   inferSchema: SchemaAttributeFunction<Choices[keyof Choices]>;
   getSchemaAttribute: SchemaFunction<keyof Choices>;
