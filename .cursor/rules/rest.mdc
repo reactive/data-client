@@ -1,8 +1,5 @@
 ---
 description: Modeling resources endpoints and schemas with @data-client/rest
-globs:
-  - '**/*.ts'
-  - '**/*.tsx'
 alwaysApply: false
 ---
 # Guide: Using `@data-client/rest` for Resource Modeling

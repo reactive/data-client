@@ -1,7 +1,5 @@
 ---
 description: Usage patterns for @data-client/react hooks and components
-globs:
-  - '**/*.tsx'
 alwaysApply: false
 ---
 ## Rendering

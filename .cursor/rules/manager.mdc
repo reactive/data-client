@@ -1,7 +1,5 @@
 ---
 description: Guidelines for implementing @data-client/react Managers which handle global side effects
-globs:
-  - '**/*.ts'
 alwaysApply: false
 ---
 # Guide: Using `@data-client/react` Managers for global side effects

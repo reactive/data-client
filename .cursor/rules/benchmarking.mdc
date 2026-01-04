@@ -1,0 +1,93 @@
+---
+description: Benchmarking guidelines using examples/benchmark (suite selection, commands, and what packages are exercised)
+globs: examples/benchmark/**, .github/workflows/benchmark.yml, packages/normalizr/src/**, packages/core/src/**, packages/endpoint/src/schemas/**
+alwaysApply: false
+---
+
+# Benchmarking (`@examples/benchmark`)
+
+When working on performance investigations or changes that might impact performance, use **`@examples/benchmark`** as the canonical benchmark harness.
+
+## Where to look
+
+- **Entry point / suite selection**: `@examples/benchmark/index.js`
+- **Suite implementations**:
+  - `@examples/benchmark/entity.js`
+  - `@examples/benchmark/normalizr.js`
+  - `@examples/benchmark/core.js`
+  - `@examples/benchmark/old-normalizr/normalizr.js`
+- **Schemas/data used by multiple suites**:
+  - `@examples/benchmark/schemas.js`
+  - `@examples/benchmark/data.json`
+  - `@examples/benchmark/user.json`
+- **CI benchmark runner**: `@.github/workflows/benchmark.yml`
+
+## How to run
+
+From repo root:
+
+```bash
+yarn build:benchmark
+yarn workspace example-benchmark start [suite-name]
+```
+
+From `examples/benchmark/`:
+
+```bash
+yarn start [suite-name]
+```
+
+Notes:
+- Passing no suite name runs **`normalizr` + `core`** (see `@examples/benchmark/index.js`).
+- The harness forces `--expose_gc` and calls `gc()` between cycles for more consistent results.
+
+## Suites and what they exercise
+
+Use this mapping when deciding which suite(s) to run for a change:
+
+- **`entity`** (`@examples/benchmark/entity.js`)
+  - **Primary focus**: entity instance operations like `pk()` and `fromJS()`, plus `EntityMixin`.
+  - **Packages exercised**:
+    - **`@data-client/endpoint`**: `Entity`, `EntityMixin` (re-exported via `@examples/benchmark/dist/index.js`)
+
+- **`normalizr`** (`@examples/benchmark/normalizr.js`)
+  - **Primary focus**: `normalize()` / `denormalize()` throughput, memoization, and query/key building.
+  - **Packages exercised**:
+    - **`@data-client/normalizr`**: `normalize`, `denormalize`, `MemoCache`, `WeakDependencyMap`
+    - **`@data-client/endpoint`**: schema helpers used in `@examples/benchmark/schemas.js` (`schema.All`, `schema.Query`, `schema.Collection`) and entity definitions
+
+- **`core`** (`@examples/benchmark/core.js`)
+  - **Primary focus**: end-to-end store/controller costs (`Controller.setResponse()`, `Controller.getResponse()`, reducer updates).
+  - **Packages exercised**:
+    - **`@data-client/core`**: `Controller`, `createReducer`, `initialState`
+    - **`@data-client/endpoint`**: `Endpoint`, `Entity`, schema definitions used by endpoints
+    - **`@data-client/normalizr`**: normalization work triggered by `setResponse()` and `getResponse()` paths
+
+- **`old-normalizr`** (`@examples/benchmark/old-normalizr/normalizr.js`)
+  - **Primary focus**: baseline comparison against the legacy `normalizr` npm package.
+  - **Packages exercised**:
+    - **`normalizr` (npm)**: `normalize`, `denormalize`, `schema.Entity`
+    - **`@data-client/core`**: `initialState` only (used to shape a “store-like” state for merge behavior)
+
+## Adding or changing benchmarks
+
+- **Keep suite names stable**: output is tracked over time in CI; renaming benchmarks makes history harder to interpret.
+- **Update both code and docs**:
+  - Add/update suite module (e.g. `core.js`)
+  - Wire it in `@examples/benchmark/index.js` (argv dispatch)
+  - Update `@examples/benchmark/README.md` “Suites” section if the suite list changes
+- **Avoid measuring unrelated work**:
+  - Don’t log inside benchmark bodies (except suite cycle output via `Benchmark.js`).
+  - Keep fixtures/data constant unless the benchmark’s goal is to measure data-shape changes.
+
+## CI behavior
+
+CI runs:
+
+```bash
+yarn build:benchmark
+yarn workspace example-benchmark start | tee output.txt
+```
+
+The output is parsed as **benchmark.js** format and reported by `rhysd/github-action-benchmark` (see `@.github/workflows/benchmark.yml`).
+
