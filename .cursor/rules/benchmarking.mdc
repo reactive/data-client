@@ -37,6 +37,13 @@ From `examples/benchmark/`:
 yarn start [suite-name]
 ```
 
+## Profiling / tracing (opt + deopt investigation)
+
+When you need to go beyond “is it faster/slower?” and understand **why** (V8 optimization decisions, unexpected deopts, hot path shapes), use the `@examples/benchmark/package.json` profiling scripts:
+
+- **`start:trace`** (`@examples/benchmark/package.json:16`): use when you want **console trace output** for V8 optimizations/deoptimizations (adds `--trace_opt --trace_deopt` to the normal benchmark run).
+- **`start:deopt`** (`@examples/benchmark/package.json:17`): use when you want **dexnode/V8 log artifacts** to inspect deopt reasons and code traces (writes `v8.log` and redirects code traces to `/tmp/codetrace`).
+
 Notes:
 - Passing no suite name runs **`normalizr` + `core`** (see `@examples/benchmark/index.js`).
 - The harness forces `--expose_gc` and calls `gc()` between cycles for more consistent results.
