@@ -7,7 +7,7 @@ exports[`Invalidate denormalization input (direct) schema construction (class) d
 exports[`Invalidate denormalization input (direct) schema construction (class) denormalize sets undefined entities that are not present 1`] = `
 [
   {
-    "data": "1",
+    "data": undefined,
   },
 ]
 `;
@@ -33,7 +33,7 @@ exports[`Invalidate denormalization input (direct) schema construction (object, 
 exports[`Invalidate denormalization input (direct) schema construction (object, direct) denormalize sets undefined entities that are not present 1`] = `
 [
   {
-    "data": "1",
+    "data": undefined,
   },
 ]
 `;
@@ -59,7 +59,7 @@ exports[`Invalidate denormalization input (immutable) schema construction (class
 exports[`Invalidate denormalization input (immutable) schema construction (class) denormalize sets undefined entities that are not present 1`] = `
 Immutable.List [
   Immutable.Map {
-    "data": "1",
+    "data": undefined,
   },
 ]
 `;
@@ -85,7 +85,7 @@ exports[`Invalidate denormalization input (immutable) schema construction (objec
 exports[`Invalidate denormalization input (immutable) schema construction (object, direct) denormalize sets undefined entities that are not present 1`] = `
 Immutable.List [
   Immutable.Map {
-    "data": "1",
+    "data": undefined,
   },
 ]
 `;

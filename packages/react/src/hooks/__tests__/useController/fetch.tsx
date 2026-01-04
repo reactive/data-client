@@ -356,7 +356,7 @@ describe.each([
     expect(warnSpy.mock.calls.length).toBe(0);
   });
 
-  it('should return denormalized value when schema is present (delete with string response)', async () => {
+  it('should return undefined when delete response is just an id (no entity in store)', async () => {
     const { controller } = renderDataClient(
       () => {
         return 'hi';
@@ -374,7 +374,9 @@ describe.each([
     const ret = await controller.fetch(CoolerArticleResource.delete, {
       id: payload.id,
     });
-    expect(ret).toEqual(payload.id);
+    // When server returns just an id (not the full entity), denormalization
+    // returns undefined since the entity was invalidated and removed from store
+    expect(ret).toBeUndefined();
     expect(warnSpy.mock.calls.length).toBe(0);
   });
 

@@ -102,8 +102,7 @@ export default class Invalidate<
   ): E extends ProcessableEntity ? AbstractInstanceType<E>
   : AbstractInstanceType<E[keyof E]> {
     // denormalizeValue handles both single entity and polymorphic cases
-    // Fallback to id when entity not found (common for delete responses)
-    return this.denormalizeValue(id, unvisit) ?? id;
+    return this.denormalizeValue(id, unvisit) as any;
   }
 
   /* istanbul ignore next */
