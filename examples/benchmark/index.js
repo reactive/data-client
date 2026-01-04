@@ -10,8 +10,10 @@ import addOldNormlizrSuite from './old-normalizr/normalizr.js';
 v8.setFlagsFromString('--expose_gc');
 const gc = vm.runInNewContext('gc');
 
+const filter = process.argv[3];
+
 if (process.argv[2] === 'entity') {
-  addEntitySuite(new Benchmark.Suite())
+  addEntitySuite(new Benchmark.Suite(), filter)
     .on('cycle', event => {
       // Output benchmark result by converting benchmark result to string
       console.log(String(event.target));
@@ -20,7 +22,7 @@ if (process.argv[2] === 'entity') {
     })
     .run();
 } else if (process.argv[2] === 'normalizr') {
-  addNormlizrSuite(new Benchmark.Suite())
+  addNormlizrSuite(new Benchmark.Suite(), filter)
     .on('cycle', event => {
       // Output benchmark result by converting benchmark result to string
       console.log(String(event.target));
@@ -29,7 +31,7 @@ if (process.argv[2] === 'entity') {
     })
     .run();
 } else if (process.argv[2] === 'core') {
-  addCoreSuite(new Benchmark.Suite())
+  addCoreSuite(new Benchmark.Suite(), filter)
     .on('cycle', event => {
       // Output benchmark result by converting benchmark result to string
       console.log(String(event.target));
@@ -38,7 +40,7 @@ if (process.argv[2] === 'entity') {
     })
     .run();
 } else if (process.argv[2] === 'old-normalizr') {
-  addOldNormlizrSuite(new Benchmark.Suite())
+  addOldNormlizrSuite(new Benchmark.Suite(), filter)
     .on('cycle', event => {
       // Output benchmark result by converting benchmark result to string
       console.log(String(event.target));
@@ -47,7 +49,7 @@ if (process.argv[2] === 'entity') {
     })
     .run();
 } else {
-  addCoreSuite(addNormlizrSuite(new Benchmark.Suite()))
+  addCoreSuite(addNormlizrSuite(new Benchmark.Suite(), filter), filter)
     .on('cycle', event => {
       // Output benchmark result by converting benchmark result to string
       console.log(String(event.target));

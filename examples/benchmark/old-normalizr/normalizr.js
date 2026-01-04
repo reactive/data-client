@@ -7,6 +7,7 @@ import {
 } from './schemas.js';
 import data from '../data.json' with { type: 'json' };
 import { initialState } from '../dist/index.js';
+import { createAdd } from '../filter.js';
 import { printStatus } from '../printStatus.js';
 import userData from '../user.json' with { type: 'json' };
 
@@ -45,32 +46,34 @@ function mergeWithStore({ entities, result }, storeState) {
 }
 
 let curState = state;
-export default function addNormlizrSuite(suite) {
-  return suite
-    .add('normalizeLong', () => {
-      return mergeWithStore(normalize(data, ProjectSchema), state);
-    })
-    .add('normalizeLong with merge', () => {
-      return (curState = mergeWithStore(
-        normalize(data, ProjectSchema),
-        curState,
-      ));
-    })
-    .add('denormalizeLong donotcache', () => {
-      return denormalize(result, ProjectSchema, entities);
-    })
-    .add('denormalizeShort donotcache 500x', () => {
-      for (let i = 0; i < 500; ++i) {
-        var user = denormalize('gnoff', User, githubState.entities);
-        // legacy normalizr doesn't convert this for us, so we must do manually afterward.
-        user.createdAt = new Date(user.createdAt);
-        user.updatedAt = new Date(user.updatedAt);
-      }
-    })
-    .on('complete', function () {
-      if (process.env.SHOW_OPTIMIZATION) {
-        printStatus(denormalize);
-        printStatus(ProjectWithBuildTypesDescription.prototype.pk);
-      }
-    });
+export default function addNormlizrSuite(suite, filter) {
+  const add = createAdd(suite, filter);
+
+  add('normalizeLong', () => {
+    return mergeWithStore(normalize(data, ProjectSchema), state);
+  });
+  add('normalizeLong with merge', () => {
+    return (curState = mergeWithStore(
+      normalize(data, ProjectSchema),
+      curState,
+    ));
+  });
+  add('denormalizeLong donotcache', () => {
+    return denormalize(result, ProjectSchema, entities);
+  });
+  add('denormalizeShort donotcache 500x', () => {
+    for (let i = 0; i < 500; ++i) {
+      var user = denormalize('gnoff', User, githubState.entities);
+      // legacy normalizr doesn't convert this for us, so we must do manually afterward.
+      user.createdAt = new Date(user.createdAt);
+      user.updatedAt = new Date(user.updatedAt);
+    }
+  });
+
+  return suite.on('complete', function () {
+    if (process.env.SHOW_OPTIMIZATION) {
+      printStatus(denormalize);
+      printStatus(ProjectWithBuildTypesDescription.prototype.pk);
+    }
+  });
 }

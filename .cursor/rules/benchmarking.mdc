@@ -28,14 +28,28 @@ From repo root:
 
 ```bash
 yarn build:benchmark
-yarn workspace example-benchmark start [suite-name]
+yarn workspace example-benchmark start [suite-name] [filter]
 ```
 
 From `examples/benchmark/`:
 
 ```bash
-yarn start [suite-name]
+yarn start [suite-name] [filter]
 ```
+
+Both arguments are optional:
+- **No arguments**: runs `normalizr` + `core` suites with all benchmarks
+- **Suite only**: `yarn start normalizr` runs all benchmarks in that suite
+- **Suite + filter**: `yarn start normalizr denormalize` runs only benchmarks containing "denormalize"
+
+Filter syntax:
+- `text` → substring match (contains "text")
+- `^text` → starts with "text"
+
+Examples:
+- `yarn start normalizr "^normalize"` → only "normalizeLong" (not denormalize*)
+- `yarn start normalizr "^denormalize"` → all denormalize* benchmarks
+- `yarn start normalizr withCache` → benchmarks containing "withCache"
 
 ## Profiling / tracing (opt + deopt investigation)
 

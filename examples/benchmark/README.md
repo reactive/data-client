@@ -11,23 +11,40 @@ yarn build:benchmark
 To run
 
 ```bash
-yarn start [suite-name]
+yarn start [suite-name] [filter]
 ```
 
 or (from root)
 
 ```bash
-yarn workspace example-benchmark start [suite-name]
+yarn workspace example-benchmark start [suite-name] [filter]
 ```
+
+Both arguments are optional:
+- **No arguments**: runs `normalizr` + `core` suites with all benchmarks
+- **Suite only**: `yarn start normalizr` runs all benchmarks in that suite
+- **Suite + filter**: `yarn start normalizr denormalize` runs only benchmarks containing "denormalize"
+
+#### Filter syntax
+
+- `text` → substring match (contains "text")
+- `^text` → starts with "text"
 
 #### Suites
 
 - `entity` - benchmarks various entity-specific operations
 - `core` - benchmarks entire operations using [Controller](https://dataclient.io/docs/api/Controller)
 - `normalizr` - benchmarks just normalize/denormalize
-- `old-normalizr` (runs equivalent benchmarks using the normalizr package)
+- `old-normalizr` - runs equivalent benchmarks using the normalizr package
 
-No argument will run `normalizr` + `core`
+#### Filter examples
+
+```bash
+yarn start normalizr "^normalize"      # only "normalizeLong" (starts with)
+yarn start normalizr "^denormalize"    # all denormalize* benchmarks
+yarn start normalizr withCache         # benchmarks containing "withCache"
+yarn start core setLong                # benchmarks containing "setLong"
+```
 
 ### Results
 

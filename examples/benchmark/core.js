@@ -8,6 +8,7 @@ import {
   normalize,
   MemoCache,
 } from './dist/index.js';
+import { createAdd } from './filter.js';
 import { printStatus } from './printStatus.js';
 import {
   ProjectSchema,
@@ -19,7 +20,7 @@ import {
 } from './schemas.js';
 import userData from './user.json' with { type: 'json' };
 
-export default function addReducerSuite(suite) {
+export default function addReducerSuite(suite, filter) {
   let state = initialState;
   const getProject = new Endpoint(() => Promise.resolve(data), {
     schema: ProjectSchema,
@@ -102,78 +103,74 @@ export default function addReducerSuite(suite) {
     githubReducer(githubState, action);
   };
 
-  return (
-    suite
-      .add('getResponse', () => {
-        return controller.getResponse(getProject, cachedState);
-      })
-      .add('getResponse (null)', () => {
-        return controller.getResponse(getProject, null, cachedState);
-      })
-      .add('getResponse (clear cache)', () => {
-        // TODO: is this better?
-        //controller = new Controller({});
-        controller.memo = new MemoCache();
-        return controller.getResponse(getProject, cachedState);
-      })
-      .add('getSmallResponse', () => {
-        // more commonly we'll be dealing with many usages of simple data
-        for (let i = 0; i < 500; ++i) {
-          controller.getResponse(getUser, 'gnoff', githubState);
-        }
-      })
-      .add('getSmallInferredResponse', () => {
-        // more commonly we'll be dealing with many usages of simple data
-        for (let i = 0; i < 500; ++i) {
-          controller.getResponse(
-            getUserByEntity,
-            { login: 'gnoff' },
-            githubState,
-          );
-        }
-      })
-      .add('getResponse Collection', () => {
-        return controllerCollection.getResponse(
-          getProjectCollection,
-          collectionState,
-        );
-      })
-      .add('get Collection', () => {
-        return controllerCollection.get(
-          ProjectSchemaCollection.project,
-          collectionState,
-        );
-      })
-      .add('get Query-sorted', () => {
-        return controller.get(getSortedProjects, cachedState);
-      })
-      .add('setLong', () => {
-        return controller.setResponse(getProject, data);
-      })
-      .add('setLongWithMerge', () => {
-        return controllerPop.setResponse(getProject, data);
-      })
-      // biggest performance bump is not spreading in merge
-      .add('setLongWithSimpleMerge', () => {
-        return controllerPop.setResponse(getProjectSimple, data);
-      })
-      .add('setSmallResponse 500x', () => {
-        // more commonly we'll be dealing with many usages of simple data
-        for (let i = 0; i < 500; ++i) {
-          controller.setResponse(getUser, 'gnoff', userData);
-        }
-      })
-      .on('complete', function () {
-        if (process.env.SHOW_OPTIMIZATION) {
-          console.error('reducer bench complete\n');
-          printStatus(normalize);
-          printStatus(Entity.normalize);
-          printStatus(Entity.denormalize);
-          printStatus(ProjectWithBuildTypesDescriptionSimpleMerge.merge);
-          printStatus(Entity.merge);
-          printStatus(Entity.process);
-          printStatus(Entity.validate);
-        }
-      })
-  );
+  const add = createAdd(suite, filter);
+
+  add('getResponse', () => {
+    return controller.getResponse(getProject, cachedState);
+  });
+  add('getResponse (null)', () => {
+    return controller.getResponse(getProject, null, cachedState);
+  });
+  add('getResponse (clear cache)', () => {
+    // TODO: is this better?
+    //controller = new Controller({});
+    controller.memo = new MemoCache();
+    return controller.getResponse(getProject, cachedState);
+  });
+  add('getSmallResponse', () => {
+    // more commonly we'll be dealing with many usages of simple data
+    for (let i = 0; i < 500; ++i) {
+      controller.getResponse(getUser, 'gnoff', githubState);
+    }
+  });
+  add('getSmallInferredResponse', () => {
+    // more commonly we'll be dealing with many usages of simple data
+    for (let i = 0; i < 500; ++i) {
+      controller.getResponse(getUserByEntity, { login: 'gnoff' }, githubState);
+    }
+  });
+  add('getResponse Collection', () => {
+    return controllerCollection.getResponse(
+      getProjectCollection,
+      collectionState,
+    );
+  });
+  add('get Collection', () => {
+    return controllerCollection.get(
+      ProjectSchemaCollection.project,
+      collectionState,
+    );
+  });
+  add('get Query-sorted', () => {
+    return controller.get(getSortedProjects, cachedState);
+  });
+  add('setLong', () => {
+    return controller.setResponse(getProject, data);
+  });
+  add('setLongWithMerge', () => {
+    return controllerPop.setResponse(getProject, data);
+  });
+  // biggest performance bump is not spreading in merge
+  add('setLongWithSimpleMerge', () => {
+    return controllerPop.setResponse(getProjectSimple, data);
+  });
+  add('setSmallResponse 500x', () => {
+    // more commonly we'll be dealing with many usages of simple data
+    for (let i = 0; i < 500; ++i) {
+      controller.setResponse(getUser, 'gnoff', userData);
+    }
+  });
+
+  return suite.on('complete', function () {
+    if (process.env.SHOW_OPTIMIZATION) {
+      console.error('reducer bench complete\n');
+      printStatus(normalize);
+      printStatus(Entity.normalize);
+      printStatus(Entity.denormalize);
+      printStatus(ProjectWithBuildTypesDescriptionSimpleMerge.merge);
+      printStatus(Entity.merge);
+      printStatus(Entity.process);
+      printStatus(Entity.validate);
+    }
+  });
 }
