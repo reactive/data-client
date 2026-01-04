@@ -42,3 +42,12 @@ Performance compared to normalizr package (higher is better):
 [Comparison done on a Ryzen 7950x; Ubuntu; Node 22.14.0]
 
 Not only is denormalize faster, but it is more feature-rich as well.
+
+### Profiling
+
+For opt/deopt investigation:
+
+```bash
+yarn start:trace
+yarn start:deopt
+```
