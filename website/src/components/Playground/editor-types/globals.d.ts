@@ -584,6 +584,22 @@ declare function EntityMixin<TBase extends PKClass>(Base: TBase, opt?: EntityOpt
 declare function EntityMixin<TBase extends IDClass>(Base: TBase, opt?: EntityOptions<InstanceType<TBase>>): IEntityClass<TBase> & TBase & (new (...args: any[]) => IEntityInstance);
 declare function EntityMixin<TBase extends Constructor>(Base: TBase, opt: RequiredPKOptions<InstanceType<TBase>>): IEntityClass<TBase> & TBase & (new (...args: any[]) => IEntityInstance);
 
+declare class PolymorphicSchema {
+    private _schemaAttribute;
+    protected schema: any;
+    constructor(definition: any, schemaAttribute?: string | ((...args: any) => any));
+    get isSingleSchema(): boolean;
+    define(definition: any): void;
+    getSchemaAttribute(input: any, parent: any, key: any): any;
+    inferSchema(input: any, parent: any, key: any): any;
+    schemaKey(): string;
+    normalizeValue(value: any, parent: any, key: any, args: any[], visit: Visit): any;
+    denormalizeValue(value: any, unvisit: any): any;
+}
+
+type ProcessableEntity = EntityInterface & {
+    process: any;
+};
 /**
  * Marks entity as Invalid.
  *
@@ -591,10 +607,7 @@ declare function EntityMixin<TBase extends Constructor>(Base: TBase, opt: Requir
  * Optional (like variable sized Array and Values) will simply remove the item.
  * @see https://dataclient.io/rest/api/Invalidate
  */
-declare class Invalidate<E extends EntityInterface & {
-    process: any;
-}> implements SchemaSimple {
-    protected _entity: E;
+declare class Invalidate<E extends ProcessableEntity | Record<string, ProcessableEntity>> extends PolymorphicSchema {
     /**
      * Marks entity as Invalid.
      *
@@ -602,12 +615,18 @@ declare class Invalidate<E extends EntityInterface & {
      * Optional (like variable sized Array and Values) will simply remove the item.
      * @see https://dataclient.io/rest/api/Invalidate
      */
-    constructor(entity: E);
+    constructor(entity: E, schemaAttribute?: E extends Record<string, ProcessableEntity> ? string | ((input: any, parent: any, key: any) => string) : undefined);
     get key(): string;
-    normalize(input: any, parent: any, key: string | undefined, args: any[], visit: (...args: any) => any, delegate: INormalizeDelegate): string;
-    queryKey(args: any, unvisit: unknown, delegate: unknown): undefined;
-    denormalize(id: string, args: readonly any[], unvisit: (schema: any, input: any) => any): AbstractInstanceType<E>;
-    _denormalizeNullable(): AbstractInstanceType<E> | undefined;
+    normalize(input: any, parent: any, key: string | undefined, args: any[], visit: (...args: any) => any, delegate: INormalizeDelegate): string | {
+        id: string;
+        schema: string;
+    };
+    queryKey(_args: any, _unvisit: unknown, _delegate: unknown): undefined;
+    denormalize(id: string | {
+        id: string;
+        schema: string;
+    }, args: readonly any[], unvisit: (schema: any, input: any) => any): E extends ProcessableEntity ? AbstractInstanceType<E> : AbstractInstanceType<E[keyof E]>;
+    _denormalizeNullable(): (E extends ProcessableEntity ? AbstractInstanceType<E> : AbstractInstanceType<E[keyof E]>) | undefined;
     _normalizeNullable(): string | undefined;
 }
 
@@ -1122,9 +1141,7 @@ type schema_d_DefaultArgs = DefaultArgs;
 type schema_d_EntityInterface<T = any> = EntityInterface<T>;
 type schema_d_EntityMap<T = any> = EntityMap<T>;
 declare const schema_d_EntityMixin: typeof EntityMixin;
-type schema_d_Invalidate<E extends EntityInterface & {
-    process: any;
-}> = Invalidate<E>;
+type schema_d_Invalidate<E extends ProcessableEntity | Record<string, ProcessableEntity>> = Invalidate<E>;
 declare const schema_d_Invalidate: typeof Invalidate;
 type schema_d_MergeFunction = MergeFunction;
 type schema_d_Query<S extends Queryable | {

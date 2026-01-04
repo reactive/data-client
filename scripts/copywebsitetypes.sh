@@ -17,7 +17,7 @@ cp ./node_modules/@types/react/index.d.ts ./website/src/components/Playground/ed
 cp ./node_modules/@js-temporal/polyfill/index.d.ts ./website/src/components/Playground/editor-types/temporal.d.ts
 cp ./node_modules/bignumber.js/bignumber.d.ts ./website/src/components/Playground/editor-types/bignumber.d.ts
 cp ./node_modules/@types/qs/index.d.ts ./website/src/components/Playground/editor-types/qs.d.ts
-cp ./node_modules/@types/uuid/index.d.ts ./website/src/components/Playground/editor-types/uuid.d.ts
+yarn run rollup --config ./scripts/rollup-plugins/uuid-types.rollup.config.js
 cp ./node_modules/@number-flow/react/dist/index.d.ts ./website/src/components/Playground/editor-types/@number-flow/react.d.ts
 rm ./website/src/components/Playground/editor-types/globals.d.ts
 yarn run rollup --config ./scripts/rollup-plugins/globals.rollup.config.js
