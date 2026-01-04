@@ -34,6 +34,7 @@ Normalizr is a small, but powerful utility for taking JSON with a schema definit
 - [API](https://dataclient.io/rest/api/Entity)
   - [normalize](./docs/api.md#normalizedata-schema)
   - [denormalize](./docs/api.md#denormalizeinput-schema-entities)
+  - [ImmutableJS](#immutablejs) - normalize/denormalize with ImmutableJS state
   - [schema](https://dataclient.io/rest/api/schema)
 
 ## Examples
@@ -225,6 +226,42 @@ is an Array of paths of all entities included in the result.
 
 `memo.buildQueryKey()` builds the input used to denormalize for `query()`. This is exposed
 to allow greater flexibility in its usage.
+
+## ImmutableJS
+
+For applications using [ImmutableJS](https://immutable-js.com/) for state management, normalizr provides
+dedicated functions via `@data-client/normalizr/imm` that work directly with Immutable.js data structures.
+
+### Normalize into ImmutableJS
+
+Use `normalize` from the imm entrypoint to normalize data directly into ImmutableJS Maps:
+
+```js
+import { normalize } from '@data-client/normalizr/imm';
+import { fromJS } from 'immutable';
+
+// Create initial ImmutableJS state
+const initialState = {
+  entities: fromJS({}),
+  indexes: fromJS({}),
+  entitiesMeta: fromJS({}),
+};
+
+const result = normalize(Article, responseData, args, initialState);
+
+// result.entities is an ImmutableJS Map
+result.entities.getIn(['Article', '123']);
+```
+
+### Denormalize from ImmutableJS
+
+Use `denormalize` from the imm entrypoint for reading from Immutable state:
+
+```js
+import { denormalize } from '@data-client/normalizr/imm';
+
+const article = denormalize(Article, '123', state.entities, args);
+```
 
 ## Schemas
 

@@ -40,7 +40,8 @@ Generate changesets, update documentation, draft blog entries, and prepare PR de
    - Fill in the sections based on the analyzed changes
    - Link related issues if known
    - Summarize motivation from changeset descriptions
-   - Describe solution at a high level (not implementation details)
+   - Describe solution at a high level first (not implementation details)
+   - Include any mermaid diagrams that might help convey key concepts, especially if one was present in a plan.md
 
 ## Changeset Format
 - **First line**: Action verb ("Add", "Fix", "Update", "Remove")
