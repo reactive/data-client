@@ -12,145 +12,51 @@ Files: `YYYY-MM-DD-vX.Y-short-description.md`
 - Include `releases` tag plus relevant feature tags from [tags.yml](./tags.yml)
 - `draft: true` for unpublished/WIP posts
 
-## Structure
+## Package Layers
 
-1. **Summary section** (before `<!-- truncate -->`)
-   - Lead with most impactful changes (new platforms, major features)
-   - Group related items using conceptual categories (see below)
-   - End with **Breaking Changes** as labeled section with anchor links to migration
-   - Use bullet lists and `<Link>` button to migration guide
-   - Include short code snippet if it demonstrates the key feature
+Organize content by package layer. Both feature sections and migration guides follow this order:
 
-2. **`<!-- truncate -->`** - Marks preview cutoff
+| Layer | Packages | Content |
+|-------|----------|---------|
+| **Platforms** | Integration | NextJS, Expo, React Native, Vue, React versions |
+| **Client/Platform** | react, vue, core | Hooks, composables, Controller, Managers, Provider |
+| **API Definition** | rest, endpoint, graphql | Resource, RestEndpoint, Entity, Collection, schemas |
+| **Internal** | normalizr, core | State structure, normalization, typing |
 
-3. **Detailed sections** (after truncate)
-   - Choose organizational strategy based on release scope:
-     - **By Category**: For platform/ecosystem releases (e.g., Platforms → API → Types → Migration)
-     - **By Concept**: For API-focused releases (e.g., Queryable → schema.Query → controller.get → useQuery)
-     - **By Package**: For multi-package coordinated changes (e.g., @data-client/react → @data-client/rest)
-   - Within each section: explanation → code example → PR/commit links
-   - End with Migration Guide, then "Upgrade support"
+## Blog Structure
 
-## Conceptual Categories
-
-Align content with the repo's layered architecture:
-
-| Category | Package Layer | Examples |
-|----------|--------------|----------|
-| **Platforms/Environments** | Integration | NextJS, Expo, React Native, Vue, React versions |
-| **Hooks/Composables** | react, vue | useSuspense, useQuery, useLive, useCache |
-| **Controller Methods** | core | controller.fetch, controller.set, controller.get |
-| **Schema/Data Modeling** | normalizr, endpoint | Entity, Collection, Query, Queryable, Union |
-| **REST/Endpoint** | rest | Resource, RestEndpoint, path patterns |
-| **Performance** | core | Benchmarks, caching, memoization |
-| **Package Consolidation** | any | Subpath exports replacing separate packages |
-| **Internal/Low-level** | normalizr, core | State structure, normalization internals |
-| **Typing** | all | TypeScript improvements |
-| **Fixes** | all | Bug fixes |
-
-## Section Ordering
-
-**Summary (before truncate):**
+**Summary (before `<!-- truncate -->`):**
 1. Platforms/major features (highest visibility)
 2. Package consolidations (import path changes)
-3. New APIs (hooks, controller methods)
+3. New APIs (hooks, controller methods, schemas)
 4. Other Improvements (bulleted list)
-5. Breaking Changes (with migration anchor links)
+5. Breaking Changes (with anchor links to migration sections)
 
 **Details (after truncate):**
-1. Major features (with demos: `<StackBlitz>`, `<HooksPlayground>`)
+1. Major features (with `<StackBlitz>`, `<HooksPlayground>` demos)
 2. New/changed APIs (with `<TypeScriptEditor>` examples)
 3. Performance (with mermaid charts if benchmarked)
-4. Other improvements (grouped subsection)
+4. Other improvements
 5. Migration guide
 
-## Imports
+Within each section: explanation → code example → PR/commit links
 
-Place after frontmatter, before content. Only import what's used:
+## Migration Guide
 
-```tsx
-// Common
-import Link from '@docusaurus/Link';
+Start with `<PkgTabs pkgs="..." upgrade />`, end with Upgrade support blurb.
 
-// Migration/upgrade
-import PkgTabs from '@site/src/components/PkgTabs';
-import DiffEditor from '@site/src/components/DiffEditor';
+**By Package** - Group changes by package when multiple packages have breaking changes:
+- `### @data-client/react X.Y` - Client/Platform changes
+- `### @data-client/rest X.Y` - API Definition changes
 
-// Code examples
-import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
+**By Audience** - Within packages (or standalone), group by who's affected:
+- `### For all users` / `#### For all users`
+- `### For custom Manager authors {#custom-managers}` - Action/middleware changes
+- `### For custom Schema authors {#custom-schemas}` - normalize/denormalize changes
 
-// Demos
-import HooksPlayground from '@site/src/components/HooksPlayground';
-import StackBlitz from '@site/src/components/StackBlitz';
-import Embed from '@site/src/components/Embed';
+Add skip guidance for specialized sections: "Skip this section if you don't have custom [Managers](/docs/concepts/managers)."
 
-// Media
-import AutoPlayVideo from '@site/src/components/AutoPlayVideo';
-import useBaseUrl from '@docusaurus/useBaseUrl';
-
-// Layout
-import Grid from '@site/src/components/Grid';
-```
-
-Note: Some imports (like `PkgTabs`) may appear after truncate if only used in Migration section.
-
-## Code Examples
-
-**Before/After changes:** Use `<DiffEditor>` with two code blocks titled "Before" and "After"
-
-**Interactive TypeScript:** Use `<TypeScriptEditor>` for live examples
-
-**Package installation:** Use `<PkgTabs pkgs="@data-client/react@^0.X.0" upgrade />`
-
-**Embedded demos:** Use `<StackBlitz app="app-name" file="path/to/file.tsx" />`
-
-## Performance Improvements
-
-When documenting performance gains:
-
-1. **Lead with narrative context** - Briefly explain *what* was optimized (caching, code paths, algorithms)
-2. **Quantify with multipliers** - Use concrete metrics like "2x" or "16x improvement"
-3. **Link evidence** - Reference the PR implementing the optimization and relevant docs
-4. **Visualize with mermaid chart** - Use `xychart-beta` bar chart comparing operations:
-
-<div style={{maxWidth:'600px'}}>
-```mermaid
-xychart-beta
-    title "Performance vs vX.Y"
-    x-axis ["operation1", "operation2", "operation3"]
-    y-axis "Percentage gain" 0 --> MAX_VALUE
-    bar [new_values]
-    bar [baseline_100s]
-```
-</div>
-
-5. **Include benchmark links** - End with centered links to live benchmarks and source:
-
-```md
-<center>
-
-[Benchmarks over time](https://reactive.github.io/data-client/dev/bench/) | [View benchmark](https://github.com/reactive/data-client/tree/master/examples/benchmark)
-
-</center>
-```
-
-Keep the baseline bar at 100 for each operation to show relative improvement clearly.
-
-## Conventions
-
-- **Each change must include:** a link to the PR (or commit if no PR) and relevant doc links
-- Link PRs: `[#1234](https://github.com/reactive/data-client/pull/1234)`
-- Link commits: `` [`abc123`](https://github.com/reactive/data-client/commit/abc123) ``
-- Link docs: `[Controller](/docs/api/Controller)` or `[Entity](/rest/api/Entity)`
-- Use `:::note` / `:::tip` / `:::warning` for callouts
-- Use `// highlight-next-line` in code blocks for emphasis
-
-## Migration Guide Section
-
-- Start with package upgrade command via `<PkgTabs>`
-- Each breaking change gets its own `### Heading {#anchor}`
-- Show before/after with `<DiffEditor>`
-- End with upgrade support blurb:
+Use `<DiffEditor>` for before/after. End with:
 
 ```md
 ### Upgrade support
@@ -158,14 +64,28 @@ Keep the baseline bar at 100 for each operation to show relative improvement cle
 As usual, if you have any troubles or questions, feel free to join our [![Chat](https://img.shields.io/discord/768254430381735967.svg?style=flat-square&colorB=758ED3)](https://discord.gg/wXGV27xm6t) or [file a bug](https://github.com/reactive/data-client/issues/new/choose)
 ```
 
-## Component Usage Patterns
+## Components
 
-| Scenario | Component | Notes |
-|----------|-----------|-------|
-| Full interactive demo | `<HooksPlayground>` | For showcasing complete features with fixtures |
-| Embedded app demo | `<StackBlitz>` | For real app examples (todo-app, coin-app) |
-| Live coding demo | `<Embed>` | For deployed demos (vercel apps) |
-| Type-safe code example | `<TypeScriptEditor>` | Shows TS errors, collapsed sections with `collapsed` |
-| Before/After migration | `<DiffEditor>` | Two code blocks titled "Before" and "After" |
-| Performance comparison | Mermaid `xychart-beta` | Bar charts comparing versions/operations |
-| Video demo | `<AutoPlayVideo>` | For SSR/navigation demos |
+| Component | Use For |
+|-----------|---------|
+| `<HooksPlayground>` | Interactive demos with fixtures |
+| `<StackBlitz>` | Embedded app demos (todo-app, coin-app) |
+| `<TypeScriptEditor>` | Type-safe code examples |
+| `<DiffEditor>` | Before/After migration changes |
+| `<PkgTabs pkgs="..." upgrade />` | Package installation |
+| `<AutoPlayVideo>` | SSR/navigation demos |
+
+## Performance Sections
+
+1. Explain what was optimized
+2. Quantify with multipliers ("2x", "16x")
+3. Link PR and docs
+4. Visualize with mermaid `xychart-beta` bar chart (baseline at 100)
+5. Link to [benchmarks](https://reactive.github.io/data-client/dev/bench/)
+
+## Conventions
+
+- Each change links to PR `[#1234](https://github.com/reactive/data-client/pull/1234)` and relevant docs
+- Use `:::note` / `:::tip` / `:::warning` for callouts
+- Use `// highlight-next-line` for code emphasis
+- Imports go after frontmatter; place migration-only imports after truncate
