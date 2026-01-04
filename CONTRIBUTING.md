@@ -1,5 +1,9 @@
 # Contributing to Reactive Data Client
 
+## Getting Started
+
+Use the `/initialize` Cursor command to set up your development environment.
+
 ## Bug Reports
 
 * Ensure your issue [has not already been reported][1]. It may already be fixed!

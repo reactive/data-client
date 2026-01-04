@@ -324,7 +324,9 @@ type StateInterface = {
     };
 };
 
-/** Basic POJO state interfaces for normalize side */
+/** Basic POJO state interfaces for normalize side
+ * Used directly as QueryDelegate, and inherited by NormalizeDelegate
+ */
 declare class POJODelegate extends BaseDelegate {
     entities: EntityTable;
     indexes: {
