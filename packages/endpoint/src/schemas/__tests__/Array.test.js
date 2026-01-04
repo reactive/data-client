@@ -452,3 +452,58 @@ describe.each([
     });
   });
 });
+
+describe('nested polymorphic schemas', () => {
+  class User extends IDEntity {
+    type = 'users';
+  }
+  class Group extends IDEntity {
+    type = 'groups';
+  }
+
+  test('Array of Array normalizes without hoisting', () => {
+    const innerArray = new schema.Array(User);
+    const outerArray = new schema.Array(innerArray);
+
+    const input = [[{ id: '1' }, { id: '2' }], [{ id: '3' }]];
+    const output = normalize(outerArray, input);
+
+    expect(output.entities.User).toEqual({
+      1: expect.objectContaining({ id: '1' }),
+      2: expect.objectContaining({ id: '2' }),
+      3: expect.objectContaining({ id: '3' }),
+    });
+    expect(output.result).toEqual([['1', '2'], ['3']]);
+  });
+
+  test('Array of Union normalizes with hoisting', () => {
+    const union = new schema.Union({ users: User, groups: Group }, 'type');
+    const arrayOfUnion = new schema.Array(union);
+
+    const input = [
+      { id: '1', type: 'users' },
+      { id: '2', type: 'groups' },
+    ];
+    const output = normalize(arrayOfUnion, input);
+
+    expect(output.entities.User['1']).toBeDefined();
+    expect(output.entities.Group['2']).toBeDefined();
+    expect(output.result).toEqual([
+      { id: '1', schema: 'users' },
+      { id: '2', schema: 'groups' },
+    ]);
+  });
+
+  test('Array of Invalidate normalizes without hoisting (calls invalidate)', () => {
+    const invalidate = new schema.Invalidate(User);
+    const arrayOfInvalidate = new schema.Array(invalidate);
+
+    const input = [{ id: '1' }, { id: '2' }];
+    const output = normalize(arrayOfInvalidate, input);
+
+    // Invalidate should mark entities as INVALID, not store them as objects
+    expect(output.entities.User['1']).toEqual(expect.any(Symbol));
+    expect(output.entities.User['2']).toEqual(expect.any(Symbol));
+    expect(output.result).toEqual(['1', '2']);
+  });
+});

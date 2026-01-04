@@ -6,6 +6,9 @@ import { Visit } from '../interface.js';
  * @see https://dataclient.io/rest/api/Union
  */
 export default class UnionSchema extends PolymorphicSchema {
+  // Union is designed to be transparent; allow hoisting into wrappers (Array, Values)
+  protected readonly _hoistable = true as const;
+
   constructor(definition: any, schemaAttribute: any) {
     if (!schemaAttribute) {
       throw new Error(
