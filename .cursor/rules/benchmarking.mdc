@@ -46,9 +46,13 @@ Filter syntax:
 - `text` → substring match (contains "text")
 - `^text` → starts with "text"
 
+**When benchmarking specific changes, use filters to focus on relevant benchmarks** (see "Suites and what they exercise" below for recommended filters):
+
 Examples:
 - `yarn start normalizr "^normalize"` → only "normalizeLong" (not denormalize*)
 - `yarn start normalizr "^denormalize"` → all denormalize* benchmarks
+- `yarn start core "^set"` → all setResponse* benchmarks (setLong, setSmallResponse, etc.)
+- `yarn start core "^get"` → all getResponse/get benchmarks (getResponse, getSmallResponse, get Collection, etc.)
 - `yarn start normalizr withCache` → benchmarks containing "withCache"
 
 ## Profiling / tracing (opt + deopt investigation)
@@ -70,12 +74,17 @@ Use this mapping when deciding which suite(s) to run for a change:
   - **Primary focus**: entity instance operations like `pk()` and `fromJS()`, plus `EntityMixin`.
   - **Packages exercised**:
     - **`@data-client/endpoint`**: `Entity`, `EntityMixin` (re-exported via `@examples/benchmark/dist/index.js`)
+  - **Recommended filters**: Run all benchmarks (suite is small and focused)
 
 - **`normalizr`** (`@examples/benchmark/normalizr.js`)
   - **Primary focus**: `normalize()` / `denormalize()` throughput, memoization, and query/key building.
   - **Packages exercised**:
     - **`@data-client/normalizr`**: `normalize`, `denormalize`, `MemoCache`, `WeakDependencyMap`
     - **`@data-client/endpoint`**: schema helpers used in `@examples/benchmark/schemas.js` (`schema.All`, `schema.Query`, `schema.Collection`) and entity definitions
+  - **Recommended filters**:
+    - Changes to normalization: `^normalize`
+    - Changes to denormalization: `^denormalize`
+    - Changes to query/key building: `query` or `buildQueryKey`
 
 - **`core`** (`@examples/benchmark/core.js`)
   - **Primary focus**: end-to-end store/controller costs (`Controller.setResponse()`, `Controller.getResponse()`, reducer updates).
@@ -83,12 +92,16 @@ Use this mapping when deciding which suite(s) to run for a change:
     - **`@data-client/core`**: `Controller`, `createReducer`, `initialState`
     - **`@data-client/endpoint`**: `Endpoint`, `Entity`, schema definitions used by endpoints
     - **`@data-client/normalizr`**: normalization work triggered by `setResponse()` and `getResponse()` paths
+  - **Recommended filters**:
+    - Changes to `setResponse()` or reducer updates: `^set`
+    - Changes to `getResponse()` or cache retrieval: `^get`
 
 - **`old-normalizr`** (`@examples/benchmark/old-normalizr/normalizr.js`)
   - **Primary focus**: baseline comparison against the legacy `normalizr` npm package.
   - **Packages exercised**:
     - **`normalizr` (npm)**: `normalize`, `denormalize`, `schema.Entity`
-    - **`@data-client/core`**: `initialState` only (used to shape a “store-like” state for merge behavior)
+    - **`@data-client/core`**: `initialState` only (used to shape a "store-like" state for merge behavior)
+  - **Recommended filters**: Run all benchmarks (baseline comparison)
 
 ## Adding or changing benchmarks
 
