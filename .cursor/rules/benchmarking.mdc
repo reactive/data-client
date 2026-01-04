@@ -112,3 +112,32 @@ yarn workspace example-benchmark start | tee output.txt
 
 The output is parsed as **benchmark.js** format and reported by `rhysd/github-action-benchmark` (see `@.github/workflows/benchmark.yml`).
 
+## Expected variance
+
+Benchmark results have two types of variance to consider:
+
+### Within-run variance (reported as ±X%)
+
+The `±X%` shown after each result is the **margin of error** for samples within that run. Most benchmarks show:
+- **Low variance (±0.1–0.3%)**: Cache-hit benchmarks with stable hot paths (`buildQueryKey`, `setSmallResponse`, `denormalizeShort donotcache`)
+- **Moderate variance (±0.5–1.5%)**: Most normalize/denormalize operations, entity operations
+- **Higher variance (±1.5–2.5%)**: Complex operations with GC pressure (`getResponse`, `getResponse Collection`)
+
+### Run-to-run variance
+
+When comparing results across separate benchmark runs, expect additional variance:
+
+| Category | Examples | Typical run-to-run spread |
+|----------|----------|---------------------------|
+| **Very stable** | `denormalizeShort donotcache 500x`, `no-defaults pk()` | <1% |
+| **Stable** | `normalizeLong`, `setLong`, `setLongWithMerge`, `mixin pk()` | 1–3% |
+| **Moderate** | `getSmallResponse`, `fromJS()`, `get Collection` | 3–7% |
+| **Volatile** | `query All withCache`, `denormalizeLong withCache`, `denormalizeLong All withCache` | 10–20% |
+
+### Interpreting results
+
+- **Performance regressions**: Require >5% degradation on stable benchmarks, or >15% on volatile ones, to be considered significant.
+- **Cache-path benchmarks** (those with `withCache` suffix) show higher variance because cache state and GC timing affect results more.
+- **Run multiple times**: For performance investigations, run benchmarks 3+ times and compare the median or best result, not single runs.
+- **The `gc()` calls** between cycles help but don't eliminate variance from JIT warmup and memory pressure.
+
