@@ -1,0 +1,101 @@
+---
+description: Schema data modeling with @data-client/rest or @data-client/endpoint
+alwaysApply: false
+---
+
+## 1. Defining Schemas
+
+Define [schemas](https://dataclient.io/rest/api/schema) to represent the JSON returned by an endpoint. Compose these
+to represent the data expected.
+
+### Object
+
+- [Entity](https://dataclient.io/rest/api/Entity) - represents a single unique object (denormalized)
+- [new schema.Union(Entity)](https://dataclient.io/rest/api/Union) - polymorphic objects (A | B)
+- `{[key:string]: Schema}` - immutable objects
+- `new schema.Invalidate(Entity)` - to delete an Entity
+
+### List
+
+- [new schema.Collection([Entity])](https://dataclient.io/rest/api/Collection) - mutable/growable lists
+- `[Entity]` - immutable lists
+- `new schema.All(Entity)` - list all Entities of a kind
+
+### Map
+
+- `new schema.Collection(schema.Values(Entity))` - mutable/growable maps
+- `new schema.Values(Entity)` - immutable maps
+
+### Programmatic
+
+- [new schema.Query(Queryable)](https://dataclient.io/rest/api/Query) - memoized programmatic selectors
+  ```ts
+  const queryRemainingTodos = new schema.Query(
+    TodoResource.getList.schema,
+    entries => entries.filter(todo => !todo.completed).length,
+  );
+  ```
+
+  ```ts
+  const groupTodoByUser = new schema.Query(
+    TodoResource.getList.schema,
+    todos => Object.groupBy(todos, todo => todo.userId),
+  );
+  ```
+
+---
+
+## 2. Entity best practices
+
+- Every `Entity` subclass **defines defaults** for _all_ non-optional serialised fields.
+- Override `pk()` only when the primary key ≠ `id`.
+- `pk()` return type is `number | string | undefined`
+- Override `Entity.process(value, parent, key, args)` to insert fields based on args/url
+- `static schema` (optional) for nested schemas or deserialization functions
+  - When designing APIs, prefer nesting entities
+
+---
+
+## 3. **Union Types (Polymorphic Schemas)**
+
+To define polymorphic resources (e.g., events), use [schema.Union](https://dataclient.io/rest/api/Union) and a discriminator field.
+
+```typescript
+import { schema } from '@data-client/rest';
+
+export abstract class Event extends Entity {
+  type: EventType = 'Issue';    // discriminator field is shared
+  /* ... */
+}
+export class PullRequestEvent extends Event { /* ... */ }
+export class IssuesEvent extends Event { /* ... */ }
+
+export const EventResource = resource({
+  path: '/users/:login/events/public/:id',
+  schema: new schema.Union(
+    {
+      PullRequestEvent,
+      IssuesEvent,
+      // ...other event types...
+    },
+    'type', // discriminator field
+  ),
+});
+```
+
+---
+
+## 4. Best Practices & Notes
+
+- Always set up `schema` on every resource/entity/collection for normalization
+- Normalize deeply nested or relational data by defining proper schemas
+
+## 5. Common Mistakes to Avoid
+
+- Don’t forget to use `fromJS()` or assign default properties for class fields
+
+# Official Documentation Links
+
+- [Entity API](https://dataclient.io/rest/api/Entity)
+- [Schema Guide](https://dataclient.io/rest/api/schema#schema-overview)
+- [Relational Data Guide](https://dataclient.io/rest/guides/relational-data)

@@ -11,58 +11,10 @@ This project uses [@data-client/rest](https://dataclient.io/rest) to define, fet
 
 ## 1. Defining Schemas
 
-Define [schemas](https://dataclient.io/rest/api/schema) to represent the JSON returned by an endpoint. Compose these
-to represent the data expected.
+This project uses [schemas](https://dataclient.io/rest/api/schema) (see @.cursor/rules/schema.mdc) to define and normalize data models with type safety and automatic cache management.
+**Always follow these patterns (@.cursor/rules/schema.mdc) when generating mutable data definitions.**
 
-### Object
-
-- [Entity](https://dataclient.io/rest/api/Entity) - represents a single unique object (denormalized)
-- [new schema.Union(Entity)](https://dataclient.io/rest/api/Union) - polymorphic objects (A | B)
-- `{[key:string]: Schema}` - immutable objects
-- `new schema.Invalidate(Entity)` - to delete an Entity
-
-### List
-
-- [new schema.Collection([Entity])](https://dataclient.io/rest/api/Collection) - mutable/growable lists
-- `[Entity]` - immutable lists
-- `new schema.All(Entity)` - list all Entities of a kind
-
-### Map
-
-- `new schema.Collection(schema.Values(Entity))` - mutable/growable maps
-- `new schema.Values(Entity)` - immutable maps
-
-### Programmatic
-
-- [new schema.Query(Queryable)](https://dataclient.io/rest/api/Query) - memoized programmatic selectors
-  ```ts
-  const queryRemainingTodos = new schema.Query(
-    TodoResource.getList.schema,
-    entries => entries.filter(todo => !todo.completed).length,
-  );
-  ```
-
-  ```ts
-  const groupTodoByUser = new schema.Query(
-    TodoResource.getList.schema,
-    todos => Object.groupBy(todos, todo => todo.userId),
-  );
-  ```
-
----
-
-## 2. Entity best practices
-
-- Every `Entity` subclass **defines defaults** for _all_ non-optional serialised fields.
-- Override `pk()` only when the primary key ≠ `id`.
-- `pk()` return type is `number | string | undefined`
-- Override `Entity.process(value, parent, key, args)` to insert fields based on args/url
-- `static schema` (optional) for nested schemas or deserialization functions
-  - When designing APIs, prefer nesting entities
-
----
-
-## 3. Resources (`resource()`)
+## 2. Resources (`resource()`)
 
 - [resource()](https://dataclient.io/rest/api/resource) creates a collection of [RestEndpoints](https://dataclient.io/rest/api/RestEndpoint) for CRUD operations on a common object
 - Required fields:
@@ -139,7 +91,7 @@ For more detailed usage, see @.cursor/rules/react.mdc
 
 ---
 
-## 4. Custom [RestEndpoint](https://dataclient.io/rest/api/RestEndpoint) patterns
+## 3. Custom [RestEndpoint](https://dataclient.io/rest/api/RestEndpoint) patterns
 
 ```ts
 /** Stand‑alone endpoint with custom typing */
@@ -172,36 +124,7 @@ getOptimisticResponse(snap, { id }) {
 
 ---
 
-## 5. **Union Types (Polymorphic Schemas)**
-
-To define polymorphic resources (e.g., events), use [schema.Union](https://dataclient.io/rest/api/Union) and a discriminator field.
-
-```typescript
-import { schema } from '@data-client/rest';
-
-export abstract class Event extends Entity {
-  type: EventType = 'Issue';    // discriminator field is shared
-  /* ... */
-}
-export class PullRequestEvent extends Event { /* ... */ }
-export class IssuesEvent extends Event { /* ... */ }
-
-export const EventResource = resource({
-  path: '/users/:login/events/public/:id',
-  schema: new schema.Union(
-    {
-      PullRequestEvent,
-      IssuesEvent,
-      // ...other event types...
-    },
-    'type', // discriminator field
-  ),
-});
-```
-
----
-
-## 7. **Extending Resources**
+## 4. **Extending Resources**
 
 Use `.extend()` to add or override endpoints.
 
@@ -218,16 +141,14 @@ export const IssueResource = resource({
 
 ---
 
-## 8. Best Practices & Notes
+## 5. Best Practices & Notes
 
 - When asked to browse or navigate to a web address, actual visit the address
 - Always set up `schema` on every resource/entity/collection for normalization
 - Prefer `RestEndpoint` over `resource()` for defining single endpoints or when mutation endpoints don't exist
-- Normalize deeply nested or relational data by defining proper schemas
 
-## 9. Common Mistakes to Avoid
+## 6. Common Mistakes to Avoid
 
-- Don’t forget to use `fromJS()` or assign default properties for class fields
 - Don't use `resource()` when mutation endpoints are not used or needed
 
 # Official Documentation Links
@@ -235,8 +156,5 @@ export const IssueResource = resource({
 - [Getting Started](https://dataclient.io/docs/getting-started/resource)
 - [RestEndpoint API](https://dataclient.io/rest/api/RestEndpoint)
 - [Resource API](https://dataclient.io/rest/api/resource)
-- [Entity API](https://dataclient.io/rest/api/Entity)
-- [Schema Guide](https://dataclient.io/rest/api/schema#schema-overview)
-- [Relational Data Guide](https://dataclient.io/rest/guides/relational-data)
 
 **ALWAYS follow these patterns and refer to the official docs for edge cases. Prioritize code generation that is idiomatic, type-safe, and leverages automatic normalization/caching via schema definitions.**
