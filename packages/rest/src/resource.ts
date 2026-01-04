@@ -122,7 +122,11 @@ This warning will not show in production.`,
     delete: new Endpoint({
       ...extraMutateOptions,
       path,
-      schema: (schema as any).process ? new Invalidate(schema as any) : schema,
+      schema:
+        // Entity || Union
+        (schema as any).process || (schema as any)._hoistable ?
+          new Invalidate(schema as any)
+        : schema,
       method: 'DELETE',
       name: getName('delete'),
       process(res: any, params: any) {
