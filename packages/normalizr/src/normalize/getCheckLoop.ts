@@ -1,21 +1,23 @@
 export function getCheckLoop() {
-  const visitedEntities = new Map<string, Map<string, object[]>>();
+  const visitedEntities = new Map<string, Map<string, Set<object>>>();
   /* Returns true if a circular reference is found */
   return function checkLoop(entityKey: string, pk: string, input: object) {
-    if (!visitedEntities.has(entityKey)) {
-      visitedEntities.set(entityKey, new Map<string, object[]>());
+    let entitiesOneType = visitedEntities.get(entityKey);
+    if (!entitiesOneType) {
+      entitiesOneType = new Map<string, Set<object>>();
+      visitedEntities.set(entityKey, entitiesOneType);
     }
-    const entitiesOneType = visitedEntities.get(entityKey)!;
 
-    if (!entitiesOneType.has(pk)) {
-      entitiesOneType.set(pk, []);
+    let visitedEntitySet = entitiesOneType.get(pk);
+    if (!visitedEntitySet) {
+      visitedEntitySet = new Set<object>();
+      entitiesOneType.set(pk, visitedEntitySet);
     }
-    const visitedEntityList = entitiesOneType.get(pk)!;
 
-    if (visitedEntityList.some((entity: any) => entity === input)) {
+    if (visitedEntitySet.has(input)) {
       return true;
     }
-    visitedEntityList.push(input);
+    visitedEntitySet.add(input);
     return false;
   };
 }
