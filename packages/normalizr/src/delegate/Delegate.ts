@@ -5,7 +5,9 @@ import type {
 } from '../interface.js';
 import { BaseDelegate } from './BaseDelegate.js';
 
-/** Basic POJO state interfaces for normalize side */
+/** Basic POJO state interfaces for normalize side
+ * Used directly as QueryDelegate, and inherited by NormalizeDelegate
+ */
 export class POJODelegate extends BaseDelegate {
   declare entities: EntityTable;
   declare indexes: {
