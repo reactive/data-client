@@ -301,7 +301,9 @@ export default function EntityMixin<TBase extends Constructor>(
       const errorMessage = this.validate(processedEntity);
       throwValidationError(errorMessage);
 
-      Object.keys(this.schema).forEach(key => {
+      const schemaKeys = Object.keys(this.schema);
+      for (let i = 0; i < schemaKeys.length; i++) {
+        const key = schemaKeys[i];
         if (Object.hasOwn(processedEntity, key)) {
           processedEntity[key] = visit(
             this.schema[key],
@@ -311,7 +313,7 @@ export default function EntityMixin<TBase extends Constructor>(
             args,
           );
         }
-      });
+      }
 
       delegate.mergeEntity(this, id, processedEntity);
       return id;
