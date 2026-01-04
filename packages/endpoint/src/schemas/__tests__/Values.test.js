@@ -407,3 +407,70 @@ describe.each([
     },
   );
 });
+
+describe('nested polymorphic schemas', () => {
+  class User extends IDEntity {
+    type = 'users';
+  }
+  class Group extends IDEntity {
+    type = 'groups';
+  }
+
+  test('Values of Array normalizes without hoisting', () => {
+    const innerArray = new schema.Array(User);
+    const outerValues = new schema.Values(innerArray);
+
+    const input = {
+      team1: [{ id: '1' }, { id: '2' }],
+      team2: [{ id: '3' }],
+    };
+    const output = normalize(outerValues, input);
+
+    expect(output.entities.User).toEqual({
+      1: expect.objectContaining({ id: '1' }),
+      2: expect.objectContaining({ id: '2' }),
+      3: expect.objectContaining({ id: '3' }),
+    });
+    expect(output.result).toEqual({
+      team1: ['1', '2'],
+      team2: ['3'],
+    });
+  });
+
+  test('Values of Union normalizes with hoisting', () => {
+    const union = new schema.Union({ users: User, groups: Group }, 'type');
+    const valuesOfUnion = new schema.Values(union);
+
+    const input = {
+      first: { id: '1', type: 'users' },
+      second: { id: '2', type: 'groups' },
+    };
+    const output = normalize(valuesOfUnion, input);
+
+    expect(output.entities.User['1']).toBeDefined();
+    expect(output.entities.Group['2']).toBeDefined();
+    expect(output.result).toEqual({
+      first: { id: '1', schema: 'users' },
+      second: { id: '2', schema: 'groups' },
+    });
+  });
+
+  test('Values of Invalidate normalizes without hoisting (calls invalidate)', () => {
+    const invalidate = new schema.Invalidate(User);
+    const valuesOfInvalidate = new schema.Values(invalidate);
+
+    const input = {
+      first: { id: '1' },
+      second: { id: '2' },
+    };
+    const output = normalize(valuesOfInvalidate, input);
+
+    // Invalidate should mark entities as INVALID, not store them as objects
+    expect(output.entities.User['1']).toEqual(expect.any(Symbol));
+    expect(output.entities.User['2']).toEqual(expect.any(Symbol));
+    expect(output.result).toEqual({
+      first: '1',
+      second: '2',
+    });
+  });
+});

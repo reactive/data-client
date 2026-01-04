@@ -26,6 +26,7 @@ Generate release notes for user-facing changes in published packages.
 - **Breaking**: Prefix with `BREAKING CHANGE:` or `BREAKING:`
 - **Body**: 1–3 lines describing outcome, not implementation
 - **New exports**: Use "New exports:" with bullet list
+- **Documentation links**: Link concepts that have doc pages in @docs (e.g., `[Union](https://dataclient.io/rest/api/Union)`)
 
 ## Code Examples in Changesets
 - Fixes: `// Before: ... ❌` `// After: ... ✓`

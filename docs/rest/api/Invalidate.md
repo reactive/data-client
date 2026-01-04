@@ -12,9 +12,22 @@ import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 Describes entities to be marked as [INVALID](/docs/concepts/expiry-policy#invalid). This removes items from a
 collection, or [forces suspense](/docs/concepts/expiry-policy#invalidate-entity) for endpoints where the entity is required. 
 
-Constructor:
+## Constructor
 
-- `entity` which entity to invalidate. The input is used to compute the pk() for lookup.
+```typescript
+new schema.Invalidate(entity)
+new schema.Invalidate(union)
+new schema.Invalidate(entityMap, schemaAttribute)
+```
+
+- `entity`: A singular [Entity](./Entity.md) to invalidate.
+- `union`: A [Union](./Union.md) schema for polymorphic invalidation.
+- `entityMap`: A mapping of schema keys to [Entities](./Entity.md).
+- `schemaAttribute`: _optional_ (required if `entityMap` is used) The attribute on each entity found that defines what schema, per the entityMap, to use when normalizing.
+  Can be a string or a function. If given a function, accepts the following arguments:
+  - `value`: The input value of the entity.
+  - `parent`: The parent object of the input array.
+  - `key`: The key at which the input array appears on the parent object.
 
 ## Usage
 
@@ -176,6 +189,68 @@ PostResource.deleteMany(['5', '13', '7']);
 ```
 
 </EndpointPlayground>
+
+### Polymorphic types
+
+If your endpoint can delete more than one type of entity, you can use polymorphic invalidation.
+
+#### With Union schema
+
+The simplest approach is to pass an existing [Union](./Union.md) schema directly:
+
+```typescript
+class User extends Entity {
+  id = '';
+  name = '';
+  readonly type = 'users';
+}
+class Group extends Entity {
+  id = '';
+  groupname = '';
+  readonly type = 'groups';
+}
+
+const MemberUnion = new schema.Union(
+  { users: User, groups: Group },
+  'type'
+);
+
+const deleteMember = new RestEndpoint({
+  path: '/members/:id',
+  method: 'DELETE',
+  schema: new schema.Invalidate(MemberUnion),
+});
+```
+
+#### string schemaAttribute
+
+Alternatively, define the polymorphic mapping inline with a string attribute:
+
+```typescript
+const deleteMember = new RestEndpoint({
+  path: '/members/:id',
+  method: 'DELETE',
+  schema: new schema.Invalidate(
+    { users: User, groups: Group },
+    'type'
+  ),
+});
+```
+
+#### function schemaAttribute
+
+The return values should match a key in the entity map. This is useful for more complex discrimination logic:
+
+```typescript
+const deleteMember = new RestEndpoint({
+  path: '/members/:id',
+  method: 'DELETE',
+  schema: new schema.Invalidate(
+    { users: User, groups: Group },
+    (input, parent, key) => input.memberType === 'user' ? 'users' : 'groups'
+  ),
+});
+```
 
 ### Impact on useSuspense()
 

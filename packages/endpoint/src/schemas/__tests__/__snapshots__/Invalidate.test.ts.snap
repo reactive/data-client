@@ -146,6 +146,19 @@ exports[`Invalidate normalization normalizes an object 1`] = `
 }
 `;
 
+exports[`Invalidate normalization normalizes number input within array (already processed pk) 1`] = `
+{
+  "entities": {},
+  "entitiesMeta": {},
+  "indexes": {},
+  "result": [
+    1,
+    2,
+    3,
+  ],
+}
+`;
+
 exports[`Invalidate normalization should throw a custom error if data does not include pk (serializes pk) 1`] = `
 "Missing usable primary key when normalizing response.
 
@@ -174,4 +187,140 @@ exports[`Invalidate normalization should throw a custom error if data does not i
   "secondthing": "hi"
 }
   "
+`;
+
+exports[`Invalidate normalization with Union schema normalizes a union object with function schemaAttribute 1`] = `
+{
+  "entities": {
+    "User": {
+      "1": Symbol(INVALID),
+    },
+  },
+  "entitiesMeta": {
+    "User": {
+      "1": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": {
+    "id": "1",
+    "schema": "users",
+  },
+}
+`;
+
+exports[`Invalidate normalization with Union schema normalizes a union object with function schemaAttribute 2`] = `
+{
+  "entities": {
+    "Group": {
+      "2": Symbol(INVALID),
+    },
+  },
+  "entitiesMeta": {
+    "Group": {
+      "2": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": {
+    "id": "2",
+    "schema": "groups",
+  },
+}
+`;
+
+exports[`Invalidate normalization with Union schema normalizes a union object with string schemaAttribute 1`] = `
+{
+  "entities": {
+    "User": {
+      "1": Symbol(INVALID),
+    },
+  },
+  "entitiesMeta": {
+    "User": {
+      "1": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": {
+    "id": "1",
+    "schema": "users",
+  },
+}
+`;
+
+exports[`Invalidate normalization with Union schema normalizes a union object with string schemaAttribute 2`] = `
+{
+  "entities": {
+    "Group": {
+      "2": Symbol(INVALID),
+    },
+  },
+  "entitiesMeta": {
+    "Group": {
+      "2": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": {
+    "id": "2",
+    "schema": "groups",
+  },
+}
+`;
+
+exports[`Invalidate normalization with Union schema normalizes array of Invalidate unions 1`] = `
+{
+  "entities": {
+    "Group": {
+      "2": Symbol(INVALID),
+    },
+    "User": {
+      "1": Symbol(INVALID),
+    },
+  },
+  "entitiesMeta": {
+    "Group": {
+      "2": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+    "User": {
+      "1": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": [
+    {
+      "id": "1",
+      "schema": "users",
+    },
+    {
+      "id": "2",
+      "schema": "groups",
+    },
+  ],
+}
 `;

@@ -23,8 +23,9 @@ export default class PolymorphicSchema {
   }
 
   define(definition: any) {
-    // sending Union into another Polymorphic gets hoisted
-    if ('_schemaAttribute' in definition && !this._schemaAttribute) {
+    // Only Union opts into hoisting (_hoistable = true)
+    // This prevents Array(Array(...)), Values(Array(...)), Array(Invalidate(...)) issues
+    if (definition._hoistable && !this._schemaAttribute) {
       this.schema = definition.schema;
       this._schemaAttribute = definition._schemaAttribute;
     } else {
