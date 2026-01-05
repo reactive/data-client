@@ -1077,6 +1077,68 @@ describe('resource()', () => {
           { username: 'never' },
         );
     });
+
+    it('delete endpoint should wrap Union schema with Invalidate', () => {
+      // Verify the delete schema is an Invalidate instance that hoisted the Union
+      const deleteSchema = FeedResource.delete.schema;
+      expect(deleteSchema).toBeInstanceOf(schema.Invalidate);
+
+      // Verify it properly hoisted the Union's inner schemas (not single schema anymore)
+      expect((deleteSchema as any).isSingleSchema).toBe(false);
+
+      // Verify it has the Union's entities
+      expect((deleteSchema as any).schema).toEqual({
+        post: FeedPost,
+        link: FeedLink,
+      });
+    });
+
+    it('delete should invalidate Union entity from cache', async () => {
+      mynock
+        .get(`/feed/${feedPayload.id}`)
+        .reply(200, feedPayload)
+        .delete(`/feed/${feedPayload.id}`)
+        .reply(200, feedPayload);
+
+      const throws: Promise<any>[] = [];
+      const { result, waitForNextUpdate, waitFor, controller } =
+        renderDataClient(() => {
+          try {
+            return useSuspense(FeedResource.get, { id: feedPayload.id });
+          } catch (e: any) {
+            if (typeof e.then === 'function') {
+              if (e !== throws[throws.length - 1]) {
+                throws.push(e);
+              }
+            }
+            throw e;
+          }
+        });
+      expect(result.current).toBeUndefined();
+      await waitForNextUpdate();
+      let data = result.current;
+      expect(data).toBeInstanceOf(FeedLink);
+      expect(data.title).toBe(feedPayload.title);
+      // react 19 suspends twice
+      expect(throws.length).toBeGreaterThanOrEqual(1);
+
+      mynock
+        .persist()
+        .get(`/feed/${feedPayload.id}`)
+        .reply(200, { ...feedPayload, title: 'refetched' });
+
+      await act(async () => {
+        await controller.fetch(FeedResource.delete, { id: feedPayload.id });
+      });
+      // Should have suspended after delete (entity invalidated)
+      expect(throws.length).toBeGreaterThanOrEqual(2);
+      await Promise.race([
+        waitFor(() => expect(data.title).toBe('refetched')),
+        throws[throws.length - 1],
+      ]);
+      data = result.current;
+      expect(data).toBeInstanceOf(FeedLink);
+    });
   });
 
   it('UserResource.getList.push.extends() should work', async () => {

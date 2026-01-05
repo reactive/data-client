@@ -512,6 +512,93 @@ describe.each([
     },
   );
 
+  it('should suspend once deleted (Union schema)', async () => {
+    const unionPayload = {
+      id: '9999',
+      body: 'test body',
+      type: 'first' as const,
+    };
+    mynock
+      .get(`/union/${unionPayload.id}`)
+      .reply(200, unionPayload)
+      .delete(`/union/${unionPayload.id}`)
+      .reply(200, unionPayload); // Return the full payload so Invalidate knows which entity to invalidate
+    const throws: Promise<any>[] = [];
+    const { result, waitForNextUpdate, waitFor, controller } = renderDataHook(
+      () => {
+        try {
+          return useSuspense(UnionResource.get, {
+            id: unionPayload.id,
+          });
+        } catch (e: any) {
+          if (typeof e.then === 'function') {
+            if (e !== throws[throws.length - 1]) {
+              throws.push(e);
+            }
+          }
+          throw e;
+        }
+      },
+    );
+    expect(result.current).toBeUndefined();
+    await waitForNextUpdate();
+    let data = result.current;
+    expect(data).toBeInstanceOf(FirstUnion);
+    expect(data.body).toBe(unionPayload.body);
+    // react 19 suspends twice
+    expect(throws.length).toBeGreaterThanOrEqual(1);
+
+    mynock
+      .persist()
+      .get(`/union/${unionPayload.id}`)
+      .reply(200, { ...unionPayload, body: 'refetched body' });
+
+    await act(async () => {
+      await controller.fetch(UnionResource.delete, { id: unionPayload.id });
+    });
+    // Should have suspended after delete (entity invalidated)
+    expect(throws.length).toBeGreaterThanOrEqual(2);
+    await Promise.race([
+      waitFor(() => expect(data.body).toBe('refetched body')),
+      throws[throws.length - 1],
+    ]);
+    data = result.current;
+    expect(data).toBeInstanceOf(FirstUnion);
+  });
+
+  it('should remove deleted item from Union collection (getList)', async () => {
+    const unionPayloads = [
+      { id: '101', body: 'first item', type: 'first' as const },
+      { id: '102', body: 'second item', type: 'second' as const },
+      { id: '103', body: 'third item', type: 'first' as const },
+    ];
+    mynock
+      .get(`/union`)
+      .reply(200, unionPayloads)
+      .delete(`/union/102`)
+      .reply(200, unionPayloads[1]); // Return the deleted item so Invalidate knows which entity
+
+    const { result, waitForNextUpdate, controller } = renderDataHook(() => {
+      return useSuspense(UnionResource.getList);
+    });
+    expect(result.current).toBeUndefined();
+    await waitForNextUpdate();
+    expect(result.current).toHaveLength(3);
+    expect(result.current.map((item: any) => item.id)).toEqual([
+      '101',
+      '102',
+      '103',
+    ]);
+
+    await act(async () => {
+      await controller.fetch(UnionResource.delete, { id: '102' });
+    });
+
+    // Item should be removed from the list, not cause suspension
+    expect(result.current).toHaveLength(2);
+    expect(result.current.map((item: any) => item.id)).toEqual(['101', '103']);
+  });
+
   it('should suspend once invalidated', async () => {
     const temppayload = {
       ...payload,

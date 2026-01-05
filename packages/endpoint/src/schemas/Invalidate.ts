@@ -4,6 +4,13 @@ import type { AbstractInstanceType } from '../normal.js';
 
 type ProcessableEntity = EntityInterface & { process: any };
 
+/** Structural type for hoistable polymorphic schemas like Union */
+type HoistablePolymorphic = {
+  readonly _hoistable: true;
+  schema: any;
+  getSchemaAttribute: (...args: any) => any;
+};
+
 /**
  * Marks entity as Invalid.
  *
@@ -12,7 +19,10 @@ type ProcessableEntity = EntityInterface & { process: any };
  * @see https://dataclient.io/rest/api/Invalidate
  */
 export default class Invalidate<
-  E extends ProcessableEntity | Record<string, ProcessableEntity>,
+  E extends
+    | ProcessableEntity
+    | Record<string, ProcessableEntity>
+    | HoistablePolymorphic,
 > extends PolymorphicSchema {
   /**
    * Marks entity as Invalid.
@@ -23,7 +33,8 @@ export default class Invalidate<
    */
   constructor(
     entity: E,
-    schemaAttribute?: E extends Record<string, ProcessableEntity> ?
+    schemaAttribute?: E extends HoistablePolymorphic ? undefined
+    : E extends Record<string, ProcessableEntity> ?
       string | ((input: any, parent: any, key: any) => string)
     : undefined,
   ) {

@@ -5,16 +5,21 @@
 ---
 
 Add [Union](https://dataclient.io/rest/api/Union) support to [schema.Invalidate](https://dataclient.io/rest/api/Invalidate)
-for polymorphic delete operations:
+and [resource().delete](https://dataclient.io/rest/api/resource#delete) for polymorphic delete operations.
+
+[resource()](https://dataclient.io/rest/api/resource) with Union schema now automatically
+wraps the delete endpoint schema in Invalidate:
 
 ```ts
-new schema.Invalidate(
-  { users: User, groups: Group },
-  'type'
-)
+const FeedResource = resource({
+  path: '/feed/:id',
+  schema: FeedUnion, // Union of Post, Comment, etc.
+});
+// FeedResource.delete automatically uses Invalidate(FeedUnion)
+await ctrl.fetch(FeedResource.delete, { id: '123' });
 ```
 
-or
+For standalone endpoints, use `schema.Invalidate` directly:
 
 ```ts
 new schema.Invalidate(MyUnionSchema)

@@ -324,3 +324,91 @@ exports[`Invalidate normalization with Union schema normalizes array of Invalida
   ],
 }
 `;
+
+exports[`Invalidate normalization with Union schema normalizes array with Union instance argument 1`] = `
+{
+  "entities": {
+    "Group": {
+      "2": Symbol(INVALID),
+    },
+    "User": {
+      "1": Symbol(INVALID),
+    },
+  },
+  "entitiesMeta": {
+    "Group": {
+      "2": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+    "User": {
+      "1": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": [
+    {
+      "id": "1",
+      "schema": "users",
+    },
+    {
+      "id": "2",
+      "schema": "groups",
+    },
+  ],
+}
+`;
+
+exports[`Invalidate normalization with Union schema normalizes with Union instance argument 1`] = `
+{
+  "entities": {
+    "User": {
+      "1": Symbol(INVALID),
+    },
+  },
+  "entitiesMeta": {
+    "User": {
+      "1": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": {
+    "id": "1",
+    "schema": "users",
+  },
+}
+`;
+
+exports[`Invalidate normalization with Union schema normalizes with Union instance argument 2`] = `
+{
+  "entities": {
+    "Group": {
+      "2": Symbol(INVALID),
+    },
+  },
+  "entitiesMeta": {
+    "Group": {
+      "2": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": {
+    "id": "2",
+    "schema": "groups",
+  },
+}
+`;
