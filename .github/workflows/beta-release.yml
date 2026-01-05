@@ -18,6 +18,10 @@ jobs:
   beta-release:
     name: Beta Release
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
 
     steps:
       - uses: actions/checkout@v6
@@ -25,6 +29,7 @@ jobs:
         with:
           node-version: '24'
           cache: 'yarn'
+          registry-url: 'https://registry.npmjs.org'
       - name: Install packages
         run: |
           corepack enable
@@ -40,5 +45,3 @@ jobs:
           title: "Version Packages (Beta)"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
