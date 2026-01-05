@@ -15,8 +15,8 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "@data-client/vue": "^0.3.2",
-    "@data-client/rest": "0.15.1-beta-20251201012906-ff2853c5a0da93a503b2b606c8fc724625b79308",
+    "@data-client/vue": "^0.15.0",
+    "@data-client/rest": "0.15.2",
     "vue": "^3.5.22",
     "vue-router": "^4.6.3",
     "uuid": "^13.0.0"
