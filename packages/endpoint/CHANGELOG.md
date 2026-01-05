@@ -1,5 +1,11 @@
 # @data-client/endpoint
 
+## 0.15.2
+
+### Patch Changes
+
+- [`243219c`](https://github.com/reactive/data-client/commit/243219ccc1acc8ffcbfe54e8cc4a9027819eb66a) Thanks [@ntucker](https://github.com/ntucker)! - Patch bump due to publishing mishap
+
 ## 0.15.0
 
 ### Minor Changes
