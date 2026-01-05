@@ -45,9 +45,9 @@
   },
   "dependencies": {
     "@babel/runtime-corejs3": "^7.26.7",
-    "@data-client/endpoint": "0.15.1-beta-20251110013913-ef632c49a03da67187b6097fe8154893cd930d30",
-    "@data-client/react": "0.15.0-beta-20251022142546-a457d1596871fb28f1a91f2531cc259db4d55a9c",
-    "@data-client/rest": "0.15.1-beta-20251201012906-ff2853c5a0da93a503b2b606c8fc724625b79308",
+    "@data-client/endpoint": "0.15.2",
+    "@data-client/react": "0.15.0",
+    "@data-client/rest": "0.15.2",
     "core-js": "^3.40.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
