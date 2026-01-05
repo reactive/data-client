@@ -1,6 +1,6 @@
 {
   "name": "@data-client/img",
-  "version": "0.14.21",
+  "version": "0.15.0",
   "description": "Suspenseful images",
   "homepage": "https://dataclient.io/docs/guides/img-media#just-images",
   "repository": {

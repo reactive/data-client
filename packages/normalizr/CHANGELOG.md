@@ -1,5 +1,315 @@
 # Change Log
 
+## 0.15.0
+
+### Minor Changes
+
+- [#3421](https://github.com/reactive/data-client/pull/3421) [`246cde6`](https://github.com/reactive/data-client/commit/246cde6dbeca59eafd10e59d8cd05a6f232fb219) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: Denormalize always transforms immutablejs entities into the class
+
+  Previously using ImmutableJS structures when calling denormalize() would maintain
+  nested schemas as immutablejs structures still. Now everything is converted to normal JS.
+  This is how the types have always been specified.
+
+- [#3468](https://github.com/reactive/data-client/pull/3468) [`4dde1d6`](https://github.com/reactive/data-client/commit/4dde1d616e38d59b645573b12bbaba2f9cac7895) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING: denormalize no longer detects ImmutableJS state
+
+  Use `/imm` exports to handle ImmutableJS state
+
+  #### Before
+
+  ```ts
+  import { MemoCache, denormalize } from '@data-client/normalizr';
+
+  const memo = new MemoCache();
+  ```
+
+  #### After
+
+  ```ts
+  import { MemoCache } from '@data-client/normalizr';
+  import { MemoPolicy, denormalize } from '@data-client/normalizr/imm';
+
+  const memo = new MemoCache(MemoPolicy);
+  ```
+
+- [#3461](https://github.com/reactive/data-client/pull/3461) [`939a4b0`](https://github.com/reactive/data-client/commit/939a4b01127ea1df9b4653931593487e4b0c23a2) Thanks [@ntucker](https://github.com/ntucker)! - Add delegate.INVALID to queryKey
+
+  This is used in schema.All.queryKey().
+
+  #### Before
+
+  ```ts
+  queryKey(args: any, unvisit: any, delegate: IQueryDelegate): any {
+    if (!found) return INVALID;
+  }
+  ```
+
+  #### After
+
+  ```ts
+  queryKey(args: any, unvisit: any, delegate: IQueryDelegate): any {
+    if (!found) return delegate.INVALID;
+  }
+  ```
+
+- [#3686](https://github.com/reactive/data-client/pull/3686) [`269b45e`](https://github.com/reactive/data-client/commit/269b45e835251cff847776078e51c0a593b62715) Thanks [@ntucker](https://github.com/ntucker)! - Add `normalize()` to `@data-client/normalizr/imm` for ImmutableJS state
+
+  New exports:
+  - `normalize` - Normalizes data directly into ImmutableJS Map structures
+  - `ImmNormalizeDelegate` - Delegate class for custom ImmutableJS normalization
+  - `ImmutableStoreData`, `ImmutableNormalizedSchema`, `ImmutableJSMutableTable` - Types
+
+  ```js
+  import { normalize } from '@data-client/normalizr/imm';
+  import { fromJS } from 'immutable';
+
+  const result = normalize(Article, responseData, args, {
+    entities: fromJS({}),
+    indexes: fromJS({}),
+    entitiesMeta: fromJS({}),
+  });
+  ```
+
+- [#3461](https://github.com/reactive/data-client/pull/3461) [`939a4b0`](https://github.com/reactive/data-client/commit/939a4b01127ea1df9b4653931593487e4b0c23a2) Thanks [@ntucker](https://github.com/ntucker)! - Add delegate.invalidate() to normalization
+
+  #### Before
+
+  ```ts
+  normalize(
+    input: any,
+    parent: any,
+    key: string | undefined,
+    args: any[],
+    visit: (...args: any) => any,
+    delegate: INormalizeDelegate,
+  ): string {
+    delegate.setEntity(this as any, pk, INVALID);
+  }
+  ```
+
+  #### After
+
+  ```ts
+  normalize(
+    input: any,
+    parent: any,
+    key: string | undefined,
+    args: any[],
+    visit: (...args: any) => any,
+    delegate: INormalizeDelegate,
+  ): string {
+    delegate.invalidate(this as any, pk);
+  }
+  ```
+
+- [#3454](https://github.com/reactive/data-client/pull/3454) [`66e1906`](https://github.com/reactive/data-client/commit/66e19064d21225c70639f3b4799e54c259ce6905) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: MemoCache.query() and MemoCache.buildQueryKey() take state as one argument
+
+  #### Before
+
+  ```ts
+  this.memo.buildQueryKey(schema, args, state.entities, state.indexes, key);
+  ```
+
+  #### After
+
+  ```ts
+  this.memo.buildQueryKey(schema, args, state, key);
+  ```
+
+  #### Before
+
+  ```ts
+  this.memo.query(schema, args, state.entities, state.indexes);
+  ```
+
+  #### After
+
+  ```ts
+  this.memo.query(schema, args, state);
+  ```
+
+- [#3449](https://github.com/reactive/data-client/pull/3449) [`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: schema.normalize(...args, addEntity, getEntity, checkLoop) -> schema.normalize(...args, delegate)
+
+  We consolidate all 'callback' functions during recursion calls into a single 'delegate' argument.
+
+  ```ts
+  /** Helpers during schema.normalize() */
+  export interface INormalizeDelegate {
+    /** Action meta-data for this normalize call */
+    readonly meta: { fetchedAt: number; date: number; expiresAt: number };
+    /** Gets any previously normalized entity from store */
+    getEntity: GetEntity;
+    /** Updates an entity using merge lifecycles when it has previously been set */
+    mergeEntity(
+      schema: Mergeable & { indexes?: any },
+      pk: string,
+      incomingEntity: any,
+    ): void;
+    /** Sets an entity overwriting any previously set values */
+    setEntity(
+      schema: { key: string; indexes?: any },
+      pk: string,
+      entity: any,
+      meta?: { fetchedAt: number; date: number; expiresAt: number },
+    ): void;
+    /** Returns true when we're in a cycle, so we should not continue recursing */
+    checkLoop(key: string, pk: string, input: object): boolean;
+  }
+  ```
+
+  #### Before
+
+  ```ts
+  addEntity(this, processedEntity, id);
+  ```
+
+  #### After
+
+  ```ts
+  delegate.mergeEntity(this, id, processedEntity);
+  ```
+
+- [#3468](https://github.com/reactive/data-client/pull/3468) [`4dde1d6`](https://github.com/reactive/data-client/commit/4dde1d616e38d59b645573b12bbaba2f9cac7895) Thanks [@ntucker](https://github.com/ntucker)! - delegate.getEntity(key) -> delegate.getEntities(this.key)
+
+  Return value is a restricted interface with keys() and entries() iterator methods.
+  This applies to both schema.queryKey and schema.normalize method delegates.
+
+  ```ts
+  const entities = delegate.getEntities(key);
+
+  // foreach on keys
+  for (const key of entities.keys()) {
+  }
+  // Object.keys() (convert to array)
+  return [...entities.keys()];
+  // foreach on full entry
+  for (const [key, entity] of entities.entries()) {
+  }
+  ```
+
+  #### Before
+
+  ```ts
+  const entities = delegate.getEntity(this.key);
+  if (entities)
+    Object.keys(entities).forEach(collectionPk => {
+      if (!filterCollections(JSON.parse(collectionPk))) return;
+      delegate.mergeEntity(this, collectionPk, normalizedValue);
+    });
+  ```
+
+  #### After
+
+  ```ts
+  const entities = delegate.getEntities(this.key);
+  if (entities)
+    for (const collectionKey of entities.keys()) {
+      if (!filterCollections(JSON.parse(collectionKey))) continue;
+      delegate.mergeEntity(this, collectionKey, normalizedValue);
+    }
+  ```
+
+- [#3451](https://github.com/reactive/data-client/pull/3451) [`4939456`](https://github.com/reactive/data-client/commit/4939456598c213ee81c1abef476a1aaccd19f82d) Thanks [@ntucker](https://github.com/ntucker)! - state.entityMeta -> state.entitiesMeta
+
+- [#3372](https://github.com/reactive/data-client/pull/3372) [`25b153a`](https://github.com/reactive/data-client/commit/25b153a9d80db1bcd17ab5558dfa13b333f112b8) Thanks [@ntucker](https://github.com/ntucker)! - MemoCache.query returns `{ data, paths }` just like denormalize. `data` could be INVALID
+
+  #### Before
+
+  ```ts
+  return this.memo.query(schema, args, state);
+  ```
+
+  #### After
+
+  ```ts
+  const { data } = this.memo.query(schema, args, state);
+  return typeof data === 'symbol' ? undefined : (data as any);
+  ```
+
+- [#3449](https://github.com/reactive/data-client/pull/3449) [`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: schema.queryKey(args, queryKey, getEntity, getIndex) -> schema.queryKey(args, unvisit, delegate)
+  BREAKING CHANGE: delegate.getIndex() returns the index directly, rather than object.
+
+  We consolidate all 'callback' functions during recursion calls into a single 'delegate' argument.
+
+  Our recursive call is renamed from queryKey to unvisit, and does not require the last two arguments.
+
+  ```ts
+  /** Accessors to the currently processing state while building query */
+  export interface IQueryDelegate {
+    getEntity: GetEntity;
+    getIndex: GetIndex;
+  }
+  ```
+
+  #### Before
+
+  ```ts
+  queryKey(args, queryKey, getEntity, getIndex) {
+    getIndex(schema.key, indexName, value)[value];
+    getEntity(this.key, id);
+    return queryKey(this.schema, args, getEntity, getIndex);
+  }
+  ```
+
+  #### After
+
+  ```ts
+  queryKey(args, unvisit, delegate) {
+    delegate.getIndex(schema.key, indexName, value);
+    delegate.getEntity(this.key, id);
+    return unvisit(this.schema, args);
+  }
+  ```
+
+### Patch Changes
+
+- [#3468](https://github.com/reactive/data-client/pull/3468) [`4dde1d6`](https://github.com/reactive/data-client/commit/4dde1d616e38d59b645573b12bbaba2f9cac7895) Thanks [@ntucker](https://github.com/ntucker)! - Add /imm exports path for handling ImmutableJS state
+
+  #### MemoCache
+
+  ```ts
+  import { MemoCache } from '@data-client/normalizr';
+  import { MemoPolicy } from '@data-client/normalizr/imm';
+
+  const memo = new MemoCache(MemoPolicy);
+
+  // entities is an ImmutableJS Map
+  const value = MemoCache.denormalize(Todo, '1', entities);
+  ```
+
+  #### denormalize
+
+  non-memoized denormalize
+
+  ```ts
+  import { denormalize } from '@data-client/normalizr/imm';
+
+  // entities is an ImmutableJS Map
+  const value = denormalize(Todo, '1', entities);
+  ```
+
+- [#3684](https://github.com/reactive/data-client/pull/3684) [`53de2ee`](https://github.com/reactive/data-client/commit/53de2eefb891a4783e3f1c7724dc25dc9e6a8e1f) Thanks [@ntucker](https://github.com/ntucker)! - Optimize normalization performance with faster loops and Set-based cycle detection
+
+- [#3558](https://github.com/reactive/data-client/pull/3558) [`fcb7d7d`](https://github.com/reactive/data-client/commit/fcb7d7db8061c2a7e12632071ecb9c6ddd8d154f) Thanks [@ntucker](https://github.com/ntucker)! - Normalize delegate.invalidate() first argument only has `key` param.
+
+  `indexes` optional param no longer provided as it was never used.
+
+  ```ts
+  normalize(
+    input: any,
+    parent: any,
+    key: string | undefined,
+    args: any[],
+    visit: (...args: any) => any,
+    delegate: INormalizeDelegate,
+  ): string {
+    delegate.invalidate({ key: this._entity.key }, pk);
+    return pk;
+  }
+  ```
+
+- [#3468](https://github.com/reactive/data-client/pull/3468) [`4dde1d6`](https://github.com/reactive/data-client/commit/4dde1d616e38d59b645573b12bbaba2f9cac7895) Thanks [@ntucker](https://github.com/ntucker)! - Improve performance of get/denormalize for small responses
+  - 10-20% performance improvement due to removing immutablejs check for every call
+
 ## 0.14.22
 
 ### Patch Changes
@@ -238,7 +548,6 @@
 ### Minor Changes
 
 - [`2e169b7`](https://github.com/reactive/data-client/commit/2e169b705e4f8e2eea8005291a0e76e9d11764a4) Thanks [@ntucker](https://github.com/ntucker)! - Fix schema.All denormalize INVALID case should also work when class name mangling is performed in production builds
-
   - `unvisit()` always returns `undefined` with `undefined` as input.
   - `All` returns INVALID from `queryKey()` to invalidate what was previously a special case in `unvisit()` (when there is no table entry for the given entity)
 
@@ -440,7 +749,6 @@
 ### Minor Changes
 
 - [#2912](https://github.com/reactive/data-client/pull/2912) [`922be79`](https://github.com/reactive/data-client/commit/922be79169a3eeea8e336eee519c165431ead474) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: `null` inputs are no longer filtered from Array or Object
-
   - `[]` and [schema.Array](https://dataclient.io/rest/api/Array) now behave in the same manner.
   - `null` values are now consistently handled everywhere (being retained).
     - These were already being retained in [nested Entities](https://dataclient.io/rest/guides/relational-data#nesting)
@@ -469,7 +777,6 @@
 ### Patch Changes
 
 - [#2818](https://github.com/reactive/data-client/pull/2818) [`fc0092883f`](https://github.com/reactive/data-client/commit/fc0092883f5af42a5d270250482b7f0ba9845e95) Thanks [@ntucker](https://github.com/ntucker)! - Fix unpkg bundles and update names
-
   - Client packages namespace into RDC
     - @data-client/react - RDC
     - @data-client/core - RDC.Core
@@ -494,7 +801,6 @@
 ### Minor Changes
 
 - [#2784](https://github.com/reactive/data-client/pull/2784) [`c535f6c0ac`](https://github.com/reactive/data-client/commit/c535f6c0ac915b5242c1c7694308b7ee7aab16a1) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGES:
-
   - DELETE removed -> INVALIDATE
   - drop all support for legacy schemas
     - entity.expiresAt removed

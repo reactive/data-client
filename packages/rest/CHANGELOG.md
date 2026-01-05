@@ -1,5 +1,268 @@
 # @data-client/rest
 
+## 0.15.0
+
+### Minor Changes
+
+- [#3685](https://github.com/reactive/data-client/pull/3685) [`56d575e`](https://github.com/reactive/data-client/commit/56d575e0219d5455df74321aee7bf85c2d490a61) Thanks [@ntucker](https://github.com/ntucker)! - Add [Union](https://dataclient.io/rest/api/Union) support to [schema.Invalidate](https://dataclient.io/rest/api/Invalidate)
+  and [resource().delete](https://dataclient.io/rest/api/resource#delete) for polymorphic delete operations.
+
+  [resource()](https://dataclient.io/rest/api/resource) with Union schema now automatically
+  wraps the delete endpoint schema in Invalidate:
+
+  ```ts
+  const FeedResource = resource({
+    path: '/feed/:id',
+    schema: FeedUnion, // Union of Post, Comment, etc.
+  });
+  // FeedResource.delete automatically uses Invalidate(FeedUnion)
+  await ctrl.fetch(FeedResource.delete, { id: '123' });
+  ```
+
+  For standalone endpoints, use `schema.Invalidate` directly:
+
+  ```ts
+  new schema.Invalidate(MyUnionSchema);
+  ```
+
+- [#3461](https://github.com/reactive/data-client/pull/3461) [`939a4b0`](https://github.com/reactive/data-client/commit/939a4b01127ea1df9b4653931593487e4b0c23a2) Thanks [@ntucker](https://github.com/ntucker)! - Add delegate.INVALID to queryKey
+
+  This is used in schema.All.queryKey().
+
+  #### Before
+
+  ```ts
+  queryKey(args: any, unvisit: any, delegate: IQueryDelegate): any {
+    if (!found) return INVALID;
+  }
+  ```
+
+  #### After
+
+  ```ts
+  queryKey(args: any, unvisit: any, delegate: IQueryDelegate): any {
+    if (!found) return delegate.INVALID;
+  }
+  ```
+
+- [#3461](https://github.com/reactive/data-client/pull/3461) [`939a4b0`](https://github.com/reactive/data-client/commit/939a4b01127ea1df9b4653931593487e4b0c23a2) Thanks [@ntucker](https://github.com/ntucker)! - Add delegate.invalidate() to normalization
+
+  #### Before
+
+  ```ts
+  normalize(
+    input: any,
+    parent: any,
+    key: string | undefined,
+    args: any[],
+    visit: (...args: any) => any,
+    delegate: INormalizeDelegate,
+  ): string {
+    delegate.setEntity(this as any, pk, INVALID);
+  }
+  ```
+
+  #### After
+
+  ```ts
+  normalize(
+    input: any,
+    parent: any,
+    key: string | undefined,
+    args: any[],
+    visit: (...args: any) => any,
+    delegate: INormalizeDelegate,
+  ): string {
+    delegate.invalidate(this as any, pk);
+  }
+  ```
+
+- [#3449](https://github.com/reactive/data-client/pull/3449) [`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: schema.normalize(...args, addEntity, getEntity, checkLoop) -> schema.normalize(...args, delegate)
+
+  We consolidate all 'callback' functions during recursion calls into a single 'delegate' argument.
+
+  ```ts
+  /** Helpers during schema.normalize() */
+  export interface INormalizeDelegate {
+    /** Action meta-data for this normalize call */
+    readonly meta: { fetchedAt: number; date: number; expiresAt: number };
+    /** Gets any previously normalized entity from store */
+    getEntity: GetEntity;
+    /** Updates an entity using merge lifecycles when it has previously been set */
+    mergeEntity(
+      schema: Mergeable & { indexes?: any },
+      pk: string,
+      incomingEntity: any,
+    ): void;
+    /** Sets an entity overwriting any previously set values */
+    setEntity(
+      schema: { key: string; indexes?: any },
+      pk: string,
+      entity: any,
+      meta?: { fetchedAt: number; date: number; expiresAt: number },
+    ): void;
+    /** Returns true when we're in a cycle, so we should not continue recursing */
+    checkLoop(key: string, pk: string, input: object): boolean;
+  }
+  ```
+
+  #### Before
+
+  ```ts
+  addEntity(this, processedEntity, id);
+  ```
+
+  #### After
+
+  ```ts
+  delegate.mergeEntity(this, id, processedEntity);
+  ```
+
+- [#3461](https://github.com/reactive/data-client/pull/3461) [`939a4b0`](https://github.com/reactive/data-client/commit/939a4b01127ea1df9b4653931593487e4b0c23a2) Thanks [@ntucker](https://github.com/ntucker)! - Remove `INVALID` symbol export
+
+  Schemas can use delegate.invalidate() in normalize() or return delegate.INVALID in queryKey().
+
+- [#3449](https://github.com/reactive/data-client/pull/3449) [`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7) Thanks [@ntucker](https://github.com/ntucker)! - BREAKING CHANGE: schema.queryKey(args, queryKey, getEntity, getIndex) -> schema.queryKey(args, unvisit, delegate)
+  BREAKING CHANGE: delegate.getIndex() returns the index directly, rather than object.
+
+  We consolidate all 'callback' functions during recursion calls into a single 'delegate' argument.
+
+  Our recursive call is renamed from queryKey to unvisit, and does not require the last two arguments.
+
+  ```ts
+  /** Accessors to the currently processing state while building query */
+  export interface IQueryDelegate {
+    getEntity: GetEntity;
+    getIndex: GetIndex;
+  }
+  ```
+
+  #### Before
+
+  ```ts
+  queryKey(args, queryKey, getEntity, getIndex) {
+    getIndex(schema.key, indexName, value)[value];
+    getEntity(this.key, id);
+    return queryKey(this.schema, args, getEntity, getIndex);
+  }
+  ```
+
+  #### After
+
+  ```ts
+  queryKey(args, unvisit, delegate) {
+    delegate.getIndex(schema.key, indexName, value);
+    delegate.getEntity(this.key, id);
+    return unvisit(this.schema, args);
+  }
+  ```
+
+### Patch Changes
+
+- [#3449](https://github.com/reactive/data-client/pull/3449) [`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7) Thanks [@ntucker](https://github.com/ntucker)! - Fix: ensure string id in Entity set when process returns undefined (meaning INVALID)
+
+- [`e2fff91`](https://github.com/reactive/data-client/commit/e2fff911e21864620dba8d9470142af9130aafed) Thanks [@ntucker](https://github.com/ntucker)! - fix: Collection.remove with Unions
+
+- [#3635](https://github.com/reactive/data-client/pull/3635) [`63ee107`](https://github.com/reactive/data-client/commit/63ee107be9d559e6ccbcb2f9c6fd7bf83165e551) Thanks [@ntucker](https://github.com/ntucker)! - Fix `getPage` types when paginationField is in body
+
+  ```ts
+  const ep = new RestEndpoint({
+    path: '/rpc',
+    method: 'POST',
+    body: {} as { page?: number; method: string },
+    paginationField: 'page',
+  });
+  // Before: ep.getPage({ page: 2 }, { method: 'get' }) ❌
+  // After:  ep.getPage({ page: 2, method: 'get' })     ✓
+  ```
+
+- [#3684](https://github.com/reactive/data-client/pull/3684) [`53de2ee`](https://github.com/reactive/data-client/commit/53de2eefb891a4783e3f1c7724dc25dc9e6a8e1f) Thanks [@ntucker](https://github.com/ntucker)! - Optimize normalization performance with faster loops and Set-based cycle detection
+
+- [#3560](https://github.com/reactive/data-client/pull/3560) [`ba31c9b`](https://github.com/reactive/data-client/commit/ba31c9b2d3c4ec5620bb64e49daf9b18994b9290) Thanks [@ntucker](https://github.com/ntucker)! - Add Collection.remove
+
+  ```ts
+  ctrl.set(MyResource.getList.schema.remove, { id });
+  ```
+
+  ```ts
+  const removeItem = MyResource.delete.extend({
+    schema: MyResource.getList.schema.remove,
+  });
+  ```
+
+- [#3558](https://github.com/reactive/data-client/pull/3558) [`fcb7d7d`](https://github.com/reactive/data-client/commit/fcb7d7db8061c2a7e12632071ecb9c6ddd8d154f) Thanks [@ntucker](https://github.com/ntucker)! - Normalize delegate.invalidate() first argument only has `key` param.
+
+  `indexes` optional param no longer provided as it was never used.
+
+  ```ts
+  normalize(
+    input: any,
+    parent: any,
+    key: string | undefined,
+    args: any[],
+    visit: (...args: any) => any,
+    delegate: INormalizeDelegate,
+  ): string {
+    delegate.invalidate({ key: this._entity.key }, pk);
+    return pk;
+  }
+  ```
+
+- [#3623](https://github.com/reactive/data-client/pull/3623) [`8be3b17`](https://github.com/reactive/data-client/commit/8be3b1725707c4bcbf0fdd6e72ddd78d85fd125f) Thanks [@ntucker](https://github.com/ntucker)! - Add RestEndpoint.remove
+
+  Creates a PATCH endpoint that both removes an entity from a Collection and updates the entity with the provided body data.
+
+  ```ts
+  const getTodos = new RestEndpoint({
+    path: '/todos',
+    schema: new schema.Collection([Todo]),
+  });
+
+  // Removes Todo from collection AND updates it with new data
+  await ctrl.fetch(
+    getTodos.remove,
+    {},
+    { id: '123', title: 'Done', completed: true },
+  );
+  ```
+
+  ```ts
+  // Remove user from group list and update their group
+  await ctrl.fetch(
+    UserResource.getList.remove,
+    { group: 'five' },
+    { id: 2, username: 'user2', group: 'newgroup' },
+  );
+  // User is removed from the 'five' group list
+  // AND the user entity is updated with group: 'newgroup'
+  ```
+
+- [#3558](https://github.com/reactive/data-client/pull/3558) [`fcb7d7d`](https://github.com/reactive/data-client/commit/fcb7d7db8061c2a7e12632071ecb9c6ddd8d154f) Thanks [@ntucker](https://github.com/ntucker)! - Unions can query() without type discriminator
+
+  #### Before
+
+  ```tsx
+  // @ts-expect-error
+  const event = useQuery(EventUnion, { id });
+  // event is undefined
+  const newsEvent = useQuery(EventUnion, { id, type: 'news' });
+  // newsEvent is found
+  ```
+
+  #### After
+
+  ```tsx
+  const event = useQuery(EventUnion, { id });
+  // event is found
+  const newsEvent = useQuery(EventUnion, { id, type: 'news' });
+  // newsEvent is found
+  ```
+
+- [`35552c7`](https://github.com/reactive/data-client/commit/35552c716e3b688d69212654f9f95a05ea26a7f8) Thanks [@ntucker](https://github.com/ntucker)! - Include GPT link badge in readme
+
+- Updated dependencies [[`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7), [`56d575e`](https://github.com/reactive/data-client/commit/56d575e0219d5455df74321aee7bf85c2d490a61), [`e2fff91`](https://github.com/reactive/data-client/commit/e2fff911e21864620dba8d9470142af9130aafed), [`939a4b0`](https://github.com/reactive/data-client/commit/939a4b01127ea1df9b4653931593487e4b0c23a2), [`939a4b0`](https://github.com/reactive/data-client/commit/939a4b01127ea1df9b4653931593487e4b0c23a2), [`53de2ee`](https://github.com/reactive/data-client/commit/53de2eefb891a4783e3f1c7724dc25dc9e6a8e1f), [`ba31c9b`](https://github.com/reactive/data-client/commit/ba31c9b2d3c4ec5620bb64e49daf9b18994b9290), [`fcb7d7d`](https://github.com/reactive/data-client/commit/fcb7d7db8061c2a7e12632071ecb9c6ddd8d154f), [`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7), [`4dde1d6`](https://github.com/reactive/data-client/commit/4dde1d616e38d59b645573b12bbaba2f9cac7895), [`bab907c`](https://github.com/reactive/data-client/commit/bab907ce824c0f7da961d74c9fb8b64ce7c95141), [`5699005`](https://github.com/reactive/data-client/commit/5699005700206306bc70ff8237bf7ceaac241b82), [`939a4b0`](https://github.com/reactive/data-client/commit/939a4b01127ea1df9b4653931593487e4b0c23a2), [`fcb7d7d`](https://github.com/reactive/data-client/commit/fcb7d7db8061c2a7e12632071ecb9c6ddd8d154f), [`1f491a9`](https://github.com/reactive/data-client/commit/1f491a9e0082dca64ad042aaf7d377e17f459ae7), [`35552c7`](https://github.com/reactive/data-client/commit/35552c716e3b688d69212654f9f95a05ea26a7f8)]:
+  - @data-client/endpoint@0.15.0
+
 ## 0.14.25
 
 ### Patch Changes
@@ -480,7 +743,6 @@
 ### Patch Changes
 
 - [#3017](https://github.com/reactive/data-client/pull/3017) [`ce164d2`](https://github.com/reactive/data-client/commit/ce164d286c8afcb2593a86abbf23948a08aa40ba) Thanks [@ntucker](https://github.com/ntucker)! - Queries pass-through suspense rather than ever being undefined
-
   - [useSuspense()](https://dataclient.io/docs/api/useSuspense) return values will not be nullable
   - [useQuery()](https://dataclient.io/docs/api/useQuery) will still be nullable due to it handling `INVALID` as `undefined` return
   - [Query.process](https://dataclient.io/rest/api/Query#process) does not need to handle nullable cases
@@ -629,7 +891,6 @@
 ### Patch Changes
 
 - [`2e169b7`](https://github.com/reactive/data-client/commit/2e169b705e4f8e2eea8005291a0e76e9d11764a4) Thanks [@ntucker](https://github.com/ntucker)! - Fix schema.All denormalize INVALID case should also work when class name mangling is performed in production builds
-
   - `unvisit()` always returns `undefined` with `undefined` as input.
   - `All` returns INVALID from `queryKey()` to invalidate what was previously a special case in `unvisit()` (when there is no table entry for the given entity)
 
@@ -745,7 +1006,6 @@
 ### Patch Changes
 
 - [#2818](https://github.com/reactive/data-client/pull/2818) [`fc0092883f`](https://github.com/reactive/data-client/commit/fc0092883f5af42a5d270250482b7f0ba9845e95) Thanks [@ntucker](https://github.com/ntucker)! - Fix unpkg bundles and update names
-
   - Client packages namespace into RDC
     - @data-client/react - RDC
     - @data-client/core - RDC.Core
@@ -785,7 +1045,6 @@
 - [`664d3eacff`](https://github.com/reactive/data-client/commit/664d3eacff08c3c75e8ed7c3ccc64ee21faa6f7f) Thanks [@ntucker](https://github.com/ntucker)! - Remove dev warning for old versions of client
 
 - [#2799](https://github.com/reactive/data-client/pull/2799) [`26a3843d1b`](https://github.com/reactive/data-client/commit/26a3843d1b61900c385d8626d7062d6f0424c137) Thanks [@ntucker](https://github.com/ntucker)! - Removed some forms of automatic entity validation
-
   - Now allow missing schemas making it easier to declare partials
   - Removed logic for certain keys found out of defaults
 
