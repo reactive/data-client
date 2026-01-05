@@ -3368,7 +3368,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/rest@npm:0.15.1, @data-client/rest@workspace:*, @data-client/rest@workspace:packages/rest":
+"@data-client/rest@npm:0.15.2, @data-client/rest@workspace:*, @data-client/rest@workspace:packages/rest":
   version: 0.0.0-use.local
   resolution: "@data-client/rest@workspace:packages/rest"
   dependencies:
@@ -11206,7 +11206,7 @@ __metadata:
     "@babel/runtime-corejs3": "npm:7.28.4"
     "@data-client/img": "npm:0.15.0"
     "@data-client/react": "npm:0.15.0"
-    "@data-client/rest": "npm:0.15.1"
+    "@data-client/rest": "npm:0.15.2"
     "@linaria/core": "npm:*"
     "@linaria/react": "npm:*"
     "@linaria/shaker": "npm:*"
