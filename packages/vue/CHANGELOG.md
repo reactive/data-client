@@ -1,5 +1,14 @@
 # @data-client/vue
 
+## 0.15.1
+
+### Patch Changes
+
+- [`ed4ec6d`](https://github.com/reactive/data-client/commit/ed4ec6dc516ac9e3977de7ec9018bff962626133) Thanks [@ntucker](https://github.com/ntucker)! - Fix image links in package README
+
+- Updated dependencies [[`bf3ac79`](https://github.com/reactive/data-client/commit/bf3ac7966dc615b1dc6cc6c6d600148fdca4e354), [`ed4ec6d`](https://github.com/reactive/data-client/commit/ed4ec6dc516ac9e3977de7ec9018bff962626133)]:
+  - @data-client/core@0.15.3
+
 ## 0.15.0
 
 ### Minor Changes
