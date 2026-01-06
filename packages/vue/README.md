@@ -1,7 +1,7 @@
 <h1>
 <div align="center">
 <a href="https://dataclient.io" target="_blank" rel="noopener">
-  <img alt="Reactive Data Client" src="./data_client_logo_and_text.svg?sanitize=true">
+  <img alt="Reactive Data Client" src="https://raw.githubusercontent.com/reactive/data-client/master/packages/vue/data_client_logo_and_text.svg?sanitize=true">
 </a>
 </div>
 </h1>
@@ -257,7 +257,7 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://da
 
 ## Features
 
-- [x] ![TS](./typescript.svg?sanitize=true) Strong [Typescript](https://www.typescriptlang.org/) inference
+- [x] ![TS](https://raw.githubusercontent.com/reactive/data-client/master/packages/vue/typescript.svg?sanitize=true) Strong [Typescript](https://www.typescriptlang.org/) inference
 - [x] 🔄 Vue 3 [Composition API](https://vuejs.org/guide/extras/composition-api-faq.html) composables
 - [x] 🎣 [Declarative API](https://dataclient.io/docs/getting-started/data-dependency)
 - [x] 📝 Composition over configuration

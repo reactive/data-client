@@ -1,7 +1,7 @@
 <h1>
 <div align="center">
 <a href="https://dataclient.io" target="_blank" rel="noopener">
-  <img alt="Reactive Data Client" src="./data_client_logo_and_text.svg?sanitize=true">
+  <img alt="Reactive Data Client" src="https://raw.githubusercontent.com/reactive/data-client/master/packages/core/data_client_logo_and_text.svg?sanitize=true">
 </a>
 </div>
 </h1>

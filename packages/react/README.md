@@ -1,7 +1,7 @@
 <h1>
 <div align="center">
 <a href="https://dataclient.io" target="_blank" rel="noopener">
-  <img alt="Reactive Data Client" src="./data_client_logo_and_text.svg?sanitize=true">
+  <img alt="Reactive Data Client" src="https://raw.githubusercontent.com/reactive/data-client/master/packages/react/data_client_logo_and_text.svg?sanitize=true">
 </a>
 </div>
 </h1>
@@ -241,7 +241,7 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://da
 
 ## Features
 
-- [x] ![TS](./typescript.svg?sanitize=true) Strong [Typescript](https://www.typescriptlang.org/) inference
+- [x] ![TS](https://raw.githubusercontent.com/reactive/data-client/master/packages/react/typescript.svg?sanitize=true) Strong [Typescript](https://www.typescriptlang.org/) inference
 - [x] 🛌 React [Suspense](https://dataclient.io/docs/getting-started/data-dependency#boundaries) support
 - [x] 🧵 React 18 [Concurrent mode](https://dataclient.io/docs/guides/render-as-you-fetch) compatible
 - [x] 💦 [Partial Hydration Server Side Rendering](https://dataclient.io/docs/guides/ssr)

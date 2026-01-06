@@ -76,9 +76,7 @@
     "lib",
     "node.mjs",
     "LICENSE",
-    "README.md",
-    "./data_client_logo_and_text.svg",
-    "./typescript.svg"
+    "README.md"
   ],
   "scripts": {
     "build:lib": "NODE_ENV=production BROWSERSLIST_ENV='2020' POLYFILL_TARGETS='chrome>88,safari>14' yarn g:babel --out-dir lib",

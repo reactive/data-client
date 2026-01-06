@@ -1,4 +1,4 @@
-# ![Data Client Testing](../../packages/data-client/core/data_client_logo_and_text.svg?sanitize=true)
+# ![Data Client Testing](https://raw.githubusercontent.com/reactive/data-client/master/packages/core/data_client_logo_and_text.svg?sanitize=true)
 
 [![Coverage Status](https://img.shields.io/codecov/c/gh/reactive/data-client/master.svg?style=flat-square)](https://app.codecov.io/gh/reactive/data-client?branch=master)
 
