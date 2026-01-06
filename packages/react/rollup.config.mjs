@@ -99,6 +99,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
       input: 'src/server/redux/index.ts',
       output: 'dist/server/redux/index.js',
     },
+    { input: 'src/mock/index.ts', output: 'dist/mock.js' },
   ].forEach(({ input, output }) => {
     configs.push({
       input,

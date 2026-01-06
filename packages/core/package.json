@@ -56,6 +56,7 @@
     },
     "./mock": {
       "types": "./lib/mock/index.d.ts",
+      "require": "./dist/mock.js",
       "default": "./lib/mock/index.js"
     },
     "./package.json": "./package.json"
