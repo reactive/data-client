@@ -58,6 +58,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
   [
     { input: 'src/index.ts', output: pkg.main },
     { input: 'src/next/index.ts', output: 'dist/next.js' },
+    { input: 'src/mock/index.ts', output: 'dist/mock.js' },
   ].forEach(({ input, output }) => {
     configs.push({
       input,
