@@ -1,5 +1,11 @@
 # @data-client/test
 
+## 0.15.3
+
+### Patch Changes
+
+- [`ed4ec6d`](https://github.com/reactive/data-client/commit/ed4ec6dc516ac9e3977de7ec9018bff962626133) Thanks [@ntucker](https://github.com/ntucker)! - Fix image links in package README
+
 ## 0.15.0
 
 ### Minor Changes

@@ -1,5 +1,15 @@
 # @data-client/core
 
+## 0.15.3
+
+### Patch Changes
+
+- [#3691](https://github.com/reactive/data-client/pull/3691) [`bf3ac79`](https://github.com/reactive/data-client/commit/bf3ac7966dc615b1dc6cc6c6d600148fdca4e354) Thanks [@ntucker](https://github.com/ntucker)! - Fix CommonJS compatibility for `/mock` subpath exports.
+
+  Jest and other CommonJS consumers can now import from `@data-client/react/mock` and `@data-client/core/mock` without ESM parsing errors.
+
+- [`ed4ec6d`](https://github.com/reactive/data-client/commit/ed4ec6dc516ac9e3977de7ec9018bff962626133) Thanks [@ntucker](https://github.com/ntucker)! - Fix image links in package README
+
 ## 0.15.0
 
 ### Minor Changes
