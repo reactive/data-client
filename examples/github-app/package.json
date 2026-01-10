@@ -30,7 +30,7 @@
   "private": true,
   "license": "Apache-2.0",
   "devDependencies": {
-    "@anansi/cli": "3.1.98",
+    "@anansi/cli": "3.1.99",
     "@anansi/babel-preset": "6.2.21",
     "@anansi/browserslist-config": "1.7.4",
     "@anansi/webpack-config": "21.1.9",
@@ -41,7 +41,7 @@
     "@linaria/shaker": "5.0.3",
     "@types/lodash": "4.14.192",
     "@types/parse-link-header": "^2.0.0",
-    "@types/react": "19.2.7",
+    "@types/react": "19.2.8",
     "@types/react-dom": "19.2.3",
     "@types/uuid": "^11.0.0",
     "react-refresh": "0.18.0",
@@ -51,7 +51,7 @@
     "webpack-dev-server": "5.2.2"
   },
   "dependencies": {
-    "@anansi/core": "0.22.3",
+    "@anansi/core": "0.22.4",
     "@anansi/router": "0.10.21",
     "@ant-design/cssinjs": "2.0.2",
     "@ant-design/icons": "6.1.0",
