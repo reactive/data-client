@@ -24,10 +24,10 @@
     "anansi"
   ],
   "devDependencies": {
-    "@anansi/babel-preset": "6.2.21",
+    "@anansi/babel-preset": "6.2.22",
     "@anansi/browserslist-config": "1.7.4",
-    "@anansi/webpack-config": "21.1.9",
-    "@babel/core": "7.28.5",
+    "@anansi/webpack-config": "21.1.10",
+    "@babel/core": "7.28.6",
     "@linaria/core": "*",
     "@linaria/react": "*",
     "@linaria/shaker": "*",
@@ -43,7 +43,7 @@
     "@anansi/cli": "3.1.99",
     "@anansi/core": "0.22.4",
     "@anansi/router": "0.10.21",
-    "@babel/runtime-corejs3": "7.28.4",
+    "@babel/runtime-corejs3": "7.28.6",
     "@data-client/img": "0.15.0",
     "@data-client/react": "0.15.3",
     "@data-client/rest": "0.15.2",
