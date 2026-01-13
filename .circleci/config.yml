@@ -6,7 +6,7 @@ version: 2.1
 executors:
   node:
     docker: &docker
-      - image: cimg/node:24.12
+      - image: cimg/node:24.13
     environment:
       # the whole CI is reset each time anyway, so only track local cache
       YARN_ENABLE_GLOBAL_CACHE: false
