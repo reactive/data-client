@@ -523,9 +523,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:21.1.10":
-  version: 21.1.10
-  resolution: "@anansi/webpack-config@npm:21.1.10"
+"@anansi/webpack-config@npm:21.1.11":
+  version: 21.1.11
+  resolution: "@anansi/webpack-config@npm:21.1.11"
   dependencies:
     "@babel/runtime-corejs3": "npm:^7.26.0"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.6.2"
@@ -533,7 +533,7 @@ __metadata:
     "@types/sass-loader": "npm:^8.0.10"
     "@types/webpack-bundle-analyzer": "npm:^4.7.0"
     "@vue/preload-webpack-plugin": "npm:^2.0.0"
-    "@wyw-in-js/webpack-loader": "npm:^1.0.4"
+    "@wyw-in-js/webpack-loader": "npm:^1.0.5"
     assert: "npm:^2.1.0"
     autoprefixer: "npm:^10.4.23"
     babel-loader: "npm:^10.0.0"
@@ -552,10 +552,10 @@ __metadata:
     events: "npm:^3.3.0"
     file-loader: "npm:^6.2.0"
     html-loader: "npm:^5.1.0"
-    html-webpack-plugin: "npm:^5.6.5"
+    html-webpack-plugin: "npm:^5.6.6"
     https-browserify: "npm:^1.0.0"
     is-wsl: "npm:^2.2.0"
-    mini-css-extract-plugin: "npm:^2.9.4"
+    mini-css-extract-plugin: "npm:^2.10.0"
     mkdirp: "npm:^3.0.1"
     os-browserify: "npm:^0.3.0"
     path: "npm:^0.12.7"
@@ -626,7 +626,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: 10c0/c3811a8540e6996b49596d5d92e86d454008649b46c66d2687e3e97a399bd35a3b5c54526d9f857d6b0ce5131e3724c838f3b1a307f43bc7d5f4eb7ea2940283
+  checksum: 10c0/2fbc41f732266423fdfe0e9c30c2134df700565b512a0f80b6ab4bfa99ed41fc7fbbe31991a5a22fbc44cf183b8d26354304f03e37c8b9f35602552dddf2e0c5
   languageName: node
   linkType: hard
 
@@ -8936,13 +8936,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@wyw-in-js/processor-utils@npm:1.0.3":
-  version: 1.0.3
-  resolution: "@wyw-in-js/processor-utils@npm:1.0.3"
+"@wyw-in-js/processor-utils@npm:1.0.4":
+  version: 1.0.4
+  resolution: "@wyw-in-js/processor-utils@npm:1.0.4"
   dependencies:
     "@babel/generator": "npm:^7.23.5"
-    "@wyw-in-js/shared": "npm:1.0.3"
-  checksum: 10c0/e8df05c492930deb0ef9b33fe23867e1864dd8ea806b7a8331d9a82d036a7ecbe389fcb093f7631d9622710ea60fd3cb83f33c49d89ab955c5e75caea84e9e91
+    "@wyw-in-js/shared": "npm:1.0.4"
+  checksum: 10c0/b4847df9dcc45fb969d275dda22c13b29a71f645f072fdbb97f0e552c275ee2811f3e0e0082bcef4be6aec35a9534bf4a7aec142c486f303e4b780f9882ef480
   languageName: node
   linkType: hard
 
@@ -8967,20 +8967,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@wyw-in-js/shared@npm:1.0.3":
-  version: 1.0.3
-  resolution: "@wyw-in-js/shared@npm:1.0.3"
+"@wyw-in-js/shared@npm:1.0.4":
+  version: 1.0.4
+  resolution: "@wyw-in-js/shared@npm:1.0.4"
   dependencies:
     debug: "npm:^4.3.4"
     find-up: "npm:^5.0.0"
     minimatch: "npm:^9.0.3"
-  checksum: 10c0/aa5a6d17d1b27b2540ab2cacf37bec5a96a2776f783ddb00568da254ab1fdcf37be6552cfa6d655ad14fa65f0004aa9132917394c3d13e3a26e90600a4956391
+  checksum: 10c0/d8a253ba77de55c50e10df7c7fdb4ea2cc983e191c2ab71d8eb07a96ade9c03a84fb2468a1a7477e14b2ec3a223de92b94f78b2e66371e4a9adbbfebd89b258d
   languageName: node
   linkType: hard
 
-"@wyw-in-js/transform@npm:1.0.4":
-  version: 1.0.4
-  resolution: "@wyw-in-js/transform@npm:1.0.4"
+"@wyw-in-js/transform@npm:1.0.5":
+  version: 1.0.5
+  resolution: "@wyw-in-js/transform@npm:1.0.5"
   dependencies:
     "@babel/core": "npm:^7.23.5"
     "@babel/generator": "npm:^7.23.5"
@@ -8989,26 +8989,27 @@ __metadata:
     "@babel/template": "npm:^7.22.15"
     "@babel/traverse": "npm:^7.23.5"
     "@babel/types": "npm:^7.23.5"
-    "@wyw-in-js/processor-utils": "npm:1.0.3"
-    "@wyw-in-js/shared": "npm:1.0.3"
+    "@wyw-in-js/processor-utils": "npm:1.0.4"
+    "@wyw-in-js/shared": "npm:1.0.4"
     cosmiconfig: "npm:^8.0.0"
     happy-dom: "npm:^20.1.0"
+    minimatch: "npm:^9.0.5"
     source-map: "npm:^0.7.4"
     stylis: "npm:^4.3.0"
     ts-invariant: "npm:^0.10.3"
-  checksum: 10c0/b4e130ac57759a74500ec0120a9a03c38364500dc17015bde51805e78fb4b7122bebb81b3ee974e9559c7c772813f9cb7cccf8a6157e82a40277e6a86d0a73b1
+  checksum: 10c0/4155a5f32c3c00892fc50c1b8ee1d1ac52830c342b8c1c8e1e8c6567dd3fdbcd0c5f941899d4e5ebcc07d2c6fb7b6f04c99216e9cf5cbe7a466c662a1a113b3b
   languageName: node
   linkType: hard
 
-"@wyw-in-js/webpack-loader@npm:^1.0.4":
-  version: 1.0.4
-  resolution: "@wyw-in-js/webpack-loader@npm:1.0.4"
+"@wyw-in-js/webpack-loader@npm:^1.0.5":
+  version: 1.0.5
+  resolution: "@wyw-in-js/webpack-loader@npm:1.0.5"
   dependencies:
-    "@wyw-in-js/shared": "npm:1.0.3"
-    "@wyw-in-js/transform": "npm:1.0.4"
+    "@wyw-in-js/shared": "npm:1.0.4"
+    "@wyw-in-js/transform": "npm:1.0.5"
   peerDependencies:
     webpack: ^5.76.0
-  checksum: 10c0/46d15d3fbfbed1a2067514c541a30b68c302451544a359f09e9e1065266aeff87196ee4534cad7b603975e943c4198d4da3e710ad231653e0c242f4d588c2693
+  checksum: 10c0/e98eea342d315bd1a05c456492cca860ebc22546a726d85bcc112030726486420b0bccec276b75533eceb67baa296b06a35c11ae80ebac366d14287643947ab3
   languageName: node
   linkType: hard
 
@@ -11375,7 +11376,7 @@ __metadata:
     "@anansi/cli": "npm:3.1.100"
     "@anansi/core": "npm:0.22.5"
     "@anansi/router": "npm:0.10.21"
-    "@anansi/webpack-config": "npm:21.1.10"
+    "@anansi/webpack-config": "npm:21.1.11"
     "@babel/core": "npm:7.28.6"
     "@babel/runtime-corejs3": "npm:7.28.6"
     "@data-client/img": "npm:0.15.0"
@@ -14475,7 +14476,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "example-benchmark@workspace:examples/benchmark"
   dependencies:
-    "@anansi/webpack-config": "npm:21.1.10"
+    "@anansi/webpack-config": "npm:21.1.11"
     "@babel/core": "npm:7.28.6"
     "@babel/node": "npm:7.28.6"
     "@data-client/core": "workspace:*"
@@ -16382,9 +16383,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"html-webpack-plugin@npm:^5.6.0, html-webpack-plugin@npm:^5.6.5":
-  version: 5.6.5
-  resolution: "html-webpack-plugin@npm:5.6.5"
+"html-webpack-plugin@npm:^5.6.0, html-webpack-plugin@npm:^5.6.6":
+  version: 5.6.6
+  resolution: "html-webpack-plugin@npm:5.6.6"
   dependencies:
     "@types/html-minifier-terser": "npm:^6.0.0"
     html-minifier-terser: "npm:^6.0.2"
@@ -16399,7 +16400,7 @@ __metadata:
       optional: true
     webpack:
       optional: true
-  checksum: 10c0/4ae0ae48fec6337e4eb055e730e46340172ec1967bd383d897d03cb3c4e385a8128e8d5179c4658536b00e432c2d3f026d97eb5fdb4cf9dc710498d2e871b84e
+  checksum: 10c0/30c07c46c6125d51f9779e4fc3dd1bf30ebd0ef78e9628d918f8e4c45e116e79a31ca5ba3444d2743833335405616b8772a68d6183b0663f016529802422ca9e
   languageName: node
   linkType: hard
 
@@ -20714,15 +20715,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mini-css-extract-plugin@npm:^2.9.2, mini-css-extract-plugin@npm:^2.9.4":
-  version: 2.9.4
-  resolution: "mini-css-extract-plugin@npm:2.9.4"
+"mini-css-extract-plugin@npm:^2.10.0, mini-css-extract-plugin@npm:^2.9.2":
+  version: 2.10.0
+  resolution: "mini-css-extract-plugin@npm:2.10.0"
   dependencies:
     schema-utils: "npm:^4.0.0"
     tapable: "npm:^2.2.1"
   peerDependencies:
     webpack: ^5.0.0
-  checksum: 10c0/76f9e471784d52435ea766ce576ad23d37d0ea51c32ddc56414c8fdf14f7de44202dbc772cdf7549b7e54a5e56f569af93cfbd036d62d13ff8fd9571e53353b7
+  checksum: 10c0/5fb0654471f4fb695629d96324d327d4d3a05069a95b83770d070e8f48a07d5b5f8da61adabdd56e3119cf6b17eef058c4ba6ab4cd31a7b2af48624621fe0520
   languageName: node
   linkType: hard
 
@@ -24556,7 +24557,7 @@ __metadata:
   resolution: "rdc-website@workspace:website"
   dependencies:
     "@anansi/browserslist-config": "npm:1.7.4"
-    "@anansi/webpack-config": "npm:21.1.10"
+    "@anansi/webpack-config": "npm:21.1.11"
     "@data-client/endpoint": "workspace:*"
     "@data-client/graphql": "workspace:*"
     "@data-client/react": "workspace:*"
@@ -27956,7 +27957,7 @@ __metadata:
   dependencies:
     "@anansi/babel-preset": "npm:6.2.22"
     "@anansi/browserslist-config": "npm:^1.4.3"
-    "@anansi/webpack-config": "npm:21.1.10"
+    "@anansi/webpack-config": "npm:21.1.11"
     "@babel/core": "npm:^7.22.15"
     "@babel/runtime-corejs3": "npm:^7.26.7"
     "@data-client/img": "workspace:*"
