@@ -1,3 +1,3 @@
 module.exports = {
-  presets: [['@anansi', { polyfillMethod: false }], '@linaria'],
+  presets: [['@anansi', { polyfillMethod: false }]],
 };
