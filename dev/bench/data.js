@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1768770693085,
+  "lastUpdate": 1768774398134,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -106405,6 +106405,240 @@ window.BENCHMARK_DATA = {
             "name": "setSmallResponse 500x",
             "value": 942,
             "range": "±0.09%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4fe8779706cb14d9018b3375d07b486a758ccb57",
+          "message": "enhance: Performance improvements from analyze deopts (#3703)\n\n* internal: Add microbenchmarks for optimization validation\n\nAdd isolated benchmarks for 6 optimization patterns:\n1. forEach vs indexed for loop\n2. reduce+spread vs direct mutation\n3. array.map vs pre-allocated loop\n4. repeated getter vs cached\n5. slice+map vs pre-allocated extraction\n6. Map double-get vs single-get\n\n* enhance: Replace forEach with indexed for loops in Object schema\n\nReplace Object.keys().forEach() and for...of patterns with indexed\nfor loops in normalize/denormalize functions.\n\nV8 optimization impact:\n- Eliminates function call overhead per iteration\n- Allows TurboFan to inline the loop body directly\n- Avoids closure creation for the callback\n- More predictable control flow for branch prediction\n\nBenchmark: ~2% improvement on forEach pattern in isolation.\nBundlesize: +10-20 bytes (neutral after minification)\n\n* enhance: Replace reduce+spread with direct mutation in Values schema\n\nReplace Object.keys().reduce() with object spreading on each iteration\nwith direct object mutation using indexed for loops.\n\nV8 optimization impact:\n- Spreading creates a new object on every iteration → O(n²) allocations\n- Direct mutation is O(n) with no intermediate objects\n- Reduces GC pressure significantly\n- Avoids megamorphic property access patterns from spread\n\nBenchmark: 8x improvement (912 → 7,468 ops/sec) - highest impact change.\nBundlesize: -20-40 bytes (no spread operator)\n\n* enhance: Cache getter result in Polymorphic schema methods\n\nCache this.isSingleSchema getter result in a local variable instead\nof calling it multiple times within normalizeValue/denormalizeValue.\n\nV8 optimization impact:\n- Getter invocation has function call overhead each time\n- Caching in local variable allows register allocation\n- Eliminates repeated property lookup + getter dispatch\n- Particularly impactful when getter has any computation\n\nBenchmark: 2.7x improvement (1,652,211 → 4,426,994 ops/sec) for\nrepeated getter access patterns.\nBundlesize: +5-15 bytes (const declaration)\n\n* enhance: Replace slice+map with pre-allocated extraction in Controller\n\nConsolidate repeated rest.slice().map(ensurePojo) pattern into a\nsingle extractStateAndArgs() helper using pre-allocated indexed loop.\n\nV8 optimization impact:\n- slice() creates intermediate array allocation\n- map() creates another array + has callback overhead\n- Combined: 2 allocations + n function calls → 1 allocation + inline loop\n- Combines benefits of forEach→forLoop and array pre-allocation\n\nBenchmark: 1.65x improvement (33,221 → 54,701 ops/sec)\nBundlesize: Neutral (code consolidation offsets loop expansion)\n\n* enhance: Eliminate Map double-get in MemoCache.buildQueryKey\n\nCache Map.get() result in local variable instead of calling get()\ntwice (once for check, once for retrieval).\n\nV8 optimization impact:\n- Avoids duplicate hash computation + bucket lookup\n- Local variable allows register allocation\n- Better branch prediction (single conditional path)\n- ~2x fewer Map operations in the cache-miss case\n\nBenchmark: ~1% improvement in isolation (marginal but free).\nBundlesize: -5-10 bytes (fewer get calls)\n\n* internal: Add changeset for performance optimizations",
+          "timestamp": "2026-01-18T14:09:42-08:00",
+          "tree_id": "2c50c000b4ac5f616faa540b0b973c969e4d4430",
+          "url": "https://github.com/reactive/data-client/commit/4fe8779706cb14d9018b3375d07b486a758ccb57"
+        },
+        "date": 1768774395811,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 455,
+            "range": "±1.10%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "normalizeLong Values",
+            "value": 409,
+            "range": "±0.34%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 291,
+            "range": "±2.41%",
+            "unit": "ops/sec",
+            "extra": "81 samples"
+          },
+          {
+            "name": "denormalizeLong Values",
+            "value": 266,
+            "range": "±2.34%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "denormalizeLong donotcache",
+            "value": 1020,
+            "range": "±0.55%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong Values donotcache",
+            "value": 763,
+            "range": "±0.46%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeShort donotcache 500x",
+            "value": 1569,
+            "range": "±0.54%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeShort 500x",
+            "value": 848,
+            "range": "±2.37%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "denormalizeShort 500x withCache",
+            "value": 6336,
+            "range": "±0.21%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "queryShort 500x withCache",
+            "value": 2775,
+            "range": "±0.15%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "buildQueryKey All",
+            "value": 53446,
+            "range": "±0.30%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "query All withCache",
+            "value": 5751,
+            "range": "±0.29%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 360,
+            "range": "±0.32%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 6910,
+            "range": "±0.27%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong Values withCache",
+            "value": 5117,
+            "range": "±0.12%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 5551,
+            "range": "±0.31%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 5618,
+            "range": "±0.86%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLongAndShort withEntityCacheOnly",
+            "value": 1584,
+            "range": "±8.93%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 4598,
+            "range": "±0.47%",
+            "unit": "ops/sec",
+            "extra": "89 samples"
+          },
+          {
+            "name": "getResponse (null)",
+            "value": 10497696,
+            "range": "±0.75%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "getResponse (clear cache)",
+            "value": 339,
+            "range": "±0.34%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 3436,
+            "range": "±0.16%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 2565,
+            "range": "±0.53%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "getResponse Collection",
+            "value": 4572,
+            "range": "±0.60%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "get Collection",
+            "value": 4598,
+            "range": "±0.44%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "get Query-sorted",
+            "value": 4620,
+            "range": "±0.15%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 457,
+            "range": "±0.39%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 257,
+            "range": "±0.71%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 271,
+            "range": "±0.56%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "setSmallResponse 500x",
+            "value": 947,
+            "range": "±0.08%",
             "unit": "ops/sec",
             "extra": "97 samples"
           }
