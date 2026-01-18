@@ -35,5 +35,12 @@ jobs:
           version: yarn changeset:version
           publish: yarn changeset:publish
           commit: "internal: Publish new version"
+          createGithubReleases: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Releases
+        if: steps.changesets.outputs.published == 'true'
+        run: node scripts/create-github-releases.mjs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

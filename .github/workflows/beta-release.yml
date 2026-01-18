@@ -43,5 +43,6 @@ jobs:
           publish: yarn changeset:publish:beta
           commit: "internal: Publish beta version"
           title: "Version Packages (Beta)"
+          createGithubReleases: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
