@@ -35,6 +35,7 @@ Both arguments are optional:
 - `entity` - benchmarks various entity-specific operations
 - `core` - benchmarks entire operations using [Controller](https://dataclient.io/docs/api/Controller)
 - `normalizr` - benchmarks just normalize/denormalize
+- `micro` - isolated microbenchmarks for testing specific operations
 - `old-normalizr` - runs equivalent benchmarks using the normalizr package
 
 #### Filter examples

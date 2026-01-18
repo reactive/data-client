@@ -8,10 +8,50 @@ alwaysApply: false
 
 When working on performance investigations or changes that might impact performance, use **`@examples/benchmark`** as the canonical benchmark harness.
 
+## Optimization workflow
+
+Before implementing any performance optimization:
+
+1. **Create an isolated microbenchmark** in `@examples/benchmark/micro.js` that targets the specific operation being optimized
+2. **Run the microbenchmark** to establish a baseline measurement
+3. **Implement the optimization**
+4. **Re-run the microbenchmark** to validate the improvement in isolation
+5. **Run relevant suite benchmarks** (`normalizr`, `core`, etc.) to confirm no regressions
+6. **Analyze bundlesize impact** (see below)
+
+This workflow ensures optimizations are validated in isolation before measuring their effect on the broader system.
+
+### Microbenchmarks (`micro` suite)
+
+Use `@examples/benchmark/micro.js` to add isolated benchmarks that:
+- Test a single function or code path with minimal setup
+- Compare different implementation approaches side-by-side
+- Measure specific optimizations before integrating into larger suites
+
+```bash
+yarn workspace example-benchmark start micro [filter]
+```
+
+Microbenchmarks should be small and focused. Once an optimization is validated, consider whether it warrants a permanent benchmark in one of the main suites.
+
+### Bundlesize impact analysis
+
+Every optimization must include a bundlesize impact assessment. Run from repo root:
+
+```bash
+yarn ci:build:bundlesize
+```
+
+This builds all packages and generates size comparison data. Document the bundlesize delta in your PR:
+- **Acceptable**: Size-neutral or size-reducing optimizations
+- **Requires justification**: Any size increase must be justified by measurable performance gains
+- **Rule of thumb**: A 1KB increase should yield at least 5-10% improvement on relevant benchmarks
+
 ## Where to look
 
 - **Entry point / suite selection**: `@examples/benchmark/index.js`
 - **Suite implementations**:
+  - `@examples/benchmark/micro.js` (isolated microbenchmarks)
   - `@examples/benchmark/entity.js`
   - `@examples/benchmark/normalizr.js`
   - `@examples/benchmark/core.js`
@@ -69,6 +109,11 @@ Notes:
 ## Suites and what they exercise
 
 Use this mapping when deciding which suite(s) to run for a change:
+
+- **`micro`** (`@examples/benchmark/micro.js`)
+  - **Primary focus**: isolated microbenchmarks for validating specific optimizations
+  - **Packages exercised**: depends on what's being tested
+  - **Recommended filters**: target specific benchmark names you've added
 
 - **`entity`** (`@examples/benchmark/entity.js`)
   - **Primary focus**: entity instance operations like `pk()` and `fromJS()`, plus `EntityMixin`.
