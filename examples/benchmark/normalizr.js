@@ -11,6 +11,7 @@ import { createAdd } from './filter.js';
 import { printStatus } from './printStatus.js';
 import {
   ProjectSchema,
+  ProjectSchemaValues,
   AllProjects,
   getSortedProjects,
   ProjectWithBuildTypesDescription,
@@ -24,6 +25,12 @@ const queryState = normalize(AllProjects, data);
 const queryMemo = new MemoCache();
 queryState.result = queryMemo.buildQueryKey(AllProjects, [], queryState);
 const queryInfer = queryMemo.buildQueryKey(getSortedProjects, [], queryState);
+
+// Transform array data to object format for Values schema (keyed by id)
+const dataValues = {
+  project: Object.fromEntries(data.project.map(p => [p.id, p])),
+};
+const valuesState = normalize(ProjectSchemaValues, dataValues);
 
 let githubState = normalize(User, userData);
 
@@ -39,6 +46,12 @@ export default function addNormlizrSuite(suite, filter) {
   // prime the cache
   memo.denormalize(ProjectSchema, result, entities, []);
   memo.denormalize(AllProjects, queryState.result, queryState.entities, []);
+  memo.denormalize(
+    ProjectSchemaValues,
+    valuesState.result,
+    valuesState.entities,
+    [],
+  );
 
   let curState = initialState;
 
@@ -48,11 +61,29 @@ export default function addNormlizrSuite(suite, filter) {
     normalize(ProjectSchema, data, [], curState, actionMeta);
     curState = { ...initialState, entities: {}, endpoints: {} };
   });
+  add('normalizeLong Values', () => {
+    normalize(ProjectSchemaValues, dataValues, [], curState, actionMeta);
+    curState = { ...initialState, entities: {}, endpoints: {} };
+  });
   add('denormalizeLong', () => {
     return new MemoCache().denormalize(ProjectSchema, result, entities);
   });
+  add('denormalizeLong Values', () => {
+    return new MemoCache().denormalize(
+      ProjectSchemaValues,
+      valuesState.result,
+      valuesState.entities,
+    );
+  });
   add('denormalizeLong donotcache', () => {
     return denormalize(ProjectSchema, result, entities);
+  });
+  add('denormalizeLong Values donotcache', () => {
+    return denormalize(
+      ProjectSchemaValues,
+      valuesState.result,
+      valuesState.entities,
+    );
   });
   add('denormalizeShort donotcache 500x', () => {
     for (let i = 0; i < 500; ++i) {
@@ -85,6 +116,14 @@ export default function addNormlizrSuite(suite, filter) {
   });
   add('denormalizeLong withCache', () => {
     return memo.denormalize(ProjectSchema, result, entities, []);
+  });
+  add('denormalizeLong Values withCache', () => {
+    return memo.denormalize(
+      ProjectSchemaValues,
+      valuesState.result,
+      valuesState.entities,
+      [],
+    );
   });
   add('denormalizeLong All withCache', () => {
     return memo.denormalize(

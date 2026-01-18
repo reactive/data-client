@@ -80,6 +80,9 @@ export const ProjectWithBuildTypesDescriptionEntity = EntityMixin(
 export const ProjectSchema = {
   project: [ProjectWithBuildTypesDescription],
 };
+export const ProjectSchemaValues = {
+  project: new schema.Values(ProjectWithBuildTypesDescription),
+};
 export const ProjectSchemaCollection = {
   project: new schema.Collection([ProjectWithBuildTypesDescription]),
 };
