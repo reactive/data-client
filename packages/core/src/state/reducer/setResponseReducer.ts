@@ -62,9 +62,7 @@ export function setResponseReducer(
       // no reason to completely fail because of user-code error
       // integrity of this state update is still guaranteed
     } catch (error) {
-      console.error(
-        `The following error occured during Endpoint.update() for ${action.key}`,
-      );
+      console.error(`Endpoint.update() error: ${action.key}`);
       console.error(error);
     }
     return {
