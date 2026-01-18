@@ -1,6 +1,6 @@
 {
   "name": "@data-client/normalizr",
-  "version": "0.15.0",
+  "version": "0.15.4",
   "description": "Normalizes and denormalizes JSON according to schema for Redux and Flux applications",
   "homepage": "https://dataclient.io/docs/concepts/normalization",
   "keywords": [

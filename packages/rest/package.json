@@ -1,6 +1,6 @@
 {
   "name": "@data-client/rest",
-  "version": "0.15.2",
+  "version": "0.15.4",
   "description": "Quickly define typed REST resources and endpoints",
   "homepage": "https://dataclient.io/rest",
   "repository": {
