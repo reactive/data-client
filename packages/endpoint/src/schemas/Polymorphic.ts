@@ -55,11 +55,15 @@ export default class PolymorphicSchema {
 
   normalizeValue(value: any, parent: any, key: any, args: any[], visit: Visit) {
     if (!value) return value;
-    const schema = this.inferSchema(value, parent, key);
+    const isSingle = this.isSingleSchema;
+    const schema =
+      isSingle ?
+        this.schema
+      : this.schema[this._schemaAttribute(value, parent, key)];
     if (!schema) {
       /* istanbul ignore else */
       if (process.env.NODE_ENV !== 'production') {
-        const attr = this.getSchemaAttribute(value, parent, key);
+        const attr = this._schemaAttribute(value, parent, key);
         console.warn(
           `Schema attribute ${JSON.stringify(
             attr,
@@ -77,24 +81,23 @@ Value: ${JSON.stringify(value, undefined, 2)}`,
     }
     const normalizedValue = visit(schema, value, parent, key, args);
     return (
-        this.isSingleSchema ||
-          normalizedValue === undefined ||
-          normalizedValue === null
+        isSingle || normalizedValue === undefined || normalizedValue === null
       ) ?
         normalizedValue
       : {
           id: normalizedValue,
-          schema: this.getSchemaAttribute(value, parent, key),
+          schema: this._schemaAttribute(value, parent, key),
         };
   }
 
   // value is guaranteed by caller to not be null
   denormalizeValue(value: any, unvisit: any) {
+    const isSingle = this.isSingleSchema;
     const schemaKey =
-      !this.isSingleSchema &&
+      !isSingle &&
       value &&
       (isImmutable(value) ? value.get('schema') : value.schema);
-    if (!this.isSingleSchema && !schemaKey) {
+    if (!isSingle && !schemaKey) {
       // denormalize should also handle 'passthrough' values (not normalized) and still
       // construct the correct Entity instance
       if (typeof value === 'object' && value !== null) {
@@ -111,10 +114,10 @@ Value: ${JSON.stringify(value, undefined, 2)}.`,
       return value;
     }
     const id =
-      this.isSingleSchema ? undefined
+      isSingle ? undefined
       : isImmutable(value) ? value.get('id')
       : value.id;
-    const schema = this.isSingleSchema ? this.schema : this.schema[schemaKey];
+    const schema = isSingle ? this.schema : this.schema[schemaKey];
     return unvisit(schema, id || value);
   }
 }
