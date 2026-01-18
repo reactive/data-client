@@ -11,15 +11,17 @@ export const normalize = (
   visit: Visit,
 ) => {
   const object = { ...input };
-  Object.keys(schema).forEach(key => {
-    const localSchema = schema[key];
-    const value = visit(localSchema, input[key], input, key, args);
+  const keys = Object.keys(schema);
+  for (let i = 0; i < keys.length; i++) {
+    const k = keys[i];
+    const localSchema = schema[k];
+    const value = visit(localSchema, input[k], input, k, args);
     if (value === undefined) {
-      delete object[key];
+      delete object[k];
     } else {
-      object[key] = value;
+      object[k] = value;
     }
-  });
+  }
   return object;
 };
 
@@ -33,17 +35,19 @@ export const denormalize = (
     return denormalizeImmutable(schema, input, args, unvisit);
   }
 
-  const object = { ...input };
+  const object: any = { ...input };
   let deleted = false;
-  Object.keys(schema).forEach(key => {
-    const item = unvisit(schema[key], object[key]);
-    if (object[key] !== undefined) {
-      object[key] = item;
+  const keys = Object.keys(schema);
+  for (let i = 0; i < keys.length; i++) {
+    const k = keys[i];
+    const item = unvisit(schema[k], object[k]);
+    if (object[k] !== undefined) {
+      object[k] = item;
     }
     if (typeof item === 'symbol') {
       deleted = true;
     }
-  });
+  }
   return deleted ? INVALID : object;
 };
 

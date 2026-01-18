@@ -34,8 +34,10 @@ export function denormalize(
   }
 
   const object: Record<string, any> = { ...input };
+  const keys = Object.keys(schema);
 
-  for (const key of Object.keys(schema)) {
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
     const item = unvisit(schema[key], object[key]);
     if (object[key] !== undefined) {
       object[key] = item;

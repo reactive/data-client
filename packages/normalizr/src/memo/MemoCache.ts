@@ -101,14 +101,13 @@ export default class MemoCache {
       return schema as any;
 
     // cache lookup: argsKey -> schema -> ...touched indexes or entities
-    if (!this.queryKeys.get(argsKey)) {
-      this.queryKeys.set(argsKey, new WeakDependencyMap<QueryPath>());
+    let queryCache = this.queryKeys.get(argsKey) as
+      | WeakDependencyMap<QueryPath, object, any>
+      | undefined;
+    if (!queryCache) {
+      queryCache = new WeakDependencyMap<QueryPath>();
+      this.queryKeys.set(argsKey, queryCache);
     }
-    const queryCache = this.queryKeys.get(argsKey) as WeakDependencyMap<
-      QueryPath,
-      object,
-      any
-    >;
 
     const baseDelegate = new this.policy.QueryDelegate(state);
     // eslint-disable-next-line prefer-const

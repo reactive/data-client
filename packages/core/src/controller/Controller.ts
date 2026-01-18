@@ -40,7 +40,7 @@ import type { GCInterface } from '../state/GCPolicy.js';
 import { ImmortalGCPolicy } from '../state/GCPolicy.js';
 import { initialState } from '../state/reducer/createReducer.js';
 import selectMeta from '../state/selectMeta.js';
-import type { ActionTypes, Dispatch, State } from '../types.js';
+import type { ActionTypes, State } from '../types.js';
 
 export type GenericDispatch = (value: any) => Promise<void>;
 export type DataClientDispatch = (value: ActionTypes) => Promise<void>;
@@ -496,12 +496,7 @@ export default class Controller<
     expiresAt: number;
     countRef: () => () => void;
   } {
-    const state = rest[rest.length - 1] as State<unknown>;
-    // this is typescript generics breaking
-    const args: any = rest
-      .slice(0, rest.length - 1)
-      // handle FormData
-      .map(ensurePojo);
+    const [state, args] = extractStateAndArgs(rest);
     const isActive = args.length !== 1 || args[0] !== null;
     const key = isActive ? endpoint.key(...args) : '';
     const cacheEndpoints = isActive ? state.endpoints[key] : undefined;
@@ -581,11 +576,7 @@ export default class Controller<
       Pick<State<unknown>, 'entities' | 'indexes'>,
     ]
   ): DenormalizeNullable<S> | undefined {
-    const state = rest[rest.length - 1] as State<any>;
-    // this is typescript generics breaking
-    const args: any = rest
-      .slice(0, rest.length - 1)
-      .map(ensurePojo) as SchemaArgs<S>;
+    const [state, args] = extractStateAndArgs(rest);
 
     const { data } = this.memo.query(schema, args, state);
     return typeof data === 'symbol' ? undefined : data;
@@ -605,11 +596,7 @@ export default class Controller<
     data: DenormalizeNullable<S> | undefined;
     countRef: () => () => void;
   } {
-    const state = rest[rest.length - 1] as State<any>;
-    // this is typescript generics breaking
-    const args: any = rest
-      .slice(0, rest.length - 1)
-      .map(ensurePojo) as SchemaArgs<S>;
+    const [state, args] = extractStateAndArgs(rest);
 
     const { data, paths } = this.memo.query(schema, args, state);
 
@@ -822,4 +809,16 @@ class Snapshot<T = unknown> implements SnapshotInterface {
   } {
     return this.controller.getQueryMeta(schema, ...args, this.state);
   }
+}
+
+/** Extract state and args from rest params, applying ensurePojo to args */
+function extractStateAndArgs(rest: readonly unknown[]): [State<any>, any[]] {
+  const l = rest.length;
+  const args: any = new Array(l - 1);
+  for (let i = 0; i < l - 1; i++) {
+    // handle FormData
+    args[i] = ensurePojo(rest[i]);
+  }
+  // this is typescript generics breaking
+  return [rest[l - 1] as State<any>, args];
 }

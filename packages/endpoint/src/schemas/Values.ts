@@ -14,15 +14,16 @@ export default class ValuesSchema extends PolymorphicSchema {
     visit: Visit,
     snapshot: any,
   ) {
-    return Object.keys(input).reduce((output, key, index) => {
-      const value = input[key];
-      return value !== undefined && value !== null ?
-          {
-            ...output,
-            [key]: this.normalizeValue(value, input, key, args, visit),
-          }
-        : output;
-    }, {});
+    const output: Record<string, any> = {};
+    const keys = Object.keys(input);
+    for (let i = 0; i < keys.length; i++) {
+      const k = keys[i];
+      const value = input[k];
+      if (value !== undefined && value !== null) {
+        output[k] = this.normalizeValue(value, input, k, args, visit);
+      }
+    }
+    return output;
   }
 
   denormalize(
@@ -30,17 +31,19 @@ export default class ValuesSchema extends PolymorphicSchema {
     args: readonly any[],
     unvisit: (schema: any, input: any) => any,
   ): any {
-    return Object.keys(input).reduce((output, key) => {
-      const entityOrId = (input as any)[key];
+    const output: Record<string, any> = {};
+    const keys = Object.keys(input);
+    for (let i = 0; i < keys.length; i++) {
+      const k = keys[i];
+      const entityOrId = (input as any)[k];
       const value = this.denormalizeValue(entityOrId, unvisit);
 
       // remove empty or deleted values
-      if (!value || typeof value === 'symbol') return output;
-      return {
-        ...output,
-        [key]: value,
-      };
-    }, {});
+      if (value && typeof value !== 'symbol') {
+        output[k] = value;
+      }
+    }
+    return output;
   }
 
   queryKey(args: any, unvisit: unknown, delegate: unknown) {
