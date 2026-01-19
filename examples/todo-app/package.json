@@ -45,9 +45,9 @@
   },
   "dependencies": {
     "@babel/runtime-corejs3": "^7.26.7",
-    "@data-client/endpoint": "0.15.2",
-    "@data-client/react": "0.15.3",
-    "@data-client/rest": "0.15.2",
+    "@data-client/endpoint": "0.15.4",
+    "@data-client/react": "0.15.4",
+    "@data-client/rest": "0.15.4",
     "core-js": "^3.40.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
