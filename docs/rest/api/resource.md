@@ -582,31 +582,9 @@ This allows [schema.Invalidate](./Invalidate.md) to remove the entity from the [
 
 `extend()` is polymorphic with three forms:
 
-#### Batch extension of known members {#extend-override}
-
-```ts
-export const CommentResource = resource({
-  path: '/repos/:owner/:repo/issues/comments/:id',
-  schema: Comment,
-}).extend({
-  getList: { path: '/repos/:owner/:repo/issues/:number/comments' },
-  update: { body: { body: '' } },
-});
-```
-
-#### Adding new members {#extend-new}
-
-```ts
-export const UserResource = createGithubResource({
-  path: '/users/:login',
-  schema: User,
-}).extend('current', {
-  path: '/user',
-  schema: User,
-});
-```
-
 #### Function form (to get BaseResource/super) {#extend-function}
+
+This is the most flexible, but also the most verbose.
 
 ```ts
 export const IssueResource= resource({
@@ -628,6 +606,35 @@ export const IssueResource= resource({
   })
 )});
 ```
+
+#### Batch extension of known members {#extend-override}
+
+This only works with existing members.
+
+```ts
+export const CommentResource = resource({
+  path: '/repos/:owner/:repo/issues/comments/:id',
+  schema: Comment,
+}).extend({
+  getList: { path: '/repos/:owner/:repo/issues/:number/comments' },
+  update: { body: { body: '' } },
+});
+```
+
+#### Adding new members {#extend-new}
+
+This can only add one endpoint at a time.
+
+```ts
+export const UserResource = createGithubResource({
+  path: '/users/:login',
+  schema: User,
+}).extend('current', {
+  path: '/user',
+  schema: User,
+});
+```
+
 
 #### Github CommentResource
 
