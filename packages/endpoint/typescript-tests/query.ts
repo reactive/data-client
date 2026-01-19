@@ -1,6 +1,6 @@
 import { useQuery } from 'packages/react/lib';
 
-import { schema, Entity } from '../src';
+import { schema, Query, Entity } from '../src';
 
 export class Ticker extends Entity {
   product_id = '';
@@ -35,11 +35,11 @@ export class Stats extends Entity {
   }
 }
 
-const queryPrice = new schema.Query(
+const queryPrice = new Query(
   { ticker: Ticker, stats: Stats },
   ({ ticker, stats }) => ticker?.price ?? stats?.last,
 );
-const queryPrice2 = new schema.Query(
+const queryPrice2 = new Query(
   new schema.Object({ ticker: Ticker, stats: Stats }),
   ({ ticker, stats }) => ticker?.price ?? stats?.last,
 );

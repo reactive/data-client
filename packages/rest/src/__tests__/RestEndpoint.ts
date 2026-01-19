@@ -1,4 +1,4 @@
-import { Entity, schema } from '@data-client/endpoint';
+import { Entity, schema, Collection } from '@data-client/endpoint';
 import { useController } from '@data-client/react';
 import { useSuspense } from '@data-client/react';
 import { CacheProvider } from '@data-client/react';
@@ -50,7 +50,7 @@ const getArticleList = new RestEndpoint({
   path: '/article-paginated',
   schema: {
     nextPage: '',
-    data: { results: new schema.Collection([PaginatedArticle]) },
+    data: { results: new Collection([PaginatedArticle]) },
   },
   method: 'GET',
 });
@@ -64,7 +64,7 @@ const getArticleList2 = new RestEndpoint({
   name: 'get',
   schema: {
     nextPage: '',
-    data: { results: new schema.Collection([PaginatedArticle]) },
+    data: { results: new Collection([PaginatedArticle]) },
   },
   method: 'GET',
 });
@@ -83,7 +83,7 @@ const getArticleList3 = new RestEndpoint({
   path: '/article-paginated',
   schema: {
     nextPage: '',
-    data: { results: new schema.Collection([PaginatedArticle]) },
+    data: { results: new Collection([PaginatedArticle]) },
   },
   method: 'GET',
   searchParams: {} as { group: string | number },
@@ -100,7 +100,7 @@ const getNextPage3 = getArticleList3.getPage;
     path: '/article-paginated',
     schema: {
       nextPage: '',
-      data: { results: new schema.Collection([PaginatedArticle]) },
+      data: { results: new Collection([PaginatedArticle]) },
     },
     method: 'GET',
   });
@@ -119,7 +119,7 @@ const getNextPage3 = getArticleList3.getPage;
     path: '/article-paginated',
     schema: {
       nextPage: '',
-      data: { results: new schema.Collection([PaginatedArticle]) },
+      data: { results: new Collection([PaginatedArticle]) },
     },
     method: 'GET',
     searchParams: {} as { group: string | number },

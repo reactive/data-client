@@ -5,7 +5,7 @@ import { denormalize as immDenormalize } from '@data-client/normalizr/imm';
 import { Temporal } from '@js-temporal/polyfill';
 
 import { SimpleMemoCache, fromJSEntities } from './denormalize';
-import { schema, EntityMixin } from '../..';
+import { schema, EntityMixin, Values } from '../..';
 
 let dateSpy: jest.Spied<any>;
 beforeAll(() => {
@@ -584,10 +584,7 @@ describe(`${schema.Entity.name} normalization`, () => {
         },
       });
 
-      const inputSchema = new schema.Values(
-        { users: UserEntity },
-        () => 'users',
-      );
+      const inputSchema = new Values({ users: UserEntity }, () => 'users');
 
       expect(
         normalize(inputSchema, {

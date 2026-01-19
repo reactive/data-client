@@ -6,7 +6,7 @@ import { RestEndpoint } from '@data-client/rest';
 import { IDEntity } from '__tests__/new';
 
 import { fromJSState } from './denormalize';
-import { schema, DenormalizeNullable } from '../..';
+import { schema, DenormalizeNullable, Query, All, Collection } from '../..';
 
 const { initialState } = __INTERNAL__;
 
@@ -35,18 +35,15 @@ describe.each([
   ],
 ])(`input (%s)`, (_, createInput, createOutput, MyDelegate) => {
   const SCHEMA_CASES = [
-    ['All', new schema.Object({ results: new schema.All(User) })],
-    [
-      'Collection',
-      new schema.Object({ results: new schema.Collection([User]) }),
-    ],
+    ['All', new schema.Object({ results: new All(User) })],
+    ['Collection', new schema.Object({ results: new Collection([User]) })],
   ] as const;
 
   // TODO: once full immutable support is added, remove this
   describe.each(_ === 'immutable' ? SCHEMA_CASES.slice(0, 1) : SCHEMA_CASES)(
-    `${schema.Query.name} denormalization (%s schema)`,
+    `${Query.name} denormalization (%s schema)`,
     (_, usersSchema) => {
-      const sortedUsers = new schema.Query(
+      const sortedUsers = new Query(
         usersSchema,
         ({ results }, { asc } = { asc: false }) => {
           if (!results) return results;
@@ -68,9 +65,10 @@ describe.each([
               3: { id: '3', name: 'Zeta' },
               4: { id: '4', name: 'Alpha' },
             },
-            [new schema.Collection([User]).key]: {
-              [new schema.Collection([User]).pk(undefined, undefined, '', [])]:
-                [1, 2, 3, 4],
+            [new Collection([User]).key]: {
+              [new Collection([User]).pk(undefined, undefined, '', [])]: [
+                1, 2, 3, 4,
+              ],
             },
           },
         });
@@ -92,8 +90,8 @@ describe.each([
               3: { id: '3', name: 'Zeta' },
               4: { id: '4', name: 'Alpha' },
             },
-            [new schema.Collection([User]).key]: {
-              [new schema.Collection([User]).pk(undefined, undefined, '', [
+            [new Collection([User]).key]: {
+              [new Collection([User]).pk(undefined, undefined, '', [
                 { asc: true },
               ])]: [1, 2, 3, 4],
             },
@@ -125,7 +123,7 @@ describe.each([
       });
 
       test('denormalize aggregates', () => {
-        const userCountByAdmin = new schema.Query(
+        const userCountByAdmin = new Query(
           usersSchema,
           ({ results }, { isAdmin }: { isAdmin?: boolean } = {}) => {
             if (!results) return 0;
@@ -142,13 +140,14 @@ describe.each([
               3: { id: '3', name: 'Zeta' },
               4: { id: '4', name: 'Alpha' },
             },
-            [new schema.Collection([User]).key]: {
-              [new schema.Collection([User]).pk(undefined, undefined, '', [])]:
-                [1, 2, 3, 4],
-              [new schema.Collection([User]).pk(undefined, undefined, '', [
+            [new Collection([User]).key]: {
+              [new Collection([User]).pk(undefined, undefined, '', [])]: [
+                1, 2, 3, 4,
+              ],
+              [new Collection([User]).pk(undefined, undefined, '', [
                 { isAdmin: false },
               ])]: [1, 3, 4],
-              [new schema.Collection([User]).pk(undefined, undefined, '', [
+              [new Collection([User]).pk(undefined, undefined, '', [
                 { isAdmin: true },
               ])]: [2],
             },
@@ -191,8 +190,8 @@ describe.each([
 });
 
 describe('top level schema', () => {
-  const sortedUsers = new schema.Query(
-    new schema.Collection([User]),
+  const sortedUsers = new Query(
+    new Collection([User]),
     (results, { asc } = { asc: false }, ...args) => {
       const sorted = [...results].sort((a, b) => a.name.localeCompare(b.name));
       if (asc) return sorted;
@@ -210,10 +209,8 @@ describe('top level schema', () => {
           3: { id: '3', name: 'Zeta' },
           4: { id: '4', name: 'Alpha' },
         },
-        [new schema.Collection([User]).key]: {
-          [new schema.Collection([User]).pk({}, undefined, '', [])]: [
-            1, 2, 3, 4,
-          ],
+        [new Collection([User]).key]: {
+          [new Collection([User]).pk({}, undefined, '', [])]: [1, 2, 3, 4],
         },
       },
     };
@@ -241,8 +238,8 @@ describe('top level schema', () => {
   });
 
   test('works if base entity suspends', () => {
-    const allSortedUsers = new schema.Query(
-      new schema.All(User),
+    const allSortedUsers = new Query(
+      new All(User),
       (results, { asc } = { asc: false }, ...args) => {
         const sorted = [...results].sort((a, b) =>
           a.name.localeCompare(b.name),
@@ -256,8 +253,8 @@ describe('top level schema', () => {
   });
 
   test('works with nested schemas', () => {
-    const allSortedUsers = new schema.Query(
-      new schema.All(User),
+    const allSortedUsers = new Query(
+      new All(User),
       (results, { asc } = { asc: false }, ...args) => {
         const sorted = [...results].sort((a, b) =>
           a.name.localeCompare(b.name),

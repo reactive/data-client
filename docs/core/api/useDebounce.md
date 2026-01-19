@@ -25,7 +25,7 @@ When loading new data, the [AsyncBoundary](./AsyncBoundary.md) will continue ren
 <HooksPlayground row>
 
 ```ts title="IssueQuery" collapsed
-import { RestEndpoint, Entity, schema } from '@data-client/rest';
+import { RestEndpoint, Entity, Collection } from '@data-client/rest';
 
 export class Issue extends Entity {
   number = 0;
@@ -62,7 +62,7 @@ export const issueQuery = new RestEndpoint({
   paginationField: 'page',
   schema: {
     incomplete_results: false,
-    items: new schema.Collection([Issue]),
+    items: new Collection([Issue]),
     total_count: 0,
   },
 });

@@ -71,7 +71,7 @@ values={[
 ```typescript
 const getPresentations = new Endpoint(
   () => fetch(`/presentations`).then(res => res.json()),
-  { schema: new schema.Collection([Presentation]) },
+  { schema: new Collection([Presentation]) },
 );
 ```
 
@@ -137,7 +137,7 @@ const todoCreate = new RestEndpoint({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos',
   method: 'POST',
-  schema: new schema.Collection([Todo]).push,
+  schema: new Collection([Todo]).push,
 });
 ```
 
@@ -203,13 +203,13 @@ export default function UpdateTodoForm({ id }: { id: number }) {
 <TabItem value="Delete">
 
 ```typescript
-import { schema, RestEndpoint } from '@data-client/rest';
+import { Invalidate, RestEndpoint } from '@data-client/rest';
 
 const todoDelete = new RestEndpoint({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   method: 'DELETE',
-  schema: new schema.Invalidate(Todo),
+  schema: new Invalidate(Todo),
 });
 ```
 
@@ -251,13 +251,13 @@ Schemas are a declarative definition of how to [process responses](/rest/api/sch
 - Functions to [deserialize fields](/rest/guides/network-transform#deserializing-fields)
 
 ```typescript
-import { RestEndpoint, schema } from '@data-client/rest';
+import { RestEndpoint, Collection } from '@data-client/rest';
 
 const getTodoList = new RestEndpoint({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos',
   // highlight-next-line
-  schema: new schema.Collection([Todo]),
+  schema: new Collection([Todo]),
 });
 ```
 

@@ -337,7 +337,7 @@ export const getPosts = new RestEndpoint({
   path: '/post',
   searchParams: { page: '' },
   schema: {
-    posts: new schema.Collection([PaginatedPost]),
+    posts: new Collection([PaginatedPost]),
     nextPage: '',
     lastPage: '',
   },

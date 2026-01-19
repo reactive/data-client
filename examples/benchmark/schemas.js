@@ -1,4 +1,11 @@
-import { Entity, EntityMixin, schema } from './dist/index.js';
+import {
+  Entity,
+  EntityMixin,
+  Values,
+  Collection,
+  All,
+  Query,
+} from './dist/index.js';
 
 export class BuildTypeDescription extends Entity {
   id = '';
@@ -81,20 +88,20 @@ export const ProjectSchema = {
   project: [ProjectWithBuildTypesDescription],
 };
 export const ProjectSchemaValues = {
-  project: new schema.Values(ProjectWithBuildTypesDescription),
+  project: new Values(ProjectWithBuildTypesDescription),
 };
 export const ProjectSchemaCollection = {
-  project: new schema.Collection([ProjectWithBuildTypesDescription]),
+  project: new Collection([ProjectWithBuildTypesDescription]),
 };
 export const ProjectSchemaMixin = {
   project: [ProjectWithBuildTypesDescriptionEntity],
 };
 
 export const AllProjects = {
-  project: new schema.All(ProjectWithBuildTypesDescription),
+  project: new All(ProjectWithBuildTypesDescription),
 };
-export const getSortedProjects = new schema.Query(
-  new schema.All(ProjectWithBuildTypesDescription),
+export const getSortedProjects = new Query(
+  new All(ProjectWithBuildTypesDescription),
   entries => {
     return [...entries].sort((a, b) => a.name.localeCompare(b.name));
   },

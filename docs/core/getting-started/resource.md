@@ -136,7 +136,7 @@ export const TodoResource = {
     }
   }
 `,
-    { todos: new schema.Collection([Todo]) },
+    { todos: new Collection([Todo]) },
   ),
   update: gql.mutation(
     `mutation UpdateTodo($todo: Todo!) {
@@ -207,7 +207,7 @@ export const deleteTodo = (body: Partial<Todo>) =>
 ```
 
 ```typescript title="TodoResource"
-import { schema, EntityMixin, Endpoint } from '@data-client/endpoint';
+import { Collection, Endpoint, EntityMixin, Invalidate } from '@data-client/endpoint';
 import {
   Todo,
   getTodo,
@@ -223,7 +223,7 @@ export const TodoEntity = EntityMixin(Todo, { key: 'Todo' });
 export const TodoResource = {
   get: new Endpoint(getTodo, { schema: TodoEntity }),
   getList: new Endpoint(getTodoList, {
-    schema: new schema.Collection([TodoEntity]),
+    schema: new Collection([TodoEntity]),
   }),
   update: new Endpoint(updateTodo, {
     schema: TodoEntity,
@@ -234,11 +234,11 @@ export const TodoResource = {
     sideEffect: true,
   }),
   create: new Endpoint(createTodo, {
-    schema: new schema.Collection([TodoEntity]).push,
+    schema: new Collection([TodoEntity]).push,
     sideEffect: true,
   }),
   delete: new Endpoint(deleteTodo, {
-    schema: new schema.Invalidate(TodoEntity),
+    schema: new Invalidate(TodoEntity),
     sideEffect: true,
   }),
 };

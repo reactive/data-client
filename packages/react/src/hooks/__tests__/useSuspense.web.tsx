@@ -12,6 +12,7 @@ import {
   FetchFunction,
   ReadEndpoint,
   schema,
+  Collection,
 } from '@data-client/endpoint';
 import { normalize } from '@data-client/normalizr';
 import { jest } from '@jest/globals';
@@ -661,7 +662,7 @@ describe('useSuspense()', () => {
       const getC = new Endpoint(
         (args: { postId: string | number; sortBy?: 'votes' | 'recent' }) =>
           Promise.resolve({ a: 5, ...args }),
-        { schema: new schema.Collection([Comment]) },
+        { schema: new Collection([Comment]) },
       );
       function useThings() {
         const comments = useSuspense(getC, {

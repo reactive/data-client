@@ -4,7 +4,7 @@
 - [denormalize](#denormalizeinput-schema-entities)
 - [schema](#schema)
   - [Array](#arraydefinition-schemaattribute)
-  - [Entity](#entitykey-definition---options--)
+  - [EntityMixin](#entitymixinbase-options--)
   - [Object](#objectdefinition)
   - [Union](#uniondefinition-schemaattribute)
   - [Values](#valuesdefinition-schemaattribute)
@@ -20,13 +20,13 @@ Normalizes input data per the schema definition provided.
 ### Usage
 
 ```js
-import { schema } from '@data-client/endpoint';
+import { EntityMixin } from '@data-client/endpoint';
 import { normalize } from '@data-client/normalizr';
 
 const myData = { users: [{ id: 1 }, { id: 2 }] };
 class User { id = 0 }
-const userSchema = new schema.EntityMixin(User);
-const mySchema = { users: [userSchema] };
+class UserEntity extends EntityMixin(User) {}
+const mySchema = { users: [UserEntity] };
 const normalizedData = normalize(mySchema, myData);
 ```
 
@@ -57,12 +57,12 @@ If your schema and data have recursive references, only the first instance of an
 ### Usage
 
 ```js
-import { schema } from '@data-client/endpoint';
+import { EntityMixin } from '@data-client/endpoint';
 import { denormalize } from '@data-client/normalizr';
 
 class User { id = 0 }
-const userSchema = new schema.EntityMixin(User);
-const mySchema = { users: [userSchema] };
+class UserEntity extends EntityMixin(User) {}
+const mySchema = { users: [UserEntity] };
 const entities = { User: { '1': { id: 1 }, '2': { id: 2 } } };
 const denormalizedData = denormalize(mySchema, { users: [1, 2] }, entities);
 ```
@@ -176,14 +176,15 @@ _Note: The same behavior can be defined with shorthand syntax: `[ mySchema ]`_
 To describe a simple array of a singular entity type:
 
 ```js
-import { schema } from '@data-client/endpoint';
+import { EntityMixin, schema } from '@data-client/endpoint';
 
 const data = [{ id: '123', name: 'Jim' }, { id: '456', name: 'Jane' }];
-const userSchema = new schema.EntityMixin(class User {id='';name='';});
+class User { id = ''; name = ''; }
+class UserEntity extends EntityMixin(User) {}
 
-const userListSchema = new schema.Array(userSchema);
+const userListSchema = new schema.Array(UserEntity);
 // or use shorthand syntax:
-const userListSchema = [userSchema];
+const userListSchema = [UserEntity];
 
 const normalizedData = normalize(userListSchema, data);
 ```
@@ -209,16 +210,18 @@ _Note: If your data returns an object that you did not provide a mapping for, th
 For example:
 
 ```js
-import { schema } from '@data-client/endpoint';
+import { EntityMixin, schema } from '@data-client/endpoint';
 
 const data = [{ id: 1, type: 'admin' }, { id: 2, type: 'user' }];
 
-const userSchema = new schema.EntityMixin(class User {id='';type='user';});
-const adminSchema = new schema.EntityMixin(class Admin {id='';type='admin';});
+class User { id = ''; type = 'user'; }
+class UserEntity extends EntityMixin(User) {}
+class Admin { id = ''; type = 'admin'; }
+class AdminEntity extends EntityMixin(Admin) {}
 const myArray = new schema.Array(
   {
-    admins: adminSchema,
-    users: userSchema
+    admins: AdminEntity,
+    users: UserEntity
   },
   (input, parent, key) => `${input.type}s`
 );
@@ -241,58 +244,56 @@ const normalizedData = normalize(myArray, data);
 }
 ```
 
-### `Entity(key, definition = {}, options = {})`
+### `EntityMixin(Base, options = {})`
 
-- `key`: **required** The key name under which all entities of this type will be listed in the normalized response. Must be a string name.
-- `definition`: A definition of the nested entities found within this entity. Defaults to empty object.  
-  You _do not_ need to define any keys in your entity other than those that hold nested entities. All other values will be copied to the normalized entity's output.
-- `options`:
-  - `idAttribute`: The attribute where unique IDs for each of this entity type can be found.  
-    Accepts either a string `key` or a function that returns the IDs `value`. Defaults to `'id'`.  
+Creates an Entity schema from a base class. Entity defines a single _unique_ object.
+
+- `Base`: **required** A class constructor that defines the data structure. The class should have default values for all fields.
+- `options`: _optional_ An object with the following properties:
+  - `pk`: The primary key attribute. Accepts either a string field name (defaults to `'id'`) or a function that returns the primary key value.  
     As a function, accepts the following arguments, in order:
-    - `value`: The input value of the entity.
+    - `value`: The input value of the entity (which is `this` when called as an instance method).
     - `parent`: The parent object of the input array.
     - `key`: The key at which the input array appears on the parent object.
-  - `mergeStrategy(entityA, entityB)`: Strategy to use when merging two entities with the same `id` value. Defaults to merge the more recently found entity onto the previous.
-  - `processStrategy(value, parent, key)`: Strategy to use when pre-processing the entity. Use this method to add extra data, defaults, and/or completely change the entity before normalization is complete. Defaults to returning a shallow copy of the input entity.  
-    _Note: It is recommended to always return a copy of your input and not modify the original._  
-    The function accepts the following arguments, in order:
-    - `value`: The input value of the entity.
-    - `parent`: The parent object of the input array.
-    - `key`: The key at which the input array appears on the parent object.
+    - `args`: Optional arguments passed during normalization.
+  - `key`: The key name under which all entities of this type will be listed in the normalized response. Defaults to the class name.
+  - `schema`: A definition of the nested entities found within this entity. Defaults to empty object.  
+    You _do not_ need to define any keys in your entity other than those that hold nested entities. All other values will be copied to the normalized entity's output.
 
 #### Instance Methods
 
-- `define(definition)`: When used, the `definition` passed in will be merged with the original definition passed to the `Entity` constructor. This method tends to be useful for creating circular references in schema.
+- `define(definition)`: When used, the `definition` passed in will be merged with the original definition passed to the `EntityMixin` constructor. This method tends to be useful for creating circular references in schema.
 
-#### Instance Attributes
+#### Static Attributes
 
-- `key`: Returns the key provided to the constructor.
-- `idAttribute`: Returns the idAttribute provided to the constructor in options.
+- `key`: Returns the key name for this entity type.
+- `schema`: Returns the schema definition for nested entities.
 
 #### Usage
 
 ```js
+import { EntityMixin } from '@data-client/endpoint';
+import { normalize } from '@data-client/normalizr';
+
 const data = { id_str: '123', url: 'https://twitter.com', user: { id_str: '456', name: 'Jimmy' } };
 
-const user = new schema.Entity('users', {}, { idAttribute: 'id_str' });
-const tweet = new schema.Entity(
-  'tweets',
-  { user: user },
-  {
-    idAttribute: 'id_str',
-    // Apply everything from entityB over entityA, except for "favorites"
-    mergeStrategy: (entityA, entityB) => ({
-      ...entityA,
-      ...entityB,
-      favorites: entityA.favorites
-    }),
-    // Remove the URL field from the entity
-    processStrategy: (entity) => omit(entity, 'url')
-  }
-);
+class User {
+  id_str = '';
+  name = '';
+}
+class UserEntity extends EntityMixin(User, { pk: 'id_str' }) {}
 
-const normalizedData = normalize(tweet, data);
+class Tweet {
+  id_str = '';
+  url = '';
+  user = null;
+}
+class TweetEntity extends EntityMixin(Tweet, {
+  pk: 'id_str',
+  schema: { user: UserEntity }
+}) {}
+
+const normalizedData = normalize(TweetEntity, data);
 ```
 
 #### Output
@@ -300,28 +301,38 @@ const normalizedData = normalize(tweet, data);
 ```js
 {
   entities: {
-    tweets: { '123': { id_str: '123', user: '456' } },
-    users: { '456': { id_str: '456', name: 'Jimmy' } }
+    Tweet: { '123': { id_str: '123', user: '456' } },
+    User: { '456': { id_str: '456', name: 'Jimmy' } }
   },
   result: '123'
 }
 ```
 
-#### `idAttribute` Usage
+#### Custom `pk` Usage
 
-When passing the `idAttribute` a function, it should return the IDs value.
+When passing `pk` as a function, it should return the primary key value.
 
 For Example:
 
 ```js
+import { EntityMixin } from '@data-client/endpoint';
+import { normalize } from '@data-client/normalizr';
+
 const data = [{ id: '1', guest_id: null, name: 'Esther' }, { id: '1', guest_id: '22', name: 'Tom' }];
 
-const patronsSchema = new schema.Entity('patrons', undefined, {
-  // idAttribute *functions* must return the ids **value** (not key)
-  idAttribute: (value) => (value.guest_id ? `${value.id}-${value.guest_id}` : value.id)
-});
+class Patron {
+  id = '';
+  guest_id = null;
+  name = '';
+}
+class PatronEntity extends EntityMixin(Patron, {
+  // pk *functions* must return the ids **value** (not key)
+  pk(value) {
+    return value.guest_id ? `${value.id}-${value.guest_id}` : value.id;
+  }
+}) {}
 
-normalize([patronsSchema], data);
+normalize([PatronEntity], data);
 ```
 
 #### Output
@@ -329,13 +340,30 @@ normalize([patronsSchema], data);
 ```js
 {
   entities: {
-    patrons: {
+    Patron: {
       '1': { id: '1', guest_id: null, name: 'Esther' },
       '1-22': { id: '1', guest_id: '22', name: 'Tom' },
     }
   },
   result: ['1', '1-22']
 }
+```
+
+#### Multi-column Primary Key
+
+For composite primary keys:
+
+```js
+class Thread {
+  forum = '';
+  slug = '';
+  content = '';
+}
+class ThreadEntity extends EntityMixin(Thread, {
+  pk(value) {
+    return [value.forum, value.slug].join(',');
+  },
+}) {}
 ```
 
 ### `Object(definition)`
@@ -352,13 +380,17 @@ Define a plain object mapping that has values needing to be normalized into Enti
 #### Usage
 
 ```js
+import { EntityMixin, schema } from '@data-client/endpoint';
+import { normalize } from '@data-client/normalizr';
+
 // Example data response
 const data = { users: [{ id: '123', name: 'Beth' }] };
 
-const user = new schema.Entity('users');
-const responseSchema = new schema.Object({ users: new schema.Array(user) });
+class User { id = ''; name = ''; }
+class UserEntity extends EntityMixin(User) {}
+const responseSchema = new schema.Object({ users: new schema.Array(UserEntity) });
 // or shorthand
-const responseSchema = { users: new schema.Array(user) };
+const responseSchema = { users: [UserEntity] };
 
 const normalizedData = normalize(responseSchema, data);
 ```
@@ -394,14 +426,19 @@ Describe a schema which is a union of multiple schemas. This is useful if you ne
 _Note: If your data returns an object that you did not provide a mapping for, the original object will be returned in the result and an entity will not be created._
 
 ```js
+import { EntityMixin, Union } from '@data-client/endpoint';
+import { normalize } from '@data-client/normalizr';
+
 const data = { owner: { id: 1, type: 'user', name: 'Anne' } };
 
-const user = new schema.Entity('users');
-const group = new schema.Entity('groups');
-const unionSchema = new schema.Union(
+class User { id = 0; type = 'user'; name = ''; }
+class UserEntity extends EntityMixin(User) {}
+class Group { id = 0; type = 'group'; }
+class GroupEntity extends EntityMixin(Group) {}
+const unionSchema = new Union(
   {
-    user: user,
-    group: group
+    user: UserEntity,
+    group: GroupEntity
   },
   'type'
 );
@@ -438,10 +475,14 @@ Describes a map whose values follow the given schema.
 #### Usage
 
 ```js
+import { EntityMixin, Values } from '@data-client/endpoint';
+import { normalize } from '@data-client/normalizr';
+
 const data = { firstThing: { id: 1 }, secondThing: { id: 2 } };
 
-const item = new schema.Entity('items');
-const valuesSchema = new schema.Values(item);
+class Item { id = 0; }
+class ItemEntity extends EntityMixin(Item) {}
+const valuesSchema = new Values(ItemEntity);
 
 const normalizedData = normalize(valuesSchema, data);
 ```
@@ -464,19 +505,22 @@ _Note: If your data returns an object that you did not provide a mapping for, th
 For example:
 
 ```js
-import { schema } from '@data-client/endpoint';
+import { Values, EntityMixin } from '@data-client/endpoint';
+import { normalize } from '@data-client/normalizr';
 
 const data = {
   '1': { id: 1, type: 'admin' },
   '2': { id: 2, type: 'user' }
 };
 
-const userSchema = new schema.Entity('users');
-const adminSchema = new schema.Entity('admins');
-const valuesSchema = new schema.Values(
+class User { id = 0; type = 'user'; }
+class UserEntity extends EntityMixin(User) {}
+class Admin { id = 0; type = 'admin'; }
+class AdminEntity extends EntityMixin(Admin) {}
+const valuesSchema = new Values(
   {
-    admins: adminSchema,
-    users: userSchema
+    admins: AdminEntity,
+    users: UserEntity
   },
   (input, parent, key) => `${input.type}s`
 );

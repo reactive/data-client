@@ -2,7 +2,6 @@ import { Temporal } from '@js-temporal/polyfill';
 import React, { createContext, useContext } from 'react';
 
 import {
-  schema,
   Endpoint,
   resource,
   RestEndpoint,
@@ -15,6 +14,8 @@ import {
   RestInstance,
   Resource,
   ResourceOptions,
+  Union,
+  Invalidate,
 } from '@data-client/rest';
 
 /** Represents data with primary key being from 'id' field. */
@@ -446,7 +447,7 @@ export const FutureArticleResource = {
     CoolerArticleResource.delete as any as RestType<
       string | number,
       undefined,
-      schema.Invalidate<typeof CoolerArticle>,
+      Invalidate<typeof CoolerArticle>,
       true
     >
   ).extend({
@@ -611,7 +612,7 @@ export class SecondUnion extends UnionBase {
   readonly secondeOnlyField: number = 10;
 }
 
-export const UnionSchema = new schema.Union(
+export const UnionSchema = new Union(
   {
     first: FirstUnion,
     second: SecondUnion,
@@ -627,7 +628,7 @@ export const UnionResource = {
   // just to test the other type of union def
   getList: UnionResourceBase.getList.extend({
     schema: [
-      new schema.Union(
+      new Union(
         {
           first: FirstUnion,
           second: SecondUnion,

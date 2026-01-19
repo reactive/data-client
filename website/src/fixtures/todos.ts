@@ -1,4 +1,4 @@
-import { Entity, schema, resource } from '@data-client/rest';
+import { Entity, Collection, resource } from '@data-client/rest';
 import { v4 as uuid } from 'uuid';
 
 export class Todo extends Entity {
@@ -32,7 +32,7 @@ export class User extends Entity {
   static key = 'User';
 
   static schema = {
-    todos: new schema.Collection([Todo], {
+    todos: new Collection([Todo], {
       nestKey: (parent, key) => ({
         userId: parent.id,
       }),

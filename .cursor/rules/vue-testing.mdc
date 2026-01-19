@@ -394,7 +394,7 @@ expect(result.current?.value).toBe(undefined);
 
 **Testing nested collections:**
 ```typescript
-const userTodos = new schema.Collection(new schema.Array(Todo), {
+const userTodos = new Collection(new schema.Array(Todo), {
   argsKey: ({ userId }) => ({ userId }),
 });
 

@@ -1,4 +1,4 @@
-import { Entity, schema } from '@data-client/endpoint';
+import { Entity, schema, Collection } from '@data-client/endpoint';
 import { useController, useSuspense } from '@data-client/react';
 import { User, Article } from '__tests__/new';
 
@@ -437,7 +437,7 @@ it('should handle POST getter endpoints', () => {
         params: any[];
       },
       paginationField: 'page',
-      schema: new schema.Collection([User]),
+      schema: new Collection([User]),
     });
     getUsers({ jsonrpc: '2.0', id: 1, method: 'users.get', params: [] });
     useSuspense(getUsers, {
@@ -510,7 +510,7 @@ it('should handle POST getter endpoints', () => {
             createdAt?: string;
           }
         | undefined,
-      schema: new schema.Collection([Article]),
+      schema: new Collection([Article]),
       paginationField: 'page_number',
     });
     getArticles({ authorId: 1, createdAt: '2025-01-01' });
@@ -555,7 +555,7 @@ it('should handle POST getter endpoints', () => {
             createdAt?: string;
           }
         | undefined,
-      schema: new schema.Collection([Article]),
+      schema: new Collection([Article]),
       paginationField: 'page_number',
     });
     getArticles({ authorId: 1, createdAt: '2025-01-01' });
@@ -728,7 +728,7 @@ it('should handle more open ended type definitions', () => {
       schema: schema.Collection<[typeof User]>;
     }> = new RestEndpoint({
       path: '' as `${string}:${string}`,
-      schema: new schema.Collection([User]),
+      schema: new Collection([User]),
     });
     explicit({ hi: 5 });
     explicit.push.process({} as any, { hi: 5 });

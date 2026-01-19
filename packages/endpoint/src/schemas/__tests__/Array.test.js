@@ -8,7 +8,7 @@ import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
 import { fromJSEntities } from './denormalize';
-import { schema } from '../../';
+import { schema, Union, Invalidate } from '../../';
 
 let dateSpy;
 beforeAll(() => {
@@ -477,7 +477,7 @@ describe('nested polymorphic schemas', () => {
   });
 
   test('Array of Union normalizes with hoisting', () => {
-    const union = new schema.Union({ users: User, groups: Group }, 'type');
+    const union = new Union({ users: User, groups: Group }, 'type');
     const arrayOfUnion = new schema.Array(union);
 
     const input = [
@@ -495,7 +495,7 @@ describe('nested polymorphic schemas', () => {
   });
 
   test('Array of Invalidate normalizes without hoisting (calls invalidate)', () => {
-    const invalidate = new schema.Invalidate(User);
+    const invalidate = new Invalidate(User);
     const arrayOfInvalidate = new schema.Array(invalidate);
 
     const input = [{ id: '1' }, { id: '2' }];

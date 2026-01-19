@@ -7,7 +7,7 @@ import {
 <HooksPlayground fixtures={postFixtures} getInitialInterceptorData={getInitialInterceptorData} row defaultTab={props.defaultTab}>
 
 ```ts title="getPosts" {17-24}
-import { Entity, RestEndpoint } from '@data-client/rest';
+import { Collection, Entity, Query, RestEndpoint } from '@data-client/rest';
 
 export class Post extends Entity {
   id = '';
@@ -19,8 +19,8 @@ export class Post extends Entity {
 export const getPosts = new RestEndpoint({
   path: '/:group/posts',
   searchParams: {} as { orderBy?: string; author?: string },
-  schema: new schema.Query(
-    new schema.Collection([Post], {
+  schema: new Query(
+    new Collection([Post], {
       nonFilterArgumentKeys: /orderBy/,
     }),
     (posts, { orderBy } = {}) => {

@@ -152,12 +152,12 @@ const TodoResource = resource({
 [Collection Class](./Collection.md) used to construct [getList](#getlist) schema.
 
 ```ts
-import { schema, resource } from '@data-client/rest';
+import { resource, Collection } from '@data-client/rest';
 
 class MyCollection<
   S extends any[] | PolymorphicInterface = any,
   Parent extends any[] = [urlParams: any, body?: any],
-> extends schema.Collection<S, Parent> {
+> extends Collection<S, Parent> {
   // getList.push should add to Collections regardless of its 'orderBy' argument
   // in other words: `orderBy` is a non-filtering argument - it does not influence which results are returned
   nonFilterArgumentKeys(key: string) {
@@ -285,7 +285,7 @@ PostResource.getList({
 |      path       | removeLastArg([path](#path))                         |
 |  searchParams   | [searchParams](#searchparams)                        |
 | paginationField | [paginationField](#paginationfield)                  |
-|     schema      | [new schema.Collection(\[schema\])](./Collection.md) |
+|     schema      | [new Collection(\[schema\])](./Collection.md) |
 
 <!-- prettier-ignore-start -->
 ```ts
@@ -556,7 +556,7 @@ PostResource.delete({ group: 'react', id: '1' });
 | :-----: | ------------------------------------------------ |
 | method  | 'DELETE'                                         |
 |  path   | [path](#path)                                    |
-| schema  | [new schema.Invalidate(schema)](./Invalidate.md) |
+| schema  | [new Invalidate(schema)](./Invalidate.md) |
 | process | <DeleteProcess />                                |
 
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
@@ -574,7 +574,7 @@ If no response is provided, the `process` implementation will attempt to use the
 the [Entity.pk](./Entity.md#pk). This enables the default implementation to still work with no response, so long as standard
 arguments are used.
 
-This allows [schema.Invalidate](./Invalidate.md) to remove the entity from the [entity table](/docs/concepts/normalization)
+This allows [Invalidate](./Invalidate.md) to remove the entity from the [entity table](/docs/concepts/normalization)
 
 ### extend() {#extend}
 
@@ -650,6 +650,7 @@ typing overrides.
 import {
   resource,
   RestEndpoint,
+  Collection,
   type EndpointExtraOptions,
   type RestGenerics,
   type ResourceGenerics,
@@ -681,7 +682,7 @@ export function myResource<O extends ResourceGenerics = any>({
   }).extend({
     getList: {
       schema: {
-        results: new schema.Collection([schema]),
+        results: new Collection([schema]),
         total: 0,
         limit: 0,
         skip: 0,

@@ -290,19 +290,19 @@ function ArticleEdit() {
 ### More data modeling
 
 What if our entity is not the top level item? Here we define the `getList`
-endpoint with [new schema.Collection([Todo])](/rest/api/Collection) as its schema. [Schemas](./concepts/normalization.md#schema) tell Reactive Data Client _where_ to find
+endpoint with [new Collection([Todo])](/rest/api/Collection) as its schema. [Schemas](./concepts/normalization.md#schema) tell Reactive Data Client _where_ to find
 the Entities. By placing inside a list, Reactive Data Client knows to expect a response
 where each item of the list is the entity specified.
 
 ```typescript {6}
-import { RestEndpoint, schema } from '@data-client/rest';
+import { RestEndpoint, Collection } from '@data-client/rest';
 
 // get and update definitions omitted
 
 const getList = new RestEndpoint({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos',
-  schema: new schema.Collection([Todo]),
+  schema: new Collection([Todo]),
   searchParams: {} as { userId?: string | number } | undefined,
   paginationField: 'page',
 });

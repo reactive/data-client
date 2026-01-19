@@ -1,4 +1,10 @@
-import { Entity, PolymorphicInterface, schema } from '@data-client/endpoint';
+import {
+  Entity,
+  PolymorphicInterface,
+  schema,
+  Union,
+  Query,
+} from '@data-client/endpoint';
 import type { DefaultArgs } from '@data-client/endpoint';
 import {
   CacheProvider,
@@ -946,10 +952,7 @@ describe('resource()', () => {
       readonly content: string = '';
       readonly type = 'post' as const;
     }
-    const FeedUnion = new schema.Union(
-      { post: FeedPost, link: FeedLink },
-      'type',
-    );
+    const FeedUnion = new Union({ post: FeedPost, link: FeedLink }, 'type');
     const FeedResource = resource({
       path: 'http\\://test.com/feed/:id',
       schema: FeedUnion,
@@ -1303,7 +1306,7 @@ describe('resource()', () => {
       searchParams: {} as { userId?: string | number } | undefined,
     });
 
-    const queryRemainingTodos = new schema.Query(
+    const queryRemainingTodos = new Query(
       TodoResource.getList.schema,
       entries => entries.filter(todo => !todo.completed).length,
     );

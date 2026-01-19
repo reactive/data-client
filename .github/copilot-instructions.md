@@ -27,7 +27,7 @@
 	- Examples: `examples/nextjs/resources/TodoResource.ts`, `examples/github-app/src/resources/Issue.tsx`.
 - Place app-level API definitions and custom Managers in `src/resources/` within examples/apps (e.g., `examples/todo-app/src/resources/`).
 - Managers communicate via actions and the `Controller`; import `actionTypes` from `@data-client/react` for type checks.
-- Programmatic queries use `new schema.Query(...)` with a Resource’s schema; see `README.md` examples.
+- Programmatic queries use `new Query(...)` with a Resource’s schema; see `README.md` examples.
 
 ### Integration details
 - Babel (`babel.config.js`) resolves relative `.js` imports to `.ts` in tests; when `COMPILE_TARGET=native`, it prefers `.native.*` files.

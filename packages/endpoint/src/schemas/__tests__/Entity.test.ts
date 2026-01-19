@@ -6,7 +6,7 @@ import { IDEntity } from '__tests__/new';
 
 import { SimpleMemoCache, fromJSEntities } from './denormalize';
 import { AbstractInstanceType } from '../../';
-import { schema } from '../../';
+import { schema, Values } from '../../';
 import Entity from '../Entity';
 
 let dateSpy: jest.Spied<any>;
@@ -428,7 +428,7 @@ describe(`${Entity.name} normalization`, () => {
           return key;
         }
       }
-      const inputSchema = new schema.Values({ users: User }, () => 'users');
+      const inputSchema = new Values({ users: User }, () => 'users');
 
       expect(
         normalize(inputSchema, {

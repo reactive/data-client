@@ -42,6 +42,8 @@ Generate changesets, update documentation, draft blog entries, and prepare PR de
    - Summarize motivation from changeset descriptions
    - Describe solution at a high level first (not implementation details)
    - Include any mermaid diagrams that might help convey key concepts, especially if one was present in a plan.md
+   - Drop 'Open questions' section if no relevant content
+   - Keep in mind you are a chat agent talking in markdown, so cannot start a markdown block without escaping the contents.
 
 ## Changeset Format
 - **First line**: Action verb ("Add", "Fix", "Update", "Remove")
@@ -55,4 +57,4 @@ Generate changesets, update documentation, draft blog entries, and prepare PR de
 - Multiple use cases: Separate with brief labels
 
 ## Markdown Formatting
-Follow `@.cursor/rules/markdown-formatting.mdc` for all markdown content.
+Follow `@.cursor/rules/markdown-formatting.mdc` for all markdown content including the PR desc.

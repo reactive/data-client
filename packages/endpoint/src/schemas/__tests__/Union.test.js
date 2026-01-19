@@ -7,7 +7,7 @@ import { waterfallSchema } from '__tests__/UnionSchema';
 import { fromJS } from 'immutable';
 
 import { SimpleMemoCache, fromJSEntities } from './denormalize';
-import { schema } from '../../';
+import { schema, Union } from '../../';
 
 let dateSpy;
 beforeAll(() => {
@@ -29,13 +29,13 @@ beforeEach(() => {
 
 describe(`${schema.Union.name} normalization`, () => {
   test('throws if not given a schemaAttribute', () => {
-    expect(() => new schema.Union({})).toThrow();
+    expect(() => new Union({})).toThrow();
   });
 
   test('normalizes an object using string schemaAttribute', () => {
     class User extends IDEntity {}
     class Group extends IDEntity {}
-    const union = new schema.Union(
+    const union = new Union(
       {
         users: User,
         groups: Group,
@@ -50,7 +50,7 @@ describe(`${schema.Union.name} normalization`, () => {
   test('normalizes an array of multiple entities using a function to infer the schemaAttribute', () => {
     class User extends IDEntity {}
     class Group extends IDEntity {}
-    const union = new schema.Union(
+    const union = new Union(
       {
         users: User,
         groups: Group,
@@ -82,7 +82,7 @@ describe(`${schema.Union.name} buildQueryKey`, () => {
   }
 
   // Common schema definitions
-  const stringAttributeUnion = new schema.Union(
+  const stringAttributeUnion = new Union(
     {
       users: User,
       groups: Group,
@@ -90,7 +90,7 @@ describe(`${schema.Union.name} buildQueryKey`, () => {
     'type',
   );
 
-  const functionAttributeUnion = new schema.Union(
+  const functionAttributeUnion = new Union(
     {
       users: User,
       groups: Group,
@@ -438,7 +438,7 @@ describe.each([
     `${schema.Union.name} denormalization (%s)`,
     (_, denormalize) => {
       test('denormalizes an object using string schemaAttribute', () => {
-        const union = new schema.Union(
+        const union = new Union(
           {
             users: User,
             groups: Group,
@@ -464,7 +464,7 @@ describe.each([
       });
 
       test('denormalizes an array of multiple entities using a function to infer the schemaAttribute', () => {
-        const union = new schema.Union(
+        const union = new Union(
           {
             users: User,
             groups: Group,
@@ -492,7 +492,7 @@ describe.each([
       });
 
       test('returns the original value when no schema is given', () => {
-        const union = new schema.Union(
+        const union = new Union(
           {
             users: User,
             groups: Group,
@@ -517,7 +517,7 @@ describe.each([
       });
 
       test('returns the original value when string is given', () => {
-        const union = new schema.Union(
+        const union = new Union(
           {
             users: User,
             groups: Group,
@@ -538,7 +538,7 @@ describe.each([
       });
 
       test('returns the original value when null is given', () => {
-        const union = new schema.Union(
+        const union = new Union(
           {
             users: User,
             groups: Group,
@@ -556,7 +556,7 @@ describe.each([
       });
 
       test('returns the original value when undefined is given', () => {
-        const union = new schema.Union(
+        const union = new Union(
           {
             users: User,
             groups: Group,

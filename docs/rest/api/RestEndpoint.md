@@ -181,7 +181,7 @@ import { Comment } from './Comment';
 
 const getComments = new RestEndpoint({
   path: '/posts/:postId/comments',
-  schema: new schema.Collection([Comment]),
+  schema: new Collection([Comment]),
   searchParams: {} as { sortBy?: 'votes' | 'recent' } | undefined,
 });
 
@@ -863,7 +863,7 @@ RestEndpoint with its parents properties, but with [method](#method): 'PATCH' an
 ```tsx
 const getTodos = new RestEndpoint({
   path: '/todos',
-  schema: new schema.Collection([Todo]),
+  schema: new Collection([Todo]),
 });
 
 // Update Todo and remove from collection

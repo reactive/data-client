@@ -1,7 +1,7 @@
 import { normalize } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 
-import { schema } from '../src';
+import { Union } from '../src';
 
 const data = { owner: { id: 1, type: 'user' } };
 
@@ -12,7 +12,7 @@ class Group extends IDEntity {
   readonly type = 'group' as const;
 }
 
-const unionSchema = new schema.Union(
+const unionSchema = new Union(
   {
     user: User,
     group: Group,
@@ -20,7 +20,7 @@ const unionSchema = new schema.Union(
   'type',
 );
 
-const errorUnionSchema = new schema.Union(
+const errorUnionSchema = new Union(
   {
     user: User,
     group: Group,

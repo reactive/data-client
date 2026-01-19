@@ -3,7 +3,7 @@ title: Partial Entities
 ---
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
-import {RestEndpoint} from '@data-client/rest';
+import { Collection, RestEndpoint } from '@data-client/rest';
 import Grid from '@site/src/components/Grid';
 
 Sometimes you have a [list endpoint](../api/resource.md#getlist) whose entities only include
@@ -67,8 +67,7 @@ delay: 150,
 ]} row>
 
 ```typescript title="resources/Article" {12,24}
-import { validateRequired } from '@data-client/rest';
-import { Entity, resource, schema } from '@data-client/rest';
+import { validateRequired, Collection, Entity, resource } from '@data-client/rest';
 
 export class ArticleSummary extends Entity {
   id = '';
@@ -96,7 +95,7 @@ export const ArticleResource = resource({
   schema: Article,
 }).extend({
   getList: {
-    schema: new schema.Collection([ArticleSummary]),
+    schema: new Collection([ArticleSummary]),
   },
 });
 ```
@@ -204,6 +203,6 @@ const ArticleResource = resource({
   path: '/article/:id',
   schema: Article,
 }).extend({
-  getList: { schema: new schema.Collection([ArticleSummary]) },
+  getList: { schema: new Collection([ArticleSummary]) },
 });
 ```

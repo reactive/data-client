@@ -26,7 +26,7 @@ export class User extends Entity {
 ```
 
 ```ts title="Post" {22,24} collapsed
-import { Entity, resource } from '@data-client/rest';
+import { Entity, resource, Collection } from '@data-client/rest';
 import { User } from './User';
 
 export class Post extends Entity {
@@ -49,7 +49,7 @@ export const PostResource = resource({
   schema: Post,
   paginationField: 'cursor',
 }).extend('getList', {
-  schema: { posts: new schema.Collection([Post]), cursor: '' },
+  schema: { posts: new Collection([Post]), cursor: '' },
 });
 ```
 

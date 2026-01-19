@@ -1,4 +1,8 @@
-import { GQLEndpoint, GQLEntity, schema } from '@data-client/graphql';
+import {
+  GQLEndpoint,
+  GQLEntity,
+  Collection,
+} from '@data-client/graphql';
 
 const gql = new GQLEndpoint('/');
 
@@ -42,7 +46,7 @@ export const PostResource = {
     }
   }
 `,
-    { posts: new schema.Collection([Post]) },
+    { posts: new Collection([Post]) },
   ),
 };
 

@@ -88,11 +88,11 @@ interface Props {
 ```
 
 ```tsx title="TotalVotes" collapsed {11}
-import { schema } from '@data-client/rest';
+import { Query } from '@data-client/rest';
 import { useQuery } from '@data-client/react';
 import { PostResource } from './PostResource';
 
-const queryTotalVotes = new schema.Query(
+const queryTotalVotes = new Query(
   PostResource.getList.schema,
   posts => posts.reduce((total, post) => total + post.votes, 0),
 );

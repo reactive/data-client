@@ -1,4 +1,4 @@
-import { Entity, schema } from '@data-client/endpoint';
+import { Entity, Collection, All, Query, Union } from '@data-client/endpoint';
 
 import { initialState } from '../../state/reducer/createReducer';
 import { State } from '../../types';
@@ -8,7 +8,7 @@ class Tacos extends Entity {
   type = '';
   id = '';
 }
-const TacoList = new schema.Collection([Tacos]);
+const TacoList = new Collection([Tacos]);
 const entities = {
   Tacos: {
     1: { id: '1', type: 'foo' },
@@ -188,7 +188,7 @@ describe('Controller.get()', () => {
       ...initialState,
       entities,
     };
-    const AllTacos = new schema.All(Tacos);
+    const AllTacos = new All(Tacos);
 
     it('should get all entities', () => {
       const allTacos = controller.get(AllTacos, state);
@@ -229,8 +229,8 @@ describe('Controller.get()', () => {
       ...initialState,
       entities,
     };
-    const queryTacos = new schema.Query(
-      new schema.All(Tacos),
+    const queryTacos = new Query(
+      new All(Tacos),
       (tacos, { type }: { type?: string } = {}) => {
         if (!type) return tacos;
         return tacos.filter(taco => taco.type === type);
@@ -281,7 +281,7 @@ describe('Controller.get()', () => {
       ...initialState,
       entities,
     };
-    const tacoCount = new schema.Query(TacoList, tacos => {
+    const tacoCount = new Query(TacoList, tacos => {
       return tacos.length ?? 0;
     });
 
@@ -303,7 +303,7 @@ describe('Controller.get()', () => {
       groupname: string = '';
       memberCount = 0;
     }
-    const queryPerson = new schema.Union(
+    const queryPerson = new Union(
       {
         users: User,
         groups: Group,
@@ -363,7 +363,7 @@ describe('Controller.get()', () => {
       groupname: string = '';
       memberCount = 0;
     }
-    const queryPerson = new schema.Union(
+    const queryPerson = new Union(
       {
         users: User,
         groups: Group,

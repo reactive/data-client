@@ -1,6 +1,6 @@
 ---
-title: schema.All - Access every entity in the Reactive Data Client store
-sidebar_label: schema.All
+title: All Schema - Access every entity in the Reactive Data Client store
+sidebar_label: All
 ---
 
 import Tabs from '@theme/Tabs';
@@ -9,7 +9,7 @@ import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import { RestEndpoint } from '@data-client/rest';
 
-# schema.All
+# All
 
 Retrieves all entities in cache as an Array.
 
@@ -78,13 +78,13 @@ export default function NewUser() {
 ```
 
 ```tsx title="UsersPage.tsx"
-import { schema, RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, All } from '@data-client/rest';
 import { User } from './api/User';
 import NewUser from './NewUser';
 
 const getUsers = new RestEndpoint({
   path: '/users',
-  schema: new schema.All(User),
+  schema: new All(User),
 });
 
 function UsersPage() {
@@ -143,7 +143,7 @@ export class Post extends FeedItem {
 }
 export const getFeed = new RestEndpoint({
   path: '/feed',
-  schema: new schema.All(
+  schema: new All(
     {
       link: Link,
       post: Post,
@@ -214,7 +214,7 @@ export class Post extends FeedItem {
 }
 export const getFeed = new RestEndpoint({
   path: '/feed',
-  schema: new schema.All(
+  schema: new All(
     {
       links: Link,
       posts: Post,

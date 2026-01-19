@@ -1,4 +1,4 @@
-import { schema } from '@data-client/endpoint';
+import { schema, All, Collection } from '@data-client/endpoint';
 import { resource } from '@data-client/rest';
 import { reactive, computed } from 'vue';
 
@@ -59,7 +59,7 @@ describe('vue useQuery()', () => {
 
   it('All should be undefined with empty state', async () => {
     const { result } = await renderDataCompose(() => {
-      return useQuery(new schema.All(ArticleWithSlug));
+      return useQuery(new All(ArticleWithSlug));
     }, {});
     // @ts-expect-error
     result.value?.doesnotexist;
@@ -195,7 +195,7 @@ describe('vue useQuery()', () => {
 
       static key = 'User';
       static schema = {
-        todos: new schema.Collection(new schema.Array(Todo), {
+        todos: new Collection(new schema.Array(Todo), {
           nestKey: parent => ({
             userId: parent.id,
           }),
@@ -203,7 +203,7 @@ describe('vue useQuery()', () => {
       };
     }
 
-    const userTodos = new schema.Collection(new schema.Array(Todo), {
+    const userTodos = new Collection(new schema.Array(Todo), {
       argsKey: ({ userId }: { userId: string }) => ({
         userId,
       }),
@@ -495,7 +495,7 @@ describe('vue useQuery()', () => {
 
         static key = 'User';
         static schema = {
-          todos: new schema.Collection(new schema.Array(Todo), {
+          todos: new Collection(new schema.Array(Todo), {
             nestKey: parent => ({
               userId: parent.id,
             }),
@@ -503,7 +503,7 @@ describe('vue useQuery()', () => {
         };
       }
 
-      const userTodos = new schema.Collection(new schema.Array(Todo), {
+      const userTodos = new Collection(new schema.Array(Todo), {
         argsKey: ({ userId }: { userId: string }) => ({
           userId,
         }),
@@ -588,7 +588,7 @@ describe('vue useQuery()', () => {
 
         static key = 'User';
         static schema = {
-          todos: new schema.Collection(new schema.Array(Todo), {
+          todos: new Collection(new schema.Array(Todo), {
             nestKey: parent => ({
               userId: parent.id,
             }),
@@ -596,7 +596,7 @@ describe('vue useQuery()', () => {
         };
       }
 
-      const userTodos = new schema.Collection(new schema.Array(Todo), {
+      const userTodos = new Collection(new schema.Array(Todo), {
         argsKey: ({ userId }: { userId: string }) => ({
           userId,
         }),
