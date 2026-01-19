@@ -18,7 +18,9 @@ export default async function TodoLayout(props: {
         content="NextJS integration with Reactive Data Client"
       />
 
-      <UserSelection userId={Number(params.userId)} />
+      <AsyncBoundary>
+        <UserSelection userId={Number(params.userId)} />
+      </AsyncBoundary>
 
       <AsyncBoundary>{children}</AsyncBoundary>
 
