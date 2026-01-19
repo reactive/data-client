@@ -1,13 +1,13 @@
 ---
-title: schema.Invalidate - Invalidating Entities
-sidebar_label: schema.Invalidate
+title: Invalidate Schema - Invalidating Entities
+sidebar_label: Invalidate
 ---
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import { RestEndpoint } from '@data-client/rest';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 
-# schema.Invalidate
+# Invalidate
 
 Describes entities to be marked as [INVALID](/docs/concepts/expiry-policy#invalid). This removes items from a
 collection, or [forces suspense](/docs/concepts/expiry-policy#invalidate-entity) for endpoints where the entity is required. 
@@ -15,9 +15,9 @@ collection, or [forces suspense](/docs/concepts/expiry-policy#invalidate-entity)
 ## Constructor
 
 ```typescript
-new schema.Invalidate(entity)
-new schema.Invalidate(union)
-new schema.Invalidate(entityMap, schemaAttribute)
+new Invalidate(entity)
+new Invalidate(union)
+new Invalidate(entityMap, schemaAttribute)
 ```
 
 - `entity`: A singular [Entity](./Entity.md) to invalidate.
@@ -52,7 +52,7 @@ delay: 150,
 ]}>
 
 ```typescript title="api/User"
-import { Entity, RestEndpoint } from '@data-client/rest';
+import { Entity, RestEndpoint, Collection, Invalidate } from '@data-client/rest';
 
 class User extends Entity {
   id = '';
@@ -60,12 +60,12 @@ class User extends Entity {
 }
 export const getUsers = new RestEndpoint({
   path: '/users',
-  schema: new schema.Collection([User]),
+  schema: new Collection([User]),
 });
 export const deleteUser = new RestEndpoint({
   path: '/users/:id',
   method: 'DELETE',
-  schema: new schema.Invalidate(User),
+  schema: new Invalidate(User),
 });
 ```
 
@@ -99,7 +99,7 @@ render(<UsersPage />);
 ### Batch Invalidation
 
 Here we add another endpoint for deleting many entities at a time by wrapping
-`schema.Invalidate` in an array. `Data Client` can then `invalidate` every
+`Invalidate` in an array. `Data Client` can then `invalidate` every
 entity from the response.
 
 <EndpointPlayground
@@ -131,7 +131,7 @@ export const PostResource = resource({
   path: '/posts',
   body: [] as string[],
   method: 'DELETE',
-  schema: [new schema.Invalidate(Post)],
+  schema: [new Invalidate(Post)],
 });
 ```
 
@@ -175,7 +175,7 @@ export const PostResource = resource({
   path: '/posts',
   body: [] as string[],
   method: 'DELETE',
-  schema: [new schema.Invalidate(Post)],
+  schema: [new Invalidate(Post)],
   process(value, body) {
     // use the body payload to inform which entities to delete
     return body.map(id => ({ id }));
@@ -210,7 +210,7 @@ class Group extends Entity {
   readonly type = 'groups';
 }
 
-const MemberUnion = new schema.Union(
+const MemberUnion = new Union(
   { users: User, groups: Group },
   'type'
 );
@@ -218,7 +218,7 @@ const MemberUnion = new schema.Union(
 const deleteMember = new RestEndpoint({
   path: '/members/:id',
   method: 'DELETE',
-  schema: new schema.Invalidate(MemberUnion),
+  schema: new Invalidate(MemberUnion),
 });
 ```
 
@@ -230,7 +230,7 @@ Alternatively, define the polymorphic mapping inline with a string attribute:
 const deleteMember = new RestEndpoint({
   path: '/members/:id',
   method: 'DELETE',
-  schema: new schema.Invalidate(
+  schema: new Invalidate(
     { users: User, groups: Group },
     'type'
   ),
@@ -245,7 +245,7 @@ The return values should match a key in the entity map. This is useful for more 
 const deleteMember = new RestEndpoint({
   path: '/members/:id',
   method: 'DELETE',
-  schema: new schema.Invalidate(
+  schema: new Invalidate(
     { users: User, groups: Group },
     (input, parent, key) => input.memberType === 'user' ? 'users' : 'groups'
   ),

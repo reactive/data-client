@@ -1,5 +1,5 @@
 // eslint-env jest
-import { Entity, schema } from '@data-client/endpoint';
+import { Entity, schema, Values } from '@data-client/endpoint';
 import { fromJS } from 'immutable';
 
 import { normalize } from '../';
@@ -744,7 +744,7 @@ describe.each([
   test('denormalizes where id is only in key', () => {
     expect(
       denormalize(
-        new schema.Values(Tacos),
+        new Values(Tacos),
         {
           1: { type: 'foo' },
           2: { type: 'bar' },

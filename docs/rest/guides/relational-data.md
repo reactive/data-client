@@ -4,7 +4,7 @@ sidebar_label: Relational data
 ---
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
-import { RestEndpoint } from '@data-client/rest';
+import { Collection, RestEndpoint } from '@data-client/rest';
 import StackBlitz from '@site/src/components/StackBlitz';
 
 # Relational data
@@ -95,7 +95,7 @@ delay: 150,
 ]}>
 
 ```typescript title="resources/Post"
-import { Entity } from '@data-client/rest';
+import { Collection, Entity } from '@data-client/rest';
 
 export class User extends Entity {
   id = '';
@@ -120,7 +120,7 @@ export class Post extends Entity {
 
   static schema = {
     author: User,
-    comments: new schema.Collection([Comment], {
+    comments: new Collection([Comment], {
       nestKey: (parent, key) => ({
         postId: parent.id,
       }),
@@ -326,7 +326,7 @@ delay: 150,
 ]}>
 
 ```typescript title="resources/Post"
-import { Entity } from '@data-client/rest';
+import { Collection, Entity } from '@data-client/rest';
 
 export class User extends Entity {
   id = '';
@@ -507,7 +507,7 @@ Because circular imports and circular class definitions are not allowed, sometim
 will be necessary to define the [schema][3] after the [Entities][1] definition.
 
 ```typescript title="resources/Post"
-import { Entity } from '@data-client/rest';
+import { Collection, Entity } from '@data-client/rest';
 import { User } from './User';
 
 export class Post extends Entity {
@@ -531,7 +531,7 @@ User.schema = {
 ```
 
 ```typescript title="resources/User"
-import { Entity } from '@data-client/rest';
+import { Collection, Entity } from '@data-client/rest';
 import type { Post } from './Post';
 // we can only import the type else we break javascript imports
 // thus we change the schema of UserResource above

@@ -8,7 +8,7 @@ import { MemoPolicy as ImmPolicy } from '@data-client/normalizr/imm';
 import { IDEntity } from '__tests__/new';
 
 import { SimpleMemoCache, fromJSEntities } from './denormalize';
-import { schema } from '../../';
+import { schema, Values, Union, Invalidate } from '../../';
 import Entity from '../Entity';
 
 let dateSpy;
@@ -42,7 +42,7 @@ describe(`${schema.Values.name} normalization`, () => {
     class MyEntity extends IDEntity {
       name = '';
     }
-    const valuesSchema = new schema.Values(MyEntity);
+    const valuesSchema = new Values(MyEntity);
 
     expect(
       normalize(valuesSchema, {
@@ -59,7 +59,7 @@ describe(`${schema.Values.name} normalization`, () => {
   });
 
   test('normalizes the values of an object with the given schema', () => {
-    const valuesSchema = new schema.Values(
+    const valuesSchema = new Values(
       {
         dogs: Dog,
         cats: Cat,
@@ -76,7 +76,7 @@ describe(`${schema.Values.name} normalization`, () => {
   });
 
   test('can use a function to determine the schema when normalizing', () => {
-    const valuesSchema = new schema.Values(
+    const valuesSchema = new Values(
       {
         dogs: Dog,
         cats: Cat,
@@ -95,7 +95,7 @@ describe(`${schema.Values.name} normalization`, () => {
   });
 
   test('filters out null and undefined values', () => {
-    const valuesSchema = new schema.Values(
+    const valuesSchema = new Values(
       {
         dogs: Dog,
         cats: Cat,
@@ -193,7 +193,7 @@ describe(`${schema.Values.name} normalization`, () => {
       },
     };
     expect(
-      normalize({ data: { estimates: new schema.Values(Estimate) } }, response),
+      normalize({ data: { estimates: new Values(Estimate) } }, response),
     ).toMatchSnapshot();
   });
 });
@@ -209,7 +209,7 @@ describe.each([
         class MyEntity extends IDEntity {
           name = '';
         }
-        const valuesSchema = new schema.Values(MyEntity);
+        const valuesSchema = new Values(MyEntity);
 
         const entities = {
           MyEntity: {
@@ -237,7 +237,7 @@ describe.each([
       });
 
       test('denormalizes the values of an object with the given schema', () => {
-        const valuesSchema = new schema.Values(
+        const valuesSchema = new Values(
           {
             dogs: Dog,
             cats: Cat,
@@ -263,7 +263,7 @@ describe.each([
       });
 
       test('denormalizes with missing entity should have false second value', () => {
-        const valuesSchema = new schema.Values(
+        const valuesSchema = new Values(
           {
             dogs: Dog,
             cats: Cat,
@@ -290,7 +290,7 @@ describe.each([
       });
 
       test('denormalizes with deleted entity should just remove them', () => {
-        const valuesSchema = new schema.Values(
+        const valuesSchema = new Values(
           {
             dogs: Dog,
             cats: Cat,
@@ -397,7 +397,7 @@ describe.each([
           },
         };
         const shape = new schema.Object({
-          data: new schema.Object({ estimates: new schema.Values(Estimate) }),
+          data: new schema.Object({ estimates: new Values(Estimate) }),
         });
         const { result, entities } = normalize(shape, response);
         expect(
@@ -418,7 +418,7 @@ describe('nested polymorphic schemas', () => {
 
   test('Values of Array normalizes without hoisting', () => {
     const innerArray = new schema.Array(User);
-    const outerValues = new schema.Values(innerArray);
+    const outerValues = new Values(innerArray);
 
     const input = {
       team1: [{ id: '1' }, { id: '2' }],
@@ -438,8 +438,8 @@ describe('nested polymorphic schemas', () => {
   });
 
   test('Values of Union normalizes with hoisting', () => {
-    const union = new schema.Union({ users: User, groups: Group }, 'type');
-    const valuesOfUnion = new schema.Values(union);
+    const union = new Union({ users: User, groups: Group }, 'type');
+    const valuesOfUnion = new Values(union);
 
     const input = {
       first: { id: '1', type: 'users' },
@@ -456,8 +456,8 @@ describe('nested polymorphic schemas', () => {
   });
 
   test('Values of Invalidate normalizes without hoisting (calls invalidate)', () => {
-    const invalidate = new schema.Invalidate(User);
-    const valuesOfInvalidate = new schema.Values(invalidate);
+    const invalidate = new Invalidate(User);
+    const valuesOfInvalidate = new Values(invalidate);
 
     const input = {
       first: { id: '1' },

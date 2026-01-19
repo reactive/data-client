@@ -6,7 +6,7 @@ import { Record } from 'immutable';
 
 import { SimpleMemoCache } from './denormalize';
 import { PolymorphicInterface } from '../..';
-import { schema } from '../..';
+import { schema, Collection, Union } from '../..';
 import PolymorphicSchema from '../Polymorphic';
 
 let dateSpy: jest.Spied<any>;
@@ -35,7 +35,7 @@ class User extends IDEntity {
 
   static key = 'User';
   static schema = {
-    todos: new schema.Collection(new schema.Array(Todo), {
+    todos: new Collection(new schema.Array(Todo), {
       nestKey: (parent, key) => ({
         userId: parent.id,
       }),
@@ -43,7 +43,7 @@ class User extends IDEntity {
   };
 }
 
-const userTodos = new schema.Collection(new schema.Array(Todo), {
+const userTodos = new Collection(new schema.Array(Todo), {
   argsKey: ({ userId }: { userId: string }) => ({
     userId,
   }),
@@ -86,7 +86,7 @@ test('key works with custom schema', () => {
     _denormalizeNullable(): any {}
   }
 
-  const collection = new schema.Collection(new CustomArray(Todo));
+  const collection = new Collection(new CustomArray(Todo));
   expect(collection.key).toBe('(Todo)');
 });
 
@@ -153,7 +153,7 @@ describe(`${schema.Collection.name} normalization`, () => {
 
   test('normalizes top level collections (no args)', () => {
     const state = normalize(
-      new schema.Collection(new schema.Array(Todo)),
+      new Collection(new schema.Array(Todo)),
       [{ id: '5', title: 'finish collections' }],
       [{ userId: '1' }],
     );
@@ -179,7 +179,7 @@ describe(`${schema.Collection.name} normalization`, () => {
     class Group extends IDEntity {
       type = 'groups';
     }
-    const collection = new schema.Collection(
+    const collection = new Collection(
       new schema.Array(
         {
           users: User,
@@ -188,8 +188,8 @@ describe(`${schema.Collection.name} normalization`, () => {
         'type',
       ),
     );
-    const collectionUnion = new schema.Collection([
-      new schema.Union(
+    const collectionUnion = new Collection([
+      new Union(
         {
           users: User,
           groups: Group,
@@ -724,7 +724,7 @@ describe(`${schema.Collection.name} normalization`, () => {
   });
 
   describe('push should add only to collections matching filterArgumentKeys', () => {
-    const initializingSchema = new schema.Collection([Todo]);
+    const initializingSchema = new Collection([Todo]);
     let state = {
       ...initialState,
       ...normalize(
@@ -802,7 +802,7 @@ describe(`${schema.Collection.name} normalization`, () => {
     }
 
     it('should work with function form', () => {
-      const sch = new schema.Collection([Todo], {
+      const sch = new Collection([Todo], {
         nonFilterArgumentKeys(key) {
           return key.startsWith('ignored');
         },
@@ -810,19 +810,19 @@ describe(`${schema.Collection.name} normalization`, () => {
       validate(sch);
     });
     it('should work with RegExp form', () => {
-      const sch = new schema.Collection([Todo], {
+      const sch = new Collection([Todo], {
         nonFilterArgumentKeys: /ignored/,
       });
       validate(sch);
     });
     it('should work with RegExp form', () => {
-      const sch = new schema.Collection([Todo], {
+      const sch = new Collection([Todo], {
         nonFilterArgumentKeys: ['ignoredMe'],
       });
       validate(sch);
     });
     it('should work with full createCollectionFilter form', () => {
-      const sch = new schema.Collection([Todo], {
+      const sch = new Collection([Todo], {
         createCollectionFilter:
           (...args) =>
           collectionKey =>
@@ -876,7 +876,7 @@ describe(`${schema.Collection.name} normalization`, () => {
   });
 
   describe('remove should remove only from collections matching filterArgumentKeys', () => {
-    const initializingSchema = new schema.Collection([Todo]);
+    const initializingSchema = new Collection([Todo]);
     let state = {
       ...initialState,
       ...normalize(
@@ -943,7 +943,7 @@ describe(`${schema.Collection.name} normalization`, () => {
     }
 
     it('should work with function form', () => {
-      const sch = new schema.Collection([Todo], {
+      const sch = new Collection([Todo], {
         nonFilterArgumentKeys(key) {
           return key.startsWith('ignored');
         },
@@ -951,13 +951,13 @@ describe(`${schema.Collection.name} normalization`, () => {
       validateRemove(sch);
     });
     it('should work with RegExp form', () => {
-      const sch = new schema.Collection([Todo], {
+      const sch = new Collection([Todo], {
         nonFilterArgumentKeys: /ignored/,
       });
       validateRemove(sch);
     });
     it('should work with array form', () => {
-      const sch = new schema.Collection([Todo], {
+      const sch = new Collection([Todo], {
         nonFilterArgumentKeys: ['ignoredMe'],
       });
       validateRemove(sch);

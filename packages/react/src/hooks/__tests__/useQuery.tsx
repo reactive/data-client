@@ -1,4 +1,4 @@
-import { schema } from '@data-client/endpoint';
+import { schema, All, Collection } from '@data-client/endpoint';
 import { CacheProvider } from '@data-client/react';
 import { resource } from '@data-client/rest';
 import {
@@ -34,7 +34,7 @@ describe('useQuery()', () => {
 
   it('All should be undefined with empty state', () => {
     const { result } = renderDataClient(() => {
-      return useQuery(new schema.All(ArticleWithSlug));
+      return useQuery(new All(ArticleWithSlug));
     }, {});
     // @ts-expect-error
     result.current?.doesnotexist;
@@ -171,7 +171,7 @@ describe('useQuery()', () => {
 
       static key = 'User';
       static schema = {
-        todos: new schema.Collection(new schema.Array(Todo), {
+        todos: new Collection(new schema.Array(Todo), {
           nestKey: (parent, key) => ({
             userId: parent.id,
           }),
@@ -179,7 +179,7 @@ describe('useQuery()', () => {
       };
     }
 
-    const userTodos = new schema.Collection(new schema.Array(Todo), {
+    const userTodos = new Collection(new schema.Array(Todo), {
       argsKey: ({ userId }: { userId: string }) => ({
         userId,
       }),

@@ -1,6 +1,6 @@
 ---
-titlke: schema.Union - Declarative polymorphic data for React
-sidebar_label: schema.Union
+titlke: Union Schema - Declarative polymorphic data for React
+sidebar_label: Union
 ---
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
@@ -8,9 +8,9 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 import { RestEndpoint } from '@data-client/rest';
 import StackBlitz from '@site/src/components/StackBlitz';
 
-# schema.Union
+# Union
 
-Describe a schema which is a union of multiple schemas. This is useful if you need the polymorphic behavior provided by [schema.Array](./Array.md) or [schema.Values](./Values.md) but for non-collection fields.
+Describe a schema which is a union of multiple schemas. This is useful if you need the polymorphic behavior provided by [schema.Array](./Array.md) or [Values](./Values.md) but for non-collection fields.
 
 - `definition`: **required** An object mapping the definition of the nested entities found within the input array
 - `schemaAttribute`: **required** The attribute on each entity found that defines what schema, per the definition mapping, to use when normalizing.
@@ -67,7 +67,7 @@ class Post extends FeedItem {
 const feed = new RestEndpoint({
   path: '/feed',
   schema: [
-    new schema.Union(
+    new Union(
       {
         link: Link,
         post: Post,
@@ -107,6 +107,6 @@ render(<FeedList />);
 ### Github Events
 
 Contribution activity comes from grouping github events by their type. Each type of Event has its
-own distinct schema, which is why we use `schema.Union`
+own distinct schema, which is why we use `Union`
 
 <StackBlitz app="github-app" file="src/pages/ProfileDetail/UserEvents.tsx,src/resources/Event.tsx" view="preview" initialpath="/users/ntucker" height="700" />

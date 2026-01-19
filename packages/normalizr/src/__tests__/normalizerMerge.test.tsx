@@ -1,4 +1,4 @@
-import { schema } from '@data-client/endpoint';
+import { Invalidate } from '@data-client/endpoint';
 import { Article } from '__tests__/new';
 
 import { denormalize } from '../denormalize/denormalize';
@@ -120,7 +120,7 @@ describe('normalizer() merging', () => {
     it('should still clone even when overwriting', () => {
       const id = 20;
       const { entities: first, entitiesMeta: firstMeta } = normalize(
-        new schema.Invalidate(Article),
+        new Invalidate(Article),
         {
           id,
         },

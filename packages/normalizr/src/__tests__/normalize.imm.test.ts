@@ -1,5 +1,5 @@
 // eslint-env jest
-import { Entity, schema } from '@data-client/endpoint';
+import { Entity, schema, Invalidate, Values } from '@data-client/endpoint';
 import { fromJS } from 'immutable';
 
 import { INVALID } from '..';
@@ -335,7 +335,7 @@ describe('normalizeImm - ImmutableJS normalization', () => {
 
   describe('invalidation', () => {
     test('invalidates entity correctly', () => {
-      const InvalidateUser = new schema.Invalidate(User);
+      const InvalidateUser = new Invalidate(User);
 
       const initialState = createImmutableState({
         entities: {
@@ -442,7 +442,7 @@ describe('normalizeImm - ImmutableJS normalization', () => {
 
   describe('schema.Values', () => {
     test('normalizes values schema', () => {
-      const ValuesSchema = new schema.Values(User);
+      const ValuesSchema = new Values(User);
 
       const result = normalizeImm(ValuesSchema, {
         first: { id: '1', name: 'First' },

@@ -577,6 +577,8 @@ delay: () => 150,
 >
 
 ```ts title="api/lastUpdated" collapsed
+import { Entity, RestEndpoint } from '@data-client/rest';
+
 export class TimedEntity extends Entity {
   id = '';
   updatedAt = Temporal.Instant.fromEpochMilliseconds(0);
@@ -611,11 +613,12 @@ export default function TimePage({ id }) {
 ```
 
 ```tsx title="ShowTime"
+import { Invalidate } from '@data-client/rest';
 import { useLoading } from '@data-client/react';
 import { TimedEntity } from './api/lastUpdated';
 import TimePage from './TimePage';
 
-const InvalidateTimedEntity = new schema.Invalidate(TimedEntity);
+const InvalidateTimedEntity = new Invalidate(TimedEntity);
 export const deleteLastUpdated = new RestEndpoint({
   path: '/api/currentTime/:id',
   method: 'DELETE',

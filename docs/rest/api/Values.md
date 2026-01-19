@@ -1,13 +1,13 @@
 ---
-title: schema.Values - Declarative map data for React
-sidebar_label: schema.Values
+title: Values Schema - Declarative map data for React
+sidebar_label: Values
 ---
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
-import { RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, Values } from '@data-client/rest';
 
-# schema.Values
+# Values
 
 Like [Array](./Array), `Values` are unbounded in size. The definition here describes the types of values to expect,
 with keys being any string.
@@ -55,7 +55,7 @@ export class Item extends Entity {
 }
 export const getItems = new RestEndpoint({
   path: '/items',
-  schema: new schema.Values(Item),
+  schema: new Values(Item),
 });
 function ItemPage() {
   const items = useSuspense(getItems);
@@ -68,7 +68,7 @@ render(<ItemPage />);
 
 ### Polymorphic types
 
-If your input data is an object that has values of more than one type of entity, but their schema is not easily defined by the key, you can use a mapping of schema, much like [schema.Union](./Union.md) and [schema.Array](./Array.md).
+If your input data is an object that has values of more than one type of entity, but their schema is not easily defined by the key, you can use a mapping of schema, much like [Union](./Union.md) and [schema.Array](./Array.md).
 
 :::note
 
@@ -106,7 +106,7 @@ export class Post extends FeedItem {
 }
 export const getFeed = new RestEndpoint({
   path: '/feed',
-  schema: new schema.Values(
+  schema: new Values(
     {
       link: Link,
       post: Post,
@@ -180,7 +180,7 @@ export class Post extends FeedItem {
 }
 export const getFeed = new RestEndpoint({
   path: '/feed',
-  schema: new schema.Values(
+  schema: new Values(
     {
       links: Link,
       posts: Post,

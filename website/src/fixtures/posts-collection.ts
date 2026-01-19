@@ -1,4 +1,4 @@
-import { Entity, RestEndpoint, schema } from '@data-client/rest';
+import { Entity, RestEndpoint, Collection } from '@data-client/rest';
 import { v4 as uuid } from 'uuid';
 
 class Post extends Entity {
@@ -10,7 +10,7 @@ class Post extends Entity {
 export const getPosts = new RestEndpoint({
   path: '/:group/posts',
   searchParams: {} as { orderBy?: string; author?: string },
-  schema: new schema.Collection([Post], {
+  schema: new Collection([Post], {
     nonFilterArgumentKeys: /orderBy/,
   }),
 });

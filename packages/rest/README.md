@@ -126,7 +126,7 @@ const deleteTodo = data => ctrl.fetch(TodoResource.delete, { id });
 ### [Programmatic queries](https://dataclient.io/rest/api/Query)
 
 ```tsx
-const queryRemainingTodos = new schema.Query(
+const queryRemainingTodos = new Query(
   TodoResource.getList.schema,
   entries => entries.filter(todo => !todo.completed).length,
 );
@@ -136,7 +136,7 @@ const firstUserRemainingTodos = useQuery(queryRemainingTodos, { userId: 1 });
 ```
 
 ```typescript
-const groupTodoByUser = new schema.Query(
+const groupTodoByUser = new Query(
   TodoResource.getList.schema,
   todos => Object.groupBy(todos, todo => todo.userId),
 );

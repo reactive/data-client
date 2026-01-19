@@ -37,8 +37,8 @@ const Intl = {
 const scope = {
   ...rhReact,
   ...rhReactNext,
-  ...rest,
   ...graphql,
+  ...rest,
   uuid,
   randomFloatInRange,
   mockFetch,

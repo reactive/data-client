@@ -16,7 +16,7 @@ Define a plain object mapping that has values needing to be normalized into Enti
 
 :::tip
 
-`Objects` have statically known members. For unbounded Objects (arbitrary `string` keys), use [schema.Values](./Values.md)
+`Objects` have statically known members. For unbounded Objects (arbitrary `string` keys), use [Values](./Values.md)
 
 :::
 

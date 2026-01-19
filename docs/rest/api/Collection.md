@@ -1,6 +1,6 @@
 ---
-title: schema.Collection - Mutable Lists and Maps
-sidebar_label: schema.Collection
+title: Collection Schema - Mutable Lists and Maps
+sidebar_label: Collection
 ---
 
 import Tabs from '@theme/Tabs';
@@ -11,7 +11,7 @@ import { RestEndpoint } from '@data-client/rest';
 import { v4 as uuid } from 'uuid';
 import { postFixtures,getInitialInterceptorData } from '@site/src/fixtures/posts-collection';
 
-# schema.Collection
+# Collection
 
 `Collections` define mutable [Lists (Array)](./Array.md) or [Maps (Values)](./Values.md).
 
@@ -72,7 +72,7 @@ export class Todo extends Entity {
 export const getTodos = new RestEndpoint({
   path: '/todos',
   searchParams: {} as { userId?: string },
-  schema: new schema.Collection([Todo]),
+  schema: new Collection([Todo]),
 });
 ```
 
@@ -88,7 +88,7 @@ export class User extends Entity {
 
   static key = 'User';
   static schema = {
-    todos: new schema.Collection([Todo], {
+    todos: new Collection([Todo], {
       nestKey: (parent, key) => ({
         userId: parent.id,
       }),
@@ -98,7 +98,7 @@ export class User extends Entity {
 
 export const getUsers = new RestEndpoint({
   path: '/users',
-  schema: new schema.Collection([User]),
+  schema: new Collection([User]),
 });
 ```
 
@@ -188,12 +188,12 @@ Returns a serializable Object whose members uniquely define this collection base
 on Endpoint arguments.
 
 ```ts {7-9}
-import { schema, RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, Collection } from '@data-client/rest';
 
 const getTodos = new RestEndpoint({
   path: '/todos',
   searchParams: {} as { userId?: string },
-  schema: new schema.Collection([Todo], {
+  schema: new Collection([Todo], {
     argsKey: (urlParams: { userId?: string }) => ({
       ...urlParams,
     }),
@@ -207,7 +207,7 @@ Returns a serializable Object whose members uniquely define this collection base
 on the parent it is nested inside.
 
 ```ts {28-30}
-import { schema, Entity } from '@data-client/rest';
+import { Collection, Entity } from '@data-client/rest';
 
 class Todo extends Entity {
   id = '';
@@ -227,7 +227,7 @@ class User extends Entity {
 
   static key = 'User';
   static schema = {
-    todos: new schema.Collection([Todo], {
+    todos: new Collection([Todo], {
       nestKey: (parent, key) => ({
         userId: parent.id,
       }),
@@ -247,7 +247,7 @@ entities are included in the response.
 const getPosts = new RestEndpoint({
   path: '/:group/posts',
   searchParams: {} as { orderBy?: string; author?: string },
-  schema: new schema.Collection([Post], {
+  schema: new Collection([Post], {
     // highlight-start
     nonFilterArgumentKeys(key) {
       return key === 'orderBy';
@@ -263,7 +263,7 @@ For convenience you can also use a RegExp or list of strings:
 const getPosts = new RestEndpoint({
   path: '/:group/posts',
   searchParams: {} as { orderBy?: string; author?: string },
-  schema: new schema.Collection([Post], {
+  schema: new Collection([Post], {
     // highlight-next-line
     nonFilterArgumentKeys: /orderBy/,
   }),
@@ -274,7 +274,7 @@ const getPosts = new RestEndpoint({
 const getPosts = new RestEndpoint({
   path: '/:group/posts',
   searchParams: {} as { orderBy?: string; author?: string },
-  schema: new schema.Collection([Post], {
+  schema: new Collection([Post], {
     // highlight-next-line
     nonFilterArgumentKeys: ['orderBy'],
   }),
@@ -289,7 +289,7 @@ when `push` is called.
 <HooksPlayground fixtures={postFixtures} getInitialInterceptorData={getInitialInterceptorData} row>
 
 ```ts title="getPosts" {14}
-import { Entity, RestEndpoint } from '@data-client/rest';
+import { Entity, Query, Collection, RestEndpoint } from '@data-client/rest';
 
 class Post extends Entity {
   id = '';
@@ -300,8 +300,8 @@ class Post extends Entity {
 export const getPosts = new RestEndpoint({
   path: '/:group/posts',
   searchParams: {} as { orderBy?: string; author?: string },
-  schema: new schema.Query(
-    new schema.Collection([Post], {
+  schema: new Query(
+    new Collection([Post], {
       nonFilterArgumentKeys: /orderBy/,
     }),
     (posts, { orderBy } = {}) => {

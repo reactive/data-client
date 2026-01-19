@@ -2,7 +2,7 @@
 title: Computed Properties
 ---
 
-import { RestEndpoint } from '@data-client/rest';
+import { All, Query, RestEndpoint } from '@data-client/rest';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
 ## Singular computations
@@ -11,7 +11,7 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 getters to the class itself.
 
 ```typescript
-import { Entity } from '@data-client/rest';
+import { All, Entity, Query } from '@data-client/rest';
 
 class User extends Entity {
   id = '';
@@ -34,7 +34,7 @@ If the computations are expensive feel free to add some
 [memoization](https://github.com/anywhichway/nano-memoize).
 
 ```typescript
-import { Entity } from '@data-client/rest';
+import { All, Entity, Query } from '@data-client/rest';
 import memoize from 'nano-memoize';
 
 class User extends Entity {
@@ -50,7 +50,7 @@ If you simply want to [deserialize a field](./network-transform.md#deserializing
 the declarative [static schema](./network-transform.md#deserializing-fields).
 
 ```typescript
-import { Entity } from '@data-client/rest';
+import { All, Entity, Query } from '@data-client/rest';
 import BigNumber from 'bignumber.js';
 
 class User extends Entity {
@@ -104,12 +104,12 @@ export const UserResource = resource({
 ```
 
 ```tsx title="UsersPage"
-import { schema } from '@data-client/rest';
+import { All, Query, schema } from '@data-client/rest';
 import { useQuery, useSuspense } from '@data-client/react';
 import { UserResource, User } from './resources/User';
 
-const getUserCount = new schema.Query(
-  new schema.All(User),
+const getUserCount = new Query(
+  new All(User),
   (entries, { isAdmin } = {}) => {
     if (isAdmin !== undefined)
       return entries.filter(user => user.isAdmin === isAdmin).length;

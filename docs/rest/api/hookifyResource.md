@@ -26,7 +26,7 @@ TypeScript >=4.3 is required for generative types to work correctly.
 
 ```ts title="resources/Article"
 import React from 'react';
-import { resource, hookifyResource, Entity } from '@data-client/rest';
+import { Collection, Entity, Invalidate, hookifyResource, resource } from '@data-client/rest';
 
 class Article extends Entity {
   id = '';
@@ -160,7 +160,7 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 - method: 'GET'
 - args: `shortenPath(path) & { [paginationField]: string | number } & searchParams`
-- schema: [new schema.Collection(\[schema\]).addWith(paginatedMerge, paginatedFilter(removeCursor))](./Collection.md)
+- schema: [new Collection(\[schema\]).addWith(paginatedMerge, paginatedFilter(removeCursor))](./Collection.md)
 
 ```typescript
 // GET //test.com/api/abc?isExtra=xyz&page=2
@@ -213,7 +213,7 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 - method: 'DELETE'
 - path: `path`
-- schema: [new schema.Invalidate(schema)](./Invalidate.md)
+- schema: [new Invalidate(schema)](./Invalidate.md)
 - process:
   ```ts
   (value, params) {

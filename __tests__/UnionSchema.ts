@@ -1,4 +1,4 @@
-import { Entity, schema } from '@data-client/rest';
+import { Entity, Union } from '@data-client/rest';
 
 export enum SequenceType {
   TemporalCatDiff = 'temporal_cat_diff',
@@ -30,7 +30,7 @@ export class ContinuousSequence extends Sequence {
 export const waterfallSchema = {
   analysisId: '',
   sequences: [
-    new schema.Union(
+    new Union(
       {
         [SequenceType.TemporalCatCount]: CategoricalSequence,
         [SequenceType.TemporalCatDiff]: CategoricalSequence,

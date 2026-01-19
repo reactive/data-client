@@ -11,33 +11,33 @@ to represent the data expected.
 ### Object
 
 - [Entity](https://dataclient.io/rest/api/Entity) - represents a single unique object (denormalized)
-- [new schema.Union(Entity)](https://dataclient.io/rest/api/Union) - polymorphic objects (A | B)
+- [new Union(Entity)](https://dataclient.io/rest/api/Union) - polymorphic objects (A | B)
 - `{[key:string]: Schema}` - immutable objects
-- `new schema.Invalidate(Entity)` - to delete an Entity
+- `new Invalidate(Entity)` - to delete an Entity
 
 ### List
 
-- [new schema.Collection([Entity])](https://dataclient.io/rest/api/Collection) - mutable/growable lists
+- [new Collection([Entity])](https://dataclient.io/rest/api/Collection) - mutable/growable lists
 - `[Entity]` - immutable lists
-- `new schema.All(Entity)` - list all Entities of a kind
+- `new All(Entity)` - list all Entities of a kind
 
 ### Map
 
-- `new schema.Collection(schema.Values(Entity))` - mutable/growable maps
-- `new schema.Values(Entity)` - immutable maps
+- `new Collection(Values(Entity))` - mutable/growable maps
+- `new Values(Entity)` - immutable maps
 
 ### Programmatic
 
-- [new schema.Query(Queryable)](https://dataclient.io/rest/api/Query) - memoized programmatic selectors
+- [new Query(Queryable)](https://dataclient.io/rest/api/Query) - memoized programmatic selectors
   ```ts
-  const queryRemainingTodos = new schema.Query(
+  const queryRemainingTodos = new Query(
     TodoResource.getList.schema,
     entries => entries.filter(todo => !todo.completed).length,
   );
   ```
 
   ```ts
-  const groupTodoByUser = new schema.Query(
+  const groupTodoByUser = new Query(
     TodoResource.getList.schema,
     todos => Object.groupBy(todos, todo => todo.userId),
   );
@@ -58,7 +58,7 @@ to represent the data expected.
 
 ## 3. **Union Types (Polymorphic Schemas)**
 
-To define polymorphic resources (e.g., events), use [schema.Union](https://dataclient.io/rest/api/Union) and a discriminator field.
+To define polymorphic resources (e.g., events), use [Union](https://dataclient.io/rest/api/Union) and a discriminator field.
 
 ```typescript
 import { schema } from '@data-client/rest';
@@ -72,7 +72,7 @@ export class IssuesEvent extends Event { /* ... */ }
 
 export const EventResource = resource({
   path: '/users/:login/events/public/:id',
-  schema: new schema.Union(
+  schema: new Union(
     {
       PullRequestEvent,
       IssuesEvent,

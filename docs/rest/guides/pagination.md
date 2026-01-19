@@ -31,7 +31,7 @@ export const PostResource = resource({
   paginationField: 'cursor',
 }).extend('getList', {
   // highlight-next-line
-  schema: { posts: new schema.Collection([Post]), cursor: '' },
+  schema: { posts: new Collection([Post]), cursor: '' },
 });
 ```
 
@@ -52,7 +52,7 @@ to append the next page of validators to our list.
 <HooksPlayground defaultOpen="n" row>
 
 ```ts title="Validator" {46-50} collapsed
-import { Entity, RestEndpoint, schema } from '@data-client/rest';
+import { Collection, Entity, RestEndpoint, schema } from '@data-client/rest';
 
 export class Validator extends Entity {
   operator_address = '';
@@ -99,7 +99,7 @@ export const getValidators = new RestEndpoint({
   searchParams: {} as { 'pagination.limit': string },
   paginationField: 'pagination.key',
   schema: {
-    validators: new schema.Collection([Validator]),
+    validators: new Collection([Validator]),
     pagination: { next_key: '', total: '' },
   },
 });
@@ -218,7 +218,7 @@ We show the custom `getList` below. All other parts of the above example remain 
 Pagination token is stored in the header `link` for this example.
 
 ```typescript
-import { Resource } from '@data-client/rest';
+import { Collection, Resource } from '@data-client/rest';
 
 export const ArticleResource = resource({
   path: '/articles/:id',
@@ -249,7 +249,7 @@ If much of your API share a similar pagination, you might
 try a custom Endpoint class that shares this logic.
 
 ```ts title="resources/PagingEndpoint.ts"
-import { RestEndpoint, type RestGenerics } from '@data-client/rest';
+import { Collection, RestEndpoint, type RestGenerics } from '@data-client/rest';
 
 export class PagingEndpoint<
   O extends RestGenerics = any,
@@ -271,7 +271,7 @@ export class PagingEndpoint<
 ```
 
 ```ts title="resources/MyResource.ts"
-import { resource, Entity } from '@data-client/rest';
+import { Collection, Entity, resource } from '@data-client/rest';
 
 import { PagingEndpoint } from './PagingEndpoint';
 

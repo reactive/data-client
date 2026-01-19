@@ -1,7 +1,13 @@
 import { normalize, denormalize } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 
-import { schema, DenormalizeNullable, Normalize, Denormalize } from '../src';
+import {
+  Union,
+  Values,
+  DenormalizeNullable,
+  Normalize,
+  Denormalize,
+} from '../src';
 
 class Magic extends IDEntity {
   readonly a = 'first' as const;
@@ -15,14 +21,14 @@ class Magic2 extends IDEntity {
 const magicSchema = Magic;
 const magic2Schema = Magic2;
 
-const unionSchema = new schema.Union(
+const unionSchema = new Union(
   {
     user: magicSchema,
     group: magic2Schema,
   },
   'a',
 );
-const errorUnionSchema = new schema.Union(
+const errorUnionSchema = new Union(
   {
     user: magicSchema,
     group: magic2Schema,
@@ -56,8 +62,8 @@ if (typeof data === 'symbol') {
   const members = data.thing.members;
 }
 
-const schemeValues = new schema.Values({ btc: Magic, eth: Magic2 });
-const schemeValuesSimple = new schema.Values(Magic);
+const schemeValues = new Values({ btc: Magic, eth: Magic2 });
+const schemeValuesSimple = new Values(Magic);
 const valueValues = denormalize(schemeValues, {}, {});
 if (typeof valueValues !== 'symbol') {
   Object.keys(schemeValues).forEach(k => {

@@ -151,8 +151,8 @@ ctrl.set(Article, { id }, articleData);
 ### [Programmatic queries](https://dataclient.io/rest/api/Query)
 
 ```typescript
-const queryTotalVotes = new schema.Query(
-  new schema.Collection([BlogPost]),
+const queryTotalVotes = new Query(
+  new Collection([BlogPost]),
   posts => posts.reduce((total, post) => total + post.votes, 0),
 );
 
@@ -161,7 +161,7 @@ const totalVotesForUser = useQuery(queryTotalVotes, { userId });
 ```
 
 ```typescript
-const groupTodoByUser = new schema.Query(
+const groupTodoByUser = new Query(
   TodoResource.getList.schema,
   todos => Object.groupBy(todos, todo => todo.userId),
 );

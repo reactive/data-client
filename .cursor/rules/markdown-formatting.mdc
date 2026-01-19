@@ -10,6 +10,7 @@ Link API concepts that have corresponding doc pages:
 
 - **External doc links**: `[Union](https://dataclient.io/rest/api/Union)`
 - **Internal doc links**: Use site paths like `[Controller](/docs/api/Controller)` or `[Entity](/rest/api/Entity)`
+- **Package links**: `[@data-client/rest](www.npmjs.com/package/@data-client/rest)`
 
 ## Repository Links
 

@@ -1,6 +1,6 @@
 ---
-title: Query - Programmatic memoized store access
-sidebar_label: schema.Query
+title: Query Schema - Programmatic memoized store access
+sidebar_label: Query
 ---
 
 <head>
@@ -11,7 +11,7 @@ import { RestEndpoint } from '@data-client/rest';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import SortDemo from '../shared/\_SortDemo.mdx';
 
-# schema.Query
+# Query
 
 `Query` provides programmatic access to the Reactive Data Client cache while maintaining
 the same high performance and referential equality guarantees expected of Reactive Data Client.
@@ -65,12 +65,12 @@ export const UserResource = resource({
 ```
 
 ```tsx title="UsersPage"
-import { schema } from '@data-client/rest';
+import { All, Query } from '@data-client/rest';
 import { useQuery, useFetch } from '@data-client/react';
 import { UserResource, User } from './resources/User';
 
-const countUsers = new schema.Query(
-  new schema.All(User),
+const countUsers = new Query(
+  new All(User),
   (entries, { isAdmin } = {}) => {
     if (isAdmin !== undefined)
       return entries.filter(user => user.isAdmin === isAdmin).length;
@@ -171,13 +171,13 @@ interface Props {
 ```
 
 ```tsx title="TodoJoined"
-import { schema } from '@data-client/rest';
+import { Query } from '@data-client/rest';
 import { useQuery, useFetch } from '@data-client/react';
 import { TodoResource } from './resources/Todo';
 import { UserResource } from './resources/User';
 import TodoByUser from './TodoByUser';
 
-const groupTodoByUser = new schema.Query(
+const groupTodoByUser = new Query(
   TodoResource.getList.schema,
   todos => Object.groupBy(todos, todo => todo.userId),
 );
@@ -251,13 +251,13 @@ export const StatsResource = resource({
 ```
 
 ```tsx title="PriceDisplay"
-import { schema } from '@data-client/rest';
+import { Query } from '@data-client/rest';
 import { useQuery, useFetch } from '@data-client/react';
 import { TickerResource, Ticker } from './resources/Ticker';
 import { StatsResource, Stats } from './resources/Stats';
 
 // Join Ticker and Stats by product_id
-const queryPrice = new schema.Query(
+const queryPrice = new Query(
   { ticker: Ticker, stats: Stats },
   ({ ticker, stats }) => ticker?.price ?? stats?.last,
 );

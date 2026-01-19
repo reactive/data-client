@@ -109,7 +109,7 @@ export const UserResource = resource({
 ```
 
 ```tsx title="UsersPage" {22}
-import { schema } from '@data-client/rest';
+import { Query } from '@data-client/rest';
 import { useQuery, useFetch } from '@data-client/react';
 import { UserResource, User } from './UserResource';
 
@@ -117,8 +117,8 @@ interface Args {
   asc: boolean;
   isAdmin?: boolean;
 }
-const sortedUsers = new schema.Query(
-  new schema.All(User),
+const sortedUsers = new Query(
+  new All(User),
   (entries, { asc, isAdmin }: Args = { asc: false }) => {
     let sorted = [...entries].sort((a, b) => a.name.localeCompare(b.name));
     if (isAdmin !== undefined)

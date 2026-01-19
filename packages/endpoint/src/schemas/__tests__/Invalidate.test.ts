@@ -10,7 +10,7 @@ import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
 import SimpleMemoCache, { fromJSEntities } from './denormalize';
-import { schema } from '../..';
+import { schema, Invalidate, Union } from '../..';
 import Entity from '../Entity';
 
 let dateSpy: jest.Spied<any>;
@@ -26,22 +26,22 @@ afterAll(() => {
 describe(`${schema.Invalidate.name} normalization`, () => {
   test('throws if not given an entity', () => {
     // @ts-expect-error
-    expect(() => new schema.Invalidate()).toThrow();
+    expect(() => new Invalidate()).toThrow();
   });
 
   test('normalizes an object', () => {
     class User extends IDEntity {}
 
     expect(
-      normalize(new schema.Invalidate(User), { id: '1', type: 'users' }),
+      normalize(new Invalidate(User), { id: '1', type: 'users' }),
     ).toMatchSnapshot();
   });
 
   test('normalizes already processed entities', () => {
     class MyEntity extends IDEntity {}
-    expect(normalize(new schema.Invalidate(MyEntity), '1')).toMatchSnapshot();
+    expect(normalize(new Invalidate(MyEntity), '1')).toMatchSnapshot();
     expect(
-      normalize(new schema.Array(new schema.Invalidate(MyEntity)), ['1', '2']),
+      normalize(new schema.Array(new Invalidate(MyEntity)), ['1', '2']),
     ).toMatchSnapshot();
   });
 
@@ -49,7 +49,7 @@ describe(`${schema.Invalidate.name} normalization`, () => {
     class MyEntity extends IDEntity {}
     // Numbers work when inside arrays (bypasses entry-point type validation)
     expect(
-      normalize(new schema.Array(new schema.Invalidate(MyEntity)), [1, 2, 3]),
+      normalize(new schema.Array(new Invalidate(MyEntity)), [1, 2, 3]),
     ).toMatchSnapshot();
   });
 
@@ -57,7 +57,7 @@ describe(`${schema.Invalidate.name} normalization`, () => {
     class User extends IDEntity {}
 
     expect(
-      new schema.Invalidate(User).queryKey([{ id: 5 }], () => undefined, {
+      new Invalidate(User).queryKey([{ id: 5 }], () => undefined, {
         getEntity: () => undefined,
         getIndex: () => undefined,
       }),
@@ -73,7 +73,7 @@ describe(`${schema.Invalidate.name} normalization`, () => {
       }
     }
     function normalizeBad() {
-      normalize(new schema.Invalidate(MyEntity), { secondthing: 'hi' });
+      normalize(new Invalidate(MyEntity), { secondthing: 'hi' });
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
@@ -87,7 +87,7 @@ describe(`${schema.Invalidate.name} normalization`, () => {
       }
     }
     function normalizeBad() {
-      normalize(new schema.Invalidate(MyEntity), { secondthing: 'hi' });
+      normalize(new Invalidate(MyEntity), { secondthing: 'hi' });
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
@@ -101,7 +101,7 @@ describe(`${schema.Invalidate.name} normalization`, () => {
     }
 
     test('normalizes a union object with string schemaAttribute', () => {
-      const invalidateUnion = new schema.Invalidate(
+      const invalidateUnion = new Invalidate(
         { users: User, groups: Group },
         'type',
       );
@@ -115,7 +115,7 @@ describe(`${schema.Invalidate.name} normalization`, () => {
     });
 
     test('normalizes a union object with function schemaAttribute', () => {
-      const invalidateUnion = new schema.Invalidate(
+      const invalidateUnion = new Invalidate(
         { users: User, groups: Group },
         (input: any) => input.type,
       );
@@ -129,7 +129,7 @@ describe(`${schema.Invalidate.name} normalization`, () => {
     });
 
     test('normalizes array of Invalidate unions', () => {
-      const invalidateUnion = new schema.Invalidate(
+      const invalidateUnion = new Invalidate(
         { users: User, groups: Group },
         'type',
       );
@@ -143,7 +143,7 @@ describe(`${schema.Invalidate.name} normalization`, () => {
     });
 
     test('returns input when schema attribute does not match', () => {
-      const invalidateUnion = new schema.Invalidate(
+      const invalidateUnion = new Invalidate(
         { users: User, groups: Group },
         'type',
       );
@@ -158,8 +158,8 @@ describe(`${schema.Invalidate.name} normalization`, () => {
     });
 
     test('normalizes with Union instance argument', () => {
-      const myUnion = new schema.Union({ users: User, groups: Group }, 'type');
-      const invalidate = new schema.Invalidate(myUnion);
+      const myUnion = new Union({ users: User, groups: Group }, 'type');
+      const invalidate = new Invalidate(myUnion);
 
       expect(
         normalize(invalidate, { id: '1', type: 'users' }),
@@ -170,8 +170,8 @@ describe(`${schema.Invalidate.name} normalization`, () => {
     });
 
     test('normalizes array with Union instance argument', () => {
-      const myUnion = new schema.Union({ users: User, groups: Group }, 'type');
-      const invalidate = new schema.Invalidate(myUnion);
+      const myUnion = new Union({ users: User, groups: Group }, 'type');
+      const invalidate = new Invalidate(myUnion);
 
       expect(
         normalize(new schema.Array(invalidate), [
@@ -196,7 +196,7 @@ describe(`${schema.Invalidate.name} denormalization`, () => {
 
   test('denormalizes an object in the same manner as the Entity', () => {
     const user = new SimpleMemoCache(POJOPolicy).denormalize(
-      new schema.Invalidate(User),
+      new Invalidate(User),
       '1',
       entities,
     );
@@ -207,7 +207,7 @@ describe(`${schema.Invalidate.name} denormalization`, () => {
     expect(user?.username).toBe('Janey');
     // Immutable version
     const userImm = new SimpleMemoCache(ImmPolicy).denormalize(
-      new schema.Invalidate(User),
+      new Invalidate(User),
       '1',
       fromJSEntities(entities),
     );
@@ -240,7 +240,7 @@ describe(`${schema.Invalidate.name} denormalization`, () => {
       (_, createArray, createObject, denormalize) => {
         test('denormalizes deleted entities as symbol', () => {
           const user = denormalize(
-            new schema.Invalidate(User),
+            new Invalidate(User),
             '1',
             createInput({
               User: { '1': INVALID },
@@ -250,7 +250,7 @@ describe(`${schema.Invalidate.name} denormalization`, () => {
 
           expect(
             denormalize(
-              createObject({ data: new schema.Invalidate(User) }),
+              createObject({ data: new Invalidate(User) }),
               createInput({ data: '1' }),
               createEntities({
                 User: { '1': INVALID },
@@ -262,7 +262,7 @@ describe(`${schema.Invalidate.name} denormalization`, () => {
         test('denormalize removes deleted entries in array', () => {
           expect(
             denormalize(
-              createArray(createObject({ data: new schema.Invalidate(User) })),
+              createArray(createObject({ data: new Invalidate(User) })),
               createInput([{ data: '1' }]),
               createEntities({
                 User: { '1': INVALID },
@@ -283,7 +283,7 @@ describe(`${schema.Invalidate.name} denormalization`, () => {
         test('denormalize sets undefined entities that are not present', () => {
           expect(
             denormalize(
-              createArray(createObject({ data: new schema.Invalidate(User) })),
+              createArray(createObject({ data: new Invalidate(User) })),
               createInput([{ data: '1' }]),
               createEntities({}),
             ),
@@ -334,7 +334,7 @@ describe(`${schema.Invalidate.name} denormalization`, () => {
     };
 
     test('denormalizes a union entity', () => {
-      const invalidateUnion = new schema.Invalidate(
+      const invalidateUnion = new Invalidate(
         { users: UserDenorm, groups: GroupDenorm },
         'type',
       );
@@ -360,7 +360,7 @@ describe(`${schema.Invalidate.name} denormalization`, () => {
     });
 
     test('denormalizes invalidated union entity as symbol', () => {
-      const invalidateUnion = new schema.Invalidate(
+      const invalidateUnion = new Invalidate(
         { users: UserDenorm, groups: GroupDenorm },
         'type',
       );
@@ -376,11 +376,11 @@ describe(`${schema.Invalidate.name} denormalization`, () => {
     });
 
     test('denormalizes with Union instance argument', () => {
-      const myUnion = new schema.Union(
+      const myUnion = new Union(
         { users: UserDenorm, groups: GroupDenorm },
         'type',
       );
-      const invalidate = new schema.Invalidate(myUnion);
+      const invalidate = new Invalidate(myUnion);
 
       const user = new SimpleMemoCache(POJOPolicy).denormalize(
         invalidate,
@@ -404,11 +404,11 @@ describe(`${schema.Invalidate.name} denormalization`, () => {
     });
 
     test('denormalizes invalidated Union instance entity as symbol', () => {
-      const myUnion = new schema.Union(
+      const myUnion = new Union(
         { users: UserDenorm, groups: GroupDenorm },
         'type',
       );
-      const invalidate = new schema.Invalidate(myUnion);
+      const invalidate = new Invalidate(myUnion);
 
       const user = new SimpleMemoCache(POJOPolicy).denormalize(
         invalidate,

@@ -1,6 +1,14 @@
 import { DataProvider } from '@data-client/react';
 import { DataProvider as ExternalDataProvider } from '@data-client/react/redux';
-import { schema, Entity, Endpoint } from '@data-client/rest';
+import {
+  Entity,
+  Endpoint,
+  Values,
+  All,
+  Query,
+  Union,
+  Collection,
+} from '@data-client/rest';
 import {
   CoolerArticleResource,
   EditorArticleResource,
@@ -222,7 +230,7 @@ describe.each([
 
   it('should denormalize schema.Values()', async () => {
     const GetValues = CoolerArticleResource.get.extend({
-      schema: new schema.Values(CoolerArticle),
+      schema: new Values(CoolerArticle),
       path: `${CoolerArticleResource.getList.path}/values` as const,
     });
 
@@ -241,9 +249,9 @@ describe.each([
 
   it('should denormalize All', async () => {
     const getList = CoolerArticleResource.getList.extend({
-      schema: new schema.All(CoolerArticle),
+      schema: new All(CoolerArticle),
     });
-    const allArticles = new schema.All(CoolerArticle);
+    const allArticles = new All(CoolerArticle);
 
     const { result, waitForNextUpdate } = renderDataHook(() => {
       useFetch(getList);
@@ -261,8 +269,8 @@ describe.each([
   });
 
   it('should filter Query based on arguments', async () => {
-    const queryArticle = new schema.Query(
-      new schema.All(CoolerArticle),
+    const queryArticle = new Query(
+      new All(CoolerArticle),
       (entries, { tags }: { tags: string }) => {
         if (!tags) return entries;
         return entries.filter(article => article.tags.includes(tags));
@@ -311,7 +319,7 @@ describe.each([
   });
 
   it('Query should work as endpoint Schema', async () => {
-    const queryArticle = new schema.Query(
+    const queryArticle = new Query(
       CoolerArticleResource.getList.schema,
       (entries, { tags }: { tags: string }) => {
         if (!tags || !entries) return entries;
@@ -375,7 +383,7 @@ describe.each([
     }
     const unionEndpoint = new Endpoint((a: any) => Promise.resolve(), {
       schema: [
-        new schema.Union(
+        new Union(
           {
             users: User,
             groups: Group,
@@ -877,7 +885,7 @@ describe.each([
     const getArticles = CoolerArticleResource.getList
       .extend({ schema: [CoolerArticle] })
       .extend({
-        schema: new schema.Collection([CoolerArticle], {
+        schema: new Collection([CoolerArticle], {
           argsKey: (urlParams, body) => ({
             ...urlParams,
           }),

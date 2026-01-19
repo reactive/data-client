@@ -6,6 +6,8 @@ import {
   PolymorphicInterface,
   RestGenerics,
   Entity,
+  Collection,
+  Values,
 } from '@data-client/rest';
 import { resource } from '@data-client/rest';
 import {
@@ -48,7 +50,7 @@ class User extends IDEntity {
 
   static key = 'User';
   static schema = {
-    todos: new schema.Collection(new schema.Array(Todo), {
+    todos: new Collection(new schema.Array(Todo), {
       nestKey: (parent, key) => ({
         userId: parent.id,
       }),
@@ -75,7 +77,7 @@ const ArticleResource = {
   ...BaseArticleResource,
   getList: BaseArticleResource.getList.extend({
     schema: {
-      results: new schema.Collection([Article], {
+      results: new Collection([Article], {
         argsKey: (urlParams, body) => ({
           ...urlParams,
         }),
@@ -94,7 +96,7 @@ const ArticlePaginatedResource = resource({
   paginationField: 'cursor',
 }).extend('getList', {
   schema: {
-    results: new schema.Collection([Article]),
+    results: new Collection([Article]),
     nextPage: 0,
   },
 });
@@ -125,7 +127,7 @@ const ArticleResourceLegacy = {
   ...BaseArticleResourceLegacy,
   getList: BaseArticleResourceLegacy.getList.extend({
     schema: new schema.Object({
-      results: new schema.Collection([Article], {
+      results: new Collection([Article], {
         argsKey: (urlParams, body) => ({
           ...urlParams,
         }),
@@ -804,7 +806,7 @@ describe.each([
           .reply(200, (uri, body: any) => ({ ...body }));
 
         const getValues = ArticleResource.getList.extend({
-          schema: new schema.Collection(new schema.Values(Article), {
+          schema: new Collection(new Values(Article), {
             argsKey: (urlParams, body) => ({
               ...urlParams,
             }),
