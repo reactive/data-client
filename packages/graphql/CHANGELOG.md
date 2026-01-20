@@ -1,5 +1,32 @@
 # @data-client/graphql
 
+## 0.15.5
+
+### Patch Changes
+
+- [`e571bda`](https://github.com/reactive/data-client/commit/e571bdabd136fddee7aa414c91a775c5f66ce094) Thanks [@ntucker](https://github.com/ntucker)! - Add direct exports for schema classes from `@data-client/endpoint`
+
+  Schema classes (`Union`, `Invalidate`, `Collection`, `Query`, `Values`, `All`) can now be imported directly instead of requiring the `schema` namespace.
+
+  #### Before
+
+  ```ts
+  import { schema } from '@data-client/endpoint';
+  const myUnion = new schema.Union({ users: User, groups: Group }, 'type');
+  ```
+
+  #### After
+
+  ```ts
+  import { Union } from '@data-client/endpoint';
+  const myUnion = new Union({ users: User, groups: Group }, 'type');
+  ```
+
+  The `schema` namespace export remains available for backward compatibility.
+
+- Updated dependencies [[`e571bda`](https://github.com/reactive/data-client/commit/e571bdabd136fddee7aa414c91a775c5f66ce094)]:
+  - @data-client/endpoint@0.15.5
+
 ## 0.15.4
 
 ### Patch Changes
