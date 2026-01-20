@@ -1,6 +1,6 @@
 {
   "name": "@data-client/graphql",
-  "version": "0.15.4",
+  "version": "0.15.5",
   "description": "Quickly define typed GraphQL resources and endpoints",
   "homepage": "https://dataclient.io/docs/graphql",
   "repository": {
