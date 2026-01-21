@@ -1,0 +1,24 @@
+.fixedSelector {
+  position: fixed;
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+  z-index: 100;
+}
+
+.fixedSelector.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Hide on mobile where there's no TOC sidebar */
+@media (max-width: 996px) {
+  .fixedSelector {
+    display: none;
+  }
+}
+
