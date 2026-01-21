@@ -94,7 +94,7 @@
     "@testing-library/react": "^16.1.0",
     "@types/jest": "30.0.0",
     "@types/node": "^24.0.0",
-    "@types/react": "19.2.8",
+    "@types/react": "19.2.9",
     "@types/react-dom": "^19",
     "react": "^19.0.0",
     "react-dom": "^19.2.1",
