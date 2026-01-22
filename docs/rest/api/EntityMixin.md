@@ -92,9 +92,6 @@ Specifies the [Entity.key](./Entity.md#key)
 
 Specifies the [Entity.schema](./Entity.md#schema)
 
-## Methods
-
-`EntityMixin` has the same [methods as the Entity](./Entity.md#lifecycle) class.
 
 ## const vs class
 
@@ -128,3 +125,14 @@ const articleWorks: InstanceType<typeof ArticleEntity2> =
 ```
 
 </TypeScriptEditor>
+
+
+## Lifecycle
+
+import Lifecycle from '../diagrams/\_entity_lifecycle.mdx';
+
+<Lifecycle/>
+
+import LifecycleMethods from '../shared/\_entity_lifecycle_methods.mdx';
+
+<LifecycleMethods/>

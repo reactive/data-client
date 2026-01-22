@@ -1,5 +1,5 @@
 ---
-titlke: Union Schema - Declarative polymorphic data for React
+title: Union Schema - Declarative polymorphic data for React
 sidebar_label: Union
 ---
 
@@ -97,6 +97,77 @@ function LinkItem({ link }: { link: Link }) {
   return <a href={link.url}>{link.title}</a>;
 }
 function PostItem({ post }: { post: Post }) {
+  return <div>{post.content}</div>;
+}
+render(<FeedList />);
+```
+
+</HooksPlayground>
+
+### Function schemaAttribute
+
+When the discriminator value doesn't directly match schema keys, use a function to compute which schema to use.
+
+<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+{
+endpoint: new RestEndpoint({path: '/feed'}),
+args: [],
+response: [
+    { id: 1, type: 'link', url: 'https://ntucker.true.io', title: 'Nate site' },
+    { id: 10, type: 'post', content: 'good day!' },
+  ],
+delay: 150,
+},
+]}>
+
+```typescript title="api/Feed"
+abstract class FeedItem extends Entity {
+  id = 0;
+  declare type: 'link' | 'post';
+}
+class LinkItem extends FeedItem {
+  type = 'link' as const;
+  url = '';
+  title = '';
+}
+class PostItem extends FeedItem {
+  type = 'post' as const;
+  content = '';
+}
+
+const feed = new RestEndpoint({
+  path: '/feed',
+  schema: [
+    new Union(
+      {
+        links: LinkItem,
+        posts: PostItem,
+      },
+      (input: Link | Post, parent: unknown, key: string) => `${input.type}s`,
+    ),
+  ],
+});
+```
+
+```tsx title="FeedList" collapsed
+function FeedList() {
+  const feedItems = useSuspense(feed);
+  return (
+    <div>
+      {feedItems.map(item =>
+        item.type === 'link' ? (
+          <LinkComponent link={item} key={item.pk()} />
+        ) : (
+          <PostComponent post={item} key={item.pk()} />
+        ),
+      )}
+    </div>
+  );
+}
+function LinkComponent({ link }: { link: LinkItem }) {
+  return <a href={link.url}>{link.title}</a>;
+}
+function PostComponent({ post }: { post: PostItem }) {
   return <div>{post.content}</div>;
 }
 render(<FeedList />);

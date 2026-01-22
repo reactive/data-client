@@ -90,7 +90,7 @@ delay: 150,
 },
 ]}>
 
-```tsx title="api/Feed"
+```typescript title="api/Feed"
 export abstract class FeedItem extends Entity {
   id = 0;
   declare readonly type: 'link' | 'post';
