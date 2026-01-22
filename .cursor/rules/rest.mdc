@@ -25,6 +25,7 @@ This project uses [schemas](https://dataclient.io/rest/api/schema) (see @.cursor
   - `searchParams`: Type for query parameters (TS generic) in MyResource.getList
   - `paginationField`: Add MyResource.getList.getPage for pagination
   - `optimistic`: Boolean, when true all mutations will update optimistically, improving performance
+  - `body`: Type for body parameter to MyResource.getList.push, MyResource.getList.unshift, MyResource.update, MyResource.partialUpdate
 
 ```ts
 import { Entity, resource } from '@data-client/rest';
