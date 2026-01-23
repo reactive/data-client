@@ -686,6 +686,10 @@ declare const ActionTypes: {
   PROBE_UNKNOWN_ACTION: () => string;
 };
 
+declare const actionTypes_default: typeof ActionTypes;
+declare function kindOf(val: any): string;
+declare function formatProdErrorMessage(code: number): string;
+
 export {
   Action,
   ActionCreator,

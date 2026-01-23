@@ -26,7 +26,7 @@
   "devDependencies": {
     "@anansi/babel-preset": "6.2.22",
     "@anansi/browserslist-config": "1.7.4",
-    "@anansi/webpack-config": "21.1.11",
+    "@anansi/webpack-config": "21.1.12",
     "@babel/core": "7.28.6",
     "@linaria/core": "*",
     "@linaria/react": "*",
@@ -47,7 +47,7 @@
     "@data-client/img": "0.15.0",
     "@data-client/react": "0.15.4",
     "@data-client/rest": "0.15.5",
-    "core-js": "3.47.0",
+    "core-js": "3.48.0",
     "d3": "7.9.0",
     "history": "*",
     "react": "19.2.3",
