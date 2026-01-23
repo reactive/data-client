@@ -6424,8 +6424,8 @@ __metadata:
   linkType: hard
 
 "@react-navigation/native-stack@npm:^7.0.0, @react-navigation/native-stack@npm:^7.2.0":
-  version: 7.10.0
-  resolution: "@react-navigation/native-stack@npm:7.10.0"
+  version: 7.10.1
+  resolution: "@react-navigation/native-stack@npm:7.10.1"
   dependencies:
     "@react-navigation/elements": "npm:^2.9.5"
     color: "npm:^4.2.3"
@@ -6437,7 +6437,7 @@ __metadata:
     react-native: "*"
     react-native-safe-area-context: ">= 4.0.0"
     react-native-screens: ">= 4.0.0"
-  checksum: 10c0/60ddf8b9a1d8b58037c9170daeecad086b64ce617bc2bfe179ecce44ae0aeeae0e0d9be78364d84f2f1176e46b685d5a7a0298e1e9c3836b8deffc4ec8bec107
+  checksum: 10c0/b49fde2aec585f2793cddd86f63101e7e3a4c073c1c831bd9325c40ff6af033659f7a8d7009d4b203bf3e49ad1e3aa0f7b7bea4dda4796277808724df56ce5c8
   languageName: node
   linkType: hard
 
@@ -24825,15 +24825,15 @@ __metadata:
   linkType: hard
 
 "react-native-screens@npm:^4.1.0":
-  version: 4.19.0
-  resolution: "react-native-screens@npm:4.19.0"
+  version: 4.20.0
+  resolution: "react-native-screens@npm:4.20.0"
   dependencies:
     react-freeze: "npm:^1.0.0"
     warn-once: "npm:^0.1.0"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 10c0/e66328c8782ad4af352c418e5a4ae0cd5011d5010a9fad23e9740353d8076027c197d344b7465c5d529d862954dc80d9d0db444846e59cc1bee46a5459817562
+  checksum: 10c0/f5d18bef4bee5b65470f76048dd3511d4ef18d1cf3566b6479a70a67e75c92aca3549342ee96c418e68997380dc562fbf4e63b5d411975c2265f106fecb242cd
   languageName: node
   linkType: hard
 
