@@ -30,7 +30,7 @@
   "private": true,
   "license": "Apache-2.0",
   "devDependencies": {
-    "@anansi/cli": "3.1.100",
+    "@anansi/cli": "3.1.101",
     "@anansi/babel-preset": "6.2.22",
     "@anansi/browserslist-config": "1.7.4",
     "@anansi/webpack-config": "21.1.12",
@@ -51,7 +51,7 @@
     "webpack-dev-server": "5.2.3"
   },
   "dependencies": {
-    "@anansi/core": "0.22.5",
+    "@anansi/core": "0.22.6",
     "@anansi/router": "0.10.21",
     "@ant-design/cssinjs": "2.0.3",
     "@ant-design/icons": "6.1.0",
