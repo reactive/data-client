@@ -53,6 +53,8 @@ delay: 150,
 ]}>
 
 ```ts title="resources/User" collapsed
+import { Entity, resource } from '@data-client/rest';
+
 export class User extends Entity {
   id = '';
   name = '';
@@ -100,6 +102,8 @@ render(<UsersPage />);
 <HooksPlayground>
 
 ```ts title="resources/User" collapsed
+import { Entity, resource } from '@data-client/rest';
+
 export class User extends Entity {
   id = 0;
   username = '';
@@ -115,6 +119,7 @@ export const UserResource = resource({
 ```
 
 ```ts title="resources/Todo" collapsed
+import { Entity, resource } from '@data-client/rest';
 import { User } from './User';
 
 export class Todo extends Entity {
@@ -172,7 +177,7 @@ interface Props {
 
 ```tsx title="TodoJoined"
 import { Query } from '@data-client/rest';
-import { useQuery, useFetch } from '@data-client/react';
+import { useQuery, useFetch, useSuspense } from '@data-client/react';
 import { TodoResource } from './resources/Todo';
 import { UserResource } from './resources/User';
 import TodoByUser from './TodoByUser';
@@ -225,6 +230,8 @@ delay: 150,
 ]}>
 
 ```ts title="resources/Ticker" collapsed
+import { Entity, resource } from '@data-client/rest';
+
 export class Ticker extends Entity {
   product_id = '';
   price = 0;
@@ -238,6 +245,8 @@ export const TickerResource = resource({
 ```
 
 ```ts title="resources/Stats" collapsed
+import { Entity, resource } from '@data-client/rest';
+
 export class Stats extends Entity {
   product_id = '';
   last = 0;

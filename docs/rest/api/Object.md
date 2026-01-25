@@ -36,6 +36,9 @@ delay: 150,
 ]}>
 
 ```tsx title="UsersPage.tsx"
+import { Entity, RestEndpoint, schema } from '@data-client/rest';
+import { useSuspense } from '@data-client/react';
+
 class User extends Entity {
   id = '';
   name = '';

@@ -55,6 +55,9 @@ delay: 150,
 ]}>
 
 ```tsx title="Users.tsx"
+import { Entity, RestEndpoint, schema } from '@data-client/rest';
+import { useSuspense } from '@data-client/react';
+
 export class User extends Entity {
   id = '';
   name = '';
@@ -103,6 +106,8 @@ delay: 150,
 ]}>
 
 ```typescript title="api/Feed"
+import { Entity, RestEndpoint, schema } from '@data-client/rest';
+
 export abstract class FeedItem extends Entity {
   readonly id: number = 0;
   declare readonly type: 'link' | 'post';
@@ -129,6 +134,7 @@ export const getFeed = new RestEndpoint({
 ```
 
 ```tsx title="FeedList" collapsed
+import { useSuspense } from '@data-client/react';
 import { getFeed, Link, Post } from './api/Feed';
 
 function FeedList() {
@@ -174,6 +180,8 @@ delay: 150,
 ]}>
 
 ```typescript title="api/Feed"
+import { Entity, RestEndpoint, schema } from '@data-client/rest';
+
 export abstract class FeedItem extends Entity {
   readonly id: number = 0;
   declare readonly type: 'link' | 'post';
@@ -200,6 +208,7 @@ export const getFeed = new RestEndpoint({
 ```
 
 ```tsx title="FeedList" collapsed
+import { useSuspense } from '@data-client/react';
 import { getFeed, Link, Post } from './api/Feed';
 
 function FeedList() {

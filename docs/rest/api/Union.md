@@ -50,21 +50,23 @@ delay: 150,
 ]}>
 
 ```typescript title="api/Feed"
-abstract class FeedItem extends Entity {
+import { Entity, RestEndpoint, Union } from '@data-client/rest';
+
+export abstract class FeedItem extends Entity {
   id = 0;
   declare type: 'link' | 'post';
 }
-class Link extends FeedItem {
+export class Link extends FeedItem {
   type = 'link' as const;
   url = '';
   title = '';
 }
-class Post extends FeedItem {
+export class Post extends FeedItem {
   type = 'post' as const;
   content = '';
 }
 
-const feed = new RestEndpoint({
+export const feed = new RestEndpoint({
   path: '/feed',
   schema: [
     new Union(
@@ -79,6 +81,9 @@ const feed = new RestEndpoint({
 ```
 
 ```tsx title="FeedList" collapsed
+import { useSuspense } from '@data-client/react';
+import { feed, Link, Post } from './api/Feed';
+
 function FeedList() {
   const feedItems = useSuspense(feed);
   return (
@@ -121,21 +126,23 @@ delay: 150,
 ]}>
 
 ```typescript title="api/Feed"
-abstract class FeedItem extends Entity {
+import { Entity, RestEndpoint, Union } from '@data-client/rest';
+
+export abstract class FeedItem extends Entity {
   id = 0;
   declare type: 'link' | 'post';
 }
-class LinkItem extends FeedItem {
+export class LinkItem extends FeedItem {
   type = 'link' as const;
   url = '';
   title = '';
 }
-class PostItem extends FeedItem {
+export class PostItem extends FeedItem {
   type = 'post' as const;
   content = '';
 }
 
-const feed = new RestEndpoint({
+export const feed = new RestEndpoint({
   path: '/feed',
   schema: [
     new Union(
@@ -143,13 +150,16 @@ const feed = new RestEndpoint({
         links: LinkItem,
         posts: PostItem,
       },
-      (input: Link | Post, parent: unknown, key: string) => `${input.type}s`,
+      (input: LinkItem | PostItem, parent: unknown, key: string) => `${input.type}s`,
     ),
   ],
 });
 ```
 
 ```tsx title="FeedList" collapsed
+import { useSuspense } from '@data-client/react';
+import { feed, LinkItem, PostItem } from './api/Feed';
+
 function FeedList() {
   const feedItems = useSuspense(feed);
   return (

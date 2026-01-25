@@ -60,6 +60,8 @@ delay: 150,
 ]}>
 
 ```ts title="api/Todo" {13} collapsed
+import { Entity, RestEndpoint, Collection } from '@data-client/rest';
+
 export class Todo extends Entity {
   id = '';
   userId = 0;
@@ -77,6 +79,7 @@ export const getTodos = new RestEndpoint({
 ```
 
 ```ts title="api/User" {12-16} collapsed
+import { Entity, RestEndpoint, Collection } from '@data-client/rest';
 import { Todo } from './Todo';
 
 export class User extends Entity {
@@ -103,6 +106,7 @@ export const getUsers = new RestEndpoint({
 ```
 
 ```tsx title="NewTodo" {9-13}
+import { useController } from '@data-client/react';
 import { getTodos } from './api/Todo';
 
 export default function NewTodo({ userId }: { userId?: string }) {
@@ -159,6 +163,7 @@ export default function TodoList({
 ```
 
 ```tsx title="UserList" collapsed
+import { useSuspense } from '@data-client/react';
 import { getUsers } from './api/User';
 import TodoList from './TodoList';
 

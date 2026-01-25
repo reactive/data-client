@@ -70,6 +70,7 @@ export const deleteUser = new RestEndpoint({
 ```
 
 ```tsx title="UserPage"
+import { useSuspense, useController } from '@data-client/react';
 import { getUsers, deleteUser } from './api/User';
 
 function UsersPage() {
@@ -115,6 +116,8 @@ status={200}
 response={[{ id: '5' }, { id: '13' }, { id: '7' }]}>
 
 ```typescript title="Post" collapsed
+import { Entity } from '@data-client/rest';
+
 export default class Post extends Entity {
   id = '';
   title = '';
@@ -123,7 +126,9 @@ export default class Post extends Entity {
 ```
 
 ```typescript title="Resource" {9}
+import { resource, Invalidate } from '@data-client/rest';
 import Post from './Post';
+
 export const PostResource = resource({
   schema: Post,
   path: '/posts/:id',
@@ -159,6 +164,8 @@ status={204}
 response={undefined}>
 
 ```typescript title="Post" collapsed
+import { Entity } from '@data-client/rest';
+
 export default class Post extends Entity {
   id = '';
   title = '';
@@ -167,7 +174,9 @@ export default class Post extends Entity {
 ```
 
 ```typescript title="Resource" {10-13}
+import { resource, Invalidate } from '@data-client/rest';
 import Post from './Post';
+
 export const PostResource = resource({
   schema: Post,
   path: '/posts/:id',
@@ -199,6 +208,8 @@ If your endpoint can delete more than one type of entity, you can use polymorphi
 The simplest approach is to pass an existing [Union](./Union.md) schema directly:
 
 ```typescript
+import { Entity, RestEndpoint, Union, Invalidate } from '@data-client/rest';
+
 class User extends Entity {
   id = '';
   name = '';
@@ -227,6 +238,8 @@ const deleteMember = new RestEndpoint({
 Alternatively, define the polymorphic mapping inline with a string attribute:
 
 ```typescript
+import { RestEndpoint, Invalidate } from '@data-client/rest';
+
 const deleteMember = new RestEndpoint({
   path: '/members/:id',
   method: 'DELETE',
@@ -242,6 +255,8 @@ const deleteMember = new RestEndpoint({
 The return values should match a key in the entity map. This is useful for more complex discrimination logic:
 
 ```typescript
+import { RestEndpoint, Invalidate } from '@data-client/rest';
+
 const deleteMember = new RestEndpoint({
   path: '/members/:id',
   method: 'DELETE',
