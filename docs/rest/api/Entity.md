@@ -375,4 +375,4 @@ import Lifecycle from '../diagrams/\_entity_lifecycle.mdx';
 
 import LifecycleMethods from '../shared/\_entity_lifecycle_methods.mdx';
 
-<LifecycleMethods/>
+<LifecycleMethods entitySyntax="Entity" />

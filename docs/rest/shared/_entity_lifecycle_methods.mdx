@@ -1,4 +1,5 @@
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
+import CodeBlock from '@theme/CodeBlock';
 
 ### static fromJS(props): Entity {#fromJS}
 
@@ -16,8 +17,29 @@ How to override to [build reverse-lookups for relational data](../guides/relatio
 
 #### Case of the missing id
 
-```ts
-class Stream extends Entity {
+{props?.entitySyntax === 'EntityMixin' ? (
+<CodeBlock language="ts">{`import { EntityMixin } from '@data-client/rest';
+
+class Stream {
+  username = '';
+  title = '';
+  game = '';
+  currentViewers = 0;
+  live = false;
+}
+
+class StreamEntity extends EntityMixin(Stream) {
+  static key = 'Stream';
+
+  static process(value, parent, key, args) {
+    // super.process creates a copy of value
+    const processed = super.process(value, parent, key, args);
+    processed.username = args[0]?.username;
+    return processed;
+  }
+}`}</CodeBlock>
+) : (
+<CodeBlock language="ts">{`class Stream extends Entity {
   username = '';
   title = '';
   game = '';
@@ -35,8 +57,8 @@ class Stream extends Entity {
     processed.username = args[0]?.username;
     return processed;
   }
-}
-```
+}`}</CodeBlock>
+)}
 
 #### Dynamic Invalidation
 
@@ -44,8 +66,28 @@ Returning `undefined` from [Entity.process](#process)
 will cause the `Entity` to be [invalidated](/docs/concepts/expiry-policy#invalidate-entity).
 This this allows us to invalidate dynamically; based on the particular response data.
 
-```ts
-class PriceLevel extends Entity {
+{props?.entitySyntax === 'EntityMixin' ? (
+<CodeBlock language="ts">{`import { EntityMixin } from '@data-client/rest';
+
+class PriceLevel {
+  price = 0;
+  amount = 0;
+}
+
+class PriceLevelEntity extends EntityMixin(PriceLevel) {
+  static process(
+    input: [number, number],
+    parent: any,
+    key: string | undefined,
+  ): any {
+    const [price, amount] = input;
+    // highlight-next-line
+    if (amount === 0) return undefined;
+    return { price, amount };
+  }
+}`}</CodeBlock>
+) : (
+<CodeBlock language="ts">{`class PriceLevel extends Entity {
   price = 0;
   amount = 0;
 
@@ -63,8 +105,8 @@ class PriceLevel extends Entity {
     if (amount === 0) return undefined;
     return { price, amount };
   }
-}
-```
+}`}</CodeBlock>
+)}
 
 ### static mergeWithStore(existingMeta, incomingMeta, existing, incoming): mergedValue {#mergeWithStore}
 
@@ -126,8 +168,29 @@ static shouldUpdate(
 
 shouldUpdate can also be used to short-circuit an entity update.
 
-```typescript
-import deepEqual from 'deep-equal';
+{props?.entitySyntax === 'EntityMixin' ? (
+<CodeBlock language="typescript">{`import deepEqual from 'deep-equal';
+import { EntityMixin } from '@data-client/rest';
+
+class Article {
+  id = '';
+  title = '';
+  content = '';
+  published = false;
+}
+
+class ArticleEntity extends EntityMixin(Article) {
+  static shouldUpdate(
+    existingMeta: { date: number; fetchedAt: number },
+    incomingMeta: { date: number; fetchedAt: number },
+    existing: any,
+    incoming: any,
+  ) {
+    return !deepEqual(incoming, existing);
+  }
+}`}</CodeBlock>
+) : (
+<CodeBlock language="typescript">{`import deepEqual from 'deep-equal';
 
 class Article extends Entity {
   id = '';
@@ -143,8 +206,8 @@ class Article extends Entity {
   ) {
     return !deepEqual(incoming, existing);
   }
-}
-```
+}`}</CodeBlock>
+)}
 
 ### static shouldReorder(existingMeta, incomingMeta, existing, incoming): boolean {#shouldreorder}
 
@@ -167,8 +230,28 @@ rather than the other way around.
 
 <TypeScriptEditor>
 
-```typescript path="shouldReorder"
-class LatestPriceEntity extends Entity {
+{props?.entitySyntax === 'EntityMixin' ? (
+<CodeBlock language="typescript">{`import { EntityMixin } from '@data-client/rest';
+
+class LatestPrice {
+  id = '';
+  updatedAt = 0;
+  price = '0.0';
+  symbol = '';
+}
+
+class LatestPriceEntity extends EntityMixin(LatestPrice) {
+  static shouldReorder(
+    existingMeta: { date: number; fetchedAt: number },
+    incomingMeta: { date: number; fetchedAt: number },
+    existing: { updatedAt: number },
+    incoming: { updatedAt: number },
+  ) {
+    return incoming.updatedAt < existing.updatedAt;
+  }
+}`}</CodeBlock>
+) : (
+<CodeBlock language="typescript">{`class LatestPriceEntity extends Entity {
   id = '';
   updatedAt = 0;
   price = '0.0';
@@ -186,8 +269,8 @@ class LatestPriceEntity extends Entity {
   ) {
     return incoming.updatedAt < existing.updatedAt;
   }
-}
-```
+}`}</CodeBlock>
+)}
 
 </TypeScriptEditor>
 

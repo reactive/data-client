@@ -133,6 +133,40 @@ import Lifecycle from '../diagrams/\_entity_lifecycle.mdx';
 
 <Lifecycle/>
 
+To override lifecycle methods like [process()](#process), you must use the `class ... extends EntityMixin(...) {}` form.
+The `EntityMixin()` options only include [pk](#pk), [key](#key), and [schema](#schema)—lifecycle overrides live on the class itself.
+
+<TypeScriptEditor>
+
+```typescript
+import { EntityMixin } from '@data-client/rest';
+
+export class Article {
+  id = '';
+  title = '';
+  content = '';
+  tags: string[] = [];
+}
+
+// ❌ Not supported (lifecycle methods are not EntityMixin options)
+// export const ArticleEntity = EntityMixin(Article, {
+//   process(input) {
+//     return input;
+//   },
+// });
+
+// ✅ Use a class when adding lifecycle methods
+export class ArticleEntity extends EntityMixin(Article) {
+  static process(input: any, parent: any, key: string | undefined, args: any[]) {
+    const processed = super.process(input, parent, key, args);
+    processed.tags ??= [];
+    return processed;
+  }
+}
+```
+
+</TypeScriptEditor>
+
 import LifecycleMethods from '../shared/\_entity_lifecycle_methods.mdx';
 
-<LifecycleMethods/>
+<LifecycleMethods entitySyntax="EntityMixin" />
