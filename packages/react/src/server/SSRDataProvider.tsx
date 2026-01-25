@@ -7,7 +7,6 @@ import { renderDevButton } from '../components/renderDevButton.js';
 import {
   ControllerContext,
   StoreContext,
-  BackupLoading,
   UniversalSuspense,
 } from '../index.js';
 
@@ -39,9 +38,7 @@ export default function SSRDataProvider({
   return (
     <StoreContext.Provider value={store}>
       <ControllerContext.Provider value={controller}>
-        <UniversalSuspense fallback={<BackupLoading />}>
-          {children}
-        </UniversalSuspense>
+        <UniversalSuspense fallback={null}>{children}</UniversalSuspense>
         {renderDevButton(devButton, hasDevManager)}
       </ControllerContext.Provider>
     </StoreContext.Provider>
