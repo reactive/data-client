@@ -102,36 +102,54 @@ function createRelease(tag, name, body) {
 }
 
 async function main() {
-  const packagesDir = join(process.cwd(), 'packages');
-  const packageDirs = readdirSync(packagesDir, { withFileTypes: true })
-    .filter(d => d.isDirectory())
-    .map(d => join(packagesDir, d.name));
+  // Get published packages from changesets action output
+  const publishedPackagesJson = process.env.PUBLISHED_PACKAGES;
+  if (!publishedPackagesJson) {
+    console.log('No PUBLISHED_PACKAGES environment variable set. Exiting.');
+    return;
+  }
 
+  let publishedPackages;
+  try {
+    publishedPackages = JSON.parse(publishedPackagesJson);
+  } catch (e) {
+    console.error('Failed to parse PUBLISHED_PACKAGES:', e.message);
+    process.exit(1);
+  }
+
+  if (!Array.isArray(publishedPackages) || publishedPackages.length === 0) {
+    console.log('No packages were published. Exiting.');
+    return;
+  }
+
+  console.log(`Processing ${publishedPackages.length} published package(s)...`);
+
+  const packagesDir = join(process.cwd(), 'packages');
   let createdCount = 0;
   let skippedCount = 0;
 
-  for (const packageDir of packageDirs) {
-    const pkgJsonPath = join(packageDir, 'package.json');
-    if (!existsSync(pkgJsonPath)) continue;
-
-    const pkg = JSON.parse(readFileSync(pkgJsonPath, 'utf-8'));
-
-    // Skip private packages
-    if (pkg.private) continue;
-
-    const tag = `${pkg.name}@${pkg.version}`;
+  for (const { name, version } of publishedPackages) {
+    const tag = `${name}@${version}`;
 
     // Skip if release already exists
     if (releaseExists(tag)) {
+      console.log(`  Skipping ${tag} (already exists)`);
       skippedCount++;
       continue;
     }
 
+    // Find package directory (strip scope from name for directory lookup)
+    const dirName = name.replace(/^@[^/]+\//, '');
+    const packageDir = join(packagesDir, dirName);
+
     // Get changelog content
-    let changelog = getChangelogForVersion(packageDir, pkg.version);
+    let changelog = '';
+    if (existsSync(packageDir)) {
+      changelog = getChangelogForVersion(packageDir, version);
+    }
 
     // Check for blog post (using major.minor version)
-    const majorMinor = pkg.version.split('.').slice(0, 2).join('.');
+    const majorMinor = version.split('.').slice(0, 2).join('.');
     const blogUrl = findBlogPost(majorMinor);
 
     // Build release body
@@ -142,7 +160,7 @@ async function main() {
     if (changelog) {
       body += changelog;
     } else {
-      body += `Release ${pkg.name}@${pkg.version}`;
+      body += `Release ${name}@${version}`;
     }
 
     createRelease(tag, tag, body);
