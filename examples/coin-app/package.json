@@ -1,6 +1,6 @@
 {
   "name": "coinbase-lite",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "packageManager": "yarn@4.12.0",
   "description": "Coin App",
   "scripts": {
@@ -45,7 +45,7 @@
     "@anansi/router": "0.10.21",
     "@babel/runtime-corejs3": "7.28.6",
     "@data-client/img": "0.15.0",
-    "@data-client/react": "0.15.4",
+    "@data-client/react": "0.15.6",
     "@data-client/rest": "0.15.5",
     "core-js": "3.48.0",
     "d3": "7.9.0",

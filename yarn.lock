@@ -3324,7 +3324,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/react@npm:0.15.4, @data-client/react@workspace:*, @data-client/react@workspace:packages/react":
+"@data-client/react@npm:0.15.6, @data-client/react@workspace:*, @data-client/react@workspace:packages/react":
   version: 0.0.0-use.local
   resolution: "@data-client/react@workspace:packages/react"
   dependencies:
@@ -11380,7 +11380,7 @@ __metadata:
     "@babel/core": "npm:7.28.6"
     "@babel/runtime-corejs3": "npm:7.28.6"
     "@data-client/img": "npm:0.15.0"
-    "@data-client/react": "npm:0.15.4"
+    "@data-client/react": "npm:0.15.6"
     "@data-client/rest": "npm:0.15.5"
     "@linaria/core": "npm:*"
     "@linaria/react": "npm:*"
