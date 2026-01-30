@@ -10,7 +10,7 @@
     "lint": "yarn g:lint"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "stackblitz": {
     "startCommand": "npm run dev"
