@@ -1,6 +1,7 @@
 ---
 name: rdc-vue-testing
 description: Testing patterns for @data-client/vue using mountDataClient and renderDataCompose
+license: Apache 2.0
 ---
 
 # Vue Testing Patterns (@data-client/vue)

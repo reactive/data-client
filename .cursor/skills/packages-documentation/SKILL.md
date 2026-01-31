@@ -1,6 +1,7 @@
 ---
 name: packages-documentation
 description: Guidelines for writing and formatting documentation for public library interfaces in packages
+license: Apache 2.0
 ---
 # Package Documentation Writing Guidelines
 

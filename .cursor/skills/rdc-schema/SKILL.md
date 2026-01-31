@@ -1,6 +1,7 @@
 ---
 name: rdc-schema
 description: Schema data modeling with @data-client/rest or @data-client/endpoint
+license: Apache 2.0
 ---
 
 ## 1. Defining Schemas

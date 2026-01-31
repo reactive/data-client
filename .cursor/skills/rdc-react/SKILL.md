@@ -1,6 +1,7 @@
 ---
 name: rdc-react
 description: Usage patterns for @data-client/react hooks and components
+license: Apache 2.0
 ---
 ## Rendering
 

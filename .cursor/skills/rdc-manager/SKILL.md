@@ -1,6 +1,7 @@
 ---
 name: rdc-manager
 description: Guidelines for implementing @data-client/react Managers which handle global side effects
+license: Apache 2.0
 ---
 # Guide: Using `@data-client/react` Managers for global side effects
 

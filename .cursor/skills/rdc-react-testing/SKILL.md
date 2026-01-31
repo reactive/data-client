@@ -1,6 +1,7 @@
 ---
 name: rdc-react-testing
 description: Testing patterns and conventions for @data-client/test
+license: Apache 2.0
 ---
 
 # Testing Patterns (@data-client/test)

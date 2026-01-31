@@ -1,6 +1,7 @@
 ---
 name: rdc-rest
 description: Modeling resources endpoints and schemas with @data-client/rest
+license: Apache 2.0
 ---
 # Guide: Using `@data-client/rest` for Resource Modeling
 
