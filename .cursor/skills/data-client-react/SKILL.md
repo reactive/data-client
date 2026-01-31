@@ -1,6 +1,6 @@
 ---
+name: rdc-react
 description: Usage patterns for @data-client/react hooks and components
-alwaysApply: false
 ---
 ## Rendering
 
@@ -18,7 +18,7 @@ const todo = useCache(TodoResource.get, { id: 5 });
 const todo = useQuery(Todo, { id: 5 });
 ```
 
-For API definitions (like TodoResource), see @.cursor/rules/rest.mdc
+For API definitions (like TodoResource), apply the skill "rdc-rest".
 
 ## Mutations
 
@@ -105,9 +105,7 @@ const todosByUser = useQuery(groupTodoByUser);
 ## Managers
 
 Custom [Managers](https://dataclient.io/docs/api/Manager) allow for global side effect handling.
-This is useful for webosckets, SSE, logging, etc.
-
-For more detailed usage, see @.cursor/rules/manager.mdc
+This is useful for webosckets, SSE, logging, etc. Always use the skill "rdc-manager" when writing managers.
 
 ## Best Practices & Notes
 
@@ -123,4 +121,4 @@ For more detailed usage, see @.cursor/rules/manager.mdc
 - [useSuspense](https://dataclient.io/docs/api/useSuspense)
 - [Controller](https://dataclient.io/docs/api/Controller)
 
-**ALWAYS follow these patterns and refer to the official docs for edge cases. Prioritize code generation that is idiomatic, type-safe, and leverages automatic normalization/caching via schema definitions.**
+**ALWAYS follow these patterns and refer to the official docs for edge cases. Prioritize code generation that is idiomatic, type-safe, and leverages automatic normalization/caching via skill "rdc-schema" definitions.**

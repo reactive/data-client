@@ -1,6 +1,6 @@
 ---
+name: rdc-schema
 description: Schema data modeling with @data-client/rest or @data-client/endpoint
-alwaysApply: false
 ---
 
 ## 1. Defining Schemas
@@ -48,7 +48,7 @@ to represent the data expected.
 ## 2. Entity best practices
 
 - Every `Entity` subclass **defines defaults** for _all_ non-optional serialised fields.
-- Override `pk()` only when the primary key ≠ `id`.
+- Override `pk()` only when the primary key ≠ `id`.
 - `pk()` return type is `number | string | undefined`
 - Override `Entity.process(value, parent, key, args)` to insert fields based on args/url
 - `static schema` (optional) for nested schemas or deserialization functions
@@ -99,7 +99,7 @@ export const EventResource = resource({
 
 ## 6. Common Mistakes to Avoid
 
-- Don’t forget to use `fromJS()` or assign default properties for class fields
+- Don't forget to use `fromJS()` or assign default properties for class fields
 
 # Official Documentation Links
 

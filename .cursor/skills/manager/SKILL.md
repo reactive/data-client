@@ -1,6 +1,6 @@
 ---
+name: rdc-manager
 description: Guidelines for implementing @data-client/react Managers which handle global side effects
-alwaysApply: false
 ---
 # Guide: Using `@data-client/react` Managers for global side effects
 

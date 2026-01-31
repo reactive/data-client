@@ -1,3 +1,9 @@
+---
+name: changeset
+description: Create Changesets and PR
+disable-model-invocation: true
+---
+
 # Create Changesets and PR
 
 ## Overview

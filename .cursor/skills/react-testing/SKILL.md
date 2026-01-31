@@ -1,7 +1,6 @@
 ---
+name: rdc-react-testing
 description: Testing patterns and conventions for @data-client/test
-globs: **/*.test.ts, **/*.test.tsx, **/*.spec.ts, **/*.spec.tsx, **/__tests__/**/*.ts, **/__tests__/**/*.tsx
-alwaysApply: false
 ---
 
 # Testing Patterns (@data-client/test)

@@ -1,7 +1,6 @@
 ---
+name: rdc-vue-testing
 description: Testing patterns for @data-client/vue using mountDataClient and renderDataCompose
-globs: packages/vue/src/**/*.test.ts, packages/vue/src/**/*.test.vue, packages/vue/src/**/__tests__/**/*.ts, packages/vue/src/**/__tests__/**/*.vue
-alwaysApply: false
 ---
 
 # Vue Testing Patterns (@data-client/vue)
