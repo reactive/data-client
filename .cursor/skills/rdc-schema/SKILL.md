@@ -1,6 +1,6 @@
 ---
 name: rdc-schema
-description: Schema data modeling with @data-client/rest or @data-client/endpoint
+description: Define data schemas - Entity, Collection, Union, Query, pk/primary key, normalize/denormalize, relational/nested data, polymorphic types, Invalidate, Values
 license: Apache 2.0
 ---
 

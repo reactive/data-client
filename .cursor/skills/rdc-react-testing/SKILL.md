@@ -1,6 +1,6 @@
 ---
 name: rdc-react-testing
-description: Testing patterns and conventions for @data-client/test
+description: Test @data-client/react with renderDataHook - jest unit tests, fixtures, interceptors, mock responses, nock HTTP mocking, hook testing, component testing
 license: Apache 2.0
 ---
 

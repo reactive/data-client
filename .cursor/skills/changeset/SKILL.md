@@ -1,6 +1,6 @@
 ---
 name: changeset
-description: Create Changesets and PR
+description: Create changesets for version bump, release notes, changelog, PR description, semver patch/minor/major, breaking changes, and documentation updates after code changes
 disable-model-invocation: true
 ---
 

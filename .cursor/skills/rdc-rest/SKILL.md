@@ -1,6 +1,6 @@
 ---
 name: rdc-rest
-description: Modeling resources endpoints and schemas with @data-client/rest
+description: Define REST APIs with @data-client/rest - resource(), RestEndpoint, CRUD, GET/POST/PUT/DELETE, HTTP fetch, normalize, cache, urlPrefix, path parameters
 license: Apache 2.0
 ---
 # Guide: Using `@data-client/rest` for Resource Modeling

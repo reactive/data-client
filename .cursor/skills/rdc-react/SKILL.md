@@ -1,6 +1,6 @@
 ---
 name: rdc-react
-description: Usage patterns for @data-client/react hooks and components
+description: Use @data-client/react hooks - useSuspense, useQuery, useCache, useLive, useController for fetch/mutations, DataProvider, AsyncBoundary, useLoading, useDebounce
 license: Apache 2.0
 ---
 ## Rendering
