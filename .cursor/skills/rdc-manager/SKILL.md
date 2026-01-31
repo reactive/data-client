@@ -1,6 +1,7 @@
 ---
-description: Guidelines for implementing @data-client/react Managers which handle global side effects
-alwaysApply: false
+name: rdc-manager
+description: Implement @data-client/react Managers for global side effects - websocket, SSE, polling, subscriptions, logging, middleware, Controller actions, redux pattern
+license: Apache 2.0
 ---
 # Guide: Using `@data-client/react` Managers for global side effects
 

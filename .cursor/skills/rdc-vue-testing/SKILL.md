@@ -1,7 +1,7 @@
 ---
-description: Testing patterns for @data-client/vue using mountDataClient and renderDataCompose
-globs: packages/vue/src/**/*.test.ts, packages/vue/src/**/*.test.vue, packages/vue/src/**/__tests__/**/*.ts, packages/vue/src/**/__tests__/**/*.vue
-alwaysApply: false
+name: rdc-vue-testing
+description: Test @data-client/vue composables and components - renderDataCompose, mountDataClient, fixtures, jest, nock, Vue 3 reactive props, useSuspense testing
+license: Apache 2.0
 ---
 
 # Vue Testing Patterns (@data-client/vue)

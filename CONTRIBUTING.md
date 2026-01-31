@@ -39,12 +39,8 @@ If your idea requires design considerations, it's best to [start a discussion][4
   examples. If you're unsure, don't hesitate to [open an issue][1] and ask!
 
 * Add a changeset for user-facing changes in published packages:
-  * Run `yarn changeset` from repo root (run it once per distinct change).
-  * Write **terse changelog text** (1–3 short lines); include only **minimal examples** if needed.
-  * For **breaking changes**, include a minimal migration example with:
-    * `#### before`
-    * `#### after`
-  * If multiple packages are affected in different ways, generate **separate changesets** for each respective change.
+  * Use the `/changeset` Cursor command to generate changesets, update docs, and prepare a PR description.
+  * If doing manually: run `yarn changeset` from repo root once per distinct change.
 
 * Submit your pull request!
 

@@ -1,3 +1,9 @@
+---
+name: initialize
+description: Setup, install, and onboard new developers to Reactive Data Client monorepo - nvm, yarn, build, test, getting started guide
+disable-model-invocation: true
+---
+
 # Initialize Development Environment
 
 ## Overview
@@ -58,4 +64,3 @@ Get a new developer up and running with the Reactive Data Client monorepo.
 - [Documentation](https://dataclient.io/docs)
 - [Discord](https://discord.gg/35nb8Mz)
 - [Contributing Guide](./CONTRIBUTING.md)
-

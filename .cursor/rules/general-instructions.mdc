@@ -54,7 +54,7 @@ Yarn monorepo for normalized reactive state management.
 - Internal/private APIs (prefixed with `_`, not exported, or marked `@internal`)
 - Implementation-only changes
 
-Update docs **in the same commit/PR** as code changes. For writing guidelines, see @.cursor/rules/packages-documentation.mdc
+Update docs **in the same commit/PR** as code changes. For writing guidelines, see skill "packages-documentation"
 
 ## Common Mistakes to Avoid
 

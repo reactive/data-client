@@ -1,7 +1,3 @@
----
-alwaysApply: true
----
-
 ## Changesets (release notes)
 
 - **When to add**: Any user-facing change in a published package (`packages/*`) should include a changeset.

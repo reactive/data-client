@@ -1,6 +1,7 @@
 ---
-description: Modeling resources endpoints and schemas with @data-client/rest
-alwaysApply: false
+name: rdc-rest
+description: Define REST APIs with @data-client/rest - resource(), RestEndpoint, CRUD, GET/POST/PUT/DELETE, HTTP fetch, normalize, cache, urlPrefix, path parameters
+license: Apache 2.0
 ---
 # Guide: Using `@data-client/rest` for Resource Modeling
 
@@ -11,8 +12,8 @@ This project uses [@data-client/rest](https://dataclient.io/rest) to define, fet
 
 ## 1. Defining Schemas
 
-This project uses [schemas](https://dataclient.io/rest/api/schema) (see @.cursor/rules/schema.mdc) to define and normalize data models with type safety and automatic cache management.
-**Always follow these patterns (@.cursor/rules/schema.mdc) when generating mutable data definitions.**
+This project uses [schemas](https://dataclient.io/rest/api/schema) to define and normalize data models with type safety and automatic cache management. Apply the skill "rdc-schema" for schema patterns.
+**Always follow these patterns (apply the skill "rdc-schema") when generating mutable data definitions.**
 
 ## 2. Resources (`resource()`)
 
@@ -88,11 +89,11 @@ const deleteTodo = id => ctrl.fetch(TodoResource.delete, { id });
 const getNextPage = (page) => ctrl.fetch(TodoResource.getList.getPage, { userId: 1, page })
 ```
 
-For more detailed usage, see @.cursor/rules/react.mdc
+For more detailed usage, apply the skill "rdc-react".
 
 ---
 
-## 3. Custom [RestEndpoint](https://dataclient.io/rest/api/RestEndpoint) patterns
+## 3. Custom [RestEndpoint](https://dataclient.io/rest/api/RestEndpoint) patterns
 
 ```ts
 /** Stand‑alone endpoint with custom typing */
@@ -106,7 +107,7 @@ export const getTicker = new RestEndpoint({
 
 **Typing tips**  
 - `path` path‑to‑regexp template for 1st arg
-- `method` ≠ `GET` ⇒ 2nd arg = body (unless `body: undefined`)
+- `method` ≠ `GET` ⇒ 2nd arg = body (unless `body: undefined`)
 - Provide `searchParams` / `body` _values_ purely for **type inference**
 - Use `RestGenerics` when inheriting from `RestEndpoint`
 

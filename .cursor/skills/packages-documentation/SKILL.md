@@ -1,10 +1,11 @@
 ---
-description: Guidelines for writing and formatting documentation for public library interfaces in packages
-alwaysApply: false
+name: packages-documentation
+description: Write, update, and format docs for public APIs - API reference, README, docstrings, usage examples, migration guides, deprecation notices
+license: Apache 2.0
 ---
 # Package Documentation Writing Guidelines
 
-This guide covers how to write and format documentation for public library interfaces. For information on **when** documentation updates are required, see @.cursor/rules/general-usage.mdc
+This guide covers how to write and format documentation for public library interfaces.
 
 ## Documentation Structure
 
