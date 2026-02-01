@@ -1,13 +1,14 @@
 ---
 name: rdc-setup
-description: Install and set up @data-client/react or @data-client/vue in a project. Detects project type (NextJS, Expo, React Native, Vue, plain React) and configures DataProvider or DataClientPlugin. Use when setting up data-client, installing reactive data client, or adding DataProvider.
+description: Install and set up @data-client/react or @data-client/vue in a project. Detects project type (NextJS, Expo, React Native, Vue, plain React) and protocol (REST, GraphQL, custom), then hands off to protocol-specific setup skills.
+disable-model-invocation: true
 ---
 
 # Setup Reactive Data Client
 
 ## Detection Steps
 
-Before installing, detect the project type by checking these files:
+Before installing, detect the project type and protocol by checking these files:
 
 ### 1. Detect Package Manager
 
@@ -28,11 +29,40 @@ Check `package.json` dependencies:
 | `"react-native"` in dependencies (no expo) | **React Native** |
 | `"react"` in dependencies | **Plain React** |
 
+### 3. Detect Protocol Type
+
+Scan the codebase to determine which data-fetching protocols are used:
+
+#### REST Detection
+
+Look for these patterns:
+- `fetch()` calls with REST-style URLs (`/api/`, `/users/`, etc.)
+- HTTP client libraries: `axios`, `ky`, `got`, `superagent` in `package.json`
+- Files with REST patterns: `api.ts`, `client.ts`, `services/*.ts`
+- URL patterns with path parameters: `/users/:id`, `/posts/:postId/comments`
+- HTTP methods in code: `method: 'GET'`, `method: 'POST'`, `.get(`, `.post(`
+
+#### GraphQL Detection
+
+Look for these patterns:
+- `@apollo/client`, `graphql-request`, `urql`, `graphql-tag` in `package.json`
+- `.graphql` or `.gql` files in the project
+- `gql\`` template literal tags
+- GraphQL query patterns: `query {`, `mutation {`, `subscription {`
+- GraphQL endpoint URLs: `/graphql`
+
+#### Custom Protocol Detection
+
+For async operations that don't match REST or GraphQL:
+- Custom async functions returning Promises
+- Third-party SDK clients (Firebase, Supabase, AWS SDK, etc.)
+- IndexedDB or other local async storage
+
 ## Installation
 
-### Packages to Install
+### Core Packages
 
-| Framework | Packages |
+| Framework | Core Package |
 |-----------|----------|
 | React (all) | `@data-client/react` + dev: `@data-client/test` |
 | Vue | `@data-client/vue` (testing included) |
@@ -151,14 +181,44 @@ app.use(DataClientPlugin, {
 app.mount('#app');
 ```
 
+## Protocol-Specific Setup
+
+After provider setup, apply the appropriate skill based on detected protocol:
+
+### REST APIs
+
+Apply skill **"rdc-rest-setup"** which will:
+1. Install `@data-client/rest`
+2. Offer to create a custom `BaseEndpoint` class extending `RestEndpoint`
+3. Configure common behaviors: urlPrefix, authentication, error handling
+
+### GraphQL APIs
+
+Apply skill **"rdc-graphql-setup"** which will:
+1. Install `@data-client/graphql`
+2. Create and configure `GQLEndpoint` instance
+3. Set up authentication headers
+
+### Custom Async Operations
+
+Apply skill **"rdc-endpoint-setup"** which will:
+1. Install `@data-client/endpoint`
+2. Offer to wrap existing async functions with `new Endpoint()`
+3. Configure schemas and caching options
+
+### Multiple Protocols
+
+If multiple protocols are detected, apply multiple setup skills. Each protocol package can be installed alongside others.
+
 ## Verification Checklist
 
 After setup, verify:
 
-- [ ] Packages installed in `package.json`
+- [ ] Core packages installed in `package.json`
 - [ ] Provider/Plugin wraps the app at root level
 - [ ] Correct import path used (especially `@data-client/react/nextjs` for NextJS)
 - [ ] No duplicate providers in component tree
+- [ ] Protocol-specific setup completed via appropriate skill
 
 ## Common Issues
 
@@ -180,12 +240,10 @@ The `DataProvider` must wrap all components that use data-client hooks. Place it
 
 ## Next Steps
 
-After setup, the user can:
-1. Define data schemas using `Entity` and `resource()`
-2. Use hooks like `useSuspense`, `useQuery`, `useController`
-3. See skill "rdc-rest" for defining REST APIs
-4. See skill "rdc-schema" for schema definitions
-5. See skill "rdc-react" for react usage
+After core setup and protocol-specific setup:
+1. Define data schemas using `Entity` - see skill "rdc-schema"
+2. Use hooks like `useSuspense`, `useQuery`, `useController` - see skill "rdc-react"
+3. Define REST resources - see skill "rdc-rest"
 
 ## References
 

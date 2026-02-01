@@ -166,4 +166,10 @@ For detailed API documentation, see the [references](references/) directory:
 - [data-dependency](references/data-dependency.md) - Rendering guide
 - [mutations](references/mutations.md) - Mutations guide
 
+**Guides** (refer when user asks about these topics):
+- [auth](references/auth.md) - Authentication headers, tokens, login/logout flows
+- [pagination](references/pagination.md) - Cursor/offset pagination, infinite scroll
+- [optimistic-updates](references/optimistic-updates.md) - Instant UI feedback before server response
+- [network-transform](references/network-transform.md) - Transform responses, handle non-standard APIs
+
 **ALWAYS follow these patterns and refer to the official docs for edge cases. Prioritize code generation that is idiomatic, type-safe, and leverages automatic normalization/caching via schema definitions.**
