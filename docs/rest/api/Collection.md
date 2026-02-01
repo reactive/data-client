@@ -59,7 +59,7 @@ delay: 150,
 },
 ]}>
 
-```ts title="api/Todo" {13} collapsed
+```ts title="api/Todo" {15} collapsed
 import { Entity, RestEndpoint, Collection } from '@data-client/rest';
 
 export class Todo extends Entity {
@@ -78,7 +78,7 @@ export const getTodos = new RestEndpoint({
 });
 ```
 
-```ts title="api/User" {12-16} collapsed
+```ts title="api/User" {13-17} collapsed
 import { Entity, RestEndpoint, Collection } from '@data-client/rest';
 import { Todo } from './Todo';
 
@@ -105,7 +105,7 @@ export const getUsers = new RestEndpoint({
 });
 ```
 
-```tsx title="NewTodo" {9-13}
+```tsx title="NewTodo" {10-14}
 import { useController } from '@data-client/react';
 import { getTodos } from './api/Todo';
 
