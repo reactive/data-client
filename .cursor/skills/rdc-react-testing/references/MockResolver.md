@@ -1,0 +1,1 @@
+../../../../docs/core/api/MockResolver.md

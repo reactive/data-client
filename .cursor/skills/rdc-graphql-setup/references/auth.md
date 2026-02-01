@@ -1,0 +1,1 @@
+../../../../docs/graphql/auth.md

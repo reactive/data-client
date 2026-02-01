@@ -38,6 +38,8 @@ npm install --save @data-client/react @data-client/rest @data-client/test
 
 For more details, see [the Installation docs page](https://dataclient.io/docs/getting-started/installation).
 
+[Agent Skill](https://agentskills.io) for setup: ["rdc-setup"](./.cursor/skills/rdc-setup)
+
 ## Usage
 
 ### Simple [TypeScript definition](https://dataclient.io/rest/api/Entity)

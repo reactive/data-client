@@ -1,0 +1,1 @@
+../../../../docs/rest/guides/partial-entities.md
