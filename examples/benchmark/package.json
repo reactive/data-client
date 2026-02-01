@@ -22,7 +22,7 @@
     "@data-client/normalizr": "workspace:*",
     "benchmark": "2.1.4",
     "normalizr": "3.6.2",
-    "react": "19.2.3"
+    "react": "19.2.4"
   },
   "devDependencies": {
     "@anansi/webpack-config": "21.1.12",
