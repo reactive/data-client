@@ -187,6 +187,8 @@ render(<UserList />);
 
 ## Options
 
+One of `argsKey` or `nestKey` is used to compute the `Collection's` [pk](#pk).
+
 ### argsKey(...args): Object {#argsKey}
 
 Returns a serializable Object whose members uniquely define this collection based
@@ -210,6 +212,9 @@ const getTodos = new RestEndpoint({
 
 Returns a serializable Object whose members uniquely define this collection based
 on the parent it is nested inside.
+
+Nested `Collection's` [pk](#pk) are better defined by what they are nested inside. This allows
+the nested Collection to share its state with other instances whose key has the same value.
 
 ```ts {28-30}
 import { Collection, Entity } from '@data-client/rest';
@@ -241,9 +246,14 @@ class User extends Entity {
 }
 ```
 
+In this case, `user.todos` and getTodos() response (from the argsKey example) will always
+be the same (referentially equal) Array.
+
 ### nonFilterArgumentKeys?
 
-`nonFilterArgumentKeys` defines a test to determine which argument keys
+A convenient alternative to [argsKey](#argsKey)
+
+`nonFilterArgumentKeys` defines a test to determine which [argument keys](#argsKey)
 are _not_ used for filtering the results. For instance, if your API uses
 'orderBy' to choose a sort - this argument would not influence which
 entities are included in the response.
