@@ -158,19 +158,19 @@ export const IssueResource = resource({
 For detailed API documentation, see the [references](references/) directory:
 
 - [resource](references/resource.md) - Create CRUD endpoints
-- [RestEndpoint](references/RestEndpoint.md) - Single REST endpoint
-- [Entity](references/Entity.md) - Normalized data class
-- [Endpoint](references/Endpoint.md) - Base endpoint class
+- [RestEndpoint](references/RestEndpoint.md);[_EndpointLifecycle.mdx](references/_EndpointLifecycle.mdx) - Single REST endpoint
+- [Entity](references/Entity.md);[_entity_lifecycle_methods.mdx](references/_entity_lifecycle_methods.mdx) - Normalized data class
+- [Endpoint](references/Endpoint.md);[_EndpointLifecycle.mdx](references/_EndpointLifecycle.mdx) - Base endpoint class
 - [Collection](references/Collection.md) - Mutable lists
 - [schema](references/schema.md) - Schema overview
 - [Fixtures](references/Fixtures.md) - Mock data for testing
-- [data-dependency](references/data-dependency.md) - Rendering guide
-- [mutations](references/mutations.md) - Mutations guide
+- [data-dependency](references/data-dependency.md);[_useLive.mdx](references/_useLive.mdx);[_AsyncBoundary.mdx](references/_AsyncBoundary.mdx) - Rendering guide
+- [mutations](references/mutations.md);[_useLoading.mdx](references/_useLoading.mdx);[_VoteDemo.mdx](references/_VoteDemo.mdx) - Mutations guide
 
 **Guides** (refer when user asks about these topics):
 - [auth](references/auth.md) - Authentication headers, tokens, login/logout flows
-- [pagination](references/pagination.md) - Cursor/offset pagination, infinite scroll
-- [optimistic-updates](references/optimistic-updates.md) - Instant UI feedback before server response
+- [pagination](references/pagination.md);[_pagination.mdx](references/_pagination.mdx) - Cursor/offset pagination, infinite scroll
+- [optimistic-updates](references/optimistic-updates.md);[_optimisticTransform.mdx](references/_optimisticTransform.mdx) - Instant UI feedback before server response
 - [network-transform](references/network-transform.md) - Transform responses, handle non-standard APIs
 
 **Concepts** (refer when user asks about these topics):

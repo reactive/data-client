@@ -1,0 +1,1 @@
+../../../../docs/rest/shared/_entity_lifecycle_methods.mdx

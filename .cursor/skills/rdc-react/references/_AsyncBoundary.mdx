@@ -1,0 +1,1 @@
+../../../../docs/core/shared/_AsyncBoundary.mdx

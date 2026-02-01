@@ -1,0 +1,1 @@
+../../../../docs/rest/api/_EndpointLifecycle.mdx

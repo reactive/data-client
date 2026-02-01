@@ -118,17 +118,17 @@ This is useful for webosckets, SSE, logging, etc. Always use the skill "rdc-mana
 
 For detailed API documentation, see the [references](references/) directory:
 
-- [useSuspense](references/useSuspense.md) - Fetch with Suspense
+- [useSuspense](references/useSuspense.md);[_pagination.mdx](references/_pagination.mdx) - Fetch with Suspense
 - [useQuery](references/useQuery.md) - Read from cache without fetch
 - [useCache](references/useCache.md) - Read from cache (nullable)
-- [useLive](references/useLive.md) - Fetch + subscribe to updates
+- [useLive](references/useLive.md);[_useLive.mdx](references/_useLive.mdx) - Fetch + subscribe to updates
 - [useController](references/useController.md) - Access Controller
 - [Controller](references/Controller.md) - Imperative actions
-- [AsyncBoundary](references/AsyncBoundary.md) - Error/loading boundary
-- [useLoading](references/useLoading.md) - Track async mutation state
+- [AsyncBoundary](references/AsyncBoundary.md);[_AsyncBoundary.mdx](references/_AsyncBoundary.mdx) - Error/loading boundary
+- [useLoading](references/useLoading.md);[_useLoading.mdx](references/_useLoading.mdx) - Track async mutation state
 - [useDebounce](references/useDebounce.md) - Debounce values
 - [DataProvider](references/DataProvider.md) - Root provider
 - [data-dependency](references/data-dependency.md) - Rendering guide
-- [mutations](references/mutations.md) - Mutations guide
+- [mutations](references/mutations.md);[_VoteDemo.mdx](references/_VoteDemo.mdx) - Mutations guide
 
 **ALWAYS follow these patterns and refer to the official docs for edge cases. Prioritize code generation that is idiomatic, type-safe, and leverages automatic normalization/caching via skill "rdc-schema" definitions.**
