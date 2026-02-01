@@ -71,7 +71,8 @@ return (
 
 ## Components
 
-Prefer using [AsyncBoundary](references/AsyncBoundary.md) for error handling and loading states.
+Prefer using [AsyncBoundary](references/AsyncBoundary.md) for error handling and loading states unless the codebase has
+a custom AsyncBoundary that already combines Suspense and ErrorBoundary.
 Its props are `fallback`, `errorComponent`, and `errorClassName` and `listen`. It can be used to wrap any component that fetches data.
 
 ```tsx

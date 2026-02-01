@@ -15,6 +15,7 @@ For detailed API documentation, see the [references](references/) directory:
 - [Manager](references/Manager.md) - Manager interface and lifecycle
 - [Actions](references/Actions.md) - Action types and payloads
 - [Controller](references/Controller.md) - Imperative actions
+- [LogoutManager](references/LogoutManager.md) - Handling logout/cleanup
 - [managers](references/managers.md) - Managers concept guide
 
 Always use `actionTypes` when comparing action.type. Refer to [Actions](references/Actions.md) for list of actions and their payloads.
