@@ -50,8 +50,8 @@
     "core-js": "3.48.0",
     "d3": "7.9.0",
     "history": "*",
-    "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
   },
   "main": "src/index.ts",
   "types": "src/index.ts",

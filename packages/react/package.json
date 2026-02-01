@@ -214,7 +214,7 @@
     "jest-mock": "^30.0.0",
     "nock": "13.3.1",
     "qs": "^6.13.1",
-    "react": "19.2.3",
+    "react": "19.2.4",
     "react-dom": "^19.0.0",
     "react-native": "patch:react-native@npm:0.82.0-rc.0#~/.yarn/patches/react-native-npm-0.81.0-612367b09d.patch",
     "react-native-safe-area-context": "^5.0.0",
