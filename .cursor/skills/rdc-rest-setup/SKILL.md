@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # REST Protocol Setup
 
-This skill configures `@data-client/rest` for a project. It should be applied after `rdc-setup` detects REST API patterns.
+This skill configures `@data-client/rest` for a project. It should be applied after skill "rdc-setup" detects REST API patterns.
 
 **First, apply the skill "rdc-rest"** for accurate implementation patterns.
 
@@ -188,7 +188,7 @@ async function getAuthToken(): Promise<string | null> {
 
 ## Usage After Setup
 
-Once the base class is created, use it instead of `RestEndpoint` directly:
+Once the base class is created, use it instead of [RestEndpoint](references/RestEndpoint.md) directly:
 
 ```ts
 import { BaseEndpoint } from './BaseEndpoint';

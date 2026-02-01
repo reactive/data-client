@@ -1,6 +1,6 @@
 ---
 name: rdc-react
-description: Use @data-client/react hooks - useSuspense, useQuery, useCache, useLive, useController for fetch/mutations, DataProvider, AsyncBoundary, useLoading, useDebounce
+description: Use @data-client/react hooks - useSuspense, useQuery, useCache, useLive, useDLE, useSubscription, useController for fetch/mutations, DataProvider, AsyncBoundary, useLoading, useDebounce
 license: Apache 2.0
 ---
 ## Rendering
@@ -17,6 +17,10 @@ const todo = useLive(TodoResource.get, { id: 5 });
 // without fetch
 const todo = useCache(TodoResource.get, { id: 5 });
 const todo = useQuery(Todo, { id: 5 });
+// fetch without Suspense - returns { data, loading, error }
+const { data, loading, error } = useDLE(TodoResource.get, { id: 5 });
+// subscribe without Suspense (use with useSuspense or useDLE)
+useSubscription(TodoResource.get, { id: 5 });
 ```
 
 For API definitions (like TodoResource), apply the skill "rdc-rest".
@@ -67,7 +71,7 @@ return (
 
 ## Components
 
-Prefer using [AsyncBoundary](https://dataclient.io/docs/api/AsyncBoundary) for error handling and loading states.
+Prefer using [AsyncBoundary](references/AsyncBoundary.md) for error handling and loading states.
 Its props are `fallback`, `errorComponent`, and `errorClassName` and `listen`. It can be used to wrap any component that fetches data.
 
 ```tsx
@@ -78,7 +82,7 @@ Its props are `fallback`, `errorComponent`, and `errorClassName` and `listen`. I
 
 ## Type-safe imperative actions
 
-[Controller](https://dataclient.io/docs/api/Controller) is returned from `useController()`. It has:
+[Controller](references/Controller.md) is returned from `useController()`. It has:
 ctrl.fetch(), ctrl.fetchIfStale(), ctrl.expireAll(), ctrl.invalidate(), ctrl.invalidateAll(), ctrl.setResponse(), ctrl.set().
 
 ## Programmatic queries
@@ -110,8 +114,8 @@ This is useful for webosckets, SSE, logging, etc. Always use the skill "rdc-mana
 
 ## Best Practices & Notes
 
-- [useDebounce(query, timeout)](https://dataclient.io/docs/api/useDebounce) when rendering async data based on user field inputs
-- [[handleSubmit, loading, error] = useLoading()](https://dataclient.io/docs/api/useLoading) when tracking async mutations
+- [useDebounce(query, timeout)](references/useDebounce.md) when rendering async data based on user field inputs
+- [[handleSubmit, loading, error] = useLoading()](references/useLoading.md) when tracking async mutations
 - Prefer smaller React components that do one thing
 
 # References
@@ -122,6 +126,8 @@ For detailed API documentation, see the [references](references/) directory:
 - [useQuery](references/useQuery.md) - Read from cache without fetch
 - [useCache](references/useCache.md) - Read from cache (nullable)
 - [useLive](references/useLive.md);[_useLive.mdx](references/_useLive.mdx) - Fetch + subscribe to updates
+- [useDLE](references/useDLE.md) - Fetch without Suspense (returns data/loading/error)
+- [useSubscription](references/useSubscription.md) - Subscribe to updates (polling/websocket/SSE)
 - [useController](references/useController.md) - Access Controller
 - [Controller](references/Controller.md) - Imperative actions
 - [AsyncBoundary](references/AsyncBoundary.md);[_AsyncBoundary.mdx](references/_AsyncBoundary.mdx) - Error/loading boundary

@@ -5,8 +5,8 @@ license: Apache 2.0
 ---
 # Guide: Using `@data-client/react` Managers for global side effects
 
-[Managers](https://dataclient.io/docs/api/Manager) are singletons that handle global side-effects. Kind of like useEffect() for the central data store.
-They interface with the store using [Controller](https://dataclient.io/docs/api/Controller), and [redux middleware](https://redux.js.org/tutorials/fundamentals/part-4-store#middleware) is run in response to [actions](https://dataclient.io/docs/api/Actions).
+[Managers](references/managers.md) are singletons that handle global side-effects. Kind of like useEffect() for the central data store.
+They interface with the store using [Controller](references/Controller.md), and [redux middleware](https://redux.js.org/tutorials/fundamentals/part-4-store#middleware) is run in response to [actions](references/Actions.md).
 
 ## References
 
@@ -21,7 +21,7 @@ Always use `actionTypes` when comparing action.type. Refer to [Actions](referenc
 
 ## Dispatching actions
 
-[Controller](https://dataclient.io/docs/api/Controller) has dispatchers:
+[Controller](references/Controller.md) has dispatchers:
 ctrl.fetch(), ctrl.fetchIfStale(), ctrl.expireAll(), ctrl.invalidate(), ctrl.invalidateAll(), ctrl.setResponse(), ctrl.set().
 
 ```ts
@@ -47,7 +47,7 @@ export default class TimeManager implements Manager {
 
 ## Reading and Consuming Actions
 
-[Controller](https://dataclient.io/docs/api/Controller) has data accessors:
+[Controller](references/Controller.md) has data accessors:
 controller.getResponse(), controller.getState(), controller.get(), controller.getError()
 
 ```ts
@@ -86,7 +86,7 @@ export default class LoggingManager implements Manager {
 Always use `actionTypes` members to check action.type.
 `actionTypes` has: FETCH, SET, SET_RESPONSE, RESET, SUBSCRIBE, UNSUBSCRIBE, INVALIDATE, INVALIDATEALL, EXPIREALL
 
-[actions](https://dataclient.io/docs/api/Actions) docs details the action types and their payloads.
+[actions](references/Actions.md) docs details the action types and their payloads.
 
 ## Consuming actions
 
