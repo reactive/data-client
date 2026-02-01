@@ -153,10 +153,17 @@ export const IssueResource = resource({
 
 - Don't use `resource()` when mutation endpoints are not used or needed
 
-# Official Documentation Links
+# References
 
-- [Getting Started](https://dataclient.io/docs/getting-started/resource)
-- [RestEndpoint API](https://dataclient.io/rest/api/RestEndpoint)
-- [Resource API](https://dataclient.io/rest/api/resource)
+For detailed API documentation, see the [references](references/) directory:
+
+- [resource](references/resource.md) - Create CRUD endpoints
+- [RestEndpoint](references/RestEndpoint.md) - Single REST endpoint
+- [Entity](references/Entity.md) - Normalized data class
+- [Endpoint](references/Endpoint.md) - Base endpoint class
+- [Collection](references/Collection.md) - Mutable lists
+- [schema](references/schema.md) - Schema overview
+- [data-dependency](references/data-dependency.md) - Rendering guide
+- [mutations](references/mutations.md) - Mutations guide
 
 **ALWAYS follow these patterns and refer to the official docs for edge cases. Prioritize code generation that is idiomatic, type-safe, and leverages automatic normalization/caching via schema definitions.**

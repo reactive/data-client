@@ -8,10 +8,16 @@ license: Apache 2.0
 [Managers](https://dataclient.io/docs/api/Manager) are singletons that handle global side-effects. Kind of like useEffect() for the central data store.
 They interface with the store using [Controller](https://dataclient.io/docs/api/Controller), and [redux middleware](https://redux.js.org/tutorials/fundamentals/part-4-store#middleware) is run in response to [actions](https://dataclient.io/docs/api/Actions).
 
-Use @docs/core/api/Manager.md to validate usage.
+## References
 
-Always use `actionTypes` when comparing action.type. Refer to @docs/core/api/Actions.md
-for list of actions and their payloads.
+For detailed API documentation, see the [references](references/) directory:
+
+- [Manager](references/Manager.md) - Manager interface and lifecycle
+- [Actions](references/Actions.md) - Action types and payloads
+- [Controller](references/Controller.md) - Imperative actions
+- [managers](references/managers.md) - Managers concept guide
+
+Always use `actionTypes` when comparing action.type. Refer to [Actions](references/Actions.md) for list of actions and their payloads.
 
 ## Dispatching actions
 

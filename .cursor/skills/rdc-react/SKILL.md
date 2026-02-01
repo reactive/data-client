@@ -114,12 +114,21 @@ This is useful for webosckets, SSE, logging, etc. Always use the skill "rdc-mana
 - [[handleSubmit, loading, error] = useLoading()](https://dataclient.io/docs/api/useLoading) when tracking async mutations
 - Prefer smaller React components that do one thing
 
-# Official Documentation Links
+# References
 
-- [Rendering](https://dataclient.io/docs/getting-started/data-dependency)
-- [Mutations](https://dataclient.io/docs/getting-started/mutations)
-- [Managers](https://dataclient.io/docs/concepts/managers)
-- [useSuspense](https://dataclient.io/docs/api/useSuspense)
-- [Controller](https://dataclient.io/docs/api/Controller)
+For detailed API documentation, see the [references](references/) directory:
+
+- [useSuspense](references/useSuspense.md) - Fetch with Suspense
+- [useQuery](references/useQuery.md) - Read from cache without fetch
+- [useCache](references/useCache.md) - Read from cache (nullable)
+- [useLive](references/useLive.md) - Fetch + subscribe to updates
+- [useController](references/useController.md) - Access Controller
+- [Controller](references/Controller.md) - Imperative actions
+- [AsyncBoundary](references/AsyncBoundary.md) - Error/loading boundary
+- [useLoading](references/useLoading.md) - Track async mutation state
+- [useDebounce](references/useDebounce.md) - Debounce values
+- [DataProvider](references/DataProvider.md) - Root provider
+- [data-dependency](references/data-dependency.md) - Rendering guide
+- [mutations](references/mutations.md) - Mutations guide
 
 **ALWAYS follow these patterns and refer to the official docs for edge cases. Prioritize code generation that is idiomatic, type-safe, and leverages automatic normalization/caching via skill "rdc-schema" definitions.**

@@ -212,3 +212,15 @@ packages/react/src/components/__tests__/DataProvider.test.tsx
 - Test mutations and their side effects
 - Don't mock @data-client internals directly
 - Don't use raw fetch in tests when fixtures are available
+
+## References
+
+For detailed API documentation, see the [references](references/) directory:
+
+- [renderDataHook](references/renderDataHook.md) - Hook testing utility
+- [makeRenderDataHook](references/makeRenderDataHook.md) - Custom hook renderer
+- [Fixtures](references/Fixtures.md) - Fixture format reference
+- [MockResolver](references/MockResolver.md) - Component testing wrapper
+- [mockInitialState](references/mockInitialState.md) - Create initial state
+- [unit-testing-hooks](references/unit-testing-hooks.md) - Hook testing guide
+- [unit-testing-components](references/unit-testing-components.md) - Component testing guide

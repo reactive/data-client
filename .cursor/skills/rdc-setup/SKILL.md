@@ -186,3 +186,11 @@ After setup, the user can:
 3. See skill "rdc-rest" for defining REST APIs
 4. See skill "rdc-schema" for schema definitions
 5. See skill "rdc-react" for react usage
+
+## References
+
+For detailed API documentation, see the [references](references/) directory:
+
+- [DataProvider](references/DataProvider.md) - Root provider component
+- [installation](references/installation.md) - Installation guide
+- [getDefaultManagers](references/getDefaultManagers.md) - Default managers

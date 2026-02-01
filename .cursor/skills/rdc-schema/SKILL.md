@@ -6,30 +6,30 @@ license: Apache 2.0
 
 ## 1. Defining Schemas
 
-Define [schemas](https://dataclient.io/rest/api/schema) to represent the JSON returned by an endpoint. Compose these
+Define [schemas](references/schema.md) to represent the JSON returned by an endpoint. Compose these
 to represent the data expected.
 
 ### Object
 
-- [Entity](https://dataclient.io/rest/api/Entity) - represents a single unique object (denormalized)
-- [new Union(Entity)](https://dataclient.io/rest/api/Union) - polymorphic objects (A | B)
+- [Entity](references/Entity.md) - represents a single unique object (denormalized)
+- [new Union(Entity)](references/Union.md) - polymorphic objects (A | B)
 - `{[key:string]: Schema}` - immutable objects
-- `new Invalidate(Entity|Union)` - to delete an Entity
+- [new Invalidate(Entity|Union)](references/Invalidate.md) - to delete an Entity
 
 ### List
 
-- [new Collection([Schema])](https://dataclient.io/rest/api/Collection) - mutable/growable lists
+- [new Collection([Schema])](references/Collection.md) - mutable/growable lists
 - `[Schema]` - immutable lists
-- `new All(Entity|Union)` - list all Entities of a kind
+- [new All(Entity|Union)](references/All.md) - list all Entities of a kind
 
 ### Map
 
 - `new Collection(Values(Schema))` - mutable/growable maps
-- `new Values(Schema)` - immutable maps
+- [new Values(Schema)](references/Values.md) - immutable maps
 
 ### Programmatic
 
-- [new Query(Queryable)](https://dataclient.io/rest/api/Query) - memoized programmatic selectors
+- [new Query(Queryable)](references/Query.md) - memoized programmatic selectors
   ```ts
   const queryRemainingTodos = new Query(
     TodoResource.getList.schema,
@@ -66,7 +66,7 @@ to represent the data expected.
 
 ## 4. **Union Types (Polymorphic Schemas)**
 
-To define polymorphic resources (e.g., events), use [Union](https://dataclient.io/rest/api/Union) and a discriminator field.
+To define polymorphic resources (e.g., events), use [Union](references/Union.md) and a discriminator field.
 
 ```typescript
 import { Union } from '@data-client/rest';
@@ -102,8 +102,18 @@ export const EventResource = resource({
 
 - Don't forget to use `fromJS()` or assign default properties for class fields
 
-# Official Documentation Links
+# References
 
-- [Entity API](https://dataclient.io/rest/api/Entity)
-- [Schema Guide](https://dataclient.io/rest/api/schema#schema-overview)
-- [Relational Data Guide](https://dataclient.io/rest/guides/relational-data)
+For detailed API documentation, see the [references](references/) directory:
+
+- [Entity](references/Entity.md) - Normalized data class
+- [Collection](references/Collection.md) - Mutable/growable lists
+- [Union](references/Union.md) - Polymorphic schemas
+- [Query](references/Query.md) - Programmatic selectors
+- [Invalidate](references/Invalidate.md) - Delete entities
+- [Values](references/Values.md) - Map schemas
+- [All](references/All.md) - List all entities of a kind
+- [Array](references/Array.md) - Immutable list schema
+- [Object](references/Object.md) - Object schema
+- [schema](references/schema.md) - Schema overview
+- [relational-data](references/relational-data.md) - Relational data guide

@@ -374,6 +374,13 @@ expect(result.current?.value?.title).toBe('hi ho');
 - **Test reactive prop changes** - Use `reactive()` and verify updates
 - **Don't test with async setup + prop changes** - Async setup only runs once; use non-async patterns or useFetch + watchEffect instead
 
+## References
+
+For detailed API documentation, see the [references](references/) directory:
+
+- [Fixtures](references/Fixtures.md) - Fixture format reference
+- [unit-testing-hooks](references/unit-testing-hooks.md) - Hook/composable testing guide
+
 ## Common Patterns
 
 **Empty state test:**
