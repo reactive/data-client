@@ -117,3 +117,7 @@ For detailed API documentation, see the [references](references/) directory:
 - [Object](references/Object.md) - Object schema
 - [schema](references/schema.md) - Schema overview
 - [relational-data](references/relational-data.md) - Relational data guide
+- [computed-properties](references/computed-properties.md) - Computed properties guide
+- [partial-entities](references/partial-entities.md) - Partial entities guide
+- [side-effects](references/side-effects.md) - Side effects guide
+- [sorting-client-side](references/sorting-client-side.md) - Client-side sorting guide
