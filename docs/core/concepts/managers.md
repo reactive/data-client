@@ -118,6 +118,36 @@ export default class StreamManager implements Manager {
 [Controller.set()](../api/Controller.md#set) allows directly updating [Querable Schemas](/rest/api/schema#queryable)
 directly with `event.data`.
 
+#### Skipping DevTools for high-frequency updates
+
+When using WebSockets or other real-time data sources, you may want to skip logging
+certain high-frequency actions to [DevToolsManager](../api/DevToolsManager.md) to avoid
+overwhelming the browser extension.
+
+```typescript
+import { getDefaultManagers, actionTypes } from '@data-client/react';
+import StreamManager from './StreamManager';
+import { Ticker } from './Ticker';
+
+export default function getManagers() {
+  return [
+    new StreamManager(
+      () => new WebSocket('wss://ws-feed.example.com'),
+      { ticker: Ticker },
+    ),
+    ...getDefaultManagers({
+      devToolsManager: {
+        // Increase latency buffer for high-frequency updates
+        latency: 1000,
+        // Skip WebSocket SET actions to avoid log spam
+        predicate: (state, action) =>
+          action.type !== actionTypes.SET || action.schema !== Ticker,
+      },
+    }),
+  ];
+}
+```
+
 ### Coin App
 
 <StackBlitz app="coin-app" file="src/getManagers.ts,src/resources/Ticker.ts,src/pages/AssetDetail/AssetPrice.tsx,src/resources/StreamManager.ts" height="600" />

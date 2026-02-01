@@ -84,6 +84,29 @@ ReactDOM.createRoot(document.body).render(
 );
 ```
 
+#### Skipping high-frequency updates
+
+When using [WebSockets](../concepts/managers.md#data-stream) or other real-time data sources,
+high-frequency updates can overwhelm the DevTools extension. Use the `predicate` option to
+filter out specific action types or schemas:
+
+```tsx title="index.tsx"
+import { getDefaultManagers, actionTypes } from '@data-client/react';
+import { Ticker } from './resources/Ticker';
+
+const managers = getDefaultManagers({
+  devToolsManager: {
+    // Increase latency buffer for high-frequency updates
+    latency: 1000,
+    // Skip WebSocket SET actions for Ticker to reduce log spam
+    // highlight-start
+    predicate: (state, action) =>
+      action.type !== actionTypes.SET || action.schema !== Ticker,
+    // highlight-end
+  },
+});
+```
+
 ## More info
 
 Using this Manager allows in browser [debugging and store inspection](../getting-started/debugging.md).

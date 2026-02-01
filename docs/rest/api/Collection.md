@@ -185,6 +185,56 @@ render(<UserList />);
 
 </HooksPlayground>
 
+### Collection with Values
+
+When an API returns keyed objects rather than arrays, combine `Collection` with [Values](./Values.md)
+to enable mutations on the result.
+
+```typescript
+import { Entity, resource, Collection, Values } from '@data-client/rest';
+
+class Stats extends Entity {
+  product_id = '';
+  volume = 0;
+  price = 0;
+
+  pk() {
+    return this.product_id;
+  }
+
+  static key = 'Stats';
+}
+
+export const StatsResource = resource({
+  urlPrefix: 'https://api.exchange.example.com',
+  path: '/products/:product_id/stats',
+  schema: Stats,
+}).extend({
+  getList: {
+    path: '/products/stats',
+    // Collection wraps Values to enable .push, .assign, etc.
+    // highlight-next-line
+    schema: new Collection(new Values(Stats)),
+    process(value) {
+      // Transform nested response structure
+      Object.keys(value).forEach(key => {
+        value[key] = {
+          ...value[key].stats_24hour,
+          product_id: key,
+        };
+      });
+      return value;
+    },
+  },
+});
+```
+
+This allows updating individual entries with [.assign](./Collection.md#assign):
+
+```typescript
+ctrl.fetch(StatsResource.getList.assign, { product_id: 'BTC-USD', volume: 1000 });
+```
+
 ## Options
 
 One of `argsKey` or `nestKey` is used to compute the `Collection's` [pk](#pk).

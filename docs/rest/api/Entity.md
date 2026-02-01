@@ -134,6 +134,57 @@ return (
 );
 ```
 
+#### Composite Primary Keys
+
+When a single field isn't enough to uniquely identify an entity, you can combine multiple
+fields into a composite key. This is common for nested resources or resources with
+multi-part identifiers.
+
+```typescript
+export class Issue extends Entity {
+  number = 0;
+  owner = '';
+  repo = '';
+  repositoryUrl = '';
+  title = '';
+
+  pk() {
+    // Composite key from owner, repo, and issue number
+    return `${this.owner}/${this.repo}/${this.number}`;
+  }
+
+  static key = 'Issue';
+}
+```
+
+When entity data doesn't include all key parts directly, you can extract them from related
+fields or endpoint arguments using [Entity.process()](#process):
+
+```typescript
+export class Issue extends Entity {
+  number = 0;
+  owner = '';
+  repo = '';
+  repositoryUrl = ''; // Contains: https://api.github.com/repos/{owner}/{repo}
+  title = '';
+
+  pk() {
+    // Use owner/repo from process() which extracts from repositoryUrl
+    return `${this.owner}/${this.repo}/${this.number}`;
+  }
+
+  static key = 'Issue';
+
+  static process(input: any, parent: any, key: string, args: any[]) {
+    // Extract owner and repo from the repositoryUrl
+    const match = input.repositoryUrl?.match(/repos\/([^/]+)\/([^/]+)/);
+    const owner = args[0]?.owner ?? match?.[1];
+    const repo = args[0]?.repo ?? match?.[2];
+    return { ...input, owner, repo };
+  }
+}
+```
+
 #### Singleton Entities
 
 What if there is only ever once instance of a Entity for your entire application? You

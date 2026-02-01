@@ -692,6 +692,74 @@ export function myResource<O extends ResourceGenerics = any>({
 }
 ```
 
+### GraphQL + REST Hybrid
+
+When your API provides both REST and GraphQL endpoints, you can mix them in a single resource.
+Use [Entity.process()](/rest/api/Entity#process) to normalize different response shapes.
+
+```typescript
+import { GQLEndpoint } from '@data-client/graphql';
+import { Entity, resource } from '@data-client/rest';
+
+const gql = new GQLEndpoint('https://api.myservice.com/graphql');
+
+export class Repository extends Entity {
+  id = '';
+  name = '';
+  owner = { login: '' };
+  stargazersCount = 0;
+  forksCount = 0;
+
+  pk() {
+    return `${this.owner.login}/${this.name}`;
+  }
+
+  static key = 'Repository';
+}
+
+/** Normalizes GraphQL response shape to match REST Entity */
+export class GqlRepository extends Repository {
+  static process(input: any, parent: any, key: string | undefined) {
+    // GraphQL uses different field names than REST
+    if ('stargazerCount' in input) {
+      return {
+        ...input,
+        stargazersCount: input.stargazerCount,
+        forksCount: input.forkCount,
+      };
+    }
+    return input;
+  }
+}
+
+export const RepositoryResource = resource({
+  path: '/repos/:owner/:repo',
+  schema: Repository,
+}).extend(base => ({
+  // REST endpoint for single repo
+  get: base.get,
+  // GraphQL endpoint for user's pinned repos
+  getByPinned: gql.query(
+    (v: { login: string }) => `query ($login: String!) {
+      user(login: $login) {
+        pinnedItems(first: 6, types: REPOSITORY) {
+          nodes {
+            ... on Repository {
+              id
+              name
+              owner { login }
+              stargazerCount
+              forkCount
+            }
+          }
+        }
+      }
+    }`,
+    { user: { pinnedItems: { nodes: [GqlRepository] } } },
+  ),
+}));
+```
+
 #### Github Example
 
 <StackBlitz app="github-app" file="src/resources/Base.ts" view="editor" height={750} />

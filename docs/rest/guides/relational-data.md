@@ -238,6 +238,58 @@ render(<TodosPage />);
 
 </HooksPlayground>
 
+### Key-based joins
+
+For more complex scenarios where related entities are fetched separately, use [Entity.process()](/rest/api/Entity#process)
+to create a reference key that links to another Entity. This is useful when:
+
+- Related data comes from different API endpoints
+- You want to avoid over-fetching nested data
+- The relationship is optional or varies by context
+
+```typescript
+import { Entity, resource } from '@data-client/rest';
+
+class Stats extends Entity {
+  product_id = '';
+  volume = 0;
+  price = 0;
+
+  pk() {
+    return this.product_id;
+  }
+
+  static key = 'Stats';
+}
+
+class Currency extends Entity {
+  id = '';
+  name = '';
+  // Default value allows Currency to exist without Stats loaded
+  stats = Stats.fromJS();
+
+  pk() {
+    return this.id;
+  }
+
+  static key = 'Currency';
+
+  // Create a reference key that links to Stats entity
+  static process(input: any, parent: any, key: string, args: any[]) {
+    // The stats field becomes a reference to Stats with pk `${id}-USD`
+    return { ...input, stats: `${input.id}-USD` };
+  }
+
+  static schema = {
+    // Stats will be looked up by the key from process()
+    stats: Stats,
+  };
+}
+```
+
+When both `CurrencyResource.getList` and `StatsResource.getList` are fetched, the `stats`
+field will automatically resolve to the matching `Stats` entity.
+
 ### Crypto price example
 
 Here we want to sort `Currencies` by their trade volume. However, trade volume is only available in the `Stats`
