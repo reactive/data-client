@@ -12,12 +12,12 @@ This project uses [@data-client/rest](https://dataclient.io/rest) to define, fet
 
 ## 1. Defining Schemas
 
-This project uses [schemas](https://dataclient.io/rest/api/schema) to define and normalize data models with type safety and automatic cache management. Apply the skill "rdc-schema" for schema patterns.
+This project uses [schemas](references/schema.md) to define and normalize data models with type safety and automatic cache management. Apply the skill "rdc-schema" for schema patterns.
 **Always follow these patterns (apply the skill "rdc-schema") when generating mutable data definitions.**
 
 ## 2. Resources (`resource()`)
 
-- [resource()](https://dataclient.io/rest/api/resource) creates a collection of [RestEndpoints](https://dataclient.io/rest/api/RestEndpoint) for CRUD operations on a common object
+- [resource()](references/resource.md) creates a collection of [RestEndpoints](references/RestEndpoint.md) for CRUD operations on a common object
 - Required fields:
   - `path`: path‑to‑regexp template (typed!)
   - `schema`: Declarative data shape for a **single** item (typically Entity or Union)
@@ -58,7 +58,7 @@ export const TodoResource = resource({
 
 ### Usage
 
-#### [Rendering](https://dataclient.io/docs/getting-started/data-dependency)
+#### [Rendering](references/data-dependency.md)
 
 ```ts
 // GET https://jsonplaceholder.typicode.com/todos/5
@@ -69,7 +69,7 @@ const todoList = useSuspense(TodoResource.getList);
 const todoListByUser = useSuspense(TodoResource.getList, { userId: 1 });
 ```
 
-#### [Mutations](https://dataclient.io/docs/getting-started/mutations)
+#### [Mutations](references/mutations.md)
 
 ```ts
 const ctrl = useController();
@@ -93,7 +93,7 @@ For more detailed usage, apply the skill "rdc-react".
 
 ---
 
-## 3. Custom [RestEndpoint](https://dataclient.io/rest/api/RestEndpoint) patterns
+## 3. Custom [RestEndpoint](references/RestEndpoint.md) patterns
 
 ```ts
 /** Stand‑alone endpoint with custom typing */

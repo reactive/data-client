@@ -27,7 +27,7 @@ to represent the data expected.
 - `new Collection(Values(Schema))` - mutable/growable maps
 - [new Values(Schema)](references/Values.md) - immutable maps
 
-### Programmatic
+### Derived / selector pattern
 
 - [new Query(Queryable)](references/Query.md) - memoized programmatic selectors
   ```ts
