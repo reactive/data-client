@@ -19060,9 +19060,9 @@ __metadata:
   linkType: hard
 
 "locutus@npm:^2.0.11":
-  version: 2.0.16
-  resolution: "locutus@npm:2.0.16"
-  checksum: 10c0/46559f449e3624610272cb6061fe5b55bfb21323741238526a115026f31e5352e7cffe9c162e1eb727fbf22529953280a2a326ec0d55ae4aa482d294c9c1ad97
+  version: 2.0.39
+  resolution: "locutus@npm:2.0.39"
+  checksum: 10c0/96fa50951d50817777441bc761a07a2a583a3ac47ed8a5e23897b83c2979a968a68d9764887714288dcb730f700476308a0fe66fbe7ef85c9e2de43e7b713a32
   languageName: node
   linkType: hard
 
