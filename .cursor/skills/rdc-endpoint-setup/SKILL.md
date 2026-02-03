@@ -320,28 +320,19 @@ const getUser = new Endpoint(fetchUser);
 const getUser = new Endpoint(fetchUser, { name: 'getUser' });
 ```
 
-## Usage in Components
+## Usage in with hooks and controller
 
 ```tsx
-import { useSuspense, useController } from '@data-client/react';
-import { getUser, createUser } from './api/users';
-
-function UserProfile({ id }: { id: string }) {
-  const user = useSuspense(getUser, id);
-  const ctrl = useController();
-
-  const handleCreate = async (userData: UserData) => {
-    await ctrl.fetch(createUser, userData);
-  };
-
-  return <div>{user.name}</div>;
-}
+useSuspense(getUser, id);
+ctrl.fetch(createUser, userData);
 ```
+
+Both hooks and controller methods take endpoint as first argument, with the endpoint's function arguments following.
 
 ## Next Steps
 
 1. Apply skill "rdc-schema" to define Entity classes
-2. Apply skill "rdc-react" for hook usage
+2. Apply skill "rdc-react" or "rdc-vue" for usage
 
 ## References
 

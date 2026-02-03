@@ -1,9 +1,9 @@
 ---
 name: rdc-manager
-description: Implement @data-client/react Managers for global side effects - websocket, SSE, polling, subscriptions, logging, middleware, Controller actions, redux pattern
+description: Implement @data-client Managers for global side effects - websocket, SSE, polling, subscriptions, logging, middleware, Controller actions, redux pattern
 license: Apache 2.0
 ---
-# Guide: Using `@data-client/react` Managers for global side effects
+# Guide: Using `@data-client` Managers for global side effects
 
 [Managers](references/managers.md) are singletons that handle global side-effects. Kind of like useEffect() for the central data store.
 They interface with the store using [Controller](references/Controller.md), and [redux middleware](https://redux.js.org/tutorials/fundamentals/part-4-store#middleware) is run in response to [actions](references/Actions.md).
@@ -16,6 +16,7 @@ For detailed API documentation, see the [references](references/) directory:
 - [Actions](references/Actions.md) - Action types and payloads
 - [Controller](references/Controller.md) - Imperative actions
 - [LogoutManager](references/LogoutManager.md) - Handling logout/cleanup
+- [getDefaultManagers](references/getDefaultManagers.md) - Default manager configuration
 - [managers](references/managers.md) - Managers concept guide
 
 Always use `actionTypes` when comparing action.type. Refer to [Actions](references/Actions.md) for list of actions and their payloads.
@@ -23,7 +24,8 @@ Always use `actionTypes` when comparing action.type. Refer to [Actions](referenc
 ## Dispatching actions
 
 [Controller](references/Controller.md) has dispatchers:
-ctrl.fetch(), ctrl.fetchIfStale(), ctrl.expireAll(), ctrl.invalidate(), ctrl.invalidateAll(), ctrl.setResponse(), ctrl.set().
+ctrl.fetch(), ctrl.fetchIfStale(), ctrl.expireAll(), ctrl.invalidate(), ctrl.invalidateAll(), ctrl.setResponse(), ctrl.set(),
+ctrl.setError(), ctrl.resetEntireStore(), ctrl.subscribe(), ctrl.unsubscribe().
 
 ```ts
 import type { Manager, Middleware } from '@data-client/core';
@@ -49,7 +51,7 @@ export default class TimeManager implements Manager {
 ## Reading and Consuming Actions
 
 [Controller](references/Controller.md) has data accessors:
-controller.getResponse(), controller.getState(), controller.get(), controller.getError()
+ctrl.getResponse(), ctrl.getState(), ctrl.get(), ctrl.getError(), ctrl.snapshot().
 
 ```ts
 import type { Manager, Middleware } from '@data-client/react';

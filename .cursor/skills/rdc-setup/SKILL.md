@@ -242,7 +242,7 @@ The `DataProvider` must wrap all components that use data-client hooks. Place it
 
 After core setup and protocol-specific setup:
 1. Define data schemas using `Entity` - see skill "rdc-schema"
-2. Use hooks like `useSuspense`, `useQuery`, `useController` - see skill "rdc-react"
+2. Use hooks like `useSuspense`, `useQuery`, `useController` - see skill "rdc-react" or "rdc-vue"
 3. Define REST resources - see skill "rdc-rest"
 
 ## References

@@ -84,7 +84,8 @@ Its props are `fallback`, `errorComponent`, and `errorClassName` and `listen`. I
 ## Type-safe imperative actions
 
 [Controller](references/Controller.md) is returned from `useController()`. It has:
-ctrl.fetch(), ctrl.fetchIfStale(), ctrl.expireAll(), ctrl.invalidate(), ctrl.invalidateAll(), ctrl.setResponse(), ctrl.set().
+ctrl.fetch(), ctrl.fetchIfStale(), ctrl.expireAll(), ctrl.invalidate(), ctrl.invalidateAll(), ctrl.setResponse(), ctrl.set(),
+ctrl.setError(), ctrl.resetEntireStore(), ctrl.subscribe(), ctrl.unsubscribe().
 
 ## Programmatic queries
 

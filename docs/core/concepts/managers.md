@@ -82,32 +82,43 @@ import { type Manager, type Middleware, Controller } from '@data-client/react';
 import type { Entity } from '@data-client/rest';
 
 export default class StreamManager implements Manager {
-  protected declare evtSource: WebSocket | EventSource;
-  protected declare entities: Record<string, typeof Entity>;
+  declare protected controller: Controller;
+  declare protected evtSource: WebSocket; // | EventSource;
+  declare protected createEventSource: () => WebSocket | EventSource;
+  declare protected entities: Record<string, typeof Entity>;
 
   constructor(
-    evtSource: WebSocket | EventSource,
+    createEventSource: () => WebSocket | EventSource,
     entities: Record<string, EntityInterface>,
   ) {
-    this.evtSource = evtSource;
+    this.createEventSource = createEventSource;
     this.entities = entities;
   }
 
-  // highlight-start
   middleware: Middleware = controller => {
+    this.controller = controller;
+    return next => async action => next(action);
+  }
+
+  connect() {
+    this.evtSource = this.createEventSource();
+    // highlight-start
     this.evtSource.onmessage = event => {
       try {
         const msg = JSON.parse(event.data);
-        if (msg.type in this.endpoints)
+        if (msg.type in this.entities)
           controller.set(this.entities[msg.type], ...msg.args, msg.data);
       } catch (e) {
         console.error('Failed to handle message');
         console.error(e);
       }
     };
-    return next => async action => next(action);
-  };
-  // highlight-end
+    // highlight-end
+  }
+
+  init() {
+    this.connect();
+  }
 
   cleanup() {
     this.evtSource.close();

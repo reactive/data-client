@@ -89,7 +89,7 @@ const deleteTodo = id => ctrl.fetch(TodoResource.delete, { id });
 const getNextPage = (page) => ctrl.fetch(TodoResource.getList.getPage, { userId: 1, page })
 ```
 
-For more detailed usage, apply the skill "rdc-react".
+For more detailed usage, apply the skill "rdc-react" or "rdc-vue".
 
 ---
 
@@ -160,7 +160,6 @@ For detailed API documentation, see the [references](references/) directory:
 - [resource](references/resource.md) - Create CRUD endpoints
 - [RestEndpoint](references/RestEndpoint.md);[_EndpointLifecycle.mdx](references/_EndpointLifecycle.mdx) - Single REST endpoint
 - [Entity](references/Entity.md);[_entity_lifecycle_methods.mdx](references/_entity_lifecycle_methods.mdx) - Normalized data class
-- [Endpoint](references/Endpoint.md);[_EndpointLifecycle.mdx](references/_EndpointLifecycle.mdx) - Base endpoint class
 - [Collection](references/Collection.md) - Mutable lists
 - [schema](references/schema.md) - Schema overview
 - [Fixtures](references/Fixtures.md) - Mock data for testing

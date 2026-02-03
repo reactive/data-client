@@ -220,7 +220,7 @@ export const TodoResource = resource({
 
 1. Apply skill "rdc-schema" to define Entity classes
 2. Apply skill "rdc-rest" for resource and endpoint patterns
-3. Apply skill "rdc-react" for hook usage
+3. Apply skill "rdc-react" or "rdc-vue" for usage
 
 ## References
 

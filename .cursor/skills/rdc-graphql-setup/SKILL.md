@@ -202,7 +202,7 @@ function UserProfile({ id }: { id: string }) {
 ## Next Steps
 
 1. Apply skill "rdc-schema" to define Entity classes
-2. Apply skill "rdc-react" for hook usage
+2. Apply skill "rdc-react" or "rdc-vue" for usage
 
 ## References
 

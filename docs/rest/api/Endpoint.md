@@ -283,8 +283,7 @@ const UserDetail = new Endpoint(
 <TabItem value="With Schema">
 
 ```typescript
-import { Endpoint } from '@data-client/endpoint';
-import { Entity } from '@data-client/react';
+import { Endpoint, Entity } from '@data-client/endpoint';
 
 class User extends Entity {
   id = '';
@@ -301,8 +300,7 @@ const UserDetail = new Endpoint(
 <TabItem value="List">
 
 ```typescript
-import { Endpoint } from '@data-client/endpoint';
-import { Entity } from '@data-client/react';
+import { Endpoint, Entity } from '@data-client/endpoint';
 
 class User extends Entity {
   id = '';
