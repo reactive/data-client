@@ -347,11 +347,17 @@ When using TypeScript (optional), version 4.0 or above is required.
           display: 'inline',          // Inline with text
         }}
 /> Codegen</Link>&nbsp;
-<Link className="button button--secondary button--sm" to="https://github.com/reactive/data-client/blob/master/.github/instructions/rest.instructions.md"><img src="/img/copilot.svg" alt="Github Copilot" style={{
+<Link className="button button--secondary button--sm" to="https://github.com/reactive/data-client/blob/master/.cursor/skills/rdc-rest/SKILL.md"><img src="/img/copilot.svg" alt="Github Copilot" style={{
           height: '1em',              // Match font size
           verticalAlign: '-0.125em',  // Fine-tune: try -0.125em or 'middle'
           display: 'inline',          // Inline with text
         }}
-/> Instructions</Link>
+/> Skill</Link>
 </center>
 </p>
+
+import SkillTabs from '@site/src/components/SkillTabs';
+
+<SkillTabs skill="reactive/data-client" />
+
+Install all `rdc-` skills, then generate REST APIs

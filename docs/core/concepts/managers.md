@@ -121,7 +121,7 @@ export default class StreamManager implements Manager {
   }
 
   cleanup() {
-    this.evtSource.close();
+    this.evtSource?.close();
   }
 }
 ```

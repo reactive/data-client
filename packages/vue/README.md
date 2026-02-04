@@ -36,7 +36,13 @@ npm install --save @data-client/vue @data-client/rest
 
 For more details, see [the Installation docs page](https://dataclient.io/docs/getting-started/installation).
 
-[Agent Skill](https://agentskills.io) for setup: ["rdc-setup"](https://github.com/reactive/data-client/tree/master/.cursor/skills/rdc-setup)
+### Skills
+
+```bash
+npx skills add reactive/data-client
+```
+
+Then run [skill](https://agentskills.io) "rdc-setup"
 
 ## Usage
 
