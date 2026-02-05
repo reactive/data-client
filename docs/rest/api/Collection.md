@@ -229,10 +229,14 @@ export const StatsResource = resource({
 });
 ```
 
-This allows updating individual entries with [.assign](./Collection.md#assign):
+This allows adding or updating entries with [.assign](./Collection.md#assign). The body is an object
+where keys are the collection keys and values are the entity data to merge:
 
 ```typescript
-ctrl.fetch(StatsResource.getList.assign, { product_id: 'BTC-USD', volume: 1000 });
+// Add/update the 'BTC-USD' entry in the collection
+ctrl.fetch(StatsResource.getList.assign, {
+  'BTC-USD': { product_id: 'BTC-USD', volume: 1000 },
+});
 ```
 
 ## Options
@@ -489,30 +493,84 @@ createCollectionFilter(...args: Args) {
 
 ### push
 
-A creation schema that places at the _end_ of this collection
+A creation schema that places new item(s) at the _end_ of this collection.
+
+```ts
+// Add a new todo to the end of the list
+await ctrl.fetch(getTodos.push, { userId: '1' }, { title: 'New Todo' });
+```
 
 ### unshift
 
-A creation schema that places at the _start_ of this collection
+A creation schema that places new item(s) at the _start_ of this collection.
+
+```ts
+// Add a new todo to the beginning of the list
+await ctrl.fetch(getTodos.unshift, { userId: '1' }, { title: 'New Todo' });
+```
 
 ### remove
 
-Remove item[s] from a collection by value.
+A schema that removes item(s) from a collection by value.
+
+The entity value is normalized to extract its pk, which is then matched against collection members.
+Items are removed from all collections matching the provided args (filtered by [createCollectionFilter](#createcollectionfilter)).
+
+#### With ctrl.set()
+
+Use [Controller.set()](/docs/api/Controller#set) for local-only removal (no network request):
 
 ```ts
-ctrl.set(MyResource.getList.schema.remove, { id });
+// Remove from collections matching { group: 'five' }
+ctrl.set(
+  UserResource.getList.schema.remove,
+  { group: 'five' },
+  { id: '5' },
+);
 ```
 
 ```ts
+// Remove from all collections (empty args matches all)
+ctrl.set(getTodos.schema.remove, {}, { id: '123' });
+```
+
+#### With fetch (RestEndpoint.remove)
+
+[RestEndpoint.remove](./RestEndpoint.md#remove) provides a convenience endpoint that makes a PATCH request,
+removes the item from matching collections, AND updates the entity with the response data:
+
+```ts
+// PATCH request that removes user from 'five' group list
+// AND updates the user entity with the response
+await ctrl.fetch(
+  UserResource.getList.remove,
+  { group: 'five' },
+  { id: '2', group: 'newgroup' },
+);
+```
+
+#### Extending an existing endpoint
+
+Use the schema to customize removal behavior on other endpoints:
+
+```ts
 const removeItem = MyResource.delete.extend({
-  schema: MyResource.getList.schema.remove
-})
+  schema: MyResource.getList.schema.remove,
+});
 ```
 
 ### assign
 
 A creation schema that [assigns](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign)
-its members to the `Collection`.
+its members to a `Collection(Values)`. Only available for Collections wrapping [Values](./Values.md).
+
+```ts
+// Add/update entries in a Values collection
+await ctrl.fetch(getStats.assign, {
+  'BTC-USD': { product_id: 'BTC-USD', volume: 1000 },
+  'ETH-USD': { product_id: 'ETH-USD', volume: 500 },
+});
+```
 
 ### addWith(merge, createCollectionFilter): CreationSchema {#addWith}
 

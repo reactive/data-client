@@ -832,33 +832,75 @@ const UserDetailNormalized = getUser.extend({
 
 ## Specialized extenders
 
+These convenience accessors create new endpoints for common [Collection](./Collection.md) operations.
+They only work when the `RestEndpoint`'s schema contains a [Collection](./Collection.md).
+
 ### push
 
-This is a convenience to place newly created Entities at the _end_ of a [Collection](./Collection.md).
+Creates a POST endpoint that places newly created Entities at the _end_ of a [Collection](./Collection.md).
 
-When this `RestEndpoint`'s schema contains a [Collection](./Collection.md), this returned a new
-RestEndpoint with its parents properties, but with [method](#method): 'POST' and schema: [Collection.push](./Collection.md#push)
+Returns a new RestEndpoint with [method](#method): 'POST' and schema: [Collection.push](./Collection.md#push)
+
+```tsx
+const getTodos = new RestEndpoint({
+  path: '/todos',
+  searchParams: {} as { userId?: string },
+  schema: new Collection([Todo]),
+});
+
+// POST /todos - adds new Todo to the end of the list
+const newTodo = await ctrl.fetch(
+  getTodos.push,
+  { userId: '1' },
+  { title: 'Buy groceries' },
+);
+```
 
 ### unshift
 
-This is a convenience to place newly created Entities at the _start_ of a [Collection](./Collection.md).
+Creates a POST endpoint that places newly created Entities at the _start_ of a [Collection](./Collection.md).
 
-When this `RestEndpoint`'s schema contains a [Collection](./Collection.md), this returned a new
-RestEndpoint with its parents properties, but with [method](#method): 'POST' and schema: [Collection.push](./Collection.md#unshift)
+Returns a new RestEndpoint with [method](#method): 'POST' and schema: [Collection.unshift](./Collection.md#unshift)
+
+```tsx
+const getTodos = new RestEndpoint({
+  path: '/todos',
+  searchParams: {} as { userId?: string },
+  schema: new Collection([Todo]),
+});
+
+// POST /todos - adds new Todo to the beginning of the list
+const newTodo = await ctrl.fetch(
+  getTodos.unshift,
+  { userId: '1' },
+  { title: 'Urgent task' },
+);
+```
 
 ### assign
 
-This is a convenience to add newly created Entities to a [Values](./Values.md) [Collection](./Collection.md).
+Creates a POST endpoint that merges Entities into a [Values](./Values.md) [Collection](./Collection.md).
 
-When this `RestEndpoint`'s schema contains a [Collection](./Collection.md), this returned a new
-RestEndpoint with its parents properties, but with [method](#method): 'POST' and schema: [Collection.push](./Collection.md#assign)
+Returns a new RestEndpoint with [method](#method): 'POST' and schema: [Collection.assign](./Collection.md#assign)
+
+```tsx
+const getStats = new RestEndpoint({
+  path: '/products/stats',
+  schema: new Collection(new Values(Stats)),
+});
+
+// POST /products/stats - add/update entries in the Values collection
+await ctrl.fetch(getStats.assign, {
+  'BTC-USD': { product_id: 'BTC-USD', volume: 1000 },
+  'ETH-USD': { product_id: 'ETH-USD', volume: 500 },
+});
+```
 
 ### remove
 
-This is a convenience to remove Entities from a [Collection](./Collection.md).
+Creates a PATCH endpoint that removes Entities from a [Collection](./Collection.md) and updates them with the response.
 
-When this `RestEndpoint`'s schema contains a [Collection](./Collection.md), this returns a new
-RestEndpoint with its parents properties, but with [method](#method): 'PATCH' and schema: [Collection.remove](./Collection.md#remove)
+Returns a new RestEndpoint with [method](#method): 'PATCH' and schema: [Collection.remove](./Collection.md#remove)
 
 ```tsx
 const getTodos = new RestEndpoint({
@@ -866,8 +908,23 @@ const getTodos = new RestEndpoint({
   schema: new Collection([Todo]),
 });
 
-// Update Todo and remove from collection
-await ctrl.fetch(getTodos.remove, {}, { id: '123', title: 'Done' });
+// PATCH /todos - removes Todo from collection AND updates the entity
+await ctrl.fetch(getTodos.remove, {}, { id: '123', completed: true });
+```
+
+```tsx
+const UserResource = resource({
+  path: '/groups/:group/users/:id',
+  schema: User,
+});
+
+// PATCH /groups/five/users - removes user from 'five' group list
+// AND updates the user entity with response data (e.g., new group)
+await ctrl.fetch(
+  UserResource.getList.remove,
+  { group: 'five' },
+  { id: '2', group: 'newgroup' },
+);
 ```
 
 ### getPage
