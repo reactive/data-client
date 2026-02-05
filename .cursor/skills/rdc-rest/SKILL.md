@@ -126,7 +126,15 @@ getOptimisticResponse(snap, { id }) {
 
 ---
 
-## 4. **Extending Resources**
+### 4. RestEndpoint lifecycle methods
+
+- **Perform Fetch:** `fetchResponse()` → `parseResponse()` → `process()`
+  - **url(urlParams):** `urlPrefix` + `path` + (`searchParams` → `searchToString()`)
+  - **getRequestInit(body):** `getHeaders()` + `method` + `signal`
+
+---
+
+## 5. **Extending Resources**
 
 Use `.extend()` to add or override endpoints.
 
@@ -143,13 +151,13 @@ export const IssueResource = resource({
 
 ---
 
-## 5. Best Practices & Notes
+## 6. Best Practices & Notes
 
 - When asked to browse or navigate to a web address, actual visit the address
 - Always set up `schema` on every resource/entity/collection for normalization
 - Prefer `RestEndpoint` over `resource()` for defining single endpoints or when mutation endpoints don't exist
 
-## 6. Common Mistakes to Avoid
+## 7. Common Mistakes to Avoid
 
 - Don't use `resource()` when mutation endpoints are not used or needed
 
@@ -158,7 +166,7 @@ export const IssueResource = resource({
 For detailed API documentation, see the [references](references/) directory:
 
 - [resource](references/resource.md) - Create CRUD endpoints
-- [RestEndpoint](references/RestEndpoint.md);[_EndpointLifecycle.mdx](references/_EndpointLifecycle.mdx) - Single REST endpoint
+- [RestEndpoint](references/RestEndpoint.md);[_EndpointLifecycle.mdx](references/_EndpointLifecycle.mdx);[RestEndpoint.js](references/RestEndpoint.js) - Single REST endpoint
 - [Entity](references/Entity.md);[_entity_lifecycle_methods.mdx](references/_entity_lifecycle_methods.mdx) - Normalized data class
 - [Collection](references/Collection.md) - Mutable lists
 - [schema](references/schema.md) - Schema overview

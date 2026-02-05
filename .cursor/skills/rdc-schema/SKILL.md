@@ -59,8 +59,8 @@ to represent the data expected.
 
 ## 3. Entity lifecycle methods
 
-- Normalize order: `process()` → `validate()` → `pk()` → if existing: `mergeWithStore()` which calls `shouldUpdate()` and maybe `shouldReorder()` + `merge()`; metadata via `mergeMetaWithStore()`.
-- Denormalize order: `createIfValid()` → `validate()` → `fromJS()`.
+- Normalize order: `process()` → [validate()](references/validation.md) → `pk()` → if existing: `mergeWithStore()` which calls `shouldUpdate()` and maybe `shouldReorder()` + `merge()`; metadata via `mergeMetaWithStore()`.
+- Denormalize order: `createIfValid()` → [validate()](references/validation.md) → `fromJS()`.
 
 ---
 

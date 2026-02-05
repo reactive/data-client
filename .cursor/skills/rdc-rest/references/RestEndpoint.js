@@ -1,0 +1,1 @@
+../../../../packages/rest/src/RestEndpoint.js
