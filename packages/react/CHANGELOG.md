@@ -1,5 +1,15 @@
 # @data-client/react
 
+## 0.15.6
+
+### Patch Changes
+
+- [#3718](https://github.com/reactive/data-client/pull/3718) [`c7f8c79`](https://github.com/reactive/data-client/commit/c7f8c79bc2399ec8183196ce3680ed88c4ca9864) Thanks [@ntucker](https://github.com/ntucker)! - Remove misleading 'Uncaught Suspense' warning in SSRDataProvider
+
+  The SSRDataProvider now uses `null` instead of `BackupLoading` as the Suspense fallback. This prevents the confusing "Uncaught Suspense" development warning from appearing during normal Next.js server-side rendering, where suspense is expected behavior.
+
+- [`ad501b6`](https://github.com/reactive/data-client/commit/ad501b62ec231ff771da05d32053934960c8800c) Thanks [@ntucker](https://github.com/ntucker)! - Add skill reference to readme
+
 ## 0.15.4
 
 ### Patch Changes

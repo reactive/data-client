@@ -1,5 +1,11 @@
 # @data-client/vue
 
+## 0.15.3
+
+### Patch Changes
+
+- [`ad501b6`](https://github.com/reactive/data-client/commit/ad501b62ec231ff771da05d32053934960c8800c) Thanks [@ntucker](https://github.com/ntucker)! - Add skill reference to readme
+
 ## 0.15.2
 
 ### Patch Changes
