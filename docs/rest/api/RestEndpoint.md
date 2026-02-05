@@ -856,6 +856,20 @@ const newTodo = await ctrl.fetch(
 );
 ```
 
+```tsx
+const UserResource = resource({
+  path: '/groups/:group/users/:id',
+  schema: User,
+});
+
+// POST /groups/five/users - adds new User to the end of the list
+const newUser = await ctrl.fetch(
+  UserResource.getList.push,
+  { group: 'five' },
+  { username: 'newuser', email: 'new@example.com' },
+);
+```
+
 ### unshift
 
 Creates a POST endpoint that places newly created Entities at the _start_ of a [Collection](./Collection.md).
@@ -877,6 +891,20 @@ const newTodo = await ctrl.fetch(
 );
 ```
 
+```tsx
+const UserResource = resource({
+  path: '/groups/:group/users/:id',
+  schema: User,
+});
+
+// POST /groups/five/users - adds new User to the start of the list
+const newUser = await ctrl.fetch(
+  UserResource.getList.unshift,
+  { group: 'five' },
+  { username: 'priorityuser', email: 'priority@example.com' },
+);
+```
+
 ### assign
 
 Creates a POST endpoint that merges Entities into a [Values](./Values.md) [Collection](./Collection.md).
@@ -893,6 +921,24 @@ const getStats = new RestEndpoint({
 await ctrl.fetch(getStats.assign, {
   'BTC-USD': { product_id: 'BTC-USD', volume: 1000 },
   'ETH-USD': { product_id: 'ETH-USD', volume: 500 },
+});
+```
+
+```tsx
+const StatsResource = resource({
+  urlPrefix: 'https://api.exchange.example.com',
+  path: '/products/:product_id/stats',
+  schema: Stats,
+}).extend({
+  getList: {
+    path: '/products/stats',
+    schema: new Collection(new Values(Stats)),
+  },
+});
+
+// POST /products/stats - add/update entries
+await ctrl.fetch(StatsResource.getList.assign, {
+  'BTC-USD': { product_id: 'BTC-USD', volume: 1000 },
 });
 ```
 
@@ -925,6 +971,14 @@ await ctrl.fetch(
   { group: 'five' },
   { id: '2', group: 'newgroup' },
 );
+```
+
+To use the remove schema with a different endpoint (e.g., DELETE):
+
+```ts
+const deleteAndRemove = MyResource.delete.extend({
+  schema: MyResource.getList.schema.remove,
+});
 ```
 
 ### getPage

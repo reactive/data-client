@@ -233,8 +233,13 @@ This allows adding or updating entries with [.assign](./Collection.md#assign). T
 where keys are the collection keys and values are the entity data to merge:
 
 ```typescript
-// Add/update the 'BTC-USD' entry in the collection
-ctrl.fetch(StatsResource.getList.assign, {
+// Local-only update with ctrl.set()
+ctrl.set(StatsResource.getList.schema.assign, {}, {
+  'BTC-USD': { product_id: 'BTC-USD', volume: 1000 },
+});
+
+// Network request with ctrl.fetch() - see RestEndpoint.assign
+await ctrl.fetch(StatsResource.getList.assign, {
   'BTC-USD': { product_id: 'BTC-USD', volume: 1000 },
 });
 ```
@@ -491,13 +496,16 @@ createCollectionFilter(...args: Args) {
 
 ## Methods
 
+These creation/removal schemas can be used with [Controller.set()](/docs/api/Controller#set) for local-only
+updates without network requests. For network-based mutations, see [RestEndpoint's specialized extenders](./RestEndpoint.md#push).
+
 ### push
 
 A creation schema that places new item(s) at the _end_ of this collection.
 
 ```ts
-// Add a new todo to the end of the list
-await ctrl.fetch(getTodos.push, { userId: '1' }, { title: 'New Todo' });
+// Add a new todo to the end of the list (local only, no network request)
+ctrl.set(getTodos.schema.push, { userId: '1' }, { id: '999', title: 'New Todo' });
 ```
 
 ### unshift
@@ -505,8 +513,8 @@ await ctrl.fetch(getTodos.push, { userId: '1' }, { title: 'New Todo' });
 A creation schema that places new item(s) at the _start_ of this collection.
 
 ```ts
-// Add a new todo to the beginning of the list
-await ctrl.fetch(getTodos.unshift, { userId: '1' }, { title: 'New Todo' });
+// Add a new todo to the beginning of the list (local only)
+ctrl.set(getTodos.schema.unshift, { userId: '1' }, { id: '999', title: 'New Todo' });
 ```
 
 ### remove
@@ -516,17 +524,9 @@ A schema that removes item(s) from a collection by value.
 The entity value is normalized to extract its pk, which is then matched against collection members.
 Items are removed from all collections matching the provided args (filtered by [createCollectionFilter](#createcollectionfilter)).
 
-#### With ctrl.set()
-
-Use [Controller.set()](/docs/api/Controller#set) for local-only removal (no network request):
-
 ```ts
-// Remove from collections matching { group: 'five' }
-ctrl.set(
-  UserResource.getList.schema.remove,
-  { group: 'five' },
-  { id: '5' },
-);
+// Remove from collections matching { userId: '1' } (local only)
+ctrl.set(getTodos.schema.remove, { userId: '1' }, { id: '123' });
 ```
 
 ```ts
@@ -534,30 +534,7 @@ ctrl.set(
 ctrl.set(getTodos.schema.remove, {}, { id: '123' });
 ```
 
-#### With fetch (RestEndpoint.remove)
-
-[RestEndpoint.remove](./RestEndpoint.md#remove) provides a convenience endpoint that makes a PATCH request,
-removes the item from matching collections, AND updates the entity with the response data:
-
-```ts
-// PATCH request that removes user from 'five' group list
-// AND updates the user entity with the response
-await ctrl.fetch(
-  UserResource.getList.remove,
-  { group: 'five' },
-  { id: '2', group: 'newgroup' },
-);
-```
-
-#### Extending an existing endpoint
-
-Use the schema to customize removal behavior on other endpoints:
-
-```ts
-const removeItem = MyResource.delete.extend({
-  schema: MyResource.getList.schema.remove,
-});
-```
+For network-based removal that also updates the entity, see [RestEndpoint.remove](./RestEndpoint.md#remove).
 
 ### assign
 
@@ -565,8 +542,13 @@ A creation schema that [assigns](https://developer.mozilla.org/en-US/docs/Web/Ja
 its members to a `Collection(Values)`. Only available for Collections wrapping [Values](./Values.md).
 
 ```ts
-// Add/update entries in a Values collection
-await ctrl.fetch(getStats.assign, {
+const getStats = new RestEndpoint({
+  path: '/products/stats',
+  schema: new Collection(new Values(Stats)),
+});
+
+// Add/update entries in a Values collection (local only)
+ctrl.set(getStats.schema.assign, {}, {
   'BTC-USD': { product_id: 'BTC-USD', volume: 1000 },
   'ETH-USD': { product_id: 'ETH-USD', volume: 500 },
 });
