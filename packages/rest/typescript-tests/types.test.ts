@@ -712,6 +712,142 @@ it('should allow sideEffect overrides', () => {
   };
 });
 
+it('should preserve sideEffect: false when overriding method: POST', () => {
+  () => {
+    // Test constructor with sideEffect: false and method: POST
+    const postGetter = new RestEndpoint({
+      path: '/api/search',
+      method: 'POST',
+      sideEffect: false,
+      body: {} as {
+        query: string;
+        filters?: Record<string, any>;
+      },
+      schema: new Collection([User]),
+    });
+
+    // sideEffect is explicitly false, not true or undefined
+    const sideEffectType: false = postGetter.sideEffect;
+    // @ts-expect-error
+    const notTrue: true = postGetter.sideEffect;
+    // @ts-expect-error
+    const notUndef: undefined = postGetter.sideEffect;
+
+    // Should work with useSuspense (requires sideEffect: false | undefined)
+    useSuspense(postGetter, {
+      query: 'test',
+      filters: { status: 'active' },
+    });
+    useSuspense(postGetter, {
+      query: 'test',
+    });
+
+    // Test extend preserves sideEffect: false
+    const extended = postGetter.extend({
+      path: '/api/search/:category',
+    });
+    const extendedSideEffectType: false = extended.sideEffect;
+    // @ts-expect-error
+    const extendedNotTrue: true = extended.sideEffect;
+    // @ts-expect-error
+    const extendedNotUndef: undefined = extended.sideEffect;
+
+    // Extended endpoint should also work with useSuspense
+    useSuspense(extended, { category: 'users' }, { query: 'test' });
+
+    // Test extend with additional options preserves sideEffect: false
+    const extendedWithOptions = postGetter.extend({
+      searchParams: {} as { page?: number },
+      body: {} as {
+        query: string;
+        filters?: Record<string, any>;
+        sort?: string;
+      },
+    });
+    const extendedWithOptionsSideEffectType: false =
+      extendedWithOptions.sideEffect;
+    // @ts-expect-error
+    const extendedWithOptionsNotTrue: true = extendedWithOptions.sideEffect;
+
+    // Should work with useSuspense
+    useSuspense(extendedWithOptions, {
+      query: 'test',
+      sort: 'name',
+    });
+    useSuspense(extendedWithOptions, { page: 1 }, { query: 'test' });
+
+    // Test chained extend preserves sideEffect: false
+    const chainedExtended = postGetter
+      .extend({
+        path: '/api/search/:category',
+      })
+      .extend({
+        searchParams: {} as { page?: number },
+      });
+    const chainedSideEffectType: false = chainedExtended.sideEffect;
+    // @ts-expect-error
+    const chainedNotTrue: true = chainedExtended.sideEffect;
+
+    // Should work with useSuspense
+    useSuspense(
+      chainedExtended,
+      { category: 'users', page: 1 },
+      { query: 'test' },
+    );
+  };
+  () => {
+    // Test constructor with sideEffect: false and method: POST, no body
+    const postGetterNoBody = new RestEndpoint({
+      path: '/api/ping',
+      method: 'POST',
+      sideEffect: false,
+      schema: User,
+    });
+
+    const sideEffectType: false = postGetterNoBody.sideEffect;
+    useSuspense(postGetterNoBody);
+
+    // Test extend preserves sideEffect: false
+    const extendedNoBody = postGetterNoBody.extend({
+      path: '/api/ping/:id',
+    });
+    const extendedNoBodySideEffectType: false = extendedNoBody.sideEffect;
+    useSuspense(extendedNoBody, { id: '123' });
+  };
+  () => {
+    // Test that sideEffect: false can be set via extend on a POST endpoint
+    const basePost = new RestEndpoint({
+      path: '/api/data',
+      method: 'POST',
+      body: {} as { data: string },
+      schema: User,
+    });
+
+    // Base POST should have sideEffect: true
+    const baseSideEffectType: true = basePost.sideEffect;
+    // @ts-expect-error - useSuspense requires sideEffect: false | undefined
+    useSuspense(basePost, { data: 'test' });
+
+    // Extend with sideEffect: false should override
+    const overridden = basePost.extend({
+      sideEffect: false,
+    });
+    const overriddenSideEffectType: false = overridden.sideEffect;
+    // @ts-expect-error
+    const overriddenNotTrue: true = overridden.sideEffect;
+
+    // Should now work with useSuspense
+    useSuspense(overridden, { data: 'test' });
+
+    // Test that further extends preserve sideEffect: false
+    const furtherExtended = overridden.extend({
+      path: '/api/data/:id',
+    });
+    const furtherExtendedSideEffectType: false = furtherExtended.sideEffect;
+    useSuspense(furtherExtended, { id: '123' }, { data: 'test' });
+  };
+});
+
 it('should handle more open ended type definitions', () => {
   () => {
     const unknownParams = new RestEndpoint({

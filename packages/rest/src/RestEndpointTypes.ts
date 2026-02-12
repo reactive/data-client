@@ -233,7 +233,8 @@ type OptionsToRestEndpoint<
         'method' extends keyof O ? O['method'] : E['method']
       >,
       'schema' extends keyof O ? O['schema'] : E['schema'],
-      'sideEffect' extends keyof O ? Extract<O['sideEffect'], undefined | true>
+      'sideEffect' extends keyof O ?
+        Extract<O['sideEffect'], boolean | undefined>
       : 'method' extends keyof O ? MethodToSide<O['method']>
       : E['sideEffect'],
       O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>,
@@ -260,7 +261,8 @@ type OptionsToRestEndpoint<
         'method' extends keyof O ? O['method'] : E['method']
       >,
       'schema' extends keyof O ? O['schema'] : E['schema'],
-      'sideEffect' extends keyof O ? Extract<O['sideEffect'], undefined | true>
+      'sideEffect' extends keyof O ?
+        Extract<O['sideEffect'], boolean | undefined>
       : 'method' extends keyof O ? MethodToSide<O['method']>
       : E['sideEffect'],
       O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>,
@@ -285,7 +287,8 @@ type OptionsToRestEndpoint<
         'method' extends keyof O ? O['method'] : E['method']
       >,
       'schema' extends keyof O ? O['schema'] : E['schema'],
-      'sideEffect' extends keyof O ? Extract<O['sideEffect'], undefined | true>
+      'sideEffect' extends keyof O ?
+        Extract<O['sideEffect'], boolean | undefined>
       : 'method' extends keyof O ? MethodToSide<O['method']>
       : E['sideEffect'],
       O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>,
@@ -302,7 +305,8 @@ type OptionsToRestEndpoint<
   : RestInstance<
       F,
       'schema' extends keyof O ? O['schema'] : E['schema'],
-      'sideEffect' extends keyof O ? Extract<O['sideEffect'], undefined | true>
+      'sideEffect' extends keyof O ?
+        Extract<O['sideEffect'], boolean | undefined>
       : 'method' extends keyof O ? MethodToSide<O['method']>
       : E['sideEffect'],
       {
@@ -333,7 +337,9 @@ export type RestExtendedEndpoint<
     ) => O['process'] extends {} ? Promise<ReturnType<O['process']>>
     : ReturnType<E>,
     'schema' extends keyof O ? O['schema'] : E['schema'],
-    'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect']
+    'sideEffect' extends keyof O ? Extract<O['sideEffect'], boolean | undefined>
+    : 'method' extends keyof O ? MethodToSide<O['method']>
+    : E['sideEffect']
   >
 > &
   Omit<O, KeyofRestEndpoint> &
@@ -571,7 +577,7 @@ export interface RestEndpoint<
     : any /*Denormalize<O['schema']>*/
   >,
   'schema' extends keyof O ? O['schema'] : undefined,
-  'sideEffect' extends keyof O ? Extract<O['sideEffect'], undefined | true>
+  'sideEffect' extends keyof O ? Extract<O['sideEffect'], boolean | undefined>
   : MethodToSide<O['method']>,
   'method' extends keyof O ? O
   : O & {
