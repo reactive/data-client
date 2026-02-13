@@ -89,7 +89,7 @@
     "@anansi/browserslist-config": "^1.4.2",
     "@types/jest": "30.0.0",
     "@types/node": "^24.0.0",
-    "@types/react": "19.2.9",
+    "@types/react": "19.2.14",
     "react": "^19.0.0",
     "rollup-plugins": "workspace:*"
   },
