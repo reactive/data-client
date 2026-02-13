@@ -31,10 +31,10 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@anansi/cli": "3.1.101",
-    "@anansi/babel-preset": "6.2.22",
+    "@anansi/babel-preset": "6.2.23",
     "@anansi/browserslist-config": "1.7.4",
-    "@anansi/webpack-config": "21.1.12",
-    "@babel/core": "7.28.6",
+    "@anansi/webpack-config": "21.1.13",
+    "@babel/core": "7.29.0",
     "@linaria/babel-preset": "5.0.4",
     "@linaria/core": "6.3.0",
     "@linaria/react": "6.3.0",
@@ -46,7 +46,7 @@
     "@types/uuid": "^11.0.0",
     "react-refresh": "0.18.0",
     "serve": "14.2.5",
-    "webpack": "5.104.1",
+    "webpack": "5.105.2",
     "webpack-cli": "6.0.1",
     "webpack-dev-server": "5.2.3"
   },
