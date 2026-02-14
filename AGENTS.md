@@ -1,12 +1,9 @@
----
-alwaysApply: true
----
-
 # Reactive Data Client
 
-Yarn monorepo for normalized reactive state management.
+Monorepo for `@data-client` npm packages.
 
 ## Architecture
+
 - `packages/endpoint`: Base endpoints and declarative schemas
 - `packages/rest`: REST modeling (`resource()`, `RestEndpoint`)
 - `packages/core`: Framework-agnostic normalized store, Controller, Managers
@@ -19,7 +16,7 @@ Yarn monorepo for normalized reactive state management.
 - `yarn build` - Build all packages
 - `yarn test` - Run tests (Jest projects: ReactDOM, Node, ReactNative)
 - `yarn lint` / `yarn format` - Linting and formatting
-- Website dev: use workspace task "website: start"
+- Website dev: `cd website && yarn start:vscode`
 
 **Test naming**: `*.node.test.ts[x]` (Node), `*.native.test.ts[x]` (RN), `*.test.ts[x]` (regular)
 
@@ -32,14 +29,8 @@ Yarn monorepo for normalized reactive state management.
 
 ## Key Principles
 
-1. **Always define schemas** for normalization and caching
-2. **Prefer normalized data** with proper Entity relationships
-3. **Use `resource()` for CRUD operations** when mutations exist
-4. **Use `RestEndpoint` for single endpoints** or when mutations aren't needed
-5. **Define defaults for all Entity fields** to ensure type safety
-6. **Use `actionTypes` from `@data-client/react`** for type-safe action handling
-7. **Prefer smaller React components** that do one thing
-8. **Use fixtures/interceptors for testing** instead of mocking
+1. **Prefer smaller React components** that do one thing
+2. **Use fixtures/interceptors for testing** instead of mocking
 
 ## Documentation Updates
 
@@ -56,19 +47,9 @@ Yarn monorepo for normalized reactive state management.
 
 Update docs **in the same commit/PR** as code changes. For writing guidelines, see skill "packages-documentation"
 
-## Common Mistakes to Avoid
-
-- Don't forget `fromJS()` or default property assignments for Entity fields
-- Don't use `resource()` when mutation endpoints aren't needed
-- Don't forget to set up `schema` on every resource/entity/collection
-- Don't use raw fetch when Data Client hooks are available
-
 ## Integration Details
 
 - **Babel**: Resolves relative `.js` imports to `.ts` in tests
 - **Jest**: Maps `@data-client/*` imports to local `packages/*/src` during tests
 - **TypeScript**: Uses TS 5.9 project references; ambient `.d.ts` files copied during build
 - **Native compilation**: When `COMPILE_TARGET=native`, prefers `.native.*` files
-
-When working on this codebase, always prioritize type safety, proper normalization, and leveraging the automatic caching provided by schema definitions. Follow the established patterns and refer to the official documentation for edge cases.
-

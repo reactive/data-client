@@ -1,5 +1,7 @@
 ---
+description: Markdown link conventions and code formatting for docs, blog posts, and rule files
 globs: **/*.md, **/*.mdc, **/*.mdx
+alwaysApply: false
 ---
 
 # Markdown Formatting

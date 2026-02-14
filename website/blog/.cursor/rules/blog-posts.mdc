@@ -1,5 +1,7 @@
 ---
-alwaysApply: true
+description: Blog post structure, naming, migration guides, and component usage for release announcements
+globs: website/blog/**
+alwaysApply: false
 ---
 
 ## Naming Convention
