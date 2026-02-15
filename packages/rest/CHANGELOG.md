@@ -1,5 +1,22 @@
 # @data-client/rest
 
+## 0.15.6
+
+### Patch Changes
+
+- [#3726](https://github.com/reactive/data-client/pull/3726) [`9d94eb4`](https://github.com/reactive/data-client/commit/9d94eb46f9fd4513747ae3154298fa3b1d7487e9) - Fix `sideEffect: false` type being lost with `method: 'POST'`
+
+  `sideEffect` set explicitly now always takes priority over `method` inference,
+  including through `.extend()` chains. Previously `sideEffect: false` resolved
+  to `never`, losing type information.
+
+  ```ts
+  // Before: sideEffect typed as `never` ❌
+  const ep = new RestEndpoint({ method: 'POST', sideEffect: false, ... });
+  // After: sideEffect typed as `false` ✓
+  const ep = new RestEndpoint({ method: 'POST', sideEffect: false, ... });
+  ```
+
 ## 0.15.5
 
 ### Patch Changes
