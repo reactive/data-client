@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/@changesets/config@2.3.1/schema.json",
-  "changelog": ["@changesets/changelog-github", { "repo": "reactive/data-client" }],
+  "changelog": ["./changelog-github-custom.js", { "repo": "reactive/data-client" }],
   "commit": false,
   "linked": [
     [
