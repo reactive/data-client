@@ -19,7 +19,7 @@
     "startCommand": "npm start"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "browserslist": "extends @anansi/browserslist-config",
   "keywords": [
@@ -35,7 +35,6 @@
     "@anansi/browserslist-config": "1.7.4",
     "@anansi/webpack-config": "21.1.13",
     "@babel/core": "7.29.0",
-    "@linaria/babel-preset": "5.0.4",
     "@linaria/core": "6.3.0",
     "@linaria/react": "6.3.0",
     "@linaria/shaker": "5.0.3",

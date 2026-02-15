@@ -12,7 +12,7 @@
     "startCommand": "npm run dev"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "dependencies": {
     "@data-client/vue": "^0.15.0",

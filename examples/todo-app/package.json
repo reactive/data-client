@@ -14,7 +14,7 @@
     "test:pkg": "webpack --env check=nobuild"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "stackblitz": {
     "startCommand": "npm start"
