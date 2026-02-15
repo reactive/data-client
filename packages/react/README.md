@@ -46,7 +46,7 @@ For more details, see [the Installation docs page](https://dataclient.io/docs/ge
 npx skills add reactive/data-client
 ```
 
-Then run [skill](https://agentskills.io) "rdc-setup"
+Then run [skill](https://agentskills.io) "data-client-setup"
 
 ## Usage
 

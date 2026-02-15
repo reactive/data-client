@@ -1,5 +1,5 @@
 ---
-name: rdc-manager
+name: data-client-manager
 description: Implement @data-client Managers for global side effects - websocket, SSE, polling, subscriptions, logging, middleware, Controller actions, redux pattern
 license: Apache 2.0
 ---

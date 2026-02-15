@@ -1,5 +1,5 @@
 ---
-name: rdc-schema
+name: data-client-schema
 description: Define data schemas - Entity, Collection, Union, Query, pk/primary key, normalize/denormalize, relational/nested data, polymorphic types, Invalidate, Values
 license: Apache 2.0
 ---

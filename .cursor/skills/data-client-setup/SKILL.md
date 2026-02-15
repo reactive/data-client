@@ -1,5 +1,5 @@
 ---
-name: rdc-setup
+name: data-client-setup
 description: Install and set up @data-client/react or @data-client/vue in a project. Detects project type (NextJS, Expo, React Native, Vue, plain React) and protocol (REST, GraphQL, custom), then hands off to protocol-specific setup skills.
 disable-model-invocation: true
 ---
@@ -187,21 +187,21 @@ After provider setup, apply the appropriate skill based on detected protocol:
 
 ### REST APIs
 
-Apply skill **"rdc-rest-setup"** which will:
+Apply skill **"data-client-rest-setup"** which will:
 1. Install `@data-client/rest`
 2. Offer to create a custom `BaseEndpoint` class extending `RestEndpoint`
 3. Configure common behaviors: urlPrefix, authentication, error handling
 
 ### GraphQL APIs
 
-Apply skill **"rdc-graphql-setup"** which will:
+Apply skill **"data-client-graphql-setup"** which will:
 1. Install `@data-client/graphql`
 2. Create and configure `GQLEndpoint` instance
 3. Set up authentication headers
 
 ### Custom Async Operations
 
-Apply skill **"rdc-endpoint-setup"** which will:
+Apply skill **"data-client-endpoint-setup"** which will:
 1. Install `@data-client/endpoint`
 2. Offer to wrap existing async functions with `new Endpoint()`
 3. Configure schemas and caching options
@@ -241,9 +241,9 @@ The `DataProvider` must wrap all components that use data-client hooks. Place it
 ## Next Steps
 
 After core setup and protocol-specific setup:
-1. Define data schemas using `Entity` - see skill "rdc-schema"
-2. Use hooks like `useSuspense`, `useQuery`, `useController` - see skill "rdc-react" or "rdc-vue"
-3. Define REST resources - see skill "rdc-rest"
+1. Define data schemas using `Entity` - see skill "data-client-schema"
+2. Use hooks like `useSuspense`, `useQuery`, `useController` - see skill "data-client-react" or "data-client-vue"
+3. Define REST resources - see skill "data-client-rest"
 
 ## References
 

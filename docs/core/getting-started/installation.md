@@ -15,7 +15,7 @@ import Link from '@docusaurus/Link';
 
 <SkillTabs skill="reactive/data-client" />
 
-Then run skill `/rdc-setup` or:
+Then run skill `/data-client-setup` or:
 
 <PkgTabs pkgs="@data-client/react @data-client/test @data-client/rest" />
 

@@ -1,12 +1,12 @@
 ---
-name: rdc-graphql-setup
-description: Set up @data-client/graphql for GraphQL APIs. Configures GQLEndpoint with auth and custom options. Use after rdc-setup detects GraphQL patterns.
+name: data-client-graphql-setup
+description: Set up @data-client/graphql for GraphQL APIs. Configures GQLEndpoint with auth and custom options. Use after data-client-setup detects GraphQL patterns.
 disable-model-invocation: true
 ---
 
 # GraphQL Protocol Setup
 
-This skill configures `@data-client/graphql` for a project. It should be applied after `rdc-setup` detects GraphQL patterns.
+This skill configures `@data-client/graphql` for a project. It should be applied after `data-client-setup` detects GraphQL patterns.
 
 ## Installation
 
@@ -201,8 +201,8 @@ function UserProfile({ id }: { id: string }) {
 
 ## Next Steps
 
-1. Apply skill "rdc-schema" to define Entity classes
-2. Apply skill "rdc-react" or "rdc-vue" for usage
+1. Apply skill "data-client-schema" to define Entity classes
+2. Apply skill "data-client-react" or "data-client-vue" for usage
 
 ## References
 

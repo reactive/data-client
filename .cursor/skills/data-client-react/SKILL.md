@@ -1,5 +1,5 @@
 ---
-name: rdc-react
+name: data-client-react
 description: Use @data-client/react hooks - useSuspense, useQuery, useCache, useLive, useDLE, useSubscription, useController for fetch/mutations, DataProvider, AsyncBoundary, useLoading, useDebounce
 license: Apache 2.0
 ---
@@ -23,7 +23,7 @@ const { data, loading, error } = useDLE(TodoResource.get, { id: 5 });
 useSubscription(TodoResource.get, { id: 5 });
 ```
 
-For API definitions (like TodoResource), apply the skill "rdc-rest".
+For API definitions (like TodoResource), apply the skill "data-client-rest".
 
 ## Mutations
 
@@ -112,7 +112,7 @@ const todosByUser = useQuery(groupTodoByUser);
 ## Managers
 
 Custom [Managers](https://dataclient.io/docs/api/Manager) allow for global side effect handling.
-This is useful for webosckets, SSE, logging, etc. Always use the skill "rdc-manager" when writing managers.
+This is useful for webosckets, SSE, logging, etc. Always use the skill "data-client-manager" when writing managers.
 
 ## Best Practices & Notes
 
@@ -139,4 +139,4 @@ For detailed API documentation, see the [references](references/) directory:
 - [data-dependency](references/data-dependency.md) - Rendering guide
 - [mutations](references/mutations.md);[_VoteDemo.mdx](references/_VoteDemo.mdx) - Mutations guide
 
-**ALWAYS follow these patterns and refer to the official docs for edge cases. Prioritize code generation that is idiomatic, type-safe, and leverages automatic normalization/caching via skill "rdc-schema" definitions.**
+**ALWAYS follow these patterns and refer to the official docs for edge cases. Prioritize code generation that is idiomatic, type-safe, and leverages automatic normalization/caching via skill "data-client-schema" definitions.**
