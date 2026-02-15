@@ -1,14 +1,14 @@
 ---
-name: rdc-rest-setup
-description: Set up @data-client/rest for REST APIs. Creates custom RestEndpoint base class with common behaviors (auth, urlPrefix, error handling). Use after rdc-setup detects REST patterns.
+name: data-client-rest-setup
+description: Set up @data-client/rest for REST APIs. Creates custom RestEndpoint base class with common behaviors (auth, urlPrefix, error handling). Use after data-client-setup detects REST patterns.
 disable-model-invocation: true
 ---
 
 # REST Protocol Setup
 
-This skill configures `@data-client/rest` for a project. It should be applied after skill "rdc-setup" detects REST API patterns.
+This skill configures `@data-client/rest` for a project. It should be applied after skill "data-client-setup" detects REST API patterns.
 
-**First, apply the skill "rdc-rest"** for accurate implementation patterns.
+**First, apply the skill "data-client-rest"** for accurate implementation patterns.
 
 ## Installation
 
@@ -218,9 +218,9 @@ export const TodoResource = resource({
 
 ## Next Steps
 
-1. Apply skill "rdc-schema" to define Entity classes
-2. Apply skill "rdc-rest" for resource and endpoint patterns
-3. Apply skill "rdc-react" or "rdc-vue" for usage
+1. Apply skill "data-client-schema" to define Entity classes
+2. Apply skill "data-client-rest" for resource and endpoint patterns
+3. Apply skill "data-client-react" or "data-client-vue" for usage
 
 ## References
 

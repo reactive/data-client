@@ -1,5 +1,5 @@
 ---
-name: rdc-react-testing
+name: data-client-react-testing
 description: Test @data-client/react with renderDataHook - jest unit tests, fixtures, interceptors, mock responses, nock HTTP mocking, hook testing, component testing
 license: Apache 2.0
 ---

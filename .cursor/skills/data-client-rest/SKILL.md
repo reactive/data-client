@@ -1,5 +1,5 @@
 ---
-name: rdc-rest
+name: data-client-rest
 description: Define REST APIs with @data-client/rest - resource(), RestEndpoint, CRUD, GET/POST/PUT/DELETE, HTTP fetch, normalize, cache, urlPrefix, path parameters
 license: Apache 2.0
 ---
@@ -12,8 +12,8 @@ This project uses [@data-client/rest](https://dataclient.io/rest) to define, fet
 
 ## 1. Defining Schemas
 
-This project uses [schemas](references/schema.md) to define and normalize data models with type safety and automatic cache management. Apply the skill "rdc-schema" for schema patterns.
-**Always follow these patterns (apply the skill "rdc-schema") when generating mutable data definitions.**
+This project uses [schemas](references/schema.md) to define and normalize data models with type safety and automatic cache management. Apply the skill "data-client-schema" for schema patterns.
+**Always follow these patterns (apply the skill "data-client-schema") when generating mutable data definitions.**
 
 ## 2. Resources (`resource()`)
 
@@ -89,7 +89,7 @@ const deleteTodo = id => ctrl.fetch(TodoResource.delete, { id });
 const getNextPage = (page) => ctrl.fetch(TodoResource.getList.getPage, { userId: 1, page })
 ```
 
-For more detailed usage, apply the skill "rdc-react" or "rdc-vue".
+For more detailed usage, apply the skill "data-client-react" or "data-client-vue".
 
 ---
 

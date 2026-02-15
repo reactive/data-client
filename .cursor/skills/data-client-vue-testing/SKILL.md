@@ -1,5 +1,5 @@
 ---
-name: rdc-vue-testing
+name: data-client-vue-testing
 description: Test @data-client/vue composables and components - renderDataCompose, mountDataClient, fixtures, jest, nock, Vue 3 reactive props, useSuspense testing
 license: Apache 2.0
 ---

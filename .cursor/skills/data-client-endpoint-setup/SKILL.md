@@ -1,12 +1,12 @@
 ---
-name: rdc-endpoint-setup
-description: Set up @data-client/endpoint for custom async operations. Wraps existing async functions with Endpoint for use with Data Client hooks. Use after rdc-setup detects non-REST/GraphQL async patterns.
+name: data-client-endpoint-setup
+description: Set up @data-client/endpoint for custom async operations. Wraps existing async functions with Endpoint for use with Data Client hooks. Use after data-client-setup detects non-REST/GraphQL async patterns.
 disable-model-invocation: true
 ---
 
 # Custom Endpoint Setup
 
-This skill configures `@data-client/endpoint` for wrapping existing async functions. It should be applied after `rdc-setup` detects custom async patterns that aren't REST or GraphQL.
+This skill configures `@data-client/endpoint` for wrapping existing async functions. It should be applied after `data-client-setup` detects custom async patterns that aren't REST or GraphQL.
 
 ## Installation
 
@@ -331,8 +331,8 @@ Both hooks and controller methods take endpoint as first argument, with the endp
 
 ## Next Steps
 
-1. Apply skill "rdc-schema" to define Entity classes
-2. Apply skill "rdc-react" or "rdc-vue" for usage
+1. Apply skill "data-client-schema" to define Entity classes
+2. Apply skill "data-client-react" or "data-client-vue" for usage
 
 ## References
 
