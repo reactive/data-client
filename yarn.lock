@@ -3380,7 +3380,7 @@ __metadata:
     "@types/jest": "npm:30.0.0"
     "@types/node": "npm:^24.0.0"
     nock: "npm:13.3.1"
-    path-to-regexp: "npm:^6.3.0"
+    path-to-regexp: "npm:^8.0.0"
     rollup-plugins: "workspace:*"
   languageName: unknown
   linkType: soft
@@ -22716,6 +22716,13 @@ __metadata:
   version: 6.3.0
   resolution: "path-to-regexp@npm:6.3.0"
   checksum: 10c0/73b67f4638b41cde56254e6354e46ae3a2ebc08279583f6af3d96fe4664fc75788f74ed0d18ca44fa4a98491b69434f9eee73b97bb5314bd1b5adb700f5c18d6
+  languageName: node
+  linkType: hard
+
+"path-to-regexp@npm:^8.0.0":
+  version: 8.3.0
+  resolution: "path-to-regexp@npm:8.3.0"
+  checksum: 10c0/ee1544a73a3f294a97a4c663b0ce71bbf1621d732d80c9c9ed201b3e911a86cb628ebad691b9d40f40a3742fe22011e5a059d8eed2cf63ec2cb94f6fb4efe67c
   languageName: node
   linkType: hard
 
