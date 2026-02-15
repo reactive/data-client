@@ -18,7 +18,14 @@ module.exports = (env, argv) => {
   const config = generateConfig(env, argv);
   config.entry = config.entry.App;
   if (config.devServer) {
-    config.devServer.allowedHosts = ['.csb.app', 'localhost', '127.0.0.1'];
+    // Avoid network interface enumeration that crashes in StackBlitz WebContainers
+    config.devServer.host = 'localhost';
+    config.devServer.allowedHosts = [
+      '.csb.app',
+      '.stackblitz.io',
+      'localhost',
+      '127.0.0.1',
+    ];
   }
   return config;
 };

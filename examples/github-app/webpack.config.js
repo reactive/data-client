@@ -18,6 +18,15 @@ const generateConfig = makeConfig(options);
 
 module.exports = (env, argv) => {
   const config = generateConfig(env, argv);
+  if (config.devServer) {
+    // Avoid network interface enumeration that crashes in StackBlitz WebContainers
+    config.devServer.host = '127.0.0.1';
+    config.devServer.allowedHosts = [
+      '.stackblitz.io',
+      'localhost',
+      '127.0.0.1',
+    ];
+  }
   return config;
 };
 
