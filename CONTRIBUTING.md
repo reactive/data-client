@@ -2,7 +2,7 @@
 
 ## Getting Started
 
-Use the `/initialize` Cursor command to set up your development environment.
+Use the `/initialize` Cursor skill to set up your development environment.
 
 ## Bug Reports
 
@@ -39,7 +39,7 @@ If your idea requires design considerations, it's best to [start a discussion][4
   examples. If you're unsure, don't hesitate to [open an issue][1] and ask!
 
 * Add a changeset for user-facing changes in published packages:
-  * Use the `/changeset` Cursor command to generate changesets, update docs, and prepare a PR description.
+  * Use the `/changeset` Cursor skill to generate changesets, update docs, and prepare a PR description.
   * If doing manually: run `yarn changeset` from repo root once per distinct change.
 
 * Submit your pull request!
