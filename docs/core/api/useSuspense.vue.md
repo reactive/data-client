@@ -1,7 +1,7 @@
 ---
-title: useSuspense() - Simplified data fetching for React
+title: useSuspense() - Simplified data fetching for Vue
 sidebar_label: useSuspense()
-description: High performance async data rendering without overfetching. useSuspense() is like await for React components.
+description: High performance async data rendering without overfetching. useSuspense() is like await for Vue components.
 ---
 
 <head>
@@ -11,12 +11,9 @@ description: High performance async data rendering without overfetching. useSusp
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import GenericsTabs from '@site/src/components/GenericsTabs';
-import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
-import PaginationDemo from '../shared/\_pagination.mdx';
-import HooksPlayground from '@site/src/components/HooksPlayground';
-import { RestEndpoint } from '@data-client/rest';
+import ConditionalDependencies from '../shared/\_conditional_dependencies.vue.mdx';
+import PaginationDemo from '../shared/\_pagination.vue.mdx';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
-import StackBlitz from '@site/src/components/StackBlitz';
 import { detailFixtures, listFixtures } from '@site/src/fixtures/profiles';
 
 # useSuspense()
@@ -25,8 +22,8 @@ import { detailFixtures, listFixtures } from '@site/src/fixtures/profiles';
 High performance async data rendering without overfetching.
 </p>
 
-`useSuspense()` is like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await) for React components. This means the remainder of the component only runs after the data has loaded, avoiding the complexity of handling loading and error conditions. Instead, fallback handling is
-[centralized](../getting-started/data-dependency.md#boundaries) with a singular [AsyncBoundary](../api/AsyncBoundary.md).
+[await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await) `useSuspense()` in Vue components. This means the remainder of the component only runs after the data has loaded, avoiding the complexity of handling loading and error conditions. Instead, fallback handling is
+[centralized](../getting-started/data-dependency.md#boundaries) with Vue's built-in [Suspense](https://vuejs.org/guide/built-ins/suspense.html).
 
 `useSuspense()` is reactive to data [mutations](../getting-started/mutations.md); rerendering only when necessary.
 
@@ -41,7 +38,7 @@ values={[
 ]}>
 <TabItem value="rest">
 
-<HooksPlayground fixtures={detailFixtures} row>
+<TypeScriptEditor>
 
 ```typescript title="ProfileResource" collapsed
 import { Entity, resource } from '@data-client/rest';
@@ -61,31 +58,31 @@ export const ProfileResource = resource({
 });
 ```
 
-```tsx title="ProfileDetail"
-import { useSuspense } from '@data-client/react';
-import { ProfileResource } from './ProfileResource';
+```html title="ProfileDetail.vue"
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { ProfileResource } from './ProfileResource';
 
-function ProfileDetail(): JSX.Element {
-  const profile = useSuspense(ProfileResource.get, { id: 1 });
-  return (
-    <div className="listItem">
-      <Avatar src={profile.avatar} />
-      <div>
-        <h4>{profile.fullName}</h4>
-        <p>{profile.bio}</p>
-      </div>
+  const profile = await useSuspense(ProfileResource.get, { id: 1 });
+</script>
+
+<template>
+  <div class="listItem">
+    <Avatar :src="profile.avatar" />
+    <div>
+      <h4>{{ profile.fullName }}</h4>
+      <p>{{ profile.bio }}</p>
     </div>
-  );
-}
-render(<ProfileDetail />);
+  </div>
+</template>
 ```
 
-</HooksPlayground>
+</TypeScriptEditor>
 
 </TabItem>
 <TabItem value="other">
 
-<HooksPlayground row>
+<TypeScriptEditor>
 
 ```typescript title="Profile" collapsed
 import { Endpoint } from '@data-client/endpoint';
@@ -106,26 +103,26 @@ export const getProfile = new Endpoint(
 );
 ```
 
-```tsx title="ProfileDetail"
-import { useSuspense } from '@data-client/react';
-import { getProfile } from './Profile';
+```html title="ProfileDetail.vue"
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { getProfile } from './Profile';
 
-function ProfileDetail(): JSX.Element {
-  const profile = useSuspense(getProfile, 1);
-  return (
-    <div className="listItem">
-      <Avatar src={profile.avatar} />
-      <div>
-        <h4>{profile.fullName}</h4>
-        <p>{profile.bio}</p>
-      </div>
+  const profile = await useSuspense(getProfile, 1);
+</script>
+
+<template>
+  <div class="listItem">
+    <Avatar :src="profile.avatar" />
+    <div>
+      <h4>{{ profile.fullName }}</h4>
+      <p>{{ profile.bio }}</p>
     </div>
-  );
-}
-render(<ProfileDetail />);
+  </div>
+</template>
 ```
 
-</HooksPlayground>
+</TypeScriptEditor>
 
 </TabItem>
 </Tabs>
@@ -145,13 +142,6 @@ Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by
 
 1. Identical fetches are automatically deduplicated
 2. [Hard errors](../concepts/error-policy.md#hard) to be [caught](../getting-started/data-dependency#async-fallbacks) by [Error Boundaries](./AsyncBoundary.md)
-
-:::
-
-:::info React Native
-
-When using React Navigation, useSuspense() will trigger fetches on focus if the data is considered
-stale.
 
 :::
 
@@ -190,7 +180,7 @@ function useSuspense<
 
 ### List
 
-<HooksPlayground fixtures={listFixtures} row>
+<TypeScriptEditor row>
 
 ```typescript title="ProfileResource" collapsed
 import { Entity, resource } from '@data-client/rest';
@@ -210,30 +200,28 @@ export const ProfileResource = resource({
 });
 ```
 
-```tsx title="ProfileList"  {5}
-import { useSuspense } from '@data-client/react';
-import { ProfileResource } from './ProfileResource';
+```html title="ProfileList.vue"
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { ProfileResource } from './ProfileResource';
 
-function ProfileList(): JSX.Element {
-  const profiles = useSuspense(ProfileResource.getList);
-  return (
-    <div>
-      {profiles.map(profile => (
-        <div className="listItem" key={profile.pk()}>
-          <Avatar src={profile.avatar} />
-          <div>
-            <h4>{profile.fullName}</h4>
-            <p>{profile.bio}</p>
-          </div>
-        </div>
-      ))}
+  const profiles = await useSuspense(ProfileResource.getList);
+</script>
+
+<template>
+  <div>
+    <div class="listItem" v-for="profile in profiles" :key="profile.pk()">
+      <Avatar :src="profile.avatar" />
+      <div>
+        <h4>{{ profile.fullName }}</h4>
+        <p>{{ profile.bio }}</p>
+      </div>
     </div>
-  );
-}
-render(<ProfileList />);
+  </div>
+</template>
 ```
 
-</HooksPlayground>
+</TypeScriptEditor>
 
 ### Pagination
 
@@ -245,14 +233,19 @@ Reactive [pagination](/rest/guides/pagination) is achieved with [mutable schemas
 
 When fetch parameters depend on data from another resource.
 
-```tsx
-function PostWithAuthor() {
-  const post = useSuspense(PostResource.get, { id });
-  const author = useSuspense(UserResource.get, {
-    // highlight-next-line
-    id: post.userId,
+```html
+<script setup lang="ts">
+  import { computed } from 'vue';
+  import { useSuspense } from '@data-client/vue';
+  import { PostResource, UserResource } from './Resources';
+
+  const props = defineProps<{ id: string }>();
+  const post = await useSuspense(PostResource.get, { id: props.id });
+  const author = await useSuspense(UserResource.get, {
+  // highlight-next-line
+    id: post.value.userId,
   });
-}
+</script>
 ```
 
 ### Conditional
@@ -298,22 +291,32 @@ export const UserResource = resource({
 });
 ```
 
-```tsx title="PostWithAuthor" {7-11}
-import { PostResource, UserResource } from './Resources';
+```html title="PostWithAuthor.vue" {10-16}
+<script setup lang="ts">
+  import { computed } from 'vue';
+  import { useSuspense } from '@data-client/vue';
+  import { PostResource, UserResource } from './Resources';
 
-export default function PostWithAuthor({ id }: { id: string }) {
-  const post = useSuspense(PostResource.get, { id });
-  const author = useSuspense(
+  const props = defineProps<{ id: string }>();
+  const post = await useSuspense(PostResource.get, { id: props.id });
+  const author = await useSuspense(
     UserResource.get,
-    post.userId
-      ? {
-          id: post.userId,
-        }
-      : null,
+    computed(() =>
+      post.value.userId
+        ? {
+            id: post.value.userId,
+          }
+        : null,
+    ),
   );
-  // author as User | undefined
-  if (!author) return;
-}
+  // author as ComputedRef<User | undefined>
+</script>
+
+<template>
+  <div v-if="author">
+    <!-- render author -->
+  </div>
+</template>
 ```
 
 </TypeScriptEditor>
@@ -337,51 +340,28 @@ export const getPosts = new RestEndpoint({
   path: '/post',
   searchParams: { page: '' },
   schema: {
-    posts: new Collection([PaginatedPost]),
+    posts: new schema.Collection([PaginatedPost]),
     nextPage: '',
     lastPage: '',
   },
 });
 ```
 
-```tsx title="ArticleList" {5-7}
-import { getPosts } from './api/Post';
+```html title="ArticleList.vue"
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { getPosts } from './api/Post';
 
-export default function ArticleList({ page }: { page: string }) {
-  const { posts, nextPage, lastPage } = useSuspense(getPosts, { page });
-  return (
-    <div>
-      {posts.map(post => (
-        <div key={post.pk()}>{post.title}</div>
-      ))}
-    </div>
-  );
-}
+  const props = defineProps<{ page: string }>();
+  const data = await useSuspense(getPosts, { page: props.page });
+</script>
+
+<template>
+  <div>
+    <div v-for="post in data.posts" :key="post.pk()">{{ post.title }}</div>
+  </div>
+</template>
 ```
 
 </TypeScriptEditor>
 
-### Server Side Rendering
-
-[Server Side Rendering](../guides/ssr.md) to incrementally stream HTML,
-greatly reducing [TTFB](https://web.dev/ttfb/). [Reactive Data Client SSR's](../guides/ssr.md) automatic store hydration
-means immediate user interactivity with **zero** client-side fetches on first load.
-
-<StackBlitz app="nextjs" file="resources/TodoResource.ts,components/todo/TodoList.tsx" />
-
-Usage in components is identical, which means you can easily share components between SSR and non-SSR
-applications, as well as migrate to <abbr title="Server Side Render">SSR</abbr> without needing data-client code changes.
-
-### Concurrent Mode
-
-In React 18 navigating with [startTransition](https://react.dev/reference/react/useTransition#starttransition) allows [AsyncBoundaries](./AsyncBoundary.md) to
-continue showing the previous screen while the new data loads. Combined with
-[streaming server side rendering](../guides/ssr.md), this eliminates the need to flash annoying
-loading indicators - improving the user experience.
-
-Click one of the names to navigate to their todos. Here long loading states are indicated by the
-less intrusive _loading bar_, like [YouTube](https://youtube.com) and [Robinhood](https://robinhood.com) use.
-
-<StackBlitz app="todo-app" file="src/pages/Home/TodoList.tsx,src/pages/Home/index.tsx,src/useNavigationState.ts" height={600} />
-
-If you need help adding this to your own custom router, check out the [official React guide](https://react.dev/reference/react/useTransition#building-a-suspense-enabled-router)
