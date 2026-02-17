@@ -546,7 +546,11 @@ This works for both `Collection(Array)` and `Collection(Values)`.
 
 ```ts
 // Move todo from userId '1' collection to userId '2' collection (local only)
-ctrl.set(getTodos.schema.move, { id: '10', userId: '2', title: 'Moved todo' }, [{ id: '10' }, { userId: '2' }]);
+ctrl.set(
+  getTodos.schema.move,
+  { id: '10', userId: '2', title: 'Moved todo' },
+  [{ id: '10' }, { userId: '2' }],
+);
 ```
 
 The remove filter uses the entity's **existing** values in the store to determine which collections

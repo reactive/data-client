@@ -779,6 +779,10 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
     assign: S extends {
         denormalize(...args: any): Record<string, unknown>;
     } ? Collection<S, Args, Parent> : never;
+    /** Schema to move items between Collections (remove from old, add to new)
+     * @see https://dataclient.io/rest/api/Collection#move
+     */
+    move: CollectionArrayAdder<S>;
 }
 type CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Args extends any[] = DefaultArgs, Parent = any> = CollectionInterface<S extends any[] ? Array$1<S[number]> : S, Args, Parent>;
 interface CollectionConstructor {

@@ -338,6 +338,34 @@ div > .playgroundHeader.subtabs {
   background: url('../../../static/img/up-arrow-outline.svg') no-repeat center;
   display: inline-block;
 }
+.playgroundPreview :global(.boardColumn) {
+  background: var(--ifm-color-emphasis-100);
+  border-radius: var(--ifm-global-radius);
+  padding: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+.playgroundPreview :global(.boardColumn) h4 {
+  margin: 0 0 0.3rem;
+  padding: 0 0.25rem;
+}
+.playgroundPreview :global(.boardColumn) :global(.listItem) {
+  background: var(--ifm-background-color);
+  border-radius: calc(var(--ifm-global-radius) * 0.75);
+  padding: 0.25rem 0.5rem;
+  margin-bottom: 0.3rem;
+}
+.playgroundPreview :global(.boardColumn) button {
+  margin: 0;
+  padding: 0 4px;
+  line-height: 1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: 0.5;
+}
+.playgroundPreview :global(.boardColumn) button:hover {
+  opacity: 1;
+}
 .playgroundPreview p {
   line-height: var(--ifm-heading-line-height);
 }

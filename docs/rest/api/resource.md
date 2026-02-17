@@ -199,6 +199,7 @@ const PostResource = resource({
 | [getList.push](#push)       | [POST](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST)     | `[{group: string; author?: string}, Partial<Post>]` | [Collection([Post]).push](./Collection.md#push)       |
 | [getList.unshift](#unshift) | [POST](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST)     | `[{group: string; author?: string}, Partial<Post>]` | [Collection([Post]).unshift](./Collection.md#unshift) |
 | [getList.getPage](#getpage) | [GET](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/GET)       | `[{group: string; author?: string; page: string}]`  | [Collection([Post]).addWith](./Collection.md#addWith) |
+| [getList.move](#move)       | [PATCH](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PATCH)   | `[{group: string; id: string }, Partial<Post>]`     | [Collection([Post]).move](./Collection.md#move)       |
 | [update](#update)           | [PUT](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PUT)       | `[{group: string; id: string }, Partial<Post>]`     | [Post](./Entity.md)                                   |
 | [partialUpdate](#update)    | [PATCH](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PATCH)   | `[{group: string; id: string }, Partial<Post>]`     | [Post](./Entity.md)                                   |
 | [delete](#delete)           | [DELETE](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/DELETE) | `[{group: string; id: string }]`                    | [Invalidate(Post)](./Invalidate.md)                   |
@@ -432,6 +433,50 @@ PostResource.getList.getPage({
 |     schema      | [getList.schema.addWith](./Collection.md#addWith) |
 
 args: `PathToArgs(shortenPath(path)) & searchParams & \{ [paginationField]: string | number \}`
+
+Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
+
+### getList.move {#move}
+
+[RestEndpoint.move](./RestEndpoint.md#move) moves an entity between [Collections](./Collection.md) by removing it from
+collections matching its old state and adding it to collections matching the new values from the body.
+
+<EndpointPlayground input="/react/posts/1" init={{method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ "group": "vue" })}} status={200} response={{  "id": "1","group": "vue","title": "this post",author: 'clara',}}>
+
+```typescript title="Post" collapsed
+export default class Post extends Entity {
+  id = '';
+  title = '';
+  group = '';
+  author = '';
+}
+```
+
+```typescript title="Resource"
+import Post from './Post';
+export const PostResource = resource({
+  schema: Post,
+  path: '/:group/posts/:id',
+  searchParams: {} as { author?: string },
+});
+```
+
+```typescript title="Request" column
+import { PostResource } from './Resource';
+PostResource.getList.move(
+  { group: 'react', id: '1' },
+  { group: 'vue' },
+);
+```
+
+</EndpointPlayground>
+
+|    Field     | Value                                       |
+| :----------: | ------------------------------------------- |
+|    method    | 'PATCH'                                     |
+|     path     | [path](#path)                               |
+|     body     | [body](#body)                               |
+|    schema    | getList.[schema.move](./Collection.md#move) |
 
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 

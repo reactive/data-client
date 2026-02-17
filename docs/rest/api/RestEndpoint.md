@@ -14,6 +14,7 @@ import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 import Grid from '@site/src/components/Grid';
 import Link from '@docusaurus/Link';
+import HooksPlayground from '@site/src/components/HooksPlayground';
 
 # RestEndpoint
 
@@ -989,6 +990,80 @@ collections matching the entity's existing state and adds to collections matchin
 
 Returns a new RestEndpoint with [method](#method): 'PATCH' and schema: [Collection.move](./Collection.md#move)
 
+import { kanbanFixtures, getInitialInterceptorData } from '@site/src/fixtures/kanban';
+
+<HooksPlayground defaultOpen="n" row fixtures={kanbanFixtures} getInitialInterceptorData={getInitialInterceptorData}>
+
+```ts title="TaskResource" collapsed
+import { Entity, resource } from '@data-client/rest';
+
+export class Task extends Entity {
+  id = '';
+  title = '';
+  status = 'backlog';
+  pk() { return this.id; }
+  static key = 'Task';
+}
+export const TaskResource = resource({
+  path: '/tasks/:id',
+  searchParams: {} as { status: string },
+  schema: Task,
+  optimistic: true,
+});
+```
+
+```tsx title="TaskCard" {5-9}
+import { useController } from '@data-client/react';
+import { TaskResource, type Task } from './TaskResource';
+
+export default function TaskCard({ task }: { task: Task }) {
+  const handleMove = () => ctrl.fetch(
+    TaskResource.getList.move,
+    { id: task.id },
+    { id: task.id, status: task.status === 'backlog' ? 'in-progress' : 'backlog' },
+  );
+  const ctrl = useController();
+  return (
+    <div className="listItem">
+      <span style={{ flex: 1 }}>{task.title}</span>
+      <button onClick={handleMove}>
+        {task.status === 'backlog' ? '\u25bc' : '\u25b2'}
+      </button>
+    </div>
+  );
+}
+```
+
+```tsx title="TaskBoard" collapsed
+import { useSuspense } from '@data-client/react';
+import { TaskResource } from './TaskResource';
+import TaskCard from './TaskCard';
+
+function TaskBoard() {
+  const backlog = useSuspense(TaskResource.getList, { status: 'backlog' });
+  const inProgress = useSuspense(TaskResource.getList, { status: 'in-progress' });
+  return (
+    <div>
+      <div className="boardColumn">
+        <h4>Backlog</h4>
+        {backlog.map(task => <TaskCard key={task.pk()} task={task} />)}
+      </div>
+      <div className="boardColumn">
+        <h4>Active</h4>
+        {inProgress.map(task => <TaskCard key={task.pk()} task={task} />)}
+      </div>
+    </div>
+  );
+}
+render(<TaskBoard />);
+```
+
+</HooksPlayground>
+
+The remove filter is based on the entity's **existing** values in the store.
+The add filter is based on the merged entity values (existing + body).
+This uses the same [createCollectionFilter](./Collection.md#createcollectionfilter) logic as push/remove.
+
 ```tsx
 const UserResource = resource({
   path: '/groups/:group/users/:id',
@@ -1000,25 +1075,6 @@ await ctrl.fetch(
   UserResource.getList.move,
   { group: 'five', id: '2' },
   { id: '2', group: 'ten' },
-);
-```
-
-The remove filter is based on the entity's **existing** values in the store.
-The add filter is based on the merged entity values (existing + body).
-This uses the same [createCollectionFilter](./Collection.md#createcollectionfilter) logic as push/remove.
-
-```tsx
-const TaskResource = resource({
-  path: '/tasks/:id',
-  searchParams: {} as { status: Task['status'] },
-  schema: Task,
-});
-
-// PATCH /tasks/3 - moves task 3 from 'backlog' to 'in-progress'
-await ctrl.fetch(
-  TaskResource.getList.move,
-  { id: '3' },
-  { id: '3', status: 'in-progress' },
 );
 ```
 
