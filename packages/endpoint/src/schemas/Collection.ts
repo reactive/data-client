@@ -19,43 +19,27 @@ const unshiftMerge = (existing: any, incoming: any) => {
 const valuesMerge = (existing: any, incoming: any) => {
   return { ...existing, ...incoming };
 };
-const isShallowEqual = (
-  a: { id: string; schema: string } | string,
-  b: { id: string; schema: string } | string,
-): boolean => {
+type NormalizedRef = { id: string; schema: string } | string;
+
+const isShallowEqual = (a: NormalizedRef, b: NormalizedRef): boolean => {
   // TODO: make this extensible in the child's schema
-  // where they are both objects, they are equal if they have the same id and type
   if (typeof a === 'object' && typeof b === 'object') {
     return a.id === b.id && a.schema === b.schema;
   }
-  // where they are both strings, they are equal if they are the same
   return a === b;
 };
 
-const removeMerge = (
-  existing: Array<{ id: string; schema: string } | string>,
-  incoming: Array<{ id: string; schema: string } | string>,
-) => {
-  return existing.filter(
-    (item: { id: string; schema: string } | string) =>
-      !incoming.some((incomingItem: { id: string; schema: string } | string) =>
-        isShallowEqual(item, incomingItem),
-      ),
-  );
-};
+const removeMerge = (existing: NormalizedRef[], incoming: NormalizedRef[]) =>
+  existing.filter(item => !incoming.some(inc => isShallowEqual(item, inc)));
 
 const valuesRemoveMerge = (
-  existing: Record<string, { id: string; schema: string } | string>,
-  incoming: Record<string, { id: string; schema: string } | string>,
+  existing: Record<string, NormalizedRef>,
+  incoming: Record<string, NormalizedRef>,
 ) => {
   const incomingValues = Object.values(incoming);
-  const result: Record<string, { id: string; schema: string } | string> = {};
+  const result: Record<string, NormalizedRef> = {};
   for (const [key, value] of Object.entries(existing)) {
-    if (
-      !incomingValues.some((iv: { id: string; schema: string } | string) =>
-        isShallowEqual(value, iv),
-      )
-    ) {
+    if (!incomingValues.some(iv => isShallowEqual(value, iv))) {
       result[key] = value;
     }
   }
@@ -170,6 +154,7 @@ export default class CollectionSchema<
     } else if (schema instanceof Values) {
       this.createIfValid = createValue;
       this.assign = CreateAdder(this, valuesMerge);
+      this.remove = CreateAdder(this, valuesRemoveMerge);
       this.move = CreateMover(this, valuesMerge, valuesRemoveMerge);
     }
   }
@@ -325,22 +310,31 @@ export type CollectionOptions<
       }
   );
 
-function CreateAdder<C extends CollectionSchema<any, any>, P extends any[]>(
-  collection: C,
-  merge: (existing: any, incoming: any) => any[],
-  createCollectionFilter?: (
-    ...args: P
-  ) => (collectionKey: Record<string, string>) => boolean,
-) {
+function derivedProperties(
+  collection: CollectionSchema<any, any>,
+  merge: (existing: any, incoming: any) => any,
+  normalizeFn: (...args: any) => any,
+): PropertyDescriptorMap {
   const properties: PropertyDescriptorMap = {
     merge: { value: merge },
-    normalize: { value: normalizeCreate },
+    normalize: { value: normalizeFn },
     queryKey: { value: queryKeyCreate },
   };
   if (collection.schema instanceof ArraySchema) {
     properties.createIfValid = { value: createIfValid };
     properties.denormalize = { value: denormalize };
   }
+  return properties;
+}
+
+function CreateAdder<C extends CollectionSchema<any, any>, P extends any[]>(
+  collection: C,
+  merge: (existing: any, incoming: any) => any,
+  createCollectionFilter?: (
+    ...args: P
+  ) => (collectionKey: Record<string, string>) => boolean,
+) {
+  const properties = derivedProperties(collection, merge, normalizeCreate);
   if (createCollectionFilter) {
     properties.createCollectionFilter = { value: createCollectionFilter };
   }
@@ -389,39 +383,36 @@ function normalizeCreate(
 function CreateMover<C extends CollectionSchema<any, any>>(
   collection: C,
   addMerge: (existing: any, incoming: any) => any,
-  removeMergeFunc: (existing: any, incoming: any) => any,
+  removeMerge: (existing: any, incoming: any) => any,
 ) {
-  const normalize = function (
-    this: CollectionSchema<any, any>,
-    input: any,
-    parent: any,
-    key: string,
-    args: readonly any[],
-    visit: ((...args: any) => any) & { creating?: boolean },
-    delegate: INormalizeDelegate,
-  ) {
-    return normalizeMove.call(
-      this,
+  return Object.create(
+    collection,
+    derivedProperties(
+      collection,
       addMerge,
-      removeMergeFunc,
-      input,
-      parent,
-      key,
-      args,
-      visit,
-      delegate,
-    );
-  };
-  const properties: PropertyDescriptorMap = {
-    merge: { value: addMerge },
-    normalize: { value: normalize },
-    queryKey: { value: queryKeyCreate },
-  };
-  if (collection.schema instanceof ArraySchema) {
-    properties.createIfValid = { value: createIfValid };
-    properties.denormalize = { value: denormalize };
-  }
-  return Object.create(collection, properties);
+      function (
+        this: CollectionSchema<any, any>,
+        input: any,
+        parent: any,
+        key: string,
+        args: readonly any[],
+        visit: any,
+        delegate: INormalizeDelegate,
+      ) {
+        return normalizeMove.call(
+          this,
+          addMerge,
+          removeMerge,
+          input,
+          parent,
+          key,
+          args,
+          visit,
+          delegate,
+        );
+      },
+    ),
+  );
 }
 
 function normalizeMove(
@@ -439,25 +430,20 @@ function normalizeMove(
   const entitySchema = this.schema.schema;
 
   // Get entity PK from input before normalization so we can look up old state
-  const rawInput =
-    isArray ?
-      Array.isArray(input) ?
-        input[0]
-      : input
-    : input;
+  const rawInput = isArray && Array.isArray(input) ? input[0] : input;
   const processed = entitySchema.process(rawInput, parent, key, args);
   const pk = `${entitySchema.pk(processed, parent, key, args)}`;
   const existingEntity =
     pk ? delegate.getEntity(entitySchema.key, pk) : undefined;
 
   // Normalize input (updates entity in store)
-  let toNormalize;
-  if (isArray) {
-    toNormalize = Array.isArray(input) ? input : [input];
-  } else {
-    // Values: wrap entity with its PK as key
-    toNormalize = pk ? { [pk]: input } : input;
-  }
+  const toNormalize =
+    isArray ?
+      Array.isArray(input) ?
+        input
+      : [input]
+    : pk ? { [pk]: input }
+    : input;
   const normalizedValue = this.schema.normalize(
     toNormalize,
     parent,

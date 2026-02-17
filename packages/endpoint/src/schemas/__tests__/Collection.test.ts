@@ -1330,6 +1330,290 @@ describe(`${schema.Collection.name} normalization`, () => {
         ),
       ).toHaveLength(2);
     });
+
+    it('moves one entity from multi-item Values collection, keeps others', () => {
+      // Source collection has 2 items; only one moves out
+      let state = {
+        ...initialState,
+        ...normalize(
+          valuesSchema,
+          {
+            '10': { id: '10', userId: 1, title: 'will move' },
+            '11': { id: '11', userId: 1, title: 'stays put' },
+          },
+          [{ userId: '1' }],
+          initialState,
+        ),
+      };
+      state = {
+        ...state,
+        ...normalize(
+          valuesSchema,
+          { '20': { id: '20', userId: 2, title: 'already here' } },
+          [{ userId: '2' }],
+          state,
+        ),
+      };
+
+      // Move only item 10 from userId '1' to userId '2'
+      const moveState = {
+        ...state,
+        ...normalize(
+          valuesSchema.move,
+          { id: '10', userId: 2, title: 'will move' },
+          [{ id: '10' }, { userId: '2' }],
+          state,
+        ),
+      };
+
+      // userId '1' should keep item 11
+      const userOneValues = denormalize(
+        valuesSchema,
+        JSON.stringify({ userId: '1' }),
+        moveState.entities,
+      ) as any;
+      expect(Object.keys(userOneValues)).toHaveLength(1);
+      expect(Object.keys(userOneValues)).toEqual(['11']);
+
+      // userId '2' should now have both 20 and 10
+      const userTwoValues = denormalize(
+        valuesSchema,
+        JSON.stringify({ userId: '2' }),
+        moveState.entities,
+      ) as any;
+      expect(Object.keys(userTwoValues)).toHaveLength(2);
+      expect(Object.keys(userTwoValues)).toEqual(
+        expect.arrayContaining(['10', '20']),
+      );
+    });
+  });
+
+  describe('move should respect nonFilterArgumentKeys', () => {
+    // Entities must include filter-relevant fields (userId) since move
+    // uses entity values to determine collection membership
+    function validateMove(sch: schema.Collection<(typeof Todo)[]>) {
+      let state = {
+        ...initialState,
+        ...normalize(
+          sch,
+          [{ id: '10', userId: 1, title: 'create new items' }],
+          [{ userId: '1' }],
+          initialState,
+        ),
+      };
+      state = {
+        ...state,
+        ...normalize(
+          sch,
+          [{ id: '10', userId: 1, title: 'create new items' }],
+          [{ userId: '1', ignoredMe: '5' }],
+          state,
+        ),
+      };
+      state = {
+        ...state,
+        ...normalize(
+          sch,
+          [{ id: '20', userId: 2, title: 'second user' }],
+          [{ userId: '2' }],
+          state,
+        ),
+      };
+      state = {
+        ...state,
+        ...normalize(
+          sch,
+          [
+            { id: '10', userId: 1, title: 'create new items' },
+            { id: '20', userId: 2, title: 'the ignored one' },
+          ],
+          [{}],
+          state,
+        ),
+      };
+      expect(
+        (
+          denormalize(
+            sch,
+            JSON.stringify({ userId: '1' }),
+            state.entities,
+          ) as any
+        )?.length,
+      ).toBe(1);
+      // Move todo 10 from userId '1' to userId '2'
+      const testState = {
+        ...state,
+        ...normalize(
+          sch.move,
+          { id: '10', userId: 2, title: 'create new items' },
+          [{ id: '10' }, { userId: '2' }],
+          state,
+        ),
+      };
+      function getResponse(...args: any) {
+        return denormalize(
+          sch,
+          sch.pk(undefined, undefined, '', args),
+          testState.entities,
+        ) as any;
+      }
+      // userId '1' should have 0 items (removed)
+      const userOne = getResponse({ userId: '1' });
+      if (!userOne || typeof userOne === 'symbol')
+        throw new Error('should have a value');
+      expect(userOne.length).toBe(0);
+
+      // unfiltered collection should keep both (both match add and remove so neither applies)
+      expect(getResponse({}).length).toBe(2);
+      // userId '1' with ignored key should also be empty (ignored key doesn't affect filter)
+      expect(getResponse({ ignoredMe: '5', userId: '1' })?.length).toBe(0);
+      // userId '2' should have both 10 and 20
+      expect(getResponse({ userId: '2' })?.length).toBe(2);
+    }
+
+    it('should work with function form', () => {
+      const sch = new Collection([Todo], {
+        nonFilterArgumentKeys(key) {
+          return key.startsWith('ignored');
+        },
+      });
+      validateMove(sch);
+    });
+    it('should work with RegExp form', () => {
+      const sch = new Collection([Todo], {
+        nonFilterArgumentKeys: /ignored/,
+      });
+      validateMove(sch);
+    });
+    it('should work with array form', () => {
+      const sch = new Collection([Todo], {
+        nonFilterArgumentKeys: ['ignoredMe'],
+      });
+      validateMove(sch);
+    });
+  });
+
+  describe('move should update the correct collections with multiple args', () => {
+    const initializingSchema = new Collection([Todo]);
+    let state = {
+      ...initialState,
+      ...normalize(
+        initializingSchema,
+        [{ id: '10', title: 'todo A', userId: 1, completed: true }],
+        [{ userId: '1', completed: 'true' }],
+        initialState,
+      ),
+    };
+    state = {
+      ...state,
+      ...normalize(
+        initializingSchema,
+        [{ id: '20', title: 'todo B', userId: 1, completed: false }],
+        [{ userId: '1', completed: 'false' }],
+        state,
+      ),
+    };
+    state = {
+      ...state,
+      ...normalize(
+        initializingSchema,
+        [
+          { id: '10', title: 'todo A', userId: 1 },
+          { id: '20', title: 'todo B', userId: 1 },
+        ],
+        [{ userId: '1' }],
+        state,
+      ),
+    };
+    state = {
+      ...state,
+      ...normalize(
+        initializingSchema,
+        [{ id: '30', title: 'todo C', userId: 2, completed: false }],
+        [{ userId: '2' }],
+        state,
+      ),
+    };
+
+    it('moves from matching collections and adds to correct ones', () => {
+      // Move todo 10 from userId '1', completed 'true' to userId '2', completed 'true'
+      const moveState = {
+        ...state,
+        ...normalize(
+          initializingSchema.move,
+          { id: '10', title: 'todo A', userId: 2, completed: true },
+          [{ id: '10' }, { userId: '2', completed: 'true' }],
+          state,
+        ),
+      };
+      function getResponse(...args: any) {
+        return denormalize(
+          initializingSchema,
+          initializingSchema.pk(undefined, undefined, '', args),
+          moveState.entities,
+        ) as any;
+      }
+      // userId '1', completed 'true' → should be empty (removed)
+      expect(getResponse({ userId: '1', completed: 'true' })?.length).toBe(0);
+      // userId '1', completed 'false' → unchanged
+      expect(getResponse({ userId: '1', completed: 'false' })?.length).toBe(1);
+      // userId '1' (no completed filter) → should lose todo 10
+      expect(getResponse({ userId: '1' })?.length).toBe(1);
+      expect(getResponse({ userId: '1' })?.[0]?.id).toBe('20');
+      // userId '2' → should gain todo 10
+      expect(getResponse({ userId: '2' })?.length).toBe(2);
+    });
+  });
+
+  describe('move with array input format', () => {
+    const initializingSchema = new Collection([Todo]);
+
+    it('moves entity when input is an array', () => {
+      let state = {
+        ...initialState,
+        ...normalize(
+          initializingSchema,
+          [{ id: '10', userId: 1, title: 'movable' }],
+          [{ userId: '1' }],
+          initialState,
+        ),
+      };
+      state = {
+        ...state,
+        ...normalize(
+          initializingSchema,
+          [{ id: '20', userId: 2, title: 'existing' }],
+          [{ userId: '2' }],
+          state,
+        ),
+      };
+
+      // Pass input as array (the Array.isArray(input) branch in normalizeMove)
+      const moveState = {
+        ...state,
+        ...normalize(
+          initializingSchema.move,
+          [{ id: '10', userId: 2, title: 'movable' }],
+          [{ id: '10' }, { userId: '2' }],
+          state,
+        ),
+      };
+
+      expect(
+        denormalize(
+          initializingSchema,
+          JSON.stringify({ userId: '1' }),
+          moveState.entities,
+        ),
+      ).toHaveLength(0);
+      expect(
+        denormalize(
+          initializingSchema,
+          JSON.stringify({ userId: '2' }),
+          moveState.entities,
+        ),
+      ).toHaveLength(2);
+    });
   });
 });
 
