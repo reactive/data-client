@@ -1,11 +1,11 @@
 import { Entity, schema, Collection } from '@data-client/endpoint';
-import { useController } from '@data-client/react';
+import { useController, useCache } from '@data-client/react';
 import { useSuspense } from '@data-client/react';
 import { CacheProvider } from '@data-client/react';
 import { CoolerArticle, CoolerArticleResource } from '__tests__/new';
 import nock from 'nock';
 
-import { makeRenderDataClient } from '../../../test';
+import { makeRenderDataClient, act } from '../../../test';
 import RestEndpoint, {
   Defaults,
   RestEndpointConstructorOptions,
@@ -132,6 +132,35 @@ const getNextPage3 = getArticleList3.getPage;
   a.getPage({ cursor: 'hi', blob: 'ho' });
   // @ts-expect-error
   a.getPage({ blob: 'ho' });
+
+  // Compare flat vs nested Collection schema type inference
+  const flat = new RestEndpoint({
+    urlPrefix: 'http://test.com',
+    path: '/articles/:id',
+    schema: new Collection([PaginatedArticle]),
+    method: 'GET',
+  });
+  // flat Collection schema should be typed
+  // @ts-expect-error - schema should not be any
+  flat.move.schema satisfies number;
+  // @ts-expect-error - push schema should not be any
+  flat.push.schema satisfies number;
+
+  // nested Collection schema should also be typed
+  const nested = new RestEndpoint({
+    urlPrefix: 'http://test.com',
+    path: '/articles/:id',
+    schema: {
+      nextPage: '',
+      data: { results: new Collection([PaginatedArticle]) },
+    },
+    method: 'GET',
+    searchParams: {} as { group: string },
+  });
+  // @ts-expect-error - nested move schema should not be any
+  nested.move.schema satisfies number;
+  // @ts-expect-error - nested push schema should not be any
+  nested.push.schema satisfies number;
 };
 
 describe('RestEndpoint', () => {
@@ -362,6 +391,113 @@ describe('RestEndpoint', () => {
 
   it('remove: should extend name of parent endpoint', () => {
     expect(getArticleList3.remove.name).toMatchSnapshot();
+  });
+
+  it('move: should extend name of parent endpoint', () => {
+    expect(getArticleList3.move.name).toMatchSnapshot();
+  });
+
+  it('move should work with deeply nested Collection', async () => {
+    class GroupedArticle extends Entity {
+      readonly id: number | undefined = undefined;
+      readonly title: string = '';
+      readonly group: string = '';
+    }
+
+    const getGroupedArticles = new RestEndpoint({
+      urlPrefix: 'http://test.com',
+      path: '/grouped-articles',
+      movePath: '/grouped-articles/:id',
+      schema: {
+        nextPage: '',
+        data: { results: new Collection([GroupedArticle]) },
+      },
+      method: 'GET',
+      searchParams: {} as { group: string },
+    });
+
+    // Verify schema is correctly extracted from nested structure
+    expect(getGroupedArticles.move.schema).toBeTruthy();
+    expect(getGroupedArticles.move.method).toBe('PATCH');
+
+    // Diagnose schema type - should not be any
+    // @ts-expect-error - schema should not be any
+    getGroupedArticles.move.schema satisfies number;
+
+    mynock.patch(/grouped-articles/).reply(200, (uri, body: any) => ({
+      id: 2,
+      title: 'Article 2',
+      group: 'beta',
+      ...(typeof body === 'string' ? JSON.parse(body) : body),
+    }));
+
+    const { result, controller } = renderDataClient(
+      () => {
+        return {
+          alpha: useCache(getGroupedArticles, { group: 'alpha' }),
+          beta: useCache(getGroupedArticles, { group: 'beta' }),
+        };
+      },
+      {
+        initialFixtures: [
+          {
+            endpoint: getGroupedArticles,
+            args: [{ group: 'alpha' }],
+            response: {
+              nextPage: '2',
+              data: {
+                results: [
+                  { id: 1, title: 'Article 1', group: 'alpha' },
+                  { id: 2, title: 'Article 2', group: 'alpha' },
+                ],
+              },
+            },
+          },
+          {
+            endpoint: getGroupedArticles,
+            args: [{ group: 'beta' }],
+            response: {
+              nextPage: '2',
+              data: {
+                results: [{ id: 3, title: 'Article 3', group: 'beta' }],
+              },
+            },
+          },
+        ],
+      },
+    );
+
+    expect(result.current.alpha?.data.results).toHaveLength(2);
+    expect(result.current.beta?.data.results).toHaveLength(1);
+
+    // Move article 2 from alpha to beta
+    await act(async () => {
+      const response = await controller.fetch(
+        getGroupedArticles.move,
+        { id: 2 },
+        {
+          id: 2,
+          title: 'Article 2',
+          group: 'beta',
+        },
+      );
+      // Type test: response should be a single GroupedArticle, not an array
+      response.title satisfies string;
+      expect(response.title).toBe('Article 2');
+      expect(response.group).toBe('beta');
+    });
+
+    // article should be removed from alpha
+    expect(result.current.alpha?.data.results).toHaveLength(1);
+    const alphaResults = result.current.alpha!.data.results!;
+    expect(alphaResults[0]?.title).toBe('Article 1');
+
+    // article should be added to beta
+    const betaResults = result.current.beta!.data.results!;
+    expect(betaResults).toHaveLength(2);
+    expect(betaResults.map((a: any) => a.title)).toEqual(
+      expect.arrayContaining(['Article 3', 'Article 2']),
+    );
   });
 
   // TODO: but we need a Values collection
@@ -1498,6 +1634,20 @@ describe('RestEndpoint.fetch()', () => {
       method: 'GET',
     });
     expect(noColletionEndpoint.remove.schema).toBeFalsy();
+  });
+
+  it('without Collection in schema - endpoint.move schema should be null', () => {
+    const noColletionEndpoint = new RestEndpoint({
+      urlPrefix: 'http://test.com/article-paginated/',
+      path: ':group',
+      name: 'get',
+      schema: {
+        nextPage: '',
+        data: { results: [PaginatedArticle] },
+      },
+      method: 'GET',
+    });
+    expect(noColletionEndpoint.move.schema).toBeFalsy();
   });
 
   it('without Collection in schema - endpoint.getPage should throw', () => {

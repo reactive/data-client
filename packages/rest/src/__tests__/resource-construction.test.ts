@@ -818,6 +818,202 @@ describe('resource()', () => {
       );
   });
 
+  it('UserResource.getList.move should work', async () => {
+    mynock.patch(`/groups/five/users/2`).reply(200, (uri, body: any) => ({
+      id: 2,
+      username: 'user2',
+      email: 'user2@example.com',
+      group: 'ten',
+      ...body,
+    }));
+
+    const { result, controller } = renderDataClient(
+      () => {
+        return {
+          user2: useQuery(User, { id: 2 }),
+          groupFive: useCache(UserResource.getList, { group: 'five' }),
+          groupTen: useCache(UserResource.getList, { group: 'ten' }),
+        };
+      },
+      {
+        initialFixtures: [
+          {
+            endpoint: UserResource.getList,
+            args: [{ group: 'five' }],
+            response: [
+              {
+                id: 1,
+                username: 'user1',
+                email: 'user1@example.com',
+                group: 'five',
+              },
+              {
+                id: 2,
+                username: 'user2',
+                email: 'user2@example.com',
+                group: 'five',
+              },
+            ],
+          },
+          {
+            endpoint: UserResource.getList,
+            args: [{ group: 'ten' }],
+            response: [
+              {
+                id: 3,
+                username: 'user3',
+                email: 'user3@example.com',
+                group: 'ten',
+              },
+            ],
+          },
+        ],
+      },
+    );
+
+    expect(result.current.groupFive).toHaveLength(2);
+    expect(result.current.groupTen).toHaveLength(1);
+
+    // PATCH /groups/five/users/2 - moves user 2 from 'five' to 'ten'
+    await act(async () => {
+      const response = await controller.fetch(
+        UserResource.getList.move,
+        { group: 'five', id: '2' },
+        {
+          id: 2,
+          group: 'ten',
+        },
+      );
+      expect(response.id).toEqual(2);
+    });
+
+    // user should be removed from group 'five'
+    expect(result.current.groupFive).toHaveLength(1);
+    expect(result.current.groupFive?.[0]?.username).toBe('user1');
+
+    // user should be added to group 'ten'
+    expect(result.current.groupTen).toHaveLength(2);
+    expect(result.current.groupTen?.map((u: any) => u.username)).toEqual(
+      expect.arrayContaining(['user3', 'user2']),
+    );
+
+    // entity should be updated
+    expect(result.current.user2?.group).toEqual('ten');
+
+    // move uses full path params (group + id), no searchParams
+    () =>
+      controller.fetch(
+        UserResource.getList.move,
+        { group: 'five', id: 2 },
+        { id: 1, group: 'ten' },
+      );
+    () =>
+      controller.fetch(
+        UserResource.getList.move,
+        // @ts-expect-error - missing required group
+        { id: 2 },
+        { id: 1 },
+      );
+    // @ts-expect-error
+    () => controller.fetch(UserResource.getList.move, { username: 'never' });
+    // @ts-expect-error
+    () => controller.fetch(UserResource.getList.move, 1, 'hi');
+    () =>
+      controller.fetch(
+        UserResource.getList.move,
+        { group: 'five', id: 2 },
+        // @ts-expect-error
+        { sdf: 'never' },
+      );
+    () =>
+      controller.fetch(
+        UserResource.getList.move,
+        // @ts-expect-error
+        { sdf: 'five', id: 2 },
+        { id: 1 },
+      );
+  });
+
+  it('getList.move should work with searchParams-based collections', async () => {
+    class Task extends Entity {
+      readonly id: number | undefined = undefined;
+      readonly title: string = '';
+      readonly status: string = 'backlog';
+
+      pk() {
+        return this.id?.toString();
+      }
+    }
+
+    const TaskResource = resource({
+      path: 'http\\://test.com/tasks/:id',
+      searchParams: {} as { status: string },
+      schema: Task,
+    });
+
+    mynock.patch(`/tasks/3`).reply(200, (uri, body: any) => ({
+      id: 3,
+      title: 'My Task',
+      status: 'in-progress',
+      ...body,
+    }));
+
+    const { result, controller } = renderDataClient(
+      () => {
+        return {
+          task3: useQuery(Task, { id: 3 }),
+          backlog: useCache(TaskResource.getList, { status: 'backlog' }),
+          inProgress: useCache(TaskResource.getList, {
+            status: 'in-progress',
+          }),
+        };
+      },
+      {
+        initialFixtures: [
+          {
+            endpoint: TaskResource.getList,
+            args: [{ status: 'backlog' }],
+            response: [
+              { id: 1, title: 'Task 1', status: 'backlog' },
+              { id: 3, title: 'My Task', status: 'backlog' },
+            ],
+          },
+          {
+            endpoint: TaskResource.getList,
+            args: [{ status: 'in-progress' }],
+            response: [{ id: 2, title: 'Task 2', status: 'in-progress' }],
+          },
+        ],
+      },
+    );
+
+    expect(result.current.backlog).toHaveLength(2);
+    expect(result.current.inProgress).toHaveLength(1);
+
+    // PATCH /tasks/3 - moves task 3 from 'backlog' to 'in-progress'
+    await act(async () => {
+      const response = await controller.fetch(
+        TaskResource.getList.move,
+        { id: '3' },
+        { id: 3, status: 'in-progress' },
+      );
+      expect(response.id).toEqual(3);
+    });
+
+    // task should be removed from backlog
+    expect(result.current.backlog).toHaveLength(1);
+    expect(result.current.backlog?.[0]?.title).toBe('Task 1');
+
+    // task should be added to in-progress
+    expect(result.current.inProgress).toHaveLength(2);
+    expect(result.current.inProgress?.map((t: any) => t.title)).toEqual(
+      expect.arrayContaining(['Task 2', 'My Task']),
+    );
+
+    // entity should be updated
+    expect(result.current.task3?.status).toEqual('in-progress');
+  });
+
   it.each([
     {
       response: {

@@ -92,6 +92,7 @@ export interface Resource<
         body: 'body' extends keyof O ? O['body']
         : Partial<Denormalize<O['schema']>>;
         searchParams: O['searchParams'];
+        movePath: O['path'];
       } & Pick<O, 'paginationField'>
     >
   : GetEndpoint<
@@ -107,6 +108,7 @@ export interface Resource<
         body: 'body' extends keyof O ? O['body']
         : Partial<Denormalize<O['schema']>>;
         searchParams: Record<string, number | string | boolean> | undefined;
+        movePath: O['path'];
       } & Pick<O, 'paginationField'>
     >;
   /** Create a new item (POST)

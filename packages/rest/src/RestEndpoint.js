@@ -275,6 +275,17 @@ Response (first 300 characters): ${text.substring(0, 300)}`;
       name: this.name + '.remove',
     });
   }
+
+  get move() {
+    const options = {
+      method: 'PATCH',
+      schema: extractCollection(this.schema, s => s.move),
+      searchParams: undefined,
+      name: this.name + '.update',
+    };
+    if (this.movePath) options.path = this.movePath;
+    return this.extend(options);
+  }
 }
 
 const tryParse = input => {

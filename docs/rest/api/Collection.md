@@ -16,9 +16,10 @@ import { postFixtures,getInitialInterceptorData } from '@site/src/fixtures/posts
 `Collections` define mutable [Lists (Array)](./Array.md) or [Maps (Values)](./Values.md).
 
 This means they can grow and shrink. You can add to `Collection(Array)` with [.push](#push) or [.unshift](#unshift),
-remove from `Collection(Array)` with [.remove](#remove), and add to `Collections(Values)` with [.assign](#assign).
+remove from `Collection(Array)` with [.remove](#remove), add to `Collections(Values)` with [.assign](#assign),
+and move between collections with [.move](#move).
 
-[RestEndpoint](./RestEndpoint.md) provides [.push](./RestEndpoint.md#push), [.unshift](./RestEndpoint.md#unshift), [.assign](./RestEndpoint.md#assign), [.remove](./RestEndpoint.md#remove)
+[RestEndpoint](./RestEndpoint.md) provides [.push](./RestEndpoint.md#push), [.unshift](./RestEndpoint.md#unshift), [.assign](./RestEndpoint.md#assign), [.remove](./RestEndpoint.md#remove), [.move](./RestEndpoint.md#move)
 and [.getPage](./RestEndpoint.md#getpage)/ [.paginated()](./RestEndpoint.md#paginated) extenders when using `Collections`
 
 ## Usage
@@ -535,6 +536,24 @@ ctrl.set(getTodos.schema.remove, {}, { id: '123' });
 ```
 
 For network-based removal that also updates the entity, see [RestEndpoint.remove](./RestEndpoint.md#remove).
+
+### move
+
+A schema that moves item(s) between collections. It removes the entity from collections matching
+its _existing_ state and adds it to collections matching the entity's _new_ state (derived from the last arg).
+
+This works for both `Collection(Array)` and `Collection(Values)`.
+
+```ts
+// Move todo from userId '1' collection to userId '2' collection (local only)
+ctrl.set(getTodos.schema.move, { id: '10', userId: '2', title: 'Moved todo' }, [{ id: '10' }, { userId: '2' }]);
+```
+
+The remove filter uses the entity's **existing** values in the store to determine which collections
+it currently belongs to. The add filter uses the merged entity values (existing + last arg) to determine
+where it should be placed.
+
+For network-based moves, see [RestEndpoint.move](./RestEndpoint.md#move).
 
 ### assign
 

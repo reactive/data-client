@@ -981,6 +981,47 @@ const deleteAndRemove = MyResource.delete.extend({
 });
 ```
 
+### move
+
+Creates a PATCH endpoint that moves Entities between [Collections](./Collection.md). It removes from
+collections matching the entity's existing state and adds to collections matching the new values
+(from the body/last arg).
+
+Returns a new RestEndpoint with [method](#method): 'PATCH' and schema: [Collection.move](./Collection.md#move)
+
+```tsx
+const UserResource = resource({
+  path: '/groups/:group/users/:id',
+  schema: User,
+});
+
+// PATCH /groups/five/users/5 - moves user 5 from 'five' group to 'ten' group
+await ctrl.fetch(
+  UserResource.getList.move,
+  { group: 'five', id: '2' },
+  { id: '2', group: 'ten' },
+);
+```
+
+The remove filter is based on the entity's **existing** values in the store.
+The add filter is based on the merged entity values (existing + body).
+This uses the same [createCollectionFilter](./Collection.md#createcollectionfilter) logic as push/remove.
+
+```tsx
+const TaskResource = resource({
+  path: '/tasks/:id',
+  searchParams: {} as { status: Task['status'] },
+  schema: Task,
+});
+
+// PATCH /tasks/3 - moves task 3 from 'backlog' to 'in-progress'
+await ctrl.fetch(
+  TaskResource.getList.move,
+  { id: '3' },
+  { id: '3', status: 'in-progress' },
+);
+```
+
 ### getPage
 
 An endpoint to retrieve the next page using [paginationField](#paginationfield) as the searchParameter key. Schema

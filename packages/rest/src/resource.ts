@@ -96,6 +96,7 @@ This warning will not show in production.`,
   const getList = new Endpoint({
     ...extraMutateOptions,
     paginationField: paginationField as string,
+    movePath: path,
     path: shortenedPath,
     schema: new Collection([schema as any]),
     name: getName('getList'),

@@ -1,4 +1,4 @@
-import type { schema } from './index.js';
+import type { schema, Collection } from './index.js';
 import type {
   SchemaSimple,
   Schema,
@@ -40,7 +40,7 @@ export interface CollectionInterface<
     createCollectionFilter?: (
       ...args: P
     ) => (collectionKey: Record<string, string>) => boolean,
-  ): schema.Collection<S, P>;
+  ): Collection<S, P>;
 
   readonly cacheWith: object;
 
@@ -162,8 +162,13 @@ export interface CollectionInterface<
    * @see https://dataclient.io/rest/api/Collection#assign
    */
   assign: S extends { denormalize(...args: any): Record<string, unknown> } ?
-    schema.Collection<S, Args, Parent>
+    Collection<S, Args, Parent>
   : never;
+
+  /** Schema to move items between Collections (remove from old, add to new)
+   * @see https://dataclient.io/rest/api/Collection#move
+   */
+  move: CollectionArrayAdder<S>;
 }
 export type CollectionFromSchema<
   S extends any[] | PolymorphicInterface = any,

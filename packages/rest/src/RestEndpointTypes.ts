@@ -198,6 +198,17 @@ export interface RestInstance<
         | FormData;
     }
   >;
+  /** Move item between collections (PATCH) - removes from old, adds to new
+   * @see https://dataclient.io/rest/api/RestEndpoint#move
+   */
+  move: MoveEndpoint<
+    F,
+    ExtractCollection<S>['push'],
+    {
+      path: 'movePath' extends keyof O ? O['movePath'] & string : O['path'];
+      body: OptionsToAdderBodyArgument<O> | FormData;
+    }
+  >;
 }
 
 export type RestEndpointExtendOptions<
@@ -489,6 +500,19 @@ export type RemoveEndpoint<
   S,
   true,
   Omit<O, 'method'> & { method: 'PATCH' }
+>;
+export type MoveEndpoint<
+  F extends FetchFunction = FetchFunction,
+  S extends Schema | undefined = any,
+  O extends {
+    path: string;
+    body: any;
+  } = { path: string; body: any },
+> = RestInstanceBase<
+  RestFetch<PathArgs<Exclude<O['path'], undefined>>, O['body'], ResolveType<F>>,
+  S,
+  true,
+  Omit<O, 'method' | 'searchParams'> & { method: 'PATCH' }
 >;
 
 type OptionsBodyDefault<O extends RestGenerics> =

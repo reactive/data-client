@@ -963,6 +963,374 @@ describe(`${schema.Collection.name} normalization`, () => {
       validateRemove(sch);
     });
   });
+
+  describe('move should remove from old collection and add to new', () => {
+    const initializingSchema = new Collection([Todo]);
+
+    it('moves entity between Array collections', () => {
+      // Set up two collections: userId '1' has [10], userId '2' has [20]
+      let state = {
+        ...initialState,
+        ...normalize(
+          initializingSchema,
+          [{ id: '10', userId: 1, title: 'movable todo' }],
+          [{ userId: '1' }],
+          initialState,
+        ),
+      };
+      state = {
+        ...state,
+        ...normalize(
+          initializingSchema,
+          [{ id: '20', userId: 2, title: 'other todo' }],
+          [{ userId: '2' }],
+          state,
+        ),
+      };
+
+      // Verify initial state
+      expect(
+        denormalize(
+          initializingSchema,
+          JSON.stringify({ userId: '1' }),
+          state.entities,
+        ),
+      ).toHaveLength(1);
+      expect(
+        denormalize(
+          initializingSchema,
+          JSON.stringify({ userId: '2' }),
+          state.entities,
+        ),
+      ).toHaveLength(1);
+
+      // Move todo 10 from userId '1' to userId '2'
+      // Simulates: PATCH /todos/10 body: { userId: 2 }
+      // Server responds with updated entity
+      const moveState = {
+        ...state,
+        ...normalize(
+          initializingSchema.move,
+          { id: '10', userId: 2, title: 'movable todo' },
+          [{ id: '10' }, { userId: '2' }],
+          state,
+        ),
+      };
+
+      // userId '1' should now be empty
+      const userOneList = denormalize(
+        initializingSchema,
+        JSON.stringify({ userId: '1' }),
+        moveState.entities,
+      ) as any;
+      expect(userOneList).toHaveLength(0);
+
+      // userId '2' should now have both
+      const userTwoList = denormalize(
+        initializingSchema,
+        JSON.stringify({ userId: '2' }),
+        moveState.entities,
+      ) as any;
+      expect(userTwoList).toHaveLength(2);
+      expect(userTwoList.map((t: any) => t.id)).toEqual(
+        expect.arrayContaining(['10', '20']),
+      );
+    });
+
+    it('no-op when entity stays in same collection', () => {
+      const state = {
+        ...initialState,
+        ...normalize(
+          initializingSchema,
+          [{ id: '10', userId: 1, title: 'stays here' }],
+          [{ userId: '1' }],
+          initialState,
+        ),
+      };
+
+      // Move with same userId - should not change collections
+      const moveState = {
+        ...state,
+        ...normalize(
+          initializingSchema.move,
+          { id: '10', userId: 1, title: 'stays here updated' },
+          [{ id: '10' }, { userId: '1' }],
+          state,
+        ),
+      };
+
+      const userOneList = denormalize(
+        initializingSchema,
+        JSON.stringify({ userId: '1' }),
+        moveState.entities,
+      ) as any;
+      expect(userOneList).toHaveLength(1);
+      expect(userOneList[0].title).toBe('stays here updated');
+    });
+
+    it('handles single-arg endpoint (all values in one arg)', () => {
+      let state = {
+        ...initialState,
+        ...normalize(
+          initializingSchema,
+          [{ id: '10', userId: 1, title: 'single arg' }],
+          [{ userId: '1' }],
+          initialState,
+        ),
+      };
+      state = {
+        ...state,
+        ...normalize(
+          initializingSchema,
+          [{ id: '20', userId: 2, title: 'other' }],
+          [{ userId: '2' }],
+          state,
+        ),
+      };
+
+      // Single arg containing both id and new userId
+      const moveState = {
+        ...state,
+        ...normalize(
+          initializingSchema.move,
+          { id: '10', userId: 2, title: 'single arg' },
+          [{ id: '10', userId: '2' }],
+          state,
+        ),
+      };
+
+      expect(
+        denormalize(
+          initializingSchema,
+          JSON.stringify({ userId: '1' }),
+          moveState.entities,
+        ),
+      ).toHaveLength(0);
+      expect(
+        denormalize(
+          initializingSchema,
+          JSON.stringify({ userId: '2' }),
+          moveState.entities,
+        ),
+      ).toHaveLength(2);
+    });
+
+    it('handles entity not in store yet', () => {
+      // Entity doesn't exist yet - should only add, not remove
+      const state = {
+        ...initialState,
+        ...normalize(
+          initializingSchema,
+          [{ id: '20', userId: 2, title: 'existing' }],
+          [{ userId: '2' }],
+          initialState,
+        ),
+      };
+
+      const moveState = {
+        ...state,
+        ...normalize(
+          initializingSchema.move,
+          { id: '10', userId: 2, title: 'new entity' },
+          [{ id: '10' }, { userId: '2' }],
+          state,
+        ),
+      };
+
+      const userTwoList = denormalize(
+        initializingSchema,
+        JSON.stringify({ userId: '2' }),
+        moveState.entities,
+      ) as any;
+      expect(userTwoList).toHaveLength(2);
+    });
+  });
+
+  describe('move should remove from old Values collection and add to new', () => {
+    const valuesSchema = new Collection(new schema.Values(Todo));
+
+    it('moves entity between Values collections', () => {
+      let state = {
+        ...initialState,
+        ...normalize(
+          valuesSchema,
+          { '10': { id: '10', userId: 1, title: 'movable todo' } },
+          [{ userId: '1' }],
+          initialState,
+        ),
+      };
+      state = {
+        ...state,
+        ...normalize(
+          valuesSchema,
+          { '20': { id: '20', userId: 2, title: 'other todo' } },
+          [{ userId: '2' }],
+          state,
+        ),
+      };
+
+      // Verify initial state
+      expect(
+        Object.keys(
+          denormalize(
+            valuesSchema,
+            JSON.stringify({ userId: '1' }),
+            state.entities,
+          ) as any,
+        ),
+      ).toHaveLength(1);
+      expect(
+        Object.keys(
+          denormalize(
+            valuesSchema,
+            JSON.stringify({ userId: '2' }),
+            state.entities,
+          ) as any,
+        ),
+      ).toHaveLength(1);
+
+      // Move todo 10 from userId '1' to userId '2'
+      const moveState = {
+        ...state,
+        ...normalize(
+          valuesSchema.move,
+          { id: '10', userId: 2, title: 'movable todo' },
+          [{ id: '10' }, { userId: '2' }],
+          state,
+        ),
+      };
+
+      // userId '1' should now be empty
+      const userOneValues = denormalize(
+        valuesSchema,
+        JSON.stringify({ userId: '1' }),
+        moveState.entities,
+      ) as any;
+      expect(Object.keys(userOneValues)).toHaveLength(0);
+
+      // userId '2' should now have both
+      const userTwoValues = denormalize(
+        valuesSchema,
+        JSON.stringify({ userId: '2' }),
+        moveState.entities,
+      ) as any;
+      expect(Object.keys(userTwoValues)).toHaveLength(2);
+      expect(Object.keys(userTwoValues)).toEqual(
+        expect.arrayContaining(['10', '20']),
+      );
+    });
+
+    it('no-op when entity stays in same Values collection', () => {
+      const state = {
+        ...initialState,
+        ...normalize(
+          valuesSchema,
+          { '10': { id: '10', userId: 1, title: 'stays here' } },
+          [{ userId: '1' }],
+          initialState,
+        ),
+      };
+
+      // Move with same userId - should not change collections
+      const moveState = {
+        ...state,
+        ...normalize(
+          valuesSchema.move,
+          { id: '10', userId: 1, title: 'stays here updated' },
+          [{ id: '10' }, { userId: '1' }],
+          state,
+        ),
+      };
+
+      const userOneValues = denormalize(
+        valuesSchema,
+        JSON.stringify({ userId: '1' }),
+        moveState.entities,
+      ) as any;
+      expect(Object.keys(userOneValues)).toHaveLength(1);
+      expect(userOneValues['10'].title).toBe('stays here updated');
+    });
+
+    it('handles entity not in store yet (Values)', () => {
+      const state = {
+        ...initialState,
+        ...normalize(
+          valuesSchema,
+          { '20': { id: '20', userId: 2, title: 'existing' } },
+          [{ userId: '2' }],
+          initialState,
+        ),
+      };
+
+      const moveState = {
+        ...state,
+        ...normalize(
+          valuesSchema.move,
+          { id: '10', userId: 2, title: 'new entity' },
+          [{ id: '10' }, { userId: '2' }],
+          state,
+        ),
+      };
+
+      const userTwoValues = denormalize(
+        valuesSchema,
+        JSON.stringify({ userId: '2' }),
+        moveState.entities,
+      ) as any;
+      expect(Object.keys(userTwoValues)).toHaveLength(2);
+    });
+
+    it('handles single-arg endpoint (Values)', () => {
+      let state = {
+        ...initialState,
+        ...normalize(
+          valuesSchema,
+          { '10': { id: '10', userId: 1, title: 'single arg' } },
+          [{ userId: '1' }],
+          initialState,
+        ),
+      };
+      state = {
+        ...state,
+        ...normalize(
+          valuesSchema,
+          { '20': { id: '20', userId: 2, title: 'other' } },
+          [{ userId: '2' }],
+          state,
+        ),
+      };
+
+      // Single arg containing both id and new userId
+      const moveState = {
+        ...state,
+        ...normalize(
+          valuesSchema.move,
+          { id: '10', userId: 2, title: 'single arg' },
+          [{ id: '10', userId: '2' }],
+          state,
+        ),
+      };
+
+      expect(
+        Object.keys(
+          denormalize(
+            valuesSchema,
+            JSON.stringify({ userId: '1' }),
+            moveState.entities,
+          ) as any,
+        ),
+      ).toHaveLength(0);
+      expect(
+        Object.keys(
+          denormalize(
+            valuesSchema,
+            JSON.stringify({ userId: '2' }),
+            moveState.entities,
+          ) as any,
+        ),
+      ).toHaveLength(2);
+    });
+  });
 });
 
 describe(`${schema.Collection.name} denormalization`, () => {
