@@ -5,6 +5,7 @@ import { CacheProvider } from '@data-client/react';
 import nock from 'nock';
 
 import { makeRenderDataClient } from '../../../test';
+import NetworkError from '../NetworkError';
 import { ResourcePath } from '../pathTypes';
 import resource from '../resource';
 import RestEndpoint from '../RestEndpoint';
@@ -307,5 +308,41 @@ describe('resource()', () => {
     const spread = { ...entity };
     expect(spread.url).toBe('five');
     expect(Object.hasOwn(entity, 'url')).toBeTruthy();
+  });
+});
+
+describe('NetworkError', () => {
+  it('toJSON() should serialize error with status, message, and url', () => {
+    const mockResponse = {
+      status: 404,
+      statusText: 'Not Found',
+      url: 'http://test.com/api/missing',
+    } as Response;
+
+    const error = new NetworkError(mockResponse);
+    const json = error.toJSON();
+
+    expect(json).toEqual({
+      name: 'NetworkError',
+      status: 404,
+      message: 'http://test.com/api/missing: Not Found',
+      url: 'http://test.com/api/missing',
+    });
+  });
+
+  it('toJSON() output should be JSON.stringify-able', () => {
+    const mockResponse = {
+      status: 500,
+      statusText: 'Internal Server Error',
+      url: 'http://test.com/api/broken',
+    } as Response;
+
+    const error = new NetworkError(mockResponse);
+    const serialized = JSON.stringify(error);
+    const parsed = JSON.parse(serialized);
+
+    expect(parsed.name).toBe('NetworkError');
+    expect(parsed.status).toBe(500);
+    expect(parsed.url).toBe('http://test.com/api/broken');
   });
 });
