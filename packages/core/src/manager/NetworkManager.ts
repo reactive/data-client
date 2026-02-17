@@ -251,7 +251,7 @@ export default class NetworkManager implements Manager {
    * create a new promise and call fetch.
    *
    * Note: The new promise is not actually tied to fetch at all,
-   * but is resolved when the expected 'recieve' action is processed.
+   * but is resolved when the expected 'receive' action is processed.
    * This ensures promises are resolved only once their data is processed
    * by the reducer.
    */
