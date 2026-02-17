@@ -934,6 +934,93 @@ describe('resource()', () => {
       );
   });
 
+  it('getList.move should work when entity lacks path param field', async () => {
+    // Entity has 'status' but NOT 'team' - team is only a URL path param
+    // Collection keys include both team (from path) and status (from searchParams)
+    class Task extends Entity {
+      readonly id: number | undefined = undefined;
+      readonly title: string = '';
+      readonly status: string = 'backlog';
+
+      pk() {
+        return this.id?.toString();
+      }
+    }
+
+    const TeamTaskResource = resource({
+      path: 'http\\://test.com/teams/:team/tasks/:id',
+      searchParams: {} as { status: string },
+      schema: Task,
+    });
+
+    mynock.patch(`/teams/alpha/tasks/3`).reply(200, (uri, body: any) => ({
+      id: 3,
+      title: 'My Task',
+      status: 'in-progress',
+      ...body,
+    }));
+
+    const { result, controller } = renderDataClient(
+      () => {
+        return {
+          task3: useQuery(Task, { id: 3 }),
+          backlog: useCache(TeamTaskResource.getList, {
+            team: 'alpha',
+            status: 'backlog',
+          }),
+          inProgress: useCache(TeamTaskResource.getList, {
+            team: 'alpha',
+            status: 'in-progress',
+          }),
+        };
+      },
+      {
+        initialFixtures: [
+          {
+            endpoint: TeamTaskResource.getList,
+            args: [{ team: 'alpha', status: 'backlog' }],
+            response: [
+              { id: 1, title: 'Task 1', status: 'backlog' },
+              { id: 3, title: 'My Task', status: 'backlog' },
+            ],
+          },
+          {
+            endpoint: TeamTaskResource.getList,
+            args: [{ team: 'alpha', status: 'in-progress' }],
+            response: [{ id: 2, title: 'Task 2', status: 'in-progress' }],
+          },
+        ],
+      },
+    );
+
+    expect(result.current.backlog).toHaveLength(2);
+    expect(result.current.inProgress).toHaveLength(1);
+
+    // PATCH /teams/alpha/tasks/3 - move task 3 from backlog to in-progress
+    // 'team' is only in URL params (not on entity); 'status' is in body and on entity
+    await act(async () => {
+      const response = await controller.fetch(
+        TeamTaskResource.getList.move,
+        { team: 'alpha', id: '3' },
+        { id: 3, status: 'in-progress' },
+      );
+      expect(response.id).toEqual(3);
+    });
+
+    // task should be removed from backlog
+    expect(result.current.backlog).toHaveLength(1);
+    expect(result.current.backlog?.[0]?.title).toBe('Task 1');
+
+    // task should be added to in-progress
+    expect(result.current.inProgress).toHaveLength(2);
+    expect(result.current.inProgress?.map((t: any) => t.title)).toEqual(
+      expect.arrayContaining(['Task 2', 'My Task']),
+    );
+
+    // entity should be updated
+    expect(result.current.task3?.status).toEqual('in-progress');
+  });
+
   it('getList.move should work with searchParams-based collections', async () => {
     class Task extends Entity {
       readonly id: number | undefined = undefined;

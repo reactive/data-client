@@ -461,13 +461,21 @@ function normalizeMove(
     existingEntity ? { ...existingEntity, ...lastArg } : lastArg;
 
   // Remove filter: match collections where existing entity belongs
+  // Entity values take priority (old state); args[0] fills in URL-only params
   const removeFilter =
     existingEntity ?
-      (this.createCollectionFilter as any)(existingEntity)
+      (this.createCollectionFilter as any)(
+        { ...args[0], ...existingEntity },
+        existingEntity,
+      )
     : () => false;
 
   // Add filter: match collections based on merged (new) entity values
-  const addFilter = (this.createCollectionFilter as any)(mergedValues);
+  // Merge URL params with new body values so unchanged path params still match
+  const addFilter = (this.createCollectionFilter as any)(
+    { ...args[0], ...lastArg },
+    mergedValues,
+  );
 
   // Create schemas with different merge behaviors for add vs remove
   const addSchema = Object.create(this, {

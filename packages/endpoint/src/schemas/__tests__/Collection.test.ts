@@ -1615,6 +1615,135 @@ describe(`${schema.Collection.name} normalization`, () => {
       ).toHaveLength(2);
     });
   });
+
+  describe('move with path-param-based collection keys not on entity', () => {
+    // Entity does NOT store the collection filter param (group)
+    class Item extends IDEntity {
+      title = '';
+      static key = 'Item';
+    }
+
+    const itemCollection = new Collection([Item]);
+
+    it('moves entity between collections keyed by URL path param', () => {
+      // Set up two collections keyed by 'group' (a URL path param, not on entity)
+      let state = {
+        ...initialState,
+        ...normalize(
+          itemCollection,
+          [{ id: '10', title: 'movable item' }],
+          [{ group: 'five' }],
+          initialState,
+        ),
+      };
+      state = {
+        ...state,
+        ...normalize(
+          itemCollection,
+          [{ id: '20', title: 'other item' }],
+          [{ group: 'ten' }],
+          state,
+        ),
+      };
+
+      // Verify initial state
+      expect(
+        denormalize(
+          itemCollection,
+          JSON.stringify({ group: 'five' }),
+          state.entities,
+        ),
+      ).toHaveLength(1);
+      expect(
+        denormalize(
+          itemCollection,
+          JSON.stringify({ group: 'ten' }),
+          state.entities,
+        ),
+      ).toHaveLength(1);
+
+      // Move item 10 from group 'five' to group 'ten'
+      // args[0] = { group: 'five', id: '10' } (URL params identifying source)
+      // args[1] = { group: 'ten' } (body with new values)
+      const moveState = {
+        ...state,
+        ...normalize(
+          itemCollection.move,
+          { id: '10', title: 'movable item' },
+          [{ group: 'five', id: '10' }, { group: 'ten' }],
+          state,
+        ),
+      };
+
+      // group 'five' should now be empty (removed)
+      expect(
+        denormalize(
+          itemCollection,
+          JSON.stringify({ group: 'five' }),
+          moveState.entities,
+        ),
+      ).toHaveLength(0);
+
+      // group 'ten' should now have both items
+      const groupTen = denormalize(
+        itemCollection,
+        JSON.stringify({ group: 'ten' }),
+        moveState.entities,
+      ) as any;
+      expect(groupTen).toHaveLength(2);
+      expect(groupTen.map((i: any) => i.id)).toEqual(
+        expect.arrayContaining(['10', '20']),
+      );
+    });
+
+    it('handles multi-param path where only one param changes', () => {
+      // Collections keyed by both 'team' and 'group'
+      let state = {
+        ...initialState,
+        ...normalize(
+          itemCollection,
+          [{ id: '10', title: 'movable' }],
+          [{ team: 'alpha', group: 'five' }],
+          initialState,
+        ),
+      };
+      state = {
+        ...state,
+        ...normalize(
+          itemCollection,
+          [{ id: '20', title: 'dest item' }],
+          [{ team: 'alpha', group: 'ten' }],
+          state,
+        ),
+      };
+
+      // Move item 10: same team, different group
+      const moveState = {
+        ...state,
+        ...normalize(
+          itemCollection.move,
+          { id: '10', title: 'movable' },
+          [{ team: 'alpha', group: 'five', id: '10' }, { group: 'ten' }],
+          state,
+        ),
+      };
+
+      expect(
+        denormalize(
+          itemCollection,
+          JSON.stringify({ group: 'five', team: 'alpha' }),
+          moveState.entities,
+        ),
+      ).toHaveLength(0);
+
+      const destCollection = denormalize(
+        itemCollection,
+        JSON.stringify({ group: 'ten', team: 'alpha' }),
+        moveState.entities,
+      ) as any;
+      expect(destCollection).toHaveLength(2);
+    });
+  });
 });
 
 describe(`${schema.Collection.name} denormalization`, () => {
