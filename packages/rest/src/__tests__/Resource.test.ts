@@ -303,6 +303,44 @@ describe('resource()', () => {
     expect(res).toEqual({ id: 500 });
   });
 
+  it('getList.move should have similar properties to update', () => {
+    expect(UserResource.getList.move.method).toBe('PATCH');
+    // move uses the full entity path (same as update), not the shortened list path
+    expect(UserResource.getList.move.url({ id: '5' }, {})).toBe(
+      'http://test.com/user/5',
+    );
+    expect(UserResource.update.url({ id: '5' }, {})).toBe(
+      'http://test.com/user/5',
+    );
+    // schema is the Collection.move variant (not the raw Entity like update)
+    expect(UserResource.getList.move.schema).toBeDefined();
+    expect(UserResource.getList.move.schema).not.toBe(
+      UserResource.update.schema,
+    );
+    // inherits getOptimisticResponse from getList (which has optimistic via extraMutateOptions)
+    expect(typeof UserResource.getList.move.getOptimisticResponse).toBe(
+      typeof UserResource.update.getOptimisticResponse,
+    );
+    // name distinguishes it from update
+    expect(UserResource.getList.move.name).toBe('User.getList.update');
+    // searchParams are removed (move targets a specific entity, not a filtered list)
+    expect(UserResource.getList.move.searchParams).toBeUndefined();
+  });
+
+  it('getList.move should handle multiarg urls', () => {
+    const MyUserResource = resource({
+      path: 'http\\://test.com/groups/:group/users/:id',
+      schema: User,
+    });
+    expect(MyUserResource.getList.move.url({ group: 'big', id: '5' }, {})).toBe(
+      'http://test.com/groups/big/users/5',
+    );
+    // same as update path
+    expect(MyUserResource.update.url({ group: 'big', id: '5' }, {})).toBe(
+      'http://test.com/groups/big/users/5',
+    );
+  });
+
   it('should spread `url` member', () => {
     const entity = UrlArticle.fromJS({ url: 'five' });
     const spread = { ...entity };

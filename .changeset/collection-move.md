@@ -1,6 +1,7 @@
 ---
-'@data-client/endpoint': minor
-'@data-client/rest': minor
+'@data-client/endpoint': patch
+'@data-client/rest': patch
+'@data-client/graphql': patch
 ---
 
 Add `Collection.move` schema and `RestEndpoint.move` extender for moving entities between collections.
