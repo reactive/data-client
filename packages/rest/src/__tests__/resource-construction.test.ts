@@ -1014,6 +1014,90 @@ describe('resource()', () => {
     expect(result.current.task3?.status).toEqual('in-progress');
   });
 
+  it('getList.move should work with FormData body', async () => {
+    class Task extends Entity {
+      readonly id: number | undefined = undefined;
+      readonly title: string = '';
+      readonly status: string = 'backlog';
+
+      pk() {
+        return this.id?.toString();
+      }
+    }
+
+    const TaskResource = resource({
+      path: 'http\\://test.com/tasks/:id',
+      searchParams: {} as { status: string },
+      schema: Task,
+    });
+
+    mynock.patch(`/tasks/3`).reply(200, (uri, body: any) => ({
+      id: 3,
+      title: 'My Task',
+      status: 'in-progress',
+      ...(body instanceof FormData ? Object.fromEntries(body.entries()) : body),
+    }));
+
+    const { result, controller } = renderDataClient(
+      () => {
+        return {
+          task3: useQuery(Task, { id: 3 }),
+          backlog: useCache(TaskResource.getList, { status: 'backlog' }),
+          inProgress: useCache(TaskResource.getList, {
+            status: 'in-progress',
+          }),
+        };
+      },
+      {
+        initialFixtures: [
+          {
+            endpoint: TaskResource.getList,
+            args: [{ status: 'backlog' }],
+            response: [
+              { id: 1, title: 'Task 1', status: 'backlog' },
+              { id: 3, title: 'My Task', status: 'backlog' },
+            ],
+          },
+          {
+            endpoint: TaskResource.getList,
+            args: [{ status: 'in-progress' }],
+            response: [{ id: 2, title: 'Task 2', status: 'in-progress' }],
+          },
+        ],
+      },
+    );
+
+    expect(result.current.backlog).toHaveLength(2);
+    expect(result.current.inProgress).toHaveLength(1);
+
+    // Use FormData as the body (simulates multipart form submission)
+    const formData = new FormData();
+    formData.append('id', '3');
+    formData.append('status', 'in-progress');
+
+    await act(async () => {
+      const response = await controller.fetch(
+        TaskResource.getList.move,
+        { id: '3' },
+        formData,
+      );
+      expect(response.id).toEqual(3);
+    });
+
+    // task should be removed from backlog
+    expect(result.current.backlog).toHaveLength(1);
+    expect(result.current.backlog?.[0]?.title).toBe('Task 1');
+
+    // task should be added to in-progress
+    expect(result.current.inProgress).toHaveLength(2);
+    expect(result.current.inProgress?.map((t: any) => t.title)).toEqual(
+      expect.arrayContaining(['Task 2', 'My Task']),
+    );
+
+    // entity should be updated
+    expect(result.current.task3?.status).toEqual('in-progress');
+  });
+
   it.each([
     {
       response: {
