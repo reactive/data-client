@@ -1616,6 +1616,94 @@ describe(`${schema.Collection.name} normalization`, () => {
     });
   });
 
+  describe('move with multi-entity array input', () => {
+    const initializingSchema = new Collection([Todo]);
+
+    it('moves entities with different memberships to correct collections', () => {
+      // Set up three collections:
+      //   userId '1' has [10, 11]
+      //   userId '2' has [20]
+      //   userId '3' has [30]
+      let state = {
+        ...initialState,
+        ...normalize(
+          initializingSchema,
+          [
+            { id: '10', userId: 1, title: 'todo A' },
+            { id: '11', userId: 1, title: 'todo B' },
+          ],
+          [{ userId: '1' }],
+          initialState,
+        ),
+      };
+      state = {
+        ...state,
+        ...normalize(
+          initializingSchema,
+          [{ id: '20', userId: 2, title: 'existing in 2' }],
+          [{ userId: '2' }],
+          state,
+        ),
+      };
+      state = {
+        ...state,
+        ...normalize(
+          initializingSchema,
+          [{ id: '30', userId: 3, title: 'existing in 3' }],
+          [{ userId: '3' }],
+          state,
+        ),
+      };
+
+      // Move todo 10 → userId 2 and todo 11 → userId 3 in one array
+      // Entity A (id 10): old userId=1, new userId=2
+      // Entity B (id 11): old userId=1, new userId=3
+      // Without per-entity filters, only the first entity's membership
+      // would be used, causing incorrect add/remove decisions.
+      const moveState = {
+        ...state,
+        ...normalize(
+          initializingSchema.move,
+          [
+            { id: '10', userId: 2, title: 'todo A moved' },
+            { id: '11', userId: 3, title: 'todo B moved' },
+          ],
+          [{ id: '10' }, { userId: '2' }],
+          state,
+        ),
+      };
+
+      // userId '1' should lose both
+      expect(
+        denormalize(
+          initializingSchema,
+          JSON.stringify({ userId: '1' }),
+          moveState.entities,
+        ),
+      ).toHaveLength(0);
+      // userId '2' should gain todo 10
+      const user2 = denormalize(
+        initializingSchema,
+        JSON.stringify({ userId: '2' }),
+        moveState.entities,
+      ) as any;
+      expect(user2).toHaveLength(2);
+      expect(user2.map((t: any) => t.id)).toEqual(
+        expect.arrayContaining(['10', '20']),
+      );
+      // userId '3' should gain todo 11
+      const user3 = denormalize(
+        initializingSchema,
+        JSON.stringify({ userId: '3' }),
+        moveState.entities,
+      ) as any;
+      expect(user3).toHaveLength(2);
+      expect(user3.map((t: any) => t.id)).toEqual(
+        expect.arrayContaining(['11', '30']),
+      );
+    });
+  });
+
   describe('move with path-param-based collection keys not on entity', () => {
     // Entity does NOT store the collection filter param (group)
     class Item extends IDEntity {

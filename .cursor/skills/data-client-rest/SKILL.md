@@ -83,6 +83,8 @@ const addTodoToStart = todo =>
   ctrl.fetch(TodoResource.getList.unshift, todo);
 // POST https://jsonplaceholder.typicode.com/todos?userId=1
 const addTodoToEnd = todo => ctrl.fetch(TodoResource.getList.push, { userId: 1 }, todo);
+// PATCH https://jsonplaceholder.typicode.com/todos/5
+const toggleStatus = (completed: boolean) => ctrl.fetch(TodoResource.getList.move, { id }, { completed });
 // DELETE https://jsonplaceholder.typicode.com/todos/5
 const deleteTodo = id => ctrl.fetch(TodoResource.delete, { id });
 // GET https://jsonplaceholder.typicode.com/todos?userId=1&page=2

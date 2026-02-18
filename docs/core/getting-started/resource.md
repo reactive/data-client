@@ -98,6 +98,8 @@ TodoResource.getList.getPage({ userId: 1, page: 2 });
 TodoResource.update({ id: 5 }, { title: 'my todo' });
 // PATCH https://jsonplaceholder.typicode.com/todos/5
 TodoResource.partialUpdate({ id: 5 }, { title: 'my todo' });
+// PATCH https://jsonplaceholder.typicode.com/todos/5
+const toggleStatus = (completed: boolean) => ctrl.fetch(TodoResource.getList.move, { id }, { completed });
 // DELETE https://jsonplaceholder.typicode.com/todos/5
 TodoResource.delete({ id: 5 });
 ```

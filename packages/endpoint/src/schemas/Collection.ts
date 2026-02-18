@@ -429,20 +429,25 @@ function normalizeMove(
   const isArray = this.schema instanceof ArraySchema;
   const entitySchema = this.schema.schema;
 
-  // Get entity PK from input before normalization so we can look up old state
-  const rawInput = isArray && Array.isArray(input) ? input[0] : input;
-  const processed = entitySchema.process(rawInput, parent, key, args);
-  const pk = `${entitySchema.pk(processed, parent, key, args)}`;
-  const existingEntity =
-    pk ? delegate.getEntity(entitySchema.key, pk) : undefined;
+  // Snapshot existing entity state before normalization overwrites it
+  const items = isArray && Array.isArray(input) ? input : [input];
+  const existingEntities = items.map(item => {
+    const processed = entitySchema.process(item, parent, key, args);
+    const pk = `${entitySchema.pk(processed, parent, key, args)}`;
+    return {
+      pk,
+      processed,
+      existingEntity: pk ? delegate.getEntity(entitySchema.key, pk) : undefined,
+    };
+  });
 
-  // Normalize input (updates entity in store)
+  // Normalize full input (updates entities in store)
   const toNormalize =
     isArray ?
       Array.isArray(input) ?
         input
       : [input]
-    : pk ? { [pk]: input }
+    : existingEntities[0].pk ? { [existingEntities[0].pk]: input }
     : input;
   const normalizedValue = this.schema.normalize(
     toNormalize,
@@ -453,50 +458,46 @@ function normalizeMove(
     delegate,
   );
 
-  // Last arg contains the new filter values
   const lastArg = args[args.length - 1];
-
-  // Merge existing entity with new values for add filter
-  const mergedValues =
-    existingEntity ? { ...existingEntity, ...lastArg } : lastArg;
-
-  // Remove filter: match collections where existing entity belongs
-  // Entity values take priority (old state); args[0] fills in URL-only params
-  const removeFilter =
-    existingEntity ?
-      (this.createCollectionFilter as any)(
-        { ...args[0], ...existingEntity },
-        existingEntity,
-      )
-    : () => false;
-
-  // Add filter: match collections based on merged (new) entity values
-  // Merge URL params with new body values so unchanged path params still match
-  const addFilter = (this.createCollectionFilter as any)(
-    { ...args[0], ...lastArg },
-    mergedValues,
-  );
-
-  // Create schemas with different merge behaviors for add vs remove
-  const addSchema = Object.create(this, {
-    merge: { value: addMerge },
-  });
+  const addSchema = Object.create(this, { merge: { value: addMerge } });
   const removeSchema = Object.create(this, {
     merge: { value: removeMergeFunc },
   });
+  const collections = delegate.getEntities(this.key);
 
-  // Apply to matching collections
-  const entities = delegate.getEntities(this.key);
-  if (entities) {
-    for (const collectionKey of entities.keys()) {
-      const parsed = JSON.parse(collectionKey);
-      const shouldRemove = removeFilter(parsed);
-      const shouldAdd = addFilter(parsed);
+  // Process each entity's collection membership individually
+  if (collections) {
+    for (let i = 0; i < existingEntities.length; i++) {
+      const { processed, existingEntity } = existingEntities[i];
+      const value = isArray ? [(normalizedValue as any[])[i]] : normalizedValue;
+      // For arrays, per-entity fields determine membership;
+      // lastArg fills in shared path params not on the entity
+      const newValues = isArray ? { ...lastArg, ...processed } : lastArg;
+      const mergedValues =
+        existingEntity ? { ...existingEntity, ...newValues } : newValues;
 
-      if (shouldRemove && !shouldAdd) {
-        delegate.mergeEntity(removeSchema, collectionKey, normalizedValue);
-      } else if (shouldAdd && !shouldRemove) {
-        delegate.mergeEntity(addSchema, collectionKey, normalizedValue);
+      const removeFilter =
+        existingEntity ?
+          (this.createCollectionFilter as any)(
+            { ...args[0], ...existingEntity },
+            existingEntity,
+          )
+        : undefined;
+      const addFilter = (this.createCollectionFilter as any)(
+        { ...args[0], ...newValues },
+        mergedValues,
+      );
+
+      for (const collectionKey of collections.keys()) {
+        const parsed = JSON.parse(collectionKey);
+        const shouldRemove = removeFilter?.(parsed);
+        const shouldAdd = addFilter(parsed);
+
+        if (shouldRemove && !shouldAdd) {
+          delegate.mergeEntity(removeSchema, collectionKey, value);
+        } else if (shouldAdd && !shouldRemove) {
+          delegate.mergeEntity(addSchema, collectionKey, value);
+        }
       }
     }
   }
