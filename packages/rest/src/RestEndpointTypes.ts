@@ -203,7 +203,7 @@ export interface RestInstance<
    */
   move: MoveEndpoint<
     F,
-    ExtractCollection<S>['push'],
+    ExtractCollection<S>['move'],
     {
       path: 'movePath' extends keyof O ? O['movePath'] & string : O['path'];
       body: OptionsToAdderBodyArgument<O> | FormData;

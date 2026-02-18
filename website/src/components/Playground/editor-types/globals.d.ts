@@ -1395,7 +1395,7 @@ interface RestInstance<F extends FetchFunction = FetchFunction, S extends Schema
     /** Move item between collections (PATCH) - removes from old, adds to new
      * @see https://dataclient.io/rest/api/RestEndpoint#move
      */
-    move: MoveEndpoint<F, ExtractCollection<S>['push'], {
+    move: MoveEndpoint<F, ExtractCollection<S>['move'], {
         path: 'movePath' extends keyof O ? O['movePath'] & string : O['path'];
         body: OptionsToAdderBodyArgument<O> | FormData;
     }>;
