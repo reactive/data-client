@@ -686,8 +686,18 @@ type CollectionOptions<Args extends any[] = DefaultArgs, Parent = any> = ({
     nonFilterArgumentKeys?: ((key: string) => boolean) | string[] | RegExp;
 });
 
+/** Schema when adding to an Array Collection
+ * Conceptually only returns a single item
+ */
 type CollectionArrayAdder<S extends PolymorphicInterface> = S extends ({
     denormalize(...args: any): any[];
+    schema: infer T;
+}) ? T : never;
+/** Schema to remove/move (by value) from a Collection(Array|Values)
+ * Conceptually only returns a single item
+ */
+type CollectionArrayOrValuesAdder<S extends PolymorphicInterface> = S extends ({
+    denormalize(...args: any): any;
     schema: infer T;
 }) ? T : never;
 interface CollectionInterface<S extends PolymorphicInterface = any, Args extends any[] = any[], Parent = any> {
@@ -769,20 +779,20 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
      * @see https://dataclient.io/rest/api/Collection#unshift
      */
     unshift: CollectionArrayAdder<S>;
-    /** Schema to remove (by value) from a Collection
-     * @see https://dataclient.io/rest/api/Collection#remove
-     */
-    remove: CollectionArrayAdder<S>;
     /** Schema to merge with a Values Collection
      * @see https://dataclient.io/rest/api/Collection#assign
      */
     assign: S extends {
         denormalize(...args: any): Record<string, unknown>;
     } ? Collection<S, Args, Parent> : never;
+    /** Schema to remove (by value) from a Collection(Array|Values)
+     * @see https://dataclient.io/rest/api/Collection#remove
+     */
+    remove: CollectionArrayOrValuesAdder<S>;
     /** Schema to move items between Collections (remove from old, add to new)
      * @see https://dataclient.io/rest/api/Collection#move
      */
-    move: CollectionArrayAdder<S>;
+    move: CollectionArrayOrValuesAdder<S>;
 }
 type CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Args extends any[] = DefaultArgs, Parent = any> = CollectionInterface<S extends any[] ? Array$1<S[number]> : S, Args, Parent>;
 interface CollectionConstructor {
@@ -1142,6 +1152,7 @@ declare const schema_d_All: typeof All;
 type schema_d_Collection<S extends any[] | PolymorphicInterface = any, Args extends any[] = DefaultArgs, Parent = any> = Collection<S, Args, Parent>;
 declare const schema_d_Collection: typeof Collection;
 type schema_d_CollectionArrayAdder<S extends PolymorphicInterface> = CollectionArrayAdder<S>;
+type schema_d_CollectionArrayOrValuesAdder<S extends PolymorphicInterface> = CollectionArrayOrValuesAdder<S>;
 type schema_d_CollectionConstructor = CollectionConstructor;
 type schema_d_CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Args extends any[] = DefaultArgs, Parent = any> = CollectionFromSchema<S, Args, Parent>;
 type schema_d_CollectionInterface<S extends PolymorphicInterface = any, Args extends any[] = any[], Parent = any> = CollectionInterface<S, Args, Parent>;
@@ -1173,7 +1184,7 @@ declare const schema_d_UnionRoot: typeof UnionRoot;
 type schema_d_Values<Choices extends Schema = any> = Values<Choices>;
 declare const schema_d_Values: typeof Values;
 declare namespace schema_d {
-  export { schema_d_All as All, Array$1 as Array, schema_d_Collection as Collection, type schema_d_CollectionArrayAdder as CollectionArrayAdder, type schema_d_CollectionConstructor as CollectionConstructor, type schema_d_CollectionFromSchema as CollectionFromSchema, type schema_d_CollectionInterface as CollectionInterface, schema_d_CollectionRoot as CollectionRoot, type schema_d_DefaultArgs as DefaultArgs, EntityMixin as Entity, type schema_d_EntityInterface as EntityInterface, type schema_d_EntityMap as EntityMap, schema_d_EntityMixin as EntityMixin, schema_d_Invalidate as Invalidate, type schema_d_MergeFunction as MergeFunction, Object$1 as Object, schema_d_Query as Query, type schema_d_SchemaAttributeFunction as SchemaAttributeFunction, type schema_d_SchemaClass as SchemaClass, type schema_d_SchemaFunction as SchemaFunction, type schema_d_StrategyFunction as StrategyFunction, schema_d_Union as Union, type schema_d_UnionConstructor as UnionConstructor, type schema_d_UnionInstance as UnionInstance, type schema_d_UnionResult as UnionResult, schema_d_UnionRoot as UnionRoot, schema_d_Values as Values };
+  export { schema_d_All as All, Array$1 as Array, schema_d_Collection as Collection, type schema_d_CollectionArrayAdder as CollectionArrayAdder, type schema_d_CollectionArrayOrValuesAdder as CollectionArrayOrValuesAdder, type schema_d_CollectionConstructor as CollectionConstructor, type schema_d_CollectionFromSchema as CollectionFromSchema, type schema_d_CollectionInterface as CollectionInterface, schema_d_CollectionRoot as CollectionRoot, type schema_d_DefaultArgs as DefaultArgs, EntityMixin as Entity, type schema_d_EntityInterface as EntityInterface, type schema_d_EntityMap as EntityMap, schema_d_EntityMixin as EntityMixin, schema_d_Invalidate as Invalidate, type schema_d_MergeFunction as MergeFunction, Object$1 as Object, schema_d_Query as Query, type schema_d_SchemaAttributeFunction as SchemaAttributeFunction, type schema_d_SchemaClass as SchemaClass, type schema_d_SchemaFunction as SchemaFunction, type schema_d_StrategyFunction as StrategyFunction, schema_d_Union as Union, type schema_d_UnionConstructor as UnionConstructor, type schema_d_UnionInstance as UnionInstance, type schema_d_UnionResult as UnionResult, schema_d_UnionRoot as UnionRoot, schema_d_Values as Values };
 }
 
 declare const Entity_base: IEntityClass<abstract new (...args: any[]) => {

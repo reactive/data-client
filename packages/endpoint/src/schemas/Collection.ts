@@ -75,13 +75,9 @@ export default class CollectionSchema<
   declare assign: S extends ValuesType<any> ? CollectionSchema<S, Args, Parent>
   : undefined;
 
-  declare remove: S extends ArrayType<any> | ValuesType<any> ?
-    CollectionSchema<S, Args, Parent>
-  : undefined;
+  declare remove: CollectionSchema<S, Args, Parent>;
 
-  declare move: S extends ArrayType<any> | ValuesType<any> ?
-    CollectionSchema<S, Args, Parent>
-  : undefined;
+  declare move: CollectionSchema<S, Args, Parent>;
 
   addWith<P extends any[] = Args>(
     merge: (existing: any, incoming: any) => any,

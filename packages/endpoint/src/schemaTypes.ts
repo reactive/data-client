@@ -13,6 +13,9 @@ export { EntityMap, Invalidate };
 
 export { EntityInterface } from './interface.js';
 
+/** Schema when adding to an Array Collection
+ * Conceptually only returns a single item
+ */
 export type CollectionArrayAdder<S extends PolymorphicInterface> =
   S extends (
     {
@@ -26,20 +29,19 @@ export type CollectionArrayAdder<S extends PolymorphicInterface> =
     T
   : never;
 
-export type CollectionValuesAdder<S extends PolymorphicInterface> =
+/** Schema to remove/move (by value) from a Collection(Array|Values)
+ * Conceptually only returns a single item
+ */
+export type CollectionArrayOrValuesAdder<S extends PolymorphicInterface> =
   S extends (
     {
-      // ensure we are a values type
-      denormalize(...args: any): Record<string, unknown>;
+      denormalize(...args: any): any;
       // get what we are a record of
       schema: infer T;
     }
   ) ?
     T
   : never;
-
-export type CollectionArrayOrValuesAdder<S extends PolymorphicInterface> =
-  CollectionArrayAdder<S> | CollectionValuesAdder<S>;
 
 export interface CollectionInterface<
   S extends PolymorphicInterface = any,
@@ -168,17 +170,17 @@ export interface CollectionInterface<
    */
   unshift: CollectionArrayAdder<S>;
 
-  /** Schema to remove (by value) from a Collection(Array|Values)
-   * @see https://dataclient.io/rest/api/Collection#remove
-   */
-  remove: CollectionArrayOrValuesAdder<S>;
-
   /** Schema to merge with a Values Collection
    * @see https://dataclient.io/rest/api/Collection#assign
    */
   assign: S extends { denormalize(...args: any): Record<string, unknown> } ?
     Collection<S, Args, Parent>
   : never;
+
+  /** Schema to remove (by value) from a Collection(Array|Values)
+   * @see https://dataclient.io/rest/api/Collection#remove
+   */
+  remove: CollectionArrayOrValuesAdder<S>;
 
   /** Schema to move items between Collections (remove from old, add to new)
    * @see https://dataclient.io/rest/api/Collection#move
