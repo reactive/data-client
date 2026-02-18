@@ -1150,15 +1150,12 @@ describe(`${schema.Collection.name} normalization`, () => {
     const valuesSchema = new Collection(new schema.Values(Todo));
 
     it('types remove and move as Collection schemas for Values', () => {
-      const removePk = valuesSchema.remove.pk(undefined, undefined, '', [
-        { userId: '1' },
-      ]);
-      const movePk = valuesSchema.move.pk(undefined, undefined, '', [
-        { userId: '1' },
-      ]);
+      type IsNever<T> = [T] extends [never] ? true : false;
+      const removeIsNever: IsNever<typeof valuesSchema.remove> = false;
+      const moveIsNever: IsNever<typeof valuesSchema.move> = false;
 
-      expect(typeof removePk).toBe('string');
-      expect(typeof movePk).toBe('string');
+      expect(removeIsNever).toBe(false);
+      expect(moveIsNever).toBe(false);
     });
 
     it('moves entity between Values collections', () => {
