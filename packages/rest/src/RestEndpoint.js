@@ -281,7 +281,7 @@ Response (first 300 characters): ${text.substring(0, 300)}`;
       method: 'PATCH',
       schema: extractCollection(this.schema, s => s.move),
       searchParams: undefined,
-      name: this.name + '.update',
+      name: this.name + '.partialUpdate',
     };
     if (this.movePath) options.path = this.movePath;
     return this.extend(options);

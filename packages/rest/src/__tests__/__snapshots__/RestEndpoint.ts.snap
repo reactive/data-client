@@ -2,7 +2,7 @@
 
 exports[`RestEndpoint getPage: should extend name of parent endpoint 1`] = `"http://test.com/article-paginated.getPage"`;
 
-exports[`RestEndpoint move: should extend name of parent endpoint 1`] = `"http://test.com/article-paginated.update"`;
+exports[`RestEndpoint move: should extend name of parent endpoint 1`] = `"http://test.com/article-paginated.partialUpdate"`;
 
 exports[`RestEndpoint push: should extend name of parent endpoint 1`] = `"http://test.com/article-paginated.create"`;
 

@@ -322,7 +322,7 @@ describe('resource()', () => {
       typeof UserResource.update.getOptimisticResponse,
     );
     // name distinguishes it from update
-    expect(UserResource.getList.move.name).toBe('User.getList.update');
+    expect(UserResource.getList.move.name).toBe('User.getList.partialUpdate');
     // searchParams are removed (move targets a specific entity, not a filtered list)
     expect(UserResource.getList.move.searchParams).toBeUndefined();
   });

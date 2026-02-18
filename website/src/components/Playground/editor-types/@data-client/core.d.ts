@@ -988,7 +988,7 @@ declare class NetworkManager implements Manager {
      * create a new promise and call fetch.
      *
      * Note: The new promise is not actually tied to fetch at all,
-     * but is resolved when the expected 'recieve' action is processed.
+     * but is resolved when the expected 'receive' action is processed.
      * This ensures promises are resolved only once their data is processed
      * by the reducer.
      */
@@ -1074,11 +1074,23 @@ declare namespace index_d {
   export { index_d_createExpireAll as createExpireAll, index_d_createFetch as createFetch, index_d_createInvalidate as createInvalidate, index_d_createInvalidateAll as createInvalidateAll, index_d_createMeta as createMeta, index_d_createOptimistic as createOptimistic, index_d_createReset as createReset, index_d_createSet as createSet, index_d_createSetResponse as createSetResponse, index_d_createSubscription as createSubscription, index_d_createUnsubscription as createUnsubscription };
 }
 
+/** Listens to online/offline events for triggering re-fetches on reconnect.
+ *
+ * Implement this interface to provide custom connectivity detection
+ * (e.g., for React Native or Node.js environments).
+ *
+ * @see https://dataclient.io/docs/api/PollingSubscription
+ */
 interface ConnectionListener {
+    /** Returns whether the client is currently connected to the network. */
     isOnline: () => boolean;
+    /** Register a handler to be called when the client comes back online. */
     addOnlineListener: (handler: () => void) => void;
+    /** Remove a previously registered online handler. */
     removeOnlineListener: (handler: () => void) => void;
+    /** Register a handler to be called when the client goes offline. */
     addOfflineListener: (handler: () => void) => void;
+    /** Remove a previously registered offline handler. */
     removeOfflineListener: (handler: () => void) => void;
 }
 

@@ -1882,6 +1882,18 @@ declare class NetworkError extends Error {
     response: Response;
     name: string;
     constructor(response: Response);
+    /** Serialize the error for logging and debugging.
+     *
+     * Error properties are non-enumerable by default, so `JSON.stringify()`
+     * on a plain Error produces `{}`. This ensures status, message, and the
+     * request URL are always included in serialized output.
+     */
+    toJSON(): {
+        name: string;
+        status: number;
+        message: string;
+        url: string;
+    };
 }
 
 type DevToolsPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';

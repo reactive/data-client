@@ -106,7 +106,6 @@ This warning will not show in production.`,
     getList,
     // TODO(deprecated): remove this once we remove creates
     create: getList.push.extend({ name: getName('create') }),
-    // TODO(breaking): Move to getList.move
     update: new Endpoint({
       ...extraMutateOptions,
       path,
@@ -114,6 +113,7 @@ This warning will not show in production.`,
       method: 'PUT',
       name: getName('update'),
     }),
+    // TODO(breaking): Move to getList.move
     partialUpdate: new Endpoint({
       ...extraPartialOptions,
       path,
