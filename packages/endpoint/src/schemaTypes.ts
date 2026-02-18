@@ -26,6 +26,16 @@ export type CollectionArrayAdder<S extends PolymorphicInterface> =
     T
   : never;
 
+export type CollectionAdder<
+  S extends PolymorphicInterface,
+  Args extends any[],
+  Parent,
+> =
+  S extends { denormalize(...args: any): any[]; schema: infer T } ? T
+  : S extends { denormalize(...args: any): Record<string, unknown> } ?
+    Collection<S, Args, Parent>
+  : never;
+
 export interface CollectionInterface<
   S extends PolymorphicInterface = any,
   Args extends any[] = any[],
@@ -156,7 +166,7 @@ export interface CollectionInterface<
   /** Schema to remove (by value) from a Collection
    * @see https://dataclient.io/rest/api/Collection#remove
    */
-  remove: CollectionArrayAdder<S>;
+  remove: CollectionAdder<S, Args, Parent>;
 
   /** Schema to merge with a Values Collection
    * @see https://dataclient.io/rest/api/Collection#assign
@@ -168,7 +178,7 @@ export interface CollectionInterface<
   /** Schema to move items between Collections (remove from old, add to new)
    * @see https://dataclient.io/rest/api/Collection#move
    */
-  move: CollectionArrayAdder<S>;
+  move: CollectionAdder<S, Args, Parent>;
 }
 export type CollectionFromSchema<
   S extends any[] | PolymorphicInterface = any,
