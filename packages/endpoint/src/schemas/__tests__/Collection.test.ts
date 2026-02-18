@@ -1149,6 +1149,18 @@ describe(`${schema.Collection.name} normalization`, () => {
   describe('move should remove from old Values collection and add to new', () => {
     const valuesSchema = new Collection(new schema.Values(Todo));
 
+    it('types remove and move as Collection schemas for Values', () => {
+      const removePk = valuesSchema.remove.pk(undefined, undefined, '', [
+        { userId: '1' },
+      ]);
+      const movePk = valuesSchema.move.pk(undefined, undefined, '', [
+        { userId: '1' },
+      ]);
+
+      expect(typeof removePk).toBe('string');
+      expect(typeof movePk).toBe('string');
+    });
+
     it('moves entity between Values collections', () => {
       let state = {
         ...initialState,
