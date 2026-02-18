@@ -1,5 +1,52 @@
 # @data-client/rest
 
+## 0.15.7
+
+### Patch Changes
+
+- [#3738](https://github.com/reactive/data-client/pull/3738) [`4425a37`](https://github.com/reactive/data-client/commit/4425a371484d3eaed66240ea8c9c1c8874e220f1) - Add `Collection.move` schema and `RestEndpoint.move` extender for moving entities between collections.
+
+  `move` removes from collections matching the entity's existing state and adds to collections
+  matching the new values (from the body/last arg). Works for both Array and Values collections.
+
+  Path parameters filter collections by URL segments:
+
+  ```ts
+  const UserResource = resource({
+    path: '/groups/:group/users/:id',
+    schema: User,
+  });
+
+  // PATCH /groups/five/users/2 - moves user 2 from 'five' group to 'ten' group
+  await ctrl.fetch(
+    UserResource.getList.move,
+    { group: 'five', id: '2' },
+    { id: '2', group: 'ten' },
+  );
+  ```
+
+  Search parameters filter collections by query args:
+
+  ```ts
+  const TaskResource = resource({
+    path: '/tasks/:id',
+    searchParams: {} as { status: string },
+    schema: Task,
+  });
+
+  // PATCH /tasks/3 - moves task 3 from 'backlog' to 'in-progress'
+  await ctrl.fetch(
+    TaskResource.getList.move,
+    { id: '3' },
+    { id: '3', status: 'in-progress' },
+  );
+  ```
+
+- [#3739](https://github.com/reactive/data-client/pull/3739) [`b301d4c`](https://github.com/reactive/data-client/commit/b301d4c65cd720cfe321b02162550ba758f47192) Thanks [@Dark-Brain07](https://github.com/Dark-Brain07)! - Add `toJSON()` to `NetworkError` for structured serialization in devtools and logging
+
+- Updated dependencies [[`4425a37`](https://github.com/reactive/data-client/commit/4425a371484d3eaed66240ea8c9c1c8874e220f1)]:
+  - @data-client/endpoint@0.15.7
+
 ## 0.15.6
 
 ### Patch Changes

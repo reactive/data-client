@@ -1,5 +1,14 @@
 # @data-client/core
 
+## 0.15.7
+
+### Patch Changes
+
+- [#3738](https://github.com/reactive/data-client/pull/3738) [`4425a37`](https://github.com/reactive/data-client/commit/4425a371484d3eaed66240ea8c9c1c8874e220f1) - Optimistic updates support FormData
+
+- Updated dependencies []:
+  - @data-client/normalizr@0.15.4
+
 ## 0.15.4
 
 ### Patch Changes
