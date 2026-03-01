@@ -5,6 +5,7 @@ import * as rest from '@data-client/rest';
 import type { Fixture, Interceptor } from '@data-client/test';
 import { Temporal, Intl as PolyIntl } from '@js-temporal/polyfill';
 import BigNumber from 'bignumber.js';
+import { use } from 'react';
 import { LiveProvider } from 'react-live';
 import { v4 as uuid } from 'uuid';
 
@@ -39,6 +40,7 @@ const scope = {
   ...rhReactNext,
   ...graphql,
   ...rest,
+  use,
   uuid,
   randomFloatInRange,
   mockFetch,

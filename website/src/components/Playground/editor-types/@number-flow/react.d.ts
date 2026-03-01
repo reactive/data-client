@@ -39,10 +39,12 @@ declare function NumberFlowGroup({ children }: {
     children: React.ReactNode;
 }): React.JSX.Element;
 
+declare const styles: readonly [string, string, string];
+
 declare const useIsSupported: () => boolean;
 declare const usePrefersReducedMotion: () => boolean;
 declare function useCanAnimate({ respectMotionPreference }?: {
     respectMotionPreference?: boolean | undefined;
 }): boolean;
 
-export { NumberFlowElement, NumberFlowGroup, type NumberFlowProps, NumberFlow as default, useCanAnimate, useIsSupported, usePrefersReducedMotion };
+export { NumberFlowElement, NumberFlowGroup, type NumberFlowProps, NumberFlow as default, styles, useCanAnimate, useIsSupported, usePrefersReducedMotion };

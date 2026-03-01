@@ -1,15 +1,29 @@
-export type FetchPromise = Promise<any> & { resolved: boolean };
+export type UsablePromise<T = any> = PromiseLike<T> & { resolved: boolean };
 
-export const RESOLVED = Object.assign(Promise.resolve(), {
-  resolved: true,
-}) as FetchPromise;
+export function createFulfilled<T>(value: T): UsablePromise<T> {
+  return {
+    status: 'fulfilled',
+    value,
+    resolved: true,
+    then(
+      onfulfilled?: ((value: T) => any) | null,
+      onrejected?: ((reason: any) => any) | null,
+    ) {
+      return Promise.resolve(value).then(onfulfilled, onrejected);
+    },
+  } as any;
+}
 
-export function trackPromise(promise: Promise<any>): FetchPromise {
-  const p = promise as FetchPromise;
-  p.resolved = false;
-  const r = () => {
-    p.resolved = true;
-  };
-  p.then(r, r);
-  return p;
+export function createRejected(reason: any): UsablePromise<never> {
+  return {
+    status: 'rejected',
+    reason,
+    resolved: true,
+    then(
+      onfulfilled?: ((value: never) => any) | null,
+      onrejected?: ((reason: any) => any) | null,
+    ) {
+      return Promise.reject(reason).then(onfulfilled, onrejected);
+    },
+  } as any;
 }

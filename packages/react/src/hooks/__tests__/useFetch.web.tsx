@@ -180,22 +180,22 @@ describe('useFetch', () => {
     expect(fetchMock).toHaveBeenCalledTimes(0);
   });
 
-  it('should always return a promise with resolved property', () => {
+  it('should always return a thenable with resolved property', () => {
     const dispatch = jest.fn();
     const params: any = { id: payload.id };
-    const { result, rerender } = testDataClient(
+    const { result } = testDataClient(
       () => {
         return useFetch(CoolerArticleResource.get, params);
       },
       initialState,
       dispatch,
     );
-    // When fetching, returns a promise with resolved=false
     expect(result.current).toBeInstanceOf(Promise);
     expect(result.current.resolved).toBe(false);
+    expect(typeof result.current.then).toBe('function');
   });
 
-  it('should return resolved promise when data is fresh', async () => {
+  it('should return fulfilled thenable with data when fresh', async () => {
     const initialFixtures: any[] = [
       {
         endpoint: CoolerArticleResource.get,
@@ -209,8 +209,13 @@ describe('useFetch', () => {
       },
       { initialFixtures },
     );
-    expect(result.current).toBeInstanceOf(Promise);
     expect(result.current.resolved).toBe(true);
+    expect(typeof result.current.then).toBe('function');
+    // fulfilled thenable carries denormalized data
+    expect((result.current as any).status).toBe('fulfilled');
+    expect((result.current as any).value).toBeDefined();
+    expect((result.current as any).value.id).toBe(payload.id);
+    expect((result.current as any).value.title).toBe(payload.title);
   });
 
   it('should return undefined with null params', () => {
@@ -226,7 +231,24 @@ describe('useFetch', () => {
     expect(dispatch).toHaveBeenCalledTimes(0);
   });
 
-  it('should return same promise reference across re-renders', async () => {
+  it('should return rejected thenable whose .then() rejects with the error', async () => {
+    nock.cleanAll();
+    mynock.get(`/article-cooler/${payload.id}`).reply(403, {});
+    const { result, waitForNextUpdate } = renderDataClient(() => {
+      return useFetch(CoolerArticleResource.get, { id: payload.id });
+    });
+    await waitForNextUpdate();
+    expect((result.current as any).status).toBe('rejected');
+    expect((result.current as any).resolved).toBe(true);
+    const caught = await (result.current as any).then(
+      () => 'should not reach',
+      (e: any) => e,
+    );
+    expect(caught).toBeDefined();
+    expect(caught.status).toBe(403);
+  });
+
+  it('should return same data value across re-renders when fresh', async () => {
     nock.cleanAll();
     const fetchMock = jest.fn(() => payload);
     mynock.get(`/article-cooler/${payload.id}`).reply(200, fetchMock).persist();
@@ -243,8 +265,8 @@ describe('useFetch', () => {
       },
       { initialFixtures },
     );
-    const firstPromise = result.current;
+    const firstValue = (result.current as any).value;
     rerender();
-    expect(result.current).toBe(firstPromise);
+    expect((result.current as any).value).toBe(firstValue);
   });
 });
