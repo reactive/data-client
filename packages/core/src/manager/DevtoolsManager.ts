@@ -94,6 +94,7 @@ export default class DevToolsManager implements Manager {
   protected actions: [ActionTypes, State<unknown>][] = [];
   declare protected controller: Controller;
   declare skipLogging?: (action: ActionTypes) => boolean;
+  declare protected devtoolsName: string;
   maxBufferLength = 100;
 
   constructor(
@@ -101,13 +102,13 @@ export default class DevToolsManager implements Manager {
     skipLogging?: (action: ActionTypes) => boolean,
   ) {
     /* istanbul ignore next */
+    const options = { ...DEFAULT_CONFIG, ...config };
+    this.devtoolsName =
+      options.name ?? `Data Client: ${globalThis.document?.title}`;
     this.devTools =
       typeof window !== 'undefined' &&
       (window as any).__REDUX_DEVTOOLS_EXTENSION__ &&
-      (window as any).__REDUX_DEVTOOLS_EXTENSION__.connect({
-        ...DEFAULT_CONFIG,
-        ...config,
-      });
+      (window as any).__REDUX_DEVTOOLS_EXTENSION__.connect(options);
     // we cut it in half so we should double so we don't lose
     if (config?.maxAge) this.maxBufferLength = config.maxAge * 2;
     if (skipLogging) this.skipLogging = skipLogging;
@@ -118,8 +119,8 @@ export default class DevToolsManager implements Manager {
     /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'production') {
       this.prototype.middleware = function (controller) {
-        if (!this.devTools) return next => action => next(action);
         this.controller = controller;
+        if (!this.devTools) return next => action => next(action);
         const reducer = createReducer(controller as any);
         let state = controller.getState();
         return next => action => {
@@ -158,6 +159,12 @@ export default class DevToolsManager implements Manager {
 
   /** Called when initial state is ready */
   init(state: State<any>) {
+    if (process.env.NODE_ENV !== 'production') {
+      ((globalThis as any).__DC_CONTROLLERS__ ??= new Map()).set(
+        this.devtoolsName,
+        this.controller,
+      );
+    }
     if (process.env.NODE_ENV !== 'production' && this.devTools) {
       this.devTools.init(state);
       this.devTools.subscribe((msg: any) => {
@@ -186,5 +193,9 @@ export default class DevToolsManager implements Manager {
   }
 
   /** Ensures all subscriptions are cleaned up. */
-  cleanup() {}
+  cleanup() {
+    if (process.env.NODE_ENV !== 'production') {
+      (globalThis as any).__DC_CONTROLLERS__?.delete(this.devtoolsName);
+    }
+  }
 }
