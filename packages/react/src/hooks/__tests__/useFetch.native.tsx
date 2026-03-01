@@ -190,7 +190,7 @@ describe('useFetch', () => {
     expect(fetchMock).toHaveBeenCalledTimes(0);
   });
 
-  it('should always return a promise with resolved property', () => {
+  it('should always return a thenable with resolved property', () => {
     const dispatch = jest.fn();
     const { result } = testDataClient(
       () => {
@@ -201,9 +201,10 @@ describe('useFetch', () => {
     );
     expect(result.current).toBeInstanceOf(Promise);
     expect(result.current.resolved).toBe(false);
+    expect(typeof result.current.then).toBe('function');
   });
 
-  it('should return resolved promise when data is fresh', async () => {
+  it('should return fulfilled thenable with data when fresh', async () => {
     const initialFixtures: any[] = [
       {
         endpoint: CoolerArticleResource.get,
@@ -217,8 +218,12 @@ describe('useFetch', () => {
       },
       { initialFixtures },
     );
-    expect(result.current).toBeInstanceOf(Promise);
     expect(result.current.resolved).toBe(true);
+    expect(typeof result.current.then).toBe('function');
+    expect((result.current as any).status).toBe('fulfilled');
+    expect((result.current as any).value).toBeDefined();
+    expect((result.current as any).value.id).toBe(payload.id);
+    expect((result.current as any).value.title).toBe(payload.title);
   });
 
   it('should return undefined with null params', () => {

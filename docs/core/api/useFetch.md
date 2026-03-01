@@ -1,12 +1,14 @@
 ---
 title: useFetch() - Declarative fetch triggers for React
 sidebar_label: useFetch()
-description: Fetch without the data rendering. Prevent fetch waterfalls by prefetching without duplicate requests.
+description: Fetch and read endpoint data with React.use(). Suspend on fetch, return denormalized data, re-suspend on invalidation.
 ---
 
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
+import HooksPlayground from '@site/src/components/HooksPlayground';
 import StackBlitz from '@site/src/components/StackBlitz';
+import { parallelFetchFixtures } from '@site/src/fixtures/post-comments';
 
 <head>
   <meta name="docsearch:pagerank" content="10"/>
@@ -14,9 +16,83 @@ import StackBlitz from '@site/src/components/StackBlitz';
 
 # useFetch()
 
-Fetch without the data rendering.
+Fetch an Endpoint if it is not in cache or stale. Returns a thenable that works with
+[React.use()](https://react.dev/reference/react/use) -- `use(useFetch(endpoint, args))` operates
+like [useSuspense()](./useSuspense.md), suspending when data is loading, returning denormalized data when
+available, and re-suspending on [invalidation](./Controller.md#invalidate).
 
-This can be useful for ensuring resources early in a render tree before they are needed.
+## Usage
+
+### Parallel data loading
+
+Since `useFetch()` and `use()` are separate calls, multiple fetches start in parallel — even when the first `use()` suspends. See the [parallel fetches example](#parallel-fetches) below.
+
+<HooksPlayground fixtures={parallelFetchFixtures} row>
+
+```ts title="Resources" collapsed
+import { Entity, resource } from '@data-client/rest';
+
+export class Post extends Entity {
+  id = 0;
+  title = '';
+  body = '';
+  static key = 'Post';
+}
+export const PostResource = resource({
+  path: '/posts/:id',
+  schema: Post,
+});
+
+export class Comment extends Entity {
+  id = 0;
+  postId = 0;
+  author = '';
+  text = '';
+  static key = 'Comment';
+}
+export const CommentResource = resource({
+  path: '/comments/:id',
+  searchParams: {} as { postId: number },
+  schema: Comment,
+});
+```
+
+```tsx title="PostWithComments" {4-5}
+import { use } from 'react';
+import { useFetch } from '@data-client/react';
+import { PostResource, CommentResource } from './Resources';
+
+function PostWithComments({ id }: { id: number }) {
+  // Both fetches start in parallel
+  const postPromise = useFetch(PostResource.get, { id });
+  const commentsPromise = useFetch(CommentResource.getList, { postId: id });
+
+  // use() reads the results — if the first suspends,
+  // the second fetch is already in-flight
+  const post = use(postPromise);
+  const comments = use(commentsPromise);
+
+  return (
+    <article>
+      <h3>{post.title}</h3>
+      <p>{post.body}</p>
+      <h4>Comments</h4>
+      {comments.map(comment => (
+        <div key={comment.id} className="listItem">
+          <strong>{comment.author}</strong>: {comment.text}
+        </div>
+      ))}
+    </article>
+  );
+}
+render(<PostWithComments id={1} />);
+```
+
+</HooksPlayground>
+
+### Prefetching
+
+`useFetch()` can also be used standalone to ensure resources are available early in a render tree before they are needed.
 
 :::tip
 
@@ -24,8 +100,6 @@ Use in combination with a data-binding hook ([useCache()](./useCache.md), [useSu
 in another component.
 
 :::
-
-## Usage
 
 ```tsx
 function MasterPost({ id }: { id: number }) {
@@ -36,16 +110,16 @@ function MasterPost({ id }: { id: number }) {
 
 ## Behavior
 
-| Expiry Status | Fetch           | Returns               | `resolved` | Conditions                                                                                            |
-| ------------- | --------------- | --------------------- | ---------- | ----------------------------------------------------------------------------------------------------- |
-| Invalid       | yes<sup>1</sup> | Promise               | `false`    | not in store, [deletion](/rest/api/resource#delete), [invalidation](./Controller.md#invalidate) |
-| Stale         | yes<sup>1</sup> | Promise               | `false`    | (first-render, arg change) & [expiry &lt; now](../concepts/expiry-policy.md)                          |
-| Valid         | no              | Promise (pre-resolved) | `true`     | fetch completion                                                                                      |
-|               | no              | `undefined`           |            | `null` used as second argument                                                                        |
+| Expiry Status | Fetch           | `use()` behavior | `resolved` | Conditions                                                                                            |
+| ------------- | --------------- | ---------------- | ---------- | ----------------------------------------------------------------------------------------------------- |
+| Invalid       | yes<sup>1</sup> | suspends         | `false`    | not in store, [deletion](/rest/api/resource#delete), [invalidation](./Controller.md#invalidate) |
+| Stale         | yes<sup>1</sup> | suspends         | `false`    | (first-render, arg change) & [expiry &lt; now](../concepts/expiry-policy.md)                          |
+| Valid         | no              | returns data     | `true`     | fetch completion                                                                                      |
+| Error         | no              | throws error     | `true`     | fetch failed, caught by [Error Boundary](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary) |
+|               | no              | `undefined`      |            | `null` used as second argument                                                                        |
 
-`useFetch()` always returns the same promise reference, even after it resolves. This means it can be
-used directly with [React.use()](https://react.dev/reference/react/use) or checked via `promise.resolved`
-instead of truthiness.
+When the store updates (e.g., via mutations or [Controller.set()](./Controller.md#set)), the component
+re-renders and `useFetch()` returns updated denormalized data automatically.
 
 :::note
 
@@ -70,7 +144,7 @@ stale.
 function useFetch(
   endpoint: ReadEndpoint,
   ...args: Parameters<typeof endpoint> | [null]
-): (Promise<any> & { resolved: boolean }) | undefined;
+): (PromiseLike<any> & { resolved: boolean }) | undefined;
 ```
 
 ```typescript
@@ -81,27 +155,12 @@ function useFetch<
     undefined
   >,
   Args extends readonly [...Parameters<E>] | readonly [null],
->(endpoint: E, ...args: Args): ReturnType<E> & { resolved: boolean };
+>(endpoint: E, ...args: Args): UsablePromise<Denormalize<E['schema']>>;
 ```
 
 </GenericsTabs>
 
 ## Examples
-
-### React.use()
-
-Since `useFetch()` always returns a promise, it can be passed directly to
-[React.use()](https://react.dev/reference/react/use):
-
-```tsx
-import { use } from 'react';
-
-function MasterPost({ id }: { id: number }) {
-  const promise = useFetch(PostResource.get, { id });
-  const data = use(promise);
-  // ...
-}
-```
 
 ### Checking fetch status
 
