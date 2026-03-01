@@ -14,6 +14,22 @@ import type {
   MaybeRefsOrGettersNullable,
 } from '../types.js';
 
+type FetchPromise = Promise<any> & { resolved: boolean };
+
+const RESOLVED = Object.assign(Promise.resolve(), {
+  resolved: true,
+}) as FetchPromise;
+
+function trackPromise(promise: Promise<any>): FetchPromise {
+  const p = promise as FetchPromise;
+  p.resolved = false;
+  const r = () => {
+    p.resolved = true;
+  };
+  p.then(r, r);
+  return p;
+}
+
 /**
  * Fetch an Endpoint if it is not in cache or stale.
  * @see https://dataclient.io/docs/api/useFetch
@@ -65,9 +81,7 @@ export default function useFetch(endpoint: any, ...args: any[]): any {
     );
   });
 
-  const lastPromise = ref<(Promise<any> & { resolved: boolean }) | undefined>(
-    undefined,
-  );
+  const lastPromise = ref<FetchPromise | undefined>(undefined);
   let lastKey = '';
 
   const maybeFetch = () => {
@@ -81,27 +95,12 @@ export default function useFetch(endpoint: any, ...args: any[]): any {
     const forceFetch = meta.expiryStatus === ExpiryStatus.Invalid;
 
     if (Date.now() > meta.expiresAt || forceFetch) {
-      const promise = controller.fetch(
-        endpoint,
-        ...resolvedArgs.value,
-      ) as Promise<any> & { resolved: boolean };
-      promise.resolved = false;
-      promise.then(
-        () => {
-          promise.resolved = true;
-        },
-        () => {
-          promise.resolved = true;
-        },
+      lastPromise.value = trackPromise(
+        controller.fetch(endpoint, ...resolvedArgs.value),
       );
-      lastPromise.value = promise;
       lastKey = key;
     } else if (!lastPromise.value || lastKey !== key) {
-      const promise = Promise.resolve() as Promise<void> & {
-        resolved: boolean;
-      };
-      promise.resolved = true;
-      lastPromise.value = promise;
+      lastPromise.value = RESOLVED;
       lastKey = key;
     }
   };
