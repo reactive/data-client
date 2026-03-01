@@ -57,7 +57,7 @@ export const CommentResource = resource({
 });
 ```
 
-```tsx title="PostWithComments" {4-5}
+```tsx title="PostWithComments" {7-13}
 import { use } from 'react';
 import { useFetch } from '@data-client/react';
 import { PostResource, CommentResource } from './Resources';

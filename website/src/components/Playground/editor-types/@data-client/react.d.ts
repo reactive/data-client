@@ -143,12 +143,19 @@ type ErrorTypes = NetworkError | UnknownError;
  */
 declare function useError<E extends Pick<EndpointInterface, 'key'>>(endpoint: E, ...args: readonly [...Parameters<E['key']>] | readonly [null]): ErrorTypes | undefined;
 
+type UsablePromise<T = any> = PromiseLike<T> & {
+    resolved: boolean;
+};
+
 /**
  * Fetch an Endpoint if it is not in cache or stale.
+ *
+ * Return value works with [React.use()](https://react.dev/reference/react/use):
+ * `use(useFetch(endpoint, args))` operates like `useSuspense(endpoint, args)`.
  * @see https://dataclient.io/docs/api/useFetch
  */
-declare function useFetch<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>]): E['schema'] extends undefined | null ? ReturnType<E> : Promise<Denormalize<E['schema']>>;
-declare function useFetch<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): E['schema'] extends undefined | null ? ReturnType<E> | undefined : Promise<DenormalizeNullable<E['schema']>>;
+declare function useFetch<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>]): E['schema'] extends undefined | null ? UsablePromise<ResolveType<E>> : UsablePromise<Denormalize<E['schema']>>;
+declare function useFetch<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): E['schema'] extends undefined | null ? UsablePromise<ResolveType<E> | undefined> | undefined : UsablePromise<DenormalizeNullable<E['schema']>> | undefined;
 
 /**
  * Keeps a resource fresh by subscribing to updates.

@@ -231,6 +231,23 @@ describe('useFetch', () => {
     expect(dispatch).toHaveBeenCalledTimes(0);
   });
 
+  it('should return rejected thenable whose .then() rejects with the error', async () => {
+    nock.cleanAll();
+    mynock.get(`/article-cooler/${payload.id}`).reply(403, {});
+    const { result, waitForNextUpdate } = renderDataClient(() => {
+      return useFetch(CoolerArticleResource.get, { id: payload.id });
+    });
+    await waitForNextUpdate();
+    expect((result.current as any).status).toBe('rejected');
+    expect((result.current as any).resolved).toBe(true);
+    const caught = await (result.current as any).then(
+      () => 'should not reach',
+      (e: any) => e,
+    );
+    expect(caught).toBeDefined();
+    expect(caught.status).toBe(403);
+  });
+
   it('should return same data value across re-renders when fresh', async () => {
     nock.cleanAll();
     const fetchMock = jest.fn(() => payload);
