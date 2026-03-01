@@ -55,8 +55,8 @@ async function testDispatchFetch(
   }
 }
 
-function testDataClient(
-  callback: () => void,
+function testDataClient<T>(
+  callback: () => T,
   state: State<unknown>,
   dispatch = (v: ActionTypes) => Promise.resolve(),
 ) {
@@ -188,6 +188,50 @@ describe('useFetch', () => {
     rerender();
     await result.current;
     expect(fetchMock).toHaveBeenCalledTimes(0);
+  });
+
+  it('should always return a promise with resolved property', () => {
+    const dispatch = jest.fn();
+    const { result } = testDataClient(
+      () => {
+        return useFetch(CoolerArticleResource.get, { id: payload.id });
+      },
+      initialState,
+      dispatch,
+    );
+    expect(result.current).toBeInstanceOf(Promise);
+    expect(result.current.resolved).toBe(false);
+  });
+
+  it('should return resolved promise when data is fresh', async () => {
+    const initialFixtures: any[] = [
+      {
+        endpoint: CoolerArticleResource.get,
+        args: [{ id: payload.id }],
+        response: payload,
+      },
+    ];
+    const { result } = renderDataClient(
+      () => {
+        return useFetch(CoolerArticleResource.get, { id: payload.id });
+      },
+      { initialFixtures },
+    );
+    expect(result.current).toBeInstanceOf(Promise);
+    expect(result.current.resolved).toBe(true);
+  });
+
+  it('should return undefined with null params', () => {
+    const dispatch = jest.fn();
+    const { result } = testDataClient(
+      () => {
+        return useFetch(CoolerArticleResource.get, null);
+      },
+      initialState,
+      dispatch,
+    );
+    expect(result.current).toBeUndefined();
+    expect(dispatch).toHaveBeenCalledTimes(0);
   });
 
   describe('result is stale and options.invalidIfStale is false', () => {

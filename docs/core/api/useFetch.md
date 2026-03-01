@@ -36,12 +36,16 @@ function MasterPost({ id }: { id: number }) {
 
 ## Behavior
 
-| Expiry Status | Fetch           | Returns     | Conditions                                                                                            |
-| ------------- | --------------- | ----------- | ----------------------------------------------------------------------------------------------------- |
-| Invalid       | yes<sup>1</sup> | Promise     | not in store, [deletion](/rest/api/resource#delete), [invalidation](./Controller.md#invalidate) |
-| Stale         | yes<sup>1</sup> | Promise     | (first-render, arg change) & [expiry &lt; now](../concepts/expiry-policy.md)                          |
-| Valid         | no              | `undefined` | fetch completion                                                                                      |
-|               | no              | `undefined` | `null` used as second argument                                                                        |
+| Expiry Status | Fetch           | Returns               | `resolved` | Conditions                                                                                            |
+| ------------- | --------------- | --------------------- | ---------- | ----------------------------------------------------------------------------------------------------- |
+| Invalid       | yes<sup>1</sup> | Promise               | `false`    | not in store, [deletion](/rest/api/resource#delete), [invalidation](./Controller.md#invalidate) |
+| Stale         | yes<sup>1</sup> | Promise               | `false`    | (first-render, arg change) & [expiry &lt; now](../concepts/expiry-policy.md)                          |
+| Valid         | no              | Promise (pre-resolved) | `true`     | fetch completion                                                                                      |
+|               | no              | `undefined`           |            | `null` used as second argument                                                                        |
+
+`useFetch()` always returns the same promise reference, even after it resolves. This means it can be
+used directly with [React.use()](https://react.dev/reference/react/use) or checked via `promise.resolved`
+instead of truthiness.
 
 :::note
 
@@ -66,7 +70,7 @@ stale.
 function useFetch(
   endpoint: ReadEndpoint,
   ...args: Parameters<typeof endpoint> | [null]
-): Promise<any> | undefined;
+): (Promise<any> & { resolved: boolean }) | undefined;
 ```
 
 ```typescript
@@ -77,12 +81,41 @@ function useFetch<
     undefined
   >,
   Args extends readonly [...Parameters<E>] | readonly [null],
->(endpoint: E, ...args: Args): ReturnType<E>;
+>(endpoint: E, ...args: Args): ReturnType<E> & { resolved: boolean };
 ```
 
 </GenericsTabs>
 
 ## Examples
+
+### React.use()
+
+Since `useFetch()` always returns a promise, it can be passed directly to
+[React.use()](https://react.dev/reference/react/use):
+
+```tsx
+import { use } from 'react';
+
+function MasterPost({ id }: { id: number }) {
+  const promise = useFetch(PostResource.get, { id });
+  const data = use(promise);
+  // ...
+}
+```
+
+### Checking fetch status
+
+Use `promise.resolved` to check whether data is still loading:
+
+```tsx
+function MasterPost({ id }: { id: number }) {
+  const promise = useFetch(PostResource.get, { id });
+  if (!promise.resolved) {
+    // fetch is in-flight
+  }
+  // ...
+}
+```
 
 ### NextJS Preload
 

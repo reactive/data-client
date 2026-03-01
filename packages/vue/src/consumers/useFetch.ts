@@ -27,8 +27,8 @@ export default function useFetch<
 >(
   endpoint: E,
   ...args: MaybeRefsOrGetters<Parameters<E>>
-): E['schema'] extends undefined | null ? ReturnType<E>
-: Promise<Denormalize<E['schema']>>;
+): E['schema'] extends undefined | null ? ReturnType<E> & { resolved: boolean }
+: Promise<Denormalize<E['schema']>> & { resolved: boolean };
 
 export default function useFetch<
   E extends EndpointInterface<
@@ -39,8 +39,10 @@ export default function useFetch<
 >(
   endpoint: E,
   ...args: MaybeRefsOrGettersNullable<Parameters<E>> | readonly [null]
-): E['schema'] extends undefined | null ? ReturnType<E> | undefined
-: Promise<DenormalizeNullable<E['schema']>> | undefined;
+): E['schema'] extends undefined | null ?
+  (ReturnType<E> & { resolved: boolean }) | undefined
+: | (Promise<DenormalizeNullable<E['schema']>> & { resolved: boolean })
+  | undefined;
 
 export default function useFetch(endpoint: any, ...args: any[]): any {
   const stateRef = injectState();
@@ -63,14 +65,45 @@ export default function useFetch(endpoint: any, ...args: any[]): any {
     );
   });
 
-  const lastPromise = ref<Promise<any> | undefined>(undefined);
+  const lastPromise = ref<(Promise<any> & { resolved: boolean }) | undefined>(
+    undefined,
+  );
+  let lastKey = '';
 
   const maybeFetch = () => {
-    if (!argsKey.value) return;
+    const key = argsKey.value;
+    if (!key) {
+      lastPromise.value = undefined;
+      lastKey = '';
+      return;
+    }
     const meta = responseMeta.value;
     const forceFetch = meta.expiryStatus === ExpiryStatus.Invalid;
-    if (Date.now() <= meta.expiresAt && !forceFetch) return;
-    lastPromise.value = controller.fetch(endpoint, ...resolvedArgs.value);
+
+    if (Date.now() > meta.expiresAt || forceFetch) {
+      const promise = controller.fetch(
+        endpoint,
+        ...resolvedArgs.value,
+      ) as Promise<any> & { resolved: boolean };
+      promise.resolved = false;
+      promise.then(
+        () => {
+          promise.resolved = true;
+        },
+        () => {
+          promise.resolved = true;
+        },
+      );
+      lastPromise.value = promise;
+      lastKey = key;
+    } else if (!lastPromise.value || lastKey !== key) {
+      const promise = Promise.resolve() as Promise<void> & {
+        resolved: boolean;
+      };
+      promise.resolved = true;
+      lastPromise.value = promise;
+      lastKey = key;
+    }
   };
 
   // Trigger on initial call
