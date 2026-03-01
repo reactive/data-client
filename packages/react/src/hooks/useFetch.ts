@@ -7,24 +7,9 @@ import {
 } from '@data-client/core';
 import { useMemo, useRef } from 'react';
 
+import { FetchPromise, RESOLVED, trackPromise } from './trackPromise.js';
 import useCacheState from './useCacheState.js';
 import useController from '../hooks/useController.js';
-
-type FetchPromise = Promise<any> & { resolved: boolean };
-
-const RESOLVED = Object.assign(Promise.resolve(), {
-  resolved: true,
-}) as FetchPromise;
-
-function trackPromise(promise: Promise<any>): FetchPromise {
-  const p = promise as FetchPromise;
-  p.resolved = false;
-  const r = () => {
-    p.resolved = true;
-  };
-  p.then(r, r);
-  return p;
-}
 
 /**
  * Fetch an Endpoint if it is not in cache or stale.

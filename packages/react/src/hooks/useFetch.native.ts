@@ -8,25 +8,10 @@ import {
 import { useMemo, useRef } from 'react';
 import { InteractionManager } from 'react-native';
 
+import { FetchPromise, RESOLVED, trackPromise } from './trackPromise.js';
 import useCacheState from './useCacheState.js';
 import useController from './useController.js';
 import useFocusEffect from './useFocusEffect.native.js';
-
-type FetchPromise = Promise<any> & { resolved: boolean };
-
-const RESOLVED = Object.assign(Promise.resolve(), {
-  resolved: true,
-}) as FetchPromise;
-
-function trackPromise(promise: Promise<any>): FetchPromise {
-  const p = promise as FetchPromise;
-  p.resolved = false;
-  const r = () => {
-    p.resolved = true;
-  };
-  p.then(r, r);
-  return p;
-}
 
 /**
  * Request a resource if it is not in cache.
