@@ -109,6 +109,13 @@ const todosByUser = useQuery(groupTodoByUser);
 
 ---
 
+## Browser Debugging (Chrome DevTools MCP)
+
+To inspect store state, track dispatched [actions](references/Actions.md), or invoke
+[Controller](references/Controller.md) methods from a browser MCP (`user-chrome-devtools`),
+see [devtools-debugging](references/devtools-debugging.md). Uses `globalThis.__DC_CONTROLLERS__`
+available in dev mode.
+
 ## Managers
 
 Custom [Managers](https://dataclient.io/docs/api/Manager) allow for global side effect handling.
@@ -138,5 +145,7 @@ For detailed API documentation, see the [references](references/) directory:
 - [DataProvider](references/DataProvider.md) - Root provider
 - [data-dependency](references/data-dependency.md) - Rendering guide
 - [mutations](references/mutations.md);[_VoteDemo.mdx](references/_VoteDemo.mdx) - Mutations guide
+- [Actions](references/Actions.md) - Store action types (FETCH, SET, etc.)
+- [devtools-debugging](references/devtools-debugging.md) - Debug with Chrome DevTools MCP
 
 **ALWAYS follow these patterns and refer to the official docs for edge cases. Prioritize code generation that is idiomatic, type-safe, and leverages automatic normalization/caching via skill "data-client-schema" definitions.**

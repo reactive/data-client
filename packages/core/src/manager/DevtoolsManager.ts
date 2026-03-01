@@ -94,7 +94,7 @@ export default class DevToolsManager implements Manager {
   protected actions: [ActionTypes, State<unknown>][] = [];
   declare protected controller: Controller;
   declare skipLogging?: (action: ActionTypes) => boolean;
-  declare protected devtoolsName: string;
+  declare devtoolsName: string;
   maxBufferLength = 100;
 
   constructor(
