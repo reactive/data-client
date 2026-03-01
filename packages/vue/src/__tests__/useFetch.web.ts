@@ -295,6 +295,96 @@ describe('vue useFetch()', () => {
     global.Date.now = originalDateNow;
   });
 
+  it('should return a promise with resolved=false when fetching', async () => {
+    const fetchMock = jest.fn(() => payload);
+    mynock.get(`/article-cooler/${payload.id}`).reply(200, fetchMock);
+
+    let promiseRef: any;
+    const Comp = defineComponent({
+      name: 'FetchTesterResolved',
+      setup() {
+        const p = useFetch(CoolerArticleResource.get, { id: payload.id });
+        promiseRef = p;
+        return () => h('div');
+      },
+    });
+
+    mount(TestWrapper, {
+      slots: { default: () => h(Comp) },
+      global: {
+        plugins: [[DataClientPlugin]],
+      },
+    });
+
+    expect(promiseRef.value).toBeInstanceOf(Promise);
+    expect(promiseRef.value.resolved).toBe(false);
+
+    await flushUntil({} as any, () => fetchMock.mock.calls.length > 0);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('should return resolved promise when data is fresh', async () => {
+    const fetchMock = jest.fn(() => payload);
+    mynock.get(`/article-cooler/${payload.id}`).reply(200, fetchMock);
+
+    // Create wrapper with initial cached data
+    const WrapperWithFixture = defineComponent({
+      name: 'TestWrapperWithFixture',
+      setup(_props, { slots, expose }) {
+        const controller = inject(ControllerKey)!;
+        controller.setResponse(
+          CoolerArticleResource.get,
+          { id: payload.id },
+          payload,
+        );
+        expose({ controller });
+        return () => (slots.default ? slots.default() : h('div'));
+      },
+    });
+
+    let promiseRef: any;
+    const Comp = defineComponent({
+      name: 'FetchTesterFresh',
+      setup() {
+        const p = useFetch(CoolerArticleResource.get, { id: payload.id });
+        promiseRef = p;
+        return () => h('div');
+      },
+    });
+
+    mount(WrapperWithFixture, {
+      slots: { default: () => h(Comp) },
+      global: {
+        plugins: [[DataClientPlugin]],
+      },
+    });
+
+    expect(promiseRef.value).toBeInstanceOf(Promise);
+    expect(promiseRef.value.resolved).toBe(true);
+    expect(fetchMock).toHaveBeenCalledTimes(0);
+  });
+
+  it('should return undefined with null params', () => {
+    let promiseRef: any;
+    const Comp = defineComponent({
+      name: 'FetchTesterNull',
+      setup() {
+        const p = useFetch(CoolerArticleResource.get as any, null);
+        promiseRef = p;
+        return () => h('div');
+      },
+    });
+
+    mount(TestWrapper, {
+      slots: { default: () => h(Comp) },
+      global: {
+        plugins: [[DataClientPlugin]],
+      },
+    });
+
+    expect(promiseRef.value).toBeUndefined();
+  });
+
   it('should re-fetch when props change', async () => {
     const fetchMock1 = jest.fn(() => payload);
     const fetchMock2 = jest.fn(() => payload2);

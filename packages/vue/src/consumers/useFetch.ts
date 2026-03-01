@@ -14,6 +14,22 @@ import type {
   MaybeRefsOrGettersNullable,
 } from '../types.js';
 
+type FetchPromise = Promise<any> & { resolved: boolean };
+
+const RESOLVED = Object.assign(Promise.resolve(), {
+  resolved: true,
+}) as FetchPromise;
+
+function trackPromise(promise: Promise<any>): FetchPromise {
+  const p = promise as FetchPromise;
+  p.resolved = false;
+  const r = () => {
+    p.resolved = true;
+  };
+  p.then(r, r);
+  return p;
+}
+
 /**
  * Fetch an Endpoint if it is not in cache or stale.
  * @see https://dataclient.io/docs/api/useFetch
@@ -27,8 +43,8 @@ export default function useFetch<
 >(
   endpoint: E,
   ...args: MaybeRefsOrGetters<Parameters<E>>
-): E['schema'] extends undefined | null ? ReturnType<E>
-: Promise<Denormalize<E['schema']>>;
+): E['schema'] extends undefined | null ? ReturnType<E> & { resolved: boolean }
+: Promise<Denormalize<E['schema']>> & { resolved: boolean };
 
 export default function useFetch<
   E extends EndpointInterface<
@@ -39,8 +55,10 @@ export default function useFetch<
 >(
   endpoint: E,
   ...args: MaybeRefsOrGettersNullable<Parameters<E>> | readonly [null]
-): E['schema'] extends undefined | null ? ReturnType<E> | undefined
-: Promise<DenormalizeNullable<E['schema']>> | undefined;
+): E['schema'] extends undefined | null ?
+  (ReturnType<E> & { resolved: boolean }) | undefined
+: | (Promise<DenormalizeNullable<E['schema']>> & { resolved: boolean })
+  | undefined;
 
 export default function useFetch(endpoint: any, ...args: any[]): any {
   const stateRef = injectState();
@@ -63,14 +81,28 @@ export default function useFetch(endpoint: any, ...args: any[]): any {
     );
   });
 
-  const lastPromise = ref<Promise<any> | undefined>(undefined);
+  const lastPromise = ref<FetchPromise | undefined>(undefined);
+  let lastKey = '';
 
   const maybeFetch = () => {
-    if (!argsKey.value) return;
+    const key = argsKey.value;
+    if (!key) {
+      lastPromise.value = undefined;
+      lastKey = '';
+      return;
+    }
     const meta = responseMeta.value;
     const forceFetch = meta.expiryStatus === ExpiryStatus.Invalid;
-    if (Date.now() <= meta.expiresAt && !forceFetch) return;
-    lastPromise.value = controller.fetch(endpoint, ...resolvedArgs.value);
+
+    if (Date.now() > meta.expiresAt || forceFetch) {
+      lastPromise.value = trackPromise(
+        controller.fetch(endpoint, ...resolvedArgs.value),
+      );
+      lastKey = key;
+    } else if (!lastPromise.value || lastKey !== key) {
+      lastPromise.value = RESOLVED;
+      lastKey = key;
+    }
   };
 
   // Trigger on initial call

@@ -45,8 +45,8 @@ async function testDispatchFetch(
   }
 }
 
-function testDataClient(
-  callback: () => void,
+function testDataClient<T>(
+  callback: () => T,
   state: State<unknown>,
   dispatch = (v: ActionTypes) => Promise.resolve(),
 ) {
@@ -178,5 +178,73 @@ describe('useFetch', () => {
     rerender();
     await result.current;
     expect(fetchMock).toHaveBeenCalledTimes(0);
+  });
+
+  it('should always return a promise with resolved property', () => {
+    const dispatch = jest.fn();
+    const params: any = { id: payload.id };
+    const { result, rerender } = testDataClient(
+      () => {
+        return useFetch(CoolerArticleResource.get, params);
+      },
+      initialState,
+      dispatch,
+    );
+    // When fetching, returns a promise with resolved=false
+    expect(result.current).toBeInstanceOf(Promise);
+    expect(result.current.resolved).toBe(false);
+  });
+
+  it('should return resolved promise when data is fresh', async () => {
+    const initialFixtures: any[] = [
+      {
+        endpoint: CoolerArticleResource.get,
+        args: [{ id: payload.id }],
+        response: payload,
+      },
+    ];
+    const { result } = renderDataClient(
+      () => {
+        return useFetch(CoolerArticleResource.get, { id: payload.id });
+      },
+      { initialFixtures },
+    );
+    expect(result.current).toBeInstanceOf(Promise);
+    expect(result.current.resolved).toBe(true);
+  });
+
+  it('should return undefined with null params', () => {
+    const dispatch = jest.fn();
+    const { result } = testDataClient(
+      () => {
+        return useFetch(CoolerArticleResource.get, null);
+      },
+      initialState,
+      dispatch,
+    );
+    expect(result.current).toBeUndefined();
+    expect(dispatch).toHaveBeenCalledTimes(0);
+  });
+
+  it('should return same promise reference across re-renders', async () => {
+    nock.cleanAll();
+    const fetchMock = jest.fn(() => payload);
+    mynock.get(`/article-cooler/${payload.id}`).reply(200, fetchMock).persist();
+    const initialFixtures: any[] = [
+      {
+        endpoint: CoolerArticleResource.get,
+        args: [{ id: payload.id }],
+        response: payload,
+      },
+    ];
+    const { result, rerender } = renderDataClient(
+      () => {
+        return useFetch(CoolerArticleResource.get, { id: payload.id });
+      },
+      { initialFixtures },
+    );
+    const firstPromise = result.current;
+    rerender();
+    expect(result.current).toBe(firstPromise);
   });
 });
