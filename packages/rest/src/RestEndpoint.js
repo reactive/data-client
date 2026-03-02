@@ -67,14 +67,17 @@ export default class RestEndpoint extends Endpoint {
 
   /** Get the url */
   url(urlParams = {}) {
-    const urlBase = getUrlBase(this.path)(urlParams);
     const tokens = getUrlTokens(this.path);
+    const pathParams = {};
     const searchParams = {};
     Object.keys(urlParams).forEach(k => {
-      if (!tokens.has(k)) {
+      if (tokens.has(k)) {
+        if (urlParams[k] !== undefined) pathParams[k] = String(urlParams[k]);
+      } else {
         searchParams[k] = urlParams[k];
       }
     });
+    const urlBase = getUrlBase(this.path)(pathParams);
     if (Object.keys(searchParams).length) {
       return `${this.urlPrefix}${urlBase}?${this.searchToString(searchParams)}`;
     }
@@ -189,7 +192,7 @@ Response (first 300 characters): ${text.substring(0, 300)}`;
   }
 
   get pathRegex() {
-    return pathToRegexp(this.path);
+    return pathToRegexp(this.path).regexp;
   }
 
   testKey(key) {

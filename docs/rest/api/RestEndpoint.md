@@ -472,13 +472,13 @@ getThing({ group: 'first', id: 77 });
 
 </TypeScriptEditor>
 
-`?` to indicate optional parameters
+`{}` to indicate [optional](https://github.com/pillarjs/path-to-regexp?tab=readme-ov-file#optional) parameters
 
 <TypeScriptEditor>
 
 ```ts
 const optional = new RestEndpoint({
-  path: '/:group/things/:number?',
+  path: '/:group/things{/:number}',
 });
 optional({ group: 'first' });
 optional({ group: 'first', number: 'fifty' });
@@ -486,7 +486,7 @@ optional({ group: 'first', number: 'fifty' });
 
 </TypeScriptEditor>
 
-`\\` to escape special characters `:`, `?`, `+`, `*`, `{`, or `}`
+`\\` to escape special characters like `(`, `)`, `{`, `}`, `:`, `*`, etc.
 
 <TypeScriptEditor>
 

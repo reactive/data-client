@@ -3,7 +3,8 @@ import TabItem from '@theme/TabItem';
 import Tabs from '@theme/Tabs';
 import React from 'react';
 
-export default function SkillTabs({ skill }) {
+export default function SkillTabs({ repo = 'reactive/data-client', skill }) {
+  const skillFlag = skill ? ` --skill ${skill}` : '';
   return (
     <Tabs
       defaultValue="skills"
@@ -14,11 +15,15 @@ export default function SkillTabs({ skill }) {
       ]}
     >
       <TabItem value="skills">
-        <CodeBlock className="language-bash">npx skills add {skill}</CodeBlock>
+        <CodeBlock className="language-bash">
+          npx skills add {repo}
+          {skillFlag}
+        </CodeBlock>
       </TabItem>
       <TabItem value="openskills">
         <CodeBlock className="language-bash">
-          npx openskills install {skill}
+          npx openskills install {repo}
+          {skillFlag}
         </CodeBlock>
       </TabItem>
     </Tabs>

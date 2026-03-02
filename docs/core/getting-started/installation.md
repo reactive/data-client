@@ -13,7 +13,7 @@ import Installation from '../shared/\_installation.mdx';
 import StackBlitz from '@site/src/components/StackBlitz';
 import Link from '@docusaurus/Link';
 
-<SkillTabs skill="reactive/data-client" />
+<SkillTabs repo="reactive/data-client" />
 
 Then run skill `/data-client-setup` or:
 

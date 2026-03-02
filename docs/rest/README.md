@@ -358,6 +358,6 @@ When using TypeScript (optional), version 4.0 or above is required.
 
 import SkillTabs from '@site/src/components/SkillTabs';
 
-<SkillTabs skill="reactive/data-client" />
+<SkillTabs repo="reactive/data-client" />
 
 Install all `data-client-` skills, then generate REST APIs
