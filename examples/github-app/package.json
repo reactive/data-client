@@ -30,7 +30,7 @@
   "private": true,
   "license": "Apache-2.0",
   "devDependencies": {
-    "@anansi/cli": "3.1.102",
+    "@anansi/cli": "3.1.103",
     "@anansi/babel-preset": "6.2.23",
     "@anansi/browserslist-config": "1.7.4",
     "@anansi/webpack-config": "21.1.14",
@@ -49,7 +49,7 @@
     "webpack-dev-server": "5.2.3"
   },
   "dependencies": {
-    "@anansi/core": "0.22.7",
+    "@anansi/core": "0.22.8",
     "@anansi/router": "0.10.22",
     "@ant-design/cssinjs": "2.1.0",
     "@ant-design/icons": "6.1.0",
@@ -59,7 +59,7 @@
     "@data-client/react": "0.15.7",
     "@data-client/rest": "0.15.7",
     "@js-temporal/polyfill": "^0.5.1",
-    "antd": "6.3.0",
+    "antd": "6.3.1",
     "core-js": "^3.48.0",
     "history": "^5.3.0",
     "parse-link-header": "^2.0.0",
