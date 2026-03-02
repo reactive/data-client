@@ -33,7 +33,7 @@
     "@anansi/cli": "3.1.102",
     "@anansi/babel-preset": "6.2.23",
     "@anansi/browserslist-config": "1.7.4",
-    "@anansi/webpack-config": "21.1.13",
+    "@anansi/webpack-config": "21.1.14",
     "@babel/core": "7.29.0",
     "@linaria/core": "6.3.0",
     "@linaria/react": "6.3.0",
@@ -44,7 +44,7 @@
     "@types/react-dom": "19.2.3",
     "react-refresh": "0.18.0",
     "serve": "14.2.5",
-    "webpack": "5.105.2",
+    "webpack": "5.105.3",
     "webpack-cli": "6.0.1",
     "webpack-dev-server": "5.2.3"
   },
