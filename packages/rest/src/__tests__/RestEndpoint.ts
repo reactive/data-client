@@ -255,6 +255,18 @@ describe('RestEndpoint', () => {
     () => epbody({ title: 'hi' }, { title: 'hi' });
   });
 
+  it('should omit optional path params when undefined', () => {
+    const ep = new RestEndpoint({ path: '/users{/:id}' });
+    expect(ep.url({ id: undefined })).toBe('/users');
+    expect(ep.url({ id: '5' })).toBe('/users/5');
+    expect(ep.url({})).toBe('/users');
+
+    const ep2 = new RestEndpoint({ path: '/users{/:id}{/:group}' });
+    expect(ep2.url({ id: undefined, group: undefined })).toBe('/users');
+    expect(ep2.url({ id: '5', group: undefined })).toBe('/users/5');
+    expect(ep2.url({ id: undefined })).toBe('/users');
+  });
+
   it('should allow sideEffect overrides', () => {
     const weirdGetUser = new RestEndpoint({
       path: 'http\\://test.com/user/:id',

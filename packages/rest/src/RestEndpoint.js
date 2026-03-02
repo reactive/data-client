@@ -72,7 +72,7 @@ export default class RestEndpoint extends Endpoint {
     const searchParams = {};
     Object.keys(urlParams).forEach(k => {
       if (tokens.has(k)) {
-        pathParams[k] = String(urlParams[k]);
+        if (urlParams[k] !== undefined) pathParams[k] = String(urlParams[k]);
       } else {
         searchParams[k] = urlParams[k];
       }
