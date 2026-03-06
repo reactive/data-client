@@ -182,6 +182,22 @@ type SP2 = Expect<
 type SP3 = Expect<Equal<ShortenPath<'/:id'>, '/'>>;
 type SP4 = Expect<Equal<ShortenPath<string>, string>>;
 
+// --- Wildcards ---
+type SP_W1 = Expect<Equal<ShortenPath<'/files/*path'>, '/files/'>>;
+type SP_W2 = Expect<Equal<ShortenPath<'/*path'>, '/'>>;
+type SP_W3 = Expect<
+  Equal<ShortenPath<'/repos/:owner/*path'>, '/repos/:owner/'>
+>;
+type SP_W4 = Expect<
+  Equal<ShortenPath<'/api/:version/files/*path'>, '/api/:version/files/'>
+>;
+
+// --- Escaped colon/star should not affect result ---
+type SP_E1 = Expect<
+  Equal<ShortenPath<'http\\://test.com/users/:id'>, 'http\\://test.com/users/'>
+>;
+type SP_E2 = Expect<Equal<ShortenPath<'/\\*literal/*path'>, '/\\*literal/'>>;
+
 // ========== PathArgsAndSearch ==========
 
 // All-optional path -> Record | undefined
@@ -202,12 +218,35 @@ type PAS_NoParams = Expect<
 type PAS_Required = Expect<
   Equiv<
     PathArgsAndSearch<'/users/:id'>,
-    { id: string | number } & Record<string, number | string>
+    { id: string | number } & Record<string, number | string | string[]>
   >
 >;
 type PAS_Mixed = Expect<
   Equiv<
     PathArgsAndSearch<'/users/:id{/:action}'>,
-    { id: string | number } & Record<string, number | string>
+    { id: string | number } & Record<string, number | string | string[]>
+  >
+>;
+
+// --- Wildcard params ---
+type PAS_Wild = Expect<
+  Equiv<
+    PathArgsAndSearch<'/*path'>,
+    { path: string[] } & Record<string, number | string | string[]>
+  >
+>;
+type PAS_WildMixed = Expect<
+  Equiv<
+    PathArgsAndSearch<'/users/:id/*rest'>,
+    { id: string | number; rest: string[] } & Record<
+      string,
+      number | string | string[]
+    >
+  >
+>;
+type PAS_WildOpt = Expect<
+  Equiv<
+    PathArgsAndSearch<'{/*path}'>,
+    Record<string, number | string | boolean> | undefined
   >
 >;

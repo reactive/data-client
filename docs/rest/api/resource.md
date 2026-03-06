@@ -76,8 +76,12 @@ controller.fetch(TodoResource.delete, { id: '5' });
 ### path
 
 Passed to [RestEndpoint.path](./RestEndpoint.md#path) for single item [endpoints](#members).
+Uses [path-to-regexp v8](https://github.com/pillarjs/path-to-regexp) syntax — see
+[RestEndpoint.path](./RestEndpoint.md#path) for full details on
+[optional parameters](./RestEndpoint.md#path), [wildcards](./RestEndpoint.md#path),
+[quoted names](./RestEndpoint.md#path), and [escaping](./RestEndpoint.md#path).
 
-Create ([getList.push](#push)/[getList.unshift](#unshift)) and [getList](#getlist) remove the last argument.
+Create ([getList.push](#push)/[getList.unshift](#unshift)) and [getList](#getlist) remove the last `:param` or `*wildcard` token.
 
 ```ts
 const PostResource = resource({
@@ -91,6 +95,32 @@ PostResource.get({ group: 'react', id: 'abc' });
 PostResource.partialUpdate({ group: 'react', id: 'abc' }, { title: 'This new title' });
 // GET /react/posts
 PostResource.getList({ group: 'react' });
+```
+
+Optional parameters use `{}` syntax:
+
+```ts
+const PostResource = resource({
+  schema: Post,
+  path: '/:group/posts{/:id}',
+});
+
+PostResource.get({ group: 'react', id: 'abc' });
+PostResource.getList({ group: 'react' });
+```
+
+Wildcard parameters are also supported as the last token:
+
+```ts
+const FileResource = resource({
+  schema: File,
+  path: '/repos/:owner/*path',
+});
+
+// GET /repos/john/src/index.ts
+FileResource.get({ owner: 'john', path: ['src', 'index.ts'] });
+// GET /repos/john
+FileResource.getList({ owner: 'john' });
 ```
 
 ### schema
@@ -292,6 +322,7 @@ PostResource.getList({
 ```ts
 resource({ path: '/:first/:second' }).getList.path === '/:first';
 resource({ path: '/:first' }).getList.path === '/';
+resource({ path: '/:owner/*path' }).getList.path === '/:owner';
 ```
 <!-- prettier-ignore-end -->
 

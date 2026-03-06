@@ -50,17 +50,19 @@ export type PathArgsAndSearch<S extends string> =
   : {
       [K in PathKeys<S> as K extends `${string}}` ? never
       : KeyName<K>]: KeyVal<K>;
-    } & Record<string, number | string>;
+    } & Record<string, number | string | string[]>;
 
-/** Removes the last :token */
+/** Removes the last :param or *wildcard token */
 export type ShortenPath<S extends string> =
   string extends S ? string
-  : S extends `${infer B}:${infer R}` ? TrimColon<`${B}:${ShortenPath<R>}`>
+  : S extends `${infer B}:${infer R}` ? TrimToken<`${B}:${ShortenPath<R>}`>
+  : S extends `${infer B}*${infer R}` ? TrimToken<`${B}*${ShortenPath<R>}`>
   : '';
 
-type TrimColon<S extends string> =
+type TrimToken<S extends string> =
   string extends S ? string
   : S extends `${infer R}:` ? R
+  : S extends `${infer R}*` ? R
   : S;
 
 export type ResourcePath = string; // `${string}:${string}`; TODO: Maybe do this in the future? Seems to hard to understand for now

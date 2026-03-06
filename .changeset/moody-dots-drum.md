@@ -10,8 +10,8 @@ Upgrading path-to-regexp from 6 to 8.
 
 BREAKING CHANGES:
 - /:optional? -> {/:optional}
-- /:repeating+ -> /*repeating
-- /:repeating* -> {/*repeating}
+- /:repeating+ -> /*repeating (typed as string[])
+- /:repeating* -> {/*repeating} (typed as string[])
 - /:id(\d+) -> /:id (custom regex removed)
 - /:with-dash -> /:"with-dash"
 - `(`, `)`, `[`, `]`, `+`, `?`, `!` must be escaped `"\\("`
