@@ -34,9 +34,9 @@ type PK_Basic3 = Expect<
 type PK_Basic4 = Expect<Equal<PathKeys<'/:a/:b/:c'>, 'a' | 'b' | 'c'>>;
 
 // --- Wildcards *name ---
-type PK_Wild1 = Expect<Equal<PathKeys<'/*path'>, 'path'>>;
-type PK_Wild2 = Expect<Equal<PathKeys<'/files/*rest'>, 'rest'>>;
-type PK_Wild3 = Expect<Equal<PathKeys<'/:id/*rest'>, 'id' | 'rest'>>;
+type PK_Wild1 = Expect<Equal<PathKeys<'/*path'>, '*path'>>;
+type PK_Wild2 = Expect<Equal<PathKeys<'/files/*rest'>, '*rest'>>;
+type PK_Wild3 = Expect<Equal<PathKeys<'/:id/*rest'>, 'id' | '*rest'>>;
 
 // --- Optional groups {} ---
 // Trailing } in raw key signals optionality
@@ -45,31 +45,34 @@ type PK_Opt2 = Expect<Equal<PathKeys<'/users{/:id}'>, 'id}'>>;
 type PK_Opt3 = Expect<
   Equal<PathKeys<'{/:attr1}{-:attr2}{-:attr3}'>, 'attr1}' | 'attr2}' | 'attr3}'>
 >;
-type PK_Opt4 = Expect<Equal<PathKeys<'{/*path}'>, 'path}'>>;
+type PK_Opt4 = Expect<Equal<PathKeys<'{/*path}'>, '*path}'>>;
 type PK_Opt5 = Expect<
   Equal<PathKeys<'/users/:id{/:action}'>, 'id' | 'action}'>
 >;
 
 // --- Quoted parameter names :"name" ---
 type PK_Quoted1 = Expect<Equal<PathKeys<'/:"with-dash"'>, '"with-dash"'>>;
-type PK_Quoted2 = Expect<Equal<PathKeys<'/*"wild-name"'>, '"wild-name"'>>;
+type PK_Quoted2 = Expect<Equal<PathKeys<'/*"wild-name"'>, '*"wild-name"'>>;
 type PK_Quoted3 = Expect<Equal<PathKeys<'{/:"with-dash"}'>, '"with-dash"}'>>;
-type PK_Quoted4 = Expect<Equal<PathKeys<'{/*"wild-name"}'>, '"wild-name"}'>>;
+type PK_Quoted4 = Expect<Equal<PathKeys<'{/*"wild-name"}'>, '*"wild-name"}'>>;
 type PK_Quoted5 = Expect<
   Equal<PathKeys<'/:id/:"with-dash"'>, 'id' | '"with-dash"'>
 >;
 
 // --- Escaped characters ---
 type PK_Esc1 = Expect<Equal<PathKeys<'/\\:literal/:id'>, 'id'>>;
-type PK_Esc2 = Expect<Equal<PathKeys<'/\\*literal/*path'>, 'path'>>;
+type PK_Esc2 = Expect<Equal<PathKeys<'/\\*literal/*path'>, '*path'>>;
 type PK_Esc3 = Expect<Equal<PathKeys<'/\\}stuff{/:id}'>, 'id}'>>;
 type PK_Esc4 = Expect<Equal<PathKeys<'/users/\\:notparam/:real'>, 'real'>>;
 
 // --- Combined patterns ---
-type PK_Comb1 = Expect<Equal<PathKeys<'{/*id}:bob'>, 'id}' | 'bob'>>;
-type PK_Comb2 = Expect<Equal<PathKeys<'/*id:bob'>, 'id' | 'bob'>>;
+type PK_Comb1 = Expect<Equal<PathKeys<'{/*id}:bob'>, '*id}' | 'bob'>>;
+type PK_Comb2 = Expect<Equal<PathKeys<'/*id:bob'>, '*id' | 'bob'>>;
 type PK_Comb3 = Expect<Equal<PathKeys<'/:id\\,:bob'>, 'id' | 'bob'>>;
-type PK_Comb4 = Expect<Equal<PathKeys<'/:id/*bob'>, 'id' | 'bob'>>;
+type PK_Comb4 = Expect<Equal<PathKeys<'/:id/*bob'>, 'id' | '*bob'>>;
+
+// --- Adjacency edge case (param*wildcard with no separator) ---
+type PK_Adj1 = Expect<Equal<PathKeys<'/:a*b:c'>, 'a' | '*b' | 'c'>>;
 
 // --- Generic string path ---
 type PK_String = Expect<Equal<PathKeys<string>, string>>;
@@ -112,17 +115,14 @@ type PA_Mix1 = Expect<
   >
 >;
 type PA_Mix2 = Expect<
-  Equiv<
-    PathArgs<'{/*id}:bob'>,
-    { id?: string | number } & { bob: string | number }
-  >
+  Equiv<PathArgs<'{/*id}:bob'>, { id?: string[] } & { bob: string | number }>
 >;
 
 // --- Wildcards ---
-type PA_Wild1 = Expect<Equiv<PathArgs<'/*path'>, { path: string | number }>>;
-type PA_Wild2 = Expect<Equiv<PathArgs<'{/*path}'>, { path?: string | number }>>;
+type PA_Wild1 = Expect<Equiv<PathArgs<'/*path'>, { path: string[] }>>;
+type PA_Wild2 = Expect<Equiv<PathArgs<'{/*path}'>, { path?: string[] }>>;
 type PA_Wild3 = Expect<
-  Equiv<PathArgs<'/:id/*rest'>, { id: string | number; rest: string | number }>
+  Equiv<PathArgs<'/:id/*rest'>, { id: string | number; rest: string[] }>
 >;
 
 // --- Quoted parameter names ---
@@ -133,10 +133,10 @@ type PA_Quote2 = Expect<
   Equiv<PathArgs<'{/:"with-dash"}'>, { 'with-dash'?: string | number }>
 >;
 type PA_Quote3 = Expect<
-  Equiv<PathArgs<'/*"wild-name"'>, { 'wild-name': string | number }>
+  Equiv<PathArgs<'/*"wild-name"'>, { 'wild-name': string[] }>
 >;
 type PA_Quote4 = Expect<
-  Equiv<PathArgs<'{/*"wild-name"}'>, { 'wild-name'?: string | number }>
+  Equiv<PathArgs<'{/*"wild-name"}'>, { 'wild-name'?: string[] }>
 >;
 type PA_Quote5 = Expect<
   Equiv<
@@ -155,16 +155,22 @@ type PA_Quote6 = Expect<
 type PA_Esc1 = Expect<
   Equiv<PathArgs<'/\\:literal/:id'>, { id: string | number }>
 >;
-type PA_Esc2 = Expect<
-  Equiv<PathArgs<'/\\*literal/*path'>, { path: string | number }>
->;
+type PA_Esc2 = Expect<Equiv<PathArgs<'/\\*literal/*path'>, { path: string[] }>>;
 
 // --- All required (multiple) ---
 type PA_AllReq = Expect<
-  Equiv<PathArgs<'/*id:bob'>, { id: string | number; bob: string | number }>
+  Equiv<PathArgs<'/*id:bob'>, { id: string[]; bob: string | number }>
 >;
 type PA_AllReq2 = Expect<
   Equiv<PathArgs<'/:id\\,:bob'>, { id: string | number; bob: string | number }>
+>;
+
+// --- Adjacency edge case ---
+type PA_Adj1 = Expect<
+  Equiv<
+    PathArgs<'/:a*b:c'>,
+    { a: string | number; b: string[]; c: string | number }
+  >
 >;
 
 // ========== ShortenPath ==========

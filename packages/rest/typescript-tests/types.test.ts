@@ -877,10 +877,17 @@ it('should handle more open ended type definitions', () => {
     path: '{/*id}:bob',
   });
 
+  getThing({ bob: 'hi' });
+  getThing({ id: ['a'], bob: 'hi' });
+  getThing({ id: ['a', 'b'], bob: 'hi' });
+  // @ts-expect-error
   getThing({ id: 5, bob: 'hi' });
   // @ts-expect-error
-  getThing({ id: 'hi' });
-  getThing({ bob: 'hi' });
+  getThing({ id: 'hi', bob: 'there' });
+  // @ts-expect-error
+  getThing({ id: ['a'] });
+  // @ts-expect-error
+  getThing({});
   // @ts-expect-error
   getThing(5);
 };
@@ -889,19 +896,24 @@ it('should handle more open ended type definitions', () => {
     path: '/*id:bob',
   });
 
+  getThing({ id: ['a'], bob: 'hi' });
+  getThing({ id: ['a', 'b'], bob: 'hi' });
+  // @ts-expect-error
   getThing({ id: 5, bob: 'hi' });
+  // @ts-expect-error
+  getThing({ id: 'str', bob: 'hi' });
+  // @ts-expect-error
+  getThing({ bob: 'hi' });
   // @ts-expect-error
   getThing({ 'id+': 5, bob: 'hi' });
   // @ts-expect-error
-  getThing({ id: 'hi' });
-  // @ts-expect-error
-  getThing({ bob: 'hi' });
+  getThing({ id: ['a'] });
   // @ts-expect-error
   getThing(5);
 };
 () => {
   const getThing = new RestEndpoint({
-    path: '/:id\\,:bob',
+    path: '/:id\\+:bob',
   });
 
   getThing({ id: 5, bob: 'hi' });
@@ -919,22 +931,35 @@ it('should handle more open ended type definitions', () => {
     path: '/:id/*bob',
   });
 
+  getThing({ id: 5, bob: ['hi'] });
+  getThing({ id: 5, bob: ['hi', 'there'] });
+  // @ts-expect-error
   getThing({ id: 5, bob: 'hi' });
   // @ts-expect-error
-  getThing({ id: 5, 'bob+': 'hi' });
+  getThing({ id: 5 });
+  // @ts-expect-error
+  getThing({ id: 5, '*bob': 'hi' });
   // @ts-expect-error
   getThing({ id: 'hi' });
   // @ts-expect-error
-  getThing({ bob: 'hi' });
+  getThing({ bob: ['hi'] });
   // @ts-expect-error
   getThing(5);
 };
 () => {
   const getThing = new RestEndpoint({
-    path: '/:foo/\\(.\\)',
+    path: '/:foo/{*rest}',
   });
 
   getThing({ foo: 'hi' });
+  getThing({ foo: 'hi', rest: ['a'] });
+  getThing({ foo: 'hi', rest: ['a', 'b'] });
+  // @ts-expect-error
+  getThing({ foo: 'hi', rest: 'hi' });
+  // @ts-expect-error
+  getThing({ foo: 'hi', rest: 5 });
+  // @ts-expect-error
+  getThing({ foo: 'hi', '*rest': ['hi'] });
   // @ts-expect-error
   getThing({});
   // @ts-expect-error
@@ -955,6 +980,188 @@ it('should handle more open ended type definitions', () => {
   getThing({});
   // @ts-expect-error
   getThing({ random: 'hi' });
+  // @ts-expect-error
+  getThing(5);
+};
+// --- v8 quoted parameter names ---
+() => {
+  const getThing = new RestEndpoint({
+    path: '/items/:"with-dash"/:"my.param"',
+  });
+  getThing({ 'with-dash': 'a', 'my.param': 'b' });
+  // @ts-expect-error
+  getThing({ 'with-dash': 'a' });
+  // @ts-expect-error
+  getThing({ 'my.param': 'b' });
+  // @ts-expect-error
+  getThing({});
+  // @ts-expect-error
+  getThing(5);
+};
+// --- mixed quoted and unquoted params ---
+() => {
+  const getThing = new RestEndpoint({
+    path: '/:id/:"with-dash"',
+  });
+  getThing({ id: '5', 'with-dash': 'a' });
+  // @ts-expect-error
+  getThing({ id: '5' });
+  // @ts-expect-error
+  getThing({ 'with-dash': 'a' });
+  // @ts-expect-error
+  getThing({});
+};
+// --- escaped : is not a parameter ---
+() => {
+  const getThing = new RestEndpoint({
+    path: '/\\:notparam/:real',
+  });
+  getThing({ real: 'a' });
+  // @ts-expect-error
+  getThing({ notparam: 'a', real: 'b' });
+  // @ts-expect-error
+  getThing({});
+};
+// --- escaped * is not a wildcard ---
+() => {
+  const getThing = new RestEndpoint({
+    path: '/\\*notparam/:real',
+  });
+  getThing({ real: 'a' });
+  // @ts-expect-error
+  getThing({ notparam: 'a' });
+  // @ts-expect-error
+  getThing({});
+};
+// --- escaped } does not close optional group ---
+() => {
+  const getThing = new RestEndpoint({
+    path: '/:id/literal\\}text',
+  });
+  getThing({ id: 'a' });
+  // @ts-expect-error
+  getThing({});
+};
+// --- wildcard-only path (required) ---
+() => {
+  const getThing = new RestEndpoint({
+    path: '/*splat',
+  });
+  getThing({ splat: ['a'] });
+  getThing({ splat: ['a', 'b'] });
+  // @ts-expect-error
+  getThing({ splat: 'any' });
+  // @ts-expect-error
+  getThing({ splat: 5 });
+  // @ts-expect-error
+  getThing({});
+  // @ts-expect-error
+  getThing(5);
+};
+// --- optional wildcard only ---
+() => {
+  const getThing = new RestEndpoint({
+    path: '{/*splat}',
+  });
+  getThing({});
+  getThing({ splat: ['a'] });
+  getThing({ splat: ['a', 'b'] });
+  // @ts-expect-error
+  getThing({ splat: 'any' });
+  // @ts-expect-error
+  getThing({ splat: 5 });
+  // @ts-expect-error
+  getThing(5);
+};
+// --- param with % separator ---
+() => {
+  const getThing = new RestEndpoint({
+    path: '/:id%:format',
+  });
+  getThing({ id: 'a', format: 'json' });
+  // @ts-expect-error
+  getThing({ id: 'a' });
+  // @ts-expect-error
+  getThing({});
+};
+// --- param with & separator ---
+() => {
+  const getThing = new RestEndpoint({
+    path: '/:first&:second',
+  });
+  getThing({ first: 'a', second: 'b' });
+  // @ts-expect-error
+  getThing({ first: 'a' });
+  // @ts-expect-error
+  getThing({});
+};
+// --- multiple optional groups ---
+() => {
+  const getThing = new RestEndpoint({
+    path: '/items{/:category}{/:subcategory}{/:id}',
+  });
+  getThing({});
+  getThing({ category: 'books' });
+  getThing({ category: 'books', subcategory: 'fiction' });
+  getThing({ category: 'books', subcategory: 'fiction', id: '5' });
+  // @ts-expect-error
+  getThing({ random: 'hi' });
+  // @ts-expect-error
+  getThing(5);
+};
+// --- mixed required and optional params ---
+() => {
+  const getThing = new RestEndpoint({
+    path: '/users/:userId/posts{/:postId}',
+  });
+  getThing({ userId: '1' });
+  getThing({ userId: '1', postId: '5' });
+  // @ts-expect-error
+  getThing({});
+  // @ts-expect-error
+  getThing({ postId: '5' });
+  // @ts-expect-error
+  getThing(5);
+};
+// --- optional param in middle of path ---
+() => {
+  const getThing = new RestEndpoint({
+    path: '/api{/:version}/users/:id',
+  });
+  getThing({ id: '5' });
+  getThing({ version: 'v2', id: '5' });
+  // @ts-expect-error
+  getThing({});
+  // @ts-expect-error
+  getThing({ version: 'v2' });
+};
+// --- no params (static path) ---
+() => {
+  const getThing = new RestEndpoint({
+    path: '/static/path/here',
+  });
+  getThing();
+  // @ts-expect-error
+  getThing({});
+  // @ts-expect-error
+  getThing(5);
+};
+// --- required wildcard + optional param group ---
+() => {
+  const getThing = new RestEndpoint({
+    path: '/*base{/:id}',
+  });
+  getThing({ base: ['x'] });
+  getThing({ base: ['x'], id: '5' });
+  getThing({ base: ['a', 'b'], id: '5' });
+  // @ts-expect-error
+  getThing({ base: 'x' });
+  // @ts-expect-error
+  getThing({ base: 'x', id: '5' });
+  // @ts-expect-error
+  getThing({});
+  // @ts-expect-error
+  getThing({ id: '5' });
   // @ts-expect-error
   getThing(5);
 };

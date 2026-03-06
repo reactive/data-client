@@ -267,6 +267,52 @@ describe('RestEndpoint', () => {
     expect(ep2.url({ id: undefined })).toBe('/users');
   });
 
+  it('should handle wildcard (*) path params as arrays', () => {
+    const ep = new RestEndpoint({ path: '/files/*path' });
+    expect(ep.url({ path: ['a', 'b', 'c'] })).toBe('/files/a/b/c');
+    expect(ep.url({ path: ['single'] })).toBe('/files/single');
+
+    // @ts-expect-error - path must be an array, not a string
+    () => ep.url({ path: 'a/b/c' });
+    // @ts-expect-error - missing required wildcard param
+    () => ep.url({});
+  });
+
+  it('should handle wildcard with regular params', () => {
+    const ep = new RestEndpoint({ path: '/users/:id/*rest' });
+    expect(ep.url({ id: '5', rest: ['docs', 'file'] })).toBe(
+      '/users/5/docs/file',
+    );
+    expect(ep.url({ id: '42', rest: ['a'] })).toBe('/users/42/a');
+
+    // @ts-expect-error - missing id
+    () => ep.url({ rest: ['a'] });
+    // @ts-expect-error - missing rest
+    () => ep.url({ id: '5' });
+  });
+
+  it('should handle optional wildcard params', () => {
+    const ep = new RestEndpoint({ path: '/files{/*path}' });
+    expect(ep.url({ path: ['a', 'b'] })).toBe('/files/a/b');
+    expect(ep.url({})).toBe('/files');
+    expect(ep.url({ path: undefined })).toBe('/files');
+    () => ep();
+  });
+
+  it('should handle optional wildcard with required param', () => {
+    const ep = new RestEndpoint({ path: '/users/:id{/*rest}' });
+    expect(ep.url({ id: '5', rest: ['docs', 'file'] })).toBe(
+      '/users/5/docs/file',
+    );
+    expect(ep.url({ id: '5' })).toBe('/users/5');
+    expect(ep.url({ id: '5', rest: undefined })).toBe('/users/5');
+
+    // @ts-expect-error - missing required param id
+    () => ep.url({});
+    // @ts-expect-error - rest should be array, not string
+    () => ep.url({ id: '5', rest: 'docs/file' });
+  });
+
   it('should allow sideEffect overrides', () => {
     const weirdGetUser = new RestEndpoint({
       path: 'http\\://test.com/user/:id',
