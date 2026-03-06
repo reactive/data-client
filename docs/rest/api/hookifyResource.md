@@ -95,12 +95,14 @@ Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidat
 
 - method: 'GET'
 - path: `shortenPath(path)`
-  - Removes the last argument:
+  - Removes the last `:param` or `*wildcard` token:
     ```ts
     hookifyResource(resource({ path: '/:first/:second' })).useGetList()
       .path === '/:first';
     hookifyResource(resource({ path: '/:first' })).useGetList().path ===
       '/';
+    hookifyResource(resource({ path: '/:owner/*path' })).useGetList()
+      .path === '/:owner';
     ```
 - schema: [\[schema\]](./Array.md)
 

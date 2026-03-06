@@ -458,10 +458,13 @@ getFoo({ a: { b: 'c' } });
 
 ### path: string {#path}
 
-Uses [path-to-regexp](https://github.com/pillarjs/path-to-regexp#compile-reverse-path-to-regexp) to build
+Uses [path-to-regexp v8](https://github.com/pillarjs/path-to-regexp) to build
 urls using the parameters passed. This also informs the types so they are properly enforced.
 
-`:` prefixed words are key names. Both strings and numbers are accepted as options.
+#### Parameters
+
+`:` prefixed words are parameter names. Both strings and numbers are accepted as values,
+since they are serialized into the url string.
 
 <TypeScriptEditor>
 
@@ -472,7 +475,10 @@ getThing({ group: 'first', id: 77 });
 
 </TypeScriptEditor>
 
-`{}` to indicate [optional](https://github.com/pillarjs/path-to-regexp?tab=readme-ov-file#optional) parameters
+#### Optional parameters
+
+Wrap the optional segment (including its prefix) in `{}` to make it [optional](https://github.com/pillarjs/path-to-regexp?tab=readme-ov-file#optional).
+The type of optional parameters becomes `string | number | undefined`.
 
 <TypeScriptEditor>
 
@@ -486,7 +492,48 @@ optional({ group: 'first', number: 'fifty' });
 
 </TypeScriptEditor>
 
-`\\` to escape special characters like `(`, `)`, `{`, `}`, `:`, `*`, etc.
+Multiple optional segments can be chained with different prefixes:
+
+```ts
+const ep = new RestEndpoint({
+  path: '{/:attr1}{-:attr2}{-:attr3}',
+});
+
+ep({ attr1: 'hi' });
+ep({ attr2: 'hi' });
+ep({ attr1: 'hi', attr3: 'ho' });
+```
+
+#### Wildcards (repeating parameters)
+
+`*name` matches one-or-more path segments. Wrap in `{}` to make it zero-or-more (optional).
+Wildcard parameters are typed as `string[]` (arrays), since they represent multiple path segments.
+
+```ts
+const files = new RestEndpoint({ path: '/files/*path' });
+files({ path: ['documents', 'reports', 'q4'] });
+// URL: /files/documents/reports/q4
+
+const optionalFiles = new RestEndpoint({ path: '/files{/*path}' });
+optionalFiles({});
+// URL: /files
+optionalFiles({ path: ['documents'] });
+// URL: /files/documents
+```
+
+#### Quoted parameter names
+
+Parameter names must be valid JavaScript identifiers. Names containing special characters
+like `-` or `.` must be quoted with double quotes:
+
+```ts
+const ep = new RestEndpoint({ path: '/:"with-dash"/:"my.param"' });
+ep({ 'with-dash': 'hello', 'my.param': 'world' });
+```
+
+#### Escaping special characters
+
+Characters `{}()*:` and `\\` are special in path-to-regexp and must be escaped with `\\` when used as literals.
 
 <TypeScriptEditor>
 
@@ -498,6 +545,17 @@ getSite({ slug: 'first' });
 ```
 
 </TypeScriptEditor>
+
+`?` and `+` are **not** special in path-to-regexp v8 and do not need escaping.
+This means query strings can be embedded in the path without escaping `?`:
+
+```ts
+const search = new RestEndpoint({
+  path: '/search?{q=:q}{&page=:page}',
+});
+search({ q: 'test', page: 1 });
+// URL: /search?q=test&page=1
+```
 
 :::info
 

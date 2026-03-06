@@ -4,7 +4,7 @@ exports[`resource() UserResource.delete should work with  1`] = `"not found"`;
 
 exports[`resource() UserResource.delete should work with {"id": 5} 1`] = `"not found"`;
 
-exports[`resource() should not allow paths without at least one argument 1`] = `"Resource path requires at least one :parameter"`;
+exports[`resource() should not allow paths without at least one argument 1`] = `"Resource path requires at least one :parameter or *wildcard"`;
 
 exports[`resource() warnings should warn when mis-capitalizing options 1`] = `
 [

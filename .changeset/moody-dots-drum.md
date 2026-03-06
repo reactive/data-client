@@ -10,11 +10,12 @@ Upgrading path-to-regexp from 6 to 8.
 
 BREAKING CHANGES:
 - /:optional? -> {/:optional}
-- /:repeating+ -> /*repeating
-- /:repeating* -> {/*repeating}
-- `(`, `)`, `[`, `]` must be escaped `"\\("`
-  - `()[]{}*:;,!@` are all characters that need escaping
+- /:repeating+ -> /*repeating (typed as string[])
+- /:repeating* -> {/*repeating} (typed as string[])
+- /:id(\d+) -> /:id (custom regex removed)
 - /:with-dash -> /:"with-dash"
+- `(`, `)`, `[`, `]`, `+`, `?`, `!` must be escaped `"\\("`
+  - `{}()[]+?!:*\` are all characters that need escaping
 
 Migrate using:
 `npx skills add https://github.com/reactive/data-client --skill path-to-regexp-v8-migration`

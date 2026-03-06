@@ -192,6 +192,50 @@ describe('resource()', () => {
     () => useSuspense(MyUserResource.get, { group: 'yay', id: '5' });
   });
 
+  it('should shorten wildcard (*) paths for getList', () => {
+    const FileResource = resource({
+      path: '/repos/:owner/*path',
+      schema: User,
+    });
+
+    // get uses the full path with wildcard
+    expect(
+      FileResource.get.url({ owner: 'john', path: ['src', 'index.ts'] }),
+    ).toBe('/repos/john/src/index.ts');
+    // getList strips the last *wildcard token
+    expect(FileResource.getList.url({ owner: 'john' })).toBe('/repos/john');
+    // create (push) also uses shortened path
+    expect(FileResource.create.url({ owner: 'john' }, {} as any)).toBe(
+      '/repos/john',
+    );
+
+    // type checks: get requires both owner and path (array)
+    // @ts-expect-error - missing path
+    () => FileResource.get.url({ owner: 'john' });
+    // @ts-expect-error - path must be array
+    () => FileResource.get.url({ owner: 'john', path: 'src/index.ts' });
+    // getList only requires owner (extra props become search params)
+    () => FileResource.getList({ owner: 'john' });
+    // @ts-expect-error - missing required owner param
+    () => FileResource.getList({});
+  });
+
+  it('should shorten path when wildcard comes after multiple params', () => {
+    const DeepResource = resource({
+      path: '/api/:version/files/*path',
+      schema: User,
+    });
+
+    expect(
+      DeepResource.get.url({ version: 'v2', path: ['docs', 'readme.md'] }),
+    ).toBe('/api/v2/files/docs/readme.md');
+    expect(DeepResource.getList.url({ version: 'v2' })).toBe('/api/v2/files');
+
+    // @ts-expect-error - missing version
+    () => DeepResource.getList({});
+    () => DeepResource.getList({ version: 'v2' });
+  });
+
   it('should automatically name methods', () => {
     expect(PaginatedArticleResource.get.name).toBe('PaginatedArticle.get');
     expect(PaginatedArticleResource.create.name).toBe(
