@@ -16,6 +16,10 @@ describe('SSR', () => {
     renderDataClient = makeRenderDataClient(ExternalDataProvider);
   });
 
+  afterEach(() => {
+    renderDataClient.cleanup();
+  });
+
   it('should update useCache()', async () => {
     const { result } = renderDataClient(
       () => {

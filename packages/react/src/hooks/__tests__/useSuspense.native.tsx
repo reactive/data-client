@@ -175,6 +175,7 @@ describe('useSuspense()', () => {
   });
 
   afterEach(() => {
+    renderDataClient.cleanup();
     try {
       screen.unmount();
       // eslint-disable-next-line no-empty

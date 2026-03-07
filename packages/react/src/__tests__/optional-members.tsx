@@ -67,6 +67,10 @@ describe(`optional members`, () => {
     renderDataClient = makeRenderDataClient(CacheProvider);
   });
 
+  afterEach(() => {
+    renderDataClient.cleanup();
+  });
+
   it('should return all members of list without suspending', () => {
     const { result } = renderDataClient(
       () => {

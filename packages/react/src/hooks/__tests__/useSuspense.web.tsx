@@ -172,6 +172,9 @@ describe('useSuspense()', () => {
   beforeEach(() => {
     fbmock.mockReset();
   });
+  afterEach(() => {
+    renderDataHook.cleanup();
+  });
 
   it('should dispatch an action that fetches', async () => {
     await testDispatchFetch(ArticleComponentTester, [payload]);

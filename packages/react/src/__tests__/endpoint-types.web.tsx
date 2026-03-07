@@ -69,6 +69,7 @@ describe('endpoint types', () => {
       renderDataClient = makeRenderDataClient(makeProvider);
     });
     afterEach(() => {
+      renderDataClient.cleanup();
       nock.cleanAll();
     });
 

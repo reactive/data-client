@@ -167,6 +167,10 @@ describe.each([
     renderDataClient = makeRenderDataClient(makeProvider);
   });
 
+  afterEach(() => {
+    renderDataClient.cleanup();
+  });
+
   it('should work with unions', async () => {
     const prevWarn = global.console.warn;
     global.console.warn = jest.fn();
@@ -489,6 +493,7 @@ describe.each([
       });
 
       afterEach(() => {
+        renderDataClient.cleanup();
         nock.cleanAll();
       });
 

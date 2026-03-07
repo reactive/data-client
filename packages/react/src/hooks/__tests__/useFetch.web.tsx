@@ -95,6 +95,7 @@ describe('useFetch', () => {
     renderDataClient = makeRenderDataClient(CacheProvider);
   });
   afterEach(() => {
+    renderDataClient.cleanup();
     nock.cleanAll();
   });
 

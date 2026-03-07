@@ -21,6 +21,9 @@ describe('useCache()', () => {
   beforeEach(() => {
     renderDataClient = makeRenderDataClient(CacheProvider);
   });
+  afterEach(() => {
+    renderDataClient.cleanup();
+  });
 
   it('should be undefined with empty state', () => {
     const { result } = renderDataClient(() => {
