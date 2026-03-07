@@ -149,13 +149,15 @@ jobs:
           name: Installing React Version
           command: |
             if [ "<< parameters.react-version >>" == "^17" ]; then
+            npm pkg delete resolutions.react resolutions.react-dom resolutions.react-test-renderer
             yarn up react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >> @react-navigation/native@^6.0.0 @react-navigation/native-stack@^6.0.0 react-native-screens@^3.0.0 @testing-library/react@^12.0.0
             yarn workspace @data-client/test add --dev @testing-library/react-hooks 
             elif [ "<< parameters.react-version >>" == "^18" ]; then
+            npm pkg delete resolutions.react resolutions.react-dom resolutions.react-test-renderer
             yarn up react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
             yarn workspace @data-client/test add --dev @testing-library/react-hooks
             elif [ "<< parameters.react-version >>" == "native" ]; then
-            yarn up react@19.1.1 react-test-renderer@19.1.1
+            yarn up react@19.2.3 react-test-renderer@19.2.3
             fi
       - run:
           name: Running Jest
