@@ -1,5 +1,43 @@
 # @data-client/react
 
+## 1.0.0
+
+### Major Changes
+
+- [#3752](https://github.com/reactive/data-client/pull/3752) [`3c3bfe8`](https://github.com/reactive/data-client/commit/3c3bfe81ff0c3a786d6804a61f9e7a4362947dcb) - BREAKING CHANGE: [useFetch()](/docs/api/useFetch) always returns a stable promise with a `.resolved` property, even when data is already cached.
+
+  #### before
+
+  ```tsx
+  const promise = useFetch(MyResource.get, { id });
+  if (promise) {
+    // fetch was triggered
+  }
+  ```
+
+  #### after
+
+  ```tsx
+  const promise = useFetch(MyResource.get, { id });
+  if (!promise.resolved) {
+    // fetch is in-flight
+  }
+  use(promise); // works with React.use()
+  ```
+
+### Minor Changes
+
+- [#3755](https://github.com/reactive/data-client/pull/3755) [`5783267`](https://github.com/reactive/data-client/commit/5783267d60b9292c834da76aa95732ef466f413b) - `useFetch()` returns a [UsablePromise](https://react.dev/reference/react/use) thenable with denormalized data, error handling, and GC tracking. `use(useFetch(endpoint, args))` now behaves identically to `useSuspense(endpoint, args)` — suspending when data is loading, returning denormalized data when cached, throwing on errors, and re-suspending on invalidation.
+
+  Parallel fetches are supported since all `useFetch()` calls execute before any `use()` suspends:
+
+  ```tsx
+  const postPromise = useFetch(PostResource.get, { id });
+  const commentsPromise = useFetch(CommentResource.getList, { postId: id });
+  const post = use(postPromise);
+  const comments = use(commentsPromise);
+  ```
+
 ## 0.15.7
 
 ### Patch Changes

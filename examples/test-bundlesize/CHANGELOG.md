@@ -1,5 +1,14 @@
 # test-bundlesize
 
+## 0.1.8
+
+### Patch Changes
+
+- Updated dependencies [[`02555a2`](https://github.com/reactive/data-client/commit/02555a23ef11c0a6c829d795067b634c0594fe14), [`02555a2`](https://github.com/reactive/data-client/commit/02555a23ef11c0a6c829d795067b634c0594fe14), [`3c3bfe8`](https://github.com/reactive/data-client/commit/3c3bfe81ff0c3a786d6804a61f9e7a4362947dcb), [`5783267`](https://github.com/reactive/data-client/commit/5783267d60b9292c834da76aa95732ef466f413b)]:
+  - @data-client/rest@1.0.0
+  - @data-client/react@1.0.0
+  - @data-client/img@1.0.0
+
 ## 0.1.7
 
 ### Patch Changes

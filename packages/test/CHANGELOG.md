@@ -1,5 +1,27 @@
 # @data-client/test
 
+## 1.0.0
+
+### Patch Changes
+
+- [#3772](https://github.com/reactive/data-client/pull/3772) [`1a20f4e`](https://github.com/reactive/data-client/commit/1a20f4e66c232aa9d4204861b2c2bcec77131b42) - Add per-render `cleanup()` and `allSettled()` to makeRenderDataHook return value
+
+  Each `renderDataHook()` call now returns `cleanup` and `allSettled` directly on the result object, ensuring each render's managers can be independently cleaned up. This prevents manager leaks when `renderDataHook()` is called multiple times in a test.
+
+  New exports: `RenderDataHookResult`
+
+  ```ts
+  const { result, cleanup, allSettled } = renderDataHook(
+    () => useSuspense(MyResource.get, { id: 5 }),
+    { initialFixtures },
+  );
+  // ... assertions ...
+  cleanup();
+  ```
+
+- Updated dependencies [[`3c3bfe8`](https://github.com/reactive/data-client/commit/3c3bfe81ff0c3a786d6804a61f9e7a4362947dcb), [`5783267`](https://github.com/reactive/data-client/commit/5783267d60b9292c834da76aa95732ef466f413b)]:
+  - @data-client/react@1.0.0
+
 ## 0.15.3
 
 ### Patch Changes
