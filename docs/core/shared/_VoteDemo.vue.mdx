@@ -1,0 +1,130 @@
+import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
+
+<TypeScriptEditor row>
+
+```ts title="Post" collapsed
+import { Entity, schema } from '@data-client/rest';
+
+export class Post extends Entity {
+  id = 0;
+  author = { id: 0 };
+  title = '';
+  body = '';
+  votes = 0;
+
+  static key = 'Post';
+
+  static schema = {
+    author: EntityMixin(
+      class User {
+        id = 0;
+      },
+    ),
+  };
+
+  get img() {
+    return `//loremflickr.com/96/72/kitten,cat?lock=${this.id % 16}`;
+  }
+}
+```
+
+```ts title="PostResource" {15-22}
+import { resource } from '@data-client/rest';
+import { Post } from './Post';
+
+export { Post };
+
+export const PostResource = resource({
+  path: '/posts/:id',
+  searchParams: {} as { userId?: string | number } | undefined,
+  schema: Post,
+}).extend('vote', {
+  path: '/posts/:id/vote',
+  method: 'POST',
+  body: undefined,
+  schema: Post,
+  getOptimisticResponse(snapshot, { id }) {
+    const post = snapshot.get(Post, { id });
+    if (!post) throw snapshot.abort;
+    return {
+      id,
+      votes: post.votes + 1,
+    };
+  },
+});
+```
+
+```html title="PostItem.vue" collapsed
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { PostResource, type Post } from './PostResource';
+
+  defineProps<{ post: Post }>();
+  const ctrl = useController();
+
+  const handleVote = () => {
+    ctrl.fetch(PostResource.vote, { id: post.id });
+  };
+</script>
+
+<template>
+  <div>
+    <div class="voteBlock">
+      <small class="vote">
+        <button class="up" @click="handleVote">&nbsp;</button>
+        {{ post.votes }}
+      </small>
+      <img :src="post.img" width="70" height="52" />
+    </div>
+    <div>
+      <h4>{{ post.title }}</h4>
+      <p>{{ post.body }}</p>
+    </div>
+  </div>
+</template>
+```
+
+```html title="TotalVotes.vue" collapsed
+<script setup lang="ts">
+  import { schema } from '@data-client/rest';
+  import { useQuery } from '@data-client/vue';
+  import { PostResource } from './PostResource';
+
+  const props = defineProps<{ userId: number }>();
+
+  const queryTotalVotes = new schema.Query(
+    PostResource.getList.schema,
+    posts => posts.reduce((total, post) => total + post.votes, 0),
+  );
+
+  const totalVotes = useQuery(queryTotalVotes, { userId: props.userId });
+</script>
+
+<template>
+  <center>
+    <small>{{ totalVotes }} votes total</small>
+  </center>
+</template>
+```
+
+```html title="PostList.vue" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { PostResource } from './PostResource';
+  import PostItem from './PostItem.vue';
+  import TotalVotes from './TotalVotes.vue';
+
+  const userId = 2;
+  const posts = await useSuspense(PostResource.getList, { userId });
+</script>
+
+<template>
+  <div>
+    <PostItem v-for="post in posts" :key="post.pk()" :post="post" />
+    <TotalVotes :userId="userId" />
+  </div>
+</template>
+```
+
+</TypeScriptEditor>
+
