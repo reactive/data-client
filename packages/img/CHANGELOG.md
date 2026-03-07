@@ -1,5 +1,12 @@
 # @data-client/img
 
+## 1.0.0
+
+### Patch Changes
+
+- Updated dependencies [[`3c3bfe8`](https://github.com/reactive/data-client/commit/3c3bfe81ff0c3a786d6804a61f9e7a4362947dcb), [`5783267`](https://github.com/reactive/data-client/commit/5783267d60b9292c834da76aa95732ef466f413b)]:
+  - @data-client/react@1.0.0
+
 ## 0.15.0
 
 ### Minor Changes

@@ -1,5 +1,30 @@
 # @data-client/vue
 
+## 1.0.0
+
+### Major Changes
+
+- [#3752](https://github.com/reactive/data-client/pull/3752) [`3c3bfe8`](https://github.com/reactive/data-client/commit/3c3bfe81ff0c3a786d6804a61f9e7a4362947dcb) - BREAKING CHANGE: [useFetch()](/docs/api/useFetch) always returns a stable promise with a `.resolved` property, even when data is already cached.
+
+  #### before
+
+  ```tsx
+  const promise = useFetch(MyResource.get, { id });
+  if (promise) {
+    // fetch was triggered
+  }
+  ```
+
+  #### after
+
+  ```tsx
+  const promise = useFetch(MyResource.get, { id });
+  if (!promise.resolved) {
+    // fetch is in-flight
+  }
+  use(promise); // works with React.use()
+  ```
+
 ## 0.15.4
 
 ### Patch Changes
