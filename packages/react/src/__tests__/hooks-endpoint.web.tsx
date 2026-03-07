@@ -334,6 +334,7 @@ describe('useController().getState', () => {
     });
 
     afterEach(() => {
+      renderDataClient.cleanup();
       nock.cleanAll();
     });
     beforeEach(() => {

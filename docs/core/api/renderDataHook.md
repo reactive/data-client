@@ -33,6 +33,9 @@ type RenderDataHook = {
       error?: Error;
     };
     unmount: () => void;
+    controller: Controller;
+    cleanup(): void;
+    allSettled(): Promise<unknown>;
     /* @deprecated */
     waitForNextUpdate: (options?: waitForOptions) => Promise<void>;
     waitFor<T>(
@@ -40,8 +43,9 @@ type RenderDataHook = {
       options?: waitForOptions,
     ): Promise<T>;
   };
-  controller: Controller;
+  /** @deprecated use per-render cleanup() instead */
   cleanup(): void;
+  /** @deprecated use per-render allSettled() instead */
   allSettled(): Promise<unknown>;
 };
 ```
@@ -155,13 +159,32 @@ it('should update', async () => {
 
 ### cleanup()
 
-Cleans up all managers used in tests. Should be run in `afterEach()` to ensure each test starts fresh.
-This is especially important when mocking timers, as Reactive Data Client' internals relies on real timers to
+Cleans up all managers used in this render. Should be run in `afterEach()` to ensure each test starts fresh.
+This is especially important when mocking timers, as Reactive Data Client's internals rely on real timers to
 avoid race conditions.
+
+```ts
+afterEach(() => {
+  renderDataHook.cleanup();
+});
+```
+
+`cleanup()` is also available on the return value of each `renderDataHook()` call, which is
+preferred when multiple renders occur in a single test:
+
+```ts
+const { result, cleanup } = renderDataHook(() => useSuspense(MyResource.get, { id: 5 }), {
+  initialFixtures: [{ endpoint: MyResource.get, args: [{ id: 5 }], response }],
+});
+// ... assertions ...
+cleanup();
+```
 
 ### allSettled()
 
 Returns a promise that resolves once all inflight requests are completed.
+
+Also available on the return value of each `renderDataHook()` call.
 
 ### result
 

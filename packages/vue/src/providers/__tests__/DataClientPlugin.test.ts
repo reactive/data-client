@@ -5,7 +5,14 @@ import {
   SubscriptionManager,
 } from '@data-client/core';
 import type { State } from '@data-client/core';
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import {
+  describe,
+  it,
+  expect,
+  jest,
+  beforeEach,
+  afterEach,
+} from '@jest/globals';
 import { mount } from '@vue/test-utils';
 import { defineComponent, h, inject } from 'vue';
 
@@ -15,6 +22,10 @@ import { DataClientPlugin } from '../DataClientPlugin';
 describe('DataClientPlugin', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   it('should install plugin with default options', () => {
@@ -198,7 +209,6 @@ describe('DataClientPlugin', () => {
     expect(startSpy).toHaveBeenCalledTimes(1);
 
     wrapper.unmount();
-    jest.restoreAllMocks();
   });
 
   it('should call stop ONCE on app unmount (plugin lifecycle)', () => {
@@ -241,8 +251,6 @@ describe('DataClientPlugin', () => {
 
     // Stop should be called exactly once when app unmounts
     expect(stopSpy).toHaveBeenCalledTimes(1);
-
-    jest.restoreAllMocks();
   });
 
   it('should work with multiple components', () => {
@@ -348,7 +356,6 @@ describe('DataClientPlugin', () => {
     expect(startSpy).toHaveBeenCalledTimes(1);
 
     wrapper.unmount();
-    jest.restoreAllMocks();
   });
 
   it('should NOT call stop for individual component unmount - only on app unmount', () => {
@@ -420,8 +427,6 @@ describe('DataClientPlugin', () => {
     // Stop should be called exactly ONCE when app unmounts
     // (not once per component - only once for the app)
     expect(stopSpy).toHaveBeenCalledTimes(1);
-
-    jest.restoreAllMocks();
   });
 
   it('should maintain same controller/state instance across all components', () => {

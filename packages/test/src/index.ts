@@ -5,6 +5,7 @@ export {
 } from './makeRenderDataClient/index.js';
 export type {
   RenderDataHook,
+  RenderDataHookResult,
   DataProviderProps,
 } from './makeRenderDataClient/index.js';
 export * from './renderDataHook.js';

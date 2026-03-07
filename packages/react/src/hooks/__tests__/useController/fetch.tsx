@@ -96,6 +96,7 @@ describe.each([
   });
 
   afterEach(() => {
+    renderDataClient.cleanup();
     nock.cleanAll();
   });
 

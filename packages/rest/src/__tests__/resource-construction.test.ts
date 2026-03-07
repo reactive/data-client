@@ -84,6 +84,7 @@ describe('resource()', () => {
   });
 
   afterEach(() => {
+    renderDataClient.cleanup();
     nock.cleanAll();
   });
 

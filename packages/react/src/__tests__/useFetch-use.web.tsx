@@ -352,6 +352,7 @@ describeIf19.each([['DataProvider', DataProvider]] as const)(
     });
 
     afterEach(() => {
+      renderDataHook.cleanup();
       nock.cleanAll();
     });
 

@@ -39,7 +39,7 @@ export default function makeRenderDataHook(
       getInitialInterceptorData?: () => T;
       wrapper?: React.ComponentType<React.PropsWithChildren<P>>;
     } & Omit<RenderHookOptions<P>, 'initialProps' | 'wrapper'> = {} as any,
-  ): RenderHookResult<R, P> & { controller: Controller } => {
+  ): RenderDataHookResult<R, P> => {
     /** Wraps dispatches that are typically called declaratively in act() */
     class ActController<
       D extends GenericDispatch = DataClientDispatch,
@@ -79,9 +79,7 @@ export default function makeRenderDataHook(
     const nm = new NetworkManager();
     const sm = new SubscriptionManager(PollingSubscription);
     const managers = [nm, sm];
-    // this pattern is dangerous if renderDataClient is shared between tests
-    // TODO: move to return value
-    renderDataClient.cleanup = () => {
+    const cleanup = () => {
       nm.cleanupDate = Infinity;
       if ((nm as any)['rejectors'])
         Object.values((nm as any)['rejectors'] as Record<string, any>).forEach(
@@ -93,9 +91,11 @@ export default function makeRenderDataHook(
       nm['clearAll']();
       managers.forEach(manager => manager.cleanup());
     };
-    renderDataClient.allSettled = () => {
+    const allSettled = () => {
       return nm.allSettled();
     };
+    renderDataClient.cleanup = cleanup;
+    renderDataClient.allSettled = allSettled;
 
     const initialState: State<unknown> = mockInitialState(initialFixtures);
 
@@ -141,6 +141,8 @@ export default function makeRenderDataHook(
       wrapper,
     });
     ret.controller = nm['controller'];
+    ret.cleanup = cleanup;
+    ret.allSettled = allSettled;
     return ret;
   }) as any;
   renderDataClient.cleanup = () => {};
@@ -155,6 +157,12 @@ export interface DataProviderProps {
   devButton: any;
 }
 
+export type RenderDataHookResult<R, P> = RenderHookResult<R, P> & {
+  controller: Controller;
+  cleanup: () => void;
+  allSettled: () => Promise<PromiseSettledResult<unknown>[]> | undefined;
+};
+
 export type RenderDataHook = (<P, R>(
   callback: (props: P) => R,
   options?: {
@@ -163,9 +171,9 @@ export type RenderDataHook = (<P, R>(
     readonly resolverFixtures?: readonly (Fixture | Interceptor)[];
     wrapper?: React.ComponentType<React.PropsWithChildren<P>>;
   } & Omit<RenderHookOptions<P>, 'initialProps' | 'wrapper'>,
-) => RenderHookResult<R, P> & {
-  controller: Controller;
-}) & {
+) => RenderDataHookResult<R, P>) & {
+  /** @deprecated use per-render cleanup returned from renderDataClient() instead */
   cleanup: () => void;
+  /** @deprecated use per-render allSettled returned from renderDataClient() instead */
   allSettled: () => Promise<PromiseSettledResult<unknown>[]> | undefined;
 };

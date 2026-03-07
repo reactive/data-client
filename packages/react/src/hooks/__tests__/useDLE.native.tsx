@@ -124,6 +124,7 @@ describe('useDLE', () => {
     renderDataClient = makeRenderDataClient(CacheProvider);
   });
   afterEach(() => {
+    renderDataClient.cleanup();
     nock.cleanAll();
   });
 

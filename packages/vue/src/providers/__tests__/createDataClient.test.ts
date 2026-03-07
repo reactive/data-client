@@ -30,12 +30,16 @@ describe('createDataClient', () => {
     expect(provider.stateRef).toBeDefined();
     expect(typeof provider.start).toBe('function');
     expect(typeof provider.stop).toBe('function');
+
+    provider.stop();
   });
 
   it('should create data client with custom Controller', () => {
     const provider = createDataClient({ Controller: Controller });
 
     expect(provider.controller).toBeInstanceOf(Controller);
+
+    provider.stop();
   });
 
   it('should create data client with custom managers', () => {
@@ -49,6 +53,8 @@ describe('createDataClient', () => {
 
     expect(provider.controller).toBeInstanceOf(Controller);
     expect(provider.stateRef).toBeDefined();
+
+    provider.stop();
   });
 
   it('should create data client with custom initialState', () => {
@@ -65,6 +71,8 @@ describe('createDataClient', () => {
     const provider = createDataClient({ initialState: customState });
 
     expect(provider.stateRef.value.lastReset).toBe(12345);
+
+    provider.stop();
   });
 
   it('should handle actions through middleware chain', async () => {
@@ -190,6 +198,8 @@ describe('createDataClient', () => {
       ControllerKey,
       provider.controller,
     );
+
+    provider.stop();
   });
 
   it('should accept custom gcPolicy', () => {
@@ -200,6 +210,8 @@ describe('createDataClient', () => {
     const provider = createDataClient({ gcPolicy: customGcPolicy });
 
     expect(provider.controller).toBeInstanceOf(Controller);
+
+    provider.stop();
   });
 
   it('should maintain stable controller and manager instances', () => {
@@ -212,6 +224,9 @@ describe('createDataClient', () => {
     // Same provider should maintain stable controller
     const controller1 = provider1.controller;
     expect(provider1.controller).toBe(controller1);
+
+    provider1.stop();
+    provider2.stop();
   });
 
   it('should handle sequential dispatches correctly', async () => {

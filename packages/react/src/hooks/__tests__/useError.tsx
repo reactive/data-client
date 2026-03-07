@@ -11,6 +11,9 @@ describe('useError()', () => {
   beforeEach(() => {
     renderDataClient = makeRenderDataClient(CacheProvider);
   });
+  afterEach(() => {
+    renderDataClient.cleanup();
+  });
 
   it('should return undefined when cache not ready and no error in meta', () => {
     const initialFixtures = [

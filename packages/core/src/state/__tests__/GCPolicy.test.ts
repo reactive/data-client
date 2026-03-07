@@ -254,5 +254,7 @@ describe('GCPolicy', () => {
 
     gcPolicy['runSweep']();
     expect(controller.dispatch).toHaveBeenCalled();
+
+    jest.useRealTimers();
   });
 });
