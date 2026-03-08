@@ -1,11 +1,11 @@
-import type { Fixture, Interceptor } from '@data-client/test';
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import CodeBlock from '@theme/CodeBlock';
 import { memo, type ReactElement } from 'react';
 
 import styles from './styles.module.css';
+import type { FixtureOrInterceptor } from './types';
 
-function FixturePreview({ fixtures }: { fixtures: (Fixture | Interceptor)[] }) {
+function FixturePreview({ fixtures }: { fixtures: FixtureOrInterceptor[] }) {
   return (
     <div className={styles.fixtureBlock}>
       {fixtures.map((fixture, i) => (
@@ -19,7 +19,7 @@ export default memo(FixturePreview);
 function FixtureResponse({
   fixture,
 }: {
-  fixture: Fixture | Interceptor;
+  fixture: FixtureOrInterceptor;
 }): ReactElement {
   return (
     'fetchResponse' in fixture ?
@@ -47,7 +47,7 @@ function FixtureResponse({
 function FixtureOrInterceptor({
   fixture,
 }: {
-  fixture: Fixture | Interceptor;
+  fixture: FixtureOrInterceptor;
 }): JSX.Element {
   if ('args' in fixture) {
     return (

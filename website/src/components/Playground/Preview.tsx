@@ -4,18 +4,15 @@ import {
   SubscriptionManager,
   NetworkManager,
 } from '@data-client/react';
-import {
-  type Fixture,
-  type Interceptor,
-  MockResolver,
-} from '@data-client/test/browser';
+import { MockResolver } from '@data-client/test/browser';
 import { useScrollPositionBlocker } from '@docusaurus/theme-common/internal';
 import clsx from 'clsx';
-import React, { memo, useCallback, useState, useMemo, lazy } from 'react';
+import React, { memo, useCallback, useMemo, lazy } from 'react';
 
 import Boundary from './Boundary';
 import StoreInspector from './StoreInspector';
 import styles from './styles.module.css';
+import type { PreviewProps } from './types';
 import { useTabStorage } from '../../utils/tabStorage';
 
 function Preview<T>({
@@ -24,31 +21,21 @@ function Preview<T>({
   row,
   fixtures,
   getInitialInterceptorData,
-}: {
-  groupId: string;
-  row: boolean;
-  defaultOpen: 'y' | 'n';
-  fixtures: (Fixture | Interceptor<T>)[];
-  getInitialInterceptorData?: () => T;
-}) {
+}: PreviewProps<T>) {
   const [choice, setTabGroupChoice] = useTabStorage(
     `docusaurus.tab.${groupId}`,
   );
-  const [selectedValue, setSelectedValue] = useState(defaultOpen);
+  const selectedValue = (choice ?? defaultOpen) as 'y' | 'n';
   const { blockElementScrollPositionUntilNextRender } =
     useScrollPositionBlocker();
-
-  if (choice != null && choice !== selectedValue) {
-    setSelectedValue(choice as any);
-  }
 
   const toggle = useCallback(
     (
       event: React.FocusEvent<HTMLLIElement> | React.MouseEvent<HTMLLIElement>,
     ) => {
       blockElementScrollPositionUntilNextRender(event.currentTarget);
-      setSelectedValue(open => (open === 'y' ? 'n' : 'y'));
-      setTabGroupChoice(selectedValue === 'y' ? 'n' : 'y');
+      const next = selectedValue === 'y' ? 'n' : 'y';
+      setTabGroupChoice(next);
     },
     [
       blockElementScrollPositionUntilNextRender,

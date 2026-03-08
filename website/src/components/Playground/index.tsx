@@ -1,4 +1,3 @@
-import type { Fixture, Interceptor } from '@data-client/test';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import clsx from 'clsx';
 import type { Language, PrismTheme } from 'prism-react-renderer';
@@ -6,11 +5,12 @@ import React, { lazy } from 'react';
 import { LiveProvider } from 'react-live';
 
 import Boundary from './Boundary';
-import { isGoogleBot } from './isGoogleBot';
+import { isGoogleBot } from './isMobileOrBot';
 import MonacoPreloads from './MonacoPreloads';
 import { PlaygroundTextEdit } from './PlaygroundTextEdit';
 import PreviewWrapper from './PreviewWrapper';
 import styles from './styles.module.css';
+import type { PreviewProps } from './types';
 import { useCode } from './useCode';
 import { useReactLiveTheme } from './useReactLiveTheme';
 
@@ -38,15 +38,12 @@ export default function Playground<T>({
   getInitialInterceptorData,
   defaultTab,
   ...props
-}: Omit<LiveProviderProps, 'ref'> & {
-  groupId: string;
-  defaultOpen: 'y' | 'n';
-  row?: boolean;
-  children: string | any[];
-  fixtures: (Fixture | Interceptor<T>)[];
-  getInitialInterceptorData?: () => T;
-  defaultTab?: string;
-}) {
+}: Omit<LiveProviderProps, 'ref'> &
+  Omit<PreviewProps<T>, 'row'> & {
+    row?: boolean;
+    children: string | any[];
+    defaultTab?: string;
+  }) {
   const {
     liveCodeBlock: { playgroundPosition },
   } = useDocusaurusContext().siteConfig.themeConfig as any;
@@ -119,14 +116,9 @@ function PlaygroundContent<T>({
     </Reversible>
   );
 }
-interface ContentProps<T = any> {
-  groupId: string;
-  defaultOpen: 'y' | 'n';
-  row: boolean;
-  fixtures: (Fixture | Interceptor<T>)[];
+interface ContentProps<T = any> extends PreviewProps<T> {
   children: React.ReactNode;
   reverse?: boolean;
-  getInitialInterceptorData?: () => T;
   defaultTab?: string;
 }
 
@@ -157,10 +149,5 @@ function Reversible({
   children: React.ReactNode[];
   reverse?: boolean;
 }): React.ReactElement {
-  const newchild = [...children];
-  newchild.reverse();
-  if (reverse) {
-    return newchild as any;
-  }
-  return children as any;
+  return (reverse ? [...children].reverse() : children) as React.ReactElement;
 }

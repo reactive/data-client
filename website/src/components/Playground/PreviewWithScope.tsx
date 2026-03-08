@@ -2,7 +2,6 @@ import * as graphql from '@data-client/graphql';
 import * as rhReact from '@data-client/react';
 import * as rhReactNext from '@data-client/react/next';
 import * as rest from '@data-client/rest';
-import type { Fixture, Interceptor } from '@data-client/test';
 import { Temporal, Intl as PolyIntl } from '@js-temporal/polyfill';
 import BigNumber from 'bignumber.js';
 import { use } from 'react';
@@ -10,8 +9,10 @@ import { LiveProvider } from 'react-live';
 import { v4 as uuid } from 'uuid';
 
 import * as designSystem from './DesignSystem';
-import PreviewWithHeader from './PreviewWithHeader';
+import Preview from './Preview';
+import PreviewWrapper from './PreviewWrapper';
 import transformCode from './transformCode';
+import type { PreviewProps } from './types';
 import ResetableErrorBoundary from '../ResettableErrorBoundary';
 
 function randomFloatInRange(min, max, decimals) {
@@ -55,14 +56,7 @@ const scope = {
 export default function PreviewWithScope<T>({
   code,
   ...props
-}: {
-  code: string;
-  groupId: string;
-  defaultOpen: 'y' | 'n';
-  row: boolean;
-  fixtures: (Fixture | Interceptor<T>)[];
-  getInitialInterceptorData?: () => T;
-}) {
+}: PreviewProps<T> & { code: string }) {
   return (
     <LiveProvider
       key="preview"
@@ -72,7 +66,9 @@ export default function PreviewWithScope<T>({
       noInline
       scope={scope}
     >
-      <PreviewWithHeader key="preview" {...props} />
+      <PreviewWrapper>
+        <Preview key="preview" {...props} />
+      </PreviewWrapper>
     </LiveProvider>
   );
 }
