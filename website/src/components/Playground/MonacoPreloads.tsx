@@ -35,8 +35,8 @@ const preloadScript = `
 if (!/bot|googlebot|crawler|spider|robot|crawling|Mobile|Android|BlackBerry/i.test(
   navigator.userAgent,
 ) && !window.monacoPreloaded) {
-[${monacoPreloads.map(href => `'${href}'`).join(',')}].forEach(href => {
 window.monacoPreloaded = true;
+[${monacoPreloads.map(href => `'${href}'`).join(',')}].forEach(href => {
 var link = document.createElement("link");
 link.href = href;
 link.rel = "preload";
@@ -44,7 +44,6 @@ link.as = href.endsWith('.js') ? 'script' : 'style';
 document.head.appendChild(link);
 });
 [${workerPreloads.map(href => `'${href}'`).join(',')}].forEach(href => {
-window.monacoPreloaded = true;
 var link = document.createElement("link");
 link.href = href;
 link.rel = "prefetch";

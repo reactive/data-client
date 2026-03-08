@@ -34,7 +34,7 @@ export function PlaygroundTextEdit({
     codeTabs.map(({ collapsed }) => collapsed),
   );
 
-  const handleTabSwitch = useCallback(i => {
+  const handleTabSwitch = useCallback((i: number) => {
     setClosed(cl =>
       cl.map((prev, j) => {
         if (codeTabs[j].col) return prev;
@@ -42,7 +42,7 @@ export function PlaygroundTextEdit({
       }),
     );
   }, []);
-  const handleTabOpen = useCallback(i => {
+  const handleTabOpen = useCallback((i: number) => {
     setClosed(cl => {
       if (!cl[i]) return cl;
       const n = [...cl];
@@ -50,7 +50,7 @@ export function PlaygroundTextEdit({
       return n;
     });
   }, []);
-  const handleTabToggle = useCallback(i => {
+  const handleTabToggle = useCallback((i: number) => {
     setClosed(cl => {
       const n = [...cl];
       n[i] = !n[i];
@@ -165,6 +165,12 @@ function CodeTabHeader({
   title,
   collapsible = false,
   lastChild = false,
+}: {
+  onClick: () => void;
+  closed: boolean;
+  title: React.ReactNode;
+  collapsible?: boolean | number;
+  lastChild?: boolean;
 }) {
   if (collapsible)
     return (
@@ -186,7 +192,17 @@ function CodeTabHeader({
   return <div className={styles.codeHeader}>{title}</div>;
 }
 
-function EditorTabs({ titles, closedList, onClick, isPlayground = true }) {
+function EditorTabs({
+  titles,
+  closedList,
+  onClick,
+  isPlayground = true,
+}: {
+  titles: string[];
+  closedList: boolean[];
+  onClick: (i: number) => void;
+  isPlayground?: boolean;
+}) {
   const { values } = useContext(CodeTabContext);
   const hasTabs = values.length > 0;
   return (
@@ -244,7 +260,7 @@ function HeaderTabs() {
   );
 }
 
-function HeaderWithTabControls({ children }) {
+function HeaderWithTabControls({ children }: { children: React.ReactNode }) {
   return (
     <Header className={styles.tabControls}>
       <div className={styles.title}>{children}</div>

@@ -23,16 +23,15 @@ export function useCode(children, defaultTab) {
         const collapsed =
           defaultTab ?
             title !== defaultTab
-          : parseCodeBlockCollapsed(metastring) ?? false;
+          : (parseCodeBlockCollapsed(metastring) ?? false);
         const col = parseCodeBlockCol(metastring) ?? false;
         const highlights = /\{([\d\-,.]+)\}/.exec(metastring)?.[1];
         const language = /language-(\w+)/.exec(rest.className)?.[1] ?? 'tsx';
         const extension = langToExtension(language);
         const fileBase = title || 'default';
         const path =
-          parseCodeBlockPath(metastring) || fileBase.includes('.') ?
-            fileBase
-          : `${fileBase}.${extension}`;
+          parseCodeBlockPath(metastring) ||
+          (fileBase.includes('.') ? fileBase : `${fileBase}.${extension}`);
         return {
           code: getCode(children),
           title,
@@ -71,24 +70,17 @@ function reduceCodes(state: string[], action: { i: number; code: string }) {
   return newstate;
 }
 
-const codeBlockCollapsedRegex = /collapsed(?=)(?<collapsed>\S*?)\1/;
-const codeBlockColRegex = /column(?=)(?<column>\S*?)\1/;
+const codeBlockCollapsedRegex = /\bcollapsed\b/;
+const codeBlockColRegex = /\bcolumn\b/;
 const codeBlockPathRegex = /path=(?<quote>["'])(?<path>.*?)\1/;
 export function parseCodeBlockCollapsed(metastring?: string): boolean {
-  return (
-      metastring?.match(codeBlockCollapsedRegex)?.groups!.collapsed !==
-        undefined
-    ) ?
-      true
-    : false;
+  return codeBlockCollapsedRegex.test(metastring ?? '');
 }
 export function parseCodeBlockCol(metastring?: string): boolean {
-  return metastring?.match(codeBlockColRegex)?.groups!.column !== undefined ?
-      true
-    : false;
+  return codeBlockColRegex.test(metastring ?? '');
 }
 export function parseCodeBlockPath(metastring?: string): string {
-  return metastring?.match(codeBlockPathRegex)?.groups!.title ?? '';
+  return metastring?.match(codeBlockPathRegex)?.groups!.path ?? '';
 }
 
 export function langToExtension(lang: string) {
