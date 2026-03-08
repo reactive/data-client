@@ -1,19 +1,20 @@
 ---
 name: changeset
-description: Create changesets for version bump, release notes, changelog, PR description, semver patch/minor/major, breaking changes, and documentation updates after code changes
+description: Create changesets for version bump, release notes, changelog, semver patch/minor/major, breaking changes, documentation and skill updates after code changes
 disable-model-invocation: true
 ---
 
-# Create Changesets and PR
+# Create Changesets
 
 ## Overview
-Generate changesets, update documentation, draft blog entries, and prepare PR description for user-facing changes.
+Generate changesets, update documentation, draft blog entries, and update skills for user-facing changes.
 
 ## Steps
 1. **Analyze changes**
    - Compare current branch to `master` to identify modified packages
    - Group changes by impact type (feature, fix, breaking)
    - Identify transitive dependencies that expose the change
+   - Check for modified skills in `.cursor/skills/` and `packages/*/.cursor/skills/`
 
 2. **Determine affected packages**
    - Include directly modified packages
@@ -41,15 +42,10 @@ Generate changesets, update documentation, draft blog entries, and prepare PR de
      - Link to PR/commit and relevant docs
      - For breaking changes: add to summary's Breaking Changes section with anchor link
 
-6. **Generate PR description**
-   - Output a PR description for the user to copy/paste using @.github/PULL_REQUEST_TEMPLATE.md format
-   - Fill in the sections based on the analyzed changes
-   - Link related issues if known
-   - Summarize motivation from changeset descriptions
-   - Describe solution at a high level first (not implementation details)
-   - Include any mermaid diagrams that might help convey key concepts, especially if one was present in a plan.md
-   - Drop 'Open questions' section if no relevant content
-   - Keep in mind you are a chat agent talking in markdown, so cannot start a markdown block without escaping the contents.
+6. **Update skills**
+   - If code changes affect workflows described in existing skills, update those skills to match
+   - If new APIs or patterns are introduced that agents should know about, add them to the relevant skill
+   - Skill changes don't need changesets — they are development tooling, not published packages
 
 ## Changeset Format
 - **First line**: Action verb ("Add", "Fix", "Update", "Remove")
@@ -63,4 +59,4 @@ Generate changesets, update documentation, draft blog entries, and prepare PR de
 - Multiple use cases: Separate with brief labels
 
 ## Markdown Formatting
-Follow `@.cursor/rules/markdown-formatting.mdc` for all markdown content including the PR desc.
+Follow `@.cursor/rules/markdown-formatting.mdc` for all markdown content.
