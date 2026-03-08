@@ -34,6 +34,9 @@ export class GCPolicy implements GCInterface {
     this.intervalId = setInterval(() => {
       this.idleCallback(() => this.runSweep(), { timeout: 1000 });
     }, this.options.intervalMS);
+    if (typeof this.intervalId === 'object' && 'unref' in this.intervalId) {
+      this.intervalId.unref();
+    }
   }
 
   cleanup() {

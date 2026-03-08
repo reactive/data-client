@@ -127,7 +127,6 @@ describe('useDLE', () => {
   });
   afterEach(() => {
     warnSpy.mockRestore();
-    renderDataClient.cleanup();
     nock.cleanAll();
   });
 

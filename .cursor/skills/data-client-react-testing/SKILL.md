@@ -36,8 +36,9 @@ it('useSuspense() should render the response', async () => {
 **Return values:**
 - Inherits all `renderHook()` return values from `@testing-library/react`
 - `controller` - Controller instance for manual actions
-- `cleanup()` - Cleanup function
 - `allSettled()` - Wait for all async operations to complete
+
+**Cleanup is automatic** -- an `afterEach` hook is registered at module load time that drains all active cleanups. No manual `renderDataHook.cleanup()` calls are needed.
 
 ## Fixtures and Interceptors
 
@@ -119,30 +120,28 @@ it('should handle fetch errors', async () => {
 
 ## Testing Components
 
+Use `MockResolver` to provide fixture data when rendering components with `DataProvider`:
+
 ```typescript
 import { render } from '@testing-library/react';
 import { DataProvider } from '@data-client/react';
-
-const renderWithProvider = (component, options = {}) => {
-  return render(
-    <DataProvider {...options}>
-      {component}
-    </DataProvider>
-  );
-};
+import { MockResolver } from '@data-client/test';
 
 it('should render todo list', async () => {
-  const { getByText } = renderWithProvider(
-    <TodoList />,
+  const fixtures = [
     {
-      initialFixtures: [
-        {
-          endpoint: TodoResource.getList,
-          args: [],
-          response: [{ id: 1, title: 'Test Todo', completed: false }],
-        },
-      ],
+      endpoint: TodoResource.getList,
+      args: [],
+      response: [{ id: 1, title: 'Test Todo', completed: false }],
     },
+  ];
+
+  const { getByText } = render(
+    <DataProvider>
+      <MockResolver fixtures={fixtures}>
+        <TodoList />
+      </MockResolver>
+    </DataProvider>,
   );
 
   expect(getByText('Test Todo')).toBeInTheDocument();
@@ -212,6 +211,7 @@ packages/react/src/components/__tests__/DataProvider.test.tsx
 - Test mutations and their side effects
 - Don't mock @data-client internals directly
 - Don't use raw fetch in tests when fixtures are available
+- Don't manually call `renderDataHook.cleanup()` in `afterEach` -- cleanup is automatic
 
 ## References
 

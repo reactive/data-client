@@ -68,7 +68,6 @@ describe('indexes', () => {
   });
 
   afterEach(() => {
-    renderDataClient.cleanup();
     nock.cleanAll();
   });
 

@@ -108,7 +108,6 @@ describe('useFetch', () => {
   });
   afterEach(() => {
     warnSpy.mockRestore();
-    renderDataClient.cleanup();
     nock.cleanAll();
   });
 

@@ -87,7 +87,6 @@ describe.each([
     renderDataClient = makeRenderDataClient(makeProvider);
   });
   afterEach(() => {
-    renderDataClient.cleanup();
     jest.useRealTimers();
   });
 

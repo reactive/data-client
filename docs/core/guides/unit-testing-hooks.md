@@ -28,8 +28,7 @@ that are wrappers around [@testing-library/react-hooks](https://github.com/testi
 We want a [renderDataHook()](../api/renderDataHook.md) function that renders in the context of both
 a `Provider` and `Suspense` boundary.
 
-These will generally be done during test setup. It's important to call cleanup
-upon test completion.
+These will generally be done during test setup. Cleanup runs automatically after each test.
 
 :::note
 

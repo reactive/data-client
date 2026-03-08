@@ -21,10 +21,6 @@ describe('useCache()', () => {
     renderDataClient = makeRenderDataClient(CacheProvider);
   });
 
-  afterEach(() => {
-    renderDataClient.cleanup();
-  });
-
   it('should be null with empty state', () => {
     const { result } = renderDataClient(() => {
       return useCache(CoolerArticleResource.get, { id: payload.id });

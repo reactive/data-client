@@ -21,6 +21,15 @@ import { MockController } from '../MockController.js';
 import mockInitialState from '../mockState.js';
 import { MockProps } from '../mockTypes.js';
 
+const activeCleanups = new Set<() => void>();
+
+if (typeof afterEach === 'function') {
+  afterEach(() => {
+    for (const fn of activeCleanups) fn();
+    activeCleanups.clear();
+  });
+}
+
 /** @see https://dataclient.io/docs/api/makeRenderDataHook */
 export default function makeRenderDataHook(
   Provider: React.ComponentType<DataProviderProps>,
@@ -80,6 +89,7 @@ export default function makeRenderDataHook(
     const sm = new SubscriptionManager(PollingSubscription);
     const managers = [nm, sm];
     const cleanup = () => {
+      activeCleanups.delete(cleanup);
       nm.cleanupDate = Infinity;
       if ((nm as any)['rejectors'])
         Object.values((nm as any)['rejectors'] as Record<string, any>).forEach(
@@ -94,6 +104,7 @@ export default function makeRenderDataHook(
     const allSettled = () => {
       return nm.allSettled();
     };
+    activeCleanups.add(cleanup);
     renderDataClient.cleanup = cleanup;
     renderDataClient.allSettled = allSettled;
 
