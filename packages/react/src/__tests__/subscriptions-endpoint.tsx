@@ -69,6 +69,16 @@ describe.each([
   function onError(e: any) {
     e.preventDefault();
   }
+  let infoSpy: jest.SpyInstance;
+  let errorSpy: jest.SpyInstance;
+  beforeAll(() => {
+    infoSpy = jest.spyOn(console, 'info').mockImplementation(() => {});
+    errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+  afterAll(() => {
+    infoSpy.mockRestore();
+    errorSpy.mockRestore();
+  });
   beforeEach(() => {
     if (typeof addEventListener === 'function')
       addEventListener('error', onError);

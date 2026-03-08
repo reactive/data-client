@@ -78,8 +78,10 @@ async function testDispatchFetch(
     delete call[0]?.meta?.promise;
     expect(call[0]).toMatchSnapshot();
     const action: FetchAction = call[0] as any;
-    const res = await action.endpoint(...action.args);
-    expect(res).toEqual(payloads[i]);
+    await act(async () => {
+      const res = await action.endpoint(...action.args);
+      expect(res).toEqual(payloads[i]);
+    });
     i++;
   }
 }
@@ -138,6 +140,7 @@ describe('useSuspense()', () => {
   }
 
   beforeAll(() => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
     nock(/.*/)
       .persist()
       .defaultReplyHeaders({
@@ -167,8 +170,8 @@ describe('useSuspense()', () => {
 
   afterAll(() => {
     nock.cleanAll();
+    (console.error as any).mockRestore?.();
   });
-
   beforeEach(() => {
     fbmock.mockReset();
   });
@@ -572,30 +575,42 @@ describe('useSuspense()', () => {
     expect(result.current).toBeInstanceOf(ArticleTimed);
   });
 
-  it('reset promises do not propagate', async () => {
-    let rejectIt: (reason?: any) => void = () => {};
-    const func = () => {
-      return new Promise((resolve, reject) => {
-        rejectIt = reject;
+  describe('unmount handling', () => {
+    let infoSpy: ReturnType<typeof jest.spyOn>;
+    beforeAll(() => {
+      infoSpy = jest.spyOn(console, 'info').mockImplementation(() => {});
+    });
+    afterAll(() => {
+      infoSpy.mockRestore();
+    });
+
+    it('reset promises do not propagate', async () => {
+      let rejectIt: (reason?: any) => void = () => {};
+      const func = () => {
+        return new Promise((resolve, reject) => {
+          rejectIt = reject;
+        });
+      };
+      const MyEndpoint = new Endpoint(func, {
+        key() {
+          return 'MyEndpoint';
+        },
       });
-    };
-    const MyEndpoint = new Endpoint(func, {
-      key() {
-        return 'MyEndpoint';
-      },
+      const { result, unmount } = renderDataHook(() => {
+        return useSuspense(MyEndpoint);
+      });
+      expect(result.current).toBeUndefined();
+      unmount();
+      act(() => rejectIt('failed'));
+      // the test will fail if promise is not caught
     });
-    const { result, unmount } = renderDataHook(() => {
-      return useSuspense(MyEndpoint);
-    });
-    expect(result.current).toBeUndefined();
-    unmount();
-    act(() => rejectIt('failed'));
-    // the test will fail if promise is not caught
   });
 
   describe('context authentication', () => {
     it('should use latest context when making requests', async () => {
-      const consoleSpy = jest.spyOn(console, 'error');
+      const consoleSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
       const wrapper = ({
         children,
         authToken,
@@ -645,6 +660,7 @@ describe('useSuspense()', () => {
       expect(result.current.data.title).toEqual(payload.title);
       // ensure we don't violate call-order changes
       expect(consoleSpy.mock.calls.length).toBeLessThan(1);
+      consoleSpy.mockRestore();
     });
   });
 

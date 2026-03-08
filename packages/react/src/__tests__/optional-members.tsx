@@ -62,6 +62,13 @@ const fixture: FixtureEndpoint = {
 
 describe(`optional members`, () => {
   let renderDataClient: ReturnType<typeof makeRenderDataClient>;
+  let errorSpy: jest.SpyInstance;
+  beforeAll(() => {
+    errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+  afterAll(() => {
+    errorSpy.mockRestore();
+  });
 
   beforeEach(() => {
     renderDataClient = makeRenderDataClient(CacheProvider);

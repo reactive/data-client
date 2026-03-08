@@ -28,7 +28,12 @@ describe('vue useSubscription()', () => {
     tags: ['a', 'best', 'react'],
   };
 
+  let infoSpy: jest.SpyInstance;
+  beforeEach(() => {
+    infoSpy = jest.spyOn(console, 'info').mockImplementation(() => {});
+  });
   afterEach(() => {
+    infoSpy.mockRestore();
     jest.useRealTimers();
   });
 

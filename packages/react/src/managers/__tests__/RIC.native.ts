@@ -1,5 +1,13 @@
 import { IdlingNetworkManager } from '..';
 describe('RequestIdleCallback', () => {
+  let warnSpy: jest.SpyInstance;
+  beforeEach(() => {
+    warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+  afterEach(() => {
+    warnSpy.mockRestore();
+  });
+
   it('should run using InteractionManager', async () => {
     const fn = jest.fn();
     jest.useFakeTimers();

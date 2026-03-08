@@ -55,7 +55,9 @@ const nested = [
 ];
 
 describe('vue useDLE()', () => {
+  let infoSpy: jest.SpyInstance;
   beforeAll(() => {
+    infoSpy = jest.spyOn(console, 'info').mockImplementation(() => {});
     nock(/.*/)
       .persist()
       .defaultReplyHeaders({
@@ -87,6 +89,7 @@ describe('vue useDLE()', () => {
   });
 
   afterAll(() => {
+    infoSpy.mockRestore();
     nock.cleanAll();
   });
 

@@ -56,6 +56,13 @@ export const nested: FixtureEndpoint = {
 let renderDataClient: ReturnType<typeof makeRenderDataClient>;
 let mynock: nock.Scope;
 
+let errorSpy: jest.SpyInstance;
+beforeAll(() => {
+  errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+afterAll(() => {
+  errorSpy.mockRestore();
+});
 beforeEach(() => {
   renderDataClient = makeRenderDataClient(CacheProvider);
   mynock = nock(/.*/).defaultReplyHeaders({

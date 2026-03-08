@@ -48,6 +48,14 @@ const nested = [
 ];
 
 describe('vue useQuery()', () => {
+  let infoSpy: jest.SpyInstance;
+  beforeEach(() => {
+    infoSpy = jest.spyOn(console, 'info').mockImplementation(() => {});
+  });
+  afterEach(() => {
+    infoSpy.mockRestore();
+  });
+
   it('should be undefined with empty state', async () => {
     const { result } = await renderDataCompose(() => {
       return useQuery(ArticleWithSlug, { id: payloadSlug.id });

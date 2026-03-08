@@ -10,6 +10,13 @@ describe('<AsyncBoundary />', () => {
   function onError(e: any) {
     e.preventDefault();
   }
+  let errorSpy: jest.SpyInstance;
+  beforeAll(() => {
+    errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+  afterAll(() => {
+    errorSpy.mockRestore();
+  });
   beforeEach(() => {
     if (typeof addEventListener === 'function')
       addEventListener('error', onError);
@@ -45,8 +52,6 @@ describe('<AsyncBoundary />', () => {
     expect(getByText(/loading/i)).not.toBeNull();
   });
   it('should catch non-network errors', () => {
-    const originalError = console.error;
-    console.error = jest.fn();
     let renderCount = 0;
     function Throw(): ReactElement {
       renderCount++;
@@ -60,7 +65,6 @@ describe('<AsyncBoundary />', () => {
     );
     const { getByText, queryByText, container } = render(tree);
     expect(getByText(/you failed/i)).not.toBeNull();
-    console.error = originalError;
     expect(renderCount).toBeLessThan(10);
   });
   it('should render error case when thrown', () => {
