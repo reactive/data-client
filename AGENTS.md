@@ -20,6 +20,17 @@ Monorepo for `@data-client` npm packages.
 
 **Test naming**: `*.node.test.ts[x]` (Node), `*.native.test.ts[x]` (RN), `*.test.ts[x]` (regular)
 
+**Targeted tests**: `yarn test --selectProjects ReactDOM --testPathPatterns packages/react` (project names: `ReactDOM`, `Node`, `ReactNative`)
+
+## CI
+
+- **CircleCI** (`.circleci/config.yml`) — PR validation: lint, typecheck, unit tests (React 17/18/native/latest), Node matrix, ESM type checks (TS 4.0–5.3+), browser build.
+- **GitHub Actions** (`.github/workflows/`) — release (`changesets`), bundle size PR comments, benchmark regression detection.
+
+## Changesets
+
+Any user-facing change in `packages/*` requires a changeset. Core packages are version-linked (bumping one bumps all). See skill "changeset" for full workflow.
+
 ## File Organization
 
 - **API definitions**: `src/resources/` within examples/apps
@@ -34,18 +45,7 @@ Monorepo for `@data-client` npm packages.
 
 ## Documentation Updates
 
-**Update docs when changing public APIs** (anything exported from package entry points like `index.ts`).
-
-**Always update docs for:**
-- Breaking changes (removing/changing signatures, properties, or behavior; deprecations)
-- New public APIs (classes, functions, methods, hooks, composables)
-- New options/parameters on existing APIs
-
-**No docs needed for:**
-- Internal/private APIs (prefixed with `_`, not exported, or marked `@internal`)
-- Implementation-only changes
-
-Update docs **in the same commit/PR** as code changes. For writing guidelines, see skill "packages-documentation"
+Update docs **in the same commit/PR** when changing public APIs (anything exported from package entry points). No docs needed for internal/private APIs. See skill "packages-documentation" for guidelines.
 
 ## Integration Details
 
