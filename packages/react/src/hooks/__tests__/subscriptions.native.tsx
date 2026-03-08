@@ -23,6 +23,16 @@ describe.each([
     tags: ['a', 'best', 'react'],
   };
   let renderDataClient: ReturnType<typeof makeRenderDataClient>;
+  let infoSpy: jest.SpyInstance;
+  let errorSpy: jest.SpyInstance;
+  beforeAll(() => {
+    infoSpy = jest.spyOn(console, 'info').mockImplementation(() => {});
+    errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+  afterAll(() => {
+    infoSpy.mockRestore();
+    errorSpy.mockRestore();
+  });
   async function validateSubscription(
     result: {
       readonly current: Article | undefined;

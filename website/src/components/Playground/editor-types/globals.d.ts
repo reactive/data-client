@@ -1254,24 +1254,24 @@ type ExtractCollection<S extends Schema | undefined> = S extends ({
 } ? ExtractObject<S> : never;
 
 type CleanKey<S extends string> = S extends `"${infer K}"` ? K : S;
-type OnlyOptional<S extends string> = S extends `${infer K}}` ? CleanKey<K> : never;
-type OnlyRequired<S extends string> = S extends `${string}}` ? never : CleanKey<S>;
+type KeyName<K extends string> = CleanKey<K extends `*${infer N}}` ? N : K extends `*${infer N}` ? N : K extends `${infer N}}` ? N : K>;
+type KeyVal<K extends string> = K extends `*${string}` ? string[] : string | number;
 /** Parameters for a given path */
 type PathArgs<S extends string> = PathKeys<S> extends never ? unknown : KeysToArgs<PathKeys<S>>;
 /** Computes the union of keys for a path string */
-type PathKeys<S extends string> = string extends S ? string : S extends `${infer A}\\${':' | '*' | '}'}${infer B}` ? PathKeys<A> | PathKeys<B> : PathSplits<S>;
-type PathSplits<S extends string> = S extends (`${string}${':' | '*'}${infer K}${'/' | '\\' | '%' | '&' | '*' | '{' | ';' | ',' | '!' | '@'}${infer R}`) ? PathSplits<`${':' | '*'}${K}`> | PathSplits<R> : S extends `${string}${':' | '*'}${infer K}${':' | '*'}${infer R}` ? PathSplits<`${':' | '*'}${K}`> | PathSplits<`${':' | '*'}${R}`> : S extends `${string}${':' | '*'}${infer K}` ? K : never;
+type PathKeys<S extends string> = string extends S ? string : S extends `${infer A}\\${':' | '*' | '}'}${infer B}` ? PathKeys<A> | PathKeys<B> : Splits<S, ':'> | Splits<S, '*'>;
+type Splits<S extends string, M extends ':' | '*'> = S extends `${string}${M}${infer K}${M}${infer R}` ? Splits<`${M}${K}`, M> | Splits<`${M}${R}`, M> : S extends (`${string}${M}${infer K}${'/' | '\\' | '%' | '&' | '*' | ':' | '{' | ';' | ',' | '!' | '@'}${infer R}`) ? Splits<`${M}${K}`, M> | Splits<R, M> : S extends `${string}${M}${infer K}` ? M extends '*' ? `*${K}` : K : never;
 type KeysToArgs<Key extends string> = {
-    [K in Key as OnlyOptional<K>]?: string | number;
-} & (OnlyRequired<Key> extends never ? unknown : {
-    [K in Key as OnlyRequired<K>]: string | number;
+    [K in Key as K extends `${string}}` ? KeyName<K> : never]?: KeyVal<K>;
+} & (Exclude<Key, `${string}}`> extends never ? unknown : {
+    [K in Key as K extends `${string}}` ? never : KeyName<K>]: KeyVal<K>;
 });
-type PathArgsAndSearch<S extends string> = OnlyRequired<PathKeys<S>> extends never ? Record<string, number | string | boolean> | undefined : {
-    [K in PathKeys<S> as OnlyRequired<K>]: string | number;
-} & Record<string, number | string>;
-/** Removes the last :token */
-type ShortenPath<S extends string> = string extends S ? string : S extends `${infer B}:${infer R}` ? TrimColon<`${B}:${ShortenPath<R>}`> : '';
-type TrimColon<S extends string> = string extends S ? string : S extends `${infer R}:` ? R : S;
+type PathArgsAndSearch<S extends string> = Exclude<PathKeys<S>, `${string}}`> extends never ? Record<string, number | string | boolean> | undefined : {
+    [K in PathKeys<S> as K extends `${string}}` ? never : KeyName<K>]: KeyVal<K>;
+} & Record<string, number | string | string[]>;
+/** Removes the last :param or *wildcard token */
+type ShortenPath<S extends string> = string extends S ? string : S extends `${infer B}:${infer R}` ? TrimToken<`${B}:${ShortenPath<R>}`> : S extends `${infer B}*${infer R}` ? TrimToken<`${B}*${ShortenPath<R>}`> : '';
+type TrimToken<S extends string> = string extends S ? string : S extends `${infer R}:` ? R : S extends `${infer R}*` ? R : S;
 type ResourcePath = string;
 
 type OptionsToFunction<O extends PartialRestGenerics, E extends {

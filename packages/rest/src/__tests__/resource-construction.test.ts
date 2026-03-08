@@ -64,6 +64,13 @@ describe('resource()', () => {
     isAdmin: true,
   };
 
+  let errorSpy: jest.SpyInstance;
+  beforeAll(() => {
+    errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+  afterAll(() => {
+    errorSpy.mockRestore();
+  });
   beforeEach(() => {
     nock(/.*/)
       .persist()

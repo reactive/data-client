@@ -103,6 +103,13 @@ describe('resetEntireStore', () => {
   });
 
   describe('integration', () => {
+    let infoSpy: jest.SpyInstance;
+    beforeAll(() => {
+      infoSpy = jest.spyOn(console, 'info').mockImplementation(() => {});
+    });
+    afterAll(() => {
+      infoSpy.mockRestore();
+    });
     beforeEach(() => {
       renderDataClient = makeRenderDataClient(CacheProvider);
     });
@@ -115,7 +122,9 @@ describe('resetEntireStore', () => {
      *    this only triggers after commit of reset action so users have a chance to unmount those components if they are no longer relevant (like doing a url redirect from an unauthorized page)
      */
     it('should refetch useSuspense() after reset', async () => {
-      const consoleSpy = jest.spyOn(console, 'error');
+      const consoleSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
 
       mynock
         .get(`/article-cooler/${9999}`)
@@ -144,6 +153,7 @@ describe('resetEntireStore', () => {
 
       // ensure it doesn't try to setstate during render (dispatching during fetch - which is called from memo)
       expect(consoleSpy.mock.calls.length).toBeLessThan(1);
+      consoleSpy.mockRestore();
     });
 
     /**
@@ -151,7 +161,9 @@ describe('resetEntireStore', () => {
      *    promises still reject so external listeners know (abort signals do this as well)
      */
     it('should not set fetches that started before RESET', async () => {
-      const consoleSpy = jest.spyOn(console, 'log');
+      const consoleSpy = jest
+        .spyOn(console, 'log')
+        .mockImplementation(() => {});
       const detail: FixtureEndpoint = {
         endpoint: CoolerArticleDetail,
         args: [{ id: 9999 }],
@@ -221,7 +233,9 @@ describe('resetEntireStore', () => {
       });
 
       //expect(result.current.resolved).toBe(undefined);
-      const consoleSpy = jest.spyOn(console, 'error');
+      const consoleSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
       act(() => unmount());
 
       // TODO: Figure out a way to wait until fetch chain resolution instead of waiting on time
@@ -229,6 +243,7 @@ describe('resetEntireStore', () => {
 
       // when trying to dispatch on unmounted this will trigger console errors
       expect(consoleSpy.mock.calls.length).toBeLessThan(1);
+      consoleSpy.mockRestore();
     });
   });
 });

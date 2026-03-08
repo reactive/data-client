@@ -25,6 +25,14 @@ const payload2 = {
 };
 
 describe('vue useSuspense()', () => {
+  let infoSpy: jest.SpyInstance;
+  beforeEach(() => {
+    infoSpy = jest.spyOn(console, 'info').mockImplementation(() => {});
+  });
+  afterEach(() => {
+    infoSpy.mockRestore();
+  });
+
   async function flushUntil(
     wrapper: any,
     predicate: () => boolean,

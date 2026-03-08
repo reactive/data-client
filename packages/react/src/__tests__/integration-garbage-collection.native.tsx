@@ -86,6 +86,17 @@ const TestComponent = () => {
 
 // Test cases
 describe('Integration Garbage Collection React Native', () => {
+  let warnSpy: jest.SpyInstance;
+  let errorSpy: jest.SpyInstance;
+  beforeAll(() => {
+    warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+  afterAll(() => {
+    warnSpy.mockRestore();
+    errorSpy.mockRestore();
+  });
+
   it('should count properly with useSuspense', async () => {
     jest.useFakeTimers();
 

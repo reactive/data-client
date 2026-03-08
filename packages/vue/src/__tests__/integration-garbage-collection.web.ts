@@ -9,6 +9,14 @@ import { renderDataCompose, mountDataClient } from '../test';
 const GC_INTERVAL = 100; // Use short interval for faster tests
 
 describe('Integration Garbage Collection Web (Vue)', () => {
+  let infoSpy: jest.SpyInstance;
+  beforeEach(() => {
+    infoSpy = jest.spyOn(console, 'info').mockImplementation(() => {});
+  });
+  afterEach(() => {
+    infoSpy.mockRestore();
+  });
+
   it('should initialize with GCPolicy', () => {
     const gcPolicy = new GCPolicy({
       intervalMS: GC_INTERVAL,

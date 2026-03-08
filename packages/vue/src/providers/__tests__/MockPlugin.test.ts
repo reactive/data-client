@@ -24,11 +24,14 @@ import { MockPlugin } from '../../test/MockPlugin';
 import { DataClientPlugin } from '../DataClientPlugin';
 
 describe('MockPlugin', () => {
+  let warnSpy: jest.Spied<typeof console.warn>;
   beforeEach(() => {
     jest.clearAllMocks();
+    warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
   });
 
   afterEach(() => {
+    warnSpy.mockRestore();
     jest.restoreAllMocks();
   });
 

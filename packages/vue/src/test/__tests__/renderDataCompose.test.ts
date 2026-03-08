@@ -4,6 +4,14 @@ import { CoolerArticleResource } from '../../../../../__tests__/new';
 import { renderDataCompose } from '../renderDataCompose';
 
 describe('renderDataCompose', () => {
+  let infoSpy: jest.SpyInstance;
+  beforeEach(() => {
+    infoSpy = jest.spyOn(console, 'info').mockImplementation(() => {});
+  });
+  afterEach(() => {
+    infoSpy.mockRestore();
+  });
+
   const payload = {
     id: 5,
     title: 'hi ho',

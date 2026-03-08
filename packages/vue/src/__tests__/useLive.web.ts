@@ -19,6 +19,14 @@ const payload = {
 let currentPollingPayload: typeof payload = { ...payload };
 
 describe('vue useLive()', () => {
+  let infoSpy: jest.SpyInstance;
+  beforeEach(() => {
+    infoSpy = jest.spyOn(console, 'info').mockImplementation(() => {});
+  });
+  afterEach(() => {
+    infoSpy.mockRestore();
+  });
+
   async function flushUntil(
     wrapper: any,
     predicate: () => boolean,

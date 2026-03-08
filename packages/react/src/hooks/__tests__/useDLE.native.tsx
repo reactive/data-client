@@ -117,13 +117,16 @@ afterAll(() => {
 
 describe('useDLE', () => {
   let renderDataClient: ReturnType<typeof makeRenderDataClient>;
+  let warnSpy: jest.SpyInstance;
   beforeEach(() => {
+    warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     mynock.get(`/article-cooler/${payload.id}`).reply(200, payload);
     mynock.get(`/article-static/${payload.id}`).reply(200, payload);
     mynock.get(`/user/`).reply(200, users);
     renderDataClient = makeRenderDataClient(CacheProvider);
   });
   afterEach(() => {
+    warnSpy.mockRestore();
     renderDataClient.cleanup();
     nock.cleanAll();
   });
