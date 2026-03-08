@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * Creates GitHub releases for published packages.
- * Run after yarn publish to create releases that changesets/action would normally create.
+ * Scans all packages, checks if a release already exists for the current version,
+ * and creates one if not. Safe to run on every push (idempotent).
  */
 import { execSync } from 'child_process';
 import { readdirSync, readFileSync, existsSync } from 'fs';
@@ -9,6 +10,7 @@ import { join } from 'path';
 
 const REPO = 'reactive/data-client';
 const BLOG_BASE_URL = 'https://dataclient.io/blog';
+const DRY_RUN = process.argv.includes('--dry-run');
 
 function escapeRegExp(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -23,7 +25,6 @@ function findBlogPost(majorMinor) {
   if (!existsSync(blogDir)) return null;
 
   const files = readdirSync(blogDir);
-  // Look for blog post matching this version (e.g., v0.15)
   const versionPattern = new RegExp(
     `^(\\d{4})-(\\d{2})-(\\d{2})-v${escapeRegExp(majorMinor)}-.*\\.md$`,
   );
@@ -32,7 +33,6 @@ function findBlogPost(majorMinor) {
     const match = file.match(versionPattern);
     if (match) {
       const [, year, month, day] = match;
-      // Read the file to get the slug from the filename
       const slug = file.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/\.md$/, '');
       return `${BLOG_BASE_URL}/${year}/${month}/${day}/${slug}`;
     }
@@ -54,12 +54,10 @@ function getChangelogForVersion(packageDir, version) {
   let changelog = [];
 
   for (const line of lines) {
-    // Start capturing at ## {version}
     if (line.match(new RegExp(`^## ${escapeRegExp(version)}\\s*$`))) {
       capturing = true;
       continue;
     }
-    // Stop at next version header
     if (capturing && line.match(/^## \d+\.\d+/)) {
       break;
     }
@@ -71,9 +69,6 @@ function getChangelogForVersion(packageDir, version) {
   return changelog.join('\n').trim();
 }
 
-/**
- * Check if a GitHub release already exists
- */
 function releaseExists(tag) {
   try {
     execSync(`gh release view "${tag}" --repo ${REPO}`, {
@@ -85,13 +80,14 @@ function releaseExists(tag) {
   }
 }
 
-/**
- * Create a GitHub release
- */
 function createRelease(tag, name, body) {
+  if (DRY_RUN) {
+    console.log(`  [dry-run] Would create release: ${tag}`);
+    console.log(`  Body preview: ${body.slice(0, 200)}${body.length > 200 ? '...' : ''}`);
+    return true;
+  }
   console.log(`Creating release: ${tag}`);
   try {
-    // Use stdin for body to avoid shell escaping issues with markdown/code blocks
     execSync(
       `gh release create "${tag}" --repo ${REPO} --title "${name}" --notes-file -`,
       {
@@ -100,63 +96,42 @@ function createRelease(tag, name, body) {
       },
     );
     console.log(`  ✓ Created ${tag}`);
+    return true;
   } catch (error) {
     console.error(`  ✗ Failed to create ${tag}:`, error.message);
+    return false;
   }
 }
 
 async function main() {
-  // Get published packages from changesets action output
-  const publishedPackagesJson = process.env.PUBLISHED_PACKAGES;
-  if (!publishedPackagesJson) {
-    console.log('No PUBLISHED_PACKAGES environment variable set. Exiting.');
-    return;
-  }
-
-  let publishedPackages;
-  try {
-    publishedPackages = JSON.parse(publishedPackagesJson);
-  } catch (e) {
-    console.error('Failed to parse PUBLISHED_PACKAGES:', e.message);
-    process.exit(1);
-  }
-
-  if (!Array.isArray(publishedPackages) || publishedPackages.length === 0) {
-    console.log('No packages were published. Exiting.');
-    return;
-  }
-
-  console.log(`Processing ${publishedPackages.length} published package(s)...`);
-
+  if (DRY_RUN) console.log('Running in dry-run mode (no releases will be created)\n');
   const packagesDir = join(process.cwd(), 'packages');
+  const packageDirs = readdirSync(packagesDir, { withFileTypes: true })
+    .filter(d => d.isDirectory())
+    .map(d => join(packagesDir, d.name));
+
   let createdCount = 0;
   let skippedCount = 0;
 
-  for (const { name, version } of publishedPackages) {
-    const tag = `${name}@${version}`;
+  for (const packageDir of packageDirs) {
+    const pkgJsonPath = join(packageDir, 'package.json');
+    if (!existsSync(pkgJsonPath)) continue;
 
-    // Skip if release already exists
+    const pkg = JSON.parse(readFileSync(pkgJsonPath, 'utf-8'));
+    if (pkg.private) continue;
+
+    const tag = `${pkg.name}@${pkg.version}`;
+
     if (releaseExists(tag)) {
-      console.log(`  Skipping ${tag} (already exists)`);
       skippedCount++;
       continue;
     }
 
-    // Find package directory (strip scope from name for directory lookup)
-    const dirName = name.replace(/^@[^/]+\//, '');
-    const packageDir = join(packagesDir, dirName);
+    let changelog = getChangelogForVersion(packageDir, pkg.version);
 
-    // Get changelog content
-    let changelog = '';
-    if (existsSync(packageDir)) {
-      changelog = getChangelogForVersion(packageDir, version);
-    }
-
-    // Check for blog post (using major.minor version)
-    const majorMinor = version.split('.').slice(0, 2).join('.');
+    const majorMinor = pkg.version.split('.').slice(0, 2).join('.');
     const blogUrl = findBlogPost(majorMinor);
 
-    // Build release body
     let body = '';
     if (blogUrl) {
       body += `📝 **[Read the full release announcement](${blogUrl})**\n\n---\n\n`;
@@ -164,11 +139,12 @@ async function main() {
     if (changelog) {
       body += changelog;
     } else {
-      body += `Release ${name}@${version}`;
+      body += `Release ${pkg.name}@${pkg.version}`;
     }
 
-    createRelease(tag, tag, body);
-    createdCount++;
+    if (createRelease(tag, tag, body)) {
+      createdCount++;
+    }
   }
 
   console.log(
