@@ -1,6 +1,6 @@
 ---
 name: data-client-react
-description: Use @data-client/react hooks - useSuspense, useQuery, useCache, useLive, useDLE, useSubscription, useController for fetch/mutations, DataProvider, AsyncBoundary, useLoading, useDebounce
+description: Use @data-client/react hooks - useSuspense, useFetch, useQuery, useCache, useLive, useDLE, useSubscription, useController for fetch/mutations, DataProvider, AsyncBoundary, useLoading, useDebounce
 license: Apache 2.0
 ---
 ## Rendering
@@ -19,6 +19,9 @@ const todo = useCache(TodoResource.get, { id: 5 });
 const todo = useQuery(Todo, { id: 5 });
 // fetch without Suspense - returns { data, loading, error }
 const { data, loading, error } = useDLE(TodoResource.get, { id: 5 });
+// suspense in parallel
+const post = use(useFetch(PostResource.get, { id }));
+const comments = use(useFetch(CommentResource.getList, { postId: id }));
 // subscribe without Suspense (use with useSuspense or useDLE)
 useSubscription(TodoResource.get, { id: 5 });
 ```
@@ -125,6 +128,7 @@ This is useful for webosckets, SSE, logging, etc. Always use the skill "data-cli
 For detailed API documentation, see the [references](references/) directory:
 
 - [useSuspense](references/useSuspense.md);[_pagination.mdx](references/_pagination.mdx) - Fetch with Suspense
+- [useFetch](references/useFetch.md) - Fetch for React.use() and parallel loading
 - [useQuery](references/useQuery.md) - Read from cache without fetch
 - [useCache](references/useCache.md) - Read from cache (nullable)
 - [useLive](references/useLive.md);[_useLive.mdx](references/_useLive.mdx) - Fetch + subscribe to updates
