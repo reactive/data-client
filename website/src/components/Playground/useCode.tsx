@@ -1,14 +1,28 @@
 import { parseCodeBlockTitle } from '@docusaurus/theme-common/internal';
-import { useMemo, useReducer } from 'react';
+import React, { useMemo, useReducer } from 'react';
 
-export function useCode(children, defaultTab) {
-  const codeTabs: {
-    code: string;
-    path?: string;
-    title?: string;
-    collapsed: boolean;
-    [k: string]: any;
-  }[] = useMemo(() => {
+export interface CodeTab {
+  code: string;
+  path?: string;
+  title?: string;
+  collapsed: boolean;
+  col?: boolean;
+  highlights?: string;
+  language?: string;
+  [k: string]: unknown;
+}
+
+export interface UseCodeReturn {
+  handleCodeChange: ((v: string) => void)[];
+  codes: string[];
+  codeTabs: CodeTab[];
+}
+
+export function useCode(
+  children: string | React.ReactNode | React.ReactNode[],
+  defaultTab?: string,
+): UseCodeReturn {
+  const codeTabs: CodeTab[] = useMemo(() => {
     if (typeof children === 'string')
       return [{ code: getCode(children), collapsed: false }];
     return (Array.isArray(children) ? children : [children])

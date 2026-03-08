@@ -1,4 +1,3 @@
-import type { Fixture, Interceptor } from '@data-client/test';
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import Translate from '@docusaurus/Translate';
 import clsx from 'clsx';
@@ -14,9 +13,11 @@ import { LiveEditor } from 'react-live';
 
 import FixturePreview from './FixturePreview';
 import Header from './Header';
-import { isGoogleBot } from './isGoogleBot';
+import { isGoogleBot } from './isMobileOrBot';
 import PlaygroundEditor from './PlaygroundEditor';
 import styles from './styles.module.css';
+import type { FixtureOrInterceptor } from './types';
+import type { CodeTab, UseCodeReturn } from './useCode';
 import CodeTabContext from '../Demo/CodeTabContext';
 
 export function PlaygroundTextEdit({
@@ -108,11 +109,11 @@ export function PlaygroundTextEdit({
   );
 }
 interface PlaygroundProps {
-  fixtures: (Fixture | Interceptor)[];
+  fixtures: FixtureOrInterceptor[];
   row: boolean;
-  codeTabs: any;
-  handleCodeChange: any;
-  codes: any;
+  codeTabs: CodeTab[];
+  handleCodeChange: UseCodeReturn['handleCodeChange'];
+  codes: UseCodeReturn['codes'];
   large?: boolean;
   isPlayground?: boolean;
 }
@@ -281,7 +282,7 @@ function EditorHeader({
   fixtures = [],
 }: {
   title?: React.ReactNode;
-  fixtures?: (Fixture | Interceptor)[];
+  fixtures?: FixtureOrInterceptor[];
 }) {
   const { values } = useContext(CodeTabContext);
   const hasTabs = values.length > 0;

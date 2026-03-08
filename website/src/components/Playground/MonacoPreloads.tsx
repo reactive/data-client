@@ -31,6 +31,7 @@ const workerPreloads = [
   `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/assets/editor.worker-Be8ye1pW.js`,
 ];
 
+// Regex must match isMobileOrBot in isMobileOrBot.ts (cannot import into script string)
 const preloadScript = `
 if (!/bot|googlebot|crawler|spider|robot|crawling|Mobile|Android|BlackBerry/i.test(
   navigator.userAgent,

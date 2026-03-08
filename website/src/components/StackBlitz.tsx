@@ -1,7 +1,6 @@
 import Link from '@docusaurus/Link';
-import React, { useEffect } from 'react';
 
-import { isGoogleBot } from './Playground/isGoogleBot';
+import { isGoogleBot } from './Playground/isMobileOrBot';
 import { useHasIntersected } from './useHasIntersected';
 
 export default function StackBlitz({
