@@ -30,9 +30,8 @@ export function useCode(children, defaultTab) {
         const extension = langToExtension(language);
         const fileBase = title || 'default';
         const path =
-          parseCodeBlockPath(metastring) || fileBase.includes('.') ?
-            fileBase
-          : `${fileBase}.${extension}`;
+          parseCodeBlockPath(metastring) ||
+          (fileBase.includes('.') ? fileBase : `${fileBase}.${extension}`);
         return {
           code: getCode(children),
           title,
