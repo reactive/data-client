@@ -19,11 +19,13 @@ const todo = useCache(TodoResource.get, { id: 5 });
 const todo = useQuery(Todo, { id: 5 });
 // fetch without Suspense - returns { data, loading, error }
 const { data, loading, error } = useDLE(TodoResource.get, { id: 5 });
-// suspense in parallel
-const post = use(useFetch(PostResource.get, { id }));
-const comments = use(useFetch(CommentResource.getList, { postId: id }));
 // subscribe without Suspense (use with useSuspense or useDLE)
 useSubscription(TodoResource.get, { id: 5 });
+// parallel fetches with React.use()
+const postPromise = useFetch(PostResource.get, { id });
+const commentsPromise = useFetch(CommentResource.getList, { postId: id });
+const post = use(postPromise);
+const comments = use(commentsPromise);
 ```
 
 For API definitions (like TodoResource), apply the skill "data-client-rest".
