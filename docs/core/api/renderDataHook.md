@@ -43,9 +43,8 @@ type RenderDataHook = {
       options?: waitForOptions,
     ): Promise<T>;
   };
-  /** @deprecated use per-render cleanup() instead */
+  /** cleanup is automatic; only needed for ordering (e.g., before jest.useRealTimers()) */
   cleanup(): void;
-  /** @deprecated use per-render allSettled() instead */
   allSettled(): Promise<unknown>;
 };
 ```
@@ -159,25 +158,23 @@ it('should update', async () => {
 
 ### cleanup()
 
-Cleans up all managers used in this render. Should be run in `afterEach()` to ensure each test starts fresh.
+Cleans up all managers used in this render.
 This is especially important when mocking timers, as Reactive Data Client's internals rely on real timers to
 avoid race conditions.
 
-```ts
-afterEach(() => {
-  renderDataHook.cleanup();
-});
-```
-
-`cleanup()` is also available on the return value of each `renderDataHook()` call, which is
-preferred when multiple renders occur in a single test:
+Cleanup runs automatically after each test via a module-level `afterEach` hook (similar to `@testing-library/react`).
+Manual calls are only needed when you must control cleanup ordering within a test body -- for example,
+cleaning up before switching from fake timers to real timers:
 
 ```ts
-const { result, cleanup } = renderDataHook(() => useSuspense(MyResource.get, { id: 5 }), {
-  initialFixtures: [{ endpoint: MyResource.get, args: [{ id: 5 }], response }],
+it('should handle polling', async () => {
+  jest.useFakeTimers();
+  const { result } = renderDataHook(/* ... */);
+  // ... assertions ...
+  // highlight-next-line
+  renderDataHook.cleanup(); // must run while fake timers are still active
+  jest.useRealTimers();
 });
-// ... assertions ...
-cleanup();
 ```
 
 ### allSettled()

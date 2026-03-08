@@ -65,9 +65,6 @@ describe('useDLE()', () => {
   beforeEach(() => {
     renderDataClient = makeRenderDataClient(CacheProvider);
   });
-  afterEach(() => {
-    renderDataClient.cleanup();
-  });
 
   it('should work on good network', async () => {
     const { result, waitForNextUpdate } = renderDataClient(() => {

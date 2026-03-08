@@ -64,7 +64,6 @@ beforeEach(() => {
   });
 });
 afterEach(() => {
-  renderDataClient.cleanup();
   nock.cleanAll();
 });
 

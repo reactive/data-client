@@ -104,7 +104,6 @@ describe.each([
   });
 
   afterEach(() => {
-    renderDataHook.cleanup();
     nock.cleanAll();
   });
 
