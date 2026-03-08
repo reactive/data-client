@@ -69,7 +69,7 @@ to represent the data expected.
 To define polymorphic resources (e.g., events), use [Union](references/Union.md) and a discriminator field.
 
 ```typescript
-import { Union } from '@data-client/rest';
+import { Union } from '@data-client/rest'; // also available from @data-client/endpoint
 
 export abstract class Event extends Entity {
   type: EventType = 'Issue';    // discriminator field is shared
