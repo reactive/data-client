@@ -154,18 +154,6 @@ const BASE_SCENARIOS: BaseScenario[] = [
   },
 ];
 
-/** Startup scenarios measure page load metrics via CDP (no BenchAPI interaction). */
-export function getStartupScenarios(): Scenario[] {
-  return LIBRARIES.map(
-    (lib): Scenario => ({
-      name: `${lib}: startup`,
-      action: 'mount',
-      args: [],
-      category: 'startup',
-    }),
-  );
-}
-
 export const LIBRARIES = [
   'data-client',
   'tanstack-query',
