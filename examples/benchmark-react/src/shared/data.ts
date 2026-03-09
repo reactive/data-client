@@ -39,3 +39,31 @@ export const FIXTURE_ITEMS = generateItems(500, 20);
 
 /** Unique authors from fixture (for seeding and updateAuthor scenarios) */
 export const FIXTURE_AUTHORS = generateAuthors(20);
+
+/**
+ * Generate fresh items/authors with distinct IDs for bulk ingestion scenarios.
+ * Uses `fresh-` prefix so these don't collide with pre-seeded FIXTURE data.
+ */
+export function generateFreshData(
+  itemCount: number,
+  authorCount = 20,
+): { items: Item[]; authors: Author[] } {
+  const authors: Author[] = [];
+  for (let i = 0; i < authorCount; i++) {
+    authors.push({
+      id: `fresh-author-${i}`,
+      login: `freshuser${i}`,
+      name: `Fresh User ${i}`,
+    });
+  }
+  const items: Item[] = [];
+  for (let i = 0; i < itemCount; i++) {
+    const author = authors[i % authorCount];
+    items.push({
+      id: `fresh-item-${i}`,
+      label: `Fresh Item ${i}`,
+      author: { ...author },
+    });
+  }
+  return { items, authors };
+}

@@ -33,8 +33,10 @@ export interface BenchAPI {
   getRefStabilityReport(): RefStabilityReport;
   /** For memory scenarios: mount n items, unmount, repeat cycles times; resolves when done. */
   mountUnmountCycle?(count: number, cycles: number): Promise<void>;
-  /** Optimistic update then rollback; sets data-bench-complete when rollback is painted. Optional (data-client only). */
-  optimisticRollback?(): void;
+  /** Optimistic update via getOptimisticResponse; sets data-bench-complete when painted. data-client only. */
+  optimisticUpdate?(): void;
+  /** Ingest fresh data into an empty cache at runtime, then render. Measures normalization + rendering pipeline. */
+  bulkIngest?(count: number): void;
 }
 
 declare global {
@@ -60,7 +62,8 @@ export type ScenarioAction =
   | { action: 'updateEntity'; args: [string] }
   | { action: 'updateAuthor'; args: [string] }
   | { action: 'updateAuthor'; args: [string, UpdateAuthorOptions] }
-  | { action: 'unmountAll'; args: [] };
+  | { action: 'unmountAll'; args: [] }
+  | { action: 'bulkIngest'; args: [number] };
 
 export type ResultMetric =
   | 'duration'

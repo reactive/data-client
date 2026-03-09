@@ -1,7 +1,12 @@
 import type { Scenario } from '../src/shared/types.js';
 
-/** Simulated network delay (ms) per request for with-network scenarios. Consistent for comparability. */
 export const SIMULATED_NETWORK_DELAY_MS = 50;
+
+/**
+ * With 100 mounted items and 20 authors, each author is shared by 5 items.
+ * Non-normalized libs must refetch each affected item query individually.
+ */
+const ITEMS_PER_AUTHOR_100 = 5;
 
 interface BaseScenario {
   nameSuffix: string;
@@ -10,6 +15,10 @@ interface BaseScenario {
   resultMetric?: Scenario['resultMetric'];
   category: NonNullable<Scenario['category']>;
   mountCount?: number;
+  /** Override args per library (e.g. different request counts for withNetwork). */
+  perLibArgs?: Partial<Record<string, unknown[]>>;
+  /** Only run for these libraries. Omit to run for all. */
+  onlyLibs?: string[];
 }
 
 const BASE_SCENARIOS: BaseScenario[] = [
@@ -61,6 +70,29 @@ const BASE_SCENARIOS: BaseScenario[] = [
         simulatedRequestCount: 1,
       },
     ],
+    perLibArgs: {
+      'tanstack-query': [
+        'author-0',
+        {
+          simulateNetworkDelayMs: SIMULATED_NETWORK_DELAY_MS,
+          simulatedRequestCount: ITEMS_PER_AUTHOR_100,
+        },
+      ],
+      swr: [
+        'author-0',
+        {
+          simulateNetworkDelayMs: SIMULATED_NETWORK_DELAY_MS,
+          simulatedRequestCount: ITEMS_PER_AUTHOR_100,
+        },
+      ],
+      baseline: [
+        'author-0',
+        {
+          simulateNetworkDelayMs: SIMULATED_NETWORK_DELAY_MS,
+          simulatedRequestCount: ITEMS_PER_AUTHOR_100,
+        },
+      ],
+    },
     category: 'withNetwork',
   },
   {
@@ -78,9 +110,16 @@ const BASE_SCENARIOS: BaseScenario[] = [
     category: 'memory',
   },
   {
-    nameSuffix: 'optimistic-update-rollback',
-    action: 'optimisticRollback',
+    nameSuffix: 'optimistic-update',
+    action: 'optimisticUpdate',
     args: [],
+    category: 'hotPath',
+    onlyLibs: ['data-client'],
+  },
+  {
+    nameSuffix: 'bulk-ingest-500',
+    action: 'bulkIngest',
+    args: [500],
     category: 'hotPath',
   },
 ];
@@ -93,11 +132,13 @@ export const LIBRARIES = [
 ] as const;
 
 export const SCENARIOS: Scenario[] = LIBRARIES.flatMap(lib =>
-  BASE_SCENARIOS.map(
+  BASE_SCENARIOS.filter(
+    base => !base.onlyLibs || base.onlyLibs.includes(lib),
+  ).map(
     (base): Scenario => ({
       name: `${lib}: ${base.nameSuffix}`,
       action: base.action,
-      args: base.args,
+      args: base.perLibArgs?.[lib] ?? base.args,
       resultMetric: base.resultMetric,
       category: base.category,
       mountCount: base.mountCount,

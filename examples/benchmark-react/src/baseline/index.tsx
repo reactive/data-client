@@ -1,5 +1,9 @@
 import { ItemRow } from '@shared/components';
-import { FIXTURE_AUTHORS, FIXTURE_ITEMS } from '@shared/data';
+import {
+  FIXTURE_AUTHORS,
+  FIXTURE_ITEMS,
+  generateFreshData,
+} from '@shared/data';
 import { captureSnapshot, getReport, registerRefs } from '@shared/refStability';
 import type { Item, UpdateAuthorOptions } from '@shared/types';
 import React, {
@@ -26,7 +30,7 @@ function ItemView({ id }: { id: string }) {
 
 function BenchmarkHarness() {
   const [items, setItems] = useState<Item[]>([]);
-  const [count, setCount] = useState(0);
+  const [ids, setIds] = useState<string[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const completeResolveRef = useRef<(() => void) | null>(null);
 
@@ -39,8 +43,9 @@ function BenchmarkHarness() {
   const mount = useCallback(
     (n: number) => {
       performance.mark('mount-start');
-      setCount(n);
-      setItems(FIXTURE_ITEMS.slice(0, n));
+      const sliced = FIXTURE_ITEMS.slice(0, n);
+      setItems(sliced);
+      setIds(sliced.map(i => i.id));
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           performance.mark('mount-end');
@@ -116,9 +121,26 @@ function BenchmarkHarness() {
   );
 
   const unmountAll = useCallback(() => {
-    setCount(0);
+    setIds([]);
     setItems([]);
   }, []);
+
+  const bulkIngest = useCallback(
+    (n: number) => {
+      performance.mark('mount-start');
+      const { items: freshItems } = generateFreshData(n);
+      setItems(freshItems);
+      setIds(freshItems.map(i => i.id));
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          performance.mark('mount-end');
+          performance.measure('mount-duration', 'mount-start', 'mount-end');
+          setComplete();
+        });
+      });
+    },
+    [setComplete],
+  );
 
   const mountUnmountCycle = useCallback(
     async (n: number, cycles: number) => {
@@ -138,7 +160,7 @@ function BenchmarkHarness() {
     [mount, unmountAll, setComplete],
   );
 
-  const getRenderedCount = useCallback(() => count, [count]);
+  const getRenderedCount = useCallback(() => ids.length, [ids]);
 
   const captureRefSnapshot = useCallback(() => {
     captureSnapshot();
@@ -156,6 +178,7 @@ function BenchmarkHarness() {
       captureRefSnapshot,
       getRefStabilityReport,
       mountUnmountCycle,
+      bulkIngest,
     };
     return () => {
       delete window.__BENCH__;
@@ -166,6 +189,7 @@ function BenchmarkHarness() {
     updateAuthor,
     unmountAll,
     mountUnmountCycle,
+    bulkIngest,
     getRenderedCount,
     captureRefSnapshot,
     getRefStabilityReport,
@@ -174,8 +198,6 @@ function BenchmarkHarness() {
   useEffect(() => {
     document.body.setAttribute('data-app-ready', 'true');
   }, []);
-
-  const ids = FIXTURE_ITEMS.slice(0, count).map(i => i.id);
 
   return (
     <ItemsContext.Provider value={{ items, setItems }}>

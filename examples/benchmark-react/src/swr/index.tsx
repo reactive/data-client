@@ -1,5 +1,9 @@
 import { ItemRow } from '@shared/components';
-import { FIXTURE_AUTHORS, FIXTURE_ITEMS } from '@shared/data';
+import {
+  FIXTURE_AUTHORS,
+  FIXTURE_ITEMS,
+  generateFreshData,
+} from '@shared/data';
 import { captureSnapshot, getReport, registerRefs } from '@shared/refStability';
 import type { Item, UpdateAuthorOptions } from '@shared/types';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -37,7 +41,7 @@ function ItemView({ id }: { id: string }) {
 }
 
 function BenchmarkHarness() {
-  const [count, setCount] = useState(0);
+  const [ids, setIds] = useState<string[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const completeResolveRef = useRef<(() => void) | null>(null);
   const { mutate } = useSWRConfig();
@@ -51,7 +55,7 @@ function BenchmarkHarness() {
   const mount = useCallback(
     (n: number) => {
       performance.mark('mount-start');
-      setCount(n);
+      setIds(FIXTURE_ITEMS.slice(0, n).map(i => i.id));
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           performance.mark('mount-end');
@@ -130,8 +134,40 @@ function BenchmarkHarness() {
   );
 
   const unmountAll = useCallback(() => {
-    setCount(0);
+    setIds([]);
   }, []);
+
+  const bulkIngest = useCallback(
+    (n: number) => {
+      performance.mark('mount-start');
+      const { items, authors } = generateFreshData(n);
+      for (const author of authors) {
+        cache.set(`author:${author.id}`, {
+          data: author,
+          isLoading: false,
+          isValidating: false,
+          error: undefined,
+        });
+      }
+      for (const item of items) {
+        cache.set(`item:${item.id}`, {
+          data: item,
+          isLoading: false,
+          isValidating: false,
+          error: undefined,
+        });
+      }
+      setIds(items.map(i => i.id));
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          performance.mark('mount-end');
+          performance.measure('mount-duration', 'mount-start', 'mount-end');
+          setComplete();
+        });
+      });
+    },
+    [setComplete],
+  );
 
   const mountUnmountCycle = useCallback(
     async (n: number, cycles: number) => {
@@ -151,7 +187,7 @@ function BenchmarkHarness() {
     [mount, unmountAll, setComplete],
   );
 
-  const getRenderedCount = useCallback(() => count, [count]);
+  const getRenderedCount = useCallback(() => ids.length, [ids]);
 
   const captureRefSnapshot = useCallback(() => {
     captureSnapshot();
@@ -169,6 +205,7 @@ function BenchmarkHarness() {
       captureRefSnapshot,
       getRefStabilityReport,
       mountUnmountCycle,
+      bulkIngest,
     };
     return () => {
       delete window.__BENCH__;
@@ -179,6 +216,7 @@ function BenchmarkHarness() {
     updateAuthor,
     unmountAll,
     mountUnmountCycle,
+    bulkIngest,
     getRenderedCount,
     captureRefSnapshot,
     getRefStabilityReport,
@@ -187,8 +225,6 @@ function BenchmarkHarness() {
   useEffect(() => {
     document.body.setAttribute('data-app-ready', 'true');
   }, []);
-
-  const ids = FIXTURE_ITEMS.slice(0, count).map(i => i.id);
 
   return (
     <div ref={containerRef} data-bench-harness>

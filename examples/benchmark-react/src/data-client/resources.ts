@@ -1,7 +1,5 @@
 import { Entity, Endpoint } from '@data-client/endpoint';
-import type { Author, Item } from '@shared/types';
 
-/** Author entity - shared across items for normalization */
 export class AuthorEntity extends Entity {
   id = '';
   login = '';
@@ -14,11 +12,10 @@ export class AuthorEntity extends Entity {
   static key = 'AuthorEntity';
 }
 
-/** Item entity with nested author */
 export class ItemEntity extends Entity {
   id = '';
   label = '';
-  author = AuthorEntity;
+  author = AuthorEntity.fromJS();
 
   pk() {
     return this.id;
@@ -28,31 +25,46 @@ export class ItemEntity extends Entity {
   static schema = { author: AuthorEntity };
 }
 
-/** Endpoint to get a single author by id */
 export const getAuthor = new Endpoint(
-  (params: { id: string }) =>
+  ({ id: _id }: { id: string }) =>
     Promise.reject(new Error('Not implemented - use fixtures')),
   {
     schema: AuthorEntity,
-    key: (params: { id: string }) => `author:${params.id}`,
+    key: ({ id }: { id: string }) => `author:${id}`,
   },
 );
 
-/** Endpoint to get a single item by id */
 export const getItem = new Endpoint(
-  (params: { id: string }) =>
+  ({ id: _id }: { id: string }) =>
     Promise.reject(new Error('Not implemented - use fixtures')),
   {
     schema: ItemEntity,
-    key: (params: { id: string }) => `item:${params.id}`,
+    key: ({ id }: { id: string }) => `item:${id}`,
   },
 );
 
-/** Endpoint to get item list - used for fixture seeding */
 export const getItemList = new Endpoint(
-  () => Promise.reject(new Error('Not implemented - use fixtures')),
+  () => Promise.reject<any>(new Error('Not implemented - use fixtures')),
   {
     schema: [ItemEntity],
     key: () => 'item:list',
+  },
+);
+
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const neverResolve = () => new Promise<any>(() => {});
+
+/** Optimistic mutation - fetch never resolves; getOptimisticResponse applies immediately */
+export const updateItemOptimistic = new Endpoint(
+  (_params: { id: string; label: string }) => neverResolve(),
+  {
+    schema: ItemEntity,
+    sideEffect: true,
+    key: ({ id }: { id: string; label: string }) => `item-update:${id}`,
+    getOptimisticResponse(snap: any, params: { id: string; label: string }) {
+      const existing = snap.get(ItemEntity, { id: params.id });
+      if (!existing) throw snap.abort;
+      return { ...existing, label: params.label };
+    },
   },
 );

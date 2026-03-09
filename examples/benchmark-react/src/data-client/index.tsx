@@ -1,13 +1,22 @@
 import { DataProvider, useCache, useController } from '@data-client/react';
 import { mockInitialState } from '@data-client/react/mock';
 import { ItemRow } from '@shared/components';
-import { FIXTURE_AUTHORS, FIXTURE_ITEMS } from '@shared/data';
+import {
+  FIXTURE_AUTHORS,
+  FIXTURE_ITEMS,
+  generateFreshData,
+} from '@shared/data';
 import { captureSnapshot, getReport, registerRefs } from '@shared/refStability';
 import type { Item, UpdateAuthorOptions } from '@shared/types';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 
-import { getAuthor, getItem, getItemList } from './resources';
+import {
+  getAuthor,
+  getItem,
+  getItemList,
+  updateItemOptimistic,
+} from './resources';
 
 const initialState = mockInitialState([
   { endpoint: getItemList, args: [], response: FIXTURE_ITEMS },
@@ -26,13 +35,12 @@ const initialState = mockInitialState([
 function ItemView({ id }: { id: string }) {
   const item = useCache(getItem, { id });
   if (!item) return null;
-  const itemAsItem = item as unknown as Item;
-  registerRefs(id, itemAsItem, itemAsItem.author);
-  return <ItemRow item={itemAsItem} />;
+  registerRefs(id, item as Item, item.author as Item['author']);
+  return <ItemRow item={item as Item} />;
 }
 
 function BenchmarkHarness() {
-  const [count, setCount] = useState(0);
+  const [ids, setIds] = useState<string[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const completeResolveRef = useRef<(() => void) | null>(null);
   const controller = useController();
@@ -46,7 +54,7 @@ function BenchmarkHarness() {
   const mount = useCallback(
     (n: number) => {
       performance.mark('mount-start');
-      setCount(n);
+      setIds(FIXTURE_ITEMS.slice(0, n).map(i => i.id));
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           performance.mark('mount-end');
@@ -125,21 +133,17 @@ function BenchmarkHarness() {
   );
 
   const unmountAll = useCallback(() => {
-    setCount(0);
+    setIds([]);
   }, []);
 
-  const optimisticRollback = useCallback(() => {
+  const optimisticUpdate = useCallback(() => {
     const item = FIXTURE_ITEMS[0];
     if (!item) return;
     performance.mark('update-start');
-    controller.setResponse(
-      getItem,
-      { id: item.id },
-      {
-        ...item,
-        label: `${item.label} (rolled back)`,
-      },
-    );
+    controller.fetch(updateItemOptimistic, {
+      id: item.id,
+      label: `${item.label} (optimistic)`,
+    });
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         performance.mark('update-end');
@@ -148,6 +152,29 @@ function BenchmarkHarness() {
       });
     });
   }, [controller, setComplete]);
+
+  const bulkIngest = useCallback(
+    (n: number) => {
+      performance.mark('mount-start');
+      const { items, authors } = generateFreshData(n);
+      controller.setResponse(getItemList, items);
+      for (const item of items) {
+        controller.setResponse(getItem, { id: item.id }, item);
+      }
+      for (const author of authors) {
+        controller.setResponse(getAuthor, { id: author.id }, author);
+      }
+      setIds(items.map(i => i.id));
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          performance.mark('mount-end');
+          performance.measure('mount-duration', 'mount-start', 'mount-end');
+          setComplete();
+        });
+      });
+    },
+    [controller, setComplete],
+  );
 
   const mountUnmountCycle = useCallback(
     async (n: number, cycles: number) => {
@@ -167,7 +194,7 @@ function BenchmarkHarness() {
     [mount, unmountAll, setComplete],
   );
 
-  const getRenderedCount = useCallback(() => count, [count]);
+  const getRenderedCount = useCallback(() => ids.length, [ids]);
 
   const captureRefSnapshot = useCallback(() => {
     captureSnapshot();
@@ -185,7 +212,8 @@ function BenchmarkHarness() {
       captureRefSnapshot,
       getRefStabilityReport,
       mountUnmountCycle,
-      optimisticRollback,
+      optimisticUpdate,
+      bulkIngest,
     };
     return () => {
       delete window.__BENCH__;
@@ -196,7 +224,8 @@ function BenchmarkHarness() {
     updateAuthor,
     unmountAll,
     mountUnmountCycle,
-    optimisticRollback,
+    optimisticUpdate,
+    bulkIngest,
     getRenderedCount,
     captureRefSnapshot,
     getRefStabilityReport,
@@ -205,8 +234,6 @@ function BenchmarkHarness() {
   useEffect(() => {
     document.body.setAttribute('data-app-ready', 'true');
   }, []);
-
-  const ids = FIXTURE_ITEMS.slice(0, count).map(i => i.id);
 
   return (
     <div ref={containerRef} data-bench-harness>
@@ -220,7 +247,7 @@ function BenchmarkHarness() {
 }
 
 function onProfilerRender(
-  id: string,
+  _id: string,
   phase: 'mount' | 'update' | 'nested-update',
   actualDuration: number,
 ) {

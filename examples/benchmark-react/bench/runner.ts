@@ -90,11 +90,12 @@ async function runScenario(
   const isUpdate =
     scenario.action === 'updateEntity' ||
     scenario.action === 'updateAuthor' ||
-    scenario.action === 'optimisticRollback';
+    scenario.action === 'optimisticUpdate';
   const isRefStability = isRefStabilityScenario(scenario);
+  const isBulkIngest = scenario.action === 'bulkIngest';
 
   const mountCount =
-    scenario.mountCount ?? (scenario.action === 'optimisticRollback' ? 1 : 100);
+    scenario.mountCount ?? (scenario.action === 'optimisticUpdate' ? 1 : 100);
   if (isUpdate || isRefStability) {
     await harness.evaluate(el => el.removeAttribute('data-bench-complete'));
     await (bench as any).evaluate(
@@ -149,12 +150,13 @@ async function runScenario(
   }
 
   const measures = await collectMeasures(page);
+  const isMountLike = scenario.action === 'mount' || isBulkIngest;
   const duration =
-    scenario.action === 'mount' ?
+    isMountLike ?
       getMeasureDuration(measures, 'mount-duration')
     : getMeasureDuration(measures, 'update-duration');
   const reactCommit =
-    scenario.action === 'mount' ?
+    isMountLike ?
       getMeasureDuration(measures, 'react-commit-mount')
     : getMeasureDuration(measures, 'react-commit-update');
 
@@ -202,17 +204,11 @@ async function main() {
 
       for (const scenario of SCENARIOS_TO_RUN) {
         if (!scenario.name.startsWith(`${lib}:`)) continue;
-        if (scenario.action === 'optimisticRollback' && lib !== 'data-client')
-          continue;
         try {
           const result = await runScenario(page, lib, scenario);
           results[scenario.name].push(result.value);
-          if (result.reactCommit != null) {
-            reactCommitResults[scenario.name].push(result.reactCommit);
-          }
-          if (result.traceDuration != null) {
-            traceResults[scenario.name].push(result.traceDuration);
-          }
+          reactCommitResults[scenario.name].push(result.reactCommit ?? NaN);
+          traceResults[scenario.name].push(result.traceDuration ?? NaN);
         } catch (err) {
           console.error(
             `Scenario ${scenario.name} failed:`,
@@ -247,17 +243,20 @@ async function main() {
       value: Math.round(median * 100) / 100,
       range,
     });
-    const reactSamples = reactCommitResults[scenario.name];
+    const reactSamples = reactCommitResults[scenario.name]
+      .slice(WARMUP_RUNS)
+      .filter(x => !Number.isNaN(x));
     if (
       reactSamples.length > 0 &&
       (scenario.action === 'mount' ||
         scenario.action === 'updateEntity' ||
         scenario.action === 'updateAuthor' ||
-        scenario.action === 'optimisticRollback')
+        scenario.action === 'optimisticUpdate' ||
+        scenario.action === 'bulkIngest')
     ) {
       const { median: rcMedian, range: rcRange } = computeStats(
         reactSamples,
-        WARMUP_RUNS,
+        0,
       );
       report.push({
         name: `${scenario.name} (react commit)`,
@@ -266,11 +265,13 @@ async function main() {
         range: rcRange,
       });
     }
-    const traceSamples = traceResults[scenario.name];
+    const traceSamples = traceResults[scenario.name]
+      .slice(WARMUP_RUNS)
+      .filter(x => !Number.isNaN(x));
     if (traceSamples.length > 0) {
       const { median: trMedian, range: trRange } = computeStats(
         traceSamples,
-        WARMUP_RUNS,
+        0,
       );
       report.push({
         name: `${scenario.name} (trace)`,
