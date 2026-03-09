@@ -177,5 +177,5 @@ export const SCENARIOS: Scenario[] = LIBRARIES.flatMap(lib =>
   ),
 );
 
-export const WARMUP_RUNS = 2;
-export const MEASUREMENT_RUNS = process.env.CI ? 5 : 20;
+export const WARMUP_RUNS = 3;
+export const MEASUREMENT_RUNS = process.env.CI ? 10 : 15;

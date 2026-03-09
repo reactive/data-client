@@ -238,13 +238,6 @@ async function main() {
       const context = await browser.newContext();
       const page = await context.newPage();
 
-      try {
-        const cdp = await context.newCDPSession(page);
-        await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
-      } catch {
-        // CDP throttling is best-effort
-      }
-
       for (const scenario of SCENARIOS_TO_RUN) {
         if (!scenario.name.startsWith(`${lib}:`)) continue;
         try {

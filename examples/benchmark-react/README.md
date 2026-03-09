@@ -14,7 +14,7 @@ The repo has two benchmark suites:
 - **What we measure:** Wall-clock time from triggering an action (e.g. `mount(100)` or `updateAuthor('author-0')`) until the harness sets `data-bench-complete` (after two `requestAnimationFrame` callbacks). Optionally we also record React Profiler commit duration and, with `BENCH_TRACE=true`, Chrome trace duration.
 - **Why:** Normalized caching should show wins on shared-entity updates (one store write, many components update), ref stability (fewer new object references), and derived-view memoization (`Query` schema avoids re-sorting when entities haven't changed). See [js-framework-benchmark "How the duration is measured"](https://github.com/krausest/js-framework-benchmark/wiki/How-the-duration-is-measured) for a similar timeline-based approach.
 - **Statistical:** Warmup runs are discarded; we report median and 95% CI. Libraries are interleaved per round to reduce environmental variance.
-- **CPU throttling:** 4x CPU slowdown via CDP to amplify small differences on fast CI machines.
+- **No CPU throttling:** Runs at native speed with more samples (3 warmup + 30 measurement locally, 15 in CI) for statistical significance rather than artificial slowdown.
 
 ## Scenario categories
 
@@ -95,14 +95,10 @@ Regressions >5% on stable scenarios or >15% on volatile scenarios are worth inve
    Playwright needs system libraries to run Chromium. If you see "Host system is missing dependencies to run browsers":
 
    ```bash
-   sudo npx playwright install-deps chromium
+   sudo env PATH="$PATH" npx playwright install-deps chromium
    ```
 
-   Or install manually (e.g. Debian/Ubuntu):
-
-   ```bash
-   sudo apt-get install libnss3 libnspr4 libasound2t64
-   ```
+   The `env PATH="$PATH"` is needed because `sudo` doesn't inherit your shell's PATH (where nvm-managed node/npx live).
 
 2. **Build and run**
 
