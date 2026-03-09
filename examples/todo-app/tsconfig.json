@@ -16,7 +16,7 @@
     "emitDecoratorMetadata": true,
     "types": ["@anansi/webpack-config/types"],
     "paths": {
-      "resources/*": ["./src/resources/*"]
+      "*": ["./src/*"]
     },
     "noEmit": true
   },

@@ -10,6 +10,7 @@
     "sourceMap": true,
     "noImplicitAny": false,   // this is for normalizr
     "types": ["node", "jest"],
+    "ignoreDeprecations": "6.0",
     "paths": {
       "__tests__/*": ["./__tests__/*"]
     }
