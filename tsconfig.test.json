@@ -3,9 +3,16 @@
   "compilerOptions": {
     "outDir": "tsbuildinfo",
     "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "emitDeclarationOnly": false,
     "noEmit": true,
     "sourceMap": true,
-    "noImplicitAny": false   // this is for normalizr
+    "noImplicitAny": false,   // this is for normalizr
+    "types": ["node", "jest"],
+    "paths": {
+      "__tests__/*": ["./__tests__/*"]
+    }
   },
   "include": ["packages/*/src", "packages/*/typescript-tests", "__tests__"]
 }

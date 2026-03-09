@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "outDir": "./dist",
-    "baseUrl": "./src",
     "target": "esnext",
     "module": "esnext",
     "lib": [
@@ -20,6 +19,9 @@
     "types": [
       "@anansi/webpack-config/types"
     ],
+    "paths": {
+      "*": ["./src/*"]
+    },
     "noEmit": true
   },
   "include": [

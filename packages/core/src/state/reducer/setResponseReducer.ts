@@ -13,7 +13,7 @@ export function setResponseReducer(
   state: State<unknown>,
   action: OptimisticAction | SetResponseAction,
   controller: Controller,
-) {
+): State<unknown> {
   if (action.error) {
     return reduceError(state, action, action.response);
   }

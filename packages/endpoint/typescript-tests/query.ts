@@ -1,5 +1,4 @@
-import { useQuery } from 'packages/react/lib';
-
+import { useQuery } from '../../react/lib';
 import { schema, Query, Entity } from '../src';
 
 export class Ticker extends Entity {

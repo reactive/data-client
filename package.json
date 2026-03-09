@@ -101,7 +101,7 @@
     "react-test-renderer": "19.2.3",
     "rimraf": "^6.0.0",
     "rollup": "4.59.0",
-    "typescript": "5.9.3",
+    "typescript": "6.0.1-rc",
     "whatwg-fetch": "3.0.0"
   },
   "resolutions": {

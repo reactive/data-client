@@ -51,5 +51,5 @@ Update docs **in the same commit/PR** when changing public APIs (anything export
 
 - **Babel**: Resolves relative `.js` imports to `.ts` in tests
 - **Jest**: Maps `@data-client/*` imports to local `packages/*/src` during tests
-- **TypeScript**: Uses TS 5.9 project references; ambient `.d.ts` files copied during build
+- **TypeScript**: Uses TS 6.0 project references; ambient `.d.ts` files copied during build
 - **Native compilation**: When `COMPILE_TARGET=native`, prefers `.native.*` files

@@ -1,14 +1,13 @@
 {
   "compilerOptions": {
     "outDir": "./dist",
-    "baseUrl": "./",
     "target": "esnext",
     "module": "esnext",
     "lib": ["dom", "esnext"],
-    "jsx": "preserve", // this is just to make it work with older typescript versions in our tests
+    "jsx": "preserve",
     "declaration": true,
     "strict": true,
-    "moduleResolution": "node", // this is just to make it work with older typescript versions in our tests
+    "moduleResolution": "bundler",
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
