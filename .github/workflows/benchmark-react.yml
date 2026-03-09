@@ -1,0 +1,89 @@
+name: Benchmark React
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'packages/react/src/**'
+      - 'packages/core/src/**'
+      - 'examples/benchmark-react/**'
+      - '.github/workflows/benchmark-react.yml'
+  push:
+    branches:
+      - master
+    paths:
+      - 'packages/react/src/**'
+      - 'packages/core/src/**'
+      - 'examples/benchmark-react/**'
+      - '.github/workflows/benchmark-react.yml'
+
+jobs:
+  benchmark-react:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'yarn'
+      - name: Install packages
+        run: |
+          corepack enable
+          yarn install --immutable
+      - name: Install Playwright (Chromium + system deps)
+        run: npx playwright install chromium --with-deps
+      - name: Build packages
+        run: yarn build:benchmark-react
+      - name: Run benchmark
+        run: |
+          yarn workspace example-benchmark-react preview &
+          sleep 10
+          cd examples/benchmark-react && yarn bench | tee react-bench-output.json
+
+      # PR comments on changes
+      - name: Download previous benchmark data (PR)
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/cache@v5
+        with:
+          path: ./cache
+          key: ${{ runner.os }}-benchmark-react-pr-${{ github.run_number }}
+          restore-keys: |
+            ${{ runner.os }}-benchmark-react
+      - name: Store benchmark result (PR)
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: rhysd/github-action-benchmark@v1
+        with:
+          tool: 'customSmallerIsBetter'
+          output-file-path: examples/benchmark-react/react-bench-output.json
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          gh-pages-branch: 'gh-pages-bench'
+          benchmark-data-dir-path: react-bench
+          alert-threshold: '150%'
+          comment-always: true
+          fail-on-alert: false
+          alert-comment-cc-users: '@ntucker'
+          save-data-file: false
+          auto-push: false
+
+      # master reports to history
+      - name: Download previous benchmark data (main)
+        if: ${{ github.event_name == 'push' }}
+        uses: actions/cache@v5
+        with:
+          path: ./cache
+          key: ${{ runner.os }}-benchmark-react
+      - name: Store benchmark result (main)
+        if: ${{ github.event_name == 'push' }}
+        uses: rhysd/github-action-benchmark@v1
+        with:
+          tool: 'customSmallerIsBetter'
+          output-file-path: examples/benchmark-react/react-bench-output.json
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          gh-pages-branch: 'gh-pages-bench'
+          benchmark-data-dir-path: react-bench
+          auto-push: true
+          fail-on-alert: false

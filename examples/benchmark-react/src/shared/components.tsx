@@ -1,0 +1,16 @@
+import React from 'react';
+
+import type { Item } from './types';
+
+/**
+ * Pure presentational component - no data-fetching logic.
+ * Each library app wraps this with its own data-fetching hook.
+ */
+export function ItemRow({ item }: { item: Item }) {
+  return (
+    <div data-item-id={item.id} data-bench-item>
+      <span data-label>{item.label}</span>
+      <span data-author>{item.author.login}</span>
+    </div>
+  );
+}
