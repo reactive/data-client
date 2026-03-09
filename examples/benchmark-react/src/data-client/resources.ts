@@ -25,6 +25,7 @@ export class ItemEntity extends Entity {
   }
 
   static key = 'ItemEntity';
+  static schema = { author: AuthorEntity };
 }
 
 /** Endpoint to get a single author by id */

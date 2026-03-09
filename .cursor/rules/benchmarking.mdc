@@ -1,12 +1,30 @@
 ---
-description: Benchmarking guidelines using examples/benchmark (suite selection, commands, and what packages are exercised)
-globs: examples/benchmark/**, .github/workflows/benchmark.yml, packages/normalizr/src/**, packages/core/src/**, packages/endpoint/src/schemas/**
+description: Benchmarking guidelines using examples/benchmark and examples/benchmark-react (suite selection, commands, and what packages are exercised)
+globs: examples/benchmark/**, examples/benchmark-react/**, .github/workflows/benchmark.yml, .github/workflows/benchmark-react.yml, packages/normalizr/src/**, packages/core/src/**, packages/endpoint/src/schemas/**, packages/react/src/**
 alwaysApply: false
 ---
 
-# Benchmarking (`@examples/benchmark`)
+# Benchmarking
 
-When working on performance investigations or changes that might impact performance, use **`@examples/benchmark`** as the canonical benchmark harness.
+## Node benchmark (`@examples/benchmark`)
+
+When working on performance investigations or changes that might impact **core, normalizr, or endpoint** (no browser, no React), use **`@examples/benchmark`** as the canonical harness.
+
+## React benchmark (`@examples/benchmark-react`)
+
+When working on **`packages/react`** or comparing data-client to other React data libraries (TanStack Query, SWR, baseline), use **`@examples/benchmark-react`**.
+
+- **Where it lives**: `examples/benchmark-react/`
+- **How to run**: From repo root: `yarn build:benchmark-react`, then `yarn workspace example-benchmark-react preview &` and in another terminal `cd examples/benchmark-react && yarn bench`
+- **What it measures**: Browser-based mount/update duration, ref-stability counts, optional memory (heap delta) and React Profiler commit times. Compares data-client, TanStack Query, SWR, and a plain React baseline.
+- **CI**: `.github/workflows/benchmark-react.yml` runs on changes to `packages/react/src/**`, `packages/core/src/**`, or `examples/benchmark-react/**` and reports via `rhysd/github-action-benchmark` (customSmallerIsBetter). Hot-path scenarios only in CI; with-network and memory scenarios run locally.
+- **Report viewer**: Open `examples/benchmark-react/bench/report-viewer.html` in a browser and paste `react-bench-output.json` to view a comparison table and charts.
+
+See `@examples/benchmark-react/README.md` for methodology, adding a new library, and interpreting results.
+
+---
+
+# Node benchmark details (`@examples/benchmark`)
 
 ## Optimization workflow
 

@@ -1,42 +1,38 @@
-import { DataProvider, useCache, useController } from '@data-client/react';
-import { mockInitialState } from '@data-client/react/mock';
 import { ItemRow } from '@shared/components';
 import { FIXTURE_AUTHORS, FIXTURE_ITEMS } from '@shared/data';
 import { captureSnapshot, getReport, registerRefs } from '@shared/refStability';
 import type { Item, UpdateAuthorOptions } from '@shared/types';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { createRoot } from 'react-dom/client';
 
-import { getAuthor, getItem, getItemList } from './resources';
-
-const initialState = mockInitialState([
-  { endpoint: getItemList, args: [], response: FIXTURE_ITEMS },
-  ...FIXTURE_ITEMS.map(item => ({
-    endpoint: getItem,
-    args: [{ id: item.id }] as [{ id: string }],
-    response: item,
-  })),
-  ...FIXTURE_AUTHORS.map(author => ({
-    endpoint: getAuthor,
-    args: [{ id: author.id }] as [{ id: string }],
-    response: author,
-  })),
-]);
+const ItemsContext = React.createContext<{
+  items: Item[];
+  setItems: React.Dispatch<React.SetStateAction<Item[]>>;
+}>(null as any);
 
 function ItemView({ id }: { id: string }) {
-  const item = useCache(getItem, { id });
+  const { items } = useContext(ItemsContext);
+  const item = items.find(i => i.id === id);
   if (!item) return null;
-  const itemAsItem = item as unknown as Item;
-  registerRefs(id, itemAsItem, itemAsItem.author);
-  return <ItemRow item={itemAsItem} />;
+  registerRefs(id, item, item.author);
+  return <ItemRow item={item} />;
 }
 
 function BenchmarkHarness() {
+  const [items, setItems] = useState<Item[]>([]);
   const [count, setCount] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
-  const controller = useController();
+  const completeResolveRef = useRef<(() => void) | null>(null);
 
   const setComplete = useCallback(() => {
+    completeResolveRef.current?.();
+    completeResolveRef.current = null;
     containerRef.current?.setAttribute('data-bench-complete', 'true');
   }, []);
 
@@ -44,6 +40,7 @@ function BenchmarkHarness() {
     (n: number) => {
       performance.mark('mount-start');
       setCount(n);
+      setItems(FIXTURE_ITEMS.slice(0, n));
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           performance.mark('mount-end');
@@ -58,17 +55,11 @@ function BenchmarkHarness() {
   const updateEntity = useCallback(
     (id: string) => {
       performance.mark('update-start');
-      const item = FIXTURE_ITEMS.find(i => i.id === id);
-      if (item) {
-        controller.setResponse(
-          getItem,
-          { id },
-          {
-            ...item,
-            label: `${item.label} (updated)`,
-          },
-        );
-      }
+      setItems(prev =>
+        prev.map(item =>
+          item.id === id ? { ...item, label: `${item.label} (updated)` } : item,
+        ),
+      );
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           performance.mark('update-end');
@@ -77,7 +68,7 @@ function BenchmarkHarness() {
         });
       });
     },
-    [controller, setComplete],
+    [setComplete],
   );
 
   const updateAuthor = useCallback(
@@ -90,13 +81,16 @@ function BenchmarkHarness() {
       const doUpdate = () => {
         const author = FIXTURE_AUTHORS.find(a => a.id === authorId);
         if (author) {
-          controller.setResponse(
-            getAuthor,
-            { id: authorId },
-            {
-              ...author,
-              name: `${author.name} (updated)`,
-            },
+          const newAuthor = {
+            ...author,
+            name: `${author.name} (updated)`,
+          };
+          setItems(prev =>
+            prev.map(item =>
+              item.author.id === authorId ?
+                { ...item, author: newAuthor }
+              : item,
+            ),
           );
         }
         requestAnimationFrame(() => {
@@ -118,12 +112,31 @@ function BenchmarkHarness() {
         doUpdate();
       }
     },
-    [controller, setComplete],
+    [setComplete],
   );
 
   const unmountAll = useCallback(() => {
     setCount(0);
+    setItems([]);
   }, []);
+
+  const mountUnmountCycle = useCallback(
+    async (n: number, cycles: number) => {
+      for (let i = 0; i < cycles; i++) {
+        const p = new Promise<void>(r => {
+          completeResolveRef.current = r;
+        });
+        mount(n);
+        await p;
+        unmountAll();
+        await new Promise<void>(r =>
+          requestAnimationFrame(() => requestAnimationFrame(() => r())),
+        );
+      }
+      setComplete();
+    },
+    [mount, unmountAll, setComplete],
+  );
 
   const getRenderedCount = useCallback(() => count, [count]);
 
@@ -142,6 +155,7 @@ function BenchmarkHarness() {
       getRenderedCount,
       captureRefSnapshot,
       getRefStabilityReport,
+      mountUnmountCycle,
     };
     return () => {
       delete window.__BENCH__;
@@ -151,6 +165,7 @@ function BenchmarkHarness() {
     updateEntity,
     updateAuthor,
     unmountAll,
+    mountUnmountCycle,
     getRenderedCount,
     captureRefSnapshot,
     getRefStabilityReport,
@@ -163,19 +178,32 @@ function BenchmarkHarness() {
   const ids = FIXTURE_ITEMS.slice(0, count).map(i => i.id);
 
   return (
-    <div ref={containerRef} data-bench-harness>
-      <div data-item-list>
-        {ids.map(id => (
-          <ItemView key={id} id={id} />
-        ))}
+    <ItemsContext.Provider value={{ items, setItems }}>
+      <div ref={containerRef} data-bench-harness>
+        <div data-item-list>
+          {ids.map(id => (
+            <ItemView key={id} id={id} />
+          ))}
+        </div>
       </div>
-    </div>
+    </ItemsContext.Provider>
   );
+}
+
+function onProfilerRender(
+  _id: string,
+  phase: 'mount' | 'update' | 'nested-update',
+  actualDuration: number,
+) {
+  performance.measure(`react-commit-${phase}`, {
+    start: performance.now() - actualDuration,
+    duration: actualDuration,
+  });
 }
 
 const rootEl = document.getElementById('root') ?? document.body;
 createRoot(rootEl).render(
-  <DataProvider initialState={initialState}>
+  <React.Profiler id="bench" onRender={onProfilerRender}>
     <BenchmarkHarness />
-  </DataProvider>,
+  </React.Profiler>,
 );

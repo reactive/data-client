@@ -31,6 +31,10 @@ export interface BenchAPI {
   getRenderedCount(): number;
   captureRefSnapshot(): void;
   getRefStabilityReport(): RefStabilityReport;
+  /** For memory scenarios: mount n items, unmount, repeat cycles times; resolves when done. */
+  mountUnmountCycle?(count: number, cycles: number): Promise<void>;
+  /** Optimistic update then rollback; sets data-bench-complete when rollback is painted. Optional (data-client only). */
+  optimisticRollback?(): void;
 }
 
 declare global {
@@ -58,17 +62,23 @@ export type ScenarioAction =
   | { action: 'updateAuthor'; args: [string, UpdateAuthorOptions] }
   | { action: 'unmountAll'; args: [] };
 
-export type ResultMetric = 'duration' | 'itemRefChanged' | 'authorRefChanged';
+export type ResultMetric =
+  | 'duration'
+  | 'itemRefChanged'
+  | 'authorRefChanged'
+  | 'heapDelta';
 
-/** hotPath = JS only, included in CI. withNetwork = simulated network/overfetching, comparison only. */
-export type ScenarioCategory = 'hotPath' | 'withNetwork';
+/** hotPath = JS only, included in CI. withNetwork = simulated network/overfetching, comparison only. memory = heap delta, not CI. */
+export type ScenarioCategory = 'hotPath' | 'withNetwork' | 'memory';
 
 export interface Scenario {
   name: string;
   action: keyof BenchAPI;
   args: unknown[];
-  /** Which value to report; default 'duration'. Ref-stability scenarios use itemRefChanged/authorRefChanged. */
+  /** Which value to report; default 'duration'. Ref-stability use itemRefChanged/authorRefChanged; memory use heapDelta. */
   resultMetric?: ResultMetric;
-  /** hotPath (default) = run in CI. withNetwork = comparison only, not CI. */
+  /** hotPath (default) = run in CI. withNetwork = comparison only. memory = heap delta. */
   category?: ScenarioCategory;
+  /** For update scenarios: number of items to mount before running the update (default 100). */
+  mountCount?: number;
 }

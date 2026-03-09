@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React benchmark report</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 1rem; background: #1a1a1a; color: #e0e0e0; }
+    h1 { font-size: 1.25rem; }
+    .controls { margin-bottom: 1rem; }
+    .controls label { margin-right: 0.5rem; }
+    textarea { width: 100%; min-height: 120px; font-family: monospace; font-size: 12px; background: #2a2a2a; color: #e0e0e0; border: 1px solid #444; padding: 0.5rem; }
+    button { padding: 0.35rem 0.75rem; cursor: pointer; background: #333; color: #e0e0e0; border: 1px solid #555; border-radius: 4px; }
+    button:hover { background: #444; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; font-size: 13px; }
+    th, td { border: 1px solid #444; padding: 0.4rem 0.6rem; text-align: right; }
+    th { background: #2a2a2a; text-align: left; }
+    td:first-child { text-align: left; }
+    .fast { background: rgba(0, 128, 0, 0.2); }
+    .slow { background: rgba(200, 0, 0, 0.2); }
+    .chart-container { max-width: 800px; height: 320px; margin-top: 1.5rem; }
+    .error { color: #f66; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <h1>React benchmark report</h1>
+  <div class="controls">
+    <label>Paste <code>react-bench-output.json</code> or upload:</label>
+    <input type="file" id="file" accept=".json" />
+    <br><br>
+    <textarea id="paste" placeholder='Paste JSON array here, e.g. [{"name":"data-client: mount-100-items","unit":"ms","value":12.5,"range":"± 1.2"}, ...]'></textarea>
+    <br>
+    <button id="render">Render table</button>
+  </div>
+  <p id="err" class="error"></p>
+  <div id="tableWrap"></div>
+  <div class="chart-container" id="chartWrap"></div>
+
+  <script>
+    (function () {
+      const paste = document.getElementById('paste');
+      const file = document.getElementById('file');
+      const renderBtn = document.getElementById('render');
+      const errEl = document.getElementById('err');
+      const tableWrap = document.getElementById('tableWrap');
+      const chartWrap = document.getElementById('chartWrap');
+
+      function setError(msg) {
+        errEl.textContent = msg || '';
+      }
+
+      function getData() {
+        const text = paste.value.trim();
+        if (text) {
+          try {
+            return JSON.parse(text);
+          } catch (e) {
+            setError('Invalid JSON: ' + e.message);
+            return null;
+          }
+        }
+        setError('Paste JSON or choose a file.');
+        return null;
+      }
+
+      file.addEventListener('change', function () {
+        const f = file.files[0];
+        if (!f) return;
+        const r = new FileReader();
+        r.onload = function () {
+          paste.value = r.result;
+          setError('');
+        };
+        r.readAsText(f);
+      });
+
+      renderBtn.addEventListener('click', function () {
+        const data = getData();
+        if (!data || !Array.isArray(data) || data.length === 0) {
+          if (data && !Array.isArray(data)) setError('JSON must be an array of { name, unit, value, range }.');
+          return;
+        }
+        setError('');
+
+        const libs = new Set();
+        const suffixToLibRows = {};
+        data.forEach(function (row) {
+          const m = row.name.match(/^([^:]+):\s*(.+)$/);
+          const lib = m ? m[1] : '?';
+          const suffix = m ? m[2].trim() : row.name;
+          libs.add(lib);
+          if (!suffixToLibRows[suffix]) suffixToLibRows[suffix] = {};
+          suffixToLibRows[suffix][lib] = row;
+        });
+        const scenarioNames = Object.keys(suffixToLibRows).sort();
+        const libList = Array.from(libs).sort();
+
+        const thead = ['Scenario', ...libList].map(function (c) { return '<th>' + c + '</th>'; }).join('');
+        let tbody = '';
+        scenarioNames.forEach(function (scenarioName) {
+          const byLib = suffixToLibRows[scenarioName] || {};
+          const cells = [scenarioName];
+          let minV = Infinity, maxV = -Infinity;
+          libList.forEach(function (lib) {
+            const r = byLib[lib];
+            if (r && typeof r.value === 'number') {
+              if (r.unit === 'bytes' || r.unit === 'ms' || r.unit === 'count') {
+                if (r.value < minV) minV = r.value;
+                if (r.value > maxV) maxV = r.value;
+              }
+            }
+          });
+          libList.forEach(function (lib) {
+            const r = byLib[lib];
+            if (!r) { cells.push('<td>—</td>'); return; }
+            let cls = '';
+            if (typeof r.value === 'number' && minV !== maxV && (r.unit === 'ms' || r.unit === 'bytes')) {
+              cls = r.value <= minV ? 'fast' : (r.value >= maxV ? 'slow' : '');
+            }
+            const range = r.range ? ' ' + r.range : '';
+            cells.push('<td class="' + cls + '">' + (r.value != null ? Number(r.value) + (r.unit === 'ms' ? ' ms' : r.unit === 'bytes' ? ' B' : '') + range : '—') + '</td>');
+          });
+          tbody += '<tr>' + cells.map(function (c) { return c; }).join('') + '</tr>';
+        });
+
+        tableWrap.innerHTML = '<table><thead><tr>' + thead + '</tr></thead><tbody>' + tbody + '</tbody></table>';
+
+        if (chartWrap && typeof Chart !== 'undefined' && scenarioNames.length > 0 && libList.length > 0) {
+          const ctx = document.createElement('canvas');
+          chartWrap.innerHTML = '';
+          chartWrap.appendChild(ctx);
+          const labels = scenarioNames.slice(0, 12);
+          const datasets = libList.map(function (lib, i) {
+            const colors = ['#6b8e23', '#4a90d9', '#c75a9b', '#e8b923'];
+            return {
+              label: lib,
+              data: labels.map(function (scenarioName) {
+                const r = suffixToLibRows[scenarioName] && suffixToLibRows[scenarioName][lib];
+                return r && typeof r.value === 'number' ? r.value : null;
+              }),
+              backgroundColor: colors[i % colors.length],
+            };
+          });
+          new Chart(ctx, {
+            type: 'bar',
+            data: { labels, datasets },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: { x: { stacked: false }, y: { beginAtZero: true } },
+              plugins: { legend: { position: 'top' } },
+            },
+          });
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

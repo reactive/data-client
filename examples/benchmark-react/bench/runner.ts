@@ -3,6 +3,7 @@ import { chromium } from 'playwright';
 import type { Page } from 'playwright';
 
 import { collectMeasures, getMeasureDuration } from './measure.js';
+import { collectHeapUsed } from './memory.js';
 import { formatReport, type BenchmarkResult } from './report.js';
 import {
   SCENARIOS,
@@ -11,12 +12,15 @@ import {
   LIBRARIES,
 } from './scenarios.js';
 import { computeStats } from './stats.js';
+import { parseTraceDuration } from './tracing.js';
 
 const BASE_URL = process.env.BENCH_BASE_URL ?? 'http://localhost:5173';
-/** In CI we only run hot-path scenarios; with-network is for local comparison. */
+/** In CI we only run hot-path scenarios; with-network and memory are for local comparison. */
 const SCENARIOS_TO_RUN =
   process.env.CI ?
-    SCENARIOS.filter(s => s.category !== 'withNetwork')
+    SCENARIOS.filter(
+      s => s.category !== 'withNetwork' && s.category !== 'memory',
+    )
   : SCENARIOS;
 const TOTAL_RUNS = WARMUP_RUNS + MEASUREMENT_RUNS;
 
@@ -33,12 +37,20 @@ function isRefStabilityScenario(
   );
 }
 
+const USE_TRACE = process.env.BENCH_TRACE === 'true';
+
+interface ScenarioResult {
+  value: number;
+  reactCommit?: number;
+  traceDuration?: number;
+}
+
 async function runScenario(
   page: Page,
   lib: string,
   scenario: (typeof SCENARIOS_TO_RUN)[0],
-): Promise<number> {
-  const appPath = '/';
+): Promise<ScenarioResult> {
+  const appPath = `/${lib}/`;
   await page.goto(`${BASE_URL}${appPath}`, { waitUntil: 'networkidle' });
   await page.waitForSelector('[data-app-ready]', {
     timeout: 10000,
@@ -51,13 +63,44 @@ async function runScenario(
   const bench = await page.evaluateHandle('window.__BENCH__');
   if (!bench) throw new Error('window.__BENCH__ not found');
 
+  const isMemory =
+    scenario.action === 'mountUnmountCycle' &&
+    scenario.resultMetric === 'heapDelta';
+  if (isMemory) {
+    const cdp = await page.context().newCDPSession(page);
+    try {
+      await cdp.send('Performance.enable');
+    } catch {
+      // best-effort
+    }
+    const heapBefore = await collectHeapUsed(cdp);
+    await (bench as any).evaluate(async (api: any, a: unknown[]) => {
+      if (api.mountUnmountCycle)
+        await api.mountUnmountCycle(...(a as [number, number]));
+    }, scenario.args);
+    await page.waitForSelector('[data-bench-complete]', {
+      timeout: 60000,
+      state: 'attached',
+    });
+    const heapAfter = await collectHeapUsed(cdp);
+    await bench.dispose();
+    return { value: heapAfter - heapBefore };
+  }
+
   const isUpdate =
-    scenario.action === 'updateEntity' || scenario.action === 'updateAuthor';
+    scenario.action === 'updateEntity' ||
+    scenario.action === 'updateAuthor' ||
+    scenario.action === 'optimisticRollback';
   const isRefStability = isRefStabilityScenario(scenario);
 
+  const mountCount =
+    scenario.mountCount ?? (scenario.action === 'optimisticRollback' ? 1 : 100);
   if (isUpdate || isRefStability) {
     await harness.evaluate(el => el.removeAttribute('data-bench-complete'));
-    await (bench as any).evaluate((api: any) => api.mount(100));
+    await (bench as any).evaluate(
+      (api: any, n: number) => api.mount(n),
+      mountCount,
+    );
     await page.waitForSelector('[data-bench-complete]', {
       timeout: 5000,
       state: 'attached',
@@ -73,6 +116,11 @@ async function runScenario(
   }
 
   await harness.evaluate(el => el.removeAttribute('data-bench-complete'));
+  if (USE_TRACE && !isRefStability) {
+    await (page as any).tracing.start({
+      categories: ['devtools.timeline', 'blink'],
+    });
+  }
   await (bench as any).evaluate((api: any, s: any) => {
     api[s.action](...s.args);
   }, scenario);
@@ -82,12 +130,22 @@ async function runScenario(
     state: 'attached',
   });
 
+  let traceDuration: number | undefined;
+  if (USE_TRACE && !isRefStability) {
+    try {
+      const buf = await (page as any).tracing.stop();
+      traceDuration = parseTraceDuration(buf);
+    } catch {
+      traceDuration = undefined;
+    }
+  }
+
   if (isRefStability && scenario.resultMetric) {
     const report = await (bench as any).evaluate((api: any) =>
       api.getRefStabilityReport(),
     );
     await bench.dispose();
-    return report[scenario.resultMetric] as number;
+    return { value: report[scenario.resultMetric] as number };
   }
 
   const measures = await collectMeasures(page);
@@ -95,9 +153,17 @@ async function runScenario(
     scenario.action === 'mount' ?
       getMeasureDuration(measures, 'mount-duration')
     : getMeasureDuration(measures, 'update-duration');
+  const reactCommit =
+    scenario.action === 'mount' ?
+      getMeasureDuration(measures, 'react-commit-mount')
+    : getMeasureDuration(measures, 'react-commit-update');
 
   await bench.dispose();
-  return duration;
+  return {
+    value: duration,
+    reactCommit: reactCommit > 0 ? reactCommit : undefined,
+    traceDuration,
+  };
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -111,8 +177,12 @@ function shuffle<T>(arr: T[]): T[] {
 
 async function main() {
   const results: Record<string, number[]> = {};
+  const reactCommitResults: Record<string, number[]> = {};
+  const traceResults: Record<string, number[]> = {};
   for (const scenario of SCENARIOS_TO_RUN) {
     results[scenario.name] = [];
+    reactCommitResults[scenario.name] = [];
+    traceResults[scenario.name] = [];
   }
 
   const browser = await chromium.launch({ headless: true });
@@ -132,9 +202,17 @@ async function main() {
 
       for (const scenario of SCENARIOS_TO_RUN) {
         if (!scenario.name.startsWith(`${lib}:`)) continue;
+        if (scenario.action === 'optimisticRollback' && lib !== 'data-client')
+          continue;
         try {
-          const duration = await runScenario(page, lib, scenario);
-          results[scenario.name].push(duration);
+          const result = await runScenario(page, lib, scenario);
+          results[scenario.name].push(result.value);
+          if (result.reactCommit != null) {
+            reactCommitResults[scenario.name].push(result.reactCommit);
+          }
+          if (result.traceDuration != null) {
+            traceResults[scenario.name].push(result.traceDuration);
+          }
         } catch (err) {
           console.error(
             `Scenario ${scenario.name} failed:`,
@@ -154,19 +232,53 @@ async function main() {
     const samples = results[scenario.name];
     if (samples.length === 0) continue;
     const { median, range } = computeStats(samples, WARMUP_RUNS);
-    const unit =
-      (
-        scenario.resultMetric === 'itemRefChanged' ||
-        scenario.resultMetric === 'authorRefChanged'
-      ) ?
-        'count'
-      : 'ms';
+    let unit = 'ms';
+    if (
+      scenario.resultMetric === 'itemRefChanged' ||
+      scenario.resultMetric === 'authorRefChanged'
+    ) {
+      unit = 'count';
+    } else if (scenario.resultMetric === 'heapDelta') {
+      unit = 'bytes';
+    }
     report.push({
       name: scenario.name,
       unit,
       value: Math.round(median * 100) / 100,
       range,
     });
+    const reactSamples = reactCommitResults[scenario.name];
+    if (
+      reactSamples.length > 0 &&
+      (scenario.action === 'mount' ||
+        scenario.action === 'updateEntity' ||
+        scenario.action === 'updateAuthor' ||
+        scenario.action === 'optimisticRollback')
+    ) {
+      const { median: rcMedian, range: rcRange } = computeStats(
+        reactSamples,
+        WARMUP_RUNS,
+      );
+      report.push({
+        name: `${scenario.name} (react commit)`,
+        unit: 'ms',
+        value: Math.round(rcMedian * 100) / 100,
+        range: rcRange,
+      });
+    }
+    const traceSamples = traceResults[scenario.name];
+    if (traceSamples.length > 0) {
+      const { median: trMedian, range: trRange } = computeStats(
+        traceSamples,
+        WARMUP_RUNS,
+      );
+      report.push({
+        name: `${scenario.name} (trace)`,
+        unit: 'ms',
+        value: Math.round(trMedian * 100) / 100,
+        range: trRange,
+      });
+    }
   }
 
   process.stdout.write(formatReport(report));

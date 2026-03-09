@@ -14,8 +14,9 @@ export function computeStats(
   const median = sorted[Math.floor(sorted.length / 2)] ?? 0;
   const p95Idx = Math.floor(sorted.length * 0.95);
   const p95 = sorted[Math.min(p95Idx, sorted.length - 1)] ?? median;
+  const mean = trimmed.reduce((sum, x) => sum + x, 0) / trimmed.length;
   const stdDev = Math.sqrt(
-    trimmed.reduce((sum, x) => sum + (x - median) ** 2, 0) / trimmed.length,
+    trimmed.reduce((sum, x) => sum + (x - mean) ** 2, 0) / trimmed.length,
   );
   const margin = 1.96 * (stdDev / Math.sqrt(trimmed.length));
   return {
