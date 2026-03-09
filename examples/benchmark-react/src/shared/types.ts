@@ -37,6 +37,10 @@ export interface BenchAPI {
   optimisticUpdate?(): void;
   /** Ingest fresh data into an empty cache at runtime, then render. Measures normalization + rendering pipeline. */
   bulkIngest?(count: number): void;
+  /** Mount a sorted/derived view of items. Exercises Query memoization (data-client) vs useMemo sort (others). */
+  mountSortedView?(count: number): void;
+  /** Invalidate a cached endpoint and immediately re-resolve. Measures Suspense round-trip. data-client only. */
+  invalidateAndResolve?(id: string): void;
 }
 
 declare global {
@@ -71,8 +75,8 @@ export type ResultMetric =
   | 'authorRefChanged'
   | 'heapDelta';
 
-/** hotPath = JS only, included in CI. withNetwork = simulated network/overfetching, comparison only. memory = heap delta, not CI. */
-export type ScenarioCategory = 'hotPath' | 'withNetwork' | 'memory';
+/** hotPath = JS only, included in CI. withNetwork = simulated network/overfetching, comparison only. memory = heap delta, not CI. startup = page load metrics, not CI. */
+export type ScenarioCategory = 'hotPath' | 'withNetwork' | 'memory' | 'startup';
 
 export interface Scenario {
   name: string;
@@ -80,8 +84,10 @@ export interface Scenario {
   args: unknown[];
   /** Which value to report; default 'duration'. Ref-stability use itemRefChanged/authorRefChanged; memory use heapDelta. */
   resultMetric?: ResultMetric;
-  /** hotPath (default) = run in CI. withNetwork = comparison only. memory = heap delta. */
+  /** hotPath (default) = run in CI. withNetwork = comparison only. memory = heap delta. startup = page load metrics. */
   category?: ScenarioCategory;
   /** For update scenarios: number of items to mount before running the update (default 100). */
   mountCount?: number;
+  /** Use a different BenchAPI method to pre-mount (e.g. 'mountSortedView' instead of 'mount'). */
+  preMountAction?: keyof BenchAPI;
 }

@@ -16,11 +16,60 @@ When working on **`packages/react`** or comparing data-client to other React dat
 
 - **Where it lives**: `examples/benchmark-react/`
 - **How to run**: From repo root: `yarn build:benchmark-react`, then `yarn workspace example-benchmark-react preview &` and in another terminal `cd examples/benchmark-react && yarn bench`
-- **What it measures**: Browser-based mount/update duration, ref-stability counts, optional memory (heap delta) and React Profiler commit times. Compares data-client, TanStack Query, SWR, and a plain React baseline.
-- **CI**: `.github/workflows/benchmark-react.yml` runs on changes to `packages/react/src/**`, `packages/core/src/**`, or `examples/benchmark-react/**` and reports via `rhysd/github-action-benchmark` (customSmallerIsBetter). Hot-path scenarios only in CI; with-network and memory scenarios run locally.
-- **Report viewer**: Open `examples/benchmark-react/bench/report-viewer.html` in a browser and paste `react-bench-output.json` to view a comparison table and charts.
+- **What it measures**: Browser-based mount/update duration, ref-stability counts, sorted-view (Query memoization), optional memory (heap delta), startup metrics (FCP/TBT), and React Profiler commit times. Compares data-client, TanStack Query, SWR, and a plain React baseline.
+- **CI**: `.github/workflows/benchmark-react.yml` runs on changes to `packages/react/src/**`, `packages/core/src/**`, `packages/endpoint/src/schemas/**`, `packages/normalizr/src/**`, or `examples/benchmark-react/**` and reports via `rhysd/github-action-benchmark` (customSmallerIsBetter). CI runs **data-client only** (hot-path scenarios) to track regressions; competitor libraries (TanStack Query, SWR, baseline) are for local comparison only.
+- **Report viewer**: Open `examples/benchmark-react/bench/report-viewer.html` in a browser and paste `react-bench-output.json` to view a comparison table and charts. Toggle "React commit" and "Trace" filters. Use "Load history" for time-series.
 
 See `@examples/benchmark-react/README.md` for methodology, adding a new library, and interpreting results.
+
+### Scenarios and what they exercise
+
+Use this mapping when deciding which React benchmark scenarios are relevant to a change:
+
+- **Mount scenarios** (`mount-100-items`, `mount-500-items`, `bulk-ingest-500`)
+  - Exercises: initial render with pre-populated cache
+  - Relevant for: `@data-client/react` hooks, `@data-client/core` store initialization
+  - All libraries
+
+- **Update propagation** (`update-single-entity`, `update-shared-author-duration`, `update-shared-author-500-mounted`, `update-shared-author-1000-mounted`)
+  - Exercises: store update → React rerender → DOM paint
+  - Relevant for: `@data-client/core` dispatch/reducer, `@data-client/react` subscription/selector
+  - All libraries (normalization advantage shows with shared author)
+
+- **Ref-stability** (`ref-stability-item-changed`, `ref-stability-author-changed`)
+  - Exercises: referential equality preservation through normalization
+  - Relevant for: `@data-client/normalizr` denormalize memoization, Entity identity
+  - All libraries (data-client should show fewest changed refs)
+
+- **Sorted/derived view** (`sorted-view-mount-500`, `sorted-view-update-entity`)
+  - Exercises: `Query` schema memoization via `useQuery` (data-client) vs `useMemo` sort (competitors)
+  - Relevant for: `@data-client/endpoint` Query, `@data-client/normalizr` MemoCache, `@data-client/react` useQuery
+  - All libraries
+
+- **Optimistic update** (`optimistic-update`) — data-client only
+  - Exercises: `getOptimisticResponse` + `controller.fetch` pipeline
+  - Relevant for: `@data-client/core` optimistic dispatch
+
+- **Invalidation** (`invalidate-and-resolve`) — data-client only
+  - Exercises: `controller.invalidate` → Suspense fallback → `controller.setResponse` re-resolve
+  - Relevant for: `@data-client/core` invalidation, `@data-client/react` Suspense integration
+
+### Expected variance
+
+| Category | Scenarios | Typical run-to-run spread |
+|---|---|---|
+| **Stable** | `mount-*`, `update-single-entity`, `ref-stability-*`, `sorted-view-mount-*` | 2–5% |
+| **Moderate** | `update-shared-author-*`, `bulk-ingest-*`, `sorted-view-update-*` | 5–10% |
+| **Volatile** | `memory-mount-unmount-cycle`, `startup-*`, `(react commit)` suffixes | 10–25% |
+
+Regressions >5% on stable scenarios or >15% on volatile scenarios are worth investigating.
+
+### When to use Node vs React benchmark
+
+- **Core/normalizr/endpoint changes only** (no rendering impact): Run `examples/benchmark` (Node). Faster iteration, no browser needed.
+- **React hook or Provider changes**: Run `examples/benchmark-react`. Captures real rendering cost.
+- **Schema changes** (Entity, Query, All): Run both — Node benchmark for raw throughput, React benchmark for rendering impact.
+- **Performance investigation**: Start with Node benchmark to isolate the JS layer, then validate with React benchmark for end-to-end confirmation.
 
 ---
 

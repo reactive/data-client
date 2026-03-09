@@ -34,8 +34,8 @@ export function generateItems(count: number, authorCount = 10): Item[] {
   return items;
 }
 
-/** Pre-generated fixture for benchmark - 500 items, 20 shared authors */
-export const FIXTURE_ITEMS = generateItems(500, 20);
+/** Pre-generated fixture for benchmark - 1000 items, 20 shared authors */
+export const FIXTURE_ITEMS = generateItems(1000, 20);
 
 /** Unique authors from fixture (for seeding and updateAuthor scenarios) */
 export const FIXTURE_AUTHORS = generateAuthors(20);

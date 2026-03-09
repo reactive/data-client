@@ -12,7 +12,13 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { createRoot } from 'react-dom/client';
 
 function seedCache(queryClient: QueryClient) {
@@ -22,6 +28,7 @@ function seedCache(queryClient: QueryClient) {
   for (const item of FIXTURE_ITEMS) {
     queryClient.setQueryData(['item', item.id], item);
   }
+  queryClient.setQueryData(['items', 'all'], FIXTURE_ITEMS);
 }
 
 const queryClient = new QueryClient({
@@ -48,8 +55,30 @@ function ItemView({ id }: { id: string }) {
   return <ItemRow item={itemAsItem} />;
 }
 
+function SortedListView() {
+  const { data: items } = useQuery({
+    queryKey: ['items', 'all'],
+    queryFn: () => FIXTURE_ITEMS,
+    initialData: () =>
+      queryClient.getQueryData<Item[]>(['items', 'all']) ?? FIXTURE_ITEMS,
+  });
+  const sorted = useMemo(
+    () =>
+      items ? [...items].sort((a, b) => a.label.localeCompare(b.label)) : [],
+    [items],
+  );
+  return (
+    <div data-sorted-list>
+      {sorted.map(item => (
+        <ItemRow key={item.id} item={item} />
+      ))}
+    </div>
+  );
+}
+
 function BenchmarkHarness() {
   const [ids, setIds] = useState<string[]>([]);
+  const [showSortedView, setShowSortedView] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const completeResolveRef = useRef<(() => void) | null>(null);
   const client = useQueryClient();
@@ -167,6 +196,22 @@ function BenchmarkHarness() {
     [client, setComplete],
   );
 
+  const mountSortedView = useCallback(
+    (n: number) => {
+      performance.mark('mount-start');
+      client.setQueryData(['items', 'all'], FIXTURE_ITEMS.slice(0, n));
+      setShowSortedView(true);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          performance.mark('mount-end');
+          performance.measure('mount-duration', 'mount-start', 'mount-end');
+          setComplete();
+        });
+      });
+    },
+    [client, setComplete],
+  );
+
   const mountUnmountCycle = useCallback(
     async (n: number, cycles: number) => {
       for (let i = 0; i < cycles; i++) {
@@ -204,6 +249,7 @@ function BenchmarkHarness() {
       getRefStabilityReport,
       mountUnmountCycle,
       bulkIngest,
+      mountSortedView,
     };
     return () => {
       delete window.__BENCH__;
@@ -215,6 +261,7 @@ function BenchmarkHarness() {
     unmountAll,
     mountUnmountCycle,
     bulkIngest,
+    mountSortedView,
     getRenderedCount,
     captureRefSnapshot,
     getRefStabilityReport,
@@ -231,6 +278,7 @@ function BenchmarkHarness() {
           <ItemView key={id} id={id} />
         ))}
       </div>
+      {showSortedView && <SortedListView />}
     </div>
   );
 }

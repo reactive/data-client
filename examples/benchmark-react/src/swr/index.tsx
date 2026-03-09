@@ -6,7 +6,13 @@ import {
 } from '@shared/data';
 import { captureSnapshot, getReport, registerRefs } from '@shared/refStability';
 import type { Item, UpdateAuthorOptions } from '@shared/types';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { createRoot } from 'react-dom/client';
 import useSWR, { SWRConfig, useSWRConfig } from 'swr';
 
@@ -32,6 +38,12 @@ for (const item of FIXTURE_ITEMS) {
     error: undefined,
   });
 }
+cache.set('items:all', {
+  data: FIXTURE_ITEMS,
+  isLoading: false,
+  isValidating: false,
+  error: undefined,
+});
 
 function ItemView({ id }: { id: string }) {
   const { data: item } = useSWR<Item>(`item:${id}`, fetcher);
@@ -40,8 +52,25 @@ function ItemView({ id }: { id: string }) {
   return <ItemRow item={item} />;
 }
 
+function SortedListView() {
+  const { data: items } = useSWR<Item[]>('items:all', fetcher);
+  const sorted = useMemo(
+    () =>
+      items ? [...items].sort((a, b) => a.label.localeCompare(b.label)) : [],
+    [items],
+  );
+  return (
+    <div data-sorted-list>
+      {sorted.map(item => (
+        <ItemRow key={item.id} item={item} />
+      ))}
+    </div>
+  );
+}
+
 function BenchmarkHarness() {
   const [ids, setIds] = useState<string[]>([]);
+  const [showSortedView, setShowSortedView] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const completeResolveRef = useRef<(() => void) | null>(null);
   const { mutate } = useSWRConfig();
@@ -169,6 +198,27 @@ function BenchmarkHarness() {
     [setComplete],
   );
 
+  const mountSortedView = useCallback(
+    (n: number) => {
+      performance.mark('mount-start');
+      cache.set('items:all', {
+        data: FIXTURE_ITEMS.slice(0, n),
+        isLoading: false,
+        isValidating: false,
+        error: undefined,
+      });
+      setShowSortedView(true);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          performance.mark('mount-end');
+          performance.measure('mount-duration', 'mount-start', 'mount-end');
+          setComplete();
+        });
+      });
+    },
+    [setComplete],
+  );
+
   const mountUnmountCycle = useCallback(
     async (n: number, cycles: number) => {
       for (let i = 0; i < cycles; i++) {
@@ -206,6 +256,7 @@ function BenchmarkHarness() {
       getRefStabilityReport,
       mountUnmountCycle,
       bulkIngest,
+      mountSortedView,
     };
     return () => {
       delete window.__BENCH__;
@@ -217,6 +268,7 @@ function BenchmarkHarness() {
     unmountAll,
     mountUnmountCycle,
     bulkIngest,
+    mountSortedView,
     getRenderedCount,
     captureRefSnapshot,
     getRefStabilityReport,
@@ -233,6 +285,7 @@ function BenchmarkHarness() {
           <ItemView key={id} id={id} />
         ))}
       </div>
+      {showSortedView && <SortedListView />}
     </div>
   );
 }

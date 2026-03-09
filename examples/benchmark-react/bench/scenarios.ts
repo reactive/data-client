@@ -15,6 +15,8 @@ interface BaseScenario {
   resultMetric?: Scenario['resultMetric'];
   category: NonNullable<Scenario['category']>;
   mountCount?: number;
+  /** Use a different BenchAPI method to pre-mount items (e.g. 'mountSortedView' instead of 'mount'). */
+  preMountAction?: keyof import('../src/shared/types.js').BenchAPI;
   /** Override args per library (e.g. different request counts for withNetwork). */
   perLibArgs?: Partial<Record<string, unknown[]>>;
   /** Only run for these libraries. Omit to run for all. */
@@ -122,7 +124,47 @@ const BASE_SCENARIOS: BaseScenario[] = [
     args: [500],
     category: 'hotPath',
   },
+  {
+    nameSuffix: 'sorted-view-mount-500',
+    action: 'mountSortedView',
+    args: [500],
+    category: 'hotPath',
+  },
+  {
+    nameSuffix: 'sorted-view-update-entity',
+    action: 'updateEntity',
+    args: ['item-0'],
+    category: 'hotPath',
+    mountCount: 500,
+    preMountAction: 'mountSortedView',
+  },
+  {
+    nameSuffix: 'update-shared-author-1000-mounted',
+    action: 'updateAuthor',
+    args: ['author-0'],
+    category: 'hotPath',
+    mountCount: 1000,
+  },
+  {
+    nameSuffix: 'invalidate-and-resolve',
+    action: 'invalidateAndResolve',
+    args: ['item-0'],
+    category: 'hotPath',
+    onlyLibs: ['data-client'],
+  },
 ];
+
+/** Startup scenarios measure page load metrics via CDP (no BenchAPI interaction). */
+export function getStartupScenarios(): Scenario[] {
+  return LIBRARIES.map(
+    (lib): Scenario => ({
+      name: `${lib}: startup`,
+      action: 'mount',
+      args: [],
+      category: 'startup',
+    }),
+  );
+}
 
 export const LIBRARIES = [
   'data-client',
@@ -142,6 +184,7 @@ export const SCENARIOS: Scenario[] = LIBRARIES.flatMap(lib =>
       resultMetric: base.resultMetric,
       category: base.category,
       mountCount: base.mountCount,
+      preMountAction: base.preMountAction,
     }),
   ),
 );

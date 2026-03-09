@@ -1,4 +1,9 @@
-import { DataProvider, useCache, useController } from '@data-client/react';
+import {
+  DataProvider,
+  useCache,
+  useController,
+  useQuery,
+} from '@data-client/react';
 import { mockInitialState } from '@data-client/react/mock';
 import { ItemRow } from '@shared/components';
 import {
@@ -15,6 +20,7 @@ import {
   getAuthor,
   getItem,
   getItemList,
+  sortedItemsQuery,
   updateItemOptimistic,
 } from './resources';
 
@@ -39,8 +45,22 @@ function ItemView({ id }: { id: string }) {
   return <ItemRow item={item as Item} />;
 }
 
+/** Renders items sorted by label via Query schema (memoized by MemoCache). */
+function SortedListView() {
+  const items = useQuery(sortedItemsQuery);
+  if (!items) return null;
+  return (
+    <div data-sorted-list>
+      {items.map((item: any) => (
+        <ItemRow key={item.id} item={item as Item} />
+      ))}
+    </div>
+  );
+}
+
 function BenchmarkHarness() {
   const [ids, setIds] = useState<string[]>([]);
+  const [showSortedView, setShowSortedView] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const completeResolveRef = useRef<(() => void) | null>(null);
   const controller = useController();
@@ -176,6 +196,53 @@ function BenchmarkHarness() {
     [controller, setComplete],
   );
 
+  const mountSortedView = useCallback(
+    (n: number) => {
+      performance.mark('mount-start');
+      for (const item of FIXTURE_ITEMS.slice(0, n)) {
+        controller.setResponse(getItem, { id: item.id }, item);
+      }
+      for (const author of FIXTURE_AUTHORS) {
+        controller.setResponse(getAuthor, { id: author.id }, author);
+      }
+      setShowSortedView(true);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          performance.mark('mount-end');
+          performance.measure('mount-duration', 'mount-start', 'mount-end');
+          setComplete();
+        });
+      });
+    },
+    [controller, setComplete],
+  );
+
+  const invalidateAndResolve = useCallback(
+    (id: string) => {
+      performance.mark('update-start');
+      const item = FIXTURE_ITEMS.find(i => i.id === id);
+      if (item) {
+        controller.invalidate(getItem, { id });
+        controller.setResponse(
+          getItem,
+          { id },
+          {
+            ...item,
+            label: `${item.label} (resolved)`,
+          },
+        );
+      }
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          performance.mark('update-end');
+          performance.measure('update-duration', 'update-start', 'update-end');
+          setComplete();
+        });
+      });
+    },
+    [controller, setComplete],
+  );
+
   const mountUnmountCycle = useCallback(
     async (n: number, cycles: number) => {
       for (let i = 0; i < cycles; i++) {
@@ -214,6 +281,8 @@ function BenchmarkHarness() {
       mountUnmountCycle,
       optimisticUpdate,
       bulkIngest,
+      mountSortedView,
+      invalidateAndResolve,
     };
     return () => {
       delete window.__BENCH__;
@@ -226,6 +295,8 @@ function BenchmarkHarness() {
     mountUnmountCycle,
     optimisticUpdate,
     bulkIngest,
+    mountSortedView,
+    invalidateAndResolve,
     getRenderedCount,
     captureRefSnapshot,
     getRefStabilityReport,
@@ -242,6 +313,7 @@ function BenchmarkHarness() {
           <ItemView key={id} id={id} />
         ))}
       </div>
+      {showSortedView && <SortedListView />}
     </div>
   );
 }

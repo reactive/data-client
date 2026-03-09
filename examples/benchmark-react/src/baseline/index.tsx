@@ -10,6 +10,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -28,9 +29,25 @@ function ItemView({ id }: { id: string }) {
   return <ItemRow item={item} />;
 }
 
+function SortedListView() {
+  const { items } = useContext(ItemsContext);
+  const sorted = useMemo(
+    () => [...items].sort((a, b) => a.label.localeCompare(b.label)),
+    [items],
+  );
+  return (
+    <div data-sorted-list>
+      {sorted.map(item => (
+        <ItemRow key={item.id} item={item} />
+      ))}
+    </div>
+  );
+}
+
 function BenchmarkHarness() {
   const [items, setItems] = useState<Item[]>([]);
   const [ids, setIds] = useState<string[]>([]);
+  const [showSortedView, setShowSortedView] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const completeResolveRef = useRef<(() => void) | null>(null);
 
@@ -142,6 +159,23 @@ function BenchmarkHarness() {
     [setComplete],
   );
 
+  const mountSortedView = useCallback(
+    (n: number) => {
+      performance.mark('mount-start');
+      const sliced = FIXTURE_ITEMS.slice(0, n);
+      setItems(sliced);
+      setShowSortedView(true);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          performance.mark('mount-end');
+          performance.measure('mount-duration', 'mount-start', 'mount-end');
+          setComplete();
+        });
+      });
+    },
+    [setComplete],
+  );
+
   const mountUnmountCycle = useCallback(
     async (n: number, cycles: number) => {
       for (let i = 0; i < cycles; i++) {
@@ -179,6 +213,7 @@ function BenchmarkHarness() {
       getRefStabilityReport,
       mountUnmountCycle,
       bulkIngest,
+      mountSortedView,
     };
     return () => {
       delete window.__BENCH__;
@@ -190,6 +225,7 @@ function BenchmarkHarness() {
     unmountAll,
     mountUnmountCycle,
     bulkIngest,
+    mountSortedView,
     getRenderedCount,
     captureRefSnapshot,
     getRefStabilityReport,
@@ -207,6 +243,7 @@ function BenchmarkHarness() {
             <ItemView key={id} id={id} />
           ))}
         </div>
+        {showSortedView && <SortedListView />}
       </div>
     </ItemsContext.Provider>
   );

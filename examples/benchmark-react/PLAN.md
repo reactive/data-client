@@ -39,30 +39,35 @@
 - All implementations switched from `count: number` state to `ids: string[]` state for cleaner bulk-ingest support
 - Scenario generation supports `perLibArgs` overrides and `onlyLibs` filtering
 
----
-
-## Future Work
-
 ### Session 5: `useQuery` + `Query` scenario (derived/computed data)
 
-Add a scenario that demonstrates `Query` schema memoization:
-- Mount a component showing items sorted/filtered via `useQuery(sortedQuery)` (data-client) vs inline `useMemo` sort (competitors)
-- Update one entity and measure rerender cost of the derived view
-- Requires adding a `SortedView` component to each library implementation
+- **`sortedItemsQuery`** — `Query` schema in `resources.ts` using `new Query(new All(ItemEntity), ...)` for globally memoized sorted views
+- **`SortedListView`** component added to all 4 library implementations: data-client uses `useQuery(sortedItemsQuery)` (no `useMemo`), competitors use `useMemo(() => [...items].sort(...), [items])`
+- **`mountSortedView`** — New `BenchAPI` method seeds cache and renders sorted view
+- **`sorted-view-mount-500`** — Scenario measuring mount cost of sorted derived view
+- **`sorted-view-update-entity`** — Uses `preMountAction: 'mountSortedView'` to pre-mount sorted view, then updates one entity; data-client `Query` memoization avoids re-sort when sort keys unchanged
+- Runner updated with `preMountAction` support and `mountSortedView` in `isMountLike` check
 
 ### Session 6: Memory and scaling scenarios
 
-- **Many-subscriber scaling:** Mount 500+ components subscribed to overlapping entities; measure per-update cost
-- **Cache invalidation cycle:** `controller.invalidate()` → Suspense fallback → re-resolve; measure full cycle time
+- **`update-shared-author-1000-mounted`** — 1000 components subscribed to overlapping entities; measures per-update scaling cost
+- **Fixture data expanded** to 1000 items (from 500) with 20 shared authors for stronger normalization signal
+- **`invalidateAndResolve`** — New `BenchAPI` method (data-client only): `controller.invalidate(getItem, { id })` followed by immediate `controller.setResponse` re-resolve; measures Suspense boundary round-trip
+- **`invalidate-and-resolve`** scenario added with `onlyLibs: ['data-client']`
 
 ### Session 7: Advanced measurement and reporting
 
-- **React Profiler as primary metric:** Use `<Profiler onRender>` duration as a separate reported metric alongside `performance.measure()`
-- **Local HTML report:** Enhance report viewer with time-series charts for CI history
-- **Lighthouse-style metrics:** FCP, TBT for initial load comparison
+- **Report viewer enhanced** (`bench/report-viewer.html`):
+  - Metric filtering: checkboxes for "Base metrics", "React commit", and "Trace" suffix entries
+  - Time-series charts: upload multiple JSON files from consecutive runs to render a Chart.js line chart showing trends over time
+  - Chart instances properly destroyed on re-render
+- **Startup metrics** via CDP `Performance.getMetrics`:
+  - `startup-fcp` (FirstContentfulPaint) and `startup-task-duration` (TaskDuration, proxy for TBT) reported per library
+  - Startup category excluded from CI; runs locally only (5 rounds per library)
+  - `getStartupScenarios()` function in scenarios.ts
 
 ### Session 8: Polish and documentation
 
-- **README:** Expand with methodology (what we measure, why), how to add a new library, and how to run locally vs CI
-- **Cursor rule:** Update `.cursor/rules/benchmarking.mdc` to document the React benchmark
-- **CI workflow:** Add GitHub Actions workflow for React benchmark (separate from existing Benchmark.js workflow)
+- **README expanded** with: all new scenarios documented, expected results table, expected variance table, metric categories explained, report viewer toggle/history instructions, updated "Adding a new library" section
+- **Cursor rule updated** (`.cursor/rules/benchmarking.mdc`): React benchmark scenario list with what they exercise and when to use them, expected variance table, "when to use Node vs React benchmark" guidance
+- **CI workflow refined** (`.github/workflows/benchmark-react.yml`): added `packages/endpoint/src/schemas/**` and `packages/normalizr/src/**` to path triggers, added `concurrency` group to prevent parallel benchmark runs on the same branch

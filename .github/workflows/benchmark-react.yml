@@ -7,6 +7,8 @@ on:
     paths:
       - 'packages/react/src/**'
       - 'packages/core/src/**'
+      - 'packages/endpoint/src/schemas/**'
+      - 'packages/normalizr/src/**'
       - 'examples/benchmark-react/**'
       - '.github/workflows/benchmark-react.yml'
   push:
@@ -15,8 +17,14 @@ on:
     paths:
       - 'packages/react/src/**'
       - 'packages/core/src/**'
+      - 'packages/endpoint/src/schemas/**'
+      - 'packages/normalizr/src/**'
       - 'examples/benchmark-react/**'
       - '.github/workflows/benchmark-react.yml'
+
+concurrency:
+  group: benchmark-react-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   benchmark-react:

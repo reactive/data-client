@@ -15,11 +15,18 @@ import { computeStats } from './stats.js';
 import { parseTraceDuration } from './tracing.js';
 
 const BASE_URL = process.env.BENCH_BASE_URL ?? 'http://localhost:5173';
-/** In CI we only run hot-path scenarios; with-network and memory are for local comparison. */
+/**
+ * In CI we only run data-client hot-path scenarios to track our own regressions.
+ * Competitor libraries (tanstack-query, swr, baseline) are for local comparison only.
+ */
 const SCENARIOS_TO_RUN =
   process.env.CI ?
     SCENARIOS.filter(
-      s => s.category !== 'withNetwork' && s.category !== 'memory',
+      s =>
+        s.name.startsWith('data-client:') &&
+        s.category !== 'withNetwork' &&
+        s.category !== 'memory' &&
+        s.category !== 'startup',
     )
   : SCENARIOS;
 const TOTAL_RUNS = WARMUP_RUNS + MEASUREMENT_RUNS;
@@ -90,20 +97,23 @@ async function runScenario(
   const isUpdate =
     scenario.action === 'updateEntity' ||
     scenario.action === 'updateAuthor' ||
-    scenario.action === 'optimisticUpdate';
+    scenario.action === 'optimisticUpdate' ||
+    scenario.action === 'invalidateAndResolve';
   const isRefStability = isRefStabilityScenario(scenario);
   const isBulkIngest = scenario.action === 'bulkIngest';
 
   const mountCount =
     scenario.mountCount ?? (scenario.action === 'optimisticUpdate' ? 1 : 100);
   if (isUpdate || isRefStability) {
+    const preMountAction = scenario.preMountAction ?? 'mount';
     await harness.evaluate(el => el.removeAttribute('data-bench-complete'));
     await (bench as any).evaluate(
-      (api: any, n: number) => api.mount(n),
+      (api: any, action: string, n: number) => api[action](n),
+      preMountAction,
       mountCount,
     );
     await page.waitForSelector('[data-bench-complete]', {
-      timeout: 5000,
+      timeout: 10000,
       state: 'attached',
     });
     await page.evaluate(() => {
@@ -150,15 +160,17 @@ async function runScenario(
   }
 
   const measures = await collectMeasures(page);
-  const isMountLike = scenario.action === 'mount' || isBulkIngest;
+  const isMountLike =
+    scenario.action === 'mount' ||
+    isBulkIngest ||
+    scenario.action === 'mountSortedView';
   const duration =
     isMountLike ?
       getMeasureDuration(measures, 'mount-duration')
     : getMeasureDuration(measures, 'update-duration');
-  const reactCommit =
-    isMountLike ?
-      getMeasureDuration(measures, 'react-commit-mount')
-    : getMeasureDuration(measures, 'react-commit-update');
+  // Both mount-like and update scenarios trigger state updates (setItems/etc.),
+  // so React Profiler always fires with phase: 'update' for the measured action.
+  const reactCommit = getMeasureDuration(measures, 'react-commit-update');
 
   await bench.dispose();
   return {
@@ -166,6 +178,35 @@ async function runScenario(
     reactCommit: reactCommit > 0 ? reactCommit : undefined,
     traceDuration,
   };
+}
+
+interface StartupMetrics {
+  fcp: number;
+  taskDuration: number;
+}
+
+async function runStartupScenario(
+  page: Page,
+  lib: string,
+): Promise<StartupMetrics> {
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('Performance.enable');
+  const appPath = `/${lib}/`;
+  await page.goto(`${BASE_URL}${appPath}`, { waitUntil: 'networkidle' });
+  await page.waitForSelector('[data-app-ready]', {
+    timeout: 10000,
+    state: 'attached',
+  });
+  const { metrics } = await cdp.send('Performance.getMetrics');
+  const fcp =
+    metrics.find(
+      (m: { name: string; value: number }) => m.name === 'FirstContentfulPaint',
+    )?.value ?? 0;
+  const taskDuration =
+    metrics.find(
+      (m: { name: string; value: number }) => m.name === 'TaskDuration',
+    )?.value ?? 0;
+  return { fcp, taskDuration };
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -188,7 +229,7 @@ async function main() {
   }
 
   const browser = await chromium.launch({ headless: true });
-  const libraries = [...LIBRARIES];
+  const libraries = process.env.CI ? ['data-client'] : [...LIBRARIES];
 
   for (let round = 0; round < TOTAL_RUNS; round++) {
     for (const lib of shuffle(libraries)) {
@@ -218,6 +259,32 @@ async function main() {
       }
 
       await context.close();
+    }
+  }
+
+  const startupResults: Record<string, { fcp: number[]; tbt: number[] }> = {};
+  const includeStartup = !process.env.CI;
+  if (includeStartup) {
+    for (const lib of LIBRARIES) {
+      startupResults[lib] = { fcp: [], tbt: [] };
+    }
+    const STARTUP_RUNS = 5;
+    for (let round = 0; round < STARTUP_RUNS; round++) {
+      for (const lib of shuffle([...LIBRARIES])) {
+        const context = await browser.newContext();
+        const page = await context.newPage();
+        try {
+          const m = await runStartupScenario(page, lib);
+          startupResults[lib].fcp.push(m.fcp * 1000);
+          startupResults[lib].tbt.push(m.taskDuration * 1000);
+        } catch (err) {
+          console.error(
+            `Startup ${lib} failed:`,
+            err instanceof Error ? err.message : err,
+          );
+        }
+        await context.close();
+      }
     }
   }
 
@@ -252,7 +319,9 @@ async function main() {
         scenario.action === 'updateEntity' ||
         scenario.action === 'updateAuthor' ||
         scenario.action === 'optimisticUpdate' ||
-        scenario.action === 'bulkIngest')
+        scenario.action === 'bulkIngest' ||
+        scenario.action === 'mountSortedView' ||
+        scenario.action === 'invalidateAndResolve')
     ) {
       const { median: rcMedian, range: rcRange } = computeStats(
         reactSamples,
@@ -279,6 +348,30 @@ async function main() {
         value: Math.round(trMedian * 100) / 100,
         range: trRange,
       });
+    }
+  }
+
+  if (includeStartup) {
+    for (const lib of LIBRARIES) {
+      const s = startupResults[lib];
+      if (s && s.fcp.length > 0) {
+        const fcpStats = computeStats(s.fcp, 0);
+        report.push({
+          name: `${lib}: startup-fcp`,
+          unit: 'ms',
+          value: Math.round(fcpStats.median * 100) / 100,
+          range: fcpStats.range,
+        });
+      }
+      if (s && s.tbt.length > 0) {
+        const tbtStats = computeStats(s.tbt, 0);
+        report.push({
+          name: `${lib}: startup-task-duration`,
+          unit: 'ms',
+          value: Math.round(tbtStats.median * 100) / 100,
+          range: tbtStats.range,
+        });
+      }
     }
   }
 

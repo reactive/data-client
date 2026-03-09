@@ -1,4 +1,4 @@
-import { Entity, Endpoint } from '@data-client/endpoint';
+import { Entity, Endpoint, All, Query } from '@data-client/endpoint';
 
 export class AuthorEntity extends Entity {
   id = '';
@@ -48,6 +48,16 @@ export const getItemList = new Endpoint(
   {
     schema: [ItemEntity],
     key: () => 'item:list',
+  },
+);
+
+/** Derived sorted view via Query schema -- globally memoized by MemoCache */
+export const sortedItemsQuery = new Query(
+  new All(ItemEntity),
+  (entries: any[]) => {
+    return [...entries].sort((a: any, b: any) =>
+      a.label.localeCompare(b.label),
+    );
   },
 );
 
