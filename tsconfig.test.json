@@ -10,7 +10,7 @@
     "sourceMap": true,
     "noImplicitAny": false,   // this is for normalizr
     "types": ["node", "jest"],
-    "ignoreDeprecations": "6.0",
+    "ignoreDeprecations": "6.0", // ts-jest v29 hardcodes moduleResolution: Node10 — remove when ts-jest fixes this (https://github.com/kulshekhar/ts-jest/issues)
     "paths": {
       "__tests__/*": ["./__tests__/*"]
     }
