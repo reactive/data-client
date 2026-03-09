@@ -15,6 +15,8 @@ import { computeStats } from './stats.js';
 import { parseTraceDuration } from './tracing.js';
 
 const BASE_URL = process.env.BENCH_BASE_URL ?? 'http://localhost:5173';
+const BENCH_LABEL =
+  process.env.BENCH_LABEL ? ` [${process.env.BENCH_LABEL}]` : '';
 /**
  * In CI we only run data-client hot-path scenarios to track our own regressions.
  * Competitor libraries (tanstack-query, swr, baseline) are for local comparison only.
@@ -375,6 +377,11 @@ async function main() {
     }
   }
 
+  if (BENCH_LABEL) {
+    for (const entry of report) {
+      entry.name += BENCH_LABEL;
+    }
+  }
   process.stdout.write(formatReport(report));
 }
 

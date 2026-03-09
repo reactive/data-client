@@ -115,6 +115,26 @@ Regressions >5% on stable scenarios or >15% on volatile scenarios are worth inve
 
    Or from repo root after a build: start preview in one terminal, then in another run `yarn workspace example-benchmark-react bench`.
 
+3. **With React Compiler**
+
+   To measure the impact of React Compiler, build and bench with it enabled:
+
+   ```bash
+   cd examples/benchmark-react
+   yarn build:compiler        # builds with babel-plugin-react-compiler
+   yarn preview &
+   sleep 5
+   yarn bench:compiler        # labels results with [compiler] suffix
+   ```
+
+   Or as a single command: `yarn bench:run:compiler`.
+
+   Results are labelled `[compiler]` so you can compare side-by-side with a normal run by loading both JSON files into the report viewer's history feature.
+
+   You can also set the env vars directly for custom combinations:
+   - `REACT_COMPILER=true` — enables the Babel plugin at build time
+   - `BENCH_LABEL=<tag>` — appends `[<tag>]` to all result names at bench time
+
 ## Output
 
 The runner prints a JSON array in `customSmallerIsBetter` format (name, unit, value, range) to stdout. In CI this is written to `react-bench-output.json` and sent to the benchmark action.
