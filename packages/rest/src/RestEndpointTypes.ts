@@ -235,7 +235,7 @@ type OptionsToRestEndpoint<
   'path' extends keyof O ?
     RestType<
       'searchParams' extends keyof O ?
-        O['searchParams'] extends undefined ?
+        [O['searchParams']] extends [undefined] ?
           PathArgs<Exclude<O['path'], undefined>>
         : O['searchParams'] & PathArgs<Exclude<O['path'], undefined>>
       : PathArgs<Exclude<O['path'], undefined>>,
@@ -263,7 +263,7 @@ type OptionsToRestEndpoint<
   : 'body' extends keyof O ?
     RestType<
       'searchParams' extends keyof O ?
-        O['searchParams'] extends undefined ?
+        [O['searchParams']] extends [undefined] ?
           PathArgs<Exclude<O['path'], undefined>>
         : O['searchParams'] & PathArgs<Exclude<E['path'], undefined>>
       : PathArgs<Exclude<E['path'], undefined>>,
@@ -290,7 +290,7 @@ type OptionsToRestEndpoint<
     >
   : 'searchParams' extends keyof O ?
     RestType<
-      O['searchParams'] extends undefined ?
+      [O['searchParams']] extends [undefined] ?
         PathArgs<Exclude<O['path'], undefined>>
       : O['searchParams'] & PathArgs<Exclude<E['path'], undefined>>,
       OptionsToBodyArgument<
@@ -468,7 +468,7 @@ export type AddEndpoint<
 > = RestInstanceBase<
   RestFetch<
     'searchParams' extends keyof O ?
-      O['searchParams'] extends undefined ?
+      [O['searchParams']] extends [undefined] ?
         PathArgs<Exclude<O['path'], undefined>>
       : O['searchParams'] & PathArgs<Exclude<O['path'], undefined>>
     : PathArgs<Exclude<O['path'], undefined>>,
@@ -490,7 +490,7 @@ export type RemoveEndpoint<
 > = RestInstanceBase<
   RestFetch<
     'searchParams' extends keyof O ?
-      O['searchParams'] extends undefined ?
+      [O['searchParams']] extends [undefined] ?
         PathArgs<Exclude<O['path'], undefined>>
       : O['searchParams'] & PathArgs<Exclude<O['path'], undefined>>
     : PathArgs<Exclude<O['path'], undefined>>,
@@ -562,7 +562,7 @@ export type RestEndpointConstructorOptions<O extends RestGenerics = any> =
   RestEndpointOptions<
     RestFetch<
       'searchParams' extends keyof O ?
-        O['searchParams'] extends undefined ?
+        [O['searchParams']] extends [undefined] ?
           PathArgs<O['path']>
         : O['searchParams'] & PathArgs<O['path']>
       : PathArgs<O['path']>,
@@ -587,7 +587,7 @@ export interface RestEndpoint<
 > extends RestInstance<
   RestFetch<
     'searchParams' extends keyof O ?
-      O['searchParams'] extends undefined ?
+      [O['searchParams']] extends [undefined] ?
         PathArgs<O['path']>
       : O['searchParams'] & PathArgs<O['path']>
     : PathArgs<O['path']>,
@@ -754,7 +754,7 @@ export type GetEndpoint<
   },
 > = RestTypeNoBody<
   'searchParams' extends keyof O ?
-    O['searchParams'] extends undefined ?
+    [O['searchParams']] extends [undefined] ?
       PathArgs<O['path']>
     : O['searchParams'] & PathArgs<O['path']>
   : PathArgs<O['path']>,
@@ -779,7 +779,7 @@ export type MutateEndpoint<
   },
 > = RestTypeWithBody<
   'searchParams' extends keyof O ?
-    O['searchParams'] extends undefined ?
+    [O['searchParams']] extends [undefined] ?
       PathArgs<O['path']>
     : O['searchParams'] & PathArgs<O['path']>
   : PathArgs<O['path']>,
