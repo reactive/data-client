@@ -59,8 +59,8 @@ function ListView() {
 }
 
 /** Renders items sorted by label via Query schema (memoized by MemoCache). */
-function SortedListView() {
-  const items = useQuery(sortedItemsQuery);
+function SortedListView({ count }: { count?: number }) {
+  const items = useQuery(sortedItemsQuery, { limit: count });
   if (!items) return null;
   return (
     <div data-sorted-list>
@@ -75,6 +75,7 @@ function BenchmarkHarness() {
   const [ids, setIds] = useState<string[]>([]);
   const [showListView, setShowListView] = useState(false);
   const [showSortedView, setShowSortedView] = useState(false);
+  const [sortedViewCount, setSortedViewCount] = useState<number | undefined>();
   const containerRef = useRef<HTMLDivElement>(null);
   const completeResolveRef = useRef<(() => void) | null>(null);
   const controller = useController();
@@ -170,6 +171,7 @@ function BenchmarkHarness() {
     setIds([]);
     setShowListView(false);
     setShowSortedView(false);
+    setSortedViewCount(undefined);
   }, []);
 
   const optimisticUpdate = useCallback(() => {
@@ -207,8 +209,9 @@ function BenchmarkHarness() {
   );
 
   const mountSortedView = useCallback(
-    (_n: number) => {
+    (n: number) => {
       performance.mark('mount-start');
+      setSortedViewCount(n);
       setShowSortedView(true);
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
@@ -318,7 +321,7 @@ function BenchmarkHarness() {
         ))}
       </div>
       {showListView && <ListView />}
-      {showSortedView && <SortedListView />}
+      {showSortedView && <SortedListView count={sortedViewCount} />}
     </div>
   );
 }

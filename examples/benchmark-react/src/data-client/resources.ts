@@ -54,10 +54,11 @@ export const getItemList = new Endpoint(
 /** Derived sorted view via Query schema -- globally memoized by MemoCache */
 export const sortedItemsQuery = new Query(
   new All(ItemEntity),
-  (entries: any[]) => {
-    return [...entries].sort((a: any, b: any) =>
+  (entries: any[], { limit }: { limit?: number } = {}) => {
+    const sorted = [...entries].sort((a: any, b: any) =>
       a.label.localeCompare(b.label),
     );
+    return limit ? sorted.slice(0, limit) : sorted;
   },
 );
 
