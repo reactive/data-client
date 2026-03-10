@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack --mode=production",
     "build:compiler": "REACT_COMPILER=true webpack --mode=production",
-    "preview": "serve dist -l 5173",
+    "preview": "serve dist -l 5173 --no-request-logging",
     "bench": "npx tsx bench/runner.ts",
     "bench:compiler": "BENCH_LABEL=compiler npx tsx bench/runner.ts",
     "bench:run": "yarn build && (yarn preview &) && sleep 5 && yarn bench",

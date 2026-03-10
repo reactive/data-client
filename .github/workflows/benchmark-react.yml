@@ -26,6 +26,10 @@ concurrency:
   group: benchmark-react-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   benchmark-react:
     runs-on: ubuntu-latest
