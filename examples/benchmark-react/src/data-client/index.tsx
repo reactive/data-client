@@ -45,6 +45,19 @@ function ItemView({ id }: { id: string }) {
   return <ItemRow item={item as Item} />;
 }
 
+/** Renders items from the list endpoint (models rendering a list fetch response). */
+function ListView() {
+  const items = useCache(getItemList);
+  if (!items) return null;
+  return (
+    <>
+      {(items as Item[]).map(item => (
+        <ItemRow key={item.id} item={item} />
+      ))}
+    </>
+  );
+}
+
 /** Renders items sorted by label via Query schema (memoized by MemoCache). */
 function SortedListView() {
   const items = useQuery(sortedItemsQuery);
@@ -60,6 +73,7 @@ function SortedListView() {
 
 function BenchmarkHarness() {
   const [ids, setIds] = useState<string[]>([]);
+  const [showListView, setShowListView] = useState(false);
   const [showSortedView, setShowSortedView] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const completeResolveRef = useRef<(() => void) | null>(null);
@@ -154,6 +168,8 @@ function BenchmarkHarness() {
 
   const unmountAll = useCallback(() => {
     setIds([]);
+    setShowListView(false);
+    setShowSortedView(false);
   }, []);
 
   const optimisticUpdate = useCallback(() => {
@@ -176,15 +192,9 @@ function BenchmarkHarness() {
   const bulkIngest = useCallback(
     (n: number) => {
       performance.mark('mount-start');
-      const { items, authors } = generateFreshData(n);
+      const { items } = generateFreshData(n);
       controller.setResponse(getItemList, items);
-      for (const item of items) {
-        controller.setResponse(getItem, { id: item.id }, item);
-      }
-      for (const author of authors) {
-        controller.setResponse(getAuthor, { id: author.id }, author);
-      }
-      setIds(items.map(i => i.id));
+      setShowListView(true);
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           performance.mark('mount-end');
@@ -197,14 +207,8 @@ function BenchmarkHarness() {
   );
 
   const mountSortedView = useCallback(
-    (n: number) => {
+    (_n: number) => {
       performance.mark('mount-start');
-      for (const item of FIXTURE_ITEMS.slice(0, n)) {
-        controller.setResponse(getItem, { id: item.id }, item);
-      }
-      for (const author of FIXTURE_AUTHORS) {
-        controller.setResponse(getAuthor, { id: author.id }, author);
-      }
       setShowSortedView(true);
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
@@ -214,7 +218,7 @@ function BenchmarkHarness() {
         });
       });
     },
-    [controller, setComplete],
+    [setComplete],
   );
 
   const invalidateAndResolve = useCallback(
@@ -313,6 +317,7 @@ function BenchmarkHarness() {
           <ItemView key={id} id={id} />
         ))}
       </div>
+      {showListView && <ListView />}
       {showSortedView && <SortedListView />}
     </div>
   );

@@ -129,9 +129,17 @@ async function runScenario(
   }
 
   await harness.evaluate(el => el.removeAttribute('data-bench-complete'));
-  if (USE_TRACE && !isRefStability) {
-    await (page as any).tracing.start({
-      categories: ['devtools.timeline', 'blink'],
+  const cdpTracing =
+    USE_TRACE && !isRefStability ?
+      await page.context().newCDPSession(page)
+    : undefined;
+  const traceChunks: object[] = [];
+  if (cdpTracing) {
+    cdpTracing.on('Tracing.dataCollected', (params: { value: object[] }) => {
+      traceChunks.push(...params.value);
+    });
+    await cdpTracing.send('Tracing.start', {
+      categories: 'devtools.timeline,blink',
     });
   }
   await (bench as any).evaluate((api: any, s: any) => {
@@ -144,12 +152,20 @@ async function runScenario(
   });
 
   let traceDuration: number | undefined;
-  if (USE_TRACE && !isRefStability) {
+  if (cdpTracing) {
     try {
-      const buf = await (page as any).tracing.stop();
-      traceDuration = parseTraceDuration(buf);
+      const done = new Promise<void>(resolve => {
+        cdpTracing!.on('Tracing.tracingComplete', () => resolve());
+      });
+      await cdpTracing.send('Tracing.end');
+      await done;
+      const traceJson =
+        '[\n' + traceChunks.map(e => JSON.stringify(e)).join(',\n') + '\n]';
+      traceDuration = parseTraceDuration(Buffer.from(traceJson));
     } catch {
       traceDuration = undefined;
+    } finally {
+      await cdpTracing.detach().catch(() => {});
     }
   }
 

@@ -18,7 +18,7 @@ export function parseTraceDuration(traceBuffer: Buffer): number {
         e.cat?.includes('devtools.timeline'),
     );
 
-    const firstTs = Math.min(...events.map(e => e.ts).filter(Boolean));
+    const firstTs = Math.min(...events.map(e => e.ts).filter(x => x != null));
     const lastPaint =
       paintEvents.length ?
         Math.max(...paintEvents.map(e => e.ts + (e.dur ?? 0)))
