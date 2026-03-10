@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1772988634018,
+  "lastUpdate": 1773147758390,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -111087,6 +111087,240 @@ window.BENCHMARK_DATA = {
             "range": "±0.09%",
             "unit": "ops/sec",
             "extra": "96 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "3b85c820f8046a056d9180ff5d2fe1a883b6998c",
+          "message": "pkg: Upgrade to TypeScript 6 RC (#3782)\n\n* pkg: Upgrade to TypeScript 6 RC\n\n- Update typescript to 6.0.1-rc across all workspace packages and examples\n- Remove deprecated baseUrl from tsconfigs, migrate paths accordingly\n- Change moduleResolution: \"node\" to \"bundler\" in example tsconfigs\n- Add explicit types arrays (TS 6 defaults types to [])\n- Add explicit return types for setReducer/setResponseReducer (TS2883)\n- Fix non-relative path in packages/img/tsconfig.compile.json\n- Update nextjs example: target es5→esnext, remove dom.iterable from lib\n- Add coin-app paths mapping to replace baseUrl module resolution\n- Add explicit __tests__ moduleNameMapper in jest.config.js\n- Patch CI esmodule-types job for old TS < 5.0 moduleResolution compat\n\nMade-with: Cursor\n\n* fix: Add ignoreDeprecations for ts-jest, fix todo-app paths\n\nts-jest v29 hardcodes moduleResolution: Node10 in its\nfixupCompilerOptionsForModuleKind, which TS 6 reports as deprecated.\nAdding ignoreDeprecations: \"6.0\" to tsconfig.test.json suppresses this.\n\nAlso use catch-all paths mapping for todo-app to cover all bare imports\n(components/*, pages/*, useNavigationState) that relied on baseUrl.\n\nMade-with: Cursor\n\n* internal: Add comment for ts-jest ignoreDeprecations workaround\n\nMade-with: Cursor\n\n* fix(rest): Prevent searchParams undefined→any widening in TS 6 non-strict mode\n\nTypeScript 6.0 widens `searchParams: undefined` to `any` during generic\ninference when strictNullChecks is off. This caused RestEndpoint to accept\narbitrary arguments instead of rejecting them.\n\nFix: wrap conditional checks in tuples (`[O['searchParams']] extends\n[undefined]`) to prevent distributive evaluation over `any`, ensuring\n`undefined` searchParams consistently produce no-argument endpoints\nacross all TS versions and strictness configurations.\n\nMade-with: Cursor\n\n* fix(rest): Add changeset for searchParams TS 6 type fix\n\nMade-with: Cursor\n\n* fix for other test",
+          "timestamp": "2026-03-10T08:59:00-04:00",
+          "tree_id": "6ea53b71b806f8c3187c9d151578408f2d270221",
+          "url": "https://github.com/reactive/data-client/commit/3b85c820f8046a056d9180ff5d2fe1a883b6998c"
+        },
+        "date": 1773147755633,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 458,
+            "range": "±0.70%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "normalizeLong Values",
+            "value": 414,
+            "range": "±0.45%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 299,
+            "range": "±2.23%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "denormalizeLong Values",
+            "value": 267,
+            "range": "±2.69%",
+            "unit": "ops/sec",
+            "extra": "81 samples"
+          },
+          {
+            "name": "denormalizeLong donotcache",
+            "value": 1052,
+            "range": "±0.15%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong Values donotcache",
+            "value": 772,
+            "range": "±0.50%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeShort donotcache 500x",
+            "value": 1434,
+            "range": "±0.15%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeShort 500x",
+            "value": 792,
+            "range": "±2.08%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "denormalizeShort 500x withCache",
+            "value": 5211,
+            "range": "±0.57%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "queryShort 500x withCache",
+            "value": 2648,
+            "range": "±0.22%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "buildQueryKey All",
+            "value": 56000,
+            "range": "±0.51%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "query All withCache",
+            "value": 6060,
+            "range": "±0.49%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 284,
+            "range": "±2.20%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 7079,
+            "range": "±0.31%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong Values withCache",
+            "value": 4556,
+            "range": "±0.19%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 4980,
+            "range": "±0.14%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 5793,
+            "range": "±0.13%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLongAndShort withEntityCacheOnly",
+            "value": 1534,
+            "range": "±0.48%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 3652,
+            "range": "±0.58%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "getResponse (null)",
+            "value": 9869619,
+            "range": "±0.70%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "getResponse (clear cache)",
+            "value": 276,
+            "range": "±2.36%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 3347,
+            "range": "±0.47%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 2566,
+            "range": "±0.23%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "getResponse Collection",
+            "value": 3722,
+            "range": "±0.09%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "get Collection",
+            "value": 3330,
+            "range": "±0.18%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "get Query-sorted",
+            "value": 4875,
+            "range": "±0.48%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 462,
+            "range": "±0.25%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 260,
+            "range": "±0.23%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 278,
+            "range": "±0.45%",
+            "unit": "ops/sec",
+            "extra": "89 samples"
+          },
+          {
+            "name": "setSmallResponse 500x",
+            "value": 922,
+            "range": "±0.49%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
           }
         ]
       }
