@@ -37,7 +37,7 @@
     "playwright": "1.58.2",
     "serve": "14.2.6",
     "tsx": "4.19.2",
-    "typescript": "5.9.3",
+    "typescript": "6.0.1-rc",
     "webpack": "5.105.3",
     "webpack-cli": "6.0.1"
   },
