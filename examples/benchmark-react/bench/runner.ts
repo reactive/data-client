@@ -70,7 +70,8 @@ async function runScenario(
   await harness.waitFor({ state: 'attached' });
 
   const bench = await page.evaluateHandle('window.__BENCH__');
-  if (!bench) throw new Error('window.__BENCH__ not found');
+  if (await bench.evaluate(b => b == null))
+    throw new Error('window.__BENCH__ not found');
 
   const isMemory =
     scenario.action === 'mountUnmountCycle' &&
