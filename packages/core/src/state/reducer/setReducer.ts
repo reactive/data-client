@@ -7,7 +7,7 @@ export function setReducer(
   state: State<unknown>,
   action: SetAction,
   controller: Controller,
-) {
+): State<unknown> {
   let value: any;
   if (typeof action.value === 'function') {
     const previousValue = controller.get(action.schema, ...action.args, state);

@@ -237,6 +237,14 @@ jobs:
             "<< parameters.typescript-version >>" == "4.3" ]]; then
               yarn up @types/react@ts<< parameters.typescript-version >>
             fi
+            # TS < 5.0 doesn't support moduleResolution: "bundler"
+            if [[ "<< parameters.typescript-version >>" < "5.0" ]]; then
+              node -e "for (const f of ['examples/todo-app/tsconfig.json','examples/github-app/tsconfig.json']) { const c=JSON.parse(require('fs').readFileSync(f,'utf8')); c.compilerOptions.moduleResolution='node'; require('fs').writeFileSync(f,JSON.stringify(c,null,2)); }"
+            fi
+            # TS < 4.1 requires baseUrl when paths is set
+            if [[ "<< parameters.typescript-version >>" < "4.1" ]]; then
+              node -e "for (const f of ['examples/todo-app/tsconfig.json','examples/github-app/tsconfig.json']) { const c=JSON.parse(require('fs').readFileSync(f,'utf8')); c.compilerOptions.baseUrl='.'; require('fs').writeFileSync(f,JSON.stringify(c,null,2)); }"
+            fi
       - run:
           name: Run Typecheck
           command: |

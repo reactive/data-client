@@ -35,6 +35,7 @@ const baseConfig = {
   ],
   /** TODO: Remove once we move to 'publishConfig' */
   moduleNameMapper: {
+    '^__tests__/(.*)$': '<rootDir>/__tests__/$1',
     '@data-client/react/redux$': ['<rootDir>/packages/react/src/server/redux'],
     '@data-client/([^/]+)(/.*|[^/]*)$': ['<rootDir>/packages/$1/src$2'],
   },

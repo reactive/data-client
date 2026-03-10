@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "outDir": "./dist",
-    "baseUrl": "./src",
     "target": "esnext",
     "module": "esnext",
     "lib": ["dom", "esnext"],
@@ -9,7 +8,7 @@
     "declaration": true,
     "strict": true,
     "noImplicitAny": false,
-    "moduleResolution": "node", // this is just to make it work with older typescript versions in our tests
+    "moduleResolution": "bundler",
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
@@ -17,7 +16,7 @@
     "emitDecoratorMetadata": true,
     "types": ["@anansi/webpack-config/types"],
     "paths": {
-      "resources/*": ["resources/*"]
+      "*": ["./src/*"]
     },
     "noEmit": true
   },

@@ -7,7 +7,7 @@
     "composite": false,
     "rootDir": "../..",
     "paths": {
-      "__tests__/*": ["__tests__/*"]
+      "__tests__/*": ["../../__tests__/*"]
     }
   },
   "include": ["typescript-tests"]

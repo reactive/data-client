@@ -84,7 +84,7 @@ export interface Resource<
         schema: schema.Collection<
           [O['schema']],
           ParamToArgs<
-            O['searchParams'] extends undefined ?
+            [O['searchParams']] extends [undefined] ?
               KeysToArgs<ShortenPath<O['path']>>
             : O['searchParams'] & PathArgs<ShortenPath<O['path']>>
           >
