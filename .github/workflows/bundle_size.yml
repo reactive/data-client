@@ -17,6 +17,11 @@ on:
       - 'yarn.lock'
       - 'examples/test-bundlesize/**'
       - '.github/workflows/bundle_size.yml'
+
+concurrency:
+  group: bundle-size-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
 

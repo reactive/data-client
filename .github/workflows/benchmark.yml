@@ -23,6 +23,10 @@ permissions:
   contents: write
   pull-requests: write
 
+concurrency:
+  group: ${{ github.event_name == 'push' && 'gh-pages-bench-push' || format('benchmark-node-{0}', github.head_ref) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   benchmark:
 
@@ -52,7 +56,7 @@ jobs:
       uses: actions/cache@v5
       with:
         path: ./cache
-        key: ${{ runner.os }}-benchmark-pr-${{ env.GITHUB_RUN_NUMBER }}
+        key: ${{ runner.os }}-benchmark-pr-${{ github.run_number }}
         restore-keys: |
           ${{ runner.os }}-benchmark
     - name: Store benchmark result (PR)

@@ -10,6 +10,11 @@ on:
       - 'website/**'
       - 'docs/**'
       - '.github/workflows/site-preview.yml'
+
+concurrency:
+  group: site-preview-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
