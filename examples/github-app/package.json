@@ -43,7 +43,7 @@
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "react-refresh": "0.18.0",
-    "serve": "14.2.5",
+    "serve": "14.2.6",
     "webpack": "5.105.4",
     "webpack-cli": "6.0.1",
     "webpack-dev-server": "5.2.3"
@@ -51,7 +51,7 @@
   "dependencies": {
     "@anansi/core": "0.22.8",
     "@anansi/router": "0.10.22",
-    "@ant-design/cssinjs": "2.1.0",
+    "@ant-design/cssinjs": "2.1.2",
     "@ant-design/icons": "6.1.0",
     "@babel/runtime-corejs3": "^7.26.7",
     "@data-client/graphql": "0.15.7",
@@ -59,7 +59,7 @@
     "@data-client/react": "0.15.7",
     "@data-client/rest": "0.15.7",
     "@js-temporal/polyfill": "^0.5.1",
-    "antd": "6.3.1",
+    "antd": "6.3.2",
     "core-js": "^3.48.0",
     "history": "^5.3.0",
     "parse-link-header": "^2.0.0",
