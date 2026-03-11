@@ -25,13 +25,13 @@
     "react": "19.2.3"
   },
   "devDependencies": {
-    "@anansi/webpack-config": "21.1.14",
+    "@anansi/webpack-config": "21.1.15",
     "@babel/core": "7.29.0",
     "@babel/node": "7.29.0",
     "@types/babel__core": "^7",
     "@types/benchmark": "2.1.5",
     "@types/react": "19.2.14",
-    "webpack": "5.105.3",
+    "webpack": "5.105.4",
     "webpack-cli": "6.0.1"
   }
 }
