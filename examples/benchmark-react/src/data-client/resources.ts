@@ -31,6 +31,7 @@ export const getAuthor = new Endpoint(
   {
     schema: AuthorEntity,
     key: ({ id }: { id: string }) => `author:${id}`,
+    dataExpiryLength: Infinity,
   },
 );
 
@@ -40,6 +41,7 @@ export const getItem = new Endpoint(
   {
     schema: ItemEntity,
     key: ({ id }: { id: string }) => `item:${id}`,
+    dataExpiryLength: Infinity,
   },
 );
 
@@ -48,6 +50,7 @@ export const getItemList = new Endpoint(
   {
     schema: [ItemEntity],
     key: () => 'item:list',
+    dataExpiryLength: Infinity,
   },
 );
 

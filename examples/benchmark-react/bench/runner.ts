@@ -14,7 +14,9 @@ import {
 import { computeStats } from './stats.js';
 import { parseTraceDuration } from './tracing.js';
 
-const BASE_URL = process.env.BENCH_BASE_URL ?? 'http://localhost:5173';
+const BASE_URL =
+  process.env.BENCH_BASE_URL ??
+  `http://localhost:${process.env.BENCH_PORT ?? '5173'}`;
 const BENCH_LABEL =
   process.env.BENCH_LABEL ? ` [${process.env.BENCH_LABEL}]` : '';
 /**
@@ -111,9 +113,8 @@ async function runScenario(
     const preMountAction = scenario.preMountAction ?? 'mount';
     await harness.evaluate(el => el.removeAttribute('data-bench-complete'));
     await (bench as any).evaluate(
-      (api: any, action: string, n: number) => api[action](n),
-      preMountAction,
-      mountCount,
+      (api: any, [action, n]: [string, number]) => api[action](n),
+      [preMountAction, mountCount],
     );
     await page.waitForSelector('[data-bench-complete]', {
       timeout: 10000,

@@ -1,19 +1,17 @@
+import {
+  onProfilerRender,
+  useBenchState,
+  waitForPaint,
+} from '@shared/benchHarness';
 import { ItemRow } from '@shared/components';
 import {
-  FIXTURE_AUTHORS,
+  FIXTURE_AUTHORS_BY_ID,
   FIXTURE_ITEMS,
   generateFreshData,
 } from '@shared/data';
-import { captureSnapshot, getReport, registerRefs } from '@shared/refStability';
+import { registerRefs } from '@shared/refStability';
 import type { Item, UpdateAuthorOptions } from '@shared/types';
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 
 const ItemsContext = React.createContext<{
@@ -46,134 +44,90 @@ function SortedListView() {
 
 function BenchmarkHarness() {
   const [items, setItems] = useState<Item[]>([]);
-  const [ids, setIds] = useState<string[]>([]);
-  const [showSortedView, setShowSortedView] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const completeResolveRef = useRef<(() => void) | null>(null);
-
-  const setComplete = useCallback(() => {
-    completeResolveRef.current?.();
-    completeResolveRef.current = null;
-    containerRef.current?.setAttribute('data-bench-complete', 'true');
-  }, []);
+  const {
+    ids,
+    showSortedView,
+    containerRef,
+    measureMount,
+    measureUpdate,
+    measureUpdateWithDelay,
+    setComplete,
+    completeResolveRef,
+    setIds,
+    setShowSortedView,
+    unmountAll: unmountBase,
+    registerAPI,
+  } = useBenchState();
 
   const mount = useCallback(
     (n: number) => {
-      performance.mark('mount-start');
       const sliced = FIXTURE_ITEMS.slice(0, n);
-      setItems(sliced);
-      setIds(sliced.map(i => i.id));
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          performance.mark('mount-end');
-          performance.measure('mount-duration', 'mount-start', 'mount-end');
-          setComplete();
-        });
+      const slicedIds = sliced.map(i => i.id);
+      measureMount(() => {
+        setItems(sliced);
+        setIds(slicedIds);
       });
     },
-    [setComplete],
+    [measureMount, setIds],
   );
 
   const updateEntity = useCallback(
     (id: string) => {
-      performance.mark('update-start');
-      setItems(prev =>
-        prev.map(item =>
-          item.id === id ? { ...item, label: `${item.label} (updated)` } : item,
-        ),
-      );
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          performance.mark('update-end');
-          performance.measure('update-duration', 'update-start', 'update-end');
-          setComplete();
-        });
+      measureUpdate(() => {
+        setItems(prev =>
+          prev.map(item =>
+            item.id === id ?
+              { ...item, label: `${item.label} (updated)` }
+            : item,
+          ),
+        );
       });
     },
-    [setComplete],
+    [measureUpdate],
   );
 
   const updateAuthor = useCallback(
     (authorId: string, options?: UpdateAuthorOptions) => {
-      performance.mark('update-start');
-      const delayMs = options?.simulateNetworkDelayMs ?? 0;
-      const requestCount = options?.simulatedRequestCount ?? 1;
-      const totalDelayMs = delayMs * requestCount;
-
-      const doUpdate = () => {
-        const author = FIXTURE_AUTHORS.find(a => a.id === authorId);
-        if (author) {
-          const newAuthor = {
-            ...author,
-            name: `${author.name} (updated)`,
-          };
-          setItems(prev =>
-            prev.map(item =>
-              item.author.id === authorId ?
-                { ...item, author: newAuthor }
-              : item,
-            ),
-          );
-        }
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            performance.mark('update-end');
-            performance.measure(
-              'update-duration',
-              'update-start',
-              'update-end',
-            );
-            setComplete();
-          });
-        });
-      };
-
-      if (totalDelayMs > 0) {
-        setTimeout(doUpdate, totalDelayMs);
-      } else {
-        doUpdate();
-      }
+      const author = FIXTURE_AUTHORS_BY_ID.get(authorId);
+      if (!author) return;
+      const newAuthor = { ...author, name: `${author.name} (updated)` };
+      measureUpdateWithDelay(options, () => {
+        setItems(prev =>
+          prev.map(item =>
+            item.author.id === authorId ? { ...item, author: newAuthor } : item,
+          ),
+        );
+      });
     },
-    [setComplete],
+    [measureUpdateWithDelay],
   );
 
   const unmountAll = useCallback(() => {
-    setIds([]);
+    unmountBase();
     setItems([]);
-  }, []);
+  }, [unmountBase]);
 
   const bulkIngest = useCallback(
     (n: number) => {
-      performance.mark('mount-start');
       const { items: freshItems } = generateFreshData(n);
-      setItems(freshItems);
-      setIds(freshItems.map(i => i.id));
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          performance.mark('mount-end');
-          performance.measure('mount-duration', 'mount-start', 'mount-end');
-          setComplete();
-        });
+      const freshIds = freshItems.map(i => i.id);
+      measureMount(() => {
+        setItems(freshItems);
+        setIds(freshIds);
       });
     },
-    [setComplete],
+    [measureMount, setIds],
   );
 
   const mountSortedView = useCallback(
     (n: number) => {
-      performance.mark('mount-start');
       const sliced = FIXTURE_ITEMS.slice(0, n);
-      setItems(sliced);
-      setShowSortedView(true);
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          performance.mark('mount-end');
-          performance.measure('mount-duration', 'mount-start', 'mount-end');
-          setComplete();
-        });
+      measureMount(() => {
+        setItems(sliced);
+        setShowSortedView(true);
       });
     },
-    [setComplete],
+    [measureMount, setShowSortedView],
   );
 
   const mountUnmountCycle = useCallback(
@@ -185,40 +139,14 @@ function BenchmarkHarness() {
         mount(n);
         await p;
         unmountAll();
-        await new Promise<void>(r =>
-          requestAnimationFrame(() => requestAnimationFrame(() => r())),
-        );
+        await waitForPaint();
       }
       setComplete();
     },
-    [mount, unmountAll, setComplete],
+    [mount, unmountAll, setComplete, completeResolveRef],
   );
 
-  const getRenderedCount = useCallback(() => ids.length, [ids]);
-
-  const captureRefSnapshot = useCallback(() => {
-    captureSnapshot();
-  }, []);
-
-  const getRefStabilityReport = useCallback(() => getReport(), []);
-
-  useEffect(() => {
-    window.__BENCH__ = {
-      mount,
-      updateEntity,
-      updateAuthor,
-      unmountAll,
-      getRenderedCount,
-      captureRefSnapshot,
-      getRefStabilityReport,
-      mountUnmountCycle,
-      bulkIngest,
-      mountSortedView,
-    };
-    return () => {
-      delete window.__BENCH__;
-    };
-  }, [
+  registerAPI({
     mount,
     updateEntity,
     updateAuthor,
@@ -226,14 +154,7 @@ function BenchmarkHarness() {
     mountUnmountCycle,
     bulkIngest,
     mountSortedView,
-    getRenderedCount,
-    captureRefSnapshot,
-    getRefStabilityReport,
-  ]);
-
-  useEffect(() => {
-    document.body.setAttribute('data-app-ready', 'true');
-  }, []);
+  });
 
   return (
     <ItemsContext.Provider value={{ items, setItems }}>
@@ -247,17 +168,6 @@ function BenchmarkHarness() {
       </div>
     </ItemsContext.Provider>
   );
-}
-
-function onProfilerRender(
-  _id: string,
-  phase: 'mount' | 'update' | 'nested-update',
-  actualDuration: number,
-) {
-  performance.measure(`react-commit-${phase}`, {
-    start: performance.now() - actualDuration,
-    duration: actualDuration,
-  });
 }
 
 const rootEl = document.getElementById('root') ?? document.body;

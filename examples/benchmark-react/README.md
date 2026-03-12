@@ -130,6 +130,8 @@ Regressions >5% on stable scenarios or >15% on volatile scenarios are worth inve
    You can also set the env vars directly for custom combinations:
    - `REACT_COMPILER=true` — enables the Babel plugin at build time
    - `BENCH_LABEL=<tag>` — appends `[<tag>]` to all result names at bench time
+   - `BENCH_PORT=<port>` — port for `preview` server and bench runner (default `5173`)
+   - `BENCH_BASE_URL=<url>` — full base URL override (takes precedence over `BENCH_PORT`)
 
 ## Output
 

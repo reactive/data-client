@@ -40,6 +40,14 @@ export const FIXTURE_ITEMS = generateItems(1000, 20);
 /** Unique authors from fixture (for seeding and updateAuthor scenarios) */
 export const FIXTURE_AUTHORS = generateAuthors(20);
 
+/** O(1) item lookup by id (avoids linear scans inside measurement regions) */
+export const FIXTURE_ITEMS_BY_ID = new Map(FIXTURE_ITEMS.map(i => [i.id, i]));
+
+/** O(1) author lookup by id */
+export const FIXTURE_AUTHORS_BY_ID = new Map(
+  FIXTURE_AUTHORS.map(a => [a.id, a]),
+);
+
 /**
  * Generate fresh items/authors with distinct IDs for bulk ingestion scenarios.
  * Uses `fresh-` prefix so these don't collide with pre-seeded FIXTURE data.

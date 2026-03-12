@@ -24,7 +24,7 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: ${{ github.event_name == 'push' && 'gh-pages-bench-push' || format('benchmark-node-{0}', github.head_ref) }}
+  group: ${{ github.event_name == 'push' && 'gh-pages-bench-node-push' || format('benchmark-node-{0}', github.head_ref) }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
