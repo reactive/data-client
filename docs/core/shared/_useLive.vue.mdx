@@ -1,0 +1,62 @@
+import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
+
+<TypeScriptEditor row>
+
+```typescript title="Ticker" {32} collapsed
+import { Entity, RestEndpoint } from '@data-client/rest';
+
+export class Ticker extends Entity {
+  product_id = '';
+  trade_id = 0;
+  price = 0;
+  size = '0';
+  time = Temporal.Instant.fromEpochMilliseconds(0);
+  bid = '0';
+  ask = '0';
+  volume = '';
+
+  pk(): string {
+    return this.product_id;
+  }
+  static key = 'Ticker';
+
+  static schema = {
+    price: Number,
+    time: Temporal.Instant.from,
+  };
+}
+
+export const getTicker = new RestEndpoint({
+  urlPrefix: 'https://api.exchange.coinbase.com',
+  path: '/products/:productId/ticker',
+  schema: Ticker,
+  process(value, { productId }) {
+    value.product_id = productId;
+    return value;
+  },
+  pollFrequency: 2000,
+});
+```
+
+```html title="AssetPrice.vue"
+<script setup lang="ts">
+  import { useLive } from '@data-client/vue';
+  import { getTicker } from './Ticker';
+
+  const props = defineProps<{ productId: string }>();
+  const ticker = await useLive(getTicker, { productId: props.productId });
+</script>
+
+<template>
+  <center>
+    {{ productId }}
+    <NumberFlow
+      :value="ticker.price"
+      :format="{ style: 'currency', currency: 'USD' }"
+    />
+  </center>
+</template>
+```
+
+</TypeScriptEditor>
+
