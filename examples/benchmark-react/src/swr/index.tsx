@@ -1,5 +1,5 @@
 import { onProfilerRender, useBenchState } from '@shared/benchHarness';
-import { ITEM_HEIGHT, ItemRow, LIST_STYLE } from '@shared/components';
+import { ITEM_HEIGHT, ItemRow, ItemsRow, LIST_STYLE } from '@shared/components';
 import {
   FIXTURE_AUTHORS,
   FIXTURE_AUTHORS_BY_ID,
@@ -61,18 +61,6 @@ function ItemView({ id }: { id: string }) {
   return <ItemRow item={item} />;
 }
 
-function SortedRow({
-  index,
-  style,
-  items,
-}: RowComponentProps<{ items: Item[] }>) {
-  return (
-    <div style={style}>
-      <ItemRow item={items[index]} />
-    </div>
-  );
-}
-
 function SortedListView() {
   const { data: items } = useSWR<Item[]>('items:all', fetcher);
   const sorted = useMemo(() => (items ? sortByLabel(items) : []), [items]);
@@ -82,7 +70,7 @@ function SortedListView() {
         style={LIST_STYLE}
         rowHeight={ITEM_HEIGHT}
         rowCount={sorted.length}
-        rowComponent={SortedRow}
+        rowComponent={ItemsRow}
         rowProps={{ items: sorted }}
       />
     </div>
@@ -154,10 +142,11 @@ function BenchmarkHarness() {
     measureUpdate(() => {
       createItem({ label: 'New Item', author }).then(created => {
         cache.set(`item:${created.id}`, makeCacheEntry(created));
-        setIds(prev => [...prev, created.id]);
+        void mutate('items:all');
+        setIds(prev => [created.id, ...prev]);
       });
     });
-  }, [measureUpdate, setIds]);
+  }, [measureUpdate, mutate, setIds]);
 
   const deleteEntity = useCallback(
     (id: string) => {

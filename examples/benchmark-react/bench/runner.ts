@@ -253,7 +253,16 @@ async function main() {
   const browser = await chromium.launch({ headless: true });
   const libraries = process.env.CI ? ['data-client'] : [...LIBRARIES];
 
+  const scenarioCount = SCENARIOS_TO_RUN.length;
   for (let round = 0; round < TOTAL_RUNS; round++) {
+    const phase = round < WARMUP_RUNS ? 'warmup' : 'measure';
+    const phaseRound =
+      round < WARMUP_RUNS ? round + 1 : round - WARMUP_RUNS + 1;
+    const phaseTotal = round < WARMUP_RUNS ? WARMUP_RUNS : MEASUREMENT_RUNS;
+    process.stderr.write(
+      `\n── Round ${round + 1}/${TOTAL_RUNS} (${phase} ${phaseRound}/${phaseTotal}) ──\n`,
+    );
+    let scenarioDone = 0;
     for (const lib of shuffle(libraries)) {
       const context = await browser.newContext();
       const page = await context.newPage();
@@ -265,9 +274,22 @@ async function main() {
           results[scenario.name].push(result.value);
           reactCommitResults[scenario.name].push(result.reactCommit ?? NaN);
           traceResults[scenario.name].push(result.traceDuration ?? NaN);
+          scenarioDone++;
+          const unit =
+            scenario.resultMetric === 'heapDelta' ? 'bytes'
+            : (
+              scenario.resultMetric === 'itemRefChanged' ||
+              scenario.resultMetric === 'authorRefChanged'
+            ) ?
+              'count'
+            : 'ms';
+          process.stderr.write(
+            `  [${scenarioDone}/${scenarioCount}] ${scenario.name}: ${result.value.toFixed(2)} ${unit}${result.reactCommit != null ? ` (commit ${result.reactCommit.toFixed(2)} ms)` : ''}\n`,
+          );
         } catch (err) {
+          scenarioDone++;
           console.error(
-            `Scenario ${scenario.name} failed:`,
+            `  [${scenarioDone}/${scenarioCount}] ${scenario.name} FAILED:`,
             err instanceof Error ? err.message : err,
           );
         }
@@ -285,6 +307,9 @@ async function main() {
     }
     const STARTUP_RUNS = 5;
     for (let round = 0; round < STARTUP_RUNS; round++) {
+      process.stderr.write(
+        `\n── Startup round ${round + 1}/${STARTUP_RUNS} ──\n`,
+      );
       for (const lib of shuffle([...LIBRARIES])) {
         const context = await browser.newContext();
         const page = await context.newPage();
@@ -292,9 +317,12 @@ async function main() {
           const m = await runStartupScenario(page, lib);
           startupResults[lib].fcp.push(m.fcp * 1000);
           startupResults[lib].tbt.push(m.taskDuration * 1000);
+          process.stderr.write(
+            `  ${lib}: fcp ${(m.fcp * 1000).toFixed(2)} ms, task ${(m.taskDuration * 1000).toFixed(2)} ms\n`,
+          );
         } catch (err) {
           console.error(
-            `Startup ${lib} failed:`,
+            `  ${lib} startup FAILED:`,
             err instanceof Error ? err.message : err,
           );
         }
@@ -397,6 +425,13 @@ async function main() {
       entry.name += BENCH_LABEL;
     }
   }
+  process.stderr.write(`\n── Results (${report.length} metrics) ──\n`);
+  for (const entry of report) {
+    process.stderr.write(
+      `  ${entry.name}: ${entry.value} ${entry.unit} ${entry.range}\n`,
+    );
+  }
+  process.stderr.write('\n');
   process.stdout.write(formatReport(report));
 }
 

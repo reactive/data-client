@@ -45,6 +45,11 @@ export function createItem(body: {
   const item: Item = { id, label: body.label, author: body.author };
   const json = JSON.stringify(item);
   jsonStore.set(`item:${id}`, json);
+  // Prepend to item:list so refetching the list returns the new item first
+  const listJson = jsonStore.get('item:list');
+  const list: Item[] = listJson ? JSON.parse(listJson) : [];
+  list.unshift(item);
+  jsonStore.set('item:list', JSON.stringify(list));
   return Promise.resolve(JSON.parse(json));
 }
 

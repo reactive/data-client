@@ -4,6 +4,7 @@ import {
   All,
   Query,
   Invalidate,
+  Collection,
 } from '@data-client/endpoint';
 import { sortByLabel } from '@shared/data';
 import {
@@ -58,7 +59,7 @@ export const getItem = new Endpoint(serverFetchItem, {
 });
 
 export const getItemList = new Endpoint(serverFetchItemList, {
-  schema: [ItemEntity],
+  schema: new Collection([ItemEntity]),
   key: () => 'item:list',
   dataExpiryLength: Infinity,
 });
@@ -66,7 +67,7 @@ export const getItemList = new Endpoint(serverFetchItemList, {
 // ── CREATE ──────────────────────────────────────────────────────────────
 
 export const createItemEndpoint = new Endpoint(serverCreateItem, {
-  schema: ItemEntity,
+  schema: getItemList.schema.unshift,
   sideEffect: true,
   key: () => 'item:create',
 });

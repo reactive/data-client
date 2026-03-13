@@ -3,7 +3,7 @@ import {
   useBenchState,
   waitForPaint,
 } from '@shared/benchHarness';
-import { ITEM_HEIGHT, ItemRow, LIST_STYLE } from '@shared/components';
+import { ITEM_HEIGHT, ItemRow, ItemsRow, LIST_STYLE } from '@shared/components';
 import {
   FIXTURE_AUTHORS,
   FIXTURE_AUTHORS_BY_ID,
@@ -40,18 +40,6 @@ function ItemView({ id }: { id: string }) {
   return <ItemRow item={item} />;
 }
 
-function SortedRow({
-  index,
-  style,
-  items,
-}: RowComponentProps<{ items: Item[] }>) {
-  return (
-    <div style={style}>
-      <ItemRow item={items[index]} />
-    </div>
-  );
-}
-
 function SortedListView() {
   const { items } = useContext(ItemsContext);
   const sorted = useMemo(() => sortByLabel(items), [items]);
@@ -61,7 +49,7 @@ function SortedListView() {
         style={LIST_STYLE}
         rowHeight={ITEM_HEIGHT}
         rowCount={sorted.length}
-        rowComponent={SortedRow}
+        rowComponent={ItemsRow}
         rowProps={{ items: sorted }}
       />
     </div>
@@ -147,8 +135,8 @@ function BenchmarkHarness() {
     const author = FIXTURE_AUTHORS[0];
     measureUpdate(() => {
       createItem({ label: 'New Item', author }).then(created => {
-        setItems(prev => [...prev, created]);
-        setIds(prev => [...prev, created.id]);
+        setItems(prev => [created, ...prev]);
+        setIds(prev => [created.id, ...prev]);
       });
     });
   }, [measureUpdate, setIds]);

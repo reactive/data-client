@@ -6,7 +6,7 @@ import {
 } from '@data-client/react';
 import { mockInitialState } from '@data-client/react/mock';
 import { onProfilerRender, useBenchState } from '@shared/benchHarness';
-import { ITEM_HEIGHT, ItemRow, LIST_STYLE } from '@shared/components';
+import { ITEM_HEIGHT, ItemRow, ItemsRow, LIST_STYLE } from '@shared/components';
 import {
   FIXTURE_AUTHORS,
   FIXTURE_AUTHORS_BY_ID,
@@ -54,18 +54,6 @@ function ItemView({ id }: { id: string }) {
   return <ItemRow item={item as Item} />;
 }
 
-function ListViewRow({
-  index,
-  style,
-  items,
-}: RowComponentProps<{ items: Item[] }>) {
-  return (
-    <div style={style}>
-      <ItemRow item={items[index]} />
-    </div>
-  );
-}
-
 /** Renders items from the list endpoint (models rendering a list fetch response). */
 function ListView() {
   const items = useCache(getItemList);
@@ -76,21 +64,9 @@ function ListView() {
       style={LIST_STYLE}
       rowHeight={ITEM_HEIGHT}
       rowCount={list.length}
-      rowComponent={ListViewRow}
+      rowComponent={ItemsRow}
       rowProps={{ items: list }}
     />
-  );
-}
-
-function SortedRow({
-  index,
-  style,
-  items,
-}: RowComponentProps<{ items: Item[] }>) {
-  return (
-    <div style={style}>
-      <ItemRow item={items[index]} />
-    </div>
   );
 }
 
@@ -104,7 +80,7 @@ function SortedListView({ count }: { count?: number }) {
         style={LIST_STYLE}
         rowHeight={ITEM_HEIGHT}
         rowCount={items.length}
-        rowComponent={SortedRow}
+        rowComponent={ItemsRow}
         rowProps={{ items: items as Item[] }}
       />
     </div>
@@ -178,7 +154,7 @@ function BenchmarkHarness() {
           author,
         })
         .then((created: any) => {
-          setIds(prev => [...prev, created.id]);
+          setIds(prev => [created.id, ...prev]);
         });
     });
   }, [measureUpdate, controller, setIds]);

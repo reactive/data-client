@@ -1,4 +1,5 @@
 import React from 'react';
+import type { RowComponentProps } from 'react-window';
 
 import type { Item } from './types';
 
@@ -15,6 +16,19 @@ export function ItemRow({ item }: { item: Item }) {
     <div data-item-id={item.id} data-bench-item>
       <span data-label>{item.label}</span>
       <span data-author>{item.author.login}</span>
+    </div>
+  );
+}
+
+/** Generic react-window row that renders an ItemRow from an items array. */
+export function ItemsRow({
+  index,
+  style,
+  items,
+}: RowComponentProps<{ items: Item[] }>) {
+  return (
+    <div style={style}>
+      <ItemRow item={items[index]} />
     </div>
   );
 }

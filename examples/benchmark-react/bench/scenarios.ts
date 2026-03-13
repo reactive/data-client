@@ -139,11 +139,11 @@ const BASE_SCENARIOS: BaseScenario[] = [
     preMountAction: 'mountSortedView',
   },
   {
-    nameSuffix: 'update-shared-author-10000-mounted',
+    nameSuffix: 'update-shared-author-2000-mounted',
     action: 'updateAuthor',
     args: ['author-0'],
     category: 'hotPath',
-    mountCount: 10000,
+    mountCount: 2000,
   },
   {
     nameSuffix: 'invalidate-and-resolve',
