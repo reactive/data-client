@@ -1,5 +1,14 @@
 import type { Author, Item } from './types';
 
+/** Sort items by label, optionally limiting to the first `limit` results. */
+export function sortByLabel<T extends { label: string }>(
+  items: T[],
+  limit?: number,
+): T[] {
+  const sorted = [...items].sort((a, b) => a.label.localeCompare(b.label));
+  return limit ? sorted.slice(0, limit) : sorted;
+}
+
 /**
  * Generate authors - shared across items to stress normalization.
  * Fewer authors than items means many items share the same author reference.

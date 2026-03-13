@@ -1,4 +1,22 @@
-import { Entity, Endpoint, All, Query } from '@data-client/endpoint';
+import {
+  Entity,
+  Endpoint,
+  All,
+  Query,
+  Invalidate,
+} from '@data-client/endpoint';
+import { sortByLabel } from '@shared/data';
+import {
+  fetchItem as serverFetchItem,
+  fetchAuthor as serverFetchAuthor,
+  fetchItemList as serverFetchItemList,
+  createItem as serverCreateItem,
+  updateItem as serverUpdateItem,
+  deleteItem as serverDeleteItem,
+  createAuthor as serverCreateAuthor,
+  updateAuthor as serverUpdateAuthor,
+  deleteAuthor as serverDeleteAuthor,
+} from '@shared/server';
 
 export class AuthorEntity extends Entity {
   id = '';
@@ -25,44 +43,74 @@ export class ItemEntity extends Entity {
   static schema = { author: AuthorEntity };
 }
 
-export const getAuthor = new Endpoint(
-  ({ id: _id }: { id: string }) =>
-    Promise.reject(new Error('Not implemented - use fixtures')),
-  {
-    schema: AuthorEntity,
-    key: ({ id }: { id: string }) => `author:${id}`,
-    dataExpiryLength: Infinity,
-  },
-);
+// ── READ ────────────────────────────────────────────────────────────────
 
-export const getItem = new Endpoint(
-  ({ id: _id }: { id: string }) =>
-    Promise.reject(new Error('Not implemented - use fixtures')),
-  {
-    schema: ItemEntity,
-    key: ({ id }: { id: string }) => `item:${id}`,
-    dataExpiryLength: Infinity,
-  },
-);
+export const getAuthor = new Endpoint(serverFetchAuthor, {
+  schema: AuthorEntity,
+  key: ({ id }: { id: string }) => `author:${id}`,
+  dataExpiryLength: Infinity,
+});
 
-export const getItemList = new Endpoint(
-  () => Promise.reject<any>(new Error('Not implemented - use fixtures')),
-  {
-    schema: [ItemEntity],
-    key: () => 'item:list',
-    dataExpiryLength: Infinity,
-  },
-);
+export const getItem = new Endpoint(serverFetchItem, {
+  schema: ItemEntity,
+  key: ({ id }: { id: string }) => `item:${id}`,
+  dataExpiryLength: Infinity,
+});
+
+export const getItemList = new Endpoint(serverFetchItemList, {
+  schema: [ItemEntity],
+  key: () => 'item:list',
+  dataExpiryLength: Infinity,
+});
+
+// ── CREATE ──────────────────────────────────────────────────────────────
+
+export const createItemEndpoint = new Endpoint(serverCreateItem, {
+  schema: ItemEntity,
+  sideEffect: true,
+  key: () => 'item:create',
+});
+
+export const createAuthorEndpoint = new Endpoint(serverCreateAuthor, {
+  schema: AuthorEntity,
+  sideEffect: true,
+  key: () => 'author:create',
+});
+
+// ── UPDATE ──────────────────────────────────────────────────────────────
+
+export const updateItemEndpoint = new Endpoint(serverUpdateItem, {
+  schema: ItemEntity,
+  sideEffect: true,
+  key: ({ id }: { id: string }) => `item-update:${id}`,
+});
+
+export const updateAuthorEndpoint = new Endpoint(serverUpdateAuthor, {
+  schema: AuthorEntity,
+  sideEffect: true,
+  key: ({ id }: { id: string }) => `author-update:${id}`,
+});
+
+// ── DELETE ───────────────────────────────────────────────────────────────
+
+export const deleteItemEndpoint = new Endpoint(serverDeleteItem, {
+  schema: new Invalidate(ItemEntity),
+  sideEffect: true,
+  key: ({ id }: { id: string }) => `item-delete:${id}`,
+});
+
+export const deleteAuthorEndpoint = new Endpoint(serverDeleteAuthor, {
+  schema: new Invalidate(AuthorEntity),
+  sideEffect: true,
+  key: ({ id }: { id: string }) => `author-delete:${id}`,
+});
+
+// ── DERIVED QUERIES ─────────────────────────────────────────────────────
 
 /** Derived sorted view via Query schema -- globally memoized by MemoCache */
 export const sortedItemsQuery = new Query(
   new All(ItemEntity),
-  (entries: any[], { limit }: { limit?: number } = {}) => {
-    const sorted = [...entries].sort((a: any, b: any) =>
-      a.label.localeCompare(b.label),
-    );
-    return limit ? sorted.slice(0, limit) : sorted;
-  },
+  (entries, { limit }: { limit?: number } = {}) => sortByLabel(entries, limit),
 );
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -74,7 +122,7 @@ export const updateItemOptimistic = new Endpoint(
   {
     schema: ItemEntity,
     sideEffect: true,
-    key: ({ id }: { id: string; label: string }) => `item-update:${id}`,
+    key: ({ id }: { id: string; label: string }) => `item-optimistic:${id}`,
     getOptimisticResponse(snap: any, params: { id: string; label: string }) {
       const existing = snap.get(ItemEntity, { id: params.id });
       if (!existing) throw snap.abort;

@@ -152,6 +152,20 @@ const BASE_SCENARIOS: BaseScenario[] = [
     category: 'hotPath',
     onlyLibs: ['data-client'],
   },
+  {
+    nameSuffix: 'create-item',
+    action: 'createEntity',
+    args: [],
+    category: 'hotPath',
+    mountCount: 100,
+  },
+  {
+    nameSuffix: 'delete-item',
+    action: 'deleteEntity',
+    args: ['item-0'],
+    category: 'hotPath',
+    mountCount: 100,
+  },
 ];
 
 export const LIBRARIES = [

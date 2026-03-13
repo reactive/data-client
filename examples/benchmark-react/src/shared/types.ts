@@ -41,6 +41,10 @@ export interface BenchAPI {
   mountSortedView?(count: number): void;
   /** Invalidate a cached endpoint and immediately re-resolve. Measures Suspense round-trip. data-client only. */
   invalidateAndResolve?(id: string): void;
+  /** Create a new item via mutation endpoint. */
+  createEntity?(): void;
+  /** Delete an existing item via mutation endpoint. */
+  deleteEntity?(id: string): void;
 }
 
 declare global {
@@ -67,7 +71,9 @@ export type ScenarioAction =
   | { action: 'updateAuthor'; args: [string] }
   | { action: 'updateAuthor'; args: [string, UpdateAuthorOptions] }
   | { action: 'unmountAll'; args: [] }
-  | { action: 'bulkIngest'; args: [number] };
+  | { action: 'bulkIngest'; args: [number] }
+  | { action: 'createEntity'; args: [] }
+  | { action: 'deleteEntity'; args: [string] };
 
 export type ResultMetric =
   | 'duration'

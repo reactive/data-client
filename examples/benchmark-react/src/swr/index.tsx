@@ -6,41 +6,52 @@ import {
   FIXTURE_ITEMS,
   FIXTURE_ITEMS_BY_ID,
   generateFreshData,
+  sortByLabel,
 } from '@shared/data';
 import { registerRefs } from '@shared/refStability';
+import {
+  fetchItem,
+  fetchAuthor,
+  fetchItemList,
+  createItem,
+  updateItem,
+  updateAuthor as serverUpdateAuthor,
+  deleteItem,
+  seedBulkItems,
+  seedItemList,
+} from '@shared/server';
 import type { Item, UpdateAuthorOptions } from '@shared/types';
 import React, { useCallback, useMemo } from 'react';
 import { createRoot } from 'react-dom/client';
 import useSWR, { SWRConfig, useSWRConfig } from 'swr';
 
-const fetcher = () => Promise.reject(new Error('Not implemented - use cache'));
+/** SWR fetcher: dispatches to shared server functions based on cache key */
+const fetcher = (key: string): Promise<any> => {
+  if (key.startsWith('item:')) return fetchItem({ id: key.slice(5) });
+  if (key.startsWith('author:')) return fetchAuthor({ id: key.slice(7) });
+  if (key === 'items:all') return fetchItemList();
+  return Promise.reject(new Error(`Unknown key: ${key}`));
+};
 
-const cache = new Map<
-  string,
-  { data: unknown; isLoading: boolean; isValidating: boolean; error: undefined }
->();
-for (const author of FIXTURE_AUTHORS) {
-  cache.set(`author:${author.id}`, {
-    data: author,
-    isLoading: false,
-    isValidating: false,
-    error: undefined,
-  });
+type CacheEntry = {
+  data: unknown;
+  isLoading: boolean;
+  isValidating: boolean;
+  error: undefined;
+};
+
+function makeCacheEntry(data: unknown): CacheEntry {
+  return { data, isLoading: false, isValidating: false, error: undefined };
 }
+
+const cache = new Map<string, CacheEntry>();
 for (const item of FIXTURE_ITEMS) {
-  cache.set(`item:${item.id}`, {
-    data: item,
-    isLoading: false,
-    isValidating: false,
-    error: undefined,
-  });
+  cache.set(`item:${item.id}`, makeCacheEntry(item));
 }
-cache.set('items:all', {
-  data: FIXTURE_ITEMS,
-  isLoading: false,
-  isValidating: false,
-  error: undefined,
-});
+for (const author of FIXTURE_AUTHORS) {
+  cache.set(`author:${author.id}`, makeCacheEntry(author));
+}
+cache.set('items:all', makeCacheEntry(FIXTURE_ITEMS));
 
 function ItemView({ id }: { id: string }) {
   const { data: item } = useSWR<Item>(`item:${id}`, fetcher);
@@ -51,11 +62,7 @@ function ItemView({ id }: { id: string }) {
 
 function SortedListView() {
   const { data: items } = useSWR<Item[]>('items:all', fetcher);
-  const sorted = useMemo(
-    () =>
-      items ? [...items].sort((a, b) => a.label.localeCompare(b.label)) : [],
-    [items],
-  );
+  const sorted = useMemo(() => (items ? sortByLabel(items) : []), [items]);
   return (
     <div data-sorted-list>
       {sorted.map(item => (
@@ -84,9 +91,8 @@ function BenchmarkHarness() {
       const item = FIXTURE_ITEMS_BY_ID.get(id);
       if (!item) return;
       measureUpdate(() => {
-        void mutate(`item:${id}`, {
-          ...item,
-          label: `${item.label} (updated)`,
+        updateItem({ id, label: `${item.label} (updated)` }).then(data => {
+          void mutate(`item:${id}`, data, false);
         });
       });
     },
@@ -97,42 +103,65 @@ function BenchmarkHarness() {
     (authorId: string, options?: UpdateAuthorOptions) => {
       const author = FIXTURE_AUTHORS_BY_ID.get(authorId);
       if (!author) return;
-      const newAuthor = { ...author, name: `${author.name} (updated)` };
       measureUpdateWithDelay(options, () => {
-        void mutate(`author:${authorId}`, newAuthor);
-        for (const item of FIXTURE_ITEMS) {
-          if (item.author.id === authorId) {
-            void mutate(`item:${item.id}`, (prev: Item | undefined) =>
-              prev ? { ...prev, author: newAuthor } : prev,
-            );
+        serverUpdateAuthor({
+          id: authorId,
+          name: `${author.name} (updated)`,
+        }).then(updatedAuthor => {
+          void mutate(`author:${authorId}`, updatedAuthor, false);
+          for (const item of FIXTURE_ITEMS) {
+            if (item.author.id === authorId) {
+              void mutate(`item:${item.id}`);
+            }
           }
-        }
+        });
       });
     },
     [measureUpdateWithDelay, mutate],
   );
 
+  const createEntity = useCallback(() => {
+    const author = FIXTURE_AUTHORS[0];
+    measureUpdate(() => {
+      createItem({ label: 'New Item', author }).then(created => {
+        cache.set(`item:${created.id}`, makeCacheEntry(created));
+        setIds(prev => [...prev, created.id]);
+      });
+    });
+  }, [measureUpdate, setIds]);
+
+  const deleteEntity = useCallback(
+    (id: string) => {
+      measureUpdate(() => {
+        deleteItem({ id }).then(() => {
+          cache.delete(`item:${id}`);
+          setIds(prev => prev.filter(i => i !== id));
+        });
+      });
+    },
+    [measureUpdate, setIds],
+  );
+
   const bulkIngest = useCallback(
     (n: number) => {
-      const { items, authors } = generateFreshData(n);
+      const { items } = generateFreshData(n);
+      seedBulkItems(items);
       measureMount(() => {
-        for (const author of authors) {
-          cache.set(`author:${author.id}`, {
-            data: author,
-            isLoading: false,
-            isValidating: false,
-            error: undefined,
-          });
-        }
-        for (const item of items) {
-          cache.set(`item:${item.id}`, {
-            data: item,
-            isLoading: false,
-            isValidating: false,
-            error: undefined,
-          });
-        }
-        setIds(items.map(i => i.id));
+        fetchItemList().then(parsed => {
+          const fetchedItems = parsed as Item[];
+          const seenAuthors = new Set<string>();
+          for (const item of fetchedItems) {
+            cache.set(`item:${item.id}`, makeCacheEntry(item));
+            if (!seenAuthors.has(item.author.id)) {
+              seenAuthors.add(item.author.id);
+              cache.set(
+                `author:${item.author.id}`,
+                makeCacheEntry(item.author),
+              );
+            }
+          }
+          setIds(fetchedItems.map(i => i.id));
+        });
       });
     },
     [measureMount, setIds],
@@ -140,20 +169,25 @@ function BenchmarkHarness() {
 
   const mountSortedView = useCallback(
     (n: number) => {
+      seedItemList(FIXTURE_ITEMS.slice(0, n));
       measureMount(() => {
-        cache.set('items:all', {
-          data: FIXTURE_ITEMS.slice(0, n),
-          isLoading: false,
-          isValidating: false,
-          error: undefined,
+        fetchItemList().then(parsed => {
+          cache.set('items:all', makeCacheEntry(parsed));
+          setShowSortedView(true);
         });
-        setShowSortedView(true);
       });
     },
     [measureMount, setShowSortedView],
   );
 
-  registerAPI({ updateEntity, updateAuthor, bulkIngest, mountSortedView });
+  registerAPI({
+    updateEntity,
+    updateAuthor,
+    bulkIngest,
+    mountSortedView,
+    createEntity,
+    deleteEntity,
+  });
 
   return (
     <div ref={containerRef} data-bench-harness>

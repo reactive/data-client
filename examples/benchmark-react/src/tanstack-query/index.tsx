@@ -6,8 +6,20 @@ import {
   FIXTURE_ITEMS,
   FIXTURE_ITEMS_BY_ID,
   generateFreshData,
+  sortByLabel,
 } from '@shared/data';
 import { registerRefs } from '@shared/refStability';
+import {
+  fetchItem,
+  fetchAuthor,
+  fetchItemList,
+  createItem,
+  updateItem,
+  updateAuthor as serverUpdateAuthor,
+  deleteItem,
+  seedBulkItems,
+  seedItemList,
+} from '@shared/server';
 import type { Item, UpdateAuthorOptions } from '@shared/types';
 import {
   QueryClient,
@@ -18,14 +30,22 @@ import {
 import React, { useCallback, useMemo } from 'react';
 import { createRoot } from 'react-dom/client';
 
-function seedCache(queryClient: QueryClient) {
-  for (const author of FIXTURE_AUTHORS) {
-    queryClient.setQueryData(['author', author.id], author);
-  }
+function queryFn({ queryKey }: { queryKey: readonly unknown[] }): Promise<any> {
+  const [type, id] = queryKey as string[];
+  if (type === 'item' && id) return fetchItem({ id });
+  if (type === 'author' && id) return fetchAuthor({ id });
+  if (type === 'items') return fetchItemList();
+  return Promise.reject(new Error(`Unknown queryKey: ${queryKey}`));
+}
+
+function seedCache(client: QueryClient) {
   for (const item of FIXTURE_ITEMS) {
-    queryClient.setQueryData(['item', item.id], item);
+    client.setQueryData(['item', item.id], item);
   }
-  queryClient.setQueryData(['items', 'all'], FIXTURE_ITEMS);
+  for (const author of FIXTURE_AUTHORS) {
+    client.setQueryData(['author', author.id], author);
+  }
+  client.setQueryData(['items', 'all'], FIXTURE_ITEMS);
 }
 
 const queryClient = new QueryClient({
@@ -41,10 +61,7 @@ seedCache(queryClient);
 function ItemView({ id }: { id: string }) {
   const { data: item } = useQuery({
     queryKey: ['item', id],
-    queryFn: () => FIXTURE_ITEMS_BY_ID.get(id) as Item,
-    initialData: () =>
-      (FIXTURE_ITEMS_BY_ID.get(id) ??
-        queryClient.getQueryData<Item>(['item', id])) as Item,
+    queryFn,
   });
   if (!item) return null;
   const itemAsItem = item as Item;
@@ -55,13 +72,10 @@ function ItemView({ id }: { id: string }) {
 function SortedListView() {
   const { data: items } = useQuery({
     queryKey: ['items', 'all'],
-    queryFn: () => FIXTURE_ITEMS,
-    initialData: () =>
-      queryClient.getQueryData<Item[]>(['items', 'all']) ?? FIXTURE_ITEMS,
+    queryFn,
   });
   const sorted = useMemo(
-    () =>
-      items ? [...items].sort((a, b) => a.label.localeCompare(b.label)) : [],
+    () => (items ? sortByLabel(items as Item[]) : []),
     [items],
   );
   return (
@@ -92,9 +106,8 @@ function BenchmarkHarness() {
       const item = FIXTURE_ITEMS_BY_ID.get(id);
       if (!item) return;
       measureUpdate(() => {
-        client.setQueryData(['item', id], {
-          ...item,
-          label: `${item.label} (updated)`,
+        updateItem({ id, label: `${item.label} (updated)` }).then(data => {
+          client.setQueryData(['item', id], data);
         });
       });
     },
@@ -105,32 +118,62 @@ function BenchmarkHarness() {
     (authorId: string, options?: UpdateAuthorOptions) => {
       const author = FIXTURE_AUTHORS_BY_ID.get(authorId);
       if (!author) return;
-      const newAuthor = { ...author, name: `${author.name} (updated)` };
       measureUpdateWithDelay(options, () => {
-        client.setQueryData(['author', authorId], newAuthor);
-        for (const item of FIXTURE_ITEMS) {
-          if (item.author.id === authorId) {
-            client.setQueryData(['item', item.id], (old: Item | undefined) =>
-              old ? { ...old, author: newAuthor } : old,
-            );
+        serverUpdateAuthor({
+          id: authorId,
+          name: `${author.name} (updated)`,
+        }).then(updatedAuthor => {
+          client.setQueryData(['author', authorId], updatedAuthor);
+          for (const item of FIXTURE_ITEMS) {
+            if (item.author.id === authorId) {
+              client.refetchQueries({ queryKey: ['item', item.id] });
+            }
           }
-        }
+        });
       });
     },
     [measureUpdateWithDelay, client],
   );
 
+  const createEntity = useCallback(() => {
+    const author = FIXTURE_AUTHORS[0];
+    measureUpdate(() => {
+      createItem({ label: 'New Item', author }).then(created => {
+        client.setQueryData(['item', created.id], created);
+        setIds(prev => [...prev, created.id]);
+      });
+    });
+  }, [measureUpdate, client, setIds]);
+
+  const deleteEntity = useCallback(
+    (id: string) => {
+      measureUpdate(() => {
+        deleteItem({ id }).then(() => {
+          client.removeQueries({ queryKey: ['item', id] });
+          setIds(prev => prev.filter(i => i !== id));
+        });
+      });
+    },
+    [measureUpdate, client, setIds],
+  );
+
   const bulkIngest = useCallback(
     (n: number) => {
-      const { items, authors } = generateFreshData(n);
+      const { items } = generateFreshData(n);
+      seedBulkItems(items);
       measureMount(() => {
-        for (const author of authors) {
-          client.setQueryData(['author', author.id], author);
-        }
-        for (const item of items) {
-          client.setQueryData(['item', item.id], item);
-        }
-        setIds(items.map(i => i.id));
+        fetchItemList().then(parsed => {
+          const fetchedItems = parsed as Item[];
+          const seenAuthors = new Set<string>();
+          for (const item of fetchedItems) {
+            client.setQueryData(['item', item.id], item);
+            if (!seenAuthors.has(item.author.id)) {
+              seenAuthors.add(item.author.id);
+              client.setQueryData(['author', item.author.id], item.author);
+            }
+          }
+          setIds(fetchedItems.map(i => i.id));
+        });
       });
     },
     [measureMount, setIds, client],
@@ -138,15 +181,26 @@ function BenchmarkHarness() {
 
   const mountSortedView = useCallback(
     (n: number) => {
+      seedItemList(FIXTURE_ITEMS.slice(0, n));
       measureMount(() => {
-        client.setQueryData(['items', 'all'], FIXTURE_ITEMS.slice(0, n));
-        setShowSortedView(true);
+        client
+          .fetchQuery({ queryKey: ['items', 'all'], queryFn, staleTime: 0 })
+          .then(() => {
+            setShowSortedView(true);
+          });
       });
     },
     [measureMount, setShowSortedView, client],
   );
 
-  registerAPI({ updateEntity, updateAuthor, bulkIngest, mountSortedView });
+  registerAPI({
+    updateEntity,
+    updateAuthor,
+    bulkIngest,
+    mountSortedView,
+    createEntity,
+    deleteEntity,
+  });
 
   return (
     <div ref={containerRef} data-bench-harness>

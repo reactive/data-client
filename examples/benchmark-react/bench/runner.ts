@@ -103,7 +103,9 @@ async function runScenario(
     scenario.action === 'updateEntity' ||
     scenario.action === 'updateAuthor' ||
     scenario.action === 'optimisticUpdate' ||
-    scenario.action === 'invalidateAndResolve';
+    scenario.action === 'invalidateAndResolve' ||
+    scenario.action === 'createEntity' ||
+    scenario.action === 'deleteEntity';
   const isRefStability = isRefStabilityScenario(scenario);
   const isBulkIngest = scenario.action === 'bulkIngest';
 
@@ -334,7 +336,9 @@ async function main() {
         scenario.action === 'optimisticUpdate' ||
         scenario.action === 'bulkIngest' ||
         scenario.action === 'mountSortedView' ||
-        scenario.action === 'invalidateAndResolve')
+        scenario.action === 'invalidateAndResolve' ||
+        scenario.action === 'createEntity' ||
+        scenario.action === 'deleteEntity')
     ) {
       const { median: rcMedian, range: rcRange } = computeStats(
         reactSamples,

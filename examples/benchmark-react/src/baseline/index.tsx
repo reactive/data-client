@@ -5,12 +5,24 @@ import {
 } from '@shared/benchHarness';
 import { ItemRow } from '@shared/components';
 import {
+  FIXTURE_AUTHORS,
   FIXTURE_AUTHORS_BY_ID,
   FIXTURE_ITEMS,
+  FIXTURE_ITEMS_BY_ID,
   generateFreshData,
+  sortByLabel,
 } from '@shared/data';
 import { registerRefs } from '@shared/refStability';
-import type { Item, UpdateAuthorOptions } from '@shared/types';
+import {
+  fetchItemList,
+  createItem,
+  updateItem,
+  updateAuthor as serverUpdateAuthor,
+  deleteItem,
+  seedBulkItems,
+  seedItemList,
+} from '@shared/server';
+import type { Author, Item, UpdateAuthorOptions } from '@shared/types';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 
@@ -29,10 +41,7 @@ function ItemView({ id }: { id: string }) {
 
 function SortedListView() {
   const { items } = useContext(ItemsContext);
-  const sorted = useMemo(
-    () => [...items].sort((a, b) => a.label.localeCompare(b.label)),
-    [items],
-  );
+  const sorted = useMemo(() => sortByLabel(items), [items]);
   return (
     <div data-sorted-list>
       {sorted.map(item => (
@@ -61,11 +70,12 @@ function BenchmarkHarness() {
 
   const mount = useCallback(
     (n: number) => {
-      const sliced = FIXTURE_ITEMS.slice(0, n);
-      const slicedIds = sliced.map(i => i.id);
+      seedItemList(FIXTURE_ITEMS.slice(0, n));
       measureMount(() => {
-        setItems(sliced);
-        setIds(slicedIds);
+        fetchItemList().then(fetched => {
+          setItems(fetched);
+          setIds(fetched.map(i => i.id));
+        });
       });
     },
     [measureMount, setIds],
@@ -73,14 +83,12 @@ function BenchmarkHarness() {
 
   const updateEntity = useCallback(
     (id: string) => {
+      const item = FIXTURE_ITEMS_BY_ID.get(id);
+      if (!item) return;
       measureUpdate(() => {
-        setItems(prev =>
-          prev.map(item =>
-            item.id === id ?
-              { ...item, label: `${item.label} (updated)` }
-            : item,
-          ),
-        );
+        updateItem({ id, label: `${item.label} (updated)` }).then(parsed => {
+          setItems(prev => prev.map(i => (i.id === id ? parsed : i)));
+        });
       });
     },
     [measureUpdate],
@@ -90,16 +98,42 @@ function BenchmarkHarness() {
     (authorId: string, options?: UpdateAuthorOptions) => {
       const author = FIXTURE_AUTHORS_BY_ID.get(authorId);
       if (!author) return;
-      const newAuthor = { ...author, name: `${author.name} (updated)` };
       measureUpdateWithDelay(options, () => {
-        setItems(prev =>
-          prev.map(item =>
-            item.author.id === authorId ? { ...item, author: newAuthor } : item,
-          ),
-        );
+        serverUpdateAuthor({
+          id: authorId,
+          name: `${author.name} (updated)`,
+        }).then(parsed => {
+          setItems(prev =>
+            prev.map(item =>
+              item.author.id === authorId ? { ...item, author: parsed } : item,
+            ),
+          );
+        });
       });
     },
     [measureUpdateWithDelay],
+  );
+
+  const createEntity = useCallback(() => {
+    const author = FIXTURE_AUTHORS[0];
+    measureUpdate(() => {
+      createItem({ label: 'New Item', author }).then(created => {
+        setItems(prev => [...prev, created]);
+        setIds(prev => [...prev, created.id]);
+      });
+    });
+  }, [measureUpdate, setIds]);
+
+  const deleteEntity = useCallback(
+    (id: string) => {
+      measureUpdate(() => {
+        deleteItem({ id }).then(() => {
+          setItems(prev => prev.filter(i => i.id !== id));
+          setIds(prev => prev.filter(i => i !== id));
+        });
+      });
+    },
+    [measureUpdate, setIds],
   );
 
   const unmountAll = useCallback(() => {
@@ -110,10 +144,12 @@ function BenchmarkHarness() {
   const bulkIngest = useCallback(
     (n: number) => {
       const { items: freshItems } = generateFreshData(n);
-      const freshIds = freshItems.map(i => i.id);
+      seedBulkItems(freshItems);
       measureMount(() => {
-        setItems(freshItems);
-        setIds(freshIds);
+        fetchItemList().then(fetched => {
+          setItems(fetched);
+          setIds(fetched.map(i => i.id));
+        });
       });
     },
     [measureMount, setIds],
@@ -121,10 +157,12 @@ function BenchmarkHarness() {
 
   const mountSortedView = useCallback(
     (n: number) => {
-      const sliced = FIXTURE_ITEMS.slice(0, n);
+      seedItemList(FIXTURE_ITEMS.slice(0, n));
       measureMount(() => {
-        setItems(sliced);
-        setShowSortedView(true);
+        fetchItemList().then(fetched => {
+          setItems(fetched);
+          setShowSortedView(true);
+        });
       });
     },
     [measureMount, setShowSortedView],
@@ -154,6 +192,8 @@ function BenchmarkHarness() {
     mountUnmountCycle,
     bulkIngest,
     mountSortedView,
+    createEntity,
+    deleteEntity,
   });
 
   return (

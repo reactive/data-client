@@ -8,23 +8,27 @@ import { mockInitialState } from '@data-client/react/mock';
 import { onProfilerRender, useBenchState } from '@shared/benchHarness';
 import { ItemRow } from '@shared/components';
 import {
+  FIXTURE_AUTHORS,
   FIXTURE_AUTHORS_BY_ID,
   FIXTURE_ITEMS,
   FIXTURE_ITEMS_BY_ID,
   generateFreshData,
 } from '@shared/data';
 import { registerRefs } from '@shared/refStability';
+import { seedBulkItems } from '@shared/server';
 import type { Item, UpdateAuthorOptions } from '@shared/types';
 import React, { useCallback, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import {
-  AuthorEntity,
+  createItemEndpoint,
+  deleteItemEndpoint,
   getAuthor,
   getItem,
   getItemList,
-  ItemEntity,
   sortedItemsQuery,
+  updateAuthorEndpoint,
+  updateItemEndpoint,
   updateItemOptimistic,
 } from './resources';
 
@@ -85,6 +89,7 @@ function BenchmarkHarness() {
     measureMount,
     measureUpdate,
     measureUpdateWithDelay,
+    setIds,
     setShowSortedView,
     setSortedViewCount,
     unmountAll: unmountBase,
@@ -97,11 +102,10 @@ function BenchmarkHarness() {
       const item = FIXTURE_ITEMS_BY_ID.get(id);
       if (!item) return;
       measureUpdate(() => {
-        controller.set(
-          ItemEntity,
-          { id },
-          { ...item, label: `${item.label} (updated)` },
-        );
+        controller.fetch(updateItemEndpoint, {
+          id,
+          label: `${item.label} (updated)`,
+        });
       });
     },
     [measureUpdate, controller],
@@ -112,14 +116,38 @@ function BenchmarkHarness() {
       const author = FIXTURE_AUTHORS_BY_ID.get(authorId);
       if (!author) return;
       measureUpdateWithDelay(options, () => {
-        controller.set(
-          AuthorEntity,
-          { id: authorId },
-          { ...author, name: `${author.name} (updated)` },
-        );
+        controller.fetch(updateAuthorEndpoint, {
+          id: authorId,
+          name: `${author.name} (updated)`,
+        });
       });
     },
     [measureUpdateWithDelay, controller],
+  );
+
+  const createEntity = useCallback(() => {
+    const author = FIXTURE_AUTHORS[0];
+    measureUpdate(() => {
+      controller
+        .fetch(createItemEndpoint, {
+          label: 'New Item',
+          author,
+        })
+        .then((created: any) => {
+          setIds(prev => [...prev, created.id]);
+        });
+    });
+  }, [measureUpdate, controller, setIds]);
+
+  const deleteEntity = useCallback(
+    (id: string) => {
+      measureUpdate(() => {
+        controller.fetch(deleteItemEndpoint, { id }).then(() => {
+          setIds(prev => prev.filter(i => i !== id));
+        });
+      });
+    },
+    [measureUpdate, controller, setIds],
   );
 
   const unmountAll = useCallback(() => {
@@ -141,9 +169,11 @@ function BenchmarkHarness() {
   const bulkIngest = useCallback(
     (n: number) => {
       const { items } = generateFreshData(n);
+      seedBulkItems(items);
       measureMount(() => {
-        controller.setResponse(getItemList, items);
-        setShowListView(true);
+        controller.fetch(getItemList).then(() => {
+          setShowListView(true);
+        });
       });
     },
     [measureMount, controller],
@@ -165,11 +195,7 @@ function BenchmarkHarness() {
       if (!item) return;
       measureUpdate(() => {
         controller.invalidate(getItem, { id });
-        controller.setResponse(
-          getItem,
-          { id },
-          { ...item, label: `${item.label} (resolved)` },
-        );
+        controller.fetch(getItem, { id });
       });
     },
     [measureUpdate, controller],
@@ -183,6 +209,8 @@ function BenchmarkHarness() {
     bulkIngest,
     mountSortedView,
     invalidateAndResolve,
+    createEntity,
+    deleteEntity,
   });
 
   return (
