@@ -1,5 +1,5 @@
 import { onProfilerRender, useBenchState } from '@shared/benchHarness';
-import { ItemRow } from '@shared/components';
+import { ITEM_HEIGHT, ItemRow, LIST_STYLE } from '@shared/components';
 import {
   FIXTURE_AUTHORS,
   FIXTURE_AUTHORS_BY_ID,
@@ -29,6 +29,7 @@ import {
 } from '@tanstack/react-query';
 import React, { useCallback, useMemo } from 'react';
 import { createRoot } from 'react-dom/client';
+import { List, type RowComponentProps } from 'react-window';
 
 function queryFn({ queryKey }: { queryKey: readonly unknown[] }): Promise<any> {
   const [type, id] = queryKey as string[];
@@ -69,6 +70,18 @@ function ItemView({ id }: { id: string }) {
   return <ItemRow item={itemAsItem} />;
 }
 
+function SortedRow({
+  index,
+  style,
+  items,
+}: RowComponentProps<{ items: Item[] }>) {
+  return (
+    <div style={style}>
+      <ItemRow item={items[index]} />
+    </div>
+  );
+}
+
 function SortedListView() {
   const { data: items } = useQuery({
     queryKey: ['items', 'all'],
@@ -80,9 +93,25 @@ function SortedListView() {
   );
   return (
     <div data-sorted-list>
-      {sorted.map(item => (
-        <ItemRow key={item.id} item={item} />
-      ))}
+      <List
+        style={LIST_STYLE}
+        rowHeight={ITEM_HEIGHT}
+        rowCount={sorted.length}
+        rowComponent={SortedRow}
+        rowProps={{ items: sorted }}
+      />
+    </div>
+  );
+}
+
+function ItemListRow({
+  index,
+  style,
+  ids,
+}: RowComponentProps<{ ids: string[] }>) {
+  return (
+    <div style={style}>
+      <ItemView id={ids[index]} />
     </div>
   );
 }
@@ -204,11 +233,13 @@ function BenchmarkHarness() {
 
   return (
     <div ref={containerRef} data-bench-harness>
-      <div data-item-list>
-        {ids.map(id => (
-          <ItemView key={id} id={id} />
-        ))}
-      </div>
+      <List
+        style={LIST_STYLE}
+        rowHeight={ITEM_HEIGHT}
+        rowCount={ids.length}
+        rowComponent={ItemListRow}
+        rowProps={{ ids }}
+      />
       {showSortedView && <SortedListView />}
     </div>
   );

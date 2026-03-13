@@ -29,11 +29,10 @@ export function generateAuthors(count: number): Author[] {
  * Generate items with nested author entities (shared references).
  * Items cycle through authors so many items share the same author.
  */
-export function generateItems(count: number, authorCount = 10): Item[] {
-  const authors = generateAuthors(authorCount);
+export function generateItems(count: number, authors: Author[]): Item[] {
   const items: Item[] = [];
   for (let i = 0; i < count; i++) {
-    const author = authors[i % authorCount];
+    const author = authors[i % authors.length];
     items.push({
       id: `item-${i}`,
       label: `Item ${i}`,
@@ -43,11 +42,11 @@ export function generateItems(count: number, authorCount = 10): Item[] {
   return items;
 }
 
-/** Pre-generated fixture for benchmark - 1000 items, 20 shared authors */
-export const FIXTURE_ITEMS = generateItems(1000, 20);
-
 /** Unique authors from fixture (for seeding and updateAuthor scenarios) */
 export const FIXTURE_AUTHORS = generateAuthors(20);
+
+/** Pre-generated fixture for benchmark - 10000 items, 20 shared authors */
+export const FIXTURE_ITEMS = generateItems(10000, FIXTURE_AUTHORS);
 
 /** O(1) item lookup by id (avoids linear scans inside measurement regions) */
 export const FIXTURE_ITEMS_BY_ID = new Map(FIXTURE_ITEMS.map(i => [i.id, i]));

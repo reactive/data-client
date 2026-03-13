@@ -6,7 +6,7 @@ import {
 } from '@data-client/react';
 import { mockInitialState } from '@data-client/react/mock';
 import { onProfilerRender, useBenchState } from '@shared/benchHarness';
-import { ItemRow } from '@shared/components';
+import { ITEM_HEIGHT, ItemRow, LIST_STYLE } from '@shared/components';
 import {
   FIXTURE_AUTHORS,
   FIXTURE_AUTHORS_BY_ID,
@@ -19,6 +19,7 @@ import { seedBulkItems } from '@shared/server';
 import type { Item, UpdateAuthorOptions } from '@shared/types';
 import React, { useCallback, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import { List, type RowComponentProps } from 'react-window';
 
 import {
   createItemEndpoint,
@@ -53,16 +54,43 @@ function ItemView({ id }: { id: string }) {
   return <ItemRow item={item as Item} />;
 }
 
+function ListViewRow({
+  index,
+  style,
+  items,
+}: RowComponentProps<{ items: Item[] }>) {
+  return (
+    <div style={style}>
+      <ItemRow item={items[index]} />
+    </div>
+  );
+}
+
 /** Renders items from the list endpoint (models rendering a list fetch response). */
 function ListView() {
   const items = useCache(getItemList);
   if (!items) return null;
+  const list = items as Item[];
   return (
-    <>
-      {(items as Item[]).map(item => (
-        <ItemRow key={item.id} item={item} />
-      ))}
-    </>
+    <List
+      style={LIST_STYLE}
+      rowHeight={ITEM_HEIGHT}
+      rowCount={list.length}
+      rowComponent={ListViewRow}
+      rowProps={{ items: list }}
+    />
+  );
+}
+
+function SortedRow({
+  index,
+  style,
+  items,
+}: RowComponentProps<{ items: Item[] }>) {
+  return (
+    <div style={style}>
+      <ItemRow item={items[index]} />
+    </div>
   );
 }
 
@@ -72,9 +100,25 @@ function SortedListView({ count }: { count?: number }) {
   if (!items) return null;
   return (
     <div data-sorted-list>
-      {items.map((item: any) => (
-        <ItemRow key={item.id} item={item as Item} />
-      ))}
+      <List
+        style={LIST_STYLE}
+        rowHeight={ITEM_HEIGHT}
+        rowCount={items.length}
+        rowComponent={SortedRow}
+        rowProps={{ items: items as Item[] }}
+      />
+    </div>
+  );
+}
+
+function ItemListRow({
+  index,
+  style,
+  ids,
+}: RowComponentProps<{ ids: string[] }>) {
+  return (
+    <div style={style}>
+      <ItemView id={ids[index]} />
     </div>
   );
 }
@@ -215,11 +259,13 @@ function BenchmarkHarness() {
 
   return (
     <div ref={containerRef} data-bench-harness>
-      <div data-item-list>
-        {ids.map(id => (
-          <ItemView key={id} id={id} />
-        ))}
-      </div>
+      <List
+        style={LIST_STYLE}
+        rowHeight={ITEM_HEIGHT}
+        rowCount={ids.length}
+        rowComponent={ItemListRow}
+        rowProps={{ ids }}
+      />
       {showListView && <ListView />}
       {showSortedView && <SortedListView count={sortedViewCount} />}
     </div>

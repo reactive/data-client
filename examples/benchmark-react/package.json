@@ -23,6 +23,7 @@
     "@tanstack/react-query": "5.62.7",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "react-window": "^2.2.7",
     "swr": "2.3.6"
   },
   "devDependencies": {
