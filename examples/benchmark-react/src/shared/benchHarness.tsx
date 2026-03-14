@@ -68,6 +68,16 @@ export function useBenchState() {
     [setComplete],
   );
 
+  /**
+   * Measure an update action. If the callback performs async work (fetch →
+   * setState), it MUST return the promise chain so finish() runs after the
+   * state update, not before. Sync dispatch (data-client's controller.fetch)
+   * legitimately returns void — the store update is synchronous.
+   *
+   * The timing-validation tests in validate.ts enforce this contract by
+   * injecting network delay and checking that the DOM is already updated
+   * when data-bench-complete fires.
+   */
   const measureUpdate = useCallback(
     (fn: () => void | Promise<void>) => {
       performance.mark('update-start');

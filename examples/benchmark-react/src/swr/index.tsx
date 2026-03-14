@@ -74,13 +74,11 @@ function BenchmarkHarness() {
     (id: string) => {
       const item = FIXTURE_ITEMS_BY_ID.get(id);
       if (!item) return;
-      measureUpdate(() => {
+      measureUpdate(() =>
         ItemResource.update({ id }, { label: `${item.label} (updated)` }).then(
-          () => {
-            void mutate(`items:${listViewCount}`);
-          },
-        );
-      });
+          () => mutate(`items:${listViewCount}`),
+        ),
+      );
     },
     [measureUpdate, mutate, listViewCount],
   );
@@ -102,20 +100,20 @@ function BenchmarkHarness() {
 
   const createEntity = useCallback(() => {
     const author = FIXTURE_AUTHORS[0];
-    measureUpdate(() => {
-      ItemResource.create({ label: 'New Item', author }).then(() => {
-        void mutate(`items:${listViewCount}`);
-      });
-    });
+    measureUpdate(() =>
+      ItemResource.create({ label: 'New Item', author }).then(() =>
+        mutate(`items:${listViewCount}`),
+      ),
+    );
   }, [measureUpdate, mutate, listViewCount]);
 
   const deleteEntity = useCallback(
     (id: string) => {
-      measureUpdate(() => {
-        ItemResource.delete({ id }).then(() => {
-          void mutate(`items:${listViewCount}`);
-        });
-      });
+      measureUpdate(() =>
+        ItemResource.delete({ id }).then(() =>
+          mutate(`items:${listViewCount}`),
+        ),
+      );
     },
     [measureUpdate, mutate, listViewCount],
   );

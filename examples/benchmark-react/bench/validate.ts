@@ -461,6 +461,88 @@ test(
   { onlyLibs: ['data-client'] },
 );
 
+// ── TIMING VALIDATION ────────────────────────────────────────────────
+// Verify that when data-bench-complete fires (measurement ends), the DOM
+// already reflects the update. A 100ms network delay makes timing bugs
+// observable: if the measureUpdate callback doesn't return its promise
+// chain, finish() fires via the sync-path double-rAF (~32ms) before the
+// async fetch resolves. data-client passes because controller.fetch()
+// dispatches optimistic updates to the store synchronously.
+
+test('updateEntity timing: DOM reflects change at measurement end', async (page, lib) => {
+  await initAndWaitForItems(page);
+  await page.evaluate(() => window.__BENCH__!.setNetworkDelay(100));
+
+  await clearComplete(page);
+  await page.evaluate(() => window.__BENCH__!.updateEntity('item-0'));
+  await waitForComplete(page);
+
+  const labels = await getItemLabels(page);
+  assert(
+    labels['item-0']?.includes('(updated)') ?? false,
+    lib,
+    'updateEntity timing',
+    `DOM not updated when data-bench-complete fired. ` +
+      `Ensure measureUpdate callback returns its promise chain.`,
+  );
+
+  await page.evaluate(() => window.__BENCH__!.setNetworkDelay(0));
+});
+
+test('createEntity timing: DOM reflects change at measurement end', async (page, lib) => {
+  if (
+    !(await page.evaluate(
+      () => typeof window.__BENCH__?.createEntity === 'function',
+    ))
+  )
+    return;
+
+  await initAndWaitForItems(page, 10);
+  await page.evaluate(() => window.__BENCH__!.setNetworkDelay(100));
+
+  await clearComplete(page);
+  await page.evaluate(() => window.__BENCH__!.createEntity!());
+  await waitForComplete(page);
+
+  const labels = await getItemLabels(page);
+  assert(
+    Object.values(labels).some(l => l === 'New Item'),
+    lib,
+    'createEntity timing',
+    `"New Item" not in DOM when data-bench-complete fired. ` +
+      `Ensure measureUpdate callback returns its promise chain.`,
+  );
+
+  await page.evaluate(() => window.__BENCH__!.setNetworkDelay(0));
+});
+
+test('deleteEntity timing: DOM reflects change at measurement end', async (page, lib) => {
+  if (
+    !(await page.evaluate(
+      () => typeof window.__BENCH__?.deleteEntity === 'function',
+    ))
+  )
+    return;
+
+  await initAndWaitForItems(page, 10);
+  await page.evaluate(() => window.__BENCH__!.setNetworkDelay(100));
+
+  await clearComplete(page);
+  await page.evaluate(() => window.__BENCH__!.deleteEntity!('item-0'));
+  await waitForComplete(page);
+
+  const labels = await getItemLabels(page);
+  assert(
+    !('item-0' in labels),
+    lib,
+    'deleteEntity timing',
+    `item-0 still in DOM when data-bench-complete fired. ` +
+      `Ensure measureUpdate callback returns its promise chain.`,
+  );
+
+  await page.evaluate(() => window.__BENCH__!.setNetworkDelay(0));
+});
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Runner
 // ═══════════════════════════════════════════════════════════════════════════

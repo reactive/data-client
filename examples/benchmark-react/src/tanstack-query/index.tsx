@@ -97,15 +97,14 @@ function BenchmarkHarness() {
     (id: string) => {
       const item = FIXTURE_ITEMS_BY_ID.get(id);
       if (!item) return;
-      measureUpdate(() => {
+      measureUpdate(() =>
         ItemResource.update({ id }, { label: `${item.label} (updated)` }).then(
-          () => {
-            void client.invalidateQueries({
+          () =>
+            client.invalidateQueries({
               queryKey: ['items', listViewCount],
-            });
-          },
-        );
-      });
+            }),
+        ),
+      );
     },
     [measureUpdate, client, listViewCount],
   );
@@ -130,22 +129,22 @@ function BenchmarkHarness() {
 
   const createEntity = useCallback(() => {
     const author = FIXTURE_AUTHORS[0];
-    measureUpdate(() => {
-      ItemResource.create({ label: 'New Item', author }).then(() => {
-        void client.invalidateQueries({ queryKey: ['items', listViewCount] });
-      });
-    });
+    measureUpdate(() =>
+      ItemResource.create({ label: 'New Item', author }).then(() =>
+        client.invalidateQueries({ queryKey: ['items', listViewCount] }),
+      ),
+    );
   }, [measureUpdate, client, listViewCount]);
 
   const deleteEntity = useCallback(
     (id: string) => {
-      measureUpdate(() => {
-        ItemResource.delete({ id }).then(() => {
-          void client.invalidateQueries({
+      measureUpdate(() =>
+        ItemResource.delete({ id }).then(() =>
+          client.invalidateQueries({
             queryKey: ['items', listViewCount],
-          });
-        });
-      });
+          }),
+        ),
+      );
     },
     [measureUpdate, client, listViewCount],
   );
