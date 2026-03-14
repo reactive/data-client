@@ -3266,7 +3266,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/img@npm:0.15.0, @data-client/img@workspace:*, @data-client/img@workspace:packages/img":
+"@data-client/img@npm:1.0.0, @data-client/img@workspace:*, @data-client/img@workspace:packages/img":
   version: 0.0.0-use.local
   resolution: "@data-client/img@workspace:packages/img"
   dependencies:
@@ -3284,7 +3284,7 @@ __metadata:
     react-dom: "npm:^19.2.1"
     rollup-plugins: "workspace:*"
   peerDependencies:
-    "@data-client/react": ^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0 || ^0.5.0 || ^0.7.0 || ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^0.14.0 || ^0.15.0
+    "@data-client/react": ^1.0.0
     "@types/react": ^16.14.0 || ^17.0.0 || ^18.0.0-0 || ^19.0.0
     react: ^16.14.0 || ^17.0.0 || ^18.0.0-0 || ^19.0.0
   peerDependenciesMeta:
@@ -3308,7 +3308,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/react@npm:0.15.7, @data-client/react@workspace:*, @data-client/react@workspace:packages/react":
+"@data-client/react@npm:1.0.0, @data-client/react@workspace:*, @data-client/react@workspace:packages/react":
   version: 0.0.0-use.local
   resolution: "@data-client/react@workspace:packages/react"
   dependencies:
@@ -3352,7 +3352,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/rest@npm:0.15.7, @data-client/rest@workspace:*, @data-client/rest@workspace:packages/rest":
+"@data-client/rest@npm:1.0.0, @data-client/rest@workspace:*, @data-client/rest@workspace:packages/rest":
   version: 0.0.0-use.local
   resolution: "@data-client/rest@workspace:packages/rest"
   dependencies:
@@ -3391,7 +3391,7 @@ __metadata:
     react-test-renderer: "npm:*"
     rollup-plugins: "workspace:*"
   peerDependencies:
-    "@data-client/react": ^0.12.15 || ^0.13.0 || ^0.14.0 || ^0.15.0
+    "@data-client/react": ^1.0.0
     "@testing-library/react-hooks": ^8.0.0
     "@testing-library/react-native": ^13.0.0
     "@types/react": ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0-0 || ^19.0.0
@@ -11269,9 +11269,9 @@ __metadata:
     "@anansi/webpack-config": "npm:21.1.15"
     "@babel/core": "npm:7.29.0"
     "@babel/runtime-corejs3": "npm:7.29.0"
-    "@data-client/img": "npm:0.15.0"
-    "@data-client/react": "npm:0.15.7"
-    "@data-client/rest": "npm:0.15.7"
+    "@data-client/img": "npm:1.0.0"
+    "@data-client/react": "npm:1.0.0"
+    "@data-client/rest": "npm:1.0.0"
     "@linaria/core": "npm:*"
     "@linaria/react": "npm:*"
     "@linaria/shaker": "npm:*"

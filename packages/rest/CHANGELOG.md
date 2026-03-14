@@ -1,5 +1,39 @@
 # @data-client/rest
 
+## 1.0.0
+
+### Minor Changes
+
+- [#3757](https://github.com/reactive/data-client/pull/3757) [`02555a2`](https://github.com/reactive/data-client/commit/02555a23ef11c0a6c829d795067b634c0594fe14) - RestEndpoint.path and Resource.path syntax updated
+
+  Upgrading path-to-regexp from 6 to 8.
+  - https://github.com/pillarjs/path-to-regexp/releases/tag/v8.0.0
+  - https://github.com/pillarjs/path-to-regexp/releases/tag/v7.0.0
+
+  BREAKING CHANGES:
+  - /:optional? -> {/:optional}
+  - /:repeating+ -> /\*repeating (typed as string[])
+  - /:repeating* -> {/*repeating} (typed as string[])
+  - /:id(\d+) -> /:id (custom regex removed)
+  - /:with-dash -> /:"with-dash"
+  - `(`, `)`, `[`, `]`, `+`, `?`, `!` must be escaped `"\\("`
+    - `{}()[]+?!:*\` are all characters that need escaping
+
+  Migrate using:
+  `npx skills add https://github.com/reactive/data-client --skill path-to-regexp-v8-migration`
+
+### Patch Changes
+
+- [#3782](https://github.com/reactive/data-client/pull/3782) [`3b85c82`](https://github.com/reactive/data-client/commit/3b85c820f8046a056d9180ff5d2fe1a883b6998c) - Fix `searchParams: undefined` being widened to `any` in TypeScript 6 non-strict mode
+
+  TypeScript 6.0 widens `undefined` to `any` during generic inference when `strictNullChecks` is off.
+  This caused `RestEndpoint` with `searchParams: undefined` to incorrectly accept arbitrary arguments.
+
+- [#3757](https://github.com/reactive/data-client/pull/3757) [`02555a2`](https://github.com/reactive/data-client/commit/02555a23ef11c0a6c829d795067b634c0594fe14) - Fix `undefined` optional path params being interpolated as literal `"undefined"` in URLs
+
+- Updated dependencies []:
+  - @data-client/endpoint@0.15.7
+
 ## 0.15.7
 
 ### Patch Changes
