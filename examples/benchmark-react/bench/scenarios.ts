@@ -1,11 +1,26 @@
 import type { BenchAPI, Scenario, ScenarioSize } from '../src/shared/types.js';
 
-export const RUN_CONFIG: Record<
-  ScenarioSize,
-  { warmup: number; measurement: number }
-> = {
-  small: { warmup: 3, measurement: process.env.CI ? 10 : 15 },
-  large: { warmup: 1, measurement: process.env.CI ? 3 : 4 },
+export interface RunProfile {
+  warmup: number;
+  minMeasurement: number;
+  maxMeasurement: number;
+  /** Stop early when 95% CI margin is within this % of the median. */
+  targetMarginPct: number;
+}
+
+export const RUN_CONFIG: Record<ScenarioSize, RunProfile> = {
+  small: {
+    warmup: 3,
+    minMeasurement: 3,
+    maxMeasurement: process.env.CI ? 10 : 20,
+    targetMarginPct: process.env.CI ? 15 : 10,
+  },
+  large: {
+    warmup: 1,
+    minMeasurement: 2,
+    maxMeasurement: process.env.CI ? 4 : 8,
+    targetMarginPct: process.env.CI ? 20 : 15,
+  },
 };
 
 export const ACTION_GROUPS: Record<string, (keyof BenchAPI)[]> = {
@@ -34,6 +49,8 @@ interface BaseScenario {
   onlyLibs?: string[];
   /** Simulated per-request network latency in ms (applied at the server layer). */
   networkDelayMs?: number;
+  /** Result is deterministic (zero variance); run exactly once with no warmup. */
+  deterministic?: boolean;
 }
 
 const BASE_SCENARIOS: BaseScenario[] = [
@@ -68,6 +85,7 @@ const BASE_SCENARIOS: BaseScenario[] = [
     args: ['item-0'],
     resultMetric: 'itemRefChanged',
     category: 'hotPath',
+    deterministic: true,
   },
   {
     nameSuffix: 'ref-stability-author-changed',
@@ -75,6 +93,7 @@ const BASE_SCENARIOS: BaseScenario[] = [
     args: ['author-0'],
     resultMetric: 'authorRefChanged',
     category: 'hotPath',
+    deterministic: true,
   },
   {
     nameSuffix: 'update-shared-author-with-network',
@@ -175,6 +194,7 @@ export const SCENARIOS: Scenario[] = LIBRARIES.flatMap(lib =>
       mountCount: base.mountCount,
       preMountAction: base.preMountAction,
       networkDelayMs: base.networkDelayMs,
+      deterministic: base.deterministic,
     }),
   ),
 );

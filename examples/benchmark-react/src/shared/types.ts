@@ -93,4 +93,6 @@ export interface Scenario {
   preMountAction?: keyof BenchAPI;
   /** Simulated per-request network latency in ms (applied at the server layer). */
   networkDelayMs?: number;
+  /** Result is deterministic (zero variance); run exactly once with no warmup. */
+  deterministic?: boolean;
 }

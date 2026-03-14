@@ -1,4 +1,26 @@
 /**
+ * Check whether a scenario's samples have converged: 95% CI margin
+ * is within targetMarginPct of the median.  Zero-variance metrics
+ * (e.g. ref-stability counts) converge after minSamples.
+ */
+export function isConverged(
+  samples: number[],
+  warmupCount: number,
+  targetMarginPct: number,
+  minSamples: number,
+): boolean {
+  const trimmed = samples.slice(warmupCount);
+  if (trimmed.length < minSamples) return false;
+  const mean = trimmed.reduce((sum, x) => sum + x, 0) / trimmed.length;
+  if (mean === 0) return true;
+  const stdDev = Math.sqrt(
+    trimmed.reduce((sum, x) => sum + (x - mean) ** 2, 0) / trimmed.length,
+  );
+  const margin = 1.96 * (stdDev / Math.sqrt(trimmed.length));
+  return (margin / Math.abs(mean)) * 100 <= targetMarginPct;
+}
+
+/**
  * Compute median, p95, and approximate 95% confidence interval from samples.
  * Discards warmup runs.
  */

@@ -11,7 +11,7 @@ import {
   RUN_CONFIG,
   ACTION_GROUPS,
 } from './scenarios.js';
-import { computeStats } from './stats.js';
+import { computeStats, isConverged } from './stats.js';
 import { parseTraceDuration } from './tracing.js';
 import type { Scenario, ScenarioSize } from '../src/shared/types.js';
 
@@ -375,25 +375,72 @@ async function main() {
 
   const browser = await chromium.launch({ headless: true });
 
-  // Run each size group with its own warmup/measurement counts
-  for (const [size, scenarios] of sizeGroups) {
-    const { warmup, measurement } = RUN_CONFIG[size];
-    const totalRuns = warmup + measurement;
+  // Run deterministic scenarios once (no warmup needed)
+  const deterministicNames = new Set<string>();
+  const deterministicScenarios = SCENARIOS_TO_RUN.filter(s => s.deterministic);
+  if (deterministicScenarios.length > 0) {
+    process.stderr.write(
+      `\n── Deterministic scenarios (${deterministicScenarios.length}) ──\n`,
+    );
+    for (const lib of libraries) {
+      const libScenarios = deterministicScenarios.filter(s =>
+        s.name.startsWith(`${lib}:`),
+      );
+      if (libScenarios.length === 0) continue;
+      const context = await browser.newContext();
+      const page = await context.newPage();
+      for (const scenario of libScenarios) {
+        try {
+          const result = await runScenario(page, lib, scenario);
+          results[scenario.name].push(result.value);
+          reactCommitResults[scenario.name].push(result.reactCommit ?? NaN);
+          traceResults[scenario.name].push(result.traceDuration ?? NaN);
+          process.stderr.write(
+            `  ${scenario.name}: ${result.value.toFixed(2)} ${scenarioUnit(scenario)}\n`,
+          );
+        } catch (err) {
+          console.error(
+            `  ${scenario.name} FAILED:`,
+            err instanceof Error ? err.message : err,
+          );
+        }
+        deterministicNames.add(scenario.name);
+      }
+      await context.close();
+    }
+  }
 
-    for (let round = 0; round < totalRuns; round++) {
-      const phase = round < warmup ? 'warmup' : 'measure';
-      const phaseRound = round < warmup ? round + 1 : round - warmup + 1;
-      const phaseTotal = round < warmup ? warmup : measurement;
+  // Run each size group with adaptive per-scenario convergence
+  for (const [size, scenarios] of sizeGroups) {
+    const { warmup, minMeasurement, maxMeasurement, targetMarginPct } =
+      RUN_CONFIG[size];
+    const nonDeterministic = scenarios.filter(
+      s => !deterministicNames.has(s.name),
+    );
+    if (nonDeterministic.length === 0) continue;
+
+    const maxRounds = warmup + maxMeasurement;
+    const converged = new Set<string>();
+
+    for (let round = 0; round < maxRounds; round++) {
+      const isMeasure = round >= warmup;
+      const phase = isMeasure ? 'measure' : 'warmup';
+      const phaseRound = isMeasure ? round - warmup + 1 : round + 1;
+      const phaseTotal = isMeasure ? maxMeasurement : warmup;
+      const active = nonDeterministic.filter(s => !converged.has(s.name));
+      if (active.length === 0) break;
       process.stderr.write(
-        `\n── ${size} round ${round + 1}/${totalRuns} (${phase} ${phaseRound}/${phaseTotal}) ──\n`,
+        `\n── ${size} round ${round + 1}/${maxRounds} (${phase} ${phaseRound}/${phaseTotal}, ${active.length}/${nonDeterministic.length} active) ──\n`,
       );
       let scenarioDone = 0;
       for (const lib of shuffle([...libraries])) {
+        const libScenarios = active.filter(s => s.name.startsWith(`${lib}:`));
+        if (libScenarios.length === 0) continue;
+
         const context = await browser.newContext();
         const page = await context.newPage();
 
-        for (const scenario of scenarios) {
-          if (!scenario.name.startsWith(`${lib}:`)) continue;
+        for (const scenario of libScenarios) {
           try {
             const result = await runScenario(page, lib, scenario);
             results[scenario.name].push(result.value);
@@ -401,18 +448,44 @@ async function main() {
             traceResults[scenario.name].push(result.traceDuration ?? NaN);
             scenarioDone++;
             process.stderr.write(
-              `  [${scenarioDone}/${scenarios.length}] ${scenario.name}: ${result.value.toFixed(2)} ${scenarioUnit(scenario)}${result.reactCommit != null ? ` (commit ${result.reactCommit.toFixed(2)} ms)` : ''}\n`,
+              `  [${scenarioDone}/${active.length}] ${scenario.name}: ${result.value.toFixed(2)} ${scenarioUnit(scenario)}${result.reactCommit != null ? ` (commit ${result.reactCommit.toFixed(2)} ms)` : ''}\n`,
             );
           } catch (err) {
             scenarioDone++;
             console.error(
-              `  [${scenarioDone}/${scenarios.length}] ${scenario.name} FAILED:`,
+              `  [${scenarioDone}/${active.length}] ${scenario.name} FAILED:`,
               err instanceof Error ? err.message : err,
             );
           }
         }
 
         await context.close();
+      }
+
+      // After each measurement round, check per-scenario convergence
+      if (isMeasure) {
+        for (const scenario of active) {
+          if (
+            isConverged(
+              results[scenario.name],
+              warmup,
+              targetMarginPct,
+              minMeasurement,
+            )
+          ) {
+            converged.add(scenario.name);
+            const nMeasured = results[scenario.name].length - warmup;
+            process.stderr.write(
+              `  [converged] ${scenario.name} after ${nMeasured} measurements\n`,
+            );
+          }
+        }
+        if (converged.size === nonDeterministic.length) {
+          process.stderr.write(
+            `\n── All ${size} scenarios converged, stopping early ──\n`,
+          );
+          break;
+        }
       }
     }
   }
@@ -458,7 +531,8 @@ async function main() {
   const report: BenchmarkResult[] = [];
   for (const scenario of SCENARIOS_TO_RUN) {
     const samples = results[scenario.name];
-    const warmupRuns = RUN_CONFIG[scenario.size ?? 'small'].warmup;
+    const warmupRuns =
+      scenario.deterministic ? 0 : RUN_CONFIG[scenario.size ?? 'small'].warmup;
     if (samples.length <= warmupRuns) continue;
     const { median, range } = computeStats(samples, warmupRuns);
     const unit = scenarioUnit(scenario);
