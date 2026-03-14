@@ -100,6 +100,10 @@ export const AuthorResource = resource({
 
 /** Derived sorted view via Query schema -- globally memoized by MemoCache */
 export const sortedItemsQuery = new Query(
-  new All(ItemEntity),
-  (entries, { limit }: { limit?: number } = {}) => sortByLabel(entries, limit),
+  ItemResource.getList.schema,
+  (entries, { count }: { count?: number } = {}) => sortByLabel(entries, count),
 );
+
+export const sortedItemsEndpoint = ItemResource.getList.extend({
+  schema: sortedItemsQuery.schema,
+});

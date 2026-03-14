@@ -15,7 +15,7 @@ export function ItemRow({ item }: { item: Item }) {
   return (
     <div data-item-id={item.id} data-bench-item>
       <span data-label>{item.label}</span>
-      <span data-author>{item.author.login}</span>
+      <span data-author>{item.author.name}</span>
     </div>
   );
 }

@@ -212,7 +212,7 @@ test('updateEntity changes item label in DOM', async (page, lib) => {
 test('updateAuthor propagates to DOM', async (page, _lib) => {
   await initAndWaitForItems(page);
 
-  // The displayed column is author.login; updateAuthor changes author.name.
+  // The displayed column includes author.name; updateAuthor changes author.name.
   // Non-normalized libs refetch the whole list (which joins latest author).
   // Verify at minimum that items are still present after the operation.
   const labelsBefore = await getItemLabels(page);

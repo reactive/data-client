@@ -1,10 +1,4 @@
-import {
-  AsyncBoundary,
-  DataProvider,
-  useController,
-  useQuery,
-  useSuspense,
-} from '@data-client/react';
+import { DataProvider, useController, useDLE } from '@data-client/react';
 import { onProfilerRender, useBenchState } from '@shared/benchHarness';
 import { ITEM_HEIGHT, ItemsRow, LIST_STYLE } from '@shared/components';
 import {
@@ -16,8 +10,9 @@ import { setCurrentItems } from '@shared/refStability';
 import {
   AuthorResource,
   ItemResource,
-  sortedItemsQuery,
+  sortedItemsEndpoint,
 } from '@shared/resources';
+import { jsonStore } from '@shared/server';
 import type { Item } from '@shared/types';
 import React, { useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -25,7 +20,7 @@ import { List } from 'react-window';
 
 /** Renders items from the list endpoint (models rendering a list fetch response). */
 function ListView({ count }: { count: number }) {
-  const items = useSuspense(ItemResource.getList, { count });
+  const { data: items } = useDLE(ItemResource.getList, { count });
   if (!items) return null;
   const list = items as Item[];
   setCurrentItems(list);
@@ -41,9 +36,9 @@ function ListView({ count }: { count: number }) {
 }
 
 /** Renders items sorted by label via Query schema (memoized by MemoCache). */
-function SortedListView({ count }: { count?: number }) {
-  const items = useQuery(sortedItemsQuery, { limit: count });
-  if (!items) return null;
+function SortedListView({ count }: { count: number }) {
+  const { data: items } = useDLE(sortedItemsEndpoint, { count });
+  if (!items?.length) return null;
   return (
     <div data-sorted-list>
       <List
@@ -132,13 +127,29 @@ function BenchmarkHarness() {
 
   const invalidateAndResolve = useCallback(
     (id: string) => {
-      const item = FIXTURE_ITEMS_BY_ID.get(id);
-      if (!item) return;
-      measureUpdate(() => {
-        controller.invalidate(ItemResource.get, { id });
-      });
+      // Tweak server data so the refetch returns different content,
+      // guaranteeing a visible DOM mutation for MutationObserver.
+      const raw = jsonStore.get(`item:${id}`);
+      if (raw) {
+        const item: Item = JSON.parse(raw);
+        item.label = `${item.label} (refetched)`;
+        jsonStore.set(`item:${id}`, JSON.stringify(item));
+      }
+      measureUpdate(
+        () => {
+          controller.invalidate(ItemResource.getList, {
+            count: listViewCount!,
+          });
+        },
+        () => {
+          const el = containerRef.current!.querySelector(
+            `[data-item-id="${id}"] [data-label]`,
+          );
+          return el?.textContent?.includes('(refetched)') ?? false;
+        },
+      );
     },
-    [measureUpdate, controller],
+    [measureUpdate, controller, containerRef, listViewCount],
   );
 
   registerAPI({
@@ -152,10 +163,10 @@ function BenchmarkHarness() {
 
   return (
     <div ref={containerRef} data-bench-harness>
-      <AsyncBoundary>
-        {listViewCount != null && <ListView count={listViewCount} />}
-        {showSortedView && <SortedListView count={sortedViewCount} />}
-      </AsyncBoundary>
+      {listViewCount != null && <ListView count={listViewCount} />}
+      {showSortedView && sortedViewCount != null && (
+        <SortedListView count={sortedViewCount} />
+      )}
     </div>
   );
 }

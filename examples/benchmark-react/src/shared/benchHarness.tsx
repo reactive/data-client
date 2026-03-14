@@ -55,44 +55,67 @@ export function useBenchState() {
     containerRef.current?.setAttribute('data-bench-complete', 'true');
   }, []);
 
+  /**
+   * Measure a mount action via MutationObserver. Ends when expected content
+   * ([data-bench-item] or [data-sorted-list]) appears in the container,
+   * skipping intermediate states like Suspense fallbacks or empty first renders.
+   */
   const measureMount = useCallback(
     (fn: () => void) => {
+      const container = containerRef.current!;
+      const observer = new MutationObserver(() => {
+        if (container.querySelector('[data-bench-item], [data-sorted-list]')) {
+          performance.mark('mount-end');
+          performance.measure('mount-duration', 'mount-start', 'mount-end');
+          observer.disconnect();
+          clearTimeout(timer);
+          setComplete();
+        }
+      });
+      observer.observe(container, {
+        childList: true,
+        subtree: true,
+        characterData: true,
+      });
+      const timer = setTimeout(() => {
+        observer.disconnect();
+      }, 30000);
       performance.mark('mount-start');
       fn();
-      afterPaint(() => {
-        performance.mark('mount-end');
-        performance.measure('mount-duration', 'mount-start', 'mount-end');
-        setComplete();
-      });
     },
     [setComplete],
   );
 
   /**
-   * Measure an update action. If the callback performs async work (fetch →
-   * setState), it MUST return the promise chain so finish() runs after the
-   * state update, not before. Sync dispatch (data-client's controller.fetch)
-   * legitimately returns void — the store update is synchronous.
+   * Measure an update action via MutationObserver. Ends on the first DOM
+   * mutation in the container — React commits atomically so the first
+   * mutation batch IS the final state for updates.
    *
-   * The timing-validation tests in validate.ts enforce this contract by
-   * injecting network delay and checking that the DOM is already updated
-   * when data-bench-complete fires.
+   * For multi-phase scenarios like invalidateAndResolve (items disappear
+   * then reappear), pass an `isReady` predicate to wait for the final state.
    */
   const measureUpdate = useCallback(
-    (fn: () => void | Promise<void>) => {
-      performance.mark('update-start');
-      const result = fn();
-      const finish = () =>
-        afterPaint(() => {
+    (fn: () => void, isReady?: () => boolean) => {
+      const container = containerRef.current!;
+      const observer = new MutationObserver(() => {
+        if (!isReady || isReady()) {
           performance.mark('update-end');
           performance.measure('update-duration', 'update-start', 'update-end');
+          observer.disconnect();
+          clearTimeout(timer);
           setComplete();
-        });
-      if (result && typeof (result as any).then === 'function') {
-        (result as Promise<void>).then(finish);
-      } else {
-        finish();
-      }
+        }
+      });
+      observer.observe(container, {
+        childList: true,
+        subtree: true,
+        characterData: true,
+      });
+      const timer = setTimeout(() => {
+        observer.disconnect();
+      }, 30000);
+      performance.mark('update-start');
+      fn();
     },
     [setComplete],
   );
