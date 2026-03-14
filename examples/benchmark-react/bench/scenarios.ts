@@ -1,7 +1,5 @@
 import type { BenchAPI, Scenario, ScenarioSize } from '../src/shared/types.js';
 
-export const SIMULATED_NETWORK_DELAY_MS = 50;
-
 export const RUN_CONFIG: Record<
   ScenarioSize,
   { warmup: number; measurement: number }
@@ -32,10 +30,10 @@ interface BaseScenario {
   mountCount?: number;
   /** Use a different BenchAPI method to pre-mount items (e.g. 'mountSortedView' instead of 'mount'). */
   preMountAction?: keyof BenchAPI;
-  /** Override args per library (e.g. different request counts for withNetwork). */
-  perLibArgs?: Partial<Record<string, unknown[]>>;
   /** Only run for these libraries. Omit to run for all. */
   onlyLibs?: string[];
+  /** Simulated per-request network latency in ms (applied at the server layer). */
+  networkDelayMs?: number;
 }
 
 const BASE_SCENARIOS: BaseScenario[] = [
@@ -81,15 +79,10 @@ const BASE_SCENARIOS: BaseScenario[] = [
   {
     nameSuffix: 'update-shared-author-with-network',
     action: 'updateAuthor',
-    args: [
-      'author-0',
-      {
-        simulateNetworkDelayMs: SIMULATED_NETWORK_DELAY_MS,
-        simulatedRequestCount: 1,
-      },
-    ],
+    args: ['author-0'],
     category: 'withNetwork',
     size: 'large',
+    networkDelayMs: 50,
   },
   {
     nameSuffix: 'update-shared-author-500-mounted',
@@ -175,12 +168,13 @@ export const SCENARIOS: Scenario[] = LIBRARIES.flatMap(lib =>
     (base): Scenario => ({
       name: `${lib}: ${base.nameSuffix}`,
       action: base.action,
-      args: base.perLibArgs?.[lib] ?? base.args,
+      args: base.args,
       resultMetric: base.resultMetric,
       category: base.category,
       size: base.size,
       mountCount: base.mountCount,
       preMountAction: base.preMountAction,
+      networkDelayMs: base.networkDelayMs,
     }),
   ),
 );

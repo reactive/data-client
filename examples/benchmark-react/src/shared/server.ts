@@ -1,6 +1,47 @@
 import { FIXTURE_AUTHORS, FIXTURE_ITEMS } from './data';
 import type { Author, Item } from './types';
 
+// ── CONFIGURABLE NETWORK DELAY ──────────────────────────────────────────
+
+let networkDelayMs = 0;
+
+interface PendingDelay<T> {
+  id: ReturnType<typeof setTimeout>;
+  resolve: (v: T) => void;
+  value: T;
+}
+const pendingDelays = new Set<PendingDelay<any>>();
+
+function withDelay<T>(value: T): Promise<T> {
+  if (networkDelayMs <= 0) return Promise.resolve(value);
+  return new Promise<T>(resolve => {
+    const entry: PendingDelay<T> = {
+      id: setTimeout(() => {
+        pendingDelays.delete(entry);
+        resolve(value);
+      }, networkDelayMs),
+      resolve,
+      value,
+    };
+    pendingDelays.add(entry);
+  });
+}
+
+/**
+ * Set simulated per-request network latency. Setting to 0 also flushes
+ * (immediately resolves) any pending delayed responses so no Promises leak.
+ */
+export function setNetworkDelay(ms: number) {
+  networkDelayMs = ms;
+  if (ms === 0) {
+    for (const entry of pendingDelays) {
+      clearTimeout(entry.id);
+      entry.resolve(entry.value);
+    }
+    pendingDelays.clear();
+  }
+}
+
 /** Fake server: holds JSON response strings keyed by resource type + id */
 export const jsonStore = new Map<string, string>();
 
@@ -27,13 +68,13 @@ export function fetchItem({ id }: { id: string }): Promise<Item> {
       item.author = JSON.parse(authorJson);
     }
   }
-  return Promise.resolve(item);
+  return withDelay(item);
 }
 
 export function fetchAuthor({ id }: { id: string }): Promise<Author> {
   const json = jsonStore.get(`author:${id}`);
   if (!json) return Promise.reject(new Error(`No data for author:${id}`));
-  return Promise.resolve(JSON.parse(json));
+  return withDelay(JSON.parse(json) as Author);
 }
 
 export function fetchItemList(params?: { count?: number }): Promise<Item[]> {
@@ -53,7 +94,7 @@ export function fetchItemList(params?: { count?: number }): Promise<Item[]> {
     }
     return item;
   });
-  return Promise.resolve(items);
+  return withDelay(items);
 }
 
 // ── CREATE ──────────────────────────────────────────────────────────────
@@ -73,7 +114,7 @@ export function createItem(body: {
   const list: Item[] = listJson ? JSON.parse(listJson) : [];
   list.unshift(item);
   jsonStore.set('item:list', JSON.stringify(list));
-  return Promise.resolve(JSON.parse(json));
+  return withDelay(JSON.parse(json) as Item);
 }
 
 let createAuthorCounter = 0;
@@ -86,7 +127,7 @@ export function createAuthor(body: {
   const author: Author = { id, login: body.login, name: body.name };
   const json = JSON.stringify(author);
   jsonStore.set(`author:${id}`, json);
-  return Promise.resolve(JSON.parse(json));
+  return withDelay(JSON.parse(json) as Author);
 }
 
 // ── UPDATE ──────────────────────────────────────────────────────────────
@@ -102,7 +143,7 @@ export function updateItem(params: {
   const updated: Item = { ...JSON.parse(existing), ...params };
   const json = JSON.stringify(updated);
   jsonStore.set(`item:${params.id}`, json);
-  return Promise.resolve(JSON.parse(json));
+  return withDelay(JSON.parse(json) as Item);
 }
 
 /**
@@ -121,7 +162,7 @@ export function updateAuthor(params: {
   const json = JSON.stringify(updated);
   jsonStore.set(`author:${params.id}`, json);
 
-  return Promise.resolve(JSON.parse(json));
+  return withDelay(JSON.parse(json) as Author);
 }
 
 // ── DELETE ───────────────────────────────────────────────────────────────
@@ -133,12 +174,12 @@ export function deleteItem({ id }: { id: string }): Promise<{ id: string }> {
     const list: Item[] = JSON.parse(listJson);
     jsonStore.set('item:list', JSON.stringify(list.filter(i => i.id !== id)));
   }
-  return Promise.resolve({ id });
+  return withDelay({ id });
 }
 
 export function deleteAuthor({ id }: { id: string }): Promise<{ id: string }> {
   jsonStore.delete(`author:${id}`);
-  return Promise.resolve({ id });
+  return withDelay({ id });
 }
 
 // ── SEEDING ─────────────────────────────────────────────────────────────

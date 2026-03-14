@@ -10,7 +10,7 @@ import {
 import { setCurrentItems } from '@shared/refStability';
 import { AuthorResource, ItemResource } from '@shared/resources';
 import { seedItemList } from '@shared/server';
-import type { Item, UpdateAuthorOptions } from '@shared/types';
+import type { Item } from '@shared/types';
 import React, { useCallback, useMemo } from 'react';
 import { createRoot } from 'react-dom/client';
 import { List } from 'react-window';
@@ -66,7 +66,6 @@ function BenchmarkHarness() {
     containerRef,
     measureMount,
     measureUpdate,
-    measureUpdateWithDelay,
     setShowSortedView,
     registerAPI,
   } = useBenchState();
@@ -87,19 +86,18 @@ function BenchmarkHarness() {
   );
 
   const updateAuthor = useCallback(
-    (authorId: string, options?: UpdateAuthorOptions) => {
+    (authorId: string) => {
       const author = FIXTURE_AUTHORS_BY_ID.get(authorId);
       if (!author) return;
-      measureUpdateWithDelay(options, () => {
-        AuthorResource.update(
-          { id: authorId },
-          { name: `${author.name} (updated)` },
-        ).then(() => {
-          void mutate(`items:${listViewCount}`);
-        });
-      });
+      measureUpdate(
+        () =>
+          AuthorResource.update(
+            { id: authorId },
+            { name: `${author.name} (updated)` },
+          ).then(() => mutate(`items:${listViewCount}`)) as Promise<any>,
+      );
     },
-    [measureUpdateWithDelay, mutate, listViewCount],
+    [measureUpdate, mutate, listViewCount],
   );
 
   const createEntity = useCallback(() => {

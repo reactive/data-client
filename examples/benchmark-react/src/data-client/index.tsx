@@ -19,7 +19,7 @@ import {
   ItemResource,
   sortedItemsQuery,
 } from '@shared/resources';
-import type { Item, UpdateAuthorOptions } from '@shared/types';
+import type { Item } from '@shared/types';
 import React, { useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
 import { List } from 'react-window';
@@ -66,7 +66,6 @@ function BenchmarkHarness() {
     sortedViewCount,
     containerRef,
     measureUpdate,
-    measureUpdateWithDelay,
     measureMount,
     setShowSortedView,
     setSortedViewCount,
@@ -89,10 +88,10 @@ function BenchmarkHarness() {
   );
 
   const updateAuthor = useCallback(
-    (authorId: string, options?: UpdateAuthorOptions) => {
+    (authorId: string) => {
       const author = FIXTURE_AUTHORS_BY_ID.get(authorId);
       if (!author) return;
-      measureUpdateWithDelay(options, () => {
+      measureUpdate(() => {
         controller.fetch(
           AuthorResource.update,
           { id: authorId },
@@ -100,7 +99,7 @@ function BenchmarkHarness() {
         );
       });
     },
-    [measureUpdateWithDelay, controller],
+    [measureUpdate, controller],
   );
 
   const createEntity = useCallback(() => {

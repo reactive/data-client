@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { captureSnapshot, getReport } from './refStability';
-import type { BenchAPI, UpdateAuthorOptions } from './types';
+import { setNetworkDelay } from './server';
+import type { BenchAPI } from './types';
 
 export function afterPaint(fn: () => void): void {
   requestAnimationFrame(() => requestAnimationFrame(fn));
@@ -68,39 +69,19 @@ export function useBenchState() {
   );
 
   const measureUpdate = useCallback(
-    (fn: () => void) => {
+    (fn: () => void | Promise<void>) => {
       performance.mark('update-start');
-      fn();
-      afterPaint(() => {
-        performance.mark('update-end');
-        performance.measure('update-duration', 'update-start', 'update-end');
-        setComplete();
-      });
-    },
-    [setComplete],
-  );
-
-  /** Like measureUpdate, but marks start before the delay and runs fn after it. */
-  const measureUpdateWithDelay = useCallback(
-    (options: UpdateAuthorOptions | undefined, fn: () => void) => {
-      performance.mark('update-start');
-      const delayMs = options?.simulateNetworkDelayMs ?? 0;
-      const requestCount = options?.simulatedRequestCount ?? 1;
-      const totalDelayMs = delayMs * requestCount;
-
-      const doUpdate = () => {
-        fn();
+      const result = fn();
+      const finish = () =>
         afterPaint(() => {
           performance.mark('update-end');
           performance.measure('update-duration', 'update-start', 'update-end');
           setComplete();
         });
-      };
-
-      if (totalDelayMs > 0) {
-        setTimeout(doUpdate, totalDelayMs);
+      if (result && typeof (result as any).then === 'function') {
+        (result as Promise<void>).then(finish);
       } else {
-        doUpdate();
+        finish();
       }
     },
     [setComplete],
@@ -158,6 +139,7 @@ export function useBenchState() {
       getRenderedCount,
       captureRefSnapshot,
       getRefStabilityReport,
+      setNetworkDelay,
       ...libraryActions,
     } as BenchAPI;
   };
@@ -182,7 +164,6 @@ export function useBenchState() {
 
     measureMount,
     measureUpdate,
-    measureUpdateWithDelay,
     setComplete,
     completeResolveRef,
 

@@ -218,14 +218,27 @@ async function runScenario(
       categories: 'devtools.timeline,blink',
     });
   }
+
+  if (scenario.networkDelayMs) {
+    await (bench as any).evaluate(
+      (api: any, ms: number) => api.setNetworkDelay(ms),
+      scenario.networkDelayMs,
+    );
+  }
+
   await (bench as any).evaluate((api: any, s: any) => {
     api[s.action](...s.args);
   }, scenario);
 
+  const completeTimeout = scenario.networkDelayMs ? 60000 : 10000;
   await page.waitForSelector('[data-bench-complete]', {
-    timeout: 10000,
+    timeout: completeTimeout,
     state: 'attached',
   });
+
+  if (scenario.networkDelayMs) {
+    await (bench as any).evaluate((api: any) => api.setNetworkDelay(0));
+  }
 
   let traceDuration: number | undefined;
   if (cdpTracing) {

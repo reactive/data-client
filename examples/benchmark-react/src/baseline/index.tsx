@@ -10,7 +10,7 @@ import {
 import { setCurrentItems } from '@shared/refStability';
 import { AuthorResource, ItemResource } from '@shared/resources';
 import { seedItemList } from '@shared/server';
-import type { Item, UpdateAuthorOptions } from '@shared/types';
+import type { Item } from '@shared/types';
 import React, {
   useCallback,
   useContext,
@@ -65,7 +65,6 @@ function BenchmarkHarness() {
     containerRef,
     measureMount,
     measureUpdate,
-    measureUpdateWithDelay,
     setShowSortedView,
     unmountAll: unmountBase,
     registerAPI,
@@ -99,19 +98,19 @@ function BenchmarkHarness() {
   );
 
   const updateAuthor = useCallback(
-    (authorId: string, options?: UpdateAuthorOptions) => {
+    (authorId: string) => {
       const author = FIXTURE_AUTHORS_BY_ID.get(authorId);
       if (!author) return;
-      measureUpdateWithDelay(options, () => {
+      measureUpdate(() =>
         AuthorResource.update(
           { id: authorId },
           { name: `${author.name} (updated)` },
-        ).then(() => {
-          ItemResource.getList({ count: listViewCount! }).then(setItems);
-        });
-      });
+        ).then(() =>
+          ItemResource.getList({ count: listViewCount! }).then(setItems),
+        ),
+      );
     },
-    [measureUpdateWithDelay, listViewCount],
+    [measureUpdate, listViewCount],
   );
 
   const createEntity = useCallback(() => {

@@ -10,24 +10,15 @@ export interface RefStabilityReport {
 }
 
 /**
- * Options for updateAuthor when simulating network (for comparison scenarios).
- * Consistent delay so results are comparable across libraries.
- */
-export interface UpdateAuthorOptions {
-  /** Simulated delay per "request" in ms (e.g. 50). */
-  simulateNetworkDelayMs?: number;
-  /** Number of simulated round-trips (data-client = 1; non-normalized libs may need more). */
-  simulatedRequestCount?: number;
-}
-
-/**
  * Benchmark API interface exposed by each library app on window.__BENCH__
  */
 export interface BenchAPI {
   /** Show a ListView that auto-fetches count items. Measures fetch + normalization + render pipeline. */
   init(count: number): void;
   updateEntity(id: string): void;
-  updateAuthor(id: string, options?: UpdateAuthorOptions): void;
+  updateAuthor(id: string): void;
+  /** Set simulated per-request network latency (ms). 0 disables and flushes pending delays. */
+  setNetworkDelay(ms: number): void;
   unmountAll(): void;
   getRenderedCount(): number;
   captureRefSnapshot(): void;
@@ -70,7 +61,6 @@ export type ScenarioAction =
   | { action: 'init'; args: [number] }
   | { action: 'updateEntity'; args: [string] }
   | { action: 'updateAuthor'; args: [string] }
-  | { action: 'updateAuthor'; args: [string, UpdateAuthorOptions] }
   | { action: 'unmountAll'; args: [] }
   | { action: 'createEntity'; args: [] }
   | { action: 'deleteEntity'; args: [string] };
@@ -101,4 +91,6 @@ export interface Scenario {
   mountCount?: number;
   /** Use a different BenchAPI method to pre-mount (e.g. 'mountSortedView' instead of 'mount'). */
   preMountAction?: keyof BenchAPI;
+  /** Simulated per-request network latency in ms (applied at the server layer). */
+  networkDelayMs?: number;
 }
