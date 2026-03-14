@@ -174,15 +174,13 @@ async function runScenario(
   const isUpdate =
     scenario.action === 'updateEntity' ||
     scenario.action === 'updateAuthor' ||
-    scenario.action === 'optimisticUpdate' ||
     scenario.action === 'invalidateAndResolve' ||
     scenario.action === 'createEntity' ||
     scenario.action === 'deleteEntity';
   const isRefStability = isRefStabilityScenario(scenario);
   const isInit = scenario.action === 'init';
 
-  const mountCount =
-    scenario.mountCount ?? (scenario.action === 'optimisticUpdate' ? 1 : 100);
+  const mountCount = scenario.mountCount ?? 100;
   if (isUpdate || isRefStability) {
     const preMountAction = scenario.preMountAction ?? 'init';
     await harness.evaluate(el => el.removeAttribute('data-bench-complete'));
@@ -550,7 +548,6 @@ async function main() {
       (scenario.action === 'init' ||
         scenario.action === 'updateEntity' ||
         scenario.action === 'updateAuthor' ||
-        scenario.action === 'optimisticUpdate' ||
         scenario.action === 'mountSortedView' ||
         scenario.action === 'invalidateAndResolve' ||
         scenario.action === 'createEntity' ||

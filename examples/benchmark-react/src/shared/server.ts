@@ -184,15 +184,6 @@ export function deleteAuthor({ id }: { id: string }): Promise<{ id: string }> {
 
 // ── SEEDING ─────────────────────────────────────────────────────────────
 
-/** Seed items into the store. */
-export function seedItems(items: Item[]): void {
-  jsonStore.set('item:list', JSON.stringify(items));
-  for (const item of items) {
-    jsonStore.set(`item:${item.id}`, JSON.stringify(item));
-    jsonStore.set(`author:${item.author.id}`, JSON.stringify(item.author));
-  }
-}
-
 /** Seed a subset of fixture items for sorted view. */
 export function seedItemList(items: Item[]): void {
   jsonStore.set('item:list', JSON.stringify(items));

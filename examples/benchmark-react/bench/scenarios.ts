@@ -26,12 +26,7 @@ export const RUN_CONFIG: Record<ScenarioSize, RunProfile> = {
 export const ACTION_GROUPS: Record<string, (keyof BenchAPI)[]> = {
   mount: ['init', 'mountSortedView'],
   update: ['updateEntity', 'updateAuthor'],
-  mutation: [
-    'createEntity',
-    'deleteEntity',
-    'optimisticUpdate',
-    'invalidateAndResolve',
-  ],
+  mutation: ['createEntity', 'deleteEntity', 'invalidateAndResolve'],
   memory: ['mountUnmountCycle'],
 };
 
@@ -118,13 +113,6 @@ const BASE_SCENARIOS: BaseScenario[] = [
     resultMetric: 'heapDelta',
     category: 'memory',
     size: 'large',
-  },
-  {
-    nameSuffix: 'optimistic-update',
-    action: 'optimisticUpdate',
-    args: [],
-    category: 'hotPath',
-    onlyLibs: ['data-client'],
   },
   {
     nameSuffix: 'sorted-view-mount-500',

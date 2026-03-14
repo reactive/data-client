@@ -378,35 +378,6 @@ test('deleteEntity removes an item', async (page, _lib) => {
   );
 });
 
-// ── optimisticUpdate ─────────────────────────────────────────────────────
-
-test(
-  'optimisticUpdate changes label immediately',
-  async (page, _lib) => {
-    if (
-      !(await page.evaluate(
-        () => typeof window.__BENCH__?.optimisticUpdate === 'function',
-      ))
-    )
-      return;
-
-    await initAndWaitForItems(page, 10);
-
-    await clearComplete(page);
-    await page.evaluate(() => window.__BENCH__!.optimisticUpdate!());
-    await waitForComplete(page);
-
-    await waitFor(
-      page,
-      async () =>
-        (await getItemLabels(page))['item-0']?.includes('(optimistic)') ??
-        false,
-      'item-0 label contains "(optimistic)"',
-    );
-  },
-  { onlyLibs: ['data-client'] },
-);
-
 // ── mountSortedView ──────────────────────────────────────────────────────
 
 test('mountSortedView renders sorted list', async (page, _lib) => {

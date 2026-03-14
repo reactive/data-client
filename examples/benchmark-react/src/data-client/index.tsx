@@ -10,7 +10,6 @@ import { ITEM_HEIGHT, ItemsRow, LIST_STYLE } from '@shared/components';
 import {
   FIXTURE_AUTHORS,
   FIXTURE_AUTHORS_BY_ID,
-  FIXTURE_ITEMS,
   FIXTURE_ITEMS_BY_ID,
 } from '@shared/data';
 import { setCurrentItems } from '@shared/refStability';
@@ -121,18 +120,6 @@ function BenchmarkHarness() {
     [measureUpdate, controller],
   );
 
-  const optimisticUpdate = useCallback(() => {
-    const item = FIXTURE_ITEMS[0];
-    if (!item) return;
-    measureUpdate(() => {
-      controller.fetch(
-        ItemResource.update,
-        { id: item.id },
-        { label: `${item.label} (optimistic)` },
-      );
-    });
-  }, [measureUpdate, controller]);
-
   const mountSortedView = useCallback(
     (n: number) => {
       measureMount(() => {
@@ -157,7 +144,6 @@ function BenchmarkHarness() {
   registerAPI({
     updateEntity,
     updateAuthor,
-    optimisticUpdate,
     mountSortedView,
     invalidateAndResolve,
     createEntity,

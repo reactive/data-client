@@ -34,7 +34,6 @@ The repo has two benchmark suites:
 - **Ref-stability** (`ref-stability-item-changed`, `ref-stability-author-changed`) — Count of components that received a **new** object reference after an update (unit: count; smaller is better). Normalization keeps referential equality for unchanged entities.
 - **Sorted view mount** (`sorted-view-mount-500`) — Mount 500 items through a sorted/derived view. data-client uses `useQuery(sortedItemsQuery)` with `Query` schema memoization; competitors use `useMemo` + sort.
 - **Sorted view update** (`sorted-view-update-entity`) — After mounting a sorted view, update one entity. data-client's `Query` memoization avoids re-sorting when sort keys are unchanged.
-- **Optimistic update** (`optimistic-update`) — data-client only; applies an optimistic mutation via `getOptimisticResponse`.
 - **Invalidate and resolve** (`invalidate-and-resolve`) — data-client only; invalidates a cached endpoint and immediately re-resolves. Measures Suspense boundary round-trip.
 
 **With network (local comparison)**
@@ -164,7 +163,7 @@ Regressions >5% on stable scenarios or >15% on volatile scenarios are worth inve
 
    Scenarios are classified as `small` or `large` based on their cost:
 
-   - **Small** (3 warmup + 15 measurement): `init-100`, `update-single-entity`, `update-shared-author-duration`, `ref-stability-*`, `optimistic-update`, `invalidate-and-resolve`, `create-item`, `delete-item`
+   - **Small** (3 warmup + 15 measurement): `init-100`, `update-single-entity`, `update-shared-author-duration`, `ref-stability-*`, `invalidate-and-resolve`, `create-item`, `delete-item`
    - **Large** (1 warmup + 4 measurement): `init-500`, `update-shared-author-500-mounted`, `update-shared-author-2000-mounted`, `memory-mount-unmount-cycle`, `update-shared-author-with-network`, `sorted-view-mount-500`, `sorted-view-update-entity`
 
    When running all scenarios (`yarn bench`), each group runs with its own warmup/measurement count. Use `--size` to run only one group.

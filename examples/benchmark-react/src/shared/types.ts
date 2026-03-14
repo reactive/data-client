@@ -27,8 +27,6 @@ export interface BenchAPI {
   mount?(count: number): void;
   /** For memory scenarios: mount n items, unmount, repeat cycles times; resolves when done. */
   mountUnmountCycle?(count: number, cycles: number): Promise<void>;
-  /** Optimistic update via getOptimisticResponse; sets data-bench-complete when painted. data-client only. */
-  optimisticUpdate?(): void;
   /** Mount a sorted/derived view of items. Exercises Query memoization (data-client) vs useMemo sort (others). */
   mountSortedView?(count: number): void;
   /** Invalidate a cached endpoint and immediately re-resolve. Measures Suspense round-trip. data-client only. */
