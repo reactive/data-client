@@ -1,5 +1,13 @@
 # @data-client/core
 
+## 1.0.0
+
+### Patch Changes
+
+- [#3774](https://github.com/reactive/data-client/pull/3774) [`0e0ff1a`](https://github.com/reactive/data-client/commit/0e0ff1ab49b1a58477b07dba3dfc73df6d4af3f5) - GCPolicy interval no longer blocks Node.js process exit
+
+  Call `.unref()` on GCPolicy's `setInterval` in Node.js environments, preventing the GC sweep timer from keeping Jest workers or other Node.js processes alive.
+
 ## 0.15.7
 
 ### Patch Changes
