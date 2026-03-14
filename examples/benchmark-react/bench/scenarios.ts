@@ -1,12 +1,26 @@
-import type { Scenario } from '../src/shared/types.js';
+import type { BenchAPI, Scenario, ScenarioSize } from '../src/shared/types.js';
 
 export const SIMULATED_NETWORK_DELAY_MS = 50;
 
-/**
- * With 100 mounted items and 20 authors, each author is shared by 5 items.
- * Non-normalized libs must refetch each affected item query individually.
- */
-const ITEMS_PER_AUTHOR_100 = 5;
+export const RUN_CONFIG: Record<
+  ScenarioSize,
+  { warmup: number; measurement: number }
+> = {
+  small: { warmup: 3, measurement: process.env.CI ? 10 : 15 },
+  large: { warmup: 1, measurement: process.env.CI ? 3 : 4 },
+};
+
+export const ACTION_GROUPS: Record<string, (keyof BenchAPI)[]> = {
+  mount: ['init', 'mountSortedView'],
+  update: ['updateEntity', 'updateAuthor'],
+  mutation: [
+    'createEntity',
+    'deleteEntity',
+    'optimisticUpdate',
+    'invalidateAndResolve',
+  ],
+  memory: ['mountUnmountCycle'],
+};
 
 interface BaseScenario {
   nameSuffix: string;
@@ -14,9 +28,10 @@ interface BaseScenario {
   args: unknown[];
   resultMetric?: Scenario['resultMetric'];
   category: NonNullable<Scenario['category']>;
+  size?: ScenarioSize;
   mountCount?: number;
   /** Use a different BenchAPI method to pre-mount items (e.g. 'mountSortedView' instead of 'mount'). */
-  preMountAction?: keyof import('../src/shared/types.js').BenchAPI;
+  preMountAction?: keyof BenchAPI;
   /** Override args per library (e.g. different request counts for withNetwork). */
   perLibArgs?: Partial<Record<string, unknown[]>>;
   /** Only run for these libraries. Omit to run for all. */
@@ -25,16 +40,17 @@ interface BaseScenario {
 
 const BASE_SCENARIOS: BaseScenario[] = [
   {
-    nameSuffix: 'mount-100-items',
-    action: 'mount',
+    nameSuffix: 'init-100',
+    action: 'init',
     args: [100],
     category: 'hotPath',
   },
   {
-    nameSuffix: 'mount-500-items',
-    action: 'mount',
+    nameSuffix: 'init-500',
+    action: 'init',
     args: [500],
     category: 'hotPath',
+    size: 'large',
   },
   {
     nameSuffix: 'update-single-entity',
@@ -72,30 +88,8 @@ const BASE_SCENARIOS: BaseScenario[] = [
         simulatedRequestCount: 1,
       },
     ],
-    perLibArgs: {
-      'tanstack-query': [
-        'author-0',
-        {
-          simulateNetworkDelayMs: SIMULATED_NETWORK_DELAY_MS,
-          simulatedRequestCount: ITEMS_PER_AUTHOR_100,
-        },
-      ],
-      swr: [
-        'author-0',
-        {
-          simulateNetworkDelayMs: SIMULATED_NETWORK_DELAY_MS,
-          simulatedRequestCount: ITEMS_PER_AUTHOR_100,
-        },
-      ],
-      baseline: [
-        'author-0',
-        {
-          simulateNetworkDelayMs: SIMULATED_NETWORK_DELAY_MS,
-          simulatedRequestCount: ITEMS_PER_AUTHOR_100,
-        },
-      ],
-    },
     category: 'withNetwork',
+    size: 'large',
   },
   {
     nameSuffix: 'update-shared-author-500-mounted',
@@ -103,6 +97,7 @@ const BASE_SCENARIOS: BaseScenario[] = [
     args: ['author-0'],
     category: 'hotPath',
     mountCount: 500,
+    size: 'large',
   },
   {
     nameSuffix: 'memory-mount-unmount-cycle',
@@ -110,6 +105,7 @@ const BASE_SCENARIOS: BaseScenario[] = [
     args: [500, 10],
     resultMetric: 'heapDelta',
     category: 'memory',
+    size: 'large',
   },
   {
     nameSuffix: 'optimistic-update',
@@ -119,16 +115,11 @@ const BASE_SCENARIOS: BaseScenario[] = [
     onlyLibs: ['data-client'],
   },
   {
-    nameSuffix: 'bulk-ingest-500',
-    action: 'bulkIngest',
-    args: [500],
-    category: 'hotPath',
-  },
-  {
     nameSuffix: 'sorted-view-mount-500',
     action: 'mountSortedView',
     args: [500],
     category: 'hotPath',
+    size: 'large',
   },
   {
     nameSuffix: 'sorted-view-update-entity',
@@ -137,6 +128,7 @@ const BASE_SCENARIOS: BaseScenario[] = [
     category: 'hotPath',
     mountCount: 500,
     preMountAction: 'mountSortedView',
+    size: 'large',
   },
   {
     nameSuffix: 'update-shared-author-2000-mounted',
@@ -144,6 +136,7 @@ const BASE_SCENARIOS: BaseScenario[] = [
     args: ['author-0'],
     category: 'hotPath',
     mountCount: 2000,
+    size: 'large',
   },
   {
     nameSuffix: 'invalidate-and-resolve',
@@ -185,11 +178,9 @@ export const SCENARIOS: Scenario[] = LIBRARIES.flatMap(lib =>
       args: base.perLibArgs?.[lib] ?? base.args,
       resultMetric: base.resultMetric,
       category: base.category,
+      size: base.size,
       mountCount: base.mountCount,
       preMountAction: base.preMountAction,
     }),
   ),
 );
-
-export const WARMUP_RUNS = 3;
-export const MEASUREMENT_RUNS = process.env.CI ? 10 : 15;

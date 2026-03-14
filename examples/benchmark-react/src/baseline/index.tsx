@@ -1,44 +1,30 @@
-import {
-  onProfilerRender,
-  useBenchState,
-  waitForPaint,
-} from '@shared/benchHarness';
-import { ITEM_HEIGHT, ItemRow, ItemsRow, LIST_STYLE } from '@shared/components';
+import { onProfilerRender, useBenchState } from '@shared/benchHarness';
+import { ITEM_HEIGHT, ItemsRow, LIST_STYLE } from '@shared/components';
 import {
   FIXTURE_AUTHORS,
   FIXTURE_AUTHORS_BY_ID,
   FIXTURE_ITEMS,
   FIXTURE_ITEMS_BY_ID,
-  generateFreshData,
   sortByLabel,
 } from '@shared/data';
-import { registerRefs } from '@shared/refStability';
-import {
-  fetchItemList,
-  createItem,
-  updateItem,
-  updateAuthor as serverUpdateAuthor,
-  deleteItem,
-  seedBulkItems,
-  seedItemList,
-} from '@shared/server';
-import type { Author, Item, UpdateAuthorOptions } from '@shared/types';
-import React, { useCallback, useContext, useMemo, useState } from 'react';
+import { setCurrentItems } from '@shared/refStability';
+import { AuthorResource, ItemResource } from '@shared/resources';
+import { seedItemList } from '@shared/server';
+import type { Item, UpdateAuthorOptions } from '@shared/types';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { createRoot } from 'react-dom/client';
-import { List, type RowComponentProps } from 'react-window';
+import { List } from 'react-window';
 
 const ItemsContext = React.createContext<{
   items: Item[];
   setItems: React.Dispatch<React.SetStateAction<Item[]>>;
 }>(null as any);
-
-function ItemView({ id }: { id: string }) {
-  const { items } = useContext(ItemsContext);
-  const item = items.find(i => i.id === id);
-  if (!item) return null;
-  registerRefs(id, item, item.author);
-  return <ItemRow item={item} />;
-}
 
 function SortedListView() {
   const { items } = useContext(ItemsContext);
@@ -56,59 +42,60 @@ function SortedListView() {
   );
 }
 
-function ItemListRow({
-  index,
-  style,
-  ids,
-}: RowComponentProps<{ ids: string[] }>) {
+function ListView() {
+  const { items } = useContext(ItemsContext);
+  if (!items.length) return null;
+  setCurrentItems(items);
   return (
-    <div style={style}>
-      <ItemView id={ids[index]} />
-    </div>
+    <List
+      style={LIST_STYLE}
+      rowHeight={ITEM_HEIGHT}
+      rowCount={items.length}
+      rowComponent={ItemsRow}
+      rowProps={{ items }}
+    />
   );
 }
 
 function BenchmarkHarness() {
   const [items, setItems] = useState<Item[]>([]);
   const {
-    ids,
+    listViewCount,
     showSortedView,
     containerRef,
     measureMount,
     measureUpdate,
     measureUpdateWithDelay,
-    setComplete,
-    completeResolveRef,
-    setIds,
     setShowSortedView,
     unmountAll: unmountBase,
     registerAPI,
   } = useBenchState();
 
-  const mount = useCallback(
-    (n: number) => {
-      seedItemList(FIXTURE_ITEMS.slice(0, n));
-      measureMount(() => {
-        fetchItemList().then(fetched => {
-          setItems(fetched);
-          setIds(fetched.map(i => i.id));
-        });
-      });
-    },
-    [measureMount, setIds],
-  );
+  // Fetch items when listViewCount changes (populates context for ListView)
+  useEffect(() => {
+    if (listViewCount != null) {
+      ItemResource.getList({ count: listViewCount }).then(setItems);
+    }
+  }, [listViewCount]);
+
+  const unmountAll = useCallback(() => {
+    unmountBase();
+    setItems([]);
+  }, [unmountBase]);
 
   const updateEntity = useCallback(
     (id: string) => {
       const item = FIXTURE_ITEMS_BY_ID.get(id);
       if (!item) return;
       measureUpdate(() => {
-        updateItem({ id, label: `${item.label} (updated)` }).then(parsed => {
-          setItems(prev => prev.map(i => (i.id === id ? parsed : i)));
-        });
+        ItemResource.update({ id }, { label: `${item.label} (updated)` }).then(
+          () => {
+            ItemResource.getList({ count: listViewCount! }).then(setItems);
+          },
+        );
       });
     },
-    [measureUpdate],
+    [measureUpdate, listViewCount],
   );
 
   const updateAuthor = useCallback(
@@ -116,67 +103,42 @@ function BenchmarkHarness() {
       const author = FIXTURE_AUTHORS_BY_ID.get(authorId);
       if (!author) return;
       measureUpdateWithDelay(options, () => {
-        serverUpdateAuthor({
-          id: authorId,
-          name: `${author.name} (updated)`,
-        }).then(parsed => {
-          setItems(prev =>
-            prev.map(item =>
-              item.author.id === authorId ? { ...item, author: parsed } : item,
-            ),
-          );
+        AuthorResource.update(
+          { id: authorId },
+          { name: `${author.name} (updated)` },
+        ).then(() => {
+          ItemResource.getList({ count: listViewCount! }).then(setItems);
         });
       });
     },
-    [measureUpdateWithDelay],
+    [measureUpdateWithDelay, listViewCount],
   );
 
   const createEntity = useCallback(() => {
     const author = FIXTURE_AUTHORS[0];
     measureUpdate(() => {
-      createItem({ label: 'New Item', author }).then(created => {
-        setItems(prev => [created, ...prev]);
-        setIds(prev => [created.id, ...prev]);
+      ItemResource.create({ label: 'New Item', author }).then(() => {
+        ItemResource.getList({ count: listViewCount! }).then(setItems);
       });
     });
-  }, [measureUpdate, setIds]);
+  }, [measureUpdate, listViewCount]);
 
   const deleteEntity = useCallback(
     (id: string) => {
       measureUpdate(() => {
-        deleteItem({ id }).then(() => {
-          setItems(prev => prev.filter(i => i.id !== id));
-          setIds(prev => prev.filter(i => i !== id));
+        ItemResource.delete({ id }).then(() => {
+          ItemResource.getList({ count: listViewCount! }).then(setItems);
         });
       });
     },
-    [measureUpdate, setIds],
-  );
-
-  const unmountAll = useCallback(() => {
-    unmountBase();
-    setItems([]);
-  }, [unmountBase]);
-
-  const bulkIngest = useCallback(
-    (n: number) => {
-      const { items: freshItems } = generateFreshData(n);
-      seedBulkItems(freshItems);
-      measureMount(() => {
-        fetchItemList().then(fetched => {
-          setItems(fetched);
-          setIds(fetched.map(i => i.id));
-        });
-      });
-    },
-    [measureMount, setIds],
+    [measureUpdate, listViewCount],
   );
 
   const mountSortedView = useCallback(
     (n: number) => {
       seedItemList(FIXTURE_ITEMS.slice(0, n));
       measureMount(() => {
-        fetchItemList().then(fetched => {
+        ItemResource.getList().then(fetched => {
           setItems(fetched);
           setShowSortedView(true);
         });
@@ -185,29 +147,10 @@ function BenchmarkHarness() {
     [measureMount, setShowSortedView],
   );
 
-  const mountUnmountCycle = useCallback(
-    async (n: number, cycles: number) => {
-      for (let i = 0; i < cycles; i++) {
-        const p = new Promise<void>(r => {
-          completeResolveRef.current = r;
-        });
-        mount(n);
-        await p;
-        unmountAll();
-        await waitForPaint();
-      }
-      setComplete();
-    },
-    [mount, unmountAll, setComplete, completeResolveRef],
-  );
-
   registerAPI({
-    mount,
     updateEntity,
     updateAuthor,
     unmountAll,
-    mountUnmountCycle,
-    bulkIngest,
     mountSortedView,
     createEntity,
     deleteEntity,
@@ -216,13 +159,7 @@ function BenchmarkHarness() {
   return (
     <ItemsContext.Provider value={{ items, setItems }}>
       <div ref={containerRef} data-bench-harness>
-        <List
-          style={LIST_STYLE}
-          rowHeight={ITEM_HEIGHT}
-          rowCount={ids.length}
-          rowComponent={ItemListRow}
-          rowProps={{ ids }}
-        />
+        {listViewCount != null && <ListView />}
         {showSortedView && <SortedListView />}
       </div>
     </ItemsContext.Provider>

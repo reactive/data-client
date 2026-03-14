@@ -24,19 +24,20 @@ export interface UpdateAuthorOptions {
  * Benchmark API interface exposed by each library app on window.__BENCH__
  */
 export interface BenchAPI {
-  mount(count: number): void;
+  /** Show a ListView that auto-fetches count items. Measures fetch + normalization + render pipeline. */
+  init(count: number): void;
   updateEntity(id: string): void;
   updateAuthor(id: string, options?: UpdateAuthorOptions): void;
   unmountAll(): void;
   getRenderedCount(): number;
   captureRefSnapshot(): void;
   getRefStabilityReport(): RefStabilityReport;
+  /** Legacy ids-based mount; optional — prefer init. */
+  mount?(count: number): void;
   /** For memory scenarios: mount n items, unmount, repeat cycles times; resolves when done. */
   mountUnmountCycle?(count: number, cycles: number): Promise<void>;
   /** Optimistic update via getOptimisticResponse; sets data-bench-complete when painted. data-client only. */
   optimisticUpdate?(): void;
-  /** Ingest fresh data into an empty cache at runtime, then render. Measures normalization + rendering pipeline. */
-  bulkIngest?(count: number): void;
   /** Mount a sorted/derived view of items. Exercises Query memoization (data-client) vs useMemo sort (others). */
   mountSortedView?(count: number): void;
   /** Invalidate a cached endpoint and immediately re-resolve. Measures Suspense round-trip. data-client only. */
@@ -66,12 +67,11 @@ export interface Item {
 }
 
 export type ScenarioAction =
-  | { action: 'mount'; args: [number] }
+  | { action: 'init'; args: [number] }
   | { action: 'updateEntity'; args: [string] }
   | { action: 'updateAuthor'; args: [string] }
   | { action: 'updateAuthor'; args: [string, UpdateAuthorOptions] }
   | { action: 'unmountAll'; args: [] }
-  | { action: 'bulkIngest'; args: [number] }
   | { action: 'createEntity'; args: [] }
   | { action: 'deleteEntity'; args: [string] };
 
@@ -84,6 +84,9 @@ export type ResultMetric =
 /** hotPath = JS only, included in CI. withNetwork = simulated network/overfetching, comparison only. memory = heap delta, not CI. startup = page load metrics, not CI. */
 export type ScenarioCategory = 'hotPath' | 'withNetwork' | 'memory' | 'startup';
 
+/** small = cheap scenarios (full warmup + measurement). large = expensive scenarios (reduced runs). */
+export type ScenarioSize = 'small' | 'large';
+
 export interface Scenario {
   name: string;
   action: keyof BenchAPI;
@@ -92,6 +95,8 @@ export interface Scenario {
   resultMetric?: ResultMetric;
   /** hotPath (default) = run in CI. withNetwork = comparison only. memory = heap delta. startup = page load metrics. */
   category?: ScenarioCategory;
+  /** small (default) = full runs. large = reduced warmup/measurement for expensive scenarios. */
+  size?: ScenarioSize;
   /** For update scenarios: number of items to mount before running the update (default 100). */
   mountCount?: number;
   /** Use a different BenchAPI method to pre-mount (e.g. 'mountSortedView' instead of 'mount'). */

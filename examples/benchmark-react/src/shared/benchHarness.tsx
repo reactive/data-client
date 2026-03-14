@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { FIXTURE_ITEMS } from './data';
 import { captureSnapshot, getReport } from './refStability';
 import type { BenchAPI, UpdateAuthorOptions } from './types';
 
@@ -33,7 +32,7 @@ type LibraryActions = Pick<BenchAPI, 'updateEntity' | 'updateAuthor'> &
 /**
  * Shared benchmark harness state, measurement helpers, and API registration.
  *
- * Standard BenchAPI actions (mount, unmountAll, mountUnmountCycle,
+ * Standard BenchAPI actions (init, unmountAll, mountUnmountCycle,
  * getRenderedCount, captureRefSnapshot, getRefStabilityReport) are provided
  * as defaults via `registerAPI`. Libraries only need to supply their
  * specific actions and any overrides.
@@ -42,7 +41,7 @@ type LibraryActions = Pick<BenchAPI, 'updateEntity' | 'updateAuthor'> &
  * updating dependency arrays or registration boilerplate.
  */
 export function useBenchState() {
-  const [ids, setIds] = useState<string[]>([]);
+  const [listViewCount, setListViewCount] = useState<number | undefined>();
   const [showSortedView, setShowSortedView] = useState(false);
   const [sortedViewCount, setSortedViewCount] = useState<number | undefined>();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -107,16 +106,17 @@ export function useBenchState() {
     [setComplete],
   );
 
-  const mount = useCallback(
+  const init = useCallback(
     (n: number) => {
-      const slicedIds = FIXTURE_ITEMS.slice(0, n).map(i => i.id);
-      measureMount(() => setIds(slicedIds));
+      measureMount(() => {
+        setListViewCount(n);
+      });
     },
     [measureMount],
   );
 
   const unmountAll = useCallback(() => {
-    setIds([]);
+    setListViewCount(undefined);
     setShowSortedView(false);
     setSortedViewCount(undefined);
   }, []);
@@ -127,17 +127,20 @@ export function useBenchState() {
         const p = new Promise<void>(r => {
           completeResolveRef.current = r;
         });
-        mount(n);
+        init(n);
         await p;
         unmountAll();
         await waitForPaint();
       }
       setComplete();
     },
-    [mount, unmountAll, setComplete],
+    [init, unmountAll, setComplete],
   );
 
-  const getRenderedCount = useCallback(() => ids.length, [ids]);
+  const getRenderedCount = useCallback(
+    () => listViewCount ?? 0,
+    [listViewCount],
+  );
   const captureRefSnapshot = useCallback(() => captureSnapshot(), []);
   const getRefStabilityReport = useCallback(() => getReport(), []);
 
@@ -145,11 +148,11 @@ export function useBenchState() {
    * Register the BenchAPI on window.__BENCH__ with standard actions as defaults.
    * Call during render (after defining library-specific actions).
    * Libraries only pass their own actions + any overrides; standard actions
-   * (mount, unmountAll, etc.) are included automatically.
+   * (init, unmountAll, etc.) are included automatically.
    */
   const registerAPI = (libraryActions: LibraryActions) => {
     apiRef.current = {
-      mount,
+      init,
       unmountAll,
       mountUnmountCycle,
       getRenderedCount,
@@ -172,7 +175,7 @@ export function useBenchState() {
   }, []);
 
   return {
-    ids,
+    listViewCount,
     showSortedView,
     sortedViewCount,
     containerRef,
@@ -183,11 +186,10 @@ export function useBenchState() {
     setComplete,
     completeResolveRef,
 
-    setIds,
+    setListViewCount,
     setShowSortedView,
     setSortedViewCount,
 
-    mount,
     unmountAll,
     registerAPI,
   };

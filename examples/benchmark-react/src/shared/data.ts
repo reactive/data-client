@@ -46,7 +46,7 @@ export function generateItems(count: number, authors: Author[]): Item[] {
 export const FIXTURE_AUTHORS = generateAuthors(20);
 
 /** Pre-generated fixture for benchmark - 10000 items, 20 shared authors */
-export const FIXTURE_ITEMS = generateItems(10000, FIXTURE_AUTHORS);
+export const FIXTURE_ITEMS = generateItems(2000, FIXTURE_AUTHORS);
 
 /** O(1) item lookup by id (avoids linear scans inside measurement regions) */
 export const FIXTURE_ITEMS_BY_ID = new Map(FIXTURE_ITEMS.map(i => [i.id, i]));

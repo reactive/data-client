@@ -1,31 +1,30 @@
 import type { Author, Item, RefStabilityReport } from './types';
 
-const currentRefs: Record<string, { item: Item; author: Author }> = {};
-let snapshotRefs: Record<string, { item: Item; author: Author }> | null = null;
+let currentItems: Item[] = [];
+let snapshotRefs: Map<string, { item: Item; author: Author }> | null = null;
 
 /**
- * Register current (item, author) refs for a row. Call from each row on render.
+ * Store the current items array. Called from ListView during render.
+ * Only stores the reference — negligible cost.
  */
-export function registerRefs(id: string, item: Item, author: Author): void {
-  currentRefs[id] = { item, author };
+export function setCurrentItems(items: Item[]): void {
+  currentItems = items;
 }
 
 /**
- * Copy current refs into snapshot. Call after mount, before running an update.
+ * Build a snapshot from current items. Call after mount, before running an update.
  */
 export function captureSnapshot(): void {
-  snapshotRefs = { ...currentRefs };
+  snapshotRefs = new Map();
+  for (const item of currentItems) {
+    snapshotRefs.set(item.id, { item, author: item.author });
+  }
 }
 
 /**
- * Compare current refs to snapshot and return counts. Call after update completes.
+ * Compare current items to snapshot and return counts. Call after update completes.
  */
 export function getReport(): RefStabilityReport {
-  let itemRefUnchanged = 0;
-  let itemRefChanged = 0;
-  let authorRefUnchanged = 0;
-  let authorRefChanged = 0;
-
   if (!snapshotRefs) {
     return {
       itemRefUnchanged: 0,
@@ -35,17 +34,21 @@ export function getReport(): RefStabilityReport {
     };
   }
 
-  for (const id of Object.keys(currentRefs)) {
-    const current = currentRefs[id];
-    const snap = snapshotRefs[id];
-    if (!current || !snap) continue;
+  let itemRefUnchanged = 0;
+  let itemRefChanged = 0;
+  let authorRefUnchanged = 0;
+  let authorRefChanged = 0;
 
-    if (current.item === snap.item) {
+  for (const item of currentItems) {
+    const snap = snapshotRefs.get(item.id);
+    if (!snap) continue;
+
+    if (item === snap.item) {
       itemRefUnchanged++;
     } else {
       itemRefChanged++;
     }
-    if (current.author === snap.author) {
+    if (item.author === snap.author) {
       authorRefUnchanged++;
     } else {
       authorRefChanged++;

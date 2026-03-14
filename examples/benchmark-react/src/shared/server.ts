@@ -18,7 +18,16 @@ jsonStore.set('item:list', JSON.stringify(FIXTURE_ITEMS));
 export function fetchItem({ id }: { id: string }): Promise<Item> {
   const json = jsonStore.get(`item:${id}`);
   if (!json) return Promise.reject(new Error(`No data for item:${id}`));
-  return Promise.resolve(JSON.parse(json));
+  const item: Item = JSON.parse(json);
+  // Join latest author data (like a real DB join) so callers always
+  // see the current author without eager propagation in updateAuthor.
+  if (item.author?.id) {
+    const authorJson = jsonStore.get(`author:${item.author.id}`);
+    if (authorJson) {
+      item.author = JSON.parse(authorJson);
+    }
+  }
+  return Promise.resolve(item);
 }
 
 export function fetchAuthor({ id }: { id: string }): Promise<Author> {
@@ -27,10 +36,24 @@ export function fetchAuthor({ id }: { id: string }): Promise<Author> {
   return Promise.resolve(JSON.parse(json));
 }
 
-export function fetchItemList(): Promise<Item[]> {
+export function fetchItemList(params?: { count?: number }): Promise<Item[]> {
   const json = jsonStore.get('item:list');
   if (!json) return Promise.reject(new Error('No data for item:list'));
-  return Promise.resolve(JSON.parse(json));
+  const listItems: Item[] = JSON.parse(json);
+  const sliced = params?.count ? listItems.slice(0, params.count) : listItems;
+  // Join latest item + author data (like a real DB-backed API)
+  const items = sliced.map(listItem => {
+    const itemJson = jsonStore.get(`item:${listItem.id}`);
+    const item: Item = itemJson ? JSON.parse(itemJson) : listItem;
+    if (item.author?.id) {
+      const authorJson = jsonStore.get(`author:${item.author.id}`);
+      if (authorJson) {
+        item.author = JSON.parse(authorJson);
+      }
+    }
+    return item;
+  });
+  return Promise.resolve(items);
 }
 
 // ── CREATE ──────────────────────────────────────────────────────────────
@@ -83,8 +106,8 @@ export function updateItem(params: {
 }
 
 /**
- * Updates the author and all items that embed it (simulates a DB join --
- * subsequent GET /items/:id would return the fresh author data).
+ * Updates the author record only. Item reads join the latest author via
+ * fetchItem (like a real DB), so no eager O(n) propagation is needed.
  */
 export function updateAuthor(params: {
   id: string;
@@ -98,15 +121,6 @@ export function updateAuthor(params: {
   const json = JSON.stringify(updated);
   jsonStore.set(`author:${params.id}`, json);
 
-  // Propagate to all items embedding this author
-  for (const [key, itemJson] of jsonStore) {
-    if (!key.startsWith('item:') || key === 'item:list') continue;
-    const item: Item = JSON.parse(itemJson);
-    if (item.author?.id === params.id) {
-      jsonStore.set(key, JSON.stringify({ ...item, author: updated }));
-    }
-  }
-
   return Promise.resolve(JSON.parse(json));
 }
 
@@ -114,6 +128,11 @@ export function updateAuthor(params: {
 
 export function deleteItem({ id }: { id: string }): Promise<{ id: string }> {
   jsonStore.delete(`item:${id}`);
+  const listJson = jsonStore.get('item:list');
+  if (listJson) {
+    const list: Item[] = JSON.parse(listJson);
+    jsonStore.set('item:list', JSON.stringify(list.filter(i => i.id !== id)));
+  }
   return Promise.resolve({ id });
 }
 
@@ -122,10 +141,10 @@ export function deleteAuthor({ id }: { id: string }): Promise<{ id: string }> {
   return Promise.resolve({ id });
 }
 
-// ── BULK SEEDING ────────────────────────────────────────────────────────
+// ── SEEDING ─────────────────────────────────────────────────────────────
 
-/** Seed bulk items into the store (for bulkIngest scenario). */
-export function seedBulkItems(items: Item[]): void {
+/** Seed items into the store. */
+export function seedItems(items: Item[]): void {
   jsonStore.set('item:list', JSON.stringify(items));
   for (const item of items) {
     jsonStore.set(`item:${item.id}`, JSON.stringify(item));

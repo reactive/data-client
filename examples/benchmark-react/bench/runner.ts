@@ -7,39 +7,110 @@ import { collectHeapUsed } from './memory.js';
 import { formatReport, type BenchmarkResult } from './report.js';
 import {
   SCENARIOS,
-  WARMUP_RUNS,
-  MEASUREMENT_RUNS,
   LIBRARIES,
+  RUN_CONFIG,
+  ACTION_GROUPS,
 } from './scenarios.js';
 import { computeStats } from './stats.js';
 import { parseTraceDuration } from './tracing.js';
+import type { Scenario, ScenarioSize } from '../src/shared/types.js';
+
+// ---------------------------------------------------------------------------
+// CLI + env var parsing
+// ---------------------------------------------------------------------------
+
+function parseArgs(): {
+  libs?: string[];
+  size?: ScenarioSize;
+  actions?: string[];
+  scenario?: string;
+} {
+  const argv = process.argv.slice(2);
+  const get = (flag: string, envVar: string): string | undefined => {
+    const idx = argv.indexOf(flag);
+    if (idx !== -1 && idx + 1 < argv.length) return argv[idx + 1];
+    return process.env[envVar] || undefined;
+  };
+
+  const libRaw = get('--lib', 'BENCH_LIB');
+  const sizeRaw = get('--size', 'BENCH_SIZE');
+  const actionRaw = get('--action', 'BENCH_ACTION');
+  const scenarioRaw = get('--scenario', 'BENCH_SCENARIO');
+
+  const libs = libRaw ? libRaw.split(',').map(s => s.trim()) : undefined;
+  const size = sizeRaw === 'small' || sizeRaw === 'large' ? sizeRaw : undefined;
+  const actions =
+    actionRaw ? actionRaw.split(',').map(s => s.trim()) : undefined;
+
+  return { libs, size, actions, scenario: scenarioRaw };
+}
+
+function filterScenarios(scenarios: Scenario[]): {
+  filtered: Scenario[];
+  libraries: string[];
+} {
+  const { libs, size, actions, scenario: scenarioFilter } = parseArgs();
+
+  let filtered = scenarios;
+
+  // In CI, restrict to data-client hot-path only (existing behavior)
+  if (process.env.CI) {
+    filtered = filtered.filter(
+      s =>
+        s.name.startsWith('data-client:') &&
+        s.category !== 'withNetwork' &&
+        s.category !== 'memory' &&
+        s.category !== 'startup',
+    );
+  }
+
+  if (libs) {
+    filtered = filtered.filter(s => libs.some(l => s.name.startsWith(`${l}:`)));
+  }
+
+  if (size) {
+    filtered = filtered.filter(s => (s.size ?? 'small') === size);
+  }
+
+  if (actions) {
+    const resolvedActions = new Set<string>();
+    for (const a of actions) {
+      if (a in ACTION_GROUPS) {
+        for (const act of ACTION_GROUPS[a]) resolvedActions.add(act);
+      } else {
+        resolvedActions.add(a);
+      }
+    }
+    filtered = filtered.filter(s => resolvedActions.has(s.action));
+  }
+
+  if (scenarioFilter) {
+    filtered = filtered.filter(s => s.name.includes(scenarioFilter));
+  }
+
+  const libraries = libs ?? (process.env.CI ? ['data-client'] : [...LIBRARIES]);
+
+  return { filtered, libraries };
+}
+
+// ---------------------------------------------------------------------------
+// Config
+// ---------------------------------------------------------------------------
 
 const BASE_URL =
   process.env.BENCH_BASE_URL ??
   `http://localhost:${process.env.BENCH_PORT ?? '5173'}`;
 const BENCH_LABEL =
   process.env.BENCH_LABEL ? ` [${process.env.BENCH_LABEL}]` : '';
-/**
- * In CI we only run data-client hot-path scenarios to track our own regressions.
- * Competitor libraries (tanstack-query, swr, baseline) are for local comparison only.
- */
-const SCENARIOS_TO_RUN =
-  process.env.CI ?
-    SCENARIOS.filter(
-      s =>
-        s.name.startsWith('data-client:') &&
-        s.category !== 'withNetwork' &&
-        s.category !== 'memory' &&
-        s.category !== 'startup',
-    )
-  : SCENARIOS;
-const TOTAL_RUNS = WARMUP_RUNS + MEASUREMENT_RUNS;
+const USE_TRACE = process.env.BENCH_TRACE === 'true';
+
+// ---------------------------------------------------------------------------
+// Scenario runner (unchanged logic)
+// ---------------------------------------------------------------------------
 
 const REF_STABILITY_METRICS = ['itemRefChanged', 'authorRefChanged'] as const;
 
-function isRefStabilityScenario(
-  scenario: (typeof SCENARIOS_TO_RUN)[0],
-): scenario is (typeof SCENARIOS_TO_RUN)[0] & {
+function isRefStabilityScenario(scenario: Scenario): scenario is Scenario & {
   resultMetric: (typeof REF_STABILITY_METRICS)[number];
 } {
   return (
@@ -47,8 +118,6 @@ function isRefStabilityScenario(
     scenario.resultMetric === 'authorRefChanged'
   );
 }
-
-const USE_TRACE = process.env.BENCH_TRACE === 'true';
 
 interface ScenarioResult {
   value: number;
@@ -59,12 +128,15 @@ interface ScenarioResult {
 async function runScenario(
   page: Page,
   lib: string,
-  scenario: (typeof SCENARIOS_TO_RUN)[0],
+  scenario: Scenario,
 ): Promise<ScenarioResult> {
   const appPath = `/${lib}/`;
-  await page.goto(`${BASE_URL}${appPath}`, { waitUntil: 'networkidle' });
+  await page.goto(`${BASE_URL}${appPath}`, {
+    waitUntil: 'networkidle',
+    timeout: 120000,
+  });
   await page.waitForSelector('[data-app-ready]', {
-    timeout: 10000,
+    timeout: 120000,
     state: 'attached',
   });
 
@@ -107,12 +179,12 @@ async function runScenario(
     scenario.action === 'createEntity' ||
     scenario.action === 'deleteEntity';
   const isRefStability = isRefStabilityScenario(scenario);
-  const isBulkIngest = scenario.action === 'bulkIngest';
+  const isInit = scenario.action === 'init';
 
   const mountCount =
     scenario.mountCount ?? (scenario.action === 'optimisticUpdate' ? 1 : 100);
   if (isUpdate || isRefStability) {
-    const preMountAction = scenario.preMountAction ?? 'mount';
+    const preMountAction = scenario.preMountAction ?? 'init';
     await harness.evaluate(el => el.removeAttribute('data-bench-complete'));
     await (bench as any).evaluate(
       (api: any, [action, n]: [string, number]) => api[action](n),
@@ -182,10 +254,7 @@ async function runScenario(
   }
 
   const measures = await collectMeasures(page);
-  const isMountLike =
-    scenario.action === 'mount' ||
-    isBulkIngest ||
-    scenario.action === 'mountSortedView';
+  const isMountLike = isInit || scenario.action === 'mountSortedView';
   const duration =
     isMountLike ?
       getMeasureDuration(measures, 'mount-duration')
@@ -202,6 +271,10 @@ async function runScenario(
   };
 }
 
+// ---------------------------------------------------------------------------
+// Startup
+// ---------------------------------------------------------------------------
+
 interface StartupMetrics {
   fcp: number;
   taskDuration: number;
@@ -214,9 +287,12 @@ async function runStartupScenario(
   const cdp = await page.context().newCDPSession(page);
   await cdp.send('Performance.enable');
   const appPath = `/${lib}/`;
-  await page.goto(`${BASE_URL}${appPath}`, { waitUntil: 'networkidle' });
+  await page.goto(`${BASE_URL}${appPath}`, {
+    waitUntil: 'networkidle',
+    timeout: 120000,
+  });
   await page.waitForSelector('[data-app-ready]', {
-    timeout: 10000,
+    timeout: 120000,
     state: 'attached',
   });
   const { metrics } = await cdp.send('Performance.getMetrics');
@@ -231,6 +307,10 @@ async function runStartupScenario(
   return { fcp, taskDuration };
 }
 
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
 function shuffle<T>(arr: T[]): T[] {
   const out = [...arr];
   for (let i = out.length - 1; i > 0; i--) {
@@ -240,7 +320,37 @@ function shuffle<T>(arr: T[]): T[] {
   return out;
 }
 
+function scenarioUnit(scenario: Scenario): string {
+  if (
+    scenario.resultMetric === 'itemRefChanged' ||
+    scenario.resultMetric === 'authorRefChanged'
+  )
+    return 'count';
+  if (scenario.resultMetric === 'heapDelta') return 'bytes';
+  return 'ms';
+}
+
+// ---------------------------------------------------------------------------
+// Main
+// ---------------------------------------------------------------------------
+
 async function main() {
+  const { filtered: SCENARIOS_TO_RUN, libraries } = filterScenarios(SCENARIOS);
+
+  if (SCENARIOS_TO_RUN.length === 0) {
+    process.stderr.write('No scenarios matched the filters.\n');
+    process.exit(1);
+  }
+
+  // Group scenarios by size for differentiated run counts
+  const bySize: Record<ScenarioSize, Scenario[]> = { small: [], large: [] };
+  for (const s of SCENARIOS_TO_RUN) {
+    bySize[s.size ?? 'small'].push(s);
+  }
+  const sizeGroups = (
+    Object.entries(bySize) as [ScenarioSize, Scenario[]][]
+  ).filter(([, arr]) => arr.length > 0);
+
   const results: Record<string, number[]> = {};
   const reactCommitResults: Record<string, number[]> = {};
   const traceResults: Record<string, number[]> = {};
@@ -251,58 +361,54 @@ async function main() {
   }
 
   const browser = await chromium.launch({ headless: true });
-  const libraries = process.env.CI ? ['data-client'] : [...LIBRARIES];
 
-  const scenarioCount = SCENARIOS_TO_RUN.length;
-  for (let round = 0; round < TOTAL_RUNS; round++) {
-    const phase = round < WARMUP_RUNS ? 'warmup' : 'measure';
-    const phaseRound =
-      round < WARMUP_RUNS ? round + 1 : round - WARMUP_RUNS + 1;
-    const phaseTotal = round < WARMUP_RUNS ? WARMUP_RUNS : MEASUREMENT_RUNS;
-    process.stderr.write(
-      `\n── Round ${round + 1}/${TOTAL_RUNS} (${phase} ${phaseRound}/${phaseTotal}) ──\n`,
-    );
-    let scenarioDone = 0;
-    for (const lib of shuffle(libraries)) {
-      const context = await browser.newContext();
-      const page = await context.newPage();
+  // Run each size group with its own warmup/measurement counts
+  for (const [size, scenarios] of sizeGroups) {
+    const { warmup, measurement } = RUN_CONFIG[size];
+    const totalRuns = warmup + measurement;
 
-      for (const scenario of SCENARIOS_TO_RUN) {
-        if (!scenario.name.startsWith(`${lib}:`)) continue;
-        try {
-          const result = await runScenario(page, lib, scenario);
-          results[scenario.name].push(result.value);
-          reactCommitResults[scenario.name].push(result.reactCommit ?? NaN);
-          traceResults[scenario.name].push(result.traceDuration ?? NaN);
-          scenarioDone++;
-          const unit =
-            scenario.resultMetric === 'heapDelta' ? 'bytes'
-            : (
-              scenario.resultMetric === 'itemRefChanged' ||
-              scenario.resultMetric === 'authorRefChanged'
-            ) ?
-              'count'
-            : 'ms';
-          process.stderr.write(
-            `  [${scenarioDone}/${scenarioCount}] ${scenario.name}: ${result.value.toFixed(2)} ${unit}${result.reactCommit != null ? ` (commit ${result.reactCommit.toFixed(2)} ms)` : ''}\n`,
-          );
-        } catch (err) {
-          scenarioDone++;
-          console.error(
-            `  [${scenarioDone}/${scenarioCount}] ${scenario.name} FAILED:`,
-            err instanceof Error ? err.message : err,
-          );
+    for (let round = 0; round < totalRuns; round++) {
+      const phase = round < warmup ? 'warmup' : 'measure';
+      const phaseRound = round < warmup ? round + 1 : round - warmup + 1;
+      const phaseTotal = round < warmup ? warmup : measurement;
+      process.stderr.write(
+        `\n── ${size} round ${round + 1}/${totalRuns} (${phase} ${phaseRound}/${phaseTotal}) ──\n`,
+      );
+      let scenarioDone = 0;
+      for (const lib of shuffle([...libraries])) {
+        const context = await browser.newContext();
+        const page = await context.newPage();
+
+        for (const scenario of scenarios) {
+          if (!scenario.name.startsWith(`${lib}:`)) continue;
+          try {
+            const result = await runScenario(page, lib, scenario);
+            results[scenario.name].push(result.value);
+            reactCommitResults[scenario.name].push(result.reactCommit ?? NaN);
+            traceResults[scenario.name].push(result.traceDuration ?? NaN);
+            scenarioDone++;
+            process.stderr.write(
+              `  [${scenarioDone}/${scenarios.length}] ${scenario.name}: ${result.value.toFixed(2)} ${scenarioUnit(scenario)}${result.reactCommit != null ? ` (commit ${result.reactCommit.toFixed(2)} ms)` : ''}\n`,
+            );
+          } catch (err) {
+            scenarioDone++;
+            console.error(
+              `  [${scenarioDone}/${scenarios.length}] ${scenario.name} FAILED:`,
+              err instanceof Error ? err.message : err,
+            );
+          }
         }
-      }
 
-      await context.close();
+        await context.close();
+      }
     }
   }
 
+  // Startup scenarios (fast; only locally)
   const startupResults: Record<string, { fcp: number[]; tbt: number[] }> = {};
   const includeStartup = !process.env.CI;
   if (includeStartup) {
-    for (const lib of LIBRARIES) {
+    for (const lib of libraries) {
       startupResults[lib] = { fcp: [], tbt: [] };
     }
     const STARTUP_RUNS = 5;
@@ -310,7 +416,7 @@ async function main() {
       process.stderr.write(
         `\n── Startup round ${round + 1}/${STARTUP_RUNS} ──\n`,
       );
-      for (const lib of shuffle([...LIBRARIES])) {
+      for (const lib of shuffle([...libraries])) {
         const context = await browser.newContext();
         const page = await context.newPage();
         try {
@@ -333,20 +439,16 @@ async function main() {
 
   await browser.close();
 
+  // ---------------------------------------------------------------------------
+  // Report
+  // ---------------------------------------------------------------------------
   const report: BenchmarkResult[] = [];
   for (const scenario of SCENARIOS_TO_RUN) {
     const samples = results[scenario.name];
-    if (samples.length === 0) continue;
-    const { median, range } = computeStats(samples, WARMUP_RUNS);
-    let unit = 'ms';
-    if (
-      scenario.resultMetric === 'itemRefChanged' ||
-      scenario.resultMetric === 'authorRefChanged'
-    ) {
-      unit = 'count';
-    } else if (scenario.resultMetric === 'heapDelta') {
-      unit = 'bytes';
-    }
+    const warmupRuns = RUN_CONFIG[scenario.size ?? 'small'].warmup;
+    if (samples.length <= warmupRuns) continue;
+    const { median, range } = computeStats(samples, warmupRuns);
+    const unit = scenarioUnit(scenario);
     report.push({
       name: scenario.name,
       unit,
@@ -354,15 +456,14 @@ async function main() {
       range,
     });
     const reactSamples = reactCommitResults[scenario.name]
-      .slice(WARMUP_RUNS)
+      .slice(warmupRuns)
       .filter(x => !Number.isNaN(x));
     if (
       reactSamples.length > 0 &&
-      (scenario.action === 'mount' ||
+      (scenario.action === 'init' ||
         scenario.action === 'updateEntity' ||
         scenario.action === 'updateAuthor' ||
         scenario.action === 'optimisticUpdate' ||
-        scenario.action === 'bulkIngest' ||
         scenario.action === 'mountSortedView' ||
         scenario.action === 'invalidateAndResolve' ||
         scenario.action === 'createEntity' ||
@@ -380,7 +481,7 @@ async function main() {
       });
     }
     const traceSamples = traceResults[scenario.name]
-      .slice(WARMUP_RUNS)
+      .slice(warmupRuns)
       .filter(x => !Number.isNaN(x));
     if (traceSamples.length > 0) {
       const { median: trMedian, range: trRange } = computeStats(
@@ -397,7 +498,7 @@ async function main() {
   }
 
   if (includeStartup) {
-    for (const lib of LIBRARIES) {
+    for (const lib of libraries) {
       const s = startupResults[lib];
       if (s && s.fcp.length > 0) {
         const fcpStats = computeStats(s.fcp, 0);

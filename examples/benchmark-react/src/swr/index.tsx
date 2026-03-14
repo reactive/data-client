@@ -1,65 +1,31 @@
 import { onProfilerRender, useBenchState } from '@shared/benchHarness';
-import { ITEM_HEIGHT, ItemRow, ItemsRow, LIST_STYLE } from '@shared/components';
+import { ITEM_HEIGHT, ItemsRow, LIST_STYLE } from '@shared/components';
 import {
   FIXTURE_AUTHORS,
   FIXTURE_AUTHORS_BY_ID,
   FIXTURE_ITEMS,
   FIXTURE_ITEMS_BY_ID,
-  generateFreshData,
   sortByLabel,
 } from '@shared/data';
-import { registerRefs } from '@shared/refStability';
-import {
-  fetchItem,
-  fetchAuthor,
-  fetchItemList,
-  createItem,
-  updateItem,
-  updateAuthor as serverUpdateAuthor,
-  deleteItem,
-  seedBulkItems,
-  seedItemList,
-} from '@shared/server';
+import { setCurrentItems } from '@shared/refStability';
+import { AuthorResource, ItemResource } from '@shared/resources';
+import { seedItemList } from '@shared/server';
 import type { Item, UpdateAuthorOptions } from '@shared/types';
 import React, { useCallback, useMemo } from 'react';
 import { createRoot } from 'react-dom/client';
-import { List, type RowComponentProps } from 'react-window';
+import { List } from 'react-window';
 import useSWR, { SWRConfig, useSWRConfig } from 'swr';
 
-/** SWR fetcher: dispatches to shared server functions based on cache key */
+/** SWR fetcher: dispatches to shared resource fetch methods based on cache key */
 const fetcher = (key: string): Promise<any> => {
-  if (key.startsWith('item:')) return fetchItem({ id: key.slice(5) });
-  if (key.startsWith('author:')) return fetchAuthor({ id: key.slice(7) });
-  if (key === 'items:all') return fetchItemList();
+  if (key.startsWith('item:')) return ItemResource.get({ id: key.slice(5) });
+  if (key.startsWith('author:'))
+    return AuthorResource.get({ id: key.slice(7) });
+  if (key === 'items:all') return ItemResource.getList();
+  if (key.startsWith('items:'))
+    return ItemResource.getList({ count: Number(key.slice(6)) });
   return Promise.reject(new Error(`Unknown key: ${key}`));
 };
-
-type CacheEntry = {
-  data: unknown;
-  isLoading: boolean;
-  isValidating: boolean;
-  error: undefined;
-};
-
-function makeCacheEntry(data: unknown): CacheEntry {
-  return { data, isLoading: false, isValidating: false, error: undefined };
-}
-
-const cache = new Map<string, CacheEntry>();
-for (const item of FIXTURE_ITEMS) {
-  cache.set(`item:${item.id}`, makeCacheEntry(item));
-}
-for (const author of FIXTURE_AUTHORS) {
-  cache.set(`author:${author.id}`, makeCacheEntry(author));
-}
-cache.set('items:all', makeCacheEntry(FIXTURE_ITEMS));
-
-function ItemView({ id }: { id: string }) {
-  const { data: item } = useSWR<Item>(`item:${id}`, fetcher);
-  if (!item) return null;
-  registerRefs(id, item, item.author);
-  return <ItemRow item={item} />;
-}
 
 function SortedListView() {
   const { data: items } = useSWR<Item[]>('items:all', fetcher);
@@ -77,28 +43,30 @@ function SortedListView() {
   );
 }
 
-function ItemListRow({
-  index,
-  style,
-  ids,
-}: RowComponentProps<{ ids: string[] }>) {
+function ListView({ count }: { count: number }) {
+  const { data: items } = useSWR<Item[]>(`items:${count}`, fetcher);
+  if (!items) return null;
+  setCurrentItems(items);
   return (
-    <div style={style}>
-      <ItemView id={ids[index]} />
-    </div>
+    <List
+      style={LIST_STYLE}
+      rowHeight={ITEM_HEIGHT}
+      rowCount={items.length}
+      rowComponent={ItemsRow}
+      rowProps={{ items }}
+    />
   );
 }
 
 function BenchmarkHarness() {
   const { mutate } = useSWRConfig();
   const {
-    ids,
+    listViewCount,
     showSortedView,
     containerRef,
     measureMount,
     measureUpdate,
     measureUpdateWithDelay,
-    setIds,
     setShowSortedView,
     registerAPI,
   } = useBenchState();
@@ -108,12 +76,14 @@ function BenchmarkHarness() {
       const item = FIXTURE_ITEMS_BY_ID.get(id);
       if (!item) return;
       measureUpdate(() => {
-        updateItem({ id, label: `${item.label} (updated)` }).then(data => {
-          void mutate(`item:${id}`, data, false);
-        });
+        ItemResource.update({ id }, { label: `${item.label} (updated)` }).then(
+          () => {
+            void mutate(`items:${listViewCount}`);
+          },
+        );
       });
     },
-    [measureUpdate, mutate],
+    [measureUpdate, mutate, listViewCount],
   );
 
   const updateAuthor = useCallback(
@@ -121,87 +91,53 @@ function BenchmarkHarness() {
       const author = FIXTURE_AUTHORS_BY_ID.get(authorId);
       if (!author) return;
       measureUpdateWithDelay(options, () => {
-        serverUpdateAuthor({
-          id: authorId,
-          name: `${author.name} (updated)`,
-        }).then(updatedAuthor => {
-          void mutate(`author:${authorId}`, updatedAuthor, false);
-          for (const item of FIXTURE_ITEMS) {
-            if (item.author.id === authorId) {
-              void mutate(`item:${item.id}`);
-            }
-          }
+        AuthorResource.update(
+          { id: authorId },
+          { name: `${author.name} (updated)` },
+        ).then(() => {
+          void mutate(`items:${listViewCount}`);
         });
       });
     },
-    [measureUpdateWithDelay, mutate],
+    [measureUpdateWithDelay, mutate, listViewCount],
   );
 
   const createEntity = useCallback(() => {
     const author = FIXTURE_AUTHORS[0];
     measureUpdate(() => {
-      createItem({ label: 'New Item', author }).then(created => {
-        cache.set(`item:${created.id}`, makeCacheEntry(created));
-        void mutate('items:all');
-        setIds(prev => [created.id, ...prev]);
+      ItemResource.create({ label: 'New Item', author }).then(() => {
+        void mutate(`items:${listViewCount}`);
       });
     });
-  }, [measureUpdate, mutate, setIds]);
+  }, [measureUpdate, mutate, listViewCount]);
 
   const deleteEntity = useCallback(
     (id: string) => {
       measureUpdate(() => {
-        deleteItem({ id }).then(() => {
-          cache.delete(`item:${id}`);
-          setIds(prev => prev.filter(i => i !== id));
+        ItemResource.delete({ id }).then(() => {
+          void mutate(`items:${listViewCount}`);
         });
       });
     },
-    [measureUpdate, setIds],
-  );
-
-  const bulkIngest = useCallback(
-    (n: number) => {
-      const { items } = generateFreshData(n);
-      seedBulkItems(items);
-      measureMount(() => {
-        fetchItemList().then(parsed => {
-          const fetchedItems = parsed as Item[];
-          const seenAuthors = new Set<string>();
-          for (const item of fetchedItems) {
-            cache.set(`item:${item.id}`, makeCacheEntry(item));
-            if (!seenAuthors.has(item.author.id)) {
-              seenAuthors.add(item.author.id);
-              cache.set(
-                `author:${item.author.id}`,
-                makeCacheEntry(item.author),
-              );
-            }
-          }
-          setIds(fetchedItems.map(i => i.id));
-        });
-      });
-    },
-    [measureMount, setIds],
+    [measureUpdate, mutate, listViewCount],
   );
 
   const mountSortedView = useCallback(
     (n: number) => {
       seedItemList(FIXTURE_ITEMS.slice(0, n));
       measureMount(() => {
-        fetchItemList().then(parsed => {
-          cache.set('items:all', makeCacheEntry(parsed));
+        ItemResource.getList().then(parsed => {
+          void mutate('items:all', parsed, false);
           setShowSortedView(true);
         });
       });
     },
-    [measureMount, setShowSortedView],
+    [measureMount, setShowSortedView, mutate],
   );
 
   registerAPI({
     updateEntity,
     updateAuthor,
-    bulkIngest,
     mountSortedView,
     createEntity,
     deleteEntity,
@@ -209,13 +145,7 @@ function BenchmarkHarness() {
 
   return (
     <div ref={containerRef} data-bench-harness>
-      <List
-        style={LIST_STYLE}
-        rowHeight={ITEM_HEIGHT}
-        rowCount={ids.length}
-        rowComponent={ItemListRow}
-        rowProps={{ ids }}
-      />
+      {listViewCount != null && <ListView count={listViewCount} />}
       {showSortedView && <SortedListView />}
     </div>
   );
@@ -225,11 +155,9 @@ const rootEl = document.getElementById('root') ?? document.body;
 createRoot(rootEl).render(
   <SWRConfig
     value={{
-      provider: () => cache as any,
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       revalidateIfStale: false,
-      revalidateOnMount: false,
     }}
   >
     <React.Profiler id="bench" onRender={onProfilerRender}>

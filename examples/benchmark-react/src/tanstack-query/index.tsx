@@ -1,25 +1,15 @@
 import { onProfilerRender, useBenchState } from '@shared/benchHarness';
-import { ITEM_HEIGHT, ItemRow, ItemsRow, LIST_STYLE } from '@shared/components';
+import { ITEM_HEIGHT, ItemsRow, LIST_STYLE } from '@shared/components';
 import {
   FIXTURE_AUTHORS,
   FIXTURE_AUTHORS_BY_ID,
   FIXTURE_ITEMS,
   FIXTURE_ITEMS_BY_ID,
-  generateFreshData,
   sortByLabel,
 } from '@shared/data';
-import { registerRefs } from '@shared/refStability';
-import {
-  fetchItem,
-  fetchAuthor,
-  fetchItemList,
-  createItem,
-  updateItem,
-  updateAuthor as serverUpdateAuthor,
-  deleteItem,
-  seedBulkItems,
-  seedItemList,
-} from '@shared/server';
+import { setCurrentItems } from '@shared/refStability';
+import { AuthorResource, ItemResource } from '@shared/resources';
+import { seedItemList } from '@shared/server';
 import type { Item, UpdateAuthorOptions } from '@shared/types';
 import {
   QueryClient,
@@ -29,24 +19,16 @@ import {
 } from '@tanstack/react-query';
 import React, { useCallback, useMemo } from 'react';
 import { createRoot } from 'react-dom/client';
-import { List, type RowComponentProps } from 'react-window';
+import { List } from 'react-window';
 
 function queryFn({ queryKey }: { queryKey: readonly unknown[] }): Promise<any> {
-  const [type, id] = queryKey as string[];
-  if (type === 'item' && id) return fetchItem({ id });
-  if (type === 'author' && id) return fetchAuthor({ id });
-  if (type === 'items') return fetchItemList();
+  const [type, id] = queryKey as [string, string | number | undefined];
+  if (type === 'item' && id) return ItemResource.get({ id: String(id) });
+  if (type === 'author' && id) return AuthorResource.get({ id: String(id) });
+  if (type === 'items' && typeof id === 'number')
+    return ItemResource.getList({ count: id });
+  if (type === 'items') return ItemResource.getList();
   return Promise.reject(new Error(`Unknown queryKey: ${queryKey}`));
-}
-
-function seedCache(client: QueryClient) {
-  for (const item of FIXTURE_ITEMS) {
-    client.setQueryData(['item', item.id], item);
-  }
-  for (const author of FIXTURE_AUTHORS) {
-    client.setQueryData(['author', author.id], author);
-  }
-  client.setQueryData(['items', 'all'], FIXTURE_ITEMS);
 }
 
 const queryClient = new QueryClient({
@@ -57,18 +39,6 @@ const queryClient = new QueryClient({
     },
   },
 });
-seedCache(queryClient);
-
-function ItemView({ id }: { id: string }) {
-  const { data: item } = useQuery({
-    queryKey: ['item', id],
-    queryFn,
-  });
-  if (!item) return null;
-  const itemAsItem = item as Item;
-  registerRefs(id, itemAsItem, itemAsItem.author);
-  return <ItemRow item={itemAsItem} />;
-}
 
 function SortedListView() {
   const { data: items } = useQuery({
@@ -92,28 +62,34 @@ function SortedListView() {
   );
 }
 
-function ItemListRow({
-  index,
-  style,
-  ids,
-}: RowComponentProps<{ ids: string[] }>) {
+function ListView({ count }: { count: number }) {
+  const { data: items } = useQuery({
+    queryKey: ['items', count],
+    queryFn,
+  });
+  if (!items) return null;
+  const list = items as Item[];
+  setCurrentItems(list);
   return (
-    <div style={style}>
-      <ItemView id={ids[index]} />
-    </div>
+    <List
+      style={LIST_STYLE}
+      rowHeight={ITEM_HEIGHT}
+      rowCount={list.length}
+      rowComponent={ItemsRow}
+      rowProps={{ items: list }}
+    />
   );
 }
 
 function BenchmarkHarness() {
   const client = useQueryClient();
   const {
-    ids,
+    listViewCount,
     showSortedView,
     containerRef,
     measureMount,
     measureUpdate,
     measureUpdateWithDelay,
-    setIds,
     setShowSortedView,
     registerAPI,
   } = useBenchState();
@@ -123,12 +99,16 @@ function BenchmarkHarness() {
       const item = FIXTURE_ITEMS_BY_ID.get(id);
       if (!item) return;
       measureUpdate(() => {
-        updateItem({ id, label: `${item.label} (updated)` }).then(data => {
-          client.setQueryData(['item', id], data);
-        });
+        ItemResource.update({ id }, { label: `${item.label} (updated)` }).then(
+          () => {
+            void client.invalidateQueries({
+              queryKey: ['items', listViewCount],
+            });
+          },
+        );
       });
     },
-    [measureUpdate, client],
+    [measureUpdate, client, listViewCount],
   );
 
   const updateAuthor = useCallback(
@@ -136,65 +116,39 @@ function BenchmarkHarness() {
       const author = FIXTURE_AUTHORS_BY_ID.get(authorId);
       if (!author) return;
       measureUpdateWithDelay(options, () => {
-        serverUpdateAuthor({
-          id: authorId,
-          name: `${author.name} (updated)`,
-        }).then(updatedAuthor => {
-          client.setQueryData(['author', authorId], updatedAuthor);
-          for (const item of FIXTURE_ITEMS) {
-            if (item.author.id === authorId) {
-              client.refetchQueries({ queryKey: ['item', item.id] });
-            }
-          }
+        AuthorResource.update(
+          { id: authorId },
+          { name: `${author.name} (updated)` },
+        ).then(() => {
+          void client.invalidateQueries({
+            queryKey: ['items', listViewCount],
+          });
         });
       });
     },
-    [measureUpdateWithDelay, client],
+    [measureUpdateWithDelay, client, listViewCount],
   );
 
   const createEntity = useCallback(() => {
     const author = FIXTURE_AUTHORS[0];
     measureUpdate(() => {
-      createItem({ label: 'New Item', author }).then(created => {
-        client.setQueryData(['item', created.id], created);
-        void client.invalidateQueries({ queryKey: ['items', 'all'] });
-        setIds(prev => [created.id, ...prev]);
+      ItemResource.create({ label: 'New Item', author }).then(() => {
+        void client.invalidateQueries({ queryKey: ['items', listViewCount] });
       });
     });
-  }, [measureUpdate, client, setIds]);
+  }, [measureUpdate, client, listViewCount]);
 
   const deleteEntity = useCallback(
     (id: string) => {
       measureUpdate(() => {
-        deleteItem({ id }).then(() => {
-          client.removeQueries({ queryKey: ['item', id] });
-          setIds(prev => prev.filter(i => i !== id));
+        ItemResource.delete({ id }).then(() => {
+          void client.invalidateQueries({
+            queryKey: ['items', listViewCount],
+          });
         });
       });
     },
-    [measureUpdate, client, setIds],
-  );
-
-  const bulkIngest = useCallback(
-    (n: number) => {
-      const { items } = generateFreshData(n);
-      seedBulkItems(items);
-      measureMount(() => {
-        fetchItemList().then(parsed => {
-          const fetchedItems = parsed as Item[];
-          const seenAuthors = new Set<string>();
-          for (const item of fetchedItems) {
-            client.setQueryData(['item', item.id], item);
-            if (!seenAuthors.has(item.author.id)) {
-              seenAuthors.add(item.author.id);
-              client.setQueryData(['author', item.author.id], item.author);
-            }
-          }
-          setIds(fetchedItems.map(i => i.id));
-        });
-      });
-    },
-    [measureMount, setIds, client],
+    [measureUpdate, client, listViewCount],
   );
 
   const mountSortedView = useCallback(
@@ -214,7 +168,6 @@ function BenchmarkHarness() {
   registerAPI({
     updateEntity,
     updateAuthor,
-    bulkIngest,
     mountSortedView,
     createEntity,
     deleteEntity,
@@ -222,13 +175,7 @@ function BenchmarkHarness() {
 
   return (
     <div ref={containerRef} data-bench-harness>
-      <List
-        style={LIST_STYLE}
-        rowHeight={ITEM_HEIGHT}
-        rowCount={ids.length}
-        rowComponent={ItemListRow}
-        rowProps={{ ids }}
-      />
+      {listViewCount != null && <ListView count={listViewCount} />}
       {showSortedView && <SortedListView />}
     </div>
   );

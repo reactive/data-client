@@ -16,7 +16,7 @@ When working on **`packages/react`** or comparing data-client to other React dat
 
 - **Where it lives**: `examples/benchmark-react/`
 - **How to run**: From repo root: `yarn build:benchmark-react`, then `yarn workspace example-benchmark-react preview &` and in another terminal `cd examples/benchmark-react && yarn bench`
-- **What it measures**: Browser-based mount/update duration, ref-stability counts, sorted-view (Query memoization), optional memory (heap delta), startup metrics (FCP/TBT), and React Profiler commit times. Compares data-client, TanStack Query, SWR, and a plain React baseline.
+- **What it measures**: Browser-based init/update duration, ref-stability counts, sorted-view (Query memoization), optional memory (heap delta), startup metrics (FCP/TBT), and React Profiler commit times. Compares data-client, TanStack Query, SWR, and a plain React baseline.
 - **CI**: `.github/workflows/benchmark-react.yml` runs on changes to `packages/react/src/**`, `packages/core/src/**`, `packages/endpoint/src/schemas/**`, `packages/normalizr/src/**`, or `examples/benchmark-react/**` and reports via `rhysd/github-action-benchmark` (customSmallerIsBetter). CI runs **data-client only** (hot-path scenarios) to track regressions; competitor libraries (TanStack Query, SWR, baseline) are for local comparison only.
 - **Report viewer**: Open `examples/benchmark-react/bench/report-viewer.html` in a browser and paste `react-bench-output.json` to view a comparison table and charts. Toggle "React commit" and "Trace" filters. Use "Load history" for time-series.
 
@@ -26,8 +26,8 @@ See `@examples/benchmark-react/README.md` for methodology, adding a new library,
 
 Use this mapping when deciding which React benchmark scenarios are relevant to a change:
 
-- **Mount scenarios** (`mount-100-items`, `mount-500-items`, `bulk-ingest-500`)
-  - Exercises: initial render with pre-populated cache
+- **Init scenarios** (`init-100`, `init-500`)
+  - Exercises: full fetch + normalization + render pipeline (ListView auto-fetches from list endpoint)
   - Relevant for: `@data-client/react` hooks, `@data-client/core` store initialization
   - All libraries
 
@@ -58,8 +58,8 @@ Use this mapping when deciding which React benchmark scenarios are relevant to a
 
 | Category | Scenarios | Typical run-to-run spread |
 |---|---|---|
-| **Stable** | `mount-*`, `update-single-entity`, `ref-stability-*`, `sorted-view-mount-*` | 2–5% |
-| **Moderate** | `update-shared-author-*`, `bulk-ingest-*`, `sorted-view-update-*` | 5–10% |
+| **Stable** | `init-*`, `update-single-entity`, `ref-stability-*`, `sorted-view-mount-*` | 2–5% |
+| **Moderate** | `update-shared-author-*`, `sorted-view-update-*` | 5–10% |
 | **Volatile** | `memory-mount-unmount-cycle`, `startup-*`, `(react commit)` suffixes | 10–25% |
 
 Regressions >5% on stable scenarios or >15% on volatile scenarios are worth investigating.
