@@ -79,6 +79,7 @@ export function useBenchState() {
       });
       const timer = setTimeout(() => {
         observer.disconnect();
+        setComplete();
       }, 30000);
       performance.mark('mount-start');
       fn();
@@ -113,6 +114,7 @@ export function useBenchState() {
       });
       const timer = setTimeout(() => {
         observer.disconnect();
+        setComplete();
       }, 30000);
       performance.mark('update-start');
       fn();
