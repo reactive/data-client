@@ -1,5 +1,10 @@
 import { onProfilerRender, useBenchState } from '@shared/benchHarness';
-import { ITEM_HEIGHT, ItemsRow, LIST_STYLE } from '@shared/components';
+import {
+  DUAL_LIST_STYLE,
+  ITEM_HEIGHT,
+  ItemsRow,
+  LIST_STYLE,
+} from '@shared/components';
 import {
   FIXTURE_AUTHORS,
   FIXTURE_AUTHORS_BY_ID,
@@ -61,11 +66,52 @@ function ListView() {
   );
 }
 
+const DualListContext = React.createContext<{
+  openItems: Item[];
+  closedItems: Item[];
+  setOpenItems: React.Dispatch<React.SetStateAction<Item[]>>;
+  setClosedItems: React.Dispatch<React.SetStateAction<Item[]>>;
+}>(null as any);
+
+function DualListView() {
+  const { openItems, closedItems } = useContext(DualListContext);
+  return (
+    <div style={DUAL_LIST_STYLE}>
+      {openItems.length > 0 && (
+        <div data-status-list="open">
+          <List
+            style={LIST_STYLE}
+            rowHeight={ITEM_HEIGHT}
+            rowCount={openItems.length}
+            rowComponent={ItemsRow}
+            rowProps={{ items: openItems }}
+          />
+        </div>
+      )}
+      {closedItems.length > 0 && (
+        <div data-status-list="closed">
+          <List
+            style={LIST_STYLE}
+            rowHeight={ITEM_HEIGHT}
+            rowCount={closedItems.length}
+            rowComponent={ItemsRow}
+            rowProps={{ items: closedItems }}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
 function BenchmarkHarness() {
   const [items, setItems] = useState<Item[]>([]);
+  const [openItems, setOpenItems] = useState<Item[]>([]);
+  const [closedItems, setClosedItems] = useState<Item[]>([]);
   const {
     listViewCount,
     showSortedView,
+    showDualList,
+    dualListCount,
     containerRef,
     measureMount,
     measureUpdate,
@@ -81,9 +127,22 @@ function BenchmarkHarness() {
     }
   }, [listViewCount]);
 
+  useEffect(() => {
+    if (showDualList && dualListCount != null) {
+      ItemResource.getList({ status: 'open', count: dualListCount }).then(
+        setOpenItems,
+      );
+      ItemResource.getList({ status: 'closed', count: dualListCount }).then(
+        setClosedItems,
+      );
+    }
+  }, [showDualList, dualListCount]);
+
   const unmountAll = useCallback(() => {
     unmountBase();
     setItems([]);
+    setOpenItems([]);
+    setClosedItems([]);
   }, [unmountBase]);
 
   const updateEntity = useCallback(
@@ -135,6 +194,33 @@ function BenchmarkHarness() {
     [measureUpdate, listViewCount],
   );
 
+  const moveItem = useCallback(
+    (id: string) => {
+      measureUpdate(
+        () =>
+          ItemResource.update({ id }, { status: 'closed' }).then(() =>
+            Promise.all([
+              ItemResource.getList({
+                status: 'open',
+                count: dualListCount!,
+              }).then(setOpenItems),
+              ItemResource.getList({
+                status: 'closed',
+                count: dualListCount!,
+              }).then(setClosedItems),
+            ]),
+          ),
+        () => {
+          const source = containerRef.current?.querySelector(
+            '[data-status-list="open"]',
+          );
+          return source?.querySelector(`[data-item-id="${id}"]`) == null;
+        },
+      );
+    },
+    [measureUpdate, dualListCount, containerRef],
+  );
+
   const mountSortedView = useCallback(
     (n: number) => {
       seedItemList(FIXTURE_ITEMS.slice(0, n));
@@ -152,14 +238,20 @@ function BenchmarkHarness() {
     mountSortedView,
     unshiftItem,
     deleteEntity,
+    moveItem,
   });
 
   return (
     <ItemsContext.Provider value={{ items, setItems }}>
-      <div ref={containerRef} data-bench-harness>
-        {listViewCount != null && <ListView />}
-        {showSortedView && <SortedListView />}
-      </div>
+      <DualListContext.Provider
+        value={{ openItems, closedItems, setOpenItems, setClosedItems }}
+      >
+        <div ref={containerRef} data-bench-harness>
+          {listViewCount != null && <ListView />}
+          {showSortedView && <SortedListView />}
+          {showDualList && dualListCount != null && <DualListView />}
+        </div>
+      </DualListContext.Provider>
     </ItemsContext.Provider>
   );
 }

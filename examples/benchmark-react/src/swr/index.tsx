@@ -1,5 +1,10 @@
 import { onProfilerRender, useBenchState } from '@shared/benchHarness';
-import { ITEM_HEIGHT, ItemsRow, LIST_STYLE } from '@shared/components';
+import {
+  DUAL_LIST_STYLE,
+  ITEM_HEIGHT,
+  ItemsRow,
+  LIST_STYLE,
+} from '@shared/components';
 import {
   FIXTURE_AUTHORS,
   FIXTURE_AUTHORS_BY_ID,
@@ -22,6 +27,13 @@ const fetcher = (key: string): Promise<any> => {
   if (key.startsWith('author:'))
     return AuthorResource.get({ id: key.slice(7) });
   if (key === 'items:all') return ItemResource.getList();
+  if (key.startsWith('items:status:')) {
+    const [status, count] = key.slice(13).split(':');
+    return ItemResource.getList({
+      status,
+      ...(count ? { count: Number(count) } : {}),
+    });
+  }
   if (key.startsWith('items:'))
     return ItemResource.getList({ count: Number(key.slice(6)) });
   return Promise.reject(new Error(`Unknown key: ${key}`));
@@ -59,11 +71,41 @@ function ListView({ count }: { count: number }) {
   );
 }
 
+function StatusListView({ status, count }: { status: string; count: number }) {
+  const { data: items } = useSWR<Item[]>(
+    `items:status:${status}:${count}`,
+    fetcher,
+  );
+  if (!items) return null;
+  return (
+    <div data-status-list={status}>
+      <List
+        style={LIST_STYLE}
+        rowHeight={ITEM_HEIGHT}
+        rowCount={items.length}
+        rowComponent={ItemsRow}
+        rowProps={{ items }}
+      />
+    </div>
+  );
+}
+
+function DualListView({ count }: { count: number }) {
+  return (
+    <div style={DUAL_LIST_STYLE}>
+      <StatusListView status="open" count={count} />
+      <StatusListView status="closed" count={count} />
+    </div>
+  );
+}
+
 function BenchmarkHarness() {
   const { mutate } = useSWRConfig();
   const {
     listViewCount,
     showSortedView,
+    showDualList,
+    dualListCount,
     containerRef,
     measureMount,
     measureUpdate,
@@ -122,6 +164,24 @@ function BenchmarkHarness() {
     [measureUpdate, mutate],
   );
 
+  const moveItem = useCallback(
+    (id: string) => {
+      measureUpdate(
+        () =>
+          ItemResource.update({ id }, { status: 'closed' }).then(() =>
+            mutate(key => typeof key === 'string' && key.startsWith('items:')),
+          ),
+        () => {
+          const source = containerRef.current?.querySelector(
+            '[data-status-list="open"]',
+          );
+          return source?.querySelector(`[data-item-id="${id}"]`) == null;
+        },
+      );
+    },
+    [measureUpdate, mutate, containerRef],
+  );
+
   const mountSortedView = useCallback(
     (n: number) => {
       seedItemList(FIXTURE_ITEMS.slice(0, n));
@@ -138,12 +198,16 @@ function BenchmarkHarness() {
     mountSortedView,
     unshiftItem,
     deleteEntity,
+    moveItem,
   });
 
   return (
     <div ref={containerRef} data-bench-harness>
       {listViewCount != null && <ListView count={listViewCount} />}
       {showSortedView && <SortedListView />}
+      {showDualList && dualListCount != null && (
+        <DualListView count={dualListCount} />
+      )}
     </div>
   );
 }

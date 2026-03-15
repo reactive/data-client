@@ -1,6 +1,11 @@
 import { DataProvider, useController, useDLE } from '@data-client/react';
 import { onProfilerRender, useBenchState } from '@shared/benchHarness';
-import { ITEM_HEIGHT, ItemsRow, LIST_STYLE } from '@shared/components';
+import {
+  DUAL_LIST_STYLE,
+  ITEM_HEIGHT,
+  ItemsRow,
+  LIST_STYLE,
+} from '@shared/components';
 import {
   FIXTURE_AUTHORS,
   FIXTURE_AUTHORS_BY_ID,
@@ -53,12 +58,40 @@ function SortedListView({ count }: { count: number }) {
   );
 }
 
+function StatusListView({ status, count }: { status: string; count: number }) {
+  const { data: items } = useDLE(ItemResource.getList, { status, count });
+  if (!items) return null;
+  const list = items as Item[];
+  return (
+    <div data-status-list={status}>
+      <List
+        style={LIST_STYLE}
+        rowHeight={ITEM_HEIGHT}
+        rowCount={list.length}
+        rowComponent={ItemsRow}
+        rowProps={{ items: list }}
+      />
+    </div>
+  );
+}
+
+function DualListView({ count }: { count: number }) {
+  return (
+    <div style={DUAL_LIST_STYLE}>
+      <StatusListView status="open" count={count} />
+      <StatusListView status="closed" count={count} />
+    </div>
+  );
+}
+
 function BenchmarkHarness() {
   const controller = useController();
   const {
     listViewCount,
     showSortedView,
     sortedViewCount,
+    showDualList,
+    dualListCount,
     containerRef,
     measureUpdate,
     measureMount,
@@ -116,6 +149,23 @@ function BenchmarkHarness() {
     [measureUpdate, controller],
   );
 
+  const moveItem = useCallback(
+    (id: string) => {
+      measureUpdate(
+        () => {
+          controller.fetch(ItemResource.move, { id }, { status: 'closed' });
+        },
+        () => {
+          const source = containerRef.current?.querySelector(
+            '[data-status-list="open"]',
+          );
+          return source?.querySelector(`[data-item-id="${id}"]`) == null;
+        },
+      );
+    },
+    [measureUpdate, controller, containerRef],
+  );
+
   const mountSortedView = useCallback(
     (n: number) => {
       seedItemList(FIXTURE_ITEMS.slice(0, n));
@@ -161,6 +211,7 @@ function BenchmarkHarness() {
     invalidateAndResolve,
     unshiftItem,
     deleteEntity,
+    moveItem,
   });
 
   return (
@@ -168,6 +219,9 @@ function BenchmarkHarness() {
       {listViewCount != null && <ListView count={listViewCount} />}
       {showSortedView && sortedViewCount != null && (
         <SortedListView count={sortedViewCount} />
+      )}
+      {showDualList && dualListCount != null && (
+        <DualListView count={dualListCount} />
       )}
     </div>
   );

@@ -432,6 +432,76 @@ test(
   { onlyLibs: ['data-client'] },
 );
 
+// ── moveItem ─────────────────────────────────────────────────────────
+
+test('moveItem moves item between status lists', async (page, lib) => {
+  if (
+    !(await page.evaluate(
+      () => typeof window.__BENCH__?.moveItem === 'function',
+    ))
+  )
+    return;
+
+  await clearComplete(page);
+  await page.evaluate(() => window.__BENCH__!.initDualList!(20));
+  await waitForComplete(page);
+
+  await waitFor(
+    page,
+    async () =>
+      page.evaluate(
+        () =>
+          document.querySelector(
+            '[data-status-list="open"] [data-bench-item]',
+          ) !== null &&
+          document.querySelector(
+            '[data-status-list="closed"] [data-bench-item]',
+          ) !== null,
+      ),
+    'both status lists rendered',
+    5000,
+  );
+
+  // item-0 has status 'open' in fixture data
+  const inOpen = await page.evaluate(
+    () =>
+      document.querySelector(
+        '[data-status-list="open"] [data-item-id="item-0"]',
+      ) !== null,
+  );
+  assert(inOpen, lib, 'moveItem setup', 'item-0 not in open list');
+
+  await clearComplete(page);
+  await page.evaluate(() => window.__BENCH__!.moveItem!('item-0'));
+  await waitForComplete(page);
+
+  await waitFor(
+    page,
+    async () =>
+      page.evaluate(
+        () =>
+          document.querySelector(
+            '[data-status-list="closed"] [data-item-id="item-0"]',
+          ) !== null,
+      ),
+    'item-0 in closed list after move',
+    5000,
+  );
+
+  const inOpenAfter = await page.evaluate(
+    () =>
+      document.querySelector(
+        '[data-status-list="open"] [data-item-id="item-0"]',
+      ) !== null,
+  );
+  assert(
+    !inOpenAfter,
+    lib,
+    'moveItem removed from source',
+    'item-0 still in open list after move',
+  );
+});
+
 // ── TIMING VALIDATION ────────────────────────────────────────────────
 // Verify that when data-bench-complete fires (measurement ends), the DOM
 // already reflects the update. A 100ms network delay makes timing bugs

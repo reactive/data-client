@@ -35,6 +35,10 @@ export interface BenchAPI {
   unshiftItem?(): void;
   /** Delete an existing item via mutation endpoint. */
   deleteEntity?(id: string): void;
+  /** Mount two side-by-side lists filtered by status ('open' and 'closed'). */
+  initDualList?(count: number): void;
+  /** Move an item from one status-filtered list to another. Exercises Collection.move (data-client) vs invalidate+refetch (others). */
+  moveItem?(id: string): void;
 }
 
 declare global {
@@ -72,7 +76,8 @@ export type ScenarioAction =
   | { action: 'updateAuthor'; args: [string] }
   | { action: 'unmountAll'; args: [] }
   | { action: 'unshiftItem'; args: [] }
-  | { action: 'deleteEntity'; args: [string] };
+  | { action: 'deleteEntity'; args: [string] }
+  | { action: 'moveItem'; args: [string] };
 
 export type ResultMetric =
   | 'duration'

@@ -87,6 +87,10 @@ export const ItemResource = resource({
       author: Author;
     },
   }),
+  move: Base.getList.move.extend({
+    fetch: ((params: any, body: any) =>
+      serverUpdateItem({ ...params, ...body })) as any,
+  }),
 }));
 
 export const AuthorResource = resource({

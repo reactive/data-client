@@ -77,13 +77,15 @@ export function fetchAuthor({ id }: { id: string }): Promise<Author> {
   return withDelay(JSON.parse(json) as Author);
 }
 
-export function fetchItemList(params?: { count?: number }): Promise<Item[]> {
+export function fetchItemList(params?: {
+  count?: number;
+  status?: string;
+}): Promise<Item[]> {
   const json = jsonStore.get('item:list');
   if (!json) return Promise.reject(new Error('No data for item:list'));
   const listItems: Item[] = JSON.parse(json);
-  const sliced = params?.count ? listItems.slice(0, params.count) : listItems;
   // Join latest item + author data (like a real DB-backed API)
-  const items = sliced.map(listItem => {
+  let items = listItems.map(listItem => {
     const itemJson = jsonStore.get(`item:${listItem.id}`);
     const item: Item = itemJson ? JSON.parse(itemJson) : listItem;
     if (item.author?.id) {
@@ -94,6 +96,12 @@ export function fetchItemList(params?: { count?: number }): Promise<Item[]> {
     }
     return item;
   });
+  if (params?.status) {
+    items = items.filter(i => i.status === params.status);
+  }
+  if (params?.count) {
+    items = items.slice(0, params.count);
+  }
   return withDelay(items);
 }
 
@@ -155,6 +163,7 @@ export function createAuthor(body: {
 export function updateItem(params: {
   id: string;
   label?: string;
+  status?: Item['status'];
   author?: Author;
 }): Promise<Item> {
   const existing = jsonStore.get(`item:${params.id}`);

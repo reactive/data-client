@@ -45,6 +45,8 @@ export function useBenchState() {
   const [listViewCount, setListViewCount] = useState<number | undefined>();
   const [showSortedView, setShowSortedView] = useState(false);
   const [sortedViewCount, setSortedViewCount] = useState<number | undefined>();
+  const [showDualList, setShowDualList] = useState(false);
+  const [dualListCount, setDualListCount] = useState<number | undefined>();
   const containerRef = useRef<HTMLDivElement>(null);
   const completeResolveRef = useRef<(() => void) | null>(null);
   const apiRef = useRef<BenchAPI>(null as any);
@@ -135,7 +137,19 @@ export function useBenchState() {
     setListViewCount(undefined);
     setShowSortedView(false);
     setSortedViewCount(undefined);
+    setShowDualList(false);
+    setDualListCount(undefined);
   }, []);
+
+  const initDualList = useCallback(
+    (n: number) => {
+      measureMount(() => {
+        setDualListCount(n);
+        setShowDualList(true);
+      });
+    },
+    [measureMount],
+  );
 
   const mountUnmountCycle = useCallback(
     async (n: number, cycles: number) => {
@@ -169,6 +183,7 @@ export function useBenchState() {
   const registerAPI = (libraryActions: LibraryActions) => {
     apiRef.current = {
       init,
+      initDualList,
       unmountAll,
       mountUnmountCycle,
       getRenderedCount,
@@ -195,6 +210,8 @@ export function useBenchState() {
     listViewCount,
     showSortedView,
     sortedViewCount,
+    showDualList,
+    dualListCount,
     containerRef,
 
     measureMount,
@@ -205,6 +222,8 @@ export function useBenchState() {
     setListViewCount,
     setShowSortedView,
     setSortedViewCount,
+    setShowDualList,
+    setDualListCount,
 
     unmountAll,
     registerAPI,
