@@ -50,13 +50,13 @@ interface BaseScenario {
 
 const BASE_SCENARIOS: BaseScenario[] = [
   {
-    nameSuffix: 'init-100',
+    nameSuffix: 'getlist-100',
     action: 'init',
     args: [100],
     category: 'hotPath',
   },
   {
-    nameSuffix: 'init-500',
+    nameSuffix: 'getlist-500',
     action: 'init',
     args: [500],
     category: 'hotPath',
