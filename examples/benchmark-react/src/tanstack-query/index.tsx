@@ -102,12 +102,12 @@ function BenchmarkHarness() {
         ItemResource.update({ id }, { label: `${item.label} (updated)` }).then(
           () =>
             client.invalidateQueries({
-              queryKey: ['items', listViewCount],
+              queryKey: ['items'],
             }),
         ),
       );
     },
-    [measureUpdate, client, listViewCount],
+    [measureUpdate, client],
   );
 
   const updateAuthor = useCallback(
@@ -120,34 +120,34 @@ function BenchmarkHarness() {
           { name: `${author.name} (updated)` },
         ).then(() =>
           client.invalidateQueries({
-            queryKey: ['items', listViewCount],
+            queryKey: ['items'],
           }),
         ),
       );
     },
-    [measureUpdate, client, listViewCount],
+    [measureUpdate, client],
   );
 
   const unshiftItem = useCallback(() => {
     const author = FIXTURE_AUTHORS[0];
     measureUpdate(() =>
       ItemResource.create({ label: 'New Item', author }).then(() =>
-        client.invalidateQueries({ queryKey: ['items', listViewCount] }),
+        client.invalidateQueries({ queryKey: ['items'] }),
       ),
     );
-  }, [measureUpdate, client, listViewCount]);
+  }, [measureUpdate, client]);
 
   const deleteEntity = useCallback(
     (id: string) => {
       measureUpdate(() =>
         ItemResource.delete({ id }).then(() =>
           client.invalidateQueries({
-            queryKey: ['items', listViewCount],
+            queryKey: ['items'],
           }),
         ),
       );
     },
-    [measureUpdate, client, listViewCount],
+    [measureUpdate, client],
   );
 
   const mountSortedView = useCallback(

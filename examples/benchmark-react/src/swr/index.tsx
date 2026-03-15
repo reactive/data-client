@@ -77,11 +77,12 @@ function BenchmarkHarness() {
       if (!item) return;
       measureUpdate(() =>
         ItemResource.update({ id }, { label: `${item.label} (updated)` }).then(
-          () => mutate(`items:${listViewCount}`),
+          () =>
+            mutate(key => typeof key === 'string' && key.startsWith('items:')),
         ),
       );
     },
-    [measureUpdate, mutate, listViewCount],
+    [measureUpdate, mutate],
   );
 
   const updateAuthor = useCallback(
@@ -93,30 +94,32 @@ function BenchmarkHarness() {
           AuthorResource.update(
             { id: authorId },
             { name: `${author.name} (updated)` },
-          ).then(() => mutate(`items:${listViewCount}`)) as Promise<any>,
+          ).then(() =>
+            mutate(key => typeof key === 'string' && key.startsWith('items:')),
+          ) as Promise<any>,
       );
     },
-    [measureUpdate, mutate, listViewCount],
+    [measureUpdate, mutate],
   );
 
   const unshiftItem = useCallback(() => {
     const author = FIXTURE_AUTHORS[0];
     measureUpdate(() =>
       ItemResource.create({ label: 'New Item', author }).then(() =>
-        mutate(`items:${listViewCount}`),
+        mutate(key => typeof key === 'string' && key.startsWith('items:')),
       ),
     );
-  }, [measureUpdate, mutate, listViewCount]);
+  }, [measureUpdate, mutate]);
 
   const deleteEntity = useCallback(
     (id: string) => {
       measureUpdate(() =>
         ItemResource.delete({ id }).then(() =>
-          mutate(`items:${listViewCount}`),
+          mutate(key => typeof key === 'string' && key.startsWith('items:')),
         ),
       );
     },
-    [measureUpdate, mutate, listViewCount],
+    [measureUpdate, mutate],
   );
 
   const mountSortedView = useCallback(
