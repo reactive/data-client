@@ -231,6 +231,11 @@ async function runScenario(
     );
   }
 
+  await page.evaluate(() => {
+    performance.clearMarks();
+    performance.clearMeasures();
+  });
+
   await (bench as any).evaluate((api: any, s: any) => {
     api[s.action](...s.args);
   }, scenario);

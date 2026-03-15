@@ -27,6 +27,6 @@ export function getMeasureDuration(
   measures: PerformanceMeasure[],
   name: string,
 ): number {
-  const m = measures.find(x => x.name === name);
+  const m = measures.findLast(x => x.name === name);
   return m?.duration ?? 0;
 }
