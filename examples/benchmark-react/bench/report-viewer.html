@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React benchmark report</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 1rem; background: #1a1a1a; color: #e0e0e0; }
+    h1 { font-size: 1.25rem; }
+    h2 { font-size: 1.1rem; margin-top: 2rem; border-bottom: 1px solid #444; padding-bottom: 0.3rem; }
+    .controls { margin-bottom: 1rem; }
+    .controls label { margin-right: 0.5rem; }
+    .filter-row { margin: 0.75rem 0; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+    .filter-row label { cursor: pointer; font-size: 13px; }
+    textarea { width: 100%; min-height: 120px; font-family: monospace; font-size: 12px; background: #2a2a2a; color: #e0e0e0; border: 1px solid #444; padding: 0.5rem; }
+    button { padding: 0.35rem 0.75rem; cursor: pointer; background: #333; color: #e0e0e0; border: 1px solid #555; border-radius: 4px; }
+    button:hover { background: #444; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; font-size: 13px; }
+    th, td { border: 1px solid #444; padding: 0.4rem 0.6rem; text-align: right; }
+    th { background: #2a2a2a; text-align: left; }
+    td:first-child { text-align: left; }
+    .fast { background: rgba(0, 128, 0, 0.2); }
+    .slow { background: rgba(200, 0, 0, 0.2); }
+    .chart-container { max-width: 900px; height: 320px; margin-top: 1.5rem; }
+    .error { color: #f66; margin-top: 0.5rem; }
+    .history-section { margin-top: 2rem; }
+  </style>
+</head>
+<body>
+  <h1>React benchmark report</h1>
+
+  <div class="controls">
+    <label>Paste <code>react-bench-output.json</code> or upload:</label>
+    <input type="file" id="file" accept=".json" />
+    <br><br>
+    <textarea id="paste" placeholder='Paste JSON array here, e.g. [{"name":"data-client: mount-100-items","unit":"ms","value":12.5,"range":"± 1.2"}, ...]'></textarea>
+    <br>
+    <div class="filter-row">
+      <button id="render">Render table</button>
+      <label><input type="checkbox" id="filterBase" checked /> Base metrics</label>
+      <label><input type="checkbox" id="filterReactCommit" /> React commit</label>
+      <label><input type="checkbox" id="filterTrace" /> Trace</label>
+    </div>
+  </div>
+  <p id="err" class="error"></p>
+  <div id="tableWrap"></div>
+  <div class="chart-container" id="chartWrap"></div>
+
+  <div class="history-section">
+    <h2>Time-series (load multiple runs)</h2>
+    <p style="font-size:13px;color:#999;">Upload multiple <code>react-bench-output.json</code> files from consecutive runs to see trends.</p>
+    <input type="file" id="historyFiles" accept=".json" multiple />
+    <button id="renderHistory">Render history</button>
+    <div class="chart-container" id="historyChartWrap"></div>
+  </div>
+
+  <script>
+    (function () {
+      var paste = document.getElementById('paste');
+      var fileInput = document.getElementById('file');
+      var renderBtn = document.getElementById('render');
+      var errEl = document.getElementById('err');
+      var tableWrap = document.getElementById('tableWrap');
+      var chartWrap = document.getElementById('chartWrap');
+      var filterBase = document.getElementById('filterBase');
+      var filterReactCommit = document.getElementById('filterReactCommit');
+      var filterTrace = document.getElementById('filterTrace');
+      var historyFiles = document.getElementById('historyFiles');
+      var renderHistoryBtn = document.getElementById('renderHistory');
+      var historyChartWrap = document.getElementById('historyChartWrap');
+
+      var currentBarChart = null;
+      var currentHistoryChart = null;
+
+      function setError(msg) { errEl.textContent = msg || ''; }
+
+      function getData() {
+        var text = paste.value.trim();
+        if (text) {
+          try { return JSON.parse(text); }
+          catch (e) { setError('Invalid JSON: ' + e.message); return null; }
+        }
+        setError('Paste JSON or choose a file.');
+        return null;
+      }
+
+      function isReactCommitSuffix(name) { return name.indexOf('(react commit)') !== -1; }
+      function isTraceSuffix(name) { return name.indexOf('(trace)') !== -1; }
+      function isBaseSuffix(name) { return !isReactCommitSuffix(name) && !isTraceSuffix(name); }
+
+      function filterData(data) {
+        var showBase = filterBase.checked;
+        var showRC = filterReactCommit.checked;
+        var showTrace = filterTrace.checked;
+        return data.filter(function (row) {
+          var suffix = row.name.replace(/^[^:]+:\s*/, '');
+          if (isReactCommitSuffix(suffix)) return showRC;
+          if (isTraceSuffix(suffix)) return showTrace;
+          return showBase;
+        });
+      }
+
+      fileInput.addEventListener('change', function () {
+        var f = fileInput.files[0];
+        if (!f) return;
+        var r = new FileReader();
+        r.onload = function () { paste.value = r.result; setError(''); };
+        r.readAsText(f);
+      });
+
+      function doRender() {
+        var raw = getData();
+        if (!raw || !Array.isArray(raw) || raw.length === 0) {
+          if (raw && !Array.isArray(raw)) setError('JSON must be an array of { name, unit, value, range }.');
+          return;
+        }
+        setError('');
+        var data = filterData(raw);
+        if (data.length === 0) { tableWrap.innerHTML = '<p style="color:#999;">No matching metrics. Check filters above.</p>'; return; }
+
+        var libs = new Set();
+        var suffixToLibRows = {};
+        data.forEach(function (row) {
+          var m = row.name.match(/^([^:]+):\s*(.+)$/);
+          var lib = m ? m[1] : '?';
+          var suffix = m ? m[2].trim() : row.name;
+          libs.add(lib);
+          if (!suffixToLibRows[suffix]) suffixToLibRows[suffix] = {};
+          suffixToLibRows[suffix][lib] = row;
+        });
+        var scenarioNames = Object.keys(suffixToLibRows).sort();
+        var libList = Array.from(libs).sort();
+
+        var thead = ['Scenario'].concat(libList).map(function (c) { return '<th>' + c + '</th>'; }).join('');
+        var tbody = '';
+        scenarioNames.forEach(function (scenarioName) {
+          var byLib = suffixToLibRows[scenarioName] || {};
+          var cells = ['<td>' + scenarioName + '</td>'];
+          var minV = Infinity, maxV = -Infinity;
+          libList.forEach(function (lib) {
+            var r = byLib[lib];
+            if (r && typeof r.value === 'number' && (r.unit === 'bytes' || r.unit === 'ms' || r.unit === 'count')) {
+              if (r.value < minV) minV = r.value;
+              if (r.value > maxV) maxV = r.value;
+            }
+          });
+          libList.forEach(function (lib) {
+            var r = byLib[lib];
+            if (!r) { cells.push('<td>\u2014</td>'); return; }
+            var cls = '';
+            if (typeof r.value === 'number' && minV !== maxV && (r.unit === 'ms' || r.unit === 'bytes')) {
+              cls = r.value <= minV ? 'fast' : (r.value >= maxV ? 'slow' : '');
+            }
+            var range = r.range ? ' ' + r.range : '';
+            var unitLabel = r.unit === 'ms' ? ' ms' : r.unit === 'bytes' ? ' B' : '';
+            cells.push('<td class="' + cls + '">' + (r.value != null ? Number(r.value) + unitLabel + range : '\u2014') + '</td>');
+          });
+          tbody += '<tr>' + cells.join('') + '</tr>';
+        });
+
+        tableWrap.innerHTML = '<table><thead><tr>' + thead + '</tr></thead><tbody>' + tbody + '</tbody></table>';
+
+        if (chartWrap && typeof Chart !== 'undefined' && scenarioNames.length > 0 && libList.length > 0) {
+          if (currentBarChart) { currentBarChart.destroy(); currentBarChart = null; }
+          var ctx = document.createElement('canvas');
+          chartWrap.innerHTML = '';
+          chartWrap.appendChild(ctx);
+          var labels = scenarioNames.slice(0, 16);
+          var colors = ['#6b8e23', '#4a90d9', '#c75a9b', '#e8b923', '#e07040', '#5bb5a0'];
+          var datasets = libList.map(function (lib, i) {
+            return {
+              label: lib,
+              data: labels.map(function (sn) {
+                var r = suffixToLibRows[sn] && suffixToLibRows[sn][lib];
+                return r && typeof r.value === 'number' ? r.value : null;
+              }),
+              backgroundColor: colors[i % colors.length],
+            };
+          });
+          currentBarChart = new Chart(ctx, {
+            type: 'bar',
+            data: { labels: labels, datasets: datasets },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: { x: { stacked: false, ticks: { maxRotation: 45, font: { size: 10 } } }, y: { beginAtZero: true } },
+              plugins: { legend: { position: 'top' } },
+            },
+          });
+        }
+      }
+
+      renderBtn.addEventListener('click', doRender);
+      filterBase.addEventListener('change', doRender);
+      filterReactCommit.addEventListener('change', doRender);
+      filterTrace.addEventListener('change', doRender);
+
+      /* --- Time-series history --- */
+      renderHistoryBtn.addEventListener('click', function () {
+        var files = historyFiles.files;
+        if (!files || files.length === 0) { setError('Select one or more JSON files.'); return; }
+        setError('');
+        var pending = files.length;
+        var runs = [];
+        Array.from(files).forEach(function (f, idx) {
+          var r = new FileReader();
+          r.onload = function () {
+            try { runs[idx] = { name: f.name, data: JSON.parse(r.result) }; }
+            catch (e) { runs[idx] = { name: f.name, data: [] }; }
+            pending--;
+            if (pending === 0) renderTimeSeries(runs);
+          };
+          r.readAsText(f);
+        });
+      });
+
+      function renderTimeSeries(runs) {
+        runs.sort(function (a, b) { return a.name.localeCompare(b.name); });
+        var scenarioSet = new Set();
+        runs.forEach(function (run) {
+          run.data.forEach(function (row) { scenarioSet.add(row.name); });
+        });
+        var scenarios = Array.from(scenarioSet).filter(isBaseSuffix).sort();
+        if (scenarios.length === 0) { historyChartWrap.innerHTML = '<p style="color:#999;">No base metrics found in files.</p>'; return; }
+
+        if (currentHistoryChart) { currentHistoryChart.destroy(); currentHistoryChart = null; }
+        var ctx = document.createElement('canvas');
+        historyChartWrap.innerHTML = '';
+        historyChartWrap.appendChild(ctx);
+
+        var labels = runs.map(function (r) { return r.name.replace(/\.json$/i, ''); });
+        var colors = ['#6b8e23', '#4a90d9', '#c75a9b', '#e8b923', '#e07040', '#5bb5a0', '#9b59b6', '#e67e22', '#1abc9c', '#e74c3c'];
+        var datasets = scenarios.slice(0, 10).map(function (sn, i) {
+          return {
+            label: sn,
+            data: runs.map(function (run) {
+              var row = run.data.find(function (d) { return d.name === sn; });
+              return row ? row.value : null;
+            }),
+            borderColor: colors[i % colors.length],
+            backgroundColor: colors[i % colors.length] + '33',
+            fill: false,
+            tension: 0.2,
+          };
+        });
+
+        currentHistoryChart = new Chart(ctx, {
+          type: 'line',
+          data: { labels: labels, datasets: datasets },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { x: { ticks: { font: { size: 10 } } }, y: { beginAtZero: true } },
+            plugins: { legend: { position: 'top', labels: { font: { size: 10 } } } },
+          },
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -11,6 +11,11 @@ on:
       - 'website/**'
       - 'docs/**'
       - '.github/workflows/site-release.yml'
+
+concurrency:
+  group: site-release-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest

@@ -37,6 +37,7 @@ Any user-facing change in `packages/*` requires a changeset. Core packages are v
 - **Examples**: `examples/todo-app`, `examples/github-app`, `examples/nextjs`
 - **Documentation**: `docs/core/api`, `docs/rest`, `docs/core/guides`
 - **Tests**: `packages/*/src/**/__tests__`
+- **Benchmarks**: `examples/benchmark` (Node: core/normalizr/endpoint throughput), `examples/benchmark-react` (browser: React rendering and data-library comparison). See `.cursor/rules/benchmarking.mdc` and each example’s README.
 
 ## Key Principles
 

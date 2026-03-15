@@ -1,0 +1,51 @@
+{
+  "name": "example-benchmark-react",
+  "version": "0.1.0",
+  "private": true,
+  "description": "React rendering benchmark comparing @data-client/react against other data libraries",
+  "scripts": {
+    "build": "webpack --mode=production",
+    "build:compiler": "REACT_COMPILER=true webpack --mode=production",
+    "preview": "serve dist -l ${BENCH_PORT:-5173} --no-request-logging",
+    "bench": "npx tsx bench/runner.ts",
+    "bench:compiler": "BENCH_LABEL=compiler npx tsx bench/runner.ts",
+    "bench:small": "npx tsx bench/runner.ts --size small",
+    "bench:large": "npx tsx bench/runner.ts --size large",
+    "bench:dc": "npx tsx bench/runner.ts --lib data-client",
+    "bench:run": "yarn build && (yarn preview &) && sleep 5 && yarn bench",
+    "bench:run:compiler": "yarn build:compiler && (yarn preview &) && sleep 5 && yarn bench:compiler",
+    "validate": "npx tsx bench/validate.ts",
+    "validate:run": "yarn build && (yarn preview &) && sleep 5 && yarn validate"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@data-client/core": "workspace:*",
+    "@data-client/endpoint": "workspace:*",
+    "@data-client/react": "workspace:*",
+    "@data-client/rest": "workspace:*",
+    "@tanstack/react-query": "5.62.7",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-window": "^2.2.7",
+    "swr": "2.3.6"
+  },
+  "devDependencies": {
+    "@anansi/babel-preset": "6.2.23",
+    "@anansi/browserslist-config": "^1.4.3",
+    "@anansi/webpack-config": "21.1.14",
+    "@babel/core": "^7.22.15",
+    "@playwright/test": "1.58.2",
+    "@types/node": "24.11.0",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "playwright": "1.58.2",
+    "serve": "14.2.6",
+    "tsx": "4.19.2",
+    "typescript": "6.0.1-rc",
+    "webpack": "5.105.3",
+    "webpack-cli": "6.0.1"
+  },
+  "browserslist": "extends @anansi/browserslist-config"
+}
