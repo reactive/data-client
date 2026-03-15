@@ -35,8 +35,8 @@ export interface BenchAPI {
   unshiftItem?(): void;
   /** Delete an existing item via mutation endpoint. */
   deleteEntity?(id: string): void;
-  /** Mount two side-by-side lists filtered by status ('open' and 'closed'). */
-  initDualList?(count: number): void;
+  /** Mount three side-by-side lists filtered by status ('open', 'closed', 'in_progress'). */
+  initTripleList?(count: number): void;
   /** Move an item from one status-filtered list to another. Exercises Collection.move (data-client) vs invalidate+refetch (others). */
   moveItem?(id: string): void;
 }

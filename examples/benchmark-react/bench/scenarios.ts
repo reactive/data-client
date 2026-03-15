@@ -24,7 +24,7 @@ export const RUN_CONFIG: Record<ScenarioSize, RunProfile> = {
 };
 
 export const ACTION_GROUPS: Record<string, (keyof BenchAPI)[]> = {
-  mount: ['init', 'mountSortedView'],
+  mount: ['init', 'initTripleList', 'mountSortedView'],
   update: ['updateEntity', 'updateAuthor'],
   mutation: ['unshiftItem', 'deleteEntity', 'invalidateAndResolve', 'moveItem'],
   memory: ['mountUnmountCycle'],
@@ -160,7 +160,7 @@ const BASE_SCENARIOS: BaseScenario[] = [
     args: ['item-0'],
     category: 'hotPath',
     mountCount: 100,
-    preMountAction: 'initDualList',
+    preMountAction: 'initTripleList',
   },
 ];
 

@@ -45,8 +45,8 @@ export function useBenchState() {
   const [listViewCount, setListViewCount] = useState<number | undefined>();
   const [showSortedView, setShowSortedView] = useState(false);
   const [sortedViewCount, setSortedViewCount] = useState<number | undefined>();
-  const [showDualList, setShowDualList] = useState(false);
-  const [dualListCount, setDualListCount] = useState<number | undefined>();
+  const [showTripleList, setShowTripleList] = useState(false);
+  const [tripleListCount, setTripleListCount] = useState<number | undefined>();
   const containerRef = useRef<HTMLDivElement>(null);
   const completeResolveRef = useRef<(() => void) | null>(null);
   const apiRef = useRef<BenchAPI>(null as any);
@@ -137,15 +137,15 @@ export function useBenchState() {
     setListViewCount(undefined);
     setShowSortedView(false);
     setSortedViewCount(undefined);
-    setShowDualList(false);
-    setDualListCount(undefined);
+    setShowTripleList(false);
+    setTripleListCount(undefined);
   }, []);
 
-  const initDualList = useCallback(
+  const initTripleList = useCallback(
     (n: number) => {
       measureMount(() => {
-        setDualListCount(n);
-        setShowDualList(true);
+        setTripleListCount(n);
+        setShowTripleList(true);
       });
     },
     [measureMount],
@@ -183,7 +183,7 @@ export function useBenchState() {
   const registerAPI = (libraryActions: LibraryActions) => {
     apiRef.current = {
       init,
-      initDualList,
+      initTripleList,
       unmountAll,
       mountUnmountCycle,
       getRenderedCount,
@@ -210,8 +210,8 @@ export function useBenchState() {
     listViewCount,
     showSortedView,
     sortedViewCount,
-    showDualList,
-    dualListCount,
+    showTripleList,
+    tripleListCount,
     containerRef,
 
     measureMount,
@@ -222,8 +222,8 @@ export function useBenchState() {
     setListViewCount,
     setShowSortedView,
     setSortedViewCount,
-    setShowDualList,
-    setDualListCount,
+    setShowTripleList,
+    setTripleListCount,
 
     unmountAll,
     registerAPI,

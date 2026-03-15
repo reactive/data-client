@@ -277,7 +277,10 @@ async function runScenario(
   }
 
   const measures = await collectMeasures(page);
-  const isMountLike = isInit || scenario.action === 'mountSortedView';
+  const isMountLike =
+    isInit ||
+    scenario.action === 'mountSortedView' ||
+    scenario.action === 'initTripleList';
   const duration =
     isMountLike ?
       getMeasureDuration(measures, 'mount-duration')
@@ -603,6 +606,7 @@ async function main() {
     if (
       reactSamples.length > 0 &&
       (scenario.action === 'init' ||
+        scenario.action === 'initTripleList' ||
         scenario.action === 'updateEntity' ||
         scenario.action === 'updateAuthor' ||
         scenario.action === 'mountSortedView' ||

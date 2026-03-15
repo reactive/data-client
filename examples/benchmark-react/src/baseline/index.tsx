@@ -1,6 +1,6 @@
 import { onProfilerRender, useBenchState } from '@shared/benchHarness';
 import {
-  DUAL_LIST_STYLE,
+  TRIPLE_LIST_STYLE,
   ITEM_HEIGHT,
   ItemsRow,
   LIST_STYLE,
@@ -66,17 +66,20 @@ function ListView() {
   );
 }
 
-const DualListContext = React.createContext<{
+const TripleListContext = React.createContext<{
   openItems: Item[];
   closedItems: Item[];
+  inProgressItems: Item[];
   setOpenItems: React.Dispatch<React.SetStateAction<Item[]>>;
   setClosedItems: React.Dispatch<React.SetStateAction<Item[]>>;
+  setInProgressItems: React.Dispatch<React.SetStateAction<Item[]>>;
 }>(null as any);
 
-function DualListView() {
-  const { openItems, closedItems } = useContext(DualListContext);
+function TripleListView() {
+  const { openItems, closedItems, inProgressItems } =
+    useContext(TripleListContext);
   return (
-    <div style={DUAL_LIST_STYLE}>
+    <div style={TRIPLE_LIST_STYLE}>
       {openItems.length > 0 && (
         <div data-status-list="open">
           <List
@@ -99,6 +102,17 @@ function DualListView() {
           />
         </div>
       )}
+      {inProgressItems.length > 0 && (
+        <div data-status-list="in_progress">
+          <List
+            style={LIST_STYLE}
+            rowHeight={ITEM_HEIGHT}
+            rowCount={inProgressItems.length}
+            rowComponent={ItemsRow}
+            rowProps={{ items: inProgressItems }}
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -107,11 +121,12 @@ function BenchmarkHarness() {
   const [items, setItems] = useState<Item[]>([]);
   const [openItems, setOpenItems] = useState<Item[]>([]);
   const [closedItems, setClosedItems] = useState<Item[]>([]);
+  const [inProgressItems, setInProgressItems] = useState<Item[]>([]);
   const {
     listViewCount,
     showSortedView,
-    showDualList,
-    dualListCount,
+    showTripleList,
+    tripleListCount,
     containerRef,
     measureMount,
     measureUpdate,
@@ -128,21 +143,26 @@ function BenchmarkHarness() {
   }, [listViewCount]);
 
   useEffect(() => {
-    if (showDualList && dualListCount != null) {
-      ItemResource.getList({ status: 'open', count: dualListCount }).then(
+    if (showTripleList && tripleListCount != null) {
+      ItemResource.getList({ status: 'open', count: tripleListCount }).then(
         setOpenItems,
       );
-      ItemResource.getList({ status: 'closed', count: dualListCount }).then(
+      ItemResource.getList({ status: 'closed', count: tripleListCount }).then(
         setClosedItems,
       );
+      ItemResource.getList({
+        status: 'in_progress',
+        count: tripleListCount,
+      }).then(setInProgressItems);
     }
-  }, [showDualList, dualListCount]);
+  }, [showTripleList, tripleListCount]);
 
   const unmountAll = useCallback(() => {
     unmountBase();
     setItems([]);
     setOpenItems([]);
     setClosedItems([]);
+    setInProgressItems([]);
   }, [unmountBase]);
 
   const updateEntity = useCallback(
@@ -202,12 +222,16 @@ function BenchmarkHarness() {
             Promise.all([
               ItemResource.getList({
                 status: 'open',
-                count: dualListCount!,
+                count: tripleListCount!,
               }).then(setOpenItems),
               ItemResource.getList({
                 status: 'closed',
-                count: dualListCount!,
+                count: tripleListCount!,
               }).then(setClosedItems),
+              ItemResource.getList({
+                status: 'in_progress',
+                count: tripleListCount!,
+              }).then(setInProgressItems),
             ]),
           ),
         () => {
@@ -218,7 +242,7 @@ function BenchmarkHarness() {
         },
       );
     },
-    [measureUpdate, dualListCount, containerRef],
+    [measureUpdate, tripleListCount, containerRef],
   );
 
   const mountSortedView = useCallback(
@@ -243,15 +267,22 @@ function BenchmarkHarness() {
 
   return (
     <ItemsContext.Provider value={{ items, setItems }}>
-      <DualListContext.Provider
-        value={{ openItems, closedItems, setOpenItems, setClosedItems }}
+      <TripleListContext.Provider
+        value={{
+          openItems,
+          closedItems,
+          inProgressItems,
+          setOpenItems,
+          setClosedItems,
+          setInProgressItems,
+        }}
       >
         <div ref={containerRef} data-bench-harness>
           {listViewCount != null && <ListView />}
           {showSortedView && <SortedListView />}
-          {showDualList && dualListCount != null && <DualListView />}
+          {showTripleList && tripleListCount != null && <TripleListView />}
         </div>
-      </DualListContext.Provider>
+      </TripleListContext.Provider>
     </ItemsContext.Provider>
   );
 }

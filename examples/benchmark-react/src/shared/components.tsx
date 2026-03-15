@@ -6,7 +6,7 @@ import type { Item } from './types';
 export const ITEM_HEIGHT = 30;
 export const VISIBLE_COUNT = 40;
 export const LIST_STYLE = { height: ITEM_HEIGHT * VISIBLE_COUNT } as const;
-export const DUAL_LIST_STYLE = { display: 'flex', gap: 8 } as const;
+export const TRIPLE_LIST_STYLE = { display: 'flex', gap: 8 } as const;
 
 /**
  * Pure presentational component - no data-fetching logic.

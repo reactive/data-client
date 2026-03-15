@@ -1,6 +1,6 @@
 import { onProfilerRender, useBenchState } from '@shared/benchHarness';
 import {
-  DUAL_LIST_STYLE,
+  TRIPLE_LIST_STYLE,
   ITEM_HEIGHT,
   ItemsRow,
   LIST_STYLE,
@@ -90,11 +90,12 @@ function StatusListView({ status, count }: { status: string; count: number }) {
   );
 }
 
-function DualListView({ count }: { count: number }) {
+function TripleListView({ count }: { count: number }) {
   return (
-    <div style={DUAL_LIST_STYLE}>
+    <div style={TRIPLE_LIST_STYLE}>
       <StatusListView status="open" count={count} />
       <StatusListView status="closed" count={count} />
+      <StatusListView status="in_progress" count={count} />
     </div>
   );
 }
@@ -104,8 +105,8 @@ function BenchmarkHarness() {
   const {
     listViewCount,
     showSortedView,
-    showDualList,
-    dualListCount,
+    showTripleList,
+    tripleListCount,
     containerRef,
     measureMount,
     measureUpdate,
@@ -205,8 +206,8 @@ function BenchmarkHarness() {
     <div ref={containerRef} data-bench-harness>
       {listViewCount != null && <ListView count={listViewCount} />}
       {showSortedView && <SortedListView />}
-      {showDualList && dualListCount != null && (
-        <DualListView count={dualListCount} />
+      {showTripleList && tripleListCount != null && (
+        <TripleListView count={tripleListCount} />
       )}
     </div>
   );

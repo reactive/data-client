@@ -1,7 +1,7 @@
 import { DataProvider, useController, useDLE } from '@data-client/react';
 import { onProfilerRender, useBenchState } from '@shared/benchHarness';
 import {
-  DUAL_LIST_STYLE,
+  TRIPLE_LIST_STYLE,
   ITEM_HEIGHT,
   ItemsRow,
   LIST_STYLE,
@@ -18,7 +18,7 @@ import {
   ItemResource,
   sortedItemsEndpoint,
 } from '@shared/resources';
-import { jsonStore, seedItemList } from '@shared/server';
+import { getItem, patchItem, seedItemList } from '@shared/server';
 import type { Item } from '@shared/types';
 import React, { useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -75,11 +75,12 @@ function StatusListView({ status, count }: { status: string; count: number }) {
   );
 }
 
-function DualListView({ count }: { count: number }) {
+function TripleListView({ count }: { count: number }) {
   return (
-    <div style={DUAL_LIST_STYLE}>
+    <div style={TRIPLE_LIST_STYLE}>
       <StatusListView status="open" count={count} />
       <StatusListView status="closed" count={count} />
+      <StatusListView status="in_progress" count={count} />
     </div>
   );
 }
@@ -90,8 +91,8 @@ function BenchmarkHarness() {
     listViewCount,
     showSortedView,
     sortedViewCount,
-    showDualList,
-    dualListCount,
+    showTripleList,
+    tripleListCount,
     containerRef,
     measureUpdate,
     measureMount,
@@ -133,10 +134,14 @@ function BenchmarkHarness() {
   const unshiftItem = useCallback(() => {
     const author = FIXTURE_AUTHORS[0];
     measureUpdate(() => {
-      controller.fetch(ItemResource.create, {
-        label: 'New Item',
-        author,
-      });
+      (controller.fetch as any)(
+        ItemResource.create,
+        { status: 'open' },
+        {
+          label: 'New Item',
+          author,
+        },
+      );
     });
   }, [measureUpdate, controller]);
 
@@ -179,19 +184,22 @@ function BenchmarkHarness() {
 
   const invalidateAndResolve = useCallback(
     (id: string) => {
-      // Tweak server data so the refetch returns different content,
-      // guaranteeing a visible DOM mutation for MutationObserver.
-      const raw = jsonStore.get(`item:${id}`);
-      if (raw) {
-        const item: Item = JSON.parse(raw);
-        item.label = `${item.label} (refetched)`;
-        jsonStore.set(`item:${id}`, JSON.stringify(item));
+      const item = getItem(id);
+      if (item) {
+        patchItem(id, { label: `${item.label} (refetched)` });
       }
       measureUpdate(
         () => {
-          controller.invalidate(ItemResource.getList, {
-            count: listViewCount!,
-          });
+          if (tripleListCount != null) {
+            controller.invalidate(ItemResource.getList, {
+              status: 'open',
+              count: tripleListCount,
+            });
+          } else {
+            controller.invalidate(ItemResource.getList, {
+              count: listViewCount!,
+            });
+          }
         },
         () => {
           const el = containerRef.current!.querySelector(
@@ -201,7 +209,7 @@ function BenchmarkHarness() {
         },
       );
     },
-    [measureUpdate, controller, containerRef, listViewCount],
+    [measureUpdate, controller, containerRef, tripleListCount, listViewCount],
   );
 
   registerAPI({
@@ -220,8 +228,8 @@ function BenchmarkHarness() {
       {showSortedView && sortedViewCount != null && (
         <SortedListView count={sortedViewCount} />
       )}
-      {showDualList && dualListCount != null && (
-        <DualListView count={dualListCount} />
+      {showTripleList && tripleListCount != null && (
+        <TripleListView count={tripleListCount} />
       )}
     </div>
   );

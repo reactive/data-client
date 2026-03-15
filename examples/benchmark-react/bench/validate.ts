@@ -443,7 +443,7 @@ test('moveItem moves item between status lists', async (page, lib) => {
     return;
 
   await clearComplete(page);
-  await page.evaluate(() => window.__BENCH__!.initDualList!(20));
+  await page.evaluate(() => window.__BENCH__!.initTripleList!(20));
   await waitForComplete(page);
 
   await waitFor(
