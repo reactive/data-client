@@ -4,7 +4,7 @@ import type { RowComponentProps } from 'react-window';
 import type { Item } from './types';
 
 export const ITEM_HEIGHT = 30;
-export const VISIBLE_COUNT = 20;
+export const VISIBLE_COUNT = 40;
 export const LIST_STYLE = { height: ITEM_HEIGHT * VISIBLE_COUNT } as const;
 
 /**

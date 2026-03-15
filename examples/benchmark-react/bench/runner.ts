@@ -175,7 +175,7 @@ async function runScenario(
     scenario.action === 'updateEntity' ||
     scenario.action === 'updateAuthor' ||
     scenario.action === 'invalidateAndResolve' ||
-    scenario.action === 'createEntity' ||
+    scenario.action === 'unshiftItem' ||
     scenario.action === 'deleteEntity';
   const isRefStability = isRefStabilityScenario(scenario);
   const isInit = scenario.action === 'init';
@@ -550,7 +550,7 @@ async function main() {
         scenario.action === 'updateAuthor' ||
         scenario.action === 'mountSortedView' ||
         scenario.action === 'invalidateAndResolve' ||
-        scenario.action === 'createEntity' ||
+        scenario.action === 'unshiftItem' ||
         scenario.action === 'deleteEntity')
     ) {
       const { median: rcMedian, range: rcRange } = computeStats(

@@ -111,7 +111,7 @@ function BenchmarkHarness() {
     [measureUpdate, listViewCount],
   );
 
-  const createEntity = useCallback(() => {
+  const unshiftItem = useCallback(() => {
     const author = FIXTURE_AUTHORS[0];
     measureUpdate(() =>
       ItemResource.create({ label: 'New Item', author }).then(() =>
@@ -149,7 +149,7 @@ function BenchmarkHarness() {
     updateAuthor,
     unmountAll,
     mountSortedView,
-    createEntity,
+    unshiftItem,
     deleteEntity,
   });
 

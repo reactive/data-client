@@ -26,7 +26,7 @@ export const RUN_CONFIG: Record<ScenarioSize, RunProfile> = {
 export const ACTION_GROUPS: Record<string, (keyof BenchAPI)[]> = {
   mount: ['init', 'mountSortedView'],
   update: ['updateEntity', 'updateAuthor'],
-  mutation: ['createEntity', 'deleteEntity', 'invalidateAndResolve'],
+  mutation: ['unshiftItem', 'deleteEntity', 'invalidateAndResolve'],
   memory: ['mountUnmountCycle'],
 };
 
@@ -69,12 +69,6 @@ const BASE_SCENARIOS: BaseScenario[] = [
     category: 'hotPath',
   },
   {
-    nameSuffix: 'update-shared-author-duration',
-    action: 'updateAuthor',
-    args: ['author-0'],
-    category: 'hotPath',
-  },
-  {
     nameSuffix: 'ref-stability-item-changed',
     action: 'updateEntity',
     args: ['item-0'],
@@ -95,6 +89,7 @@ const BASE_SCENARIOS: BaseScenario[] = [
     action: 'updateAuthor',
     args: ['author-0'],
     category: 'withNetwork',
+    mountCount: 500,
     size: 'large',
     networkDelayMs: 50,
   },
@@ -131,11 +126,11 @@ const BASE_SCENARIOS: BaseScenario[] = [
     size: 'large',
   },
   {
-    nameSuffix: 'update-shared-author-2000-mounted',
+    nameSuffix: 'update-shared-author-10000-mounted',
     action: 'updateAuthor',
     args: ['author-0'],
     category: 'hotPath',
-    mountCount: 2000,
+    mountCount: 10000,
     size: 'large',
   },
   {
@@ -146,8 +141,8 @@ const BASE_SCENARIOS: BaseScenario[] = [
     onlyLibs: ['data-client'],
   },
   {
-    nameSuffix: 'create-item',
-    action: 'createEntity',
+    nameSuffix: 'unshift-item',
+    action: 'unshiftItem',
     args: [],
     category: 'hotPath',
     mountCount: 100,

@@ -319,12 +319,12 @@ test('ref-stability after updateAuthor', async (page, lib) => {
   );
 });
 
-// ── createEntity ─────────────────────────────────────────────────────────
+// ── unshiftItem ──────────────────────────────────────────────────────────
 
-test('createEntity adds an item', async (page, _lib) => {
+test('unshiftItem adds an item', async (page, _lib) => {
   if (
     !(await page.evaluate(
-      () => typeof window.__BENCH__?.createEntity === 'function',
+      () => typeof window.__BENCH__?.unshiftItem === 'function',
     ))
   )
     return;
@@ -332,7 +332,7 @@ test('createEntity adds an item', async (page, _lib) => {
   await initAndWaitForItems(page, 10);
 
   await clearComplete(page);
-  await page.evaluate(() => window.__BENCH__!.createEntity!());
+  await page.evaluate(() => window.__BENCH__!.unshiftItem!());
   await waitForComplete(page);
 
   await waitFor(
@@ -460,10 +460,10 @@ test('updateEntity timing: DOM reflects change at measurement end', async (page,
   await page.evaluate(() => window.__BENCH__!.setNetworkDelay(0));
 });
 
-test('createEntity timing: DOM reflects change at measurement end', async (page, lib) => {
+test('unshiftItem timing: DOM reflects change at measurement end', async (page, lib) => {
   if (
     !(await page.evaluate(
-      () => typeof window.__BENCH__?.createEntity === 'function',
+      () => typeof window.__BENCH__?.unshiftItem === 'function',
     ))
   )
     return;
@@ -472,14 +472,14 @@ test('createEntity timing: DOM reflects change at measurement end', async (page,
   await page.evaluate(() => window.__BENCH__!.setNetworkDelay(100));
 
   await clearComplete(page);
-  await page.evaluate(() => window.__BENCH__!.createEntity!());
+  await page.evaluate(() => window.__BENCH__!.unshiftItem!());
   await waitForComplete(page);
 
   const labels = await getItemLabels(page);
   assert(
     Object.values(labels).some(l => l === 'New Item'),
     lib,
-    'createEntity timing',
+    'unshiftItem timing',
     `"New Item" not in DOM when data-bench-complete fired. ` +
       `Ensure measureUpdate callback returns its promise chain.`,
   );

@@ -96,7 +96,7 @@ function BenchmarkHarness() {
     [measureUpdate, controller],
   );
 
-  const createEntity = useCallback(() => {
+  const unshiftItem = useCallback(() => {
     const author = FIXTURE_AUTHORS[0];
     measureUpdate(() => {
       controller.fetch(ItemResource.create, {
@@ -157,7 +157,7 @@ function BenchmarkHarness() {
     updateAuthor,
     mountSortedView,
     invalidateAndResolve,
-    createEntity,
+    unshiftItem,
     deleteEntity,
   });
 

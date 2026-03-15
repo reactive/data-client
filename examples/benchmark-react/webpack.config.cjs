@@ -1,6 +1,6 @@
-const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { makeConfig } = require('@anansi/webpack-config');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require('path');
 
 const LIBRARIES = ['data-client', 'tanstack-query', 'swr', 'baseline'];
 
@@ -26,7 +26,7 @@ module.exports = (env, argv) => {
   config.resolve.alias = {
     ...config.resolve.alias,
     '@shared': path.resolve(__dirname, 'src/shared'),
-    'swr': require.resolve('swr'),
+    swr: require.resolve('swr'),
   };
 
   config.entry = entries;
@@ -34,7 +34,7 @@ module.exports = (env, argv) => {
   config.output.chunkFilename = '[name].chunk.js';
 
   config.plugins = config.plugins.filter(
-    (p) => p.constructor.name !== 'HtmlWebpackPlugin',
+    p => p.constructor.name !== 'HtmlWebpackPlugin',
   );
   for (const lib of LIBRARIES) {
     config.plugins.push(
