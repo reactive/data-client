@@ -1393,6 +1393,7 @@ declare class DevToolsManager implements Manager {
     protected actions: [ActionTypes, State<unknown>][];
     protected controller: Controller;
     skipLogging?: (action: ActionTypes) => boolean;
+    devtoolsName: string;
     maxBufferLength: number;
     constructor(config?: DevToolsConfig, skipLogging?: (action: ActionTypes) => boolean);
     handleAction(action: any, state: any): void;

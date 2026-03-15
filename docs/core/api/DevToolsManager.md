@@ -107,6 +107,30 @@ const managers = getDefaultManagers({
 });
 ```
 
+## Programmatic store access {#controllers}
+
+In development mode, `DevToolsManager` registers each [Controller](/docs/api/Controller) on
+`globalThis.__DC_CONTROLLERS__` — a `Map` keyed by the devtools connection name. This works
+in browsers, React Native, and Node.
+
+```js title="Browser DevTools console"
+// List all registered providers
+__DC_CONTROLLERS__.keys();
+
+// Get state from the first provider
+__DC_CONTROLLERS__.values().next().value.getState();
+
+// Get state by name
+__DC_CONTROLLERS__.get('Data Client: My App').getState();
+```
+
+This is useful for AI coding assistants using the [Chrome DevTools MCP](https://developer.chrome.com/blog/chrome-devtools-mcp)
+or [Expo MCP](https://docs.expo.dev/eas/ai/mcp/) to programmatically inspect and interact
+with the store. Each [DataProvider](/docs/api/DataProvider) registers independently, so
+multiple providers on the same page are fully supported.
+
+Controllers are removed from the map when `cleanup()` is called.
+
 ## More info
 
 Using this Manager allows in browser [debugging and store inspection](../getting-started/debugging.md).
