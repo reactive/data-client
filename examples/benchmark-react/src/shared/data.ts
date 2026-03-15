@@ -13,6 +13,20 @@ export function sortByLabel<T extends { label: string }>(
  * Generate authors - shared across items to stress normalization.
  * Fewer authors than items means many items share the same author reference.
  */
+const STATUSES: Item['status'][] = ['open', 'closed', 'in_progress'];
+const TAG_POOL = [
+  'bug',
+  'feature',
+  'docs',
+  'perf',
+  'security',
+  'ux',
+  'refactor',
+  'test',
+  'infra',
+  'deps',
+];
+
 export function generateAuthors(count: number): Author[] {
   const authors: Author[] = [];
   for (let i = 0; i < count; i++) {
@@ -20,6 +34,11 @@ export function generateAuthors(count: number): Author[] {
       id: `author-${i}`,
       login: `user${i}`,
       name: `User ${i}`,
+      avatarUrl: `https://avatars.example.com/u/${i}?s=64`,
+      email: `user${i}@example.com`,
+      bio: `Software engineer #${i}. Likes open source and coffee.`,
+      followers: (i * 137 + 42) % 10000,
+      createdAt: new Date(2020, 0, 1 + (i % 365)).toISOString(),
     });
   }
   return authors;
@@ -33,9 +52,19 @@ export function generateItems(count: number, authors: Author[]): Item[] {
   const items: Item[] = [];
   for (let i = 0; i < count; i++) {
     const author = authors[i % authors.length];
+    const created = new Date(2023, i % 12, 1 + (i % 28)).toISOString();
     items.push({
       id: `item-${i}`,
       label: `Item ${i}`,
+      description: `Description for item ${i}: a moderately long text field that exercises serialization and storage overhead in the benchmark.`,
+      status: STATUSES[i % STATUSES.length],
+      priority: (i % 5) + 1,
+      tags: [
+        TAG_POOL[i % TAG_POOL.length],
+        TAG_POOL[(i * 3 + 1) % TAG_POOL.length],
+      ],
+      createdAt: created,
+      updatedAt: new Date(2024, i % 12, 1 + (i % 28)).toISOString(),
       author: { ...author },
     });
   }
@@ -70,14 +99,26 @@ export function generateFreshData(
       id: `fresh-author-${i}`,
       login: `freshuser${i}`,
       name: `Fresh User ${i}`,
+      avatarUrl: `https://avatars.example.com/u/fresh-${i}?s=64`,
+      email: `freshuser${i}@example.com`,
+      bio: `Fresh contributor #${i}.`,
+      followers: (i * 89 + 17) % 5000,
+      createdAt: new Date(2021, 6, 1 + (i % 28)).toISOString(),
     });
   }
   const items: Item[] = [];
   for (let i = 0; i < itemCount; i++) {
     const author = authors[i % authorCount];
+    const created = new Date(2024, i % 12, 1 + (i % 28)).toISOString();
     items.push({
       id: `fresh-item-${i}`,
       label: `Fresh Item ${i}`,
+      description: `Fresh item ${i} description with enough text to be realistic.`,
+      status: STATUSES[i % STATUSES.length],
+      priority: (i % 5) + 1,
+      tags: [TAG_POOL[i % TAG_POOL.length]],
+      createdAt: created,
+      updatedAt: created,
       author: { ...author },
     });
   }

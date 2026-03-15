@@ -18,6 +18,11 @@ export class AuthorEntity extends Entity {
   id = '';
   login = '';
   name = '';
+  avatarUrl = '';
+  email = '';
+  bio = '';
+  followers = 0;
+  createdAt = '';
 
   pk() {
     return this.id;
@@ -29,6 +34,12 @@ export class AuthorEntity extends Entity {
 export class ItemEntity extends Entity {
   id = '';
   label = '';
+  description = '';
+  status: 'open' | 'closed' | 'in_progress' = 'open';
+  priority = 0;
+  tags: string[] = [];
+  createdAt = '';
+  updatedAt = '';
   author = AuthorEntity.fromJS();
 
   pk() {

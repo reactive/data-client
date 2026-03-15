@@ -106,7 +106,18 @@ export function createItem(body: {
   author: Author;
 }): Promise<Item> {
   const id = `created-item-${createItemCounter++}`;
-  const item: Item = { id, label: body.label, author: body.author };
+  const now = new Date().toISOString();
+  const item: Item = {
+    id,
+    label: body.label,
+    description: '',
+    status: 'open',
+    priority: 3,
+    tags: [],
+    createdAt: now,
+    updatedAt: now,
+    author: body.author,
+  };
   const json = JSON.stringify(item);
   jsonStore.set(`item:${id}`, json);
   // Prepend to item:list so refetching the list returns the new item first
@@ -124,7 +135,16 @@ export function createAuthor(body: {
   name: string;
 }): Promise<Author> {
   const id = `created-author-${createAuthorCounter++}`;
-  const author: Author = { id, login: body.login, name: body.name };
+  const author: Author = {
+    id,
+    login: body.login,
+    name: body.name,
+    avatarUrl: `https://avatars.example.com/u/${id}?s=64`,
+    email: `${body.login}@example.com`,
+    bio: '',
+    followers: 0,
+    createdAt: new Date().toISOString(),
+  };
   const json = JSON.stringify(author);
   jsonStore.set(`author:${id}`, json);
   return withDelay(JSON.parse(json) as Author);

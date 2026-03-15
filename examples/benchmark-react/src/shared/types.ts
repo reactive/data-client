@@ -47,11 +47,22 @@ export interface Author {
   id: string;
   login: string;
   name: string;
+  avatarUrl: string;
+  email: string;
+  bio: string;
+  followers: number;
+  createdAt: string;
 }
 
 export interface Item {
   id: string;
   label: string;
+  description: string;
+  status: 'open' | 'closed' | 'in_progress';
+  priority: number;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
   author: Author;
 }
 
