@@ -137,7 +137,7 @@ Regressions >5% on stable scenarios or >15% on volatile scenarios are worth inve
    |---|---|---|
    | `--lib <names>` | `BENCH_LIB` | Comma-separated library names (e.g. `data-client,swr`) |
    | `--size <small\|large>` | `BENCH_SIZE` | Run only `small` (cheap, full rigor) or `large` (expensive, reduced runs) scenarios |
-   | `--action <group\|action>` | `BENCH_ACTION` | Filter by action group (`mount`, `update`, `mutation`, `memory`) or exact action name |
+   | `--action <group\|action>` | `BENCH_ACTION` | Filter by action group (`mount`, `update`, `mutation`, `memory`) or exact action name. Memory is **not run by default**; use `--action memory` to include. |
    | `--scenario <pattern>` | `BENCH_SCENARIO` | Substring filter on scenario name |
 
    CLI flags take precedence over env vars. Examples:
@@ -146,6 +146,7 @@ Regressions >5% on stable scenarios or >15% on volatile scenarios are worth inve
    yarn bench --lib data-client                # only data-client
    yarn bench --size small                      # only cheap scenarios (full warmup/measurement)
    yarn bench --action mount                    # init, mountSortedView
+   yarn bench --action memory                   # memory-mount-unmount-cycle (heap delta; opt-in category)
    yarn bench --action update --lib swr         # update scenarios for swr only
    yarn bench --scenario sorted-view            # only sorted-view scenarios
    ```
@@ -163,7 +164,8 @@ Regressions >5% on stable scenarios or >15% on volatile scenarios are worth inve
    Scenarios are classified as `small` or `large` based on their cost:
 
    - **Small** (3 warmup + 15 measurement): `getlist-100`, `update-single-entity`, `ref-stability-*`, `invalidate-and-resolve`, `unshift-item`, `delete-item`
-   - **Large** (1 warmup + 4 measurement): `getlist-500`, `update-shared-author-500-mounted`, `update-shared-author-10000-mounted`, `memory-mount-unmount-cycle`, `update-shared-author-with-network`, `sorted-view-mount-500`, `sorted-view-update-entity`
+   - **Large** (1 warmup + 4 measurement): `getlist-500`, `update-shared-author-500-mounted`, `update-shared-author-10000-mounted`, `update-shared-author-with-network`, `sorted-view-mount-500`, `sorted-view-update-entity`
+   - **Memory** (opt-in, 1 warmup + 3 measurement): `memory-mount-unmount-cycle` — run with `--action memory`
 
    When running all scenarios (`yarn bench`), each group runs with its own warmup/measurement count. Use `--size` to run only one group.
 

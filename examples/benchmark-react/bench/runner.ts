@@ -62,6 +62,12 @@ function filterScenarios(scenarios: Scenario[]): {
         s.category !== 'memory' &&
         s.category !== 'startup',
     );
+  } else if (
+    !actions ||
+    !actions.some(a => a === 'memory' || a === 'mountUnmountCycle')
+  ) {
+    // Locally: exclude memory by default; use --action memory to include
+    filtered = filtered.filter(s => s.category !== 'memory');
   }
 
   if (libs) {
@@ -353,9 +359,13 @@ async function main() {
     process.exit(1);
   }
 
-  // Group scenarios by size for differentiated run counts
+  // Separate memory into its own category (run in a distinct phase)
+  const memoryScenarios = SCENARIOS_TO_RUN.filter(s => s.category === 'memory');
+  const mainScenarios = SCENARIOS_TO_RUN.filter(s => s.category !== 'memory');
+
+  // Group main scenarios by size for differentiated run counts
   const bySize: Record<ScenarioSize, Scenario[]> = { small: [], large: [] };
-  for (const s of SCENARIOS_TO_RUN) {
+  for (const s of mainScenarios) {
     bySize[s.size ?? 'small'].push(s);
   }
   const sizeGroups = (
@@ -373,9 +383,9 @@ async function main() {
 
   const browser = await chromium.launch({ headless: true });
 
-  // Run deterministic scenarios once (no warmup needed)
+  // Run deterministic scenarios once (no warmup needed) — main scenarios only
   const deterministicNames = new Set<string>();
-  const deterministicScenarios = SCENARIOS_TO_RUN.filter(s => s.deterministic);
+  const deterministicScenarios = mainScenarios.filter(s => s.deterministic);
   if (deterministicScenarios.length > 0) {
     process.stderr.write(
       `\n── Deterministic scenarios (${deterministicScenarios.length}) ──\n`,
@@ -414,7 +424,7 @@ async function main() {
       RUN_CONFIG[size];
     const nonDeterministic = scenarios.filter(
       s => !deterministicNames.has(s.name),
-    );
+    ); // main scenarios only (memory runs in its own phase)
     if (nonDeterministic.length === 0) continue;
 
     const maxRounds = warmup + maxMeasurement;
@@ -488,9 +498,50 @@ async function main() {
     }
   }
 
+  // Memory category: run in its own phase (opt-in via --action memory)
+  const MEMORY_WARMUP = 1;
+  const MEMORY_MEASUREMENTS = 3;
+  if (memoryScenarios.length > 0) {
+    process.stderr.write(
+      `\n── Memory (${memoryScenarios.length} scenarios, ${MEMORY_WARMUP} warmup + ${MEMORY_MEASUREMENTS} measurements) ──\n`,
+    );
+    for (let round = 0; round < MEMORY_WARMUP + MEMORY_MEASUREMENTS; round++) {
+      const isMeasure = round >= MEMORY_WARMUP;
+      const phase = isMeasure ? 'measure' : 'warmup';
+      process.stderr.write(
+        `\n── Memory round ${round + 1}/${MEMORY_WARMUP + MEMORY_MEASUREMENTS} (${phase}) ──\n`,
+      );
+      for (const lib of shuffle([...libraries])) {
+        const libScenarios = memoryScenarios.filter(s =>
+          s.name.startsWith(`${lib}:`),
+        );
+        if (libScenarios.length === 0) continue;
+        const context = await browser.newContext();
+        const page = await context.newPage();
+        for (const scenario of libScenarios) {
+          try {
+            const result = await runScenario(page, lib, scenario);
+            results[scenario.name].push(result.value);
+            reactCommitResults[scenario.name].push(result.reactCommit ?? NaN);
+            traceResults[scenario.name].push(result.traceDuration ?? NaN);
+            process.stderr.write(
+              `  ${scenario.name}: ${result.value.toFixed(2)} ${scenarioUnit(scenario)}\n`,
+            );
+          } catch (err) {
+            console.error(
+              `  ${scenario.name} FAILED:`,
+              err instanceof Error ? err.message : err,
+            );
+          }
+        }
+        await context.close();
+      }
+    }
+  }
+
   // Startup scenarios (fast; only locally)
   const startupResults: Record<string, { fcp: number[]; tbt: number[] }> = {};
-  const includeStartup = !process.env.CI;
+  const includeStartup = false; // Bench not set up for startup metrics (FCP/task duration)
   if (includeStartup) {
     for (const lib of libraries) {
       startupResults[lib] = { fcp: [], tbt: [] };
