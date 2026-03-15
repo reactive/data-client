@@ -63,7 +63,7 @@ export function useBenchState() {
    * skipping intermediate states like Suspense fallbacks or empty first renders.
    */
   const measureMount = useCallback(
-    (fn: () => void) => {
+    (fn: () => unknown) => {
       const container = containerRef.current!;
       const observer = new MutationObserver(() => {
         if (container.querySelector('[data-bench-item], [data-sorted-list]')) {
@@ -98,7 +98,7 @@ export function useBenchState() {
    * then reappear), pass an `isReady` predicate to wait for the final state.
    */
   const measureUpdate = useCallback(
-    (fn: () => void, isReady?: () => boolean) => {
+    (fn: () => unknown, isReady?: () => boolean) => {
       const container = containerRef.current!;
       const observer = new MutationObserver(() => {
         if (!isReady || isReady()) {

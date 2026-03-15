@@ -236,9 +236,12 @@ async function runScenario(
     performance.clearMeasures();
   });
 
-  await (bench as any).evaluate((api: any, s: any) => {
-    api[s.action](...s.args);
-  }, scenario);
+  await (bench as any).evaluate(
+    (api: any, { action, args }: { action: string; args: unknown[] }) => {
+      api[action](...args);
+    },
+    { action: scenario.action, args: scenario.args },
+  );
 
   const completeTimeout = scenario.networkDelayMs ? 60000 : 10000;
   await page.waitForSelector('[data-bench-complete]', {
@@ -590,7 +593,9 @@ async function main() {
   for (const scenario of SCENARIOS_TO_RUN) {
     const samples = results[scenario.name];
     const warmupRuns =
-      scenario.deterministic ? 0 : RUN_CONFIG[scenario.size ?? 'small'].warmup;
+      scenario.deterministic ? 0
+      : scenario.category === 'memory' ? MEMORY_WARMUP
+      : RUN_CONFIG[scenario.size ?? 'small'].warmup;
     if (samples.length <= warmupRuns) continue;
     const { median, range } = computeStats(samples, warmupRuns);
     const unit = scenarioUnit(scenario);
