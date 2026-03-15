@@ -4,6 +4,7 @@ import { ITEM_HEIGHT, ItemsRow, LIST_STYLE } from '@shared/components';
 import {
   FIXTURE_AUTHORS,
   FIXTURE_AUTHORS_BY_ID,
+  FIXTURE_ITEMS,
   FIXTURE_ITEMS_BY_ID,
 } from '@shared/data';
 import { setCurrentItems } from '@shared/refStability';
@@ -12,7 +13,7 @@ import {
   ItemResource,
   sortedItemsEndpoint,
 } from '@shared/resources';
-import { jsonStore } from '@shared/server';
+import { jsonStore, seedItemList } from '@shared/server';
 import type { Item } from '@shared/types';
 import React, { useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -117,6 +118,7 @@ function BenchmarkHarness() {
 
   const mountSortedView = useCallback(
     (n: number) => {
+      seedItemList(FIXTURE_ITEMS.slice(0, n));
       measureMount(() => {
         setSortedViewCount(n);
         setShowSortedView(true);

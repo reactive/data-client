@@ -27,8 +27,12 @@ const ItemsContext = React.createContext<{
 }>(null as any);
 
 function SortedListView() {
-  const { items } = useContext(ItemsContext);
+  const { items, setItems } = useContext(ItemsContext);
+  useEffect(() => {
+    ItemResource.getList().then(setItems);
+  }, [setItems]);
   const sorted = useMemo(() => sortByLabel(items), [items]);
+  if (!sorted.length) return null;
   return (
     <div data-sorted-list>
       <List
@@ -135,10 +139,7 @@ function BenchmarkHarness() {
     (n: number) => {
       seedItemList(FIXTURE_ITEMS.slice(0, n));
       measureMount(() => {
-        ItemResource.getList().then(fetched => {
-          setItems(fetched);
-          setShowSortedView(true);
-        });
+        setShowSortedView(true);
       });
     },
     [measureMount, setShowSortedView],

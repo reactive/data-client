@@ -116,5 +116,5 @@ export const sortedItemsQuery = new Query(
 );
 
 export const sortedItemsEndpoint = ItemResource.getList.extend({
-  schema: sortedItemsQuery.schema,
+  schema: sortedItemsQuery,
 });
