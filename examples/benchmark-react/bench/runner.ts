@@ -249,6 +249,8 @@ async function runScenario(
     state: 'attached',
   });
 
+  await (bench as any).evaluate((api: any) => api.flushPendingMutations());
+
   if (scenario.networkDelayMs) {
     await (bench as any).evaluate((api: any) => api.setNetworkDelay(0));
   }

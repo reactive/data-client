@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { captureSnapshot, getReport } from './refStability';
-import { setNetworkDelay } from './server';
+import { flushPendingMutations, setNetworkDelay } from './server';
 import type { BenchAPI } from './types';
 
 export function afterPaint(fn: () => void): void {
@@ -190,6 +190,7 @@ export function useBenchState() {
       captureRefSnapshot,
       getRefStabilityReport,
       setNetworkDelay,
+      flushPendingMutations,
       ...libraryActions,
     } as BenchAPI;
   };

@@ -82,6 +82,7 @@ function TripleListView() {
     <div style={TRIPLE_LIST_STYLE}>
       {openItems.length > 0 && (
         <div data-status-list="open">
+          <span data-status-count>{openItems.length}</span>
           <List
             style={LIST_STYLE}
             rowHeight={ITEM_HEIGHT}
@@ -93,6 +94,7 @@ function TripleListView() {
       )}
       {closedItems.length > 0 && (
         <div data-status-list="closed">
+          <span data-status-count>{closedItems.length}</span>
           <List
             style={LIST_STYLE}
             rowHeight={ITEM_HEIGHT}
@@ -104,6 +106,7 @@ function TripleListView() {
       )}
       {inProgressItems.length > 0 && (
         <div data-status-list="in_progress">
+          <span data-status-count>{inProgressItems.length}</span>
           <List
             style={LIST_STYLE}
             rowHeight={ITEM_HEIGHT}
@@ -165,17 +168,36 @@ function BenchmarkHarness() {
     setInProgressItems([]);
   }, [unmountBase]);
 
+  const refetchActiveList = useCallback(() => {
+    if (tripleListCount != null) {
+      return Promise.all([
+        ItemResource.getList({ status: 'open', count: tripleListCount }).then(
+          setOpenItems,
+        ),
+        ItemResource.getList({
+          status: 'closed',
+          count: tripleListCount,
+        }).then(setClosedItems),
+        ItemResource.getList({
+          status: 'in_progress',
+          count: tripleListCount,
+        }).then(setInProgressItems),
+      ]);
+    }
+    return ItemResource.getList({ count: listViewCount! }).then(setItems);
+  }, [listViewCount, tripleListCount]);
+
   const updateEntity = useCallback(
     (id: string) => {
       const item = FIXTURE_ITEMS_BY_ID.get(id);
       if (!item) return;
       measureUpdate(() =>
         ItemResource.update({ id }, { label: `${item.label} (updated)` }).then(
-          () => ItemResource.getList({ count: listViewCount! }).then(setItems),
+          refetchActiveList,
         ),
       );
     },
-    [measureUpdate, listViewCount],
+    [measureUpdate, refetchActiveList],
   );
 
   const updateAuthor = useCallback(
@@ -186,32 +208,26 @@ function BenchmarkHarness() {
         AuthorResource.update(
           { id: authorId },
           { name: `${author.name} (updated)` },
-        ).then(() =>
-          ItemResource.getList({ count: listViewCount! }).then(setItems),
-        ),
+        ).then(refetchActiveList),
       );
     },
-    [measureUpdate, listViewCount],
+    [measureUpdate, refetchActiveList],
   );
 
   const unshiftItem = useCallback(() => {
     const author = FIXTURE_AUTHORS[0];
     measureUpdate(() =>
-      ItemResource.create({ label: 'New Item', author }).then(() =>
-        ItemResource.getList({ count: listViewCount! }).then(setItems),
+      ItemResource.create({ label: 'New Item', author }).then(
+        refetchActiveList,
       ),
     );
-  }, [measureUpdate, listViewCount]);
+  }, [measureUpdate, refetchActiveList]);
 
   const deleteEntity = useCallback(
     (id: string) => {
-      measureUpdate(() =>
-        ItemResource.delete({ id }).then(() =>
-          ItemResource.getList({ count: listViewCount! }).then(setItems),
-        ),
-      );
+      measureUpdate(() => ItemResource.delete({ id }).then(refetchActiveList));
     },
-    [measureUpdate, listViewCount],
+    [measureUpdate, refetchActiveList],
   );
 
   const moveItem = useCallback(
@@ -238,7 +254,13 @@ function BenchmarkHarness() {
           const source = containerRef.current?.querySelector(
             '[data-status-list="open"]',
           );
-          return source?.querySelector(`[data-item-id="${id}"]`) == null;
+          const dest = containerRef.current?.querySelector(
+            '[data-status-list="closed"]',
+          );
+          return (
+            source?.querySelector(`[data-item-id="${id}"]`) == null &&
+            dest?.querySelector(`[data-item-id="${id}"]`) != null
+          );
         },
       );
     },
@@ -246,8 +268,8 @@ function BenchmarkHarness() {
   );
 
   const mountSortedView = useCallback(
-    (n: number) => {
-      seedItemList(FIXTURE_ITEMS.slice(0, n));
+    async (n: number) => {
+      await seedItemList(FIXTURE_ITEMS.slice(0, n));
       measureMount(() => {
         setShowSortedView(true);
       });

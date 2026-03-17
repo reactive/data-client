@@ -29,6 +29,13 @@ module.exports = (env, argv) => {
     swr: require.resolve('swr'),
   };
 
+  // Remove worker-loader rule — we use webpack 5's native Worker support
+  if (config.module?.rules?.[0]?.oneOf) {
+    config.module.rules[0].oneOf = config.module.rules[0].oneOf.filter(
+      r => !r.test || !String(r.test).includes('worker'),
+    );
+  }
+
   config.entry = entries;
   config.output.filename = '[name].js';
   config.output.chunkFilename = '[name].chunk.js';

@@ -98,6 +98,7 @@ function StatusListView({ status, count }: { status: string; count: number }) {
   const list = items as Item[];
   return (
     <div data-status-list={status}>
+      <span data-status-count>{list.length}</span>
       <List
         style={LIST_STYLE}
         rowHeight={ITEM_HEIGHT}
@@ -200,7 +201,13 @@ function BenchmarkHarness() {
           const source = containerRef.current?.querySelector(
             '[data-status-list="open"]',
           );
-          return source?.querySelector(`[data-item-id="${id}"]`) == null;
+          const dest = containerRef.current?.querySelector(
+            '[data-status-list="closed"]',
+          );
+          return (
+            source?.querySelector(`[data-item-id="${id}"]`) == null &&
+            dest?.querySelector(`[data-item-id="${id}"]`) != null
+          );
         },
       );
     },
@@ -208,8 +215,8 @@ function BenchmarkHarness() {
   );
 
   const mountSortedView = useCallback(
-    (n: number) => {
-      seedItemList(FIXTURE_ITEMS.slice(0, n));
+    async (n: number) => {
+      await seedItemList(FIXTURE_ITEMS.slice(0, n));
       measureMount(() => {
         setShowSortedView(true);
       });

@@ -54,6 +54,14 @@ class ItemCollection<
   S extends any[] | PolymorphicInterface = any,
   Parent extends any[] = [urlParams: any, body?: any],
 > extends Collection<S, Parent> {
+  constructor(schema: S, options?: any) {
+    super(schema, options);
+    (this as any).move = this.moveWith((existing: any, incoming: any) => [
+      ...incoming,
+      ...existing,
+    ]);
+  }
+
   nonFilterArgumentKeys(key: string) {
     return key === 'count';
   }
@@ -70,7 +78,7 @@ export const ItemResource = resource({
     dataExpiryLength: Infinity,
   }),
   getList: Base.getList.extend({
-    fetch: serverFetchItemList,
+    fetch: serverFetchItemList as any,
     dataExpiryLength: Infinity,
   }),
   update: Base.update.extend({
@@ -81,7 +89,8 @@ export const ItemResource = resource({
     fetch: serverDeleteItem as any,
   }),
   create: Base.getList.unshift.extend({
-    fetch: serverCreateItem as any,
+    fetch: ((...args: any[]) =>
+      serverCreateItem(args.length > 1 ? args[1] : args[0])) as any,
     body: {} as {
       label: string;
       author: Author;

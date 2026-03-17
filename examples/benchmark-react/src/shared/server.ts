@@ -1,164 +1,89 @@
-import { FIXTURE_AUTHORS, FIXTURE_ITEMS } from './data';
 import type { Author, Item } from './types';
 
-// ── CONFIGURABLE NETWORK DELAY ──────────────────────────────────────────
+// ── WORKER SETUP ─────────────────────────────────────────────────────────
 
-let networkDelayMs = 0;
+const worker = new Worker(new URL('./server.worker.ts', import.meta.url));
 
-interface PendingDelay<T> {
-  id: ReturnType<typeof setTimeout>;
-  resolve: (v: T) => void;
-  value: T;
-}
-const pendingDelays = new Set<PendingDelay<any>>();
+let nextId = 0;
+const pending = new Map<
+  number,
+  { resolve: (v: any) => void; reject: (e: Error) => void }
+>();
 
-function withDelay<T>(value: T): Promise<T> {
-  if (networkDelayMs <= 0) return Promise.resolve(value);
-  return new Promise<T>(resolve => {
-    const entry: PendingDelay<T> = {
-      id: setTimeout(() => {
-        pendingDelays.delete(entry);
-        resolve(value);
-      }, networkDelayMs),
-      resolve,
-      value,
-    };
-    pendingDelays.add(entry);
+worker.onmessage = (e: MessageEvent) => {
+  const { id, result, error } = e.data as {
+    id: number;
+    result?: string;
+    error?: string;
+  };
+  const entry = pending.get(id);
+  if (!entry) return;
+  pending.delete(id);
+  if (error) {
+    entry.reject(new Error(error));
+  } else {
+    entry.resolve(result != null ? JSON.parse(result) : undefined);
+  }
+};
+
+function sendRequest<T>(method: string, params?: any): Promise<T> {
+  const id = nextId++;
+  return new Promise<T>((resolve, reject) => {
+    pending.set(id, { resolve, reject });
+    worker.postMessage({ id, method, params });
   });
 }
 
-/**
- * Set simulated per-request network latency. Setting to 0 also flushes
- * (immediately resolves) any pending delayed responses so no Promises leak.
- */
-export function setNetworkDelay(ms: number) {
-  networkDelayMs = ms;
-  if (ms === 0) {
-    for (const entry of pendingDelays) {
-      clearTimeout(entry.id);
-      entry.resolve(entry.value);
-    }
-    pendingDelays.clear();
-  }
+// ── PENDING MUTATION TRACKING ────────────────────────────────────────────
+
+const pendingMutations = new Set<Promise<unknown>>();
+
+function sendMutation<T>(method: string, params?: any): Promise<T> {
+  const p = sendRequest<T>(method, params);
+  pendingMutations.add(p);
+  p.finally(() => pendingMutations.delete(p));
+  return p;
 }
 
-/** Fake server: holds JSON response strings keyed by resource type + id */
-export const jsonStore = new Map<string, string>();
-
-// Pre-seed with fixture data
-for (const item of FIXTURE_ITEMS) {
-  jsonStore.set(`item:${item.id}`, JSON.stringify(item));
-}
-for (const author of FIXTURE_AUTHORS) {
-  jsonStore.set(`author:${author.id}`, JSON.stringify(author));
-}
-jsonStore.set('item:list', JSON.stringify(FIXTURE_ITEMS));
-
-// ── READ ────────────────────────────────────────────────────────────────
-
-export function fetchItem({ id }: { id: string }): Promise<Item> {
-  const json = jsonStore.get(`item:${id}`);
-  if (!json) return Promise.reject(new Error(`No data for item:${id}`));
-  const item: Item = JSON.parse(json);
-  // Join latest author data (like a real DB join) so callers always
-  // see the current author without eager propagation in updateAuthor.
-  if (item.author?.id) {
-    const authorJson = jsonStore.get(`author:${item.author.id}`);
-    if (authorJson) {
-      item.author = JSON.parse(authorJson);
-    }
-  }
-  return withDelay(item);
+export function flushPendingMutations(): Promise<void> {
+  if (pendingMutations.size === 0) return Promise.resolve();
+  return Promise.allSettled([...pendingMutations]).then(() => {});
 }
 
-export function fetchAuthor({ id }: { id: string }): Promise<Author> {
-  const json = jsonStore.get(`author:${id}`);
-  if (!json) return Promise.reject(new Error(`No data for author:${id}`));
-  return withDelay(JSON.parse(json) as Author);
+// ── READ ─────────────────────────────────────────────────────────────────
+
+export function fetchItem(params: { id: string }): Promise<Item> {
+  return sendRequest('fetchItem', params);
+}
+
+export function fetchAuthor(params: { id: string }): Promise<Author> {
+  return sendRequest('fetchAuthor', params);
 }
 
 export function fetchItemList(params?: {
   count?: number;
   status?: string;
 }): Promise<Item[]> {
-  const json = jsonStore.get('item:list');
-  if (!json) return Promise.reject(new Error('No data for item:list'));
-  const listItems: Item[] = JSON.parse(json);
-  // Join latest item + author data (like a real DB-backed API)
-  let items = listItems.map(listItem => {
-    const itemJson = jsonStore.get(`item:${listItem.id}`);
-    const item: Item = itemJson ? JSON.parse(itemJson) : listItem;
-    if (item.author?.id) {
-      const authorJson = jsonStore.get(`author:${item.author.id}`);
-      if (authorJson) {
-        item.author = JSON.parse(authorJson);
-      }
-    }
-    return item;
-  });
-  if (params?.status) {
-    items = items.filter(i => i.status === params.status);
-  }
-  if (params?.count) {
-    items = items.slice(0, params.count);
-  }
-  return withDelay(items);
+  return sendRequest('fetchItemList', params);
 }
 
-// ── CREATE ──────────────────────────────────────────────────────────────
-
-let createItemCounter = 0;
+// ── CREATE ───────────────────────────────────────────────────────────────
 
 export function createItem(body: {
   label: string;
   author: Author;
 }): Promise<Item> {
-  const id = `created-item-${createItemCounter++}`;
-  const now = new Date().toISOString();
-  const item: Item = {
-    id,
-    label: body.label,
-    description: '',
-    status: 'open',
-    priority: 3,
-    tags: [],
-    createdAt: now,
-    updatedAt: now,
-    author: body.author,
-  };
-  const json = JSON.stringify(item);
-  jsonStore.set(`item:${id}`, json);
-  // Prepend to item:list so refetching the list returns the new item first
-  const listJson = jsonStore.get('item:list');
-  const list: Item[] = listJson ? JSON.parse(listJson) : [];
-  list.unshift(item);
-  jsonStore.set('item:list', JSON.stringify(list));
-  return withDelay(JSON.parse(json) as Item);
+  return sendMutation('createItem', body);
 }
-
-let createAuthorCounter = 0;
 
 export function createAuthor(body: {
   login: string;
   name: string;
 }): Promise<Author> {
-  const id = `created-author-${createAuthorCounter++}`;
-  const author: Author = {
-    id,
-    login: body.login,
-    name: body.name,
-    avatarUrl: `https://avatars.example.com/u/${id}?s=64`,
-    email: `${body.login}@example.com`,
-    bio: '',
-    followers: 0,
-    createdAt: new Date().toISOString(),
-  };
-  const json = JSON.stringify(author);
-  jsonStore.set(`author:${id}`, json);
-  return withDelay(JSON.parse(json) as Author);
+  return sendMutation('createAuthor', body);
 }
 
-// ── UPDATE ──────────────────────────────────────────────────────────────
+// ── UPDATE ───────────────────────────────────────────────────────────────
 
 export function updateItem(params: {
   id: string;
@@ -166,54 +91,47 @@ export function updateItem(params: {
   status?: Item['status'];
   author?: Author;
 }): Promise<Item> {
-  const existing = jsonStore.get(`item:${params.id}`);
-  if (!existing)
-    return Promise.reject(new Error(`No data for item:${params.id}`));
-  const updated: Item = { ...JSON.parse(existing), ...params };
-  const json = JSON.stringify(updated);
-  jsonStore.set(`item:${params.id}`, json);
-  return withDelay(JSON.parse(json) as Item);
+  return sendMutation('updateItem', params);
 }
 
-/**
- * Updates the author record only. Item reads join the latest author via
- * fetchItem (like a real DB), so no eager O(n) propagation is needed.
- */
 export function updateAuthor(params: {
   id: string;
   login?: string;
   name?: string;
 }): Promise<Author> {
-  const existing = jsonStore.get(`author:${params.id}`);
-  if (!existing)
-    return Promise.reject(new Error(`No data for author:${params.id}`));
-  const updated: Author = { ...JSON.parse(existing), ...params };
-  const json = JSON.stringify(updated);
-  jsonStore.set(`author:${params.id}`, json);
-
-  return withDelay(JSON.parse(json) as Author);
+  return sendMutation('updateAuthor', params);
 }
 
-// ── DELETE ───────────────────────────────────────────────────────────────
+// ── DELETE ────────────────────────────────────────────────────────────────
 
-export function deleteItem({ id }: { id: string }): Promise<{ id: string }> {
-  jsonStore.delete(`item:${id}`);
-  const listJson = jsonStore.get('item:list');
-  if (listJson) {
-    const list: Item[] = JSON.parse(listJson);
-    jsonStore.set('item:list', JSON.stringify(list.filter(i => i.id !== id)));
-  }
-  return withDelay({ id });
+export function deleteItem(params: { id: string }): Promise<{ id: string }> {
+  return sendMutation('deleteItem', params);
 }
 
-export function deleteAuthor({ id }: { id: string }): Promise<{ id: string }> {
-  jsonStore.delete(`author:${id}`);
-  return withDelay({ id });
+export function deleteAuthor(params: { id: string }): Promise<{ id: string }> {
+  return sendMutation('deleteAuthor', params);
 }
 
-// ── SEEDING ─────────────────────────────────────────────────────────────
+// ── DIRECT STORE ACCESS (pre-measurement setup) ─────────────────────────
 
-/** Seed a subset of fixture items for sorted view. */
-export function seedItemList(items: Item[]): void {
-  jsonStore.set('item:list', JSON.stringify(items));
+export function getItem(id: string): Promise<Item | undefined> {
+  return sendRequest('getItem', { id });
+}
+
+export function patchItem(id: string, patch: Partial<Item>): Promise<void> {
+  return sendRequest('patchItem', { id, patch });
+}
+
+export function seedItemList(items: Item[]): Promise<void> {
+  return sendRequest('seedItemList', { items });
+}
+
+// ── CONTROL ──────────────────────────────────────────────────────────────
+
+export function setNetworkDelay(ms: number): void {
+  worker.postMessage({
+    id: nextId++,
+    method: 'setNetworkDelay',
+    params: { ms },
+  });
 }

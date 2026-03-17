@@ -19,6 +19,8 @@ export interface BenchAPI {
   updateAuthor(id: string): void;
   /** Set simulated per-request network latency (ms). 0 disables and flushes pending delays. */
   setNetworkDelay(ms: number): void;
+  /** Wait for all deferred server mutations to settle before next iteration. */
+  flushPendingMutations(): Promise<void>;
   unmountAll(): void;
   getRenderedCount(): number;
   captureRefSnapshot(): void;

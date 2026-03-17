@@ -59,6 +59,14 @@ export interface CollectionInterface<
     ) => (collectionKey: Record<string, string>) => boolean,
   ): Collection<S, P>;
 
+  /** Constructs a custom move schema for this collection
+   *
+   * @see https://dataclient.io/rest/api/Collection#moveWith
+   */
+  moveWith<P extends any[] = Args>(
+    merge: (existing: any, incoming: any) => any,
+  ): Collection<S, P>;
+
   readonly cacheWith: object;
 
   readonly schema: S;
