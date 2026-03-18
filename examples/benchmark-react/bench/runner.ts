@@ -191,6 +191,14 @@ async function runScenario(
       timeout: 60000,
       state: 'attached',
     });
+    const timedOut = await harness.evaluate(el =>
+      el.hasAttribute('data-bench-timeout'),
+    );
+    if (timedOut) {
+      throw new Error(
+        `Harness timeout during mountUnmountCycle: a cycle did not complete within 30 s`,
+      );
+    }
     const heapAfter = await collectHeapUsed(cdp);
     await bench.dispose();
     return { value: heapAfter - heapBefore };
@@ -209,7 +217,10 @@ async function runScenario(
   const mountCount = scenario.mountCount ?? 100;
   if (isUpdate || isRefStability) {
     const preMountAction = scenario.preMountAction ?? 'init';
-    await harness.evaluate(el => el.removeAttribute('data-bench-complete'));
+    await harness.evaluate(el => {
+      el.removeAttribute('data-bench-complete');
+      el.removeAttribute('data-bench-timeout');
+    });
     await (bench as any).evaluate(
       (api: any, [action, n]: [string, number]) => api[action](n),
       [preMountAction, mountCount],
@@ -218,6 +229,14 @@ async function runScenario(
       timeout: 10000,
       state: 'attached',
     });
+    const preMountTimedOut = await harness.evaluate(el =>
+      el.hasAttribute('data-bench-timeout'),
+    );
+    if (preMountTimedOut) {
+      throw new Error(
+        `Harness timeout during pre-mount (${preMountAction}): did not complete within 30 s`,
+      );
+    }
     await page.evaluate(() => {
       performance.clearMarks();
       performance.clearMeasures();
@@ -228,7 +247,10 @@ async function runScenario(
     await (bench as any).evaluate((api: any) => api.captureRefSnapshot());
   }
 
-  await harness.evaluate(el => el.removeAttribute('data-bench-complete'));
+  await harness.evaluate(el => {
+    el.removeAttribute('data-bench-complete');
+    el.removeAttribute('data-bench-timeout');
+  });
   const cdpTracing =
     USE_TRACE && !isRefStability ?
       await page.context().newCDPSession(page)
@@ -255,11 +277,20 @@ async function runScenario(
     { action: scenario.action, args: scenario.args },
   );
 
-  const completeTimeout = networkSim ? 30000 : 10000;
+  const completeTimeout = networkSim ? 60000 : 10000;
   await page.waitForSelector('[data-bench-complete]', {
     timeout: completeTimeout,
     state: 'attached',
   });
+
+  const timedOut = await harness.evaluate(el =>
+    el.hasAttribute('data-bench-timeout'),
+  );
+  if (timedOut) {
+    throw new Error(
+      `Harness timeout: MutationObserver did not detect expected DOM update within 30 s`,
+    );
+  }
 
   await (bench as any).evaluate((api: any) => api.flushPendingMutations());
 

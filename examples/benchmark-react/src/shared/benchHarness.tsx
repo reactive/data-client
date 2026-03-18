@@ -86,6 +86,9 @@ export function useBenchState() {
       });
       const timer = setTimeout(() => {
         observer.disconnect();
+        performance.mark('mount-end');
+        performance.measure('mount-duration', 'mount-start', 'mount-end');
+        container.setAttribute('data-bench-timeout', 'true');
         setComplete();
       }, 30000);
       performance.mark('mount-start');
@@ -121,6 +124,9 @@ export function useBenchState() {
       });
       const timer = setTimeout(() => {
         observer.disconnect();
+        performance.mark('update-end');
+        performance.measure('update-duration', 'update-start', 'update-end');
+        container.setAttribute('data-bench-timeout', 'true');
         setComplete();
       }, 30000);
       performance.mark('update-start');
