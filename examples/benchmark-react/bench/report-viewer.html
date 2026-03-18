@@ -89,6 +89,16 @@
       function isTraceSuffix(name) { return name.indexOf('(trace)') !== -1; }
       function isBaseSuffix(name) { return !isReactCommitSuffix(name) && !isTraceSuffix(name); }
 
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;')
+          .replace(/\//g, '&#x2F;');
+      }
+
       function filterData(data) {
         var showBase = filterBase.checked;
         var showRC = filterReactCommit.checked;
@@ -132,11 +142,11 @@
         var scenarioNames = Object.keys(suffixToLibRows).sort();
         var libList = Array.from(libs).sort();
 
-        var thead = ['Scenario'].concat(libList).map(function (c) { return '<th>' + c + '</th>'; }).join('');
+        var thead = ['Scenario'].concat(libList).map(function (c) { return '<th>' + escapeHtml(c) + '</th>'; }).join('');
         var tbody = '';
         scenarioNames.forEach(function (scenarioName) {
           var byLib = suffixToLibRows[scenarioName] || {};
-          var cells = ['<td>' + scenarioName + '</td>'];
+          var cells = ['<td>' + escapeHtml(scenarioName) + '</td>'];
           var minV = Infinity, maxV = -Infinity;
           libList.forEach(function (lib) {
             var r = byLib[lib];
