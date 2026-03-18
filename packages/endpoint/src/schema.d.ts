@@ -364,6 +364,12 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
   ): undefined;
 }
 
+/** Collection merge that places incoming items at the start.
+ *
+ * @see https://dataclient.io/rest/api/Collection#moveWith
+ */
+export declare const unshift: (existing: any, incoming: any) => any;
+
 export declare let CollectionRoot: CollectionConstructor;
 
 /**

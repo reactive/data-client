@@ -601,6 +601,44 @@ e.g., `'10' == 10`
     boolean;
 ```
 
+### moveWith(merge): MoveSchema {#moveWith}
+
+Constructs a custom move schema for this collection. This is analogous to [addWith](#addWith)
+but for [move](#move) operations. The `merge` function controls how entities are added to
+their destination collection, while the remove behavior is automatically derived from
+the collection type (Array or Values).
+
+This is useful when you need to control the insertion position of moved items
+(e.g., prepending instead of appending).
+
+#### merge(collection, moved)
+
+Controls how the moved entity is added to its destination collection.
+
+The exported [`unshift`](#unshift-merge) merge function places items at the start:
+
+```ts
+import { Collection, unshift } from '@data-client/rest';
+
+class MyCollection extends Collection {
+  constructor(schema, options) {
+    super(schema, options);
+    // Prepend moved items instead of appending
+    // highlight-next-line
+    this.move = this.moveWith(unshift);
+  }
+}
+```
+
+### unshift (merge function) {#unshift-merge}
+
+A merge function that places incoming items at the _start_ of the collection.
+Use with [moveWith](#moveWith) or [addWith](#addWith) to control insertion order.
+
+```ts
+import { unshift } from '@data-client/rest';
+```
+
 ## Lifecycle Methods
 
 ### static shouldReorder(existingMeta, incomingMeta, existing, incoming): boolean {#shouldReorder}

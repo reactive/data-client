@@ -6,7 +6,7 @@ import { Record } from 'immutable';
 
 import { SimpleMemoCache } from './denormalize';
 import { PolymorphicInterface } from '../..';
-import { schema, Collection, Union } from '../..';
+import { schema, Collection, Union, unshift } from '../..';
 import PolymorphicSchema from '../Polymorphic';
 
 let dateSpy: jest.Spied<any>;
@@ -1143,6 +1143,127 @@ describe(`${schema.Collection.name} normalization`, () => {
         moveState.entities,
       ) as any;
       expect(userTwoList).toHaveLength(2);
+    });
+  });
+
+  describe('moveWith(unshift) should prepend to destination collection', () => {
+    class UnshiftCollection<
+      S extends any[] | schema.Array<any> | schema.Values<any>,
+    > extends Collection<S> {
+      constructor(schema: S, options?: any) {
+        super(schema, options);
+        (this as any).move = this.moveWith(unshift);
+      }
+    }
+
+    const initializingSchema = new UnshiftCollection([Todo]);
+
+    it('moves entity and prepends to destination', () => {
+      let state = {
+        ...initialState,
+        ...normalize(
+          initializingSchema,
+          [{ id: '10', userId: 1, title: 'movable todo' }],
+          [{ userId: '1' }],
+          initialState,
+        ),
+      };
+      state = {
+        ...state,
+        ...normalize(
+          initializingSchema,
+          [{ id: '20', userId: 2, title: 'existing todo' }],
+          [{ userId: '2' }],
+          state,
+        ),
+      };
+
+      const moveState = {
+        ...state,
+        ...normalize(
+          initializingSchema.move,
+          { id: '10', userId: 2, title: 'movable todo' },
+          [{ id: '10' }, { userId: '2' }],
+          state,
+        ),
+      };
+
+      const userOneList = denormalize(
+        initializingSchema,
+        JSON.stringify({ userId: '1' }),
+        moveState.entities,
+      ) as any;
+      expect(userOneList).toHaveLength(0);
+
+      const userTwoList = denormalize(
+        initializingSchema,
+        JSON.stringify({ userId: '2' }),
+        moveState.entities,
+      ) as any;
+      expect(userTwoList).toHaveLength(2);
+      // moved item should be first (unshift prepends)
+      expect(userTwoList[0].id).toBe('10');
+      expect(userTwoList[1].id).toBe('20');
+    });
+
+    it('Values collection uses moveWith with custom merge', () => {
+      const valuesMerge = (existing: any, incoming: any) => ({
+        ...incoming,
+        ...existing,
+      });
+      class ValuesUnshiftCollection<
+        S extends any[] | schema.Array<any> | schema.Values<any>,
+      > extends Collection<S> {
+        constructor(s: S, options?: any) {
+          super(s, options);
+          (this as any).move = this.moveWith(valuesMerge);
+        }
+      }
+
+      const valuesSchema = new ValuesUnshiftCollection(new schema.Values(Todo));
+
+      let state = {
+        ...initialState,
+        ...normalize(
+          valuesSchema,
+          { '10': { id: '10', userId: 1, title: 'movable' } },
+          [{ userId: '1' }],
+          initialState,
+        ),
+      };
+      state = {
+        ...state,
+        ...normalize(
+          valuesSchema,
+          { '20': { id: '20', userId: 2, title: 'existing' } },
+          [{ userId: '2' }],
+          state,
+        ),
+      };
+
+      const moveState = {
+        ...state,
+        ...normalize(
+          valuesSchema.move,
+          { id: '10', userId: 2, title: 'movable' },
+          [{ id: '10' }, { userId: '2' }],
+          state,
+        ),
+      };
+
+      const userOneValues = denormalize(
+        valuesSchema,
+        JSON.stringify({ userId: '1' }),
+        moveState.entities,
+      ) as any;
+      expect(Object.keys(userOneValues)).toHaveLength(0);
+
+      const userTwoValues = denormalize(
+        valuesSchema,
+        JSON.stringify({ userId: '2' }),
+        moveState.entities,
+      ) as any;
+      expect(Object.keys(userTwoValues)).toHaveLength(2);
     });
   });
 

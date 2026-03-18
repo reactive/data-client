@@ -4,8 +4,8 @@
   "private": true,
   "description": "React rendering benchmark comparing @data-client/react against other data libraries",
   "scripts": {
-    "build": "webpack --mode=production",
-    "build:compiler": "REACT_COMPILER=true webpack --mode=production",
+    "build": "BROWSERSLIST_ENV=2026 webpack --mode=production",
+    "build:compiler": "BROWSERSLIST_ENV=2026 REACT_COMPILER=true webpack --mode=production",
     "preview": "serve dist -l ${BENCH_PORT:-5173} --no-request-logging",
     "bench": "npx tsx bench/runner.ts",
     "bench:compiler": "BENCH_LABEL=compiler npx tsx bench/runner.ts",

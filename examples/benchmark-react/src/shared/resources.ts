@@ -1,4 +1,4 @@
-import { Entity, All, Query, Collection } from '@data-client/endpoint';
+import { Entity, All, Query, Collection, unshift } from '@data-client/endpoint';
 import type { PolymorphicInterface } from '@data-client/endpoint';
 import { resource } from '@data-client/rest';
 import { sortByLabel } from '@shared/data';
@@ -56,10 +56,7 @@ class ItemCollection<
 > extends Collection<S, Parent> {
   constructor(schema: S, options?: any) {
     super(schema, options);
-    (this as any).move = this.moveWith((existing: any, incoming: any) => [
-      ...incoming,
-      ...existing,
-    ]);
+    (this as any).move = this.moveWith(unshift);
   }
 
   nonFilterArgumentKeys(key: string) {
