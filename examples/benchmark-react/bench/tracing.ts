@@ -18,11 +18,24 @@ export function parseTraceDuration(traceBuffer: Buffer): number {
         e.cat?.includes('devtools.timeline'),
     );
 
-    const firstTs = Math.min(...events.map(e => e.ts).filter(x => x != null));
-    const lastPaint =
-      paintEvents.length ?
-        Math.max(...paintEvents.map(e => e.ts + (e.dur ?? 0)))
-      : Math.max(...events.map(e => e.ts + (e.dur ?? 0)));
+    let firstTs = Infinity;
+    let lastAll = -Infinity;
+    for (const e of events) {
+      if (e.ts != null) {
+        if (e.ts < firstTs) firstTs = e.ts;
+        const end = e.ts + (e.dur ?? 0);
+        if (end > lastAll) lastAll = end;
+      }
+    }
+    let lastPaint = -Infinity;
+    if (paintEvents.length) {
+      for (const e of paintEvents) {
+        const end = e.ts + (e.dur ?? 0);
+        if (end > lastPaint) lastPaint = end;
+      }
+    } else {
+      lastPaint = lastAll;
+    }
 
     return (lastPaint - firstTs) / 1000;
   } catch {
