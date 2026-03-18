@@ -1,10 +1,17 @@
-import { DataProvider, useController, useDLE } from '@data-client/react';
+import {
+  DataProvider,
+  useController,
+  useDLE,
+  useSuspense,
+} from '@data-client/react';
 import { onProfilerRender, useBenchState } from '@shared/benchHarness';
 import {
   TRIPLE_LIST_STYLE,
   ITEM_HEIGHT,
+  ItemRow,
   ItemsRow,
   LIST_STYLE,
+  PlainItemList,
 } from '@shared/components';
 import {
   FIXTURE_AUTHORS,
@@ -65,13 +72,7 @@ function StatusListView({ status, count }: { status: string; count: number }) {
   return (
     <div data-status-list={status}>
       <span data-status-count>{list.length}</span>
-      <List
-        style={LIST_STYLE}
-        rowHeight={ITEM_HEIGHT}
-        rowCount={list.length}
-        rowComponent={ItemsRow}
-        rowProps={{ items: list }}
-      />
+      <PlainItemList items={list} />
     </div>
   );
 }
@@ -86,6 +87,15 @@ function TripleListView({ count }: { count: number }) {
   );
 }
 
+function DetailView({ id }: { id: string }) {
+  const item = useSuspense(ItemResource.get, { id });
+  return (
+    <div data-detail-view data-item-id={id}>
+      <ItemRow item={item as Item} />
+    </div>
+  );
+}
+
 function BenchmarkHarness() {
   const controller = useController();
   const {
@@ -94,11 +104,15 @@ function BenchmarkHarness() {
     sortedViewCount,
     showTripleList,
     tripleListCount,
+    detailItemId,
     containerRef,
     measureUpdate,
     measureMount,
+    waitForElement,
+    setComplete,
     setShowSortedView,
     setSortedViewCount,
+    setDetailItemId,
     registerAPI,
   } = useBenchState();
 
@@ -189,6 +203,44 @@ function BenchmarkHarness() {
     [measureMount, setSortedViewCount, setShowSortedView],
   );
 
+  const listDetailSwitch = useCallback(
+    async (n: number) => {
+      await seedItemList(FIXTURE_ITEMS.slice(0, n));
+      setSortedViewCount(n);
+      setShowSortedView(true);
+      await waitForElement('[data-sorted-list]');
+
+      // Warmup cycle (unmeasured) — exercises the detail mount path
+      setShowSortedView(false);
+      setDetailItemId('item-0');
+      await waitForElement('[data-detail-view]');
+      setDetailItemId(null);
+      setShowSortedView(true);
+      await waitForElement('[data-sorted-list]');
+
+      performance.mark('mount-start');
+      for (let i = 1; i <= 10; i++) {
+        setShowSortedView(false);
+        setDetailItemId(`item-${i}`);
+        await waitForElement('[data-detail-view]');
+
+        setDetailItemId(null);
+        setShowSortedView(true);
+        await waitForElement('[data-sorted-list]');
+      }
+      performance.mark('mount-end');
+      performance.measure('mount-duration', 'mount-start', 'mount-end');
+      setComplete();
+    },
+    [
+      setSortedViewCount,
+      setShowSortedView,
+      setDetailItemId,
+      waitForElement,
+      setComplete,
+    ],
+  );
+
   const invalidateAndResolve = useCallback(
     async (id: string) => {
       const item = await getItem(id);
@@ -223,6 +275,7 @@ function BenchmarkHarness() {
     updateEntity,
     updateAuthor,
     mountSortedView,
+    listDetailSwitch,
     invalidateAndResolve,
     unshiftItem,
     deleteEntity,
@@ -237,6 +290,11 @@ function BenchmarkHarness() {
       )}
       {showTripleList && tripleListCount != null && (
         <TripleListView count={tripleListCount} />
+      )}
+      {detailItemId != null && (
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <DetailView id={detailItemId} />
+        </React.Suspense>
       )}
     </div>
   );

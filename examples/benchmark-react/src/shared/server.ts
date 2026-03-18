@@ -135,3 +135,11 @@ export function setNetworkDelay(ms: number): void {
     params: { ms },
   });
 }
+
+export function setMethodDelays(delays: Record<string, number>): void {
+  worker.postMessage({
+    id: nextId++,
+    method: 'setMethodDelays',
+    params: { delays },
+  });
+}

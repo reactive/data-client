@@ -1,5 +1,18 @@
 import type { BenchAPI, Scenario, ScenarioSize } from '../src/shared/types.js';
 
+/** Per-method network latency used when --network-sim is enabled (default: on). */
+export const NETWORK_SIM_DELAYS: Record<string, number> = {
+  fetchItemList: 80,
+  fetchItem: 50,
+  fetchAuthor: 50,
+  createItem: 50,
+  createAuthor: 50,
+  updateItem: 50,
+  updateAuthor: 50,
+  deleteItem: 50,
+  deleteAuthor: 50,
+};
+
 export interface RunProfile {
   warmup: number;
   minMeasurement: number;
@@ -24,7 +37,7 @@ export const RUN_CONFIG: Record<ScenarioSize, RunProfile> = {
 };
 
 export const ACTION_GROUPS: Record<string, (keyof BenchAPI)[]> = {
-  mount: ['init', 'initTripleList', 'mountSortedView'],
+  mount: ['init', 'initTripleList', 'mountSortedView', 'listDetailSwitch'],
   update: ['updateEntity', 'updateAuthor'],
   mutation: ['unshiftItem', 'deleteEntity', 'invalidateAndResolve', 'moveItem'],
   memory: ['mountUnmountCycle'],
@@ -42,8 +55,6 @@ interface BaseScenario {
   preMountAction?: keyof BenchAPI;
   /** Only run for these libraries. Omit to run for all. */
   onlyLibs?: string[];
-  /** Simulated per-request network latency in ms (applied at the server layer). */
-  networkDelayMs?: number;
   /** Result is deterministic (zero variance); run exactly once with no warmup. */
   deterministic?: boolean;
 }
@@ -85,15 +96,6 @@ const BASE_SCENARIOS: BaseScenario[] = [
     deterministic: true,
   },
   {
-    nameSuffix: 'update-shared-author-with-network',
-    action: 'updateAuthor',
-    args: ['author-0'],
-    category: 'withNetwork',
-    mountCount: 500,
-    size: 'large',
-    networkDelayMs: 50,
-  },
-  {
     nameSuffix: 'update-shared-author-500-mounted',
     action: 'updateAuthor',
     args: ['author-0'],
@@ -123,6 +125,13 @@ const BASE_SCENARIOS: BaseScenario[] = [
     category: 'hotPath',
     mountCount: 500,
     preMountAction: 'mountSortedView',
+    size: 'large',
+  },
+  {
+    nameSuffix: 'list-detail-switch',
+    action: 'listDetailSwitch',
+    args: [500],
+    category: 'hotPath',
     size: 'large',
   },
   {
@@ -184,7 +193,6 @@ export const SCENARIOS: Scenario[] = LIBRARIES.flatMap(lib =>
       size: base.size,
       mountCount: base.mountCount,
       preMountAction: base.preMountAction,
-      networkDelayMs: base.networkDelayMs,
       deterministic: base.deterministic,
     }),
   ),

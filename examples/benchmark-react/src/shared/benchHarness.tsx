@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { captureSnapshot, getReport } from './refStability';
-import { flushPendingMutations, setNetworkDelay } from './server';
+import {
+  flushPendingMutations,
+  setMethodDelays,
+  setNetworkDelay,
+} from './server';
 import type { BenchAPI } from './types';
 
 export function afterPaint(fn: () => void): void {
@@ -47,6 +51,7 @@ export function useBenchState() {
   const [sortedViewCount, setSortedViewCount] = useState<number | undefined>();
   const [showTripleList, setShowTripleList] = useState(false);
   const [tripleListCount, setTripleListCount] = useState<number | undefined>();
+  const [detailItemId, setDetailItemId] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const completeResolveRef = useRef<(() => void) | null>(null);
   const apiRef = useRef<BenchAPI>(null as any);
@@ -124,6 +129,33 @@ export function useBenchState() {
     [setComplete],
   );
 
+  /**
+   * Wait for an element matching `selector` to appear in the container.
+   * Resolves immediately if already present; otherwise observes mutations.
+   */
+  const waitForElement = useCallback((selector: string) => {
+    const container = containerRef.current!;
+    if (container.querySelector(selector)) return Promise.resolve();
+    return new Promise<void>(resolve => {
+      const observer = new MutationObserver(() => {
+        if (container.querySelector(selector)) {
+          observer.disconnect();
+          clearTimeout(timer);
+          resolve();
+        }
+      });
+      observer.observe(container, {
+        childList: true,
+        subtree: true,
+        characterData: true,
+      });
+      const timer = setTimeout(() => {
+        observer.disconnect();
+        resolve();
+      }, 30000);
+    });
+  }, []);
+
   const init = useCallback(
     (n: number) => {
       measureMount(() => {
@@ -139,6 +171,7 @@ export function useBenchState() {
     setSortedViewCount(undefined);
     setShowTripleList(false);
     setTripleListCount(undefined);
+    setDetailItemId(null);
   }, []);
 
   const initTripleList = useCallback(
@@ -190,6 +223,7 @@ export function useBenchState() {
       captureRefSnapshot,
       getRefStabilityReport,
       setNetworkDelay,
+      setMethodDelays,
       flushPendingMutations,
       ...libraryActions,
     } as BenchAPI;
@@ -213,10 +247,12 @@ export function useBenchState() {
     sortedViewCount,
     showTripleList,
     tripleListCount,
+    detailItemId,
     containerRef,
 
     measureMount,
     measureUpdate,
+    waitForElement,
     setComplete,
     completeResolveRef,
 
@@ -225,6 +261,7 @@ export function useBenchState() {
     setSortedViewCount,
     setShowTripleList,
     setTripleListCount,
+    setDetailItemId,
 
     unmountAll,
     registerAPI,

@@ -8,13 +8,15 @@ declare const self: DedicatedWorkerGlobalScope;
 // ── NETWORK DELAY ────────────────────────────────────────────────────────
 
 let networkDelayMs = 0;
+let methodDelays: Record<string, number> = {};
 
-function respond(id: number, value: unknown) {
+function respond(id: number, method: string, value: unknown) {
   const json = JSON.stringify(value);
-  if (networkDelayMs <= 0) {
+  const delay = methodDelays[method] ?? networkDelayMs;
+  if (delay <= 0) {
     self.postMessage({ id, result: json });
   } else {
-    setTimeout(() => self.postMessage({ id, result: json }), networkDelayMs);
+    setTimeout(() => self.postMessage({ id, result: json }), delay);
   }
 }
 
@@ -264,6 +266,10 @@ const methods: Record<string, (params: any) => unknown> = {
   seedItemList: ({ items }: { items: Item[] }) => seedItemList(items),
   setNetworkDelay: ({ ms }: { ms: number }) => {
     networkDelayMs = ms;
+    methodDelays = {};
+  },
+  setMethodDelays: ({ delays }: { delays: Record<string, number> }) => {
+    methodDelays = delays;
   },
 };
 
@@ -282,7 +288,7 @@ self.onmessage = (e: MessageEvent) => {
 
   try {
     const result = fn(params);
-    respond(id, result === undefined ? null : result);
+    respond(id, method, result === undefined ? null : result);
   } catch (err) {
     respondError(id, err instanceof Error ? err.message : String(err));
   }

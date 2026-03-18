@@ -502,6 +502,56 @@ test('moveItem moves item between status lists', async (page, lib) => {
   );
 });
 
+// ── listDetailSwitch ─────────────────────────────────────────────────
+
+test('listDetailSwitch completes with correct DOM transitions', async (page, lib) => {
+  if (
+    !(await page.evaluate(
+      () => typeof window.__BENCH__?.listDetailSwitch === 'function',
+    ))
+  )
+    return;
+
+  await clearComplete(page);
+  await page.evaluate(() => window.__BENCH__!.listDetailSwitch!(20));
+  await waitForComplete(page, 30000);
+
+  // After completion we should be back on the sorted list (last transition)
+  const hasSortedList = await page.evaluate(
+    () => document.querySelector('[data-sorted-list]') !== null,
+  );
+  assert(
+    hasSortedList,
+    lib,
+    'listDetailSwitch sorted-list',
+    'sorted list not in DOM after listDetailSwitch completed',
+  );
+
+  // Detail view should be gone
+  const hasDetail = await page.evaluate(
+    () => document.querySelector('[data-detail-view]') !== null,
+  );
+  assert(
+    !hasDetail,
+    lib,
+    'listDetailSwitch detail-gone',
+    'detail view still in DOM after listDetailSwitch completed',
+  );
+
+  // A mount-duration measure should have been recorded
+  const hasMeasure = await page.evaluate(() =>
+    performance
+      .getEntriesByType('measure')
+      .some(m => m.name === 'mount-duration'),
+  );
+  assert(
+    hasMeasure,
+    lib,
+    'listDetailSwitch measure',
+    'no mount-duration performance measure recorded',
+  );
+});
+
 // ── TIMING VALIDATION ────────────────────────────────────────────────
 // Verify that when data-bench-complete fires (measurement ends), the DOM
 // already reflects the update. A 100ms network delay makes timing bugs

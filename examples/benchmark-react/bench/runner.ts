@@ -10,6 +10,7 @@ import {
   LIBRARIES,
   RUN_CONFIG,
   ACTION_GROUPS,
+  NETWORK_SIM_DELAYS,
 } from './scenarios.js';
 import { computeStats, isConverged } from './stats.js';
 import { parseTraceDuration } from './tracing.js';
@@ -24,6 +25,7 @@ function parseArgs(): {
   size?: ScenarioSize;
   actions?: string[];
   scenario?: string;
+  networkSim: boolean;
 } {
   const argv = process.argv.slice(2);
   const get = (flag: string, envVar: string): string | undefined => {
@@ -36,20 +38,30 @@ function parseArgs(): {
   const sizeRaw = get('--size', 'BENCH_SIZE');
   const actionRaw = get('--action', 'BENCH_ACTION');
   const scenarioRaw = get('--scenario', 'BENCH_SCENARIO');
+  const networkSimRaw = get('--network-sim', 'BENCH_NETWORK_SIM');
 
   const libs = libRaw ? libRaw.split(',').map(s => s.trim()) : undefined;
   const size = sizeRaw === 'small' || sizeRaw === 'large' ? sizeRaw : undefined;
   const actions =
     actionRaw ? actionRaw.split(',').map(s => s.trim()) : undefined;
+  const networkSim =
+    networkSimRaw != null ? networkSimRaw !== 'false' : !process.env.CI;
 
-  return { libs, size, actions, scenario: scenarioRaw };
+  return { libs, size, actions, scenario: scenarioRaw, networkSim };
 }
 
 function filterScenarios(scenarios: Scenario[]): {
   filtered: Scenario[];
   libraries: string[];
+  networkSim: boolean;
 } {
-  const { libs, size, actions, scenario: scenarioFilter } = parseArgs();
+  const {
+    libs,
+    size,
+    actions,
+    scenario: scenarioFilter,
+    networkSim,
+  } = parseArgs();
 
   let filtered = scenarios;
 
@@ -58,7 +70,6 @@ function filterScenarios(scenarios: Scenario[]): {
     filtered = filtered.filter(
       s =>
         s.name.startsWith('data-client:') &&
-        s.category !== 'withNetwork' &&
         s.category !== 'memory' &&
         s.category !== 'startup',
     );
@@ -96,7 +107,7 @@ function filterScenarios(scenarios: Scenario[]): {
 
   const libraries = libs ?? (process.env.CI ? ['data-client'] : [...LIBRARIES]);
 
-  return { filtered, libraries };
+  return { filtered, libraries, networkSim };
 }
 
 // ---------------------------------------------------------------------------
@@ -135,6 +146,7 @@ async function runScenario(
   page: Page,
   lib: string,
   scenario: Scenario,
+  networkSim: boolean,
 ): Promise<ScenarioResult> {
   const appPath = `/${lib}/`;
   await page.goto(`${BASE_URL}${appPath}`, {
@@ -152,6 +164,13 @@ async function runScenario(
   const bench = await page.evaluateHandle('window.__BENCH__');
   if (await bench.evaluate(b => b == null))
     throw new Error('window.__BENCH__ not found');
+
+  if (networkSim) {
+    await (bench as any).evaluate(
+      (api: any, delays: Record<string, number>) => api.setMethodDelays(delays),
+      NETWORK_SIM_DELAYS,
+    );
+  }
 
   const isMemory =
     scenario.action === 'mountUnmountCycle' &&
@@ -224,13 +243,6 @@ async function runScenario(
     });
   }
 
-  if (scenario.networkDelayMs) {
-    await (bench as any).evaluate(
-      (api: any, ms: number) => api.setNetworkDelay(ms),
-      scenario.networkDelayMs,
-    );
-  }
-
   await page.evaluate(() => {
     performance.clearMarks();
     performance.clearMeasures();
@@ -243,17 +255,13 @@ async function runScenario(
     { action: scenario.action, args: scenario.args },
   );
 
-  const completeTimeout = scenario.networkDelayMs ? 60000 : 10000;
+  const completeTimeout = networkSim ? 30000 : 10000;
   await page.waitForSelector('[data-bench-complete]', {
     timeout: completeTimeout,
     state: 'attached',
   });
 
   await (bench as any).evaluate((api: any) => api.flushPendingMutations());
-
-  if (scenario.networkDelayMs) {
-    await (bench as any).evaluate((api: any) => api.setNetworkDelay(0));
-  }
 
   let traceDuration: number | undefined;
   if (cdpTracing) {
@@ -285,7 +293,8 @@ async function runScenario(
   const isMountLike =
     isInit ||
     scenario.action === 'mountSortedView' ||
-    scenario.action === 'initTripleList';
+    scenario.action === 'initTripleList' ||
+    scenario.action === 'listDetailSwitch';
   const duration =
     isMountLike ?
       getMeasureDuration(measures, 'mount-duration')
@@ -366,7 +375,15 @@ function scenarioUnit(scenario: Scenario): string {
 // ---------------------------------------------------------------------------
 
 async function main() {
-  const { filtered: SCENARIOS_TO_RUN, libraries } = filterScenarios(SCENARIOS);
+  const {
+    filtered: SCENARIOS_TO_RUN,
+    libraries,
+    networkSim,
+  } = filterScenarios(SCENARIOS);
+
+  if (networkSim) {
+    process.stderr.write('Network simulation: ON\n');
+  }
 
   if (SCENARIOS_TO_RUN.length === 0) {
     process.stderr.write('No scenarios matched the filters.\n');
@@ -413,7 +430,7 @@ async function main() {
       const page = await context.newPage();
       for (const scenario of libScenarios) {
         try {
-          const result = await runScenario(page, lib, scenario);
+          const result = await runScenario(page, lib, scenario, networkSim);
           results[scenario.name].push(result.value);
           reactCommitResults[scenario.name].push(result.reactCommit ?? NaN);
           traceResults[scenario.name].push(result.traceDuration ?? NaN);
@@ -464,7 +481,7 @@ async function main() {
 
         for (const scenario of libScenarios) {
           try {
-            const result = await runScenario(page, lib, scenario);
+            const result = await runScenario(page, lib, scenario, networkSim);
             results[scenario.name].push(result.value);
             reactCommitResults[scenario.name].push(result.reactCommit ?? NaN);
             traceResults[scenario.name].push(result.traceDuration ?? NaN);
@@ -534,7 +551,7 @@ async function main() {
         const page = await context.newPage();
         for (const scenario of libScenarios) {
           try {
-            const result = await runScenario(page, lib, scenario);
+            const result = await runScenario(page, lib, scenario, networkSim);
             results[scenario.name].push(result.value);
             reactCommitResults[scenario.name].push(result.reactCommit ?? NaN);
             traceResults[scenario.name].push(result.traceDuration ?? NaN);
@@ -617,6 +634,7 @@ async function main() {
         scenario.action === 'updateEntity' ||
         scenario.action === 'updateAuthor' ||
         scenario.action === 'mountSortedView' ||
+        scenario.action === 'listDetailSwitch' ||
         scenario.action === 'invalidateAndResolve' ||
         scenario.action === 'unshiftItem' ||
         scenario.action === 'deleteEntity' ||

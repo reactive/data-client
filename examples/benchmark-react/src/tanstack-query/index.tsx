@@ -2,8 +2,10 @@ import { onProfilerRender, useBenchState } from '@shared/benchHarness';
 import {
   TRIPLE_LIST_STYLE,
   ITEM_HEIGHT,
+  ItemRow,
   ItemsRow,
   LIST_STYLE,
+  PlainItemList,
 } from '@shared/components';
 import {
   FIXTURE_AUTHORS,
@@ -70,6 +72,19 @@ function SortedListView() {
   );
 }
 
+function DetailView({ id }: { id: string }) {
+  const { data: item } = useQuery({
+    queryKey: ['item', id],
+    queryFn,
+  });
+  if (!item) return null;
+  return (
+    <div data-detail-view data-item-id={id}>
+      <ItemRow item={item as Item} />
+    </div>
+  );
+}
+
 function ListView({ count }: { count: number }) {
   const { data: items } = useQuery({
     queryKey: ['items', count],
@@ -99,13 +114,7 @@ function StatusListView({ status, count }: { status: string; count: number }) {
   return (
     <div data-status-list={status}>
       <span data-status-count>{list.length}</span>
-      <List
-        style={LIST_STYLE}
-        rowHeight={ITEM_HEIGHT}
-        rowCount={list.length}
-        rowComponent={ItemsRow}
-        rowProps={{ items: list }}
-      />
+      <PlainItemList items={list} />
     </div>
   );
 }
@@ -127,10 +136,14 @@ function BenchmarkHarness() {
     showSortedView,
     showTripleList,
     tripleListCount,
+    detailItemId,
     containerRef,
     measureMount,
     measureUpdate,
+    waitForElement,
+    setComplete,
     setShowSortedView,
+    setDetailItemId,
     registerAPI,
   } = useBenchState();
 
@@ -224,10 +237,42 @@ function BenchmarkHarness() {
     [measureMount, setShowSortedView],
   );
 
+  const listDetailSwitch = useCallback(
+    async (n: number) => {
+      await seedItemList(FIXTURE_ITEMS.slice(0, n));
+      setShowSortedView(true);
+      await waitForElement('[data-sorted-list]');
+
+      // Warmup cycle (unmeasured) — exercises the detail mount path
+      setShowSortedView(false);
+      setDetailItemId('item-0');
+      await waitForElement('[data-detail-view]');
+      setDetailItemId(null);
+      setShowSortedView(true);
+      await waitForElement('[data-sorted-list]');
+
+      performance.mark('mount-start');
+      for (let i = 1; i <= 10; i++) {
+        setShowSortedView(false);
+        setDetailItemId(`item-${i}`);
+        await waitForElement('[data-detail-view]');
+
+        setDetailItemId(null);
+        setShowSortedView(true);
+        await waitForElement('[data-sorted-list]');
+      }
+      performance.mark('mount-end');
+      performance.measure('mount-duration', 'mount-start', 'mount-end');
+      setComplete();
+    },
+    [setShowSortedView, setDetailItemId, waitForElement, setComplete],
+  );
+
   registerAPI({
     updateEntity,
     updateAuthor,
     mountSortedView,
+    listDetailSwitch,
     unshiftItem,
     deleteEntity,
     moveItem,
@@ -240,6 +285,7 @@ function BenchmarkHarness() {
       {showTripleList && tripleListCount != null && (
         <TripleListView count={tripleListCount} />
       )}
+      {detailItemId != null && <DetailView id={detailItemId} />}
     </div>
   );
 }

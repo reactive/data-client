@@ -17,8 +17,10 @@ export interface BenchAPI {
   init(count: number): void;
   updateEntity(id: string): void;
   updateAuthor(id: string): void;
-  /** Set simulated per-request network latency (ms). 0 disables and flushes pending delays. */
+  /** Set simulated per-request network latency (ms). 0 disables and clears per-method delays. */
   setNetworkDelay(ms: number): void;
+  /** Set per-method network latency overrides (e.g. { fetchItemList: 80, fetchItem: 50 }). */
+  setMethodDelays(delays: Record<string, number>): void;
   /** Wait for all deferred server mutations to settle before next iteration. */
   flushPendingMutations(): Promise<void>;
   unmountAll(): void;
@@ -41,6 +43,8 @@ export interface BenchAPI {
   initTripleList?(count: number): void;
   /** Move an item from one status-filtered list to another. Exercises Collection.move (data-client) vs invalidate+refetch (others). */
   moveItem?(id: string): void;
+  /** Switch between sorted list view and individual item detail views 10 times (20 renders). Exercises normalized cache lookup (data-client) vs per-navigation fetch (others). */
+  listDetailSwitch?(count: number): void;
 }
 
 declare global {
@@ -87,8 +91,8 @@ export type ResultMetric =
   | 'authorRefChanged'
   | 'heapDelta';
 
-/** hotPath = JS only, included in CI. withNetwork = simulated network/overfetching, comparison only. memory = heap delta, not CI. startup = page load metrics, not CI. */
-export type ScenarioCategory = 'hotPath' | 'withNetwork' | 'memory' | 'startup';
+/** hotPath = JS only, included in CI. memory = heap delta, not CI. startup = page load metrics, not CI. */
+export type ScenarioCategory = 'hotPath' | 'memory' | 'startup';
 
 /** small = cheap scenarios (full warmup + measurement). large = expensive scenarios (reduced runs). */
 export type ScenarioSize = 'small' | 'large';
@@ -99,7 +103,7 @@ export interface Scenario {
   args: unknown[];
   /** Which value to report; default 'duration'. Ref-stability use itemRefChanged/authorRefChanged; memory use heapDelta. */
   resultMetric?: ResultMetric;
-  /** hotPath (default) = run in CI. withNetwork = comparison only. memory = heap delta. startup = page load metrics. */
+  /** hotPath (default) = run in CI. memory = heap delta. startup = page load metrics. */
   category?: ScenarioCategory;
   /** small (default) = full runs. large = reduced warmup/measurement for expensive scenarios. */
   size?: ScenarioSize;
@@ -107,8 +111,6 @@ export interface Scenario {
   mountCount?: number;
   /** Use a different BenchAPI method to pre-mount (e.g. 'mountSortedView' instead of 'mount'). */
   preMountAction?: keyof BenchAPI;
-  /** Simulated per-request network latency in ms (applied at the server layer). */
-  networkDelayMs?: number;
   /** Result is deterministic (zero variance); run exactly once with no warmup. */
   deterministic?: boolean;
 }

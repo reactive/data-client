@@ -2,8 +2,10 @@ import { onProfilerRender, useBenchState } from '@shared/benchHarness';
 import {
   TRIPLE_LIST_STYLE,
   ITEM_HEIGHT,
+  ItemRow,
   ItemsRow,
   LIST_STYLE,
+  PlainItemList,
 } from '@shared/components';
 import {
   FIXTURE_AUTHORS,
@@ -83,39 +85,34 @@ function TripleListView() {
       {openItems.length > 0 && (
         <div data-status-list="open">
           <span data-status-count>{openItems.length}</span>
-          <List
-            style={LIST_STYLE}
-            rowHeight={ITEM_HEIGHT}
-            rowCount={openItems.length}
-            rowComponent={ItemsRow}
-            rowProps={{ items: openItems }}
-          />
+          <PlainItemList items={openItems} />
         </div>
       )}
       {closedItems.length > 0 && (
         <div data-status-list="closed">
           <span data-status-count>{closedItems.length}</span>
-          <List
-            style={LIST_STYLE}
-            rowHeight={ITEM_HEIGHT}
-            rowCount={closedItems.length}
-            rowComponent={ItemsRow}
-            rowProps={{ items: closedItems }}
-          />
+          <PlainItemList items={closedItems} />
         </div>
       )}
       {inProgressItems.length > 0 && (
         <div data-status-list="in_progress">
           <span data-status-count>{inProgressItems.length}</span>
-          <List
-            style={LIST_STYLE}
-            rowHeight={ITEM_HEIGHT}
-            rowCount={inProgressItems.length}
-            rowComponent={ItemsRow}
-            rowProps={{ items: inProgressItems }}
-          />
+          <PlainItemList items={inProgressItems} />
         </div>
       )}
+    </div>
+  );
+}
+
+function DetailView({ id }: { id: string }) {
+  const [item, setItem] = useState<Item | null>(null);
+  useEffect(() => {
+    ItemResource.get({ id }).then(setItem);
+  }, [id]);
+  if (!item) return null;
+  return (
+    <div data-detail-view data-item-id={id}>
+      <ItemRow item={item} />
     </div>
   );
 }
@@ -130,10 +127,14 @@ function BenchmarkHarness() {
     showSortedView,
     showTripleList,
     tripleListCount,
+    detailItemId,
     containerRef,
     measureMount,
     measureUpdate,
+    waitForElement,
+    setComplete,
     setShowSortedView,
+    setDetailItemId,
     unmountAll: unmountBase,
     registerAPI,
   } = useBenchState();
@@ -277,11 +278,43 @@ function BenchmarkHarness() {
     [measureMount, setShowSortedView],
   );
 
+  const listDetailSwitch = useCallback(
+    async (n: number) => {
+      await seedItemList(FIXTURE_ITEMS.slice(0, n));
+      setShowSortedView(true);
+      await waitForElement('[data-sorted-list]');
+
+      // Warmup cycle (unmeasured) — exercises the detail mount path
+      setShowSortedView(false);
+      setDetailItemId('item-0');
+      await waitForElement('[data-detail-view]');
+      setDetailItemId(null);
+      setShowSortedView(true);
+      await waitForElement('[data-sorted-list]');
+
+      performance.mark('mount-start');
+      for (let i = 1; i <= 10; i++) {
+        setShowSortedView(false);
+        setDetailItemId(`item-${i}`);
+        await waitForElement('[data-detail-view]');
+
+        setDetailItemId(null);
+        setShowSortedView(true);
+        await waitForElement('[data-sorted-list]');
+      }
+      performance.mark('mount-end');
+      performance.measure('mount-duration', 'mount-start', 'mount-end');
+      setComplete();
+    },
+    [setShowSortedView, setDetailItemId, waitForElement, setComplete],
+  );
+
   registerAPI({
     updateEntity,
     updateAuthor,
     unmountAll,
     mountSortedView,
+    listDetailSwitch,
     unshiftItem,
     deleteEntity,
     moveItem,
@@ -303,6 +336,7 @@ function BenchmarkHarness() {
           {listViewCount != null && <ListView />}
           {showSortedView && <SortedListView />}
           {showTripleList && tripleListCount != null && <TripleListView />}
+          {detailItemId != null && <DetailView id={detailItemId} />}
         </div>
       </TripleListContext.Provider>
     </ItemsContext.Provider>

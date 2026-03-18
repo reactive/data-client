@@ -88,3 +88,16 @@ export function ItemsRow({
     </div>
   );
 }
+
+/** Plain (non-virtualized) list keyed by item pk. Renders up to VISIBLE_COUNT items. */
+export function PlainItemList({ items }: { items: Item[] }) {
+  const visible =
+    items.length > VISIBLE_COUNT ? items.slice(0, VISIBLE_COUNT) : items;
+  return (
+    <div style={LIST_STYLE}>
+      {visible.map(item => (
+        <ItemRow key={item.id} item={item} />
+      ))}
+    </div>
+  );
+}
