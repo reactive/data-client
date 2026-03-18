@@ -45,6 +45,8 @@ export interface BenchAPI {
   moveItem?(id: string): void;
   /** Switch between sorted list view and individual item detail views 10 times (20 renders). Exercises normalized cache lookup (data-client) vs per-navigation fetch (others). */
   listDetailSwitch?(count: number): void;
+  /** Trigger store garbage collection (data-client only). Used by memory scenarios to flush unreferenced data before heap measurement. */
+  triggerGC?(): void;
 }
 
 declare global {

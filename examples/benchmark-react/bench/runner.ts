@@ -199,6 +199,10 @@ async function runScenario(
         `Harness timeout during mountUnmountCycle: a cycle did not complete within 30 s`,
       );
     }
+    await (bench as any).evaluate((api: any) => {
+      if (api.triggerGC) api.triggerGC();
+    });
+    await page.waitForTimeout(100);
     const heapAfter = await collectHeapUsed(cdp);
     await bench.dispose();
     return { value: heapAfter - heapBefore };

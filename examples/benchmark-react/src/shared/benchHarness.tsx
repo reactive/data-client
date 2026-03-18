@@ -1,8 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { createRoot } from 'react-dom/client';
 
+import { FIXTURE_ITEMS } from './data';
 import { captureSnapshot, getReport } from './refStability';
 import {
   flushPendingMutations,
+  seedItemList,
   setMethodDelays,
   setNetworkDelay,
 } from './server';
@@ -25,6 +28,29 @@ export function onProfilerRender(
     start: performance.now() - actualDuration,
     duration: actualDuration,
   });
+}
+
+const OBSERVE_MUTATIONS: MutationObserverInit = {
+  childList: true,
+  subtree: true,
+  characterData: true,
+};
+
+/** Check whether an item has moved from the "open" to the "closed" status list. */
+export function moveItemIsReady(
+  containerRef: React.RefObject<HTMLDivElement | null>,
+  id: string,
+): boolean {
+  const source = containerRef.current?.querySelector(
+    '[data-status-list="open"]',
+  );
+  const dest = containerRef.current?.querySelector(
+    '[data-status-list="closed"]',
+  );
+  return (
+    source?.querySelector(`[data-item-id="${id}"]`) == null &&
+    dest?.querySelector(`[data-item-id="${id}"]`) != null
+  );
 }
 
 /**
@@ -79,11 +105,7 @@ export function useBenchState() {
           setComplete();
         }
       });
-      observer.observe(container, {
-        childList: true,
-        subtree: true,
-        characterData: true,
-      });
+      observer.observe(container, OBSERVE_MUTATIONS);
       const timer = setTimeout(() => {
         observer.disconnect();
         performance.mark('mount-end');
@@ -117,11 +139,7 @@ export function useBenchState() {
           setComplete();
         }
       });
-      observer.observe(container, {
-        childList: true,
-        subtree: true,
-        characterData: true,
-      });
+      observer.observe(container, OBSERVE_MUTATIONS);
       const timer = setTimeout(() => {
         observer.disconnect();
         performance.mark('update-end');
@@ -150,11 +168,7 @@ export function useBenchState() {
           resolve();
         }
       });
-      observer.observe(container, {
-        childList: true,
-        subtree: true,
-        characterData: true,
-      });
+      observer.observe(container, OBSERVE_MUTATIONS);
       const timer = setTimeout(() => {
         observer.disconnect();
         resolve();
@@ -198,12 +212,61 @@ export function useBenchState() {
         });
         init(n);
         await p;
-        unmountAll();
+        apiRef.current?.unmountAll?.();
         await waitForPaint();
       }
       setComplete();
     },
-    [init, unmountAll, setComplete],
+    [init, setComplete],
+  );
+
+  const mountSortedView = useCallback(
+    async (n: number) => {
+      await seedItemList(FIXTURE_ITEMS.slice(0, n));
+      measureMount(() => {
+        setSortedViewCount(n);
+        setShowSortedView(true);
+      });
+    },
+    [measureMount, setSortedViewCount, setShowSortedView],
+  );
+
+  const listDetailSwitch = useCallback(
+    async (n: number) => {
+      await seedItemList(FIXTURE_ITEMS.slice(0, n));
+      setSortedViewCount(n);
+      setShowSortedView(true);
+      await waitForElement('[data-sorted-list]');
+
+      // Warmup cycle (unmeasured) — exercises the detail mount path
+      setShowSortedView(false);
+      setDetailItemId('item-0');
+      await waitForElement('[data-detail-view]');
+      setDetailItemId(null);
+      setShowSortedView(true);
+      await waitForElement('[data-sorted-list]');
+
+      performance.mark('mount-start');
+      for (let i = 1; i <= 10; i++) {
+        setShowSortedView(false);
+        setDetailItemId(`item-${i}`);
+        await waitForElement('[data-detail-view]');
+
+        setDetailItemId(null);
+        setShowSortedView(true);
+        await waitForElement('[data-sorted-list]');
+      }
+      performance.mark('mount-end');
+      performance.measure('mount-duration', 'mount-start', 'mount-end');
+      setComplete();
+    },
+    [
+      setSortedViewCount,
+      setShowSortedView,
+      setDetailItemId,
+      waitForElement,
+      setComplete,
+    ],
   );
 
   const getRenderedCount = useCallback(
@@ -225,6 +288,8 @@ export function useBenchState() {
       initTripleList,
       unmountAll,
       mountUnmountCycle,
+      mountSortedView,
+      listDetailSwitch,
       getRenderedCount,
       captureRefSnapshot,
       getRefStabilityReport,
@@ -272,4 +337,17 @@ export function useBenchState() {
     unmountAll,
     registerAPI,
   };
+}
+
+export function renderBenchApp(
+  Harness: React.ComponentType,
+  Wrapper?: React.ComponentType<{ children: React.ReactNode }>,
+) {
+  const rootEl = document.getElementById('root') ?? document.body;
+  const inner = (
+    <React.Profiler id="bench" onRender={onProfilerRender}>
+      <Harness />
+    </React.Profiler>
+  );
+  createRoot(rootEl).render(Wrapper ? <Wrapper>{inner}</Wrapper> : inner);
 }

@@ -1,4 +1,8 @@
-import { onProfilerRender, useBenchState } from '@shared/benchHarness';
+import {
+  moveItemIsReady,
+  renderBenchApp,
+  useBenchState,
+} from '@shared/benchHarness';
 import {
   TRIPLE_LIST_STYLE,
   ITEM_HEIGHT,
@@ -10,13 +14,11 @@ import {
 import {
   FIXTURE_AUTHORS,
   FIXTURE_AUTHORS_BY_ID,
-  FIXTURE_ITEMS,
   FIXTURE_ITEMS_BY_ID,
   sortByLabel,
 } from '@shared/data';
 import { setCurrentItems } from '@shared/refStability';
 import { AuthorResource, ItemResource } from '@shared/resources';
-import { seedItemList } from '@shared/server';
 import type { Item } from '@shared/types';
 import {
   QueryClient,
@@ -25,7 +27,6 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import React, { useCallback, useMemo } from 'react';
-import { createRoot } from 'react-dom/client';
 import { List } from 'react-window';
 
 function queryFn({ queryKey }: { queryKey: readonly unknown[] }): Promise<any> {
@@ -138,12 +139,7 @@ function BenchmarkHarness() {
     tripleListCount,
     detailItemId,
     containerRef,
-    measureMount,
     measureUpdate,
-    waitForElement,
-    setComplete,
-    setShowSortedView,
-    setDetailItemId,
     registerAPI,
   } = useBenchState();
 
@@ -210,69 +206,15 @@ function BenchmarkHarness() {
           ItemResource.update({ id }, { status: 'closed' }).then(() =>
             client.invalidateQueries({ queryKey: ['items'] }),
           ),
-        () => {
-          const source = containerRef.current?.querySelector(
-            '[data-status-list="open"]',
-          );
-          const dest = containerRef.current?.querySelector(
-            '[data-status-list="closed"]',
-          );
-          return (
-            source?.querySelector(`[data-item-id="${id}"]`) == null &&
-            dest?.querySelector(`[data-item-id="${id}"]`) != null
-          );
-        },
+        () => moveItemIsReady(containerRef, id),
       );
     },
     [measureUpdate, client, containerRef],
   );
 
-  const mountSortedView = useCallback(
-    async (n: number) => {
-      await seedItemList(FIXTURE_ITEMS.slice(0, n));
-      measureMount(() => {
-        setShowSortedView(true);
-      });
-    },
-    [measureMount, setShowSortedView],
-  );
-
-  const listDetailSwitch = useCallback(
-    async (n: number) => {
-      await seedItemList(FIXTURE_ITEMS.slice(0, n));
-      setShowSortedView(true);
-      await waitForElement('[data-sorted-list]');
-
-      // Warmup cycle (unmeasured) — exercises the detail mount path
-      setShowSortedView(false);
-      setDetailItemId('item-0');
-      await waitForElement('[data-detail-view]');
-      setDetailItemId(null);
-      setShowSortedView(true);
-      await waitForElement('[data-sorted-list]');
-
-      performance.mark('mount-start');
-      for (let i = 1; i <= 10; i++) {
-        setShowSortedView(false);
-        setDetailItemId(`item-${i}`);
-        await waitForElement('[data-detail-view]');
-
-        setDetailItemId(null);
-        setShowSortedView(true);
-        await waitForElement('[data-sorted-list]');
-      }
-      performance.mark('mount-end');
-      performance.measure('mount-duration', 'mount-start', 'mount-end');
-      setComplete();
-    },
-    [setShowSortedView, setDetailItemId, waitForElement, setComplete],
-  );
-
   registerAPI({
     updateEntity,
     updateAuthor,
-    mountSortedView,
-    listDetailSwitch,
     unshiftItem,
     deleteEntity,
     moveItem,
@@ -290,11 +232,10 @@ function BenchmarkHarness() {
   );
 }
 
-const rootEl = document.getElementById('root') ?? document.body;
-createRoot(rootEl).render(
-  <QueryClientProvider client={queryClient}>
-    <React.Profiler id="bench" onRender={onProfilerRender}>
-      <BenchmarkHarness />
-    </React.Profiler>
-  </QueryClientProvider>,
-);
+function BenchProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
+}
+
+renderBenchApp(BenchmarkHarness, BenchProvider);

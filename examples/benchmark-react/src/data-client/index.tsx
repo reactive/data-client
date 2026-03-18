@@ -1,10 +1,16 @@
 import {
   DataProvider,
+  GCPolicy,
   useController,
   useDLE,
   useSuspense,
 } from '@data-client/react';
-import { onProfilerRender, useBenchState } from '@shared/benchHarness';
+import type { Controller } from '@data-client/react';
+import {
+  moveItemIsReady,
+  renderBenchApp,
+  useBenchState,
+} from '@shared/benchHarness';
 import {
   TRIPLE_LIST_STYLE,
   ITEM_HEIGHT,
@@ -16,7 +22,6 @@ import {
 import {
   FIXTURE_AUTHORS,
   FIXTURE_AUTHORS_BY_ID,
-  FIXTURE_ITEMS,
   FIXTURE_ITEMS_BY_ID,
 } from '@shared/data';
 import { setCurrentItems } from '@shared/refStability';
@@ -25,11 +30,31 @@ import {
   ItemResource,
   sortedItemsEndpoint,
 } from '@shared/resources';
-import { getItem, patchItem, seedItemList } from '@shared/server';
+import { getItem, patchItem } from '@shared/server';
 import type { Item } from '@shared/types';
 import React, { useCallback } from 'react';
-import { createRoot } from 'react-dom/client';
 import { List } from 'react-window';
+
+/** GCPolicy with no interval (won't fire during timing scenarios) and instant
+ *  expiry so an explicit sweep() collects all unreferenced data immediately. */
+class BenchGCPolicy extends GCPolicy {
+  constructor() {
+    super({ expiresAt: () => 0 });
+  }
+
+  init(controller: Controller) {
+    this.controller = controller;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  cleanup() {}
+
+  public sweep() {
+    this.runSweep();
+  }
+}
+
+const benchGC = new BenchGCPolicy();
 
 /** Renders items from the list endpoint (models rendering a list fetch response). */
 function ListView({ count }: { count: number }) {
@@ -107,12 +132,6 @@ function BenchmarkHarness() {
     detailItemId,
     containerRef,
     measureUpdate,
-    measureMount,
-    waitForElement,
-    setComplete,
-    setShowSortedView,
-    setSortedViewCount,
-    setDetailItemId,
     registerAPI,
   } = useBenchState();
 
@@ -175,70 +194,10 @@ function BenchmarkHarness() {
         () => {
           controller.fetch(ItemResource.move, { id }, { status: 'closed' });
         },
-        () => {
-          const source = containerRef.current?.querySelector(
-            '[data-status-list="open"]',
-          );
-          const dest = containerRef.current?.querySelector(
-            '[data-status-list="closed"]',
-          );
-          return (
-            source?.querySelector(`[data-item-id="${id}"]`) == null &&
-            dest?.querySelector(`[data-item-id="${id}"]`) != null
-          );
-        },
+        () => moveItemIsReady(containerRef, id),
       );
     },
     [measureUpdate, controller, containerRef],
-  );
-
-  const mountSortedView = useCallback(
-    async (n: number) => {
-      await seedItemList(FIXTURE_ITEMS.slice(0, n));
-      measureMount(() => {
-        setSortedViewCount(n);
-        setShowSortedView(true);
-      });
-    },
-    [measureMount, setSortedViewCount, setShowSortedView],
-  );
-
-  const listDetailSwitch = useCallback(
-    async (n: number) => {
-      await seedItemList(FIXTURE_ITEMS.slice(0, n));
-      setSortedViewCount(n);
-      setShowSortedView(true);
-      await waitForElement('[data-sorted-list]');
-
-      // Warmup cycle (unmeasured) — exercises the detail mount path
-      setShowSortedView(false);
-      setDetailItemId('item-0');
-      await waitForElement('[data-detail-view]');
-      setDetailItemId(null);
-      setShowSortedView(true);
-      await waitForElement('[data-sorted-list]');
-
-      performance.mark('mount-start');
-      for (let i = 1; i <= 10; i++) {
-        setShowSortedView(false);
-        setDetailItemId(`item-${i}`);
-        await waitForElement('[data-detail-view]');
-
-        setDetailItemId(null);
-        setShowSortedView(true);
-        await waitForElement('[data-sorted-list]');
-      }
-      performance.mark('mount-end');
-      performance.measure('mount-duration', 'mount-start', 'mount-end');
-      setComplete();
-    },
-    [
-      setSortedViewCount,
-      setShowSortedView,
-      setDetailItemId,
-      waitForElement,
-      setComplete,
-    ],
   );
 
   const invalidateAndResolve = useCallback(
@@ -274,12 +233,11 @@ function BenchmarkHarness() {
   registerAPI({
     updateEntity,
     updateAuthor,
-    mountSortedView,
-    listDetailSwitch,
     invalidateAndResolve,
     unshiftItem,
     deleteEntity,
     moveItem,
+    triggerGC: () => benchGC.sweep(),
   });
 
   return (
@@ -300,11 +258,8 @@ function BenchmarkHarness() {
   );
 }
 
-const rootEl = document.getElementById('root') ?? document.body;
-createRoot(rootEl).render(
-  <DataProvider>
-    <React.Profiler id="bench" onRender={onProfilerRender}>
-      <BenchmarkHarness />
-    </React.Profiler>
-  </DataProvider>,
-);
+function BenchProvider({ children }: { children: React.ReactNode }) {
+  return <DataProvider gcPolicy={benchGC}>{children}</DataProvider>;
+}
+
+renderBenchApp(BenchmarkHarness, BenchProvider);
