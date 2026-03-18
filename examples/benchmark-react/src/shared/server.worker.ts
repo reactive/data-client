@@ -239,17 +239,6 @@ function seedItemList(items: Item[]): void {
 
 // ── MESSAGE HANDLER ──────────────────────────────────────────────────────
 
-const MUTATION_METHODS = new Set([
-  'createItem',
-  'createAuthor',
-  'updateItem',
-  'updateAuthor',
-  'deleteItem',
-  'deleteAuthor',
-  'patchItem',
-  'seedItemList',
-]);
-
 const methods: Record<string, (params: any) => unknown> = {
   fetchItem,
   fetchAuthor,
