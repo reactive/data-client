@@ -1,7 +1,7 @@
 /// <reference lib="webworker" />
 
-import { FIXTURE_AUTHORS, FIXTURE_ITEMS } from './data';
-import type { Author, Item } from './types';
+import { FIXTURE_USERS, FIXTURE_ISSUES } from './data';
+import type { Issue, Label, User } from './types';
 
 declare const self: DedicatedWorkerGlobalScope;
 
@@ -26,143 +26,139 @@ function respondError(id: number, message: string) {
 
 // ── IN-MEMORY STORES ─────────────────────────────────────────────────────
 
-const itemStore = new Map<string, Item>();
-const authorStore = new Map<string, Author>();
-let masterList: Item[] = [];
-const statusIndex = new Map<string, Item[]>();
-const idToPosition = new Map<string, number>();
+const issueStore = new Map<number, Issue>();
+const userStore = new Map<string, User>();
+let masterList: Issue[] = [];
+const stateIndex = new Map<string, Issue[]>();
+const numberToPosition = new Map<number, number>();
 
-function rebuildStatusIndex() {
-  statusIndex.clear();
-  for (const item of masterList) {
-    let list = statusIndex.get(item.status);
+function rebuildStateIndex() {
+  stateIndex.clear();
+  for (const issue of masterList) {
+    let list = stateIndex.get(issue.state);
     if (!list) {
       list = [];
-      statusIndex.set(item.status, list);
+      stateIndex.set(issue.state, list);
     }
-    list.push(item);
+    list.push(issue);
   }
 }
 
 function rebuildPositionIndex() {
-  idToPosition.clear();
+  numberToPosition.clear();
   for (let i = 0; i < masterList.length; i++) {
-    idToPosition.set(masterList[i].id, i);
+    numberToPosition.set(masterList[i].number, i);
   }
 }
 
 // Pre-seed with fixture data
-for (const author of FIXTURE_AUTHORS) {
-  authorStore.set(author.id, { ...author });
+for (const user of FIXTURE_USERS) {
+  userStore.set(user.login, { ...user });
 }
-for (const item of FIXTURE_ITEMS) {
-  const seeded: Item = { ...item, author: { ...item.author } };
-  itemStore.set(item.id, seeded);
+for (const issue of FIXTURE_ISSUES) {
+  const seeded: Issue = {
+    ...issue,
+    user: { ...issue.user },
+    labels: issue.labels.map(l => ({ ...l })),
+  };
+  issueStore.set(issue.number, seeded);
   masterList.push(seeded);
 }
-rebuildStatusIndex();
+rebuildStateIndex();
 rebuildPositionIndex();
 
 // ── READ ─────────────────────────────────────────────────────────────────
 
-function fetchItem({ id }: { id: string }): Item {
-  const item = itemStore.get(id);
-  if (!item) throw new Error(`No data for item:${id}`);
-  if (item.author?.id) {
-    const latest = authorStore.get(item.author.id);
-    if (latest && latest !== item.author) return { ...item, author: latest };
+function fetchIssue({ number }: { number: number }): Issue {
+  const issue = issueStore.get(number);
+  if (!issue) throw new Error(`No data for issue:${number}`);
+  if (issue.user?.login) {
+    const latest = userStore.get(issue.user.login);
+    if (latest && latest !== issue.user) return { ...issue, user: latest };
   }
-  return item;
+  return issue;
 }
 
-function fetchAuthor({ id }: { id: string }): Author {
-  const author = authorStore.get(id);
-  if (!author) throw new Error(`No data for author:${id}`);
-  return author;
+function fetchUser({ login }: { login: string }): User {
+  const user = userStore.get(login);
+  if (!user) throw new Error(`No data for user:${login}`);
+  return user;
 }
 
-function fetchItemList(params?: { count?: number; status?: string }): Item[] {
-  let items: Item[] =
-    params?.status ? (statusIndex.get(params.status) ?? []) : masterList;
+function fetchIssueList(params?: { count?: number; state?: string }): Issue[] {
+  let issues: Issue[] =
+    params?.state ? (stateIndex.get(params.state) ?? []) : masterList;
   if (params?.count) {
-    items = items.slice(0, params.count);
+    issues = issues.slice(0, params.count);
   }
-  items = items.map(item => {
-    if (item.author?.id) {
-      const latest = authorStore.get(item.author.id);
-      if (latest && latest !== item.author) return { ...item, author: latest };
+  issues = issues.map(issue => {
+    if (issue.user?.login) {
+      const latest = userStore.get(issue.user.login);
+      if (latest && latest !== issue.user) return { ...issue, user: latest };
     }
-    return item;
+    return issue;
   });
-  return items;
+  return issues;
 }
 
 // ── CREATE ───────────────────────────────────────────────────────────────
 
-let createItemCounter = 0;
+let createIssueCounter = 0;
 
-function createItem(body: { label: string; author: Author }): Item {
-  const id = `created-item-${createItemCounter++}`;
+function createIssue(body: {
+  title: string;
+  user: User;
+  labels?: Label[];
+}): Issue {
+  const num = 90000 + createIssueCounter++;
   const now = new Date().toISOString();
-  const item: Item = {
-    id,
-    label: body.label,
-    description: '',
-    status: 'open',
-    priority: 3,
-    tags: [],
+  const issue: Issue = {
+    id: 300000 + num,
+    number: num,
+    title: body.title,
+    body: '',
+    state: 'open',
+    locked: false,
+    comments: 0,
+    labels: body.labels ?? [],
+    user: body.user,
+    htmlUrl: `https://github.com/owner/repo/issues/${num}`,
+    repositoryUrl: 'https://api.github.com/repos/owner/repo',
+    authorAssociation: 'NONE',
     createdAt: now,
     updatedAt: now,
-    author: body.author,
+    closedAt: null,
   };
-  itemStore.set(id, item);
-  masterList.unshift(item);
+  issueStore.set(num, issue);
+  masterList.unshift(issue);
   rebuildPositionIndex();
-  const statusList = statusIndex.get(item.status);
-  if (statusList) {
-    statusList.unshift(item);
+  const stateList = stateIndex.get(issue.state);
+  if (stateList) {
+    stateList.unshift(issue);
   } else {
-    statusIndex.set(item.status, [item]);
+    stateIndex.set(issue.state, [issue]);
   }
-  return item;
-}
-
-let createAuthorCounter = 0;
-
-function createAuthor(body: { login: string; name: string }): Author {
-  const id = `created-author-${createAuthorCounter++}`;
-  const author: Author = {
-    id,
-    login: body.login,
-    name: body.name,
-    avatarUrl: `https://avatars.example.com/u/${id}?s=64`,
-    email: `${body.login}@example.com`,
-    bio: '',
-    followers: 0,
-    createdAt: new Date().toISOString(),
-  };
-  authorStore.set(id, author);
-  return author;
+  return issue;
 }
 
 // ── UPDATE ───────────────────────────────────────────────────────────────
 
-function updateItem(params: {
-  id: string;
-  label?: string;
-  status?: Item['status'];
-  author?: Author;
-}): Item {
-  const existing = itemStore.get(params.id);
-  if (!existing) throw new Error(`No data for item:${params.id}`);
-  const updated: Item = { ...existing, ...params };
-  itemStore.set(params.id, updated);
-  const idx = idToPosition.get(params.id) ?? -1;
+function updateIssue(params: {
+  number: number;
+  title?: string;
+  state?: Issue['state'];
+  user?: User;
+}): Issue {
+  const existing = issueStore.get(params.number);
+  if (!existing) throw new Error(`No data for issue:${params.number}`);
+  const updated: Issue = { ...existing, ...params };
+  issueStore.set(params.number, updated);
+  const idx = numberToPosition.get(params.number) ?? -1;
   if (idx >= 0) masterList[idx] = updated;
-  if (existing.status !== updated.status) {
-    rebuildStatusIndex();
+  if (existing.state !== updated.state) {
+    rebuildStateIndex();
   } else {
-    const sList = statusIndex.get(updated.status);
+    const sList = stateIndex.get(updated.state);
     if (sList) {
       const si = sList.indexOf(existing);
       if (si >= 0) sList[si] = updated;
@@ -171,53 +167,53 @@ function updateItem(params: {
   return updated;
 }
 
-function updateAuthor(params: {
-  id: string;
-  login?: string;
-  name?: string;
-}): Author {
-  const existing = authorStore.get(params.id);
-  if (!existing) throw new Error(`No data for author:${params.id}`);
-  const updated: Author = { ...existing, ...params };
-  authorStore.set(params.id, updated);
+function updateUser(params: { login: string; name?: string }): User {
+  const existing = userStore.get(params.login);
+  if (!existing) throw new Error(`No data for user:${params.login}`);
+  const updated: User = { ...existing, ...params };
+  userStore.set(params.login, updated);
   return updated;
 }
 
 // ── DELETE ────────────────────────────────────────────────────────────────
 
-function deleteItem({ id }: { id: string }): { id: string } {
-  itemStore.delete(id);
-  const idx = idToPosition.get(id) ?? -1;
+function deleteIssue({ number }: { number: number }): {
+  id: number;
+  number: number;
+} {
+  const existing = issueStore.get(number);
+  issueStore.delete(number);
+  const idx = numberToPosition.get(number) ?? -1;
   if (idx >= 0) {
     masterList.splice(idx, 1);
     rebuildPositionIndex();
   }
-  rebuildStatusIndex();
-  return { id };
+  rebuildStateIndex();
+  return { id: existing?.id ?? 0, number };
 }
 
-function deleteAuthor({ id }: { id: string }): { id: string } {
-  authorStore.delete(id);
-  return { id };
+function deleteUser({ login }: { login: string }): { login: string } {
+  userStore.delete(login);
+  return { login };
 }
 
 // ── DIRECT STORE ACCESS ──────────────────────────────────────────────────
 
-function getItem(id: string): Item | undefined {
-  return itemStore.get(id);
+function getIssue(number: number): Issue | undefined {
+  return issueStore.get(number);
 }
 
-function patchItem(id: string, patch: Partial<Item>): void {
-  const existing = itemStore.get(id);
+function patchIssue(number: number, patch: Partial<Issue>): void {
+  const existing = issueStore.get(number);
   if (!existing) return;
-  const updated: Item = { ...existing, ...patch };
-  itemStore.set(id, updated);
-  const idx = idToPosition.get(id) ?? -1;
+  const updated: Issue = { ...existing, ...patch };
+  issueStore.set(number, updated);
+  const idx = numberToPosition.get(number) ?? -1;
   if (idx >= 0) masterList[idx] = updated;
-  if (existing.status !== updated.status) {
-    rebuildStatusIndex();
+  if (existing.state !== updated.state) {
+    rebuildStateIndex();
   } else {
-    const sList = statusIndex.get(updated.status);
+    const sList = stateIndex.get(updated.state);
     if (sList) {
       const si = sList.indexOf(existing);
       if (si >= 0) sList[si] = updated;
@@ -225,34 +221,33 @@ function patchItem(id: string, patch: Partial<Item>): void {
   }
 }
 
-function seedItemList(items: Item[]): void {
-  masterList = items;
-  itemStore.clear();
-  authorStore.clear();
-  for (const item of items) {
-    itemStore.set(item.id, item);
-    if (item.author) authorStore.set(item.author.id, item.author);
+function seedIssueList(issues: Issue[]): void {
+  masterList = issues;
+  issueStore.clear();
+  userStore.clear();
+  for (const issue of issues) {
+    issueStore.set(issue.number, issue);
+    if (issue.user) userStore.set(issue.user.login, issue.user);
   }
-  rebuildStatusIndex();
+  rebuildStateIndex();
   rebuildPositionIndex();
 }
 
 // ── MESSAGE HANDLER ──────────────────────────────────────────────────────
 
 const methods: Record<string, (params: any) => unknown> = {
-  fetchItem,
-  fetchAuthor,
-  fetchItemList,
-  createItem,
-  createAuthor,
-  updateItem,
-  updateAuthor,
-  deleteItem,
-  deleteAuthor,
-  getItem: ({ id }: { id: string }) => getItem(id),
-  patchItem: ({ id, patch }: { id: string; patch: Partial<Item> }) =>
-    patchItem(id, patch),
-  seedItemList: ({ items }: { items: Item[] }) => seedItemList(items),
+  fetchIssue,
+  fetchUser,
+  fetchIssueList,
+  createIssue,
+  updateIssue,
+  updateUser,
+  deleteIssue,
+  deleteUser,
+  getIssue: ({ number }: { number: number }) => getIssue(number),
+  patchIssue: ({ number, patch }: { number: number; patch: Partial<Issue> }) =>
+    patchIssue(number, patch),
+  seedIssueList: ({ issues }: { issues: Issue[] }) => seedIssueList(issues),
   setNetworkDelay: ({ ms }: { ms: number }) => {
     networkDelayMs = ms;
     methodDelays = {};

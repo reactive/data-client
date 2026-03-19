@@ -1,14 +1,12 @@
 import React from 'react';
 import type { RowComponentProps } from 'react-window';
 
-import type { Author, Item } from './types';
+import type { Issue, User } from './types';
 
-export const ITEM_HEIGHT = 30;
+export const ISSUE_HEIGHT = 30;
 export const VISIBLE_COUNT = 40;
-export const LIST_STYLE = { height: ITEM_HEIGHT * VISIBLE_COUNT } as const;
-export const TRIPLE_LIST_STYLE = { display: 'flex', gap: 8 } as const;
-
-const PRIORITY_LABELS = ['', 'low', 'med', 'high', 'crit', 'max'] as const;
+export const LIST_STYLE = { height: ISSUE_HEIGHT * VISIBLE_COUNT } as const;
+export const DOUBLE_LIST_STYLE = { display: 'flex', gap: 8 } as const;
 
 function djb2(str: string): number {
   let hash = 5381;
@@ -19,36 +17,36 @@ function djb2(str: string): number {
 }
 
 /**
- * Expensive memoized author component. Simulates a realistic rich author
+ * Expensive memoized user component. Simulates a realistic rich user
  * card: avatar color derivation, bio truncation, follower formatting, date
- * parsing. Libraries that preserve author referential equality skip this
+ * parsing. Libraries that preserve user referential equality skip this
  * entirely on unrelated updates; those that don't pay per row.
  */
-function AuthorView({ author }: { author: Author }) {
-  const hash = djb2(author.id + author.login + author.email + author.bio);
+function UserView({ user }: { user: User }) {
+  const hash = djb2(user.login + user.email + user.bio);
   const hue = hash % 360;
-  const initials = author.name
+  const initials = user.name
     .split(' ')
     .map(w => w[0])
     .join('')
     .toUpperCase();
-  const bioWords = author.bio.split(/\s+/);
+  const bioWords = user.bio.split(/\s+/);
   const truncatedBio =
-    bioWords.length > 12 ? bioWords.slice(0, 12).join(' ') + '…' : author.bio;
+    bioWords.length > 12 ? bioWords.slice(0, 12).join(' ') + '…' : user.bio;
   const followerStr =
-    author.followers >= 1000 ?
-      `${(author.followers / 1000).toFixed(1)}k`
-    : String(author.followers);
-  const joinYear = new Date(author.createdAt).getFullYear();
+    user.followers >= 1000 ?
+      `${(user.followers / 1000).toFixed(1)}k`
+    : String(user.followers);
+  const joinYear = new Date(user.createdAt).getFullYear();
 
   return (
     <span
-      data-author
-      data-author-id={author.id}
+      data-user
+      data-user-login={user.login}
       style={{ color: `hsl(${hue},60%,40%)` }}
     >
       <span data-initials>{initials}</span>
-      <span data-author-name>{author.name}</span>
+      <span data-user-name>{user.name}</span>
       <span data-bio>{truncatedBio}</span>
       <span data-followers>{followerStr}</span>
       <span data-joined>{joinYear}</span>
@@ -56,47 +54,51 @@ function AuthorView({ author }: { author: Author }) {
   );
 }
 
+const STATE_ICONS: Record<string, string> = {
+  open: '🟢',
+  closed: '🟣',
+};
+
 /**
  * Row component — React Compiler auto-memoizes props/values. Libraries that
  * preserve referential equality benefit from the compiler's caching; those
- * that don't still re-execute the expensive AuthorView on every render.
+ * that don't still re-execute the expensive UserView on every render.
  */
-export function ItemRow({ item }: { item: Item }) {
-  const tagStr = item.tags.join(', ');
-  const prioLabel = PRIORITY_LABELS[item.priority] ?? item.priority;
+export function IssueRow({ issue }: { issue: Issue }) {
+  const labelStr = issue.labels.map(l => l.name).join(', ');
   return (
-    <div data-item-id={item.id} data-bench-item>
-      <span data-label>{item.label}</span>
-      <AuthorView author={item.author} />
-      <span data-priority>{prioLabel}</span>
-      <span data-status>{item.status}</span>
-      <span data-tags>{tagStr}</span>
-      <span data-desc>{item.description}</span>
+    <div data-issue-number={issue.number} data-bench-item>
+      <span data-title>{issue.title}</span>
+      <UserView user={issue.user} />
+      <span data-state>{STATE_ICONS[issue.state] ?? issue.state}</span>
+      <span data-comments>{issue.comments}</span>
+      <span data-labels>{labelStr}</span>
+      <span data-body>{issue.body}</span>
     </div>
   );
 }
 
-/** Generic react-window row that renders an ItemRow from an items array. */
-export function ItemsRow({
+/** Generic react-window row that renders an IssueRow from an issues array. */
+export function IssuesRow({
   index,
   style,
-  items,
-}: RowComponentProps<{ items: Item[] }>) {
+  issues,
+}: RowComponentProps<{ issues: Issue[] }>) {
   return (
     <div style={style}>
-      <ItemRow item={items[index]} />
+      <IssueRow issue={issues[index]} />
     </div>
   );
 }
 
-/** Plain (non-virtualized) list keyed by item pk. Renders up to VISIBLE_COUNT items. */
-export function PlainItemList({ items }: { items: Item[] }) {
+/** Plain (non-virtualized) list keyed by issue number. Renders up to VISIBLE_COUNT issues. */
+export function PlainIssueList({ issues }: { issues: Issue[] }) {
   const visible =
-    items.length > VISIBLE_COUNT ? items.slice(0, VISIBLE_COUNT) : items;
+    issues.length > VISIBLE_COUNT ? issues.slice(0, VISIBLE_COUNT) : issues;
   return (
     <div style={LIST_STYLE}>
-      {visible.map(item => (
-        <ItemRow key={item.id} item={item} />
+      {visible.map(issue => (
+        <IssueRow key={issue.number} issue={issue} />
       ))}
     </div>
   );

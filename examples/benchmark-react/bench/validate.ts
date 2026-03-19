@@ -21,7 +21,7 @@ const BASE_URL =
   `http://localhost:${process.env.BENCH_PORT ?? '5173'}`;
 
 // react-window virtualises; keep test counts within the visible window
-const TEST_ITEM_COUNT = 20;
+const TEST_ISSUE_COUNT = 20;
 
 // ---------------------------------------------------------------------------
 // CLI
@@ -64,18 +64,18 @@ async function clearComplete(page: Page) {
     .evaluate(el => el.removeAttribute('data-bench-complete'));
 }
 
-async function getItemLabels(page: Page): Promise<Record<string, string>> {
+async function getIssueTitles(page: Page): Promise<Record<number, string>> {
   return page.evaluate(() => {
-    const out: Record<string, string> = {};
+    const out: Record<number, string> = {};
     for (const el of document.querySelectorAll('[data-bench-item]')) {
-      const id = (el as HTMLElement).dataset.itemId ?? '';
-      out[id] = el.querySelector('[data-label]')?.textContent?.trim() ?? '';
+      const num = Number((el as HTMLElement).dataset.issueNumber ?? '0');
+      out[num] = el.querySelector('[data-title]')?.textContent?.trim() ?? '';
     }
     return out;
   });
 }
 
-async function getItemCount(page: Page): Promise<number> {
+async function getIssueCount(page: Page): Promise<number> {
   return page.evaluate(
     () => document.querySelectorAll('[data-bench-item]').length,
   );
@@ -95,18 +95,18 @@ async function waitFor(
   throw new Error(`Timed out waiting for: ${description} (${timeoutMs}ms)`);
 }
 
-/** Init items and wait until at least one appears in the DOM. */
-async function initAndWaitForItems(
+/** Init issues and wait until at least one appears in the DOM. */
+async function initAndWaitForIssues(
   page: Page,
-  count: number = TEST_ITEM_COUNT,
+  count: number = TEST_ISSUE_COUNT,
 ) {
   await clearComplete(page);
   await page.evaluate((n: number) => window.__BENCH__!.init(n), count);
   await waitForComplete(page);
   await waitFor(
     page,
-    async () => (await getItemCount(page)) > 0,
-    `items rendered after init(${count})`,
+    async () => (await getIssueCount(page)) > 0,
+    `issues rendered after init(${count})`,
   );
 }
 
@@ -151,82 +151,78 @@ function test(name: string, fn: TestFn, opts?: { onlyLibs?: string[] }) {
 
 // ── init ─────────────────────────────────────────────────────────────────
 
-test('init renders items with correct labels', async (page, lib) => {
-  await initAndWaitForItems(page);
+test('init renders issues with correct titles', async (page, lib) => {
+  await initAndWaitForIssues(page);
 
-  const labels = await getItemLabels(page);
-  const ids = Object.keys(labels);
-  assert(ids.length > 0, lib, 'init', `no items in DOM`);
+  const titles = await getIssueTitles(page);
+  const nums = Object.keys(titles).map(Number);
+  assert(nums.length > 0, lib, 'init', `no issues in DOM`);
 
+  // Issue #1 is the first generated issue
   assert(
-    labels['item-0'] === 'Item 0',
+    titles[1] != null && titles[1].length > 0,
     lib,
     'init',
-    `item-0 label: expected "Item 0", got "${labels['item-0']}"`,
+    `issue #1 title missing or empty, got "${titles[1]}"`,
   );
 
   const renderedCount = await page.evaluate(() =>
     window.__BENCH__!.getRenderedCount(),
   );
   assert(
-    renderedCount === TEST_ITEM_COUNT,
+    renderedCount === TEST_ISSUE_COUNT,
     lib,
     'init getRenderedCount',
-    `expected ${TEST_ITEM_COUNT}, got ${renderedCount}`,
+    `expected ${TEST_ISSUE_COUNT}, got ${renderedCount}`,
   );
 });
 
 // ── updateEntity ─────────────────────────────────────────────────────────
 
-test('updateEntity changes item label in DOM', async (page, lib) => {
-  await initAndWaitForItems(page);
+test('updateEntity changes issue title in DOM', async (page, lib) => {
+  await initAndWaitForIssues(page);
 
   await clearComplete(page);
-  await page.evaluate(() => window.__BENCH__!.updateEntity('item-0'));
+  await page.evaluate(() => window.__BENCH__!.updateEntity(1));
   await waitForComplete(page);
 
   await waitFor(
     page,
-    async () =>
-      (await getItemLabels(page))['item-0']?.includes('(updated)') ?? false,
-    'item-0 label contains "(updated)"',
+    async () => (await getIssueTitles(page))[1]?.includes('(updated)') ?? false,
+    'issue #1 title contains "(updated)"',
   );
 
-  const labels = await getItemLabels(page);
+  const titles = await getIssueTitles(page);
   assert(
-    labels['item-0']?.includes('(updated)'),
+    titles[1]?.includes('(updated)'),
     lib,
     'updateEntity',
-    `item-0 should contain "(updated)", got "${labels['item-0']}"`,
+    `issue #1 should contain "(updated)", got "${titles[1]}"`,
   );
   assert(
-    !labels['item-1']?.includes('(updated)'),
+    !titles[2]?.includes('(updated)'),
     lib,
     'updateEntity unchanged',
-    `item-1 should be unchanged, got "${labels['item-1']}"`,
+    `issue #2 should be unchanged, got "${titles[2]}"`,
   );
 });
 
-// ── updateAuthor ─────────────────────────────────────────────────────────
+// ── updateUser ───────────────────────────────────────────────────────────
 
-test('updateAuthor propagates to DOM', async (page, _lib) => {
-  await initAndWaitForItems(page);
+test('updateUser propagates to DOM', async (page, _lib) => {
+  await initAndWaitForIssues(page);
 
-  // The displayed column includes author.name; updateAuthor changes author.name.
-  // Non-normalized libs refetch the whole list (which joins latest author).
-  // Verify at minimum that items are still present after the operation.
-  const labelsBefore = await getItemLabels(page);
-  const countBefore = Object.keys(labelsBefore).length;
+  const titlesBefore = await getIssueTitles(page);
+  const countBefore = Object.keys(titlesBefore).length;
 
   await clearComplete(page);
-  await page.evaluate(() => window.__BENCH__!.updateAuthor('author-0'));
+  await page.evaluate(() => window.__BENCH__!.updateUser('user0'));
   await waitForComplete(page);
 
-  // After updateAuthor + any async refetch, items should still be rendered
   await waitFor(
     page,
-    async () => (await getItemCount(page)) >= countBefore,
-    'items still rendered after updateAuthor',
+    async () => (await getIssueCount(page)) >= countBefore,
+    'issues still rendered after updateUser',
     5000,
   );
 });
@@ -234,94 +230,91 @@ test('updateAuthor propagates to DOM', async (page, _lib) => {
 // ── ref-stability: updateEntity ──────────────────────────────────────────
 
 test('ref-stability after updateEntity', async (page, lib) => {
-  await initAndWaitForItems(page);
+  await initAndWaitForIssues(page);
 
   await page.evaluate(() => window.__BENCH__!.captureRefSnapshot());
 
   await clearComplete(page);
-  await page.evaluate(() => window.__BENCH__!.updateEntity('item-0'));
+  await page.evaluate(() => window.__BENCH__!.updateEntity(1));
   await waitForComplete(page);
 
-  // Wait for the label change to actually reach the DOM
   await waitFor(
     page,
-    async () =>
-      (await getItemLabels(page))['item-0']?.includes('(updated)') ?? false,
-    'item-0 label updated before ref check',
+    async () => (await getIssueTitles(page))[1]?.includes('(updated)') ?? false,
+    'issue #1 title updated before ref check',
   );
 
   const r = await page.evaluate(() =>
     window.__BENCH__!.getRefStabilityReport(),
   );
-  const total = r.itemRefChanged + r.itemRefUnchanged;
+  const total = r.issueRefChanged + r.issueRefUnchanged;
   assert(
-    total === TEST_ITEM_COUNT,
+    total === TEST_ISSUE_COUNT,
     lib,
     'ref-stability total',
-    `expected ${TEST_ITEM_COUNT} items in report, got ${total} (changed=${r.itemRefChanged} unchanged=${r.itemRefUnchanged})`,
+    `expected ${TEST_ISSUE_COUNT} issues in report, got ${total} (changed=${r.issueRefChanged} unchanged=${r.issueRefUnchanged})`,
   );
   assert(
-    r.itemRefChanged >= 1,
+    r.issueRefChanged >= 1,
     lib,
     'ref-stability changed',
-    `expected ≥1 itemRefChanged, got ${r.itemRefChanged}. ` +
-      `setCurrentItems may not have been called with updated data before measurement.`,
+    `expected ≥1 issueRefChanged, got ${r.issueRefChanged}. ` +
+      `setCurrentIssues may not have been called with updated data before measurement.`,
   );
   process.stderr.write(
-    `    itemRefChanged=${r.itemRefChanged} authorRefChanged=${r.authorRefChanged}\n`,
+    `    issueRefChanged=${r.issueRefChanged} userRefChanged=${r.userRefChanged}\n`,
   );
 });
 
-// ── ref-stability: updateAuthor ──────────────────────────────────────────
+// ── ref-stability: updateUser ────────────────────────────────────────────
 
-test('ref-stability after updateAuthor', async (page, lib) => {
-  await initAndWaitForItems(page);
+test('ref-stability after updateUser', async (page, lib) => {
+  await initAndWaitForIssues(page);
 
   await page.evaluate(() => window.__BENCH__!.captureRefSnapshot());
 
   await clearComplete(page);
-  await page.evaluate(() => window.__BENCH__!.updateAuthor('author-0'));
+  await page.evaluate(() => window.__BENCH__!.updateUser('user0'));
   await waitForComplete(page);
 
-  // Wait for the author change to propagate (async refetch for SWR/tanstack)
   await waitFor(
     page,
     async () => {
       const r = await page.evaluate(() =>
         window.__BENCH__!.getRefStabilityReport(),
       );
-      return r.authorRefChanged > 0;
+      return r.userRefChanged > 0;
     },
-    'authorRefChanged > 0',
+    'userRefChanged > 0',
     5000,
   );
 
   const r = await page.evaluate(() =>
     window.__BENCH__!.getRefStabilityReport(),
   );
-  const total = r.authorRefChanged + r.authorRefUnchanged;
+  const total = r.userRefChanged + r.userRefUnchanged;
   assert(
-    total === TEST_ITEM_COUNT,
+    total === TEST_ISSUE_COUNT,
     lib,
-    'ref-stability-author total',
-    `expected ${TEST_ITEM_COUNT} items, got ${total}`,
+    'ref-stability-user total',
+    `expected ${TEST_ISSUE_COUNT} issues, got ${total}`,
   );
-  // 20 items ÷ 20 authors = 1 item per author
-  const expectedMin = Math.floor(TEST_ITEM_COUNT / 20);
+  // 20 issues ÷ 20 users = 1 issue per user
+  const expectedMin = Math.floor(TEST_ISSUE_COUNT / 20);
   assert(
-    r.authorRefChanged >= expectedMin,
+    r.userRefChanged >= expectedMin,
     lib,
-    'ref-stability-author count',
-    `expected ≥${expectedMin} authorRefChanged, got ${r.authorRefChanged}`,
+    'ref-stability-user count',
+    `expected ≥${expectedMin} userRefChanged, got ${r.userRefChanged}`,
   );
   process.stderr.write(
-    `    itemRefChanged=${r.itemRefChanged} authorRefChanged=${r.authorRefChanged}\n`,
+    `    issueRefChanged=${r.issueRefChanged} userRefChanged=${r.userRefChanged}\n`,
   );
 });
 
 // ── unshiftItem ──────────────────────────────────────────────────────────
 
-test('unshiftItem adds an item', async (page, _lib) => {
+test('unshiftItem adds an issue', async (page, _lib) => {
   if (
     !(await page.evaluate(
       () => typeof window.__BENCH__?.unshiftItem === 'function',
@@ -329,7 +322,7 @@ test('unshiftItem adds an item', async (page, _lib) => {
   )
     return;
 
-  await initAndWaitForItems(page, 10);
+  await initAndWaitForIssues(page, 10);
 
   await clearComplete(page);
   await page.evaluate(() => window.__BENCH__!.unshiftItem!());
@@ -338,17 +331,17 @@ test('unshiftItem adds an item', async (page, _lib) => {
   await waitFor(
     page,
     async () => {
-      const labels = await getItemLabels(page);
-      return Object.values(labels).some(l => l === 'New Item');
+      const titles = await getIssueTitles(page);
+      return Object.values(titles).some(t => t === 'New Issue');
     },
-    '"New Item" appears in DOM',
+    '"New Issue" appears in DOM',
     5000,
   );
 });
 
 // ── deleteEntity ─────────────────────────────────────────────────────────
 
-test('deleteEntity removes an item', async (page, _lib) => {
+test('deleteEntity removes an issue', async (page, _lib) => {
   if (
     !(await page.evaluate(
       () => typeof window.__BENCH__?.deleteEntity === 'function',
@@ -356,24 +349,19 @@ test('deleteEntity removes an item', async (page, _lib) => {
   )
     return;
 
-  await initAndWaitForItems(page, 10);
+  await initAndWaitForIssues(page, 10);
 
-  const labelsBefore = await getItemLabels(page);
-  assert(
-    'item-0' in labelsBefore,
-    _lib,
-    'deleteEntity setup',
-    'item-0 missing',
-  );
+  const titlesBefore = await getIssueTitles(page);
+  assert(1 in titlesBefore, _lib, 'deleteEntity setup', 'issue #1 missing');
 
   await clearComplete(page);
-  await page.evaluate(() => window.__BENCH__!.deleteEntity!('item-0'));
+  await page.evaluate(() => window.__BENCH__!.deleteEntity!(1));
   await waitForComplete(page);
 
   await waitFor(
     page,
-    async () => !('item-0' in (await getItemLabels(page))),
-    'item-0 removed from DOM',
+    async () => !(1 in (await getIssueTitles(page))),
+    'issue #1 removed from DOM',
     5000,
   );
 });
@@ -388,9 +376,9 @@ test('mountSortedView renders sorted list', async (page, _lib) => {
   )
     return;
 
-  // For data-client, sorted view queries All(ItemEntity) from the normalised
+  // For data-client, sorted view queries All(IssueEntity) from the normalised
   // store, so we must populate the store first via init.
-  await initAndWaitForItems(page);
+  await initAndWaitForIssues(page);
   await page.evaluate(() => window.__BENCH__!.unmountAll());
   await page.waitForTimeout(200);
 
@@ -421,12 +409,10 @@ test(
     )
       return;
 
-    await initAndWaitForItems(page, 10);
+    await initAndWaitForIssues(page, 10);
 
     await clearComplete(page);
-    await page.evaluate(() =>
-      window.__BENCH__!.invalidateAndResolve!('item-0'),
-    );
+    await page.evaluate(() => window.__BENCH__!.invalidateAndResolve!(1));
     await waitForComplete(page, 15000);
   },
   { onlyLibs: ['data-client'] },
@@ -434,7 +420,7 @@ test(
 
 // ── moveItem ─────────────────────────────────────────────────────────
 
-test('moveItem moves item between status lists', async (page, lib) => {
+test('moveItem moves issue between state lists', async (page, lib) => {
   if (
     !(await page.evaluate(
       () => typeof window.__BENCH__?.moveItem === 'function',
@@ -443,7 +429,7 @@ test('moveItem moves item between status lists', async (page, lib) => {
     return;
 
   await clearComplete(page);
-  await page.evaluate(() => window.__BENCH__!.initTripleList!(20));
+  await page.evaluate(() => window.__BENCH__!.initDoubleList!(20));
   await waitForComplete(page);
 
   await waitFor(
@@ -452,27 +438,27 @@ test('moveItem moves item between status lists', async (page, lib) => {
       page.evaluate(
         () =>
           document.querySelector(
-            '[data-status-list="open"] [data-bench-item]',
+            '[data-state-list="open"] [data-bench-item]',
           ) !== null &&
           document.querySelector(
-            '[data-status-list="closed"] [data-bench-item]',
+            '[data-state-list="closed"] [data-bench-item]',
           ) !== null,
       ),
-    'both status lists rendered',
+    'both state lists rendered',
     5000,
   );
 
-  // item-0 has status 'open' in fixture data
+  // Issue #1 has state 'open' in fixture data (number 1 => index 0, i%3!==0 => open)
   const inOpen = await page.evaluate(
     () =>
       document.querySelector(
-        '[data-status-list="open"] [data-item-id="item-0"]',
+        '[data-state-list="open"] [data-issue-number="1"]',
       ) !== null,
   );
-  assert(inOpen, lib, 'moveItem setup', 'item-0 not in open list');
+  assert(inOpen, lib, 'moveItem setup', 'issue #1 not in open list');
 
   await clearComplete(page);
-  await page.evaluate(() => window.__BENCH__!.moveItem!('item-0'));
+  await page.evaluate(() => window.__BENCH__!.moveItem!(1));
   await waitForComplete(page);
 
   await waitFor(
@@ -481,24 +467,24 @@ test('moveItem moves item between status lists', async (page, lib) => {
       page.evaluate(
         () =>
           document.querySelector(
-            '[data-status-list="closed"] [data-item-id="item-0"]',
+            '[data-state-list="closed"] [data-issue-number="1"]',
           ) !== null,
       ),
-    'item-0 in closed list after move',
+    'issue #1 in closed list after move',
     5000,
   );
 
   const inOpenAfter = await page.evaluate(
     () =>
       document.querySelector(
-        '[data-status-list="open"] [data-item-id="item-0"]',
+        '[data-state-list="open"] [data-issue-number="1"]',
       ) !== null,
   );
   assert(
     !inOpenAfter,
     lib,
     'moveItem removed from source',
-    'item-0 still in open list after move',
+    'issue #1 still in open list after move',
   );
 });
 
@@ -516,7 +502,6 @@ test('listDetailSwitch completes with correct DOM transitions', async (page, lib
   await page.evaluate(() => window.__BENCH__!.listDetailSwitch!(20));
   await waitForComplete(page, 30000);
 
-  // After completion we should be back on the sorted list (last transition)
   const hasSortedList = await page.evaluate(
     () => document.querySelector('[data-sorted-list]') !== null,
   );
@@ -527,7 +512,6 @@ test('listDetailSwitch completes with correct DOM transitions', async (page, lib
     'sorted list not in DOM after listDetailSwitch completed',
   );
 
-  // Detail view should be gone
   const hasDetail = await page.evaluate(
     () => document.querySelector('[data-detail-view]') !== null,
   );
@@ -538,7 +522,6 @@ test('listDetailSwitch completes with correct DOM transitions', async (page, lib
     'detail view still in DOM after listDetailSwitch completed',
   );
 
-  // A mount-duration measure should have been recorded
   const hasMeasure = await page.evaluate(() =>
     performance
       .getEntriesByType('measure')
@@ -561,16 +544,16 @@ test('listDetailSwitch completes with correct DOM transitions', async (page, lib
 // dispatches optimistic updates to the store synchronously.
 
 test('updateEntity timing: DOM reflects change at measurement end', async (page, lib) => {
-  await initAndWaitForItems(page);
+  await initAndWaitForIssues(page);
   await page.evaluate(() => window.__BENCH__!.setNetworkDelay(100));
 
   await clearComplete(page);
-  await page.evaluate(() => window.__BENCH__!.updateEntity('item-0'));
+  await page.evaluate(() => window.__BENCH__!.updateEntity(1));
   await waitForComplete(page);
 
-  const labels = await getItemLabels(page);
+  const titles = await getIssueTitles(page);
   assert(
-    labels['item-0']?.includes('(updated)') ?? false,
+    titles[1]?.includes('(updated)') ?? false,
     lib,
     'updateEntity timing',
     `DOM not updated when data-bench-complete fired. ` +
@@ -588,19 +571,19 @@ test('unshiftItem timing: DOM reflects change at measurement end', async (page, 
   )
     return;
 
-  await initAndWaitForItems(page, 10);
+  await initAndWaitForIssues(page, 10);
   await page.evaluate(() => window.__BENCH__!.setNetworkDelay(100));
 
   await clearComplete(page);
   await page.evaluate(() => window.__BENCH__!.unshiftItem!());
   await waitForComplete(page);
 
-  const labels = await getItemLabels(page);
+  const titles = await getIssueTitles(page);
   assert(
-    Object.values(labels).some(l => l === 'New Item'),
+    Object.values(titles).some(t => t === 'New Issue'),
     lib,
     'unshiftItem timing',
-    `"New Item" not in DOM when data-bench-complete fired. ` +
+    `"New Issue" not in DOM when data-bench-complete fired. ` +
       `Ensure measureUpdate callback returns its promise chain.`,
   );
 
@@ -615,19 +598,19 @@ test('deleteEntity timing: DOM reflects change at measurement end', async (page,
   )
     return;
 
-  await initAndWaitForItems(page, 10);
+  await initAndWaitForIssues(page, 10);
   await page.evaluate(() => window.__BENCH__!.setNetworkDelay(100));
 
   await clearComplete(page);
-  await page.evaluate(() => window.__BENCH__!.deleteEntity!('item-0'));
+  await page.evaluate(() => window.__BENCH__!.deleteEntity!(1));
   await waitForComplete(page);
 
-  const labels = await getItemLabels(page);
+  const titles = await getIssueTitles(page);
   assert(
-    !('item-0' in labels),
+    !(1 in titles),
     lib,
     'deleteEntity timing',
-    `item-0 still in DOM when data-bench-complete fired. ` +
+    `issue #1 still in DOM when data-bench-complete fired. ` +
       `Ensure measureUpdate callback returns its promise chain.`,
   );
 

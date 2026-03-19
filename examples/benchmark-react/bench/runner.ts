@@ -125,14 +125,14 @@ const USE_TRACE = process.env.BENCH_TRACE === 'true';
 // Scenario runner (unchanged logic)
 // ---------------------------------------------------------------------------
 
-const REF_STABILITY_METRICS = ['itemRefChanged', 'authorRefChanged'] as const;
+const REF_STABILITY_METRICS = ['issueRefChanged', 'userRefChanged'] as const;
 
 function isRefStabilityScenario(scenario: Scenario): scenario is Scenario & {
   resultMetric: (typeof REF_STABILITY_METRICS)[number];
 } {
   return (
-    scenario.resultMetric === 'itemRefChanged' ||
-    scenario.resultMetric === 'authorRefChanged'
+    scenario.resultMetric === 'issueRefChanged' ||
+    scenario.resultMetric === 'userRefChanged'
   );
 }
 
@@ -210,7 +210,7 @@ async function runScenario(
 
   const isUpdate =
     scenario.action === 'updateEntity' ||
-    scenario.action === 'updateAuthor' ||
+    scenario.action === 'updateUser' ||
     scenario.action === 'invalidateAndResolve' ||
     scenario.action === 'unshiftItem' ||
     scenario.action === 'deleteEntity' ||
@@ -328,7 +328,7 @@ async function runScenario(
   const isMountLike =
     isInit ||
     scenario.action === 'mountSortedView' ||
-    scenario.action === 'initTripleList' ||
+    scenario.action === 'initDoubleList' ||
     scenario.action === 'listDetailSwitch';
   const duration =
     isMountLike ?
@@ -397,8 +397,8 @@ function shuffle<T>(arr: T[]): T[] {
 
 function scenarioUnit(scenario: Scenario): string {
   if (
-    scenario.resultMetric === 'itemRefChanged' ||
-    scenario.resultMetric === 'authorRefChanged'
+    scenario.resultMetric === 'issueRefChanged' ||
+    scenario.resultMetric === 'userRefChanged'
   )
     return 'count';
   if (scenario.resultMetric === 'heapDelta') return 'bytes';
@@ -665,9 +665,9 @@ async function main() {
     if (
       reactSamples.length > 0 &&
       (scenario.action === 'init' ||
-        scenario.action === 'initTripleList' ||
+        scenario.action === 'initDoubleList' ||
         scenario.action === 'updateEntity' ||
-        scenario.action === 'updateAuthor' ||
+        scenario.action === 'updateUser' ||
         scenario.action === 'mountSortedView' ||
         scenario.action === 'listDetailSwitch' ||
         scenario.action === 'invalidateAndResolve' ||

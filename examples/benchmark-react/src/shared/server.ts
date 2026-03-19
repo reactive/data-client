@@ -1,4 +1,4 @@
-import type { Author, Item } from './types';
+import type { Issue, Label, User } from './types';
 
 // ── WORKER SETUP ─────────────────────────────────────────────────────────
 
@@ -52,78 +52,78 @@ export function flushPendingMutations(): Promise<void> {
 
 // ── READ ─────────────────────────────────────────────────────────────────
 
-export function fetchItem(params: { id: string }): Promise<Item> {
-  return sendRequest('fetchItem', params);
+export function fetchIssue(params: { number: number }): Promise<Issue> {
+  return sendRequest('fetchIssue', params);
 }
 
-export function fetchAuthor(params: { id: string }): Promise<Author> {
-  return sendRequest('fetchAuthor', params);
+export function fetchUser(params: { login: string }): Promise<User> {
+  return sendRequest('fetchUser', params);
 }
 
-export function fetchItemList(params?: {
+export function fetchIssueList(params?: {
   count?: number;
-  status?: string;
-}): Promise<Item[]> {
-  return sendRequest('fetchItemList', params);
+  state?: string;
+}): Promise<Issue[]> {
+  return sendRequest('fetchIssueList', params);
 }
 
 // ── CREATE ───────────────────────────────────────────────────────────────
 
-export function createItem(body: {
-  label: string;
-  author: Author;
-}): Promise<Item> {
-  return sendMutation('createItem', body);
-}
-
-export function createAuthor(body: {
-  login: string;
-  name: string;
-}): Promise<Author> {
-  return sendMutation('createAuthor', body);
+export function createIssue(body: {
+  title: string;
+  user: User;
+  labels?: Label[];
+}): Promise<Issue> {
+  return sendMutation('createIssue', body);
 }
 
 // ── UPDATE ───────────────────────────────────────────────────────────────
 
-export function updateItem(params: {
-  id: string;
-  label?: string;
-  status?: Item['status'];
-  author?: Author;
-}): Promise<Item> {
-  return sendMutation('updateItem', params);
+export function updateIssue(params: {
+  number: number;
+  title?: string;
+  state?: Issue['state'];
+  user?: User;
+}): Promise<Issue> {
+  return sendMutation('updateIssue', params);
 }
 
-export function updateAuthor(params: {
-  id: string;
-  login?: string;
+export function updateUser(params: {
+  login: string;
   name?: string;
-}): Promise<Author> {
-  return sendMutation('updateAuthor', params);
+}): Promise<User> {
+  return sendMutation('updateUser', params);
 }
 
 // ── DELETE ────────────────────────────────────────────────────────────────
 
-export function deleteItem(params: { id: string }): Promise<{ id: string }> {
-  return sendMutation('deleteItem', params);
+export function deleteIssue(params: {
+  number: number;
+}): Promise<{ id: number; number: number }> {
+  return sendMutation('deleteIssue', params);
 }
 
-export function deleteAuthor(params: { id: string }): Promise<{ id: string }> {
-  return sendMutation('deleteAuthor', params);
+export function deleteUser(params: {
+  login: string;
+}): Promise<{ login: string }> {
+  return sendMutation('deleteUser', params);
 }
 
 // ── DIRECT STORE ACCESS (pre-measurement setup) ─────────────────────────
 
-export function getItem(id: string): Promise<Item | undefined> {
-  return sendRequest('getItem', { id });
+export function getIssue(number: number): Promise<Issue | undefined> {
+  return sendRequest('getIssue', { number });
 }
 
-export function patchItem(id: string, patch: Partial<Item>): Promise<void> {
-  return sendRequest('patchItem', { id, patch });
+export function patchIssue(
+  number: number,
+  patch: Partial<Issue>,
+): Promise<void> {
+  return sendRequest('patchIssue', { number, patch });
 }
 
-export function seedItemList(items: Item[]): Promise<void> {
-  return sendRequest('seedItemList', { items });
+export function seedIssueList(issues: Issue[]): Promise<void> {
+  return sendRequest('seedIssueList', { issues });
 }
 
 // ── CONTROL ──────────────────────────────────────────────────────────────

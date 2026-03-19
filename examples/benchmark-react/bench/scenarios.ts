@@ -2,15 +2,14 @@ import type { BenchAPI, Scenario, ScenarioSize } from '../src/shared/types.js';
 
 /** Per-method network latency used when --network-sim is enabled (default: on). */
 export const NETWORK_SIM_DELAYS: Record<string, number> = {
-  fetchItemList: 80,
-  fetchItem: 50,
-  fetchAuthor: 50,
-  createItem: 50,
-  createAuthor: 50,
-  updateItem: 50,
-  updateAuthor: 50,
-  deleteItem: 50,
-  deleteAuthor: 50,
+  fetchIssueList: 80,
+  fetchIssue: 50,
+  fetchUser: 50,
+  createIssue: 50,
+  updateIssue: 50,
+  updateUser: 50,
+  deleteIssue: 50,
+  deleteUser: 50,
 };
 
 export interface RunProfile {
@@ -37,8 +36,8 @@ export const RUN_CONFIG: Record<ScenarioSize, RunProfile> = {
 };
 
 export const ACTION_GROUPS: Record<string, (keyof BenchAPI)[]> = {
-  mount: ['init', 'initTripleList', 'mountSortedView', 'listDetailSwitch'],
-  update: ['updateEntity', 'updateAuthor'],
+  mount: ['init', 'initDoubleList', 'mountSortedView', 'listDetailSwitch'],
+  update: ['updateEntity', 'updateUser'],
   mutation: ['unshiftItem', 'deleteEntity', 'invalidateAndResolve', 'moveItem'],
   memory: ['mountUnmountCycle'],
 };
@@ -76,29 +75,29 @@ const BASE_SCENARIOS: BaseScenario[] = [
   {
     nameSuffix: 'update-single-entity',
     action: 'updateEntity',
-    args: ['item-0'],
+    args: [1],
     category: 'hotPath',
   },
   {
-    nameSuffix: 'ref-stability-item-changed',
+    nameSuffix: 'ref-stability-issue-changed',
     action: 'updateEntity',
-    args: ['item-0'],
-    resultMetric: 'itemRefChanged',
+    args: [1],
+    resultMetric: 'issueRefChanged',
     category: 'hotPath',
     deterministic: true,
   },
   {
-    nameSuffix: 'ref-stability-author-changed',
-    action: 'updateAuthor',
-    args: ['author-0'],
-    resultMetric: 'authorRefChanged',
+    nameSuffix: 'ref-stability-user-changed',
+    action: 'updateUser',
+    args: ['user0'],
+    resultMetric: 'userRefChanged',
     category: 'hotPath',
     deterministic: true,
   },
   {
-    nameSuffix: 'update-shared-author-500-mounted',
-    action: 'updateAuthor',
-    args: ['author-0'],
+    nameSuffix: 'update-shared-user-500-mounted',
+    action: 'updateUser',
+    args: ['user0'],
     category: 'hotPath',
     mountCount: 500,
     size: 'large',
@@ -121,7 +120,7 @@ const BASE_SCENARIOS: BaseScenario[] = [
   {
     nameSuffix: 'sorted-view-update-entity',
     action: 'updateEntity',
-    args: ['item-0'],
+    args: [1],
     category: 'hotPath',
     mountCount: 500,
     preMountAction: 'mountSortedView',
@@ -135,9 +134,9 @@ const BASE_SCENARIOS: BaseScenario[] = [
     size: 'large',
   },
   {
-    nameSuffix: 'update-shared-author-10000-mounted',
-    action: 'updateAuthor',
-    args: ['author-0'],
+    nameSuffix: 'update-shared-user-10000-mounted',
+    action: 'updateUser',
+    args: ['user0'],
     category: 'hotPath',
     mountCount: 10000,
     size: 'large',
@@ -145,7 +144,7 @@ const BASE_SCENARIOS: BaseScenario[] = [
   {
     nameSuffix: 'invalidate-and-resolve',
     action: 'invalidateAndResolve',
-    args: ['item-0'],
+    args: [1],
     category: 'hotPath',
     onlyLibs: ['data-client'],
   },
@@ -159,17 +158,17 @@ const BASE_SCENARIOS: BaseScenario[] = [
   {
     nameSuffix: 'delete-item',
     action: 'deleteEntity',
-    args: ['item-0'],
+    args: [1],
     category: 'hotPath',
     mountCount: 100,
   },
   {
     nameSuffix: 'move-item',
     action: 'moveItem',
-    args: ['item-0'],
+    args: [1],
     category: 'hotPath',
     mountCount: 100,
-    preMountAction: 'initTripleList',
+    preMountAction: 'initDoubleList',
   },
 ];
 

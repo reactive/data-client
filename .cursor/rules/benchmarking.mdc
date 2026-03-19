@@ -31,12 +31,12 @@ Use this mapping when deciding which React benchmark scenarios are relevant to a
   - Relevant for: `@data-client/react` hooks, `@data-client/core` store initialization
   - All libraries
 
-- **Update propagation** (`update-single-entity`, `update-shared-author-500-mounted`, `update-shared-author-10000-mounted`)
+- **Update propagation** (`update-single-entity`, `update-shared-user-500-mounted`, `update-shared-user-10000-mounted`)
   - Exercises: store update → React rerender → DOM mutation
   - Relevant for: `@data-client/core` dispatch/reducer, `@data-client/react` subscription/selector
-  - All libraries (normalization advantage shows with shared author at scale)
+  - All libraries (normalization advantage shows with shared user at scale)
 
-- **Ref-stability** (`ref-stability-item-changed`, `ref-stability-author-changed`)
+- **Ref-stability** (`ref-stability-issue-changed`, `ref-stability-user-changed`)
   - Exercises: referential equality preservation through normalization
   - Relevant for: `@data-client/normalizr` denormalize memoization, Entity identity
   - All libraries (data-client should show fewest changed refs)
@@ -59,7 +59,7 @@ Use this mapping when deciding which React benchmark scenarios are relevant to a
 | Category | Scenarios | Typical run-to-run spread |
 |---|---|---|
 | **Stable** | `getlist-*`, `update-single-entity`, `ref-stability-*`, `sorted-view-mount-*` | 2–5% |
-| **Moderate** | `update-shared-author-*`, `sorted-view-update-*` | 5–10% |
+| **Moderate** | `update-shared-user-*`, `sorted-view-update-*` | 5–10% |
 | **Volatile** | `memory-mount-unmount-cycle`, `startup-*`, `(react commit)` suffixes | 10–25% |
 
 Regressions >5% on stable scenarios or >15% on volatile scenarios are worth investigating.

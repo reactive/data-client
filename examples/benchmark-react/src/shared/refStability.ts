@@ -1,64 +1,64 @@
-import type { Author, Item, RefStabilityReport } from './types';
+import type { Issue, RefStabilityReport, User } from './types';
 
-let currentItems: Item[] = [];
-let snapshotRefs: Map<string, { item: Item; author: Author }> | null = null;
+let currentIssues: Issue[] = [];
+let snapshotRefs: Map<number, { issue: Issue; user: User }> | null = null;
 
 /**
- * Store the current items array. Called from ListView during render.
+ * Store the current issues array. Called from ListView during render.
  * Only stores the reference — negligible cost.
  */
-export function setCurrentItems(items: Item[]): void {
-  currentItems = items;
+export function setCurrentIssues(issues: Issue[]): void {
+  currentIssues = issues;
 }
 
 /**
- * Build a snapshot from current items. Call after mount, before running an update.
+ * Build a snapshot from current issues. Call after mount, before running an update.
  */
 export function captureSnapshot(): void {
   snapshotRefs = new Map();
-  for (const item of currentItems) {
-    snapshotRefs.set(item.id, { item, author: item.author });
+  for (const issue of currentIssues) {
+    snapshotRefs.set(issue.number, { issue, user: issue.user });
   }
 }
 
 /**
- * Compare current items to snapshot and return counts. Call after update completes.
+ * Compare current issues to snapshot and return counts. Call after update completes.
  */
 export function getReport(): RefStabilityReport {
   if (!snapshotRefs) {
     return {
-      itemRefUnchanged: 0,
-      itemRefChanged: 0,
-      authorRefUnchanged: 0,
-      authorRefChanged: 0,
+      issueRefUnchanged: 0,
+      issueRefChanged: 0,
+      userRefUnchanged: 0,
+      userRefChanged: 0,
     };
   }
 
-  let itemRefUnchanged = 0;
-  let itemRefChanged = 0;
-  let authorRefUnchanged = 0;
-  let authorRefChanged = 0;
+  let issueRefUnchanged = 0;
+  let issueRefChanged = 0;
+  let userRefUnchanged = 0;
+  let userRefChanged = 0;
 
-  for (const item of currentItems) {
-    const snap = snapshotRefs.get(item.id);
+  for (const issue of currentIssues) {
+    const snap = snapshotRefs.get(issue.number);
     if (!snap) continue;
 
-    if (item === snap.item) {
-      itemRefUnchanged++;
+    if (issue === snap.issue) {
+      issueRefUnchanged++;
     } else {
-      itemRefChanged++;
+      issueRefChanged++;
     }
-    if (item.author === snap.author) {
-      authorRefUnchanged++;
+    if (issue.user === snap.user) {
+      userRefUnchanged++;
     } else {
-      authorRefChanged++;
+      userRefChanged++;
     }
   }
 
   return {
-    itemRefUnchanged,
-    itemRefChanged,
-    authorRefUnchanged,
-    authorRefChanged,
+    issueRefUnchanged,
+    issueRefChanged,
+    userRefUnchanged,
+    userRefChanged,
   };
 }

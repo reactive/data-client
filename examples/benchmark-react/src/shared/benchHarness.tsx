@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 
-import { FIXTURE_ITEMS } from './data';
+import { FIXTURE_ISSUES } from './data';
 import { captureSnapshot, getReport } from './refStability';
 import {
   flushPendingMutations,
-  seedItemList,
+  seedIssueList,
   setMethodDelays,
   setNetworkDelay,
 } from './server';
@@ -36,20 +36,20 @@ const OBSERVE_MUTATIONS: MutationObserverInit = {
   characterData: true,
 };
 
-/** Check whether an item has moved from the "open" to the "closed" status list. */
+/** Check whether an issue has moved from the "open" to the "closed" state list. */
 export function moveItemIsReady(
   containerRef: React.RefObject<HTMLDivElement | null>,
-  id: string,
+  number: number,
 ): boolean {
   const source = containerRef.current?.querySelector(
-    '[data-status-list="open"]',
+    '[data-state-list="open"]',
   );
   const dest = containerRef.current?.querySelector(
-    '[data-status-list="closed"]',
+    '[data-state-list="closed"]',
   );
   return (
-    source?.querySelector(`[data-item-id="${id}"]`) == null &&
-    dest?.querySelector(`[data-item-id="${id}"]`) != null
+    source?.querySelector(`[data-issue-number="${number}"]`) == null &&
+    dest?.querySelector(`[data-issue-number="${number}"]`) != null
   );
 }
 
@@ -57,8 +57,8 @@ export function moveItemIsReady(
  * Actions that each library must provide (not supplied by the shared harness).
  * All other BenchAPI methods can be optionally overridden or added.
  */
-type LibraryActions = Pick<BenchAPI, 'updateEntity' | 'updateAuthor'> &
-  Partial<Omit<BenchAPI, 'updateEntity' | 'updateAuthor'>>;
+type LibraryActions = Pick<BenchAPI, 'updateEntity' | 'updateUser'> &
+  Partial<Omit<BenchAPI, 'updateEntity' | 'updateUser'>>;
 
 /**
  * Shared benchmark harness state, measurement helpers, and API registration.
@@ -75,9 +75,11 @@ export function useBenchState() {
   const [listViewCount, setListViewCount] = useState<number | undefined>();
   const [showSortedView, setShowSortedView] = useState(false);
   const [sortedViewCount, setSortedViewCount] = useState<number | undefined>();
-  const [showTripleList, setShowTripleList] = useState(false);
-  const [tripleListCount, setTripleListCount] = useState<number | undefined>();
-  const [detailItemId, setDetailItemId] = useState<string | null>(null);
+  const [showDoubleList, setShowDoubleList] = useState(false);
+  const [doubleListCount, setDoubleListCount] = useState<number | undefined>();
+  const [detailIssueNumber, setDetailIssueNumber] = useState<number | null>(
+    null,
+  );
   const containerRef = useRef<HTMLDivElement>(null);
   const completeResolveRef = useRef<(() => void) | null>(null);
   const apiRef = useRef<BenchAPI>(null as any);
@@ -124,7 +126,7 @@ export function useBenchState() {
    * mutation in the container — React commits atomically so the first
    * mutation batch IS the final state for updates.
    *
-   * For multi-phase scenarios like invalidateAndResolve (items disappear
+   * For multi-phase scenarios like invalidateAndResolve (issues disappear
    * then reappear), pass an `isReady` predicate to wait for the final state.
    */
   const measureUpdate = useCallback(
@@ -189,16 +191,16 @@ export function useBenchState() {
     setListViewCount(undefined);
     setShowSortedView(false);
     setSortedViewCount(undefined);
-    setShowTripleList(false);
-    setTripleListCount(undefined);
-    setDetailItemId(null);
+    setShowDoubleList(false);
+    setDoubleListCount(undefined);
+    setDetailIssueNumber(null);
   }, []);
 
-  const initTripleList = useCallback(
+  const initDoubleList = useCallback(
     (n: number) => {
       measureMount(() => {
-        setTripleListCount(n);
-        setShowTripleList(true);
+        setDoubleListCount(n);
+        setShowDoubleList(true);
       });
     },
     [measureMount],
@@ -222,7 +224,7 @@ export function useBenchState() {
 
   const mountSortedView = useCallback(
     async (n: number) => {
-      await seedItemList(FIXTURE_ITEMS.slice(0, n));
+      await seedIssueList(FIXTURE_ISSUES.slice(0, n));
       measureMount(() => {
         setSortedViewCount(n);
         setShowSortedView(true);
@@ -233,26 +235,26 @@ export function useBenchState() {
 
   const listDetailSwitch = useCallback(
     async (n: number) => {
-      await seedItemList(FIXTURE_ITEMS.slice(0, n));
+      await seedIssueList(FIXTURE_ISSUES.slice(0, n));
       setSortedViewCount(n);
       setShowSortedView(true);
       await waitForElement('[data-sorted-list]');
 
       // Warmup cycle (unmeasured) — exercises the detail mount path
       setShowSortedView(false);
-      setDetailItemId('item-0');
+      setDetailIssueNumber(1);
       await waitForElement('[data-detail-view]');
-      setDetailItemId(null);
+      setDetailIssueNumber(null);
       setShowSortedView(true);
       await waitForElement('[data-sorted-list]');
 
       performance.mark('mount-start');
-      for (let i = 1; i <= 10; i++) {
+      for (let i = 2; i <= 11; i++) {
         setShowSortedView(false);
-        setDetailItemId(`item-${i}`);
+        setDetailIssueNumber(i);
         await waitForElement('[data-detail-view]');
 
-        setDetailItemId(null);
+        setDetailIssueNumber(null);
         setShowSortedView(true);
         await waitForElement('[data-sorted-list]');
       }
@@ -263,7 +265,7 @@ export function useBenchState() {
     [
       setSortedViewCount,
       setShowSortedView,
-      setDetailItemId,
+      setDetailIssueNumber,
       waitForElement,
       setComplete,
     ],
@@ -285,7 +287,7 @@ export function useBenchState() {
   const registerAPI = (libraryActions: LibraryActions) => {
     apiRef.current = {
       init,
-      initTripleList,
+      initDoubleList,
       unmountAll,
       mountUnmountCycle,
       mountSortedView,
@@ -316,9 +318,9 @@ export function useBenchState() {
     listViewCount,
     showSortedView,
     sortedViewCount,
-    showTripleList,
-    tripleListCount,
-    detailItemId,
+    showDoubleList,
+    doubleListCount,
+    detailIssueNumber,
     containerRef,
 
     measureMount,
@@ -330,9 +332,9 @@ export function useBenchState() {
     setListViewCount,
     setShowSortedView,
     setSortedViewCount,
-    setShowTripleList,
-    setTripleListCount,
-    setDetailItemId,
+    setShowDoubleList,
+    setDoubleListCount,
+    setDetailIssueNumber,
 
     unmountAll,
     registerAPI,

@@ -4,106 +4,105 @@ import {
   useBenchState,
 } from '@shared/benchHarness';
 import {
-  TRIPLE_LIST_STYLE,
-  ITEM_HEIGHT,
-  ItemRow,
-  ItemsRow,
+  DOUBLE_LIST_STYLE,
+  ISSUE_HEIGHT,
+  IssueRow,
+  IssuesRow,
   LIST_STYLE,
-  PlainItemList,
+  PlainIssueList,
 } from '@shared/components';
 import {
-  FIXTURE_AUTHORS,
-  FIXTURE_AUTHORS_BY_ID,
-  FIXTURE_ITEMS_BY_ID,
-  sortByLabel,
+  FIXTURE_USERS,
+  FIXTURE_USERS_BY_LOGIN,
+  FIXTURE_ISSUES_BY_NUMBER,
+  sortByTitle,
 } from '@shared/data';
-import { setCurrentItems } from '@shared/refStability';
-import { AuthorResource, ItemResource } from '@shared/resources';
-import type { Item } from '@shared/types';
+import { setCurrentIssues } from '@shared/refStability';
+import { UserResource, IssueResource } from '@shared/resources';
+import type { Issue } from '@shared/types';
 import React, { useCallback, useMemo } from 'react';
 import { List } from 'react-window';
 import useSWR, { SWRConfig, useSWRConfig } from 'swr';
 
 /** SWR fetcher: dispatches to shared resource fetch methods based on cache key */
 const fetcher = (key: string): Promise<any> => {
-  if (key.startsWith('item:')) return ItemResource.get({ id: key.slice(5) });
-  if (key.startsWith('author:'))
-    return AuthorResource.get({ id: key.slice(7) });
-  if (key === 'items:all') return ItemResource.getList();
-  if (key.startsWith('items:status:')) {
-    const [status, count] = key.slice(13).split(':');
-    return ItemResource.getList({
-      status,
+  if (key.startsWith('issue:'))
+    return IssueResource.get({ number: Number(key.slice(6)) });
+  if (key.startsWith('user:')) return UserResource.get({ login: key.slice(5) });
+  if (key === 'issues:all') return IssueResource.getList();
+  if (key.startsWith('issues:state:')) {
+    const [state, count] = key.slice(13).split(':');
+    return IssueResource.getList({
+      state,
       ...(count ? { count: Number(count) } : {}),
     });
   }
-  if (key.startsWith('items:'))
-    return ItemResource.getList({ count: Number(key.slice(6)) });
+  if (key.startsWith('issues:'))
+    return IssueResource.getList({ count: Number(key.slice(7)) });
   return Promise.reject(new Error(`Unknown key: ${key}`));
 };
 
 function SortedListView() {
-  const { data: items } = useSWR<Item[]>('items:all', fetcher);
-  const sorted = useMemo(() => (items ? sortByLabel(items) : []), [items]);
+  const { data: issues } = useSWR<Issue[]>('issues:all', fetcher);
+  const sorted = useMemo(() => (issues ? sortByTitle(issues) : []), [issues]);
   if (!sorted.length) return null;
   return (
     <div data-sorted-list>
       <List
         style={LIST_STYLE}
-        rowHeight={ITEM_HEIGHT}
+        rowHeight={ISSUE_HEIGHT}
         rowCount={sorted.length}
-        rowComponent={ItemsRow}
-        rowProps={{ items: sorted }}
+        rowComponent={IssuesRow}
+        rowProps={{ issues: sorted }}
       />
     </div>
   );
 }
 
-function DetailView({ id }: { id: string }) {
-  const { data: item } = useSWR<Item>(`item:${id}`, fetcher);
-  if (!item) return null;
+function DetailView({ number }: { number: number }) {
+  const { data: issue } = useSWR<Issue>(`issue:${number}`, fetcher);
+  if (!issue) return null;
   return (
-    <div data-detail-view data-item-id={id}>
-      <ItemRow item={item} />
+    <div data-detail-view data-issue-number={number}>
+      <IssueRow issue={issue} />
     </div>
   );
 }
 
 function ListView({ count }: { count: number }) {
-  const { data: items } = useSWR<Item[]>(`items:${count}`, fetcher);
-  if (!items) return null;
-  setCurrentItems(items);
+  const { data: issues } = useSWR<Issue[]>(`issues:${count}`, fetcher);
+  if (!issues) return null;
+  setCurrentIssues(issues);
   return (
     <List
       style={LIST_STYLE}
-      rowHeight={ITEM_HEIGHT}
-      rowCount={items.length}
-      rowComponent={ItemsRow}
-      rowProps={{ items }}
+      rowHeight={ISSUE_HEIGHT}
+      rowCount={issues.length}
+      rowComponent={IssuesRow}
+      rowProps={{ issues }}
     />
   );
 }
 
-function StatusListView({ status, count }: { status: string; count: number }) {
-  const { data: items } = useSWR<Item[]>(
-    `items:status:${status}:${count}`,
+function StateListView({ state, count }: { state: string; count: number }) {
+  const { data: issues } = useSWR<Issue[]>(
+    `issues:state:${state}:${count}`,
     fetcher,
   );
-  if (!items) return null;
+  if (!issues) return null;
   return (
-    <div data-status-list={status}>
-      <span data-status-count>{items.length}</span>
-      <PlainItemList items={items} />
+    <div data-state-list={state}>
+      <span data-state-count>{issues.length}</span>
+      <PlainIssueList issues={issues} />
     </div>
   );
 }
 
-function TripleListView({ count }: { count: number }) {
+function DoubleListView({ count }: { count: number }) {
   return (
-    <div style={TRIPLE_LIST_STYLE}>
-      <StatusListView status="open" count={count} />
-      <StatusListView status="closed" count={count} />
-      <StatusListView status="in_progress" count={count} />
+    <div style={DOUBLE_LIST_STYLE}>
+      <StateListView state="open" count={count} />
+      <StateListView state="closed" count={count} />
     </div>
   );
 }
@@ -113,39 +112,41 @@ function BenchmarkHarness() {
   const {
     listViewCount,
     showSortedView,
-    showTripleList,
-    tripleListCount,
-    detailItemId,
+    showDoubleList,
+    doubleListCount,
+    detailIssueNumber,
     containerRef,
     measureUpdate,
     registerAPI,
   } = useBenchState();
 
   const updateEntity = useCallback(
-    (id: string) => {
-      const item = FIXTURE_ITEMS_BY_ID.get(id);
-      if (!item) return;
+    (number: number) => {
+      const issue = FIXTURE_ISSUES_BY_NUMBER.get(number);
+      if (!issue) return;
       measureUpdate(() =>
-        ItemResource.update({ id }, { label: `${item.label} (updated)` }).then(
-          () =>
-            mutate(key => typeof key === 'string' && key.startsWith('items:')),
+        IssueResource.update(
+          { number },
+          { title: `${issue.title} (updated)` },
+        ).then(() =>
+          mutate(key => typeof key === 'string' && key.startsWith('issues:')),
         ),
       );
     },
     [measureUpdate, mutate],
   );
 
-  const updateAuthor = useCallback(
-    (authorId: string) => {
-      const author = FIXTURE_AUTHORS_BY_ID.get(authorId);
-      if (!author) return;
+  const updateUser = useCallback(
+    (login: string) => {
+      const user = FIXTURE_USERS_BY_LOGIN.get(login);
+      if (!user) return;
       measureUpdate(
         () =>
-          AuthorResource.update(
-            { id: authorId },
-            { name: `${author.name} (updated)` },
+          UserResource.update(
+            { login },
+            { name: `${user.name} (updated)` },
           ).then(() =>
-            mutate(key => typeof key === 'string' && key.startsWith('items:')),
+            mutate(key => typeof key === 'string' && key.startsWith('issues:')),
           ) as Promise<any>,
       );
     },
@@ -153,19 +154,19 @@ function BenchmarkHarness() {
   );
 
   const unshiftItem = useCallback(() => {
-    const author = FIXTURE_AUTHORS[0];
+    const user = FIXTURE_USERS[0];
     measureUpdate(() =>
-      ItemResource.create({ label: 'New Item', author }).then(() =>
-        mutate(key => typeof key === 'string' && key.startsWith('items:')),
+      IssueResource.create({ title: 'New Issue', user }).then(() =>
+        mutate(key => typeof key === 'string' && key.startsWith('issues:')),
       ),
     );
   }, [measureUpdate, mutate]);
 
   const deleteEntity = useCallback(
-    (id: string) => {
+    (number: number) => {
       measureUpdate(() =>
-        ItemResource.delete({ id }).then(() =>
-          mutate(key => typeof key === 'string' && key.startsWith('items:')),
+        IssueResource.delete({ number }).then(() =>
+          mutate(key => typeof key === 'string' && key.startsWith('issues:')),
         ),
       );
     },
@@ -173,13 +174,13 @@ function BenchmarkHarness() {
   );
 
   const moveItem = useCallback(
-    (id: string) => {
+    (number: number) => {
       measureUpdate(
         () =>
-          ItemResource.update({ id }, { status: 'closed' }).then(() =>
-            mutate(key => typeof key === 'string' && key.startsWith('items:')),
+          IssueResource.update({ number }, { state: 'closed' }).then(() =>
+            mutate(key => typeof key === 'string' && key.startsWith('issues:')),
           ),
-        () => moveItemIsReady(containerRef, id),
+        () => moveItemIsReady(containerRef, number),
       );
     },
     [measureUpdate, mutate, containerRef],
@@ -187,7 +188,7 @@ function BenchmarkHarness() {
 
   registerAPI({
     updateEntity,
-    updateAuthor,
+    updateUser,
     unshiftItem,
     deleteEntity,
     moveItem,
@@ -197,10 +198,10 @@ function BenchmarkHarness() {
     <div ref={containerRef} data-bench-harness>
       {listViewCount != null && <ListView count={listViewCount} />}
       {showSortedView && <SortedListView />}
-      {showTripleList && tripleListCount != null && (
-        <TripleListView count={tripleListCount} />
+      {showDoubleList && doubleListCount != null && (
+        <DoubleListView count={doubleListCount} />
       )}
-      {detailItemId != null && <DetailView id={detailItemId} />}
+      {detailIssueNumber != null && <DetailView number={detailIssueNumber} />}
     </div>
   );
 }

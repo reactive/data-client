@@ -12,26 +12,26 @@ import {
   useBenchState,
 } from '@shared/benchHarness';
 import {
-  TRIPLE_LIST_STYLE,
-  ITEM_HEIGHT,
-  ItemRow,
-  ItemsRow,
+  DOUBLE_LIST_STYLE,
+  ISSUE_HEIGHT,
+  IssueRow,
+  IssuesRow,
   LIST_STYLE,
-  PlainItemList,
+  PlainIssueList,
 } from '@shared/components';
 import {
-  FIXTURE_AUTHORS,
-  FIXTURE_AUTHORS_BY_ID,
-  FIXTURE_ITEMS_BY_ID,
+  FIXTURE_USERS,
+  FIXTURE_ISSUES_BY_NUMBER,
+  FIXTURE_USERS_BY_LOGIN,
 } from '@shared/data';
-import { setCurrentItems } from '@shared/refStability';
+import { setCurrentIssues } from '@shared/refStability';
 import {
-  AuthorResource,
-  ItemResource,
-  sortedItemsEndpoint,
+  UserResource,
+  IssueResource,
+  sortedIssuesEndpoint,
 } from '@shared/resources';
-import { getItem, patchItem } from '@shared/server';
-import type { Item } from '@shared/types';
+import { getIssue, patchIssue } from '@shared/server';
+import type { Issue } from '@shared/types';
 import React, { useCallback } from 'react';
 import { List } from 'react-window';
 
@@ -56,67 +56,66 @@ class BenchGCPolicy extends GCPolicy {
 
 const benchGC = new BenchGCPolicy();
 
-/** Renders items from the list endpoint (models rendering a list fetch response). */
+/** Renders issues from the list endpoint (models rendering a list fetch response). */
 function ListView({ count }: { count: number }) {
-  const { data: items } = useDLE(ItemResource.getList, { count });
-  if (!items) return null;
-  const list = items as Item[];
-  setCurrentItems(list);
+  const { data: issues } = useDLE(IssueResource.getList, { count });
+  if (!issues) return null;
+  const list = issues as Issue[];
+  setCurrentIssues(list);
   return (
     <List
       style={LIST_STYLE}
-      rowHeight={ITEM_HEIGHT}
+      rowHeight={ISSUE_HEIGHT}
       rowCount={list.length}
-      rowComponent={ItemsRow}
-      rowProps={{ items: list }}
+      rowComponent={IssuesRow}
+      rowProps={{ issues: list }}
     />
   );
 }
 
-/** Renders items sorted by label via Query schema (memoized by MemoCache). */
+/** Renders issues sorted by title via Query schema (memoized by MemoCache). */
 function SortedListView({ count }: { count: number }) {
-  const { data: items } = useDLE(sortedItemsEndpoint, { count });
-  if (!items?.length) return null;
+  const { data: issues } = useDLE(sortedIssuesEndpoint, { count });
+  if (!issues?.length) return null;
   return (
     <div data-sorted-list>
       <List
         style={LIST_STYLE}
-        rowHeight={ITEM_HEIGHT}
-        rowCount={items.length}
-        rowComponent={ItemsRow}
-        rowProps={{ items: items as Item[] }}
+        rowHeight={ISSUE_HEIGHT}
+        rowCount={issues.length}
+        rowComponent={IssuesRow}
+        rowProps={{ issues: issues as Issue[] }}
       />
     </div>
   );
 }
 
-function StatusListView({ status, count }: { status: string; count: number }) {
-  const { data: items } = useDLE(ItemResource.getList, { status, count });
-  if (!items) return null;
-  const list = items as Item[];
+function StateListView({ state, count }: { state: string; count: number }) {
+  const { data: issues } = useDLE(IssueResource.getList, { state, count });
+  if (!issues) return null;
+  const list = issues as Issue[];
   return (
-    <div data-status-list={status}>
-      <span data-status-count>{list.length}</span>
-      <PlainItemList items={list} />
+    <div data-state-list={state}>
+      <span data-state-count>{list.length}</span>
+      <PlainIssueList issues={list} />
     </div>
   );
 }
 
-function TripleListView({ count }: { count: number }) {
+function DoubleListView({ count }: { count: number }) {
   return (
-    <div style={TRIPLE_LIST_STYLE}>
-      <StatusListView status="open" count={count} />
-      <StatusListView status="closed" count={count} />
-      <StatusListView status="in_progress" count={count} />
+    <div style={DOUBLE_LIST_STYLE}>
+      <StateListView state="open" count={count} />
+      <StateListView state="closed" count={count} />
     </div>
   );
 }
 
-function DetailView({ id }: { id: string }) {
-  const item = useSuspense(ItemResource.get, { id });
+function DetailView({ number }: { number: number }) {
+  const issue = useSuspense(IssueResource.get, { number });
   return (
-    <div data-detail-view data-item-id={id}>
-      <ItemRow item={item as Item} />
+    <div data-detail-view data-issue-number={number}>
+      <IssueRow issue={issue as Issue} />
     </div>
   );
 }
@@ -127,38 +126,38 @@ function BenchmarkHarness() {
     listViewCount,
     showSortedView,
     sortedViewCount,
-    showTripleList,
-    tripleListCount,
-    detailItemId,
+    showDoubleList,
+    doubleListCount,
+    detailIssueNumber,
     containerRef,
     measureUpdate,
     registerAPI,
   } = useBenchState();
 
   const updateEntity = useCallback(
-    (id: string) => {
-      const item = FIXTURE_ITEMS_BY_ID.get(id);
-      if (!item) return;
+    (number: number) => {
+      const issue = FIXTURE_ISSUES_BY_NUMBER.get(number);
+      if (!issue) return;
       measureUpdate(() => {
         controller.fetch(
-          ItemResource.update,
-          { id },
-          { label: `${item.label} (updated)` },
+          IssueResource.update,
+          { number },
+          { title: `${issue.title} (updated)` },
         );
       });
     },
     [measureUpdate, controller],
   );
 
-  const updateAuthor = useCallback(
-    (authorId: string) => {
-      const author = FIXTURE_AUTHORS_BY_ID.get(authorId);
-      if (!author) return;
+  const updateUser = useCallback(
+    (login: string) => {
+      const user = FIXTURE_USERS_BY_LOGIN.get(login);
+      if (!user) return;
       measureUpdate(() => {
         controller.fetch(
-          AuthorResource.update,
-          { id: authorId },
-          { name: `${author.name} (updated)` },
+          UserResource.update,
+          { login },
+          { name: `${user.name} (updated)` },
         );
       });
     },
@@ -166,73 +165,73 @@ function BenchmarkHarness() {
   );
 
   const unshiftItem = useCallback(() => {
-    const author = FIXTURE_AUTHORS[0];
+    const user = FIXTURE_USERS[0];
     measureUpdate(() => {
       (controller.fetch as any)(
-        ItemResource.create,
-        { status: 'open' },
+        IssueResource.create,
+        { state: 'open' },
         {
-          label: 'New Item',
-          author,
+          title: 'New Issue',
+          user,
         },
       );
     });
   }, [measureUpdate, controller]);
 
   const deleteEntity = useCallback(
-    (id: string) => {
+    (number: number) => {
       measureUpdate(() => {
-        controller.fetch(ItemResource.delete, { id });
+        controller.fetch(IssueResource.delete, { number });
       });
     },
     [measureUpdate, controller],
   );
 
   const moveItem = useCallback(
-    (id: string) => {
+    (number: number) => {
       measureUpdate(
         () => {
-          controller.fetch(ItemResource.move, { id }, { status: 'closed' });
+          controller.fetch(IssueResource.move, { number }, { state: 'closed' });
         },
-        () => moveItemIsReady(containerRef, id),
+        () => moveItemIsReady(containerRef, number),
       );
     },
     [measureUpdate, controller, containerRef],
   );
 
   const invalidateAndResolve = useCallback(
-    async (id: string) => {
-      const item = await getItem(id);
-      if (item) {
-        await patchItem(id, { label: `${item.label} (refetched)` });
+    async (number: number) => {
+      const issue = await getIssue(number);
+      if (issue) {
+        await patchIssue(number, { title: `${issue.title} (refetched)` });
       }
       measureUpdate(
         () => {
-          if (tripleListCount != null) {
-            controller.invalidate(ItemResource.getList, {
-              status: 'open',
-              count: tripleListCount,
+          if (doubleListCount != null) {
+            controller.invalidate(IssueResource.getList, {
+              state: 'open',
+              count: doubleListCount,
             });
           } else {
-            controller.invalidate(ItemResource.getList, {
+            controller.invalidate(IssueResource.getList, {
               count: listViewCount!,
             });
           }
         },
         () => {
           const el = containerRef.current!.querySelector(
-            `[data-item-id="${id}"] [data-label]`,
+            `[data-issue-number="${number}"] [data-title]`,
           );
           return el?.textContent?.includes('(refetched)') ?? false;
         },
       );
     },
-    [measureUpdate, controller, containerRef, tripleListCount, listViewCount],
+    [measureUpdate, controller, containerRef, doubleListCount, listViewCount],
   );
 
   registerAPI({
     updateEntity,
-    updateAuthor,
+    updateUser,
     invalidateAndResolve,
     unshiftItem,
     deleteEntity,
@@ -246,12 +245,12 @@ function BenchmarkHarness() {
       {showSortedView && sortedViewCount != null && (
         <SortedListView count={sortedViewCount} />
       )}
-      {showTripleList && tripleListCount != null && (
-        <TripleListView count={tripleListCount} />
+      {showDoubleList && doubleListCount != null && (
+        <DoubleListView count={doubleListCount} />
       )}
-      {detailItemId != null && (
+      {detailIssueNumber != null && (
         <React.Suspense fallback={<div>Loading...</div>}>
-          <DetailView id={detailItemId} />
+          <DetailView number={detailIssueNumber} />
         </React.Suspense>
       )}
     </div>

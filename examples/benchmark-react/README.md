@@ -11,7 +11,7 @@ The repo has two benchmark suites:
 
 ## Methodology
 
-- **What we measure:** Wall-clock time from triggering an action (e.g. `init(100)` or `updateAuthor('author-0')`) until a MutationObserver detects the expected DOM change in the benchmark container. Optionally we also record React Profiler commit duration and, with `BENCH_TRACE=true`, Chrome trace duration.
+- **What we measure:** Wall-clock time from triggering an action (e.g. `init(100)` or `updateUser('user0')`) until a MutationObserver detects the expected DOM change in the benchmark container. Optionally we also record React Profiler commit duration and, with `BENCH_TRACE=true`, Chrome trace duration.
 - **Why:** Normalized caching should show wins on shared-entity updates (one store write, many components update), ref stability (fewer new object references), and derived-view memoization (`Query` schema avoids re-sorting when entities haven't changed). See [js-framework-benchmark "How the duration is measured"](https://github.com/krausest/js-framework-benchmark/wiki/How-the-duration-is-measured) for a similar timeline-based approach.
 - **Statistical:** Warmup runs are discarded; we report median and 95% CI. Libraries are interleaved per round to reduce environmental variance.
 - **No CPU throttling:** Runs at native speed with more samples for statistical significance rather than artificial slowdown. Small (cheap) scenarios use 3 warmup + 15 measurement runs locally (10 in CI); large (expensive) scenarios use 1 warmup + 4 measurement runs.
@@ -27,21 +27,21 @@ The repo has two benchmark suites:
 
 **Hot path (CI)**
 
-- **Get list** (`getlist-100`, `getlist-500`) — Time to show a ListView component that auto-fetches 100 or 500 items from the list endpoint, then renders (unit: ms). Exercises the full fetch + normalization + render pipeline.
-- **Update single entity** (`update-single-entity`) — Time to update one item and propagate to the UI (unit: ms).
-- **Update shared author (scaling)** (`update-shared-author-500-mounted`, `update-shared-author-10000-mounted`) — Update one shared author with 500 or 10,000 mounted items to test subscriber scaling. Normalized cache: one store update, all views of that author update.
-- **Ref-stability** (`ref-stability-item-changed`, `ref-stability-author-changed`) — Count of components that received a **new** object reference after an update (unit: count; smaller is better). Normalization keeps referential equality for unchanged entities.
-- **Sorted view mount** (`sorted-view-mount-500`) — Mount 500 items through a sorted/derived view. data-client uses `useQuery(sortedItemsQuery)` with `Query` schema memoization; competitors use `useMemo` + sort.
+- **Get list** (`getlist-100`, `getlist-500`) — Time to show a ListView component that auto-fetches 100 or 500 issues from the list endpoint, then renders (unit: ms). Exercises the full fetch + normalization + render pipeline.
+- **Update single entity** (`update-single-entity`) — Time to update one issue and propagate to the UI (unit: ms).
+- **Update shared user (scaling)** (`update-shared-user-500-mounted`, `update-shared-user-10000-mounted`) — Update one shared user with 500 or 10,000 mounted issues to test subscriber scaling. Normalized cache: one store update, all views of that user update.
+- **Ref-stability** (`ref-stability-issue-changed`, `ref-stability-user-changed`) — Count of components that received a **new** object reference after an update (unit: count; smaller is better). Normalization keeps referential equality for unchanged entities.
+- **Sorted view mount** (`sorted-view-mount-500`) — Mount 500 issues through a sorted/derived view. data-client uses `useQuery(sortedIssuesQuery)` with `Query` schema memoization; competitors use `useMemo` + sort.
 - **Sorted view update** (`sorted-view-update-entity`) — After mounting a sorted view, update one entity. data-client's `Query` memoization avoids re-sorting when sort keys are unchanged.
 - **Invalidate and resolve** (`invalidate-and-resolve`) — data-client only; invalidates a cached endpoint and immediately re-resolves. Measures Suspense boundary round-trip.
 
 **With network (local comparison)**
 
-- **Update shared author with network** (`update-shared-author-with-network`) — Same as above with a simulated delay (e.g. 50 ms) per "request." data-client propagates via normalization (no extra request); other libs invalidate/refetch the list endpoint.
+- **Update shared user with network** (`update-shared-user-with-network`) — Same as above with a simulated delay (e.g. 50 ms) per "request." data-client propagates via normalization (no extra request); other libs invalidate/refetch the list endpoint.
 
 **Memory (local only)**
 
-- **Memory mount/unmount cycle** (`memory-mount-unmount-cycle`) — Mount 500 items, unmount, repeat 10 times; report JS heap delta (bytes) via CDP. Surfaces leaks or unbounded growth.
+- **Memory mount/unmount cycle** (`memory-mount-unmount-cycle`) — Mount 500 issues, unmount, repeat 10 times; report JS heap delta (bytes) via CDP. Surfaces leaks or unbounded growth.
 
 **Startup (local only)**
 
@@ -55,17 +55,17 @@ These are approximate values to help calibrate expectations. Exact numbers vary 
 | Scenario | data-client | tanstack-query | swr | baseline |
 |---|---|---|---|---|
 | `getlist-100` | ~similar | ~similar | ~similar | ~similar |
-| `update-shared-author-500-mounted` | Low (one store write propagates) | Higher (list refetch) | Higher (list refetch) | Higher (list refetch) |
-| `ref-stability-item-changed` (100 mounted) | ~1 changed | ~100 changed (list refetch) | ~100 changed (list refetch) | ~100 changed (list refetch) |
-| `ref-stability-author-changed` (100 mounted) | ~5 changed | ~100 changed (list refetch) | ~100 changed (list refetch) | ~100 changed (list refetch) |
-| `sorted-view-update-entity` | Fast (Query memoization skips re-sort) | Re-sorts on every item change | Re-sorts on every item change | Re-sorts on every item change |
+| `update-shared-user-500-mounted` | Low (one store write propagates) | Higher (list refetch) | Higher (list refetch) | Higher (list refetch) |
+| `ref-stability-issue-changed` (100 mounted) | ~1 changed | ~100 changed (list refetch) | ~100 changed (list refetch) | ~100 changed (list refetch) |
+| `ref-stability-user-changed` (100 mounted) | ~5 changed | ~100 changed (list refetch) | ~100 changed (list refetch) | ~100 changed (list refetch) |
+| `sorted-view-update-entity` | Fast (Query memoization skips re-sort) | Re-sorts on every issue change | Re-sorts on every issue change | Re-sorts on every issue change |
 
 ## Expected variance
 
 | Category | Scenarios | Typical run-to-run spread |
 |---|---|---|
 | **Stable** | `getlist-*`, `update-single-entity`, `ref-stability-*`, `sorted-view-mount-*` | 2-5% |
-| **Moderate** | `update-shared-author-*`, `sorted-view-update-*` | 5-10% |
+| **Moderate** | `update-shared-user-*`, `sorted-view-update-*` | 5-10% |
 | **Volatile** | `memory-mount-unmount-cycle`, `startup-*`, `(react commit)` suffixes | 10-25% |
 
 Regressions >5% on stable scenarios or >15% on volatile scenarios are worth investigating.
@@ -73,14 +73,14 @@ Regressions >5% on stable scenarios or >15% on volatile scenarios are worth inve
 ## Interpreting results
 
 - **Lower is better** for duration (ms), ref-stability counts, and heap delta (bytes).
-- **Ref-stability:** data-client's normalized cache keeps referential equality for unchanged entities, so `itemRefChanged` and `authorRefChanged` should stay low. Non-normalized libs typically show higher counts because they create new object references for every cache write.
+- **Ref-stability:** data-client's normalized cache keeps referential equality for unchanged entities, so `issueRefChanged` and `userRefChanged` should stay low. Non-normalized libs typically show higher counts because they create new object references for every cache write.
 - **React commit:** Reported as `(react commit)` suffix entries. These measure React Profiler `actualDuration` and isolate React reconciliation cost from layout/paint.
 - **Report viewer:** Toggle the "Base metrics", "React commit", and "Trace" checkboxes to filter the comparison table. Use "Load history" to compare multiple runs over time.
 
 ## Adding a new library
 
 1. Add a new app under `src/<lib>/index.tsx` (e.g. `src/urql/index.tsx`).
-2. Implement the `BenchAPI` interface on `window.__BENCH__`: `init`, `updateEntity`, `updateAuthor`, `unmountAll`, `getRenderedCount`, `captureRefSnapshot`, `getRefStabilityReport`, and optionally `mountUnmountCycle`, `mountSortedView`. Use the shared presentational `ItemsRow` from `@shared/components` and fixtures from `@shared/data`. The harness (`useBenchState`) provides default `init`, `unmountAll`, `mountUnmountCycle`, `getRenderedCount`, and ref-stability methods; libraries only need to supply `updateEntity`, `updateAuthor`, and any overrides.
+2. Implement the `BenchAPI` interface on `window.__BENCH__`: `init`, `updateEntity`, `updateUser`, `unmountAll`, `getRenderedCount`, `captureRefSnapshot`, `getRefStabilityReport`, and optionally `mountUnmountCycle`, `mountSortedView`. Use the shared presentational `IssuesRow` from `@shared/components` and fixtures from `@shared/data`. The harness (`useBenchState`) provides default `init`, `unmountAll`, `mountUnmountCycle`, `getRenderedCount`, and ref-stability methods; libraries only need to supply `updateEntity`, `updateUser`, and any overrides.
 3. Add the library to `LIBRARIES` in `bench/scenarios.ts`.
 4. Add a webpack entry in `webpack.config.cjs` for the new app and an `HtmlWebpackPlugin` entry so the app is served at `/<lib>/`.
 5. Add the dependency to `package.json` and run `yarn install`.
@@ -164,7 +164,7 @@ Regressions >5% on stable scenarios or >15% on volatile scenarios are worth inve
    Scenarios are classified as `small` or `large` based on their cost:
 
    - **Small** (3 warmup + 15 measurement): `getlist-100`, `update-single-entity`, `ref-stability-*`, `invalidate-and-resolve`, `unshift-item`, `delete-item`
-   - **Large** (1 warmup + 4 measurement): `getlist-500`, `update-shared-author-500-mounted`, `update-shared-author-10000-mounted`, `update-shared-author-with-network`, `sorted-view-mount-500`, `sorted-view-update-entity`
+   - **Large** (1 warmup + 4 measurement): `getlist-500`, `update-shared-user-500-mounted`, `update-shared-user-10000-mounted`, `update-shared-user-with-network`, `sorted-view-mount-500`, `sorted-view-update-entity`
    - **Memory** (opt-in, 1 warmup + 3 measurement): `memory-mount-unmount-cycle` — run with `--action memory`
 
    When running all scenarios (`yarn bench`), each group runs with its own warmup/measurement count. Use `--size` to run only one group.

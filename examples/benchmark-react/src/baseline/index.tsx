@@ -4,22 +4,22 @@ import {
   useBenchState,
 } from '@shared/benchHarness';
 import {
-  TRIPLE_LIST_STYLE,
-  ITEM_HEIGHT,
-  ItemRow,
-  ItemsRow,
+  DOUBLE_LIST_STYLE,
+  ISSUE_HEIGHT,
+  IssueRow,
+  IssuesRow,
   LIST_STYLE,
-  PlainItemList,
+  PlainIssueList,
 } from '@shared/components';
 import {
-  FIXTURE_AUTHORS,
-  FIXTURE_AUTHORS_BY_ID,
-  FIXTURE_ITEMS_BY_ID,
-  sortByLabel,
+  FIXTURE_USERS,
+  FIXTURE_USERS_BY_LOGIN,
+  FIXTURE_ISSUES_BY_NUMBER,
+  sortByTitle,
 } from '@shared/data';
-import { setCurrentItems } from '@shared/refStability';
-import { AuthorResource, ItemResource } from '@shared/resources';
-import type { Item } from '@shared/types';
+import { setCurrentIssues } from '@shared/refStability';
+import { UserResource, IssueResource } from '@shared/resources';
+import type { Issue } from '@shared/types';
 import React, {
   useCallback,
   useContext,
@@ -29,167 +29,162 @@ import React, {
 } from 'react';
 import { List } from 'react-window';
 
-const ItemsContext = React.createContext<{
-  items: Item[];
-  setItems: React.Dispatch<React.SetStateAction<Item[]>>;
+const IssuesContext = React.createContext<{
+  issues: Issue[];
+  setIssues: React.Dispatch<React.SetStateAction<Issue[]>>;
 }>(null as any);
 
 function SortedListView() {
-  const { items, setItems } = useContext(ItemsContext);
+  const { issues, setIssues } = useContext(IssuesContext);
   useEffect(() => {
-    ItemResource.getList().then(setItems);
-  }, [setItems]);
-  const sorted = useMemo(() => sortByLabel(items), [items]);
+    IssueResource.getList().then(setIssues);
+  }, [setIssues]);
+  const sorted = useMemo(() => sortByTitle(issues), [issues]);
   if (!sorted.length) return null;
   return (
     <div data-sorted-list>
       <List
         style={LIST_STYLE}
-        rowHeight={ITEM_HEIGHT}
+        rowHeight={ISSUE_HEIGHT}
         rowCount={sorted.length}
-        rowComponent={ItemsRow}
-        rowProps={{ items: sorted }}
+        rowComponent={IssuesRow}
+        rowProps={{ issues: sorted }}
       />
     </div>
   );
 }
 
 function ListView() {
-  const { items } = useContext(ItemsContext);
-  if (!items.length) return null;
-  setCurrentItems(items);
+  const { issues } = useContext(IssuesContext);
+  if (!issues.length) return null;
+  setCurrentIssues(issues);
   return (
     <List
       style={LIST_STYLE}
-      rowHeight={ITEM_HEIGHT}
-      rowCount={items.length}
-      rowComponent={ItemsRow}
-      rowProps={{ items }}
+      rowHeight={ISSUE_HEIGHT}
+      rowCount={issues.length}
+      rowComponent={IssuesRow}
+      rowProps={{ issues }}
     />
   );
 }
 
-const TripleListContext = React.createContext<{
-  openItems: Item[];
-  closedItems: Item[];
-  inProgressItems: Item[];
-  setOpenItems: React.Dispatch<React.SetStateAction<Item[]>>;
-  setClosedItems: React.Dispatch<React.SetStateAction<Item[]>>;
-  setInProgressItems: React.Dispatch<React.SetStateAction<Item[]>>;
+const DoubleListContext = React.createContext<{
+  openIssues: Issue[];
+  closedIssues: Issue[];
+  setOpenIssues: React.Dispatch<React.SetStateAction<Issue[]>>;
+  setClosedIssues: React.Dispatch<React.SetStateAction<Issue[]>>;
 }>(null as any);
 
-function TripleListView() {
-  const { openItems, closedItems, inProgressItems } =
-    useContext(TripleListContext);
+function DoubleListView() {
+  const { openIssues, closedIssues } = useContext(DoubleListContext);
   return (
-    <div style={TRIPLE_LIST_STYLE}>
-      {openItems.length > 0 && (
-        <div data-status-list="open">
-          <span data-status-count>{openItems.length}</span>
-          <PlainItemList items={openItems} />
+    <div style={DOUBLE_LIST_STYLE}>
+      {openIssues.length > 0 && (
+        <div data-state-list="open">
+          <span data-state-count>{openIssues.length}</span>
+          <PlainIssueList issues={openIssues} />
         </div>
       )}
-      {closedItems.length > 0 && (
-        <div data-status-list="closed">
-          <span data-status-count>{closedItems.length}</span>
-          <PlainItemList items={closedItems} />
-        </div>
-      )}
-      {inProgressItems.length > 0 && (
-        <div data-status-list="in_progress">
-          <span data-status-count>{inProgressItems.length}</span>
-          <PlainItemList items={inProgressItems} />
+      {closedIssues.length > 0 && (
+        <div data-state-list="closed">
+          <span data-state-count>{closedIssues.length}</span>
+          <PlainIssueList issues={closedIssues} />
         </div>
       )}
     </div>
   );
 }
 
-function DetailView({ id }: { id: string }) {
-  const [item, setItem] = useState<Item | null>(null);
+function DetailView({ number }: { number: number }) {
+  const [issue, setIssue] = useState<Issue | null>(null);
   useEffect(() => {
-    ItemResource.get({ id }).then(setItem);
-  }, [id]);
-  if (!item) return null;
+    IssueResource.get({ number }).then(setIssue);
+  }, [number]);
+  if (!issue) return null;
   return (
-    <div data-detail-view data-item-id={id}>
-      <ItemRow item={item} />
+    <div data-detail-view data-issue-number={number}>
+      <IssueRow issue={issue} />
     </div>
   );
 }
 
 function BenchmarkHarness() {
-  const [items, setItems] = useState<Item[]>([]);
-  const [openItems, setOpenItems] = useState<Item[]>([]);
-  const [closedItems, setClosedItems] = useState<Item[]>([]);
-  const [inProgressItems, setInProgressItems] = useState<Item[]>([]);
+  const [issues, setIssues] = useState<Issue[]>([]);
+  const [openIssues, setOpenIssues] = useState<Issue[]>([]);
+  const [closedIssues, setClosedIssues] = useState<Issue[]>([]);
   const {
     listViewCount,
     showSortedView,
-    showTripleList,
-    tripleListCount,
-    detailItemId,
+    showDoubleList,
+    doubleListCount,
+    detailIssueNumber,
     containerRef,
     measureUpdate,
     unmountAll: unmountBase,
     registerAPI,
   } = useBenchState();
 
-  // Fetch items when listViewCount changes (populates context for ListView)
   useEffect(() => {
     if (listViewCount != null) {
-      ItemResource.getList({ count: listViewCount }).then(setItems);
+      IssueResource.getList({ count: listViewCount }).then(setIssues);
     }
   }, [listViewCount]);
 
   useEffect(() => {
-    if (showTripleList && tripleListCount != null) {
-      ItemResource.getList({ status: 'open', count: tripleListCount }).then(
-        setOpenItems,
+    if (showDoubleList && doubleListCount != null) {
+      IssueResource.getList({ state: 'open', count: doubleListCount }).then(
+        setOpenIssues,
       );
-      ItemResource.getList({ status: 'closed', count: tripleListCount }).then(
-        setClosedItems,
+      IssueResource.getList({ state: 'closed', count: doubleListCount }).then(
+        setClosedIssues,
       );
-      ItemResource.getList({
-        status: 'in_progress',
-        count: tripleListCount,
-      }).then(setInProgressItems);
     }
-  }, [showTripleList, tripleListCount]);
+  }, [showDoubleList, doubleListCount]);
 
   const unmountAll = useCallback(() => {
     unmountBase();
-    setItems([]);
-    setOpenItems([]);
-    setClosedItems([]);
-    setInProgressItems([]);
+    setIssues([]);
+    setOpenIssues([]);
+    setClosedIssues([]);
   }, [unmountBase]);
 
   const refetchActiveList = useCallback(() => {
-    if (tripleListCount != null) {
+    if (doubleListCount != null) {
       return Promise.all([
-        ItemResource.getList({ status: 'open', count: tripleListCount }).then(
-          setOpenItems,
-        ),
-        ItemResource.getList({
-          status: 'closed',
-          count: tripleListCount,
-        }).then(setClosedItems),
-        ItemResource.getList({
-          status: 'in_progress',
-          count: tripleListCount,
-        }).then(setInProgressItems),
+        IssueResource.getList({
+          state: 'open',
+          count: doubleListCount,
+        }).then(setOpenIssues),
+        IssueResource.getList({
+          state: 'closed',
+          count: doubleListCount,
+        }).then(setClosedIssues),
       ]);
     }
-    return ItemResource.getList({ count: listViewCount! }).then(setItems);
-  }, [listViewCount, tripleListCount]);
+    return IssueResource.getList({ count: listViewCount! }).then(setIssues);
+  }, [listViewCount, doubleListCount]);
 
   const updateEntity = useCallback(
-    (id: string) => {
-      const item = FIXTURE_ITEMS_BY_ID.get(id);
-      if (!item) return;
+    (number: number) => {
+      const issue = FIXTURE_ISSUES_BY_NUMBER.get(number);
+      if (!issue) return;
       measureUpdate(() =>
-        ItemResource.update({ id }, { label: `${item.label} (updated)` }).then(
+        IssueResource.update(
+          { number },
+          { title: `${issue.title} (updated)` },
+        ).then(refetchActiveList),
+      );
+    },
+    [measureUpdate, refetchActiveList],
+  );
+
+  const updateUser = useCallback(
+    (login: string) => {
+      const user = FIXTURE_USERS_BY_LOGIN.get(login);
+      if (!user) return;
+      measureUpdate(() =>
+        UserResource.update({ login }, { name: `${user.name} (updated)` }).then(
           refetchActiveList,
         ),
       );
@@ -197,65 +192,49 @@ function BenchmarkHarness() {
     [measureUpdate, refetchActiveList],
   );
 
-  const updateAuthor = useCallback(
-    (authorId: string) => {
-      const author = FIXTURE_AUTHORS_BY_ID.get(authorId);
-      if (!author) return;
-      measureUpdate(() =>
-        AuthorResource.update(
-          { id: authorId },
-          { name: `${author.name} (updated)` },
-        ).then(refetchActiveList),
-      );
-    },
-    [measureUpdate, refetchActiveList],
-  );
-
   const unshiftItem = useCallback(() => {
-    const author = FIXTURE_AUTHORS[0];
+    const user = FIXTURE_USERS[0];
     measureUpdate(() =>
-      ItemResource.create({ label: 'New Item', author }).then(
+      IssueResource.create({ title: 'New Issue', user }).then(
         refetchActiveList,
       ),
     );
   }, [measureUpdate, refetchActiveList]);
 
   const deleteEntity = useCallback(
-    (id: string) => {
-      measureUpdate(() => ItemResource.delete({ id }).then(refetchActiveList));
+    (number: number) => {
+      measureUpdate(() =>
+        IssueResource.delete({ number }).then(refetchActiveList),
+      );
     },
     [measureUpdate, refetchActiveList],
   );
 
   const moveItem = useCallback(
-    (id: string) => {
+    (number: number) => {
       measureUpdate(
         () =>
-          ItemResource.update({ id }, { status: 'closed' }).then(() =>
+          IssueResource.update({ number }, { state: 'closed' }).then(() =>
             Promise.all([
-              ItemResource.getList({
-                status: 'open',
-                count: tripleListCount!,
-              }).then(setOpenItems),
-              ItemResource.getList({
-                status: 'closed',
-                count: tripleListCount!,
-              }).then(setClosedItems),
-              ItemResource.getList({
-                status: 'in_progress',
-                count: tripleListCount!,
-              }).then(setInProgressItems),
+              IssueResource.getList({
+                state: 'open',
+                count: doubleListCount!,
+              }).then(setOpenIssues),
+              IssueResource.getList({
+                state: 'closed',
+                count: doubleListCount!,
+              }).then(setClosedIssues),
             ]),
           ),
-        () => moveItemIsReady(containerRef, id),
+        () => moveItemIsReady(containerRef, number),
       );
     },
-    [measureUpdate, tripleListCount, containerRef],
+    [measureUpdate, doubleListCount, containerRef],
   );
 
   registerAPI({
     updateEntity,
-    updateAuthor,
+    updateUser,
     unmountAll,
     unshiftItem,
     deleteEntity,
@@ -263,25 +242,25 @@ function BenchmarkHarness() {
   });
 
   return (
-    <ItemsContext.Provider value={{ items, setItems }}>
-      <TripleListContext.Provider
+    <IssuesContext.Provider value={{ issues, setIssues }}>
+      <DoubleListContext.Provider
         value={{
-          openItems,
-          closedItems,
-          inProgressItems,
-          setOpenItems,
-          setClosedItems,
-          setInProgressItems,
+          openIssues,
+          closedIssues,
+          setOpenIssues,
+          setClosedIssues,
         }}
       >
         <div ref={containerRef} data-bench-harness>
           {listViewCount != null && <ListView />}
           {showSortedView && <SortedListView />}
-          {showTripleList && tripleListCount != null && <TripleListView />}
-          {detailItemId != null && <DetailView id={detailItemId} />}
+          {showDoubleList && doubleListCount != null && <DoubleListView />}
+          {detailIssueNumber != null && (
+            <DetailView number={detailIssueNumber} />
+          )}
         </div>
-      </TripleListContext.Provider>
-    </ItemsContext.Provider>
+      </DoubleListContext.Provider>
+    </IssuesContext.Provider>
   );
 }
 

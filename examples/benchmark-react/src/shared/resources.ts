@@ -1,56 +1,92 @@
-import { Entity, All, Query, Collection, unshift } from '@data-client/endpoint';
+import { Entity, Query, Collection, unshift } from '@data-client/endpoint';
 import type { PolymorphicInterface } from '@data-client/endpoint';
 import { resource } from '@data-client/rest';
-import { sortByLabel } from '@shared/data';
+import { sortByTitle } from '@shared/data';
 import {
-  fetchItem as serverFetchItem,
-  fetchAuthor as serverFetchAuthor,
-  fetchItemList as serverFetchItemList,
-  createItem as serverCreateItem,
-  updateItem as serverUpdateItem,
-  deleteItem as serverDeleteItem,
-  updateAuthor as serverUpdateAuthor,
-  deleteAuthor as serverDeleteAuthor,
+  fetchIssue as serverFetchIssue,
+  fetchUser as serverFetchUser,
+  fetchIssueList as serverFetchIssueList,
+  createIssue as serverCreateIssue,
+  updateIssue as serverUpdateIssue,
+  deleteIssue as serverDeleteIssue,
+  updateUser as serverUpdateUser,
+  deleteUser as serverDeleteUser,
 } from '@shared/server';
-import { Author } from '@shared/types';
+import { User } from '@shared/types';
 
-export class AuthorEntity extends Entity {
-  id = '';
-  login = '';
+export class LabelEntity extends Entity {
+  id = 0;
+  nodeId = '';
   name = '';
+  description = '';
+  color = '000000';
+  default = false;
+
+  pk() {
+    return `${this.id}`;
+  }
+
+  static key = 'LabelEntity';
+}
+
+export class UserEntity extends Entity {
+  id = 0;
+  login = '';
+  nodeId = '';
   avatarUrl = '';
+  gravatarId = '';
+  type = 'User';
+  siteAdmin = false;
+  htmlUrl = '';
+  name = '';
+  company = '';
+  blog = '';
+  location = '';
   email = '';
   bio = '';
+  publicRepos = 0;
+  publicGists = 0;
   followers = 0;
-  createdAt = '';
-
-  pk() {
-    return this.id;
-  }
-
-  static key = 'AuthorEntity';
-}
-
-export class ItemEntity extends Entity {
-  id = '';
-  label = '';
-  description = '';
-  status: 'open' | 'closed' | 'in_progress' = 'open';
-  priority = 0;
-  tags: string[] = [];
+  following = 0;
   createdAt = '';
   updatedAt = '';
-  author = AuthorEntity.fromJS();
 
   pk() {
-    return this.id;
+    return this.login;
   }
 
-  static key = 'ItemEntity';
-  static schema = { author: AuthorEntity };
+  static key = 'UserEntity';
 }
 
-class ItemCollection<
+export class IssueEntity extends Entity {
+  id = 0;
+  number = 0;
+  title = '';
+  body = '';
+  state: 'open' | 'closed' = 'open';
+  locked = false;
+  comments = 0;
+  labels: LabelEntity[] = [];
+  user = UserEntity.fromJS();
+  htmlUrl = '';
+  repositoryUrl = '';
+  authorAssociation = 'NONE';
+  createdAt = '';
+  updatedAt = '';
+  closedAt: string | null = null;
+
+  pk() {
+    return `${this.number}`;
+  }
+
+  static key = 'IssueEntity';
+  static schema = {
+    user: UserEntity,
+    labels: [LabelEntity],
+  };
+}
+
+class IssueCollection<
   S extends any[] | PolymorphicInterface = any,
   Parent extends any[] = [urlParams: any, body?: any],
 > extends Collection<S, Parent> {
@@ -64,67 +100,67 @@ class ItemCollection<
   }
 }
 
-export const ItemResource = resource({
-  path: '/items/:id',
-  schema: ItemEntity,
+export const IssueResource = resource({
+  path: '/issues/:number',
+  schema: IssueEntity,
   optimistic: true,
-  Collection: ItemCollection,
+  Collection: IssueCollection,
 }).extend(Base => ({
   get: Base.get.extend({
-    fetch: serverFetchItem as any,
+    fetch: serverFetchIssue as any,
     dataExpiryLength: Infinity,
   }),
   getList: Base.getList.extend({
-    fetch: serverFetchItemList as any,
+    fetch: serverFetchIssueList as any,
     dataExpiryLength: Infinity,
   }),
   update: Base.update.extend({
     fetch: ((params: any, body: any) =>
-      serverUpdateItem({ ...params, ...body })) as any,
+      serverUpdateIssue({ ...params, ...body })) as any,
   }),
   delete: Base.delete.extend({
-    fetch: serverDeleteItem as any,
+    fetch: serverDeleteIssue as any,
   }),
   create: Base.getList.unshift.extend({
     fetch: ((...args: any[]) =>
-      serverCreateItem(args.length > 1 ? args[1] : args[0])) as any,
+      serverCreateIssue(args.length > 1 ? args[1] : args[0])) as any,
     body: {} as {
-      label: string;
-      author: Author;
+      title: string;
+      user: User;
     },
   }),
   move: Base.getList.move.extend({
     fetch: ((params: any, body: any) =>
-      serverUpdateItem({ ...params, ...body })) as any,
+      serverUpdateIssue({ ...params, ...body })) as any,
   }),
 }));
 
-export const AuthorResource = resource({
-  path: '/authors/:id',
-  schema: AuthorEntity,
+export const UserResource = resource({
+  path: '/users/:login',
+  schema: UserEntity,
   optimistic: true,
 }).extend(Base => ({
   get: Base.get.extend({
-    fetch: serverFetchAuthor as any,
+    fetch: serverFetchUser as any,
     dataExpiryLength: Infinity,
   }),
   update: Base.update.extend({
     fetch: ((params: any, body: any) =>
-      serverUpdateAuthor({ ...params, ...body })) as any,
+      serverUpdateUser({ ...params, ...body })) as any,
   }),
   delete: Base.delete.extend({
-    fetch: serverDeleteAuthor as any,
+    fetch: serverDeleteUser as any,
   }),
 }));
 
 // ── DERIVED QUERIES ─────────────────────────────────────────────────────
 
 /** Derived sorted view via Query schema -- globally memoized by MemoCache */
-export const sortedItemsQuery = new Query(
-  ItemResource.getList.schema,
-  (entries, { count }: { count?: number } = {}) => sortByLabel(entries, count),
+export const sortedIssuesQuery = new Query(
+  IssueResource.getList.schema,
+  (entries, { count }: { count?: number } = {}) => sortByTitle(entries, count),
 );
 
-export const sortedItemsEndpoint = ItemResource.getList.extend({
-  schema: sortedItemsQuery,
+export const sortedIssuesEndpoint = IssueResource.getList.extend({
+  schema: sortedIssuesQuery,
 });

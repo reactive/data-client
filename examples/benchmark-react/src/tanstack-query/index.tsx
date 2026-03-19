@@ -4,22 +4,22 @@ import {
   useBenchState,
 } from '@shared/benchHarness';
 import {
-  TRIPLE_LIST_STYLE,
-  ITEM_HEIGHT,
-  ItemRow,
-  ItemsRow,
+  DOUBLE_LIST_STYLE,
+  ISSUE_HEIGHT,
+  IssueRow,
+  IssuesRow,
   LIST_STYLE,
-  PlainItemList,
+  PlainIssueList,
 } from '@shared/components';
 import {
-  FIXTURE_AUTHORS,
-  FIXTURE_AUTHORS_BY_ID,
-  FIXTURE_ITEMS_BY_ID,
-  sortByLabel,
+  FIXTURE_USERS,
+  FIXTURE_USERS_BY_LOGIN,
+  FIXTURE_ISSUES_BY_NUMBER,
+  sortByTitle,
 } from '@shared/data';
-import { setCurrentItems } from '@shared/refStability';
-import { AuthorResource, ItemResource } from '@shared/resources';
-import type { Item } from '@shared/types';
+import { setCurrentIssues } from '@shared/refStability';
+import { UserResource, IssueResource } from '@shared/resources';
+import type { Issue } from '@shared/types';
 import {
   QueryClient,
   QueryClientProvider,
@@ -31,13 +31,14 @@ import { List } from 'react-window';
 
 function queryFn({ queryKey }: { queryKey: readonly unknown[] }): Promise<any> {
   const [type, id] = queryKey as [string, string | number | undefined];
-  if (type === 'item' && id) return ItemResource.get({ id: String(id) });
-  if (type === 'author' && id) return AuthorResource.get({ id: String(id) });
-  if (type === 'items' && id && typeof id === 'object')
-    return ItemResource.getList(id as { status?: string; count?: number });
-  if (type === 'items' && typeof id === 'number')
-    return ItemResource.getList({ count: id });
-  if (type === 'items') return ItemResource.getList();
+  if (type === 'issue' && id != null)
+    return IssueResource.get({ number: Number(id) });
+  if (type === 'user' && id) return UserResource.get({ login: String(id) });
+  if (type === 'issues' && id && typeof id === 'object')
+    return IssueResource.getList(id as { state?: string; count?: number });
+  if (type === 'issues' && typeof id === 'number')
+    return IssueResource.getList({ count: id });
+  if (type === 'issues') return IssueResource.getList();
   return Promise.reject(new Error(`Unknown queryKey: ${queryKey}`));
 }
 
@@ -51,81 +52,80 @@ const queryClient = new QueryClient({
 });
 
 function SortedListView() {
-  const { data: items } = useQuery({
-    queryKey: ['items', 'all'],
+  const { data: issues } = useQuery({
+    queryKey: ['issues', 'all'],
     queryFn,
   });
   const sorted = useMemo(
-    () => (items ? sortByLabel(items as Item[]) : []),
-    [items],
+    () => (issues ? sortByTitle(issues as Issue[]) : []),
+    [issues],
   );
   if (!sorted.length) return null;
   return (
     <div data-sorted-list>
       <List
         style={LIST_STYLE}
-        rowHeight={ITEM_HEIGHT}
+        rowHeight={ISSUE_HEIGHT}
         rowCount={sorted.length}
-        rowComponent={ItemsRow}
-        rowProps={{ items: sorted }}
+        rowComponent={IssuesRow}
+        rowProps={{ issues: sorted }}
       />
     </div>
   );
 }
 
-function DetailView({ id }: { id: string }) {
-  const { data: item } = useQuery({
-    queryKey: ['item', id],
+function DetailView({ number }: { number: number }) {
+  const { data: issue } = useQuery({
+    queryKey: ['issue', number],
     queryFn,
   });
-  if (!item) return null;
+  if (!issue) return null;
   return (
-    <div data-detail-view data-item-id={id}>
-      <ItemRow item={item as Item} />
+    <div data-detail-view data-issue-number={number}>
+      <IssueRow issue={issue as Issue} />
     </div>
   );
 }
 
 function ListView({ count }: { count: number }) {
-  const { data: items } = useQuery({
-    queryKey: ['items', count],
+  const { data: issues } = useQuery({
+    queryKey: ['issues', count],
     queryFn,
   });
-  if (!items) return null;
-  const list = items as Item[];
-  setCurrentItems(list);
+  if (!issues) return null;
+  const list = issues as Issue[];
+  setCurrentIssues(list);
   return (
     <List
       style={LIST_STYLE}
-      rowHeight={ITEM_HEIGHT}
+      rowHeight={ISSUE_HEIGHT}
       rowCount={list.length}
-      rowComponent={ItemsRow}
-      rowProps={{ items: list }}
+      rowComponent={IssuesRow}
+      rowProps={{ issues: list }}
     />
   );
 }
 
-function StatusListView({ status, count }: { status: string; count: number }) {
-  const { data: items } = useQuery({
-    queryKey: ['items', { status, count }],
+function StateListView({ state, count }: { state: string; count: number }) {
+  const { data: issues } = useQuery({
+    queryKey: ['issues', { state, count }],
     queryFn,
   });
-  if (!items) return null;
-  const list = items as Item[];
+  if (!issues) return null;
+  const list = issues as Issue[];
   return (
-    <div data-status-list={status}>
-      <span data-status-count>{list.length}</span>
-      <PlainItemList items={list} />
+    <div data-state-list={state}>
+      <span data-state-count>{list.length}</span>
+      <PlainIssueList issues={list} />
     </div>
   );
 }
 
-function TripleListView({ count }: { count: number }) {
+function DoubleListView({ count }: { count: number }) {
   return (
-    <div style={TRIPLE_LIST_STYLE}>
-      <StatusListView status="open" count={count} />
-      <StatusListView status="closed" count={count} />
-      <StatusListView status="in_progress" count={count} />
+    <div style={DOUBLE_LIST_STYLE}>
+      <StateListView state="open" count={count} />
+      <StateListView state="closed" count={count} />
     </div>
   );
 }
@@ -135,41 +135,25 @@ function BenchmarkHarness() {
   const {
     listViewCount,
     showSortedView,
-    showTripleList,
-    tripleListCount,
-    detailItemId,
+    showDoubleList,
+    doubleListCount,
+    detailIssueNumber,
     containerRef,
     measureUpdate,
     registerAPI,
   } = useBenchState();
 
   const updateEntity = useCallback(
-    (id: string) => {
-      const item = FIXTURE_ITEMS_BY_ID.get(id);
-      if (!item) return;
+    (number: number) => {
+      const issue = FIXTURE_ISSUES_BY_NUMBER.get(number);
+      if (!issue) return;
       measureUpdate(() =>
-        ItemResource.update({ id }, { label: `${item.label} (updated)` }).then(
-          () =>
-            client.invalidateQueries({
-              queryKey: ['items'],
-            }),
-        ),
-      );
-    },
-    [measureUpdate, client],
-  );
-
-  const updateAuthor = useCallback(
-    (authorId: string) => {
-      const author = FIXTURE_AUTHORS_BY_ID.get(authorId);
-      if (!author) return;
-      measureUpdate(() =>
-        AuthorResource.update(
-          { id: authorId },
-          { name: `${author.name} (updated)` },
+        IssueResource.update(
+          { number },
+          { title: `${issue.title} (updated)` },
         ).then(() =>
           client.invalidateQueries({
-            queryKey: ['items'],
+            queryKey: ['issues'],
           }),
         ),
       );
@@ -177,21 +161,37 @@ function BenchmarkHarness() {
     [measureUpdate, client],
   );
 
+  const updateUser = useCallback(
+    (login: string) => {
+      const user = FIXTURE_USERS_BY_LOGIN.get(login);
+      if (!user) return;
+      measureUpdate(() =>
+        UserResource.update({ login }, { name: `${user.name} (updated)` }).then(
+          () =>
+            client.invalidateQueries({
+              queryKey: ['issues'],
+            }),
+        ),
+      );
+    },
+    [measureUpdate, client],
+  );
+
   const unshiftItem = useCallback(() => {
-    const author = FIXTURE_AUTHORS[0];
+    const user = FIXTURE_USERS[0];
     measureUpdate(() =>
-      ItemResource.create({ label: 'New Item', author }).then(() =>
-        client.invalidateQueries({ queryKey: ['items'] }),
+      IssueResource.create({ title: 'New Issue', user }).then(() =>
+        client.invalidateQueries({ queryKey: ['issues'] }),
       ),
     );
   }, [measureUpdate, client]);
 
   const deleteEntity = useCallback(
-    (id: string) => {
+    (number: number) => {
       measureUpdate(() =>
-        ItemResource.delete({ id }).then(() =>
+        IssueResource.delete({ number }).then(() =>
           client.invalidateQueries({
-            queryKey: ['items'],
+            queryKey: ['issues'],
           }),
         ),
       );
@@ -200,13 +200,13 @@ function BenchmarkHarness() {
   );
 
   const moveItem = useCallback(
-    (id: string) => {
+    (number: number) => {
       measureUpdate(
         () =>
-          ItemResource.update({ id }, { status: 'closed' }).then(() =>
-            client.invalidateQueries({ queryKey: ['items'] }),
+          IssueResource.update({ number }, { state: 'closed' }).then(() =>
+            client.invalidateQueries({ queryKey: ['issues'] }),
           ),
-        () => moveItemIsReady(containerRef, id),
+        () => moveItemIsReady(containerRef, number),
       );
     },
     [measureUpdate, client, containerRef],
@@ -214,7 +214,7 @@ function BenchmarkHarness() {
 
   registerAPI({
     updateEntity,
-    updateAuthor,
+    updateUser,
     unshiftItem,
     deleteEntity,
     moveItem,
@@ -224,10 +224,10 @@ function BenchmarkHarness() {
     <div ref={containerRef} data-bench-harness>
       {listViewCount != null && <ListView count={listViewCount} />}
       {showSortedView && <SortedListView />}
-      {showTripleList && tripleListCount != null && (
-        <TripleListView count={tripleListCount} />
+      {showDoubleList && doubleListCount != null && (
+        <DoubleListView count={doubleListCount} />
       )}
-      {detailItemId != null && <DetailView id={detailItemId} />}
+      {detailIssueNumber != null && <DetailView number={detailIssueNumber} />}
     </div>
   );
 }
