@@ -46,7 +46,7 @@ jobs:
         run: |
           node -e "const f='package.json',p=JSON.parse(require('fs').readFileSync(f));p.workspaces=['packages/*','examples/benchmark-react','scripts/rollup-plugins'];require('fs').writeFileSync(f,JSON.stringify(p,null,2)+'\n')"
           corepack enable
-          yarn install
+          YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install
       - name: Install Playwright (Chromium + system deps)
         run: npx playwright install chromium --with-deps
       - name: Build packages
