@@ -32,8 +32,9 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
       - name: Install packages
         run: |
+          node -e "const f='package.json',p=JSON.parse(require('fs').readFileSync(f));p.workspaces=['packages/*','scripts/rollup-plugins'];require('fs').writeFileSync(f,JSON.stringify(p,null,2)+'\n')"
           corepack enable
-          yarn install --immutable
+          yarn install
 
       - name: Create Beta Release Pull Request or Publish to npm
         id: changesets

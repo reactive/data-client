@@ -36,13 +36,8 @@ jobs:
         node-version: '24'
         cache: 'yarn'
     - name: Install packages
-      env:
-        YARN_ENABLE_IMMUTABLE_INSTALLS: true
       run: |
-        # npm pkg delete workspaces[5]
-        # npm pkg delete workspaces[4]
-        # npm pkg delete workspaces[3]
-        # npm pkg delete workspaces[1]
+        node -e "const f='package.json',p=JSON.parse(require('fs').readFileSync(f));p.workspaces=['packages/*','examples/test-bundlesize','scripts/rollup-plugins'];require('fs').writeFileSync(f,JSON.stringify(p,null,2)+'\n')"
         corepack enable
     - name: compressed-size-action
       uses: preactjs/compressed-size-action@v2

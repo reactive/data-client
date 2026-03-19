@@ -27,6 +27,8 @@ Monorepo for `@data-client` npm packages.
 - **CircleCI** (`.circleci/config.yml`) — PR validation: lint, typecheck, unit tests (React 17/18/native/latest), Node matrix, ESM type checks (TS 4.0–5.3+), browser build.
 - **GitHub Actions** (`.github/workflows/`) — release (`changesets`), bundle size PR comments, benchmark regression detection.
 
+Changing root `package.json` `workspaces` requires updating `.circleci/config.yml` (`setup` job) and `.github/workflows/` install steps.
+
 ## Changesets
 
 Any user-facing change in `packages/*` requires a changeset. Core packages are version-linked (bumping one bumps all). See skill "changeset" for full workflow.
