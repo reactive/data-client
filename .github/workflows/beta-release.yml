@@ -35,6 +35,8 @@ jobs:
           node -e "const f='package.json',p=JSON.parse(require('fs').readFileSync(f));p.workspaces=['packages/*','scripts/rollup-plugins'];require('fs').writeFileSync(f,JSON.stringify(p,null,2)+'\n')"
           corepack enable
           YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install
+      - name: Restore full workspace config
+        run: git checkout -- package.json yarn.lock
 
       - name: Create Beta Release Pull Request or Publish to npm
         id: changesets
