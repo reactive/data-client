@@ -55,18 +55,11 @@ jobs:
           cd examples/benchmark-react && yarn bench | tee react-bench-output.json
 
       # PR comments on changes
-      - name: Download previous benchmark data (PR)
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/cache@v5
-        with:
-          path: ./cache
-          key: ${{ runner.os }}-benchmark-react-pr-${{ github.run_number }}
-          restore-keys: |
-            ${{ runner.os }}-benchmark-react
       - name: Store benchmark result (PR)
         if: ${{ github.event_name == 'pull_request' }}
         uses: rhysd/github-action-benchmark@v1
         with:
+          name: 'Benchmark React'
           tool: 'customSmallerIsBetter'
           output-file-path: examples/benchmark-react/react-bench-output.json
           github-token: "${{ secrets.GITHUB_TOKEN }}"
@@ -80,16 +73,11 @@ jobs:
           auto-push: false
 
       # master reports to history
-      - name: Download previous benchmark data (main)
-        if: ${{ github.event_name == 'push' }}
-        uses: actions/cache@v5
-        with:
-          path: ./cache
-          key: ${{ runner.os }}-benchmark-react
       - name: Store benchmark result (main)
         if: ${{ github.event_name == 'push' }}
         uses: rhysd/github-action-benchmark@v1
         with:
+          name: 'Benchmark React'
           tool: 'customSmallerIsBetter'
           output-file-path: examples/benchmark-react/react-bench-output.json
           github-token: "${{ secrets.GITHUB_TOKEN }}"
