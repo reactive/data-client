@@ -263,9 +263,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/babel-preset@npm:6.2.23":
-  version: 6.2.23
-  resolution: "@anansi/babel-preset@npm:6.2.23"
+"@anansi/babel-preset@npm:6.2.25, @anansi/babel-preset@npm:^6.2.19":
+  version: 6.2.25
+  resolution: "@anansi/babel-preset@npm:6.2.25"
   dependencies:
     "@anansi/ts-utils": "npm:^0.3.9"
     "@babel/plugin-proposal-decorators": "npm:^7.29.0"
@@ -277,11 +277,11 @@ __metadata:
     "@babel/plugin-transform-react-inline-elements": "npm:^7.27.1"
     "@babel/plugin-transform-runtime": "npm:^7.29.0"
     "@babel/plugin-transform-typescript": "npm:^7.28.6"
-    "@babel/preset-env": "npm:^7.29.0"
+    "@babel/preset-env": "npm:^7.29.2"
     "@babel/preset-react": "npm:^7.28.5"
     babel-plugin-macros: "npm:^3.1.0"
-    babel-plugin-module-resolver: "npm:^5.0.2"
-    babel-plugin-polyfill-corejs3: "npm:^0.14.0"
+    babel-plugin-module-resolver: "npm:^5.0.3"
+    babel-plugin-polyfill-corejs3: "npm:^0.14.2"
     babel-plugin-react-compiler: "npm:1.0.0"
     babel-plugin-root-import: "npm:^6.6.0"
     babel-plugin-transform-import-meta: "npm:^2.3.3"
@@ -322,70 +322,7 @@ __metadata:
       optional: true
     typescript:
       optional: true
-  checksum: 10c0/b7d67ac3f7a13895d4cf9518ced7bd13b12284d2119b7f3e026d148480c6450fe59ea1d7cbf4e683e0bbfa5eb1d1c2be91e3973a8b47222e109549ef27f2a4f1
-  languageName: node
-  linkType: hard
-
-"@anansi/babel-preset@npm:6.2.24, @anansi/babel-preset@npm:^6.2.19":
-  version: 6.2.24
-  resolution: "@anansi/babel-preset@npm:6.2.24"
-  dependencies:
-    "@anansi/ts-utils": "npm:^0.3.9"
-    "@babel/plugin-proposal-decorators": "npm:^7.29.0"
-    "@babel/plugin-proposal-export-default-from": "npm:^7.27.1"
-    "@babel/plugin-proposal-record-and-tuple": "npm:^7.27.1"
-    "@babel/plugin-syntax-function-bind": "npm:^7.28.6"
-    "@babel/plugin-transform-object-assign": "npm:^7.27.1"
-    "@babel/plugin-transform-react-constant-elements": "npm:^7.27.1"
-    "@babel/plugin-transform-react-inline-elements": "npm:^7.27.1"
-    "@babel/plugin-transform-runtime": "npm:^7.29.0"
-    "@babel/plugin-transform-typescript": "npm:^7.28.6"
-    "@babel/preset-env": "npm:^7.29.0"
-    "@babel/preset-react": "npm:^7.28.5"
-    babel-plugin-macros: "npm:^3.1.0"
-    babel-plugin-module-resolver: "npm:^5.0.2"
-    babel-plugin-polyfill-corejs3: "npm:^0.14.1"
-    babel-plugin-react-compiler: "npm:1.0.0"
-    babel-plugin-root-import: "npm:^6.6.0"
-    babel-plugin-transform-import-meta: "npm:^2.3.3"
-    babel-plugin-transform-react-remove-prop-types: "npm:^0.4.24"
-    core-js-compat: "npm:^3.40.0"
-    glob-to-regexp: "npm:^0.4.1"
-    path: "npm:^0.12.7"
-  peerDependencies:
-    "@babel/core": ^7.12.0
-    "@babel/runtime": ^7.7.0
-    "@babel/runtime-corejs2": ^7.10.0
-    "@babel/runtime-corejs3": ^7.10.0
-    babel-minify: ^0.5.1
-    core-js: "*"
-    core-js-pure: "*"
-    lodash: "*"
-    ramda: "*"
-    react-refresh: "*"
-    typescript: ^3.0.0 || ^4.0.0 || ^5.0.0
-  peerDependenciesMeta:
-    "@babel/runtime":
-      optional: true
-    "@babel/runtime-corejs2":
-      optional: true
-    "@babel/runtime-corejs3":
-      optional: true
-    babel-minify:
-      optional: true
-    core-js:
-      optional: true
-    core-js-pure:
-      optional: true
-    lodash:
-      optional: true
-    ramda:
-      optional: true
-    react-refresh:
-      optional: true
-    typescript:
-      optional: true
-  checksum: 10c0/3a42dbcb1ee1d09e41bd63596696c017ae18fa89f0bd981636ba09a6b83f56154573362700f52be1a74f5be9d325efebdead66b284efd6c5488d5da9c83fc3ab
+  checksum: 10c0/6d5b96442d355a1970528b2f2e8905cfcc2772ac45cb42dad1bf8d2cb431968c56c592f1c4dd6c9c090693bc39098e0d5d36d209205570dbfcfd0ab581097986
   languageName: node
   linkType: hard
 
@@ -586,9 +523,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:21.1.14":
-  version: 21.1.14
-  resolution: "@anansi/webpack-config@npm:21.1.14"
+"@anansi/webpack-config@npm:21.1.16":
+  version: 21.1.16
+  resolution: "@anansi/webpack-config@npm:21.1.16"
   dependencies:
     "@babel/runtime-corejs3": "npm:^7.26.0"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.6.2"
@@ -599,114 +536,7 @@ __metadata:
     "@wyw-in-js/webpack-loader": "npm:^1.0.6"
     assert: "npm:^2.1.0"
     autoprefixer: "npm:^10.4.27"
-    babel-loader: "npm:^10.0.0"
-    browserify-zlib: "npm:^0.2.0"
-    buffer: "npm:^6.0.3"
-    circular-dependency-plugin: "npm:^5.2.2"
-    clean-webpack-plugin: "npm:^4.0.0"
-    console-browserify: "npm:^1.2.0"
-    constants-browserify: "npm:^1.0.0"
-    core-js-pure: "npm:^3.40.0"
-    crypto-browserify: "npm:^3.12.1"
-    css-loader: "npm:^7.1.4"
-    css-minimizer-webpack-plugin: "npm:^7.0.4"
-    domain-browser: "npm:^5.7.0"
-    duplicate-package-checker-webpack-plugin: "npm:^3.0.0"
-    events: "npm:^3.3.0"
-    file-loader: "npm:^6.2.0"
-    html-loader: "npm:^5.1.0"
-    html-webpack-plugin: "npm:^5.6.6"
-    https-browserify: "npm:^1.0.0"
-    is-wsl: "npm:^2.2.0"
-    mini-css-extract-plugin: "npm:^2.10.0"
-    mkdirp: "npm:^3.0.1"
-    os-browserify: "npm:^0.3.0"
-    path: "npm:^0.12.7"
-    path-browserify: "npm:^1.0.1"
-    postcss: "npm:^8.5.6"
-    postcss-loader: "npm:^8.2.1"
-    postcss-preset-env: "npm:^10.6.1"
-    process: "npm:^0.11.10"
-    querystring-es3: "npm:^0.2.1"
-    ramda: "npm:^0.32.0"
-    react-dev-utils: "npm:^12.0.1"
-    react-error-overlay: "npm:6.0.9"
-    readable-stream: "npm:^4.7.0"
-    sass-loader: "npm:^16.0.7"
-    sass-resources-loader: "npm:^2.2.5"
-    semver: "npm:^7.7.4"
-    stream-browserify: "npm:^3.0.0"
-    stream-http: "npm:^3.2.0"
-    string_decoder: "npm:^1.3.0"
-    strip-ansi: "npm:^6.0.1"
-    svgo: "npm:^4.0.0"
-    svgo-loader: "npm:^4.0.0"
-    terser-webpack-plugin: "npm:^5.3.16"
-    timers-browserify: "npm:^2.0.12"
-    tsconfig-paths-webpack-plugin: "npm:^4.2.0"
-    tty-browserify: "npm:^0.0.1"
-    url: "npm:^0.11.4"
-    util: "npm:^0.12.5"
-    vm-browserify: "npm:^1.1.2"
-    webpack-bundle-analyzer: "npm:^5.2.0"
-    webpack-node-externals: "npm:^3.0.0"
-    webpack-remove-empty-scripts: "npm:^1.1.1"
-    webpack-stats-plugin: "npm:^1.1.3"
-    worker-loader: "npm:^3.0.8"
-  peerDependencies:
-    "@babel/core": ^6 || ^7 || ^8
-    "@hot-loader/react-dom": ^16.0.0 || ^17.0.0
-    "@storybook/react": ^6.2.0 || ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0
-    "@types/react": "*"
-    react: "*"
-    react-refresh: "*"
-    sass: ^1.3.0
-    sass-embedded: ^1.70.0
-    svgo: ^3.0.0 || ^4.0.0
-    webpack: ^5.61.0
-    webpack-cli: ^4.1.0 || ^5.0.0 || ^6.0.0
-    webpack-dev-server: ^4.8.0 || ^5.0.0
-  peerDependenciesMeta:
-    "@babel/core":
-      optional: true
-    "@hot-loader/react-dom":
-      optional: true
-    "@storybook/react":
-      optional: true
-    "@types/react":
-      optional: true
-    react:
-      optional: true
-    react-refresh:
-      optional: true
-    sass:
-      optional: true
-    sass-embedded:
-      optional: true
-    svgo:
-      optional: true
-    webpack-cli:
-      optional: true
-    webpack-dev-server:
-      optional: true
-  checksum: 10c0/594ee7ee5697c080cd495fc3a61396feca7d8f2a4198ea2e71de44c95be1741da5bdd15d4813b9d67d06224b38f424bdeb909df2b3bd555c1a0224113afb3fcf
-  languageName: node
-  linkType: hard
-
-"@anansi/webpack-config@npm:21.1.15":
-  version: 21.1.15
-  resolution: "@anansi/webpack-config@npm:21.1.15"
-  dependencies:
-    "@babel/runtime-corejs3": "npm:^7.26.0"
-    "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.6.2"
-    "@svgr/webpack": "npm:^8.1.0"
-    "@types/sass-loader": "npm:^8.0.10"
-    "@types/webpack-bundle-analyzer": "npm:^4.7.0"
-    "@vue/preload-webpack-plugin": "npm:^2.0.0"
-    "@wyw-in-js/webpack-loader": "npm:^1.0.6"
-    assert: "npm:^2.1.0"
-    autoprefixer: "npm:^10.4.27"
-    babel-loader: "npm:^10.1.0"
+    babel-loader: "npm:^10.1.1"
     browserify-zlib: "npm:^0.2.0"
     buffer: "npm:^6.0.3"
     circular-dependency-plugin: "npm:^5.2.2"
@@ -796,7 +626,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: 10c0/266cbf6d750f11d56ff041a8bb5b36104ba151f4c521b8b30aa3add50e7b376d59ba5db0a889abc0bae2f10f96b9871b5a591b0e83084ad9871019ba3b1ff646
+  checksum: 10c0/4fb3512851d5b32c999990b06924149be7458d109f2d2996c80b65e0f2a0383f5eed830c5c84e25b2fc0e82753b43d73c14af68d4bc5e0258f74258323ad232b
   languageName: node
   linkType: hard
 
@@ -999,9 +829,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/helper-define-polyfill-provider@npm:^0.6.5, @babel/helper-define-polyfill-provider@npm:^0.6.6, @babel/helper-define-polyfill-provider@npm:^0.6.7":
-  version: 0.6.7
-  resolution: "@babel/helper-define-polyfill-provider@npm:0.6.7"
+"@babel/helper-define-polyfill-provider@npm:^0.6.5, @babel/helper-define-polyfill-provider@npm:^0.6.6, @babel/helper-define-polyfill-provider@npm:^0.6.8":
+  version: 0.6.8
+  resolution: "@babel/helper-define-polyfill-provider@npm:0.6.8"
   dependencies:
     "@babel/helper-compilation-targets": "npm:^7.28.6"
     "@babel/helper-plugin-utils": "npm:^7.28.6"
@@ -1010,7 +840,7 @@ __metadata:
     resolve: "npm:^1.22.11"
   peerDependencies:
     "@babel/core": ^7.4.0 || ^8.0.0-0 <8.0.0
-  checksum: 10c0/1c812c59051998910b7b88fc6c314b628998cf0df02a460e5c141c2cde6fb6e6bb41a97b1ad3c038ccda5517fbe14bc1b4cca21f7333225b11c416a1169055f3
+  checksum: 10c0/306a169f2cb285f368578219ef18ea9702860d3d02d64334f8d45ea38648be0b9e1edad8c8f732fa34bb4206ccbb9883c395570fd57ab7bbcf293bc5964c5b3a
   languageName: node
   linkType: hard
 
@@ -2275,9 +2105,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/preset-env@npm:^7.20.2, @babel/preset-env@npm:^7.22.15, @babel/preset-env@npm:^7.25.9, @babel/preset-env@npm:^7.29.0":
-  version: 7.29.0
-  resolution: "@babel/preset-env@npm:7.29.0"
+"@babel/preset-env@npm:^7.20.2, @babel/preset-env@npm:^7.22.15, @babel/preset-env@npm:^7.25.9, @babel/preset-env@npm:^7.29.2":
+  version: 7.29.2
+  resolution: "@babel/preset-env@npm:7.29.2"
   dependencies:
     "@babel/compat-data": "npm:^7.29.0"
     "@babel/helper-compilation-targets": "npm:^7.28.6"
@@ -2351,7 +2181,7 @@ __metadata:
     semver: "npm:^6.3.1"
   peerDependencies:
     "@babel/core": ^7.0.0-0
-  checksum: 10c0/08737e333a538703ba20e9e93b5bfbc01abbb9d3b2519b5b62ad05d3b6b92d79445b1dac91229b8cfcfb0b681b22b7c6fa88d7c1cc15df1690a23b21287f55b6
+  checksum: 10c0/d49cb005f2dbc3f2293ab6d80ee8f1380e6215af5518fe26b087c8961c1ea8ebaa554dfce589abe1fbebac25ad7c2515d943dec3859ea2d4981a3f8f4711c580
   languageName: node
   linkType: hard
 
@@ -2427,12 +2257,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime-corejs3@npm:7.29.0, @babel/runtime-corejs3@npm:^7.25.9, @babel/runtime-corejs3@npm:^7.26.0, @babel/runtime-corejs3@npm:^7.26.7":
-  version: 7.29.0
-  resolution: "@babel/runtime-corejs3@npm:7.29.0"
+"@babel/runtime-corejs3@npm:7.29.2, @babel/runtime-corejs3@npm:^7.25.9, @babel/runtime-corejs3@npm:^7.26.0, @babel/runtime-corejs3@npm:^7.26.7":
+  version: 7.29.2
+  resolution: "@babel/runtime-corejs3@npm:7.29.2"
   dependencies:
     core-js-pure: "npm:^3.48.0"
-  checksum: 10c0/7f1197fa3a50836a6ce1ca3b51df69b65421f790d3f877f2cba8e6c3c238e358da9eafa083fd100cc7a2c4c57db7e27c6bf36b8ea8dd4caa29bfa363adbbaa81
+  checksum: 10c0/24a9de8b592cf67fbe62c36c002a0da8c0456079a0543646a40e2b1b0838e7712f5ff49e9551624395ccd67a409c63e7c638b23e3bebbfdf54e373b1c707ebff
   languageName: node
   linkType: hard
 
@@ -10197,19 +10027,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-loader@npm:^10.0.0":
-  version: 10.0.0
-  resolution: "babel-loader@npm:10.0.0"
-  dependencies:
-    find-up: "npm:^5.0.0"
-  peerDependencies:
-    "@babel/core": ^7.12.0
-    webpack: ">=5.61.0"
-  checksum: 10c0/882dfacde3ee24b432ad57e468832cd0821e2a410f6c5b75ff945f069a8956592b28c6c357df5bb03db73d2741ec3db5febb106ac0bb3591c3d4288f2cf4df0e
-  languageName: node
-  linkType: hard
-
-"babel-loader@npm:^10.1.0":
+"babel-loader@npm:^10.1.1":
   version: 10.1.1
   resolution: "babel-loader@npm:10.1.1"
   dependencies:
@@ -10319,7 +10137,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-plugin-module-resolver@npm:5.0.2, babel-plugin-module-resolver@npm:^5.0.2":
+"babel-plugin-module-resolver@npm:5.0.2":
   version: 5.0.2
   resolution: "babel-plugin-module-resolver@npm:5.0.2"
   dependencies:
@@ -10329,6 +10147,19 @@ __metadata:
     reselect: "npm:^4.1.7"
     resolve: "npm:^1.22.8"
   checksum: 10c0/ccbb9e673c4219f68937349267521becb72be292cf30bf70b861c3e709d24fbfa589da0bf6c100a0def799d38199299171cb6eac3fb00b1ea740373e2c1fe54c
+  languageName: node
+  linkType: hard
+
+"babel-plugin-module-resolver@npm:^5.0.3":
+  version: 5.0.3
+  resolution: "babel-plugin-module-resolver@npm:5.0.3"
+  dependencies:
+    find-babel-config: "npm:^2.1.1"
+    glob: "npm:^9.3.3"
+    pkg-up: "npm:^3.1.0"
+    reselect: "npm:^4.1.7"
+    resolve: "npm:^1.22.8"
+  checksum: 10c0/aa8940ae1eaa7dadbf63b12387ed63ab34a19bf6614ac76e16e4d44af80ae36c4741d307a91f864320c0ad33037b34466854bb9d8de6c1e73936b1af1b6d36a6
   languageName: node
   linkType: hard
 
@@ -10357,15 +10188,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-plugin-polyfill-corejs3@npm:^0.14.0, babel-plugin-polyfill-corejs3@npm:^0.14.1":
-  version: 0.14.1
-  resolution: "babel-plugin-polyfill-corejs3@npm:0.14.1"
+"babel-plugin-polyfill-corejs3@npm:^0.14.0, babel-plugin-polyfill-corejs3@npm:^0.14.2":
+  version: 0.14.2
+  resolution: "babel-plugin-polyfill-corejs3@npm:0.14.2"
   dependencies:
-    "@babel/helper-define-polyfill-provider": "npm:^0.6.7"
+    "@babel/helper-define-polyfill-provider": "npm:^0.6.8"
     core-js-compat: "npm:^3.48.0"
   peerDependencies:
     "@babel/core": ^7.4.0 || ^8.0.0-0 <8.0.0
-  checksum: 10c0/c1fa84e5febbdc785b8ed396fe70581e3358e7c50f58c62999e9ce75c6a71d0848d62691cb07b4e58a23eec77c84091df58ac5354126ca244e15f5fd47362497
+  checksum: 10c0/32f70442f142d0f5607f4b57c121c573b106e09da8659c0f03108a85bf1d09ba5bdc89595a82b34ff76c19f1faf3d1c831b56166f03babf69c024f36da77c3bf
   languageName: node
   linkType: hard
 
@@ -11649,14 +11480,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "coinbase-lite@workspace:examples/coin-app"
   dependencies:
-    "@anansi/babel-preset": "npm:6.2.24"
+    "@anansi/babel-preset": "npm:6.2.25"
     "@anansi/browserslist-config": "npm:1.7.4"
     "@anansi/cli": "npm:3.1.103"
     "@anansi/core": "npm:0.22.8"
     "@anansi/router": "npm:0.10.22"
-    "@anansi/webpack-config": "npm:21.1.15"
+    "@anansi/webpack-config": "npm:21.1.16"
     "@babel/core": "npm:7.29.0"
-    "@babel/runtime-corejs3": "npm:7.29.0"
+    "@babel/runtime-corejs3": "npm:7.29.2"
     "@data-client/img": "npm:0.15.0"
     "@data-client/react": "npm:0.15.7"
     "@data-client/rest": "npm:0.15.7"
@@ -11666,7 +11497,7 @@ __metadata:
     "@types/d3": "npm:^7"
     "@types/react": "npm:*"
     "@types/react-dom": "npm:*"
-    core-js: "npm:3.48.0"
+    core-js: "npm:3.49.0"
     d3: "npm:7.9.0"
     history: "npm:*"
     react: "npm:19.2.3"
@@ -12107,10 +11938,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:3.48.0, core-js@npm:^3.31.1, core-js@npm:^3.40.0, core-js@npm:^3.48.0":
-  version: 3.48.0
-  resolution: "core-js@npm:3.48.0"
-  checksum: 10c0/6c3115900dd7cce9fab74c07cb262b3517fc250d02e8fd2ff34f80bda5f43a28482a909dbc4491dc6e1ddd9807f57a7df4c3eeecd1f202b7d9c8bfe25f9d680c
+"core-js@npm:3.49.0, core-js@npm:^3.31.1, core-js@npm:^3.40.0, core-js@npm:^3.48.0":
+  version: 3.49.0
+  resolution: "core-js@npm:3.49.0"
+  checksum: 10c0/2e42edb47eda38fd5368380131623c8aa5d4a6b42164125b17744bdc08fa5ebbbdd06b4b4aa6ca3663470a560b0f2fba48e18f142dfe264b0039df85bc625694
   languageName: node
   linkType: hard
 
@@ -13902,7 +13733,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"enhanced-resolve@npm:^5.19.0, enhanced-resolve@npm:^5.20.0, enhanced-resolve@npm:^5.7.0":
+"enhanced-resolve@npm:^5.20.0, enhanced-resolve@npm:^5.7.0":
   version: 5.20.0
   resolution: "enhanced-resolve@npm:5.20.0"
   dependencies:
@@ -14809,9 +14640,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "example-benchmark-react@workspace:examples/benchmark-react"
   dependencies:
-    "@anansi/babel-preset": "npm:6.2.23"
+    "@anansi/babel-preset": "npm:6.2.25"
     "@anansi/browserslist-config": "npm:^1.4.3"
-    "@anansi/webpack-config": "npm:21.1.14"
+    "@anansi/webpack-config": "npm:21.1.16"
     "@babel/core": "npm:^7.22.15"
     "@data-client/core": "workspace:*"
     "@data-client/endpoint": "workspace:*"
@@ -14830,7 +14661,7 @@ __metadata:
     swr: "npm:2.3.6"
     tsx: "npm:4.19.2"
     typescript: "npm:6.0.1-rc"
-    webpack: "npm:5.105.3"
+    webpack: "npm:5.105.4"
     webpack-cli: "npm:6.0.1"
   languageName: unknown
   linkType: soft
@@ -14839,7 +14670,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "example-benchmark@workspace:examples/benchmark"
   dependencies:
-    "@anansi/webpack-config": "npm:21.1.15"
+    "@anansi/webpack-config": "npm:21.1.16"
     "@babel/core": "npm:7.29.0"
     "@babel/node": "npm:7.29.0"
     "@data-client/core": "workspace:*"
@@ -15837,16 +15668,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"get-tsconfig@npm:^4.10.1":
-  version: 4.10.1
-  resolution: "get-tsconfig@npm:4.10.1"
-  dependencies:
-    resolve-pkg-maps: "npm:^1.0.0"
-  checksum: 10c0/7f8e3dabc6a49b747920a800fb88e1952fef871cdf51b79e98db48275a5de6cdaf499c55ee67df5fa6fe7ce65f0063e26de0f2e53049b408c585aa74d39ffa21
-  languageName: node
-  linkType: hard
-
-"get-tsconfig@npm:^4.7.5":
+"get-tsconfig@npm:^4.10.1, get-tsconfig@npm:^4.7.5":
   version: 4.13.6
   resolution: "get-tsconfig@npm:4.13.6"
   dependencies:
@@ -21006,18 +20828,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mini-css-extract-plugin@npm:^2.10.0":
-  version: 2.10.0
-  resolution: "mini-css-extract-plugin@npm:2.10.0"
-  dependencies:
-    schema-utils: "npm:^4.0.0"
-    tapable: "npm:^2.2.1"
-  peerDependencies:
-    webpack: ^5.0.0
-  checksum: 10c0/5fb0654471f4fb695629d96324d327d4d3a05069a95b83770d070e8f48a07d5b5f8da61adabdd56e3119cf6b17eef058c4ba6ab4cd31a7b2af48624621fe0520
-  languageName: node
-  linkType: hard
-
 "mini-css-extract-plugin@npm:^2.10.1, mini-css-extract-plugin@npm:^2.9.2":
   version: 2.10.1
   resolution: "mini-css-extract-plugin@npm:2.10.1"
@@ -24364,17 +24174,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.5.6":
-  version: 8.5.6
-  resolution: "postcss@npm:8.5.6"
-  dependencies:
-    nanoid: "npm:^3.3.11"
-    picocolors: "npm:^1.1.1"
-    source-map-js: "npm:^1.2.1"
-  checksum: 10c0/5127cc7c91ed7a133a1b7318012d8bfa112da9ef092dddf369ae699a1f10ebbd89b1b9f25f3228795b84585c72aabd5ced5fc11f2ba467eedf7b081a66fad024
-  languageName: node
-  linkType: hard
-
 "prelude-ls@npm:^1.2.1":
   version: 1.2.1
   resolution: "prelude-ls@npm:1.2.1"
@@ -24838,7 +24637,7 @@ __metadata:
   resolution: "rdc-website@workspace:website"
   dependencies:
     "@anansi/browserslist-config": "npm:1.7.4"
-    "@anansi/webpack-config": "npm:21.1.15"
+    "@anansi/webpack-config": "npm:21.1.16"
     "@data-client/endpoint": "workspace:*"
     "@data-client/graphql": "workspace:*"
     "@data-client/react": "workspace:*"
@@ -28000,7 +27799,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"svgo@npm:^4.0.0, svgo@npm:^4.0.1":
+"svgo@npm:^4.0.1":
   version: 4.0.1
   resolution: "svgo@npm:4.0.1"
   dependencies:
@@ -28126,28 +27925,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"terser-webpack-plugin@npm:^5.3.16":
-  version: 5.3.16
-  resolution: "terser-webpack-plugin@npm:5.3.16"
-  dependencies:
-    "@jridgewell/trace-mapping": "npm:^0.3.25"
-    jest-worker: "npm:^27.4.5"
-    schema-utils: "npm:^4.3.0"
-    serialize-javascript: "npm:^6.0.2"
-    terser: "npm:^5.31.1"
-  peerDependencies:
-    webpack: ^5.1.0
-  peerDependenciesMeta:
-    "@swc/core":
-      optional: true
-    esbuild:
-      optional: true
-    uglify-js:
-      optional: true
-  checksum: 10c0/39e37c5b3015c1a5354a3633f77235677bfa06eac2608ce26d258b1d1a74070a99910319a6f2f2c437eb61dc321f66434febe01d78e73fa96b4d4393b813f4cf
-  languageName: node
-  linkType: hard
-
 "terser-webpack-plugin@npm:^5.3.17, terser-webpack-plugin@npm:^5.3.9, terser-webpack-plugin@npm:^5.4.0":
   version: 5.4.0
   resolution: "terser-webpack-plugin@npm:5.4.0"
@@ -28187,9 +27964,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "test-bundlesize@workspace:examples/test-bundlesize"
   dependencies:
-    "@anansi/babel-preset": "npm:6.2.24"
+    "@anansi/babel-preset": "npm:6.2.25"
     "@anansi/browserslist-config": "npm:^1.4.3"
-    "@anansi/webpack-config": "npm:21.1.15"
+    "@anansi/webpack-config": "npm:21.1.16"
     "@babel/core": "npm:^7.22.15"
     "@babel/runtime-corejs3": "npm:^7.26.7"
     "@data-client/img": "workspace:*"
@@ -29947,44 +29724,6 @@ __metadata:
   bin:
     webpack: bin/webpack.js
   checksum: 10c0/e9896d20bac351b119d59942b7efae5b117056ecf203acc0d1a84ecbf0a5a9a80ca733735f96bd163e3530be6ab7f615cd67e5320bd3c47d709c9bfe376c3280
-  languageName: node
-  linkType: hard
-
-"webpack@npm:5.105.3":
-  version: 5.105.3
-  resolution: "webpack@npm:5.105.3"
-  dependencies:
-    "@types/eslint-scope": "npm:^3.7.7"
-    "@types/estree": "npm:^1.0.8"
-    "@types/json-schema": "npm:^7.0.15"
-    "@webassemblyjs/ast": "npm:^1.14.1"
-    "@webassemblyjs/wasm-edit": "npm:^1.14.1"
-    "@webassemblyjs/wasm-parser": "npm:^1.14.1"
-    acorn: "npm:^8.16.0"
-    acorn-import-phases: "npm:^1.0.3"
-    browserslist: "npm:^4.28.1"
-    chrome-trace-event: "npm:^1.0.2"
-    enhanced-resolve: "npm:^5.19.0"
-    es-module-lexer: "npm:^2.0.0"
-    eslint-scope: "npm:5.1.1"
-    events: "npm:^3.2.0"
-    glob-to-regexp: "npm:^0.4.1"
-    graceful-fs: "npm:^4.2.11"
-    json-parse-even-better-errors: "npm:^2.3.1"
-    loader-runner: "npm:^4.3.1"
-    mime-types: "npm:^2.1.27"
-    neo-async: "npm:^2.6.2"
-    schema-utils: "npm:^4.3.3"
-    tapable: "npm:^2.3.0"
-    terser-webpack-plugin: "npm:^5.3.16"
-    watchpack: "npm:^2.5.1"
-    webpack-sources: "npm:^3.3.4"
-  peerDependenciesMeta:
-    webpack-cli:
-      optional: true
-  bin:
-    webpack: bin/webpack.js
-  checksum: 10c0/a9a9a3a369d14f24348bd932feb07eef74a9fe194ad16704dc4f125b6055fe51a5ef1c6fdb3aa398c6f180f59aa14cb1b360695d8ea862a5ed130103ebd255e0
   languageName: node
   linkType: hard
 
