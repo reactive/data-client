@@ -706,6 +706,11 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
      * @see https://dataclient.io/rest/api/Collection#addWith
      */
     addWith<P extends any[] = Args>(merge: (existing: any, incoming: any) => any, createCollectionFilter?: (...args: P) => (collectionKey: Record<string, string>) => boolean): Collection<S, P>;
+    /** Constructs a custom move schema for this collection
+     *
+     * @see https://dataclient.io/rest/api/Collection#moveWith
+     */
+    moveWith<P extends any[] = Args>(merge: (existing: any, incoming: any) => any): Collection<S, P>;
     readonly cacheWith: object;
     readonly schema: S;
     readonly key: string;
@@ -1135,6 +1140,12 @@ declare class Values<Choices extends Schema = any> implements SchemaClass {
   ): undefined;
 }
 
+/** Collection merge that places incoming items at the start.
+ *
+ * @see https://dataclient.io/rest/api/Collection#moveWith
+ */
+declare const unshift: (existing: any, incoming: any) => any;
+
 declare let CollectionRoot: CollectionConstructor;
 
 /**
@@ -1183,8 +1194,9 @@ type schema_d_UnionResult<Choices extends EntityMap> = UnionResult<Choices>;
 declare const schema_d_UnionRoot: typeof UnionRoot;
 type schema_d_Values<Choices extends Schema = any> = Values<Choices>;
 declare const schema_d_Values: typeof Values;
+declare const schema_d_unshift: typeof unshift;
 declare namespace schema_d {
-  export { schema_d_All as All, Array$1 as Array, schema_d_Collection as Collection, type schema_d_CollectionArrayAdder as CollectionArrayAdder, type schema_d_CollectionArrayOrValuesAdder as CollectionArrayOrValuesAdder, type schema_d_CollectionConstructor as CollectionConstructor, type schema_d_CollectionFromSchema as CollectionFromSchema, type schema_d_CollectionInterface as CollectionInterface, schema_d_CollectionRoot as CollectionRoot, type schema_d_DefaultArgs as DefaultArgs, EntityMixin as Entity, type schema_d_EntityInterface as EntityInterface, type schema_d_EntityMap as EntityMap, schema_d_EntityMixin as EntityMixin, schema_d_Invalidate as Invalidate, type schema_d_MergeFunction as MergeFunction, Object$1 as Object, schema_d_Query as Query, type schema_d_SchemaAttributeFunction as SchemaAttributeFunction, type schema_d_SchemaClass as SchemaClass, type schema_d_SchemaFunction as SchemaFunction, type schema_d_StrategyFunction as StrategyFunction, schema_d_Union as Union, type schema_d_UnionConstructor as UnionConstructor, type schema_d_UnionInstance as UnionInstance, type schema_d_UnionResult as UnionResult, schema_d_UnionRoot as UnionRoot, schema_d_Values as Values };
+  export { schema_d_All as All, Array$1 as Array, schema_d_Collection as Collection, type schema_d_CollectionArrayAdder as CollectionArrayAdder, type schema_d_CollectionArrayOrValuesAdder as CollectionArrayOrValuesAdder, type schema_d_CollectionConstructor as CollectionConstructor, type schema_d_CollectionFromSchema as CollectionFromSchema, type schema_d_CollectionInterface as CollectionInterface, schema_d_CollectionRoot as CollectionRoot, type schema_d_DefaultArgs as DefaultArgs, EntityMixin as Entity, type schema_d_EntityInterface as EntityInterface, type schema_d_EntityMap as EntityMap, schema_d_EntityMixin as EntityMixin, schema_d_Invalidate as Invalidate, type schema_d_MergeFunction as MergeFunction, Object$1 as Object, schema_d_Query as Query, type schema_d_SchemaAttributeFunction as SchemaAttributeFunction, type schema_d_SchemaClass as SchemaClass, type schema_d_SchemaFunction as SchemaFunction, type schema_d_StrategyFunction as StrategyFunction, schema_d_Union as Union, type schema_d_UnionConstructor as UnionConstructor, type schema_d_UnionInstance as UnionInstance, type schema_d_UnionResult as UnionResult, schema_d_UnionRoot as UnionRoot, schema_d_Values as Values, schema_d_unshift as unshift };
 }
 
 declare const Entity_base: IEntityClass<abstract new (...args: any[]) => {
@@ -1235,4 +1247,4 @@ declare function validateRequired(processedEntity: any, requiredDefaults: Record
 /** https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-4.html#the-noinfer-utility-type */
 type NI<T> = NoInfer<T>;
 
-export { type AbstractInstanceType, All, Array$1 as Array, type CheckLoop, Collection, type DefaultArgs, type Denormalize, type DenormalizeNullable, type DenormalizeNullableObject, type DenormalizeObject, Endpoint, type EndpointExtendOptions, type EndpointExtraOptions, type EndpointInstance, type EndpointInstanceInterface, type EndpointInterface, type EndpointOptions, type EndpointParam, type EndpointToFunction, type EntitiesInterface, type EntitiesPath, Entity, type EntityFields, type EntityInterface, type EntityMap, EntityMixin, type EntityPath, type EntityTable, type ErrorTypes, type ExpiryStatusInterface, ExtendableEndpoint, type FetchFunction, type GetEntity, type GetIndex, type IEntityClass, type IEntityInstance, type INormalizeDelegate, type IQueryDelegate, type IndexPath, Invalidate, type KeyofEndpointInstance, type Mergeable, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeObject, type NormalizedEntity, type NormalizedIndex, type NormalizedNullableObject, Object$1 as Object, type ObjectArgs, type PolymorphicInterface, Query, type Queryable, type ReadEndpoint, type RecordClass, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SnapshotInterface, Union, type UnknownError, Values, type Visit, schema_d as schema, validateRequired };
+export { type AbstractInstanceType, All, Array$1 as Array, type CheckLoop, Collection, type DefaultArgs, type Denormalize, type DenormalizeNullable, type DenormalizeNullableObject, type DenormalizeObject, Endpoint, type EndpointExtendOptions, type EndpointExtraOptions, type EndpointInstance, type EndpointInstanceInterface, type EndpointInterface, type EndpointOptions, type EndpointParam, type EndpointToFunction, type EntitiesInterface, type EntitiesPath, Entity, type EntityFields, type EntityInterface, type EntityMap, EntityMixin, type EntityPath, type EntityTable, type ErrorTypes, type ExpiryStatusInterface, ExtendableEndpoint, type FetchFunction, type GetEntity, type GetIndex, type IEntityClass, type IEntityInstance, type INormalizeDelegate, type IQueryDelegate, type IndexPath, Invalidate, type KeyofEndpointInstance, type Mergeable, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeObject, type NormalizedEntity, type NormalizedIndex, type NormalizedNullableObject, Object$1 as Object, type ObjectArgs, type PolymorphicInterface, Query, type Queryable, type ReadEndpoint, type RecordClass, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SnapshotInterface, Union, type UnknownError, Values, type Visit, schema_d as schema, unshift, validateRequired };
