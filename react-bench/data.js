@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1773975042141,
+  "lastUpdate": 1774011570592,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -541,6 +541,114 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 5.7,
             "range": "± 0.24",
+            "unit": "ms"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e4371dea9bf8da1989affe182220ed619ae6046e",
+          "message": "pkg: Update all non-major dependencies (#3800)\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
+          "timestamp": "2026-03-20T08:57:17-04:00",
+          "tree_id": "3d06403090685c74206453f42dee7ec60ddb5a65",
+          "url": "https://github.com/reactive/data-client/commit/e4371dea9bf8da1989affe182220ed619ae6046e"
+        },
+        "date": 1774011567938,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 21.4,
+            "range": "± 2.29",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 33.1,
+            "range": "± 3.14",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: update-single-entity",
+            "value": 5.9,
+            "range": "± 0.69",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: ref-stability-issue-changed",
+            "value": 5,
+            "range": "± 0",
+            "unit": "count"
+          },
+          {
+            "name": "data-client: ref-stability-user-changed",
+            "value": 5,
+            "range": "± 0",
+            "unit": "count"
+          },
+          {
+            "name": "data-client: update-shared-user-500-mounted",
+            "value": 6.5,
+            "range": "± 0.78",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: sorted-view-mount-500",
+            "value": 26.3,
+            "range": "± 0.98",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: sorted-view-update-entity",
+            "value": 6.7,
+            "range": "± 0.88",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: list-detail-switch",
+            "value": 84.6,
+            "range": "± 1.08",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: update-shared-user-10000-mounted",
+            "value": 26.5,
+            "range": "± 1.37",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 12,
+            "range": "± 1.52",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 7.4,
+            "range": "± 0.52",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 7.1,
+            "range": "± 0.24",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 5,
+            "range": "± 0.62",
             "unit": "ms"
           }
         ]
