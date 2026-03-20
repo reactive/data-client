@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1773924692853,
+  "lastUpdate": 1773965222106,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -107,6 +107,114 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 5.4,
             "range": "± 0.78",
+            "unit": "ms"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "3d7a57789ef4c83a365c5081b82c3d099a9b8e2b",
+          "message": "internal: Trim CI workspaces to only what each job needs (#3793)\n\n* internal: Trim CI workspaces to only what each job needs\n\nEach GitHub Actions workflow now sets exactly the workspaces it requires\ninstead of installing everything. This avoids pulling in heavy deps like\nplaywright, @tanstack/react-query, swr, and webpack in jobs that never\nuse them.\n\nCircleCI setup also updated to exclude the website workspace.\n\nMade-with: Cursor\n\n* fix: Add YARN_ENABLE_IMMUTABLE_INSTALLS=false for modified workspaces\n\nYarn 4 auto-enables immutable installs in GitHub Actions (and hardened\nmode on public PRs), so modifying workspaces before install requires\nexplicitly opting out.\n\nMade-with: Cursor\n\n* fix: Don't stage package.json and yarn.lock changes in github actions\n\n* fix: Extract ci-install.sh to prevent dirty tree in GitHub Actions\n\nThe workspace-trimming one-liner left package.json and yarn.lock dirty,\ncausing changesets to commit them and github-action-benchmark to fail on\ngit switch. Centralize trim-install-restore into a single script so the\ntree is always clean before downstream actions run.\n\nMade-with: Cursor",
+          "timestamp": "2026-03-19T20:04:44-04:00",
+          "tree_id": "15b5a1567766be4ed418481b56d07ceb338a39c6",
+          "url": "https://github.com/reactive/data-client/commit/3d7a57789ef4c83a365c5081b82c3d099a9b8e2b"
+        },
+        "date": 1773965220010,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 22,
+            "range": "± 1.44",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 35.4,
+            "range": "± 0.29",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: update-single-entity",
+            "value": 5.5,
+            "range": "± 0.79",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: ref-stability-issue-changed",
+            "value": 5,
+            "range": "± 0",
+            "unit": "count"
+          },
+          {
+            "name": "data-client: ref-stability-user-changed",
+            "value": 5,
+            "range": "± 0",
+            "unit": "count"
+          },
+          {
+            "name": "data-client: update-shared-user-500-mounted",
+            "value": 6.6,
+            "range": "± 0.78",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: sorted-view-mount-500",
+            "value": 27,
+            "range": "± 0.88",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: sorted-view-update-entity",
+            "value": 6,
+            "range": "± 0.59",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: list-detail-switch",
+            "value": 92.1,
+            "range": "± 7.74",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: update-shared-user-10000-mounted",
+            "value": 27.3,
+            "range": "± 3.14",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 12.4,
+            "range": "± 0.58",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 7.2,
+            "range": "± 0.2",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 7.8,
+            "range": "± 0.69",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 5.8,
+            "range": "± 0.87",
             "unit": "ms"
           }
         ]
