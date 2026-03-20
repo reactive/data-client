@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1773965222106,
+  "lastUpdate": 1773973002551,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -215,6 +215,114 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 5.8,
             "range": "± 0.87",
+            "unit": "ms"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "9e9fb70ce1760ce9a3390a4dcc6a942ffeb1ac3b",
+          "message": "demo(benchmark-react): remove plain React baseline app (#3796)\n\n* demo(benchmark-react): remove plain React baseline app\n\nDrop the baseline webpack entry, scenarios, and implementation; keep\ncomparisons to TanStack Query and SWR only. Update README and\nbenchmarking cursor rule.\n\nMade-with: Cursor\n\n* update types",
+          "timestamp": "2026-03-19T22:14:20-04:00",
+          "tree_id": "9401601b688fa63198cd06173b6833c72fe80680",
+          "url": "https://github.com/reactive/data-client/commit/9e9fb70ce1760ce9a3390a4dcc6a942ffeb1ac3b"
+        },
+        "date": 1773973000277,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 21.1,
+            "range": "± 1.34",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 31.9,
+            "range": "± 1.67",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: update-single-entity",
+            "value": 6.1,
+            "range": "± 0.77",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: ref-stability-issue-changed",
+            "value": 5,
+            "range": "± 0",
+            "unit": "count"
+          },
+          {
+            "name": "data-client: ref-stability-user-changed",
+            "value": 5,
+            "range": "± 0",
+            "unit": "count"
+          },
+          {
+            "name": "data-client: update-shared-user-500-mounted",
+            "value": 7.1,
+            "range": "± 1.01",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: sorted-view-mount-500",
+            "value": 25.9,
+            "range": "± 0",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: sorted-view-update-entity",
+            "value": 5.3,
+            "range": "± 0.39",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: list-detail-switch",
+            "value": 83.3,
+            "range": "± 0.98",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: update-shared-user-10000-mounted",
+            "value": 28.9,
+            "range": "± 2.94",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 12.6,
+            "range": "± 0.13",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 7.2,
+            "range": "± 0.41",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 7.5,
+            "range": "± 0.64",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 5.6,
+            "range": "± 0.81",
             "unit": "ms"
           }
         ]
