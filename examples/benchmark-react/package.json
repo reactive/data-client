@@ -29,7 +29,7 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-window": "^2.2.7",
-    "swr": "2.3.6"
+    "swr": "2.4.1"
   },
   "devDependencies": {
     "@anansi/babel-preset": "6.2.25",
@@ -37,12 +37,12 @@
     "@anansi/webpack-config": "21.1.16",
     "@babel/core": "^7.22.15",
     "@playwright/test": "1.58.2",
-    "@types/node": "24.11.0",
+    "@types/node": "24.12.0",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "playwright": "1.58.2",
     "serve": "14.2.6",
-    "tsx": "4.19.2",
+    "tsx": "4.21.0",
     "typescript": "6.0.1-rc",
     "webpack": "5.105.4",
     "webpack-cli": "6.0.1"
