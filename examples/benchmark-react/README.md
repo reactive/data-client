@@ -1,6 +1,6 @@
 # React Rendering Benchmark
 
-Browser-based benchmark comparing `@data-client/react`, TanStack Query, SWR, and a plain React baseline on mount/update scenarios. Built with Webpack via `@anansi/webpack-config`. Results are reported to CI via `rhysd/github-action-benchmark`.
+Browser-based benchmark comparing `@data-client/react`, TanStack Query, and SWR on mount/update scenarios. Built with Webpack via `@anansi/webpack-config`. Results are reported to CI via `rhysd/github-action-benchmark`.
 
 ## Comparison to Node benchmarks
 
@@ -52,13 +52,13 @@ The repo has two benchmark suites:
 
 These are approximate values to help calibrate expectations. Exact numbers vary by machine and CPU throttling.
 
-| Scenario | data-client | tanstack-query | swr | baseline |
-|---|---|---|---|---|
-| `getlist-100` | ~similar | ~similar | ~similar | ~similar |
-| `update-shared-user-500-mounted` | Low (one store write propagates) | Higher (list refetch) | Higher (list refetch) | Higher (list refetch) |
-| `ref-stability-issue-changed` (100 mounted) | ~1 changed | ~100 changed (list refetch) | ~100 changed (list refetch) | ~100 changed (list refetch) |
-| `ref-stability-user-changed` (100 mounted) | ~5 changed | ~100 changed (list refetch) | ~100 changed (list refetch) | ~100 changed (list refetch) |
-| `sorted-view-update-entity` | Fast (Query memoization skips re-sort) | Re-sorts on every issue change | Re-sorts on every issue change | Re-sorts on every issue change |
+| Scenario | data-client | tanstack-query | swr |
+|---|---|---|---|
+| `getlist-100` | ~similar | ~similar | ~similar |
+| `update-shared-user-500-mounted` | Low (one store write propagates) | Higher (list refetch) | Higher (list refetch) |
+| `ref-stability-issue-changed` (100 mounted) | ~1 changed | ~100 changed (list refetch) | ~100 changed (list refetch) |
+| `ref-stability-user-changed` (100 mounted) | ~5 changed | ~100 changed (list refetch) | ~100 changed (list refetch) |
+| `sorted-view-update-entity` | Fast (Query memoization skips re-sort) | Re-sorts on every issue change | Re-sorts on every issue change |
 
 ## Expected variance
 

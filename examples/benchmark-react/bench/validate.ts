@@ -9,7 +9,7 @@
  * Usage:
  *   npx tsx bench/validate.ts                    # all libraries
  *   npx tsx bench/validate.ts --lib data-client   # one library
- *   npx tsx bench/validate.ts --lib swr,baseline  # multiple
+ *   npx tsx bench/validate.ts --lib swr,tanstack-query  # multiple
  */
 import { chromium } from 'playwright';
 import type { Page } from 'playwright';
