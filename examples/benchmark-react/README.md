@@ -82,7 +82,7 @@ Run: **2026-03-21**, Linux (WSL2), `yarn build:benchmark-react`, static preview 
 | `delete-item` | ops/s | 312.50 ± 9.77 | 6.93 ± 0.01 | 7.15 ± 0.01 |
 | `move-item` | ops/s | 285.71 ± 10.61 | 6.39 ± 0.02 | 6.83 ± 0.00 |
 
-[Measured on a Ryzen 9 7950X; 32 GB RAM; Ubuntu (WSL2); Node 24.12.0; Chromium (Playwright)]
+[Measured on a Ryzen 9 7950X; 64 GB RAM; Ubuntu (WSL2); Node 24.12.0; Chromium (Playwright)]
 
 ## Expected variance
 
