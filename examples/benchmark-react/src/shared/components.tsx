@@ -1,11 +1,7 @@
 import React from 'react';
-import type { RowComponentProps } from 'react-window';
 
 import type { Issue, User } from './types';
 
-export const ISSUE_HEIGHT = 30;
-export const VISIBLE_COUNT = 40;
-export const LIST_STYLE = { height: ISSUE_HEIGHT * VISIBLE_COUNT } as const;
 export const DOUBLE_LIST_STYLE = { display: 'flex', gap: 8 } as const;
 
 function djb2(str: string): number {
@@ -78,25 +74,19 @@ export function IssueRow({ issue }: { issue: Issue }) {
   );
 }
 
-/** Generic react-window row that renders an IssueRow from an issues array. */
-export function IssuesRow({
-  index,
-  style,
+/** Plain keyed list. React can reconcile inserts/deletes by key without
+ *  re-rendering every row (unlike index-based virtualized lists). */
+export function PlainIssueList({
   issues,
-}: RowComponentProps<{ issues: Issue[] }>) {
-  return (
-    <div style={style}>
-      <IssueRow issue={issues[index]} />
-    </div>
-  );
-}
-
-/** Plain (non-virtualized) list keyed by issue number. Renders up to VISIBLE_COUNT issues. */
-export function PlainIssueList({ issues }: { issues: Issue[] }) {
+  limit,
+}: {
+  issues: Issue[];
+  limit?: number;
+}) {
   const visible =
-    issues.length > VISIBLE_COUNT ? issues.slice(0, VISIBLE_COUNT) : issues;
+    limit && issues.length > limit ? issues.slice(0, limit) : issues;
   return (
-    <div style={LIST_STYLE}>
+    <div>
       {visible.map(issue => (
         <IssueRow key={issue.number} issue={issue} />
       ))}

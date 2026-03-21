@@ -47,6 +47,8 @@ export interface BenchAPI {
   listDetailSwitch?(count: number): void;
   /** Trigger store garbage collection (data-client only). Used by memory scenarios to flush unreferenced data before heap measurement. */
   triggerGC?(): void;
+  /** Cap DOM rendering to the first N items while keeping all data in the store. */
+  setRenderLimit?(n: number | undefined): void;
 }
 
 declare global {
@@ -142,4 +144,6 @@ export interface Scenario {
   preMountAction?: keyof BenchAPI;
   /** Result is deterministic (zero variance); run exactly once with no warmup. */
   deterministic?: boolean;
+  /** Cap DOM rendering to first N items while keeping all data in the store. */
+  renderLimit?: number;
 }

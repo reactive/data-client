@@ -80,6 +80,7 @@ export function useBenchState() {
   const [detailIssueNumber, setDetailIssueNumber] = useState<number | null>(
     null,
   );
+  const [renderLimit, setRenderLimit] = useState<number | undefined>();
   const containerRef = useRef<HTMLDivElement>(null);
   const completeResolveRef = useRef<(() => void) | null>(null);
   const apiRef = useRef<BenchAPI>(null as any);
@@ -298,6 +299,7 @@ export function useBenchState() {
       setNetworkDelay,
       setMethodDelays,
       flushPendingMutations,
+      setRenderLimit,
       ...libraryActions,
     } as BenchAPI;
   };
@@ -321,6 +323,7 @@ export function useBenchState() {
     showDoubleList,
     doubleListCount,
     detailIssueNumber,
+    renderLimit,
     containerRef,
 
     measureMount,

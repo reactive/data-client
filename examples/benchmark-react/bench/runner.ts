@@ -172,6 +172,13 @@ async function runScenario(
     );
   }
 
+  if (scenario.renderLimit != null) {
+    await (bench as any).evaluate(
+      (api: any, n: number) => api.setRenderLimit(n),
+      scenario.renderLimit,
+    );
+  }
+
   const isMemory =
     scenario.action === 'mountUnmountCycle' &&
     scenario.resultMetric === 'heapDelta';

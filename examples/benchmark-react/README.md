@@ -28,11 +28,11 @@ The repo has two benchmark suites:
 **Hot path (CI)**
 
 - **Get list** (`getlist-100`, `getlist-500`) — Time to show a ListView component that auto-fetches 100 or 500 issues from the list endpoint, then renders (unit: ms). Exercises the full fetch + normalization + render pipeline.
-- **Update single entity** (`update-single-entity`) — Time to update one issue and propagate to the UI (unit: ms).
-- **Update shared user (scaling)** (`update-shared-user-500-mounted`, `update-shared-user-10000-mounted`) — Update one shared user with 500 or 10,000 mounted issues to test subscriber scaling. Normalized cache: one store update, all views of that user update.
+- **Get list sorted** (`getlist-500-sorted`) — Mount 500 issues through a sorted/derived view. data-client uses `useQuery(sortedIssuesQuery)` with `Query` schema memoization; competitors use `useMemo` + sort.
+- **Update entity** (`update-entity`) — Time to update one issue and propagate to the UI (unit: ms).
+- **Update entity sorted** (`update-entity-sorted`) — After mounting a sorted view, update one entity. data-client's `Query` memoization avoids re-sorting when sort keys are unchanged.
+- **Update user (scaling)** (`update-user`, `update-user-10000`) — Update one shared user with 1,000 or 10,000 mounted issues to test subscriber scaling. Normalized cache: one store update, all views of that user update.
 - **Ref-stability** (`ref-stability-issue-changed`, `ref-stability-user-changed`) — Count of components that received a **new** object reference after an update (unit: count; smaller is better). Normalization keeps referential equality for unchanged entities.
-- **Sorted view mount** (`sorted-view-mount-500`) — Mount 500 issues through a sorted/derived view. data-client uses `useQuery(sortedIssuesQuery)` with `Query` schema memoization; competitors use `useMemo` + sort.
-- **Sorted view update** (`sorted-view-update-entity`) — After mounting a sorted view, update one entity. data-client's `Query` memoization avoids re-sorting when sort keys are unchanged.
 - **Invalidate and resolve** (`invalidate-and-resolve`) — data-client only; invalidates a cached endpoint and immediately re-resolves. Measures Suspense boundary round-trip.
 
 **With network (local comparison)**
@@ -55,17 +55,17 @@ These are approximate values to help calibrate expectations. Exact numbers vary 
 | Scenario | data-client | tanstack-query | swr |
 |---|---|---|---|
 | `getlist-100` | ~similar | ~similar | ~similar |
-| `update-shared-user-500-mounted` | Low (one store write propagates) | Higher (list refetch) | Higher (list refetch) |
+| `update-user` | Low (one store write propagates) | Higher (list refetch) | Higher (list refetch) |
 | `ref-stability-issue-changed` (100 mounted) | ~1 changed | ~100 changed (list refetch) | ~100 changed (list refetch) |
 | `ref-stability-user-changed` (100 mounted) | ~5 changed | ~100 changed (list refetch) | ~100 changed (list refetch) |
-| `sorted-view-update-entity` | Fast (Query memoization skips re-sort) | Re-sorts on every issue change | Re-sorts on every issue change |
+| `update-entity-sorted` | Fast (Query memoization skips re-sort) | Re-sorts on every issue change | Re-sorts on every issue change |
 
 ## Expected variance
 
 | Category | Scenarios | Typical run-to-run spread |
 |---|---|---|
-| **Stable** | `getlist-*`, `update-single-entity`, `ref-stability-*`, `sorted-view-mount-*` | 2-5% |
-| **Moderate** | `update-shared-user-*`, `sorted-view-update-*` | 5-10% |
+| **Stable** | `getlist-*`, `update-entity`, `ref-stability-*` | 2-5% |
+| **Moderate** | `update-user-*`, `update-entity-sorted` | 5-10% |
 | **Volatile** | `memory-mount-unmount-cycle`, `startup-*`, `(react commit)` suffixes | 10-25% |
 
 Regressions >5% on stable scenarios or >15% on volatile scenarios are worth investigating.
@@ -107,24 +107,24 @@ Regressions >5% on stable scenarios or >15% on volatile scenarios are worth inve
 
    Or from repo root after a build: start preview in one terminal, then in another run `yarn workspace example-benchmark-react bench`.
 
-3. **With React Compiler**
+3. **Without React Compiler**
 
-   To measure the impact of React Compiler, build and bench with it enabled:
+   The default build includes React Compiler. To measure impact without it:
 
    ```bash
    cd examples/benchmark-react
-   yarn build:compiler        # builds with babel-plugin-react-compiler
+   yarn build:no-compiler     # builds without babel-plugin-react-compiler
    yarn preview &
    sleep 5
-   yarn bench:compiler        # labels results with [compiler] suffix
+   yarn bench:no-compiler     # labels results with [no-compiler] suffix
    ```
 
-   Or as a single command: `yarn bench:run:compiler`.
+   Or as a single command: `yarn bench:run:no-compiler`.
 
-   Results are labelled `[compiler]` so you can compare side-by-side with a normal run by loading both JSON files into the report viewer's history feature.
+   Results are labelled `[no-compiler]` so you can compare side-by-side with the default run by loading both JSON files into the report viewer's history feature.
 
-   You can also set the env vars directly for custom combinations:
-   - `REACT_COMPILER=true` — enables the Babel plugin at build time
+   Env vars for custom combinations:
+   - `REACT_COMPILER=false` — disables the Babel plugin at build time
    - `BENCH_LABEL=<tag>` — appends `[<tag>]` to all result names at bench time
    - `BENCH_PORT=<port>` — port for `preview` server and bench runner (default `5173`)
    - `BENCH_BASE_URL=<url>` — full base URL override (takes precedence over `BENCH_PORT`)
@@ -163,8 +163,8 @@ Regressions >5% on stable scenarios or >15% on volatile scenarios are worth inve
 
    Scenarios are classified as `small` or `large` based on their cost:
 
-   - **Small** (3 warmup + 15 measurement): `getlist-100`, `update-single-entity`, `ref-stability-*`, `invalidate-and-resolve`, `unshift-item`, `delete-item`
-   - **Large** (1 warmup + 4 measurement): `getlist-500`, `update-shared-user-500-mounted`, `update-shared-user-10000-mounted`, `update-shared-user-with-network`, `sorted-view-mount-500`, `sorted-view-update-entity`
+   - **Small** (3 warmup + 15 measurement): `getlist-100`, `update-entity`, `ref-stability-*`, `invalidate-and-resolve`, `unshift-item`, `delete-item`
+   - **Large** (1 warmup + 4 measurement): `getlist-500`, `getlist-500-sorted`, `update-user`, `update-user-10000`, `update-entity-sorted`, `list-detail-switch`
    - **Memory** (opt-in, 1 warmup + 3 measurement): `memory-mount-unmount-cycle` — run with `--action memory`
 
    When running all scenarios (`yarn bench`), each group runs with its own warmup/measurement count. Use `--size` to run only one group.

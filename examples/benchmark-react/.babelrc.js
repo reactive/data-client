@@ -1,5 +1,5 @@
 const options = { polyfillMethod: false };
-if (process.env.REACT_COMPILER === 'true') {
+if (process.env.REACT_COMPILER !== 'false') {
   options.reactCompiler = {};
 }
 

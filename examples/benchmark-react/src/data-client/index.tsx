@@ -13,10 +13,7 @@ import {
 } from '@shared/benchHarness';
 import {
   DOUBLE_LIST_STYLE,
-  ISSUE_HEIGHT,
   IssueRow,
-  IssuesRow,
-  LIST_STYLE,
   PlainIssueList,
 } from '@shared/components';
 import {
@@ -33,7 +30,6 @@ import {
 import { getIssue, patchIssue } from '@shared/server';
 import type { Issue } from '@shared/types';
 import React, { useCallback } from 'react';
-import { List } from 'react-window';
 
 /** GCPolicy with no interval (won't fire during timing scenarios) and instant
  *  expiry so an explicit sweep() collects all unreferenced data immediately. */
@@ -57,56 +53,50 @@ class BenchGCPolicy extends GCPolicy {
 const benchGC = new BenchGCPolicy();
 
 /** Renders issues from the list endpoint (models rendering a list fetch response). */
-function ListView({ count }: { count: number }) {
+function ListView({ count, limit }: { count: number; limit?: number }) {
   const { data: issues } = useDLE(IssueResource.getList, { count });
   if (!issues) return null;
   const list = issues as Issue[];
   setCurrentIssues(list);
-  return (
-    <List
-      style={LIST_STYLE}
-      rowHeight={ISSUE_HEIGHT}
-      rowCount={list.length}
-      rowComponent={IssuesRow}
-      rowProps={{ issues: list }}
-    />
-  );
+  return <PlainIssueList issues={list} limit={limit} />;
 }
 
 /** Renders issues sorted by title via Query schema (memoized by MemoCache). */
-function SortedListView({ count }: { count: number }) {
+function SortedListView({ count, limit }: { count: number; limit?: number }) {
   const { data: issues } = useDLE(sortedIssuesEndpoint, { count });
   if (!issues?.length) return null;
   return (
     <div data-sorted-list>
-      <List
-        style={LIST_STYLE}
-        rowHeight={ISSUE_HEIGHT}
-        rowCount={issues.length}
-        rowComponent={IssuesRow}
-        rowProps={{ issues: issues as Issue[] }}
-      />
+      <PlainIssueList issues={issues as Issue[]} limit={limit} />
     </div>
   );
 }
 
-function StateListView({ state, count }: { state: string; count: number }) {
+function StateListView({
+  state,
+  count,
+  limit,
+}: {
+  state: string;
+  count: number;
+  limit?: number;
+}) {
   const { data: issues } = useDLE(IssueResource.getList, { state, count });
   if (!issues) return null;
   const list = issues as Issue[];
   return (
     <div data-state-list={state}>
       <span data-state-count>{list.length}</span>
-      <PlainIssueList issues={list} />
+      <PlainIssueList issues={list} limit={limit} />
     </div>
   );
 }
 
-function DoubleListView({ count }: { count: number }) {
+function DoubleListView({ count, limit }: { count: number; limit?: number }) {
   return (
     <div style={DOUBLE_LIST_STYLE}>
-      <StateListView state="open" count={count} />
-      <StateListView state="closed" count={count} />
+      <StateListView state="open" count={count} limit={limit} />
+      <StateListView state="closed" count={count} limit={limit} />
     </div>
   );
 }
@@ -129,6 +119,7 @@ function BenchmarkHarness() {
     showDoubleList,
     doubleListCount,
     detailIssueNumber,
+    renderLimit,
     containerRef,
     measureUpdate,
     registerAPI,
@@ -241,12 +232,14 @@ function BenchmarkHarness() {
 
   return (
     <div ref={containerRef} data-bench-harness>
-      {listViewCount != null && <ListView count={listViewCount} />}
+      {listViewCount != null && (
+        <ListView count={listViewCount} limit={renderLimit} />
+      )}
       {showSortedView && sortedViewCount != null && (
-        <SortedListView count={sortedViewCount} />
+        <SortedListView count={sortedViewCount} limit={renderLimit} />
       )}
       {showDoubleList && doubleListCount != null && (
-        <DoubleListView count={doubleListCount} />
+        <DoubleListView count={doubleListCount} limit={renderLimit} />
       )}
       {detailIssueNumber != null && (
         <React.Suspense fallback={<div>Loading...</div>}>

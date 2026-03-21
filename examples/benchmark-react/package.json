@@ -5,15 +5,15 @@
   "description": "React rendering benchmark comparing @data-client/react against other data libraries",
   "scripts": {
     "build": "BROWSERSLIST_ENV=2026 webpack --mode=production",
-    "build:compiler": "BROWSERSLIST_ENV=2026 REACT_COMPILER=true webpack --mode=production",
+    "build:no-compiler": "BROWSERSLIST_ENV=2026 REACT_COMPILER=false webpack --mode=production",
     "preview": "serve dist -l ${BENCH_PORT:-5173} --no-request-logging",
     "bench": "npx tsx bench/runner.ts",
-    "bench:compiler": "BENCH_LABEL=compiler npx tsx bench/runner.ts",
+    "bench:no-compiler": "BENCH_LABEL=no-compiler npx tsx bench/runner.ts",
     "bench:small": "npx tsx bench/runner.ts --size small",
     "bench:large": "npx tsx bench/runner.ts --size large",
     "bench:dc": "npx tsx bench/runner.ts --lib data-client",
     "bench:run": "yarn build && (yarn preview &) && sleep 5 && yarn bench",
-    "bench:run:compiler": "yarn build:compiler && (yarn preview &) && sleep 5 && yarn bench:compiler",
+    "bench:run:no-compiler": "yarn build:no-compiler && (yarn preview &) && sleep 5 && yarn bench:no-compiler",
     "validate": "npx tsx bench/validate.ts",
     "validate:run": "yarn build && (yarn preview &) && sleep 5 && yarn validate"
   },
@@ -28,7 +28,6 @@
     "@tanstack/react-query": "5.62.7",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "react-window": "^2.2.7",
     "swr": "2.4.1"
   },
   "devDependencies": {

@@ -5,10 +5,7 @@ import {
 } from '@shared/benchHarness';
 import {
   DOUBLE_LIST_STYLE,
-  ISSUE_HEIGHT,
   IssueRow,
-  IssuesRow,
-  LIST_STYLE,
   PlainIssueList,
 } from '@shared/components';
 import {
@@ -21,7 +18,6 @@ import { setCurrentIssues } from '@shared/refStability';
 import { UserResource, IssueResource } from '@shared/resources';
 import type { Issue } from '@shared/types';
 import React, { useCallback, useMemo } from 'react';
-import { List } from 'react-window';
 import useSWR, { SWRConfig, useSWRConfig } from 'swr';
 
 /** SWR fetcher: dispatches to shared resource fetch methods based on cache key */
@@ -42,19 +38,13 @@ const fetcher = (key: string): Promise<any> => {
   return Promise.reject(new Error(`Unknown key: ${key}`));
 };
 
-function SortedListView() {
+function SortedListView({ limit }: { limit?: number }) {
   const { data: issues } = useSWR<Issue[]>('issues:all', fetcher);
   const sorted = useMemo(() => (issues ? sortByTitle(issues) : []), [issues]);
   if (!sorted.length) return null;
   return (
     <div data-sorted-list>
-      <List
-        style={LIST_STYLE}
-        rowHeight={ISSUE_HEIGHT}
-        rowCount={sorted.length}
-        rowComponent={IssuesRow}
-        rowProps={{ issues: sorted }}
-      />
+      <PlainIssueList issues={sorted} limit={limit} />
     </div>
   );
 }
@@ -69,22 +59,22 @@ function DetailView({ number }: { number: number }) {
   );
 }
 
-function ListView({ count }: { count: number }) {
+function ListView({ count, limit }: { count: number; limit?: number }) {
   const { data: issues } = useSWR<Issue[]>(`issues:${count}`, fetcher);
   if (!issues) return null;
   setCurrentIssues(issues);
-  return (
-    <List
-      style={LIST_STYLE}
-      rowHeight={ISSUE_HEIGHT}
-      rowCount={issues.length}
-      rowComponent={IssuesRow}
-      rowProps={{ issues }}
-    />
-  );
+  return <PlainIssueList issues={issues} limit={limit} />;
 }
 
-function StateListView({ state, count }: { state: string; count: number }) {
+function StateListView({
+  state,
+  count,
+  limit,
+}: {
+  state: string;
+  count: number;
+  limit?: number;
+}) {
   const { data: issues } = useSWR<Issue[]>(
     `issues:state:${state}:${count}`,
     fetcher,
@@ -93,16 +83,16 @@ function StateListView({ state, count }: { state: string; count: number }) {
   return (
     <div data-state-list={state}>
       <span data-state-count>{issues.length}</span>
-      <PlainIssueList issues={issues} />
+      <PlainIssueList issues={issues} limit={limit} />
     </div>
   );
 }
 
-function DoubleListView({ count }: { count: number }) {
+function DoubleListView({ count, limit }: { count: number; limit?: number }) {
   return (
     <div style={DOUBLE_LIST_STYLE}>
-      <StateListView state="open" count={count} />
-      <StateListView state="closed" count={count} />
+      <StateListView state="open" count={count} limit={limit} />
+      <StateListView state="closed" count={count} limit={limit} />
     </div>
   );
 }
@@ -115,6 +105,7 @@ function BenchmarkHarness() {
     showDoubleList,
     doubleListCount,
     detailIssueNumber,
+    renderLimit,
     containerRef,
     measureUpdate,
     registerAPI,
@@ -196,10 +187,12 @@ function BenchmarkHarness() {
 
   return (
     <div ref={containerRef} data-bench-harness>
-      {listViewCount != null && <ListView count={listViewCount} />}
-      {showSortedView && <SortedListView />}
+      {listViewCount != null && (
+        <ListView count={listViewCount} limit={renderLimit} />
+      )}
+      {showSortedView && <SortedListView limit={renderLimit} />}
       {showDoubleList && doubleListCount != null && (
-        <DoubleListView count={doubleListCount} />
+        <DoubleListView count={doubleListCount} limit={renderLimit} />
       )}
       {detailIssueNumber != null && <DetailView number={detailIssueNumber} />}
     </div>

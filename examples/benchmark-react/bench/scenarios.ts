@@ -56,6 +56,8 @@ interface BaseScenario {
   onlyLibs?: string[];
   /** Result is deterministic (zero variance); run exactly once with no warmup. */
   deterministic?: boolean;
+  /** Cap DOM rendering to first N items while keeping all data in the store. */
+  renderLimit?: number;
 }
 
 const BASE_SCENARIOS: BaseScenario[] = [
@@ -73,10 +75,12 @@ const BASE_SCENARIOS: BaseScenario[] = [
     size: 'large',
   },
   {
-    nameSuffix: 'update-single-entity',
+    nameSuffix: 'update-entity',
     action: 'updateEntity',
     args: [1],
     category: 'hotPath',
+    mountCount: 1000,
+    renderLimit: 100,
   },
   {
     nameSuffix: 'ref-stability-issue-changed',
@@ -84,6 +88,8 @@ const BASE_SCENARIOS: BaseScenario[] = [
     args: [1],
     resultMetric: 'issueRefChanged',
     category: 'hotPath',
+    mountCount: 1000,
+    renderLimit: 100,
     deterministic: true,
   },
   {
@@ -92,14 +98,17 @@ const BASE_SCENARIOS: BaseScenario[] = [
     args: ['user0'],
     resultMetric: 'userRefChanged',
     category: 'hotPath',
+    mountCount: 1000,
+    renderLimit: 100,
     deterministic: true,
   },
   {
-    nameSuffix: 'update-shared-user-500-mounted',
+    nameSuffix: 'update-user',
     action: 'updateUser',
     args: ['user0'],
     category: 'hotPath',
-    mountCount: 500,
+    mountCount: 1000,
+    renderLimit: 100,
     size: 'large',
   },
   {
@@ -111,41 +120,46 @@ const BASE_SCENARIOS: BaseScenario[] = [
     size: 'large',
   },
   {
-    nameSuffix: 'sorted-view-mount-500',
+    nameSuffix: 'getlist-500-sorted',
     action: 'mountSortedView',
     args: [500],
     category: 'hotPath',
     size: 'large',
   },
   {
-    nameSuffix: 'sorted-view-update-entity',
+    nameSuffix: 'update-entity-sorted',
     action: 'updateEntity',
     args: [1],
     category: 'hotPath',
-    mountCount: 500,
+    mountCount: 1000,
+    renderLimit: 100,
     preMountAction: 'mountSortedView',
     size: 'large',
   },
   {
     nameSuffix: 'list-detail-switch',
     action: 'listDetailSwitch',
-    args: [500],
+    args: [1000],
     category: 'hotPath',
     size: 'large',
+    renderLimit: 100,
   },
   {
-    nameSuffix: 'update-shared-user-10000-mounted',
+    nameSuffix: 'update-user-10000',
     action: 'updateUser',
     args: ['user0'],
     category: 'hotPath',
     mountCount: 10000,
     size: 'large',
+    renderLimit: 100,
   },
   {
     nameSuffix: 'invalidate-and-resolve',
     action: 'invalidateAndResolve',
     args: [1],
     category: 'hotPath',
+    mountCount: 1000,
+    renderLimit: 100,
     onlyLibs: ['data-client'],
   },
   {
@@ -153,21 +167,24 @@ const BASE_SCENARIOS: BaseScenario[] = [
     action: 'unshiftItem',
     args: [],
     category: 'hotPath',
-    mountCount: 100,
+    mountCount: 1000,
+    renderLimit: 100,
   },
   {
     nameSuffix: 'delete-item',
     action: 'deleteEntity',
     args: [1],
     category: 'hotPath',
-    mountCount: 100,
+    mountCount: 1000,
+    renderLimit: 100,
   },
   {
     nameSuffix: 'move-item',
     action: 'moveItem',
     args: [1],
     category: 'hotPath',
-    mountCount: 100,
+    mountCount: 1000,
+    renderLimit: 100,
     preMountAction: 'initDoubleList',
   },
 ];
@@ -188,6 +205,7 @@ export const SCENARIOS: Scenario[] = LIBRARIES.flatMap(lib =>
       mountCount: base.mountCount,
       preMountAction: base.preMountAction,
       deterministic: base.deterministic,
+      renderLimit: base.renderLimit,
     }),
   ),
 );

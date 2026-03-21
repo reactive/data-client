@@ -20,7 +20,6 @@ const BASE_URL =
   process.env.BENCH_BASE_URL ??
   `http://localhost:${process.env.BENCH_PORT ?? '5173'}`;
 
-// react-window virtualises; keep test counts within the visible window
 const TEST_ISSUE_COUNT = 20;
 
 // ---------------------------------------------------------------------------

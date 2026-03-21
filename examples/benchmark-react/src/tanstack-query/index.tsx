@@ -5,10 +5,7 @@ import {
 } from '@shared/benchHarness';
 import {
   DOUBLE_LIST_STYLE,
-  ISSUE_HEIGHT,
   IssueRow,
-  IssuesRow,
-  LIST_STYLE,
   PlainIssueList,
 } from '@shared/components';
 import {
@@ -27,7 +24,6 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import React, { useCallback, useMemo } from 'react';
-import { List } from 'react-window';
 
 function queryFn({ queryKey }: { queryKey: readonly unknown[] }): Promise<any> {
   const [type, id] = queryKey as [string, string | number | undefined];
@@ -51,7 +47,7 @@ const queryClient = new QueryClient({
   },
 });
 
-function SortedListView() {
+function SortedListView({ limit }: { limit?: number }) {
   const { data: issues } = useQuery({
     queryKey: ['issues', 'all'],
     queryFn,
@@ -63,13 +59,7 @@ function SortedListView() {
   if (!sorted.length) return null;
   return (
     <div data-sorted-list>
-      <List
-        style={LIST_STYLE}
-        rowHeight={ISSUE_HEIGHT}
-        rowCount={sorted.length}
-        rowComponent={IssuesRow}
-        rowProps={{ issues: sorted }}
-      />
+      <PlainIssueList issues={sorted} limit={limit} />
     </div>
   );
 }
@@ -87,7 +77,7 @@ function DetailView({ number }: { number: number }) {
   );
 }
 
-function ListView({ count }: { count: number }) {
+function ListView({ count, limit }: { count: number; limit?: number }) {
   const { data: issues } = useQuery({
     queryKey: ['issues', count],
     queryFn,
@@ -95,18 +85,18 @@ function ListView({ count }: { count: number }) {
   if (!issues) return null;
   const list = issues as Issue[];
   setCurrentIssues(list);
-  return (
-    <List
-      style={LIST_STYLE}
-      rowHeight={ISSUE_HEIGHT}
-      rowCount={list.length}
-      rowComponent={IssuesRow}
-      rowProps={{ issues: list }}
-    />
-  );
+  return <PlainIssueList issues={list} limit={limit} />;
 }
 
-function StateListView({ state, count }: { state: string; count: number }) {
+function StateListView({
+  state,
+  count,
+  limit,
+}: {
+  state: string;
+  count: number;
+  limit?: number;
+}) {
   const { data: issues } = useQuery({
     queryKey: ['issues', { state, count }],
     queryFn,
@@ -116,16 +106,16 @@ function StateListView({ state, count }: { state: string; count: number }) {
   return (
     <div data-state-list={state}>
       <span data-state-count>{list.length}</span>
-      <PlainIssueList issues={list} />
+      <PlainIssueList issues={list} limit={limit} />
     </div>
   );
 }
 
-function DoubleListView({ count }: { count: number }) {
+function DoubleListView({ count, limit }: { count: number; limit?: number }) {
   return (
     <div style={DOUBLE_LIST_STYLE}>
-      <StateListView state="open" count={count} />
-      <StateListView state="closed" count={count} />
+      <StateListView state="open" count={count} limit={limit} />
+      <StateListView state="closed" count={count} limit={limit} />
     </div>
   );
 }
@@ -138,6 +128,7 @@ function BenchmarkHarness() {
     showDoubleList,
     doubleListCount,
     detailIssueNumber,
+    renderLimit,
     containerRef,
     measureUpdate,
     registerAPI,
@@ -222,10 +213,12 @@ function BenchmarkHarness() {
 
   return (
     <div ref={containerRef} data-bench-harness>
-      {listViewCount != null && <ListView count={listViewCount} />}
-      {showSortedView && <SortedListView />}
+      {listViewCount != null && (
+        <ListView count={listViewCount} limit={renderLimit} />
+      )}
+      {showSortedView && <SortedListView limit={renderLimit} />}
       {showDoubleList && doubleListCount != null && (
-        <DoubleListView count={doubleListCount} />
+        <DoubleListView count={doubleListCount} limit={renderLimit} />
       )}
       {detailIssueNumber != null && <DetailView number={detailIssueNumber} />}
     </div>
