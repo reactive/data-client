@@ -14,6 +14,8 @@ import {
 import {
   DOUBLE_LIST_STYLE,
   IssueRow,
+  PINNED_STRIP_STYLE,
+  PinnedCardView,
   PlainIssueList,
 } from '@shared/components';
 import {
@@ -110,6 +112,21 @@ function DetailView({ number }: { number: number }) {
   );
 }
 
+function PinnedCard({ number }: { number: number }) {
+  const issue = useSuspense(IssueResource.get, { number });
+  return <PinnedCardView issue={issue as Issue} />;
+}
+
+function PinnedStrip({ numbers }: { numbers: number[] }) {
+  return (
+    <div data-pinned-strip style={PINNED_STRIP_STYLE}>
+      {numbers.map(n => (
+        <PinnedCard key={n} number={n} />
+      ))}
+    </div>
+  );
+}
+
 function BenchmarkHarness() {
   const controller = useController();
   const {
@@ -119,6 +136,7 @@ function BenchmarkHarness() {
     showDoubleList,
     doubleListCount,
     detailIssueNumber,
+    pinnedNumbers,
     renderLimit,
     containerRef,
     measureUpdate,
@@ -220,10 +238,44 @@ function BenchmarkHarness() {
     [measureUpdate, controller, containerRef, doubleListCount, listViewCount],
   );
 
+  const updateEntityMultiView = useCallback(
+    (number: number) => {
+      const issue = FIXTURE_ISSUES_BY_NUMBER.get(number);
+      if (!issue) return;
+      const expected = `${issue.title} (updated)`;
+      measureUpdate(
+        () => {
+          controller.fetch(
+            IssueResource.update,
+            { number },
+            { title: expected },
+          );
+        },
+        () => {
+          const container = containerRef.current!;
+          const listTitle = container.querySelector(
+            `[data-issue-number="${number}"] [data-title]`,
+          );
+          const detailTitle = container.querySelector(
+            '[data-detail-view] [data-title]',
+          );
+          const pinnedTitle = container.querySelector(
+            `[data-pinned-number="${number}"] [data-title]`,
+          );
+          return [listTitle, detailTitle, pinnedTitle].every(
+            el => el?.textContent === expected,
+          );
+        },
+      );
+    },
+    [measureUpdate, controller, containerRef],
+  );
+
   registerAPI({
     updateEntity,
     updateUser,
     invalidateAndResolve,
+    updateEntityMultiView,
     unshiftItem,
     deleteEntity,
     moveItem,
@@ -244,6 +296,11 @@ function BenchmarkHarness() {
       {detailIssueNumber != null && (
         <React.Suspense fallback={<div>Loading...</div>}>
           <DetailView number={detailIssueNumber} />
+        </React.Suspense>
+      )}
+      {pinnedNumbers.length > 0 && (
+        <React.Suspense fallback={<div>Loading pinned...</div>}>
+          <PinnedStrip numbers={pinnedNumbers} />
         </React.Suspense>
       )}
     </div>

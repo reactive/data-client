@@ -45,6 +45,10 @@ export interface BenchAPI {
   moveItem?(id: number): void;
   /** Switch between sorted list view and individual issue detail views 10 times (20 renders). Exercises normalized cache lookup (data-client) vs per-navigation fetch (others). */
   listDetailSwitch?(count: number): void;
+  /** Mount list + detail panel + pinned card strip for multi-view entity propagation. */
+  initMultiView?(count: number): void;
+  /** Update an entity that appears in list + detail + pinned views; waits for all three to reflect the change. */
+  updateEntityMultiView?(id: number): void;
   /** Trigger store garbage collection (data-client only). Used by memory scenarios to flush unreferenced data before heap measurement. */
   triggerGC?(): void;
   /** Cap DOM rendering to the first N items while keeping all data in the store. */
@@ -110,6 +114,7 @@ export interface Issue {
 export type ScenarioAction =
   | { action: 'init'; args: [number] }
   | { action: 'updateEntity'; args: [number] }
+  | { action: 'updateEntityMultiView'; args: [number] }
   | { action: 'updateUser'; args: [string] }
   | { action: 'unmountAll'; args: [] }
   | { action: 'unshiftItem'; args: [] }

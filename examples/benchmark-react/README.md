@@ -31,6 +31,7 @@ The repo has two benchmark suites:
 - **Get list sorted** (`getlist-500-sorted`) — Mount 500 issues through a sorted/derived view. data-client uses `useQuery(sortedIssuesQuery)` with `Query` schema memoization; competitors use `useMemo` + sort.
 - **Update entity** (`update-entity`) — Time to update one issue and propagate to the UI (unit: ms).
 - **Update entity sorted** (`update-entity-sorted`) — After mounting a sorted view, update one entity. data-client's `Query` memoization avoids re-sorting when sort keys are unchanged.
+- **Update entity multi-view** (`update-entity-multi-view`) — Update one issue that appears simultaneously in a list, a detail panel, and a pinned-cards strip. Exercises cross-query entity propagation: normalized cache updates once and all three views reflect the change; non-normalized libraries must invalidate and refetch each query independently.
 - **Update user (scaling)** (`update-user`, `update-user-10000`) — Update one shared user with 1,000 or 10,000 mounted issues to test subscriber scaling. Normalized cache: one store update, all views of that user update.
 - **Ref-stability** (`ref-stability-issue-changed`, `ref-stability-user-changed`) — Count of components that received a **new** object reference after an update (unit: count; smaller is better). Normalization keeps referential equality for unchanged entities.
 - **Invalidate and resolve** (`invalidate-and-resolve`) — data-client only; invalidates a cached endpoint and immediately re-resolves. Measures Suspense boundary round-trip.
@@ -87,7 +88,7 @@ Run: **2026-03-21**, Linux (WSL2), `yarn build:benchmark-react`, static preview 
 | Category | Scenarios | Typical run-to-run spread |
 |---|---|---|
 | **Stable** | `getlist-*`, `update-entity`, `ref-stability-*` | 2-5% |
-| **Moderate** | `update-user-*`, `update-entity-sorted` | 5-10% |
+| **Moderate** | `update-user-*`, `update-entity-sorted`, `update-entity-multi-view` | 5-10% |
 | **Volatile** | `memory-mount-unmount-cycle`, `startup-*`, `(react commit)` suffixes | 10-25% |
 
 Regressions >5% on stable scenarios or >15% on volatile scenarios are worth investigating.
@@ -186,7 +187,7 @@ Regressions >5% on stable scenarios or >15% on volatile scenarios are worth inve
    Scenarios are classified as `small` or `large` based on their cost:
 
    - **Small** (3 warmup + 15 measurement): `getlist-100`, `update-entity`, `ref-stability-*`, `invalidate-and-resolve`, `unshift-item`, `delete-item`
-   - **Large** (1 warmup + 4 measurement): `getlist-500`, `getlist-500-sorted`, `update-user`, `update-user-10000`, `update-entity-sorted`, `list-detail-switch`
+   - **Large** (1 warmup + 4 measurement): `getlist-500`, `getlist-500-sorted`, `update-user`, `update-user-10000`, `update-entity-sorted`, `update-entity-multi-view`, `list-detail-switch`
    - **Memory** (opt-in, 1 warmup + 3 measurement): `memory-mount-unmount-cycle` — run with `--action memory`
 
    When running all scenarios (`yarn bench`), each group runs with its own warmup/measurement count. Use `--size` to run only one group.

@@ -80,6 +80,7 @@ export function useBenchState() {
   const [detailIssueNumber, setDetailIssueNumber] = useState<number | null>(
     null,
   );
+  const [pinnedNumbers, setPinnedNumbers] = useState<number[]>([]);
   const [renderLimit, setRenderLimit] = useState<number | undefined>();
   const containerRef = useRef<HTMLDivElement>(null);
   const completeResolveRef = useRef<(() => void) | null>(null);
@@ -195,6 +196,7 @@ export function useBenchState() {
     setShowDoubleList(false);
     setDoubleListCount(undefined);
     setDetailIssueNumber(null);
+    setPinnedNumbers([]);
   }, []);
 
   const initDoubleList = useCallback(
@@ -272,6 +274,35 @@ export function useBenchState() {
     ],
   );
 
+  const initMultiView = useCallback(
+    async (n: number) => {
+      await seedIssueList(FIXTURE_ISSUES.slice(0, n));
+
+      setDetailIssueNumber(1);
+      setPinnedNumbers(Array.from({ length: 10 }, (_, i) => i + 1));
+
+      const p = new Promise<void>(r => {
+        completeResolveRef.current = r;
+      });
+      measureMount(() => {
+        setListViewCount(n);
+      });
+      await p;
+
+      await waitForElement('[data-detail-view]');
+      await waitForElement('[data-pinned-number]');
+      setComplete();
+    },
+    [
+      measureMount,
+      setListViewCount,
+      setDetailIssueNumber,
+      setPinnedNumbers,
+      waitForElement,
+      setComplete,
+    ],
+  );
+
   const getRenderedCount = useCallback(
     () => listViewCount ?? 0,
     [listViewCount],
@@ -289,6 +320,7 @@ export function useBenchState() {
     apiRef.current = {
       init,
       initDoubleList,
+      initMultiView,
       unmountAll,
       mountUnmountCycle,
       mountSortedView,
@@ -323,6 +355,7 @@ export function useBenchState() {
     showDoubleList,
     doubleListCount,
     detailIssueNumber,
+    pinnedNumbers,
     renderLimit,
     containerRef,
 

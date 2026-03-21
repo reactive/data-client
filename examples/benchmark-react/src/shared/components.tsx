@@ -74,6 +74,28 @@ export function IssueRow({ issue }: { issue: Issue }) {
   );
 }
 
+export const PINNED_STRIP_STYLE = {
+  display: 'flex',
+  gap: 4,
+  flexWrap: 'wrap',
+} as const;
+
+/**
+ * Compact card for "pinned/bookmarked" issues — structurally different from
+ * IssueRow. Each card fetches its issue individually by ID (per-library),
+ * so the multi-view scenario tests cross-query entity propagation.
+ */
+export function PinnedCardView({ issue }: { issue: Issue }) {
+  return (
+    <div data-pinned-number={issue.number} data-bench-item>
+      <span data-title>{issue.title}</span>
+      <UserView user={issue.user} />
+      <span data-state>{STATE_ICONS[issue.state] ?? issue.state}</span>
+      <span data-comments>{issue.comments}</span>
+    </div>
+  );
+}
+
 /** Plain keyed list. React can reconcile inserts/deletes by key without
  *  re-rendering every row (unlike index-based virtualized lists). */
 export function PlainIssueList({

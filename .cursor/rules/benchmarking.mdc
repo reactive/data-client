@@ -41,6 +41,11 @@ Use this mapping when deciding which React benchmark scenarios are relevant to a
   - Relevant for: `@data-client/normalizr` denormalize memoization, Entity identity
   - All libraries (data-client should show fewest changed refs)
 
+- **Multi-view entity update** (`update-entity-multi-view`)
+  - Exercises: cross-query entity propagation — one update to a shared entity reflected in list, detail panel, and pinned cards
+  - Relevant for: `@data-client/normalizr` normalized cache, `@data-client/core` subscription fan-out
+  - All libraries (normalization advantage: one store write vs. multiple query invalidations + refetches)
+
 - **Sorted/derived view** (`getlist-500-sorted`, `update-entity-sorted`)
   - Exercises: `Query` schema memoization via `useQuery` (data-client) vs `useMemo` sort (competitors)
   - Relevant for: `@data-client/endpoint` Query, `@data-client/normalizr` MemoCache, `@data-client/react` useQuery

@@ -6,6 +6,8 @@ import {
 import {
   DOUBLE_LIST_STYLE,
   IssueRow,
+  PINNED_STRIP_STYLE,
+  PinnedCardView,
   PlainIssueList,
 } from '@shared/components';
 import {
@@ -77,6 +79,25 @@ function DetailView({ number }: { number: number }) {
   );
 }
 
+function PinnedCard({ number }: { number: number }) {
+  const { data: issue } = useQuery({
+    queryKey: ['issue', number],
+    queryFn,
+  });
+  if (!issue) return null;
+  return <PinnedCardView issue={issue as Issue} />;
+}
+
+function PinnedStrip({ numbers }: { numbers: number[] }) {
+  return (
+    <div data-pinned-strip style={PINNED_STRIP_STYLE}>
+      {numbers.map(n => (
+        <PinnedCard key={n} number={n} />
+      ))}
+    </div>
+  );
+}
+
 function ListView({ count, limit }: { count: number; limit?: number }) {
   const { data: issues } = useQuery({
     queryKey: ['issues', count],
@@ -128,6 +149,7 @@ function BenchmarkHarness() {
     showDoubleList,
     doubleListCount,
     detailIssueNumber,
+    pinnedNumbers,
     renderLimit,
     containerRef,
     measureUpdate,
@@ -203,9 +225,43 @@ function BenchmarkHarness() {
     [measureUpdate, client, containerRef],
   );
 
+  const updateEntityMultiView = useCallback(
+    (number: number) => {
+      const issue = FIXTURE_ISSUES_BY_NUMBER.get(number);
+      if (!issue) return;
+      const expected = `${issue.title} (updated)`;
+      measureUpdate(
+        () =>
+          IssueResource.update({ number }, { title: expected }).then(() =>
+            Promise.all([
+              client.invalidateQueries({ queryKey: ['issues'] }),
+              client.invalidateQueries({ queryKey: ['issue'] }),
+            ]),
+          ),
+        () => {
+          const container = containerRef.current!;
+          const listTitle = container.querySelector(
+            `[data-issue-number="${number}"] [data-title]`,
+          );
+          const detailTitle = container.querySelector(
+            '[data-detail-view] [data-title]',
+          );
+          const pinnedTitle = container.querySelector(
+            `[data-pinned-number="${number}"] [data-title]`,
+          );
+          return [listTitle, detailTitle, pinnedTitle].every(
+            el => el?.textContent === expected,
+          );
+        },
+      );
+    },
+    [measureUpdate, client, containerRef],
+  );
+
   registerAPI({
     updateEntity,
     updateUser,
+    updateEntityMultiView,
     unshiftItem,
     deleteEntity,
     moveItem,
@@ -221,6 +277,7 @@ function BenchmarkHarness() {
         <DoubleListView count={doubleListCount} limit={renderLimit} />
       )}
       {detailIssueNumber != null && <DetailView number={detailIssueNumber} />}
+      {pinnedNumbers.length > 0 && <PinnedStrip numbers={pinnedNumbers} />}
     </div>
   );
 }
