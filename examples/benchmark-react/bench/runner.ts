@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import { chromium } from 'playwright';
-import type { Browser, Page } from 'playwright';
+import type { Browser, CDPSession, Page } from 'playwright';
 
 import { collectMeasures, getMeasureDuration } from './measure.js';
 import { collectHeapUsed } from './memory.js';
@@ -165,6 +165,7 @@ async function runScenario(
   lib: string,
   scenario: Scenario,
   networkSim: boolean,
+  cdp?: CDPSession,
 ): Promise<ScenarioResult> {
   const appPath = `/${lib}/`;
   await page.goto(`${BASE_URL}${appPath}`, {
@@ -201,13 +202,13 @@ async function runScenario(
     scenario.action === 'mountUnmountCycle' &&
     scenario.resultMetric === 'heapDelta';
   if (isMemory) {
-    const cdp = await page.context().newCDPSession(page);
+    const memoryCdp = await page.context().newCDPSession(page);
     try {
-      await cdp.send('Performance.enable');
+      await memoryCdp.send('Performance.enable');
     } catch {
       // best-effort
     }
-    const heapBefore = await collectHeapUsed(cdp);
+    const heapBefore = await collectHeapUsed(memoryCdp);
     await (bench as any).evaluate(async (api: any, a: unknown[]) => {
       if (api.mountUnmountCycle)
         await api.mountUnmountCycle(...(a as [number, number]));
@@ -228,13 +229,14 @@ async function runScenario(
       if (api.triggerGC) api.triggerGC();
     });
     await page.waitForTimeout(100);
-    const heapAfter = await collectHeapUsed(cdp);
+    const heapAfter = await collectHeapUsed(memoryCdp);
     await bench.dispose();
     return { value: heapAfter - heapBefore };
   }
 
   const isUpdate =
     scenario.action === 'updateEntity' ||
+    scenario.action === 'updateEntityMultiView' ||
     scenario.action === 'updateUser' ||
     scenario.action === 'invalidateAndResolve' ||
     scenario.action === 'unshiftItem' ||
@@ -270,6 +272,13 @@ async function runScenario(
       performance.clearMarks();
       performance.clearMeasures();
     });
+    // Force GC after pre-mount so V8 doesn't collect during the timed action
+    if (cdp) {
+      try {
+        await cdp.send('HeapProfiler.collectGarbage');
+      } catch {}
+      await page.waitForTimeout(50);
+    }
   }
 
   if (isRefStability) {
@@ -421,17 +430,25 @@ async function runRound(
   const total = scenarios.length;
 
   for (const lib of orderedLibs) {
-    const libScenarios = scenarios.filter(s => s.name.startsWith(`${lib}:`));
+    let libScenarios = scenarios.filter(s => s.name.startsWith(`${lib}:`));
     if (libScenarios.length === 0) continue;
+    if (opts.shuffleLibs) libScenarios = shuffle(libScenarios);
 
     const context = await browser.newContext();
     const page = await context.newPage();
+    const cdp = await context.newCDPSession(page);
 
     for (const scenario of libScenarios) {
+      // Force GC before each scenario to reduce variance from prior allocations
+      try {
+        await cdp.send('HeapProfiler.collectGarbage');
+      } catch {}
+      await page.waitForTimeout(50);
+
       done++;
       const prefix = opts.showProgress ? `[${done}/${total}] ` : '';
       try {
-        const result = await runScenario(page, lib, scenario, networkSim);
+        const result = await runScenario(page, lib, scenario, networkSim, cdp);
         recordResult(samples, scenario, result);
         const commitSuffix =
           result.reactCommit != null ?
@@ -448,6 +465,7 @@ async function runRound(
       }
     }
 
+    await cdp.detach().catch(() => {});
     await context.close();
   }
 }

@@ -23,14 +23,14 @@ export interface RunProfile {
 export const RUN_CONFIG: Record<ScenarioSize, RunProfile> = {
   small: {
     warmup: 3,
-    minMeasurement: 3,
+    minMeasurement: 5,
     maxMeasurement: process.env.CI ? 10 : 20,
     targetMarginPct: process.env.CI ? 15 : 10,
   },
   large: {
     warmup: 1,
-    minMeasurement: 2,
-    maxMeasurement: process.env.CI ? 4 : 8,
+    minMeasurement: 3,
+    maxMeasurement: process.env.CI ? 6 : 10,
     targetMarginPct: process.env.CI ? 20 : 15,
   },
 };
@@ -121,6 +121,16 @@ const BASE_SCENARIOS: BaseScenario[] = [
     mountCount: 1000,
     renderLimit: 100,
     preMountAction: 'mountSortedView',
+    size: 'large',
+  },
+  {
+    nameSuffix: 'update-entity-multi-view',
+    action: 'updateEntityMultiView',
+    args: [1],
+    category: 'hotPath',
+    mountCount: 1000,
+    renderLimit: 100,
+    preMountAction: 'initMultiView',
     size: 'large',
   },
   {
