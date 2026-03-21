@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1774114096361,
+  "lastUpdate": 1774118003004,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -865,6 +865,114 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 5.9,
             "range": "± 0.26",
+            "unit": "ms"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "9c22178c9f456b3ff90fc8e9fac7fcaa59cced95",
+          "message": "demo(benchmark-react): improve measurement stability (#3805)\n\nReduce benchmark variance and improve result reliability:\n\n- IQR outlier trimming in stats (single GC spikes no longer widen CI)\n- Force V8 GC via CDP between scenarios and after pre-mount\n- Shuffle scenario order within each library to eliminate ordering bias\n- Bump minMeasurement (small: 3→5, large: 2→3) for more reliable convergence\n- Increase large maxMeasurement in CI (4→6) for more convergence headroom\n\nMade-with: Cursor",
+          "timestamp": "2026-03-21T14:30:39-04:00",
+          "tree_id": "b0dc49d86989bbbe0bc445ab6cb258fbc6b8dc41",
+          "url": "https://github.com/reactive/data-client/commit/9c22178c9f456b3ff90fc8e9fac7fcaa59cced95"
+        },
+        "date": 1774118000698,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 17.2,
+            "range": "± 0.65",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 40.9,
+            "range": "± 0.79",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 4.3,
+            "range": "± 0.27",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: ref-stability-issue-changed",
+            "value": 50,
+            "range": "± 0",
+            "unit": "count"
+          },
+          {
+            "name": "data-client: ref-stability-user-changed",
+            "value": 50,
+            "range": "± 0",
+            "unit": "count"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 6.4,
+            "range": "± 0.3",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 42.7,
+            "range": "± 4.74",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 5.6,
+            "range": "± 0",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: list-detail-switch",
+            "value": 144.3,
+            "range": "± 22.87",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 32.5,
+            "range": "± 2.84",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 31.6,
+            "range": "± 0.71",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 6.4,
+            "range": "± 0.32",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 5.3,
+            "range": "± 0.39",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 9.7,
+            "range": "± 0.61",
             "unit": "ms"
           }
         ]
