@@ -134,10 +134,11 @@ const BASE_SCENARIOS: BaseScenario[] = [
     size: 'large',
   },
   {
-    nameSuffix: 'list-detail-switch',
+    nameSuffix: 'list-detail-switch-10',
     action: 'listDetailSwitch',
-    args: [1000],
+    args: [10],
     category: 'hotPath',
+    mountCount: 1000,
     size: 'large',
     renderLimit: 100,
   },

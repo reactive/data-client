@@ -56,7 +56,7 @@ Illustrative **relative** results with **SWR = 100%** (baseline). For **duration
 | Category | Scenarios (representative) | data-client | tanstack-query | swr |
 |---|---|---:|---:|---:|
 | Navigation | `getlist-100`, `getlist-500`, `getlist-500-sorted` | ~103% | ~102% | **100%** |
-| Navigation | `list-detail-switch` | ~21% | ~102% | **100%** |
+| Navigation | `list-detail-switch-10` | ~21% | ~102% | **100%** |
 | Mutations | `update-entity`, `update-user`, `update-entity-sorted`, `update-entity-multi-view`, `unshift-item`, `delete-item`, `move-item` | ~2% | ~102% | **100%** |
 | Scaling (10k items) | `update-user-10000` | ~5% | ~122% | **100%** |
 
@@ -72,7 +72,7 @@ Run: **2026-03-21**, Linux (WSL2), `yarn build:benchmark-react`, static preview 
 | `getlist-100` | ops/s | 11.20 ± 0.03 | 11.27 ± 0.02 | 11.43 ± 0.07 |
 | `getlist-500` | ops/s | 9.78 ± 0.12 | 10.01 ± 0.13 | 10.16 ± 0.13 |
 | `getlist-500-sorted` | ops/s | 9.82 ± 0.16 | 10.08 ± 0.13 | 10.21 ± 0.07 |
-| `list-detail-switch` | ops/s | 6.93 ± 1.02 | 1.45 ± 0.04 | 1.48 ± 0.08 |
+| `list-detail-switch-10` | ops/s | 6.93 ± 1.02 | 1.45 ± 0.04 | 1.48 ± 0.08 |
 | `update-entity` | ops/s | 357.14 ± 11.48 | 7.01 ± 0.02 | 7.02 ± 0.02 |
 | `update-user` | ops/s | 333.33 ± 14.44 | 7.01 ± 0.02 | 7.17 ± 0.03 |
 | `update-entity-sorted` | ops/s | 312.50 ± 23.44 | 7.08 ± 0.00 | 7.07 ± 0.03 |
@@ -81,6 +81,8 @@ Run: **2026-03-21**, Linux (WSL2), `yarn build:benchmark-react`, static preview 
 | `unshift-item` | ops/s | 285.71 ± 4.90 | 6.92 ± 0.02 | 7.16 ± 0.00 |
 | `delete-item` | ops/s | 312.50 ± 9.77 | 6.93 ± 0.01 | 7.15 ± 0.01 |
 | `move-item` | ops/s | 285.71 ± 10.61 | 6.39 ± 0.02 | 6.83 ± 0.00 |
+
+[Measured on a Ryzen 9 7950X; 32 GB RAM; Ubuntu (WSL2); Node 24.12.0; Chromium (Playwright)]
 
 ## Expected variance
 
@@ -186,7 +188,7 @@ Regressions >5% on stable scenarios or >15% on volatile scenarios are worth inve
    Scenarios are classified as `small` or `large` based on their cost:
 
    - **Small** (3 warmup + 15 measurement): `getlist-100`, `update-entity`, `ref-stability-*`, `invalidate-and-resolve`, `unshift-item`, `delete-item`
-   - **Large** (1 warmup + 4 measurement): `getlist-500`, `getlist-500-sorted`, `update-user`, `update-user-10000`, `update-entity-sorted`, `update-entity-multi-view`, `list-detail-switch`
+   - **Large** (1 warmup + 4 measurement): `getlist-500`, `getlist-500-sorted`, `update-user`, `update-user-10000`, `update-entity-sorted`, `update-entity-multi-view`, `list-detail-switch-10`
    - **Memory** (opt-in, 1 warmup + 3 measurement): `memory-mount-unmount-cycle` — run with `--action memory`
 
    When running all scenarios (`yarn bench`), each group runs with its own warmup/measurement count. Use `--size` to run only one group.

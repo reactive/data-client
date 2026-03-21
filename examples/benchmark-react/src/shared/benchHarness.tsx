@@ -249,9 +249,9 @@ export function useBenchState() {
   );
 
   const listDetailSwitch = useCallback(
-    async (n: number) => {
-      await seedIssueList(FIXTURE_ISSUES.slice(0, n));
-      setSortedViewCount(n);
+    async (navigations: number, seedCount = 1000) => {
+      await seedIssueList(FIXTURE_ISSUES.slice(0, seedCount));
+      setSortedViewCount(seedCount);
       setShowSortedView(true);
       await waitForElement('[data-sorted-list]');
 
@@ -264,9 +264,9 @@ export function useBenchState() {
       await waitForElement('[data-sorted-list]');
 
       performance.mark('mount-start');
-      for (let i = 2; i <= 11; i++) {
+      for (let i = 0; i < navigations; i++) {
         setShowSortedView(false);
-        setDetailIssueNumber(i);
+        setDetailIssueNumber(i + 2);
         await waitForElement('[data-detail-view]');
 
         setDetailIssueNumber(null);
