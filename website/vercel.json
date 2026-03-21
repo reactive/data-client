@@ -1,4 +1,4 @@
 {
   "cleanUrls": true,
-  "ignoreCommand": "if [ \"$VERCEL_GIT_COMMIT_REF\" = \"master\" ]; then git diff HEAD^ HEAD --quiet -- . ../docs/; else git diff HEAD^ HEAD --quiet -- .; fi"
+  "ignoreCommand": "case \"$VERCEL_GIT_COMMIT_REF\" in gh-pages*) exit 0;; esac; if [ \"$VERCEL_GIT_COMMIT_REF\" = \"master\" ]; then git diff HEAD^ HEAD --quiet -- . ../docs/; else git diff HEAD^ HEAD --quiet -- .; fi"
 }
