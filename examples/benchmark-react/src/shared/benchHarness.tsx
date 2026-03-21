@@ -96,29 +96,41 @@ export function useBenchState() {
    * Measure a mount action via MutationObserver. Ends when expected content
    * ([data-bench-item] or [data-sorted-list]) appears in the container,
    * skipping intermediate states like Suspense fallbacks or empty first renders.
+   *
+   * Returns a promise that resolves when the mount content is detected.
+   * Pass `signalComplete: false` to suppress the data-bench-complete attribute
+   * (useful when the caller needs additional async work before signaling).
    */
   const measureMount = useCallback(
-    (fn: () => unknown) => {
+    (fn: () => unknown, { signalComplete = true } = {}): Promise<void> => {
       const container = containerRef.current!;
-      const observer = new MutationObserver(() => {
-        if (container.querySelector('[data-bench-item], [data-sorted-list]')) {
+      return new Promise<void>(resolve => {
+        const done = () => {
+          if (signalComplete) setComplete();
+          resolve();
+        };
+        const observer = new MutationObserver(() => {
+          if (
+            container.querySelector('[data-bench-item], [data-sorted-list]')
+          ) {
+            performance.mark('mount-end');
+            performance.measure('mount-duration', 'mount-start', 'mount-end');
+            observer.disconnect();
+            clearTimeout(timer);
+            done();
+          }
+        });
+        observer.observe(container, OBSERVE_MUTATIONS);
+        const timer = setTimeout(() => {
+          observer.disconnect();
           performance.mark('mount-end');
           performance.measure('mount-duration', 'mount-start', 'mount-end');
-          observer.disconnect();
-          clearTimeout(timer);
-          setComplete();
-        }
+          container.setAttribute('data-bench-timeout', 'true');
+          done();
+        }, 30000);
+        performance.mark('mount-start');
+        fn();
       });
-      observer.observe(container, OBSERVE_MUTATIONS);
-      const timer = setTimeout(() => {
-        observer.disconnect();
-        performance.mark('mount-end');
-        performance.measure('mount-duration', 'mount-start', 'mount-end');
-        container.setAttribute('data-bench-timeout', 'true');
-        setComplete();
-      }, 30000);
-      performance.mark('mount-start');
-      fn();
     },
     [setComplete],
   );
@@ -281,13 +293,9 @@ export function useBenchState() {
       setDetailIssueNumber(1);
       setPinnedNumbers(Array.from({ length: 10 }, (_, i) => i + 1));
 
-      const p = new Promise<void>(r => {
-        completeResolveRef.current = r;
+      await measureMount(() => setListViewCount(n), {
+        signalComplete: false,
       });
-      measureMount(() => {
-        setListViewCount(n);
-      });
-      await p;
 
       await waitForElement('[data-detail-view]');
       await waitForElement('[data-pinned-number]');
