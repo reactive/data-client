@@ -146,4 +146,6 @@ export interface Scenario {
   deterministic?: boolean;
   /** Cap DOM rendering to first N items while keeping all data in the store. */
   renderLimit?: number;
+  /** If set, scenario applies only to these libs; dropped when any selected library is not listed. */
+  onlyLibs?: string[];
 }

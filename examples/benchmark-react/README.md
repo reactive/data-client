@@ -50,15 +50,37 @@ The repo has two benchmark suites:
 
 ## Expected results
 
-These are approximate values to help calibrate expectations. Exact numbers vary by machine and CPU throttling.
+Illustrative **relative** results with **SWR = 100%** (baseline). For **duration** rows, each value is (library median ms ÷ SWR median ms) × 100 — **lower is faster**. For **ref-stability** rows, the same idea uses the “refs changed” count — **lower is fewer components that saw a new object reference**. Figures are rounded from the **Latest measured results** table below (network simulation on); absolute milliseconds will vary by machine, but **library-to-library ratios** are usually similar.
 
-| Scenario | data-client | tanstack-query | swr |
-|---|---|---|---|
-| `getlist-100` | ~similar | ~similar | ~similar |
-| `update-user` | Low (one store write propagates) | Higher (list refetch) | Higher (list refetch) |
-| `ref-stability-issue-changed` (100 mounted) | ~1 changed | ~100 changed (list refetch) | ~100 changed (list refetch) |
-| `ref-stability-user-changed` (100 mounted) | ~5 changed | ~100 changed (list refetch) | ~100 changed (list refetch) |
-| `update-entity-sorted` | Fast (Query memoization skips re-sort) | Re-sorts on every issue change | Re-sorts on every issue change |
+| Category | Scenarios (representative) | data-client | tanstack-query | swr |
+|---|---|---:|---:|---:|
+| Get list (fetch + render) | `getlist-100`, `getlist-500`, `getlist-500-sorted` | ~104% | ~101% | **100%** |
+| Mutations (with network sim) | `update-entity`, `unshift-item`, `delete-item`, `move-item` | ~2% | ~104% | **100%** |
+| Sorted view: entity update | `update-entity-sorted` | ~2% | ~100% | **100%** |
+| Large data: shared user update | `update-user` (1k rows rendered) | ~2% | ~102% | **100%** |
+| Large data: shared user update | `update-user-10000` | ~5% | ~122% | **100%** |
+| Large data: list ↔ detail | `list-detail-switch` | ~25% | ~106% | **100%** |
+
+
+## Latest measured results (network simulation on)
+
+Median per metric; range is approximate 95% CI margin from the runner (`stats.ts`). **Network simulation** applies the per-RPC delays in `bench/scenarios.ts` (`NETWORK_SIM_DELAYS`, e.g. `fetchIssueList` 80 ms, `updateUser` 50 ms) so list refetches after an author update pay extra latency compared to normalized propagation.
+
+Run: **2026-03-21**, Linux (WSL2), `yarn build:benchmark-react`, static preview + `env -u CI npx tsx bench/runner.ts --network-sim true` (all libraries; memory scenarios not included). Numbers are **machine-specific**; use them for relative comparison between libraries, not as absolutes.
+
+| Scenario | Unit | data-client | tanstack-query | swr |
+|---|---|---:|---:|---:|
+| `getlist-100` | ms | 89.3 ± 0.11 | 88.9 ± 0.17 | 87.2 ± 0.49 |
+| `getlist-500` | ms | 104.8 ± 1.37 | 101.2 ± 0.29 | 99.4 ± 0.69 |
+| `update-entity` | ms | 2.1 ± 0.11 | 144.9 ± 0.58 | 143.0 ± 0.23 |
+| `update-user` | ms | 3.1 ± 0.29 | 141.9 ± 0.00 | 139.0 ± 0.00 |
+| `getlist-500-sorted` | ms | 103.2 ± 0.59 | 98.8 ± 0.39 | 98.9 ± 0.88 |
+| `update-entity-sorted` | ms | 2.7 ± 0.00 | 139.7 ± 0.10 | 140.4 ± 0.88 |
+| `list-detail-switch` | ms | 165.5 ± 21.69 | 694.4 ± 3.72 | 656.9 ± 26.95 |
+| `update-user-10000` | ms | 9.1 ± 0.49 | 239.4 ± 0.59 | 195.7 ± 1.86 |
+| `unshift-item` | ms | 3.0 ± 0.07 | 144.1 ± 0.46 | 139.8 ± 0.47 |
+| `delete-item` | ms | 2.6 ± 0.07 | 142.2 ± 0.07 | 138.5 ± 0.36 |
+| `move-item` | ms | 3.6 ± 0.11 | 154.5 ± 0.82 | 143.9 ± 0.82 |
 
 ## Expected variance
 

@@ -42,23 +42,10 @@ export const ACTION_GROUPS: Record<string, (keyof BenchAPI)[]> = {
   memory: ['mountUnmountCycle'],
 };
 
-interface BaseScenario {
+type BaseScenario = Omit<Scenario, 'name' | 'category'> & {
   nameSuffix: string;
-  action: Scenario['action'];
-  args: unknown[];
-  resultMetric?: Scenario['resultMetric'];
   category: NonNullable<Scenario['category']>;
-  size?: ScenarioSize;
-  mountCount?: number;
-  /** Use a different BenchAPI method to pre-mount items (e.g. 'mountSortedView' instead of 'mount'). */
-  preMountAction?: keyof BenchAPI;
-  /** Only run for these libraries. Omit to run for all. */
-  onlyLibs?: string[];
-  /** Result is deterministic (zero variance); run exactly once with no warmup. */
-  deterministic?: boolean;
-  /** Cap DOM rendering to first N items while keeping all data in the store. */
-  renderLimit?: number;
-}
+};
 
 const BASE_SCENARIOS: BaseScenario[] = [
   {
@@ -195,17 +182,10 @@ export const SCENARIOS: Scenario[] = LIBRARIES.flatMap(lib =>
   BASE_SCENARIOS.filter(
     base => !base.onlyLibs || base.onlyLibs.includes(lib),
   ).map(
-    (base): Scenario => ({
-      name: `${lib}: ${base.nameSuffix}`,
-      action: base.action,
-      args: base.args,
-      resultMetric: base.resultMetric,
-      category: base.category,
-      size: base.size,
-      mountCount: base.mountCount,
-      preMountAction: base.preMountAction,
-      deterministic: base.deterministic,
-      renderLimit: base.renderLimit,
+    ({ nameSuffix, onlyLibs, ...rest }): Scenario => ({
+      name: `${lib}: ${nameSuffix}`,
+      ...rest,
+      ...(onlyLibs ? { onlyLibs: [...onlyLibs] } : {}),
     }),
   ),
 );
