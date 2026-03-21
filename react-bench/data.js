@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1774111305844,
+  "lastUpdate": 1774114096361,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -757,6 +757,114 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 6,
             "range": "± 0",
+            "unit": "ms"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ea591a4956574bd1b4ec329e6376b0621674707a",
+          "message": "demo(benchmark-react): DRY runner and scenario definitions (#3804)\n\nExtract shared helpers (runRound, recordResult, warmupCount) to\neliminate three copies of the lib-iteration loop. Consolidate three\nparallel result maps into a single Map<string, ScenarioSamples>.\nDerive BaseScenario from Scenario via Omit so new fields flow\nthrough automatically, and replace the 12-line manual property\nmapping with destructure + spread. Simplify react-commit eligibility\nfrom a 10-action list to !scenario.resultMetric. Remove dead startup\ncode. Skip data-client-only scenarios when benchmarking all\nframeworks. Update README with measured results table.\n\nMade-with: Cursor",
+          "timestamp": "2026-03-21T13:26:05-04:00",
+          "tree_id": "76ef9f78f8f3b7d6d6395279c28dc7237d561d43",
+          "url": "https://github.com/reactive/data-client/commit/ea591a4956574bd1b4ec329e6376b0621674707a"
+        },
+        "date": 1774114093738,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 15.4,
+            "range": "± 1.25",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 38.5,
+            "range": "± 2.84",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 3.8,
+            "range": "± 0.49",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: ref-stability-issue-changed",
+            "value": 50,
+            "range": "± 0",
+            "unit": "count"
+          },
+          {
+            "name": "data-client: ref-stability-user-changed",
+            "value": 50,
+            "range": "± 0",
+            "unit": "count"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 4.3,
+            "range": "± 0.1",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 35.6,
+            "range": "± 0.2",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 4.3,
+            "range": "± 0.39",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: list-detail-switch",
+            "value": 128.9,
+            "range": "± 3.72",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 18.4,
+            "range": "± 0",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 28.5,
+            "range": "± 2.14",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 4.9,
+            "range": "± 0.35",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 3.8,
+            "range": "± 0.41",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 5.9,
+            "range": "± 0.26",
             "unit": "ms"
           }
         ]
