@@ -82,8 +82,16 @@
       .benchmark-chart {
         max-width: 1000px;
       }
+      .category-title {
+        font-size: 1.8rem;
+        font-weight: 500;
+        color: #363636;
+        margin: 24px 0 8px;
+        padding-bottom: 6px;
+        border-bottom: 2px solid #e8e8e8;
+      }
     </style>
-    <title>Benchmarks</title>
+    <title>Benchmark React</title>
   </head>
 
   <body>
@@ -109,7 +117,6 @@
     <script id="main-script">
       'use strict';
       (function() {
-        // Colors from https://github.com/github/linguist/blob/master/lib/linguist/languages.yml
         const toolColors = {
           cargo: '#dea584',
           go: '#00add8',
@@ -125,6 +132,35 @@
           customSmallerIsBetter: '#ff3838',
           _: '#333333'
         };
+
+        const CATEGORY_ORDER = [
+          {
+            name: 'Navigation',
+            scenarios: ['getlist-100', 'getlist-500', 'getlist-500-sorted', 'list-detail-switch'],
+          },
+          {
+            name: 'Mutations',
+            scenarios: ['update-entity', 'update-user', 'update-entity-sorted', 'update-entity-multi-view', 'unshift-item', 'delete-item', 'move-item'],
+          },
+          {
+            name: 'Scaling',
+            scenarios: ['update-user-10000'],
+          },
+          {
+            name: 'Other',
+            scenarios: null, // catch-all for anything not listed above
+          },
+        ];
+
+        function scenarioName(benchName) {
+          const idx = benchName.indexOf(': ');
+          return idx !== -1 ? benchName.slice(idx + 2) : benchName;
+        }
+
+        function matchesScenario(benchName, scenario) {
+          const name = scenarioName(benchName);
+          return name === scenario || name.startsWith(scenario + ' ');
+        }
 
         function init() {
           function collectBenchesPerTestCase(entries) {
@@ -146,13 +182,11 @@
 
           const data = window.BENCHMARK_DATA;
 
-          // Render header
           document.getElementById('last-update').textContent = new Date(data.lastUpdate).toString();
           const repoLink = document.getElementById('repository-link');
           repoLink.href = data.repoUrl;
           repoLink.textContent = data.repoUrl;
 
-          // Render footer
           document.getElementById('dl-button').onclick = () => {
             const dataUrl = 'data:,' + JSON.stringify(data, null, 2);
             const a = document.createElement('a');
@@ -161,11 +195,43 @@
             a.click();
           };
 
-          // Prepare data points for charts
-          return Object.keys(data.entries).map(name => ({
-            name,
-            dataSet: collectBenchesPerTestCase(data.entries[name]),
-          }));
+          // Only include "Benchmark React"; skip legacy "Benchmark" entry
+          return Object.keys(data.entries)
+            .filter(name => name === 'Benchmark React')
+            .map(name => ({
+              name,
+              dataSet: collectBenchesPerTestCase(data.entries[name]),
+            }));
+        }
+
+        function groupBenchmarks(dataSet) {
+          const allScenarios = new Set(
+            CATEGORY_ORDER.flatMap(c => c.scenarios || [])
+          );
+          const groups = [];
+
+          for (const category of CATEGORY_ORDER) {
+            const entries = [];
+            if (category.scenarios) {
+              for (const scenario of category.scenarios) {
+                for (const [benchName, benches] of dataSet.entries()) {
+                  if (matchesScenario(benchName, scenario)) {
+                    entries.push([benchName, benches]);
+                  }
+                }
+              }
+            } else {
+              for (const [benchName, benches] of dataSet.entries()) {
+                if (![...allScenarios].some(s => matchesScenario(benchName, s))) {
+                  entries.push([benchName, benches]);
+                }
+              }
+            }
+            if (entries.length > 0) {
+              groups.push({ name: category.name, entries });
+            }
+          }
+          return groups;
         }
 
         function renderAllChars(dataSets) {
@@ -183,7 +249,7 @@
                   label: name,
                   data: dataset.map(d => d.bench.value),
                   borderColor: color,
-                  backgroundColor: color + '60', // Add alpha for #rrggbbaa
+                  backgroundColor: color + '60',
                 }
               ],
             };
@@ -235,7 +301,6 @@
                 if (activeElems.length === 0) {
                   return;
                 }
-                // XXX: Undocumented. How can we know the index?
                 const index = activeElems[0]._index;
                 const url = dataset[index].commit.url;
                 window.open(url, '_blank');
@@ -249,7 +314,8 @@
             });
           }
 
-          function renderBenchSet(name, benchSet, main) {
+          const main = document.getElementById('main');
+          for (const {name, dataSet} of dataSets) {
             const setElem = document.createElement('div');
             setElem.className = 'benchmark-set';
             main.appendChild(setElem);
@@ -259,22 +325,25 @@
             nameElem.textContent = name;
             setElem.appendChild(nameElem);
 
-            const graphsElem = document.createElement('div');
-            graphsElem.className = 'benchmark-graphs';
-            setElem.appendChild(graphsElem);
+            const groups = groupBenchmarks(dataSet);
+            for (const group of groups) {
+              const catTitle = document.createElement('h2');
+              catTitle.className = 'category-title';
+              catTitle.textContent = group.name;
+              setElem.appendChild(catTitle);
 
-            for (const [benchName, benches] of benchSet.entries()) {
-              renderGraph(graphsElem, benchName, benches)
+              const graphsElem = document.createElement('div');
+              graphsElem.className = 'benchmark-graphs';
+              setElem.appendChild(graphsElem);
+
+              for (const [benchName, benches] of group.entries) {
+                renderGraph(graphsElem, benchName, benches);
+              }
             }
-          }
-
-          const main = document.getElementById('main');
-          for (const {name, dataSet} of dataSets) {
-            renderBenchSet(name, dataSet, main);
           }
         }
 
-        renderAllChars(init()); // Start
+        renderAllChars(init());
       })();
     </script>
   </body>
