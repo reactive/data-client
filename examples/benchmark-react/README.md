@@ -55,12 +55,10 @@ Illustrative **relative** results with **SWR = 100%** (baseline). For **duration
 
 | Category | Scenarios (representative) | data-client | tanstack-query | swr |
 |---|---|---:|---:|---:|
-| Get list (fetch + render) | `getlist-100`, `getlist-500`, `getlist-500-sorted` | ~104% | ~101% | **100%** |
-| Mutations (with network sim) | `update-entity`, `unshift-item`, `delete-item`, `move-item` | ~2% | ~104% | **100%** |
-| Sorted view: entity update | `update-entity-sorted` | ~2% | ~100% | **100%** |
-| Large data: shared user update | `update-user` (1k rows rendered) | ~2% | ~102% | **100%** |
-| Large data: shared user update | `update-user-10000` | ~5% | ~122% | **100%** |
-| Large data: list ↔ detail | `list-detail-switch` | ~25% | ~106% | **100%** |
+| Navigation | `getlist-100`, `getlist-500`, `getlist-500-sorted` | ~103% | ~102% | **100%** |
+| Navigation | `list-detail-switch` | ~21% | ~102% | **100%** |
+| Mutations | `update-entity`, `update-user`, `update-entity-sorted`, `update-entity-multi-view`, `unshift-item`, `delete-item`, `move-item` | ~2% | ~102% | **100%** |
+| Scaling (10k items) | `update-user-10000` | ~5% | ~122% | **100%** |
 
 
 ## Latest measured results (network simulation on)
@@ -71,17 +69,18 @@ Run: **2026-03-21**, Linux (WSL2), `yarn build:benchmark-react`, static preview 
 
 | Scenario | Unit | data-client | tanstack-query | swr |
 |---|---|---:|---:|---:|
-| `getlist-100` | ms | 89.3 ± 0.11 | 88.9 ± 0.17 | 87.2 ± 0.49 |
-| `getlist-500` | ms | 104.8 ± 1.37 | 101.2 ± 0.29 | 99.4 ± 0.69 |
-| `update-entity` | ms | 2.1 ± 0.11 | 144.9 ± 0.58 | 143.0 ± 0.23 |
-| `update-user` | ms | 3.1 ± 0.29 | 141.9 ± 0.00 | 139.0 ± 0.00 |
-| `getlist-500-sorted` | ms | 103.2 ± 0.59 | 98.8 ± 0.39 | 98.9 ± 0.88 |
-| `update-entity-sorted` | ms | 2.7 ± 0.00 | 139.7 ± 0.10 | 140.4 ± 0.88 |
-| `list-detail-switch` | ms | 165.5 ± 21.69 | 694.4 ± 3.72 | 656.9 ± 26.95 |
-| `update-user-10000` | ms | 9.1 ± 0.49 | 239.4 ± 0.59 | 195.7 ± 1.86 |
-| `unshift-item` | ms | 3.0 ± 0.07 | 144.1 ± 0.46 | 139.8 ± 0.47 |
-| `delete-item` | ms | 2.6 ± 0.07 | 142.2 ± 0.07 | 138.5 ± 0.36 |
-| `move-item` | ms | 3.6 ± 0.11 | 154.5 ± 0.82 | 143.9 ± 0.82 |
+| `getlist-100` | ms | 89.3 ± 0.22 | 88.7 ± 0.15 | 87.5 ± 0.50 |
+| `getlist-500` | ms | 102.3 ± 1.25 | 99.9 ± 1.25 | 98.4 ± 1.25 |
+| `getlist-500-sorted` | ms | 101.8 ± 1.61 | 99.2 ± 1.29 | 97.9 ± 0.63 |
+| `list-detail-switch` | ms | 144.4 ± 21.22 | 689.4 ± 20.83 | 674.5 ± 35.67 |
+| `update-entity` | ms | 2.8 ± 0.09 | 142.6 ± 0.31 | 142.4 ± 0.34 |
+| `update-user` | ms | 3.0 ± 0.13 | 142.7 ± 0.43 | 139.4 ± 0.51 |
+| `update-entity-sorted` | ms | 3.2 ± 0.24 | 141.3 ± 0.07 | 141.4 ± 0.56 |
+| `update-entity-multi-view` | ms | 2.8 ± 0.41 | 146.6 ± 7.25 | 145.3 ± 8.21 |
+| `update-user-10000` | ms | 10.3 ± 0.82 | 246.0 ± 1.35 | 201.2 ± 0.75 |
+| `unshift-item` | ms | 3.5 ± 0.06 | 144.5 ± 0.38 | 139.7 ± 0.07 |
+| `delete-item` | ms | 3.2 ± 0.10 | 144.4 ± 0.11 | 139.9 ± 0.11 |
+| `move-item` | ms | 3.5 ± 0.13 | 156.4 ± 0.50 | 146.4 ± 0.05 |
 
 ## Expected variance
 

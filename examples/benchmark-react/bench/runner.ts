@@ -272,13 +272,6 @@ async function runScenario(
       performance.clearMarks();
       performance.clearMeasures();
     });
-    // Force GC after pre-mount so V8 doesn't collect during the timed action
-    if (cdp) {
-      try {
-        await cdp.send('HeapProfiler.collectGarbage');
-      } catch {}
-      await page.waitForTimeout(50);
-    }
   }
 
   if (isRefStability) {
