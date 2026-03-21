@@ -498,7 +498,7 @@ test('listDetailSwitch completes with correct DOM transitions', async (page, lib
     return;
 
   await clearComplete(page);
-  await page.evaluate(() => window.__BENCH__!.listDetailSwitch!(20));
+  await page.evaluate(() => window.__BENCH__!.listDetailSwitch!(5, 20));
   await waitForComplete(page, 30000);
 
   const hasSortedList = await page.evaluate(

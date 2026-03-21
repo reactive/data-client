@@ -43,8 +43,8 @@ export interface BenchAPI {
   initDoubleList?(count: number): void;
   /** Move an issue from one state-filtered list to another. Exercises Collection.move (data-client) vs invalidate+refetch (others). */
   moveItem?(id: number): void;
-  /** Switch between sorted list view and individual issue detail views 10 times (20 renders). Exercises normalized cache lookup (data-client) vs per-navigation fetch (others). */
-  listDetailSwitch?(count: number): void;
+  /** Switch between sorted list view and individual issue detail views. Exercises normalized cache lookup (data-client) vs per-navigation fetch (others). */
+  listDetailSwitch?(navigations: number, seedCount?: number): Promise<void>;
   /** Mount list + detail panel + pinned card strip for multi-view entity propagation. */
   initMultiView?(count: number): void;
   /** Update an entity that appears in list + detail + pinned views; waits for all three to reflect the change. */
