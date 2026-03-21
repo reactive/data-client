@@ -389,7 +389,11 @@ function shuffle<T>(arr: T[]): T[] {
 function scenarioUnit(scenario: Scenario): string {
   if (isRefStabilityScenario(scenario)) return 'count';
   if (scenario.resultMetric === 'heapDelta') return 'bytes';
-  return 'ms';
+  return 'ops/s';
+}
+
+function msToOps(ms: number): number {
+  return ms > 0 ? 1000 / ms : 0;
 }
 
 function recordResult(
@@ -443,12 +447,17 @@ async function runRound(
       try {
         const result = await runScenario(page, lib, scenario, networkSim, cdp);
         recordResult(samples, scenario, result);
+        const unit = scenarioUnit(scenario);
+        const displayValue =
+          unit === 'ops/s' ?
+            `${msToOps(result.value).toFixed(2)} ops/s`
+          : `${result.value.toFixed(2)} ${unit}`;
         const commitSuffix =
           result.reactCommit != null ?
-            ` (commit ${result.reactCommit.toFixed(2)} ms)`
+            ` (commit ${msToOps(result.reactCommit).toFixed(2)} ops/s)`
           : '';
         process.stderr.write(
-          `  ${prefix}${scenario.name}: ${result.value.toFixed(2)} ${scenarioUnit(scenario)}${commitSuffix}\n`,
+          `  ${prefix}${scenario.name}: ${displayValue}${commitSuffix}\n`,
         );
       } catch (err) {
         console.error(
@@ -603,8 +612,11 @@ async function main() {
     const warmup = warmupCount(scenario);
     if (s.value.length <= warmup) continue;
 
-    const { median, range } = computeStats(s.value, warmup);
     const unit = scenarioUnit(scenario);
+    const isOps = unit === 'ops/s';
+    const statSamples =
+      isOps ? s.value.slice(warmup).map(msToOps) : s.value.slice(warmup);
+    const { median, range } = computeStats(statSamples, 0);
     report.push({
       name: scenario.name,
       unit,
@@ -617,13 +629,11 @@ async function main() {
       .slice(warmup)
       .filter(x => !Number.isNaN(x));
     if (reactSamples.length > 0 && !scenario.resultMetric) {
-      const { median: rcMedian, range: rcRange } = computeStats(
-        reactSamples,
-        0,
-      );
+      const rcOps = reactSamples.map(msToOps);
+      const { median: rcMedian, range: rcRange } = computeStats(rcOps, 0);
       report.push({
         name: `${scenario.name} (react commit)`,
-        unit: 'ms',
+        unit: 'ops/s',
         value: Math.round(rcMedian * 100) / 100,
         range: rcRange,
       });
@@ -632,13 +642,11 @@ async function main() {
     // Chrome trace durations (opt-in via BENCH_TRACE=true)
     const traceSamples = s.trace.slice(warmup).filter(x => !Number.isNaN(x));
     if (traceSamples.length > 0) {
-      const { median: trMedian, range: trRange } = computeStats(
-        traceSamples,
-        0,
-      );
+      const trOps = traceSamples.map(msToOps);
+      const { median: trMedian, range: trRange } = computeStats(trOps, 0);
       report.push({
         name: `${scenario.name} (trace)`,
-        unit: 'ms',
+        unit: 'ops/s',
         value: Math.round(trMedian * 100) / 100,
         range: trRange,
       });

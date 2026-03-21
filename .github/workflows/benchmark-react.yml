@@ -60,7 +60,7 @@ jobs:
         uses: rhysd/github-action-benchmark@v1
         with:
           name: 'Benchmark React'
-          tool: 'customSmallerIsBetter'
+          tool: 'customBiggerIsBetter'
           output-file-path: examples/benchmark-react/react-bench-output.json
           github-token: "${{ secrets.GITHUB_TOKEN }}"
           gh-pages-branch: 'gh-pages-bench'
@@ -78,7 +78,7 @@ jobs:
         uses: rhysd/github-action-benchmark@v1
         with:
           name: 'Benchmark React'
-          tool: 'customSmallerIsBetter'
+          tool: 'customBiggerIsBetter'
           output-file-path: examples/benchmark-react/react-bench-output.json
           github-token: "${{ secrets.GITHUB_TOKEN }}"
           gh-pages-branch: 'gh-pages-bench'

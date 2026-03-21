@@ -27,9 +27,9 @@ The repo has two benchmark suites:
 
 **Hot path (CI)**
 
-- **Get list** (`getlist-100`, `getlist-500`) — Time to show a ListView component that auto-fetches 100 or 500 issues from the list endpoint, then renders (unit: ms). Exercises the full fetch + normalization + render pipeline.
+- **Get list** (`getlist-100`, `getlist-500`) — Time to show a ListView component that auto-fetches 100 or 500 issues from the list endpoint, then renders (unit: ops/s). Exercises the full fetch + normalization + render pipeline.
 - **Get list sorted** (`getlist-500-sorted`) — Mount 500 issues through a sorted/derived view. data-client uses `useQuery(sortedIssuesQuery)` with `Query` schema memoization; competitors use `useMemo` + sort.
-- **Update entity** (`update-entity`) — Time to update one issue and propagate to the UI (unit: ms).
+- **Update entity** (`update-entity`) — Time to update one issue and propagate to the UI (unit: ops/s).
 - **Update entity sorted** (`update-entity-sorted`) — After mounting a sorted view, update one entity. data-client's `Query` memoization avoids re-sorting when sort keys are unchanged.
 - **Update entity multi-view** (`update-entity-multi-view`) — Update one issue that appears simultaneously in a list, a detail panel, and a pinned-cards strip. Exercises cross-query entity propagation: normalized cache updates once and all three views reflect the change; non-normalized libraries must invalidate and refetch each query independently.
 - **Update user (scaling)** (`update-user`, `update-user-10000`) — Update one shared user with 1,000 or 10,000 mounted issues to test subscriber scaling. Normalized cache: one store update, all views of that user update.
@@ -51,7 +51,7 @@ The repo has two benchmark suites:
 
 ## Expected results
 
-Illustrative **relative** results with **SWR = 100%** (baseline). For **duration** rows, each value is (library median ms ÷ SWR median ms) × 100 — **lower is faster**. For **ref-stability** rows, the same idea uses the “refs changed” count — **lower is fewer components that saw a new object reference**. Figures are rounded from the **Latest measured results** table below (network simulation on); absolute milliseconds will vary by machine, but **library-to-library ratios** are usually similar.
+Illustrative **relative** results with **SWR = 100%** (baseline). For **duration** rows, each value is (library wall-clock time ÷ SWR wall-clock time) × 100 — **lower is faster**. For **ref-stability** rows, the same idea uses the “refs changed” count — **lower is fewer components that saw a new object reference**. Figures are rounded from the **Latest measured results** table below (network simulation on); absolute ops/s will vary by machine, but **library-to-library ratios** are usually similar.
 
 | Category | Scenarios (representative) | data-client | tanstack-query | swr |
 |---|---|---:|---:|---:|
@@ -69,18 +69,18 @@ Run: **2026-03-21**, Linux (WSL2), `yarn build:benchmark-react`, static preview 
 
 | Scenario | Unit | data-client | tanstack-query | swr |
 |---|---|---:|---:|---:|
-| `getlist-100` | ms | 89.3 ± 0.22 | 88.7 ± 0.15 | 87.5 ± 0.50 |
-| `getlist-500` | ms | 102.3 ± 1.25 | 99.9 ± 1.25 | 98.4 ± 1.25 |
-| `getlist-500-sorted` | ms | 101.8 ± 1.61 | 99.2 ± 1.29 | 97.9 ± 0.63 |
-| `list-detail-switch` | ms | 144.4 ± 21.22 | 689.4 ± 20.83 | 674.5 ± 35.67 |
-| `update-entity` | ms | 2.8 ± 0.09 | 142.6 ± 0.31 | 142.4 ± 0.34 |
-| `update-user` | ms | 3.0 ± 0.13 | 142.7 ± 0.43 | 139.4 ± 0.51 |
-| `update-entity-sorted` | ms | 3.2 ± 0.24 | 141.3 ± 0.07 | 141.4 ± 0.56 |
-| `update-entity-multi-view` | ms | 2.8 ± 0.41 | 146.6 ± 7.25 | 145.3 ± 8.21 |
-| `update-user-10000` | ms | 10.3 ± 0.82 | 246.0 ± 1.35 | 201.2 ± 0.75 |
-| `unshift-item` | ms | 3.5 ± 0.06 | 144.5 ± 0.38 | 139.7 ± 0.07 |
-| `delete-item` | ms | 3.2 ± 0.10 | 144.4 ± 0.11 | 139.9 ± 0.11 |
-| `move-item` | ms | 3.5 ± 0.13 | 156.4 ± 0.50 | 146.4 ± 0.05 |
+| `getlist-100` | ops/s | 11.20 ± 0.03 | 11.27 ± 0.02 | 11.43 ± 0.07 |
+| `getlist-500` | ops/s | 9.78 ± 0.12 | 10.01 ± 0.13 | 10.16 ± 0.13 |
+| `getlist-500-sorted` | ops/s | 9.82 ± 0.16 | 10.08 ± 0.13 | 10.21 ± 0.07 |
+| `list-detail-switch` | ops/s | 6.93 ± 1.02 | 1.45 ± 0.04 | 1.48 ± 0.08 |
+| `update-entity` | ops/s | 357.14 ± 11.48 | 7.01 ± 0.02 | 7.02 ± 0.02 |
+| `update-user` | ops/s | 333.33 ± 14.44 | 7.01 ± 0.02 | 7.17 ± 0.03 |
+| `update-entity-sorted` | ops/s | 312.50 ± 23.44 | 7.08 ± 0.00 | 7.07 ± 0.03 |
+| `update-entity-multi-view` | ops/s | 357.14 ± 52.30 | 6.82 ± 0.34 | 6.88 ± 0.39 |
+| `update-user-10000` | ops/s | 97.09 ± 7.73 | 4.07 ± 0.02 | 4.97 ± 0.02 |
+| `unshift-item` | ops/s | 285.71 ± 4.90 | 6.92 ± 0.02 | 7.16 ± 0.00 |
+| `delete-item` | ops/s | 312.50 ± 9.77 | 6.93 ± 0.01 | 7.15 ± 0.01 |
+| `move-item` | ops/s | 285.71 ± 10.61 | 6.39 ± 0.02 | 6.83 ± 0.00 |
 
 ## Expected variance
 
@@ -94,7 +94,7 @@ Regressions >5% on stable scenarios or >15% on volatile scenarios are worth inve
 
 ## Interpreting results
 
-- **Lower is better** for duration (ms), ref-stability counts, and heap delta (bytes).
+- **Higher is better** for throughput (ops/s). **Lower is better** for ref-stability counts and heap delta (bytes).
 - **Ref-stability:** data-client's normalized cache keeps referential equality for unchanged entities, so `issueRefChanged` and `userRefChanged` should stay low. Non-normalized libs typically show higher counts because they create new object references for every cache write.
 - **React commit:** Reported as `(react commit)` suffix entries. These measure React Profiler `actualDuration` and isolate React reconciliation cost from layout/paint.
 - **Report viewer:** Toggle the "Base metrics", "React commit", and "Trace" checkboxes to filter the comparison table. Use "Load history" to compare multiple runs over time.
@@ -193,7 +193,7 @@ Regressions >5% on stable scenarios or >15% on volatile scenarios are worth inve
 
 ## Output
 
-The runner prints a JSON array in `customSmallerIsBetter` format (name, unit, value, range) to stdout. In CI this is written to `react-bench-output.json` and sent to the benchmark action.
+The runner prints a JSON array in `customBiggerIsBetter` format (name, unit, value, range) to stdout. In CI this is written to `react-bench-output.json` and sent to the benchmark action.
 
 To view results locally, open `bench/report-viewer.html` in a browser and paste the JSON (or upload `react-bench-output.json`) to see a comparison table and bar chart.
 

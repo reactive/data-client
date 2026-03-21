@@ -34,7 +34,7 @@
     <label>Paste <code>react-bench-output.json</code> or upload:</label>
     <input type="file" id="file" accept=".json" />
     <br><br>
-    <textarea id="paste" placeholder='Paste JSON array here, e.g. [{"name":"data-client: mount-100-items","unit":"ms","value":12.5,"range":"± 1.2"}, ...]'></textarea>
+    <textarea id="paste" placeholder='Paste JSON array here, e.g. [{"name":"data-client: mount-100-items","unit":"ops/s","value":80.0,"range":"± 1.2"}, ...]'></textarea>
     <br>
     <div class="filter-row">
       <button id="render">Render table</button>
@@ -150,7 +150,7 @@
           var minV = Infinity, maxV = -Infinity;
           libList.forEach(function (lib) {
             var r = byLib[lib];
-            if (r && typeof r.value === 'number' && (r.unit === 'bytes' || r.unit === 'ms' || r.unit === 'count')) {
+            if (r && typeof r.value === 'number' && (r.unit === 'bytes' || r.unit === 'ops/s' || r.unit === 'ms' || r.unit === 'count')) {
               if (r.value < minV) minV = r.value;
               if (r.value > maxV) maxV = r.value;
             }
@@ -159,11 +159,15 @@
             var r = byLib[lib];
             if (!r) { cells.push('<td>\u2014</td>'); return; }
             var cls = '';
-            if (typeof r.value === 'number' && minV !== maxV && (r.unit === 'ms' || r.unit === 'bytes')) {
-              cls = r.value <= minV ? 'fast' : (r.value >= maxV ? 'slow' : '');
+            if (typeof r.value === 'number' && minV !== maxV) {
+              if (r.unit === 'ops/s') {
+                cls = r.value >= maxV ? 'fast' : (r.value <= minV ? 'slow' : '');
+              } else if (r.unit === 'ms' || r.unit === 'bytes') {
+                cls = r.value <= minV ? 'fast' : (r.value >= maxV ? 'slow' : '');
+              }
             }
             var range = r.range ? ' ' + r.range : '';
-            var unitLabel = r.unit === 'ms' ? ' ms' : r.unit === 'bytes' ? ' B' : '';
+            var unitLabel = r.unit === 'ops/s' ? ' ops/s' : r.unit === 'ms' ? ' ms' : r.unit === 'bytes' ? ' B' : '';
             cells.push('<td class="' + cls + '">' + (r.value != null ? Number(r.value) + unitLabel + range : '\u2014') + '</td>');
           });
           tbody += '<tr>' + cells.join('') + '</tr>';

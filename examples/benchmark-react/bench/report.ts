@@ -1,5 +1,5 @@
 /**
- * Format results as customSmallerIsBetter JSON for rhysd/github-action-benchmark.
+ * Format results as customBiggerIsBetter JSON for rhysd/github-action-benchmark.
  */
 export interface BenchmarkResult {
   name: string;
