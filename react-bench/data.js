@@ -38,12 +38,6 @@ window.BENCHMARK_DATA = {
             "unit": "ms"
           },
           {
-            "name": "data-client: update-single-entity",
-            "value": 5.6,
-            "range": "\u00b1 0.26",
-            "unit": "ms"
-          },
-          {
             "name": "data-client: ref-stability-issue-changed",
             "value": 5,
             "range": "\u00b1 0",
@@ -56,33 +50,9 @@ window.BENCHMARK_DATA = {
             "unit": "count"
           },
           {
-            "name": "data-client: update-shared-user-500-mounted",
-            "value": 6.6,
-            "range": "\u00b1 0.00",
-            "unit": "ms"
-          },
-          {
-            "name": "data-client: sorted-view-mount-500",
-            "value": 28.6,
-            "range": "\u00b1 1.86",
-            "unit": "ms"
-          },
-          {
-            "name": "data-client: sorted-view-update-entity",
-            "value": 6.2,
-            "range": "\u00b1 0.98",
-            "unit": "ms"
-          },
-          {
             "name": "data-client: list-detail-switch",
             "value": 89,
             "range": "\u00b1 0.20",
-            "unit": "ms"
-          },
-          {
-            "name": "data-client: update-shared-user-10000-mounted",
-            "value": 30.6,
-            "range": "\u00b1 4.80",
             "unit": "ms"
           },
           {
@@ -146,12 +116,6 @@ window.BENCHMARK_DATA = {
             "unit": "ms"
           },
           {
-            "name": "data-client: update-single-entity",
-            "value": 5.3,
-            "range": "\u00b1 0.47",
-            "unit": "ms"
-          },
-          {
             "name": "data-client: ref-stability-issue-changed",
             "value": 5,
             "range": "\u00b1 0",
@@ -164,33 +128,9 @@ window.BENCHMARK_DATA = {
             "unit": "count"
           },
           {
-            "name": "data-client: update-shared-user-500-mounted",
-            "value": 7.4,
-            "range": "\u00b1 0.39",
-            "unit": "ms"
-          },
-          {
-            "name": "data-client: sorted-view-mount-500",
-            "value": 26,
-            "range": "\u00b1 1.57",
-            "unit": "ms"
-          },
-          {
-            "name": "data-client: sorted-view-update-entity",
-            "value": 5.5,
-            "range": "\u00b1 0.1",
-            "unit": "ms"
-          },
-          {
             "name": "data-client: list-detail-switch",
             "value": 83.7,
             "range": "\u00b1 0.49",
-            "unit": "ms"
-          },
-          {
-            "name": "data-client: update-shared-user-10000-mounted",
-            "value": 26.4,
-            "range": "\u00b1 0.78",
             "unit": "ms"
           },
           {
@@ -254,12 +194,6 @@ window.BENCHMARK_DATA = {
             "unit": "ms"
           },
           {
-            "name": "data-client: update-single-entity",
-            "value": 5.9,
-            "range": "\u00b1 0.69",
-            "unit": "ms"
-          },
-          {
             "name": "data-client: ref-stability-issue-changed",
             "value": 5,
             "range": "\u00b1 0",
@@ -272,33 +206,9 @@ window.BENCHMARK_DATA = {
             "unit": "count"
           },
           {
-            "name": "data-client: update-shared-user-500-mounted",
-            "value": 6.5,
-            "range": "\u00b1 0.78",
-            "unit": "ms"
-          },
-          {
-            "name": "data-client: sorted-view-mount-500",
-            "value": 26.3,
-            "range": "\u00b1 0.98",
-            "unit": "ms"
-          },
-          {
-            "name": "data-client: sorted-view-update-entity",
-            "value": 6.7,
-            "range": "\u00b1 0.88",
-            "unit": "ms"
-          },
-          {
             "name": "data-client: list-detail-switch",
             "value": 84.6,
             "range": "\u00b1 1.08",
-            "unit": "ms"
-          },
-          {
-            "name": "data-client: update-shared-user-10000-mounted",
-            "value": 26.5,
-            "range": "\u00b1 1.37",
             "unit": "ms"
           },
           {
@@ -665,7 +575,7 @@ window.BENCHMARK_DATA = {
           },
           "distinct": true,
           "id": "655b42ec2fc529f46d04d16f098d25b6e4229786",
-          "message": "demo(benchmark-react): add multi-view entity update scenario (#3806)\n\n* demo(benchmark-react): add multi-view entity update scenario\n\nAdd `update-entity-multi-view` benchmark where the same issue entity\nis displayed across three structurally different component trees (list\nrow, detail panel, pinned card strip). A single entity update must\npropagate to all three views, exercising normalized cache cross-query\npropagation vs. multi-query invalidation + refetch.\n\nMade-with: Cursor\n\n* demo(benchmark-react): fix post-mount GC inflating data-client times\n\nRemove forced HeapProfiler.collectGarbage after pre-mount. The full GC\npromoted all recently-allocated entities into V8's old generation,\ncausing write-barrier overhead during the timed action that\ndisproportionately penalized data-client's CPU-bound optimistic updates\n(~1.8x inflation) while leaving network-bound libraries unaffected.\n\nAlso re-measure all scenarios and reorganize the README summary table\ninto Navigation / Mutations / Scaling categories.\n\nMade-with: Cursor\n\n* demo(benchmark-react): fix initMultiView double-setComplete race\n\nmeasureMount's MutationObserver called setComplete() (setting\ndata-bench-complete) as soon as list items appeared, before the\ndetail panel and pinned card views were ready. The runner could\nsee this premature signal, proceed to the timed update phase, and\nthen receive a stale second setComplete() — corrupting the\nmeasurement.\n\nRefactor measureMount to return a Promise and accept\n{ signalComplete: false } so initMultiView can suppress the\nearly completion signal and call setComplete() once after all\nthree views are ready.\n\nMade-with: Cursor",
+          "message": "demo(benchmark-react): add multi-view entity update scenario (#3806)\n\n* demo(benchmark-react): add multi-view entity update scenario\n\nAdd `update-entity-multi-view` benchmark where the same issue entity\nis displayed across three structurally different component trees (list\nrow, detail panel, pinned card strip). A single entity update must\npropagate to all three views, exercising normalized cache cross-query\npropagation vs. multi-query invalidation + refetch.\n\nMade-with: Cursor\n\n* demo(benchmark-react): fix post-mount GC inflating data-client times\n\nRemove forced HeapProfiler.collectGarbage after pre-mount. The full GC\npromoted all recently-allocated entities into V8's old generation,\ncausing write-barrier overhead during the timed action that\ndisproportionately penalized data-client's CPU-bound optimistic updates\n(~1.8x inflation) while leaving network-bound libraries unaffected.\n\nAlso re-measure all scenarios and reorganize the README summary table\ninto Navigation / Mutations / Scaling categories.\n\nMade-with: Cursor\n\n* demo(benchmark-react): fix initMultiView double-setComplete race\n\nmeasureMount's MutationObserver called setComplete() (setting\ndata-bench-complete) as soon as list items appeared, before the\ndetail panel and pinned card views were ready. The runner could\nsee this premature signal, proceed to the timed update phase, and\nthen receive a stale second setComplete() \u2014 corrupting the\nmeasurement.\n\nRefactor measureMount to return a Promise and accept\n{ signalComplete: false } so initMultiView can suppress the\nearly completion signal and call setComplete() once after all\nthree views are ready.\n\nMade-with: Cursor",
           "timestamp": "2026-03-21T15:49:17-04:00",
           "tree_id": "22ad1269a8920fd7acf0339019b75ee2dcebe997",
           "url": "https://github.com/reactive/data-client/commit/655b42ec2fc529f46d04d16f098d25b6e4229786"
@@ -676,91 +586,91 @@ window.BENCHMARK_DATA = {
           {
             "name": "data-client: getlist-100",
             "value": 17,
-            "range": "± 0.2",
+            "range": "\u00b1 0.2",
             "unit": "ms"
           },
           {
             "name": "data-client: getlist-500",
             "value": 42.6,
-            "range": "± 2.66",
+            "range": "\u00b1 2.66",
             "unit": "ms"
           },
           {
             "name": "data-client: update-entity",
             "value": 5.1,
-            "range": "± 0.51",
+            "range": "\u00b1 0.51",
             "unit": "ms"
           },
           {
             "name": "data-client: ref-stability-issue-changed",
             "value": 50,
-            "range": "± 0",
+            "range": "\u00b1 0",
             "unit": "count"
           },
           {
             "name": "data-client: ref-stability-user-changed",
             "value": 50,
-            "range": "± 0",
+            "range": "\u00b1 0",
             "unit": "count"
           },
           {
             "name": "data-client: update-user",
             "value": 6.2,
-            "range": "± 0.71",
+            "range": "\u00b1 0.71",
             "unit": "ms"
           },
           {
             "name": "data-client: getlist-500-sorted",
             "value": 43.9,
-            "range": "± 5.27",
+            "range": "\u00b1 5.27",
             "unit": "ms"
           },
           {
             "name": "data-client: update-entity-sorted",
             "value": 6.6,
-            "range": "± 1.05",
+            "range": "\u00b1 1.05",
             "unit": "ms"
           },
           {
             "name": "data-client: update-entity-multi-view",
             "value": 4.4,
-            "range": "± 0.69",
+            "range": "\u00b1 0.69",
             "unit": "ms"
           },
           {
             "name": "data-client: list-detail-switch",
             "value": 143.8,
-            "range": "± 22.22",
+            "range": "\u00b1 22.22",
             "unit": "ms"
           },
           {
             "name": "data-client: update-user-10000",
             "value": 47.4,
-            "range": "± 2.21",
+            "range": "\u00b1 2.21",
             "unit": "ms"
           },
           {
             "name": "data-client: invalidate-and-resolve",
             "value": 31.1,
-            "range": "± 0.6",
+            "range": "\u00b1 0.6",
             "unit": "ms"
           },
           {
             "name": "data-client: unshift-item",
             "value": 7,
-            "range": "± 0.9",
+            "range": "\u00b1 0.9",
             "unit": "ms"
           },
           {
             "name": "data-client: delete-item",
             "value": 6.2,
-            "range": "± 0.47",
+            "range": "\u00b1 0.47",
             "unit": "ms"
           },
           {
             "name": "data-client: move-item",
             "value": 6.5,
-            "range": "± 0.09",
+            "range": "\u00b1 0.09",
             "unit": "ms"
           }
         ]
