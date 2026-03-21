@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1774011570592,
+  "lastUpdate": 1774111305844,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -649,6 +649,114 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 5,
             "range": "± 0.62",
+            "unit": "ms"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "42114c89cde166f7715a3c776fd8c02b5fef292c",
+          "message": "demo(benchmark-react): replace react-window with renderLimit (#3803)\n\nDrop react-window in favor of plain keyed lists with a configurable\nrenderLimit that caps DOM rendering while keeping all data in the store.\nThis decouples store size from DOM pressure and lets React reconcile\nby key instead of index.\n\nAlso:\n- Rename scenarios for clarity (update-entity, update-user, etc.)\n- Increase default mountCount to 1000 for update/ref-stability scenarios\n- Make React Compiler the default build (opt-out with REACT_COMPILER=false)\n\nMade-with: Cursor",
+          "timestamp": "2026-03-21T12:39:15-04:00",
+          "tree_id": "81ad3ea0abee5aeafb07535e18258410a8cd971c",
+          "url": "https://github.com/reactive/data-client/commit/42114c89cde166f7715a3c776fd8c02b5fef292c"
+        },
+        "date": 1774111303061,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 17.2,
+            "range": "± 1.57",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 44.3,
+            "range": "± 2.35",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 4.1,
+            "range": "± 0.26",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: ref-stability-issue-changed",
+            "value": 50,
+            "range": "± 0",
+            "unit": "count"
+          },
+          {
+            "name": "data-client: ref-stability-user-changed",
+            "value": 50,
+            "range": "± 0",
+            "unit": "count"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 4.7,
+            "range": "± 0.39",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 39.7,
+            "range": "± 1.86",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 4.7,
+            "range": "± 0.39",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: list-detail-switch",
+            "value": 149.9,
+            "range": "± 27.82",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 21.5,
+            "range": "± 0.20",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 28.8,
+            "range": "± 1.33",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 5.3,
+            "range": "± 0.36",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 4.3,
+            "range": "± 0.13",
+            "unit": "ms"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 6,
+            "range": "± 0",
             "unit": "ms"
           }
         ]
