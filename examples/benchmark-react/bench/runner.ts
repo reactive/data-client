@@ -73,7 +73,8 @@ function filterScenarios(scenarios: Scenario[]): {
       s =>
         s.name.startsWith('data-client:') &&
         s.category !== 'memory' &&
-        s.category !== 'startup',
+        s.category !== 'startup' &&
+        !s.deterministic,
     );
   } else if (
     !actions ||
@@ -665,6 +666,7 @@ async function main() {
     );
   }
   process.stderr.write('\n');
+
   process.stdout.write(formatReport(report));
 }
 
