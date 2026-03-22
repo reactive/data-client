@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1774142524433,
+  "lastUpdate": 1774147717699,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -203,6 +203,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 144.93,
             "range": "± 2.62",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ee441c65a86fa5a8528aa00f810b567bd643974d",
+          "message": "demo(benchmark-react): add baseline framework for raw React comparison (#3809)\n\n* demo(benchmark-react): add baseline framework for raw React comparison\n\nAdd a \"baseline\" framework that uses only React primitives (useState +\nuseEffect) with zero global caching. Each component independently\nfetches its own data, providing a true zero-library comparison point\nfor all existing benchmark scenarios.\n\nMade-with: Cursor\n\n* docs: Update readme with results",
+          "timestamp": "2026-03-21T22:45:56-04:00",
+          "tree_id": "f0b3c9bd4fb2dc9a042cdba7fe8ae80ab5e2a12f",
+          "url": "https://github.com/reactive/data-client/commit/ee441c65a86fa5a8528aa00f810b567bd643974d"
+        },
+        "date": 1774147715437,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 57.14,
+            "range": "± 0.21",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 26.25,
+            "range": "± 0.43",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 217.39,
+            "range": "± 2.62",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 156.25,
+            "range": "± 12.54",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 22.68,
+            "range": "± 1.77",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 188.68,
+            "range": "± 17.31",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 238.1,
+            "range": "± 36.8",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 6.35,
+            "range": "± 1.18",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 20.62,
+            "range": "± 0.23",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 31.85,
+            "range": "± 1.01",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 169.49,
+            "range": "± 19.46",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 158.73,
+            "range": "± 1.67",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 149.25,
+            "range": "± 8.97",
             "unit": "ops/s"
           }
         ]
