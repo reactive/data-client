@@ -13,7 +13,7 @@ The repo has two benchmark suites:
 
 - **What we measure:** Wall-clock time from triggering an action (e.g. `init(100)` or `updateUser('user0')`) until a MutationObserver detects the expected DOM change in the benchmark container. Optionally we also record React Profiler commit duration and, with `BENCH_TRACE=true`, Chrome trace duration.
 - **Why:** Normalized caching should show wins on shared-entity updates (one store write, many components update), ref stability (fewer new object references), and derived-view memoization (`Query` schema avoids re-sorting when entities haven't changed). See [js-framework-benchmark "How the duration is measured"](https://github.com/krausest/js-framework-benchmark/wiki/How-the-duration-is-measured) for a similar timeline-based approach.
-- **Statistical:** Warmup runs are discarded; we report median and 95% CI (as percentage of median). Libraries are interleaved per round to reduce environmental variance. Each round runs 5 sub-iterations per page visit and reports the median, further reducing per-sample noise.
+- **Statistical:** Warmup runs are discarded; we report median and 95% CI (as percentage of median). Libraries are interleaved per round to reduce environmental variance. Each round runs multiple sub-iterations per page visit and reports the median, further reducing per-sample noise. The default is 5 sub-iterations; individual scenarios can override this via `opsPerRound` in `bench/scenarios.ts` (e.g. `update-entity-sorted` uses 9, `list-detail-switch-10` uses 5).
 - **No CPU throttling:** Runs at native speed with more samples for statistical significance rather than artificial slowdown. Small (cheap) scenarios use 2 warmup + up to 12 measurement rounds locally; large (expensive) scenarios use 1 warmup + up to 6 measurement rounds. Early stopping triggers when 95% CI margin drops below the target percentage.
 
 ## Scenario categories
@@ -55,9 +55,9 @@ Illustrative **relative** results with **baseline = 100%** (plain React useState
 
 | Category | Scenarios (representative) | data-client | tanstack-query | swr | baseline |
 |---|---|---:|---:|---:|---:|
-| Navigation | `getlist-100`, `getlist-500`, `getlist-500-sorted` | ~98% | ~100% | ~100% | **100%** |
-| Navigation | `list-detail-switch-10` | **~1354%** | ~233% | ~260% | 100% |
-| Mutations | `update-entity`, `update-user`, `update-entity-sorted`, `update-entity-multi-view`, `unshift-item`, `delete-item`, `move-item` | **~6778%** | ~97% | ~99% | 100% |
+| Navigation | `getlist-100`, `getlist-500`, `getlist-500-sorted` | ~97% | ~100% | ~100% | **100%** |
+| Navigation | `list-detail-switch-10` | **~1652%** | ~231% | ~230% | 100% |
+| Mutations | `update-entity`, `update-user`, `update-entity-sorted`, `update-entity-multi-view`, `unshift-item`, `delete-item`, `move-item` | **~6994%** | ~97% | ~99% | 100% |
 | Scaling (10k items) | `update-user-10000` | **~9713%** | ~94% | ~100% | 100% |
 
 
@@ -70,19 +70,19 @@ Run: **2026-03-22**, Linux (WSL2), `yarn build:benchmark-react`, static preview 
 | Scenario | data-client | tanstack-query | swr | baseline |
 |---|---:|---:|---:|---:|
 | **Navigation** | | | | |
-| `getlist-100` | 20.28 ± 0.3% | 20.58 ± 1.2% | 20.58 ± 0.3% | 20.62 ± 0.3% |
-| `getlist-500` | 12.41 ± 0.4% | 12.61 ± 0.2% | 12.59 ± 0.2% | 12.63 ± 0.2% |
-| `getlist-500-sorted` | 12.55 ± 0.2% | 12.67 ± 1.3% | 12.72 ± 0.4% | 12.79 ± 0.4% |
-| `list-detail-switch-10` | 9.75 ± 1.7% | 1.68 ± 0.2% | 1.87 ± 0.9% | 0.72 ± 0.0% |
+| `getlist-100` | 20.16 ± 0.7% | 20.58 ± 0.8% | 20.58 ± 0.8% | 20.58 ± 0.0% |
+| `getlist-500` | 12.05 ± 0.9% | 12.55 ± 0.0% | 12.61 ± 0.9% | 12.69 ± 1.4% |
+| `getlist-500-sorted` | 12.56 ± 1.4% | 12.72 ± 0.5% | 12.79 ± 0.9% | 12.80 ± 1.4% |
+| `list-detail-switch-10` | 12.06 ± 12.5% | 1.69 ± 1.0% | 1.68 ± 1.1% | 0.73 ± 0.1% |
 | **Mutations** | | | | |
-| `update-entity` | 555.56 ± 2.9% | 7.00 ± 0.3% | 6.98 ± 0.1% | 7.18 ± 0.2% |
-| `update-user` | 625.00 ± 11.2% | 6.95 ± 0.1% | 7.15 ± 0.2% | 7.17 ± 0.2% |
-| `update-entity-sorted` | 476.19 ± 0.0% | 7.06 ± 0.3% | 7.06 ± 0.0% | 7.24 ± 0.0% |
-| `update-entity-multi-view` | 500.00 ± 3.4% | 7.05 ± 0.2% | 7.09 ± 0.1% | 7.25 ± 0.1% |
-| `update-user-10000` | 151.52 ± 2.8% | 1.47 ± 0.0% | 1.56 ± 0.1% | 1.56 ± 0.3% |
-| `unshift-item` | 434.78 ± 6.1% | 6.91 ± 0.2% | 7.13 ± 0.2% | 7.15 ± 0.3% |
-| `delete-item` | 526.32 ± 2.7% | 6.89 ± 0.0% | 7.13 ± 0.4% | 7.12 ± 0.0% |
-| `move-item` | 277.78 ± 3.9% | 6.52 ± 0.2% | 6.98 ± 0.6% | 6.87 ± 0.2% |
+| `update-entity` | 555.56 ± 8.4% | 6.99 ± 0.3% | 6.99 ± 0.3% | 7.17 ± 0.3% |
+| `update-user` | 571.90 ± 12.8% | 6.94 ± 0.5% | 7.18 ± 0.0% | 7.16 ± 0.0% |
+| `update-entity-sorted` | 588.24 ± 8.0% | 7.10 ± 0.3% | 7.09 ± 0.4% | 7.28 ± 0.0% |
+| `update-entity-multi-view` | 555.56 ± 0.0% | 7.06 ± 0.3% | 7.08 ± 0.3% | 7.26 ± 0.2% |
+| `update-user-10000` | 151.52 ± 10.8% | 1.46 ± 0.5% | 1.56 ± 0.2% | 1.56 ± 1.3% |
+| `unshift-item` | 425.72 ± 5.0% | 6.90 ± 0.1% | 7.13 ± 0.3% | 7.14 ± 0.3% |
+| `delete-item` | 526.32 ± 7.2% | 6.89 ± 0.3% | 7.13 ± 0.5% | 7.12 ± 1.0% |
+| `move-item` | 285.71 ± 4.0% | 6.55 ± 0.5% | 6.99 ± 0.5% | 6.92 ± 0.8% |
 
 [Measured on a Ryzen 9 7950X; 64 GB RAM; Ubuntu (WSL2); Node 24.12.0; Chromium (Playwright)]
 
@@ -90,8 +90,8 @@ Run: **2026-03-22**, Linux (WSL2), `yarn build:benchmark-react`, static preview 
 
 | Category | Scenarios | Typical run-to-run spread |
 |---|---|---|
-| **Stable** | `getlist-*`, `update-entity`, `ref-stability-*` | 2-5% |
-| **Moderate** | `update-user-*`, `update-entity-sorted`, `update-entity-multi-view` | 5-10% |
+| **Stable** | `getlist-*`, `update-entity`, `update-entity-sorted`, `ref-stability-*` | 2-5% |
+| **Moderate** | `update-user-*`, `update-entity-multi-view`, `list-detail-switch-10` | 5-10% |
 | **Volatile** | `memory-mount-unmount-cycle`, `startup-*`, `(react commit)` suffixes | 10-25% |
 
 Regressions >5% on stable scenarios or >15% on volatile scenarios are worth investigating.

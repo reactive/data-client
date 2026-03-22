@@ -178,7 +178,6 @@ async function runScenario(
   lib: string,
   scenario: Scenario,
   networkSim: boolean,
-  cdp?: CDPSession,
 ): Promise<ScenarioResult> {
   const appPath = `/${lib}/`;
   await page.goto(`${BASE_URL}${appPath}`, {
@@ -394,9 +393,11 @@ async function runScenario(
       });
     }
 
-    // Execute action (vary args for deleteEntity across sub-iterations)
+    // Vary args for deleteEntity so each sub-iteration deletes a different item
     const actionArgs =
-      scenario.action === 'deleteEntity' ? [subIdx + 1] : scenario.args;
+      scenario.action === 'deleteEntity' ?
+        [Math.min(subIdx + 1, mountCount)]
+      : scenario.args;
     await (bench as any).evaluate(
       (api: any, { action, args }: { action: string; args: unknown[] }) => {
         api[action](...args);
@@ -469,8 +470,9 @@ async function runScenario(
 function effectiveOpsPerRound(scenario: Scenario): number {
   if (scenario.deterministic) return 1;
   if (scenario.category === 'memory') return 1;
-  if (scenario.action === 'listDetailSwitch') return 1;
-  return RUN_CONFIG[scenario.size ?? 'small'].opsPerRound;
+  return (
+    scenario.opsPerRound ?? RUN_CONFIG[scenario.size ?? 'small'].opsPerRound
+  );
 }
 
 function simpleMedian(arr: number[]): number {
@@ -550,7 +552,7 @@ async function runRound(
       done++;
       const prefix = opts.showProgress ? `[${done}/${total}] ` : '';
       try {
-        const result = await runScenario(page, lib, scenario, networkSim, cdp);
+        const result = await runScenario(page, lib, scenario, networkSim);
         recordResult(samples, scenario, result);
         const unit = scenarioUnit(scenario);
         const displayValue =

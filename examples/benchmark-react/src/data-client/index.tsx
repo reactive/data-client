@@ -29,7 +29,7 @@ import {
   IssueResource,
   sortedIssuesEndpoint,
 } from '@shared/resources';
-import { getIssue, patchIssue } from '@shared/server';
+import { patchIssue } from '@shared/server';
 import type { Issue } from '@shared/types';
 import React, { useCallback, useRef } from 'react';
 
@@ -222,10 +222,11 @@ function BenchmarkHarness() {
 
   const invalidateAndResolve = useCallback(
     async (number: number) => {
-      const issue = await getIssue(number);
-      if (issue) {
-        await patchIssue(number, { title: `${issue.title} (refetched)` });
-      }
+      const issue = FIXTURE_ISSUES_BY_NUMBER.get(number);
+      if (!issue) return;
+      const v = ++mutationCounter;
+      const expected = `${issue.title} (v${v})`;
+      await patchIssue(number, { title: expected });
       measureUpdate(
         () => {
           if (doubleListCount != null) {
@@ -243,7 +244,7 @@ function BenchmarkHarness() {
           const el = containerRef.current!.querySelector(
             `[data-issue-number="${number}"] [data-title]`,
           );
-          return el?.textContent?.includes('(refetched)') ?? false;
+          return el?.textContent === expected;
         },
       );
     },

@@ -123,6 +123,7 @@ const BASE_SCENARIOS: BaseScenario[] = [
     renderLimit: 100,
     preMountAction: 'mountSortedView',
     size: 'large',
+    opsPerRound: 9,
   },
   {
     nameSuffix: 'update-entity-multi-view',
@@ -141,6 +142,7 @@ const BASE_SCENARIOS: BaseScenario[] = [
     category: 'hotPath',
     size: 'large',
     renderLimit: 100,
+    opsPerRound: 5,
   },
   {
     nameSuffix: 'update-user-10000',

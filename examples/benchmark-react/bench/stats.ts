@@ -1,4 +1,51 @@
 /**
+ * Two-tailed t critical values for 95% CI (α = 0.05) keyed by
+ * degrees of freedom. Falls back to z = 1.96 for df > 30.
+ */
+const T_CRIT_95: Record<number, number> = {
+  1: 12.706,
+  2: 4.303,
+  3: 3.182,
+  4: 2.776,
+  5: 2.571,
+  6: 2.447,
+  7: 2.365,
+  8: 2.306,
+  9: 2.262,
+  10: 2.228,
+  11: 2.201,
+  12: 2.179,
+  13: 2.16,
+  14: 2.145,
+  15: 2.131,
+  20: 2.086,
+  25: 2.06,
+  30: 2.042,
+};
+
+function tCrit95(n: number): number {
+  const df = n - 1;
+  if (df <= 0) return 1.96;
+  if (df in T_CRIT_95) return T_CRIT_95[df];
+  const keys = Object.keys(T_CRIT_95)
+    .map(Number)
+    .sort((a, b) => a - b);
+  const lower = keys.filter(k => k <= df).pop();
+  const upper = keys.find(k => k >= df);
+  if (lower == null) return T_CRIT_95[keys[0]];
+  if (upper == null || lower === upper) return T_CRIT_95[lower];
+  const frac = (df - lower) / (upper - lower);
+  return T_CRIT_95[lower] + frac * (T_CRIT_95[upper] - T_CRIT_95[lower]);
+}
+
+function sortedMedian(sorted: number[]): number {
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 0 ?
+      (sorted[mid - 1] + sorted[mid]) / 2
+    : sorted[mid];
+}
+
+/**
  * Remove outliers using the IQR method (1.5×IQR fence).
  * Input must be sorted ascending. Falls back to the full array when
  * there are fewer than 4 samples or the IQR is zero.
@@ -21,38 +68,35 @@ function trimOutliers(sorted: number[]): number[] {
  * stddev for normal distributions.
  */
 function scaledMAD(sorted: number[]): number {
-  const median = sorted[Math.floor(sorted.length / 2)];
-  const deviations = sorted
-    .map(x => Math.abs(x - median))
-    .sort((a, b) => a - b);
-  const mad = deviations[Math.floor(deviations.length / 2)];
-  return 1.4826 * mad;
+  const med = sortedMedian(sorted);
+  const deviations = sorted.map(x => Math.abs(x - med)).sort((a, b) => a - b);
+  return 1.4826 * sortedMedian(deviations);
 }
 
 /**
- * Compute the 95% CI margin using MAD-based dispersion.
- * Falls back to stddev when MAD is zero (all values identical
- * except outliers) to avoid reporting ± 0 misleadingly.
+ * Compute the 95% CI margin using MAD-based dispersion and t-distribution
+ * critical values for small samples. Falls back to stddev when MAD is zero
+ * (all values identical except outliers) to avoid reporting ± 0 misleadingly.
  */
 function ciMargin(clean: number[]): number {
+  if (clean.length < 2) return 0;
+  const t = tCrit95(clean.length);
   const mad = scaledMAD(clean);
   if (mad > 0) {
-    return 1.96 * (mad / Math.sqrt(clean.length));
+    return t * (mad / Math.sqrt(clean.length));
   }
   const mean = clean.reduce((sum, x) => sum + x, 0) / clean.length;
-  const stdDev =
-    clean.length > 1 ?
-      Math.sqrt(
-        clean.reduce((sum, x) => sum + (x - mean) ** 2, 0) / (clean.length - 1),
-      )
-    : 0;
-  return 1.96 * (stdDev / Math.sqrt(clean.length));
+  const stdDev = Math.sqrt(
+    clean.reduce((sum, x) => sum + (x - mean) ** 2, 0) / (clean.length - 1),
+  );
+  return t * (stdDev / Math.sqrt(clean.length));
 }
 
 /**
  * Check whether a scenario's samples have converged: 95% CI margin
  * is within targetMarginPct of the median.  Zero-variance metrics
- * (e.g. ref-stability counts) converge after minSamples.
+ * (e.g. ref-stability counts) converge after minSamples only when
+ * the margin is also zero.
  *
  * Outliers are trimmed via IQR before computing the CI so that a
  * single GC spike doesn't prevent convergence.
@@ -67,9 +111,9 @@ export function isConverged(
   if (measured.length < minSamples) return false;
   const sorted = [...measured].sort((a, b) => a - b);
   const clean = trimOutliers(sorted);
-  const median = clean[Math.floor(clean.length / 2)];
-  if (median === 0) return true;
+  const median = sortedMedian(clean);
   const margin = ciMargin(clean);
+  if (median === 0) return margin === 0;
   return (margin / Math.abs(median)) * 100 <= targetMarginPct;
 }
 
@@ -93,7 +137,7 @@ export function computeStats(
   }
   const sorted = [...measured].sort((a, b) => a - b);
   const clean = trimOutliers(sorted);
-  const median = clean[Math.floor(clean.length / 2)] ?? 0;
+  const median = sortedMedian(clean);
   const p95Idx = Math.floor(sorted.length * 0.95);
   const p95 = sorted[Math.min(p95Idx, sorted.length - 1)] ?? median;
   const margin = ciMargin(clean);

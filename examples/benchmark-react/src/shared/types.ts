@@ -153,6 +153,8 @@ export interface Scenario {
   preMountAction?: keyof BenchAPI;
   /** Result is deterministic (zero variance); run exactly once with no warmup. */
   deterministic?: boolean;
+  /** Override the default sub-iterations per page visit for this scenario. */
+  opsPerRound?: number;
   /** Cap DOM rendering to first N items while keeping all data in the store. */
   renderLimit?: number;
   /** If set, scenario applies only to these libs; dropped when any selected library is not listed. */
