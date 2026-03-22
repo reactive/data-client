@@ -187,19 +187,19 @@ test('updateEntity changes issue title in DOM', async (page, lib) => {
 
   await waitFor(
     page,
-    async () => (await getIssueTitles(page))[1]?.includes('(updated)') ?? false,
-    'issue #1 title contains "(updated)"',
+    async () => (await getIssueTitles(page))[1]?.includes('(v') ?? false,
+    'issue #1 title contains "(v"',
   );
 
   const titles = await getIssueTitles(page);
   assert(
-    titles[1]?.includes('(updated)'),
+    titles[1]?.includes('(v'),
     lib,
     'updateEntity',
-    `issue #1 should contain "(updated)", got "${titles[1]}"`,
+    `issue #1 should contain "(v…)", got "${titles[1]}"`,
   );
   assert(
-    !titles[2]?.includes('(updated)'),
+    !titles[2]?.includes('(v'),
     lib,
     'updateEntity unchanged',
     `issue #2 should be unchanged, got "${titles[2]}"`,
@@ -239,7 +239,7 @@ test('ref-stability after updateEntity', async (page, lib) => {
 
   await waitFor(
     page,
-    async () => (await getIssueTitles(page))[1]?.includes('(updated)') ?? false,
+    async () => (await getIssueTitles(page))[1]?.includes('(v') ?? false,
     'issue #1 title updated before ref check',
   );
 
@@ -552,7 +552,7 @@ test('updateEntity timing: DOM reflects change at measurement end', async (page,
 
   const titles = await getIssueTitles(page);
   assert(
-    titles[1]?.includes('(updated)') ?? false,
+    titles[1]?.includes('(v') ?? false,
     lib,
     'updateEntity timing',
     `DOM not updated when data-bench-complete fired. ` +
