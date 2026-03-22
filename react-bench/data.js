@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1774182631536,
+  "lastUpdate": 1774216941687,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -407,6 +407,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 156.25,
             "range": "± 6.86",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6b79752a4cafff738e7e3af5e9938d405aaa5d25",
+          "message": "demo(benchmark-react): reduce variance with in-page sub-iterations (#3811)\n\n* demo(benchmark-react): reduce CI benchmark variance below ±10\n\n- Increase warmup and measurement iterations for CI (small: 5+25, large: 3+20)\n- Tighten convergence targets (small: 5%, large: 8%)\n- Switch from stddev to MAD-based CI margin for robustness against outliers\n- Increase inter-scenario GC settle time from 50ms to 200ms\n\nMade-with: Cursor\n\n* demo(benchmark-react): add in-page sub-iterations and reduce variance\n\n- Run multiple ops per page visit (default 5), returning the median\n  duration as one sample. Eliminates page-navigation overhead between\n  measurements and dramatically reduces variance.\n- Add resetStore() to BenchAPI for clearing caches between mount\n  sub-iterations (data-client, tanstack-query, swr).\n- Vary mutation data each sub-iteration (incrementing counter for\n  titles, toggling moveItem direction) to ensure real DOM changes.\n- Add waitForPaint between mutation sub-iterations to prevent\n  server-resolution renders from bleeding into the next measurement.\n- Report variance as percentage instead of absolute values.\n- Reduce warmup/minMeasurement counts since sub-iterations provide\n  sufficient noise reduction.\n- Fix SWR mount sub-iterations: add revalidateOnMount + dedupingInterval: 0\n  to ensure fresh fetches after cache.clear().\n- Update README with latest results showing ~6778% mutation throughput\n  advantage for data-client (up from ~4442% with more accurate measurement).\n\nMade-with: Cursor\n\n* fix: bugbot\n\n* demo(benchmark-react): reduce warmup/measurement counts for faster CI\n\nWith 5 sub-iterations per round providing sufficient noise reduction,\nlower warmup (small: 3→2, large: 2→1) and max measurement caps\n(small CI: 20→15, large CI: 15→12) to cut ~30-40s from CI runtime.\n\nMade-with: Cursor\n\n* Fix benchmark range format for single sample\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n* demo(benchmark-react): fix stats bugs and add per-scenario opsPerRound\n\n- Replace z=1.96 with t-distribution critical values for accurate CI\n  on small samples (n=3-15)\n- Fix even-length median calculation in scaledMAD/isConverged/computeStats\n- Fix median===0 premature convergence (now requires margin===0 too)\n- Fix invalidateAndResolve title accumulation bug using fixture data\n- Clamp deleteEntity sub-iteration args to mountCount bound\n- Remove dead cdp parameter from runScenario\n- Add per-scenario opsPerRound override to Scenario type\n- Set opsPerRound=9 for update-entity-sorted, =5 for list-detail-switch-10\n- Update README with remeasured results and variance tiers\n\nMade-with: Cursor\n\n---------\n\nCo-authored-by: Cursor Agent <cursoragent@cursor.com>",
+          "timestamp": "2026-03-22T17:58:32-04:00",
+          "tree_id": "a9437cb1732c7fd22fc8a0c1c593c9376a03aa0b",
+          "url": "https://github.com/reactive/data-client/commit/6b79752a4cafff738e7e3af5e9938d405aaa5d25"
+        },
+        "date": 1774216938920,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 129.89,
+            "range": "± 4.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 31.95,
+            "range": "± 3.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 357.14,
+            "range": "± 4.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 339.08,
+            "range": "± 4.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 36.23,
+            "range": "± 7.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 333.33,
+            "range": "± 5.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 357.14,
+            "range": "± 0.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 10,
+            "range": "± 5.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 90.09,
+            "range": "± 3.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 40.98,
+            "range": "± 4.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 241,
+            "range": "± 2.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 277.78,
+            "range": "± 3.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 168.17,
+            "range": "± 4.5%",
             "unit": "ops/s"
           }
         ]
