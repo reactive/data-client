@@ -21,16 +21,16 @@ const defaultOpsPerRound = parseInt(process.env.BENCH_OPS_PER_ROUND ?? '5', 10);
 
 export const RUN_CONFIG: Record<ScenarioSize, RunProfile> = {
   small: {
-    warmup: 3,
-    minMeasurement: 4,
-    maxMeasurement: process.env.CI ? 20 : 15,
+    warmup: 2,
+    minMeasurement: 3,
+    maxMeasurement: process.env.CI ? 15 : 12,
     targetMarginPct: process.env.CI ? 5 : 10,
     opsPerRound: defaultOpsPerRound,
   },
   large: {
-    warmup: 2,
+    warmup: 1,
     minMeasurement: 3,
-    maxMeasurement: process.env.CI ? 15 : 8,
+    maxMeasurement: process.env.CI ? 12 : 6,
     targetMarginPct: process.env.CI ? 8 : 15,
     opsPerRound: defaultOpsPerRound,
   },

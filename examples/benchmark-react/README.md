@@ -14,7 +14,7 @@ The repo has two benchmark suites:
 - **What we measure:** Wall-clock time from triggering an action (e.g. `init(100)` or `updateUser('user0')`) until a MutationObserver detects the expected DOM change in the benchmark container. Optionally we also record React Profiler commit duration and, with `BENCH_TRACE=true`, Chrome trace duration.
 - **Why:** Normalized caching should show wins on shared-entity updates (one store write, many components update), ref stability (fewer new object references), and derived-view memoization (`Query` schema avoids re-sorting when entities haven't changed). See [js-framework-benchmark "How the duration is measured"](https://github.com/krausest/js-framework-benchmark/wiki/How-the-duration-is-measured) for a similar timeline-based approach.
 - **Statistical:** Warmup runs are discarded; we report median and 95% CI (as percentage of median). Libraries are interleaved per round to reduce environmental variance. Each round runs 5 sub-iterations per page visit and reports the median, further reducing per-sample noise.
-- **No CPU throttling:** Runs at native speed with more samples for statistical significance rather than artificial slowdown. Small (cheap) scenarios use 3 warmup + up to 15 measurement rounds locally; large (expensive) scenarios use 2 warmup + up to 8 measurement rounds. Early stopping triggers when 95% CI margin drops below the target percentage.
+- **No CPU throttling:** Runs at native speed with more samples for statistical significance rather than artificial slowdown. Small (cheap) scenarios use 2 warmup + up to 12 measurement rounds locally; large (expensive) scenarios use 1 warmup + up to 6 measurement rounds. Early stopping triggers when 95% CI margin drops below the target percentage.
 
 ## Scenario categories
 
@@ -189,8 +189,8 @@ Regressions >5% on stable scenarios or >15% on volatile scenarios are worth inve
 
    Scenarios are classified as `small` or `large` based on their cost:
 
-   - **Small** (3 warmup + 4–15 measurement): `getlist-100`, `update-entity`, `ref-stability-*`, `invalidate-and-resolve`, `unshift-item`, `delete-item`
-   - **Large** (2 warmup + 3–8 measurement): `getlist-500`, `getlist-500-sorted`, `update-user`, `update-user-10000`, `update-entity-sorted`, `update-entity-multi-view`, `list-detail-switch-10`
+   - **Small** (2 warmup + 3–12 measurement): `getlist-100`, `update-entity`, `ref-stability-*`, `invalidate-and-resolve`, `unshift-item`, `delete-item`
+   - **Large** (1 warmup + 3–6 measurement): `getlist-500`, `getlist-500-sorted`, `update-user`, `update-user-10000`, `update-entity-sorted`, `update-entity-multi-view`, `list-detail-switch-10`
    - **Memory** (opt-in, 1 warmup + 3 measurement): `memory-mount-unmount-cycle` — run with `--action memory`
 
    When running all scenarios (`yarn bench`), each group runs with its own warmup/measurement count. Use `--size` to run only one group.
