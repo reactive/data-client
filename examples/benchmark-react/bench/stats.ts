@@ -89,7 +89,7 @@ export function computeStats(
   const measured = samples.slice(warmupCount);
   if (measured.length <= 1) {
     const v = measured[0] ?? 0;
-    return { median: v, p95: v, range: '± 0' };
+    return { median: v, p95: v, range: '± 0.0%' };
   }
   const sorted = [...measured].sort((a, b) => a - b);
   const clean = trimOutliers(sorted);
