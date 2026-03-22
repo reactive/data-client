@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1774147717699,
+  "lastUpdate": 1774182631536,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -305,6 +305,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 149.25,
             "range": "± 8.97",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2c98dde3d1522f78cdbd44cc55183cc89f46563f",
+          "message": "demo(benchmark-react): Use response-size-based network simulation delays (#3810)\n\nReplace fixed per-method network delays with a formula: 40ms base latency +\n2ms per record in the response. This more realistically models how network\ntime scales with payload size, naturally penalizing large list refetches\nrelative to normalized cache propagation.\n\nMade-with: Cursor",
+          "timestamp": "2026-03-22T08:27:40-04:00",
+          "tree_id": "c8691579da839bd3b126f25723780720b191d992",
+          "url": "https://github.com/reactive/data-client/commit/2c98dde3d1522f78cdbd44cc55183cc89f46563f"
+        },
+        "date": 1774182629218,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 58.48,
+            "range": "± 3.38",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 24.94,
+            "range": "± 2.97",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 178.57,
+            "range": "± 22.9",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 200,
+            "range": "± 25.67",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 26.32,
+            "range": "± 2.99",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 172.41,
+            "range": "± 21.34",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 208.33,
+            "range": "± 19.07",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 7.42,
+            "range": "± 1.14",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 20.96,
+            "range": "± 0.17",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 32.57,
+            "range": "± 1.03",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 163.93,
+            "range": "± 4.59",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 166.67,
+            "range": "± 10.57",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 156.25,
+            "range": "± 6.86",
             "unit": "ops/s"
           }
         ]
